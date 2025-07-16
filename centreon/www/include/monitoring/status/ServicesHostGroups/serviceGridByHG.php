@@ -32,16 +32,16 @@
  * For more information : contact@centreon.com
  */
 
-if (!isset($oreon)) {
+if (! isset($oreon)) {
     exit();
 }
 
-include("./include/common/autoNumLimit.php");
+include './include/common/autoNumLimit.php';
 
-$sort_type = isset($_GET['sort_type']) ? \HtmlAnalyzer::sanitizeAndRemoveTags($_GET['sort_type']) : 'alias';
-$hgSearch = isset($_GET['hg_search']) ? \HtmlAnalyzer::sanitizeAndRemoveTags($_GET['hg_search']) : '';
-$search = isset($_GET['search']) ? \HtmlAnalyzer::sanitizeAndRemoveTags($_GET['search']) : '';
-$order = isset($_GET['order']) && $_GET['order'] === "DESC" ? "DESC" : "ASC";
+$sort_type = isset($_GET['sort_type']) ? HtmlAnalyzer::sanitizeAndRemoveTags($_GET['sort_type']) : 'alias';
+$hgSearch = isset($_GET['hg_search']) ? HtmlAnalyzer::sanitizeAndRemoveTags($_GET['hg_search']) : '';
+$search = isset($_GET['search']) ? HtmlAnalyzer::sanitizeAndRemoveTags($_GET['search']) : '';
+$order = isset($_GET['order']) && $_GET['order'] === 'DESC' ? 'DESC' : 'ASC';
 $num = filter_input(INPUT_GET, 'num', FILTER_VALIDATE_INT, ['options' => ['default' => 0]]);
 $limit = filter_input(INPUT_GET, 'limit', FILTER_VALIDATE_INT, ['options' => ['default' => 30]]);
 
@@ -51,39 +51,39 @@ if (isset($hostgroup)) {
     $centreon->historySearch[$hostgroup] = $hgSearch;
 }
 
-$tab_class = ["0" => "list_one", "1" => "list_two"];
+$tab_class = ['0' => 'list_one', '1' => 'list_two'];
 $rows = 10;
 
-include_once("./include/monitoring/status/Common/default_poller.php");
-include_once("./include/monitoring/status/Common/default_hostgroups.php");
-include_once($hg_path . "serviceGridByHGJS.php");
+include_once './include/monitoring/status/Common/default_poller.php';
+include_once './include/monitoring/status/Common/default_hostgroups.php';
+include_once $hg_path . 'serviceGridByHGJS.php';
 
 // Smarty template initialization
 $tpl = SmartyBC::createSmartyTemplate($hg_path, '/templates/');
 
-$tpl->assign("p", $p);
+$tpl->assign('p', $p);
 $tpl->assign('o', $o);
-$tpl->assign("sort_types", $sort_type);
-$tpl->assign("num", $num);
-$tpl->assign("limit", $limit);
-$tpl->assign("mon_host", _("Hosts"));
-$tpl->assign("mon_status", _("Status"));
-$tpl->assign("typeDisplay", _("Display"));
-$tpl->assign("typeDisplay2", _("Display details"));
-$tpl->assign("mon_ip", _("IP"));
-$tpl->assign("mon_last_check", _("Last Check"));
-$tpl->assign("mon_duration", _("Duration"));
-$tpl->assign("mon_status_information", _("Status information"));
+$tpl->assign('sort_types', $sort_type);
+$tpl->assign('num', $num);
+$tpl->assign('limit', $limit);
+$tpl->assign('mon_host', _('Hosts'));
+$tpl->assign('mon_status', _('Status'));
+$tpl->assign('typeDisplay', _('Display'));
+$tpl->assign('typeDisplay2', _('Display details'));
+$tpl->assign('mon_ip', _('IP'));
+$tpl->assign('mon_last_check', _('Last Check'));
+$tpl->assign('mon_duration', _('Duration'));
+$tpl->assign('mon_status_information', _('Status information'));
 $tpl->assign('search', _('Search'));
 $tpl->assign('pollerStr', _('Poller'));
 $tpl->assign('poller_listing', $oreon->user->access->checkAction('poller_listing'));
 $tpl->assign('hgStr', _('Hostgroup'));
 
-$form = new HTML_QuickFormCustom('select_form', 'GET', "?p=" . $p);
+$form = new HTML_QuickFormCustom('select_form', 'GET', '?p=' . $p);
 
 // adding hostgroup's select2 list
 $hostgroupsRoute = './api/internal.php?object=centreon_configuration_hostgroup&action=list';
-$attrHostGroup = ['datasourceOrigin' => 'ajax', 'availableDatasetRoute' => $hostgroupsRoute, 'defaultDatasetRoute' => "", 'multiple' => false, 'linkedObject' => 'centreonHostgroups'];
+$attrHostGroup = ['datasourceOrigin' => 'ajax', 'availableDatasetRoute' => $hostgroupsRoute, 'defaultDatasetRoute' => '', 'multiple' => false, 'linkedObject' => 'centreonHostgroups'];
 $form->addElement(
     'select2',
     'hg_search',
@@ -93,34 +93,34 @@ $form->addElement(
 );
 
 // display type
-$aTypeAffichageLevel1 = ["svcOVHG" => _("Details"), "svcSumHG" => _("Summary")];
+$aTypeAffichageLevel1 = ['svcOVHG' => _('Details'), 'svcSumHG' => _('Summary')];
 $form->addElement(
     'select',
     'typeDisplay',
     _('Display'),
     $aTypeAffichageLevel1,
-    ['id' => 'typeDisplay', 'onChange' => "displayingLevel1(this.value);"]
+    ['id' => 'typeDisplay', 'onChange' => 'displayingLevel1(this.value);']
 );
 
 // status filters
-$aTypeAffichageLevel2 = ["" => _("All"), "pb" => _("Problems"), "ack_1" => _("Acknowledge"), "ack_0" => _("Not Acknowledged")];
+$aTypeAffichageLevel2 = ['' => _('All'), 'pb' => _('Problems'), 'ack_1' => _('Acknowledge'), 'ack_0' => _('Not Acknowledged')];
 $form->addElement(
     'select',
     'typeDisplay2',
     _('Display '),
     $aTypeAffichageLevel2,
-    ['id' => 'typeDisplay2', 'onChange' => "displayingLevel2(this.value);"]
+    ['id' => 'typeDisplay2', 'onChange' => 'displayingLevel2(this.value);']
 );
 
 $form->setDefaults(['typeDisplay2' => 'pb']);
 
-$tpl->assign("order", strtolower($order));
-$tab_order = ["sort_asc" => "sort_desc", "sort_desc" => "sort_asc"];
-$tpl->assign("tab_order", $tab_order);
+$tpl->assign('order', strtolower($order));
+$tab_order = ['sort_asc' => 'sort_desc', 'sort_desc' => 'sort_asc'];
+$tpl->assign('tab_order', $tab_order);
 
 ?>
     <script type="text/javascript">
-        _tm = <?php echo $tM ?>;
+        _tm = <?php echo $tM; ?>;
 
         function setO(_i) {
             document.forms['form'].elements['cmd'].value = _i;
@@ -165,5 +165,5 @@ $renderer = new HTML_QuickForm_Renderer_ArraySmarty($tpl);
 $form->accept($renderer);
 
 $tpl->assign('form', $renderer->toArray());
-$tpl->display("serviceGrid.ihtml");
+$tpl->display('serviceGrid.ihtml');
 ?>

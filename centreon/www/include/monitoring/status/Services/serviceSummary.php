@@ -33,65 +33,63 @@
  *
  */
 
-if (!isset($oreon)) {
+if (! isset($oreon)) {
     exit();
 }
 
-include("./include/common/autoNumLimit.php");
+include './include/common/autoNumLimit.php';
 
-$sort_types = !isset($_GET["sort_types"]) ? 0 : $_GET["sort_types"];
-$order = !isset($_GET["order"]) ? 'ASC' : $_GET["order"];
-$num = !isset($_GET["num"]) ? 0 : $_GET["num"];
-$host_search = !isset($_GET["host_search"]) ? 0 : $_GET["host_search"];
-$search_type_host = !isset($_GET["search_type_host"]) ? 1 : $_GET["search_type_host"];
-$search_type_service = !isset($_GET["search_type_service"]) ? 1 : $_GET["search_type_service"];
-$sort_type = !isset($_GET["sort_type"]) ? "host_name" : $_GET["sort_type"];
+$sort_types = ! isset($_GET['sort_types']) ? 0 : $_GET['sort_types'];
+$order = ! isset($_GET['order']) ? 'ASC' : $_GET['order'];
+$num = ! isset($_GET['num']) ? 0 : $_GET['num'];
+$host_search = ! isset($_GET['host_search']) ? 0 : $_GET['host_search'];
+$search_type_host = ! isset($_GET['search_type_host']) ? 1 : $_GET['search_type_host'];
+$search_type_service = ! isset($_GET['search_type_service']) ? 1 : $_GET['search_type_service'];
+$sort_type = ! isset($_GET['sort_type']) ? 'host_name' : $_GET['sort_type'];
 
-/*
- * Check search value in Host search field
- */
-if (isset($_GET["host_search"])) {
-    $centreon->historySearch[$url] = $_GET["host_search"];
+// Check search value in Host search field
+if (isset($_GET['host_search'])) {
+    $centreon->historySearch[$url] = $_GET['host_search'];
 }
 
-$tab_class = ["0" => "list_one", "1" => "list_two"];
+$tab_class = ['0' => 'list_one', '1' => 'list_two'];
 $rows = 10;
 
-include_once("./include/monitoring/status/Common/default_poller.php");
-include_once("./include/monitoring/status/Common/default_hostgroups.php");
-include_once($svc_path . "/serviceSummaryJS.php");
+include_once './include/monitoring/status/Common/default_poller.php';
+include_once './include/monitoring/status/Common/default_hostgroups.php';
+include_once $svc_path . '/serviceSummaryJS.php';
 
 // Smarty template initialization
 $tpl = SmartyBC::createSmartyTemplate($svc_path, '/templates/');
 
-$tpl->assign("p", $p);
+$tpl->assign('p', $p);
 $tpl->assign('o', $o);
-$tpl->assign("sort_types", $sort_types);
-$tpl->assign("num", $num);
-$tpl->assign("limit", $limit);
-$tpl->assign("mon_host", _("Hosts"));
-$tpl->assign("mon_status", _("Status"));
-$tpl->assign("typeDisplay", _("Display"));
-$tpl->assign("typeDisplay2", _("Display details"));
-$tpl->assign("mon_ip", _("IP"));
-$tpl->assign("mon_last_check", _("Last Check"));
-$tpl->assign("mon_duration", _("Duration"));
-$tpl->assign("mon_status_information", _("Status information"));
+$tpl->assign('sort_types', $sort_types);
+$tpl->assign('num', $num);
+$tpl->assign('limit', $limit);
+$tpl->assign('mon_host', _('Hosts'));
+$tpl->assign('mon_status', _('Status'));
+$tpl->assign('typeDisplay', _('Display'));
+$tpl->assign('typeDisplay2', _('Display details'));
+$tpl->assign('mon_ip', _('IP'));
+$tpl->assign('mon_last_check', _('Last Check'));
+$tpl->assign('mon_duration', _('Duration'));
+$tpl->assign('mon_status_information', _('Status information'));
 
-$form = new HTML_QuickFormCustom('select_form', 'GET', "?p=" . $p);
+$form = new HTML_QuickFormCustom('select_form', 'GET', '?p=' . $p);
 
-$tpl->assign("order", strtolower($order));
-$tab_order = ["sort_asc" => "sort_desc", "sort_desc" => "sort_asc"];
-$tpl->assign("tab_order", $tab_order);
+$tpl->assign('order', strtolower($order));
+$tab_order = ['sort_asc' => 'sort_desc', 'sort_desc' => 'sort_asc'];
+$tpl->assign('tab_order', $tab_order);
 
-$aTypeAffichageLevel1 = ["svcOV" => _("Details"), "svcSum" => _("Summary")];
+$aTypeAffichageLevel1 = ['svcOV' => _('Details'), 'svcSum' => _('Summary')];
 
-$aTypeAffichageLevel2 = ["pb" => _("Problems"), "ack_1" => _("Acknowledge"), "ack_0" => _("Not Acknowledged")];
+$aTypeAffichageLevel2 = ['pb' => _('Problems'), 'ack_1' => _('Acknowledge'), 'ack_0' => _('Not Acknowledged')];
 
-##Toolbar select $lang["lgd_more_actions"]
+// #Toolbar select $lang["lgd_more_actions"]
 ?>
     <script type="text/javascript">
-        p = <?php echo $p ?>;
+        p = <?php echo $p; ?>;
 
         function setO(_i) {
             document.forms['form'].elements['cmd'].value = _i;
@@ -133,23 +131,23 @@ $form->addElement(
     'typeDisplay',
     _('Display'),
     $aTypeAffichageLevel1,
-    ['id' => 'typeDisplay', 'onChange' => "displayingLevel1(this.value);"]
+    ['id' => 'typeDisplay', 'onChange' => 'displayingLevel1(this.value);']
 );
 $form->addElement(
     'select',
     'typeDisplay2',
     _('Display '),
     $aTypeAffichageLevel2,
-    ['id' => 'typeDisplay2', 'onChange' => "displayingLevel2(this.value);"]
+    ['id' => 'typeDisplay2', 'onChange' => 'displayingLevel2(this.value);']
 );
 
 foreach (['o1', 'o2'] as $option) {
-    $attrs = ['onchange' => "javascript: setO(this.form.elements['$option'].value); submit();"];
+    $attrs = ['onchange' => "javascript: setO(this.form.elements['{$option}'].value); submit();"];
     $form->addElement(
         'select',
         'o1',
         null,
-        [null => _("More actions..."), "3" => _("Verification Check"), "4" => _("Verification Check (Forced)"), "70" => _("Services : Acknowledge"), "71" => _("Services : Disacknowledge"), "80" => _("Services : Enable Notification"), "81" => _("Services : Disable Notification"), "90" => _("Services : Enable Check"), "91" => _("Services : Disable Check"), "72" => _("Hosts : Acknowledge"), "73" => _("Hosts : Disacknowledge"), "82" => _("Hosts : Enable Notification"), "83" => _("Hosts : Disable Notification"), "92" => _("Hosts : Enable Check"), "93" => _("Hosts : Disable Check")],
+        [null => _('More actions...'), '3' => _('Verification Check'), '4' => _('Verification Check (Forced)'), '70' => _('Services : Acknowledge'), '71' => _('Services : Disacknowledge'), '80' => _('Services : Enable Notification'), '81' => _('Services : Disable Notification'), '90' => _('Services : Enable Check'), '91' => _('Services : Disable Check'), '72' => _('Hosts : Acknowledge'), '73' => _('Hosts : Disacknowledge'), '82' => _('Hosts : Enable Notification'), '83' => _('Hosts : Disable Notification'), '92' => _('Hosts : Enable Check'), '93' => _('Hosts : Disable Check')],
         $attrs
     );
     $form->setDefaults([$option => null]);
@@ -167,4 +165,4 @@ $tpl->assign('poller_listing', $oreon->user->access->checkAction('poller_listing
 $tpl->assign('hgStr', _('Hostgroup'));
 $tpl->assign('form', $renderer->toArray());
 
-$tpl->display("serviceGrid.ihtml");
+$tpl->display('serviceGrid.ihtml');

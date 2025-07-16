@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005 - 2019 Centreon (https://www.centreon.com/)
  *
@@ -33,8 +34,10 @@ class HostTemplateRelation extends AbstractObject
 {
     /** @var string */
     protected $table = 'host_template_relation';
+
     /** @var string */
     protected $generateFilename = 'host_template_relation.infile';
+
     /** @var string[] */
     protected $attributesWrite = [
         'host_host_id',
@@ -49,8 +52,8 @@ class HostTemplateRelation extends AbstractObject
      * @param int $hostTplId
      * @param int $order
      *
-     * @return void
      * @throws Exception
+     * @return void
      */
     public function addRelation(int $hostId, int $hostTplId, $order): void
     {

@@ -32,10 +32,20 @@ class HtmlAnalyzer
 {
     /** @var int */
     private int $index = -1;
+
     /** @var mixed|string */
     private mixed $stringToSanitize;
+
     /** @var int */
     private int $deepTag = 0;
+
+    /**
+     * @param string $stringToSanitize
+     */
+    public function __construct(string $stringToSanitize)
+    {
+        $this->stringToSanitize = $stringToSanitize;
+    }
 
     /**
      * Sanitize and remove html tags
@@ -53,14 +63,6 @@ class HtmlAnalyzer
         $newString = $html->removeHtmlTag();
 
         return str_replace(["'", '"'], ['&#39;', '&#34;'], $newString);
-    }
-
-    /**
-     * @param string $stringToSanitize
-     */
-    public function __construct(string $stringToSanitize)
-    {
-        $this->stringToSanitize = $stringToSanitize;
     }
 
     /**

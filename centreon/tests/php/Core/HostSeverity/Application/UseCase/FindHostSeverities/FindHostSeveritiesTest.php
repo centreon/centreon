@@ -80,7 +80,7 @@ it('should present an ErrorResponse when an exception is thrown', function (): v
     $this->hostSeverityRepository
         ->expects($this->once())
         ->method('findAll')
-        ->willThrowException(new \Exception());
+        ->willThrowException(new Exception());
 
     ($this->usecase)($this->presenter);
 

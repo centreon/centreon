@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2015 Centreon
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
@@ -33,7 +34,7 @@
  *
  */
 
-require_once __DIR__ . "/../Params.class.php";
+require_once __DIR__ . '/../Params.class.php';
 
 /**
  * Class
@@ -62,8 +63,8 @@ class CentreonWidgetParamsBoolean extends CentreonWidgetParams
     /**
      * @param array $params
      *
-     * @return void
      * @throws HTML_QuickForm_Error
+     * @return void
      */
     public function init($params): void
     {
@@ -80,9 +81,9 @@ class CentreonWidgetParamsBoolean extends CentreonWidgetParams
     /**
      * @param array $params
      *
-     * @return void
      * @throws HTML_QuickForm_Error
      * @throws PDOException
+     * @return void
      */
     public function setValue($params): void
     {
@@ -90,7 +91,7 @@ class CentreonWidgetParamsBoolean extends CentreonWidgetParams
         $cbVal = false;
         if (isset($userPref)) {
             $cbVal = $userPref;
-        } elseif (isset($params['default_value']) && $params['default_value'] != "") {
+        } elseif (isset($params['default_value']) && $params['default_value'] != '') {
             if ($params['default_value'] == 1) {
                 $cbVal = true;
             }

@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2017 Centreon
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
@@ -44,32 +45,46 @@ class CentreonFileManager implements iFileManager
 {
     /** @var mixed */
     protected $rawFile;
+
     /** @var Container */
     protected $dependencyInjector;
+
     /** @var string */
     protected $comment;
+
     /** @var mixed */
     protected $tmpFile;
+
     /** @var */
     protected $mediaPath;
+
     /** @var string */
     protected $destinationPath;
+
     /** @var mixed */
     protected $destinationDir;
+
     /** @var mixed */
     protected $originalFile;
+
     /** @var mixed */
     protected $fileName;
+
     /** @var mixed */
     protected $size;
+
     /** @var array|string */
     protected $extension;
+
     /** @var string */
     protected $newFile;
+
     /** @var string */
     protected $completePath;
+
     /** @var array */
     protected $legalExtensions = [];
+
     /** @var int */
     protected $legalSize = 500000;
 
@@ -93,7 +108,7 @@ class CentreonFileManager implements iFileManager
         $this->dependencyInjector = $dependencyInjector;
         $this->mediaPath = $mediaPath;
         $this->comment = $comment;
-        $this->rawFile = $rawFile["filename"];
+        $this->rawFile = $rawFile['filename'];
         $this->destinationDir = $this->secureName($destinationDir);
         $this->destinationPath = $this->mediaPath . $this->destinationDir;
         $this->dirExist($this->destinationPath);
@@ -113,10 +128,11 @@ class CentreonFileManager implements iFileManager
     {
         if ($this->securityCheck()) {
             $this->moveFile();
+
             return true;
-        } else {
-            return false;
         }
+
+        return false;
     }
 
     /**
@@ -124,16 +140,13 @@ class CentreonFileManager implements iFileManager
      */
     protected function securityCheck()
     {
-        if (
-            !$this->validFile() ||
-            !$this->validSize() ||
-            !$this->secureExtension() ||
-            $this->fileExist()
-        ) {
-            return false;
-        } else {
-            return true;
-        }
+        return ! (
+            ! $this->validFile()
+            || ! $this->validSize()
+            || ! $this->secureExtension()
+            || $this->fileExist()
+        );
+
     }
 
     /**
@@ -144,6 +157,7 @@ class CentreonFileManager implements iFileManager
     protected function secureName($text)
     {
         $utf8 = ['/[áàâãªä]/u' => 'a', '/[ÁÀÂÃÄ]/u' => 'A', '/[ÍÌÎÏ]/u' => 'I', '/[íìîï]/u' => 'i', '/[éèêë]/u' => 'e', '/[ÉÈÊË]/u' => 'E', '/[óòôõºö]/u' => 'o', '/[ÓÒÔÕÖ]/u' => 'O', '/[úùûü]/u' => 'u', '/[ÚÙÛÜ]/u' => 'U', '/ç/' => 'c', '/Ç/' => 'C', '/ñ/' => 'n', '/Ñ/' => 'N', '/–/' => '-', '/[“”«»„"’‘‹›‚]/u' => '', '/ /' => '', '/\//' => '', '/\'/' => ''];
+
         return preg_replace(array_keys($utf8), array_values($utf8), $text);
     }
 
@@ -153,11 +167,7 @@ class CentreonFileManager implements iFileManager
     protected function secureExtension()
     {
 
-        if (in_array(strtolower($this->extension), $this->legalExtensions)) {
-            return true;
-        } else {
-            return false;
-        }
+        return (bool) (in_array(strtolower($this->extension), $this->legalExtensions));
     }
 
     /**
@@ -165,11 +175,7 @@ class CentreonFileManager implements iFileManager
      */
     protected function validFile()
     {
-        if (empty($this->tmpFile) || $this->size == 0) {
-            return false;
-        } else {
-            return true;
-        }
+        return ! (empty($this->tmpFile) || $this->size == 0);
     }
 
     /**
@@ -177,11 +183,7 @@ class CentreonFileManager implements iFileManager
      */
     protected function validSize()
     {
-        if ($this->size < $this->legalSize) {
-            return true;
-        } else {
-            return false;
-        }
+        return (bool) ($this->size < $this->legalSize);
     }
 
     /**
@@ -189,20 +191,16 @@ class CentreonFileManager implements iFileManager
      */
     protected function fileExist()
     {
-        if (file_exists($this->completePath)) {
-            return true;
-        } else {
-            return false;
-        }
+        return (bool) (file_exists($this->completePath));
     }
 
     /**
-     *
+     * @param mixed $dir
      * @return void
      */
     protected function dirExist($dir)
     {
-        if (!is_dir($dir)) {
+        if (! is_dir($dir)) {
             @mkdir($dir);
         }
     }

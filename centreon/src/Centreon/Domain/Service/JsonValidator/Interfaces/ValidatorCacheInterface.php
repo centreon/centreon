@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005 - 2019 Centreon (https://www.centreon.com/)
  *
@@ -20,8 +21,6 @@
 declare(strict_types=1);
 
 namespace Centreon\Domain\Service\JsonValidator\Interfaces;
-
-use Centreon\Domain\Service\JsonValidator\ValidatorCache;
 
 interface ValidatorCacheInterface
 {

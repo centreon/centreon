@@ -63,7 +63,7 @@ final class FindUsers
             } else {
                 $this->accessGroups = $this->readAccessGroupRepository->findByContact($this->user);
                 $accessGroupNames = array_map(
-                    fn(AccessGroup $accessGroup): string => $accessGroup->getName(),
+                    fn (AccessGroup $accessGroup): string => $accessGroup->getName(),
                     $this->accessGroups,
                 );
                 if (
@@ -85,6 +85,14 @@ final class FindUsers
                     $this->accessGroups,
                     $this->user,
                     $this->requestParameters
+                );
+            }
+
+            if ($this->isCloudPlatform) {
+                // Filter out service users in cloud platform
+                $users = array_filter(
+                    $users,
+                    fn (User $user): bool => ! $user->isServiceAccount()
                 );
             }
 
@@ -132,7 +140,7 @@ final class FindUsers
         }
         $this->accessGroups = $this->readAccessGroupRepository->findByContact($this->user);
         $accessGroupNames = array_map(
-            fn(AccessGroup $accessGroup): string => $accessGroup->getName(),
+            fn (AccessGroup $accessGroup): string => $accessGroup->getName(),
             $this->accessGroups
         );
 

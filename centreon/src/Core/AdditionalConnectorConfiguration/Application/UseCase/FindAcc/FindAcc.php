@@ -79,7 +79,7 @@ final class FindAcc
 
             if (! $this->user->isAdmin()) {
                 $pollerIds = array_map(
-                    static fn(Poller $poller): int => $poller->id,
+                    static fn (Poller $poller): int => $poller->id,
                     $pollers
                 );
                 $accessGroups = $this->readAccessGroupRepository->findByContact($this->user);

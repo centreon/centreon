@@ -445,13 +445,14 @@ final class CustomConfiguration implements CustomConfigurationInterface, SAMLCus
             'logout_from',
         ];
 
+        $emptyParameters = [];
         foreach ($mandatoryFields as $key) {
             if (! array_key_exists($key, $json)) {
                 $emptyParameters[] = $key;
             }
         }
 
-        if (! empty($emptyParameters)) {
+        if ($emptyParameters !== []) {
             throw ConfigurationException::missingMandatoryParameters($emptyParameters);
         }
 
@@ -495,7 +496,7 @@ final class CustomConfiguration implements CustomConfigurationInterface, SAMLCus
         if (empty($userNameBindAttribute)) {
             $missingMandatoryParameters[] = 'fullname_bind_attribute';
         }
-        if (! empty($missingMandatoryParameters)) {
+        if ($missingMandatoryParameters !== []) {
             throw ConfigurationException::missingAutoImportMandatoryParameters(
                 $missingMandatoryParameters
             );

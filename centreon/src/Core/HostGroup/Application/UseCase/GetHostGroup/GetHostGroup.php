@@ -91,17 +91,19 @@ final class GetHostGroup
                 if ($this->isCloudPlatform) {
                     $rules = array_unique(
                         array_merge(
-                        $this->readResourceAccessRepository->findRuleByResourceIdAndContactId(
-                            HostGroupFilterType::TYPE_NAME,
-                            $hostGroupId,
-                            $this->user->getId()
+                            $this->readResourceAccessRepository->findRuleByResourceIdAndContactId(
+                                HostGroupFilterType::TYPE_NAME,
+                                $hostGroupId,
+                                $this->user->getId()
+                            ),
+                            $this->readResourceAccessRepository->findRuleByResourceIdAndContactGroups(
+                                HostGroupFilterType::TYPE_NAME,
+                                $hostGroupId,
+                                $this->readContactGroupRepository->findAllByUserId($this->user->getId())
+                            ),
                         ),
-                        $this->readResourceAccessRepository->findRuleByResourceIdAndContactGroups(
-                            HostGroupFilterType::TYPE_NAME,
-                            $hostGroupId,
-                            $this->readContactGroupRepository->findAllByUserId($this->user->getId())
-                        ),
-                    ), SORT_REGULAR);
+                        SORT_REGULAR
+                    );
                 }
 
             }

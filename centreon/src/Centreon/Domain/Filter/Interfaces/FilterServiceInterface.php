@@ -34,8 +34,8 @@ interface FilterServiceInterface
      * to fetch data.
      *
      * @param mixed $contact Contact to use as a ACL filter
-     * @return FilterServiceInterface
      * @throws \Exception
+     * @return FilterServiceInterface
      */
     public function filterByContact($contact): FilterServiceInterface;
 
@@ -43,8 +43,8 @@ interface FilterServiceInterface
      * Add filter.
      *
      * @param Filter $filter
-     * @return int created filter id
      * @throws FilterException
+     * @return int created filter id
      */
     public function addFilter(Filter $filter): int;
 
@@ -52,8 +52,8 @@ interface FilterServiceInterface
      * Update filter.
      *
      * @param Filter $filter
-     * @return void
      * @throws FilterException
+     * @return void
      */
     public function updateFilter(Filter $filter): void;
 
@@ -71,8 +71,8 @@ interface FilterServiceInterface
      * Delete filter.
      *
      * @param Filter $filter
-     * @return void
      * @throws FilterException
+     * @return void
      */
     public function deleteFilter(Filter $filter): void;
 
@@ -81,8 +81,8 @@ interface FilterServiceInterface
      *
      * @param int $userId current user id
      * @param string $pageName page name
-     * @return Filter[]
      * @throws FilterException
+     * @return Filter[]
      */
     public function findFiltersByUserId(int $userId, string $pageName): array;
 
@@ -92,8 +92,8 @@ interface FilterServiceInterface
      * @param int $userId current user id
      * @param string $pageName page name
      * @param int $filterId Filter id to search
-     * @return Filter
      * @throws FilterException
+     * @return Filter
      */
     public function findFilterByUserId(int $userId, string $pageName, int $filterId): ?Filter;
 }

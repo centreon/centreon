@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2019 Centreon
  * Centreon is developed by : Julien Mathis and Romain Le Merlus under
@@ -44,59 +45,41 @@ class UniqueEntity extends Constraint
     public const NOT_UNIQUE_ERROR = '23bd9dbf-6b9b-41cd-a99e-4844bcf3077c';
 
     /**
-     * @var string
-     */
-    public string $validatorClass = UniqueEntityValidator::class;
-
-    /**
-     * @var string
-     */
-    public $message = 'This value is already used.';
-
-    /**
-     * @var string
-     */
-    public $entityIdentificatorMethod = 'getId';
-
-    /**
-     * @var string
-     */
-    public $entityIdentificatorColumn = 'id';
-
-    /**
-     * @var mixed
-     */
-    public $repository = null;
-
-    /**
-     * @var string
-     */
-    public $repositoryMethod = 'findOneBy';
-
-    /**
-     * @var array<mixed>
-     */
-    public $fields = [];
-
-    /**
-     * @var string|null
-     */
-    public $errorPath = null;
-
-    /**
-     * @var bool
-     */
-    public $ignoreNull = true;
-
-    /**
      * @var array<string, string>
      */
     protected const ERROR_NAMES = [
         self::NOT_UNIQUE_ERROR => 'NOT_UNIQUE_ERROR',
     ];
 
+    /** @var string */
+    public string $validatorClass = UniqueEntityValidator::class;
+
+    /** @var string */
+    public $message = 'This value is already used.';
+
+    /** @var string */
+    public $entityIdentificatorMethod = 'getId';
+
+    /** @var string */
+    public $entityIdentificatorColumn = 'id';
+
+    /** @var mixed */
+    public $repository = null;
+
+    /** @var string */
+    public $repositoryMethod = 'findOneBy';
+
+    /** @var array<mixed> */
+    public $fields = [];
+
+    /** @var string|null */
+    public $errorPath = null;
+
+    /** @var bool */
+    public $ignoreNull = true;
+
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function getTargets(): string|array
     {

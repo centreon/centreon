@@ -112,6 +112,6 @@ class ServiceGroupRelation
      */
     public static function getServiceGroupIds(array $sgRelations): array
     {
-        return array_map(fn(ServiceGroupRelation $sgRel) => $sgRel->getServiceGroupId(), $sgRelations);
+        return array_map(fn (ServiceGroupRelation $sgRel) => $sgRel->getServiceGroupId(), $sgRelations);
     }
 }

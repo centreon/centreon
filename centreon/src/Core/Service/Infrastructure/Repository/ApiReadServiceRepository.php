@@ -19,7 +19,7 @@
  *
  */
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Core\Service\Infrastructure\Repository;
 
@@ -177,8 +177,7 @@ class ApiReadServiceRepository implements ReadServiceRepositoryInterface
     public function findByRequestParameterAndAccessGroup(
         RequestParametersInterface $requestParameters,
         array $accessGroups,
-    ): array
-    {
+    ): array {
         throw RepositoryException::notYetImplemented();
     }
 

@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace Core\Dashboard\Application\Event;
 
-readonly final class DashboardUpdatedEvent
+final readonly class DashboardUpdatedEvent
 {
     /**
      * @param int $dashboardId

@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2015 CENTREON
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
@@ -40,24 +41,16 @@ use Pimple\Container;
  */
 abstract class Centreon_ObjectRt
 {
-    /**
-     * Database Connector
-     */
+    /** Database Connector */
     protected $dbMon;
 
-    /**
-     * Table name of the object
-     */
+    /** Table name of the object */
     protected $table = null;
 
-    /**
-     * Primary key name
-     */
+    /** Primary key name */
     protected $primaryKey = null;
 
-    /**
-     * Unique label field
-     */
+    /** Unique label field */
     protected $uniqueLabelField = null;
 
     /**
@@ -71,19 +64,21 @@ abstract class Centreon_ObjectRt
     }
 
     /**
-     * Get result from sql query
+     * Generic method that allows to retrieve object ids
+     * from another object parameter
      *
-     * @param string $sqlQuery
-     * @param array $sqlParams
-     * @param string $fetchMethod
+     * @param string $name
+     * @param array $args
+     * @throws Exception
      * @return array
      */
-    protected function getResult($sqlQuery, $sqlParams = [], $fetchMethod = "fetchAll")
+    public function __call($name, $args)
     {
-        $res = $this->dbMon->query($sqlQuery, $sqlParams);
-        $result = $res->{$fetchMethod}();
+        if (preg_match('/^getIdBy([a-zA-Z0-9_]+)/', $name, $matches)) {
+            return $this->getIdByParameter($matches[1], $args);
+        }
 
-        return $result;
+        throw new Exception('Unknown method');
     }
 
     /**
@@ -95,9 +90,10 @@ abstract class Centreon_ObjectRt
      */
     public function getParameters($objectId, $parameterNames)
     {
-        $params = is_array($parameterNames) ? implode(",", $parameterNames) : $parameterNames;
-        $sql = "SELECT $params FROM $this->table WHERE $this->primaryKey = ?";
-        return $this->getResult($sql, [$objectId], "fetch");
+        $params = is_array($parameterNames) ? implode(',', $parameterNames) : $parameterNames;
+        $sql = "SELECT {$params} FROM {$this->table} WHERE {$this->primaryKey} = ?";
+
+        return $this->getResult($sql, [$objectId], 'fetch');
     }
 
     /**
@@ -112,45 +108,46 @@ abstract class Centreon_ObjectRt
      * @param string $sort
      * @param array $filters
      * @param string $filterType
-     * @return array
      * @throws Exception
+     * @return array
      */
     public function getList(
-        $parameterNames = "*",
+        $parameterNames = '*',
         $count = -1,
         $offset = 0,
         $order = null,
-        $sort = "ASC",
+        $sort = 'ASC',
         $filters = [],
-        $filterType = "OR"
+        $filterType = 'OR'
     ) {
-        if ($filterType != "OR" && $filterType != "AND") {
+        if ($filterType != 'OR' && $filterType != 'AND') {
             throw new Exception('Unknown filter type');
         }
-        $params = is_array($parameterNames) ? implode(",", $parameterNames) : $parameterNames;
-        $sql = "SELECT $params FROM $this->table ";
+        $params = is_array($parameterNames) ? implode(',', $parameterNames) : $parameterNames;
+        $sql = "SELECT {$params} FROM {$this->table} ";
         $filterTab = [];
         if (count($filters)) {
             foreach ($filters as $key => $rawvalue) {
                 if ($filterTab === []) {
-                    $sql .= " WHERE $key LIKE ? ";
+                    $sql .= " WHERE {$key} LIKE ? ";
                 } else {
-                    $sql .= " $filterType $key LIKE ? ";
+                    $sql .= " {$filterType} {$key} LIKE ? ";
                 }
                 $value = trim($rawvalue);
-                $value = str_replace("\\", "\\\\", $value);
-                $value = str_replace("_", "\_", $value);
-                $value = str_replace(" ", "\ ", $value);
+                $value = str_replace('\\', '\\\\', $value);
+                $value = str_replace('_', "\_", $value);
+                $value = str_replace(' ', "\ ", $value);
                 $filterTab[] = $value;
             }
         }
-        if (isset($order) && isset($sort) && (strtoupper($sort) == "ASC" || strtoupper($sort) == "DESC")) {
-            $sql .= " ORDER BY $order $sort ";
+        if (isset($order, $sort)   && (strtoupper($sort) == 'ASC' || strtoupper($sort) == 'DESC')) {
+            $sql .= " ORDER BY {$order} {$sort} ";
         }
         if (isset($count) && $count != -1) {
             $sql = $this->dbMon->limit($sql, $count, $offset);
         }
-        return $this->getResult($sql, $filterTab, "fetchAll");
+
+        return $this->getResult($sql, $filterTab, 'fetchAll');
     }
 
     /**
@@ -163,45 +160,29 @@ abstract class Centreon_ObjectRt
      */
     public function getIdByParameter($paramName, $paramValues = [])
     {
-        $sql = "SELECT $this->primaryKey FROM $this->table WHERE ";
-        $condition = "";
-        if (!is_array($paramValues)) {
+        $sql = "SELECT {$this->primaryKey} FROM {$this->table} WHERE ";
+        $condition = '';
+        if (! is_array($paramValues)) {
             $paramValues = [$paramValues];
         }
         foreach ($paramValues as $val) {
-            if ($condition != "") {
-                $condition .= " OR ";
+            if ($condition != '') {
+                $condition .= ' OR ';
             }
-            $condition .= $paramName . " = ? ";
+            $condition .= $paramName . ' = ? ';
         }
         if ($condition) {
             $sql .= $condition;
-            $rows = $this->getResult($sql, $paramValues, "fetchAll");
+            $rows = $this->getResult($sql, $paramValues, 'fetchAll');
             $tab = [];
             foreach ($rows as $val) {
                 $tab[] = $val[$this->primaryKey];
             }
+
             return $tab;
         }
-        return [];
-    }
 
-    /**
-     * Generic method that allows to retrieve object ids
-     * from another object parameter
-     *
-     * @param string $name
-     * @param array $args
-     * @return array
-     * @throws Exception
-     */
-    public function __call($name, $args)
-    {
-        if (preg_match('/^getIdBy([a-zA-Z0-9_]+)/', $name, $matches)) {
-            return $this->getIdByParameter($matches[1], $args);
-        } else {
-            throw new Exception('Unknown method');
-        }
+        return [];
     }
 
     /**
@@ -232,5 +213,20 @@ abstract class Centreon_ObjectRt
     public function getTableName()
     {
         return $this->table;
+    }
+
+    /**
+     * Get result from sql query
+     *
+     * @param string $sqlQuery
+     * @param array $sqlParams
+     * @param string $fetchMethod
+     * @return array
+     */
+    protected function getResult($sqlQuery, $sqlParams = [], $fetchMethod = 'fetchAll')
+    {
+        $res = $this->dbMon->query($sqlQuery, $sqlParams);
+
+        return $res->{$fetchMethod}();
     }
 }

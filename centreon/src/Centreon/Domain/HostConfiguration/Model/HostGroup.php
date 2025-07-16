@@ -37,41 +37,31 @@ class HostGroup
     public const MAX_GEO_COORDS_LENGTH = 32;
     public const MAX_COMMENTS_LENGTH = 65535;
 
-    /**
-     * @var int|null
-     */
+    /** @var int|null */
     private $id;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private $name;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     private $alias;
 
     /**
      * @var Image|null Define the image that should be associated with this host group.
-     * This image will be displayed in the various places. The image will look best if it is 40x40 pixels in size.
+     *                 This image will be displayed in the various places. The image will look best if it is 40x40 pixels in size.
      */
     private $icon;
 
     /**
      * @var string|null Geographical coordinates use by Centreon Map module to position element on map. <br>
-     * Define "Latitude,Longitude", for example for Paris coordinates set "48.51,2.20"
+     *                  Define "Latitude,Longitude", for example for Paris coordinates set "48.51,2.20"
      */
     private $geoCoords;
 
-    /**
-     * @var string|null Comments on this host group.
-     */
+    /** @var string|null comments on this host group */
     private $comment;
 
-    /**
-     * @var bool Indicates whether the host group is activated or not.
-     */
+    /** @var bool indicates whether the host group is activated or not */
     private $isActivated = true;
 
     /**
@@ -98,6 +88,7 @@ class HostGroup
     public function setId(int $id): HostGroup
     {
         $this->id = $id;
+
         return $this;
     }
 
@@ -111,13 +102,14 @@ class HostGroup
 
     /**
      * @param string $name
-     * @return HostGroup
      * @throws \Assert\AssertionFailedException
+     * @return HostGroup
      */
     public function setName(string $name): HostGroup
     {
         Assertion::maxLength($name, self::MAX_NAME_LENGTH, 'HostGroup::name');
         $this->name = $name;
+
         return $this;
     }
 
@@ -131,8 +123,8 @@ class HostGroup
 
     /**
      * @param string|null $alias
-     * @return HostGroup
      * @throws \Assert\AssertionFailedException
+     * @return HostGroup
      */
     public function setAlias(?string $alias): HostGroup
     {
@@ -140,6 +132,7 @@ class HostGroup
             Assertion::maxLength($alias, self::MAX_ALIAS_LENGTH, 'HostGroup::alias');
         }
         $this->alias = $alias;
+
         return $this;
     }
 
@@ -158,6 +151,7 @@ class HostGroup
     public function setIcon(?Image $icon): HostGroup
     {
         $this->icon = $icon;
+
         return $this;
     }
 
@@ -171,8 +165,8 @@ class HostGroup
 
     /**
      * @param string|null $geoCoords
-     * @return HostGroup
      * @throws \Assert\AssertionFailedException
+     * @return HostGroup
      */
     public function setGeoCoords(?string $geoCoords): HostGroup
     {
@@ -180,6 +174,7 @@ class HostGroup
             Assertion::maxLength($geoCoords, self::MAX_GEO_COORDS_LENGTH, 'HostGroup::geoCoords');
         }
         $this->geoCoords = $geoCoords;
+
         return $this;
     }
 
@@ -193,8 +188,8 @@ class HostGroup
 
     /**
      * @param string|null $comment
-     * @return HostGroup
      * @throws \Assert\AssertionFailedException
+     * @return HostGroup
      */
     public function setComment(?string $comment): HostGroup
     {
@@ -202,6 +197,7 @@ class HostGroup
             Assertion::maxLength($comment, self::MAX_COMMENTS_LENGTH, 'HostGroup::comment');
         }
         $this->comment = $comment;
+
         return $this;
     }
 
@@ -220,6 +216,7 @@ class HostGroup
     public function setActivated(bool $isActivated): HostGroup
     {
         $this->isActivated = $isActivated;
+
         return $this;
     }
 }

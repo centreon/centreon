@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace Core\Dashboard\Application\UseCase\AddDashboardToFavorites;
 
-readonly final class AddDashboardToFavoritesRequest
+final readonly class AddDashboardToFavoritesRequest
 {
     /**
      * @param int $dashboardId

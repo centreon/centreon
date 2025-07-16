@@ -60,7 +60,7 @@ class HostgroupMonitoring
      */
     public function getHostStates(&$data, $admin, $aclObj, $preferences, $detailFlag = false)
     {
-        if (!count($data)) {
+        if (! count($data)) {
             return [];
         }
         $query = "SELECT 1 AS REALTIME, h.host_id, h.state, h.name, h.alias, hhg.hostgroup_id, hg.name as hgname
@@ -69,22 +69,22 @@ class HostgroupMonitoring
             AND h.enabled = 1
             AND hhg.hostgroup_id = hg.hostgroup_id
             AND hg.name IN ('" . implode("', '", array_keys($data)) . "') ";
-        if (!$admin) {
-            $query .= $aclObj->queryBuilder("AND", "h.host_id", $aclObj->getHostsString("ID", $this->dbb));
+        if (! $admin) {
+            $query .= $aclObj->queryBuilder('AND', 'h.host_id', $aclObj->getHostsString('ID', $this->dbb));
         }
-        $query .= " ORDER BY h.name ";
+        $query .= ' ORDER BY h.name ';
         $res = $this->dbb->query($query);
         while ($row = $res->fetch()) {
             $k = $row['hgname'];
             if ($detailFlag === true) {
-                if (!isset($data[$k]['host_state'][$row['name']])) {
+                if (! isset($data[$k]['host_state'][$row['name']])) {
                     $data[$k]['host_state'][$row['name']] = [];
                 }
                 foreach ($row as $key => $val) {
                     $data[$k]['host_state'][$row['name']][$key] = $val;
                 }
             } else {
-                if (!isset($data[$k]['host_state'][$row['state']])) {
+                if (! isset($data[$k]['host_state'][$row['state']])) {
                     $data[$k]['host_state'][$row['state']] = 0;
                 }
                 $data[$k]['host_state'][$row['state']]++;
@@ -103,15 +103,15 @@ class HostgroupMonitoring
      */
     public function getServiceStates(&$data, $admin, $aclObj, $preferences, $detailFlag = false)
     {
-        if (!count($data)) {
+        if (! count($data)) {
             return [];
         }
-        $query = "SELECT DISTINCT 1 AS REALTIME,
+        $query = 'SELECT DISTINCT 1 AS REALTIME,
                 h.host_id, s.state, h.name, s.service_id, s.description, hhg.hostgroup_id, hg.name as hgname,
                 (case s.state when 0 then 3 when 2 then 0 when 3 then 2  when 3 then 2 else s.state END) as tri
-            FROM hosts_hostgroups hhg, hosts h, services s, hostgroups hg ";
-        if (!$admin) {
-            $query .= ", centreon_acl acl ";
+            FROM hosts_hostgroups hhg, hosts h, services s, hostgroups hg ';
+        if (! $admin) {
+            $query .= ', centreon_acl acl ';
         }
         $query .= "WHERE h.host_id = hhg.host_id
             AND hhg.host_id = s.host_id
@@ -119,22 +119,22 @@ class HostgroupMonitoring
             AND h.enabled = 1
             AND hhg.hostgroup_id = hg.hostgroup_id
             AND hg.name IN ('" . implode("', '", array_keys($data)) . "') ";
-        if (!$admin) {
-            $query .= " AND h.host_id = acl.host_id
+        if (! $admin) {
+            $query .= ' AND h.host_id = acl.host_id
                 AND acl.service_id = s.service_id
-                AND acl.group_id IN (" . $aclObj->getAccessGroupsString() . ")";
+                AND acl.group_id IN (' . $aclObj->getAccessGroupsString() . ')';
         }
-        $query .= " ORDER BY tri, description ASC";
+        $query .= ' ORDER BY tri, description ASC';
         $res = $this->dbb->query($query);
         while ($row = $res->fetch()) {
             $k = $row['hgname'];
             if ($detailFlag === true) {
-                if (!isset($data[$k]['service_state'][$row['host_id']])) {
+                if (! isset($data[$k]['service_state'][$row['host_id']])) {
                     $data[$k]['service_state'][$row['host_id']] = [];
                 }
                 if (
                     isset($data[$k]['service_state'][$row['host_id']])
-                    && !isset($data[$k]['service_state'][$row['host_id']][$row['service_id']])
+                    && ! isset($data[$k]['service_state'][$row['host_id']][$row['service_id']])
                 ) {
                     $data[$k]['service_state'][$row['host_id']][$row['service_id']] = [];
                 }
@@ -142,7 +142,7 @@ class HostgroupMonitoring
                     $data[$k]['service_state'][$row['host_id']][$row['service_id']][$key] = $val;
                 }
             } else {
-                if (!isset($data[$k]['service_state'][$row['state']])) {
+                if (! isset($data[$k]['service_state'][$row['state']])) {
                     $data[$k]['service_state'][$row['state']] = 0;
                 }
                 $data[$k]['service_state'][$row['state']]++;

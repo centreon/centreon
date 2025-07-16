@@ -29,14 +29,10 @@ namespace Centreon\Domain\Option;
  */
 class Option
 {
-    /**
-     * @var string Option name
-     */
+    /** @var string Option name */
     private $name;
 
-    /**
-     * @var string|null Option value
-     */
+    /** @var string|null Option value */
     private $value;
 
     /**
@@ -56,6 +52,7 @@ class Option
     public function setName(string $name): Option
     {
         $this->name = $name;
+
         return $this;
     }
 
@@ -76,6 +73,7 @@ class Option
     public function setValue(?string $value): Option
     {
         $this->value = $value;
+
         return $this;
     }
 }

@@ -23,22 +23,20 @@ declare(strict_types=1);
 namespace Tests\Centreon\Domain\MonitoringServer\UseCase;
 
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
-use PHPUnit\Framework\TestCase;
-use PHPUnit\Framework\MockObject\MockObject;
-use Centreon\Domain\Repository\RepositoryException;
 use Centreon\Domain\Exception\EntityNotFoundException;
-use Centreon\Domain\MonitoringServer\MonitoringServer;
-use Centreon\Domain\MonitoringServer\UseCase\ReloadConfiguration;
-use Centreon\Domain\MonitoringServer\Interfaces\MonitoringServerRepositoryInterface;
 use Centreon\Domain\MonitoringServer\Exception\ConfigurationMonitoringServerException;
 use Centreon\Domain\MonitoringServer\Interfaces\MonitoringServerConfigurationRepositoryInterface;
+use Centreon\Domain\MonitoringServer\Interfaces\MonitoringServerRepositoryInterface;
+use Centreon\Domain\MonitoringServer\MonitoringServer;
+use Centreon\Domain\MonitoringServer\UseCase\ReloadConfiguration;
+use Centreon\Domain\Repository\RepositoryException;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 
 class ReloadConfigurationTest extends TestCase
 {
-    /**
-     * @var MonitoringServerRepositoryInterface&MockObject
-     */
+    /** @var MonitoringServerRepositoryInterface&MockObject */
     private $monitoringServerRepository;
 
     /** @var MonitoringServerConfigurationRepositoryInterface&MockObject */
@@ -56,8 +54,8 @@ class ReloadConfigurationTest extends TestCase
     protected function setUp(): void
     {
         $this->monitoringServerRepository = $this->createMock(MonitoringServerRepositoryInterface::class);
-        $this->monitoringServerConfigurationRepository =
-            $this->createMock(MonitoringServerConfigurationRepositoryInterface::class);
+        $this->monitoringServerConfigurationRepository
+            = $this->createMock(MonitoringServerConfigurationRepositoryInterface::class);
         $this->readAccessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class);
         $this->user = $this->createMock(ContactInterface::class);
 

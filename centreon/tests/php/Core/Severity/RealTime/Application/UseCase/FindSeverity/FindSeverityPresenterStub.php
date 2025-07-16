@@ -23,17 +23,15 @@ declare(strict_types=1);
 
 namespace Tests\Core\Severity\RealTime\Application\UseCase\FindSeverity;
 
-use Symfony\Component\HttpFoundation\Response;
 use Core\Application\Common\UseCase\AbstractPresenter;
-use Core\Severity\RealTime\Application\UseCase\FindSeverity\FindSeverityResponse;
 use Core\Severity\RealTime\Application\UseCase\FindSeverity\FindSeverityPresenterInterface;
+use Core\Severity\RealTime\Application\UseCase\FindSeverity\FindSeverityResponse;
+use Symfony\Component\HttpFoundation\Response;
 
 class FindSeverityPresenterStub extends AbstractPresenter implements
     FindSeverityPresenterInterface
 {
-    /**
-     * @var FindSeverityResponse
-     */
+    /** @var FindSeverityResponse */
     public $response;
 
     /**

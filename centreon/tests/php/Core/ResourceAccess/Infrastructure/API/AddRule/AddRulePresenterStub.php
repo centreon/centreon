@@ -19,7 +19,7 @@
  *
  */
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Tests\Core\ResourceAccess\Infrastructure\API\AddRule;
 
@@ -37,4 +37,3 @@ class AddRulePresenterStub extends AbstractPresenter implements AddRulePresenter
         $this->response = $response;
     }
 }
-

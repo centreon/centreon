@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2015 CENTREON
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
@@ -33,7 +34,7 @@
  *
  */
 
-require_once "Centreon/Object/Relation/Relation.php";
+require_once 'Centreon/Object/Relation/Relation.php';
 
 /**
  * Class
@@ -44,21 +45,25 @@ class Centreon_Object_Relation_Host_Template_Host extends Centreon_Object_Relati
 {
     /** @var Centreon_Object_Host */
     public $firstObject;
+
     /** @var Centreon_Object_Host */
     public $secondObject;
+
     /** @var string */
-    protected $relationTable = "host_template_relation";
+    protected $relationTable = 'host_template_relation';
+
     /** @var string */
-    protected $firstKey = "host_tpl_id";
+    protected $firstKey = 'host_tpl_id';
+
     /** @var string */
-    protected $secondKey = "host_host_id";
+    protected $secondKey = 'host_host_id';
 
     /**
      * Centreon_Object_Relation_Host_Template_Host constructor
      *
-     * @param \Pimple\Container $dependencyInjector
+     * @param Pimple\Container $dependencyInjector
      */
-    public function __construct(\Pimple\Container $dependencyInjector)
+    public function __construct(Pimple\Container $dependencyInjector)
     {
         parent::__construct($dependencyInjector);
         $this->firstObject = new Centreon_Object_Host($dependencyInjector);
@@ -75,7 +80,7 @@ class Centreon_Object_Relation_Host_Template_Host extends Centreon_Object_Relati
      */
     public function insert($fkey, $skey = null): void
     {
-        $sql = "SELECT MAX(`order`) as maxorder FROM " . $this->relationTable . " WHERE " . $this->secondKey . " = ?";
+        $sql = 'SELECT MAX(`order`) as maxorder FROM ' . $this->relationTable . ' WHERE ' . $this->secondKey . ' = ?';
         $res = $this->db->query($sql, [$skey]);
         $row = $res->fetch();
         $order = 1;
@@ -83,7 +88,7 @@ class Centreon_Object_Relation_Host_Template_Host extends Centreon_Object_Relati
             $order = $row['maxorder'] + 1;
         }
         unset($res);
-        $sql = "INSERT INTO $this->relationTable ($this->firstKey, $this->secondKey, `order`) VALUES (?, ?, ?)";
+        $sql = "INSERT INTO {$this->relationTable} ({$this->firstKey}, {$this->secondKey}, `order`) VALUES (?, ?, ?)";
         $this->db->query($sql, [$fkey, $skey, $order]);
     }
 
@@ -102,10 +107,10 @@ class Centreon_Object_Relation_Host_Template_Host extends Centreon_Object_Relati
             parent::delete($fkey, $skey);
             $pearDB = $this->db;
             $centreon = true; // Needed so we can include file below
-            require_once _CENTREON_PATH_ . "/www/include/configuration/configObject/host/DB-Func.php";
+            require_once _CENTREON_PATH_ . '/www/include/configuration/configObject/host/DB-Func.php';
             deleteHostServiceMultiTemplate($skey, $fkey, [], null);
             $this->db->commit();
-        } catch (\PDOException $e) {
+        } catch (PDOException $e) {
             $this->db->rollBack();
             exitProcess(PROCESS_ID, 1, $e->getMessage());
         }
@@ -121,15 +126,16 @@ class Centreon_Object_Relation_Host_Template_Host extends Centreon_Object_Relati
      */
     public function getTargetIdFromSourceId($targetKey, $sourceKey, $sourceId)
     {
-        if (!is_array($sourceId)) {
+        if (! is_array($sourceId)) {
             $sourceId = [$sourceId];
         }
-        $sql = "SELECT $targetKey FROM $this->relationTable WHERE $sourceKey = ? ORDER BY `order`";
+        $sql = "SELECT {$targetKey} FROM {$this->relationTable} WHERE {$sourceKey} = ? ORDER BY `order`";
         $result = $this->getResult($sql, $sourceId);
         $tab = [];
         foreach ($result as $rez) {
             $tab[] = $rez[$targetKey];
         }
+
         return $tab;
     }
 
@@ -143,9 +149,10 @@ class Centreon_Object_Relation_Host_Template_Host extends Centreon_Object_Relati
      * @param string $sort
      * @param array $filters
      * @param string $filterType
+     * @param mixed $offset
      *
-     * @return array
      * @throws Exception
+     * @return array
      */
     public function getMergedParameters(
         $firstTableParams = [],
@@ -153,48 +160,48 @@ class Centreon_Object_Relation_Host_Template_Host extends Centreon_Object_Relati
         $count = -1,
         $offset = 0,
         $order = null,
-        $sort = "ASC",
+        $sort = 'ASC',
         $filters = [],
-        $filterType = "OR"
+        $filterType = 'OR'
     ) {
-        if (!isset($this->firstObject) || !isset($this->secondObject)) {
+        if (! isset($this->firstObject) || ! isset($this->secondObject)) {
             throw new Exception('Unsupported method on this object');
         }
-        $fString = "";
-        $sString = "";
+        $fString = '';
+        $sString = '';
         foreach ($firstTableParams as $fparams) {
-            if ($fString != "") {
-                $fString .= ",";
+            if ($fString != '') {
+                $fString .= ',';
             }
-            $fString .= "h." . $fparams;
+            $fString .= 'h.' . $fparams;
         }
         foreach ($secondTableParams as $sparams) {
-            if ($fString != "" || $sString != "") {
-                $sString .= ",";
+            if ($fString != '' || $sString != '') {
+                $sString .= ',';
             }
-            $sString .= "h2." . $sparams;
+            $sString .= 'h2.' . $sparams;
         }
-        $sql = "SELECT " . $fString . $sString . "
-        		FROM " . $this->firstObject->getTableName() . " h," . $this->relationTable . "
-        		JOIN " . $this->secondObject->getTableName() . " h2 ON " . $this->relationTable . "." . $this->firstKey . " = h2." . $this->secondObject->getPrimaryKey() . "
-        		WHERE h." . $this->firstObject->getPrimaryKey() . " = " . $this->relationTable . "." . $this->secondKey;
+        $sql = 'SELECT ' . $fString . $sString . '
+        		FROM ' . $this->firstObject->getTableName() . ' h,' . $this->relationTable . '
+        		JOIN ' . $this->secondObject->getTableName() . ' h2 ON ' . $this->relationTable . '.' . $this->firstKey . ' = h2.' . $this->secondObject->getPrimaryKey() . '
+        		WHERE h.' . $this->firstObject->getPrimaryKey() . ' = ' . $this->relationTable . '.' . $this->secondKey;
         $filterTab = [];
         if (count($filters)) {
             foreach ($filters as $key => $rawvalue) {
-                $sql .= " $filterType $key LIKE ? ";
+                $sql .= " {$filterType} {$key} LIKE ? ";
                 $value = trim($rawvalue);
-                $value = str_replace("_", "\_", $value);
-                $value = str_replace(" ", "\ ", $value);
+                $value = str_replace('_', "\_", $value);
+                $value = str_replace(' ', "\ ", $value);
                 $filterTab[] = $value;
             }
         }
-        if (isset($order) && isset($sort) && (strtoupper($sort) == "ASC" || strtoupper($sort) == "DESC")) {
-            $sql .= " ORDER BY $order $sort ";
+        if (isset($order, $sort)   && (strtoupper($sort) == 'ASC' || strtoupper($sort) == 'DESC')) {
+            $sql .= " ORDER BY {$order} {$sort} ";
         }
         if (isset($count) && $count != -1) {
             $sql = $this->db->limit($sql, $count, $offset);
         }
-        $result = $this->getResult($sql, $filterTab);
-        return $result;
+
+        return $this->getResult($sql, $filterTab);
     }
 }

@@ -34,75 +34,71 @@
  *
  */
 
-if (!isset($centreon)) {
+if (! isset($centreon)) {
     exit();
 }
 
-include_once $path . "commandType.php";
+include_once $path . 'commandType.php';
 
-/*
- * Form Rules
- */
+// Form Rules
 
 function myReplace()
 {
     global $form;
     $ret = $form->getSubmitValues();
-    return (str_replace(" ", "_", $ret["command_name"]));
+
+    return str_replace(' ', '_', $ret['command_name']);
 }
 
-require_once _CENTREON_PATH_ . "www/include/configuration/configObject/command/javascript/commandJs.php";
+require_once _CENTREON_PATH_ . 'www/include/configuration/configObject/command/javascript/commandJs.php';
 
 const COMMAND_TYPE_CHECK = 2;
 const COMMAND_TYPE_MISC = 3;
-
 
 // Allow type 2 (check) and 3 (miscellaneous) for cloud instance
 if (isCloudPlatform() && isset($type) && ($type !== COMMAND_TYPE_CHECK && $type !== COMMAND_TYPE_MISC)) {
     $type = COMMAND_TYPE_CHECK;
 }
 
-/*
- * Database retrieve information for Command
- */
-$plugins_list = return_plugin($oreon->optGen["nagios_path_plugins"]);
+// Database retrieve information for Command
+$plugins_list = return_plugin($oreon->optGen['nagios_path_plugins']);
 $cmd = [];
 
-$nbRow = "10";
-$strArgDesc = "";
+$nbRow = '10';
+$strArgDesc = '';
 
-if (($o == "c" || $o == "w") && $command_id) {
+if (($o == 'c' || $o == 'w') && $command_id) {
     if (isset($lockedElements[$command_id])) {
-        $o = "w";
+        $o = 'w';
     }
     $DBRESULT = $pearDB->prepare('SELECT * FROM `command` WHERE `command_id` = :command_id LIMIT 1');
     $DBRESULT->bindValue(':command_id', $command_id, PDO::PARAM_INT);
     $DBRESULT->execute();
 
-    # Set base value
-    $cmd = array_map("myDecodeCommand", $DBRESULT->fetchRow());
+    // Set base value
+    $cmd = array_map('myDecodeCommand', $DBRESULT->fetchRow());
 
     $DBRESULT = $pearDB->prepare('SELECT * FROM `command_arg_description` WHERE `cmd_id` = :command_id');
     $DBRESULT->bindValue(':command_id', $command_id, PDO::PARAM_INT);
     $DBRESULT->execute();
 
-    $strArgDesc = "";
+    $strArgDesc = '';
     $nbRow = 0;
     while ($row = $DBRESULT->fetchRow()) {
-        $strArgDesc .= $row['macro_name'] . " : " . html_entity_decode($row['macro_description']) . "\n";
+        $strArgDesc .= $row['macro_name'] . ' : ' . html_entity_decode($row['macro_description']) . "\n";
         $nbRow++;
     }
 }
 
 $oCommande = new CentreonCommand($pearDB);
 $aMacroDescription = $oCommande->getMacroDescription($command_id);
-$sStrMcro = "";
+$sStrMcro = '';
 $nbRowMacro = 0;
 
 if (count($aMacroDescription) > 0) {
     foreach ($aMacroDescription as $macro) {
-        $sStrMcro .= "MACRO (" . $oCommande->aTypeMacro[$macro['type']] . ") " . $macro['name'] . " : " .
-            $macro['description'] . "\n";
+        $sStrMcro .= 'MACRO (' . $oCommande->aTypeMacro[$macro['type']] . ') ' . $macro['name'] . ' : '
+            . $macro['description'] . "\n";
         $nbRowMacro++;
     }
 } elseif ($command_id !== false && array_key_exists('command_line', $cmd)) {
@@ -112,88 +108,76 @@ if (count($aMacroDescription) > 0) {
     $aMacroDescription = array_merge($macrosServiceDesc, $macrosHostDesc);
 
     foreach ($aMacroDescription as $macro) {
-        $sStrMcro .= "MACRO (" . $oCommande->aTypeMacro[$macro['type']] . ") " . $macro['name'] .
-            " : " . $macro['description'] . "\n";
+        $sStrMcro .= 'MACRO (' . $oCommande->aTypeMacro[$macro['type']] . ') ' . $macro['name']
+            . ' : ' . $macro['description'] . "\n";
         $nbRowMacro++;
     }
 }
 
-/*
- * Resource Macro
- */
+// Resource Macro
 $resource = [];
-$query = "SELECT DISTINCT `resource_name`, `resource_comment` FROM `cfg_resource` ORDER BY `resource_name`";
+$query = 'SELECT DISTINCT `resource_name`, `resource_comment` FROM `cfg_resource` ORDER BY `resource_name`';
 $DBRESULT = $pearDB->query($query);
 while ($row = $DBRESULT->fetchRow()) {
-    $resource[$row["resource_name"]] = $row["resource_name"];
-    if (isset($row["resource_comment"]) && $row["resource_comment"] != "") {
-        $resource[$row["resource_name"]] .= " (" . $row["resource_comment"] . ")";
+    $resource[$row['resource_name']] = $row['resource_name'];
+    if (isset($row['resource_comment']) && $row['resource_comment'] != '') {
+        $resource[$row['resource_name']] .= ' (' . $row['resource_comment'] . ')';
     }
 }
 unset($row);
 $DBRESULT->closeCursor();
 
-/*
- * Connectors
- */
+// Connectors
 $connectors = [];
 $DBRESULT = $pearDB->query("SELECT `id`, `name` FROM `connector` WHERE `enabled` = '1' ORDER BY `name`");
 while ($row = $DBRESULT->fetchRow()) {
-    $connectors[$row["id"]] = $row["name"];
+    $connectors[$row['id']] = $row['name'];
 }
 unset($row);
 $DBRESULT->closeCursor();
 
-/*
- * Graphs Template comes from DB -> Store in $graphTpls Array
- */
+// Graphs Template comes from DB -> Store in $graphTpls Array
 $graphTpls = [null => null];
-$DBRESULT = $pearDB->query("SELECT `graph_id`, `name` FROM `giv_graphs_template` ORDER BY `name`");
+$DBRESULT = $pearDB->query('SELECT `graph_id`, `name` FROM `giv_graphs_template` ORDER BY `name`');
 while ($graphTpl = $DBRESULT->fetchRow()) {
-    $graphTpls[$graphTpl["graph_id"]] = $graphTpl["name"];
+    $graphTpls[$graphTpl['graph_id']] = $graphTpl['name'];
 }
 unset($graphTpl);
 $DBRESULT->closeCursor();
 
-/*
- * Nagios Macro
- */
+// Nagios Macro
 $macros = [];
-$DBRESULT = $pearDB->query("SELECT `macro_name` FROM `nagios_macro` ORDER BY `macro_name`");
+$DBRESULT = $pearDB->query('SELECT `macro_name` FROM `nagios_macro` ORDER BY `macro_name`');
 while ($row = $DBRESULT->fetchRow()) {
-    $macros[$row["macro_name"]] = $row["macro_name"];
+    $macros[$row['macro_name']] = $row['macro_name'];
 }
 unset($row);
 $DBRESULT->closeCursor();
 
-$attrsText = ["size" => "35"];
-$attrsTextarea = ["rows" => "9", "cols" => "80", "id" => "command_line"];
-$attrsTextarea2 = ["rows" => "$nbRow", "cols" => "100", "id" => "listOfArg"];
-$attrsTextarea3 = ["rows" => "5", "cols" => "50", "id" => "command_comment"];
-$attrsTextarea4 = ["rows" => "$nbRowMacro", "cols" => "100", "id" => "listOfMacros"];
+$attrsText = ['size' => '35'];
+$attrsTextarea = ['rows' => '9', 'cols' => '80', 'id' => 'command_line'];
+$attrsTextarea2 = ['rows' => "{$nbRow}", 'cols' => '100', 'id' => 'listOfArg'];
+$attrsTextarea3 = ['rows' => '5', 'cols' => '50', 'id' => 'command_comment'];
+$attrsTextarea4 = ['rows' => "{$nbRowMacro}", 'cols' => '100', 'id' => 'listOfMacros'];
 
-/*
- * Form begin
- */
-$form = new HTML_QuickFormCustom('Form', 'post', "?p=" . $p . '&type=' . $type);
-if ($o == "a") {
-    $form->addElement('header', 'title', _("Add a Command"));
-} elseif ($o == "c") {
-    $form->addElement('header', 'title', _("Modify a Command"));
-} elseif ($o == "w") {
-    $form->addElement('header', 'title', _("View a Command"));
+// Form begin
+$form = new HTML_QuickFormCustom('Form', 'post', '?p=' . $p . '&type=' . $type);
+if ($o == 'a') {
+    $form->addElement('header', 'title', _('Add a Command'));
+} elseif ($o == 'c') {
+    $form->addElement('header', 'title', _('Modify a Command'));
+} elseif ($o == 'w') {
+    $form->addElement('header', 'title', _('View a Command'));
 }
 
-/*
- * Command information
- */
+// Command information
 if ($type !== false && isset($tabCommandType[$type]) && $isCloudPlatform === false) {
     $form->addElement('header', 'information', $tabCommandType[$type]);
 } else {
-    $form->addElement('header', 'information', _("Information"));
+    $form->addElement('header', 'information', _('Information'));
 }
 
-$form->addElement('header', 'furtherInfos', _("Additional Information"));
+$form->addElement('header', 'furtherInfos', _('Additional Information'));
 
 // possibility to change the type of command is only possible out of the Cloud context
 if (! $isCloudPlatform) {
@@ -208,7 +192,7 @@ if (! $isCloudPlatform) {
         );
     }
 
-    $form->addGroup($cmdType, 'command_type', _("Command Type"), '&nbsp;&nbsp;');
+    $form->addGroup($cmdType, 'command_type', _('Command Type'), '&nbsp;&nbsp;');
 
     if ($type !== false) {
         $form->setDefaults(['command_type' => $type]);
@@ -220,41 +204,39 @@ if (! $isCloudPlatform) {
 if (isset($cmd['connector_id']) && is_numeric($cmd['connector_id'])) {
     $form->setDefaults(['connectors' => $cmd['connector_id']]);
 } else {
-    $form->setDefaults(['connectors' => ""]);
+    $form->setDefaults(['connectors' => '']);
 }
 
-$form->addElement('text', 'command_name', _("Command Name"), $attrsText);
-$form->addElement('text', 'command_example', _("Argument Example"), $attrsText);
-$form->addElement('textarea', 'command_line', _("Command Line"), $attrsTextarea);
-$form->addElement('checkbox', 'enable_shell', _("Enable shell"), null, $attrsText);
+$form->addElement('text', 'command_name', _('Command Name'), $attrsText);
+$form->addElement('text', 'command_example', _('Argument Example'), $attrsText);
+$form->addElement('textarea', 'command_line', _('Command Line'), $attrsTextarea);
+$form->addElement('checkbox', 'enable_shell', _('Enable shell'), null, $attrsText);
 
-$form->addElement('textarea', 'listOfArg', _("Argument Descriptions"), $attrsTextarea2)->setAttribute("readonly");
-$form->addElement('select', 'graph_id', _("Graph template"), $graphTpls);
-$form->addElement('button', 'desc_arg', _("Describe arguments"), ["onClick" => "goPopup();"]);
-$form->addElement('button', 'clear_arg', _("Clear arguments"), ["onClick" => "clearArgs();"]);
-$form->addElement('textarea', 'command_comment', _("Comment"), $attrsTextarea2);
-$form->addElement('button', 'desc_macro', _("Describe macros"), ["onClick" => "manageMacros();"]);
-$form->addElement('textarea', 'listOfMacros', _("Macros Descriptions"), $attrsTextarea4)->setAttribute("readonly");
+$form->addElement('textarea', 'listOfArg', _('Argument Descriptions'), $attrsTextarea2)->setAttribute('readonly');
+$form->addElement('select', 'graph_id', _('Graph template'), $graphTpls);
+$form->addElement('button', 'desc_arg', _('Describe arguments'), ['onClick' => 'goPopup();']);
+$form->addElement('button', 'clear_arg', _('Clear arguments'), ['onClick' => 'clearArgs();']);
+$form->addElement('textarea', 'command_comment', _('Comment'), $attrsTextarea2);
+$form->addElement('button', 'desc_macro', _('Describe macros'), ['onClick' => 'manageMacros();']);
+$form->addElement('textarea', 'listOfMacros', _('Macros Descriptions'), $attrsTextarea4)->setAttribute('readonly');
 
-$cmdActivation[] = $form->createElement('radio', 'command_activate', null, _("Enabled"), '1');
-$cmdActivation[] = $form->createElement('radio', 'command_activate', null, _("Disabled"), '0');
-$form->addGroup($cmdActivation, 'command_activate', _("Status"), '&nbsp;');
+$cmdActivation[] = $form->createElement('radio', 'command_activate', null, _('Enabled'), '1');
+$cmdActivation[] = $form->createElement('radio', 'command_activate', null, _('Disabled'), '0');
+$form->addGroup($cmdActivation, 'command_activate', _('Status'), '&nbsp;');
 $form->setDefaults(['command_activate' => '1']);
 
-$form->setDefaults(["listOfArg" => $strArgDesc]);
-$form->setDefaults(["listOfMacros" => $sStrMcro]);
+$form->setDefaults(['listOfArg' => $strArgDesc]);
+$form->setDefaults(['listOfMacros' => $sStrMcro]);
 
-$connectors[null] = _("Select a connector...");
+$connectors[null] = _('Select a connector...');
 $form->addElement('select', 'resource', null, $resource);
-$form->addElement('select', 'connectors', _("Connectors"), $connectors);
+$form->addElement('select', 'connectors', _('Connectors'), $connectors);
 $form->addElement('select', 'macros', null, $macros);
 
 ksort($plugins_list);
 $form->addElement('select', 'plugins', null, $plugins_list);
 
-/*
- * Further informations
- */
+// Further informations
 $form->addElement('hidden', 'command_id');
 $redirectType = $form->addElement('hidden', 'type');
 $redirectType->setValue($type);
@@ -264,71 +246,65 @@ $redirect->setValue($o);
 $form->applyFilter('__ALL__', 'myTrim');
 $form->applyFilter('command_name', 'myReplace');
 $form->applyFilter('__ALL__', 'myTrim');
-$form->addRule('command_name', _("Compulsory Name"), 'required');
-$form->addRule('command_line', _("Compulsory Command Line"), 'required');
+$form->addRule('command_name', _('Compulsory Name'), 'required');
+$form->addRule('command_line', _('Compulsory Command Line'), 'required');
 $form->registerRule('exist', 'callback', 'testCmdExistence');
-$form->addRule('command_name', _("Name is already in use"), 'exist');
-$form->setRequiredNote("<font style='color: red;'>*</font>&nbsp;" . _("Required fields"));
+$form->addRule('command_name', _('Name is already in use'), 'exist');
+$form->setRequiredNote("<font style='color: red;'>*</font>&nbsp;" . _('Required fields'));
 
 // Smarty template initialization
 $tpl = SmartyBC::createSmartyTemplate($path);
 
 $tpl->assign(
-    "helpattr",
-    'TITLE, "' . _("Help") . '", CLOSEBTN, true, FIX, [this, 0, 5], BGCOLOR, "#ffff99", ' .
-    'BORDERCOLOR, "orange", TITLEFONTCOLOR, "black", TITLEBGCOLOR, "orange", CLOSEBTNCOLORS, ' .
-    '["","black", "white", "red"], WIDTH, -300, SHADOW, true, TEXTALIGN, "justify"'
+    'helpattr',
+    'TITLE, "' . _('Help') . '", CLOSEBTN, true, FIX, [this, 0, 5], BGCOLOR, "#ffff99", '
+    . 'BORDERCOLOR, "orange", TITLEFONTCOLOR, "black", TITLEBGCOLOR, "orange", CLOSEBTNCOLORS, '
+    . '["","black", "white", "red"], WIDTH, -300, SHADOW, true, TEXTALIGN, "justify"'
 );
-# prepare help texts
-$helptext = "";
-include_once("help.php");
+// prepare help texts
+$helptext = '';
+include_once 'help.php';
 foreach ($help as $key => $text) {
     $helptext .= '<span style="display:none" id="help:' . $key . '">' . $text . '</span>' . "\n";
 }
-$tpl->assign("helptext", $helptext);
+$tpl->assign('helptext', $helptext);
 
-/*
- * Just watch a Command information
- */
-if ($o == "w") {
-    if ($command_id !== false && $centreon->user->access->page($p) != 2 && !isset($lockedElements[$command_id])) {
+// Just watch a Command information
+if ($o == 'w') {
+    if ($command_id !== false && $centreon->user->access->page($p) != 2 && ! isset($lockedElements[$command_id])) {
         $form->addElement(
-            "button",
-            "change",
-            _("Modify"),
-            ["onClick" => "javascript:window.location.href='?p=" . $p .
-                "&o=c&command_id=" . $command_id . "&type=" . $type . "'"]
+            'button',
+            'change',
+            _('Modify'),
+            ['onClick' => "javascript:window.location.href='?p=" . $p
+                . '&o=c&command_id=' . $command_id . '&type=' . $type . "'"]
         );
     }
     $form->setDefaults($cmd);
     $form->freeze();
-} elseif ($o == "c") {
-    /*
-     * Modify a Command information
-     */
-    $subC = $form->addElement('submit', 'submitC', _("Save"), ["class" => "btc bt_success"]);
-    $res = $form->addElement('reset', 'reset', _("Reset"), ["class" => "btc bt_default"]);
+} elseif ($o == 'c') {
+    // Modify a Command information
+    $subC = $form->addElement('submit', 'submitC', _('Save'), ['class' => 'btc bt_success']);
+    $res = $form->addElement('reset', 'reset', _('Reset'), ['class' => 'btc bt_default']);
     $form->setDefaults($cmd);
-} elseif ($o == "a") {
-    /*
-     * Add a Command information
-     */
-    $subA = $form->addElement('submit', 'submitA', _("Save"), ["class" => "btc bt_success"]);
-    $res = $form->addElement('reset', 'reset', _("Reset"), ["class" => "btc bt_default"]);
+} elseif ($o == 'a') {
+    // Add a Command information
+    $subA = $form->addElement('submit', 'submitA', _('Save'), ['class' => 'btc bt_success']);
+    $res = $form->addElement('reset', 'reset', _('Reset'), ['class' => 'btc bt_default']);
 }
 
-$tpl->assign('msg', ["comment" => _("Commands definitions can contain Macros but they have to be valid.")]);
-$tpl->assign('cmd_help', _("Plugin Help"));
-$tpl->assign("is_cloud_platform", $isCloudPlatform);
+$tpl->assign('msg', ['comment' => _('Commands definitions can contain Macros but they have to be valid.')]);
+$tpl->assign('cmd_help', _('Plugin Help'));
+$tpl->assign('is_cloud_platform', $isCloudPlatform);
 
 $valid = false;
 $errorMessage = '';
 if ($form->validate()) {
     try {
         $cmdObj = $form->getElement('command_id');
-        if ($form->getSubmitValue("submitA")) {
+        if ($form->getSubmitValue('submitA')) {
             $cmdObj->setValue(insertCommandInDB());
-        } elseif ($form->getSubmitValue("submitC")) {
+        } elseif ($form->getSubmitValue('submitC')) {
             updateCommandInDB($cmdObj->getValue());
         }
 
@@ -395,11 +371,9 @@ if ($form->validate()) {
 <?php
 
 if ($valid) {
-    require_once($path . "listCommand.php");
+    require_once $path . 'listCommand.php';
 } else {
-    /*
-     * Apply a template definition
-     */
+    // Apply a template definition
     $renderer = new HTML_QuickForm_Renderer_ArraySmarty($tpl);
     $renderer->setRequiredTemplate('{$label}&nbsp;<font color="red" size="1">*</font>');
     if (! empty($errorMessage)) {
@@ -411,12 +385,12 @@ if ($valid) {
     $tpl->assign('errorMessage', $errorMessage);
     $tpl->assign('form', $renderer->toArray());
     $tpl->assign('o', $o);
-    $tpl->assign('macro_desc_label', _("Macros Descriptions"));
+    $tpl->assign('macro_desc_label', _('Macros Descriptions'));
 
-    if (!$isCloudPlatform) {
-        $tpl->assign('arg_desc_label', _("Argument Descriptions"));
-        $tpl->display("formCommandOnPrem.ihtml");
+    if (! $isCloudPlatform) {
+        $tpl->assign('arg_desc_label', _('Argument Descriptions'));
+        $tpl->display('formCommandOnPrem.ihtml');
     } else {
-        $tpl->display("formCommandCloud.ihtml");
+        $tpl->display('formCommandCloud.ihtml');
     }
 }

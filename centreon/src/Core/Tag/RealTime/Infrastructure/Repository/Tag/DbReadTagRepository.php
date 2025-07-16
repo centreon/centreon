@@ -130,7 +130,7 @@ class DbReadTagRepository extends AbstractRepositoryDRB implements ReadTagReposi
         }
 
         $accessGroupIds = array_map(
-            static fn($accessGroup) => $accessGroup->getId(),
+            static fn ($accessGroup) => $accessGroup->getId(),
             $accessGroups
         );
 
@@ -140,14 +140,14 @@ class DbReadTagRepository extends AbstractRepositoryDRB implements ReadTagReposi
         );
 
         if ((
-                $typeId === Tag::HOST_CATEGORY_TYPE_ID
+            $typeId === Tag::HOST_CATEGORY_TYPE_ID
                 && ! $this->hasRestrictedAccessToHostCategories($accessGroupIds)
-            )
+        )
             || (
                 $typeId === Tag::SERVICE_CATEGORY_TYPE_ID
                 && ! $this->hasRestrictedAccessToServiceCategories($accessGroupIds)
-                )
-            ) {
+            )
+        ) {
             return $this->findAllByTypeId($typeId);
         }
 

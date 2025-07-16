@@ -45,12 +45,14 @@ final class ServiceCategory extends AbstractObject
 {
     private const TAG_TYPE = 'servicecategory';
 
-    /** @var array<int,mixed> */
-    private array $serviceCategories = [];
-    /** @var array<int,int[]>|null */
-    private array|null $serviceCategoriesRelationsCache = null;
     /** @var string */
     protected string $object_name = 'tag';
+
+    /** @var array<int,mixed> */
+    private array $serviceCategories = [];
+
+    /** @var array<int,int[]>|null */
+    private array|null $serviceCategoriesRelationsCache = null;
 
     /**
      * @param Container $dependencyInjector
@@ -64,25 +66,6 @@ final class ServiceCategory extends AbstractObject
             'tag_name',
             'type',
         ];
-    }
-    /**
-     * Build cache for service categories
-     */
-    private function buildCache(): void
-    {
-        $stmt = $this->backend_instance->db->prepare(
-            "SELECT service_categories.sc_id, service_service_id
-            FROM service_categories, service_categories_relation
-            WHERE level IS NULL
-            AND sc_activate = '1'
-            AND service_categories_relation.sc_id = service_categories.sc_id"
-        );
-        $stmt->execute();
-
-        $this->serviceCategoriesRelationsCache = [];
-        foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $value) {
-            $this->serviceCategoriesRelationsCache[(int) $value['service_service_id']][] = (int) $value['sc_id'];
-        }
     }
 
     /**
@@ -98,31 +81,6 @@ final class ServiceCategory extends AbstractObject
         }
 
         return $this->serviceCategoriesRelationsCache[$serviceId] ?? [];
-    }
-
-    /**
-     * Retrieve a categorie from its id
-     *
-     * @param int $serviceCategoryId
-     *
-     * @return self
-     * @throws PDOException
-     */
-    private function addServiceCategoryToList(int $serviceCategoryId): self
-    {
-        $stmt = $this->backend_instance->db->prepare(
-            "SELECT sc_id as id, sc_name as tag_name
-            FROM service_categories
-            WHERE sc_id = :serviceCategoryId AND level IS NULL AND sc_activate = '1'"
-        );
-        $stmt->bindParam(':serviceCategoryId', $serviceCategoryId, PDO::PARAM_INT);
-        $stmt->execute();
-        if ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-            $this->serviceCategories[$serviceCategoryId] = $row;
-            $this->serviceCategories[$serviceCategoryId]['members'] = [];
-        }
-
-        return $this;
     }
 
     /**
@@ -178,6 +136,7 @@ final class ServiceCategory extends AbstractObject
             }
         }
     }
+
     /**
      * @param int $serviceId
      * @return int[]
@@ -192,5 +151,50 @@ final class ServiceCategory extends AbstractObject
         }
 
         return $serviceCategoryIds;
+    }
+
+    /**
+     * Build cache for service categories
+     */
+    private function buildCache(): void
+    {
+        $stmt = $this->backend_instance->db->prepare(
+            "SELECT service_categories.sc_id, service_service_id
+            FROM service_categories, service_categories_relation
+            WHERE level IS NULL
+            AND sc_activate = '1'
+            AND service_categories_relation.sc_id = service_categories.sc_id"
+        );
+        $stmt->execute();
+
+        $this->serviceCategoriesRelationsCache = [];
+        foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $value) {
+            $this->serviceCategoriesRelationsCache[(int) $value['service_service_id']][] = (int) $value['sc_id'];
+        }
+    }
+
+    /**
+     * Retrieve a categorie from its id
+     *
+     * @param int $serviceCategoryId
+     *
+     * @throws PDOException
+     * @return self
+     */
+    private function addServiceCategoryToList(int $serviceCategoryId): self
+    {
+        $stmt = $this->backend_instance->db->prepare(
+            "SELECT sc_id as id, sc_name as tag_name
+            FROM service_categories
+            WHERE sc_id = :serviceCategoryId AND level IS NULL AND sc_activate = '1'"
+        );
+        $stmt->bindParam(':serviceCategoryId', $serviceCategoryId, PDO::PARAM_INT);
+        $stmt->execute();
+        if ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $this->serviceCategories[$serviceCategoryId] = $row;
+            $this->serviceCategories[$serviceCategoryId]['members'] = [];
+        }
+
+        return $this;
     }
 }

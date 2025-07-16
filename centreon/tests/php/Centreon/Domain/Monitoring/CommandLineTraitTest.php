@@ -24,42 +24,30 @@ namespace Tests\Centreon\Domain\Monitoring;
 
 use Centreon\Domain\HostConfiguration\HostMacro;
 use Centreon\Domain\Monitoring\CommandLineTrait;
-use Centreon\Domain\ServiceConfiguration\ServiceMacro;
 use Centreon\Domain\Monitoring\Exception\MonitoringServiceException;
+use Centreon\Domain\ServiceConfiguration\ServiceMacro;
 use PHPUnit\Framework\TestCase;
 
 class CommandLineTraitTest extends TestCase
 {
     use CommandLineTrait;
 
-    /**
-     * @var HostMacro
-     */
+    /** @var HostMacro */
     private $hostMacroWithoutSpace;
 
-    /**
-     * @var HostMacro
-     */
+    /** @var HostMacro */
     private $hostMacroWithSpace;
 
-    /**
-     * @var ServiceMacro
-     */
+    /** @var ServiceMacro */
     private $serviceMacroWithoutSpace;
 
-    /**
-     * @var ServiceMacro
-     */
+    /** @var ServiceMacro */
     private $serviceMacroWithSpace;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private $configurationCommand;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private $replacementValue;
 
     protected function setUp(): void
@@ -89,7 +77,7 @@ class CommandLineTraitTest extends TestCase
             $this->hostMacroWithoutSpace,
             $this->hostMacroWithSpace,
             $this->serviceMacroWithoutSpace,
-            $this->serviceMacroWithSpace
+            $this->serviceMacroWithSpace,
         ];
 
         $monitoringCommand = '/centreon/plugins/plugin.pl --a="' . $this->hostMacroWithoutSpace->getValue() . '" '
@@ -122,7 +110,7 @@ class CommandLineTraitTest extends TestCase
             $this->hostMacroWithoutSpace,
             $this->hostMacroWithSpace,
             $this->serviceMacroWithoutSpace,
-            $this->serviceMacroWithSpace
+            $this->serviceMacroWithSpace,
         ];
 
         $monitoringCommand = '/centreon/plugins/plugin.pl --a="' . $this->replacementValue . '" '
@@ -171,7 +159,7 @@ class CommandLineTraitTest extends TestCase
             $this->serviceMacroWithoutSpace,
             $this->serviceMacroWithSpace,
             $serviceMacroExtraOptions,
-            $serviceMacroExtraOptions2
+            $serviceMacroExtraOptions2,
         ];
 
         $monitoringCommand = '/centreon/plugins/plugin.pl --a="' . $this->replacementValue . '" '

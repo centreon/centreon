@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Copyright 2005-2016 Centreon
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
@@ -30,10 +31,9 @@
  * do not wish to do so, delete this exception statement from your version.
  *
  * For more information : contact@centreon.com
- *
  */
 
-require_once __DIR__ . "/../List.class.php";
+require_once __DIR__ . '/../List.class.php';
 
 /**
  * Class
@@ -59,22 +59,23 @@ class CentreonWidgetParamsConnectorMetric extends CentreonWidgetParamsList
     /**
      * @param $paramId
      *
-     * @return mixed|null[]
      * @throws PDOException
+     * @return mixed|null[]
      */
     public function getListValues($paramId)
     {
         static $tab;
 
-        if (!isset($tab)) {
-            $query = "SELECT metric_id, metric_name FROM metrics WHERE to_delete = 0 ";
-            $query .= " ORDER BY metric_name ";
+        if (! isset($tab)) {
+            $query = 'SELECT metric_id, metric_name FROM metrics WHERE to_delete = 0 ';
+            $query .= ' ORDER BY metric_name ';
             $res = $this->monitoringDb->query($query);
             $tab = [null => null];
             while ($row = $res->fetchRow()) {
                 $tab[$row['metric_id']] = $row['metric_name'];
             }
         }
+
         return $tab;
     }
 }

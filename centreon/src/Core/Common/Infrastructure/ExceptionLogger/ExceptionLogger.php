@@ -42,7 +42,8 @@ final readonly class ExceptionLogger
      */
     public function __construct(
         private LoggerInterface $logger
-    ) {}
+    ) {
+    }
 
     /**
      * Factory

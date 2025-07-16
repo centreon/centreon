@@ -64,7 +64,6 @@ use Core\Macro\Application\Repository\WriteHostMacroRepositoryInterface;
 use Core\Macro\Domain\Model\Macro;
 use Core\MonitoringServer\Application\Repository\WriteMonitoringServerRepositoryInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
-use phpDocumentor\Reflection\Types\This;
 use Tests\Core\Host\Infrastructure\API\AddHost\AddHostPresenterStub;
 
 beforeEach(function (): void {
@@ -575,7 +574,7 @@ it('should present a ConflictResponse when a parent template ID is not valid', f
         ->toBe(
             HostException::idsDoNotExist(
                 'templates',
-                 $this->request->templates
+                $this->request->templates
             )->getMessage()
         );
 });
@@ -686,8 +685,8 @@ it('should return created object on success (with admin user)', function (): voi
         ->method('findNamesByIds')
         ->willReturn(
             array_combine(
-                array_map((fn($row) => $row['id']), $this->parentTemplates),
-                array_map((fn($row) => $row['name']), $this->parentTemplates)
+                array_map((fn ($row) => $row['id']), $this->parentTemplates),
+                array_map((fn ($row) => $row['name']), $this->parentTemplates)
             )
         );
     $this->readHostMacroRepository
@@ -780,22 +779,22 @@ it('should return created object on success (with admin user)', function (): voi
         ->toBe(YesNoDefaultConverter::toInt($this->host->getEventHandlerEnabled()))
         ->and($response->categories)
         ->toBe(array_map(
-            (fn($category) => ['id' => $category->getId(), 'name' => $category->getName()]),
+            (fn ($category) => ['id' => $category->getId(), 'name' => $category->getName()]),
             $this->categories
         ))
         ->and($response->groups)
         ->toBe(array_map(
-            (fn($group) => ['id' => $group->getId(), 'name' => $group->getName()]),
+            (fn ($group) => ['id' => $group->getId(), 'name' => $group->getName()]),
             $this->groups
         ))
         ->and($response->templates)
         ->toBe(array_map(
-            (fn($template) => ['id' => $template['id'], 'name' => $template['name']]),
+            (fn ($template) => ['id' => $template['id'], 'name' => $template['name']]),
             $this->parentTemplates
         ))
         ->and($response->macros)
         ->toBe(array_map(
-            (fn($macro) => [
+            (fn ($macro) => [
                 'name' => $macro->getName(),
                 'value' => $macro->getValue(),
                 'isPassword' => $macro->isPassword(),
@@ -896,8 +895,8 @@ it('should return created object on success (with non-admin user)', function ():
         ->method('findNamesByIds')
         ->willReturn(
             array_combine(
-                array_map((fn($row) => $row['id']), $this->parentTemplates),
-                array_map((fn($row) => $row['name']), $this->parentTemplates)
+                array_map((fn ($row) => $row['id']), $this->parentTemplates),
+                array_map((fn ($row) => $row['name']), $this->parentTemplates)
             )
         );
     $this->readHostMacroRepository
@@ -990,22 +989,22 @@ it('should return created object on success (with non-admin user)', function ():
         ->toBe(YesNoDefaultConverter::toInt($this->host->getEventHandlerEnabled()))
         ->and($response->categories)
         ->toBe(array_map(
-            (fn($category) => ['id' => $category->getId(), 'name' => $category->getName()]),
+            (fn ($category) => ['id' => $category->getId(), 'name' => $category->getName()]),
             $this->categories
         ))
         ->and($response->groups)
         ->toBe(array_map(
-            (fn($group) => ['id' => $group->getId(), 'name' => $group->getName()]),
+            (fn ($group) => ['id' => $group->getId(), 'name' => $group->getName()]),
             $this->groups
         ))
         ->and($response->templates)
         ->toBe(array_map(
-            (fn($template) => ['id' => $template['id'], 'name' => $template['name']]),
+            (fn ($template) => ['id' => $template['id'], 'name' => $template['name']]),
             $this->parentTemplates
         ))
         ->and($response->macros)
         ->toBe(array_map(
-            (fn($macro) => [
+            (fn ($macro) => [
                 'name' => $macro->getName(),
                 'value' => $macro->getValue(),
                 'isPassword' => $macro->isPassword(),
@@ -1019,4 +1018,4 @@ it('should return created object on success (with non-admin user)', function ():
         ->toBe($this->host->addInheritedContact())
         ->and($response->isActivated)
         ->toBe($this->host->isActivated());
-    });
+});

@@ -22,15 +22,15 @@ declare(strict_types=1);
 
 namespace Centreon\Application\Controller\Monitoring;
 
-use FOS\RestBundle\View\View;
-use Centreon\Domain\Contact\Contact;
-use Centreon\Domain\Monitoring\Service;
-use Centreon\Domain\Exception\EntityNotFoundException;
 use Centreon\Application\Controller\AbstractController;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Centreon\Domain\Contact\Contact;
+use Centreon\Domain\Exception\EntityNotFoundException;
 use Centreon\Domain\Monitoring\Interfaces\MonitoringServiceInterface;
 use Centreon\Domain\Monitoring\Metric\Interfaces\MetricServiceInterface;
+use Centreon\Domain\Monitoring\Service;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
+use FOS\RestBundle\View\View;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
  * This class is design to manage all API REST about metric requests
@@ -39,14 +39,10 @@ use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
  */
 class MetricController extends AbstractController
 {
-    /**
-     * @var MetricServiceInterface
-     */
+    /** @var MetricServiceInterface */
     private $metricService;
 
-    /**
-     * @var MonitoringServiceInterface
-     */
+    /** @var MonitoringServiceInterface */
     private $monitoringService;
 
     /**
@@ -64,10 +60,212 @@ class MetricController extends AbstractController
     }
 
     /**
+     * Entry point to get service metrics
+     *
+     * @param int $hostId
+     * @param int $serviceId
+     * @param \DateTime $start
+     * @param \DateTime $end
+     * @throws \Exception
+     * @return View
+     */
+    public function getServiceMetrics(
+        int $hostId,
+        int $serviceId,
+        \DateTime $start,
+        \DateTime $end
+    ): View {
+        $this->denyAccessUnlessGrantedForApiRealtime();
+
+        /**
+         * @var Contact $contact
+         */
+        $contact = $this->getUser();
+
+        $service = $this->findService($hostId, $serviceId);
+
+        $metrics = $this->metricService
+            ->filterByContact($contact)
+            ->findMetricsByService($service, $start, $end);
+
+        return $this->view($metrics);
+    }
+
+    /**
+     * Entry point to get service status
+     *
+     * @param int $hostId
+     * @param int $serviceId
+     * @param \DateTime $start
+     * @param \DateTime $end
+     * @throws \Exception
+     * @return View
+     */
+    public function getServiceStatus(
+        int $hostId,
+        int $serviceId,
+        \DateTime $start,
+        \DateTime $end
+    ): View {
+        $this->denyAccessUnlessGrantedForApiRealtime();
+
+        /**
+         * @var Contact $contact
+         */
+        $contact = $this->getUser();
+
+        $service = $this->findService($hostId, $serviceId);
+
+        $status = $this->metricService
+            ->filterByContact($contact)
+            ->findStatusByService($service, $start, $end);
+
+        return $this->view($status);
+    }
+
+    /**
+     * Entry point to get service performance metrics
+     *
+     * @param int $hostId
+     * @param int $serviceId
+     * @throws \Exception
+     * @return View
+     */
+    public function getServicePerformanceMetrics(
+        RequestParametersInterface $requestParameters,
+        int $hostId,
+        int $serviceId
+    ): View {
+        $this->denyAccessUnlessGrantedForApiRealtime();
+
+        [$start, $end] = $this->extractDatesFromRequestParameters($requestParameters);
+
+        /**
+         * @var Contact $contact
+         */
+        $contact = $this->getUser();
+
+        $service = $this->findService($hostId, $serviceId);
+
+        $metrics = $this->metricService
+            ->filterByContact($contact)
+            ->findMetricsByService($service, $start, $end);
+
+        $metrics = $this->normalizePerformanceMetricsDates($metrics);
+
+        return $this->view($metrics);
+    }
+
+    /**
+     * Entry point to get service status metrics
+     *
+     * @param int $hostId
+     * @param int $serviceId
+     * @throws \Exception
+     * @return View
+     */
+    public function getServiceStatusMetrics(
+        RequestParametersInterface $requestParameters,
+        int $hostId,
+        int $serviceId
+    ): View {
+        $this->denyAccessUnlessGrantedForApiRealtime();
+
+        [$start, $end] = $this->extractDatesFromRequestParameters($requestParameters);
+
+        /**
+         * @var Contact $contact
+         */
+        $contact = $this->getUser();
+
+        $service = $this->findService($hostId, $serviceId);
+
+        $status = $this->metricService
+            ->filterByContact($contact)
+            ->findStatusByService($service, $start, $end);
+
+        return $this->view($status);
+    }
+
+    /**
+     * Entry point to get meta service performance metrics
+     *
+     * @param int $metaId
+     * @throws \Exception
+     * @return View
+     */
+    public function getMetaServicePerformanceMetrics(
+        RequestParametersInterface $requestParameters,
+        int $metaId
+    ): View {
+        $this->denyAccessUnlessGrantedForApiRealtime();
+
+        [$start, $end] = $this->extractDatesFromRequestParameters($requestParameters);
+
+        /**
+         * @var Contact $contact
+         */
+        $contact = $this->getUser();
+
+        $service = $this->monitoringService
+            ->filterByContact($contact)
+            ->findOneServiceByDescription('meta_' . $metaId);
+        if ($service === null) {
+            throw new EntityNotFoundException(
+                sprintf(_('Meta Service linked to service %d not found'), $metaId)
+            );
+        }
+
+        $metrics = $this->metricService
+            ->filterByContact($contact)
+            ->findMetricsByService($service, $start, $end);
+
+        $metrics = $this->normalizePerformanceMetricsDates($metrics);
+
+        return $this->view($metrics);
+    }
+
+    /**
+     * Entry point to get metaservice status metrics
+     *
+     * @param int $metaId
+     * @throws \Exception
+     * @return View
+     */
+    public function getMetaServiceStatusMetrics(
+        RequestParametersInterface $requestParameters,
+        int $metaId
+    ): View {
+        $this->denyAccessUnlessGrantedForApiRealtime();
+
+        [$start, $end] = $this->extractDatesFromRequestParameters($requestParameters);
+
+        /**
+         * @var Contact $contact
+         */
+        $contact = $this->getUser();
+
+        $service = $this->monitoringService
+            ->filterByContact($contact)
+            ->findOneServiceByDescription('meta_' . $metaId);
+        if ($service === null) {
+            throw new EntityNotFoundException(
+                sprintf(_('Meta Service linked to service %d not found'), $metaId)
+            );
+        }
+
+        $status = $this->metricService
+            ->filterByContact($contact)
+            ->findStatusByService($service, $start, $end);
+
+        return $this->view($status);
+    }
+
+    /**
      * find a service from host id and service id
      *
-     * @return Service if the service is found
      * @throws EntityNotFoundException if the host or service is not found
+     * @return Service if the service is found
      */
     private function findService(int $hostId, int $serviceId): Service
     {
@@ -98,7 +296,7 @@ class MetricController extends AbstractController
     /**
      * convert timestamp to DateTime
      *
-     * @param integer $timestamp
+     * @param int $timestamp
      * @param \DateTimeZone $timezone
      * @return \DateTime
      */
@@ -139,10 +337,10 @@ class MetricController extends AbstractController
      * Validate and extract start/end dates from request parameters
      *
      * @param RequestParametersInterface $requestParameters
-     * @return array<\DateTime>
-     * @example [new \Datetime('yesterday'), new \Datetime('today')]
      * @throws NotFoundHttpException
      * @throws \LogicException
+     * @return array<\DateTime>
+     * @example [new \Datetime('yesterday'), new \Datetime('today')]
      */
     private function extractDatesFromRequestParameters(RequestParametersInterface $requestParameters): array
     {
@@ -163,207 +361,5 @@ class MetricController extends AbstractController
         }
 
         return [$start, $end];
-    }
-
-    /**
-     * Entry point to get service metrics
-     *
-     * @param int $hostId
-     * @param int $serviceId
-     * @param \DateTime $start
-     * @param \DateTime $end
-     * @return View
-     * @throws \Exception
-     */
-    public function getServiceMetrics(
-        int $hostId,
-        int $serviceId,
-        \DateTime $start,
-        \DateTime $end
-    ): View {
-        $this->denyAccessUnlessGrantedForApiRealtime();
-
-        /**
-         * @var Contact $contact
-         */
-        $contact = $this->getUser();
-
-        $service = $this->findService($hostId, $serviceId);
-
-        $metrics = $this->metricService
-            ->filterByContact($contact)
-            ->findMetricsByService($service, $start, $end);
-
-        return $this->view($metrics);
-    }
-
-    /**
-     * Entry point to get service status
-     *
-     * @param int $hostId
-     * @param int $serviceId
-     * @param \DateTime $start
-     * @param \DateTime $end
-     * @return View
-     * @throws \Exception
-     */
-    public function getServiceStatus(
-        int $hostId,
-        int $serviceId,
-        \DateTime $start,
-        \DateTime $end
-    ): View {
-        $this->denyAccessUnlessGrantedForApiRealtime();
-
-        /**
-         * @var Contact $contact
-         */
-        $contact = $this->getUser();
-
-        $service = $this->findService($hostId, $serviceId);
-
-        $status = $this->metricService
-            ->filterByContact($contact)
-            ->findStatusByService($service, $start, $end);
-
-        return $this->view($status);
-    }
-
-    /**
-     * Entry point to get service performance metrics
-     *
-     * @param int $hostId
-     * @param int $serviceId
-     * @return View
-     * @throws \Exception
-     */
-    public function getServicePerformanceMetrics(
-        RequestParametersInterface $requestParameters,
-        int $hostId,
-        int $serviceId
-    ): View {
-        $this->denyAccessUnlessGrantedForApiRealtime();
-
-        [$start, $end] = $this->extractDatesFromRequestParameters($requestParameters);
-
-        /**
-         * @var Contact $contact
-         */
-        $contact = $this->getUser();
-
-        $service = $this->findService($hostId, $serviceId);
-
-        $metrics = $this->metricService
-            ->filterByContact($contact)
-            ->findMetricsByService($service, $start, $end);
-
-        $metrics = $this->normalizePerformanceMetricsDates($metrics);
-
-        return $this->view($metrics);
-    }
-
-    /**
-     * Entry point to get service status metrics
-     *
-     * @param int $hostId
-     * @param int $serviceId
-     * @return View
-     * @throws \Exception
-     */
-    public function getServiceStatusMetrics(
-        RequestParametersInterface $requestParameters,
-        int $hostId,
-        int $serviceId
-    ): View {
-        $this->denyAccessUnlessGrantedForApiRealtime();
-
-        [$start, $end] = $this->extractDatesFromRequestParameters($requestParameters);
-
-        /**
-         * @var Contact $contact
-         */
-        $contact = $this->getUser();
-
-        $service = $this->findService($hostId, $serviceId);
-
-        $status = $this->metricService
-            ->filterByContact($contact)
-            ->findStatusByService($service, $start, $end);
-
-        return $this->view($status);
-    }
-
-    /**
-     * Entry point to get meta service performance metrics
-     *
-     * @param int $metaId
-     * @return View
-     * @throws \Exception
-     */
-    public function getMetaServicePerformanceMetrics(
-        RequestParametersInterface $requestParameters,
-        int $metaId
-    ): View {
-        $this->denyAccessUnlessGrantedForApiRealtime();
-
-        [$start, $end] = $this->extractDatesFromRequestParameters($requestParameters);
-
-        /**
-         * @var Contact $contact
-         */
-        $contact = $this->getUser();
-
-        $service = $this->monitoringService
-            ->filterByContact($contact)
-            ->findOneServiceByDescription('meta_' . $metaId);
-        if ($service === null) {
-            throw new EntityNotFoundException(
-                sprintf(_('Meta Service linked to service %d not found'), $metaId)
-            );
-        }
-
-        $metrics = $this->metricService
-            ->filterByContact($contact)
-            ->findMetricsByService($service, $start, $end);
-
-        $metrics = $this->normalizePerformanceMetricsDates($metrics);
-
-        return $this->view($metrics);
-    }
-
-    /**
-     * Entry point to get metaservice status metrics
-     *
-     * @param int $metaId
-     * @return View
-     * @throws \Exception
-     */
-    public function getMetaServiceStatusMetrics(
-        RequestParametersInterface $requestParameters,
-        int $metaId
-    ): View {
-        $this->denyAccessUnlessGrantedForApiRealtime();
-
-        [$start, $end] = $this->extractDatesFromRequestParameters($requestParameters);
-
-        /**
-         * @var Contact $contact
-         */
-        $contact = $this->getUser();
-
-        $service = $this->monitoringService
-            ->filterByContact($contact)
-            ->findOneServiceByDescription('meta_' . $metaId);
-        if ($service === null) {
-            throw new EntityNotFoundException(
-                sprintf(_('Meta Service linked to service %d not found'), $metaId)
-            );
-        }
-
-        $status = $this->metricService
-            ->filterByContact($contact)
-            ->findStatusByService($service, $start, $end);
-
-        return $this->view($status);
     }
 }

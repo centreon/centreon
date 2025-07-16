@@ -112,5 +112,6 @@ final readonly class ExportResourcesInput
         #[Assert\NotBlank(message: 'search parameter is required')]
         #[Assert\Json(message: 'search parameter must be a valid JSON')]
         public mixed $search
-    ) {}
+    ) {
+    }
 }

@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005 - 2019 Centreon (https://www.centreon.com/)
  *
@@ -33,14 +34,16 @@ class TrapsVendor extends AbstractObject
 {
     /** @var string */
     protected $table = 'traps_vendor';
+
     /** @var string */
     protected $generateFilename = 'traps_vendor.infile';
+
     /** @var string[] */
     protected $attributesWrite = [
         'id',
         'name',
         'alias',
-        'description'
+        'description',
     ];
 
     /**
@@ -51,8 +54,8 @@ class TrapsVendor extends AbstractObject
      * @param string $alias
      * @param string|null $description
      *
-     * @return void
      * @throws Exception
+     * @return void
      */
     public function add(int $id, string $name, string $alias, ?string $description = '')
     {

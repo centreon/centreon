@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005 - 2019 Centreon (https://www.centreon.com/)
  *
@@ -32,7 +33,9 @@ use Exception;
 class HostCategoriesRelation extends AbstractObject
 {
     protected $table = 'hostcategories_relation';
+
     protected $generateFilename = 'hostcategories_relation.infile';
+
     protected $attributesWrite = [
         'hostcategories_hc_id',
         'host_host_id',
@@ -44,8 +47,8 @@ class HostCategoriesRelation extends AbstractObject
      * @param int $hcId
      * @param int $hostId
      *
-     * @return void
      * @throws Exception
+     * @return void
      */
     public function addRelation(int $hcId, int $hostId): void
     {

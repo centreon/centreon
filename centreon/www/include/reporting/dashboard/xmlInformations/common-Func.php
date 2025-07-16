@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2016 Centreon
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
@@ -39,7 +40,7 @@
 /*require_once realpath(dirname(__FILE__) . "/../../../../../config/centreon.config.php");
 require_once _CENTREON_PATH_."www/class/centreonDB.class.php";
 
-/* Translation 
+/* Translation
 require_once(_CENTREON_PATH_ . "www/class/centreonSession.class.php");
 require_once(_CENTREON_PATH_ . "www/class/centreon.class.php");
 require_once(_CENTREON_PATH_ . "www/class/centreonLang.class.php");
@@ -49,10 +50,7 @@ $oreon = $_SESSION["centreon"];
 $centreonLang = new CentreonLang(_CENTREON_PATH_, $oreon);
 $centreonLang->bindLang();*/
 
-
-/*
- * Create a XML node for each day stats (in $row) for a service, a servicegroup, an host or an hostgroup
- */
+// Create a XML node for each day stats (in $row) for a service, a servicegroup, an host or an hostgroup
 function fillBuffer($statesTab, $row, $color)
 {
     global $buffer;
@@ -61,37 +59,35 @@ function fillBuffer($statesTab, $row, $color)
     $totalTime = 0;
     $sumTime = 0;
     foreach ($statesTab as $key => $value) {
-        if (isset($row[$value . "TimeScheduled"])) {
-            $statTab[$value . "_T"] = $row[$value . "TimeScheduled"];
-            $totalTime += $row[$value . "TimeScheduled"];
+        if (isset($row[$value . 'TimeScheduled'])) {
+            $statTab[$value . '_T'] = $row[$value . 'TimeScheduled'];
+            $totalTime += $row[$value . 'TimeScheduled'];
         } else {
-            $statTab[$value . "_T"] = 0;
+            $statTab[$value . '_T'] = 0;
         }
-        $statTab[$value . "_A"] = $row[$value."nbEvent"] ?? 0;
+        $statTab[$value . '_A'] = $row[$value . 'nbEvent'] ?? 0;
     }
-    $date_start = $row["date_start"];
-    $date_end = $row["date_end"];
+    $date_start = $row['date_start'];
+    $date_end = $row['date_end'];
     foreach ($statesTab as $key => $value) {
-        $statTab[$value . "_MP"] = $totalTime ? round(($statTab[$value."_T"] / ($totalTime) * 100), 2) : 0;
+        $statTab[$value . '_MP'] = $totalTime ? round(($statTab[$value . '_T'] / ($totalTime) * 100), 2) : 0;
     }
 
-    /*
-     * Popup generation for each day
-     */
-    $Day = _("Day");
-    $Duration = _("Duration");
-    $Alert = _("Alert");
+    // Popup generation for each day
+    $Day = _('Day');
+    $Duration = _('Duration');
+    $Alert = _('Alert');
     $detailPopup = '{table class=bulleDashtab}';
-    $detailPopup .= '{tr}{td class=bulleDashleft colspan=3}' . $Day .
-        ': {span class ="isTimestamp isDate"}';
-    $detailPopup .= $date_start . '{/span} --  ' . $Duration . ': ' .
-        CentreonDuration::toString($totalTime) . '{/td}{td class=bulleDashleft }' . $Alert . '{/td}{/tr}';
+    $detailPopup .= '{tr}{td class=bulleDashleft colspan=3}' . $Day
+        . ': {span class ="isTimestamp isDate"}';
+    $detailPopup .= $date_start . '{/span} --  ' . $Duration . ': '
+        . CentreonDuration::toString($totalTime) . '{/td}{td class=bulleDashleft }' . $Alert . '{/td}{/tr}';
     foreach ($statesTab as $key => $value) {
-        $detailPopup .= '{tr}' .
-                        '{td class=bulleDashleft style="background:' . $color[$value] . ';"  }' . _($value) . ':{/td}' .
-                        '{td class=bulleDash}' . CentreonDuration::toString($statTab[$value . "_T"]) . '{/td}' .
-                        '{td class=bulleDash}' . $statTab[$value . "_MP"] . '%{/td}'.
-                        '{td class=bulleDash}' . $statTab[$value . "_A"] . '{/td}';
+        $detailPopup .= '{tr}'
+                        . '{td class=bulleDashleft style="background:' . $color[$value] . ';"  }' . _($value) . ':{/td}'
+                        . '{td class=bulleDash}' . CentreonDuration::toString($statTab[$value . '_T']) . '{/td}'
+                        . '{td class=bulleDash}' . $statTab[$value . '_MP'] . '%{/td}'
+                        . '{td class=bulleDash}' . $statTab[$value . '_A'] . '{/td}';
         $detailPopup .= '{/tr}';
     }
     $detailPopup .= '{/table}';
@@ -100,19 +96,19 @@ function fillBuffer($statesTab, $row, $color)
     $t = round(($t - ($t * 0.11574074074)), 2);
 
     foreach ($statesTab as $key => $value) {
-        if ($statTab[$value."_MP"] > 0) {
-            $day = date("d", $date_start);
-            $year = date("Y", $date_start);
-            $month = date("m", $date_start);
+        if ($statTab[$value . '_MP'] > 0) {
+            $day = date('d', $date_start);
+            $year = date('Y', $date_start);
+            $month = date('m', $date_start);
             $start = mktime(0, 0, 0, $month, $day, $year);
-            $start += ($statTab[$value . "_T"]/100*2);
-            $end = $start + ($statTab[$value."_T"]/100*96);
-            $buffer->startElement("event");
-            $buffer->writeAttribute("start", createDateTimelineFormat($start) . " GMT");
-            $buffer->writeAttribute("end", createDateTimelineFormat($end) . " GMT");
-            $buffer->writeAttribute("color", $color[$value]);
-            $buffer->writeAttribute("isDuration", "true");
-            $buffer->writeAttribute("title", $statTab[$value . "_MP"] . "%");
+            $start += ($statTab[$value . '_T'] / 100 * 2);
+            $end = $start + ($statTab[$value . '_T'] / 100 * 96);
+            $buffer->startElement('event');
+            $buffer->writeAttribute('start', createDateTimelineFormat($start) . ' GMT');
+            $buffer->writeAttribute('end', createDateTimelineFormat($end) . ' GMT');
+            $buffer->writeAttribute('color', $color[$value]);
+            $buffer->writeAttribute('isDuration', 'true');
+            $buffer->writeAttribute('title', $statTab[$value . '_MP'] . '%');
             $buffer->text($detailPopup, false);
             $buffer->endElement();
         }

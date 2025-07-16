@@ -34,43 +34,41 @@
  *
  */
 
-if (!isset($centreon)) {
+if (! isset($centreon)) {
     exit();
 }
 
-include_once "./class/centreonUtils.class.php";
+include_once './class/centreonUtils.class.php';
 
-include "./include/common/autoNumLimit.php";
+include './include/common/autoNumLimit.php';
 
-$search = \HtmlAnalyzer::sanitizeAndRemoveTags(
+$search = HtmlAnalyzer::sanitizeAndRemoveTags(
     $_POST['searchMS'] ?? $_GET['searchMS'] ?? null
 );
 
 if (isset($_POST['searchMS']) || isset($_GET['searchMS'])) {
-    //saving filters values
+    // saving filters values
     $centreon->historySearch[$url] = [];
-    $centreon->historySearch[$url]["search"] = $search;
+    $centreon->historySearch[$url]['search'] = $search;
 } else {
-    //restoring saved values
-    $search = $centreon->historySearch[$url]["search"] ?? null;
+    // restoring saved values
+    $search = $centreon->historySearch[$url]['search'] ?? null;
 }
 
-/*
- * Meta Service list
- */
-$rq = "SELECT SQL_CALC_FOUND_ROWS * FROM meta_service ";
+// Meta Service list
+$rq = 'SELECT SQL_CALC_FOUND_ROWS * FROM meta_service ';
 if ($search) {
-    $rq .= "WHERE meta_name LIKE '%" . $search . "%' " .
-        $acl->queryBuilder("AND", "meta_id", $metaStr);
+    $rq .= "WHERE meta_name LIKE '%" . $search . "%' "
+        . $acl->queryBuilder('AND', 'meta_id', $metaStr);
 } else {
-    $rq .= $acl->queryBuilder("WHERE", "meta_id", $metaStr);
+    $rq .= $acl->queryBuilder('WHERE', 'meta_id', $metaStr);
 }
-$rq .= " ORDER BY meta_name LIMIT " . $num * $limit . ", " . $limit;
+$rq .= ' ORDER BY meta_name LIMIT ' . $num * $limit . ', ' . $limit;
 
 $dbResult = $pearDB->query($rq);
-$rows = $pearDB->query("SELECT FOUND_ROWS()")->fetchColumn();
+$rows = $pearDB->query('SELECT FOUND_ROWS()')->fetchColumn();
 
-include "./include/common/checkPagination.php";
+include './include/common/checkPagination.php';
 
 // Smarty template initialization
 $tpl = SmartyBC::createSmartyTemplate($path);
@@ -79,100 +77,95 @@ $tpl = SmartyBC::createSmartyTemplate($path);
 $lvl_access = ($centreon->user->access->page($p) == 1) ? 'w' : 'r';
 $tpl->assign('mode_access', $lvl_access);
 
-/*
- * start header menu
- */
-$tpl->assign("headerMenu_name", _("Name"));
-$tpl->assign("headerMenu_type", _("Calculation Type"));
-$tpl->assign("headerMenu_levelw", _("Warning Level"));
-$tpl->assign("headerMenu_levelc", _("Critical Level"));
-$tpl->assign("headerMenu_status", _("Status"));
-$tpl->assign("headerMenu_options", _("Options"));
+// start header menu
+$tpl->assign('headerMenu_name', _('Name'));
+$tpl->assign('headerMenu_type', _('Calculation Type'));
+$tpl->assign('headerMenu_levelw', _('Warning Level'));
+$tpl->assign('headerMenu_levelc', _('Critical Level'));
+$tpl->assign('headerMenu_status', _('Status'));
+$tpl->assign('headerMenu_options', _('Options'));
 
-$calcType = ["AVE" => _("Average"), "SOM" => _("Sum"), "MIN" => _("Min"), "MAX" => _("Max")];
+$calcType = ['AVE' => _('Average'), 'SOM' => _('Sum'), 'MIN' => _('Min'), 'MAX' => _('Max')];
 
-/*
- * Meta Service list
- */
-$conditionStr = "";
+// Meta Service list
+$conditionStr = '';
 $metaStrParams = [];
-//binding query params for non admin  acl rules
-if (!$acl->admin && $metaStr) {
+// binding query params for non admin  acl rules
+if (! $acl->admin && $metaStr) {
     $metaStrList = explode(',', $metaStr);
     foreach ($metaStrList as $index => $metaId) {
-        $metaStrParams[':meta_' . $index] = (int) str_replace("'", "", $metaId);
+        $metaStrParams[':meta_' . $index] = (int) str_replace("'", '', $metaId);
     }
     $queryParams = implode(',', array_keys($metaStrParams));
 
-    $conditionStr = $search !== '' ? "AND meta_id IN (" . $queryParams . ")" : "WHERE meta_id IN (" . $queryParams . ")";
+    $conditionStr = $search !== '' ? 'AND meta_id IN (' . $queryParams . ')' : 'WHERE meta_id IN (' . $queryParams . ')';
 }
 if ($search !== '') {
-    $statement = $pearDB->prepare("SELECT * FROM meta_service " .
-        "WHERE meta_name LIKE :search " . $conditionStr .
-        " ORDER BY meta_name LIMIT :offset, :limit");
-    $statement->bindValue(':search', '%' . $search . '%', \PDO::PARAM_STR);
+    $statement = $pearDB->prepare('SELECT * FROM meta_service '
+        . 'WHERE meta_name LIKE :search ' . $conditionStr
+        . ' ORDER BY meta_name LIMIT :offset, :limit');
+    $statement->bindValue(':search', '%' . $search . '%', PDO::PARAM_STR);
 } else {
-    $statement = $pearDB->prepare("SELECT * FROM meta_service " . $conditionStr .
-        " ORDER BY meta_name LIMIT :offset, :limit");
+    $statement = $pearDB->prepare('SELECT * FROM meta_service ' . $conditionStr
+        . ' ORDER BY meta_name LIMIT :offset, :limit');
 }
 foreach ($metaStrParams as $key => $metaId) {
-    $statement->bindValue($key, $metaId, \PDO::PARAM_INT);
+    $statement->bindValue($key, $metaId, PDO::PARAM_INT);
 }
-$statement->bindValue(':offset', (int) $num * (int) $limit, \PDO::PARAM_INT);
-$statement->bindValue(':limit', $limit, \PDO::PARAM_INT);
+$statement->bindValue(':offset', (int) $num * (int) $limit, PDO::PARAM_INT);
+$statement->bindValue(':limit', $limit, PDO::PARAM_INT);
 $statement->execute();
 
-$form = new HTML_QuickFormCustom('select_form', 'GET', "?p=" . $p);
+$form = new HTML_QuickFormCustom('select_form', 'GET', '?p=' . $p);
 
 // Different style between each lines
-$style = "one";
+$style = 'one';
 
-$attrBtnSuccess = ["class" => "btc bt_success", "onClick" => "window.history.replaceState('', '', '?p=" . $p . "');"];
-$form->addElement('submit', 'Search', _("Search"), $attrBtnSuccess);
-
+$attrBtnSuccess = ['class' => 'btc bt_success', 'onClick' => "window.history.replaceState('', '', '?p=" . $p . "');"];
+$form->addElement('submit', 'Search', _('Search'), $attrBtnSuccess);
 
 // Fill a tab with a multidimensional Array we put in $tpl
 $elemArr = [];
 $centreonToken = createCSRFToken();
 
-for ($i = 0; $ms = $statement->fetch(\PDO::FETCH_ASSOC); $i++) {
-    $moptions = "";
-    $selectedElements = $form->addElement('checkbox', "select[" . $ms['meta_id'] . "]");
-    if ($ms["meta_select_mode"] == 1) {
-        $moptions = "<a href='main.php?p=" . $p . "&meta_id=" . $ms['meta_id'] . "&o=ci&search=" .
-            $search . "'><img src='img/icons/redirect.png' class='ico-16' border='0' alt='" .
-            _("View") . "'></a>&nbsp;&nbsp;";
+for ($i = 0; $ms = $statement->fetch(PDO::FETCH_ASSOC); $i++) {
+    $moptions = '';
+    $selectedElements = $form->addElement('checkbox', 'select[' . $ms['meta_id'] . ']');
+    if ($ms['meta_select_mode'] == 1) {
+        $moptions = "<a href='main.php?p=" . $p . '&meta_id=' . $ms['meta_id'] . '&o=ci&search='
+            . $search . "'><img src='img/icons/redirect.png' class='ico-16' border='0' alt='"
+            . _('View') . "'></a>&nbsp;&nbsp;";
     } else {
-        $moptions = "";
+        $moptions = '';
     }
 
-    if ($ms["meta_activate"]) {
-        $moptions .= "<a href='main.php?p=" . $p . "&meta_id=" . $ms['meta_id'] . "&o=u&limit=" . $limit .
-            "&num=" . $num . "&search=" . $search . "&centreon_token=" . $centreonToken .
-            "'><img src='img/icons/disabled.png' class='ico-14 margin_right' " .
-            "border='0' alt='" . _("Disabled") . "'></a>&nbsp;&nbsp;";
+    if ($ms['meta_activate']) {
+        $moptions .= "<a href='main.php?p=" . $p . '&meta_id=' . $ms['meta_id'] . '&o=u&limit=' . $limit
+            . '&num=' . $num . '&search=' . $search . '&centreon_token=' . $centreonToken
+            . "'><img src='img/icons/disabled.png' class='ico-14 margin_right' "
+            . "border='0' alt='" . _('Disabled') . "'></a>&nbsp;&nbsp;";
     } else {
-        $moptions .= "<a href='main.php?p=" . $p . "&meta_id=" . $ms['meta_id'] . "&o=s&limit=" . $limit .
-            "&num=" . $num . "&search=" . $search . "&centreon_token=" . $centreonToken .
-            "'><img src='img/icons/enabled.png' class='ico-14 margin_right' " .
-            "border='0' alt='" . _("Enabled") . "'></a>&nbsp;&nbsp;";
+        $moptions .= "<a href='main.php?p=" . $p . '&meta_id=' . $ms['meta_id'] . '&o=s&limit=' . $limit
+            . '&num=' . $num . '&search=' . $search . '&centreon_token=' . $centreonToken
+            . "'><img src='img/icons/enabled.png' class='ico-14 margin_right' "
+            . "border='0' alt='" . _('Enabled') . "'></a>&nbsp;&nbsp;";
     }
-    $moptions .= "&nbsp;";
+    $moptions .= '&nbsp;';
 
-    $moptions .= "<input onKeypress=\"if(event.keyCode > 31 && (event.keyCode < 45 || event.keyCode > 57)) " .
-        "event.returnValue = false; if(event.which > 31 && (event.which < 45 || event.which > 57)) " .
-        "return false;\" maxlength=\"3\" size=\"3\" value='1' style=\"margin-bottom:0px;\" " .
-        "name='dupNbr[" . $ms['meta_id'] . "]' />";
+    $moptions .= '<input onKeypress="if(event.keyCode > 31 && (event.keyCode < 45 || event.keyCode > 57)) '
+        . 'event.returnValue = false; if(event.which > 31 && (event.which < 45 || event.which > 57)) '
+        . "return false;\" maxlength=\"3\" size=\"3\" value='1' style=\"margin-bottom:0px;\" "
+        . "name='dupNbr[" . $ms['meta_id'] . "]' />";
 
-    $elemArr[$i] = ["MenuClass" => "list_" . $style, "RowMenu_select" => $selectedElements->toHtml(), "RowMenu_name" => CentreonUtils::escapeSecure($ms["meta_name"]), "RowMenu_link" => "main.php?p=" . $p . "&o=c&meta_id=" . $ms['meta_id'], "RowMenu_type" => CentreonUtils::escapeSecure($calcType[$ms["calcul_type"]]), "RowMenu_levelw" => isset($ms["warning"]) && $ms["warning"] ? $ms["warning"] : "-", "RowMenu_levelc" => isset($ms["critical"]) && $ms["critical"] ? $ms["critical"] : "-", "RowMenu_status" => $ms["meta_activate"] ? _("Enabled") : _("Disabled"), "RowMenu_badge" => $ms["meta_activate"] ? "service_ok" : "service_critical", "RowMenu_options" => $moptions];
-    $style = $style != "two" ? "two" : "one";
+    $elemArr[$i] = ['MenuClass' => 'list_' . $style, 'RowMenu_select' => $selectedElements->toHtml(), 'RowMenu_name' => CentreonUtils::escapeSecure($ms['meta_name']), 'RowMenu_link' => 'main.php?p=' . $p . '&o=c&meta_id=' . $ms['meta_id'], 'RowMenu_type' => CentreonUtils::escapeSecure($calcType[$ms['calcul_type']]), 'RowMenu_levelw' => isset($ms['warning']) && $ms['warning'] ? $ms['warning'] : '-', 'RowMenu_levelc' => isset($ms['critical']) && $ms['critical'] ? $ms['critical'] : '-', 'RowMenu_status' => $ms['meta_activate'] ? _('Enabled') : _('Disabled'), 'RowMenu_badge' => $ms['meta_activate'] ? 'service_ok' : 'service_critical', 'RowMenu_options' => $moptions];
+    $style = $style != 'two' ? 'two' : 'one';
 }
-$tpl->assign("elemArr", $elemArr);
+$tpl->assign('elemArr', $elemArr);
 
 // Different messages we put in the template
 $tpl->assign(
     'msg',
-    ["addL" => "main.php?p=" . $p . "&o=a", "addT" => _("Add"), "delConfirm" => _("Do you confirm the deletion ?")]
+    ['addL' => 'main.php?p=' . $p . '&o=a', 'addT' => _('Add'), 'delConfirm' => _('Do you confirm the deletion ?')]
 );
 
 // Toolbar select
@@ -184,46 +177,46 @@ $tpl->assign(
 </script>
 <?php
 
-$attrs1 = ['onchange' => "javascript: " .
-    " var bChecked = isChecked(); " .
-    " if (this.form.elements['o1'].selectedIndex != 0 && !bChecked) {" .
-    " alert('" . _("Please select one or more items") . "'); return false;} " .
-    "if (this.form.elements['o1'].selectedIndex == 1 && confirm('"
-    . _("Do you confirm the duplication ?") . "')) {" .
-    " 	setO(this.form.elements['o1'].value); submit();} " .
-    "else if (this.form.elements['o1'].selectedIndex == 2 && confirm('"
-    . _("Do you confirm the deletion ?") . "')) {" .
-    " 	setO(this.form.elements['o1'].value); submit();} " .
-    "else if (this.form.elements['o1'].selectedIndex == 3) {" .
-    " 	setO(this.form.elements['o1'].value); submit();} " .
-    ""];
+$attrs1 = ['onchange' => 'javascript: '
+    . ' var bChecked = isChecked(); '
+    . " if (this.form.elements['o1'].selectedIndex != 0 && !bChecked) {"
+    . " alert('" . _('Please select one or more items') . "'); return false;} "
+    . "if (this.form.elements['o1'].selectedIndex == 1 && confirm('"
+    . _('Do you confirm the duplication ?') . "')) {"
+    . " 	setO(this.form.elements['o1'].value); submit();} "
+    . "else if (this.form.elements['o1'].selectedIndex == 2 && confirm('"
+    . _('Do you confirm the deletion ?') . "')) {"
+    . " 	setO(this.form.elements['o1'].value); submit();} "
+    . "else if (this.form.elements['o1'].selectedIndex == 3) {"
+    . " 	setO(this.form.elements['o1'].value); submit();} "
+    . ''];
 $form->addElement(
     'select',
     'o1',
     null,
-    [null => _("More actions..."), "m" => _("Duplicate"), "d" => _("Delete")],
+    [null => _('More actions...'), 'm' => _('Duplicate'), 'd' => _('Delete')],
     $attrs1
 );
 $form->setDefaults(['o1' => null]);
 
-$attrs2 = ['onchange' => "javascript: " .
-    " var bChecked = isChecked(); " .
-    " if (this.form.elements['o2'].selectedIndex != 0 && !bChecked) {" .
-    " alert('" . _("Please select one or more items") . "'); return false;} " .
-    "if (this.form.elements['o2'].selectedIndex == 1 && confirm('" .
-    _("Do you confirm the duplication ?") . "')) {" .
-    " 	setO(this.form.elements['o2'].value); submit();} " .
-    "else if (this.form.elements['o2'].selectedIndex == 2 && confirm('" .
-    _("Do you confirm the deletion ?") . "')) {" .
-    " 	setO(this.form.elements['o2'].value); submit();} " .
-    "else if (this.form.elements['o2'].selectedIndex == 3) {" .
-    " 	setO(this.form.elements['o2'].value); submit();} " .
-    ""];
+$attrs2 = ['onchange' => 'javascript: '
+    . ' var bChecked = isChecked(); '
+    . " if (this.form.elements['o2'].selectedIndex != 0 && !bChecked) {"
+    . " alert('" . _('Please select one or more items') . "'); return false;} "
+    . "if (this.form.elements['o2'].selectedIndex == 1 && confirm('"
+    . _('Do you confirm the duplication ?') . "')) {"
+    . " 	setO(this.form.elements['o2'].value); submit();} "
+    . "else if (this.form.elements['o2'].selectedIndex == 2 && confirm('"
+    . _('Do you confirm the deletion ?') . "')) {"
+    . " 	setO(this.form.elements['o2'].value); submit();} "
+    . "else if (this.form.elements['o2'].selectedIndex == 3) {"
+    . " 	setO(this.form.elements['o2'].value); submit();} "
+    . ''];
 $form->addElement(
     'select',
     'o2',
     null,
-    [null => _("More actions..."), "m" => _("Duplicate"), "d" => _("Delete")],
+    [null => _('More actions...'), 'm' => _('Duplicate'), 'd' => _('Delete')],
     $attrs2
 );
 $form->setDefaults(['o2' => null]);
@@ -243,4 +236,4 @@ $tpl->assign('searchMS', $search);
 $renderer = new HTML_QuickForm_Renderer_ArraySmarty($tpl);
 $form->accept($renderer);
 $tpl->assign('form', $renderer->toArray());
-$tpl->display("listMetaService.ihtml");
+$tpl->display('listMetaService.ihtml');

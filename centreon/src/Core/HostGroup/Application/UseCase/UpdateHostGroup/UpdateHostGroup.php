@@ -288,7 +288,7 @@ final class UpdateHostGroup
                     $datasetFilterRelation->getResourceIds(),
                     fn ($resourceId) => $resourceId !== $hostGroupId
                 );
-                if (empty($resourceIdToUpdates)) {
+                if ($resourceIdToUpdates === []) {
                     $this->writeResourceAccessRepository->deleteDatasetFilter($datasetFilterRelation->getDatasetFilterId());
                 } else {
                     $this->writeResourceAccessRepository->updateDatasetResources($datasetFilterRelation->getDatasetFilterId(), $resourceIdToUpdates);
