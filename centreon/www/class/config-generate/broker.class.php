@@ -472,8 +472,6 @@ class Broker extends AbstractObjectJSON
                 }
             }
             foreach ($object['output'] as &$output) {
-                error_log(print_r($output, true));
-
                 if ($output['type'] === 'sql' && array_key_exists('db_password', $output)) {
                     $output['db_password'] = $shouldBeEncrypted
                         ? 'encrypt::' . $this->engineContextEncryption->crypt($output['db_password'])
