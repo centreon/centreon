@@ -78,7 +78,6 @@ const useRequest = <TResult>({
         if (hasACorrespondingHttpCode) {
           throw error;
         }
-        console.log(error);
 
         showRequestErrorMessage(error);
 

@@ -20,13 +20,13 @@ import {
 
 import { Theme, darken, getLuminance, lighten } from '@mui/material';
 
+import dayjs from 'dayjs';
 import { BarStyle } from '../BarChart/models';
+import { margin } from '../Chart/common';
 import { LineStyle } from '../Chart/models';
 import { Threshold, Thresholds } from './models';
 import { formatMetricValue } from './timeSeries';
 import { Line, TimeValue } from './timeSeries/models';
-import { margin } from '../Chart/common';
-import dayjs from 'dayjs';
 
 interface GetColorFromDataAndThresholdsProps {
   baseColor?: string;

@@ -10,11 +10,11 @@ import { Provider } from 'jotai';
 
 import { Box } from '@mui/material';
 
+import Loading from '../../LoadingSkeleton';
 import LoadingSkeleton from '../Chart/LoadingSkeleton';
 import { LineChartProps } from '../Chart/models';
 import useChartData from '../Chart/useChartData';
 import { LineChartData, Thresholds } from '../common/models';
-import Loading from '../../LoadingSkeleton';
 
 import useResizeObserver from 'use-resize-observer';
 import ResponsiveBarChart from './ResponsiveBarChart';

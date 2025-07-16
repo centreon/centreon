@@ -37,6 +37,10 @@ import type {
   InteractedZone as ZoomPreviewModel
 } from '../models';
 
+import {
+  computPixelsToShiftMouse,
+  computeGElementMarginLeft
+} from '../../common/utils';
 import Annotations from './Annotations';
 import type { TimelineEvent } from './Annotations/models';
 import Bar from './Bar';
@@ -50,11 +54,6 @@ import {
   eventMouseUpAtom,
   graphTooltipDataAtom
 } from './interactionWithGraphAtoms';
-import {
-  computeGElementMarginLeft,
-  computPixelsToShiftMouse
-} from '../../common/utils';
-import dayjs from 'dayjs';
 
 const useStyles = makeStyles()(() => ({
   overlay: {

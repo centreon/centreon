@@ -6,12 +6,12 @@ import { useAtomValue } from 'jotai';
 import useAxisY from '../../../common/Axes/useAxisY';
 import { getTimeValue } from '../../../common/timeSeries';
 import { Line, TimeValue } from '../../../common/timeSeries/models';
+import {
+  computPixelsToShiftMouse,
+  computeGElementMarginLeft
+} from '../../../common/utils';
 import { margin } from '../../common';
 import { mousePositionAtom } from '../interactionWithGraphAtoms';
-import {
-  computeGElementMarginLeft,
-  computPixelsToShiftMouse
-} from '../../../common/utils';
 
 interface AnchorPointResult {
   positionX?: number;
