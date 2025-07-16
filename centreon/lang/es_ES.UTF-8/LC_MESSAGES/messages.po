@@ -8188,7 +8188,7 @@ msgstr ""
 
 #: centreon/src/Core/AgentConfiguration/Application/Exception/AgentConfigurationException.php
 #, php-format
-msgid "Filename '%s' (%s) is invalid"
+msgid "File path or format '%s' (%s) is invalid"
 msgstr ""
 
 #: centreon/www/include/configuration/configNagios/formNagios.php
@@ -16844,7 +16844,7 @@ msgstr "Reconocimiento persistente en caso de cambio de estado no correcto"
 #  msgstr ""
 #  msgid "Changing the type of an existing poller/agent configuration is not allowed"
 #  msgstr ""
-#  msgid "Filename '%s' (%s) is invalid"
+#  msgid "File path or format '%s' (%s) is invalid"
 #  msgstr ""
 #  msgid "Poller ID #%d is the only one linked to poller/agent configuration ID #%d"
 #  msgstr ""
