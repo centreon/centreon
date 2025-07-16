@@ -199,7 +199,7 @@ class DbReadHostMacroRepository extends AbstractRepositoryRDB implements ReadHos
         );
         $macro->setIsPassword((bool) $data['is_password']);
         $macro->setDescription($data['description'] ?? '');
-        $macro->setOrder($data['macro_order']);
+        $macro->setOrder($data['macro_order'] ?? 0);
 
         return $macro;
     }
