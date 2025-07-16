@@ -95,21 +95,11 @@ class MonitoringServer
         ?string $brokerReloadCommand
     ) {
         Assertion::notEmpty($name);
-        if ($engineStartCommand !== null) {
-            Assertion::regex($engineStartCommand, self::VALID_COMMAND_START_REGEX);
-        }
-        if ($engineStopCommand !== null) {
-            Assertion::regex($engineStopCommand, self::VALID_COMMAND_STOP_REGEX);
-        }
-        if ($engineReloadCommand !== null) {
-            Assertion::regex($engineReloadCommand, self::VALID_COMMAND_RELOAD_REGEX);
-        }
-        if ($engineRestartCommand !== null) {
-            Assertion::regex($engineRestartCommand, self::VALID_COMMAND_RESTART_REGEX);
-        }
-        if ($brokerReloadCommand !== null) {
-            Assertion::regex($brokerReloadCommand, self::VALID_COMMAND_RELOAD_REGEX);
-        }
+        Assertion::nullOrRegex($engineStartCommand, self::VALID_COMMAND_START_REGEX);
+        Assertion::nullOrRegex($engineStopCommand, self::VALID_COMMAND_STOP_REGEX);
+        Assertion::nullOrRegex($engineReloadCommand, self::VALID_COMMAND_RELOAD_REGEX);
+        Assertion::nullOrRegex($engineRestartCommand, self::VALID_COMMAND_RESTART_REGEX);
+        Assertion::nullOrRegex($brokerReloadCommand, self::VALID_COMMAND_RELOAD_REGEX);
         $this->name = $name;
         $this->engineStartCommand = $engineStartCommand;
         $this->engineStopCommand = $engineStopCommand;
