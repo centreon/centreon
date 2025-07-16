@@ -17,7 +17,7 @@
  */
 
 require_once __DIR__ . '/../../../../config/centreon.config.php';
-require_once _CENTREON_PATH_ . 'bootstrap.php';
+require_once _CENTREON_PATH_ . '/bootstrap.php';
 require_once _CENTREON_PATH_ . '/www/modules/centreon-awie/centreon-awie.conf.php';
 require_once _CENTREON_PATH_ . '/www/modules/centreon-awie/class/ClapiObject.class.php';
 require_once _CENTREON_PATH_ . '/www/class/centreon.class.php';
