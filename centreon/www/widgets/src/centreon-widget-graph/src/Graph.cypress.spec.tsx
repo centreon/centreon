@@ -514,10 +514,6 @@ describe('Graph Widget', () => {
           cy.get('@tooltip').should('not.contain', service_name);
           cy.get('@tooltip').should('contain', metric);
         });
-
-        cy.makeSnapshot(
-          `do not display the ${resourcesType} name from the legend and tooltip when it\'s redundant`
-        );
       });
     });
   });
