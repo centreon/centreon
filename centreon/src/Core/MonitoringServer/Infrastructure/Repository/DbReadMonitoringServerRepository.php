@@ -329,9 +329,6 @@ class DbReadMonitoringServerRepository extends AbstractRepositoryRDB implements 
         return $data ? $this->createMonitoringServerFromArray($data) : null;
     }
 
-    /**
-     * @inheritDoc
-     */
     public function findAll(): array
     {
         $statement = $this->db->prepare($this->translateDbName(<<<SQL
@@ -343,7 +340,7 @@ class DbReadMonitoringServerRepository extends AbstractRepositoryRDB implements 
                 engine_restart_command,
                 engine_reload_command,
                 broker_reload_command
-            FROM nagios_server
+            FROM `:db`.`nagios_server`
             SQL
         ));
         $statement->execute();
@@ -370,14 +367,12 @@ class DbReadMonitoringServerRepository extends AbstractRepositoryRDB implements 
                 engine_restart_command,
                 engine_reload_command,
                 broker_reload_command
-            FROM nagios_server
+            FROM `:db`.`nagios_server`
             WHERE id = :monitoringServerId
             SQL
         ));
         $statement->bindValue(':monitoringServerId', $monitoringServerId, \PDO::PARAM_INT);
         $statement->execute();
-
-
         /** @var MSResultSet|false */
         $data = $statement->fetch(\PDO::FETCH_ASSOC);
         return $data

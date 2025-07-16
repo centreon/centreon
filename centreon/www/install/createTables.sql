@@ -1629,7 +1629,7 @@ CREATE TABLE `nagios_server` (
   `ns_activate` enum('1','0') DEFAULT '1',
   `ns_status` enum('0','1','2','3','4') DEFAULT '0',
   `engine_start_command` varchar(255) DEFAULT 'systemctl start centengine',
-  `engine_stop_command` varchar(255) DEFAULT 'systemctl  stop centengine',
+  `engine_stop_command` varchar(255) DEFAULT 'systemctl stop centengine',
   `engine_restart_command` varchar(255) DEFAULT 'systemctl restart centengine',
   `engine_reload_command` varchar(255) DEFAULT 'systemctl reload centengine',
   `nagios_bin` varchar(255) DEFAULT NULL,
