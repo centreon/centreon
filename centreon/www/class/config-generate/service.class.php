@@ -148,7 +148,6 @@ class Service extends AbstractService
         $this->service_cache[$serviceId]['contact_groups'] = '';
 
         $this->getImages($this->service_cache[$serviceId]);
-        error_log('DANS GENERATE From Service Id Host ID = ' . $hostId);
         $this->formatMacros($this->service_cache[$serviceId], $serviceMacros);
         $this->service_cache[$serviceId]['macros']['_SERVICE_ID'] = $serviceId;
         // useful for servicegroup on servicetemplate
