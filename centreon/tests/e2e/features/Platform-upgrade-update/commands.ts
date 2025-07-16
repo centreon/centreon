@@ -80,7 +80,8 @@ Cypress.Commands.add("getLatestOnPremMajorVersion", () => {
         .map((v) => v.replace("/", ""))
         .sort((a, b) => b.localeCompare(a, undefined, { numeric: true }));
 
-      return versions[0];
+        const latest = versions[0];
+        return latest || null;
     });
 });
 

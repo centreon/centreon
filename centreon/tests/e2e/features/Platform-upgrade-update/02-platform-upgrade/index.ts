@@ -137,8 +137,8 @@ Given(
             cy.getLatestOnPremMajorVersion().then(
               (version) =>{
               cy.log(`the last onprem version is: ${version}`)
-              major_version_from = previousVersion;
-              cy.wrap(previousVersion).as("majorVersionFrom");
+              major_version_from = version;
+              cy.wrap(version).as("majorVersionFrom");
             });
           }
           break;
