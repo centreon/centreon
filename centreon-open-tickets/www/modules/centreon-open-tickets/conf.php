@@ -41,7 +41,6 @@ $module_conf['centreon-open-tickets']["last_update"] = "2025-07-15";
 $module_conf['centreon-open-tickets']["release_note"] =
     "https://docs.centreon.com/23.10/en/releases/centreon-os-extensions.html";
 $module_conf['centreon-open-tickets']["images"] = [
-
     'images/image1.png',
     'images/image2.png',
     'images/image3.png',
