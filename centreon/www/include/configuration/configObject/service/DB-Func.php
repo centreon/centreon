@@ -110,15 +110,11 @@ function checkCircularInheritance(int $templateId)
     $repository = $kernel->getContainer()->get(ReadServiceTemplateRepositoryInterface::class);
     $inheritanceArray = $repository->findParents($templateId);
     $parentsIds = array_map(
-        static fn(ServiceTemplateInheritance $inheritancePair): int => $inheritancePair->getParentId(),
+        static fn (ServiceTemplateInheritance $inheritancePair): int => $inheritancePair->getParentId(),
         $inheritanceArray
     );
 
-    if (in_array((int) $data['service_id'], $parentsIds, true)) {
-        return false;
-    }
-
-    return true;
+    return ! (in_array((int) $data['service_id'], $parentsIds, true));
 }
 
 /**

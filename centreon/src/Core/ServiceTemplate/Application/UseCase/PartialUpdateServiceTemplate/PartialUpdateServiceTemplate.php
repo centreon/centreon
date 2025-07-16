@@ -95,7 +95,6 @@ final class PartialUpdateServiceTemplate
         $this->writeVaultRepository->setCustomPath(AbstractVaultRepository::SERVICE_VAULT_PATH);
     }
 
-    // TODO: attribute routing
     public function __invoke(
         PartialUpdateServiceTemplateRequest $request,
         PresenterInterface $presenter

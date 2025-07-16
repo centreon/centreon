@@ -97,6 +97,12 @@ class ParametersValidation
             return;
         }
 
+        if ($id === $serviceTemplateId) {
+            $this->error('Service template cannot inherit from itself', ['service_template_id' => $serviceTemplateId]);
+
+            throw ServiceTemplateException::circularTemplateInheritance();
+        }
+
         if (! $this->readServiceTemplateRepository->exists($serviceTemplateId)) {
             $this->error('Service template does not exist', ['service_template_id' => $serviceTemplateId]);
 
@@ -106,11 +112,16 @@ class ParametersValidation
         // check circular inheritance
         $inheritanceArray = $this->readServiceTemplateRepository->findParents($serviceTemplateId);
         $parentsIds = array_map(
-            static fn(ServiceTemplateInheritance $inheritancePair): int => $inheritancePair->getParentId(),
+            static fn (ServiceTemplateInheritance $inheritancePair): int => $inheritancePair->getParentId(),
             $inheritanceArray
         );
 
         if (in_array($id, $parentsIds, true)) {
+            $this->error(
+                'Service template cannot inherit from a template that inherits from it',
+                ['service_template_id' => $serviceTemplateId]
+            );
+
             throw ServiceTemplateException::circularTemplateInheritance();
         }
     }
