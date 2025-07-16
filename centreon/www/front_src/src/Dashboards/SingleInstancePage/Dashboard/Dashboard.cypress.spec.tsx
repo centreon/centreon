@@ -978,7 +978,7 @@ describe('Dashboard', () => {
 
   describe('Route blocking', () => {
     it('saves changes when a dashboard is being edited, a dashboard is updated, the user goes to another page and the corresponding button is clicked', () => {
-     const {store} =  initializeAndMount({
+      const { store } = initializeAndMount({
         ...editorRoles
       });
 
@@ -988,7 +988,7 @@ describe('Dashboard', () => {
       cy.findByLabelText(labelDuplicate).click();
 
       cy.then(() => {
-        store.set(isRedirectionBlockedAtom, true)
+        store.set(isRedirectionBlockedAtom, true);
       });
 
       cy.contains(labelDoYouWantToSaveChanges).should('be.visible');
@@ -1022,7 +1022,7 @@ describe('Dashboard', () => {
       cy.findByLabelText(labelDuplicate).click();
 
       cy.then(() => {
-        store.set(isRedirectionBlockedAtom, true)
+        store.set(isRedirectionBlockedAtom, true);
       });
 
       cy.findByTestId('cancel')
@@ -1043,7 +1043,7 @@ describe('Dashboard', () => {
       cy.findByLabelText(labelDuplicate).click();
 
       cy.then(() => {
-        store.set(isRedirectionBlockedAtom, true)
+        store.set(isRedirectionBlockedAtom, true);
       });
 
       cy.findByLabelText('close')
