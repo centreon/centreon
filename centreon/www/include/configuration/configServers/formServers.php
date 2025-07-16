@@ -333,10 +333,10 @@ if ($serverType === 'poller') {
 }
 $form->addRule('ns_ip_address', _('The IP address is incorrect'), 'isValidIpAddress');
 
-$form->registerRule('isValidStartCommandSyntax', 'callback', 'isValidCommandSyntax');
-$form->registerRule('isValidStopCommandSyntax', 'callback', 'isValidCommandSyntax');
-$form->registerRule('isValidRestartCommandSyntax', 'callback', 'isValidCommandSyntax');
-$form->registerRule('isValidReloadCommandSyntax', 'callback', 'isValidCommandSyntax');
+$form->registerRule('isValidStartCommandSyntax', 'callback', 'isValidStartCommandSyntax');
+$form->registerRule('isValidStopCommandSyntax', 'callback', 'isValidStopCommandSyntax');
+$form->registerRule('isValidRestartCommandSyntax', 'callback', 'isValidRestartCommandSyntax');
+$form->registerRule('isValidReloadCommandSyntax', 'callback', 'isValidReloadCommandSyntax');
 $form->addRule('engine_start_command', _("The command format is invalid"), "isValidStartCommandSyntax");
 $form->addRule('engine_stop_command', _("The command format is invalid"), "isValidStopCommandSyntax");
 $form->addRule('engine_restart_command', _("The command format is invalid"), "isValidRestartCommandSyntax");
