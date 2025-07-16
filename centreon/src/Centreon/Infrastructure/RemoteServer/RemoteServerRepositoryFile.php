@@ -26,9 +26,7 @@ use Centreon\Domain\RemoteServer\Interfaces\RemoteServerLocalConfigurationReposi
 
 class RemoteServerRepositoryFile implements RemoteServerLocalConfigurationRepositoryInterface
 {
-    /**
-     * @var string
-     */
+    /** @var string */
     private $centreonConfFilePath;
 
     /**

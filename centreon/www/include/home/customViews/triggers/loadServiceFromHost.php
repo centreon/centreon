@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Copyright 2005-2023 Centreon
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
@@ -30,20 +31,19 @@
  * do not wish to do so, delete this exception statement from your version.
  *
  * For more information : contact@centreon.com
- *
  */
 
-require_once realpath(__DIR__ . "/../../../../../config/centreon.config.php");
-require_once _CENTREON_PATH_ . "www/class/centreon.class.php";
-require_once _CENTREON_PATH_ . "www/class/centreonDB.class.php";
-require_once _CENTREON_PATH_ . "www/class/centreonSession.class.php";
-require_once _CENTREON_PATH_ . "www/class/centreonUser.class.php";
-require_once _CENTREON_PATH_ . "www/class/centreonXML.class.php";
+require_once realpath(__DIR__ . '/../../../../../config/centreon.config.php');
+require_once _CENTREON_PATH_ . 'www/class/centreon.class.php';
+require_once _CENTREON_PATH_ . 'www/class/centreonDB.class.php';
+require_once _CENTREON_PATH_ . 'www/class/centreonSession.class.php';
+require_once _CENTREON_PATH_ . 'www/class/centreonUser.class.php';
+require_once _CENTREON_PATH_ . 'www/class/centreonXML.class.php';
 
 session_start();
 session_write_close();
 
-if (!isset($_POST['data']) || !isset($_SESSION['centreon'])) {
+if (! isset($_POST['data']) || ! isset($_SESSION['centreon'])) {
     exit;
 }
 
@@ -68,27 +68,27 @@ try {
             's.service_id',
             $centreon->user->access->getServicesString('ID', $monitoringDb)
         );
-        $sql = "SELECT service_id, service_description, display_name
+        $sql = 'SELECT service_id, service_description, display_name
         		FROM service s, host_service_relation hsr
         		WHERE hsr.host_host_id = :hostId
-        		AND hsr.service_service_id = s.service_id ";
+        		AND hsr.service_service_id = s.service_id ';
         $sql .= $aclString;
-        $sql .= " UNION ";
-        $sql .= " SELECT service_id, service_description, display_name
+        $sql .= ' UNION ';
+        $sql .= ' SELECT service_id, service_description, display_name
         		FROM service s, host_service_relation hsr, hostgroup_relation hgr
         		WHERE hsr.hostgroup_hg_id = hgr.hostgroup_hg_id
         		AND hgr.host_host_id = :hostId
-        		AND hsr.service_service_id = s.service_id ";
+        		AND hsr.service_service_id = s.service_id ';
         $sql .= $aclString;
-        $sql .= " ORDER BY service_description ";
+        $sql .= ' ORDER BY service_description ';
         $stmt = $db->prepare($sql);
         $stmt->bindValue(':hostId', $hostId, PDO::PARAM_INT);
         $stmt->execute();
-        while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
             $xml->startElement('option');
             $xml->writeElement('id', $row['service_id']);
             // For meta services, use display_name column instead of service_description
-            $serviceDescription = (preg_match('/meta_/', $row['service_description'])) 
+            $serviceDescription = (preg_match('/meta_/', $row['service_description']))
                 ? $row['display_name'] : $row['service_description'];
             $xml->writeElement('label', $serviceDescription);
             $xml->endElement();

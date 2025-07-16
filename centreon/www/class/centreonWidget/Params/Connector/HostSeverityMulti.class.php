@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Copyright 2005-2019 Centreon
  * Centreon is developed by : Julien Mathis and Romain Le Merlus under
@@ -30,12 +31,11 @@
  * do not wish to do so, delete this exception statement from your version.
  *
  * For more information : contact@centreon.com
- *
  */
-require_once __DIR__ . "/../Select2.class.php";
+require_once __DIR__ . '/../Select2.class.php';
 
 /**
- * Creation of a new connector for the host severity that use the centreonHostcategories object 
+ * Creation of a new connector for the host severity that use the centreonHostcategories object
  * with configuration from centreon_configuration_host_severity file
  */
 
@@ -52,6 +52,7 @@ class CentreonWidgetParamsConnectorHostSeverityMulti extends CentreonWidgetParam
     public function getParameters()
     {
         $path = './api/internal.php?object=centreon_configuration_hostcategory&action=list&t=s';
+
         return ['datasourceOrigin' => 'ajax', 'availableDatasetRoute' => $path, 'multiple' => true, 'linkedObject' => 'centreonHostcategories'];
     }
 }

@@ -36,11 +36,11 @@
 
 use Centreon\Domain\PlatformTopology\Model\PlatformRegistered;
 
-if (!isset($centreon)) {
+if (! isset($centreon)) {
     exit();
 }
 
-require_once _CENTREON_PATH_ . "/www/class/centreon-config/centreonMainCfg.class.php";
+require_once _CENTREON_PATH_ . '/www/class/centreon-config/centreonMainCfg.class.php';
 
 const ZMQ = 1;
 const SSH = 2;
@@ -52,8 +52,8 @@ const SSH = 2;
  * @param int $numberOf Number of suffix requested
  * @param string $separator Character used to separate the server name and suffix
  *
- * @return array Return the next available suffixes
  * @throws Exception
+ * @return array Return the next available suffixes
  * @global CentreonDB $pearDB DB connector
  */
 function getAvailableSuffixIds(
@@ -73,20 +73,20 @@ function getAvailableSuffixIds(
     $serverName = preg_quote($serverName);
 
     // Get list of suffix already used
-    $query = <<<SQL
+    $query = <<<'SQL'
         SELECT CAST(SUBSTRING_INDEX(name, '_', -1) AS SIGNED) AS suffix
         FROM nagios_server WHERE name REGEXP :server_name_separator
         ORDER BY suffix
         SQL;
     $stmt = $pearDB->prepare($query);
-    $stmt->bindValue(':server_name_separator', '^"' . $serverName . $separator . '[0-9]+$', \PDO::PARAM_STR);
+    $stmt->bindValue(':server_name_separator', '^"' . $serverName . $separator . '[0-9]+$', PDO::PARAM_STR);
     $stmt->execute();
 
     $notAvailableSuffixes = [];
 
     while ($result = $stmt->fetch()) {
-        $suffix = (int)$result['suffix'];
-        if (!in_array($suffix, $notAvailableSuffixes)) {
+        $suffix = (int) $result['suffix'];
+        if (! in_array($suffix, $notAvailableSuffixes)) {
             $notAvailableSuffixes[] = $suffix;
         }
     }
@@ -97,7 +97,7 @@ function getAvailableSuffixIds(
     $nextAvailableSuffixes = [];
     $counter = 1;
     while (count($nextAvailableSuffixes) < $numberOf) {
-        if (!in_array($counter, $notAvailableSuffixes)) {
+        if (! in_array($counter, $notAvailableSuffixes)) {
             $nextAvailableSuffixes[] = $counter;
         }
         $counter++;
@@ -115,18 +115,14 @@ function getAvailableSuffixIds(
  */
 function testAdditionalRemoteServer(array $values)
 {
-    # If remote_additional_id select2 is not empty
+    // If remote_additional_id select2 is not empty
     if (
         isset($values[0])
         && is_array($values[0])
         && count($values[0]) >= 1
     ) {
-        # If Master Remote Server is not empty
-        if (isset($values[1]) && trim($values[1]) != '') {
-            return true;
-        } else {
-            return false;
-        }
+        // If Master Remote Server is not empty
+        return (bool) (isset($values[1]) && trim($values[1]) != '');
     }
 
     return true;
@@ -151,17 +147,15 @@ function testExistence($name = null): bool
 
     $query = 'SELECT name, id FROM `nagios_server` WHERE `name` = :name';
     $statement = $pearDB->prepare($query);
-    $statement->bindValue(':name', htmlentities($name, ENT_QUOTES, "UTF-8"), \PDO::PARAM_STR);
+    $statement->bindValue(':name', htmlentities($name, ENT_QUOTES, 'UTF-8'), PDO::PARAM_STR);
     $statement->execute();
-    $row = $statement->fetch(\PDO::FETCH_ASSOC);
+    $row = $statement->fetch(PDO::FETCH_ASSOC);
 
-    if ($statement->rowCount() >= 1 && $row["id"] == $id) {
-        return true;
-    } elseif ($statement->rowCount() >= 1 && $row["id"] != $id) {
-        return false;
-    } else {
+    if ($statement->rowCount() >= 1 && $row['id'] == $id) {
         return true;
     }
+
+    return ! ($statement->rowCount() >= 1 && $row['id'] != $id);
 }
 
 /**
@@ -173,14 +167,11 @@ function testExistence($name = null): bool
 function isValidIpAddress(string $ipAddress): bool
 {
     // Check IPv6, IPv4 and FQDN format
-    if (
-        !filter_var($ipAddress, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME)
-        && !filter_var($ipAddress, FILTER_VALIDATE_IP)
-    ) {
-        return false;
-    } else {
-        return true;
-    }
+    return ! (
+        ! filter_var($ipAddress, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME)
+        && ! filter_var($ipAddress, FILTER_VALIDATE_IP)
+    );
+
 }
 
 /**
@@ -196,11 +187,11 @@ function enableServerInDB(int $id): void
 {
     global $pearDB, $centreon;
 
-    $dbResult = $pearDB->query("SELECT name FROM `nagios_server` WHERE `id` = " . $id . " LIMIT 1");
+    $dbResult = $pearDB->query('SELECT name FROM `nagios_server` WHERE `id` = ' . $id . ' LIMIT 1');
     $row = $dbResult->fetch();
 
     $pearDB->query("UPDATE `nagios_server` SET `ns_activate` = '1' WHERE id = " . $id);
-    $centreon->CentreonLogAction->insertLog("poller", $id, $row['name'], "enable");
+    $centreon->CentreonLogAction->insertLog('poller', $id, $row['name'], 'enable');
 
     $query = 'SELECT MIN(`nagios_id`) AS idEngine FROM cfg_nagios WHERE `nagios_server_id` = ' . $id;
     $dbResult = $pearDB->query($query);
@@ -211,7 +202,7 @@ function enableServerInDB(int $id): void
             "UPDATE `cfg_nagios` SET `nagios_activate` = '0' WHERE `nagios_server_id` = " . $id
         );
         $pearDB->query(
-            "UPDATE cfg_nagios SET nagios_activate = '1' WHERE nagios_id = " . (int)$idEngine['idEngine']
+            "UPDATE cfg_nagios SET nagios_activate = '1' WHERE nagios_id = " . (int) $idEngine['idEngine']
         );
     }
 }
@@ -229,7 +220,7 @@ function disableServerInDB(int $id): void
 {
     global $pearDB, $centreon;
 
-    $dbResult = $pearDB->query("SELECT name FROM `nagios_server` WHERE `id` = " . $id . " LIMIT 1");
+    $dbResult = $pearDB->query('SELECT name FROM `nagios_server` WHERE `id` = ' . $id . ' LIMIT 1');
     $row = $dbResult->fetch();
 
     $pearDB->query("UPDATE `nagios_server` SET `ns_activate` = '0' WHERE id = " . $id);
@@ -260,29 +251,29 @@ function deleteServerInDB(array $serverIds): void
 
     foreach (array_keys($serverIds) as $serverId) {
         $statement = $pearDB->prepare('SELECT `id`, `type` FROM `platform_topology` WHERE server_id = :serverId ');
-        $statement->bindValue(':serverId', (int)$serverId, \PDO::PARAM_INT);
+        $statement->bindValue(':serverId', (int) $serverId, PDO::PARAM_INT);
         $statement->execute();
 
-        //If the deleted platform is a remote, reassign the parent_id of its children to the top level platform
+        // If the deleted platform is a remote, reassign the parent_id of its children to the top level platform
         if (
-            ($platformInTopology = $statement->fetch(\PDO::FETCH_ASSOC))
+            ($platformInTopology = $statement->fetch(PDO::FETCH_ASSOC))
             && $platformInTopology['type'] === PlatformRegistered::TYPE_REMOTE
         ) {
             $statement = $pearDB->query('SELECT id FROM `platform_topology` WHERE parent_id IS NULL');
-            if ($topPlatform = $statement->fetch(\PDO::FETCH_ASSOC)) {
+            if ($topPlatform = $statement->fetch(PDO::FETCH_ASSOC)) {
                 $statement2 = $pearDB->prepare('
                     UPDATE `platform_topology`
                     SET `parent_id` = :topPlatformId
                     WHERE `parent_id` = :remoteId
                 ');
-                $statement2->bindValue(':topPlatformId', (int)$topPlatform['id'], \PDO::PARAM_INT);
-                $statement2->bindValue(':remoteId', (int)$platformInTopology['id'], \PDO::PARAM_INT);
+                $statement2->bindValue(':topPlatformId', (int) $topPlatform['id'], PDO::PARAM_INT);
+                $statement2->bindValue(':remoteId', (int) $platformInTopology['id'], PDO::PARAM_INT);
                 $statement2->execute();
             }
         }
 
         $result = $pearDB->query(
-            "SELECT name, ns_ip_address AS ip FROM `nagios_server` WHERE `id` = " . $serverId . " LIMIT 1"
+            'SELECT name, ns_ip_address AS ip FROM `nagios_server` WHERE `id` = ' . $serverId . ' LIMIT 1'
         );
         $row = $result->fetch();
 
@@ -290,7 +281,7 @@ function deleteServerInDB(array $serverIds): void
         $statement = $pearDB->prepare(
             'SELECT * FROM remote_servers WHERE server_id = :id'
         );
-        $statement->bindValue(':id', $serverId, \PDO::PARAM_INT);
+        $statement->bindValue(':id', $serverId, PDO::PARAM_INT);
         $statement->execute();
 
         if ($statement->rowCount() > 0) {
@@ -298,7 +289,7 @@ function deleteServerInDB(array $serverIds): void
             $statement = $pearDB->prepare(
                 'DELETE FROM remote_servers WHERE server_id = :id'
             );
-            $statement->bindValue(':id', $serverId, \PDO::PARAM_INT);
+            $statement->bindValue(':id', $serverId, PDO::PARAM_INT);
             $statement->execute();
             // Delete all relation between this Remote Server and pollers
             $pearDB->query(
@@ -359,16 +350,16 @@ function duplicateServer(array $server, array $nbrDup): void
 
     foreach (array_keys($server) as $serverId) {
         $result = $pearDB->query(
-            'SELECT * FROM `nagios_server` WHERE id = ' . (int)$serverId . ' LIMIT 1'
+            'SELECT * FROM `nagios_server` WHERE id = ' . (int) $serverId . ' LIMIT 1'
         );
         $rowServer = $result->fetch();
-        $rowServer["id"] = null;
-        $rowServer["ns_activate"] = '0';
-        $rowServer["is_default"] = '0';
-        $rowServer["localhost"] = '0';
+        $rowServer['id'] = null;
+        $rowServer['ns_activate'] = '0';
+        $rowServer['is_default'] = '0';
+        $rowServer['localhost'] = '0';
         $result->closeCursor();
 
-        if (!isset($rowServer['name'])) {
+        if (! isset($rowServer['name'])) {
             continue;
         }
 
@@ -384,21 +375,21 @@ function duplicateServer(array $server, array $nbrDup): void
             $serverName = null;
             foreach ($rowServer as $columnName => $columnValue) {
                 if ($columnName == 'name') {
-                    $columnValue .= "_" . $suffix;
+                    $columnValue .= '_' . $suffix;
                     $serverName = $columnValue;
                 }
 
                 if (is_null($queryValues)) {
                     $queryValues .= $columnValue != null
                         ? ("'" . $columnValue . "'")
-                        : "NULL";
+                        : 'NULL';
                 } else {
                     $queryValues .= $columnValue != null
                         ? (", '" . $columnValue . "'")
-                        : ", NULL";
+                        : ', NULL';
                 }
             }
-            if (!is_null($queryValues) && testExistence($serverName)) {
+            if (! is_null($queryValues) && testExistence($serverName)) {
                 if ($queryValues) {
                     $pearDB->query('INSERT INTO `nagios_server` VALUES (' . $queryValues . ')');
                 }
@@ -406,44 +397,44 @@ function duplicateServer(array $server, array $nbrDup): void
                 $queryGetId = 'SELECT id FROM nagios_server WHERE name = :name';
                 try {
                     $statement = $pearDB->prepare($queryGetId);
-                    $statement->bindValue(':name', $serverName, \PDO::PARAM_STR);
+                    $statement->bindValue(':name', $serverName, PDO::PARAM_STR);
                     $statement->execute();
                     if ($statement->rowCount() > 0) {
-                        $row = $statement->fetch(\PDO::FETCH_ASSOC);
+                        $row = $statement->fetch(PDO::FETCH_ASSOC);
                         $iId = $obj->insertServerInCfgNagios($serverId, $row['id'], $serverName);
                         $obj->insertCfgNagiosLogger($iId, $serverId);
 
                         if (isset($rowBks)) {
-                            $rqBk = "INSERT INTO cfg_nagios_broker_module (`cfg_nagios_id`, `broker_module`)" .
-                                    " VALUES (:cfg_nagios_id, :broker_module)";
+                            $rqBk = 'INSERT INTO cfg_nagios_broker_module (`cfg_nagios_id`, `broker_module`)'
+                                    . ' VALUES (:cfg_nagios_id, :broker_module)';
                             $statement = $pearDB->prepare($rqBk);
                             foreach ($rowBks as $keyBk => $valBk) {
-                                if ($valBk["broker_module"]) {
-                                    $statement->bindValue(':cfg_nagios_id', (int) $iId, \PDO::PARAM_INT);
-                                    $statement->bindValue(':broker_module', $valBk["broker_module"], \PDO::PARAM_STR);
+                                if ($valBk['broker_module']) {
+                                    $statement->bindValue(':cfg_nagios_id', (int) $iId, PDO::PARAM_INT);
+                                    $statement->bindValue(':broker_module', $valBk['broker_module'], PDO::PARAM_STR);
                                     $statement->execute();
                                 }
                             }
                         }
 
-                        $queryRel = 'INSERT INTO cfg_resource_instance_relations (resource_id, instance_id) ' .
-                            'SELECT b.resource_id, :instance_id FROM ' .
-                            'cfg_resource_instance_relations as b WHERE b.instance_id = :b_instance_id';
+                        $queryRel = 'INSERT INTO cfg_resource_instance_relations (resource_id, instance_id) '
+                            . 'SELECT b.resource_id, :instance_id FROM '
+                            . 'cfg_resource_instance_relations as b WHERE b.instance_id = :b_instance_id';
                         $statement = $pearDB->prepare($queryRel);
-                        $statement->bindValue(':instance_id', (int) $row['id'], \PDO::PARAM_INT);
-                        $statement->bindValue(':b_instance_id', (int) $serverId, \PDO::PARAM_INT);
+                        $statement->bindValue(':instance_id', (int) $row['id'], PDO::PARAM_INT);
+                        $statement->bindValue(':b_instance_id', (int) $serverId, PDO::PARAM_INT);
                         $statement->execute();
-                        $queryCmd = 'INSERT INTO poller_command_relations (poller_id, command_id, command_order) ' .
-                            'SELECT :poller_id, b.command_id, b.command_order FROM ' .
-                            'poller_command_relations as b WHERE b.poller_id = :b_poller_id';
+                        $queryCmd = 'INSERT INTO poller_command_relations (poller_id, command_id, command_order) '
+                            . 'SELECT :poller_id, b.command_id, b.command_order FROM '
+                            . 'poller_command_relations as b WHERE b.poller_id = :b_poller_id';
                         $statement = $pearDB->prepare($queryCmd);
-                        $statement->bindValue(':poller_id', (int) $row['id'], \PDO::PARAM_INT);
-                        $statement->bindValue(':b_poller_id', (int) $serverId, \PDO::PARAM_INT);
+                        $statement->bindValue(':poller_id', (int) $row['id'], PDO::PARAM_INT);
+                        $statement->bindValue(':b_poller_id', (int) $serverId, PDO::PARAM_INT);
                         $statement->execute();
 
                         duplicateRemoteServerInformation((int) $serverId, (int) $row['id']);
                     }
-                } catch (\PDOException $e) {
+                } catch (PDOException $e) {
                     // Nothing to do
                 }
             }
@@ -457,24 +448,24 @@ function duplicateServer(array $server, array $nbrDup): void
  * @param int $id Id of the server
  * @param array $remotes Id of the additionnal Remote Servers
  *
- * @return void
  * @throws Exception
+ * @return void
  *
  * @global CentreonDB $pearDB DB connector
  */
-function additionnalRemoteServersByPollerId(int $id, array $remotes = null): void
+function additionnalRemoteServersByPollerId(int $id, ?array $remotes = null): void
 {
     global $pearDB;
 
-    $statement = $pearDB->prepare("DELETE FROM rs_poller_relation WHERE poller_server_id = :id");
-    $statement->bindParam(':id', $id, \PDO::PARAM_INT);
+    $statement = $pearDB->prepare('DELETE FROM rs_poller_relation WHERE poller_server_id = :id');
+    $statement->bindParam(':id', $id, PDO::PARAM_INT);
     $statement->execute();
 
-    if (!is_null($remotes)) {
-        $statement = $pearDB->prepare("INSERT INTO rs_poller_relation VALUES (:remote_id,:poller_id)");
+    if (! is_null($remotes)) {
+        $statement = $pearDB->prepare('INSERT INTO rs_poller_relation VALUES (:remote_id,:poller_id)');
         foreach ($remotes as $remote) {
-            $statement->bindParam(':remote_id', $remote, \PDO::PARAM_INT);
-            $statement->bindParam(':poller_id', $id, \PDO::PARAM_INT);
+            $statement->bindParam(':remote_id', $remote, PDO::PARAM_INT);
+            $statement->bindParam(':poller_id', $id, PDO::PARAM_INT);
             $statement->execute();
         }
     }
@@ -499,9 +490,9 @@ function insertServerInDB(array $data): int
     }
     $iIdNagios = $srvObj->insertServerInCfgNagios(-1, $id, $sName);
 
-    additionnalRemoteServersByPollerId($id, $data["remote_additional_id"]);
+    additionnalRemoteServersByPollerId($id, $data['remote_additional_id']);
 
-    if (!empty($iIdNagios)) {
+    if (! empty($iIdNagios)) {
         $srvObj->insertBrokerDefaultDirectives($iIdNagios, 'ui');
         $srvObj->insertDefaultCfgNagiosLogger($iIdNagios);
     }
@@ -524,184 +515,184 @@ function insertServer(array $data): int
     global $pearDB, $centreon;
 
     $retValue = [];
-    $rq = "INSERT INTO `nagios_server` (`name` , `localhost`, `ns_ip_address`, `ssh_port`, " .
-        "`gorgone_communication_type`, `gorgone_port`, `nagios_bin`, `nagiostats_bin`, " .
-        "`engine_start_command`, `engine_stop_command`, `engine_restart_command`, `engine_reload_command`, " .
-        "`init_script_centreontrapd`, `snmp_trapd_path_conf`, " .
-        "`nagios_perfdata` , `broker_reload_command`, " .
-        "`centreonbroker_cfg_path`, `centreonbroker_module_path`, `centreonconnector_path`, " .
-        "`is_default`, `ns_activate`, `centreonbroker_logs_path`, `remote_id`, `remote_server_use_as_proxy`) ";
-    $rq .= "VALUES (";
+    $rq = 'INSERT INTO `nagios_server` (`name` , `localhost`, `ns_ip_address`, `ssh_port`, '
+        . '`gorgone_communication_type`, `gorgone_port`, `nagios_bin`, `nagiostats_bin`, '
+        . '`engine_start_command`, `engine_stop_command`, `engine_restart_command`, `engine_reload_command`, '
+        . '`init_script_centreontrapd`, `snmp_trapd_path_conf`, '
+        . '`nagios_perfdata` , `broker_reload_command`, '
+        . '`centreonbroker_cfg_path`, `centreonbroker_module_path`, `centreonconnector_path`, '
+        . '`is_default`, `ns_activate`, `centreonbroker_logs_path`, `remote_id`, `remote_server_use_as_proxy`) ';
+    $rq .= 'VALUES (';
 
-    if (isset($data["name"]) && $data["name"] != null) {
+    if (isset($data['name']) && $data['name'] != null) {
         $rq .= ':name, ';
-        $retValue[':name'] = htmlentities(trim($data["name"]), ENT_QUOTES, "UTF-8");
+        $retValue[':name'] = htmlentities(trim($data['name']), ENT_QUOTES, 'UTF-8');
     } else {
-        $rq .= "NULL, ";
+        $rq .= 'NULL, ';
     }
-    if (isset($data["localhost"]["localhost"]) && $data["localhost"]["localhost"] != null) {
+    if (isset($data['localhost']['localhost']) && $data['localhost']['localhost'] != null) {
         $rq .= ':localhost, ';
-        $retValue[':localhost'] = htmlentities($data["localhost"]["localhost"], ENT_QUOTES, "UTF-8");
+        $retValue[':localhost'] = htmlentities($data['localhost']['localhost'], ENT_QUOTES, 'UTF-8');
     } else {
-        $rq .= "NULL, ";
+        $rq .= 'NULL, ';
     }
-    if (isset($data["ns_ip_address"]) && $data["ns_ip_address"] != null) {
+    if (isset($data['ns_ip_address']) && $data['ns_ip_address'] != null) {
         $rq .= ':ns_ip_address, ';
-        $retValue[':ns_ip_address'] = htmlentities(trim($data["ns_ip_address"]), ENT_QUOTES, "UTF-8");
+        $retValue[':ns_ip_address'] = htmlentities(trim($data['ns_ip_address']), ENT_QUOTES, 'UTF-8');
     } else {
-        $rq .= "NULL, ";
+        $rq .= 'NULL, ';
     }
-    if (isset($data["ssh_port"]) && $data["ssh_port"] != null) {
+    if (isset($data['ssh_port']) && $data['ssh_port'] != null) {
         $rq .= ':ssh_port, ';
-        $retValue[':ssh_port'] = (int)$data["ssh_port"];
+        $retValue[':ssh_port'] = (int) $data['ssh_port'];
     } else {
-        $rq .= "22, ";
+        $rq .= '22, ';
     }
     if (
-        isset($data["gorgone_communication_type"]['gorgone_communication_type'])
-        && $data["gorgone_communication_type"]['gorgone_communication_type'] != null
+        isset($data['gorgone_communication_type']['gorgone_communication_type'])
+        && $data['gorgone_communication_type']['gorgone_communication_type'] != null
     ) {
         $rq .= ':gorgone_communication_type, ';
-        $retValue[':gorgone_communication_type'] =
-            htmlentities(trim($data["gorgone_communication_type"]['gorgone_communication_type']), ENT_QUOTES, "UTF-8");
+        $retValue[':gorgone_communication_type']
+            = htmlentities(trim($data['gorgone_communication_type']['gorgone_communication_type']), ENT_QUOTES, 'UTF-8');
     } else {
         $rq .= "'1', ";
     }
-    if (isset($data["gorgone_port"]) && $data["gorgone_port"] != null) {
+    if (isset($data['gorgone_port']) && $data['gorgone_port'] != null) {
         $rq .= ':gorgone_port, ';
-        $retValue[':gorgone_port'] = (int)$data["gorgone_port"];
+        $retValue[':gorgone_port'] = (int) $data['gorgone_port'];
     } else {
-        $rq .= "5556, ";
+        $rq .= '5556, ';
     }
-    if (isset($data["nagios_bin"]) && $data["nagios_bin"] != null) {
+    if (isset($data['nagios_bin']) && $data['nagios_bin'] != null) {
         $rq .= ':nagios_bin, ';
-        $retValue[':nagios_bin'] = htmlentities(trim($data["nagios_bin"]), ENT_QUOTES, "UTF-8");
+        $retValue[':nagios_bin'] = htmlentities(trim($data['nagios_bin']), ENT_QUOTES, 'UTF-8');
     } else {
-        $rq .= "NULL, ";
+        $rq .= 'NULL, ';
     }
-    if (isset($data["nagiostats_bin"]) && $data["nagiostats_bin"] != null) {
+    if (isset($data['nagiostats_bin']) && $data['nagiostats_bin'] != null) {
         $rq .= ':nagiostats_bin, ';
-        $retValue[':nagiostats_bin'] = htmlentities(trim($data["nagiostats_bin"]), ENT_QUOTES, "UTF-8");
+        $retValue[':nagiostats_bin'] = htmlentities(trim($data['nagiostats_bin']), ENT_QUOTES, 'UTF-8');
     } else {
-        $rq .= "NULL, ";
+        $rq .= 'NULL, ';
     }
-    if (isset($data["engine_start_command"]) && $data["engine_start_command"] != null) {
+    if (isset($data['engine_start_command']) && $data['engine_start_command'] != null) {
         $rq .= ':engine_start_command, ';
-        $retValue[':engine_start_command'] = htmlentities(trim($data["engine_start_command"]), ENT_QUOTES, "UTF-8");
+        $retValue[':engine_start_command'] = htmlentities(trim($data['engine_start_command']), ENT_QUOTES, 'UTF-8');
     } else {
-        $rq .= "NULL, ";
+        $rq .= 'NULL, ';
     }
-    if (isset($data["engine_stop_command"]) && $data["engine_stop_command"] != null) {
+    if (isset($data['engine_stop_command']) && $data['engine_stop_command'] != null) {
         $rq .= ':engine_stop_command, ';
-        $retValue[':engine_stop_command'] = htmlentities(trim($data["engine_stop_command"]), ENT_QUOTES, "UTF-8");
+        $retValue[':engine_stop_command'] = htmlentities(trim($data['engine_stop_command']), ENT_QUOTES, 'UTF-8');
     } else {
-        $rq .= "NULL, ";
+        $rq .= 'NULL, ';
     }
-    if (isset($data["engine_restart_command"]) && $data["engine_restart_command"] != null) {
+    if (isset($data['engine_restart_command']) && $data['engine_restart_command'] != null) {
         $rq .= ':engine_restart_command, ';
-        $retValue[':engine_restart_command'] = htmlentities(trim($data["engine_restart_command"]), ENT_QUOTES, "UTF-8");
+        $retValue[':engine_restart_command'] = htmlentities(trim($data['engine_restart_command']), ENT_QUOTES, 'UTF-8');
     } else {
-        $rq .= "NULL, ";
+        $rq .= 'NULL, ';
     }
-    if (isset($data["engine_reload_command"]) && $data["engine_reload_command"] != null) {
+    if (isset($data['engine_reload_command']) && $data['engine_reload_command'] != null) {
         $rq .= ':engine_reload_command, ';
-        $retValue[':engine_reload_command'] = htmlentities(trim($data["engine_reload_command"]), ENT_QUOTES, "UTF-8");
+        $retValue[':engine_reload_command'] = htmlentities(trim($data['engine_reload_command']), ENT_QUOTES, 'UTF-8');
     } else {
-        $rq .= "NULL, ";
+        $rq .= 'NULL, ';
     }
-    if (isset($data["init_script_centreontrapd"]) && $data["init_script_centreontrapd"] != null) {
+    if (isset($data['init_script_centreontrapd']) && $data['init_script_centreontrapd'] != null) {
         $rq .= ':init_script_centreontrapd, ';
-        $retValue[':init_script_centreontrapd'] =
-            htmlentities(trim($data["init_script_centreontrapd"]), ENT_QUOTES, "UTF-8");
+        $retValue[':init_script_centreontrapd']
+            = htmlentities(trim($data['init_script_centreontrapd']), ENT_QUOTES, 'UTF-8');
     } else {
-        $rq .= "NULL, ";
+        $rq .= 'NULL, ';
     }
-    if (isset($data["snmp_trapd_path_conf"]) && $data["snmp_trapd_path_conf"] != null) {
+    if (isset($data['snmp_trapd_path_conf']) && $data['snmp_trapd_path_conf'] != null) {
         $rq .= ':snmp_trapd_path_conf, ';
-        $retValue[':snmp_trapd_path_conf'] = htmlentities(trim($data["snmp_trapd_path_conf"]), ENT_QUOTES, "UTF-8");
+        $retValue[':snmp_trapd_path_conf'] = htmlentities(trim($data['snmp_trapd_path_conf']), ENT_QUOTES, 'UTF-8');
     } else {
-        $rq .= "NULL, ";
+        $rq .= 'NULL, ';
     }
-    if (isset($data["nagios_perfdata"]) && $data["nagios_perfdata"] != null) {
+    if (isset($data['nagios_perfdata']) && $data['nagios_perfdata'] != null) {
         $rq .= ':nagios_perfdata, ';
-        $retValue[':nagios_perfdata'] = htmlentities(trim($data["nagios_perfdata"]), ENT_QUOTES, "UTF-8");
+        $retValue[':nagios_perfdata'] = htmlentities(trim($data['nagios_perfdata']), ENT_QUOTES, 'UTF-8');
     } else {
-        $rq .= "NULL, ";
+        $rq .= 'NULL, ';
     }
-    if (isset($data["broker_reload_command"]) && $data["broker_reload_command"] != null) {
+    if (isset($data['broker_reload_command']) && $data['broker_reload_command'] != null) {
         $rq .= ':broker_reload_command, ';
-        $retValue[':broker_reload_command'] = htmlentities(trim($data["broker_reload_command"]), ENT_QUOTES, "UTF-8");
+        $retValue[':broker_reload_command'] = htmlentities(trim($data['broker_reload_command']), ENT_QUOTES, 'UTF-8');
     } else {
-        $rq .= "NULL, ";
+        $rq .= 'NULL, ';
     }
-    if (isset($data["centreonbroker_cfg_path"]) && $data["centreonbroker_cfg_path"] != null) {
+    if (isset($data['centreonbroker_cfg_path']) && $data['centreonbroker_cfg_path'] != null) {
         $rq .= ':centreonbroker_cfg_path, ';
-        $retValue[':centreonbroker_cfg_path'] =
-            htmlentities(trim($data["centreonbroker_cfg_path"]), ENT_QUOTES, "UTF-8");
+        $retValue[':centreonbroker_cfg_path']
+            = htmlentities(trim($data['centreonbroker_cfg_path']), ENT_QUOTES, 'UTF-8');
     } else {
-        $rq .= "NULL, ";
+        $rq .= 'NULL, ';
     }
-    if (isset($data["centreonbroker_module_path"]) && $data["centreonbroker_module_path"] != null) {
+    if (isset($data['centreonbroker_module_path']) && $data['centreonbroker_module_path'] != null) {
         $rq .= ':centreonbroker_module_path, ';
-        $retValue[':centreonbroker_module_path'] =
-            htmlentities(trim($data["centreonbroker_module_path"]), ENT_QUOTES, "UTF-8");
+        $retValue[':centreonbroker_module_path']
+            = htmlentities(trim($data['centreonbroker_module_path']), ENT_QUOTES, 'UTF-8');
     } else {
-        $rq .= "NULL, ";
+        $rq .= 'NULL, ';
     }
-    if (isset($data["centreonconnector_path"]) && $data["centreonconnector_path"] != null) {
+    if (isset($data['centreonconnector_path']) && $data['centreonconnector_path'] != null) {
         $rq .= ':centreonconnector_path, ';
-        $retValue[':centreonconnector_path'] = htmlentities(trim($data["centreonconnector_path"]), ENT_QUOTES, "UTF-8");
+        $retValue[':centreonconnector_path'] = htmlentities(trim($data['centreonconnector_path']), ENT_QUOTES, 'UTF-8');
     } else {
-        $rq .= "NULL, ";
+        $rq .= 'NULL, ';
     }
-    if (isset($data["is_default"]["is_default"]) && $data["is_default"]["is_default"] != null) {
+    if (isset($data['is_default']['is_default']) && $data['is_default']['is_default'] != null) {
         $rq .= ':is_default, ';
-        $retValue[':is_default'] = htmlentities(trim($data["is_default"]["is_default"]), ENT_QUOTES, "UTF-8");
+        $retValue[':is_default'] = htmlentities(trim($data['is_default']['is_default']), ENT_QUOTES, 'UTF-8');
     } else {
-        $rq .= "NULL, ";
+        $rq .= 'NULL, ';
     }
-    if (isset($data["ns_activate"]["ns_activate"]) && $data["ns_activate"]["ns_activate"] != 2) {
+    if (isset($data['ns_activate']['ns_activate']) && $data['ns_activate']['ns_activate'] != 2) {
         $rq .= ':ns_activate, ';
-        $retValue[':ns_activate'] = $data["ns_activate"]["ns_activate"];
+        $retValue[':ns_activate'] = $data['ns_activate']['ns_activate'];
     } else {
-        $rq .= "NULL, ";
+        $rq .= 'NULL, ';
     }
-    if (isset($data["centreonbroker_logs_path"]) && $data["centreonbroker_logs_path"] != null) {
+    if (isset($data['centreonbroker_logs_path']) && $data['centreonbroker_logs_path'] != null) {
         $rq .= ':centreonbroker_logs_path, ';
-        $retValue[':centreonbroker_logs_path'] =
-            htmlentities(trim($data["centreonbroker_logs_path"]), ENT_QUOTES, "UTF-8");
+        $retValue[':centreonbroker_logs_path']
+            = htmlentities(trim($data['centreonbroker_logs_path']), ENT_QUOTES, 'UTF-8');
     } else {
-        $rq .= "NULL, ";
+        $rq .= 'NULL, ';
     }
-    if (isset($data["remote_id"]) && $data["remote_id"] != null) {
+    if (isset($data['remote_id']) && $data['remote_id'] != null) {
         $rq .= ':remote_id, ';
-        $retValue[':remote_id'] = htmlentities(trim($data["remote_id"]), ENT_QUOTES, "UTF-8");
+        $retValue[':remote_id'] = htmlentities(trim($data['remote_id']), ENT_QUOTES, 'UTF-8');
     } else {
-        $rq .= "NULL, ";
+        $rq .= 'NULL, ';
     }
     if (
-        isset($data["remote_server_use_as_proxy"]["remote_server_use_as_proxy"])
-        && $data["remote_server_use_as_proxy"]["remote_server_use_as_proxy"] != null
+        isset($data['remote_server_use_as_proxy']['remote_server_use_as_proxy'])
+        && $data['remote_server_use_as_proxy']['remote_server_use_as_proxy'] != null
     ) {
         $rq .= ':remote_server_use_as_proxy ';
-        $retValue[':remote_server_use_as_proxy'] =
-            htmlentities($data["remote_server_use_as_proxy"]["remote_server_use_as_proxy"], ENT_QUOTES, "UTF-8");
+        $retValue[':remote_server_use_as_proxy']
+            = htmlentities($data['remote_server_use_as_proxy']['remote_server_use_as_proxy'], ENT_QUOTES, 'UTF-8');
     } else {
-        $rq .= "NULL ";
+        $rq .= 'NULL ';
     }
-    $rq .= ")";
+    $rq .= ')';
     $stmt = $pearDB->prepare($rq);
     foreach ($retValue as $key => $value) {
         $stmt->bindValue($key, $value);
     }
     $stmt->execute();
 
-    $result = $pearDB->query("SELECT MAX(id) as last_id FROM `nagios_server`");
+    $result = $pearDB->query('SELECT MAX(id) as last_id FROM `nagios_server`');
     $poller = $result->fetch();
     $result->closeCursor();
 
     try {
-        insertServerIntoPlatformTopology($retValue, (int)$poller['last_id']);
+        insertServerIntoPlatformTopology($retValue, (int) $poller['last_id']);
     } catch (Exception $e) {
         // catch exception but don't return anything to avoid blank pages on form
     }
@@ -711,13 +702,13 @@ function insertServer(array $data): int
         $instanceObj->setCommands($poller['last_id'], $_REQUEST['pollercmd']);
     }
 
-    /* Prepare value for changelog */
+    // Prepare value for changelog
     $fields = CentreonLogAction::prepareChanges($data);
     $centreon->CentreonLogAction->insertLog(
-        "poller",
+        'poller',
         $poller['last_id'] ?? null,
-        CentreonDB::escape($data["name"]),
-        "a",
+        CentreonDB::escape($data['name']),
+        'a',
         $fields
     );
 
@@ -726,7 +717,7 @@ function insertServer(array $data): int
      */
     $centreon->user->access->updatePollerACL();
 
-    return (int)$poller["last_id"];
+    return (int) $poller['last_id'];
 }
 
 /**
@@ -740,32 +731,32 @@ function addUserRessource(int $serverId): bool
 {
     global $pearDB, $centreon;
 
-    $queryInsert = "INSERT INTO cfg_resource_instance_relations (resource_id, instance_id) VALUES (%d, %d)";
-    $queryGetResources = "SELECT resource_id, resource_name FROM cfg_resource ORDER BY resource_id";
+    $queryInsert = 'INSERT INTO cfg_resource_instance_relations (resource_id, instance_id) VALUES (%d, %d)';
+    $queryGetResources = 'SELECT resource_id, resource_name FROM cfg_resource ORDER BY resource_id';
 
     try {
         $res = $pearDB->query($queryGetResources);
-    } catch (\PDOException $e) {
+    } catch (PDOException $e) {
         return false;
     }
     $isInsert = [];
     while ($resource = $res->fetch()) {
-        if (!in_array($resource['resource_name'], $isInsert)) {
+        if (! in_array($resource['resource_name'], $isInsert)) {
             $isInsert[] = $resource['resource_name'];
             $query = sprintf(
                 $queryInsert,
-                (int)$resource['resource_id'],
+                (int) $resource['resource_id'],
                 $serverId
             );
             $pearDB->query($query);
 
-            /* Prepare value for changelog */
+            // Prepare value for changelog
             $fields = CentreonLogAction::prepareChanges($resource);
             $centreon->CentreonLogAction->insertLog(
-                "resource",
+                'resource',
                 $serverId,
-                CentreonDB::escape($resource["resource_name"]),
-                "a",
+                CentreonDB::escape($resource['resource_name']),
+                'a',
                 $fields
             );
         }
@@ -784,24 +775,24 @@ function updateRemoteServerInformation(array $data, int $id)
 {
     global $pearDB;
 
-    $statement = $pearDB->prepare("SELECT COUNT(*) AS total FROM remote_servers WHERE server_id = :id");
-    $statement->bindValue(':id', $id, \PDO::PARAM_INT);
+    $statement = $pearDB->prepare('SELECT COUNT(*) AS total FROM remote_servers WHERE server_id = :id');
+    $statement->bindValue(':id', $id, PDO::PARAM_INT);
     $statement->execute();
-    $total = (int) $statement->fetch(\PDO::FETCH_ASSOC)['total'];
+    $total = (int) $statement->fetch(PDO::FETCH_ASSOC)['total'];
 
     if ($total === 1) {
-        $statement = $pearDB->prepare("
+        $statement = $pearDB->prepare('
             UPDATE remote_servers
             SET http_method = :http_method, http_port = :http_port,
                 no_check_certificate = :no_check_certificate, no_proxy = :no_proxy, ip = :new_ip
             WHERE server_id = :id
-        ");
-        $statement->bindValue(':http_method', $data["http_method"]);
-        $statement->bindValue(':http_port', $data["http_port"] ?? null, \PDO::PARAM_INT);
-        $statement->bindValue(':no_proxy', $data["no_proxy"]["no_proxy"]);
-        $statement->bindValue(':no_check_certificate', $data["no_check_certificate"]["no_check_certificate"]);
-        $statement->bindValue(':new_ip', $data["ns_ip_address"]);
-        $statement->bindValue(':id', $id, \PDO::PARAM_INT);
+        ');
+        $statement->bindValue(':http_method', $data['http_method']);
+        $statement->bindValue(':http_port', $data['http_port'] ?? null, PDO::PARAM_INT);
+        $statement->bindValue(':no_proxy', $data['no_proxy']['no_proxy']);
+        $statement->bindValue(':no_check_certificate', $data['no_check_certificate']['no_check_certificate']);
+        $statement->bindValue(':new_ip', $data['ns_ip_address']);
+        $statement->bindValue(':id', $id, PDO::PARAM_INT);
         $statement->execute();
     }
 }
@@ -818,204 +809,204 @@ function updateServer(int $id, array $data): void
 {
     global $pearDB, $centreon;
 
-    if ($data["localhost"]["localhost"] == 1) {
+    if ($data['localhost']['localhost'] == 1) {
         $pearDB->query("UPDATE `nagios_server` SET `localhost` = '0'");
     }
-    if ($data["is_default"]["is_default"] == 1) {
+    if ($data['is_default']['is_default'] == 1) {
         $pearDB->query("UPDATE `nagios_server` SET `is_default` = '0'");
     }
     $retValue = [];
 
     // We retrieve IP address that was defined before the update request
     $statement = $pearDB->prepare('SELECT ns_ip_address FROM nagios_server WHERE id = :id');
-    $statement->bindValue(':id', $id, \PDO::PARAM_INT);
+    $statement->bindValue(':id', $id, PDO::PARAM_INT);
     $statement->execute();
-    $ipAddressBeforeChanges = ($result = $statement->fetch(\PDO::FETCH_ASSOC))
+    $ipAddressBeforeChanges = ($result = $statement->fetch(PDO::FETCH_ASSOC))
         ? $result['ns_ip_address']
         : null;
 
-    $rq = "UPDATE `nagios_server` SET ";
-    $rq .= "`name` = ";
-    if (isset($data["name"]) && $data["name"] != null) {
+    $rq = 'UPDATE `nagios_server` SET ';
+    $rq .= '`name` = ';
+    if (isset($data['name']) && $data['name'] != null) {
         $rq .= ':name, ';
-        $retValue[':name'] = $data["name"];
+        $retValue[':name'] = $data['name'];
     } else {
-        $rq .= "NULL, ";
+        $rq .= 'NULL, ';
     }
-    $rq .= "`localhost` = ";
-    if (isset($data["localhost"]["localhost"]) && $data["localhost"]["localhost"] != null) {
+    $rq .= '`localhost` = ';
+    if (isset($data['localhost']['localhost']) && $data['localhost']['localhost'] != null) {
         $rq .= ':localhost, ';
-        $retValue[':localhost'] = htmlentities($data["localhost"]["localhost"], ENT_QUOTES, "UTF-8");
+        $retValue[':localhost'] = htmlentities($data['localhost']['localhost'], ENT_QUOTES, 'UTF-8');
     } else {
-        $rq .= "NULL, ";
+        $rq .= 'NULL, ';
     }
-    $rq .= "`ns_ip_address` = ";
-    if (isset($data["ns_ip_address"]) && $data["ns_ip_address"] != null) {
+    $rq .= '`ns_ip_address` = ';
+    if (isset($data['ns_ip_address']) && $data['ns_ip_address'] != null) {
         $rq .= ':ns_ip_address, ';
-        $retValue[':ns_ip_address'] = htmlentities(trim($data["ns_ip_address"]), ENT_QUOTES, "UTF-8");
+        $retValue[':ns_ip_address'] = htmlentities(trim($data['ns_ip_address']), ENT_QUOTES, 'UTF-8');
     } else {
-        $rq .= "NULL, ";
+        $rq .= 'NULL, ';
     }
-    $rq .= "`ssh_port` = ";
-    if (isset($data["ssh_port"]) && $data["ssh_port"] != null) {
+    $rq .= '`ssh_port` = ';
+    if (isset($data['ssh_port']) && $data['ssh_port'] != null) {
         $rq .= ':ssh_port, ';
-        $retValue[':ssh_port'] = (int)$data["ssh_port"];
+        $retValue[':ssh_port'] = (int) $data['ssh_port'];
     } else {
-        $rq .= "22, ";
+        $rq .= '22, ';
     }
-    $rq .= "`gorgone_communication_type` = ";
+    $rq .= '`gorgone_communication_type` = ';
     if (
-        isset($data["gorgone_communication_type"]['gorgone_communication_type'])
-        && $data["gorgone_communication_type"]['gorgone_communication_type'] != null
+        isset($data['gorgone_communication_type']['gorgone_communication_type'])
+        && $data['gorgone_communication_type']['gorgone_communication_type'] != null
     ) {
         $rq .= ':gorgone_communication_type, ';
-        $retValue[':gorgone_communication_type'] =
-            htmlentities(trim($data["gorgone_communication_type"]['gorgone_communication_type']), ENT_QUOTES, "UTF-8");
+        $retValue[':gorgone_communication_type']
+            = htmlentities(trim($data['gorgone_communication_type']['gorgone_communication_type']), ENT_QUOTES, 'UTF-8');
     } else {
         $rq .= "'1', ";
     }
-    $rq .= "`gorgone_port` = ";
-    if (isset($data["gorgone_port"]) && $data["gorgone_port"] != null) {
+    $rq .= '`gorgone_port` = ';
+    if (isset($data['gorgone_port']) && $data['gorgone_port'] != null) {
         $rq .= ':gorgone_port, ';
-        $retValue[':gorgone_port'] = (int)$data["gorgone_port"];
+        $retValue[':gorgone_port'] = (int) $data['gorgone_port'];
     } else {
-        $rq .= "5556, ";
+        $rq .= '5556, ';
     }
-    $rq .= "`engine_start_command` = ";
-    if (isset($data["engine_start_command"]) && $data["engine_start_command"] != null) {
+    $rq .= '`engine_start_command` = ';
+    if (isset($data['engine_start_command']) && $data['engine_start_command'] != null) {
         $rq .= ':engine_start_command, ';
-        $retValue[':engine_start_command'] = htmlentities(trim($data["engine_start_command"]), ENT_QUOTES, "UTF-8");
+        $retValue[':engine_start_command'] = htmlentities(trim($data['engine_start_command']), ENT_QUOTES, 'UTF-8');
     } else {
-        $rq .= "NULL, ";
+        $rq .= 'NULL, ';
     }
-    $rq .= "`engine_stop_command` = ";
-    if (isset($data["engine_stop_command"]) && $data["engine_stop_command"] != null) {
+    $rq .= '`engine_stop_command` = ';
+    if (isset($data['engine_stop_command']) && $data['engine_stop_command'] != null) {
         $rq .= ':engine_stop_command, ';
-        $retValue[':engine_stop_command'] = htmlentities(trim($data["engine_stop_command"]), ENT_QUOTES, "UTF-8");
+        $retValue[':engine_stop_command'] = htmlentities(trim($data['engine_stop_command']), ENT_QUOTES, 'UTF-8');
     } else {
-        $rq .= "NULL, ";
+        $rq .= 'NULL, ';
     }
-    $rq .= "`engine_restart_command` = ";
-    if (isset($data["engine_restart_command"]) && $data["engine_restart_command"] != null) {
+    $rq .= '`engine_restart_command` = ';
+    if (isset($data['engine_restart_command']) && $data['engine_restart_command'] != null) {
         $rq .= ':engine_restart_command, ';
-        $retValue[':engine_restart_command'] = htmlentities(trim($data["engine_restart_command"]), ENT_QUOTES, "UTF-8");
+        $retValue[':engine_restart_command'] = htmlentities(trim($data['engine_restart_command']), ENT_QUOTES, 'UTF-8');
     } else {
-        $rq .= "NULL, ";
+        $rq .= 'NULL, ';
     }
-    $rq .= "`engine_reload_command` = ";
-    if (isset($data["engine_reload_command"]) && $data["engine_reload_command"] != null) {
+    $rq .= '`engine_reload_command` = ';
+    if (isset($data['engine_reload_command']) && $data['engine_reload_command'] != null) {
         $rq .= ':engine_reload_command, ';
-        $retValue[':engine_reload_command'] = htmlentities(trim($data["engine_reload_command"]), ENT_QUOTES, "UTF-8");
+        $retValue[':engine_reload_command'] = htmlentities(trim($data['engine_reload_command']), ENT_QUOTES, 'UTF-8');
     } else {
-        $rq .= "NULL, ";
+        $rq .= 'NULL, ';
     }
-    $rq .= "`init_script_centreontrapd` = ";
-    if (isset($data["init_script_centreontrapd"]) && $data["init_script_centreontrapd"] != null) {
+    $rq .= '`init_script_centreontrapd` = ';
+    if (isset($data['init_script_centreontrapd']) && $data['init_script_centreontrapd'] != null) {
         $rq .= ':init_script_centreontrapd, ';
-        $retValue[':init_script_centreontrapd'] =
-            htmlentities(trim($data["init_script_centreontrapd"]), ENT_QUOTES, "UTF-8");
+        $retValue[':init_script_centreontrapd']
+            = htmlentities(trim($data['init_script_centreontrapd']), ENT_QUOTES, 'UTF-8');
     } else {
-        $rq .= "NULL, ";
+        $rq .= 'NULL, ';
     }
-    $rq .= "`snmp_trapd_path_conf` = ";
-    if (isset($data["snmp_trapd_path_conf"]) && $data["snmp_trapd_path_conf"] != null) {
+    $rq .= '`snmp_trapd_path_conf` = ';
+    if (isset($data['snmp_trapd_path_conf']) && $data['snmp_trapd_path_conf'] != null) {
         $rq .= ':snmp_trapd_path_conf, ';
-        $retValue[':snmp_trapd_path_conf'] = htmlentities(trim($data["snmp_trapd_path_conf"]), ENT_QUOTES, "UTF-8");
+        $retValue[':snmp_trapd_path_conf'] = htmlentities(trim($data['snmp_trapd_path_conf']), ENT_QUOTES, 'UTF-8');
     } else {
-        $rq .= "NULL, ";
+        $rq .= 'NULL, ';
     }
-    $rq .= "`nagios_bin` = ";
-    if (isset($data["nagios_bin"]) && $data["nagios_bin"] != null) {
+    $rq .= '`nagios_bin` = ';
+    if (isset($data['nagios_bin']) && $data['nagios_bin'] != null) {
         $rq .= ':nagios_bin, ';
-        $retValue[':nagios_bin'] = htmlentities(trim($data["nagios_bin"]), ENT_QUOTES, "UTF-8");
+        $retValue[':nagios_bin'] = htmlentities(trim($data['nagios_bin']), ENT_QUOTES, 'UTF-8');
     } else {
-        $rq .= "NULL, ";
+        $rq .= 'NULL, ';
     }
-    $rq .= "`nagiostats_bin` = ";
-    if (isset($data["nagiostats_bin"]) && $data["nagiostats_bin"] != null) {
+    $rq .= '`nagiostats_bin` = ';
+    if (isset($data['nagiostats_bin']) && $data['nagiostats_bin'] != null) {
         $rq .= ':nagiostats_bin, ';
-        $retValue[':nagiostats_bin'] = htmlentities(trim($data["nagiostats_bin"]), ENT_QUOTES, "UTF-8");
+        $retValue[':nagiostats_bin'] = htmlentities(trim($data['nagiostats_bin']), ENT_QUOTES, 'UTF-8');
     } else {
-        $rq .= "NULL, ";
+        $rq .= 'NULL, ';
     }
-    $rq .= "`nagios_perfdata` = ";
-    if (isset($data["nagios_perfdata"]) && $data["nagios_perfdata"] != null) {
+    $rq .= '`nagios_perfdata` = ';
+    if (isset($data['nagios_perfdata']) && $data['nagios_perfdata'] != null) {
         $rq .= ':nagios_perfdata, ';
-        $retValue[':nagios_perfdata'] = htmlentities(trim($data["nagios_perfdata"]), ENT_QUOTES, "UTF-8");
+        $retValue[':nagios_perfdata'] = htmlentities(trim($data['nagios_perfdata']), ENT_QUOTES, 'UTF-8');
     } else {
-        $rq .= "NULL, ";
+        $rq .= 'NULL, ';
     }
-    $rq .= "`broker_reload_command` = ";
-    if (isset($data["broker_reload_command"]) && $data["broker_reload_command"] != null) {
+    $rq .= '`broker_reload_command` = ';
+    if (isset($data['broker_reload_command']) && $data['broker_reload_command'] != null) {
         $rq .= ':broker_reload_command, ';
-        $retValue[':broker_reload_command'] = htmlentities(trim($data["broker_reload_command"]), ENT_QUOTES, "UTF-8");
+        $retValue[':broker_reload_command'] = htmlentities(trim($data['broker_reload_command']), ENT_QUOTES, 'UTF-8');
     } else {
-        $rq .= "NULL, ";
+        $rq .= 'NULL, ';
     }
-    $rq .= "`centreonbroker_cfg_path` = ";
-    if (isset($data["centreonbroker_cfg_path"]) && $data["centreonbroker_cfg_path"] != null) {
+    $rq .= '`centreonbroker_cfg_path` = ';
+    if (isset($data['centreonbroker_cfg_path']) && $data['centreonbroker_cfg_path'] != null) {
         $rq .= ':centreonbroker_cfg_path, ';
-        $retValue[':centreonbroker_cfg_path'] =
-            htmlentities(trim($data["centreonbroker_cfg_path"]), ENT_QUOTES, "UTF-8");
+        $retValue[':centreonbroker_cfg_path']
+            = htmlentities(trim($data['centreonbroker_cfg_path']), ENT_QUOTES, 'UTF-8');
     } else {
-        $rq .= "NULL, ";
+        $rq .= 'NULL, ';
     }
-    $rq .= "`centreonbroker_module_path` = ";
-    if (isset($data["centreonbroker_module_path"]) && $data["centreonbroker_module_path"] != null) {
+    $rq .= '`centreonbroker_module_path` = ';
+    if (isset($data['centreonbroker_module_path']) && $data['centreonbroker_module_path'] != null) {
         $rq .= ':centreonbroker_module_path, ';
-        $retValue[':centreonbroker_module_path'] =
-            htmlentities(trim($data["centreonbroker_module_path"]), ENT_QUOTES, "UTF-8");
+        $retValue[':centreonbroker_module_path']
+            = htmlentities(trim($data['centreonbroker_module_path']), ENT_QUOTES, 'UTF-8');
     } else {
-        $rq .= "NULL, ";
+        $rq .= 'NULL, ';
     }
-    $rq .= "`centreonconnector_path` = ";
-    if (isset($data["centreonconnector_path"]) && $data["centreonconnector_path"] != null) {
+    $rq .= '`centreonconnector_path` = ';
+    if (isset($data['centreonconnector_path']) && $data['centreonconnector_path'] != null) {
         $rq .= ':centreonconnector_path, ';
-        $retValue[':centreonconnector_path'] = htmlentities(trim($data["centreonconnector_path"]), ENT_QUOTES, "UTF-8");
+        $retValue[':centreonconnector_path'] = htmlentities(trim($data['centreonconnector_path']), ENT_QUOTES, 'UTF-8');
     } else {
-        $rq .= "NULL, ";
+        $rq .= 'NULL, ';
     }
-    $rq .= "`is_default` = ";
-    if (isset($data["is_default"]['is_default']) && $data["is_default"]['is_default'] != null) {
+    $rq .= '`is_default` = ';
+    if (isset($data['is_default']['is_default']) && $data['is_default']['is_default'] != null) {
         $rq .= ':isDefault, ';
-        $retValue[':isDefault'] = (int)$data["is_default"]['is_default'];
+        $retValue[':isDefault'] = (int) $data['is_default']['is_default'];
     } else {
-        $rq .= "0, ";
+        $rq .= '0, ';
     }
-    $rq .= "`centreonbroker_logs_path` = ";
-    if (isset($data["centreonbroker_logs_path"]) && $data["centreonbroker_logs_path"] != null) {
+    $rq .= '`centreonbroker_logs_path` = ';
+    if (isset($data['centreonbroker_logs_path']) && $data['centreonbroker_logs_path'] != null) {
         $rq .= ':centreonbroker_logs_path, ';
-        $retValue[':centreonbroker_logs_path'] =
-            htmlentities(trim($data["centreonbroker_logs_path"]), ENT_QUOTES, "UTF-8");
+        $retValue[':centreonbroker_logs_path']
+            = htmlentities(trim($data['centreonbroker_logs_path']), ENT_QUOTES, 'UTF-8');
     } else {
-        $rq .= "NULL, ";
+        $rq .= 'NULL, ';
     }
-    $rq .= "`remote_id` = ";
-    if (isset($data["remote_id"]) && $data["remote_id"] != null) {
+    $rq .= '`remote_id` = ';
+    if (isset($data['remote_id']) && $data['remote_id'] != null) {
         $rq .= ':remote_id, ';
-        $retValue[':remote_id'] = htmlentities(trim($data["remote_id"]), ENT_QUOTES, "UTF-8");
+        $retValue[':remote_id'] = htmlentities(trim($data['remote_id']), ENT_QUOTES, 'UTF-8');
     } else {
-        $rq .= "NULL, ";
+        $rq .= 'NULL, ';
     }
-    $rq .= "`ns_activate` = ";
-    if (isset($data["ns_activate"]["ns_activate"]) && $data["ns_activate"]["ns_activate"] != null) {
+    $rq .= '`ns_activate` = ';
+    if (isset($data['ns_activate']['ns_activate']) && $data['ns_activate']['ns_activate'] != null) {
         $rq .= ':ns_activate, ';
-        $retValue[':ns_activate'] = htmlentities(trim($data["ns_activate"]["ns_activate"]), ENT_QUOTES, "UTF-8");
+        $retValue[':ns_activate'] = htmlentities(trim($data['ns_activate']['ns_activate']), ENT_QUOTES, 'UTF-8');
     } else {
         $rq .= "'1', ";
     }
-    $rq .= "`remote_server_use_as_proxy` = ";
+    $rq .= '`remote_server_use_as_proxy` = ';
     if (
-        isset($data["remote_server_use_as_proxy"]["remote_server_use_as_proxy"])
-        && $data["remote_server_use_as_proxy"]["remote_server_use_as_proxy"] != null
+        isset($data['remote_server_use_as_proxy']['remote_server_use_as_proxy'])
+        && $data['remote_server_use_as_proxy']['remote_server_use_as_proxy'] != null
     ) {
         $rq .= ':remote_server_use_as_proxy ';
-        $retValue[':remote_server_use_as_proxy'] =
-            htmlentities(trim($data["remote_server_use_as_proxy"]["remote_server_use_as_proxy"]), ENT_QUOTES, "UTF-8");
+        $retValue[':remote_server_use_as_proxy']
+            = htmlentities(trim($data['remote_server_use_as_proxy']['remote_server_use_as_proxy']), ENT_QUOTES, 'UTF-8');
     } else {
         $rq .= "'1' ";
     }
-    $rq .= "WHERE id = " . (int)$id;
+    $rq .= 'WHERE id = ' . (int) $id;
     $stmt = $pearDB->prepare($rq);
     foreach ($retValue as $key => $value) {
         $stmt->bindValue($key, $value);
@@ -1025,12 +1016,12 @@ function updateServer(int $id, array $data): void
     updateRemoteServerInformation($data, $id);
     try {
         updateServerIntoPlatformTopology($retValue, $id);
-    } catch (\Exception $e) {
+    } catch (Exception $e) {
         // catch exception but don't return anything to avoid blank pages on form
     }
     additionnalRemoteServersByPollerId(
         $id,
-        $data["remote_additional_id"] ?? null
+        $data['remote_additional_id'] ?? null
     );
 
     if (isset($_REQUEST['pollercmd'])) {
@@ -1038,9 +1029,9 @@ function updateServer(int $id, array $data): void
         $instanceObj->setCommands($id, $_REQUEST['pollercmd']);
     }
 
-    /* Prepare value for changelog */
+    // Prepare value for changelog
     $fields = CentreonLogAction::prepareChanges($data);
-    $centreon->CentreonLogAction->insertLog("poller", $id, CentreonDB::escape($data["name"]), "c", $fields);
+    $centreon->CentreonLogAction->insertLog('poller', $id, CentreonDB::escape($data['name']), 'c', $fields);
 }
 
 /**
@@ -1053,9 +1044,9 @@ function defineLocalPollerToDefault()
     global $pearDB;
     $query = "SELECT COUNT(*) AS `nb_of_default_poller` FROM `nagios_server` WHERE `is_default` = '1'";
     $statement = $pearDB->query($query);
-    $result = $statement->fetch(\PDO::FETCH_ASSOC);
+    $result = $statement->fetch(PDO::FETCH_ASSOC);
 
-    if ($result !== false && ((int)$result['nb_of_default_poller'] === 0)) {
+    if ($result !== false && ((int) $result['nb_of_default_poller'] === 0)) {
         $query = "UPDATE `nagios_server` SET `is_default` = '1' WHERE `localhost` = '1'";
         $pearDB->query($query);
     }
@@ -1065,7 +1056,7 @@ function defineLocalPollerToDefault()
  * Add Poller into platform_topology table
  *
  * @param array $pollerInformations
- * @param integer $pollerId
+ * @param int $pollerId
  */
 function insertServerIntoPlatformTopology(array $pollerInformations, int $pollerId)
 {
@@ -1073,28 +1064,28 @@ function insertServerIntoPlatformTopology(array $pollerInformations, int $poller
 
     $serverIp = $pollerInformations[':ns_ip_address'];
     $serverName = $pollerInformations[':name'];
-    $type = (int)$pollerInformations[':localhost'] == true ? 'central' : 'poller';
+    $type = (int) $pollerInformations[':localhost'] == true ? 'central' : 'poller';
 
     /**
      * Prepare statement to get the Parent depending on Remote attachment or not.
      */
     if (isset($pollerInformations[':remote_id'])) {
-        $statement = $pearDB->prepare("SELECT id FROM `platform_topology` WHERE `server_id` = :remoteId");
-        $statement->bindValue(':remoteId', (int)$pollerInformations[':remote_id'], \PDO::PARAM_INT);
+        $statement = $pearDB->prepare('SELECT id FROM `platform_topology` WHERE `server_id` = :remoteId');
+        $statement->bindValue(':remoteId', (int) $pollerInformations[':remote_id'], PDO::PARAM_INT);
         $statement->execute();
     } else {
         $statement = $pearDB->query("SELECT id FROM `platform_topology` WHERE `type` = 'central'");
     }
-    $parent = $statement->fetch(\PDO::FETCH_ASSOC);
+    $parent = $statement->fetch(PDO::FETCH_ASSOC);
     $statement->closeCursor();
 
     /**
      * If no Parent, Poller isn't attached to any remote server or Central
      */
-    if (!empty($parent['id'])) {
-        $parentId = (int)$parent['id'];
+    if (! empty($parent['id'])) {
+        $parentId = (int) $parent['id'];
     } else {
-        throw new \Exception(
+        throw new Exception(
             'Missing parent platform topology. Please register the parent first using the endpoint
             or the available script. For more details check the documentation'
         );
@@ -1104,11 +1095,11 @@ function insertServerIntoPlatformTopology(array $pollerInformations, int $poller
         INSERT INTO `platform_topology` (`address`, `name`, `type`, `parent_id`, `server_id`, `pending`)
         VALUES (:address, :name, :type, :parent_id, :server_id, '0')
     ");
-    $statement->bindValue(':address', $serverIp, \PDO::PARAM_STR);
-    $statement->bindValue(':name', $serverName, \PDO::PARAM_STR);
-    $statement->bindValue(':type', $type, \PDO::PARAM_STR);
-    $statement->bindValue(':parent_id', $parentId, \PDO::PARAM_INT);
-    $statement->bindValue(':server_id', $pollerId, \PDO::PARAM_INT);
+    $statement->bindValue(':address', $serverIp, PDO::PARAM_STR);
+    $statement->bindValue(':name', $serverName, PDO::PARAM_STR);
+    $statement->bindValue(':type', $type, PDO::PARAM_STR);
+    $statement->bindValue(':parent_id', $parentId, PDO::PARAM_INT);
+    $statement->bindValue(':server_id', $pollerId, PDO::PARAM_INT);
     $statement->execute();
 }
 
@@ -1116,7 +1107,7 @@ function insertServerIntoPlatformTopology(array $pollerInformations, int $poller
  * Update Server information into platform_topology table
  *
  * @param array $pollerInformations
- * @param integer $serverId
+ * @param int $serverId
  */
 function updateServerIntoPlatformTopology(array $pollerInformations, int $serverId)
 {
@@ -1128,17 +1119,17 @@ function updateServerIntoPlatformTopology(array $pollerInformations, int $server
     /**
      * Check if we are updating a Remote Server
      */
-    $statement = $pearDB->prepare("SELECT 1 FROM remote_servers WHERE server_id = :id");
-    $statement->bindValue(':id', $serverId, \PDO::PARAM_INT);
+    $statement = $pearDB->prepare('SELECT 1 FROM remote_servers WHERE server_id = :id');
+    $statement->bindValue(':id', $serverId, PDO::PARAM_INT);
     $statement->execute();
-    $isRemote = $statement->fetch(\PDO::FETCH_ASSOC);
+    $isRemote = $statement->fetch(PDO::FETCH_ASSOC);
     if ($isRemote) {
         $type = 'remote';
     } else {
         /**
          * Otherwise we define type with the localhost key
          */
-        $type = (int)$pollerInformations[':localhost'] == true ? 'central' : 'poller';
+        $type = (int) $pollerInformations[':localhost'] == true ? 'central' : 'poller';
     }
 
     if ($type === 'central') {
@@ -1147,44 +1138,44 @@ function updateServerIntoPlatformTopology(array $pollerInformations, int $server
         /**
          * Prepare statement to get the Parent depending on Remote attachment or not.
          */
-        if (!empty($pollerInformations[':remote_id'])) {
-            $statement = $pearDB->prepare("SELECT id FROM `platform_topology` WHERE `server_id` = :remoteId");
-            $statement->bindValue(':remoteId', (int)$pollerInformations[':remote_id'], \PDO::PARAM_INT);
+        if (! empty($pollerInformations[':remote_id'])) {
+            $statement = $pearDB->prepare('SELECT id FROM `platform_topology` WHERE `server_id` = :remoteId');
+            $statement->bindValue(':remoteId', (int) $pollerInformations[':remote_id'], PDO::PARAM_INT);
             $statement->execute();
         } else {
             $statement = $pearDB->query("SELECT id FROM `platform_topology` WHERE `type` = 'central'");
         }
-        $parent = $statement->fetch(\PDO::FETCH_ASSOC);
+        $parent = $statement->fetch(PDO::FETCH_ASSOC);
         $statement->closeCursor();
 
         /**
          * If no Parent, Poller isn't attached to any remote server or Central
          */
-        if (!empty($parent['id'])) {
-            $parentId = (int)$parent['id'];
+        if (! empty($parent['id'])) {
+            $parentId = (int) $parent['id'];
         } else {
-            throw new \Exception(
+            throw new Exception(
                 'Missing parent platform topology. Please register the parent first using the endpoint
                 or the available script. For more details check the documentation'
             );
         }
     }
 
-    $statement = $pearDB->prepare("SELECT * FROM platform_topology WHERE server_id = :serverId");
-    $statement->bindValue(':serverId', $serverId, \PDO::PARAM_INT);
+    $statement = $pearDB->prepare('SELECT * FROM platform_topology WHERE server_id = :serverId');
+    $statement->bindValue(':serverId', $serverId, PDO::PARAM_INT);
     $statement->execute();
-    $platform = $statement->fetch(\PDO::FETCH_ASSOC);
+    $platform = $statement->fetch(PDO::FETCH_ASSOC);
 
     // Updating platform
     if ($platform) {
-        $statement = $pearDB->prepare("
+        $statement = $pearDB->prepare('
             UPDATE platform_topology SET
             address = :address,
             name = :name,
             type = :type,
             parent_id = :parent
             WHERE server_id = :serverId
-        ");
+        ');
         // do not override platform IP with localhost value
         if ($type === 'central' && $pollerIp === '127.0.0.1') {
             $pollerIp = $platform['address'];
@@ -1200,11 +1191,11 @@ function updateServerIntoPlatformTopology(array $pollerInformations, int $server
         ");
     }
 
-    $statement->bindValue(':address', $pollerIp, \PDO::PARAM_STR);
-    $statement->bindValue(':name', $name, \PDO::PARAM_STR);
-    $statement->bindValue(':type', $type, \PDO::PARAM_STR);
-    $statement->bindValue(':parent', $parentId, \PDO::PARAM_INT);
-    $statement->bindValue(':serverId', $serverId, \PDO::PARAM_INT);
+    $statement->bindValue(':address', $pollerIp, PDO::PARAM_STR);
+    $statement->bindValue(':name', $name, PDO::PARAM_STR);
+    $statement->bindValue(':type', $type, PDO::PARAM_STR);
+    $statement->bindValue(':parent', $parentId, PDO::PARAM_INT);
+    $statement->bindValue(':serverId', $serverId, PDO::PARAM_INT);
     $statement->execute();
 }
 
@@ -1213,22 +1204,19 @@ function updateServerIntoPlatformTopology(array $pollerInformations, int $server
  * This ruleset avoid IP duplication in Poller form
  *
  * @param array $formParameters
- * @return boolean
+ * @return bool
  */
 function ipCanBeRegistered(string $serverIp): bool
 {
     global $pearDB;
 
     $pollerIp = $serverIp;
-    $statement = $pearDB->prepare("SELECT * FROM `platform_topology` WHERE address = :address");
-    $statement->bindValue(':address', $pollerIp, \PDO::PARAM_STR);
+    $statement = $pearDB->prepare('SELECT * FROM `platform_topology` WHERE address = :address');
+    $statement->bindValue(':address', $pollerIp, PDO::PARAM_STR);
     $statement->execute();
-    $isAlreadyInTopology = $statement->fetch(\PDO::FETCH_ASSOC);
-    if ($isAlreadyInTopology) {
-        return false;
-    }
+    $isAlreadyInTopology = $statement->fetch(PDO::FETCH_ASSOC);
 
-    return true;
+    return ! ($isAlreadyInTopology);
 }
 
 /**
@@ -1240,57 +1228,52 @@ function ipCanBeUpdated(array $options): bool
     global $pearDB;
 
     $serverIp = $options[0];
-    $serverId = (int)$options[1];
+    $serverId = (int) $options[1];
 
     /**
      * Check if the IP address is already existing in Nagios Server
      */
-    $statement = $pearDB->prepare("
+    $statement = $pearDB->prepare('
         SELECT `id`, `ns_ip_address` AS `address` FROM `nagios_server`
         WHERE `ns_ip_address` = :address
-    ");
-    $statement->bindValue(':address', $serverIp, \PDO::PARAM_STR);
+    ');
+    $statement->bindValue(':address', $serverIp, PDO::PARAM_STR);
     $statement->execute();
-    $platform = $statement->fetch(\PDO::FETCH_ASSOC);
+    $platform = $statement->fetch(PDO::FETCH_ASSOC);
 
     /**
      * check if previously found platform is the platform we're editing
      */
     if ($platform) {
-        if ((int)$platform['id'] === $serverId) {
-            return true;
-        }
-        return false;
+        return (bool) ((int) $platform['id'] === $serverId);
     }
 
     /**
      * If nothing was found in nagios server check if it exists in platform topology
      * e.g: a Central is 127.0.0.1 in NS but is displayed with its true IP in platform_topology
      */
-    $statement = $pearDB->prepare("SELECT * FROM `platform_topology` WHERE `address` = :address");
-    $statement->bindValue(':address', $serverIp, \PDO::PARAM_STR);
+    $statement = $pearDB->prepare('SELECT * FROM `platform_topology` WHERE `address` = :address');
+    $statement->bindValue(':address', $serverIp, PDO::PARAM_STR);
     $statement->execute();
-    $platformInTopology = $statement->fetch(\PDO::FETCH_ASSOC);
-    if ($platformInTopology && (int)$platformInTopology['server_id'] !== $serverId) {
-        return false;
-    }
-    return true;
+    $platformInTopology = $statement->fetch(PDO::FETCH_ASSOC);
+
+    return ! ($platformInTopology && (int) $platformInTopology['server_id'] !== $serverId);
 }
 
 /**
  * Get Remote servers information
  *
- * @param integer $serverId
+ * @param int $serverId
  * @return array<string,string>
  */
 function getRemoteServerInformation(int $serverId): array
 {
     global $pearDB;
 
-    $statement = $pearDB->prepare("SELECT * FROM remote_servers WHERE server_id = :id LIMIT 1");
-    $statement->bindValue(':id', $serverId, \PDO::PARAM_INT);
+    $statement = $pearDB->prepare('SELECT * FROM remote_servers WHERE server_id = :id LIMIT 1');
+    $statement->bindValue(':id', $serverId, PDO::PARAM_INT);
     $statement->execute();
-    if (($result = $statement->fetch(\PDO::FETCH_ASSOC)) !== false) {
+    if (($result = $statement->fetch(PDO::FETCH_ASSOC)) !== false) {
         return $result;
     }
 
@@ -1309,40 +1292,40 @@ function duplicateRemoteServerInformation(int $duplicatedId, int $newId): void
     $remoteServerInformation = getRemoteServerInformation($duplicatedId);
     if ($remoteServerInformation !== []) {
         $insertRemoteServerStatement = $pearDB->prepare(
-            "INSERT INTO `remote_servers` (ip, `version`, is_connected,
+            'INSERT INTO `remote_servers` (ip, `version`, is_connected,
             centreon_path, http_method, http_port, no_check_certificate, no_proxy, server_id) VALUES
             (:ip, :version, :isConnected, :centreonPath, :httpMethod, :httpPort,
-            :noCheckCertificate, :noProxy, :serverId)"
+            :noCheckCertificate, :noProxy, :serverId)'
         );
-        $insertRemoteServerStatement->bindValue(":ip", $remoteServerInformation["ip"], \PDO::PARAM_STR);
-        $insertRemoteServerStatement->bindValue(":version", $remoteServerInformation["version"], \PDO::PARAM_STR);
+        $insertRemoteServerStatement->bindValue(':ip', $remoteServerInformation['ip'], PDO::PARAM_STR);
+        $insertRemoteServerStatement->bindValue(':version', $remoteServerInformation['version'], PDO::PARAM_STR);
         $insertRemoteServerStatement->bindValue(
-            ":isConnected",
-            (int) $remoteServerInformation["is_connected"],
-            \PDO::PARAM_INT
-        );
-        $insertRemoteServerStatement->bindValue(
-            ":centreonPath",
-            $remoteServerInformation["centreon_path"],
-            \PDO::PARAM_STR
+            ':isConnected',
+            (int) $remoteServerInformation['is_connected'],
+            PDO::PARAM_INT
         );
         $insertRemoteServerStatement->bindValue(
-            ":httpMethod",
-            $remoteServerInformation["http_method"],
-            \PDO::PARAM_STR
+            ':centreonPath',
+            $remoteServerInformation['centreon_path'],
+            PDO::PARAM_STR
         );
         $insertRemoteServerStatement->bindValue(
-            ":httpPort",
-            $remoteServerInformation["http_port"] !== null ? (int) $remoteServerInformation["http_port"] : null,
-            \PDO::PARAM_INT
+            ':httpMethod',
+            $remoteServerInformation['http_method'],
+            PDO::PARAM_STR
         );
         $insertRemoteServerStatement->bindValue(
-            ":noCheckCertificate",
-            $remoteServerInformation["no_check_certificate"],
-            \PDO::PARAM_STR
+            ':httpPort',
+            $remoteServerInformation['http_port'] !== null ? (int) $remoteServerInformation['http_port'] : null,
+            PDO::PARAM_INT
         );
-        $insertRemoteServerStatement->bindValue(":noProxy", $remoteServerInformation["no_proxy"], \PDO::PARAM_STR);
-        $insertRemoteServerStatement->bindValue(":serverId", $newId, \PDO::PARAM_INT);
+        $insertRemoteServerStatement->bindValue(
+            ':noCheckCertificate',
+            $remoteServerInformation['no_check_certificate'],
+            PDO::PARAM_STR
+        );
+        $insertRemoteServerStatement->bindValue(':noProxy', $remoteServerInformation['no_proxy'], PDO::PARAM_STR);
+        $insertRemoteServerStatement->bindValue(':serverId', $newId, PDO::PARAM_INT);
         $insertRemoteServerStatement->execute();
     }
 }

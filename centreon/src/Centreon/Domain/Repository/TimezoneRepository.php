@@ -1,4 +1,5 @@
 <?php
+
 namespace Centreon\Domain\Repository;
 
 use Centreon\Infrastructure\CentreonLegacyDB\ServiceEntityRepository;
@@ -14,13 +15,13 @@ class TimezoneRepository extends ServiceEntityRepository
      */
     public function get(int $id): ?array
     {
-        $sql = <<<SQL
-SELECT
-    t.*
-FROM timezone AS t
-WHERE t.timezone_id = :id
-LIMIT 0, 1
-SQL;
+        $sql = <<<'SQL'
+            SELECT
+                t.*
+            FROM timezone AS t
+            WHERE t.timezone_id = :id
+            LIMIT 0, 1
+            SQL;
         $stmt = $this->db->prepare($sql);
         $stmt->bindParam(':id', $id, PDO::PARAM_INT);
         $stmt->execute();
@@ -29,9 +30,7 @@ SQL;
             return null;
         }
 
-        $result = $stmt->fetch();
-
-        return $result;
+        return $stmt->fetch();
     }
 
     /**
@@ -43,21 +42,21 @@ SQL;
     public function export(array $pollerIds): array
     {
         // prevent SQL exception
-        if (!$pollerIds) {
+        if (! $pollerIds) {
             return [];
         }
 
         $ids = join(',', $pollerIds);
 
         $sql = <<<SQL
-SELECT
-    tz.*,
-    t.nagios_id AS `_nagios_id`
-FROM cfg_nagios AS t
-INNER JOIN timezone AS tz ON tz.timezone_id = t.use_timezone
-WHERE t.nagios_id IN ({$ids})
-GROUP BY tz.timezone_id
-SQL;
+            SELECT
+                tz.*,
+                t.nagios_id AS `_nagios_id`
+            FROM cfg_nagios AS t
+            INNER JOIN timezone AS tz ON tz.timezone_id = t.use_timezone
+            WHERE t.nagios_id IN ({$ids})
+            GROUP BY tz.timezone_id
+            SQL;
         $stmt = $this->db->prepare($sql);
         $stmt->execute();
 

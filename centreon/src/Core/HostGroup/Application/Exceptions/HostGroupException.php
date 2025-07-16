@@ -131,4 +131,12 @@ class HostGroupException extends \Exception
     {
         return new self(sprintf(_("The host group name '%s' already exists"), $hostGroupName), self::CODE_CONFLICT);
     }
+
+    /**
+     * @return self
+     */
+    public static function errorResourceAccessRulesEmpty(): self
+    {
+        return new self('The host group must have at least one valid resource access rule', self::CODE_CONFLICT);
+    }
 }

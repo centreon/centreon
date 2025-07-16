@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005 - 2019 Centreon (https://www.centreon.com/)
  *
@@ -33,8 +34,10 @@ class TrapsGroupRelation extends AbstractObject
 {
     /** @var string */
     protected $table = 'traps_group_relation';
+
     /** @var string */
     protected $generateFilename = 'traps_group_relation.infile';
+
     /** @var string[] */
     protected $attributesWrite = [
         'traps_group_id',
@@ -47,8 +50,8 @@ class TrapsGroupRelation extends AbstractObject
      * @param int $trapsId
      * @param int $trapsGroupId
      *
-     * @return void
      * @throws Exception
+     * @return void
      */
     public function addRelation(int $trapsId, int $trapsGroupId): void
     {

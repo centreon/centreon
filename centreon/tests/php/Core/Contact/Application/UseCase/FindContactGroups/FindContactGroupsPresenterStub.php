@@ -23,18 +23,16 @@ declare(strict_types=1);
 
 namespace Tests\Core\Contact\Application\UseCase\FindContactGroups;
 
-use Symfony\Component\HttpFoundation\Response;
-use Core\Contact\Application\UseCase\FindContactGroups\FindContactGroupsResponse;
-use Core\Contact\Application\UseCase\FindContactGroups\FindContactGroupsPresenterInterface;
 use Core\Application\Common\UseCase\{
     AbstractPresenter
 };
+use Core\Contact\Application\UseCase\FindContactGroups\FindContactGroupsPresenterInterface;
+use Core\Contact\Application\UseCase\FindContactGroups\FindContactGroupsResponse;
+use Symfony\Component\HttpFoundation\Response;
 
 class FindContactGroupsPresenterStub extends AbstractPresenter implements FindContactGroupsPresenterInterface
 {
-    /**
-     * @var FindContactGroupsResponse
-     */
+    /** @var FindContactGroupsResponse */
     public $response;
 
     /**

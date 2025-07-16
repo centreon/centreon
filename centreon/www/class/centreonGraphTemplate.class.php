@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Copyright 2005-2015 Centreon
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
@@ -30,7 +31,6 @@
  * do not wish to do so, delete this exception statement from your version.
  *
  * For more information : contact@centreon.com
- *
  */
 
 /**
@@ -42,6 +42,7 @@ class CentreonGraphTemplate
 {
     /** @var CentreonDB */
     protected $db;
+
     /** @var CentreonInstance */
     protected $instanceObj;
 
@@ -61,26 +62,26 @@ class CentreonGraphTemplate
      * @param array $options
      * @param string $register
      *
-     * @return array
      * @throws PDOException
+     * @return array
      */
     public function getObjectForSelect2($values = [], $options = [], $register = '1')
     {
         $items = [];
         $listValues = '';
         $queryValues = [];
-        if (!empty($values)) {
+        if (! empty($values)) {
             foreach ($values as $k => $v) {
                 $listValues .= ':graph' . $v . ',';
-                $queryValues['graph' . $v] = (int)$v;
+                $queryValues['graph' . $v] = (int) $v;
             }
             $listValues = rtrim($listValues, ',');
         } else {
             $listValues .= '""';
         }
 
-        $query = "SELECT graph_id, name FROM giv_graphs_template
-            WHERE graph_id IN (" . $listValues . ") ORDER BY name";
+        $query = 'SELECT graph_id, name FROM giv_graphs_template
+            WHERE graph_id IN (' . $listValues . ') ORDER BY name';
 
         $stmt = $this->db->prepare($query);
 
@@ -94,6 +95,7 @@ class CentreonGraphTemplate
         while ($row = $stmt->fetchRow()) {
             $items[] = ['id' => $row['graph_id'], 'text' => $row['name']];
         }
+
         return $items;
     }
 }

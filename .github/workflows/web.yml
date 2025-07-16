@@ -31,6 +31,8 @@ on:
       - dev-[2-9][0-9].[0-9][0-9].x
       - master
       - "[2-9][0-9].[0-9][0-9].x"
+      - 'release-[2-9][0-9].[0-9][0-9]-next'
+      - 'hotfix-[2-9][0-9].[0-9][0-9]-next'
     paths:
       - ".version"
       - ".version.centreon-web"
@@ -40,6 +42,8 @@ on:
       - "!centreon/lighthouse/**"
       - "!centreon/tests/**"
       - "!centreon/packages/**"
+    tags:
+      - "centreon-web-*"
 
 env:
   base_directory: centreon
@@ -224,14 +228,14 @@ jobs:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Setup PHP
-        uses: shivammathur/setup-php@cf4cade2721270509d5b1c766ab3549210a39a2a # v2.33.0
+        uses: shivammathur/setup-php@0f7f1d08e3e32076e51cae65eb0b0c871405b16e # v2.34.1
         with:
           php-version: 8.2
         env:
           runner: ubuntu-24.04
 
       - name: Install Dependencies
-        run: composer install --no-dev --optimize-autoloader
+        run: composer install --no-dev --optimize-autoloader --prefer-dist --no-interaction --no-progress --quiet --no-suggest
         working-directory: ${{ env.base_directory }}
         shell: bash
 
@@ -409,7 +413,7 @@ jobs:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Setup PHP
-        uses: shivammathur/setup-php@cf4cade2721270509d5b1c766ab3549210a39a2a # v2.33.0
+        uses: shivammathur/setup-php@0f7f1d08e3e32076e51cae65eb0b0c871405b16e # v2.34.1
         with:
           php-version: 8.2
           coverage: none
@@ -441,15 +445,20 @@ jobs:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Setup PHP
-        uses: shivammathur/setup-php@cf4cade2721270509d5b1c766ab3549210a39a2a # v2.33.0
+        uses: shivammathur/setup-php@0f7f1d08e3e32076e51cae65eb0b0c871405b16e # v2.34.1
         with:
           php-version: 8.2
           coverage: none
         env:
           runner: ubuntu-24.04
 
-      - name: Install Dependencies
-        run: composer install --optimize-autoloader
+      - name: Install dependencies for PHP quality tools
+        run: composer install --optimize-autoloader --prefer-dist --no-interaction --no-progress --quiet --no-suggest
+        working-directory: php-tools
+        shell: bash
+
+      - name: Install dependencies for centreon-web
+        run: composer install --optimize-autoloader --prefer-dist --no-interaction --no-progress --quiet --no-suggest
         working-directory: centreon
         shell: bash
 
@@ -457,29 +466,127 @@ jobs:
         run: cp config/centreon.config.php.template config/centreon.config.php
         working-directory: centreon
 
-      - name: Check Symfony configuration
-        run: composer symfony:check:ci
+      - name: ⚙️ Check Symfony configuration
+        run: composer symfony:check
         working-directory: centreon
 
-      - name: Run of php-cs-fixer with strict_type
-        run: vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.dist.php --verbose --dry-run --diff
+      - name: 🛠️ Rector checks
         working-directory: centreon
+        run: |
+          echo "Run of these Rector tests: rector:legacy, rector:core, rector:new" && set -e
 
-      - name: Run of php-cs-fixer without strict_type
-        run: vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.unstrict.php --verbose --dry-run --diff
-        working-directory: centreon
+          {
+            composer rector:legacy -- --no-progress-bar && echo "✅ Rector Legacy: Success" || { echo "❌ Rector Legacy: Failed"; exit 1; }
+          } &
+          pids+=($!)
 
-      - name: Run of phpstan on /src at level 4
-        run: vendor/bin/phpstan analyse --no-progress --level=4 --configuration=phpstan.neon
-        working-directory: centreon
+          {
+            composer rector:core -- --no-progress-bar && echo "✅ Rector Core: Success" || { echo "❌ Rector Core: Failed"; exit 1; }
+          } &
+          pids+=($!)
 
-      - name: Run of phpstan on /src/Core at level 8 + Centreon Custom Rules
-        run: vendor/bin/phpstan analyse --no-progress --level=8 --configuration=phpstan.core.neon
-        working-directory: centreon
+          {
+            composer rector:new -- --no-progress-bar && echo "✅ Rector New: Success" || { echo "❌ Rector New: Failed"; exit 1; }
+          } &
+          pids+=($!)
 
-      - name: Run of phpstan on /tests at level 2
-        run: vendor/bin/phpstan analyse --no-progress --level=2 --configuration=phpstan.test.neon
+          if ! wait -n; then
+            kill "${pids[@]}" 2>/dev/null || true
+            exit 1
+          fi
+
+          wait
+
+      - name: 🧹 PHP-CS-Fixer checks
         working-directory: centreon
+        run: |
+          echo "Run of these PHP-CS-Fixer tests: cs:legacy, cs:core, cs:new" && set -e
+
+          {
+            composer cs:legacy -- --format=txt --show-progress=none && echo "✅ PHP-CS-Fixer Legacy (www, src, tests): Success" || { echo "❌ PHP-CS-Fixer Legacy (www, src, tests): Failed"; exit 1; }
+          } &
+          pids+=($!)
+
+          {
+            composer cs:core -- --format=txt --show-progress=none && echo "✅ PHP-CS-Fixer Core: Success" || { echo "❌ PHP-CS-Fixer Core: Failed"; exit 1; }
+          } &
+          pids+=($!)
+
+          {
+            composer cs:new -- --format=txt --show-progress=none && echo "✅ PHP-CS-Fixer New: Success" || { echo "❌ PHP-CS-Fixer New: Failed"; exit 1; }
+          } &
+          pids+=($!)
+
+          if ! wait -n; then
+            kill "${pids[@]}" 2>/dev/null || true
+            exit 1
+          fi
+
+          wait
+
+      - name: 🔍 PHPStan checks
+        working-directory: centreon
+        run: |
+          echo "Run of these PHPStan tests: stan:legacy:www, stan:legacy:src, stan:legacy:test, stan:core, stan:core:test, stan:new, stan:new:test" && set -e
+
+          {
+            composer stan:legacy:www -- --no-progress && echo "✅ PHPStan Legacy (www): Success" || { echo "❌ PHPStan Legacy (www): Failed"; exit 1; }
+          } &
+          pids+=($!)
+
+          {
+            composer stan:legacy:src -- --no-progress && echo "✅ PHPStan Legacy (src): Success" || { echo "❌ PHPStan Legacy (src): Failed"; exit 1; }
+          } &
+          pids+=($!)
+
+          {
+            composer stan:legacy:test -- --no-progress && echo "✅ PHPStan Legacy (test): Success" || { echo "❌ PHPStan Legacy (test): Failed"; exit 1; }
+          } &
+          pids+=($!)
+
+          {
+            composer stan:core:src -- --no-progress && echo "✅ PHPStan Core (src): Success" || { echo "❌ PHPStan Core (src): Failed"; exit 1; }
+          } &
+          pids+=($!)
+
+          {
+            composer stan:core:test -- --no-progress && echo "✅ PHPStan Core (test): Success" || { echo "❌ PHPStan Core (test): Failed"; exit 1; }
+          } &
+          pids+=($!)
+
+          {
+            composer stan:new:src -- --no-progress && echo "✅ PHPStan New (src): Success" || { echo "❌ PHPStan New (src): Failed"; exit 1; }
+          } &
+          pids+=($!)
+
+          {
+            composer stan:new:test -- --no-progress && echo "✅ PHPStan New (test): Success" || { echo "❌ PHPStan New (test): Failed"; exit 1; }
+          } &
+          pids+=($!)
+
+          if ! wait -n; then
+            kill "${pids[@]}" 2>/dev/null || true
+            exit 1
+          fi
+
+          wait
+
+      - name: 📐 Deptrac checks
+        working-directory: centreon
+        run: |
+          echo "Run of these Deptrac tests: dep:new" && set -e
+
+          {
+            composer dep:new -- --no-progress --formatter=github-actions && echo "✅ Deptrac New: Success" || { echo "❌ Deptrac New: Failed"; exit 1; }
+          } &
+          pids+=($!)
+
+          if ! wait -n; then
+            kill "${pids[@]}" 2>/dev/null || true
+            exit 1
+          fi
+
+          wait
 
   package:
     needs:
@@ -730,7 +837,7 @@ jobs:
           mv *.${{ steps.matrix_include.outputs.package_extension }} packages-centreon/
         shell: bash
 
-      - uses: docker/setup-buildx-action@b5ca514318bd6ebac0fb2aedd5d36ec1b5c232a2 # v3.10.0
+      - uses: docker/setup-buildx-action@e468171a9de216ec08956ac3ada2f0791b6bd435 # v3.11.1
 
       - name: Build and push web image
         uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 # v6.18.0

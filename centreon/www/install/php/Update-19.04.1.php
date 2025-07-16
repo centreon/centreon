@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005 - 2019 Centreon (https://www.centreon.com/)
  *
@@ -18,37 +19,37 @@
  *
  */
 
-include_once __DIR__ . "/../../class/centreonLog.class.php";
+include_once __DIR__ . '/../../class/centreonLog.class.php';
 $centreonLog = new CentreonLog();
 
 try {
     $pearDB->query('SET SESSION innodb_strict_mode=OFF');
 
     // Add HTTPS connexion to Remote Server
-    if (!$pearDB->isColumnExist('remote_servers', 'http_method')) {
+    if (! $pearDB->isColumnExist('remote_servers', 'http_method')) {
         $pearDB->query(
             "ALTER TABLE remote_servers ADD COLUMN `http_method` enum('http','https') NOT NULL DEFAULT 'http'"
         );
     }
-    if (!$pearDB->isColumnExist('remote_servers', 'http_port')) {
+    if (! $pearDB->isColumnExist('remote_servers', 'http_port')) {
         $pearDB->query(
-            "ALTER TABLE remote_servers ADD COLUMN `http_port` int(11) NULL DEFAULT NULL"
+            'ALTER TABLE remote_servers ADD COLUMN `http_port` int(11) NULL DEFAULT NULL'
         );
     }
-    if (!$pearDB->isColumnExist('remote_servers', 'no_check_certificate')) {
+    if (! $pearDB->isColumnExist('remote_servers', 'no_check_certificate')) {
         $pearDB->query(
             "ALTER TABLE remote_servers ADD COLUMN `no_check_certificate` enum('0','1') NOT NULL DEFAULT '0'"
         );
     }
-    if (!$pearDB->isColumnExist('remote_servers', 'no_proxy')) {
+    if (! $pearDB->isColumnExist('remote_servers', 'no_proxy')) {
         $pearDB->query(
             "ALTER TABLE remote_servers ADD COLUMN `no_proxy` enum('0','1') NOT NULL DEFAULT '0'"
         );
     }
-} catch (\PDOException $e) {
+} catch (PDOException $e) {
     $centreonLog->insertLog(
         2,
-        "UPGRADE : Unable to process 19.04.1 upgrade"
+        'UPGRADE : Unable to process 19.04.1 upgrade'
     );
 } finally {
     $pearDB->query('SET SESSION innodb_strict_mode=ON');

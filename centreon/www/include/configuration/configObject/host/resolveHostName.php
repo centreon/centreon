@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2015 Centreon
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
@@ -33,24 +34,24 @@
  *
  */
 
-require_once realpath(__DIR__ . "/../../../../../config/centreon.config.php");
+require_once realpath(__DIR__ . '/../../../../../config/centreon.config.php');
 require_once _CENTREON_PATH_ . '/www/class/centreonDB.class.php';
 require_once _CENTREON_PATH_ . '/www/include/common/common-Func.php';
 
-/*
- * Validate the session
- */
+// Validate the session
 session_start();
 $db = new CentreonDB();
 $sid = session_id();
 if (isset($sid)) {
     $res = $db->query('SELECT * FROM session WHERE session_id = \'' . CentreonDB::escape($sid) . '\'');
-    if (!$res->fetchRow()) {
+    if (! $res->fetchRow()) {
         header($_SERVER['SERVER_PROTOCOL'] . ' 401 Unauthorized', true, 401);
+
         exit;
     }
 } else {
     header($_SERVER['SERVER_PROTOCOL'] . ' 401 Unauthorized', true, 401);
+
     exit;
 }
 

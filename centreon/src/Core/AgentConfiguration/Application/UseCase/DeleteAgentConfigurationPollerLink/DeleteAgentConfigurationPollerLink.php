@@ -81,7 +81,7 @@ final class DeleteAgentConfigurationPollerLink
             }
 
             $linkedPollerIds = array_map(
-                static fn(Poller $poller): int => $poller->id,
+                static fn (Poller $poller): int => $poller->id,
                 $this->readAcRepository->findPollersByAcId($acId)
             );
 
@@ -90,11 +90,11 @@ final class DeleteAgentConfigurationPollerLink
                 if ($this->isCloudPlatform) {
                     $centralPoller = $this->readMonitoringServerRepository->findCentralByIds($linkedPollerIds);
                     if ($centralPoller !== null) {
-                            $presenter->setResponseStatus(
-                                new ForbiddenResponse(AgentConfigurationException::accessNotAllowed())
-                            );
-    
-                            return;
+                        $presenter->setResponseStatus(
+                            new ForbiddenResponse(AgentConfigurationException::accessNotAllowed())
+                        );
+
+                        return;
                     }
                 }
 

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Copyright 2005-2015 Centreon
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
@@ -30,7 +31,6 @@
  * do not wish to do so, delete this exception statement from your version.
  *
  * For more information : contact@centreon.com
- *
  */
 
 require_once 'centreonGraph.class.php';
@@ -44,6 +44,7 @@ require_once 'centreonGraph.class.php';
 class CentreonGraphService extends CentreonGraph
 {
     public $listMetricsId;
+
     protected $legends = [];
 
     /**
@@ -64,38 +65,38 @@ class CentreonGraphService extends CentreonGraph
      *
      * @param int $rows The number of points returned (Default: 200)
      *
-     * @return array
      * @throws RuntimeException
+     * @return array
      */
     public function getData($rows = 200)
     {
-        $legendDataInfo = ["last" => "LAST", "min" => "MINIMUM", "max" => "MAXIMUM", "average" => "AVERAGE", "total" => "TOTAL"];
+        $legendDataInfo = ['last' => 'LAST', 'min' => 'MINIMUM', 'max' => 'MAXIMUM', 'average' => 'AVERAGE', 'total' => 'TOTAL'];
 
-        /* Flush RRDCached for have the last values */
+        // Flush RRDCached for have the last values
         $this->flushRrdCached($this->listMetricsId);
 
         $commandLine = '';
         $defType = [0 => 'CDEF', 1 => 'VDEF'];
 
-        /* Build command line */
-        $commandLine .= " xport ";
-        $commandLine .= " --showtime";
-        $commandLine .= " --start " . $this->RRDoptions['start'];
-        $commandLine .= " --end " . $this->RRDoptions['end'];
-        $commandLine .= " --maxrows " . $rows;
+        // Build command line
+        $commandLine .= ' xport ';
+        $commandLine .= ' --showtime';
+        $commandLine .= ' --start ' . $this->RRDoptions['start'];
+        $commandLine .= ' --end ' . $this->RRDoptions['end'];
+        $commandLine .= ' --maxrows ' . $rows;
 
-        /* Build legend command line */
+        // Build legend command line
         $extraLegend = false;
         $commandLegendLine = ' graph x';
-        $commandLegendLine .= " --start " . $this->RRDoptions['start'];
-        $commandLegendLine .= " --end " . $this->RRDoptions['end'];
+        $commandLegendLine .= ' --start ' . $this->RRDoptions['start'];
+        $commandLegendLine .= ' --end ' . $this->RRDoptions['end'];
 
         $metrics = [];
         $vname = [];
         $virtuals = [];
         $i = 0;
 
-        /* Parse metrics */
+        // Parse metrics
         foreach ($this->metrics as $metric) {
             if (isset($metric['virtual']) && $metric['virtual'] == 1) {
                 $virtuals[] = $metric;
@@ -105,38 +106,37 @@ class CentreonGraphService extends CentreonGraph
                 if (false === file_exists($path)) {
                     throw new RuntimeException();
                 }
-                $commandLine .= " DEF:v" . $i . "=" . $path . ":value:AVERAGE";
-                $commandLegendLine .= " DEF:v" . $i . "=" . $path . ":value:AVERAGE";
-                $commandLine .= " XPORT:v" . $i . ":v" . $i;
+                $commandLine .= ' DEF:v' . $i . '=' . $path . ':value:AVERAGE';
+                $commandLegendLine .= ' DEF:v' . $i . '=' . $path . ':value:AVERAGE';
+                $commandLine .= ' XPORT:v' . $i . ':v' . $i;
                 $vname[$metric['metric']] = 'v' . $i;
-                $info = ["data" => [], "graph_type" => "line", "unit" => $metric["unit"], "color" => $metric["ds_color_line"], "negative" => false, "stack" => false, "crit" => null, "warn" => null];
+                $info = ['data' => [], 'graph_type' => 'line', 'unit' => $metric['unit'], 'color' => $metric['ds_color_line'], 'negative' => false, 'stack' => false, 'crit' => null, 'warn' => null];
                 $info['legend'] = str_replace('\\\\', '\\', $metric['metric_legend']);
-                $info['metric_name'] = !empty($metric['ds_name']) ? $metric['ds_name'] : $info['legend'];
+                $info['metric_name'] = ! empty($metric['ds_name']) ? $metric['ds_name'] : $info['legend'];
 
-                /* Add legend getting data */
+                // Add legend getting data
                 foreach ($legendDataInfo as $name => $key) {
                     if ($metric['ds_' . $name] !== '') {
                         $extraLegend = true;
-                        if (($name == "min" || $name == "max") &&
-                            (isset($metric['ds_minmax_int']) &&
-                                $metric['ds_minmax_int'])
+                        if (($name == 'min' || $name == 'max')
+                            && (isset($metric['ds_minmax_int'])
+                                && $metric['ds_minmax_int'])
                         ) {
-                            $displayformat = "%7.0lf";
+                            $displayformat = '%7.0lf';
                         } else {
-                            $displayformat = "%7.2lf";
+                            $displayformat = '%7.2lf';
                         }
                         $commandLegendLine .= ' VDEF:l' . $i . $key . '=v' . $i . ',' . $key;
-                        $commandLegendLine .= ' PRINT:l' . $i . $key . ':"' .
-                            str_replace(':', '\:', $metric['metric_legend']) .
-                            '|' . ucfirst($name) . '|' . $displayformat . '"';
+                        $commandLegendLine .= ' PRINT:l' . $i . $key . ':"'
+                            . str_replace(':', '\:', $metric['metric_legend'])
+                            . '|' . ucfirst($name) . '|' . $displayformat . '"';
                     }
                 }
 
-                if (isset($metric['ds_color_area']) &&
-                    isset($metric['ds_filled']) &&
-                    $metric['ds_filled'] === '1'
+                if (isset($metric['ds_color_area'], $metric['ds_filled'])
+                    && $metric['ds_filled'] === '1'
                 ) {
-                    $info['graph_type'] = "area";
+                    $info['graph_type'] = 'area';
                 }
                 if (isset($metric['ds_invert']) && $metric['ds_invert'] == 1) {
                     $info['negative'] = true;
@@ -155,19 +155,18 @@ class CentreonGraphService extends CentreonGraph
 
             $i++;
         }
-        /* Append virtual metrics */
+        // Append virtual metrics
         foreach ($virtuals as $metric) {
             $commandLine .= ' ' . $defType[$metric['def_type']] . ':'
                 . $vname[$metric['metric']] . '='
                 . $this->subsRPN($metric['rpn_function'], $vname);
             if ($metric['def_type'] == 0) {
-                $commandLine .= " XPORT:" . $vname[$metric['metric']] . ":" . $vname[$metric['metric']];
-                $info = ["data" => [], "legend" => $metric["metric_legend"], "graph_type" => "line", "unit" => $metric["unit"], "color" => $metric["ds_color_line"], "negative" => false];
-                if (isset($metric['ds_color_area']) &&
-                    isset($metric['ds_filled']) &&
-                    $metric['ds_filled'] === '1'
+                $commandLine .= ' XPORT:' . $vname[$metric['metric']] . ':' . $vname[$metric['metric']];
+                $info = ['data' => [], 'legend' => $metric['metric_legend'], 'graph_type' => 'line', 'unit' => $metric['unit'], 'color' => $metric['ds_color_line'], 'negative' => false];
+                if (isset($metric['ds_color_area'], $metric['ds_filled'])
+                    && $metric['ds_filled'] === '1'
                 ) {
-                    $info['graph_type'] = "area";
+                    $info['graph_type'] = 'area';
                 }
                 if (isset($metric['ds_invert']) && $metric['ds_invert'] == 1) {
                     $info['negative'] = true;
@@ -178,7 +177,7 @@ class CentreonGraphService extends CentreonGraph
 
         $descriptorspec = [0 => ['pipe', 'r'], 1 => ['pipe', 'w'], 2 => ['pipe', 'a']];
 
-        $process = proc_open($this->generalOpt["rrdtool_path_bin"] . " - ", $descriptorspec, $pipes, null, null);
+        $process = proc_open($this->generalOpt['rrdtool_path_bin'] . ' - ', $descriptorspec, $pipes, null, null);
         if (false === is_resource($process)) {
             throw new RuntimeException();
         }
@@ -194,8 +193,8 @@ class CentreonGraphService extends CentreonGraph
 
         $str .= stream_get_contents($pipes[1]);
 
-        /* Remove text of the end of the stream */
-        $str = preg_replace("/<\/xport>(.*)$/s", "</xport>", $str);
+        // Remove text of the end of the stream
+        $str = preg_replace("/<\/xport>(.*)$/s", '</xport>', $str);
 
         $exitCode = $status['exitcode'];
 
@@ -205,7 +204,7 @@ class CentreonGraphService extends CentreonGraph
             throw new RuntimeException();
         }
 
-        /* Transform XML to values */
+        // Transform XML to values
         $useXmlErrors = libxml_use_internal_errors(true);
         $xml = simplexml_load_string($str);
 
@@ -216,27 +215,27 @@ class CentreonGraphService extends CentreonGraph
         libxml_clear_errors();
         libxml_use_internal_errors($useXmlErrors);
 
-        $rows = $xml->xpath("//xport/data/row");
+        $rows = $xml->xpath('//xport/data/row');
         foreach ($rows as $row) {
             $time = null;
             $i = 0;
             foreach ($row->children() as $info) {
                 if (is_null($time)) {
-                    $time = (string)$info;
-                } elseif (strtolower($info) === "nan" || is_null($info)) {
+                    $time = (string) $info;
+                } elseif (strtolower($info) === 'nan' || is_null($info)) {
                     $metrics[$i++]['data'][$time] = $info;
                 } elseif ($metrics[$i]['negative']) {
-                    $metrics[$i++]['data'][$time] = floatval((string)$info) * -1;
+                    $metrics[$i++]['data'][$time] = floatval((string) $info) * -1;
                 } else {
-                    $metrics[$i++]['data'][$time] = floatval((string)$info);
+                    $metrics[$i++]['data'][$time] = floatval((string) $info);
                 }
             }
         }
 
-        /* Get legends */
+        // Get legends
         $descriptorspec = [0 => ['pipe', 'r'], 1 => ['pipe', 'w'], 2 => ['pipe', 'a']];
 
-        $process = proc_open($this->generalOpt["rrdtool_path_bin"] . " - ", $descriptorspec, $pipes, null, null);
+        $process = proc_open($this->generalOpt['rrdtool_path_bin'] . ' - ', $descriptorspec, $pipes, null, null);
         if (false === is_resource($process)) {
             throw new RuntimeException();
         }
@@ -259,12 +258,12 @@ class CentreonGraphService extends CentreonGraph
         if ($exitCode != 0) {
             throw new RuntimeException();
         }
-        /* Parsing */
+        // Parsing
         $retLines = explode("\n", $str);
         foreach ($retLines as $retLine) {
             if (str_contains($retLine, '|')) {
                 $infos = explode('|', $retLine);
-                if (!isset($this->legends[$infos[0]])) {
+                if (! isset($this->legends[$infos[0]])) {
                     $this->legends[$infos[0]] = ['extras' => []];
                 }
                 $this->legends[$infos[0]]['extras'][] = ['name' => $infos[1], 'value' => $infos[2]];
@@ -313,27 +312,28 @@ class CentreonGraphService extends CentreonGraph
      * @param $hostId
      * @param $serviceId
      * @param $dbc
-     * @return mixed
      * @throws Exception
+     * @return mixed
      */
     public static function getIndexId($hostId, $serviceId, $dbc)
     {
-        $query = 'SELECT id FROM index_data ' .
-            'WHERE host_id = :host ' .
-            'AND service_id = :service';
+        $query = 'SELECT id FROM index_data '
+            . 'WHERE host_id = :host '
+            . 'AND service_id = :service';
 
         $stmt = $dbc->prepare($query);
         $stmt->bindParam(':host', $hostId, PDO::PARAM_INT);
         $stmt->bindParam(':service', $serviceId, PDO::PARAM_INT);
         $dbResult = $stmt->execute();
-        if (!$dbResult) {
-            throw new \Exception("An error occured");
+        if (! $dbResult) {
+            throw new Exception('An error occured');
         }
 
         $row = $stmt->fetch();
         if (false == $row) {
             throw new OutOfRangeException();
         }
+
         return $row['id'];
     }
 }

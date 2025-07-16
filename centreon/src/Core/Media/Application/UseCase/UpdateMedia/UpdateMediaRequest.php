@@ -19,7 +19,7 @@
  *
  */
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Core\Media\Application\UseCase\UpdateMedia;
 
@@ -33,4 +33,3 @@ final class UpdateMediaRequest
     {
     }
 }
-

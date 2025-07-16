@@ -51,7 +51,7 @@ interface ContactServiceInterface
     /**
      * Find a contact based on its id
      *
-     * @param integer $id
+     * @param int $id
      * @return ContactInterface|null
      */
     public function findContact(int $id): ?ContactInterface;

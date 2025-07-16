@@ -24,8 +24,8 @@ declare(strict_types=1);
 namespace Tests\Core\TimePeriod\Application\UseCase\UpdateTimePeriod;
 
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
-use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\{ConflictResponse, ErrorResponse, NoContentResponse, NotFoundResponse};
+use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Infrastructure\Common\Api\DefaultPresenter;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\TimePeriod\Application\Exception\TimePeriodException;

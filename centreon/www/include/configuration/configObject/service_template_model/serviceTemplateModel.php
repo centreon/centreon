@@ -34,7 +34,7 @@
  *
  */
 
-if (!isset($centreon)) {
+if (! isset($centreon)) {
     exit();
 }
 
@@ -43,21 +43,17 @@ $service_id = filter_var(
     FILTER_VALIDATE_INT
 );
 
-if ($o == "c" && $service_id == null) {
-    $o = "";
+if ($o == 'c' && $service_id == null) {
+    $o = '';
 }
 
-/*
- * Path to the configuration dir
- */
-$path = "./include/configuration/configObject/service_template_model/";
-$path2 = "./include/configuration/configObject/service/";
+// Path to the configuration dir
+$path = './include/configuration/configObject/service_template_model/';
+$path2 = './include/configuration/configObject/service/';
 
-/*
- * PHP functions
- */
-require_once $path2 . "DB-Func.php";
-require_once "./include/common/common-Func.php";
+// PHP functions
+require_once $path2 . 'DB-Func.php';
+require_once './include/common/common-Func.php';
 
 global $isCloudPlatform;
 
@@ -75,8 +71,8 @@ $dupNbr = filter_var_array(
 $serviceObj = new CentreonService($pearDB);
 $lockedElements = $serviceObj->getLockedServiceTemplates();
 
-/* Set the real page */
-if (isset($ret) && is_array($ret) && $ret['topology_page'] != "" && $p != $ret['topology_page']) {
+// Set the real page
+if (isset($ret) && is_array($ret) && $ret['topology_page'] != '' && $p != $ret['topology_page']) {
     $p = $ret['topology_page'];
 }
 
@@ -96,7 +92,7 @@ switch ($o) {
     case SERVICE_TEMPLATE_WATCH:
     case SERVICE_TEMPLATE_MODIFY:
     case SERVICE_TEMPLATE_MASSIVE_CHANGE:
-        require_once($path . "formServiceTemplateModel.php");
+        require_once $path . 'formServiceTemplateModel.php';
         break;
     case SERVICE_TEMPLATE_ACTIVATION:
         purgeOutdatedCSRFTokens();
@@ -106,7 +102,7 @@ switch ($o) {
         } else {
             unvalidFormMessage();
         }
-        require_once($path . "listServiceTemplateModel.php");
+        require_once $path . 'listServiceTemplateModel.php';
         break;
     case SERVICE_TEMPLATE_MASSIVE_ACTIVATION:
         purgeOutdatedCSRFTokens();
@@ -116,7 +112,7 @@ switch ($o) {
         } else {
             unvalidFormMessage();
         }
-        require_once($path . "listServiceTemplateModel.php");
+        require_once $path . 'listServiceTemplateModel.php';
         break;
     case SERVICE_TEMPLATE_DEACTIVATION:
         purgeOutdatedCSRFTokens();
@@ -126,7 +122,7 @@ switch ($o) {
         } else {
             unvalidFormMessage();
         }
-        require_once($path . "listServiceTemplateModel.php");
+        require_once $path . 'listServiceTemplateModel.php';
         break;
     case SERVICE_TEMPLATE_MASSIVE_DEACTIVATION:
         purgeOutdatedCSRFTokens();
@@ -136,7 +132,7 @@ switch ($o) {
         } else {
             unvalidFormMessage();
         }
-        require_once($path . "listServiceTemplateModel.php");
+        require_once $path . 'listServiceTemplateModel.php';
         break;
     case SERVICE_TEMPLATE_DUPLICATION:
         purgeOutdatedCSRFTokens();
@@ -146,7 +142,7 @@ switch ($o) {
         } else {
             unvalidFormMessage();
         }
-        require_once($path . "listServiceTemplateModel.php");
+        require_once $path . 'listServiceTemplateModel.php';
         break;
     case SERVICE_TEMPLATE_DELETION:
         purgeOutdatedCSRFTokens();
@@ -156,9 +152,9 @@ switch ($o) {
         } else {
             unvalidFormMessage();
         }
-        require_once($path . "listServiceTemplateModel.php");
+        require_once $path . 'listServiceTemplateModel.php';
         break;
     default:
-        require_once($path . "listServiceTemplateModel.php");
+        require_once $path . 'listServiceTemplateModel.php';
         break;
 }

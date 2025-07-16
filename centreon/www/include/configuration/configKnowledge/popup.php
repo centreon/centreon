@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2009 MERETHIS
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
@@ -36,36 +37,29 @@
  *
  */
 
-/*
- * TODO Security
- */
+// TODO Security
 
-/*
- * Add paths
- */
+// Add paths
 
 $centreon_path = realpath(__DIR__ . '/../../../../');
-require_once $centreon_path . "/config/centreon.config.php";
+require_once $centreon_path . '/config/centreon.config.php';
 
 set_include_path(
-    get_include_path() . PATH_SEPARATOR . $centreon_path . "config/" . PATH_SEPARATOR .
-    $centreon_path . "www/class/"
+    get_include_path() . PATH_SEPARATOR . $centreon_path . 'config/' . PATH_SEPARATOR
+    . $centreon_path . 'www/class/'
 );
 
-require_once "centreon-knowledge/procedures.class.php";
-require_once "centreonLog.class.php";
+require_once 'centreon-knowledge/procedures.class.php';
+require_once 'centreonLog.class.php';
 
-$modules_path = $centreon_path . "/www/include/configuration/configKnowledge/";
+$modules_path = $centreon_path . '/www/include/configuration/configKnowledge/';
 require_once $modules_path . 'functions.php';
 require_once $centreon_path . '/bootstrap.php';
 
-
-/*
- * Connect to centreon DB
- */
+// Connect to centreon DB
 $pearDB = $dependencyInjector['configuration_db'];
 
 $conf = getWikiConfig($pearDB);
 $WikiURL = $conf['kb_wiki_url'];
 
-header("Location: $WikiURL/index.php?title=" . htmlentities($_GET["object"], ENT_QUOTES) . "&action=edit");
+header("Location: {$WikiURL}/index.php?title=" . htmlentities($_GET['object'], ENT_QUOTES) . '&action=edit');

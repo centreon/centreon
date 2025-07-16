@@ -33,13 +33,10 @@ use Tests\Centreon\Domain\Monitoring\MetaService\Model\MetaServiceMetricTest;
  */
 class FindMetaServiceMetricsTest extends TestCase
 {
-    /**
-     * @var MetaServiceMetricService&\PHPUnit\Framework\MockObject\MockObject
-     */
+    /** @var MetaServiceMetricService&\PHPUnit\Framework\MockObject\MockObject */
     private $metaServiceMetricService;
-    /**
-     * @var \Centreon\Domain\Monitoring\MetaService\Model\MetaServiceMetric
-     */
+
+    /** @var \Centreon\Domain\Monitoring\MetaService\Model\MetaServiceMetric */
     private $metaServiceMetric;
 
     protected function setUp(): void
@@ -47,17 +44,6 @@ class FindMetaServiceMetricsTest extends TestCase
         $this->metaServiceMetricService = $this->createMock(MetaServiceMetricService::class);
         $this->metaServiceMetric = MetaServiceMetricTest::createMetaServiceMetricEntity();
         $this->metaServiceMetric->setResource(MetaServiceMetricTest::createResourceEntity());
-    }
-
-    /**
-     * @return FindMetaServiceMetrics
-     */
-    private function createMetaServiceMetricUseCase(): FindMetaServiceMetrics
-    {
-        $contact = new Contact();
-        $contact->setAdmin(true);
-
-        return (new FindMetaServiceMetrics($this->metaServiceMetricService, $contact));
     }
 
     /**
@@ -92,5 +78,16 @@ class FindMetaServiceMetricsTest extends TestCase
         $findMetaServiceMetrics = new FindMetaServiceMetrics($this->metaServiceMetricService, $contact);
         $response = $findMetaServiceMetrics->execute(1);
         $this->assertCount(1, $response->getMetaServiceMetrics());
+    }
+
+    /**
+     * @return FindMetaServiceMetrics
+     */
+    private function createMetaServiceMetricUseCase(): FindMetaServiceMetrics
+    {
+        $contact = new Contact();
+        $contact->setAdmin(true);
+
+        return new FindMetaServiceMetrics($this->metaServiceMetricService, $contact);
     }
 }

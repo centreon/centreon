@@ -41,7 +41,8 @@ use Core\ServiceTemplate\Application\Repository\WriteServiceTemplateRepositoryIn
 
 final class DeleteServiceTemplate
 {
-    use LoggerTrait,VaultTrait;
+    use LoggerTrait;
+    use VaultTrait;
 
     /**
      * @param ReadServiceTemplateRepositoryInterface $readRepository
@@ -57,7 +58,7 @@ final class DeleteServiceTemplate
         private readonly WriteVaultRepositoryInterface $writeVaultRepository,
         private readonly ReadServiceMacroRepositoryInterface $readServiceMacroRepository,
     ) {
-         $this->writeVaultRepository->setCustomPath(AbstractVaultRepository::SERVICE_VAULT_PATH);
+        $this->writeVaultRepository->setCustomPath(AbstractVaultRepository::SERVICE_VAULT_PATH);
     }
 
     /**

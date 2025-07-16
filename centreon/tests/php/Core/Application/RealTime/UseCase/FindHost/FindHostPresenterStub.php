@@ -22,7 +22,6 @@ declare(strict_types=1);
 
 namespace Tests\Core\Application\RealTime\UseCase\FindHost;
 
-use Core\Application\Common\UseCase\ResponseStatusInterface;
 use Core\Application\Common\UseCase\AbstractPresenter;
 use Core\Application\RealTime\UseCase\FindHost\FindHostPresenterInterface;
 use Core\Application\RealTime\UseCase\FindHost\FindHostResponse;
@@ -30,9 +29,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 class FindHostPresenterStub extends AbstractPresenter implements FindHostPresenterInterface
 {
-    /**
-     * @var FindHostResponse
-     */
+    /** @var FindHostResponse */
     public $response;
 
     /**

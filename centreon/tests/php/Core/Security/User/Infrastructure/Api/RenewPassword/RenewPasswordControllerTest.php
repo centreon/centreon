@@ -31,19 +31,13 @@ use Symfony\Component\HttpFoundation\Request;
 
 class RenewPasswordControllerTest extends TestCase
 {
-    /**
-     * @var RenewPassword&\PHPUnit\Framework\MockObject\MockObject
-     */
+    /** @var RenewPassword&\PHPUnit\Framework\MockObject\MockObject */
     private $useCase;
 
-    /**
-     * @var Request&\PHPUnit\Framework\MockObject\MockObject
-     */
+    /** @var Request&\PHPUnit\Framework\MockObject\MockObject */
     private $request;
 
-    /**
-     * @var RenewPasswordPresenterInterface&\PHPUnit\Framework\MockObject\MockObject
-     */
+    /** @var RenewPasswordPresenterInterface&\PHPUnit\Framework\MockObject\MockObject */
     private $presenter;
 
     public function setUp(): void
@@ -61,7 +55,7 @@ class RenewPasswordControllerTest extends TestCase
         $controller = new RenewPasswordController();
 
         $invalidPayload = json_encode([
-            'old_password' => 'titi'
+            'old_password' => 'titi',
         ]);
         $this->request
             ->expects($this->once())

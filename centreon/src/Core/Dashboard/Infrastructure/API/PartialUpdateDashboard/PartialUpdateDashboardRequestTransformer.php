@@ -49,8 +49,8 @@ abstract readonly class PartialUpdateDashboardRequestTransformer
         PartialUpdateDashboardInput $dashboardInputValidator
     ): PartialUpdateDashboardRequest {
         $name = empty($dashboardInputValidator->name) ? new NoValue() : $dashboardInputValidator->name;
-        $description = $dashboardInputValidator->description === null ? new NoValue(
-        ) : $dashboardInputValidator->description;
+        $description = $dashboardInputValidator->description ?? new NoValue(
+        );
 
         return new PartialUpdateDashboardRequest(
             name: $name,
@@ -142,11 +142,12 @@ abstract readonly class PartialUpdateDashboardRequestTransformer
                 layout: $panelLayoutRequestDto,
                 widgetType: $panel['widget_type'],
                 widgetSettings: ! is_array(
-                    json_decode($panel['widget_settings'], true))
+                    json_decode($panel['widget_settings'], true)
+                )
                     ? [] : json_decode(
-                    $panel['widget_settings'],
-                    true
-                ),
+                        $panel['widget_settings'],
+                        true
+                    ),
             );
         }
 

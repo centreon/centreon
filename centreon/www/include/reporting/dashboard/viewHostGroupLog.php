@@ -37,18 +37,14 @@
  *
  */
 
-if (!isset($oreon)) {
+if (! isset($oreon)) {
     exit;
 }
 
-/*
- * Required files
- */
+// Required files
 require_once './include/reporting/dashboard/initReport.php';
 
-/*
- *  Getting hostgroup to report
- */
+// Getting hostgroup to report
 $id = filter_var($_GET['item'] ?? $_POST['itemElement'] ?? false, FILTER_VALIDATE_INT);
 /*
  * Formulary
@@ -57,18 +53,16 @@ $id = filter_var($_GET['item'] ?? $_POST['itemElement'] ?? false, FILTER_VALIDAT
  *
  */
 
-$formHostGroup = new HTML_QuickFormCustom('formHostGroup', 'post', "?p=" . $p);
+$formHostGroup = new HTML_QuickFormCustom('formHostGroup', 'post', '?p=' . $p);
 $redirect = $formHostGroup->addElement('hidden', 'o');
 $redirect->setValue($o);
 
-$hostsGroupRoute = ['datasourceOrigin' => 'ajax', 'multiple' => false, 'linkedObject' => 'centreonHostgroups', 'availableDatasetRoute' =>
-'./api/internal.php?object=centreon_configuration_hostgroup&action=list', 'defaultDatasetRoute' =>
-'./api/internal.php?object=centreon_configuration_hostgroup'
+$hostsGroupRoute = ['datasourceOrigin' => 'ajax', 'multiple' => false, 'linkedObject' => 'centreonHostgroups', 'availableDatasetRoute' => './api/internal.php?object=centreon_configuration_hostgroup&action=list', 'defaultDatasetRoute' => './api/internal.php?object=centreon_configuration_hostgroup'
 . '&action=defaultValues&target=service&field=service_hgPars&id=' . $id];
 $hostGroupSelectBox = $formPeriod->addElement(
     'select2',
     'itemElement',
-    _("Host Group"),
+    _('Host Group'),
     [],
     $hostsGroupRoute
 );
@@ -96,9 +90,7 @@ if (isset($id)) {
     $formPeriod->setDefaults(['itemElement' => $id]);
 }
 
-/*
- * Set hostgroup id with period selection form
- */
+// Set hostgroup id with period selection form
 if ($id !== false) {
     $formPeriod->addElement('hidden', 'item', $id);
 
@@ -106,84 +98,70 @@ if ($id !== false) {
      * Stats Display for selected hostgroup
      * Getting periods values
      */
-    $dates = getPeriodToReport("alternate");
+    $dates = getPeriodToReport('alternate');
     $start_date = $dates[0];
     $end_date = $dates[1];
 
-    /*
-     * Getting hostgroup and his hosts stats
-     */
+    // Getting hostgroup and his hosts stats
     $hostgroupStats = [];
     $hostgroupStats = getLogInDbForHostGroup($id, $start_date, $end_date, $reportingTimePeriod);
 
-    /*
-     * Chart datas
-     */
-    $tpl->assign('hostgroup_up', $hostgroupStats["average"]["UP_TP"]);
-    $tpl->assign('hostgroup_down', $hostgroupStats["average"]["DOWN_TP"]);
-    $tpl->assign('hostgroup_unreachable', $hostgroupStats["average"]["UNREACHABLE_TP"]);
-    $tpl->assign('hostgroup_undetermined', $hostgroupStats["average"]["UNDETERMINED_TP"]);
-    $tpl->assign('hostgroup_maintenance', $hostgroupStats["average"]["MAINTENANCE_TP"]);
+    // Chart datas
+    $tpl->assign('hostgroup_up', $hostgroupStats['average']['UP_TP']);
+    $tpl->assign('hostgroup_down', $hostgroupStats['average']['DOWN_TP']);
+    $tpl->assign('hostgroup_unreachable', $hostgroupStats['average']['UNREACHABLE_TP']);
+    $tpl->assign('hostgroup_undetermined', $hostgroupStats['average']['UNDETERMINED_TP']);
+    $tpl->assign('hostgroup_maintenance', $hostgroupStats['average']['MAINTENANCE_TP']);
 
-    /*
-     * Exporting variables for ihtml
-     */
-    $tpl->assign('totalAlert', $hostgroupStats["average"]["TOTAL_ALERTS"]);
-    $tpl->assign('summary', $hostgroupStats["average"]);
+    // Exporting variables for ihtml
+    $tpl->assign('totalAlert', $hostgroupStats['average']['TOTAL_ALERTS']);
+    $tpl->assign('summary', $hostgroupStats['average']);
 
-    /*
-     * removing average infos from table
-     */
+    // removing average infos from table
     $hostgroupFinalStats = [];
     foreach ($hostgroupStats as $key => $value) {
-        if ($key != "average") {
+        if ($key != 'average') {
             $hostgroupFinalStats[$key] = $value;
         }
     }
 
-    $tpl->assign("components", $hostgroupFinalStats);
-    $tpl->assign('period_name', _("From"));
+    $tpl->assign('components', $hostgroupFinalStats);
+    $tpl->assign('period_name', _('From'));
     $tpl->assign('date_start', $start_date);
-    $tpl->assign('to', _("to"));
+    $tpl->assign('to', _('to'));
     $tpl->assign('date_end', $end_date);
     $tpl->assign('period', $period);
     $formPeriod->setDefaults(['period' => $period]);
     $tpl->assign('hostgroup_id', $id);
-    $tpl->assign('Alert', _("Alert"));
+    $tpl->assign('Alert', _('Alert'));
 
     /*
      * Ajax timeline and CSV export initialization
      * CSV export
      */
     $tpl->assign(
-        "link_csv_url",
-        "./include/reporting/dashboard/csvExport/csv_HostGroupLogs.php?hostgroup="
-        . $id . "&start=" . $start_date . "&end=" . $end_date
+        'link_csv_url',
+        './include/reporting/dashboard/csvExport/csv_HostGroupLogs.php?hostgroup='
+        . $id . '&start=' . $start_date . '&end=' . $end_date
     );
-    $tpl->assign("link_csv_name", _("Export in CSV format"));
+    $tpl->assign('link_csv_name', _('Export in CSV format'));
 
-    /*
-     * Status colors
-     */
-    $color = substr($colors["up"], 1) .
-            ':' . substr($colors["down"], 1) .
-            ':' . substr($colors["unreachable"], 1) .
-            ':' . substr($colors["maintenance"], 1) .
-            ':' . substr($colors["undetermined"], 1);
+    // Status colors
+    $color = substr($colors['up'], 1)
+            . ':' . substr($colors['down'], 1)
+            . ':' . substr($colors['unreachable'], 1)
+            . ':' . substr($colors['maintenance'], 1)
+            . ':' . substr($colors['undetermined'], 1);
 
-    /*
-     * Ajax timeline
-     */
+    // Ajax timeline
     $type = 'HostGroup';
-    include("./include/reporting/dashboard/ajaxReporting_js.php");
+    include './include/reporting/dashboard/ajaxReporting_js.php';
 } else {
     ?><script type="text/javascript"> function initTimeline() {;} </script><?php
 }
-$tpl->assign('resumeTitle', _("Hosts group state"));
+$tpl->assign('resumeTitle', _('Hosts group state'));
 
-/*
- * Rendering Forms
- */
+// Rendering Forms
 $renderer = new HTML_QuickForm_Renderer_ArraySmarty($tpl);
 $formPeriod->accept($renderer);
 $tpl->assign('formPeriod', $renderer->toArray());
@@ -193,8 +171,8 @@ $formHostGroup->accept($renderer);
 $tpl->assign('formHostGroup', $renderer->toArray());
 
 if (
-    !$formPeriod->isSubmitted()
+    ! $formPeriod->isSubmitted()
     || ($formPeriod->isSubmitted() && $formPeriod->validate())
 ) {
-    $tpl->display("template/viewHostGroupLog.ihtml");
+    $tpl->display('template/viewHostGroupLog.ihtml');
 }

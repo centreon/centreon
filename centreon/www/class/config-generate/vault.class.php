@@ -59,11 +59,22 @@ class Vault extends AbstractObjectJSON
     }
 
     /**
+     * @param $poller
+     *
+     * @throws RuntimeException
+     * @return void
+     */
+    public function generateFromPoller($poller): void
+    {
+        $this->generate($poller['id'], $poller['localhost']);
+    }
+
+    /**
      * @param $poller_id
      * @param $localhost
      *
-     * @return void
      * @throws RuntimeException
+     * @return void
      */
     private function generate($poller_id, $localhost): void
     {
@@ -72,26 +83,14 @@ class Vault extends AbstractObjectJSON
         }
         // Base parameters
         $object[$this->vaultConfiguration->getName()] = [
-            'vault-address'=> $this->vaultConfiguration->getAddress(),
+            'vault-address' => $this->vaultConfiguration->getAddress(),
             'vault-port' => $this->vaultConfiguration->getPort(),
-            'vault-protocol' => 'https'
+            'vault-protocol' => 'https',
         ];
 
         // Generate file
         $this->generate_filename = 'centreonvault.json';
         $this->generateFile($object, false);
         $this->writeFile($this->backend_instance->getPath());
-    }
-
-
-    /**
-     * @param $poller
-     *
-     * @return void
-     * @throws RuntimeException
-     */
-    public function generateFromPoller($poller): void
-    {
-        $this->generate($poller['id'], $poller['localhost']);
     }
 }

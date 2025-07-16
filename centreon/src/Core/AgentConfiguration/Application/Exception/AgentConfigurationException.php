@@ -121,7 +121,7 @@ class AgentConfigurationException extends \Exception
     public static function nameAlreadyExists(string $name): self
     {
         return new self(
-            sprintf( _("The poller/agent configuration name '%s' already exists"), $name),
+            sprintf(_("The poller/agent configuration name '%s' already exists"), $name),
             self::CODE_CONFLICT
         );
     }
@@ -144,7 +144,7 @@ class AgentConfigurationException extends \Exception
 
     public static function onlyOnePoller(int $pollerId, int $acId): self
     {
-         return new self(
+        return new self(
             sprintf(_('Poller ID #%d is the only one linked to poller/agent configuration ID #%d'), $pollerId, $acId),
             self::CODE_CONFLICT
         );

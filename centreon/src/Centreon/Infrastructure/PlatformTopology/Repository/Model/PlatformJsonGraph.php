@@ -29,33 +29,23 @@ use Centreon\Domain\PlatformTopology\Model\PlatformRelation;
 
 /**
  * Format Platform to fit the JSON Graph Schema specification
- * @link https://github.com/jsongraph/json-graph-specification
+ * @see https://github.com/jsongraph/json-graph-specification
  */
 class PlatformJsonGraph
 {
-    /**
-     * @var string|null Stringified Platform Id
-     */
+    /** @var string|null Stringified Platform Id */
     private $id;
 
-    /**
-     * @var string|null Platform type
-     */
+    /** @var string|null Platform type */
     private $type;
 
-    /**
-     * @var string|null Platform Name
-     */
+    /** @var string|null Platform Name */
     private $label;
 
-    /**
-     * @var array<string,string> Custom properties of a Json Graph Object
-     */
+    /** @var array<string,string> Custom properties of a Json Graph Object */
     private $metadata = [];
 
-    /**
-     * @var array<string,string> relation details between a platform and its parent
-     */
+    /** @var array<string,string> relation details between a platform and its parent */
     private $relation = [];
 
     public function __construct(PlatformInterface $platform)
@@ -68,7 +58,7 @@ class PlatformJsonGraph
         }
 
         $metadata = [];
-        $metadata['pending'] = ($platform->isPending() ? "true" : "false");
+        $metadata['pending'] = ($platform->isPending() ? 'true' : 'false');
         if ($platform->getServerId() !== null) {
             $metadata['centreon-id'] = (string) $platform->getServerId();
         }
@@ -96,6 +86,7 @@ class PlatformJsonGraph
     public function setId(?string $id): self
     {
         $this->id = $id;
+
         return $this;
     }
 
@@ -114,6 +105,7 @@ class PlatformJsonGraph
     public function setType(?string $type): self
     {
         $this->type = $type;
+
         return $this;
     }
 
@@ -132,6 +124,7 @@ class PlatformJsonGraph
     public function setLabel(?string $label): self
     {
         $this->label = $label;
+
         return $this;
     }
 
@@ -150,6 +143,7 @@ class PlatformJsonGraph
     public function setMetadata(array $metadata): self
     {
         $this->metadata = $metadata;
+
         return $this;
     }
 
@@ -172,6 +166,7 @@ class PlatformJsonGraph
             'relation' => $platformRelation->getRelation(),
             'target' => (string) $platformRelation->getTarget(),
         ];
+
         return $this;
     }
 }

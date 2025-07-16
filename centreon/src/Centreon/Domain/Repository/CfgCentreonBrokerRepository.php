@@ -21,8 +21,8 @@
 
 namespace Centreon\Domain\Repository;
 
-use Centreon\Infrastructure\CentreonLegacyDB\ServiceEntityRepository;
 use Centreon\Domain\Repository\Interfaces\CfgCentreonBrokerInterface;
+use Centreon\Infrastructure\CentreonLegacyDB\ServiceEntityRepository;
 use Centreon\Infrastructure\Service\Exception\NotFoundException;
 
 /**
@@ -99,15 +99,15 @@ class CfgCentreonBrokerRepository extends ServiceEntityRepository implements Cfg
     public function export(array $pollerIds): array
     {
         // prevent SQL exception
-        if (!$pollerIds) {
+        if (! $pollerIds) {
             return [];
         }
 
         $ids = join(',', $pollerIds);
 
         $sql = <<<SQL
-SELECT * FROM cfg_centreonbroker WHERE ns_nagios_server IN ({$ids})
-SQL;
+            SELECT * FROM cfg_centreonbroker WHERE ns_nagios_server IN ({$ids})
+            SQL;
 
         $stmt = $this->db->prepare($sql);
         $stmt->execute();
@@ -126,10 +126,10 @@ SQL;
      */
     public function truncate(): void
     {
-        $sql = <<<SQL
-TRUNCATE TABLE `cfg_centreonbroker`;
-TRUNCATE TABLE `cfg_centreonbroker_info`
-SQL;
+        $sql = <<<'SQL'
+            TRUNCATE TABLE `cfg_centreonbroker`;
+            TRUNCATE TABLE `cfg_centreonbroker_info`
+            SQL;
         $stmt = $this->db->prepare($sql);
         $stmt->execute();
     }

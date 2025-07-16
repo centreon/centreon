@@ -1,15 +1,16 @@
 <?php
+
 namespace Centreon\Domain\Repository;
 
-use Centreon\Infrastructure\CentreonLegacyDB\ServiceEntityRepository;
 use Centreon\Domain\Entity\Task;
+use Centreon\Infrastructure\CentreonLegacyDB\ServiceEntityRepository;
 use PDO;
 
 class TaskRepository extends ServiceEntityRepository
 {
     /**
      * Find one by id
-     * @param integer $id
+     * @param int $id
      * @return Task|null
      */
     public function findOneById($id)
@@ -26,7 +27,7 @@ class TaskRepository extends ServiceEntityRepository
 
     /**
      * Find one by parent id
-     * @param integer $id
+     * @param int $id
      * @return Task|null
      */
     public function findOneByParentId($id)
@@ -71,11 +72,14 @@ class TaskRepository extends ServiceEntityRepository
 
     /**
      * update task status
+     * @param mixed $status
+     * @param mixed $taskId
      */
     public function updateStatus($status, $taskId)
     {
-        $sql = "UPDATE task SET status = '$status' WHERE id = $taskId";
+        $sql = "UPDATE task SET status = '{$status}' WHERE id = {$taskId}";
         $stmt = $this->db->prepare($sql);
+
         return $stmt->execute();
     }
 }

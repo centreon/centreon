@@ -63,7 +63,8 @@ class CmaConfigurationParameters implements ConfigurationParametersInterface
      *
      * @throws AssertionFailedException
      */
-    public function __construct(array $parameters, ConnectionModeEnum $connectionMode){
+    public function __construct(array $parameters, ConnectionModeEnum $connectionMode)
+    {
         /** @var _CmaParameters $parameters */
         $parameters = $this->normalizeCertificatePaths($parameters);
 

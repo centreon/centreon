@@ -36,8 +36,8 @@ class HostGroupFactoryRdb
      * Create a HostGroup entity from database data.
      *
      * @param array<string, mixed> $data
-     * @return HostGroup
      * @throws \Assert\AssertionFailedException
+     * @return HostGroup
      */
     public static function create(array $data): HostGroup
     {
@@ -58,6 +58,7 @@ class HostGroupFactoryRdb
             ->setGeoCoords($data['geo_coords'])
             ->setComment($data['hg_comment'])
             ->setActivated((bool) $data['hg_activate']);
+
         return $hostGroup;
     }
 }

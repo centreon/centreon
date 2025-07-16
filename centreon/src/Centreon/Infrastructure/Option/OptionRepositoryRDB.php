@@ -36,9 +36,7 @@ use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
  */
 class OptionRepositoryRDB extends AbstractRepositoryDRB implements OptionRepositoryInterface
 {
-    /**
-     * @var Option[]
-     */
+    /** @var Option[] */
     private $options;
 
     /**
@@ -54,7 +52,7 @@ class OptionRepositoryRDB extends AbstractRepositoryDRB implements OptionReposit
      */
     public function findAllOptions(bool $useCache = true): array
     {
-        if ($useCache && !empty($this->options)) {
+        if ($useCache && ! empty($this->options)) {
             return $this->options;
         }
         $request = $this->translateDbName('SELECT `key` AS `name`, `value` FROM `:db`.options');
@@ -65,6 +63,7 @@ class OptionRepositoryRDB extends AbstractRepositoryDRB implements OptionReposit
                 $this->options[] = EntityCreator::createEntityByArray(Option::class, $option);
             }
         }
+
         return $this->options;
     }
 }

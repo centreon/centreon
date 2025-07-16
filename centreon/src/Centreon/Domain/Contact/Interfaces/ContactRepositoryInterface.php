@@ -37,9 +37,7 @@ declare(strict_types=1);
 
 namespace Centreon\Domain\Contact\Interfaces;
 
-use Centreon\Domain\Contact\BasicContact;
 use Centreon\Domain\Contact\Contact;
-use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
 interface ContactRepositoryInterface
 {
@@ -47,8 +45,8 @@ interface ContactRepositoryInterface
      * Find a contact by name.
      *
      * @param string $name Username
-     * @return Contact|null
      * @throws \Exception
+     * @return Contact|null
      */
     public function findByName(string $name): ?Contact;
 
@@ -56,8 +54,8 @@ interface ContactRepositoryInterface
      * Find a contact by email.
      *
      * @param string $email email
-     * @return Contact|null
      * @throws \Exception
+     * @return Contact|null
      */
     public function findByEmail(string $email): ?Contact;
 

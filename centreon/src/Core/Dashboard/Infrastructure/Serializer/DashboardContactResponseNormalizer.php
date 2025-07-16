@@ -84,4 +84,3 @@ final class DashboardContactResponseNormalizer implements NormalizerInterface
         ];
     }
 }
-
