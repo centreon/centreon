@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2015 Centreon
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
@@ -36,12 +37,11 @@
  *
  */
 
-/*
-* Declare Function
-*/
+// Declare Function
 function myDecodeValue($arg)
 {
-    $arg = str_replace('#S#', "/", $arg ?? '');
-    $arg = str_replace('#BS#', "\\", $arg);
-    return html_entity_decode($arg, ENT_QUOTES, "UTF-8");
+    $arg = str_replace('#S#', '/', $arg ?? '');
+    $arg = str_replace('#BS#', '\\', $arg);
+
+    return html_entity_decode($arg, ENT_QUOTES, 'UTF-8');
 }

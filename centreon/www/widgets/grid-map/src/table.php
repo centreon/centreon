@@ -34,8 +34,8 @@
  *
  */
 
-require_once "../../require.php";
-require_once "../../../../config/centreon.config.php";
+require_once '../../require.php';
+require_once '../../../../config/centreon.config.php';
 require_once $centreon_path . 'www/class/centreon.class.php';
 require_once $centreon_path . 'www/class/centreonSession.class.php';
 require_once $centreon_path . 'www/class/centreonWidget.class.php';
@@ -48,7 +48,7 @@ require_once $centreon_path . 'www/include/common/sqlCommonFunction.php';
 
 CentreonSession::start(1);
 
-if (!isset($_SESSION['centreon']) || !isset($_REQUEST['widgetId'])) {
+if (! isset($_SESSION['centreon']) || ! isset($_REQUEST['widgetId'])) {
     exit;
 }
 
@@ -62,7 +62,7 @@ $useDeprecatedPages = $centreon->user->doesShowDeprecatedPages();
 
 $widgetId = filter_var($_REQUEST['widgetId'], FILTER_VALIDATE_INT);
 
-/* INIT */
+// INIT
 $colors = [0 => 'service_ok', 1 => 'service_warning', 2 => 'service_critical', 3 => 'unknown', 4 => 'pending'];
 $accessGroups = [];
 $arrayKeysAccessGroups = [];
@@ -87,28 +87,29 @@ try {
         $autoRefresh = 30;
     }
     $variablesThemeCSS = match ($centreon->user->theme) {
-        'light' => "Generic-theme",
-        'dark' => "Centreon-Dark",
-        default => throw new \Exception('Unknown user theme : ' . $centreon->user->theme),
+        'light' => 'Generic-theme',
+        'dark' => 'Centreon-Dark',
+        default => throw new Exception('Unknown user theme : ' . $centreon->user->theme),
     };
 } catch (Exception $exception) {
-    echo $exception->getMessage() . "<br/>";
+    echo $exception->getMessage() . '<br/>';
+
     exit;
 }
 
-$kernel = \App\Kernel::createForWeb();
+$kernel = App\Kernel::createForWeb();
 $resourceController = $kernel->getContainer()->get(
-    \Centreon\Application\Controller\MonitoringResourceController::class
+    Centreon\Application\Controller\MonitoringResourceController::class
 );
 
 // Smarty template initialization
-$template = SmartyBC::createSmartyTemplate(getcwd() . "/", './');
+$template = SmartyBC::createSmartyTemplate(getcwd() . '/', './');
 
 $data = [];
 $data_service = [];
 
 // Only process if a host group has been selected in the preferences
-if (!empty($preferences['host_group'])) {
+if (! empty($preferences['host_group'])) {
     $aclJoin = '';
     $aclSubRequest = '';
     $bindParams1 = [];
@@ -119,11 +120,11 @@ if (!empty($preferences['host_group'])) {
      * Uses the built conditions and filter access groups if needed.
      */
     if ($accessGroups !== []) {
-        $aclJoin = $centreon->user->admin == 0 ? " INNER JOIN centreon_acl acl ON T1.host_id = acl.host_id" : "";
+        $aclJoin = $centreon->user->admin == 0 ? ' INNER JOIN centreon_acl acl ON T1.host_id = acl.host_id' : '';
         [$bindValuesAcl, $bindQueryAcl] = createMultipleBindQuery(
             list: $arrayKeysAccessGroups,
             prefix: ':access_group_id_host_',
-            bindType: \PDO::PARAM_INT
+            bindType: PDO::PARAM_INT
         );
         $aclSubRequest = ' AND acl.group_id IN (' . $bindQueryAcl . ')';
     }
@@ -132,10 +133,10 @@ if (!empty($preferences['host_group'])) {
             SELECT DISTINCT 1 AS REALTIME, T1.name, T2.host_id
             FROM hosts T1
             INNER JOIN hosts_hostgroups T2 ON T1.host_id = T2.host_id
-            $aclJoin
+            {$aclJoin}
             WHERE T1.enabled = 1
                 AND T2.hostgroup_id = :hostgroup_id
-                $aclSubRequest
+                {$aclSubRequest}
             ORDER BY T1.name
         SQL;
     $bindParams1[':hostgroup_id'] = [$preferences['host_group'], PDO::PARAM_INT];
@@ -171,14 +172,14 @@ if (!empty($preferences['host_group'])) {
      * The preferences['service'] is a comma-separated list. We build an array of conditions
      * with proper bound parameters.
      */
-    $serviceList = array_map('trim', explode(",", $preferences['service']));
+    $serviceList = array_map('trim', explode(',', $preferences['service']));
 
     // For Query 2 (service listing)
     $bindParams2 = [];
     [$bindValues, $bindQuery] = createMultipleBindQuery(
         list: $serviceList,
         prefix: ':service_description_',
-        bindType: \PDO::PARAM_STR
+        bindType: PDO::PARAM_STR
     );
     $whereService2 = 'T1.description IN (' . $bindQuery . ')';
 
@@ -188,15 +189,15 @@ if (!empty($preferences['host_group'])) {
      * Uses the built conditions and binds each service filter.
      */
     if ($accessGroups !== []) {
-        $aclJoin = $centreon->user->admin == 0 ? " INNER JOIN centreon_acl acl ON T1.service_id = acl.service_id" : "";
+        $aclJoin = $centreon->user->admin == 0 ? ' INNER JOIN centreon_acl acl ON T1.service_id = acl.service_id' : '';
     }
     $query2 = <<<SQL
             SELECT DISTINCT 1 AS REALTIME, T1.description
             FROM services T1
-            $aclJoin
+            {$aclJoin}
             WHERE T1.enabled = 1
-                $aclSubRequest
-                AND $whereService2
+                {$aclSubRequest}
+                AND {$whereService2}
         SQL;
     $bindParams2 = array_merge($bindValues, $bindValuesAcl);
 
@@ -208,7 +209,7 @@ if (!empty($preferences['host_group'])) {
                 'description' => $row['description'],
                 'hosts' => [],
                 'hostsStatus' => [],
-                'details_uri' => []
+                'details_uri' => [],
             ];
         }
     } catch (CentreonDbException $exception) {
@@ -237,12 +238,12 @@ if (!empty($preferences['host_group'])) {
             SELECT DISTINCT 1 AS REALTIME, T1.service_id, T1.description, T1.state, T1.host_id, T2.name
             FROM services T1
             INNER JOIN hosts T2 ON T1.host_id = T2.host_id
-            $aclJoin
+            {$aclJoin}
             WHERE T1.enabled = 1
                 AND T1.description NOT LIKE 'ba\_%'
                 AND T1.description NOT LIKE 'meta\_%'
-                $aclSubRequest
-                AND $whereService3
+                {$aclSubRequest}
+                AND {$whereService3}
         SQL;
     $bindParams3 = $bindParams2;
 
@@ -281,5 +282,5 @@ $template->assign('widgetId', $widgetId);
 $template->assign('data', $data);
 $template->assign('data_service', $data_service);
 
-/* Display */
+// Display
 $template->display('table.ihtml');

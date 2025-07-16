@@ -131,16 +131,14 @@ final class FindSAMLConfigurationResponse
      */
     public static function authorizationRulesToArray(array $authorizationRules): array
     {
-        return array_map(function (AuthorizationRule $authorizationRule) {
-            return [
-                'claim_value' => $authorizationRule->getClaimValue(),
-                'access_group' => [
-                    'id' => $authorizationRule->getAccessGroup()->getId(),
-                    'name' => $authorizationRule->getAccessGroup()->getName(),
-                ],
-                'priority' => $authorizationRule->getPriority(),
-            ];
-        }, $authorizationRules);
+        return array_map(fn (AuthorizationRule $authorizationRule) => [
+            'claim_value' => $authorizationRule->getClaimValue(),
+            'access_group' => [
+                'id' => $authorizationRule->getAccessGroup()->getId(),
+                'name' => $authorizationRule->getAccessGroup()->getName(),
+            ],
+            'priority' => $authorizationRule->getPriority(),
+        ], $authorizationRules);
     }
 
     /**
@@ -201,7 +199,7 @@ final class FindSAMLConfigurationResponse
     public static function contactGroupRelationsToArray(array $contactGroupRelations): array
     {
         return array_map(
-            fn(ContactGroupRelation $contactGroupRelation) => [
+            fn (ContactGroupRelation $contactGroupRelation) => [
                 'group_value' => $contactGroupRelation->getClaimValue(),
                 'contact_group' => [
                     'id' => $contactGroupRelation->getContactGroup()->getId(),

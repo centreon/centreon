@@ -240,5 +240,4 @@ trait LoggerTrait
             'default' => $defaultContext,
         ];
     }
-
 }

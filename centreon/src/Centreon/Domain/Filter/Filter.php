@@ -29,34 +29,22 @@ namespace Centreon\Domain\Filter;
  */
 class Filter
 {
-    /**
-     * @var int|null Unique id of the filter
-     */
+    /** @var int|null Unique id of the filter */
     private $id;
 
-    /**
-     * @var string|null Name of the filter
-     */
+    /** @var string|null Name of the filter */
     private $name;
 
-    /**
-     * @var int|null User id
-     */
+    /** @var int|null User id */
     private $userId;
 
-    /**
-     * @var string|null Page name
-     */
+    /** @var string|null Page name */
     private $pageName;
 
-    /**
-     * @var FilterCriteria[] Criterias
-     */
+    /** @var FilterCriteria[] Criterias */
     private $criterias = [];
 
-    /**
-     * @var int|null Order
-     */
+    /** @var int|null Order */
     private $order;
 
     /**
@@ -74,6 +62,7 @@ class Filter
     public function setId(?int $id): Filter
     {
         $this->id = $id;
+
         return $this;
     }
 
@@ -92,6 +81,7 @@ class Filter
     public function setName(?string $name): Filter
     {
         $this->name = $name;
+
         return $this;
     }
 
@@ -110,6 +100,7 @@ class Filter
     public function setUserId(?int $userId): Filter
     {
         $this->userId = $userId;
+
         return $this;
     }
 
@@ -128,6 +119,7 @@ class Filter
     public function setPageName(?string $pageName): Filter
     {
         $this->pageName = $pageName;
+
         return $this;
     }
 
@@ -146,6 +138,7 @@ class Filter
     public function setCriterias(array $criterias): Filter
     {
         $this->criterias = $criterias;
+
         return $this;
     }
 
@@ -164,6 +157,7 @@ class Filter
     public function setOrder(?int $order): Filter
     {
         $this->order = $order;
+
         return $this;
     }
 }

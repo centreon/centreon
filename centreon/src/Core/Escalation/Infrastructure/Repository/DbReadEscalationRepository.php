@@ -87,6 +87,6 @@ class DbReadEscalationRepository extends AbstractRepositoryRDB implements ReadEs
      */
     private function createEscalation(array $data): Escalation
     {
-       return new Escalation($data['esc_id'], $data['esc_name']);
+        return new Escalation($data['esc_id'], $data['esc_name']);
     }
 }

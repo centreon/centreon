@@ -19,7 +19,7 @@
  *
  */
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Core\ResourceAccess\Application\Repository;
 
@@ -39,4 +39,3 @@ interface ReadDatasetRepositoryInterface
      */
     public function findResourceNamesByIds(array $ids): array;
 }
-

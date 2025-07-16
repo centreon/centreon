@@ -78,4 +78,3 @@ abstract readonly class ModuleRouteLoader implements RouteLoaderInterface
 
     abstract protected function getModuleDirectory(): string;
 }
-

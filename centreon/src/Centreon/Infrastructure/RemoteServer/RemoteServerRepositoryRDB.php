@@ -22,9 +22,8 @@ declare(strict_types=1);
 
 namespace Centreon\Infrastructure\RemoteServer;
 
-use Centreon\Domain\MonitoringServer\MonitoringServer;
-use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Domain\RemoteServer\Interfaces\RemoteServerRepositoryInterface;
+use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
 
 class RemoteServerRepositoryRDB extends AbstractRepositoryDRB implements RemoteServerRepositoryInterface
@@ -44,7 +43,7 @@ class RemoteServerRepositoryRDB extends AbstractRepositoryDRB implements RemoteS
     public function deleteRemoteServerByServerId(int $serverId): void
     {
         $statement = $this->db->prepare(
-            $this->translateDbName("DELETE FROM remote_servers WHERE server_id = :server_id")
+            $this->translateDbName('DELETE FROM remote_servers WHERE server_id = :server_id')
         );
         $statement->bindValue(':server_id', $serverId, \PDO::PARAM_INT);
         $statement->execute();
@@ -56,7 +55,7 @@ class RemoteServerRepositoryRDB extends AbstractRepositoryDRB implements RemoteS
     public function deleteAdditionalRemoteServer(int $monitoringServerId): void
     {
         $statement = $this->db->prepare(
-            $this->translateDbName("DELETE FROM rs_poller_relation WHERE remote_server_id = :id")
+            $this->translateDbName('DELETE FROM rs_poller_relation WHERE remote_server_id = :id')
         );
         $statement->bindValue(':id', $monitoringServerId, \PDO::PARAM_INT);
         $statement->execute();

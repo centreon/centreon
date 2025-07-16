@@ -1,4 +1,5 @@
 <?php
+
 namespace Centreon\Domain\Repository;
 
 use Centreon\Infrastructure\CentreonLegacyDB\ServiceEntityRepository;
@@ -14,18 +15,18 @@ class PollerCommandRelationsRepository extends ServiceEntityRepository
     public function export(array $pollerIds): array
     {
         // prevent SQL exception
-        if (!$pollerIds) {
+        if (! $pollerIds) {
             return [];
         }
 
         $ids = join(',', $pollerIds);
 
         $sql = <<<SQL
-SELECT
-    t.*
-FROM poller_command_relations AS t
-WHERE t.poller_id IN ({$ids})
-SQL;
+            SELECT
+                t.*
+            FROM poller_command_relations AS t
+            WHERE t.poller_id IN ({$ids})
+            SQL;
         $stmt = $this->db->prepare($sql);
         $stmt->execute();
 
@@ -40,9 +41,9 @@ SQL;
 
     public function truncate(): void
     {
-        $sql = <<<SQL
-TRUNCATE TABLE `poller_command_relations`
-SQL;
+        $sql = <<<'SQL'
+            TRUNCATE TABLE `poller_command_relations`
+            SQL;
         $stmt = $this->db->prepare($sql);
         $stmt->execute();
     }

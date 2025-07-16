@@ -34,7 +34,7 @@
  *
  */
 
-if (!isset($centreon)) {
+if (! isset($centreon)) {
     exit();
 }
 
@@ -48,40 +48,37 @@ const DELETE_BROKER_CONFIGURATIONS = 'd';
 const LISTING_FILE = '/listCentreonBroker.php';
 const FORM_FILE = '/formCentreonBroker.php';
 
-$cG = $_GET["id"] ?? null;
-$cP = $_POST["id"] ?? null;
+$cG = $_GET['id'] ?? null;
+$cP = $_POST['id'] ?? null;
 $id = $cG ?: $cP;
 
-$cG = $_GET["select"] ?? null;
-$cP = $_POST["select"] ?? null;
+$cG = $_GET['select'] ?? null;
+$cP = $_POST['select'] ?? null;
 $select = $cG ?: $cP;
 
-$cG = $_GET["dupNbr"] ?? null;
-$cP = $_POST["dupNbr"] ?? null;
+$cG = $_GET['dupNbr'] ?? null;
+$cP = $_POST['dupNbr'] ?? null;
 $dupNbr = $cG ?: $cP;
 
 require_once './class/centreonConfigCentreonBroker.php';
 
-/*
- * Path to the configuration dir
- */
+// Path to the configuration dir
 
-/*
- * PHP functions
- */
-require_once __DIR__ . "/DB-Func.php";
-require_once "./include/common/common-Func.php";
+// PHP functions
+require_once __DIR__ . '/DB-Func.php';
+require_once './include/common/common-Func.php';
 
 /**
  *  Page forbidden if server is a remote
  */
 if ($isRemote) {
-    require_once(__DIR__ . "/../../core/errors/alt_error.php");
+    require_once __DIR__ . '/../../core/errors/alt_error.php';
+
     exit();
 }
 
-/* Set the real page */
-if (isset($ret) && is_array($ret) && $ret['topology_page'] != "" && $p != $ret['topology_page']) {
+// Set the real page
+if (isset($ret) && is_array($ret) && $ret['topology_page'] != '' && $p != $ret['topology_page']) {
     $p = $ret['topology_page'];
 }
 
@@ -89,8 +86,8 @@ $acl = $centreon->user->access;
 $serverString = trim($acl->getPollerString());
 $allowedBrokerConf = [];
 
-if ($serverString != "''" && !empty($serverString)) {
-    $sql = "SELECT config_id FROM cfg_centreonbroker WHERE ns_nagios_server IN (" . $serverString . ")";
+if ($serverString != "''" && ! empty($serverString)) {
+    $sql = 'SELECT config_id FROM cfg_centreonbroker WHERE ns_nagios_server IN (' . $serverString . ')';
     $res = $pearDB->query($sql);
     while ($row = $res->fetchRow()) {
         $allowedBrokerConf[$row['config_id']] = true;
@@ -100,7 +97,7 @@ switch ($o) {
     case ADD_BROKER_CONFIGURATION:
     case WATCH_BROKER_CONFIGURATION:
     case MODIFY_BROKER_CONFIGURATION:
-        require_once(__DIR__ . FORM_FILE);
+        require_once __DIR__ . FORM_FILE;
         break;
     case ACTIVATE_BROKER_CONFIGURATION:
         purgeOutdatedCSRFTokens();
@@ -110,9 +107,8 @@ switch ($o) {
         } else {
             unvalidFormMessage();
         }
-        require_once(__DIR__ . LISTING_FILE);
+        require_once __DIR__ . LISTING_FILE;
         break; // Activate a CentreonBroker CFG
-
     case DEACTIVATE_BROKER_CONFIGURATION:
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
@@ -121,9 +117,8 @@ switch ($o) {
         } else {
             unvalidFormMessage();
         }
-        require_once(__DIR__ . LISTING_FILE);
+        require_once __DIR__ . LISTING_FILE;
         break; // Desactivate a CentreonBroker CFG
-
     case DUPLICATE_BROKER_CONFIGURATIONS:
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
@@ -132,9 +127,8 @@ switch ($o) {
         } else {
             unvalidFormMessage();
         }
-        require_once(__DIR__ . LISTING_FILE);
+        require_once __DIR__ . LISTING_FILE;
         break; // Duplicate n CentreonBroker CFGs
-
     case DELETE_BROKER_CONFIGURATIONS:
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
@@ -143,10 +137,9 @@ switch ($o) {
         } else {
             unvalidFormMessage();
         }
-        require_once(__DIR__ . LISTING_FILE);
+        require_once __DIR__ . LISTING_FILE;
         break; // Delete n CentreonBroker CFG
-
     default:
-        require_once(__DIR__ . LISTING_FILE);
+        require_once __DIR__ . LISTING_FILE;
         break;
 }

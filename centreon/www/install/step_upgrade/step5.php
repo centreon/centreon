@@ -43,15 +43,15 @@ require_once __DIR__ . '/../../../bootstrap.php';
 $db = $dependencyInjector['configuration_db'];
 
 /**
- * @var $db CentreonDB
+ * @var CentreonDB $db
  */
 $res = $db->query("SELECT `value` FROM `options` WHERE `key` = 'send_statistics'");
 $stat = $res->fetch();
 $template = getTemplate('templates');
 
-/* If CEIP is disabled and if it's a major version of Centreon ask again */
+// If CEIP is disabled and if it's a major version of Centreon ask again
 $aVersion = explode('.', $_SESSION['CURRENT_VERSION']);
-if ((int)$stat['value'] != 1 && (int)$aVersion[2] === 0) {
+if ((int) $stat['value'] != 1 && (int) $aVersion[2] === 0) {
     $stat = false;
 }
 

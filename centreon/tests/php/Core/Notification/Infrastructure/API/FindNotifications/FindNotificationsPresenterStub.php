@@ -35,7 +35,8 @@ class FindNotificationsPresenterStub extends AbstractPresenter implements FindNo
 
     public ?ResponseStatusInterface $responseStatus = null;
 
-    public function __construct(protected PresenterFormatterInterface $presenterFormatter) {
+    public function __construct(protected PresenterFormatterInterface $presenterFormatter)
+    {
         parent::__construct($presenterFormatter);
     }
 

@@ -34,7 +34,6 @@ use Core\Severity\RealTime\Application\UseCase\FindSeverity\FindSeverityResponse
 use Core\Severity\RealTime\Domain\Model\Severity;
 
 beforeEach(function (): void {
-
     $this->user = $this->createMock(ContactInterface::class);
     $this->readAccessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class);
     $this->repository = $this->createMock(ReadSeverityRepositoryInterface::class);
@@ -42,12 +41,11 @@ beforeEach(function (): void {
     $this->presenter = new FindSeverityPresenterStub($this->presenterFormatter);
 
     $this->icon = (new Icon())
-    ->setId(1)
-    ->setName('icon-name')
-    ->setUrl('ppm/icon-name.png');
+        ->setId(1)
+        ->setName('icon-name')
+        ->setUrl('ppm/icon-name.png');
 
     $this->severity = new Severity(1, 'name', 50, Severity::HOST_SEVERITY_TYPE_ID, $this->icon);
-
 });
 
 it('should present an ErrorResponse when an exception is thrown', function (): void {
@@ -56,17 +54,17 @@ it('should present an ErrorResponse when an exception is thrown', function (): v
         ->method('isAdmin')
         ->willReturn(true);
     $this->repository
-    ->expects($this->once())
-    ->method('findAllByTypeId')
-    ->with(Severity::HOST_SEVERITY_TYPE_ID)
-    ->willThrowException(new \Exception());
+        ->expects($this->once())
+        ->method('findAllByTypeId')
+        ->with(Severity::HOST_SEVERITY_TYPE_ID)
+        ->willThrowException(new \Exception());
 
-    $useCase = new FindSeverity($this->repository,$this->user, $this->readAccessGroupRepository);
+    $useCase = new FindSeverity($this->repository, $this->user, $this->readAccessGroupRepository);
     $useCase(Severity::HOST_SEVERITY_TYPE_ID, $this->presenter);
 
     expect($this->presenter->getResponseStatus())->toBeInstanceOf(ErrorResponse::class)
         ->and($this->presenter->getResponseStatus()?->getMessage())
-            ->toBe('An error occured while retrieving severities');
+        ->toBe('An error occured while retrieving severities');
 });
 
 it('should present a FindSeverityResponse as admin', function (): void {
@@ -76,11 +74,11 @@ it('should present a FindSeverityResponse as admin', function (): void {
         ->willReturn(true);
 
     $this->repository
-    ->expects($this->once())
-    ->method('findAllByTypeId')
-    ->willReturn([$this->severity]);
+        ->expects($this->once())
+        ->method('findAllByTypeId')
+        ->willReturn([$this->severity]);
 
-    $useCase = new FindSeverity($this->repository,$this->user, $this->readAccessGroupRepository);
+    $useCase = new FindSeverity($this->repository, $this->user, $this->readAccessGroupRepository);
     $useCase(Severity::HOST_SEVERITY_TYPE_ID, $this->presenter);
 
     expect($this->presenter->response)
@@ -94,8 +92,8 @@ it('should present a FindSeverityResponse as admin', function (): void {
                 'icon' => [
                     'id' => 1,
                     'name' => 'icon-name',
-                    'url' => 'ppm/icon-name.png'
-                ]
+                    'url' => 'ppm/icon-name.png',
+                ],
             ]
         );
 });
@@ -108,13 +106,13 @@ it('should present a FindSeverityResponse as non-admin', function (): void {
     $this->readAccessGroupRepository
         ->expects($this->once())
         ->method('findByContact')
-    ->willReturn([]);
+        ->willReturn([]);
     $this->repository
-    ->expects($this->once())
-    ->method('findAllByTypeIdAndAccessGroups')
-    ->willReturn([$this->severity]);
+        ->expects($this->once())
+        ->method('findAllByTypeIdAndAccessGroups')
+        ->willReturn([$this->severity]);
 
-    $useCase = new FindSeverity($this->repository,$this->user, $this->readAccessGroupRepository);
+    $useCase = new FindSeverity($this->repository, $this->user, $this->readAccessGroupRepository);
     $useCase(Severity::HOST_SEVERITY_TYPE_ID, $this->presenter);
 
     expect($this->presenter->response)
@@ -128,8 +126,8 @@ it('should present a FindSeverityResponse as non-admin', function (): void {
                 'icon' => [
                     'id' => 1,
                     'name' => 'icon-name',
-                    'url' => 'ppm/icon-name.png'
-                ]
+                    'url' => 'ppm/icon-name.png',
+                ],
             ]
         );
 });

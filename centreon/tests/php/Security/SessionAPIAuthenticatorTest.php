@@ -22,32 +22,25 @@ declare(strict_types=1);
 
 namespace Tests\Security;
 
-use PHPUnit\Framework\TestCase;
+use Centreon\Domain\Contact\Interfaces\ContactRepositoryInterface;
 use PHPUnit\Framework\MockObject\MockObject;
-use Security\SessionAPIAuthenticator;
+use PHPUnit\Framework\TestCase;
 use Security\Domain\Authentication\Interfaces\AuthenticationServiceInterface;
-use Security\Domain\Authentication\Interfaces\SessionRepositoryInterface;
+use Security\SessionAPIAuthenticator;
 use Symfony\Component\HttpFoundation\HeaderBag;
-use Symfony\Component\HttpFoundation\InputBag;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
-use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Http\Authenticator\Passport\SelfValidatingPassport;
-use Centreon\Domain\Contact\Interfaces\ContactRepositoryInterface;
 
 class SessionAPIAuthenticatorTest extends TestCase
 {
-    /**
-     * @var AuthenticationServiceInterface|MockObject
-     */
+    /** @var AuthenticationServiceInterface|MockObject */
     private $authenticationService;
 
-    /**
-     * @var ContactRepositoryInterface|MockObject
-     */
+    /** @var ContactRepositoryInterface|MockObject */
     private $contactRepository;
 
     /**
@@ -115,7 +108,7 @@ class SessionAPIAuthenticatorTest extends TestCase
         $this->assertEquals(
             new JsonResponse(
                 [
-                    'message' => 'An authentication exception occurred.'
+                    'message' => 'An authentication exception occurred.',
                 ],
                 Response::HTTP_UNAUTHORIZED
             ),

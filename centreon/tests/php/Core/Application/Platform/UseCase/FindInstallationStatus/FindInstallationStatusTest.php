@@ -23,15 +23,13 @@ declare(strict_types=1);
 
 namespace Tests\Core\Application\Platform\UseCase\FindInstallationStatus;
 
-use PHPUnit\Framework\TestCase;
 use Core\Application\Platform\Repository\ReadPlatformRepositoryInterface;
 use Core\Application\Platform\UseCase\FindInstallationStatus\FindInstallationStatus;
+use PHPUnit\Framework\TestCase;
 
 class FindInstallationStatusTest extends TestCase
 {
-    /**
-     * @var ReadPlatformRepositoryInterface&\PHPUnit\Framework\MockObject\MockObject
-     */
+    /** @var ReadPlatformRepositoryInterface&\PHPUnit\Framework\MockObject\MockObject */
     public $repository;
 
     public function setUp(): void

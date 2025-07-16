@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2019 Centreon
  * Centreon is developed by : Julien Mathis and Romain Le Merlus under
@@ -45,7 +46,7 @@ class CentreonValidatorTranslator implements TranslatorInterface
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function trans($id, array $parameters = [], $domain = null, $locale = null): string
     {
@@ -60,7 +61,7 @@ class CentreonValidatorTranslator implements TranslatorInterface
 
     /**
      * @codeCoverageIgnore
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function getLocale(): string
     {

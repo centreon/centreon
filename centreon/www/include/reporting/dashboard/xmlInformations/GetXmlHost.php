@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2016 Centreon
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
@@ -34,7 +35,7 @@
  */
 
 $stateType = 'host';
-require_once realpath(__DIR__ . "/initXmlFeed.php");
+require_once realpath(__DIR__ . '/initXmlFeed.php');
 
 if (isset($_SESSION['centreon'])) {
     $centreon = $_SESSION['centreon'];
@@ -45,8 +46,8 @@ if (isset($_SESSION['centreon'])) {
 $color = array_filter($_GET['color'] ?? [], function ($oneColor) {
     return filter_var($oneColor, FILTER_VALIDATE_REGEXP, [
         'options' => [
-            'regexp' => "/^#[[:xdigit:]]{6}$/"
-        ]
+            'regexp' => '/^#[[:xdigit:]]{6}$/',
+        ],
     ]);
 });
 if (empty($color) || count($_GET['color']) !== count($color)) {
@@ -54,23 +55,24 @@ if (empty($color) || count($_GET['color']) !== count($color)) {
     $buffer->endElement();
     header('Content-Type: text/xml');
     $buffer->output();
+
     exit;
 }
 
 if (($id = filter_var($_GET['id'] ?? false, FILTER_VALIDATE_INT)) !== false) {
-    /* Get ACL if user is not admin */
+    // Get ACL if user is not admin
     $isAdmin = $centreon->user->admin;
     $accessHost = true;
-    if (!$isAdmin) {
+    if (! $isAdmin) {
         $userId = $centreon->user->user_id;
         $acl = new CentreonACL($userId, $isAdmin);
-        if (!$acl->checkHost($id)) {
+        if (! $acl->checkHost($id)) {
             $accessHost = false;
         }
     }
 
     if ($accessHost) {
-        /* Use "like" instead of "=" to avoid mysql bug on partitioned tables */
+        // Use "like" instead of "=" to avoid mysql bug on partitioned tables
         $query = 'SELECT  * FROM `log_archive_host` WHERE host_id LIKE :id ORDER BY date_start DESC';
         $stmt = $pearDBO->prepare($query);
         $stmt->bindValue(':id', $id, PDO::PARAM_INT);
@@ -80,7 +82,7 @@ if (($id = filter_var($_GET['id'] ?? false, FILTER_VALIDATE_INT)) !== false) {
             fillBuffer($statesTab, $row, $color);
         }
     } else {
-        $buffer->writeElement("error", "Cannot access to host information");
+        $buffer->writeElement('error', 'Cannot access to host information');
     }
 } else {
     $buffer->writeElement('error', 'Bad id format');

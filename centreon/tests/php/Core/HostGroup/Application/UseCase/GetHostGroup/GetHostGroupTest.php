@@ -49,7 +49,7 @@ beforeEach(function (): void {
         $this->readResourceAccessRepository = $this->createMock(ReadResourceAccessRepositoryInterface::class),
         $this->readMediaRepository = $this->createMock(ReadMediaRepositoryInterface::class),
         $this->readContactGroupRepository = $this->createMock(ReadContactGroupRepositoryInterface::class),
-         false,
+        false,
         $this->user = $this->createMock(ContactInterface::class),
     );
 

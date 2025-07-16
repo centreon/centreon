@@ -33,4 +33,3 @@ interface FindRealTimeHostStatusesCountPresenterInterface extends PresenterInter
      */
     public function presentResponse(FindRealTimeHostStatusesCountResponse|ResponseStatusInterface $response): void;
 }
-

@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2019 Centreon
  * Centreon is developed by : Julien Mathis and Romain Le Merlus under
@@ -37,9 +38,9 @@
 namespace Centreon\Infrastructure\Service;
 
 use Centreon\Infrastructure\Service\Exception\NotFoundException;
-use ReflectionClass;
-use Psr\Container\ContainerInterface;
 use Centreon\Infrastructure\Service\Traits\ServiceContainerTrait;
+use Psr\Container\ContainerInterface;
+use ReflectionClass;
 
 class CentreonClapiService implements ContainerInterface
 {
@@ -49,8 +50,8 @@ class CentreonClapiService implements ContainerInterface
      * Register service as CLI
      *
      * @param string $object
-     * @return \Centreon\Infrastructure\Service\CentreonClapiService
      * @throws NotFoundException
+     * @return CentreonClapiService
      */
     public function add(string $object): self
     {

@@ -31,13 +31,11 @@ class ResourceStatus
 {
     // Groups for serializing
     public const SERIALIZER_GROUP_MAIN = 'resource_status_main';
-
     public const SEVERITY_HIGH = 1;
     public const SEVERITY_MEDIUM = 2;
     public const SEVERITY_LOW = 3;
     public const SEVERITY_PENDING = 4;
     public const SEVERITY_OK = 5;
-
     public const STATUS_NAME_PENDING = 'PENDING';
     public const STATUS_NAME_UP = 'UP';
     public const STATUS_NAME_DOWN = 'DOWN';
@@ -47,19 +45,13 @@ class ResourceStatus
     public const STATUS_NAME_CRITICAL = 'CRITICAL';
     public const STATUS_NAME_UNKNOWN = 'UNKNOWN';
 
-    /**
-     * @var int|null
-     */
+    /** @var int|null */
     private $code;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     private $name;
 
-    /**
-     * @var int|null
-     */
+    /** @var int|null */
     private $severityCode;
 
     /**
@@ -72,7 +64,7 @@ class ResourceStatus
 
     /**
      * @param int|null $code
-     * @return \Centreon\Domain\Monitoring\ResourceStatus
+     * @return ResourceStatus
      */
     public function setCode(?int $code): self
     {
@@ -91,7 +83,7 @@ class ResourceStatus
 
     /**
      * @param string|null $name
-     * @return \Centreon\Domain\Monitoring\ResourceStatus
+     * @return ResourceStatus
      */
     public function setName(?string $name): self
     {
@@ -110,7 +102,7 @@ class ResourceStatus
 
     /**
      * @param int|null $severityCode
-     * @return \Centreon\Domain\Monitoring\ResourceStatus
+     * @return ResourceStatus
      */
     public function setSeverityCode(?int $severityCode): self
     {

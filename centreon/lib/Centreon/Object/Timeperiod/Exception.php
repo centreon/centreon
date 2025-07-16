@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2015 CENTREON
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
@@ -33,7 +34,7 @@
  *
  */
 
-require_once __DIR__ . "/../Object.php";
+require_once __DIR__ . '/../Object.php';
 
 /**
  * Used for interacting with host custom macros
@@ -42,7 +43,9 @@ require_once __DIR__ . "/../Object.php";
  */
 class Centreon_Object_Timeperiod_Exception extends Centreon_Object
 {
-    protected $table = "timeperiod_exceptions";
-    protected $primaryKey = "exception_id";
-    protected $uniqueLabelField = "days";
+    protected $table = 'timeperiod_exceptions';
+
+    protected $primaryKey = 'exception_id';
+
+    protected $uniqueLabelField = 'days';
 }
