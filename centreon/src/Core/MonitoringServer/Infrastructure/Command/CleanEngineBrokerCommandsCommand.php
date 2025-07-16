@@ -98,41 +98,43 @@ final class CleanEngineBrokerCommandsCommand extends Command
                     )
                 );
             }
-            if ($input->getOption('dry-run')) {
-                $output->writeln('Dry run mode: no changes made.');
-
-                return Command::SUCCESS;
-            }
-            try {
-                ($this->useCase)(new UpdateMonitoringServerRequest(
-                    id: $monitoringServer->getId(),
-                    name: $monitoringServer->getName(),
-                    engineRestartCommand: in_array('engineRestartCommand', $invalidPropertyPaths)
-                        ? MonitoringServer::DEFAULT_ENGINE_RESTART_COMMAND
-                        : $monitoringServer->getEngineReStartCommand(),
-                    engineReloadCommand: in_array('engineReloadCommand', $invalidPropertyPaths)
-                        ? MonitoringServer::DEFAULT_ENGINE_RELOAD_COMMAND
-                        : $monitoringServer->getEngineReloadCommand(),
-                    engineStopCommand: in_array('engineStopCommand', $invalidPropertyPaths)
-                        ? MonitoringServer::DEFAULT_ENGINE_STOP_COMMAND
-                        : $monitoringServer->getEngineStopCommand(),
-                    engineStartCommand: in_array('engineStartCommand', $invalidPropertyPaths)
-                        ? MonitoringServer::DEFAULT_ENGINE_START_COMMAND
-                        : $monitoringServer->getEngineStartCommand(),
-                    brokerReloadCommand: in_array('brokerReloadCommand', $invalidPropertyPaths)
-                        ? MonitoringServer::DEFAULT_BROKER_RELOAD_COMMAND
-                        : $monitoringServer->getBrokerReloadCommand()
-                ));
-                $output->writeln("Commands have been correctly cleaned");
-            } catch (RepositoryException $ex) {
-                $this->error("An error occured while cleaning engine commands", [
-                    'exception' => $ex
-                ]);
-                $output->writeln("An error occured while cleaning engine commands, please retry");
-
-                return Command::FAILURE;
+            if (! $input->getOption('dry-run')) {
+                try {
+                    ($this->useCase)(new UpdateMonitoringServerRequest(
+                        id: $monitoringServer->getId(),
+                        name: $monitoringServer->getName(),
+                        engineRestartCommand: in_array('engineRestartCommand', $invalidPropertyPaths)
+                            ? MonitoringServer::DEFAULT_ENGINE_RESTART_COMMAND
+                            : $monitoringServer->getEngineReStartCommand(),
+                        engineReloadCommand: in_array('engineReloadCommand', $invalidPropertyPaths)
+                            ? MonitoringServer::DEFAULT_ENGINE_RELOAD_COMMAND
+                            : $monitoringServer->getEngineReloadCommand(),
+                        engineStopCommand: in_array('engineStopCommand', $invalidPropertyPaths)
+                            ? MonitoringServer::DEFAULT_ENGINE_STOP_COMMAND
+                            : $monitoringServer->getEngineStopCommand(),
+                        engineStartCommand: in_array('engineStartCommand', $invalidPropertyPaths)
+                            ? MonitoringServer::DEFAULT_ENGINE_START_COMMAND
+                            : $monitoringServer->getEngineStartCommand(),
+                        brokerReloadCommand: in_array('brokerReloadCommand', $invalidPropertyPaths)
+                            ? MonitoringServer::DEFAULT_BROKER_RELOAD_COMMAND
+                            : $monitoringServer->getBrokerReloadCommand()
+                    ));
+                    $output->writeln("Commands have been correctly cleaned");
+                } catch (RepositoryException $ex) {
+                    $this->error("An error occured while cleaning engine commands", [
+                        'exception' => $ex
+                    ]);
+                    $output->writeln("An error occured while cleaning engine commands, please retry");
+                    continue;
+                }
             }
         }
+        if ($input->getOption('dry-run')) {
+            $output->writeln('Dry run completed. No changes were made.');
+        } else {
+            $output->writeln('All invalid commands have been cleaned.');
+        }
+
         return Command::SUCCESS;
     }
 }
