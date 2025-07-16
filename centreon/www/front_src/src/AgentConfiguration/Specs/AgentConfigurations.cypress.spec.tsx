@@ -9,7 +9,6 @@ import {
   labelAgentConfigurationCreated,
   labelAgentConfigurationUpdated,
   labelAgentType,
-  labelAgentTypes,
   labelAgentsConfigurations,
   labelCACommonName,
   labelCMAauthenticationToken,
@@ -114,7 +113,7 @@ describe('Agent configurations', () => {
 
     cy.findAllByTestId('Search').find('input').type('My agent');
     cy.findByLabelText('Filters').click();
-    cy.findByLabelText(labelAgentTypes).click({ force: true });
+    cy.findByLabelText(labelAgentType).click({ force: true });
     cy.get('[data-option-index="1"]').click();
     cy.findByLabelText(labelPollers).click({ force: true });
 
@@ -165,7 +164,7 @@ describe('Agent configurations', () => {
     });
 
     cy.findByLabelText('Filters').click();
-    cy.findByLabelText(labelAgentTypes).click({ force: true });
+    cy.findByLabelText(labelAgentType).click({ force: true });
     cy.get('[data-option-index="1"]').click();
 
     cy.findByTestId('CancelIcon').click();
@@ -187,7 +186,7 @@ describe('Agent configurations', () => {
 
     cy.findAllByTestId('Search').find('input').type('My agent');
     cy.findByLabelText('Filters').click();
-    cy.findByLabelText(labelAgentTypes).click({ force: true });
+    cy.findByLabelText(labelAgentType).click({ force: true });
     cy.get('[data-option-index="1"]').click();
     cy.findByLabelText(labelPollers).click({ force: true });
 
