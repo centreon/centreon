@@ -210,7 +210,7 @@ final class DeployServices
                     $service = new NewService(
                         $serviceTemplate->getAlias(),
                         $hostId,
-                        $serviceTemplate->getCommandId()
+                        null // command line must be inherited from template when you deploy services from a host
                     );
                     $service->setServiceTemplateParentId($serviceTemplate->getId());
                     $service->setActivated(true);
