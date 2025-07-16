@@ -134,8 +134,29 @@ Given(
               }
             });
           } else {
-            major_version_from = previousVersion;
-            //cy.wrap(previousVersion).as("majorVersionFrom");
+            const versionDir = "./././../../www/install/php";
+            // Check if a file with the major version exists
+            const versionFilePath = `${versionDir}/Update-${previousVersion}.${minor_version}.php`;
+            cy.task("fileExists", versionFilePath).then((exists) => {
+              if (exists) {
+                cy.log(`The file with version: ${previousVersion} exist`);
+                cy.wrap(previousVersion).as("majorVersionFrom");
+                major_version_from = previousVersion;
+              } else {
+                cy.log(
+                  `The file with version: ${previousVersion} does not exist`,
+                );
+                // If the version isn't found, use the closest available one
+                cy.getClosestVersionFile(previousVersion, versionDir).then(
+                  (versionFilePath) => {
+                    cy.log(`The last cloud version is: ${versionFilePath}`);
+                    const newVersion = versionFilePath;
+                    major_version_from = versionFilePath;
+                    cy.wrap(newVersion).as("majorVersionFrom");
+                  },
+                );
+              }
+            });
           }
           break;
         case "n - 2":
