@@ -180,13 +180,19 @@ RUN apt update && \
     wget \
     gnupg2 \
     curl \
+    libdbd-mysql-perl \
+    libhttp-daemon-perl \
+    libdigest-md5-file-perl \
+    libschedule-cron-perl \
+    librrds-perl \
     iputils-ping && \
     echo "deb https://packages.centreon.com/apt-plugins-stable/ $(lsb_release -sc) main" | tee /etc/apt/sources.list.d/centreon-plugins.list && \
     wget -O- https://apt-key.centreon.com | gpg --dearmor | tee /etc/apt/trusted.gpg.d/centreon.gpg > /dev/null 2>&1 && \
     apt update && \
     apt install -y \
     libnet-curl-perl \
-    libcrypt-openssl-aes-perl && \
+    libcrypt-openssl-aes-perl \
+    libssh-session-perl && \
     apt clean && \
     rm -rf /var/lib/apt/lists/*
 
@@ -227,4 +233,4 @@ COPY --from=builder /usr/bin/gorgoned /usr/bin/gorgoned
 WORKDIR /etc/centreon-gorgone/
 
 # Set a different entrypoint for the new container
-CMD ["/usr/bin/perl", "/usr/bin/gorgoned", "--config=/etc/centreon-gorgone/config.yaml", "--logfile=/dev/stdout", "--severity=error"]
+CMD ["/usr/bin/perl", "/usr/bin/gorgoned", "--config=/etc/centreon-gorgone/config.yaml", "--severity=debug"]
