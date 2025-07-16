@@ -69,19 +69,19 @@ Cypress.Commands.add("getClosestVersionFile", (currentVersion, versionDir) => {
 
 Cypress.Commands.add("getLatestOnPremMajorVersion", () => {
   return cy
-    .request("https://packages.centreon.com/ui/native/rpm-standard/")
-    .then((response) => {
-      const parser = new DOMParser();
-      const doc = parser.parseFromString(response.body, "text/html");
-
-      const versions: string[] = Array.from(doc.querySelectorAll("a"))
-        .map((a) => a.textContent?.trim() || "")
-        .filter((text) => /^\d{2}\.\d{2}\/$/.test(text))
-        .map((v) => v.replace("/", ""))
+    .request(
+      "GET",
+      "https://packages.centreon.com/artifactory/api/storage/rpm-standard",
+    )
+    .then((res) => {
+      const versions = (res.body.children as any[])
+        .filter(
+          (item) => item.folder === true && /^\d{2}\.\d{2}\/$/.test(item.uri),
+        )
+        .map((item) => item.uri.replace(/\//g, ""))
         .sort((a, b) => b.localeCompare(a, undefined, { numeric: true }));
 
-        const latest = versions[0];
-        return latest || null;
+      return versions[0] || null;
     });
 });
 
