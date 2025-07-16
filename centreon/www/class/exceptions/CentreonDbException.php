@@ -30,7 +30,6 @@ use Core\Common\Domain\Exception\BusinessLogicException;
  */
 class CentreonDbException extends BusinessLogicException
 {
-
     /**
      * @param string $message
      * @param array $context
@@ -40,5 +39,4 @@ class CentreonDbException extends BusinessLogicException
     {
         parent::__construct($message, self::ERROR_CODE_REPOSITORY, $context, $previous);
     }
-
 }

@@ -22,14 +22,14 @@ declare(strict_types=1);
 
 namespace Centreon\Domain\Monitoring\Interfaces;
 
+use Centreon\Domain\Acknowledgement\Acknowledgement;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
+use Centreon\Domain\Downtime\Downtime;
+use Centreon\Domain\Monitoring\Host;
 use Centreon\Domain\Monitoring\HostGroup;
+use Centreon\Domain\Monitoring\Service;
 use Centreon\Domain\Monitoring\ServiceGroup;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
-use Centreon\Domain\Monitoring\Host;
-use Centreon\Domain\Monitoring\Service;
-use Centreon\Domain\Downtime\Downtime;
-use Centreon\Domain\Acknowledgement\Acknowledgement;
 
 interface MonitoringRepositoryInterface
 {
@@ -44,8 +44,8 @@ interface MonitoringRepositoryInterface
     /**
      * Find all real time hosts according to access group.
      *
-     * @return Host[]
      * @throws \Exception
+     * @return Host[]
      */
     public function findHosts(): array;
 
@@ -53,8 +53,8 @@ interface MonitoringRepositoryInterface
      * Find the hosts of the hosts groups ids given.
      *
      * @param int[] $hostsGroupsIds List of hosts groups Ids for which we want to retrieve the hosts
-     * @return array<int, array<int, Host>> [hostGroupId => hostId,...]
      * @throws \Exception
+     * @return array<int, array<int, Host>> [hostGroupId => hostId,...]
      */
     public function findHostsByHostsGroups(array $hostsGroupsIds): array;
 
@@ -62,8 +62,8 @@ interface MonitoringRepositoryInterface
      * Find the hosts of the services groups ids given.
      *
      * @param int[] $servicesGroupsIds List of services groups Ids for which we want to retrieve the hosts
-     * @return array<int, array<int, Host>> [serviceGroupId => hostId,...]
      * @throws \Exception
+     * @return array<int, array<int, Host>> [serviceGroupId => hostId,...]
      */
     public function findHostsByServiceGroups(array $servicesGroupsIds): array;
 
@@ -79,8 +79,8 @@ interface MonitoringRepositoryInterface
      * Find one host based on its id and according to ACL.
      *
      * @param int $hostId Id of the host to be found
-     * @return Host|null
      * @throws \Exception
+     * @return Host|null
      */
     public function findOneHost(int $hostId): ?Host;
 
@@ -105,8 +105,8 @@ interface MonitoringRepositoryInterface
      *
      * @param int $hostId Host id of the service
      * @param int $serviceId Service Id
-     * @return Service|null
      * @throws \Exception
+     * @return Service|null
      */
     public function findOneService(int $hostId, int $serviceId): ?Service;
 
@@ -114,8 +114,8 @@ interface MonitoringRepositoryInterface
      * Find one service based on its id and according to ACL.
      *
      * @param string $serviceDescription
-     * @return Service|null
      * @throws \Exception
+     * @return Service|null
      */
     public function findOneServiceByDescription(string $serviceDescription): ?Service;
 
@@ -138,16 +138,16 @@ interface MonitoringRepositoryInterface
     /**
      * Find all services grouped by service groups
      *
-     * @return Servicegroup[]
      * @throws \Exception
+     * @return ServiceGroup[]
      */
     public function findServiceGroups(): array;
 
     /**
      * Find all real time services according to access group.
      *
-     * @return Service[]
      * @throws \Exception
+     * @return Service[]
      */
     public function findServices(): array;
 
@@ -156,8 +156,8 @@ interface MonitoringRepositoryInterface
      * using request parameters (search, sort, pagination)
      *
      * @param int $hostId Host ID for which we want to find services
-     * @return Service[]
      * @throws \Exception
+     * @return Service[]
      */
     public function findServicesByHostWithRequestParameters(int $hostId): array;
 
@@ -166,8 +166,8 @@ interface MonitoringRepositoryInterface
      * without request parameters (no search, no sort, no pagination)
      *
      * @param int $hostId Host ID for which we want to find services
-     * @return Service[]
      * @throws \Exception
+     * @return Service[]
      */
     public function findServicesByHostWithoutRequestParameters(int $hostId): array;
 
@@ -176,8 +176,8 @@ interface MonitoringRepositoryInterface
      *
      * @param int $hostId Host id
      * @param int[] $serviceIds Service Ids
-     * @return Service[]
      * @throws \Exception
+     * @return Service[]
      */
     public function findSelectedServicesByHost(int $hostId, array $serviceIds): array;
 
@@ -197,8 +197,8 @@ interface MonitoringRepositoryInterface
 
     /**
      * @param int[] $serviceGroupIds
-     * @return array<int, array<int, Service>>
      * @throws \Exception
+     * @return array<int, array<int, Service>>
      */
     public function findServicesByServiceGroups(array $serviceGroupIds): array;
 

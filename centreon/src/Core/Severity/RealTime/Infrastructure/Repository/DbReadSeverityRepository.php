@@ -152,7 +152,7 @@ class DbReadSeverityRepository extends AbstractRepositoryDRB implements ReadSeve
         }
 
         $accessGroupIds = array_map(
-            static fn($accessGroup) => $accessGroup->getId(),
+            static fn ($accessGroup) => $accessGroup->getId(),
             $accessGroups
         );
 

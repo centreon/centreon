@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005 - 2019 Centreon (https://www.centreon.com/)
  *
@@ -32,7 +33,7 @@ class VersionHelper
     public const LT = '<';
     public const GT = '>';
     public const LE = '<=';
-    public const GE = ">=";
+    public const GE = '>=';
 
     /**
      * Compare two version numbers.
@@ -60,6 +61,7 @@ class VersionHelper
         if ($depthVersion2 > $depthVersion1) {
             $version1 = self::regularizeDepthVersion($version1, $depthVersion2, $floatSeparationSymbol);
         }
+
         return version_compare($version1, $version2, $operator);
     }
 
@@ -76,13 +78,16 @@ class VersionHelper
         $actualDepth = substr_count($version, $glue);
         if ($actualDepth == $depth) {
             return $version;
-        } elseif ($actualDepth > $depth) {
+        }
+        if ($actualDepth > $depth) {
             $parts = array_slice(explode($glue, $version), 0, ($depth + 1));
+
             return implode($glue, $parts);
         }
         for ($loop = $actualDepth; $loop < $depth; $loop++) {
             $version .= $glue . '0';
         }
+
         return $version;
     }
 }

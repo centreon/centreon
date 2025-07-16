@@ -19,7 +19,7 @@
  *
  */
 
- declare(strict_types=1);
+declare(strict_types=1);
 
 namespace Core\Dashboard\Infrastructure\API\FindPerformanceMetrics;
 
@@ -44,15 +44,13 @@ class FindPerformanceMetricsPresenter extends AbstractPresenter implements FindP
             $this->setResponseStatus($response);
         } else {
             $this->present([
-                'result' => array_map(function (ResourceMetricDto $resourceMetric){
-                    return [
-                        'id' => $resourceMetric->serviceId,
-                        'name' => $resourceMetric->resourceName,
-                        'parent_name' => $resourceMetric->parentName,
-                        'uuid' => 'h' . $resourceMetric->parentId . '-s' . $resourceMetric->serviceId,
-                        'metrics' => $resourceMetric->metrics,
-                    ];
-                },$response->resourceMetrics),
+                'result' => array_map(fn (ResourceMetricDto $resourceMetric) => [
+                    'id' => $resourceMetric->serviceId,
+                    'name' => $resourceMetric->resourceName,
+                    'parent_name' => $resourceMetric->parentName,
+                    'uuid' => 'h' . $resourceMetric->parentId . '-s' . $resourceMetric->serviceId,
+                    'metrics' => $resourceMetric->metrics,
+                ], $response->resourceMetrics),
                 'meta' => $this->requestParameters->toArray(),
             ]);
         }

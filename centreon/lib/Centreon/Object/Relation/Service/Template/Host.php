@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2015 CENTREON
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
@@ -33,7 +34,7 @@
  *
  */
 
-require_once "Centreon/Object/Relation/Relation.php";
+require_once 'Centreon/Object/Relation/Relation.php';
 
 /**
  * Class
@@ -44,21 +45,25 @@ class Centreon_Object_Relation_Service_Template_Host extends Centreon_Object_Rel
 {
     /** @var Centreon_Object_Service_Template */
     public $firstObject;
+
     /** @var Centreon_Object_Host_Template */
     public $secondObject;
+
     /** @var string */
-    protected $relationTable = "host_service_relation";
+    protected $relationTable = 'host_service_relation';
+
     /** @var string */
-    protected $firstKey = "service_service_id";
+    protected $firstKey = 'service_service_id';
+
     /** @var string */
-    protected $secondKey = "host_host_id";
+    protected $secondKey = 'host_host_id';
 
     /**
      * Centreon_Object_Relation_Service_Template_Host constructor
      *
-     * @param \Pimple\Container $dependencyInjector
+     * @param Pimple\Container $dependencyInjector
      */
-    public function __construct(\Pimple\Container $dependencyInjector)
+    public function __construct(Pimple\Container $dependencyInjector)
     {
         parent::__construct($dependencyInjector);
         $this->firstObject = new Centreon_Object_Service_Template($dependencyInjector);
@@ -75,7 +80,7 @@ class Centreon_Object_Relation_Service_Template_Host extends Centreon_Object_Rel
      */
     public function insert($fkey, $skey = null): void
     {
-        $sql = "INSERT INTO $this->relationTable ($this->secondKey, $this->firstKey) VALUES (?, ?)";
+        $sql = "INSERT INTO {$this->relationTable} ({$this->secondKey}, {$this->firstKey}) VALUES (?, ?)";
         $this->db->query($sql, [$fkey, $skey]);
     }
 
@@ -89,53 +94,54 @@ class Centreon_Object_Relation_Service_Template_Host extends Centreon_Object_Rel
      * @param string $sort
      * @param array $filters
      * @param string $filterType
+     * @param mixed $offset
      *
-     * @return array
      * @throws Exception
+     * @return array
      */
-    public function getMergedParameters($firstTableParams = [], $secondTableParams = [], $count = -1, $offset = 0, $order = null, $sort = "ASC", $filters = [], $filterType = "OR")
+    public function getMergedParameters($firstTableParams = [], $secondTableParams = [], $count = -1, $offset = 0, $order = null, $sort = 'ASC', $filters = [], $filterType = 'OR')
     {
-        if (!isset($this->firstObject) || !isset($this->secondObject)) {
+        if (! isset($this->firstObject) || ! isset($this->secondObject)) {
             throw new Exception('Unsupported method on this object');
         }
-        $fString = "";
-        $sString = "";
+        $fString = '';
+        $sString = '';
         foreach ($firstTableParams as $fparams) {
-            if ($fString != "") {
-                $fString .= ",";
+            if ($fString != '') {
+                $fString .= ',';
             }
-            $fString .= "h.".$fparams;
+            $fString .= 'h.' . $fparams;
         }
         foreach ($secondTableParams as $sparams) {
-            if ($fString != "" || $sString != "") {
-                $sString .= ",";
+            if ($fString != '' || $sString != '') {
+                $sString .= ',';
             }
-            $sString .= "h2.".$sparams;
+            $sString .= 'h2.' . $sparams;
         }
-        $sql = "SELECT ".$fString.$sString."
-        		FROM ".$this->firstObject->getTableName()." h,".$this->relationTable."
-        		JOIN ".$this->secondObject->getTableName(). " h2 ON ".$this->relationTable.".".$this->firstKey." = h2.".$this->secondObject->getPrimaryKey() ."
-        		WHERE h.".$this->firstObject->getPrimaryKey()." = ".$this->relationTable.".".$this->secondKey;
+        $sql = 'SELECT ' . $fString . $sString . '
+        		FROM ' . $this->firstObject->getTableName() . ' h,' . $this->relationTable . '
+        		JOIN ' . $this->secondObject->getTableName() . ' h2 ON ' . $this->relationTable . '.' . $this->firstKey . ' = h2.' . $this->secondObject->getPrimaryKey() . '
+        		WHERE h.' . $this->firstObject->getPrimaryKey() . ' = ' . $this->relationTable . '.' . $this->secondKey;
         $filterTab = [];
         if (count($filters)) {
             foreach ($filters as $key => $rawvalue) {
-                $sql .= " $filterType $key LIKE ? ";
+                $sql .= " {$filterType} {$key} LIKE ? ";
                 $value = trim($rawvalue);
-                $value = str_replace("_", "\_", $value);
-                $value = str_replace(" ", "\ ", $value);
+                $value = str_replace('_', "\_", $value);
+                $value = str_replace(' ', "\ ", $value);
                 $filterTab[] = $value;
             }
         }
-        if (isset($order) && isset($sort) && (strtoupper($sort) == "ASC" || strtoupper($sort) == "DESC")) {
-            $sql .= " ORDER BY $order $sort ";
+        if (isset($order, $sort)   && (strtoupper($sort) == 'ASC' || strtoupper($sort) == 'DESC')) {
+            $sql .= " ORDER BY {$order} {$sort} ";
         }
         if (isset($count) && $count != -1) {
             $sql = $this->db->limit($sql, $count, $offset);
         }
-        $result = $this->getResult($sql, $filterTab);
-        return $result;
+
+        return $this->getResult($sql, $filterTab);
     }
-    
+
     /**
      * Delete host template / host relation
      * Order has importance
@@ -146,14 +152,14 @@ class Centreon_Object_Relation_Service_Template_Host extends Centreon_Object_Rel
      */
     public function delete($fkey, $skey = null): void
     {
-        if (isset($fkey) && isset($skey)) {
-            $sql = "DELETE FROM $this->relationTable WHERE $this->firstKey = ? AND $this->secondKey = ?";
+        if (isset($fkey, $skey)) {
+            $sql = "DELETE FROM {$this->relationTable} WHERE {$this->firstKey} = ? AND {$this->secondKey} = ?";
             $args = [$skey, $fkey];
         } elseif (isset($skey)) {
-            $sql = "DELETE FROM $this->relationTable WHERE $this->firstKey = ?";
+            $sql = "DELETE FROM {$this->relationTable} WHERE {$this->firstKey} = ?";
             $args = [$skey];
         } else {
-            $sql = "DELETE FROM $this->relationTable WHERE $this->secondKey = ?";
+            $sql = "DELETE FROM {$this->relationTable} WHERE {$this->secondKey} = ?";
             $args = [$fkey];
         }
         $this->db->query($sql, $args);

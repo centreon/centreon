@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Copyright 2005-2015 Centreon
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
@@ -30,7 +31,6 @@
  * do not wish to do so, delete this exception statement from your version.
  *
  * For more information : contact@centreon.com
- *
  */
 
 /**
@@ -57,27 +57,27 @@ class CentreonTag
      * @param array $values
      * @param array $options
      *
-     * @return array
      * @throws PDOException
+     * @return array
      */
     public function getObjectForSelect2($values = [], $options = [])
     {
         $items = [];
         $listValues = '';
         $queryValues = [];
-        if (!empty($values)) {
+        if (! empty($values)) {
             foreach ($values as $k => $v) {
                 $listValues .= ':tags' . $v . ',';
-                $queryValues['tags' . $v] = (int)$v;
+                $queryValues['tags' . $v] = (int) $v;
             }
             $listValues = rtrim($listValues, ',');
         } else {
             $listValues .= '""';
         }
 
-        # get list of selected service categories
-        $query = 'SELECT tags_id, tags_name FROM mod_export_tags ' .
-            'WHERE tags_id IN (' . $listValues . ') ORDER BY tags_name ';
+        // get list of selected service categories
+        $query = 'SELECT tags_id, tags_name FROM mod_export_tags '
+            . 'WHERE tags_id IN (' . $listValues . ') ORDER BY tags_name ';
 
         $stmt = $this->db->prepare($query);
 

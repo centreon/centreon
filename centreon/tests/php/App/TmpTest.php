@@ -26,8 +26,8 @@ use PHPUnit\Framework\TestCase;
 
 final class TmpTest extends TestCase
 {
-    public function testNothing(): void
-    {
-        static::assertTrue(true);
-    }
+    //    public function testNothing(): void
+    //    {
+    //        self::assertTrue(true);
+    //    }
 }

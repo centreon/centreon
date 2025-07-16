@@ -19,7 +19,7 @@
  *
  */
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Core\ServiceCategory\Domain\Model;
 
@@ -48,8 +48,9 @@ class ServiceCategoryNamesById
      *
      * @return null|string
      */
-    public function getName(int $categoryId): ?string {
-        return isset($this->names[$categoryId]) ? $this->names[$categoryId]->value: null;
+    public function getName(int $categoryId): ?string
+    {
+        return isset($this->names[$categoryId]) ? $this->names[$categoryId]->value : null;
     }
 
     /**

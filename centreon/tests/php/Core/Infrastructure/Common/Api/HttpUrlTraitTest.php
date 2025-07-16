@@ -83,7 +83,7 @@ it(
             '8080',
             '/centreon/api/latest/test',
         ],
-        'http://127.0.0.1:8080/centreon'
+        'http://127.0.0.1:8080/centreon',
     ],
     [
         [
@@ -92,7 +92,7 @@ it(
             '4443',
             '/api/latest/test',
         ],
-        'https://my.monitoring:4443'
+        'https://my.monitoring:4443',
     ],
     [
         [
@@ -101,7 +101,7 @@ it(
             '',
             '/api/latest/test',
         ],
-        'https://test'
+        'https://test',
     ],
     [
         [
@@ -110,6 +110,6 @@ it(
             '',
             '/monitoring/centreon/authentication/logout',
         ],
-        'http://192.168.0.1/monitoring/centreon'
+        'http://192.168.0.1/monitoring/centreon',
     ],
 ]);

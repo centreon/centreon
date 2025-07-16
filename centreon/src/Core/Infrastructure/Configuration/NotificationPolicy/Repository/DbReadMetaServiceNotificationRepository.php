@@ -32,7 +32,8 @@ use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
 class DbReadMetaServiceNotificationRepository extends AbstractRepositoryDRB implements ReadMetaServiceNotificationRepositoryInterface
 {
-    use LoggerTrait, SqlMultipleBindTrait;
+    use LoggerTrait;
+    use SqlMultipleBindTrait;
 
     /**
      * @param DatabaseConnection $db
@@ -100,7 +101,7 @@ class DbReadMetaServiceNotificationRepository extends AbstractRepositoryDRB impl
         }
 
         $accessGroupIds = array_map(
-            static fn(AccessGroup $accessGroup): int => $accessGroup->getId(),
+            static fn (AccessGroup $accessGroup): int => $accessGroup->getId(),
             $accessGroups
         );
 
@@ -199,7 +200,7 @@ class DbReadMetaServiceNotificationRepository extends AbstractRepositoryDRB impl
         }
 
         $accessGroupIds = array_map(
-            static fn(AccessGroup $accessGroup): int => $accessGroup->getId(),
+            static fn (AccessGroup $accessGroup): int => $accessGroup->getId(),
             $accessGroups
         );
 

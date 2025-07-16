@@ -24,21 +24,21 @@ declare(strict_types=1);
 namespace Tests\Core\Dashboard\Application\UseCase\DeleteContactDashboardShare;
 
 use Centreon\Domain\Contact\Contact;
-use Core\Contact\Application\Repository\ReadContactRepositoryInterface;
-use Core\Dashboard\Domain\Model\Dashboard;
-use Core\Dashboard\Domain\Model\DashboardRights;
-use Core\Application\Common\UseCase\NotFoundResponse;
+use Centreon\Domain\Contact\Interfaces\ContactInterface;
+use Centreon\Domain\Contact\Interfaces\ContactRepositoryInterface;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
-use Core\Dashboard\Domain\Model\Refresh;
-use Centreon\Domain\Contact\Interfaces\ContactInterface;
+use Core\Application\Common\UseCase\NotFoundResponse;
+use Core\Contact\Application\Repository\ReadContactRepositoryInterface;
 use Core\Dashboard\Application\Exception\DashboardException;
-use Centreon\Domain\Contact\Interfaces\ContactRepositoryInterface;
-use Core\Dashboard\Domain\Model\Refresh\RefreshType;
 use Core\Dashboard\Application\Repository\ReadDashboardRepositoryInterface;
 use Core\Dashboard\Application\Repository\ReadDashboardShareRepositoryInterface;
 use Core\Dashboard\Application\Repository\WriteDashboardShareRepositoryInterface;
 use Core\Dashboard\Application\UseCase\DeleteContactDashboardShare\DeleteContactDashboardShare;
+use Core\Dashboard\Domain\Model\Dashboard;
+use Core\Dashboard\Domain\Model\DashboardRights;
+use Core\Dashboard\Domain\Model\Refresh;
+use Core\Dashboard\Domain\Model\Refresh\RefreshType;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 
 beforeEach(closure: function (): void {

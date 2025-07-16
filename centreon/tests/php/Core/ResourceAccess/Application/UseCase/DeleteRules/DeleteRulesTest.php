@@ -19,7 +19,7 @@
  *
  */
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Tests\Core\ResourceAccess\Application\UseCase\DeleteRules;
 
@@ -138,4 +138,3 @@ it('should present a Multi-Status Response when a bulk delete action is executed
         ->and($this->presenter->response->getPayload())
         ->toBe($expectedResult);
 });
-

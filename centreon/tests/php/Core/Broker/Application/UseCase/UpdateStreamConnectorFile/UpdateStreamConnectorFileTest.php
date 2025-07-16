@@ -55,7 +55,15 @@ beforeEach(function (): void {
     );
     $this->outputFields = [
         $this->field = new BrokerInputOutputField(
-            1, 'path', 'text', null, null, true, false, null, []
+            1,
+            'path',
+            'text',
+            null,
+            null,
+            true,
+            false,
+            null,
+            []
         ),
     ];
 

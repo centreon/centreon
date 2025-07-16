@@ -23,8 +23,8 @@
  * Call the NtopNG probe
  *
  * @param array{login: string, password: string, base_url: string, uri: string} $preferences
- * @return string
  * @throws Exception
+ * @return string
  */
 function callProbe(array $preferences): string
 {
@@ -47,6 +47,7 @@ function callProbe(array $preferences): string
             $preferences['uri']
         ));
     }
+
     return $result;
 }
 
@@ -68,31 +69,33 @@ function createLink(array $preferences): string
 {
     return match ($preferences['mode']) {
         'top-n-local' => $preferences['base_url']
-            . "/lua/rest/v2/get/host/active.lua?ifid="
+            . '/lua/rest/v2/get/host/active.lua?ifid='
             . $preferences['interface']
-            . "&mode=local&perPage=1000&sortColumn="
+            . '&mode=local&perPage=1000&sortColumn='
             . $preferences['sort']
-            . "&limit="
+            . '&limit='
             . $preferences['top'],
         'top-n-remote' => $preferences['base_url']
-            . "/lua/rest/v2/get/host/active.lua?ifid="
+            . '/lua/rest/v2/get/host/active.lua?ifid='
             . $preferences['interface']
-            . "&mode=remote&perPage=1000&sortColumn="
+            . '&mode=remote&perPage=1000&sortColumn='
             . $preferences['sort']
-            . "&limit="
+            . '&limit='
             . $preferences['top'],
         'top-n-flows', 'top-n-application' => $preferences['base_url']
-            . "/lua/rest/v2/get/flow/active.lua?ifid="
+            . '/lua/rest/v2/get/flow/active.lua?ifid='
             . $preferences['interface']
-            . "&mode=remote&perPage=1000&sortColumn="
+            . '&mode=remote&perPage=1000&sortColumn='
             . $preferences['sort']
-            . "&limit="
+            . '&limit='
             . $preferences['top']
-            . (! empty($preferences['filter-address'])
+            . (
+                ! empty($preferences['filter-address'])
                 ? '&host=' . $preferences['filter-address']
                 : ''
             )
-            . (! empty($preferences['filter-port'])
+            . (
+                ! empty($preferences['filter-port'])
                 ? '&port=' . $preferences['filter-port']
                 : ''
             ),

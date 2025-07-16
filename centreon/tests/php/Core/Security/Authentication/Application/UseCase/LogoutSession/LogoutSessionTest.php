@@ -23,55 +23,40 @@ declare(strict_types=1);
 
 namespace Tests\Core\Security\Authentication\Application\UseCase\LogoutSession;
 
+use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Security\Authentication\Application\Provider\ProviderAuthenticationFactoryInterface;
 use Core\Security\Authentication\Application\Repository\ReadTokenRepositoryInterface;
-use PHPUnit\Framework\TestCase;
+use Core\Security\Authentication\Application\Repository\WriteSessionRepositoryInterface;
+use Core\Security\Authentication\Application\Repository\WriteSessionTokenRepositoryInterface;
+use Core\Security\Authentication\Application\Repository\WriteTokenRepositoryInterface;
 use Core\Security\Authentication\Application\UseCase\LogoutSession\LogoutSession;
 use Core\Security\Authentication\Application\UseCase\LogoutSession\LogoutSessionPresenterInterface;
-use Core\Security\Authentication\Application\Repository\WriteSessionTokenRepositoryInterface;
-use Core\Security\Authentication\Application\Repository\WriteSessionRepositoryInterface;
-use Core\Security\Authentication\Application\Repository\WriteTokenRepositoryInterface;
-use Core\Application\Common\UseCase\NoContentResponse;
-use Core\Application\Common\UseCase\ErrorResponse;
+use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
 
 class LogoutSessionTest extends TestCase
 {
-    /**
-     * @var WriteSessionTokenRepositoryInterface&\PHPUnit\Framework\MockObject\MockObject
-     */
+    /** @var WriteSessionTokenRepositoryInterface&\PHPUnit\Framework\MockObject\MockObject */
     private $writeSessionTokenRepository;
 
-    /**
-     * @var WriteSessionRepositoryInterface&\PHPUnit\Framework\MockObject\MockObject
-     */
+    /** @var WriteSessionRepositoryInterface&\PHPUnit\Framework\MockObject\MockObject */
     private $writeSessionRepository;
 
-    /**
-     * @var WriteTokenRepositoryInterface&\PHPUnit\Framework\MockObject\MockObject
-     */
+    /** @var WriteTokenRepositoryInterface&\PHPUnit\Framework\MockObject\MockObject */
     private $writeTokenRepository;
 
-    /**
-     * @var LogoutSessionPresenterInterface&\PHPUnit\Framework\MockObject\MockObject
-     */
+    /** @var LogoutSessionPresenterInterface&\PHPUnit\Framework\MockObject\MockObject */
     private $logoutSessionPresenter;
 
-    /**
-     * @var ReadTokenRepositoryInterface&\PHPUnit\Framework\MockObject\MockObject
-     */
+    /** @var ReadTokenRepositoryInterface&\PHPUnit\Framework\MockObject\MockObject */
     private ReadTokenRepositoryInterface $readTokenRepository;
 
-    /**
-     * @var ProviderAuthenticationFactoryInterface&\PHPUnit\Framework\MockObject\MockObject
-     */
+    /** @var ProviderAuthenticationFactoryInterface&\PHPUnit\Framework\MockObject\MockObject */
     private ProviderAuthenticationFactoryInterface $providerFactory;
 
-    /**
-     * @var RequestStack&\PHPUnit\Framework\MockObject\MockObject
-     */
+    /** @var RequestStack&\PHPUnit\Framework\MockObject\MockObject */
     private RequestStack $requestStack;
 
     public function setUp(): void

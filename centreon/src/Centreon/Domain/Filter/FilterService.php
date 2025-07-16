@@ -22,12 +22,12 @@ declare(strict_types=1);
 
 namespace Centreon\Domain\Filter;
 
-use Centreon\Domain\Service\AbstractCentreonService;
 use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Filter\Interfaces\FilterRepositoryInterface;
 use Centreon\Domain\Filter\Interfaces\FilterServiceInterface;
 use Centreon\Domain\Monitoring\HostGroup\Interfaces\HostGroupServiceInterface;
 use Centreon\Domain\Monitoring\ServiceGroup\Interfaces\ServiceGroupServiceInterface;
+use Centreon\Domain\Service\AbstractCentreonService;
 
 /**
  * This class is designed to manage monitoring servers and their associated resources.
@@ -36,19 +36,13 @@ use Centreon\Domain\Monitoring\ServiceGroup\Interfaces\ServiceGroupServiceInterf
  */
 class FilterService extends AbstractCentreonService implements FilterServiceInterface
 {
-    /**
-     * @var HostGroupServiceInterface
-     */
+    /** @var HostGroupServiceInterface */
     private $hostGroupService;
 
-    /**
-     * @var ServiceGroupServiceInterface
-     */
+    /** @var ServiceGroupServiceInterface */
     private $serviceGroupService;
 
-    /**
-     * @var FilterRepositoryInterface
-     */
+    /** @var FilterRepositoryInterface */
     private $filterRepository;
 
     /**

@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2015 Centreon
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
@@ -40,7 +41,6 @@
  */
 class CentreonBroker
 {
-
     /** @var CentreonDB */
     private $db;
 
@@ -57,21 +57,21 @@ class CentreonBroker
     /**
      * Reload centreon broker process
      *
-     * @return void
      * @throws PDOException
+     * @return void
      */
     public function reload(): void
     {
         if ($command = $this->getReloadCommand()) {
-            shell_exec("sudo $command");
+            shell_exec("sudo {$command}");
         }
     }
 
     /**
      * Get command to reload centreon broker
      *
-     * @return string|null the command
      * @throws PDOException
+     * @return string|null the command
      */
     private function getReloadCommand(): ?string
     {

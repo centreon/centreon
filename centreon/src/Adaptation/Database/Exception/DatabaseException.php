@@ -26,10 +26,9 @@ namespace Adaptation\Database\Exception;
 use Core\Common\Domain\Exception\BusinessLogicException;
 
 /**
- * Class
+ * Class.
  *
  * @class   DatabaseException
- * @package Adaptation\Database\Exception
  */
 abstract class DatabaseException extends BusinessLogicException
 {

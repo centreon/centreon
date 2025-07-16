@@ -55,7 +55,7 @@ class TokenResponseNormalizer implements NormalizerInterface, NormalizerAwareInt
 
         $matches = array_filter(
             $context['groups'] ?? [],
-            fn(string $group): bool => in_array($group, ['Token:Add', 'Token:Get'], true)
+            fn (string $group): bool => in_array($group, ['Token:Add', 'Token:Get'], true)
         );
         if ($matches !== []) {
             $response['token'] = $object->getData()->tokenString;

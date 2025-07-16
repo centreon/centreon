@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2015 CENTREON
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
@@ -33,7 +34,7 @@
  *
  */
 
-require_once __DIR__ . "/../Object.php";
+require_once __DIR__ . '/../Object.php';
 
 /**
  * Class
@@ -43,9 +44,11 @@ require_once __DIR__ . "/../Object.php";
 class Centreon_Object_Acl_Action extends Centreon_Object
 {
     /** @var string */
-    protected $table = "acl_actions";
+    protected $table = 'acl_actions';
+
     /** @var string */
-    protected $primaryKey = "acl_action_id";
+    protected $primaryKey = 'acl_action_id';
+
     /** @var string */
-    protected $uniqueLabelField = "acl_action_name";
+    protected $uniqueLabelField = 'acl_action_name';
 }

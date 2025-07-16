@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2016 Centreon
  *
@@ -14,12 +15,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 namespace CentreonLegacy\Core\Module;
 
-use Pimple\Container;
 use Centreon\Test\Mock\DependencyInjector\ServiceContainer;
-use CentreonLegacy\Core\Module;
 use CentreonLegacy\ServiceProvider;
+use Pimple\Container;
 
 /**
  * Class
@@ -29,7 +30,6 @@ use CentreonLegacy\ServiceProvider;
  */
 class FactoryTest extends \PHPUnit\Framework\TestCase
 {
-
     /** @var ServiceContainer */
     public $container;
 
@@ -38,18 +38,18 @@ class FactoryTest extends \PHPUnit\Framework\TestCase
         $this->container = new ServiceContainer();
 
         $this->container[ServiceProvider::CENTREON_LEGACY_MODULE_INFORMATION] = $this
-            ->getMockBuilder(Module\Information::class)
+            ->getMockBuilder(Information::class)
             ->disableOriginalConstructor()
             ->getMock();
 
         $this->container[ServiceProvider::CENTREON_LEGACY_MODULE_LICENSE] = $this
-            ->getMockBuilder(Module\License::class)
+            ->getMockBuilder(License::class)
             ->disableOriginalConstructor()
             ->getMock();
 
         $this->container[ServiceProvider::CENTREON_LEGACY_MODULE_INSTALLER] = function (Container $container) {
             return function ($moduleName) {
-                return $this->getMockBuilder(Module\Installer::class)
+                return $this->getMockBuilder(Installer::class)
                     ->disableOriginalConstructor()
                     ->getMock();
             };
@@ -57,7 +57,7 @@ class FactoryTest extends \PHPUnit\Framework\TestCase
 
         $this->container[ServiceProvider::CENTREON_LEGACY_MODULE_UPGRADER] = function (Container $container) {
             return function ($moduleName, $moduleId) {
-                return $this->getMockBuilder(Module\Upgrader::class)
+                return $this->getMockBuilder(Upgrader::class)
                     ->disableOriginalConstructor()
                     ->getMock();
             };
@@ -65,7 +65,7 @@ class FactoryTest extends \PHPUnit\Framework\TestCase
 
         $this->container[ServiceProvider::CENTREON_LEGACY_MODULE_REMOVER] = function (Container $container) {
             return function ($moduleName, $moduleId) {
-                return $this->getMockBuilder(Module\Remover::class)
+                return $this->getMockBuilder(Remover::class)
                     ->disableOriginalConstructor()
                     ->getMock();
             };
@@ -80,31 +80,31 @@ class FactoryTest extends \PHPUnit\Framework\TestCase
 
     public function testNewInformation(): void
     {
-        $factory = new Module\Factory($this->container);
-        $this->assertInstanceOf(Module\Information::class, $factory->newInformation());
+        $factory = new Factory($this->container);
+        $this->assertInstanceOf(Information::class, $factory->newInformation());
     }
 
     public function testNewInstaller(): void
     {
-        $factory = new Module\Factory($this->container);
-        $this->assertInstanceOf(Module\Installer::class, $factory->newInstaller('MyModule'));
+        $factory = new Factory($this->container);
+        $this->assertInstanceOf(Installer::class, $factory->newInstaller('MyModule'));
     }
 
     public function testNewUpgrader(): void
     {
-        $factory = new Module\Factory($this->container);
-        $this->assertInstanceOf(Module\Upgrader::class, $factory->newUpgrader('MyModule', 1));
+        $factory = new Factory($this->container);
+        $this->assertInstanceOf(Upgrader::class, $factory->newUpgrader('MyModule', 1));
     }
 
     public function testNewRemover(): void
     {
-        $factory = new Module\Factory($this->container);
-        $this->assertInstanceOf(Module\Remover::class, $factory->newRemover('MyModule', 1));
+        $factory = new Factory($this->container);
+        $this->assertInstanceOf(Remover::class, $factory->newRemover('MyModule', 1));
     }
 
     public function testNewLicense(): void
     {
-        $factory = new Module\Factory($this->container);
-        $this->assertInstanceOf(Module\License::class, $factory->newLicense());
+        $factory = new Factory($this->container);
+        $this->assertInstanceOf(License::class, $factory->newLicense());
     }
 }

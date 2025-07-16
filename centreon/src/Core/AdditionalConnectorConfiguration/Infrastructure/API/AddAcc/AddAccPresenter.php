@@ -52,7 +52,7 @@ class AddAccPresenter extends AbstractPresenter implements AddAccPresenterInterf
                         'type' => $response->type->value,
                         'description' => $response->description,
                         'parameters' => $response->parameters,
-                        'pollers' => array_map(fn(Poller $poller) => ['id' => $poller->id, 'name' => $poller->name], $response->pollers),
+                        'pollers' => array_map(fn (Poller $poller) => ['id' => $poller->id, 'name' => $poller->name], $response->pollers),
                         'created_by' => $response->createdBy,
                         'created_at' => $this->formatDateToIso8601($response->createdAt),
                     ]

@@ -98,8 +98,7 @@ class DbWriteBrokerInputOutputRepository extends AbstractRepositoryRDB implement
         int $inputOutputId,
         BrokerInputOutput|NewBrokerInputOutput $inputOutput,
         array $fields
-    ): void
-    {
+    ): void {
         $query = <<<'SQL'
             INSERT INTO `:db`.`cfg_centreonbroker_info` (
                 config_id,
@@ -329,6 +328,6 @@ class DbWriteBrokerInputOutputRepository extends AbstractRepositoryRDB implement
         $statement->bindValue(':tag', $tag, \PDO::PARAM_STR);
         $statement->execute();
 
-       return ((int) $statement->fetchColumn()) + 1;
+        return ((int) $statement->fetchColumn()) + 1;
     }
 }

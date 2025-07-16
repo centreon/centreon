@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2015 Centreon
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
@@ -41,9 +42,7 @@
  */
 class HTML_QuickForm_tags extends HTML_QuickForm_select2
 {
-
     /**
-     *
      * @param string $elementName
      * @param string $elementLabel
      * @param array $options
@@ -75,7 +74,6 @@ class HTML_QuickForm_tags extends HTML_QuickForm_select2
     }
 
     /**
-     *
      * @return string
      */
     public function getJsInit()
@@ -115,10 +113,10 @@ class HTML_QuickForm_tags extends HTML_QuickForm_select2
             . ' }'
             . ' }); ';
 
-        $javascriptString = '<script>
+        return '<script>
             jQuery(function () {
-                var $currentSelect2Object'. $this->getName() . ' = jQuery("#' . $this->getName() . '").centreonSelect2({
-                    allowClear: ' . $allowClear .',
+                var $currentSelect2Object' . $this->getName() . ' = jQuery("#' . $this->getName() . '").centreonSelect2({
+                    allowClear: ' . $allowClear . ',
                     pageLimit: ' . $this->_pagination . ',
                     select2: {
                         tags: true,
@@ -132,13 +130,11 @@ class HTML_QuickForm_tags extends HTML_QuickForm_select2
                 ' . $additionnalJs . '
             });
          </script>';
-
-        return $javascriptString;
     }
 }
 
 if (class_exists('HTML_QuickForm')) {
-    (new HTML_QuickForm)->registerElementType(
+    (new HTML_QuickForm())->registerElementType(
         'tags',
         'HTML/QuickForm/tags.php',
         'HTML_QuickForm_tags'

@@ -22,6 +22,7 @@
 declare(strict_types=1);
 
 namespace Core\Command\Application\UseCase\AddCommand;
+
 use Core\CommandMacro\Domain\Model\CommandMacroType;
 
 class MacroDto

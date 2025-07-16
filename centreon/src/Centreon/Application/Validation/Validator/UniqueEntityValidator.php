@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2019 Centreon
  * Centreon is developed by : Julien Mathis and Romain Le Merlus under
@@ -37,38 +38,36 @@
 namespace Centreon\Application\Validation\Validator;
 
 use App\Kernel;
+use Centreon\Application\Validation\Constraints\UniqueEntity;
+use Centreon\Application\Validation\Validator\Interfaces\CentreonValidatorInterface;
 use Centreon\ServiceProvider;
 use LogicException;
-use Psr\Container\ContainerInterface;
 use Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException;
 use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
-use Centreon\Application\Validation\Constraints\UniqueEntity;
-use Symfony\Component\Validator\Exception\UnexpectedTypeException;
 use Symfony\Component\Validator\Exception\ConstraintDefinitionException;
-use Centreon\Application\Validation\Validator\Interfaces\CentreonValidatorInterface;
+use Symfony\Component\Validator\Exception\UnexpectedTypeException;
 
 use function is_array;
 use function is_string;
 
 class UniqueEntityValidator extends ConstraintValidator implements CentreonValidatorInterface
 {
-
     /**
      * @param $entity
      * @param Constraint $constraint
      *
-     * @return void|null
      * @throws ConstraintDefinitionException
      * @throws UnexpectedTypeException
      * @throws LogicException
      * @throws ServiceCircularReferenceException
      * @throws ServiceNotFoundException
+     * @return void|null
      */
     public function validate($entity, Constraint $constraint)
     {
-        if (!$constraint instanceof UniqueEntity) {
+        if (! $constraint instanceof UniqueEntity) {
             throw new UnexpectedTypeException($constraint, __NAMESPACE__ . '\UniqueEntity');
         }
 
@@ -80,28 +79,29 @@ class UniqueEntityValidator extends ConstraintValidator implements CentreonValid
             throw new UnexpectedTypeException($constraint->errorPath, 'string or null');
         }
 
-        //define fields to check
+        // define fields to check
         $fields = (array) $constraint->fields;
         $methodRepository = $constraint->repositoryMethod;
         $methodIdGetter = $constraint->entityIdentificatorMethod;
 
         if ([] === $fields) {
             throw new ConstraintDefinitionException('At least one field has to be specified.');
-        } elseif (null === $entity) {
+        }
+        if (null === $entity) {
             return null;
         }
 
         foreach ($fields as $field) {
             $methodValueGetter = 'get' . ucfirst($field);
-            $value = $entity->$methodValueGetter();
+            $value = $entity->{$methodValueGetter}();
 
             $repository = (Kernel::createForWeb())
                 ->getContainer()
                 ->get($constraint->repository);
 
-            $result = $repository->$methodRepository([$field => $value]);
+            $result = $repository->{$methodRepository}([$field => $value]);
 
-            if ($result && $result->$methodIdGetter() !== $entity->$methodIdGetter()) {
+            if ($result && $result->{$methodIdGetter}() !== $entity->{$methodIdGetter}()) {
                 $this->context->buildViolation($constraint->message)
                     ->atPath($field)
                     ->setInvalidValue($value)

@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005 - 2019 Centreon (https://www.centreon.com/)
  *
@@ -23,24 +24,16 @@ namespace Centreon\Domain\Security;
 
 class AuthenticationToken
 {
-    /**
-     * @var string Authentication token
-     */
+    /** @var string Authentication token */
     private $token;
 
-    /**
-     * @var \DateTime Generation date of the authentication token
-     */
+    /** @var \DateTime Generation date of the authentication token */
     private $generatedDate;
 
-    /**
-     * @var int Contact ID for which the token belongs
-     */
+    /** @var int Contact ID for which the token belongs */
     private $contactId;
 
-    /**
-     * @var bool Indicates whether the authentication token is valid
-     */
+    /** @var bool Indicates whether the authentication token is valid */
     private $isValid;
 
     /**

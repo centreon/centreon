@@ -22,8 +22,8 @@ declare(strict_types=1);
 
 namespace Tests\Core\Security\ProviderConfiguration\Domain\Model;
 
-use Core\Security\ProviderConfiguration\Domain\Model\Endpoint;
 use Core\Security\ProviderConfiguration\Domain\Exception\InvalidEndpointException;
+use Core\Security\ProviderConfiguration\Domain\Model\Endpoint;
 
 beforeEach(function (): void {
     $this->custom_relative_url = '/info';

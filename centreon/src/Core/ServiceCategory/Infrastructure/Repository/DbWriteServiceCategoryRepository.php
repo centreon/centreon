@@ -146,11 +146,12 @@ class DbWriteServiceCategoryRepository extends AbstractRepositoryRDB implements 
             }
             $serviceCategoriesFields = implode(',', array_keys($bindServiceCategoriesIds));
 
-            $request = $this->translateDbName(<<<"SQL"
-                DELETE FROM `:db`.service_categories_relation
-                WHERE service_service_id = :service_id
-                AND sc_id IN ({$serviceCategoriesFields})
-                SQL
+            $request = $this->translateDbName(
+                <<<"SQL"
+                    DELETE FROM `:db`.service_categories_relation
+                    WHERE service_service_id = :service_id
+                    AND sc_id IN ({$serviceCategoriesFields})
+                    SQL
             );
 
             $statement = $this->db->prepare($request);

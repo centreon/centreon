@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Copyright 2005-2018 Centreon
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
@@ -30,18 +31,15 @@
  * do not wish to do so, delete this exception statement from your version.
  *
  * For more information : contact@centreon.com
- *
  */
 
 namespace CentreonLegacy\Core\Menu;
 
-use \Centreon\Test\Mock\CentreonDB;
+use Centreon\Test\Mock\CentreonDB;
 
 class MenuTest extends \PHPUnit\Framework\TestCase
 {
-    /**
-     * @var CentreonDb The database mock
-     */
+    /** @var CentreonDB The database mock */
     private $db;
 
     public function setUp(): void
@@ -49,9 +47,6 @@ class MenuTest extends \PHPUnit\Framework\TestCase
         $this->db = new CentreonDB();
     }
 
-    /**
-     *
-     */
     public function testGetGroups(): void
     {
         $this->db->addResultSet(
@@ -61,14 +56,10 @@ class MenuTest extends \PHPUnit\Framework\TestCase
         $menu = new Menu($this->db);
         $this->assertEquals(
             $menu->getGroups(),
-            [2 =>
-                [201 => 'By host', 202 => 'By services']]
+            [2 => [201 => 'By host', 202 => 'By services']]
         );
     }
 
-    /**
-     *
-     */
     public function testGetColor(): void
     {
         $colorPageId3 = '#E4932C';
@@ -80,12 +71,9 @@ class MenuTest extends \PHPUnit\Framework\TestCase
         );
     }
 
-    /**
-     *
-     */
     public function testGetMenuLevelOne(): void
     {
-        $result = ["p2" => ["label" => "By host", "menu_id" => "By host", "url" => "centreon/20101", "active" => false, "color" => "#85B446", "children" => [], 'options' => '&o=c', 'is_react' => 0]];
+        $result = ['p2' => ['label' => 'By host', 'menu_id' => 'By host', 'url' => 'centreon/20101', 'active' => false, 'color' => '#85B446', 'children' => [], 'options' => '&o=c', 'is_react' => 0]];
 
         $this->db->addResultSet(
             'SELECT topology_name, topology_parent, topology_group FROM topology WHERE topology_show = "1" AND topology_page IS NULL ORDER BY topology_group, topology_order',
@@ -104,13 +92,9 @@ class MenuTest extends \PHPUnit\Framework\TestCase
         );
     }
 
-
-    /**
-     *
-     */
     public function testGetMenuLevelTwo(): void
     {
-        $result = ["p2" => ["children" => ['_201' => ["label" => 'By host', "url" => 'centreon/20101', "active" => false, "children" => [], 'options' => '&o=c', 'is_react' => 0]]]];
+        $result = ['p2' => ['children' => ['_201' => ['label' => 'By host', 'url' => 'centreon/20101', 'active' => false, 'children' => [], 'options' => '&o=c', 'is_react' => 0]]]];
 
         $this->db->addResultSet(
             'SELECT topology_name, topology_parent, topology_group FROM topology WHERE topology_show = "1" AND topology_page IS NULL ORDER BY topology_group, topology_order',
@@ -129,12 +113,9 @@ class MenuTest extends \PHPUnit\Framework\TestCase
         );
     }
 
-    /**
-     *
-     */
     public function testGetMenuLevelThree(): void
     {
-        $result = ["p2" => ["children" => ['_201' => ["children" => ["Main Menu" => ['_20101' => ["label" => "By host", "url" => "centreon/20101", "active" => false, 'options' => '&o=c', 'is_react' => 0]]]]]]];
+        $result = ['p2' => ['children' => ['_201' => ['children' => ['Main Menu' => ['_20101' => ['label' => 'By host', 'url' => 'centreon/20101', 'active' => false, 'options' => '&o=c', 'is_react' => 0]]]]]]];
 
         $this->db->addResultSet(
             'SELECT topology_name, topology_parent, topology_group FROM topology WHERE topology_show = "1" AND topology_page IS NULL ORDER BY topology_group, topology_order',

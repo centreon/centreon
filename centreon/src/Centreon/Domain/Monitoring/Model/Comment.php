@@ -24,79 +24,49 @@ namespace Centreon\Domain\Monitoring\Model;
 
 class Comment
 {
-    /**
-     * @var int|null
-     */
+    /** @var int|null */
     private $id;
 
-    /**
-     * @var \DateTime|null
-     */
+    /** @var \DateTime|null */
     private $entryTime;
 
-    /**
-     * @var int|null
-     */
+    /** @var int|null */
     private $hostId;
 
-    /**
-     * @var int|null
-     */
+    /** @var int|null */
     private $serviceId;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     private $author;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     private $data;
 
-    /**
-     * @var \DateTime|null
-     */
+    /** @var \DateTime|null */
     private $deletionTime;
 
-    /**
-     * @var int|null
-     */
+    /** @var int|null */
     private $entryType;
 
-    /**
-     * @var \DateTime|null
-     */
+    /** @var \DateTime|null */
     private $expireTime;
 
-    /**
-     * @var int|null
-     */
+    /** @var int|null */
     private $expires;
 
-    /**
-     * @var int|null
-     */
+    /** @var int|null */
     private $instanceId;
 
-    /**
-     * @var int|null
-     */
+    /** @var int|null */
     private $internalId;
 
-    /**
-     * @var int|null
-     */
+    /** @var int|null */
     private $persistent;
 
-    /**
-     * @var int|null
-     */
+    /** @var int|null */
     private $source;
 
-    /**
-     * @var int|null
-     */
+    /** @var int|null */
     private $type;
 
     /**
