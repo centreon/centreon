@@ -88,9 +88,9 @@ apt-get update
 apt-get install -y /tmp/packages-centreon/centreon-web*.deb
 
 
-mkdir -p /var/cache/centreon/ /etc/centreon/config.d /var/log/centreon/
+mkdir -p /var/cache/centreon/ /etc/centreon/config.d /var/log/centreon/ /var/lib/centreon/centcore
 touch /var/log/php8.2-fpm-centreon-error.log /var/log/centreon/centreon-web.log 
-chown  -R www-data:www-data /var/cache/centreon/ /var/log/centreon/ /var/log/php8.2-fpm-centreon-error.log /var/log/centreon/centreon-web.log /var/cache/centreon /etc/centreon
+chown  -R www-data:www-data /var/cache/centreon/ /var/log/centreon/ /var/log/php8.2-fpm-centreon-error.log /var/log/centreon/centreon-web.log /var/cache/centreon /etc/centreon /var/lib/centreon/centcore
 chmod 1230 /var/log/centreon/centreon-web.log
 
 
@@ -104,7 +104,7 @@ COPY --chmod=755 ./.github/docker/centreon-web/init/service /usr/local/bin/servi
 COPY ./.github/docker/centreon-web/sql/* /usr/local/src/sql/data/
 RUN mv /usr/share/centreon/ /var/www/html/ &&\
     mv /usr/sbin/service /usr/sbin/service.orig &&\
-    chown -R www-data:www-data /var/www/html/centreon /etc/centreon &&\
+    chown -R www-data:www-data /var/www/html/centreon /etc/centreon /var/lib/centreon/centcore &&\
     sed -i 's/User_Alias *CENTREON=%@CENTREON_GROUP@/User_Alias      CENTREON=%centreon/' /etc/sudoers.d/centreon &&\
     ln -s /var/www/html/centreon/ /usr/share/centreon &&\
     ln -s /usr/local/bin/service /usr/sbin/service
