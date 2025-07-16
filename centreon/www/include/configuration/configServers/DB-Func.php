@@ -1359,7 +1359,7 @@ function isValidPath(string $path): bool
 function isValidTrapInit(string $trapScript): bool
 {
     return (bool) preg_match(
-        '/[a-zA-Z0-9\-\_]+/',
+        '/^[a-zA-Z0-9\-\_]+$/',
         $trapScript
     );
 }
