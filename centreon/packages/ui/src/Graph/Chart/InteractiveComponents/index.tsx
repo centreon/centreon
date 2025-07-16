@@ -50,6 +50,11 @@ import {
   eventMouseUpAtom,
   graphTooltipDataAtom
 } from './interactionWithGraphAtoms';
+import {
+  computeGElementMarginLeft,
+  computPixelsToShiftMouse
+} from '../../common/utils';
+import dayjs from 'dayjs';
 
 const useStyles = makeStyles()(() => ({
   overlay: {
@@ -80,6 +85,8 @@ interface Props {
     fx?: (pointX: number) => number;
     fy?: (pointY: number) => number;
   };
+  hasSecondUnit?: boolean;
+  maxLeftAxisCharacters: number;
 }
 
 const InteractionWithGraph = ({
@@ -87,7 +94,9 @@ const InteractionWithGraph = ({
   commonData,
   annotationData,
   timeShiftZonesData,
-  transformMatrix
+  transformMatrix,
+  hasSecondUnit,
+  maxLeftAxisCharacters
 }: Props): JSX.Element => {
   const { classes } = useStyles();
 
@@ -151,10 +160,15 @@ const InteractionWithGraph = ({
 
       return;
     }
+    const pixelToShift = computPixelsToShiftMouse(xScale);
     const timeValue = getTimeValue({
       timeSeries,
-      x: pointPosition[0],
-      xScale
+      x: pointPosition[0] - pixelToShift,
+      xScale,
+      marginLeft: computeGElementMarginLeft({
+        maxCharacters: maxLeftAxisCharacters,
+        hasSecondUnit
+      })
     });
 
     if (isNil(timeValue)) {

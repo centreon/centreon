@@ -25,6 +25,8 @@ import { LineStyle } from '../Chart/models';
 import { Threshold, Thresholds } from './models';
 import { formatMetricValue } from './timeSeries';
 import { Line, TimeValue } from './timeSeries/models';
+import { margin } from '../Chart/common';
+import dayjs from 'dayjs';
 
 interface GetColorFromDataAndThresholdsProps {
   baseColor?: string;
@@ -255,4 +257,21 @@ export const getFormattedAxisValues = ({
   return flattenedFormattedData
     .concat(formattedThresholdValues)
     .filter((v) => v) as Array<string>;
+};
+
+interface ComputeGElementMarginLeftProps {
+  maxCharacters: number;
+  hasSecondUnit?: boolean;
+}
+
+export const computeGElementMarginLeft = ({
+  maxCharacters,
+  hasSecondUnit
+}: ComputeGElementMarginLeftProps): number =>
+  maxCharacters * 5 + (hasSecondUnit ? margin.top * 0.8 : margin.top * 0.6);
+
+export const computPixelsToShiftMouse = (xScale): number => {
+  const domain = xScale.domain();
+
+  return Math.round(8 / dayjs(domain[1]).diff(domain[0], 'h'));
 };
