@@ -22,17 +22,14 @@ declare(strict_types=1);
 
 namespace Tests\Core\Application\RealTime\UseCase\FindMetaService;
 
-use Symfony\Component\HttpFoundation\Response;
-use Core\Application\Common\UseCase\ResponseStatusInterface;
-use Core\Application\RealTime\UseCase\FindMetaService\FindMetaServiceResponse;
 use Core\Application\Common\UseCase\AbstractPresenter;
 use Core\Application\RealTime\UseCase\FindMetaService\FindMetaServicePresenterInterface;
+use Core\Application\RealTime\UseCase\FindMetaService\FindMetaServiceResponse;
+use Symfony\Component\HttpFoundation\Response;
 
 class FindMetaServicePresenterStub extends AbstractPresenter implements FindMetaServicePresenterInterface
 {
-    /**
-     * @var FindMetaServiceResponse
-     */
+    /** @var FindMetaServiceResponse */
     public $response;
 
     /**

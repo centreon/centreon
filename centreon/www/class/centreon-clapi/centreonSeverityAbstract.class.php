@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2015 CENTREON
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
@@ -35,7 +36,7 @@
 
 namespace CentreonClapi;
 
-require_once "centreonObject.class.php";
+require_once 'centreonObject.class.php';
 
 /**
  * Class
@@ -64,13 +65,13 @@ abstract class CentreonSeverityAbstract extends CentreonObject
         $objectId = $this->getObjectId($uniqueLabel);
 
         if ($objectId != 0) {
-            if (!is_numeric($params[1])) {
+            if (! is_numeric($params[1])) {
                 throw new CentreonClapiException('Incorrect severity level parameters');
             }
-            $level = (int)$params[1];
+            $level = (int) $params[1];
             $iconId = CentreonUtils::getImageId($params[2], $this->db);
             if (is_null($iconId)) {
-                throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ":" . $params[2]);
+                throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ':' . $params[2]);
             }
             $updateParams = ['level' => $level, 'icon_id' => $iconId];
 
@@ -82,7 +83,7 @@ abstract class CentreonSeverityAbstract extends CentreonObject
                 $updateParams
             );
         } else {
-            throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ":" . $params[self::ORDER_UNIQUENAME]);
+            throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ':' . $params[self::ORDER_UNIQUENAME]);
         }
     }
 
@@ -112,7 +113,7 @@ abstract class CentreonSeverityAbstract extends CentreonObject
                 $updateParams
             );
         } else {
-            throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ":" . $params[self::ORDER_UNIQUENAME]);
+            throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ':' . $params[self::ORDER_UNIQUENAME]);
         }
     }
 }

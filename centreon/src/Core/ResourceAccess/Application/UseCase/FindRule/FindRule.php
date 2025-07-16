@@ -143,9 +143,8 @@ final class FindRule
             $this->contactGroupRepository->findNamesByIds(...$rule->getLinkedContactGroupIds())
         );
 
-       // convert recursively DatasetFilter entities to array
-        $datasetFilterToArray = function (DatasetFilter $datasetFilter) use (&$datasetFilterToArray): array
-        {
+        // convert recursively DatasetFilter entities to array
+        $datasetFilterToArray = function (DatasetFilter $datasetFilter) use (&$datasetFilterToArray): array {
             $data['type'] = $datasetFilter->getType();
 
             if (

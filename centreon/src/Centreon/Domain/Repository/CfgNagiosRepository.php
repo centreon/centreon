@@ -1,4 +1,5 @@
 <?php
+
 namespace Centreon\Domain\Repository;
 
 use Centreon\Infrastructure\CentreonLegacyDB\ServiceEntityRepository;
@@ -14,15 +15,15 @@ class CfgNagiosRepository extends ServiceEntityRepository
     public function export(array $pollerIds): array
     {
         // prevent SQL exception
-        if (!$pollerIds) {
+        if (! $pollerIds) {
             return [];
         }
 
         $ids = join(',', $pollerIds);
 
         $sql = <<<SQL
-SELECT * FROM cfg_nagios WHERE nagios_server_id IN ({$ids})
-SQL;
+            SELECT * FROM cfg_nagios WHERE nagios_server_id IN ({$ids})
+            SQL;
 
         $stmt = $this->db->prepare($sql);
         $stmt->execute();

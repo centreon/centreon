@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2015 Centreon
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
@@ -39,7 +40,7 @@ use CentreonClapi\CentreonObject;
 use Pimple\Container;
 
 require_once __DIR__ . '/../../include/common/csvFunctions.php';
-require_once __DIR__ . "/webService.class.php";
+require_once __DIR__ . '/webService.class.php';
 
 define('_CLAPI_LIB_', _CENTREON_PATH_ . '/lib');
 define('_CLAPI_CLASS_', _CENTREON_PATH_ . '/www/class/centreon-clapi');
@@ -53,9 +54,7 @@ require_once _CENTREON_PATH_ . '/www/class/centreon-clapi/centreonAPI.class.php'
  */
 class CentreonClapi extends CentreonWebService implements CentreonWebServiceDiInterface
 {
-    /**
-     * @var Container
-     */
+    /** @var Container */
     private $dependencyInjector;
 
     /**
@@ -73,11 +72,11 @@ class CentreonClapi extends CentreonWebService implements CentreonWebServiceDiIn
      *
      * @global Centreon $centreon
      * @global array $conf_centreon
-     * @return array
      * @throws RestBadRequestException
      * @throws RestNotFoundException
      * @throws RestConflictException
      * @throws RestInternalServerErrorException
+     * @return array
      */
     public function postAction()
     {
@@ -104,10 +103,10 @@ class CentreonClapi extends CentreonWebService implements CentreonWebServiceDiIn
         CentreonClapi\CentreonUtils::setUserName($username);
 
         if (false === isset($this->arguments['action'])) {
-            throw new RestBadRequestException("Bad parameters");
+            throw new RestBadRequestException('Bad parameters');
         }
 
-        /* Prepare options table */
+        // Prepare options table
         $action = $this->arguments['action'];
 
         $options = [];
@@ -123,7 +122,7 @@ class CentreonClapi extends CentreonWebService implements CentreonWebServiceDiIn
             }
         }
 
-        /* Load and execute clapi option */
+        // Load and execute clapi option
         try {
             $clapi = new CentreonAPI(
                 $username,
@@ -166,6 +165,7 @@ class CentreonClapi extends CentreonWebService implements CentreonWebServiceDiIn
             if (str_starts_with($message, CentreonObject::OBJECTNOTLINKED)) {
                 throw new RestBadRequestException($message);
             }
+
             throw new RestInternalServerErrorException($message);
         }
         if ($retCode != 0) {
@@ -173,9 +173,9 @@ class CentreonClapi extends CentreonWebService implements CentreonWebServiceDiIn
             if (preg_match('/^Object ([\w\d ]+) not found in Centreon API.$/', $contents)) {
                 throw new RestBadRequestException($contents);
             }
+
             throw new RestInternalServerErrorException($contents);
         }
-
 
         if (preg_match("/^.*;.*(?:\n|$)/", $contents)) {
             $result = csvToArray($contents, true);
@@ -190,7 +190,7 @@ class CentreonClapi extends CentreonWebService implements CentreonWebServiceDiIn
         } else {
             $result = [];
             foreach (explode("\n", $contents) as &$line) {
-                if (trim($line) !== '' && !str_starts_with($line, 'Return code end :')) {
+                if (trim($line) !== '' && ! str_starts_with($line, 'Return code end :')) {
                     $result[] = $line;
                 }
             }
@@ -212,14 +212,10 @@ class CentreonClapi extends CentreonWebService implements CentreonWebServiceDiIn
      */
     public function authorize($action, $user, $isInternal = false)
     {
-        if (
+        return (bool) (
             parent::authorize($action, $user, $isInternal)
             || ($user && $user->is_admin())
-        ) {
-            return true;
-        }
-
-        return false;
+        );
     }
 
     /**
@@ -231,6 +227,6 @@ class CentreonClapi extends CentreonWebService implements CentreonWebServiceDiIn
      */
     private function clearCarriageReturns(&$item): void
     {
-        $item = (is_string($item)) ? str_replace(["\n", "\t", "\r", "<br/>"], '', $item) : $item;
+        $item = (is_string($item)) ? str_replace(["\n", "\t", "\r", '<br/>'], '', $item) : $item;
     }
 }

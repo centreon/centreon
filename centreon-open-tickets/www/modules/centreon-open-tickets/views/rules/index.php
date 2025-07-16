@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2015-2019 Centreon (http://www.centreon.com/)
  *
@@ -26,10 +27,10 @@ $request = new CentreonOpenTicketsRequest();
 $rule = new Centreon_OpenTickets_Rule($db);
 
 $o = $request->getParam('o');
-if (!$o) {
+if (! $o) {
     $o = $request->getParam('o1');
 }
-if (!$o) {
+if (! $o) {
     $o = $request->getParam('o2');
 }
 $ruleId = $request->getParam('rule_id');
@@ -72,5 +73,5 @@ try {
             break;
     }
 } catch (Exception $e) {
-    echo $e->getMessage() . "<br/>";
+    echo $e->getMessage() . '<br/>';
 }

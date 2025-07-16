@@ -25,7 +25,6 @@ namespace Centreon\Domain\HostConfiguration\Interfaces\HostMacro;
 use Centreon\Domain\HostConfiguration\Exception\HostMacroServiceException;
 use Centreon\Domain\HostConfiguration\Host;
 use Centreon\Domain\HostConfiguration\HostMacro;
-use Centreon\Domain\HostConfiguration\HostMacroService;
 
 /**
  * @package Centreon\Domain\HostConfiguration\Interfaces\HostMacro
@@ -45,8 +44,8 @@ interface HostMacroServiceInterface
      * find all macros of host.
      *
      * @param Host $host
-     * @return HostMacro[]
      * @throws HostMacroServiceException
+     * @return HostMacro[]
      */
     public function findHostMacros(Host $host): array;
 

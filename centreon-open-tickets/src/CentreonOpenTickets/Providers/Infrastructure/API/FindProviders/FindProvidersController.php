@@ -47,8 +47,7 @@ final class FindProvidersController extends AbstractController
     public function __invoke(
         FindProviders $useCase,
         StandardPresenter $presenter
-    ): Response
-    {
+    ): Response {
         $response = $useCase();
 
         if ($response instanceof ResponseStatusInterface) {

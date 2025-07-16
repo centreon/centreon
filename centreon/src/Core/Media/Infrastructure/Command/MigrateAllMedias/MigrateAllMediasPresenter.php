@@ -19,7 +19,7 @@
  *
  */
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Core\Media\Infrastructure\Command\MigrateAllMedias;
 
@@ -43,8 +43,7 @@ use Core\Media\Application\UseCase\MigrateAllMedias\MigrationErrorDto;
  *      reason: string,
  *   }
  */
-class MigrateAllMediasPresenter extends CliAbstractPresenter
-    implements MigrateAllMediasPresenterInterface
+class MigrateAllMediasPresenter extends CliAbstractPresenter implements MigrateAllMediasPresenterInterface
 {
     public function presentResponse(MigrationAllMediasResponse|ResponseStatusInterface $response): void
     {

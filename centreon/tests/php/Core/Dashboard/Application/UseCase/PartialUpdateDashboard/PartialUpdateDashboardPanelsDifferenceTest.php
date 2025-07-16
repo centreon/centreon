@@ -28,7 +28,7 @@ use Core\Dashboard\Application\UseCase\PartialUpdateDashboard\PartialUpdateDashb
 use Core\Dashboard\Application\UseCase\PartialUpdateDashboard\Request\PanelRequestDto;
 
 beforeEach(function (): void {
-    $this->randomName = static fn(): string => 'panel-' . mb_substr(md5(random_bytes(10)), 0, 6);
+    $this->randomName = static fn (): string => 'panel-' . mb_substr(md5(random_bytes(10)), 0, 6);
 });
 
 it(

@@ -161,12 +161,13 @@ class DbReadHostRepository extends AbstractRepositoryRDB implements ReadHostRepo
      */
     public function exists(int $hostId): bool
     {
-        $request = $this->translateDbName(<<<'SQL'
-            SELECT 1
-            FROM `:db`.host
-            WHERE host_id = :host_id
-              AND host_register = '1'
-            SQL
+        $request = $this->translateDbName(
+            <<<'SQL'
+                SELECT 1
+                FROM `:db`.host
+                WHERE host_id = :host_id
+                  AND host_register = '1'
+                SQL
         );
 
         $statement = $this->db->prepare($request);

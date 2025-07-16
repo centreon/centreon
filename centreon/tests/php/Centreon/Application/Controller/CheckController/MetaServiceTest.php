@@ -73,7 +73,7 @@ class MetaServiceTest extends ResourceTestCase
             $this->mockRequest(self::DEFAULT_REQUEST_CONTENT),
             $this->mockEntityValidator(),
             $this->mockSerializer([]),
-            1
+            1,
         ];
     }
 
@@ -95,7 +95,7 @@ class MetaServiceTest extends ResourceTestCase
         $sut->setContainer($container);
         $methodUnderTest = static::METHOD_UNDER_TEST;
 
-        return $sut->$methodUnderTest(
+        return $sut->{$methodUnderTest}(
             $this->mockRequest(self::DEFAULT_REQUEST_CONTENT),
             $validator,
             $this->mockSerializer($check),

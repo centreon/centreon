@@ -37,7 +37,6 @@ use Core\TimePeriod\Domain\Model\{Day, ExtraTimePeriod, Template, TimePeriod, Ti
 use Core\TimePeriod\Domain\Rules\Strategies\SimpleDayTimeRangeRuleStrategy;
 
 beforeEach(function (): void {
-
     $this->strategies = [];
     foreach ([SimpleDayTimeRangeRuleStrategy::class] as $className) {
         $this->strategies[] = new $className();
@@ -128,7 +127,7 @@ it('should present a FindTimePeriodsResponse when user has read only rights', fu
 
     $templates = [
         new Template(2, 'fakeAlias2'),
-        new Template(3, 'fakeAlias3')
+        new Template(3, 'fakeAlias3'),
     ];
     $timePeriod->setTemplates($templates);
 
@@ -170,31 +169,30 @@ it('should present a FindTimePeriodsResponse when user has read only rights', fu
                 'days' => [
                     [
                         'day' => $timePeriod->getDays()[0]->getDay(),
-                        'time_range' => (string) $timePeriod->getDays()[0]->getTimeRange()
-                    ]
+                        'time_range' => (string) $timePeriod->getDays()[0]->getTimeRange(),
+                    ],
                 ],
                 'templates' => [
                     [
                         'id' => $timePeriod->getTemplates()[0]->getId(),
-                        'alias' => $timePeriod->getTemplates()[0]->getAlias()
+                        'alias' => $timePeriod->getTemplates()[0]->getAlias(),
                     ],
                     [
                         'id' => $timePeriod->getTemplates()[1]->getId(),
-                        'alias' => $timePeriod->getTemplates()[1]->getAlias()
+                        'alias' => $timePeriod->getTemplates()[1]->getAlias(),
                     ],
                 ],
                 'exceptions' => [
                     [
                         'id' => $timePeriod->getExtraTimePeriods()[0]->getId(),
                         'day_range' => $timePeriod->getExtraTimePeriods()[0]->getDayRange(),
-                        'time_range' => (string) $timePeriod->getExtraTimePeriods()[0]->getTimeRange()
-                    ]
+                        'time_range' => (string) $timePeriod->getExtraTimePeriods()[0]->getTimeRange(),
+                    ],
                 ],
-                'in_period' => $timePeriod->isDateTimeIncludedInPeriod(new \DateTimeImmutable(), $this->strategies)
+                'in_period' => $timePeriod->isDateTimeIncludedInPeriod(new \DateTimeImmutable(), $this->strategies),
             ]
         );
 });
-
 
 it('should present a FindTimePeriodsResponse when user has read-write rights', function (): void {
     $useCase = new FindTimePeriods(
@@ -214,7 +212,7 @@ it('should present a FindTimePeriodsResponse when user has read-write rights', f
 
     $templates = [
         new Template(2, 'fakeAlias2'),
-        new Template(3, 'fakeAlias3')
+        new Template(3, 'fakeAlias3'),
     ];
     $timePeriod->setTemplates($templates);
 
@@ -256,32 +254,27 @@ it('should present a FindTimePeriodsResponse when user has read-write rights', f
                 'days' => [
                     [
                         'day' => $timePeriod->getDays()[0]->getDay(),
-                        'time_range' => (string) $timePeriod->getDays()[0]->getTimeRange()
-                    ]
+                        'time_range' => (string) $timePeriod->getDays()[0]->getTimeRange(),
+                    ],
                 ],
                 'templates' => [
                     [
                         'id' => $timePeriod->getTemplates()[0]->getId(),
-                        'alias' => $timePeriod->getTemplates()[0]->getAlias()
+                        'alias' => $timePeriod->getTemplates()[0]->getAlias(),
                     ],
                     [
                         'id' => $timePeriod->getTemplates()[1]->getId(),
-                        'alias' => $timePeriod->getTemplates()[1]->getAlias()
+                        'alias' => $timePeriod->getTemplates()[1]->getAlias(),
                     ],
                 ],
                 'exceptions' => [
                     [
                         'id' => $timePeriod->getExtraTimePeriods()[0]->getId(),
                         'day_range' => $timePeriod->getExtraTimePeriods()[0]->getDayRange(),
-                        'time_range' => (string) $timePeriod->getExtraTimePeriods()[0]->getTimeRange()
-                    ]
+                        'time_range' => (string) $timePeriod->getExtraTimePeriods()[0]->getTimeRange(),
+                    ],
                 ],
-                'in_period' => $timePeriod->isDateTimeIncludedInPeriod(new \DateTimeImmutable(), $this->strategies)
+                'in_period' => $timePeriod->isDateTimeIncludedInPeriod(new \DateTimeImmutable(), $this->strategies),
             ]
         );
 });
-
-
-
-
-

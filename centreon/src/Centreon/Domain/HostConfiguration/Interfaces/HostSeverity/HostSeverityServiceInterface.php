@@ -37,9 +37,9 @@ interface HostSeverityServiceInterface
      * Find a host severity (for admin user).
      *
      * @param int $severityId Id of the host severity to be found
-     * @return HostSeverity|null
      * @throws HostSeverityException
      * @throws RepositoryException
+     * @return HostSeverity|null
      */
     public function findWithoutAcl(int $severityId): ?HostSeverity;
 
@@ -47,9 +47,9 @@ interface HostSeverityServiceInterface
      * Find a host severity (for non admin user).
      *
      * @param int $severityId Id of the host severity to be found
-     * @return HostSeverity|null
      * @throws HostSeverityException
      * @throws RepositoryException
+     * @return HostSeverity|null
      */
     public function findWithAcl(int $severityId): ?HostSeverity;
 }

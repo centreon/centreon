@@ -22,12 +22,12 @@ declare(strict_types=1);
 
 namespace Centreon\Domain\Monitoring\Timeline;
 
-use Centreon\Domain\Monitoring\Timeline\Interfaces\TimelineServiceInterface;
-use Centreon\Domain\Monitoring\Timeline\Interfaces\TimelineRepositoryInterface;
-use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
-use Centreon\Domain\Service\AbstractCentreonService;
 use Centreon\Domain\Monitoring\Host;
 use Centreon\Domain\Monitoring\Service;
+use Centreon\Domain\Monitoring\Timeline\Interfaces\TimelineRepositoryInterface;
+use Centreon\Domain\Monitoring\Timeline\Interfaces\TimelineServiceInterface;
+use Centreon\Domain\Service\AbstractCentreonService;
+use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 
 /**
  * Monitoring class used to manage the real time services and hosts
@@ -36,14 +36,10 @@ use Centreon\Domain\Monitoring\Service;
  */
 class TimelineService extends AbstractCentreonService implements TimelineServiceInterface
 {
-    /**
-     * @var TimelineRepositoryInterface
-     */
+    /** @var TimelineRepositoryInterface */
     private $timelineRepository;
 
-    /**
-     * @var ReadAccessGroupRepositoryInterface
-     */
+    /** @var ReadAccessGroupRepositoryInterface */
     private $accessGroupRepository;
 
     /**

@@ -31,7 +31,7 @@ use Centreon\Domain\Gorgone\Interfaces\CommandInterface;
  */
 final class Command extends AbstractCommand implements CommandInterface
 {
-    private const NAME = "action::command";
+    private const NAME = 'action::command';
 
     /**
      * @inheritDoc

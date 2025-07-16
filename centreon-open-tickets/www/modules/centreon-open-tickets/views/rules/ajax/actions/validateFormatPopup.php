@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2015-2019 Centreon (http://www.centreon.com/)
  *
@@ -19,13 +20,14 @@
  * limitations under the License.
  */
 
-$resultat = ["code" => 0, "msg" => 'ok'];
+$resultat = ['code' => 0, 'msg' => 'ok'];
 
 // Load provider class
 if (is_null($get_information['provider_id']) || is_null($get_information['form'])) {
     $resultat['code'] = 1;
     $resultat['msg'] = 'Please set provider_id or form';
-    return ;
+
+    return;
 }
 
 $provider_name = null;
@@ -37,13 +39,14 @@ foreach ($register_providers as $name => $id) {
 }
 
 if (is_null($provider_name)
-    || !file_exists(
+    || ! file_exists(
         $centreon_open_tickets_path . 'providers/' . $provider_name . '/' . $provider_name . 'Provider.class.php'
     )
 ) {
     $resultat['code'] = 1;
     $resultat['msg'] = 'Please set a provider';
-    return ;
+
+    return;
 }
 
 require_once $centreon_open_tickets_path . 'providers/' . $provider_name . '/' . $provider_name . 'Provider.class.php';
@@ -65,5 +68,3 @@ try {
     $resultat['msg'] = $e->getMessage();
     $db->rollback();
 }
-
-?>

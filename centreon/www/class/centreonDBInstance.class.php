@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2015 Centreon
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
@@ -34,12 +35,12 @@
  */
 
 // file centreon.config.php may not exist in test environment
-$configFile = realpath(__DIR__ . "/../../config/centreon.config.php");
+$configFile = realpath(__DIR__ . '/../../config/centreon.config.php');
 if ($configFile !== false) {
     include_once $configFile;
 }
 
-require_once realpath(__DIR__ . "/centreonDB.class.php");
+require_once realpath(__DIR__ . '/centreonDB.class.php');
 
 /**
  * Class
@@ -50,8 +51,10 @@ class CentreonDBInstance
 {
     /** @var CentreonDBInstance */
     private static $dbCentreonInstance;
+
     /** @var CentreonDBInstance */
     private static $dbCentreonStorageInstance;
+
     /** @var CentreonDB */
     private $instance;
 
@@ -62,9 +65,9 @@ class CentreonDBInstance
      *
      * @throws Exception
      */
-    private function __construct($db = "centreon")
+    private function __construct($db = 'centreon')
     {
-        $this->instance = new \CentreonDB($db);
+        $this->instance = new CentreonDB($db);
     }
 
     /**
@@ -81,8 +84,9 @@ class CentreonDBInstance
     public static function getDbCentreonInstance()
     {
         if (is_null(self::$dbCentreonInstance)) {
-            self::$dbCentreonInstance = new \CentreonDBInstance('centreon');
+            self::$dbCentreonInstance = new CentreonDBInstance('centreon');
         }
+
         return self::$dbCentreonInstance->getInstance();
     }
 
@@ -92,8 +96,9 @@ class CentreonDBInstance
     public static function getDbCentreonStorageInstance()
     {
         if (is_null(self::$dbCentreonStorageInstance)) {
-            self::$dbCentreonStorageInstance = new \CentreonDBInstance('centstorage');
+            self::$dbCentreonStorageInstance = new CentreonDBInstance('centstorage');
         }
+
         return self::$dbCentreonStorageInstance->getInstance();
     }
 }

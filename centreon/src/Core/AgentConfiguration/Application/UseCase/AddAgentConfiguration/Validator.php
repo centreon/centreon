@@ -130,7 +130,7 @@ class Validator
                 $this->readAcRepository->findPollersByType($type)
             );
         }
-        $pollerIds = array_map(fn(Poller $poller) => $poller->id, $unavailablePollers);
+        $pollerIds = array_map(fn (Poller $poller) => $poller->id, $unavailablePollers);
 
         if ([] !== $invalidPollers = array_intersect($pollerIds, $request->pollerIds)) {
             throw AgentConfigurationException::alreadyAssociatedPollers($invalidPollers);

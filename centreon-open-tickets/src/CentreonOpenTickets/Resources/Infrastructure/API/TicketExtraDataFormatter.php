@@ -27,7 +27,6 @@ use Core\Infrastructure\Common\Presenter\PresenterTrait;
 use Core\Resources\Infrastructure\API\ExtraDataNormalizer\ExtraDataNormalizerInterface;
 
 final class TicketExtraDataFormatter implements ExtraDataNormalizerInterface
-
 {
     use PresenterTrait;
     private const EXTRA_DATA_SOURCE_NAME = 'open_tickets';
