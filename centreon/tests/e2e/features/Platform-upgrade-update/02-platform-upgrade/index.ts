@@ -7,7 +7,6 @@ import {
   installCentreon,
   localPackageDirectory
 } from '../common';
-import { version } from 'os';
 
 before(() => {
   if (
