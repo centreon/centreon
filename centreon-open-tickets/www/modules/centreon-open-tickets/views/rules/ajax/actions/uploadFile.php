@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2016-2019 Centreon (http://www.centreon.com/)
  *
@@ -19,7 +20,7 @@
  * limitations under the License.
  */
 
-$resultat = ["code" => 0, "msg" => 'ok'];
+$resultat = ['code' => 0, 'msg' => 'ok'];
 
 $uniq_id = $_REQUEST['uniqId'];
 foreach ($_FILES as $file) {
@@ -27,10 +28,10 @@ foreach ($_FILES as $file) {
     $file_dst = $dir . '/opentickets/' . $uniq_id . '__' . $file['name'];
     @mkdir($dir . '/opentickets', 0750);
     if (rename($file['tmp_name'], $file_dst)) {
-        if (!isset($_SESSION['ot_upload_files'])) {
+        if (! isset($_SESSION['ot_upload_files'])) {
             $_SESSION['ot_upload_files'] = [];
         }
-        if (!isset($_SESSION['ot_upload_files'][$uniq_id])) {
+        if (! isset($_SESSION['ot_upload_files'][$uniq_id])) {
             $_SESSION['ot_upload_files'][$uniq_id] = [];
         }
 

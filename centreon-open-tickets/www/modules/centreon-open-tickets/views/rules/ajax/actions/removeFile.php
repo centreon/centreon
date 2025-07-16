@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2016-2019 Centreon (http://www.centreon.com/)
  *
@@ -19,7 +20,7 @@
  * limitations under the License.
  */
 
-$resultat = ["code" => 0, "msg" => 'ok'];
+$resultat = ['code' => 0, 'msg' => 'ok'];
 
 $temp_dir = sys_get_temp_dir();
 unlink($temp_dir . '/opentickets/' . $get_information['uniqId'] . '__' . $get_information['filename']);
