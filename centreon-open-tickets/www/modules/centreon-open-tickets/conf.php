@@ -20,28 +20,28 @@
  * limitations under the License.
  */
 
-$module_conf['centreon-open-tickets']["rname"] = "Centreon Open Tickets";
-$module_conf['centreon-open-tickets']["name"] = "centreon-open-tickets";
-$module_conf['centreon-open-tickets']["mod_release"] = "25.07.0";
-$module_conf['centreon-open-tickets']["infos"] = "Centreon Open Tickets is a community module developed to " .
-    "create tickets to your favorite ITSM tools using API.
+$module_conf['centreon-open-tickets']['rname'] = 'Centreon Open Tickets';
+$module_conf['centreon-open-tickets']['name'] = 'centreon-open-tickets';
+$module_conf['centreon-open-tickets']['mod_release'] = '25.07.0';
+$module_conf['centreon-open-tickets']['infos'] = 'Centreon Open Tickets is a community module developed to '
+    . 'create tickets to your favorite ITSM tools using API.
 
-Once done provider configuration, the module allows for an operator to create tickets for hosts and services " .
-    "in a non-ok state using a dedicated widget. Indeed, a button associated with each host or service allows " .
-    "you to connect to the API and create the ticket while offering the possibility to acknowledge at the same " .
-    "time the object.
+Once done provider configuration, the module allows for an operator to create tickets for hosts and services '
+    . 'in a non-ok state using a dedicated widget. Indeed, a button associated with each host or service allows '
+    . 'you to connect to the API and create the ticket while offering the possibility to acknowledge at the same '
+    . 'time the object.
 
-Regarding the widget configuration, it is possible to see the created tickets by presenting tickets ID and " .
-    "date of creation of these.
-";
-$module_conf['centreon-open-tickets']["is_removeable"] = "1";
-$module_conf['centreon-open-tickets']["author"] = "Centreon";
-$module_conf['centreon-open-tickets']["stability"] = "stable";
-$module_conf['centreon-open-tickets']["last_update"] = "2025-05-28";
-$module_conf['centreon-open-tickets']["release_note"] =
-    "https://docs.centreon.com/23.10/en/releases/centreon-os-extensions.html";
-$module_conf['centreon-open-tickets']["images"] = [
+Regarding the widget configuration, it is possible to see the created tickets by presenting tickets ID and '
+    . 'date of creation of these.
+';
+$module_conf['centreon-open-tickets']['is_removeable'] = '1';
+$module_conf['centreon-open-tickets']['author'] = 'Centreon';
+$module_conf['centreon-open-tickets']['stability'] = 'stable';
+$module_conf['centreon-open-tickets']['last_update'] = '2025-05-28';
+$module_conf['centreon-open-tickets']['release_note']
+    = 'https://docs.centreon.com/23.10/en/releases/centreon-os-extensions.html';
+$module_conf['centreon-open-tickets']['images'] = [
     'images/image1.png',
     'images/image2.png',
-    'images/image3.png'
+    'images/image3.png',
 ];
