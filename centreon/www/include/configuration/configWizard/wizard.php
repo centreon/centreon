@@ -19,16 +19,14 @@
  *
  */
 
-if (!isset($centreon)) {
+if (! isset($centreon)) {
     exit();
 }
 
-/*
- * Smarty template Init
- */
+// Smarty template Init
 
 // Smarty template initialization
-$path = "./include/configuration/configWizard/";
+$path = './include/configuration/configWizard/';
 $tpl = SmartyBC::createSmartyTemplate($path);
 
-$tpl->display("wizard.html");
+$tpl->display('wizard.html');

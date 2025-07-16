@@ -40,7 +40,7 @@ const store = createStore();
 
 const ListingWithQueryProvider = (): JSX.Element => {
   return (
-    <div style={{ height: '100vh' }}>
+    <div style={{ height: '90vh' }}>
       <Provider store={store}>
         <TestQueryProvider>
           <SnackbarProvider>
@@ -538,10 +538,6 @@ describe('column sorting', () => {
       });
 
       cy.contains('notification1').should('exist');
-
-      cy.makeSnapshot(
-        `column sorting --  executes a listing request when the ${label} column is clicked`
-      );
     });
   });
 });

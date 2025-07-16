@@ -51,6 +51,6 @@ final class FindFavoriteDashboardsController extends AbstractController
         return JsonResponse::fromJsonString(
             $presenter->present($response, ['groups' => ['FavoriteDashboards:Read']])
         );
- 
+
     }
 }

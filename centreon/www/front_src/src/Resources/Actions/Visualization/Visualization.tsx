@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next';
 
-import { Grid, Typography } from '@mui/material';
+import { Typography } from '@mui/material';
+import Grid from '@mui/material/Grid';
 
 import viewByAllActive from '../../icons/view_all_actif.svg';
 import viewByAllInactive from '../../icons/view_all_inactif.svg';
@@ -55,6 +56,7 @@ const VisualizationActions = ({
       container
       className={classes.visualizationContainer}
       data-testid="tree view"
+      size={12}
     >
       {!displayCondensed && (
         <Typography className={classes.text} variant="body1">

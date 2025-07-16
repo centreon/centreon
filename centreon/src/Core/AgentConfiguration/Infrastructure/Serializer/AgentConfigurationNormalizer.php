@@ -25,13 +25,14 @@ namespace Core\AgentConfiguration\Infrastructure\Serializer;
 
 use Core\AgentConfiguration\Domain\Model\AgentConfiguration;
 use Core\AgentConfiguration\Domain\Model\ConnectionModeEnum;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
-use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 
 class AgentConfigurationNormalizer implements NormalizerInterface
 {
     public function __construct(
-        private readonly ObjectNormalizer $normalizer,
+        #[Autowire(service: 'serializer.normalizer.object')]
+        private readonly NormalizerInterface $normalizer,
     ) {
     }
 
@@ -42,13 +43,13 @@ class AgentConfigurationNormalizer implements NormalizerInterface
      *
      * @throws \Throwable
      *
-     * @return array<string, mixed>|bool|float|int|string|null
+     * @return array<string, mixed>
      */
     public function normalize(
         mixed $object,
         ?string $format = null,
         array $context = []
-    ): float|int|bool|array|string|null {
+    ): array {
         /** @var array<string, bool|float|int|string> $data */
         $data = $this->normalizer->normalize($object, $format, $context);
         $data['connection_mode'] = match ($object->getConnectionMode()) {
@@ -60,8 +61,24 @@ class AgentConfigurationNormalizer implements NormalizerInterface
         return $data;
     }
 
-    public function supportsNormalization(mixed $data, ?string $format = null): bool
+    /**
+     * @param array<string, mixed> $context
+     * @param mixed $data
+     * @param ?string $format
+     */
+    public function supportsNormalization(mixed $data, ?string $format = null, array $context = []): bool
     {
         return $data instanceof AgentConfiguration;
+    }
+
+    /**
+     * @param ?string $format
+     * @return array<class-string|'*'|'object'|string, bool|null>
+     */
+    public function getSupportedTypes(?string $format): array
+    {
+        return [
+            AgentConfiguration::class => true,
+        ];
     }
 }

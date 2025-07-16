@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Copyright 2005-2018 Centreon
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
@@ -30,13 +31,12 @@
  * do not wish to do so, delete this exception statement from your version.
  *
  * For more information : contact@centreon.com
- *
  */
 
 use CentreonLegacy\Core\Menu\Menu;
 use Pimple\Container;
 
-require_once __DIR__ . "/webService.class.php";
+require_once __DIR__ . '/webService.class.php';
 
 /**
  * Class
@@ -47,6 +47,7 @@ class CentreonMenu extends CentreonWebService implements CentreonWebServiceDiInt
 {
     /** @var CentreonDB */
     public $pearDB;
+
     /** @var Container */
     private $dependencyInjector;
 
@@ -58,12 +59,12 @@ class CentreonMenu extends CentreonWebService implements CentreonWebServiceDiInt
      *
      * Method: GET
      *
-     * @return array
      * @throws RestUnauthorizedException
+     * @return array
      */
     public function getMenu()
     {
-        if (!isset($_SESSION['centreon'])) {
+        if (! isset($_SESSION['centreon'])) {
             throw new RestUnauthorizedException('Session does not exists.');
         }
         /**

@@ -1,10 +1,10 @@
 <?php
+
 $help = [];
 
 /**
  * RRDTool Configuration
  */
-
 $help['tip_directory+rrdtool_binary'] = dgettext('help', 'RRDTOOL binary complete path.');
 $help['tip_rrdtool_version'] = dgettext('help', 'RRDTool version.');
 

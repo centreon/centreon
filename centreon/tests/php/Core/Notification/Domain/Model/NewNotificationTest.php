@@ -52,7 +52,8 @@ it('should trim the "name" field', function (): void {
 });
 
 it('should throw an exception when notification name is empty', function (): void {
-    new NewNotification('',
+    new NewNotification(
+        '',
         $this->timePeriod,
         $this->isActivated
     );

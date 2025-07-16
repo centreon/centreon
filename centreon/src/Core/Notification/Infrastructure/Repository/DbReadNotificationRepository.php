@@ -158,15 +158,16 @@ class DbReadNotificationRepository extends AbstractRepositoryRDB implements Read
     public function findUsersByNotificationId(int $notificationId): array
     {
         $statement = $this->db->prepare(
-            $this->translateDbName(<<<'SQL'
-                SELECT contact.contact_id, contact.contact_name, contact.contact_email
-                FROM `:db`.contact
-                LEFT JOIN `:db`.notification_user_relation nur
-                    ON nur.user_id = contact.contact_id
-                INNER JOIN `:db`.notification notif
-                    ON notif.id = nur.notification_id
-                WHERE notif.id = :notification_id
-                SQL
+            $this->translateDbName(
+                <<<'SQL'
+                    SELECT contact.contact_id, contact.contact_name, contact.contact_email
+                    FROM `:db`.contact
+                    LEFT JOIN `:db`.notification_user_relation nur
+                        ON nur.user_id = contact.contact_id
+                    INNER JOIN `:db`.notification notif
+                        ON notif.id = nur.notification_id
+                    WHERE notif.id = :notification_id
+                    SQL
             )
         );
         $statement->bindValue(':notification_id', $notificationId, \PDO::PARAM_INT);
@@ -204,50 +205,51 @@ class DbReadNotificationRepository extends AbstractRepositoryRDB implements Read
         $accessGroupIds = array_map(fn (AccessGroup $accessGroup) => $accessGroup->getId(), $accessGroups);
         [$bindValues, $subQuery] = $this->createMultipleBindQuery($accessGroupIds, ':ag_id_');
         $statement = $this->db->prepare(
-            $this->translateDbName(<<<SQL
-                SELECT contact.*
-                FROM `:db`.notification notif
-                INNER JOIN `:db`.notification_user_relation nur
-                    ON nur.notification_id = notif.id
-                INNER JOIN (
-                        SELECT /* Finds associated users in ACL group rules */
-                            contact.contact_id, contact.contact_alias, contact.contact_name,
-                            contact.contact_email, contact.contact_admin, contact.contact_activate
-                        FROM `:db`.`contact`
-                        INNER JOIN `:db`.`acl_group_contacts_relations` acl_c_rel
-                            ON acl_c_rel.contact_contact_id = contact.contact_id
-                        WHERE contact.contact_register = '1'
-                            AND acl_c_rel.acl_group_id IN ({$subQuery})
-                        UNION
-                        SELECT  /* Finds users belonging to associated contact groups in ACL group rules */
-                            contact.contact_id, contact.contact_alias, contact.contact_name,
-                            contact.contact_email, contact.contact_admin, contact.contact_activate
-                        FROM `:db`.`contact`
-                        INNER JOIN `:db`.`contactgroup_contact_relation` c_cg_rel
-                            ON c_cg_rel.contact_contact_id = contact.contact_id
-                        INNER JOIN `:db`.`acl_group_contactgroups_relations` acl_cg_rel
-                            ON acl_cg_rel.cg_cg_id = c_cg_rel.contactgroup_cg_id
-                        WHERE contact.contact_register = '1'
-                            AND acl_cg_rel.acl_group_id IN ({$subQuery})
-                        UNION
-                        SELECT /* Finds users belonging to the same contact groups as the user */
-                            contact2.contact_id, contact2.contact_alias, contact2.contact_name,
-                            contact2.contact_email, contact2.contact_admin, contact.contact_activate
-                        FROM `:db`.`contact`
-                        INNER JOIN `:db`.`contactgroup_contact_relation` c_cg_rel
-                            ON c_cg_rel.contact_contact_id = contact.contact_id
-                        INNER JOIN `:db`.`contactgroup_contact_relation` c_cg_rel2
-                            ON c_cg_rel2.contactgroup_cg_id = c_cg_rel.contactgroup_cg_id
-                        INNER JOIN `:db`.`contact` contact2
-                            ON contact2.contact_id = c_cg_rel2.contact_contact_id
-                        WHERE c_cg_rel.contact_contact_id  = :user_id
-                            AND contact.contact_register = '1'
-                            AND contact2.contact_register = '1'
-                        GROUP BY contact2.contact_id
-                    ) as contact
-                    ON contact.contact_id = nur.user_id
-                WHERE notif.id = :notification_id
-                SQL
+            $this->translateDbName(
+                <<<SQL
+                    SELECT contact.*
+                    FROM `:db`.notification notif
+                    INNER JOIN `:db`.notification_user_relation nur
+                        ON nur.notification_id = notif.id
+                    INNER JOIN (
+                            SELECT /* Finds associated users in ACL group rules */
+                                contact.contact_id, contact.contact_alias, contact.contact_name,
+                                contact.contact_email, contact.contact_admin, contact.contact_activate
+                            FROM `:db`.`contact`
+                            INNER JOIN `:db`.`acl_group_contacts_relations` acl_c_rel
+                                ON acl_c_rel.contact_contact_id = contact.contact_id
+                            WHERE contact.contact_register = '1'
+                                AND acl_c_rel.acl_group_id IN ({$subQuery})
+                            UNION
+                            SELECT  /* Finds users belonging to associated contact groups in ACL group rules */
+                                contact.contact_id, contact.contact_alias, contact.contact_name,
+                                contact.contact_email, contact.contact_admin, contact.contact_activate
+                            FROM `:db`.`contact`
+                            INNER JOIN `:db`.`contactgroup_contact_relation` c_cg_rel
+                                ON c_cg_rel.contact_contact_id = contact.contact_id
+                            INNER JOIN `:db`.`acl_group_contactgroups_relations` acl_cg_rel
+                                ON acl_cg_rel.cg_cg_id = c_cg_rel.contactgroup_cg_id
+                            WHERE contact.contact_register = '1'
+                                AND acl_cg_rel.acl_group_id IN ({$subQuery})
+                            UNION
+                            SELECT /* Finds users belonging to the same contact groups as the user */
+                                contact2.contact_id, contact2.contact_alias, contact2.contact_name,
+                                contact2.contact_email, contact2.contact_admin, contact.contact_activate
+                            FROM `:db`.`contact`
+                            INNER JOIN `:db`.`contactgroup_contact_relation` c_cg_rel
+                                ON c_cg_rel.contact_contact_id = contact.contact_id
+                            INNER JOIN `:db`.`contactgroup_contact_relation` c_cg_rel2
+                                ON c_cg_rel2.contactgroup_cg_id = c_cg_rel.contactgroup_cg_id
+                            INNER JOIN `:db`.`contact` contact2
+                                ON contact2.contact_id = c_cg_rel2.contact_contact_id
+                            WHERE c_cg_rel.contact_contact_id  = :user_id
+                                AND contact.contact_register = '1'
+                                AND contact2.contact_register = '1'
+                            GROUP BY contact2.contact_id
+                        ) as contact
+                        ON contact.contact_id = nur.user_id
+                    WHERE notif.id = :notification_id
+                    SQL
             )
         );
         $statement->bindValue(':notification_id', $notificationId, \PDO::PARAM_INT);
@@ -287,16 +289,17 @@ class DbReadNotificationRepository extends AbstractRepositoryRDB implements Read
         [$bindValues, $subQuery] = $this->createMultipleBindQuery($contactGroupIds, ':id_');
 
         $statement = $this->db->prepare(
-            $this->translateDbName(<<<SQL
-                SELECT DISTINCT c.contact_id, c.contact_name, c.contact_email
-                FROM `:db`.contactgroup_contact_relation cgcr
-                INNER JOIN `:db`.contactgroup cg
-                    ON cg.cg_id=cgcr.contactgroup_cg_id
-                INNER JOIN `:db`.contact c
-                    ON c.contact_id=cgcr.contact_contact_id
-                WHERE cg.cg_id IN ({$subQuery})
-                ORDER BY c.contact_name ASC
-                SQL
+            $this->translateDbName(
+                <<<SQL
+                    SELECT DISTINCT c.contact_id, c.contact_name, c.contact_email
+                    FROM `:db`.contactgroup_contact_relation cgcr
+                    INNER JOIN `:db`.contactgroup cg
+                        ON cg.cg_id=cgcr.contactgroup_cg_id
+                    INNER JOIN `:db`.contact c
+                        ON c.contact_id=cgcr.contact_contact_id
+                    WHERE cg.cg_id IN ({$subQuery})
+                    ORDER BY c.contact_name ASC
+                    SQL
             )
         );
         foreach ($bindValues as $key => $value) {
@@ -331,14 +334,15 @@ class DbReadNotificationRepository extends AbstractRepositoryRDB implements Read
     public function findContactGroupsByNotificationId(int $notificationId): array
     {
         $statement = $this->db->prepare(
-            $this->translateDbName(<<<'SQL'
-                SELECT contactgroup_id, contactgroup.cg_name, contactgroup.cg_alias
-                FROM `:db`.notification_contactgroup_relation
-                INNER JOIN `:db`.contactgroup
-                    ON cg_id = contactgroup_id
-                WHERE notification_id = :notificationId
-                ORDER BY contactgroup.cg_name ASC
-                SQL
+            $this->translateDbName(
+                <<<'SQL'
+                    SELECT contactgroup_id, contactgroup.cg_name, contactgroup.cg_alias
+                    FROM `:db`.notification_contactgroup_relation
+                    INNER JOIN `:db`.contactgroup
+                        ON cg_id = contactgroup_id
+                    WHERE notification_id = :notificationId
+                    ORDER BY contactgroup.cg_name ASC
+                    SQL
             )
         );
         $statement->bindValue(':notificationId', $notificationId, \PDO::PARAM_INT);
@@ -368,19 +372,20 @@ class DbReadNotificationRepository extends AbstractRepositoryRDB implements Read
     {
         [$bindValues, $subQuery] = $this->createMultipleBindQuery($notificationIds, ':id_');
         $statement = $this->db->prepare(
-            $this->translateDbName(<<<SQL
-                SELECT result.id, COUNT(result.contact_id)
-                FROM (
-                    SELECT notif.id, contact.contact_id
-                    FROM `:db`.contact
-                    LEFT JOIN `:db`.notification_user_relation nur
-                        ON nur.user_id = contact.contact_id
-                    INNER JOIN `:db`.notification notif
-                        ON notif.id = nur.notification_id
-                    WHERE notif.id IN ({$subQuery})
-                ) AS result
-                GROUP BY result.id
-                SQL
+            $this->translateDbName(
+                <<<SQL
+                    SELECT result.id, COUNT(result.contact_id)
+                    FROM (
+                        SELECT notif.id, contact.contact_id
+                        FROM `:db`.contact
+                        LEFT JOIN `:db`.notification_user_relation nur
+                            ON nur.user_id = contact.contact_id
+                        INNER JOIN `:db`.notification notif
+                            ON notif.id = nur.notification_id
+                        WHERE notif.id IN ({$subQuery})
+                    ) AS result
+                    GROUP BY result.id
+                    SQL
             )
         );
         foreach ($bindValues as $key => $value) {
@@ -404,51 +409,52 @@ class DbReadNotificationRepository extends AbstractRepositoryRDB implements Read
         [$notificationBindValues, $notificationSubQuery] = $this->createMultipleBindQuery($notificationIds, ':notif_id_');
 
         $statement = $this->db->prepare(
-            $this->translateDbName(<<<SQL
-                SELECT result.id, COUNT(result.contact_id)
-                FROM (
-                    SELECT notif.id, contact.contact_id
-                    FROM `:db`.notification notif
-                    INNER JOIN `:db`.notification_user_relation nur
-                        ON nur.notification_id = notif.id
-                    INNER JOIN (
-                            SELECT contact.contact_id, contact.contact_alias, contact.contact_name,
-                                contact.contact_email, contact.contact_admin, contact.contact_activate
-                            FROM `:db`.`contact`
-                            INNER JOIN `:db`.`acl_group_contacts_relations` acl_c_rel
-                                ON acl_c_rel.contact_contact_id = contact.contact_id
-                                AND acl_c_rel.acl_group_id IN ({$accessGroupSubQuery})
-                            WHERE contact.contact_register = '1'
-                            UNION ALL
-                            SELECT contact.contact_id, contact.contact_alias, contact.contact_name,
-                                contact.contact_email, contact.contact_admin, contact.contact_activate
-                            FROM `:db`.`contact`
-                            JOIN `:db`.`contactgroup_contact_relation` c_cg_rel
-                                ON c_cg_rel.contact_contact_id = contact.contact_id
-                            JOIN `:db`.`acl_group_contactgroups_relations` acl_cg_rel
-                                ON acl_cg_rel.cg_cg_id = c_cg_rel.contactgroup_cg_id
-                                AND acl_cg_rel.acl_group_id IN ({$accessGroupSubQuery})
-                            WHERE contact.contact_register = '1'
-                            UNION ALL
-                            SELECT contact2.contact_id, contact2.contact_alias, contact2.contact_name,
-                                contact2.contact_email, contact2.contact_admin, contact.contact_activate
-                            FROM `:db`.`contact`
-                            INNER JOIN `:db`.`contactgroup_contact_relation` c_cg_rel
-                                ON c_cg_rel.contact_contact_id = contact.contact_id
-                            INNER JOIN `:db`.`contactgroup_contact_relation` c_cg_rel2
-                                ON c_cg_rel2.contactgroup_cg_id = c_cg_rel.contactgroup_cg_id
-                            INNER JOIN `:db`.`contact` contact2
-                                ON contact2.contact_id = c_cg_rel2.contact_contact_id
-                            WHERE c_cg_rel.contact_contact_id  = :user_id
-                                AND contact.contact_register = '1'
-                                AND contact2.contact_register = '1'
-                            GROUP BY contact2.contact_id
-                        ) as contact
-                        ON contact.contact_id = nur.user_id
-                    WHERE notif.id IN ({$notificationSubQuery})
-                ) AS result
-                GROUP BY result.id
-                SQL
+            $this->translateDbName(
+                <<<SQL
+                    SELECT result.id, COUNT(result.contact_id)
+                    FROM (
+                        SELECT notif.id, contact.contact_id
+                        FROM `:db`.notification notif
+                        INNER JOIN `:db`.notification_user_relation nur
+                            ON nur.notification_id = notif.id
+                        INNER JOIN (
+                                SELECT contact.contact_id, contact.contact_alias, contact.contact_name,
+                                    contact.contact_email, contact.contact_admin, contact.contact_activate
+                                FROM `:db`.`contact`
+                                INNER JOIN `:db`.`acl_group_contacts_relations` acl_c_rel
+                                    ON acl_c_rel.contact_contact_id = contact.contact_id
+                                    AND acl_c_rel.acl_group_id IN ({$accessGroupSubQuery})
+                                WHERE contact.contact_register = '1'
+                                UNION ALL
+                                SELECT contact.contact_id, contact.contact_alias, contact.contact_name,
+                                    contact.contact_email, contact.contact_admin, contact.contact_activate
+                                FROM `:db`.`contact`
+                                JOIN `:db`.`contactgroup_contact_relation` c_cg_rel
+                                    ON c_cg_rel.contact_contact_id = contact.contact_id
+                                JOIN `:db`.`acl_group_contactgroups_relations` acl_cg_rel
+                                    ON acl_cg_rel.cg_cg_id = c_cg_rel.contactgroup_cg_id
+                                    AND acl_cg_rel.acl_group_id IN ({$accessGroupSubQuery})
+                                WHERE contact.contact_register = '1'
+                                UNION ALL
+                                SELECT contact2.contact_id, contact2.contact_alias, contact2.contact_name,
+                                    contact2.contact_email, contact2.contact_admin, contact.contact_activate
+                                FROM `:db`.`contact`
+                                INNER JOIN `:db`.`contactgroup_contact_relation` c_cg_rel
+                                    ON c_cg_rel.contact_contact_id = contact.contact_id
+                                INNER JOIN `:db`.`contactgroup_contact_relation` c_cg_rel2
+                                    ON c_cg_rel2.contactgroup_cg_id = c_cg_rel.contactgroup_cg_id
+                                INNER JOIN `:db`.`contact` contact2
+                                    ON contact2.contact_id = c_cg_rel2.contact_contact_id
+                                WHERE c_cg_rel.contact_contact_id  = :user_id
+                                    AND contact.contact_register = '1'
+                                    AND contact2.contact_register = '1'
+                                GROUP BY contact2.contact_id
+                            ) as contact
+                            ON contact.contact_id = nur.user_id
+                        WHERE notif.id IN ({$notificationSubQuery})
+                    ) AS result
+                    GROUP BY result.id
+                    SQL
             )
         );
         foreach ([...$accessGroupBindValues, ...$notificationBindValues] as $key => $value) {
@@ -472,33 +478,34 @@ class DbReadNotificationRepository extends AbstractRepositoryRDB implements Read
         [$bindValues, $subQuery] = $this->createMultipleBindQuery($accessGroupIds, ':ag_id_');
 
         $statement = $this->db->prepare(
-            $this->translateDbName(<<<SQL
-                SELECT cg_id, cg_name, cg_alias
-                FROM (
-                    SELECT
-                        cg_id, cg_name, cg_alias, cg_comment, cg_activate, cg_type
-                    FROM `:db`.acl_group_contactgroups_relations gcgr
-                    INNER JOIN `:db`.contactgroup cg
-                        ON cg.cg_id = gcgr.cg_cg_id
-                    WHERE gcgr.acl_group_id IN ({$subQuery})
-                        AND cg_activate = '1'
-                    GROUP BY cg_id, cg_name, cg_alias, cg_comment, cg_activate, cg_type
-                    UNION
-                    SELECT cg_id, cg_name, cg_alias, cg_comment, cg_activate, cg_type
-                    FROM `:db`.contactgroup cg
-                    INNER JOIN `:db`.contactgroup_contact_relation ccr
-                        ON ccr.contactgroup_cg_id = cg.cg_id
-                    INNER JOIN `:db`.contact c
-                        ON c.contact_id = ccr.contact_contact_id
-                    WHERE ccr.contact_contact_id = :user_id
-                        AND cg.cg_activate = '1'
-                        AND c.contact_register = '1'
-                ) AS cg
-                INNER JOIN `:db`.notification_contactgroup_relation ncr
-                    ON ncr.contactgroup_id = cg.cg_id
-                WHERE ncr.notification_id = :notificationId
-                ORDER BY cg_name ASC
-                SQL
+            $this->translateDbName(
+                <<<SQL
+                    SELECT cg_id, cg_name, cg_alias
+                    FROM (
+                        SELECT
+                            cg_id, cg_name, cg_alias, cg_comment, cg_activate, cg_type
+                        FROM `:db`.acl_group_contactgroups_relations gcgr
+                        INNER JOIN `:db`.contactgroup cg
+                            ON cg.cg_id = gcgr.cg_cg_id
+                        WHERE gcgr.acl_group_id IN ({$subQuery})
+                            AND cg_activate = '1'
+                        GROUP BY cg_id, cg_name, cg_alias, cg_comment, cg_activate, cg_type
+                        UNION
+                        SELECT cg_id, cg_name, cg_alias, cg_comment, cg_activate, cg_type
+                        FROM `:db`.contactgroup cg
+                        INNER JOIN `:db`.contactgroup_contact_relation ccr
+                            ON ccr.contactgroup_cg_id = cg.cg_id
+                        INNER JOIN `:db`.contact c
+                            ON c.contact_id = ccr.contact_contact_id
+                        WHERE ccr.contact_contact_id = :user_id
+                            AND cg.cg_activate = '1'
+                            AND c.contact_register = '1'
+                    ) AS cg
+                    INNER JOIN `:db`.notification_contactgroup_relation ncr
+                        ON ncr.contactgroup_id = cg.cg_id
+                    WHERE ncr.notification_id = :notificationId
+                    ORDER BY cg_name ASC
+                    SQL
             )
         );
         $statement->bindValue(':notificationId', $notificationId, \PDO::PARAM_INT);
@@ -605,11 +612,12 @@ class DbReadNotificationRepository extends AbstractRepositoryRDB implements Read
         [$bindValues, $subQuery] = $this->createMultipleBindQuery($notificationIds, ':id_');
 
         $statement = $this->db->prepare(
-            $this->translateDbName(<<<SQL
-                SELECT notification_id, channel
-                FROM `:db`.notification_message
-                WHERE notification_id IN ({$subQuery})
-                SQL
+            $this->translateDbName(
+                <<<SQL
+                    SELECT notification_id, channel
+                    FROM `:db`.notification_message
+                    WHERE notification_id IN ({$subQuery})
+                    SQL
             )
         );
 

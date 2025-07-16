@@ -2,7 +2,7 @@ import { atom, useAtom, useSetAtom } from 'jotai';
 import { isNil } from 'ramda';
 
 import { getData, useRequest } from '@centreon/ui';
-import { userAtom } from '@centreon/ui-context';
+import { ThemeMode, userAtom } from '@centreon/ui-context';
 import type { User } from '@centreon/ui-context';
 
 import { userDecoder } from '../api/decoders';
@@ -50,6 +50,12 @@ const useUser = (): (() => null | Promise<void>) => {
           isAdmin,
           canManageApiTokens
         } = retrievedUser as User;
+
+        if (themeMode === ThemeMode.dark) {
+          document.documentElement.classList.add('dark');
+        } else {
+          document.documentElement.classList.remove('dark');
+        }
 
         setUser({
           alias,

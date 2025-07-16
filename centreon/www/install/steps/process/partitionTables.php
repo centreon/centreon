@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2015 Centreon
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
@@ -45,15 +46,16 @@ require_once '../../../class/centreon-partition/options.class.php';
 
 $return = ['id' => 'dbpartitioning', 'result' => 1, 'msg' => ''];
 
-/* Create partitioned tables */
+// Create partitioned tables
 $database = new CentreonDB('centstorage');
 $centreonDb = new CentreonDB('centreon');
 $partEngine = new PartEngine();
 
-if (!$partEngine->isCompatible($database)) {
-    $return['msg'] = "[" . date(DATE_RFC822) . "] " .
-        "CRITICAL: MySQL server is not compatible with partitionning. MySQL version must be greater or equal to 5.1\n";
+if (! $partEngine->isCompatible($database)) {
+    $return['msg'] = '[' . date(DATE_RFC822) . '] '
+        . "CRITICAL: MySQL server is not compatible with partitionning. MySQL version must be greater or equal to 5.1\n";
     echo json_encode($return);
+
     exit;
 }
 
@@ -72,12 +74,14 @@ try {
         // it optimizes the time for partition process
         $partEngine->createParts($mysqlTable, $database, false);
     }
-} catch (\Exception $e) {
-    $return['msg'] = preg_replace('/\n/', "", $e->getMessage());
+} catch (Exception $e) {
+    $return['msg'] = preg_replace('/\n/', '', $e->getMessage());
     echo json_encode($return);
+
     exit;
 }
 
 $return['result'] = 0;
 echo json_encode($return);
+
 exit;

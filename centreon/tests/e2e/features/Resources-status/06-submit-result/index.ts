@@ -101,13 +101,13 @@ When("the user submits some results to this service", () => {
 	cy.visit("/centreon/monitoring/resources");
 	cy.get('input[placeholder="Search"]').clear().type("{enter}");
 	cy.wait("@getResources");
-	cy.getByTestId({ testId: "RefreshIcon" }).click();
+	cy.get('[aria-label="Refresh"]').click();
 	cy.wait("@getResources");
 	cy.get('input[placeholder="Search"]')
 		.clear()
 		.type(`${services.serviceOk.name}{enter}`);
 	cy.wait("@getResources");
-	cy.getByTestId({ testId: "RefreshIcon" }).click();
+	cy.get('[aria-label="Refresh"]').click();
 	cy.wait("@getResources");
 	cy.getByLabel({ label: "Select all" }).click();
 	cy.get("button#Moreactions").click();
@@ -151,11 +151,11 @@ Given(
 When("the user submits some results to this host", () => {
 	cy.visit("/centreon/monitoring/resources");
 	cy.get('input[placeholder="Search"]').clear().type("{enter}");
-	cy.getByTestId({ testId: "RefreshIcon" }).click();
+	cy.get('[aria-label="Refresh"]').click();
 	cy.get('input[placeholder="Search"]')
 		.clear()
 		.type(`type:host name:${services.serviceOk.host}{enter}`);
-	cy.getByTestId({ testId: "RefreshIcon" }).click();
+	cy.get('[aria-label="Refresh"]').click();
 	cy.getByLabel({ label: "Select all" }).click();
 	cy.get("button#Moreactions").click();
 	cy.getByTestId({ testId: "Submit a status" }).click();

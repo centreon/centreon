@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2016 Centreon
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
@@ -41,7 +42,7 @@ if (isset($pearDB)) {
     $hostId = null;
     $virtualServices = [];
 
-    /* Check virtual host */
+    // Check virtual host
     $queryHost = 'SELECT host_id '
         . 'FROM host '
         . 'WHERE host_register = "2" '
@@ -61,7 +62,7 @@ if (isset($pearDB)) {
         }
     }
 
-    /* Check existing virtual services */
+    // Check existing virtual services
     $query = 'SELECT service_id, service_description '
         . 'FROM service '
         . 'WHERE service_description LIKE "meta_%" '
@@ -74,16 +75,16 @@ if (isset($pearDB)) {
         }
     }
 
-    /* Check existing relations between virtual services and virtual host */
+    // Check existing relations between virtual services and virtual host
     $query = 'SELECT s.service_id, s.service_description '
         . 'FROM service s, host_service_relation hsr '
         . 'WHERE hsr.host_host_id = :host_id '
         . 'AND s.service_register = "2" '
         . 'AND s.service_description LIKE "meta_%" ';
     $statement = $pearDB->prepare($query);
-    $statement->bindValue(':host_id', (int)$hostId, \PDO::PARAM_INT);
+    $statement->bindValue(':host_id', (int) $hostId, PDO::PARAM_INT);
     $statement->execute();
-    while ($row = $statement->fetch(\PDO::FETCH_ASSOC)) {
+    while ($row = $statement->fetch(PDO::FETCH_ASSOC)) {
         if (preg_match('/meta_(\d+)/', $row['service_description'], $matches)) {
             $metaId = $matches[1];
             $virtualServices[$matches[1]]['relation'] = true;
@@ -94,17 +95,17 @@ if (isset($pearDB)) {
         . 'FROM meta_service ';
     $res = $pearDB->query($query);
     while ($row = $res->fetchRow()) {
-        if (!isset($virtualServices[$row['meta_id']]) || !isset($virtualServices[$row['meta_id']]['service_id'])) {
+        if (! isset($virtualServices[$row['meta_id']]) || ! isset($virtualServices[$row['meta_id']]['service_id'])) {
             $serviceId = $metaObj->insertVirtualService($row['meta_id'], $row['meta_name']);
         } else {
             $serviceId = $virtualServices[$row['meta_id']]['service_id'];
         }
-        if (!isset($virtualServices[$row['meta_id']]) || !isset($virtualServices[$row['meta_id']]['relation'])) {
+        if (! isset($virtualServices[$row['meta_id']]) || ! isset($virtualServices[$row['meta_id']]['relation'])) {
             $query = 'INSERT INTO host_service_relation (host_host_id, service_service_id) '
                 . 'VALUES (:host_id, :service_id) ';
             $statement = $pearDB->prepare($query);
-            $statement->bindValue(':host_id', (int) $hostId, \PDO::PARAM_INT);
-            $statement->bindValue(':service_id', (int) $serviceId, \PDO::PARAM_INT);
+            $statement->bindValue(':host_id', (int) $hostId, PDO::PARAM_INT);
+            $statement->bindValue(':service_id', (int) $serviceId, PDO::PARAM_INT);
             $statement->execute();
         }
     }

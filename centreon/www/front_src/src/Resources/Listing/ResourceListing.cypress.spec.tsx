@@ -620,6 +620,19 @@ describe('Display additional columns', () => {
     cy.findByText('Set by admin').should('be.visible');
 
     cy.makeSnapshot();
+
+    cy.findByLabelText(chipLabel).trigger('mouseout');
+
+    cy.get('[value="Information"]').click();
+    cy.get('[value="Status"]').click();
+    cy.get('[value="Resource"]').click();
+    cy.get('[value="Parent"]').click();
+    cy.get('[value="Graph (G)"]').click();
+    cy.get('[value="Duration"]').click();
+    cy.get('[value="Last check"]').click();
+    cy.get('[value="Tries"]').click();
+
+    cy.findByLabelText('Add columns').click();
   });
 
   const columnIds = map(prop('id'), columns);
@@ -659,6 +672,8 @@ describe('Display additional columns', () => {
         cy.findByText(columnDisplayLabel).should('be.visible');
       }
 
+      cy.findByLabelText('Add columns').click();
+
       cy.makeSnapshot();
     });
   });
@@ -674,13 +689,9 @@ describe('Notification column', () => {
 
     cy.waitFiltersAndListingRequests();
 
-    cy.contains('E0').should('be.visible');
-
     cy.findByTestId('Add columns').click();
 
     cy.findByText('Notification (Notif)').should('exist');
-
-    cy.makeSnapshot();
   });
 
   it('hides notification column if the cloud notification feature is enabled', () => {
@@ -691,8 +702,6 @@ describe('Notification column', () => {
     interceptRequestsAndMountBeforeEach();
 
     cy.waitFiltersAndListingRequests();
-
-    cy.contains('E0').should('be.visible');
 
     cy.findByTestId('Add columns').click();
 

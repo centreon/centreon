@@ -38,6 +38,7 @@ use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 use Core\Common\Infrastructure\Repository\RepositoryTrait;
 use Core\MonitoringServer\Infrastructure\Repository\MonitoringServerRepositoryTrait;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
+use Core\Security\Token\Domain\Model\JwtToken;
 
 /**
  * @phpstan-type _AgentConfiguration array{
@@ -46,16 +47,17 @@ use Core\Security\AccessGroup\Domain\Model\AccessGroup;
  *  name:string,
  *  connection_mode:string,
  *  configuration:string,
+ *  tokens?: JwtToken[]
  * }
  */
 class DbReadAgentConfigurationRepository extends AbstractRepositoryRDB implements ReadAgentConfigurationRepositoryInterface
 {
-    use RepositoryTrait, MonitoringServerRepositoryTrait;
+    use RepositoryTrait;
+    use MonitoringServerRepositoryTrait;
 
     public function __construct(
         DatabaseConnection $db
-    )
-    {
+    ) {
         $this->db = $db;
     }
 
@@ -263,7 +265,7 @@ class DbReadAgentConfigurationRepository extends AbstractRepositoryRDB implement
         }
 
         $accessGroupIds = array_map(
-            static fn(AccessGroup $accessGroup): int => $accessGroup->getId(),
+            static fn (AccessGroup $accessGroup): int => $accessGroup->getId(),
             $accessGroups
         );
 
@@ -414,8 +416,8 @@ class DbReadAgentConfigurationRepository extends AbstractRepositoryRDB implement
             type: $type,
             connectionMode: $connectionMode,
             configuration: match ($type->value) {
-                Type::TELEGRAF->value => new TelegrafConfigurationParameters($configuration, $connectionMode),
-                Type::CMA->value => new CmaConfigurationParameters($configuration, $connectionMode)
+                Type::TELEGRAF->value => new TelegrafConfigurationParameters($configuration),
+                Type::CMA->value => new CmaConfigurationParameters($configuration, $connectionMode),
             }
         );
     }

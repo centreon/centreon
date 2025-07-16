@@ -96,7 +96,7 @@ class ACLConditions
      */
     public function getClaimValues(): array
     {
-        return array_map(static fn($relation) => $relation->getClaimValue(), $this->relations);
+        return array_map(static fn ($relation) => $relation->getClaimValue(), $this->relations);
     }
 
     /**
@@ -135,7 +135,7 @@ class ACLConditions
                 $missing[] = 'relations';
             }
 
-            if (! empty($missing)) {
+            if ($missing !== []) {
                 throw ACLConditionsException::missingFields($missing);
             }
         }

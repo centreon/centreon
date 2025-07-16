@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2015 Centreon
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
@@ -33,11 +34,11 @@
  *
  */
 
-$configFile = realpath(__DIR__ . "/../../../config/centreon.config.php");
+$configFile = realpath(__DIR__ . '/../../../config/centreon.config.php');
 require_once __DIR__ . '/../../class/config-generate/host.class.php';
 require_once __DIR__ . '/../../class/config-generate/service.class.php';
 
-if (!isset($centreon)) {
+if (! isset($centreon)) {
     exit();
 }
 
@@ -50,6 +51,7 @@ function get_user_param($user_id, $pearDB)
             $tab_row[$param] = $_SESSION[$param];
         }
     }
+
     return $tab_row;
 }
 
@@ -62,10 +64,10 @@ function set_user_param($user_id, $pearDB, $key, $value)
  * Get the notified contact/contact group of host tree inheritance
  *
  * @param int $hostId
- * @param \Pimple\Container $dependencyInjector
+ * @param Pimple\Container $dependencyInjector
  * @return array
  */
-function getNotifiedInfosForHost(int $hostId, \Pimple\Container $dependencyInjector) : array
+function getNotifiedInfosForHost(int $hostId, Pimple\Container $dependencyInjector): array
 {
     $results = ['contacts' => [], 'contactGroups' => []];
     $hostInstance = Host::getInstance($dependencyInjector);
@@ -80,6 +82,7 @@ function getNotifiedInfosForHost(int $hostId, \Pimple\Container $dependencyInjec
 
     natcasesort($results['contacts']);
     natcasesort($results['contactGroups']);
+
     return $results;
 }
 
@@ -102,6 +105,7 @@ function getContactgroups(array $cg): array
     while (($row = $dbResult->fetchRow())) {
         $contactGroups[$row['cg_id']] = $row['cg_name'];
     }
+
     return $contactGroups;
 }
 
@@ -111,7 +115,7 @@ function getContactgroups(array $cg): array
  * @param int[] $contacts list contact id
  * @return array
  */
-function getContacts(array $contacts) : array
+function getContacts(array $contacts): array
 {
     global $pearDB;
 
@@ -133,19 +137,19 @@ function getContacts(array $contacts) : array
  *
  * @param int $serviceId
  * @param int $hostId
- * @param \Pimple\Container $dependencyInjector
+ * @param Pimple\Container $dependencyInjector
  * @return array
  */
-function getNotifiedInfosForService(int $serviceId, int $hostId, \Pimple\Container $dependencyInjector) : array
+function getNotifiedInfosForService(int $serviceId, int $hostId, Pimple\Container $dependencyInjector): array
 {
     $results = ['contacts' => [], 'contactGroups' => []];
 
     $serviceInstance = Service::getInstance($dependencyInjector);
     $notifications = $serviceInstance->getCgAndContacts($serviceId);
 
-    if (((!isset($notifications['cg']) || count($notifications['cg']) == 0) &&
-        (!isset($notifications['contact']) || count($notifications['contact']) == 0)) ||
-        $serviceInstance->getString($serviceId, 'service_use_only_contacts_from_host')
+    if (((! isset($notifications['cg']) || count($notifications['cg']) == 0)
+        && (! isset($notifications['contact']) || count($notifications['contact']) == 0))
+        || $serviceInstance->getString($serviceId, 'service_use_only_contacts_from_host')
     ) {
         $results = getNotifiedInfosForHost($hostId, $dependencyInjector);
     } else {
@@ -159,5 +163,6 @@ function getNotifiedInfosForService(int $serviceId, int $hostId, \Pimple\Contain
 
     natcasesort($results['contacts']);
     natcasesort($results['contactGroups']);
+
     return $results;
 }

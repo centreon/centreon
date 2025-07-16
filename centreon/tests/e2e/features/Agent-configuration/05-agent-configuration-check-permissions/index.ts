@@ -169,7 +169,7 @@ Then(
 );
 
 When('the user deletes the Agents Configuration', () => {
-  cy.getByTestId({ testId: 'DeleteOutlineIcon' }).eq(0).click();
+  cy.getByTestId({ testId: 'Delete' }).eq(0).click();
   cy.contains('button', 'Delete').click();
   cy.wait('@deleteAgents');
 });
@@ -365,7 +365,7 @@ When('the user can update the Agents Configuration', () => {
   cy.getByLabel({ label: 'Name', tag: 'input' })
     .clear()
     .type(agentsConfiguration.telegraf2.name);
-  cy.getByTestId({ testId: 'CancelIcon' }).eq(0).click();
+  cy.get('svg[class*="deleteIcon"]').eq(0).click();
   cy.getByTestId({ testId: 'submit' }).click();
   cy.wait('@updateAgents');
   cy.get('*[role="dialog"]').should('not.exist');

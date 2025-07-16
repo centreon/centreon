@@ -1,6 +1,7 @@
 import { Meta, StoryObj } from '@storybook/react';
 
 import { DataTableItem } from './DataTableItem';
+import '../../../ThemeProvider/tailwindcss.css';
 
 const meta: Meta<typeof DataTableItem> = {
   component: DataTableItem

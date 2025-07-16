@@ -43,7 +43,13 @@ declare(strict_types=1);
 function isCommandInAllowedResources(CentreonDB $pearDB, string $command): bool
 {
     $allowedResources = getAllResources($pearDB);
-    return in_array(substr($command, 0, strlen($path)), $allowedResources, true);
+    foreach ($allowedResources as $path) {
+        if (str_starts_with($command, $path)) {
+            return true;
+        }
+    }
+
+    return false;
 }
 
 /**
@@ -71,7 +77,7 @@ function getResourcePathByName(CentreonDB $pearDB, string $resourceName): ?strin
     $prepare = $pearDB->prepare(
         'SELECT `resource_line` FROM `cfg_resource` WHERE `resource_name` = :resource LIMIT 1'
     );
-    $prepare->bindValue(':resource', $resourceName, \PDO::PARAM_STR);
+    $prepare->bindValue(':resource', $resourceName, PDO::PARAM_STR);
     $prepare->execute();
     $resourcePath = $prepare->fetchColumn();
 
@@ -86,7 +92,7 @@ function getAllResources(CentreonDB $pearDB): array
 {
     $dbResult = $pearDB->query('SELECT `resource_line` FROM `cfg_resource`');
 
-    return $dbResult->fetchAll(\PDO::FETCH_COLUMN);
+    return $dbResult->fetchAll(PDO::FETCH_COLUMN);
 }
 
 /**
@@ -95,7 +101,7 @@ function getAllResources(CentreonDB $pearDB): array
  */
 function getCommandElements(string $commandLine): array
 {
-    $commandElements = explode(" ", $commandLine);
+    $commandElements = explode(' ', $commandLine);
 
     $matchPluginOption = array_values(preg_grep('/^\-\-plugin\=(\w+)/i', $commandElements) ?? []);
     $plugin = $matchPluginOption[0] ?? null;
@@ -112,13 +118,14 @@ function getCommandElements(string $commandLine): array
  */
 function replaceMacroInCommandPath(CentreonDB $pearDB, string $commandPath): string
 {
-    $explodedCommandPath = explode("/", $commandPath);
+    $explodedCommandPath = explode('/', $commandPath);
     $resourceName = $explodedCommandPath[0];
 
-    //Match if the first part of the path is a MACRO
+    // Match if the first part of the path is a MACRO
     if ($resourcePath = getResourcePathByName($pearDB, $resourceName)) {
         unset($explodedCommandPath[0]);
-        return rtrim($resourcePath, "/") . "/" . implode("/", $explodedCommandPath);
+
+        return rtrim($resourcePath, '/') . '/' . implode('/', $explodedCommandPath);
     }
 
     return $commandPath;

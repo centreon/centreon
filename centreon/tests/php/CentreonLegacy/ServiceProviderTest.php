@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Copyright 2019 Centreon
  *
@@ -17,10 +18,9 @@
 
 namespace CentreonLegacy;
 
-use PHPUnit\Framework\TestCase;
 use Centreon\Test\Mock;
+use PHPUnit\Framework\TestCase;
 use Pimple\Container;
-use CentreonLegacy\ServiceProvider;
 
 /**
  * @group CentreonLegacy
@@ -28,8 +28,8 @@ use CentreonLegacy\ServiceProvider;
  */
 class ServiceProviderTest extends TestCase
 {
-
     protected $container;
+
     protected $provider;
 
     protected function setUp(): void
@@ -39,8 +39,8 @@ class ServiceProviderTest extends TestCase
         $centreon_path = '_PATH_';
 
         $this->provider = new ServiceProvider();
-        $this->container = new Container;
-        $this->container['configuration_db'] = new Mock\CentreonDB;
+        $this->container = new Container();
+        $this->container['configuration_db'] = new Mock\CentreonDB();
 
         $this->provider->register($this->container);
     }

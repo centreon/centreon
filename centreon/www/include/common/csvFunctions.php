@@ -20,7 +20,6 @@
  */
 
 /**
- *
  * @param string $text
  * @param string $delimiter (default ';')
  *
@@ -34,6 +33,7 @@ function readCsvLine(string &$text, string $delimiter = ';'): Generator
     }
     if (fwrite($handle, $text) === false) {
         fclose($handle);
+
         throw new RuntimeException('Failed to write to memory stream');
     }
     rewind($handle);
@@ -82,5 +82,6 @@ function csvToArray(&$text, bool $useCsvHeaderAsKey, string $delimiter = ';'): a
             $data[] = $record;
         }
     }
+
     return $data;
 }

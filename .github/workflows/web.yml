@@ -33,6 +33,8 @@ on:
       - dev-[2-9][0-9].[0-9][0-9].x
       - master
       - "[2-9][0-9].[0-9][0-9].x"
+      - 'release-[2-9][0-9].[0-9][0-9]-next'
+      - 'hotfix-[2-9][0-9].[0-9][0-9]-next'
     paths:
       - ".version"
       - ".version.centreon-web"
@@ -42,6 +44,8 @@ on:
       - "!centreon/lighthouse/**"
       - "!centreon/tests/**"
       - "!centreon/packages/**"
+    tags:
+      - "centreon-web-*"
 
 env:
   base_directory: centreon
@@ -49,6 +53,9 @@ env:
 
 jobs:
   changes:
+    if: |
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      needs.get-environment.outputs.stability != 'stable'
     needs: [get-environment]
     runs-on: ubuntu-24.04
     outputs:
@@ -92,6 +99,7 @@ jobs:
               - 'centreon/features/**'
               - 'centreon/src/**'
               - 'centreon/config/**'
+              - 'centreon/config.new/**'
               - 'centreon/composer.*'
               - 'centreon/www/!(front_src)/**'
               - 'centreon/doc/API/**'
@@ -119,7 +127,7 @@ jobs:
 
       - name: Run nightly on a different maintenance branch depending on the day
         run: |
-          NIGHTLY_TARGETS=("dev-22.10.x" "dev-23.04.x" "dev-23.10.x" "dev-24.04.x" "dev-24.10.x")
+          NIGHTLY_TARGETS=("dev-22.10.x" "dev-23.10.x" "dev-24.04.x" "dev-24.10.x")
           echo "[INFO] - Dispatching nightly run to ${NIGHTLY_TARGETS[$(( $(date +%u) - 1 ))]} branch."
           gh workflow run web.yml -r "${NIGHTLY_TARGETS[$(( $(date +%u) - 1 ))]}" -f nightly_manual_trigger=true
         shell: bash
@@ -132,10 +140,45 @@ jobs:
       version_file: centreon/www/install/insertBaseConf.sql
       nightly_manual_trigger: ${{ inputs.nightly_manual_trigger || false }}
 
+  check-version-consistency:
+    runs-on: ubuntu-24.04
+    needs: [get-environment]
+    if: |
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      needs.get-environment.outputs.stability == 'testing'
+    env:
+      version: ${{ needs.get-environment.outputs.major_version }}.${{ needs.get-environment.outputs.minor_version }}
+      version_file: .version.centreon-web
+      installation_file: centreon/www/install/insertBaseConf.sql
+      update_file: centreon/www/install/php/Update-${{ needs.get-environment.outputs.major_version }}.${{ needs.get-environment.outputs.minor_version }}.php
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Check ${{ env.version_file }}
+        uses: ./.github/actions/check-version-consistency
+        with:
+          file: ${{ env.version_file }}
+          version: ${{ env.version }}
+
+      - name: Check ${{ env.installation_file }}
+        uses: ./.github/actions/check-version-consistency
+        with:
+          file: ${{ env.installation_file }}
+          version: ${{ env.version }}
+
+      - name: Check ${{ env.update_file }}
+        uses: ./.github/actions/check-version-consistency
+        with:
+          file: ${{ env.update_file }}
+          version: ${{ env.version }}
+
   gherkin-lint:
     runs-on: ubuntu-24.04
     needs: [get-environment, changes]
-    if: ${{ needs.get-environment.outputs.skip_workflow == 'false' && needs.changes.outputs.has_test_changes == 'true' }}
+    if: |
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      needs.get-environment.outputs.stability != 'stable' &&
+      needs.changes.outputs.has_test_changes == 'true'
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
@@ -145,7 +188,8 @@ jobs:
 
   frontend-web-build:
     needs: [get-environment]
-    if: ${{ needs.get-environment.outputs.skip_workflow == 'false' }}
+    if: |
+      needs.get-environment.outputs.skip_workflow == 'false'
     runs-on: ubuntu-24.04
 
     steps:
@@ -178,21 +222,22 @@ jobs:
 
   backend-dependencies:
     needs: [get-environment]
-    if: ${{ needs.get-environment.outputs.skip_workflow == 'false' }}
+    if: |
+      needs.get-environment.outputs.skip_workflow == 'false'
     runs-on: ubuntu-24.04
 
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Setup PHP
-        uses: shivammathur/setup-php@cf4cade2721270509d5b1c766ab3549210a39a2a # v2.33.0
+        uses: shivammathur/setup-php@0f7f1d08e3e32076e51cae65eb0b0c871405b16e # v2.34.1
         with:
           php-version: 8.2
         env:
           runner: ubuntu-24.04
 
       - name: Install Dependencies
-        run: composer install --no-dev --optimize-autoloader
+        run: composer install --no-dev --optimize-autoloader --prefer-dist --no-interaction --no-progress --quiet --no-suggest
         working-directory: ${{ env.base_directory }}
         shell: bash
 
@@ -204,7 +249,8 @@ jobs:
 
   translation-build:
     needs: [get-environment]
-    if: ${{ needs.get-environment.outputs.skip_workflow == 'false' }}
+    if: |
+      needs.get-environment.outputs.skip_workflow == 'false'
 
     runs-on: ubuntu-24.04
     container:
@@ -239,7 +285,7 @@ jobs:
             langName="$(echo "$localefull" | cut -d . -f 1)"
             langShortName="$(echo "$localefull" | cut -d _ -f 1)"
             mkdir -p "www/locale/$localefull/LC_MESSAGES"
-            bash ../.github/scripts/translation/make_translation.sh centreon $langName
+            bash -e ../.github/scripts/translation/make_translation.sh centreon $langName
             msgfmt "lang/$localefull/LC_MESSAGES/messages.po" -o "www/locale/$localefull/LC_MESSAGES/messages.mo" || exit 1
             msgfmt "lang/$localefull/LC_MESSAGES/help.po" -o "www/locale/$localefull/LC_MESSAGES/help.mo" || exit 1
             php bin/centreon-translations.php "$langShortName" "lang/$localefull/LC_MESSAGES/messages.po" "www/locale/$localefull/LC_MESSAGES/messages.ser"
@@ -369,7 +415,7 @@ jobs:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Setup PHP
-        uses: shivammathur/setup-php@cf4cade2721270509d5b1c766ab3549210a39a2a # v2.33.0
+        uses: shivammathur/setup-php@0f7f1d08e3e32076e51cae65eb0b0c871405b16e # v2.34.1
         with:
           php-version: 8.2
           coverage: none
@@ -377,7 +423,7 @@ jobs:
           runner: ubuntu-24.04
 
       - name: Install dependencies
-        uses: ramsey/composer-install@a2636af0004d1c0499ffca16ac0b4cc94df70565 # v3.1.0
+        uses: ramsey/composer-install@3cf229dc2919194e9e36783941438d17239e8520 # v3.1.1
         with:
           working-directory: centreon
           composer-options: "--optimize-autoloader"
@@ -401,15 +447,20 @@ jobs:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Setup PHP
-        uses: shivammathur/setup-php@cf4cade2721270509d5b1c766ab3549210a39a2a # v2.33.0
+        uses: shivammathur/setup-php@0f7f1d08e3e32076e51cae65eb0b0c871405b16e # v2.34.1
         with:
           php-version: 8.2
           coverage: none
         env:
           runner: ubuntu-24.04
 
-      - name: Install Dependencies
-        run: composer install --optimize-autoloader
+      - name: Install dependencies for PHP quality tools
+        run: composer install --optimize-autoloader --prefer-dist --no-interaction --no-progress --quiet --no-suggest
+        working-directory: php-tools
+        shell: bash
+
+      - name: Install dependencies for centreon-web
+        run: composer install --optimize-autoloader --prefer-dist --no-interaction --no-progress --quiet --no-suggest
         working-directory: centreon
         shell: bash
 
@@ -417,35 +468,134 @@ jobs:
         run: cp config/centreon.config.php.template config/centreon.config.php
         working-directory: centreon
 
-      - name: Check Symfony configuration
-        run: composer symfony:check:ci
+      - name: ⚙️ Check Symfony configuration
+        run: composer symfony:check
         working-directory: centreon
 
-      - name: Run of php-cs-fixer with strict_type
-        run: vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.dist.php --verbose --dry-run --diff
+      - name: 🛠️ Rector checks
         working-directory: centreon
+        run: |
+          echo "Run of these Rector tests: rector:legacy, rector:core, rector:new" && set -e
 
-      - name: Run of php-cs-fixer without strict_type
-        run: vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.unstrict.php --verbose --dry-run --diff
-        working-directory: centreon
+          {
+            composer rector:legacy -- --no-progress-bar && echo "✅ Rector Legacy: Success" || { echo "❌ Rector Legacy: Failed"; exit 1; }
+          } &
+          pids+=($!)
 
-      - name: Run of phpstan on /src at level 4
-        run: vendor/bin/phpstan analyse --no-progress --level=4 --configuration=phpstan.neon
-        working-directory: centreon
+          {
+            composer rector:core -- --no-progress-bar && echo "✅ Rector Core: Success" || { echo "❌ Rector Core: Failed"; exit 1; }
+          } &
+          pids+=($!)
 
-      - name: Run of phpstan on /src/Core at level 8 + Centreon Custom Rules
-        run: vendor/bin/phpstan analyse --no-progress --level=8 --configuration=phpstan.core.neon
-        working-directory: centreon
+          {
+            composer rector:new -- --no-progress-bar && echo "✅ Rector New: Success" || { echo "❌ Rector New: Failed"; exit 1; }
+          } &
+          pids+=($!)
 
-      - name: Run of phpstan on /tests at level 2
-        run: vendor/bin/phpstan analyse --no-progress --level=2 --configuration=phpstan.test.neon
+          if ! wait -n; then
+            kill "${pids[@]}" 2>/dev/null || true
+            exit 1
+          fi
+
+          wait
+
+      - name: 🧹 PHP-CS-Fixer checks
         working-directory: centreon
+        run: |
+          echo "Run of these PHP-CS-Fixer tests: cs:legacy, cs:core, cs:new" && set -e
+
+          {
+            composer cs:legacy -- --format=txt --show-progress=none && echo "✅ PHP-CS-Fixer Legacy (www, src, tests): Success" || { echo "❌ PHP-CS-Fixer Legacy (www, src, tests): Failed"; exit 1; }
+          } &
+          pids+=($!)
+
+          {
+            composer cs:core -- --format=txt --show-progress=none && echo "✅ PHP-CS-Fixer Core: Success" || { echo "❌ PHP-CS-Fixer Core: Failed"; exit 1; }
+          } &
+          pids+=($!)
+
+          {
+            composer cs:new -- --format=txt --show-progress=none && echo "✅ PHP-CS-Fixer New: Success" || { echo "❌ PHP-CS-Fixer New: Failed"; exit 1; }
+          } &
+          pids+=($!)
+
+          if ! wait -n; then
+            kill "${pids[@]}" 2>/dev/null || true
+            exit 1
+          fi
+
+          wait
+
+      - name: 🔍 PHPStan checks
+        working-directory: centreon
+        run: |
+          echo "Run of these PHPStan tests: stan:legacy:www, stan:legacy:src, stan:legacy:test, stan:core, stan:core:test, stan:new, stan:new:test" && set -e
+
+          {
+            composer stan:legacy:www -- --no-progress && echo "✅ PHPStan Legacy (www): Success" || { echo "❌ PHPStan Legacy (www): Failed"; exit 1; }
+          } &
+          pids+=($!)
+
+          {
+            composer stan:legacy:src -- --no-progress && echo "✅ PHPStan Legacy (src): Success" || { echo "❌ PHPStan Legacy (src): Failed"; exit 1; }
+          } &
+          pids+=($!)
+
+          {
+            composer stan:legacy:test -- --no-progress && echo "✅ PHPStan Legacy (test): Success" || { echo "❌ PHPStan Legacy (test): Failed"; exit 1; }
+          } &
+          pids+=($!)
+
+          {
+            composer stan:core:src -- --no-progress && echo "✅ PHPStan Core (src): Success" || { echo "❌ PHPStan Core (src): Failed"; exit 1; }
+          } &
+          pids+=($!)
+
+          {
+            composer stan:core:test -- --no-progress && echo "✅ PHPStan Core (test): Success" || { echo "❌ PHPStan Core (test): Failed"; exit 1; }
+          } &
+          pids+=($!)
+
+          {
+            composer stan:new:src -- --no-progress && echo "✅ PHPStan New (src): Success" || { echo "❌ PHPStan New (src): Failed"; exit 1; }
+          } &
+          pids+=($!)
+
+          {
+            composer stan:new:test -- --no-progress && echo "✅ PHPStan New (test): Success" || { echo "❌ PHPStan New (test): Failed"; exit 1; }
+          } &
+          pids+=($!)
+
+          if ! wait -n; then
+            kill "${pids[@]}" 2>/dev/null || true
+            exit 1
+          fi
+
+          wait
+
+      - name: 📐 Deptrac checks
+        working-directory: centreon
+        run: |
+          echo "Run of these Deptrac tests: dep:new" && set -e
+
+          {
+            composer dep:new -- --no-progress --formatter=github-actions && echo "✅ Deptrac New: Success" || { echo "❌ Deptrac New: Failed"; exit 1; }
+          } &
+          pids+=($!)
+
+          if ! wait -n; then
+            kill "${pids[@]}" 2>/dev/null || true
+            exit 1
+          fi
+
+          wait
 
   package:
     needs:
       [
         gherkin-lint,
         get-environment,
+        check-version-consistency,
         translation-build,
         backend-dependencies,
         backend-lint,
@@ -455,7 +605,12 @@ jobs:
         frontend-unit-test,
         frontend-component-test,
       ]
-    if: ${{ needs.get-environment.outputs.skip_workflow == 'false' && !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.get-environment.outputs.stability != 'stable' }}
+    if: |
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      ! cancelled() &&
+      ! contains(needs.*.result, 'failure') &&
+      ! contains(needs.*.result, 'cancelled') &&
+      needs.get-environment.outputs.stability != 'stable'
 
     strategy:
       fail-fast: false
@@ -684,10 +839,10 @@ jobs:
           mv *.${{ steps.matrix_include.outputs.package_extension }} packages-centreon/
         shell: bash
 
-      - uses: docker/setup-buildx-action@b5ca514318bd6ebac0fb2aedd5d36ec1b5c232a2 # v3.10.0
+      - uses: docker/setup-buildx-action@e468171a9de216ec08956ac3ada2f0791b6bd435 # v3.11.1
 
       - name: Build and push web image
-        uses: docker/build-push-action@14487ce63c7a62a4a324b0bfb37086795e31c6c1 # v6.16.0
+        uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 # v6.18.0
         env:
           DOCKER_BUILD_CHECKS_ANNOTATIONS: false
           DOCKER_BUILD_SUMMARY: false
@@ -959,7 +1114,11 @@ jobs:
   publish-openapi-documentation:
     runs-on: infrastructure
     needs: [get-environment]
-    if: ${{ needs.get-environment.outputs.skip_workflow == 'false' && !cancelled() && contains(fromJson('["stable"]'), needs.get-environment.outputs.stability) && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && github.event_name != 'workflow_dispatch' && github.repository == 'centreon/centreon' }}
+    if: |
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      needs.get-environment.outputs.stability == 'stable' &&
+      github.event_name != 'workflow_dispatch' &&
+      github.repository == 'centreon/centreon'
     steps:
       - name: Checkout sources
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
@@ -1001,7 +1160,7 @@ jobs:
           sudo ./aws/install
         shell: bash
 
-      - uses: aws-actions/configure-aws-credentials@ececac1a45f3b08a01d2dd070d28d111c5fe6722 # v4.1.0
+      - uses: aws-actions/configure-aws-credentials@b47578312673ae6fa5b5096b330d9fbac3d116df # v4.2.1
         with:
           aws-region: eu-west-1
           role-to-assume: ${{ secrets.CLOUDFRONT_ROLE_DOC_PRODUCTION }}

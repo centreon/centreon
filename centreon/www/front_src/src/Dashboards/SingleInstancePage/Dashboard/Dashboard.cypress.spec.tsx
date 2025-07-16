@@ -1239,7 +1239,5 @@ describe('Dashboard with complex layout', () => {
     cy.get('.react-grid-item')
       .eq(4)
       .should('have.css', 'transform', 'matrix(1, 0, 0, 1, 317, 12)');
-
-    cy.makeSnapshot();
   });
 });

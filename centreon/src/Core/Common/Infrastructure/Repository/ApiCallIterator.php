@@ -19,7 +19,7 @@
  *
  */
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Core\Common\Infrastructure\Repository;
 
@@ -62,7 +62,7 @@ class ApiCallIterator implements \IteratorAggregate, \Countable
         private readonly \Closure $entityFactory,
         private readonly LoggerInterface $logger,
     ) {
-       Assertion::positiveInt($this->maxItemsByRequest, 'maxItemsByRequest');
+        Assertion::positiveInt($this->maxItemsByRequest, 'maxItemsByRequest');
     }
 
     /**

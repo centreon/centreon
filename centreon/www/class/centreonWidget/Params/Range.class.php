@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2015 Centreon
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
@@ -33,7 +34,7 @@
  *
  */
 
-require_once __DIR__ . "/../Params.class.php";
+require_once __DIR__ . '/../Params.class.php';
 
 /**
  * Class
@@ -62,17 +63,17 @@ class CentreonWidgetParamsRange extends CentreonWidgetParams
     /**
      * @param $params
      *
-     * @return void
      * @throws HTML_QuickForm_Error
      * @throws PDOException
+     * @return void
      */
     public function init($params): void
     {
         parent::init($params);
         if (isset($this->quickform)) {
-            $query = "SELECT min_range, max_range, step " .
-                "FROM widget_parameters_range " .
-                "WHERE parameter_id = " . $this->db->escape($params['parameter_id']);
+            $query = 'SELECT min_range, max_range, step '
+                . 'FROM widget_parameters_range '
+                . 'WHERE parameter_id = ' . $this->db->escape($params['parameter_id']);
             $res = $this->db->query($query);
             $row = $res->fetchRow();
             $min = $row['min_range'];

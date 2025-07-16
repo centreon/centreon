@@ -19,7 +19,7 @@
  *
  */
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Core\Common\Infrastructure\Normalizer;
 
@@ -35,21 +35,34 @@ final readonly class GeoCoordsNormalizer implements NormalizerInterface
      * @param array<string, mixed> $context
      *
      * @throws ExceptionInterface
-     * @return string
      */
     public function normalize(
         mixed $object,
         ?string $format = null,
-        array $context = []
-    ): string
-    {
+        array $context = [],
+    ): string {
         /** @var GeoCoords $object */
-
         return $object->__toString();
     }
 
-    public function supportsNormalization(mixed $data, ?string $format = null): bool
+    /**
+     * @param array<string, mixed> $context
+     * @param mixed $data
+     * @param ?string $format
+     */
+    public function supportsNormalization(mixed $data, ?string $format = null, array $context = []): bool
     {
         return $data instanceof GeoCoords;
+    }
+
+    /**
+     * @param ?string $format
+     * @return array<class-string|'*'|'object'|string, bool|null>
+     */
+    public function getSupportedTypes(?string $format): array
+    {
+        return [
+            GeoCoords::class => true,
+        ];
     }
 }

@@ -50,7 +50,7 @@ class RealTimeDataInformation
         private readonly ?float $lastValue,
         private readonly ?float $averageValue,
     ) {
-        Assertion::arrayOfTypeOrNull('float',  $values, 'values');
+        Assertion::arrayOfTypeOrNull('float', $values, 'values');
         foreach ($labels as $label) {
             Assertion::arrayOfTypeOrNull('string', $label, 'labels');
         }

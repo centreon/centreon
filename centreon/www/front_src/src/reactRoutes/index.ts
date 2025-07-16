@@ -56,7 +56,7 @@ const reactRoutes = [
     path: routeMap.resourceAccessManagement
   },
   {
-    comp: lazy(() => import('../AdditionalConnectorConfiguration')),
+    comp: lazy(() => import('../Configuration/AdditionnalConnectors')),
     path: routeMap.additionalConnectorConfiguration
   },
   {

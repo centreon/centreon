@@ -4,6 +4,7 @@ import { Default as DefaultPageHeaderStory } from '../../Header/PageHeader/PageH
 import { AreaIndicator } from '../AreaIndicator';
 
 import { PageLayout } from './index';
+import '../../../ThemeProvider/tailwindcss.css';
 
 const meta: Meta<typeof PageLayout> = {
   argTypes: {

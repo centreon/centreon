@@ -42,8 +42,7 @@ final class GetHostGroupResponse implements StandardResponseInterface
         public readonly array $hosts = [],
         public readonly array $rules = [],
         public readonly ?Media $icon = null,
-    )
-    {
+    ) {
     }
 
     /**

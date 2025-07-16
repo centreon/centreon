@@ -25,6 +25,5 @@
   "plugin_dir": "\/usr\/lib64\/nagios\/plugins",
   "centreon_engine_connectors": "\/usr\/lib64\/centreon-connector",
   "centreon_engine_lib": "\/usr\/lib64\/centreon-engine",
-  "centreonbroker_cbmod": "\/usr\/lib64\/nagios\/cbmod.so",
   "centreon_plugins": "\/usr\/lib\/centreon\/plugins"
 }

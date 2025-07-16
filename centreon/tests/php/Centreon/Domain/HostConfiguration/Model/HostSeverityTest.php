@@ -34,9 +34,7 @@ use PHPUnit\Framework\TestCase;
  */
 class HostSeverityTest extends TestCase
 {
-    /**
-     * @var Image Define the image that should be associated with this severity.
-     */
+    /** @var Image define the image that should be associated with this severity */
     protected $icon;
 
     protected function setUp(): void
@@ -197,15 +195,16 @@ class HostSeverityTest extends TestCase
     }
 
     /**
-     * @return HostSeverity
      * @throws \Assert\AssertionFailedException
+     * @return HostSeverity
      */
     public static function createEntity(): HostSeverity
     {
         $icon = (new Image())->setId(1)->setName('my icon')->setPath('/');
+
         return (new HostSeverity('Severity', 'Alias severity', 42, $icon))
             ->setId(10)
             ->setActivated(true)
-            ->setComments("blablabla");
+            ->setComments('blablabla');
     }
 }

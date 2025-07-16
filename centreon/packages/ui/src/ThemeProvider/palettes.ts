@@ -295,7 +295,9 @@ export const lightPalette: PaletteOptions = {
   },
   warning: {
     contrastText: '#000',
-    main: '#FD9B27'
+    main: '#FD9B27',
+    light: '#FCC481',
+    dark: '#FC7E00',
   }
 };
 

@@ -31,4 +31,3 @@ class MetaServiceFilterType extends AbstractDatasetFilterType
 
     protected string $name = self::TYPE_NAME;
 }
-

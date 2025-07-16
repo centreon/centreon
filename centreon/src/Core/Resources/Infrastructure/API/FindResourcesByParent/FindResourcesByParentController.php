@@ -52,8 +52,7 @@ final class FindResourcesByParentController extends AbstractController
         FindResourcesByParent $useCase,
         FindResourcesByParentPresenter $presenter,
         Request $request
-    ): Response
-    {
+    ): Response {
         $this->denyAccessUnlessGrantedForApiRealtime();
 
         $filter = $this->validator->validateAndRetrieveRequestParameters($request->query->all());

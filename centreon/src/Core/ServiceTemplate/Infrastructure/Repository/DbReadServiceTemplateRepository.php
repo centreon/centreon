@@ -188,7 +188,7 @@ class DbReadServiceTemplateRepository extends AbstractRepositoryRDB implements R
     public function findByIdAndAccessGroups(int $serviceTemplateId, array $accessGroups): ?ServiceTemplate
     {
         $accessGroupIds = array_map(
-            static fn($accessGroup) => $accessGroup->getId(),
+            static fn ($accessGroup) => $accessGroup->getId(),
             $accessGroups
         );
         $subRequest = $this->generateServiceCategoryAclSubRequest($accessGroupIds);
@@ -329,16 +329,16 @@ class DbReadServiceTemplateRepository extends AbstractRepositoryRDB implements R
         RequestParametersInterface $requestParameters,
         array $accessGroups
     ): array {
-         if ($accessGroups === []) {
+        if ($accessGroups === []) {
             $this->debug('No access group for this user, return empty');
 
             return [];
         }
 
         $accessGroupIds = array_map(
-            static fn($accessGroup) => $accessGroup->getId(),
+            static fn ($accessGroup) => $accessGroup->getId(),
             $accessGroups
-	);
+        );
 
         $subRequest = $this->generateServiceCategoryAclSubRequest($accessGroupIds);
 
@@ -359,7 +359,7 @@ class DbReadServiceTemplateRepository extends AbstractRepositoryRDB implements R
         $sqlConcatenator->defineSelect($request);
         $sqlConcatenator->appendGroupBy('service.service_id, esi.esi_action_url, esi.esi_icon_image, esi.esi_icon_image_alt, esi.esi_notes, esi.esi_notes_url, esi.graph_id');
         if (! empty($subRequest)) {
-            $sqlConcatenator->appendWhere('scr.sc_id IN ('.$subRequest.')');
+            $sqlConcatenator->appendWhere('scr.sc_id IN (' . $subRequest . ')');
         }
         $sqlConcatenator->appendWhere("service_register = '0'");
         $sqlTranslator->translateForConcatenator($sqlConcatenator);
@@ -391,12 +391,13 @@ class DbReadServiceTemplateRepository extends AbstractRepositoryRDB implements R
      */
     public function exists(int $serviceTemplateId): bool
     {
-        $request = $this->translateDbName(<<<'SQL'
-            SELECT 1
-            FROM `:db`.service
-            WHERE service_id = :id
-                AND service_register = '0'
-            SQL
+        $request = $this->translateDbName(
+            <<<'SQL'
+                SELECT 1
+                FROM `:db`.service
+                WHERE service_id = :id
+                    AND service_register = '0'
+                SQL
         );
         $statement = $this->db->prepare($request);
         $statement->bindValue(':id', $serviceTemplateId, \PDO::PARAM_INT);
@@ -410,12 +411,13 @@ class DbReadServiceTemplateRepository extends AbstractRepositoryRDB implements R
      */
     public function existsByName(TrimmedString $serviceTemplateName): bool
     {
-        $request = $this->translateDbName(<<<'SQL'
-            SELECT 1
-            FROM `:db`.service
-            WHERE service_description = :name
-                AND service_register = '0'
-            SQL
+        $request = $this->translateDbName(
+            <<<'SQL'
+                SELECT 1
+                FROM `:db`.service
+                WHERE service_description = :name
+                    AND service_register = '0'
+                SQL
         );
         $statement = $this->db->prepare($request);
         $statement->bindValue(':name', (string) $serviceTemplateName);

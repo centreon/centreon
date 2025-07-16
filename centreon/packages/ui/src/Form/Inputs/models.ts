@@ -63,6 +63,7 @@ export interface InputProps {
     getRenderedOptionText?: (option) => string | JSX.Element;
     disableSelectAll?: boolean;
     limitTags?: number;
+    decoder?;
   };
   file?: {
     multiple?: boolean;

@@ -68,12 +68,12 @@ const internalWidgets: Array<
   },
   {
     name: 'resourcestable',
-    panelMinWidth: 12,
-    panelMinHeight: 3,
+    panelMinWidth: 6,
+    panelMinHeight: 4,
     panelDefaultHeight: 4,
     panelDefaultWidth: 12
   },
-  { name: 'singlemetric' },
+  { name: 'singlemetric', panelMinWidth: 2, panelDefaultWidth: 4 },
   { name: 'statuschart', panelMinWidth: 4, panelMinHeight: 3 },
   { name: 'statusgrid', panelDefaultHeight: 3 },
   { name: 'topbottom' },

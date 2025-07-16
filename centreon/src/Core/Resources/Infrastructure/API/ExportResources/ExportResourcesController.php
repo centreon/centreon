@@ -56,7 +56,8 @@ final class ExportResourcesController extends AbstractController
         private readonly ContactInterface $contact,
         private readonly RequestValidator $validator,
         private readonly ExceptionLogger $exceptionLogger
-    ) {}
+    ) {
+    }
 
     /**
      * @param ExportResources $useCase

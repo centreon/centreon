@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2019 Centreon
  * Centreon is developed by : Julien Mathis and Romain Le Merlus under
@@ -46,12 +47,16 @@ class Engine extends AbstractObject
 {
     /** @var array */
     public $cfg_file;
+
     /** @var array|null */
     protected $engine = null;
+
     /** @var string|null */
-    protected $generate_filename = null; # it's in 'cfg_nagios' table
+    protected $generate_filename = null; // it's in 'cfg_nagios' table
+
     /** @var string */
     protected string $object_name;
+
     /** @var string */
     protected $attributes_select = '
         nagios_id,
@@ -138,6 +143,7 @@ class Engine extends AbstractObject
         logger_version,
         broker_module_cfg_file
     ';
+
     /** @var string[] */
     protected $attributes_write = [
         'use_timezone',
@@ -207,6 +213,7 @@ class Engine extends AbstractObject
         'log_level_runtime',
         'broker_module_cfg_file',
     ];
+
     /** @var string[] */
     protected $attributes_default = [
         'instance_heartbeat_interval',
@@ -240,20 +247,60 @@ class Engine extends AbstractObject
         'host_down_disable_service_checks',
         'enable_environment_macros',
     ];
+
     /** @var string[] */
     protected $attributes_array = [
         'cfg_file',
         'broker_module',
         'interval_length',
     ];
+
     /** @var CentreonDBStatement|null */
     protected $stmt_engine = null;
+
     /** @var CentreonDBStatement|null */
     protected $stmt_broker = null;
+
     /** @var CentreonDBStatement|null */
     protected $stmt_interval_length = null;
+
     /** @var array */
     protected $add_cfg_files = [];
+
+    /**
+     * @param $poller
+     *
+     * @throws LogicException
+     * @throws PDOException
+     * @throws ServiceCircularReferenceException
+     * @throws ServiceNotFoundException
+     * @return void
+     */
+    public function generateFromPoller($poller): void
+    {
+        Connector::getInstance($this->dependencyInjector)->generateObjects($poller['centreonconnector_path']);
+        Resource::getInstance($this->dependencyInjector)->generateFromPollerId($poller['id']);
+
+        $this->generate($poller['id']);
+    }
+
+    /**
+     * @param $cfg_path
+     *
+     * @return void
+     */
+    public function addCfgPath($cfg_path): void
+    {
+        $this->add_cfg_files[] = $cfg_path;
+    }
+
+    /**
+     * @return void
+     */
+    public function reset(): void
+    {
+        $this->add_cfg_files = [];
+    }
 
     /**
      * @param $poller_id
@@ -267,13 +314,13 @@ class Engine extends AbstractObject
             'target' => [
                 'cfg_file' => [],
                 'path' => $this->engine['cfg_dir'],
-                'resource_file' => $this->engine['cfg_dir'] . '/resource.cfg'
+                'resource_file' => $this->engine['cfg_dir'] . '/resource.cfg',
             ],
             'debug' => [
                 'cfg_file' => [],
                 'path' => $this->backend_instance->getEngineGeneratePath() . '/' . $poller_id,
-                'resource_file' => $this->backend_instance->getEngineGeneratePath() . '/' . $poller_id . '/resource.cfg'
-            ]
+                'resource_file' => $this->backend_instance->getEngineGeneratePath() . '/' . $poller_id . '/resource.cfg',
+            ],
         ];
 
         foreach ($this->cfg_file as &$value) {
@@ -304,33 +351,44 @@ class Engine extends AbstractObject
     }
 
     /**
-     * @return void
      * @throws PDOException
+     * @return void
      */
     private function getBrokerModules(): void
     {
+        $pollerId = $this->engine['nagios_id'];
         if (is_null($this->stmt_broker)) {
             $this->stmt_broker = $this->backend_instance->db->prepare(
-                "SELECT broker_module FROM cfg_nagios_broker_module " .
-                "WHERE cfg_nagios_id = :id " .
-                "ORDER BY bk_mod_id ASC"
+                'SELECT broker_module FROM cfg_nagios_broker_module '
+                . 'WHERE cfg_nagios_id = :id '
+                . 'ORDER BY bk_mod_id ASC'
             );
         }
-        $this->stmt_broker->bindParam(':id', $this->engine['nagios_id'], PDO::PARAM_INT);
+        $this->stmt_broker->bindParam(':id', $pollerId, PDO::PARAM_INT);
         $this->stmt_broker->execute();
         $this->engine['broker_module'] = $this->stmt_broker->fetchAll(PDO::FETCH_COLUMN);
+
+        $pollerStmt = $this->backend_instance->db_cs->prepare('SELECT `version` FROM instances WHERE instance_id = :id ');
+        $pollerStmt->bindParam(':id', $pollerId, PDO::PARAM_INT);
+        $pollerStmt->execute();
+        $pollerVersion = $pollerStmt->fetchColumn();
+
+        if ($pollerVersion === false || version_compare($pollerVersion, '25.05.0', '<')) {
+            $this->engine['broker_module'][] = '/usr/lib64/nagios/cbmod.so ' . $this->engine['broker_module_cfg_file'];
+            unset($this->engine['broker_module_cfg_file']);
+        }
     }
 
     /**
-     * @return void
      * @throws PDOException
+     * @return void
      */
     private function getIntervalLength(): void
     {
         if (is_null($this->stmt_interval_length)) {
             $this->stmt_interval_length = $this->backend_instance->db->prepare(
-                "SELECT `value` FROM options " .
-                "WHERE `key` = 'interval_length'"
+                'SELECT `value` FROM options '
+                . "WHERE `key` = 'interval_length'"
             );
         }
         $this->stmt_interval_length->execute();
@@ -340,8 +398,8 @@ class Engine extends AbstractObject
     /**
      *  If log V2 enabled, set logger V2 configuration and unset logger legacy elements
      *
-     * @return void
      * @throws PDOException
+     * @return void
      */
     private function setLoggerCfg(): void
     {
@@ -366,18 +424,18 @@ class Engine extends AbstractObject
     }
 
     /**
-     * @return void
      * @throws LogicException
      * @throws ServiceCircularReferenceException
      * @throws ServiceNotFoundException
+     * @return void
      */
     private function setEngineNotificationState(): void
     {
         $kernel = Kernel::createForWeb();
         $featureFlags = $kernel->getContainer()->get(Core\Common\Infrastructure\FeatureFlags::class);
 
-        $this->engine['enable_notifications'] =
-            $featureFlags->isEnabled('notification') === false
+        $this->engine['enable_notifications']
+            = $featureFlags->isEnabled('notification') === false
             && $this->engine['enable_notifications'] === '1'
                 ? '1'
                 : '0';
@@ -386,18 +444,18 @@ class Engine extends AbstractObject
     /**
      * @param $poller_id
      *
-     * @return void
      * @throws LogicException
      * @throws PDOException
      * @throws ServiceCircularReferenceException
      * @throws ServiceNotFoundException
+     * @return void
      */
     private function generate($poller_id): void
     {
         if (is_null($this->stmt_engine)) {
             $this->stmt_engine = $this->backend_instance->db->prepare(
-                "SELECT $this->attributes_select FROM cfg_nagios " .
-                "WHERE nagios_server_id = :poller_id AND nagios_activate = '1'"
+                "SELECT {$this->attributes_select} FROM cfg_nagios "
+                . "WHERE nagios_server_id = :poller_id AND nagios_activate = '1'"
             );
         }
         $this->stmt_engine->bindParam(':poller_id', $poller_id, PDO::PARAM_INT);
@@ -447,40 +505,5 @@ class Engine extends AbstractObject
         $object['resource_file'] = $this->cfg_file['target']['resource_file'];
         $this->generateFile($object);
         $this->close_file();
-    }
-
-    /**
-     * @param $poller
-     *
-     * @return void
-     * @throws LogicException
-     * @throws PDOException
-     * @throws ServiceCircularReferenceException
-     * @throws ServiceNotFoundException
-     */
-    public function generateFromPoller($poller): void
-    {
-        Connector::getInstance($this->dependencyInjector)->generateObjects($poller['centreonconnector_path']);
-        Resource::getInstance($this->dependencyInjector)->generateFromPollerId($poller['id']);
-
-        $this->generate($poller['id']);
-    }
-
-    /**
-     * @param $cfg_path
-     *
-     * @return void
-     */
-    public function addCfgPath($cfg_path): void
-    {
-        $this->add_cfg_files[] = $cfg_path;
-    }
-
-    /**
-     * @return void
-     */
-    public function reset(): void
-    {
-        $this->add_cfg_files = [];
     }
 }

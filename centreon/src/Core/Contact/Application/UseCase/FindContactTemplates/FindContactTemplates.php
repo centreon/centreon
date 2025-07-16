@@ -43,7 +43,8 @@ class FindContactTemplates
     public function __construct(
         readonly private ReadContactTemplateRepositoryInterface $repository,
         readonly private ContactInterface $user,
-    ) {}
+    ) {
+    }
 
     /**
      * @param FindContactTemplatesPresenterInterface $presenter
