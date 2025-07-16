@@ -67,6 +67,23 @@ Cypress.Commands.add("getClosestVersionFile", (currentVersion, versionDir) => {
   });
 });
 
+Cypress.Commands.add("getLatestOnPremMajorVersion", () => {
+  return cy
+    .request("https://packages.centreon.com/ui/native/rpm-standard/")
+    .then((response) => {
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(response.body, "text/html");
+
+      const versions: string[] = Array.from(doc.querySelectorAll("a"))
+        .map((a) => a.textContent?.trim() || "")
+        .filter((text) => /^\d{2}\.\d{2}\/$/.test(text))
+        .map((v) => v.replace("/", ""))
+        .sort((a, b) => b.localeCompare(a, undefined, { numeric: true }));
+
+      return versions[0];
+    });
+});
+
 declare global {
   namespace Cypress {
     interface Chainable {
@@ -74,6 +91,7 @@ declare global {
         currentVersion: string,
         versionDir: string,
       ): Cypress.Chainable<string>;
+      getLatestOnPremMajorVersion(): Cypress.Chainable<string>;
     }
   }
 }
