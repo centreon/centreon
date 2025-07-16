@@ -88,18 +88,28 @@ class MonitoringServer
 
     public function update(
         string $name,
-        string $engineStartCommand,
-        string $engineStopCommand,
-        string $engineReloadCommand,
-        string $engineRestartCommand,
-        string $brokerReloadCommand
+        ?string $engineStartCommand,
+        ?string $engineStopCommand,
+        ?string $engineReloadCommand,
+        ?string $engineRestartCommand,
+        ?string $brokerReloadCommand
     ) {
         Assertion::notEmpty($name);
-        Assertion::regex($engineStartCommand, self::VALID_COMMAND_START_REGEX);
-        Assertion::regex($engineStopCommand, self::VALID_COMMAND_STOP_REGEX);
-        Assertion::regex($engineReloadCommand, self::VALID_COMMAND_RELOAD_REGEX);
-        Assertion::regex($engineRestartCommand, self::VALID_COMMAND_RESTART_REGEX);
-        Assertion::regex($brokerReloadCommand, self::VALID_COMMAND_RELOAD_REGEX);
+        if ($engineStartCommand !== null) {
+            Assertion::regex($engineStartCommand, self::VALID_COMMAND_START_REGEX);
+        }
+        if ($engineStopCommand !== null) {
+            Assertion::regex($engineStopCommand, self::VALID_COMMAND_STOP_REGEX);
+        }
+        if ($engineReloadCommand !== null) {
+            Assertion::regex($engineReloadCommand, self::VALID_COMMAND_RELOAD_REGEX);
+        }
+        if ($engineRestartCommand !== null) {
+            Assertion::regex($engineRestartCommand, self::VALID_COMMAND_RESTART_REGEX);
+        }
+        if ($brokerReloadCommand !== null) {
+            Assertion::regex($brokerReloadCommand, self::VALID_COMMAND_RELOAD_REGEX);
+        }
         $this->name = $name;
         $this->engineStartCommand = $engineStartCommand;
         $this->engineStopCommand = $engineStopCommand;

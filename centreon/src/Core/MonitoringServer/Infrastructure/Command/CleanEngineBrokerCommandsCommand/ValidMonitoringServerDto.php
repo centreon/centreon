@@ -21,12 +21,12 @@
 
 declare(strict_types=1);
 
-namespace Core\MonitoringServer\Infrastructure\Command;
+namespace Core\MonitoringServer\Infrastructure\Command\CleanEngineBrokerCommandsCommand;
 
 use Core\MonitoringServer\Model\MonitoringServer;
 use Symfony\Component\Validator\Constraints as Assert;
 
-final readonly class MonitoringServerDto
+final readonly class ValidMonitoringServerDto
 {
     public function __construct(
         public int $id,

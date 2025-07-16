@@ -28,6 +28,7 @@ use Core\Common\Domain\Exception\RepositoryException;
 use Core\MonitoringServer\Application\Repository\ReadMonitoringServerRepositoryInterface;
 use Core\MonitoringServer\Application\UseCase\UpdateMonitoringServer\UpdateMonitoringServer;
 use Core\MonitoringServer\Application\UseCase\UpdateMonitoringServer\UpdateMonitoringServerRequest;
+use Core\MonitoringServer\Infrastructure\Command\CleanEngineBrokerCommandsCommand\ValidMonitoringServerDto;
 use Core\MonitoringServer\Model\MonitoringServer;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -37,7 +38,6 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 #[AsCommand(
     name: 'web:monitoring-server:clean-engine-broker-command',
-    aliases: ['w:m:c'],
     description: 'Command to clean syntax of engine and broker syntaxes',
     help: 'This command will check the engine and broker commands of all Monitoring Servers '
         . 'and will fix them if they are not valid.'
@@ -80,12 +80,11 @@ final class CleanEngineBrokerCommandsCommand extends Command
         $monitoringServers = $this->readRepository->findAll();
         foreach ($monitoringServers as $monitoringServer) {
             $output->writeln('Monitoring Server: ' . $monitoringServer->getName());
-            $violations = $this->validator->validate(MonitoringServerDto::fromModel($monitoringServer));
+            $violations = $this->validator->validate(ValidMonitoringServerDto::fromModel($monitoringServer));
             if ($violations->count() === 0) {
                 $output->writeln('No invalid commands found.');
                 continue;
             }
-
             $invalidPropertyPaths = [];
             foreach ($violations as $violation) {
                 /** @var ConstraintViolation $violation */
@@ -98,42 +97,42 @@ final class CleanEngineBrokerCommandsCommand extends Command
                     )
                 );
             }
-            if (! $input->getOption('dry-run')) {
-                try {
-                    ($this->useCase)(new UpdateMonitoringServerRequest(
-                        id: $monitoringServer->getId(),
-                        name: $monitoringServer->getName(),
-                        engineRestartCommand: in_array('engineRestartCommand', $invalidPropertyPaths)
-                            ? MonitoringServer::DEFAULT_ENGINE_RESTART_COMMAND
-                            : $monitoringServer->getEngineRestartCommand(),
-                        engineReloadCommand: in_array('engineReloadCommand', $invalidPropertyPaths)
-                            ? MonitoringServer::DEFAULT_ENGINE_RELOAD_COMMAND
-                            : $monitoringServer->getEngineReloadCommand(),
-                        engineStopCommand: in_array('engineStopCommand', $invalidPropertyPaths)
-                            ? MonitoringServer::DEFAULT_ENGINE_STOP_COMMAND
-                            : $monitoringServer->getEngineStopCommand(),
-                        engineStartCommand: in_array('engineStartCommand', $invalidPropertyPaths)
-                            ? MonitoringServer::DEFAULT_ENGINE_START_COMMAND
-                            : $monitoringServer->getEngineStartCommand(),
-                        brokerReloadCommand: in_array('brokerReloadCommand', $invalidPropertyPaths)
-                            ? MonitoringServer::DEFAULT_BROKER_RELOAD_COMMAND
-                            : $monitoringServer->getBrokerReloadCommand()
-                    ));
-                    $output->writeln("Commands have been correctly cleaned");
-                } catch (RepositoryException $ex) {
-                    $this->error("An error occured while cleaning engine commands", [
-                        'exception' => $ex
-                    ]);
-                    $output->writeln("An error occured while cleaning engine commands, please retry");
-                    continue;
-                }
+            if ($input->getOption('dry-run')) {
+                continue;
+            }
+            try {
+                ($this->useCase)(new UpdateMonitoringServerRequest(
+                    id: $monitoringServer->getId(),
+                    name: $monitoringServer->getName(),
+                    engineRestartCommand: in_array('engineRestartCommand', $invalidPropertyPaths)
+                        ? MonitoringServer::DEFAULT_ENGINE_RESTART_COMMAND
+                        : $monitoringServer->getEngineRestartCommand(),
+                    engineReloadCommand: in_array('engineReloadCommand', $invalidPropertyPaths)
+                        ? MonitoringServer::DEFAULT_ENGINE_RELOAD_COMMAND
+                        : $monitoringServer->getEngineReloadCommand(),
+                    engineStopCommand: in_array('engineStopCommand', $invalidPropertyPaths)
+                        ? MonitoringServer::DEFAULT_ENGINE_STOP_COMMAND
+                        : $monitoringServer->getEngineStopCommand(),
+                    engineStartCommand: in_array('engineStartCommand', $invalidPropertyPaths)
+                        ? MonitoringServer::DEFAULT_ENGINE_START_COMMAND
+                        : $monitoringServer->getEngineStartCommand(),
+                    brokerReloadCommand: in_array('brokerReloadCommand', $invalidPropertyPaths)
+                        ? MonitoringServer::DEFAULT_BROKER_RELOAD_COMMAND
+                        : $monitoringServer->getBrokerReloadCommand()
+                ));
+                $output->writeln("Commands have been correctly cleaned");
+            } catch (RepositoryException $ex) {
+                $this->error("An error occured while cleaning engine commands", [
+                    'exception' => $ex
+                ]);
+                $output->writeln("An error occured while cleaning engine commands, please retry");
+                continue;
             }
         }
-        if ($input->getOption('dry-run')) {
-            $output->writeln('Dry run completed. No changes were made.');
-        } else {
-            $output->writeln('All invalid commands have been cleaned.');
-        }
+
+        $input->getOption('dry-run')
+            ? $output->writeln('Dry run completed. No changes were made.')
+            : $output->writeln('All invalid commands have been cleaned.');
 
         return Command::SUCCESS;
     }

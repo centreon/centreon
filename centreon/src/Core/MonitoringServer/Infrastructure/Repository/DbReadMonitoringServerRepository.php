@@ -24,9 +24,9 @@ declare(strict_types=1);
 namespace Core\MonitoringServer\Infrastructure\Repository;
 
 use Assert\AssertionFailedException;
+use Centreon\Domain\Exception\EntityNotFoundException;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Infrastructure\DatabaseConnection;
-use Core\Common\Domain\Exception\RepositoryException;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 use Core\Common\Infrastructure\Repository\SqlMultipleBindTrait;
 use Core\MonitoringServer\Application\Repository\ReadMonitoringServerRepositoryInterface;
@@ -353,9 +353,6 @@ class DbReadMonitoringServerRepository extends AbstractRepositoryRDB implements 
         return $monitoringServers;
     }
 
-    /**
-     * @inheritDoc
-     */
     public function get(int $monitoringServerId): MonitoringServer
     {
         $statement = $this->db->prepare($this->translateDbName(<<<SQL
@@ -377,7 +374,7 @@ class DbReadMonitoringServerRepository extends AbstractRepositoryRDB implements 
         $data = $statement->fetch(\PDO::FETCH_ASSOC);
         return $data
             ? $this->createMonitoringServerFromArray($data)
-            : throw new RepositoryException(sprintf("Monitoring Server [%d] does not exist", $monitoringServerId));
+            : throw new EntityNotFoundException(sprintf("Monitoring Server [%d] does not exist", $monitoringServerId));
     }
 
     /**

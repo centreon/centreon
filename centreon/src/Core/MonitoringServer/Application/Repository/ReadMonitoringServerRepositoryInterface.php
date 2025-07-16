@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace Core\MonitoringServer\Application\Repository;
 
-use Core\Common\Domain\Exception\RepositoryException;
+use Centreon\Domain\Exception\EntityNotFoundException;
 use Core\MonitoringServer\Model\MonitoringServer;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
@@ -33,8 +33,6 @@ interface ReadMonitoringServerRepositoryInterface
      * Determine if a monitoring server exists by its ID.
      *
      * @param int $monitoringServerId
-     *
-     * @throws \Throwable
      *
      * @return bool
      */
@@ -46,8 +44,6 @@ interface ReadMonitoringServerRepositoryInterface
      * @param int $monitoringServerId
      * @param AccessGroup[] $accessGroups
      *
-     * @throws \Throwable
-     *
      * @return bool
      */
     public function existsByAccessGroups(int $monitoringServerId, array $accessGroups): bool;
@@ -57,8 +53,6 @@ interface ReadMonitoringServerRepositoryInterface
      * Return the ids found.
      *
      * @param int[] $monitoringServerIds
-     *
-     * @throws \Throwable
      *
      * @return int[]
      */
@@ -71,8 +65,6 @@ interface ReadMonitoringServerRepositoryInterface
      * @param int[] $monitoringServerIds
      * @param AccessGroup[] $accessGroups
      *
-     * @throws \Throwable
-     *
      * @return int[]
      */
     public function existByAccessGroups(array $monitoringServerIds, array $accessGroups): array;
@@ -81,8 +73,6 @@ interface ReadMonitoringServerRepositoryInterface
      * Get a monitoring server by its associated host ID.
      *
      * @param int $hostId
-     *
-     * @throws \Throwable
      *
      * @return MonitoringServer|null
      */
@@ -93,8 +83,6 @@ interface ReadMonitoringServerRepositoryInterface
      *
      * @param int[] $ids
      *
-     * @throws \Throwable
-     *
      * @return MonitoringServer[]
      */
     public function findByIds(array $ids): array;
@@ -103,8 +91,6 @@ interface ReadMonitoringServerRepositoryInterface
      * Retrieves monitoring servers IDs by their associated host IDs.
      *
      * @param int[] $hostIds
-     *
-     * @throws \Throwable
      *
      * @return int[] The list of distinct server IDs
      */
@@ -115,16 +101,12 @@ interface ReadMonitoringServerRepositoryInterface
      *
      * @param int[] $ids
      *
-     * @throws \Throwable
-     *
      * @return MonitoringServer|null
      */
     public function findCentralByIds(array $ids): ?MonitoringServer;
 
     /**
      * Find all the Monitoring Servers.
-     *
-     * @throws \Throwable
      *
      * @return MonitoringServer[]
      */
@@ -137,7 +119,7 @@ interface ReadMonitoringServerRepositoryInterface
      *
      * @return MonitoringServer
      *
-     * @throws RepositoryException when no Monitoring server are found.
+     * @throws EntityNotFoundException when no Monitoring server are found.
      */
     public function get(int $monitoringServerId): MonitoringServer;
 }

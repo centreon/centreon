@@ -91,9 +91,6 @@ class DbWriteMonitoringServerRepository extends AbstractRepositoryRDB implements
         $statement->execute();
     }
 
-    /**
-     * @inheritDoc
-     */
     public function update(MonitoringServer $monitoringServer): void
     {
         $request = $this->translateDbName(

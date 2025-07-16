@@ -31,8 +31,6 @@ interface WriteMonitoringServerRepositoryInterface
      * Define the monitoring server as changed since its last configuration export.
      *
      * @param int $monitoringServerId
-     *
-     * @throws \Throwable
      */
     public function notifyConfigurationChange(int $monitoringServerId): void;
 
@@ -40,8 +38,6 @@ interface WriteMonitoringServerRepositoryInterface
      * Notify the monitoring servers as changed.
      *
      * @param int[] $monitoringServerIds
-     *
-     * @throws \Throwable
      */
     public function notifyConfigurationChanges(array $monitoringServerIds): void;
 
@@ -49,8 +45,6 @@ interface WriteMonitoringServerRepositoryInterface
      * Update a monitoring server.
      *
      * @param MonitoringServer $monitoringServer
-     *
-     * @throws \Throwable
      */
     public function update(MonitoringServer $monitoringServer): void;
 }
