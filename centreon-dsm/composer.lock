@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "36c6d48fb4538008a62afd4e6c61fc55",
+    "content-hash": "4cd6efeb5ec79892bd62fda2b48d61ee",
     "packages": [],
     "packages-dev": [
         {
@@ -1226,24 +1226,24 @@
         },
         {
             "name": "behat/behat",
-            "version": "v3.22.0",
+            "version": "v3.23.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Behat/Behat.git",
-                "reference": "a93098a77753c3cfdc4c485d75141924a78ceb93"
+                "reference": "c465af8756adaaa6d962c3176a0a6c594361809b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Behat/Behat/zipball/a93098a77753c3cfdc4c485d75141924a78ceb93",
-                "reference": "a93098a77753c3cfdc4c485d75141924a78ceb93",
+                "url": "https://api.github.com/repos/Behat/Behat/zipball/c465af8756adaaa6d962c3176a0a6c594361809b",
+                "reference": "c465af8756adaaa6d962c3176a0a6c594361809b",
                 "shasum": ""
             },
             "require": {
                 "behat/gherkin": "^4.12.0",
                 "composer-runtime-api": "^2.2",
-                "composer/xdebug-handler": "^3.0",
+                "composer/xdebug-handler": "^1.4 || ^2.0 || ^3.0",
                 "ext-mbstring": "*",
-                "nikic/php-parser": "^5.2",
+                "nikic/php-parser": "^4.19.2 || ^5.2",
                 "php": "8.1.* || 8.2.* || 8.3.* || 8.4.* ",
                 "psr/container": "^1.0 || ^2.0",
                 "symfony/config": "^5.4 || ^6.4 || ^7.0",
@@ -1257,6 +1257,7 @@
                 "friendsofphp/php-cs-fixer": "^3.68",
                 "phpstan/phpstan": "^2.0",
                 "phpunit/phpunit": "^9.6",
+                "rector/rector": "^2.0",
                 "sebastian/diff": "^4.0",
                 "symfony/polyfill-php84": "^1.31",
                 "symfony/process": "^5.4 || ^6.4 || ^7.0"
@@ -1312,9 +1313,9 @@
             ],
             "support": {
                 "issues": "https://github.com/Behat/Behat/issues",
-                "source": "https://github.com/Behat/Behat/tree/v3.22.0"
+                "source": "https://github.com/Behat/Behat/tree/v3.23.0"
             },
-            "time": "2025-05-06T15:25:03+00:00"
+            "time": "2025-07-15T16:58:54+00:00"
         },
         {
             "name": "behat/gherkin",
@@ -1549,15 +1550,15 @@
         },
         {
             "name": "centreon/centreon",
-            "version": "25.07",
+            "version": "25.09",
             "dist": {
                 "type": "path",
                 "url": "../centreon",
-                "reference": "01fb65c4a6347818cb0a2942d52fa7097a4cbb1b"
+                "reference": "b2f78518ebc8c61e73e8e05d8ab9dadc6904312f"
             },
             "require": {
                 "amphp/http-client": "4.6.*",
-                "api-platform/core": "^4.1",
+                "api-platform/core": "4.1.*",
                 "api-platform/symfony": "*",
                 "beberlei/assert": "3.3.*",
                 "curl/curl": "2.5.*",
@@ -1641,7 +1642,7 @@
             },
             "require-dev": {
                 "behat/mink-selenium2-driver": "1.6.*",
-                "centreon/centreon-test-lib": "dev-master",
+                "centreon/centreon-test-lib": "dev-MON-175018-master-remove-quality-tools",
                 "dama/doctrine-test-bundle": "8.2.*",
                 "friends-of-behat/mink": "1.11.*",
                 "friends-of-behat/mink-extension": "2.7.*",
@@ -1849,46 +1850,42 @@
         },
         {
             "name": "centreon/centreon-test-lib",
-            "version": "dev-master",
+            "version": "dev-MON-175018-master-remove-quality-tools",
             "source": {
                 "type": "git",
                 "url": "https://github.com/centreon/centreon-test-lib.git",
-                "reference": "be81af2a94edb04e89575b937d003952d83f1f11"
+                "reference": "0d78685556ee14dcc3e5ed5a36654d1f7c6fc2a2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/centreon/centreon-test-lib/zipball/be81af2a94edb04e89575b937d003952d83f1f11",
-                "reference": "be81af2a94edb04e89575b937d003952d83f1f11",
+                "url": "https://api.github.com/repos/centreon/centreon-test-lib/zipball/0d78685556ee14dcc3e5ed5a36654d1f7c6fc2a2",
+                "reference": "0d78685556ee14dcc3e5ed5a36654d1f7c6fc2a2",
                 "shasum": ""
             },
             "require": {
-                "behat/behat": "^3.0",
+                "behat/behat": "3.23.*",
                 "ext-curl": "*",
                 "ext-pdo": "*",
-                "guzzlehttp/guzzle": "^7.3",
-                "justinrainbow/json-schema": "^5.2",
-                "league/openapi-psr7-validator": "^0.17",
-                "nyholm/psr7": "^1.3",
+                "guzzlehttp/guzzle": "7.9.*",
+                "justinrainbow/json-schema": "5.3.*",
+                "league/openapi-psr7-validator": "0.17.*",
+                "nyholm/psr7": "1.8.*",
                 "pestphp/pest": "2.36.*",
-                "php": "8.2",
-                "psr/http-client": "^1.0",
+                "php": "8.2.*",
+                "psr/http-client": "1.0.*",
                 "symfony/http-client": "7.3.*",
                 "symfony/property-access": "7.3.*",
-                "webmozart/assert": "^1.9"
+                "webmozart/assert": "1.11.*"
             },
             "suggest": {
                 "behat/mink": "Browser controller/emulator abstraction for PHP",
-                "behat/mink-selenium2-driver": "Mink driver using Selenium",
-                "phpstan/phpstan": "PHP static analysis"
+                "behat/mink-selenium2-driver": "Mink driver using Selenium"
             },
-            "default-branch": true,
             "type": "library",
             "autoload": {
                 "psr-4": {
                     "Centreon\\Command\\": "src/Command",
-                    "Centreon\\PHPStan\\": "src/PHPStan",
                     "Centreon\\Test\\Mock\\": "src/mock",
-                    "Centreon\\PhpCsFixer\\": "src/PhpCsFixer",
                     "Centreon\\Test\\Behat\\": "src/behat",
                     "Centreon\\Test\\Traits\\": "src/traits"
                 }
@@ -1906,9 +1903,9 @@
             ],
             "support": {
                 "issues": "https://github.com/centreon/centreon-test-lib/issues",
-                "source": "https://github.com/centreon/centreon-test-lib/tree/master"
+                "source": "https://github.com/centreon/centreon-test-lib/tree/MON-175018-master-remove-quality-tools"
             },
-            "time": "2025-07-07T12:36:25+00:00"
+            "time": "2025-07-17T21:02:57+00:00"
         },
         {
             "name": "composer/pcre",

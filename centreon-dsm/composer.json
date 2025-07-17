@@ -1,6 +1,6 @@
 {
   "name": "centreon/centreon-dsm",
-  "version": "25.09",
+  "version": "25.07",
   "type": "project",
   "license": "GPL-2.0-only",
   "require": {
@@ -10,7 +10,7 @@
   },
   "require-dev": {
     "centreon/centreon": "@dev",
-    "centreon/centreon-test-lib": "dev-master"
+    "centreon/centreon-test-lib": "dev-MON-175018-master-remove-quality-tools"
   },
   "repositories": [
     {

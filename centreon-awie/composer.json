@@ -1,6 +1,6 @@
 {
   "name": "centreon/centreon-awie",
-  "version": "25.09",
+  "version": "25.07",
   "type": "project",
   "license": "Apache-2.0",
   "require": {
@@ -13,7 +13,7 @@
   "require-dev": {
     "behat/mink-selenium2-driver": "1.7.*",
     "centreon/centreon": "@dev",
-    "centreon/centreon-test-lib": "dev-master",
+    "centreon/centreon-test-lib": "dev-MON-175018-master-remove-quality-tools",
     "friends-of-behat/mink": "1.11.*",
     "friends-of-behat/mink-extension": "2.7.*",
     "psr/container": "1.1.*"
