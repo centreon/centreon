@@ -17172,7 +17172,7 @@ msgstr "Mode de mise à jour"
 
 #: centreon/www/install/front_translate.php
 msgid "Update agent configuration"
-msgstr "Mettre à jour la configuration agent"
+msgstr "Mettre à jour la configuration d'agent"
 
 #: centreon/www/install/front_translate.php
 msgid "Updated"
