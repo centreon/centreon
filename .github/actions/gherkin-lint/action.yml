@@ -18,5 +18,4 @@ runs:
 
     - name: Run Gherkin Lint
       run: ./node_modules/.bin/gherkin-lint -c ./.github/actions/gherkin-lint/.gherkin-lintrc ${{ inputs.features_path }}
-       run: ./node_modules/.bin/gherkin-lint -c ./.github/actions/gherkin-lint/.gherkin-lintrc ${{ inputs.features_path }}
-       shell: bash
+      shell: bash
