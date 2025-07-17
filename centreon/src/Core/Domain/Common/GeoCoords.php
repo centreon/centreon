@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Core\Domain\Common;
 
+use Centreon\Domain\Common\Assertion\Assertion;
 use Core\Domain\Exception\InvalidGeoCoordException;
 
 /**
@@ -38,6 +39,8 @@ class GeoCoords implements \Stringable
 
     /** @var string Full lat,lng string */
     private const REGEX_FULL = '/^' . self::REGEX_LATITUDE . ',\s*' . self::REGEX_LONGITUDE . '$/';
+    private const MAX_LENGTH = 32;
+    private const MAX_DECIMAL_PLACES = 6;
 
     /**
      * @param numeric-string $latitude
@@ -49,6 +52,11 @@ class GeoCoords implements \Stringable
         public readonly string $latitude,
         public readonly string $longitude,
     ) {
+        Assertion::maxLength($latitude . ',' . $longitude, self::MAX_LENGTH, 'GeoCoords::maxLength');
+
+        $this->validateDecimals($latitude, 'Latitude');
+        $this->validateDecimals($longitude, 'Longitude');
+
         if (
             ! preg_match(self::REGEX_FULL, $latitude . ',' . $longitude)
         ) {
@@ -81,5 +89,25 @@ class GeoCoords implements \Stringable
         }
 
         return new self($parts[0], $parts[1]);
+    }
+
+    /**
+     * Validate decimals count for a coordinate value
+     *
+     * @param string $value
+     * @param string $type latitude or longitude
+     *
+     * @throws \Assert\AssertionFailedException
+     */
+    private function validateDecimals(string $value, string $type): void
+    {
+        if (str_contains($value, '.')) {
+            $decimalPart = explode('.', $value)[1];
+            Assertion::maxLength(
+                $decimalPart,
+                self::MAX_DECIMAL_PLACES,
+                "GeoCoords::{$type}Decimals"
+            );
+        }
     }
 }
