@@ -582,7 +582,7 @@ jobs:
 
           exit $exit_code
 
-      - name: 📐 Deptrac checks for the new section (dep:new)
+      - name: 📐 Deptrac checks
         working-directory: centreon
         run: |
           echo "Run of these Deptrac tests: dep:new" && set -e
