@@ -477,7 +477,7 @@ jobs:
          
          pids=()
          statuses=()
-         
+
          run_task() {
            name=$1
            shift
@@ -490,12 +490,12 @@ jobs:
            fi
            return $result
          }
-          
+
          # Start tasks in background
          run_task legacy composer rector:legacy & pids+=($!)
          run_task core   composer rector:core   & pids+=($!)
          run_task new    composer rector:new    & pids+=($!)
-          
+
          # Wait for all, and record if any failed
          exit_code=0
          for pid in "${pids[@]}"; do
@@ -503,7 +503,7 @@ jobs:
              exit_code=1
            fi
          done
-         
+
          exit $exit_code
 
       - name: 🧹 PHP-CS-Fixer checks
@@ -513,7 +513,7 @@ jobs:
 
           pids=()
           statuses=()
-          
+
           run_task() {
             name=$1
             shift
@@ -526,12 +526,12 @@ jobs:
             fi
             return $result
           }
-        
+
           # Start tasks in background
           run_task legacy composer cs:legacy & pids+=($!)
           run_task core   composer cs:core   & pids+=($!)
           run_task new    composer cs:new    & pids+=($!)
-        
+
           # Wait for all, and record if any failed
           exit_code=0
           for pid in "${pids[@]}"; do
@@ -539,44 +539,82 @@ jobs:
               exit_code=1
             fi
           done
-        
+
           exit $exit_code
 
       - name: 🔍 PHPStan checks
         working-directory: centreon
         run: |
           echo "Run of these PHPStan tests: stan:legacy:www, stan:legacy:src, stan:legacy:test, stan:core, stan:core:test, stan:new, stan:new:test" && set -e
+          
+          pids=()
+          statuses=()
 
-          declare -a pids
-          declare -A pid_to_name
-          declare -A pid_to_cmd
+          run_task() {
+            name=$1
+            shift
+            "$@" -- --no-progress
+            result=$?
+            if [ $result -eq 0 ]; then
+              echo "✅ PHPStan $name: Success"
+            else
+              echo "❌ PHPStan $name: Failed"
+            fi
+            return $result
+          }
 
-          run_parallel_check() { ( "${@:2}" ) & pids+=($!); pid_to_name[$!]="$1"; pid_to_cmd[$!]="${*:2}"; }
+          # Start tasks in background
+          run_task legacy composer stan:legacy:www & pids+=($!)
+          run_task legacy composer stan:legacy:src & pids+=($!)
+          run_task legacy composer stan:legacy:test & pids+=($!)
+          run_task core   composer stan:core:src   & pids+=($!)
+          run_task core   composer stan:core:test   & pids+=($!)
+          run_task new    composer stan:new:src    & pids+=($!)
+          run_task new    composer stan:new:test   & pids+=($!)
 
-          run_parallel_check "stan:legacy:www" composer stan:legacy:www -- --no-progress
-          run_parallel_check "stan:legacy:src" composer stan:legacy:src -- --no-progress
-          run_parallel_check "stan:legacy:test" composer stan:legacy:test -- --no-progress
-          run_parallel_check "stan:core:src" composer stan:core:src -- --no-progress
-          run_parallel_check "stan:core:test" composer stan:core:test -- --no-progress
-          run_parallel_check "stan:new:src" composer stan:new:src -- --no-progress
-          run_parallel_check "stan:new:test" composer stan:new:test -- --no-progress
-
-          result=0
+          # Wait for all, and record if any failed
+          exit_code=0
           for pid in "${pids[@]}"; do
             if ! wait "$pid"; then
-              echo "❌ PHPStan ${pid_to_name[$pid]}: Failed (commande: ${pid_to_cmd[$pid]})"
-              result=1
-            else
-              echo "✅ PHPStan ${pid_to_name[$pid]}: Success (commande: ${pid_to_cmd[$pid]})"
+              exit_code=1
             fi
           done
 
-          exit $result
+          exit $exit_code
 
       - name: 📐 Deptrac checks for the new section (dep:new)
         working-directory: centreon
-        run: composer dep:new -- --no-progress --formatter=github-actions
+        run: |
+          echo "Run of these Deptrac tests: dep:new" && set -e
+          
+          pids=()
+          statuses=()
 
+          run_task() {
+            name=$1
+            shift
+            "$@" -- --no-progress
+            result=$?
+            if [ $result -eq 0 ]; then
+              echo "✅ Deptrac $name: Success"
+            else
+              echo "❌ Deptrac $name: Failed"
+            fi
+            return $result
+          }
+
+          # Start tasks in background
+          run_task legacy composer dep:new & pids+=($!)
+
+          # Wait for all, and record if any failed
+          exit_code=0
+          for pid in "${pids[@]}"; do
+            if ! wait "$pid"; then
+              exit_code=1
+            fi
+          done
+
+          exit $exit_code
 
   package:
     needs:
