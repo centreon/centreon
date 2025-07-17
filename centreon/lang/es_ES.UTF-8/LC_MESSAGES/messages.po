@@ -24518,5 +24518,5 @@ msgstr "periodo de tiempo"
 msgid "topology_name"
 msgstr "Nombre de la topología."
 
-msgid "URL provided for website does not match a valid URL pattern"
+msgid "The URL provided for the website does not use a valid URL pattern."
 msgstr ""
