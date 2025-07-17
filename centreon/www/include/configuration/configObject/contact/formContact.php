@@ -67,12 +67,12 @@ $initialValues = [];
 $dbResult = $pearDB->query("SELECT i.value FROM informations i WHERE i.key = 'isRemote'");
 $result = $dbResult->fetch();
 
-$isRemote = false;
-if ($result !== false) {
+if ($result === false) {
+    $isRemote = false;
+} else {
     $isRemote = array_map('myDecode', $result);
     $isRemote = $isRemote['value'] === 'yes';
 }
-
 $dbResult->closeCursor();
 
 /**
