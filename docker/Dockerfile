@@ -192,9 +192,13 @@ RUN apt update && \
     apt install -y \
     libnet-curl-perl \
     libcrypt-openssl-aes-perl \
-    libssh-session-perl && \
+    libssh-session-perl \
+    sudo && \
     apt clean && \
     rm -rf /var/lib/apt/lists/*
+
+COPY centreon-gorgone/centreon /etc/sudoers.d/centreon
+COPY --chmod=755 centreon-gorgone/service /usr/local/bin/service
 
 RUN groupadd -g 6000 centreon && \
     useradd -u 6000 -g centreon -m -r -d /var/spool/centreon -c "Centreon" -s /bin/bash centreon && \
@@ -204,9 +208,12 @@ RUN groupadd -g 6000 centreon && \
     useradd -u 6002 -g centreon-broker -m -r -d /var/lib/centreon-broker -c "Centreon Broker"  -s /bin/bash centreon-broker && \
     groupadd -g 6003 centreon-gorgone && \
     useradd -u 6003 -g centreon-gorgone -m -r -d /var/lib/centreon-gorgone -c "Centreon Gorgone"  -s /bin/bash centreon-gorgone && \
+    usermod -aG centreon centreon-gorgone &&\
     mkdir -p /etc/centreon/config.d/ && \
     chown centreon. /etc/centreon/config.d/ && \
-    chmod 775 /etc/centreon/config.d/
+    chmod 775 /etc/centreon/config.d/ &&\
+    mv /usr/sbin/service /usr/sbin/service.orig && \
+    ln -s /usr/local/bin/service /usr/sbin/service
     # chown -R centreon-gorgone:centreon-gorgone /var/log/centreon-gorgone && \
     # chmod 775 /var/log/centreon-gorgone && \
     # touch /var/log/centreon-gorgone/gorgoned.log && \
