@@ -1,5 +1,3 @@
-import { useRef } from 'react';
-
 import { useFormikContext } from 'formik';
 import { useAtomValue } from 'jotai';
 import { isNil } from 'ramda';
@@ -8,7 +6,7 @@ import { useTranslation } from 'react-i18next';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import { Typography } from '@mui/material';
 
-import { RichTextEditor } from '@centreon/ui';
+import { RichTextEditor, useResizeObserver } from '@centreon/ui';
 
 import FederatedComponent from '../../../../../components/FederatedComponents';
 import { dashboardRefreshIntervalAtom } from '../../atoms';
@@ -32,7 +30,7 @@ const Preview = (): JSX.Element | null => {
 
   const { canEdit } = useCanEditProperties();
 
-  const previewRef = useRef<HTMLDivElement | null>(null);
+  const { ref: previewRef, height } = useResizeObserver();
 
   const { values, setFieldValue } = useFormikContext<Widget>();
 
@@ -56,9 +54,7 @@ const Preview = (): JSX.Element | null => {
     <div className={classes.previewPanelContainer} ref={previewRef}>
       <div
         style={{
-          height: `${
-            (previewRef.current?.getBoundingClientRect().height || 0) - 16
-          }px`,
+          height: `${height || 0}px`,
           overflowY: 'auto'
         }}
       >
@@ -85,11 +81,7 @@ const Preview = (): JSX.Element | null => {
         {!isGenericTextWidget && (
           <div
             style={{
-              height: `${
-                (previewRef.current?.getBoundingClientRect().height || 0) -
-                36 -
-                46
-              }px`,
+              height: height ? `${height - 8}px` : height,
               overflow: 'auto',
               position: 'relative'
             }}

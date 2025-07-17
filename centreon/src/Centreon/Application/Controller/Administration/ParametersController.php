@@ -24,11 +24,8 @@ declare(strict_types=1);
 namespace Centreon\Application\Controller\Administration;
 
 use Centreon\Application\Controller\AbstractController;
-use Centreon\Domain\Contact\Contact;
-use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Option\Interfaces\OptionServiceInterface;
 use FOS\RestBundle\View\View;
-use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Used to get global parameters
@@ -67,8 +64,7 @@ class ParametersController extends AbstractController
     ];
 
     public function __construct(
-        private OptionServiceInterface $optionService,
-        private ContactInterface $user
+        private OptionServiceInterface $optionService
     ) {
     }
 
@@ -79,10 +75,6 @@ class ParametersController extends AbstractController
      */
     public function getParameters(): View
     {
-        if (! $this->user->hasTopologyRole(Contact::ROLE_ADMINISTRATION_PARAMETERS_MONITORING_RW)) {
-            return $this->view(null, Response::HTTP_FORBIDDEN);
-        }
-
         $parameters = [];
         $downtimeDuration = '';
         $downtimeScale = '';
