@@ -156,8 +156,8 @@ jobs:
           }
 
           # Start tasks in background
-          run_task legacy composer cs:legacy:www & pids+=($!)
-          run_task core composer cs:legacy:src & pids+=($!)
+          run_task legacy:www composer cs:legacy:www & pids+=($!)
+          run_task legacy:src composer cs:legacy:src & pids+=($!)
 
           # Wait for all, and record if any failed
           exit_code=0
@@ -191,9 +191,9 @@ jobs:
           }
 
           # Start tasks in background
-          run_task legacy composer stan:legacy:www & pids+=($!)
-          run_task legacy composer stan:legacy:src & pids+=($!)
-          run_task legacy composer stan:legacy:test & pids+=($!)
+          run_task legacy:www composer stan:legacy:www & pids+=($!)
+          run_task legacy:src composer stan:legacy:src & pids+=($!)
+          run_task legacy:test composer stan:legacy:test & pids+=($!)
 
           # Wait for all, and record if any failed
           exit_code=0

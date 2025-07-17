@@ -493,8 +493,8 @@ jobs:
 
          # Start tasks in background
          run_task legacy composer rector:legacy & pids+=($!)
-         run_task core   composer rector:core   & pids+=($!)
-         run_task new    composer rector:new    & pids+=($!)
+         run_task core composer rector:core & pids+=($!)
+         run_task new composer rector:new & pids+=($!)
 
          # Wait for all, and record if any failed
          exit_code=0
@@ -529,8 +529,8 @@ jobs:
 
           # Start tasks in background
           run_task legacy composer cs:legacy & pids+=($!)
-          run_task core   composer cs:core   & pids+=($!)
-          run_task new    composer cs:new    & pids+=($!)
+          run_task core composer cs:core & pids+=($!)
+          run_task new composer cs:new & pids+=($!)
 
           # Wait for all, and record if any failed
           exit_code=0
@@ -564,13 +564,13 @@ jobs:
           }
 
           # Start tasks in background
-          run_task legacy composer stan:legacy:www & pids+=($!)
-          run_task legacy composer stan:legacy:src & pids+=($!)
-          run_task legacy composer stan:legacy:test & pids+=($!)
-          run_task core   composer stan:core:src   & pids+=($!)
-          run_task core   composer stan:core:test   & pids+=($!)
-          run_task new    composer stan:new:src    & pids+=($!)
-          run_task new    composer stan:new:test   & pids+=($!)
+          run_task legacy:www composer stan:legacy:www & pids+=($!)
+          run_task legacy:src composer stan:legacy:src & pids+=($!)
+          run_task legacy:test composer stan:legacy:test & pids+=($!)
+          run_task core:src composer stan:core:src & pids+=($!)
+          run_task core:test composer stan:core:test & pids+=($!)
+          run_task new:src composer stan:new:src & pids+=($!)
+          run_task new:test composer stan:new:test & pids+=($!)
 
           # Wait for all, and record if any failed
           exit_code=0
@@ -604,7 +604,7 @@ jobs:
           }
 
           # Start tasks in background
-          run_task legacy composer dep:new & pids+=($!)
+          run_task new composer dep:new & pids+=($!)
 
           # Wait for all, and record if any failed
           exit_code=0
