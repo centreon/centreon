@@ -30,11 +30,12 @@ $errorMessage = '';
 
 /**
  * Add column `show_deprecated_custom_views` to contact table.
+ * @var CentreonDB $pearDB
  */
 $addDeprecateCustomViewsToContact=  function() use (&$errorMessage, &$pearDB) {
     $errorMessage = 'Unable to add column show_deprecated_custom_views to contact table';
     if (! $pearDB->isColumnExist('contact', 'show_deprecated_custom_views')) {
-        $pearDB->executeQuery(
+        $pearDB->executeStatement(
             <<<SQL
             ALTER TABLE contact ADD COLUMN show_deprecated_custom_views ENUM('0','1') DEFAULT '0'
             SQL
@@ -47,13 +48,13 @@ $addDeprecateCustomViewsToContact=  function() use (&$errorMessage, &$pearDB) {
  */
 $updateDashboardAndCustomViewsTopology = function() use(&$errorMessage, &$pearDB) {
     $errorMessage = 'Unable to update topology of Custom Views';
-    $pearDB->executeQuery(
+    $pearDB->update(
         <<<SQL
         UPDATE topology SET topology_order = 2, is_deprecated ="1" WHERE topology_name = "Custom Views"
         SQL
     );
     $errorMessage = 'Unable to update topology of Dashboards';
-    $pearDB->executeQuery(
+    $pearDB->update(
         <<<SQL
         UPDATE topology SET topology_order = 1 WHERE topology_name = "Dashboards"
         SQL
@@ -65,14 +66,14 @@ $updateDashboardAndCustomViewsTopology = function() use(&$errorMessage, &$pearDB
  */
 $updateContactsShowDeprecatedCustomViews = function() use(&$errorMessage, &$pearDB) {
     $errorMessage = 'Unable to retrieve custom views';
-    $statement = $pearDB->executeQuery(
+    $configuredCustomViews = $pearDB->executeStatement(
         <<<SQL
         SELECT 1 FROM custom_views
         SQL
     );
 
-    if (! empty($statement->fetchAll())) {
-        $pearDB->executeQuery(
+    if (true === (bool) $configuredCustomViews) {
+        $pearDB->update(
             <<<SQL
             UPDATE contact SET show_deprecated_custom_views = '1'
             SQL
@@ -83,7 +84,7 @@ $updateContactsShowDeprecatedCustomViews = function() use(&$errorMessage, &$pear
 $updateCfgParameters = function () use ($pearDB, &$errorMessage) {
     $errorMessage = 'Unable to update cfg_nagios table';
 
-    $pearDB->executeQuery(
+    $pearDB->update(
         <<<'SQL'
             UPDATE cfg_nagios
             SET enable_flap_detection = '1',
@@ -98,22 +99,22 @@ $updateCfgParameters = function () use ($pearDB, &$errorMessage) {
 $bbdoDefaultUpdate= function () use ($pearDB, &$errorMessage) {
     if ($pearDB->isColumnExist('cfg_centreonbroker', 'bbdo_version') !== 1) {
         $errorMessage = "Unable to update 'bbdo_version' column to 'cfg_centreonbroker' table";
-        $pearDB->query('ALTER TABLE `cfg_centreonbroker` MODIFY `bbdo_version` VARCHAR(50) DEFAULT "3.1.0"');
+        $pearDB->executeStatement('ALTER TABLE `cfg_centreonbroker` MODIFY `bbdo_version` VARCHAR(50) DEFAULT "3.1.0"');
     }
 };
 
 $bbdoCfgUpdate = function () use ($pearDB, &$errorMessage) {
     $errorMessage = "Unable to update 'bbdo_version' version in 'cfg_centreonbroker' table";
-    $pearDB->query('UPDATE `cfg_centreonbroker` SET `bbdo_version` = "3.1.0"');
+    $pearDB->update('UPDATE `cfg_centreonbroker` SET `bbdo_version` = "3.1.0"');
 };
 
 $addResourceStatusSearchModeOption = function() use ($pearDB, &$errorMessage) {
     $errorMessage = "Unable to retrieve 'resource_status_search_mode' option from options table";
-    $statement = $pearDB->executeQuery("SELECT 1 FROM options WHERE `key` = 'resource_status_search_mode'");
+    $optionExists = $pearDB->executeStatement("SELECT 1 FROM options WHERE `key` = 'resource_status_search_mode'");
 
     $errorMessage = "Unable to insert option 'resource_status_search_mode' option into table options";
-    if (false === (bool) $statement->fetch(PDO::FETCH_COLUMN)) {
-        $pearDB->executeQuery("INSERT INTO `options` (`key`, `value`) VALUES ('resource_status_search_mode', 1)");
+    if (false === (bool) $optionExists) {
+        $pearDB->insert("INSERT INTO `options` (`key`, `value`) VALUES ('resource_status_search_mode', 1)");
     }
 };
 
@@ -121,7 +122,7 @@ $addResourceStatusSearchModeOption = function() use ($pearDB, &$errorMessage) {
 $addServiceFlagToContacts = function () use ($pearDB, &$errorMessage) {
     $errorMessage = 'Unable to update contact table';
     if (! $pearDB->isColumnExist('contact', 'is_service_account')) {
-        $pearDB->executeQuery(
+        $pearDB->executeStatement(
             <<<'SQL'
                 ALTER TABLE `contact`
                     ADD COLUMN `is_service_account` boolean DEFAULT 0 COMMENT 'Indicates if the contact is a service account (ex: centreon-gorgone)'
@@ -135,7 +136,7 @@ $addServiceFlagToContacts = function () use ($pearDB, &$errorMessage) {
  */
 $flagContactsAsServiceAccount = function () use ($pearDB, &$errorMessage) {
     $errorMessage = 'Unable to update contact table';
-    $pearDB->executeQuery(
+    $pearDB->executeStatement(
         <<<'SQL'
             UPDATE `contact`
             SET `is_service_account` = 1
