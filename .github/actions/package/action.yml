@@ -148,7 +148,7 @@ runs:
           MAJOR=${{ inputs.major_version }}
           MAJOR_LEFT_PART=$( echo $MAJOR | cut -d "." -f1 )
           MAJOR_RIGHT_PART=$( echo $MAJOR | cut -d "-" -f1 | cut -d "." -f2 )
-          BUMP_MAJOR_RIGHT_PART=$(( 10# $MAJOR_RIGHT_PART+1 ))
+          BUMP_MAJOR_RIGHT_PART=$(( $(echo "$MAJOR_RIGHT_PART" | sed 's/^0*//')+1 ))
           if [ ${#BUMP_MAJOR_RIGHT_PART} -eq 1 ]; then
               # Add a zero before the new single numeric char
               BUMP_MAJOR_RIGHT_PART="0$BUMP_MAJOR_RIGHT_PART"
