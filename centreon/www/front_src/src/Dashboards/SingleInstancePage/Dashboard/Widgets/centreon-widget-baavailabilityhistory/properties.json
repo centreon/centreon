@@ -325,10 +325,6 @@
               "name": "All"
             },
             {
-              "id": "single",
-              "name": "Only one"
-            },
-            {
               "id": "hidden",
               "name": "Hidden"
             }
