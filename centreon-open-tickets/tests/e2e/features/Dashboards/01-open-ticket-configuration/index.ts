@@ -164,7 +164,7 @@ beforeEach(() => {
   }).as('listAllDashboards');
   cy.intercept({
     method: 'PATCH',
-    url: '/centreon/api/latest/configuration/dashboards/*"'
+    url: '/centreon/api/latest/configuration/dashboards/*'
   }).as('updateDashboard');
   cy.intercept({
     method: 'GET',
