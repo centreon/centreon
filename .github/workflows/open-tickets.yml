@@ -238,7 +238,7 @@ jobs:
         backend-lint,
         backend-unit-test,
         gherkin-lint,
-        e2e-lint
+        e2e-lint,
       ]
     if: |
       needs.get-environment.outputs.skip_workflow == 'false' &&
