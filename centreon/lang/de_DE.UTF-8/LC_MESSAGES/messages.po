@@ -20674,5 +20674,5 @@ msgstr "s"
 msgid "unknown"
 msgstr "unbekannt"
 
-msgid "URL provided for website does not match a valid URL pattern"
+msgid "The URL provided for the website does not use a valid URL pattern."
 msgstr ""
