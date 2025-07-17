@@ -76,7 +76,7 @@ try {
     }
 
     if ($website === false) {
-        throw new Exception(_('URL provided for website does not match a valid URL pattern'));
+        throw new Exception(_('The URL provided for the website does not use a valid URL pattern.'));
     }
 } catch (Exception $e) {
     showError($e->getMessage(), $theme);
