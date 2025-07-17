@@ -47,10 +47,10 @@ const HOST_OPEN_TICKET_COMMAND_ID = 4;
 function format_popup(): void
 {
     global $cmd,
-           $rule,
-           $centreon,
-           $centreon_path,
-           $db;
+    $rule,
+    $centreon,
+    $centreon_path,
+    $db;
 
     $rules = [];
 
@@ -102,7 +102,8 @@ function format_popup(): void
         $template->assign('continue', (! is_null($result) && isset($result['format_popup'])) ? 0 : 1);
         $template->assign(
             'attach_files_enable',
-            (! is_null($result)
+            (
+                ! is_null($result)
                 && isset($result['attach_files_enable'])
                 && $result['attach_files_enable'] === 'yes'
             ) ? 1 : 0
@@ -110,7 +111,8 @@ function format_popup(): void
 
         $template->assign(
             'formatPopupProvider',
-            (! is_null($result)
+            (
+                ! is_null($result)
                 && isset($result['format_popup'])
             ) ? $result['format_popup'] : ''
         );
