@@ -24009,4 +24009,4 @@ msgid "will display resources with host name starting by'"
 msgstr "affichera les ressources avec un nom d'hôte commençant par"
 
 msgid "The URL provided for the website does not use a valid URL pattern."
-msgstr "L'URL fournie pour le champs website ne correspond pas à une URL valide"
+msgstr "L'URL fournie pour le site web n'utilise pas un modèle d'URL valide."
