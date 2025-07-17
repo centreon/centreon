@@ -474,7 +474,7 @@ jobs:
         working-directory: centreon
         run: |
          echo "Run of these Rector tests: rector:legacy, rector:core, rector:new" && set -e
-         
+
          pids=()
          statuses=()
 
@@ -546,7 +546,7 @@ jobs:
         working-directory: centreon
         run: |
           echo "Run of these PHPStan tests: stan:legacy:www, stan:legacy:src, stan:legacy:test, stan:core, stan:core:test, stan:new, stan:new:test" && set -e
-          
+
           pids=()
           statuses=()
 
@@ -586,7 +586,7 @@ jobs:
         working-directory: centreon
         run: |
           echo "Run of these Deptrac tests: dep:new" && set -e
-          
+
           pids=()
           statuses=()
 
