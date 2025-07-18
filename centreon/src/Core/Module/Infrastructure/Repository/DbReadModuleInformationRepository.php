@@ -59,9 +59,9 @@ final class DbReadModuleInformationRepository extends DatabaseRepository impleme
                         SELECT name, rname, mod_release
                         FROM `:db`.modules_informations
                         WHERE name = :name
-                        SQL,
-                    $queryParameters
-                )
+                        SQL
+                ),
+                $queryParameters
             );
 
             if (! $result) {
