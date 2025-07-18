@@ -55,7 +55,7 @@ final class DbReadModuleInformationRepository extends DatabaseRepository impleme
             /** @var _ModuleInformation|false $result */
             $result = $this->connection->fetchAssociative(
                 $this->translateDbName(
-                    <<<SQL
+                    <<<'SQL'
                         SELECT name, rname, mod_release
                         FROM `:db`.modules_informations
                         WHERE name = :name
