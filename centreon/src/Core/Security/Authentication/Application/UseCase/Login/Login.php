@@ -44,8 +44,8 @@ use Core\Security\Authentication\Domain\Exception\AuthenticationConditionsExcept
 use Core\Security\Authentication\Domain\Exception\AuthenticationException;
 use Core\Security\Authentication\Domain\Exception\PasswordExpiredException;
 use Core\Security\Authentication\Domain\Model\NewProviderToken;
-use Core\Security\Authentication\Domain\Provider\OpenIdProvider;
 use Core\Security\Authentication\Infrastructure\Provider\AclUpdaterInterface;
+use Core\Security\Authentication\Infrastructure\Provider\OpenId;
 use Core\Security\ProviderConfiguration\Domain\Model\Provider;
 use Security\Domain\Authentication\Model\Session;
 use Security\Encryption;
@@ -124,7 +124,7 @@ final class Login
                     if ($loginRequest->providerName === Provider::OPENID) {
                         // Store the OpenID ID token in the session for later use
                         $provider = $this->provider;
-                        if (! $provider instanceof OpenIdProvider) {
+                        if (! $provider instanceof OpenId) {
                             throw new AuthenticationException('Expected OpenIdProvider for OpenID login');
                         }
                         $request = $this->requestStack->getCurrentRequest();
