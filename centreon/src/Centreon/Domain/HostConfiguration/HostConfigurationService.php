@@ -142,7 +142,7 @@ class HostConfigurationService implements HostConfigurationServiceInterface
                 $newMacroOrder = 0; // by default we initialize the order of the macros
                 foreach ($host->getMacros() as $macro) {
                     $this->debug('Add macro ' . $macro->getName());
-                    if($macro->getOrder() === null) {
+                    if ($macro->getOrder() === null) {
                         $macro->setOrder($newMacroOrder);
                     }
                     $this->hostMacroService->addMacroToHost($host, $macro);
