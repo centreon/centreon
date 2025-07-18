@@ -594,7 +594,7 @@ class CentreonCustomView
         }
         $isLocked = 1;
         $update = false;
-        $query = <<<SQL
+        $query = <<<'SQL'
                 SELECT cvur.custom_view_id, locked, user_id, usergroup_id
                 FROM custom_view_user_relation cvur
                     INNER JOIN custom_views cv
@@ -620,18 +620,18 @@ class CentreonCustomView
             SQL;
 
         $stmt = $this->db->prepare($query);
-        $stmt->bindParam(':viewLoad', $viewLoadId, \PDO::PARAM_INT);
-        $stmt->bindParam(':userId', $this->userId, \PDO::PARAM_INT);
+        $stmt->bindParam(':viewLoad', $viewLoadId, PDO::PARAM_INT);
+        $stmt->bindParam(':userId', $this->userId, PDO::PARAM_INT);
         $stmt->execute();
         $row = $stmt->fetch();
 
         if (! $row) {
-            throw new CentreonCustomViewException("Access denied: View not found or not accessible to current user");
+            throw new CentreonCustomViewException('Access denied: View not found or not accessible to current user');
         }
-        if ($row['locked'] == "0") {
+        if ($row['locked'] == '0') {
             $isLocked = $row['locked'];
         }
-        if (!is_null($row['user_id']) && $row['user_id'] > 0 && is_null($row['usergroup_id'])) {
+        if (! is_null($row['user_id']) && $row['user_id'] > 0 && is_null($row['usergroup_id'])) {
             $update = true;
         }
 
