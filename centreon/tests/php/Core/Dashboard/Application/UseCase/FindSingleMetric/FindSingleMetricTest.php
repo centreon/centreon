@@ -1,4 +1,23 @@
 <?php
+/*
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * For more information : contact@centreon.com
+ *
+ */
+
 declare(strict_types=1);
 
 namespace Tests\Core\Dashboard\Application\UseCase\FindSingleMetric;
@@ -16,12 +35,14 @@ use Core\Dashboard\Application\UseCase\FindSingleMetric\{
 };
 use Core\Metric\Application\Repository\ReadMetricRepositoryInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use Core\Service\Application\Repository\ReadRealTimeServiceRepositoryInterface;
 use Core\Metric\Domain\Model\Metric;
 use Mockery;
 
 beforeEach(function () {
     $this->contact = Mockery::mock(ContactInterface::class);
     $this->metricRepo = Mockery::mock(ReadMetricRepositoryInterface::class);
+    $this->serviceRepo = Mockery::mock(ReadRealTimeServiceRepositoryInterface::class);
     $this->accessGroupRepo = Mockery::mock(ReadAccessGroupRepositoryInterface::class);
     $this->requestParameters = Mockery::mock(RequestParametersInterface::class);
     $this->contact->shouldReceive('getId')->andReturn(1);
@@ -37,6 +58,13 @@ beforeEach(function () {
 
 it('returns a FindSingleMetricResponse for an admin user', function () {
     $this->contact->shouldReceive('isAdmin')->once()->andReturn(true);
+    $hostId = 10;
+    $serviceId = 20;
+    $this->serviceRepo
+        ->shouldReceive('exists')
+        ->once()
+        ->with($serviceId, $hostId)
+        ->andReturn(true);
 
     $metric = new Metric(
         id: 1,
@@ -48,7 +76,7 @@ it('returns a FindSingleMetricResponse for an admin user', function () {
     $this->metricRepo
         ->shouldReceive('findSingleMetricValue')
         ->once()
-        ->with(10, 20, 'cpu', $this->requestParameters)
+        ->with($hostId, $serviceId, 'cpu', $this->requestParameters)
         ->andReturn($metric);
 
     $this->accessGroupRepo->shouldNotReceive('findByContact');
@@ -56,8 +84,10 @@ it('returns a FindSingleMetricResponse for an admin user', function () {
     $useCase = new FindSingleMetric(
         $this->contact,
         $this->metricRepo,
+        $this->serviceRepo,
         $this->accessGroupRepo,
-        $this->requestParameters
+        $this->requestParameters,
+
     );
 
     $useCase(new FindSingleMetricRequest(10, 20, 'cpu'), $this->presenter);
@@ -71,6 +101,13 @@ it('returns a FindSingleMetricResponse for an admin user', function () {
 
 it('passes access groups to the repository for non-admin users', function () {
     $this->contact->shouldReceive('isAdmin')->once()->andReturn(false);
+    $hostId = 11;
+    $serviceId = 22;
+    $this->serviceRepo
+        ->shouldReceive('exists')
+        ->once()
+        ->with($serviceId, $hostId)
+        ->andReturn(true);
 
     $fakeGroups = ['g1', 'g2'];
     $this->accessGroupRepo
@@ -90,12 +127,13 @@ it('passes access groups to the repository for non-admin users', function () {
     $this->metricRepo
         ->shouldReceive('findSingleMetricValue')
         ->once()
-        ->with(11, 22, 'mem', $this->requestParameters, $fakeGroups)
+        ->with($hostId, $serviceId, 'mem', $this->requestParameters, $fakeGroups)
         ->andReturn($metric);
 
     $useCase = new FindSingleMetric(
         $this->contact,
         $this->metricRepo,
+        $this->serviceRepo,
         $this->accessGroupRepo,
         $this->requestParameters
     );
@@ -108,8 +146,33 @@ it('passes access groups to the repository for non-admin users', function () {
         ->and($this->presenter->response->metricDto->name)->toBe('mem');
 });
 
+it('returns NotFoundResponse when service does not exist', function () {
+    $hostId = 5;
+    $serviceId = 6;
+    $this->serviceRepo
+        ->shouldReceive('exists')
+        ->once()
+        ->with($serviceId, $hostId)
+        ->andReturn(false);
+
+    $useCase = new FindSingleMetric(
+        $this->contact,
+        $this->metricRepo,
+        $this->serviceRepo,
+        $this->accessGroupRepo,
+        $this->requestParameters
+    );
+
+    $useCase(new FindSingleMetricRequest($hostId, $serviceId, 'disk'), $this->presenter);
+
+    expect($this->presenter->response)
+        ->toBeInstanceOf(NotFoundResponse::class)
+        ->and($this->presenter->response->getMessage())->toBe('Service not found');
+});
+
 it('maps a "not found" exception to NotFoundResponse', function () {
     $this->contact->shouldReceive('isAdmin')->once()->andReturn(true);
+    $this->serviceRepo->shouldReceive('exists')->once()->andReturn(true);
 
     $this->metricRepo
         ->shouldReceive('findSingleMetricValue')
@@ -119,6 +182,7 @@ it('maps a "not found" exception to NotFoundResponse', function () {
     $useCase = new FindSingleMetric(
         $this->contact,
         $this->metricRepo,
+        $this->serviceRepo,
         $this->accessGroupRepo,
         $this->requestParameters
     );
@@ -131,6 +195,7 @@ it('maps a "not found" exception to NotFoundResponse', function () {
 
 it('maps other exceptions to ErrorResponse', function () {
     $this->contact->shouldReceive('isAdmin')->once()->andReturn(true);
+    $this->serviceRepo->shouldReceive('exists')->once()->andReturn(true);
 
     $this->metricRepo
         ->shouldReceive('findSingleMetricValue')
@@ -143,6 +208,7 @@ it('maps other exceptions to ErrorResponse', function () {
     $useCase = new FindSingleMetric(
         $this->contact,
         $this->metricRepo,
+        $this->serviceRepo,
         $this->accessGroupRepo,
         $this->requestParameters
     );
@@ -151,4 +217,19 @@ it('maps other exceptions to ErrorResponse', function () {
 
     expect($this->presenter->response)
         ->toBeInstanceOf(ErrorResponse::class);
+});
+
+it('throws InvalidArgumentException for non-positive hostId', function () {
+    $this->expectException(\InvalidArgumentException::class);
+    new FindSingleMetricRequest(0, 1, 'metric');
+});
+
+it('throws InvalidArgumentException for non-positive serviceId', function () {
+    $this->expectException(\InvalidArgumentException::class);
+    new FindSingleMetricRequest(1, 0, 'metric');
+});
+
+it('throws InvalidArgumentException for empty metricName', function () {
+    $this->expectException(\InvalidArgumentException::class);
+    new FindSingleMetricRequest(1, 2, '');
 });

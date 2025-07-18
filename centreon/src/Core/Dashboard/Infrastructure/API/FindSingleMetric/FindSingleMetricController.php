@@ -24,14 +24,12 @@ declare(strict_types=1);
 namespace Core\Dashboard\Infrastructure\API\FindSingleMetric;
 
 use Centreon\Application\Controller\AbstractController;
-use Core\Application\Common\UseCase\ValidationErrorResponse;
+use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Dashboard\Application\UseCase\FindSingleMetric\FindSingleMetric;
 use Core\Dashboard\Application\UseCase\FindSingleMetric\FindSingleMetricRequest;
 use Core\Security\Infrastructure\Voters\ApiRealtimeVoter;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 #[IsGranted(
     ApiRealtimeVoter::ROLE_API_REALTIME,
@@ -42,44 +40,39 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 final class FindSingleMetricController extends AbstractController
 {
     /**
-     * @param ValidatorInterface $validator
-     */
-    public function __construct(
-        private ValidatorInterface $validator
-    ) {}
-
-    /**
-     * @param Request $request
+     * @param int $hostId
+     * @param int $serviceId
+     * @param string $metricName
      * @param FindSingleMetric $useCase
      * @param FindSingleMetricPresenter $presenter
      *
      * @return Response
      */
     public function __invoke(
-        Request $request,
+        int $hostId,
+        int $serviceId,
+        string $metricName,
         FindSingleMetric $useCase,
         FindSingleMetricPresenter $presenter
     ): Response {
-        $hostId = $request->attributes->getInt('hostId');
-        $serviceId = $request->attributes->getInt('serviceId');
-        $metricName = (string) $request->attributes->get('metricName');
-
-        $input = new FindSingleMetricInput($hostId, $serviceId, $metricName);
-
-        // Validate the input HTTP‐level
-        $violations = $this->validator->validate($input);
-
-        if (count($violations) > 0) {
-            $presenter->presentResponse(new ValidationErrorResponse($violations));
+        try {
+            $request = new FindSingleMetricRequest(
+                hostId: $hostId,
+                serviceId: $serviceId,
+                metricName: $metricName
+            );
+        } catch (\InvalidArgumentException $e) {
+            $presenter->present( new InvalidArgumentResponse(
+                'Invalid parameters provided : ' . $e->getMessage(),
+                    [
+                        'host_id' => $hostId,
+                        'service_id' => $serviceId,
+                        'metric_name' => $metricName,
+                    ]
+            ));
 
             return $presenter->show();
         }
-
-        $request = new FindSingleMetricRequest(
-            hostId: $hostId,
-            serviceId: $serviceId,
-            metricName: $metricName
-        );
 
         $useCase($request, $presenter);
 

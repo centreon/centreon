@@ -23,6 +23,8 @@ declare(strict_types=1);
 
 namespace Core\Service\Infrastructure\Repository;
 
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\RequestParameters\Interfaces\NormalizerInterface;
@@ -198,6 +200,27 @@ class DbReadRealTimeServiceRepository extends AbstractRepositoryRDB implements R
         $countSqlTranslator->setNumberOfRows($numberOfRows);
 
         return $serviceNames;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function exists(int $serviceId, int $hostId): bool
+    {
+        $query = <<<'SQL'
+                SELECT 1
+                FROM `:dbstg`.services
+                WHERE service_id = :serviceId
+                    AND host_id = :hostId
+            SQL;
+
+        return (bool) $this->db->fetchOne(
+            $this->translateDbName($query),
+            QueryParameters::create([
+                QueryParameter::int('serviceId', $serviceId),
+                QueryParameter::int('hostId', $hostId),
+            ])
+        );
     }
 
     /**

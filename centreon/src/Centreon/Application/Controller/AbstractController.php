@@ -34,7 +34,6 @@ use Core\Application\Common\UseCase\NotModifiedResponse;
 use Core\Application\Common\UseCase\PaymentRequiredResponse;
 use Core\Application\Common\UseCase\ResponseStatusInterface;
 use Core\Application\Common\UseCase\UnauthorizedResponse;
-use Core\Application\Common\UseCase\ValidationErrorResponse;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use JsonSchema\Constraints\Constraint;
 use JsonSchema\Validator;
@@ -72,7 +71,6 @@ abstract class AbstractController extends AbstractFOSRestController
             $response instanceof NotModifiedResponse => Response::HTTP_NOT_MODIFIED,
             $response instanceof PaymentRequiredResponse => Response::HTTP_PAYMENT_REQUIRED,
             $response instanceof UnauthorizedResponse => Response::HTTP_UNAUTHORIZED,
-            $response instanceof ValidationErrorResponse => Response::HTTP_UNPROCESSABLE_ENTITY,
             default => Response::HTTP_INTERNAL_SERVER_ERROR
         };
 

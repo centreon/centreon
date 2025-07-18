@@ -29,5 +29,15 @@ final readonly class FindSingleMetricRequest
         public int $hostId,
         public int $serviceId,
         public string $metricName,
-    ) {}
+    ) {
+        if ($hostId <= 0) {
+            throw new \InvalidArgumentException("hostId must be greater than 0, {$hostId} given");
+        }
+        if ($serviceId <= 0) {
+            throw new \InvalidArgumentException("serviceId must be greater than 0, {$serviceId} given");
+        }
+        if ('' === trim($metricName)) {
+            throw new \InvalidArgumentException('metricName cannot be empty');
+        }
+    }
 }

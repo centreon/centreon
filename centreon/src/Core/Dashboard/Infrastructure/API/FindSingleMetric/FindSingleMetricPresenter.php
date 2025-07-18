@@ -24,14 +24,21 @@ declare(strict_types=1);
 namespace Core\Dashboard\Infrastructure\API\FindSingleMetric;
 
 use Core\Application\Common\UseCase\AbstractPresenter;
+use Core\Application\Common\UseCase\ErrorResponse;
+use Core\Application\Common\UseCase\InvalidArgumentResponse;
+use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Application\Common\UseCase\ResponseStatusInterface;
+use Core\Common\Infrastructure\ExceptionLogger\ExceptionLogger;
 use Core\Dashboard\Application\UseCase\FindSingleMetric\FindSingleMetricPresenterInterface;
 use Core\Dashboard\Application\UseCase\FindSingleMetric\FindSingleMetricResponse;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 
 final class FindSingleMetricPresenter extends AbstractPresenter implements FindSingleMetricPresenterInterface
 {
-    public function __construct(protected PresenterFormatterInterface $presenterFormatter)
+    public function __construct(
+        protected PresenterFormatterInterface $presenterFormatter,
+        private readonly ExceptionLogger $exceptionLogger
+    )
     {
         parent::__construct($presenterFormatter);
     }
@@ -39,6 +46,13 @@ final class FindSingleMetricPresenter extends AbstractPresenter implements FindS
     public function presentResponse(FindSingleMetricResponse|ResponseStatusInterface $response): void
     {
         if ($response instanceof ResponseStatusInterface) {
+            if ((
+                $response instanceof ErrorResponse
+                || $response instanceof NotFoundResponse
+                || $response instanceof InvalidArgumentResponse
+                ) && ! is_null($response->getException())) {
+                $this->exceptionLogger->log($response->getException());
+            }
             $this->setResponseStatus($response);
 
             return;

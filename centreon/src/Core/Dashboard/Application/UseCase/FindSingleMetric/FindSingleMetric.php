@@ -31,18 +31,21 @@ use Core\Common\Domain\Exception\RepositoryException;
 use Core\Metric\Application\Repository\ReadMetricRepositoryInterface;
 use Core\Metric\Domain\Model\Metric;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use Core\Service\Application\Repository\ReadRealTimeServiceRepositoryInterface;
 
 final class FindSingleMetric
 {
     /**
      * @param ContactInterface $user
      * @param ReadMetricRepositoryInterface $metricRepository
+     * @param ReadRealTimeServiceRepositoryInterface $serviceRepository
      * @param ReadAccessGroupRepositoryInterface $accessGroupRepository
      * @param RequestParametersInterface $requestParameters
      */
     public function __construct(
         private ContactInterface $user,
         private ReadMetricRepositoryInterface $metricRepository,
+        private ReadRealTimeServiceRepositoryInterface $serviceRepository,
         private ReadAccessGroupRepositoryInterface $accessGroupRepository,
         private RequestParametersInterface $requestParameters
     ) {
@@ -57,6 +60,19 @@ final class FindSingleMetric
         FindSingleMetricPresenterInterface $presenter
     ): void {
         try {
+            if (! $this->serviceRepository->exists($request->serviceId, $request->hostId)) {
+                $presenter->presentResponse(new NotFoundResponse(
+                    'Service',
+                    [
+                        'host_id' => $request->hostId,
+                        'service_id' => $request->serviceId,
+                        'user_id' => $this->user->getId(),
+                    ]
+                ));
+
+                return;
+            }
+
             if ($this->user->isAdmin()) {
                 $metric = $this->metricRepository->findSingleMetricValue(
                     $request->hostId,

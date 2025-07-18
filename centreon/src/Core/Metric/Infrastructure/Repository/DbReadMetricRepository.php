@@ -23,7 +23,6 @@ declare(strict_types=1);
 
 namespace Core\Metric\Infrastructure\Repository;
 
-use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\Monitoring\Host;
 use Centreon\Domain\Monitoring\Service;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
@@ -37,8 +36,6 @@ use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
 class DbReadMetricRepository extends AbstractRepositoryDRB implements ReadMetricRepositoryInterface
 {
-    use LoggerTrait;
-
     /**
      * @param DatabaseConnection $db
      * @param array<
@@ -189,15 +186,6 @@ class DbReadMetricRepository extends AbstractRepositoryDRB implements ReadMetric
                 $metricName
             );
         } catch (\Throwable $exception) {
-            $this->error(
-                "Error retrieving metric '{$metricName}' for host {$hostId}, service {$serviceId}",
-                [
-                    'metricName' => $metricName,
-                    'hostId' => $hostId,
-                    'serviceId' => $serviceId,
-                ]
-            );
-
             throw new RepositoryException(
                 "Error retrieving metric '{$metricName}' for host {$hostId}, service {$serviceId}",
                 [
@@ -212,15 +200,6 @@ class DbReadMetricRepository extends AbstractRepositoryDRB implements ReadMetric
         if (! empty($metrics)) {
             return $metrics[0];
         }
-
-        $this->error(
-            'Metric not found',
-            [
-                'metricName' => $metricName,
-                'hostId' => $hostId,
-                'serviceId' => $serviceId,
-            ]
-        );
 
         return null;
     }

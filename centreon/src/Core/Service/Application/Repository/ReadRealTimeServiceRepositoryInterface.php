@@ -63,4 +63,16 @@ interface ReadRealTimeServiceRepositoryInterface
         RequestParametersInterface $requestParameters,
         array $accessGroupIds
     ): ServiceStatusesCount;
+
+    /**
+     * Indicates whether the service already exists for the given service ID and host ID
+     *
+     * @param int $serviceId
+     * @param int $hostId
+     *
+     * @throws \Throwable
+     *
+     * @return bool
+     */
+    public function exists(int $serviceId, int $hostId): bool;
 }

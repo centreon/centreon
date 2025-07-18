@@ -37,8 +37,7 @@ use Core\Application\Common\UseCase\{
     NotModifiedResponse,
     PaymentRequiredResponse,
     ResponseStatusInterface,
-    UnauthorizedResponse,
-    ValidationErrorResponse
+    UnauthorizedResponse
 };
 use Symfony\Component\HttpFoundation\{JsonResponse, Response};
 
@@ -86,10 +85,6 @@ class JsonFormatter implements PresenterFormatterInterface
                     $this->debug('Conflict. Generating an error response');
 
                     return $this->generateJsonErrorResponse($data, Response::HTTP_CONFLICT, $headers);
-                case $data instanceof ValidationErrorResponse:
-                    $this->debug('Validation error. Generating an error response');
-
-                    return $this->generateJsonErrorResponse($data, Response::HTTP_UNPROCESSABLE_ENTITY, $headers);
                 case $data instanceof CreatedResponse:
                     return $this->generateJsonResponse($data, Response::HTTP_CREATED, $headers);
                 case $data instanceof NoContentResponse:
