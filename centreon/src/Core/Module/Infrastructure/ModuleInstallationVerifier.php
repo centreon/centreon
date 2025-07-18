@@ -27,7 +27,7 @@ use Core\Common\Domain\Exception\RepositoryException;
 use Core\Module\Application\Repository\ModuleInformationRepositoryInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
-final readonly class ModuleInstallationVerifier
+final class ModuleInstallationVerifier
 {
     public function __construct(
         #[Autowire(param: 'kernel.project_dir')]
