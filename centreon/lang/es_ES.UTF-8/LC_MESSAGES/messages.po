@@ -16816,3 +16816,6 @@ msgstr "Modo avanzado"
 
 # msgid "Maximum"
 # msgstr ""
+
+msgid "The URL provided for the website does not use a valid URL pattern."
+msgstr ""

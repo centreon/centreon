@@ -271,7 +271,6 @@ class CentreonHomeCustomview extends CentreonWebService
                     $currentParam->init($param);
                     $currentParam->setValue($param);
                     $params[$paramId]['trigger'] = $currentParam->getTrigger();
-                    $element = $currentParam->getElement();
                 } else {
                     throw new Exception('No class name found');
                 }
