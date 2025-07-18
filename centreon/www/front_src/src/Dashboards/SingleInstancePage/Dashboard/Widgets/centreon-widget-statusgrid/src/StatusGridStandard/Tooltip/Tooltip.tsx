@@ -7,6 +7,7 @@ import BATooltipContent from './BATooltipContent';
 import BooleanTooltipContent from './BooleanTooltipContent';
 import HostTooltipContent from './HostTooltipContent';
 import ServiceTooltipContent from './ServiceTooltipContent';
+import { seeMoreTileId } from '../utils';
 
 interface Props {
   data: ResourceData;
