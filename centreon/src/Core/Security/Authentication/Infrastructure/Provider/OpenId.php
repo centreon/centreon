@@ -335,13 +335,19 @@ class OpenId implements ProviderAuthenticationInterface
         if ($request === null) {
             throw new Exception('Request is not available for OpenID logout');
         }
-        $centreonBase = $request->getSchemeAndHttpHost() . $request->getBaseUrl();
-        $postLogout = $centreonBase . '/login';
 
         /** @var CustomConfiguration $customConfig */
         $customConfig = $this->provider->getConfiguration()->getCustomConfiguration();
         $baseUrl = $customConfig->getBaseUrl();
-        $endSessionUrl = $baseUrl . $customConfig->getEndSessionEndpoint();
+        $endSessionEndpoint = $customConfig->getEndSessionEndpoint();
+
+        if (empty($baseUrl) || empty($endSessionEndpoint)) {
+            throw new Exception('Missing required OpenID configuration for logout');
+        }
+
+        $endSessionUrl = $baseUrl . $endSessionEndpoint;
+        $centreonBase = $request->getSchemeAndHttpHost() . $request->getBaseUrl();
+        $postLogout = $centreonBase . '/login';
 
         $params = [
             'post_logout_redirect_uri' => $postLogout,
@@ -350,8 +356,14 @@ class OpenId implements ProviderAuthenticationInterface
 
         $logoutUrl = $endSessionUrl . '?' . http_build_query($params);
 
-        header('Location: ' . $logoutUrl, true, 302);
-
-        exit;
-    }
+        try {
+            header('Location: ' . $logoutUrl, true, 302);
+            if (function_exists('fastcgi_finish_request')) {
+                fastcgi_finish_request();
+            }
+            exit;
+        } catch (Exception $e) {
+            throw new Exception('Failed to redirect to logout URL: ' . $e->getMessage());
+        }
+}
 }

@@ -30,6 +30,7 @@ use Core\Security\Authentication\Application\Repository\WriteSessionTokenReposit
 use Core\Security\Authentication\Infrastructure\Provider\OpenId;
 use Core\Security\Authentication\Infrastructure\Provider\SAML;
 use Core\Security\ProviderConfiguration\Domain\Model\Provider;
+use Core\Security\ProviderConfiguration\Domain\OpenId\Model\CustomConfiguration as OpenIdCustomConfiguration;
 use Core\Security\ProviderConfiguration\Domain\SAML\Model\CustomConfiguration;
 use Symfony\Component\HttpFoundation\RequestStack;
 
@@ -80,7 +81,7 @@ class WriteSessionRepository implements WriteSessionRepositoryInterface
             /** @var OpenId $provider */
             $provider = $this->providerFactory->create(Provider::OPENID);
             $configuration = $provider->getConfiguration();
-            /** @var CustomConfiguration $customConfiguration */
+            /** @var OpenIdCustomConfiguration $customConfiguration */
             $customConfiguration = $configuration->getCustomConfiguration();
             if ($configuration->isActive()) {
                 $provider->logout($idToken);

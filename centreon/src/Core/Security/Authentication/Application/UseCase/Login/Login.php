@@ -123,8 +123,10 @@ final class Login
 
                     if ($loginRequest->providerName === Provider::OPENID) {
                         // Store the OpenID ID token in the session for later use
-                        /** @var OpenIdProvider $provider */
                         $provider = $this->provider;
+                        if (! $provider instanceof OpenIdProvider) {
+                            throw new AuthenticationException('Expected OpenIdProvider for OpenID login');
+                        }
                         $request = $this->requestStack->getCurrentRequest();
                         if ($request === null) {
                             throw new AuthenticationException('Request is not available for OpenID login');
