@@ -15755,6 +15755,10 @@ msgstr "La réponse au format JSON ne peut pas être décodée"
 msgid "The SQL files are located in \"%s\""
 msgstr "Les fichiers SQL sont situés dans \"%s\""
 
+#: centreon/www/widgets/httploader/index.php
+msgid "The URL provided for the website does not use a valid URL pattern."
+msgstr "L'URL fournie pour le site web n'utilise pas un modèle d'URL valide."
+
 #: centreon/src/Core/AdditionalConnectorConfiguration/Application/Exception/AccException.php
 #, php-format
 msgid "The additional configuration name '%s' already exists"
