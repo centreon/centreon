@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2019 CENTREON
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
@@ -36,68 +37,65 @@
  *
  */
 
-ini_set("display_errors", "On");
+ini_set('display_errors', 'On');
 $centreon_path = realpath(__DIR__ . '/../../../../../');
 global $etc_centreon;
 
-require_once $centreon_path . "/config/centreon.config.php";
+require_once $centreon_path . '/config/centreon.config.php';
 
 set_include_path(
-    get_include_path() .
-    PATH_SEPARATOR . $centreon_path . "www/class/centreon-knowledge/" .
-    PATH_SEPARATOR . $centreon_path . "www/"
+    get_include_path()
+    . PATH_SEPARATOR . $centreon_path . 'www/class/centreon-knowledge/'
+    . PATH_SEPARATOR . $centreon_path . 'www/'
 );
 
-require_once "include/common/common-Func.php";
-require_once "class/centreonLog.class.php";
+require_once 'include/common/common-Func.php';
+require_once 'class/centreonLog.class.php';
 require_once $centreon_path . '/bootstrap.php';
-require_once "class/centreon-knowledge/procedures.class.php";
-require_once "class/centreon-knowledge/ProceduresProxy.class.php";
+require_once 'class/centreon-knowledge/procedures.class.php';
+require_once 'class/centreon-knowledge/ProceduresProxy.class.php';
 
-$modules_path = $centreon_path . "www/include/configuration/configKnowledge/";
+$modules_path = $centreon_path . 'www/include/configuration/configKnowledge/';
 require_once $modules_path . 'functions.php';
 
-/*
- * DB connexion
- */
+// DB connexion
 $pearDB = $dependencyInjector['configuration_db'];
 
 try {
     $wikiConf = getWikiConfig($pearDB);
-} catch (\Exception $e) {
+} catch (Exception $e) {
     echo $e->getMessage();
+
     exit();
 }
 
 $wikiURL = $wikiConf['kb_wiki_url'];
 $proxy = new ProceduresProxy($pearDB);
 
-/*
- * Check if user want host or service procedures
- */
+// Check if user want host or service procedures
 $url = null;
 
-if (isset($_GET["host_name"])) {
-    $hostName = \HtmlAnalyzer::sanitizeAndRemoveTags($_GET['host_name']);
+if (isset($_GET['host_name'])) {
+    $hostName = HtmlAnalyzer::sanitizeAndRemoveTags($_GET['host_name']);
 }
-if (isset($_GET["service_description"])) {
-    $serviceDescription = \HtmlAnalyzer::sanitizeAndRemoveTags($_GET['service_description']);
+if (isset($_GET['service_description'])) {
+    $serviceDescription = HtmlAnalyzer::sanitizeAndRemoveTags($_GET['service_description']);
 }
 
-if (!empty($hostName) && !empty($serviceDescription)) {
+if (! empty($hostName) && ! empty($serviceDescription)) {
     $url = $proxy->getServiceUrl($hostName, $serviceDescription);
-} elseif (!empty($hostName)) {
+} elseif (! empty($hostName)) {
     $url = $proxy->getHostUrl($hostName);
 }
 
-if (!empty($url)) {
-    header("Location: " . $url);
-} elseif (!empty($hostName) && !empty($serviceDescription)) {
-    header("Location: $wikiURL/?title=Service_:_" . $hostName . "_/_" . $serviceDescription);
-} elseif (!empty($hostname)) {
-    header("Location: $wikiURL/?title=Host_:_" . $hostName);
+if (! empty($url)) {
+    header('Location: ' . $url);
+} elseif (! empty($hostName) && ! empty($serviceDescription)) {
+    header("Location: {$wikiURL}/?title=Service_:_" . $hostName . '_/_' . $serviceDescription);
+} elseif (! empty($hostname)) {
+    header("Location: {$wikiURL}/?title=Host_:_" . $hostName);
 } else {
-    header("Location: " . $wikiURL);
+    header('Location: ' . $wikiURL);
 }
 
 exit();

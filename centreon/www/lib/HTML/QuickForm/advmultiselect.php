@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Copyright (c) 2005-2009, Laurent Laville <pear@laurent-laville.org>
  *
@@ -37,14 +38,14 @@
  * @copyright 2005-2009 Laurent Laville
  * @license   http://www.opensource.org/licenses/bsd-license.php  BSD
  * @version   CVS: $Id: advmultiselect.php,v 1.36 2009/04/05 07:03:39 farell Exp $
- * @link      http://pear.php.net/package/HTML_QuickForm_advmultiselect
+ * @see      http://pear.php.net/package/HTML_QuickForm_advmultiselect
  * @since     File available since Release 0.4.0
  */
 
 /**
  * Basic error codes
  *
- * @var        integer
+ * @var int
  * @since      1.5.0
  */
 define('HTML_QUICKFORM_ADVMULTISELECT_ERROR_INVALID_INPUT', 1);
@@ -62,7 +63,7 @@ define('HTML_QUICKFORM_ADVMULTISELECT_ERROR_INVALID_INPUT', 1);
  * @copyright 2005-2009 Laurent Laville
  * @license   http://www.opensource.org/licenses/bsd-license.php  BSD
  * @version   Release: 1.5.1
- * @link      http://pear.php.net/package/HTML_QuickForm_advmultiselect
+ * @see      http://pear.php.net/package/HTML_QuickForm_advmultiselect
  * @since     Class available since Release 0.4.0
  */
 class HTML_QuickForm_advmultiselect extends HTML_QuickForm_select
@@ -70,8 +71,7 @@ class HTML_QuickForm_advmultiselect extends HTML_QuickForm_select
     /**
      * Prefix function name in javascript move selections
      *
-     * @var        string
-     * @access     private
+     * @var string
      * @since      0.4.0
      */
     public $_jsPrefix;
@@ -79,8 +79,7 @@ class HTML_QuickForm_advmultiselect extends HTML_QuickForm_select
     /**
      * Postfix function name in javascript move selections
      *
-     * @var        string
-     * @access     private
+     * @var string
      * @since      0.4.0
      */
     public $_jsPostfix;
@@ -88,8 +87,7 @@ class HTML_QuickForm_advmultiselect extends HTML_QuickForm_select
     /**
      * Associative array of the multi select container attributes
      *
-     * @var        array
-     * @access     private
+     * @var array
      * @since      0.4.0
      */
     public $_tableAttributes;
@@ -97,8 +95,7 @@ class HTML_QuickForm_advmultiselect extends HTML_QuickForm_select
     /**
      * Associative array of the add button attributes
      *
-     * @var        array
-     * @access     private
+     * @var array
      * @since      0.4.0
      */
     public $_addButtonAttributes;
@@ -106,8 +103,7 @@ class HTML_QuickForm_advmultiselect extends HTML_QuickForm_select
     /**
      * Associative array of the remove button attributes
      *
-     * @var        array
-     * @access     private
+     * @var array
      * @since      0.4.0
      */
     public $_removeButtonAttributes;
@@ -115,8 +111,7 @@ class HTML_QuickForm_advmultiselect extends HTML_QuickForm_select
     /**
      * Associative array of the select all button attributes
      *
-     * @var        array
-     * @access     private
+     * @var array
      * @since      1.1.0
      */
     public $_allButtonAttributes;
@@ -124,8 +119,7 @@ class HTML_QuickForm_advmultiselect extends HTML_QuickForm_select
     /**
      * Associative array of the select none button attributes
      *
-     * @var        array
-     * @access     private
+     * @var array
      * @since      1.1.0
      */
     public $_noneButtonAttributes;
@@ -133,8 +127,7 @@ class HTML_QuickForm_advmultiselect extends HTML_QuickForm_select
     /**
      * Associative array of the toggle selection button attributes
      *
-     * @var        array
-     * @access     private
+     * @var array
      * @since      1.1.0
      */
     public $_toggleButtonAttributes;
@@ -142,8 +135,7 @@ class HTML_QuickForm_advmultiselect extends HTML_QuickForm_select
     /**
      * Associative array of the move up button attributes
      *
-     * @var        array
-     * @access     private
+     * @var array
      * @since      0.5.0
      */
     public $_upButtonAttributes;
@@ -151,8 +143,7 @@ class HTML_QuickForm_advmultiselect extends HTML_QuickForm_select
     /**
      * Associative array of the move up button attributes
      *
-     * @var        array
-     * @access     private
+     * @var array
      * @since      0.5.0
      */
     public $_downButtonAttributes;
@@ -160,8 +151,7 @@ class HTML_QuickForm_advmultiselect extends HTML_QuickForm_select
     /**
      * Associative array of the move top button attributes
      *
-     * @var        array
-     * @access     private
+     * @var array
      * @since      1.5.0
      */
     public $_topButtonAttributes;
@@ -169,8 +159,7 @@ class HTML_QuickForm_advmultiselect extends HTML_QuickForm_select
     /**
      * Associative array of the move bottom button attributes
      *
-     * @var        array
-     * @access     private
+     * @var array
      * @since      1.5.0
      */
     public $_bottomButtonAttributes;
@@ -183,8 +172,7 @@ class HTML_QuickForm_advmultiselect extends HTML_QuickForm_select
      * SORT_ASC  is used to sort in ascending order
      * SORT_DESC is used to sort in descending order
      *
-     * @var    string    ('none' == false, 'asc' == SORT_ASC, 'desc' == SORT_DESC)
-     * @access private
+     * @var string ('none' == false, 'asc' == SORT_ASC, 'desc' == SORT_DESC)
      * @since  0.5.0
      */
     public $_sort;
@@ -192,8 +180,7 @@ class HTML_QuickForm_advmultiselect extends HTML_QuickForm_select
     /**
      * Associative array of the unselected item box attributes
      *
-     * @var        array
-     * @access     private
+     * @var array
      * @since      0.4.0
      */
     public $_attributesUnselected;
@@ -201,8 +188,7 @@ class HTML_QuickForm_advmultiselect extends HTML_QuickForm_select
     /**
      * Associative array of the selected item box attributes
      *
-     * @var        array
-     * @access     private
+     * @var array
      * @since      0.4.0
      */
     public $_attributesSelected;
@@ -210,8 +196,7 @@ class HTML_QuickForm_advmultiselect extends HTML_QuickForm_select
     /**
      * Associative array of the internal hidden box attributes
      *
-     * @var        array
-     * @access     private
+     * @var array
      * @since      0.4.0
      */
     public $_attributesHidden;
@@ -219,8 +204,7 @@ class HTML_QuickForm_advmultiselect extends HTML_QuickForm_select
     /**
      * Default Element template string
      *
-     * @var        string
-     * @access     private
+     * @var string
      * @since      0.4.0
      */
     public $_elementTemplate;
@@ -228,8 +212,7 @@ class HTML_QuickForm_advmultiselect extends HTML_QuickForm_select
     /**
      * Default Element stylesheet string
      *
-     * @var        string
-     * @access     private
+     * @var string
      * @since      0.4.0
      */
     public $_elementCSS = '
@@ -257,17 +240,16 @@ class HTML_QuickForm_advmultiselect extends HTML_QuickForm_select
      * Zend Engine 1 uses HTML_QuickForm_advmultiselect, while
      * Zend Engine 2 uses __construct
      *
-     * @param string  $elementName  Dual Select name attribute
-     * @param mixed   $elementLabel Label(s) for the select boxes
-     * @param mixed   $options      Data to be used to populate options
-     * @param mixed   $attributes   Either a typical HTML attribute string or
-     *                              an associative array
-     * @param integer $sort         Either SORT_ASC for auto ascending arrange,
-     *                                     SORT_DESC for auto descending arrange, or
-     *                                     NULL for no sort (append at end: default)
+     * @param string $elementName Dual Select name attribute
+     * @param mixed $elementLabel Label(s) for the select boxes
+     * @param mixed $options Data to be used to populate options
+     * @param mixed $attributes Either a typical HTML attribute string or
+     *                          an associative array
+     * @param int $sort Either SORT_ASC for auto ascending arrange,
+     *                  SORT_DESC for auto descending arrange, or
+     *                  NULL for no sort (append at end: default)
      *
-     * @access     public
-     * @return     void
+     * @return void
      * @since      version 0.4.0 (2005-06-25)
      */
     public function __construct(
@@ -277,7 +259,7 @@ class HTML_QuickForm_advmultiselect extends HTML_QuickForm_select
         $attributes = null,
         $sort = null
     ) {
-    
+
         $opts    = $options;
         $options = null;  // prevent to use the default select element load options
         parent::__construct($elementName, $elementLabel, $options, $attributes);
@@ -329,7 +311,7 @@ class HTML_QuickForm_advmultiselect extends HTML_QuickForm_select
         $this->_jsPostfix = 'moveSelection';
 
         // set select boxes sort order (none by default)
-        if (!isset($sort)) {
+        if (! isset($sort)) {
             $sort = false;
         }
         if ($sort === SORT_ASC) {
@@ -360,42 +342,41 @@ class HTML_QuickForm_advmultiselect extends HTML_QuickForm_select
      *  - <b>programming</b>: with the QF element constructor $sort option
      * </pre>
      *
-     * @param string $button     Button identifier, either 'add', 'remove',
-     *                                                     'all', 'none', 'toggle',
-     *                                                     'movetop', 'movebottom'
-     *                                                     'moveup' or 'movedown'
-     * @param mixed  $attributes (optional) Either a typical HTML attribute string
-     *                                      or an associative array
+     * @param string $button Button identifier, either 'add', 'remove',
+     *                       'all', 'none', 'toggle',
+     *                       'movetop', 'movebottom'
+     *                       'moveup' or 'movedown'
+     * @param mixed $attributes (optional) Either a typical HTML attribute string
+     *                          or an associative array
      *
-     * @return     void
-     * @throws     PEAR_Error   $button argument
-     *                          is not a string, or not in range
-     *                          (add, remove, all, none, toggle,
-     *                           movetop, movebottom, moveup, movedown)
-     * @access     public
+     * @throws PEAR_Error $button argument
+     *                    is not a string, or not in range
+     *                    (add, remove, all, none, toggle,
+     *                    movetop, movebottom, moveup, movedown)
+     * @return void
      * @since      version 0.4.0 (2005-06-25)
      *
      * @example    examples/qfams_custom_5.php
      *             Custom example 5: source code
-     * @link       http://www.laurent-laville.org/img/qfams/screenshot/custom5.png
+     * @see       http://www.laurent-laville.org/img/qfams/screenshot/custom5.png
      *             Custom example 5: screenshot
      *
      * @example    examples/qfams_custom_2.php
      *             Custom example 2: source code
-     * @link       http://www.laurent-laville.org/img/qfams/screenshot/custom2.png
+     * @see       http://www.laurent-laville.org/img/qfams/screenshot/custom2.png
      *             Custom example 2: screenshot
      *
      * @example    examples/qfams_custom_1.php
      *             Custom example 1: source code
-     * @link       http://www.laurent-laville.org/img/qfams/screenshot/custom1.png
+     * @see       http://www.laurent-laville.org/img/qfams/screenshot/custom1.png
      *             Custom example 1: screenshot
      */
     public function setButtonAttributes($button, $attributes = null)
     {
-        if (!is_string($button)) {
+        if (! is_string($button)) {
             return PEAR::throwError(
-                'Argument 1 of HTML_QuickForm_advmultiselect::' .
-                       'setButtonAttributes is not a string',
+                'Argument 1 of HTML_QuickForm_advmultiselect::'
+                       . 'setButtonAttributes is not a string',
                 HTML_QUICKFORM_ADVMULTISELECT_ERROR_INVALID_INPUT,
                 ['level' => 'exception']
             );
@@ -501,13 +482,13 @@ class HTML_QuickForm_advmultiselect extends HTML_QuickForm_select
                     );
                 }
                 break;
-            default;
-            return PEAR::throwError(
-                'Argument 1 of HTML_QuickForm_advmultiselect::' .
-                       'setButtonAttributes has unexpected value',
-                HTML_QUICKFORM_ADVMULTISELECT_ERROR_INVALID_INPUT,
-                ['level' => 'error']
-            );
+            default:
+                return PEAR::throwError(
+                    'Argument 1 of HTML_QuickForm_advmultiselect::'
+                           . 'setButtonAttributes has unexpected value',
+                    HTML_QUICKFORM_ADVMULTISELECT_ERROR_INVALID_INPUT,
+                    ['level' => 'error']
+                );
         }
     }
 
@@ -515,10 +496,9 @@ class HTML_QuickForm_advmultiselect extends HTML_QuickForm_select
      * Sets element template
      *
      * @param string $html (optional) The HTML surrounding select boxes and buttons
-     * @param string $js   (optional) if we need to include qfams javascript handler
+     * @param string $js (optional) if we need to include qfams javascript handler
      *
-     * @access     public
-     * @return     string
+     * @return string
      * @since      version 0.4.0 (2005-06-25)
      */
     public function setElementTemplate($html = null, $js = true)
@@ -548,6 +528,7 @@ class HTML_QuickForm_advmultiselect extends HTML_QuickForm_select
                 $this->_elementTemplate
             );
         }
+
         return $oldTemplate;
     }
 
@@ -559,15 +540,14 @@ class HTML_QuickForm_advmultiselect extends HTML_QuickForm_select
      * (or when browser is not js compliant). In our example, no need to add
      * javascript code, but css is mandatory.
      *
-     * @param boolean $raw (optional) html output with style tags or just raw data
+     * @param bool $raw (optional) html output with style tags or just raw data
      *
-     * @access     public
-     * @return     string
+     * @return string
      * @since      version 0.4.0 (2005-06-25)
      *
      * @example    qfams_custom_4.php
      *             Custom example 4: source code
-     * @link       http://www.laurent-laville.org/img/qfams/screenshot/custom4.png
+     * @see       http://www.laurent-laville.org/img/qfams/screenshot/custom4.png
      *             Custom example 4: screenshot
      */
     public function getElementCss($raw = true)
@@ -577,17 +557,17 @@ class HTML_QuickForm_advmultiselect extends HTML_QuickForm_select
 
         if ($raw !== true) {
             $css = '<style type="text/css">' . PHP_EOL
-                 . '<!--' . $css . ' -->'    . PHP_EOL
+                 . '<!--' . $css . ' -->' . PHP_EOL
                  . '</style>';
         }
+
         return $css;
     }
 
     /**
      * Returns the HTML generated for the advanced mutliple select component
      *
-     * @access     public
-     * @return     string
+     * @return string
      * @since      version 0.4.0 (2005-06-25)
      */
     public function toHtml()
@@ -606,13 +586,13 @@ class HTML_QuickForm_advmultiselect extends HTML_QuickForm_select
         $selected_count = 0;
 
         // placeholder {unselected} existence determines if we will render
-        if (!str_contains($this->_elementTemplate, '{unselected}')) {
+        if (! str_contains($this->_elementTemplate, '{unselected}')) {
             // ... a single multi-select with checkboxes
             $this->_jsPostfix = 'editSelection';
 
             $id = $this->getAttribute('name');
 
-            $strHtmlSelected  = $tab . '<div id="qfams_'.$id.'">'  . PHP_EOL;
+            $strHtmlSelected  = $tab . '<div id="qfams_' . $id . '">' . PHP_EOL;
             $unselected_count = count($this->_options);
 
             $checkbox_id_suffix = 0;
@@ -629,7 +609,7 @@ class HTML_QuickForm_advmultiselect extends HTML_QuickForm_select
                 }
 
                 if (is_array($this->_values)
-                    && in_array((string)$option['attr']['value'], $this->_values)) {
+                    && in_array((string) $option['attr']['value'], $this->_values)) {
                     // The items is *selected*
                     $checked = ' checked="checked"';
                     $selected_count++;
@@ -639,17 +619,17 @@ class HTML_QuickForm_advmultiselect extends HTML_QuickForm_select
                 }
                 $checkbox_id_suffix++;
                 $strHtmlSelected .= $tab
-                                 .  '<label'
-                                 .  $this->_getAttrString($labelAttributes) .'>'
-                                 .  '<input type="checkbox"'
-                                 .  ' id="'.$selectId . $checkbox_id_suffix.'"'
-                                 .  ' name="'.$selectName.'"'
-                                 .  $checked
-                                 .  $this->_getAttrString($option['attr'])
-                                 .  ' />' .  $option['text'] . '</label>'
-                                 .  PHP_EOL;
+                                 . '<label'
+                                 . $this->_getAttrString($labelAttributes) . '>'
+                                 . '<input type="checkbox"'
+                                 . ' id="' . $selectId . $checkbox_id_suffix . '"'
+                                 . ' name="' . $selectName . '"'
+                                 . $checked
+                                 . $this->_getAttrString($option['attr'])
+                                 . ' />' . $option['text'] . '</label>'
+                                 . PHP_EOL;
             }
-            $strHtmlSelected .= $tab . '</div>'. PHP_EOL;
+            $strHtmlSelected .= $tab . '</div>' . PHP_EOL;
 
             $strHtmlHidden     = '';
             $strHtmlUnselected = '';
@@ -658,31 +638,31 @@ class HTML_QuickForm_advmultiselect extends HTML_QuickForm_select
 
             // build the select all button with all its attributes
             $jsName     = $this->_jsPrefix . $this->_jsPostfix;
-            $attributes = ['onclick' => $jsName .
-                                             "('". $selectId ."', 1);"];
+            $attributes = ['onclick' => $jsName
+                                             . "('" . $selectId . "', 1);"];
             $this->_allButtonAttributes
                         = array_merge($this->_allButtonAttributes, $attributes);
             $attrStrAll = $this->_getAttrString($this->_allButtonAttributes);
-            $strHtmlAll = "<input$attrStrAll />". PHP_EOL;
+            $strHtmlAll = "<input{$attrStrAll} />" . PHP_EOL;
 
             // build the select none button with all its attributes
-            $attributes = ['onclick' => $jsName .
-                                             "('". $selectId ."', 0);"];
+            $attributes = ['onclick' => $jsName
+                                             . "('" . $selectId . "', 0);"];
             $this->_noneButtonAttributes
                          = array_merge($this->_noneButtonAttributes, $attributes);
             $attrStrNone = $this->_getAttrString($this->_noneButtonAttributes);
-            $strHtmlNone = "<input$attrStrNone />". PHP_EOL;
+            $strHtmlNone = "<input{$attrStrNone} />" . PHP_EOL;
 
             // build the toggle selection button with all its attributes
-            $attributes = ['onclick' => $jsName .
-                                             "('". $selectId ."', 2);"];
+            $attributes = ['onclick' => $jsName
+                                             . "('" . $selectId . "', 2);"];
             $this->_toggleButtonAttributes
                            = array_merge(
                                $this->_toggleButtonAttributes,
                                $attributes
                            );
             $attrStrToggle = $this->_getAttrString($this->_toggleButtonAttributes);
-            $strHtmlToggle = "<input$attrStrToggle />". PHP_EOL;
+            $strHtmlToggle = "<input{$attrStrToggle} />" . PHP_EOL;
 
             $strHtmlMoveUp      = '';
             $strHtmlMoveDown    = '';
@@ -698,32 +678,32 @@ class HTML_QuickForm_advmultiselect extends HTML_QuickForm_select
 
             // set name of Select From Box
             $this->_attributesUnselected
-                = ['id' => $selectId . '-f', 'name' => $selectNameFrom, 'ondblclick' => $jsName .
-                    "('{$selectId}', ".
-                    "this.form.elements['" . $selectNameFrom . "'], " .
-                    "this.form.elements['" . $selectNameTo . "'], " .
-                    "this.form.elements['" . $selectName . "'], " .
-                    "'add', '{$this->_sort}')"];
+                = ['id' => $selectId . '-f', 'name' => $selectNameFrom, 'ondblclick' => $jsName
+                    . "('{$selectId}', "
+                    . "this.form.elements['" . $selectNameFrom . "'], "
+                    . "this.form.elements['" . $selectNameTo . "'], "
+                    . "this.form.elements['" . $selectName . "'], "
+                    . "'add', '{$this->_sort}')"];
             $this->_attributesUnselected
                 = array_merge($this->_attributes, $this->_attributesUnselected);
             $attrUnselected = $this->_getAttrString($this->_attributesUnselected);
 
             // set name of Select To Box
             $this->_attributesSelected
-                = ['id' => $selectId . '-t', 'name' => $selectNameTo, 'ondblclick' => $jsName .
-                    "('{$selectId}', " .
-                    "this.form.elements['" . $selectNameFrom . "'], " .
-                    "this.form.elements['" . $selectNameTo . "'], ".
-                    "this.form.elements['" . $selectName . "'], " .
-                    "'remove', '{$this->_sort}')"];
+                = ['id' => $selectId . '-t', 'name' => $selectNameTo, 'ondblclick' => $jsName
+                    . "('{$selectId}', "
+                    . "this.form.elements['" . $selectNameFrom . "'], "
+                    . "this.form.elements['" . $selectNameTo . "'], "
+                    . "this.form.elements['" . $selectName . "'], "
+                    . "'remove', '{$this->_sort}')"];
             $this->_attributesSelected
                 = array_merge($this->_attributes, $this->_attributesSelected);
             $attrSelected = $this->_getAttrString($this->_attributesSelected);
 
             // set name of Select hidden Box
             $this->_attributesHidden
-                = ['name' => $selectName, 'style' => 'overflow: hidden; visibility: hidden; ' .
-                           'width: 1px; height: 0;'];
+                = ['name' => $selectName, 'style' => 'overflow: hidden; visibility: hidden; '
+                           . 'width: 1px; height: 0;'];
             $this->_attributesHidden
                 = array_merge($this->_attributes, $this->_attributesHidden);
             $attrHidden = $this->_getAttrString($this->_attributesHidden);
@@ -740,7 +720,7 @@ class HTML_QuickForm_advmultiselect extends HTML_QuickForm_select
                 foreach ($this->_options as $option) {
                     if (is_array($this->_values)
                         && in_array(
-                            (string)$option['attr']['value'],
+                            (string) $option['attr']['value'],
                             $this->_values
                         )) {
                         // Get the post order
@@ -750,10 +730,10 @@ class HTML_QuickForm_advmultiselect extends HTML_QuickForm_select
                         );
 
                         /** The items is *selected* so we want to put it
-                            in the 'selected' multi-select */
+                         * in the 'selected' multi-select */
                         $arrHtmlSelected[$key] = $option;
                         /** Add it to the 'hidden' multi-select
-                            and set it as 'selected' */
+                         * and set it as 'selected' */
                         if (isset($option['attr']['disabled'])) {
                             unset($option['attr']['disabled']);
                         }
@@ -761,7 +741,7 @@ class HTML_QuickForm_advmultiselect extends HTML_QuickForm_select
                         $arrHtmlHidden[$key]        = $option;
                     } else {
                         /** The item is *unselected* so we want to put it
-                            in the 'unselected' multi-select */
+                         * in the 'unselected' multi-select */
                         $arrHtmlUnselected[] = $option;
                         // Add it to the hidden multi-select as 'unselected'
                         $arrHtmlHidden[$append] = $option;
@@ -781,7 +761,7 @@ class HTML_QuickForm_advmultiselect extends HTML_QuickForm_select
                     = array_merge($this->_attributes, $this->_attributesUnselected);
                 $attrUnselected = $this->_getAttrString($this->_attributesUnselected);
             }
-            $strHtmlUnselected = "<select$attrUnselected>". PHP_EOL;
+            $strHtmlUnselected = "<select{$attrUnselected}>" . PHP_EOL;
             if ($unselected_count > 0) {
                 foreach ($arrHtmlUnselected as $data) {
                     $strHtmlUnselected
@@ -803,10 +783,10 @@ class HTML_QuickForm_advmultiselect extends HTML_QuickForm_select
                     = array_merge($this->_attributes, $this->_attributesSelected);
                 $attrSelected = $this->_getAttrString($this->_attributesSelected);
             }
-            $strHtmlSelected = "<select$attrSelected>". PHP_EOL;
+            $strHtmlSelected = "<select{$attrSelected}>" . PHP_EOL;
             if ($selected_count > 0) {
                 foreach ($arrHtmlSelected as $data) {
-                    if (!isset($data['attr']) || !isset($data['text'])) {
+                    if (! isset($data['attr']) || ! isset($data['text'])) {
                         continue;
                     }
 
@@ -820,10 +800,10 @@ class HTML_QuickForm_advmultiselect extends HTML_QuickForm_select
             $strHtmlSelected .= '</select>';
 
             // The 'hidden' multi-select
-            $strHtmlHidden = "<select$attrHidden>". PHP_EOL;
+            $strHtmlHidden = "<select{$attrHidden}>" . PHP_EOL;
             if ($arrHtmlHidden !== []) {
                 foreach ($arrHtmlHidden as $data) {
-                    if (!isset($data['attr']) || !isset($data['text'])) {
+                    if (! isset($data['attr']) || ! isset($data['text'])) {
                         continue;
                     }
 
@@ -836,120 +816,120 @@ class HTML_QuickForm_advmultiselect extends HTML_QuickForm_select
 
             // build the remove button with all its attributes
             $attributes
-                = ['onclick' => $jsName .
-                            "('{$selectId}', " .
-                            "this.form.elements['" . $selectNameFrom . "'], " .
-                            "this.form.elements['" . $selectNameTo . "'], " .
-                            "this.form.elements['" . $selectName . "'], " .
-                            "'remove', '{$this->_sort}'); return false;"];
+                = ['onclick' => $jsName
+                            . "('{$selectId}', "
+                            . "this.form.elements['" . $selectNameFrom . "'], "
+                            . "this.form.elements['" . $selectNameTo . "'], "
+                            . "this.form.elements['" . $selectName . "'], "
+                            . "'remove', '{$this->_sort}'); return false;"];
             $this->_removeButtonAttributes
                 = array_merge($this->_removeButtonAttributes, $attributes);
             $attrStrRemove = $this->_getAttrString($this->_removeButtonAttributes);
-            $strHtmlRemove = "<input$attrStrRemove />". PHP_EOL;
+            $strHtmlRemove = "<input{$attrStrRemove} />" . PHP_EOL;
 
             // build the add button with all its attributes
             $attributes
-                = ['onclick' => $jsName .
-                            "('{$selectId}', " .
-                            "this.form.elements['" . $selectNameFrom . "'], " .
-                            "this.form.elements['" . $selectNameTo . "'], " .
-                            "this.form.elements['" . $selectName . "'], " .
-                            "'add', '{$this->_sort}'); return false;"];
+                = ['onclick' => $jsName
+                            . "('{$selectId}', "
+                            . "this.form.elements['" . $selectNameFrom . "'], "
+                            . "this.form.elements['" . $selectNameTo . "'], "
+                            . "this.form.elements['" . $selectName . "'], "
+                            . "'add', '{$this->_sort}'); return false;"];
             $this->_addButtonAttributes
                 = array_merge($this->_addButtonAttributes, $attributes);
             $attrStrAdd = $this->_getAttrString($this->_addButtonAttributes);
-            $strHtmlAdd = "<input$attrStrAdd />". PHP_EOL;
+            $strHtmlAdd = "<input{$attrStrAdd} />" . PHP_EOL;
 
             // build the select all button with all its attributes
             $attributes
-                = ['onclick' => $jsName .
-                            "('{$selectId}', " .
-                            "this.form.elements['" . $selectNameFrom . "'], " .
-                            "this.form.elements['" . $selectNameTo . "'], " .
-                            "this.form.elements['" . $selectName . "'], " .
-                            "'all', '{$this->_sort}'); return false;"];
+                = ['onclick' => $jsName
+                            . "('{$selectId}', "
+                            . "this.form.elements['" . $selectNameFrom . "'], "
+                            . "this.form.elements['" . $selectNameTo . "'], "
+                            . "this.form.elements['" . $selectName . "'], "
+                            . "'all', '{$this->_sort}'); return false;"];
             $this->_allButtonAttributes
                 = array_merge($this->_allButtonAttributes, $attributes);
             $attrStrAll = $this->_getAttrString($this->_allButtonAttributes);
-            $strHtmlAll = "<input$attrStrAll />". PHP_EOL;
+            $strHtmlAll = "<input{$attrStrAll} />" . PHP_EOL;
 
             // build the select none button with all its attributes
             $attributes
-                = ['onclick' => $jsName .
-                            "('{$selectId}', " .
-                            "this.form.elements['" . $selectNameFrom . "'], " .
-                            "this.form.elements['" . $selectNameTo . "'], " .
-                            "this.form.elements['" . $selectName . "'], " .
-                            "'none', '{$this->_sort}'); return false;"];
+                = ['onclick' => $jsName
+                            . "('{$selectId}', "
+                            . "this.form.elements['" . $selectNameFrom . "'], "
+                            . "this.form.elements['" . $selectNameTo . "'], "
+                            . "this.form.elements['" . $selectName . "'], "
+                            . "'none', '{$this->_sort}'); return false;"];
             $this->_noneButtonAttributes
                 = array_merge($this->_noneButtonAttributes, $attributes);
             $attrStrNone = $this->_getAttrString($this->_noneButtonAttributes);
-            $strHtmlNone = "<input$attrStrNone />". PHP_EOL;
+            $strHtmlNone = "<input{$attrStrNone} />" . PHP_EOL;
 
             // build the toggle button with all its attributes
             $attributes
-                = ['onclick' => $jsName .
-                            "('{$selectId}', " .
-                            "this.form.elements['" . $selectNameFrom . "'], " .
-                            "this.form.elements['" . $selectNameTo . "'], " .
-                            "this.form.elements['" . $selectName . "'], " .
-                            "'toggle', '{$this->_sort}'); return false;"];
+                = ['onclick' => $jsName
+                            . "('{$selectId}', "
+                            . "this.form.elements['" . $selectNameFrom . "'], "
+                            . "this.form.elements['" . $selectNameTo . "'], "
+                            . "this.form.elements['" . $selectName . "'], "
+                            . "'toggle', '{$this->_sort}'); return false;"];
             $this->_toggleButtonAttributes
                 = array_merge($this->_toggleButtonAttributes, $attributes);
             $attrStrToggle = $this->_getAttrString($this->_toggleButtonAttributes);
-            $strHtmlToggle = "<input$attrStrToggle />". PHP_EOL;
+            $strHtmlToggle = "<input{$attrStrToggle} />" . PHP_EOL;
 
             // build the move up button with all its attributes
             $attributes
-                = ['onclick' => "{$this->_jsPrefix}moveUp" .
-                            "(this.form.elements['" . $selectNameTo . "'], " .
-                            "this.form.elements['" . $selectName . "']); " .
-                            "return false;"];
+                = ['onclick' => "{$this->_jsPrefix}moveUp"
+                            . "(this.form.elements['" . $selectNameTo . "'], "
+                            . "this.form.elements['" . $selectName . "']); "
+                            . 'return false;'];
             $this->_upButtonAttributes
                 = array_merge($this->_upButtonAttributes, $attributes);
             $attrStrUp     = $this->_getAttrString($this->_upButtonAttributes);
-            $strHtmlMoveUp = "<input$attrStrUp />". PHP_EOL;
+            $strHtmlMoveUp = "<input{$attrStrUp} />" . PHP_EOL;
 
             // build the move down button with all its attributes
             $attributes
-                = ['onclick' => "{$this->_jsPrefix}moveDown" .
-                            "(this.form.elements['" . $selectNameTo . "'], " .
-                            "this.form.elements['" . $selectName . "']); " .
-                            "return false;"];
+                = ['onclick' => "{$this->_jsPrefix}moveDown"
+                            . "(this.form.elements['" . $selectNameTo . "'], "
+                            . "this.form.elements['" . $selectName . "']); "
+                            . 'return false;'];
             $this->_downButtonAttributes
                 = array_merge($this->_downButtonAttributes, $attributes);
             $attrStrDown     = $this->_getAttrString($this->_downButtonAttributes);
-            $strHtmlMoveDown = "<input$attrStrDown />". PHP_EOL;
+            $strHtmlMoveDown = "<input{$attrStrDown} />" . PHP_EOL;
 
             // build the move top button with all its attributes
             $attributes
-                = ['onclick' => "{$this->_jsPrefix}moveTop" .
-                            "(this.form.elements['" . $selectNameTo . "'], " .
-                            "this.form.elements['" . $selectName . "']); " .
-                            "return false;"];
+                = ['onclick' => "{$this->_jsPrefix}moveTop"
+                            . "(this.form.elements['" . $selectNameTo . "'], "
+                            . "this.form.elements['" . $selectName . "']); "
+                            . 'return false;'];
             $this->_topButtonAttributes
                 = array_merge($this->_topButtonAttributes, $attributes);
             $attrStrTop     = $this->_getAttrString($this->_topButtonAttributes);
-            $strHtmlMoveTop = "<input$attrStrTop />". PHP_EOL;
+            $strHtmlMoveTop = "<input{$attrStrTop} />" . PHP_EOL;
 
             // build the move bottom button with all its attributes
             $attributes
-                = ['onclick' => "{$this->_jsPrefix}moveBottom" .
-                            "(this.form.elements['" . $selectNameTo . "'], " .
-                            "this.form.elements['" . $selectName . "']); " .
-                            "return false;"];
+                = ['onclick' => "{$this->_jsPrefix}moveBottom"
+                            . "(this.form.elements['" . $selectNameTo . "'], "
+                            . "this.form.elements['" . $selectName . "']); "
+                            . 'return false;'];
             $this->_bottomButtonAttributes
                 = array_merge($this->_bottomButtonAttributes, $attributes);
             $attrStrBottom     = $this->_getAttrString($this->_bottomButtonAttributes);
-            $strHtmlMoveBottom = "<input$attrStrBottom />". PHP_EOL;
+            $strHtmlMoveBottom = "<input{$attrStrBottom} />" . PHP_EOL;
 
             // default selection counters
             $strHtmlSelectedCount = $selected_count;
         }
         $strHtmlUnselectedCount = $unselected_count;
 
-        $strHtmlSelectedCountId   = $selectId .'_selected';
-        $strHtmlUnselectedCountId = $selectId .'_unselected';
+        $strHtmlSelectedCountId   = $selectId . '_selected';
+        $strHtmlUnselectedCountId = $selectId . '_unselected';
 
         // render all part of the multi select component with the template
         $strHtml = $this->_elementTemplate;
@@ -962,7 +942,7 @@ class HTML_QuickForm_advmultiselect extends HTML_QuickForm_select
         // render extra labels, if any
         if (is_array($labels)) {
             foreach ($labels as $key => $text) {
-                $key     = is_int($key)? $key + 2: $key;
+                $key     = is_int($key) ? $key + 2 : $key;
                 $strHtml = str_replace("{label_{$key}}", $text, $strHtml);
                 $strHtml = str_replace("<!-- BEGIN label_{$key} -->", '', $strHtml);
                 $strHtml = str_replace("<!-- END label_{$key} -->", '', $strHtml);
@@ -970,8 +950,8 @@ class HTML_QuickForm_advmultiselect extends HTML_QuickForm_select
         }
         // clean up useless label tags
         if (strpos($strHtml, '{label_')) {
-            $strHtml = preg_replace('/\s*<!-- BEGIN label_(\S+) -->'.
-                           '.*<!-- END label_\1 -->\s*/i', '', $strHtml);
+            $strHtml = preg_replace('/\s*<!-- BEGIN label_(\S+) -->'
+                           . '.*<!-- END label_\1 -->\s*/i', '', $strHtml);
         }
 
         $placeHolders = ['{stylesheet}', '{javascript}', '{class}', '{unselected_count_id}', '{selected_count_id}', '{unselected_count}', '{selected_count}', '{unselected}', '{selected}', '{add}', '{remove}', '{all}', '{none}', '{toggle}', '{moveup}', '{movedown}', '{movetop}', '{movebottom}'];
@@ -981,8 +961,8 @@ class HTML_QuickForm_advmultiselect extends HTML_QuickForm_select
 
         $comment = $this->getComment();
 
-        if (!empty($comment)) {
-            $strHtml = $tabs . '<!-- ' . $comment . " //-->" . PHP_EOL . $strHtml;
+        if (! empty($comment)) {
+            $strHtml = $tabs . '<!-- ' . $comment . ' //-->' . PHP_EOL . $strHtml;
         }
 
         return $strHtml;
@@ -991,11 +971,10 @@ class HTML_QuickForm_advmultiselect extends HTML_QuickForm_select
     /**
      * Returns the javascript code generated to handle this element
      *
-     * @param boolean $raw (optional) html output with script tags or just raw data
-     * @param boolean $min (optional) uses javascript compressed version
+     * @param bool $raw (optional) html output with script tags or just raw data
+     * @param bool $min (optional) uses javascript compressed version
      *
-     * @access     public
-     * @return     string
+     * @return string
      * @since      version 0.4.0 (2005-06-25)
      */
     public function getElementJs($raw = true, $min = false)
@@ -1018,6 +997,7 @@ class HTML_QuickForm_advmultiselect extends HTML_QuickForm_select
                 . PHP_EOL . '</script>'
                 . PHP_EOL;
         }
+
         return $js;
     }
 
@@ -1028,15 +1008,14 @@ class HTML_QuickForm_advmultiselect extends HTML_QuickForm_select
      * loading options with fancy attributes.
      *
      * @param mixed &$options Options source currently supports assoc array or DB_result
-     * @param mixed $param1   (optional) See function detail
-     * @param mixed $param2   (optional) See function detail
-     * @param mixed $param3   (optional) See function detail
-     * @param mixed $param4   (optional) See function detail
+     * @param mixed $param1 (optional) See function detail
+     * @param mixed $param2 (optional) See function detail
+     * @param mixed $param3 (optional) See function detail
+     * @param mixed $param4 (optional) See function detail
      *
-     * @access     public
      * @since      version 1.5.0 (2009-02-15)
-     * @return     PEAR_Error|NULL on error and TRUE on success
-     * @throws     PEAR_Error
+     * @throws PEAR_Error
+     * @return PEAR_Error|null on error and TRUE on success
      * @see        loadArray()
      */
     public function load(
@@ -1046,12 +1025,13 @@ class HTML_QuickForm_advmultiselect extends HTML_QuickForm_select
         $param3 = null,
         $param4 = null
     ) {
-    
+
         if (is_array($options)) {
             $ret = $this->loadArray($options, $param1);
         } else {
             $ret = parent::load($options, $param1, $param2, $param3, $param4);
         }
+
         return $ret;
     }
 
@@ -1061,21 +1041,20 @@ class HTML_QuickForm_advmultiselect extends HTML_QuickForm_select
      * This method overloaded parent method of select element, to allow to load
      * array of options with fancy attributes.
      *
-     * @param array $arr    Associative array of options
+     * @param array $arr Associative array of options
      * @param mixed $values (optional) Array or comma delimited string of selected values
      *
      * @since      version 1.5.0 (2009-02-15)
-     * @access     public
-     * @return     PEAR_Error on error and TRUE on success
-     * @throws     PEAR_Error
+     * @throws PEAR_Error
+     * @return PEAR_Error on error and TRUE on success
      * @see        load()
      */
     public function loadArray(array $arr, $values = null)
     {
-        if (!is_array($arr)) {
+        if (! is_array($arr)) {
             return PEAR::throwError(
-                'Argument 1 of HTML_QuickForm_advmultiselect::' .
-                       'loadArray is not a valid array',
+                'Argument 1 of HTML_QuickForm_advmultiselect::'
+                       . 'loadArray is not a valid array',
                 HTML_QUICKFORM_ADVMULTISELECT_ERROR_INVALID_INPUT,
                 ['level' => 'exception']
             );
@@ -1092,6 +1071,7 @@ class HTML_QuickForm_advmultiselect extends HTML_QuickForm_select
                 }
             }
         }
+
         return true;
     }
 
@@ -1102,19 +1082,18 @@ class HTML_QuickForm_advmultiselect extends HTML_QuickForm_select
      * to keep it persistant
      *
      * @param mixed $optionValues Options (key-values) that should be persistant
-     * @param bool  $persistant   (optional) TRUE if persistant, FALSE otherwise
+     * @param bool $persistant (optional) TRUE if persistant, FALSE otherwise
      *
      * @since      version 1.5.0 (2009-02-15)
-     * @access     public
-     * @return     PEAR_Error on error and TRUE on success
-     * @throws     PEAR_Error
+     * @throws PEAR_Error
+     * @return PEAR_Error on error and TRUE on success
      */
     public function setPersistantOptions($optionValues, $persistant = true)
     {
-        if (!is_bool($persistant)) {
+        if (! is_bool($persistant)) {
             return PEAR::throwError(
-                'Argument 2 of HTML_QuickForm_advmultiselect::' .
-                       'setPersistantOptions is not a boolean',
+                'Argument 2 of HTML_QuickForm_advmultiselect::'
+                       . 'setPersistantOptions is not a boolean',
                 HTML_QUICKFORM_ADVMULTISELECT_ERROR_INVALID_INPUT,
                 ['level' => 'exception']
             );
@@ -1122,10 +1101,10 @@ class HTML_QuickForm_advmultiselect extends HTML_QuickForm_select
         if (is_string($optionValues)) {
             $optionValues = [$optionValues];
         }
-        if (!is_array($optionValues)) {
+        if (! is_array($optionValues)) {
             return PEAR::throwError(
-                'Argument 1 of HTML_QuickForm_advmultiselect::' .
-                       'setPersistantOptions is not a valid array',
+                'Argument 1 of HTML_QuickForm_advmultiselect::'
+                       . 'setPersistantOptions is not a valid array',
                 HTML_QUICKFORM_ADVMULTISELECT_ERROR_INVALID_INPUT,
                 ['level' => 'exception']
             );
@@ -1140,6 +1119,7 @@ class HTML_QuickForm_advmultiselect extends HTML_QuickForm_select
                 }
             }
         }
+
         return true;
     }
 
@@ -1150,8 +1130,7 @@ class HTML_QuickForm_advmultiselect extends HTML_QuickForm_select
      * be selected or unselected.
      *
      * @since      version 1.5.0 (2009-02-15)
-     * @access     public
-     * @return     array
+     * @return array
      */
     public function getPersistantOptions()
     {
@@ -1168,7 +1147,7 @@ class HTML_QuickForm_advmultiselect extends HTML_QuickForm_select
 }
 
 if (class_exists('HTML_QuickForm')) {
-    (new HTML_QuickForm)->registerElementType(
+    (new HTML_QuickForm())->registerElementType(
         'advmultiselect',
         'HTML/QuickForm/advmultiselect.php',
         'HTML_QuickForm_advmultiselect'

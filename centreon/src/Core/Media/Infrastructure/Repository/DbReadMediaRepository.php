@@ -19,7 +19,7 @@
  *
  */
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Core\Media\Infrastructure\Repository;
 
@@ -142,16 +142,17 @@ class DbReadMediaRepository extends AbstractRepositoryRDB implements ReadMediaRe
         }
 
         $statement = $this->db->prepare(
-            $this->translateDbName(<<<'SQL'
-                SELECT 1
-                FROM `:db`.`view_img` img
-                INNER JOIN `:db`.`view_img_dir_relation` rel
-                    ON rel.img_img_id = img.img_id
-                INNER JOIN `:db`.`view_img_dir` dir
-                    ON dir.dir_id = rel.dir_dir_parent_id
-                WHERE img_path = :media_name
-                    AND dir.dir_name = :media_path
-                SQL
+            $this->translateDbName(
+                <<<'SQL'
+                    SELECT 1
+                    FROM `:db`.`view_img` img
+                    INNER JOIN `:db`.`view_img_dir_relation` rel
+                        ON rel.img_img_id = img.img_id
+                    INNER JOIN `:db`.`view_img_dir` dir
+                        ON dir.dir_id = rel.dir_dir_parent_id
+                    WHERE img_path = :media_name
+                        AND dir.dir_name = :media_path
+                    SQL
             )
         );
         $statement->bindValue(':media_name', $pathInfo['basename']);
@@ -195,59 +196,58 @@ class DbReadMediaRepository extends AbstractRepositoryRDB implements ReadMediaRe
             ? (int) $total
             : 0;
 
-         return new class(
-             $statement,
-             $index,
-             $totalItems,
-             self::MAX_ITEMS_BY_REQUEST,
-             $this->createMedia(...),
-             $this->logger
-         ) implements \IteratorAggregate, \Countable
-         {
-             /** @var list<Media> */
-             private array $findAllCache = [];
+        return new class (
+            $statement,
+            $index,
+            $totalItems,
+            self::MAX_ITEMS_BY_REQUEST,
+            $this->createMedia(...),
+            $this->logger
+        ) implements \IteratorAggregate, \Countable {
+            /** @var list<Media> */
+            private array $findAllCache = [];
 
-             public function __construct(
-                 private readonly \PDOStatement $statement,
-                 private int &$index,
-                 private readonly int $totalItem,
-                 private readonly int $maxItemByRequest,
-                 private readonly \Closure $factory,
-                 private readonly LoggerInterface $logger,
+            public function __construct(
+                private readonly \PDOStatement $statement,
+                private int &$index,
+                private readonly int $totalItem,
+                private readonly int $maxItemByRequest,
+                private readonly \Closure $factory,
+                private readonly LoggerInterface $logger,
             ) {
             }
 
-             public function getIterator(): Traversable
-             {
-                 if ($this->findAllCache !== []) {
-                     foreach ($this->findAllCache as $media) {
-                         yield $media;
-                     }
-                 } else {
-                     $itemCounter = 0;
-                     do {
-                         $this->logger->debug(
-                             sprintf('Loading media from %d/%d', $this->index, $this->maxItemByRequest)
-                         );
-                         foreach ($this->statement as $result) {
-                             $itemCounter++;
+            public function getIterator(): Traversable
+            {
+                if ($this->findAllCache !== []) {
+                    foreach ($this->findAllCache as $media) {
+                        yield $media;
+                    }
+                } else {
+                    $itemCounter = 0;
+                    do {
+                        $this->logger->debug(
+                            sprintf('Loading media from %d/%d', $this->index, $this->maxItemByRequest)
+                        );
+                        foreach ($this->statement as $result) {
+                            $itemCounter++;
 
-                             $this->findAllCache[] = ($this->factory)($result);
-                         }
-                         $this->index += $this->maxItemByRequest;
-                         $this->statement->execute();
-                     } while ($itemCounter < $this->totalItem);
-                     foreach ($this->findAllCache as $media) {
-                         yield $media;
-                     }
-                 }
-             }
+                            $this->findAllCache[] = ($this->factory)($result);
+                        }
+                        $this->index += $this->maxItemByRequest;
+                        $this->statement->execute();
+                    } while ($itemCounter < $this->totalItem);
+                    foreach ($this->findAllCache as $media) {
+                        yield $media;
+                    }
+                }
+            }
 
-             public function count(): int
-             {
-                 return $this->totalItem;
-             }
-         };
+            public function count(): int
+            {
+                return $this->totalItem;
+            }
+        };
     }
 
     /**
@@ -298,7 +298,7 @@ class DbReadMediaRepository extends AbstractRepositoryRDB implements ReadMediaRe
             $sqlTranslator->getRequestParameters()->setTotal((int) $total);
         }
 
-        return new class($statement, $this->createMedia(...)) implements \IteratorAggregate {
+        return new class ($statement, $this->createMedia(...)) implements \IteratorAggregate {
             public function __construct(
                 readonly private \PDOStatement $statement,
                 readonly private \Closure $factory,

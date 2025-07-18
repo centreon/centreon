@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Copyright 2019 Centreon
  *
@@ -15,16 +16,17 @@
  * limitations under the License.
  */
 
-namespace CentreonLegacy\Core\Utils;
+namespace Tests\CentreonLegacy\Core\Utils;
 
+use Centreon\Test\Mock;
+use Centreon\Test\Mock\DependencyInjector\ServiceContainer;
+use CentreonLegacy\Core\Configuration\Configuration;
+use CentreonLegacy\Core\Utils\Utils;
+use CentreonLegacy\ServiceProvider;
 use PHPUnit\Framework\TestCase;
 use Pimple\Psr11\Container;
 use VirtualFileSystem\FileSystem;
-use Centreon\Test\Mock\DependencyInjector\ServiceContainer;
-use CentreonLegacy\Core\Utils;
-use CentreonLegacy\ServiceProvider;
-use CentreonLegacy\Core\Configuration\Configuration;
-use Centreon\Test\Mock;
+use VirtualFileSystem\Structure\File;
 
 /**
  * @group CentreonLegacy
@@ -33,24 +35,26 @@ use Centreon\Test\Mock;
 class UtilsTest extends TestCase
 {
     /** @var FileSystem */
-    public $fs;
-    /** @var Mock\CentreonDB */
+    public $fileSystem;
+
+    /** @var ServiceContainer */
     public $container;
-    /** @var \CentreonLegacy\Core\Utils\Utils */
-    public $service
-    ;
+
+    /** @var Utils */
+    public $service;
+
     public function setUp(): void
     {
         // mount VFS
-        $this->fs = new FileSystem();
-        $this->fs->createDirectory('/tmp');
+        $this->fileSystem = new FileSystem();
+        $this->fileSystem->createDirectory('/tmp');
 
         $this->container = new ServiceContainer();
         $this->container[ServiceProvider::CONFIGURATION] = $this->createMock(Configuration::class);
-        $this->container['configuration_db'] = new Mock\CentreonDB;
+        $this->container['configuration_db'] = new Mock\CentreonDB();
         $this->container['configuration_db']->addResultSet("SELECT 'OK';", []);
 
-        $this->service = new Utils\Utils(new Container($this->container));
+        $this->service = new Utils(new Container($this->container));
     }
 
     public function tearDown(): void
@@ -60,7 +64,7 @@ class UtilsTest extends TestCase
     }
 
     /**
-     * @covers CentreonLegacy\Core\Utils\Utils::objectIntoArray
+     * @covers Utils::objectIntoArray
      */
     public function testObjectIntoArray(): void
     {
@@ -81,7 +85,7 @@ class UtilsTest extends TestCase
     }
 
     /**
-     * @covers CentreonLegacy\Core\Utils\Utils::objectIntoArray
+     * @covers Utils::objectIntoArray
      */
     public function testObjectIntoArrayWithSkippedKeys(): void
     {
@@ -99,11 +103,11 @@ class UtilsTest extends TestCase
     }
 
     /**
-     * @covers CentreonLegacy\Core\Utils\Utils::objectIntoArray
+     * @covers Utils::objectIntoArray
      */
     public function testObjectIntoArrayWithEmptyObject(): void
     {
-        $result = $this->service->objectIntoArray(new \stdClass);
+        $result = $this->service->objectIntoArray(new \stdClass());
 
         $this->assertEmpty($result);
     }
@@ -134,31 +138,29 @@ class UtilsTest extends TestCase
      */
     public function testExecutePhpFileWithUnexistsFile(): void
     {
-        $fileName = $this->fs->path('/tmp/conf2.php');
-        $result = null;
-
-        try {
-            $result = $this->service->executePhpFile($fileName);
-        } catch (\Exception $ex) {
-            $result = $ex;
-        }
-
-        $this->assertInstanceOf(\Exception::class, $result);
+        $fileName = $this->fileSystem->path('/tmp/conf2.php');
+        $this->expectException(\Exception::class);
+        $this->service->executePhpFile($fileName);
     }
 
     public function testExecuteSqlFile(): void
     {
-        $this->fs->createFile('/tmp/conf.sql', "SELECT 'OK';");
-        $fileName = $this->fs->path('/tmp/conf.sql');
-
-        $result = $this->service->executeSqlFile($fileName);
-
-        $this->assertEmpty($result);
+        $file = $this->fileSystem->createFile('/tmp/conf.sql', "SELECT 'OK';");
+        $this->assertInstanceOf(File::class, $file);
+        $fileName = $this->fileSystem->path('/tmp/conf.sql');
+        $this->assertIsString($fileName);
+        try {
+            $isException = false;
+            $this->service->executeSqlFile($fileName);
+        } catch (\Exception) {
+            $isException = true;
+        }
+        $this->assertFalse($isException);
     }
 
     public function testExecuteSqlFileWithWithUnexistsFileAndRealtimeDb(): void
     {
-        $fileName = $this->fs->path('/tmp/conf2.sql');
+        $fileName = $this->fileSystem->path('/tmp/conf2.sql');
         $result = null;
 
         try {

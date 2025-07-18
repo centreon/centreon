@@ -37,11 +37,11 @@ class MetricException extends \Exception
 
     public static function invalidMetricFormat(): self
     {
-        return new self (_('Invalid metric format'));
+        return new self(_('Invalid metric format'));
     }
 
     public static function downloadNotAllowed(): self
     {
-        return new self (_('Downloading the performance metrics is not allowed'));
+        return new self(_('Downloading the performance metrics is not allowed'));
     }
 }

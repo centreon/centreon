@@ -19,7 +19,7 @@
  *
  */
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Tests\Core\Proxy\Domain\Model;
 
@@ -27,47 +27,44 @@ use Centreon\Domain\Common\Assertion\AssertionException;
 use Core\Proxy\Domain\Model\Proxy;
 
 beforeEach(function (): void {
-    $this->createProxy = function (array $arguments = []): Proxy
-    {
-        return new Proxy(...[
-            'url' => 'localhost',
-            'port' => 0,
-            'login' => 'login',
-            'password' => 'password',
-            ...$arguments,
-        ]);
-    };
+    $this->createProxy = fn (array $arguments = []): Proxy => new Proxy(...[
+        'url' => 'localhost',
+        'port' => 0,
+        'login' => 'login',
+        'password' => 'password',
+        ...$arguments,
+    ]);
 });
 
-it('should throw an exception when the URL property is empty', function(): void {
+it('should throw an exception when the URL property is empty', function (): void {
     ($this->createProxy)(['url' => '    ']);
 })->throws(
     \Assert\InvalidArgumentException::class,
     AssertionException::notEmptyString('Proxy:url')->getMessage()
 );
 
-it('should throw an exception when the port property is negative', function(): void {
+it('should throw an exception when the port property is negative', function (): void {
     ($this->createProxy)(['port' => -1]);
 })->throws(
     \Assert\InvalidArgumentException::class,
     AssertionException::min(-1, 0, 'Proxy:port')->getMessage()
 );
 
-it('should throw an exception when the login property is empty', function(): void {
+it('should throw an exception when the login property is empty', function (): void {
     ($this->createProxy)(['login' => '   ']);
 })->throws(
     \Assert\InvalidArgumentException::class,
     AssertionException::notEmptyString('Proxy:login')->getMessage()
 );
 
-it('should throw an exception when the password property is empty', function(): void {
+it('should throw an exception when the password property is empty', function (): void {
     ($this->createProxy)(['password' => '   ']);
 })->throws(
     \Assert\InvalidArgumentException::class,
     AssertionException::notEmptyString('Proxy:password')->getMessage()
 );
 
-it('should be generated correctly as a character string', function(): void {
+it('should be generated correctly as a character string', function (): void {
     $proxy = new Proxy('localhost');
     expect((string) $proxy)->toBe('http://localhost');
     $proxy = new Proxy('localhost', 80);

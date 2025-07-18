@@ -23,13 +23,13 @@ declare(strict_types=1);
 namespace Tests\Core\Security\ProviderConfiguration\Domain\OpenId\Model;
 
 use Core\Contact\Domain\Model\ContactTemplate;
-use Core\Security\ProviderConfiguration\Domain\OpenId\Model\CustomConfiguration;
-use Core\Security\ProviderConfiguration\Domain\Model\Endpoint;
 use Core\Security\ProviderConfiguration\Domain\Model\{
     ACLConditions,
     AuthenticationConditions,
     GroupsMapping
 };
+use Core\Security\ProviderConfiguration\Domain\Model\Endpoint;
+use Core\Security\ProviderConfiguration\Domain\OpenId\Model\CustomConfiguration;
 
 it(
     'should sanitize URL/endpoint values when they contain additional slashes and/or spaces in the beginning and end',
@@ -77,7 +77,7 @@ it(
                     []
                 )
             ),
-            'redirect_url' => null
+            'redirect_url' => null,
         ];
 
         $customConfiguration = new CustomConfiguration($json);

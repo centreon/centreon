@@ -37,4 +37,3 @@ final class FindRealTimeServiceStatusesCountResponse
 
     public int $total = 0;
 }
-

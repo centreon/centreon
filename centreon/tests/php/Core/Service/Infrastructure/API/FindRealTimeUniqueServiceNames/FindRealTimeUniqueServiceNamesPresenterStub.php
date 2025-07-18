@@ -37,4 +37,3 @@ class FindRealTimeUniqueServiceNamesPresenterStub extends AbstractPresenter impl
         $this->response = $response;
     }
 }
-

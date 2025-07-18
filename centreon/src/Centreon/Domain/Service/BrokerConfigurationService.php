@@ -9,9 +9,7 @@ use Centreon\Domain\Repository\Interfaces\CfgCentreonBrokerInfoInterface;
  */
 class BrokerConfigurationService
 {
-    /**
-     * @var CfgCentreonBrokerInfoInterface
-     */
+    /** @var CfgCentreonBrokerInfoInterface */
     private $brokerInfoRepository;
 
     /**

@@ -86,8 +86,10 @@ class DbWriteHostSeverityActionLogRepository extends AbstractRepositoryRDB imple
             );
             $this->writeActionLogRepository->addAction($actionLog);
         } catch (\Throwable $ex) {
-            $this->error("Error while deleting host severity : {$ex->getMessage()}",
-            ['hostSeverity' => $hostSeverity, 'trace' => $ex->getTraceAsString()]);
+            $this->error(
+                "Error while deleting host severity : {$ex->getMessage()}",
+                ['hostSeverity' => $hostSeverity, 'trace' => $ex->getTraceAsString()]
+            );
 
             throw $ex;
         }
@@ -112,11 +114,13 @@ class DbWriteHostSeverityActionLogRepository extends AbstractRepositoryRDB imple
 
             $details = $this->getHostSeverityPropertiesAsArray($hostSeverity);
             $this->writeActionLogRepository->addActionDetails($actionLog, $details);
-            
+
             return $hostSeverityId;
         } catch (\Throwable $ex) {
-            $this->error("Error while adding host severity : {$ex->getMessage()}",
-            ['hostSeverity' => $hostSeverity, 'trace' => $ex->getTraceAsString()]);
+            $this->error(
+                "Error while adding host severity : {$ex->getMessage()}",
+                ['hostSeverity' => $hostSeverity, 'trace' => $ex->getTraceAsString()]
+            );
 
             throw $ex;
         }
@@ -204,8 +208,10 @@ class DbWriteHostSeverityActionLogRepository extends AbstractRepositoryRDB imple
             $this->writeActionLogRepository->addActionDetails($actionLog, $diff);
 
         } catch (\Throwable $ex) {
-            $this->error("Error while updating host severity : {$ex->getMessage()}",
-            ['hostSeverity' => $hostSeverity, 'trace' => $ex->getTraceAsString()]);
+            $this->error(
+                "Error while updating host severity : {$ex->getMessage()}",
+                ['hostSeverity' => $hostSeverity, 'trace' => $ex->getTraceAsString()]
+            );
 
             throw $ex;
         }

@@ -23,7 +23,8 @@ declare(strict_types=1);
 
 namespace Core\MonitoringServer\Application\Repository;
 
-interface WriteMonitoringServerRepositoryInterface {
+interface WriteMonitoringServerRepositoryInterface
+{
     /**
      * Define the monitoring server as changed since its last configuration export.
      *

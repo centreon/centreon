@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2016 Centreon
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
@@ -43,6 +44,7 @@ class CentreonPerformanceService
 {
     /** @var CentreonDB */
     protected $dbMon;
+
     /** @var CentreonACL */
     protected $aclObj;
 
@@ -61,9 +63,9 @@ class CentreonPerformanceService
     /**
      * @param array $filters
      *
-     * @return array
      * @throws PDOException
      * @throws RestBadRequestException
+     * @return array
      */
     public function getList($filters = [])
     {
@@ -72,7 +74,7 @@ class CentreonPerformanceService
 
         $serviceDescription = false === isset($filters['service']) ? '' : $filters['service'];
 
-        if (isset($filters['page_limit']) && isset($filters['page'])) {
+        if (isset($filters['page_limit'], $filters['page'])) {
             $limit = ($filters['page'] - 1) * $filters['page_limit'];
             $range = 'LIMIT ' . $limit . ',' . $filters['page_limit'];
         } else {
@@ -81,8 +83,8 @@ class CentreonPerformanceService
 
         if (isset($filters['hostgroup'])) {
             $additionnalTables .= ',hosts_hostgroups hg ';
-            $additionnalCondition .= 'AND (hg.host_id = i.host_id AND hg.hostgroup_id IN (' .
-                implode(',', $filters['hostgroup']) . ')) ';
+            $additionnalCondition .= 'AND (hg.host_id = i.host_id AND hg.hostgroup_id IN ('
+                . implode(',', $filters['hostgroup']) . ')) ';
         }
         if (isset($filters['servicegroup'])) {
             $additionnalTables .= ',services_servicegroups sg ';
@@ -99,12 +101,12 @@ class CentreonPerformanceService
             . 'FROM ( '
             . '( SELECT CONCAT(i.host_name, " - ", i.service_description) as fullname, '
             . 'i.host_id, i.service_id, m.index_id '
-            . 'FROM index_data i, metrics m ' . (!$this->aclObj->admin ? ', centreon_acl acl ' : '')
+            . 'FROM index_data i, metrics m ' . (! $this->aclObj->admin ? ', centreon_acl acl ' : '')
             . 'WHERE i.id = m.index_id '
             . 'AND i.host_name NOT LIKE "\_Module\_%" '
-            . (!$this->aclObj->admin
-                ? ' AND acl.host_id = i.host_id AND acl.service_id = i.service_id AND acl.group_id IN (' .
-                $this->aclObj->getAccessGroupsString() . ') ' : '')
+            . (! $this->aclObj->admin
+                ? ' AND acl.host_id = i.host_id AND acl.service_id = i.service_id AND acl.group_id IN ('
+                . $this->aclObj->getAccessGroupsString() . ') ' : '')
             . $additionnalCondition
             . ') '
             . $virtualServicesCondition
@@ -113,7 +115,6 @@ class CentreonPerformanceService
             . 'GROUP BY host_id, service_id '
             . 'ORDER BY fullname '
             . $range;
-
 
         $DBRESULT = $this->dbMon->query($query);
         $serviceList = [];
@@ -133,9 +134,9 @@ class CentreonPerformanceService
      */
     private function getVirtualServicesCondition($additionnalCondition)
     {
-        /* First, get virtual services for metaservices */
+        // First, get virtual services for metaservices
         $metaServiceCondition = '';
-        if (!$this->aclObj->admin) {
+        if (! $this->aclObj->admin) {
             $metaServices = $this->aclObj->getMetaServices();
             $virtualServices = [];
             foreach ($metaServices as $metaServiceId => $metaServiceName) {
@@ -159,20 +160,20 @@ class CentreonPerformanceService
             . 'AND i.service_id = s.service_id '
             . ') ';
 
-        /* Then, get virtual services for modules*/
+        // Then, get virtual services for modules
         $allVirtualServiceIds = CentreonHook::execute('Service', 'getVirtualServiceIds');
         foreach ($allVirtualServiceIds as $moduleVirtualServiceIds) {
             foreach ($moduleVirtualServiceIds as $hostname => $virtualServiceIds) {
                 if (count($virtualServiceIds)) {
-                    $virtualServicesCondition .= 'UNION ALL (' .
-                        'SELECT CONCAT("' . $hostname . ' - ", s.display_name) as fullname, i.host_id, ' .
-                        'i.service_id, m.index_id ' .
-                        'FROM index_data i, metrics m, services s ' .
-                        'WHERE i.id = m.index_id ' .
-                        $additionnalCondition .
-                        'AND s.service_id IN (' . implode(',', $virtualServiceIds) . ') ' .
-                        'AND i.service_id = s.service_id ' .
-                        ') ';
+                    $virtualServicesCondition .= 'UNION ALL ('
+                        . 'SELECT CONCAT("' . $hostname . ' - ", s.display_name) as fullname, i.host_id, '
+                        . 'i.service_id, m.index_id '
+                        . 'FROM index_data i, metrics m, services s '
+                        . 'WHERE i.id = m.index_id '
+                        . $additionnalCondition
+                        . 'AND s.service_id IN (' . implode(',', $virtualServiceIds) . ') '
+                        . 'AND i.service_id = s.service_id '
+                        . ') ';
                 }
             }
         }

@@ -42,4 +42,3 @@ final class DeleteRuleController extends AbstractController
         return $presenter->show();
     }
 }
-

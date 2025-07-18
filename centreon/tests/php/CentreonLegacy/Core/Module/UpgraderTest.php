@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Copyright 2016-2019 Centreon
  *
@@ -17,18 +18,21 @@
 
 namespace CentreonLegacy\Core\Module;
 
-use Pimple\Psr11\Container;
 use Centreon\Test\Mock\CentreonDB;
-use Centreon\Test\Mock\DependencyInjector\ServiceContainer;
 use Centreon\Test\Mock\DependencyInjector\ConfigurationDBProvider;
 use Centreon\Test\Mock\DependencyInjector\FilesystemProvider;
 use Centreon\Test\Mock\DependencyInjector\FinderProvider;
+use Centreon\Test\Mock\DependencyInjector\ServiceContainer;
+use Pimple\Psr11\Container;
 
 class UpgraderTest extends \PHPUnit\Framework\TestCase
 {
     private $container;
+
     private $db;
+
     private $information;
+
     private $utils;
 
     public function setUp(): void
@@ -37,7 +41,7 @@ class UpgraderTest extends \PHPUnit\Framework\TestCase
 
         $this->db = new CentreonDB();
 
-        $this->information = $this->getMockBuilder(\CentreonLegacy\Core\Module\Information::class)
+        $this->information = $this->getMockBuilder(Information::class)
             ->disableOriginalConstructor()
             ->onlyMethods(['getInstalledInformation', 'getModulePath', 'getConfiguration'])
             ->getMock();
@@ -85,7 +89,7 @@ class UpgraderTest extends \PHPUnit\Framework\TestCase
         $filesystem->expects($this->any())
             ->method('exists')
             ->will($this->returnCallback([$this, 'mockExists']));
-            //->willReturn(true);
+        // ->willReturn(true);
         $this->container->registerProvider(new FilesystemProvider($filesystem));
 
         $finder = $this->getMockBuilder(\Symfony\Component\Finder\Finder::class)
@@ -106,10 +110,10 @@ class UpgraderTest extends \PHPUnit\Framework\TestCase
             ->willReturn(new \ArrayIterator([new \SplFileInfo('MyModule-1.0.1')]));
         $this->container->registerProvider(new FinderProvider($finder));
 
-        $query = 'UPDATE modules_informations ' .
-            'SET `name` = :name , `rname` = :rname , `is_removeable` = :is_removeable , ' .
-            '`infos` = :infos , `author` = :author , ' .
-            '`svc_tools` = :svc_tools , `host_tools` = :host_tools WHERE id = :id';
+        $query = 'UPDATE modules_informations '
+            . 'SET `name` = :name , `rname` = :rname , `is_removeable` = :is_removeable , '
+            . '`infos` = :infos , `author` = :author , '
+            . '`svc_tools` = :svc_tools , `host_tools` = :host_tools WHERE id = :id';
         $this->db->addResultSet(
             $query,
             []
@@ -133,9 +137,6 @@ class UpgraderTest extends \PHPUnit\Framework\TestCase
 
     public function mockExists($file)
     {
-        if (preg_match('/install\.pre\.php/', $file)) {
-            return false;
-        }
-        return true;
+        return ! (preg_match('/install\.pre\.php/', $file));
     }
 }

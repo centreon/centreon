@@ -51,8 +51,8 @@ interface EngineConfigurationServiceInterface
      * Find the Engine configuration linked to a monitoring server.
      *
      * @param MonitoringServer $monitoringServer
-     * @return EngineConfiguration|null
      * @throws EngineConfigurationException
+     * @return EngineConfiguration|null
      */
     public function findEngineConfigurationByMonitoringServer(MonitoringServer $monitoringServer): ?EngineConfiguration;
 

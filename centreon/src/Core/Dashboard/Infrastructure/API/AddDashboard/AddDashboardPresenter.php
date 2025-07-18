@@ -98,7 +98,8 @@ final class AddDashboardPresenter extends DefaultPresenter implements AddDashboa
      *
      * @return array{type: string, interval: null|int}
      */
-    private function formatRefresh(array $refresh): array {
+    private function formatRefresh(array $refresh): array
+    {
         return [
             'type' => RefreshTypeConverter::toString($refresh['type']),
             'interval' => $refresh['interval'],

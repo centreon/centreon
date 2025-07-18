@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2015 CENTREON
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
@@ -33,8 +34,8 @@
  *
  */
 
-require_once "Centreon/Object/Relation/Relation.php";
-require_once "Centreon/Object/Host/Group.php";
+require_once 'Centreon/Object/Relation/Relation.php';
+require_once 'Centreon/Object/Host/Group.php';
 
 /**
  * Class
@@ -45,21 +46,25 @@ class Centreon_Object_Relation_Host_Group_Service extends Centreon_Object_Relati
 {
     /** @var Centreon_Object_Host_Group */
     public $firstObject;
+
     /** @var Centreon_Object_Service */
     public $secondObject;
+
     /** @var string */
-    protected $relationTable = "host_service_relation";
+    protected $relationTable = 'host_service_relation';
+
     /** @var string */
-    protected $firstKey = "hostgroup_hg_id";
+    protected $firstKey = 'hostgroup_hg_id';
+
     /** @var string */
-    protected $secondKey = "service_service_id";
+    protected $secondKey = 'service_service_id';
 
     /**
      * Centreon_Object_Relation_Host_Group_Service constructor
      *
-     * @param \Pimple\Container $dependencyInjector
+     * @param Pimple\Container $dependencyInjector
      */
-    public function __construct(\Pimple\Container $dependencyInjector)
+    public function __construct(Pimple\Container $dependencyInjector)
     {
         parent::__construct($dependencyInjector);
         $this->firstObject = new Centreon_Object_Host_Group($dependencyInjector);

@@ -22,8 +22,8 @@ declare(strict_types=1);
 
 namespace Tests\Core\Infrastructure\Common\Repository;
 
-use PHPUnit\Framework\TestCase;
 use Core\Infrastructure\Common\Repository\DbFactoryUtilitiesTrait;
+use PHPUnit\Framework\TestCase;
 
 class DbFactoryUtilitiesTraitTest extends TestCase
 {

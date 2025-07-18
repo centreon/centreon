@@ -35,8 +35,8 @@ class HostCategoryFactoryRdb
      * Create a HostCategory entity from database data.
      *
      * @param array<string, mixed> $data
-     * @return HostCategory
      * @throws \Assert\AssertionFailedException
+     * @return HostCategory
      */
     public static function create(array $data): HostCategory
     {
@@ -46,6 +46,7 @@ class HostCategoryFactoryRdb
         if ($data['hc_comment'] !== null) {
             $hostCategory->setComments($data['hc_comment']);
         }
+
         return $hostCategory;
     }
 }

@@ -41,7 +41,6 @@ class PlatformInformationException extends \Exception
 
     public static function noRights(): self
     {
-        return new self(_("You do not have sufficent rights for this action."), self::CODE_FORBIDDEN );
+        return new self(_('You do not have sufficent rights for this action.'), self::CODE_FORBIDDEN);
     }
-
 }

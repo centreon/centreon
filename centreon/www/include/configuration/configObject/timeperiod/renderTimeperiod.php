@@ -32,31 +32,31 @@
  * For more information : contact@centreon.com
  *
  */
-if (!isset($centreon)) {
+if (! isset($centreon)) {
     exit();
 }
 
-$tpG = $_GET["tp_id"] ?? null;
-$tpP = $_POST["tp_id"] ?? null;
+$tpG = $_GET['tp_id'] ?? null;
+$tpP = $_POST['tp_id'] ?? null;
 $tp_id = $tpG ?: $tpP;
-$path = "./include/configuration/configObject/timeperiod/";
-require_once $path . "DB-Func.php";
-require_once "./include/common/common-Func.php";
-require_once _CENTREON_PATH_ . "www/class/centreonTimeperiodRenderer.class.php";
-$imgpath = "./include/common/javascript/scriptaculous/images/bramus/";
+$path = './include/configuration/configObject/timeperiod/';
+require_once $path . 'DB-Func.php';
+require_once './include/common/common-Func.php';
+require_once _CENTREON_PATH_ . 'www/class/centreonTimeperiodRenderer.class.php';
+$imgpath = './include/common/javascript/scriptaculous/images/bramus/';
 $imgs = scandir($imgpath);
 $t = null;
 if ($tp_id) {
     $t = new CentreonTimePeriodRenderer($pearDB, $tp_id, 1);
     $t->timeBars();
 }
-$query = "SELECT tp_name, tp_id FROM timeperiod";
+$query = 'SELECT tp_name, tp_id FROM timeperiod';
 $DBRESULT = $pearDB->query($query);
-$tplist[0] = _("Select Timeperiod...");
+$tplist[0] = _('Select Timeperiod...');
 while ($row = $DBRESULT->fetchRow()) {
     $tplist[$row['tp_id']] = $row['tp_name'];
 }
-$form = new HTML_QuickFormCustom('form', 'POST', "?p=" . $p . "&o=s");
+$form = new HTML_QuickFormCustom('form', 'POST', '?p=' . $p . '&o=s');
 $attrs1 = ['onchange' => "javascript: setTP(this.form.elements['tp_id'].value); submit();"];
 $form->addElement('select', 'tp_id', null, $tplist, $attrs1);
 $form->setDefaults(['tp_id' => null]);
@@ -66,20 +66,20 @@ if ($tp_id) {
     $tpel->setSelected($tp_id);
 }
 
-$attrsTextLong = ["size" => "55"];
-$form->addElement('header', 'title', _("Resulting Time Period with inclusions"));
-$form->addElement('header', 'information', _("General Information"));
-$form->addElement('header', 'notification', _("Time Range"));
-$form->addElement('header', 'exception', _("Exception List"));
-$form->addElement('text', 'tp_name', _("Timeperiod Name"), $attrsTextLong);
-$form->addElement('text', 'tp_alias', _("Timeperiod Alias"), $attrsTextLong);
-$form->addElement('text', 'tp_sunday', _("Sunday"), $attrsTextLong);
-$form->addElement('text', 'tp_monday', _("Monday"), $attrsTextLong);
-$form->addElement('text', 'tp_tuesday', _("Tuesday"), $attrsTextLong);
-$form->addElement('text', 'tp_wednesday', _("Wednesday"), $attrsTextLong);
-$form->addElement('text', 'tp_thursday', _("Thursday"), $attrsTextLong);
-$form->addElement('text', 'tp_friday', _("Friday"), $attrsTextLong);
-$form->addElement('text', 'tp_saturday', _("Saturday"), $attrsTextLong);
+$attrsTextLong = ['size' => '55'];
+$form->addElement('header', 'title', _('Resulting Time Period with inclusions'));
+$form->addElement('header', 'information', _('General Information'));
+$form->addElement('header', 'notification', _('Time Range'));
+$form->addElement('header', 'exception', _('Exception List'));
+$form->addElement('text', 'tp_name', _('Timeperiod Name'), $attrsTextLong);
+$form->addElement('text', 'tp_alias', _('Timeperiod Alias'), $attrsTextLong);
+$form->addElement('text', 'tp_sunday', _('Sunday'), $attrsTextLong);
+$form->addElement('text', 'tp_monday', _('Monday'), $attrsTextLong);
+$form->addElement('text', 'tp_tuesday', _('Tuesday'), $attrsTextLong);
+$form->addElement('text', 'tp_wednesday', _('Wednesday'), $attrsTextLong);
+$form->addElement('text', 'tp_thursday', _('Thursday'), $attrsTextLong);
+$form->addElement('text', 'tp_friday', _('Friday'), $attrsTextLong);
+$form->addElement('text', 'tp_saturday', _('Saturday'), $attrsTextLong);
 
 // Smarty template initialization
 $tpl = SmartyBC::createSmartyTemplate($path);
@@ -92,7 +92,7 @@ $tpl->assign('form', $renderer->toArray());
 $tpl->assign('tpId', $tp_id);
 $tpl->assign('tp', $t);
 $tpl->assign('path', $path);
-$tpl->display("renderTimeperiod.ihtml");
+$tpl->display('renderTimeperiod.ihtml');
 ?>
 <script type="text/javascript">
     var tipDiv;

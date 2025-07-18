@@ -22,21 +22,17 @@ declare(strict_types=1);
 
 namespace Centreon\Domain\Monitoring\ServiceGroup;
 
-use Centreon\Domain\Service\AbstractCentreonService;
-use Centreon\Domain\Monitoring\ServiceGroup\Interfaces\ServiceGroupServiceInterface;
 use Centreon\Domain\Monitoring\ServiceGroup\Interfaces\ServiceGroupRepositoryInterface;
+use Centreon\Domain\Monitoring\ServiceGroup\Interfaces\ServiceGroupServiceInterface;
+use Centreon\Domain\Service\AbstractCentreonService;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 
 final class ServiceGroupService extends AbstractCentreonService implements ServiceGroupServiceInterface
 {
-    /**
-     * @var ServiceGroupRepositoryInterface
-     */
+    /** @var ServiceGroupRepositoryInterface */
     private $serviceGroupRepository;
 
-    /**
-     * @var ReadAccessGroupRepositoryInterface
-     */
+    /** @var ReadAccessGroupRepositoryInterface */
     private $accessGroupRepository;
 
     /**

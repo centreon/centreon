@@ -78,8 +78,8 @@ it('should present a provider configuration', function (): void {
             []
         ),
         'authentication_conditions' => new AuthenticationConditions(false, '', new Endpoint(), []),
-        "groups_mapping" => new GroupsMapping(false, "", new Endpoint(), []),
-        'redirect_url' => null
+        'groups_mapping' => new GroupsMapping(false, '', new Endpoint(), []),
+        'redirect_url' => null,
     ]);
     $configuration->setCustomConfiguration($customConfiguration);
 

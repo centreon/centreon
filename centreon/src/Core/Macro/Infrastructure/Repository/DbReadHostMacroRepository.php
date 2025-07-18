@@ -47,7 +47,7 @@ class DbReadHostMacroRepository extends AbstractRepositoryRDB implements ReadHos
      */
     public function findByHostIds(array $hostIds): array
     {
-        $this->info('Get host macros',['host_ids' => $hostIds]);
+        $this->info('Get host macros', ['host_ids' => $hostIds]);
 
         if ($hostIds === []) {
 
@@ -100,7 +100,7 @@ class DbReadHostMacroRepository extends AbstractRepositoryRDB implements ReadHos
      */
     public function findByHostId(int $hostId): array
     {
-        $this->info('Get host macros for a host/host template',['host_id' => $hostId]);
+        $this->info('Get host macros for a host/host template', ['host_id' => $hostId]);
 
         $statement = $this->db->prepare($this->translateDbName(
             <<<'SQL'

@@ -29,4 +29,3 @@ enum ResponseCode
     case NotFound;
     case Error;
 }
-
