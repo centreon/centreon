@@ -30,7 +30,7 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Routing\Loader\AttributeFileLoader;
 use Symfony\Component\Routing\RouteCollection;
 
-abstract readonly class ModuleRouteLoader implements RouteLoaderInterface
+abstract class ModuleRouteLoader implements RouteLoaderInterface
 {
     public function __construct(
         #[Autowire(service: 'routing.loader.attribute.file')]
