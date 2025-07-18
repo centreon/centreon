@@ -51,15 +51,18 @@ final class DbReadModuleInformationRepository extends DatabaseRepository impleme
     public function findByName(string $name): ?ModuleInformation
     {
         try {
-            $query = $this->queryBuilder
-                ->select('name', 'rname', 'mod_release')
-                ->from('modules_informations')
-                ->where('name = :name')
-                ->getQuery();
-
             $queryParameters = QueryParameters::create([QueryParameter::string('name', $name)]);
             /** @var _ModuleInformation|false $result */
-            $result = $this->connection->fetchAssociative($query, $queryParameters);
+            $result = $this->connection->fetchAssociative(
+                $this->translateDbName(
+                    <<<SQL
+                        SELECT name, rname, mod_release
+                        FROM `:db`.modules_informations
+                        WHERE name = :name
+                        SQL,
+                    $queryParameters
+                )
+            );
 
             if (! $result) {
                 return null;
