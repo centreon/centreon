@@ -17150,6 +17150,10 @@ msgstr ""
 msgid "The SQL files are located in \"%s\""
 msgstr ""
 
+#: centreon/www/widgets/httploader/index.php
+msgid "The URL provided for the website does not use a valid URL pattern."
+msgstr ""
+
 #: centreon/src/Core/AdditionalConnectorConfiguration/Application/Exception/AccException.php
 #, php-format
 msgid "The additional configuration name '%s' already exists"
@@ -24517,6 +24521,3 @@ msgstr "periodo de tiempo"
 #: unknown
 msgid "topology_name"
 msgstr "Nombre de la topología."
-
-msgid "The URL provided for the website does not use a valid URL pattern."
-msgstr ""
