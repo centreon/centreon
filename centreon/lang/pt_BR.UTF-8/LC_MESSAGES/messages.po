@@ -14663,6 +14663,10 @@ msgstr ""
 msgid "The SQL files are located in \"%s\""
 msgstr ""
 
+#: centreon/www/widgets/httploader/index.php
+msgid "The URL provided for the website does not use a valid URL pattern."
+msgstr ""
+
 #: centreon/src/Centreon/Domain/PlatformTopology/Model/PlatformRegistered.php
 #: centreon/src/Centreon/Domain/PlatformTopology/Model/PlatformPending.php
 #, php-format
@@ -21239,6 +21243,3 @@ msgstr "período de tempo"
 #: unknown
 msgid "topology_name"
 msgstr "Nome da Topologia"
-
-msgid "The URL provided for the website does not use a valid URL pattern."
-msgstr ""
