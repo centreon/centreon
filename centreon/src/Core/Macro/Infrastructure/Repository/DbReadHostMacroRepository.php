@@ -179,7 +179,7 @@ class DbReadHostMacroRepository extends AbstractRepositoryRDB implements ReadHos
      *    host_macro_value:string,
      *    is_password:int|null,
      *    description:string|null,
-     *    macro_order:int
+     *    macro_order:int|null
      * } $data
      *
      * @throws AssertionFailedException
