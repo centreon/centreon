@@ -21602,3 +21602,6 @@ msgstr "periodo de tiempo"
 #: unknown
 msgid "topology_name"
 msgstr "Nombre de la topología."
+
+msgid "The URL provided for the website does not use a valid URL pattern."
+msgstr ""
