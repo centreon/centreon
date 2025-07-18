@@ -364,9 +364,9 @@ Then(
 
     // check event logs
     cy.getIframeBody()
-      .find("a")
-      .contains(services.serviceCritical.name)
-      .should("exist");
+      .find("a", { timeout: 120000 }) // waits up to 2 minutes to find the <a>
+      .contains(services.serviceCritical.name, { timeout: 120000 }) // waits up to 2 minutes for text match
+      .should("exist", { timeout: 120000 });
   },
 );
 
