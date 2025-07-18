@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace Core\Module\Domain\Model;
 
-final readonly class ModuleInformation
+final class ModuleInformation
 {
     public function __construct(
         public string $packageName,
