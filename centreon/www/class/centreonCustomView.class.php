@@ -600,16 +600,22 @@ class CentreonCustomView
                     INNER JOIN custom_views cv
                         ON cvur.custom_view_id = cv.custom_view_id
                 WHERE cvur.custom_view_id = :viewLoad
+                    AND cvur.is_consumed = 0
                     AND (
-                            user_id = :userId
-                            OR usergroup_id IN (
-                                SELECT contactgroup_cg_id
-                                FROM contactgroup_contact_relation
-                                WHERE contact_contact_id = :userId
+                            cv.public = 1
+                            OR
+                            (
+                                cvur.is_share = 1
+                                AND (
+                                        user_id = :userId
+                                        OR usergroup_id IN (
+                                            SELECT contactgroup_cg_id
+                                            FROM contactgroup_contact_relation
+                                            WHERE contact_contact_id = :userId
+                                        )
+                                )
                             )
                         )
-                    AND cvur.is_share = 1
-                    AND cvur.is_consumed = 0
                 ORDER BY user_id DESC
             SQL;
 
