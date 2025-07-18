@@ -40,6 +40,7 @@ final class ModuleInstallationVerifier
      * @param string $moduleName
      *
      * @throws \RuntimeException|RepositoryException
+     *
      * @return bool
      */
     public function isInstallComplete(string $moduleName): bool
