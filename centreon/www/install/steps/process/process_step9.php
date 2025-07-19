@@ -39,11 +39,12 @@ require_once __DIR__ . '/../../../../bootstrap.php';
 require_once __DIR__ . '/../../../include/common/vault-functions.php';
 
 use App\Kernel;
+use Centreon\Domain\Common\Assertion\AssertionException;
 use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
+use Core\Common\Domain\Exception\RepositoryException;
 use Core\Common\Infrastructure\FeatureFlags;
-use Security\Interfaces\EncryptionInterface;
+use Core\Installation\Infrastructure\InstallationHelper;
 use Symfony\Component\Dotenv\Dotenv;
-use Symfony\Component\Filesystem\Filesystem;
 
 $step = new CentreonLegacy\Core\Install\Step\Step9($dependencyInjector);
 $version = $step->getVersion();
@@ -86,16 +87,9 @@ try {
         }
     }
 
-    /** @var EncryptionInterface $encryption */
-    $encryption = $kernel->getContainer()->get(EncryptionInterface::class);
-    $engineContext = [
-        'app_secret' => $_ENV['APP_SECRET'],
-        'salt' => $encryption->generateRandomString(),
-    ];
-
-    $fileSystem = new Filesystem();
-    $fileSystem->dumpFile('/etc/centreon-engine/engine-context.json', json_encode($engineContext));
-
+    /** @var InstallationHelper $installationHelper */
+    $installationHelper = $kernel->getContainer()->get(InstallationHelper::class);
+    $installationHelper->writeEngineContextFile();
     $backupDir = _CENTREON_VARLIB_ . '/installs/'
         . '/install-' . $version . '-' . date('Ymd_His');
     $installDir = realpath(__DIR__ . '/../..');

@@ -20,37 +20,33 @@
  */
 
 use App\Kernel;
-use Security\Interfaces\EncryptionInterface;
-use Symfony\Component\Dotenv\Dotenv;
-use Symfony\Component\Filesystem\Filesystem;
+use Core\Engine\Application\Repository\EngineRepositoryInterface;
+use Core\Installation\Infrastructure\InstallationHelper;
 
 set_time_limit(0);
 require __DIR__ . '/../../../../vendor/autoload.php';
 
 $return = [];
-$engineContextPath = '/etc/centreon-engine/engine-context.json';
+
 $kernel = Kernel::createForWeb();
-(new Dotenv())->bootEnv('/usr/share/centreon/.env');
+/** @var InstallationHelper $installationHelper */
+$installationHelper = $kernel->getContainer()->get(InstallationHelper::class);
 
-/** @var EncryptionInterface $encryption */
-$encryption = $kernel->getContainer()->get(EncryptionInterface::class);
-$engineContext = [
-    'app_secret' => $_ENV['APP_SECRET'],
-    'salt' => $encryption->generateRandomString(),
-];
+/** @var EngineRepositoryInterface $engineRepository */
+$engineRepository = $kernel->getContainer()->get(EngineRepositoryInterface::class);
 
-if (! file_exists($engineContextPath)) {
-    $return['msg'] = 'file ' . $engineContextPath . ' does not exists, '
-        . 'consider creating it with 644 centreon:centreon rights';
+try {
+    //This file should not be touched if it has content.
+    if ($engineRepository->engineSecretsHasContent() === false) {
+        $installationHelper->writeEngineContextFile();
+    }
+
+    $return['result'] = 0;
+    $return['msg'] = "OK";
+} catch (\Throwable $ex) {
+    $return['result'] = 1;
+    $return['msg'] = $ex->getMessage();
 }
-
-// this file should not be erased if it already had a content.
-if (file_get_contents($engineContextPath) === '') {
-    (new Filesystem())->dumpFile($engineContextPath, json_encode($engineContext));
-}
-
-$return['result'] = 0;
-$return['msg'] = "OK";
 echo json_encode($return);
 
 exit;

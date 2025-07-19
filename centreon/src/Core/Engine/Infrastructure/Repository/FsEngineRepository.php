@@ -30,13 +30,16 @@ use Core\Engine\Domain\Model\EngineKey;
 use Core\Engine\Domain\Model\EngineSecrets;
 use Symfony\Component\Filesystem\Exception\IOException;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Serializer\SerializerInterface;
 
 final readonly class FsEngineRepository implements EngineRepositoryInterface
 {
     private Filesystem $filesystem;
 
-    public function __construct(private string $engineContextPath)
-    {
+    public function __construct(
+        private string $engineContextPath,
+        private SerializerInterface $serializer
+    ) {
         $this->filesystem = new Filesystem();
     }
     /**
@@ -64,6 +67,41 @@ final readonly class FsEngineRepository implements EngineRepositoryInterface
         } catch (\JsonException $ex) {
             throw new RepositoryException(
                 'engine-context file exists but JSON content is not well formated',
+                ['path' => $this->engineContextPath, 'exception' => $ex]
+            );
+        }
+    }
+
+    public function writeEngineSecrets(EngineSecrets $engineSecrets): void
+    {
+        try {
+            if ($this->engineSecretsHasContent()) {
+                throw new RepositoryException(
+                    'engine-context already has content, unable to write in the file',
+                    ['path' => $this->engineContextPath]
+                );
+            }
+            $engineContent = $this->serializer->serialize($engineSecrets, 'json');
+            $this->filesystem->dumpFile($this->engineContextPath, $engineContent);
+        } catch (IOException $ex) {
+            throw new RepositoryException(
+                'Unable to write content of engine-context file. check that file exists',
+                [
+                    'path' => $this->engineContextPath,
+                    'content' => $engineContent,
+                    'exception' => $ex
+                ]
+            );
+        }
+    }
+
+    public function engineSecretsHasContent(): bool
+    {
+        try {
+            return !empty($this->filesystem->readFile($this->engineContextPath));
+        } catch (IOException $ex) {
+            throw new RepositoryException(
+                'Unable to get content of engine-context file. check that file exists',
                 ['path' => $this->engineContextPath, 'exception' => $ex]
             );
         }

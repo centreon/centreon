@@ -21,34 +21,30 @@
 
 declare(strict_types=1);
 
-namespace Core\Engine\Application\Repository;
+namespace Core\Installation\Infrastructure;
 
-use Core\Common\Domain\Exception\RepositoryException;
+use Core\Engine\Application\Repository\EngineRepositoryInterface;
+use Core\Engine\Domain\Model\EngineKey;
 use Core\Engine\Domain\Model\EngineSecrets;
+use Security\Interfaces\EncryptionInterface;
 
-interface EngineRepositoryInterface
+final readonly class InstallationHelper
 {
-    /**
-     * Get engine secrets.
-     *
-     * @return EngineSecrets
-     *
-     * @throws RepositoryException
-     */
-    public function getEngineSecrets(): EngineSecrets;
+    public function __construct(
+        private EngineRepositoryInterface $engineRepository,
+        private EncryptionInterface $encryption,
+        private string $appSecret
+    ) {
+    }
 
-    /**
-     * Update engine secrets.
-     *
-     * @throws RepositoryException
-     */
-    public function writeEngineSecrets(EngineSecrets $engineSecrets): void;
+    public function writeEngineContextFile(): void
+    {
+        $engineSecrets = new EngineSecrets(
+            firstKey: new EngineKey($this->appSecret),
+            secondKey: new EngineKey($this->encryption->generateRandomString())
+        );
 
-    /**
-     * Check that Engine Context has content.
-     *
-     * @throws RepositoryException
-     */
-    public function engineSecretsHasContent(): bool;
+        $this->engineRepository->writeEngineSecrets($engineSecrets);
+    }
+
 }
-
