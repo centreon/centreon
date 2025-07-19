@@ -18,6 +18,7 @@ parameters:
     validation_path: "%env(_CENTREON_PATH_)%config/packages/validator"
     centreon_path: "%env(_CENTREON_PATH_)%"
     centreon_etc_path: "%env(_CENTREON_ETC_)%"
+    engine_context_path: "/etc/centreon-engine/engine-context.json"
     vault_conf_path: "%centreon_var_lib%/vault/vault.json"
     centreon_install_path: "%centreon_path%/www/install"
     translation_path: "%centreon_path%/www/locale"
@@ -130,6 +131,10 @@ services:
     Core\Security\Authentication\Application\UseCase\Login\Login:
         arguments:
             $defaultRedirectUri: '/monitoring/resources'
+
+    Core\Engine\Infrastructure\Repository\FsEngineRepository:
+        arguments:
+            $engineContextPath: '%engine_context_path%'
 
     EventSubscriber\CentreonEventSubscriber:
         arguments:
