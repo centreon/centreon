@@ -22,16 +22,10 @@
 
 class CentreonOpenTicketsRequest
 {
-    /**
-     *
-     * @var array
-     */
+    /** @var array */
     protected $postVar = [];
 
-    /**
-     *
-     * @var array
-     */
+    /** @var array */
     protected $getVar = [];
 
     /**
