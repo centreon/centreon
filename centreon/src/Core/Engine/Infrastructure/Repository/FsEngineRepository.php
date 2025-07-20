@@ -30,6 +30,7 @@ use Core\Engine\Domain\Model\EngineKey;
 use Core\Engine\Domain\Model\EngineSecrets;
 use Symfony\Component\Filesystem\Exception\IOException;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Serializer\Exception\ExceptionInterface;
 use Symfony\Component\Serializer\SerializerInterface;
 
 final readonly class FsEngineRepository implements EngineRepositoryInterface
@@ -91,6 +92,11 @@ final readonly class FsEngineRepository implements EngineRepositoryInterface
                     'content' => $engineContent,
                     'exception' => $ex
                 ]
+            );
+        } catch (ExceptionInterface $ex) {
+            throw new RepositoryException(
+                'Unable to serialize content for engine-context file',
+                ['path' => $this->engineContextPath, 'exception' => $ex]
             );
         }
     }
