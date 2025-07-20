@@ -123,6 +123,14 @@ services:
               arguments: ['%env(APP_SECRET)%']
         public: true
 
+    Core\Installation\Infrastructure\InstallationHelper:
+        public: true
+        arguments:
+          $appSecret: '%env(APP_SECRET)%'
+
+    Core\Engine\Application\Repository\EngineRepositoryInterface:
+        class: Core\Engine\Infrastructure\Repository\FsEngineRepository
+        public: true
 
     Core\Common\Application\Repository\WriteVaultRepositoryInterface:
         class: Core\Common\Infrastructure\Repository\WriteVaultRepository
