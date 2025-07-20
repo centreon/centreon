@@ -132,10 +132,6 @@ services:
         arguments:
             $defaultRedirectUri: '/monitoring/resources'
 
-    Core\Engine\Infrastructure\Repository\FsEngineRepository:
-        arguments:
-            $engineContextPath: '%engine_context_path%'
-
     EventSubscriber\CentreonEventSubscriber:
         arguments:
             $apiVersionLatest: '%api.version.latest%'

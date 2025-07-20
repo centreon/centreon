@@ -130,6 +130,8 @@ services:
 
     Core\Engine\Application\Repository\EngineRepositoryInterface:
         class: Core\Engine\Infrastructure\Repository\FsEngineRepository
+        arguments:
+            $engineContextPath: '%engine_context_path%'
         public: true
 
     Core\Common\Application\Repository\WriteVaultRepositoryInterface:
