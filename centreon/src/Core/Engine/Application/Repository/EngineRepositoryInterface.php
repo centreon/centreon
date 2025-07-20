@@ -31,9 +31,8 @@ interface EngineRepositoryInterface
     /**
      * Get engine secrets.
      *
-     * @return EngineSecrets
-     *
      * @throws RepositoryException
+     * @return EngineSecrets
      */
     public function getEngineSecrets(): EngineSecrets;
 
@@ -51,4 +50,3 @@ interface EngineRepositoryInterface
      */
     public function engineSecretsHasContent(): bool;
 }
-

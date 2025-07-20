@@ -36,7 +36,7 @@ class EngineSecretsNormalizer implements NormalizerInterface
     }
 
     /**
-     * @param AgentConfiguration $object
+     * @param EngineSecrets $object
      * @param string|null $format
      * @param array<string, mixed> $context
      *
@@ -49,11 +49,10 @@ class EngineSecretsNormalizer implements NormalizerInterface
         ?string $format = null,
         array $context = []
     ): array {
-        /** @var array<string, bool|float|int|string> $data */
+        /** @var array{app_secret: array{key: string}, salt: array{key: string}} $data */
         $data = $this->normalizer->normalize($object, $format, $context);
-        $data = array_map(fn($property) => $property['key'], $data);
 
-        return $data;
+        return array_map(fn ($property) => $property['key'], $data);
     }
 
     /**
@@ -77,4 +76,3 @@ class EngineSecretsNormalizer implements NormalizerInterface
         ];
     }
 }
-

@@ -27,8 +27,8 @@ use Centreon\Domain\Common\Assertion\Assertion;
 
 final readonly class EngineKey
 {
-    public function __construct(public string $key) {
+    public function __construct(public string $key)
+    {
         Assertion::notEmptyString($key, 'EngineSecrets::key');
     }
 }
-

@@ -36,18 +36,17 @@ $installationHelper = $kernel->getContainer()->get(InstallationHelper::class);
 $engineRepository = $kernel->getContainer()->get(EngineRepositoryInterface::class);
 
 try {
-    //This file should not be touched if it has content.
+    // This file should not be touched if it has content.
     if ($engineRepository->engineSecretsHasContent() === false) {
         $installationHelper->writeEngineContextFile();
     }
 
     $return['result'] = 0;
-    $return['msg'] = "OK";
-} catch (\Throwable $ex) {
+    $return['msg'] = 'OK';
+} catch (Throwable $ex) {
     $return['result'] = 1;
     $return['msg'] = $ex->getMessage();
 }
 echo json_encode($return);
 
 exit;
-

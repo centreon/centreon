@@ -43,12 +43,12 @@ final readonly class FsEngineRepository implements EngineRepositoryInterface
     ) {
         $this->filesystem = new Filesystem();
     }
+
     /**
      * Get engine secrets.
      *
-     * @return EngineSecrets
-     *
      * @throws RepositoryException|AssertionException
+     * @return EngineSecrets
      */
     public function getEngineSecrets(): EngineSecrets
     {
@@ -89,8 +89,7 @@ final readonly class FsEngineRepository implements EngineRepositoryInterface
                 'Unable to write content of engine-context file. check that file exists',
                 [
                     'path' => $this->engineContextPath,
-                    'content' => $engineContent,
-                    'exception' => $ex
+                    'exception' => $ex,
                 ]
             );
         } catch (ExceptionInterface $ex) {
@@ -104,7 +103,7 @@ final readonly class FsEngineRepository implements EngineRepositoryInterface
     public function engineSecretsHasContent(): bool
     {
         try {
-            return !empty($this->filesystem->readFile($this->engineContextPath));
+            return ! empty($this->filesystem->readFile($this->engineContextPath));
         } catch (IOException $ex) {
             throw new RepositoryException(
                 'Unable to get content of engine-context file. check that file exists',
@@ -113,4 +112,3 @@ final readonly class FsEngineRepository implements EngineRepositoryInterface
         }
     }
 }
-

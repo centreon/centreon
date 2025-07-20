@@ -49,6 +49,4 @@ final readonly class InstallationHelper
 
         $this->engineRepository->writeEngineSecrets($engineSecrets);
     }
-
 }
-

@@ -31,7 +31,7 @@ $errorMessage = '';
 /**
  * Add Column Encryption ready for poller configuration
  */
-$addIsEncryptionReadyColumn = function () use ($pearDB, $pearDBO, &$errorMessage) {
+$addIsEncryptionReadyColumn = function () use ($pearDB, $pearDBO, &$errorMessage): void {
     if ($pearDB->isColumnExist('nagios_server', 'is_encryption_ready') !== 1) {
         $errorMessage = "Unable to add 'is_encryption_ready' column to 'nagios_server' table";
         $pearDB->query("ALTER TABLE `nagios_server` ADD COLUMN `is_encryption_ready` enum('0', '1') NOT NULL DEFAULT '1'");
@@ -45,7 +45,7 @@ $addIsEncryptionReadyColumn = function () use ($pearDB, $pearDBO, &$errorMessage
 /**
  * Set encryption ready to false by default for all existing pollers to ensure retrocompatibility
  */
-$setEncryptionReadyToFalseByDefaultOnNagiosServer = function () use ($pearDB, &$errorMessage) {
+$setEncryptionReadyToFalseByDefaultOnNagiosServer = function () use ($pearDB, &$errorMessage): void {
     $errorMessage = "Unable to update 'is_encryption_ready' column on 'nagios_server' table";
     $pearDB->executeQuery(
         <<<'SQL'
@@ -57,9 +57,9 @@ $setEncryptionReadyToFalseByDefaultOnNagiosServer = function () use ($pearDB, &$
 /**
  * Set encryption ready to false by default for all existing pollers to ensure retrocompatibility
  */
-$setEncryptionReadyToFalseByDefaultOnInstances = function () use ($pearDB, $pearDBO, &$errorMessage) {
+$setEncryptionReadyToFalseByDefaultOnInstances = function () use ($pearDB, $pearDBO, &$errorMessage): void {
     $errorMessage = "Unable to update 'is_encryption_ready' column on 'nagios_server' table";
-    /**@var \CentreonDB $pearDB */
+    /** @var CentreonDB $pearDB */
     $configDatabaseName = $pearDB->getConnectionConfig()->getDatabaseNameConfiguration();
     $pearDBO->prepare(
         <<<'SQL'
@@ -68,7 +68,7 @@ $setEncryptionReadyToFalseByDefaultOnInstances = function () use ($pearDB, $pear
             );
             SQL
     );
-    $pearDBO->bindValue(':db', $configDatabaseName, \PDO::PARAM_STR);
+    $pearDBO->bindValue(':db', $configDatabaseName, PDO::PARAM_STR);
     $pearDBO->execute();
 };
 
