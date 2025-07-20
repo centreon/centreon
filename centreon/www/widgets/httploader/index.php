@@ -80,6 +80,7 @@ try {
     }
 } catch (Exception $e) {
     showError($e->getMessage(), $theme);
+
     exit;
 }
 
@@ -88,22 +89,22 @@ function showError(string $message, string $theme)
     $escapedMessage = htmlspecialchars($message, ENT_QUOTES, 'UTF-8');
     $escapedTheme = htmlspecialchars($theme, ENT_QUOTES, 'UTF-8');
     echo <<<HTML
-    <!DOCTYPE html>
-    <html>
-        <head>
-            <meta charset="UTF-8">
-            <title>Error</title>
-            <link href="../../Themes/Generic-theme/style.css" rel="stylesheet" type="text/css"/>
-            <link href="../../Themes/Generic-theme/color.css" rel="stylesheet" type="text/css"/>
-            <link href="../../Themes/{$escapedTheme}/variables.css" rel="stylesheet" type="text/css"/>
-        </head>
-        <body>
-            <div class="update" style="text-align: center; width: 350px; margin: 0 auto;">
-                {$escapedMessage}
-            </div>
-        </body>
-    </html>
-    HTML;
+        <!DOCTYPE html>
+        <html>
+            <head>
+                <meta charset="UTF-8">
+                <title>Error</title>
+                <link href="../../Themes/Generic-theme/style.css" rel="stylesheet" type="text/css"/>
+                <link href="../../Themes/Generic-theme/color.css" rel="stylesheet" type="text/css"/>
+                <link href="../../Themes/{$escapedTheme}/variables.css" rel="stylesheet" type="text/css"/>
+            </head>
+            <body>
+                <div class="update" style="text-align: center; width: 350px; margin: 0 auto;">
+                    {$escapedMessage}
+                </div>
+            </body>
+        </html>
+        HTML;
 }
 
 ?>
