@@ -61,15 +61,15 @@ $setEncryptionReadyToFalseByDefaultOnInstances = function () use ($pearDB, $pear
     $errorMessage = "Unable to update 'is_encryption_ready' column on 'nagios_server' table";
     /** @var CentreonDB $pearDB */
     $configDatabaseName = $pearDB->getConnectionConfig()->getDatabaseNameConfiguration();
-    $pearDBO->prepare(
+   $statement = $pearDBO->prepare(
         <<<'SQL'
             UPDATE instances SET `is_encryption_ready` = '0' WHERE `instance_id` IN (
                 SELECT `id` FROM `:db`.nagios_server WHERE `localhost` = '0'
             );
             SQL
     );
-    $pearDBO->bindValue(':db', $configDatabaseName, PDO::PARAM_STR);
-    $pearDBO->execute();
+    $statement->bindValue(':db', $configDatabaseName, PDO::PARAM_STR);
+    $statement->execute();
 };
 
 try {
