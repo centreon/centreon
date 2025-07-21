@@ -10,7 +10,6 @@ import {
   getListingCustomQueryParameters,
   resourcesEndpoint
 } from '../../api/endpoints';
-import { getFormattedResources } from '../../../../../../front_src/src/Dashboards/SingleInstancePage/Dashboard/utils';
 
 interface UseLoadResourcesProps {
   bypassRequest: boolean;
