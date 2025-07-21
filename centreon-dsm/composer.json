@@ -10,7 +10,7 @@
   },
   "require-dev": {
     "centreon/centreon": "@dev",
-    "centreon/centreon-test-lib": "dev-MON-175018-master-remove-quality-tools"
+    "centreon/centreon-test-lib": "dev-master"
   },
   "repositories": [
     {

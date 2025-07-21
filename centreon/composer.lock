@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "4921f22dbe099c487530b4458bf5fab1",
+    "content-hash": "6ef9e23536748cdec4a15ee0eea58dea",
     "packages": [
         {
             "name": "amphp/amp",
@@ -9395,16 +9395,16 @@
         },
         {
             "name": "centreon/centreon-test-lib",
-            "version": "dev-MON-175018-master-remove-quality-tools",
+            "version": "dev-master",
             "source": {
                 "type": "git",
                 "url": "https://github.com/centreon/centreon-test-lib.git",
-                "reference": "0d78685556ee14dcc3e5ed5a36654d1f7c6fc2a2"
+                "reference": "42b0b5c3a3cde5df2721750e76b30e0907426764"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/centreon/centreon-test-lib/zipball/0d78685556ee14dcc3e5ed5a36654d1f7c6fc2a2",
-                "reference": "0d78685556ee14dcc3e5ed5a36654d1f7c6fc2a2",
+                "url": "https://api.github.com/repos/centreon/centreon-test-lib/zipball/42b0b5c3a3cde5df2721750e76b30e0907426764",
+                "reference": "42b0b5c3a3cde5df2721750e76b30e0907426764",
                 "shasum": ""
             },
             "require": {
@@ -9426,6 +9426,7 @@
                 "behat/mink": "Browser controller/emulator abstraction for PHP",
                 "behat/mink-selenium2-driver": "Mink driver using Selenium"
             },
+            "default-branch": true,
             "type": "library",
             "autoload": {
                 "psr-4": {
@@ -9448,9 +9449,9 @@
             ],
             "support": {
                 "issues": "https://github.com/centreon/centreon-test-lib/issues",
-                "source": "https://github.com/centreon/centreon-test-lib/tree/MON-175018-master-remove-quality-tools"
+                "source": "https://github.com/centreon/centreon-test-lib/tree/master"
             },
-            "time": "2025-07-17T21:02:57+00:00"
+            "time": "2025-07-21T09:54:54+00:00"
         },
         {
             "name": "composer/pcre",
