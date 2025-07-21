@@ -40,7 +40,7 @@ class GeoCoords implements \Stringable
     /** @var string Full lat,lng string */
     private const REGEX_FULL = '/^' . self::REGEX_LATITUDE . ',\s*' . self::REGEX_LONGITUDE . '$/';
     private const MAX_LENGTH = 32;
-    private const MAX_DECIMAL_PLACES = 6;
+    private const MAX_DECIMALS = 6;
 
     /**
      * @param numeric-string $latitude
@@ -52,11 +52,6 @@ class GeoCoords implements \Stringable
         public readonly string $latitude,
         public readonly string $longitude,
     ) {
-        Assertion::maxLength($latitude . ',' . $longitude, self::MAX_LENGTH, 'GeoCoords::maxLength');
-
-        $this->validateDecimals($latitude, 'Latitude');
-        $this->validateDecimals($longitude, 'Longitude');
-
         if (
             ! preg_match(self::REGEX_FULL, $latitude . ',' . $longitude)
         ) {
@@ -88,26 +83,28 @@ class GeoCoords implements \Stringable
             throw InvalidGeoCoordException::invalidValues();
         }
 
-        return new self($parts[0], $parts[1]);
+        $latitude = self::truncateDecimals($parts[0]);
+        $longitude = self::truncateDecimals($parts[1]);
+
+        Assertion::maxLength($latitude . ',' . $longitude, self::MAX_LENGTH, 'GeoCoords::maxLength');
+
+        return new self($latitude, $longitude);
     }
 
     /**
-     * Validate decimals count for a coordinate value
+     * Truncate decimals count for a coordinate value to MAX_DECIMALS
      *
      * @param string $value
-     * @param string $type latitude or longitude
-     *
-     * @throws \Assert\AssertionFailedException
+     * @return string
      */
-    private function validateDecimals(string $value, string $type): void
+    private static function truncateDecimals(string $value): string
     {
         if (str_contains($value, '.')) {
-            $decimalPart = explode('.', $value)[1];
-            Assertion::maxLength(
-                $decimalPart,
-                self::MAX_DECIMAL_PLACES,
-                "GeoCoords::{$type}Decimals"
-            );
+            [$intPart, $decimalPart] = explode('.', $value, 2);
+            $decimalPart = substr($decimalPart, 0, self::MAX_DECIMALS);
+            return rtrim($intPart . '.' . $decimalPart, '.');
         }
+
+        return $value;
     }
 }
