@@ -21,27 +21,30 @@
 
 declare(strict_types=1);
 
-namespace Core\Engine\Application\UseCase\GetEngineSecrets;
+namespace Core\Engine\Infrastructure\Voters;
 
-use Centreon\Domain\Common\Assertion\AssertionException;
-use Core\Common\Domain\Exception\RepositoryException;
-use Core\Engine\Application\Repository\EngineRepositoryInterface;
-use Core\Engine\Domain\Model\EngineSecrets;
+use Centreon\Domain\Contact\Interfaces\ContactInterface;
+use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
-final readonly class GetEngineSecrets
+final class EngineVoter extends Voter
 {
-    public function __construct(private EngineRepositoryInterface $engineRepository)
+    public const READ_ENGINE_SECRETS = 'read_engine_secrets';
+
+    protected function supports(string $attribute, mixed $subject): bool
     {
+        return $attribute === self::READ_ENGINE_SECRETS;
     }
 
-    /**
-     * @return EngineSecrets
-     *
-     * @throws RepositoryException|AssertionException
-     */
-    public function __invoke(): EngineSecrets
+    protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token): bool
     {
-        return $this->engineRepository->getEngineSecrets();
+        $user = $token->getUser();
+        if (! $user instanceof ContactInterface) {
+            return false;
+        }
+
+        return $user->isAdmin();
+
     }
 }
 
