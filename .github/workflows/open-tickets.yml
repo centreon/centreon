@@ -31,6 +31,7 @@ on:
 
 env:
   module: open-tickets
+  e2e_directory: centreon-open-tickets/tests/e2e
 
 jobs:
   get-environment:
@@ -130,13 +131,44 @@ jobs:
           path: "centreon/build/phpunit.xml"
           format: "php-junit"
 
+  gherkin-lint:
+    needs: [get-environment]
+    if: |
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      needs.get-environment.outputs.stability != 'stable'
+    runs-on: centreon-ubuntu-22.04
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - uses: ./.github/actions/gherkin-lint
+        with:
+          features_path: ${{ env.e2e_directory }}
+
+  e2e-lint:
+    needs: [get-environment]
+    if: |
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      needs.get-environment.outputs.stability != 'stable'
+    runs-on: centreon-ubuntu-22.04
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - uses: ./.github/actions/frontend-lint
+        with:
+          frontend_directory: ${{ env.e2e_directory }}
+          module_name: ${{ env.module }}
+          dependencies_lock_file: ${{ env.e2e_directory }}/pnpm-lock.yaml
+          pat: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+
   package:
     needs:
       [
         get-environment,
         check-version-consistency,
         backend-lint,
-        backend-unit-test
+        backend-unit-test,
+        gherkin-lint,
+        e2e-lint
       ]
     if: |
       needs.get-environment.outputs.skip_workflow == 'false' &&
