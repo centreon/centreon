@@ -142,7 +142,7 @@ jobs:
           rm jpgc-dummy-0.4.zip  # Nettoyage après installation
           echo "Plugins installed successfully!"
 
-      - name: Run Selected JMX Script
+      - name: Run JMX Scripts
         run: |
           JMETER_DIR=$(ls -d $GITHUB_WORKSPACE/centreon/tests/performanceTesting/apache-jmeter-*/bin)
           cd $JMETER_DIR || { echo "JMeter bin directory not found!"; exit 1; }
@@ -150,28 +150,22 @@ jobs:
           mkdir -p $GITHUB_WORKSPACE/centreon/tests/performanceTesting/jmeterFolder/jmeter_results
           mkdir -p $GITHUB_WORKSPACE/centreon/tests/performanceTesting/jmeterFolder/jmeter_html_report
 
-          SELECTED_FILE="${{ github.event.inputs.selected_test }}"
-          TEST_PATH="$GITHUB_WORKSPACE/centreon/tests/performanceTesting/jmeterFolder/$SELECTED_FILE"
+          for i in $GITHUB_WORKSPACE/centreon/tests/performanceTesting/jmeterFolder/*.jmx; do
+            echo "Running test: $i"
 
-          if [ ! -f "$TEST_PATH" ]; then
-            echo "❌ Selected JMX file not found: $TEST_PATH"
-            exit 1
-          fi
+            ./jmeter -n -t "$i" \
+              -Jusers_csv_path="$GITHUB_WORKSPACE/centreon/tests/performanceTesting/users.csv" \
+              -l "$GITHUB_WORKSPACE/centreon/tests/performanceTesting/jmeterFolder/jmeter_results/results_$(basename "$i" .jmx).jtl" \
+              -j "$GITHUB_WORKSPACE/centreon/tests/performanceTesting/jmeterFolder/jmeter_results/jmeter_$(basename "$i" .jmx).log" \
+              -LDEBUG
 
-          echo "Running test: $TEST_PATH"
+            tail -n 50 "$GITHUB_WORKSPACE/centreon/tests/performanceTesting/jmeterFolder/jmeter_results/jmeter_$(basename "$i" .jmx).log"
 
-          ./jmeter -n -t "$TEST_PATH" \
-            -Jusers_csv_path="$GITHUB_WORKSPACE/centreon/tests/performanceTesting/users.csv" \
-            -l "$GITHUB_WORKSPACE/centreon/tests/performanceTesting/jmeterFolder/jmeter_results/results_$(basename "$TEST_PATH" .jmx).jtl" \
-            -j "$GITHUB_WORKSPACE/centreon/tests/performanceTesting/jmeterFolder/jmeter_results/jmeter_$(basename "$TEST_PATH" .jmx).log" \
-            -LDEBUG
+            ./jmeter -g "$GITHUB_WORKSPACE/centreon/tests/performanceTesting/jmeterFolder/jmeter_results/results_$(basename "$i" .jmx).jtl" \
+              -o "$GITHUB_WORKSPACE/centreon/tests/performanceTesting/jmeterFolder/jmeter_html_report/$(basename "$i" .jmx)"
+          done
 
-          tail -n 50 "$GITHUB_WORKSPACE/centreon/tests/performanceTesting/jmeterFolder/jmeter_results/jmeter_$(basename "$TEST_PATH" .jmx).log"
-
-          ./jmeter -g "$GITHUB_WORKSPACE/centreon/tests/performanceTesting/jmeterFolder/jmeter_results/results_$(basename "$TEST_PATH" .jmx).jtl" \
-            -o "$GITHUB_WORKSPACE/centreon/tests/performanceTesting/jmeterFolder/jmeter_html_report/$(basename "$TEST_PATH" .jmx)"
-
-          echo "Test completed!"
+          echo "Tests completed!"
 
       - name: Upload JMeter results
         uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
