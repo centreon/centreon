@@ -4,9 +4,9 @@ import { useTheme } from '@mui/material';
 
 import { margins } from '../common/margins';
 
+import { useMemo } from 'react';
 import { groupMargin } from './Thresholds';
 import { SingleBarProps } from './models';
-import { useMemo } from 'react';
 
 export const barHeights = {
   medium: 72,
