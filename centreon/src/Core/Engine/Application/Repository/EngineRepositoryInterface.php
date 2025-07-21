@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Core\Engine\Application\Repository;
 
+use Centreon\Domain\Common\Assertion\AssertionException;
 use Core\Common\Domain\Exception\RepositoryException;
 use Core\Engine\Domain\Model\EngineSecrets;
 
@@ -31,7 +32,7 @@ interface EngineRepositoryInterface
     /**
      * Get engine secrets.
      *
-     * @throws RepositoryException
+     * @throws RepositoryException|AssertionException
      * @return EngineSecrets
      */
     public function getEngineSecrets(): EngineSecrets;
