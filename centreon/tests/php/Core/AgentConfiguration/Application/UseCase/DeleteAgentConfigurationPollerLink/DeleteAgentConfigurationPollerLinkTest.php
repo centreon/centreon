@@ -49,6 +49,7 @@ beforeEach(function (): void {
         $this->readAccessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class),
         $this->readMonitoringServerRepository = $this->createMock(ReadMonitoringServerRepositoryInterface::class),
         $this->user = $this->createMock(ContactInterface::class),
+        false
     );
     $this->presenterFormatter = $this->createMock(PresenterFormatterInterface::class);
     $this->presenter = new DefaultPresenter($this->presenterFormatter);
@@ -146,8 +147,8 @@ it('should present an ErrorResponse when the poller is the only one linked to th
             AgentConfigurationException::onlyOnePoller(
                 $this->pollerId,
                 $this->testedAcId
-                )->getMessage()
-            );
+            )->getMessage()
+        );
 });
 
 it('should present a NoContentResponse on success', function (): void {

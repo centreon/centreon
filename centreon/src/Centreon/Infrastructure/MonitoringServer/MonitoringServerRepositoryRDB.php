@@ -41,11 +41,10 @@ use Core\Security\AccessGroup\Domain\Model\AccessGroup;
  */
 class MonitoringServerRepositoryRDB extends AbstractRepositoryDRB implements MonitoringServerRepositoryInterface
 {
-    use MonitoringServerRepositoryTrait, SqlMultipleBindTrait;
+    use MonitoringServerRepositoryTrait;
+    use SqlMultipleBindTrait;
 
-    /**
-     * @var SqlRequestParametersTranslator
-     */
+    /** @var SqlRequestParametersTranslator */
     private $sqlRequestTranslator;
 
     public function __construct(DatabaseConnection $db)
@@ -88,8 +87,10 @@ class MonitoringServerRepositoryRDB extends AbstractRepositoryDRB implements Mon
             if ((int) $result['last_restart'] === 0) {
                 $server->setLastRestart(null);
             }
+
             return $server;
         }
+
         return null;
     }
 
@@ -103,7 +104,7 @@ class MonitoringServerRepositoryRDB extends AbstractRepositoryDRB implements Mon
             'name' => 'name',
             'is_localhost' => 'localhost',
             'address' => 'ns_ip_address',
-            'is_activate' => 'ns_activate'
+            'is_activate' => 'ns_activate',
         ]);
 
         // Search
@@ -128,7 +129,7 @@ class MonitoringServerRepositoryRDB extends AbstractRepositoryDRB implements Mon
             'name' => 'name',
             'is_localhost' => 'localhost',
             'address' => 'ns_ip_address',
-            'is_activate' => 'ns_activate'
+            'is_activate' => 'ns_activate',
         ]);
 
         // Search
@@ -160,101 +161,6 @@ class MonitoringServerRepositoryRDB extends AbstractRepositoryDRB implements Mon
     }
 
     /**
-     * Find servers.
-     *
-     * @param string|null $searchRequest Search request
-     * @param string|null $sortRequest Sort request
-     * @param string|null $paginationRequest Pagination request
-     * @param AccessGroup[] $accessGroups
-     *
-     * @throws \Exception
-     *
-     * @return MonitoringServer[]
-     *
-     */
-    private function findServers(
-        ?string $searchRequest,
-        ?string $sortRequest,
-        ?string $paginationRequest,
-        array $accessGroups = []
-    ): array {
-        $aclMonitoringServersRequest = '';
-        $searchRequest ??= '';
-        $sortRequest ??= ' ORDER BY id DESC';
-        $paginationRequest ??= '';
-
-        $bindValues = [];
-
-        if ($accessGroups !== []) {
-            $accessGroupIds = array_map(
-                fn($accessGroup) => $accessGroup->getId(),
-                $accessGroups
-            );
-
-            if ($this->hasRestrictedAccessToMonitoringServers($accessGroupIds)) {
-                [$bindValues, $bindQuery] = $this->createMultipleBindQuery($accessGroupIds, ':acl_group_id_');
-
-                $aclMonitoringServersRequest = <<<SQL
-                    INNER JOIN `:db`.acl_resources_poller_relations arpr
-                        ON arpr.poller_id = id
-                    INNER JOIN `:db`.acl_resources res
-                        ON res.acl_res_id = arpr.acl_res_id
-                    INNER JOIN `:db`.acl_res_group_relations argr
-                        ON argr.acl_res_id = res.acl_res_id
-                    WHERE argr.acl_group_id IN ({$bindQuery})
-                    SQL;
-
-                $searchRequest = str_replace('WHERE', 'AND', $searchRequest);
-            }
-        }
-
-        $request = $this->translateDbName(
-            <<<SQL
-                SELECT SQL_CALC_FOUND_ROWS * FROM `:db`.nagios_server
-                {$aclMonitoringServersRequest}
-                {$searchRequest}
-                {$sortRequest}
-                {$paginationRequest}
-                SQL
-        );
-
-        $statement = $this->db->prepare($request);
-
-        foreach ($this->sqlRequestTranslator->getSearchValues() as $key => $data) {
-            $type = key($data);
-            $value = $data[$type];
-            $statement->bindValue($key, $value, $type);
-        }
-
-        foreach ($bindValues as $bindParam => $bindValue) {
-            $statement->bindValue($bindParam, $bindValue, \PDO::PARAM_INT);
-        }
-
-        $statement->execute();
-
-        $result = $this->db->query('SELECT FOUND_ROWS()');
-        if ($result !== false && ($total = $result->fetchColumn()) !== false) {
-            $this->sqlRequestTranslator->getRequestParameters()->setTotal((int) $total);
-        }
-
-        $servers = [];
-        while (false !== ($result = $statement->fetch(\PDO::FETCH_ASSOC))) {
-            /**
-             * @var MonitoringServer $server
-             */
-            $server = EntityCreator::createEntityByArray(
-                MonitoringServer::class,
-                $result
-            );
-            if ((int) $result['last_restart'] === 0) {
-                $server->setLastRestart(null);
-            }
-            $servers[] = $server;
-        }
-        return $servers;
-    }
-
-    /**
      * @inheritDoc
      */
     public function findServer(int $monitoringServerId): ?MonitoringServer
@@ -275,8 +181,10 @@ class MonitoringServerRepositoryRDB extends AbstractRepositoryDRB implements Mon
             if ((int) $record['last_restart'] === 0) {
                 $server->setLastRestart(null);
             }
+
             return $server;
         }
+
         return null;
     }
 
@@ -290,7 +198,7 @@ class MonitoringServerRepositoryRDB extends AbstractRepositoryDRB implements Mon
         }
 
         $accessGroupIds = array_map(
-            fn($accessGroup) => $accessGroup->getId(),
+            fn ($accessGroup) => $accessGroup->getId(),
             $accessGroups
         );
 
@@ -360,8 +268,10 @@ class MonitoringServerRepositoryRDB extends AbstractRepositoryDRB implements Mon
             if ((int) $record['last_restart'] === 0) {
                 $server->setLastRestart(null);
             }
+
             return $server;
         }
+
         return null;
     }
 
@@ -390,6 +300,7 @@ class MonitoringServerRepositoryRDB extends AbstractRepositoryDRB implements Mon
                 ->setIsActivate($record['resource_activate'] === '1')
                 ->setPath($record['resource_line']);
         }
+
         return null;
     }
 
@@ -420,8 +331,118 @@ class MonitoringServerRepositoryRDB extends AbstractRepositoryDRB implements Mon
      */
     public function deleteServer(int $monitoringServerId): void
     {
-        $statement = $this->db->prepare($this->translateDbName("DELETE FROM `:db`.nagios_server WHERE id = :id"));
+        $statement = $this->db->prepare($this->translateDbName('DELETE FROM `:db`.nagios_server WHERE id = :id'));
         $statement->bindValue(':id', $monitoringServerId, \PDO::PARAM_INT);
         $statement->execute();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findRemoteServersIps(): array
+    {
+        $request = $this->translateDbName('SELECT ip FROM remote_servers');
+        $statement = $this->db->query($request);
+        $statement->execute();
+        if ($statement !== false) {
+            return $statement->fetchAll(\PDO::FETCH_COLUMN);
+        }
+
+        return [];
+    }
+
+    /**
+     * Find servers.
+     *
+     * @param string|null $searchRequest Search request
+     * @param string|null $sortRequest Sort request
+     * @param string|null $paginationRequest Pagination request
+     * @param AccessGroup[] $accessGroups
+     *
+     * @throws \Exception
+     *
+     * @return MonitoringServer[]
+     */
+    private function findServers(
+        ?string $searchRequest,
+        ?string $sortRequest,
+        ?string $paginationRequest,
+        array $accessGroups = []
+    ): array {
+        $aclMonitoringServersRequest = '';
+        $searchRequest ??= '';
+        $sortRequest ??= ' ORDER BY id DESC';
+        $paginationRequest ??= '';
+
+        $bindValues = [];
+
+        if ($accessGroups !== []) {
+            $accessGroupIds = array_map(
+                fn ($accessGroup) => $accessGroup->getId(),
+                $accessGroups
+            );
+
+            if ($this->hasRestrictedAccessToMonitoringServers($accessGroupIds)) {
+                [$bindValues, $bindQuery] = $this->createMultipleBindQuery($accessGroupIds, ':acl_group_id_');
+
+                $aclMonitoringServersRequest = <<<SQL
+                    INNER JOIN `:db`.acl_resources_poller_relations arpr
+                        ON arpr.poller_id = id
+                    INNER JOIN `:db`.acl_resources res
+                        ON res.acl_res_id = arpr.acl_res_id
+                    INNER JOIN `:db`.acl_res_group_relations argr
+                        ON argr.acl_res_id = res.acl_res_id
+                    WHERE argr.acl_group_id IN ({$bindQuery})
+                    SQL;
+
+                $searchRequest = str_replace('WHERE', 'AND', $searchRequest);
+            }
+        }
+
+        $request = $this->translateDbName(
+            <<<SQL
+                SELECT SQL_CALC_FOUND_ROWS * FROM `:db`.nagios_server
+                {$aclMonitoringServersRequest}
+                {$searchRequest}
+                {$sortRequest}
+                {$paginationRequest}
+                SQL
+        );
+
+        $statement = $this->db->prepare($request);
+
+        foreach ($this->sqlRequestTranslator->getSearchValues() as $key => $data) {
+            $type = key($data);
+            $value = $data[$type];
+            $statement->bindValue($key, $value, $type);
+        }
+
+        foreach ($bindValues as $bindParam => $bindValue) {
+            $statement->bindValue($bindParam, $bindValue, \PDO::PARAM_INT);
+        }
+
+        $statement->execute();
+
+        $result = $this->db->query('SELECT FOUND_ROWS()');
+        if ($result !== false && ($total = $result->fetchColumn()) !== false) {
+            $this->sqlRequestTranslator->getRequestParameters()->setTotal((int) $total);
+        }
+
+        $servers = [];
+        while (false !== ($result = $statement->fetch(\PDO::FETCH_ASSOC))) {
+            /**
+             * @var MonitoringServer $server
+             */
+            $server = EntityCreator::createEntityByArray(
+                MonitoringServer::class,
+                $result
+            );
+            if ((int) $result['last_restart'] === 0) {
+                $server->setLastRestart(null);
+            }
+            $servers[] = $server;
+        }
+
+        return $servers;
     }
 }

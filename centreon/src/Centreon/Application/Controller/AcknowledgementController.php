@@ -31,7 +31,6 @@ use Centreon\Domain\Entity\EntityValidator;
 use Centreon\Domain\Exception\EntityNotFoundException;
 use Centreon\Domain\Monitoring\Resource as ResourceEntity;
 use Centreon\Domain\Option\Interfaces\OptionServiceInterface;
-use Centreon\Domain\Option\Option;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use FOS\RestBundle\Context\Context;
@@ -50,7 +49,6 @@ class AcknowledgementController extends AbstractController
         = __DIR__ . '/../../../../config/json_validator/latest/Centreon/Acknowledgement/AcknowledgeResources.json';
     private const DISACKNOWLEDGE_RESOURCES_PAYLOAD_VALIDATION_FILE
         = __DIR__ . '/../../../../config/json_validator/latest/Centreon/Acknowledgement/DisacknowledgeResources.json';
-
     private const
         DEFAULT_ACKNOWLEDGEMENT_STICKY = 'monitoring_ack_sticky';
     private const
@@ -627,7 +625,7 @@ class AcknowledgementController extends AbstractController
             return $this->view($acknowledgement)->setContext($context);
         }
 
-            return View::create(null, Response::HTTP_NOT_FOUND, []);
+        return View::create(null, Response::HTTP_NOT_FOUND, []);
     }
 
     /**
@@ -649,7 +647,7 @@ class AcknowledgementController extends AbstractController
         if (false === $user->isAdmin()) {
             $accessGroups = $this->readAccessGroupRepository->findByContact($user);
             $accessGroupIds = array_map(
-                fn($accessGroup) => $accessGroup->getId(),
+                fn ($accessGroup) => $accessGroup->getId(),
                 $accessGroups
             );
 
@@ -689,7 +687,7 @@ class AcknowledgementController extends AbstractController
         if (false === $contact->isAdmin()) {
             $accessGroups = $this->readAccessGroupRepository->findByContact($contact);
             $accessGroupIds = array_map(
-                fn($accessGroup) => $accessGroup->getId(),
+                fn ($accessGroup) => $accessGroup->getId(),
                 $accessGroups
             );
 
@@ -750,7 +748,7 @@ class AcknowledgementController extends AbstractController
         if (false === $contact->isAdmin()) {
             $accessGroups = $this->readAccessGroupRepository->findByContact($contact);
             $accessGroupIds = array_map(
-                fn($accessGroup) => $accessGroup->getId(),
+                fn ($accessGroup) => $accessGroup->getId(),
                 $accessGroups
             );
 
@@ -831,7 +829,7 @@ class AcknowledgementController extends AbstractController
             self::DEFAULT_ACKNOWLEDGEMENT_STICKY,
             self::DEFAULT_ACKNOWLEDGEMENT_NOTIFY,
             self::DEFAULT_ACKNOWLEDGEMENT_WITH_SERVICES,
-            self::DEFAULT_ACKNOWLEDGEMENT_FORCE_ACTIVE_CHECKS
+            self::DEFAULT_ACKNOWLEDGEMENT_FORCE_ACTIVE_CHECKS,
         ]);
 
         $isAcknowledgementPersistent = $acknowledgement->isPersistentComment();

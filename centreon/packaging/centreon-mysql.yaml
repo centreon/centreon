@@ -45,17 +45,11 @@ overrides:
   rpm:
     depends:
       - "mysql-server"
-      - centreon-broker < ${NEXT_MAJOR_VERSION}
-      - centreon-engine-daemon >= ${MAJOR_VERSION}
-      - centreon-engine-daemon < ${NEXT_MAJOR_VERSION}
     conflicts:
       - centreon-mariadb
   deb:
     depends:
       - "mysql-server"
-      - "centreon-broker (<< ${NEXT_MAJOR_VERSION}~)"
-      - "centreon-engine-daemon (>= ${MAJOR_VERSION}~)"
-      - "centreon-engine-daemon (<< ${NEXT_MAJOR_VERSION}~)"
     conflicts:
       - centreon-mariadb
 

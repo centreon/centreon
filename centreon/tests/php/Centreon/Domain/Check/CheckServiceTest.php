@@ -21,42 +21,50 @@
 
 namespace Tests\Centreon\Domain\Check;
 
-use Centreon\Domain\Contact\Contact;
-use Centreon\Domain\Monitoring\Host;
-use Centreon\Domain\Monitoring\Service;
-use Centreon\Domain\Check\CheckService;
 use Centreon\Domain\Check\Check;
-use Centreon\Domain\Monitoring\Resource;
-use Centreon\Domain\Monitoring\Interfaces\MonitoringRepositoryInterface;
-use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use Centreon\Domain\Check\CheckService;
+use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Engine\Interfaces\EngineServiceInterface;
 use Centreon\Domain\Entity\EntityValidator;
-use Symfony\Component\Validator\ConstraintViolationList;
-use Symfony\Component\Validator\ConstraintViolation;
-use JMS\Serializer\Exception\ValidationFailedException;
 use Centreon\Domain\Exception\EntityNotFoundException;
+use Centreon\Domain\Monitoring\Host;
+use Centreon\Domain\Monitoring\Interfaces\MonitoringRepositoryInterface;
+use Centreon\Domain\Monitoring\Resource;
+use Centreon\Domain\Monitoring\Service;
+use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use JMS\Serializer\Exception\ValidationFailedException;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Validator\ConstraintViolation;
+use Symfony\Component\Validator\ConstraintViolationList;
 
 class CheckServiceTest extends TestCase
 {
     protected $adminContact;
+
     protected $aclContact;
 
     protected $host;
+
     protected $service;
 
     protected $check;
+
     protected $hostCheck;
+
     protected $serviceCheck;
 
     protected $hostResource;
+
     protected $serviceResource;
 
     protected $monitoringRepository;
+
     protected $engineService;
+
     protected $entityValidator;
 
     protected $violationList;
+
     protected $accessGroupRepository;
 
     protected function setUp(): void

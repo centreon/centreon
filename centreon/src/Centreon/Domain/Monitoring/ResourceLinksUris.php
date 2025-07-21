@@ -29,19 +29,13 @@ namespace Centreon\Domain\Monitoring;
  */
 class ResourceLinksUris
 {
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     private $configuration;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     private $logs;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     private $reporting;
 
     /**

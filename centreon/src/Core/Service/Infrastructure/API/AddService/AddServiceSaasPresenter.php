@@ -62,17 +62,19 @@ class AddServiceSaasPresenter extends AbstractPresenter implements AddServicePre
                         'geo_coords' => $response->geoCoords,
                         'icon_id' => $response->iconId,
                         'severity_id' => $response->severityId,
+                        'check_command_id' => $response->commandId,
+                        'check_command_args' => $response->commandArguments,
                         'event_handler_enabled' => YesNoDefaultConverter::toInt($response->eventHandlerEnabled),
                         'event_handler_command_id' => $response->eventHandlerId,
-                        'categories' => array_map(fn($category): array => [
+                        'categories' => array_map(fn ($category): array => [
                             'id' => $category['id'],
                             'name' => $category['name'],
                         ], $response->categories),
-                        'groups' => array_map(fn($group): array => [
+                        'groups' => array_map(fn ($group): array => [
                             'id' => $group['id'],
                             'name' => $group['name'],
                         ], $response->groups),
-                        'macros' => array_map(fn(MacroDto $macro): array => [
+                        'macros' => array_map(fn (MacroDto $macro): array => [
                             'name' => $macro->name,
                             'value' => $macro->isPassword ? null : $macro->value,
                             'is_password' => $macro->isPassword,

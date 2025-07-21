@@ -92,7 +92,7 @@ class FindHostPresenter extends AbstractPresenter implements FindHostPresenterIn
 
         $acknowledgement = null;
 
-        if (! empty($response->acknowledgement)) {
+        if ($response->acknowledgement !== []) {
             // Convert Acknowledgement dates into ISO 8601 format
             $acknowledgement = $response->acknowledgement;
             $acknowledgement['entry_time'] = $this->formatDateToIso8601($response->acknowledgement['entry_time']);

@@ -26,7 +26,6 @@ namespace Tests\Core\Dashboard\Application\UseCase\AddDashboard;
 use Core\Application\Common\UseCase\ResponseStatusInterface;
 use Core\Dashboard\Application\UseCase\AddDashboard\AddDashboardPresenterInterface;
 use Core\Dashboard\Application\UseCase\AddDashboard\AddDashboardResponse;
-use Core\Infrastructure\Common\Api\DefaultPresenter;
 
 class AddDashboardPresenterStub implements AddDashboardPresenterInterface
 {

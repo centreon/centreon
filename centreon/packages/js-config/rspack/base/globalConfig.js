@@ -6,7 +6,7 @@ const excludeNodeModulesExceptCentreonUi =
 module.exports = {
   cache: false,
   excludeNodeModulesExceptCentreonUi,
-  getModuleConfiguration: (enableCoverage) => ({
+  getModuleConfiguration: (enableCoverage, postCssBase = './') => ({
     rules: [
       {
         exclude: [excludeNodeModulesExceptCentreonUi],
@@ -51,8 +51,22 @@ module.exports = {
         type: 'asset/resource'
       },
       {
-        test: /\.css$/i,
-        use: ['style-loader', 'css-loader']
+        test: /\.css$/,
+        type: 'css/auto',
+        use: [
+          {
+            loader: 'postcss-loader',
+            options: {
+              postcssOptions: {
+                plugins: {
+                  '@tailwindcss/postcss': {
+                    base: postCssBase
+                  }
+                }
+              }
+            }
+          }
+        ]
       }
     ]
   }),
@@ -64,10 +78,10 @@ module.exports = {
   },
   output: {
     chunkFilename: isDev
-      ? '[name].[chunkhash:8].chunk.js'
+      ? '[name].[contenthash:8].[chunkhash:8].chunk.js'
       : '[name].[contenthash].[chunkhash].[hash].js',
     filename: isDev
-      ? '[name].[chunkhash:8].js'
+      ? '[name].[contenthash:8].js'
       : '[name].[contenthash].[hash].js',
     libraryTarget: 'umd',
     umdNamedDefine: true

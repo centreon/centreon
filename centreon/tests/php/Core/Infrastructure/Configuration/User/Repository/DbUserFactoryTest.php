@@ -23,14 +23,12 @@ declare(strict_types=1);
 
 namespace Tests\Core\Infrastructure\Configuration\User\Repository;
 
-use PHPUnit\Framework\TestCase;
 use Core\Infrastructure\Configuration\User\Repository\DbUserFactory;
+use PHPUnit\Framework\TestCase;
 
 class DbUserFactoryTest extends TestCase
 {
-    /**
-     * @var array<string, string>
-     */
+    /** @var array<string, string> */
     private array $userRecord;
 
     public function setUp(): void
@@ -43,7 +41,7 @@ class DbUserFactoryTest extends TestCase
             'contact_admin' => '1',
             'contact_theme' => 'light',
             'user_interface_density' => 'compact',
-            'user_can_reach_frontend' => '1'
+            'user_can_reach_frontend' => '1',
         ];
     }
 

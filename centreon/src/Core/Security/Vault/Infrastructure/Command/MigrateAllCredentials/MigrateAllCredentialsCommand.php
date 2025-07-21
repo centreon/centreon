@@ -19,7 +19,7 @@
  *
  */
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Core\Security\Vault\Infrastructure\Command\MigrateAllCredentials;
 
@@ -44,7 +44,7 @@ final class MigrateAllCredentialsCommand extends Command
         parent::__construct();
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         try {
             ($this->useCase)(new MigrateAllCredentialsPresenter($output));

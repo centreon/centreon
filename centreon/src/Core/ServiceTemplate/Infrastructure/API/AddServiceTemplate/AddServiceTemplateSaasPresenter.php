@@ -52,6 +52,8 @@ class AddServiceTemplateSaasPresenter extends AbstractPresenter implements AddSe
                         'alias' => $response->alias,
                         'service_template_id' => $response->serviceTemplateId,
                         'check_timeperiod_id' => $response->checkTimePeriodId,
+                        'check_command_id' => $response->commandId,
+                        'check_command_args' => $response->commandArguments,
                         'max_check_attempts' => $response->maxCheckAttempts,
                         'normal_check_interval' => $response->normalCheckInterval,
                         'retry_check_interval' => $response->retryCheckInterval,
@@ -62,18 +64,18 @@ class AddServiceTemplateSaasPresenter extends AbstractPresenter implements AddSe
                         'severity_id' => $response->severityId,
                         'host_templates' => $response->hostTemplateIds,
                         'is_locked' => $response->isLocked,
-                        'categories' => array_map(fn($category): array => [
+                        'categories' => array_map(fn ($category): array => [
                             'id' => $category['id'],
                             'name' => $category['name'],
                         ], $response->categories),
-                        'macros' => array_map(fn(MacroDto $macro): array => [
+                        'macros' => array_map(fn (MacroDto $macro): array => [
                             'name' => $macro->name,
                             // Note: do not handle vault storage at the moment
                             'value' => $macro->isPassword ? null : $macro->value,
                             'is_password' => $macro->isPassword,
                             'description' => $macro->description,
                         ], $response->macros),
-                        'groups' => array_map(fn($group): array => [
+                        'groups' => array_map(fn ($group): array => [
                             'id' => $group['serviceGroupId'],
                             'name' => $group['serviceGroupName'],
                             'host_template_id' => $group['hostTemplateId'],

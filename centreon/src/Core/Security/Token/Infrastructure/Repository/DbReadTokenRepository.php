@@ -34,8 +34,10 @@ use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
 use Core\Common\Domain\Exception\BusinessLogicException;
 use Core\Common\Domain\Exception\RepositoryException;
 use Core\Common\Infrastructure\Repository\DatabaseRepository;
+use Core\Common\Infrastructure\Repository\SqlMultipleBindTrait;
 use Core\Common\Infrastructure\RequestParameters\Transformer\SearchRequestParametersTransformer;
 use Core\Security\Token\Application\Repository\ReadTokenRepositoryInterface;
+use Core\Security\Token\Domain\Model\JwtToken;
 use Core\Security\Token\Domain\Model\Token;
 use Core\Security\Token\Domain\Model\TokenFactory;
 use Core\Security\Token\Domain\Model\TokenTypeEnum;
@@ -48,6 +50,7 @@ use Core\Security\Token\Domain\Model\TokenTypeEnum;
 class DbReadTokenRepository extends DatabaseRepository implements ReadTokenRepositoryInterface
 {
     use LoggerTrait;
+    use SqlMultipleBindTrait;
     private const TYPE_API_MANUAL = 'manual';
     private const TYPE_API_AUTO = 'auto';
 
@@ -58,8 +61,7 @@ class DbReadTokenRepository extends DatabaseRepository implements ReadTokenRepos
         ConnectionInterface $connection,
         QueryBuilderInterface $queryBuilder,
         SqlRequestParametersTranslator $sqlRequestTranslator,
-    )
-    {
+    ) {
         parent::__construct($connection, $queryBuilder);
         $this->sqlRequestTranslator = $sqlRequestTranslator;
         $this->sqlRequestTranslator
@@ -76,8 +78,7 @@ class DbReadTokenRepository extends DatabaseRepository implements ReadTokenRepos
             'is_revoked' => 'is_revoked',
             'type' => 'token_type',
         ]);
-        $normaliserClass = new class implements NormalizerInterface
-        {
+        $normaliserClass = new class () implements NormalizerInterface {
             /**
              * @inheritDoc
              */
@@ -178,7 +179,7 @@ class DbReadTokenRepository extends DatabaseRepository implements ReadTokenRepos
                 ['exception' => $exception->getContext()],
                 $exception
             );
-        }  catch (\Throwable $exception) {
+        } catch (\Throwable $exception) {
             $this->error(
                 "Finding token by token string failed : {$exception->getMessage()}",
                 [
@@ -201,6 +202,88 @@ class DbReadTokenRepository extends DatabaseRepository implements ReadTokenRepos
             );
         }
 
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findByNames(array $tokenNames): array
+    {
+        if ($tokenNames === []) {
+            return [];
+        }
+        try {
+            [$tokenBindValues, $tokensQuery] = $this->createMultipleBindQuery($tokenNames, ':tokenName_');
+            $queryParams = QueryParameters::create([]);
+            foreach ($tokenBindValues as $key => $value) {
+                /** @var string $value */
+                $queryParams->add($key, QueryParameter::string($key, $value));
+            }
+            $data = $this->connection->fetchAllAssociative(
+                <<<SQL
+                    SELECT
+                        token_name as name,
+                        null as user_id,
+                        null as user_name,
+                        creator_id,
+                        creator_name,
+                        creation_date,
+                        expiration_date,
+                        is_revoked,
+                        token_string,
+                        encoding_key,
+                        'JWT' as token_type
+                    FROM jwt_tokens
+                    WHERE token_name IN ({$tokensQuery})
+                    SQL,
+                $queryParams
+            );
+
+            $results = [];
+            foreach ($data as $row) {
+                /** @var _Token $row */
+                $results[$row['name']] = TokenFactory::create(
+                    TokenTypeEnum::CMA,
+                    $row
+                );
+            }
+
+            /** @var array<string,JwtToken> $results */
+            return $results;
+        } catch (BusinessLogicException $exception) {
+            $this->error(
+                'Finding tokens by names failed',
+                ['exception' => $exception->getContext()]
+            );
+
+            throw new RepositoryException(
+                'Finding tokens by names failed',
+                ['exception' => $exception->getContext()],
+                $exception
+            );
+        } catch (\Throwable $exception) {
+            $this->error(
+                "Finding tokens by names failed: {$exception->getMessage()}",
+                [
+                    'exception' => [
+                        'message' => $exception->getMessage(),
+                        'trace' => $exception->getTraceAsString(),
+                    ],
+                ]
+            );
+
+            throw new RepositoryException(
+                "Finding
+                tokens by names failed: {$exception->getMessage()}",
+                [
+                    'exception' => [
+                        'message' => $exception->getMessage(),
+                        'trace' => $exception->getTraceAsString(),
+                    ],
+                ],
+                $exception
+            );
+        }
     }
 
     /**
@@ -415,6 +498,7 @@ class DbReadTokenRepository extends DatabaseRepository implements ReadTokenRepos
         try {
             // Search
             $search = $this->sqlRequestTranslator->translateSearchParameterToSql();
+
             // Sort
             $sort = $this->sqlRequestTranslator->translateSortParameterToSql();
             $sort = ! is_null($sort)

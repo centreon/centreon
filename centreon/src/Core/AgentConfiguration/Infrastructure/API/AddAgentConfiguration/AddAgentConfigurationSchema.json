@@ -5,6 +5,7 @@
     "required": [
         "type",
         "name",
+        "connection_mode",
         "poller_ids",
         "configuration"
     ],

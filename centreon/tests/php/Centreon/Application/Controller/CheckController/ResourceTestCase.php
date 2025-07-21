@@ -23,9 +23,9 @@ declare(strict_types=1);
 
 namespace Tests\Centreon\Application\Controller\CheckController;
 
+use Centreon\Domain\Check\Check;
 use JMS\Serializer\DeserializationContext;
 use JMS\Serializer\SerializerInterface;
-use Centreon\Domain\Check\Check;
 
 abstract class ResourceTestCase extends TestCase
 {

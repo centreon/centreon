@@ -37,7 +37,7 @@ it(
     \InvalidArgumentException::class,
     AssertionException::minLength(
         $timeRange,
-        strlen($timeRange),
+        mb_strlen($timeRange),
         11,
         'TimeRange::timeRange'
     )->getMessage()
@@ -114,8 +114,8 @@ it(
 );
 
 it('should return a valid single array', function (): void {
-        $timeRange = new TimeRange('00:00-10:00');
-        expect($timeRange->getRanges())->toBeArray()->toHaveCount(1);
+    $timeRange = new TimeRange('00:00-10:00');
+    expect($timeRange->getRanges())->toBeArray()->toHaveCount(1);
 });
 
 it('should return a valid multiple array', function (): void {

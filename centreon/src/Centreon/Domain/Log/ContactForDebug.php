@@ -31,14 +31,10 @@ use Centreon\Domain\Contact\Interfaces\ContactInterface;
  */
 class ContactForDebug
 {
-    /**
-     * @var int
-     */
+    /** @var int */
     private $id;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private $email;
 
     /**
@@ -83,11 +79,11 @@ class ContactForDebug
     {
         if ($this->id === null && $this->email === null) {
             return true;
-        } elseif ($this->id !== null && $contact->getId() === $this->id) {
-            return true;
-        } elseif ($this->email !== null && $contact->getEmail() === $this->email) {
+        }
+        if ($this->id !== null && $contact->getId() === $this->id) {
             return true;
         }
-        return false;
+
+        return (bool) ($this->email !== null && $contact->getEmail() === $this->email);
     }
 }

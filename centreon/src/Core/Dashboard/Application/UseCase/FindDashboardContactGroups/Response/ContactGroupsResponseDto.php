@@ -31,7 +31,6 @@ final class ContactGroupsResponseDto
         public int $id = 0,
         public string $name = '',
         public DashboardGlobalRole $mostPermissiveRole = DashboardGlobalRole::Viewer
-    )
-    {
+    ) {
     }
 }

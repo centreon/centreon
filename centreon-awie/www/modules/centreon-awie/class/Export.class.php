@@ -128,11 +128,11 @@ class Export
      */
     public function clapiExport($content)
     {
-        $fp = fopen($this->tmpFile, 'w');
+        $fileHandler = fopen($this->tmpFile, 'w');
         foreach ($content as $command) {
-            fwrite($fp, mb_convert_encoding($command, 'UTF-8', 'ISO-8859-1'));
+            fwrite($fileHandler, mb_convert_encoding($command, 'UTF-8', 'ISO-8859-1'));
         }
-        fclose($fp);
+        fclose($fileHandler);
 
         return $this->tmpName;
     }

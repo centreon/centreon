@@ -1,8 +1,9 @@
 <?php
+
 namespace Centreon\Domain\Repository;
 
-use Centreon\Infrastructure\CentreonLegacyDB\ServiceEntityRepository;
 use Centreon\Domain\Entity\Informations;
+use Centreon\Infrastructure\CentreonLegacyDB\ServiceEntityRepository;
 use PDO;
 
 class InformationsRepository extends ServiceEntityRepository
@@ -10,7 +11,7 @@ class InformationsRepository extends ServiceEntityRepository
     /**
      * Export options
      *
-     * @return \Centreon\Domain\Entity\Informations[]
+     * @return Informations[]
      */
     public function getAll(): array
     {
@@ -80,9 +81,7 @@ class InformationsRepository extends ServiceEntityRepository
         $stmt = $this->db->prepare($sql);
         $stmt->execute();
 
-        /*
-         * resolve the address down to IP
-         */
+        // resolve the address down to IP
         $ipAddress = gethostbyname($ip);
         $sql = "INSERT INTO `informations` (`key`, `value`) VALUES ('authorizedMaster', :ip)";
         $stmt = $this->db->prepare($sql);

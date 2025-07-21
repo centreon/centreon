@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2018 CENTREON
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
@@ -39,8 +40,8 @@ use Centreon_Object_Timezone;
 use PDOException;
 use Pimple\Container;
 
-require_once "centreonObject.class.php";
-require_once "Centreon/Object/Timezone/Timezone.php";
+require_once 'centreonObject.class.php';
+require_once 'Centreon/Object/Timezone/Timezone.php';
 
 /**
  * Class

@@ -29,24 +29,16 @@ class ImageDir
     public const TABLE = 'view_img_dir';
     public const JOIN_TABLE = 'view_img_dir_relation';
 
-    /**
-     * @var int
-     */
+    /** @var int */
     public $dir_id;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     public $dir_name;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     public $dir_alias;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     public $dir_comment;
 
     /**
@@ -76,7 +68,7 @@ class ImageDir
     /**
      * @param string|null $dirName
      */
-    public function setDirName(string $dirName = null): void
+    public function setDirName(?string $dirName = null): void
     {
         $this->dir_name = $dirName;
     }
@@ -92,7 +84,7 @@ class ImageDir
     /**
      * @param string|null $dirAlias
      */
-    public function setDirAlias(string $dirAlias = null): void
+    public function setDirAlias(?string $dirAlias = null): void
     {
         $this->dir_alias = $dirAlias;
     }
@@ -108,7 +100,7 @@ class ImageDir
     /**
      * @param string|null $dirComment
      */
-    public function setDirComment(string $dirComment = null): void
+    public function setDirComment(?string $dirComment = null): void
     {
         $this->dir_comment = $dirComment;
     }

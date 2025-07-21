@@ -36,7 +36,7 @@
 
 use App\Kernel;
 
-if (!isset($centreon)) {
+if (! isset($centreon)) {
     exit();
 }
 
@@ -49,36 +49,32 @@ function includeExcludeTimeperiods($tpId, $includeTab = [], $excludeTab = [])
 {
     global $pearDB;
 
-    /*
-     * Insert inclusions
-     */
+    // Insert inclusions
     if (isset($includeTab) && is_array($includeTab)) {
-        $str = "";
+        $str = '';
         foreach ($includeTab as $tpIncludeId) {
-            if ($str != "") {
-                $str .= ", ";
+            if ($str != '') {
+                $str .= ', ';
             }
             $str .= "('" . $tpId . "', '" . $tpIncludeId . "')";
         }
         if (strlen($str)) {
-            $query = "INSERT INTO timeperiod_include_relations (timeperiod_id, timeperiod_include_id ) VALUES " . $str;
+            $query = 'INSERT INTO timeperiod_include_relations (timeperiod_id, timeperiod_include_id ) VALUES ' . $str;
             $pearDB->query($query);
         }
     }
 
-    /*
-     * Insert exclusions
-     */
+    // Insert exclusions
     if (isset($excludeTab) && is_array($excludeTab)) {
-        $str = "";
+        $str = '';
         foreach ($excludeTab as $tpExcludeId) {
-            if ($str != "") {
-                $str .= ", ";
+            if ($str != '') {
+                $str .= ', ';
             }
             $str .= "('" . $tpId . "', '" . $tpExcludeId . "')";
         }
         if (strlen($str)) {
-            $query = "INSERT INTO timeperiod_exclude_relations (timeperiod_id, timeperiod_exclude_id ) VALUES " . $str;
+            $query = 'INSERT INTO timeperiod_exclude_relations (timeperiod_id, timeperiod_exclude_id ) VALUES ' . $str;
             $pearDB->query($query);
         }
     }
@@ -97,19 +93,17 @@ function testTPExistence($name = null)
     $statement = $pearDB->prepare($query);
     $statement->bindValue(
         ':tp_name',
-        htmlentities($centreon->checkIllegalChar($name), ENT_QUOTES, "UTF-8"),
-        \PDO::PARAM_STR
+        htmlentities($centreon->checkIllegalChar($name), ENT_QUOTES, 'UTF-8'),
+        PDO::PARAM_STR
     );
     $statement->execute();
-    $tp = $statement->fetch(\PDO::FETCH_ASSOC);
-    #Modif case
-    if ($statement->rowCount() >= 1 && $tp["tp_id"] == $id) {
-        return true;
-    } elseif ($statement->rowCount() >= 1 && $tp["tp_id"] != $id) { #Duplicate entry
-        return false;
-    } else {
+    $tp = $statement->fetch(PDO::FETCH_ASSOC);
+    // Modif case
+    if ($statement->rowCount() >= 1 && $tp['tp_id'] == $id) {
         return true;
     }
+
+    return ! ($statement->rowCount() >= 1 && $tp['tp_id'] != $id);  // Duplicate entry
 }
 
 function multipleTimeperiodInDB($timeperiods = [], $nbrDup = [])
@@ -131,28 +125,28 @@ function multipleTimeperiodInDB($timeperiods = [], $nbrDup = [])
         }
 
         $row = $dbResult->fetch();
-        $row["tp_id"] = null;
+        $row['tp_id'] = null;
         for ($i = 1; $i <= $nbrDup[$key]; $i++) {
             $val = [];
             foreach ($row as $key2 => $value2) {
-                if ($key2 == "tp_name") {
-                    $value2 .= "_" . $i;
+                if ($key2 == 'tp_name') {
+                    $value2 .= '_' . $i;
                 }
-                if ($key2 == "tp_name") {
+                if ($key2 == 'tp_name') {
                     $tp_name = $value2;
                 }
                 $val[] = $value2 ?: null;
-                if ($key2 != "tp_id") {
+                if ($key2 != 'tp_id') {
                     $fields[$key2] = $value2;
                 }
                 if (isset($tp_name)) {
-                    $fields["tp_name"] = $tp_name;
+                    $fields['tp_name'] = $tp_name;
                 }
             }
             if (isset($tp_name) && testTPExistence($tp_name)) {
                 $params = [
                     'values' => $val,
-                    'timeperiod_id' => $key
+                    'timeperiod_id' => $key,
                 ];
                 $tpId = duplicateTimePeriod($params);
                 $centreon->CentreonLogAction->insertLog(
@@ -169,15 +163,17 @@ function multipleTimeperiodInDB($timeperiods = [], $nbrDup = [])
 
 /**
  * Form validator.
+ * @param mixed $hourString
  */
 function checkHours($hourString)
 {
-    if ($hourString == "") {
+    if ($hourString == '') {
         return true;
-    } elseif (strstr($hourString, ",")) {
+    }
+    if (strstr($hourString, ',')) {
         $tab1 = preg_split("/\,/", $hourString);
         for ($i = 0; isset($tab1[$i]); $i++) {
-            if (preg_match("/([0-9]*):([0-9]*)-([0-9]*):([0-9]*)/", $tab1[$i], $str)) {
+            if (preg_match('/([0-9]*):([0-9]*)-([0-9]*):([0-9]*)/', $tab1[$i], $str)) {
                 if ($str[1] > 24 || $str[3] > 24) {
                     return false;
                 }
@@ -191,21 +187,21 @@ function checkHours($hourString)
                 return false;
             }
         }
+
         return true;
-    } elseif (preg_match("/([0-9]*):([0-9]*)-([0-9]*):([0-9]*)/", $hourString, $str)) {
+    }
+    if (preg_match('/([0-9]*):([0-9]*)-([0-9]*):([0-9]*)/', $hourString, $str)) {
         if ($str[1] > 24 || $str[3] > 24) {
             return false;
         }
         if ($str[2] > 59 || $str[4] > 59) {
             return false;
         }
-        if (($str[3] * 60 * 60 + $str[4] * 60) > 86400 || ($str[1] * 60 * 60 + $str[2] * 60) > 86400) {
-            return false;
-        }
-        return true;
-    } else {
-        return false;
+
+        return ! (($str[3] * 60 * 60 + $str[4] * 60) > 86400 || ($str[1] * 60 * 60 + $str[2] * 60) > 86400);
     }
+
+    return false;
 }
 
 /**
@@ -224,6 +220,7 @@ function getTimeperiodIdByName($name)
         $row = $res->fetch();
         $id = $row['tp_id'];
     }
+
     return $id;
 }
 
@@ -260,7 +257,7 @@ function getTimeperiodsFromTemplate(array $tpIds)
 function testTemplateLoop($value)
 {
     // skip check if template field is empty
-    if (!$value) {
+    if (! $value) {
         return true;
     }
 
@@ -269,19 +266,17 @@ function testTemplateLoop($value)
     $data = $form->getSubmitValues();
 
     // skip check if timeperiod is new
-    if (!$data['tp_id']) {
+    if (! $data['tp_id']) {
         return true;
-    } elseif (in_array($data['tp_id'], $value)) {
+    }
+    if (in_array($data['tp_id'], $value)) {
         // try to skip heavy check of templates
-
-        return false;
-    } elseif (in_array($data['tp_id'], getTimeperiodsFromTemplate($value))) {
-        // get list of all timeperiods related via templates
 
         return false;
     }
 
-    return true;
+    return ! (in_array($data['tp_id'], getTimeperiodsFromTemplate($value)));
+    // get list of all timeperiods related via templates
 }
 
 /**
@@ -295,7 +290,7 @@ function duplicateTimePeriod(array $params): int
     global $pearDB;
 
     $isAlreadyInTransaction = $pearDB->inTransaction();
-    if (!$isAlreadyInTransaction) {
+    if (! $isAlreadyInTransaction) {
         $pearDB->beginTransaction();
     }
     try {
@@ -303,14 +298,15 @@ function duplicateTimePeriod(array $params): int
         createTimePeriodsExceptions($params);
         createTimePeriodsIncludeRelations($params);
         createTimePeriodsExcludeRelations($params);
-        if (!$isAlreadyInTransaction) {
+        if (! $isAlreadyInTransaction) {
             $pearDB->commit();
         }
-    } catch (\Exception $e) {
-        if (!$isAlreadyInTransaction) {
+    } catch (Exception $e) {
+        if (! $isAlreadyInTransaction) {
             $pearDB->rollBack();
         }
     }
+
     return $params['tp_id'];
 }
 
@@ -329,15 +325,16 @@ function createTimePeriod(array $params): int
         $queryBindValues[':value_' . $index] = $value;
     }
     $bindValues = implode(', ', array_keys($queryBindValues));
-    $statement = $pearDB->prepare("INSERT INTO timeperiod VALUES ($bindValues)");
+    $statement = $pearDB->prepare("INSERT INTO timeperiod VALUES ({$bindValues})");
     foreach ($queryBindValues as $bindKey => $bindValue) {
         if (array_key_first($queryBindValues) === $bindKey) {
-            $statement->bindValue($bindKey, (int) $bindValue, \PDO::PARAM_INT);
+            $statement->bindValue($bindKey, (int) $bindValue, PDO::PARAM_INT);
         } else {
-            $statement->bindValue($bindKey, $bindValue, \PDO::PARAM_STR);
+            $statement->bindValue($bindKey, $bindValue, PDO::PARAM_STR);
         }
     }
     $statement->execute();
+
     return (int) $pearDB->lastInsertId();
 }
 
@@ -350,12 +347,12 @@ function createTimePeriodsExcludeRelations(array $params): void
 {
     global $pearDB;
 
-    $query = "INSERT INTO timeperiod_exclude_relations (timeperiod_id, timeperiod_exclude_id) " .
-             "SELECT :tp_id, timeperiod_exclude_id FROM timeperiod_exclude_relations " .
-             "WHERE timeperiod_id = :timeperiod_id";
+    $query = 'INSERT INTO timeperiod_exclude_relations (timeperiod_id, timeperiod_exclude_id) '
+             . 'SELECT :tp_id, timeperiod_exclude_id FROM timeperiod_exclude_relations '
+             . 'WHERE timeperiod_id = :timeperiod_id';
     $statement = $pearDB->prepare($query);
-    $statement->bindValue(':tp_id', $params['tp_id'], \PDO::PARAM_INT);
-    $statement->bindValue(':timeperiod_id', (int) $params['timeperiod_id'], \PDO::PARAM_INT);
+    $statement->bindValue(':tp_id', $params['tp_id'], PDO::PARAM_INT);
+    $statement->bindValue(':timeperiod_id', (int) $params['timeperiod_id'], PDO::PARAM_INT);
     $statement->execute();
 }
 
@@ -368,12 +365,12 @@ function createTimePeriodsIncludeRelations(array $params): void
 {
     global $pearDB;
 
-    $query = "INSERT INTO timeperiod_include_relations (timeperiod_id, timeperiod_include_id) " .
-             "SELECT :tp_id, timeperiod_include_id FROM timeperiod_include_relations " .
-             "WHERE timeperiod_id = :timeperiod_id";
+    $query = 'INSERT INTO timeperiod_include_relations (timeperiod_id, timeperiod_include_id) '
+             . 'SELECT :tp_id, timeperiod_include_id FROM timeperiod_include_relations '
+             . 'WHERE timeperiod_id = :timeperiod_id';
     $statement = $pearDB->prepare($query);
-    $statement->bindValue(':tp_id', $params['tp_id'], \PDO::PARAM_INT);
-    $statement->bindValue(':timeperiod_id', (int) $params['timeperiod_id'], \PDO::PARAM_INT);
+    $statement->bindValue(':tp_id', $params['tp_id'], PDO::PARAM_INT);
+    $statement->bindValue(':timeperiod_id', (int) $params['timeperiod_id'], PDO::PARAM_INT);
     $statement->execute();
 }
 
@@ -386,12 +383,12 @@ function createTimePeriodsExceptions(array $params): void
 {
     global $pearDB;
 
-    $query = "INSERT INTO timeperiod_exceptions (timeperiod_id, days, timerange) " .
-             "SELECT :tp_id, days, timerange FROM timeperiod_exceptions " .
-             "WHERE timeperiod_id = :timeperiod_id";
+    $query = 'INSERT INTO timeperiod_exceptions (timeperiod_id, days, timerange) '
+             . 'SELECT :tp_id, days, timerange FROM timeperiod_exceptions '
+             . 'WHERE timeperiod_id = :timeperiod_id';
     $statement = $pearDB->prepare($query);
-    $statement->bindValue(':tp_id', $params['tp_id'], \PDO::PARAM_INT);
-    $statement->bindValue(':timeperiod_id', (int) $params['timeperiod_id'], \PDO::PARAM_INT);
+    $statement->bindValue(':tp_id', $params['tp_id'], PDO::PARAM_INT);
+    $statement->bindValue(':timeperiod_id', (int) $params['timeperiod_id'], PDO::PARAM_INT);
     $statement->execute();
 }
 
@@ -562,7 +559,7 @@ function deleteTimePeriodInAPI(array $timeperiods = []): bool
 {
     global $basePath;
 
-   try {
+    try {
         deleteTimeperiodByApi($basePath, $timeperiods);
 
         return true;
@@ -654,7 +651,7 @@ function getPayloadForTimePeriod(array $formData): array
         'name' => $formData['tp_name'],
         'alias' => $formData['tp_alias'],
         'days' => $days,
-        'templates' => array_map(static fn(string $id): int => (int) $id, $formData['tp_include'] ?? []),
+        'templates' => array_map(static fn (string $id): int => (int) $id, $formData['tp_include'] ?? []),
         'exceptions' => $exceptions,
     ];
 }

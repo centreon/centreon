@@ -33,8 +33,8 @@ interface ServiceGroupServiceInterface
      * to fetch data.
      *
      * @param mixed $contact Contact to use as a ACL filter
-     * @return ServiceGroupServiceInterface
      * @throws \Exception
+     * @return ServiceGroupServiceInterface
      */
     public function filterByContact($contact): ServiceGroupServiceInterface;
 
@@ -42,8 +42,8 @@ interface ServiceGroupServiceInterface
      * Retrieve servicegroups from their ids
      *
      * @param int[] $serviceGroupIds
-     * @return ServiceGroup[]
      * @throws ServiceGroupException
+     * @return ServiceGroup[]
      */
     public function findServiceGroupsByIds(array $serviceGroupIds): array;
 
@@ -51,8 +51,8 @@ interface ServiceGroupServiceInterface
      * Retrieve servicegroups from their ids
      *
      * @param string[] $serviceGroupNames
-     * @return ServiceGroup[]
      * @throws ServiceGroupException
+     * @return ServiceGroup[]
      */
     public function findServiceGroupsByNames(array $serviceGroupNames): array;
 }

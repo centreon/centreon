@@ -36,8 +36,8 @@ class HostGroupFactoryRdb
      * Create a HostGroup entity from database data.
      *
      * @param array<string, mixed> $data
-     * @return HostGroup
      * @throws \Assert\AssertionFailedException
+     * @return HostGroup
      */
     public static function create(array $data): HostGroup
     {
@@ -52,35 +52,13 @@ class HostGroupFactoryRdb
             );
         }
 
-        if (isset($data['hg_map_icon_image'])) {
-            $hostGroup->setIconMap(
-                (new Image())
-                    ->setId((int) $data['imap_id'])
-                    ->setName($data['imap_name'])
-                    ->setComment($data['imap_comment'])
-                    ->setPath(str_replace('//', '/', $data['imap_path']))
-            );
-        }
-
         $hostGroup
             ->setId((int) $data['hg_id'])
             ->setAlias($data['hg_alias'])
-            ->setNotes($data['hg_notes'])
-            ->setNotesUrl($data['hg_notes_url'])
-            ->setActionUrl($data['hg_action_url'])
-            ->setRrd(self::getIntOrNull($data['hg_rrd_retention']))
             ->setGeoCoords($data['geo_coords'])
             ->setComment($data['hg_comment'])
             ->setActivated((bool) $data['hg_activate']);
-        return $hostGroup;
-    }
 
-    /**
-     * @param int|string|null $property
-     * @return int|null
-     */
-    private static function getIntOrNull($property): ?int
-    {
-        return ($property !== null) ? (int) $property : null;
+        return $hostGroup;
     }
 }

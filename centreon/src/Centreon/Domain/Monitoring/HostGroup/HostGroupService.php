@@ -22,21 +22,17 @@ declare(strict_types=1);
 
 namespace Centreon\Domain\Monitoring\HostGroup;
 
-use Centreon\Domain\Service\AbstractCentreonService;
-use Centreon\Domain\Monitoring\HostGroup\Interfaces\HostGroupServiceInterface;
 use Centreon\Domain\Monitoring\HostGroup\Interfaces\HostGroupRepositoryInterface;
+use Centreon\Domain\Monitoring\HostGroup\Interfaces\HostGroupServiceInterface;
+use Centreon\Domain\Service\AbstractCentreonService;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 
 final class HostGroupService extends AbstractCentreonService implements HostGroupServiceInterface
 {
-    /**
-     * @var HostGroupRepositoryInterface
-     */
+    /** @var HostGroupRepositoryInterface */
     private $hostGroupRepository;
 
-    /**
-     * @var ReadAccessGroupRepositoryInterface
-     */
+    /** @var ReadAccessGroupRepositoryInterface */
     private $accessGroupRepository;
 
     /**

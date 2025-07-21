@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2015 Centreon
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
@@ -32,39 +33,41 @@
  * For more information : contact@centreon.com
  *
  */
-# return argument for specific command in txt format
-# use by ajax
+// return argument for specific command in txt format
+// use by ajax
 
-require_once realpath(__DIR__ . "/../../../../../config/centreon.config.php");
-require_once(_CENTREON_PATH_."www/class/centreonDB.class.php");
+require_once realpath(__DIR__ . '/../../../../../config/centreon.config.php');
+require_once _CENTREON_PATH_ . 'www/class/centreonDB.class.php';
 
 function myDecodeService($arg)
 {
-    $arg = str_replace('#BR#', "\\n", $arg ?? '');
-    $arg = str_replace('#T#', "\\t", $arg);
-    $arg = str_replace('#R#', "\\r", $arg);
-    $arg = str_replace('#S#', "/", $arg);
-    $arg = str_replace('#BS#', "\\", $arg);
-    return html_entity_decode($arg, ENT_QUOTES, "UTF-8");
+    $arg = str_replace('#BR#', '\\n', $arg ?? '');
+    $arg = str_replace('#T#', '\\t', $arg);
+    $arg = str_replace('#R#', '\\r', $arg);
+    $arg = str_replace('#S#', '/', $arg);
+    $arg = str_replace('#BS#', '\\', $arg);
+
+    return html_entity_decode($arg, ENT_QUOTES, 'UTF-8');
 }
 
 header('Content-type: text/html; charset=utf-8');
 
 $pearDB = new CentreonDB();
 
-if (isset($_POST["index"])) {
+if (isset($_POST['index'])) {
     if (false === is_numeric($_POST['index'])) {
         header('HTTP/1.1 406 Not Acceptable');
+
         exit();
     }
 
     $statement = $pearDB->prepare(
-        "SELECT `command_example` FROM `command` WHERE `command_id` = :command_id"
+        'SELECT `command_example` FROM `command` WHERE `command_id` = :command_id'
     );
-    $statement->bindValue(':command_id', (int) $_POST["index"], \PDO::PARAM_INT);
+    $statement->bindValue(':command_id', (int) $_POST['index'], PDO::PARAM_INT);
     $statement->execute();
-    while ($arg = $statement->fetch(\PDO::FETCH_ASSOC)) {
-        echo myDecodeService($arg["command_example"]);
+    while ($arg = $statement->fetch(PDO::FETCH_ASSOC)) {
+        echo myDecodeService($arg['command_example']);
     }
     unset($arg, $statement);
     $pearDB = null;

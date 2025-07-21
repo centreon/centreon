@@ -41,15 +41,12 @@
  */
 class Command extends AbstractObject
 {
-    /** @var null */
-    private $commands = null;
-
-    /** @var null */
-    private $mail_bin = null;
     /** @var string */
     protected $generate_filename = 'commands.cfg';
+
     /** @var string */
     protected string $object_name = 'command';
+
     /** @var string */
     protected $attributes_select = '
         command_id,
@@ -58,45 +55,24 @@ class Command extends AbstractObject
         connector.name as connector,
         enable_shell
     ';
+
     /** @var string[] */
     protected $attributes_write = ['command_name', 'command_line', 'connector'];
 
-    /**
-     * Create the cache of commands.
-     */
-    private function createCommandsCache(): void
-    {
-        $query = "SELECT $this->attributes_select FROM command " .
-            "LEFT JOIN connector ON connector.id = command.connector_id AND connector.enabled = '1' " .
-            "AND command.command_activate = '1'";
-        $stmt = $this->backend_instance->db->prepare($query);
-        $stmt->execute();
-        $this->commands = $stmt->fetchAll(PDO::FETCH_GROUP | PDO::FETCH_UNIQUE | PDO::FETCH_ASSOC);
-    }
+    /** @var null */
+    private $commands = null;
 
-    /**
-     * @return void
-     * @throws PDOException
-     */
-    private function getMailBin(): void
-    {
-        $stmt = $this->backend_instance->db->prepare("SELECT
-              options.value
-            FROM options
-                WHERE options.key = 'mailer_path_bin'
-            ");
-        $stmt->execute();
-        $this->mail_bin = ($row = $stmt->fetch(PDO::FETCH_ASSOC)) ? $row['value'] : '';
-    }
+    /** @var null */
+    private $mail_bin = null;
 
     /**
      * @param $command_id
      *
-     * @return mixed|null
      * @throws LogicException
      * @throws PDOException
-     * @throws \Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException
-     * @throws \Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException
+     * @throws Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException
+     * @throws Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException
+     * @return mixed|null
      */
     public function generateFromCommandId($command_id)
     {
@@ -105,7 +81,7 @@ class Command extends AbstractObject
             $this->createCommandsCache();
         }
 
-        if (!isset($this->commands[$command_id])) {
+        if (! isset($this->commands[$command_id])) {
             return null;
         }
         if ($this->checkGenerate($command_id)) {
@@ -120,24 +96,22 @@ class Command extends AbstractObject
             $this->getVaultConfigurationStatus();
         }
 
-        /*
-         * enable_shell is 0 we remove it
-         */
+        // enable_shell is 0 we remove it
         $command_line = html_entity_decode($this->commands[$command_id]['command_line_base'] ?? '');
-        $command_line = str_replace('#BR#', "\\n", $command_line);
-        $command_line = str_replace("@MAILER@", $this->mail_bin, $command_line);
+        $command_line = str_replace('#BR#', '\\n', $command_line);
+        $command_line = str_replace('@MAILER@', $this->mail_bin, $command_line);
         $command_line = str_replace("\n", " \\\n", $command_line);
-        $command_line = str_replace("\r", "", $command_line);
+        $command_line = str_replace("\r", '', $command_line);
 
         if (
             $this->isVaultEnabled
-            && preg_match("/\\\$CENTREONPLUGINS\\\$\\/centreon/", $command_line)
+            && preg_match('/\\$CENTREONPLUGINS\\$\\/centreon/', $command_line)
         ) {
-            $command_line .= " --pass-manager=centreonvault";
+            $command_line .= ' --pass-manager=centreonvault';
         }
 
-        if (!is_null($this->commands[$command_id]['enable_shell']) &&
-            $this->commands[$command_id]['enable_shell'] == 1
+        if (! is_null($this->commands[$command_id]['enable_shell'])
+            && $this->commands[$command_id]['enable_shell'] == 1
         ) {
             $command_line = '/bin/sh -c ' . escapeshellarg($command_line);
         }
@@ -146,6 +120,7 @@ class Command extends AbstractObject
             array_merge($this->commands[$command_id], ['command_line' => $command_line]),
             $command_id
         );
+
         return $this->commands[$command_id]['command_name'];
     }
 
@@ -165,6 +140,35 @@ class Command extends AbstractObject
         if (is_null($this->commands)) {
             $this->createCommandsCache();
         }
+
         return $this->commands[$commandId] ?? null;
+    }
+
+    /**
+     * Create the cache of commands.
+     */
+    private function createCommandsCache(): void
+    {
+        $query = "SELECT {$this->attributes_select} FROM command "
+            . "LEFT JOIN connector ON connector.id = command.connector_id AND connector.enabled = '1' "
+            . "AND command.command_activate = '1'";
+        $stmt = $this->backend_instance->db->prepare($query);
+        $stmt->execute();
+        $this->commands = $stmt->fetchAll(PDO::FETCH_GROUP | PDO::FETCH_UNIQUE | PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * @throws PDOException
+     * @return void
+     */
+    private function getMailBin(): void
+    {
+        $stmt = $this->backend_instance->db->prepare("SELECT
+              options.value
+            FROM options
+                WHERE options.key = 'mailer_path_bin'
+            ");
+        $stmt->execute();
+        $this->mail_bin = ($row = $stmt->fetch(PDO::FETCH_ASSOC)) ? $row['value'] : '';
     }
 }

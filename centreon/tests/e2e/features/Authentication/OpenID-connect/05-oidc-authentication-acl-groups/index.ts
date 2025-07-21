@@ -58,13 +58,14 @@ Given('an administrator is logged in the platform', () => {
 When(
   'the administrator sets valid settings in the Roles mapping and saves',
   () => {
-    configureOpenIDConnect();
-
-    cy.getByLabel({ label: 'Roles mapping' }).click();
     cy.getByLabel({
       label: 'Enable OpenID Connect authentication',
       tag: 'input'
     }).check();
+
+    configureOpenIDConnect();
+
+    cy.getByLabel({ label: 'Roles mapping' }).click();
     cy.getByLabel({
       label: 'Enable automatic management',
       tag: 'input'

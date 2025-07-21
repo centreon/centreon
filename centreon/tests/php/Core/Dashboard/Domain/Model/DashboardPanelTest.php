@@ -27,20 +27,18 @@ use Centreon\Domain\Common\Assertion\AssertionException;
 use Core\Dashboard\Domain\Model\DashboardPanel;
 
 beforeEach(function (): void {
-    $this->createPanel = function (array $fields = []): DashboardPanel {
-        return new DashboardPanel(
-            id: $fields['id'] ?? 123,
-            name: $fields['name'] ?? 'panel-name',
-            widgetType: $fields['widgetType'] ?? 'widget-type',
-            widgetSettings: $fields['widgetSettings'] ?? ['foo' => 'bar'],
-            layoutX: $fields['layoutX'] ?? 1,
-            layoutY: $fields['layoutY'] ?? 2,
-            layoutWidth: $fields['layoutWidth'] ?? 3,
-            layoutHeight: $fields['layoutHeight'] ?? 4,
-            layoutMinWidth: $fields['layoutMinWidth'] ?? 5,
-            layoutMinHeight: $fields['layoutMinHeight'] ?? 6,
-        );
-    };
+    $this->createPanel = fn (array $fields = []): DashboardPanel => new DashboardPanel(
+        id: $fields['id'] ?? 123,
+        name: $fields['name'] ?? 'panel-name',
+        widgetType: $fields['widgetType'] ?? 'widget-type',
+        widgetSettings: $fields['widgetSettings'] ?? ['foo' => 'bar'],
+        layoutX: $fields['layoutX'] ?? 1,
+        layoutY: $fields['layoutY'] ?? 2,
+        layoutWidth: $fields['layoutWidth'] ?? 3,
+        layoutHeight: $fields['layoutHeight'] ?? 4,
+        layoutMinWidth: $fields['layoutMinWidth'] ?? 5,
+        layoutMinHeight: $fields['layoutMinHeight'] ?? 6,
+    );
 });
 
 it('should return properly set dashboard panel instance', function (): void {
@@ -67,7 +65,7 @@ foreach (
 ) {
     it(
         "should throw an exception when dashboard panel {$field} is an empty string",
-        fn() => ($this->createPanel)([$field => ''])
+        fn () => ($this->createPanel)([$field => ''])
     )->throws(
         AssertionException::class,
         AssertionException::notEmptyString("DashboardPanel::{$field}")->getMessage()
@@ -104,7 +102,7 @@ foreach (
     $tooLong = str_repeat('a', $length + 1);
     it(
         "should throw an exception when dashboard panel {$field} is too long",
-        fn() => ($this->createPanel)([$field => $tooLong])
+        fn () => ($this->createPanel)([$field => $tooLong])
     )->throws(
         AssertionException::class,
         AssertionException::maxLength($tooLong, $length + 1, $length, "DashboardPanel::{$field}")->getMessage()
@@ -125,14 +123,14 @@ foreach (
 ) {
     it(
         "should throw an exception when dashboard panel {$field} is too low",
-        fn() => ($this->createPanel)([$field => $min - 1])
+        fn () => ($this->createPanel)([$field => $min - 1])
     )->throws(
         AssertionException::class,
         AssertionException::range($min - 1, $min, $max, 'DashboardPanel::' . $field)->getMessage()
     );
     it(
         "should throw an exception when dashboard panel {$field} is too high",
-        fn() => ($this->createPanel)([$field => $max + 1])
+        fn () => ($this->createPanel)([$field => $max + 1])
     )->throws(
         AssertionException::class,
         AssertionException::range($max + 1, $min, $max, 'DashboardPanel::' . $field)->getMessage()

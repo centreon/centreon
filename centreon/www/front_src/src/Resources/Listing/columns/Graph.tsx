@@ -49,7 +49,7 @@ const Graph = ({ row, endpoint }: GraphProps): JSX.Element => {
 
   const graphEndpoint = `${endpoint}?start=${start}&end=${end}`;
 
-  const { data } = useFetchQuery<LineChartData>({
+  const { data, isLoading, isFetching } = useFetchQuery<LineChartData>({
     getEndpoint: () => graphEndpoint,
     getQueryKey: () => ['chartLineColumns', endpoint],
     queryOptions: {
@@ -73,6 +73,7 @@ const Graph = ({ row, endpoint }: GraphProps): JSX.Element => {
         getShapeLines={getShapeLines}
       />
       <LineChart
+        loading={isFetching || isLoading || !data}
         data={data}
         end={end}
         height={200}
@@ -83,6 +84,9 @@ const Graph = ({ row, endpoint }: GraphProps): JSX.Element => {
         displayAnchor={{
           displayGuidingLines: false,
           displayTooltipsGuidingLines: false
+        }}
+        timeShiftZones={{
+          enable: false
         }}
         {...rest}
       />

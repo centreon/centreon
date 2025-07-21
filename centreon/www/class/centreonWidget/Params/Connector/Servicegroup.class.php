@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Copyright 2005-2015 Centreon
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
@@ -30,10 +31,9 @@
  * do not wish to do so, delete this exception statement from your version.
  *
  * For more information : contact@centreon.com
- *
  */
 
-require_once __DIR__ . "/../List.class.php";
+require_once __DIR__ . '/../List.class.php';
 
 /**
  * Class
@@ -59,23 +59,24 @@ class CentreonWidgetParamsConnectorServicegroup extends CentreonWidgetParamsList
     /**
      * @param $paramId
      *
-     * @return mixed|null[]
      * @throws PDOException
+     * @return mixed|null[]
      */
     public function getListValues($paramId)
     {
         static $tab;
 
-        if (!isset($tab)) {
+        if (! isset($tab)) {
             $query = "SELECT sg_id, sg_name FROM servicegroup WHERE sg_activate = '1' ";
             $query .= $this->acl->queryBuilder('AND', 'sg_id', $this->acl->getServiceGroupsString());
-            $query .= " ORDER BY sg_name";
+            $query .= ' ORDER BY sg_name';
             $res = $this->db->query($query);
             $tab = [null => null];
             while ($row = $res->fetchRow()) {
                 $tab[$row['sg_id']] = $row['sg_name'];
             }
         }
+
         return $tab;
     }
 }

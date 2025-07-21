@@ -23,7 +23,6 @@ declare(strict_types=1);
 
 namespace Tests\Core\AgentConfiguration\Application\UseCase\FindAgentConfiguration;
 
-use Core\AgentConfiguration\Domain\Model\Type;
 use Core\AgentConfiguration\Application\Exception\AgentConfigurationException;
 use Core\AgentConfiguration\Application\Repository\ReadAgentConfigurationRepositoryInterface;
 use Core\AgentConfiguration\Application\UseCase\FindAgentConfiguration\FindAgentConfiguration;
@@ -32,16 +31,19 @@ use Core\AgentConfiguration\Domain\Model\AgentConfiguration;
 use Core\AgentConfiguration\Domain\Model\ConfigurationParameters\TelegrafConfigurationParameters;
 use Core\AgentConfiguration\Domain\Model\ConnectionModeEnum;
 use Core\AgentConfiguration\Domain\Model\Poller;
+use Core\AgentConfiguration\Domain\Model\Type;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
+use Core\Host\Application\Repository\ReadHostRepositoryInterface;
 
 beforeEach(function (): void {
     $this->useCase = new FindAgentConfiguration(
         readRepository: $this->readRepository = $this->createMock(ReadAgentConfigurationRepositoryInterface::class),
+        readHostRepository: $this->readHostRepository = $this->createMock(ReadHostRepositoryInterface::class),
     );
 });
 
-it('should present a Not Found Response when object does not exist', function () {
+it('should present a Not Found Response when object does not exist', function (): void {
     $this->readRepository
         ->expects($this->once())
         ->method('find')
@@ -55,7 +57,7 @@ it('should present a Not Found Response when object does not exist', function ()
         ->toBe('Agent Configuration not found');
 });
 
-it('should present an Error Response when an unexpected error occurs', function () {
+it('should present an Error Response when an unexpected error occurs', function (): void {
     $this->readRepository
         ->expects($this->once())
         ->method('find')
@@ -69,7 +71,7 @@ it('should present an Error Response when an unexpected error occurs', function 
         ->toBe(AgentConfigurationException::errorWhileRetrievingObject()->getMessage());
 });
 
-it('should present a FindConfigurationResponse when everything is ok', function () {
+it('should present a FindConfigurationResponse when everything is ok', function (): void {
     $configuration = new TelegrafConfigurationParameters(
         [
             'otel_server_address' => '10.10.10.10',
@@ -79,14 +81,13 @@ it('should present a FindConfigurationResponse when everything is ok', function 
             'otel_private_key' => 'otel-key.key',
             'conf_server_port' => 454,
             'conf_certificate' => 'conf-certif.crt',
-            'conf_private_key' => 'conf-key.key'
-        ],
-        ConnectionModeEnum::SECURE
+            'conf_private_key' => 'conf-key.key',
+        ]
     );
 
     $pollers = [
         new Poller(1, 'pollerOne'),
-        new Poller(2, 'pollerTwo')
+        new Poller(2, 'pollerTwo'),
     ];
 
     $this->readRepository
@@ -98,7 +99,8 @@ it('should present a FindConfigurationResponse when everything is ok', function 
                 name: 'acOne',
                 type: Type::TELEGRAF,
                 connectionMode: ConnectionModeEnum::SECURE,
-                configuration: $configuration)
+                configuration: $configuration
+            )
         );
 
     $this->readRepository
@@ -122,7 +124,7 @@ it('should present a FindConfigurationResponse when everything is ok', function 
             'otel_private_key' => '/etc/pki/otel-key.key',
             'conf_server_port' => 454,
             'conf_certificate' => '/etc/pki/conf-certif.crt',
-            'conf_private_key' => '/etc/pki/conf-key.key'
+            'conf_private_key' => '/etc/pki/conf-key.key',
         ])
         ->and($response->pollers[0]->getId())->toBe(1)
         ->and($response->pollers[0]->getName())->toBe('pollerOne')

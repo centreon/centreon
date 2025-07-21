@@ -75,7 +75,7 @@ When(
   () => {
     cy.get('*[class^="react-grid-layout"]').children().should('have.length', 0);
     cy.getByTestId({ testId: 'edit_dashboard' }).click();
-    cy.getByTestId({ testId: 'AddIcon' }).should('have.length', 1).click();
+    cy.contains('div[class*="-addWidgetPanel"] h5', 'Add a widget').click();
   }
 );
 
@@ -227,7 +227,7 @@ When('the dashboard administrator user deletes one of the widgets', () => {
   cy.getByLabel({ label: 'Delete' }).click();
   cy.getByTestId({ testId: 'save_dashboard' }).click();
   cy.wait('@updateDashboard');
-  cy.getByTestId({ testId: 'RefreshIcon' }).click();
+  cy.getByTestId({ testId: 'refresh' }).click();
 });
 
 Then('only the contents of the other widget are displayed', () => {
@@ -277,8 +277,8 @@ When(
     cy.getByTestId({ testId: 'RichTextEditor' })
       .get('[contenteditable="true"]')
       .type('Link to google website{selectall}', { force: true });
-    cy.getByTestId({ testId: 'LinkIcon' }).click({ force: true });
-    cy.getByTestId({ testId: 'EditIcon' }).click({ force: true });
+    cy.getByTestId({ testId: 'link' }).click({ force: true });
+    cy.getByLabel({ label: 'Edit link',tag:'button' }).click();
     cy.getByTestId({ testId: 'InputLinkField' })
       .eq(1)
       .type('www.google.com{enter}', { force: true });

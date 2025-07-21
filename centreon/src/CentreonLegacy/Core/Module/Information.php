@@ -190,7 +190,7 @@ class Information
 
         return $modules;
     }
-    
+
     /**
      * @param string $moduleName
      *
@@ -272,13 +272,13 @@ class Information
     private function isUpgradeable($availableVersion, $installedVersion)
     {
         $comparisonResult = false;
-        
+
         $compare = version_compare($availableVersion, $installedVersion);
-        
+
         if ($compare == 1) {
             $comparisonResult = true;
         }
-        
+
         return $comparisonResult;
     }
 }

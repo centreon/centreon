@@ -22,10 +22,10 @@ declare(strict_types=1);
 
 namespace Tests\Centreon\Domain\MonitoringServer\Model;
 
-use DateTime;
-use PHPUnit\Framework\TestCase;
 use Centreon\Domain\Common\Assertion\AssertionException;
 use Centreon\Domain\MonitoringServer\Model\RealTimeMonitoringServer;
+use DateTime;
+use PHPUnit\Framework\TestCase;
 
 /**
  * This class is designed to test all setters of the RealTimeMonitoringServer entity, especially those with exceptions.
@@ -139,8 +139,8 @@ class RealTimeMonitoringServerTest extends TestCase
     }
 
     /**
-     * @return RealTimeMonitoringServer
      * @throws \Assert\AssertionFailedException
+     * @return RealTimeMonitoringServer
      */
     public static function createEntity(): RealTimeMonitoringServer
     {

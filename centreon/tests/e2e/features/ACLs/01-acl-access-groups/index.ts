@@ -111,7 +111,8 @@ Then(
     });
 
     cy.wait('@getTopCounter');
-    cy.getByTestId({ testId: 'HomeIcon' }).should('exist');
+    cy.getByTestId({ tag: 'button', testId: 'Mini Centreon Logo' }).click();
+    cy.contains('span', 'Home').should('exist');
 
     cy.logout();
     cy.loginByCredentials({
@@ -120,7 +121,8 @@ Then(
     });
 
     cy.wait('@getTopCounter');
-    cy.getByTestId({ testId: 'HomeIcon' }).should('exist');
+    cy.getByTestId({ tag:'button', testId: 'Mini Centreon Logo' }).click();
+    cy.contains('span', 'Home').should('exist');
   }
 );
 

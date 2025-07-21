@@ -25,3 +25,5 @@ export const modalStateAtom = atom<ModalState>({
 
 export const isFormDirtyAtom = atom<boolean>(false);
 export const isCloseConfirmationDialogOpenAtom = atom<boolean>(false);
+
+export const isWelcomePageDisplayedAtom = atom<boolean>(true);

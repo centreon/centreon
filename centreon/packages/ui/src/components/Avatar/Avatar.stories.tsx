@@ -1,6 +1,7 @@
 import { Meta, StoryObj } from '@storybook/react';
 
 import Avatar from './Avatar';
+import '../../ThemeProvider/tailwindcss.css';
 
 const meta: Meta<typeof Avatar> = {
   component: Avatar

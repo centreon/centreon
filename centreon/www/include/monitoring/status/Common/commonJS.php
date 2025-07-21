@@ -33,12 +33,12 @@
  *
  */
 
-if (!isset($centreon)) {
+if (! isset($centreon)) {
     exit();
 }
 
-if (!isset($default_poller)) {
-    include_once "./include/monitoring/status/Common/default_poller.php";
+if (! isset($default_poller)) {
+    include_once './include/monitoring/status/Common/default_poller.php';
 }
 
 $searchHistory = CentreonUtils::escapeSecure(
@@ -49,15 +49,15 @@ $historySearchService = CentreonUtils::escapeSecure(
     ($centreon->historySearchService[$url] ?? '')
 );
 
-if (!isset($search_host) || empty($search_host)) {
+if (! isset($search_host) || empty($search_host)) {
     $search_host = $searchHistory;
 }
 
-if (!isset($search_sg) || empty($search_sg)) {
+if (! isset($search_sg) || empty($search_sg)) {
     $search_sg = $searchHistory;
 }
 
-if (!isset($search_output) || empty($search_output)) {
+if (! isset($search_output) || empty($search_output)) {
     $search_output = CentreonUtils::escapeSecure(
         ($centreon->historySearchOutput[$url] ?? '')
     );
@@ -66,24 +66,24 @@ if (!isset($search_output) || empty($search_output)) {
 ?>
 // Dynamique
 <?php if (isset($search_type_host)) { ?>
-var _search_type_host='<?php echo $search_type_host?>';
+var _search_type_host='<?php echo $search_type_host; ?>';
 <?php } ?>
 <?php if (isset($search_type_service)) { ?>
-var _search_type_service='<?php echo $search_type_service?>';
+var _search_type_service='<?php echo $search_type_service; ?>';
 <?php } ?>
 
 var _search = '<?= $search ?? $historySearchService; ?>';
-var _host_search = '<?= $search_host ?>';
-var _sg_search = '<?= $search_sg ?>';
-var _output_search = '<?= $search_output ?>';
+var _host_search = '<?= $search_host; ?>';
+var _sg_search = '<?= $search_sg; ?>';
+var _output_search = '<?= $search_output; ?>';
 
-var _num='<?php echo $num?>';
-var _limit='<?php echo $limit?>';
+var _num='<?php echo $num; ?>';
+var _limit='<?php echo $limit; ?>';
 var _sort_type='<?php echo $sort_type ?? ''; ?>';
 var _order='<?php echo $order ?? ''; ?>';
-var _date_time_format_status='<?php echo addslashes(_("Y/m/d H:i:s"))?>';
-var _o='<?php echo (isset($obis) && $obis) ? $obis : $o;?>';
-var _p='<?php echo $p?>';
+var _date_time_format_status='<?php echo addslashes(_('Y/m/d H:i:s')); ?>';
+var _o='<?php echo (isset($obis) && $obis) ? $obis : $o; ?>';
+var _p='<?php echo $p; ?>';
 
 // Parameters
 var _timeoutID = 0;
@@ -91,8 +91,8 @@ var _counter = 0;
 var _hostgroup_enable = 1;
 var _servicegroup_enable = 1;
 var _on = 1;
-var _time_reload = <?php echo $tM?>;
-var _time_live = <?php echo $tFM?>;
+var _time_reload = <?php echo $tM; ?>;
+var _time_live = <?php echo $tFM; ?>;
 var _nb = 0;
 var _oldInputFieldValue = '';
 var _oldInputHostFieldValue = '';
@@ -103,15 +103,15 @@ var _first = 1;
 var _lock = 0;
 var _instance = "-1";
 var _default_hg = "<?php if (isset($default_hg)) {
-    echo htmlentities($default_hg, ENT_QUOTES, "UTF-8");
+    echo htmlentities($default_hg, ENT_QUOTES, 'UTF-8');
 } ?>";
 var _default_sg = "<?php if (isset($default_sg)) {
-    echo htmlentities($default_sg, ENT_QUOTES, "UTF-8");
+    echo htmlentities($default_sg, ENT_QUOTES, 'UTF-8');
 } ?>";
-var _default_instance = "<?php echo $default_poller?>";
+var _default_instance = "<?php echo $default_poller; ?>";
 var _nc = 0;
 var _poppup = (navigator.appName.substring(0,3) == "Net") ? 1 : 0;
-var _popup_no_comment_msg = '<?php echo addslashes(_("Please enter a comment")); ?>';
+var _popup_no_comment_msg = '<?php echo addslashes(_('Please enter a comment')); ?>';
 
 // Hosts WS For Poppin
 var _addrXMLSpanHost = "./include/monitoring/status/Services/xml/makeXMLForOneHost.php";
@@ -240,7 +240,7 @@ function advanced_options(id) {
 }
 
 function construct_selecteList_ndo_instance(id){
-    var displayPoller = <?php echo $centreon->user->access->checkAction("poller_listing");?>
+    var displayPoller = <?php echo $centreon->user->access->checkAction('poller_listing'); ?>
 
     if (!displayPoller) {
         return null;
@@ -275,27 +275,26 @@ function construct_selecteList_ndo_instance(id){
 
 <?php
     $pollerArray = $centreon->user->access->getPollers();
-    /** *************************************
-     * Get instance listing
-     */
-
-if ($centreon->user->admin || !count($pollerArray)) {
-    $instanceQuery = "SELECT 1 AS REALTIME, instance_id, name FROM `instances` WHERE running = 1 AND deleted = 0 ORDER BY name";
+/** *************************************
+ * Get instance listing
+ */
+if ($centreon->user->admin || ! count($pollerArray)) {
+    $instanceQuery = 'SELECT 1 AS REALTIME, instance_id, name FROM `instances` WHERE running = 1 AND deleted = 0 ORDER BY name';
 } else {
-    $instanceQuery = "SELECT 1 AS REALTIME, instance_id, name
+    $instanceQuery = 'SELECT 1 AS REALTIME, instance_id, name
                       FROM `instances` WHERE running = 1 AND deleted = 0
-                      AND name IN (". $centreon->user->access->getPollerString('NAME') .")
-                      ORDER BY name";
+                      AND name IN (' . $centreon->user->access->getPollerString('NAME') . ')
+                      ORDER BY name';
 }
-    $DBRESULT = $pearDBO->query($instanceQuery);
+$DBRESULT = $pearDBO->query($instanceQuery);
 while ($nagios_server = $DBRESULT->fetchRow()) {   ?>
         var m = document.createElement('option');
-        m.value= "<?php echo $nagios_server["instance_id"]; ?>";
+        m.value= "<?php echo $nagios_server['instance_id']; ?>";
         _select.appendChild(m);
-        var n = document.createTextNode("<?php echo $nagios_server["name"] . "  "; ?>   ");
+        var n = document.createTextNode("<?php echo $nagios_server['name'] . '  '; ?>   ");
         m.appendChild(n);
         _select.appendChild(m);
-        select_index["<?php echo $nagios_server["instance_id"]; ?>"] = i;
+        select_index["<?php echo $nagios_server['instance_id']; ?>"] = i;
         i++;
 <?php     } ?>
         _select.selectedIndex = select_index[_default_instance];
@@ -330,51 +329,51 @@ function construct_HostGroupSelectList(id) {
         var i = 1;
 <?php
         $hgNdo = [];
-        $hgBrk = [];
-        $acldb = $pearDBO;
-if (!$centreon->user->access->admin) {
-    $query = "SELECT DISTINCT hg.hg_alias, hg.hg_name AS name
+$hgBrk = [];
+$acldb = $pearDBO;
+if (! $centreon->user->access->admin) {
+    $query = 'SELECT DISTINCT hg.hg_alias, hg.hg_name AS name
                   FROM hostgroup hg, acl_resources_hg_relations arhr
                   WHERE hg.hg_id = arhr.hg_hg_id
-                      AND arhr.acl_res_id IN (".$centreon->user->access->getResourceGroupsString().")
+                      AND arhr.acl_res_id IN (' . $centreon->user->access->getResourceGroupsString() . ")
                       AND hg.hg_activate = '1'
                       AND hg.hg_id in (SELECT hostgroup_hg_id
                                        FROM hostgroup_relation
-                                       WHERE host_host_id IN (".$centreon->user->access->getHostsString("ID", $acldb)."))";
+                                       WHERE host_host_id IN (" . $centreon->user->access->getHostsString('ID', $acldb) . '))';
     $DBRESULT = $pearDB->query($query);
     while ($data = $DBRESULT->fetchRow()) {
-        $hgNdo[$data["name"]] = 1;
-        $hgBrk[$data["name"]] = 1;
+        $hgNdo[$data['name']] = 1;
+        $hgBrk[$data['name']] = 1;
     }
     $DBRESULT->closeCursor();
     unset($data);
 }
 
 $DBRESULT = $pearDBO->query(
-    "SELECT DISTINCT 1 AS REALTIME, hg.name, hg.hostgroup_id " .
-    "FROM hostgroups hg, hosts_hostgroups hhg " .
-    "WHERE hg.hostgroup_id = hhg.hostgroup_id " .
-    "AND hg.name NOT LIKE 'meta\_%' " .
-    "ORDER BY hg.name"
+    'SELECT DISTINCT 1 AS REALTIME, hg.name, hg.hostgroup_id '
+    . 'FROM hostgroups hg, hosts_hostgroups hhg '
+    . 'WHERE hg.hostgroup_id = hhg.hostgroup_id '
+    . "AND hg.name NOT LIKE 'meta\_%' "
+    . 'ORDER BY hg.name'
 );
 while ($hostgroups = $DBRESULT->fetchRow()) {
-    if ($centreon->user->access->admin ||
-        ($centreon->user->access->admin == 0 && isset($hgBrk[$hostgroups["name"]]))) {
-        if (!isset($tabHG)) {
+    if ($centreon->user->access->admin
+        || ($centreon->user->access->admin == 0 && isset($hgBrk[$hostgroups['name']]))) {
+        if (! isset($tabHG)) {
             $tabHG = [];
         }
-        if (!isset($tabHG[$hostgroups["name"]])) {
-            $tabHG[$hostgroups["name"]] = "";
+        if (! isset($tabHG[$hostgroups['name']])) {
+            $tabHG[$hostgroups['name']] = '';
         } else {
-            $tabHG[$hostgroups["name"]] .= ",";
+            $tabHG[$hostgroups['name']] .= ',';
         }
-        $tabHG[$hostgroups["name"]] .= $hostgroups["hostgroup_id"];
+        $tabHG[$hostgroups['name']] .= $hostgroups['hostgroup_id'];
     }
 }
 
 if (isset($tabHG)) {
     foreach ($tabHG as $name => $id) {
-?>
+        ?>
         var m = document.createElement('option');
             m.value= "<?php echo $id; ?>";
             _select.appendChild(m);
@@ -423,15 +422,15 @@ function construct_ServiceGroupSelectList(id) {
 
 $sgBrk = [];
 $acldb = $pearDBO;
-if (!$centreon->user->access->admin) {
-    $query = "SELECT DISTINCT sg.sg_alias, sg.sg_name AS name
+if (! $centreon->user->access->admin) {
+    $query = 'SELECT DISTINCT sg.sg_alias, sg.sg_name AS name
                 FROM servicegroup sg, acl_resources_sg_relations arsr
                 WHERE sg.sg_id = arsr.sg_id
-                    AND arsr.acl_res_id IN (" . $centreon->user->access->getResourceGroupsString() . ")
+                    AND arsr.acl_res_id IN (' . $centreon->user->access->getResourceGroupsString() . ")
                     AND sg.sg_activate = '1'";
     $DBRESULT = $pearDB->query($query);
     while ($data = $DBRESULT->fetchRow()) {
-        $sgBrk[$data["name"]] = 1;
+        $sgBrk[$data['name']] = 1;
     }
     $DBRESULT->closeCursor();
     unset($data);
@@ -439,16 +438,16 @@ if (!$centreon->user->access->admin) {
 
 $DBRESULT = $pearDBO->query("SELECT DISTINCT 1 AS REALTIME, sg.name, sg.servicegroup_id FROM servicegroups sg, services_servicegroups ssg WHERE sg.servicegroup_id = ssg.servicegroup_id AND sg.name NOT LIKE 'meta\_%' ORDER BY sg.name");
 while ($servicegroups = $DBRESULT->fetchRow()) {
-    if ($centreon->user->access->admin || ($centreon->user->access->admin == 0 && isset($sgBrk[$servicegroups["name"]]))) {
-        if (!isset($tabSG)) {
+    if ($centreon->user->access->admin || ($centreon->user->access->admin == 0 && isset($sgBrk[$servicegroups['name']]))) {
+        if (! isset($tabSG)) {
             $tabSG = [];
         }
-        if (!isset($tabSG[$servicegroups["name"]])) {
-            $tabSG[$servicegroups["name"]] = "";
+        if (! isset($tabSG[$servicegroups['name']])) {
+            $tabSG[$servicegroups['name']] = '';
         } else {
-            $tabSG[$servicegroups["name"]] .= ",";
+            $tabSG[$servicegroups['name']] .= ',';
         }
-        $tabSG[$servicegroups["name"]] .= $servicegroups["servicegroup_id"];
+        $tabSG[$servicegroups['name']] .= $servicegroups['servicegroup_id'];
     }
 }
 
@@ -687,9 +686,7 @@ for ($i = 1; $i <= 2; $i++) { ?>
     }
 <?php     }
 
-    /*
-     * Page Number
-     */
+// Page Number
 
 for ($i = 1; $i <= 2; $i++) { ?>
     var istart = 0;
@@ -1048,9 +1045,9 @@ function monitoring_play()  {
     _on = 1;
     // Allows to use the new status when click on the play button
     if (typeof(_o) == "undefined") {
-        _o = "<?= $o ?>";
+        _o = "<?= $o; ?>";
     }
-    initM(<?php echo $tM?>, _o)
+    initM(<?php echo $tM; ?>, _o)
 }
 
 function monitoring_pause() {
@@ -1068,7 +1065,7 @@ function monitoring_refresh()   {
     _on = 1;
 
     window.clearTimeout(_timeoutID);
-    initM(<?php echo $tM?>,_o);
+    initM(<?php echo $tM; ?>,_o);
     _on = _tmp_on;
     viewDebugInfo('refresh');
 }
@@ -1098,7 +1095,7 @@ function initM(_time_reload, _o) {
         _first = 0;
     }
 
-    _time=<?php echo $time?>;
+    _time=<?php echo $time; ?>;
 
     if (_on) {
         goM(_time_reload, _o);

@@ -55,7 +55,7 @@ beforeEach(function (): void {
             ->setWarningHighThreshold(50)
             ->setWarningLowThreshold(0)
             ->setCriticalHighThreshold(100)
-            ->setCriticalLowThreshold(50)
+            ->setCriticalLowThreshold(50),
     ];
 });
 

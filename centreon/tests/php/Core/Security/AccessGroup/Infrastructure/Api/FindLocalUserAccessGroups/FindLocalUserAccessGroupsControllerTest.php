@@ -29,9 +29,9 @@ use Core\Security\AccessGroup\Application\UseCase\FindLocalUserAccessGroups\Find
 use Core\Security\AccessGroup\Infrastructure\Api\FindLocalUserAccessGroups\FindLocalUserAccessGroupsController;
 use Psr\Container\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
-use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
 beforeEach(function (): void {
     $this->useCase = $this->createMock(FindLocalUserAccessGroups::class);
@@ -61,10 +61,6 @@ beforeEach(function (): void {
         ->willReturn(true);
     $this->container->expects($this->any())
         ->method('get')
-        ->withConsecutive(
-            [$this->equalTo('security.authorization_checker')],
-            [$this->equalTo('parameter_bag')]
-        )
         ->willReturnOnConsecutiveCalls(
             $authorizationChecker,
             new class () {

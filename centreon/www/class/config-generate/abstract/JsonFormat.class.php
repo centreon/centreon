@@ -72,8 +72,8 @@ abstract class JsonFormat
     /**
      * Writes the content of the cache only if it is not empty.
      *
-     * @return int Number of bytes written
      * @throws Exception
+     * @return int Number of bytes written
      */
     public function flushContent(): int
     {
@@ -87,12 +87,15 @@ abstract class JsonFormat
             $writtenBytes = file_put_contents($this->filePath, $data);
             if ($writtenBytes === false) {
                 $file = $this->retrieveLastDirectory() . DIRECTORY_SEPARATOR . pathinfo($this->filePath)['basename'];
+
                 throw new Exception(
                     sprintf('Error while writing the \'%s\' file ', $file)
                 );
             }
+
             return $writtenBytes;
         }
+
         return 0;
     }
 
@@ -108,6 +111,7 @@ abstract class JsonFormat
             return '';
         }
         $directories = explode('/', pathinfo($this->filePath)['dirname']);
+
         return array_pop($directories);
     }
 }
