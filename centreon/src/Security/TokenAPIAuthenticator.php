@@ -175,9 +175,9 @@ class TokenAPIAuthenticator extends AbstractAuthenticator implements Authenticat
         try {
             $tokenString = $request->headers->get('X-AUTH-TOKEN');
             if ($tokenString && ! $this->readTokenRepository->isTokenTypeAuto($tokenString)) {
+                /** @var ApiToken $apiToken */
                 $apiToken = $this->readTokenRepository->find($tokenString);
                 if ($apiToken !== null) {
-                    /** @var ApiToken $apiToken */
                     $this->info(
                         'Api token used',
                         [
