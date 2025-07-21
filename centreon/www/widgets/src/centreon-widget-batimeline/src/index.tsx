@@ -1,13 +1,12 @@
 import type { CommonWidgetProps, Data } from '../../models';
 
-
+import { Module } from '@centreon/ui';
 import { equals, last, pluck } from 'ramda';
 import FederatedComponent from '../../../../front_src/src/components/FederatedComponents';
 import NoResources from '../../NoResources';
 import { areResourcesFullfilled } from '../../utils';
 import { PanelOptions } from './models';
 import { labelSelectBAToDisplayPreview } from './translatedLabels';
-import { Module } from '@centreon/ui';
 
 interface Props extends CommonWidgetProps<PanelOptions> {
   panelData: Data;
@@ -40,19 +39,19 @@ const Widget = ({
 
   return (
     <Module seedName="centreon-widget-batimeline" store={store}>
-    <FederatedComponent
-      dashboardId={dashboardId}
-      globalRefreshInterval={globalRefreshInterval}
-      id={id}
-      panelData={panelData}
-      panelOptions={panelOptions}
-      playlistHash={playlistHash}
-      refreshCount={refreshCount}
-      widgetPrefixQuery={widgetPrefixQuery}
-      path="/bam/widget/batimeline"
-      queryClient={queryClient}
-      store={store}
-    />
+      <FederatedComponent
+        dashboardId={dashboardId}
+        globalRefreshInterval={globalRefreshInterval}
+        id={id}
+        panelData={panelData}
+        panelOptions={panelOptions}
+        playlistHash={playlistHash}
+        refreshCount={refreshCount}
+        widgetPrefixQuery={widgetPrefixQuery}
+        path="/bam/widget/batimeline"
+        queryClient={queryClient}
+        store={store}
+      />
     </Module>
   );
 };

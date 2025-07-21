@@ -17,10 +17,10 @@ import {
 } from '../../models';
 import { areResourcesFullfilled, getWidgetEndpoint } from '../../utils';
 
+import { WidgetResourceType } from '../../../../front_src/src/Dashboards/SingleInstancePage/Dashboard/AddEditWidget/models';
 import { metricsTopDecoder } from './api/decoder';
 import { metricsTopEndpoint } from './api/endpoint';
 import { MetricsTop, TopBottomSettings } from './models';
-import { WidgetResourceType } from '../../../../front_src/src/Dashboards/SingleInstancePage/Dashboard/AddEditWidget/models';
 
 interface UseTopBottomProps
   extends Pick<
@@ -79,8 +79,8 @@ const useTopBottom = ({
             search: {
               lists: resources.map((resource) => ({
                 field: equals(resource.resourceType, 'hostgroup')
-                ? resourceTypeQueryParameter[WidgetResourceType.hostGroup]
-                : resourceTypeQueryParameter[resource.resourceType],
+                  ? resourceTypeQueryParameter[WidgetResourceType.hostGroup]
+                  : resourceTypeQueryParameter[resource.resourceType],
                 values: equals(resource.resourceType, 'service')
                   ? pluck('name', resource.resources)
                   : pluck('id', resource.resources)
