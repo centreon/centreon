@@ -144,12 +144,12 @@ final class PartialUpdateToken
         $this->writeRepository->update($token);
 
         $this->info('Update token succeeded', [
-                'event' => $requestDto->isRevoked ? 'Token revocation' : 'Token activation',
-                'datetime' => (new \DateTimeImmutable())->format('Y-m-d H:i:s'),
-                'requester_id' => $this->user->getId(),
-                'user_id' => $token instanceof ApiToken ? $token->getUserId() : null,
-                'token_type' => $token->getType()->name,
-                'token_name' => $token->getName(),
-            ]);
+            'event' => $requestDto->isRevoked ? 'Token revocation' : 'Token activation',
+            'datetime' => (new \DateTimeImmutable())->format('Y-m-d H:i:s'),
+            'requester_id' => $this->user->getId(),
+            'user_id' => $token instanceof ApiToken ? $token->getUserId() : null,
+            'token_type' => $token->getType()->name,
+            'token_name' => $token->getName(),
+        ]);
     }
 }
