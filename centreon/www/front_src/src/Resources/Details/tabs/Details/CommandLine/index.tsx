@@ -1,8 +1,7 @@
-import { isNil } from 'ramda';
+import { equals, isNil } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
 
 import { Typography } from '@mui/material';
-
 import { getCommandsWithArguments } from './utils';
 
 const useStyles = makeStyles()((theme) => ({
@@ -13,15 +12,16 @@ const useStyles = makeStyles()((theme) => ({
     display: 'flex',
     marginLeft: theme.spacing(1)
   },
-  command: {
+  primaryCommand: {
     fontWeight: 'bold'
-  },
-  pipe: {
-    marginRight: theme.spacing(1)
   },
   pipedCommand: {
     display: 'flex',
     flexDirection: 'row'
+  },
+  secondaryCommand: {
+    color: theme.palette.background.tooltip
+
   }
 }));
 
@@ -30,7 +30,7 @@ interface Props {
 }
 
 const CommandWithArguments = ({ commandLine }: Props): JSX.Element => {
-  const { classes } = useStyles();
+  const { classes, cx } = useStyles();
 
   const commands = getCommandsWithArguments(commandLine);
 
@@ -41,11 +41,14 @@ const CommandWithArguments = ({ commandLine }: Props): JSX.Element => {
           <div key={command}>
             <div className={classes.pipedCommand}>
               {index > 0 && (
-                <Typography className={classes.pipe} variant="body2">
-                  |
+                <Typography className={classes.secondaryCommand} variant="body2">
+                  --
                 </Typography>
               )}
-              <Typography className={classes.command} variant="body2">
+              <Typography
+                className={!equals(index, 0)?classes.secondaryCommand:classes.primaryCommand}
+                variant="body2"
+              >
                 {command}
               </Typography>
             </div>
