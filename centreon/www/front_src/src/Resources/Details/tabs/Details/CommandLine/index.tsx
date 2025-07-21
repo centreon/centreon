@@ -21,7 +21,6 @@ const useStyles = makeStyles()((theme) => ({
   },
   secondaryCommand: {
     color: theme.palette.background.tooltip
-
   }
 }));
 
@@ -30,7 +29,7 @@ interface Props {
 }
 
 const CommandWithArguments = ({ commandLine }: Props): JSX.Element => {
-  const { classes, cx } = useStyles();
+  const { classes } = useStyles();
 
   const commands = getCommandsWithArguments(commandLine);
 
@@ -41,12 +40,19 @@ const CommandWithArguments = ({ commandLine }: Props): JSX.Element => {
           <div key={command}>
             <div className={classes.pipedCommand}>
               {index > 0 && (
-                <Typography className={classes.secondaryCommand} variant="body2">
+                <Typography
+                  className={classes.secondaryCommand}
+                  variant="body2"
+                >
                   --
                 </Typography>
               )}
               <Typography
-                className={!equals(index, 0)?classes.secondaryCommand:classes.primaryCommand}
+                className={
+                  !equals(index, 0)
+                    ? classes.secondaryCommand
+                    : classes.primaryCommand
+                }
                 variant="body2"
               >
                 {command}

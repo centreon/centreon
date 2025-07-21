@@ -31,8 +31,6 @@ const getCommandsWithArguments = (
 };
 
 const getCommandWithArguments = (commandLine: string): CommandWithArguments => {
-
-
   const commandWithArguments = commandParser(commandLine);
 
   const [command, ...args] = commandWithArguments;
