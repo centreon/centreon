@@ -24382,7 +24382,7 @@ msgstr "Puede ver la lista completa del proyecto Centeronsur Github"
 # msgstr ""
 
 # msgid "Enter regex"
-# msgstr "Saisir une regex"
+# msgstr ""
 
 # msgid "Do you want to switch to classic mode?"
 # msgstr ""

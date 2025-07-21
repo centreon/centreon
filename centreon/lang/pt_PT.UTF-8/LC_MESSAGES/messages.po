@@ -23004,7 +23004,7 @@ msgstr "período de tempo"
 # msgstr ""
 
 # msgid "Enter regex"
-# msgstr "Saisir une regex"
+# msgstr ""
 
 # msgid "Do you want to switch to classic mode?"
 # msgstr ""
