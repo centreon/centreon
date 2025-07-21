@@ -40,7 +40,7 @@ import {
   type ResourceStatus,
   type StatusGridProps
 } from './models';
-import { getColor } from './utils';
+import { getColor, seeMoreTileId } from './utils';
 
 const StatusGrid = ({
   globalRefreshInterval,
@@ -216,8 +216,10 @@ const StatusGrid = ({
   const seeMoreTile = hasMoreResources
     ? {
         backgroundColor: theme.palette.background.paper,
-        data: null,
-        id: 'see-more'
+        data: {
+          type: panelOptions.resourceType
+        },
+        id: seeMoreTileId
       }
     : undefined;
 
@@ -227,7 +229,7 @@ const StatusGrid = ({
       tiles={[...resourceTiles, seeMoreTile].filter((v) => v)}
       tooltipContent={isOnPublicPage ? undefined : Tooltip()}
     >
-      {({ isSmallestSize, data: resourceData, tileSize, isMediumSize }) => (
+      {({ isSmallestSize, data: resourceData, tileSize, isMediumSize, id }) => (
         <Tile
           data={resourceData}
           isBAResourceType={isBVResourceType || isBAResourceType}
@@ -237,6 +239,7 @@ const StatusGrid = ({
           type={resourceData?.type}
           tileSize={tileSize}
           isMediumSize={isMediumSize}
+          isSeeMoreTile={id === seeMoreTileId}
         />
       )}
     </HeatMap>

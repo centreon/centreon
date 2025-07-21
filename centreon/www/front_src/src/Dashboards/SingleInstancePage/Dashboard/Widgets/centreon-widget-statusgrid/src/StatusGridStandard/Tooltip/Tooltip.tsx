@@ -6,6 +6,7 @@ import BATooltipContent from './BATooltipContent';
 import BooleanTooltipContent from './BooleanTooltipContent';
 import HostTooltipContent from './HostTooltipContent';
 import ServiceTooltipContent from './ServiceTooltipContent';
+import { seeMoreTileId } from '../utils';
 
 interface Props {
   data: ResourceData;
@@ -29,6 +30,8 @@ export const StatusTooltip = ({ resourceType, data }: Props): JSX.Element => {
 };
 
 export default () =>
-  ({ data }: Pick<Props, 'data'>) => (
-    <StatusTooltip data={data} resourceType={data?.type} />
-  );
+  ({ data, id }: Pick<Props, 'data' | 'id'>) => {
+    return id === seeMoreTileId ? null : (
+      <StatusTooltip data={data} resourceType={data?.type} />
+    );
+  };

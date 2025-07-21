@@ -261,6 +261,7 @@ parameters:
 		-
 			message: '#^Unknown parameter \$isRemote in call to function updateContactInDB\.$#'
 			identifier: argument.unknown
+			reportUnmatched: false
 			count: 1
 			path: www/include/configuration/configObject/contact/formContact.php
 
