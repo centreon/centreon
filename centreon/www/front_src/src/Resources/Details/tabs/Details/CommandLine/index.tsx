@@ -2,6 +2,7 @@ import { equals, isNil } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
 
 import { Typography } from '@mui/material';
+
 import { getCommandsWithArguments } from './utils';
 
 const useStyles = makeStyles()((theme) => ({
@@ -12,12 +13,12 @@ const useStyles = makeStyles()((theme) => ({
     display: 'flex',
     marginLeft: theme.spacing(1)
   },
-  primaryCommand: {
-    fontWeight: 'bold'
-  },
   pipedCommand: {
     display: 'flex',
     flexDirection: 'row'
+  },
+  primaryCommand: {
+    fontWeight: 'bold'
   },
   secondaryCommand: {
     color: theme.palette.background.tooltip
