@@ -14,15 +14,10 @@ inputs:
   module_name:
     required: true
     description: module name
-  ticket_labels:
+  ticket_reason_for_creation:
     required: true
-    description: ticket labels, usually Pipeline + Nightly/Veracode + x
-    default: 'Pipeline'
-  ticket_squad:
-    required: true
-    description: id of the squad to assign the ticket to
-    default: 'DevSecOps'
-
+    description: reason for ticket creation
+    default: "Nightly"
 
 runs:
   using: "composite"
@@ -32,11 +27,7 @@ runs:
     - name: Get ticket elements from context
       id: get_context
       run: |
-        # Safely set/unset IFS in order to properly parse the table of labels
-        [ -n "${IFS+set}" ] && saved_IFS=$IFS
-        IFS=', ' read -a ticket_labels <<< $(echo "${{ inputs.ticket_labels }}" | tr -d "[],'")
-        unset IFS
-        [ -n "${saved_IFS+set}" ] && { IFS=$saved_IFS; unset saved_IFS; }
+        ticket_labels=("Nightly" "Pipeline" "${{ inputs.ticket_reason_for_creation }}")
 
         # Change the context elements (summary, parent epic, etc.) that are checked depending on these ticket labels
         if [[ "${ticket_labels[@]}" =~ "Veracode" ]]; then

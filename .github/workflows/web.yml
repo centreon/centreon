@@ -1343,8 +1343,9 @@ jobs:
 
     - name: Create Jira ticket based on nightly build failure
       uses: ./.github/actions/create-jira-ticket
-          with:
-            jira_base_url: ${{ secrets.JIRA_BASE_URL }}
-            jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
-            jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
-            module_name: "centreon-web"
+      with:
+        jira_base_url: ${{ secrets.JIRA_BASE_URL }}
+        jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
+        jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
+        module_name: "centreon-web"
+        ticket_reason_for_creation: "Nightly"
