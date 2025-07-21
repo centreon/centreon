@@ -27,6 +27,9 @@ use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
+/**
+ * @extends Voter<string, mixed>
+ */
 final class EngineVoter extends Voter
 {
     public const READ_ENGINE_SECRETS = 'read_engine_secrets';
@@ -44,7 +47,5 @@ final class EngineVoter extends Voter
         }
 
         return $user->isAdmin();
-
     }
 }
-

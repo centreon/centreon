@@ -35,13 +35,11 @@ final readonly class GetEngineSecrets
     }
 
     /**
-     * @return EngineSecrets
-     *
      * @throws RepositoryException|AssertionException
+     * @return EngineSecrets
      */
     public function __invoke(): EngineSecrets
     {
         return $this->engineRepository->getEngineSecrets();
     }
 }
-
