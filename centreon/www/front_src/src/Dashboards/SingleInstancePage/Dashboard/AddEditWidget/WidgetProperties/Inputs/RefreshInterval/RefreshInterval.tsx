@@ -27,6 +27,8 @@ const RefreshInterval = ({
     propertyName
   });
 
+  console.log('RefreshInterval rendered', options);
+
   const { canEditField } = useCanEditProperties();
 
   const Label = useMemo(() => (isInGroup ? Typography : Subtitle), [isInGroup]);

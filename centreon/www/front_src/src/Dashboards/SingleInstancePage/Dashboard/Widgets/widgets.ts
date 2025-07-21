@@ -84,7 +84,8 @@ const internalWidgets: Array<
   { name: 'statuschart', panelMinWidth: 4, panelMinHeight: 3 },
   { name: 'statusgrid', panelDefaultHeight: 3 },
   { name: 'topbottom' },
-  { name: 'webpage' }
+  { name: 'webpage' },
+  { name: 'mbinearsaturationstorage' }, // TODO: default size like other widgets
 ];
 
 export const internalWidgetComponents: Array<FederatedModule> =
