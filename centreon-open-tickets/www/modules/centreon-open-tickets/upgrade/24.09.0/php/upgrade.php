@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 /*
  * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
@@ -28,8 +30,7 @@ $centreonLog = new CentreonLog();
 $versionOfTheUpgrade = 'UPGRADE - 24.09.0';
 $errorMessage = '';
 
-$insertSubmitTicketTopology = function (CentreonDB $pearDB) use (&$errorMessage): void
-{
+$insertSubmitTicketTopology = function (CentreonDB $pearDB) use (&$errorMessage): void {
     $errorMessage = 'Could not insert SubmitTicket form topology';
     $statement = $pearDB->query('SELECT 1 FROM topology WHERE topology_page = 60421');
     if ((bool) $statement->fetchColumn() === false) {

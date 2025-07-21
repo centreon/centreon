@@ -473,120 +473,148 @@ jobs:
       - name: 🛠️ Rector checks
         working-directory: centreon
         run: |
-          echo "Run of these Rector tests: rector:legacy, rector:core, rector:new" && set -e
+         echo "Run of these Rector tests: rector:legacy, rector:core, rector:new" && set -e
 
-          {
-            composer rector:legacy -- --no-progress-bar && echo "✅ Rector Legacy: Success" || { echo "❌ Rector Legacy: Failed"; exit 1; }
-          } &
-          pids+=($!)
+         pids=()
+         statuses=()
 
-          {
-            composer rector:core -- --no-progress-bar && echo "✅ Rector Core: Success" || { echo "❌ Rector Core: Failed"; exit 1; }
-          } &
-          pids+=($!)
+         run_task() {
+           name=$1
+           shift
+           "$@" -- --no-progress-bar
+           result=$?
+           if [ $result -eq 0 ]; then
+             echo "✅ Rector $name: Success"
+           else
+             echo "❌ Rector $name: Failed"
+           fi
+           return $result
+         }
 
-          {
-            composer rector:new -- --no-progress-bar && echo "✅ Rector New: Success" || { echo "❌ Rector New: Failed"; exit 1; }
-          } &
-          pids+=($!)
+         # Start tasks in background
+         run_task legacy composer rector:legacy & pids+=($!)
+         run_task core composer rector:core & pids+=($!)
+         run_task new composer rector:new & pids+=($!)
 
-          if ! wait -n; then
-            kill "${pids[@]}" 2>/dev/null || true
-            exit 1
-          fi
+         # Wait for all, and record if any failed
+         exit_code=0
+         for pid in "${pids[@]}"; do
+           if ! wait "$pid"; then
+             exit_code=1
+           fi
+         done
 
-          wait
+         exit $exit_code
 
       - name: 🧹 PHP-CS-Fixer checks
         working-directory: centreon
         run: |
           echo "Run of these PHP-CS-Fixer tests: cs:legacy, cs:core, cs:new" && set -e
 
-          {
-            composer cs:legacy -- --format=txt --show-progress=none && echo "✅ PHP-CS-Fixer Legacy (www, src, tests): Success" || { echo "❌ PHP-CS-Fixer Legacy (www, src, tests): Failed"; exit 1; }
-          } &
-          pids+=($!)
+          pids=()
+          statuses=()
 
-          {
-            composer cs:core -- --format=txt --show-progress=none && echo "✅ PHP-CS-Fixer Core: Success" || { echo "❌ PHP-CS-Fixer Core: Failed"; exit 1; }
-          } &
-          pids+=($!)
+          run_task() {
+            name=$1
+            shift
+            "$@" -- --format=txt --show-progress=none
+            result=$?
+            if [ $result -eq 0 ]; then
+            echo "✅ PHP-CS-Fixer $name: Success"
+            else
+            echo "❌ PHP-CS-Fixer $name: Failed"
+            fi
+            return $result
+          }
 
-          {
-            composer cs:new -- --format=txt --show-progress=none && echo "✅ PHP-CS-Fixer New: Success" || { echo "❌ PHP-CS-Fixer New: Failed"; exit 1; }
-          } &
-          pids+=($!)
+          # Start tasks in background
+          run_task legacy composer cs:legacy & pids+=($!)
+          run_task core composer cs:core & pids+=($!)
+          run_task new composer cs:new & pids+=($!)
 
-          if ! wait -n; then
-            kill "${pids[@]}" 2>/dev/null || true
-            exit 1
-          fi
+          # Wait for all, and record if any failed
+          exit_code=0
+          for pid in "${pids[@]}"; do
+            if ! wait "$pid"; then
+              exit_code=1
+            fi
+          done
 
-          wait
+          exit $exit_code
 
       - name: 🔍 PHPStan checks
         working-directory: centreon
         run: |
           echo "Run of these PHPStan tests: stan:legacy:www, stan:legacy:src, stan:legacy:test, stan:core, stan:core:test, stan:new, stan:new:test" && set -e
 
-          {
-            composer stan:legacy:www -- --no-progress && echo "✅ PHPStan Legacy (www): Success" || { echo "❌ PHPStan Legacy (www): Failed"; exit 1; }
-          } &
-          pids+=($!)
+          pids=()
+          statuses=()
 
-          {
-            composer stan:legacy:src -- --no-progress && echo "✅ PHPStan Legacy (src): Success" || { echo "❌ PHPStan Legacy (src): Failed"; exit 1; }
-          } &
-          pids+=($!)
+          run_task() {
+            name=$1
+            shift
+            "$@" -- --no-progress
+            result=$?
+            if [ $result -eq 0 ]; then
+              echo "✅ PHPStan $name: Success"
+            else
+              echo "❌ PHPStan $name: Failed"
+            fi
+            return $result
+          }
 
-          {
-            composer stan:legacy:test -- --no-progress && echo "✅ PHPStan Legacy (test): Success" || { echo "❌ PHPStan Legacy (test): Failed"; exit 1; }
-          } &
-          pids+=($!)
+          # Start tasks in background
+          run_task legacy:www composer stan:legacy:www & pids+=($!)
+          run_task legacy:src composer stan:legacy:src & pids+=($!)
+          run_task legacy:test composer stan:legacy:test & pids+=($!)
+          run_task core:src composer stan:core:src & pids+=($!)
+          run_task core:test composer stan:core:test & pids+=($!)
+          run_task new:src composer stan:new:src & pids+=($!)
+          run_task new:test composer stan:new:test & pids+=($!)
 
-          {
-            composer stan:core:src -- --no-progress && echo "✅ PHPStan Core (src): Success" || { echo "❌ PHPStan Core (src): Failed"; exit 1; }
-          } &
-          pids+=($!)
+          # Wait for all, and record if any failed
+          exit_code=0
+          for pid in "${pids[@]}"; do
+            if ! wait "$pid"; then
+              exit_code=1
+            fi
+          done
 
-          {
-            composer stan:core:test -- --no-progress && echo "✅ PHPStan Core (test): Success" || { echo "❌ PHPStan Core (test): Failed"; exit 1; }
-          } &
-          pids+=($!)
-
-          {
-            composer stan:new:src -- --no-progress && echo "✅ PHPStan New (src): Success" || { echo "❌ PHPStan New (src): Failed"; exit 1; }
-          } &
-          pids+=($!)
-
-          {
-            composer stan:new:test -- --no-progress && echo "✅ PHPStan New (test): Success" || { echo "❌ PHPStan New (test): Failed"; exit 1; }
-          } &
-          pids+=($!)
-
-          if ! wait -n; then
-            kill "${pids[@]}" 2>/dev/null || true
-            exit 1
-          fi
-
-          wait
+          exit $exit_code
 
       - name: 📐 Deptrac checks
         working-directory: centreon
         run: |
           echo "Run of these Deptrac tests: dep:new" && set -e
 
-          {
-            composer dep:new -- --no-progress --formatter=github-actions && echo "✅ Deptrac New: Success" || { echo "❌ Deptrac New: Failed"; exit 1; }
-          } &
-          pids+=($!)
+          pids=()
+          statuses=()
 
-          if ! wait -n; then
-            kill "${pids[@]}" 2>/dev/null || true
-            exit 1
-          fi
+          run_task() {
+            name=$1
+            shift
+            "$@" -- --no-progress
+            result=$?
+            if [ $result -eq 0 ]; then
+              echo "✅ Deptrac $name: Success"
+            else
+              echo "❌ Deptrac $name: Failed"
+            fi
+            return $result
+          }
 
-          wait
+          # Start tasks in background
+          run_task new composer dep:new & pids+=($!)
+
+          # Wait for all, and record if any failed
+          exit_code=0
+          for pid in "${pids[@]}"; do
+            if ! wait "$pid"; then
+              exit_code=1
+            fi
+          done
+
+          exit $exit_code
 
   package:
     needs:
