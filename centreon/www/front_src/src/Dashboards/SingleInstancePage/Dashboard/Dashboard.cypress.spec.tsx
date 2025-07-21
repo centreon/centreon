@@ -55,7 +55,7 @@ import {
   labelUpdate
 } from '../../translatedLabels';
 import Dashboard from './Dashboard';
-import { dashboardAtom } from './atoms';
+import { dashboardAtom, isRedirectionBlockedAtom } from './atoms';
 import { routerParams } from './hooks/useDashboardDetails';
 import { saveBlockerHooks } from './hooks/useDashboardSaveBlocker';
 import {
@@ -765,15 +765,18 @@ describe('Dashboard', () => {
 
   describe('Route blocking', () => {
     it('saves changes when a dashboard is being edited, a dashboard is updated, the user goes to another page and the corresponding button is clicked', () => {
-      initializeAndMount({
-        ...editorRoles,
-        isBlocked: true
+      const { store } = initializeAndMount({
+        ...editorRoles
       });
 
       cy.contains(labelEditDashboard).click();
 
       cy.findAllByLabelText(labelMoreActions).eq(0).click();
       cy.findByLabelText(labelDuplicate).click();
+
+      cy.then(() => {
+        store.set(isRedirectionBlockedAtom, true);
+      });
 
       cy.contains(labelDoYouWantToSaveChanges).should('be.visible');
       cy.contains(labelIfYouClickOnDiscard).should('be.visible');
@@ -798,13 +801,17 @@ describe('Dashboard', () => {
     });
 
     it('does not save changes when a dashboard is being edited, a dashboard is updated, the user goes to another page and the corresponding button is clicked', () => {
-      const { proceedNavigation } = initializeAndMount({
-        ...editorRoles,
-        isBlocked: true
+      const { store, proceedNavigation } = initializeAndMount({
+        ...editorRoles
       });
+
 
       cy.findAllByLabelText(labelMoreActions).eq(0).click();
       cy.findByLabelText(labelDuplicate).click();
+
+      cy.then(() => {
+        store.set(isRedirectionBlockedAtom, true);
+      });
 
       cy.findByTestId('cancel')
         .click()
@@ -816,13 +823,16 @@ describe('Dashboard', () => {
     });
 
     it('blocks the redirection when a dashboard is being edited, a dashboard is updated, the user goes to another page and the close button is clicked', () => {
-      const { blockNavigation } = initializeAndMount({
-        ...editorRoles,
-        isBlocked: true
+      const { store, blockNavigation } = initializeAndMount({
+        ...editorRoles
       });
 
       cy.findAllByLabelText(labelMoreActions).eq(0).click();
       cy.findByLabelText(labelDuplicate).click();
+
+      cy.then(() => {
+        store.set(isRedirectionBlockedAtom, true);
+      });
 
       cy.findByLabelText('close')
         .click()
