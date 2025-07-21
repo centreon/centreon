@@ -27,6 +27,7 @@ use Centreon\Domain\Contact\Interfaces\ContactRepositoryInterface;
 use Centreon\Domain\Exception\ContactDisabledException;
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Security\Token\Application\Repository\ReadTokenRepositoryInterface;
+use Core\Security\Token\Domain\Model\ApiToken;
 use Security\Domain\Authentication\Interfaces\AuthenticationRepositoryInterface;
 use Security\Domain\Authentication\Model\LocalProvider;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -176,6 +177,7 @@ class TokenAPIAuthenticator extends AbstractAuthenticator implements Authenticat
             if ($tokenString && ! $this->readTokenRepository->isTokenTypeAuto($tokenString)) {
                 $apiToken = $this->readTokenRepository->find($tokenString);
                 if ($apiToken !== null) {
+                    /** @var ApiToken $apiToken */
                     $this->info(
                         'Api token used',
                         [
