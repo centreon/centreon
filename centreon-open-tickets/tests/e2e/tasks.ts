@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
-import { execSync } from 'child_process';
-import { existsSync, mkdirSync } from 'fs';
+import { execSync } from 'node:child_process';
+import { existsSync, mkdirSync } from 'node:fs';
 import path from 'path';
 
 import tar from 'tar-fs';
@@ -23,7 +23,7 @@ export default (on: Cypress.PluginEvents): void => {
   const containers: Containers = {};
 
   const getContainer = (containerName): StartedTestContainer => {
-    let container;
+    let container: StartedTestContainer;
 
     if (dockerEnvironment !== null) {
       container = dockerEnvironment.getContainer(`${containerName}-1`);
@@ -69,7 +69,7 @@ export default (on: Cypress.PluginEvents): void => {
             });
         }
       } catch (error) {
-        console.error(error);
+        cy.log(String(error));
       }
 
       return null;
@@ -95,7 +95,7 @@ export default (on: Cypress.PluginEvents): void => {
 
       return null;
     },
-    createDirectory: async (directoryPath: string) => {
+    createDirectory: (directoryPath: string) => {
       if (!existsSync(directoryPath)) {
         mkdirSync(directoryPath, { recursive: true });
       }
@@ -134,8 +134,8 @@ export default (on: Cypress.PluginEvents): void => {
           return acc;
         }, {});
       } catch (error) {
-        console.warn('Cannot get containers logs');
-        console.warn(error);
+        cy.log('Cannot get containers logs');
+        cy.log(String(error));
 
         return null;
       }
@@ -223,7 +223,7 @@ export default (on: Cypress.PluginEvents): void => {
         return null;
       } catch (error) {
         if (error instanceof Error) {
-          console.error(error.message);
+          cy.log(error.message);
         }
 
         throw error;
@@ -250,7 +250,16 @@ export default (on: Cypress.PluginEvents): void => {
       return null;
     },
     waitOn: async (url: string) => {
-      execSync(`npx wait-on ${url}`);
+      const { exec } = await import('node:child_process');
+      await new Promise<void>((resolve, reject) => {
+        exec(`npx wait-on ${url}`, (error) => {
+          if (error) {
+            reject(error);
+          } else {
+            resolve();
+          }
+        });
+      });
 
       return null;
     }

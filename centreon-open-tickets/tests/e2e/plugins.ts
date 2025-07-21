@@ -2,7 +2,7 @@
 /* eslint-disable global-require */
 /* eslint-disable @typescript-eslint/no-var-requires */
 /* eslint-disable no-param-reassign */
-import fs from 'fs';
+import fs from 'node:fs';
 import path from 'path';
 
 export default (
@@ -48,11 +48,7 @@ export default (
     }
 
     // Save the testRetries object to a file in the e2e/results directory
-    const resultFilePath = path.join(
-      __dirname,
-      'results',
-      'retries.json'
-    );
+    const resultFilePath = path.join(__dirname, 'results', 'retries.json');
 
     fs.writeFileSync(resultFilePath, JSON.stringify(testRetries, null, 2));
   });
