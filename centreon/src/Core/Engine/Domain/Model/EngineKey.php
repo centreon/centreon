@@ -29,6 +29,6 @@ final readonly class EngineKey
 {
     public function __construct(public string $key)
     {
-        Assertion::notEmptyString($key, 'EngineSecrets::key');
+        Assertion::notEmptyString($key, 'EngineKey::key');
     }
 }
