@@ -19691,37 +19691,37 @@ msgstr "Adresse6"
 # msgstr ""
 
 # msgid "Business Activity availability history"
-# msgstr "Historique de la disponibilité d’une Activité Métier"
+# msgstr ""
 
 # msgid "Displays the availability history of a Business Activity or a Business View for a given period."
-# msgstr "Affiche l’historique de la disponibilité d'une activité métier ou vue métier pour une période donnée."
+# msgstr ""
 
 # msgid "Aggregation frequency"
-# msgstr "Fréquence d'agrégation"
+# msgstr ""
 
 # msgid "Reporting period"
-# msgstr "Période de génération"
+# msgstr ""
 
 # msgid "This month"
-# msgstr "Ce mois-ci"
+# msgstr ""
 
 # msgid "This year"
-# msgstr "Cette année"
+# msgstr ""
 
 # msgid "Display availability and performance as"
-# msgstr "Afficher la disponibilité comme"
+# msgstr ""
 
 # msgid "Y-axis boundaries"
-# msgstr "Limitations de l'axe Y"
+# msgstr ""
 
 # msgid "Thresholds can be hidden if the custom min and max values of the Y axis are below/above the thresholds."
-# msgstr "Les seuils peuvent être masqués si les valeurs min et max personnalisées de l'axe Y sont inférieures/supérieures aux seuils."
+# msgstr ""
 
 # msgid "By default, the data of Business Views is aggregated monthly over the past 12 months (if available)."
-# msgstr "Par défaut, les données des vues métier sont agrégées mensuellement sur les 12 derniers mois (si disponibles)."
+# msgstr ""
 
 # msgid "Custom boundaries apply to the percentage."
-# msgstr "Les limitations personnalisées s'appliquent au pourcentage."
+# msgstr ""
 
 #  msgid "Display view:"
 #  msgstr ""
