@@ -9,7 +9,7 @@ on:
         type: string
       selected_test:
         description: 'Select the JMeter test to run'
-        required: true
+        required: false
         type: choice
         options:
           - test.jmx
