@@ -143,12 +143,53 @@ $flagContactsAsServiceAccount = function () use ($pearDB, &$errorMessage): void 
     );
 };
 
-try {
-    // DDL statements for real time database
-    // TODO add your function calls to update the real time database structure here
+/**
+ * @var CentreonDB $pearDB
+ */
+$addImageFolderResourceAccessRelationTable = function () use ($pearDB, &$errorMessage): void {
+    $errorMessage = 'Failed to create relation table acl_resources_image_folder_relations';
 
-    // DDL statements for configuration database
-    // TODO add your function calls to update the configuration database structure here
+    $pearDB->executeStatement(
+        <<<'SQL'
+                CREATE TABLE IF NOT EXISTS `acl_resources_image_folder_relations` (
+                      `dir_id` int(11) DEFAULT NULL COMMENT 'Unique identifier of the image folder',
+                      `acl_res_id` int(11) DEFAULT NULL COMMENT 'Unique identifier of the ACL resource',
+                      KEY `dir_id` (`dir_id`),
+                      KEY `acl_res_id` (`acl_res_id`),
+                      CONSTRAINT `acl_resources_image_folder_relations_ibfk_1` FOREIGN KEY (`dir_id`) REFERENCES `view_img_dir` (`dir_id`) ON DELETE CASCADE,
+                      CONSTRAINT `acl_resources_image_folder_relations_ibfk_2` FOREIGN KEY (`acl_res_id`) REFERENCES `acl_resources` (`acl_res_id`) ON DELETE CASCADE
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Relation table between ACL resources and image folders';
+            SQL
+    );
+};
+
+/**
+ * @var CentreonDB $pearDB
+ */
+$addAllImageFoldersColumn = function () use ($pearDB, &$errorMessage): void {
+    $errorMessage = 'Failed to add column all_image_folders to acl_resources table';
+
+    if (! $pearDB->isColumnExist('acl_resources', 'all_image_folders')) {
+        $pearDB->executeStatement(
+            <<<'SQL'
+                    ALTER TABLE acl_resources ADD COLUMN `all_image_folders` TINYINT NOT NULL DEFAULT '0' AFTER `all_servicegroups`
+                SQL
+        );
+    }
+};
+
+$updateOnPremiseACLs = function () use ($pearDB, &$errorMessage): void {
+    $errorMessage = 'Failed to set all_image_folders to 1 for existing acl resource accesses';
+    $pearDB->update(
+        <<<'SQL'
+                UPDATE acl_resources SET all_image_folders = '1' WHERE cloud_specific = '0'
+            SQL
+    );
+};
+
+try {
+    $addImageFolderResourceAccessRelationTable();
+    $addAllImageFoldersColumn();
 
     // Transactional queries for configuration database
     if (! $pearDB->inTransaction()) {
@@ -161,6 +202,7 @@ try {
     $bbdoCfgUpdate();
     $addResourceStatusSearchModeOption();
     $flagContactsAsServiceAccount();
+    $updateOnPremiseACLs();
 
     $pearDB->commit();
 

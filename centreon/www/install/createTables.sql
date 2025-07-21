@@ -108,6 +108,7 @@ CREATE TABLE `acl_resources` (
   `all_hosts` enum('0','1') DEFAULT NULL COMMENT '0: means a list of specific hosts were selected. 1: means all hosts (old and new)',
   `all_hostgroups` enum('0','1') DEFAULT NULL COMMENT '0: means a list of specific host groups were selected. 1: means all host groups (old and new)',
   `all_servicegroups` enum('0','1') DEFAULT NULL COMMENT '0: means a list of specific service groups were selected. 1: means all service groups (old and new)',
+  `all_image_folders` tinyint NOT NULL DEFAULT '1' COMMENT '0: means a list of specific image folders were selected. 1: means all image folders (old and new)',
   `acl_res_activate` enum('0','1','2') DEFAULT NULL COMMENT 'Indicates if the resource access rule is active or not',
   `acl_res_comment` text COMMENT 'Comment on the resource access rule',
   `acl_res_status` enum('0','1') DEFAULT NULL COMMENT 'Indicates if the resource access rule is locked or not',
@@ -232,6 +233,17 @@ CREATE TABLE `acl_resources_sg_relations` (
   CONSTRAINT `acl_resources_sg_relations_ibfk_2` FOREIGN KEY (`acl_res_id`) REFERENCES `acl_resources` (`acl_res_id`) ON DELETE CASCADE,
   CONSTRAINT `acl_resources_sg_relations_ibfk_1` FOREIGN KEY (`sg_id`) REFERENCES `servicegroup` (`sg_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Relation table between ACL resources and service groups';
+/*!40101 SET character_set_client = @saved_cs_client */;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `acl_resources_image_folder_relations` (
+  `dir_id` int(11) DEFAULT NULL COMMENT 'Unique identifier of the image folder',
+  `acl_res_id` int(11) DEFAULT NULL COMMENT 'Unique identifier of the ACL resource',
+  KEY `dir_id` (`dir_id`),
+  KEY `acl_res_id` (`acl_res_id`),
+  CONSTRAINT `acl_resources_image_folder_relations_ibfk_1` FOREIGN KEY (`dir_id`) REFERENCES `view_img_dir` (`dir_id`) ON DELETE CASCADE,
+  CONSTRAINT `acl_resources_image_folder_relations_ibfk_2` FOREIGN KEY (`acl_res_id`) REFERENCES `acl_resources` (`acl_res_id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Relation table between ACL resources and media directories';
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;

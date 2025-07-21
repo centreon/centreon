@@ -29,10 +29,14 @@ $searchStr = '';
 $search = null;
 
 if (isset($_POST['searchACLR'])) {
-    $search = HtmlAnalyzer::sanitizeAndRemoveTags($_POST['searchACLR']);
+    $search = HtmlSanitizer::createFromString($_POST['searchACLR'])
+        ->removeTags()
+        ->getString();
     $centreon->historySearch[$url] = $search;
 } elseif (isset($_GET['searchACLR'])) {
-    $search = HtmlAnalyzer::sanitizeAndRemoveTags($_GET['searchACLR']);
+    $search = HtmlSanitizer::createFromString($_GET['searchACLR'])
+        ->removeTags()
+        ->getString();
     $centreon->historySearch[$url] = $search;
 } elseif (isset($centreon->historySearch[$url])) {
     $search = $centreon->historySearch[$url];
@@ -43,7 +47,7 @@ if ($search) {
 }
 $rq = "
     SELECT SQL_CALC_FOUND_ROWS acl_res_id, acl_res_name, acl_res_alias, all_hosts, all_hostgroups,
-    all_servicegroups, acl_res_activate FROM acl_resources
+    all_servicegroups, all_image_folders, acl_res_activate FROM acl_resources
     WHERE locked = 0 AND cloud_specific = 0 {$searchStr}
     ORDER BY acl_res_name
     LIMIT :num, :limit
@@ -70,6 +74,7 @@ $tpl->assign('headerMenu_contacts', _('Contacts'));
 $tpl->assign('headerMenu_allH', _('All Hosts'));
 $tpl->assign('headerMenu_allHG', _('All Hostgroups'));
 $tpl->assign('headerMenu_allSG', _('All Servicegroups'));
+$tpl->assign('headerMenu_allImageFolders', _('All Medias'));
 $tpl->assign('headerMenu_status', _('Status'));
 $tpl->assign('headerMenu_options', _('Options'));
 
@@ -104,13 +109,27 @@ for ($i = 0; $resources = $statement->fetchRow(); $i++) {
         . "return false;\" maxlength=\"3\" size=\"3\" value='1' style=\"margin-bottom:0px;\" name='dupNbr["
         . $resources['acl_res_id'] . "]'></input>";
 
-    // Contacts
     $allHostgroups = (isset($resources['all_hostgroups']) && $resources['all_hostgroups'] == 1 ? _('Yes') : _('No'));
     $allServicegroups = (isset($resources['all_servicegroups']) && $resources['all_servicegroups'] == 1
         ? _('Yes')
         : _('No'));
 
-    $elemArr[$i] = ['MenuClass' => 'list_' . $style, 'RowMenu_select' => $selectedElements->toHtml(), 'RowMenu_name' => $resources['acl_res_name'], 'RowMenu_alias' => myDecode($resources['acl_res_alias']), 'RowMenu_all_hosts' => (isset($resources['all_hosts']) && $resources['all_hosts'] == 1 ? _('Yes') : _('No')), 'RowMenu_all_hostgroups' => $allHostgroups, 'RowMenu_all_servicegroups' => $allServicegroups, 'RowMenu_link' => 'main.php?p=' . $p . '&o=c&acl_res_id=' . $resources['acl_res_id'], 'RowMenu_status' => $resources['acl_res_activate'] ? _('Enabled') : _('Disabled'), 'RowMenu_badge' => $resources['acl_res_activate'] ? 'service_ok' : 'service_critical', 'RowMenu_options' => $moptions];
+    $allImageFolders = (isset($resources['all_image_folders']) && $resources['all_image_folders'] == 1 ? _('Yes') : _('No'));
+
+    $elemArr[$i] = [
+        'MenuClass' => 'list_' . $style,
+        'RowMenu_select' => $selectedElements->toHtml(),
+        'RowMenu_name' => $resources['acl_res_name'],
+        'RowMenu_alias' => myDecode($resources['acl_res_alias']),
+        'RowMenu_all_hosts' => (isset($resources['all_hosts']) && $resources['all_hosts'] == 1 ? _('Yes') : _('No')),
+        'RowMenu_all_hostgroups' => $allHostgroups,
+        'RowMenu_all_servicegroups' => $allServicegroups,
+        'RowMenu_all_image_folders' => $allImageFolders,
+        'RowMenu_link' => 'main.php?p=' . $p . '&o=c&acl_res_id=' . $resources['acl_res_id'],
+        'RowMenu_status' => $resources['acl_res_activate'] ? _('Enabled') : _('Disabled'),
+        'RowMenu_badge' => $resources['acl_res_activate'] ? 'service_ok' : 'service_critical',
+        'RowMenu_options' => $moptions,
+    ];
 
     $style = $style != 'two' ? 'two' : 'one';
 }

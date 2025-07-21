@@ -223,7 +223,8 @@ final class AddRule
             name: $datasetName,
             accessAllHosts: true,
             accessAllHostGroups: true,
-            accessAllServiceGroups: true
+            accessAllServiceGroups: true,
+            accessAllImageFolders: true
         );
 
         // And link it to the rule
@@ -259,7 +260,8 @@ final class AddRule
                     name: $datasetName,
                     accessAllHosts: false,
                     accessAllHostGroups: false,
-                    accessAllServiceGroups: false
+                    accessAllServiceGroups: false,
+                    accessAllImageFolders: false
                 );
 
                 // And link it to the rule

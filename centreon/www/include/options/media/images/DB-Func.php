@@ -19,6 +19,8 @@
  *
  */
 
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
 use enshrined\svgSanitize\Sanitizer;
 
 if (! isset($oreon)) {
@@ -401,24 +403,58 @@ function updateDirectory($dir_id, $dir_alias, $dir_comment = '')
 
 function getListDirectory($filter = null)
 {
-    global $pearDB;
+    global $pearDB, $centreon;
 
-    $query = 'SELECT dir_id, dir_name FROM view_img_dir ';
-    if (! is_null($filter) && strlen($filter) > 0) {
-        $query .= "WHERE dir_name LIKE '" . $filter . "%' ";
-    }
-    $query .= 'ORDER BY dir_name';
-    $list_dir = [];
-    $dbresult = $pearDB->query($query);
-    while ($row = $dbresult->fetch(PDO::FETCH_ASSOC)) {
-        $list_dir[$row['dir_id']] = CentreonUtils::escapeSecure(
-            $row['dir_name'],
-            CentreonUtils::ESCAPE_ALL_EXCEPT_LINK
-        );
-    }
-    $dbresult->closeCursor();
+    $queryParameters = [];
 
-    return $list_dir;
+    if (
+        $centreon->user->admin === '1'
+        || $centreon->user->access->hasAccessToAllImageFolders
+    ) {
+        $query = <<<'SQL'
+                SELECT
+                    directories.dir_id,
+                    directories.dir_name
+                FROM view_img_dir AS `directories`
+            SQL;
+    } else {
+        $query = <<<'SQL'
+                SELECT
+                    directories.dir_id,
+                    directories.dir_name
+                FROM view_img_dir AS `directories`
+                INNER JOIN acl_resources_image_folder_relations armdr
+                    ON armdr.dir_id = directories.dir_id
+                INNER JOIN acl_resources ar
+                    ON ar.acl_res_id = armdr.acl_res_id
+                INNER JOIN acl_res_group_relations argr
+                    ON argr.acl_res_id = ar.acl_res_id
+                LEFT JOIN acl_group_contacts_relations gcr
+                    ON gcr.acl_group_id = argr.acl_group_id
+                LEFT JOIN acl_group_contactgroups_relations gcgr
+                    ON gcgr.acl_group_id = argr.acl_group_id
+                LEFT JOIN contactgroup_contact_relation cgcr
+                    ON cgcr.contactgroup_cg_id = gcgr.cg_cg_id
+                    AND (cgcr.contact_contact_id = :contactId OR gcr.contact_contact_id = :contactId)
+            SQL;
+        $queryParameters[] = QueryParameter::int('contactId', $centreon->user->user_id);
+    }
+
+    // Handling a potential filter even though I do not know where it comes from (no BC break).
+    if (null !== $filter && '' !== $filter) {
+        $query .= <<<'SQL'
+                WHERE directories.dir_name LIKE :filter AND directories.dir_name NOT IN ('centreon-map', 'ppm', 'dashboards')
+            SQL;
+        $queryParameters[] = QueryParameter::string('filter', '%' . $filter . '%');
+    } else {
+        $query .= <<<'SQL'
+                WHERE directories.dir_name NOT IN ('centreon-map', 'ppm', 'dashboards')
+            SQL;
+    }
+
+    $query .= ' GROUP BY directories.dir_id ORDER BY directories.dir_name';
+
+    return $pearDB->fetchAllKeyValue($query, QueryParameters::create($queryParameters));
 }
 
 /**

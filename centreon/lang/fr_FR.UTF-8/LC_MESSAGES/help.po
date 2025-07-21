@@ -8232,3 +8232,7 @@ msgid "snmpttconvertmib binary with complete path."
 msgstr ""
 "Chemin d'accès complet vers le script snmpttconvertmib. Ce dernier permet "
 "de convertir les fichiers MIBs importés dans Centreon."
+
+#: www/include/options/accessLists/resourcesACL/help.php:90
+msgid "Image folders that will be displayed to users. Images that belong to these folders will be visible."
+msgstr "Dossiers d'images qui seront affichés aux utilisateurs. Les images appartenant à ces dossiers seront visibles."

@@ -18,6 +18,9 @@
  *
  */
 
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
+
 if (! isset($centreon)) {
     exit();
 }
@@ -42,18 +45,68 @@ if (isset($_POST['searchM'])) {
     $search = $centreon->historySearch[$url];
 }
 
-$rq = 'SELECT SQL_CALC_FOUND_ROWS * FROM view_img_dir '
-    . 'LEFT JOIN view_img_dir_relation ON dir_dir_parent_id = dir_id '
-    . 'LEFT JOIN view_img ON img_img_id = img_id ';
-if ($search) {
-    $rq .= "WHERE (img_name LIKE '%" . htmlentities($search, ENT_QUOTES, 'UTF-8') . "%' "
-        . "OR dir_name LIKE '%" . htmlentities($search, ENT_QUOTES, 'UTF-8') . "%') ";
+$queryParameters = [];
+
+if (
+    $centreon->user->admin === '1'
+    || $centreon->user->access->hasAccessToAllImageFolders
+) {
+    $query = <<<'SQL'
+            SELECT
+                images.*,
+                directories.*
+            FROM view_img_dir AS `directories`
+            LEFT JOIN view_img_dir_relation AS `vidr`
+                ON vidr.dir_dir_parent_id = directories.dir_id
+            LEFT JOIN view_img AS `images`
+                ON images.img_id = vidr.img_img_id
+        SQL;
+} else {
+    $query = <<<'SQL'
+            SELECT
+                images.*,
+                directories.*
+            FROM view_img_dir AS `directories`
+            LEFT JOIN view_img_dir_relation AS `vidr`
+                ON vidr.dir_dir_parent_id = directories.dir_id
+            LEFT JOIN view_img AS `images`
+                ON images.img_id = vidr.img_img_id
+            INNER JOIN acl_resources_image_folder_relations armdr
+                ON armdr.dir_id = vidr.dir_dir_parent_id
+            INNER JOIN acl_resources ar
+                ON ar.acl_res_id = armdr.acl_res_id
+            INNER JOIN acl_res_group_relations argr
+                ON argr.acl_res_id = ar.acl_res_id
+            LEFT JOIN acl_group_contacts_relations gcr
+                ON gcr.acl_group_id = argr.acl_group_id
+            LEFT JOIN acl_group_contactgroups_relations gcgr
+                ON gcgr.acl_group_id = argr.acl_group_id
+            LEFT JOIN contactgroup_contact_relation cgcr
+                ON cgcr.contactgroup_cg_id = gcgr.cg_cg_id
+                AND (cgcr.contact_contact_id = :contactId OR gcr.contact_contact_id = :contactId)
+        SQL;
+    $queryParameters[] = QueryParameter::int('contactId', $centreon->user->user_id);
 }
-$rq .= 'ORDER BY dir_alias, img_name LIMIT ' . $num * $limit . ', ' . $limit;
 
-$res = $pearDB->query($rq);
-$rows = $pearDB->query('SELECT FOUND_ROWS()')->fetchColumn();
+if ($search) {
+    $queryParameters[] = QueryParameter::string(
+        'search',
+        '%' . HtmlSanitizer::createFromString($search)->getString() . '%',
+    );
+    $query .= <<<'SQL'
+            WHERE (images.img_name LIKE :search OR directories.dir_name LIKE :search) AND directories.dir_name NOT IN ('centreon-map', 'dashboards', 'ppm')
+        SQL;
+} else {
+    $query .= <<<'SQL'
+            WHERE directories.dir_name NOT IN ('centreon-map', 'dashboards', 'ppm')
+        SQL;
+}
+$query .= ' GROUP BY images.img_id, directories.dir_id';
+$query .= ' ORDER BY dir_alias, img_name LIMIT ' . $num * $limit . ', ' . $limit;
 
+/** @var CentreonDB $pearDB */
+$res = $pearDB->fetchAllAssociative($query, QueryParameters::create($queryParameters));
+$rows = count($res);
 include './include/common/checkPagination.php';
 
 // Smarty template initialization
@@ -69,7 +122,7 @@ $form = new HTML_QuickFormCustom('form', 'POST', '?p=' . $p);
 
 // Fill a tab with a mutlidimensionnal Array we put in $tpl
 $elemArr = [];
-for ($i = 0; $elem = $res->fetchRow(); $i++) {
+foreach ($res as $i => $elem) {
     if (isset($elem['dir_id']) && ! isset($elemArr[$elem['dir_id']])) {
         $selectedDirElem = $form->addElement('checkbox', 'select[' . $elem['dir_id'] . ']');
         $selectedDirElem->setAttribute('onclick', "setSubNodes(this, 'select[" . $elem['dir_id'] . "-')");

@@ -30,18 +30,24 @@ use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Centreon\Infrastructure\RequestParameters\RequestParametersTranslatorException;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
+use Core\Common\Domain\Exception\RepositoryException;
 use Core\Media\Application\Exception\MediaException;
+use Core\Media\Application\Repository\ReadImageFolderRepositoryInterface;
 use Core\Media\Application\Repository\ReadMediaRepositoryInterface;
 use Core\Media\Domain\Model\Media;
+use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use Traversable;
 
 final class FindMedias
 {
     use LoggerTrait;
 
     public function __construct(
-        readonly private RequestParametersInterface $requestParameters,
-        readonly private ReadMediaRepositoryInterface $readMediaRepository,
-        readonly private ContactInterface $user,
+        private readonly RequestParametersInterface $requestParameters,
+        private readonly ReadMediaRepositoryInterface $mediaReader,
+        private readonly ReadAccessGroupRepositoryInterface $accessGroupReader,
+        private readonly ReadImageFolderRepositoryInterface $mediaFolderReader,
+        private readonly ContactInterface $user,
     ) {
     }
 
@@ -64,7 +70,7 @@ final class FindMedias
 
                 return;
             }
-            $medias = $this->readMediaRepository->findByRequestParameters($this->requestParameters);
+            $medias = $this->user->isAdmin() ? $this->findAsAdmin() : $this->findAsUser();
             $presenter->presentResponse($this->createResponse($medias));
         } catch (RequestParametersTranslatorException $ex) {
             $presenter->presentResponse(new ErrorResponse($ex->getMessage()));
@@ -75,17 +81,42 @@ final class FindMedias
         }
     }
 
+    /**
+     * @throws \Throwable
+     * @return Traversable<Media>
+     */
+    private function findAsAdmin(): Traversable
+    {
+        return $this->mediaReader->findByRequestParameters($this->requestParameters);
+    }
+
+    /**
+     * @throws RepositoryException
+     * @throws \Throwable
+     * @return Traversable<Media>
+     */
+    private function findAsUser(): Traversable
+    {
+        $accessGroups = $this->accessGroupReader->findByContact($this->user);
+
+        if ($this->mediaFolderReader->hasAccessToAllImageFolders($accessGroups)) {
+            return $this->mediaReader->findByRequestParameters($this->requestParameters);
+        }
+
+        return $this->mediaReader->findByRequestParametersAndAccessGroups($this->requestParameters, $accessGroups);
+    }
+
     private function canAccessToListing(): bool
     {
         return $this->user->hasTopologyRole(Contact::ROLE_ADMINISTRATION_PARAMETERS_IMAGES_RW);
     }
 
     /**
-     * @param \Traversable<int, Media> $medias
+     * @param Traversable<int, Media> $medias
      *
      * @return FindMediasResponse
      */
-    private function createResponse(\Traversable $medias): FindMediasResponse
+    private function createResponse(Traversable $medias): FindMediasResponse
     {
         $response = new FindMediasResponse();
         foreach ($medias as $media) {

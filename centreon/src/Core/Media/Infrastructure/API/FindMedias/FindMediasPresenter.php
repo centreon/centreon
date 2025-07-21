@@ -26,12 +26,16 @@ namespace Core\Media\Infrastructure\API\FindMedias;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Application\Common\UseCase\AbstractPresenter;
 use Core\Application\Common\UseCase\ResponseStatusInterface;
+use Core\Infrastructure\Common\Api\HttpUrlTrait;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\Media\Application\UseCase\FindMedias\FindMediasPresenterInterface;
 use Core\Media\Application\UseCase\FindMedias\FindMediasResponse;
 
 class FindMediasPresenter extends AbstractPresenter implements FindMediasPresenterInterface
 {
+    use HttpUrlTrait;
+    private const IMG_FOLDER_PATH = '/img/media/';
+
     public function __construct(
         private readonly RequestParametersInterface $requestParameters,
         protected PresenterFormatterInterface $presenterFormatter,
@@ -48,9 +52,10 @@ class FindMediasPresenter extends AbstractPresenter implements FindMediasPresent
             foreach ($response->medias as $dto) {
                 $result[] = [
                     'id' => $dto->id,
-                    'filename' => $dto->filename,
+                    'name' => $dto->filename,
                     'directory' => $dto->directory,
                     'md5' => $dto->md5,
+                    'url' => $this->getBaseUri() . self::IMG_FOLDER_PATH . $dto->directory . '/' . $dto->filename,
                 ];
             }
             $this->present([

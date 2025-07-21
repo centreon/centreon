@@ -64,6 +64,7 @@ final class UpdateRuleController extends AbstractController
 
         /** @var _UpdateRequestData $data */
         $data = $this->validateAndRetrieveDataSent($request, __DIR__ . '/UpdateRuleSchema.json');
+
         $useCase($this->createDtoFromData($ruleId, $data), $presenter);
 
         return $presenter->show();

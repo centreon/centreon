@@ -33,6 +33,7 @@ use Core\Media\Domain\Model\Media;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
+use Traversable;
 
 class ApiReadMediaRepository implements ReadMediaRepositoryInterface
 {
@@ -43,6 +44,16 @@ class ApiReadMediaRepository implements ReadMediaRepositoryInterface
         private readonly RouterInterface $router,
         private readonly LoggerInterface $logger,
     ) {
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findByRequestParametersAndAccessGroups(
+        RequestParametersInterface $requestParameters,
+        array $accessGroups,
+    ): Traversable {
+        throw RepositoryException::notYetImplemented();
     }
 
     /**
@@ -72,7 +83,7 @@ class ApiReadMediaRepository implements ReadMediaRepositoryInterface
     /**
      * @inheritDoc
      */
-    public function findAll(): \Traversable&\Countable
+    public function findAll(): Traversable&\Countable
     {
         $apiEndpoint = $this->router->generate('FindMedias');
         $options = [
@@ -107,7 +118,7 @@ class ApiReadMediaRepository implements ReadMediaRepositoryInterface
     /**
      * @inheritDoc
      */
-    public function findByRequestParameters(RequestParametersInterface $requestParameters): \Traversable
+    public function findByRequestParameters(RequestParametersInterface $requestParameters): Traversable
     {
         throw RepositoryException::notYetImplemented();
     }

@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
@@ -18,176 +19,135 @@
  *
  */
 
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
+
 if (! isset($centreon)) {
     exit();
 }
 
 // Database retrieve information for LCA
-if ($o === 'c' || $o === 'w') {
-    // Set base value
-    $statement = $pearDB->prepare('SELECT * FROM acl_resources WHERE acl_res_id = :aclId LIMIT 1');
-    $statement->bindValue(':aclId', $aclId, PDO::PARAM_INT);
-    $statement->execute();
-    $acl = array_map('myDecode', $statement->fetch());
+if ($o === RESOURCE_ACCESS_MODIFY || $o === RESOURCE_ACCESS_WATCH) {
+    $queryParameters = new QueryParameters([
+        QueryParameter::int('resourceAccessId', $aclId),
+    ]);
 
-    // Set Poller relations
-    $statement = $pearDB->prepare('SELECT poller_id FROM acl_resources_poller_relations WHERE acl_res_id = :aclId');
-    $statement->bindValue(':aclId', $aclId, PDO::PARAM_INT);
-    $statement->execute();
-    while ($poller = $statement->fetch()) {
-        $acl['acl_pollers'][] = $poller['poller_id'];
-    }
-
-    // Set Hosts relations
-    $statement = $pearDB->prepare('SELECT host_host_id FROM acl_resources_host_relations WHERE acl_res_id = :aclId');
-    $statement->bindValue(':aclId', $aclId, PDO::PARAM_INT);
-    $statement->execute();
-    while ($host = $statement->fetch()) {
-        $acl['acl_hosts'][] = $host['host_host_id'];
-    }
-
-    // Set Hosts exludes relations
-    $statement = $pearDB->prepare('SELECT host_host_id FROM acl_resources_hostex_relations WHERE acl_res_id = :aclId');
-    $statement->bindValue(':aclId', $aclId, PDO::PARAM_INT);
-    $statement->execute();
-    while ($host = $statement->fetch()) {
-        $acl['acl_hostexclude'][] = $host['host_host_id'];
-    }
-
-    // Set Host Groups relations
-    $statement = $pearDB->prepare('SELECT hg_hg_id FROM acl_resources_hg_relations WHERE acl_res_id = :aclId');
-    $statement->bindValue(':aclId', $aclId, PDO::PARAM_INT);
-    $statement->execute();
-    while ($hostgroup = $statement->fetch()) {
-        $acl['acl_hostgroup'][] = $hostgroup['hg_hg_id'];
-    }
-
-    // Set Groups relations
-    $statement = $pearDB->prepare(
-        'SELECT DISTINCT acl_group_id FROM acl_res_group_relations WHERE acl_res_id = :aclId'
+    $aclResourceInformation = $pearDB->fetchAssociative(
+        'SELECT * FROM acl_resources WHERE acl_res_id = :resourceAccessId',
+        $queryParameters
     );
-    $statement->bindValue(':aclId', $aclId, PDO::PARAM_INT);
-    $statement->execute();
-    while ($group = $statement->fetch()) {
-        $acl['acl_groups'][] = $group['acl_group_id'];
-    }
 
-    // Set Service Categories relations
-    $statement = $pearDB->prepare('SELECT DISTINCT sc_id FROM acl_resources_sc_relations WHERE acl_res_id = :aclId');
-    $statement->bindValue(':aclId', $aclId, PDO::PARAM_INT);
-    $statement->execute();
-    while ($sc = $statement->fetch()) {
-        $acl['acl_sc'][] = $sc['sc_id'];
-    }
+    $acl = array_map('myDecode', $aclResourceInformation);
 
-    // Set Host Categories
-    $statement = $pearDB->prepare('SELECT DISTINCT hc_id FROM acl_resources_hc_relations WHERE acl_res_id = :aclId');
-    $statement->bindValue(':aclId', $aclId, PDO::PARAM_INT);
-    $statement->execute();
-    while ($hc = $statement->fetch()) {
-        $acl['acl_hc'][] = $hc['hc_id'];
-    }
-
-    // Set Service Groups relations
-    $statement = $pearDB->prepare('SELECT DISTINCT sg_id FROM acl_resources_sg_relations WHERE acl_res_id = :aclId');
-    $statement->bindValue(':aclId', $aclId, PDO::PARAM_INT);
-    $statement->execute();
-    while ($sg = $statement->fetch()) {
-        $acl['acl_sg'][] = $sg['sg_id'];
-    }
-
-    // Set Meta Services relations
-    $statement = $pearDB->prepare(
-        'SELECT DISTINCT meta_id FROM acl_resources_meta_relations WHERE acl_res_id = :aclId'
+    // poller relations
+    $acl['acl_pollers'] = $pearDB->fetchFirstColumn(
+        'SELECT poller_id FROM acl_resources_poller_relations WHERE acl_res_id = :resourceAccessId',
+        $queryParameters
     );
-    $statement->bindValue(':aclId', $aclId, PDO::PARAM_INT);
-    $statement->execute();
-    while ($ms = $statement->fetch()) {
-        $acl['acl_meta'][] = $ms['meta_id'];
-    }
+
+    // host relations
+    $acl['acl_hosts'] = $pearDB->fetchFirstColumn(
+        'SELECT host_host_id FROM acl_resources_host_relations WHERE acl_res_id = :resourceAccessId',
+        $queryParameters
+    );
+
+    // host exclusions
+    $acl['acl_hostexclude'] = $pearDB->fetchFirstColumn(
+        'SELECT host_host_id FROM acl_resources_hostex_relations WHERE acl_res_id = :resourceAccessId',
+        $queryParameters
+    );
+
+    // host groups relations
+    $acl['acl_hostgroup'] = $pearDB->fetchFirstColumn(
+        'SELECT hg_hg_id FROM acl_resources_hg_relations WHERE acl_res_id = :resourceAccessId',
+        $queryParameters
+    );
+
+    // ACL Groups relations
+    $acl['acl_groups'] = $pearDB->fetchFirstColumn(
+        'SELECT DISTINCT acl_group_id FROM acl_res_group_relations WHERE acl_res_id = :resourceAccessId',
+        $queryParameters
+    );
+
+    // Service categories relations
+    $acl['acl_sc'] = $pearDB->fetchFirstColumn(
+        'SELECT DISTINCT sc_id FROM acl_resources_sc_relations WHERE acl_res_id = :resourceAccessId',
+        $queryParameters
+    );
+
+    // Host categories relations
+    $acl['acl_hc'] = $pearDB->fetchFirstColumn(
+        'SELECT DISTINCT hc_id FROM acl_resources_hc_relations WHERE acl_res_id = :resourceAccessId',
+        $queryParameters
+    );
+
+    // Service groups relations
+    $acl['acl_sg'] = $pearDB->fetchFirstColumn(
+        'SELECT DISTINCT sg_id FROM acl_resources_sg_relations WHERE acl_res_id = :resourceAccessId',
+        $queryParameters
+    );
+
+    // Meta services relations
+    $acl['acl_meta'] = $pearDB->fetchFirstColumn(
+        'SELECT DISTINCT meta_id FROM acl_resources_meta_relations WHERE acl_res_id = :resourceAccessId',
+        $queryParameters
+    );
+
+    // Image folder relations
+    $acl['acl_image_folder'] = $pearDB->fetchFirstColumn(
+        'SELECT DISTINCT dir_id FROM acl_resources_image_folder_relations WHERE acl_res_id = :resourceAccessId',
+        $queryParameters
+    );
 }
 
+// GET ALL data that will fill the selectors
 $groups = [];
-$DBRESULT = $pearDB->query('SELECT acl_group_id, acl_group_name FROM acl_groups ORDER BY acl_group_name');
-while ($group = $DBRESULT->fetch()) {
-    $groups[$group['acl_group_id']] = CentreonUtils::escapeSecure(
-        $group['acl_group_name'],
-        CentreonUtils::ESCAPE_ALL
-    );
+$accessGroups = $pearDB->fetchAllAssociative('SELECT acl_group_id, acl_group_name FROM acl_groups ORDER BY acl_group_name');
+
+foreach ($accessGroups as $accessGroup) {
+    $groups[$accessGroup['acl_group_id']] = HtmlSanitizer::createfromstring($accessGroup['acl_group_name'])->getstring();
 }
-$DBRESULT->closeCursor();
 
 $pollers = [];
-$DBRESULT = $pearDB->query('SELECT id, name FROM nagios_server ORDER BY name');
-while ($poller = $DBRESULT->fetch()) {
-    $pollers[$poller['id']] = HtmlSanitizer::createFromString($poller['name'])->sanitize()->getString();
-}
-$DBRESULT->closeCursor();
+$monitoringServers = $pearDB->fetchAllAssociative('SELECT id, name FROM nagios_server ORDER BY name');
 
-$hosts = [];
-$DBRESULT = $pearDB->query("SELECT host_id, host_name FROM host WHERE host_register = '1' ORDER BY host_name");
-while ($host = $DBRESULT->fetch()) {
-    $hosts[$host['host_id']] = $host['host_name'];
+foreach ($monitoringServers as $monitoringServer) {
+    $pollers[$monitoringServer['id']] = HtmlSanitizer::createfromstring($monitoringServer['name'])->getstring();
 }
-$DBRESULT->closeCursor();
 
-$hosttoexcludes = [];
-$DBRESULT = $pearDB->query("SELECT host_id, host_name FROM host WHERE host_register = '1' ORDER BY host_name");
-while ($host = $DBRESULT->fetchRow()) {
-    $hosttoexcludes[$host['host_id']] = $host['host_name'];
-}
-$DBRESULT->closeCursor();
-
-$hostgroups = [];
-$DBRESULT = $pearDB->query('SELECT hg_id, hg_name FROM hostgroup ORDER BY hg_name');
-while ($hg = $DBRESULT->fetchRow()) {
-    $hostgroups[$hg['hg_id']] = $hg['hg_name'];
-}
-$DBRESULT->closeCursor();
-
-$service_categories = [];
-$DBRESULT = $pearDB->query('SELECT sc_id, sc_name FROM service_categories ORDER BY sc_name');
-while ($sc = $DBRESULT->fetchRow()) {
-    $service_categories[$sc['sc_id']] = $sc['sc_name'];
-}
-$DBRESULT->closeCursor();
-
-$host_categories = [];
-$DBRESULT = $pearDB->query('SELECT hc_id, hc_name FROM hostcategories ORDER BY hc_name');
-while ($hc = $DBRESULT->fetchRow()) {
-    $host_categories[$hc['hc_id']] = $hc['hc_name'];
-}
-$DBRESULT->closeCursor();
-
-$service_groups = [];
-$DBRESULT = $pearDB->query('SELECT sg_id, sg_name FROM servicegroup ORDER BY sg_name');
-while ($sg = $DBRESULT->fetchRow()) {
-    $service_groups[$sg['sg_id']] = $sg['sg_name'];
-}
-$DBRESULT->closeCursor();
-
-$meta_services = [];
-$DBRESULT = $pearDB->query('SELECT meta_id, meta_name FROM meta_service ORDER BY meta_name');
-while ($ms = $DBRESULT->fetchRow()) {
-    $meta_services[$ms['meta_id']] = $ms['meta_name'];
-}
-$DBRESULT->closeCursor();
+$hosts = $pearDB->fetchAllKeyValue("SELECT host_id, host_name FROM host WHERE host_register = '1' ORDER BY host_name");
+$hostsToExclude = $hosts;
+$hostGroups = $pearDB->fetchAllKeyValue('SELECT hg_id, hg_name FROM hostgroup ORDER BY hg_name');
+$serviceCategories = $pearDB->fetchAllKeyValue('SELECT sc_id, sc_name FROM service_categories ORDER BY sc_name');
+$hostCategories = $pearDB->fetchAllKeyValue('SELECT hc_id, hc_name FROM hostcategories ORDER BY hc_name');
+$serviceGroups = $pearDB->fetchAllKeyValue('SELECT sg_id, sg_name FROM servicegroup ORDER BY sg_name');
+$metaServices = $pearDB->fetchAllKeyValue('SELECT meta_id, meta_name FROM meta_service ORDER BY meta_name');
+$imageFolders = $pearDB->fetchAllKeyValue("SELECT dir_id, dir_name FROM view_img_dir WHERE dir_name NOT IN ('dashboards', 'ppm', 'centreon-map') ORDER BY dir_name");
 
 // Var information to format the element
-$attrsText = ['size' => '30'];
-$attrsText2 = ['size' => '60'];
-$attrsAdvSelect = ['style' => 'width: 300px; height: 220px;'];
-$attrsTextarea = ['rows' => '3', 'cols' => '80'];
+$attrsText = [
+    'size' => '30',
+];
+$attrsText2 = [
+    'size' => '60',
+];
+$attrsAdvSelect = [
+    'style' => 'width: 300px; height: 220px;',
+];
+$attrsTextarea = [
+    'rows' => '3',
+    'cols' => '80',
+];
 $eTemplate = '<table><tr><td><div class="ams">{label_2}</div>{unselected}</td><td align="center">{add}<br />'
 . '<br /><br />{remove}</td><td><div class="ams">{label_3}</div>{selected}</td></tr></table>';
 
 // Form begin
 $form = new HTML_QuickFormCustom('Form', 'POST', '?p=' . $p);
-if ($o == 'a') {
+if ($o == RESOURCE_ACCESS_ADD) {
     $form->addElement('header', 'title', _('Add an ACL'));
-} elseif ($o == 'c') {
+} elseif ($o == RESOURCE_ACCESS_MODIFY) {
     $form->addElement('header', 'title', _('Modify an ACL'));
-} elseif ($o == 'w') {
+} elseif ($o == RESOURCE_ACCESS_WATCH) {
     $form->addElement('header', 'title', _('View an ACL'));
 }
 
@@ -204,7 +164,7 @@ $tab[] = $form->createElement('radio', 'acl_res_activate', null, _('Disabled'), 
 $form->addGroup($tab, 'acl_res_activate', _('Status'), '&nbsp;');
 $form->setDefaults(['acl_res_activate' => '1']);
 
-// All ressources
+// All hosts checkbox definition
 $allHosts[] = $form->createElement(
     'checkbox',
     'all_hosts',
@@ -214,6 +174,7 @@ $allHosts[] = $form->createElement(
 );
 $form->addGroup($allHosts, 'all_hosts', _('Include all hosts'), '&nbsp;&nbsp;');
 
+// All host groups checkbox definition
 $allHostgroups[] = $form->createElement(
     'checkbox',
     'all_hostgroups',
@@ -223,6 +184,7 @@ $allHostgroups[] = $form->createElement(
 );
 $form->addGroup($allHostgroups, 'all_hostgroups', _('Include all hostgroups'), '&nbsp;&nbsp;');
 
+// All service groups checkbox definition
 $allServiceGroups[] = $form->createElement(
     'checkbox',
     'all_servicegroups',
@@ -231,6 +193,16 @@ $allServiceGroups[] = $form->createElement(
     ['id' => 'all_servicegroups', 'onClick' => 'toggleTableDeps(this)']
 );
 $form->addGroup($allServiceGroups, 'all_servicegroups', _('Include all servicegroups'), '&nbsp;&nbsp;');
+
+// All directories (medias) checkbox definition
+$allImageFolders[] = $form->createElement(
+    'checkbox',
+    'all_image_folders',
+    '&nbsp;',
+    '',
+    ['id' => 'all_image_folders', 'onClick' => 'toggleTableDeps(this)', 'checked' => true]
+);
+$form->addGroup($allImageFolders, 'all_image_folders', _('Include all image folders'), '&nbsp;&nbsp;');
 
 // Contact implied
 $form->addElement('header', 'contacts_infos', _('People linked to this Access list'));
@@ -249,6 +221,7 @@ $ams1->setElementTemplate($eTemplate);
 echo $ams1->getElementJs(false);
 
 $form->addElement('header', 'Host_infos', _('Shared Resources'));
+$form->addElement('header', 'Image_Folder_info', _('Shared image folders'));
 $form->addElement('header', 'help', _('Help'));
 $form->addElement(
     'header',
@@ -265,6 +238,12 @@ $form->addElement(
     'header',
     'MSSharedExplain',
     _('<b><i>Help :</i></b> Select meta services that can be seen by associated users.')
+);
+
+$form->addElement(
+    'header',
+    'ImageFoldersSharedExplain',
+    _('<b><i>Help :</i></b> Select image folders that can be seen by associated users.')
 );
 $form->addElement(
     'header',
@@ -308,7 +287,7 @@ $ams2 = $form->addElement(
     'advmultiselect',
     'acl_hostgroup',
     [_('Host Groups'), _('Available'), _('Selected')],
-    $hostgroups,
+    $hostGroups,
     $attrsAdvSelect,
     SORT_ASC
 );
@@ -323,7 +302,7 @@ $ams2 = $form->addElement(
     'advmultiselect',
     'acl_hostexclude',
     [_('Exclude hosts from selected host groups'), _('Available'), _('Selected')],
-    $hosttoexcludes,
+    $hostsToExclude,
     $attrsAdvSelect,
     SORT_ASC
 );
@@ -337,7 +316,7 @@ $ams2 = $form->addElement(
     'advmultiselect',
     'acl_sc',
     [_('Service Category Filter'), _('Available'), _('Selected')],
-    $service_categories,
+    $serviceCategories,
     $attrsAdvSelect,
     SORT_ASC
 );
@@ -351,7 +330,7 @@ $ams2 = $form->addElement(
     'advmultiselect',
     'acl_hc',
     [_('Host Category Filter'), _('Available'), _('Selected')],
-    $host_categories,
+    $hostCategories,
     $attrsAdvSelect,
     SORT_ASC
 );
@@ -366,7 +345,7 @@ $ams2 = $form->addElement(
     'advmultiselect',
     'acl_sg',
     [_('Service Groups'), _('Available'), _('Selected')],
-    $service_groups,
+    $serviceGroups,
     $attrsAdvSelect,
     SORT_ASC
 );
@@ -381,10 +360,26 @@ $ams2 = $form->addElement(
     'advmultiselect',
     'acl_meta',
     [_('Meta Services'), _('Available'), _('Selected')],
-    $meta_services,
+    $metaServices,
     $attrsAdvSelect,
     SORT_ASC
 );
+$ams2->setButtonAttributes('add', ['value' => _('Add'), 'class' => 'btc bt_success']);
+$ams2->setButtonAttributes('remove', ['value' => _('Remove'), 'class' => 'btc bt_danger']);
+$ams2->setElementTemplate($eTemplate);
+echo $ams2->getElementJs(false);
+
+// Images
+$attrsAdvSelect['id'] = 'imageFolderAdvancedSelect';
+$ams2 = $form->addElement(
+    'advmultiselect',
+    'acl_image_folder',
+    [_('Image folders'), _('Available'), _('Selected')],
+    $imageFolders,
+    $attrsAdvSelect,
+    SORT_ASC
+);
+
 $ams2->setButtonAttributes('add', ['value' => _('Add'), 'class' => 'btc bt_success']);
 $ams2->setButtonAttributes('remove', ['value' => _('Remove'), 'class' => 'btc bt_danger']);
 $ams2->setElementTemplate($eTemplate);
@@ -403,7 +398,11 @@ $redirect->setValue($o);
 $form->applyFilter('__ALL__', 'myTrim');
 $form->addRule('acl_res_name', _('Required'), 'required');
 $form->registerRule('exist', 'callback', 'testExistence');
-if ($o == 'a' || $o == 'c') {
+
+if (
+    $o === RESOURCE_ACCESS_ADD
+    || $o === RESOURCE_ACCESS_MODIFY
+) {
     $form->addRule('acl_res_name', _('Already exists'), 'exist');
 }
 $form->setRequiredNote(_('Required field'));
@@ -416,18 +415,18 @@ $formDefaults['all_hosts[all_hosts]'] = $formDefaults['all_hosts'] ?? '0';
 $formDefaults['all_hostgroups[all_hostgroups]'] = $formDefaults['all_hostgroups'] ?? '0';
 $formDefaults['all_servicegroups[all_servicegroups]'] = $formDefaults['all_servicegroups'] ?? '0';
 
-if ($o == 'w') {
-    // Just watch a LCA information
+// By default we want this to be checked
+$formDefaults['all_image_folders[all_image_folders]'] = $formDefaults['all_image_folders'] ?? '1';
+
+if ($o === RESOURCE_ACCESS_WATCH) {
     $form->addElement('button', 'change', _('Modify'), ['onClick' => "javascript:window.location.href='?p=" . $p . '&o=c&acl_id=' . $aclId . "'", 'class' => 'btc bt_success']);
     $form->setDefaults($formDefaults);
     $form->freeze();
-} elseif ($o == 'c') {
-    // Modify a LCA information
+} elseif ($o === RESOURCE_ACCESS_MODIFY) {
     $subC = $form->addElement('submit', 'submitC', _('Save'), ['class' => 'btc bt_success']);
     $res = $form->addElement('reset', 'reset', _('Delete'), ['class' => 'btc bt_danger']);
     $form->setDefaults($formDefaults);
-} elseif ($o == 'a') {
-    // Add a LCA information
+} elseif ($o === RESOURCE_ACCESS_ADD) {
     $subA = $form->addElement('submit', 'submitA', _('Save'), ['class' => 'btc bt_success']);
     $res = $form->addElement('reset', 'reset', _('Delete'), ['class' => 'btc bt_danger']);
 }
@@ -467,6 +466,7 @@ if ($form->validate()) {
         $tpl->assign('sort3', _('Service Resources'));
         $tpl->assign('sort4', _('Meta Services'));
         $tpl->assign('sort5', _('Filters'));
+        $tpl->assign('sort6', _('Medias'));
         $tpl->display('formResourcesAccess.ihtml');
     }
 }
@@ -482,5 +482,6 @@ if ($form->validate()) {
         toggleTableDeps(jQuery('#all_hosts'));
         toggleTableDeps(jQuery('#all_hostgroups'));
         toggleTableDeps(jQuery('#all_servicegroups'));
+        toggleTableDeps(jQuery('#all_image_folders'));
     });
 </script>

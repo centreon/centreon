@@ -21028,3 +21028,33 @@ msgstr "Standard"
 #: unknown
 msgid "it's required"
 msgstr "es ist erforderlich"
+
+#: unknown
+msgid "s"
+msgstr "s"
+
+#: unknown
+msgid "unknown"
+msgstr "unbekannt"
+
+#: centreon/www/include/options/accessLists/resourcesACL/formResourcesAccess.php
+msgid "Shared image folders"
+msgstr ""
+
+#: centreon/www/include/options/accessLists/resourcesACL/formResourcesAccess.php
+msgid "Include all image folders"
+msgstr ""
+
+#: centreon/www/include/options/accessLists/resourcesACL/formResourcesAccess.php
+msgid ""
+"<b><i>Help :</i></b> Select image folders that can be seen by associated users."
+msgstr ""
+""
+
+#: centreon/www/include/options/accessLists/resourcesACL/formResourcesAccess.php
+msgid "Image folders"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "All image folders selected"
+msgstr ""

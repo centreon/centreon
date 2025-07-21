@@ -78,6 +78,11 @@ parameters:
 			path: src/Core/Broker/Infrastructure/Repository/FileBrokerRepository.php
 
 		-
+			message: '#^\[CENTREON\-RULE\]\: \(RepositoryNameValidationByInterfaceCustomRule\) Repository name should match the implemented Interface name with exception of data storage prefix and ''Interface'' mention\.$#'
+			count: 1
+			path: src/Core/ResourceAccess/Infrastructure/Repository/Dataset/DbWriteImageFolderRepository.php
+
+		-
 			message: '#^Method Core\\Common\\Infrastructure\\Repository\\AbstractRepositoryRDB@anonymous/centreon/src/Core/Command/Infrastructure/Repository/DbReadCommandRepository\.php\:307\:\:count\(\) should return int\<0, max\> but returns int\.$#'
 			identifier: return.type
 			count: 1
@@ -531,12 +536,6 @@ parameters:
 			identifier: instanceof.alwaysTrue
 			count: 1
 			path: src/Core/Media/Infrastructure/Repository/ApiWriteMediaRepository.php
-
-		-
-			message: '#^Method IteratorAggregate@anonymous/centreon/src/Core/Media/Infrastructure/Repository/DbReadMediaRepository\.php\:199\:\:count\(\) should return int\<0, max\> but returns int\.$#'
-			identifier: return.type
-			count: 1
-			path: src/Core/Media/Infrastructure/Repository/DbReadMediaRepository.php
 
 		-
 			message: '#^Call to function array_key_exists\(\) with ''\$in'' and array\{\$in\: non\-empty\-array\<int\>\} will always evaluate to true\.$#'

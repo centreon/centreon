@@ -27,13 +27,13 @@ use Assert\AssertionFailedException;
 use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
-use Centreon\Domain\Repository\Interfaces\DataStorageEngineInterface;
 use Core\Application\Common\UseCase\ConflictResponse;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
+use Core\Common\Application\Repository\RepositoryManagerInterface;
 use Core\ResourceAccess\Application\Exception\RuleException;
 use Core\ResourceAccess\Application\Repository\ReadResourceAccessRepositoryInterface;
 use Core\ResourceAccess\Application\Repository\WriteResourceAccessRepositoryInterface;
@@ -56,7 +56,7 @@ final class UpdateRule
      * @param WriteResourceAccessRepositoryInterface $writeRepository
      * @param UpdateRuleValidation $validator
      * @param DatasetFilterValidator $datasetValidator
-     * @param DataStorageEngineInterface $dataStorageEngine
+     * @param RepositoryManagerInterface $repositoryManager
      * @param bool $isCloudPlatform
      */
     public function __construct(
@@ -66,7 +66,7 @@ final class UpdateRule
         private readonly WriteResourceAccessRepositoryInterface $writeRepository,
         private readonly UpdateRuleValidation $validator,
         private readonly DatasetFilterValidator $datasetValidator,
-        private readonly DataStorageEngineInterface $dataStorageEngine,
+        private readonly RepositoryManagerInterface $repositoryManager,
         private readonly bool $isCloudPlatform
     ) {
     }
@@ -133,7 +133,7 @@ final class UpdateRule
     {
         try {
             $this->debug('Starting resource access rule update transaction process');
-            $this->dataStorageEngine->startTransaction();
+            $this->repositoryManager->startTransaction();
             $this->updateBasicInformation($rule, $request);
 
             // At least one ID must be provided for contact or contactgroup
@@ -149,10 +149,10 @@ final class UpdateRule
             $this->updateResourceLinks($request);
 
             $this->debug('Commit resource access rule update transaction process');
-            $this->dataStorageEngine->commitTransaction();
+            $this->repositoryManager->commitTransaction();
         } catch (\Throwable $exception) {
             $this->error("Rollback of 'Update resource access rule' transaction");
-            $this->dataStorageEngine->rollbackTransaction();
+            $this->repositoryManager->rollbackTransaction();
 
             throw $exception;
         }
@@ -312,7 +312,8 @@ final class UpdateRule
                     name: $datasetName,
                     accessAllHosts: false,
                     accessAllHostGroups: false,
-                    accessAllServiceGroups: false
+                    accessAllServiceGroups: false,
+                    accessAllImageFolders: false
                 );
 
                 // And link it to the rule
@@ -409,7 +410,8 @@ final class UpdateRule
             name: $datasetName,
             accessAllHosts: true,
             accessAllHostGroups: true,
-            accessAllServiceGroups: true
+            accessAllServiceGroups: true,
+            accessAllImageFolders: true
         );
 
         // And link it to the rule

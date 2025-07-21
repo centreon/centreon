@@ -52,6 +52,9 @@ class CentreonACL
     /** @var bool */
     public $hasAccessToAllServiceGroups = false;
 
+    /** @var bool */
+    public $hasAccessToAllImageFolders = true;
+
     /** @var array */
     protected $pollers = []; // Pollers the user can see
 
@@ -131,6 +134,7 @@ class CentreonACL
             $this->setResourceGroups();
             $this->hasAccessToAllHostGroups = $this->hasAccessToAllHostGroups();
             $this->hasAccessToAllServiceGroups = $this->hasAccessToAllServiceGroups();
+            $this->hasAccessToAllImageFolders = $this->hasAccessToAllImageFolders();
             $this->setHostGroups();
             $this->setPollers();
             $this->setServiceGroups();
@@ -2210,6 +2214,7 @@ class CentreonACL
         $this->setActions();
         $this->hasAccessToAllHostGroups = false;
         $this->hasAccessToAllServiceGroups = false;
+        $this->hasAccessToAllImageFolders = true;
     }
 
     /**
@@ -2313,6 +2318,50 @@ class CentreonACL
                 ON ag.acl_group_id = argr.acl_group_id
             WHERE res.acl_res_activate = '1' AND ag.acl_group_id IN ({$bindQuery})
             ORDER BY res.all_hostgroups DESC LIMIT 1
+            SQL;
+
+        $statement = CentreonDBInstance::getDbCentreonInstance()->prepare($request);
+
+        foreach ($bindValues as $key => $value) {
+            $statement->bindValue($key, $value, PDO::PARAM_INT);
+        }
+
+        $statement->execute();
+
+        while (false !== ($hasAccessToAll = $statement->fetchColumn())) {
+            if (true === (bool) $hasAccessToAll) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Check if all_image_folders is activated at least of one ACL Group which this user is linked
+     *
+     * @return bool
+     */
+    private function hasAccessToAllImageFolders(): bool
+    {
+        $accessGroups = $this->getAccessGroups();
+        if ($accessGroups === []) {
+            return false;
+        }
+        [$bindValues, $bindQuery] = createMultipleBindQuery(
+            list: array_keys($accessGroups),
+            prefix: ':access_group_id_'
+        );
+
+        $request = <<<SQL
+            SELECT res.all_image_folders
+            FROM acl_resources res
+            INNER JOIN acl_res_group_relations argr
+                ON argr.acl_res_id = res.acl_res_id
+            INNER JOIN acl_groups ag
+                ON ag.acl_group_id = argr.acl_group_id
+            WHERE res.acl_res_activate = '1' AND ag.acl_group_id IN ({$bindQuery})
+            ORDER BY res.all_image_folders DESC LIMIT 1
             SQL;
 
         $statement = CentreonDBInstance::getDbCentreonInstance()->prepare($request);
