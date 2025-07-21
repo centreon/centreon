@@ -62,6 +62,10 @@ class CmaValidator implements TypeValidatorInterface
         /** @var _CmaParameters $configuration */
         $configuration = $request->configuration;
 
+        if ($configuration['aggent_inititiated'] === false && $configuration['poller_initiated'] === false) {
+            throw AgentConfigurationException::atLeastOneConnectionModeIsRequired();
+        }
+
         $this->validateAgentInitiatedConnection($configuration, $request->connectionMode);
         $this->validatePollerInitiatedConnection($configuration, $request->connectionMode);
     }
