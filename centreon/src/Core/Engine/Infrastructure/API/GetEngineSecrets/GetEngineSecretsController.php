@@ -48,7 +48,6 @@ final class GetEngineSecretsController extends AbstractController
     {
     }
 
-
     #[Route(path: '/administration/engine/secrets', name: 'GetEngineSecrets', methods: ['GET'])]
     #[IsGranted(
         new Expression('subject.isAdmin() === true'),
