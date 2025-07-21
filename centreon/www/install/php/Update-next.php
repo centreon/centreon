@@ -38,7 +38,7 @@ $addIsEncryptionReadyColumn = function () use ($pearDB, $pearDBO, &$errorMessage
     }
     if ($pearDBO->isColumnExist('instances', 'is_encryption_ready') !== 1) {
         $errorMessage = "Unable to add 'is_encryption_ready' column to 'instances' table";
-        $pearDBO->query("ALTER TABLE `instances` ADD COLUMN `is_encryption_ready` enum('0', '1') NOT NULL DEFAULT '1'");
+        $pearDBO->query("ALTER TABLE `instances` ADD COLUMN `is_encryption_ready` enum('0', '1') NOT NULL DEFAULT '0'");
     }
 };
 
@@ -59,16 +59,23 @@ $setEncryptionReadyToFalseByDefaultOnNagiosServer = function () use ($pearDB, &$
  */
 $setEncryptionReadyToFalseByDefaultOnInstances = function () use ($pearDB, $pearDBO, &$errorMessage): void {
     $errorMessage = "Unable to update 'is_encryption_ready' column on 'nagios_server' table";
+
     /** @var CentreonDB $pearDB */
-    $configDatabaseName = $pearDB->getConnectionConfig()->getDatabaseNameConfiguration();
-    $statement = $pearDBO->prepare(
+    $instanceIds = $pearDB->fetchFirstColumn(
         <<<'SQL'
-            UPDATE instances SET `is_encryption_ready` = '0' WHERE `instance_id` IN (
-                SELECT `id` FROM `:db`.nagios_server WHERE `localhost` = '0'
-            );
+                SELECT `id` FROM nagios_server WHERE `localhost` = '0';
             SQL
     );
-    $statement->bindValue(':db', $configDatabaseName, PDO::PARAM_STR);
+    if (empty($instanceIds)) {
+        return;
+    }
+
+    $instanceIdsAsString = implode(',', $instanceIds);
+    $statement = $pearDBO->prepare(
+        <<<SQL
+            UPDATE instances SET `is_encryption_ready` = '0' WHERE `instance_id` IN ({$instanceIdsAsString});
+            SQL
+    );
     $statement->execute();
 };
 
