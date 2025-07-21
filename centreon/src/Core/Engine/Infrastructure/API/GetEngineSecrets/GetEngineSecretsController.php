@@ -40,7 +40,7 @@ use Symfony\Component\Serializer\SerializerInterface;
 #[IsGranted(
     EngineVoter::READ_ENGINE_SECRETS,
     null,
-    'you are not allowed to read engine secrets',
+    'You are not allowed to read engine secrets',
     Response::HTTP_FORBIDDEN
 )]
 final class GetEngineSecretsController extends AbstractController
@@ -62,13 +62,16 @@ final class GetEngineSecretsController extends AbstractController
             );
         } catch (RepositoryException $ex) {
             $this->error($ex->getMessage(), ['exception' => $ex]);
-           return $this->createResponse(new ErrorResponse($ex->getMessage()));
+
+            return $this->createResponse(new ErrorResponse($ex->getMessage()));
         } catch (AssertionException $ex) {
             $this->error($ex->getMessage(), ['exception' => $ex]);
-           return $this->createResponse(new InvalidArgumentResponse($ex->getMessage()));
+
+            return $this->createResponse(new InvalidArgumentResponse($ex->getMessage()));
         } catch (\Throwable $ex) {
             $this->error($ex->getMessage(), ['exception' => $ex]);
-           return $this->createResponse(new ErrorResponse('Unable to retrieve engine secrets'));
+
+            return $this->createResponse(new ErrorResponse('Unable to retrieve engine secrets'));
         }
     }
 }
