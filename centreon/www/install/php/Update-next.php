@@ -38,7 +38,7 @@ $addIsEncryptionReadyColumn = function () use ($pearDB, $pearDBO, &$errorMessage
     }
     if ($pearDBO->isColumnExist('instances', 'is_encryption_ready') !== 1) {
         $errorMessage = "Unable to add 'is_encryption_ready' column to 'instances' table";
-        $pearDBO->query("ALTER TABLE `instances` ADD COLUMN `is_encryption_ready` enum('0', '1') NOT NULL DEFAULT '1'");
+        $pearDBO->query("ALTER TABLE `instances` ADD COLUMN `is_encryption_ready` enum('0', '1') NOT NULL DEFAULT '0'");
     }
 };
 
