@@ -29,7 +29,7 @@ jobs:
                https://api.github.com/repos/centreon/centreon-on-demand/dispatches \
                -d '{"event_type": "deploy-nightly-platform",
                   "client_payload": {
-                    "bu": "RD",
+                    "bu_and_timezone": "RD - FR",
                     "deployment_profile": "Standard profile",
                     "remote_server_number": 1,
                     "poller_number": 1,

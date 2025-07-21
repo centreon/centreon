@@ -85,6 +85,8 @@ parameters:
                 - src/Core/Security/AccessGroup/Infrastructure/Repository
                 - src/Core/Metric/Infrastructure/Repository
                 - src/Core/Dashboard/Infrastructure/API/FindSingleMetric/FindSingleMetricController.php
+                - src/Core/Module/Infrastructure/Repository
+
 
         - # [CENTREON-RULE]: The class is extended or mocked. MUST be used only as a baseline.
             reportUnmatched: false

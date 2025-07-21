@@ -56,6 +56,7 @@ class User
      * @param string $theme
      * @param string $userInterfaceDensity
      * @param bool $canReachFrontend
+     * @param bool $isServiceAccount
      *
      * @throws \Assert\AssertionFailedException
      */
@@ -67,7 +68,8 @@ class User
         protected bool $isAdmin,
         protected string $theme,
         protected string $userInterfaceDensity,
-        protected bool $canReachFrontend
+        protected bool $canReachFrontend,
+        protected bool $isServiceAccount = false
     ) {
         Assertion::positiveInt($this->id, 'User::id');
 
@@ -292,5 +294,10 @@ class User
         $this->canReachFrontend = $canReachFrontend;
 
         return $this;
+    }
+
+    public function isServiceAccount(): bool
+    {
+        return $this->isServiceAccount;
     }
 }
