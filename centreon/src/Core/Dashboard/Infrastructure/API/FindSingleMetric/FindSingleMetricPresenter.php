@@ -25,8 +25,6 @@ namespace Core\Dashboard\Infrastructure\API\FindSingleMetric;
 
 use Core\Application\Common\UseCase\AbstractPresenter;
 use Core\Application\Common\UseCase\ErrorResponse;
-use Core\Application\Common\UseCase\InvalidArgumentResponse;
-use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Application\Common\UseCase\ResponseStatusInterface;
 use Core\Common\Infrastructure\ExceptionLogger\ExceptionLogger;
 use Core\Dashboard\Application\UseCase\FindSingleMetric\FindSingleMetricPresenterInterface;

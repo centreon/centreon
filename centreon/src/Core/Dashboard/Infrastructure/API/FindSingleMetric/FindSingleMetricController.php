@@ -36,9 +36,9 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
     name: 'FindSingleMetric',
     methods: ['GET'],
     requirements: [
-        'hostId'     => '\d+',
-        'serviceId'  => '\d+',
-        'metricName' => '[^/]+'
+        'hostId' => '\d+',
+        'serviceId' => '\d+',
+        'metricName' => '[^/]+',
     ],
     condition: "request.attributes.get('version') >= 25.07"
 )]

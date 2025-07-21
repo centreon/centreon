@@ -237,7 +237,7 @@ class DbReadRealTimeServiceRepository extends AbstractRepositoryRDB implements R
                 ),
                 [
                     'serviceId' => $serviceId,
-                    'hostId'    => $hostId,
+                    'hostId' => $hostId,
                 ],
                 $e
             );

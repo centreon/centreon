@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Core\Service\Application\Repository;
 
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
+use Core\Common\Domain\Exception\RepositoryException;
 use Core\Service\Domain\Model\ServiceStatusesCount;
 
 interface ReadRealTimeServiceRepositoryInterface
@@ -70,7 +71,7 @@ interface ReadRealTimeServiceRepositoryInterface
      * @param int $serviceId
      * @param int $hostId
      *
-     * @throws \RepositoryException
+     * @throws RepositoryException
      *
      * @return bool
      */

@@ -94,9 +94,9 @@ it('returns a FindSingleMetricResponse for an admin user', function () {
 
     expect($this->presenter->response)
         ->toBeInstanceOf(FindSingleMetricResponse::class)
-        ->and($this->presenter->response->metricDto->id)->toBe(1)
-        ->and($this->presenter->response->metricDto->name)->toBe('cpu')
-        ->and($this->presenter->response->metricDto->currentValue)->toBe(12.34);
+        ->and($this->presenter->response->id)->toBe(1)
+        ->and($this->presenter->response->name)->toBe('cpu')
+        ->and($this->presenter->response->currentValue)->toBe(12.34);
 });
 
 it('passes access groups to the repository for non-admin users', function () {
@@ -142,8 +142,8 @@ it('passes access groups to the repository for non-admin users', function () {
 
     expect($this->presenter->response)
         ->toBeInstanceOf(FindSingleMetricResponse::class)
-        ->and($this->presenter->response->metricDto->id)->toBe(2)
-        ->and($this->presenter->response->metricDto->name)->toBe('mem');
+        ->and($this->presenter->response->id)->toBe(2)
+        ->and($this->presenter->response->name)->toBe('mem');
 });
 
 it('returns NotFoundResponse when service does not exist', function () {
