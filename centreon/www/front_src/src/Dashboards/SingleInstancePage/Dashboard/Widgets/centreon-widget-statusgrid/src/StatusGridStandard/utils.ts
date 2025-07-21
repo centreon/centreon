@@ -176,3 +176,5 @@ export const getMetricsEndpoint = ({ resouceType, id, parentId }): string => {
 
   return `/monitoring/hosts/${parentId}/services/${id}/metrics`;
 };
+
+export const seeMoreTileId = 'see-more';
