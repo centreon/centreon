@@ -29,7 +29,7 @@ on:
 
 jobs:
   performance-test:
-    runs-on: centreon-perf-testing
+    runs-on: ubuntu-24.04
 
     defaults:
       run:
