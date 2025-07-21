@@ -74,6 +74,7 @@ class PhpCsFixerRuleSet
                 'header' => self::getLicenseHeaderAsPhpComment(),
                 'location' => 'after_open',
                 'separate' => 'both',
+                'comment_type' => 'comment',
             ],
             'heredoc_indentation' => true,
             'heredoc_to_nowdoc' => true,
