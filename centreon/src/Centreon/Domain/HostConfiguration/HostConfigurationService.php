@@ -140,9 +140,14 @@ class HostConfigurationService implements HostConfigurationServiceInterface
                 /**
                  * Create all the entities that will be associated with the host that must be created first.
                  */
+                $newMacroOrder = 0; // by default we initialize the order of the macros
                 foreach ($host->getMacros() as $macro) {
                     $this->debug('Add macro ' . $macro->getName());
+                    if ($macro->getOrder() === null) {
+                        $macro->setOrder($newMacroOrder);
+                    }
                     $this->hostMacroService->addMacroToHost($host, $macro);
+                    $newMacroOrder++;
                 }
                 if ($transactionAlreadyStarted === false) {
                     $this->debug('Commit transaction');

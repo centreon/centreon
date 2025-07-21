@@ -95,6 +95,18 @@ final class DeleteToken
 
             $this->writeTokenRepository->deleteByNameAndUserId($tokenName, $userId);
 
+            $this->info(
+                'Delete token succeeded',
+                [
+                    'event' => 'Token deletion',
+                    'datetime' => (new \DateTimeImmutable())->format('Y-m-d H:i:s'),
+                    'requester_id' => $this->user->getId(),
+                    'user_id' => $userId,
+                    'token_type' => $token->getType()->name,
+                    'token_name' => $tokenName,
+                ]
+            );
+
             $presenter->setResponseStatus(new NoContentResponse());
         } catch (\Throwable $ex) {
             $presenter->setResponseStatus(

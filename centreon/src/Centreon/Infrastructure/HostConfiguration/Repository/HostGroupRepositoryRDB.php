@@ -100,8 +100,7 @@ class HostGroupRepositoryRDB extends AbstractRepositoryDRB implements
             $this->translateDbName(
                 'SELECT hg.*, icon.img_id AS icon_id, icon.img_name AS icon_name,
                     CONCAT(iconD.dir_name,\'/\',icon.img_path) AS icon_path,
-                    icon.img_comment AS icon_comment, imap.img_id AS imap_id, imap.img_name AS imap_name,
-                    CONCAT(imapD.dir_name,\'/\',imap.img_path) AS imap_path, imap.img_comment AS imap_comment
+                    icon.img_comment AS icon_comment
                 FROM `:db`.hostgroup hg
                 INNER JOIN `:db`.hostgroup_relation hgr
                     ON hgr.hostgroup_hg_id = hg.hg_id
@@ -111,12 +110,6 @@ class HostGroupRepositoryRDB extends AbstractRepositoryDRB implements
                     ON iconR.img_img_id = icon.img_id
                 LEFT JOIN `:db`.view_img_dir iconD
                     ON iconD.dir_id = iconR.dir_dir_parent_id
-                LEFT JOIN `:db`.view_img imap
-                    ON imap.img_id = hg.hg_map_icon_image
-                LEFT JOIN `:db`.view_img_dir_relation imapR
-                    ON imapR.img_img_id = imap.img_id
-                LEFT JOIN `:db`.view_img_dir imapD
-                    ON imapD.dir_id = imapR.dir_dir_parent_id
                 WHERE hgr.host_host_id = :host_id'
             )
         );
@@ -169,8 +162,7 @@ class HostGroupRepositoryRDB extends AbstractRepositoryDRB implements
             $this->translateDbName(
                 'SELECT hg.*, icon.img_id AS icon_id, icon.img_name AS icon_name,
                     CONCAT(iconD.dir_name,\'/\',icon.img_path) AS icon_path,
-                    icon.img_comment AS icon_comment, imap.img_id AS imap_id, imap.img_name AS imap_name,
-                    CONCAT(imapD.dir_name,\'/\',imap.img_path) AS imap_path, imap.img_comment AS imap_comment
+                    icon.img_comment AS icon_comment
                 FROM `:db`.hostgroup hg
                 LEFT JOIN `:db`.view_img icon
                     ON icon.img_id = hg.hg_icon_image
@@ -178,12 +170,6 @@ class HostGroupRepositoryRDB extends AbstractRepositoryDRB implements
                     ON iconR.img_img_id = icon.img_id
                 LEFT JOIN `:db`.view_img_dir iconD
                     ON iconD.dir_id = iconR.dir_dir_parent_id
-                LEFT JOIN `:db`.view_img imap
-                    ON imap.img_id = hg.hg_map_icon_image
-                LEFT JOIN `:db`.view_img_dir_relation imapR
-                    ON imapR.img_img_id = imap.img_id
-                LEFT JOIN `:db`.view_img_dir imapD
-                    ON imapD.dir_id = imapR.dir_dir_parent_id
                 WHERE hg.hg_name IN (?' . str_repeat(',?', count($groupsName) - 1) . ')'
             )
         );
@@ -230,21 +216,14 @@ class HostGroupRepositoryRDB extends AbstractRepositoryDRB implements
         $request = $this->translateDbName(
             'SELECT SQL_CALC_FOUND_ROWS hg.*, icon.img_id AS icon_id, icon.img_name AS icon_name,
                 CONCAT(iconD.dir_name,\'/\',icon.img_path) AS icon_path,
-                icon.img_comment AS icon_comment, imap.img_id AS imap_id, imap.img_name AS imap_name,
-                CONCAT(imapD.dir_name,\'/\',imap.img_path) AS imap_path, imap.img_comment AS imap_comment
+                icon.img_comment AS icon_comment
             FROM `:db`.hostgroup hg
             LEFT JOIN `:db`.view_img icon
                 ON icon.img_id = hg.hg_icon_image
             LEFT JOIN `:db`.view_img_dir_relation iconR
                 ON iconR.img_img_id = icon.img_id
             LEFT JOIN `:db`.view_img_dir iconD
-                ON iconD.dir_id = iconR.dir_dir_parent_id
-            LEFT JOIN `:db`.view_img imap
-                ON imap.img_id = hg.hg_map_icon_image
-            LEFT JOIN `:db`.view_img_dir_relation imapR
-                ON imapR.img_img_id = imap.img_id
-            LEFT JOIN `:db`.view_img_dir imapD
-                ON imapD.dir_id = imapR.dir_dir_parent_id'
+                ON iconD.dir_id = iconR.dir_dir_parent_id'
         );
 
         // Search
@@ -297,8 +276,7 @@ class HostGroupRepositoryRDB extends AbstractRepositoryDRB implements
                 $this->translateDbName(
                     'SELECT hg.*, icon.img_id AS icon_id, icon.img_name AS icon_name,
                         CONCAT(iconD.dir_name,\'/\',icon.img_path) AS icon_path,
-                        icon.img_comment AS icon_comment, imap.img_id AS imap_id, imap.img_name AS imap_name,
-                        CONCAT(imapD.dir_name,\'/\',imap.img_path) AS imap_path, imap.img_comment AS imap_comment
+                        icon.img_comment AS icon_comment
                     FROM `:db`.hostgroup hg
                     LEFT JOIN `:db`.view_img icon
                         ON icon.img_id = hg.hg_icon_image
@@ -306,12 +284,6 @@ class HostGroupRepositoryRDB extends AbstractRepositoryDRB implements
                         ON iconR.img_img_id = icon.img_id
                     LEFT JOIN `:db`.view_img_dir iconD
                         ON iconD.dir_id = iconR.dir_dir_parent_id
-                    LEFT JOIN `:db`.view_img imap
-                        ON imap.img_id = hg.hg_map_icon_image
-                    LEFT JOIN `:db`.view_img_dir_relation imapR
-                        ON imapR.img_img_id = imap.img_id
-                    LEFT JOIN `:db`.view_img_dir imapD
-                        ON imapD.dir_id = imapR.dir_dir_parent_id
                     WHERE hg.hg_id = :id'
                 )
             );
@@ -320,8 +292,7 @@ class HostGroupRepositoryRDB extends AbstractRepositoryDRB implements
                 $this->translateDbName(
                     'SELECT hg.*, icon.img_id AS icon_id, icon.img_name AS icon_name,
                         CONCAT(iconD.dir_name,\'/\',icon.img_path) AS icon_path,
-                        icon.img_comment AS icon_comment, imap.img_id AS imap_id, imap.img_name AS imap_name,
-                        CONCAT(imapD.dir_name,\'/\',imap.img_path) AS imap_path, imap.img_comment AS imap_comment
+                        icon.img_comment AS icon_comment
                     FROM `:db`.hostgroup hg
                     LEFT JOIN `:db`.view_img icon
                         ON icon.img_id = hg.hg_icon_image
@@ -329,12 +300,6 @@ class HostGroupRepositoryRDB extends AbstractRepositoryDRB implements
                         ON iconR.img_img_id = icon.img_id
                     LEFT JOIN `:db`.view_img_dir iconD
                         ON iconD.dir_id = iconR.dir_dir_parent_id
-                    LEFT JOIN `:db`.view_img imap
-                        ON imap.img_id = hg.hg_map_icon_image
-                    LEFT JOIN `:db`.view_img_dir_relation imapR
-                        ON imapR.img_img_id = imap.img_id
-                    LEFT JOIN `:db`.view_img_dir imapD
-                        ON imapD.dir_id = imapR.dir_dir_parent_id
                     INNER JOIN `:db`.acl_resources_hg_relations arhr
                         ON hg.hg_id = arhr.hg_hg_id
                     INNER JOIN `:db`.acl_resources res
