@@ -107,7 +107,7 @@ try {
             $pearDB->rollBack();
         }
         if ($pearDBO->inTransaction()) {
-            $pearDB->rollBack();
+            $pearDBO->rollBack();
         }
     } catch (PDOException $rollbackException) {
         CentreonLog::create()->error(
