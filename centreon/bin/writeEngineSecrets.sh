@@ -1,0 +1,35 @@
+#!/bin/bash
+
+if [ "$#" -ne 3 ]; then
+  echo "Usage: $0 <api_base_url> <username> <password>"
+  exit 1
+fi
+
+API_URL="$1"
+USERNAME="$2"
+PASSWORD="$3"
+SECRETS_ENDPOINT="/api/latest/administration/engine/secrets"
+OUTPUT_FILE="/etc/centreon-engine/engine-context.json"
+
+# Authenticate and get token (assuming API returns a token in JSON)
+TOKEN=$(curl -s -X POST "$API_URL/api/latest/login" \
+  -H "Content-Type: application/json" \
+  -d "{\"security\":{\"credentials\":{\"login\":\"$USERNAME\",\"password\":\"$PASSWORD\"}}}" | \
+  sed -n 's/.*"token"[ ]*:[ ]*"\([^"]*\)".*/\1/p')
+
+if [ -z "$TOKEN" ] || [ "$TOKEN" == "null" ]; then
+  echo "Authentication failed"
+  exit 1
+fi
+
+# Fetch secrets and write to file
+response=$(curl -s -w "%{http_code}" -H "X-AUTH-TOKEN: $TOKEN" "$API_URL$SECRETS_ENDPOINT")
+http_code="${response: -3}"
+body="${response::-3}"
+
+if [ "$http_code" = "200" ]; then
+  echo "$body" > "$OUTPUT_FILE"
+else
+  echo "Error while retrieving secrets (HTTP $http_code): $body" >&2
+  exit 1
+fi
