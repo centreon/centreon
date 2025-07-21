@@ -23,7 +23,6 @@ declare(strict_types=1);
 
 namespace Core\Engine\Infrastructure\Repository;
 
-use Centreon\Domain\Common\Assertion\AssertionException;
 use Core\Common\Domain\Exception\RepositoryException;
 use Core\Engine\Application\Repository\EngineRepositoryInterface;
 use Core\Engine\Domain\Model\EngineKey;
@@ -44,12 +43,6 @@ final readonly class FsEngineRepository implements EngineRepositoryInterface
         $this->filesystem = new Filesystem();
     }
 
-    /**
-     * Get engine secrets.
-     *
-     * @throws RepositoryException|AssertionException
-     * @return EngineSecrets
-     */
     public function getEngineSecrets(): EngineSecrets
     {
         try {
