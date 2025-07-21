@@ -21287,7 +21287,7 @@ msgstr "Dirección n ° 6"
 # msgid "Business Activity availability history"
 # msgstr "Historique de la disponibilité d’une Activité Métier"
 
-# msgid "Displays availability, performance and alerts for a Business Activity"
+# msgid "Displays the availability history of a Business Activity or a Business View for a given period."
 # msgstr "Affiche l’historique de la disponibilité d'une activité métier ou vue métier pour une période donnée."
 
 # msgid "Aggregation frequency"
@@ -21302,7 +21302,7 @@ msgstr "Dirección n ° 6"
 # msgid "This year"
 # msgstr "Cette année"
 
-# msgid "Display availability as"
+# msgid "Display availability and performance as"
 # msgstr "Afficher la disponibilité comme"
 
 # msgid "Y-axis boundaries"

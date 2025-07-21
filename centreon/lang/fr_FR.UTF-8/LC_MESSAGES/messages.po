@@ -24015,7 +24015,7 @@ msgstr "affichera les ressources avec un nom d'hôte commençant par"
 msgid "Business Activity availability history"
 msgstr "Historique de la disponibilité d’une Activité Métier"
 
-msgid "Displays availability, performance and alerts for a Business Activity"
+msgid "Displays the availability history of a Business Activity or a Business View for a given period."
 msgstr "Affiche l’historique de la disponibilité d'une activité métier ou vue métier pour une période donnée."
 
 msgid "By default, the data of Business Views is aggregated monthly over the past 12 months (if available)."
