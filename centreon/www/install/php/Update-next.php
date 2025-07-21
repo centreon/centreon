@@ -66,6 +66,10 @@ $setEncryptionReadyToFalseByDefaultOnInstances = function () use ($pearDB, $pear
                 SELECT `id` FROM nagios_server WHERE `localhost` = '0';
             SQL
     );
+    if (empty($instanceIds)) {
+        return;
+    }
+
     $instanceIdsAsString = implode(',', $instanceIds);
     $statement = $pearDBO->prepare(
         <<<SQL
