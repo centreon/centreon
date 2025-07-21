@@ -70,7 +70,7 @@ interface ReadRealTimeServiceRepositoryInterface
      * @param int $serviceId
      * @param int $hostId
      *
-     * @throws \Throwable
+     * @throws \RepositoryException
      *
      * @return bool
      */

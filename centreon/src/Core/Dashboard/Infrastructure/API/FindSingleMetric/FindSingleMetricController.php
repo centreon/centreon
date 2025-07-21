@@ -29,8 +29,19 @@ use Core\Dashboard\Application\UseCase\FindSingleMetric\FindSingleMetric;
 use Core\Dashboard\Application\UseCase\FindSingleMetric\FindSingleMetricRequest;
 use Core\Security\Infrastructure\Voters\ApiRealtimeVoter;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
-
+#[Route(
+    path: '/monitoring/hosts/{hostId}/services/{serviceId}/metrics/{metricName}',
+    name: 'FindSingleMetric',
+    methods: ['GET'],
+    requirements: [
+        'hostId'     => '\d+',
+        'serviceId'  => '\d+',
+        'metricName' => '[^/]+'
+    ],
+    condition: "request.attributes.get('version') >= 25.07"
+)]
 #[IsGranted(
     ApiRealtimeVoter::ROLE_API_REALTIME,
     null,

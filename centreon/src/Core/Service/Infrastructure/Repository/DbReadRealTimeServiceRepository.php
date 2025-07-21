@@ -24,12 +24,16 @@ declare(strict_types=1);
 namespace Core\Service\Infrastructure\Repository;
 
 use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\Exception\ConnectionException;
 use Adaptation\Database\Connection\ValueObject\QueryParameter;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\RequestParameters\Interfaces\NormalizerInterface;
 use Centreon\Infrastructure\RequestParameters\RequestParametersTranslatorException;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
+use Core\Common\Domain\Exception\CollectionException;
+use Core\Common\Domain\Exception\RepositoryException;
+use Core\Common\Domain\Exception\ValueObjectException;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 use Core\Common\Infrastructure\Repository\SqlMultipleBindTrait;
 use Core\Service\Application\Repository\ReadRealTimeServiceRepositoryInterface;
@@ -214,13 +218,30 @@ class DbReadRealTimeServiceRepository extends AbstractRepositoryRDB implements R
                     AND host_id = :hostId
             SQL;
 
-        return (bool) $this->db->fetchOne(
-            $this->translateDbName($query),
-            QueryParameters::create([
-                QueryParameter::int('serviceId', $serviceId),
-                QueryParameter::int('hostId', $hostId),
-            ])
-        );
+        try {
+            $raw = $this->db->fetchOne(
+                $this->translateDbName($query),
+                QueryParameters::create([
+                    QueryParameter::int('serviceId', $serviceId),
+                    QueryParameter::int('hostId',    $hostId),
+                ])
+            );
+
+            return (bool) $raw;
+        } catch (ValueObjectException|CollectionException|ConnectionException $e) {
+            throw new RepositoryException(
+                sprintf(
+                    'Error checking existence of service %d on host %d',
+                    $serviceId,
+                    $hostId
+                ),
+                [
+                    'serviceId' => $serviceId,
+                    'hostId'    => $hostId,
+                ],
+                $e
+            );
+        }
     }
 
     /**

@@ -25,5 +25,14 @@ namespace Core\Dashboard\Application\UseCase\FindSingleMetric;
 
 final readonly class FindSingleMetricResponse
 {
-    public function __construct(public MetricDto $metricDto) {}
+    public function __construct(
+        public int $id,
+        public string $name,
+        public ?string $unit,
+        public ?float $currentValue,
+        public ?float $warningHighThreshold,
+        public ?float $warningLowThreshold,
+        public ?float $criticalHighThreshold,
+        public ?float $criticalLowThreshold
+    ) {}
 }

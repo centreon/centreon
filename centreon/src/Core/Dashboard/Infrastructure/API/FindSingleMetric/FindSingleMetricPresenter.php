@@ -46,11 +46,7 @@ final class FindSingleMetricPresenter extends AbstractPresenter implements FindS
     public function presentResponse(FindSingleMetricResponse|ResponseStatusInterface $response): void
     {
         if ($response instanceof ResponseStatusInterface) {
-            if ((
-                $response instanceof ErrorResponse
-                || $response instanceof NotFoundResponse
-                || $response instanceof InvalidArgumentResponse
-                ) && ! is_null($response->getException())) {
+            if (($response instanceof ErrorResponse) && ! is_null($response->getException())) {
                 $this->exceptionLogger->log($response->getException());
             }
             $this->setResponseStatus($response);
@@ -58,16 +54,15 @@ final class FindSingleMetricPresenter extends AbstractPresenter implements FindS
             return;
         }
 
-        $metric = $response->metricDto;
         $this->present([
-            'id' => $metric->id,
-            'name' => $metric->name,
-            'unit' => $metric->unit,
-            'current_value' => $metric->currentValue,
-            'warning_high_threshold' => $metric->warningHighThreshold,
-            'warning_low_threshold' => $metric->warningLowThreshold,
-            'critical_high_threshold' => $metric->criticalHighThreshold,
-            'critical_low_threshold' => $metric->criticalLowThreshold,
+            'id' => $response->id,
+            'name' => $response->name,
+            'unit' => $response->unit,
+            'current_value' => $response->currentValue,
+            'warning_high_threshold' => $response->warningHighThreshold,
+            'warning_low_threshold' => $response->warningLowThreshold,
+            'critical_high_threshold' => $response->criticalHighThreshold,
+            'critical_low_threshold' => $response->criticalLowThreshold,
         ]);
     }
 }

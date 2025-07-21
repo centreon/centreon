@@ -27,7 +27,6 @@ use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
-use Core\Common\Domain\Exception\RepositoryException;
 use Core\Metric\Application\Repository\ReadMetricRepositoryInterface;
 use Core\Metric\Domain\Model\Metric;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
@@ -106,7 +105,7 @@ final class FindSingleMetric
                     ]
                 ));
             }
-        } catch (RepositoryException|\Throwable $exception) {
+        } catch (\Throwable $exception) {
             $presenter->presentResponse(new ErrorResponse(
                 'Error while retrieving metric : ' . $exception->getMessage(),
                 [
@@ -129,16 +128,15 @@ final class FindSingleMetric
      */
     private function createResponse(Metric $metric): FindSingleMetricResponse
     {
-        $dto = new MetricDto();
-        $dto->id = $metric->getId();
-        $dto->name = $metric->getName();
-        $dto->unit = $metric->getUnit();
-        $dto->currentValue = $metric->getCurrentValue();
-        $dto->warningHighThreshold = $metric->getWarningHighThreshold();
-        $dto->warningLowThreshold = $metric->getWarningLowThreshold();
-        $dto->criticalHighThreshold = $metric->getCriticalHighThreshold();
-        $dto->criticalLowThreshold = $metric->getCriticalLowThreshold();
-
-        return new FindSingleMetricResponse($dto);
+        return new FindSingleMetricResponse(
+            id: $metric->getId(),
+            name: $metric->getName(),
+            unit: $metric->getUnit(),
+            currentValue: $metric->getCurrentValue(),
+            warningHighThreshold: $metric->getWarningHighThreshold(),
+            warningLowThreshold: $metric->getWarningLowThreshold(),
+            criticalHighThreshold: $metric->getCriticalHighThreshold(),
+            criticalLowThreshold: $metric->getCriticalLowThreshold(),
+        );
     }
 }
