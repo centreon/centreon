@@ -22,8 +22,8 @@ on:
       - dev-[2-9][0-9].[0-9][0-9].x
       - master
       - "[2-9][0-9].[0-9][0-9].x"
-      - 'release-[2-9][0-9].[0-9][0-9]-next'
-      - 'hotfix-[2-9][0-9].[0-9][0-9]-next'
+      - "release-[2-9][0-9].[0-9][0-9]-next"
+      - "hotfix-[2-9][0-9].[0-9][0-9]-next"
     paths:
       - ".version"
       - ".version.centreon-open-tickets"
@@ -33,6 +33,7 @@ on:
 
 env:
   module: open-tickets
+  e2e_directory: centreon-open-tickets/tests/e2e
 
 jobs:
   get-environment:
@@ -239,13 +240,44 @@ jobs:
           path: "centreon/build/phpunit.xml"
           format: "php-junit"
 
+  gherkin-lint:
+    needs: [get-environment]
+    if: |
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      needs.get-environment.outputs.stability != 'stable'
+    runs-on: centreon-ubuntu-22.04
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - uses: ./.github/actions/gherkin-lint
+        with:
+          features_path: ${{ env.e2e_directory }}
+
+  e2e-lint:
+    needs: [get-environment]
+    if: |
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      needs.get-environment.outputs.stability != 'stable'
+    runs-on: centreon-ubuntu-22.04
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - uses: ./.github/actions/frontend-lint
+        with:
+          frontend_directory: ${{ env.e2e_directory }}
+          module_name: ${{ env.module }}
+          dependencies_lock_file: ${{ env.e2e_directory }}/pnpm-lock.yaml
+          pat: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+
   package:
     needs:
       [
         get-environment,
         check-version-consistency,
         backend-lint,
-        backend-unit-test
+        backend-unit-test,
+        gherkin-lint,
+        e2e-lint,
       ]
     if: |
       needs.get-environment.outputs.skip_workflow == 'false' &&
@@ -468,7 +500,8 @@ jobs:
       xray_jira_token: ${{ secrets.XRAY_JIRA_TOKEN }}
 
   e2e-test:
-    needs: [get-environment, create-xray-test-plan-and-test-execution, dockerize]
+    needs:
+      [get-environment, create-xray-test-plan-and-test-execution, dockerize]
     if: |
       needs.get-environment.outputs.skip_workflow == 'false' &&
       ! cancelled() &&
@@ -521,7 +554,6 @@ jobs:
       ! contains(needs.*.result, 'cancelled') &&
       github.repository == 'centreon/centreon'
     runs-on: centreon-common
-
     strategy:
       matrix:
         distrib: [el8, el9]
@@ -553,7 +585,6 @@ jobs:
       github.repository == 'centreon/centreon' &&
       (needs.get-environment.outputs.is_cloud == 'false' || needs.get-environment.outputs.stability == 'unstable')
     runs-on: centreon-common
-
     strategy:
       matrix:
         distrib: [bookworm]
