@@ -31,6 +31,7 @@ use Core\Security\Infrastructure\Voters\ApiRealtimeVoter;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+
 #[Route(
     path: '/monitoring/hosts/{hostId}/services/{serviceId}/metrics/{metricName}',
     name: 'FindSingleMetric',
@@ -73,13 +74,13 @@ final class FindSingleMetricController extends AbstractController
                 metricName: $metricName
             );
         } catch (\InvalidArgumentException $e) {
-            $presenter->present( new InvalidArgumentResponse(
+            $presenter->present(new InvalidArgumentResponse(
                 'Invalid parameters provided : ' . $e->getMessage(),
-                    [
-                        'host_id' => $hostId,
-                        'service_id' => $serviceId,
-                        'metric_name' => $metricName,
-                    ]
+                [
+                    'host_id' => $hostId,
+                    'service_id' => $serviceId,
+                    'metric_name' => $metricName,
+                ]
             ));
 
             return $presenter->show();

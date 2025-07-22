@@ -127,8 +127,7 @@ class DbReadMetricRepository extends AbstractRepositoryDRB implements ReadMetric
         array $accessGroups,
         RequestParametersInterface $requestParameters,
         ?string $metricName = null
-    ): array
-    {
+    ): array {
         $query = $this->buildQueryForFindMetrics($requestParameters, $accessGroups, $metricName);
         $statement = $this->executeQueryForFindMetrics($query, $hostId, $serviceId, $metricName);
         $records = $statement->fetchAll();
@@ -197,7 +196,7 @@ class DbReadMetricRepository extends AbstractRepositoryDRB implements ReadMetric
             );
         }
 
-        if (! empty($metrics)) {
+        if ($metrics !== []) {
             return $metrics[0];
         }
 

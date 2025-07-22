@@ -34,5 +34,6 @@ final readonly class FindSingleMetricResponse
         public ?float $warningLowThreshold,
         public ?float $criticalHighThreshold,
         public ?float $criticalLowThreshold
-    ) {}
+    ) {
+    }
 }

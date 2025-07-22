@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
@@ -24,22 +25,22 @@ namespace Tests\Core\Dashboard\Application\UseCase\FindSingleMetric;
 
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
-use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Application\Common\UseCase\ErrorResponse;
+use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Common\Domain\Exception\RepositoryException;
 use Core\Dashboard\Application\UseCase\FindSingleMetric\{
     FindSingleMetric,
+    FindSingleMetricPresenterInterface,
     FindSingleMetricRequest,
-    FindSingleMetricResponse,
-    FindSingleMetricPresenterInterface
+    FindSingleMetricResponse
 };
 use Core\Metric\Application\Repository\ReadMetricRepositoryInterface;
+use Core\Metric\Domain\Model\Metric;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\Service\Application\Repository\ReadRealTimeServiceRepositoryInterface;
-use Core\Metric\Domain\Model\Metric;
 use Mockery;
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->contact = Mockery::mock(ContactInterface::class);
     $this->metricRepo = Mockery::mock(ReadMetricRepositoryInterface::class);
     $this->serviceRepo = Mockery::mock(ReadRealTimeServiceRepositoryInterface::class);
@@ -47,8 +48,9 @@ beforeEach(function () {
     $this->requestParameters = Mockery::mock(RequestParametersInterface::class);
     $this->contact->shouldReceive('getId')->andReturn(1);
 
-    $this->presenter = new class implements FindSingleMetricPresenterInterface {
+    $this->presenter = new class () implements FindSingleMetricPresenterInterface {
         public mixed $response = null;
+
         public function presentResponse(mixed $response): void
         {
             $this->response = $response;
@@ -56,7 +58,7 @@ beforeEach(function () {
     };
 });
 
-it('returns a FindSingleMetricResponse for an admin user', function () {
+it('returns a FindSingleMetricResponse for an admin user', function (): void {
     $this->contact->shouldReceive('isAdmin')->once()->andReturn(true);
     $hostId = 10;
     $serviceId = 20;
@@ -87,7 +89,6 @@ it('returns a FindSingleMetricResponse for an admin user', function () {
         $this->serviceRepo,
         $this->accessGroupRepo,
         $this->requestParameters,
-
     );
 
     $useCase(new FindSingleMetricRequest(10, 20, 'cpu'), $this->presenter);
@@ -99,7 +100,7 @@ it('returns a FindSingleMetricResponse for an admin user', function () {
         ->and($this->presenter->response->currentValue)->toBe(12.34);
 });
 
-it('passes access groups to the repository for non-admin users', function () {
+it('passes access groups to the repository for non-admin users', function (): void {
     $this->contact->shouldReceive('isAdmin')->once()->andReturn(false);
     $hostId = 11;
     $serviceId = 22;
@@ -123,7 +124,6 @@ it('passes access groups to the repository for non-admin users', function () {
     $metric->setUnit('MB');
     $metric->setCurrentValue(256.0);
 
-
     $this->metricRepo
         ->shouldReceive('findSingleMetricValue')
         ->once()
@@ -146,7 +146,7 @@ it('passes access groups to the repository for non-admin users', function () {
         ->and($this->presenter->response->name)->toBe('mem');
 });
 
-it('returns NotFoundResponse when service does not exist', function () {
+it('returns NotFoundResponse when service does not exist', function (): void {
     $hostId = 5;
     $serviceId = 6;
     $this->serviceRepo
@@ -170,7 +170,7 @@ it('returns NotFoundResponse when service does not exist', function () {
         ->and($this->presenter->response->getMessage())->toBe('Service not found');
 });
 
-it('maps a "not found" exception to NotFoundResponse', function () {
+it('maps a "not found" exception to NotFoundResponse', function (): void {
     $this->contact->shouldReceive('isAdmin')->once()->andReturn(true);
     $this->serviceRepo->shouldReceive('exists')->once()->andReturn(true);
 
@@ -193,7 +193,7 @@ it('maps a "not found" exception to NotFoundResponse', function () {
         ->toBeInstanceOf(NotFoundResponse::class);
 });
 
-it('maps other exceptions to ErrorResponse', function () {
+it('maps other exceptions to ErrorResponse', function (): void {
     $this->contact->shouldReceive('isAdmin')->once()->andReturn(true);
     $this->serviceRepo->shouldReceive('exists')->once()->andReturn(true);
 
@@ -202,7 +202,7 @@ it('maps other exceptions to ErrorResponse', function () {
         ->once()
         ->andThrow(new RepositoryException(
             "Error retrieving metric 'foo' for host 1, service 2",
-            ['metricName'=>'bar','hostId'=>1,'serviceId'=>2]
+            ['metricName' => 'bar', 'hostId' => 1, 'serviceId' => 2]
         ));
 
     $useCase = new FindSingleMetric(
@@ -219,17 +219,17 @@ it('maps other exceptions to ErrorResponse', function () {
         ->toBeInstanceOf(ErrorResponse::class);
 });
 
-it('throws InvalidArgumentException for non-positive hostId', function () {
+it('throws InvalidArgumentException for non-positive hostId', function (): void {
     $this->expectException(\InvalidArgumentException::class);
     new FindSingleMetricRequest(0, 1, 'metric');
 });
 
-it('throws InvalidArgumentException for non-positive serviceId', function () {
+it('throws InvalidArgumentException for non-positive serviceId', function (): void {
     $this->expectException(\InvalidArgumentException::class);
     new FindSingleMetricRequest(1, 0, 'metric');
 });
 
-it('throws InvalidArgumentException for empty metricName', function () {
+it('throws InvalidArgumentException for empty metricName', function (): void {
     $this->expectException(\InvalidArgumentException::class);
     new FindSingleMetricRequest(1, 2, '');
 });

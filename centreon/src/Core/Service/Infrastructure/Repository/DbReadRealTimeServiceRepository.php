@@ -223,7 +223,7 @@ class DbReadRealTimeServiceRepository extends AbstractRepositoryRDB implements R
                 $this->translateDbName($query),
                 QueryParameters::create([
                     QueryParameter::int('serviceId', $serviceId),
-                    QueryParameter::int('hostId',    $hostId),
+                    QueryParameter::int('hostId', $hostId),
                 ])
             );
 
