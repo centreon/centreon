@@ -21,23 +21,19 @@
 
 declare(strict_types=1);
 
-namespace Core\MonitoringServer\Application\Repository;
+namespace Core\MonitoringServer\Application\UseCase\UpdateMonitoringServer;
 
-use Core\MonitoringServer\Model\MonitoringServer;
-
-interface WriteMonitoringServerRepositoryInterface
+final class UpdateMonitoringServerRequest
 {
-    /**
-     * Define the monitoring server as changed since its last configuration export.
-     *
-     * @param int $monitoringServerId
-     */
-    public function notifyConfigurationChange(int $monitoringServerId): void;
-
-    /**
-     * Update a monitoring server.
-     *
-     * @param MonitoringServer $monitoringServer
-     */
-    public function update(MonitoringServer $monitoringServer): void;
+    public function __construct(
+        public int $id,
+        public string $name,
+        public ?string $engineStartCommand,
+        public ?string $engineStopCommand,
+        public ?string $engineRestartCommand,
+        public ?string $engineReloadCommand,
+        public ?string $brokerReloadCommand,
+    ) {
+    }
 }
+
