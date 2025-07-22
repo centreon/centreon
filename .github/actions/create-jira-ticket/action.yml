@@ -58,6 +58,8 @@ runs:
           exit 1
         fi
 
+        echo "[DEBUG] JOBS_FAILED: $(gh run view ${{ github.run_id }} --json jobs -q '.jobs[] | select(.conclusion == "failure") | .name')"
+
     #     case "${{ inputs.ticket_squad }}" in
     #       "DevSecOps")
     #         ticket_squad_id=10524
