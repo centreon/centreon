@@ -66,11 +66,12 @@ export interface WidgetPropertyProps {
   isRequiredProperty?: boolean;
   tooltipLabel?: string;
   subInputsDelimiter?: string;
+  allowRegexOnResourceTypes?: Array<WidgetResourceType>;
 }
 
 export interface WidgetDataResource {
   resourceType: WidgetResourceType;
-  resources: Array<SelectEntry>;
+  resources: Array<SelectEntry> | string;
 }
 export interface WidgetDataMetric {
   id: number;
