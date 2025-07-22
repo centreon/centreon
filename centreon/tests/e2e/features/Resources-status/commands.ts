@@ -118,6 +118,44 @@ Cypress.Commands.add(
   }
 );
 
+Cypress.Commands.add(
+  'waitForElementInIframeToDisappear',
+  (iframeSelector, elementSelector) => {
+    cy.waitUntil(
+      () =>
+        cy.get(iframeSelector).then(($iframe) => {
+          const iframeBody = ($iframe[0] as HTMLIFrameElement).contentDocument
+            ?.body;
+          if (iframeBody) {
+            const $element = Cypress.$(iframeBody).find(elementSelector);
+            const isGone = $element.length === 0 || !$element.is(':visible');
+            if (!isGone) {
+              cy.exportConfig();
+              cy.reload();
+              cy.waitForElementInIframe(
+                '#main-content',
+                'a:contains("Add a downtime")'
+              );
+            }
+
+            return isGone;
+          }
+
+          return false;
+        }),
+      {
+        errorMsg: 'The element is still visible within the iframe',
+        interval: 7000,
+        timeout: 100000
+      }
+    ).then((isGone) => {
+      if (!isGone) {
+        throw new Error('The element is still visible');
+      }
+    });
+  }
+);
+
 declare global {
   namespace Cypress {
     interface Chainable {
@@ -134,6 +172,10 @@ declare global {
         maxRetries?: number,
         retryDelay?: number
       ): Cypress.Chainable;
+       waitForElementInIframeToDisappear: (
+        iframeSelector: string,
+        elementSelector: string
+      ) => Cypress.Chainable;
     }
   }
 }
