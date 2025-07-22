@@ -266,15 +266,23 @@ $hostQuery = <<<SQL
         {$subQueryConditionSearchEndTime}
     SQL;
 
-$unionQuery = <<<SQL
-    ({$serviceQuery})
-    UNION
-    ({$hostQuery})
+if ($subQueryConditionSearchHost == '' && $subQueryConditionSearchService !== '') {
+    $filterQuery = $serviceQuery;
+} else {
+    $filterQuery = <<<SQL
+        ({$serviceQuery})
+        UNION
+        ({$hostQuery})
+        SQL;
+}
+
+$finalQuery = <<<SQL
+    $filterQuery
     ORDER BY scheduled_start_time DESC
     LIMIT :offset, :limit
     SQL;
 
-$downtimesStatement = $pearDBO->prepareQuery($unionQuery);
+$downtimesStatement = $pearDBO->prepareQuery($finalQuery);
 $pearDBO->executePreparedQuery($downtimesStatement, $bindValues, true);
 
 $rows = $pearDBO->fetchColumn($pearDBO->executeQuery('SELECT FOUND_ROWS() AS REALTIME'));
