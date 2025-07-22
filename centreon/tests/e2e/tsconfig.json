@@ -2,6 +2,7 @@
   "extends": "@centreon/js-config/tsconfig/index",
   "compilerOptions": {
     "baseUrl": ".",
+    "module": "CommonJS",
     "esModuleInterop": true,
     "types": ["cypress", "cypress-wait-until", "node"],
     "resolveJsonModule": true,
