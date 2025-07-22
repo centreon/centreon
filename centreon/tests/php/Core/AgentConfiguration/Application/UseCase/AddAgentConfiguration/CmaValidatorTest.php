@@ -64,7 +64,7 @@ beforeEach(function (): void {
             [
                 'name' => $this->token->getName(),
                 'creator_id' => $this->token->getCreatorId(),
-            ]
+            ],
         ],
         'hosts' => [
             [
@@ -85,8 +85,6 @@ beforeEach(function (): void {
 });
 
 /** ------------------------------------------ Validator compatibility ------------------------------------------ */
-
-
 it('should correctly identify that it handles CMA type', function (): void {
     $result = $this->cmaValidator->isValidFor(Type::CMA);
     expect($result)->toBeTrue();
@@ -98,7 +96,6 @@ it('should correctly identify that it does not handle other types', function ():
 });
 
 /** --------------------------------------- Agent initiated validation --------------------------------------- */
-
 foreach (
     [
         'invalidfilename',
@@ -180,7 +177,7 @@ it('should throw an exception when a token is not provided and connection is not
     $this->cmaValidator->validateParametersOrFail($this->request);
 });
 
-it("should throw an exception when a token is provided but invalid and connection is not no_tls (agent_initiated)", function (): void {
+it('should throw an exception when a token is provided but invalid and connection is not no_tls (agent_initiated)', function (): void {
     $this->request->configuration['agent_initiated'] = true;
     $this->user
         ->expects($this->once())
@@ -194,9 +191,7 @@ it("should throw an exception when a token is provided but invalid and connectio
     $this->cmaValidator->validateParametersOrFail($this->request);
 });
 
-
 /** --------------------------------------- Poller initiated validation --------------------------------------- */
-
 foreach (
     [
         '/etc/pki/test.crt',
@@ -233,14 +228,14 @@ it('should throw an exception when the host id is invalid (poller_initiated)', f
     $this->cmaValidator->validateParametersOrFail($this->request);
 })->throws((AgentConfigurationException::invalidHostId(9999)->getMessage()));
 
-it("should throw an exception when a token is not provided connection is not no_tls (poller_initiated)", function (): void {
+it('should throw an exception when a token is not provided connection is not no_tls (poller_initiated)', function (): void {
     $this->request->configuration['poller_initiated'] = true;
     $this->request->configuration['hosts'][0]['token'] = null;
     $this->expectException(AgentConfigurationException::class);
     $this->cmaValidator->validateParametersOrFail($this->request);
 });
 
-it("should throw an exception when a token is provided but invalid and connection is not no_tls (poller_initiated)", function (): void {
+it('should throw an exception when a token is provided but invalid and connection is not no_tls (poller_initiated)', function (): void {
     $this->request->configuration['poller_initiated'] = true;
     $this->user
         ->expects($this->once())

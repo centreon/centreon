@@ -38,7 +38,7 @@ beforeEach(function (): void {
             [
                 'name' => 'tokenName',
                 'creator_id' => 1,
-            ]
+            ],
         ],
         'hosts' => [
             [
@@ -146,7 +146,7 @@ foreach (
     );
 }
 
-it("should empty the related properties when agent_initiated is false", function (): void {
+it('should empty the related properties when agent_initiated is false', function (): void {
     $this->parameters['agent_initiated'] = false;
     $cmaConfig = new CmaConfigurationParameters($this->parameters, ConnectionModeEnum::SECURE);
     $result = $cmaConfig->getData();
@@ -156,7 +156,7 @@ it("should empty the related properties when agent_initiated is false", function
     $this->assertEquals($result['tokens'], []);
 });
 
-it("should empty the related properties when poller_initiated is false", function (): void {
+it('should empty the related properties when poller_initiated is false', function (): void {
     $this->parameters['poller_initiated'] = false;
     $cmaConfig = new CmaConfigurationParameters($this->parameters, ConnectionModeEnum::SECURE);
     $result = $cmaConfig->getData();
