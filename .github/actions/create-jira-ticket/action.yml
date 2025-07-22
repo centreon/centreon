@@ -25,40 +25,46 @@ runs:
     - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
     - name: Get ticket elements from context
-      shell: bash
+      uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
       env:
         GH_TOKEN: ${{ github.token }}
       id: get_context
-      run: |
-        ticket_labels=("Nightly" "Pipeline" "${{ inputs.ticket_reason_for_creation }}")
+      with:
+        script: |
+          const fs = require('fs');
+          const ticket_labels = ['Pipeline', '${{ inputs.ticket_reason_for_creation }}']
 
-        # Change the context elements (summary, parent epic, etc.) that are checked depending on these ticket labels
-        if [[ "${ticket_labels[@]}" =~ "Veracode" ]]; then
-          parent_epic_id=83818
-          parent_epic_key="AT-268"
-          ticket_summary="PR-${{ github.event.pull_request.number }} incident on ${{ inputs.module_name }}"
+          # Change the context elements (summary, parent epic, etc.) that are checked depending on these ticket labels
+          if (ticket_labels.includes("Veracode")) {
+            const parent_epic_id = 83818
+            const parent_epic_key = "AT-268"
+            const ticket_summary = "PR-${{ github.event.pull_request.number }} incident on ${{ inputs.module_name }}"
 
-          JSON_TEMPLATE_FILE="./.github/actions/create-jira-ticket/veracode-ticket-template.json"
-          sed -i \
-            -e 's|@PULL_REQUEST_NUMBER@|${{ github.event.pull_request.number }}|g' \
-            -e 's|@PULL_REQUEST_URL@|${{ github.event.pull_request.html_url }}|g' $JSON_TEMPLATE_FILE
+            const JSON_TEMPLATE_FILE = "./.github/actions/create-jira-ticket/veracode-ticket-template.json"
+            let data = fs.readFileSync(JSON_TEMPLATE_FILE, { encoding: 'utf8' });
+            data = data.replace(/@PULL_REQUEST_NUMBER@/g, ${{ github.event.pull_request.number }});
+            data = data.replace(/@PULL_REQUEST_URL@/g, ${{ github.event.pull_request.html_url }});
+            fs.writeFileSync(JSON_TEMPLATE_FILE, data, { encoding: 'utf8' });
+          } else if (ticket_labels.includes("Nightly")) {
+            const parent_epic_id = 206242
+            const parent_epic_key = "MON-151547"
+            const ticket_summary = formatDateISO(new Date()) + "${{ inputs.module_name }}-${{ github.ref_name }} nightly build failure"
 
-        elif [[ "${ticket_labels[@]}" =~ "Nightly" ]]; then
-          parent_epic_id=206242
-          parent_epic_key="MON-151547"
-          ticket_summary="$(date '+%Y-%m-%d') ${{ inputs.module_name }}-${{ github.ref_name }} nightly build failure"
+            console.log(ticket_summary);
 
-          JSON_TEMPLATE_FILE="./.github/actions/create-jira-ticket/nightly-ticket-template.json"
-          sed -i \
-            -e 's|@MODULE_NAME@|${{ inputs.module_name }}|g' \
-            -e "s|@DATE@|$(date '+%Y-%m-%d')|g" $JSON_TEMPLATE_FILE
+            const JSON_TEMPLATE_FILE="./.github/actions/create-jira-ticket/nightly-ticket-template.json"
+            let data = fs.readFileSync(JSON_TEMPLATE_FILE, { encoding: 'utf8' });
+            data = data.replace(/@MODULE_NAME@/g, ${{ inputs.module_name }});
+            data = data.replace(/@DATE@/g, formatDateISO(new Date()));
+            fs.writeFileSync(JSON_TEMPLATE_FILE, data, { encoding: 'utf8' });
+          } else {
+            throw new Error(`❌ Could not find any labelling option for the ticket.`);
+          }
 
-        else
-          echo "::error::Cannot find a valid labelling option for the ticket."
-          exit 1
-        fi
-
-        echo "[DEBUG] JOBS_FAILED: $(gh run view ${{ github.run_id }} --json jobs -q '.jobs[] | select(.conclusion == "failure") | .name')"
+          const failed_jobs = await execCommand(
+            `gh run view ${{ github.run_id }} --json jobs -q '.jobs[] | select(.conclusion == "failure") | .name'`
+          );
+          console.log(failed_jobs)
 
     #     case "${{ inputs.ticket_squad }}" in
     #       "DevSecOps")
