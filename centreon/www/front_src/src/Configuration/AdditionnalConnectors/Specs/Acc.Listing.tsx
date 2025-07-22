@@ -39,7 +39,7 @@ export default (): void => {
       cy.findByLabelText('Next page').click();
 
       cy.waitForRequest('@getConnectors').then(({ request }) => {
-        expect(JSON.parse(request.url.searchParams.get('page'))).to.equal(1);
+        expect(JSON.parse(request.url.searchParams.get('page'))).to.equal(2);
       });
     });
     it('executes a listing request with sort parameter when a sortable column is clicked`', () => {
