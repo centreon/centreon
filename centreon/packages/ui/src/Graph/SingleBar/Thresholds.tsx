@@ -13,6 +13,7 @@ interface Props extends Pick<SingleBarProps, 'direction'> {
   size: 'small' | 'medium';
   thresholds: ThresholdsModel;
   xScale: (value: number) => number;
+  textWidth?: number;
 }
 
 const Thresholds = ({
@@ -23,7 +24,8 @@ const Thresholds = ({
   size,
   barHeight,
   isSmall,
-  direction
+  direction,
+  textWidth
 }: Props): JSX.Element => (
   <>
     {thresholds.warning.map(({ value, label }) => (
@@ -39,6 +41,7 @@ const Thresholds = ({
         value={value}
         xScale={xScale}
         direction={direction}
+        textWidth={textWidth}
       />
     ))}
     {thresholds.critical.map(({ value, label }) => (
@@ -54,6 +57,7 @@ const Thresholds = ({
         value={value}
         xScale={xScale}
         direction={direction}
+        textWidth={textWidth}
       />
     ))}
   </>

@@ -111,27 +111,27 @@ const ResponsiveSingleBar = ({
     </text>
   );
 
-  const xScale = useMemo(
-    () =>
-      scaleLinear<number>({
-        domain: [0, adaptedMaxValue],
-        range: [0, width - 10 || 0]
-      }),
-    [width, adaptedMaxValue]
-  );
-
   const widthMargin = useMemo(
     () => (direction === 'row' && textWidth) || 0,
     [direction, textWidth]
   );
 
+  const xScale = useMemo(
+    () =>
+      scaleLinear<number>({
+        domain: [0, adaptedMaxValue],
+        range: [0, width - widthMargin - 10 || 0]
+      }),
+    [width, adaptedMaxValue, widthMargin]
+  );
+
   const metricBarWidth = useMemo(
-    () => xScale(latestMetricData) - widthMargin,
-    [xScale, latestMetricData, widthMargin]
+    () => xScale(latestMetricData),
+    [xScale, latestMetricData]
   );
   const maxBarWidth = useMemo(
-    () => xScale(adaptedMaxValue) - widthMargin,
-    [xScale, adaptedMaxValue, widthMargin]
+    () => xScale(adaptedMaxValue),
+    [xScale, adaptedMaxValue]
   );
 
   const springStyle = useSpring({ width: metricBarWidth });
@@ -204,6 +204,7 @@ const ResponsiveSingleBar = ({
                   thresholds={thresholds}
                   xScale={xScale}
                   direction={direction}
+                  textWidth={textWidth}
                 />
               )}
             </Group.Group>

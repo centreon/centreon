@@ -12,7 +12,7 @@ export default meta;
 type Story = StoryObj<typeof SingleBar>;
 
 const Template = (props): JSX.Element => (
-  <div style={{ height: '500px', width: '500px' }}>
+  <div style={{ height: '500px', width: '200px' }}>
     <SingleBar {...props} />
   </div>
 );

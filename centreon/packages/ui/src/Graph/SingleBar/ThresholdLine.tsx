@@ -29,6 +29,7 @@ interface Props extends Pick<SingleBarProps, 'direction'> {
   thresholdType: string;
   value: number;
   xScale: (value: number) => number;
+  textWidth?: number;
 }
 
 export const ThresholdLine = ({
@@ -41,11 +42,12 @@ export const ThresholdLine = ({
   size,
   barHeight,
   isSmall,
-  direction
+  direction,
+  textWidth
 }: Props): JSX.Element => {
   const theme = useTheme();
 
-  const scaledValue = xScale(value) || 0;
+  const scaledValue = xScale(value) + (textWidth || 0) || 0;
 
   const lineMargin = lineMargins[size];
 
