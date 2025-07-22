@@ -595,44 +595,36 @@ class CentreonCustomView
         $isLocked = 1;
         $update = false;
         $query = <<<'SQL'
-                SELECT cvur.custom_view_id, locked, user_id, usergroup_id
-                FROM custom_view_user_relation cvur
-                    INNER JOIN custom_views cv
-                        ON cvur.custom_view_id = cv.custom_view_id
-                WHERE cvur.custom_view_id = :viewLoad
-                    AND cvur.is_consumed = 0
-                    AND (
-                            cv.public = 1
-                            OR
-                            (
-                                cvur.is_share = 1
-                                AND (
-                                        user_id = :userId
-                                        OR usergroup_id IN (
-                                            SELECT contactgroup_cg_id
-                                            FROM contactgroup_contact_relation
-                                            WHERE contact_contact_id = :userId
-                                        )
-                                )
-                            )
+                SELECT custom_view_id, locked, user_id, usergroup_id
+                FROM custom_view_user_relation
+                WHERE custom_view_id = :viewLoad
+                AND (
+                        user_id = :userId
+                        OR usergroup_id IN (
+                            SELECT contactgroup_cg_id
+                            FROM contactgroup_contact_relation
+                            WHERE contact_contact_id = :userId
                         )
+                )
                 ORDER BY user_id DESC
             SQL;
 
         $stmt = $this->db->prepare($query);
         $stmt->bindParam(':viewLoad', $viewLoadId, PDO::PARAM_INT);
         $stmt->bindParam(':userId', $this->userId, PDO::PARAM_INT);
-        $stmt->execute();
-        $row = $stmt->fetch();
+        $dbResult = $stmt->execute();
 
-        if (! $row) {
-            throw new CentreonCustomViewException('Access denied: View not found or not accessible to current user');
+        if (! $dbResult) {
+            throw new CentreonCustomViewException('An error occurred while loading the custom view');
         }
-        if ($row['locked'] == '0') {
-            $isLocked = $row['locked'];
-        }
-        if (! is_null($row['user_id']) && $row['user_id'] > 0 && is_null($row['usergroup_id'])) {
-            $update = true;
+
+        if ($row = $stmt->fetch()) {
+            if ($row['locked'] == '0') {
+                $isLocked = $row['locked'];
+            }
+            if (! is_null($row['user_id']) && $row['user_id'] > 0 && is_null($row['usergroup_id'])) {
+                $update = true;
+            }
         }
 
         if ($update) {
@@ -642,6 +634,20 @@ class CentreonCustomView
             $stmt->bindParam(':viewLoad', $viewLoadId, PDO::PARAM_INT);
             $stmt->bindParam(':userId', $this->userId, PDO::PARAM_INT);
         } else {
+            $query = <<<'SQL'
+                    SELECT 1
+                    FROM custom_views
+                    WHERE custom_view_id = :viewLoad
+                        AND public = 1
+                SQL;
+            $stmt = $this->db->prepare($query);
+            $stmt->bindParam(':viewLoad', $viewLoadId, PDO::PARAM_INT);
+            $dbResult = $stmt->execute();
+
+            if (! ($dbResult && $stmt->fetch())) {
+                throw new CentreonCustomViewException('Access denied: View not found or not accessible to current user');
+            }
+
             $query = 'INSERT INTO custom_view_user_relation (custom_view_id,user_id,is_owner,locked,is_share) '
                 . 'VALUES (:viewLoad, :userId, 0, :isLocked, 1)';
             $stmt = $this->db->prepare($query);

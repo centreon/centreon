@@ -104,7 +104,7 @@ function showError(string $message, string $theme)
                 </div>
             </body>
         </html>
-    HTML;
+        HTML;
 }
 
 ?>
