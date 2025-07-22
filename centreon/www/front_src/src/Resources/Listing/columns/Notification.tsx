@@ -1,3 +1,4 @@
+import { equals } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
 
@@ -36,7 +37,7 @@ const NotificationColumn = ({
   const { classes } = useStyles();
   const { t } = useTranslation();
 
-  if (row.notification_enabled === false) {
+  if (equals(row.is_notification_enabled, false)) {
     return (
       <IconColumn>
         <div className={classes.container}>
