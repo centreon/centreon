@@ -19,7 +19,7 @@ export interface ConfirmationModalProps<TAtom> {
   onCancel?: (atomData: Awaited<TAtom> | null) => void;
   onClose?: (atomData: Awaited<TAtom> | null) => void;
   onConfirm?: (atomData: Awaited<TAtom> | null) => void;
-  size?: 'small' | 'medium' | 'large';
+  size?: 'small' | 'medium' | 'large' | 'xlarge' | 'fullscreen';
 }
 
 interface GetLabelProps<TAtom> {
@@ -74,7 +74,7 @@ export const ConfirmationModal = <TAtom,>({
       hasCloseButton={hasCloseButton}
       open={Boolean(atomData)}
       onClose={closeModal}
-      size={size || 'small'}
+      size={size}
     >
       <Modal.Header>{formattedLabels.title}</Modal.Header>
       <Modal.Body>{formattedLabels.description}</Modal.Body>

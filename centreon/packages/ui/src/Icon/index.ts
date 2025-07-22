@@ -8,3 +8,4 @@ export { HostGroupIcon } from './HostGroupIcon';
 export { ServiceGroupIcon } from './ServiceGroupIcon';
 export { MetaServiceIcon } from './MetaServiceIcon';
 export { ContainerIcon } from './ContainerIcon';
+export { RegexIcon } from './RegexIcon';

@@ -1,6 +1,6 @@
 {
   "name": "centreon/tools",
-  "version": "25.07",
+  "version": "25.09",
   "description": "Centreon - Tools for development",
   "require": {
     "php": "8.2.*",

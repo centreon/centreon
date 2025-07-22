@@ -5001,6 +5001,14 @@ msgstr "Voulez-vous réinitialiser le formulaire ?"
 msgid "Do you want to save the changes?"
 msgstr "Voulez-vous enregistrer les modifications ?"
 
+#: centreon/www/install/front_translate.php
+msgid "Do you want to switch to classic mode?"
+msgstr "Voulez-vous passer en mode classique ?"
+
+#: centreon/www/install/front_translate.php
+msgid "Do you want to switch to regex mode?"
+msgstr "Voulez-vous passer en mode regex ?"
+
 #: centreon/www/include/configuration/configObject/service_template_model/formServiceTemplateModel.php
 #: centreon/www/include/configuration/configObject/service/formService.php
 #: centreon/www/include/configuration/configObject/host_categories/formHostCategories.php
@@ -5691,6 +5699,14 @@ msgstr "Statut de l'ordonnanceur"
 #: centreon/www/install/menu_translation.php
 msgid "Engine configuration"
 msgstr "Configuration du moteur de collecte"
+
+#: centreon/www/install/front_translate.php
+msgid "Enter Regex"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Enter regex mode"
+msgstr "Activer le mode regex"
 
 #: centreon/www/include/monitoring/acknowlegement/xml/broker/makeXMLForAck.php
 #: centreon/www/include/monitoring/objectDetails/hostDetails.php
@@ -6735,6 +6751,10 @@ msgstr "Quitter"
 #: centreon/www/install/front_translate.php
 msgid "Exit edition mode"
 msgstr "Quitter le mode édition"
+
+#: centreon/www/install/front_translate.php
+msgid "Exit regex mode"
+msgstr "Désactiver le mode regex"
 
 #: centreon/www/install/front_translate.php
 msgid "Exit {{dashboardName}}"
@@ -15794,6 +15814,10 @@ msgstr ""
 msgid "The class %s does not exist"
 msgstr "La classe %s n'existe pas"
 
+#: centreon/www/include/configuration/configServers/formServers.php
+msgid "The command format is invalid"
+msgstr ""
+
 #: centreon/src/Centreon/Domain/Engine/EngineService.php
 msgid "The contact alias is empty"
 msgstr "L'alias du contact est vide"
@@ -16060,6 +16084,10 @@ msgstr ""
 msgid "The path does not exist"
 msgstr "Ce chemin n'existe pas"
 
+#: centreon/www/include/configuration/configServers/formServers.php
+msgid "The path format is invalid"
+msgstr ""
+
 #: centreon/src/Centreon/Domain/PlatformTopology/Exception/PlatformTopologyException.php
 #, php-format
 msgid "The platform '%s'@'%s' cannot be found on the Central"
@@ -16156,6 +16184,10 @@ msgstr "La règle d'accès aux ressources a été créée avec succès"
 #: centreon/www/install/front_translate.php
 msgid "The resource access rule was successfully updated"
 msgstr "La règle d'accès aux ressources a été modifiée avec succès"
+
+#: centreon/www/include/configuration/configServers/formServers.php
+msgid "The script path is invalid"
+msgstr ""
 
 #: centreon/www/install/front_translate.php
 msgid "The selected notifications have been deleted successfully"
@@ -18665,6 +18697,17 @@ msgstr ""
 "Votre clé d'autologin doit être différente de votre mot de passe actuel"
 
 #: centreon/www/install/front_translate.php
+msgid "Your changes will not be saved if you leave classic mode."
+msgstr ""
+"Vos modifications ne seront pas enregistrées si vous quittez le mode "
+"classique."
+
+#: centreon/www/install/front_translate.php
+msgid "Your changes will not be saved if you leave regex mode."
+msgstr ""
+"Vos modifications ne seront pas enregistrées si vous quittez le mode regex."
+
+#: centreon/www/install/front_translate.php
 msgid "Your changes will not be saved if you leave this page."
 msgstr "Vos changements ne seront pas sauvegardés si vous quittez la page."
 
@@ -20613,6 +20656,10 @@ msgstr "La date de fin doit être supérieure à la date de début"
 #: unknown
 msgid "End date must be greater than start date."
 msgstr "La date de fin doit être supérieure à la date de début."
+
+#: unknown
+msgid "Enter regex"
+msgstr "Saisir une regex"
 
 #: unknown
 msgid "Entries are registered"
