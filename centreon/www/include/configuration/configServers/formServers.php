@@ -34,6 +34,8 @@
  *
  */
 
+use Core\MonitoringServer\Model\MonitoringServer;
+
 if (! isset($centreon)) {
     exit();
 }
@@ -273,39 +275,39 @@ $form->addElement('text', 'snmp_trapd_path_conf', _('Directory of light database
 // Set Default Values
 if (isset($_GET['o']) && $_GET['o'] == SERVER_ADD) {
     $monitoring_engines = [
-        'nagios_bin' => '/usr/sbin/centengine',
-        'nagiostats_bin' => '/usr/sbin/centenginestats',
-        'engine_start_command' => 'service centengine start',
-        'engine_stop_command' => 'service centengine stop',
-        'engine_restart_command' => 'service centengine restart',
-        'engine_reload_command' => 'service centengine reload',
-        'nagios_perfdata' => '/var/log/centreon-engine/service-perfdata',
+        "nagios_bin" => "/usr/sbin/centengine",
+        "nagiostats_bin" => "/usr/sbin/centenginestats",
+        "engine_start_command" => MonitoringServer::DEFAULT_ENGINE_START_COMMAND,
+        "engine_stop_command" => MonitoringServer::DEFAULT_ENGINE_STOP_COMMAND,
+        "engine_restart_command" => MonitoringServer::DEFAULT_ENGINE_RESTART_COMMAND,
+        "engine_reload_command" => MonitoringServer::DEFAULT_ENGINE_RELOAD_COMMAND,
+        "nagios_perfdata" => "/var/log/centreon-engine/service-perfdata"
     ];
     $form->setDefaults(
         [
-            'name' => '',
-            'localhost' => '0',
-            'ns_ip_address' => '127.0.0.1',
-            'description' => '',
-            'nagios_bin' => $monitoring_engines['nagios_bin'],
-            'nagiostats_bin' => $monitoring_engines['nagiostats_bin'],
-            'engine_start_command' => $monitoring_engines['engine_start_command'],
-            'engine_stop_command' => $monitoring_engines['engine_stop_command'],
-            'engine_restart_command' => $monitoring_engines['engine_restart_command'],
-            'engine_reload_command' => $monitoring_engines['engine_reload_command'],
-            'ns_activate' => '1',
-            'is_default' => '0',
-            'ssh_port' => 22,
-            'gorgone_communication_type' => ZMQ,
-            'gorgone_port' => 5556,
-            'nagios_perfdata' => $monitoring_engines['nagios_perfdata'],
-            'broker_reload_command' => 'service cbd reload',
-            'centreonbroker_cfg_path' => '/etc/centreon-broker',
-            'centreonbroker_module_path' => '/usr/share/centreon/lib/centreon-broker',
-            'centreonbroker_logs_path' => '/var/log/centreon-broker',
-            'init_script_centreontrapd' => 'centreontrapd',
-            'snmp_trapd_path_conf' => '/etc/snmp/centreon_traps/',
-            'remote_server_use_as_proxy' => '1',
+            "name" => '',
+            "localhost" => '0',
+            "ns_ip_address" => "127.0.0.1",
+            "description" => "",
+            "nagios_bin" => $monitoring_engines["nagios_bin"],
+            "nagiostats_bin" => $monitoring_engines["nagiostats_bin"],
+            "engine_start_command" => $monitoring_engines["engine_start_command"],
+            "engine_stop_command" => $monitoring_engines["engine_stop_command"],
+            "engine_restart_command" => $monitoring_engines["engine_restart_command"],
+            "engine_reload_command" => $monitoring_engines["engine_reload_command"],
+            "ns_activate" => '1',
+            "is_default" => '0',
+            "ssh_port" => 22,
+            "gorgone_communication_type" => ZMQ,
+            "gorgone_port" => 5556,
+            "nagios_perfdata" => $monitoring_engines["nagios_perfdata"],
+            "broker_reload_command" => MonitoringServer::DEFAULT_BROKER_RELOAD_COMMAND,
+            "centreonbroker_cfg_path" => "/etc/centreon-broker",
+            "centreonbroker_module_path" => "/usr/share/centreon/lib/centreon-broker",
+            "centreonbroker_logs_path" => "/var/log/centreon-broker",
+            "init_script_centreontrapd" => "centreontrapd",
+            "snmp_trapd_path_conf" => "/etc/snmp/centreon_traps/",
+            "remote_server_use_as_proxy" => '1'
         ]
     );
 } elseif (isset($cfg_server)) {
@@ -331,7 +333,29 @@ if ($serverType === 'poller') {
 }
 $form->addRule('ns_ip_address', _('The IP address is incorrect'), 'isValidIpAddress');
 
-$form->setRequiredNote("<font style='color: red;'>*</font>&nbsp;" . _('Required fields'));
+$form->registerRule('isValidStartCommandSyntax', 'callback', 'isValidStartCommandSyntax');
+$form->registerRule('isValidStopCommandSyntax', 'callback', 'isValidStopCommandSyntax');
+$form->registerRule('isValidRestartCommandSyntax', 'callback', 'isValidRestartCommandSyntax');
+$form->registerRule('isValidReloadCommandSyntax', 'callback', 'isValidReloadCommandSyntax');
+$form->addRule('engine_start_command', _("The command format is invalid"), "isValidStartCommandSyntax");
+$form->addRule('engine_stop_command', _("The command format is invalid"), "isValidStopCommandSyntax");
+$form->addRule('engine_restart_command', _("The command format is invalid"), "isValidRestartCommandSyntax");
+$form->addRule('engine_reload_command', _("The command format is invalid"), "isValidReloadCommandSyntax");
+$form->addRule('broker_reload_command', _("The command format is invalid"), "isValidReloadCommandSyntax");
+
+$form->registerRule('isValidPath', 'callback', 'isValidPath');
+$form->addRule('nagios_bin', _("The path format is invalid"), "isValidPath");
+$form->addRule('nagiostats_bin', _("The path format is invalid"), "isValidPath");
+$form->addRule('nagios_perfdata', _("The path format is invalid"), "isValidPath");
+$form->addRule('centreonbroker_cfg_path', _("The path format is invalid"), "isValidPath");
+$form->addRule('centreonbroker_module_path', _("The path format is invalid"), "isValidPath");
+$form->addRule('centreonbroker_logs_path', _("The path format is invalid"), "isValidPath");
+$form->addRule('snmp_trapd_path_conf', _("The path format is invalid"), "isValidPath");
+
+$form->registerRule('isValidTrapInit', 'callback', 'isValidTrapInit');
+$form->addRule('init_script_centreontrapd', _("The script path is invalid"), 'isValidTrapInit');
+
+$form->setRequiredNote("<font style='color: red;'>*</font>&nbsp;" . _("Required fields"));
 
 // Smarty template initialization
 $tpl = SmartyBC::createSmartyTemplate($path);
