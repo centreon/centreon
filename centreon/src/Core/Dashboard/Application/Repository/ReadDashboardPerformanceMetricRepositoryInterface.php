@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Core\Dashboard\Application\Repository;
 
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
+use Core\Common\Domain\Exception\RepositoryException;
 use Core\Dashboard\Domain\Model\Metric\ResourceMetric;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
@@ -34,7 +35,7 @@ interface ReadDashboardPerformanceMetricRepositoryInterface
      *
      * @param RequestParametersInterface $requestParameters
      *
-     * @throws \Throwable
+     * @throws RepositoryException
      *
      * @return ResourceMetric[]
      */
@@ -46,7 +47,7 @@ interface ReadDashboardPerformanceMetricRepositoryInterface
      * @param RequestParametersInterface $requestParameters
      * @param AccessGroup[] $accessGroups
      *
-     * @throws \Throwable
+     * @throws RepositoryException
      *
      * @return ResourceMetric[]
      */
@@ -58,7 +59,7 @@ interface ReadDashboardPerformanceMetricRepositoryInterface
      * @param RequestParametersInterface $requestParameters
      * @param string $metricName
      *
-     * @throws \Throwable
+     * @throws RepositoryException
      *
      * @return ResourceMetric[]
      */
@@ -71,7 +72,7 @@ interface ReadDashboardPerformanceMetricRepositoryInterface
      * @param AccessGroup[] $accessGroups
      * @param string $metricName
      *
-     * @throws \Throwable
+     * @throws RepositoryException
      *
      * @return ResourceMetric[]
      */
