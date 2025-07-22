@@ -117,9 +117,8 @@ interface ReadMonitoringServerRepositoryInterface
      *
      * @param int $monitoringServerId
      *
+     * @throws EntityNotFoundException when no Monitoring server are found
      * @return MonitoringServer
-     *
-     * @throws EntityNotFoundException when no Monitoring server are found.
      */
     public function get(int $monitoringServerId): MonitoringServer;
 }
