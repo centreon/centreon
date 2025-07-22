@@ -87,7 +87,7 @@ final class CleanEngineBrokerCommandsCommand extends Command
             }
             $invalidPropertyPaths = [];
             foreach ($violations as $violation) {
-                /** @var ConstraintViolation $violation */
+                /** @var ConstraintViolation $violation */
                 $invalidPropertyPaths[] = $violation->getPropertyPath();
                 $output->writeln(
                     sprintf(
@@ -104,28 +104,28 @@ final class CleanEngineBrokerCommandsCommand extends Command
                 ($this->useCase)(new UpdateMonitoringServerRequest(
                     id: $monitoringServer->getId(),
                     name: $monitoringServer->getName(),
-                    engineRestartCommand: in_array('engineRestartCommand', $invalidPropertyPaths)
+                    engineRestartCommand: in_array('engineRestartCommand', $invalidPropertyPaths, true)
                         ? MonitoringServer::DEFAULT_ENGINE_RESTART_COMMAND
                         : $monitoringServer->getEngineRestartCommand(),
-                    engineReloadCommand: in_array('engineReloadCommand', $invalidPropertyPaths)
+                    engineReloadCommand: in_array('engineReloadCommand', $invalidPropertyPaths, true)
                         ? MonitoringServer::DEFAULT_ENGINE_RELOAD_COMMAND
                         : $monitoringServer->getEngineReloadCommand(),
-                    engineStopCommand: in_array('engineStopCommand', $invalidPropertyPaths)
+                    engineStopCommand: in_array('engineStopCommand', $invalidPropertyPaths, true)
                         ? MonitoringServer::DEFAULT_ENGINE_STOP_COMMAND
                         : $monitoringServer->getEngineStopCommand(),
-                    engineStartCommand: in_array('engineStartCommand', $invalidPropertyPaths)
+                    engineStartCommand: in_array('engineStartCommand', $invalidPropertyPaths, true)
                         ? MonitoringServer::DEFAULT_ENGINE_START_COMMAND
                         : $monitoringServer->getEngineStartCommand(),
-                    brokerReloadCommand: in_array('brokerReloadCommand', $invalidPropertyPaths)
+                    brokerReloadCommand: in_array('brokerReloadCommand', $invalidPropertyPaths, true)
                         ? MonitoringServer::DEFAULT_BROKER_RELOAD_COMMAND
                         : $monitoringServer->getBrokerReloadCommand()
                 ));
-                $output->writeln("Commands have been correctly cleaned");
+                $output->writeln('Commands have been correctly cleaned');
             } catch (RepositoryException $ex) {
-                $this->error("An error occured while cleaning engine commands", [
-                    'exception' => $ex
+                $this->error('An error occured while cleaning engine commands', [
+                    'exception' => $ex,
                 ]);
-                $output->writeln("An error occured while cleaning engine commands, please retry");
+                $output->writeln('An error occured while cleaning engine commands, please retry');
                 continue;
             }
         }
