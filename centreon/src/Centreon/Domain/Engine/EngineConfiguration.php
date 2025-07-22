@@ -29,36 +29,25 @@ class EngineConfiguration
     public const NOTIFICATIONS_OPTION_DISABLED = 0;
     public const NOTIFICATIONS_OPTION_ENABLED = 1;
     public const NOTIFICATIONS_OPTION_DEFAULT = 2;
-
     private const AVAILABLE_NOTIFICATION_OPTIONS = [
         self::NOTIFICATIONS_OPTION_DISABLED,
         self::NOTIFICATIONS_OPTION_ENABLED,
         self::NOTIFICATIONS_OPTION_DEFAULT,
     ];
 
-    /**
-     * @var int|null
-     */
+    /** @var int|null */
     private $id;
 
-    /**
-     * @var string|null Illegal object name characters
-     */
+    /** @var string|null Illegal object name characters */
     private $illegalObjectNameCharacters;
 
-    /**
-     * @var int|null Monitoring server id
-     */
+    /** @var int|null Monitoring server id */
     private $monitoringServerId;
 
-    /**
-     * @var string|null Engine configuration name
-     */
+    /** @var string|null Engine configuration name */
     private $name;
 
-    /**
-     * @var int
-     */
+    /** @var int */
     private $notificationsEnabledOption = self::NOTIFICATIONS_OPTION_ENABLED;
 
     /**
@@ -76,6 +65,7 @@ class EngineConfiguration
     public function setId(?int $id): EngineConfiguration
     {
         $this->id = $id;
+
         return $this;
     }
 
@@ -94,6 +84,7 @@ class EngineConfiguration
     public function setIllegalObjectNameCharacters(?string $illegalObjectNameCharacters): EngineConfiguration
     {
         $this->illegalObjectNameCharacters = $illegalObjectNameCharacters;
+
         return $this;
     }
 
@@ -112,6 +103,7 @@ class EngineConfiguration
     public function setMonitoringServerId(?int $monitoringServerId): EngineConfiguration
     {
         $this->monitoringServerId = $monitoringServerId;
+
         return $this;
     }
 
@@ -130,6 +122,7 @@ class EngineConfiguration
     public function setName(?string $name): EngineConfiguration
     {
         $this->name = $name;
+
         return $this;
     }
 
@@ -144,6 +137,7 @@ class EngineConfiguration
         if ($this->illegalObjectNameCharacters === null || $this->illegalObjectNameCharacters === '') {
             return $stringToAnalyse;
         }
+
         return str_replace(str_split($this->illegalObjectNameCharacters), '', $stringToAnalyse);
     }
 

@@ -290,7 +290,7 @@ final class PartialUpdateServiceTemplateController extends AbstractController
 
         if (array_key_exists('macros', $request)) {
             $serviceTemplate->macros = array_map(
-                fn(array $macro): MacroDto => new MacroDto(
+                fn (array $macro): MacroDto => new MacroDto(
                     $macro['name'],
                     $macro['value'],
                     (bool) $macro['is_password'],
@@ -302,8 +302,9 @@ final class PartialUpdateServiceTemplateController extends AbstractController
 
         if (array_key_exists('service_groups', $request)) {
             $serviceTemplate->serviceGroups = array_map(
-                fn(array $serviceGroup): ServiceGroupDto => new ServiceGroupDto(
-                    $serviceGroup['host_template_id'], $serviceGroup['service_group_id']
+                fn (array $serviceGroup): ServiceGroupDto => new ServiceGroupDto(
+                    $serviceGroup['host_template_id'],
+                    $serviceGroup['service_group_id']
                 ),
                 $request['service_groups']
             );

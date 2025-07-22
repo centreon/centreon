@@ -35,10 +35,10 @@
  */
 
 require_once __DIR__ . '/../bootstrap.php';
-require_once __DIR__ . "/class/centreonSession.class.php";
-require_once __DIR__ . "/class/centreonAuth.class.php";
-require_once __DIR__ . "/class/centreonLog.class.php";
-require_once __DIR__ . "/class/centreonDB.class.php";
+require_once __DIR__ . '/class/centreonSession.class.php';
+require_once __DIR__ . '/class/centreonAuth.class.php';
+require_once __DIR__ . '/class/centreonLog.class.php';
+require_once __DIR__ . '/class/centreonDB.class.php';
 
 const AUTOLOGIN_FIELDS = ['autologin', 'useralias', 'token'];
 
@@ -47,12 +47,11 @@ include __DIR__ . '/index.html';
 
 CentreonSession::start();
 
-/*
- * Already connected
- */
-if (isset($_SESSION["centreon"])) {
+// Already connected
+if (isset($_SESSION['centreon'])) {
     $pearDB = new CentreonDB();
-    manageRedirection($_SESSION["centreon"], $pearDB);
+    manageRedirection($_SESSION['centreon'], $pearDB);
+
     return;
 }
 
@@ -64,10 +63,11 @@ if (isset($_SESSION["centreon"])) {
  */
 if (version_compare(phpversion(), '8.2') < 0) {
     echo "<div class='msg'> PHP version is < 8.2. Please Upgrade PHP</div>";
+
     return;
 }
 
-if (isset($_GET["autologin"]) && $_GET["autologin"]) {
+if (isset($_GET['autologin']) && $_GET['autologin']) {
     global $pearDB;
     $pearDB = new CentreonDB();
 
@@ -76,16 +76,12 @@ if (isset($_GET["autologin"]) && $_GET["autologin"]) {
         return;
     }
 
-    /*
-    * Init log class
-    */
+    // Init log class
     $centreonLog = new CentreonUserLog(-1, $pearDB);
 
-    /*
-    * Check first for Autologin or Get Authentication
-    */
-    $autologin = $_GET["autologin"] ?? CentreonAuth::AUTOLOGIN_DISABLE;
-    $useralias = $_GET["useralias"] ?? null;
+    // Check first for Autologin or Get Authentication
+    $autologin = $_GET['autologin'] ?? CentreonAuth::AUTOLOGIN_DISABLE;
+    $useralias = $_GET['useralias'] ?? null;
     $password = $passwordG ?? null;
 
     $token = $_REQUEST['token'] ?? '';
@@ -105,62 +101,63 @@ if (isset($_GET["autologin"]) && $_GET["autologin"]) {
 
         // security fix - regenerate the sid after the login to prevent session fixation
         session_regenerate_id(true);
-        $_SESSION["centreon"] = $centreon;
+        $_SESSION['centreon'] = $centreon;
         // saving session data in the DB
-        $query = "INSERT INTO `session` (`session_id` , `user_id` , `current_page` , `last_reload`, `ip_address`) "
-            . "VALUES (?, ?, ?, ?, ?)";
+        $query = 'INSERT INTO `session` (`session_id` , `user_id` , `current_page` , `last_reload`, `ip_address`) '
+            . 'VALUES (?, ?, ?, ?, ?)';
         $dbResult = $pearDB->prepare($query);
         $pearDB->execute(
             $dbResult,
-            [session_id(), $centreon->user->user_id, '1', time(), $_SERVER["REMOTE_ADDR"]]
+            [session_id(), $centreon->user->user_id, '1', time(), $_SERVER['REMOTE_ADDR']]
         );
 
         // saving session token in security_token
         $expirationSessionDelay = 120;
         $delayStatement = $pearDB->prepare("SELECT value FROM options WHERE `key` = 'session_expire'");
         $delayStatement->execute();
-        if (($result = $delayStatement->fetch(\PDO::FETCH_ASSOC)) !== false) {
+        if (($result = $delayStatement->fetch(PDO::FETCH_ASSOC)) !== false) {
             $expirationSessionDelay = $result['value'];
         }
         $securityTokenStatement = $pearDB->prepare(
-            "INSERT INTO security_token (`token`, `creation_date`, `expiration_date`) " .
-            "VALUES (:token, :createdAt, :expireAt)"
+            'INSERT INTO security_token (`token`, `creation_date`, `expiration_date`) '
+            . 'VALUES (:token, :createdAt, :expireAt)'
         );
-        $securityTokenStatement->bindValue(":token", session_id(), \PDO::PARAM_STR);
-        $securityTokenStatement->bindValue(':createdAt', (new \DateTime())->getTimestamp(), \PDO::PARAM_INT);
+        $securityTokenStatement->bindValue(':token', session_id(), PDO::PARAM_STR);
+        $securityTokenStatement->bindValue(':createdAt', (new DateTime())->getTimestamp(), PDO::PARAM_INT);
         $securityTokenStatement->bindValue(
             ':expireAt',
-            (new \DateTime())->add(new \DateInterval('PT' . $expirationSessionDelay . 'M'))->getTimestamp(),
-            \PDO::PARAM_INT
+            (new DateTime())->add(new DateInterval('PT' . $expirationSessionDelay . 'M'))->getTimestamp(),
+            PDO::PARAM_INT
         );
         $securityTokenStatement->execute();
 
-        //saving session in security_authentication_tokens
+        // saving session in security_authentication_tokens
         $providerTokenId = (int) $pearDB->lastInsertId();
 
         $configurationStatement = $pearDB->query("SELECT id from provider_configuration WHERE name='local'");
-        if (($result = $configurationStatement->fetch(\PDO::FETCH_ASSOC)) !== false) {
+        if (($result = $configurationStatement->fetch(PDO::FETCH_ASSOC)) !== false) {
             $configurationId = (int) $result['id'];
         } else {
-            throw new \Exception('No local provider found');
+            throw new Exception('No local provider found');
         }
 
         $securityAuthenticationTokenStatement = $pearDB->prepare(
-            "INSERT INTO security_authentication_tokens " .
-            "(`token`, `provider_token_id`, `provider_configuration_id`, `user_id`) VALUES " .
-            "(:token, :providerTokenId, :providerConfigurationId, :userId)"
+            'INSERT INTO security_authentication_tokens '
+            . '(`token`, `provider_token_id`, `provider_configuration_id`, `user_id`) VALUES '
+            . '(:token, :providerTokenId, :providerConfigurationId, :userId)'
         );
-        $securityAuthenticationTokenStatement->bindValue(':token', session_id(), \PDO::PARAM_STR);
-        $securityAuthenticationTokenStatement->bindValue(':providerTokenId', $providerTokenId, \PDO::PARAM_INT);
+        $securityAuthenticationTokenStatement->bindValue(':token', session_id(), PDO::PARAM_STR);
+        $securityAuthenticationTokenStatement->bindValue(':providerTokenId', $providerTokenId, PDO::PARAM_INT);
         $securityAuthenticationTokenStatement->bindValue(
             ':providerConfigurationId',
             $configurationId,
-            \PDO::PARAM_INT
+            PDO::PARAM_INT
         );
-        $securityAuthenticationTokenStatement->bindValue(':userId', $centreon->user->user_id, \PDO::PARAM_INT);
+        $securityAuthenticationTokenStatement->bindValue(':userId', $centreon->user->user_id, PDO::PARAM_INT);
         $securityAuthenticationTokenStatement->execute();
 
         manageRedirection($centreon, $pearDB);
+
         return;
     }
 }
@@ -179,7 +176,7 @@ function updateCentreonBaseUri(): void
     $indexHtmlContent = file_get_contents($indexHtmlPath);
 
     // update base path only if it has changed
-    if (!preg_match('/.*<base\shref="' . preg_quote($basePath, '/') . '">/', $indexHtmlContent)) {
+    if (! preg_match('/.*<base\shref="' . preg_quote($basePath, '/') . '">/', $indexHtmlContent)) {
         $indexHtmlContent = preg_replace(
             '/(^.*<base\shref=")\S+(">.*$)/s',
             '${1}' . $basePath . '${2}',
@@ -198,13 +195,13 @@ function updateCentreonBaseUri(): void
  */
 function manageRedirection(Centreon $centreon, CentreonDB $pearDB): void
 {
-    $headerRedirection = "./main.php";
+    $headerRedirection = './main.php';
     $argP = filter_var(
-        $_POST['p'] ?? $_GET["p"] ?? null,
+        $_POST['p'] ?? $_GET['p'] ?? null,
         FILTER_VALIDATE_INT
     );
     if ($argP !== false) {
-        $headerRedirection .= "?p=" . $argP;
+        $headerRedirection .= '?p=' . $argP;
         foreach ($_GET as $parameter => $value) {
             if (! in_array($parameter, AUTOLOGIN_FIELDS)) {
                 $sanitizeParameter = htmlspecialchars($parameter);
@@ -217,7 +214,7 @@ function manageRedirection(Centreon $centreon, CentreonDB $pearDB): void
     } elseif (isset($centreon->user->default_page) && $centreon->user->default_page !== '') {
         // get more details about the default page
         $stmt = $pearDB->prepare(
-            "SELECT topology_url, is_react FROM topology WHERE topology_page = ? LIMIT 0, 1"
+            'SELECT topology_url, is_react FROM topology WHERE topology_page = ? LIMIT 0, 1'
         );
         $pearDB->execute($stmt, [$centreon->user->default_page]);
 
@@ -225,13 +222,13 @@ function manageRedirection(Centreon $centreon, CentreonDB $pearDB): void
             // redirect to the react path
             $headerRedirection = '.' . $topologyData['topology_url'];
         } else {
-            $headerRedirection .= "?p=" . $centreon->user->default_page;
+            $headerRedirection .= '?p=' . $centreon->user->default_page;
 
-            $argMin = $_POST['min'] ?? $_GET["min"] ?? null;
+            $argMin = $_POST['min'] ?? $_GET['min'] ?? null;
             if ($argMin === '1') {
                 $headerRedirection .= '&min=1';
             }
         }
     }
-    header("Location: " . $headerRedirection);
+    header('Location: ' . $headerRedirection);
 }

@@ -74,7 +74,7 @@ trait RealTimeResponseTrait
     public function downtimesToArray(array $downtimes): array
     {
         return array_map(
-            fn(Downtime $downtime) => [
+            fn (Downtime $downtime) => [
                 'start_time' => $downtime->getStartTime(),
                 'end_time' => $downtime->getEndTime(),
                 'actual_start_time' => $downtime->getActualStartTime(),
@@ -138,7 +138,7 @@ trait RealTimeResponseTrait
     private function tagsToArray(array $tags): array
     {
         return array_map(
-            fn(Tag $tag) => [
+            fn (Tag $tag) => [
                 'id' => $tag->getId(),
                 'name' => $tag->getName(),
             ],

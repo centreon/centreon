@@ -31,6 +31,7 @@ use Core\Application\Common\UseCase\ResponseStatusInterface;
  * @class CountResourcesPresenterInterface
  * @package Core\Resources\Application\UseCase\CountResources
  */
-interface CountResourcesPresenterInterface {
+interface CountResourcesPresenterInterface
+{
     public function presentResponse(ResponseStatusInterface|CountResourcesResponse $response): void;
 }

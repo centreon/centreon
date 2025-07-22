@@ -43,9 +43,7 @@ class ServiceConfigurationRepositoryRDB extends AbstractRepositoryDRB implements
 {
     use AccessControlListRepositoryTrait;
 
-    /**
-     * @var SqlRequestParametersTranslator
-     */
+    /** @var SqlRequestParametersTranslator */
     private $sqlRequestTranslator;
 
     public function __construct(DatabaseConnection $db, SqlRequestParametersTranslator $sqlRequestTranslator)
@@ -64,7 +62,7 @@ class ServiceConfigurationRepositoryRDB extends AbstractRepositoryDRB implements
     {
         // We avoid to start again a database transaction
         $isAlreadyInTransaction = $this->db->inTransaction();
-        if (!$isAlreadyInTransaction) {
+        if (! $isAlreadyInTransaction) {
             $this->db->beginTransaction();
         }
         $addServiceStatement = $this->db->prepare(
@@ -110,7 +108,7 @@ class ServiceConfigurationRepositoryRDB extends AbstractRepositoryDRB implements
                     \PDO::PARAM_STR
                 );
                 $addServiceStatement->execute();
-                $serviceId = (int)$this->db->lastInsertId();
+                $serviceId = (int) $this->db->lastInsertId();
 
                 /**
                  * Create service extension
@@ -137,12 +135,13 @@ class ServiceConfigurationRepositoryRDB extends AbstractRepositoryDRB implements
                 $addRelationStatement->execute();
             }
         } catch (\Throwable $ex) {
-            if (!$isAlreadyInTransaction) {
+            if (! $isAlreadyInTransaction) {
                 $this->db->rollBack();
             }
+
             throw $ex;
         }
-        if (!$isAlreadyInTransaction) {
+        if (! $isAlreadyInTransaction) {
             $this->db->commit();
         }
     }
@@ -168,6 +167,7 @@ class ServiceConfigurationRepositoryRDB extends AbstractRepositoryDRB implements
                 $record
             );
         }
+
         return null;
     }
 
@@ -219,7 +219,7 @@ class ServiceConfigurationRepositoryRDB extends AbstractRepositoryDRB implements
         $serviceMacros = [];
         $loop = [];
         $macrosAdded = [];
-        while (!is_null($serviceId)) {
+        while (! is_null($serviceId)) {
             if (isset($loop[$serviceId])) {
                 break;
             }
@@ -238,7 +238,7 @@ class ServiceConfigurationRepositoryRDB extends AbstractRepositoryDRB implements
                     $record
                 );
             }
-            if (!$isUsingInheritance) {
+            if (! $isUsingInheritance) {
                 break;
             }
         }
@@ -281,7 +281,7 @@ class ServiceConfigurationRepositoryRDB extends AbstractRepositoryDRB implements
 
         $serviceMacros = [];
         $loop = [];
-        while (!is_null($serviceId)) {
+        while (! is_null($serviceId)) {
             if (isset($loop[$serviceId])) {
                 break;
             }
@@ -289,8 +289,8 @@ class ServiceConfigurationRepositoryRDB extends AbstractRepositoryDRB implements
             $statement->bindValue(':service_id', $serviceId, \PDO::PARAM_INT);
             $statement->execute();
             $record = $statement->fetch(\PDO::FETCH_ASSOC);
-            if (!is_null($record['command_line'])) {
-                return (string)$record['command_line'];
+            if (! is_null($record['command_line'])) {
+                return (string) $record['command_line'];
             }
             $serviceId = $record['service_template_model_stm_id'];
         }
@@ -339,6 +339,7 @@ class ServiceConfigurationRepositoryRDB extends AbstractRepositoryDRB implements
                 ->setHostTemplate($hostTemplate)
                 ->setServiceTemplate($serviceTemplate);
         }
+
         return $hostTemplateServices;
     }
 
@@ -369,6 +370,7 @@ class ServiceConfigurationRepositoryRDB extends AbstractRepositoryDRB implements
                 'service_'
             );
         }
+
         return $services;
     }
 
@@ -378,10 +380,10 @@ class ServiceConfigurationRepositoryRDB extends AbstractRepositoryDRB implements
     public function removeServicesOnHost(int $hostId): void
     {
         $request = $this->translateDbName(
-            "DELETE service FROM `:db`.service
+            'DELETE service FROM `:db`.service
             INNER JOIN `:db`.host_service_relation hsr
                 ON hsr.service_service_id = service.service_id
-            WHERE hsr.host_host_id = :host_id"
+            WHERE hsr.host_host_id = :host_id'
         );
         $statement = $this->db->prepare($request);
         $statement->bindValue(':host_id', $hostId, \PDO::PARAM_INT);

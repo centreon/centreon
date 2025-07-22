@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2018 Centreon
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
@@ -60,20 +61,20 @@ class CentreonFeaturetesting extends CentreonWebService
      *
      * METHOD POST
      *
-     * @return void
      * @throws PDOException
      * @throws RestBadRequestException
      * @throws RestUnauthorizedException
+     * @return void
      */
     public function postEnabled(): void
     {
-        if (!isset($this->arguments['name']) ||
-            !isset($this->arguments['version']) ||
-            !isset($this->arguments['enabled'])) {
-            throw new \RestBadRequestException('Missing arguments');
+        if (! isset($this->arguments['name'])
+            || ! isset($this->arguments['version'])
+            || ! isset($this->arguments['enabled'])) {
+            throw new RestBadRequestException('Missing arguments');
         }
-        if (!isset($_SESSION['centreon'])) {
-            throw new \RestUnauthorizedException('Session does not exists.');
+        if (! isset($_SESSION['centreon'])) {
+            throw new RestUnauthorizedException('Session does not exists.');
         }
         $userId = $_SESSION['centreon']->user->user_id;
         $features = [];

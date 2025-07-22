@@ -31,9 +31,7 @@ use Centreon\Domain\MetaServiceConfiguration\Model\MetaServiceConfiguration;
  */
 class FindOneMetaServiceConfigurationResponse
 {
-    /**
-     * @var array<string, mixed>
-     */
+    /** @var array<string, mixed> */
     private $metaServiceConfiguration;
 
     /**

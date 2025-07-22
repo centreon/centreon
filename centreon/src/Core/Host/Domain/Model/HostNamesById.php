@@ -19,7 +19,7 @@
  *
  */
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Core\Host\Domain\Model;
 
@@ -48,7 +48,8 @@ class HostNamesById
      *
      * @return null|string
      */
-    public function getName(int $hostId): ?string {
+    public function getName(int $hostId): ?string
+    {
         return isset($this->names[$hostId]) ? $this->names[$hostId]->value : null;
     }
 

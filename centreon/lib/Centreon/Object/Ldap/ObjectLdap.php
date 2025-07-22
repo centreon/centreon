@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2015 CENTREON
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
@@ -33,7 +34,7 @@
  *
  */
 
-require_once "Centreon/Object/Object.php";
+require_once 'Centreon/Object/Object.php';
 
 /**
  * Used for interacting with Instances (pollers)
@@ -42,7 +43,9 @@ require_once "Centreon/Object/Object.php";
  */
 class Centreon_Object_Ldap extends Centreon_Object
 {
-    protected $table = "auth_ressource";
-    protected $primaryKey = "ar_id";
-    protected $uniqueLabelField = "ar_name";
+    protected $table = 'auth_ressource';
+
+    protected $primaryKey = 'ar_id';
+
+    protected $uniqueLabelField = 'ar_name';
 }

@@ -71,28 +71,29 @@ class CentreonUUID
     /**
      * Get Centreon UUID previously stored in database
      *
-     * @return false|string
      * @throws PDOException
+     * @return false|string
      */
     private function getUUIDFromDatabase(): bool|string
     {
-        $query = "SELECT value " .
-            "FROM informations " .
-            "WHERE informations.key = 'uuid' ";
+        $query = 'SELECT value '
+            . 'FROM informations '
+            . "WHERE informations.key = 'uuid' ";
         $result = $this->db->query($query);
 
         if ($result !== false && $row = $result->fetch()) {
             /** @var array<string, null|bool|int|string> $row */
             return (string) $row['value'];
         }
+
         return false;
     }
 
     /**
      * Generate UUID v4
      *
-     * @return string
      * @throws CentreonDbException
+     * @return string
      */
     private function generateUUID()
     {

@@ -33,14 +33,13 @@ class Kernel extends BaseKernel
 {
     use MicroKernelTrait;
 
-    /** @var Kernel */
-    private static $instance;
+    private static ?Kernel $instance = null;
 
     /** @var string cache path */
-    private $cacheDir = '/var/cache/centreon/symfony';
+    private string $cacheDir = '/var/cache/centreon/symfony';
 
     /** @var string Log path */
-    private $logDir = '/var/log/centreon/symfony';
+    private string $logDir = '/var/log/centreon/symfony';
 
     /**
      * Kernel constructor.
@@ -58,14 +57,19 @@ class Kernel extends BaseKernel
 
     public static function createForWeb(): self
     {
-        if (null === self::$instance) {
+        if (! self::$instance instanceof self) {
             include_once \dirname(__DIR__, 2) . '/config/bootstrap.php';
-            if ($_SERVER['APP_DEBUG']) {
+            if (isset($_SERVER['APP_DEBUG']) && '1' === $_SERVER['APP_DEBUG']) {
                 umask(0000);
-
                 Debug::enable();
+            } else {
+                $_SERVER['APP_DEBUG'] = '0';
             }
-            self::$instance = new self($_SERVER['APP_ENV'], (bool) $_SERVER['APP_DEBUG']);
+
+            $env = (isset($_SERVER['APP_ENV']) && is_scalar($_SERVER['APP_ENV']))
+                ? (string) $_SERVER['APP_ENV']
+                : 'prod';
+            self::$instance = new self($env, (bool) $_SERVER['APP_DEBUG']);
             self::$instance->boot();
         }
 
@@ -78,8 +82,12 @@ class Kernel extends BaseKernel
     public function registerBundles(): iterable
     {
         $contents = require $this->getProjectDir() . '/config/bundles.php';
+        if (! is_array($contents)) {
+            return;
+        }
+
         foreach ($contents as $class => $envs) {
-            if ($envs[$this->environment] ?? $envs['all'] ?? false) {
+            if ((is_array($envs) && (($envs[$this->environment] ?? $envs['all'] ?? false)))) {
                 yield new $class();
             }
         }

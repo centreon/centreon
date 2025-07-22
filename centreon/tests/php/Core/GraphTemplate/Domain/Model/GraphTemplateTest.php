@@ -158,4 +158,3 @@ it('should throw an exception when base is different from 1000 or 1024', functio
     \Assert\InvalidArgumentException::class,
     AssertionException::inArray(9999, [1000, 1024], 'GraphTemplate::base')->getMessage()
 );
-

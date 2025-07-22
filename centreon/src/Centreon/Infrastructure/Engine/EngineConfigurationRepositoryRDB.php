@@ -37,9 +37,7 @@ use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
  */
 class EngineConfigurationRepositoryRDB extends AbstractRepositoryDRB implements EngineConfigurationRepositoryInterface
 {
-    /**
-     * @var SqlRequestParametersTranslator
-     */
+    /** @var SqlRequestParametersTranslator */
     private $sqlRequestTranslator;
 
     public function __construct(DatabaseConnection $db)
@@ -115,6 +113,7 @@ class EngineConfigurationRepositoryRDB extends AbstractRepositoryDRB implements 
                 ->setMonitoringServerId((int) $records['nagios_server_id'])
                 ->setNotificationsEnabledOption((int) $records['enable_notifications']);
         }
+
         return null;
     }
 
@@ -142,6 +141,7 @@ class EngineConfigurationRepositoryRDB extends AbstractRepositoryDRB implements 
                 ->setIllegalObjectNameCharacters($records['illegal_object_name_chars'])
                 ->setMonitoringServerId((int) $records['nagios_server_id']);
         }
+
         return null;
     }
 
@@ -167,6 +167,7 @@ class EngineConfigurationRepositoryRDB extends AbstractRepositoryDRB implements 
                 ->setIllegalObjectNameCharacters($records['illegal_object_name_chars'])
                 ->setMonitoringServerId((int) $records['nagios_server_id']);
         }
+
         return null;
     }
 }

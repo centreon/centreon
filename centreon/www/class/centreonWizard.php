@@ -43,10 +43,13 @@ class Centreon_Wizard
 {
     /** @var string */
     private $_uuid = null;
+
     /** @var string */
     private $_name = null;
+
     /** @var array */
     private $_values = [];
+
     /** @var int */
     private $_lastUpdate = 0;
 
@@ -64,6 +67,28 @@ class Centreon_Wizard
     }
 
     /**
+     * Magic method __sleep
+     *
+     * @return string[]
+     */
+    public function __sleep()
+    {
+        $this->_lastUpdate = time();
+
+        return ['_uuid', '_lastUpdate', '_name', '_values'];
+    }
+
+    /**
+     * Magic method __wakeup
+     *
+     * @return void
+     */
+    public function __wakeup()
+    {
+        $this->_lastUpdate = time();
+    }
+
+    /**
      * Get values for a step
      *
      * @param int $step The step position
@@ -75,6 +100,7 @@ class Centreon_Wizard
         if (false === isset($this->_values[$step])) {
             return [];
         }
+
         return $this->_values[$step];
     }
 
@@ -92,6 +118,7 @@ class Centreon_Wizard
         if (false === isset($this->_values[$step]) || false === isset($this->_values[$step][$name])) {
             return $default;
         }
+
         return $this->_values[$step][$name];
     }
 
@@ -105,7 +132,7 @@ class Centreon_Wizard
      */
     public function addValues($step, $post): void
     {
-        /* Reinit */
+        // Reinit
         $this->_values[$step] = [];
         foreach ($post as $key => $value) {
             if (strncmp($key, 'step' . $step . '_', 6) === 0) {
@@ -124,30 +151,6 @@ class Centreon_Wizard
      */
     public function testUuid($uuid)
     {
-        if ($uuid == $this->_uuid) {
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * Magic method __sleep
-     *
-     * @return string[]
-     */
-    public function __sleep()
-    {
-        $this->_lastUpdate = time();
-        return ['_uuid', '_lastUpdate', '_name', '_values'];
-    }
-
-    /**
-     * Magic method __wakeup
-     *
-     * @return void
-     */
-    public function __wakeup()
-    {
-        $this->_lastUpdate = time();
+        return (bool) ($uuid == $this->_uuid);
     }
 }

@@ -45,11 +45,7 @@ function minimalValue(int $value): bool
         FILTER_VALIDATE_INT
     );
 
-    if (is_int($value) && $value >= 1) {
-        return true;
-    }
-
-    return false;
+    return (bool) (is_int($value) && $value >= 1);
 }
 
 /**
@@ -69,9 +65,9 @@ function checkLdapFilterSyntax(string $filterValue): bool
     }
 
     // check for parentheses
-    if (substr_count($filterValue, '(') !== substr_count($filterValue, ')') ||
-        ! str_starts_with($filterValue, '(') ||
-        ! str_ends_with($filterValue, ')')) {
+    if (substr_count($filterValue, '(') !== substr_count($filterValue, ')')
+        || ! str_starts_with($filterValue, '(')
+        || ! str_ends_with($filterValue, ')')) {
         return false;
     }
 
@@ -105,9 +101,5 @@ function checkLdapFilterSyntax(string $filterValue): bool
     }
 
     // reject double colons
-    if (preg_match('/::/', $cleanFilter)) {
-        return false;
-    }
-
-    return true;
+    return ! (preg_match('/::/', $cleanFilter));
 }

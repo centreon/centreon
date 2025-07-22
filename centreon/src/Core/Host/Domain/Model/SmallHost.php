@@ -19,7 +19,7 @@
  *
  */
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Core\Host\Domain\Model;
 
@@ -69,8 +69,7 @@ class SmallHost
         private readonly ?SimpleEntity $checkTimePeriod,
         private readonly ?SimpleEntity $notificationTimePeriod,
         private readonly ?SimpleEntity $severity,
-    )
-    {
+    ) {
         $shortName = 'Host';
         Assertion::positiveInt($id, "{$shortName}::id");
         Assertion::notEmptyString($name->value, "{$shortName}::name");

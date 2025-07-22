@@ -165,4 +165,3 @@ it('should throw an exception when graph template ID is < 1', function (): void 
     \Assert\InvalidArgumentException::class,
     AssertionException::positiveInt(0, 'NewCommand::graphTemplateId')->getMessage()
 );
-

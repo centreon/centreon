@@ -34,15 +34,13 @@ beforeEach(function (): void {
     $this->testedUpdatedAt = new \DateTimeImmutable('2023-05-09T16:00:00+00:00');
     $this->testedParameters = $this->createMock(ConfigurationParametersInterface::class);
     $this->testedType = Type::TELEGRAF;
-    $this->createAc = function (array $fields = []): AgentConfiguration {
-        return new AgentConfiguration(
-            id: $fields['id'] ?? 1,
-            name: $fields['name'] ?? 'ac-name',
-            type: $this->testedType,
-            connectionMode: $fields['connection_mode'] ?? ConnectionModeEnum::SECURE,
-            configuration: $this->testedParameters,
-        );
-    };
+    $this->createAc = fn (array $fields = []): AgentConfiguration => new AgentConfiguration(
+        id: $fields['id'] ?? 1,
+        name: $fields['name'] ?? 'ac-name',
+        type: $this->testedType,
+        connectionMode: $fields['connection_mode'] ?? ConnectionModeEnum::SECURE,
+        configuration: $this->testedParameters,
+    );
 });
 
 it('should return properly set instance', function (): void {
@@ -57,7 +55,7 @@ it('should return properly set instance', function (): void {
 // mandatory fields
 it(
     'should throw an exception when name is an empty string',
-    fn() => ($this->createAc)(['name' => ''])
+    fn () => ($this->createAc)(['name' => ''])
 )->throws(
     AssertionException::class,
     AssertionException::notEmptyString('AgentConfiguration::name')->getMessage()
@@ -85,7 +83,7 @@ foreach (
     $tooLong = str_repeat('a', $length + 1);
     it(
         "should throw an exception when {$field} is too long",
-        fn() => ($this->createAc)([$field => $tooLong])
+        fn () => ($this->createAc)([$field => $tooLong])
     )->throws(
         AssertionException::class,
         AssertionException::maxLength($tooLong, $length + 1, $length, "AgentConfiguration::{$field}")->getMessage()

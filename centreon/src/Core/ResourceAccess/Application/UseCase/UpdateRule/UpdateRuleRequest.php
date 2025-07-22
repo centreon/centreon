@@ -53,4 +53,3 @@ final class UpdateRuleRequest
      */
     public array $datasetFilters = [];
 }
-

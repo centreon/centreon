@@ -31,9 +31,7 @@ use Centreon\Domain\MonitoringServer\Model\RealTimeMonitoringServer;
  */
 class FindRealTimeMonitoringServersResponse
 {
-    /**
-     * @var array<int, array<string, mixed>>
-     */
+    /** @var array<int, array<string, mixed>> */
     private $realTimeMonitoringServers = [];
 
     /**

@@ -73,7 +73,7 @@ $datasetRoutes = [
     'event_handlers' => BASE_ROUTE . '?object=centreon_configuration_command&action=list',
     'default_event_handlers' => BASE_ROUTE . '?object=centreon_configuration_command&action=defaultValues&target=host&field=command_command_id2&id=' . $host_id,
     'default_acl_groups' => BASE_ROUTE . '?object=centreon_administration_aclgroup&action=defaultValues&target=host&field=acl_groups&id=' . $host_id,
-    'acl_groups' => BASE_ROUTE . '?object=centreon_administration_aclgroup&action=list'
+    'acl_groups' => BASE_ROUTE . '?object=centreon_administration_aclgroup&action=list',
 ];
 
 $attributes = [
@@ -159,7 +159,7 @@ $attributes = [
         'availableDatasetRoute' => $datasetRoutes['acl_groups'],
         'defaultDatasetRoute' => $datasetRoutes['default_acl_groups'],
         'multiple' => true,
-    ]
+    ],
 ];
 
 $hostObj = new CentreonHost($pearDB);
@@ -213,15 +213,15 @@ if (
             ON ehi.host_host_id = host.host_id
         WHERE host_id = :host_id LIMIT 1'
     );
-    $statement->bindValue(':host_id', $host_id, \PDO::PARAM_INT);
+    $statement->bindValue(':host_id', $host_id, PDO::PARAM_INT);
     $statement->execute();
 
     // Set base value
     $host_list = $statement->fetch();
     $host_list = $host_list === false ? [] : $host_list;
-    $host = array_map("myDecode", $host_list);
+    $host = array_map('myDecode', $host_list);
 
-    $cmdId = $host['command_command_id'] ?? "";
+    $cmdId = $host['command_command_id'] ?? '';
     if (! empty($host['host_snmp_community'])) {
         $host['host_snmp_community'] = PASSWORD_REPLACEMENT_VALUE;
     }
@@ -242,7 +242,7 @@ if (
             ON hcr.hostcategories_hc_id = hc.hc_id
         WHERE hc.level IS NULL AND hcr.host_host_id = :host_id'
     );
-    $statement->bindValue(':host_id', $host_id, \PDO::PARAM_INT);
+    $statement->bindValue(':host_id', $host_id, PDO::PARAM_INT);
     $statement->execute();
     for ($i = 0; $hc = $statement->fetch(); $i++) {
         if (! $centreon->user->admin && ! str_contains($hcString, "'" . $hc['hostcategories_hc_id'] . "'")) {
@@ -255,7 +255,7 @@ if (
 
     // Set Host and Nagios Server Relation
     $statement = $pearDB->prepare('SELECT `nagios_server_id` FROM `ns_host_relation` WHERE `host_host_id` = :host_id');
-    $statement->bindValue(':host_id', $host_id, \PDO::PARAM_INT);
+    $statement->bindValue(':host_id', $host_id, PDO::PARAM_INT);
     $statement->execute();
     for ($i = ($o !== HOST_MASSIVE_CHANGE) ? 0 : 1; $ns = $statement->fetch(); $i++) {
         $host['nagios_server_id'][$i] = $ns['nagios_server_id'];
@@ -271,7 +271,7 @@ if (
         WHERE hc.level IS NOT NULL AND hcr.host_host_id = :host_id
         ORDER BY hc.level ASC LIMIT 1'
     );
-    $statement->bindValue(':host_id', $host_id, \PDO::PARAM_INT);
+    $statement->bindValue(':host_id', $host_id, PDO::PARAM_INT);
     $statement->execute();
     if ($statement->rowCount()) {
         $cr = $statement->fetch();
@@ -434,12 +434,12 @@ if ($o !== HOST_MASSIVE_CHANGE) {
 switch ($o) {
     case HOST_ADD:
     case HOST_MASSIVE_CHANGE:
-        $form->addElement('text', 'host_snmp_community', _("SNMP Community"), $attrsText);
+        $form->addElement('text', 'host_snmp_community', _('SNMP Community'), $attrsText);
         break;
     default:
         $snmpAttribute = $attrsText;
         $snmpAttribute['onClick'] = 'javascript:change_snmp_community_input_type(this)';
-        $form->addElement('password', 'host_snmp_community', _("SNMP Community"), $snmpAttribute);
+        $form->addElement('password', 'host_snmp_community', _('SNMP Community'), $snmpAttribute);
         break;
 }
 $form->addElement('select', 'host_snmp_version', _('Version'), [null => null, 1 => '1', '2c' => '2c', 3 => '3']);
@@ -495,7 +495,7 @@ $cloneSetMacro = [
         'macroFrom[#index#]',
         'direct',
         ['id' => 'macroFrom_#index#']
-    )
+    ),
 ];
 
 $cloneSetTemplate = [];
@@ -677,7 +677,6 @@ if (! $isCloudPlatform) {
         $form->addElement('checkbox', 'contact_additive_inheritance', '', _('Contact additive inheritance'));
         $form->addElement('checkbox', 'cg_additive_inheritance', '', _('Contact group additive inheritance'));
     }
-
 
     $form->addElement('select2', 'host_cs', _('Linked Contacts'), [], $attributes['contacts']);
     $form->addElement('select2', 'host_cgs', _('Linked Contact Groups'), [], $attributes['contact_groups']);
@@ -1101,7 +1100,7 @@ if (! $isCloudPlatform) {
         'msg',
         [
             'nagios' => $centreon->user->get_version(),
-            'isHostTemplate' => 0
+            'isHostTemplate' => 0,
         ]
     );
 
@@ -1120,8 +1119,8 @@ $tpl->assign('javascript', '
         ');
 
 if ($isCloudPlatform) {
-    $form->addElement('header', 'monitoringSettings', _("Monitoring settings"));
-    $form->addElement('header', 'classification', _("Classification"));
+    $form->addElement('header', 'monitoringSettings', _('Monitoring settings'));
+    $form->addElement('header', 'classification', _('Classification'));
 }
 
 // prepare help texts

@@ -49,7 +49,7 @@ class FindAccPresenter extends AbstractPresenter implements FindAccPresenterInte
                 'description' => $response->description,
                 'parameters' => $response->parameters,
                 'pollers' => array_map(
-                    static fn(Poller $poller): array => ['id' => $poller->id, 'name' => $poller->name],
+                    static fn (Poller $poller): array => ['id' => $poller->id, 'name' => $poller->name],
                     $response->pollers
                 ),
                 'created_at' => $this->formatDateToIso8601($response->createdAt),

@@ -24,9 +24,9 @@ namespace Centreon\Domain\MonitoringServer\UseCase\RealTimeMonitoringServer;
 
 use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
+use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\MonitoringServer\Exception\RealTimeMonitoringServerException;
 use Centreon\Infrastructure\MonitoringServer\Repository\RealTimeMonitoringServerRepositoryRDB;
-use Centreon\Domain\Log\LoggerTrait;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 /**
@@ -63,8 +63,9 @@ class FindRealTimeMonitoringServers
 
         if (! $this->contact->hasTopologyRole(Contact::ROLE_MONITORING_RESOURCES_STATUS_RW)) {
             $this->error('User doesn\'t have sufficient rights to see realtime monitoring servers', [
-                    'user_id' => $this->contact->getId(),
-                ]);
+                'user_id' => $this->contact->getId(),
+            ]);
+
             throw new AccessDeniedException();
         }
         $response = new FindRealTimeMonitoringServersResponse();

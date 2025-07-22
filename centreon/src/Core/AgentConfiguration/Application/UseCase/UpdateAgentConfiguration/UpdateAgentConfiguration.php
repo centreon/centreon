@@ -56,7 +56,8 @@ final class UpdateAgentConfiguration
         private readonly RepositoryManagerInterface $repositoryManager,
         private readonly ContactInterface $user,
         private readonly bool $isCloudPlatform,
-    ) {}
+    ) {
+    }
 
     public function __invoke(
         UpdateAgentConfigurationRequest $request,
@@ -82,7 +83,7 @@ final class UpdateAgentConfiguration
 
             if ($this->isCloudPlatform && ! $this->user->isAdmin()) {
                 $linkedPollerIds = array_map(
-                    static fn(Poller $poller): int => $poller->id,
+                    static fn (Poller $poller): int => $poller->id,
                     $this->readAcRepository->findPollersByAcId($request->id)
                 );
 
@@ -174,7 +175,7 @@ final class UpdateAgentConfiguration
 
         if (! $this->user->isAdmin()) {
             $pollerIds = array_map(
-                static fn(Poller $poller): int => $poller->id,
+                static fn (Poller $poller): int => $poller->id,
                 $this->readAcRepository->findPollersByAcId($agentConfiguration->getId())
             );
             $accessGroups = $this->readAccessGroupRepository->findByContact($this->user);
