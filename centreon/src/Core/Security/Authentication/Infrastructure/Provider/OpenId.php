@@ -361,9 +361,10 @@ class OpenId implements ProviderAuthenticationInterface
             if (function_exists('fastcgi_finish_request')) {
                 fastcgi_finish_request();
             }
+
             exit;
         } catch (Exception $e) {
             throw new Exception('Failed to redirect to logout URL: ' . $e->getMessage());
         }
-}
+    }
 }
