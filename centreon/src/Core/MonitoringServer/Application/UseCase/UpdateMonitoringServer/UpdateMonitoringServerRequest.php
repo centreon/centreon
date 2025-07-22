@@ -36,4 +36,3 @@ final readonly class UpdateMonitoringServerRequest
     ) {
     }
 }
-
