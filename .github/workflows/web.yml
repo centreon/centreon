@@ -1330,17 +1330,16 @@ jobs:
       needs.get-environment.outputs.is_nightly == 'true' && github.run_attempt == 1 &&
       (failure() || cancelled()) &&
       (contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')) &&
-      startsWith(github.ref_name, 'dev') &&
       github.repository == 'centreon/centreon'
     steps:
-    - name: Checkout sources
-      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - name: Checkout sources
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
-    - name: Create Jira ticket based on nightly build failure
-      uses: ./.github/actions/create-jira-ticket
-      with:
-        jira_base_url: ${{ secrets.JIRA_BASE_URL }}
-        jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
-        jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
-        module_name: "centreon-web"
-        ticket_reason_for_creation: "Nightly"
+      - name: Create Jira ticket based on nightly build failure
+        uses: ./.github/actions/create-jira-ticket
+        with:
+          jira_base_url: ${{ secrets.JIRA_BASE_URL }}
+          jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
+          jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
+          module_name: "centreon-web"
+          ticket_reason_for_creation: "Nightly"
