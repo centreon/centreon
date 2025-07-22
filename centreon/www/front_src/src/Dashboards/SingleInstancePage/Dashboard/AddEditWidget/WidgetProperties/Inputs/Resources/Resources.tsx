@@ -37,7 +37,7 @@ const Resources = ({
   required,
   useAdditionalResources,
   forcedResourceType,
-  defaultResourceTypes
+  defaultResourceTypes,
   allowRegexOnResourceTypes
 }: WidgetPropertyProps): JSX.Element => {
   const { classes } = useResourceStyles();
