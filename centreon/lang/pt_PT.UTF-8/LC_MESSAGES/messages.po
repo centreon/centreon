@@ -4996,7 +4996,7 @@ msgid ""
 msgstr ""
 
 #: centreon/www/install/dashboard_widgets.php
-msgid "Displays the future evolution of a metric, based on its history."
+msgid "Displays the real-time average of the metric and a trend curve."
 msgstr ""
 
 #: centreon/www/install/dashboard_widgets.php
@@ -7760,7 +7760,7 @@ msgid "Graph style"
 msgstr ""
 
 #: centreon/www/install/dashboard_widgets.php
-msgid "Graph style for average"
+msgid "Style for average data"
 msgstr ""
 
 #: centreon/www/include/configuration/configObject/command/formCommand.php

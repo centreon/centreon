@@ -4835,9 +4835,9 @@ msgstr ""
 "sélectionnés, sous forme de tableau."
 
 #: centreon/www/install/dashboard_widgets.php
-msgid "Displays the future evolution of a metric, based on its history."
+msgid "Displays the real-time average of the metric and a trend curve."
 msgstr ""
-"Affiche l'évolution future d'une métrique, sur la base de son historique."
+"Affiche la moyenne de la métrique en temps réel et une courbe de tendance"
 
 #: centreon/www/install/dashboard_widgets.php
 msgid "Displays the time according to the selected time zone, or a timer."
@@ -7638,8 +7638,8 @@ msgid "Graph style"
 msgstr "Style de graphe"
 
 #: centreon/www/install/dashboard_widgets.php
-msgid "Graph style for average"
-msgstr "Style du graphique de moyenne"
+msgid "Style for average data"
+msgstr "Style des données de moyenne"
 
 #: centreon/www/include/configuration/configObject/command/formCommand.php
 #: centreon/www/install/smarty_translate.php
