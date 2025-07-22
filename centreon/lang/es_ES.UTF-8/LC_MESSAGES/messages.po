@@ -17150,6 +17150,10 @@ msgstr ""
 msgid "The SQL files are located in \"%s\""
 msgstr ""
 
+#: centreon/www/widgets/httploader/index.php
+msgid "The URL provided for the website does not use a valid URL pattern."
+msgstr ""
+
 #: centreon/src/Core/AdditionalConnectorConfiguration/Application/Exception/AccException.php
 #, php-format
 msgid "The additional configuration name '%s' already exists"
@@ -17178,6 +17182,10 @@ msgstr ""
 #: centreon/src/Centreon/Domain/Entity/EntityCreator.php
 #, php-format
 msgid "The class %s does not exist"
+msgstr ""
+
+#: centreon/www/include/configuration/configServers/formServers.php
+msgid "The command format is invalid"
 msgstr ""
 
 #: centreon/src/Centreon/Domain/Engine/EngineService.php
@@ -17427,6 +17435,10 @@ msgstr ""
 msgid "The path does not exist"
 msgstr ""
 
+#: centreon/www/include/configuration/configServers/formServers.php
+msgid "The path format is invalid"
+msgstr ""
+
 #: centreon/src/Centreon/Domain/PlatformTopology/Exception/PlatformTopologyException.php
 #, php-format
 msgid "The platform '%s'@'%s' cannot be found on the Central"
@@ -17516,6 +17528,10 @@ msgstr ""
 
 #: centreon/www/install/front_translate.php
 msgid "The resource access rule was successfully updated"
+msgstr ""
+
+#: centreon/www/include/configuration/configServers/formServers.php
+msgid "The script path is invalid"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
