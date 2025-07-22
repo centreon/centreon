@@ -2154,7 +2154,7 @@ msgid "By name"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
-msgid "CA"
+msgid "CA(.crt,.cer)"
 msgstr ""
 
 #: centreon/www/install/front_translate.php

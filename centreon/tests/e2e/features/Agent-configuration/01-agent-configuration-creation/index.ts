@@ -149,7 +149,9 @@ When('the user fills in the centreon agent parameters', () => {
   cy.getByLabel({ label: 'Private key(.key)', tag: 'input' }).type(
     'my-otel-private-key-name-003.key'
   );
-  cy.getByLabel({ label: 'CA', tag: 'input' }).eq(0).type('my-ca-file-003.crt');
+  cy.getByLabel({ label: 'CA(.crt,.cer)', tag: 'input' })
+    .eq(0)
+    .type('my-ca-file-003.crt');
   // Click to add the first host
   cy.getByLabel({ label: 'Select host', tag: 'input' }).eq(0).click();
   cy.contains('Centreon-Server').click();
@@ -164,10 +166,10 @@ When('the user fills in the centreon agent parameters', () => {
     .clear()
     .type('10.0.0.0');
   cy.getByTestId({ testId: 'Port' }).eq(1).clear().type('4317');
-  cy.getByLabel({ label: 'CA', tag: 'input' })
+  cy.getByLabel({ label: 'CA(.crt,.cer)', tag: 'input' })
     .eq(1)
     .type('my-certificate-name-003.crt');
-  cy.getByLabel({ label: 'CA', tag: 'input' })
+  cy.getByLabel({ label: 'CA(.crt,.cer)', tag: 'input' })
     .eq(2)
     .type('my-certificate-name-003.crt');
   cy.getByTestId({ testId: 'Select existing CMA token' }).eq(1).dblclick();
@@ -214,7 +216,9 @@ When("the user doesn't fill in correct type of information", () => {
   cy.getByLabel({ label: 'Public certificate(.crt,.cer)', tag: 'input' })
     .eq(0)
     .type('my-otel-certificate-name-001.txt');
-  cy.getByLabel({ label: 'CA', tag: 'input' }).type('ca-file-name-001.txt');
+  cy.getByLabel({ label: 'CA(.crt,.cer)', tag: 'input' }).type(
+    'ca-file-name-001.txt'
+  );
   cy.getByLabel({ label: 'Private key(.key)', tag: 'input' })
     .eq(0)
     .type('my-otel-private-key-name-001.txt');
@@ -233,7 +237,9 @@ Then('the form displayed an error', () => {
   cy.getByTestId({ testId: 'Public certificate(.crt,.cer)' })
     .eq(0)
     .contains('Invalid extension');
-  cy.getByTestId({ testId: 'CA' }).eq(0).contains('Invalid extension');
+  cy.getByTestId({ testId: 'CA(.crt,.cer)' })
+    .eq(0)
+    .contains('Invalid extension');
   cy.getByTestId({ testId: 'Private key(.key)' })
     .eq(0)
     .contains('Invalid extension');
@@ -257,7 +263,9 @@ When('the user fills in the needed information', () => {
   cy.getByLabel({ label: 'Public certificate(.crt,.cer)', tag: 'input' })
     .eq(0)
     .type('my-otel-certificate-name-001.crt');
-  cy.getByLabel({ label: 'CA', tag: 'input' }).type('ca-file-name-001.crt');
+  cy.getByLabel({ label: 'CA(.crt,.cer)', tag: 'input' }).type(
+    'ca-file-name-001.crt'
+  );
   cy.getByLabel({ label: 'Private key(.key)', tag: 'input' })
     .eq(0)
     .type('my-otel-private-key-name-001.key');

@@ -121,7 +121,7 @@ Then('a pop up is displayed with all of the agent information', () => {
       'have.value',
       `/etc/pki/${agentsConfiguration.telegraf1.publicCertfFileName}`
     );
-  cy.getByLabel({ label: 'CA', tag: 'input' }).should(
+  cy.getByLabel({ label: 'CA(.crt,.cer)', tag: 'input' }).should(
     'have.value',
     `/etc/pki/${agentsConfiguration.telegraf1.caFileName}`
   );
@@ -223,7 +223,7 @@ Given('an agent configuration already created linked with two pollers', () => {
   cy.getByLabel({ label: 'Public certificate(.crt,.cer)', tag: 'input' })
     .eq(0)
     .type(agentsConfiguration.telegraf1.publicCertfFileName);
-  cy.getByLabel({ label: 'CA', tag: 'input' }).type(
+  cy.getByLabel({ label: 'CA(.crt,.cer)', tag: 'input' }).type(
     agentsConfiguration.telegraf1.caFileName
   );
   cy.getByLabel({ label: 'Private key(.key)', tag: 'input' })
@@ -328,7 +328,7 @@ Then(
         'have.value',
         `/etc/pki/${agentsConfiguration.telegraf1.publicCertfFileName}`
       );
-    cy.getByLabel({ label: 'CA', tag: 'input' }).should(
+    cy.getByLabel({ label: 'CA(.crt,.cer)', tag: 'input' }).should(
       'have.value',
       `/etc/pki/${agentsConfiguration.telegraf1.caFileName}`
     );

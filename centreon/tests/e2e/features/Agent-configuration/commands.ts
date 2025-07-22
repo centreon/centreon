@@ -8,7 +8,9 @@ Cypress.Commands.add('FillCMAMandatoryFields', (body: Cma) => {
   cy.getByLabel({ label: 'Private key(.key)', tag: 'input' }).type(
     body.privateKFileName
   );
-  cy.getByLabel({ label: 'CA', tag: 'input' }).eq(0).type(body.caFileName);
+  cy.getByLabel({ label: 'CA(.crt,.cer)', tag: 'input' })
+    .eq(0)
+    .type(body.caFileName);
   cy.getByTestId({ testId: 'Select existing CMA token(s)' }).click();
   cy.wait('@getTokens');
   cy.contains('CMA-Token-001').click();
@@ -21,7 +23,7 @@ Cypress.Commands.add('FillTelegrafMandatoryFields', (body: Telegraf) => {
   cy.getByLabel({ label: 'Public certificate(.crt,.cer)', tag: 'input' })
     .eq(0)
     .type(body.publicCertfFileName);
-  cy.getByLabel({ label: 'CA', tag: 'input' }).type(body.caFileName);
+  cy.getByLabel({ label: 'CA(.crt,.cer)', tag: 'input' }).type(body.caFileName);
   cy.getByLabel({ label: 'Private key(.key)', tag: 'input' })
     .eq(0)
     .type(body.privateKFileName);
@@ -50,7 +52,9 @@ Cypress.Commands.add(
     cy.getByLabel({ label: 'Public certificate(.crt,.cer)', tag: 'input' })
       .eq(0)
       .type(body.publicCertfFileName);
-    cy.getByLabel({ label: 'CA', tag: 'input' }).type(body.caFileName);
+    cy.getByLabel({ label: 'CA(.crt,.cer)', tag: 'input' }).type(
+      body.caFileName
+    );
     cy.getByLabel({ label: 'Port', tag: 'input' }).should('have.value', '1443');
     cy.getByLabel({ label: 'Private key(.key)', tag: 'input' })
       .eq(1)
@@ -69,7 +73,7 @@ Cypress.Commands.add('addTelegrafAgent', (body: Telegraf) => {
   cy.getByLabel({ label: 'Public certificate(.crt,.cer)', tag: 'input' })
     .eq(0)
     .type(body.publicCertfFileName);
-  cy.getByLabel({ label: 'CA', tag: 'input' }).type(body.caFileName);
+  cy.getByLabel({ label: 'CA(.crt,.cer)', tag: 'input' }).type(body.caFileName);
   cy.getByLabel({ label: 'Private key(.key)', tag: 'input' })
     .eq(0)
     .type(body.privateKFileName);
@@ -90,7 +94,9 @@ Cypress.Commands.add('updateTelegrafAgent', (body: Telegraf) => {
     .eq(0)
     .clear()
     .type(body.publicCertfFileName);
-  cy.getByLabel({ label: 'CA', tag: 'input' }).clear().type(body.caFileName);
+  cy.getByLabel({ label: 'CA(.crt,.cer)', tag: 'input' })
+    .clear()
+    .type(body.caFileName);
   cy.getByLabel({ label: 'Private key(.key)', tag: 'input' })
     .eq(0)
     .clear()
