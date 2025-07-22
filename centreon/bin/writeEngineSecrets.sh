@@ -11,7 +11,7 @@ PASSWORD="$3"
 SECRETS_ENDPOINT="/api/latest/administration/engine/secrets"
 OUTPUT_FILE="/etc/centreon-engine/engine-context.json"
 
-# Authenticate and get token (assuming API returns a token in JSON)
+# Authenticate and get token
 TOKEN=$(curl -s -X POST "$API_URL/api/latest/login" \
   -H "Content-Type: application/json" \
   -d "{\"security\":{\"credentials\":{\"login\":\"$USERNAME\",\"password\":\"$PASSWORD\"}}}" | \
