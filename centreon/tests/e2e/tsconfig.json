@@ -1,11 +1,8 @@
 {
-  "extends": "@centreon/js-config/tsconfig/index",
+  "extends": "./node_modules/@centreon/js-config/tsconfig/index",
   "compilerOptions": {
     "baseUrl": ".",
-    "module": "ESNext",
-    "target": "ES2020",
     "esModuleInterop": true,
-    "moduleResolution": "node",
     "types": ["cypress", "cypress-wait-until", "node"],
     "resolveJsonModule": true,
     "paths": {
