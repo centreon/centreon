@@ -34,7 +34,9 @@
  *
  */
 
-if (!isset($centreon)) {
+use Core\MonitoringServer\Model\MonitoringServer;
+
+if (! isset($centreon)) {
     exit();
 }
 
@@ -299,10 +301,10 @@ if (isset($_GET["o"]) && $_GET["o"] == SERVER_ADD) {
     $monitoring_engines = [
         "nagios_bin" => "/usr/sbin/centengine",
         "nagiostats_bin" => "/usr/sbin/centenginestats",
-        "engine_start_command" => "service centengine start",
-        "engine_stop_command" => "service centengine stop",
-        "engine_restart_command" => "service centengine restart",
-        "engine_reload_command" => "service centengine reload",
+        "engine_start_command" => MonitoringServer::DEFAULT_ENGINE_START_COMMAND,
+        "engine_stop_command" => MonitoringServer::DEFAULT_ENGINE_STOP_COMMAND,
+        "engine_restart_command" => MonitoringServer::DEFAULT_ENGINE_RESTART_COMMAND,
+        "engine_reload_command" => MonitoringServer::DEFAULT_ENGINE_RELOAD_COMMAND,
         "nagios_perfdata" => "/var/log/centreon-engine/service-perfdata"
     ];
     $form->setDefaults(
@@ -323,7 +325,7 @@ if (isset($_GET["o"]) && $_GET["o"] == SERVER_ADD) {
             "gorgone_communication_type" => ZMQ,
             "gorgone_port" => 5556,
             "nagios_perfdata" => $monitoring_engines["nagios_perfdata"],
-            "broker_reload_command" => "service cbd reload",
+            "broker_reload_command" => MonitoringServer::DEFAULT_BROKER_RELOAD_COMMAND,
             "centreonbroker_cfg_path" => "/etc/centreon-broker",
             "centreonbroker_module_path" => "/usr/share/centreon/lib/centreon-broker",
             "centreonbroker_logs_path" => "/var/log/centreon-broker",
@@ -356,6 +358,28 @@ if ($serverType === 'poller') {
     );
 }
 $form->addRule('ns_ip_address', _("The IP address is incorrect"), 'isValidIpAddress');
+
+$form->registerRule('isValidStartCommandSyntax', 'callback', 'isValidStartCommandSyntax');
+$form->registerRule('isValidStopCommandSyntax', 'callback', 'isValidStopCommandSyntax');
+$form->registerRule('isValidRestartCommandSyntax', 'callback', 'isValidRestartCommandSyntax');
+$form->registerRule('isValidReloadCommandSyntax', 'callback', 'isValidReloadCommandSyntax');
+$form->addRule('engine_start_command', _("The command format is invalid"), "isValidStartCommandSyntax");
+$form->addRule('engine_stop_command', _("The command format is invalid"), "isValidStopCommandSyntax");
+$form->addRule('engine_restart_command', _("The command format is invalid"), "isValidRestartCommandSyntax");
+$form->addRule('engine_reload_command', _("The command format is invalid"), "isValidReloadCommandSyntax");
+$form->addRule('broker_reload_command', _("The command format is invalid"), "isValidReloadCommandSyntax");
+
+$form->registerRule('isValidPath', 'callback', 'isValidPath');
+$form->addRule('nagios_bin', _("The path format is invalid"), "isValidPath");
+$form->addRule('nagiostats_bin', _("The path format is invalid"), "isValidPath");
+$form->addRule('nagios_perfdata', _("The path format is invalid"), "isValidPath");
+$form->addRule('centreonbroker_cfg_path', _("The path format is invalid"), "isValidPath");
+$form->addRule('centreonbroker_module_path', _("The path format is invalid"), "isValidPath");
+$form->addRule('centreonbroker_logs_path', _("The path format is invalid"), "isValidPath");
+$form->addRule('snmp_trapd_path_conf', _("The path format is invalid"), "isValidPath");
+
+$form->registerRule('isValidTrapInit', 'callback', 'isValidTrapInit');
+$form->addRule('init_script_centreontrapd', _("The script path is invalid"), 'isValidTrapInit');
 
 $form->setRequiredNote("<font style='color: red;'>*</font>&nbsp;" . _("Required fields"));
 
