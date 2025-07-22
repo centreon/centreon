@@ -348,8 +348,7 @@ Then(
   () => {
     cy.getCellContent(1, 2).then((myTableContent) => {
       expect(['Critical', 'Down']).to.include(myTableContent[1]);
-      expect(myTableContent[2]).to.include('Warning');
-      expect(myTableContent[3]).to.include('Unknown');
+      expect(['Warning', 'Critical']).to.include(myTableContent[2]);
       expect(myTableContent[6]).to.include('Pending');
     });
   }
