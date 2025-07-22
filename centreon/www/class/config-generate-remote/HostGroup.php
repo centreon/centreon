@@ -78,7 +78,6 @@ class HostGroup extends AbstractObject
             $this->getHostgroupFromId($hgId);
             $this->generateObjectInFile($this->hg[$hgId], $hgId);
             Media::getInstance($this->dependencyInjector)->getMediaPathFromId($this->hg[$hgId]['hg_icon_image']);
-            Media::getInstance($this->dependencyInjector)->getMediaPathFromId($this->hg[$hgId]['hg_map_icon_image']);
         }
         if (is_null($this->hg[$hgId]) || isset($this->hg[$hgId]['members'][$hostId])) {
             return 1;
