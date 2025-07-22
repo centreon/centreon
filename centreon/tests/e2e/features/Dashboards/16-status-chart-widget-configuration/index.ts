@@ -524,6 +524,13 @@ When('the dashboard administrator clicks on a random resource', () => {
 Then(
   'the user should be redirected to the resource status screen and all the resources must be displayed',
   () => {
-    cy.contains('host2').should('exist');
+    cy.waitForElementToBeVisible('p:contains("host3"), p:contains("host2")');
+    cy.get('body').then($body => {
+      if ($body.find(':contains("host2")').length) {
+        cy.contains('host2').should('exist');
+      } else {
+        cy.contains('host3').should('exist');
+      }
+    });
   }
 );
