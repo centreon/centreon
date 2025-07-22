@@ -18095,7 +18095,7 @@ msgstr ""
 #: centreon/www/install/front_translate.php
 msgid ""
 "You are going to delete the <strong>{{ agent }}</strong> agent "
-"configuration. All configuration parameters for this agent will be deleted. "
+"configuration. All parameters for this agent configuration will be deleted. "
 "This action cannot be undone."
 msgstr ""
 "Vous allez supprimer la configuration de l'agent <strong>{{ agent }}</"
