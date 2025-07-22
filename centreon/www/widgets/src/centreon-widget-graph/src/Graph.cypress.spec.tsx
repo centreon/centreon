@@ -6,6 +6,7 @@ import { isOnPublicPageAtom } from '@centreon/ui-context';
 import { labelPreviewRemainsEmpty } from '../../translatedLabels';
 import { getPublicWidgetEndpoint } from '../../utils';
 
+import { equals } from 'ramda';
 import WidgetLineChart from './LineChart';
 import { graphEndpoint } from './api/endpoints';
 import type {
@@ -14,7 +15,6 @@ import type {
   FormTimePeriod,
   PanelOptions
 } from './models';
-import { equals } from 'ramda';
 
 const serviceMetrics: Data = {
   metrics: [

@@ -14973,6 +14973,10 @@ msgstr "Das JSON konnte nicht decodiert werden"
 msgid "The SQL files are located in \"%s\""
 msgstr "Die SQL-Dateien befinden sich in \"%s\""
 
+#: centreon/www/widgets/httploader/index.php
+msgid "The URL provided for the website does not use a valid URL pattern."
+msgstr ""
+
 #: centreon/src/Core/AdditionalConnectorConfiguration/Application/Exception/AccException.php
 #, php-format
 msgid "The additional configuration name '%s' already exists"
