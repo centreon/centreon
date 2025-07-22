@@ -20,8 +20,8 @@ import {
 
 import { ResourceType, SeverityCode, centreonBaseURL } from '@centreon/ui';
 
-import { Resource, SeverityStatus, Status } from './models';
 import { WidgetResourceType } from '../../front_src/src/Dashboards/SingleInstancePage/Dashboard/AddEditWidget/models';
+import { Resource, SeverityStatus, Status } from './models';
 
 export const areResourcesFullfilled = (
   resourcesDataset: Array<Resource>
@@ -137,9 +137,10 @@ export const getResourcesUrl = ({
   });
 
   const groupedResources = groupBy(
-    ({ resourceType }) => equals(resourceType, 'hostgroup')
-    ? WidgetResourceType.hostGroup
-    : resourceType,
+    ({ resourceType }) =>
+      equals(resourceType, 'hostgroup')
+        ? WidgetResourceType.hostGroup
+        : resourceType,
     allResources
   );
 

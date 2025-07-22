@@ -141,6 +141,7 @@ Cypress.Commands.add('applyAcl', () => {
 });
 
 declare global {
+  // biome-ignore lint/style/noNamespace: <explanation>
   namespace Cypress {
     interface Chainable {
       editDashboard: (name: string) => Cypress.Chainable;
