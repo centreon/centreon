@@ -1,17 +1,20 @@
 import {
-  filter,
   equals,
-  isNil,
+  filter,
   find,
-  pipe,
   head,
-  startsWith,
-  not
+  isNil,
+  not,
+  pipe,
+  startsWith
 } from 'ramda';
 import commandParser from 'string-argv';
 
 const isShortArgument = (argument: string): boolean => {
-  return startsWith('-', argument) && not(equals('--', argument));
+  return (
+    startsWith('-', argument) ||
+    (startsWith('|', argument) && not(equals('--', argument)))
+  );
 };
 
 interface CommandWithArguments {
@@ -22,7 +25,7 @@ interface CommandWithArguments {
 const getCommandsWithArguments = (
   commandLine: string
 ): Array<CommandWithArguments> => {
-  const pipedCommands = commandLine.split('|');
+  const pipedCommands = commandLine.split('--');
 
   return pipedCommands.map(getCommandWithArguments);
 };
