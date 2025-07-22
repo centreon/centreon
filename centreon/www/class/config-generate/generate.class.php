@@ -40,6 +40,7 @@ use App\Kernel;
 use Core\AdditionalConnectorConfiguration\Application\Repository\ReadAccRepositoryInterface;
 use Core\AgentConfiguration\Application\Repository\ReadAgentConfigurationRepositoryInterface;
 use Core\Host\Application\Repository\ReadHostRepositoryInterface;
+use Core\MonitoringServer\Application\Repository\ReadMonitoringServerRepositoryInterface;
 use Core\Security\Token\Application\Repository\ReadTokenRepositoryInterface;
 use Pimple\Container;
 use Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException;
@@ -119,6 +120,7 @@ class Generate
 
     private ReadHostRepositoryInterface $readHostRepository;
 
+    private readMonitoringServerRepositoryInterface $readMonitoringServerRepository;
     /**
      * Generate constructor
      *
@@ -140,6 +142,8 @@ class Generate
         $this->readHostRepository = $kernel->getContainer()
             ->get(ReadHostRepositoryInterface::class)
             ?? throw new Exception('ReadHostRepositoryInterface not found');
+        $this->readMonitoringServerRepository = $kernel->getContainer()->get(ReadMonitoringServerRepositoryInterface::class)
+            ?? throw new Exception('ReadMonitoringServerRepositoryInterface not found');
     }
 
     /**
@@ -175,7 +179,8 @@ class Generate
         (new AdditionalConnectorVmWareV6(
             $this->dependencyInjector,
             $this->backend_instance,
-            $this->readAdditionalConnectorRepository
+            $this->readAdditionalConnectorRepository,
+            $this->readMonitoringServerRepository
         ))->reset();
         (new AgentConfiguration(
             $this->backend_instance,
@@ -537,7 +542,8 @@ class Generate
         (new AdditionalConnectorVmWareV6(
             $this->dependencyInjector,
             $this->backend_instance,
-            $this->readAdditionalConnectorRepository
+            $this->readAdditionalConnectorRepository,
+            $this->readMonitoringServerRepository
         ))->generateFromPollerId($this->current_poller['id']);
         $this->backend_instance->movePath($this->current_poller['id']);
     }

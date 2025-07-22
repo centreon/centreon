@@ -565,6 +565,10 @@ services:
         class: CentreonNotification\Domain\Repository\DependencyRepository
         public: true
 
+    Core\MonitoringServer\Application\Repository\ReadMonitoringServerRepositoryInterface:
+        class: Core\MonitoringServer\Infrastructure\Repository\DbReadMonitoringServerRepository
+        public: true
+
     # Configuration Notifications
     Core\Notification\Infrastructure\Repository\NotificationResourceRepositoryProvider:
         arguments:

@@ -24,6 +24,7 @@ use Core\AdditionalConnectorConfiguration\Application\Repository\ReadAccReposito
 use Core\AdditionalConnectorConfiguration\Domain\Model\Type;
 use Core\AdditionalConnectorConfiguration\Domain\Model\VmWareV6\{VSphereServer, VmWareConfig};
 use Core\Common\Application\UseCase\VaultTrait;
+use Core\MonitoringServer\Application\Repository\ReadMonitoringServerRepositoryInterface;
 use Pimple\Container;
 
 /**
@@ -45,7 +46,8 @@ class AdditionalConnectorVmWareV6 extends AbstractObjectJSON
     public function __construct(
         Container $dependencyInjector,
         private readonly Backend $backend,
-        private readonly ReadAccRepositoryInterface $readAdditionalConnectorRepository
+        private readonly ReadAccRepositoryInterface $readAdditionalConnectorRepository,
+        private readonly ReadMonitoringServerRepositoryInterface $readyMonitoringServerRepository
     ) {
         parent::__construct($dependencyInjector);
         if (! $this->isVaultEnabled) {
@@ -104,6 +106,8 @@ class AdditionalConnectorVmWareV6 extends AbstractObjectJSON
         $additionalConnectorsVMWareV6 = $this->readAdditionalConnectorRepository
             ->findByPollerAndType($pollerId, Type::VMWARE_V6->value);
 
+
+        $shouldBeEncrypted = $this->readyMonitoringServerRepository->isEncryptionReady($pollerId);
         // Cast to object to ensure that an empty JSON and not an empty array is write in file if no ACC exists.
         $object = (object) [];
         if ($additionalConnectorsVMWareV6 !== null) {
@@ -140,8 +144,12 @@ class AdditionalConnectorVmWareV6 extends AbstractObjectJSON
                     fn (VSphereServer $vSphereServer): array => [
                         'name' => $vSphereServer->getName(),
                         'url' => $vSphereServer->getUrl(),
-                        'username' => $vSphereServer->getUsername(),
-                        'password' => $vSphereServer->getPassword(),
+                        'username' => $shouldBeEncrypted
+                            ? 'encrypt::' . $this->engineContextEncryption->crypt($vSphereServer->getUsername())
+                            : $vSphereServer->getUsername(),
+                        'password' => $shouldBeEncrypted
+                            ? 'encrypt::' . $this->engineContextEncryption->crypt($vSphereServer->getPassword())
+                            : $vSphereServer->getPassword(),
                     ],
                     $vmWareConfig->getVSphereServers()
                 ),

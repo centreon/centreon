@@ -37,7 +37,9 @@
 use App\Kernel;
 use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
 use Core\Common\Infrastructure\FeatureFlags;
+use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface;
 use Pimple\Container;
+use Security\Interfaces\EncryptionInterface;
 
 /**
  * Class
@@ -64,6 +66,10 @@ abstract class AbstractObjectJSON
     /** @var null|ReadVaultRepositoryInterface */
     protected $readVaultRepository = null;
 
+    protected Kernel $kernel;
+
+    protected EncryptionInterface $engineContextEncryption;
+
     /**
      * AbstractObjectJSON constructor
      *
@@ -71,8 +77,31 @@ abstract class AbstractObjectJSON
      */
     protected function __construct(Container $dependencyInjector)
     {
+        $this->kernel = Kernel::createForWeb();
         $this->dependencyInjector = $dependencyInjector;
         $this->backend_instance = Backend::getInstance($this->dependencyInjector);
+        $this->engineContextEncryption = $this->kernel->getContainer()->get(EncryptionInterface::class);
+        $engineContext = file_get_contents('/etc/centreon-engine/engine-context.json');
+        try {
+            if ($engineContext === false) {
+                CentreonLog::create()->error(
+                    logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
+                    message: "Unable to parse content of '/etc/centreon-engine/engine-context.json'"
+                );
+
+                throw new \RuntimeException("engine-context.json file does not exist");
+            }
+            $engineContext = json_decode($engineContext, true, flags: JSON_THROW_ON_ERROR);
+            $this->engineContextEncryption->setFirstKey($engineContext['app_secret'])->setSecondKey($engineContext['salt']);
+        } catch (\JsonException|\RuntimeException $ex) {
+            CentreonLog::create()->error(
+                logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
+                message: "Unable to parse content of '/etc/centreon-engine/engine-context.json'",
+                exception: $ex
+            );
+
+            throw $ex;
+        }
     }
 
     /**
@@ -85,15 +114,12 @@ abstract class AbstractObjectJSON
      */
     public function getVaultConfigurationStatus(): void
     {
-        $kernel = Kernel::createForWeb();
-        $readVaultConfigurationRepository = $kernel->getContainer()->get(
-            Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface::class
-        );
-        $featureFlag = $kernel->getContainer()->get(FeatureFlags::class);
+        $readVaultConfigurationRepository = $this->kernel->getContainer()->get(ReadVaultConfigurationRepositoryInterface::class);
+        $featureFlag = $this->kernel->getContainer()->get(FeatureFlags::class);
         $vaultConfiguration = $readVaultConfigurationRepository->find();
         if ($vaultConfiguration !== null && $featureFlag->isEnabled('vault')) {
             $this->isVaultEnabled = true;
-            $this->readVaultRepository = $kernel->getContainer()->get(ReadVaultRepositoryInterface::class);
+            $this->readVaultRepository = $this->kernel->getContainer()->get(ReadVaultRepositoryInterface::class);
         }
     }
 
