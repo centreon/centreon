@@ -1,18 +1,17 @@
-/* eslint-disable cypress/unsafe-to-chain-command */
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
+import { configureProviderAcls } from '../../../../commons';
 import {
-  configureSAML,
-  initializeSAMLUser,
-  navigateToSAMLConfigPage,
+  configureSaml,
+  initializeSamlUser,
+  navigateToSamlConfigPage,
   saveSamlFormIfEnabled
 } from '../common';
-import { configureProviderAcls } from '../../../../commons';
 
 before(() => {
   cy.startContainers({ profiles: ['saml'] }).then(() => {
     configureProviderAcls();
-    initializeSAMLUser();
+    initializeSamlUser();
   });
 });
 
@@ -50,9 +49,9 @@ Given('an administrator is logged on the platform', () => {
 When(
   'the administrator sets valid settings in the SAML configuration form and saves',
   () => {
-    navigateToSAMLConfigPage();
+    navigateToSamlConfigPage();
 
-    configureSAML();
+    configureSaml();
   }
 );
 
@@ -63,7 +62,7 @@ Then('the configuration is saved', () => {
 });
 
 When('the administrator first configures the authentication mode', () => {
-  navigateToSAMLConfigPage();
+  navigateToSamlConfigPage();
 });
 
 Then(
@@ -112,8 +111,9 @@ When('the administrator activates SAML authentication on the platform', () => {
     .getByLabel({
       label: 'Enable SAMLv2 authentication',
       tag: 'input'
-    }).then(($input) => {
-      if ($input.is(":checked")) {
+    })
+    .then(($input) => {
+      if ($input.is(':checked')) {
         return;
       }
 

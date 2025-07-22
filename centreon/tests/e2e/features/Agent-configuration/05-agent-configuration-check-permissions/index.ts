@@ -70,7 +70,13 @@ Then('a pop-up menu with the form is displayed', () => {
 });
 
 When('the admin user fills in all the information', () => {
-  cy.addTelegrafAgent(agentsConfiguration.telegraf1);
+  cy.addTelegrafAgent({
+    ...agentsConfiguration.telegraf1,
+    publicCertificationFileName:
+      agentsConfiguration.telegraf1.publicCertfFileName,
+    privateKeyFileName: agentsConfiguration.telegraf1.privateKFileName,
+    certificateFileName: agentsConfiguration.telegraf1.certfFileName
+  });
 });
 
 When('the user clicks on Save', () => {
@@ -147,7 +153,13 @@ Then('a pop up is displayed with all of the agent information', () => {
 });
 
 When('the user modifies the configuration', () => {
-  cy.updateTelegrafAgent(agentsConfiguration.telegraf2);
+  cy.updateTelegrafAgent({
+    ...agentsConfiguration.telegraf2,
+    publicCertificationFileName:
+      agentsConfiguration.telegraf2.publicCertfFileName,
+    privateKeyFileName: agentsConfiguration.telegraf2.privateKFileName,
+    certificateFileName: agentsConfiguration.telegraf2.certfFileName
+  });
 });
 
 Then('the update form is closed', () => {
@@ -247,7 +259,7 @@ Given('the user has a filter on one of the pollers', () => {
     bodyContent: {
       action: 'addfilter_instance',
       object: 'ACLRESOURCE',
-      values: `All Resources;Poller-1`
+      values: 'All Resources;Poller-1'
     }
   });
   cy.setUserTokenApiV1().executeActionViaClapi({
@@ -281,7 +293,7 @@ When(
       bodyContent: {
         action: 'addfilter_instance',
         object: 'ACLRESOURCE',
-        values: `All Resources;Central`
+        values: 'All Resources;Central'
       }
     });
     cy.setUserTokenApiV1().executeActionViaClapi({
@@ -412,7 +424,13 @@ Then('only the filtered pollers are listed in the Pollers field', () => {
 });
 
 When('the non-admin user fills in all the information', () => {
-  cy.addTelegrafAgent(agentsConfiguration.telegraf1);
+  cy.addTelegrafAgent({
+    ...agentsConfiguration.telegraf1,
+    publicCertificationFileName:
+      agentsConfiguration.telegraf1.publicCertfFileName,
+    privateKeyFileName: agentsConfiguration.telegraf1.privateKFileName,
+    certificateFileName: agentsConfiguration.telegraf1.certfFileName
+  });
 });
 
 Then(

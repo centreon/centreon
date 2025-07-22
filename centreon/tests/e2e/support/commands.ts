@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-namespace */
+
 
 import 'cypress-wait-until';
 import '@centreon/js-config/cypress/e2e/commands';

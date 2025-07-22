@@ -1,5 +1,3 @@
-/* eslint-disable prettier/prettier */
-/* eslint-disable cypress/unsafe-to-chain-command */
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 import agentsConfiguration from '../../../fixtures/agents-configuration/agent-config.json';
 
@@ -69,8 +67,8 @@ Then('the user sees the Agents Configuration page', () => {
 });
 
 Given('a CMA Token is configured', () => {
-  cy.addCMAToken();
-})
+  cy.addCmaToken();
+});
 
 Given('a non-admin user is in the Agents Configuration page', () => {
   cy.loginByTypeOfUser({
@@ -170,7 +168,11 @@ Given('some poller agent configurations are created', () => {
   cy.get('*[role="dialog"]').contains('Add poller/agent configuration');
   cy.getByLabel({ label: 'Agent type', tag: 'input' }).click();
   cy.get('*[role="listbox"]').contains('Centreon Monitoring Agent').click();
-  cy.FillCMAMandatoryFields(agentsConfiguration.CMA1);
+  cy.fillCmaMandatoryFields({
+    ...agentsConfiguration.CMA1,
+    publicCertificationFileName: agentsConfiguration.CMA1.publicCertfFileName,
+    privateKeyFileName: agentsConfiguration.CMA1.privateKFileName
+  });
   cy.getByTestId({ testId: 'submit' }).click();
   cy.wait('@addAgents');
 });
