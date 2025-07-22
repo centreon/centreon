@@ -514,113 +514,114 @@ describe('Resources tree', () => {
     cy.contains('Host 0').should('not.exist');
     cy.contains('Service 0').should('not.exist');
 
-  it('handles regex resources when the regex resource type is filled and the sub resource type field is clicked', () => {
-    initialize({
-      restrictedResourceTypes: ['host', 'service'],
-      allowRegexOnResourceTypes: [WidgetResourceType.host]
+    it('handles regex resources when the regex resource type is filled and the sub resource type field is clicked', () => {
+      initialize({
+        restrictedResourceTypes: ['host', 'service'],
+        allowRegexOnResourceTypes: [WidgetResourceType.host]
+      });
+
+      cy.findAllByTestId(labelResourceType).eq(0).parent().click();
+      cy.contains(/^Host$/).click();
+      cy.findByTestId(`${labelActivateRegex}-host`).click();
+      cy.findByTestId(`${labelEnterRegex}-host`).type('^Cen');
+      cy.contains(labelAddFilter).click();
+      cy.findAllByTestId(labelResourceType).eq(1).parent().click();
+      cy.contains(/^Service$/).click();
+      cy.findByTestId(labelSelectAResource).click();
+
+      cy.waitForRequest('@getServices').then(({ request }) => {
+        expect(request.url.searchParams.get('search')).to.equal(
+          '{"$or":[{"host.name":{"$rg":"^Cen"}}]}'
+        );
+      });
+
+      cy.makeSnapshot();
     });
 
-    cy.findAllByTestId(labelResourceType).eq(0).parent().click();
-    cy.contains(/^Host$/).click();
-    cy.findByTestId(`${labelActivateRegex}-host`).click();
-    cy.findByTestId(`${labelEnterRegex}-host`).type('^Cen');
-    cy.contains(labelAddFilter).click();
-    cy.findAllByTestId(labelResourceType).eq(1).parent().click();
-    cy.contains(/^Service$/).click();
-    cy.findByTestId(labelSelectAResource).click();
+    it('displays a confirmation modal when a host is selected and the input mode is changed', () => {
+      initialize({
+        restrictedResourceTypes: ['host', 'service'],
+        allowRegexOnResourceTypes: [WidgetResourceType.host]
+      });
 
-    cy.waitForRequest('@getServices').then(({ request }) => {
-      expect(request.url.searchParams.get('search')).to.equal(
-        '{"$or":[{"host.name":{"$rg":"^Cen"}}]}'
+      cy.findAllByTestId(labelResourceType).eq(0).parent().click();
+      cy.contains(/^Host$/).click();
+      cy.findAllByTestId(labelSelectAResource).eq(0).click();
+      cy.contains('Host 0').click();
+      cy.findByTestId(`${labelActivateRegex}-host`).click();
+
+      cy.contains(labelDoYouWantToLeaveTheClassicMode).should('be.visible');
+      cy.contains(labelYourChangesWillNotBeSavedIfYouSwitchClassicMode).should(
+        'be.visible'
       );
+
+      cy.makeSnapshot();
     });
 
-    cy.makeSnapshot();
-  });
+    it('displays a confirmation modal when the regex field is filled and the input mode is swtched', () => {
+      initialize({
+        restrictedResourceTypes: ['host', 'service'],
+        allowRegexOnResourceTypes: [WidgetResourceType.host]
+      });
 
-  it('displays a confirmation modal when a host is selected and the input mode is changed', () => {
-    initialize({
-      restrictedResourceTypes: ['host', 'service'],
-      allowRegexOnResourceTypes: [WidgetResourceType.host]
+      cy.findAllByTestId(labelResourceType).eq(0).parent().click();
+      cy.contains(/^Host$/).click();
+      cy.findByTestId(`${labelActivateRegex}-host`).click();
+      cy.get('[id="EnterRegexhost"]').type('Host');
+      cy.findByTestId(`${labelDeactivateRegex}-host`).click();
+
+      cy.contains(labelDoYouWantToLeaveTheRegexMode).should('be.visible');
+      cy.contains(labelYourChangesWillNotBeSavedIfYouSwitchRegexMode).should(
+        'be.visible'
+      );
+
+      cy.makeSnapshot();
     });
 
-    cy.findAllByTestId(labelResourceType).eq(0).parent().click();
-    cy.contains(/^Host$/).click();
-    cy.findAllByTestId(labelSelectAResource).eq(0).click();
-    cy.contains('Host 0').click();
-    cy.findByTestId(`${labelActivateRegex}-host`).click();
+    it('does not switch the input mode when a resource is selected, the input mode button is clicked and the corresponding button is clicked', () => {
+      initialize({
+        restrictedResourceTypes: ['host', 'service'],
+        allowRegexOnResourceTypes: [WidgetResourceType.host]
+      });
 
-    cy.contains(labelDoYouWantToLeaveTheClassicMode).should('be.visible');
-    cy.contains(labelYourChangesWillNotBeSavedIfYouSwitchClassicMode).should(
-      'be.visible'
-    );
+      cy.findAllByTestId(labelResourceType).eq(0).parent().click();
+      cy.contains(/^Host$/).click();
+      cy.findAllByTestId(labelSelectAResource).eq(0).click();
+      cy.contains('Host 0').click();
+      cy.findByTestId(`${labelActivateRegex}-host`).click();
 
-    cy.makeSnapshot();
-  });
+      cy.contains(labelDoYouWantToLeaveTheClassicMode).should('be.visible');
+      cy.contains(labelYourChangesWillNotBeSavedIfYouSwitchClassicMode).should(
+        'be.visible'
+      );
+      cy.contains(labelStay).click();
 
-  it('displays a confirmation modal when the regex field is filled and the input mode is swtched', () => {
-    initialize({
-      restrictedResourceTypes: ['host', 'service'],
-      allowRegexOnResourceTypes: [WidgetResourceType.host]
+      cy.contains('Host 0').should('be.visible');
+
+      cy.makeSnapshot();
     });
 
-    cy.findAllByTestId(labelResourceType).eq(0).parent().click();
-    cy.contains(/^Host$/).click();
-    cy.findByTestId(`${labelActivateRegex}-host`).click();
-    cy.get('[id="EnterRegexhost"]').type('Host');
-    cy.findByTestId(`${labelDeactivateRegex}-host`).click();
+    it('switches the input mode when a resource is selected, the input mode button is clicked and the corresponding button is clicked', () => {
+      initialize({
+        restrictedResourceTypes: ['host', 'service'],
+        allowRegexOnResourceTypes: [WidgetResourceType.host]
+      });
 
-    cy.contains(labelDoYouWantToLeaveTheRegexMode).should('be.visible');
-    cy.contains(labelYourChangesWillNotBeSavedIfYouSwitchRegexMode).should(
-      'be.visible'
-    );
+      cy.findAllByTestId(labelResourceType).eq(0).parent().click();
+      cy.contains(/^Host$/).click();
+      cy.findAllByTestId(labelSelectAResource).eq(0).click();
+      cy.contains('Host 0').click();
+      cy.findByTestId(`${labelActivateRegex}-host`).click();
 
-    cy.makeSnapshot();
-  });
+      cy.contains(labelDoYouWantToLeaveTheClassicMode).should('be.visible');
+      cy.contains(labelYourChangesWillNotBeSavedIfYouSwitchClassicMode).should(
+        'be.visible'
+      );
+      cy.contains(labelLeave).click();
 
-  it('does not switch the input mode when a resource is selected, the input mode button is clicked and the corresponding button is clicked', () => {
-    initialize({
-      restrictedResourceTypes: ['host', 'service'],
-      allowRegexOnResourceTypes: [WidgetResourceType.host]
+      cy.contains('Host 0').should('not.exist');
+
+      cy.makeSnapshot();
     });
-
-    cy.findAllByTestId(labelResourceType).eq(0).parent().click();
-    cy.contains(/^Host$/).click();
-    cy.findAllByTestId(labelSelectAResource).eq(0).click();
-    cy.contains('Host 0').click();
-    cy.findByTestId(`${labelActivateRegex}-host`).click();
-
-    cy.contains(labelDoYouWantToLeaveTheClassicMode).should('be.visible');
-    cy.contains(labelYourChangesWillNotBeSavedIfYouSwitchClassicMode).should(
-      'be.visible'
-    );
-    cy.contains(labelStay).click();
-
-    cy.contains('Host 0').should('be.visible');
-
-    cy.makeSnapshot();
-  });
-
-  it('switches the input mode when a resource is selected, the input mode button is clicked and the corresponding button is clicked', () => {
-    initialize({
-      restrictedResourceTypes: ['host', 'service'],
-      allowRegexOnResourceTypes: [WidgetResourceType.host]
-    });
-
-    cy.findAllByTestId(labelResourceType).eq(0).parent().click();
-    cy.contains(/^Host$/).click();
-    cy.findAllByTestId(labelSelectAResource).eq(0).click();
-    cy.contains('Host 0').click();
-    cy.findByTestId(`${labelActivateRegex}-host`).click();
-
-    cy.contains(labelDoYouWantToLeaveTheClassicMode).should('be.visible');
-    cy.contains(labelYourChangesWillNotBeSavedIfYouSwitchClassicMode).should(
-      'be.visible'
-    );
-    cy.contains(labelLeave).click();
-
-    cy.contains('Host 0').should('not.exist');
-
-    cy.makeSnapshot();
   });
 });
