@@ -4,7 +4,7 @@
   "description": "Cypress end-to-end tests for centreon",
   "scripts": {
     "cypress:open": "TESTCONTAINERS_RYUK_DISABLED=true cypress open --config-file cypress.dev.config.ts --e2e",
-    "cypress:run": "TESTCONTAINERS_RYUK_DISABLED=true cypress run --env tags='not @ignore' --config-file cypress.config.ts --e2e",
+    "cypress:run": "TESTCONTAINERS_RYUK_DISABLED=true TS_NODE_PROJECT=tsconfig.json cypress run --env tags='not @ignore' --config-file cypress.config.ts --e2e",
     "cypress:run:develop:debug": "DEBUG=cypress:* cypress run --config-file cypress.dev.json 2> ./cypress/results/logs.txt",
     "cypress:open:dev": "cypress open --config-file cypress.dev.config.ts --e2e",
     "lint": "biome check ./features",
@@ -44,6 +44,7 @@
     "swc-loader": "^0.2.3",
     "tar-fs": "^3.0.6",
     "testcontainers": "^10.15.0",
+    "ts-node": "^10.9.2",
     "typescript": "^5.7.2",
     "webpack": "^5.96.1"
   },
