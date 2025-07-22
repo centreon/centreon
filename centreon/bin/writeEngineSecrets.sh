@@ -5,6 +5,19 @@ if [ "$#" -ne 3 ]; then
   exit 1
 fi
 
+INSECURE_FLAG=""
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --insecure)
+      INSECURE_FLAG="--insecure"
+      shift
+      ;;
+    *)
+      shift
+      ;;
+  esac
+done
+
 API_URL="$1"
 USERNAME="$2"
 PASSWORD="$3"
@@ -12,7 +25,7 @@ SECRETS_ENDPOINT="/api/latest/administration/engine/secrets"
 OUTPUT_FILE="/etc/centreon-engine/engine-context.json"
 
 # Authenticate and get token
-TOKEN=$(curl -s -X POST "$API_URL/api/latest/login" \
+TOKEN=$(curl -s $INSECURE_FLAG -X POST "$API_URL/api/latest/login" \
   -H "Content-Type: application/json" \
   -d "{\"security\":{\"credentials\":{\"login\":\"$USERNAME\",\"password\":\"$PASSWORD\"}}}" | \
   sed -n 's/.*"token"[ ]*:[ ]*"\([^"]*\)".*/\1/p')
@@ -23,7 +36,7 @@ if [ -z "$TOKEN" ] || [ "$TOKEN" == "null" ]; then
 fi
 
 # Fetch secrets and write to file
-response=$(curl -s -w "%{http_code}" -H "X-AUTH-TOKEN: $TOKEN" "$API_URL$SECRETS_ENDPOINT")
+response=$(curl -s $INSECURE_FLAG -w "%{http_code}" -H "X-AUTH-TOKEN: $TOKEN" "$API_URL$SECRETS_ENDPOINT")
 http_code="${response: -3}"
 body="${response::-3}"
 
