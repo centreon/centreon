@@ -5156,6 +5156,14 @@ msgstr ""
 msgid "Do you want to save the changes?"
 msgstr ""
 
+#: centreon/www/install/front_translate.php
+msgid "Do you want to switch to classic mode?"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Do you want to switch to regex mode?"
+msgstr ""
+
 #: centreon/www/include/configuration/configObject/service_template_model/formServiceTemplateModel.php
 #: centreon/www/include/configuration/configObject/service/formService.php
 #: centreon/www/include/configuration/configObject/host_categories/formHostCategories.php
@@ -5846,6 +5854,14 @@ msgstr "Estado do Motor"
 #: centreon/www/install/menu_translation.php
 msgid "Engine configuration"
 msgstr "Configuração do Motor"
+
+#: centreon/www/install/front_translate.php
+msgid "Enter Regex"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Enter regex mode"
+msgstr ""
 
 #: centreon/www/include/monitoring/acknowlegement/xml/broker/makeXMLForAck.php
 #: centreon/www/include/monitoring/objectDetails/hostDetails.php
@@ -6871,6 +6887,10 @@ msgstr ""
 
 #: centreon/www/install/front_translate.php
 msgid "Exit edition mode"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Exit regex mode"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
@@ -18747,6 +18767,14 @@ msgid "Your autologin key must be different than your current password"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
+msgid "Your changes will not be saved if you leave classic mode."
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Your changes will not be saved if you leave regex mode."
+msgstr ""
+
+#: centreon/www/install/front_translate.php
 msgid "Your changes will not be saved if you leave this page."
 msgstr ""
 
@@ -23012,31 +23040,22 @@ msgstr "período de tempo"
 # msgstr ""
 # msgid "Insecure TLS"
 # msgstr ""
-
 # msgid "Enter regex mode"
 # msgstr ""
-
 # msgid "Exit regex mode"
 # msgstr ""
-
 # msgid "Enter regex"
 # msgstr ""
-
 # msgid "Do you want to switch to classic mode?"
 # msgstr ""
-
 # msgid "Do you want to switch to regex mode?"
 # msgstr ""
-
 # msgid "Your changes will not be saved if you leave regex mode."
 # msgstr ""
-
 # msgid "Your changes will not be saved if you leave classic mode."
 # msgstr ""
-
 # msgid "Stay"
 # msgstr ""
-
 #: unknown
 msgid "topology_name"
 msgstr "Nome da Topologia"
