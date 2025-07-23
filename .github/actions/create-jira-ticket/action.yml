@@ -75,7 +75,7 @@ runs:
             { encoding: 'utf8' }
           );
 
-          const failed_jobs = failed_jobs
+          failed_jobs = failed_jobs
             .split('\n')
             .map(line => line.trim())
 
