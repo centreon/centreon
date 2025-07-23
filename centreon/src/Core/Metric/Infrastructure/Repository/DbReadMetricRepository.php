@@ -29,6 +29,7 @@ use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
+use Core\Common\Domain\Exception\RepositoryException;
 use Core\Metric\Application\Repository\ReadMetricRepositoryInterface;
 use Core\Metric\Domain\Model\Metric;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
@@ -120,10 +121,15 @@ class DbReadMetricRepository extends AbstractRepositoryDRB implements ReadMetric
     /**
      * @inheritDoc
      */
-    public function findByHostIdAndServiceIdAndAccessGroups(int $hostId, int $serviceId, array $accessGroups, RequestParametersInterface $requestParameters): array
-    {
-        $query = $this->buildQueryForFindMetrics($requestParameters, $accessGroups);
-        $statement = $this->executeQueryForFindMetrics($query, $hostId, $serviceId);
+    public function findByHostIdAndServiceIdAndAccessGroups(
+        int $hostId,
+        int $serviceId,
+        array $accessGroups,
+        RequestParametersInterface $requestParameters,
+        ?string $metricName = null
+    ): array {
+        $query = $this->buildQueryForFindMetrics($requestParameters, $accessGroups, $metricName);
+        $statement = $this->executeQueryForFindMetrics($query, $hostId, $serviceId, $metricName);
         $records = $statement->fetchAll();
 
         return $this->createMetricsFromRecords($records);
@@ -161,21 +167,64 @@ class DbReadMetricRepository extends AbstractRepositoryDRB implements ReadMetric
     }
 
     /**
+     * @inheritDoc
+     */
+    public function findSingleMetricValue(
+        int $hostId,
+        int $serviceId,
+        string $metricName,
+        RequestParametersInterface $requestParameters,
+        array $accessGroups = []
+    ): Metric|null {
+        try {
+            $metrics = $this->findByHostIdAndServiceIdAndAccessGroups(
+                $hostId,
+                $serviceId,
+                $accessGroups,
+                $requestParameters,
+                $metricName
+            );
+        } catch (\Throwable $exception) {
+            throw new RepositoryException(
+                "Error retrieving metric '{$metricName}' for host {$hostId}, service {$serviceId}",
+                [
+                    'metricName' => $metricName,
+                    'hostId' => $hostId,
+                    'serviceId' => $serviceId,
+                ],
+                $exception
+            );
+        }
+
+        if ($metrics !== []) {
+            return $metrics[0];
+        }
+
+        return null;
+    }
+
+    /**
      * Execute SQL Query to find Metrics.
      *
      * @param string $query
      * @param int $hostId
      * @param int $serviceId
+     * @param string|null $metricName
      *
      * @throws \Throwable
      *
      * @return \PDOStatement
      */
-    private function executeQueryForFindMetrics(string $query, int $hostId, int $serviceId): \PDOStatement
+    private function executeQueryForFindMetrics(string $query, int $hostId, int $serviceId, ?string $metricName = null): \PDOStatement
     {
         $statement = $this->db->prepare($this->translateDbName($query));
         $statement->bindValue(':hostId', $hostId, \PDO::PARAM_INT);
         $statement->bindValue(':serviceId', $serviceId, \PDO::PARAM_INT);
+
+        if ($metricName !== null) {
+            $statement->bindValue(':metricName', $metricName, \PDO::PARAM_STR);
+        }
+
         $statement->execute();
 
         return $statement;
@@ -280,12 +329,13 @@ class DbReadMetricRepository extends AbstractRepositoryDRB implements ReadMetric
      *
      * @param RequestParametersInterface $requestParameters
      * @param AccessGroup[] $accessGroups
+     * @param string|null $metricName
      *
      * @throws \Throwable
      *
      * @return string
      */
-    private function buildQueryForFindMetrics(RequestParametersInterface $requestParameters, array $accessGroups = []): string
+    private function buildQueryForFindMetrics(RequestParametersInterface $requestParameters, array $accessGroups = [], ?string $metricName = null): string
     {
         $query = <<<'SQL'
             SELECT DISTINCT metric_id as id, metric_name as name, unit_name, current_value, warn,
@@ -307,10 +357,12 @@ class DbReadMetricRepository extends AbstractRepositoryDRB implements ReadMetric
                 SQL;
         }
 
+        $metricNameCondition = $metricName !== null ? ' AND m.metric_name = :metricName' : '';
         $query .= <<<'SQL'
              WHERE `:dbstg`.index_data.host_id = :hostId
              AND `:dbstg`.index_data.service_id = :serviceId
             SQL;
+        $query .= $metricNameCondition;
 
         $sqlTranslator = new SqlRequestParametersTranslator($requestParameters);
         $query .= $sqlTranslator->translatePaginationToSql();
