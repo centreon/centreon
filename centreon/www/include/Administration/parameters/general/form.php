@@ -96,7 +96,7 @@ $resourceStatusSearchMode[] = $form->createElement(
     'radio',
     'resource_status_search_mode',
     null,
-    _("Limited search"),
+    _('Limited search'),
     RESOURCE_STATUS_LIMITED_SEARCH
 );
 
@@ -104,11 +104,11 @@ $resourceStatusSearchMode[] = $form->createElement(
     'radio',
     'resource_status_search_mode',
     null,
-    _("Full search"),
+    _('Full search'),
     RESOURCE_STATUS_FULL_SEARCH
 );
 
-$form->addGroup($resourceStatusSearchMode, 'resource_status_search_mode', _("Free text search behavior"), '&nbsp;');
+$form->addGroup($resourceStatusSearchMode, 'resource_status_search_mode', _('Free text search behavior'), '&nbsp;');
 $form->setDefaults(['resource_status_search_mode' => RESOURCE_STATUS_FULL_SEARCH]);
 
 $limit = [10 => 10, 20 => 20, 30 => 30, 40 => 40, 50 => 50, 60 => 60, 70 => 70, 80 => 80, 90 => 90, 100 => 100];
@@ -263,13 +263,14 @@ if ($form->validate()) {
          */
         $form->freeze();
         $form->addElement(
-            "button",
-            "change",
-            _("Modify"),
-            ["onClick" => "javascript:window.location.href='?p=" . $p . "&o=general'", 'class' => 'btc bt_info']
+            'button',
+            'change',
+            _('Modify'),
+            ['onClick' => "javascript:window.location.href='?p=" . $p . "&o=general'", 'class' => 'btc bt_info']
         );
         $_SESSION[$sessionKeyFreeze] = true;
         echo '<script>parent.location.href = "main.php?p=' . $p . '&o=general";</script>';
+
         exit;
     } catch (InvalidArgumentException $e) {
         echo "<div class='msg' align='center'>" . $e->getMessage() . '</div>';
@@ -278,18 +279,16 @@ if ($form->validate()) {
 } elseif (array_key_exists($sessionKeyFreeze, $_SESSION) && $_SESSION[$sessionKeyFreeze] === true) {
     unset($_SESSION[$sessionKeyFreeze]);
     $form->addElement(
-        "button",
-        "change",
-        _("Modify"),
-        ["onClick" => "javascript:window.location.href='?p=" . $p . "&o=general'", 'class' => 'btc bt_info']
+        'button',
+        'change',
+        _('Modify'),
+        ['onClick' => "javascript:window.location.href='?p=" . $p . "&o=general'", 'class' => 'btc bt_info']
     );
     $form->freeze();
     $valid = true;
 }
 
-/*
- * Send variable to template
- */
+// Send variable to template
 $tpl->assign('o', $o);
 $tpl->assign('sorting', _('Sorting'));
 $tpl->assign('notification', _('Notification'));

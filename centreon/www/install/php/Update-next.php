@@ -32,13 +32,13 @@ $errorMessage = '';
  * Add column `show_deprecated_custom_views` to contact table.
  * @var CentreonDB $pearDB
  */
-$addDeprecateCustomViewsToContact=  function() use (&$errorMessage, &$pearDB): void {
+$addDeprecateCustomViewsToContact =  function () use (&$errorMessage, &$pearDB): void {
     $errorMessage = 'Unable to add column show_deprecated_custom_views to contact table';
     if (! $pearDB->isColumnExist('contact', 'show_deprecated_custom_views')) {
         $pearDB->executeStatement(
-            <<<SQL
-            ALTER TABLE contact ADD COLUMN show_deprecated_custom_views ENUM('0','1') DEFAULT '0'
-            SQL
+            <<<'SQL'
+                ALTER TABLE contact ADD COLUMN show_deprecated_custom_views ENUM('0','1') DEFAULT '0'
+                SQL
         );
     }
 };
@@ -46,37 +46,37 @@ $addDeprecateCustomViewsToContact=  function() use (&$errorMessage, &$pearDB): v
 /**
  * Switch Topology Order between Dashboards and Custom Views.
  */
-$updateDashboardAndCustomViewsTopology = function() use(&$errorMessage, &$pearDB): void {
+$updateDashboardAndCustomViewsTopology = function () use (&$errorMessage, &$pearDB): void {
     $errorMessage = 'Unable to update topology of Custom Views';
     $pearDB->update(
-        <<<SQL
-        UPDATE topology SET topology_order = 2, is_deprecated ="1" WHERE topology_name = "Custom Views"
-        SQL
+        <<<'SQL'
+            UPDATE topology SET topology_order = 2, is_deprecated ="1" WHERE topology_name = "Custom Views"
+            SQL
     );
     $errorMessage = 'Unable to update topology of Dashboards';
     $pearDB->update(
-        <<<SQL
-        UPDATE topology SET topology_order = 1 WHERE topology_name = "Dashboards"
-        SQL
+        <<<'SQL'
+            UPDATE topology SET topology_order = 1 WHERE topology_name = "Dashboards"
+            SQL
     );
 };
 
 /**
  * Set Show Deprecated Custom Views to true by default is there is existing custom views.
  */
-$updateContactsShowDeprecatedCustomViews = function() use(&$errorMessage, &$pearDB): void {
+$updateContactsShowDeprecatedCustomViews = function () use (&$errorMessage, &$pearDB): void {
     $errorMessage = 'Unable to retrieve custom views';
     $configuredCustomViews = $pearDB->executeStatement(
-        <<<SQL
-        SELECT 1 FROM custom_views
-        SQL
+        <<<'SQL'
+            SELECT 1 FROM custom_views
+            SQL
     );
 
     if (true === (bool) $configuredCustomViews) {
         $pearDB->update(
-            <<<SQL
-            UPDATE contact SET show_deprecated_custom_views = '1'
-            SQL
+            <<<'SQL'
+                UPDATE contact SET show_deprecated_custom_views = '1'
+                SQL
         );
     }
 };
@@ -86,17 +86,17 @@ $updateCfgParameters = function () use ($pearDB, &$errorMessage): void {
 
     $pearDB->update(
         <<<'SQL'
-            UPDATE cfg_nagios
-            SET enable_flap_detection = '1',
-                host_down_disable_service_checks = '1'
-            WHERE enable_flap_detection != '1'
-               OR host_down_disable_service_checks != '1'
-        SQL
+                UPDATE cfg_nagios
+                SET enable_flap_detection = '1',
+                    host_down_disable_service_checks = '1'
+                WHERE enable_flap_detection != '1'
+                   OR host_down_disable_service_checks != '1'
+            SQL
     );
 };
 
 /** -------------------------------------------- BBDO cfg update -------------------------------------------- */
-$bbdoDefaultUpdate= function () use ($pearDB, &$errorMessage): void {
+$bbdoDefaultUpdate = function () use ($pearDB, &$errorMessage): void {
     if ($pearDB->isColumnExist('cfg_centreonbroker', 'bbdo_version') !== 1) {
         $errorMessage = "Unable to update 'bbdo_version' column to 'cfg_centreonbroker' table";
         $pearDB->executeStatement('ALTER TABLE `cfg_centreonbroker` MODIFY `bbdo_version` VARCHAR(50) DEFAULT "3.1.0"');
@@ -108,7 +108,7 @@ $bbdoCfgUpdate = function () use ($pearDB, &$errorMessage): void {
     $pearDB->update('UPDATE `cfg_centreonbroker` SET `bbdo_version` = "3.1.0"');
 };
 
-$addResourceStatusSearchModeOption = function() use ($pearDB, &$errorMessage): void {
+$addResourceStatusSearchModeOption = function () use ($pearDB, &$errorMessage): void {
     $errorMessage = "Unable to retrieve 'resource_status_search_mode' option from options table";
     $optionExists = $pearDB->executeStatement("SELECT 1 FROM options WHERE `key` = 'resource_status_search_mode'");
 
@@ -131,9 +131,7 @@ $addServiceFlagToContacts = function () use ($pearDB, &$errorMessage): void {
     }
 };
 
-/*
- * @var mixed $pearDB
- */
+// @var mixed $pearDB
 $flagContactsAsServiceAccount = function () use ($pearDB, &$errorMessage): void {
     $errorMessage = 'Unable to update contact table';
     $pearDB->executeStatement(
