@@ -38,6 +38,8 @@ use App\Kernel;
 use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
 use Core\Common\Infrastructure\FeatureFlags;
 use Pimple\Container;
+use Security\Encryption;
+use Security\Interfaces\EncryptionInterface;
 use Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException;
 use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
 
@@ -49,6 +51,8 @@ use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
 abstract class AbstractObject
 {
     protected const VAULT_PATH_REGEX = '/^secret::[^:]*::/';
+
+    public Encryption $engineContextEncryption;
 
     /** @var string */
     protected string $object_name;
@@ -98,6 +102,8 @@ abstract class AbstractObject
     /** @var null|ReadVaultRepositoryInterface */
     protected $readVaultRepository = null;
 
+    protected Kernel $kernel;
+
     /**
      * AbstractObject constructor
      *
@@ -105,8 +111,41 @@ abstract class AbstractObject
      */
     protected function __construct(Container $dependencyInjector)
     {
+        $this->kernel = Kernel::createForWeb();
         $this->dependencyInjector = $dependencyInjector;
+        $this->getVaultConfigurationStatus();
         $this->backend_instance = Backend::getInstance($this->dependencyInjector);
+        $this->engineContextEncryption = $this->kernel->getContainer()->get(EncryptionInterface::class);
+        // $this->engineContextEncryption = new Encryption();
+        if(self::class === "Host") {
+            CentreonLog::create()->debug(
+                logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
+                message: spl_object_hash($this->engineContextEncryption)
+            );
+        }
+
+        // $this->engineContextEncryption = new Encryption();
+        $engineContext = file_get_contents('/etc/centreon-engine/engine-context.json');
+        try {
+            if ($engineContext === false || empty($engineContext)) {
+                CentreonLog::create()->error(
+                    logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
+                    message: "Unable to parse content of '/etc/centreon-engine/engine-context.json', credentials will not be encrypted"
+                );
+
+                throw new \RuntimeException('/etc/centreon/engine-context.json does not exists or is empty');
+            }
+            $engineContext = json_decode($engineContext, true, flags: JSON_THROW_ON_ERROR);
+            $this->engineContextEncryption->setSecondKey($engineContext['salt']);
+        } catch (JsonException|\RuntimeException $ex) {
+            CentreonLog::create()->error(
+                logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
+                message: "Unable to parse content of '/etc/centreon-engine/engine-context.json', credentials will not be encrypted",
+                exception: $ex
+            );
+
+            throw $ex;
+        }
     }
 
     /**
@@ -117,17 +156,16 @@ abstract class AbstractObject
      * @throws ServiceNotFoundException
      * @return void
      */
-    public function getVaultConfigurationStatus(): void
+    private function getVaultConfigurationStatus(): void
     {
-        $kernel = Kernel::createForWeb();
-        $readVaultConfigurationRepository = $kernel->getContainer()->get(
+        $readVaultConfigurationRepository = $this->kernel->getContainer()->get(
             Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface::class
         );
-        $featureFlag = $kernel->getContainer()->get(FeatureFlags::class);
+        $featureFlag = $this->kernel->getContainer()->get(FeatureFlags::class);
         $vaultConfiguration = $readVaultConfigurationRepository->find();
         if ($vaultConfiguration !== null && $featureFlag->isEnabled('vault')) {
             $this->isVaultEnabled = true;
-            $this->readVaultRepository = $kernel->getContainer()->get(ReadVaultRepositoryInterface::class);
+            $this->readVaultRepository = $this->kernel->getContainer()->get(ReadVaultRepositoryInterface::class);
         }
     }
 

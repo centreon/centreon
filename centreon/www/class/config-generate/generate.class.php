@@ -41,6 +41,7 @@ use Core\AdditionalConnectorConfiguration\Application\Repository\ReadAccReposito
 use Core\AgentConfiguration\Application\Repository\ReadAgentConfigurationRepositoryInterface;
 use Core\Host\Application\Repository\ReadHostRepositoryInterface;
 use Core\MonitoringServer\Application\Repository\ReadMonitoringServerRepositoryInterface;
+use Core\MonitoringServer\Application\Repository\WriteMonitoringServerRepositoryInterface;
 use Core\Security\Token\Application\Repository\ReadTokenRepositoryInterface;
 use Pimple\Container;
 use Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException;
@@ -120,7 +121,9 @@ class Generate
 
     private ReadHostRepositoryInterface $readHostRepository;
 
-    private readMonitoringServerRepositoryInterface $readMonitoringServerRepository;
+    private ReadMonitoringServerRepositoryInterface $readMonitoringServerRepository;
+
+    private WriteMonitoringServerRepositoryInterface $writeMonitoringServerRepository;
     /**
      * Generate constructor
      *
@@ -144,6 +147,9 @@ class Generate
             ?? throw new Exception('ReadHostRepositoryInterface not found');
         $this->readMonitoringServerRepository = $kernel->getContainer()->get(ReadMonitoringServerRepositoryInterface::class)
             ?? throw new Exception('ReadMonitoringServerRepositoryInterface not found');
+        $this->writeMonitoringServerRepository = $kernel->getContainer()->get(WriteMonitoringServerRepositoryInterface::class)
+            ?? throw new Exception('WriteMonitoringServerRepositoryInterface not found');
+        $this->writeMonitoringServerRepository->updateAllEncryptionReadyFromRealtime();
     }
 
     /**

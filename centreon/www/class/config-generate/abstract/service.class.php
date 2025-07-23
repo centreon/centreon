@@ -34,6 +34,8 @@
  *
  */
 
+use Core\Common\Application\UseCase\VaultTrait;
+use Core\Macro\Domain\Model\Macro as MacroDomain;
 use Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException;
 use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
 
@@ -46,6 +48,8 @@ require_once __DIR__ . '/object.class.php';
  */
 abstract class AbstractService extends AbstractObject
 {
+    use VaultTrait;
+
     /** @var array */
     protected $service_cache;
 
@@ -157,31 +161,80 @@ abstract class AbstractService extends AbstractObject
 
     /**
      * @param $service
-     *
+     * @param int|null $hostId
      * @return int
      */
-    protected function getMacros(&$service)
+    protected function getMacros(&$service, ?int $hostId = null)
     {
         if (isset($service['macros'])) {
             return 1;
         }
 
         $service['macros'] = Macro::getInstance($this->dependencyInjector)
-            ->getServiceMacroByServiceId($service['service_id']);
+            ->getServiceMacroByServiceId($service['service_id'], $hostId);
 
         return 0;
     }
 
     /**
+     * Format Macros for export.
+     *
+     * @param array<string, mixed> $service
+     * @param MacroDomain[] $serviceMacros
+     */
+    protected function formatMacros(array &$service, array $serviceMacros)
+    {
+        $service['macros'] = [];
+
+        if ($this->isVaultEnabled && $this->readVaultRepository !== null) {
+            $vaultPathByServices = $this->getVaultPathByResources($serviceMacros);
+            $vaultData = $this->readVaultRepository->findFromPaths($vaultPathByServices);
+            foreach ($vaultData as $serviceId => $macros) {
+                foreach ($macros as $macroName => $value) {
+                    if (str_starts_with($macroName, '_SERVICE')) {
+                        $newName = preg_replace('/^_SERVICE/', '', $macroName);
+                        $vaultData[$serviceId][$newName] = $value;
+                        unset($vaultData[$serviceId][$macroName]);
+                    }
+                }
+            }
+
+            foreach ($serviceMacros as $serviceMacro) {
+                $serviceId = $serviceMacro->getOwnerId();
+                $macroName = $serviceMacro->getName();
+                if (isset($vaultData[$serviceId][$macroName])) {
+                    $serviceMacro->setValue($vaultData[$serviceId][$macroName]);
+                }
+            }
+        }
+        foreach ($serviceMacros as $serviceMacro) {
+            if ($serviceMacro->getOwnerId() === $service['service_id']) {
+                if ($serviceMacro->shouldBeEncrypted()) {
+                    if ($serviceMacro->isPassword()) {
+                        $service['macros']['_' . $serviceMacro->getName()] = 'encrypt::'
+                            . $this->engineContextEncryption->crypt($serviceMacro->getValue());
+                    } else {
+                        $service['macros']['_' . $serviceMacro->getName()] = 'raw::' . $serviceMacro->getValue();
+                    }
+                } else {
+                    $service['macros']['_' . $serviceMacro->getName()] = $serviceMacro->getValue();
+                }
+            }
+        }
+        $service['macros']['_SERVICE_ID'] = $service['service_id'];
+    }
+
+    /**
      * @param $service
+     * @param mixed $serviceTemplateMacros
      *
      * @throws PDOException
      * @return void
      */
-    protected function getServiceTemplates(&$service)
+    protected function getServiceTemplates(&$service, $serviceTemplateMacros = [])
     {
         $service['use'] = [ServiceTemplate::getInstance($this->dependencyInjector)
-            ->generateFromServiceId($service['service_template_model_stm_id'])];
+            ->generateFromServiceId($service['service_template_model_stm_id'], $serviceTemplateMacros)];
     }
 
     /**
@@ -331,5 +384,25 @@ abstract class AbstractService extends AbstractObject
                 );
             }
         }
+    }
+
+    /**
+     * @param MacroDomain[] $macro
+     * @return array{int, string} vault path indexed by service id
+     */
+    private function getVaultPathByResources(array $macros): array
+    {
+        $vaultPathByResources = [];
+
+        foreach ($macros as $macro) {
+                /**
+                 * Check that the value is a vault path and that we haven't store it already
+                 * As macros are stored by resources in vault. All the macros for the same service has the same vault path
+                 */
+                if ($this->isAVaultPath($macro->getValue()) && ! array_key_exists($macro->getOwnerId(), $vaultPathByResources)) {
+                    $vaultPathByResources[$macro->getOwnerId()] = $macro->getValue();
+            }
+        }
+        return $vaultPathByResources;
     }
 }

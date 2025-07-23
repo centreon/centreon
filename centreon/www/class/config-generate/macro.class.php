@@ -71,6 +71,9 @@ class Macro extends AbstractObject
 
     private $macroHostCache = [];
 
+    /** @var array<int, bool> */
+    private $pollersEncryptionReadyStatusByHosts = [];
+
     /**
      * Macro constructor
      *
@@ -85,22 +88,34 @@ class Macro extends AbstractObject
     {
         parent::__construct($dependencyInjector);
 
-        if (! $this->isVaultEnabled) {
-            $this->getVaultConfigurationStatus();
-        }
-
-        $this->buildCache();
+        $this->setPollersEncryptionReadyStatusByHosts();
+        /* $this->buildCache(); */
     }
 
     /**
      * @param $service_id
+     * @param int|null $hostId
      *
      * @return array|mixed|null
      */
-    public function getServiceMacroByServiceId($service_id)
+    public function getServiceMacroByServiceId($service_id, ?int $hostId = null)
     {
         // Get from the cache
         if (isset($this->macro_service_cache[$service_id])) {
+            if ($hostId !== null) {
+                $isEncryptionReady = $this->pollersEncryptionReadyStatusByHosts[$hostId] === true;
+
+                foreach ($this->macro_service_cache[$service_id] as $name => $value) {
+                    if ($isEncryptionReady) {
+                        $value = 'encrypt::' . $this->engineContextEncryption->crypt($value);
+                    } elseif (str_starts_with($value, 'encrypt::')) {
+                        $value = $this->engineContextEncryption->decrypt(substr($value, strlen('encrypt::')));
+                    }
+
+                    $this->macro_service_cache[$service_id][$name] = $value;
+                }
+            }
+
             return $this->macro_service_cache[$service_id];
         }
         if ($this->done_cache == 1) {
@@ -121,6 +136,19 @@ class Macro extends AbstractObject
         }
         if ($this->done_cache == 1) {
             return null;
+        }
+    }
+
+    private function setPollersEncryptionReadyStatusByHosts()
+    {
+        $result = $this->backend_instance->db->fetchAllAssociativeIndexed(
+            <<<'SQL'
+                SELECT nsr.host_host_id, ns.is_encryption_ready FROM ns_host_relation nsr
+                    INNER JOIN nagios_server ns ON ns.id = nsr.nagios_server_id
+                SQL
+        );
+        foreach ($result as $hostId => $value) {
+            $this->pollersEncryptionReadyStatusByHosts[$hostId] = (bool) $value['is_encryption_ready'];
         }
     }
 
@@ -184,7 +212,22 @@ class Macro extends AbstractObject
                 '_$1',
                 $macro['host_macro_name']
             );
-            $this->macroHostCache[$macro['host_host_id']][$hostMacroName] = $macro['host_macro_value'];
+
+            $value = $macro['host_macro_value'];
+            $hostId = $macro['host_host_id'];
+
+            if (
+                $this->pollersEncryptionReadyStatusByHosts[$hostId] === true &&
+                (! $macro['is_password'] || ! str_starts_with($value, 'secret::'))
+            ) {
+                if ($macro['is_password']) {
+                    $value = 'encrypt::' . $this->engineContextEncryption->crypt($value);
+                } else {
+                    $value = 'raw::' . $value;
+                }
+            }
+
+            $this->macroHostCache[$hostId][$hostMacroName] = $value;
         }
 
         $stmt = $this->backend_instance->db->executeQuery(
@@ -198,7 +241,10 @@ class Macro extends AbstractObject
         );
 
         while (($hostSnmpCommunity = $stmt->fetch(PDO::FETCH_ASSOC))) {
-            $this->macroHostCache[$hostSnmpCommunity['host_id']]['_SNMPCOMMUNITY'] = $hostSnmpCommunity['host_snmp_community'];
+            $value = $this->pollersEncryptionReadyStatusByHosts[$hostSnmpCommunity['host_id']] === true
+                ? 'encrypt::' . $this->engineContextEncryption->crypt($hostSnmpCommunity['host_snmp_community'])
+                : $hostSnmpCommunity['host_snmp_community'];
+            $this->macroHostCache[$hostSnmpCommunity['host_id']]['_SNMPCOMMUNITY'] = $value;
         }
 
         if ($this->isVaultEnabled && $this->readVaultRepository !== null) {
@@ -211,7 +257,10 @@ class Macro extends AbstractObject
                         '_$1',
                         $macroName
                     );
-                    $this->macroHostCache[$hostId][$hostMacroName] = $macroValue;
+                    $value = $this->pollersEncryptionReadyStatusByHosts[$hostId] === true
+                        ? 'encrypt::' . $this->engineContextEncryption->crypt($macroValue)
+                        : $macroValue;
+                    $this->macroHostCache[$hostId][$hostMacroName] = $value;
                 }
             }
         }
@@ -242,6 +291,7 @@ class Macro extends AbstractObject
     /**
      * @throws PDOException
      * @return int|void
+     * @return int|void
      */
     private function buildCache()
     {
@@ -254,3 +304,4 @@ class Macro extends AbstractObject
         $this->done_cache = 1;
     }
 }
+

@@ -47,4 +47,12 @@ interface WriteMonitoringServerRepositoryInterface
      * @param MonitoringServer $monitoringServer
      */
     public function update(MonitoringServer $monitoringServer): void;
+
+    /**
+     * Update the encryption readiness of Monitoring Server configuration,
+     * based on the value of the Monitoring Server readiness in real time.
+     *
+     * This ensure that the configuration is always up to date with the realtime.
+     */
+    public function updateAllEncryptionReadyFromRealtime(): void;
 }

@@ -395,7 +395,7 @@ class DbReadMonitoringServerRepository extends AbstractRepositoryRDB implements 
         $statement = $this->db->prepare($this->translateDbName(<<<SQL
             SELECT 1
             FROM `:db`.`nagios_server`
-            WHERE nagios_server_id = :monitoringServerId
+            WHERE id = :monitoringServerId
                 AND is_encryption_ready = '1'
             SQL
         ));

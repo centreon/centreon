@@ -39,7 +39,7 @@ use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
 use Core\Common\Infrastructure\FeatureFlags;
 use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface;
 use Pimple\Container;
-use Security\Interfaces\EncryptionInterface;
+use Security\Encryption;
 
 /**
  * Class
@@ -68,7 +68,7 @@ abstract class AbstractObjectJSON
 
     protected Kernel $kernel;
 
-    protected EncryptionInterface $engineContextEncryption;
+    protected Encryption $engineContextEncryption;
 
     /**
      * AbstractObjectJSON constructor
@@ -79,17 +79,18 @@ abstract class AbstractObjectJSON
     {
         $this->kernel = Kernel::createForWeb();
         $this->dependencyInjector = $dependencyInjector;
+        $this->getVaultConfigurationStatus();
         $this->backend_instance = Backend::getInstance($this->dependencyInjector);
-        $this->engineContextEncryption = $this->kernel->getContainer()->get(EncryptionInterface::class);
+        $this->engineContextEncryption = new Encryption();
         $engineContext = file_get_contents('/etc/centreon-engine/engine-context.json');
         try {
-            if ($engineContext === false) {
+            if ($engineContext === false || empty($engineContext)) {
                 CentreonLog::create()->error(
                     logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
-                    message: "Unable to parse content of '/etc/centreon-engine/engine-context.json'"
+                    message: "Unable to parse content of '/etc/centreon-engine/engine-context.json', credentials will not be encrypted"
                 );
 
-                throw new \RuntimeException("engine-context.json file does not exist");
+                throw new \RuntimeException('/etc/centreon/engine-context.json does not exists or is empty');
             }
             $engineContext = json_decode($engineContext, true, flags: JSON_THROW_ON_ERROR);
             $this->engineContextEncryption->setFirstKey($engineContext['app_secret'])->setSecondKey($engineContext['salt']);
@@ -112,7 +113,7 @@ abstract class AbstractObjectJSON
      * @throws ServiceNotFoundException
      * @return void
      */
-    public function getVaultConfigurationStatus(): void
+    private function getVaultConfigurationStatus(): void
     {
         $readVaultConfigurationRepository = $this->kernel->getContainer()->get(ReadVaultConfigurationRepositoryInterface::class);
         $featureFlag = $this->kernel->getContainer()->get(FeatureFlags::class);

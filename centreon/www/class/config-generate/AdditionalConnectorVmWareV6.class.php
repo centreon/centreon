@@ -50,9 +50,6 @@ class AdditionalConnectorVmWareV6 extends AbstractObjectJSON
         private readonly ReadMonitoringServerRepositoryInterface $readyMonitoringServerRepository
     ) {
         parent::__construct($dependencyInjector);
-        if (! $this->isVaultEnabled) {
-            $this->getVaultConfigurationStatus();
-        }
     }
 
     /**

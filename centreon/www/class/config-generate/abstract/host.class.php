@@ -34,6 +34,10 @@
  *
  */
 
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
+use Core\Common\Application\UseCase\VaultTrait;
+use Core\Macro\Domain\Model\Macro as MacroDomain;
 use Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException;
 use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
 
@@ -46,6 +50,8 @@ require_once __DIR__ . '/object.class.php';
  */
 abstract class AbstractHost extends AbstractObject
 {
+    use VaultTrait;
+
     public const TYPE_HOST = 1;
     public const TYPE_TEMPLATE = 0;
     public const TYPE_VIRTUAL_HOST = 2;
@@ -267,13 +273,14 @@ abstract class AbstractHost extends AbstractObject
     /**
      * @param array $host
      * @param bool $generate
+     * @param Macro[] $hostTemplateMacros
      *
      * @throws LogicException
      * @throws PDOException
      * @throws ServiceCircularReferenceException
      * @throws ServiceNotFoundException
      */
-    protected function getHostTemplates(array &$host, bool $generate = true): void
+    protected function getHostTemplates(array &$host, bool $generate = true, array $hostTemplateMacros = []): void
     {
         if (! isset($host['htpl'])) {
             if (is_null($this->stmt_htpl)) {
@@ -296,8 +303,77 @@ abstract class AbstractHost extends AbstractObject
         $hostTemplate = HostTemplate::getInstance($this->dependencyInjector);
         $host['use'] = [];
         foreach ($host['htpl'] as $templateId) {
-            $host['use'][] = $hostTemplate->generateFromHostId($templateId);
+            $host['use'][] = $hostTemplate->generateFromHostId($templateId, $hostTemplateMacros);
         }
+    }
+
+    /**
+     * Format Macros for export.
+     *
+     * @param array<string, mixed> $host
+     * @param MacroDomain[] $hostMacros
+     */
+    protected function formatMacros(array &$host, array $hostMacros)
+    {
+        $host['macros'] = [];
+        if ($this->isVaultEnabled && $this->readVaultRepository !== null) {
+            $vaultPathByHosts = $this->getVaultPathByResources($hostMacros);
+            $vaultData = $this->readVaultRepository->findFromPaths($vaultPathByHosts);
+            foreach ($vaultData as $hostId => $macros) {
+                foreach ($macros as $macroName => $value) {
+                    if (str_starts_with($macroName, '_HOST')) {
+                        $newName = preg_replace('/^_HOST/', '', $macroName);
+                        $vaultData[$hostId][$newName] = $value;
+                        unset($vaultData[$hostId][$macroName]);
+                    }
+                }
+            }
+
+            // Set macro values
+            foreach ($hostMacros as $hostMacro) {
+                $hostId = $hostMacro->getOwnerId();
+                $macroName = $hostMacro->getName();
+                if (isset($vaultData[$hostId][$macroName])) {
+                    $hostMacro->setValue($vaultData[$hostId][$macroName]);
+                }
+            }
+        }
+
+        foreach ($hostMacros as $hostMacro) {
+            if ($hostMacro->getOwnerId() === $host['host_id']) {
+                if ($hostMacro->shouldBeEncrypted()) {
+                    if ($hostMacro->isPassword()) {
+                        $host['macros']['_' . $hostMacro->getName()] = 'encrypt::'
+                            . $this->engineContextEncryption->crypt($hostMacro->getValue());
+                    } else {
+                        $host['macros']['_' . $hostMacro->getName()] = 'raw::' . $hostMacro->getValue();
+                    }
+                } else {
+                    $host['macros']['_' . $hostMacro->getName()] = $hostMacro->getValue();
+                }
+            }
+        }
+        if (isset($host['host_snmp_community'])) {
+            $snmpCommunity = $vaultData[$host['host_id']]['SNMPCOMMUNITY'] ?? $host['host_snmp_community'];
+            $shouldEncrypt = $this->backend_instance->db->fetchAssociative(
+                <<<'SQL'
+                    SELECT 1 FROM nagios_server ns
+                    INNER JOIN ns_host_relation nsr
+                    ON ns.id = nsr.nagios_server_id
+                    WHERE nsr.host_host_id = :hostId
+                    AND ns.is_encryption_ready = '1'
+                    SQL,
+                QueryParameters::create([QueryParameter::int('hostId', $host['host_id'])])
+            );
+            $host['macros']['_SNMPCOMMUNITY'] = $shouldEncrypt !== false
+                ? 'encrypt::' . $this->engineContextEncryption->crypt($snmpCommunity)
+                : $snmpCommunity;
+        }
+        if (! is_null($host['host_snmp_version']) && $host['host_snmp_version'] !== '0') {
+            $host['macros']['_SNMPVERSION'] = $host['host_snmp_version'];
+        }
+
+        $host['macros']['_HOST_ID'] = $host['host_id'];
     }
 
     /**
@@ -478,5 +554,26 @@ abstract class AbstractHost extends AbstractObject
         $stmt->execute();
 
         return $stmt->fetchAll(PDO::FETCH_COLUMN);
+    }
+
+    /**
+     * @param MacroDomain[] $macro
+     * @return array{int, string} vault path indexed by service id
+     */
+    private function getVaultPathByResources(array $macros): array
+    {
+        $vaultPathByResources = [];
+
+        foreach ($macros as $macro) {
+                /**
+                 * Check that the value is a vault path and that we haven't store it already
+                 * As macros are stored by resources in vault. All the macros for the same service has the same vault path
+                 */
+                if ($this->isAVaultPath($macro->getValue()) && ! array_key_exists($macro->getOwnerId(), $vaultPathByResources)) {
+                    $vaultPathByResources[$macro->getOwnerId()] = $macro->getValue();
+            }
+        }
+
+        return $vaultPathByResources;
     }
 }
