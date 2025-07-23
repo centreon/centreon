@@ -36,6 +36,8 @@ contents:
 
   - src: "../cron/centreon-dsm"
     dst: "/etc/cron.d/centreon-dsm"
+    file_info:
+      mode: 0644
 
   - src: "../libinstall/systemd/dsmd.rpm.systemd"
     dst: "/etc/systemd/system/dsmd.service"

@@ -238,7 +238,14 @@ jobs:
 
       - name: Change macro
         run: |
-          find ./centreon-dsm -type f | xargs sed -i -f ./centreon-dsm/packaging/src/centreon-macroreplacement.txt
+          MACRO_REPLACEMENT_FILE="centreon-dsm/packaging/src/centreon-macroreplacement.txt"
+          if [[ "${{ matrix.package_extension }}" == "rpm" ]]; then
+            APACHE_USER="apache"
+          else
+            APACHE_USER="www-data"
+          fi
+          echo "s#@WEB_USER@#$APACHE_USER#g" >> $MACRO_REPLACEMENT_FILE
+          find ./centreon-dsm -type f | xargs sed -i -f $MACRO_REPLACEMENT_FILE
         shell: bash
 
       - name: Package
