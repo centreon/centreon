@@ -28,9 +28,32 @@ contents:
       owner: "@APACHE_USER@"
       group: "@APACHE_GROUP@"
 
-  - src: "../www/modules/centreon-dsm/{core,images,sql,statistics,upgrade,conf.php}"
-    dst: "/usr/share/centreon/www/modules/centreon-dsm/"
-    type: tree
+  - src: "../www/modules/centreon-dsm/core"
+    dst: "/usr/share/centreon/www/modules/centreon-dsm/core"
+    file_info:
+      owner: "@APACHE_USER@"
+      group: "@APACHE_GROUP@"
+
+  - src: "../www/modules/centreon-dsm/images"
+    dst: "/usr/share/centreon/www/modules/centreon-dsm/images"
+    file_info:
+      owner: "@APACHE_USER@"
+      group: "@APACHE_GROUP@"
+
+  - src: "../www/modules/centreon-dsm/statistics"
+    dst: "/usr/share/centreon/www/modules/centreon-dsm/statistics"
+    file_info:
+      owner: "@APACHE_USER@"
+      group: "@APACHE_GROUP@"
+
+  - src: "../www/modules/centreon-dsm/upgrade"
+    dst: "/usr/share/centreon/www/modules/centreon-dsm/upgrade"
+    file_info:
+      owner: "@APACHE_USER@"
+      group: "@APACHE_GROUP@"
+
+  - src: "../www/modules/centreon-dsm/conf.php"
+    dst: "/usr/share/centreon/www/modules/centreon-dsm/conf.php"
     file_info:
       owner: "@APACHE_USER@"
       group: "@APACHE_GROUP@"
