@@ -1,3 +1,23 @@
+interface Cmd {
+  name: string;
+  type: number;
+  commandLine: string;
+  isShell: boolean;
+  argumentExample: string;
+  arguments: string[];
+  macros: string[];
+  connectorId: number;
+  graphTemplateId: number;
+}
+
+interface Ctr {
+  name: string;
+  description: string;
+  commandLine: string;
+  usedByCommand: string;
+  isEnabled: number;
+}
+
 Cypress.Commands.add('addCommands', (body: Cmd) => {
   // Wait for the "Command Name" input to be charged on the DOM
   cy.waitForElementInIframe('#main-content', 'input[name="command_name"]');
@@ -8,7 +28,7 @@ Cypress.Commands.add('addCommands', (body: Cmd) => {
     .find(`input[name="command_type[command_type]"][value="${body.type}"]`)
     .click({ force: true });
   // Type a value on the "Command Line" textarea
-  cy.getIframeBody().find('textarea[id="commandLine"]').type(body.commandLine);
+  cy.getIframeBody().find('textarea[id="command_line"]').type(body.commandLine);
   // Enable/ Disable shell
   cy.getIframeBody()
     .find('input[name="enable_shell"]')
@@ -42,7 +62,7 @@ Cypress.Commands.add('updateCommands', (body: Cmd) => {
     .click({ force: true });
   // Update the value of the "Command Line"
   cy.getIframeBody()
-    .find('textarea[id="commandLine"]')
+    .find('textarea[id="command_line"]')
     .clear()
     .type(body.commandLine);
   // Update the value of the "Enable shell"
@@ -81,7 +101,7 @@ Cypress.Commands.add('checkValuesOfCommands', (name: string, body: Cmd) => {
     .should('be.checked');
   // Check that the "Command Line" input contains right value
   cy.getIframeBody()
-    .find('textarea[id="commandLine"]')
+    .find('textarea[id="command_line"]')
     .should('have.value', body.commandLine);
   // Check that the "Enable Shell" checkbox contains right value
   cy.getIframeBody()
@@ -119,7 +139,7 @@ Cypress.Commands.add('addConnectors', (body: Ctr) => {
     .find('input[name="connector_description"]')
     .type(body.description);
   // Type a value on the "Command Line" textarea
-  cy.getIframeBody().find('textarea[id="commandLine"]').type(body.commandLine);
+  cy.getIframeBody().find('textarea[id="command_line"]').type(body.commandLine);
   // Type a value on the "Used by command" input
   cy.getIframeBody()
     .find('input[placeholder="Used by command"]')
@@ -151,7 +171,7 @@ Cypress.Commands.add('updateConnectors', (body: Ctr) => {
     .type(body.description);
   // Update the value of the "Command Line"
   cy.getIframeBody()
-    .find('textarea[id="commandLine"]')
+    .find('textarea[id="command_line"]')
     .clear()
     .type(body.commandLine);
   // Clear the value on the "Used by command" input
@@ -185,7 +205,7 @@ Cypress.Commands.add('checkValuesOfConnectors', (name: string, body: Ctr) => {
     .should('have.value', body.description);
   // Check that the "Command Line" input contains right value
   cy.getIframeBody()
-    .find('textarea[id="commandLine"]')
+    .find('textarea[id="command_line"]')
     .should('have.value', body.commandLine);
   // Check that the "Used by command" input contains right value
   cy.getIframeBody()
@@ -207,26 +227,6 @@ Cypress.Commands.add('checkValuesOfConnectors', (name: string, body: Ctr) => {
     )
     .should('be.checked');
 });
-
-interface Cmd {
-  name: string;
-  type: number;
-  commandLine: string;
-  isShell: boolean;
-  argumentExample: string;
-  arguments: string[];
-  macros: string[];
-  connectorId: number;
-  graphTemplateId: number;
-}
-
-interface Ctr {
-  name: string;
-  description: string;
-  commandLine: string;
-  usedByCommand: string;
-  isEnabled: number;
-}
 
 declare global {
   // biome-ignore lint/style/noNamespace: <explanation>
