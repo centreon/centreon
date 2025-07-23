@@ -156,7 +156,7 @@ Then(
         cy.checkLogDetails(
           1,
           2,
-          'commandLine',
+          'command_line',
           '',
           commands.notification.command_line
         );
@@ -171,7 +171,7 @@ Then(
         cy.checkLogDetails(
           1,
           5,
-          'argumentExample',
+          'argument_example',
           '',
           `${commands.notification.argument_example}`
         );
@@ -207,7 +207,7 @@ Then(
         cy.checkLogDetails(
           1,
           2,
-          'commandLine',
+          'command_line',
           '',
           commands.check.command_line
         );
@@ -216,7 +216,7 @@ Then(
         cy.checkLogDetails(
           1,
           5,
-          'argumentExample',
+          'argument_example',
           '',
           `${commands.check.argument_example}`
         );
@@ -258,7 +258,7 @@ Then(
         cy.checkLogDetails(
           1,
           2,
-          'commandLine',
+          'command_line',
           '',
           commands.miscellaneous.command_line
         );
@@ -273,7 +273,7 @@ Then(
         cy.checkLogDetails(
           1,
           5,
-          'argumentExample',
+          'argument_example',
           '',
           `${commands.miscellaneous.argument_example}`
         );
@@ -309,7 +309,7 @@ Then(
         cy.checkLogDetails(
           1,
           2,
-          'commandLine',
+          'command_line',
           '',
           commands.discovery.command_line
         );
@@ -324,7 +324,7 @@ Then(
         cy.checkLogDetails(
           1,
           5,
-          'argumentExample',
+          'argument_example',
           '',
           `${commands.discovery.argument_example}`
         );

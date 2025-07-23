@@ -13,7 +13,8 @@ Cypress.Commands.add(
           { dataset_filter: null, resources: [14], type: 'host' }
         ],
         description: '',
-        isEnabled: true,
+        // biome-ignore lint/style/useNamingConvention: <explanation>
+        is_enabled: true,
         name
       };
       cy.request({
