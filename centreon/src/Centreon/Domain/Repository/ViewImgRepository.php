@@ -111,7 +111,6 @@ SELECT
     t3.img_id
 FROM view_img AS t3
 INNER JOIN hostgroup AS hg3 ON hg3.hg_icon_image = t3.img_id
-    OR hg3.hg_map_icon_image = t3.img_id
 INNER JOIN hostgroup_relation AS hcr3 ON hcr3.hostgroup_hg_id = hg3.hg_id
 LEFT JOIN ns_host_relation AS hr3 ON hr3.host_host_id = hcr3.host_host_id
 WHERE hr3.nagios_server_id IN ({$ids}){$sqlFilterHostList3} 
