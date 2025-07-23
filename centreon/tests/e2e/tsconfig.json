@@ -1,5 +1,5 @@
 {
-  "extends": "./node_modules/@centreon/js-config/tsconfig/index",
+  "extends": "@centreon/js-config/tsconfig/index",
   "compilerOptions": {
     "baseUrl": ".",
     "esModuleInterop": true,
