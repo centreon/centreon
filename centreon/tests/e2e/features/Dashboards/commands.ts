@@ -243,6 +243,7 @@ Cypress.Commands.add('waitUntilPingExists', () => {
     () => {
       cy.getByTestId({ testId: 'Select resource' }).eq(0).realClick();
       cy.contains('Centreon-Server').realClick();
+      cy.getByTestId({ testId: 'Select resource' }).eq(0).blur();
       cy.getByTestId({ testId: 'Select resource' }).eq(1).realClick();
 
       return cy.wait('@servicesRequest').then((interception) => {
