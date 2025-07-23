@@ -5940,6 +5940,15 @@ msgstr "Erreur lors de la récupération du token"
 msgid "Error while retrieving an additional configuration"
 msgstr "Erreur durant la récupération d'une configuration additionnelle"
 
+#: centreon/src/Core/Dashboard/Application/Exception/DashboardException.php
+msgid ""
+"Error while retrieving contact groups allowed to receive a dashboard share"
+msgstr ""
+
+#: centreon/src/Core/Dashboard/Application/Exception/DashboardException.php
+msgid "Error while retrieving contacts allowed to receive a dashboard share"
+msgstr ""
+
 #: centreon/www/include/configuration/configObject/host_dependency/listHostDependency.php
 msgid "Error while retrieving host dependencies"
 msgstr ""
@@ -6204,6 +6213,10 @@ msgstr "Erreur lors de la mise à jour des jetons d'authentification"
 #: centreon/src/Core/HostSeverity/Application/Exception/HostSeverityException.php
 msgid "Error while updating host severity"
 msgstr "Erreur lors de la mise à jour de la sévérité d'hôtes"
+
+#: centreon/src/Core/Dashboard/Application/Exception/DashboardException.php
+msgid "Error while updating the dashboard share"
+msgstr "Erreur durant la mise à jour d'un partage de tableau de bord"
 
 #: centreon/src/Core/HostCategory/Application/Exception/HostCategoryException.php
 msgid "Error while updating the host category"
@@ -10759,12 +10772,12 @@ msgstr "Aucun fichier de statistiques défini pour ce collecteur"
 
 #: centreon/src/Core/Dashboard/Application/Exception/DashboardException.php
 #, php-format
-msgid "No sufficient access rights to contact group [%d] to give role [%s]"
+msgid "No sufficient access rights to contact group [%s] to give role [%s]"
 msgstr ""
 
 #: centreon/src/Core/Dashboard/Application/Exception/DashboardException.php
 #, php-format
-msgid "No sufficient access rights to user [%d] to give role [%s]"
+msgid "No sufficient access rights to user [%s] to give role [%s]"
 msgstr ""
 
 #: centreon/www/include/configuration/configObject/timeperiod/renderTimeperiod.php
@@ -15535,6 +15548,11 @@ msgstr "Ces utilisateurs seront débloqués. Confirmez-vous l\\'action ?"
 msgid "The users [%s] are not in your access groups"
 msgstr ""
 
+#: centreon/src/Core/Dashboard/Application/Exception/DashboardException.php
+#, php-format
+msgid "The users [%s] are not in your contact groups"
+msgstr ""
+
 #: centreon/src/Centreon/Application/Validation/CentreonValidatorFactory.php
 #, php-format
 msgid "The validator \"%s\" is not found"
@@ -20058,10 +20076,6 @@ msgstr ""
 #: unknown
 msgid "Error while updating playlist shares"
 msgstr "Erreur lors de la mise à jour des partages de la liste de diffusion"
-
-#: unknown
-msgid "Error while updating the dashboard share"
-msgstr "Erreur durant la mise à jour d'un partage de tableau de bord"
 
 #: unknown
 msgid "Error: Cannot Execute this command due to a path security problem."
