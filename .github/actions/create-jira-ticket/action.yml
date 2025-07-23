@@ -43,7 +43,7 @@ runs:
           if (ticket_labels.includes("Veracode")) {
             const parent_epic_id = 83818
             const parent_epic_key = "AT-268"
-            const ticket_summary = "PR-${process.env.PR_NUMBER} incident on ${process.env.MODULE_NAME}"
+            const ticket_summary = `PR-${process.env.PR_NUMBER} incident on ${process.env.MODULE_NAME}`
 
             const JSON_TEMPLATE_FILE = "./.github/actions/create-jira-ticket/veracode-ticket-template.json"
             let data = fs.readFileSync(JSON_TEMPLATE_FILE, { encoding: 'utf8' });
@@ -55,13 +55,13 @@ runs:
             const parent_epic_key = "MON-151547"
 
             const date = new Date().toISOString().split('T')[0];
-            const ticket_summary = "${date} ${process.env.MODULE_NAME}-${process.env.REF_NAME} nightly build failure"
+            const ticket_summary = `${date} ${process.env.MODULE_NAME}-${process.env.REF_NAME} nightly build failure`
 
             console.log(ticket_summary);
 
             const JSON_TEMPLATE_FILE="./.github/actions/create-jira-ticket/nightly-ticket-template.json"
             let data = fs.readFileSync(JSON_TEMPLATE_FILE, { encoding: 'utf8' });
-            data = data.replace(/@MODULE_NAME@/g, ${process.env.MODULE_NAME});
+            data = data.replace(/@MODULE_NAME@/g, process.env.MODULE_NAME);
             data = data.replace(/@DATE@/g, date);
             fs.writeFileSync(JSON_TEMPLATE_FILE, data, { encoding: 'utf8' });
           } else {
