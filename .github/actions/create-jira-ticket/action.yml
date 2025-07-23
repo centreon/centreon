@@ -59,7 +59,7 @@ runs:
 
           console.log(failed_jobs);
 
-          for (const failed_job of failed jobs) {
+          for (const failed_job of failed_jobs) {
             if (ticket_labels.includes("Nightly")) {
               ticket_summary = `${date} ${process.env.MODULE_NAME}-${process.env.REF_NAME} nightly build failure on ${failed_job}`
 
