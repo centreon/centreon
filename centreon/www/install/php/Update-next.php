@@ -66,9 +66,9 @@ $updateDashboardAndCustomViewsTopology = function () use (&$errorMessage, &$pear
  */
 $updateContactsShowDeprecatedCustomViews = function () use (&$errorMessage, &$pearDB): void {
     $errorMessage = 'Unable to retrieve custom views';
-    $configuredCustomViews = $pearDB->executeStatement(
+    $configuredCustomViews = $pearDB->fetchFirstColumn(
         <<<'SQL'
-            SELECT 1 FROM custom_views
+            SELECT 1 FROM custom_views LIMIT 1
             SQL
     );
 
@@ -110,7 +110,7 @@ $bbdoCfgUpdate = function () use ($pearDB, &$errorMessage): void {
 
 $addResourceStatusSearchModeOption = function () use ($pearDB, &$errorMessage): void {
     $errorMessage = "Unable to retrieve 'resource_status_search_mode' option from options table";
-    $optionExists = $pearDB->executeStatement("SELECT 1 FROM options WHERE `key` = 'resource_status_search_mode'");
+    $optionExists = $pearDB->fetchFirstColumn("SELECT 1 FROM options WHERE `key` = 'resource_status_search_mode'");
 
     $errorMessage = "Unable to insert option 'resource_status_search_mode' option into table options";
     if (false === (bool) $optionExists) {
