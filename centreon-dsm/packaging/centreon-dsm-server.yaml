@@ -28,11 +28,18 @@ contents:
       owner: "@APACHE_USER@"
       group: "@APACHE_GROUP@"
 
-  - src: "../www/modules/centreon-dsm"
-    dst: "/usr/share/centreon/www/modules/centreon-dsm"
+  - src: "../www/modules/centreon-dsm/{core,images,sql,statistics,upgrade,conf.php}"
+    dst: "/usr/share/centreon/www/modules/centreon-dsm/"
     file_info:
       owner: "@APACHE_USER@"
       group: "@APACHE_GROUP@"
+
+  - src: "../www/modules/centreon-dsm/cron/*"
+    dst: "/usr/share/centreon/www/modules/centreon-dsm/cron/"
+    file_info:
+      owner: "@APACHE_USER@"
+      group: "@APACHE_GROUP@"
+      mode: 0755
 
   - src: "../cron/centreon-dsm"
     dst: "/etc/cron.d/centreon-dsm"
@@ -42,23 +49,23 @@ contents:
   - src: "../libinstall/systemd/dsmd.rpm.systemd"
     dst: "/etc/systemd/system/dsmd.service"
     file_info:
-      mode: 0755
+      mode: 0600
     packager: rpm
   - src: "../libinstall/systemd/dsmd.deb.systemd"
     dst: "/lib/systemd/system/dsmd.service"
     file_info:
-      mode: 0755
+      mode: 0600
     packager: deb
 
   - src: "../libinstall/systemd/dsmd.sysconfig"
     dst: "/etc/sysconfig/dsmd"
     file_info:
-      mode: 0755
+      mode: 0400
     packager: rpm
   - src: "../libinstall/systemd/dsmd.sysconfig"
     dst: "/etc/default/dsmd"
     file_info:
-      mode: 0755
+      mode: 0400
     packager: deb
 
 scripts:
