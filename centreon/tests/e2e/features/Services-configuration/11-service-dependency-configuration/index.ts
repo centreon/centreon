@@ -331,40 +331,40 @@ When('the user changes the properties of a service group dependency', () => {
   cy.wait('@getTopCounter');
   cy.wait('@getTimeZone');
   cy.updateServiceGroupDependency({
-    ...data.defaultSGDependency,
+    ...data.SGDependency1,
     dependency: {
-      name: data.defaultSGDependency.dependency.name,
-      description: data.defaultSGDependency.dependency.description,
+      name: data.SGDependency1.dependency.name,
+      description: data.SGDependency1.dependency.description,
       parentRelationship:
-        data.defaultSGDependency.dependency.parent_relationship,
+        data.SGDependency1.dependency.parent_relationship,
       executionFailsOnOk:
-        data.defaultSGDependency.dependency.execution_fails_on_ok,
+        data.SGDependency1.dependency.execution_fails_on_ok,
       executionFailsOnWarning:
-        data.defaultSGDependency.dependency.execution_fails_on_warning,
+        data.SGDependency1.dependency.execution_fails_on_warning,
       executionFailsOnUnknown:
-        data.defaultSGDependency.dependency.execution_fails_on_unknown,
+        data.SGDependency1.dependency.execution_fails_on_unknown,
       executionFailsOnCritical:
-        data.defaultSGDependency.dependency.execution_fails_on_critical,
+        data.SGDependency1.dependency.execution_fails_on_critical,
       executionFailsOnPending:
-        data.defaultSGDependency.dependency.execution_fails_on_pending,
+        data.SGDependency1.dependency.execution_fails_on_pending,
       executionFailsOnNone:
-        data.defaultSGDependency.dependency.execution_fails_on_none,
+        data.SGDependency1.dependency.execution_fails_on_none,
       notificationFailsOnNone:
-        data.defaultSGDependency.dependency.notification_fails_on_none,
+        data.SGDependency1.dependency.notification_fails_on_none,
       notificationFailsOnOk:
-        data.defaultSGDependency.dependency.notification_fails_on_ok,
+        data.SGDependency1.dependency.notification_fails_on_ok,
       notificationFailsOnWarning:
-        data.defaultSGDependency.dependency.notification_fails_on_warning,
+        data.SGDependency1.dependency.notification_fails_on_warning,
       notificationFailsOnUnknown:
-        data.defaultSGDependency.dependency.notification_fails_on_unknown,
+        data.SGDependency1.dependency.notification_fails_on_unknown,
       notificationFailsOnCritical:
-        data.defaultSGDependency.dependency.notification_fails_on_critical,
+        data.SGDependency1.dependency.notification_fails_on_critical,
       notificationFailsOnPending:
-        data.defaultSGDependency.dependency.notification_fails_on_pending,
-      comment: data.defaultSGDependency.dependency.comment
+        data.SGDependency1.dependency.notification_fails_on_pending,
+      comment: data.SGDependency1.dependency.comment
     },
-    serviceGroups: data.defaultSGDependency.service_groups,
-    dependentServiceGroups: data.defaultSGDependency.dependent_service_groups
+    serviceGroups: data.SGDependency1.service_groups,
+    dependentServiceGroups: data.SGDependency1.dependent_service_groups
   });
 });
 
