@@ -11,11 +11,11 @@ restartDsmd() {
 fixPurgePermissions() {
   # Update log file permissions which has been potentially created by centreon user
   LOG_FILE="/var/log/centreon/centreon_dsm_purge.log"
-  if [ -f "$APP_LOG_FILE" ]; then
+  if [ -f "$LOG_FILE" ]; then
     if [ "$1" = "rpm" ]; then
-      chown apache:apache "$APP_LOG_FILE"
+      chown apache:apache "$LOG_FILE"
     else
-      chown www-data:www-data "$APP_LOG_FILE"
+      chown www-data:www-data "$LOG_FILE"
     fi
   fi
 }
