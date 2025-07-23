@@ -165,7 +165,5 @@ Given(
 );
 
 afterEach(() => {
-  cy.visitEmptyPage()
-    .copyWebContainerLogs({ name: 'web' })
-    .stopContainer({ name: 'web' });
+  cy.stopContainers();
 });
