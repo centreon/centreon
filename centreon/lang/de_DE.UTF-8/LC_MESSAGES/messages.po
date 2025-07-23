@@ -2981,6 +2981,10 @@ msgid "Common properties"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
+msgid "Compact"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
 msgid "Compact time period"
 msgstr ""
 
@@ -6751,6 +6755,10 @@ msgstr ""
 
 #: centreon/www/install/front_translate.php
 msgid "Expression in"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Extended"
 msgstr ""
 
 #: centreon/www/install/smarty_translate.php

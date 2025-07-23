@@ -325,5 +325,10 @@ export const labelFilteredResources =
   'You are about to export the status of the resources you have filtered. You can export up to 10,000 rows.';
 export const labelFilterRessources =
   'Export will be processed but will not include all rows. You can still filter your resources to reduce the number of rows.';
+
+export const labelCompact = 'Compact';
+export const labelExtended = 'Extended';
+
 export const labelFreeTextSearchBehavior =
   'Free text search behavior can be configured in the Administration > Parameters > Centreon UI page.';
+
