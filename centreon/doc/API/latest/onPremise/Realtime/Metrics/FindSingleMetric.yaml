@@ -4,6 +4,7 @@ get:
   summary: 'Get service metric data'
   description: |
     Retrieve the data for a specific metric of a service
+    Retrieve the data for a specific metric of a service, including its values and timestamps
   parameters:
     - $ref: 'Schema/HostId.yaml'
     - $ref: 'Schema/ServiceId.yaml'

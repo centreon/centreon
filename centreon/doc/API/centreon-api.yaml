@@ -13,6 +13,7 @@ info:
     + Added endpoint to count resources
     + Added endpoint to get a single metric value for a host and a service
     + Added endpoint to list media folders
+    + Added endpoint to get a single metric value for a host and a service
     +
     # Updated features
     + Updated endpoint to add an hostgroup
