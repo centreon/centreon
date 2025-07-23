@@ -1951,15 +1951,11 @@ msgstr ""
 
 #: centreon/www/include/configuration/configObject/command/help.php
 msgid ""
-"If your command requires shell features like pipes, redirections, globbing "
-"etc. check this box. If you are using Monitoring Engine this option cannot "
-"be disabled. Note that commands that require shell are slowing down the "
-"poller server."
+"Check this option if your command requires shell features like pipes, redirections, globbing etc."
+"Note that commands requiring shell are slowing down the poller server."
 msgstr ""
-"Wenn Ihr Befehl Shell-Features wie Pipes, Umleitungen, Globbing, etc. "
-"benötigt, sollte diese Option aktiviert werden. Wenn Sie die Monitoring "
-"Engine verwenden, kann diese Option nicht deaktiviert werden. Hinweis: "
-"Befehle die die Shell benötigen, verlangsamen den Poller-Server."
+"Aktivieren Sie diese Option, wenn Ihr Befehl Shell-Funktionen wie Pipes, Umleitungen, Globbing usw. benötigt."
+"Beachten Sie, dass Befehle, die eine Shell erfordern, den Poller-Server verlangsamen."
 
 #: centreon/www/include/Administration/parameters/knowledgeBase/help.php
 msgid "Ignore ssl certificate."
