@@ -91,8 +91,8 @@ const initializeAckResources = (): Cypress.Chainable => {
 
 const insertAckResourceFixtures = (): Cypress.Chainable => {
   const dateBeforeLogin = new Date();
-  let results: SubmitResult;
-  updateFixturesResult().then((submitResult: SubmitResult) => {
+  let results: SubmitResult[];
+  updateFixturesResult().then((submitResult: SubmitResult[]) => {
     results = submitResult;
   });
 
@@ -105,7 +105,7 @@ const insertAckResourceFixtures = (): Cypress.Chainable => {
     .then(() =>
       checkServicesAreMonitored([{ name: serviceInAcknowledgementName }])
     )
-    .then(() => submitResultsViaClapi([results]))
+    .then(() => submitResultsViaClapi(results))
     .then(() =>
       checkServicesAreMonitored([
         { name: serviceInAcknowledgementName, output: 'submit_status_2' }
