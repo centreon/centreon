@@ -814,6 +814,10 @@ msgstr "Ajouter des configurations additionnelles"
 msgid "Add advanced server configuration"
 msgstr "Ajouter une configuration avancée de serveur"
 
+#: centreon/www/install/front_translate.php
+msgid "Add agent configuration"
+msgstr "Ajouter une configuration d'agent"
+
 #: centreon/www/include/options/accessLists/resourcesACL/formResourcesAccess.php
 msgid "Add an ACL"
 msgstr "Ajouter une ACL"
@@ -901,10 +905,6 @@ msgstr "Ajouter une nouvelle période"
 #: centreon/www/install/front_translate.php
 msgid "Add parameter"
 msgstr "Ajouter un paramètre"
-
-#: centreon/www/install/front_translate.php
-msgid "Add agent configuration"
-msgstr "Ajouter une configuration d'agent"
 
 #: centreon/www/include/configuration/configObject/service_template_model/formServiceTemplateModel.php
 #: centreon/www/include/configuration/configObject/service/formService.php
@@ -1083,6 +1083,15 @@ msgstr "Après"
 msgid "Agent"
 msgstr "Agent"
 
+#: centreon/www/install/front_translate.php
+msgid "Agent configuration created"
+msgstr "Configuration d'agent créée"
+
+#: centreon/www/install/front_translate.php
+msgid "Agent configuration updated"
+msgstr "Configuration d'agent mise à jour"
+
+#: centreon/www/install/front_translate.php
 #: centreon/www/install/menu_translation.php
 msgid "Agent configurations"
 msgstr "Configurations d'agent"
@@ -1090,10 +1099,6 @@ msgstr "Configurations d'agent"
 #: centreon/www/install/front_translate.php
 msgid "Agent type"
 msgstr "Type d'agent"
-
-#: centreon/www/install/front_translate.php
-msgid "Agent types"
-msgstr "Types d'agent"
 
 #: centreon/www/include/reporting/dashboard/csvExport/csv_ServiceGroupLogs.php
 #: centreon/www/include/reporting/dashboard/csvExport/csv_ServiceLogs.php
@@ -2120,12 +2125,12 @@ msgid "By name"
 msgstr "Par nom"
 
 #: centreon/www/install/front_translate.php
-msgid "CA(.crt,.cer)"
-msgstr "CA(.crt,.cer)"
-
-#: centreon/www/install/front_translate.php
 msgid "CA Common Name (CN)"
 msgstr "Nom commun CA (CN)"
+
+#: centreon/www/install/front_translate.php
+msgid "CA(.crt,.cer)"
+msgstr "CA(.crt,.cer)"
 
 #: centreon/www/install/front_translate.php
 msgid "CMA authentication token(s)"
@@ -7083,14 +7088,14 @@ msgstr "Fichier non trouvé"
 msgid "File path"
 msgstr "Localisation du fichier"
 
-#: centreon/www/install/front_translate.php
-msgid "File too big"
-msgstr "La taille du fichier est trop grande"
-
 #: centreon/src/Core/AgentConfiguration/Application/Exception/AgentConfigurationException.php
 #, php-format
 msgid "File path or format '%s' (%s) is invalid"
 msgstr "Le nom de fichier '%s' (%s) est invalide"
+
+#: centreon/www/install/front_translate.php
+msgid "File too big"
+msgstr "La taille du fichier est trop grande"
 
 #: centreon/www/include/configuration/configNagios/formNagios.php
 msgid "Files"
@@ -12556,18 +12561,6 @@ msgstr "L'ID de la configuration Broker pour ce collecteur n'a pas été trouvé
 msgid "Poller configuration"
 msgstr "Configuration du collecteur"
 
-#: centreon/www/install/front_translate.php
-msgid "Agent configuration"
-msgstr "Configuration d'agent"
-
-#: centreon/www/install/front_translate.php
-msgid "Agent configuration created"
-msgstr "Configuration d'agent créée"
-
-#: centreon/www/install/front_translate.php
-msgid "Agent configuration updated"
-msgstr "Configuration d'agent mise à jour"
-
 #: centreon/www/include/configuration/configGenerate/formGenerateFiles.php
 #: centreon/www/include/eventLogs/viewLog.php
 #: centreon/www/include/monitoring/downtime/AddDowntime.php
@@ -12704,10 +12697,6 @@ msgstr "Afficher la valeur minimale"
 msgid "Print Total Value"
 msgstr "Afficher la valeur totale"
 
-#: centreon/www/install/front_translate.php
-msgid "Private key(.key)"
-msgstr "Clé privée(.key)"
-
 #: centreon/www/install/centreon_broker_translation.php
 msgid "Private key file."
 msgstr "Clé privée SSH."
@@ -12715,6 +12704,10 @@ msgstr "Clé privée SSH."
 #: centreon/www/install/centreon_broker_translation.php
 msgid "Private key path"
 msgstr "Chemin de la clé privée"
+
+#: centreon/www/install/front_translate.php
+msgid "Private key(.key)"
+msgstr "Clé privée(.key)"
 
 #: centreon/www/install/dashboard_widgets.php
 msgid "Problem (Critical)"
@@ -12811,8 +12804,11 @@ msgstr "Utilisateur pour le proxy"
 msgid "Public"
 msgstr "Public"
 
-#: centreon/www/install/front_translate.php
 #: centreon/www/install/centreon_broker_translation.php
+msgid "Public certificate"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
 msgid "Public certificate(.crt,.cer)"
 msgstr "Certificat public(.crt,cer)"
 
@@ -17191,6 +17187,10 @@ msgid "Update"
 msgstr "Mise à jour"
 
 #: centreon/www/install/front_translate.php
+msgid "Update agent configuration"
+msgstr "Mettre à jour la configuration d'agent"
+
+#: centreon/www/install/front_translate.php
 msgid "Update all"
 msgstr "Tout mettre à jour"
 
@@ -17213,10 +17213,6 @@ msgstr "Mettre à jour le filtre"
 #: centreon/www/include/configuration/configObject/host/formHost.php
 msgid "Update mode"
 msgstr "Mode de mise à jour"
-
-#: centreon/www/install/front_translate.php
-msgid "Update agent configuration"
-msgstr "Mettre à jour la configuration d'agent"
 
 #: centreon/www/install/front_translate.php
 msgid "Updated"
@@ -17937,16 +17933,16 @@ msgid "Welcome to the additional configurations page"
 msgstr "Bienvenue sur la page des configurations additionnelles"
 
 #: centreon/www/install/front_translate.php
+msgid "Welcome to the agent configuration page"
+msgstr "Bienvenue sur la page des configurations d'agent"
+
+#: centreon/www/install/front_translate.php
 msgid "Welcome to the host groups page"
 msgstr "Bienvenue sur la page des groupes d'hôtes"
 
 #: centreon/www/install/front_translate.php
 msgid "Welcome to the notifications interface"
 msgstr "Bienvenue dans l'interface de gestion des notifications"
-
-#: centreon/www/install/front_translate.php
-msgid "Welcome to the agent configuration page"
-msgstr "Bienvenue sur la page des configurations d'agent"
 
 #: centreon/www/install/front_translate.php
 msgid "Which endpoint does the conditions attribute path come from?"
@@ -19656,6 +19652,14 @@ msgstr "Adresse n°6"
 #: unknown
 msgid "Advanced mode"
 msgstr "Mode avancé"
+
+#: unknown
+msgid "Agent configuration"
+msgstr "Configuration d'agent"
+
+#: unknown
+msgid "Agent types"
+msgstr "Types d'agent"
 
 #: unknown
 msgid "Aggressive Host Checks"
