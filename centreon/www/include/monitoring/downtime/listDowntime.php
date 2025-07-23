@@ -266,7 +266,7 @@ $hostQuery = <<<SQL
         {$subQueryConditionSearchEndTime}
     SQL;
 
-if ($subQueryConditionSearchHost == '' && $subQueryConditionSearchService !== '') {
+if ($subQueryConditionSearchService !== '') {
     $filterQuery = $serviceQuery;
 } else {
     $filterQuery = <<<SQL
@@ -277,7 +277,7 @@ if ($subQueryConditionSearchHost == '' && $subQueryConditionSearchService !== ''
 }
 
 $finalQuery = <<<SQL
-    $filterQuery
+    {$filterQuery}
     ORDER BY scheduled_start_time DESC
     LIMIT :offset, :limit
     SQL;
