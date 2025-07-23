@@ -1145,7 +1145,7 @@ jobs:
     needs: [get-environment, deliver-deb, deliver-rpm]
     if: |
       needs.get-environment.outputs.skip_workflow == 'false' &&
-      (contains(fromJson('["stable", "testing"]'), needs.get-environment.outputs.stability) && github.event_name != 'workflow_dispatch') &&
+      contains(fromJson('["stable", "testing"]'), needs.get-environment.outputs.stability) &&
       ! cancelled() &&
       ! contains(needs.*.result, 'failure') &&
       ! contains(needs.*.result, 'cancelled') &&
@@ -1168,8 +1168,8 @@ jobs:
           major_version: ${{ needs.get-environment.outputs.major_version }}
           minor_version: ${{ needs.get-environment.outputs.minor_version }}
           stability: ${{ needs.get-environment.outputs.stability }}
-          github_ref_name: ${{ github.ref_name }}
-          release_type: ${{ needs.get-environment.outputs.release_type }}
+          github_ref_name: master
+          release_type: hotfix
           is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
 
   set-skip-label:
