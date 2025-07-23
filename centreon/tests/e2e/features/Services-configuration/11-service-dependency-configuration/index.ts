@@ -335,10 +335,8 @@ When('the user changes the properties of a service group dependency', () => {
     dependency: {
       name: data.SGDependency1.dependency.name,
       description: data.SGDependency1.dependency.description,
-      parentRelationship:
-        data.SGDependency1.dependency.parent_relationship,
-      executionFailsOnOk:
-        data.SGDependency1.dependency.execution_fails_on_ok,
+      parentRelationship: data.SGDependency1.dependency.parent_relationship,
+      executionFailsOnOk: data.SGDependency1.dependency.execution_fails_on_ok,
       executionFailsOnWarning:
         data.SGDependency1.dependency.execution_fails_on_warning,
       executionFailsOnUnknown:
