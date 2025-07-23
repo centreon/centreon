@@ -37,6 +37,8 @@ runs:
       with:
         script: |
           const fs = require('fs');
+          const { execSync } = require('child_process');
+
           const ticket_labels = ['Pipeline', process.env.TICKET_REASON_FOR_CREATION]
 
           // Change the context elements (summary, parent epic, etc.) that are checked depending on these ticket labels
@@ -68,8 +70,9 @@ runs:
             throw new Error(`❌ Could not find any labelling option for the ticket.`);
           }
 
-          const failed_jobs = await execCommand(
-            `gh run view ${{ github.run_id }} --json jobs -q '.jobs[] | select(.conclusion == "failure") | .name'`
+          const failed_jobs = await execSync(
+            `gh run view ${{ github.run_id }} --json jobs -q '.jobs[] | select(.conclusion == "failure") | .name'`,
+            { encoding: 'utf8' }
           );
           console.log(failed_jobs)
 
