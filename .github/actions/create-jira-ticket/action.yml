@@ -47,8 +47,8 @@ runs:
 
             const JSON_TEMPLATE_FILE = "./.github/actions/create-jira-ticket/veracode-ticket-template.json"
             let data = fs.readFileSync(JSON_TEMPLATE_FILE, { encoding: 'utf8' });
-            data = data.replace(/@PULL_REQUEST_NUMBER@/g, ${process.env.PR_NUMBER});
-            data = data.replace(/@PULL_REQUEST_URL@/g, ${process.env.PR_URL});
+            data = data.replace(/@PULL_REQUEST_NUMBER@/g, "${process.env.PR_NUMBER}");
+            data = data.replace(/@PULL_REQUEST_URL@/g, "${process.env.PR_URL}");
             fs.writeFileSync(JSON_TEMPLATE_FILE, data, { encoding: 'utf8' });
           } else if (ticket_labels.includes("Nightly")) {
             const parent_epic_id = 206242
