@@ -4,7 +4,7 @@
       "path": "/widgets/resourcestable",
       "federatedComponents": ["./resourcestable"],
       "panelMinWidth": 6,
-      "panelMinHeight": 3
+      "panelMinHeight": 4
     }
   ],
   "moduleFederationName": "widgetresourcestable",
