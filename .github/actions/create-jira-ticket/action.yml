@@ -62,7 +62,7 @@ runs:
             const JSON_TEMPLATE_FILE="./.github/actions/create-jira-ticket/nightly-ticket-template.json"
             let data = fs.readFileSync(JSON_TEMPLATE_FILE, { encoding: 'utf8' });
             data = data.replace(/@MODULE_NAME@/g, ${process.env.MODULE_NAME});
-            data = data.replace(/@DATE@/g, formatDateISO(new Date()));
+            data = data.replace(/@DATE@/g, date);
             fs.writeFileSync(JSON_TEMPLATE_FILE, data, { encoding: 'utf8' });
           } else {
             throw new Error(`❌ Could not find any labelling option for the ticket.`);
