@@ -70,7 +70,7 @@ runs:
             throw new Error(`❌ Could not find any labelling option for the ticket.`);
           }
 
-          const failed_jobs = await execSync(
+          let failed_jobs = await execSync(
             `gh run view ${{ github.run_id }} --json jobs -q '.jobs[] | select(.conclusion == "failure") | .name'`,
             { encoding: 'utf8' }
           );
