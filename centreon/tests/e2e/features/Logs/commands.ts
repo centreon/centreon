@@ -17,8 +17,17 @@ interface TimePeriod {
 }
 
 Cypress.Commands.add('addTimePeriodViaApi', (payload: TimePeriod) => {
+  const apiPayload = {
+    ...payload,
+    days: payload.days.map((day) => ({
+      day: day.day,
+      // biome-ignore lint/style/useNamingConvention: API requires snake_case
+      time_range: day.timeRange
+    }))
+  };
+
   cy.request({
-    body: payload,
+    body: apiPayload,
     headers: {
       'Content-Type': 'application/json'
     },
@@ -53,8 +62,16 @@ Cypress.Commands.add(
       query: `SELECT * FROM timeperiod WHERE tp_name='${name}'`
     }).then(([rows]) => {
       const id = rows[0].tp_id;
+      const apiPayload = {
+        ...payload,
+        days: payload.days.map((day) => ({
+          day: day.day,
+          // biome-ignore lint/style/useNamingConvention: API requires snake_case
+          time_range: day.timeRange
+        }))
+      };
       cy.request({
-        body: payload,
+        body: apiPayload,
         headers: {
           'Content-Type': 'application/json'
         },
