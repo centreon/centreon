@@ -35,7 +35,7 @@ final readonly class GetEngineSecrets
     }
 
     /**
-     * @throws RepositoryException|AssertionException
+     * @throws EngineSecretsDoesNotExistsException|EngineSecretsBadFormatException |AssertionException
      * @return EngineSecrets
      */
     public function __invoke(): EngineSecrets
