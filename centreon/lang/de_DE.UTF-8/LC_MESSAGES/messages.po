@@ -2981,6 +2981,10 @@ msgid "Common properties"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
+msgid "Compact"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
 msgid "Compact time period"
 msgstr ""
 
@@ -4922,6 +4926,14 @@ msgstr ""
 msgid "Do you want to save the changes?"
 msgstr ""
 
+#: centreon/www/install/front_translate.php
+msgid "Do you want to switch to classic mode?"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Do you want to switch to regex mode?"
+msgstr ""
+
 #: centreon/www/include/configuration/configObject/service_template_model/formServiceTemplateModel.php
 #: centreon/www/include/configuration/configObject/service/formService.php
 #: centreon/www/include/configuration/configObject/host_categories/formHostCategories.php
@@ -5611,6 +5623,14 @@ msgstr "Engine Status"
 #: centreon/www/install/menu_translation.php
 msgid "Engine configuration"
 msgstr "Enginekonfiguration"
+
+#: centreon/www/install/front_translate.php
+msgid "Enter Regex"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Enter regex mode"
+msgstr ""
 
 #: centreon/www/include/monitoring/acknowlegement/xml/broker/makeXMLForAck.php
 #: centreon/www/include/monitoring/objectDetails/hostDetails.php
@@ -6643,6 +6663,10 @@ msgid "Exit edition mode"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
+msgid "Exit regex mode"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
 msgid "Exit {{dashboardName}}"
 msgstr ""
 
@@ -6731,6 +6755,10 @@ msgstr ""
 
 #: centreon/www/install/front_translate.php
 msgid "Expression in"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Extended"
 msgstr ""
 
 #: centreon/www/install/smarty_translate.php
@@ -18430,6 +18458,14 @@ msgstr ""
 "unterscheiden"
 
 #: centreon/www/install/front_translate.php
+msgid "Your changes will not be saved if you leave classic mode."
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Your changes will not be saved if you leave regex mode."
+msgstr ""
+
+#: centreon/www/install/front_translate.php
 msgid "Your changes will not be saved if you leave this page."
 msgstr ""
 
@@ -19713,6 +19749,22 @@ msgstr "Adresse6"
 msgid "Advanced mode"
 msgstr "Erweiterter Modus"
 
+# msgid "Enter regex mode"
+# msgstr ""
+# msgid "Exit regex mode"
+# msgstr ""
+# msgid "Enter regex"
+# msgstr "Saisir une regex"
+# msgid "Do you want to switch to classic mode?"
+# msgstr ""
+# msgid "Do you want to switch to regex mode?"
+# msgstr ""
+# msgid "Your changes will not be saved if you leave regex mode."
+# msgstr ""
+# msgid "Your changes will not be saved if you leave classic mode."
+# msgstr ""
+# msgid "Stay"
+# msgstr ""
 #: unknown
 msgid "Append"
 msgstr "Anhängen"
