@@ -38,37 +38,14 @@ runs:
         script: |
           const fs = require('fs');
           const { execSync } = require('child_process');
+          const dayjs = require('dayjs');
 
-          const ticket_labels = ['Pipeline', process.env.TICKET_REASON_FOR_CREATION]
-          let data;
+          const parent_epic_id = 206242
+          const parent_epic_key = "MON-151547"
+          const JSON_TEMPLATE_FILE = "./.github/actions/create-jira-ticket/nightly-ticket-template.json";
+          const date = dayjs().format('YYYY-MM-DD');
 
-          // Change the context elements (summary, parent epic, etc.) that are checked depending on these ticket labels
-          if (ticket_labels.includes("Veracode")) {
-            const parent_epic_id = 83818
-            const parent_epic_key = "AT-268"
-            const ticket_summary = `PR-${process.env.PR_NUMBER} incident on ${process.env.MODULE_NAME}`
-
-            const JSON_TEMPLATE_FILE = "./.github/actions/create-jira-ticket/veracode-ticket-template.json"
-            let data = fs.readFileSync(JSON_TEMPLATE_FILE, { encoding: 'utf8' });
-            data = data.replace(/@PULL_REQUEST_NUMBER@/g, "${process.env.PR_NUMBER}");
-            data = data.replace(/@PULL_REQUEST_URL@/g, "${process.env.PR_URL}");
-            fs.writeFileSync(JSON_TEMPLATE_FILE, data, { encoding: 'utf8' });
-          } else if (ticket_labels.includes("Nightly")) {
-            const parent_epic_id = 206242
-            const parent_epic_key = "MON-151547"
-
-            const date = new Date().toISOString().split('T')[0];
-            const ticket_summary = `${date} ${process.env.MODULE_NAME}-${process.env.REF_NAME} nightly build failure`
-
-            console.log(ticket_summary);
-
-            const JSON_TEMPLATE_FILE="./.github/actions/create-jira-ticket/nightly-ticket-template.json"
-            data = fs.readFileSync(JSON_TEMPLATE_FILE, { encoding: 'utf8' });
-            data = data.replace(/@MODULE_NAME@/g, process.env.MODULE_NAME);
-            data = data.replace(/@DATE@/g, date);
-          } else {
-            throw new Error(`❌ Could not find any labelling option for the ticket.`);
-          }
+          let data, ticket_summary;
 
           let failed_jobs = await execSync(
             `gh run view ${{ github.run_id }} --json jobs -q '.jobs[] | select(.conclusion == "failure") | .name'`,
@@ -82,78 +59,51 @@ runs:
 
           console.log(failed_jobs);
 
-          // General updates on all template files
-          data = data.replace(/@GITHUB_BRANCH@/g, '${{ github.base_ref || github.ref_name }}');
-          data = data.replace(/@GITHUB_SERVER_URL@/g, '${{ github.server_url }}');
-          data = data.replace(/@GITHUB_REPOSITORY@/g, '${{ github.repository }}');
-          data = data.replace(/@GITHUB_RUN_ID@/g, '${{ github.run_id }}');
-          data = data.replace(/@GITHUB_RUN_ATTEMPT@/g, '${{ github.run_attempt }}');
+          for (const failed_job of failed jobs) {
+            if (ticket_labels.includes("Nightly")) {
+              ticket_summary = `${date} ${process.env.MODULE_NAME}-${process.env.REF_NAME} nightly build failure on ${failed_job}`
 
-          console.log(data);
+              data = fs.readFileSync(JSON_TEMPLATE_FILE, { encoding: 'utf8' });
+              data = data.replace(/@MODULE_NAME@/g, process.env.MODULE_NAME);
+              data = data.replace(/@DATE@/g, date);
 
-          fs.writeFileSync(JSON_TEMPLATE_FILE, data, { encoding: 'utf8' });
+              data = data.replace(/@GITHUB_BRANCH@/g, '${{ github.base_ref || github.ref_name }}');
+              data = data.replace(/@GITHUB_SERVER_URL@/g, '${{ github.server_url }}');
+              data = data.replace(/@GITHUB_REPOSITORY@/g, '${{ github.repository }}');
+              data = data.replace(/@GITHUB_RUN_ID@/g, '${{ github.run_id }}');
+              data = data.replace(/@GITHUB_RUN_ATTEMPT@/g, '${{ github.run_attempt }}');
+            } else {
+              throw new Error(`❌ Could not find any labelling option for the ticket.`);
+            }
 
-    #     case "${{ inputs.ticket_squad }}" in
-    #       "DevSecOps")
-    #         ticket_squad_id=10524
-    #         ticket_board_id=184
-    #         squad_name="DEVSECOPS"
-    #         ;;
-    #       "Collect")
-    #         ticket_squad_id=10255
-    #         ticket_board_id=118
-    #         squad_name="COLLECT"
-    #         ;;
-    #       "MAP")
-    #         ticket_squad_id=10258
-    #         ticket_board_id=149
-    #         squad_name="MAP"
-    #         ;;
-    #       "Product Backlog")
-    #         # Every two weeks, these tickets get assigned to either Metropolis or Gotham
-    #         if [[ $(( $(date -d '+1 week' '+%-V') % 4 )) -ge 2 ]]; then
-    #           ticket_squad_id=10625
-    #           ticket_board_id=213
-    #           squad_name="METROPOLIS"
-    #         else
-    #           ticket_squad_id=10882
-    #           ticket_board_id=225
-    #           squad_name="GOTHAM"
-    #         fi
-    #         ;;
-    #       *)
-    #         echo "::error::Cannot find a valid squad for value ${{ inputs.ticket_squad }}."
-    #         exit 1
-    #         ;;
-    #     esac
+            console.log(data);
 
-    #     echo "Ticket will be assigned to the $squad_name team."
+            fs.writeFileSync(JSON_TEMPLATE_FILE, data, { encoding: 'utf8' });
+
+            if (["get-environment", "package", "dockerize", "deliver-rpm", "deliver-deb"].includes("${failed_job}")) {
+              ticket_squad_id = 10524
+              ticket_board_id = 184
+              squad_name = "DEVSECOPS"
+            } else if (["frontend-web-build", "frontend-component-test", "e2e-test", "legacy-e2e-test", "newman-test"]).includes("${failed_job}")) {
+              if (dayjs().isoWeek() % 4 >= 2) {
+                ticket_squad_id = 10625
+                ticket_board_id = 213
+                squad_name = "METROPOLIS"
+              } else {
+                ticket_squad_id = 10882
+                ticket_board_id = 225
+                squad_name = "GOTHAM"
+              }
+            }
+          }
+
+          console.log(`Ticket will be attributed to the ${squad_name} team. (Squad ID ${ticket_squad_id}, Board ID ${ticket_board_id})`)
+
 
     #     current_sprint=$(curl --request GET \
     #       --url ${{ inputs.jira_base_url }}/rest/agile/1.0/board/$ticket_board_id/sprint?state=active \
     #       --user "${{ inputs.jira_user_email }}:${{ inputs.jira_api_token }}" \
     #       --header "Accept: application/json" | jq --arg squad_name "$squad_name" '.values[] | select(.name | test($squad_name; "i")) | .id')
-
-    #     echo "[DEBUG] current_sprint: $current_sprint"
-
-    #     # General updates on all template files
-    #     sed -i \
-    #       -e 's|@GITHUB_BRANCH@|${{ github.base_ref || github.ref_name }}|g' \
-    #       -e 's|@GITHUB_SERVER_URL@|${{ github.server_url }}|g' \
-    #       -e 's|@GITHUB_REPOSITORY@|${{ github.repository }}|g' \
-    #       -e 's|@GITHUB_RUN_ID@|${{ github.run_id }}|g' \
-    #       -e 's|@GITHUB_RUN_ATTEMPT@|${{ github.run_attempt }}|g' $JSON_TEMPLATE_FILE
-
-    #     echo "parent_epic_id=$parent_epic_id" >> $GITHUB_OUTPUT
-    #     echo "parent_epic_key=$parent_epic_key" >> $GITHUB_OUTPUT
-    #     echo "ticket_summary=$ticket_summary" >> $GITHUB_OUTPUT
-    #     echo "ticket_board_id=$ticket_board_id" >> $GITHUB_OUTPUT
-    #     echo "ticket_squad_id=$ticket_squad_id" >> $GITHUB_OUTPUT
-    #     echo "current_sprint=$current_sprint" >> $GITHUB_OUTPUT
-    #     echo "json_template_file=$JSON_TEMPLATE_FILE" >> $GITHUB_OUTPUT
-
-    #     cat $JSON_TEMPLATE_FILE
-    #     cat $GITHUB_OUTPUT
 
     # - name: Check if the ticket already exists
     #   id: check_ticket

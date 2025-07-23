@@ -21,7 +21,7 @@
       "content": [
         {
           "type": "text",
-          "text": "This incident ticket relates to the @MODULE_NAME@ nightly on the @GITHUB_BRANCH@ branch which failed on @DATE@."
+          "text": "This incident ticket relates to the @MODULE_NAME@ nightly on the @GITHUB_BRANCH@ branch which failed on @DATE@. This ticket covers the failure on @FAILED_JOB@."
         }
       ]
     },
