@@ -40,6 +40,7 @@ runs:
           const { execSync } = require('child_process');
 
           const ticket_labels = ['Pipeline', process.env.TICKET_REASON_FOR_CREATION]
+          let data;
 
           // Change the context elements (summary, parent epic, etc.) that are checked depending on these ticket labels
           if (ticket_labels.includes("Veracode")) {
@@ -62,7 +63,7 @@ runs:
             console.log(ticket_summary);
 
             const JSON_TEMPLATE_FILE="./.github/actions/create-jira-ticket/nightly-ticket-template.json"
-            let data = fs.readFileSync(JSON_TEMPLATE_FILE, { encoding: 'utf8' });
+            data = fs.readFileSync(JSON_TEMPLATE_FILE, { encoding: 'utf8' });
             data = data.replace(/@MODULE_NAME@/g, process.env.MODULE_NAME);
             data = data.replace(/@DATE@/g, date);
           } else {
