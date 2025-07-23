@@ -1327,7 +1327,8 @@ jobs:
     runs-on: ubuntu-24.04
     needs: [
       get-environment,
-      frontend-web-lint
+      frontend-web-lint,
+      translation-build
     ]
     if: |
       needs.get-environment.outputs.is_nightly == 'true' && github.run_attempt == 1 &&

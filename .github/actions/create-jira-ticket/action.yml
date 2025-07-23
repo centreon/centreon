@@ -74,7 +74,12 @@ runs:
             `gh run view ${{ github.run_id }} --json jobs -q '.jobs[] | select(.conclusion == "failure") | .name'`,
             { encoding: 'utf8' }
           );
-          console.log(failed_jobs)
+
+          const failed_jobs = failed_jobs
+            .split('\n')
+            .map(line => line.trim())
+
+          console.log(failed_jobs);
 
     #     case "${{ inputs.ticket_squad }}" in
     #       "DevSecOps")
