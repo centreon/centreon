@@ -28,33 +28,40 @@ runs:
       uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
       env:
         GH_TOKEN: ${{ github.token }}
+        TICKET_REASON_FOR_CREATION: ${{ inputs.ticket_reason_for_creation }}
+        MODULE_NAME: ${{ inputs.module_name }}
+        PR_NUMBER: ${{ github.event.pull_request.number }}
+        PR_URL: ${{ github.event.pull_request.html_url }}
+        REF_NAME: ${{ github.ref_name }}
       id: get_context
       with:
         script: |
           const fs = require('fs');
-          const ticket_labels = ['Pipeline', '${{ inputs.ticket_reason_for_creation }}']
+          const ticket_labels = ['Pipeline', process.env.TICKET_REASON_FOR_CREATION]
 
           # Change the context elements (summary, parent epic, etc.) that are checked depending on these ticket labels
           if (ticket_labels.includes("Veracode")) {
             const parent_epic_id = 83818
             const parent_epic_key = "AT-268"
-            const ticket_summary = "PR-${{ github.event.pull_request.number }} incident on ${{ inputs.module_name }}"
+            const ticket_summary = "PR-${process.env.PR_NUMBER} incident on ${process.env.MODULE_NAME}"
 
             const JSON_TEMPLATE_FILE = "./.github/actions/create-jira-ticket/veracode-ticket-template.json"
             let data = fs.readFileSync(JSON_TEMPLATE_FILE, { encoding: 'utf8' });
-            data = data.replace(/@PULL_REQUEST_NUMBER@/g, ${{ github.event.pull_request.number }});
-            data = data.replace(/@PULL_REQUEST_URL@/g, ${{ github.event.pull_request.html_url }});
+            data = data.replace(/@PULL_REQUEST_NUMBER@/g, ${process.env.PR_NUMBER});
+            data = data.replace(/@PULL_REQUEST_URL@/g, ${process.env.PR_URL});
             fs.writeFileSync(JSON_TEMPLATE_FILE, data, { encoding: 'utf8' });
           } else if (ticket_labels.includes("Nightly")) {
             const parent_epic_id = 206242
             const parent_epic_key = "MON-151547"
-            const ticket_summary = formatDateISO(new Date()) + "${{ inputs.module_name }}-${{ github.ref_name }} nightly build failure"
+
+            const date = new Date().toISOString().split('T')[0];
+            const ticket_summary = "${date} ${process.env.MODULE_NAME}-${process.env.REF_NAME} nightly build failure"
 
             console.log(ticket_summary);
 
             const JSON_TEMPLATE_FILE="./.github/actions/create-jira-ticket/nightly-ticket-template.json"
             let data = fs.readFileSync(JSON_TEMPLATE_FILE, { encoding: 'utf8' });
-            data = data.replace(/@MODULE_NAME@/g, ${{ inputs.module_name }});
+            data = data.replace(/@MODULE_NAME@/g, ${process.env.MODULE_NAME});
             data = data.replace(/@DATE@/g, formatDateISO(new Date()));
             fs.writeFileSync(JSON_TEMPLATE_FILE, data, { encoding: 'utf8' });
           } else {
