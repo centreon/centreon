@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,16 +23,25 @@ declare(strict_types=1);
 
 namespace Core\Dashboard\Application\UseCase\FindDashboardContactGroups;
 
+use Core\Application\Common\UseCase\ListingResponseInterface;
 use Core\Dashboard\Application\UseCase\FindDashboardContactGroups\Response\ContactGroupsResponseDto;
 
-final class FindDashboardContactGroupsResponse
+final class FindDashboardContactGroupsResponse implements ListingResponseInterface
 {
     /**
-     * @param array<ContactGroupsResponseDto> $contactGroups
+     * @param ContactGroupsResponseDto[] $contactGroups
      */
     public function __construct(
         public array $contactGroups = [],
     )
     {
+    }
+
+    /**
+     * @return ContactGroupsResponseDto[]
+     */
+    public function getData(): array
+    {
+        return $this->contactGroups;
     }
 }
