@@ -39,7 +39,7 @@ runs:
           const fs = require('fs');
           const ticket_labels = ['Pipeline', process.env.TICKET_REASON_FOR_CREATION]
 
-          # Change the context elements (summary, parent epic, etc.) that are checked depending on these ticket labels
+          // Change the context elements (summary, parent epic, etc.) that are checked depending on these ticket labels
           if (ticket_labels.includes("Veracode")) {
             const parent_epic_id = 83818
             const parent_epic_key = "AT-268"
