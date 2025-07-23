@@ -892,7 +892,7 @@ msgid "Add parameter"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
-msgid "Add poller/agent configuration"
+msgid "Add agent configuration"
 msgstr ""
 
 #: centreon/www/include/configuration/configObject/service_template_model/formServiceTemplateModel.php
@@ -2064,7 +2064,7 @@ msgid "By name"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
-msgid "CA"
+msgid "CA(.crt,.cer)"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
@@ -8216,7 +8216,7 @@ msgstr ""
 
 #: centreon/src/Core/AgentConfiguration/Application/Exception/AgentConfigurationException.php
 #, php-format
-msgid "Filename '%s' (%s) is invalid"
+msgid "File path or format '%s' (%s) is invalid"
 msgstr ""
 
 #: centreon/www/include/configuration/configNagios/formNagios.php
@@ -13896,15 +13896,15 @@ msgid "Poller configuration"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
-msgid "Poller/agent configuration"
+msgid "Agent configuration"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
-msgid "Poller/agent configuration created"
+msgid "Agent configuration created"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
-msgid "Poller/agent configuration updated"
+msgid "Agent configuration updated"
 msgstr ""
 
 #: centreon/www/include/configuration/configGenerate/formGenerateFiles.php
@@ -14044,7 +14044,7 @@ msgid "Print Total Value"
 msgstr "Mostrar valor total"
 
 #: centreon/www/install/front_translate.php
-msgid "Private key"
+msgid "Private key(.key)"
 msgstr ""
 
 #: centreon/www/install/centreon_broker_translation.php
@@ -14152,7 +14152,7 @@ msgstr "Público"
 
 #: centreon/www/install/front_translate.php
 #: centreon/www/install/centreon_broker_translation.php
-msgid "Public certificate"
+msgid "Public certificate(.crt,.cer)"
 msgstr "Certificado publico"
 
 #: centreon/www/include/home/customViews/formLoad.php
@@ -16838,9 +16838,9 @@ msgstr "Reconocimiento persistente en caso de cambio de estado no correcto"
 # msgstr ""
 # msgid "Extension not allowed"
 # msgstr ""
-# msgid "Public certificate"
+# msgid "Public certificate(.crt,.cer)"
 # msgstr ""
-# msgid "CA"
+# msgid "CA(.crt,.cer)"
 # msgstr ""
 # msgid "CA Common Name (CN)"
 # msgstr ""
@@ -16872,7 +16872,7 @@ msgstr "Reconocimiento persistente en caso de cambio de estado no correcto"
 #  msgstr ""
 #  msgid "Changing the type of an existing poller/agent configuration is not allowed"
 #  msgstr ""
-#  msgid "Filename '%s' (%s) is invalid"
+#  msgid "File path or format '%s' (%s) is invalid"
 #  msgstr ""
 #  msgid "Poller ID #%d is the only one linked to poller/agent configuration ID #%d"
 #  msgstr ""
@@ -18549,7 +18549,7 @@ msgid "Update mode"
 msgstr "Modo de actualización"
 
 #: centreon/www/install/front_translate.php
-msgid "Update poller/agent configuration"
+msgid "Update agent configuration"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
@@ -19274,7 +19274,7 @@ msgid "Welcome to the notifications interface"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
-msgid "Welcome to the poller/agent configuration page"
+msgid "Welcome to the agent configuration page"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
@@ -19449,7 +19449,7 @@ msgstr ""
 #: centreon/www/install/front_translate.php
 msgid ""
 "You are going to delete the <strong>{{ agent }}</strong> agent "
-"configuration. All configuration parameters for this agent will be deleted. "
+"configuration. All parameters for this agent configuration will be deleted. "
 "This action cannot be undone."
 msgstr ""
 
