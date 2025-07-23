@@ -83,7 +83,7 @@ runs:
 
           // General updates on all template files
           data = data.replace(/@GITHUB_BRANCH@/g, ${{ github.base_ref || github.ref_name }});
-          data = data.replace(/@GITHUB_SERVER_URL@/g, ${{ github.server_url }});
+          data = data.replace(/@GITHUB_SERVER_URL@/g, '${{ github.server_url }}');
           data = data.replace(/@GITHUB_REPOSITORY@/g, ${{ github.repository }});
           data = data.replace(/@GITHUB_RUN_ID@/g, ${{ github.run_id }});
           data = data.replace(/@GITHUB_RUN_ATTEMPT@/g, ${{ github.run_attempt }});
