@@ -291,7 +291,9 @@ describe('SAMLConfiguration', () => {
   it('adds a new condition value when the last condition value field is filled', () => {
     cy.waitForRequest('@getSAMLConfiguration');
 
-    cy.get(`[data-section-group-form-id="${labelAuthenticationConditions}"]`).click();
+    cy.get(
+      `[data-section-group-form-id="${labelAuthenticationConditions}"]`
+    ).click();
 
     cy.findAllByLabelText(labelConditionValue).eq(1).type('value2');
     cy.findAllByLabelText(labelConditionValue).should('have.length', 3);
@@ -301,7 +303,9 @@ describe('SAMLConfiguration', () => {
   it('removes a condition value when the "Delete the relation" button is clicked', () => {
     cy.waitForRequest('@getSAMLConfiguration');
 
-    cy.get(`[data-section-group-form-id="${labelAuthenticationConditions}"]`).click();
+    cy.get(
+      `[data-section-group-form-id="${labelAuthenticationConditions}"]`
+    ).click();
 
     cy.findAllByLabelText(labelConditionValue).should('have.length', 2);
 

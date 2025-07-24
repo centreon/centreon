@@ -233,7 +233,9 @@ describe('Edit modal', () => {
     cy.findByLabelText(labelName).clear().type('rule#1');
 
     cy.findByLabelText(labelAllHostGroups).click();
-    cy.findByLabelText(labelAllHostGroupsSelected).scrollIntoView().should('be.visible');
+    cy.findByLabelText(labelAllHostGroupsSelected)
+      .scrollIntoView()
+      .should('be.visible');
     cy.findByLabelText(labelAllHostGroupsSelected).should('be.disabled');
 
     cy.findByLabelText(labelSave).click();
@@ -311,7 +313,9 @@ describe('Edit modal', () => {
     cy.findByLabelText(labelName).clear().type('rule#1');
 
     cy.findByLabelText(labelAllHostGroups).click();
-    cy.findByLabelText(labelAllHostGroupsSelected).scrollIntoView().should('be.visible');
+    cy.findByLabelText(labelAllHostGroupsSelected)
+      .scrollIntoView()
+      .should('be.visible');
     cy.findByLabelText(labelAllHostGroupsSelected).should('be.disabled');
 
     cy.findByLabelText(labelAllContacts).click();

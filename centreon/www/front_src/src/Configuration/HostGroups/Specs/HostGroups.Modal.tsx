@@ -131,7 +131,9 @@ export default () => {
           cy.waitForRequest('@getAllHostGroups');
 
           cy.get(`[data-testid="add-resource"]`).click();
-          cy.get(`[data-testid-suffix="test-${labelName}"]`).clear().type(getPayload({}).name);
+          cy.get(`[data-testid-suffix="test-${labelName}"]`)
+            .clear()
+            .type(getPayload({}).name);
           cy.get(`[data-testid-suffix="test-${labelAlias}"]`)
             .clear()
             .type(getPayload({}).alias);
@@ -188,7 +190,9 @@ export default () => {
 
           cy.waitForRequest('@getHostGroupDetails');
 
-          cy.get(`[data-testid-suffix="test-${labelName}"]`).clear().type('Updated name');
+          cy.get(`[data-testid-suffix="test-${labelName}"]`)
+            .clear()
+            .type('Updated name');
 
           cy.get(`button[data-testid="submit"`).click();
 
@@ -245,9 +249,9 @@ export default () => {
 
       cy.get(`[data-testid="add-resource"]`).click();
 
-      const nameInput = cy.findAllByTestId(labelName).eq(1).clear()
+      const nameInput = cy.findAllByTestId(labelName).eq(1).clear();
 
-      cy.findByTestId("tab-General information").click();
+      cy.findByTestId('tab-General information').click();
 
       nameInput.type('name');
 

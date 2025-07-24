@@ -176,7 +176,6 @@ export default (): void => {
 
       cy.findByTestId('modal-body').scrollTo('bottom');
 
-
       cy.get(`button[data-testid="submit"`)
         .should('have.text', labelSave)
         .should('be.disabled');
