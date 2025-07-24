@@ -76,7 +76,7 @@ runs:
             if (ticket_labels.includes("Nightly")) {
               ticket_summary = `${date} ${process.env.MODULE_NAME}-${process.env.REF_NAME} nightly build failure on ${failed_job}`
 
-              data = fs.readFileSync(JSON_TEMPLATE_FILE, { encoding: 'utf8' }));
+              data = fs.readFileSync(JSON_TEMPLATE_FILE, { encoding: 'utf8' });
               data = data.replace(/@MODULE_NAME@/g, process.env.MODULE_NAME);
               data = data.replace(/@DATE@/g, date);
 
