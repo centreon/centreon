@@ -317,7 +317,11 @@ abstract class AbstractHost extends AbstractObject
     {
         $host['macros'] = [];
         if ($this->isVaultEnabled && $this->readVaultRepository !== null) {
-            $vaultPathByHosts = $this->getVaultPathByResources($hostMacros);
+            $vaultPathByHosts = $this->getVaultPathByResources(
+                $hostMacros,
+                $host['host_id'],
+                $host['host_snmp_community'] ?? null
+            );
             $vaultData = $this->readVaultRepository->findFromPaths($vaultPathByHosts);
             foreach ($vaultData as $hostId => $macros) {
                 foreach ($macros as $macroName => $value) {
@@ -557,20 +561,32 @@ abstract class AbstractHost extends AbstractObject
     }
 
     /**
-     * @param MacroDomain[] $macro
-     * @return array{int, string} vault path indexed by service id
+     * Retrieves a mapping of resource IDs to their vault paths from macros and SNMP community.
+     *
+     * @param MacroDomain[] $macros
+     * @param int $hostId
+     * @param string|null $snmpCommunity
+     * @return array<int, string> Vault path indexed by resource (host) ID
      */
-    private function getVaultPathByResources(array $macros): array
+    private function getVaultPathByResources(array $macros, int $hostId, ?string $snmpCommunity = null): array
     {
         $vaultPathByResources = [];
 
+        // Collect vault paths from macros
         foreach ($macros as $macro) {
-                /**
-                 * Check that the value is a vault path and that we haven't store it already
-                 * As macros are stored by resources in vault. All the macros for the same service has the same vault path
-                 */
-                if ($this->isAVaultPath($macro->getValue()) && ! array_key_exists($macro->getOwnerId(), $vaultPathByResources)) {
-                    $vaultPathByResources[$macro->getOwnerId()] = $macro->getValue();
+            $ownerId = $macro->getOwnerId();
+            $value = $macro->getValue();
+
+            // Store the vault path if not already stored for this owner
+            if ($this->isAVaultPath($value) && !isset($vaultPathByResources[$ownerId])) {
+                $vaultPathByResources[$ownerId] = $value;
+            }
+        }
+
+        // If no vault path found in macros, check SNMP community
+        if (empty($vaultPathByResources) && $snmpCommunity !== null) {
+            if ($this->isAVaultPath($snmpCommunity)) {
+                $vaultPathByResources[$hostId] = $snmpCommunity;
             }
         }
 
