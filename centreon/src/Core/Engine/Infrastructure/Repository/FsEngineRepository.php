@@ -25,7 +25,7 @@ namespace Core\Engine\Infrastructure\Repository;
 
 use Core\Common\Domain\Exception\RepositoryException;
 use Core\Engine\Application\Exception\EngineSecretsBadFormatException;
-use Core\Engine\Application\Exception\EngineSecretsDoesNotExistsException;
+use Core\Engine\Application\Exception\EngineSecretsDoesNotExistException;
 use Core\Engine\Application\Repository\EngineRepositoryInterface;
 use Core\Engine\Domain\Model\EngineKey;
 use Core\Engine\Domain\Model\EngineSecrets;
@@ -56,7 +56,7 @@ final readonly class FsEngineRepository implements EngineRepositoryInterface
                 new EngineKey($engineContext['salt'])
             );
         } catch (IOException $ex) {
-            throw  new EngineSecretsDoesNotExistsException(previous: $ex);
+            throw  new EngineSecretsDoesNotExistException(previous: $ex);
         } catch (\JsonException $ex) {
             throw  new EngineSecretsBadFormatException(previous: $ex);
         }
