@@ -119,8 +119,12 @@ jobs:
         with:
           node-version: 20
 
+      - name: Create configuration file
+        run: cp config/centreon.config.php.template config/centreon.config.php
+        working-directory: ${{ inputs.module_name }}
+
       - name: Install dependencies
-        run: composer install --optimize-autoloader
+        run: --optimize-autoloader --prefer-dist --no-interaction --no-progress --no-suggest
         working-directory: ${{ inputs.module_name }}
 
       - name: Restore standard slim image from cache
