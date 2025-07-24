@@ -55,7 +55,7 @@ runs:
           let data, ticket_summary;
 
           let failed_jobs = execSync(
-            `gh run view ${{ github.run_id }} --json jobs -q '.jobs[] | select(.conclusion == "failure") | .name'`,
+            `gh run view ${{ github.run_id }} --json jobs -q ".jobs[] | select(.conclusion == "failure") | .name"`,
             { encoding: 'utf8' }
           );
 
