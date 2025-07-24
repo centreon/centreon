@@ -1,5 +1,5 @@
 import { useAtomValue } from 'jotai';
-import { equals, isNil } from 'ramda';
+import { equals, find, isNil, last, map, pipe } from 'ramda';
 
 import {
   ContentWithCircularLoading,
@@ -18,7 +18,7 @@ import {
 } from '../../utils';
 
 import SingleMetricRenderer from './SingleMetricRenderer';
-import { graphEndpoint } from './api/endpoints';
+import { graphEndpoint, graphEndpointt } from './api/endpoints';
 import { FormThreshold, SingleMetricGraphType, ValueFormat } from './models';
 
 interface Props {
@@ -66,18 +66,29 @@ const Graph = ({
   const metricId = metrics[0]?.id;
   const metricName = metrics[0]?.name;
 
+  const getServiceId = ()=>{
+    const service = last(resources.find(({resourceType})=>equals(resourceType, 'service'))?.resources || [])
+
+    return metrics.find(({serviceName})=>equals(serviceName, service?.name))?.serviceId
+  }
+
+  const hostId = last(resources.find(({resourceType})=>!equals(resourceType, 'service'))?.resources || [])?.id
+
   const baseEndpoint = getWidgetEndpoint({
     dashboardId,
-    defaultEndpoint: graphEndpoint,
+    defaultEndpoint: graphEndpointt({hostId, serviceId:getServiceId(), metricName}),
     isOnPublicPage,
     playlistHash,
     widgetId: id
   });
 
+                
+
+
   const { graphData, isGraphLoading, isMetricsEmpty } = useGraphQuery({
     baseEndpoint,
     bypassMetricsExclusion: true,
-    bypassQueryParams: isOnPublicPage,
+    bypassQueryParams: true,
     metrics,
     prefix: widgetPrefixQuery,
     refreshCount,
@@ -87,6 +98,8 @@ const Graph = ({
 
   const displayAsRaw = equals('raw')(valueFormat);
 
+  console.log({graphData})
+  
   const formattedThresholds = useThresholds({
     data: graphData,
     displayAsRaw,
@@ -122,6 +135,10 @@ const Graph = ({
     displayAsRaw,
     thresholds: formattedThresholds
   };
+
+  console.log({filteredGraphData, graphData})
+
+  console.log({props})
 
   return (
     <ContentWithCircularLoading
