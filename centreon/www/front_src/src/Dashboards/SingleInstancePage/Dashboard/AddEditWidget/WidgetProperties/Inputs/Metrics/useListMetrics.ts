@@ -91,9 +91,18 @@ export const useListMetrics = ({
   const hasMultipleUnitsSelected = gt(length(unitsFromSelectedMetrics), 1);
 
   const metrics: Array<Metric> = pipe(
-    project(['metrics','id','name']),
+    project(['metrics', 'id', 'name']),
     uniqBy(({ name }) => name),
-    map(item=> map((metric)=>({...metric, serviceId:item?.id, serviceName: item?.name}),item?.metrics)),
+    map((item) =>
+      map(
+        (metric) => ({
+          ...metric,
+          serviceId: item?.id,
+          serviceName: item?.name
+        }),
+        item?.metrics
+      )
+    ),
     flatten
   )(servicesMetrics?.result || []);
 
