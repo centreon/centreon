@@ -55,6 +55,7 @@ runs:
           const JSON_TEMPLATE_FILE = "./.github/actions/create-jira-ticket/nightly-ticket-template.json";
           const date = dayjs().format('YYYY-MM-DD');
           const path = './ticket-payload.json';
+          const contents;
           let data, ticket_summary, ticket_squad_id, ticket_board_id, squad_name, ticket_labels, current_sprint, failed_steps, ticket_data, data_payload;
 
           let failed_jobs = execSync(
@@ -142,7 +143,9 @@ runs:
 
             // fs.writeFileSync(JSON_TEMPLATE_FILE, data, { encoding: 'utf8' });
 
-            fs.writeFileSync(path, ticket_data);
+            fs.writeFileSync(path, JSON.stringify(ticket_data));
+            contents = fs.readFileSync('./ticket-payload.json', 'utf8');
+            console.log("Ticket Payload:\n", contents);
             response = execSync(
               `curl --verbose --request POST --url "${{ inputs.jira_base_url }}/rest/api/3/issue" --user "${{ inputs.jira_user_email }}:${{ inputs.jira_api_token }}" --header 'Accept: application/json' --header 'Content-Type: application/json' --data @${path}`,
               { encoding: 'utf8' }
