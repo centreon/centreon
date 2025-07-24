@@ -234,6 +234,10 @@ jobs:
         env:
           runner: ubuntu-24.04
 
+      - name: Create configuration file
+        run: cp config/centreon.config.php.template config/centreon.config.php
+        working-directory: ${{ env.base_directory }}
+
       - name: Install Dependencies
         run: composer install --no-dev --optimize-autoloader --prefer-dist --no-interaction --no-progress --no-suggest
         working-directory: ${{ env.base_directory }}
@@ -457,14 +461,14 @@ jobs:
         working-directory: php-tools
         shell: bash
 
+      - name: Create configuration file
+        run: cp config/centreon.config.php.template config/centreon.config.php
+        working-directory: centreon
+
       - name: Install dependencies for centreon-web
         run: composer install --optimize-autoloader --prefer-dist --no-interaction --no-progress --no-suggest
         working-directory: centreon
         shell: bash
-
-      - name: Create configuration file
-        run: cp config/centreon.config.php.template config/centreon.config.php
-        working-directory: centreon
 
       - name: ⚙️ Check Symfony configuration
         run: composer symfony:check
