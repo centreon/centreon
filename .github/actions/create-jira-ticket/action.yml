@@ -142,7 +142,7 @@ runs:
 
             // fs.writeFileSync(JSON_TEMPLATE_FILE, data, { encoding: 'utf8' });
 
-            fs.writeFileSync(path, JSON.stringify(ticket_data));
+            fs.writeFileSync(path, ticket_data);
             response = execSync(
               `curl --verbose --request POST --url "${{ inputs.jira_base_url }}/rest/api/3/issue" --user "${{ inputs.jira_user_email }}:${{ inputs.jira_api_token }}" --header 'Accept: application/json' --header 'Content-Type: application/json' --data @${path}`,
               { encoding: 'utf8' }
