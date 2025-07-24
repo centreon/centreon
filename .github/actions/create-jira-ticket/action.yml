@@ -70,10 +70,9 @@ runs:
 
           for (const failed_job of failed_jobs) {
             ticket_labels = ["Pipeline", "${{ inputs.ticket_reason_for_creation }}" ]
-              console.log(`Failed job: ${failed_job}`);
+            console.log(`Failed job: ${failed_job}`);
             if (ticket_labels.includes("Nightly")) {
               ticket_summary = `${date} ${process.env.MODULE_NAME}-${process.env.REF_NAME} nightly build failure on ${failed_job}`
-              console.log(`Failed job: ${failed_job}`);
 
               data = fs.readFileSync(JSON_TEMPLATE_FILE, { encoding: 'utf8' });
               data = data.replace(/@MODULE_NAME@/g, process.env.MODULE_NAME);
@@ -112,20 +111,20 @@ runs:
 
             console.log(`Ticket summary: ${ticket_summary}`);
             console.log(`Ticket will be attributed to the ${squad_name} team. (Squad ID ${ticket_squad_id}, Board ID ${ticket_board_id})`)
-            console.log(`Ticket summary: ${ticket_summary}`);
+
             current_sprint = execSync(
               `curl --request GET --url ${{ inputs.jira_base_url }}/rest/agile/1.0/board/$ticket_board_id/sprint?state=active --user "${{ inputs.jira_user_email }}:${{ inputs.jira_api_token }}" --header "Accept: application/json" | jq --arg squad_name "$squad_name" '.values[] | select(.name | test($squad_name; "i")) | .id'`,
               { encoding: 'utf8' }
             );
 
-            console.log(current_sprint);
+            console.log(`Current sprint: ${current_sprint}`);
 
             failed_steps = execSync(
               `gh run view ${{ github.run_id }} --json jobs | jq -r --arg failed_job "$failed_job" '.jobs[] | select(.name == $failed_job) | .name'`,
               { encoding: 'utf8' }
             );
 
-            console.log(failed_steps);
+            console.log(`Failed steps: ${failed_steps}`);
           }
 
     #     CONTENT_TO_ADD_TO_TEMPLATE_FILE=$(jq -n --arg job "$failed_job_name" '{
