@@ -53,14 +53,16 @@ final class FindSingleMetricPresenter extends AbstractPresenter implements FindS
 
         $this->present([
             'metrics' => [
-                'id' => $response->id,
-                'name' => $response->name,
-                'unit' => $response->unit,
-                'current_value' => $response->currentValue,
-                'warning_high_threshold' => $response->warningHighThreshold,
-                'warning_low_threshold' => $response->warningLowThreshold,
-                'critical_high_threshold' => $response->criticalHighThreshold,
-                'critical_low_threshold' => $response->criticalLowThreshold,
+                [
+                    'id' => $response->id,
+                    'name' => $response->name,
+                    'unit' => $response->unit,
+                    'current_value' => $response->currentValue,
+                    'warning_high_threshold' => $response->warningHighThreshold,
+                    'warning_low_threshold' => $response->warningLowThreshold,
+                    'critical_high_threshold' => $response->criticalHighThreshold,
+                    'critical_low_threshold' => $response->criticalLowThreshold,
+                ]
             ],
         ]);
     }
