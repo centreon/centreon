@@ -92,7 +92,7 @@ runs:
               ticket_squad_id = 10524
               ticket_board_id = 184
               squad_name = "DEVSECOPS"
-            } else if (["frontend-web-build", "frontend-component-test", "e2e-test", "legacy-e2e-test", "newman-test"]).includes("${failed_job}")) {
+            } else if (["frontend-web-build", "frontend-component-test", "e2e-test", "legacy-e2e-test", "newman-test"].includes("${failed_job}")) {
               if (dayjs().isoWeek() % 4 >= 2) {
                 ticket_squad_id = 10625
                 ticket_board_id = 213
