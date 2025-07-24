@@ -105,7 +105,7 @@ class GeoCoords implements \Stringable
         }
 
         [$intPart, $decimalPart] = explode('.', $value, 2);
-        $decimalPart = substr($decimalPart, 0, self::MAX_DECIMALS);
+        $decimalPart = mb_substr($decimalPart, 0, self::MAX_DECIMALS);
 
         return $intPart . '.' . $decimalPart;
     }
