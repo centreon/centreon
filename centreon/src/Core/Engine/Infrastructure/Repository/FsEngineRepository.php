@@ -24,6 +24,8 @@ declare(strict_types=1);
 namespace Core\Engine\Infrastructure\Repository;
 
 use Core\Common\Domain\Exception\RepositoryException;
+use Core\Engine\Application\Exception\EngineSecretsBadFormatException;
+use Core\Engine\Application\Exception\EngineSecretsDoesNotExistException;
 use Core\Engine\Application\Repository\EngineRepositoryInterface;
 use Core\Engine\Domain\Model\EngineKey;
 use Core\Engine\Domain\Model\EngineSecrets;
@@ -54,15 +56,9 @@ final readonly class FsEngineRepository implements EngineRepositoryInterface
                 new EngineKey($engineContext['salt'])
             );
         } catch (IOException $ex) {
-            throw new RepositoryException(
-                'Unable to get content of engine-context file. check that file exists',
-                ['path' => $this->engineContextPath, 'exception' => $ex]
-            );
+            throw  new EngineSecretsDoesNotExistException(previous: $ex);
         } catch (\JsonException $ex) {
-            throw new RepositoryException(
-                'engine-context file exists but JSON content is not well formated',
-                ['path' => $this->engineContextPath, 'exception' => $ex]
-            );
+            throw  new EngineSecretsBadFormatException(previous: $ex);
         }
     }
 
