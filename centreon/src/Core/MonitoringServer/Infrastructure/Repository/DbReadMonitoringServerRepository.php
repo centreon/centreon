@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -331,17 +331,18 @@ class DbReadMonitoringServerRepository extends AbstractRepositoryRDB implements 
 
     public function findAll(): array
     {
-        $statement = $this->db->prepare($this->translateDbName(<<<SQL
-            SELECT
-                id,
-                name,
-                engine_start_command,
-                engine_stop_command,
-                engine_restart_command,
-                engine_reload_command,
-                broker_reload_command
-            FROM `:db`.`nagios_server`
-            SQL
+        $statement = $this->db->prepare($this->translateDbName(
+            <<<'SQL'
+                SELECT
+                    id,
+                    name,
+                    engine_start_command,
+                    engine_stop_command,
+                    engine_restart_command,
+                    engine_reload_command,
+                    broker_reload_command
+                FROM `:db`.`nagios_server`
+                SQL
         ));
         $statement->execute();
 
@@ -355,26 +356,28 @@ class DbReadMonitoringServerRepository extends AbstractRepositoryRDB implements 
 
     public function get(int $monitoringServerId): MonitoringServer
     {
-        $statement = $this->db->prepare($this->translateDbName(<<<SQL
-            SELECT
-                id,
-                name,
-                engine_start_command,
-                engine_stop_command,
-                engine_restart_command,
-                engine_reload_command,
-                broker_reload_command
-            FROM `:db`.`nagios_server`
-            WHERE id = :monitoringServerId
-            SQL
+        $statement = $this->db->prepare($this->translateDbName(
+            <<<'SQL'
+                SELECT
+                    id,
+                    name,
+                    engine_start_command,
+                    engine_stop_command,
+                    engine_restart_command,
+                    engine_reload_command,
+                    broker_reload_command
+                FROM `:db`.`nagios_server`
+                WHERE id = :monitoringServerId
+                SQL
         ));
         $statement->bindValue(':monitoringServerId', $monitoringServerId, \PDO::PARAM_INT);
         $statement->execute();
         /** @var MSResultSet|false */
         $data = $statement->fetch(\PDO::FETCH_ASSOC);
+
         return $data
             ? $this->createMonitoringServerFromArray($data)
-            : throw new EntityNotFoundException(sprintf("Monitoring Server [%d] does not exist", $monitoringServerId));
+            : throw new EntityNotFoundException(sprintf('Monitoring Server [%d] does not exist', $monitoringServerId));
     }
 
     /**

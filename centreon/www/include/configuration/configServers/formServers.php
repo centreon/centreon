@@ -1,34 +1,19 @@
 <?php
 
 /*
- * Copyright 2005-2021 Centreon
- * Centreon is developed by : Julien Mathis and Romain Le Merlus under
- * GPL Licence 2.0.
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation ; either version 2 of the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <http://www.gnu.org/licenses>.
- *
- * Linking this program statically or dynamically with other modules is making a
- * combined work based on this program. Thus, the terms and conditions of the GNU
- * General Public License cover the whole combination.
- *
- * As a special exception, the copyright holders of this program give Centreon
- * permission to link this program with independent modules to produce an executable,
- * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of Centreon choice, provided that
- * Centreon also meet, for each linked independent module, the terms  and conditions
- * of the license of that module. An independent module is a module which is not
- * derived from this program. If you modify this program, you may extend this
- * exception to your version of the program, but you are not obliged to do so. If you
- * do not wish to do so, delete this exception statement from your version.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * For more information : contact@centreon.com
  *
@@ -275,39 +260,39 @@ $form->addElement('text', 'snmp_trapd_path_conf', _('Directory of light database
 // Set Default Values
 if (isset($_GET['o']) && $_GET['o'] == SERVER_ADD) {
     $monitoring_engines = [
-        "nagios_bin" => "/usr/sbin/centengine",
-        "nagiostats_bin" => "/usr/sbin/centenginestats",
-        "engine_start_command" => MonitoringServer::DEFAULT_ENGINE_START_COMMAND,
-        "engine_stop_command" => MonitoringServer::DEFAULT_ENGINE_STOP_COMMAND,
-        "engine_restart_command" => MonitoringServer::DEFAULT_ENGINE_RESTART_COMMAND,
-        "engine_reload_command" => MonitoringServer::DEFAULT_ENGINE_RELOAD_COMMAND,
-        "nagios_perfdata" => "/var/log/centreon-engine/service-perfdata"
+        'nagios_bin' => '/usr/sbin/centengine',
+        'nagiostats_bin' => '/usr/sbin/centenginestats',
+        'engine_start_command' => MonitoringServer::DEFAULT_ENGINE_START_COMMAND,
+        'engine_stop_command' => MonitoringServer::DEFAULT_ENGINE_STOP_COMMAND,
+        'engine_restart_command' => MonitoringServer::DEFAULT_ENGINE_RESTART_COMMAND,
+        'engine_reload_command' => MonitoringServer::DEFAULT_ENGINE_RELOAD_COMMAND,
+        'nagios_perfdata' => '/var/log/centreon-engine/service-perfdata',
     ];
     $form->setDefaults(
         [
-            "name" => '',
-            "localhost" => '0',
-            "ns_ip_address" => "127.0.0.1",
-            "description" => "",
-            "nagios_bin" => $monitoring_engines["nagios_bin"],
-            "nagiostats_bin" => $monitoring_engines["nagiostats_bin"],
-            "engine_start_command" => $monitoring_engines["engine_start_command"],
-            "engine_stop_command" => $monitoring_engines["engine_stop_command"],
-            "engine_restart_command" => $monitoring_engines["engine_restart_command"],
-            "engine_reload_command" => $monitoring_engines["engine_reload_command"],
-            "ns_activate" => '1',
-            "is_default" => '0',
-            "ssh_port" => 22,
-            "gorgone_communication_type" => ZMQ,
-            "gorgone_port" => 5556,
-            "nagios_perfdata" => $monitoring_engines["nagios_perfdata"],
-            "broker_reload_command" => MonitoringServer::DEFAULT_BROKER_RELOAD_COMMAND,
-            "centreonbroker_cfg_path" => "/etc/centreon-broker",
-            "centreonbroker_module_path" => "/usr/share/centreon/lib/centreon-broker",
-            "centreonbroker_logs_path" => "/var/log/centreon-broker",
-            "init_script_centreontrapd" => "centreontrapd",
-            "snmp_trapd_path_conf" => "/etc/snmp/centreon_traps/",
-            "remote_server_use_as_proxy" => '1'
+            'name' => '',
+            'localhost' => '0',
+            'ns_ip_address' => '127.0.0.1',
+            'description' => '',
+            'nagios_bin' => $monitoring_engines['nagios_bin'],
+            'nagiostats_bin' => $monitoring_engines['nagiostats_bin'],
+            'engine_start_command' => $monitoring_engines['engine_start_command'],
+            'engine_stop_command' => $monitoring_engines['engine_stop_command'],
+            'engine_restart_command' => $monitoring_engines['engine_restart_command'],
+            'engine_reload_command' => $monitoring_engines['engine_reload_command'],
+            'ns_activate' => '1',
+            'is_default' => '0',
+            'ssh_port' => 22,
+            'gorgone_communication_type' => ZMQ,
+            'gorgone_port' => 5556,
+            'nagios_perfdata' => $monitoring_engines['nagios_perfdata'],
+            'broker_reload_command' => MonitoringServer::DEFAULT_BROKER_RELOAD_COMMAND,
+            'centreonbroker_cfg_path' => '/etc/centreon-broker',
+            'centreonbroker_module_path' => '/usr/share/centreon/lib/centreon-broker',
+            'centreonbroker_logs_path' => '/var/log/centreon-broker',
+            'init_script_centreontrapd' => 'centreontrapd',
+            'snmp_trapd_path_conf' => '/etc/snmp/centreon_traps/',
+            'remote_server_use_as_proxy' => '1',
         ]
     );
 } elseif (isset($cfg_server)) {
@@ -337,25 +322,25 @@ $form->registerRule('isValidStartCommandSyntax', 'callback', 'isValidStartComman
 $form->registerRule('isValidStopCommandSyntax', 'callback', 'isValidStopCommandSyntax');
 $form->registerRule('isValidRestartCommandSyntax', 'callback', 'isValidRestartCommandSyntax');
 $form->registerRule('isValidReloadCommandSyntax', 'callback', 'isValidReloadCommandSyntax');
-$form->addRule('engine_start_command', _("The command format is invalid"), "isValidStartCommandSyntax");
-$form->addRule('engine_stop_command', _("The command format is invalid"), "isValidStopCommandSyntax");
-$form->addRule('engine_restart_command', _("The command format is invalid"), "isValidRestartCommandSyntax");
-$form->addRule('engine_reload_command', _("The command format is invalid"), "isValidReloadCommandSyntax");
-$form->addRule('broker_reload_command', _("The command format is invalid"), "isValidReloadCommandSyntax");
+$form->addRule('engine_start_command', _('The command format is invalid'), 'isValidStartCommandSyntax');
+$form->addRule('engine_stop_command', _('The command format is invalid'), 'isValidStopCommandSyntax');
+$form->addRule('engine_restart_command', _('The command format is invalid'), 'isValidRestartCommandSyntax');
+$form->addRule('engine_reload_command', _('The command format is invalid'), 'isValidReloadCommandSyntax');
+$form->addRule('broker_reload_command', _('The command format is invalid'), 'isValidReloadCommandSyntax');
 
 $form->registerRule('isValidPath', 'callback', 'isValidPath');
-$form->addRule('nagios_bin', _("The path format is invalid"), "isValidPath");
-$form->addRule('nagiostats_bin', _("The path format is invalid"), "isValidPath");
-$form->addRule('nagios_perfdata', _("The path format is invalid"), "isValidPath");
-$form->addRule('centreonbroker_cfg_path', _("The path format is invalid"), "isValidPath");
-$form->addRule('centreonbroker_module_path', _("The path format is invalid"), "isValidPath");
-$form->addRule('centreonbroker_logs_path', _("The path format is invalid"), "isValidPath");
-$form->addRule('snmp_trapd_path_conf', _("The path format is invalid"), "isValidPath");
+$form->addRule('nagios_bin', _('The path format is invalid'), 'isValidPath');
+$form->addRule('nagiostats_bin', _('The path format is invalid'), 'isValidPath');
+$form->addRule('nagios_perfdata', _('The path format is invalid'), 'isValidPath');
+$form->addRule('centreonbroker_cfg_path', _('The path format is invalid'), 'isValidPath');
+$form->addRule('centreonbroker_module_path', _('The path format is invalid'), 'isValidPath');
+$form->addRule('centreonbroker_logs_path', _('The path format is invalid'), 'isValidPath');
+$form->addRule('snmp_trapd_path_conf', _('The path format is invalid'), 'isValidPath');
 
 $form->registerRule('isValidTrapInit', 'callback', 'isValidTrapInit');
-$form->addRule('init_script_centreontrapd', _("The script path is invalid"), 'isValidTrapInit');
+$form->addRule('init_script_centreontrapd', _('The script path is invalid'), 'isValidTrapInit');
 
-$form->setRequiredNote("<font style='color: red;'>*</font>&nbsp;" . _("Required fields"));
+$form->setRequiredNote("<font style='color: red;'>*</font>&nbsp;" . _('Required fields'));
 
 // Smarty template initialization
 $tpl = SmartyBC::createSmartyTemplate($path);
