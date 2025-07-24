@@ -124,7 +124,7 @@ jobs:
         working-directory: ${{ inputs.module_name }}
 
       - name: Install dependencies
-        run: --optimize-autoloader --prefer-dist --no-interaction --no-progress --no-suggest
+        run: composer install --optimize-autoloader
         working-directory: ${{ inputs.module_name }}
 
       - name: Restore standard slim image from cache
