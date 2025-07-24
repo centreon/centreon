@@ -28,8 +28,6 @@ use Centreon\Domain\RequestParameters\RequestParameters;
 use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
-use Core\Common\Domain\Exception\RepositoryException;
-use Core\Common\Infrastructure\Repository\SqlMultipleBindTrait;
 use Core\Tag\RealTime\Application\Repository\ReadTagRepositoryInterface;
 use Core\Tag\RealTime\Domain\Model\Tag;
 use Utility\SqlConcatenator;
@@ -44,7 +42,6 @@ use Utility\SqlConcatenator;
 class DbReadTagRepository extends AbstractRepositoryDRB implements ReadTagRepositoryInterface
 {
     use LoggerTrait;
-    use SqlMultipleBindTrait;
 
     /** @var SqlRequestParametersTranslator */
     private SqlRequestParametersTranslator $sqlRequestTranslator;
