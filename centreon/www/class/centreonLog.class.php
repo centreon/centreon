@@ -33,6 +33,7 @@
  *
  */
 
+use Core\Common\Infrastructure\ExceptionLogger\ExceptionLogFormatter;
 use Psr\Log\LogLevel;
 
 /**
@@ -50,7 +51,7 @@ class CentreonUserLog
     /** @var CentreonUserLog */
     private static $instance;
     /** @var array */
-    private $errorType;
+    private $errorType = [];
     /** @var int */
     private $uid;
     /** @var string */
@@ -61,11 +62,12 @@ class CentreonUserLog
      *
      * @param int $uid
      * @param CentreonDB $pearDB
+     *
+     * @throws PDOException
      */
     public function __construct($uid, $pearDB)
     {
         $this->uid = $uid;
-        $this->errorType = array();
 
         // Get Log directory path
         $DBRESULT = $pearDB->query("SELECT * FROM `options` WHERE `key` = 'debug_path'");
@@ -388,26 +390,27 @@ class CentreonLog
 
             // Add default context with back trace and request infos
             $defaultContext = [
-                'back_trace' => $this->getBackTrace(),
                 'request_infos' => [
-                    'url' => $_SERVER['REQUEST_URI'] ?? null,
+                    'uri' => isset($_SERVER['REQUEST_URI']) ? urldecode($_SERVER['REQUEST_URI']) : null,
                     'http_method' => $_SERVER['REQUEST_METHOD'] ?? null,
                     'server' => $_SERVER['SERVER_NAME'] ?? null,
-                    'referrer' => $_SERVER['HTTP_REFERER'] ?? null
                 ]
             ];
 
             // Add exception context with previous exception if exists
             if (! is_null($exception)) {
-                $exceptionContext = $this->getExceptionInfos($exception);
+                $exceptionLogContext = ExceptionLogFormatter::format($customContext, $exception);
+                $exceptionContext = $exceptionLogContext['exception'] ?? null;
+                if (array_key_exists('exception', $exceptionLogContext)) {
+                    unset($exceptionLogContext['exception']);
+                }
+                $customContext = $exceptionLogContext;
             }
 
             $context = [
-                'context' => [
-                    'default' => $defaultContext,
-                    'exception' => ! empty($exceptionContext) ? $exceptionContext : null,
-                    'custom' => ! empty($customContext) ? $customContext : null,
-                ]
+                'custom' => $customContext !== [] ? $customContext : null,
+                'exception' => $exceptionContext !== [] ? $exceptionContext : null,
+                'default' => $defaultContext,
             ];
 
             return json_encode(
@@ -420,84 +423,6 @@ class CentreonLog
                 $e->getMessage()
             );
         }
-    }
-
-    /**
-     * @param Throwable $exception
-     * @return array
-     */
-    private function getExceptionInfos(Throwable $exception): array
-    {
-        $exceptionInfos = [
-            'exception_type' => get_class($exception),
-            'file' => $exception->getFile(),
-            'line' => $exception->getLine(),
-            'code' => $exception->getCode(),
-            'message' => $exception->getMessage(),
-            'previous' => null
-        ];
-        $additonalOptions = $this->getExceptionOptions($exception);
-        if (! empty($additonalOptions)) {
-            $exceptionInfos['options'] = $additonalOptions;
-        }
-        if ($exception->getPrevious() !== null) {
-            $previousException = $exception->getPrevious();
-            $exceptionInfos['previous'] = [
-                'exception_type' => $previousException::class,
-                'file' => $previousException->getFile(),
-                'line' => $previousException->getLine(),
-                'code' => $previousException->getCode(),
-                'message' => $previousException->getMessage()
-            ];
-        }
-        return $exceptionInfos;
-    }
-
-    /**
-     * @param Throwable $exception
-     * @return array
-     */
-    private function getExceptionOptions(Throwable $exception): array
-    {
-        return (method_exists($exception, 'getOptions') && is_array($exception->getOptions())) ?
-            $exception->getOptions() : [];
-    }
-
-    /**
-     * @return array|null
-     */
-    private function getBackTrace(): ?array
-    {
-        $excludeFunctions = ['log', 'debug', 'info', 'warning', 'error', 'critical', 'alert', 'emergency', 'insertLog'];
-        $backTrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 5);
-        if (empty($backTrace)) {
-            return null;
-        }
-        // get the last trace excluding the centreonlog trace
-        $lastTraceCleaned = array_values(
-            array_filter(
-                $backTrace,
-                fn(array $trace): bool => isset($trace['file']) && ! str_contains(
-                        $trace['file'],
-                        'centreonLog.class.php'
-                    )
-            )
-        );
-
-        if (empty($lastTraceCleaned)) {
-            return null;
-        }
-
-        return [
-            'file' => $lastTraceCleaned[0]['file'] ?? null,
-            'line' => $lastTraceCleaned[0]['line'] ?? null,
-            'class' => (isset($lastTraceCleaned[0]['class']) && $lastTraceCleaned[0]['class'] !== 'CentreonLog') ? $lastTraceCleaned[0]['class'] : null,
-            'function' => (isset($trace[0]['function']) && ! in_array(
-                    $lastTraceCleaned[0]['function'],
-                    $excludeFunctions,
-                    true
-                )) ? $lastTraceCleaned[0]['function'] : null
-        ];
     }
 
     //*********************************************** DEPRECATED *****************************************************//

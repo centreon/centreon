@@ -50,9 +50,11 @@ if (($o == "c" || $o == "w") && $contact_id) {
     $cct["contact_svNotifCmds"] = array();
     $cct["contact_cgNotif"] = array();
 
-    $DBRESULT = $pearDB->query("SELECT * FROM contact WHERE contact_id = '" . $contact_id . "' LIMIT 1");
-    $cct = array_map("myDecode", $DBRESULT->fetchRow());
-    $DBRESULT->closeCursor();
+    $statement = $pearDB->prepare("SELECT * FROM contact WHERE contact_id = :contactId LIMIT 1");
+    $statement->bindValue(':contactId', $contact_id, \PDO::PARAM_INT);
+    $statement->execute();
+    $cct = array_map("myDecode", $statement->fetchRow());
+    $statement->closeCursor();
 
     /**
      * Set Host Notification Options
@@ -69,29 +71,36 @@ if (($o == "c" || $o == "w") && $contact_id) {
     foreach ($tmp as $key => $value) {
         $cct["contact_svNotifOpts"][trim($value)] = 1;
     }
-    $DBRESULT->closeCursor();
 
     /**
      * Set Host Notification Commands
      */
-    $query = "SELECT DISTINCT command_command_id FROM contact_hostcommands_relation " .
-        "WHERE contact_contact_id = '" . $contact_id . "'";
-    $DBRESULT = $pearDB->query($query);
-    for ($i = 0; $notifCmd = $DBRESULT->fetchRow(); $i++) {
+    $statement = $pearDB->prepare(<<<SQL
+        SELECT DISTINCT command_command_id FROM contact_hostcommands_relation
+        WHERE contact_contact_id = :contactId
+        SQL
+    );
+    $statement->bindValue(':contactId', $contact_id, \PDO::PARAM_INT);
+    $statement->execute();
+    for ($i = 0; $notifCmd = $statement->fetchRow(); $i++) {
         $cct["contact_hostNotifCmds"][$i] = $notifCmd["command_command_id"];
     }
-    $DBRESULT->closeCursor();
+    $statement->closeCursor();
 
     /**
      * Set Service Notification Commands
      */
-    $query = "SELECT DISTINCT command_command_id FROM contact_servicecommands_relation " .
-        "WHERE contact_contact_id = '" . $contact_id . "'";
-    $DBRESULT = $pearDB->query($query);
-    for ($i = 0; $notifCmd = $DBRESULT->fetchRow(); $i++) {
+    $statement = $pearDB->prepare(<<<SQL
+        SELECT DISTINCT command_command_id FROM contact_servicecommands_relation
+        WHERE contact_contact_id = :contactId
+        SQL
+    );
+    $statement->bindValue(':contactId', $contact_id, \PDO::PARAM_INT);
+    $statement->execute();
+    for ($i = 0; $notifCmd = $statement->fetchRow(); $i++) {
         $cct["contact_svNotifCmds"][$i] = $notifCmd["command_command_id"];
     }
-    $DBRESULT->closeCursor();
+    $statement->closeCursor();
 }
 
 /**
@@ -128,20 +137,23 @@ $DBRESULT->closeCursor();
 /**
  * Contacts Templates
  */
-if (isset($contact_id)) {
-    $strRestrinction = " AND contact_id != '" . $contact_id . "'";
-} else {
-    $strRestrinction = "";
-}
+$strRestrinction = isset($contact_id) ? " AND contact_id != :contactId " : "";
 
-$contactTpl = array(null => "");
-$query = "SELECT contact_id, contact_name FROM contact " .
-    "WHERE contact_register = '0' $strRestrinction ORDER BY contact_name";
-$DBRESULT = $pearDB->query($query);
-while ($contacts = $DBRESULT->fetchRow()) {
+$contactTpl = [null => ""];
+$statement = $pearDB->prepare(<<<SQL
+    SELECT contact_id, contact_name FROM contact
+    WHERE contact_register = '0' $strRestrinction ORDER BY contact_name
+    SQL
+);
+if (! empty($strRestrinction)) {
+    $statement->bindValue(':contactId', $contact_id, \PDO::PARAM_INT);
+}
+$statement->execute();
+
+while ($contacts = $statement->fetchRow()) {
     $contactTpl[$contacts["contact_id"]] = $contacts["contact_name"];
 }
-$DBRESULT->closeCursor();
+$statement->closeCursor();
 
 /**
  * Template / Style for Quickform input
@@ -569,10 +581,9 @@ $redirect = $form->addElement('hidden', 'o');
 $redirect->setValue($o);
 
 if (is_array($select)) {
-    $select_str = null;
-    foreach ($select as $key => $value) {
-        $select_str .= $key . ",";
-    }
+    $select_str = ! empty($select)
+        ? implode(",", array_keys($select))
+        : null;
     $select_pear = $form->addElement('hidden', 'select');
     $select_pear->setValue($select_str);
 }
@@ -685,10 +696,11 @@ if ($form->validate() && $from_list_menu == false) {
 
         $eventDispatcher->notify($eventContext, EventDispatcher::EVENT_UPDATE, $eventData);
     } elseif ($form->getSubmitValue("submitMC")) {
-        $select = explode(",", $select);
-
+        if (! is_array($select)) {
+            $select = explode(",", $select);
+        }
         foreach ($select as $key => $value) {
-            if (!$value) {
+            if ($value) {
                 updateContactInDB($value, true);
 
                 $eventDispatcher->notify($eventContext, EventDispatcher::EVENT_UPDATE, $eventData);

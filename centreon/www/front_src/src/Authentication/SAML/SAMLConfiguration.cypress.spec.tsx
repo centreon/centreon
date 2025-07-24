@@ -1,7 +1,8 @@
 import { replace } from 'ramda';
 
-import { TestQueryProvider, Method } from '@centreon/ui';
+import { Method, TestQueryProvider } from '@centreon/ui';
 
+import { labelSave } from '../Local/translatedLabels';
 import {
   accessGroupsEndpoint,
   authenticationProvidersEndpoint,
@@ -32,8 +33,8 @@ import {
   labelGroupsMapping,
   labelIdentityProvider
 } from '../translatedLabels';
-import { labelSave } from '../Local/translatedLabels';
 
+import { retrievedSAMLConfiguration } from './defaults';
 import {
   labelBothIdentityProviderAndCentreonUI,
   labelCentreonUIOnly,
@@ -45,11 +46,11 @@ import {
   labelFullNameAttribute,
   labelLogoutUrl,
   labelRemoteLoginUrl,
+  labelRequestedAuthnContext,
   labelRequired,
   labelSAMLOnly,
   labelUserIdAttribute
 } from './translatedLabels';
-import { retrievedSAMLConfiguration } from './defaults';
 
 import SAMLConfigurationForm from '.';
 
@@ -143,6 +144,7 @@ describe('SAMLConfiguration', () => {
       'have.value',
       retrievedSAMLConfiguration.user_id_attribute
     );
+    cy.findByTestId(labelRequestedAuthnContext).should('have.value', 'minimum');
     cy.findByLabelText(labelCentreonUIOnly).should('not.be.checked');
     cy.findByLabelText(labelBothIdentityProviderAndCentreonUI).should(
       'be.checked'
@@ -323,7 +325,8 @@ describe('SAMLConfiguration', () => {
 
     cy.moveSortableElement({
       direction: 'up',
-      element: cy.findAllByTestId('UnfoldMoreIcon').eq(1).parent()
+      element: cy.findAllByTestId('UnfoldMoreIcon').eq(1).parent(),
+      times: 2
     });
 
     cy.findAllByLabelText(labelRoleValue).eq(0).should('have.value', 'A role');

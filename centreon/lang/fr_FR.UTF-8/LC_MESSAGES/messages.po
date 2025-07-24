@@ -18502,3 +18502,18 @@ msgstr "Vous n'êtes pas autorisé à lister les modèles de contact"
 
 msgid "Downloading the performance metrics is not allowed"
 msgstr "Le téléchargement des métriques de performance n'est pas autorisé"
+
+msgid "Requested authentication context"
+msgstr "Contexte d'authentification requis"
+
+msgid "Minimum"
+msgstr "Minimum"
+
+msgid "Exact"
+msgstr "Exact"
+
+msgid "Better"
+msgstr "Renforcé"
+
+msgid "Maximum"
+msgstr "Maximum"

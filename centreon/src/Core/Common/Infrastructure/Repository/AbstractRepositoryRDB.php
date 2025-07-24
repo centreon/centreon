@@ -23,14 +23,23 @@ declare(strict_types=1);
 
 namespace Core\Common\Infrastructure\Repository;
 
+use Adaptation\Database\Connection\ConnectionInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Infrastructure\DatabaseConnection;
 
+/**
+ * Class.
+ *
+ * @class AbstractRepositoryRDB
+ *
+ * @deprecated use {@see DatabaseRepository} instead
+ */
 class AbstractRepositoryRDB
 {
     use LoggerTrait;
 
-    protected DatabaseConnection $db;
+    /** @var DatabaseConnection */
+    protected ConnectionInterface $db;
 
     /**
      * Replace all instances of :dbstg and :db by the real db names.
@@ -45,8 +54,24 @@ class AbstractRepositoryRDB
     {
         return str_replace(
             [':dbstg', ':db'],
-            [$this->db->getStorageDbName(), $this->db->getCentreonDbName()],
+            [$this->getDbNameRealTime(), $this->getDbNameConfiguration()],
             $request
         );
+    }
+
+    /**
+     * @return string
+     */
+    protected function getDbNameConfiguration(): string
+    {
+        return $this->db->getConnectionConfig()->getDatabaseNameConfiguration();
+    }
+
+    /**
+     * @return string
+     */
+    protected function getDbNameRealTime(): string
+    {
+        return $this->db->getConnectionConfig()->getDatabaseNameRealTime();
     }
 }

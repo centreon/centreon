@@ -62,6 +62,7 @@ class GroupsMapping implements SecurityAccessInterface
      * @param array<string,mixed> $identityProviderData
      *
      * @throws AuthenticationConditionsException
+     * @throws ConfigurationException
      */
     public function validate(Configuration $configuration, array $identityProviderData): void
     {
@@ -85,7 +86,7 @@ class GroupsMapping implements SecurityAccessInterface
         }
 
         $this->loginLogger->info($this->scope, 'Configured groups mapping attribute path found', $groupsAttributePath);
-        $this->info('Configured groups mapping attribute path found', $groupsAttributePath);
+        $this->info('Configured groups mapping attribute path found', ['groupAttributePath' => $groupsAttributePath]);
 
         $groupRelationContextDebug = array_map(
             function (ContactGroupRelation $contactGroupRelation) {
