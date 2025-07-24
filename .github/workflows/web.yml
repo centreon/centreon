@@ -235,7 +235,7 @@ jobs:
           runner: ubuntu-24.04
 
       - name: Install Dependencies
-        run: composer install --no-dev --optimize-autoloader --prefer-dist --no-interaction --no-progress --quiet --no-suggest
+        run: composer install --no-dev --optimize-autoloader --prefer-dist --no-interaction --no-progress --no-suggest
         working-directory: ${{ env.base_directory }}
         shell: bash
 
@@ -458,7 +458,7 @@ jobs:
         shell: bash
 
       - name: Install dependencies for centreon-web
-        run: composer install --optimize-autoloader --prefer-dist --no-interaction --no-progress --quiet --no-suggest
+        run: composer install --optimize-autoloader --prefer-dist --no-interaction --no-progress --no-suggest
         working-directory: centreon
         shell: bash
 

@@ -89,7 +89,7 @@ jobs:
         shell: bash
 
       - name: Install dependencies for centreon-dsm
-        run: composer install --optimize-autoloader --prefer-dist --no-interaction --no-progress --quiet --no-suggest
+        run: composer install --optimize-autoloader --prefer-dist --no-interaction --no-progress --no-suggest
         working-directory: centreon-dsm
         shell: bash
 
