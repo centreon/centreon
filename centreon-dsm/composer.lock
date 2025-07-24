@@ -1555,7 +1555,7 @@
             "dist": {
                 "type": "path",
                 "url": "../centreon",
-                "reference": "be71a9e4ce056b25a04ea53cce46232490d89eee"
+                "reference": "36f6f9022f84cc2543ab31e2d09962e828d58c8c"
             },
             "require": {
                 "amphp/http-client": "4.6.*",
@@ -1599,7 +1599,7 @@
                 "php": "8.2.*",
                 "phpdocumentor/reflection-docblock": "5.4.*",
                 "pimple/pimple": "3.5.*",
-                "psr/container": "1.1.*",
+                "psr/container": "2.0.*",
                 "smarty-gettext/smarty-gettext": "1.7.*",
                 "smarty/smarty": "4.5.*",
                 "symfony/asset": "7.3.*",
@@ -6453,22 +6453,27 @@
         },
         {
             "name": "psr/container",
-            "version": "1.1.2",
+            "version": "2.0.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/php-fig/container.git",
-                "reference": "513e0666f7216c7459170d56df27dfcefe1689ea"
+                "reference": "c71ecc56dfe541dbd90c5360474fbc405f8d5963"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-fig/container/zipball/513e0666f7216c7459170d56df27dfcefe1689ea",
-                "reference": "513e0666f7216c7459170d56df27dfcefe1689ea",
+                "url": "https://api.github.com/repos/php-fig/container/zipball/c71ecc56dfe541dbd90c5360474fbc405f8d5963",
+                "reference": "c71ecc56dfe541dbd90c5360474fbc405f8d5963",
                 "shasum": ""
             },
             "require": {
                 "php": ">=7.4.0"
             },
             "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "2.0.x-dev"
+                }
+            },
             "autoload": {
                 "psr-4": {
                     "Psr\\Container\\": "src/"
@@ -6495,9 +6500,9 @@
             ],
             "support": {
                 "issues": "https://github.com/php-fig/container/issues",
-                "source": "https://github.com/php-fig/container/tree/1.1.2"
+                "source": "https://github.com/php-fig/container/tree/2.0.2"
             },
-            "time": "2021-11-05T16:50:12+00:00"
+            "time": "2021-11-05T16:47:00+00:00"
         },
         {
             "name": "psr/event-dispatcher",
