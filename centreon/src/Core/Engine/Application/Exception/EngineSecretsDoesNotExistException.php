@@ -21,25 +21,15 @@
 
 declare(strict_types=1);
 
-namespace Core\Engine\Application\UseCase\GetEngineSecrets;
+namespace Core\Engine\Application\Exception;
 
-use Centreon\Domain\Common\Assertion\AssertionException;
-use Core\Common\Domain\Exception\RepositoryException;
-use Core\Engine\Application\Repository\EngineRepositoryInterface;
-use Core\Engine\Domain\Model\EngineSecrets;
-
-final readonly class GetEngineSecrets
+final class EngineSecretsDoesNotExistException extends \InvalidArgumentException
 {
-    public function __construct(private EngineRepositoryInterface $engineRepository)
-    {
-    }
-
-    /**
-     * @throws EngineSecretsDoesNotExistsException|EngineSecretsBadFormatException |AssertionException
-     * @return EngineSecrets
-     */
-    public function __invoke(): EngineSecrets
-    {
-        return $this->engineRepository->getEngineSecrets();
+    public function __construct(
+        string $message = 'Engine secrets do not exist.',
+        int $code = 0,
+        \Throwable|null $previous = null
+    ) {
+        parent::__construct($message, $code, $previous);
     }
 }

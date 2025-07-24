@@ -26,12 +26,12 @@ namespace Core\Engine\Infrastructure\API\GetEngineSecrets;
 use Centreon\Application\Controller\AbstractController;
 use Centreon\Domain\Common\Assertion\AssertionException;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
-use Centreon\Domain\Log\LoggerTrait;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
+use Core\Common\Infrastructure\ExceptionLogger\ExceptionLogger;
 use Core\Engine\Application\Exception\EngineSecretsBadFormatException;
-use Core\Engine\Application\Exception\EngineSecretsDoesNotExistsException;
-use Core\Engine\Application\UseCase\GetEngineSecrets\GetEngineSecrets;
+use Core\Engine\Application\Exception\EngineSecretsDoesNotExistException;
+use Core\Engine\Application\Repository\EngineRepositoryInterface;
 use Symfony\Component\ExpressionLanguage\Expression;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
@@ -42,10 +42,10 @@ use Symfony\Component\Serializer\SerializerInterface;
 
 final class GetEngineSecretsController extends AbstractController
 {
-    use LoggerTrait;
-
-    public function __construct(private readonly SerializerInterface $serializer)
-    {
+    public function __construct(
+        private readonly SerializerInterface $serializer,
+        private readonly EngineRepositoryInterface $engineRepository
+    ) {
     }
 
     #[Route(path: '/administration/engine/secrets', name: 'GetEngineSecrets', methods: ['GET'])]
@@ -55,24 +55,24 @@ final class GetEngineSecretsController extends AbstractController
         message:'You must be an admin to access engine secrets',
         statusCode: Response::HTTP_FORBIDDEN
     )]
-    public function __invoke(GetEngineSecrets $useCase, #[CurrentUser] ContactInterface $currentUser): Response
+    public function __invoke(#[CurrentUser] ContactInterface $currentUser): Response
     {
         try {
-            $engineSecrets = $useCase();
+            $engineSecrets = $this->engineRepository->getEngineSecrets();
 
             return JsonResponse::fromJsonString(
                 $this->serializer->serialize($engineSecrets, 'json')
             );
-        } catch (EngineSecretsDoesNotExistsException|EngineSecretsBadFormatException $ex) {
-            $this->error($ex->getMessage(), ['exception' => $ex]);
+        } catch (EngineSecretsDoesNotExistException|EngineSecretsBadFormatException $ex) {
+            ExceptionLogger::create()->log($ex);
 
             return $this->createResponse(new ErrorResponse($ex->getMessage()));
         } catch (AssertionException $ex) {
-            $this->error($ex->getMessage(), ['exception' => $ex]);
+            ExceptionLogger::create()->log($ex);
 
             return $this->createResponse(new InvalidArgumentResponse($ex->getMessage()));
         } catch (\Throwable $ex) {
-            $this->error($ex->getMessage(), ['exception' => $ex]);
+            ExceptionLogger::create()->log($ex);
 
             return $this->createResponse(new ErrorResponse('Unable to retrieve engine secrets'));
         }
