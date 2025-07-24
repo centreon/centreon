@@ -133,7 +133,7 @@ runs:
                   "issuetype": {"id": "10209"},
                   "parent": {"id": parent_epic_id, "key": parent_epic_key},
                   "labels": ticket_labels,
-                  "components":[{"name": ${{ inputs.module_name }} }],
+                  "components": [{"name": "${{ inputs.module_name }}"}],
                   "customfield_10902": {"id": ticket_squad_id, "value": squad_name},
                   "description": data
                 }
