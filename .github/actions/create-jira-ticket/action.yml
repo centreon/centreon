@@ -81,6 +81,7 @@ runs:
               data = data.replace(/@GITHUB_REPOSITORY@/g, '${{ github.repository }}');
               data = data.replace(/@GITHUB_RUN_ID@/g, '${{ github.run_id }}');
               data = data.replace(/@GITHUB_RUN_ATTEMPT@/g, '${{ github.run_attempt }}');
+              data = data.replace(/@FAILED_JOB@/g, failed_job);
             } else {
               throw new Error(`❌ Could not find any labelling option for the ticket.`);
             }
@@ -106,6 +107,7 @@ runs:
             }
           }
 
+          console.log(`Ticket summary: ${ticket_summary}`);
           console.log(`Ticket will be attributed to the ${squad_name} team. (Squad ID ${ticket_squad_id}, Board ID ${ticket_board_id})`)
 
 
