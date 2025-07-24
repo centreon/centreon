@@ -139,7 +139,7 @@ runs:
                 }
               }
 
-            console.log(`Ticket data: ${ticket_data});
+            console.log(`Ticket data: ${ticket_data}`);
             // fs.writeFileSync(JSON_TEMPLATE_FILE, data, { encoding: 'utf8' });
 
             response = execSync(
