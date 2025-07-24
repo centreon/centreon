@@ -49,8 +49,6 @@ runs:
           const dayjs = require('dayjs');
           const isoWeek = require('dayjs/plugin/isoWeek');
           dayjs.extend(isoWeek);
-          const isoWeek = require('dayjs/plugin/isoWeek');
-          dayjs.extend(isoWeek);
 
           const parent_epic_id = 206242
           const parent_epic_key = "MON-151547"
@@ -115,7 +113,7 @@ runs:
             );
 
             failed_steps = execSync(
-              `gh run view ${{ github.run_id }} --json jobs | jq -r --arg failed_job "$failed_job" '.jobs[] | select(.name == $failed_job) | .name'`
+              `gh run view ${{ github.run_id }} --json jobs | jq -r --arg failed_job "$failed_job" '.jobs[] | select(.name == $failed_job) | .name'`,
               { encoding: 'utf8' }
             );
 
