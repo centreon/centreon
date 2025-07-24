@@ -147,7 +147,7 @@ runs:
               { encoding: 'utf8' }
             );
 
-            console.log(`Response: ${response});
+            console.log(`Response: ${response}`);
           }
 
 
