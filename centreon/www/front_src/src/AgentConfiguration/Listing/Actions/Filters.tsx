@@ -8,10 +8,10 @@ import { Tune } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
 import { getPollersEndpoint } from '../../api/endpoints';
 import {
-  labelAgentTypes,
+  labelAgentType,
   labelClear,
   labelFilters,
-  labelPollers
+  labelPoller
 } from '../../translatedLabels';
 import { useActionsStyles } from './Actions.styles';
 import { agentTypeOptions, useFilters } from './useFilters';
@@ -30,7 +30,7 @@ const Filters = (): JSX.Element => {
           options={agentTypeOptions}
           value={agentTypes}
           onChange={changeEntries('agentTypes')}
-          label={t(labelAgentTypes)}
+          label={t(labelAgentType)}
           chipProps={{
             onDelete: deleteEntry('agentTypes')
           }}
@@ -39,9 +39,9 @@ const Filters = (): JSX.Element => {
           chipProps={{
             onDelete: deleteEntry('pollers')
           }}
-          dataTestId={labelPollers}
+          dataTestId={labelPoller}
           getEndpoint={getPollersEndpoint}
-          label={t(labelPollers)}
+          label={t(labelPoller)}
           value={pollers}
           field="name"
           onChange={changeEntries('pollers')}
