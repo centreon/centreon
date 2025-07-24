@@ -143,11 +143,20 @@
     },
     "allow-plugins": {
       "pestphp/pest-plugin": false,
-      "symfony/flex": false,
+      "symfony/flex": true,
       "symfony/runtime": true
     }
   },
   "scripts": {
+    "auto-scripts": {
+      "cache:clear": "symfony-cmd"
+    },
+    "post-install-cmd": [
+      "@auto-scripts"
+    ],
+    "post-update-cmd": [
+      "@auto-scripts"
+    ],
     "require:check": "../php-tools/vendor/bin/composer-require-checker check composer.json",
     "symfony:check": "php bin/console lint:yaml config src --parse-tags && php bin/console lint:container",
     "rector:legacy": "../php-tools/vendor/bin/rector process --config=rector.legacy.php --dry-run",
@@ -243,11 +252,15 @@
       "@test"
     ]
   },
+  "conflict": {
+    "symfony/symfony": "*"
+  },
   "extra": {
     "symfony": {
       "allow-contrib": true,
       "require": "7.3.*",
-      "public-dir": "www"
+      "public-dir": "www",
+      "docker": false
     }
   }
 }

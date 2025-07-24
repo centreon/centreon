@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "6ef9e23536748cdec4a15ee0eea58dea",
+    "content-hash": "fddf6818a5abd92951fca871e1e7dd34",
     "packages": [
         {
             "name": "amphp/amp",
@@ -942,16 +942,16 @@
         },
         {
             "name": "api-platform/core",
-            "version": "v4.1.18",
+            "version": "v4.1.19",
             "source": {
                 "type": "git",
                 "url": "https://github.com/api-platform/core.git",
-                "reference": "fe921cda3edd0c2efa0c75446dea56a3fb69000d"
+                "reference": "1dcc0da1bc56f2161ecfa863f7820e332a622d37"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/api-platform/core/zipball/fe921cda3edd0c2efa0c75446dea56a3fb69000d",
-                "reference": "fe921cda3edd0c2efa0c75446dea56a3fb69000d",
+                "url": "https://api.github.com/repos/api-platform/core/zipball/1dcc0da1bc56f2161ecfa863f7820e332a622d37",
+                "reference": "1dcc0da1bc56f2161ecfa863f7820e332a622d37",
                 "shasum": ""
             },
             "require": {
@@ -967,6 +967,7 @@
                 "symfony/serializer": "^6.4 || ^7.0",
                 "symfony/translation-contracts": "^3.3",
                 "symfony/type-info": "^7.2",
+                "symfony/validator": "^6.4 || ^7.1",
                 "symfony/web-link": "^6.4 || ^7.1",
                 "willdurand/negotiation": "^3.1"
             },
@@ -1152,9 +1153,9 @@
             ],
             "support": {
                 "issues": "https://github.com/api-platform/core/issues",
-                "source": "https://github.com/api-platform/core/tree/v4.1.18"
+                "source": "https://github.com/api-platform/core/tree/v4.1.19"
             },
-            "time": "2025-07-03T13:10:08+00:00"
+            "time": "2025-07-18T11:49:35+00:00"
         },
         {
             "name": "beberlei/assert",
