@@ -188,7 +188,14 @@ When('the user creates a {string} command', (type: string) => {
   cy.waitForElementInIframe('#main-content', 'input[name="searchC"]');
   // Click on the "ADD" button
   cy.getIframeBody().contains('a', '+ ADD').click();
-  cy.addCommands(commandData);
+  cy.addCommands({
+    ...commandData,
+    commandLine: commandData.command_line,
+    isShell: commandData.is_shell,
+    argumentExample: commandData.argument_example,
+    connectorId: commandData.connector_id,
+    graphTemplateId: commandData.graph_template_id
+  });
   // Click on the first "Save" button
   cy.getIframeBody()
     .find('input[class="btc bt_success"][name^="submit"]')
