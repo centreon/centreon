@@ -53,7 +53,7 @@ runs:
           const JSON_TEMPLATE_FILE = "./.github/actions/create-jira-ticket/nightly-ticket-template.json";
           const date = dayjs().format('YYYY-MM-DD');
 
-          let data, ticket_summary, ticket_squad_id, ticket_board_id, squad_name;
+          let data, ticket_summary, ticket_squad_id, ticket_board_id, squad_name, ticket_labels;
 
           let failed_jobs = execSync(
             `gh run view ${{ github.run_id }} --json jobs -q '.jobs[] | select(.conclusion == "failure") | .name'`,
@@ -68,7 +68,7 @@ runs:
           console.log(failed_jobs);
 
           for (const failed_job of failed_jobs) {
-            let ticket_labels = ["Pipeline", "${{ inputs.ticket_reason_for_creation }}" ]
+            ticket_labels = ["Pipeline", "${{ inputs.ticket_reason_for_creation }}" ]
             if (ticket_labels.includes("Nightly")) {
               ticket_summary = `${date} ${process.env.MODULE_NAME}-${process.env.REF_NAME} nightly build failure on ${failed_job}`
 
