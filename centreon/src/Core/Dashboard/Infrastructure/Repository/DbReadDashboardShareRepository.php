@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -448,8 +448,7 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
                 GROUP_CONCAT(topology.topology_name) as topologies,
                 c.contact_name,
                 c.contact_id,
-                c.contact_email,
-                ag.acl_group_name
+                c.contact_email
             FROM `:db`.contact c
             LEFT JOIN `:db`.contactgroup_contact_relation cgcr
                 ON cgcr.contact_contact_id = c.contact_id
@@ -490,7 +489,7 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
                 AND acltr.access_right IS NOT NULL
                 SQL_WRAP;
 
-        $query .= ' GROUP BY c.contact_id, ag.acl_group_name';
+        $query .= ' GROUP BY c.contact_id, c.contact_name';
 
         $query .= $sqlTranslator->translatePaginationToSql();
 

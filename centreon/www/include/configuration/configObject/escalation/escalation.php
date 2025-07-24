@@ -16,6 +16,7 @@
  * limitations under the License.
  *
  * For more information : contact@centreon.com
+ *
  */
 
 declare(strict_types=1);
