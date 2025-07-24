@@ -103,17 +103,18 @@ Given(
 
     cy.log(`Testing ${Cypress.env('IS_CLOUD') ? 'cloud' : 'onprem'} upgrade`);
 
-    return cy.getWebVersion().then(({ majorVersion, minorVersion }) => {
+    return cy.getWebVersion().then(({ major_version, minor_version }) => {
       let majorVersionFrom = '0';
       switch (majorVersionFromExpression) {
         case 'n - 1': {
-          const previousVersion = getCentreonPreviousMajorVersion(majorVersion);
+          const previousVersion =
+            getCentreonPreviousMajorVersion(major_version);
           cy.log(`Getting Centreon previous major version: ${previousVersion}`);
           // Cloud versioning is different from on-prem
           if (Cypress.env('IS_CLOUD')) {
             const versionDir = './././../../www/install/php';
             // Check if a file with the major version exists
-            const versionFilePath = `${versionDir}/Update-${previousVersion}.${minorVersion}.php`;
+            const versionFilePath = `${versionDir}/Update-${previousVersion}.${minor_version}.php`;
             cy.task('fileExists', versionFilePath).then((exists) => {
               if (exists) {
                 cy.log(`The file with version: ${previousVersion} exist`);
@@ -141,7 +142,7 @@ Given(
         }
         case 'n - 2':
           majorVersionFrom = getCentreonPreviousMajorVersion(
-            getCentreonPreviousMajorVersion(majorVersion)
+            getCentreonPreviousMajorVersion(major_version)
           );
           break;
         default:
@@ -189,7 +190,7 @@ Given(
                   }
                   if (
                     minorVersionIndex < 0 ||
-                    (majorVersionFrom === majorVersion &&
+                    (majorVersionFrom === major_version &&
                       minorVersionIndex === 0)
                   ) {
                     cy.log(
@@ -217,13 +218,13 @@ Given(
                         if (Cypress.env('IS_CLOUD')) {
                           cy.log('Configuring cloud internal repository...');
 
-                          const repository = `https://${Cypress.env('INTERNAL_REPO_USERNAME')}:${Cypress.env('INTERNAL_REPO_PASSWORD')}@packages.centreon.com/rpm-standard-internal/${majorVersion}/${distrib}/centreon-${majorVersion}-internal.repo`;
+                          const repository = `https://${Cypress.env('INTERNAL_REPO_USERNAME')}:${Cypress.env('INTERNAL_REPO_PASSWORD')}@packages.centreon.com/rpm-standard-internal/${major_version}/${distrib}/centreon-${major_version}-internal.repo`;
 
                           return cy.execInContainer(
                             {
                               command: [
                                 `dnf config-manager --add-repo ${repository}`,
-                                `sed -i "s#packages.centreon.com/rpm-standard-internal#${Cypress.env('INTERNAL_REPO_USERNAME')}:${Cypress.env('INTERNAL_REPO_PASSWORD')}@packages.centreon.com/rpm-standard-internal#" /etc/yum.repos.d/centreon-${majorVersion}-internal.repo`,
+                                `sed -i "s#packages.centreon.com/rpm-standard-internal#${Cypress.env('INTERNAL_REPO_USERNAME')}:${Cypress.env('INTERNAL_REPO_PASSWORD')}@packages.centreon.com/rpm-standard-internal#" /etc/yum.repos.d/centreon-${major_version}-internal.repo`,
                                 `dnf config-manager --set-enabled 'centreon*'`
                               ],
                               name: 'web'
@@ -234,7 +235,7 @@ Given(
 
                         return cy.execInContainer({
                           command: [
-                            `dnf config-manager --add-repo https://packages.centreon.com/rpm-standard/${majorVersion}/${distrib}/centreon-${majorVersion}.repo`,
+                            `dnf config-manager --add-repo https://packages.centreon.com/rpm-standard/${major_version}/${distrib}/centreon-${major_version}.repo`,
                             `dnf config-manager --set-enabled 'centreon*'`
                           ],
                           name: 'web'
@@ -268,9 +269,9 @@ EOF`,
 
                       return cy.execInContainer({
                         command: `bash -e <<EOF
-                        echo "deb https://packages.centreon.com/apt-standard-${majorVersion}-stable/ ${Cypress.env('WEB_IMAGE_OS')} main" > /etc/apt/sources.list.d/centreon-stable.list
-                        echo "deb https://packages.centreon.com/apt-standard-${majorVersion}-testing/ ${Cypress.env('WEB_IMAGE_OS')} main" > /etc/apt/sources.list.d/centreon-testing.list
-                        echo "deb https://packages.centreon.com/apt-standard-${majorVersion}-unstable/ ${Cypress.env('WEB_IMAGE_OS')} main" > /etc/apt/sources.list.d/centreon-unstable.list
+                        echo "deb https://packages.centreon.com/apt-standard-${major_version}-stable/ ${Cypress.env('WEB_IMAGE_OS')} main" > /etc/apt/sources.list.d/centreon-stable.list
+                        echo "deb https://packages.centreon.com/apt-standard-${major_version}-testing/ ${Cypress.env('WEB_IMAGE_OS')} main" > /etc/apt/sources.list.d/centreon-testing.list
+                        echo "deb https://packages.centreon.com/apt-standard-${major_version}-unstable/ ${Cypress.env('WEB_IMAGE_OS')} main" > /etc/apt/sources.list.d/centreon-unstable.list
                         apt-get update
 EOF`,
                         name: 'web'
@@ -290,5 +291,5 @@ EOF`,
 );
 
 afterEach(() => {
-    cy.stopContainers();
+  cy.stopContainers();
 });
