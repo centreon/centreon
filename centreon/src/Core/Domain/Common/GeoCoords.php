@@ -74,6 +74,7 @@ class GeoCoords implements \Stringable
     public static function fromString(string $coords): self
     {
         $parts = explode(',', $coords);
+        $parts = array_map('trim', $parts);
 
         if (2 !== \count($parts)) {
             throw InvalidGeoCoordException::invalidFormat();
@@ -99,12 +100,14 @@ class GeoCoords implements \Stringable
      */
     private static function truncateDecimals(string $value): string
     {
-        if (str_contains($value, '.')) {
-            [$intPart, $decimalPart] = explode('.', $value, 2);
-            $decimalPart = substr($decimalPart, 0, self::MAX_DECIMALS);
-            return rtrim($intPart . '.' . $decimalPart, '.');
+        if (! str_contains($value, '.')) {
+            return $value;
         }
 
-        return $value;
+        [$intPart, $decimalPart] = explode('.', $value, 2);
+        $decimalPart = substr($decimalPart, 0, self::MAX_DECIMALS);
+        $decimalPart = rtrim($decimalPart, '0');
+
+        return $decimalPart === '' ? $intPart : $intPart . '.' . $decimalPart;
     }
 }
