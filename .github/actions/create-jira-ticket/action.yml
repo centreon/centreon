@@ -54,6 +54,7 @@ runs:
           const parent_epic_key = "MON-151547"
           const JSON_TEMPLATE_FILE = "./.github/actions/create-jira-ticket/nightly-ticket-template.json";
           const date = dayjs().format('YYYY-MM-DD');
+          const path = './ticket-payload.json';
           let data, ticket_summary, ticket_squad_id, ticket_board_id, squad_name, ticket_labels, current_sprint, failed_steps, ticket_data, data_payload;
 
           let failed_jobs = execSync(
@@ -141,10 +142,9 @@ runs:
 
             // fs.writeFileSync(JSON_TEMPLATE_FILE, data, { encoding: 'utf8' });
 
-            data_payload = JSON.stringify(ticket_data);
-            console.log("Data payload: ", data_payload);
+            fs.writeFileSync(path, JSON.stringify(ticket_data));
             response = execSync(
-              `curl --verbose --request POST --url "${{ inputs.jira_base_url }}/rest/api/3/issue" --user "${{ inputs.jira_user_email }}:${{ inputs.jira_api_token }}" --header 'Accept: application/json' --header 'Content-Type: application/json' --data ${data_payload}`,
+              `curl --verbose --request POST --url "${{ inputs.jira_base_url }}/rest/api/3/issue" --user "${{ inputs.jira_user_email }}:${{ inputs.jira_api_token }}" --header 'Accept: application/json' --header 'Content-Type: application/json' --data @${path}`,
               { encoding: 'utf8' }
             );
 
