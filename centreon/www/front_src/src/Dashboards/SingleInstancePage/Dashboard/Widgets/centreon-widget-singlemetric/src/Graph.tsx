@@ -128,10 +128,10 @@ const Graph = ({
     ? {
         ...graphData,
         metrics: isMetaServiceSelected
-          ? graphData.metrics
+          ? graphData.metrics.map(metric=>({...metric, data:[metric.current_value]}))
           : graphData.metrics.filter((metric) =>
               equals(metricId, metric.metric_id)
-            )
+            ).map(metric=>({...metric, data:[metric.current_value]}))
       }
     : graphData;
 

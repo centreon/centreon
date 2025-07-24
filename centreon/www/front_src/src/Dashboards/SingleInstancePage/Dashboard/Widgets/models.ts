@@ -48,6 +48,7 @@ export interface Metric {
   warningLowThreshold: number | null;
   serviceId?: number;
   serviceName?: string;
+  current_value: number;
 }
 
 export enum SortOrder {
