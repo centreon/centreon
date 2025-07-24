@@ -53,7 +53,7 @@ runs:
           const JSON_TEMPLATE_FILE = "./.github/actions/create-jira-ticket/nightly-ticket-template.json";
           const date = dayjs().format('YYYY-MM-DD');
 
-          let data, ticket_summary;
+          let data, ticket_summary, ticket_squad_id, ticket_board_id, squad_name;
 
           let failed_jobs = execSync(
             `gh run view ${{ github.run_id }} --json jobs -q '.jobs[] | select(.conclusion == "failure") | .name'`,
