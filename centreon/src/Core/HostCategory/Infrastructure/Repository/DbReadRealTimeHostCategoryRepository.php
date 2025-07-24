@@ -26,11 +26,9 @@ namespace Core\HostCategory\Infrastructure\Repository;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
-use Core\Common\Domain\Exception\RepositoryException;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 use Core\Common\Infrastructure\Repository\SqlMultipleBindTrait;
 use Core\HostCategory\Application\Repository\ReadRealTimeHostCategoryRepositoryInterface;
-use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Core\Tag\RealTime\Domain\Model\Tag;
 
 /**
@@ -225,130 +223,6 @@ class DbReadRealTimeHostCategoryRepository extends AbstractRepositoryRDB impleme
     }
 
     /**
-     * @inheritDoc
-     */
-    public function findByNames(array $names): array
-    {
-        try {
-            if ([] === $names) {
-                return [];
-            }
-
-            [$bindValues, $bindQuery] = $this->createMultipleBindQuery($names, ':hc_');
-
-            $query = $this->translateDbName(
-                <<<SQL
-                    SELECT
-                        1 AS REALTIME,
-                        host_categories.id AS id,
-                        host_categories.name AS name,
-                        host_categories.type AS `type`
-                    FROM `:dbstg`.resources
-                    INNER JOIN `:dbstg`.resources_tags rtags
-                        ON rtags.resource_id = resources.resource_id
-                    INNER JOIN `:dbstg`.tags AS host_categories
-                        ON host_categories.tag_id  = rtags.tag_id
-                    WHERE host_categories.`type` = 3
-                        AND host_categories.`name` IN ({$bindQuery})
-                    SQL
-            );
-
-            $statement = $this->db->prepare($query);
-
-            foreach ($bindValues as $key => $value) {
-                $statement->bindValue($key, $value, \PDO::PARAM_STR);
-            }
-            $statement->execute();
-
-            $hostCategories = [];
-            foreach ($statement as $record) {
-                /** @var _HostCategoryResultSet $record */
-                $hostCategories[] = $this->createFromRecord($record);
-            }
-
-            return $hostCategories;
-        } catch (\Throwable $exception) {
-            throw new RepositoryException(
-                message: 'An error occured while retrieving host categories',
-                previous: $exception
-            );
-        }
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function findByNamesAndAccessGroups(array $names, array $accessGroups): array
-    {
-        try {
-            if ([] === $names || [] === $accessGroups) {
-                return [];
-            }
-
-            $accessGroupIds = array_map(
-                static fn (AccessGroup $accessGroup): int => $accessGroup->getId(),
-                $accessGroups
-            );
-
-            [$bindValuesNames, $bindQueryNames] = $this->createMultipleBindQuery($names, ':hc_');
-            [$bindValuesAccessGroups, $bindQueryAccessGroups] = $this->createMultipleBindQuery($accessGroupIds, ':ag_');
-
-            $query = $this->translateDbName(
-                <<<SQL
-                    SELECT
-                        1 AS REALTIME,
-                        host_categories.id AS id,
-                        host_categories.name AS name,
-                        host_categories.type AS `type`
-                    FROM `:dbstg`.resources
-                    INNER JOIN `:dbstg`.resources_tags rtags
-                        ON rtags.resource_id = resources.resource_id
-                    INNER JOIN `:dbstg`.tags AS host_categories
-                        ON host_categories.tag_id  = rtags.tag_id
-                        AND host_categories.`type` = 3
-                    INNER JOIN `:db`.acl_resources_hc_relations arhr
-                        ON host_categories.id = arhr.hc_id
-                    INNER JOIN `:db`.acl_resources res
-                        ON arhr.acl_res_id = res.acl_res_id
-                    INNER JOIN `:db`.acl_res_group_relations argr
-                        ON res.acl_res_id = argr.acl_res_id
-                    INNER JOIN `:db`.acl_groups ag
-                        ON argr.acl_group_id = ag.acl_group_id
-                    WHERE
-                        host_categories.`type` = 3
-                        AND host_categories.`name` IN ({$bindQueryNames})
-                        AND ag.acl_group_id IN ({$bindQueryAccessGroups})
-                    SQL
-            );
-
-            $statement = $this->db->prepare($query);
-
-            foreach ($bindValuesNames as $nameKey => $name) {
-                $statement->bindValue($nameKey, $name, \PDO::PARAM_STR);
-            }
-
-            foreach ($bindValuesAccessGroups as $accessGroupKey => $accessGroupId) {
-                $statement->bindValue($accessGroupKey, $accessGroupId, \PDO::PARAM_INT);
-            }
-
-            $statement->execute();
-
-            $hostCategories = [];
-            foreach ($statement as $record) {
-                /** @var _HostCategoryResultSet $record */
-                $hostCategories[] = $this->createFromRecord($record);
-            }
-
-            return $hostCategories;
-        } catch (\Throwable $exception) {
-            throw new RepositoryException(
-                message: 'An error occured while retrieving host categories by access groups',
-                previous: $exception
-            );
-        }
-    }
-
-    /**
      * @param _HostCategoryResultSet $data
      *
      * @return Tag
@@ -358,4 +232,3 @@ class DbReadRealTimeHostCategoryRepository extends AbstractRepositoryRDB impleme
         return new Tag(id: $data['id'], name: $data['name'], type: $data['type']);
     }
 }
-
