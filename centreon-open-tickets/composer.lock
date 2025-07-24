@@ -943,16 +943,16 @@
         },
         {
             "name": "api-platform/core",
-            "version": "v4.1.18",
+            "version": "v4.1.19",
             "source": {
                 "type": "git",
                 "url": "https://github.com/api-platform/core.git",
-                "reference": "fe921cda3edd0c2efa0c75446dea56a3fb69000d"
+                "reference": "1dcc0da1bc56f2161ecfa863f7820e332a622d37"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/api-platform/core/zipball/fe921cda3edd0c2efa0c75446dea56a3fb69000d",
-                "reference": "fe921cda3edd0c2efa0c75446dea56a3fb69000d",
+                "url": "https://api.github.com/repos/api-platform/core/zipball/1dcc0da1bc56f2161ecfa863f7820e332a622d37",
+                "reference": "1dcc0da1bc56f2161ecfa863f7820e332a622d37",
                 "shasum": ""
             },
             "require": {
@@ -968,6 +968,7 @@
                 "symfony/serializer": "^6.4 || ^7.0",
                 "symfony/translation-contracts": "^3.3",
                 "symfony/type-info": "^7.2",
+                "symfony/validator": "^6.4 || ^7.1",
                 "symfony/web-link": "^6.4 || ^7.1",
                 "willdurand/negotiation": "^3.1"
             },
@@ -1153,9 +1154,9 @@
             ],
             "support": {
                 "issues": "https://github.com/api-platform/core/issues",
-                "source": "https://github.com/api-platform/core/tree/v4.1.18"
+                "source": "https://github.com/api-platform/core/tree/v4.1.19"
             },
-            "time": "2025-07-03T13:10:08+00:00"
+            "time": "2025-07-18T11:49:35+00:00"
         },
         {
             "name": "beberlei/assert",
@@ -1554,7 +1555,7 @@
             "dist": {
                 "type": "path",
                 "url": "../centreon",
-                "reference": "0e02b74e7815c1914b8e6fb21bde7cfaea06275e"
+                "reference": "be71a9e4ce056b25a04ea53cce46232490d89eee"
             },
             "require": {
                 "amphp/http-client": "4.6.*",
@@ -1632,6 +1633,9 @@
                 "symfony/yaml": "7.3.*",
                 "webmozart/assert": "1.11.*"
             },
+            "conflict": {
+                "symfony/symfony": "*"
+            },
             "replace": {
                 "paragonie/random_compat": "2.*",
                 "symfony/polyfill-ctype": "*",
@@ -1661,7 +1665,8 @@
                 "symfony": {
                     "allow-contrib": true,
                     "require": "7.3.*",
-                    "public-dir": "www"
+                    "public-dir": "www",
+                    "docker": false
                 }
             },
             "autoload": {
@@ -1693,6 +1698,15 @@
                 ]
             },
             "scripts": {
+                "auto-scripts": {
+                    "cache:clear": "symfony-cmd"
+                },
+                "post-install-cmd": [
+                    "@auto-scripts"
+                ],
+                "post-update-cmd": [
+                    "@auto-scripts"
+                ],
                 "require:check": [
                     "../php-tools/vendor/bin/composer-require-checker check composer.json"
                 ],
@@ -1703,13 +1717,13 @@
                     "../php-tools/vendor/bin/rector process --config=rector.legacy.php --dry-run"
                 ],
                 "rector:legacy:fix": [
-                    "../php-tools/vendor/bin/rector --config=rector.legacy.php process"
+                    "../php-tools/vendor/bin/rector process --config=rector.legacy.php"
                 ],
                 "rector:core": [
                     "../php-tools/vendor/bin/rector process --config=rector.core.php --dry-run"
                 ],
                 "rector:core:fix": [
-                    "../php-tools/vendor/bin/rector --config=rector.core.php process"
+                    "../php-tools/vendor/bin/rector process --config=rector.core.php"
                 ],
                 "rector:new": [
                     "../php-tools/vendor/bin/rector process --config=rector.new.php --dry-run"
