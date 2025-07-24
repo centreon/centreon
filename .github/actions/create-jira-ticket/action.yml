@@ -49,13 +49,13 @@ runs:
           const dayjs = require('dayjs');
           const isoWeek = require('dayjs/plugin/isoWeek');
           dayjs.extend(isoWeek);
+          const isoWeek = require('dayjs/plugin/isoWeek');
+          dayjs.extend(isoWeek);
 
           const parent_epic_id = 206242
           const parent_epic_key = "MON-151547"
           const JSON_TEMPLATE_FILE = "./.github/actions/create-jira-ticket/nightly-ticket-template.json";
-          const date = dayjs().format('YYYY-MM-DD');
-
-          let data, ticket_summary, ticket_squad_id, ticket_board_id, squad_name, ticket_labels;
+          let data, ticket_summary, ticket_squad_id, ticket_board_id, squad_name, ticket_labels, current_sprint, failed_steps;
 
           let failed_jobs = execSync(
             `gh run view ${{ github.run_id }} --json jobs -q '.jobs[] | select(.conclusion == "failure") | .name'`,
@@ -71,6 +71,7 @@ runs:
 
           for (const failed_job of failed_jobs) {
             ticket_labels = ["Pipeline", "${{ inputs.ticket_reason_for_creation }}" ]
+              console.log(`Failed job: ${failed_job}`);
             if (ticket_labels.includes("Nightly")) {
               ticket_summary = `${date} ${process.env.MODULE_NAME}-${process.env.REF_NAME} nightly build failure on ${failed_job}`
               console.log(`Failed job: ${failed_job}`);
@@ -81,6 +82,7 @@ runs:
 
               data = data.replace(/@GITHUB_BRANCH@/g, '${{ github.base_ref || github.ref_name }}');
               data = data.replace(/@GITHUB_SERVER_URL@/g, '${{ github.server_url }}');
+              data = data.replace(/@FAILED_JOB@/g, failed_job);
               data = data.replace(/@GITHUB_REPOSITORY@/g, '${{ github.repository }}');
               data = data.replace(/@GITHUB_RUN_ID@/g, '${{ github.run_id }}');
               data = data.replace(/@GITHUB_RUN_ATTEMPT@/g, '${{ github.run_attempt }}');
@@ -89,11 +91,11 @@ runs:
               throw new Error(`❌ Could not find any labelling option for the ticket.`);
             }
 
-            console.log(data);
+            if (["get-environment", "package", "dockerize", "deliver-rpm", "deliver-deb", "translation-build"].includes(failed_job)) {
 
             fs.writeFileSync(JSON_TEMPLATE_FILE, data, { encoding: 'utf8' });
 
-            if (["get-environment", "package", "dockerize", "deliver-rpm", "deliver-deb", "translation-build"].includes(failed_job)) {
+            } else if (["frontend-web-lint", "frontend-web-build", "frontend-component-test", "e2e-test", "legacy-e2e-test", "newman-test"].includes(failed_job)) {
               ticket_squad_id = 10524
               ticket_board_id = 184
               squad_name = "DEVSECOPS"
@@ -104,126 +106,21 @@ runs:
                 squad_name = "METROPOLIS"
               } else {
                 ticket_squad_id = 10882
-                ticket_board_id = 225
-                squad_name = "GOTHAM"
-              }
-            }
             console.log(`Ticket summary: ${ticket_summary}`);
             console.log(`Ticket will be attributed to the ${squad_name} team. (Squad ID ${ticket_squad_id}, Board ID ${ticket_board_id})`)
+            console.log(`Ticket summary: ${ticket_summary}`);
+            current_sprint = execSync(
+              `curl --request GET --url ${{ inputs.jira_base_url }}/rest/agile/1.0/board/$ticket_board_id/sprint?state=active --user "${{ inputs.jira_user_email }}:${{ inputs.jira_api_token }}" --header "Accept: application/json" | jq --arg squad_name "$squad_name" '.values[] | select(.name | test($squad_name; "i")) | .id'`,
+              { encoding: 'utf8' }
+            );
+
+            failed_steps = execSync(
+              `gh run view ${{ github.run_id }} --json jobs | jq -r --arg failed_job "$failed_job" '.jobs[] | select(.name == $failed_job) | .name'`
+              { encoding: 'utf8' }
+            );
+
+            console.log(failed_steps);
           }
-
-    #     current_sprint=$(curl --request GET \
-    #       --url ${{ inputs.jira_base_url }}/rest/agile/1.0/board/$ticket_board_id/sprint?state=active \
-    #       --user "${{ inputs.jira_user_email }}:${{ inputs.jira_api_token }}" \
-    #       --header "Accept: application/json" | jq --arg squad_name "$squad_name" '.values[] | select(.name | test($squad_name; "i")) | .id')
-
-    # - name: Check if the ticket already exists
-    #   id: check_ticket
-    #   run: |
-    #     # Checking if an incident ticket already exists
-    #     response=$(curl \
-    #       --write-out "%{http_code}" \
-    #       --request POST \
-    #       --url "${{ inputs.jira_base_url }}/rest/api/3/search" \
-    #       --user "${{ inputs.jira_user_email }}:${{ inputs.jira_api_token }}" \
-    #       --header "Accept:application/json" \
-    #       --header "Content-Type:application/json" \
-    #       --data '{
-    #           "fields": ["summary"],
-    #           "jql": "project = MON AND parentEpic = ${{ steps.get_context.outputs.parent_epic_key }} AND issueType = Technical AND summary ~ \"${{ steps.get_context.outputs.ticket_summary }}\" AND component = \"${{ inputs.module_name }}\" AND resolution = unresolved ORDER BY key ASC",
-    #           "maxResults": 1
-    #         }'
-    #       )
-    #     echo "[DEBUG] $response"
-
-    #     if [[ $(echo "$response" | tr -d '\n' | tail -c 3) -ne 200 ]]; then
-    #       echo "::error:: Jira API request was not completed properly."
-    #     fi
-
-    #     ticket_key=$(echo "$response" | head -c -4 | jq .issues[0].key | xargs)
-    #     if [[ "$ticket_key" != "null" ]]; then
-    #       echo "abort_ticket_creation=true" >> $GITHUB_ENV
-    #       echo "ticket_key=$ticket_key" >> $GITHUB_ENV
-    #       echo "::notice::ticket found as $ticket_key aborting ticket creation"
-    #     fi
-    #   shell: bash
-
-    # - name: Update existing nightly Jira ticket
-    #   if: |
-    #     env.abort_ticket_creation == 'true' &&
-    #     contains(steps.get_context.outputs.parent_epic_key, 'MON-151547')
-    #   run: |
-    #     # Adding failed job labels for already existing ticket
-    #     [ -n "${IFS+set}" ] && saved_IFS=$IFS
-    #     IFS=', ' read -a ticket_labels <<< $(echo "${{ inputs.ticket_labels }}" | tr -d "[],'")
-    #     unset IFS
-    #     [ -n "${saved_IFS+set}" ] && { IFS=$saved_IFS; unset saved_IFS; }
-
-    #     for label in ${ticket_labels[@]}; do
-    #       response=$(curl \
-    #         --request PUT \
-    #         --url "${{ inputs.jira_base_url }}/rest/api/3/issue/${{ env.ticket_key }}" \
-    #         --user "${{ inputs.jira_user_email }}:${{ inputs.jira_api_token }}" \
-    #         --header 'Accept: application/json' \
-    #         --header 'Content-Type: application/json' \
-    #         --data "{ \"update\": { \"labels\": [ { \"add\": \"$label\" } ] } }"
-    #         )
-    #     done
-
-    #     ticket_description=$(curl --request GET \
-    #       --url "${{ inputs.jira_base_url }}/rest/api/3/issue/${{ env.ticket_key }}" \
-    #       --user "${{ inputs.jira_user_email }}:${{ inputs.jira_api_token }}" \
-    #       --header "Accept: application/json" | jq '.fields.description')
-
-    #     mapfile -t jobs_failed < <(gh run view ${{ github.run_id }} --json jobs -q '.jobs[] | select(.conclusion == "failure") | .name')
-    #     echo "[DEBUG] - jobs failed for component ${FAILED_COMPONENTS[index]}: $jobs_failed"
-
-    #     new_list_of_failed_jobs=$(for job in "${jobs_failed[@]}"; do
-    #       cat <<EOF
-    #     {
-    #       "type": "listItem",
-    #       "content": [
-    #         {
-    #           "type": "paragraph",
-    #           "content": [
-    #             {
-    #               "type": "text",
-    #               "text": "$job"
-    #             }
-    #           ]
-    #         }
-    #       ]
-    #     }
-    #     EOF
-    #       done | jq -s '.'
-    #     )
-
-    #     updated_ticket_description=$(echo "$ticket_description" | jq --argjson new_list_of_failed_jobs "$new_list_of_failed_jobs" '
-    #       (.content[] | select(.type == "bulletList") | .content) = $new_list_of_failed_jobs
-    #     ')
-
-    #     echo "[DEBUG] - updated_ticket_description = $updated_ticket_description"
-
-    #     curl --request PUT \
-    #       --url "${{ inputs.jira_base_url }}/rest/api/3/issue/${{ env.ticket_key }}" \
-    #       --user "${{ inputs.jira_user_email }}:${{ inputs.jira_api_token }}" \
-    #       --header "Accept: application/json" \
-    #       --header "Content-Type: application/json" \
-    #       --data "{
-    #         \"fields\": {
-    #           \"description\": $updated_ticket_description
-    #         }
-    #       }"
-
-    #   shell: bash
-    #   env:
-    #     GH_TOKEN: ${{ github.token }}
-
-    # - name: Create Jira Issue
-    #   if: ${{ env.abort_ticket_creation != 'true' }}
-    #   run: |
-    #     # Get the name of the current job and list it
-    #     failed_job_name=$(gh run view ${{ github.run_id }} --json jobs | jq -r --arg job_name "${{ github.job }}" '.jobs[] | select(.name == $job_name) | .name')
 
     #     CONTENT_TO_ADD_TO_TEMPLATE_FILE=$(jq -n --arg job "$failed_job_name" '{
     #       "type": "bulletList",
