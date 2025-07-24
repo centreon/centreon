@@ -55,7 +55,7 @@ runs:
           const JSON_TEMPLATE_FILE = "./.github/actions/create-jira-ticket/nightly-ticket-template.json";
           const date = dayjs().format('YYYY-MM-DD');
           const path = './ticket-payload.json';
-          const contents;
+          let contents;
           let data, ticket_summary, ticket_squad_id, ticket_board_id, squad_name, ticket_labels, current_sprint, failed_steps, ticket_data, data_payload;
 
           let failed_jobs = execSync(
