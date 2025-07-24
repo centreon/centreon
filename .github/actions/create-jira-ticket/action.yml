@@ -139,12 +139,12 @@ runs:
                 }
               }
 
-            console.log("Ticket data: ", JSON.stringify(ticket_data, null, 2));
             // fs.writeFileSync(JSON_TEMPLATE_FILE, data, { encoding: 'utf8' });
 
             data_payload = JSON.stringify(ticket_data);
+            console.log("Data payload: ", data_payload);
             response = execSync(
-              `curl --request POST --url "${{ inputs.jira_base_url }}/rest/api/3/issue" --user "${{ inputs.jira_user_email }}:${{ inputs.jira_api_token }}" --header 'Accept: application/json' --header 'Content-Type: application/json' --data ${data_payload}`,
+              `curl --verbose --request POST --url "${{ inputs.jira_base_url }}/rest/api/3/issue" --user "${{ inputs.jira_user_email }}:${{ inputs.jira_api_token }}" --header 'Accept: application/json' --header 'Content-Type: application/json' --data ${data_payload}`,
               { encoding: 'utf8' }
             );
 
