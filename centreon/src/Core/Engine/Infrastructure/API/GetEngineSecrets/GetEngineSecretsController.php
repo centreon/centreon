@@ -26,7 +26,6 @@ namespace Core\Engine\Infrastructure\API\GetEngineSecrets;
 use Centreon\Application\Controller\AbstractController;
 use Centreon\Domain\Common\Assertion\AssertionException;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
-use Centreon\Domain\Log\LoggerTrait;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Common\Infrastructure\ExceptionLogger\ExceptionLogger;
