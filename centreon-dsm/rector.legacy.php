@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,22 +21,14 @@
 
 declare(strict_types=1);
 
-use Centreon\PhpCsFixer\PhpCsFixerRuleSet;
-use PhpCsFixer\{Config, Finder};
+$rectorConfig = require_once __DIR__ . '/../php-tools/rector/config/base.unstrict.php';
 
-$finder = Finder::create()
-    ->in([
+return $rectorConfig
+    ->withCache(__DIR__ . '/var/cache/rector.legacy')
+    ->withPaths([
+        // directories
         __DIR__ . '/www',
+        // files
+        __DIR__ . '/.php-cs-fixer.legacy.php',
+        __DIR__ . '/rector.legacy.php',
     ]);
-
-/**
- * These rules have various risky rune like 'declare_strict_types' which may be dangerous on legacy code.
- * 👉️ We use the other php-cs-fixer config file for this legacy code.
- *
- * @see .php-cs-fixer.dist.php
- */
-return (new Config())
-    ->setFinder($finder)
-    ->setRiskyAllowed(false) // 👈 risky NOT allowed
-    ->setUsingCache(false)
-    ->setRules(PhpCsFixerRuleSet::getRulesSafe());

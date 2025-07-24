@@ -1,7 +1,7 @@
-<?php declare(strict_types=1);
+<?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,8 @@
  *
  */
 
+declare(strict_types=1);
+
 require __DIR__ . '/../../../php/generate_routes.php';
 require_once __DIR__ . '/../../../../../class/centreonLog.class.php';
 
@@ -28,8 +30,7 @@ $centreonLog = new CentreonLog();
 $versionOfTheUpgrade = 'UPGRADE - 24.09.0';
 $errorMessage = '';
 
-$insertSubmitTicketTopology = function (CentreonDB $pearDB) use (&$errorMessage): void
-{
+$insertSubmitTicketTopology = function (CentreonDB $pearDB) use (&$errorMessage): void {
     $errorMessage = 'Could not insert SubmitTicket form topology';
     $statement = $pearDB->query('SELECT 1 FROM topology WHERE topology_page = 60421');
     if ((bool) $statement->fetchColumn() === false) {

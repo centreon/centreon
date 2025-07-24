@@ -415,9 +415,31 @@ jobs:
           fi
         shell: bash
 
+      - name: Detect nightly status
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        id: get_nightly_status
+        env:
+          NIGHTLY_MANUAL_TRIGGER: ${{ inputs.nightly_manual_trigger }}
+        with:
+          script: |
+            const getNightlyInput = () => {
+              const nightly_manual_trigger = process.env.NIGHTLY_MANUAL_TRIGGER;
+              console.log(nightly_manual_trigger);
+              if (typeof nightly_manual_trigger === 'undefined' || nightly_manual_trigger === '' || '${{ github.repository }}'.match(/^workflow-.*$/)) {
+                return 'false';
+              } else if (context.eventName === 'schedule' || context.eventName === 'workflow_dispatch' && nightly_manual_trigger === 'true' ) {
+                return 'true';
+              }
+              return 'false';
+            };
+
+            core.setOutput('is_nightly', getNightlyInput());
+
       - name: "Detect cloud version"
         id: detect_cloud_version
         uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        env:
+          IS_NIGHTLY: ${{ steps.get_nightly_status.outputs.is_nightly }}
         with:
           script: |
             const { owner, repo } = context.repo;
@@ -425,12 +447,25 @@ jobs:
             const ref = process.env.GITHUB_REF;         // full ref like refs/heads/develop or refs/tags/...
             const refName = process.env.GITHUB_REF_NAME; // just the branch/tag name
             const baseRef = process.env.GITHUB_BASE_REF; // only set for pull_request
+            const isNightly = process.env.IS_NIGHTLY;
+
+            const developMajorVersion = "${{ steps.latest_major_version.outputs.latest_major_version }}";
+            const currentMajorVersion = "${{ steps.get_version.outputs.major_version }}";
+            // if major version is higher than develop major version => it is a cloud version
+            // if month number is not 04 or 10 => it is a cloud version
+            // anything else => onprem
+            const isCloudCandidate =
+              Number(currentMajorVersion) >= Number(developMajorVersion) ||
+              !currentMajorVersion.match(/\.(04|10)$/);
 
             let releaseScope = "unknown";
 
-            // handle if triggering event is a pull_request
-            // finalTargetBranch can be develop, dev-XX.YY.x, release-XX.YY-next, hotfix-XX.YY-next
-            if ( "${{ github.event_name }}" === "pull_request" ) {
+            // in a nightly context, whatever the event_name is, the release context does not matter
+            if ( process.env.IS_NIGHTLY == 'true' || eventName === "workflow_run" ) {
+              releaseScope = isCloudCandidate ? "cloud" : "onprem";
+            } else if ( "${{ github.event_name }}" === "pull_request" ) {
+              // handle if triggering event is a pull_request
+              // finalTargetBranch can be develop, dev-XX.YY.x, release-XX.YY-next, hotfix-XX.YY-next
               const prPath = ${{ steps.pr_path.outputs.result || '[]' }};
               const finalTargetBranch = prPath.pop();
               console.log(`finalTargetBranch is: ${finalTargetBranch}`)
@@ -439,20 +474,6 @@ jobs:
               if (['develop'].includes(finalTargetBranch)) {
                 releaseScope = "cloud";
               } else {
-                // compare developMajorVersion and currentMajorVersion
-                const developMajorVersion = "${{ steps.latest_major_version.outputs.latest_major_version }}";
-                const currentMajorVersion = "${{ steps.get_version.outputs.major_version }}";
-
-                // if major version is higher than develop major version => it is a cloud version
-                // if month number is not 04 or 10 => it is a cloud version
-                // anything else => onprem
-
-                const toTuple = v => v.split('.').map(Number); // ['24','10'] → [24,10]
-                const [curMajor, curMinor]     = toTuple(currentMajorVersion);
-                const [devMajor, devMinor]     = toTuple(developMajorVersion);
-                const newerThanDevelop        = curMajor > devMajor || (curMajor === devMajor && curMinor > devMinor);
-                const isCloudCandidate        = newerThanDevelop || ![4,10].includes(curMinor);
-
                 releaseScope = isCloudCandidate ? "cloud" : "onprem";
               }
             }
@@ -471,7 +492,6 @@ jobs:
               });
 
               let targetSha = tagRef.data.object.sha;
-
 
               // Resolve to commit SHA (if annotated tag)
               if (tagRef.data.object.type === "tag") {
@@ -540,18 +560,8 @@ jobs:
             // handle if triggering event is a push
             else if (ref.startsWith("refs/heads/") && (eventName === "push" || eventName === "workflow_dispatch")) {
               const branch = ref.replace("refs/heads/", "");
-              console.log(`🚀 Push to branch: ${branch}`);
+              console.log(`🚀 ${eventName} on branch: ${branch}`);
 
-              // compare developMajorVersion and curentMajorVersion
-              const developMajorVersion = "${{ steps.latest_major_version.outputs.latest_major_version }}";
-              const currentMajorVersion = "${{ steps.get_version.outputs.major_version }}";
-
-              // if major version is higher than develop major version => it is a cloud version
-              // if month number is not 04 or 10 => it is a cloud version
-              // anything else => onprem
-              const isCloudCandidate =
-                Number(currentMajorVersion) >= Number(developMajorVersion) ||
-                !currentMajorVersion.match(/\.(04|10)$/);
               releaseScope = isCloudCandidate ? "cloud" : "onprem";
             }
             // in any other case, fail the run
@@ -580,26 +590,6 @@ jobs:
             }
             core.setOutput('linked_dev_branch', linkedDevBranch);
             core.setOutput('linked_stable_branch', linkedStableBranch);
-
-      - name: Detect nightly status
-        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
-        id: get_nightly_status
-        env:
-          NIGHTLY_MANUAL_TRIGGER: ${{ inputs.nightly_manual_trigger }}
-        with:
-          script: |
-            const getNightlyInput = () => {
-              const nightly_manual_trigger = process.env.NIGHTLY_MANUAL_TRIGGER;
-              console.log(nightly_manual_trigger);
-              if (typeof nightly_manual_trigger === 'undefined' || nightly_manual_trigger === '' || '${{ github.repository }}'.match(/^workflow-.*$/)) {
-                return 'false';
-              } else if (context.eventName === 'schedule' || context.eventName === 'workflow_dispatch' && nightly_manual_trigger === 'true' ) {
-                return 'true';
-              }
-              return 'false';
-            };
-
-            core.setOutput('is_nightly', getNightlyInput());
 
       - name: Detect operating systems and databases to test
         uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1

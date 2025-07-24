@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -217,7 +217,7 @@ final class DeployServices
                     $service = new NewService(
                         $serviceTemplate->getAlias(),
                         $hostId,
-                        $serviceTemplate->getCommandId()
+                        null // command line must be inherited from template when you deploy services from a host
                     );
                     $service->setServiceTemplateParentId($serviceTemplate->getId());
                     $service->setActivated(true);
