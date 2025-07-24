@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -168,12 +168,12 @@ it(
             ->and($coords->longitude)->toBe('-123.987654');
 
         $coords = GeoCoords::fromString('45.1000000000,-123.0000000000');
-        expect($coords->latitude)->toBe('45.1')
-            ->and($coords->longitude)->toBe('-123');
+        expect($coords->latitude)->toBe('45.100000')
+            ->and($coords->longitude)->toBe('-123.000000');
 
         $coords = GeoCoords::fromString('45.0000000000,-123.0000000000');
-        expect($coords->latitude)->toBe('45')
-            ->and($coords->longitude)->toBe('-123');
+        expect($coords->latitude)->toBe('45.000000')
+            ->and($coords->longitude)->toBe('-123.000000');
     }
 );
 
@@ -202,8 +202,8 @@ it(
             ->and($coords->longitude)->toBe('-179.999999');
 
         $coords = GeoCoords::fromString('90.0000000000000,180.0000000000000');
-        expect($coords->latitude)->toBe('90')
-            ->and($coords->longitude)->toBe('180');
+        expect($coords->latitude)->toBe('90.000000')
+            ->and($coords->longitude)->toBe('180.000000');
     }
 );
 
