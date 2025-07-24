@@ -54,7 +54,7 @@ runs:
           const parent_epic_key = "MON-151547"
           const JSON_TEMPLATE_FILE = "./.github/actions/create-jira-ticket/nightly-ticket-template.json";
           const date = dayjs().format('YYYY-MM-DD');
-          let data, ticket_summary, ticket_squad_id, ticket_board_id, squad_name, ticket_labels, current_sprint, failed_steps;
+          let data, ticket_summary, ticket_squad_id, ticket_board_id, squad_name, ticket_labels, current_sprint, failed_steps, ticket_data;
 
           let failed_jobs = execSync(
             `gh run view ${{ github.run_id }} --json jobs -q '.jobs[] | select(.conclusion == "failure") | .name'`,
@@ -90,7 +90,6 @@ runs:
             }
 
             console.log(data);
-            fs.writeFileSync(JSON_TEMPLATE_FILE, data, { encoding: 'utf8' });
 
             if (["get-environment", "package", "dockerize", "deliver-rpm", "deliver-deb", "translation-build"].includes(failed_job)) {
               ticket_squad_id = 10524
@@ -124,69 +123,43 @@ runs:
             );
 
             console.log(`Failed steps: ${failed_steps}`);
+
+            // Creating a new incident ticket on Jira
+            ticket_data =
+              {
+                "fields": {
+                  "summary": "${ticket_summary}",
+                  "project": {"key": "MON"},
+                  "issuetype": {"id": "10209"},
+                  "parent": {"id": "${parent_epic_id}", "key": "${parent_epic_key}"},
+                  "labels": ${ticket_labels},
+                  "components":[{"name": "${{ inputs.module_name }}"}],
+                  "customfield_10902": {"id": "${ticket_squad_id}", "value": "${squad_name}"},
+                  "description": ${data}
+                }
+              }
+
+            console.log(`Ticket data: ${ticket_data});
+            // fs.writeFileSync(JSON_TEMPLATE_FILE, data, { encoding: 'utf8' });
+
+            response = execSync(
+              `curl --request POST --url "${{ inputs.jira_base_url }}/rest/api/3/issue" --user "${{ inputs.jira_user_email }}:${{ inputs.jira_api_token }}" --header 'Accept: application/json' --header 'Content-Type: application/json' --data "${ticket_data}"`,
+              { encoding: 'utf8' }
+            );
+
+            console.log(`Response: ${response});
           }
 
-    #     CONTENT_TO_ADD_TO_TEMPLATE_FILE=$(jq -n --arg job "$failed_job_name" '{
-    #       "type": "bulletList",
-    #       "content": [
-    #         {
-    #           "type": "listItem",
-    #           "content": [
-    #             {
-    #               "type": "paragraph",
-    #               "content": [
-    #                 {
-    #                   "type": "text",
-    #                   "text": $job
-    #                 }
-    #               ]
-    #             }
-    #           ]
-    #         }
-    #       ]
-    #     }')
-
-    #     echo "[DEBUG] - CONTENT_TO_ADD_TO_TEMPLATE_FILE: $CONTENT_TO_ADD_TO_TEMPLATE_FILE"
-
-    #     TEMPLATE_FILE=$(cat ${{ steps.get_context.outputs.json_template_file }})
-    #     UPDATED_TEMPLATE_FILE=$(jq --argjson NEW_CONTENT "$CONTENT_TO_ADD_TO_TEMPLATE_FILE" '.content += [$NEW_CONTENT]' <<< "$TEMPLATE_FILE")
-
-    #     # Creating a new incident ticket on Jira
-    #     DATA=$( cat <<-EOF
-    #     {
-    #       "fields": {
-    #         "summary": "${{ steps.get_context.outputs.ticket_summary }}",
-    #         "project": {"key": "MON"},
-    #         "issuetype": {"id": "10209"},
-    #         "parent": {"id": "${{ steps.get_context.outputs.parent_epic_id }}", "key": "${{ steps.get_context.outputs.parent_epic_key }}"},
-    #         "labels": ${{ inputs.ticket_labels }},
-    #         "components":[{"name": "${{ inputs.module_name }}"}],
-    #         "customfield_10902": {"id": "${{ steps.get_context.outputs.ticket_squad_id }}", "value": "${{ inputs.ticket_squad }}"},
-    #         "description": $UPDATED_TEMPLATE_FILE
-    #       }
-    #     }
-    #     EOF
-    #     )
 
     #     if [[ ${{ steps.get_context.outputs.current_sprint }} != "null" ]]; then
     #       DATA=$(echo "$DATA" | jq '.fields.customfield_10007 = ${{ steps.get_context.outputs.current_sprint }}')
     #     fi
     #     echo "[DEBUG] - DATA: $DATA"
 
-    #     response=$(curl \
-    #       --request POST \
-    #       --url "${{ inputs.jira_base_url }}/rest/api/3/issue" \
-    #       --user "${{ inputs.jira_user_email }}:${{ inputs.jira_api_token }}" \
-    #       --header 'Accept: application/json' \
-    #       --header 'Content-Type: application/json' \
-    #       --data "$DATA")
-
     #     if [ $? -ne 0 ]; then
     #       echo "::error::Failed to create ticket: $response"
     #       exit 1
     #     fi
-
-    #     echo $response
 
     #     ticket_key=$(echo "$response" | jq -r .key)
     #     echo "::notice::Created ticket: $ticket_key"
