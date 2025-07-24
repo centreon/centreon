@@ -60,7 +60,7 @@ When('the user clicks on the {string} button', (addBtnName: string) => {
 
 Then('a pop-up form is displayed', () => {
   cy.get('*[role="dialog"]').should('be.visible');
-  cy.get('*[role="dialog"]').contains('Add poller/agent configuration');
+  cy.get('*[role="dialog"]').contains('Add agent configuration');
 });
 
 When('the user selects "CMA" as the agent type', () => {
@@ -164,7 +164,7 @@ When('the user clicks on the first configured CMA agent', () => {
 
 Then('a pop-up with the agent details is displayed', () => {
   cy.get('*[role="dialog"]').should('be.visible');
-  cy.get('*[role="dialog"]').contains('Update poller/agent configuration');
+  cy.get('*[role="dialog"]').contains('Update agent configuration');
   cy.get('#Name').should('contain.value', agentsConfiguration.CMA1.name);
   cy.get('#Agenttype').should('have.value', cmaTypeName);
   cy.get('#Encryptionlevel').should('have.value', 'No TLS');
@@ -199,7 +199,7 @@ When('the user clicks on the second configured Telegraf agent', () => {
 
 Then('a pop-up with the Telegraf agent details is displayed', () => {
   cy.get('*[role="dialog"]').should('be.visible');
-  cy.get('*[role="dialog"]').contains('Update poller/agent configuration');
+  cy.get('*[role="dialog"]').contains('Update agent configuration');
   cy.get('#Name').should('contain.value', agentsConfiguration.telegraf1.name);
   cy.get('#Agenttype').should('have.value', telegrafTypeName);
   cy.get('#Encryptionlevel').should('have.value', 'No TLS');

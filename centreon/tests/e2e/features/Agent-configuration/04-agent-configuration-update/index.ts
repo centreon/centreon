@@ -48,15 +48,14 @@ Given('a non-admin user is in the Agents Configuration page', () => {
 });
 
 Given('an already existing agent configuration', () => {
-  cy.contains('button', 'Add poller/agent configuration').click();
-  cy.addTelegrafAgent({
+  cy.contains('button', 'Add agent configuration').click();
+cy.addTelegrafAgent({
     ...agentsConfiguration.telegraf1,
     publicCertificationFileName:
       agentsConfiguration.telegraf1.publicCertfFileName,
     privateKeyFileName: agentsConfiguration.telegraf1.privateKFileName,
     certificateFileName: agentsConfiguration.telegraf1.certfFileName
-  });
-  cy.getByTestId({ testId: 'submit' }).click();
+  });  cy.getByTestId({ testId: 'submit' }).click();
   cy.wait('@addAgents');
 });
 
@@ -67,7 +66,7 @@ When('the user clicks on the line of the agent configuration', () => {
 
 Then('a pop up is displayed with all of the agent information', () => {
   cy.get('*[role="dialog"]').should('be.visible');
-  cy.contains('Update poller/agent configuration').should('be.visible');
+  cy.contains('Update agent configuration').should('be.visible');
   cy.getByLabel({ label: 'Agent type', tag: 'input' }).should(
     'have.value',
     'Telegraf'
@@ -80,30 +79,30 @@ Then('a pop up is displayed with all of the agent information', () => {
     'have.text',
     'Central'
   );
-  cy.getByLabel({ label: 'Public certificate', tag: 'input' })
+  cy.getByLabel({ label: 'Public certificate(.crt,.cer)', tag: 'input' })
     .eq(0)
     .should(
       'have.value',
       `/etc/pki/${agentsConfiguration.telegraf1.publicCertfFileName}`
     );
-  cy.getByLabel({ label: 'CA', tag: 'input' }).should(
+  cy.getByLabel({ label: 'CA(.crt,.cer)', tag: 'input' }).should(
     'have.value',
     `/etc/pki/${agentsConfiguration.telegraf1.caFileName}`
   );
-  cy.getByLabel({ label: 'Private key', tag: 'input' })
+  cy.getByLabel({ label: 'Private key(.key)', tag: 'input' })
     .eq(0)
     .should(
       'have.value',
       `/etc/pki/${agentsConfiguration.telegraf1.privateKFileName}`
     );
   cy.getByLabel({ label: 'Port', tag: 'input' }).should('have.value', '1443');
-  cy.getByLabel({ label: 'Public certificate', tag: 'input' })
+  cy.getByLabel({ label: 'Public certificate(.crt,.cer)', tag: 'input' })
     .eq(1)
     .should(
       'have.value',
       `/etc/pki/${agentsConfiguration.telegraf1.certfFileName}`
     );
-  cy.getByLabel({ label: 'Private key', tag: 'input' })
+  cy.getByLabel({ label: 'Private key(.key)', tag: 'input' })
     .eq(1)
     .should(
       'have.value',
@@ -128,7 +127,7 @@ When('the user clicks on Save', () => {
 
 Then('the form is closed', () => {
   cy.get('*[role="dialog"]').should('not.exist');
-  cy.contains('Update poller/agent configuration').should('not.exist');
+  cy.contains('Update agent configuration').should('not.exist');
 });
 
 Then('the information are successfully saved', () => {
