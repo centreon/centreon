@@ -806,6 +806,10 @@ msgstr ""
 msgid "Add advanced server configuration"
 msgstr ""
 
+#: centreon/www/install/front_translate.php
+msgid "Add agent configuration"
+msgstr ""
+
 #: centreon/www/include/options/accessLists/resourcesACL/formResourcesAccess.php
 msgid "Add an ACL"
 msgstr "Zugriffssteuerungsliste (ACL) hinzufügen"
@@ -892,10 +896,6 @@ msgstr "Neuen Zeitraum hinzufügen"
 
 #: centreon/www/install/front_translate.php
 msgid "Add parameter"
-msgstr ""
-
-#: centreon/www/install/front_translate.php
-msgid "Add poller/agent configuration"
 msgstr ""
 
 #: centreon/www/include/configuration/configObject/service_template_model/formServiceTemplateModel.php
@@ -1075,16 +1075,21 @@ msgstr "Nach"
 msgid "Agent"
 msgstr ""
 
+#: centreon/www/install/front_translate.php
+msgid "Agent configuration created"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Agent configuration updated"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
 #: centreon/www/install/menu_translation.php
 msgid "Agent configurations"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
 msgid "Agent type"
-msgstr ""
-
-#: centreon/www/install/front_translate.php
-msgid "Agent types"
 msgstr ""
 
 #: centreon/www/include/reporting/dashboard/csvExport/csv_ServiceGroupLogs.php
@@ -2081,11 +2086,11 @@ msgid "By name"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
-msgid "CA"
+msgid "CA Common Name (CN)"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
-msgid "CA Common Name (CN)"
+msgid "CA(.crt,.cer)"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
@@ -4150,7 +4155,7 @@ msgid "Delete additional configuration"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
-msgid "Delete agent"
+msgid "Delete agent configuration"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
@@ -6982,13 +6987,13 @@ msgstr "Datei nicht gefunden"
 msgid "File path"
 msgstr "Dateipfad"
 
-#: centreon/www/install/front_translate.php
-msgid "File too big"
-msgstr ""
-
 #: centreon/src/Core/AgentConfiguration/Application/Exception/AgentConfigurationException.php
 #, php-format
-msgid "Filename '%s' (%s) is invalid"
+msgid "File path or format '%s' (%s) is invalid"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "File too big"
 msgstr ""
 
 #: centreon/www/include/configuration/configNagios/formNagios.php
@@ -12419,18 +12424,6 @@ msgstr ""
 msgid "Poller configuration"
 msgstr ""
 
-#: centreon/www/install/front_translate.php
-msgid "Poller/agent configuration"
-msgstr ""
-
-#: centreon/www/install/front_translate.php
-msgid "Poller/agent configuration created"
-msgstr ""
-
-#: centreon/www/install/front_translate.php
-msgid "Poller/agent configuration updated"
-msgstr ""
-
 #: centreon/www/include/configuration/configGenerate/formGenerateFiles.php
 #: centreon/www/include/eventLogs/viewLog.php
 #: centreon/www/include/monitoring/downtime/AddDowntime.php
@@ -12567,16 +12560,16 @@ msgstr "Minimalen Wert ausgeben"
 msgid "Print Total Value"
 msgstr "Insgesamten Wert ausgeben"
 
-#: centreon/www/install/front_translate.php
-msgid "Private key"
-msgstr ""
-
 #: centreon/www/install/centreon_broker_translation.php
 msgid "Private key file."
 msgstr "Private-Key Datei."
 
 #: centreon/www/install/centreon_broker_translation.php
 msgid "Private key path"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Private key(.key)"
 msgstr ""
 
 #: centreon/www/install/dashboard_widgets.php
@@ -12674,10 +12667,13 @@ msgstr "Proxy-Benutzer"
 msgid "Public"
 msgstr "Öffentlich"
 
-#: centreon/www/install/front_translate.php
 #: centreon/www/install/centreon_broker_translation.php
 msgid "Public certificate"
 msgstr "Öffentliches Zertifikat"
+
+#: centreon/www/install/front_translate.php
+msgid "Public certificate(.crt,.cer)"
+msgstr ""
 
 #: centreon/www/include/home/customViews/formLoad.php
 msgid "Public views list"
@@ -17009,6 +17005,10 @@ msgid "Update"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
+msgid "Update agent configuration"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
 msgid "Update all"
 msgstr ""
 
@@ -17031,10 +17031,6 @@ msgstr ""
 #: centreon/www/include/configuration/configObject/host/formHost.php
 msgid "Update mode"
 msgstr "Aktualisierungsmodus"
-
-#: centreon/www/install/front_translate.php
-msgid "Update poller/agent configuration"
-msgstr ""
 
 #: centreon/www/install/front_translate.php
 msgid "Updated"
@@ -17758,15 +17754,15 @@ msgid "Welcome to the additional configurations page"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
+msgid "Welcome to the agent configuration page"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
 msgid "Welcome to the host groups page"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
 msgid "Welcome to the notifications interface"
-msgstr ""
-
-#: centreon/www/install/front_translate.php
-msgid "Welcome to the poller/agent configuration page"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
@@ -17943,7 +17939,7 @@ msgstr ""
 #: centreon/www/install/front_translate.php
 msgid ""
 "You are going to delete the <strong>{{ agent }}</strong> agent "
-"configuration. All configuration parameters for this agent will be deleted. "
+"configuration. All parameters for this agent configuration will be deleted. "
 "This action cannot be undone."
 msgstr ""
 
