@@ -93,11 +93,11 @@ runs:
 
             console.log(data);
 
-            if (["get-environment", "package", "dockerize", "deliver-rpm", "deliver-deb", "translation-build"].includes(failed_job)) {
+            if (["changes", "get-environment", "check-version-consistency", "package", "dockerize", "deliver-rpm", "deliver-deb", "translation-build", "deliver-sources"].includes(failed_job)) {
               ticket_squad_id = 10524
               ticket_board_id = 184
               squad_name = "DEVSECOPS"
-            } else if (["frontend-web-lint", "frontend-web-build", "frontend-component-test", "e2e-test", "legacy-e2e-test", "newman-test"].includes(failed_job)) {
+            } else if (["gherkin-lint", "frontend-web-build", "backend-dependencies", "frontend-web-lint", "frontend-unit-test", "frontend-component-test", "backend-unit-test", "backend-lint", "e2e-test", "legacy-e2e-test", "newman-test", "performances-test"].includes(failed_job)) {
               if (dayjs().isoWeek() % 4 >= 2) {
                 ticket_squad_id = 10625
                 ticket_board_id = 213
