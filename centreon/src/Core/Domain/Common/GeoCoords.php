@@ -84,7 +84,9 @@ class GeoCoords implements \Stringable
             throw InvalidGeoCoordException::invalidValues();
         }
 
+        /** @var numeric-string $latitude */
         $latitude = self::truncateDecimals($parts[0]);
+        /** @var numeric-string $longitude */
         $longitude = self::truncateDecimals($parts[1]);
 
         Assertion::maxLength($latitude . ',' . $longitude, self::MAX_LENGTH, 'GeoCoords::maxLength');
