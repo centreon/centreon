@@ -18,7 +18,7 @@ const panelData: Data = {
       name: 'Ping_1',
       unit: 'ms',
       serviceId: 1,
-      serviceName: "Service_1"
+      serviceName: 'Service_1'
     },
     {
       id: 2,
@@ -41,7 +41,7 @@ const panelData: Data = {
         }
       ]
     },
-      {
+    {
       resourceType: 'service',
       resources: [
         {
@@ -57,14 +57,10 @@ const diskUsedMetricData: Data = {
   metrics: [
     {
       id: 1,
-      metrics: [
-        {
-          id: 1,
-          name: 'disk_used',
-          unit: 'B'
-        }
-      ],
-      name: 'Disk'
+      name: 'Disk',
+      unit: 'B',
+      serviceId: 1,
+      serviceName: 'Service_1'
     }
   ],
   resources: [
@@ -74,6 +70,15 @@ const diskUsedMetricData: Data = {
         {
           id: 1,
           name: 'HG1'
+        }
+      ]
+    },
+    {
+      resourceType: 'service',
+      resources: [
+        {
+          id: 1,
+          name: 'Service_1'
         }
       ]
     }
@@ -171,7 +176,7 @@ const initializeComponent = ({
     cy.interceptAPIRequest({
       alias: 'getLineChart',
       method: Method.GET,
-      path: `${getMetricsEndpoint({hostId:1, serviceId: 1,metricName: 'Ping_1'})}**`,
+      path: `${getMetricsEndpoint({ hostId: 1, serviceId: 1, metricName: data.metrics[0].name })}**`,
       response: lineChart
     });
 
@@ -337,7 +342,7 @@ describe('Single metric Widget', () => {
     it('display the metric value as human readable', () => {
       initializeComponent({
         data: diskUsedMetricData,
-        fixture: 'Widgets/Graph/chartWithBytes.json',
+        fixture: 'Widgets/Graph/metricWithBytUnit.json',
         options: {
           displayType: 'text',
           threshold: defaultThreshold,
@@ -351,7 +356,7 @@ describe('Single metric Widget', () => {
     it('display the metric value as raw', () => {
       initializeComponent({
         data: diskUsedMetricData,
-        fixture: 'Widgets/Graph/chartWithBytes.json',
+        fixture: 'Widgets/Graph/metricWithBytUnit.json',
         options: {
           displayType: 'text',
           threshold: defaultThreshold,
@@ -458,7 +463,7 @@ describe('Single metric Widget', () => {
     it('display the metric value as human readable', () => {
       initializeComponent({
         data: diskUsedMetricData,
-        fixture: 'Widgets/Graph/chartWithBytes.json',
+        fixture: 'Widgets/Graph/metricWithBytUnit.json',
         options: {
           displayType: 'bar',
           threshold: defaultThreshold,
@@ -472,7 +477,7 @@ describe('Single metric Widget', () => {
     it('display the metric value as raw', () => {
       initializeComponent({
         data: diskUsedMetricData,
-        fixture: 'Widgets/Graph/chartWithBytes.json',
+        fixture: 'Widgets/Graph/metricWithBytUnit.json',
         options: {
           displayType: 'bar',
           threshold: defaultThreshold,
@@ -568,7 +573,7 @@ describe('Single metric Widget', () => {
     it('display the metric value as human readable', () => {
       initializeComponent({
         data: diskUsedMetricData,
-        fixture: 'Widgets/Graph/chartWithBytes.json',
+        fixture: 'Widgets/Graph/metricWithBytUnit.json',
         options: {
           displayType: 'gauge',
           threshold: defaultThreshold,
@@ -582,7 +587,7 @@ describe('Single metric Widget', () => {
     it('display the metric value as raw', () => {
       initializeComponent({
         data: diskUsedMetricData,
-        fixture: 'Widgets/Graph/chartWithBytes.json',
+        fixture: 'Widgets/Graph/metricWithBytUnit.json',
         options: {
           displayType: 'gauge',
           threshold: defaultThreshold,
