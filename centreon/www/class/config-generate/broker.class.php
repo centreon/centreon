@@ -207,6 +207,7 @@ class Broker extends AbstractObjectJSON
     /**
      * @param $poller_id
      * @param $localhost
+     * @param mixed $pollerId
      *
      * @throws PDOException
      * @throws RuntimeException

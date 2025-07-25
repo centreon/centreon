@@ -19,7 +19,6 @@
  *
  */
 
-use App\Kernel;
 use Core\MonitoringServer\Application\Repository\ReadMonitoringServerRepositoryInterface;
 use Pimple\Container;
 use Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException;
@@ -199,7 +198,7 @@ class Engine extends AbstractObject
         'log_level_process',
         'log_level_runtime',
         'broker_module_cfg_file',
-        'credentials_encryption'
+        'credentials_encryption',
     ];
 
     /** @var string[] */

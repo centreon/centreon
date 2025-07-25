@@ -109,6 +109,7 @@ class Generate
     private ReadMonitoringServerRepositoryInterface $readMonitoringServerRepository;
 
     private WriteMonitoringServerRepositoryInterface $writeMonitoringServerRepository;
+
     /**
      * Generate constructor
      *

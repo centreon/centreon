@@ -380,14 +380,15 @@ abstract class AbstractService extends AbstractObject
         $vaultPathByResources = [];
 
         foreach ($macros as $macro) {
-                /**
-                 * Check that the value is a vault path and that we haven't store it already
-                 * As macros are stored by resources in vault. All the macros for the same service has the same vault path
-                 */
-                if ($this->isAVaultPath($macro->getValue()) && ! array_key_exists($macro->getOwnerId(), $vaultPathByResources)) {
-                    $vaultPathByResources[$macro->getOwnerId()] = $macro->getValue();
+            /**
+             * Check that the value is a vault path and that we haven't store it already
+             * As macros are stored by resources in vault. All the macros for the same service has the same vault path
+             */
+            if ($this->isAVaultPath($macro->getValue()) && ! array_key_exists($macro->getOwnerId(), $vaultPathByResources)) {
+                $vaultPathByResources[$macro->getOwnerId()] = $macro->getValue();
             }
         }
+
         return $vaultPathByResources;
     }
 }

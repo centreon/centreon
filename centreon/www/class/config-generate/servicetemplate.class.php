@@ -265,4 +265,3 @@ class ServiceTemplate extends AbstractService
         }
     }
 }
-

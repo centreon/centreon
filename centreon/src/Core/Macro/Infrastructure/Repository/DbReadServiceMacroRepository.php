@@ -123,24 +123,25 @@ class DbReadServiceMacroRepository extends DatabaseRepository implements ReadSer
     public function findServicesMacrosWithEncryptionReady(int $pollerId): array
     {
         $results = $this->connection->fetchAllAssociative(
-            $this->translateDbName(<<<'SQL'
-                SELECT
-                    odms.svc_svc_id,
-                    odms.svc_macro_name,
-                    odms.svc_macro_value,
-                    odms.is_password,
-                    odms.description,
-                    odms.macro_order,
-                    ns.is_encryption_ready
-                FROM on_demand_macro_service odms
-                INNER JOIN host_service_relation hsr
-                    ON odms.svc_svc_id = hsr.service_service_id
-                INNER JOIN ns_host_relation nsr
-                    ON hsr.host_host_id = nsr.host_host_id
-                INNER JOIN nagios_server ns
-                    ON nsr.nagios_server_id = ns.id
-                WHERE ns.id = :pollerId
-                SQL
+            $this->translateDbName(
+                <<<'SQL'
+                    SELECT
+                        odms.svc_svc_id,
+                        odms.svc_macro_name,
+                        odms.svc_macro_value,
+                        odms.is_password,
+                        odms.description,
+                        odms.macro_order,
+                        ns.is_encryption_ready
+                    FROM on_demand_macro_service odms
+                    INNER JOIN host_service_relation hsr
+                        ON odms.svc_svc_id = hsr.service_service_id
+                    INNER JOIN ns_host_relation nsr
+                        ON hsr.host_host_id = nsr.host_host_id
+                    INNER JOIN nagios_server ns
+                        ON nsr.nagios_server_id = ns.id
+                    WHERE ns.id = :pollerId
+                    SQL
             ),
             QueryParameters::create([QueryParameter::int('pollerId', $pollerId)])
         );
@@ -168,26 +169,27 @@ class DbReadServiceMacroRepository extends DatabaseRepository implements ReadSer
     public function findServiceTemplatesMacrosWithEncryptionReady(int $pollerId): array
     {
         $results = $this->connection->fetchAllAssociative(
-            $this->translateDbName(<<<'SQL'
-                SELECT
-                    odms.svc_svc_id,
-                    odms.svc_macro_name,
-                    odms.svc_macro_value,
-                    odms.is_password,
-                    odms.description,
-                    odms.macro_order,
-                    ns.is_encryption_ready
-                FROM on_demand_macro_service odms
-                INNER JOIN service svc
-                    ON odms.svc_svc_id = svc.service_template_model_stm_id
-                INNER JOIN host_service_relation hsr
-                    ON svc.service_id = hsr.service_service_id
-                INNER JOIN ns_host_relation nsr
-                    ON hsr.host_host_id = nsr.host_host_id
-                INNER JOIN nagios_server ns
-                    ON nsr.nagios_server_id = ns.id
-                WHERE ns.id = :pollerId
-                SQL
+            $this->translateDbName(
+                <<<'SQL'
+                    SELECT
+                        odms.svc_svc_id,
+                        odms.svc_macro_name,
+                        odms.svc_macro_value,
+                        odms.is_password,
+                        odms.description,
+                        odms.macro_order,
+                        ns.is_encryption_ready
+                    FROM on_demand_macro_service odms
+                    INNER JOIN service svc
+                        ON odms.svc_svc_id = svc.service_template_model_stm_id
+                    INNER JOIN host_service_relation hsr
+                        ON svc.service_id = hsr.service_service_id
+                    INNER JOIN ns_host_relation nsr
+                        ON hsr.host_host_id = nsr.host_host_id
+                    INNER JOIN nagios_server ns
+                        ON nsr.nagios_server_id = ns.id
+                    WHERE ns.id = :pollerId
+                    SQL
             ),
             QueryParameters::create([QueryParameter::int('pollerId', $pollerId)])
         );
@@ -237,4 +239,3 @@ class DbReadServiceMacroRepository extends DatabaseRepository implements ReadSer
         return $macro;
     }
 }
-

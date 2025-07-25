@@ -102,7 +102,7 @@ abstract class AbstractObject
         $this->backend_instance = Backend::getInstance($this->dependencyInjector);
         $this->engineContextEncryption = $this->kernel->getContainer()->get(EncryptionInterface::class);
         // $this->engineContextEncryption = new Encryption();
-        if(self::class === "Host") {
+        if (self::class === 'Host') {
             CentreonLog::create()->debug(
                 logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
                 message: spl_object_hash($this->engineContextEncryption)
@@ -118,11 +118,11 @@ abstract class AbstractObject
                     message: "Unable to parse content of '/etc/centreon-engine/engine-context.json', credentials will not be encrypted"
                 );
 
-                throw new \RuntimeException('/etc/centreon/engine-context.json does not exists or is empty');
+                throw new RuntimeException('/etc/centreon/engine-context.json does not exists or is empty');
             }
             $engineContext = json_decode($engineContext, true, flags: JSON_THROW_ON_ERROR);
             $this->engineContextEncryption->setSecondKey($engineContext['salt']);
-        } catch (JsonException|\RuntimeException $ex) {
+        } catch (JsonException|RuntimeException $ex) {
             CentreonLog::create()->error(
                 logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
                 message: "Unable to parse content of '/etc/centreon-engine/engine-context.json', credentials will not be encrypted",
@@ -130,27 +130,6 @@ abstract class AbstractObject
             );
 
             throw $ex;
-        }
-    }
-
-    /**
-     * Get Centreon Vault Configuration Status
-     *
-     * @throws LogicException
-     * @throws ServiceCircularReferenceException
-     * @throws ServiceNotFoundException
-     * @return void
-     */
-    private function getVaultConfigurationStatus(): void
-    {
-        $readVaultConfigurationRepository = $this->kernel->getContainer()->get(
-            Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface::class
-        );
-        $featureFlag = $this->kernel->getContainer()->get(FeatureFlags::class);
-        $vaultConfiguration = $readVaultConfigurationRepository->find();
-        if ($vaultConfiguration !== null && $featureFlag->isEnabled('vault')) {
-            $this->isVaultEnabled = true;
-            $this->readVaultRepository = $this->kernel->getContainer()->get(ReadVaultRepositoryInterface::class);
         }
     }
 
@@ -368,6 +347,27 @@ abstract class AbstractObject
         }
 
         $this->writeNoObject($object);
+    }
+
+    /**
+     * Get Centreon Vault Configuration Status
+     *
+     * @throws LogicException
+     * @throws ServiceCircularReferenceException
+     * @throws ServiceNotFoundException
+     * @return void
+     */
+    private function getVaultConfigurationStatus(): void
+    {
+        $readVaultConfigurationRepository = $this->kernel->getContainer()->get(
+            Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface::class
+        );
+        $featureFlag = $this->kernel->getContainer()->get(FeatureFlags::class);
+        $vaultConfiguration = $readVaultConfigurationRepository->find();
+        if ($vaultConfiguration !== null && $featureFlag->isEnabled('vault')) {
+            $this->isVaultEnabled = true;
+            $this->readVaultRepository = $this->kernel->getContainer()->get(ReadVaultRepositoryInterface::class);
+        }
     }
 
     /**

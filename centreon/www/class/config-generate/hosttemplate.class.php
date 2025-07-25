@@ -229,4 +229,3 @@ class HostTemplate extends AbstractHost
         }
     }
 }
-

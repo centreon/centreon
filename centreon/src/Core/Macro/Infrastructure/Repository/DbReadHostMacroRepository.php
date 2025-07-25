@@ -34,7 +34,8 @@ use Core\Macro\Domain\Model\Macro;
 
 class DbReadHostMacroRepository extends DatabaseRepository implements ReadHostMacroRepositoryInterface
 {
-    use LoggerTrait, SqlMultipleBindTrait;
+    use LoggerTrait;
+    use SqlMultipleBindTrait;
 
     /**
      * @inheritDoc
@@ -167,22 +168,23 @@ class DbReadHostMacroRepository extends DatabaseRepository implements ReadHostMa
     public function findHostsMacrosWithEncryptionReady(int $pollerId): array
     {
         $results = $this->connection->fetchAllAssociative(
-            $this->translateDbName(<<<'SQL'
-                SELECT
-                    odmh.host_host_id,
-                    odmh.host_macro_name,
-                    odmh.host_macro_value,
-                    odmh.is_password,
-                    odmh.description,
-                    odmh.macro_order,
-                    ns.is_encryption_ready
-                FROM on_demand_macro_host odmh
-                INNER JOIN ns_host_relation nsr
-                    ON odmh.host_host_id = nsr.host_host_id
-                INNER JOIN nagios_server ns
-                    ON nsr.nagios_server_id = ns.id
-                WHERE ns.id = :pollerId
-                SQL
+            $this->translateDbName(
+                <<<'SQL'
+                    SELECT
+                        odmh.host_host_id,
+                        odmh.host_macro_name,
+                        odmh.host_macro_value,
+                        odmh.is_password,
+                        odmh.description,
+                        odmh.macro_order,
+                        ns.is_encryption_ready
+                    FROM on_demand_macro_host odmh
+                    INNER JOIN ns_host_relation nsr
+                        ON odmh.host_host_id = nsr.host_host_id
+                    INNER JOIN nagios_server ns
+                        ON nsr.nagios_server_id = ns.id
+                    WHERE ns.id = :pollerId
+                    SQL
             ),
             QueryParameters::create([QueryParameter::int('pollerId', $pollerId)])
         );
@@ -210,26 +212,27 @@ class DbReadHostMacroRepository extends DatabaseRepository implements ReadHostMa
     public function findHostTemplatesMacrosWithEncryptionReady(int $pollerId): array
     {
         $results = $this->connection->fetchAllAssociative(
-            $this->translateDbName(<<<'SQL'
-                SELECT
-                    odmh.host_host_id,
-                    odmh.host_macro_name,
-                    odmh.host_macro_value,
-                    odmh.is_password,
-                    odmh.description,
-                    odmh.macro_order,
-                    ns.is_encryption_ready
-                FROM on_demand_macro_host odmh
-                INNER JOIN host_template_relation htr
-                    ON odmh.host_host_id = htr.host_tpl_id
-                INNER JOIN ns_host_relation nsr
-                    ON htr.host_host_id = nsr.host_host_id
-                INNER JOIN nagios_server ns
-                    ON nsr.nagios_server_id = ns.id
-                WHERE odmh.host_host_id IN (
-                    SELECT DISTINCT host_tpl_id FROM host_template_relation
-                ) AND ns.id = :pollerId
-                SQL
+            $this->translateDbName(
+                <<<'SQL'
+                    SELECT
+                        odmh.host_host_id,
+                        odmh.host_macro_name,
+                        odmh.host_macro_value,
+                        odmh.is_password,
+                        odmh.description,
+                        odmh.macro_order,
+                        ns.is_encryption_ready
+                    FROM on_demand_macro_host odmh
+                    INNER JOIN host_template_relation htr
+                        ON odmh.host_host_id = htr.host_tpl_id
+                    INNER JOIN ns_host_relation nsr
+                        ON htr.host_host_id = nsr.host_host_id
+                    INNER JOIN nagios_server ns
+                        ON nsr.nagios_server_id = ns.id
+                    WHERE odmh.host_host_id IN (
+                        SELECT DISTINCT host_tpl_id FROM host_template_relation
+                    ) AND ns.id = :pollerId
+                    SQL
             ),
             QueryParameters::create([QueryParameter::int('pollerId', $pollerId)])
         );
@@ -287,4 +290,3 @@ class DbReadHostMacroRepository extends DatabaseRepository implements ReadHostMa
         return $macro;
     }
 }
-

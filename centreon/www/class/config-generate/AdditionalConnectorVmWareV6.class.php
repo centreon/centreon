@@ -103,7 +103,6 @@ class AdditionalConnectorVmWareV6 extends AbstractObjectJSON
         $additionalConnectorsVMWareV6 = $this->readAdditionalConnectorRepository
             ->findByPollerAndType($pollerId, Type::VMWARE_V6->value);
 
-
         $shouldBeEncrypted = $this->readyMonitoringServerRepository->isEncryptionReady($pollerId);
         // Cast to object to ensure that an empty JSON and not an empty array is write in file if no ACC exists.
         $object = (object) [];

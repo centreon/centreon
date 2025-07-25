@@ -382,12 +382,13 @@ class DbReadMonitoringServerRepository extends AbstractRepositoryRDB implements 
 
     public function isEncryptionReady(int $monitoringServerId): bool
     {
-        $statement = $this->db->prepare($this->translateDbName(<<<SQL
-            SELECT 1
-            FROM `:dbstg`.`instances`
-            WHERE instance_id = :monitoringServerId
-                AND is_encryption_ready = '1'
-            SQL
+        $statement = $this->db->prepare($this->translateDbName(
+            <<<'SQL'
+                SELECT 1
+                FROM `:dbstg`.`instances`
+                WHERE instance_id = :monitoringServerId
+                    AND is_encryption_ready = '1'
+                SQL
         ));
         $statement->bindValue(':monitoringServerId', $monitoringServerId, \PDO::PARAM_INT);
         $statement->execute();
@@ -395,12 +396,13 @@ class DbReadMonitoringServerRepository extends AbstractRepositoryRDB implements 
             return true;
         }
 
-        $statement = $this->db->prepare($this->translateDbName(<<<SQL
-            SELECT 1
-            FROM `:db`.`nagios_server`
-            WHERE id = :monitoringServerId
-                AND is_encryption_ready = '1'
-            SQL
+        $statement = $this->db->prepare($this->translateDbName(
+            <<<'SQL'
+                SELECT 1
+                FROM `:db`.`nagios_server`
+                WHERE id = :monitoringServerId
+                    AND is_encryption_ready = '1'
+                SQL
         ));
         $statement->bindValue(':monitoringServerId', $monitoringServerId, \PDO::PARAM_INT);
         $statement->execute();

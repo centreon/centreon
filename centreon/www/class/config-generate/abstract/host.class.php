@@ -36,7 +36,6 @@ require_once __DIR__ . '/object.class.php';
 abstract class AbstractHost extends AbstractObject
 {
     use VaultTrait;
-
     public const TYPE_HOST = 1;
     public const TYPE_TEMPLATE = 0;
     public const TYPE_VIRTUAL_HOST = 2;
@@ -563,13 +562,13 @@ abstract class AbstractHost extends AbstractObject
             $value = $macro->getValue();
 
             // Store the vault path if not already stored for this owner
-            if ($this->isAVaultPath($value) && !isset($vaultPathByResources[$ownerId])) {
+            if ($this->isAVaultPath($value) && ! isset($vaultPathByResources[$ownerId])) {
                 $vaultPathByResources[$ownerId] = $value;
             }
         }
 
         // If no vault path found in macros, check SNMP community
-        if (empty($vaultPathByResources) && $snmpCommunity !== null) {
+        if ($vaultPathByResources === [] && $snmpCommunity !== null) {
             if ($this->isAVaultPath($snmpCommunity)) {
                 $vaultPathByResources[$hostId] = $snmpCommunity;
             }

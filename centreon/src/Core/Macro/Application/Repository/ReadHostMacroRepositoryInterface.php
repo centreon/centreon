@@ -61,7 +61,6 @@ interface ReadHostMacroRepositoryInterface
      */
     public function findPasswords(): array;
 
-
     /**
      * Find macros for hosts only.
      *

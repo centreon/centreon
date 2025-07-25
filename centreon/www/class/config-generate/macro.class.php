@@ -74,7 +74,7 @@ class Macro extends AbstractObject
         parent::__construct($dependencyInjector);
 
         $this->setPollersEncryptionReadyStatusByHosts();
-        /* $this->buildCache(); */
+        // $this->buildCache();
     }
 
     /**
@@ -124,7 +124,7 @@ class Macro extends AbstractObject
         }
     }
 
-    private function setPollersEncryptionReadyStatusByHosts()
+    private function setPollersEncryptionReadyStatusByHosts(): void
     {
         $result = $this->backend_instance->db->fetchAllAssociativeIndexed(
             <<<'SQL'
@@ -201,15 +201,9 @@ class Macro extends AbstractObject
             $value = $macro['host_macro_value'];
             $hostId = $macro['host_host_id'];
 
-            if (
-                $this->pollersEncryptionReadyStatusByHosts[$hostId] === true &&
-                (! $macro['is_password'] || ! str_starts_with($value, 'secret::'))
-            ) {
-                if ($macro['is_password']) {
-                    $value = 'encrypt::' . $this->engineContextEncryption->crypt($value);
-                } else {
-                    $value = 'raw::' . $value;
-                }
+            if ($this->pollersEncryptionReadyStatusByHosts[$hostId] === true
+            && (! $macro['is_password'] || ! str_starts_with($value, 'secret::'))) {
+                $value = $macro['is_password'] ? 'encrypt::' . $this->engineContextEncryption->crypt($value) : 'raw::' . $value;
             }
 
             $this->macroHostCache[$hostId][$hostMacroName] = $value;
@@ -289,4 +283,3 @@ class Macro extends AbstractObject
         $this->done_cache = 1;
     }
 }
-
