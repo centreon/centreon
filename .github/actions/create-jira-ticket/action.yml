@@ -158,7 +158,7 @@ runs:
 
             console.log(`Response on ticket creation: ${response}`);
 
-            ticket_key = response.key;
+            ticket_key = JSON.parse(response).key;
             core.notice(`Created ticket: ${ticket_key}`);
 
             // Update priority on newly created ticket since you cannot create a ticket with another priority than medium
@@ -172,7 +172,7 @@ runs:
             // Update ticket status so that squad members can see it in their respective sprints
             for (transition_id of [11, 21]) {
               response = execSync(
-                `curl --request POST --url "${{ inputs.jira_base_url }}/rest/api/latest/issue/${ticket_key}/transitions" --user "${{ inputs.jira_user_email }}:${{ inputs.jira_api_token }}" --header 'Accept: application/json' --header 'Content-Type: application/json' --data "{\"transition\": {\"id\": \"${transition_id}\"} }`,
+                `curl --request POST --url "${{ inputs.jira_base_url }}/rest/api/latest/issue/${ticket_key}/transitions" --user "${{ inputs.jira_user_email }}:${{ inputs.jira_api_token }}" --header 'Accept: application/json' --header 'Content-Type: application/json' --data "{\"transition\": {\"id\": \"${transition_id}\"} }"`,
                 { encoding: 'utf8' }
               )
 
