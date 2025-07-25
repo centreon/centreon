@@ -83,8 +83,8 @@ runs:
         retry_on: error
         command: cd ${{ inputs.module }}/tests/e2e && pnpm cypress install --force
 
-    - name: Add sso.local to /etc/hosts
-      run: echo "127.0.0.1 sso.local" | sudo tee -a /etc/hosts
+    - name: Add sso-proxy to /etc/hosts
+      run: echo "127.0.0.1 sso-proxy" | sudo tee -a /etc/hosts
       shell: bash
 
     - name: Cypress end-to-end testing
