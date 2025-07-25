@@ -178,7 +178,7 @@ runs:
 
             console.log(`Response on priority change: ${response}`);
 
-            // Update ticket status so that squad members can see it in their respective sprints
+            // Update ticket status to NEED REFINEMENT and then SPRINT READY so that squad members can see it in their respective sprints
             for (const transition_id of [11, 21]) {
               response = execSync(
                 `curl --request POST \
