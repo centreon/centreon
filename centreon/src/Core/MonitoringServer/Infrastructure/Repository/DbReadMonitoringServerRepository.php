@@ -79,7 +79,7 @@ class DbReadMonitoringServerRepository extends AbstractRepositoryRDB implements 
     {
         $request = $this->translateDbName(
             <<<'SQL'
-                SELECT `id`
+                SELECT `id`, `name`
                 FROM `:db`.`nagios_server` ns
                 INNER JOIN `:db`.`ns_host_relation` ns_hrel
                     ON ns_hrel.nagios_server_id = ns.id
