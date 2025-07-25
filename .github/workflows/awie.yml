@@ -133,7 +133,7 @@ jobs:
         shell: bash
 
       - name: Install dependencies for centreon-awie
-        run: composer install --optimize-autoloader --prefer-dist --no-interaction --no-progress --no-suggest
+        run: composer install --optimize-autoloader --prefer-dist --no-interaction --no-progress --quiet --no-suggest
         working-directory: centreon-awie
         shell: bash
 
