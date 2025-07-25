@@ -119,7 +119,16 @@ const warningThreshold: FormThreshold = {
 
 const emptyServiceMetrics: Data = {
   metrics: [],
-  resources: []
+  resources: [
+    {
+        "resourceType": "host",
+        "resources": []
+    },
+    {
+        "resourceType": "service",
+        "resources": []
+    }
+]
 };
 
 const metaServiceData: Data = {
