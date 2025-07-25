@@ -143,7 +143,7 @@ runs:
               }
 
             if (current_sprint !== null) {
-              ticket_data.fields.customfield_10007 = current_sprint;
+              ticket_data.fields.customfield_10007 = parseInt(current_sprint, 10);
             }
 
             // fs.writeFileSync(JSON_TEMPLATE_FILE, data, { encoding: 'utf8' });
