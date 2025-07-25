@@ -56,7 +56,7 @@ runs:
           const date = dayjs().format('YYYY-MM-DD');
           const path = './ticket-payload.json';
           let contents;
-          let data, ticket_summary, ticket_squad_id, ticket_board_id, squad_name, ticket_labels, current_sprint, failed_steps, ticket_data, data_payload, ticket_key;
+          let data, ticket_summary, ticket_squad_id, ticket_board_id, squad_name, ticket_labels, current_sprint, ticket_data, data_payload, ticket_key;
 
           let failed_jobs = execSync(
             `gh run view ${{ github.run_id }} --json jobs -q '.jobs[] | select(.conclusion == "failure") | .name'`,
@@ -122,13 +122,6 @@ runs:
             );
 
             console.log(`Current sprint: ${current_sprint}`);
-
-            failed_steps = execSync(
-              `gh run view ${{ github.run_id }} --json jobs | jq -r --arg failed_job "${failed_job}" '[ .jobs[] | select(.name == $failed_job) | .steps[] | select(.conclusion == "failure") | .name]'`,
-              { encoding: 'utf8' }
-            );
-
-            console.log(`Failed steps: ${failed_steps}`);
 
             // Creating a new incident ticket on Jira
             data = JSON.parse(data);
