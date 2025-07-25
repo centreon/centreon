@@ -230,29 +230,6 @@ abstract class AbstractHost extends AbstractObject
         }
     }
 
-    /**
-     * @param $host
-     *
-     * @throws LogicException
-     * @throws PDOException
-     * @throws ServiceCircularReferenceException
-     * @throws ServiceNotFoundException
-     * @return int
-     */
-    protected function getMacros(&$host)
-    {
-        if (isset($host['macros'])) {
-            return 1;
-        }
-
-        $host['macros'] = Macro::getInstance($this->dependencyInjector)
-            ->getHostMacroByHostId($host['host_id']);
-        if (! is_null($host['host_snmp_version']) && $host['host_snmp_version'] !== '0') {
-            $host['macros']['_SNMPVERSION'] = $host['host_snmp_version'];
-        }
-
-        return 0;
-    }
 
     /**
      * @param array $host

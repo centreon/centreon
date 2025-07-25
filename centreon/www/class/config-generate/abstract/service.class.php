@@ -145,23 +145,6 @@ abstract class AbstractService extends AbstractObject
     }
 
     /**
-     * @param $service
-     * @param int|null $hostId
-     * @return int
-     */
-    protected function getMacros(&$service, ?int $hostId = null)
-    {
-        if (isset($service['macros'])) {
-            return 1;
-        }
-
-        $service['macros'] = Macro::getInstance($this->dependencyInjector)
-            ->getServiceMacroByServiceId($service['service_id'], $hostId);
-
-        return 0;
-    }
-
-    /**
      * Format Macros for export.
      *
      * @param array<string, mixed> $service

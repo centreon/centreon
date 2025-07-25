@@ -66,8 +66,6 @@ interface ReadHostMacroRepositoryInterface
      *
      * @param int $pollerId
      *
-     * @throws \Throwable
-     *
      * @return Macro[]
      */
     public function findHostsMacrosWithEncryptionReady(int $pollerId): array;
@@ -76,8 +74,6 @@ interface ReadHostMacroRepositoryInterface
      * Find macros for hosts templates only.
      *
      * @param int $pollerId
-     *
-     * @throws \Throwable
      *
      * @return Macro[]
      */

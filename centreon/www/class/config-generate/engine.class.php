@@ -254,11 +254,6 @@ class Engine extends AbstractObject
     /** @var array */
     protected $add_cfg_files = [];
 
-    public function __construct(Container $dependencyInjector)
-    {
-        parent::__construct($dependencyInjector);
-    }
-
     /**
      * @param $poller
      *

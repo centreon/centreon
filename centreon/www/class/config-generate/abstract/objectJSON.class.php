@@ -24,7 +24,9 @@ use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
 use Core\Common\Infrastructure\FeatureFlags;
 use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface;
 use Pimple\Container;
-use Security\Encryption;
+use Security\Interfaces\EncryptionInterface;
+use Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException;
+use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
 
 /**
  * Class
@@ -53,7 +55,7 @@ abstract class AbstractObjectJSON
 
     protected Kernel $kernel;
 
-    protected Encryption $engineContextEncryption;
+    protected EncryptionInterface $engineContextEncryption;
 
     /**
      * AbstractObjectJSON constructor
@@ -64,25 +66,33 @@ abstract class AbstractObjectJSON
     {
         $this->kernel = Kernel::createForWeb();
         $this->dependencyInjector = $dependencyInjector;
-        $this->getVaultConfigurationStatus();
         $this->backend_instance = Backend::getInstance($this->dependencyInjector);
-        $this->engineContextEncryption = new Encryption();
+        $this->engineContextEncryption = $this->kernel->getContainer()->get(EncryptionInterface::class);
         $engineContext = file_get_contents('/etc/centreon-engine/engine-context.json');
         try {
+            $this->getVaultConfigurationStatus();
             if ($engineContext === false || empty($engineContext)) {
                 CentreonLog::create()->error(
                     logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
-                    message: "Unable to parse content of '/etc/centreon-engine/engine-context.json', credentials will not be encrypted"
+                    message: "Unable to parse content of '/etc/centreon-engine/engine-context.json'"
                 );
 
                 throw new RuntimeException('/etc/centreon/engine-context.json does not exists or is empty');
             }
             $engineContext = json_decode($engineContext, true, flags: JSON_THROW_ON_ERROR);
-            $this->engineContextEncryption->setFirstKey($engineContext['app_secret'])->setSecondKey($engineContext['salt']);
+            $this->engineContextEncryption->setSecondKey($engineContext['salt']);
         } catch (JsonException|RuntimeException $ex) {
             CentreonLog::create()->error(
                 logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
                 message: "Unable to parse content of '/etc/centreon-engine/engine-context.json'",
+                exception: $ex
+            );
+
+            throw $ex;
+        } catch (ServiceCircularReferenceException|ServiceNotFoundException $ex) {
+            CentreonLog::create()->error(
+                logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
+                message: 'Unable to get Vault configuration status',
                 exception: $ex
             );
 
@@ -155,7 +165,6 @@ abstract class AbstractObjectJSON
     /**
      * Get Centreon Vault Configuration Status
      *
-     * @throws LogicException
      * @throws ServiceCircularReferenceException
      * @throws ServiceNotFoundException
      * @return void

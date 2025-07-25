@@ -164,10 +164,12 @@ class Host extends AbstractHost
         $readHostMacroRepository = $this->kernel->getContainer()->get(ReadHostMacroRepositoryInterface::class);
         /** @var ReadServiceMacroRepositoryInterface $readServiceMacroRepository */
         $readServiceMacroRepository = $this->kernel->getContainer()->get(ReadServiceMacroRepositoryInterface::class);
+
         $hostMacros = $readHostMacroRepository->findHostsMacrosWithEncryptionReady($pollerId);
         $hostTemplateMacros = $readHostMacroRepository->findHostTemplatesMacrosWithEncryptionReady($pollerId);
         $serviceMacros = $readServiceMacroRepository->findServicesMacrosWithEncryptionReady($pollerId);
         $serviceTemplateMacros = $readServiceMacroRepository->findServiceTemplatesMacrosWithEncryptionReady($pollerId);
+
         foreach ($this->hosts as $host_id => &$host) {
             $this->hosts_by_name[$host['host_name']] = $host_id;
             $host['host_id'] = $host_id;

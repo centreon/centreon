@@ -55,8 +55,6 @@ interface ReadServiceMacroRepositoryInterface
      *
      * @param int $pollerId
      *
-     * @throws \Throwable
-     *
      * @return Macro[]
      */
     public function findServicesMacrosWithEncryptionReady(int $pollerId): array;
@@ -65,8 +63,6 @@ interface ReadServiceMacroRepositoryInterface
      * Find macros for service templates only.
      *
      * @param int $pollerId
-     *
-     * @throws \Throwable
      *
      * @return Macro[]
      */
