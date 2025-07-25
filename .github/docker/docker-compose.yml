@@ -11,7 +11,7 @@ services:
       MYSQL_HOST: db
       GLPI_HOST: glpi
       VAULT_HOST: vault
-      OPENID_HOST: openid
+      OPENID_HOST: sso.local
       SAML_HOST: saml
       LDAP_HOST: openldap
       CENTREON_DATASET: ${CENTREON_DATASET:-1}
@@ -70,8 +70,12 @@ services:
     env_file:
       - .env
     image: "${OPENID_IMAGE:-docker.centreon.com/centreon/keycloak:24.07}"
-    ports: ["8085:8080"]
+    ports: []
     profiles: ["openid"]
+    networks:
+      default:
+        aliases:
+          - keycloak-internal
 
   saml:
     env_file:
@@ -99,3 +103,18 @@ services:
     image: docker.centreon.com/centreon/mon-mediawiki-22.10:latest
     ports: ["80"]
     profiles: ["mediawiki"]
+
+  sso-proxy:
+    image: nginx:stable-alpine
+    container_name: centreon-sso-proxy-1
+    depends_on:
+      - openid
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./keycloak/proxy-openid/nginx-sso.conf:/etc/nginx/conf.d/default.conf:ro
+    profiles: ["openid"]
+    networks:
+      default:
+        aliases:
+          - sso.local
