@@ -101,7 +101,8 @@ const Graph = ({
     prefix: widgetPrefixQuery,
     refreshCount,
     refreshInterval: refreshIntervalToUse,
-    resources
+    resources,
+    isEnabled: Boolean(hostId && getServiceId())
   });
 
   const displayAsRaw = equals('raw')(valueFormat);
