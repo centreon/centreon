@@ -5,7 +5,9 @@ if [ "$#" -ne 3 ]; then
   exit 1
 fi
 
+# Ensure positional parameters are handled correctly
 INSECURE_FLAG=""
+POSITIONAL=()
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --insecure)
@@ -13,10 +15,12 @@ while [[ $# -gt 0 ]]; do
       shift
       ;;
     *)
+      POSITIONAL+=("$1")
       shift
       ;;
   esac
 done
+set -- "${POSITIONAL[@]}"
 
 API_URL="$1"
 USERNAME="$2"
@@ -37,8 +41,11 @@ fi
 
 # Fetch secrets and write to file
 response=$(curl -s $INSECURE_FLAG -w "%{http_code}" -H "X-AUTH-TOKEN: $TOKEN" "$API_URL$SECRETS_ENDPOINT")
-http_code="${response: -3}"
-body="${response::-3}"
+
+# Extract HTTP status code and body from the response
+# Example of response '{"app_secret":"<secret>","salt":"<salt>"}200'
+http_code="${response: -3}" # Extract last 3 characters for HTTP status code
+body="${response::-3}" # Extract body by removing the last 3 characters
 
 if [ "$http_code" = "200" ]; then
   echo "$body" > "$OUTPUT_FILE"
