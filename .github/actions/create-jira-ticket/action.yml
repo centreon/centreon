@@ -113,7 +113,11 @@ runs:
             console.log(`Ticket will be attributed to the ${squad_name} team. (Squad ID ${ticket_squad_id}, Board ID ${ticket_board_id})`)
 
             current_sprint = execSync(
-              `curl --request GET --url ${{ inputs.jira_base_url }}/rest/agile/1.0/board/${ticket_board_id}/sprint?state=active --user "${{ inputs.jira_user_email }}:${{ inputs.jira_api_token }}" --header "Accept: application/json" | jq --arg squad_name "$squad_name" '.values[] | select(.name | test($squad_name; "i")) | .id'`,
+              `curl --request GET \
+                --url ${{ inputs.jira_base_url }}/rest/agile/1.0/board/${ticket_board_id}/sprint?state=active \
+                --user "${{ inputs.jira_user_email }}:${{ inputs.jira_api_token }}" \
+                --header "Accept: application/json" | jq --arg squad_name "$squad_name" '.values[] | select(.name | test($squad_name; "i")) | .id'
+              `,
               { encoding: 'utf8' }
             );
 
@@ -152,7 +156,13 @@ runs:
             contents = fs.readFileSync('./ticket-payload.json', 'utf8');
             console.log("Ticket Payload:\n", contents);
             response = execSync(
-              `curl --request POST --url "${{ inputs.jira_base_url }}/rest/api/3/issue" --user "${{ inputs.jira_user_email }}:${{ inputs.jira_api_token }}" --header 'Accept: application/json' --header 'Content-Type: application/json' --data @${path}`,
+              `curl --request POST \
+                --url "${{ inputs.jira_base_url }}/rest/api/3/issue" \
+                --user "${{ inputs.jira_user_email }}:${{ inputs.jira_api_token }}" \
+                --header 'Accept: application/json' \
+                --header 'Content-Type: application/json' \
+                --data @${path}
+              `,
               { encoding: 'utf8' }
             );
 
@@ -163,7 +173,13 @@ runs:
 
             // Update priority on newly created ticket since you cannot create a ticket with another priority than medium
             response = execSync(
-              `curl --request PUT --url "${{ inputs.jira_base_url }}/rest/api/3/issue/${ticket_key}" --user "${{ inputs.jira_user_email }}:${{ inputs.jira_api_token }}" --header 'Accept: application/json' --header 'Content-Type: application/json' --data '{ "fields": { "priority": { "id": "1" } } }'`,
+              `curl --request PUT \
+                --url "${{ inputs.jira_base_url }}/rest/api/3/issue/${ticket_key}" \
+                --user "${{ inputs.jira_user_email }}:${{ inputs.jira_api_token }}" \
+                --header 'Accept: application/json' \
+                --header 'Content-Type: application/json' \
+                --data '{ "fields": { "priority": { "id": "1" } } }'
+              `,
               { encoding: 'utf8' }
             );
 
@@ -172,7 +188,13 @@ runs:
             // Update ticket status so that squad members can see it in their respective sprints
             for (const transition_id of [11, 21]) {
               response = execSync(
-                `curl --request POST --url "${{ inputs.jira_base_url }}/rest/api/latest/issue/${ticket_key}/transitions" --user "${{ inputs.jira_user_email }}:${{ inputs.jira_api_token }}" --header 'Accept: application/json' --header 'Content-Type: application/json' --data '{"transition": {"id": "${transition_id}"} }'`,
+                `curl --request POST \
+                  --url "${{ inputs.jira_base_url }}/rest/api/latest/issue/${ticket_key}/transitions" \
+                  --user "${{ inputs.jira_user_email }}:${{ inputs.jira_api_token }}" \
+                  --header 'Accept: application/json' \
+                  --header 'Content-Type: application/json' \
+                  --data '{"transition": {"id": "${transition_id}"} }'
+                `,
                 { encoding: 'utf8' }
               )
 
