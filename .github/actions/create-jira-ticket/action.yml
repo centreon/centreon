@@ -142,6 +142,10 @@ runs:
                 }
               }
 
+            if (current_sprint !== null) {
+              ticket_data.fields.customfield_10007 = current_sprint;
+            }
+
             // fs.writeFileSync(JSON_TEMPLATE_FILE, data, { encoding: 'utf8' });
 
             fs.writeFileSync(path, JSON.stringify(ticket_data));

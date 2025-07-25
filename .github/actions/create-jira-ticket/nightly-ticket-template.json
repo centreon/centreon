@@ -41,15 +41,6 @@
           ]
         }
       ]
-    },
-    {
-      "type": "paragraph",
-      "content": [
-        {
-          "type": "text",
-          "text": "List of jobs that failed on the @MODULE_NAME@ nightly:"
-        }
-      ]
     }
   ]
 }
