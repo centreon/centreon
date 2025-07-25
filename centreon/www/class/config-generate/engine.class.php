@@ -20,7 +20,6 @@
  */
 
 use Core\MonitoringServer\Application\Repository\ReadMonitoringServerRepositoryInterface;
-use Pimple\Container;
 use Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException;
 use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
 

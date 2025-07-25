@@ -230,7 +230,6 @@ abstract class AbstractHost extends AbstractObject
         }
     }
 
-
     /**
      * @param array $host
      * @param bool $generate

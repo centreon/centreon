@@ -76,7 +76,6 @@ class Macro extends AbstractObject
         $this->setPollersEncryptionReadyStatusByHosts();
     }
 
-
     private function setPollersEncryptionReadyStatusByHosts(): void
     {
         $result = $this->backend_instance->db->fetchAllAssociativeIndexed(
