@@ -622,12 +622,24 @@ class CentreonCustomView
         } else {
             $query = <<<'SQL'
                     SELECT 1
-                    FROM custom_views
-                    WHERE custom_view_id = :viewLoad
-                        AND public = 1
+                    FROM custom_views cv
+                        INNER JOIN custom_view_user_relation cvur
+                            ON cv.custom_view_id = cvur.custom_view_id
+                    WHERE cv.custom_view_id = :viewLoad
+                        AND (
+                            public = 1
+                            OR (
+                                usergroup_id IN (
+                                    SELECT contactgroup_cg_id
+                                    FROM contactgroup_contact_relation
+                                    WHERE contact_contact_id = :userId
+                                )
+                            )
+                        )
                 SQL;
             $stmt = $this->db->prepare($query);
             $stmt->bindParam(':viewLoad', $viewLoadId, PDO::PARAM_INT);
+            $stmt->bindParam(':userId', $this->userId, PDO::PARAM_INT);
             $dbResult = $stmt->execute();
 
             if (! ($dbResult && $stmt->fetch())) {
