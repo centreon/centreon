@@ -72,10 +72,6 @@ services:
     image: "${OPENID_IMAGE:-docker.centreon.com/centreon/keycloak:24.07}"
     ports: []
     profiles: ["openid"]
-    networks:
-      default:
-        aliases:
-          - keycloak-internal
 
   saml:
     env_file:
