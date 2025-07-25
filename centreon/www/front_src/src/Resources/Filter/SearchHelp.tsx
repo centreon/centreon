@@ -14,6 +14,7 @@ import {
 
 import {
   labelFindExplanationsAndExamples,
+  labelFreeTextSearchBehavior,
   labelHere,
   labelNeedHelpWithSearchBarUsage,
   labelSearchHelp
@@ -23,7 +24,8 @@ const useStyles = makeStyles()((theme) => ({
   container: {
     color: theme.palette.common.black,
     margin: theme.spacing(1, 0),
-    marginRight: theme.spacing(3)
+    marginRight: theme.spacing(3),
+    maxWidth: theme.spacing(35)
   },
   link: {
     color: theme.palette.primary.main
@@ -57,7 +59,7 @@ const SearchHelp = (): JSX.Element => {
         <Typography className={classes.title} variant="body2">
           {t(labelNeedHelpWithSearchBarUsage)}
         </Typography>
-        <Typography variant="body2">
+        <Typography variant="body2" className={classes.title}>
           {t(labelFindExplanationsAndExamples)}&nbsp;
           <Link
             className={classes.link}
@@ -68,6 +70,10 @@ const SearchHelp = (): JSX.Element => {
           >
             {t(labelHere)}
           </Link>
+          {'.'}
+        </Typography>
+        <Typography variant="body2">
+          {t(labelFreeTextSearchBehavior)}
         </Typography>
       </Box>
     </PersistentTooltip>
