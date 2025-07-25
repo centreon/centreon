@@ -8,7 +8,7 @@ import { labelPreviewRemainsEmpty } from '../../translatedLabels';
 import { getPublicWidgetEndpoint } from '../../utils';
 
 import Graph from './Graph';
-import { graphEndpoint } from './api/endpoints';
+import { getMetricsEndpoint } from './api/endpoints';
 import { FormThreshold, ValueFormat } from './models';
 
 const panelData: Data = {
@@ -16,7 +16,9 @@ const panelData: Data = {
     {
       id: 1,
       name: 'Ping_1',
-      unit: 'ms'
+      unit: 'ms',
+      serviceId: 1,
+      serviceName: "Service_1"
     },
     {
       id: 2,
@@ -36,6 +38,15 @@ const panelData: Data = {
         {
           id: 1,
           name: 'HG1'
+        }
+      ]
+    },
+      {
+      resourceType: 'service',
+      resources: [
+        {
+          id: 1,
+          name: 'Service_1'
         }
       ]
     }
@@ -148,7 +159,7 @@ const initializeComponent = ({
     threshold: defaultThreshold,
     valueFormat: 'human'
   },
-  fixture = 'Widgets/Graph/lineChart.json',
+  fixture = 'Widgets/Graph/metrics.json',
   isPublic = false
 }: Props): void => {
   const store = createStore();
@@ -160,7 +171,7 @@ const initializeComponent = ({
     cy.interceptAPIRequest({
       alias: 'getLineChart',
       method: Method.GET,
-      path: `${graphEndpoint}**`,
+      path: `${getMetricsEndpoint({hostId:1, serviceId: 1,metricName: 'Ping_1'})}**`,
       response: lineChart
     });
 
