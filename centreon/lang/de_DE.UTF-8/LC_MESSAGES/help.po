@@ -6835,10 +6835,6 @@ msgstr ""
 "Serviceüberprüfungsleistungsdaten verarbeitet. Diese Option ist "
 "standardmäßig deaktiviert."
 
-#: unknown
-msgid "Whether this host group is enabled."
-msgstr "Legt fest, ob die Host-Gruppe aktiviert ist."
-
 #: centreon/www/include/Administration/parameters/general/help.php
 msgid ""
 "This option can be used to avoid search performance issues in Resource status, when dealing with large amounts of data."
