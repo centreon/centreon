@@ -109,8 +109,8 @@ const useTimePeriod = (propertyName: string): UseTimePeriodState => {
 
     if (equals(newType, -1)) {
       setFieldValue(`options.${propertyName}`, {
-        end: dayjs(),
-        start: dayjs().subtract(1, 'hour'),
+        end: dayjs().toISOString(),
+        start: dayjs().subtract(1, 'hour').toISOString(),
         timePeriodType: newType
       });
 
