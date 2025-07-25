@@ -7364,6 +7364,18 @@ msgstr "Provisionnement à l'avance"
 msgid "Fourth of month"
 msgstr "Le quatrième du mois"
 
+#: centreon/www/include/Administration/parameters/general/form.php
+msgid "Free text search behavior"
+msgstr "Comportement de la recherche texte libre"
+
+#: centreon/www/install/front_translate.php
+msgid ""
+"Free text search behavior can be configured in the Administration > "
+"Parameters > Centreon UI page."
+msgstr ""
+"Le comportement de la recherche texte libre peut être configuré à la page "
+"Administration > Paramètres > Centreon web page."
+
 #: centreon/www/include/configuration/configNagios/formNagios.php
 msgid "Freshness"
 msgstr "Fraicheur"
@@ -7415,6 +7427,10 @@ msgstr "Sauvegarde complète"
 #: centreon/www/install/front_translate.php
 msgid "Full name attribute"
 msgstr "Attribut de nom complet"
+
+#: centreon/www/include/Administration/parameters/general/form.php
+msgid "Full search"
+msgstr "Recherche étendue"
 
 #: centreon/www/install/front_translate.php
 msgid "Fullname attribute path"
@@ -8733,7 +8749,6 @@ msgstr ""
 
 #: centreon/www/include/Administration/parameters/centstorage/form.php
 #: centreon/www/include/Administration/parameters/debug/form.php
-#: centreon/www/include/Administration/parameters/general/form.php
 #: centreon/www/include/Administration/parameters/ldap/form.php
 #: centreon/www/include/Administration/parameters/rrdtool/form.php
 msgid "Impossible to validate, one or more field is incorrect"
@@ -9564,6 +9579,10 @@ msgstr "Limite par page (par défaut)"
 #: centreon/www/include/Administration/parameters/general/form.php
 msgid "Limit per page for Monitoring"
 msgstr "Limite par page pour les pages de supervision"
+
+#: centreon/www/include/Administration/parameters/general/form.php
+msgid "Limited search"
+msgstr "Recherche restreinte"
 
 #: centreon/www/install/dashboard_widgets.php
 msgid "Line"
@@ -13386,6 +13405,10 @@ msgstr "Lien vers la ressource copiée dans le presse-papier"
 #: centreon/www/install/front_translate.php
 msgid "Resource name"
 msgstr "Nom de la ressource"
+
+#: centreon/www/include/Administration/parameters/general/form.php
+msgid "Resource status performance"
+msgstr "Performances de la page Statut des ressources"
 
 #: centreon/www/install/dashboard_widgets.php
 msgid "Resource table"
@@ -24066,22 +24089,3 @@ msgstr "alerte"
 #: unknown
 msgid "will display resources with host name starting by'"
 msgstr "affichera les ressources avec un nom d'hôte commençant par"
-
-#: centreon/www/include/Administration/parameters/general/form.php
-msgid "Full search"
-msgstr "Recherche étendue"
-
-#: centreon/www/include/Administration/parameters/general/form.php
-msgid "Limited search"
-msgstr "Recherche restreinte"
-
-#: centreon/www/include/Administration/parameters/general/form.php
-msgid "Free text search behavior"
-msgstr "Comportement de la recherche texte libre"
-
-#: centreon/www/include/Administration/parameters/general/form.php
-msgid "Resource status performance"
-msgstr "Performances de la page Statut des ressources"
-
-msgid "Free text search behavior can be configured in the Administration > Parameters > Centreon UI page."
-msgstr "Le comportement de la recherche texte libre peut être configuré à la page Administration > Paramètres > Centreon web page."

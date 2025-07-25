@@ -4794,6 +4794,18 @@ msgstr ""
 "Esta opción le permite especificar el formato de fecha / hora que el motor "
 "de administración usará en la interfaz web y en las macros de fecha / hora."
 
+#: centreon/www/include/Administration/parameters/general/help.php
+msgid ""
+"This option can be used to avoid search performance issues in Resource "
+"status, when dealing with large amounts of data.\n"
+"Limited search: Free text search will be performed only on the following "
+"fields: host name, alias and address, and service description. Use if you "
+"have a large amount of data.\n"
+"Full search: Free text search will also be performed on the \"information\" "
+"field. This is appropriate only if you have a small amount of data, as it "
+"affects performance."
+msgstr ""
+
 #: centreon/www/include/configuration/configNagios/help.php
 msgid ""
 "This option controls what (if any) data gets sent to the event broker and, "
@@ -6964,6 +6976,25 @@ msgstr ""
 
 #: unknown
 msgid ""
+"This option can be used to avoid search performance issues in Resource "
+"status, when dealing with large amounts of data.Limited search: Free text "
+"search will be performed only on the following fields: host name, alias "
+"and address, and service description. Use if you have a large amount of "
+"data.Full search: Free text search will also be performed on the "
+"\"information\" field. This is appropriate only if you have a small "
+"amount of data, as it affects performance."
+msgstr ""
+"Esta opción sirve para evitar problemas de rendimiento de la búsqueda en "
+"Estado de servicios cuando hay grandes cantidades de datos.Búsqueda "
+"restringida: la búsqueda en texto libre se hará solamente en los campos "
+"siguientes: nombre de anfitrión, alias y la dirección, y descripción de "
+"servicio. Use esta opción si tiene una gran cantidad de datos.Búsqueda "
+"completa: la búsqueda en texto libre también se hará en el campo "
+"\"información\". Esta opción solamente es adecuada si tiene una pequeña "
+"cantidád de datos ya que afecta el rendimiento."
+
+#: unknown
+msgid ""
 "This option determines how the host performance data file is opened. "
 "Unless the file is a named pipe you'll probably want to use the default "
 "mode of append."
@@ -7226,14 +7257,3 @@ msgstr "Ancho de la rejilla."
 #: unknown
 msgid "Your OpenId Connect redirect url (this server)."
 msgstr "Su URL de redirección de OpenId Connect (este servidor)."
-
-#: centreon/www/include/Administration/parameters/general/help.php
-msgid ""
-"This option can be used to avoid search performance issues in Resource status, when dealing with large amounts of data."
-"Limited search: Free text search will be performed only on the following fields: host name, alias and address, and service description. Use if you have a large amount of data."
-"Full search: Free text search will also be performed on the \"information\" field. This is appropriate only if you have a small amount of data, as it affects performance."
-msgstr ""
-"Esta opción sirve para evitar problemas de rendimiento de la búsqueda en Estado de servicios cuando hay grandes cantidades de datos."
-"Búsqueda restringida: la búsqueda en texto libre se hará solamente en los campos siguientes: nombre de anfitrión, alias y la dirección, y descripción de servicio. Use esta opción si tiene una gran cantidad de datos."
-"Búsqueda completa: la búsqueda en texto libre también se hará en el campo \"información\". Esta opción solamente es adecuada si tiene una pequeña cantidád de datos ya que afecta el rendimiento."
-

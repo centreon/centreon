@@ -7616,6 +7616,16 @@ msgstr "Provisionamento direto"
 msgid "Fourth of month"
 msgstr "Quarto do mês"
 
+#: centreon/www/include/Administration/parameters/general/form.php
+msgid "Free text search behavior"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid ""
+"Free text search behavior can be configured in the Administration > "
+"Parameters > Centreon UI page."
+msgstr ""
+
 #: centreon/www/include/configuration/configNagios/formNagios.php
 msgid "Freshness"
 msgstr "Atualização"
@@ -7666,6 +7676,10 @@ msgstr "Backup completo"
 
 #: centreon/www/install/front_translate.php
 msgid "Full name attribute"
+msgstr ""
+
+#: centreon/www/include/Administration/parameters/general/form.php
+msgid "Full search"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
@@ -8962,7 +8976,6 @@ msgstr ""
 
 #: centreon/www/include/Administration/parameters/centstorage/form.php
 #: centreon/www/include/Administration/parameters/debug/form.php
-#: centreon/www/include/Administration/parameters/general/form.php
 #: centreon/www/include/Administration/parameters/ldap/form.php
 #: centreon/www/include/Administration/parameters/rrdtool/form.php
 msgid "Impossible to validate, one or more field is incorrect"
@@ -9785,6 +9798,10 @@ msgstr "Limite por página (por padrão)"
 #: centreon/www/include/Administration/parameters/general/form.php
 msgid "Limit per page for Monitoring"
 msgstr "Limite por página para Monitoramento"
+
+#: centreon/www/include/Administration/parameters/general/form.php
+msgid "Limited search"
+msgstr ""
 
 #: centreon/www/install/dashboard_widgets.php
 msgid "Line"
@@ -13735,6 +13752,10 @@ msgstr ""
 
 #: centreon/www/install/front_translate.php
 msgid "Resource name"
+msgstr ""
+
+#: centreon/www/include/Administration/parameters/general/form.php
+msgid "Resource status performance"
 msgstr ""
 
 #: centreon/www/install/dashboard_widgets.php
@@ -23190,22 +23211,3 @@ msgstr "período de tempo"
 #: unknown
 msgid "topology_name"
 msgstr "Nome da Topologia"
-
-#: centreon/www/include/Administration/parameters/general/form.php
-msgid "Full search"
-msgstr ""
-
-#: centreon/www/include/Administration/parameters/general/form.php
-msgid "Limited search"
-msgstr ""
-
-#: centreon/www/include/Administration/parameters/general/form.php
-msgid "Free text search behavior"
-msgstr ""
-
-#: centreon/www/include/Administration/parameters/general/form.php
-msgid "Resource status performance"
-msgstr ""
-
-# msgid "Free text search behavior can be configured in the Administration > Parameters > Centreon UI page."
-# msgstr ""
