@@ -158,7 +158,7 @@ runs:
 
             console.log(`Response on ticket creation: ${response}`);
 
-            ticket_key = response.fields[key];
+            ticket_key = response.key;
             core.notice(`Created ticket: ${ticket_key}`);
 
             // Update priority on newly created ticket since you cannot create a ticket with another priority than medium
