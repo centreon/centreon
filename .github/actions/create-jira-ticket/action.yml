@@ -170,9 +170,9 @@ runs:
             console.log(`Response on priority change: ${response}`);
 
             // Update ticket status so that squad members can see it in their respective sprints
-            for (transition_id of [11, 21]) {
+            for (const transition_id of [11, 21]) {
               response = execSync(
-                `curl --request POST --url "${{ inputs.jira_base_url }}/rest/api/latest/issue/${ticket_key}/transitions" --user "${{ inputs.jira_user_email }}:${{ inputs.jira_api_token }}" --header 'Accept: application/json' --header 'Content-Type: application/json' --data "{\"transition\": {\"id\": \"${transition_id}\"} }"`,
+                `curl --request POST --url "${{ inputs.jira_base_url }}/rest/api/latest/issue/${ticket_key}/transitions" --user "${{ inputs.jira_user_email }}:${{ inputs.jira_api_token }}" --header 'Accept: application/json' --header 'Content-Type: application/json' --data '{"transition": {"id": "${transition_id}"} }'`,
                 { encoding: 'utf8' }
               )
 
