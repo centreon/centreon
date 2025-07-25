@@ -106,8 +106,16 @@ const Graph = ({
 
   const displayAsRaw = equals('raw')(valueFormat);
 
-  const formattedGraphData = graphData? {...graphData, metrics: graphData?.metrics?.map(metric=>({...metric, data:[metric?.current_value]}))}: undefined;
-  
+  const formattedGraphData = graphData
+    ? {
+        ...graphData,
+        metrics: graphData?.metrics?.map((metric) => ({
+          ...metric,
+          data: [metric?.current_value]
+        }))
+      }
+    : undefined;
+
   const formattedThresholds = useThresholds({
     data: formattedGraphData,
     displayAsRaw,
@@ -115,7 +123,6 @@ const Graph = ({
     thresholds: threshold,
     isMetaServiceSelected
   });
-
 
   const areResourcesOk = areResourcesFullfilled(resources);
 
@@ -144,7 +151,6 @@ const Graph = ({
     displayAsRaw,
     thresholds: formattedThresholds
   };
-
 
   return (
     <ContentWithCircularLoading

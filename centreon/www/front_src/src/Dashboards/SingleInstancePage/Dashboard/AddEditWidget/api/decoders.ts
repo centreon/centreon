@@ -8,7 +8,7 @@ const serviceMetricDecoder = JsonDecoder.object<ServiceMetric>(
   {
     id: JsonDecoder.number,
     metrics: JsonDecoder.array(
-      JsonDecoder.object<Omit<Metric,'serviceId'| 'serviceName'>>(
+      JsonDecoder.object<Omit<Metric, 'serviceId' | 'serviceName'>>(
         {
           criticalHighThreshold: JsonDecoder.nullable(JsonDecoder.number),
           criticalLowThreshold: JsonDecoder.nullable(JsonDecoder.number),
