@@ -831,7 +831,9 @@ describe('AddEditWidgetModal', () => {
               name: 'pl',
               unit: '%',
               warningHighThreshold: null,
-              warningLowThreshold: null
+              warningLowThreshold: null,
+              serviceId: 1,
+              serviceName: 'Ping'
             });
           });
       });
