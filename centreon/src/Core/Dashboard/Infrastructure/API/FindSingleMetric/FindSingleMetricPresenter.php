@@ -54,7 +54,7 @@ final class FindSingleMetricPresenter extends AbstractPresenter implements FindS
         $this->present([
             'metrics' => [
                 [
-                    'id' => $response->id,
+                    'metric_id' => $response->id,
                     'name' => $response->name,
                     'unit' => $response->unit,
                     'current_value' => $response->currentValue,
