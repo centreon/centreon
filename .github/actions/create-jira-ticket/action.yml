@@ -152,53 +152,30 @@ runs:
             contents = fs.readFileSync('./ticket-payload.json', 'utf8');
             console.log("Ticket Payload:\n", contents);
             response = execSync(
-              `curl --verbose --request POST --url "${{ inputs.jira_base_url }}/rest/api/3/issue" --user "${{ inputs.jira_user_email }}:${{ inputs.jira_api_token }}" --header 'Accept: application/json' --header 'Content-Type: application/json' --data @${path}`,
+              `curl --request POST --url "${{ inputs.jira_base_url }}/rest/api/3/issue" --user "${{ inputs.jira_user_email }}:${{ inputs.jira_api_token }}" --header 'Accept: application/json' --header 'Content-Type: application/json' --data @${path}`,
               { encoding: 'utf8' }
             );
 
-            console.log(`Response: ${response}`);
+            console.log(`Response on ticket creation: ${response}`);
+
+            ticket_key = response.fields[key];
+            core.notice(`Created ticket: ${ticket_key}`);
+
+            // Update priority on newly created ticket since you cannot create a ticket with another priority than medium
+            response = execSync(
+              `curl --request PUT --url "${{ inputs.jira_base_url }}/rest/api/3/issue/${ticket_key}" --user "${{ inputs.jira_user_email }}:${{ inputs.jira_api_token }}" --header 'Accept: application/json' --header 'Content-Type: application/json' --data '{ "fields": { "priority": { "id": "1" } } }'`,
+              { encoding: 'utf8' }
+            );
+
+            console.log(`Response on priority change: ${response}`);
+
+            // Update ticket status so that squad members can see it in their respective sprints
+            for (transition_id of [11, 21]) {
+              response = execSync(
+                `curl --request POST --url "${{ inputs.jira_base_url }}/rest/api/latest/issue/${ticket_key}/transitions" --user "${{ inputs.jira_user_email }}:${{ inputs.jira_api_token }}" --header 'Accept: application/json' --header 'Content-Type: application/json' --data "{\"transition\": {\"id\": \"${transition_id}\"} }`,
+                { encoding: 'utf8' }
+              )
+
+              console.log(`Response on ticket status change: ${response}`);
+            }
           }
-
-
-    #     if [[ ${{ steps.get_context.outputs.current_sprint }} != "null" ]]; then
-    #       DATA=$(echo "$DATA" | jq '.fields.customfield_10007 = ${{ steps.get_context.outputs.current_sprint }}')
-    #     fi
-    #     echo "[DEBUG] - DATA: $DATA"
-
-    #     if [ $? -ne 0 ]; then
-    #       echo "::error::Failed to create ticket: $response"
-    #       exit 1
-    #     fi
-
-    #     ticket_key=$(echo "$response" | jq -r .key)
-    #     echo "::notice::Created ticket: $ticket_key"
-
-    #     # Update priority on newly created ticket since you cannot create a ticket with another priority than medium
-    #     response=$(curl \
-    #       --request PUT \
-    #       --url "${{ inputs.jira_base_url }}/rest/api/3/issue/$ticket_key" \
-    #       --user "${{ inputs.jira_user_email }}:${{ inputs.jira_api_token }}" \
-    #       --header 'Accept: application/json' \
-    #       --header 'Content-Type: application/json' \
-    #       --data '{ "fields": { "priority": { "id": "1" } } }'
-    #     )
-
-    #     echo $response
-
-    #     # Update ticket status so that squad members can see it in their respective sprints
-    #     for transition_id in 11 21; do
-    #       response=$(curl \
-    #         --request POST \
-    #         --url "${{ inputs.jira_base_url }}/rest/api/latest/issue/$ticket_key/transitions" \
-    #         --user "${{ inputs.jira_user_email }}:${{ inputs.jira_api_token }}" \
-    #         --header 'Accept: application/json' \
-    #         --header 'Content-Type: application/json' \
-    #         --data "{\"transition\": {\"id\": \"$transition_id\"} }"
-    #       )
-
-    #       echo $response
-    #     done
-
-    #   shell: bash
-    #   env:
-    #     GH_TOKEN: ${{ github.token }}
