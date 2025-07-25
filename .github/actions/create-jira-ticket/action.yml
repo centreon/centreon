@@ -56,7 +56,7 @@ runs:
           const date = dayjs().format('YYYY-MM-DD');
           const path = './ticket-payload.json';
           let contents;
-          let data, ticket_summary, ticket_squad_id, ticket_board_id, squad_name, ticket_labels, current_sprint, failed_steps, ticket_data, data_payload;
+          let data, ticket_summary, ticket_squad_id, ticket_board_id, squad_name, ticket_labels, current_sprint, failed_steps, ticket_data, data_payload, ticket_key;
 
           let failed_jobs = execSync(
             `gh run view ${{ github.run_id }} --json jobs -q '.jobs[] | select(.conclusion == "failure") | .name'`,
