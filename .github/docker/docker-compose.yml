@@ -102,7 +102,6 @@ services:
 
   sso-proxy:
     image: nginx:stable-alpine
-    container_name: centreon-sso-proxy-1
     depends_on:
       - openid
     ports:
