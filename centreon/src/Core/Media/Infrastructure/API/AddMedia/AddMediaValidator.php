@@ -65,7 +65,7 @@ class AddMediaValidator
 
         $value = $this->request->get('directory');
         if (empty($value)) {
-            MediaException::stringPropertyCanNotBeEmpty('directory');
+            throw MediaException::stringPropertyCanNotBeEmpty('directory');
         }
     }
 
