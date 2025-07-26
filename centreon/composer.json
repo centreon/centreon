@@ -149,6 +149,7 @@
   },
   "scripts": {
     "auto-scripts": {
+      "assets:install %PUBLIC_DIR%": "symfony-cmd",
       "cache:clear": "symfony-cmd"
     },
     "post-install-cmd": [
@@ -256,10 +257,10 @@
     "symfony/symfony": "*"
   },
   "extra": {
+    "public-dir": "www",
     "symfony": {
       "allow-contrib": true,
       "require": "7.3.*",
-      "public-dir": "www",
       "docker": false
     }
   }
