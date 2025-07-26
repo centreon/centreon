@@ -60,7 +60,7 @@ class AddMediaValidator
     public function assertDirectory(): void
     {
         if (! in_array('directory', $this->allProperties, true)) {
-            MediaException::propertyNotPresent('directory');
+            throw MediaException::propertyNotPresent('directory');
         }
 
         $value = $this->request->get('directory');
