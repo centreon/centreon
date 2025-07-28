@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005 - 2019 Centreon (https://www.centreon.com/)
  *
@@ -33,8 +34,10 @@ class ContactGroupServiceRelation extends AbstractObject
 {
     /** @var string */
     protected $table = 'contactgroup_service_relation';
+
     /** @var string */
     protected $generateFilename = 'contactgroup_service_relation.infile';
+
     /** @var string[] */
     protected $attributesWrite = [
         'service_service_id',
@@ -47,8 +50,8 @@ class ContactGroupServiceRelation extends AbstractObject
      * @param int $serviceId
      * @param int $cgId
      *
-     * @return void
      * @throws Exception
+     * @return void
      */
     public function addRelation(int $serviceId, int $cgId): void
     {

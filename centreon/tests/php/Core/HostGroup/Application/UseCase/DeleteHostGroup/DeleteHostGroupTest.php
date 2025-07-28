@@ -52,18 +52,13 @@ beforeEach(function (): void {
     );
 
     $this->testedHostGroup = new HostGroup(
-        $this->hostgroupId = 1,
-        'hg-name',
-        'hg-alias',
-        '',
-        '',
-        '',
-        null,
-        null,
-        null,
-        GeoCoords::fromString('-2,100'),
-        '',
-        true
+        id: $this->hostgroupId = 1,
+        name: 'hg-name',
+        alias: 'hg-alias',
+        iconId: null,
+        geoCoords: GeoCoords::fromString('-2,100'),
+        comment: '',
+        isActivated: true
     );
 });
 

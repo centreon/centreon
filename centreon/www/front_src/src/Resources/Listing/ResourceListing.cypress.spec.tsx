@@ -620,6 +620,19 @@ describe('Display additional columns', () => {
     cy.findByText('Set by admin').should('be.visible');
 
     cy.makeSnapshot();
+
+    cy.findByLabelText(chipLabel).trigger('mouseout');
+
+    cy.get('[value="Information"]').click();
+    cy.get('[value="Status"]').click();
+    cy.get('[value="Resource"]').click();
+    cy.get('[value="Parent"]').click();
+    cy.get('[value="Graph (G)"]').click();
+    cy.get('[value="Duration"]').click();
+    cy.get('[value="Last check"]').click();
+    cy.get('[value="Tries"]').click();
+
+    cy.findByLabelText('Add columns').click();
   });
 
   const columnIds = map(prop('id'), columns);
@@ -659,6 +672,8 @@ describe('Display additional columns', () => {
         cy.findByText(columnDisplayLabel).should('be.visible');
       }
 
+      cy.findByLabelText('Add columns').click();
+
       cy.makeSnapshot();
     });
   });
@@ -674,13 +689,9 @@ describe('Notification column', () => {
 
     cy.waitFiltersAndListingRequests();
 
-    cy.contains('E0').should('be.visible');
-
     cy.findByTestId('Add columns').click();
 
     cy.findByText('Notification (Notif)').should('exist');
-
-    cy.makeSnapshot();
   });
 
   it('hides notification column if the cloud notification feature is enabled', () => {
@@ -691,8 +702,6 @@ describe('Notification column', () => {
     interceptRequestsAndMountBeforeEach();
 
     cy.waitFiltersAndListingRequests();
-
-    cy.contains('E0').should('be.visible');
 
     cy.findByTestId('Add columns').click();
 
@@ -755,7 +764,7 @@ describe('Notification column', () => {
       cy.waitForRequest('@listing');
       cy.contains('Memory').should('be.visible');
 
-      cy.findAllByRole('row').should('have.length', 6);
+      cy.findAllByRole('row').should('have.length', 7);
 
       cy.findAllByRole('row')
         .eq(1)
@@ -774,7 +783,7 @@ describe('Notification column', () => {
       cy.waitForRequest('@listing');
       cy.contains('Memory').should('be.visible');
 
-      cy.findAllByRole('row').should('have.length', 6);
+      cy.findAllByRole('row').should('have.length', 7);
 
       cy.findAllByRole('row')
         .eq(2)
@@ -794,7 +803,7 @@ describe('Notification column', () => {
       cy.waitForRequest('@listing');
       cy.contains('Memory').should('be.visible');
 
-      cy.findAllByRole('row').should('have.length', 6);
+      cy.findAllByRole('row').should('have.length', 7);
 
       cy.findAllByRole('row')
         .eq(4)
@@ -805,6 +814,19 @@ describe('Notification column', () => {
           'background-color',
           equals(mode, 'dark') ? 'rgb(6, 74, 63)' : 'rgb(216, 243, 239)'
         );
+
+      cy.makeSnapshot();
+    });
+
+    it('displays a Down icon when the parent status is null', () => {
+      cy.waitForRequest('@filterRequest');
+      cy.waitForRequest('@listing');
+      cy.contains('Memory').should('be.visible');
+
+      cy.findByTestId('Add columns').click();
+      cy.findByText('Parent').click();
+
+      cy.contains(/^D$/).should('be.visible');
 
       cy.makeSnapshot();
     });

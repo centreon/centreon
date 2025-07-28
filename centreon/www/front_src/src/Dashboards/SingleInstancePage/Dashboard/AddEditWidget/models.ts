@@ -27,6 +27,18 @@ export interface ForceSingleAutocompleteConditions {
   conditions: Array<WidgetHiddenCondition> | WidgetHiddenCondition;
 }
 
+export interface DefaultResourceType {
+  resourceType: string;
+  requied?: boolean;
+}
+export interface SelectType {
+  defaultResourceType: Array<DefaultResourceType>;
+}
+
+export interface OverrideAddButtonVisibility {
+  matchedResourcesType: string;
+}
+
 export interface WidgetPropertyProps {
   baseEndpoint?: string;
   className?: string;
@@ -75,6 +87,7 @@ export interface WidgetPropertyProps {
   tooltipLabel?: string;
   subInputsDelimiter?: string;
   forceSingleAutocompleteConditions: ForceSingleAutocompleteConditions;
+  selectType?: SelectType;
 }
 
 export interface WidgetDataResource {

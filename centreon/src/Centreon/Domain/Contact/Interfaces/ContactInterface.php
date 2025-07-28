@@ -198,10 +198,14 @@ interface ContactInterface
     public function isUsingDeprecatedPages(): bool;
 
     /**
-     * @param bool  $useDeprecatedPages  Indicates if user uses deprecated pages
+     * @param bool $useDeprecatedPages Indicates if user uses deprecated pages
      * @return static
      */
     public function setUseDeprecatedPages(bool $useDeprecatedPages): static;
+
+    public function isUsingDeprecatedCustomViews(): bool;
+
+    public function setUseDeprecatedCustomViews(bool $useDeprecatedCustomViews): static;
 
     /**
      * @return bool
@@ -234,4 +238,9 @@ interface ContactInterface
      * @return string|null
      */
     public function getUserInterfaceDensity(): ?string;
+
+    /**
+     * @return string
+     */
+    public function getFormatDate(): string;
 }

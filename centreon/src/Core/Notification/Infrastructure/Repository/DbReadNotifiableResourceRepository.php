@@ -90,7 +90,7 @@ class DbReadNotifiableResourceRepository extends AbstractRepositoryRDB implement
     private function getRequestsFromProviders(): string
     {
         $requests = \array_map(
-            fn(NotifiableResourceRequestProviderInterface $provider) => $provider->getNotifiableResourceSubRequest(),
+            fn (NotifiableResourceRequestProviderInterface $provider) => $provider->getNotifiableResourceSubRequest(),
             $this->notifiableResourceRequestProviders
         );
 

@@ -19,7 +19,7 @@
  *
  */
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Core\Security\Token\Application\Exception;
 
@@ -127,11 +127,6 @@ class TokenException extends \Exception
     public static function errorWhileSearching(\Throwable $ex): self
     {
         return new self(_('Error while searching for tokens'), 0, $ex);
-    }
-
-    public static function notAllowedToListTokens(): self
-    {
-        return new self(_('You are not allowed to list the tokens'));
     }
 
     public static function errorWhilePartiallyUpdatingToken(): self

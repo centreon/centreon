@@ -40,7 +40,9 @@ use Utility\SqlConcatenator;
  */
 class DbReadMonitoringServerRepository extends AbstractRepositoryRDB implements ReadMonitoringServerRepositoryInterface
 {
-    use MonitoringServerRepositoryTrait, LoggerTrait, SqlMultipleBindTrait;
+    use MonitoringServerRepositoryTrait;
+    use LoggerTrait;
+    use SqlMultipleBindTrait;
 
     /**
      * @param DatabaseConnection $db
@@ -88,7 +90,7 @@ class DbReadMonitoringServerRepository extends AbstractRepositoryRDB implements 
         }
 
         $accessGroupIds = array_map(
-            fn($accessGroup) => $accessGroup->getId(),
+            fn ($accessGroup) => $accessGroup->getId(),
             $accessGroups
         );
 
@@ -153,13 +155,13 @@ class DbReadMonitoringServerRepository extends AbstractRepositoryRDB implements 
      */
     public function existByAccessGroups(array $monitoringServerIds, array $accessGroups): array
     {
-         if ($accessGroups === []) {
+        if ($accessGroups === []) {
 
             return [];
         }
 
         $accessGroupIds = array_map(
-            fn($accessGroup) => $accessGroup->getId(),
+            fn ($accessGroup) => $accessGroup->getId(),
             $accessGroups
         );
 
@@ -255,7 +257,7 @@ class DbReadMonitoringServerRepository extends AbstractRepositoryRDB implements 
      */
     public function findByHostsIds(array $hostIds): array
     {
-        if (empty($hostIds)) {
+        if ($hostIds === []) {
             return [];
         }
 
@@ -279,6 +281,46 @@ class DbReadMonitoringServerRepository extends AbstractRepositoryRDB implements 
         $statement->execute();
 
         return $statement->fetchAll(\PDO::FETCH_COLUMN);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findCentralByIds(array $ids): ?MonitoringServer
+    {
+        if ($ids === []) {
+            return null;
+        }
+
+        [$bindValues, $bindQuery] = $this->createMultipleBindQuery($ids, ':poller_id_');
+
+        $statement = $this->db->prepare($this->translateDbName(
+            <<<SQL
+                SELECT
+                    ng.`id`,
+                    ng.`name`
+                FROM `:db`.`nagios_server` ng
+                WHERE ng.`id` IN ({$bindQuery})
+                    AND ng.`localhost` = '1'
+                    AND NOT EXISTS (
+                        SELECT 1
+                        FROM `:db`.`remote_servers` rs
+                        WHERE rs.server_id = ng.id
+                    )
+                SQL
+        ));
+
+        foreach ($bindValues as $bindParam => $bindValue) {
+            $statement->bindValue($bindParam, $bindValue, \PDO::PARAM_INT);
+        }
+
+        $statement->setFetchMode(\PDO::FETCH_ASSOC);
+        $statement->execute();
+
+        /** @var MSResultSet|false */
+        $data = $statement->fetch(\PDO::FETCH_ASSOC);
+
+        return $data ? $this->createMonitoringServerFromArray($data) : null;
     }
 
     /**

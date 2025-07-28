@@ -29,66 +29,61 @@ use Core\Common\Domain\Collection\ObjectCollection;
 use Core\Common\Domain\Exception\CollectionException;
 
 /**
- * Class
+ * Class.
  *
  * @class   QueryParameters
- * @package Adaptation\Database\Connection\Collection
+ *
  * @extends ObjectCollection<QueryParameter>
  */
 class QueryParameters extends ObjectCollection
 {
     /**
      * @throws CollectionException
-     * @return static
      */
     public function getIntQueryParameters(): static
     {
-        return $this->filter(
-            fn(QueryParameter $queryParameter) => $queryParameter->type === QueryParameterTypeEnum::INTEGER
+        return $this->filterOnValue(
+            fn (QueryParameter $queryParameter): bool => $queryParameter->type === QueryParameterTypeEnum::INTEGER
         );
     }
 
     /**
      * @throws CollectionException
-     * @return static
      */
     public function getStringQueryParameters(): static
     {
-        return $this->filter(
-            fn(QueryParameter $queryParameter) => $queryParameter->type === QueryParameterTypeEnum::STRING
+        return $this->filterOnValue(
+            fn (QueryParameter $queryParameter): bool => $queryParameter->type === QueryParameterTypeEnum::STRING
         );
     }
 
     /**
      * @throws CollectionException
-     * @return static
      */
     public function getBoolQueryParameters(): static
     {
-        return $this->filter(
-            fn(QueryParameter $queryParameter) => $queryParameter->type === QueryParameterTypeEnum::BOOLEAN
+        return $this->filterOnValue(
+            fn (QueryParameter $queryParameter): bool => $queryParameter->type === QueryParameterTypeEnum::BOOLEAN
         );
     }
 
     /**
      * @throws CollectionException
-     * @return static
      */
     public function getNullQueryParameters(): static
     {
-        return $this->filter(
-            fn(QueryParameter $queryParameter) => $queryParameter->type === QueryParameterTypeEnum::NULL
+        return $this->filterOnValue(
+            fn (QueryParameter $queryParameter): bool => $queryParameter->type === QueryParameterTypeEnum::NULL
         );
     }
 
     /**
      * @throws CollectionException
-     * @return static
      */
     public function getLargeObjectQueryParameters(): static
     {
-        return $this->filter(
-            fn(QueryParameter $queryParameter) => $queryParameter->type === QueryParameterTypeEnum::LARGE_OBJECT
+        return $this->filterOnValue(
+            fn (QueryParameter $queryParameter): bool => $queryParameter->type === QueryParameterTypeEnum::LARGE_OBJECT
         );
     }
 

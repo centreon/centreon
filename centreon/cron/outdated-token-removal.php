@@ -20,32 +20,30 @@
  *
  */
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
-require_once realpath(__DIR__ . "/../config/centreon.config.php");
-include_once _CENTREON_PATH_ . "/www/class/centreonDB.class.php";
-include_once _CENTREON_PATH_ . "/www/class/centreonLog.class.php";
+require_once realpath(__DIR__ . '/../config/centreon.config.php');
+include_once _CENTREON_PATH_ . '/www/class/centreonDB.class.php';
+include_once _CENTREON_PATH_ . '/www/class/centreonLog.class.php';
 
 $centreonDbName = $conf_centreon['db'];
 $centreonLog = new CentreonLog();
 
-/*
-* Init DB connections
-*/
+// Init DB connections
 $pearDB = new CentreonDB();
 
 $pearDB->beginTransaction();
 try {
-   deleteExpiredProviderRefreshTokens($centreonLog, $pearDB);
-   deleteExpiredProviderTokens($centreonLog, $pearDB);
-   deleteExpiredSessions($centreonLog, $pearDB);
+    deleteExpiredProviderRefreshTokens($centreonLog, $pearDB);
+    deleteExpiredProviderTokens($centreonLog, $pearDB);
+    deleteExpiredSessions($centreonLog, $pearDB);
 
-   $pearDB->commit();
-} catch (\Throwable) {
+    $pearDB->commit();
+} catch (Throwable) {
     $pearDB->rollBack();
     $centreonLog->info(
         CentreonLog::TYPE_BUSINESS_LOG,
-        "TokenRemoval CRON: failed to delete old tokens"
+        'TokenRemoval CRON: failed to delete old tokens'
     );
 }
 
@@ -86,7 +84,7 @@ function deleteExpiredProviderTokens(CentreonLog $logger, CentreonDB $pearDB): v
                 SELECT 1
                 FROM security_authentication_tokens sat
                 WHERE sat.provider_token_id = st.id
-                AND (sat.provider_token_refresh_id IS NOT NULL OR sat.token_type = 'manual')
+                AND (sat.provider_token_refresh_id IS NOT NULL OR sat.token_type IN ('api', 'cma'))
                 LIMIT 1
             )
             SQL

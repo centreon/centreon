@@ -27,23 +27,17 @@ class Presenter
 {
     private const DELIMITER = ';';
 
-    /**
-     * @var String[]
-     */
+    /** @var string[] */
     private array $heads = [];
 
-    /**
-     * @var \Iterator<String[]>
-     */
+    /** @var \Iterator<string[]> */
     private iterable $logs;
 
-    /**
-     * @var mixed[]
-     */
+    /** @var mixed[] */
     private array $metaData;
 
     /**
-     * @param String[] $heads
+     * @param string[] $heads
      * @return void
      */
     public function setHeads(array $heads): void
@@ -61,7 +55,7 @@ class Presenter
     }
 
     /**
-     * @param \Iterator<String[]> $logs
+     * @param \Iterator<string[]> $logs
      * @return void
      */
     public function setLogs(iterable $logs): void
@@ -77,7 +71,7 @@ class Presenter
     {
         header('Content-Disposition: attachment;filename="EventLogs.csv";');
         header('Content-Type: application/csv; charset=UTF-8');
-        header("Pragma: no-cache");
+        header('Pragma: no-cache');
 
         $f = fopen('php://output', 'w');
 
@@ -85,15 +79,15 @@ class Presenter
             throw new \RuntimeException('Unable to write content in output');
         }
 
-        //print meta data
+        // print meta data
         foreach ($this->metaData as $metaData) {
             fputcsv($f, $metaData, self::DELIMITER);
         }
 
-        //print heads
+        // print heads
         fputcsv($f, $this->heads, self::DELIMITER);
 
-        //print data
+        // print data
         foreach ($this->logs as $log) {
             fputcsv($f, $log, self::DELIMITER);
         }

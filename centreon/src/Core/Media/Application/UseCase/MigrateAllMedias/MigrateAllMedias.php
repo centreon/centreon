@@ -19,7 +19,7 @@
  *
  */
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Core\Media\Application\UseCase\MigrateAllMedias;
 
@@ -40,7 +40,7 @@ final class MigrateAllMedias
     public function __construct(
         readonly private ReadMediaRepositoryInterface $readMediaRepository,
         readonly private WriteMediaRepositoryInterface $writeMediaRepository,
-     ) {
+    ) {
         $this->response = new MigrationAllMediasResponse();
     }
 
@@ -68,7 +68,7 @@ final class MigrateAllMedias
      */
     private function migrateMedias(\Traversable&\Countable $medias, MigrationAllMediasResponse $response): void
     {
-        $response->results = new class($medias, $this->writeMediaRepository) implements \IteratorAggregate, \Countable {
+        $response->results = new class ($medias, $this->writeMediaRepository) implements \IteratorAggregate, \Countable {
             /**
              * @param \Traversable<int, Media>&\Countable $medias
              * @param WriteMediaRepositoryInterface $writeMediaRepository

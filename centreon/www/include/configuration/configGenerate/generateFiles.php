@@ -37,31 +37,28 @@
  *
  */
 
-if (!isset($oreon)) {
+if (! isset($oreon)) {
     exit();
 }
 
-/*
- * Path to the option dir
- */
-$path = "./include/configuration/configGenerate/";
+// Path to the option dir
+$path = './include/configuration/configGenerate/';
 
-/*
- * PHP functions
- */
-require_once $path . "DB-Func.php";
-require_once "./include/common/common-Func.php";
+// PHP functions
+require_once $path . 'DB-Func.php';
+require_once './include/common/common-Func.php';
 
 /**
  *  Page forbidden if server is a remote
  */
 if ($isRemote) {
-    require_once($path . "../../core/errors/alt_error.php");
+    require_once $path . '../../core/errors/alt_error.php';
+
     exit();
 }
 
 switch ($o) {
     default:
-        require_once($path . "formGenerateFiles.php");
+        require_once $path . 'formGenerateFiles.php';
         break;
 }

@@ -39,29 +39,19 @@ use PHPUnit\Framework\TestCase;
 
 class UpdateConfigurationTest extends TestCase
 {
-    /**
-     * @var WriteConfigurationRepositoryInterface&\PHPUnit\Framework\MockObject\MockObject
-     */
+    /** @var WriteConfigurationRepositoryInterface&\PHPUnit\Framework\MockObject\MockObject */
     private $writeConfigurationRepository;
 
-    /**
-     * @var ReadUserRepositoryInterface&\PHPUnit\Framework\MockObject\MockObject
-     */
+    /** @var ReadUserRepositoryInterface&\PHPUnit\Framework\MockObject\MockObject */
     private $readUserRepository;
 
-    /**
-     * @var UpdateConfigurationPresenterInterface&\PHPUnit\Framework\MockObject\MockObject
-     */
+    /** @var UpdateConfigurationPresenterInterface&\PHPUnit\Framework\MockObject\MockObject */
     private $presenter;
 
-    /**
-     * @var ProviderAuthenticationFactoryInterface&\PHPUnit\Framework\MockObject\MockObject
-     */
+    /** @var ProviderAuthenticationFactoryInterface&\PHPUnit\Framework\MockObject\MockObject */
     private ProviderAuthenticationFactoryInterface $providerAuthenticationFactory;
 
-    /**
-     * @var ProviderAuthenticationInterface&\PHPUnit\Framework\MockObject\MockObject
-     */
+    /** @var ProviderAuthenticationInterface&\PHPUnit\Framework\MockObject\MockObject */
     private $provider;
 
     public function setUp(): void

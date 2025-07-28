@@ -308,6 +308,8 @@ describe('AddEditWidgetModal', () => {
         cy.findByLabelText(labelTitle).should('have.value', widgetName);
         cy.findByLabelText(labelSave).should('be.enabled');
 
+        cy.contains('Hello world');
+
         cy.makeSnapshot();
       });
 

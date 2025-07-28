@@ -34,10 +34,10 @@
  *
  */
 
-require_once _CENTREON_PATH_ . "/www/class/centreonDB.class.php";
-require_once _CENTREON_PATH_ . "/www/class/centreonContactgroup.class.php";
-require_once _CENTREON_PATH_ . "/www/class/centreonLDAP.class.php";
-require_once __DIR__ . "/centreon_configuration_objects.class.php";
+require_once _CENTREON_PATH_ . '/www/class/centreonDB.class.php';
+require_once _CENTREON_PATH_ . '/www/class/centreonContactgroup.class.php';
+require_once _CENTREON_PATH_ . '/www/class/centreonLDAP.class.php';
+require_once __DIR__ . '/centreon_configuration_objects.class.php';
 
 /**
  * Class
@@ -55,18 +55,18 @@ class CentreonConfigurationContactgroup extends CentreonConfigurationObjects
     }
 
     /**
-     * @return array
      * @throws PDOException
      * @throws RestBadRequestException
+     * @return array
      */
     public function getList()
     {
         global $centreon;
 
-        if (isset($this->arguments['page_limit']) && isset($this->arguments['page'])) {
+        if (isset($this->arguments['page_limit'], $this->arguments['page'])) {
             if (
-                !is_numeric($this->arguments['page'])
-                || !is_numeric($this->arguments['page_limit'])
+                ! is_numeric($this->arguments['page'])
+                || ! is_numeric($this->arguments['page_limit'])
                 || $this->arguments['page_limit'] < 1
             ) {
                 throw new RestBadRequestException('Error, limit must be an integer greater than zero');
@@ -94,7 +94,6 @@ class CentreonConfigurationContactgroup extends CentreonConfigurationObjects
             false
         );
 
-
         $contactgroupList = [];
         foreach ($aclCgs['items'] as $id => $contactgroup) {
             // If we query local contactgroups and the contactgroup type is ldap, we skip it
@@ -103,18 +102,18 @@ class CentreonConfigurationContactgroup extends CentreonConfigurationObjects
                 && ($this->arguments['type'] === 'local')
                 && ($contactgroup['cg_type'] === 'ldap')
             ) {
-                $aclCgs['total'] -= 1;
+                --$aclCgs['total'];
                 continue;
             }
             $sText = $contactgroup['cg_name'];
             if ($contactgroup['cg_type'] == 'ldap') {
-                $sText .= " (LDAP : " . $contactgroup['ar_name'] . ")";
+                $sText .= ' (LDAP : ' . $contactgroup['ar_name'] . ')';
             }
             $id = $contactgroup['cg_id'];
             $contactgroupList[] = ['id' => $id, 'text' => $sText];
         }
 
-        # get Ldap contactgroups
+        // get Ldap contactgroups
         // If we don't query local contactgroups, we can return an array with ldap contactgroups
         if (! isset($this->arguments['type']) || $this->arguments['type'] !== 'local') {
             $ldapCgs = [];
@@ -129,7 +128,7 @@ class CentreonConfigurationContactgroup extends CentreonConfigurationObjects
 
             foreach ($ldapCgs as $key => $value) {
                 $sTemp = $value;
-                if (!$this->uniqueKey($sTemp, $contactgroupList)) {
+                if (! $this->uniqueKey($sTemp, $contactgroupList)) {
                     $contactgroupList[] = ['id' => $key, 'text' => $value];
                 }
             }
@@ -147,13 +146,14 @@ class CentreonConfigurationContactgroup extends CentreonConfigurationObjects
     protected function uniqueKey($val, &$array)
     {
 
-        if (!empty($val) && count($array) > 0) {
+        if (! empty($val) && count($array) > 0) {
             foreach ($array as $key => $value) {
                 if ($value['text'] == $val) {
                     return true;
                 }
             }
         }
+
         return false;
     }
 }

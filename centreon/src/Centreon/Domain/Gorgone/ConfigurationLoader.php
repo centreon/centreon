@@ -41,19 +41,13 @@ class ConfigurationLoader implements ConfigurationLoaderApiInterface
     private const GORGONE_API_CERTIFICATE_SELF_SIGNED = 'gorgone_api_allow_self_signed';
     private const GORGONE_COMMAND_TIMEOUT = 'gorgone_cmd_timeout';
 
-    /**
-     * @var OptionServiceInterface
-     */
+    /** @var OptionServiceInterface */
     private $optionService;
 
-    /**
-     * @var array<string, string|null> Parameters of the Gorgone server
-     */
+    /** @var array<string, string|null> Parameters of the Gorgone server */
     private $gorgoneParameters;
 
-    /**
-     * @var bool Indicates whether options are already loaded or not
-     */
+    /** @var bool Indicates whether options are already loaded or not */
     private $isOptionsLoaded = false;
 
     /**
@@ -69,9 +63,10 @@ class ConfigurationLoader implements ConfigurationLoaderApiInterface
      */
     public function getApiIpAddress(): ?string
     {
-        if (!$this->isOptionsLoaded) {
+        if (! $this->isOptionsLoaded) {
             $this->loadConfiguration();
         }
+
         return $this->gorgoneParameters[self::GORGONE_API_ADDRESS] ?? null;
     }
 
@@ -80,9 +75,10 @@ class ConfigurationLoader implements ConfigurationLoaderApiInterface
      */
     public function getApiPort(): ?int
     {
-        if (!$this->isOptionsLoaded) {
+        if (! $this->isOptionsLoaded) {
             $this->loadConfiguration();
         }
+
         return isset($this->gorgoneParameters[self::GORGONE_API_PORT])
             ? (int) $this->gorgoneParameters[self::GORGONE_API_PORT]
             : null;
@@ -93,9 +89,10 @@ class ConfigurationLoader implements ConfigurationLoaderApiInterface
      */
     public function getApiUsername(): ?string
     {
-        if (!$this->isOptionsLoaded) {
+        if (! $this->isOptionsLoaded) {
             $this->loadConfiguration();
         }
+
         return $this->gorgoneParameters[self::GORGONE_API_USERNAME] ?? null;
     }
 
@@ -104,9 +101,10 @@ class ConfigurationLoader implements ConfigurationLoaderApiInterface
      */
     public function getApiPassword(): ?string
     {
-        if (!$this->isOptionsLoaded) {
+        if (! $this->isOptionsLoaded) {
             $this->loadConfiguration();
         }
+
         return $this->gorgoneParameters[self::GORGONE_API_PASSWORD] ?? null;
     }
 
@@ -115,9 +113,10 @@ class ConfigurationLoader implements ConfigurationLoaderApiInterface
      */
     public function isApiConnectionSecure(): bool
     {
-        if (!$this->isOptionsLoaded) {
+        if (! $this->isOptionsLoaded) {
             $this->loadConfiguration();
         }
+
         return (bool) ($this->gorgoneParameters[self::GORGONE_API_SSL] ?? false);
     }
 
@@ -126,9 +125,10 @@ class ConfigurationLoader implements ConfigurationLoaderApiInterface
      */
     public function isSecureConnectionSelfSigned(): bool
     {
-        if (!$this->isOptionsLoaded) {
+        if (! $this->isOptionsLoaded) {
             $this->loadConfiguration();
         }
+
         return (bool) ($this->gorgoneParameters[self::GORGONE_API_CERTIFICATE_SELF_SIGNED] ?? false);
     }
 
@@ -137,10 +137,11 @@ class ConfigurationLoader implements ConfigurationLoaderApiInterface
      */
     public function getCommandTimeout(): int
     {
-        if (!$this->isOptionsLoaded) {
+        if (! $this->isOptionsLoaded) {
             $this->loadConfiguration();
         }
         $timeout = (int) ($this->gorgoneParameters[self::GORGONE_COMMAND_TIMEOUT] ?? self::DEFAULT_TIMEOUT);
+
         // Do not use a timeout at 0
         return $timeout > 0 ? $timeout : 1;
     }
@@ -160,7 +161,7 @@ class ConfigurationLoader implements ConfigurationLoaderApiInterface
                 self::GORGONE_API_PASSWORD,
                 self::GORGONE_API_SSL,
                 self::GORGONE_API_CERTIFICATE_SELF_SIGNED,
-                self::GORGONE_COMMAND_TIMEOUT
+                self::GORGONE_COMMAND_TIMEOUT,
             ]);
             foreach ($options as $option) {
                 $this->gorgoneParameters[$option->getName()] = $option->getValue();
@@ -168,6 +169,7 @@ class ConfigurationLoader implements ConfigurationLoaderApiInterface
             $this->isOptionsLoaded = true;
         } catch (\Exception $ex) {
             $this->isOptionsLoaded = false;
+
             throw $ex;
         }
     }

@@ -30,7 +30,7 @@ class Factory
 {
     /** @var \Pimple\Container */
     protected $dependencyInjector;
-    
+
     /**
      * @param \Pimple\Container $dependencyInjector
      */

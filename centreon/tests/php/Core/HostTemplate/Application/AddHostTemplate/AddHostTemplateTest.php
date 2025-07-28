@@ -478,7 +478,7 @@ it('should present a ConflictResponse when a parent template ID is not valid', f
         ->toBe(
             HostTemplateException::idsDoNotExist(
                 'templates',
-                 $this->request->templates
+                $this->request->templates
             )->getMessage()
         );
 });
@@ -576,8 +576,8 @@ it('should return created object on success (with admin user)', function (): voi
         ->method('findNamesByIds')
         ->willReturn(
             array_combine(
-                array_map((fn($row) => $row['id']), $this->parentTemplates),
-                array_map((fn($row) => $row['name']), $this->parentTemplates)
+                array_map((fn ($row) => $row['id']), $this->parentTemplates),
+                array_map((fn ($row) => $row['name']), $this->parentTemplates)
             )
         );
     $this->readHostMacroRepository
@@ -666,14 +666,14 @@ it('should return created object on success (with admin user)', function (): voi
         ->toBe($this->hostTemplate->getComment())
         ->and($response->categories)
         ->toBe(array_map(
-            (fn($category) => ['id' => $category->getId(), 'name' => $category->getName()]),
+            (fn ($category) => ['id' => $category->getId(), 'name' => $category->getName()]),
             $this->categories
         ))
         ->and($response->templates)
         ->toBe($this->parentTemplates)
         ->and($response->macros)
         ->toBe(array_map(
-            (fn($macro) => [
+            (fn ($macro) => [
                 'name' => $macro->getName(),
                 'value' => $macro->getValue(),
                 'isPassword' => $macro->isPassword(),
@@ -755,8 +755,8 @@ it('should return created object on success (with non-admin user)', function ():
         ->method('findNamesByIds')
         ->willReturn(
             array_combine(
-                array_map((fn($row) => $row['id']), $this->parentTemplates),
-                array_map((fn($row) => $row['name']), $this->parentTemplates)
+                array_map((fn ($row) => $row['id']), $this->parentTemplates),
+                array_map((fn ($row) => $row['name']), $this->parentTemplates)
             )
         );
     $this->readHostMacroRepository
@@ -845,14 +845,14 @@ it('should return created object on success (with non-admin user)', function ():
         ->toBe($this->hostTemplate->getComment())
         ->and($response->categories)
         ->toBe(array_map(
-            (fn($category) => ['id' => $category->getId(), 'name' => $category->getName()]),
+            (fn ($category) => ['id' => $category->getId(), 'name' => $category->getName()]),
             $this->categories
         ))
         ->and($response->templates)
         ->toBe($this->parentTemplates)
         ->and($response->macros)
         ->toBe(array_map(
-            (fn($macro) => [
+            (fn ($macro) => [
                 'name' => $macro->getName(),
                 'value' => $macro->getValue(),
                 'isPassword' => $macro->isPassword(),

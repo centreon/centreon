@@ -16,7 +16,7 @@ const ModalHeader = ({
 
   return (
     <div className={classes.modalHeader}>
-      <MuiDialogTitle color="primary" {...rest}>
+      <MuiDialogTitle color="primary" className={classes.modalTitle} {...rest}>
         {children}
       </MuiDialogTitle>
     </div>

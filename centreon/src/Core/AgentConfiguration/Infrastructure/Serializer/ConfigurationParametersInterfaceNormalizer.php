@@ -58,10 +58,23 @@ class ConfigurationParametersInterfaceNormalizer implements NormalizerInterface
     }
 
     /**
-     * @inheritDoc
+     * @param mixed $data
+     * @param ?string $format
+     * @param array<string, mixed> $context
      */
-    public function supportsNormalization(mixed $data, ?string $format = null): bool
+    public function supportsNormalization(mixed $data, ?string $format = null, array $context = []): bool
     {
         return $data instanceof ConfigurationParametersInterface;
+    }
+
+    /**
+     * @param ?string $format
+     * @return array<class-string|'*'|'object'|string, bool|null>
+     */
+    public function getSupportedTypes(?string $format): array
+    {
+        return [
+            ConfigurationParametersInterface::class => true,
+        ];
     }
 }

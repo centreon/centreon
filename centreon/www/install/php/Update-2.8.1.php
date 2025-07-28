@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2016 Centreon
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
@@ -34,13 +35,13 @@
  *
  */
 
-/* Update comments unique key */
+// Update comments unique key
 if (isset($pearDBO)) {
     $query = 'SHOW INDEX FROM comments '
         . 'WHERE column_name = "host_id" '
         . 'AND Key_name = "host_id" ';
     $res = $pearDBO->query($query);
-    if (!$res->rowCount()) {
+    if (! $res->rowCount()) {
         $pearDBO->query('ALTER TABLE comments ADD KEY host_id(host_id)');
     }
 

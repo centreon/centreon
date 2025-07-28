@@ -144,10 +144,10 @@ class Validator
 
         // Check pollers are not already associated to an ACC of same type.
         $actualPollers = $this->readAccRepository->findPollersByAccId($acc->getId());
-        $actualPollerIds = array_map(fn(Poller $poller) => $poller->id, $actualPollers);
+        $actualPollerIds = array_map(fn (Poller $poller) => $poller->id, $actualPollers);
 
         $unavailablePollers = $this->readAccRepository->findPollersByType($acc->getType());
-        $unavailablePollerIds = array_map(fn(Poller $poller) => $poller->id, $unavailablePollers);
+        $unavailablePollerIds = array_map(fn (Poller $poller) => $poller->id, $unavailablePollers);
         $unavailablePollerIds = array_diff($unavailablePollerIds, $actualPollerIds);
 
         if ([] !== $invalidPollers = array_intersect($unavailablePollerIds, $request->pollers)) {

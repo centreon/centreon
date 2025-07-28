@@ -39,8 +39,6 @@ require_once __DIR__ . '/../../../../bootstrap.php';
 require_once __DIR__ . '/../functions.php';
 require __DIR__ . '/../../../include/common/common-Func.php';
 
-use Symfony\Component\Dotenv\Dotenv;
-use Core\Common\Infrastructure\FeatureFlags;
 use CentreonLegacy\Core\Install\Step\Step6;
 
 define('SQL_ERROR_CODE_ACCESS_DENIED', 1698);
@@ -73,33 +71,33 @@ if (array_key_exists('use_vault', $parameters)) {
     $err['use_vault'] = true;
 }
 
-if (!in_array('db_password', $err['required']) && !in_array('db_password_confirm', $err['required']) &&
-    $parameters['db_password'] != $parameters['db_password_confirm']
+if (! in_array('db_password', $err['required']) && ! in_array('db_password_confirm', $err['required'])
+    && $parameters['db_password'] != $parameters['db_password_confirm']
 ) {
     $err['password'] = false;
 }
 
 try {
-    if ($parameters['address'] == "") {
-        $parameters['address'] = "localhost";
+    if ($parameters['address'] == '') {
+        $parameters['address'] = 'localhost';
     }
-    if ($parameters['port'] == "") {
-        $parameters['port'] = "3306";
+    if ($parameters['port'] == '') {
+        $parameters['port'] = '3306';
     }
-    if ($parameters['root_user'] == "") {
-        $parameters['root_user'] = "root";
+    if ($parameters['root_user'] == '') {
+        $parameters['root_user'] = 'root';
     }
-    $link = new \PDO(
+    $link = new PDO(
         'mysql:host=' . $parameters['address'] . ';port=' . $parameters['port'],
         $parameters['root_user'],
         $parameters['root_password']
     );
     checkMariaDBPrerequisite($link);
     $link = null;
-} catch (\Exception $e) {
-    if ($e instanceof \PDOException && (int) $e->getCode() === SQL_ERROR_CODE_ACCESS_DENIED) {
-        $err['connection'] =
-            'Please check the root database username and password. '
+} catch (Exception $e) {
+    if ($e instanceof PDOException && (int) $e->getCode() === SQL_ERROR_CODE_ACCESS_DENIED) {
+        $err['connection']
+            = 'Please check the root database username and password. '
             . 'If the problem persists, check that you have properly '
             . '<a target="_blank" href="https://docs.centreon.com/docs/installation'
             . '/installation-of-a-central-server/using-packages/#secure-the-database">secured your DBMS</a>';

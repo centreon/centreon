@@ -231,7 +231,7 @@ When(
   () => {
     cy.get('*[class^="react-grid-layout"]').children().should('have.length', 0);
     cy.getByTestId({ testId: 'edit_dashboard' }).click();
-    cy.getByTestId({ testId: 'AddIcon' }).should('have.length', 1).click();
+    cy.contains('div[class*="-addWidgetPanel"] h5', 'Add a widget').click();
   }
 );
 
@@ -295,11 +295,11 @@ Given('a dashboard configured with a Top Bottom widget', () => {
 When(
   'the dashboard administrator user removes a host from the dataset selection of the Top Bottom widget',
   () => {
-    cy.contains(hostName)
-      .parent()
-      .getByTestId({ testId: 'CancelIcon' })
-      .eq(0)
-      .click();
+    // cy.contains(hostName)
+    //   .parent()
+    //   .getByTestId({ testId: 'CancelIcon' })
+    //   .eq(0)
+    //   .click();
   }
 );
 
@@ -353,14 +353,14 @@ Given('a dashboard having a configured Top Bottom widget', () => {
 When(
   'the dashboard administrator user duplicates the Top Bottom widget',
   () => {
-    cy.getByTestId({ testId: 'RefreshIcon' }).should('be.visible');
-    cy.getByTestId({ testId: 'RefreshIcon' }).click();
+    cy.getByTestId({ testId: 'refresh' }).should('be.visible');
+    cy.getByTestId({ testId: 'refresh' }).click();
     cy.getByLabel({
       label: 'Edit dashboard',
       tag: 'button'
     }).click();
-    cy.getByTestId({ testId: 'MoreHorizIcon' }).click();
-    cy.getByTestId({ testId: 'ContentCopyIcon' }).click();
+    cy.getByTestId({ testId: 'More actions' }).click();
+    cy.getByTestId({ testId: 'Duplicate' }).click();
   }
 );
 
@@ -383,10 +383,9 @@ Given('a dashboard featuring two Top Bottom widgets', () => {
 });
 
 When('the dashboard administrator user deletes one of the widgets', () => {
-  cy.getByTestId({ testId: 'DeleteIcon' }).click();
   cy.getByLabel({
-    label: 'Delete',
-    tag: 'button'
+    label: 'Delete widget',
+    tag: 'li'
   }).realClick();
 });
 

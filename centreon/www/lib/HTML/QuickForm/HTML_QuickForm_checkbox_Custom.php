@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005 - 2019 Centreon (https://www.centreon.com/)
  *
@@ -20,7 +21,7 @@
 class HTML_QuickForm_checkbox_Custom extends HTML_QuickForm_checkbox
 {
     /**
-     * @inheritDoc
+     * @return string
      */
     public function toHtml()
     {

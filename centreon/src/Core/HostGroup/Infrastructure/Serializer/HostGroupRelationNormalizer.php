@@ -25,13 +25,15 @@ namespace Core\HostGroup\Infrastructure\Serializer;
 
 use Core\Common\Domain\SimpleEntity;
 use Core\HostGroup\Domain\Model\HostGroupRelation;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
-use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 
 class HostGroupRelationNormalizer implements NormalizerInterface
 {
-    public function __construct(private readonly ObjectNormalizer $normalizer)
-    {
+    public function __construct(
+        #[Autowire(service: 'serializer.normalizer.object')]
+        private readonly NormalizerInterface $normalizer,
+    ) {
     }
 
     /**
@@ -52,10 +54,7 @@ class HostGroupRelationNormalizer implements NormalizerInterface
          * @var array<string, bool|float|int|string> $data
          * @var array{groups?: string[],is_cloud_platform: bool} $context
          */
-        $data = $this->normalizer->normalize(
-            object: $object->getHostGroup(),
-            context: $context
-        );
+        $data = $this->normalizer->normalize($object->getHostGroup(), null, $context);
 
         if (isset($data['alias']) && $data['alias'] === '') {
             $data['alias'] = null;
@@ -72,10 +71,7 @@ class HostGroupRelationNormalizer implements NormalizerInterface
         if ($context['is_cloud_platform'] === true) {
             $data['resource_access_rules'] = [];
             foreach ($object->getResourceAccessRules() as $resourceAccessRule) {
-                $data['resource_access_rules'][] = $this->normalizer->normalize(
-                    object: $resourceAccessRule,
-                    context: $context
-                );
+                $data['resource_access_rules'][] = $this->normalizer->normalize($resourceAccessRule, null, $context);
             }
         }
 
@@ -83,10 +79,23 @@ class HostGroupRelationNormalizer implements NormalizerInterface
     }
 
     /**
-     * @inheritDoc
+     * @param array<string, mixed> $context
+     * @param mixed $data
+     * @param ?string $format
      */
-    public function supportsNormalization(mixed $data, ?string $format = null): bool
+    public function supportsNormalization(mixed $data, ?string $format = null, array $context = []): bool
     {
         return $data instanceof HostGroupRelation;
+    }
+
+    /**
+     * @param ?string $format
+     * @return array<class-string|'*'|'object'|string, bool|null>
+     */
+    public function getSupportedTypes(?string $format): array
+    {
+        return [
+            HostGroupRelation::class => true,
+        ];
     }
 }

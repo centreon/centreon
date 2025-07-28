@@ -35,7 +35,7 @@
  *
  */
 
-include_once __DIR__ . "/../../class/centreonLog.class.php";
+include_once __DIR__ . '/../../class/centreonLog.class.php';
 $centreonLog = new CentreonLog();
 
 /**
@@ -45,14 +45,14 @@ try {
     $pearDB->query('SET SESSION innodb_strict_mode=OFF');
 
     // Adding two columns to check last user's LDAP sync timestamp
-    if (!$pearDB->isColumnExist('contact', 'contact_ldap_last_sync')) {
-        //$pearDB = "centreon"
-        //$pearDBO = "realtime"
+    if (! $pearDB->isColumnExist('contact', 'contact_ldap_last_sync')) {
+        // $pearDB = "centreon"
+        // $pearDBO = "realtime"
         $pearDB->query(
-            "ALTER TABLE `contact` ADD COLUMN `contact_ldap_last_sync` INT(11) NOT NULL DEFAULT 0"
+            'ALTER TABLE `contact` ADD COLUMN `contact_ldap_last_sync` INT(11) NOT NULL DEFAULT 0'
         );
     }
-    if (!$pearDB->isColumnExist('contact', 'contact_ldap_required_sync')) {
+    if (! $pearDB->isColumnExist('contact', 'contact_ldap_required_sync')) {
         $pearDB->query(
             "ALTER TABLE `contact` ADD COLUMN `contact_ldap_required_sync` enum('0','1') NOT NULL DEFAULT '0'"
         );
@@ -60,13 +60,13 @@ try {
 
     // Adding a column to check last specific LDAP sync timestamp
     $needToUpdateValues = false;
-    if (!$pearDB->isColumnExist('auth_ressource', 'ar_sync_base_date')) {
+    if (! $pearDB->isColumnExist('auth_ressource', 'ar_sync_base_date')) {
         $pearDB->query(
-            "ALTER TABLE `auth_ressource` ADD COLUMN `ar_sync_base_date` INT(11) DEFAULT 0"
+            'ALTER TABLE `auth_ressource` ADD COLUMN `ar_sync_base_date` INT(11) DEFAULT 0'
         );
         $needToUpdateValues = true;
     }
-} catch (\PDOException $e) {
+} catch (PDOException $e) {
     $centreonLog->insertLog(
         2,
         "UPGRADE : 19.10.0-beta.3 Unable to add LDAP new feature's tables in the database"
@@ -79,18 +79,18 @@ try {
 if ($needToUpdateValues) {
     try {
         $stmt = $pearDB->prepare(
-            "UPDATE `auth_ressource` SET `ar_sync_base_date` = :minusTime"
+            'UPDATE `auth_ressource` SET `ar_sync_base_date` = :minusTime'
         );
-        $stmt->bindValue(':minusTime', time(), \PDO::PARAM_INT);
+        $stmt->bindValue(':minusTime', time(), PDO::PARAM_INT);
         $stmt->execute();
-    } catch (\PDOException $e) {
+    } catch (PDOException $e) {
         $centreonLog->insertLog(
             2,
-            "UPGRADE : 19.10.0-beta.3 Unable to initialize LDAP reference date"
+            'UPGRADE : 19.10.0-beta.3 Unable to initialize LDAP reference date'
         );
     }
 
-    /* Adding to each LDAP configuration two new fields */
+    // Adding to each LDAP configuration two new fields
     try {
         // field to enable the automatic sync at login
         $addSyncStateField = $pearDB->prepare(
@@ -106,22 +106,22 @@ if ($needToUpdateValues) {
         );
 
         $pearDB->beginTransaction();
-        $stmt = $pearDB->query("SELECT DISTINCT(ar_id) FROM auth_ressource");
+        $stmt = $pearDB->query('SELECT DISTINCT(ar_id) FROM auth_ressource');
         while ($row = $stmt->fetch()) {
-            $addSyncIntervalField->bindValue(':arId', $row['ar_id'], \PDO::PARAM_INT);
+            $addSyncIntervalField->bindValue(':arId', $row['ar_id'], PDO::PARAM_INT);
             $addSyncIntervalField->execute();
-            $addSyncStateField->bindValue(':arId', $row['ar_id'], \PDO::PARAM_INT);
+            $addSyncStateField->bindValue(':arId', $row['ar_id'], PDO::PARAM_INT);
             $addSyncStateField->execute();
         }
         $pearDB->commit();
-    } catch (\PDOException $e) {
+    } catch (PDOException $e) {
         $centreonLog->insertLog(
             1, // ldap.log
-            "UPGRADE PROCESS : Error - Please open your LDAP configuration and save manually each LDAP form"
+            'UPGRADE PROCESS : Error - Please open your LDAP configuration and save manually each LDAP form'
         );
         $centreonLog->insertLog(
             2, // sql-error.log
-            "UPGRADE : 19.10.0-beta.3 Unable to add LDAP new fields"
+            'UPGRADE : 19.10.0-beta.3 Unable to add LDAP new fields'
         );
         $pearDB->rollBack();
     }
@@ -137,24 +137,22 @@ $pearDB->query(
     WHERE topology_url LIKE "/poller-wizard/%"'
 );
 
-
 try {
     // Add trap regexp matching
-    if (!$pearDB->isColumnExist('traps', 'traps_mode')) {
+    if (! $pearDB->isColumnExist('traps', 'traps_mode')) {
         $pearDB->query('SET SESSION innodb_strict_mode=OFF');
         $pearDB->query(
             "ALTER TABLE `traps` ADD COLUMN `traps_mode` enum('0','1') DEFAULT '0' AFTER `traps_oid`"
         );
     }
-} catch (\PDOException $e) {
+} catch (PDOException $e) {
     $centreonLog->insertLog(
         2,
-        "UPGRADE : 19.10.0-beta.3 Unable to modify regexp matching in the database"
+        'UPGRADE : 19.10.0-beta.3 Unable to modify regexp matching in the database'
     );
 } finally {
     $pearDB->query('SET SESSION innodb_strict_mode=ON');
 }
-
 
 /**
  * Add columns to manage engine & broker restart/reload process
@@ -183,10 +181,10 @@ try {
         ALTER TABLE `nagios_server`
         ADD COLUMN `broker_reload_command` varchar(255) DEFAULT \'service cbd reload\' AFTER `nagios_perfdata`
     ');
-} catch (\PDOException $e) {
+} catch (PDOException $e) {
     $centreonLog->insertLog(
         2,
-        "UPGRADE : 19.10.0-beta.3 Unable to manage engine & broker restart and reload processes"
+        'UPGRADE : 19.10.0-beta.3 Unable to manage engine & broker restart and reload processes'
     );
 } finally {
     $pearDB->query('SET SESSION innodb_strict_mode=ON');
@@ -205,24 +203,24 @@ $stmt = $pearDB->prepare('
 $result = $pearDB->query('SELECT value FROM `options` WHERE `key` = \'broker_correlator_script\'');
 $brokerServiceName = 'cbd';
 if ($row = $result->fetch()) {
-    if (!empty($row['value'])) {
+    if (! empty($row['value'])) {
         $brokerServiceName = $row['value'];
     }
 }
-$stmt->bindValue(':broker_reload_command', 'service ' . $brokerServiceName . ' reload', \PDO::PARAM_STR);
+$stmt->bindValue(':broker_reload_command', 'service ' . $brokerServiceName . ' reload', PDO::PARAM_STR);
 
 $result = $pearDB->query('SELECT id, init_script FROM `nagios_server`');
 
 while ($row = $result->fetch()) {
     $engineServiceName = 'centengine';
-    if (!empty($row['init_script'])) {
+    if (! empty($row['init_script'])) {
         $engineServiceName = $row['init_script'];
     }
-    $stmt->bindValue(':id', $row['id'], \PDO::PARAM_INT);
-    $stmt->bindValue(':engine_start_command', 'service ' . $engineServiceName . ' start', \PDO::PARAM_STR);
-    $stmt->bindValue(':engine_stop_command', 'service ' . $engineServiceName . ' stop', \PDO::PARAM_STR);
-    $stmt->bindValue(':engine_restart_command', 'service ' . $engineServiceName . ' restart', \PDO::PARAM_STR);
-    $stmt->bindValue(':engine_reload_command', 'service ' . $engineServiceName . ' reload', \PDO::PARAM_STR);
+    $stmt->bindValue(':id', $row['id'], PDO::PARAM_INT);
+    $stmt->bindValue(':engine_start_command', 'service ' . $engineServiceName . ' start', PDO::PARAM_STR);
+    $stmt->bindValue(':engine_stop_command', 'service ' . $engineServiceName . ' stop', PDO::PARAM_STR);
+    $stmt->bindValue(':engine_restart_command', 'service ' . $engineServiceName . ' restart', PDO::PARAM_STR);
+    $stmt->bindValue(':engine_reload_command', 'service ' . $engineServiceName . ' reload', PDO::PARAM_STR);
     $stmt->execute();
 }
 
@@ -232,7 +230,6 @@ $pearDB->query('ALTER TABLE `nagios_server` DROP COLUMN `init_system`');
 $pearDB->query('ALTER TABLE `nagios_server` DROP COLUMN `monitoring_engine`');
 $pearDB->query('DELETE FROM `options` WHERE `key` = \'broker_correlator_script\'');
 $pearDB->query('DELETE FROM `options` WHERE `key` = \'monitoring_engine\'');
-
 
 /**
  * Manage upgrade of widget preferences
@@ -269,10 +266,10 @@ while ($row = $result->fetch()) {
     $pollerName = strtolower($row['preference_value']);
     $pollerId = $pollers[$pollerName] ?? '';
 
-    $statement->bindValue(':value', $pollerId, \PDO::PARAM_STR);
-    $statement->bindValue(':view_id', $row['widget_view_id'], \PDO::PARAM_INT);
-    $statement->bindValue(':parameter_id', $row['parameter_id'], \PDO::PARAM_INT);
-    $statement->bindValue(':user_id', $row['user_id'], \PDO::PARAM_INT);
+    $statement->bindValue(':value', $pollerId, PDO::PARAM_STR);
+    $statement->bindValue(':view_id', $row['widget_view_id'], PDO::PARAM_INT);
+    $statement->bindValue(':parameter_id', $row['parameter_id'], PDO::PARAM_INT);
+    $statement->bindValue(':user_id', $row['user_id'], PDO::PARAM_INT);
     $statement->execute();
 }
 
@@ -315,10 +312,10 @@ while ($row = $result->fetch()) {
 
     $severityIds = $severityIds !== [] ? implode(',', $severityIds) : '';
 
-    $statement->bindValue(':value', $severityIds, \PDO::PARAM_STR);
-    $statement->bindValue(':view_id', $row['widget_view_id'], \PDO::PARAM_INT);
-    $statement->bindValue(':parameter_id', $row['parameter_id'], \PDO::PARAM_INT);
-    $statement->bindValue(':user_id', $row['user_id'], \PDO::PARAM_INT);
+    $statement->bindValue(':value', $severityIds, PDO::PARAM_STR);
+    $statement->bindValue(':view_id', $row['widget_view_id'], PDO::PARAM_INT);
+    $statement->bindValue(':parameter_id', $row['parameter_id'], PDO::PARAM_INT);
+    $statement->bindValue(':user_id', $row['user_id'], PDO::PARAM_INT);
     $statement->execute();
 }
 
@@ -344,14 +341,14 @@ if ($cache['value']) {
                         'config_key' => 'rrd_cached_option',
                         'config_value' => 'tcp',
                         'config_group' => $row['config_group'],
-                        'config_group_id' => $row['config_group_id']
+                        'config_group_id' => $row['config_group_id'],
                     ],
                     [
                         'config_id' => $row['config_id'],
                         'config_key' => 'rrd_cached',
                         'config_value' => $port['value'],
                         'config_group' => $row['config_group'],
-                        'config_group_id' => $row['config_group_id']
+                        'config_group_id' => $row['config_group_id'],
                     ],
                 ];
                 $query = 'INSERT INTO cfg_centreonbroker_info (config_id, config_key, config_value, '
@@ -360,11 +357,11 @@ if ($cache['value']) {
                     . ':config_group, :config_group_id)';
                 $statement = $pearDB->prepare($query);
                 foreach ($brokerInfoData as $dataRow) {
-                    $statement->bindValue(":config_id", (int) $dataRow['config_id'], \PDO::PARAM_INT);
-                    $statement->bindValue(":config_key", $dataRow['config_key']);
-                    $statement->bindValue(":config_value", $dataRow['config_value']);
-                    $statement->bindValue(":config_group", $dataRow['config_group']);
-                    $statement->bindValue(":config_group_id", (int) $dataRow['config_group_id'], \PDO::PARAM_INT);
+                    $statement->bindValue(':config_id', (int) $dataRow['config_id'], PDO::PARAM_INT);
+                    $statement->bindValue(':config_key', $dataRow['config_key']);
+                    $statement->bindValue(':config_value', $dataRow['config_value']);
+                    $statement->bindValue(':config_group', $dataRow['config_group']);
+                    $statement->bindValue(':config_group_id', (int) $dataRow['config_group_id'], PDO::PARAM_INT);
                     $statement->execute();
                 }
             } else {
@@ -377,14 +374,14 @@ if ($cache['value']) {
                         'config_key' => 'rrd_cached_option',
                         'config_value' => 'unix',
                         'config_group' => $row['config_group'],
-                        'config_group_id' => $row['config_group_id']
+                        'config_group_id' => $row['config_group_id'],
                     ],
                     [
                         'config_id' => $row['config_id'],
                         'config_key' => 'rrd_cached',
                         'config_value' => $path['value'],
                         'config_group' => $row['config_group'],
-                        'config_group_id' => $row['config_group_id']
+                        'config_group_id' => $row['config_group_id'],
                     ],
                 ];
                 $query = 'INSERT INTO cfg_centreonbroker_info (config_id, config_key, config_value, '
@@ -393,22 +390,22 @@ if ($cache['value']) {
                     . ':config_group, :config_group_id)';
                 $statement = $pearDB->prepare($query);
                 foreach ($brokerInfoData as $rowData) {
-                    $statement->bindValue(':config_id', (int) $rowData['config_id'], \PDO::PARAM_INT);
+                    $statement->bindValue(':config_id', (int) $rowData['config_id'], PDO::PARAM_INT);
                     $statement->bindValue(':config_key', $rowData['config_key']);
                     $statement->bindValue(':config_value', $rowData['config_value']);
                     $statement->bindValue(':config_group', $rowData['config_group']);
-                    $statement->bindValue(':config_group_id', (int) $rowData['config_group_id'], \PDO::PARAM_INT);
+                    $statement->bindValue(':config_group_id', (int) $rowData['config_group_id'], PDO::PARAM_INT);
                     $statement->execute();
                 }
             }
 
             $statement = $pearDB->prepare(
-                "DELETE FROM cfg_centreonbroker_info WHERE `config_id` = :config_id"
-                . " AND config_group_id = :config_group_id"
+                'DELETE FROM cfg_centreonbroker_info WHERE `config_id` = :config_id'
+                . ' AND config_group_id = :config_group_id'
                 . " AND config_group = 'output' AND ( config_key = 'port' OR config_key = 'path') "
             );
-            $statement->bindValue(':config_id', (int) $row['config_id'], \PDO::PARAM_INT);
-            $statement->bindValue(':config_group_id', (int) $row['config_group_id'], \PDO::PARAM_INT);
+            $statement->bindValue(':config_id', (int) $row['config_id'], PDO::PARAM_INT);
+            $statement->bindValue(':config_group_id', (int) $row['config_group_id'], PDO::PARAM_INT);
             $statement->execute();
         }
         $pearDB->query(
@@ -416,10 +413,10 @@ if ($cache['value']) {
                 OR `key` = 'rrdcached_port' OR `key` = 'rrdcached_unix_path'"
         );
         $pearDB->commit();
-    } catch (\PDOException $e) {
+    } catch (PDOException $e) {
         $centreonLog->insertLog(
             2, // sql-error.log
-            "UPGRADE : 19.10.0-beta.3 Unable to move rrd global cache option on broker form"
+            'UPGRADE : 19.10.0-beta.3 Unable to move rrd global cache option on broker form'
         );
         $pearDB->rollBack();
     }

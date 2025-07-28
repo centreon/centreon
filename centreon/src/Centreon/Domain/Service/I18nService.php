@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2019 Centreon
  * Centreon is developed by : Julien Mathis and Romain Le Merlus under
@@ -32,35 +33,28 @@
  * For more information : contact@centreon.com
  *
  */
+
 namespace Centreon\Domain\Service;
 
 use CentreonLegacy\Core\Module\Information;
-use Symfony\Component\Finder\Finder;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Finder\Finder;
 
 /**
  * Class to manage translation of centreon and its extensions
  */
 class I18nService
 {
-    /**
-     * @var Information
-     */
+    /** @var Information */
     private $modulesInformation;
 
-    /**
-     * @var String
-     */
+    /** @var string */
     private $lang;
 
-    /**
-     * @var Finder
-     */
+    /** @var Finder */
     private $finder;
 
-    /**
-     * @var Filesystem
-     */
+    /** @var Filesystem */
     private $filesystem;
 
     /**
@@ -77,20 +71,6 @@ class I18nService
     }
 
     /**
-     * Initialize lang object to bind language
-     *
-     * @return void
-     */
-    private function initLang(): void
-    {
-        $this->lang = getenv('LANG');
-
-        if (!str_contains($this->lang, '.UTF-8')) {
-            $this->lang .= '.UTF-8';
-        }
-    }
-
-    /**
      * Get translation from centreon and its extensions
      *
      * @return array
@@ -104,7 +84,34 @@ class I18nService
     }
 
     /**
-     * Get translation from centreon
+     * Get all translations fron Centreon and its modules
+     *
+     * @return array
+     */
+    public function getAllTranslations(): array
+    {
+        $centreonTranslation = $this->getAllCentreonTranslation();
+        $modulesTranslation = $this->getAllModulesTranslation();
+
+        return array_replace_recursive($centreonTranslation, $modulesTranslation);
+    }
+
+    /**
+     * Initialize lang object to bind language
+     *
+     * @return void
+     */
+    private function initLang(): void
+    {
+        $this->lang = getenv('LANG');
+
+        if (! str_contains($this->lang, '.UTF-8')) {
+            $this->lang .= '.UTF-8';
+        }
+    }
+
+    /**
+     * Get all translations from centreon
      *
      * @return array
      */
@@ -113,15 +120,44 @@ class I18nService
         $data = [];
 
         $translationPath = __DIR__ . "/../../../../www/locale/{$this->lang}/LC_MESSAGES";
-        $translationFile = "messages.ser";
+        $translationFile = 'messages.ser';
 
-        if ($this->filesystem->exists($translationPath . "/" . $translationFile)) {
+        if ($this->filesystem->exists($translationPath . '/' . $translationFile)) {
             $files = $this->finder
                 ->name($translationFile)
                 ->in($translationPath);
 
             foreach ($files as $file) {
                 $data = unserialize($file->getContents());
+            }
+        }
+
+        return $data;
+    }
+
+    /**
+     * Get translation from centreon
+     *
+     * @return array
+     */
+    private function getAllCentreonTranslation(): array
+    {
+        $data = [];
+
+        $languages = ['fr_FR.UTF-8', 'de_DE.UTF-8', 'es_ES.UTF-8', 'pt-PT.UTF-8', 'pt_BR.UTF-8'];
+
+        foreach ($languages as $language) {
+            $translationPath = __DIR__ . "/../../../../www/locale/{$language}/LC_MESSAGES";
+            $translationFile = 'messages.ser';
+
+            if ($this->filesystem->exists($translationPath . '/' . $translationFile)) {
+                $files = $this->finder
+                    ->name($translationFile)
+                    ->in($translationPath);
+
+                foreach ($files as $file) {
+                    $data += unserialize($file->getContents());
+                }
             }
         }
 
@@ -140,9 +176,9 @@ class I18nService
         // loop over each installed modules to get translation
         foreach (array_keys($this->modulesInformation->getInstalledList()) as $module) {
             $translationPath = __DIR__ . "/../../../../www/modules/{$module}/locale/{$this->lang}/LC_MESSAGES";
-            $translationFile = "messages.ser";
+            $translationFile = 'messages.ser';
 
-            if ($this->filesystem->exists($translationPath . "/" . $translationFile)) {
+            if ($this->filesystem->exists($translationPath . '/' . $translationFile)) {
                 $files = $this->finder
                     ->name($translationFile)
                     ->in($translationPath);
@@ -152,6 +188,41 @@ class I18nService
                         $data,
                         unserialize($file->getContents())
                     );
+                }
+            }
+        }
+
+        return $data;
+    }
+
+    /**
+     * Get all translation from each installed module
+     *
+     * @return array
+     */
+    private function getAllModulesTranslation(): array
+    {
+        $data = [];
+
+        $languages = ['fr_FR.UTF-8', 'de_DE.UTF-8', 'es_ES.UTF-8', 'pt-PT.UTF-8', 'pt_BR.UTF-8'];
+
+        foreach ($languages as $language) {
+            // loop over each installed modules to get translation
+            foreach (array_keys($this->modulesInformation->getInstalledList()) as $module) {
+                $translationPath = __DIR__ . "/../../../../www/modules/{$module}/locale/{$language}/LC_MESSAGES";
+                $translationFile = 'messages.ser';
+
+                if ($this->filesystem->exists($translationPath . '/' . $translationFile)) {
+                    $files = $this->finder
+                        ->name($translationFile)
+                        ->in($translationPath);
+
+                    foreach ($files as $file) {
+                        $data += array_replace_recursive(
+                            $data,
+                            unserialize($file->getContents())
+                        );
+                    }
                 }
             }
         }

@@ -55,14 +55,12 @@ export default (): void => {
       cy.get('[data-cy=themeSwitch]').as('switchMode').should('be.visible');
       cy.get('@switchMode').click();
       cy.get('header').should('have.css', 'background-color', 'rgb(0, 0, 0)');
-      cy.makeSnapshot('User Menu -- using the dark mode');
       cy.get('@switchMode').click();
       cy.get('header').should(
         'have.css',
         'background-color',
         'rgb(37, 88, 145)'
       );
-      cy.makeSnapshot('User Menu -- using the light mode');
     });
 
     it('navigates to the logout page when the button is clicked', () => {
@@ -110,8 +108,6 @@ export default (): void => {
       cy.get('[data-cy=userIcon]').click();
 
       cy.contains(labelEditProfile).should('not.exist');
-
-      cy.makeSnapshot();
     });
 
     it('enters fullscreen mode when the corresponding icon is clicked', () => {

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Copyright 2019 Centreon
  *
@@ -15,21 +16,19 @@
  * limitations under the License.
  */
 
-
 // add gnupg class polyfill
-if (!class_exists('gnupg')) {
+if (! class_exists('gnupg')) {
 
     class gnupg
     {
-
-        const SIG_MODE_CLEAR = null;
+        public const SIG_MODE_CLEAR = null;
 
         public function import($keydata = null): array
         {
             return [];
         }
 
-        public function setsignmode(int $signmode = null): bool
+        public function setsignmode(?int $signmode = null): bool
         {
             return true;
         }

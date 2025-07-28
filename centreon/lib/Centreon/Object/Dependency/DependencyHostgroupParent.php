@@ -19,7 +19,7 @@
  *
  */
 
-require_once "Centreon/Object/Object.php";
+require_once 'Centreon/Object/Object.php';
 
 /**
  * Class
@@ -30,15 +30,16 @@ require_once "Centreon/Object/Object.php";
 class Centreon_Object_DependencyHostgroupParent extends Centreon_Object
 {
     /** @var string */
-    protected $table = "dependency_hostgroupParent_relation";
+    protected $table = 'dependency_hostgroupParent_relation';
+
     /** @var string */
-    protected $primaryKey = "dependency_dep_id";
+    protected $primaryKey = 'dependency_dep_id';
 
     /**
      * @param int $hgId
      *
-     * @return void
      * @throws PDOException
+     * @return void
      */
     public function removeRelationLastHostgroupDependency(int $hgId): void
     {
@@ -47,11 +48,11 @@ class Centreon_Object_DependencyHostgroupParent extends Centreon_Object
               WHERE dependency_dep_id = (SELECT dependency_dep_id FROM dependency_hostgroupParent_relation
                                          WHERE hostgroup_hg_id = ?)
               GROUP BY dependency_dep_id';
-        $result = $this->getResult($query, [$hgId], "fetch");
+        $result = $this->getResult($query, [$hgId], 'fetch');
 
-        //is last parent
+        // is last parent
         if (isset($result['nb_dependency']) && $result['nb_dependency'] == 1) {
-            $this->db->query("DELETE FROM dependency WHERE dep_id = " . $result['id']);
+            $this->db->query('DELETE FROM dependency WHERE dep_id = ' . $result['id']);
         }
     }
 }

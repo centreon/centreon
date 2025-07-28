@@ -87,7 +87,7 @@ const WidgetTextField = ({
         <TextField
           fullWidth
           autoSize={text?.autoSize}
-          autoSizeDefaultWidth={8}
+          autoSizeDefaultWidth={30}
           className={className}
           dataTestId={label}
           disabled={!canEditField || disabled}

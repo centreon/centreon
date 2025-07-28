@@ -262,8 +262,6 @@ describe('Bar chart', () => {
     cy.contains('0.11 ms').should('be.visible');
 
     cy.findByTestId('stacked-bar-3-0-0.16196').should('be.visible');
-
-    cy.makeSnapshot();
   });
 
   it('displays a tooltip with a single metric when a stacked bar is hovered and a prop is set', () => {
@@ -303,17 +301,19 @@ describe('Bar chart', () => {
     cy.contains('05/31/2023').should('be.visible');
     cy.contains('06/07/2023').should('be.visible');
   });
-
   it('displays the bar chart according to min and max boundaries', () => {
     initialize({
       data: dataLastWeek,
       min: -0.05,
       max: 1
     });
-
+  
     cy.contains('05/31/2023').should('be.visible');
     cy.contains('06/07/2023').should('be.visible');
     cy.contains('1 s').should('be.visible');
     cy.contains('1%').should('be.visible');
   });
 });
+
+
+  

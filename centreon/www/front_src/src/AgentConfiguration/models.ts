@@ -7,14 +7,15 @@ export enum AgentType {
 
 export enum ConnectionMode {
   secure = 'secure',
-  noTLS = 'no-tls'
+  noTLS = 'no-tls',
+  insecure = 'insecure'
 }
 
 export interface AgentConfigurationListing {
   id: number;
   name: string;
   type: AgentType | null;
-  pollers: Array<SelectEntry>;
+  pollers: Array<{ id: number; name: string; isCentral?: boolean }>;
 }
 
 export interface TelegrafConfiguration {
@@ -27,6 +28,8 @@ export interface TelegrafConfiguration {
 }
 
 export interface HostConfiguration {
+  id: number;
+  name: string;
   address: string;
   port: number;
   pollerCaCertificate: string | null;
@@ -39,6 +42,7 @@ export interface CMAConfiguration {
   otelCaCertificate: string | null;
   otelPrivateKey: string | null;
   hosts: Array<HostConfiguration>;
+  tokens?: Array<{ name: string; creatorId: number }>;
 }
 
 export interface TelegrafConfigurationAPI {
@@ -65,19 +69,21 @@ export interface CMAConfigurationAPI {
   otel_private_key: string | null;
   hosts: Array<HostConfigurationToAPI>;
   connection_mode: string;
+  tokens?: Array<{ name: string; creatorId: number }>; // optional for now
 }
 
 export interface AgentConfiguration
   extends Omit<AgentConfigurationListing, 'id' | 'type'> {
   configuration: TelegrafConfiguration | CMAConfiguration;
   type: AgentType;
-  connectionMode: string;
+  connectionMode: { id: ConnectionMode; name: string };
 }
 
 export interface AgentConfigurationForm
   extends Omit<AgentConfigurationListing, 'id' | 'type'> {
   configuration: TelegrafConfiguration | CMAConfiguration;
   type: SelectEntry | null;
+  connectionMode: { id: ConnectionMode; name: string };
 }
 
 export interface AgentConfigurationAPI

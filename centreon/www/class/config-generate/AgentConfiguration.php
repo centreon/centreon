@@ -27,6 +27,10 @@ use Core\AgentConfiguration\Domain\Model\ConfigurationParameters\CmaConfiguratio
 use Core\AgentConfiguration\Domain\Model\ConfigurationParameters\TelegrafConfigurationParameters;
 use Core\AgentConfiguration\Domain\Model\ConnectionModeEnum;
 use Core\AgentConfiguration\Domain\Model\Type;
+use Core\Host\Application\Repository\ReadHostRepositoryInterface;
+use Core\Security\Token\Application\Repository\ReadTokenRepositoryInterface;
+use Core\Security\Token\Domain\Model\JwtToken;
+use Core\Security\Token\Domain\Model\Token;
 
 /**
  * @phpstan-import-type _TelegrafParameters from TelegrafConfigurationParameters
@@ -37,6 +41,8 @@ class AgentConfiguration extends AbstractObjectJSON
     public function __construct(
         private readonly Backend $backend,
         private readonly ReadAgentConfigurationRepositoryInterface $readAgentConfigurationRepository,
+        private readonly ReadTokenRepositoryInterface $readTokenRepository,
+        private readonly ReadHostRepositoryInterface $readHostRepository,
     ) {
         $this->generate_filename = 'otl_server.json';
     }
@@ -60,7 +66,7 @@ class AgentConfiguration extends AbstractObjectJSON
                     $agentConfiguration->getConfiguration()->getData(),
                     $agentConfiguration->getConnectionMode()
                 ),
-                default => throw new \Exception('The type of the agent configuration not exists')
+                default => throw new Exception('The type of the agent configuration not exists')
             };
         }
 
@@ -74,15 +80,20 @@ class AgentConfiguration extends AbstractObjectJSON
      * The configuration is based on the data from the AgentConfiguration table.
      * It returns an array with the configuration for the OpenTelemetry HTTP server.
      *
-     * @param _TelegrafParameters|_CmaParameters $data The data from the AgentConfiguration table.
-     * @return array<string, array<string, string>> The configuration for the OpenTelemetry HTTP server.
+     * @param _TelegrafParameters|_CmaParameters $data the data from the AgentConfiguration table
+     * @return array<string, array<string, string>> the configuration for the OpenTelemetry HTTP server
      */
     private function formatOtelConfiguration(array $data, ConnectionModeEnum $connectionMode): array
     {
         return [
             'host' => ModelAgentConfiguration::DEFAULT_HOST,
             'port' => ModelAgentConfiguration::DEFAULT_PORT,
-            'encryption' => ConnectionModeEnum::NO_TLS !== $connectionMode,
+            'encryption' => match ($connectionMode) {
+                ConnectionModeEnum::SECURE => 'full',
+                ConnectionModeEnum::INSECURE => 'insecure',
+                ConnectionModeEnum::NO_TLS => 'no',
+                default => 'full',
+            },
             'public_cert' => ! empty($data['otel_public_certificate'])
                 ? $data['otel_public_certificate']
                 : '',
@@ -104,26 +115,80 @@ class AgentConfiguration extends AbstractObjectJSON
      */
     private function formatCmaConfiguration(array $data, ConnectionModeEnum $connectionMode): array
     {
+        $tokens = $data['tokens'] !== []
+            ? $this->readTokenRepository->findByNames(array_map(
+                static fn (array $token): string => $token['name'],
+                $data['tokens']
+            ))
+            : [];
+
+        $tokens = array_filter(
+            $tokens,
+            static fn (Token $token): bool =>  ! (
+                $token->isRevoked()
+                || ($token->getExpirationDate() !== null && $token->getExpirationdate() < new DateTimeImmutable())
+            )
+        );
         $configuration = [
             'otel_server' => $this->formatOtelConfiguration($data, $connectionMode),
             'centreon_agent' => [
                 'check_interval' => CmaConfigurationParameters::DEFAULT_CHECK_INTERVAL,
                 'export_period' => CmaConfigurationParameters::DEFAULT_EXPORT_PERIOD,
-            ]
+            ],
+            'tokens' => array_map(
+                static fn (JwtToken $token): array => [
+                    'token' => $token->getToken(),
+                    'encoding_key' => $token->getEncodingKey(),
+                ],
+                $tokens
+            ),
         ];
 
         if ($data['is_reverse']) {
+            $hostIds = array_map(static fn (array $host): int => $host['id'], $data['hosts']);
+            $hosts = $this->readHostRepository->findByIds($hostIds);
+
+            $tokenNames = array_filter(
+                array_map(
+                    static fn (array $host): ?string => $host['token'] !== null ? $host['token']['name'] : null,
+                    $data['hosts']
+                )
+            );
+            $tokens = $tokenNames !== []
+                ? $this->readTokenRepository->findByNames($tokenNames)
+                : [];
+
+            $tokens = array_filter(
+                $tokens,
+                static fn (Token $token): bool =>  ! (
+                    $token->isRevoked()
+                    || ($token->getExpirationDate() !== null && $token->getExpirationDate() < new DateTimeImmutable())
+                )
+            );
+
             $configuration['centreon_agent']['reverse_connections'] = array_map(
-                static fn(array $host): array => [
+                static fn (array $host): array => [
                     'host' => $host['address'],
                     'port' => $host['port'],
-                    'encryption' => $configuration['otel_server']['encryption'],
-                    'ca_certificate' => $host['poller_ca_certificate'] !== null
-                        ? $host['poller_ca_certificate']
-                        : '',
+                    'encryption' =>  match ($connectionMode) {
+                        ConnectionModeEnum::SECURE => 'full',
+                        ConnectionModeEnum::INSECURE => 'insecure',
+                        ConnectionModeEnum::NO_TLS => 'no',
+                        default => 'full',
+                    },
+                    'ca_certificate' => $host['poller_ca_certificate'] ?? '',
                     'ca_name' => $host['poller_ca_name'],
+                    'token' => isset($tokens[$host['token']['name']])
+                        ? [
+                            'token' => $tokens[$host['token']['name']]->getToken(),
+                            'encoding_key' => $tokens[$host['token']['name']]->getEncodingKey(),
+                        ]
+                        : null,
                 ],
-                $data['hosts']
+                array_filter(
+                    $data['hosts'],
+                    static fn (array $host): bool => $hosts[$host['id']] ? true : false
+                )
             );
         }
 
@@ -136,8 +201,8 @@ class AgentConfiguration extends AbstractObjectJSON
      * The configuration is based on the data from the AgentConfiguration table.
      * It returns an array with the configuration for the Telegraf HTTP server.
      *
-     * @param _TelegrafParameters $data The data from the AgentConfiguration table.
-     * @return array<string, array<string, mixed>> The configuration for the Telegraf HTTP server.
+     * @param _TelegrafParameters $data the data from the AgentConfiguration table
+     * @return array<string, array<string, mixed>> the configuration for the Telegraf HTTP server
      */
     private function formatTelegraphConfiguration(array $data, ConnectionModeEnum $connectionMode): array
     {
@@ -148,15 +213,16 @@ class AgentConfiguration extends AbstractObjectJSON
             'telegraf_conf_server' => [
                 'http_server' => [
                     'port' => $data['conf_server_port'],
-                    'encryption' => $otelConfiguration['encryption'],
-                    'public_cert' => $data['conf_certificate'] !== null
-                        ? $data['conf_certificate']
-                        : '',
-                    'private_key' => $data['conf_private_key'] !== null
-                        ? $data['conf_private_key']
-                        : '',
-                ]
-            ]
+                    'encryption' =>  match ($connectionMode) {
+                        ConnectionModeEnum::SECURE => 'full',
+                        ConnectionModeEnum::INSECURE => 'insecure',
+                        ConnectionModeEnum::NO_TLS => 'no',
+                        default => 'full',
+                    },
+                    'public_cert' => $data['conf_certificate'] ?? '',
+                    'private_key' => $data['conf_private_key'] ?? '',
+                ],
+            ],
         ];
     }
 }

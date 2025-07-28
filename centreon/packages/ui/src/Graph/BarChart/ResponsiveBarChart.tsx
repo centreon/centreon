@@ -42,6 +42,7 @@ interface Props
   skipIntersectionObserver?: boolean;
   min?: number;
   max?: number;
+  boundariesUnit?: string;
 }
 
 const ResponsiveBarChart = ({
@@ -60,7 +61,8 @@ const ResponsiveBarChart = ({
   barStyle,
   skipIntersectionObserver,
   min,
-  max
+  max,
+  boundariesUnit
 }: Props): JSX.Element => {
   const { title, timeSeries, baseAxis, lines } = graphData || {};
 
@@ -138,7 +140,8 @@ const ResponsiveBarChart = ({
           (isHorizontal ? graphHeight : graphWidth) - margin.bottom,
         min,
         max,
-        isBarChart: true
+        isBarChart: true,
+        boundariesUnit
       }),
     [
       displayedLines,

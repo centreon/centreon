@@ -133,7 +133,7 @@ When('the editor user sets another user as a viewer on the dashboard', () => {
   cy.getByLabel({ label: 'Save', tag: 'button' }).should('be.enabled').click();
   cy.wait('@updateShares');
   cy.wait('@getDashboard');
-  cy.getByTestId({ testId: 'CloseIcon' }).eq(0).click();
+  cy.getByLabel({ label: 'close', tag: 'button' }).click()
   cy.get('.MuiAlert-message').should('not.exist');
   cy.waitUntilForDashboardRoles('share', 3);
 });
@@ -229,7 +229,7 @@ When(
       .click();
     cy.wait('@updateShares');
     cy.wait('@getDashboard');
-    cy.getByTestId({ testId: 'CloseIcon' }).eq(0).click();
+    cy.getByLabel({ label: 'close', tag: 'button' }).click()
     cy.get('.MuiAlert-message').should('not.exist');
     cy.waitUntilForDashboardRoles('share', 3);
   }
@@ -320,7 +320,7 @@ When(
       .click();
     cy.wait('@updateShares');
     cy.wait('@getDashboard');
-    cy.getByTestId({ testId: 'CloseIcon' }).eq(0).click();
+    cy.getByLabel({ label: 'close', tag: 'button' }).click()
     cy.get('.MuiAlert-message').should('not.exist');
     cy.waitUntilForDashboardRoles('share', 3);
   }
@@ -408,7 +408,7 @@ When(
       .click();
     cy.wait('@updateShares');
     cy.wait('@getDashboard');
-    cy.getByTestId({ testId: 'CloseIcon' }).eq(0).click();
+    cy.getByLabel({ label: 'close', tag: 'button' }).click()
     cy.get('.MuiAlert-message').should('not.exist');
     cy.waitUntilForDashboardRoles('share', 3);
   }
@@ -492,7 +492,7 @@ Given(
       .click();
     cy.wait('@updateShares');
     cy.wait('@getDashboard');
-    cy.getByTestId({ testId: 'CloseIcon' }).eq(0).click();
+    cy.getByLabel({ label: 'close', tag: 'button' }).click()
     cy.get('.MuiAlert-message').should('not.exist');
     cy.waitUntilForDashboardRoles('share', 3);
   }
@@ -613,7 +613,7 @@ Then(
       .click();
     cy.wait('@updateShares');
     cy.wait('@getDashboard');
-    cy.getByTestId({ testId: 'CloseIcon' }).eq(0).click();
+    cy.getByLabel({ label: 'close', tag: 'button' }).click()
     cy.get('.MuiAlert-message').should('not.exist');
     cy.waitUntilForDashboardRoles('share', 4);
     cy.getByLabel({ label: 'share', tag: 'button' }).click();
@@ -641,9 +641,10 @@ Then(
     cy.getByLabel({ label: 'Save', tag: 'button' })
       .should('be.enabled')
       .click();
+
     cy.wait('@updateShares');
     cy.wait('@getDashboard');
-    cy.getByTestId({ testId: 'CloseIcon' }).eq(0).click();
+    cy.getByLabel({ label: 'close', tag: 'button' }).click()
     cy.get('.MuiAlert-message').should('not.exist');
     cy.waitUntilForDashboardRoles('share', 5);
     cy.getByLabel({ label: 'share', tag: 'button' }).click();

@@ -56,7 +56,7 @@ it('should throw a Dashboard Exception when the dashboard does not exist', funct
         ->method('existsOne')
         ->willReturn(false);
 
-   $this->validator->validateDashboard(1, true);
+    $this->validator->validateDashboard(1, true);
 })->throws(DashboardException::theDashboardDoesNotExist(1)->getMessage());
 
 it('should throw a Dashboard Exception when the dashboard is not shared has editor', function (): void {
@@ -74,28 +74,28 @@ it('should throw a Dashboard Exception when the dashboard is not shared has edit
 })->throws(DashboardException::dashboardAccessRightsNotAllowedForWriting(1)->getMessage());
 
 it('should throw a Dashboard Exception when the contacts does not exists', function (): void {
-   $this->readContactRepository
-       ->expects($this->once())
-       ->method('exist')
-       ->willReturn([1]);
+    $this->readContactRepository
+        ->expects($this->once())
+        ->method('exist')
+        ->willReturn([1]);
 
-   $this->validator->validateContactsForOnPremise(
+    $this->validator->validateContactsForOnPremise(
         isAdmin: true,
-       contacts: [
-           [
-               'id' => 1,
-               'role' => 'editor',
-           ],
-           [
-               'id' => 2,
-               'role' => 'editor',
-           ],
-           [
-               'id' => 3,
-               'role' => 'editor',
-           ],
-       ],
-   );
+        contacts: [
+            [
+                'id' => 1,
+                'role' => 'editor',
+            ],
+            [
+                'id' => 2,
+                'role' => 'editor',
+            ],
+            [
+                'id' => 3,
+                'role' => 'editor',
+            ],
+        ],
+    );
 })->throws(DashboardException::theContactsDoNotExist([2, 3])->getMessage());
 
 it('should throw a Dashboard Exception when the contacts are duplicated', function (): void {
@@ -153,33 +153,33 @@ it('should throw a Dashboard Exception when the request contacts does not have D
 })->throws(DashboardException::theContactsDoesNotHaveDashboardAccessRights([2])->getMessage());
 
 it('should throw a Dashboard Exception when the request contacts does not have sufficient ACLs level', function (): void {
-        $this->readContactRepository
-            ->expects($this->once())
-            ->method('exist')
-            ->willReturn([1, 2]);
+    $this->readContactRepository
+        ->expects($this->once())
+        ->method('exist')
+        ->willReturn([1, 2]);
 
-        $this->readDashboardShareRepository
-            ->expects($this->once())
-            ->method('findContactsWithAccessRightByContactIds')
-            ->willReturn([
-                new DashboardContactRole(
-                    1,
-                    'user',
-                    'user@email.com',
-                    [DashboardGlobalRole::Viewer]
-                ),
-            ]);
+    $this->readDashboardShareRepository
+        ->expects($this->once())
+        ->method('findContactsWithAccessRightByContactIds')
+        ->willReturn([
+            new DashboardContactRole(
+                1,
+                'user',
+                'user@email.com',
+                [DashboardGlobalRole::Viewer]
+            ),
+        ]);
 
-        $this->validator->validateContactsForOnPremise(
-            isAdmin: true,
-            contacts: [
-                [
-                    'id' => 1,
-                    'role' => 'editor',
-                ],
+    $this->validator->validateContactsForOnPremise(
+        isAdmin: true,
+        contacts: [
+            [
+                'id' => 1,
+                'role' => 'editor',
             ],
-        );
-    })->throws(DashboardException::notSufficientAccessRightForUser('user', 'editor')->getMessage());
+        ],
+    );
+})->throws(DashboardException::notSufficientAccessRightForUser('user', 'editor')->getMessage());
 
 it('should throw a Dashboard Exception when the request contacts are not members of user Access Groups', function (): void {
     $this->readContactRepository
@@ -314,5 +314,6 @@ it('should throw a Dashboard Exception when the contact groups are not members o
             ],
         ],
     );
-})->throws(DashboardException::contactGroupIsNotInUserContactGroups([1]
+})->throws(DashboardException::contactGroupIsNotInUserContactGroups(
+    [1]
 )->getMessage());

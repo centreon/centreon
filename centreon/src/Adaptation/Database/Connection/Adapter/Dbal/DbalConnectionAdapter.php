@@ -29,47 +29,41 @@ use Adaptation\Database\Connection\ConnectionInterface;
 use Adaptation\Database\Connection\Exception\ConnectionException;
 use Adaptation\Database\Connection\Model\ConnectionConfig;
 use Adaptation\Database\Connection\Trait\ConnectionTrait;
-use Centreon\Domain\Log\LoggerTrait;
+use Centreon\Domain\Log\Logger;
 use Core\Common\Domain\Exception\UnexpectedValueException;
+use Core\Common\Infrastructure\ExceptionLogger\ExceptionLogger;
 use Doctrine\DBAL\Connection as DoctrineDbalConnection;
 use Doctrine\DBAL\DriverManager as DoctrineDbalDriverManager;
+use Psr\Log\LogLevel;
 
 /**
- * Class
+ * Class.
  *
  * @class   DbalConnectionAdapter
- * @package Adaptation\Database\Adapter\Dbal
+ *
  * @see     DoctrineDbalConnection
  */
 final class DbalConnectionAdapter implements ConnectionInterface
 {
-    use LoggerTrait;
     use ConnectionTrait;
 
-    /**
-     * By default, the queries are buffered.
-     *
-     * @var bool
-     */
+    /** By default, the queries are buffered. */
     private bool $isBufferedQueryActive = true;
 
     /**
-     * DbalConnectionAdapter constructor
-     *
-     * @param DoctrineDbalConnection $dbalConnection
-     * @param ConnectionConfig $connectionConfig
+     * DbalConnectionAdapter constructor.
      */
     private function __construct(
         private readonly DoctrineDbalConnection $dbalConnection,
         private readonly ConnectionConfig $connectionConfig
-    ) {}
+    ) {
+    }
 
     /**
-     * Factory
-     *
-     * @param ConnectionConfig $connectionConfig
+     * Factory.
      *
      * @throws ConnectionException
+     *
      * @return DbalConnectionAdapter
      */
     public static function createFromConfig(ConnectionConfig $connectionConfig): ConnectionInterface
@@ -97,17 +91,11 @@ final class DbalConnectionAdapter implements ConnectionInterface
         }
     }
 
-    /**
-     * @return ConnectionConfig
-     */
     public function getConnectionConfig(): ConnectionConfig
     {
         return $this->connectionConfig;
     }
 
-    /**
-     * @return DoctrineDbalConnection
-     */
     public function getDbalConnection(): DoctrineDbalConnection
     {
         return $this->dbalConnection;
@@ -117,6 +105,7 @@ final class DbalConnectionAdapter implements ConnectionInterface
      * To get the used native connection by DBAL (PDO, mysqli, ...).
      *
      * @throws ConnectionException
+     *
      * @return object|resource
      */
     public function getNativeConnection(): mixed
@@ -138,7 +127,6 @@ final class DbalConnectionAdapter implements ConnectionInterface
      * If the underlying driver does not support identity columns, an exception is thrown.
      *
      * @throws ConnectionException
-     * @return string
      */
     public function getLastInsertId(): string
     {
@@ -156,8 +144,6 @@ final class DbalConnectionAdapter implements ConnectionInterface
 
     /**
      * Check if a connection with the database exist.
-     *
-     * @return bool
      */
     public function isConnected(): bool
     {
@@ -175,10 +161,6 @@ final class DbalConnectionAdapter implements ConnectionInterface
 
     /**
      * The usage of this method is discouraged. Use prepared statements.
-     *
-     * @param string $value
-     *
-     * @return string
      */
     public function quoteString(string $value): string
     {
@@ -186,7 +168,6 @@ final class DbalConnectionAdapter implements ConnectionInterface
     }
 
     // ----------------------------------------- CRUD METHODS -----------------------------------------
-
     /**
      * To execute all queries except the queries getting results (SELECT).
      *
@@ -199,11 +180,7 @@ final class DbalConnectionAdapter implements ConnectionInterface
      *  - Session control statements: ALTER SESSION, SET, DECLARE, etc.
      *  - Other statements that don't yield a row set.
      *
-     * @param string $query
-     * @param QueryParameters|null $queryParameters
-     *
      * @throws ConnectionException
-     * @return int
      *
      * @example $queryParameters = QueryParameters::create([QueryParameter::int('id', 1), QueryParameter::string('name', 'John')]);
      *          $nbAffectedRows = $db->executeStatement('UPDATE table SET name = :name WHERE id = :id', $queryParameters);
@@ -217,13 +194,10 @@ final class DbalConnectionAdapter implements ConnectionInterface
             }
 
             if (str_starts_with($query, 'SELECT') || str_starts_with($query, 'select')) {
-                throw ConnectionException::executeStatementBadFormat(
-                    'Cannot use it with a SELECT query',
-                    $query
-                );
+                throw ConnectionException::executeStatementBadFormat('Cannot use it with a SELECT query', $query);
             }
 
-            if ($queryParameters === null) {
+            if (! $queryParameters instanceof QueryParameters) {
                 return (int) $this->dbalConnection->executeStatement($query);
             }
 
@@ -243,17 +217,14 @@ final class DbalConnectionAdapter implements ConnectionInterface
     }
 
     // --------------------------------------- FETCH METHODS -----------------------------------------
-
     /**
      * Prepares and executes an SQL query and returns the first row of the result
      * as a numerically indexed array.
      *
      * Could be only used with SELECT.
      *
-     * @param string $query
-     * @param QueryParameters|null $queryParameters
-     *
      * @throws ConnectionException
+     *
      * @return array<int, mixed>|false false is returned if no rows are found
      *
      * @example $queryParameters = QueryParameters::create([QueryParameter::int('id', 1)]);
@@ -265,7 +236,7 @@ final class DbalConnectionAdapter implements ConnectionInterface
         try {
             $this->validateSelectQuery($query);
 
-            if ($queryParameters === null) {
+            if (! $queryParameters instanceof QueryParameters) {
                 return $this->dbalConnection->fetchNumeric($query);
             }
 
@@ -289,10 +260,8 @@ final class DbalConnectionAdapter implements ConnectionInterface
      *
      * Could be only used with SELECT.
      *
-     * @param string $query
-     * @param QueryParameters|null $queryParameters
-     *
      * @throws ConnectionException
+     *
      * @return array<string, mixed>|false false is returned if no rows are found
      *
      * @example $queryParameters = QueryParameters::create([QueryParameter::int('id', 1)]);
@@ -304,7 +273,7 @@ final class DbalConnectionAdapter implements ConnectionInterface
         try {
             $this->validateSelectQuery($query);
 
-            if ($queryParameters === null) {
+            if (! $queryParameters instanceof QueryParameters) {
                 return $this->dbalConnection->fetchAssociative($query);
             }
 
@@ -329,10 +298,8 @@ final class DbalConnectionAdapter implements ConnectionInterface
      *
      * Could be only used with SELECT.
      *
-     * @param string $query
-     * @param QueryParameters|null $queryParameters
-     *
      * @throws ConnectionException
+     *
      * @return mixed|false false is returned if no rows are found
      *
      * @example $queryParameters = QueryParameters::create([QueryParameter::string('name', 'John')]);
@@ -344,7 +311,7 @@ final class DbalConnectionAdapter implements ConnectionInterface
         try {
             $this->validateSelectQuery($query);
 
-            if ($queryParameters === null) {
+            if (! $queryParameters instanceof QueryParameters) {
                 return $this->dbalConnection->fetchOne($query);
             }
 
@@ -368,10 +335,8 @@ final class DbalConnectionAdapter implements ConnectionInterface
      *
      * Could be only used with SELECT.
      *
-     * @param string $query
-     * @param QueryParameters|null $queryParameters
-     *
      * @throws ConnectionException
+     *
      * @return list<mixed>
      *
      * @example $queryParameters = QueryParameters::create([QueryParameter::bool('active', true)]);
@@ -383,7 +348,7 @@ final class DbalConnectionAdapter implements ConnectionInterface
         try {
             $this->validateSelectQuery($query);
 
-            if ($queryParameters === null) {
+            if (! $queryParameters instanceof QueryParameters) {
                 return $this->dbalConnection->fetchFirstColumn($query);
             }
 
@@ -407,10 +372,8 @@ final class DbalConnectionAdapter implements ConnectionInterface
      *
      * Could be only used with SELECT.
      *
-     * @param string $query
-     * @param QueryParameters|null $queryParameters
-     *
      * @throws ConnectionException
+     *
      * @return array<array<int,mixed>>
      *
      * @example $queryParameters = QueryParameters::create([QueryParameter::bool('active', true)]);
@@ -422,7 +385,7 @@ final class DbalConnectionAdapter implements ConnectionInterface
         try {
             $this->validateSelectQuery($query);
 
-            if ($queryParameters === null) {
+            if (! $queryParameters instanceof QueryParameters) {
                 return $this->dbalConnection->fetchAllNumeric($query);
             }
 
@@ -446,10 +409,8 @@ final class DbalConnectionAdapter implements ConnectionInterface
      *
      * Could be only used with SELECT.
      *
-     * @param string $query
-     * @param QueryParameters|null $queryParameters
-     *
      * @throws ConnectionException
+     *
      * @return array<array<string,mixed>>
      *
      * @example $queryParameters = QueryParameters::create([QueryParameter::bool('active', true)]);
@@ -461,7 +422,7 @@ final class DbalConnectionAdapter implements ConnectionInterface
         try {
             $this->validateSelectQuery($query);
 
-            if ($queryParameters === null) {
+            if (! $queryParameters instanceof QueryParameters) {
                 return $this->dbalConnection->fetchAllAssociative($query);
             }
 
@@ -486,10 +447,8 @@ final class DbalConnectionAdapter implements ConnectionInterface
      *
      * Could be only used with SELECT.
      *
-     * @param string $query
-     * @param QueryParameters|null $queryParameters
-     *
      * @throws ConnectionException
+     *
      * @return array<int|string,mixed>
      *
      * @example $queryParameters = QueryParameters::create([QueryParameter::bool('active', true)]);
@@ -501,7 +460,7 @@ final class DbalConnectionAdapter implements ConnectionInterface
         try {
             $this->validateSelectQuery($query);
 
-            if ($queryParameters === null) {
+            if (! $queryParameters instanceof QueryParameters) {
                 return $this->dbalConnection->fetchAllKeyValue($query);
             }
 
@@ -521,16 +480,13 @@ final class DbalConnectionAdapter implements ConnectionInterface
     }
 
     // --------------------------------------- ITERATE METHODS -----------------------------------------
-
     /**
      * Prepares and executes an SQL query and returns the result as an iterator over rows represented as numeric arrays.
      *
      * Could be only used with SELECT.
      *
-     * @param string $query
-     * @param QueryParameters|null $queryParameters
-     *
      * @throws ConnectionException
+     *
      * @return \Traversable<int,list<mixed>>
      *
      * @example $queryParameters = QueryParameters::create([QueryParameter::bool('active', true)]);
@@ -545,7 +501,7 @@ final class DbalConnectionAdapter implements ConnectionInterface
         try {
             $this->validateSelectQuery($query);
 
-            if ($queryParameters === null) {
+            if (! $queryParameters instanceof QueryParameters) {
                 return $this->dbalConnection->iterateNumeric($query);
             }
 
@@ -563,10 +519,8 @@ final class DbalConnectionAdapter implements ConnectionInterface
      *
      * Could be only used with SELECT.
      *
-     * @param string $query
-     * @param QueryParameters|null $queryParameters
-     *
      * @throws ConnectionException
+     *
      * @return \Traversable<int,array<string,mixed>>
      *
      * @example $queryParameters = QueryParameters::create([QueryParameter::bool('active', true)]);
@@ -581,7 +535,7 @@ final class DbalConnectionAdapter implements ConnectionInterface
         try {
             $this->validateSelectQuery($query);
 
-            if ($queryParameters === null) {
+            if (! $queryParameters instanceof QueryParameters) {
                 return $this->dbalConnection->iterateAssociative($query);
             }
 
@@ -598,11 +552,9 @@ final class DbalConnectionAdapter implements ConnectionInterface
      *
      * Could be only used with SELECT.
      *
-     * @param string $query
-     * @param QueryParameters|null $queryParameters
-     *
      * @throws ConnectionException
-     * @return \Traversable<int,list<mixed>>
+     *
+     * @return \Traversable<int,mixed>
      *
      * @example $queryParameters = QueryParameters::create([QueryParameter::bool('active', true)]);
      *          $result = $db->iterateFirstColumn('SELECT name FROM table WHERE active = :active', $queryParameters);
@@ -616,7 +568,7 @@ final class DbalConnectionAdapter implements ConnectionInterface
         try {
             $this->validateSelectQuery($query);
 
-            if ($queryParameters === null) {
+            if (! $queryParameters instanceof QueryParameters) {
                 return $this->dbalConnection->iterateColumn($query);
             }
 
@@ -655,7 +607,6 @@ final class DbalConnectionAdapter implements ConnectionInterface
      * @param bool $autoCommit true to enable auto-commit mode; false to disable it
      *
      * @throws ConnectionException
-     * @return void
      */
     public function setAutoCommit(bool $autoCommit): void
     {
@@ -693,19 +644,13 @@ final class DbalConnectionAdapter implements ConnectionInterface
      * no data will be updated.
      *
      * @throws ConnectionException
-     * @return void
      */
     public function startTransaction(): void
     {
         try {
             // we check if the save points mode is available before run a nested transaction
-            if ($this->isTransactionActive()) {
-                if (! $this->dbalConnection->getDatabasePlatform()->supportsSavepoints()) {
-                    throw new ConnectionException(
-                        'Start nested transaction failed',
-                        ConnectionException::ERROR_CODE_DATABASE_TRANSACTION
-                    );
-                }
+            if ($this->isTransactionActive() && ! $this->dbalConnection->getDatabasePlatform()->supportsSavepoints()) {
+                throw new ConnectionException('Start nested transaction failed', ConnectionException::ERROR_CODE_DATABASE_TRANSACTION);
             }
             $this->dbalConnection->beginTransaction();
         } catch (\Throwable $exception) {
@@ -722,7 +667,6 @@ final class DbalConnectionAdapter implements ConnectionInterface
      * To validate a transaction.
      *
      * @throws ConnectionException
-     * @return bool
      */
     public function commitTransaction(): bool
     {
@@ -744,7 +688,6 @@ final class DbalConnectionAdapter implements ConnectionInterface
      * To cancel a transaction.
      *
      * @throws ConnectionException
-     * @return bool
      */
     public function rollBackTransaction(): bool
     {
@@ -763,22 +706,22 @@ final class DbalConnectionAdapter implements ConnectionInterface
     }
 
     // ------------------------------------- UNBUFFERED QUERIES -----------------------------------------
-
     /**
      * Checks that the connection instance allows the use of unbuffered queries.
      *
      * @throws ConnectionException
-     * @return bool
      */
     public function allowUnbufferedQuery(): bool
     {
         $nativeConnection = $this->getNativeConnection();
-        if (is_object($nativeConnection)) {
-            $driverName = match ($nativeConnection::class) {
-                \PDO::class => "pdo_{$nativeConnection->getAttribute(\PDO::ATTR_DRIVER_NAME)}",
-                default => '',
-            };
-            if (empty($driverName) || ! in_array($driverName, self::DRIVER_ALLOWED_UNBUFFERED_QUERY, true)) {
+        if (\is_object($nativeConnection)) {
+            $driverName = '';
+            if ($nativeConnection instanceof \PDO) {
+                $driverNamePdo = $nativeConnection->getAttribute(\PDO::ATTR_DRIVER_NAME);
+                $driverName = is_string($driverNamePdo) ? 'pdo_' . $driverNamePdo : '';
+            }
+
+            if (empty($driverName) || ! \in_array($driverName, self::DRIVER_ALLOWED_UNBUFFERED_QUERY, true)) {
                 $this->writeDbLog(
                     message: 'Unbuffered queries are not allowed with this driver',
                     customContext: ['driver_name' => $driverName]
@@ -797,37 +740,31 @@ final class DbalConnectionAdapter implements ConnectionInterface
      * Prepares a statement to execute a query without buffering. Only works for SELECT queries.
      *
      * @throws ConnectionException
-     * @return void
      */
     public function startUnbufferedQuery(): void
     {
         $this->allowUnbufferedQuery();
         $nativeConnection = $this->getNativeConnection();
-        if ($nativeConnection instanceof \PDO) {
-            if (! $nativeConnection->setAttribute(\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, false)) {
-                $this->writeDbLog(message: 'Error while starting an unbuffered query');
+        if ($nativeConnection instanceof \PDO && ! $nativeConnection->setAttribute(\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, false)) {
+            $this->writeDbLog(message: 'Error while starting an unbuffered query');
 
-                throw ConnectionException::startUnbufferedQueryFailed();
-            }
+            throw ConnectionException::startUnbufferedQueryFailed();
         }
         $this->isBufferedQueryActive = false;
     }
 
     /**
      * Checks whether an unbuffered query is currently active.
-     *
-     * @return bool
      */
     public function isUnbufferedQueryActive(): bool
     {
-        return $this->isBufferedQueryActive === false;
+        return false === $this->isBufferedQueryActive;
     }
 
     /**
      * To close an unbuffered query.
      *
      * @throws ConnectionException
-     * @return void
      */
     public function stopUnbufferedQuery(): void
     {
@@ -837,63 +774,39 @@ final class DbalConnectionAdapter implements ConnectionInterface
                 message: 'Error while stopping an unbuffered query, no unbuffered query is currently active'
             );
 
-            throw ConnectionException::stopUnbufferedQueryFailed(
-                'Unbuffered query not active'
-            );
+            throw ConnectionException::stopUnbufferedQueryFailed('Unbuffered query not active');
         }
-        if ($nativeConnection instanceof \PDO) {
-            if (! $nativeConnection->setAttribute(\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, true)) {
-                $this->writeDbLog(message: 'Error while stopping an unbuffered query');
+        if ($nativeConnection instanceof \PDO && ! $nativeConnection->setAttribute(\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, true)) {
+            $this->writeDbLog(message: 'Error while stopping an unbuffered query');
 
-                throw ConnectionException::stopUnbufferedQueryFailed(
-                    'Unbuffered query failed'
-                );
-            }
+            throw ConnectionException::stopUnbufferedQueryFailed('Unbuffered query failed');
         }
         $this->isBufferedQueryActive = true;
     }
 
     // ----------------------------------------- PRIVATE METHODS -----------------------------------------
-
     /**
-     * Write SQL errors messages
+     * Write SQL errors messages.
      *
-     * @param string $message
      * @param array<string,mixed> $customContext
-     * @param string $query
-     * @param \Throwable|null $previous
      */
-    private function writeDbLog(
+    protected function writeDbLog(
         string $message,
         array $customContext = [],
         string $query = '',
         ?\Throwable $previous = null
     ): void {
         // prepare context of the database exception
-        if ($previous instanceof ConnectionException) {
-            $dbExceptionContext = $previous->getContext();
+        $context = [
+            'database_name' => $this->connectionConfig->getDatabaseNameConfiguration(),
+            'database_connector' => self::class,
+            'query' => $query,
+        ];
+
+        if ($previous instanceof \Throwable) {
+            ExceptionLogger::create()->log($previous, $context, LogLevel::CRITICAL);
         } else {
-            $dbExceptionContext = [];
+            Logger::create()->critical($message, $context);
         }
-        if (isset($dbExceptionContext['query'])) {
-            unset($dbExceptionContext['query']);
-        }
-
-        // prepare default context
-        $defaultContext = ['database_name' => $this->connectionConfig->getDatabaseNameConfiguration()];
-        if (! empty($query)) {
-            $defaultContext['query'] = $query;
-        }
-
-        $context = array_merge(
-            ['default' => $defaultContext],
-            ['custom' => $customContext],
-            ['exception' => $dbExceptionContext]
-        );
-
-        $this->critical(
-            "[DbalConnectionAdapter] {$message}",
-            $context
-        );
     }
 }

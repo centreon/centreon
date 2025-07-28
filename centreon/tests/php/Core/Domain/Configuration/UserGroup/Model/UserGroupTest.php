@@ -24,8 +24,8 @@ declare(strict_types=1);
 namespace Tests\Core\Domain\Configuration\UserGroup\Model;
 
 use Centreon\Domain\Common\Assertion\AssertionException;
-use PHPUnit\Framework\TestCase;
 use Core\Domain\Configuration\UserGroup\Model\UserGroup;
+use PHPUnit\Framework\TestCase;
 
 class UserGroupTest extends TestCase
 {
@@ -55,7 +55,7 @@ class UserGroupTest extends TestCase
         $this->expectExceptionMessage(
             AssertionException::maxLength(
                 $name,
-                strlen($name),
+                mb_strlen($name),
                 UserGroup::MAX_NAME_LENGTH,
                 'UserGroup::name'
             )->getMessage()
@@ -89,7 +89,7 @@ class UserGroupTest extends TestCase
         $this->expectExceptionMessage(
             AssertionException::maxLength(
                 $alias,
-                strlen($alias),
+                mb_strlen($alias),
                 UserGroup::MAX_ALIAS_LENGTH,
                 'UserGroup::alias'
             )->getMessage()

@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2019 Centreon
  * Centreon is developed by : Julien Mathis and Romain Le Merlus under
@@ -36,11 +37,11 @@
 
 namespace Centreon\Infrastructure\Webservice;
 
-use Pimple\Container;
-use Symfony\Component\Serializer;
-use JsonSerializable;
 use Centreon\Application\DataRepresenter;
 use Centreon\ServiceProvider;
+use JsonSerializable;
+use Pimple\Container;
+use Symfony\Component\Serializer;
 
 /**
  * @OA\Server(
@@ -97,7 +98,7 @@ abstract class WebServiceAbstract extends \CentreonWebService
     /**
      * Getter for DI container
      *
-     * @return \Pimple\Container
+     * @return Container
      */
     public function getDi(): Container
     {
@@ -107,7 +108,7 @@ abstract class WebServiceAbstract extends \CentreonWebService
     /**
      * Setter for DI container
      *
-     * @param \Pimple\Container $di
+     * @param Container $di
      */
     public function setDi(Container $di): void
     {
@@ -162,7 +163,7 @@ abstract class WebServiceAbstract extends \CentreonWebService
     /**
      * Get the Serializer service
      *
-     * @return \Symfony\Component\Serializer\Serializer
+     * @return Serializer\Serializer
      */
     public function getSerializer(): Serializer\Serializer
     {

@@ -30,9 +30,7 @@ use PHPUnit\Framework\TestCase;
  */
 class MetaServiceConfigurationFactoryRdbTest extends TestCase
 {
-    /**
-     * @var array<string, string|int> $rdbData
-     */
+    /** @var array<string, string|int> */
     private $rdbData;
 
     protected function setUp(): void
@@ -48,7 +46,7 @@ class MetaServiceConfigurationFactoryRdbTest extends TestCase
             'warning' => '5',
             'critical' => '10',
             'regexp_str' => '%Ping%',
-            'meta_select_mode' => 1
+            'meta_select_mode' => 1,
         ];
     }
 

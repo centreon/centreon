@@ -34,7 +34,7 @@
  *
  */
 
-if (!isset($centreon)) {
+if (! isset($centreon)) {
     exit();
 }
 
@@ -44,15 +44,13 @@ const MODIFY_DEPENDENCY = 'c';
 const DUPLICATE_DEPENDENCY = 'm';
 const DELETE_DEPENDENCY = 'd';
 
-/*
- * Path to the configuration dir
- */
-$path = "./include/configuration/configObject/host_dependency/";
-/*
- * PHP functions
- */
-require_once $path . "DB-Func.php";
-require_once "./include/common/common-Func.php";
+// Path to the configuration dir
+$path = './include/configuration/configObject/host_dependency/';
+// PHP functions
+require_once $path . 'DB-Func.php';
+require_once './include/common/common-Func.php';
+
+use Core\Common\Domain\Exception\RepositoryException;
 
 $dep_id = filter_var(
     $_GET['dep_id'] ?? $_POST['dep_id'] ?? null,
@@ -69,44 +67,55 @@ $dupNbr = filter_var_array(
     FILTER_VALIDATE_INT
 );
 
-/* Set the real page */
-if (isset($ret) && is_array($ret) && $ret['topology_page'] != "" && $p != $ret['topology_page']) {
+// Set the real page
+if (isset($ret) && is_array($ret) && $ret['topology_page'] != '' && $p != $ret['topology_page']) {
     $p = $ret['topology_page'];
 }
 
 $acl = $centreon->user->access;
 $dbmon = $acl->getNameDBAcl();
-
-switch ($o) {
-    case ADD_DEPENDENCY:
-    case WATCH_DEPENDENCY:
-    case MODIFY_DEPENDENCY:
-        require_once($path . "formHostDependency.php");
-        break;
-    case DUPLICATE_DEPENDENCY:
-        purgeOutdatedCSRFTokens();
-        if (isCSRFTokenValid()) {
-            purgeCSRFToken();
-            multipleHostDependencyInDB(
-                is_array($select) ? $select : [],
-                is_array($dupNbr) ? $dupNbr : []
-            );
-        } else {
-            unvalidFormMessage();
-        }
-        require_once($path . "listHostDependency.php");
-        break;
-    case DELETE_DEPENDENCY:
-        purgeOutdatedCSRFTokens();
-        if (isCSRFTokenValid()) {
-            purgeCSRFToken();
-            deleteHostDependencyInDB(is_array($select) ? $select : []);
-        } else {
-            unvalidFormMessage();
-        }
-        require_once($path . "listHostDependency.php");
-        break;
-    default:
-        require_once($path . "listHostDependency.php");
-        break;
+try {
+    switch ($o) {
+        case ADD_DEPENDENCY:
+        case WATCH_DEPENDENCY:
+        case MODIFY_DEPENDENCY:
+            require_once $path . 'formHostDependency.php';
+            break;
+        case DUPLICATE_DEPENDENCY:
+            purgeOutdatedCSRFTokens();
+            if (isCSRFTokenValid()) {
+                purgeCSRFToken();
+                multipleHostDependencyInDB(
+                    is_array($select) ? $select : [],
+                    is_array($dupNbr) ? $dupNbr : []
+                );
+            } else {
+                unvalidFormMessage();
+            }
+            require_once $path . 'listHostDependency.php';
+            break;
+        case DELETE_DEPENDENCY:
+            purgeOutdatedCSRFTokens();
+            if (isCSRFTokenValid()) {
+                purgeCSRFToken();
+                deleteHostDependencyInDB(is_array($select) ? $select : []);
+            } else {
+                unvalidFormMessage();
+            }
+            require_once $path . 'listHostDependency.php';
+            break;
+        default:
+            require_once $path . 'listHostDependency.php';
+            break;
+    }
+} catch (RepositoryException $exception) {
+    CentreonLog::create()->error(
+        CentreonLog::TYPE_SQL,
+        'Error while processing host dependencies: ' . $exception->getMessage(),
+        exception: $exception
+    );
+    $msg = new CentreonMsg();
+    $msg->setImage('./img/icons/warning.png');
+    $msg->setTextStyle('bold');
+    $msg->setText('Error while processing host dependencies');
 }

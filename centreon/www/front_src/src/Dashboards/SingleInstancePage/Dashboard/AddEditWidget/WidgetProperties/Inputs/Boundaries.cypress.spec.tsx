@@ -64,8 +64,8 @@ describe('Boundaries', () => {
   it('changes the boundaries when fields are edited', () => {
     initialize({});
 
-    cy.findByLabelText(labelMinValue).type('20');
-    cy.findByLabelText(labelMaxValue).type('30');
+    cy.findByLabelText(labelMinValue).clear().type('20');
+    cy.findByLabelText(labelMaxValue).clear().type('30');
 
     cy.findByLabelText(labelMinValue).should('have.value', '20');
     cy.findByLabelText(labelMaxValue).should('have.value', '30');
@@ -76,8 +76,8 @@ describe('Boundaries', () => {
   it('displays an error when the max value is lower than the min value', () => {
     initialize({});
 
-    cy.findByLabelText(labelMinValue).type('30');
-    cy.findByLabelText(labelMaxValue).type('20');
+    cy.findByLabelText(labelMinValue).clear().type('30');
+    cy.findByLabelText(labelMaxValue).clear().type('20');
     cy.findByLabelText(labelMaxValue).blur();
 
     cy.contains(labelMinMustLowerThanMax).should('be.visible');

@@ -46,7 +46,7 @@ Given(
   () => {
     cy.insertDashboard({ ...dashboards.fromDashboardAdministratorUser });
     cy.visitDashboards();
-    cy.getByTestId({ testId: 'ShareIcon' }).should('be.visible').click();
+    cy.getByTestId({ testId: 'Share with contacts' }).should('be.visible').click();
     cy.getByLabel({ label: 'Open', tag: 'button' }).click();
     cy.contains(dashboardCreatorUser.login).click();
     cy.getByTestId({ testId: 'add' }).click();
@@ -67,16 +67,16 @@ Given(
       .click();
     cy.wait('@updateShares');
     cy.wait('@getDashboard');
-    cy.getByTestId({ testId: 'CloseIcon' }).eq(0).click();
+    cy.getByLabel({ label: 'close', tag: 'button' }).click()
     cy.get('.MuiAlert-message').should('not.exist');
-    cy.waitUntilForDashboardRoles('ShareIcon', 4, 1);
+    cy.waitUntilForDashboardRoles('Share with contacts', 4);
   }
 );
 
 When(
   'the dashboard administrator user promotes the viewer user to an editor',
   () => {
-    cy.getByTestId({ testId: 'ShareIcon' }).should('be.visible').click();
+    cy.getByTestId({ testId: 'Share with contacts' }).should('be.visible').click();
     cy.getByTestId({ testId: 'role-user-dashboard-creator' }).realClick();
     cy.get('[role="listbox"]').contains('Editor').click();
     cy.get('[data-state="updated"]').should('exist');
@@ -106,7 +106,7 @@ Given(
   'a dashboard featuring a dashboard administrator and a dashboard editor in its share list',
   () => {
     cy.visitDashboards();
-    cy.getByTestId({ testId: 'ShareIcon' }).should('be.visible').click();
+    cy.getByTestId({ testId: 'Share with contacts' }).should('be.visible').click();
     cy.getByTestId({ testId: 'role-user-dashboard-creator' }).should(
       'have.value',
       'editor'
@@ -148,7 +148,7 @@ Given(
   'a dashboard featuring a dashboard administrator and a viewer in its share list',
   () => {
     cy.visitDashboards();
-    cy.getByTestId({ testId: 'ShareIcon' }).should('be.visible').click();
+    cy.getByTestId({ testId: 'Share with contacts' }).should('be.visible').click();
     cy.getByTestId({ testId: 'role-user-dashboard-creator' }).should(
       'have.value',
       'viewer'
@@ -163,7 +163,7 @@ Given(
 When(
   'the dashboard administrator user removes the dashboard editor user from the share list',
   () => {
-    cy.getByTestId({ testId: 'DeleteOutlineIcon' }).eq(1).click();
+    cy.getByTestId({ testId: 'remove-user-dashboard-creator' }).click();
     cy.get('[data-state="removed"]').should('exist');
     cy.getByLabel({ label: 'Save', tag: 'button' })
       .should('be.enabled')
@@ -191,7 +191,7 @@ Given(
   'a dashboard featuring a dashboard administrator and a user who has just been removed from the share list',
   () => {
     cy.visitDashboards();
-    cy.getByTestId({ testId: 'ShareIcon' }).should('be.visible').click();
+    cy.getByTestId({ testId: 'Share with contacts' }).should('be.visible').click();
     cy.getByTestId({ testId: 'role-user-dashboard-administrator' }).should(
       'have.value',
       'editor'
@@ -217,11 +217,11 @@ Given(
       .click();
     cy.wait('@updateShares');
     cy.wait('@getDashboard');
-    cy.getByTestId({ testId: 'CloseIcon' }).eq(0).click();
+    cy.getByLabel({ label: 'close', tag: 'button' }).click()
     cy.get('.MuiAlert-message').should('not.exist');
-    cy.waitUntilForDashboardRoles('ShareIcon', 4, 1);
-    cy.getByTestId({ testId: 'ShareIcon' }).should('be.visible').click();
-    cy.getByTestId({ testId: 'DeleteOutlineIcon' }).eq(1).click();
+    cy.waitUntilForDashboardRoles('Share with contacts', 4);
+    cy.getByTestId({ testId: 'Share with contacts' }).should('be.visible').click();
+    cy.getByTestId({ testId: 'remove-user-dashboard-creator' }).click();
     cy.get('[data-state="removed"]').should('exist');
   }
 );
@@ -229,7 +229,7 @@ Given(
 When(
   'the dashboard administrator user restores the deleted user to the share list and saves',
   () => {
-    cy.getByTestId({ testId: 'RotateLeftIcon' }).click();
+    cy.getByTestId({ testId: 'remove-user-dashboard-creator' }).click();
     cy.getByLabel({ label: 'Save', tag: 'button' }).should('be.disabled');
     cy.getByLabel({ label: 'close', tag: 'button' }).click();
   }

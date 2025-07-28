@@ -158,7 +158,7 @@ class Assertion
         ?string $propertyPath = null
     ): void {
         if ($value->getTimestamp() < $minDate->getTimestamp()) {
-            throw AssertionException::maxDate($value, $minDate, $propertyPath);
+            throw AssertionException::minDate($value, $minDate, $propertyPath);
         }
     }
 
@@ -448,7 +448,7 @@ class Assertion
                     (fn (?int ...$items): array => $items)(...$values);
                     break;
             }
-        } catch(\TypeError) {
+        } catch (\TypeError) {
             throw AssertionException::invalidTypeInArray($type, $propertyPath);
         }
     }

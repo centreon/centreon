@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2016 Centreon
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
@@ -36,12 +37,12 @@
 
 if (isset($pearDB)) {
     $res = $pearDB->query(
-        "SELECT * " .
-        "FROM INFORMATION_SCHEMA.COLUMNS " .
-        "WHERE TABLE_NAME = 'nagios_server' " .
-        "AND COLUMN_NAME = 'description' "
+        'SELECT * '
+        . 'FROM INFORMATION_SCHEMA.COLUMNS '
+        . "WHERE TABLE_NAME = 'nagios_server' "
+        . "AND COLUMN_NAME = 'description' "
     );
     if ($res->rowCount() > 0) {
-        $pearDB->query("ALTER TABLE `nagios_server` DROP COLUMN `description`");
+        $pearDB->query('ALTER TABLE `nagios_server` DROP COLUMN `description`');
     }
 }

@@ -133,7 +133,7 @@ class AddHostValidation
      */
     public function assertIsValidTimePeriod(?int $timePeriodId, ?string $propertyName = null): void
     {
-        if ($timePeriodId !== null && false === $this->readTimePeriodRepository->exists($timePeriodId) ) {
+        if ($timePeriodId !== null && false === $this->readTimePeriodRepository->exists($timePeriodId)) {
             $this->error('Time period does not exist', ['time_period_id' => $timePeriodId]);
 
             throw HostException::idDoesNotExist($propertyName ?? 'timePeriodId', $timePeriodId);
@@ -171,7 +171,7 @@ class AddHostValidation
      */
     public function assertIsValidTimezone(?int $timezoneId): void
     {
-        if ($timezoneId !== null && false === $this->readTimezoneRepository->exists($timezoneId) ) {
+        if ($timezoneId !== null && false === $this->readTimezoneRepository->exists($timezoneId)) {
             $this->error('Timezone does not exist', ['timezone_id' => $timezoneId]);
 
             throw HostException::idDoesNotExist('timezoneId', $timezoneId);

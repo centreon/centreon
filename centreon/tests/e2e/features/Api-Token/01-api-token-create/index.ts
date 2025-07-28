@@ -1,4 +1,4 @@
-import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
+import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
 const token = {
   duration: '7 days',
@@ -32,12 +32,12 @@ Given('I am logged in as an administrator', () => {
   cy.get('.MuiAlert-message').should('not.exist');
 });
 
-Given('I am on the API tokens page', () => {
+Given('I am on the Authentication tokens page', () => {
   cy.visitApiTokens();
 });
 
-When('I click on the "Create new token" button', () => {
-  cy.getByTestId({ testId: 'Create new token' }).click();
+When('I click on the "Add" button', () => {
+  cy.getByTestId({ testId: 'Add' }).click();
 });
 
 When('I fill in the following required fields', (dataTable: any) => {
@@ -46,7 +46,7 @@ When('I fill in the following required fields', (dataTable: any) => {
     const value = element.Value;
 
     if (field === 'Name') {
-      cy.get('#tokenName').type(value);
+      cy.get('#Name').type(value);
     }
 
     if (field === 'User') {
@@ -69,19 +69,19 @@ When('I select the duration as {string}', (duration: string) => {
 });
 
 When('I click on the "Generate token" button', () => {
-  cy.getByTestId({ testId: 'Confirm' }).click();
+  cy.getByTestId({ testId: 'submit' }).click();
 });
 
-Then('a new basic API token with hidden display is generated', () => {
+Then('a new basic Authentication token with hidden display is generated', () => {
   cy.wait('@getTokens');
   cy.getByTestId({ testId: 'tokenInput' }).as('generatedToken').should('exist');
   cy.get('@generatedToken').should('have.attr', 'type', 'password');
 });
 
-Given('a basic API token is generated', () => {
-  cy.getByTestId({ testId: 'Create new token' }).click();
+Given('a basic Authentication token is generated', () => {
+  cy.getByTestId({ testId: 'Add' }).click();
 
-  cy.get('#tokenName').type(token.name);
+  cy.get('#Name').type(token.name);
 
   cy.get('#User').click();
   cy.wait('@getUsers');
@@ -90,7 +90,7 @@ Given('a basic API token is generated', () => {
   cy.get('#Duration').click();
   cy.contains(token.duration).click();
 
-  cy.getByTestId({ testId: 'Confirm' }).click();
+  cy.getByTestId({ testId: 'submit' }).click();
 
   cy.wait('@getTokens');
 });
@@ -108,5 +108,7 @@ Then('the "copy to clipboard" button is clicked', () => {
 });
 
 Then('the token is successfully copied', () => {
-  cy.get('.MuiAlert-message').contains('Token copied to the clipboard');
+  cy.get('.MuiAlert-message').contains(
+    'Authentication token copied to the clipboard'
+  );
 });

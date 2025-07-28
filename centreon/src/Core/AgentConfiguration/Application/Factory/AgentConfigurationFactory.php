@@ -48,13 +48,13 @@ class AgentConfigurationFactory
         Type $type,
         ConnectionModeEnum $connectionMode,
         array $parameters,
-    ): NewAgentConfiguration{
+    ): NewAgentConfiguration {
         return new NewAgentConfiguration(
             name: $name,
             type: $type,
             connectionMode: $connectionMode,
             configuration: match ($type) {
-                Type::TELEGRAF => new TelegrafConfigurationParameters($parameters, $connectionMode),
+                Type::TELEGRAF => new TelegrafConfigurationParameters($parameters),
                 Type::CMA => new CmaConfigurationParameters($parameters, $connectionMode)
             }
         );
@@ -84,7 +84,7 @@ class AgentConfigurationFactory
             type: $type,
             connectionMode: $connectionMode,
             configuration: match ($type) {
-                Type::TELEGRAF => new TelegrafConfigurationParameters($parameters, $connectionMode),
+                Type::TELEGRAF => new TelegrafConfigurationParameters($parameters),
                 Type::CMA => new CmaConfigurationParameters($parameters, $connectionMode)
             }
         );

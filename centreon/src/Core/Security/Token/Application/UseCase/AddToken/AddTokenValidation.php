@@ -52,7 +52,7 @@ class AddTokenValidation
     public function assertIsValidName(string $name, int $userId): void
     {
         $trimmedName = trim($name);
-        if ($this->readTokenRepository->existsByNameANdUserId($trimmedName, $userId)) {
+        if ($this->readTokenRepository->existsByNameAndUserId($trimmedName, $userId)) {
             $this->error('Token name already exists', ['name' => $trimmedName, 'userId' => $userId]);
 
             throw TokenException::nameAlreadyExists($trimmedName);
@@ -68,8 +68,7 @@ class AddTokenValidation
      */
     public function assertIsValidUser(int $userId): void
     {
-        if (! $this->user->isAdmin() && $this->user->getId() !== $userId && ! $this->user->hasRole(Contact::ROLE_MANAGE_TOKENS))
-        {
+        if (! $this->user->isAdmin() && $this->user->getId() !== $userId && ! $this->user->hasRole(Contact::ROLE_MANAGE_TOKENS)) {
             throw TokenException::notAllowedToCreateTokenForUser($userId);
         }
         if (false === $this->readContactRepository->exists($userId)) {

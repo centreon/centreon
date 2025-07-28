@@ -34,45 +34,39 @@
  *
  */
 
-if (!isset($centreon)) {
+if (! isset($centreon)) {
     exit();
 }
 
-/*
- * External Command Object
- */
+// External Command Object
 $ecObj = new CentreonExternalCommand($centreon);
 
-$form = new HTML_QuickFormCustom('Form', 'post', "?p=" . $p);
+$form = new HTML_QuickFormCustom('Form', 'post', '?p=' . $p);
 
-/*
- * Path to the configuration dir
- */
-$path = "./include/monitoring/downtime/";
+// Path to the configuration dir
+$path = './include/monitoring/downtime/';
 
-/*
- * PHP functions
- */
-require_once "./include/common/common-Func.php";
-require_once $path . "common-Func.php";
-require_once "./include/monitoring/external_cmd/functions.php";
+// PHP functions
+require_once './include/common/common-Func.php';
+require_once $path . 'common-Func.php';
+require_once './include/monitoring/external_cmd/functions.php';
 
 switch ($o) {
-    case "a":
-        require_once($path . "AddDowntime.php");
+    case 'a':
+        require_once $path . 'AddDowntime.php';
         break;
-    case "ds":
+    case 'ds':
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
-            if (isset($_POST["select"])) {
-                foreach ($_POST["select"] as $key => $value) {
+            if (isset($_POST['select'])) {
+                foreach ($_POST['select'] as $key => $value) {
                     $res = explode(';', urldecode($key));
                     $ishost = isDownTimeHost($res[2]);
                     if (
                         $oreon->user->access->admin
-                        || ($ishost && $oreon->user->access->checkAction("host_schedule_downtime"))
-                        || (!$ishost && $oreon->user->access->checkAction("service_schedule_downtime"))
+                        || ($ishost && $oreon->user->access->checkAction('host_schedule_downtime'))
+                        || (! $ishost && $oreon->user->access->checkAction('service_schedule_downtime'))
                     ) {
                         $ecObj->deleteDowntime($res[0], [$res[1] . ';' . $res[2] => 'on']);
                         deleteDowntimeInDb($res[2]);
@@ -83,28 +77,29 @@ switch ($o) {
             unvalidFormMessage();
         }
         try {
-            require_once($path . "listDowntime.php");
-        } catch (\Throwable $ex) {
+            require_once $path . 'listDowntime.php';
+        } catch (Throwable $ex) {
             CentreonLog::create()->error(
                 logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
                 message: 'Error while listing downtime: ' . $ex->getMessage(),
                 exception: $ex
             );
+
             throw $ex;
         }
         break;
-    case "cs":
+    case 'cs':
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
-            if (isset($_POST["select"])) {
-                foreach ($_POST["select"] as $key => $value) {
+            if (isset($_POST['select'])) {
+                foreach ($_POST['select'] as $key => $value) {
                     $res = explode(';', urldecode($key));
                     $ishost = isDownTimeHost($res[2]);
                     if (
                         $oreon->user->access->admin
-                        || ($ishost && $oreon->user->access->checkAction("host_schedule_downtime"))
-                        || (!$ishost && $oreon->user->access->checkAction("service_schedule_downtime"))
+                        || ($ishost && $oreon->user->access->checkAction('host_schedule_downtime'))
+                        || (! $ishost && $oreon->user->access->checkAction('service_schedule_downtime'))
                     ) {
                         $ecObj->deleteDowntime($res[0], [$res[1] . ';' . $res[2] => 'on']);
                     }
@@ -114,17 +109,19 @@ switch ($o) {
             unvalidFormMessage();
         }
         // then, as all the next cases, requiring the listDowntime.php
-    case "vs":
-    case "vh":
+        // no break
+    case 'vs':
+    case 'vh':
     default:
         try {
-            require_once($path . "listDowntime.php");
-        } catch (\Throwable $ex) {
+            require_once $path . 'listDowntime.php';
+        } catch (Throwable $ex) {
             CentreonLog::create()->error(
                 logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
                 message: 'Error while listing downtime: ' . $ex->getMessage(),
                 exception: $ex
             );
+
             throw $ex;
         }
         break;

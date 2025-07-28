@@ -34,7 +34,6 @@ use Core\AdditionalConnectorConfiguration\Domain\Model\Poller;
 use Core\AdditionalConnectorConfiguration\Domain\Model\Type;
 use Core\MonitoringServer\Application\Repository\ReadMonitoringServerRepositoryInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
-use ValueError;
 
 beforeEach(function (): void {
     $this->validator = new Validator(
@@ -84,8 +83,8 @@ it('should throw an exception when the pollers list is empty', function (): void
 it('should throw an exception when the ACC type is changed', function (): void {
     $this->request->type = '';
     $this->validator->validateTypeOrFail($this->request, $this->acc);
-})->skip(true, "Cannot be tested as long as there is only one supported type");
-//throws(AccException::typeChangeNotAllowed()->getMessage());
+})->skip(true, 'Cannot be tested as long as there is only one supported type');
+// throws(AccException::typeChangeNotAllowed()->getMessage());
 
 it('should throw an exception when a poller ID does not exist', function (): void {
     $this->user

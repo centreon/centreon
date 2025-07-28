@@ -33,157 +33,150 @@
  * For more information : contact@centreon.com
  *
  */
-if (!isset($centreon)) {
+if (! isset($centreon)) {
     exit();
 }
 
 $graph = [];
-if (($o == "c" || $o == "w") && $graph_id !== false && $graph_id > 0) {
+if (($o == 'c' || $o == 'w') && $graph_id !== false && $graph_id > 0) {
     $stmt = $pearDB->prepare('SELECT * FROM giv_graphs_template WHERE graph_id = :graphId LIMIT 1');
-    $stmt->bindValue(':graphId', $graph_id, \PDO::PARAM_INT);
+    $stmt->bindValue(':graphId', $graph_id, PDO::PARAM_INT);
     $stmt->execute();
-    $graph = array_map("myDecode", $stmt->fetch(\PDO::FETCH_ASSOC));
+    $graph = array_map('myDecode', $stmt->fetch(PDO::FETCH_ASSOC));
 }
 
-/*
- * Retrieve information from database for differents elements list we need on the page
- */
+// Retrieve information from database for differents elements list we need on the page
 $compos = [];
 $stmt = $pearDB->query('SELECT compo_id, name FROM giv_components_template ORDER BY name');
-while ($compo = $stmt->fetch(\PDO::FETCH_ASSOC)) {
-    $compos[$compo["compo_id"]] = $compo["name"];
+while ($compo = $stmt->fetch(PDO::FETCH_ASSOC)) {
+    $compos[$compo['compo_id']] = $compo['name'];
 }
 
-#
-# End of "database-retrieved" information
-##########################################################
-##########################################################
-# Var information to format the element
-#
+//
+// End of "database-retrieved" information
+// #########################################################
+// #########################################################
+// Var information to format the element
+//
 
-$attrsText = ["size" => "30"];
-$attrsText2 = ["size" => "6"];
-$attrsAdvSelect = ["style" => "width: 200px; height: 100px;"];
-$attrsTextarea = ["rows" => "3", "cols" => "30"];
+$attrsText = ['size' => '30'];
+$attrsText2 = ['size' => '6'];
+$attrsAdvSelect = ['style' => 'width: 200px; height: 100px;'];
+$attrsTextarea = ['rows' => '3', 'cols' => '30'];
 
-#
-## Form begin
-#
-$form = new HTML_QuickFormCustom('Form', 'post', "?p=" . $p);
-if ($o == "a") {
-    $form->addElement('header', 'ftitle', _("Add a Graph Template"));
-} elseif ($o == "c") {
-    $form->addElement('header', 'ftitle', _("Modify a Graph Template"));
-} elseif ($o == "w") {
-    $form->addElement('header', 'ftitle', _("View a Graph Template"));
+//
+// # Form begin
+//
+$form = new HTML_QuickFormCustom('Form', 'post', '?p=' . $p);
+if ($o == 'a') {
+    $form->addElement('header', 'ftitle', _('Add a Graph Template'));
+} elseif ($o == 'c') {
+    $form->addElement('header', 'ftitle', _('Modify a Graph Template'));
+} elseif ($o == 'w') {
+    $form->addElement('header', 'ftitle', _('View a Graph Template'));
 }
 
-#
-## Basic information
-#
-$form->addElement('header', 'information', _("General Information"));
-$form->addElement('header', 'color', _("Legend"));
-$form->addElement('text', 'name', _("Template Name"), $attrsText);
+//
+// # Basic information
+//
+$form->addElement('header', 'information', _('General Information'));
+$form->addElement('header', 'color', _('Legend'));
+$form->addElement('text', 'name', _('Template Name'), $attrsText);
 
-$form->addElement('select', 'img_format', _("Image Type"), ["PNG" => "PNG", "GIF" => "GIF"]);
-$form->addElement('text', 'vertical_label', _("Vertical Label"), $attrsText);
-$form->addElement('text', 'width', _("Width"), $attrsText2);
-$form->addElement('text', 'height', _("Height"), $attrsText2);
-$form->addElement('text', 'lower_limit', _("Lower Limit"), $attrsText2);
-$form->addElement('text', 'upper_limit', _("Upper Limit"), ['id' => 'upperLimitTxt', 'size' => '6']);
-$form->addElement('checkbox', 'size_to_max', _("Size to max"), '', ['id' => 'sizeToMax', 'onClick' => 'sizeToMaxx();']);
-$form->addElement('text', 'ds_name', _("Data Source Name"), $attrsText);
-$form->addElement('select', 'base', _("Base"), ["1000" => "1000", "1024" => "1024"]);
+$form->addElement('select', 'img_format', _('Image Type'), ['PNG' => 'PNG', 'GIF' => 'GIF']);
+$form->addElement('text', 'vertical_label', _('Vertical Label'), $attrsText);
+$form->addElement('text', 'width', _('Width'), $attrsText2);
+$form->addElement('text', 'height', _('Height'), $attrsText2);
+$form->addElement('text', 'lower_limit', _('Lower Limit'), $attrsText2);
+$form->addElement('text', 'upper_limit', _('Upper Limit'), ['id' => 'upperLimitTxt', 'size' => '6']);
+$form->addElement('checkbox', 'size_to_max', _('Size to max'), '', ['id' => 'sizeToMax', 'onClick' => 'sizeToMaxx();']);
+$form->addElement('text', 'ds_name', _('Data Source Name'), $attrsText);
+$form->addElement('select', 'base', _('Base'), ['1000' => '1000', '1024' => '1024']);
 
 $periods = [
-    "10800" => _("Last 3 hours"),
-    "21600" => _("Last 6 hours"),
-    "43200" => _("Last 12 hours"),
-    "86400" => _("Last 24 hours"),
-    "172800" => _("Last 2 days"),
-    "302400" => _("Last 4 days"),
-    "604800" => _("Last 7 days"),
-    "1209600" => _("Last 14 days"),
-    "2419200" => _("Last 28 days"),
-    "2592000" => _("Last 30 days"),
-    "2678400" => _("Last 31 days"),
-    "5184000" => _("Last 2 months"),
-    "10368000" => _("Last 4 months"),
-    "15552000" => _("Last 6 months"),
-    "31104000" => _("Last year")
+    '10800' => _('Last 3 hours'),
+    '21600' => _('Last 6 hours'),
+    '43200' => _('Last 12 hours'),
+    '86400' => _('Last 24 hours'),
+    '172800' => _('Last 2 days'),
+    '302400' => _('Last 4 days'),
+    '604800' => _('Last 7 days'),
+    '1209600' => _('Last 14 days'),
+    '2419200' => _('Last 28 days'),
+    '2592000' => _('Last 30 days'),
+    '2678400' => _('Last 31 days'),
+    '5184000' => _('Last 2 months'),
+    '10368000' => _('Last 4 months'),
+    '15552000' => _('Last 6 months'),
+    '31104000' => _('Last year'),
 ];
 
-$sel = $form->addElement('select', 'period', _("Graph Period"), $periods);
-$steps = ["0" => _("No Step"), "2" => "2", "6" => "6", "10" => "10", "20" => "20", "50" => "50", "100" => "100"];
+$sel = $form->addElement('select', 'period', _('Graph Period'), $periods);
+$steps = ['0' => _('No Step'), '2' => '2', '6' => '6', '10' => '10', '20' => '20', '50' => '50', '100' => '100'];
 
-$sel = $form->addElement('select', 'step', _("Recovery Step"), $steps);
+$sel = $form->addElement('select', 'step', _('Recovery Step'), $steps);
 
-if ($o == "c" || $o == "a") {
+if ($o == 'c' || $o == 'a') {
     $nameColor ??= '';
     $attrsText5 ??= '';
-    $form->addElement('button', $nameColor . '_modify', _("Modify"), $attrsText5);
+    $form->addElement('button', $nameColor . '_modify', _('Modify'), $attrsText5);
 }
 
-$form->addElement('checkbox', 'stacked', _("Stacking"));
-$form->addElement('checkbox', 'scaled', _("Scale Graph Values"));
-$form->addElement('textarea', 'comment', _("Comments"), $attrsTextarea);
-$form->addElement('checkbox', 'default_tpl1', _("Default Centreon Graph Template"));
+$form->addElement('checkbox', 'stacked', _('Stacking'));
+$form->addElement('checkbox', 'scaled', _('Scale Graph Values'));
+$form->addElement('textarea', 'comment', _('Comments'), $attrsTextarea);
+$form->addElement('checkbox', 'default_tpl1', _('Default Centreon Graph Template'));
 
 $form->addElement('hidden', 'graph_id');
 $redirect = $form->addElement('hidden', 'o');
 $redirect->setValue($o);
 
-/*
- * Form Rules
- */
+// Form Rules
 $form->applyFilter('__ALL__', 'myTrim');
-$form->addRule('name', _("Compulsory Name"), 'required');
-$form->addRule('vertical_label', _("Required Field"), 'required');
-$form->addRule('width', _("Required Field"), 'required');
-$form->addRule('height', _("Required Field"), 'required');
+$form->addRule('name', _('Compulsory Name'), 'required');
+$form->addRule('vertical_label', _('Required Field'), 'required');
+$form->addRule('width', _('Required Field'), 'required');
+$form->addRule('height', _('Required Field'), 'required');
 // $form->addRule('title', _("Required Field"), 'required'); - Field is not declared so rule is not needed
 $form->registerRule('exist', 'callback', 'testExistence');
-$form->addRule('name', _("Name is already in use"), 'exist');
-$form->setRequiredNote("<font style='color: red;'>*</font>&nbsp;" . _("Required fields"));
+$form->addRule('name', _('Name is already in use'), 'exist');
+$form->setRequiredNote("<font style='color: red;'>*</font>&nbsp;" . _('Required fields'));
 
 // Smarty template initialization
 $tpl = SmartyBC::createSmartyTemplate($path);
 
-# Just watch
-if ($o == "w") {
+// Just watch
+if ($o == 'w') {
     $form->addElement(
-        "button",
-        "change",
-        _("Modify"),
-        ["onClick" => "javascript:window.location.href='?p=" . $p . "&o=c&graph_id=" . $graph_id . "'"]
+        'button',
+        'change',
+        _('Modify'),
+        ['onClick' => "javascript:window.location.href='?p=" . $p . '&o=c&graph_id=' . $graph_id . "'"]
     );
     $form->setDefaults($graph);
     $form->freeze();
-} elseif ($o == "c") {
-    $subC = $form->addElement('submit', 'submitC', _("Save"), ["class" => "btc bt_success"]);
-    $res = $form->addElement('reset', 'reset', _("Delete"), ["class" => "btc bt_danger"]);
+} elseif ($o == 'c') {
+    $subC = $form->addElement('submit', 'submitC', _('Save'), ['class' => 'btc bt_success']);
+    $res = $form->addElement('reset', 'reset', _('Delete'), ['class' => 'btc bt_danger']);
     $form->setDefaults($graph);
-} elseif ($o == "a") {
-    $subA = $form->addElement('submit', 'submitA', _("Save"), ["class" => "btc bt_success"]);
-    $res = $form->addElement('reset', 'reset', _("Delete"), ["class" => "btc bt_danger"]);
+} elseif ($o == 'a') {
+    $subA = $form->addElement('submit', 'submitA', _('Save'), ['class' => 'btc bt_success']);
+    $res = $form->addElement('reset', 'reset', _('Delete'), ['class' => 'btc bt_danger']);
 }
-$tpl->assign('msg', ["changeL" => "main.php?p=" . $p . "&o=c&graph_id=" . $graph_id, "changeT" => _("Modify")]);
+$tpl->assign('msg', ['changeL' => 'main.php?p=' . $p . '&o=c&graph_id=' . $graph_id, 'changeT' => _('Modify')]);
 
-$tpl->assign("sort1", _("Properties"));
-$tpl->assign("sort2", _("Data Sources"));
+$tpl->assign('sort1', _('Properties'));
+$tpl->assign('sort2', _('Data Sources'));
 // prepare help texts
-$helptext = "";
-include_once("help.php");
+$helptext = '';
+include_once 'help.php';
 
 foreach ($help as $key => $text) {
     $helptext .= '<span style="display:none" id="help:' . $key . '">' . $text . '</span>' . "\n";
 }
-$tpl->assign("helptext", $helptext);
+$tpl->assign('helptext', $helptext);
 
-
-/*
- * Picker Color JS
- */
+// Picker Color JS
 
 $tpl->assign(
     'colorJS',
@@ -203,32 +196,30 @@ $tpl->assign(
 </script>"
 );
 
-/*
- * End of Picker Color
- */
+// End of Picker Color
 
 $valid = false;
 if ($form->validate()) {
     $graphObj = $form->getElement('graph_id');
-    if ($form->getSubmitValue("submitA")) {
+    if ($form->getSubmitValue('submitA')) {
         $graphObj->setValue(insertGraphTemplateInDB());
-    } elseif ($form->getSubmitValue("submitC")) {
+    } elseif ($form->getSubmitValue('submitC')) {
         updateGraphTemplateInDB($graphObj->getValue());
     }
-    $o = "w";
+    $o = 'w';
     $form->addElement(
-        "button",
-        "change",
-        _("Modify"),
-        ["onClick" => "javascript:window.location.href='?p=" . $p . "&o=c&graph_id=" . $graphObj->getValue() . "'"]
+        'button',
+        'change',
+        _('Modify'),
+        ['onClick' => "javascript:window.location.href='?p=" . $p . '&o=c&graph_id=' . $graphObj->getValue() . "'"]
     );
     $form->freeze();
     $valid = true;
 }
 
-$action = $form->getSubmitValue("action");
+$action = $form->getSubmitValue('action');
 if ($valid) {
-    require_once("listGraphTemplates.php");
+    require_once 'listGraphTemplates.php';
 } else {
     // Apply a template definition
     $renderer = new HTML_QuickForm_Renderer_ArraySmarty($tpl, true);
@@ -237,7 +228,7 @@ if ($valid) {
     $form->accept($renderer);
     $tpl->assign('form', $renderer->toArray());
     $tpl->assign('o', $o);
-    $tpl->display("formGraphTemplate.ihtml");
+    $tpl->display('formGraphTemplate.ihtml');
 }
 ?>
 <script type='text/javascript'>

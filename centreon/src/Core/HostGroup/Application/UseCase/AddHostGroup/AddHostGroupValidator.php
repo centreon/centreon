@@ -75,14 +75,12 @@ class AddHostGroupValidator
     {
         $unexistentHosts = $this->user->isAdmin()
         ? array_diff($hostIds, $this->readHostRepository->exist($hostIds))
-        : array_filter($hostIds, function ($hostId) {
-            return ! $this->readHostRepository->existsByAccessGroups(
-                $hostId,
-                $this->readAccessGroupRepository->findByContact($this->user)
-            );
-        });
+        : array_filter($hostIds, fn ($hostId) => ! $this->readHostRepository->existsByAccessGroups(
+            $hostId,
+            $this->readAccessGroupRepository->findByContact($this->user)
+        ));
 
-        if (! empty($unexistentHosts)) {
+        if ($unexistentHosts !== []) {
             $this->warning(
                 'Some hosts are not accessible by the user, they will not be linked to the host group.',
                 ['unexistentHosts' => $unexistentHosts]
@@ -109,7 +107,7 @@ class AddHostGroupValidator
             $this->readResourceAccessRepository->exist($resourceAccessRuleIds)
         );
 
-        if (! empty($unexistentAccessRules)) {
+        if ($unexistentAccessRules !== []) {
             throw RuleException::idsDoNotExist('rules', $unexistentAccessRules);
         }
 
@@ -128,6 +126,10 @@ class AddHostGroupValidator
 
         if ([] !== $unexistentAccessRulesByContact = array_diff($resourceAccessRuleIds, $existentRules)) {
             throw RuleException::idsDoNotExist('rules', $unexistentAccessRulesByContact);
+        }
+
+        if ($existentRules === []) {
+            throw HostGroupException::errorResourceAccessRulesEmpty();
         }
     }
 

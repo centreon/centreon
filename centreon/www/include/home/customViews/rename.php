@@ -31,21 +31,20 @@
  * do not wish to do so, delete this exception statement from your version.
  *
  * For more information : contact@centreon.com
- *
  */
 
-require_once realpath(__DIR__ . "/../../../../config/centreon.config.php");
-require_once _CENTREON_PATH_ . "www/class/centreon.class.php";
-require_once _CENTREON_PATH_ . "www/class/centreonDB.class.php";
-require_once _CENTREON_PATH_ . "www/class/centreonWidget.class.php";
-require_once _CENTREON_PATH_ . "www/class/centreonSession.class.php";
-require_once _CENTREON_PATH_ . "www/class/centreonUser.class.php";
-require_once _CENTREON_PATH_ . "www/class/HtmlAnalyzer.php";
+require_once realpath(__DIR__ . '/../../../../config/centreon.config.php');
+require_once _CENTREON_PATH_ . 'www/class/centreon.class.php';
+require_once _CENTREON_PATH_ . 'www/class/centreonDB.class.php';
+require_once _CENTREON_PATH_ . 'www/class/centreonWidget.class.php';
+require_once _CENTREON_PATH_ . 'www/class/centreonSession.class.php';
+require_once _CENTREON_PATH_ . 'www/class/centreonUser.class.php';
+require_once _CENTREON_PATH_ . 'www/class/HtmlAnalyzer.php';
 
 session_start();
 session_write_close();
 
-if (!isset($_SESSION['centreon'])) {
+if (! isset($_SESSION['centreon'])) {
     exit();
 }
 
@@ -54,15 +53,18 @@ $elementId = filter_input(
     'elementId',
     FILTER_VALIDATE_REGEXP,
     [
-        'options' => ['regexp' => '/^title_\d+$/']
+        'options' => ['regexp' => '/^title_\d+$/'],
     ]
 );
 
 if ($elementId === null) {
     echo 'missing elementId argument';
+
     exit();
-} elseif ($elementId === false) {
+}
+if ($elementId === false) {
     echo 'elementId must use following regexp format : "title_\d+"';
+
     exit();
 }
 
@@ -71,9 +73,10 @@ if (preg_match('/^title_(\d+)$/', $_POST['elementId'], $matches)) {
     $widgetId = $matches[1];
 }
 
-$newName = isset($_POST['newName']) ? \HtmlAnalyzer::sanitizeAndRemoveTags($_POST['newName']) : null;
+$newName = isset($_POST['newName']) ? HtmlAnalyzer::sanitizeAndRemoveTags($_POST['newName']) : null;
 if ($newName === null) {
     echo 'missing newName argument';
+
     exit();
 }
 

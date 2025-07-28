@@ -22,8 +22,8 @@ declare(strict_types=1);
 
 namespace Centreon\Domain\Monitoring\Metric\Interfaces;
 
-use Centreon\Domain\Monitoring\Service;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
+use Centreon\Domain\Monitoring\Service;
 
 interface MetricRepositoryInterface
 {
@@ -33,8 +33,8 @@ interface MetricRepositoryInterface
      * @param Service $service
      * @param \DateTimeInterface $start start date
      * @param \DateTimeInterface $end end date
-     * @return array
      * @throws \Exception
+     * @return array
      */
     public function findMetricsByService(Service $service, \DateTimeInterface $start, \DateTimeInterface $end): array;
 
@@ -44,8 +44,8 @@ interface MetricRepositoryInterface
      * @param Service $service
      * @param \DateTimeInterface $start start date
      * @param \DateTimeInterface $end end date
-     * @return array
      * @throws \Exception
+     * @return array
      */
     public function findStatusByService(Service $service, \DateTimeInterface $start, \DateTimeInterface $end): array;
 

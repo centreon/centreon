@@ -1,15 +1,20 @@
 import { Button } from '@centreon/ui/components';
+import { equals } from 'ramda';
+import { JSX } from 'react';
 import { useTranslation } from 'react-i18next';
-import { labelClear, labelSearch } from '../../translatedLabels';
 import { useFilterStyles } from '../Filters.styles';
 
-import useFilters from './useFilters';
-
-import { equals } from 'ramda';
 import { FieldType } from '../../../models';
 import useLoadData from '../../Listing/useLoadData';
-import Status from './Fields/Status';
-import Text from './Fields/Text';
+import {
+  MultiAutocomplete,
+  MultiConnectedAutocomplete,
+  Status,
+  Text
+} from './Fields';
+import useFilters from './useFilters';
+
+import { labelClear, labelSearch } from '../../translatedLabels';
 
 const Filters = (): JSX.Element => {
   const { t } = useTranslation();
@@ -17,36 +22,35 @@ const Filters = (): JSX.Element => {
 
   const { isLoading } = useLoadData();
 
-  const {
-    reset,
-    isClearDisabled,
-    change,
-    changeCheckbox,
-    reload,
-    filtersConfiguration,
-    filters
-  } = useFilters();
+  const { reset, isClearDisabled, reload, filtersConfiguration } = useFilters();
 
   return (
     <div className={classes.additionalFilters} data-testid="advanced-filters">
       {filtersConfiguration?.map((filter) => {
         if (equals(filter.fieldType, FieldType.Status))
+          return <Status key={filter.name} />;
+        if (equals(filter.fieldType, FieldType.MultiAutocomplete))
           return (
-            <Status
-              change={changeCheckbox}
-              filters={filters}
+            <MultiAutocomplete
+              label={filter.name}
+              name={filter.fieldName}
+              options={filter.options}
+              key={filter.name}
+            />
+          );
+
+        if (equals(filter.fieldType, FieldType.MultiConnectedAutocomplete))
+          return (
+            <MultiConnectedAutocomplete
+              label={filter.name}
+              name={filter.fieldName}
+              getEndpoint={filter.getEndpoint}
               key={filter.name}
             />
           );
 
         return (
-          <Text
-            label={filter.name}
-            name={filter.fieldName}
-            change={change}
-            filters={filters}
-            key={filter.name}
-          />
+          <Text label={filter.name} name={filter.fieldName} key={filter.name} />
         );
       })}
 

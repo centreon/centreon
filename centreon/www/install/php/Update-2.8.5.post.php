@@ -17,8 +17,8 @@ if (isset($pearDB)) {
             . 'SET daemon = :daemon '
             . 'WHERE config_id = :config_id ';
         $statement = $pearDB->prepare($query);
-        $statement->bindValue(":daemon", $daemon, \PDO::PARAM_INT);
-        $statement->bindValue(":config_id", (int) $row['config_id'], \PDO::PARAM_INT);
+        $statement->bindValue(':daemon', $daemon, PDO::PARAM_INT);
+        $statement->bindValue(':config_id', (int) $row['config_id'], PDO::PARAM_INT);
         $statement->execute();
     }
 }

@@ -19,7 +19,7 @@
  *
  */
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Core\Media\Infrastructure\API\AddMedia;
 
@@ -30,10 +30,10 @@ use Core\Common\Infrastructure\Upload\FileCollection;
 use Core\Media\Application\UseCase\AddMedia\AddMedia;
 use Core\Media\Application\UseCase\AddMedia\AddMediaRequest;
 use Core\Media\Infrastructure\API\Exception\MediaException;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 final class AddMediaController extends AbstractController
 {

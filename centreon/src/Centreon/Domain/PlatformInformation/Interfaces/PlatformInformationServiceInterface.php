@@ -22,16 +22,16 @@ declare(strict_types=1);
 
 namespace Centreon\Domain\PlatformInformation\Interfaces;
 
-use Centreon\Domain\PlatformInformation\Model\PlatformInformation;
 use Centreon\Domain\PlatformInformation\Exception\PlatformInformationException;
+use Centreon\Domain\PlatformInformation\Model\PlatformInformation;
 
 interface PlatformInformationServiceInterface
 {
     /**
      * Get monitoring server data.
      *
-     * @return PlatformInformation|null
      * @throws PlatformInformationException|\InvalidArgumentException
+     * @return PlatformInformation|null
      */
     public function getInformation(): ?PlatformInformation;
 }

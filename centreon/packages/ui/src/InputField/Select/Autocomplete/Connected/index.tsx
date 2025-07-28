@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import {
   equals,
@@ -17,7 +17,7 @@ import {
 import { CircularProgress, useTheme } from '@mui/material';
 
 import { Props as AutocompleteFieldProps } from '..';
-import { ListingModel, SelectEntry } from '../../../..';
+import { ListingModel, ListingMapModel, SelectEntry } from '../../../..';
 import {
   ConditionsSearchParameter,
   SearchParameter
@@ -30,6 +30,12 @@ import {
 } from '../../../../utils';
 import Option from '../../Option';
 
+interface OptionResult<T> {
+  result: Array<T>;
+  limit: number;
+  total: number;
+}
+
 export interface ConnectedAutoCompleteFieldProps<TData> {
   allowUniqOption?: boolean;
   baseEndpoint?: string;
@@ -37,6 +43,7 @@ export interface ConnectedAutoCompleteFieldProps<TData> {
   exclusionOptionProperty?: keyof SelectEntry;
   field: string;
   getEndpoint: ({ search, page }) => string;
+  decoder?;
   getRenderedOptionText: (option: TData) => string;
   getRequestHeaders?: HeadersInit;
   initialPage: number;
@@ -52,6 +59,7 @@ const ConnectedAutocompleteField = (
   const InnerConnectedAutocompleteField = <TData extends { name: string }>({
     initialPage = 1,
     getEndpoint,
+    decoder,
     field,
     labelKey,
     open,
@@ -89,8 +97,9 @@ const ConnectedAutocompleteField = (
     const theme = useTheme();
 
     const { fetchQuery, isFetching, prefetchNextPage, data } = useFetchQuery<
-      ListingModel<TData>
+      ListingModel<TData> | ListingMapModel<TData>
     >({
+      decoder,
       baseEndpoint,
       fetchHeaders: getRequestHeaders,
       getEndpoint: (params) => {
@@ -112,6 +121,27 @@ const ConnectedAutocompleteField = (
         suspense: false
       }
     });
+
+    const getOptionResult = useCallback((
+      newOptions: ListingModel<TData> | ListingMapModel<TData>
+    ): OptionResult<TData> => {
+      if ('result' in newOptions) return {
+        result: newOptions.result || [],
+        total: newOptions.meta.total || 1,
+        limit: newOptions.meta.limit || 1,
+      };
+      if ('content' in newOptions) return {
+        result: newOptions.content || [],
+        total: newOptions.totalElements || 1,
+        limit: newOptions.size || 1,
+      };
+
+      return {
+        result: [],
+        total: 1,
+        limit: 1,
+      }
+    }, []);
 
     const lastOptionRef = useIntersectionObserver({
       action: () => setPage(page + 1),
@@ -242,12 +272,14 @@ const ConnectedAutocompleteField = (
 
         const moreOptions = page > 1 ? options : [];
 
+        const { result, limit, total } = getOptionResult(newOptions);
+
         const formattedList = changeIdValue
-          ? newOptions.result.map((item) => ({
+          ? result.map((item) => ({
               ...item,
               id: changeIdValue(item)
             }))
-          : newOptions.result;
+          : result;
 
         if (!isEmpty(labelKey) && !isNil(labelKey)) {
           const list = formattedList.map((item) =>
@@ -260,9 +292,6 @@ const ConnectedAutocompleteField = (
         setOptions(moreOptions.concat(formattedList));
 
         setOptions(moreOptions.concat(formattedList as Array<TData>));
-
-        const total = prop('total', newOptions.meta) || 1;
-        const limit = prop('limit', newOptions.meta) || 1;
 
         const newMaxPage = Math.ceil(total / limit);
 
@@ -322,7 +351,7 @@ const ConnectedAutocompleteField = (
 
     return (
       <AutocompleteField
-        total={data?.meta.total}
+        total={data?.meta?.total || data?.totalElements || 1}
         filterOptions={(opt): SelectEntry => opt}
         loading={isFetching}
         options={

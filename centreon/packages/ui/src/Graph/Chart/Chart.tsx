@@ -114,7 +114,8 @@ const Chart = ({
   transformMatrix,
   additionalLines,
   min,
-  max
+  max,
+  boundariesUnit
 }: Props): JSX.Element => {
   const { classes } = useChartStyles();
 
@@ -195,7 +196,8 @@ const Chart = ({
         thresholds: (thresholds?.enabled && thresholdValues) || [],
         valueGraphHeight: graphHeight - margin.bottom,
         min,
-        max
+        max,
+        boundariesUnit
       }),
     [
       linesGraph,

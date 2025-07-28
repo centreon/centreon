@@ -10,10 +10,10 @@ import {
   resourceAccessRulesEndpoint
 } from '../api/endpoints';
 import {
+  labelAdditionalInformation,
   labelAlias,
   labelApplyResourceAccessRule,
   labelComments,
-  labelExtendedInformation,
   labelGeneralInformation,
   labelGeographicCoordinates,
   labelGroupMembers,
@@ -28,9 +28,7 @@ interface FormInputsState {
   groups: Array<Group>;
 }
 
-const useFormInputs = ({
-  hasWriteAccess
-}: { hasWriteAccess: boolean }): FormInputsState => {
+const useFormInputs = ({ canEdit }: { canEdit: boolean }): FormInputsState => {
   const { t } = useTranslation();
   const { classes } = useFormStyles();
 
@@ -65,7 +63,7 @@ const useFormInputs = ({
           }
         ]
       : []),
-    { name: t(labelExtendedInformation), order: 4, titleAttributes }
+    { name: t(labelAdditionalInformation), order: 4, titleAttributes }
   ];
 
   const inputs = [
@@ -79,16 +77,16 @@ const useFormInputs = ({
             fieldName: 'name',
             group: t(labelGeneralInformation),
             label: t(labelName),
-            required: hasWriteAccess,
+            required: canEdit,
             type: InputType.Text,
-            getDisabled: () => !hasWriteAccess
+            getDisabled: () => !canEdit
           },
           {
             fieldName: 'alias',
             group: t(labelGeneralInformation),
             label: t(labelAlias),
             type: InputType.Text,
-            getDisabled: () => !hasWriteAccess
+            getDisabled: () => !canEdit
           }
         ]
       }
@@ -105,7 +103,7 @@ const useFormInputs = ({
       fieldName: 'hosts',
       group: t(labelGroupMembers),
       label: t(labelSelectHosts),
-      getDisabled: () => !hasWriteAccess,
+      getDisabled: () => !canEdit,
       type: InputType.MultiConnectedAutocomplete
     },
     {
@@ -120,33 +118,34 @@ const useFormInputs = ({
       fieldName: 'resourceAccessRules',
       group: t(labelResourceAccessRule),
       label: t(labelApplyResourceAccessRule),
-      getDisabled: () => !hasWriteAccess,
+      required: canEdit,
+      getDisabled: () => !canEdit,
       type: InputType.MultiConnectedAutocomplete
     },
     {
       type: InputType.Grid,
-      group: t(labelExtendedInformation),
+      group: t(labelAdditionalInformation),
       grid: {
         columns: [
           {
             fieldName: 'geoCoords',
             label: t(labelGeographicCoordinates),
-            getDisabled: () => !hasWriteAccess,
+            getDisabled: () => !canEdit,
             type: InputType.Text
           },
           {
             custom: { Component: IconFiled },
             type: InputType.Custom,
-            disabled: !hasWriteAccess
+            disabled: !canEdit
           }
         ]
       }
     },
     {
       fieldName: 'comment',
-      group: t(labelExtendedInformation),
+      group: t(labelAdditionalInformation),
       label: t(labelComments),
-      getDisabled: () => !hasWriteAccess,
+      getDisabled: () => !canEdit,
       text: {
         multilineRows: 3
       },
