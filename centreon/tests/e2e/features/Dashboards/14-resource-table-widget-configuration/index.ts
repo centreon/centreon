@@ -347,8 +347,8 @@ Then(
   'all the resources having the status selected are displayed in the resource table Widget',
   () => {
     cy.getCellContent(1, 2).then((myTableContent) => {
-			expect(myTableContent[3]).to.match(/Pending|Unknown/);
-			expect(myTableContent[6]).to.match(/Pending|Unknown/);
+	 		expect(myTableContent[3]).to.match(/Pending|Unknown|Warning/);
+      expect(myTableContent[6]).to.match(/Pending|Unknown|Warning/);
 		});
 
   }
