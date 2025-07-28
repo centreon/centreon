@@ -50,12 +50,14 @@ export const useValidationSchema = (): Schema<AgentConfigurationForm> => {
             : validCertificateExtensionRegex.test(value))
       });
 
-  const certificateValidation = string().when('$connectionMode.id', {
-    is: 'secure',
-    // biome-ignore lint/suspicious/noThenProperty: <explanation>
-    then: () => certificateFileValidation.nullable(),
-    otherwise: () => string().nullable()
-  });
+  const certificateValidation = (isFile?: boolean) =>
+    string().when('$connectionMode.id', {
+      is: (value: string) =>
+        equals(value, 'secure') || equals(value, 'insecure'),
+      // biome-ignore lint/suspicious/noThenProperty: <explanation>
+      then: () => certificateFileValidation(isFile).nullable(),
+      otherwise: () => string().nullable()
+    });
 
   const portValidation = number()
     .min(1, t(labelPortMustStartFrom1))
