@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,6 +27,7 @@ use Centreon\Domain\Contact\Interfaces\ContactRepositoryInterface;
 use Centreon\Domain\Exception\ContactDisabledException;
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Security\Token\Application\Repository\ReadTokenRepositoryInterface;
+use Core\Security\Token\Domain\Model\ApiToken;
 use Security\Domain\Authentication\Interfaces\AuthenticationRepositoryInterface;
 use Security\Domain\Authentication\Model\LocalProvider;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -174,8 +175,9 @@ class TokenAPIAuthenticator extends AbstractAuthenticator implements Authenticat
         try {
             $tokenString = $request->headers->get('X-AUTH-TOKEN');
             if ($tokenString && ! $this->readTokenRepository->isTokenTypeAuto($tokenString)) {
+                /** @var ApiToken|null $apiToken */
                 $apiToken = $this->readTokenRepository->find($tokenString);
-                if ($apiToken !== null) {
+                if ($apiToken instanceof ApiToken) {
                     $this->info(
                         'Api token used',
                         [
