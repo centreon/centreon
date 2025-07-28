@@ -107,6 +107,9 @@ runs:
                 ticket_board_id = 225
                 squad_name = "GOTHAM"
               }
+            } else {
+              core.warning(`Not finding any squad association with job ${failed_job}.`);
+              continue;
             }
 
             console.log(`Ticket summary: ${ticket_summary}`);
