@@ -6,8 +6,8 @@ import {
   AgentConfigurationForm,
   ConnectionMode,
   HostConfiguration
-} from '../../models';
-import { portRegex } from '../useValidationSchema';
+} from '../../../models';
+import { portRegex } from '../../useValidationSchema';
 
 interface UseHostConfigurationProps {
   index: number;

@@ -14,7 +14,7 @@ import {
 import { AgentConfigurationForm } from '../models';
 import { labelCancel, labelSave } from '../translatedLabels';
 
-const Buttons = (): JSX.Element => {
+const Buttons = (): React.ReactElement => {
   const { t } = useTranslation();
 
   const [askBeforeCloseForm, setAskBeforeCloseFormModal] = useAtom(
