@@ -148,7 +148,7 @@ runs:
             fs.writeFileSync(path, JSON.stringify(ticket_data));
             contents = fs.readFileSync('./ticket-payload.json', 'utf8');
             console.log("Ticket Payload:\n", contents);
-            response = execSync(
+            let response = execSync(
               `curl --request POST \
                 --url "${{ inputs.jira_base_url }}/rest/api/3/issue" \
                 --user "${{ inputs.jira_user_email }}:${{ inputs.jira_api_token }}" \
