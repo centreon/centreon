@@ -111,6 +111,7 @@ class CentreonHost extends CentreonObject
     public const INVALID_GEO_COORDS = "Invalid geo coords";
     public const UNKNOWN_TIMEZONE = "Invalid timezone";
     public const HOST_LOCATION = "timezone";
+    public const NAME_IS_EMPTY = 'Host name is mandatory and cannot be left empty';
 
     /** @var Centreon_Object_Timezone */
     protected $timezoneObject;
@@ -274,6 +275,9 @@ class CentreonHost extends CentreonObject
         }
         $addParams = [];
         $addParams[$this->object->getUniqueLabelField()] = $this->checkIllegalChar($params[self::ORDER_UNIQUENAME]);
+        if ($addParams[$this->object->getUniqueLabelField()] === '') {
+            throw new CentreonClapiException(self::NAME_IS_EMPTY);
+        }
         $addParams['host_alias'] = $params[self::ORDER_ALIAS];
         $addParams['host_address'] = $params[self::ORDER_ADDRESS];
         $templates = explode("|", $params[self::ORDER_TEMPLATE]);
