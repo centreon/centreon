@@ -890,6 +890,10 @@ if (is_array($select)) {
 
 $form->applyFilter('__ALL__', 'myTrim');
 $from_list_menu = false;
+if ($o === SERVICE_TEMPLATE_MODIFY) {
+    $form->registerRule('checkCircularInheritance', 'callback', 'checkCircularInheritance');
+    $form->addRule('service_template_model_stm_id', _('Circular inheritance not allowed'), 'checkCircularInheritance');
+}
 if ($o !== SERVICE_TEMPLATE_MASSIVE_CHANGE) {
     $form->addRule('service_description', _('Compulsory Name'), 'required');
     $form->addRule('service_alias', _('Compulsory Name'), 'required');
