@@ -802,6 +802,10 @@ msgstr ""
 msgid "Add advanced server configuration"
 msgstr ""
 
+#: centreon/www/install/front_translate.php
+msgid "Add agent configuration"
+msgstr ""
+
 #: centreon/www/include/options/accessLists/resourcesACL/formResourcesAccess.php
 msgid "Add an ACL"
 msgstr "Adiciona permissionamento (ACL)"
@@ -888,10 +892,6 @@ msgstr "Adiciona novo período"
 
 #: centreon/www/install/front_translate.php
 msgid "Add parameter"
-msgstr ""
-
-#: centreon/www/install/front_translate.php
-msgid "Add poller/agent configuration"
 msgstr ""
 
 #: centreon/www/include/configuration/configObject/service_template_model/formServiceTemplateModel.php
@@ -1071,16 +1071,21 @@ msgstr "Depois"
 msgid "Agent"
 msgstr ""
 
+#: centreon/www/install/front_translate.php
+msgid "Agent configuration created"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Agent configuration updated"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
 #: centreon/www/install/menu_translation.php
 msgid "Agent configurations"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
 msgid "Agent type"
-msgstr ""
-
-#: centreon/www/install/front_translate.php
-msgid "Agent types"
 msgstr ""
 
 #: centreon/www/include/reporting/dashboard/csvExport/csv_ServiceGroupLogs.php
@@ -2063,11 +2068,11 @@ msgid "By name"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
-msgid "CA"
+msgid "CA Common Name (CN)"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
-msgid "CA Common Name (CN)"
+msgid "CA(.crt,.cer)"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
@@ -2698,8 +2703,10 @@ msgstr "Escolha a fonte do gráfico"
 msgid "Circular Definition"
 msgstr "Definição Circular"
 
+#: centreon/src/Core/ServiceTemplate/Application/Exception/ServiceTemplateException.php
 #: centreon/src/Core/Host/Application/Exception/HostException.php
 #: centreon/src/Core/HostTemplate/Application/Exception/HostTemplateException.php
+#: centreon/www/include/configuration/configObject/service_template_model/formServiceTemplateModel.php
 msgid "Circular inheritance not allowed"
 msgstr ""
 
@@ -3225,6 +3232,10 @@ msgstr ""
 
 #: centreon/www/install/front_translate.php
 msgid "Common properties"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Compact"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
@@ -4393,7 +4404,7 @@ msgid "Delete additional configuration"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
-msgid "Delete agent"
+msgid "Delete agent configuration"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
@@ -5167,6 +5178,14 @@ msgstr ""
 msgid "Do you want to save the changes?"
 msgstr ""
 
+#: centreon/www/install/front_translate.php
+msgid "Do you want to switch to classic mode?"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Do you want to switch to regex mode?"
+msgstr ""
+
 #: centreon/www/include/configuration/configObject/service_template_model/formServiceTemplateModel.php
 #: centreon/www/include/configuration/configObject/service/formService.php
 #: centreon/www/include/configuration/configObject/host_categories/formHostCategories.php
@@ -5857,6 +5876,14 @@ msgstr "Estado do Motor"
 #: centreon/www/install/menu_translation.php
 msgid "Engine configuration"
 msgstr "Configuração do Motor"
+
+#: centreon/www/install/front_translate.php
+msgid "Enter Regex"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Enter regex mode"
+msgstr ""
 
 #: centreon/www/include/monitoring/acknowlegement/xml/broker/makeXMLForAck.php
 #: centreon/www/include/monitoring/objectDetails/hostDetails.php
@@ -6885,6 +6912,10 @@ msgid "Exit edition mode"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
+msgid "Exit regex mode"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
 msgid "Exit {{dashboardName}}"
 msgstr ""
 
@@ -6973,6 +7004,10 @@ msgstr ""
 
 #: centreon/www/install/front_translate.php
 msgid "Expression in"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Extended"
 msgstr ""
 
 #: centreon/www/install/smarty_translate.php
@@ -7194,13 +7229,13 @@ msgstr "Arquivo não encontrado"
 msgid "File path"
 msgstr "Localização do arquivo"
 
-#: centreon/www/install/front_translate.php
-msgid "File too big"
-msgstr ""
-
 #: centreon/src/Core/AgentConfiguration/Application/Exception/AgentConfigurationException.php
 #, php-format
-msgid "Filename '%s' (%s) is invalid"
+msgid "File path or format '%s' (%s) is invalid"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "File too big"
 msgstr ""
 
 #: centreon/www/include/configuration/configNagios/formNagios.php
@@ -7583,6 +7618,16 @@ msgstr "Provisionamento direto"
 msgid "Fourth of month"
 msgstr "Quarto do mês"
 
+#: centreon/www/include/Administration/parameters/general/form.php
+msgid "Free text search behavior"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid ""
+"Free text search behavior can be configured in the Administration > "
+"Parameters > Centreon UI page."
+msgstr ""
+
 #: centreon/www/include/configuration/configNagios/formNagios.php
 msgid "Freshness"
 msgstr "Atualização"
@@ -7633,6 +7678,10 @@ msgstr "Backup completo"
 
 #: centreon/www/install/front_translate.php
 msgid "Full name attribute"
+msgstr ""
+
+#: centreon/www/include/Administration/parameters/general/form.php
+msgid "Full search"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
@@ -8929,7 +8978,6 @@ msgstr ""
 
 #: centreon/www/include/Administration/parameters/centstorage/form.php
 #: centreon/www/include/Administration/parameters/debug/form.php
-#: centreon/www/include/Administration/parameters/general/form.php
 #: centreon/www/include/Administration/parameters/ldap/form.php
 #: centreon/www/include/Administration/parameters/rrdtool/form.php
 msgid "Impossible to validate, one or more field is incorrect"
@@ -9752,6 +9800,10 @@ msgstr "Limite por página (por padrão)"
 #: centreon/www/include/Administration/parameters/general/form.php
 msgid "Limit per page for Monitoring"
 msgstr "Limite por página para Monitoramento"
+
+#: centreon/www/include/Administration/parameters/general/form.php
+msgid "Limited search"
+msgstr ""
 
 #: centreon/www/install/dashboard_widgets.php
 msgid "Line"
@@ -11401,7 +11453,7 @@ msgid "Name of the logger"
 msgstr "Nome do registrador"
 
 #: centreon/www/install/front_translate.php
-msgid "Need help with search bar usage?"
+msgid "Need help using the search bar?"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
@@ -12881,18 +12933,6 @@ msgstr ""
 msgid "Poller configuration"
 msgstr ""
 
-#: centreon/www/install/front_translate.php
-msgid "Poller/agent configuration"
-msgstr ""
-
-#: centreon/www/install/front_translate.php
-msgid "Poller/agent configuration created"
-msgstr ""
-
-#: centreon/www/install/front_translate.php
-msgid "Poller/agent configuration updated"
-msgstr ""
-
 #: centreon/www/include/configuration/configGenerate/formGenerateFiles.php
 #: centreon/www/include/eventLogs/viewLog.php
 #: centreon/www/include/monitoring/downtime/AddDowntime.php
@@ -13029,16 +13069,16 @@ msgstr "Exibir Valor Mínimo"
 msgid "Print Total Value"
 msgstr "Exibir o valor total"
 
-#: centreon/www/install/front_translate.php
-msgid "Private key"
-msgstr ""
-
 #: centreon/www/install/centreon_broker_translation.php
 msgid "Private key file."
 msgstr "Arquivo de chave privada (SSH)"
 
 #: centreon/www/install/centreon_broker_translation.php
 msgid "Private key path"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Private key(.key)"
 msgstr ""
 
 #: centreon/www/install/dashboard_widgets.php
@@ -13136,9 +13176,12 @@ msgstr "Usuário Proxy"
 msgid "Public"
 msgstr "Público"
 
-#: centreon/www/install/front_translate.php
 #: centreon/www/install/centreon_broker_translation.php
 msgid "Public certificate"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Public certificate(.crt,.cer)"
 msgstr "Certificado público"
 
 #: centreon/www/include/home/customViews/formLoad.php
@@ -13711,6 +13754,10 @@ msgstr ""
 
 #: centreon/www/install/front_translate.php
 msgid "Resource name"
+msgstr ""
+
+#: centreon/www/include/Administration/parameters/general/form.php
+msgid "Resource status performance"
 msgstr ""
 
 #: centreon/www/install/dashboard_widgets.php
@@ -16135,6 +16182,10 @@ msgstr ""
 msgid "The class %s does not exist"
 msgstr ""
 
+#: centreon/www/include/configuration/configServers/formServers.php
+msgid "The command format is invalid"
+msgstr ""
+
 #: centreon/src/Centreon/Domain/Engine/EngineService.php
 msgid "The contact alias is empty"
 msgstr "O apelido de contato esta vazio"
@@ -16381,6 +16432,10 @@ msgstr ""
 msgid "The path does not exist"
 msgstr ""
 
+#: centreon/www/include/configuration/configServers/formServers.php
+msgid "The path format is invalid"
+msgstr ""
+
 #: centreon/src/Centreon/Domain/PlatformTopology/Exception/PlatformTopologyException.php
 #, php-format
 msgid "The platform '%s'@'%s' cannot be found on the Central"
@@ -16470,6 +16525,10 @@ msgstr ""
 
 #: centreon/www/install/front_translate.php
 msgid "The resource access rule was successfully updated"
+msgstr ""
+
+#: centreon/www/include/configuration/configServers/formServers.php
+msgid "The script path is invalid"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
@@ -17432,6 +17491,10 @@ msgid "Update"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
+msgid "Update agent configuration"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
 msgid "Update all"
 msgstr ""
 
@@ -17454,10 +17517,6 @@ msgstr ""
 #: centreon/www/include/configuration/configObject/host/formHost.php
 msgid "Update mode"
 msgstr "Modo de atualização"
-
-#: centreon/www/install/front_translate.php
-msgid "Update poller/agent configuration"
-msgstr ""
 
 #: centreon/www/install/front_translate.php
 msgid "Updated"
@@ -18174,15 +18233,15 @@ msgid "Welcome to the additional configurations page"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
+msgid "Welcome to the agent configuration page"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
 msgid "Welcome to the host groups page"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
 msgid "Welcome to the notifications interface"
-msgstr ""
-
-#: centreon/www/install/front_translate.php
-msgid "Welcome to the poller/agent configuration page"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
@@ -18357,7 +18416,7 @@ msgstr ""
 #: centreon/www/install/front_translate.php
 msgid ""
 "You are going to delete the <strong>{{ agent }}</strong> agent "
-"configuration. All configuration parameters for this agent will be deleted. "
+"configuration. All parameters for this agent configuration will be deleted. "
 "This action cannot be undone."
 msgstr ""
 
@@ -18860,6 +18919,14 @@ msgstr ""
 #: centreon/lib/Centreon/Object/Contact/Contact.php
 #: centreon/www/include/Administration/myAccount/DB-Func.php
 msgid "Your autologin key must be different than your current password"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Your changes will not be saved if you leave classic mode."
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Your changes will not be saved if you leave regex mode."
 msgstr ""
 
 #: centreon/www/install/front_translate.php
@@ -23121,6 +23188,28 @@ msgstr "Caminho completo para o executável snmpttconvertmib"
 msgid "timeperiod"
 msgstr "período de tempo"
 
+# msgid "TLS"
+# msgstr ""
+# msgid "No TLS"
+# msgstr ""
+# msgid "Insecure TLS"
+# msgstr ""
+# msgid "Enter regex mode"
+# msgstr ""
+# msgid "Exit regex mode"
+# msgstr ""
+# msgid "Enter regex"
+# msgstr "Saisir une regex"
+# msgid "Do you want to switch to classic mode?"
+# msgstr ""
+# msgid "Do you want to switch to regex mode?"
+# msgstr ""
+# msgid "Your changes will not be saved if you leave regex mode."
+# msgstr ""
+# msgid "Your changes will not be saved if you leave classic mode."
+# msgstr ""
+# msgid "Stay"
+# msgstr ""
 #: unknown
 msgid "topology_name"
 msgstr "Nome da Topologia"
