@@ -2808,8 +2808,10 @@ msgstr ""
 msgid "Circular Definition"
 msgstr ""
 
+#: centreon/src/Core/ServiceTemplate/Application/Exception/ServiceTemplateException.php
 #: centreon/src/Core/Host/Application/Exception/HostException.php
 #: centreon/src/Core/HostTemplate/Application/Exception/HostTemplateException.php
+#: centreon/www/include/configuration/configObject/service_template_model/formServiceTemplateModel.php
 msgid "Circular inheritance not allowed"
 msgstr ""
 
