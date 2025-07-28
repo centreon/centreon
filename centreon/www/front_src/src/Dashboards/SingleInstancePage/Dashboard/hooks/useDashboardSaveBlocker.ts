@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useEffect, useRef } from 'react';
 
 import { useAtomValue, useSetAtom } from 'jotai';
 import { equals } from 'ramda';
@@ -56,8 +56,11 @@ const useDashboardSaveBlocker = (
   ) {
     previousBlockedStateRef.current.blocked = currentBlockedState;
     previousBlockedStateRef.current.isEditing = isEditing;
-    setIsRedirectionBlockedAtom(equals(blocker.state, 'blocked'));
   }
+
+  useEffect(() => {
+    setIsRedirectionBlockedAtom(equals(blocker.state, 'blocked'));
+  }, [blocker.state]);
 
   return {
     blockNavigation: blocker.reset,
