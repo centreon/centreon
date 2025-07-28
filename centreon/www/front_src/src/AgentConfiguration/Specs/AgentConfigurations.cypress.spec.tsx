@@ -206,7 +206,7 @@ describe('Agent configurations', () => {
     cy.makeSnapshot();
   });
 
-  it('cancels a poller deletion when the corresponding icon is clicked and the corresponding is clicked', () => {
+  it('cancels an agent deletion when the corresponding icon is clicked and the corresponding is clicked', () => {
     initialize({});
 
     cy.waitForRequest('@getAgentConfigurations').then(({ request }) => {
@@ -221,7 +221,7 @@ describe('Agent configurations', () => {
     cy.contains('You are going to delete the').should('be.visible');
     cy.contains('AC 0').should('be.visible');
     cy.contains(
-      'agent configuration. All parameters for this agent configuration will be deleted. This action cannot be undone.'
+      'You are going to delete the AC 0 agent configuration. All configuration parameters for this agent will be deleted. This action cannot be undone.'
     ).should('be.visible');
 
     cy.contains(labelCancel).click();
@@ -246,7 +246,7 @@ describe('Agent configurations', () => {
     cy.contains('You are going to delete the').should('be.visible');
     cy.contains('AC 0').should('be.visible');
     cy.contains(
-      'agent configuration. All parameters for this agent configuration will be deleted. This action cannot be undone.'
+      'You are going to delete the AC 0 agent configuration. All configuration parameters for this agent will be deleted. This action cannot be undone.'
     ).should('be.visible');
 
     cy.contains(/^Delete$/).click();
