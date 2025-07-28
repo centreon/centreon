@@ -156,7 +156,7 @@ const installCentreon = (version: string): Cypress.Chainable => {
     cy.execInContainer({
       command: [
         "dnf config-manager --set-disabled 'centreon-*-unstable*' 'centreon-*-testing*'",
-        'dnf install -y centreon-web-${version}',
+        `dnf install -y centreon-web-${version}`,
         'dnf install -y centreon-broker-cbd',
         "echo 'date.timezone = Europe/Paris' > /etc/php.d/centreon.ini",
         '/etc/init.d/mysql start',
