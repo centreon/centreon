@@ -1315,8 +1315,7 @@ jobs:
     ]
     if: |
       needs.get-environment.outputs.is_nightly == 'true' && github.run_attempt == 1 &&
-      (failure() || cancelled()) &&
-      (contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')) &&
+      (failure() || cancelled() || contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')) &&
       github.repository == 'centreon/centreon'
     steps:
       - name: Checkout sources
