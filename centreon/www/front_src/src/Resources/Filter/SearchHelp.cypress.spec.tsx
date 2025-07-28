@@ -53,9 +53,12 @@ describe('Searchbar help tooltip', () => {
     });
 
     cy.findByLabelText('Search help').click();
-
-    cy.findByText(labelNeedHelpWithSearchBarUsage);
-    cy.findByText(labelFindExplanationsAndExamples);
+    cy.findByRole('tooltip').as('container');
+    cy.get('@container').findByText(labelNeedHelpWithSearchBarUsage);
+    cy.get('@container').should(
+      'contain.text',
+      labelFindExplanationsAndExamples
+    );
 
     cy.findByText(labelHere).should('have.attr', 'href', docsURL);
 
@@ -69,11 +72,17 @@ describe('Searchbar help tooltip', () => {
     });
 
     cy.findByLabelText('Search help').click();
+    cy.findByRole('tooltip').as('container');
 
-    cy.findByText(labelNeedHelpWithSearchBarUsage);
-    cy.findByText(labelFindExplanationsAndExamples);
+    cy.get('@container').findByText(labelNeedHelpWithSearchBarUsage);
+    cy.get('@container').should(
+      'contain.text',
+      labelFindExplanationsAndExamples
+    );
 
-    cy.findByText(labelHere).should('have.attr', 'href', cloudDocsURL);
+    cy.get('@container')
+      .findByText(labelHere)
+      .should('have.attr', 'href', cloudDocsURL);
 
     cy.makeSnapshot();
   });

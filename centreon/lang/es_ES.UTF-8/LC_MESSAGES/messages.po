@@ -10415,7 +10415,7 @@ msgid "Name of the logger"
 msgstr "Nombre del registro de eventos"
 
 #: centreon/www/install/front_translate.php
-msgid "Need help with search bar usage?"
+msgid "Need help using the search bar ?"
 msgstr ""
 
 #: centreon/www/include/options/media/images/syncDir.php
@@ -21606,3 +21606,22 @@ msgstr "periodo de tiempo"
 #: unknown
 msgid "topology_name"
 msgstr "Nombre de la topología."
+
+#: centreon/www/include/Administration/parameters/general/form.php
+msgid "Full search"
+msgstr "Búsqueda completa"
+
+#: centreon/www/include/Administration/parameters/general/form.php
+msgid "Limited search"
+msgstr "Búsqueda restringida"
+
+#: centreon/www/include/Administration/parameters/general/form.php
+msgid "Free text search behavior"
+msgstr "Comportamiento de la búsqueda en texto libre"
+
+#: centreon/www/include/Administration/parameters/general/form.php
+msgid "Resource status performance"
+msgstr "Rendimiento de Estado de servicios"
+
+# msgid "Free text search behavior can be configured in the Administration > Parameters > Centreon UI page."
+# msgstr ""
