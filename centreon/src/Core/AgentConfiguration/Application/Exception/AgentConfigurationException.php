@@ -137,7 +137,7 @@ class AgentConfigurationException extends \Exception
     public static function invalidFilename(string $name, string $value): self
     {
         return new self(
-            sprintf(_("Filename '%s' (%s) is invalid"), $value, $name),
+            sprintf(_("File path or format '%s' (%s) is invalid"), $value, $name),
             self::CODE_CONFLICT
         );
     }
