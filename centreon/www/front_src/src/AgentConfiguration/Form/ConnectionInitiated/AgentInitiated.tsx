@@ -61,7 +61,6 @@ const AgentInitiated = (): React.ReactElement => {
         <Title label={labelOTLPReceiver} />
         <Box className={classes.inputs}>
           <TextField
-            required
             className={classes.input}
             value={values.configuration.otelPublicCertificate || ''}
             onChange={change(publicCertificateProperty)}
