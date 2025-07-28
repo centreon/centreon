@@ -20,12 +20,7 @@ import {
   useFetchQuery
 } from '@centreon/ui';
 
-import {
-  Metric,
-  ServiceMetric,
-  WidgetDataResource,
-  WidgetResourceType
-} from '../../../models';
+import { Metric, ServiceMetric, WidgetDataResource } from '../../../models';
 
 import { serviceMetricsDecoder } from '../../../api/decoders';
 import { metricsEndpoint } from '../../../api/endpoints';

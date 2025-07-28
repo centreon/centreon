@@ -68,7 +68,6 @@ import {
 } from '../utils';
 import { resourceTypeToToggleRegexAtom } from './atoms';
 
-
 interface CheckForceSingleAutocompleteProps {
   resourceType: string;
   forceSingleAutocompleteConditions: ForceSingleAutocompleteConditions;

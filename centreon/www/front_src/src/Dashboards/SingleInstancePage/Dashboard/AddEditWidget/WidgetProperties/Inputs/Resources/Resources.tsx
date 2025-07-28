@@ -191,7 +191,9 @@ const Resources = ({
                   onChange={changeResourceType(index)}
                 />
                 <ResourceField
-                singleResourceSelection={singleResourceSelection || forceSingleAutocomplete}
+                  singleResourceSelection={
+                    singleResourceSelection || forceSingleAutocomplete
+                  }
                   disabled={
                     singleResourceSelection || forceSingleAutocomplete
                       ? !canEditField ||

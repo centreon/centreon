@@ -28,8 +28,9 @@ import {
   labelYourChangesWillNotBeSavedIfYouSwitchRegexMode
 } from '../../../../translatedLabels';
 import { widgetPropertiesAtom } from '../../../atoms';
-import { WidgetPropertyProps,
+import {
   ForceSingleAutocompleteConditions,
+  WidgetPropertyProps,
   WidgetResourceType
 } from '../../../models';
 
@@ -200,8 +201,7 @@ describe('Resources', () => {
 
     cy.findAllByTestId(labelSelectAResource).eq(0).click();
     cy.waitForRequest('@getHosts');
-    cy.contains('Host 0').click();
-    cy.findAllByTestId(labelSelectAResource).eq(0).click();
+    cy.findByRole('option', { name: 'Host 0' }).click();
 
     cy.findAllByTestId(labelSelectAResource).eq(1).click();
     cy.waitForRequest('@getServices').then(({ request }) => {
@@ -209,11 +209,14 @@ describe('Resources', () => {
         'page=1&limit=30&search=%7B%22%24and%22%3A%5B%7B%22%24or%22%3A%5B%7B%22host.name%22%3A%7B%22%24in%22%3A%5B%22Host%200%22%5D%7D%7D%5D%7D%5D%7D'
       );
     });
-    cy.contains('Service 0').click();
-    cy.findAllByTestId(labelSelectAResource).eq(1).click();
 
-    cy.contains('Host 0').should('be.visible');
-    cy.contains('Service 0').should('be.visible');
+    cy.findByRole('option', { name: 'Service 0' }).click();
+    cy.findAllByTestId(labelSelectAResource)
+      .eq(0)
+      .should('have.value', 'Host 0');
+    cy.findAllByTestId(labelSelectAResource)
+      .eq(1)
+      .should('have.value', 'Service 0');
 
     cy.makeSnapshot();
   });
