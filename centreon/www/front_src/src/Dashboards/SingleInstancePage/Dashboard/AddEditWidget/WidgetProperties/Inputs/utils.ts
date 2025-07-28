@@ -37,6 +37,7 @@ import {
 import {
   type ShowInput,
   type WidgetDataResource,
+  WidgetPropertyProps,
   WidgetResourceType
 } from '../../models';
 
@@ -46,11 +47,6 @@ export const getProperty = <T>({ propertyName, obj }): T | undefined =>
 export const getDataProperty = <T>({ propertyName, obj }): T | undefined =>
   path<T>(['data', ...split('.', propertyName)], obj);
 
-const namedEntitySchema = object().shape({
-  id: mixed().required(),
-  name: string().required()
-});
-
 const metricSchema = object().shape({
   id: number().required(),
   name: string().required(),
@@ -58,9 +54,13 @@ const metricSchema = object().shape({
 });
 
 interface GetYupValidatorTypeProps {
-  properties: Pick<FederatedWidgetOption, 'defaultValue' | 'type'>;
+  properties: Pick<WidgetPropertyProps, 'defaultValue' | 'type'>;
   t: TFunction;
 }
+
+const getResourcesValidation = (properties) => {
+  return properties.required ? mixed().required() : mixed();
+};
 
 export const boundariesValidationSchema = object()
   .shape({
@@ -122,9 +122,7 @@ const getYupValidatorType = ({
                   properties.required || properties.requireResourceType
                     ? string().required(t(labelRequired) as string)
                     : string(),
-                resources: properties.required
-                  ? array().of(namedEntitySchema).min(1)
-                  : array()
+                resources: getResourcesValidation(properties)
               })
               .optional()
           )
@@ -219,7 +217,8 @@ export const resourceTypeQueryParameter = {
   [WidgetResourceType.hostGroup]: 'hostgroup.id',
   [WidgetResourceType.serviceCategory]: 'servicecategory.id',
   [WidgetResourceType.serviceGroup]: 'servicegroup.id',
-  [WidgetResourceType.service]: 'service.name'
+  [WidgetResourceType.service]: 'service.name',
+  [WidgetResourceType.metaService]: 'metaservice.id'
 };
 
 interface ShowInputProps extends ShowInput {
@@ -257,3 +256,10 @@ export const areResourcesFullfilled = (
     ({ resourceType, resources }) =>
       !isEmpty(resourceType) && !isEmpty(resources)
   );
+
+export const buildResourceTypeNameForSearchParameter = (
+  resourceType: WidgetResourceType
+): string =>
+  equals(resourceType, WidgetResourceType.service)
+    ? 'name'
+    : `${resourceType.replace('-', '_')}.name`;

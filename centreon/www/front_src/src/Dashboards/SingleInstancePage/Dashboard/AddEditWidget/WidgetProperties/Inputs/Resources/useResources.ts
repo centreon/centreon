@@ -1,7 +1,7 @@
 import { ChangeEvent, useCallback, useEffect, useMemo, useState } from 'react';
 
 import { useFormikContext } from 'formik';
-import { useAtomValue } from 'jotai';
+import { useAtomValue, useSetAtom } from 'jotai';
 import {
   T,
   always,
@@ -29,6 +29,7 @@ import {
 
 import {
   QueryParameter,
+  RegexSearchParameter,
   SearchParameter,
   SelectEntry,
   buildListingEndpoint
@@ -52,6 +53,8 @@ import {
   hasMetricInputTypeDerivedAtom,
   widgetPropertiesMetaPropertiesDerivedAtom
 } from '../../../atoms';
+import { checkHiddenCondition } from '../../handleHiddenConditions';
+
 import {
   ForceSingleAutocompleteConditions,
   Widget,
@@ -59,19 +62,26 @@ import {
   WidgetPropertyProps,
   WidgetResourceType
 } from '../../../models';
-import { checkHiddenCondition } from '../../handleHiddenConditions';
-import { getDataProperty } from '../utils';
+import {
+  buildResourceTypeNameForSearchParameter,
+  getDataProperty
+} from '../utils';
+import { resourceTypeToToggleRegexAtom } from './atoms';
+
 
 interface CheckForceSingleAutocompleteProps {
   resourceType: string;
   forceSingleAutocompleteConditions: ForceSingleAutocompleteConditions;
 }
 
-interface UseResourcesState {
+export interface UseResourcesState {
   addButtonHidden?: boolean;
   addResource: () => void;
   changeIdValue: (resourceType) => (({ name }) => string) | undefined;
   changeResource: (index: number) => (_, resources: SelectEntry) => void;
+  changeRegexField: (
+    index: number
+  ) => (event: ChangeEvent<HTMLInputElement>) => void;
   changeResourceType: (
     index: number
   ) => (e: ChangeEvent<HTMLInputElement>) => void;
@@ -100,6 +110,19 @@ interface UseResourcesState {
   checkForceSingleAutocomplete: (
     props: CheckForceSingleAutocompleteProps
   ) => boolean;
+  getIsRegexAllowedOnResourceType: (
+    resourceType: WidgetResourceType
+  ) => boolean;
+  getIsRegexFieldOnResourceType: (resourceType: WidgetResourceType) => boolean;
+  changeRegexFieldOnResourceType: ({
+    resourceType,
+    index,
+    bypassResourcesCheck
+  }: {
+    resourceType: WidgetResourceType;
+    index: number;
+    bypassResourcesCheck?: boolean;
+  }) => () => void;
 }
 
 export const resourceTypeBaseEndpoints = {
@@ -198,12 +221,26 @@ const getAdditionalQueryParameters = (
   }
 ];
 
+const isResourcesString = (resources: Array<SelectEntry> | string) =>
+  equals(type(resources), 'String');
+
+const getIsRegexResourceType = ({
+  resourceType,
+  resources
+}): boolean | undefined =>
+  resources?.some(
+    (resource: WidgetDataResource) =>
+      resourceType === resource.resourceType &&
+      isResourcesString(resource.resources)
+  );
+
 const useResources = ({
   propertyName,
   restrictedResourceTypes,
   required,
   useAdditionalResources,
   excludedResourceTypes,
+  allowRegexOnResourceTypes,
   forcedResourceType,
   defaultResourceTypes
 }: Pick<
@@ -213,6 +250,7 @@ const useResources = ({
   | 'excludedResourceTypes'
   | 'required'
   | 'useAdditionalResources'
+  | 'allowRegexOnResourceTypes'
   | 'forcedResourceType'
   | 'defaultResourceTypes'
 >): UseResourcesState => {
@@ -225,6 +263,38 @@ const useResources = ({
     () => getDataProperty({ obj: values, propertyName }),
     [getDataProperty({ obj: values, propertyName })]
   );
+
+  const [isRegexFieldPerResourceType, setIsRegexPerResourceType] = useState({
+    [WidgetResourceType.host]: getIsRegexResourceType({
+      resourceType: WidgetResourceType.host,
+      resources: value
+    }),
+    [WidgetResourceType.service]: getIsRegexResourceType({
+      resourceType: WidgetResourceType.service,
+      resources: value
+    }),
+    [WidgetResourceType.serviceGroup]: getIsRegexResourceType({
+      resourceType: WidgetResourceType.serviceGroup,
+      resources: value
+    }),
+    [WidgetResourceType.metaService]: getIsRegexResourceType({
+      resourceType: WidgetResourceType.metaService,
+      resources: value
+    }),
+    [WidgetResourceType.serviceCategory]: getIsRegexResourceType({
+      resourceType: WidgetResourceType.serviceCategory,
+      resources: value
+    }),
+    [WidgetResourceType.hostGroup]: getIsRegexResourceType({
+      resourceType: WidgetResourceType.hostGroup,
+      resources: value
+    }),
+    [WidgetResourceType.hostCategory]: getIsRegexResourceType({
+      resourceType: WidgetResourceType.hostCategory,
+      resources: value
+    })
+  });
+  const setResourceToToggleRegex = useSetAtom(resourceTypeToToggleRegexAtom);
 
   const isTouched = useMemo<boolean | undefined>(
     () => getDataProperty({ obj: touched, propertyName }),
@@ -441,6 +511,7 @@ const useResources = ({
   ): {
     customParameters: Array<QueryParameter>;
     searchParameters: Array<SearchParameter>;
+    regexParameters?: RegexSearchParameter;
   } => {
     const usesResourcesEndpoint = includes(resourceType, [
       WidgetResourceType.host,
@@ -459,10 +530,11 @@ const useResources = ({
     }
 
     const searchParameter = value?.[index - 1].resourceType as string;
-    const searchValues = pluck(
-      'name',
+    const searchValues = isResourcesString(
       parentResources || value?.[index - 1].resources
-    );
+    )
+      ? parentResources || value?.[index - 1].resources
+      : pluck('name', parentResources || value?.[index - 1].resources);
 
     if (!usesResourcesEndpoint) {
       const customParameters = isOfTypeService
@@ -495,7 +567,11 @@ const useResources = ({
             }
           },
           ...searchForExactResource
-        ]
+        ],
+        regexParameters: {
+          fields: [buildResourceTypeNameForSearchParameter(searchParameter)],
+          value: searchValues
+        }
       };
     }
 
@@ -543,17 +619,26 @@ const useResources = ({
           ]
         : parameters.search?.lists;
 
-      const { customParameters, searchParameters } = getQueryParameters(
-        index,
-        resourceType,
-        resourcesToSearch,
-        parentResources
-      );
+      const { customParameters, searchParameters, regexParameters } =
+        getQueryParameters(
+          index,
+          resourceType,
+          resourcesToSearch,
+          parentResources
+        );
 
       const searchConditions = [
         ...flatten(parameters.search?.conditions || []),
         ...searchParameters
       ];
+
+      const search = isResourcesString(
+        parentResources || value?.[index - 1]?.resources
+      )
+        ? {
+            regex: regexParameters
+          }
+        : { conditions: searchConditions, lists: searchLists };
 
       return buildListingEndpoint({
         baseEndpoint: endpoint,
@@ -561,10 +646,7 @@ const useResources = ({
         parameters: {
           ...parameters,
           limit: 30,
-          search: {
-            conditions: searchConditions,
-            lists: searchLists
-          }
+          search
         }
       });
     };
@@ -739,6 +821,56 @@ const useResources = ({
     [values]
   );
 
+  const getIsRegexAllowedOnResourceType = useCallback(
+    (resourceType: WidgetResourceType) =>
+      isNil(allowRegexOnResourceTypes)
+        ? false
+        : allowRegexOnResourceTypes.includes(resourceType),
+    [allowRegexOnResourceTypes]
+  );
+
+  const getIsRegexFieldOnResourceType = useCallback(
+    (resourceType: WidgetResourceType) =>
+      isNil(allowRegexOnResourceTypes)
+        ? false
+        : isRegexFieldPerResourceType[resourceType],
+    [allowRegexOnResourceTypes, isRegexFieldPerResourceType]
+  );
+
+  const changeRegexFieldOnResourceType = useCallback(
+    ({ resourceType, index, bypassResourcesCheck = false }) =>
+      (): void => {
+        if (!isEmpty(value?.[index].resources) && !bypassResourcesCheck) {
+          setResourceToToggleRegex({
+            resourceType,
+            index,
+            isRegexMode: isRegexFieldPerResourceType[resourceType]
+          });
+
+          return;
+        }
+
+        setIsRegexPerResourceType((current) => ({
+          ...current,
+          [resourceType]: !current[resourceType]
+        }));
+        setFieldValue(`data.${propertyName}.${index}.resources`, []);
+      },
+    [value, isRegexFieldPerResourceType]
+  );
+
+  const changeRegexField =
+    (index: number) => (event: ChangeEvent<HTMLInputElement>) => {
+      setFieldValue(
+        `data.${propertyName}.${index}.resources`,
+        event.target.value
+      );
+      setFieldTouched(`data.${propertyName}`, true, false);
+
+      setIsValidatingResources(true);
+      validateNextResource({ index, parentResources: event.target.value });
+    };
+
   return {
     addResource,
     changeIdValue,
@@ -758,7 +890,11 @@ const useResources = ({
     value: value || [],
     isValidatingResources,
     hideResourceDeleteButton,
-    checkForceSingleAutocomplete
+    checkForceSingleAutocomplete,
+    getIsRegexAllowedOnResourceType,
+    getIsRegexFieldOnResourceType,
+    changeRegexFieldOnResourceType,
+    changeRegexField
   };
 };
 
