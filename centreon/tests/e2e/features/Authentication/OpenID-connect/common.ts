@@ -13,7 +13,7 @@ interface OidcConfigValues {
   tokenEndpoint: string;
 }
 
-const getOidcConfigValues = ({ providerAddress = 'localhost', providerPort = 8080 }): OidcConfigValues => ({
+const getOidcConfigValues = ({ providerAddress = 'sso-proxy', providerPort = 8080 }): OidcConfigValues => ({
   authEndpoint: '/auth',
   baseUrl: `http://${providerAddress}:${providerPort}/realms/Centreon_SSO/protocol/openid-connect`,
   clientID: 'centreon-oidc-frontend',

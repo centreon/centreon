@@ -432,9 +432,11 @@ class OpenIdProvider implements OpenIdProviderInterface
      */
     public function getTokenForSession(): ?string
     {
-        return $this->connectionTokenResponseContent !== [] && array_key_exists('id_token', $this->connectionTokenResponseContent)
-            ? $this->connectionTokenResponseContent['id_token']
-            : null;
+        if (! array_key_exists('id_token', $this->connectionTokenResponseContent)) {
+            throw SSOAuthenticationException::requestForConnectionTokenFail();
+        }
+
+        return $this->connectionTokenResponseContent['id_token'];
     }
 
     /**

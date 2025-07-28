@@ -364,7 +364,7 @@ class OpenId implements ProviderAuthenticationInterface
 
             exit;
         } catch (Exception $e) {
-            throw new Exception('Failed to redirect to logout URL: ' . $e->getMessage());
+            throw new Exception('Failed to redirect to logout URL: ' . $e->getMessage(), previous: $e);
         }
     }
 }

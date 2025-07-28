@@ -43,6 +43,7 @@ use Core\Security\Authentication\Domain\Exception\AclConditionsException;
 use Core\Security\Authentication\Domain\Exception\AuthenticationConditionsException;
 use Core\Security\Authentication\Domain\Exception\AuthenticationException;
 use Core\Security\Authentication\Domain\Exception\PasswordExpiredException;
+use Core\Security\Authentication\Domain\Exception\SSOAuthenticationException;
 use Core\Security\Authentication\Domain\Model\NewProviderToken;
 use Core\Security\Authentication\Infrastructure\Provider\AclUpdaterInterface;
 use Core\Security\Authentication\Infrastructure\Provider\OpenId;
@@ -131,8 +132,14 @@ final class Login
                         if ($request === null) {
                             throw new AuthenticationException('Request is not available for OpenID login');
                         }
-                        $request->getSession()
-                            ->set('openid_id_token', $provider->getTokenForSession());
+
+                        try {
+                            $request->getSession()
+                                ->set('openid_id_token', $provider->getTokenForSession());
+                        } catch (SSOAuthenticationException $e) {
+                            throw new AuthenticationException('OpenID authentication failed: ' . $e->getMessage(), previous: $e);
+                        }
+
                         $this->createAuthenticationTokens(
                             Encryption::generateRandomString(),
                             $user,

@@ -32,6 +32,7 @@ use Core\Security\Authentication\Infrastructure\Provider\SAML;
 use Core\Security\ProviderConfiguration\Domain\Model\Provider;
 use Core\Security\ProviderConfiguration\Domain\OpenId\Model\CustomConfiguration as OpenIdCustomConfiguration;
 use Core\Security\ProviderConfiguration\Domain\SAML\Model\CustomConfiguration;
+use Exception;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 class WriteSessionRepository implements WriteSessionRepositoryInterface
@@ -84,7 +85,13 @@ class WriteSessionRepository implements WriteSessionRepositoryInterface
             /** @var OpenIdCustomConfiguration $customConfiguration */
             $customConfiguration = $configuration->getCustomConfiguration();
             if ($configuration->isActive()) {
-                $provider->logout($idToken);
+                try {
+                    $provider->logout($idToken);
+                } catch (Exception $e) {
+                    $this->error('OpenID logout failed: ' . $e->getMessage(), [
+                        'exception' => $e,
+                    ]);
+                }
             }
         }
     }
