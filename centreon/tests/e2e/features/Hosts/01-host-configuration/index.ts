@@ -1,6 +1,5 @@
-/* eslint-disable cypress/unsafe-to-chain-command */
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
-import { checkHostsAreMonitored, checkServicesAreMonitored } from 'e2e/commons';
+import { checkHostsAreMonitored, checkServicesAreMonitored } from 'commons';
 
 const hostName = 'New-Host-Name';
 const services = {

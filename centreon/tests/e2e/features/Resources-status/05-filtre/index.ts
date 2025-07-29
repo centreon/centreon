@@ -290,7 +290,7 @@ Then(
     );
     cy.get('div[class*="statusColumn"]').each(($statusCell, index) => {
       const cellText = $statusCell.text().trim();
-      console.log(`Cell ${index}: ${cellText}`);
+      cy.log(`Cell ${index}: ${cellText}`);
 
       expect(cellText).to.match(/^(Pending|OK|Unknown)$/);
     });
@@ -332,7 +332,7 @@ Then('only services with OK and Up statuses are shown in the result', () => {
   });
   cy.get('div[class*="statusColumn"]').each(($statusCell, index) => {
     const cellText = $statusCell.text().trim();
-    console.log(`Cell ${index}: ${cellText}`);
+    cy.log(`Cell ${index}: ${cellText}`);
     expect(['OK', 'Up']).to.include(
       cellText,
       `Cell ${index} has unexpected text: ${cellText}`
@@ -370,7 +370,7 @@ Then(
     });
     cy.get('div[class*="statusColumn"]').each(($statusCell, index) => {
       const cellText = $statusCell.text().trim();
-      console.log(`Cell ${index}: ${cellText}`);
+      cy.log(`Cell ${index}: ${cellText}`);
       expect(['Critical', 'Up']).to.include(
         cellText,
         `Cell ${index} has unexpected text: ${cellText}`
@@ -414,7 +414,7 @@ Then(
     );
     cy.get('div[class*="statusColumn"]').each(($statusCell, index) => {
       const cellText = $statusCell.text().trim();
-      console.log(`Cell ${index}: ${cellText}`);
+      cy.log(`Cell ${index}: ${cellText}`);
       expect(['OK']).to.include(
         cellText,
         `Cell ${index} has unexpected text: ${cellText}`
@@ -455,7 +455,7 @@ Then(
     );
     cy.get('div[class*="statusColumn"]').each(($statusCell, index) => {
       const cellText = $statusCell.text().trim();
-      console.log(`Cell ${index}: ${cellText}`);
+      cy.log(`Cell ${index}: ${cellText}`);
       expect(['OK']).to.include(
         cellText,
         `Cell ${index} has unexpected text: ${cellText}`
@@ -497,7 +497,7 @@ Then(
     });
     cy.get('div[class*="statusColumn"]').each(($statusCell, index) => {
       const cellText = $statusCell.text().trim();
-      console.log(`Cell ${index}: ${cellText}`);
+      cy.log(`Cell ${index}: ${cellText}`);
       expect(['Critical', 'OK']).to.include(
         cellText,
         `Cell ${index} has unexpected text: ${cellText}`
@@ -545,7 +545,7 @@ Then(
     });
     cy.get('div[class*="statusColumn"]').each(($statusCell, index) => {
       const cellText = $statusCell.text().trim();
-      console.log(`Cell ${index}: ${cellText}`);
+      cy.log(`Cell ${index}: ${cellText}`);
       expect(['Critical']).to.include(
         cellText,
         `Cell ${index} has unexpected text: ${cellText}`
@@ -590,7 +590,7 @@ Then(
     });
     cy.get('div[class*="statusColumn"]').each(($statusCell, index) => {
       const cellText = $statusCell.text().trim();
-      console.log(`Cell ${index}: ${cellText}`);
+      cy.log(`Cell ${index}: ${cellText}`);
       expect(['OK']).to.include(
         cellText,
         `Cell ${index} has unexpected text: ${cellText}`
@@ -635,7 +635,7 @@ Then(
     });
     cy.get('div[class*="statusColumn"]').each(($statusCell, index) => {
       const cellText = $statusCell.text().trim();
-      console.log(`Cell ${index}: ${cellText}`);
+      cy.log(`Cell ${index}: ${cellText}`);
       expect(['OK', 'Critical']).to.include(
         cellText,
         `Cell ${index} has unexpected text: ${cellText}`
@@ -680,7 +680,7 @@ Then(
     });
     cy.get('div[class*="statusColumn"]').each(($statusCell, index) => {
       const cellText = $statusCell.text().trim();
-      console.log(`Cell ${index}: ${cellText}`);
+      cy.log(`Cell ${index}: ${cellText}`);
       expect(['OK']).to.include(
         cellText,
         `Cell ${index} has unexpected text: ${cellText}`
