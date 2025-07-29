@@ -204,9 +204,11 @@ const Resources = ({
                         ) &&
                           !hasSelectedHostForSingleMetricwidget) ||
                         !resource.resourceType
+                        || getDefaultDisabledSelectType(resource.resourceType)
                       : !canEditField ||
                         isValidatingResources ||
-                        !resource.resourceType
+                        !resource.resourceType||
+                        getDefaultDisabledSelectType(resource.resourceType)
                   }
                   resource={resource}
                   index={index}
