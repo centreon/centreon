@@ -20082,65 +20082,6 @@ msgid "Display type"
 msgstr "Type d'affichage"
 
 #: unknown
-msgid ""
-"Displays a status overview for selected resources, grouped by hosts or by "
-"services."
-msgstr ""
-"Affiche une vue d'ensemble du statut des ressources sélectionnées, "
-"groupées par hôtes ou par services."
-
-#: unknown
-msgid "Displays data on resource status and events, centralized in a table."
-msgstr ""
-"Affiche des données sur le statut des ressources et les événements, "
-"centralisées dans un tableau."
-
-#: unknown
-msgid ""
-"Displays graphically a business activity hierarchy of KPIs and lets you "
-"navigate through it."
-msgstr ""
-"Affiche graphiquement et permet la navigation dans la hiérarchie d'une "
-"activité métier."
-
-#: unknown
-msgid "Displays metrics for a given time period."
-msgstr "Affiche les métriques pour une période donnée."
-
-#: unknown
-msgid ""
-"Displays the distribution of current statuses on a Business Activity, as "
-"a chronological timeline for a given time period."
-msgstr ""
-"Affiche la répartition des statuts actuels sur une activité métier, sous "
-"forme de frise chronologique pour une période donnée."
-
-#: unknown
-msgid ""
-"Displays the distribution of current statuses on selected groups of "
-"resources, as a table."
-msgstr ""
-"Affiche la répartition des statuts actuels pour les groupes de ressources "
-"sélectionnés, sous forme de tableau."
-
-#: unknown
-msgid "Displays the time according to the selected time zone, or a timer."
-msgstr ""
-"Affiche l'heure en fonction du fuseau horaire sélectionné, ou un minuteur."
-
-#: unknown
-msgid "Displays the top or bottom x hosts, for a selected metric."
-msgstr ""
-"Affiche le top ou le bottom x des hôtes, pour une métrique sélectionnée."
-
-#: unknown
-msgid ""
-"Displays the value of a single metric as a text, a gauge or a bar chart."
-msgstr ""
-"Affiche la valeur d'une seule métrique sous forme de texte, de jauge ou "
-"de diagramme à barres."
-
-#: unknown
 msgid "Do you confirm  the duplication ?"
 msgstr "Confirmez-vous la duplication ?"
 
@@ -20540,7 +20481,8 @@ msgstr "Échec de la suppression de la règle d'accès aux ressources"
 msgid "Failed to delete the additional configuration"
 msgstr "Échec de la suppression de la configuration additionnelle"
 
-#: unknownmsgid "Failed to delete the host group"
+#: unknown
+msgid "Failed to delete the host group"
 msgstr "Échec de la suppression du groupe d'hôtes"
 
 #: unknown
@@ -20706,10 +20648,6 @@ msgid "Generated in "
 msgstr "Généré en "
 
 #: unknown
-msgid "Generic text"
-msgstr "Texte générique"
-
-#: unknown
 msgid "Geolocation"
 msgstr "Géolocalisation"
 
@@ -20734,10 +20672,6 @@ msgid "Graph settings"
 msgstr "Paramètres de graphe"
 
 #: unknown
-msgid "Graph style"
-msgstr "Style de graphe"
-
-#: unknown
 msgid "Graph type"
 msgstr "Type de graphique"
 
@@ -20756,10 +20690,6 @@ msgstr "Type de quadrillage"
 #: unknown
 msgid "Group member update behavior"
 msgstr "Comportement de mise à jour des membres du groupe"
-
-#: unknown
-msgid "Group monitoring"
-msgstr "Group monitoring"
 
 #: unknown
 msgid "H:i:s"
@@ -23053,10 +22983,6 @@ msgid "Top color"
 msgstr "Couleur du haut"
 
 #: unknown
-msgid "Top/bottom"
-msgstr "Top/bottom"
-
-#: unknown
 msgid "Topology"
 msgstr "Topologie"
 
@@ -23203,10 +23129,6 @@ msgstr "Alertes Disponible"
 #: unknown
 msgid "Up Time"
 msgstr "Temps état disponible"
-
-#: unknown
-msgid "Update additional configuration"
-msgstr "Mettre à jour la configuration additionnelle"
 
 #: unknown
 msgid "Update definition in case of double definition"
