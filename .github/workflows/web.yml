@@ -727,9 +727,6 @@ jobs:
         run: rm -f centreon/packaging/*-selinux.yaml
         shell: bash
 
-      - name: Test nightly failure
-        run: exit 1
-
       - name: Package Centreon
         uses: ./.github/actions/package-nfpm
         with:
