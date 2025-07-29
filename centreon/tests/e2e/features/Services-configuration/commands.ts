@@ -92,6 +92,7 @@ interface HostGroupService {
   actionUrl: string;
   atlIcon: string;
   geoCoords: string;
+  geoCoordsTruncated: string;
   comment: string;
 }
 
@@ -648,7 +649,7 @@ Cypress.Commands.add(
       .should('have.value', body.atlIcon);
     cy.getIframeBody()
       .find('input[name="geo_coords"]')
-      .should('have.value', body.geoCoords);
+      .should('have.value', body.geoCoordsTruncated);
     cy.getIframeBody()
       .find('textarea[name="service_comment"]')
       .should('have.value', body.comment);
