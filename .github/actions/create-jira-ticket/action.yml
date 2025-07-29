@@ -36,11 +36,6 @@ runs:
       uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
       env:
         GH_TOKEN: ${{ github.token }}
-        TICKET_REASON_FOR_CREATION: ${{ inputs.ticket_reason_for_creation }}
-        MODULE_NAME: ${{ inputs.module_name }}
-        PR_NUMBER: ${{ github.event.pull_request.number }}
-        PR_URL: ${{ github.event.pull_request.html_url }}
-        REF_NAME: ${{ github.ref_name }}
       id: get_context
       with:
         script: |
@@ -67,10 +62,10 @@ runs:
             ticket_labels = ["Pipeline", "${{ inputs.ticket_reason_for_creation }}" ]
             console.log(`Failed job: ${failed_job}`);
             if (ticket_labels.includes("Nightly")) {
-              ticket_summary = `${date} ${process.env.MODULE_NAME}-${process.env.REF_NAME} nightly build failure on ${failed_job}`
+              ticket_summary = `${date} ${{ inputs.module_name }}-${{ github.base_ref || github.ref_name }} nightly build failure on ${failed_job}`
 
               data = fs.readFileSync(JSON_TEMPLATE_FILE, { encoding: 'utf8' });
-              data = data.replace(/@MODULE_NAME@/g, process.env.MODULE_NAME);
+              data = data.replace(/@MODULE_NAME@/g, '${{ inputs.module_name }}');
               data = data.replace(/@DATE@/g, date);
 
               data = data.replace(/@GITHUB_BRANCH@/g, '${{ github.base_ref || github.ref_name }}');
@@ -79,7 +74,6 @@ runs:
               data = data.replace(/@GITHUB_REPOSITORY@/g, '${{ github.repository }}');
               data = data.replace(/@GITHUB_RUN_ID@/g, '${{ github.run_id }}');
               data = data.replace(/@GITHUB_RUN_ATTEMPT@/g, '${{ github.run_attempt }}');
-              data = data.replace(/@FAILED_JOB@/g, failed_job);
             } else {
               throw new Error(`❌ Could not find any labelling option for the ticket.`);
             }
