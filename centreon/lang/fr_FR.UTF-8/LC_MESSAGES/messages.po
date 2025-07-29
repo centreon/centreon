@@ -19695,10 +19695,6 @@ msgid "Client Secret"
 msgstr "Secret client"
 
 #: unknown
-msgid "Clock / Timer"
-msgstr "Horloge / Minuteur"
-
-#: unknown
 msgid "Cmd"
 msgstr "Commande"
 
@@ -19831,7 +19827,7 @@ msgstr "Ne peut pas trouver la macro "
 msgid "Could not find storage database. Session probably expired."
 msgstr ""
 "Base de données de stockage non trouvée. La session a probablement "
-"expirée."
+"expiré."
 
 #: unknown
 msgid "Could not find utils database. Session probably expired."
@@ -19851,7 +19847,8 @@ msgstr "Impossible d'importer ndomod"
 msgid "Countdown"
 msgstr "Compte à rebours"
 
-#: unknownmsgid "Create new object with prefix"
+#: unknown
+msgid "Create new object with prefix"
 msgstr "Créer un nouvel objet avec un prefix"
 
 #: unknown
@@ -20085,28 +20082,12 @@ msgid "Display type"
 msgstr "Type d'affichage"
 
 #: unknown
-msgid "Display with this view"
-msgstr "Afficher avec cette vue"
-
-#: unknown
-msgid ""
-"Displays a detailed view of the current status for selected resources as "
-"a chart."
-msgstr ""
-"Affiche une vue détaillée du statut actuel des ressources sélectionnées "
-"sous la forme d'un graphique."
-
-#: unknown
 msgid ""
 "Displays a status overview for selected resources, grouped by hosts or by "
 "services."
 msgstr ""
 "Affiche une vue d'ensemble du statut des ressources sélectionnées, "
 "groupées par hôtes ou par services."
-
-#: unknown
-msgid "Displays a web page"
-msgstr "Affiche une page web"
 
 #: unknown
 msgid "Displays data on resource status and events, centralized in a table."
