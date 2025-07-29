@@ -23,7 +23,6 @@ declare(strict_types=1);
 
 namespace Core\Domain\Common;
 
-use Centreon\Domain\Common\Assertion\Assertion;
 use Core\Domain\Exception\InvalidGeoCoordException;
 
 /**
@@ -39,7 +38,6 @@ class GeoCoords implements \Stringable
 
     /** @var string Full lat,lng string */
     private const REGEX_FULL = '/^' . self::REGEX_LATITUDE . ',\s*' . self::REGEX_LONGITUDE . '$/';
-    private const MAX_LENGTH = 32;
     private const MAX_DECIMALS = 6;
 
     /**
@@ -88,8 +86,6 @@ class GeoCoords implements \Stringable
         $latitude = self::truncateDecimals($parts[0]);
         /** @var numeric-string $longitude */
         $longitude = self::truncateDecimals($parts[1]);
-
-        Assertion::maxLength($latitude . ',' . $longitude, self::MAX_LENGTH, 'GeoCoords::maxLength');
 
         return new self($latitude, $longitude);
     }

@@ -1643,6 +1643,22 @@ function validateGeoCoords()
     );
 }
 
+function truncateGeoCoords(): string
+{
+    global $form;
+    $coords = trim($form->getElementValue('geo_coords'));
+
+    $parts = explode(',', $coords);
+    if (count($parts) !== 2) {
+        return $coords;
+    }
+
+    $latitude = number_format((float) $parts[0], 6, '.', '');
+    $longitude = number_format((float) $parts[1], 6, '.', '');
+
+    return sprintf('%s,%s', $latitude, $longitude);
+}
+
 /**
  * Get the select option.
  *
