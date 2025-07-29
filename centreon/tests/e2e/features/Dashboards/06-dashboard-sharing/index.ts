@@ -1,13 +1,13 @@
-import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
+import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
 import dashboards from '../../../fixtures/dashboards/check-permissions/dashboards.json';
 import dashboardAdministratorUser from '../../../fixtures/users/user-dashboard-administrator.json';
+import dashboardCgMember1 from '../../../fixtures/users/user-dashboard-cg-member-1.json';
+import dashboardCgMember2 from '../../../fixtures/users/user-dashboard-cg-member-2.json';
+import dashboardCgMember3 from '../../../fixtures/users/user-dashboard-cg-member-3.json';
+import dashboardCgMember4 from '../../../fixtures/users/user-dashboard-cg-member-4.json';
 import dashboardCreatorUser from '../../../fixtures/users/user-dashboard-creator.json';
 import dashboardViewerUser from '../../../fixtures/users/user-dashboard-viewer.json';
-import dashboardCGMember1 from '../../../fixtures/users/user-dashboard-cg-member-1.json';
-import dashboardCGMember2 from '../../../fixtures/users/user-dashboard-cg-member-2.json';
-import dashboardCGMember3 from '../../../fixtures/users/user-dashboard-cg-member-3.json';
-import dashboardCGMember4 from '../../../fixtures/users/user-dashboard-cg-member-4.json';
 
 before(() => {
   cy.startContainers();
@@ -34,7 +34,7 @@ beforeEach(() => {
   }).as('createDashboard');
   cy.intercept({
     method: 'PUT',
-    url: `/centreon/api/latest/configuration/dashboards/*/shares`
+    url: '/centreon/api/latest/configuration/dashboards/*/shares'
   }).as('updateShares');
   cy.loginByTypeOfUser({
     jsonName: dashboardAdministratorUser.login,
@@ -114,7 +114,7 @@ When('the editor user sets another user as a viewer on the dashboard', () => {
   cy.getByLabel({ label: 'Add a contact', tag: 'input' }).click();
   cy.contains(dashboardViewerUser.login).click();
   cy.getByTestId({ testId: 'add' }).should('be.enabled');
-  cy.getByTestId({ testId: `add_role` }).parent().click();
+  cy.getByTestId({ testId: 'add_role' }).parent().click();
   cy.get('[role="listbox"]').contains('Viewer').click();
   cy.getByTestId({ testId: 'add' }).click();
 
@@ -133,7 +133,7 @@ When('the editor user sets another user as a viewer on the dashboard', () => {
   cy.getByLabel({ label: 'Save', tag: 'button' }).should('be.enabled').click();
   cy.wait('@updateShares');
   cy.wait('@getDashboard');
-  cy.getByLabel({ label: 'close', tag: 'button' }).click()
+  cy.getByLabel({ label: 'close', tag: 'button' }).click();
   cy.get('.MuiAlert-message').should('not.exist');
   cy.waitUntilForDashboardRoles('share', 3);
 });
@@ -229,7 +229,7 @@ When(
       .click();
     cy.wait('@updateShares');
     cy.wait('@getDashboard');
-    cy.getByLabel({ label: 'close', tag: 'button' }).click()
+    cy.getByLabel({ label: 'close', tag: 'button' }).click();
     cy.get('.MuiAlert-message').should('not.exist');
     cy.waitUntilForDashboardRoles('share', 3);
   }
@@ -320,7 +320,7 @@ When(
       .click();
     cy.wait('@updateShares');
     cy.wait('@getDashboard');
-    cy.getByLabel({ label: 'close', tag: 'button' }).click()
+    cy.getByLabel({ label: 'close', tag: 'button' }).click();
     cy.get('.MuiAlert-message').should('not.exist');
     cy.waitUntilForDashboardRoles('share', 3);
   }
@@ -347,7 +347,7 @@ Then(
     cy.getByLabel({ label: 'Alias', tag: 'input' }).should('exist');
 
     cy.loginByTypeOfUser({
-      jsonName: dashboardCGMember1.login,
+      jsonName: dashboardCgMember1.login,
       loginViaApi: true
     });
 
@@ -359,7 +359,7 @@ Then(
     cy.getByLabel({ label: 'Alias', tag: 'input' }).should('exist');
 
     cy.loginByTypeOfUser({
-      jsonName: dashboardCGMember2.login,
+      jsonName: dashboardCgMember2.login,
       loginViaApi: true
     });
 
@@ -408,7 +408,7 @@ When(
       .click();
     cy.wait('@updateShares');
     cy.wait('@getDashboard');
-    cy.getByLabel({ label: 'close', tag: 'button' }).click()
+    cy.getByLabel({ label: 'close', tag: 'button' }).click();
     cy.get('.MuiAlert-message').should('not.exist');
     cy.waitUntilForDashboardRoles('share', 3);
   }
@@ -435,7 +435,7 @@ Then(
     cy.getByLabel({ label: 'Alias', tag: 'input' }).should('exist');
 
     cy.loginByTypeOfUser({
-      jsonName: dashboardCGMember3.login,
+      jsonName: dashboardCgMember3.login,
       loginViaApi: true
     });
 
@@ -447,7 +447,7 @@ Then(
     cy.getByLabel({ label: 'Alias', tag: 'input' }).should('exist');
 
     cy.loginByTypeOfUser({
-      jsonName: dashboardCGMember4.login,
+      jsonName: dashboardCgMember4.login,
       loginViaApi: true
     });
     cy.visitDashboard(dashboards.fromDashboardCreatorUser.name);
@@ -492,7 +492,7 @@ Given(
       .click();
     cy.wait('@updateShares');
     cy.wait('@getDashboard');
-    cy.getByLabel({ label: 'close', tag: 'button' }).click()
+    cy.getByLabel({ label: 'close', tag: 'button' }).click();
     cy.get('.MuiAlert-message').should('not.exist');
     cy.waitUntilForDashboardRoles('share', 3);
   }
@@ -504,9 +504,9 @@ When(
     cy.getByLabel({ label: 'share', tag: 'button' }).click();
     cy.contains('Contact').click();
     cy.getByLabel({ label: 'Add a contact', tag: 'input' }).click();
-    cy.contains(dashboardCGMember3.login).click();
+    cy.contains(dashboardCgMember3.login).click();
     cy.getByTestId({ testId: 'add' }).should('be.enabled');
-    cy.getByTestId({ testId: `add_role` }).parent().click();
+    cy.getByTestId({ testId: 'add_role' }).parent().click();
     cy.get('[role="listbox"]').contains('Editor').click();
     cy.getByTestId({ testId: 'add' }).click();
 
@@ -519,7 +519,7 @@ When(
       .eq(1)
       .children()
       .eq(0)
-      .should('contain', `${dashboardCGMember3.login}`);
+      .should('contain', `${dashboardCgMember3.login}`);
 
     cy.getByLabel({ label: 'Save', tag: 'button' })
       .should('be.enabled')
@@ -536,7 +536,7 @@ Then(
     cy.getByLabel({ label: 'Alias', tag: 'input' }).should('exist');
 
     cy.loginByTypeOfUser({
-      jsonName: dashboardCGMember3.login,
+      jsonName: dashboardCgMember3.login,
       loginViaApi: true
     });
 
@@ -554,7 +554,7 @@ Then(
     cy.getByLabel({ label: 'Alias', tag: 'input' }).should('exist');
 
     cy.loginByTypeOfUser({
-      jsonName: dashboardCGMember4.login,
+      jsonName: dashboardCgMember4.login,
       loginViaApi: true
     });
 
@@ -603,24 +603,24 @@ Then(
     cy.getByLabel({ label: 'share', tag: 'button' }).click();
     cy.contains('Contact').click();
     cy.getByLabel({ label: 'Open', tag: 'button' }).click();
-    cy.contains(dashboardCGMember3.login).click();
+    cy.contains(dashboardCgMember3.login).click();
     cy.getByTestId({ testId: 'add' }).should('be.enabled');
     cy.getByTestId({ testId: 'add' }).click();
-    cy.getByTestId({ testId: `role-${dashboardCGMember3.login}` }).realClick();
+    cy.getByTestId({ testId: `role-${dashboardCgMember3.login}` }).realClick();
     cy.get('[role="listbox"]').contains('Editor').click();
     cy.getByLabel({ label: 'Save', tag: 'button' })
       .should('be.enabled')
       .click();
     cy.wait('@updateShares');
     cy.wait('@getDashboard');
-    cy.getByLabel({ label: 'close', tag: 'button' }).click()
+    cy.getByLabel({ label: 'close', tag: 'button' }).click();
     cy.get('.MuiAlert-message').should('not.exist');
     cy.waitUntilForDashboardRoles('share', 4);
     cy.getByLabel({ label: 'share', tag: 'button' }).click();
     cy.get('*[class^="MuiList-root"]', { timeout: 12000 })
       .eq(1)
       .children()
-      .contains(dashboardCGMember3.login)
+      .contains(dashboardCgMember3.login)
       .should('exist');
 
     cy.get('[data-state="added"]').should('not.exist');
@@ -644,7 +644,7 @@ Then(
 
     cy.wait('@updateShares');
     cy.wait('@getDashboard');
-    cy.getByLabel({ label: 'close', tag: 'button' }).click()
+    cy.getByLabel({ label: 'close', tag: 'button' }).click();
     cy.get('.MuiAlert-message').should('not.exist');
     cy.waitUntilForDashboardRoles('share', 5);
     cy.getByLabel({ label: 'share', tag: 'button' }).click();

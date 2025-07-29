@@ -1,4 +1,3 @@
-/* eslint-disable cypress/unsafe-to-chain-command */
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
 before(() => {
@@ -122,7 +121,10 @@ Then('the form is closed', () => {
 
 Then('the informations are successfully saved', () => {
   cy.contains('VMWare 6/7').click();
-  cy.ensureConnectorInputValue('Connector-002', { maxAttempts: 6, interval: 5000 });
+  cy.ensureConnectorInputValue('Connector-002', {
+    maxAttempts: 6,
+    interval: 5000
+  });
   cy.contains('VMWare 6/7').click();
   cy.wait('@keepAlive');
   cy.getByLabel({ label: 'Name', tag: 'input' }).should(
