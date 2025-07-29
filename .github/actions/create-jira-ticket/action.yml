@@ -139,8 +139,6 @@ runs:
               ticket_data.fields.customfield_10007 = parseInt(current_sprint, 10);
             }
 
-            // fs.writeFileSync(JSON_TEMPLATE_FILE, data, { encoding: 'utf8' });
-
             fs.writeFileSync(path, JSON.stringify(ticket_data));
             contents = fs.readFileSync('./ticket-payload.json', 'utf8');
             console.log("Ticket Payload:\n", contents);
