@@ -39,6 +39,7 @@ use Centreon_Object_Relation_Instance_Host;
 use Centreon_Object_Service;
 use Centreon_Object_Service_Extended;
 use Centreon_Object_Timezone;
+use Core\Host\Domain\Model\NewHost;
 use Exception;
 use PDOException;
 use Pimple\Container;
@@ -366,7 +367,7 @@ class CentreonHost extends CentreonObject
             throw new CentreonClapiException(self::MISSINGPARAMETER);
         }
         $addParams = [];
-        $addParams[$this->object->getUniqueLabelField()] = $this->checkIllegalChar($params[self::ORDER_UNIQUENAME]);
+        $addParams[$this->object->getUniqueLabelField()] = NewHost::formatName($this->checkIllegalChar($params[self::ORDER_UNIQUENAME]));
         if ($addParams[$this->object->getUniqueLabelField()] === '') {
             throw new CentreonClapiException(self::NAME_IS_EMPTY);
         }
