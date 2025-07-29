@@ -512,7 +512,10 @@ final class PartialUpdateServiceTemplate
         }
 
         if (! $request->serviceTemplateParentId instanceof NoValue) {
-            $this->validation->assertIsValidServiceTemplate($request->serviceTemplateParentId);
+            $this->validation->assertIsValidServiceTemplate(
+                $serviceTemplate->getId(),
+                $request->serviceTemplateParentId
+            );
             $serviceTemplate->setServiceTemplateParentId($request->serviceTemplateParentId);
         }
 
