@@ -8,7 +8,7 @@ import { labelPreviewRemainsEmpty } from '../../translatedLabels';
 import { getPublicWidgetEndpoint } from '../../utils';
 
 import Graph from './Graph';
-import { graphEndpoint } from './api/endpoints';
+import { getMetricsEndpoint } from './api/endpoints';
 import { FormThreshold, ValueFormat } from './models';
 
 const panelData: Data = {
@@ -16,7 +16,9 @@ const panelData: Data = {
     {
       id: 1,
       name: 'Ping_1',
-      unit: 'ms'
+      unit: 'ms',
+      serviceId: 1,
+      serviceName: 'Service_1'
     },
     {
       id: 2,
@@ -38,6 +40,15 @@ const panelData: Data = {
           name: 'HG1'
         }
       ]
+    },
+    {
+      resourceType: 'service',
+      resources: [
+        {
+          id: 1,
+          name: 'Service_1'
+        }
+      ]
     }
   ]
 };
@@ -46,14 +57,10 @@ const diskUsedMetricData: Data = {
   metrics: [
     {
       id: 1,
-      metrics: [
-        {
-          id: 1,
-          name: 'disk_used',
-          unit: 'B'
-        }
-      ],
-      name: 'Disk'
+      name: 'Disk',
+      unit: 'B',
+      serviceId: 1,
+      serviceName: 'Service_1'
     }
   ],
   resources: [
@@ -63,6 +70,15 @@ const diskUsedMetricData: Data = {
         {
           id: 1,
           name: 'HG1'
+        }
+      ]
+    },
+    {
+      resourceType: 'service',
+      resources: [
+        {
+          id: 1,
+          name: 'Service_1'
         }
       ]
     }
@@ -103,7 +119,16 @@ const warningThreshold: FormThreshold = {
 
 const emptyServiceMetrics: Data = {
   metrics: [],
-  resources: []
+  resources: [
+    {
+        "resourceType": "host",
+        "resources": []
+    },
+    {
+        "resourceType": "service",
+        "resources": []
+    }
+]
 };
 
 const metaServiceData: Data = {
@@ -148,7 +173,7 @@ const initializeComponent = ({
     threshold: defaultThreshold,
     valueFormat: 'human'
   },
-  fixture = 'Widgets/Graph/lineChart.json',
+  fixture = 'Widgets/Graph/metrics.json',
   isPublic = false
 }: Props): void => {
   const store = createStore();
@@ -160,7 +185,7 @@ const initializeComponent = ({
     cy.interceptAPIRequest({
       alias: 'getLineChart',
       method: Method.GET,
-      path: `${graphEndpoint}**`,
+      path: `${getMetricsEndpoint({ hostId: 1, serviceId: 1, metricName: data.metrics[0].name })}**`,
       response: lineChart
     });
 
@@ -326,7 +351,7 @@ describe('Single metric Widget', () => {
     it('display the metric value as human readable', () => {
       initializeComponent({
         data: diskUsedMetricData,
-        fixture: 'Widgets/Graph/chartWithBytes.json',
+        fixture: 'Widgets/Graph/metricWithBytUnit.json',
         options: {
           displayType: 'text',
           threshold: defaultThreshold,
@@ -340,7 +365,7 @@ describe('Single metric Widget', () => {
     it('display the metric value as raw', () => {
       initializeComponent({
         data: diskUsedMetricData,
-        fixture: 'Widgets/Graph/chartWithBytes.json',
+        fixture: 'Widgets/Graph/metricWithBytUnit.json',
         options: {
           displayType: 'text',
           threshold: defaultThreshold,
@@ -447,7 +472,7 @@ describe('Single metric Widget', () => {
     it('display the metric value as human readable', () => {
       initializeComponent({
         data: diskUsedMetricData,
-        fixture: 'Widgets/Graph/chartWithBytes.json',
+        fixture: 'Widgets/Graph/metricWithBytUnit.json',
         options: {
           displayType: 'bar',
           threshold: defaultThreshold,
@@ -461,7 +486,7 @@ describe('Single metric Widget', () => {
     it('display the metric value as raw', () => {
       initializeComponent({
         data: diskUsedMetricData,
-        fixture: 'Widgets/Graph/chartWithBytes.json',
+        fixture: 'Widgets/Graph/metricWithBytUnit.json',
         options: {
           displayType: 'bar',
           threshold: defaultThreshold,
@@ -557,7 +582,7 @@ describe('Single metric Widget', () => {
     it('display the metric value as human readable', () => {
       initializeComponent({
         data: diskUsedMetricData,
-        fixture: 'Widgets/Graph/chartWithBytes.json',
+        fixture: 'Widgets/Graph/metricWithBytUnit.json',
         options: {
           displayType: 'gauge',
           threshold: defaultThreshold,
@@ -571,7 +596,7 @@ describe('Single metric Widget', () => {
     it('display the metric value as raw', () => {
       initializeComponent({
         data: diskUsedMetricData,
-        fixture: 'Widgets/Graph/chartWithBytes.json',
+        fixture: 'Widgets/Graph/metricWithBytUnit.json',
         options: {
           displayType: 'gauge',
           threshold: defaultThreshold,
