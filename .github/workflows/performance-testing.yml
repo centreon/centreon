@@ -3,6 +3,12 @@ name: Performance Testing
 on:
   workflow_dispatch:
     inputs:
+      jmeter_test_file:
+        description: 'Select JMeter test file to run (from jmeterFolder)'
+        required: true
+        type: choice
+        options:
+          - resourceStatus.jmx
       jmeter_domain:
         description: 'Domain for JMeter tests (e.g., localhost)'
         required: true
@@ -34,7 +40,7 @@ jobs:
     defaults:
       run:
         shell: bash
-        working-directory: centreon/tests/performanceTesting
+        working-directory: centreon/tests/performance
 
     env:
       CSV_FILE_PATH: users.csv
@@ -73,7 +79,7 @@ jobs:
 
       - name: Update .env with input number of users
         run: |
-          ENV_FILE="$GITHUB_WORKSPACE/centreon/tests/performanceTesting/.env"
+          ENV_FILE="$GITHUB_WORKSPACE/centreon/tests/performance/.env"
 
           echo "Updating NUMBER_OF_USERS in $ENV_FILE"
           sed -i "s/^NUMBER_OF_USERS=.*/NUMBER_OF_USERS=${{ github.event.inputs.number_of_users }}/" "$ENV_FILE"
@@ -85,7 +91,7 @@ jobs:
         run: |
           echo "Updating JMeter configuration with inputs..."
 
-          JMX_FILES=$GITHUB_WORKSPACE/centreon/tests/performanceTesting/jmeterFolder/*.jmx
+          JMX_FILES=$GITHUB_WORKSPACE/centreon/tests/performance/jmeterFolder/*.jmx
 
           for JMX_FILE in $JMX_FILES; do
             echo "Updating $JMX_FILE with inputs..."
@@ -112,7 +118,7 @@ jobs:
       - name: Display users.csv content
         run: |
             echo "Displaying contents of users.csv..."
-            cat $GITHUB_WORKSPACE/centreon/tests/performanceTesting/users.csv
+            cat $GITHUB_WORKSPACE/centreon/tests/performance/users.csv
 
       - name: Install JMeter
         run: |
@@ -134,7 +140,7 @@ jobs:
 
       - name: Install JMeter Plugins
         run: |
-          JMETER_DIR=$(ls -d $GITHUB_WORKSPACE/centreon/tests/performanceTesting/apache-jmeter-*/)
+          JMETER_DIR=$(ls -d $GITHUB_WORKSPACE/centreon/tests/performance/apache-jmeter-*/)
           cd $JMETER_DIR || { echo "JMeter directory not found!"; exit 1; }
 
           wget -q --no-check-certificate https://jmeter-plugins.org/files/packages/jpgc-dummy-0.4.zip
@@ -144,45 +150,47 @@ jobs:
 
       - name: Run JMX Scripts
         run: |
-          JMETER_DIR=$(ls -d $GITHUB_WORKSPACE/centreon/tests/performanceTesting/apache-jmeter-*/bin)
-          cd $JMETER_DIR || { echo "JMeter bin directory not found!"; exit 1; }
+          JMETER_BIN=$(ls -d $GITHUB_WORKSPACE/centreon/tests/performance/apache-jmeter-*/bin)
+          cd $JMETER_BIN
 
-          mkdir -p $GITHUB_WORKSPACE/centreon/tests/performanceTesting/jmeterFolder/jmeter_results
-          mkdir -p $GITHUB_WORKSPACE/centreon/tests/performanceTesting/jmeterFolder/jmeter_html_report
+          mkdir -p $GITHUB_WORKSPACE/centreon/tests/performance/jmeterFolder/jmeter_results
+          mkdir -p $GITHUB_WORKSPACE/centreon/tests/performance/jmeterFolder/jmeter_html_report
 
-          for i in $GITHUB_WORKSPACE/centreon/tests/performanceTesting/jmeterFolder/*.jmx; do
-            echo "Running test: $i"
+          JMX_FILE=$GITHUB_WORKSPACE/centreon/tests/performance/jmeterFolder/${{ github.event.inputs.jmeter_test_file }}
 
-            ./jmeter -n -t "$i" \
-              -Jusers_csv_path="$GITHUB_WORKSPACE/centreon/tests/performanceTesting/users.csv" \
-              -l "$GITHUB_WORKSPACE/centreon/tests/performanceTesting/jmeterFolder/jmeter_results/results_$(basename "$i" .jmx).jtl" \
-              -j "$GITHUB_WORKSPACE/centreon/tests/performanceTesting/jmeterFolder/jmeter_results/jmeter_$(basename "$i" .jmx).log" \
-              -LDEBUG
+          if [ ! -f "$JMX_FILE" ]; then
+            echo "❌ Selected JMX file does not exist: $JMX_FILE"
+            exit 1
+          fi
 
-            tail -n 50 "$GITHUB_WORKSPACE/centreon/tests/performanceTesting/jmeterFolder/jmeter_results/jmeter_$(basename "$i" .jmx).log"
+          ./jmeter -n -t "$JMX_FILE" \
+            -Jusers_csv_path="$GITHUB_WORKSPACE/centreon/tests/performance/users.csv" \
+            -l "$GITHUB_WORKSPACE/centreon/tests/performance/jmeterFolder/jmeter_results/results_$(basename "$JMX_FILE" .jmx).jtl" \
+            -j "$GITHUB_WORKSPACE/centreon/tests/performance/jmeterFolder/jmeter_results/jmeter_$(basename "$JMX_FILE" .jmx).log" \
+            -LDEBUG
 
-            ./jmeter -g "$GITHUB_WORKSPACE/centreon/tests/performanceTesting/jmeterFolder/jmeter_results/results_$(basename "$i" .jmx).jtl" \
-              -o "$GITHUB_WORKSPACE/centreon/tests/performanceTesting/jmeterFolder/jmeter_html_report/$(basename "$i" .jmx)"
-          done
-
-          echo "Tests completed!"
+          ./jmeter -g "$GITHUB_WORKSPACE/centreon/tests/performance/jmeterFolder/jmeter_results/results_$(basename "$JMX_FILE" .jmx).jtl" \
+            -o "$GITHUB_WORKSPACE/centreon/tests/performance/jmeterFolder/jmeter_html_report/$(basename "$JMX_FILE" .jmx)"
 
       - name: Upload JMeter results
+        if: success()
         uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
         with:
           name: jmeter-results
-          path: centreon/tests/performanceTesting/jmeterFolder/jmeter_results
+          path: centreon/tests/performance/jmeterFolder/jmeter_results
 
       - name: Upload JMeter HTML Reports
+        if: success()
         uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
         with:
           name: jmeter-html-reports
-          path: centreon/tests/performanceTesting/jmeterFolder/jmeter_html_report
+          path: centreon/tests/performance/jmeterFolder/jmeter_html_report
 
       - name: Display HTML Report in GitHub Summary
+        if: success()
         run: |
           echo "Looking for JTL files..."
-          ls -la $GITHUB_WORKSPACE/centreon/tests/performanceTesting/jmeterFolder/jmeter_results
+          ls -la $GITHUB_WORKSPACE/centreon/tests/performance/jmeterFolder/jmeter_results
 
           NUMBER_OF_USERS="${{ github.event.inputs.number_of_users }}"
           RAMP_TIME="${{ github.event.inputs.ramp_time }}"
@@ -192,7 +200,7 @@ jobs:
           echo "<p>⏳ <strong> Ramp-Up Time (seconds) :</strong> $RAMP_TIME</p>" >> $GITHUB_STEP_SUMMARY
 
           # Boucle sur chaque fichier JTL
-          for JTL_FILE in $GITHUB_WORKSPACE/centreon/tests/performanceTesting/jmeterFolder/jmeter_results/*.jtl; do
+          for JTL_FILE in $GITHUB_WORKSPACE/centreon/tests/performance/jmeterFolder/jmeter_results/*.jtl; do
 
               echo "Found JTL file: $JTL_FILE"
 
@@ -241,12 +249,15 @@ jobs:
           done
 
       - name: Cleaning up database
+        if: success()
         run: node cleaningUpData.mjs
 
       - name: Install python3.11-venv
+        if: success()
         run: sudo apt-get update && sudo apt-get install -y python3.11-venv
 
       - name: Set up Python Virtual Environment
+        if: success()
         run: |
           python3 -m venv .venv
           source .venv/bin/activate
@@ -254,6 +265,7 @@ jobs:
           pip install pandas
 
       - name: Run Pandas Analysis
+        if: success()
         run: |
           source .venv/bin/activate
           if [[ -f analyze_results.py ]]; then
