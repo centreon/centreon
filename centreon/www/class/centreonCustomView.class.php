@@ -37,6 +37,12 @@
 require_once _CENTREON_PATH_ . 'www/class/centreonLDAP.class.php';
 require_once _CENTREON_PATH_ . 'www/class/centreonContactgroup.class.php';
 
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\Exception\ConnectionException;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
+use Core\Common\Domain\Exception\CollectionException;
+use Core\Common\Domain\Exception\ValueObjectException;
+
 /**
  * Centreon Custom View Exception
  */
@@ -660,58 +666,91 @@ class CentreonCustomView
         }
         $isLocked = 1;
         $update = false;
-        $query = 'SELECT custom_view_id, locked, user_id, usergroup_id ' .
-            'FROM custom_view_user_relation ' .
-            'WHERE custom_view_id = :viewLoad ' .
-            'AND ' .
-            '(user_id = :userId ' .
-            'OR usergroup_id IN ( ' .
-            'SELECT contactgroup_cg_id FROM contactgroup_contact_relation ' .
-            'WHERE contact_contact_id = :userId ' .
-            ') ' .
-            ') ORDER BY user_id DESC';
 
-        $stmt = $this->db->prepare($query);
-        $stmt->bindParam(':viewLoad', $viewLoadId, PDO::PARAM_INT);
-        $stmt->bindParam(':userId', $this->userId, PDO::PARAM_INT);
-        $dbResult = $stmt->execute();
-        if (!$dbResult) {
-            throw new \Exception("An error occured");
-        }
-        if ($row = $stmt->fetch()) {
-            if ($row['locked'] == "0") {
-                $isLocked = $row['locked'];
+        try {
+            $query = <<<'SQL'
+                    SELECT custom_view_id, locked, user_id, usergroup_id
+                    FROM custom_view_user_relation
+                    WHERE custom_view_id = :viewLoad
+                    AND (
+                            user_id = :userId
+                            OR usergroup_id IN (
+                                SELECT contactgroup_cg_id
+                                FROM contactgroup_contact_relation
+                                WHERE contact_contact_id = :userId
+                            )
+                    )
+                    ORDER BY user_id DESC
+                SQL;
+
+            $params = [
+                QueryParameter::int('viewLoad', $viewLoadId),
+                QueryParameter::int('userId', $this->userId),
+            ];
+            $queryParams = QueryParameters::create($params);
+
+            $row = $this->db->fetchAssociative($query, $queryParams);
+
+            if ($row) {
+                if ($row['locked'] == '0') {
+                    $isLocked = $row['locked'];
+                }
+                if (! is_null($row['user_id']) && $row['user_id'] > 0 && is_null($row['usergroup_id'])) {
+                    $update = true;
+                }
             }
-            if (!is_null($row['user_id']) && $row['user_id'] > 0 && is_null($row['usergroup_id'])) {
-                $update = true;
+
+            if ($update) {
+                $query = <<<'SQL'
+                        UPDATE custom_view_user_relation SET is_consumed=1
+                        WHERE custom_view_id = :viewLoad AND user_id = :userId
+                    SQL;
+                $this->db->update($query, $queryParams);
+            } else {
+                $query = <<<'SQL'
+                        SELECT 1
+                        FROM custom_views cv
+                            INNER JOIN custom_view_user_relation cvur
+                                ON cv.custom_view_id = cvur.custom_view_id
+                        WHERE cv.custom_view_id = :viewLoad
+                            AND (
+                                public = 1
+                                OR (
+                                    usergroup_id IN (
+                                        SELECT contactgroup_cg_id
+                                        FROM contactgroup_contact_relation
+                                        WHERE contact_contact_id = :userId
+                                    )
+                                )
+                            )
+                    SQL;
+                $row = $this->db->fetchAssociative($query, $queryParams);
+
+                if (! $row) {
+                    throw new CentreonCustomViewException('Access denied: View not found or not accessible to current user');
+                }
+
+                $query = <<<'SQL'
+                        INSERT INTO custom_view_user_relation (custom_view_id,user_id,is_owner,locked,is_share)
+                        VALUES (:viewLoad, :userId, 0, :isLocked, 1)
+                    SQL;
+                $params[] = QueryParameter::int('isLocked', $isLocked);
+                $queryParams = QueryParameters::create($params);
+                $this->db->insert($query, $queryParams);
             }
-        }
 
-        if ($update) {
-            $query = 'UPDATE custom_view_user_relation SET is_consumed=1 WHERE ' .
-                ' custom_view_id = :viewLoad AND user_id = :userId';
-            $stmt = $this->db->prepare($query);
-            $stmt->bindParam(':viewLoad', $viewLoadId, PDO::PARAM_INT);
-            $stmt->bindParam(':userId', $this->userId, PDO::PARAM_INT);
-        } else {
-            $query = 'INSERT INTO custom_view_user_relation (custom_view_id,user_id,is_owner,locked,is_share) ' .
-                'VALUES (:viewLoad, :userId, 0, :isLocked, 1)';
-            $stmt = $this->db->prepare($query);
-            $stmt->bindParam(':viewLoad', $viewLoadId, PDO::PARAM_INT);
-            $stmt->bindParam(':userId', $this->userId, PDO::PARAM_INT);
-            $stmt->bindParam(':isLocked', $isLocked, PDO::PARAM_INT);
-        }
-        $dbResult = $stmt->execute();
-        if (!$dbResult) {
-            throw new \Exception("An error occured");
-        }
+            // if the view is being added for the first time, we make sure that the widget parameters are going to be set
+            if (! $update) {
+                $this->addPublicViewWidgetParams($viewLoadId, $this->userId);
+            }
 
-        //if the view is being added for the first time, we make sure that the widget parameters are going to be set
-        if (!$update) {
-            $this->addPublicViewWidgetParams($viewLoadId, $this->userId);
+            return $viewLoadId;
+        } catch (ValueObjectException|ConnectionException|CollectionException $e) {
+            throw new CentreonCustomViewException(
+                'An error occurred while loading the custom view: ' . $e->getMessage(),
+                previous: $e
+            );
         }
-
-        return $viewLoadId;
     }
 
     /**
