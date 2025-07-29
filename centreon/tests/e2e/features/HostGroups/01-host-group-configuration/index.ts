@@ -1,6 +1,8 @@
-/* eslint-disable cypress/unsafe-to-chain-command */
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
-import { checkHostsAreMonitored, checkServicesAreMonitored } from 'e2e/commons';
+import {
+  checkHostsAreMonitored,
+  checkServicesAreMonitored
+} from '../../../commons';
 
 import hostGroups from '../../../fixtures/host-groups/host-group.json';
 
@@ -116,7 +118,7 @@ When('a host group is configured', () => {
         .getByLabel({ label: 'Up status hosts', tag: 'a' })
         .invoke('text')
         .then((text) => {
-          if (text != '2') {
+          if (text !== '2') {
             cy.exportConfig();
           }
 
@@ -197,7 +199,15 @@ Then('these properties are updated', () => {
 });
 
 When('the user duplicates the configured host group', () => {
-  cy.updateHostGroupViaApi(hostGroups.forDuplicate, hostGroups.default.name);
+  cy.updateHostGroupViaApi(
+    {
+      ...hostGroups.forDuplicate,
+      iconId: hostGroups.forDuplicate.icon_id,
+      geoCoords: hostGroups.forDuplicate.geo_coords,
+      isActivated: hostGroups.forDuplicate.is_activated
+    },
+    hostGroups.default.name
+  );
   cy.navigateTo({
     page: 'Host Groups',
     rootItemNumber: 3,

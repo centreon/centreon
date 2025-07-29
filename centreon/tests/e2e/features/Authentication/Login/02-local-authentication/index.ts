@@ -1,17 +1,16 @@
-/* eslint-disable cypress/no-unnecessary-waiting */
-import { When, Then, Given } from '@badeball/cypress-cucumber-preprocessor';
+import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
-import {
-  initializeConfigACLAndGetLoginPage,
-  millisecondsValueForSixMonth,
-  millisecondsValueForFourHour,
-  checkDefaultsValueForm
-} from '../common';
 import { getUserContactId } from '../../../../commons';
+import {
+  checkDefaultsValueForm,
+  initializeConfigAclAndGetLoginPage,
+  millisecondsValueForFourHour,
+  millisecondsValueForSixMonth
+} from '../common';
 
 before(() => {
   cy.startContainers().then(() => {
-    return initializeConfigACLAndGetLoginPage();
+    return initializeConfigAclAndGetLoginPage();
   });
 });
 

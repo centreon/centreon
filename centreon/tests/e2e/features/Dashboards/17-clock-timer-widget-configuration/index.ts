@@ -32,11 +32,11 @@ beforeEach(() => {
   }).as('listAllDashboards');
   cy.intercept({
     method: 'PATCH',
-    url: `/centreon/api/latest/configuration/dashboards/*`
+    url: '/centreon/api/latest/configuration/dashboards/*'
   }).as('updateDashboard');
   cy.intercept({
     method: 'GET',
-    url: `/centreon/api/latest/configuration/dashboards/*`
+    url: '/centreon/api/latest/configuration/dashboards/*'
   }).as('getDashboard');
   cy.intercept({
     method: 'GET',
@@ -199,7 +199,7 @@ When(
       .eq(2)
       .invoke('text')
       .then((clockText) => {
-        console.log(clockText);
+        cy.log(clockText);
         expect(clockText.trim()).to.equal('00:00:00');
       });
   }
@@ -223,12 +223,12 @@ Then('the widget should display the "Timer" format', () => {
   const day = String(today.getDate()).padStart(2, '0');
   const year = today.getFullYear();
   const formattedDate = `${month}/${day}/${year}`;
-  console.log(formattedDate);
+  cy.log(formattedDate);
   cy.get('p[class$="date"]')
     .eq(1)
     .invoke('text')
     .then((dateText) => {
-      console.log('Text inside date element:', dateText);
+      cy.log('Text inside date element:', dateText);
       expect(dateText.trim()).to.match(
         new RegExp(`Ends at: ${formattedDate} 11:55 (AM|PM)`)
       );

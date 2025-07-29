@@ -1,9 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-expressions */
-/* eslint-disable no-loop-func */
-/* eslint-disable newline-before-return */
-/* eslint-disable cypress/unsafe-to-chain-command */
-/* eslint-disable no-plusplus */
-/* eslint-disable no-case-declarations */
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
 import {
@@ -80,7 +74,7 @@ before(() => {
   }).as('dashboardMetricsTop');
   cy.intercept({
     method: 'POST',
-    url: `/centreon/api/latest/configuration/dashboards/*`
+    url: '/centreon/api/latest/configuration/dashboards/*'
   }).as('updateDashboard');
   cy.startContainers();
   cy.enableDashboardFeature();
@@ -184,11 +178,11 @@ beforeEach(() => {
   }).as('listAllDashboards');
   cy.intercept({
     method: 'POST',
-    url: `/centreon/api/latest/configuration/dashboards/*/access_rights/contacts`
+    url: '/centreon/api/latest/configuration/dashboards/*/access_rights/contacts'
   }).as('addContactToDashboardShareList');
   cy.intercept({
     method: 'PATCH',
-    url: `/centreon/api/latest/configuration/dashboards/*`
+    url: '/centreon/api/latest/configuration/dashboards/*'
   }).as('updateDashboard');
   cy.intercept({
     method: 'GET',
@@ -365,7 +359,7 @@ Given(
 When(
   'the dashboard administrator clicks on the "view Resource Status" button from the {string} widget',
   (widgetType) => {
-    let eqIndex;
+    let eqIndex: number | undefined;
 
     switch (widgetType) {
       case 'single metric':
@@ -414,7 +408,7 @@ Then(
         cy.url().should('include', '/centreon/monitoring/resources?details=');
         break;
 
-      case 'metrics graph':
+      case 'metrics graph': {
         cy.url().should('include', '/centreon/monitoring/resources?filter=');
         const metricsGraphStatuses = ['Critical'];
 
@@ -424,8 +418,9 @@ Then(
             .should('contain.text', metricsGraphStatuses[i]);
         }
         break;
+      }
 
-      case 'status grid':
+      case 'status grid': {
         cy.url().should('include', '/centreon/monitoring/resources?filter=');
         const statusGridStatuses = [
           'Critical',
@@ -446,7 +441,8 @@ Then(
             expect(statusFound).to.be.true;
           });
         break;
-      case 'top buttom':
+      }
+      case 'top buttom': {
         cy.url().should('include', '/centreon/monitoring/resources?filter=');
         const topButtomStatuses = [
           'Critical',
@@ -472,6 +468,7 @@ Then(
             expect(statusFound).to.be.true;
           });
         break;
+      }
       default:
         break;
     }
