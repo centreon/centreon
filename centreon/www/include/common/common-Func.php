@@ -1653,10 +1653,22 @@ function truncateGeoCoords(): string
         return $coords;
     }
 
-    $latitude = number_format((float) $parts[0], 6, '.', '');
-    $longitude = number_format((float) $parts[1], 6, '.', '');
+    $latitude = truncateDecimals($parts[0]);
+    $longitude = truncateDecimals($parts[1]);
 
     return sprintf('%s,%s', $latitude, $longitude);
+}
+
+function truncateDecimals(string $value): string
+{
+    if (! str_contains($value, '.')) {
+        return $value;
+    }
+
+    [$intPart, $decimalPart] = explode('.', $value, 2);
+    $decimalPart = mb_substr($decimalPart, 0, 6);
+
+    return $intPart . '.' . $decimalPart;
 }
 
 /**
