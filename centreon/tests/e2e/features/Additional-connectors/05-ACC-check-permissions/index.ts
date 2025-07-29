@@ -1,4 +1,3 @@
-/* eslint-disable cypress/unsafe-to-chain-command */
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
 before(() => {
@@ -103,7 +102,9 @@ Then(
 );
 
 Given('an additional connector configuration is already created', () => {
-  cy.contains('Welcome to the additional configurations page').should('not.exist');
+  cy.contains('Welcome to the additional configurations page').should(
+    'not.exist'
+  );
 });
 
 When(
@@ -116,9 +117,7 @@ When(
 Then(
   'a pop up is displayed with all of the additional connector information',
   () => {
-    cy.contains('Modify an additional configuration').should(
-      'be.visible'
-    );
+    cy.contains('Modify an additional configuration').should('be.visible');
     cy.getByLabel({ label: 'Name', tag: 'input' }).should(
       'have.value',
       'Connector-001'
@@ -257,7 +256,7 @@ Given('the user has a filter on one of the pollers', () => {
     bodyContent: {
       action: 'addfilter_instance',
       object: 'ACLRESOURCE',
-      values: `All Resources;Poller-1`
+      values: 'All Resources;Poller-1'
     }
   });
   cy.setUserTokenApiV1().executeActionViaClapi({
@@ -277,7 +276,9 @@ When('the user accesses the Additional Connector Configuration page', () => {
 Then(
   'the user can not view the additional connector linked to the 2 pollers',
   () => {
-    cy.contains('Welcome to the additional configurations page').should('be.visible');
+    cy.contains('Welcome to the additional configurations page').should(
+      'be.visible'
+    );
   }
 );
 
@@ -288,7 +289,7 @@ When(
       bodyContent: {
         action: 'addfilter_instance',
         object: 'ACLRESOURCE',
-        values: `All Resources;Poller-2`
+        values: 'All Resources;Poller-2'
       }
     });
     cy.setUserTokenApiV1().executeActionViaClapi({
@@ -310,9 +311,7 @@ Then('the user can view the additional connector linked to the pollers', () => {
 When(
   'a pop up is displayed with all of the additional connector information with the 2 pollers',
   () => {
-    cy.contains('Modify an additional configuration').should(
-      'be.visible'
-    );
+    cy.contains('Modify an additional configuration').should('be.visible');
     cy.getByLabel({ label: 'Name', tag: 'input' }).should(
       'have.value',
       'Connector-001'
@@ -340,7 +339,7 @@ Then('the user can update the additional connector configuration', () => {
   cy.contains('Modify an additional configuration').should('be.visible');
   cy.getByLabel({ label: 'Select poller(s)', tag: 'input' }).click();
   cy.get('svg[class*="deleteIcon"]').eq(0).click();
- cy.saveAcc();
+  cy.saveAcc();
   cy.wait('@updateConnectorDetail');
   cy.get('Modify an additional configuration').should('not.exist');
 });
@@ -384,7 +383,7 @@ When('the non-admin user fills in all the informations', () => {
     .clear()
     .type('https://10.1.1.1/sdk');
   cy.get('#Portvalue').should('have.value', '5700');
- cy.saveAcc();
+  cy.saveAcc();
 });
 
 Then(
@@ -421,7 +420,7 @@ When(
 );
 
 When('the non-admin clicks on Save button', () => {
- cy.saveAcc();
+  cy.saveAcc();
 });
 
 Then('an error message is displayed', () => {

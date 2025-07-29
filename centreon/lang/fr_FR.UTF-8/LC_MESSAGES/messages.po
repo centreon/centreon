@@ -1414,23 +1414,11 @@ msgstr "Une erreur s'est produite lors de la désactivation des menus centraux"
 msgid "An error occurred while enabling the central menus"
 msgstr "Une erreur s'est produite lors de l'activation des menus centraux"
 
-#: centreon/www/class/centreonCustomView.class.php
-msgid "An error occurred while retrieving groups linked to ViewId on database"
-msgstr ""
-"Une erreur est survenue lors de la récupération en DB des groupes liés à "
-"ViewId"
-
 #: centreon/src/Core/Notification/Application/UseCase/FindNotifications/FindNotifications.php
 msgid "An error occurred while retrieving the notifications listing"
 msgstr ""
 "Une erreur s'est produite lors de la récupération de la liste des "
 "notifications"
-
-#: centreon/www/class/centreonCustomView.class.php
-msgid "An error occurred while retrieving users linked to ViewId on database"
-msgstr ""
-"Une erreur est survenue lors de la récupération en DB des utilisateurs liés "
-"à ViewId"
 
 #: centreon/src/Centreon/Domain/RemoteServer/RemoteServerService.php
 msgid "An error occurred while searching any remote children"
@@ -19756,6 +19744,20 @@ msgstr "Une erreur est survenue lors de la mise à jour de la platforme"
 #: unknown
 msgid "An error occurred while filtering columns"
 msgstr "Une erreur est survenue lors du filtrage des colonnes"
+
+#: unknown
+msgid ""
+"An error occurred while retrieving groups linked to ViewId on database"
+msgstr ""
+"Une erreur est survenue lors de la récupération en DB des groupes liés à "
+"ViewId"
+
+#: unknown
+msgid ""
+"An error occurred while retrieving users linked to ViewId on database"
+msgstr ""
+"Une erreur est survenue lors de la récupération en DB des utilisateurs "
+"liés à ViewId"
 
 #: unknown
 msgid "Animation effects"
