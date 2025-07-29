@@ -285,25 +285,3 @@ jobs:
         with:
           name: ${{ inputs.name }}-component-${{ matrix.type_of_report }}-*
           failOnError: false
-
-  create-jira-nightly-ticket:
-    needs: [cypress-component-coverage-report, cypress-component-test-report, cypress-component-test-run, regroup-artifacts]
-    runs-on: ubuntu-24.04
-    if: |
-      inputs.is_nightly == 'true' && github.run_attempt == 1 &&
-      (failure() || cancelled()) &&
-      startsWith(github.ref_name, 'dev') &&
-      github.repository == 'centreon/centreon'
-    steps:
-      - name: Checkout sources
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-
-      - name: Create Jira ticket on nightly build failure
-        uses: ./.github/actions/create-jira-ticket
-        with:
-          jira_base_url: ${{ secrets.jira_base_url }}
-          jira_user_email: ${{ secrets.jira_user_email }}
-          jira_api_token: ${{ secrets.jira_api_token }}
-          module_name: "centreon-web"
-          ticket_labels: '["Nightly", "Pipeline", "nightly-${{ github.ref_name }}", "cypress-component"]'
-          ticket_squad: "Product Backlog"
