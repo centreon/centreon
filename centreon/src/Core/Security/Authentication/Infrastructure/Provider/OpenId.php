@@ -328,8 +328,10 @@ class OpenId implements ProviderAuthenticationInterface
      * @param string $idToken
      *
      * @throws Exception
+     *
+     * @return string|null
      */
-    public function logout(string $idToken): void
+    public function logout(string $idToken, bool $stay = false): string|null
     {
         $request = $this->requestStack->getCurrentRequest();
         if ($request === null) {
@@ -355,6 +357,10 @@ class OpenId implements ProviderAuthenticationInterface
         ];
 
         $logoutUrl = $endSessionUrl . '?' . http_build_query($params);
+
+        if ($stay !== false) {
+            return $postLogout;
+        }
 
         try {
             header('Location: ' . $logoutUrl, true, 302);

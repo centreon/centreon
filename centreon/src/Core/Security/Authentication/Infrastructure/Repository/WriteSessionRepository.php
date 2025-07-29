@@ -84,9 +84,10 @@ class WriteSessionRepository implements WriteSessionRepositoryInterface
             $configuration = $provider->getConfiguration();
             /** @var OpenIdCustomConfiguration $customConfiguration */
             $customConfiguration = $configuration->getCustomConfiguration();
+            $isLogin = $this->requestStack->getSession()->get('isLogin') ?? false;
             if ($configuration->isActive()) {
                 try {
-                    $provider->logout($idToken);
+                    $provider->logout($idToken, $isLogin);
                 } catch (Exception $e) {
                     $this->error('OpenID logout failed: ' . $e->getMessage(), [
                         'exception' => $e,
@@ -112,6 +113,7 @@ class WriteSessionRepository implements WriteSessionRepositoryInterface
         $this->info('[AUTHENTICATE] Starting Centreon Session');
         $this->requestStack->getSession()->start();
         $this->requestStack->getSession()->set('centreon', $legacySession);
+        $this->requestStack->getSession()->set('isLogin', true);
         $_SESSION['centreon'] = $legacySession;
 
         $isSessionStarted = $this->requestStack->getSession()->isStarted();
