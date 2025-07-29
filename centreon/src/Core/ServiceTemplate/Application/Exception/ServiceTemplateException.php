@@ -181,4 +181,12 @@ class ServiceTemplateException extends \Exception
             self::CODE_CONFLICT
         );
     }
+
+    /**
+     * @return self
+     */
+    public static function circularTemplateInheritance(): self
+    {
+        return new self(_('Circular inheritance not allowed'), self::CODE_CONFLICT);
+    }
 }
