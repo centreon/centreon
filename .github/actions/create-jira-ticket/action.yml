@@ -28,7 +28,7 @@ runs:
       with:
         node-version: 20
 
-    - name: Install Gherkin Lint
+    - name: Install DayJS
       run: npm install dayjs
       shell: bash
 
@@ -55,19 +55,12 @@ runs:
           const JSON_TEMPLATE_FILE = "./.github/actions/create-jira-ticket/nightly-ticket-template.json";
           const date = dayjs().format('YYYY-MM-DD');
           const path = './ticket-payload.json';
-          let contents;
-          let data, ticket_summary, ticket_squad_id, ticket_board_id, squad_name, ticket_labels, current_sprint, ticket_data, data_payload, ticket_key;
+          let contents, data, ticket_summary, ticket_squad_id, ticket_board_id, squad_name, ticket_labels, current_sprint, ticket_data, ticket_key;
 
-          let failed_jobs = execSync(
+          let failed_jobs = JSON.parse(execSync(
             `gh run view ${{ github.run_id }} --json jobs -q '[.jobs[] | select(.conclusion == "failure") | .name | split(" ")[0] ] | unique'`,
             { encoding: 'utf8' }
-          );
-
-          failed_jobs = failed_jobs
-            .split('\n')
-            .map(line => line.trim())
-            .filter(Boolean);
-
+          ));
           console.log(failed_jobs);
 
           for (const failed_job of failed_jobs) {
@@ -108,7 +101,7 @@ runs:
                 squad_name = "GOTHAM"
               }
             } else {
-              core.warning(`Not finding any squad association with job ${failed_job}.`);
+              core.setFailed(`Not finding any squad association with job ${failed_job}.`);
               continue;
             }
 
