@@ -1,4 +1,3 @@
-/* eslint-disable cypress/no-unnecessary-waiting */
 import { insertFixture } from '../../commons';
 
 const waitToExport = 10000;
@@ -27,10 +26,10 @@ const getPoller = (pollerName: string): Cypress.Chainable => {
     })
     .then(([rows]) => {
       if (rows.length) {
-        return cy.wrap(parseInt(rows[0].id, 10));
+        return cy.wrap(Number.parseInt(rows[0].id, 10));
       }
 
-      return cy.log(`Cannot execute command on database.`);
+      return cy.log('Cannot execute command on database.');
     });
 };
 
@@ -97,7 +96,7 @@ const checkIfMethodIsAppliedToPollers = (method: string): void => {
       return null;
     }
 
-    throw new Error(`Method has not been applied to pollers`);
+    throw new Error('Method has not been applied to pollers');
   });
 };
 
@@ -129,7 +128,7 @@ const checkIfConfigurationIsNotExported = (): void => {
       return null;
     }
 
-    throw new Error(`The configuration has been exported`);
+    throw new Error('The configuration has been exported');
   });
 };
 

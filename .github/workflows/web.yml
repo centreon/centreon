@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
     inputs:
       nightly_manual_trigger:
-        description: 'Set to true to trigger a nightly run'
+        description: "Set to true to trigger a nightly run"
         required: true
         default: false
         type: boolean
@@ -31,8 +31,8 @@ on:
       - dev-[2-9][0-9].[0-9][0-9].x
       - master
       - "[2-9][0-9].[0-9][0-9].x"
-      - 'release-[2-9][0-9].[0-9][0-9]-next'
-      - 'hotfix-[2-9][0-9].[0-9][0-9]-next'
+      - "release-[2-9][0-9].[0-9][0-9]-next"
+      - "hotfix-[2-9][0-9].[0-9][0-9]-next"
     paths:
       - ".version"
       - ".version.centreon-web"
@@ -48,6 +48,7 @@ on:
 env:
   base_directory: centreon
   widgets_directory: centreon/www/widgets
+  e2e_directory: centreon/tests/e2e
 
 jobs:
   changes:
@@ -170,26 +171,11 @@ jobs:
           file: ${{ env.update_file }}
           version: ${{ env.version }}
 
-  gherkin-lint:
-    runs-on: ubuntu-24.04
-    needs: [get-environment, changes]
-    if: |
-      needs.get-environment.outputs.skip_workflow == 'false' &&
-      needs.get-environment.outputs.stability != 'stable' &&
-      needs.changes.outputs.has_test_changes == 'true'
-    steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-
-      - uses: ./.github/actions/gherkin-lint
-        with:
-          features_path: centreon/tests/e2e/features
-
   frontend-web-build:
     needs: [get-environment]
     if: |
       needs.get-environment.outputs.skip_workflow == 'false'
     runs-on: ubuntu-24.04
-
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
@@ -223,7 +209,6 @@ jobs:
     if: |
       needs.get-environment.outputs.skip_workflow == 'false'
     runs-on: ubuntu-24.04
-
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
@@ -473,38 +458,38 @@ jobs:
       - name: 🛠️ Rector checks
         working-directory: centreon
         run: |
-         echo "Run of these Rector tests: rector:legacy, rector:core, rector:new" && set -e
+          echo "Run of these Rector tests: rector:legacy, rector:core, rector:new" && set -e
 
-         pids=()
-         statuses=()
+          pids=()
+          statuses=()
 
-         run_task() {
-           name=$1
-           shift
-           "$@" -- --no-progress-bar
-           result=$?
-           if [ $result -eq 0 ]; then
-             echo "✅ Rector $name: Success"
-           else
-             echo "❌ Rector $name: Failed"
-           fi
-           return $result
-         }
+          run_task() {
+            name=$1
+            shift
+            "$@" -- --no-progress-bar
+            result=$?
+            if [ $result -eq 0 ]; then
+              echo "✅ Rector $name: Success"
+            else
+              echo "❌ Rector $name: Failed"
+            fi
+            return $result
+          }
 
-         # Start tasks in background
-         run_task legacy composer rector:legacy & pids+=($!)
-         run_task core composer rector:core & pids+=($!)
-         run_task new composer rector:new & pids+=($!)
+          # Start tasks in background
+          run_task legacy composer rector:legacy & pids+=($!)
+          run_task core composer rector:core & pids+=($!)
+          run_task new composer rector:new & pids+=($!)
 
-         # Wait for all, and record if any failed
-         exit_code=0
-         for pid in "${pids[@]}"; do
-           if ! wait "$pid"; then
-             exit_code=1
-           fi
-         done
+          # Wait for all, and record if any failed
+          exit_code=0
+          for pid in "${pids[@]}"; do
+            if ! wait "$pid"; then
+              exit_code=1
+            fi
+          done
 
-         exit $exit_code
+          exit $exit_code
 
       - name: 🧹 PHP-CS-Fixer checks
         working-directory: centreon
@@ -616,10 +601,40 @@ jobs:
 
           exit $exit_code
 
+  gherkin-lint:
+    runs-on: ubuntu-24.04
+    needs: [get-environment, changes]
+    if: |
+      needs.changes.outputs.has_test_changes == 'true' &&
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      needs.get-environment.outputs.stability != 'stable'
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - uses: ./.github/actions/gherkin-lint
+        with:
+          features_path: ${{ env.e2e_directory }}/features
+
+  e2e-lint:
+    runs-on: ubuntu-22.04
+    needs: [get-environment, changes]
+    if: |
+      needs.changes.outputs.has_test_changes == 'true' &&
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      needs.get-environment.outputs.stability != 'stable'
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - uses: ./.github/actions/frontend-lint
+        with:
+          frontend_directory: ${{ env.e2e_directory }}
+          module_name: ${{ env.base_directory }}
+          dependencies_lock_file: ${{ env.base_directory }}/pnpm-lock.yaml
+          pat: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+
   package:
     needs:
       [
-        gherkin-lint,
         get-environment,
         check-version-consistency,
         translation-build,
@@ -630,6 +645,8 @@ jobs:
         frontend-web-lint,
         frontend-unit-test,
         frontend-component-test,
+        gherkin-lint,
+        e2e-lint,
       ]
     if: |
       needs.get-environment.outputs.skip_workflow == 'false' &&
@@ -946,7 +963,13 @@ jobs:
       xray_jira_token: ${{ secrets.XRAY_JIRA_TOKEN }}
 
   newman-test:
-    needs: [get-environment, changes, create-xray-test-plan-and-test-execution, dockerize]
+    needs:
+      [
+        get-environment,
+        changes,
+        create-xray-test-plan-and-test-execution,
+        dockerize
+      ]
     if: |
       needs.get-environment.outputs.skip_workflow == 'false' &&
       ! cancelled() &&
@@ -1013,7 +1036,15 @@ jobs:
       jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
 
   e2e-test:
-    needs: [get-environment, changes, dockerize, create-xray-test-plan-and-test-execution]
+    needs:
+      [
+        get-environment,
+        changes,
+        dockerize,
+        create-xray-test-plan-and-test-execution,
+        gherkin-lint,
+        e2e-lint,
+      ]
     if: |
       needs.get-environment.outputs.skip_workflow == 'false' &&
       !cancelled() &&
@@ -1106,13 +1137,7 @@ jobs:
 
   deliver-sources:
     runs-on: centreon-common
-    needs:
-      [
-        get-environment,
-        e2e-test,
-        performances-test,
-        legacy-e2e-test,
-      ]
+    needs: [get-environment, e2e-test, performances-test, legacy-e2e-test]
     if: ${{ needs.get-environment.outputs.skip_workflow == 'false' && !cancelled() && contains(fromJson('["stable"]'), needs.get-environment.outputs.stability) && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && github.event_name != 'workflow_dispatch' && github.repository == 'centreon/centreon' }}
 
     steps:
@@ -1222,13 +1247,7 @@ jobs:
   deliver-rpm:
     runs-on: centreon-common
     needs:
-      [
-        changes,
-        get-environment,
-        e2e-test,
-        performances-test,
-        legacy-e2e-test,
-      ]
+      [changes, get-environment, e2e-test, performances-test, legacy-e2e-test]
     if: |
       needs.get-environment.outputs.skip_workflow == 'false' &&
       contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability) &&
@@ -1276,13 +1295,7 @@ jobs:
   deliver-deb:
     runs-on: centreon-common
     needs:
-      [
-        changes,
-        get-environment,
-        e2e-test,
-        performances-test,
-        legacy-e2e-test,
-      ]
+      [changes, get-environment, e2e-test, performances-test, legacy-e2e-test]
     if: |
       needs.get-environment.outputs.skip_workflow == 'false' &&
       contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability) &&

@@ -1,11 +1,11 @@
-import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
+import { Given } from '@badeball/cypress-cucumber-preprocessor';
 
-import { Contact, durationMap } from '../common';
+import { Contact } from '../common';
 
-const tokenName = '';
+// const tokenName = '';
 
 // starting from the User_1
-const userId = 20;
+// const userId = 20;
 
 before(() => {
   cy.startContainers();
