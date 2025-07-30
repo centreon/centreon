@@ -235,7 +235,8 @@ jobs:
   #         exit $exit_code
 
   package:
-    needs: [get-environment, check-version-consistency, backend-lint]
+    # needs: [get-environment, check-version-consistency, backend-lint]
+    needs: [get-environment, check-version-consistency]
     if: |
       needs.get-environment.outputs.skip_workflow == 'false' &&
       needs.get-environment.outputs.stability != 'stable' &&
