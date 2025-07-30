@@ -118,7 +118,7 @@ runs:
           # upload local artifact
           echo "Uploading $file"
           if [[ "${{ inputs.release_type }}" == "hotfix" || "${{ inputs.release_type }}" == "release" ]]; then
-            jf rt upload "$file" "$ROOT_REPO_PATH/pool/${{ inputs.module_name }}/${{ inputs.release_type }}/" --flat --deb "${{ inputs.distrib }}/main/$ARCH" --detailed-summary --target-props "deb.suite=${{ inputs.release_type }}"
+            jf rt upload "$file" "$ROOT_REPO_PATH/pool/${{ inputs.module_name }}/${{ inputs.release_type }}/" --flat --deb "${{ inputs.distrib }}-${{ inputs.release_type }}/main/$ARCH" --detailed-summary
           else
             jf rt upload "$file" "$ROOT_REPO_PATH/pool/${{ inputs.module_name }}/" --flat --deb "${{ inputs.distrib }}/main/$ARCH" --detailed-summary
           fi
