@@ -17221,6 +17221,9 @@ msgid ""
 "configuration. All parameters for this agent configuration will be deleted. "
 "This action cannot be undone."
 msgstr ""
+"Vous allez supprimer la configuration de l'agent <strong>{{ agent }}</"
+"strong>. Tous les paramètres de configuration de cet agent seront supprimés. "
+"Cette action est irréversible."
 
 #: centreon/www/install/front_translate.php
 msgid ""
@@ -17229,6 +17232,11 @@ msgid ""
 "All configuration parameters for this poller will be deleted. This action "
 "cannot be undone."
 msgstr ""
+"Vous allez supprimer la configuration du collecteur <strong>{{ poller }}</"
+"strong> de l'agent <strong>{{ agent }}</strong>. Tous les paramètres de "
+"configuration de ce collecteur seront supprimés. Cette action est "
+"irréversible."
+
 
 #: centreon/src/Core/AdditionalConnectorConfiguration/Application/Exception/AccException.php
 msgid "You are not allowed to access additional configurations"
