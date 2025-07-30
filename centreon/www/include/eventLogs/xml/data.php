@@ -625,7 +625,7 @@ $orderClause = 'ORDER BY logs.ctime DESC';
 $limitClause = '';
 if (! $export) {
     $offset = (($num - 1) * $limit);
-    $queryValues[':offset'] = [ $offset > 0 ? $offset : 0, PDO::PARAM_INT];
+    $queryValues[':offset'] = [$offset > 0 ? $offset : 0, PDO::PARAM_INT];
     $queryValues[':limit'] = [$limit, PDO::PARAM_INT];
     $limitClause = 'LIMIT :limit OFFSET :offset';
 }

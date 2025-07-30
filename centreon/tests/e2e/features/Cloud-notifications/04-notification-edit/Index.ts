@@ -1,9 +1,11 @@
-import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
+import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
 import {
   checkHostsAreMonitored,
   checkServicesAreMonitored
 } from '../../../commons';
+import data from '../../../fixtures/notifications/data-for-notification.json';
+import notificationBody from '../../../fixtures/notifications/notification-creation.json';
 import {
   createNotification,
   editNotification,
@@ -12,8 +14,6 @@ import {
   setBrokerNotificationsOutput,
   waitUntilLogFileChange
 } from '../common';
-import notificationBody from '../../../fixtures/notifications/notification-creation.json';
-import data from '../../../fixtures/notifications/data-for-notification.json';
 
 const contactAfterEdit = 'Guest';
 

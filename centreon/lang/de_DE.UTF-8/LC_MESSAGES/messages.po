@@ -1389,21 +1389,9 @@ msgstr "Fehler beim Deaktivieren der zentralen Menüs"
 msgid "An error occurred while enabling the central menus"
 msgstr "Fehler beim Aktivieren der zentralen Menüs"
 
-#: centreon/www/class/centreonCustomView.class.php
-msgid "An error occurred while retrieving groups linked to ViewId on database"
-msgstr ""
-"Beim Ermitteln von mit der Ansichts-ID (ViewId) verknüpften Gruppen auf der "
-"Datenbank ist ein Fehler aufgetreten"
-
 #: centreon/src/Core/Notification/Application/UseCase/FindNotifications/FindNotifications.php
 msgid "An error occurred while retrieving the notifications listing"
 msgstr ""
-
-#: centreon/www/class/centreonCustomView.class.php
-msgid "An error occurred while retrieving users linked to ViewId on database"
-msgstr ""
-"Beim Ermitteln von mit der Ansichts-ID (ViewId) verknüpften Benutzern auf "
-"der Datenbank ist ein Fehler aufgetreten"
 
 #: centreon/src/Centreon/Domain/RemoteServer/RemoteServerService.php
 msgid "An error occurred while searching any remote children"
@@ -2734,8 +2722,10 @@ msgstr "Wählen Sie die Quelle für den Graph"
 msgid "Circular Definition"
 msgstr "Zirkeldefinition"
 
+#: centreon/src/Core/ServiceTemplate/Application/Exception/ServiceTemplateException.php
 #: centreon/src/Core/Host/Application/Exception/HostException.php
 #: centreon/src/Core/HostTemplate/Application/Exception/HostTemplateException.php
+#: centreon/www/include/configuration/configObject/service_template_model/formServiceTemplateModel.php
 msgid "Circular inheritance not allowed"
 msgstr ""
 
@@ -7258,6 +7248,16 @@ msgstr "Dauer, für die vorgesorgt werden soll"
 msgid "Fourth of month"
 msgstr "Vierter des Monats"
 
+#: centreon/www/include/Administration/parameters/general/form.php
+msgid "Free text search behavior"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid ""
+"Free text search behavior can be configured in the Administration > "
+"Parameters > Centreon UI page."
+msgstr ""
+
 #: centreon/www/include/configuration/configNagios/formNagios.php
 msgid "Freshness"
 msgstr "Aktualität"
@@ -7308,6 +7308,10 @@ msgstr "Vollständige Sicherung"
 
 #: centreon/www/install/front_translate.php
 msgid "Full name attribute"
+msgstr ""
+
+#: centreon/www/include/Administration/parameters/general/form.php
+msgid "Full search"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
@@ -8610,7 +8614,6 @@ msgstr ""
 
 #: centreon/www/include/Administration/parameters/centstorage/form.php
 #: centreon/www/include/Administration/parameters/debug/form.php
-#: centreon/www/include/Administration/parameters/general/form.php
 #: centreon/www/include/Administration/parameters/ldap/form.php
 #: centreon/www/include/Administration/parameters/rrdtool/form.php
 msgid "Impossible to validate, one or more field is incorrect"
@@ -9435,6 +9438,10 @@ msgstr "Limit pro Seite (Standardwert)"
 #: centreon/www/include/Administration/parameters/general/form.php
 msgid "Limit per page for Monitoring"
 msgstr "Limit pro Seite für das Monitoring"
+
+#: centreon/www/include/Administration/parameters/general/form.php
+msgid "Limited search"
+msgstr ""
 
 #: centreon/www/install/dashboard_widgets.php
 msgid "Line"
@@ -10940,7 +10947,7 @@ msgid "Name of the logger"
 msgstr "Name des Protokollierers"
 
 #: centreon/www/install/front_translate.php
-msgid "Need help with search bar usage?"
+msgid "Need help using the search bar?"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
@@ -13244,6 +13251,10 @@ msgstr ""
 
 #: centreon/www/install/front_translate.php
 msgid "Resource name"
+msgstr ""
+
+#: centreon/www/include/Administration/parameters/general/form.php
+msgid "Resource status performance"
 msgstr ""
 
 #: centreon/www/install/dashboard_widgets.php
@@ -19744,6 +19755,20 @@ msgstr "Adresse6"
 #: unknown
 msgid "Advanced mode"
 msgstr "Erweiterter Modus"
+
+#: unknown
+msgid ""
+"An error occurred while retrieving groups linked to ViewId on database"
+msgstr ""
+"Beim Ermitteln von mit der Ansichts-ID (ViewId) verknüpften Gruppen auf "
+"der Datenbank ist ein Fehler aufgetreten"
+
+#: unknown
+msgid ""
+"An error occurred while retrieving users linked to ViewId on database"
+msgstr ""
+"Beim Ermitteln von mit der Ansichts-ID (ViewId) verknüpften Benutzern auf "
+"der Datenbank ist ein Fehler aufgetreten"
 
 # msgid "Enter regex mode"
 # msgstr ""

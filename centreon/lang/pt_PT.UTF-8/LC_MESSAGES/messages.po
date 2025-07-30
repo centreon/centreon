@@ -1380,16 +1380,8 @@ msgstr ""
 msgid "An error occurred while enabling the central menus"
 msgstr ""
 
-#: centreon/www/class/centreonCustomView.class.php
-msgid "An error occurred while retrieving groups linked to ViewId on database"
-msgstr ""
-
 #: centreon/src/Core/Notification/Application/UseCase/FindNotifications/FindNotifications.php
 msgid "An error occurred while retrieving the notifications listing"
-msgstr ""
-
-#: centreon/www/class/centreonCustomView.class.php
-msgid "An error occurred while retrieving users linked to ViewId on database"
 msgstr ""
 
 #: centreon/src/Centreon/Domain/RemoteServer/RemoteServerService.php
@@ -2699,8 +2691,10 @@ msgstr "Escolha a fonte do gráfico"
 msgid "Circular Definition"
 msgstr "Definição Circular"
 
+#: centreon/src/Core/ServiceTemplate/Application/Exception/ServiceTemplateException.php
 #: centreon/src/Core/Host/Application/Exception/HostException.php
 #: centreon/src/Core/HostTemplate/Application/Exception/HostTemplateException.php
+#: centreon/www/include/configuration/configObject/service_template_model/formServiceTemplateModel.php
 msgid "Circular inheritance not allowed"
 msgstr ""
 
@@ -7487,6 +7481,16 @@ msgstr "Provisionamento direto"
 msgid "Fourth of month"
 msgstr "Quarto do mês"
 
+#: centreon/www/include/Administration/parameters/general/form.php
+msgid "Free text search behavior"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid ""
+"Free text search behavior can be configured in the Administration > "
+"Parameters > Centreon UI page."
+msgstr ""
+
 #: centreon/www/include/configuration/configNagios/formNagios.php
 msgid "Freshness"
 msgstr "Atualização"
@@ -7537,6 +7541,10 @@ msgstr "Backup completo"
 
 #: centreon/www/install/front_translate.php
 msgid "Full name attribute"
+msgstr ""
+
+#: centreon/www/include/Administration/parameters/general/form.php
+msgid "Full search"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
@@ -8833,7 +8841,6 @@ msgstr ""
 
 #: centreon/www/include/Administration/parameters/centstorage/form.php
 #: centreon/www/include/Administration/parameters/debug/form.php
-#: centreon/www/include/Administration/parameters/general/form.php
 #: centreon/www/include/Administration/parameters/ldap/form.php
 #: centreon/www/include/Administration/parameters/rrdtool/form.php
 msgid "Impossible to validate, one or more field is incorrect"
@@ -9656,6 +9663,10 @@ msgstr "Limite por página (por padrão)"
 #: centreon/www/include/Administration/parameters/general/form.php
 msgid "Limit per page for Monitoring"
 msgstr "Limite por página para Monitoramento"
+
+#: centreon/www/include/Administration/parameters/general/form.php
+msgid "Limited search"
+msgstr ""
 
 #: centreon/www/install/dashboard_widgets.php
 msgid "Line"
@@ -11305,7 +11316,7 @@ msgid "Name of the logger"
 msgstr "Nome do registrador"
 
 #: centreon/www/install/front_translate.php
-msgid "Need help with search bar usage?"
+msgid "Need help using the search bar?"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
@@ -13606,6 +13617,10 @@ msgstr ""
 
 #: centreon/www/install/front_translate.php
 msgid "Resource name"
+msgstr ""
+
+#: centreon/www/include/Administration/parameters/general/form.php
+msgid "Resource status performance"
 msgstr ""
 
 #: centreon/www/install/dashboard_widgets.php

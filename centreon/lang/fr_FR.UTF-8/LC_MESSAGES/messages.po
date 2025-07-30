@@ -1414,23 +1414,11 @@ msgstr "Une erreur s'est produite lors de la désactivation des menus centraux"
 msgid "An error occurred while enabling the central menus"
 msgstr "Une erreur s'est produite lors de l'activation des menus centraux"
 
-#: centreon/www/class/centreonCustomView.class.php
-msgid "An error occurred while retrieving groups linked to ViewId on database"
-msgstr ""
-"Une erreur est survenue lors de la récupération en DB des groupes liés à "
-"ViewId"
-
 #: centreon/src/Core/Notification/Application/UseCase/FindNotifications/FindNotifications.php
 msgid "An error occurred while retrieving the notifications listing"
 msgstr ""
 "Une erreur s'est produite lors de la récupération de la liste des "
 "notifications"
-
-#: centreon/www/class/centreonCustomView.class.php
-msgid "An error occurred while retrieving users linked to ViewId on database"
-msgstr ""
-"Une erreur est survenue lors de la récupération en DB des utilisateurs liés "
-"à ViewId"
 
 #: centreon/src/Centreon/Domain/RemoteServer/RemoteServerService.php
 msgid "An error occurred while searching any remote children"
@@ -2791,8 +2779,10 @@ msgstr "Choisissez la source à grapher"
 msgid "Circular Definition"
 msgstr "Définition circulaire"
 
+#: centreon/src/Core/ServiceTemplate/Application/Exception/ServiceTemplateException.php
 #: centreon/src/Core/Host/Application/Exception/HostException.php
 #: centreon/src/Core/HostTemplate/Application/Exception/HostTemplateException.php
+#: centreon/www/include/configuration/configObject/service_template_model/formServiceTemplateModel.php
 msgid "Circular inheritance not allowed"
 msgstr "Héritage circulaire non autorisé"
 
@@ -7364,6 +7354,18 @@ msgstr "Provisionnement à l'avance"
 msgid "Fourth of month"
 msgstr "Le quatrième du mois"
 
+#: centreon/www/include/Administration/parameters/general/form.php
+msgid "Free text search behavior"
+msgstr "Comportement de la recherche texte libre"
+
+#: centreon/www/install/front_translate.php
+msgid ""
+"Free text search behavior can be configured in the Administration > "
+"Parameters > Centreon UI page."
+msgstr ""
+"Le comportement de la recherche texte libre peut être configuré à la page "
+"Administration > Paramètres > Centreon web page."
+
 #: centreon/www/include/configuration/configNagios/formNagios.php
 msgid "Freshness"
 msgstr "Fraicheur"
@@ -7415,6 +7417,10 @@ msgstr "Sauvegarde complète"
 #: centreon/www/install/front_translate.php
 msgid "Full name attribute"
 msgstr "Attribut de nom complet"
+
+#: centreon/www/include/Administration/parameters/general/form.php
+msgid "Full search"
+msgstr "Recherche étendue"
 
 #: centreon/www/install/front_translate.php
 msgid "Fullname attribute path"
@@ -8733,7 +8739,6 @@ msgstr ""
 
 #: centreon/www/include/Administration/parameters/centstorage/form.php
 #: centreon/www/include/Administration/parameters/debug/form.php
-#: centreon/www/include/Administration/parameters/general/form.php
 #: centreon/www/include/Administration/parameters/ldap/form.php
 #: centreon/www/include/Administration/parameters/rrdtool/form.php
 msgid "Impossible to validate, one or more field is incorrect"
@@ -9564,6 +9569,10 @@ msgstr "Limite par page (par défaut)"
 #: centreon/www/include/Administration/parameters/general/form.php
 msgid "Limit per page for Monitoring"
 msgstr "Limite par page pour les pages de supervision"
+
+#: centreon/www/include/Administration/parameters/general/form.php
+msgid "Limited search"
+msgstr "Recherche restreinte"
 
 #: centreon/www/install/dashboard_widgets.php
 msgid "Line"
@@ -11069,8 +11078,8 @@ msgid "Name of the logger"
 msgstr "Nom du journal d'évènements"
 
 #: centreon/www/install/front_translate.php
-msgid "Need help with search bar usage?"
-msgstr "Besoin d'aide pour utiliser la barre de recherche ?"
+msgid "Need help using the search bar?"
+msgstr "Besoin d'aide pour utiliser la barre de recherche?"
 
 #: centreon/www/install/front_translate.php
 msgid "Never expire"
@@ -13386,6 +13395,10 @@ msgstr "Lien vers la ressource copiée dans le presse-papier"
 #: centreon/www/install/front_translate.php
 msgid "Resource name"
 msgstr "Nom de la ressource"
+
+#: centreon/www/include/Administration/parameters/general/form.php
+msgid "Resource status performance"
+msgstr "Performances de la page Statut des ressources"
 
 #: centreon/www/install/dashboard_widgets.php
 msgid "Resource table"
@@ -19731,6 +19744,20 @@ msgstr "Une erreur est survenue lors de la mise à jour de la platforme"
 #: unknown
 msgid "An error occurred while filtering columns"
 msgstr "Une erreur est survenue lors du filtrage des colonnes"
+
+#: unknown
+msgid ""
+"An error occurred while retrieving groups linked to ViewId on database"
+msgstr ""
+"Une erreur est survenue lors de la récupération en DB des groupes liés à "
+"ViewId"
+
+#: unknown
+msgid ""
+"An error occurred while retrieving users linked to ViewId on database"
+msgstr ""
+"Une erreur est survenue lors de la récupération en DB des utilisateurs "
+"liés à ViewId"
 
 #: unknown
 msgid "Animation effects"

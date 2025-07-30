@@ -1,4 +1,4 @@
-import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
+import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 import { last } from 'ramda';
 
 import dashboards from '../../../fixtures/dashboards/check-permissions/dashboards.json';

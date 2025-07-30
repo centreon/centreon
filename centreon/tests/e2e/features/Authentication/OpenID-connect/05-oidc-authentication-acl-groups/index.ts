@@ -1,15 +1,15 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
-import {
-  configureOpenIDConnect,
-  initializeOIDCUserAndGetLoginPage
-} from '../common';
 import { configureProviderAcls, getAccessGroupId } from '../../../../commons';
+import {
+  configureOpenIdConnect,
+  initializeOidcUserAndGetLoginPage
+} from '../common';
 
 before(() => {
   cy.startContainers({ profiles: ['openid'] }).then(() => {
     configureProviderAcls();
-    initializeOIDCUserAndGetLoginPage();
+    initializeOidcUserAndGetLoginPage();
   });
 });
 
@@ -64,7 +64,7 @@ When(
       tag: 'input'
     }).scrollIntoView().check();
 
-    configureOpenIDConnect();
+    configureOpenIdConnect();
 
     cy.getByLabel({
       label: 'Enable automatic management',
