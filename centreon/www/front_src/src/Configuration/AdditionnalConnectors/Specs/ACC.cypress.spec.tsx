@@ -1,6 +1,6 @@
-import Filters from './Acc.Filters';
-import Listing from './Acc.Listing';
-import Modal from './Acc.Modal';
+import Filters from './ACC.Filters';
+import Listing from './ACC.Listing';
+import Modal from './ACC.Modal';
 
 describe('Additional connectors configuration: ', () => {
   Listing();
