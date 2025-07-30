@@ -41,6 +41,12 @@ runs:
         JF_URL: https://centreon.jfrog.io
         JF_ACCESS_TOKEN: ${{ inputs.artifactory_token }}
 
+    - name: Parse distrib name
+      id: parse-distrib
+      uses: ./.github/actions/parse-distrib
+      with:
+        distrib: ${{ inputs.distrib }}
+
     - name: Publish DEBs
       run: |
         FILES="*.deb"
@@ -55,18 +61,34 @@ runs:
 
         # Make sure all required inputs are NOT empty
         if [[ -z "${{ inputs.module_name }}" || -z "${{ inputs.distrib }}" || -z ${{ inputs.stability }} || -z ${{ inputs.version }} || -z "${{ inputs.is_cloud }}" ]]; then
-          echo "Some mandatory inputs are empty, please check the logs."
+          echo "::error::some mandatory inputs are empty, please check the logs."
           exit 1
         fi
 
-        # Set ROOT_REPO_PATH based on inputs
-        if [[ "${{ inputs.is_cloud }}" == "true" ]]; then
-          ROOT_REPO_PATH="apt-standard-internal-${{ inputs.stability }}"
-        elif [[ "${{ inputs.distrib }}" == "jammy" ]]; then
-          ROOT_REPO_PATH="ubuntu-standard-${{ inputs.version }}-${{ inputs.stability }}"
-        else
-          ROOT_REPO_PATH="apt-standard-${{ inputs.version }}-${{ inputs.stability }}"
+        if [[ "${{ inputs.stability }}" != "testing" && "${{ inputs.stability }}" != "unstable" ]]; then
+          echo "::error::stability must be one of: testing, unstable (got '${{ inputs.stability }}')"
+          exit 1
         fi
+
+        ROOT_REPO_PATH_PREFIX=""
+        if [[ "${{ steps.parse-distrib.outputs.distrib_family }}" == "debian" ]]; then
+          ROOT_REPO_PATH_PREFIX="apt"
+        elif [[ "${{ steps.parse-distrib.outputs.distrib_family }}" == "ubuntu" ]]; then
+          ROOT_REPO_PATH="ubuntu"
+        else
+          echo "::error::Unsupported distribution family: ${{ steps.parse-distrib.outputs.distrib_family }}"
+          exit 1
+        fi
+
+        ROOT_REPO_PATH_SUFFIX=""
+        if [[ "${{ inputs.is_cloud }}" == "true" ]]; then
+          ROOT_REPO_PATH_SUFFIX="internal-${{ inputs.stability }}"
+        else
+          ROOT_REPO_PATH_SUFFIX="${{ inputs.version }}-${{ inputs.stability }}"
+        fi
+
+        ROOT_REPO_PATH="${ROOT_REPO_PATH_PREFIX}-standard-${ROOT_REPO_PATH_SUFFIX}"
+        ROOT_REPO_PATH="atp-kdu-${{ inputs.stability }}"
 
         # Cleanup (equivalent to --sync-deletes done with RPMs)
         # This is a workaround the fact that jfrog cli does not allow upload
@@ -95,6 +117,10 @@ runs:
 
           # upload local artifact
           echo "Uploading $file"
-          jf rt upload "$file" "$ROOT_REPO_PATH/pool/${{ inputs.module_name }}/" --deb "${{ inputs.distrib }}/main/$ARCH"
+          if [[ "${{ inputs.release_type }}" == "hotfix" || "${{ inputs.release_type }}" == "release" ]]; then
+            jf rt upload "$file" "$ROOT_REPO_PATH/pool/${{ inputs.module_name }}/${{ inputs.release_type }}/" --flat --deb "${{ inputs.distrib }}/main/$ARCH" --detailed-summary --target-props "deb.suite=${{ inputs.release_type }}"
+          else
+            jf rt upload "$file" "$ROOT_REPO_PATH/pool/${{ inputs.module_name }}/" --flat --deb "${{ inputs.distrib }}/main/$ARCH" --detailed-summary
+          fi
         done
       shell: bash
