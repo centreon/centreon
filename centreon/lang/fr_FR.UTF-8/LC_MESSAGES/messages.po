@@ -23409,3 +23409,25 @@ msgstr "alerte"
 #: unknown
 msgid "will display resources with host name starting by'"
 msgstr "affichera les ressources avec un nom d'hôte commençant par"
+
+#: centreon/www/install/front_translate.php
+msgid ""
+"You are going to delete the <strong>{{ agent }}</strong> agent "
+"configuration. All parameters for this agent configuration will be deleted. "
+"This action cannot be undone."
+msgstr ""
+"Vous allez supprimer la configuration de l'agent <strong>{{ agent }}</"
+"strong>. Tous les paramètres de configuration de cet agent seront supprimés. "
+"Cette action est irréversible."
+
+#: centreon/www/install/front_translate.php
+msgid ""
+"You are going to delete the configuration for the <strong>{{ poller }}</"
+"strong> poller from the <strong>{{ agent }}</strong> agent configuration. "
+"All configuration parameters for this poller will be deleted. This action "
+"cannot be undone."
+msgstr ""
+"Vous allez supprimer la configuration du collecteur <strong>{{ poller }}</"
+"strong> de l'agent <strong>{{ agent }}</strong>. Tous les paramètres de "
+"configuration de ce collecteur seront supprimés. Cette action est "
+"irréversible."
