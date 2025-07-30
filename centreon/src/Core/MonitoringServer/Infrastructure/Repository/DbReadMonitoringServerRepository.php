@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Core\MonitoringServer\Infrastructure\Repository;
 
 use Assert\AssertionFailedException;
+use Centreon\Domain\Exception\EntityNotFoundException;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Infrastructure\DatabaseConnection;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
@@ -35,7 +36,12 @@ use Utility\SqlConcatenator;
 /**
  * @phpstan-type MSResultSet array{
  *     id: int,
- *     name: string
+ *     name: string,
+ *     engine_start_command ?: string|null,
+ *     engine_stop_command ?: string|null,
+ *     engine_restart_command ?: string|null,
+ *     engine_reload_command ?: string|null,
+ *     broker_reload_command ?: string|null
  * }
  */
 class DbReadMonitoringServerRepository extends AbstractRepositoryRDB implements ReadMonitoringServerRepositoryInterface
@@ -250,6 +256,55 @@ class DbReadMonitoringServerRepository extends AbstractRepositoryRDB implements 
         return $monitoringServers;
     }
 
+    public function findAll(): array
+    {
+        $statement = $this->db->prepare($this->translateDbName(<<<'SQL'
+            SELECT
+                id,
+                name,
+                engine_start_command,
+                engine_stop_command,
+                engine_restart_command,
+                engine_reload_command,
+                broker_reload_command
+            FROM `:db`.`nagios_server`
+            SQL
+        ));
+        $statement->execute();
+
+        $monitoringServers = [];
+        foreach ($statement->fetchAll(\PDO::FETCH_ASSOC) as $result) {
+            $monitoringServers[] = $this->createMonitoringServerFromArray($result);
+        }
+
+        return $monitoringServers;
+    }
+
+    public function get(int $monitoringServerId): MonitoringServer
+    {
+        $statement = $this->db->prepare($this->translateDbName(<<<'SQL'
+            SELECT
+                id,
+                name,
+                engine_start_command,
+                engine_stop_command,
+                engine_restart_command,
+                engine_reload_command,
+                broker_reload_command
+            FROM `:db`.`nagios_server`
+            WHERE id = :monitoringServerId
+            SQL
+        ));
+        $statement->bindValue(':monitoringServerId', $monitoringServerId, \PDO::PARAM_INT);
+        $statement->execute();
+        /** @var MSResultSet|false */
+        $data = $statement->fetch(\PDO::FETCH_ASSOC);
+
+        return $data
+            ? $this->createMonitoringServerFromArray($data)
+            : throw new EntityNotFoundException(sprintf('Monitoring Server [%d] does not exist', $monitoringServerId));
+    }
+
     /**
      * @param MSResultSet $result
      *
@@ -261,7 +316,12 @@ class DbReadMonitoringServerRepository extends AbstractRepositoryRDB implements 
     {
         return new MonitoringServer(
             id: $result['id'],
-            name: $result['name']
+            name: $result['name'],
+            engineStartCommand: $result['engine_start_command'] ?? null,
+            engineStopCommand: $result['engine_stop_command'] ?? null,
+            engineReloadCommand: $result['engine_reload_command'] ?? null,
+            engineRestartCommand: $result['engine_restart_command'] ?? null,
+            brokerReloadCommand: $result['broker_reload_command'] ?? null
         );
     }
 }
