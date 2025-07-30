@@ -88,7 +88,7 @@ runs:
         fi
 
         ROOT_REPO_PATH="${ROOT_REPO_PATH_PREFIX}-standard-${ROOT_REPO_PATH_SUFFIX}"
-        ROOT_REPO_PATH="atp-kdu-${{ inputs.stability }}"
+        ROOT_REPO_PATH="apt-kdu-${{ inputs.stability }}"
 
         # Cleanup (equivalent to --sync-deletes done with RPMs)
         # This is a workaround the fact that jfrog cli does not allow upload
