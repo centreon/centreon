@@ -9,6 +9,7 @@ import {
   WidgetDataResource,
   WidgetResourceType
 } from '../../../models';
+import { labelPleaseSelectAResource } from '../../../../translatedLabels';
 
 interface UseDefaultSelectTypeData {
   selectType?: SelectType;
@@ -65,7 +66,7 @@ const useDefaultSelectTypeData = ({
               item?.requied &&
               isEmpty(resources)
             ) {
-              return { resourceType, resources: 'error' };
+              return { resourceType, resources: labelPleaseSelectAResource };
             }
             return null;
           });
@@ -75,7 +76,7 @@ const useDefaultSelectTypeData = ({
   );
 
   const validateDefaultSelectTypeData = useCallback(() => {
-    if (isEmpty(defaultSelectTypeErrors)) {
+    if (isEmpty(defaultSelectTypeErrors) || !defaultSelectTypeErrors) {
       return;
     }
 
@@ -99,6 +100,8 @@ const useDefaultSelectTypeData = ({
   }, [defaultSelectTypeErrors]);
 
   validateDefaultSelectTypeData();
+
+  console.log({errors, defaultSelectTypeErrors})
 
   return {
     getDefaultRequiredSelectType,
