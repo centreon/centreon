@@ -243,7 +243,10 @@ jobs:
           HAS_UPDATE_TRANSLATIONS_LABEL: ${{ contains(needs.get-environment.outputs.labels, 'update-translations') }}
         run: |
           TRANSLATIONS_PATCH_FILE=""
-          ls
+
+          git config --global --add safe.directory $GITHUB_WORKSPACE
+
+          cd centreon
         shell: bash
 
       - name: Build translations
@@ -254,6 +257,7 @@ jobs:
           EVENT_NAME: ${{ github.event_name }}
           HAS_UPDATE_TRANSLATIONS_LABEL: ${{ contains(needs.get-environment.outputs.labels, 'update-translations') }}
         run: |
+          set -x
           TRANSLATIONS_PATCH_FILE=""
 
           git config --global --add safe.directory $GITHUB_WORKSPACE
