@@ -75,7 +75,7 @@ const configureOpenIdConnect = (): Cypress.Chainable => {
       .type(`{selectall}{backspace}${oidcConfigValues.clientSecret}`);
     cy.getByLabel({ label: 'Scopes', tag: 'input' })
       .should('be.visible')
-      .type(`{selectall}{backspace}${oidcConfigValues.scopes}`);
+      .type(`{selectall}{backspace}${oidcConfigValues.scopes}{enter}`);
     cy.getByLabel({ label: 'Login attribute path', tag: 'input' })
       .should('be.visible')
       .type(`{selectall}{backspace}${oidcConfigValues.loginAttrPath}`);
