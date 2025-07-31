@@ -63,14 +63,12 @@ When('the user clicks on the Agents Configuration page', () => {
 
 Then('the user sees the Agents Configuration page', () => {
   cy.wait('@getAgentsPage');
-  cy.contains('Welcome to the poller/agent configuration page').should(
-    'be.visible'
-  );
+  cy.contains('Welcome to the agent configuration page').should('be.visible');
 });
 
 Given('a CMA Token is configured', () => {
   cy.addCMAToken();
-})
+});
 
 Given('a non-admin user is in the Agents Configuration page', () => {
   cy.loginByTypeOfUser({
@@ -82,9 +80,9 @@ Given('a non-admin user is in the Agents Configuration page', () => {
 });
 
 Given('an already existing agent configuration', () => {
-  cy.contains('button', 'Add poller/agent configuration').click();
+  cy.contains('button', 'Add agent configuration').click();
   cy.get('*[role="dialog"]').should('be.visible');
-  cy.get('*[role="dialog"]').contains('Add poller/agent configuration');
+  cy.get('*[role="dialog"]').contains('Add agent configuration');
   cy.getByLabel({ label: 'Agent type', tag: 'input' }).click();
   cy.get('*[role="listbox"]').contains('Telegraf').click();
   cy.getByLabel({ label: 'Name', tag: 'input' }).type(
@@ -92,20 +90,20 @@ Given('an already existing agent configuration', () => {
   );
   cy.getByLabel({ label: 'Pollers', tag: 'input' }).click();
   cy.contains('Central').click();
-  cy.getByLabel({ label: 'Public certificate', tag: 'input' })
+  cy.getByLabel({ label: 'Public certificate(.crt,.cer)', tag: 'input' })
     .eq(0)
     .type(agentsConfiguration.telegraf1.publicCertfFileName);
-  cy.getByLabel({ label: 'CA', tag: 'input' }).type(
+  cy.getByLabel({ label: 'CA(.crt,.cer)', tag: 'input' }).type(
     agentsConfiguration.telegraf1.caFileName
   );
-  cy.getByLabel({ label: 'Private key', tag: 'input' })
+  cy.getByLabel({ label: 'Private key(.key)', tag: 'input' })
     .eq(0)
     .type(agentsConfiguration.telegraf1.privateKFileName);
   cy.getByLabel({ label: 'Port', tag: 'input' }).should('have.value', '1443');
-  cy.getByLabel({ label: 'Public certificate', tag: 'input' })
+  cy.getByLabel({ label: 'Public certificate(.crt,.cer)', tag: 'input' })
     .eq(1)
     .type(agentsConfiguration.telegraf1.certfFileName);
-  cy.getByLabel({ label: 'Private key', tag: 'input' })
+  cy.getByLabel({ label: 'Private key(.key)', tag: 'input' })
     .eq(1)
     .type(agentsConfiguration.telegraf1.privateKFileName);
   cy.getByTestId({ testId: 'submit' }).click();
@@ -120,7 +118,7 @@ When('the user clicks on the line of the agent configuration', () => {
 });
 
 Then('a pop up is displayed with all of the agent information', () => {
-  cy.contains('Update poller/agent configuration').should('be.visible');
+  cy.contains('Update agent configuration').should('be.visible');
   cy.getByLabel({ label: 'Agent type', tag: 'input' }).should(
     'have.value',
     'Telegraf'
@@ -133,30 +131,30 @@ Then('a pop up is displayed with all of the agent information', () => {
     'have.text',
     'Central'
   );
-  cy.getByLabel({ label: 'Public certificate', tag: 'input' })
+  cy.getByLabel({ label: 'Public certificate(.crt,.cer)', tag: 'input' })
     .eq(0)
     .should(
       'have.value',
       `/etc/pki/${agentsConfiguration.telegraf1.publicCertfFileName}`
     );
-  cy.getByLabel({ label: 'CA', tag: 'input' }).should(
+  cy.getByLabel({ label: 'CA(.crt,.cer)', tag: 'input' }).should(
     'have.value',
     `/etc/pki/${agentsConfiguration.telegraf1.caFileName}`
   );
-  cy.getByLabel({ label: 'Private key', tag: 'input' })
+  cy.getByLabel({ label: 'Private key(.key)', tag: 'input' })
     .eq(0)
     .should(
       'have.value',
       `/etc/pki/${agentsConfiguration.telegraf1.privateKFileName}`
     );
   cy.getByLabel({ label: 'Port', tag: 'input' }).should('have.value', '1443');
-  cy.getByLabel({ label: 'Public certificate', tag: 'input' })
+  cy.getByLabel({ label: 'Public certificate(.crt,.cer)', tag: 'input' })
     .eq(1)
     .should(
       'have.value',
       `/etc/pki/${agentsConfiguration.telegraf1.certfFileName}`
     );
-  cy.getByLabel({ label: 'Private key', tag: 'input' })
+  cy.getByLabel({ label: 'Private key(.key)', tag: 'input' })
     .eq(1)
     .should(
       'have.value',
@@ -167,7 +165,7 @@ Then('a pop up is displayed with all of the agent information', () => {
 Given('some poller agent configurations are created', () => {
   cy.contains('button', 'Add').click();
   cy.get('*[role="dialog"]').should('be.visible');
-  cy.get('*[role="dialog"]').contains('Add poller/agent configuration');
+  cy.get('*[role="dialog"]').contains('Add agent configuration');
   cy.getByLabel({ label: 'Agent type', tag: 'input' }).click();
   cy.get('*[role="listbox"]').contains('Centreon Monitoring Agent').click();
   cy.FillCMAMandatoryFields(agentsConfiguration.CMA1);

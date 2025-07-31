@@ -887,8 +887,8 @@ msgid "Add parameter"
 msgstr "Ajouter un paramètre"
 
 #: centreon/www/install/front_translate.php
-msgid "Add poller/agent configuration"
-msgstr "Ajouter une configuration collecteur/agent"
+msgid "Add agent configuration"
+msgstr "Ajouter une configuration d'agent"
 
 #: centreon/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php
 #: centreon/www/include/configuration/configObject/service/formService.php
@@ -1995,8 +1995,8 @@ msgstr ""
 "d'administration, etc...)."
 
 #: centreon/www/install/front_translate.php
-msgid "CA"
-msgstr "CA"
+msgid "CA(.crt,.cer)"
+msgstr "CA(.crt,.cer)"
 
 #: centreon/www/install/front_translate.php
 msgid "CA Common Name (CN)"
@@ -4038,8 +4038,8 @@ msgid "Delete additional configuration"
 msgstr "Supprimer la configuration additionnelle"
 
 #: centreon/www/install/front_translate.php
-msgid "Delete agent"
-msgstr "Supprimer un agent"
+msgid "Delete agent configuration"
+msgstr "Supprimer une configuration d'agent"
 
 #: centreon/www/install/front_translate.php
 msgid "Delete dashboard"
@@ -6710,7 +6710,7 @@ msgstr ""
 
 #: centreon/src/Core/AgentConfiguration/Application/Exception/AgentConfigurationException.php
 #, php-format
-msgid "Filename '%s' (%s) is invalid"
+msgid "File path or format '%s' (%s) is invalid"
 msgstr "Le nom de fichier '%s' (%s) est invalide"
 
 #: centreon/www/include/configuration/configNagios/formNagios.php
@@ -11976,16 +11976,16 @@ msgid "Poller configuration"
 msgstr "Configuration du collecteur"
 
 #: centreon/www/install/front_translate.php
-msgid "Poller/agent configuration"
-msgstr "Configuration collecteur/agent"
+msgid "Agent configuration"
+msgstr "Configuration d'agent"
 
 #: centreon/www/install/front_translate.php
-msgid "Poller/agent configuration created"
-msgstr "Configuration collecteur/agent créée"
+msgid "Agent configuration created"
+msgstr "Configuration d'agent créée"
 
 #: centreon/www/install/front_translate.php
-msgid "Poller/agent configuration updated"
-msgstr "Configuration collecteur/agent mise à jour"
+msgid "Agent configuration updated"
+msgstr "Configuration d'agent mise à jour"
 
 #: centreon/www/install/menu_translation.php
 #: centreon/www/install/front_translate.php
@@ -12123,8 +12123,8 @@ msgid "Print Total Value"
 msgstr "Afficher la valeur totale"
 
 #: centreon/www/install/front_translate.php
-msgid "Private key"
-msgstr "Clé privée"
+msgid "Private key(.key)"
+msgstr "Clé privée(.key)"
 
 #: centreon/www/install/centreon_broker_translation.php
 msgid "Private key file."
@@ -12223,8 +12223,8 @@ msgstr "Public"
 
 #: centreon/www/install/front_translate.php
 #: centreon/www/install/centreon_broker_translation.php
-msgid "Public certificate"
-msgstr "Certificat public"
+msgid "Public certificate(.crt,.cer)"
+msgstr "Certificat public(.crt,cer)"
 
 #: centreon/www/include/home/customViews/formLoad.php
 msgid "Public views list"
@@ -16391,8 +16391,8 @@ msgid "Update mode"
 msgstr "Mode de mise à jour"
 
 #: centreon/www/install/front_translate.php
-msgid "Update poller/agent configuration"
-msgstr "Mettre à jour la configuration collecteur/agent"
+msgid "Update agent configuration"
+msgstr "Mettre à jour la configuration d'agent"
 
 #: centreon/www/install/front_translate.php
 msgid "Updated"
@@ -17095,8 +17095,8 @@ msgid "Welcome to the notifications interface"
 msgstr "Bienvenue dans l'interface de gestion des notifications"
 
 #: centreon/www/install/front_translate.php
-msgid "Welcome to the poller/agent configuration page"
-msgstr "Bienvenue sur la page des configurations collecteur/agent"
+msgid "Welcome to the agent configuration page"
+msgstr "Bienvenue sur la page des configurations d'agent"
 
 #: centreon/www/install/front_translate.php
 msgid "Which endpoint does the conditions attribute path come from?"
@@ -18660,10 +18660,6 @@ msgstr "Adresse n°6"
 #: unknown
 msgid "Advanced mode"
 msgstr "Mode avancé"
-
-#: unknown
-msgid "Agent configuration"
-msgstr "Configuration d'agent"
 
 #: unknown
 msgid "Aggressive Host Checks"
@@ -23404,3 +23400,11 @@ msgstr "Performances de la page Statut des ressources"
 
 msgid "Free text search behavior can be configured in the Administration > Parameters > Centreon UI page."
 msgstr "Le comportement de la recherche texte libre peut être configuré à la page Administration > Paramètres > Centreon web page."
+
+#: unknown
+msgid "You are going to delete the <strong>{{ agent }}</strong> agent configuration. All parameters for this agent configuration will be deleted. This action cannot be undone."
+msgstr "Vous allez supprimer la configuration de l'agent <strong>{{ agent }}</strong>. Tous les paramètres de configuration de cet agent seront supprimés. Cette action est irréversible."
+
+#: unknown
+msgid "You are going to delete the configuration for the <strong>{{ poller }}</strong> poller from the <strong>{{ agent }}</strong> agent configuration. All configuration parameters for this poller will be deleted. This action cannot be undone."
+msgstr "Vous allez supprimer la configuration du collecteur <strong>{{ poller }}</strong> de l'agent <strong>{{ agent }}</strong>. Tous les paramètres de configuration de ce collecteur seront supprimés. Cette action est irréversible."
