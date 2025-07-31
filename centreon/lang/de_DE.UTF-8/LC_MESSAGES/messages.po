@@ -1976,7 +1976,7 @@ msgid ""
 msgstr ""
 
 #: centreon/www/install/front_translate.php
-msgid "CA"
+msgid "CA(.crt,.cer)"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
@@ -6681,7 +6681,7 @@ msgstr ""
 
 #: centreon/src/Core/AgentConfiguration/Application/Exception/AgentConfigurationException.php
 #, php-format
-msgid "Filename '%s' (%s) is invalid"
+msgid "File path or format '%s' (%s) is invalid"
 msgstr ""
 
 #: centreon/www/include/configuration/configNagios/formNagios.php
@@ -17214,6 +17214,23 @@ msgid ""
 "You are going to delete <strong>{{name}}</strong> from the user list. This "
 "user will no longer access the dashboard."
 msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid ""
+"You are going to delete the <strong>{{ agent }}</strong> agent "
+"configuration. All parameters for this agent configuration will be deleted. "
+"This action cannot be undone."
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid ""
+"You are going to delete the configuration for the <strong>{{ poller }}</"
+"strong> poller from the <strong>{{ agent }}</strong> agent configuration. "
+"All configuration parameters for this poller will be deleted. This action "
+"cannot be undone."
+msgstr ""
+
+
 
 #: centreon/src/Core/AdditionalConnectorConfiguration/Application/Exception/AccException.php
 msgid "You are not allowed to access additional configurations"
