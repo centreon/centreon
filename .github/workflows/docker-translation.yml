@@ -49,7 +49,8 @@ jobs:
           context: .
           pull: true
           push: true
-          tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/translation:${{ needs.get-environment.outputs.major_version }}
+          tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/translation:${{ github.head_ref }}
+          # tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/translation:${{ needs.get-environment.outputs.major_version }}
 
   set-skip-label:
     needs: [get-environment, dockerize]
