@@ -4,6 +4,7 @@ RUN sh -e <<EOF
 
 apk add --no-cache --update \
   bash \
+  coreutils \
   gettext \
   git \
   musl \
