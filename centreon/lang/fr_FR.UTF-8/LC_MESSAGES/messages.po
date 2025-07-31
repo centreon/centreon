@@ -24093,3 +24093,16 @@ msgstr "alerte"
 #: unknown
 msgid "will display resources with host name starting by'"
 msgstr "affichera les ressources avec un nom d'hôte commençant par"
+
+msgid "Business Activity availability history"
+msgstr "Historique de la disponibilité d’une Activité Métier"
+
+msgid "Displays the availability history of a Business Activity or a Business View for a given period."
+msgstr "Affiche l’historique de la disponibilité d'une activité métier ou vue métier pour une période donnée."
+
+msgid "By default, the data of Business Views is aggregated monthly over the past 12 months (if available)."
+msgstr "Par défaut, les données des vues métier sont agrégées mensuellement sur les 12 derniers mois (si disponibles)."
+
+msgid "Display availability and performance as"
+msgstr "Afficher la disponibilité et la performance sous forme de"
+

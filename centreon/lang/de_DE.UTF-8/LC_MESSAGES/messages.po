@@ -19744,14 +19744,52 @@ msgstr "Adresse6"
 # msgstr ""
 # msgid "Base color"
 # msgstr ""
+
+# msgid "Business Activity availability history"
+# msgstr ""
+
+# msgid "Displays the availability history of a Business Activity or a Business View for a given period."
+# msgstr ""
+
+# msgid "Aggregation frequency"
+# msgstr ""
+
+# msgid "Reporting period"
+# msgstr ""
+
+# msgid "This month"
+# msgstr ""
+
+# msgid "This year"
+# msgstr ""
+
+# msgid "Display availability and performance as"
+# msgstr ""
+
+# msgid "Y-axis boundaries"
+# msgstr ""
+
+# msgid "Thresholds can be hidden if the custom min and max values of the Y axis are below/above the thresholds."
+# msgstr ""
+
+# msgid "By default, the data of Business Views is aggregated monthly over the past 12 months (if available)."
+# msgstr ""
+
+# msgid "Custom boundaries apply to the percentage."
+# msgstr ""
+
 #  msgid "Display view:"
 #  msgstr ""
+
 #  msgid "View all resources"
 #  msgstr ""
+
 #  msgid "View by host"
 #  msgstr ""
+
 #  msgid "View by service"
 #  msgstr ""
+
 #: unknown
 msgid "Advanced mode"
 msgstr "Erweiterter Modus"
