@@ -17,7 +17,7 @@ apk add --no-cache --update \
   tzdata \
   zstd
 
-ln -s /usr/bin/php82 /usr/bin/php
+ln -s /usr/bin/php81 /usr/bin/php
 
 EOF
 
