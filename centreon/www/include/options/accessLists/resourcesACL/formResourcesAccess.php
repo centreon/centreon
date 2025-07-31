@@ -466,7 +466,7 @@ if ($form->validate()) {
         $tpl->assign('sort3', _('Service Resources'));
         $tpl->assign('sort4', _('Meta Services'));
         $tpl->assign('sort5', _('Filters'));
-        $tpl->assign('sort6', _('Medias'));
+        $tpl->assign('sort6', _('Image folders'));
         $tpl->display('formResourcesAccess.ihtml');
     }
 }
