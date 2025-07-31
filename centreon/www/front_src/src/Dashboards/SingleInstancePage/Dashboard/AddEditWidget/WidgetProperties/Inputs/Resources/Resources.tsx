@@ -27,6 +27,7 @@ import { areResourcesFullfilled } from '../utils';
 import { SelectField } from '@centreon/ui';
 import ConfirmationResourceTypeToggleRegexModal from './ConfirmationResourceTypeToggleRegexModal';
 import ResourceField from './ResourceField';
+import useDefaultSelectTypeData from './useDefaultSelectType';
 import useResources from './useResources';
 
 const Resources = ({
@@ -81,6 +82,9 @@ const Resources = ({
     allowRegexOnResourceTypes
   });
 
+  const { getDefaultDisabledSelectType, getDefaultRequiredSelectType } =
+    useDefaultSelectTypeData({ value, selectType });
+
   const { canEditField } = useCanEditProperties();
 
   const deleteButtonHidden =
@@ -96,31 +100,6 @@ const Resources = ({
     equals(resourceType, 'hostgroup')
       ? WidgetResourceType.hostGroup
       : resourceType;
-
-  const getDefaultSelectType = (currentResourceType: WidgetResourceType) => {
-    return selectType?.defaultResourceType.find(({ resourceType }) =>
-      equals(resourceType, currentResourceType)
-    );
-  };
-
-  const getDefaultRequiredSelectType = (
-    currentResourceType: WidgetResourceType
-  ) => {
-    const defaultSelectedType = getDefaultSelectType(currentResourceType);
-    return Boolean(defaultSelectedType?.requied);
-  };
-
-  const getDefaultDisabledSelectType = (
-    currentResourceType: WidgetResourceType
-  ) => {
-    const defaultSelectedType = getDefaultSelectType(currentResourceType);
-    const { when, matches } = defaultSelectedType?.disabled || {};
-    const targetValue = value.find(
-      (item) => item[when] && equals(item[when], matches)
-    );
-
-    return targetValue?.resources?.length <= 0;
-  };
 
   return (
     <div className={classes.resourcesContainer}>
@@ -203,11 +182,11 @@ const Resources = ({
                           defaultResourceTypes?.[1]
                         ) &&
                           !hasSelectedHostForSingleMetricwidget) ||
-                        !resource.resourceType
-                        || getDefaultDisabledSelectType(resource.resourceType)
+                        !resource.resourceType ||
+                        getDefaultDisabledSelectType(resource.resourceType)
                       : !canEditField ||
                         isValidatingResources ||
-                        !resource.resourceType||
+                        !resource.resourceType ||
                         getDefaultDisabledSelectType(resource.resourceType)
                   }
                   resource={resource}

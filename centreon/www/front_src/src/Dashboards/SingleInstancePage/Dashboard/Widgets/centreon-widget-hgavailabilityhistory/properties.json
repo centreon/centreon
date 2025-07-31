@@ -104,7 +104,7 @@
   "data": {
     "resources": {
       "type": "resources",
-       "singleResourceType": true,
+      "singleResourceType": true,
       "defaultValue": [],
       "required": true,
       "useAdditionalResources": false,

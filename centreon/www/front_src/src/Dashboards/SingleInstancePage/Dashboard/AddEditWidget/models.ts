@@ -6,6 +6,7 @@ import {
   SubInput,
   WidgetHiddenCondition
 } from '../../../../federatedModules/models';
+import { Resource } from '../Widgets/models';
 import { PanelConfiguration, WidgetOptions } from '../models';
 
 export interface Widget {
@@ -27,9 +28,14 @@ export interface ForceSingleAutocompleteConditions {
   conditions: Array<WidgetHiddenCondition> | WidgetHiddenCondition;
 }
 
+interface DisabledDefaultResourceType {
+  when: keyof Resource;
+  matches: WidgetResourceType;
+}
 export interface DefaultResourceType {
   resourceType: string;
   requied?: boolean;
+  disabled?: DisabledDefaultResourceType;
 }
 export interface SelectType {
   defaultResourceType: Array<DefaultResourceType>;
