@@ -236,7 +236,6 @@ jobs:
           token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
 
       - name: Build translations
-        id: build-translations
         env:
           IS_NIGHTLY: ${{ needs.get-environment.outputs.is_nightly }}
           STABILITY: ${{ needs.get-environment.outputs.stability }}
