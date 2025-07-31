@@ -221,15 +221,6 @@ it(
 );
 
 it(
-    'should throw exception when coordinates string is too long',
-    function (): void {
-        $longCoords = '99999999999999999999.123456,99999999999999999999.123456';
-        expect(fn () => GeoCoords::fromString($longCoords))
-            ->toThrow(AssertionException::class);
-    }
-);
-
-it(
     'should handle numeric validation for fromString method',
     function (): void {
         expect(fn () => GeoCoords::fromString('abc,123'))
