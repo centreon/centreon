@@ -21029,10 +21029,6 @@ msgstr "Standard"
 msgid "it's required"
 msgstr "es ist erforderlich"
 
-#: unknown
-msgid "unknown"
-msgstr "unbekannt"
-
 #: centreon/www/include/options/accessLists/resourcesACL/formResourcesAccess.php
 msgid "Shared image folders"
 msgstr ""
