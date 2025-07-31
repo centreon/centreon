@@ -244,6 +244,18 @@ jobs:
           HAS_UPDATE_TRANSLATIONS_LABEL: ${{ contains(needs.get-environment.outputs.labels, 'update-translations') }}
         run: |
           TRANSLATIONS_PATCH_FILE=""
+          ls
+        shell: bash
+
+      - name: Build translations
+        id: build-translations
+        env:
+          IS_NIGHTLY: ${{ needs.get-environment.outputs.is_nightly }}
+          STABILITY: ${{ needs.get-environment.outputs.stability }}
+          EVENT_NAME: ${{ github.event_name }}
+          HAS_UPDATE_TRANSLATIONS_LABEL: ${{ contains(needs.get-environment.outputs.labels, 'update-translations') }}
+        run: |
+          TRANSLATIONS_PATCH_FILE=""
 
           git config --global --add safe.directory $GITHUB_WORKSPACE
 
