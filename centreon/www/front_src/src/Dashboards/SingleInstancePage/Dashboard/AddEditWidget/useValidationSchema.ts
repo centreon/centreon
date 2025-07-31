@@ -41,7 +41,14 @@ const getPropertiesValidationSchema = ({
       [name]: buildValidationSchema({
         properties: inputProp,
         t
-      })
+      }),
+      ...inputProp.subInputs?.reduce(
+        (subAcc, { input, name: subInputName }) => ({
+          ...subAcc,
+          [subInputName]: buildValidationSchema({ t, properties: input })
+        }),
+        {}
+      )
     }),
     {}
   );
