@@ -74,7 +74,7 @@ $tpl->assign('headerMenu_contacts', _('Contacts'));
 $tpl->assign('headerMenu_allH', _('All Hosts'));
 $tpl->assign('headerMenu_allHG', _('All Hostgroups'));
 $tpl->assign('headerMenu_allSG', _('All Servicegroups'));
-$tpl->assign('headerMenu_allImageFolders', _('All Medias'));
+$tpl->assign('headerMenu_allImageFolders', _('All image folders'));
 $tpl->assign('headerMenu_status', _('Status'));
 $tpl->assign('headerMenu_options', _('Options'));
 
