@@ -68,6 +68,16 @@ $updateSamlProviderConfiguration = function (CentreonDB $pearDB) use (&$errorMes
     }
 };
 
+$addResourceStatusSearchModeOption = function () use ($pearDB, &$errorMessage): void {
+    $errorMessage = "Unable to retrieve 'resource_status_search_mode' option from options table";
+    $optionExists = $pearDB->fetchFirstColumn("SELECT 1 FROM options WHERE `key` = 'resource_status_search_mode'");
+
+    $errorMessage = "Unable to insert option 'resource_status_search_mode' option into table options";
+    if (false === (bool) $optionExists) {
+        $pearDB->insert("INSERT INTO `options` (`key`, `value`) VALUES ('resource_status_search_mode', 1)");
+    }
+};
+
 try {
     // DDL statements for real time database
     // TODO add your function calls to update the real time database structure here
@@ -83,6 +93,7 @@ try {
     // TODO add your function calls to update the configuration database data here
 
     $updateSamlProviderConfiguration($pearDB);
+    $addResourceStatusSearchModeOption();
 
     $pearDB->commit();
 

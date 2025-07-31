@@ -39,17 +39,18 @@ class ParametersController extends AbstractController
      */
     private $optionService;
 
-    private const DEFAULT_DOWNTIME_DURATION = 'monitoring_dwt_duration',
-                  DEFAULT_DOWNTIME_DURATION_SCALE = 'monitoring_dwt_duration_scale',
-                  DEFAULT_REFRESH_INTERVAL = 'AjaxTimeReloadMonitoring',
-                  DEFAULT_ACKNOWLEDGEMENT_STICKY = 'monitoring_ack_sticky',
-                  DEFAULT_ACKNOWLEDGEMENT_PERSISTENT = 'monitoring_ack_persistent',
-                  DEFAULT_ACKNOWLEDGEMENT_NOTIFY = 'monitoring_ack_notify',
-                  DEFAULT_ACKNOWLEDGEMENT_WITH_SERVICES = 'monitoring_ack_svc',
-                  DEFAULT_ACKNOWLEDGEMENT_FORCE_ACTIVE_CHECKS = 'monitoring_ack_active_checks',
-                  DEFAULT_DOWNTIME_FIXED = 'monitoring_dwt_fixed',
-                  DEFAULT_STATISTICS_REFRESH_INTERVAL = 'AjaxTimeReloadStatistic',
-                  DEFAULT_DOWNTIME_WITH_SERVICES = 'monitoring_dwt_svc';
+    private const DEFAULT_DOWNTIME_DURATION = 'monitoring_dwt_duration';
+    private const DEFAULT_DOWNTIME_DURATION_SCALE = 'monitoring_dwt_duration_scale';
+    private const DEFAULT_REFRESH_INTERVAL = 'AjaxTimeReloadMonitoring';
+    private const DEFAULT_STATISTICS_REFRESH_INTERVAL = 'AjaxTimeReloadStatistic';
+    private const DEFAULT_ACKNOWLEDGEMENT_STICKY = 'monitoring_ack_sticky';
+    private const DEFAULT_ACKNOWLEDGEMENT_PERSISTENT = 'monitoring_ack_persistent';
+    private const DEFAULT_ACKNOWLEDGEMENT_NOTIFY = 'monitoring_ack_notify';
+    private const DEFAULT_ACKNOWLEDGEMENT_WITH_SERVICES = 'monitoring_ack_svc';
+    private const DEFAULT_ACKNOWLEDGEMENT_FORCE_ACTIVE_CHECKS = 'monitoring_ack_active_checks';
+    private const DEFAULT_DOWNTIME_FIXED = 'monitoring_dwt_fixed';
+    private const DEFAULT_DOWNTIME_WITH_SERVICES = 'monitoring_dwt_svc';
+    private const RESOURCE_STATUS_SEARCH_MODE = 'resource_status_search_mode';
 
     /**
      * Needed to make response "more readable"
@@ -64,7 +65,8 @@ class ParametersController extends AbstractController
         self::DEFAULT_ACKNOWLEDGEMENT_WITH_SERVICES => 'monitoring_default_acknowledgement_with_services',
         self::DEFAULT_ACKNOWLEDGEMENT_FORCE_ACTIVE_CHECKS => 'monitoring_default_acknowledgement_force_active_checks',
         self::DEFAULT_DOWNTIME_FIXED => 'monitoring_default_downtime_fixed',
-        self::DEFAULT_DOWNTIME_WITH_SERVICES => 'monitoring_default_downtime_with_services'
+        self::DEFAULT_DOWNTIME_WITH_SERVICES => 'monitoring_default_downtime_with_services',
+        self::RESOURCE_STATUS_SEARCH_MODE => 'is_resource_status_full_search_enabled',
     ];
 
     /**
@@ -96,6 +98,7 @@ class ParametersController extends AbstractController
         $isAcknowledgementForceActiveChecks = true;
         $isDowntimeFixed = true;
         $isDowntimeWithServices = true;
+        $isResourceStatusFullSearchEnabled = true;
 
         $options = $this->optionService->findSelectedOptions([
             self::DEFAULT_REFRESH_INTERVAL,
@@ -108,7 +111,8 @@ class ParametersController extends AbstractController
             self::DEFAULT_DOWNTIME_DURATION,
             self::DEFAULT_DOWNTIME_DURATION_SCALE,
             self::DEFAULT_DOWNTIME_FIXED,
-            self::DEFAULT_DOWNTIME_WITH_SERVICES
+            self::DEFAULT_DOWNTIME_WITH_SERVICES,
+            self::RESOURCE_STATUS_SEARCH_MODE,
         ]);
 
         foreach ($options as $option) {
@@ -146,6 +150,9 @@ class ParametersController extends AbstractController
                 case self::DEFAULT_DOWNTIME_FIXED:
                     $isDowntimeFixed = (int) $option->getValue() === 1;
                     break;
+                case self::RESOURCE_STATUS_SEARCH_MODE:
+                    $isResourceStatusFullSearchEnabled = (int) $option->getValue() === 1;
+                    break;
                 default:
                     break;
             }
@@ -168,6 +175,7 @@ class ParametersController extends AbstractController
             $isAcknowledgementForceActiveChecks;
         $parameters[self::KEY_NAME_CONCORDANCE[self::DEFAULT_DOWNTIME_FIXED]] = $isDowntimeFixed;
         $parameters[self::KEY_NAME_CONCORDANCE[self::DEFAULT_DOWNTIME_WITH_SERVICES]] = $isDowntimeWithServices;
+        $parameters[self::KEY_NAME_CONCORDANCE[self::RESOURCE_STATUS_SEARCH_MODE]] = $isResourceStatusFullSearchEnabled;
 
         return $this->view($parameters);
     }

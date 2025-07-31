@@ -289,7 +289,7 @@ export const labelForcedCheckCommandSent =
   'Forced check command sent ! Please refresh the listing to update the data.';
 export const labelUnit = 'Unit';
 export const labelNeedHelpWithSearchBarUsage =
-  'Need help with search bar usage?';
+  'Need help using the search bar ?';
 export const labelFindExplanationsAndExamples =
   'Find explanations and examples';
 export const labelHere = 'here';
@@ -308,3 +308,9 @@ export const labelResourceDetailsForcedCheckDescription =
   'Check this resource even outside configured check period';
 
 export const labelYourCommentSent = 'Your comment has been saved.';
+
+export const labelCompact = 'Compact';
+export const labelExtended = 'Extended';
+
+export const labelFreeTextSearchBehavior =
+  'Free text search behavior can be configured in the Administration > Parameters > Centreon UI page.';
