@@ -2,6 +2,7 @@ import { useFormikContext } from 'formik';
 import { equals, isEmpty } from 'ramda';
 import { useCallback, useMemo } from 'react';
 import { Resource } from '../../../../Widgets/models';
+import { labelPleaseSelectAResource } from '../../../../translatedLabels';
 import {
   DefaultResourceType,
   SelectType,
@@ -9,7 +10,6 @@ import {
   WidgetDataResource,
   WidgetResourceType
 } from '../../../models';
-import { labelPleaseSelectAResource } from '../../../../translatedLabels';
 
 interface UseDefaultSelectTypeData {
   selectType?: SelectType;
@@ -100,8 +100,6 @@ const useDefaultSelectTypeData = ({
   }, [defaultSelectTypeErrors]);
 
   validateDefaultSelectTypeData();
-
-  console.log({errors, defaultSelectTypeErrors})
 
   return {
     getDefaultRequiredSelectType,
