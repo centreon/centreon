@@ -12,7 +12,7 @@ apk add --no-cache --update \
   musl \
   musl-utils \
   musl-locales \
-  php82-cli \
+  php81-cli \
   tar \
   tzdata \
   zstd
