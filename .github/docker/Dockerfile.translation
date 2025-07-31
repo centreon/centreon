@@ -12,6 +12,8 @@ apk add --no-cache --update \
   tzdata \
   zstd
 
+ln -s /usr/bin/php82 /usr/bin/php
+
 # echo "en_US.UTF-8 UTF-8" | tee -a /etc/locale.gen
 # echo "fr_FR.UTF-8 UTF-8" | tee -a /etc/locale.gen
 # echo "es_ES.UTF-8 UTF-8" | tee -a /etc/locale.gen
