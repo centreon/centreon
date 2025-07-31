@@ -1,6 +1,10 @@
-/* eslint-disable cypress/unsafe-to-chain-command */
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
-import { addCustomView, addSharedView, deleteCustomView, visitCustomViewPage } from '../common';
+import {
+  addCustomView,
+  addSharedView,
+  deleteCustomView,
+  visitCustomViewPage
+} from '../common';
 
 const logByAclUser = () => {
   cy.logout();
@@ -10,7 +14,6 @@ const logByAclUser = () => {
   });
   visitCustomViewPage();
 };
-
 
 before(() => {
   cy.startContainers();
@@ -53,17 +56,17 @@ Given('a publicly shared custom view is configured', () => {
   addCustomView('public-view', true);
 });
 
-Given('a user with custom views edition rights on the custom views listing page', () => {
-  logByAclUser();
-});
+Given(
+  'a user with custom views edition rights on the custom views listing page',
+  () => {
+    logByAclUser();
+  }
+);
 
 When('the user wishes to add a new custom view', () => {
   cy.getIframeBody().find('a[title="Show/Hide edit mode"]').click();
-  // Wait until the button 'Add view' is visible 
-  cy.waitForElementInIframe(
-    '#main-content',
-    'button:contains("Add view")'
-  );
+  // Wait until the button 'Add view' is visible
+  cy.waitForElementInIframe('#main-content', 'button:contains("Add view")');
 });
 
 When('he can add the public view', () => {
@@ -71,10 +74,10 @@ When('he can add the public view', () => {
 });
 
 Then('he cannot modify the content of the shared view', () => {
-   // Check that the buttons 'Edit View', 'Share view' and 'Add widget' are disabled
-   ["editView", "shareView", "addWidget" ].forEach((style) => {
-    cy.getIframeBody().find(`button.${style}`).should('be.disabled')
-   })
+  // Check that the buttons 'Edit View', 'Share view' and 'Add widget' are disabled
+  ['editView', 'shareView', 'addWidget'].forEach((style) => {
+    cy.getIframeBody().find(`button.${style}`).should('be.disabled');
+  });
 });
 
 Given('a publicly shared custom view is configured by the owner', () => {
@@ -85,10 +88,7 @@ Given('a publicly shared custom view is configured by the owner', () => {
 
 Given('the user is using the public view', () => {
   cy.wait('@getViews');
-  cy.waitForElementInIframe(
-    '#main-content',
-    'a:contains("public-view")'
-  );
+  cy.waitForElementInIframe('#main-content', 'a:contains("public-view")');
   cy.getIframeBody().contains('a', 'public-view').should('exist');
   cy.getIframeBody().find('a[title="Show/Hide edit mode"]').click();
 });
@@ -120,7 +120,7 @@ When('the owner removes the view', () => {
   // Click on the 'Delete view' button
   cy.getIframeBody().find('button.deleteView').click();
   // Click on the delete in the confirmation popup
-  cy.getIframeBody().find('#deleteViewConfirm .bt_danger').click(); 
+  cy.getIframeBody().find('#deleteViewConfirm .bt_danger').click();
 });
 
 Then('the view is not visible anymore for the user', () => {

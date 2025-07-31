@@ -1,4 +1,4 @@
-import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
+import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
 import dashboards from '../../../fixtures/dashboards/check-permissions/dashboards.json';
 import dashboardAdministratorUser from '../../../fixtures/users/user-dashboard-administrator.json';
@@ -21,7 +21,7 @@ beforeEach(() => {
   }).as('listAllDashboards');
   cy.intercept({
     method: 'PUT',
-    url: `/centreon/api/latest/configuration/dashboards/*/shares`
+    url: '/centreon/api/latest/configuration/dashboards/*/shares'
   }).as('updateShares');
   cy.intercept({
     method: 'GET',
@@ -46,7 +46,9 @@ Given(
   () => {
     cy.insertDashboard({ ...dashboards.fromDashboardAdministratorUser });
     cy.visitDashboards();
-    cy.getByTestId({ testId: 'Share with contacts' }).should('be.visible').click();
+    cy.getByTestId({ testId: 'Share with contacts' })
+      .should('be.visible')
+      .click();
     cy.getByLabel({ label: 'Open', tag: 'button' }).click();
     cy.contains(dashboardCreatorUser.login).click();
     cy.getByTestId({ testId: 'add' }).click();
@@ -67,7 +69,7 @@ Given(
       .click();
     cy.wait('@updateShares');
     cy.wait('@getDashboard');
-    cy.getByLabel({ label: 'close', tag: 'button' }).click()
+    cy.getByLabel({ label: 'close', tag: 'button' }).click();
     cy.get('.MuiAlert-message').should('not.exist');
     cy.waitUntilForDashboardRoles('Share with contacts', 4);
   }
@@ -76,7 +78,9 @@ Given(
 When(
   'the dashboard administrator user promotes the viewer user to an editor',
   () => {
-    cy.getByTestId({ testId: 'Share with contacts' }).should('be.visible').click();
+    cy.getByTestId({ testId: 'Share with contacts' })
+      .should('be.visible')
+      .click();
     cy.getByTestId({ testId: 'role-user-dashboard-creator' }).realClick();
     cy.get('[role="listbox"]').contains('Editor').click();
     cy.get('[data-state="updated"]').should('exist');
@@ -106,7 +110,9 @@ Given(
   'a dashboard featuring a dashboard administrator and a dashboard editor in its share list',
   () => {
     cy.visitDashboards();
-    cy.getByTestId({ testId: 'Share with contacts' }).should('be.visible').click();
+    cy.getByTestId({ testId: 'Share with contacts' })
+      .should('be.visible')
+      .click();
     cy.getByTestId({ testId: 'role-user-dashboard-creator' }).should(
       'have.value',
       'editor'
@@ -148,7 +154,9 @@ Given(
   'a dashboard featuring a dashboard administrator and a viewer in its share list',
   () => {
     cy.visitDashboards();
-    cy.getByTestId({ testId: 'Share with contacts' }).should('be.visible').click();
+    cy.getByTestId({ testId: 'Share with contacts' })
+      .should('be.visible')
+      .click();
     cy.getByTestId({ testId: 'role-user-dashboard-creator' }).should(
       'have.value',
       'viewer'
@@ -191,7 +199,9 @@ Given(
   'a dashboard featuring a dashboard administrator and a user who has just been removed from the share list',
   () => {
     cy.visitDashboards();
-    cy.getByTestId({ testId: 'Share with contacts' }).should('be.visible').click();
+    cy.getByTestId({ testId: 'Share with contacts' })
+      .should('be.visible')
+      .click();
     cy.getByTestId({ testId: 'role-user-dashboard-administrator' }).should(
       'have.value',
       'editor'
@@ -217,10 +227,12 @@ Given(
       .click();
     cy.wait('@updateShares');
     cy.wait('@getDashboard');
-    cy.getByLabel({ label: 'close', tag: 'button' }).click()
+    cy.getByLabel({ label: 'close', tag: 'button' }).click();
     cy.get('.MuiAlert-message').should('not.exist');
     cy.waitUntilForDashboardRoles('Share with contacts', 4);
-    cy.getByTestId({ testId: 'Share with contacts' }).should('be.visible').click();
+    cy.getByTestId({ testId: 'Share with contacts' })
+      .should('be.visible')
+      .click();
     cy.getByTestId({ testId: 'remove-user-dashboard-creator' }).click();
     cy.get('[data-state="removed"]').should('exist');
   }
