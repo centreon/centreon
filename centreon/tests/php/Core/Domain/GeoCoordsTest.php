@@ -23,7 +23,6 @@ declare(strict_types=1);
 
 namespace Tests\Core\Domain;
 
-use Centreon\Domain\Common\Assertion\AssertionException;
 use Core\Domain\Common\GeoCoords;
 use Core\Domain\Exception\InvalidGeoCoordException;
 
