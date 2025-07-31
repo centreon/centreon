@@ -306,6 +306,8 @@ describe('Listing row actions: Delete button', () => {
     cy.findByText(labelDeleteResourceAccessRuleWarning).should('not.exist');
     cy.findByTestId(labelCancel).should('not.exist');
     cy.findByLabelText(labelDelete).should('not.exist');
+    cy.findAllByTestId(labelDeleteResourceAccessRule).eq(0).blur();
+    cy.contains(labelDelete).should('not.exist');
 
     cy.makeSnapshot();
   });

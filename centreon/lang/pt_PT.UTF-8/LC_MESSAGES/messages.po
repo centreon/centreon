@@ -2587,8 +2587,10 @@ msgstr "Escolha a fonte do gráfico"
 msgid "Circular Definition"
 msgstr "Definição Circular"
 
+#: centreon/src/Core/ServiceTemplate/Application/Exception/ServiceTemplateException.php
 #: centreon/src/Core/Host/Application/Exception/HostException.php
 #: centreon/src/Core/HostTemplate/Application/Exception/HostTemplateException.php
+#: centreon/www/include/configuration/configObject/service_template_model/formServiceTemplateModel.php
 msgid "Circular inheritance not allowed"
 msgstr ""
 
@@ -15386,6 +15388,10 @@ msgstr ""
 msgid "The class %s does not exist"
 msgstr ""
 
+#: centreon/www/include/configuration/configServers/formServers.php
+msgid "The command format is invalid"
+msgstr ""
+
 #: centreon/src/Centreon/Domain/Engine/EngineService.php
 msgid "The contact alias is empty"
 msgstr "O apelido de contato esta vazio"
@@ -15632,6 +15638,10 @@ msgstr ""
 msgid "The path does not exist"
 msgstr ""
 
+#: centreon/www/include/configuration/configServers/formServers.php
+msgid "The path format is invalid"
+msgstr ""
+
 #: centreon/src/Centreon/Domain/PlatformTopology/Exception/PlatformTopologyException.php
 #, php-format
 msgid "The platform '%s'@'%s' cannot be found on the Central"
@@ -15721,6 +15731,10 @@ msgstr ""
 
 #: centreon/www/install/front_translate.php
 msgid "The resource access rule was successfully updated"
+msgstr ""
+
+#: centreon/www/include/configuration/configServers/formServers.php
+msgid "The script path is invalid"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
