@@ -114,10 +114,6 @@ msgstr "24 heures"
 msgid "24h/24h - 7/7 days"
 msgstr "24h/24h - 7/7 jours"
 
-#: centreon/www/install/dashboard_widgets.php
-msgid "24x7"
-msgstr "24x7"
-
 #: centreon/www/include/home/customViews/index.php
 msgid "3 Columns"
 msgstr "3 Colonnes"
@@ -835,10 +831,6 @@ msgid "Add advanced server configuration"
 msgstr "Ajouter une configuration avancée de serveur"
 
 #: centreon/www/install/front_translate.php
-msgid "Add additional configurations"
-msgstr "Ajouter des configurations additionnelles"
-
-#: centreon/www/install/front_translate.php
 msgid "Add agent configuration"
 msgstr "Ajouter une configuration d'agent"
 
@@ -865,10 +857,6 @@ msgid "Add an advanced configuration"
 msgstr "Ajouter une configuration avancée"
 
 #: centreon/www/install/front_translate.php
-msgid "Add an additional configuration"
-msgstr "Ajouter une configuration additionnelle"
-
-#: centreon/www/install/front_translate.php
 msgid "Add at least 1 contact"
 msgstr "Ajoutez au moins 1 contact"
 
@@ -887,10 +875,6 @@ msgstr "Ajouter une plage de maintenance"
 #: centreon/www/install/front_translate.php
 msgid "Add filter"
 msgstr "Ajouter un filtre"
-
-#: centreon/www/install/front_translate.php
-msgid "Add host group"
-msgstr "Ajouter un groupe d'hôtes"
 
 #: centreon/www/install/steps/process/installConfigurationDb.php
 msgid ""
@@ -1994,10 +1978,6 @@ msgid "Broker Module"
 msgstr "Commande de lancement du module"
 
 #: centreon/www/include/configuration/configNagios/formNagios.php
-msgid "Broker Module Configuration File"
-msgstr "Fichier de configuration du module Broker"
-
-#: centreon/www/include/configuration/configNagios/formNagios.php
 msgid "Broker Module Options"
 msgstr "Option de lancement du module"
 
@@ -2053,22 +2033,6 @@ msgid ""
 msgstr ""
 "N'éditez pas les fichiers SQL à moins que vous sachiez ce que vous faites. "
 "Rafraichissez cette page une fois le problème résolu."
-
-#: centreon/www/install/dashboard_widgets.php
-msgid "Button 1"
-msgstr "Bouton 1"
-
-#: centreon/www/install/dashboard_widgets.php
-msgid "Button 2"
-msgstr "Bouton 2"
-
-#: centreon/www/install/dashboard_widgets.php
-msgid "Button 3"
-msgstr "Bouton 3"
-
-#: centreon/www/install/dashboard_widgets.php
-msgid "Button 4"
-msgstr "Bouton 4"
 
 #: centreon/www/install/front_translate.php
 msgid "By"
@@ -2173,10 +2137,6 @@ msgstr "Méthode de calcul fournie non supportée (%s)"
 #: centreon/www/install/front_translate.php
 msgid "Calculation type"
 msgstr "Type de calcul"
-
-#: centreon/www/install/dashboard_widgets.php
-msgid "Calculations based on time period"
-msgstr "Calculs basés sur la période temporelle"
 
 #: centreon/www/include/views/virtualMetrics/formVirtualMetrics.php
 msgid "Can't Use This Virtual Metric '"
@@ -2838,16 +2798,7 @@ msgstr "Adresses de client"
 msgid "Client secret"
 msgstr "Secret de client"
 
-#: centreon/www/install/dashboard_widgets.php
-msgid "Clock"
-msgstr "Horloge"
-
-#: centreon/www/install/dashboard_widgets.php
-msgid "Clock / Timer"
-msgstr "Horloge / Minuteur"
-
 #: centreon/www/include/options/media/images/syncDir.php
-#: centreon/www/install/front_translate.php
 #: centreon/www/include/configuration/configObject/command/formArguments.php
 #: centreon/www/include/configuration/configObject/command/formMacros.php
 #: centreon/www/install/front_translate.php
@@ -4753,93 +4704,6 @@ msgstr "Afficher jusqu'à"
 msgid "Display view:"
 msgstr "Afficher la vue :"
 
-#: centreon/www/install/dashboard_widgets.php
-msgid "Display with this view"
-msgstr "Afficher avec cette vue"
-
-#: centreon/www/install/dashboard_widgets.php
-msgid ""
-"Displays a detailed view of the current status for selected resources as a "
-"chart."
-msgstr ""
-"Affiche une vue détaillée du statut actuel des ressources sélectionnées sous "
-"la forme d'un graphique."
-
-#: centreon/www/install/dashboard_widgets.php
-msgid ""
-"Displays a status overview for selected resources, grouped by hosts or by "
-"services."
-msgstr ""
-"Affiche une vue d'ensemble du statut des ressources sélectionnées, groupées "
-"par hôtes ou par services."
-
-#: centreon/www/install/dashboard_widgets.php
-msgid "Displays a web page"
-msgstr "Affiche une page web"
-
-#: centreon/www/install/dashboard_widgets.php
-msgid ""
-"Displays availability and alerts of a Business Activity for a given period."
-msgstr ""
-"Affiche la disponibilité et les alertes d'une activité métier pour une "
-"période donnée."
-
-#: centreon/www/install/dashboard_widgets.php
-msgid "Displays data on resource status and events, centralized in a table."
-msgstr ""
-"Affiche des données sur le statut des ressources et les événements, "
-"centralisées dans un tableau."
-
-#: centreon/www/install/dashboard_widgets.php
-msgid ""
-"Displays graphically a business activity hierarchy of KPIs and lets you "
-"navigate through it."
-msgstr ""
-"Affiche graphiquement et permet la navigation dans la hiérarchie d'une "
-"activité métier."
-
-#: centreon/www/install/dashboard_widgets.php
-msgid "Displays metrics for a given time period."
-msgstr "Affiche les métriques pour une période donnée."
-
-#: centreon/www/install/dashboard_widgets.php
-msgid ""
-"Displays the distribution of current statuses on a Business Activity, as a "
-"chronological timeline for a given time period."
-msgstr ""
-"Affiche la répartition des statuts actuels sur une activité métier, sous "
-"forme de frise chronologique pour une période donnée."
-
-#: centreon/www/install/dashboard_widgets.php
-msgid ""
-"Displays the distribution of current statuses on selected groups of "
-"resources, as a table."
-msgstr ""
-"Affiche la répartition des statuts actuels pour les groupes de ressources "
-"sélectionnés, sous forme de tableau."
-
-#: centreon/www/install/dashboard_widgets.php
-msgid "Displays the future evolution of a metric, based on its history."
-msgstr ""
-"Affiche l'évolution future d'une métrique, sur la base de son historique."
-
-#: centreon/www/install/dashboard_widgets.php
-msgid "Displays the time according to the selected time zone, or a timer."
-msgstr ""
-"Affiche l'heure en fonction du fuseau horaire sélectionné, ou un minuteur."
-
-#: centreon/www/install/dashboard_widgets.php
-msgid "Displays the top or bottom x hosts, for a selected metric."
-msgstr ""
-"Affiche le top ou le bottom x des hôtes, pour une métrique sélectionnée."
-
-#: centreon/www/install/dashboard_widgets.php
-msgid ""
-"Displays the value of a single metric as a text, a gauge or a bar chart."
-msgstr ""
-"Affiche la valeur d'une seule métrique sous forme de texte, de jauge ou de "
-"diagramme à barres."
-
 #: centreon/www/install/smarty_translate.php
 msgid "Dissociate"
 msgstr "Supprimer l'association"
@@ -6452,8 +6316,8 @@ msgstr "Erreur lors de la recherche de catégories d'hôtes"
 #, php-format
 msgid "Error while searching provider configuration: '%s'"
 msgstr ""
-"Erreur pendant la recherche de configuration du fournisseur d'identification "
-": '%s'"
+"Erreur pendant la recherche de configuration du fournisseur "
+"d'identification : '%s'"
 
 #: centreon/src/Security/Domain/Authentication/Exceptions/ProviderException.php
 msgid "Error while searching providers configurations"
@@ -7027,14 +6891,14 @@ msgstr "Fichier non trouvé"
 msgid "File path"
 msgstr "Localisation du fichier"
 
-#: centreon/www/install/front_translate.php
-msgid "File too big"
-msgstr "La taille du fichier est trop grande"
-
 #: centreon/src/Core/AgentConfiguration/Application/Exception/AgentConfigurationException.php
 #, php-format
 msgid "File path or format '%s' (%s) is invalid"
 msgstr "Le nom de fichier '%s' (%s) est invalide"
+
+#: centreon/www/install/front_translate.php
+msgid "File too big"
+msgstr "La taille du fichier est trop grande"
 
 #: centreon/www/include/configuration/configNagios/formNagios.php
 msgid "Files"
@@ -7232,16 +7096,6 @@ msgid ""
 msgstr ""
 "Pour des raisons de sécurité, le jeton ne peut être affiché qu'une seule "
 "fois. Pensez à bien le stocker."
-
-
-#: centreon/www/install/front_translate.php
-msgid ""
-"For some connectors, you must define on the poller the credentials required "
-"to access the monitored hosts. You can do it easily from here."
-msgstr ""
-"Pour certains connecteurs, vous devez définir sur le collecteur les "
-"identifiants nécessaires pour accéder aux hôtes supervisés. Vous pouvez le "
-"faire facilement depuis cette page."
 
 #: centreon/www/include/Administration/parameters/engine/form.php
 msgid "Force Active Checks"
@@ -7465,30 +7319,6 @@ msgstr "Génération des fichiers"
 msgid "Generation error on monitoring server #%d: %s"
 msgstr "Erreur de génération sur le serveur de supervision #%d : %s"
 
-#: centreon/www/install/dashboard_widgets.php
-msgid "Generic data (example)"
-msgstr "Données d'exemple"
-
-#: centreon/www/install/dashboard_widgets.php
-msgid "Generic data for single metric (example)"
-msgstr "Données d'exemple pour une métrique unique"
-
-#: centreon/www/install/dashboard_widgets.php
-msgid "Generic input (example)"
-msgstr "Données d'entrée d'exemple"
-
-#: centreon/www/install/dashboard_widgets.php
-msgid "Generic text"
-msgstr "Texte générique"
-
-#: centreon/www/install/dashboard_widgets.php
-msgid "Generic text (example)"
-msgstr "Texte d'exemple"
-
-#: centreon/www/install/front_translate.php
-msgid "Generic widgets"
-msgstr "Widgets génériques"
-
 #: centreon/www/include/configuration/configObject/meta_service/formMetaService.php
 #: centreon/www/include/configuration/configObject/servicegroup/formServiceGroup.php
 msgid "Geo coordinates"
@@ -7578,15 +7408,6 @@ msgstr "Options de graphe"
 msgid "Graph per page for Performances"
 msgstr "Graphique de performance par page"
 
-#: centreon/www/install/dashboard_widgets.php
-msgid "Graph style"
-msgstr "Style de graphe"
-
-#: centreon/www/install/dashboard_widgets.php
-msgid "Graph style for average"
-msgstr "Style du graphique de moyenne"
-
-#: centreon/www/install/smarty_translate.php
 #: centreon/www/include/configuration/configObject/command/formCommand.php
 #: centreon/www/install/smarty_translate.php
 msgid "Graph template"
@@ -7631,18 +7452,6 @@ msgstr "Filtre de groupe"
 #: centreon/www/include/Administration/parameters/ldap/form.php
 msgid "Group member attribute"
 msgstr "Attribut des membres du groupe"
-
-#: centreon/www/install/front_translate.php
-msgid "Group members"
-msgstr "Membres du groupe"
-
-#: centreon/www/install/dashboard_widgets.php
-msgid "Group monitoring"
-msgstr "Group monitoring"
-
-#: centreon/www/install/dashboard_widgets.php
-msgid "Group name"
-msgstr "Nom du groupe"
 
 #: centreon/www/install/front_translate.php
 msgid "Group value"
@@ -9777,10 +9586,6 @@ msgstr "Valeur de la ressource"
 msgid "MB"
 msgstr "MB"
 
-#: centreon/www/install/front_translate.php
-msgid "MBI reporting widgets"
-msgstr "Widgets de rapports MBI"
-
 #: centreon/www/install/menu_translation.php
 msgid "MIBs"
 msgstr "MIBs"
@@ -10175,10 +9980,6 @@ msgstr "Nom de la métrique"
 msgid "Metric Unit"
 msgstr "Unité de la métrique / courbe"
 
-#: centreon/www/install/dashboard_widgets.php
-msgid "Metric capacity planning"
-msgstr "Metric capacity planning"
-
 #: centreon/www/install/front_translate.php
 msgid "Metric name"
 msgstr "Nom de la métrique"
@@ -10553,10 +10354,6 @@ msgstr "Modifier une escalade"
 #: centreon/www/include/configuration/configObject/service/formService.php
 msgid "Modify an Extended Info"
 msgstr "Modifier une information supplémentaire"
-
-#: centreon/www/install/front_translate.php
-msgid "Modify an additional configuration"
-msgstr "Modifier une configuration additionnelle"
 
 #: centreon/www/include/options/media/images/formDirectory.php
 msgid "Modify directory"
@@ -11791,16 +11588,6 @@ msgstr "Ouvert le"
 msgid "Optimization"
 msgstr "Optimisation"
 
-#: centreon/www/install/dashboard_widgets.php
-msgid "Option 1"
-msgstr "Option 1"
-
-#: centreon/www/install/dashboard_widgets.php
-msgid "Option 2"
-msgstr "Option 2"
-
-#: centreon/www/install/menu_translation.php
-#: centreon/www/include/views/graphTemplates/listGraphTemplates.php
 #: centreon/www/include/views/virtualMetrics/formVirtualMetrics.php
 #: centreon/www/include/views/virtualMetrics/listVirtualMetrics.php
 #: centreon/www/include/views/graphTemplates/listGraphTemplates.php
@@ -12789,18 +12576,6 @@ msgstr "Version de RRDTool"
 msgid "RRDTool debug"
 msgstr "Débogage RRDTool"
 
-#: centreon/www/install/dashboard_widgets.php
-msgid "Radio"
-msgstr "Radio"
-
-#: centreon/www/install/dashboard_widgets.php
-msgid "Radio 1"
-msgstr "Radio 1"
-
-#: centreon/www/install/dashboard_widgets.php
-msgid "Radio 2"
-msgstr "Radio 2"
-
 #: centreon/www/include/views/componentTemplates/formComponentTemplate.php
 msgid "Random"
 msgstr "Aléatoire"
@@ -12897,11 +12672,6 @@ msgstr "URL de redirection"
 msgid "Redo"
 msgstr "Rétablir"
 
-#: centreon/www/install/front_translate.php
-msgid "Reduce"
-msgstr "Réduire"
-
-#: centreon/www/install/front_translate.php
 #: centreon/www/include/configuration/configObject/contact/listContact.php
 #: centreon/www/install/front_translate.php
 msgid "Refresh"
@@ -14026,10 +13796,6 @@ msgstr "Sélectionner un jeton CMA existant"
 #: centreon/www/install/front_translate.php
 msgid "Select existing CMA token(s)"
 msgstr "Sélectionner des jetons CMA existants"
-
-#: centreon/www/install/dashboard_widgets.php
-msgid "Select field"
-msgstr "Sélectionner un champ"
 
 #: centreon/www/install/front_translate.php
 msgid "Select host"
@@ -15409,18 +15175,6 @@ msgstr "Chaine"
 msgid "Strong"
 msgstr "Fort"
 
-#: centreon/www/install/dashboard_widgets.php
-msgid "Sub input 1"
-msgstr "Chaîne réduite 1"
-
-#: centreon/www/install/dashboard_widgets.php
-msgid "Sub input 2"
-msgstr "Chaîne réduite 2"
-
-#: centreon/www/install/dashboard_widgets.php
-msgid "Sub input 3"
-msgstr "Chaîne réduite 3"
-
 #: centreon/www/install/front_translate.php
 msgid "Subject"
 msgstr "Sujet"
@@ -16310,22 +16064,6 @@ msgstr ""
 msgid "This is a contact template."
 msgstr "Ceci est un modèle de contact."
 
-#: centreon/www/install/dashboard_widgets.php
-msgid "This is the description of the data widget"
-msgstr "Description du widget Données"
-
-#: centreon/www/install/dashboard_widgets.php
-msgid "This is the description of the generic input widget"
-msgstr "Description du widget input générique"
-
-#: centreon/www/install/dashboard_widgets.php
-msgid "This is the description of the text widget"
-msgstr "Description du widget texte"
-
-#: centreon/www/install/dashboard_widgets.php
-msgid "This month"
-msgstr "Ce mois"
-
 #: centreon/www/install/front_translate.php
 msgid "This name already exists"
 msgstr "Ce nom existe déjà"
@@ -16663,14 +16401,6 @@ msgstr "Outils"
 #: centreon/www/install/front_translate.php
 msgid "Top"
 msgstr "Top"
-
-#: centreon/www/install/dashboard_widgets.php
-msgid "Top Bottom Settings"
-msgstr "Paramètres Top/bottom"
-
-#: centreon/www/install/dashboard_widgets.php
-msgid "Top/bottom"
-msgstr "Top/bottom"
 
 #: centreon/www/include/monitoring/status/Hosts/xml/hostXML.php
 msgid "Top Priority Hosts"
@@ -17809,20 +17539,12 @@ msgid "Welcome to the Dashboards interface!"
 msgstr "Bienvenue dans l'interface des tableaux de bord !"
 
 #: centreon/www/install/front_translate.php
-msgid "Welcome to the additional configurations page"
-msgstr "Bienvenue sur la page des configurations additionnelles"
-
-#: centreon/www/install/front_translate.php
-msgid "Welcome to the host groups page"
-msgstr "Bienvenue sur la page des groupes d'hôtes"
+msgid "Welcome to the agent configuration page"
+msgstr "Bienvenue sur la page des configurations d'agent"
 
 #: centreon/www/install/front_translate.php
 msgid "Welcome to the notifications interface"
 msgstr "Bienvenue dans l'interface de gestion des notifications"
-
-#: centreon/www/install/front_translate.php
-msgid "Welcome to the agent configuration page"
-msgstr "Bienvenue sur la page des configurations d'agent"
 
 #: centreon/www/install/front_translate.php
 msgid "Which endpoint does the conditions attribute path come from?"
@@ -18872,10 +18594,6 @@ msgstr "Chemin de l'API"
 msgid "are working fine."
 msgstr "fonctionnent correctement."
 
-#: centreon/www/install/dashboard_widgets.php
-msgid "areaOpacity"
-msgstr "areaOpacity"
-
 #: centreon/www/install/react_translation.php
 msgid "as"
 msgstr "en tant que"
@@ -18923,14 +18641,6 @@ msgstr "créer ou charger"
 msgid "d/m/Y H:i:s"
 msgstr "d/m/Y - H:i:s"
 
-#: centreon/www/install/dashboard_widgets.php
-msgid "dashLength"
-msgstr "Longueur des tirets"
-
-#: centreon/www/install/dashboard_widgets.php
-msgid "dashOffset"
-msgstr "dashOffset"
-
 #: centreon/www/install/front_translate.php
 msgid "day"
 msgstr "jour"
@@ -18953,10 +18663,6 @@ msgstr "Supprimer plusieurs notifications"
 msgid "disabled"
 msgstr "désactivé"
 
-#: centreon/www/install/dashboard_widgets.php
-msgid "dotOffset"
-msgstr "dotOffset"
-
 #: centreon/www/include/configuration/configObject/hostgroup/formHostGroup.php
 #: centreon/www/include/monitoring/recurrentDowntime/formDowntime.php
 msgid "error"
@@ -18978,10 +18684,6 @@ msgstr ""
 #: centreon/www/class/centreonGraphNg.class.php
 msgid "graph on"
 msgstr "graphique de l'hôte"
-
-#: centreon/www/install/dashboard_widgets.php
-msgid "gridLinesType"
-msgstr "gridLinesType"
 
 #: centreon/www/install/front_translate.php
 msgid "group"
@@ -19051,18 +18753,6 @@ msgstr "La semaine dernière"
 msgid "last year"
 msgstr "L'année dernière"
 
-#: centreon/www/install/dashboard_widgets.php
-msgid "legendDisplayMode"
-msgstr "legendDisplayMode"
-
-#: centreon/www/install/dashboard_widgets.php
-msgid "legendPlacement"
-msgstr "legendPlacement"
-
-#: centreon/www/install/dashboard_widgets.php
-msgid "lineWidth"
-msgstr "lineWidth"
-
 #: centreon/www/class/centreonContact.class.php
 msgid "lowercase characters"
 msgstr "caractères minuscules"
@@ -19131,17 +18821,9 @@ msgstr "Ré-insérer lors d'un redémarrage du moteur de supervision"
 msgid "points outside of the envelope"
 msgstr "points hors enveloppe"
 
-#: centreon/www/install/dashboard_widgets.php
-msgid "px"
-msgstr "px"
-
 #: centreon/www/install/front_translate.php
 msgid "removed"
 msgstr "supprimé"
-
-#: centreon/www/install/dashboard_widgets.php
-msgid "scaleLogarithmicBase"
-msgstr "scaleLogarithmicBase"
 
 #: centreon/www/include/monitoring/downtime/listDowntime.php
 msgid "s"
@@ -19189,18 +18871,6 @@ msgstr "caractères spéciaux parmi '%s'"
 msgid "sticky"
 msgstr "Acquittement persistant en cas de changement de statut non-OK"
 
-#: centreon/www/install/dashboard_widgets.php
-msgid "sub1"
-msgstr "sub1"
-
-#: centreon/www/install/dashboard_widgets.php
-msgid "sub2"
-msgstr "sub2"
-
-#: centreon/www/install/dashboard_widgets.php
-msgid "sub3"
-msgstr "sub3"
-
 #: centreon/www/install/front_translate.php
 msgid "technical"
 msgstr "technique"
@@ -19227,10 +18897,6 @@ msgstr ""
 msgid "the community"
 msgstr "la communauté"
 
-#: centreon/www/install/dashboard_widgets.php
-msgid "threshold"
-msgstr "seuil"
-
 #: centreon/www/install/front_translate.php
 msgid "tiles"
 msgstr "tuiles"
@@ -19256,10 +18922,6 @@ msgstr "mis à jour"
 #: centreon/www/class/centreonContact.class.php
 msgid "uppercase characters"
 msgstr "caractères majuscules"
-
-#: centreon/www/install/front_translate.php
-msgid "vCenter/ESX"
-msgstr "vCenter/ESX"
 
 #: centreon/www/install/front_translate.php
 msgid "will display all resources with host having alias containing"
@@ -19289,10 +18951,6 @@ msgstr "{{label}} peut contenir au maximum {{max}} caractères"
 msgid "{{label}} should be at least {{min}} characters long"
 msgstr "{{label}} doit comporter au moins {{min}} caractères"
 
-#: centreon/www/install/front_translate.php
-msgid "{{total}} element(s) found"
-msgstr "{{total}} élément(s) trouvé(s)"
-
 #: unknown
 msgid " element(s) found"
 msgstr " élément(s) trouvé(s)"
@@ -19320,6 +18978,10 @@ msgstr ""
 "transmises"
 
 #: unknown
+msgid "24x7"
+msgstr "24x7"
+
+#: unknown
 msgid "2d Coords"
 msgstr "Coordonnées 2D"
 
@@ -19330,7 +18992,8 @@ msgstr "Coordonnées 3D"
 #: unknown
 msgid "<br><b>Centreon : </b>A force-reload signal has been sent to "
 msgstr ""
-"<br><b>Centreon : </b>Une commande de redémarrage forcée a été envoyée vers "
+"<br><b>Centreon : </b>Une commande de redémarrage forcée a été envoyée "
+"vers "
 
 #: unknown
 msgid "<br><b>Centreon : </b>Cannot send signal to "
@@ -19431,6 +19094,18 @@ msgstr "Planifier pour un hôte"
 #: unknown
 msgid "Add a service downtime"
 msgstr "Planifier pour service"
+
+#: unknown
+msgid "Add additional configurations"
+msgstr "Ajouter des configurations additionnelles"
+
+#: unknown
+msgid "Add an additional configuration"
+msgstr "Ajouter une configuration additionnelle"
+
+#: unknown
+msgid "Add host group"
+msgstr "Ajouter un groupe d'hôtes"
 
 #: unknown
 msgid ""
@@ -19590,8 +19265,8 @@ msgid ""
 "envelope will stay the same."
 msgstr ""
 "Souhaitez-vous vraiment modifier la taille de l'enveloppe ? Notez que la "
-"nouvelle taille d'enveloppe s’appliquera seulement à partir de maintenant. L’"
-"ancienne enveloppe restera inchangée."
+"nouvelle taille d'enveloppe s’appliquera seulement à partir de "
+"maintenant. L’ancienne enveloppe restera inchangée."
 
 #: unknown
 msgid ""
@@ -19734,6 +19409,10 @@ msgid "Bottom color"
 msgstr "Couleur du bas"
 
 #: unknown
+msgid "Broker Module Configuration File"
+msgstr "Fichier de configuration du module Broker"
+
+#: unknown
 msgid "Broker Module information"
 msgstr "Information du module broker"
 
@@ -19764,6 +19443,22 @@ msgstr "Historique du statut d’une Activité Métier"
 #: unknown
 msgid "Business Intelligence"
 msgstr "Business Intelligence"
+
+#: unknown
+msgid "Button 1"
+msgstr "Bouton 1"
+
+#: unknown
+msgid "Button 2"
+msgstr "Bouton 2"
+
+#: unknown
+msgid "Button 3"
+msgstr "Bouton 3"
+
+#: unknown
+msgid "Button 4"
+msgstr "Bouton 4"
 
 #: unknown
 msgid "By name"
@@ -19812,6 +19507,10 @@ msgstr "Fichier CSS"
 #: unknown
 msgid "CSS configuration"
 msgstr "Configuration CSS"
+
+#: unknown
+msgid "Calculations based on time period"
+msgstr "Calculs basés sur la période temporelle"
 
 #: unknown
 msgid "Can't get file'"
@@ -19892,8 +19591,8 @@ msgid ""
 "Central platform's data are not consistent. Please check the 'Remote "
 "Access' form"
 msgstr ""
-"Les données sur le serveur central ne sont pas cohérentes. Veuillez vérifier "
-"le formulaire 'Accès au serveur distant'"
+"Les données sur le serveur central ne sont pas cohérentes. Veuillez "
+"vérifier le formulaire 'Accès au serveur distant'"
 
 #: unknown
 msgid "Central's API URI."
@@ -19904,8 +19603,8 @@ msgid ""
 "Central's path is missing on: '%s'@'%s'. Please check the Remote Access "
 "form."
 msgstr ""
-"Le chemin vers le central de la plateforme '%s'@'%s est manquant. Veuillez "
-"vérifier le formulaire 'Accès au serveur distant'."
+"Le chemin vers le central de la plateforme '%s'@'%s est manquant. "
+"Veuillez vérifier le formulaire 'Accès au serveur distant'."
 
 #: unknown
 msgid "Central's response : "
@@ -20057,6 +19756,14 @@ msgid "Client Secret"
 msgstr "Secret client"
 
 #: unknown
+msgid "Clock"
+msgstr "Horloge"
+
+#: unknown
+msgid "Clock / Timer"
+msgstr "Horloge / Minuteur"
+
+#: unknown
 msgid "Cmd"
 msgstr "Commande"
 
@@ -20111,7 +19818,8 @@ msgstr "Configuration sauvegardée."
 #: unknown
 msgid "Congratulations, you have successfully installed Centreon!"
 msgstr ""
-"Félicitations, vous avez installé avec succès Centreon en version <b>%s</b> !"
+"Félicitations, vous avez installé avec succès Centreon en version <b>%s</"
+"b> !"
 
 #: unknown
 msgid "Connected Users"
@@ -20188,8 +19896,7 @@ msgstr "Ne peut pas trouver la macro "
 #: unknown
 msgid "Could not find storage database. Session probably expired."
 msgstr ""
-"Base de données de stockage non trouvée. La session a probablement "
-"expiré."
+"Base de données de stockage non trouvée. La session a probablement expiré."
 
 #: unknown
 msgid "Could not find utils database. Session probably expired."
@@ -20422,6 +20129,94 @@ msgstr "Afficher le diagramme avec ce statut"
 #: unknown
 msgid "Display type"
 msgstr "Type d'affichage"
+
+#: unknown
+msgid "Display with this view"
+msgstr "Afficher avec cette vue"
+
+#: unknown
+msgid ""
+"Displays a detailed view of the current status for selected resources as "
+"a chart."
+msgstr ""
+"Affiche une vue détaillée du statut actuel des ressources sélectionnées "
+"sous la forme d'un graphique."
+
+#: unknown
+msgid ""
+"Displays a status overview for selected resources, grouped by hosts or by "
+"services."
+msgstr ""
+"Affiche une vue d'ensemble du statut des ressources sélectionnées, "
+"groupées par hôtes ou par services."
+
+#: unknown
+msgid "Displays a web page"
+msgstr "Affiche une page web"
+
+#: unknown
+msgid ""
+"Displays availability and alerts of a Business Activity for a given "
+"period."
+msgstr ""
+"Affiche la disponibilité et les alertes d'une activité métier pour une "
+"période donnée."
+
+#: unknown
+msgid "Displays data on resource status and events, centralized in a table."
+msgstr ""
+"Affiche des données sur le statut des ressources et les événements, "
+"centralisées dans un tableau."
+
+#: unknown
+msgid ""
+"Displays graphically a business activity hierarchy of KPIs and lets you "
+"navigate through it."
+msgstr ""
+"Affiche graphiquement et permet la navigation dans la hiérarchie d'une "
+"activité métier."
+
+#: unknown
+msgid "Displays metrics for a given time period."
+msgstr "Affiche les métriques pour une période donnée."
+
+#: unknown
+msgid ""
+"Displays the distribution of current statuses on a Business Activity, as "
+"a chronological timeline for a given time period."
+msgstr ""
+"Affiche la répartition des statuts actuels sur une activité métier, sous "
+"forme de frise chronologique pour une période donnée."
+
+#: unknown
+msgid ""
+"Displays the distribution of current statuses on selected groups of "
+"resources, as a table."
+msgstr ""
+"Affiche la répartition des statuts actuels pour les groupes de ressources "
+"sélectionnés, sous forme de tableau."
+
+#: unknown
+msgid "Displays the future evolution of a metric, based on its history."
+msgstr ""
+"Affiche l'évolution future d'une métrique, sur la base de son historique."
+
+#: unknown
+msgid "Displays the time according to the selected time zone, or a timer."
+msgstr ""
+"Affiche l'heure en fonction du fuseau horaire sélectionné, ou un minuteur."
+
+#: unknown
+msgid "Displays the top or bottom x hosts, for a selected metric."
+msgstr ""
+"Affiche le top ou le bottom x des hôtes, pour une métrique sélectionnée."
+
+#: unknown
+msgid ""
+"Displays the value of a single metric as a text, a gauge or a bar chart."
+msgstr ""
+"Affiche la valeur d'une seule métrique sous forme de texte, de jauge ou "
+"de diagramme à barres."
 
 #: unknown
 msgid "Do you confirm  the duplication ?"
@@ -20829,7 +20624,8 @@ msgstr "Échec de l'activation du groupe d'hôtes"
 
 #: unknown
 msgid "Failed to get the auth token from Central : '%s'"
-msgstr "Échec d'obtention du jeton d'authentification sur le central '%s'@'%s'"
+msgstr ""
+"Échec d'obtention du jeton d'authentification sur le central '%s'@'%s'"
 
 #: unknown
 msgid "Failover"
@@ -20942,6 +20738,15 @@ msgstr ""
 "fois. Stockez-le soigneusement."
 
 #: unknown
+msgid ""
+"For some connectors, you must define on the poller the credentials "
+"required to access the monitored hosts. You can do it easily from here."
+msgstr ""
+"Pour certains connecteurs, vous devez définir sur le collecteur les "
+"identifiants nécessaires pour accéder aux hôtes supervisés. Vous pouvez "
+"le faire facilement depuis cette page."
+
+#: unknown
 msgid "Force Reload"
 msgstr "Forcer le rechargement"
 
@@ -20978,6 +20783,30 @@ msgid "Generated in "
 msgstr "Généré en "
 
 #: unknown
+msgid "Generic data (example)"
+msgstr "Données d'exemple"
+
+#: unknown
+msgid "Generic data for single metric (example)"
+msgstr "Données d'exemple pour une métrique unique"
+
+#: unknown
+msgid "Generic input (example)"
+msgstr "Données d'entrée d'exemple"
+
+#: unknown
+msgid "Generic text"
+msgstr "Texte générique"
+
+#: unknown
+msgid "Generic text (example)"
+msgstr "Texte d'exemple"
+
+#: unknown
+msgid "Generic widgets"
+msgstr "Widgets génériques"
+
+#: unknown
 msgid "Geolocation"
 msgstr "Géolocalisation"
 
@@ -21002,6 +20831,14 @@ msgid "Graph settings"
 msgstr "Paramètres de graphe"
 
 #: unknown
+msgid "Graph style"
+msgstr "Style de graphe"
+
+#: unknown
+msgid "Graph style for average"
+msgstr "Style du graphique de moyenne"
+
+#: unknown
 msgid "Graph type"
 msgstr "Type de graphique"
 
@@ -21020,6 +20857,18 @@ msgstr "Type de quadrillage"
 #: unknown
 msgid "Group member update behavior"
 msgstr "Comportement de mise à jour des membres du groupe"
+
+#: unknown
+msgid "Group members"
+msgstr "Membres du groupe"
+
+#: unknown
+msgid "Group monitoring"
+msgstr "Group monitoring"
+
+#: unknown
+msgid "Group name"
+msgstr "Nom du groupe"
 
 #: unknown
 msgid "H:i:s"
@@ -21496,8 +21345,8 @@ msgstr "Dernière fois dans un état inconnu"
 msgid "Last warning time"
 msgstr "Derniere fois dans un état warning"
 
-#: unknown
 #, php-format
+#: unknown
 msgid "Latency detected on %s; check configuration for better optimisation"
 msgstr ""
 "Latence détectée pour %s, contrôler la configuration pour améliorer les "
@@ -21628,6 +21477,10 @@ msgid "Low Flap threshold"
 msgstr "Seuil bas de détection de bagotage des statuts"
 
 #: unknown
+msgid "MBI reporting widgets"
+msgstr "Widgets de rapports MBI"
+
+#: unknown
 msgid "Main grid color"
 msgstr "Couleur principale de la grille"
 
@@ -21680,6 +21533,10 @@ msgid "Metaservices"
 msgstr "Méta-Service"
 
 #: unknown
+msgid "Metric capacity planning"
+msgstr "Metric capacity planning"
+
+#: unknown
 msgid "Metrics dataset selection"
 msgstr "Sélection du jeu de données de métriques"
 
@@ -21703,6 +21560,10 @@ msgstr "Minutes"
 #: unknown
 msgid "Modify Image"
 msgstr "Modifier l'image"
+
+#: unknown
+msgid "Modify an additional configuration"
+msgstr "Modifier une configuration additionnelle"
 
 #: unknown
 msgid "Module Information"
@@ -21953,6 +21814,14 @@ msgstr "Ouvrir un ticket"
 #: unknown
 msgid "Optimize"
 msgstr "Optimiser"
+
+#: unknown
+msgid "Option 1"
+msgstr "Option 1"
+
+#: unknown
+msgid "Option 2"
+msgstr "Option 2"
 
 #: unknown
 msgid "Orientation"
@@ -22249,6 +22118,18 @@ msgid "RRDTool database size"
 msgstr "Durée de rétention des données dans les bases RRD"
 
 #: unknown
+msgid "Radio"
+msgstr "Radio"
+
+#: unknown
+msgid "Radio 1"
+msgstr "Radio 1"
+
+#: unknown
+msgid "Radio 2"
+msgstr "Radio 2"
+
+#: unknown
 msgid "Reach API"
 msgstr "Accès à l'API"
 
@@ -22263,6 +22144,10 @@ msgstr "Nom réel"
 #: unknown
 msgid "Redirect Url"
 msgstr "Adresse de redirection vers Centreon"
+
+#: unknown
+msgid "Reduce"
+msgstr "Réduire"
 
 #: unknown
 msgid "Refine filter"
@@ -22574,6 +22459,10 @@ msgstr "Sélectionner une ressource"
 #: unknown
 msgid "Select contacts and contact groups"
 msgstr "Sélectionner les contacts et les groupes de contacts"
+
+#: unknown
+msgid "Select field"
+msgstr "Sélectionner un champ"
 
 #: unknown
 msgid "Select host severities"
@@ -22905,6 +22794,18 @@ msgid "Store performance data in data_bin"
 msgstr "Enregistrement des données de performance dans la table 'data_bin'"
 
 #: unknown
+msgid "Sub input 1"
+msgstr "Chaîne réduite 1"
+
+#: unknown
+msgid "Sub input 2"
+msgstr "Chaîne réduite 2"
+
+#: unknown
+msgid "Sub input 3"
+msgstr "Chaîne réduite 3"
+
+#: unknown
 msgid "Subscription"
 msgstr "Abonnement"
 
@@ -22988,8 +22889,8 @@ msgstr "Couleur du texte"
 msgid "The CSRF * token is invalid, please click"
 msgstr "Le jeton * CSRF est invalide, s'il vous plaît cliquer ici"
 
-#: unknown
 #, php-format
+#: unknown
 msgid "The SQL files are located in %s"
 msgstr "Les fichiers SQL sont situés dans %s"
 
@@ -23149,6 +23050,22 @@ msgid "This field is required"
 msgstr "Ce champ est obligatoire"
 
 #: unknown
+msgid "This is the description of the data widget"
+msgstr "Description du widget Données"
+
+#: unknown
+msgid "This is the description of the generic input widget"
+msgstr "Description du widget input générique"
+
+#: unknown
+msgid "This is the description of the text widget"
+msgstr "Description du widget texte"
+
+#: unknown
+msgid "This month"
+msgstr "Ce mois"
+
+#: unknown
 msgid "Threshold"
 msgstr "Seuil"
 
@@ -23205,8 +23122,16 @@ msgid "Tooltips"
 msgstr "Infobulles"
 
 #: unknown
+msgid "Top Bottom Settings"
+msgstr "Paramètres Top/bottom"
+
+#: unknown
 msgid "Top color"
 msgstr "Couleur du haut"
+
+#: unknown
+msgid "Top/bottom"
+msgstr "Top/bottom"
 
 #: unknown
 msgid "Traceroute"
@@ -23578,6 +23503,14 @@ msgid "Welcome to Centreon Broker configuration"
 msgstr "Bienvenu dans la configuration de Centreon Broker"
 
 #: unknown
+msgid "Welcome to the additional configurations page"
+msgstr "Bienvenue sur la page des configurations additionnelles"
+
+#: unknown
+msgid "Welcome to the host groups page"
+msgstr "Bienvenue sur la page des groupes d'hôtes"
+
+#: unknown
 msgid "Widget Information"
 msgstr "Informations sur le Widget"
 
@@ -23671,7 +23604,8 @@ msgstr ""
 "la supprimer ?"
 
 #: unknown
-msgid """You are about to delete the <strong>{{ name }}</strong> host group. This "
+msgid ""
+"You are about to delete the <strong>{{ name }}</strong> host group. This "
 "action cannot be undone. Do you want to delete it?"
 msgstr ""
 "Vous êtes sur le point de supprimer le groupe d'hôtes <strong>{{ name }}</"
@@ -23781,7 +23715,8 @@ msgstr ""
 
 #: unknown
 msgid "You have unsaved changes, do you want to proceed?"
-msgstr "Vous avez des modifications non enregistrées, voulez-vous continuer ?"
+msgstr ""
+"Vous avez des modifications non enregistrées, voulez-vous continuer ?"
 
 #: unknown
 msgid ""
@@ -23816,6 +23751,10 @@ msgid "Zero-centered"
 msgstr "Centré sur zéro"
 
 #: unknown
+msgid "areaOpacity"
+msgstr "areaOpacity"
+
+#: unknown
 msgid "cgi"
 msgstr "cgi"
 
@@ -23844,12 +23783,24 @@ msgid "d/m/Y H:i"
 msgstr "d/m/Y H:i"
 
 #: unknown
+msgid "dashLength"
+msgstr "Longueur des tirets"
+
+#: unknown
+msgid "dashOffset"
+msgstr "dashOffset"
+
+#: unknown
 msgid "default"
 msgstr "défaut"
 
 #: unknown
 msgid "deprecated"
 msgstr "déprécié"
+
+#: unknown
+msgid "dotOffset"
+msgstr "dotOffset"
 
 #: unknown
 msgid "down"
@@ -23862,6 +23813,10 @@ msgstr "escalade"
 #: unknown
 msgid "false"
 msgstr "faux"
+
+#: unknown
+msgid "gridLinesType"
+msgstr "gridLinesType"
 
 #: unknown
 msgid "host"
@@ -23896,6 +23851,18 @@ msgid "launch %s with root permissions.\n"
 msgstr "lancer %s avec les permissions root.\n"
 
 #: unknown
+msgid "legendDisplayMode"
+msgstr "legendDisplayMode"
+
+#: unknown
+msgid "legendPlacement"
+msgstr "legendPlacement"
+
+#: unknown
+msgid "lineWidth"
+msgstr "lineWidth"
+
+#: unknown
 msgid "looks like a CLAPI action"
 msgstr "Probablement une action réalisée par CLAPI"
 
@@ -23928,12 +23895,20 @@ msgid "platform not found"
 msgstr "plateforme non trouvée"
 
 #: unknown
+msgid "px"
+msgstr "px"
+
+#: unknown
 msgid "resource.cfg"
 msgstr "resource.cfg"
 
 #: unknown
 msgid "resources"
 msgstr "ressources"
+
+#: unknown
+msgid "scaleLogarithmicBase"
+msgstr "scaleLogarithmicBase"
 
 #: unknown
 msgid "service"
@@ -23960,6 +23935,22 @@ msgid "snmpttconvertmib Directory + Binary"
 msgstr "Chemin complet de l'exécutable snmpttconvertmib"
 
 #: unknown
+msgid "sub1"
+msgstr "sub1"
+
+#: unknown
+msgid "sub2"
+msgstr "sub2"
+
+#: unknown
+msgid "sub3"
+msgstr "sub3"
+
+#: unknown
+msgid "threshold"
+msgstr "seuil"
+
+#: unknown
 msgid "timeperiod"
 msgstr "période de temps"
 
@@ -23984,9 +23975,17 @@ msgid "vCenter name"
 msgstr "Nom du vCenter"
 
 #: unknown
+msgid "vCenter/ESX"
+msgstr "vCenter/ESX"
+
+#: unknown
 msgid "warning"
 msgstr "alerte"
 
 #: unknown
 msgid "will display resources with host name starting by'"
 msgstr "affichera les ressources avec un nom d'hôte commençant par"
+
+#: unknown
+msgid "{{total}} element(s) found"
+msgstr "{{total}} élément(s) trouvé(s)"
