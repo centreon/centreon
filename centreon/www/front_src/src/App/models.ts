@@ -3,6 +3,7 @@ import { KeyValuePair } from 'ramda';
 import { ListingVariant } from '@centreon/ui-context';
 
 export interface DefaultParameters {
+  is_resource_status_full_search_enabled: boolean;
   monitoring_default_acknowledgement_force_active_checks: boolean;
   monitoring_default_acknowledgement_notify: boolean;
   monitoring_default_acknowledgement_persistent: boolean;
