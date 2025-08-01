@@ -236,7 +236,7 @@ if ($centreon->user->admin === '1') {
         'button',
         'syncDir',
         _('Synchronize Media Directory'),
-        ['onClick' => "openPopup($p)", 'class' => "btc bt_info ml-2 mr-1"],
+        ['onClick' => "openPopup({$p})", 'class' => 'btc bt_info ml-2 mr-1'],
     );
 }
 $form->setDefaults(['o1' => null]);
