@@ -191,6 +191,7 @@ Then('these properties are updated', () => {
   cy.getIframeBody()
     .find('input[name="hg_alias"]')
     .should('have.value', hostGroups.forTest.alias);
+<<<<<<< HEAD
   cy.getIframeBody()
     .find('input[name="hg_notes"]')
     .should('have.value', hostGroups.forTest.notes);
@@ -214,6 +215,19 @@ Then('these properties are updated', () => {
     .should('have.value', hostGroups.forTest.rrd);
   cy.getIframeBody()
     .find('textarea[name="hg_comment"]')
+=======
+  // check values of hosts members
+  cy.contains('span', 'host2').should('be.visible');
+  cy.contains('span', 'Centreon-Server').should('be.visible');
+  cy.contains('Modify a host group').click();
+  cy.getByTestId({ testId: 'Geographic coordinates for MAP' })
+    .eq(1)
+    .should('have.value', hostGroups.forTest.geo_coords_after_truncate);
+  // Check value of the icon
+  cy.get('img[alt="logo-centreon-colors.png"]').should('be.visible');
+  cy.getByTestId({ testId: 'Comments' })
+    .eq(1)
+>>>>>>> 0c2a5e04aa (fix(configuration): error 500 when geocoords are too long (#7829))
     .should('have.value', hostGroups.forTest.comment);
   cy.checkLegacyRadioButton('Disabled');
 });
@@ -228,6 +242,7 @@ When('the user duplicates the configured host group', () => {
 });
 
 Then('a new host group is created with identical properties', () => {
+<<<<<<< HEAD
   cy.getIframeBody().contains(hostGroups.forTest.name).should('exist');
   cy.getIframeBody().contains(hostGroups.forTest.name).click();
 
@@ -273,6 +288,26 @@ Then('a new host group is created with identical properties', () => {
     .should('have.value', hostGroups.forTest.rrd);
   cy.getIframeBody()
     .find('textarea[name="hg_comment"]')
+=======
+  cy.contains('p', `${hostGroups.forDuplicate.name}_1`).should('exist');
+  cy.contains('p', `${hostGroups.forDuplicate.name}_1`).click();
+  cy.getByTestId({ testId: 'Name' })
+    .eq(1)
+    .should('have.value', `${hostGroups.forDuplicate.name}_1`);
+  cy.getByTestId({ testId: 'Alias' })
+    .eq(1)
+    .should('have.value', hostGroups.forDuplicate.alias);
+  // check values of hosts members
+  cy.contains('span', 'host2').should('be.visible');
+  cy.contains('Modify a host group').click();
+  cy.getByTestId({ testId: 'Geographic coordinates for MAP' })
+    .eq(1)
+    .should('have.value', hostGroups.forDuplicate.geo_coords_after_truncate);
+  // Check value of the icon
+  cy.get('img[alt="logo-centreon-colors.png"]').should('be.visible');
+  cy.getByTestId({ testId: 'Comments' })
+    .eq(1)
+>>>>>>> 0c2a5e04aa (fix(configuration): error 500 when geocoords are too long (#7829))
     .should('have.value', hostGroups.forTest.comment);
   cy.checkLegacyRadioButton('Enabled');
 });
