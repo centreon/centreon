@@ -73,33 +73,33 @@ if ($o == IMAGE_MODIFY_DIRECTORY && $directoryId) {
 $imgs = [];
 
 $queryParameters = [];
-$request = <<<SQL
-    SELECT
-        images.img_id,
-        CONCAT(directories.dir_alias, '/', images.img_name) AS imagePath
-    FROM view_img AS images
-    INNER JOIN view_img_dir_relation vidr
-        ON vidr.img_img_id = images.img_id
-    INNER JOIN view_img_dir AS directories
-        ON directories.dir_id = vidr.dir_dir_parent_id
-SQL;
+$request = <<<'SQL'
+        SELECT
+            images.img_id,
+            CONCAT(directories.dir_alias, '/', images.img_name) AS imagePath
+        FROM view_img AS images
+        INNER JOIN view_img_dir_relation vidr
+            ON vidr.img_img_id = images.img_id
+        INNER JOIN view_img_dir AS directories
+            ON directories.dir_id = vidr.dir_dir_parent_id
+    SQL;
 
 if (! $userCanSeeAllFolders) {
-    $request .= <<<SQL
-        INNER JOIN acl_resources_image_folder_relations armdr
-            ON armdr.dir_id = directories.dir_id
-        INNER JOIN acl_resources ar
-            ON ar.acl_res_id = armdr.acl_res_id
-        INNER JOIN acl_res_group_relations argr
-            ON argr.acl_res_id = ar.acl_res_id
-        LEFT JOIN acl_group_contacts_relations gcr
-            ON gcr.acl_group_id = argr.acl_group_id
-        LEFT JOIN acl_group_contactgroups_relations gcgr
-            ON gcgr.acl_group_id = argr.acl_group_id
-        LEFT JOIN contactgroup_contact_relation cgcr
-            ON cgcr.contactgroup_cg_id = gcgr.cg_cg_id
-            AND (cgcr.contact_contact_id = :contactId OR gcr.contact_contact_id = :contactId)
-    SQL;
+    $request .= <<<'SQL'
+            INNER JOIN acl_resources_image_folder_relations armdr
+                ON armdr.dir_id = directories.dir_id
+            INNER JOIN acl_resources ar
+                ON ar.acl_res_id = armdr.acl_res_id
+            INNER JOIN acl_res_group_relations argr
+                ON argr.acl_res_id = ar.acl_res_id
+            LEFT JOIN acl_group_contacts_relations gcr
+                ON gcr.acl_group_id = argr.acl_group_id
+            LEFT JOIN acl_group_contactgroups_relations gcgr
+                ON gcgr.acl_group_id = argr.acl_group_id
+            LEFT JOIN contactgroup_contact_relation cgcr
+                ON cgcr.contactgroup_cg_id = gcgr.cg_cg_id
+                AND (cgcr.contact_contact_id = :contactId OR gcr.contact_contact_id = :contactId)
+        SQL;
     $queryParameters[] = QueryParameter::int('contactId', $centreon->user->user_id);
 }
 
@@ -110,8 +110,8 @@ if ($o == IMAGE_MOVE && $selected !== []) {
     ] = createMultipleBindParameters($selected, 'imageId', QueryParameterTypeEnum::INTEGER);
 
     $request .= <<<SQL
-        WHERE images.img_id IN ({$bindQuery})
-    SQL;
+            WHERE images.img_id IN ({$bindQuery})
+        SQL;
 
     $queryParameters = array_merge($queryParameters, $bindImageParameters);
 }

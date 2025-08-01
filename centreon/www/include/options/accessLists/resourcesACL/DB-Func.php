@@ -510,6 +510,8 @@ function updateHosts($aclId = null)
 
     $hostsSubmitted = $form->getSubmitValue('acl_hosts');
 
+    $insertParameters = [];
+
     if (is_array($hostsSubmitted) && [] !== $hostsSubmitted) {
         foreach ($hostsSubmitted as $index => $hostId) {
             $insertParameters[] = QueryParameters::create([
@@ -607,6 +609,8 @@ function updatePollers($aclId = null)
 
     $pollersSubmitted = $form->getSubmitValue('acl_pollers');
 
+    $insertParameters = [];
+
     if (is_array($pollersSubmitted) && [] !== $pollersSubmitted) {
         foreach ($pollersSubmitted as $index => $pollerId) {
             $insertParameters[] = QueryParameters::create([
@@ -647,6 +651,8 @@ function updateHostexcludes($aclId = null)
     );
 
     $hostsToExcludeSubmitted = $form->getSubmitValue('acl_hostexclude');
+
+    $insertParameters = [];
 
     if (is_array($hostsToExcludeSubmitted) && [] !== $hostsToExcludeSubmitted) {
         foreach ($hostsToExcludeSubmitted as $index => $hostId) {
@@ -689,6 +695,8 @@ function updateHostGroups($aclId = null)
 
     $hostGroupsSubmitted = $form->getSubmitValue('acl_hostgroup');
 
+    $insertParameters = [];
+
     if (is_array($hostGroupsSubmitted) && [] !== $hostGroupsSubmitted) {
         foreach ($hostGroupsSubmitted as $index => $hostGroupId) {
             $insertParameters[] = QueryParameters::create([
@@ -728,6 +736,8 @@ function updateServiceCategories($aclId = null)
     );
 
     $serviceCategoriesSubmitted = $form->getSubmitValue('acl_sc');
+
+    $insertParameters = [];
 
     if (is_array($serviceCategoriesSubmitted) && [] !== $serviceCategoriesSubmitted) {
         foreach ($serviceCategoriesSubmitted as $index => $serviceCategoryId) {
@@ -769,6 +779,8 @@ function updateHostCategories($aclId = null)
 
     $hostCategoriesSubmitted = $form->getSubmitValue('acl_hc');
 
+    $insertParameters = [];
+
     if (is_array($hostCategoriesSubmitted) && [] !== $hostCategoriesSubmitted) {
         foreach ($hostCategoriesSubmitted as $index => $hostCategoryId) {
             $insertParameters[] = QueryParameters::create([
@@ -809,6 +821,8 @@ function updateServiceGroups($aclId = null)
 
     $serviceGroupsSubmitted = $form->getSubmitValue('acl_sg');
 
+    $insertParameters = [];
+
     if (is_array($serviceGroupsSubmitted) && [] !== $serviceGroupsSubmitted) {
         foreach ($serviceGroupsSubmitted as $index => $serviceGroupId) {
             $insertParameters[] = QueryParameters::create([
@@ -848,6 +862,8 @@ function updateMetaServices($aclId = null)
     );
 
     $metaServicesSubmitted = $form->getSubmitValue('acl_meta');
+
+    $insertParameters = [];
 
     if (is_array($metaServicesSubmitted) && [] !== $metaServicesSubmitted) {
         foreach ($metaServicesSubmitted as $index => $metaServiceId) {

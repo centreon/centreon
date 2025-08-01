@@ -38,23 +38,23 @@ $userCanSeeAllFolders = ((int) $centreon->user->admin === 1 || $centreon->user->
 $img = ['img_path' => null];
 
 if ($o == IMAGE_MODIFY || $o == IMAGE_WATCH) {
-    $query = <<<SQL
-        SELECT
-            image.img_id,
-            image.img_name,
-            image.img_path,
-            image.img_comment,
-            directory.dir_id,
-            directory.dir_name AS `directories`,
-            directory.dir_alias
-        FROM view_img AS image
-        INNER JOIN view_img_dir_relation AS vidr
-        ON vidr.img_img_id = image.img_id
-        INNER JOIN view_img_dir AS directory
-            ON directory.dir_id = vidr.dir_dir_parent_id
-        WHERE image.img_id = :imageId
-        LIMIT 1
-    SQL;
+    $query = <<<'SQL'
+            SELECT
+                image.img_id,
+                image.img_name,
+                image.img_path,
+                image.img_comment,
+                directory.dir_id,
+                directory.dir_name AS `directories`,
+                directory.dir_alias
+            FROM view_img AS image
+            INNER JOIN view_img_dir_relation AS vidr
+            ON vidr.img_img_id = image.img_id
+            INNER JOIN view_img_dir AS directory
+                ON directory.dir_id = vidr.dir_dir_parent_id
+            WHERE image.img_id = :imageId
+            LIMIT 1
+        SQL;
 
     $queryParameters = QueryParameters::create([QueryParameter::int('imageId', $imageId)]);
 
@@ -85,7 +85,7 @@ if ($o == IMAGE_ADD) {
         $directoryIds,
         [
             'id' => 'directories',
-            'style' => $userCanSeeAllFolders ? '' : 'display:none;'
+            'style' => $userCanSeeAllFolders ? '' : 'display:none;',
         ]
     );
     $form->addElement(
@@ -117,7 +117,7 @@ if ($o == IMAGE_ADD) {
         $directoryIds,
         [
             'id' => 'directories',
-            'style' => $userCanSeeAllFolders ? '' : 'display:none;'
+            'style' => $userCanSeeAllFolders ? '' : 'display:none;',
         ]
     );
 
@@ -128,7 +128,7 @@ if ($o == IMAGE_ADD) {
         $directoryListForSelect,
         ['onchange' => 'document.getElementById("directories").value = this.options[this.selectedIndex].text;']
     );
-    
+
     $directorySelect->setSelected($img['dir_id']);
     $form->addElement('file', 'filename', _('Image'));
     $subC = $form->addElement(
