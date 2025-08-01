@@ -1144,7 +1144,7 @@ $valid = false;
 if ($form->validate() && $from_list_menu === false) {
     $hostObj = $form->getElement('host_id');
     if ($form->getSubmitValue('submitA')) {
-        if (null !== $hostId = insertHostInAPI()) {
+        if ($hostId = insertHostInAPI($formData)) {
             $hostObj->setValue($hostId);
             $o = HOST_WATCH;
             $valid = true;

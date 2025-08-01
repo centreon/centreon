@@ -1,4 +1,115 @@
+<<<<<<< HEAD
 Cypress.Commands.add('addOrUpdateVirtualMetric', (body: VirtualMetric, showGraph: boolean) => {
+=======
+interface Dependency {
+  name: string;
+  description: string;
+  parentRelationship: number;
+  executionFailsOnOk: number;
+  executionFailsOnWarning: number;
+  executionFailsOnUnknown: number;
+  executionFailsOnCritical: number;
+  executionFailsOnPending: number;
+  executionFailsOnNone: number;
+  notificationFailsOnNone: number;
+  notificationFailsOnOk: number;
+  notificationFailsOnWarning: number;
+  notificationFailsOnUnknown: number;
+  notificationFailsOnCritical: number;
+  notificationFailsOnPending: number;
+  comment: string;
+}
+
+interface ServiceDependency {
+  dependency: Dependency;
+  services: string[];
+  dependentServices: string[];
+  dependentHosts: string[];
+}
+
+interface ServiceGroupDependency {
+  dependency: Dependency;
+  serviceGroups: string[];
+  dependentServiceGroups: string[];
+}
+
+interface VirtualMetric {
+  name: string;
+  linkedHostServices: string;
+  knownMetric: string;
+  unit: string;
+  warningThreshold: string;
+  criticalThreshold: string;
+  comments: string;
+}
+
+interface MetaService {
+  name: string;
+  maxCheckAttempts: string;
+}
+
+interface MetaServiceDependency {
+  name: string;
+  description: string;
+  parentRelationship: number;
+  executionFailsOnOk: number;
+  executionFailsOnWarning: number;
+  executionFailsOnUnknown: number;
+  executionFailsOnCritical: number;
+  executionFailsOnPending: number;
+  executionFailsOnNone: number;
+  notificationFailsOnNone: number;
+  notificationFailsOnOk: number;
+  notificationFailsOnWarning: number;
+  notificationFailsOnUnknown: number;
+  notificationFailsOnCritical: number;
+  notificationFailsOnPending: number;
+  metaServicesNames: string[];
+  dependentMetaServicesNames: string[];
+  comment: string;
+}
+
+interface HostGroupService {
+  name: string;
+  hostGroups: string;
+  template: string;
+  checkCommand: string;
+  macroName: string;
+  macroValue: number;
+  checkPeriod: string;
+  maxCheckAttempts: number;
+  normalCheckInterval: number;
+  retryCheckInterval: number;
+  contacts: string;
+  contactGroups: string;
+  notificationInterval: number;
+  notificationPeriod: string;
+  firstNotificationDelay: number;
+  recoveryNotificationDelay: number;
+  serviceGroups: string;
+  serviceTrap: string;
+  freshnessThreshold: number;
+  serviceCategories: string;
+  noteUrl: string;
+  note: string;
+  actionUrl: string;
+  atlIcon: string;
+  geoCoords: string;
+  geoCoordsTruncated: string;
+  comment: string;
+}
+
+interface HtmlElt {
+  tag: string;
+  attribut: string;
+  attributValue: string;
+  valueOrIndex: string;
+}
+
+Cypress.Commands.add(
+  'addOrUpdateVirtualMetric',
+  (body: VirtualMetric, showGraph: boolean) => {
+>>>>>>> 0c2a5e04aa (fix(configuration): error 500 when geocoords are too long (#7829))
     cy.wait('@getTimeZone');
     cy.waitForElementInIframe('#main-content', 'input[name="vmetric_name"]');
     cy.getIframeBody()
@@ -457,6 +568,7 @@ Cypress.Commands.add('checkValuesOfHostGroupService', (name:string, body: HostGr
       .should('have.length', 1)
       .and('have.text', body.servicecategories);
 
+<<<<<<< HEAD
   cy.getIframeBody().find('input[name="esi_notes_url"]').should('have.value',body.noteurl);
   cy.getIframeBody().find('input[name="esi_notes"]').should('have.value',body.note);
   cy.getIframeBody().find('input[name="esi_action_url"]').should('have.value',body.actionurl);
@@ -571,6 +683,29 @@ interface HtmlElt {
   attributValue: string,
   valueOrIndex: string
 }
+=======
+    cy.getIframeBody()
+      .find('input[name="esi_notes_url"]')
+      .should('have.value', body.noteUrl);
+    cy.getIframeBody()
+      .find('input[name="esi_notes"]')
+      .should('have.value', body.note);
+    cy.getIframeBody()
+      .find('input[name="esi_action_url"]')
+      .should('have.value', body.actionUrl);
+    cy.getIframeBody().find('#esi_icon_image').should('have.value', '1');
+    cy.getIframeBody()
+      .find('input[name="esi_icon_image_alt"]')
+      .should('have.value', body.atlIcon);
+    cy.getIframeBody()
+      .find('input[name="geo_coords"]')
+      .should('have.value', body.geoCoordsTruncated);
+    cy.getIframeBody()
+      .find('textarea[name="service_comment"]')
+      .should('have.value', body.comment);
+  }
+);
+>>>>>>> 0c2a5e04aa (fix(configuration): error 500 when geocoords are too long (#7829))
 
 declare global {
   namespace Cypress {
