@@ -21885,10 +21885,6 @@ msgid "Object Cache File"
 msgstr "Fichier de cache des objets"
 
 #: unknown
-msgid "Object Type"
-msgstr "Type d'objet"
-
-#: unknown
 msgid "Obsess Over Hosts Option"
 msgstr "Activation de l'exécution des commandes post contrôle d'hôte"
 
