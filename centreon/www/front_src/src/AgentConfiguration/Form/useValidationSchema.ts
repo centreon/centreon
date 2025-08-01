@@ -19,7 +19,8 @@ export const portRegex = /:[0-9]+$/;
 export const keyFilenameRegexp = /^[a-zA-Z0-9-_.]+(?<!\.key)$/;
 
 const invalidPath = /^(?!.*\/\/).+$/;
-const validExtensionRegex = /\.(crt|key|cer)$/;
+const validCertificateExtensionRegex = /\.(crt|cer)$/;
+const validFileExtensionRegex = /\.key$/;
 const relativePathRegex = /^\.{1,2}\//;
 
 export const useValidationSchema = (): Schema<AgentConfigurationForm> => {
@@ -27,33 +28,36 @@ export const useValidationSchema = (): Schema<AgentConfigurationForm> => {
 
   const requiredString = useMemo(() => string().required(t(labelRequired)), []);
 
-  const certificateFileValidation = useMemo(
-    () =>
-      string()
-        .test({
-          name: 'invalid-path',
-          message: t(labelInvalidPath),
-          test: (value) => !value || invalidPath.test(value)
-        })
-        .test({
-          name: 'is-not-relative-path',
-          message: t(labelRelativePathAreNotAllowed),
-          test: (value) => !value || !relativePathRegex.test(value)
-        })
-        .test({
-          name: 'has-valid-extension',
-          message: t(labelInvalidExtension),
-          test: (value) => !value || validExtensionRegex.test(value)
-        }),
-    []
-  );
+  const certificateFileValidation = (isFile?: boolean) =>
+    string()
+      .test({
+        name: 'invalid-path',
+        message: t(labelInvalidPath),
+        test: (value) => !value || invalidPath.test(value)
+      })
+      .test({
+        name: 'is-not-relative-path',
+        message: t(labelRelativePathAreNotAllowed),
+        test: (value) => !value || !relativePathRegex.test(value)
+      })
+      .test({
+        name: 'has-valid-extension',
+        message: t(labelInvalidExtension),
+        test: (value) =>
+          !value ||
+          (isFile
+            ? validFileExtensionRegex.test(value)
+            : validCertificateExtensionRegex.test(value))
+      });
 
-  const certificateValidation = string().when('$connectionMode.id', {
-    is: 'secure',
-    // biome-ignore lint/suspicious/noThenProperty: <explanation>
-    then: () => certificateFileValidation.nullable(),
-    otherwise: () => string().nullable()
-  });
+  const certificateValidation = (isFile?: boolean) =>
+    string().when('$connectionMode.id', {
+      is: (value: string) =>
+        equals(value, 'secure') || equals(value, 'insecure'),
+      // biome-ignore lint/suspicious/noThenProperty: <explanation>
+      then: () => certificateFileValidation(isFile).nullable(),
+      otherwise: () => string().nullable()
+    });
 
   const portValidation = number()
     .min(1, t(labelPortMustStartFrom1))
@@ -62,11 +66,11 @@ export const useValidationSchema = (): Schema<AgentConfigurationForm> => {
 
   const telegrafConfigurationSchema = {
     confServerPort: portValidation,
-    otelPublicCertificate: certificateValidation,
-    otelCaCertificate: certificateValidation,
-    otelPrivateKey: certificateValidation,
-    confCertificate: certificateValidation,
-    confPrivateKey: certificateValidation
+    otelPublicCertificate: certificateValidation(),
+    otelCaCertificate: certificateValidation(),
+    otelPrivateKey: certificateValidation(true),
+    confCertificate: certificateValidation(),
+    confPrivateKey: certificateValidation(true)
   };
 
   const CMAConfigurationSchema = {
@@ -91,9 +95,9 @@ export const useValidationSchema = (): Schema<AgentConfigurationForm> => {
           .required(),
       otherwise: (schema) => schema.nullable()
     }),
-    otelPublicCertificate: certificateValidation,
-    otelCaCertificate: certificateValidation,
-    otelPrivateKey: certificateValidation,
+    otelPublicCertificate: certificateValidation(),
+    otelCaCertificate: certificateValidation(),
+    otelPrivateKey: certificateValidation(true),
     hosts: array()
       .of(
         object({
@@ -107,7 +111,7 @@ export const useValidationSchema = (): Schema<AgentConfigurationForm> => {
             })
             .required(t(labelRequired)),
           port: portValidation,
-          pollerCaCertificate: certificateValidation,
+          pollerCaCertificate: certificateValidation(),
           pollerCaName: string().nullable(),
           token: object().when(['$type', '$connectionMode', '$configuration'], {
             is: (type, connectionMode, configuration) =>
