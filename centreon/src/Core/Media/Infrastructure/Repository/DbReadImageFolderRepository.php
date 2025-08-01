@@ -415,8 +415,8 @@ final class DbReadImageFolderRepository extends DatabaseRepository implements Re
             name: new ImageFolderName($record['name']),
         );
 
-        $folder->setAlias($record['alias'] !== null ? new ImageFolderName($record['alias']) : null);
-        $folder->setDescription($record['comment'] !== null ? new ImageFolderDescription($record['comment']) : null);
+        $folder->setAlias(! empty($record['alias']) ? new ImageFolderName($record['alias']) : null);
+        $folder->setDescription(! empty($record['comment']) ? new ImageFolderDescription($record['comment']) : null);
 
         return $folder;
     }

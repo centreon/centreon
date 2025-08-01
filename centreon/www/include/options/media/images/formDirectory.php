@@ -22,14 +22,23 @@
 //
 // # Database retrieve information for Directory
 //
+
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\Enum\QueryParameterTypeEnum;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
+
 $dir = [];
 $list = [];
 $selected = [];
+
+$userCanSeeAllFolders = ((int) $centreon->user->admin === 1 || $centreon->user->access->hasAccessToAllImageFolders);
+
 // Change Directory
 if ($o == IMAGE_MODIFY_DIRECTORY && $directoryId) {
     $DBRESULT = $pearDB->query(
         "SELECT * FROM view_img_dir WHERE dir_id = {$directoryId} LIMIT 1"
     );
+
     $dir = array_map('myDecode', $DBRESULT->fetchRow());
     // Set Child elements
     $DBRESULT = $pearDB->query(
@@ -62,34 +71,61 @@ if ($o == IMAGE_MODIFY_DIRECTORY && $directoryId) {
 //
 // Images comes from DB -> Store in $imgs Array
 $imgs = [];
-$rq = 'SELECT `img_id`,`dir_alias`,`img_name` FROM view_img '
-    . 'JOIN view_img_dir_relation ON img_img_id = img_id '
-    . 'JOIN view_img_dir ON dir_id = dir_dir_parent_id ';
-if ($o == IMAGE_MOVE && $selected !== []) {
-    $rq .= ' WHERE `img_id` IN (' . implode(',', $selected) . ') ';
-}
-$rq .= ' ORDER BY dir_alias, img_name';
-$DBRESULT = $pearDB->query($rq);
-while ($img = $DBRESULT->fetchRow()) {
-    $imgs[$img['img_id']] = htmlentities(
-        $img['dir_alias'] . '/' . $img['img_name'],
-        ENT_QUOTES,
-        'utf-8'
-    );
-}
-$DBRESULT->closeCursor();
 
-$directories = [];
-$DBRESULT = $pearDB->query(
-    'SELECT dir_id, dir_name, dir_comment FROM view_img_dir ORDER BY dir_name'
-);
-while ($row = $DBRESULT->fetchRow()) {
-    $directories[$row['dir_id']] = htmlentities(
-        $row['dir_name'],
-        ENT_QUOTES,
-        'utf-8'
-    );
+$queryParameters = [];
+$request = <<<SQL
+    SELECT
+        images.img_id,
+        CONCAT(directories.dir_alias, '/', images.img_name) AS imagePath
+    FROM view_img AS images
+    INNER JOIN view_img_dir_relation vidr
+        ON vidr.img_img_id = images.img_id
+    INNER JOIN view_img_dir AS directories
+        ON directories.dir_id = vidr.dir_dir_parent_id
+SQL;
+
+if (! $userCanSeeAllFolders) {
+    $request .= <<<SQL
+        INNER JOIN acl_resources_image_folder_relations armdr
+            ON armdr.dir_id = directories.dir_id
+        INNER JOIN acl_resources ar
+            ON ar.acl_res_id = armdr.acl_res_id
+        INNER JOIN acl_res_group_relations argr
+            ON argr.acl_res_id = ar.acl_res_id
+        LEFT JOIN acl_group_contacts_relations gcr
+            ON gcr.acl_group_id = argr.acl_group_id
+        LEFT JOIN acl_group_contactgroups_relations gcgr
+            ON gcgr.acl_group_id = argr.acl_group_id
+        LEFT JOIN contactgroup_contact_relation cgcr
+            ON cgcr.contactgroup_cg_id = gcgr.cg_cg_id
+            AND (cgcr.contact_contact_id = :contactId OR gcr.contact_contact_id = :contactId)
+    SQL;
+    $queryParameters[] = QueryParameter::int('contactId', $centreon->user->user_id);
 }
+
+if ($o == IMAGE_MOVE && $selected !== []) {
+    [
+        'parameters' => $bindImageParameters,
+        'placeholderList' => $bindQuery
+    ] = createMultipleBindParameters($selected, 'imageId', QueryParameterTypeEnum::INTEGER);
+
+    $request .= <<<SQL
+        WHERE images.img_id IN ({$bindQuery})
+    SQL;
+
+    $queryParameters = array_merge($queryParameters, $bindImageParameters);
+}
+
+$request .= ' GROUP BY directories.dir_id ORDER BY directories.dir_alias, images.img_name';
+
+/** @var CentreonDB $pearDB */
+$records = $pearDB->iterateAssociative($request, QueryParameters::create($queryParameters));
+
+foreach ($records as $record) {
+    $imgs[$record['img_id']] = htmlentities($record['imagePath'], ENT_QUOTES, 'utf-8');
+}
+
+$directories = getListDirectory();
 
 // #########################################################
 // Var information to format the element
@@ -110,7 +146,11 @@ if ($o == IMAGE_MODIFY_DIRECTORY) {
     $form->setDefaults($dir);
 } elseif ($o == IMAGE_MOVE) {
     $form->addElement('header', 'title', _('Move files to directory'));
-    $form->addElement('autocomplete', 'dir_name', _('Destination directory'), $directories);
+
+    $userCanSeeAllFolders
+        ? $form->addElement('autocomplete', 'dir_name', _('Destination directory'), $directories)
+        : $form->addElement('select', 'dir_name', _('Destination Directory'), $directories);
+
     $form->addElement('select', 'dir_imgs', _('Images'), $imgs, $attrsSelect);
 }
 
