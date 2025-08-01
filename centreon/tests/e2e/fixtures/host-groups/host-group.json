@@ -15,20 +15,6 @@
         "geo_coords_after_truncate": "2.352221,48.856614",
         "rrd": 2,
         "comment": "comment!",
-<<<<<<< HEAD
         "is_activated": true
-=======
-        "is_activated": false
-    },
-    "forDuplicate": {
-        "name": "host_group_changed",
-        "alias": "host_group_changed",
-        "icon_id": 1,
-        "geo_coords": "2.3522219,48.856614",
-        "geo_coords_after_truncate": "2.352221,48.856614",
-        "comment": "comment!",
-        "hosts": [15],
-        "is_activated": false
->>>>>>> 0c2a5e04aa (fix(configuration): error 500 when geocoords are too long (#7829))
     }
 }
