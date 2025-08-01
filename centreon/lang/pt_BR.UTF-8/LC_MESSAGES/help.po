@@ -1953,10 +1953,10 @@ msgstr ""
 
 #: centreon/www/include/configuration/configObject/command/help.php
 msgid ""
-"Check this option if your command requires shell features like pipes, redirections, globbing etc."
+"Check this option if your command requires shell features like pipes, redirections, globbing etc. "
 "Note that commands requiring shell are slowing down the poller server."
 msgstr ""
-"Marque esta opção se o seu comando exigir recursos do shell, como pipes, redirecionamentos, curingas (globbing), etc."
+"Marque esta opção se o seu comando exigir recursos do shell, como pipes, redirecionamentos, curingas (globbing), etc. "
 "Observe que comandos que exigem shell podem deixar o servidor de polling mais lento."
 
 #: centreon/www/include/Administration/parameters/knowledgeBase/help.php

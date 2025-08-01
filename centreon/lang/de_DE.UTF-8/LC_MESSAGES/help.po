@@ -1951,10 +1951,10 @@ msgstr ""
 
 #: centreon/www/include/configuration/configObject/command/help.php
 msgid ""
-"Check this option if your command requires shell features like pipes, redirections, globbing etc."
+"Check this option if your command requires shell features like pipes, redirections, globbing etc. "
 "Note that commands requiring shell are slowing down the poller server."
 msgstr ""
-"Aktivieren Sie diese Option, wenn Ihr Befehl Shell-Funktionen wie Pipes, Umleitungen, Globbing usw. benötigt."
+"Aktivieren Sie diese Option, wenn Ihr Befehl Shell-Funktionen wie Pipes, Umleitungen, Globbing usw. benötigt. "
 "Beachten Sie, dass Befehle, die eine Shell erfordern, den Poller-Server verlangsamen."
 
 #: centreon/www/include/Administration/parameters/knowledgeBase/help.php

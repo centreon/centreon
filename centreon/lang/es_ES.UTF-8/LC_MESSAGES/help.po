@@ -1962,7 +1962,7 @@ msgstr ""
 
 #: centreon/www/include/configuration/configObject/command/help.php
 msgid ""
-"Check this option if your command requires shell features like pipes, redirections, globbing etc."
+"Check this option if your command requires shell features like pipes, redirections, globbing etc. "
 "Note that commands requiring shell are slowing down the poller server."
 msgstr ""
 "Marca esta opción si tu comando requiere funciones del shell como tuberías, redirecciones, expansión de comodines, etc."
