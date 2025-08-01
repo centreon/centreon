@@ -231,6 +231,14 @@ $tpl->assign(
 $actions = [null => _('More actions'), IMAGE_DELETE => _('Delete'), IMAGE_MOVE => _('Move images')];
 $form->addElement('select', 'o1', null, $actions, ['onchange' => "javascript:submitO('o1');"]);
 $form->addElement('select', 'o2', null, $actions, ['onchange' => "javascript:submitO('o2');"]);
+if ($centreon->user->admin === '1') {
+    $form->addElement(
+        'button',
+        'syncDir',
+        _('Synchronize Media Directory'),
+        ['onClick' => "openPopup($p)", 'class' => "btc bt_info ml-2 mr-1"],
+    );
+}
 $form->setDefaults(['o1' => null]);
 $form->setDefaults(['o2' => null]);
 
@@ -245,7 +253,6 @@ $o2->setSelected(null);
 $tpl->assign('limit', $limit);
 $tpl->assign('p', $p);
 $tpl->assign('session_id', session_id());
-$tpl->assign('syncDir', _('Synchronize Media Directory'));
 $tpl->assign('searchM', $search);
 
 $renderer = new HTML_QuickForm_Renderer_ArraySmarty($tpl);

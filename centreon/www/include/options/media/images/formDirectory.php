@@ -110,7 +110,7 @@ if ($o == IMAGE_MOVE && $selected !== []) {
     ] = createMultipleBindParameters($selected, 'imageId', QueryParameterTypeEnum::INTEGER);
 
     $request .= <<<SQL
-            WHERE images.img_id IN ({$bindQuery})
+            WHERE images.img_id IN ({$bindQuery}) AND directories.dir_name NOT IN ('centreon-map', 'ppm', 'dashboards')
         SQL;
 
     $queryParameters = array_merge($queryParameters, $bindImageParameters);
