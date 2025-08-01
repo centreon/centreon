@@ -7036,10 +7036,6 @@ msgstr "La taille du fichier est trop grande"
 msgid "File path or format '%s' (%s) is invalid"
 msgstr "Le nom de fichier '%s' (%s) est invalide"
 
-#: centreon/www/install/front_translate.php
-msgid "File too big"
-msgstr ""
-
 #: centreon/www/include/configuration/configNagios/formNagios.php
 msgid "Files"
 msgstr "Fichiers"
@@ -17829,10 +17825,6 @@ msgid "Welcome to the agent configuration page"
 msgstr "Bienvenue sur la page des configurations d'agent"
 
 #: centreon/www/install/front_translate.php
-msgid "Welcome to the notifications interface"
-msgstr "Bienvenue dans l'interface de gestion des notifications"
-
-#: centreon/www/install/front_translate.php
 msgid "Which endpoint does the conditions attribute path come from?"
 msgstr ""
 "De quel point d'entrée provient le chemin de l'attribut des conditions ?"
@@ -20699,14 +20691,6 @@ msgstr ""
 "du collecteur"
 
 #: unknown
-msgid "Error while linking template %s to host (id: %d)"
-msgstr "Erreur lors de la liaison du modèle %s à l'hôte (ID : %d)"
-
-#: unknown
-msgid "Error while linking template (id: %d) to host (id: %d)"
-msgstr "Erreur lors de la liaison du modèle (ID : %d) à l'hôte (ID : %d)"
-
-#: unknown
 msgid "Error while listing the playlist shares"
 msgstr "Erreur lors du listing des partages de la liste de diffusion"
 
@@ -21903,14 +21887,6 @@ msgstr "Fichier de cache des objets"
 #: unknown
 msgid "Object Type"
 msgstr "Type d'objet"
-
-#: unknown
-msgid "Object name"
-msgstr "Nom de l'objet"
-
-#: unknown
-msgid "Objets"
-msgstr "Objets"
 
 #: unknown
 msgid "Obsess Over Hosts Option"
