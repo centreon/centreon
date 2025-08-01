@@ -190,7 +190,7 @@ Then('these properties are updated', () => {
   cy.contains('Modify a host group').click();
   cy.getByTestId({ testId: 'Geographic coordinates for MAP' })
     .eq(1)
-    .should('have.value', hostGroups.forTest.geo_coords);
+    .should('have.value', hostGroups.forTest.geo_coords_after_truncate);
   // Check value of the icon
   cy.get('img[alt="logo-centreon-colors.png"]').should('be.visible');
   cy.getByTestId({ testId: 'Comments' })
@@ -233,7 +233,7 @@ Then('a new host group is created with identical properties', () => {
   cy.contains('Modify a host group').click();
   cy.getByTestId({ testId: 'Geographic coordinates for MAP' })
     .eq(1)
-    .should('have.value', hostGroups.forDuplicate.geo_coords);
+    .should('have.value', hostGroups.forDuplicate.geo_coords_after_truncate);
   // Check value of the icon
   cy.get('img[alt="logo-centreon-colors.png"]').should('be.visible');
   cy.getByTestId({ testId: 'Comments' })
