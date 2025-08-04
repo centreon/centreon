@@ -72,9 +72,9 @@ runs:
 
         ROOT_REPO_PATH_PREFIX=""
         if [[ "${{ steps.parse-distrib.outputs.distrib_family }}" == "debian" ]]; then
-          ROOT_REPO_PATH_PREFIX="apt"
+          ROOT_REPO_PATH_PREFIX="apt-"
         elif [[ "${{ steps.parse-distrib.outputs.distrib_family }}" == "ubuntu" ]]; then
-          ROOT_REPO_PATH="ubuntu"
+          ROOT_REPO_PATH="ubuntu-"
         else
           echo "::error::Unsupported distribution family: ${{ steps.parse-distrib.outputs.distrib_family }}"
           exit 1
@@ -82,13 +82,11 @@ runs:
 
         ROOT_REPO_PATH_SUFFIX=""
         if [[ "${{ inputs.is_cloud }}" == "true" ]]; then
-          ROOT_REPO_PATH_SUFFIX="internal-${{ inputs.stability }}"
-        else
-          ROOT_REPO_PATH_SUFFIX="${{ inputs.version }}-${{ inputs.stability }}"
+          ROOT_REPO_PATH_SUFFIX="-internal"
         fi
 
-        ROOT_REPO_PATH="${ROOT_REPO_PATH_PREFIX}-standard-${ROOT_REPO_PATH_SUFFIX}"
-        ROOT_REPO_PATH="apt-kdu-${{ inputs.stability }}"
+        ROOT_REPO_PATH="${ROOT_REPO_PATH_PREFIX}standard${ROOT_REPO_PATH_SUFFIX}"
+        ROOT_REPO_PATH="apt-kdu"
 
         # Cleanup (equivalent to --sync-deletes done with RPMs)
         # This is a workaround the fact that jfrog cli does not allow upload
@@ -109,7 +107,15 @@ runs:
           echo "[DEBUG] - OS_distrib: $OS_DISTRIB"
           echo "[DEBUG] - Arch: $ARCH"
 
-          SEARCH_PATH="$ROOT_REPO_PATH/pool/${{ inputs.module_name }}/${BASENAME}_*${OS_DISTRIB}*${ARCH}*.deb"
+          if [[ "${{ inputs.release_type }}" == "hotfix" || "${{ inputs.release_type }}" == "release" ]]; then
+            POOL_SUBPATH="${{ inputs.version }}/${{ inputs.stability }}/${{ inputs.release_type }}/${{ inputs.module_name }}"
+            DEB_PROP="${{ inputs.distrib }}-${{ inputs.version }}-${{ inputs.stability }}-${{ inputs.release_type }}/main/$ARCH"
+          else
+            POOL_SUBPATH="${{ inputs.version }}/${{ inputs.stability }}/${{ inputs.module_name }}"
+            DEB_PROP="${{ inputs.distrib }}-${{ inputs.version }}-${{ inputs.stability }}/main/$ARCH"
+          fi
+
+          SEARCH_PATH="$ROOT_REPO_PATH/pool/${POOL_SUBPATH}/${BASENAME}_*${OS_DISTRIB}*${ARCH}*.deb"
 
           # search and delete all remote artifacts matching this pattern
           echo "Searching and deleting $SEARCH_PATH"
@@ -117,10 +123,6 @@ runs:
 
           # upload local artifact
           echo "Uploading $file"
-          if [[ "${{ inputs.release_type }}" == "hotfix" || "${{ inputs.release_type }}" == "release" ]]; then
-            jf rt upload "$file" "$ROOT_REPO_PATH/pool/${{ inputs.module_name }}/${{ inputs.release_type }}/" --flat --deb "${{ inputs.distrib }}-${{ inputs.release_type }}/main/$ARCH" --detailed-summary
-          else
-            jf rt upload "$file" "$ROOT_REPO_PATH/pool/${{ inputs.module_name }}/" --flat --deb "${{ inputs.distrib }}/main/$ARCH" --detailed-summary
-          fi
+          jf rt upload "$file" "$ROOT_REPO_PATH/pool/${POOL_SUBPATH}/" --flat --deb "${DEB_PROP}/main/$ARCH" --detailed-summary
         done
       shell: bash
