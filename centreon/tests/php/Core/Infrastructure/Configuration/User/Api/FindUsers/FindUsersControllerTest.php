@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,35 +18,30 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Tests\Core\Infrastructure\Configuration\User\Api\FindUsers;
 
-use PHPUnit\Framework\TestCase;
-use Psr\Container\ContainerInterface;
-use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
-use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
-use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Centreon\Domain\Contact\Contact;
 use Core\Application\Configuration\User\UseCase\FindUsers\FindUsers;
-use Core\Infrastructure\Configuration\User\Api\FindUsers\FindUsersController;
 use Core\Application\Configuration\User\UseCase\FindUsers\FindUsersPresenterInterface;
+use Core\Infrastructure\Configuration\User\Api\FindUsers\FindUsersController;
+use PHPUnit\Framework\TestCase;
+use Psr\Container\ContainerInterface;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
+use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 
 class FindUsersControllerTest extends TestCase
 {
-    /**
-     * @var FindUsersPresenterInterface&\PHPUnit\Framework\MockObject\MockObject
-     */
+    /** @var FindUsersPresenterInterface&\PHPUnit\Framework\MockObject\MockObject */
     private $presenter;
 
-    /**
-     * @var FindUsers&\PHPUnit\Framework\MockObject\MockObject
-     */
+    /** @var FindUsers&\PHPUnit\Framework\MockObject\MockObject */
     private $useCase;
 
-    /**
-     * @var ContainerInterface&\PHPUnit\Framework\MockObject\MockObject
-     */
+    /** @var ContainerInterface&\PHPUnit\Framework\MockObject\MockObject */
     private $container;
 
     public function setUp(): void
@@ -56,10 +51,10 @@ class FindUsersControllerTest extends TestCase
 
         $timezone = new \DateTimeZone('Europe/Paris');
         $adminContact = (new Contact())
-        ->setId(1)
-        ->setName('admin')
-        ->setAdmin(true)
-        ->setTimezone($timezone);
+            ->setId(1)
+            ->setName('admin')
+            ->setAdmin(true)
+            ->setTimezone($timezone);
 
         /**
          * @var AuthorizationCheckerInterface&\PHPUnit\Framework\MockObject\MockObject

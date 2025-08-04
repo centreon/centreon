@@ -7,7 +7,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -28,18 +28,12 @@ use Core\Common\Domain\Exception\TransformerException;
 use Doctrine\DBAL\ParameterType as DbalParameterType;
 
 /**
- * Class
+ * Class.
  *
  * @class   DbalParameterTypeTransformer
- * @package Adaptation\Database\Adapter\Dbal\Transformer
  */
 abstract readonly class DbalParameterTypeTransformer
 {
-    /**
-     * @param QueryParameterTypeEnum $queryParameterTypeEnum
-     *
-     * @return DbalParameterType
-     */
     public static function transformFromQueryParameterType(QueryParameterTypeEnum $queryParameterTypeEnum): DbalParameterType
     {
         return match ($queryParameterTypeEnum) {
@@ -52,10 +46,7 @@ abstract readonly class DbalParameterTypeTransformer
     }
 
     /**
-     * @param DbalParameterType $dbalParameterType
-     *
      * @throws TransformerException
-     * @return QueryParameterTypeEnum
      */
     public static function reverseToQueryParameterType(DbalParameterType $dbalParameterType): QueryParameterTypeEnum
     {
@@ -65,10 +56,7 @@ abstract readonly class DbalParameterTypeTransformer
             DbalParameterType::BOOLEAN => QueryParameterTypeEnum::BOOLEAN,
             DbalParameterType::NULL => QueryParameterTypeEnum::NULL,
             DbalParameterType::LARGE_OBJECT => QueryParameterTypeEnum::LARGE_OBJECT,
-            default => throw new TransformerException(
-                'The type of the parameter is not supported by DbalParameterType',
-                ['dbal_parameter_type' => $dbalParameterType]
-            ),
+            default => throw new TransformerException('The type of the parameter is not supported by DbalParameterType', ['dbal_parameter_type' => $dbalParameterType]),
         };
     }
 }

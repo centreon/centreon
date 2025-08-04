@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2024 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -121,7 +121,7 @@ class DbWriteCommandActionLogRepository extends AbstractRepositoryRDB implements
                 'type' => $propertyValue instanceof CommandType ? CommandTypeConverter::toInt($propertyValue) : '',
                 'arguments' => is_array($propertyValue) ? $this->getArgumentsAsString($propertyValue) : '',
                 'macros' => is_array($propertyValue) ? $this->getMacrosAsString($propertyValue) : '',
-                'connectorId', 'graphTemplateId' => is_int($propertyValue) ? $propertyValue  : '',
+                'connectorId', 'graphTemplateId' => is_int($propertyValue) ? $propertyValue : '',
                 default => '',
             };
         }
@@ -137,11 +137,11 @@ class DbWriteCommandActionLogRepository extends AbstractRepositoryRDB implements
     private function getArgumentsAsString(array $arguments): string
     {
         $arguments = array_map(
-            fn($argument) => $argument->getName() . ' : ' . $argument->getDescription(),
+            fn ($argument) => $argument->getName() . ' : ' . $argument->getDescription(),
             $arguments
         );
         $argumentsAsString = '';
-        if (! empty($arguments)) {
+        if ($arguments !== []) {
             $argumentsAsString = implode(' ', $arguments);
         }
 
@@ -167,7 +167,7 @@ class DbWriteCommandActionLogRepository extends AbstractRepositoryRDB implements
             $macros
         );
         $macrosAsString = '';
-        if (! empty($macros)) {
+        if ($macros !== []) {
             $macrosAsString = implode(' ', $macros);
         }
 

@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -91,12 +91,13 @@ class DbReadOpenIdConfigurationRepository extends AbstractRepositoryDRB implemen
     public function getContactGroup(int $contactGroupId): ?ContactGroup
     {
         $statement = $this->db->prepare(
-            $this->translateDbName(<<<'SQL'
-                SELECT
-                    cg_id, cg_name, cg_alias, cg_comment, cg_activate, cg_type
-                FROM `:db`.contactgroup
-                WHERE cg_id = :contactGroupId
-                SQL
+            $this->translateDbName(
+                <<<'SQL'
+                    SELECT
+                        cg_id, cg_name, cg_alias, cg_comment, cg_activate, cg_type
+                    FROM `:db`.contactgroup
+                    WHERE cg_id = :contactGroupId
+                    SQL
             )
         );
         $statement->bindValue(':contactGroupId', $contactGroupId, \PDO::PARAM_INT);
@@ -152,13 +153,14 @@ class DbReadOpenIdConfigurationRepository extends AbstractRepositoryDRB implemen
     public function getContactGroupRelationsByConfigurationId(int $providerConfigurationId): array
     {
         $statement = $this->db->prepare(
-            $this->translateDbName(<<<'SQL'
-                SELECT *
-                FROM `:db`.security_provider_contact_group_relation spcgn
-                INNER JOIN `:db`.contactgroup
-                    ON cg_id = spcgn.contact_group_id
-                WHERE spcgn.provider_configuration_id = :providerConfigurationId
-                SQL
+            $this->translateDbName(
+                <<<'SQL'
+                    SELECT *
+                    FROM `:db`.security_provider_contact_group_relation spcgn
+                    INNER JOIN `:db`.contactgroup
+                        ON cg_id = spcgn.contact_group_id
+                    WHERE spcgn.provider_configuration_id = :providerConfigurationId
+                    SQL
             )
         );
         $statement->bindValue(':providerConfigurationId', $providerConfigurationId, \PDO::PARAM_INT);

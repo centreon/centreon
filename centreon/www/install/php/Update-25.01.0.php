@@ -7,7 +7,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -35,17 +35,17 @@ $errorMessage = '';
 $createUserProfileTable = function (CentreonDB $pearDB) use (&$errorMessage): void {
     $errorMessage = 'Unable to add table user_profile';
     $pearDB->executeQuery(
-        <<<SQL
-        CREATE TABLE IF NOT EXISTS `user_profile` (
-          `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-          `contact_id` INT(11) NOT NULL,
-          PRIMARY KEY (`id`),
-          UNIQUE KEY `unique_user_profile` (`id`, `contact_id`),
-          CONSTRAINT `fk_user_profile_contact_id`
-            FOREIGN KEY (`contact_id`)
-            REFERENCES `contact` (`contact_id`) ON DELETE CASCADE
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-        SQL
+        <<<'SQL'
+            CREATE TABLE IF NOT EXISTS `user_profile` (
+              `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+              `contact_id` INT(11) NOT NULL,
+              PRIMARY KEY (`id`),
+              UNIQUE KEY `unique_user_profile` (`id`, `contact_id`),
+              CONSTRAINT `fk_user_profile_contact_id`
+                FOREIGN KEY (`contact_id`)
+                REFERENCES `contact` (`contact_id`) ON DELETE CASCADE
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+            SQL
     );
 };
 
@@ -58,18 +58,18 @@ $createUserProfileTable = function (CentreonDB $pearDB) use (&$errorMessage): vo
 $createUserProfileFavoriteDashboards = function (CentreonDB $pearDB) use (&$errorMessage): void {
     $errorMessage = 'Unable to add table user_profile_favorite_dashboards';
     $pearDB->executeQuery(
-        <<<SQL
-        CREATE TABLE IF NOT EXISTS `user_profile_favorite_dashboards` (
-          `profile_id` INT UNSIGNED NOT NULL,
-          `dashboard_id` INT UNSIGNED NOT NULL,
-          CONSTRAINT `fk_user_profile_favorite_dashboards_profile_id`
-            FOREIGN KEY (`profile_id`)
-            REFERENCES `user_profile` (`id`) ON DELETE CASCADE,
-          CONSTRAINT `fk_user_profile_favorite_dashboards_dashboard_id`
-            FOREIGN KEY (`dashboard_id`)
-            REFERENCES `dashboard` (`id`) ON DELETE CASCADE
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-        SQL
+        <<<'SQL'
+            CREATE TABLE IF NOT EXISTS `user_profile_favorite_dashboards` (
+              `profile_id` INT UNSIGNED NOT NULL,
+              `dashboard_id` INT UNSIGNED NOT NULL,
+              CONSTRAINT `fk_user_profile_favorite_dashboards_profile_id`
+                FOREIGN KEY (`profile_id`)
+                REFERENCES `user_profile` (`id`) ON DELETE CASCADE,
+              CONSTRAINT `fk_user_profile_favorite_dashboards_dashboard_id`
+                FOREIGN KEY (`dashboard_id`)
+                REFERENCES `dashboard` (`id`) ON DELETE CASCADE
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+            SQL
     );
 };
 
@@ -77,21 +77,21 @@ $createUserProfileFavoriteDashboards = function (CentreonDB $pearDB) use (&$erro
 $createDashboardThumbnailTable = function (CentreonDB $pearDB) use (&$errorMessage): void {
     $errorMessage = 'Unable to add table dashboard_thumbnail_relation';
     $pearDB->executeQuery(
-        <<<SQL
-            CREATE TABLE IF NOT EXISTS `dashboard_thumbnail_relation` (
-              `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-              `dashboard_id` INT UNSIGNED NOT NULL,
-              `img_id` int(11) NOT NULL,
-              PRIMARY KEY (`id`),
-              UNIQUE KEY `dashboard_thumbnail_relation_unique` (`dashboard_id`,`img_id`),
-              CONSTRAINT `dashboard_thumbnail_relation_dashboard_id`
-                FOREIGN KEY (`dashboard_id`)
-                REFERENCES `dashboard` (`id`) ON DELETE CASCADE,
-              CONSTRAINT `dashboard_thumbnail_relation_img_id`
-                FOREIGN KEY (`img_id`)
-                REFERENCES `view_img` (`img_id`) ON DELETE CASCADE
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
-        SQL
+        <<<'SQL'
+                CREATE TABLE IF NOT EXISTS `dashboard_thumbnail_relation` (
+                  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+                  `dashboard_id` INT UNSIGNED NOT NULL,
+                  `img_id` int(11) NOT NULL,
+                  PRIMARY KEY (`id`),
+                  UNIQUE KEY `dashboard_thumbnail_relation_unique` (`dashboard_id`,`img_id`),
+                  CONSTRAINT `dashboard_thumbnail_relation_dashboard_id`
+                    FOREIGN KEY (`dashboard_id`)
+                    REFERENCES `dashboard` (`id`) ON DELETE CASCADE,
+                  CONSTRAINT `dashboard_thumbnail_relation_img_id`
+                    FOREIGN KEY (`img_id`)
+                    REFERENCES `view_img` (`img_id`) ON DELETE CASCADE
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+            SQL
     );
 };
 
@@ -136,7 +136,7 @@ $insertAgentConfigurationTopology = function (CentreonDB $pearDB) use (&$errorMe
             SELECT 1 FROM `topology` WHERE `topology_name` = 'Agent configurations'
             SQL
     );
-    $topologyAlreadyExists = (bool) $statement->fetch(\PDO::FETCH_COLUMN);
+    $topologyAlreadyExists = (bool) $statement->fetch(PDO::FETCH_COLUMN);
 
     $errorMessage = 'Unable to retrieve data from informations table';
     $statement = $pearDB->executeQuery(
@@ -144,7 +144,7 @@ $insertAgentConfigurationTopology = function (CentreonDB $pearDB) use (&$errorMe
             SELECT `value` FROM `informations` WHERE `key` = 'isCentral'
             SQL
     );
-    $isCentral = $statement->fetch(\PDO::FETCH_COLUMN);
+    $isCentral = $statement->fetch(PDO::FETCH_COLUMN);
 
     $errorMessage = 'Unable to insert data into table topology';
     if (false === $topologyAlreadyExists) {
@@ -172,7 +172,7 @@ try {
     $insertAgentConfigurationTopology($pearDB);
 
     $pearDB->commit();
-} catch (\Throwable $exception) {
+} catch (Throwable $exception) {
     CentreonLog::create()->error(
         logTypeId: CentreonLog::TYPE_UPGRADE,
         message: "UPGRADE - {$version}: " . $errorMessage,
@@ -182,19 +182,19 @@ try {
         if ($pearDB->inTransaction()) {
             $pearDB->rollBack();
         }
-    } catch (\PDOException $rollbackException) {
+    } catch (PDOException $rollbackException) {
         CentreonLog::create()->error(
             logTypeId: CentreonLog::TYPE_UPGRADE,
             message: "UPGRADE - {$version}: error while rolling back the upgrade operation for : {$errorMessage}",
             exception: $rollbackException
         );
 
-        throw new \Exception(
+        throw new Exception(
             "UPGRADE - {$version}: error while rolling back the upgrade operation for : {$errorMessage}",
             (int) $rollbackException->getCode(),
             $rollbackException
         );
     }
 
-    throw new \Exception("UPGRADE - {$version}: " . $errorMessage, (int) $exception->getCode(), $exception);
+    throw new Exception("UPGRADE - {$version}: " . $errorMessage, (int) $exception->getCode(), $exception);
 }

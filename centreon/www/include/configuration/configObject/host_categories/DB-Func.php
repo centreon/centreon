@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
@@ -15,26 +16,27 @@
  * limitations under the License.
  *
  * For more information : contact@centreon.com
+ *
  */
 
-if (!isset($centreon)) {
+if (! isset($centreon)) {
     exit();
 }
 
 use Adaptation\Database\Connection\Collection\QueryParameters;
 use Adaptation\Database\Connection\Exception\ConnectionException;
 use Adaptation\Database\Connection\ValueObject\QueryParameter;
-use Core\Common\Domain\Exception\CollectionException;
-use Core\Common\Domain\Exception\ValueObjectException;
-use Core\Common\Domain\Exception\RepositoryException;
 use Core\ActionLog\Domain\Model\ActionLog;
+use Core\Common\Domain\Exception\CollectionException;
+use Core\Common\Domain\Exception\RepositoryException;
+use Core\Common\Domain\Exception\ValueObjectException;
 
 // Only these fields are permitted from user input
 const ALLOWED_FIELDS = [
     'hc_name', 'hc_alias', 'hc_type',
     'hc_severity_level', 'hc_severity_icon',
     'hc_comment', 'hc_activate',
-    'hc_hosts', 'hc_hostsTemplate'
+    'hc_hosts', 'hc_hostsTemplate',
 ];
 /**
  * Retrieve only the allowed host-category form fields and sanitize them.
@@ -46,13 +48,13 @@ function getHostCategoryValues(): array
 
     $ret = [];
     foreach (ALLOWED_FIELDS as $field) {
-        if (!array_key_exists($field, $raw)) {
+        if (! array_key_exists($field, $raw)) {
             continue;
         }
         $value = $raw[$field];
         // Sanitize strings
         if (is_string($value)) {
-            $value = \HtmlSanitizer::createFromString($value)
+            $value = HtmlSanitizer::createFromString($value)
                 ->removeTags()
                 ->sanitize()
                 ->getString();
@@ -69,12 +71,13 @@ function getHostCategoryValues(): array
 function checkSeverity(array $fields)
 {
     $errors = [];
-    if (!empty($fields['hc_type']) && ($fields['hc_severity_level'] ?? '') === '') {
+    if (! empty($fields['hc_type']) && ($fields['hc_severity_level'] ?? '') === '') {
         $errors['hc_severity_level'] = 'Severity level is required';
     }
-    if (!empty($fields['hc_type']) && ($fields['hc_severity_icon'] ?? '') === '') {
+    if (! empty($fields['hc_type']) && ($fields['hc_severity_icon'] ?? '') === '') {
         $errors['hc_severity_icon'] = 'Severity icon is required';
     }
+
     return $errors ?: true;
 }
 
@@ -99,25 +102,26 @@ function testHostCategorieExistence(?string $name = null): bool
         ->getQuery();
 
     try {
-        $cleanName = \HtmlSanitizer::createFromString($name)
+        $cleanName = HtmlSanitizer::createFromString($name)
             ->removeTags()
             ->sanitize()
             ->getString();
         $result = $pearDB->fetchAssociative(
             $query,
             QueryParameters::create([
-                QueryParameter::string('hc_name', $cleanName)
+                QueryParameter::string('hc_name', $cleanName),
             ])
         );
     } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
         throw new RepositoryException('Unable to check host category existence', ['hcName' => $name], $exception);
     }
 
-    return !($result && isset($result['hc_id']) && $result['hc_id'] != $currentId);
+    return ! ($result && isset($result['hc_id']) && $result['hc_id'] != $currentId);
 }
 
 /**
  * Simple boolean check (legacy)
+ * @param mixed $value
  */
 function shouldNotBeEqTo0($value)
 {
@@ -133,7 +137,7 @@ function enableHostCategoriesInDB(?int $hcId = null, array $hcArr = []): void
 {
     global $pearDB, $centreon;
 
-    if (!$hcId && empty($hcArr)) {
+    if (! $hcId && $hcArr === []) {
         return;
     }
     if ($hcId) {
@@ -175,7 +179,8 @@ function enableHostCategoriesInDB(?int $hcId = null, array $hcArr = []): void
             [
                 'hcId' => $hcId,
                 'hcArr' => $hcArr,
-            ], $exception
+            ],
+            $exception
         );
     }
 }
@@ -189,7 +194,7 @@ function disableHostCategoriesInDB(?int $hcId = null, array $hcArr = []): void
 {
     global $pearDB, $centreon;
 
-    if (!$hcId && empty($hcArr)) {
+    if (! $hcId && $hcArr === []) {
         return;
     }
     if ($hcId) {
@@ -246,7 +251,7 @@ function deleteHostCategoriesInDB(array $hostCategories = []): void
 {
     global $pearDB, $centreon;
 
-    if (empty($hostCategories)) {
+    if ($hostCategories === []) {
         return;
     }
 
@@ -303,7 +308,7 @@ function multipleHostCategoriesInDB(array $hostCategories = [], array $nbrDup = 
 
     try {
         foreach (array_keys($hostCategories) as $key) {
-            $hcId = (int)filter_var($key, FILTER_VALIDATE_INT);
+            $hcId = (int) filter_var($key, FILTER_VALIDATE_INT);
 
             $selectQ = $pearDB->createQueryBuilder()
                 ->select('*')
@@ -315,15 +320,15 @@ function multipleHostCategoriesInDB(array $hostCategories = [], array $nbrDup = 
                 $selectQ,
                 QueryParameters::create([QueryParameter::int('hc_id', $hcId)])
             );
-            if (!$row) {
+            if (! $row) {
                 continue;
             }
 
             for ($i = 1; $i <= ($nbrDup[$key] ?? 0); $i++) {
-                $newName = \HtmlSanitizer::createFromString($row['hc_name'])
+                $newName = HtmlSanitizer::createFromString($row['hc_name'])
                     ->removeTags()
                     ->sanitize()
-                    ->getString() . "_$i";
+                    ->getString() . "_{$i}";
                 if (! testHostCategorieExistence($newName)) {
                     continue;
                 }
@@ -342,15 +347,15 @@ function multipleHostCategoriesInDB(array $hostCategories = [], array $nbrDup = 
 
                 $params = [
                     QueryParameter::string('hc_name', $newName),
-                    QueryParameter::string('hc_alias', \HtmlSanitizer::createFromString($row['hc_alias'])
+                    QueryParameter::string('hc_alias', HtmlSanitizer::createFromString($row['hc_alias'])
                         ->removeTags()->sanitize()->getString()),
-                    QueryParameter::int('level', $row['level'] !== null ? (int)$row['level'] : null),
-                    QueryParameter::int('icon_id', $row['icon_id'] !== null ? (int)$row['icon_id'] : null),
+                    QueryParameter::int('level', $row['level'] !== null ? (int) $row['level'] : null),
+                    QueryParameter::int('icon_id', $row['icon_id'] !== null ? (int) $row['icon_id'] : null),
                     $row['hc_comment']
-                        ? QueryParameter::string('hc_comment', \HtmlSanitizer::createFromString($row['hc_comment'])
+                        ? QueryParameter::string('hc_comment', HtmlSanitizer::createFromString($row['hc_comment'])
                             ->removeTags()->sanitize()->getString())
                         : QueryParameter::string('hc_comment', null),
-                    QueryParameter::string('hc_activate', preg_match('/^[01]$/', $row['hc_activate'] ?? '') ? $row['hc_activate'] : '0')
+                    QueryParameter::string('hc_activate', preg_match('/^[01]$/', $row['hc_activate'] ?? '') ? $row['hc_activate'] : '0'),
                 ];
 
                 $pearDB->insert($insQuery, QueryParameters::create($params));
@@ -373,12 +378,12 @@ function multipleHostCategoriesInDB(array $hostCategories = [], array $nbrDup = 
                                 ->insert('hostcategories_relation')
                                 ->values([
                                     'hostcategories_hc_id' => ':new',
-                                    'host_host_id' => ':host'
+                                    'host_host_id' => ':host',
                                 ])
                                 ->getQuery(),
                             QueryParameters::create([
                                 QueryParameter::int('new', $newId),
-                                QueryParameter::int('host', $host['host_host_id'])
+                                QueryParameter::int('host', $host['host_host_id']),
                             ])
                         );
                     }
@@ -386,9 +391,9 @@ function multipleHostCategoriesInDB(array $hostCategories = [], array $nbrDup = 
 
                 $fields = [
                     'hc_name' => $newName,
-                    'hc_hosts' => !empty($hostRows)
+                    'hc_hosts' => ! empty($hostRows)
                         ? implode(',', array_column($hostRows, 'host_host_id'))
-                        : ''
+                        : '',
                 ];
                 $centreon->CentreonLogAction->insertLog(
                     object_type: ActionLog::OBJECT_TYPE_HOSTCATEGORIES,
@@ -416,7 +421,7 @@ function insertHostCategories(array $ret = []): int
 {
     global $pearDB, $centreon;
 
-    if (empty($ret)) {
+    if ($ret === []) {
         $ret = getHostCategoryValues();
     }
 
@@ -439,8 +444,8 @@ function insertHostCategories(array $ret = []): int
     $params = [
         QueryParameter::string('hc_name', $ret['hc_name'] ?? ''),
         QueryParameter::string('hc_alias', $ret['hc_alias'] ?? ''),
-        QueryParameter::int('level', !empty($ret['hc_severity_level']) ? (int) $ret['hc_severity_level'] : null),
-        QueryParameter::int('icon_id', isset($ret['hc_severity_icon'])  ? (int) $ret['hc_severity_icon']  : null),
+        QueryParameter::int('level', ! empty($ret['hc_severity_level']) ? (int) $ret['hc_severity_level'] : null),
+        QueryParameter::int('icon_id', isset($ret['hc_severity_icon']) ? (int) $ret['hc_severity_icon'] : null),
         QueryParameter::string('hc_comment', $ret['hc_comment'] ?? null),
         QueryParameter::string('hc_activate', $activate),
     ];
@@ -499,7 +504,7 @@ function insertHostCategoriesInDB(array $ret = []): int
 function updateHostCategoriesInDB(?int $hcId = null): void
 {
     global $centreon;
-    if (!$hcId) {
+    if (! $hcId) {
         throw new RepositoryException('Host category ID is required for update');
     }
     try {
@@ -540,10 +545,10 @@ function updateHostCategories(int $hcId): void
     $params = [
         QueryParameter::string('hc_name', $ret['hc_name'] ?? ''),
         QueryParameter::string('hc_alias', $ret['hc_alias'] ?? ''),
-        !empty($ret['hc_type']) && isset($ret['hc_severity_level'])
+        ! empty($ret['hc_type']) && isset($ret['hc_severity_level'])
             ? QueryParameter::int('level', (int) $ret['hc_severity_level'])
             : QueryParameter::string('level', null),
-        !empty($ret['hc_type']) && isset($ret['hc_severity_icon'])
+        ! empty($ret['hc_type']) && isset($ret['hc_severity_icon'])
             ? QueryParameter::int('icon_id', (int) $ret['hc_severity_icon'])
             : QueryParameter::string('icon_id', null),
         QueryParameter::string('hc_comment', $ret['hc_comment'] ?? null),
@@ -590,7 +595,7 @@ function updateHostCategoriesHosts(?int $hcId, array $ret = []): void
 {
     global $pearDB, $form;
 
-    if (!$hcId) {
+    if (! $hcId) {
         throw new RepositoryException('Host category ID is required for relation update');
     }
 
@@ -610,7 +615,7 @@ function updateHostCategoriesHosts(?int $hcId, array $ret = []): void
             $ret['hc_hostsTemplate'] ?? CentreonUtils::mergeWithInitialValues($form, 'hc_hostsTemplate')
         );
 
-        if (empty($hosts)) {
+        if ($hosts === []) {
             return;
         }
 
@@ -618,7 +623,7 @@ function updateHostCategoriesHosts(?int $hcId, array $ret = []): void
             ->insert('hostcategories_relation')
             ->values([
                 'hostcategories_hc_id' => ':hc_id',
-                'host_host_id'         => ':host'
+                'host_host_id'         => ':host',
             ]);
         $insQuery = $insertBuilder->getQuery();
 
@@ -627,7 +632,7 @@ function updateHostCategoriesHosts(?int $hcId, array $ret = []): void
                 $insQuery,
                 QueryParameters::create([
                     QueryParameter::int('hc_id', $hcId),
-                    QueryParameter::int('host', (int) $hostId)
+                    QueryParameter::int('host', (int) $hostId),
                 ])
             );
         }

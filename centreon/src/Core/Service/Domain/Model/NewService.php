@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -894,14 +894,16 @@ class NewService
     /**
      * @param GeoCoords|null $geoCoords
      */
-    public function setGeoCoords(?GeoCoords $geoCoords): void {
+    public function setGeoCoords(?GeoCoords $geoCoords): void
+    {
         $this->geoCoords = $geoCoords;
     }
 
     /**
      * @return GeoCoords|null
      */
-    public function getGeoCoords(): ?GeoCoords{
+    public function getGeoCoords(): ?GeoCoords
+    {
         return $this->geoCoords;
     }
 }

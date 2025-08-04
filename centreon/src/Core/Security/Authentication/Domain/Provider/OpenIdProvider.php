@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -746,16 +746,16 @@ class OpenIdProvider implements OpenIdProviderInterface
             $this->configuration,
             $authenticationConditions->isEnabled()
                 ? array_merge(
-                $this->idTokenPayload,
-                array_diff_key(
-                    $this->attributePathFetcher->fetch(
-                        $accessToken,
-                        $this->configuration,
-                        $authenticationConditions->getEndpoint() ?? throw new \LogicException()
-                    ),
-                    $this->idTokenPayload
+                    $this->idTokenPayload,
+                    array_diff_key(
+                        $this->attributePathFetcher->fetch(
+                            $accessToken,
+                            $this->configuration,
+                            $authenticationConditions->getEndpoint() ?? throw new \LogicException()
+                        ),
+                        $this->idTokenPayload
+                    )
                 )
-            )
                 : $this->idTokenPayload
         );
 
@@ -763,16 +763,16 @@ class OpenIdProvider implements OpenIdProviderInterface
             $this->configuration,
             $rolesMapping->isEnabled()
                 ? array_merge(
-                $this->idTokenPayload,
-                array_diff_key(
-                    $this->attributePathFetcher->fetch(
-                        $accessToken,
-                        $this->configuration,
-                        $rolesMapping->getEndpoint() ?? throw new \LogicException()
-                    ),
-                    $this->idTokenPayload
+                    $this->idTokenPayload,
+                    array_diff_key(
+                        $this->attributePathFetcher->fetch(
+                            $accessToken,
+                            $this->configuration,
+                            $rolesMapping->getEndpoint() ?? throw new \LogicException()
+                        ),
+                        $this->idTokenPayload
+                    )
                 )
-            )
                 : $this->idTokenPayload
         );
         $this->aclConditionsMatches = $this->rolesMapping->getConditionMatches();
@@ -781,16 +781,16 @@ class OpenIdProvider implements OpenIdProviderInterface
             $this->configuration,
             $groupsMapping->isEnabled()
                 ? array_merge(
-                $this->idTokenPayload,
-                array_diff_key(
-                    $this->attributePathFetcher->fetch(
-                        $accessToken,
-                        $this->configuration,
-                        $groupsMapping->getEndpoint() ?? throw new \LogicException()
-                    ),
-                    $this->idTokenPayload
+                    $this->idTokenPayload,
+                    array_diff_key(
+                        $this->attributePathFetcher->fetch(
+                            $accessToken,
+                            $this->configuration,
+                            $groupsMapping->getEndpoint() ?? throw new \LogicException()
+                        ),
+                        $this->idTokenPayload
+                    )
                 )
-            )
                 : $this->idTokenPayload
         );
     }
@@ -871,8 +871,8 @@ class OpenIdProvider implements OpenIdProviderInterface
         }
         if ($customConfiguration->getAuthenticationType() === CustomConfiguration::AUTHENTICATION_BASIC) {
             $headers['Authorization'] = 'Basic ' . base64_encode(
-                    $customConfiguration->getClientId() . ':' . $customConfiguration->getClientSecret()
-                );
+                $customConfiguration->getClientId() . ':' . $customConfiguration->getClientSecret()
+            );
         } else {
             $data['client_id'] = $customConfiguration->getClientId();
             $data['client_secret'] = $customConfiguration->getClientSecret();
