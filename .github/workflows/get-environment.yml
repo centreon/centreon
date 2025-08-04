@@ -409,7 +409,7 @@ jobs:
             fi
           fi
 
-          RELEASE_TYPE="hotfix"
+          RELEASE_TYPE="release"
 
           if [[ -n "$RELEASE_TYPE" ]]; then
             echo "ref_type is: $REF_TYPE"

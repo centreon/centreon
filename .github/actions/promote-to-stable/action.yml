@@ -120,7 +120,7 @@ runs:
       shell: bash
 
     - name: Promote DEB packages to stable
-      if: ${{ contains(fromJSON('["bullseye", "bookworm"]') , inputs.distrib) && inputs.is_cloud == 'false' }}
+      # if: ${{ contains(fromJSON('["bullseye", "bookworm"]') , inputs.distrib) && inputs.is_cloud == 'false' }}
       run: |
         set -eux
 
@@ -132,17 +132,19 @@ runs:
         # There is no cloud ROOT_REPO_PATH for debian, only onprem
         # Should there be a need to deploy debian to cloud repositories, please use the same condition as RPM promotion
         ROOT_REPO_PATH="apt-standard-${{ inputs.major_version }}"
+        ROOT_REPO_PATH="apt-kdu"
 
         echo "[DEBUG] - Get path of testing DEB packages to promote to stable."
 
         case "${{ inputs.major_version }}" in
           "22.10"|"23.10")
-            SRC_PATHS=$(jf rt search --include-dirs $ROOT_REPO_PATH-testing/pool/${{ inputs.module }}/*.deb | jq -r '.[].path')
+            SEARCH_PATTERN="*.deb"
             ;;
           *)
-            SRC_PATHS=$(jf rt search --include-dirs $ROOT_REPO_PATH-testing/pool/${{ inputs.module }}/*${{ steps.parse-distrib.outputs.package_distrib_name }}*.deb | jq -r '.[].path')
+            SEARCH_PATTERN="*${{ steps.parse-distrib.outputs.package_distrib_name }}*.deb"
             ;;
         esac
+        SRC_PATHS=$(jf rt search --include-dirs $ROOT_REPO_PATH-testing/pool/${{ inputs.module }}/${SEARCH_PATTERN} | jq -r '.[].path')
 
         if [[ ${SRC_PATHS[@]} ]]; then
           for SRC_PATH in ${SRC_PATHS[@]}; do
@@ -154,7 +156,8 @@ runs:
         fi
 
         echo "[DEBUG] - Build target path."
-        TARGET_PATH="$ROOT_REPO_PATH-stable/pool/${{ inputs.module }}/"
+        POOL_SUBPATH="${{ inputs.version }}/${{ inputs.stability }}/${{ inputs.module_name }}"
+        TARGET_PATH="$ROOT_REPO_PATH/pool/${POOL_SUBPATH}/"
         echo "[DEBUG] - Target path: $TARGET_PATH"
 
         echo "[DEBUG] - Promoting DEB testing artifacts to stable."
@@ -179,8 +182,9 @@ runs:
 
         for ARTIFACT_DL in $(dir -1|grep -E $ARTIFACT_SEARCH_PATTERN); do
           ARCH=$(echo $ARTIFACT_DL | cut -d '_' -f3 | cut -d '.' -f1)
+          DEB_PROP="${{ inputs.distrib }}-${{ inputs.version }}-${{ inputs.stability }}/main/$ARCH"
           echo "[DEBUG] - Promoting (upload) $ARTIFACT_DL to stable $TARGET_PATH."
-          jf rt upload "$ARTIFACT_DL" "$TARGET_PATH" --deb "${{ inputs.distrib }}/main/$ARCH" --flat $DRY_RUN_FLAG
+          jf rt upload "$ARTIFACT_DL" "$TARGET_PATH" --deb "${DEB_PROP}"  --detailed-summary --flat $DRY_RUN_FLAG
         done
 
         rm -f *.deb
