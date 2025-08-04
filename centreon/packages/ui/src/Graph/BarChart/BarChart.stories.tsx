@@ -250,3 +250,13 @@ export const mixedStackedVertical: Story = {
   },
   render: Template
 };
+
+export const mixedStackedMinMax: Story = {
+  args: {
+    ...defaultArgs,
+    data: dataPingServiceMixedStacked,
+    min: 10,
+    max: 20
+  },
+  render: Template
+};

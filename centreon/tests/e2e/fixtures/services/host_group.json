@@ -24,7 +24,8 @@
         "note" : "serviceNotes",
         "actionurl" : "serviceActionUrl",
         "atlicon":"serviceAltIcon",
-        "geocoords":"2.3522219,48.856614" ,
+        "geocoords":"2.3522219,48.856614",
+        "geoCoordsTruncated":"2.352221,48.856614",
         "comment" : "hostGroupServiceComments"
     },
     "hostgroupservice": {
@@ -52,7 +53,8 @@
         "note" : "serviceNotes-changed",
         "actionurl" : "serviceActionUrl-changed",
         "atlicon":"serviceAltIcon-changed",
-        "geocoords":"2.3522214,48.856615" ,
+        "geocoords":"2.3522218,48.85661598",
+        "geoCoordsTruncated":"2.352221,48.856615",
         "comment" : "hostGroupServiceComments-changed"
     }
 }

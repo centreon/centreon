@@ -1,23 +1,23 @@
-FROM debian:bookworm
+FROM alpine:3.22
 
-RUN bash -e <<EOF
+RUN sh -e <<EOF
 
-apt-get update
-apt-get install -y \
-    gettext \
-    git \
-    locales \
-    php-cli \
-    zstd
-apt-get clean
+apk add --no-cache --update \
+  bash \
+  coreutils \
+  curl \
+  findutils \
+  gettext \
+  git \
+  musl \
+  musl-utils \
+  musl-locales \
+  php82-cli \
+  tar \
+  tzdata \
+  zstd
 
-echo "en_US.UTF-8 UTF-8" | tee -a /etc/locale.gen
-echo "fr_FR.UTF-8 UTF-8" | tee -a /etc/locale.gen
-echo "es_ES.UTF-8 UTF-8" | tee -a /etc/locale.gen
-echo "pt_BR.UTF-8 UTF-8" | tee -a /etc/locale.gen
-echo "pt_PT.UTF-8 UTF-8" | tee -a /etc/locale.gen
-echo "de_DE.UTF-8 UTF-8" | tee -a /etc/locale.gen
-locale-gen
+ln -s /usr/bin/php82 /usr/bin/php
 
 EOF
 
