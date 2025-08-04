@@ -91,9 +91,10 @@ class GeoCoords implements \Stringable
     }
 
     /**
-     * Truncate decimals count for a coordinate value to MAX_DECIMALS
+     * Truncate decimals count for a coordinate value to MAX_DECIMALS.
      *
      * @param string $value
+     *
      * @return string
      */
     private static function truncateDecimals(string $value): string
