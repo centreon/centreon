@@ -15,6 +15,8 @@ interface Props {
   timeSeries: Array<TimeValue>;
   xScale: ScaleTime<number, number>;
   yScale: ScaleLinear<number, number>;
+  hasSecondUnit?: boolean;
+  maxLeftAxisCharacters: number;
 }
 
 export const getYAnchorPoint = ({
@@ -38,11 +40,15 @@ const RegularAnchorPoint = ({
   yScale,
   metric_id,
   timeSeries,
-  lineColor
+  lineColor,
+  maxLeftAxisCharacters,
+  hasSecondUnit
 }: Props): JSX.Element | null => {
   const { tickAxisBottom: timeTick } = useTickGraph({
     timeSeries,
-    xScale
+    xScale,
+    maxLeftAxisCharacters,
+    hasSecondUnit
   });
 
   if (isNil(timeTick)) {
