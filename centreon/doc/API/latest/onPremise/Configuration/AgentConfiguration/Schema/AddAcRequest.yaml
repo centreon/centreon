@@ -33,16 +33,22 @@ properties:
       - title: Configuration for `centreon-agent`
         type: object
         required:
-          - is_reverse
+          - poller_initiated
+          - agent_initiated
           - otel_public_certificate
           - otel_ca_certificate
           - otel_private_key
           - tokens
           - hosts
         properties:
-          is_reverse:
+          poller_initiated:
             type: boolean
             description: Connection initiated by poller.
+            example: true
+
+          agent_initiated:
+            type: boolean
+            description: Connection initiated by agent.
             example: true
 
           otel_public_certificate:
@@ -133,7 +139,8 @@ properties:
                       example: 10
 
         example:
-          is_reverse: true
+          poller_initiated: true
+          agent_initiated: true
           otel_public_certificate: otel-reverse.crt
           otel_ca_certificate: ca-certif.crt
           otel_private_key: otel.key
