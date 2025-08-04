@@ -159,7 +159,7 @@ runs:
           UPLOAD_REPO_PATH="${{ inputs.version }}/${{ inputs.distrib }}/${{ inputs.stability }}-${{ inputs.release_type }}/$ARCH/${{ inputs.module_name }}/"
 
         # CLOUD + NOT HOTFIX OR CLOUD + NOT RELEASE + REPO STANDARD INTERNAL
-          elif [[ "${{ inputs.delivery_type }}" == "classic" ]] && [[ "${{ inputs.is_cloud }}" == "true" ]] && ([[ "${{ inputs.release_type }}" != "hotfix" ]] && [[ "${{ inputs.release_type }}" != "release" ]]); then
+        elif [[ "${{ inputs.delivery_type }}" == "classic" ]] && [[ "${{ inputs.is_cloud }}" == "true" ]] && ([[ "${{ inputs.release_type }}" != "hotfix" ]] && [[ "${{ inputs.release_type }}" != "release" ]]); then
           echo "[DEBUG] : Release cloud + NOT ${{ inputs.release_type }}, using rpm-standard-internal."
           ROOT_REPO_PATHS="rpm-standard-internal"
           UPLOAD_REPO_PATH="${{ inputs.version }}/${{ inputs.distrib }}/${{ inputs.stability }}-${{ inputs.release_type }}/$ARCH/${{ inputs.module_name }}/"
