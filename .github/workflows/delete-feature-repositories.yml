@@ -38,7 +38,7 @@ jobs:
       - name: Send repository dispatch to delete feature repositories
         shell: bash
         if: |
-          steps.check.outputs.repositories_found == true
+          steps.check.outputs.repositories_found == 'true'
         run: |
           set -x
           echo "Sending repository dispatch to delete feature repository workflow..."
