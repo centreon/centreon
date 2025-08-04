@@ -58,6 +58,7 @@ class CentreonHostGroup extends CentreonObject
     public const ORDER_UNIQUENAME = 0;
     public const ORDER_ALIAS = 1;
     public const INVALID_GEO_COORDS = 'Invalid geo coords';
+    public const NAME_IS_EMPTY = 'Host group name is mandatory and cannot be left empty';
 
     /** @var string[] */
     public static $aDepends = ['HOST'];
@@ -214,6 +215,10 @@ class CentreonHostGroup extends CentreonObject
         }
         $addParams = [];
         $addParams[$this->object->getUniqueLabelField()] = $this->checkIllegalChar($params[self::ORDER_UNIQUENAME]);
+        if ($addParams[$this->object->getUniqueLabelField()] === '') {
+            throw new CentreonClapiException(self::NAME_IS_EMPTY);
+        }
+
         $addParams['hg_alias'] = $params[self::ORDER_ALIAS];
         $this->params = array_merge($this->params, $addParams);
         $this->checkParameters();

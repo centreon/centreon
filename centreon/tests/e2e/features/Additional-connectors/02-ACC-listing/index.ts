@@ -1,4 +1,3 @@
-/* eslint-disable cypress/unsafe-to-chain-command */
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
 before(() => {
@@ -57,7 +56,9 @@ Then('the user sees the Additional Connector Configuration page', () => {
 });
 
 Then('there is no additional connector configuration listed', () => {
-  cy.contains('Welcome to the additional configurations page').should('be.visible');
+  cy.contains('Welcome to the additional configurations page').should(
+    'be.visible'
+  );
 });
 
 Given(
@@ -89,9 +90,7 @@ Then(
   'a pop up is displayed with all of the additional connector informations',
   () => {
     cy.wait('@getConnectorDetail');
-    cy.contains('Modify an additional configuration').should(
-      'be.visible'
-    );
+    cy.contains('Modify an additional configuration').should('be.visible');
     cy.getByLabel({ label: 'Name', tag: 'input' }).should(
       'have.value',
       'Connector-001'
