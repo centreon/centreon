@@ -43,6 +43,8 @@ interface Props {
   xScale: ScaleTime<number, number>;
   yScale: ScaleLinear<number, number>;
   lineStyle: LineStyle | Array<LineStyle>;
+  hasSecondUnit?: boolean;
+  maxLeftAxisCharacters: number;
 }
 
 const StackLines = ({
@@ -51,7 +53,9 @@ const StackLines = ({
   yScale,
   xScale,
   displayAnchor,
-  lineStyle
+  lineStyle,
+  hasSecondUnit,
+  maxLeftAxisCharacters
 }: Props): JSX.Element => {
   const curveType = getCurveFactory(
     (equals(type(lineStyle), 'Array')
@@ -101,6 +105,8 @@ const StackLines = ({
                   transparency={transparency}
                   xScale={xScale}
                   yScale={yScale}
+                  hasSecondUnit={hasSecondUnit}
+                  maxLeftAxisCharacters={maxLeftAxisCharacters}
                 />
               )}
               {style?.showPoints &&

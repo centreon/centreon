@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,8 +36,8 @@ use Core\Security\ProviderConfiguration\Domain\Model\Provider;
 use Core\Security\Token\Application\Exception\TokenException;
 use Core\Security\Token\Application\Repository\ReadTokenRepositoryInterface;
 use Core\Security\Token\Application\Repository\WriteTokenRepositoryInterface;
-use Core\Security\Token\Domain\Model\TokenFactory;
 use Core\Security\Token\Domain\Model\NewApiToken;
+use Core\Security\Token\Domain\Model\TokenFactory;
 
 final class AddToken
 {
@@ -108,16 +108,16 @@ final class AddToken
         $this->writeTokenRepository->add($newToken);
 
         $this->info(
-                'Add token succeeded',
-                [
-                    'event' => 'Token creation',
-                    'datetime' => (new \DateTimeImmutable())->format('Y-m-d H:i:s'),
-                    'creator_id' => $newToken->getCreatorId(),
-                    'user_id' => $newToken instanceof NewApiToken ? $newToken->getUserId() : null,
-                    'token_type' => $newToken->getType()->name,
-                    'token_name' => $newToken->getName(),
-                ]
-            );
+            'Add token succeeded',
+            [
+                'event' => 'Token creation',
+                'datetime' => (new \DateTimeImmutable())->format('Y-m-d H:i:s'),
+                'creator_id' => $newToken->getCreatorId(),
+                'user_id' => $newToken instanceof NewApiToken ? $newToken->getUserId() : null,
+                'token_type' => $newToken->getType()->name,
+                'token_name' => $newToken->getName(),
+            ]
+        );
 
         return $newToken->getToken();
     }

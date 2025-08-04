@@ -1,9 +1,19 @@
 import { getFoundFields } from '@centreon/ui';
 import { isEmpty } from 'ramda';
+import { CriteriaValue } from '../../Filter/Criterias/models';
+import { searchableFieldsForPerformance } from '../../Filter/Criterias/searchQueryLanguage/models';
 import { searchableFields } from '../../testUtils';
 import { Search } from './models';
 
-export const getSearch = ({ searchCriteria }): Search | undefined => {
+interface GetSearchProps {
+  searchCriteria?: CriteriaValue;
+  isResourceStatusFullSearchEnabled?: boolean;
+}
+
+export const getSearch = ({
+  searchCriteria,
+  isResourceStatusFullSearchEnabled
+}: GetSearchProps): Search | undefined => {
   if (!searchCriteria) {
     return undefined;
   }
@@ -38,7 +48,9 @@ export const getSearch = ({ searchCriteria }): Search | undefined => {
 
   return {
     regex: {
-      fields: searchableFields,
+      fields: !isResourceStatusFullSearchEnabled
+        ? searchableFieldsForPerformance
+        : searchableFields,
       value: searchCriteria as string
     }
   };

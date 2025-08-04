@@ -465,7 +465,7 @@ jobs:
             let releaseScope = "unknown";
 
             // in a nightly context, whatever the event_name is, the release context does not matter
-            if ( process.env.IS_NIGHTLY == 'true' ) {
+            if ( process.env.IS_NIGHTLY == 'true' || eventName === "workflow_run" ) {
               releaseScope = isCloudCandidate ? "cloud" : "onprem";
             } else if ( "${{ github.event_name }}" === "pull_request" ) {
               // handle if triggering event is a pull_request

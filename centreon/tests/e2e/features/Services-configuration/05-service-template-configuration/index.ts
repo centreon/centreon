@@ -1,4 +1,4 @@
-import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
+import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
 beforeEach(() => {
   cy.startContainers();
@@ -94,10 +94,10 @@ Then('the properties are updated', () => {
   cy.get('body').click(0, 0);
   // Check that the 'Notification Period' has the setted value
   cy.getIframeBody()
-      .find('#timeperiod_tp_id2')
-      .find('option:selected')
-      .should('have.length', 1)
-      .and('have.text', '24x7');
+    .find('#timeperiod_tp_id2')
+    .find('option:selected')
+    .should('have.length', 1)
+    .and('have.text', '24x7');
   // Check that the type 'Critical' is checked
   cy.getIframeBody().find('#notifC').should('be.checked');
 });

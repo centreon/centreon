@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -889,6 +889,10 @@ if (is_array($select)) {
 
 $form->applyFilter('__ALL__', 'myTrim');
 $from_list_menu = false;
+if ($o === SERVICE_TEMPLATE_MODIFY) {
+    $form->registerRule('checkCircularInheritance', 'callback', 'checkCircularInheritance');
+    $form->addRule('service_template_model_stm_id', _('Circular inheritance not allowed'), 'checkCircularInheritance');
+}
 if ($o !== SERVICE_TEMPLATE_MASSIVE_CHANGE) {
     $form->addRule('service_description', _('Compulsory Name'), 'required');
     $form->addRule('service_alias', _('Compulsory Name'), 'required');

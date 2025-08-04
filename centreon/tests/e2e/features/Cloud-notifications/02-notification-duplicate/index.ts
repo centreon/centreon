@@ -1,12 +1,12 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
-import { createNotification, enableNotificationFeature } from '../common';
-import notificationBody from '../../../fixtures/notifications/notification-creation.json';
 import {
   checkHostsAreMonitored,
   checkServicesAreMonitored
 } from '../../../commons';
 import data from '../../../fixtures/notifications/data-for-notification.json';
+import notificationBody from '../../../fixtures/notifications/notification-creation.json';
+import { createNotification, enableNotificationFeature } from '../common';
 
 const duplicatedNotificationName = 'Duplicated Notification';
 
