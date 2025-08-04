@@ -999,6 +999,11 @@ function updateServer(int $id, array $data): void
     }
     $stmt->execute();
 
+    // if the poller is activated, always keep cfg file activated
+    if (isset($data['ns_activate']['ns_activate']) && $data['ns_activate']['ns_activate'] == 1) {
+        enableServerInDB($id);
+    }
+
     updateRemoteServerInformation($data, $id);
     try {
         updateServerIntoPlatformTopology($retValue, $id);
@@ -1325,14 +1330,17 @@ function isValidStopCommandSyntax(string $command): bool
 {
     return (bool) preg_match(MonitoringServer::VALID_COMMAND_STOP_REGEX, $command);
 }
+
 function isValidRestartCommandSyntax(string $command): bool
 {
     return (bool) preg_match(MonitoringServer::VALID_COMMAND_RESTART_REGEX, $command);
 }
+
 function isValidReloadCommandSyntax(string $command): bool
 {
     return (bool) preg_match(MonitoringServer::VALID_COMMAND_RELOAD_REGEX, $command);
 }
+
 function isValidPath(string $path): bool
 {
     return (bool) preg_match(
