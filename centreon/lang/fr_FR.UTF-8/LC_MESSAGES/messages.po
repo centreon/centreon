@@ -4837,7 +4837,7 @@ msgstr ""
 #: centreon/www/install/dashboard_widgets.php
 msgid "Displays the real-time average of the metric and a trend curve."
 msgstr ""
-"Affiche la moyenne de la métrique en temps réel et une courbe de tendance"
+"Affiche la moyenne de la métrique en temps réel et une courbe de tendance."
 
 #: centreon/www/install/dashboard_widgets.php
 msgid "Displays the time according to the selected time zone, or a timer."
