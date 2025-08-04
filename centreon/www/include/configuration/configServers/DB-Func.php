@@ -999,11 +999,9 @@ function updateServer(int $id, array $data): void
     }
     $stmt->execute();
 
-    // Ensure cfg file stays enabled whenever the poller ends up enabled,
-    // even when the ns_activate field is omitted in the request.
-    $finalActivationState = (int)($data['ns_activate']['ns_activate'] ?? 1);
-    if ($finalActivationState === 1) {
-        enableServerInDB($id); // updates cfg_nagios + audit log
+    // if the poller is activated, always keep cfg file activated
+    if (isset($data['ns_activate']['ns_activate']) && $data['ns_activate']['ns_activate'] === 1) {
+        enableServerInDB($id);
     }
 
     updateRemoteServerInformation($data, $id);
