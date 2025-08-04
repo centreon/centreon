@@ -26,12 +26,13 @@ jobs:
         run: |
           set -x
           feature_ticket=$(echo "${{ github.head_ref }}" | grep -oE 'MON-[0-9]+')
-          if [[ -z "$feature_ticket" && -z $(jf rt curl -X GET /api/repositories | jq -r '.[].key' | grep -q $feature_ticket) ]]; then
-            echo "::notice:: Repositories associated with the feature ticket have been found, sending deletion notice."
-            echo "repositories_found=true" >> $GITHUB_OUTPUT
+          if [[ -n "$feature_ticket" ]] && jf rt curl -s -X GET /api/repositories \
+            | jq -r '.[].key' | grep -q "$feature_ticket"; then
+            echo "::notice:: Repositories associated with $feature_ticket found – deletion will be requested."
+            echo "repositories_found=true" >> "$GITHUB_OUTPUT"
           else
-            echo "::notice:: Repositories associated with the feature ticket have not been found, ending workflow there."
-            echo "repositories_found=false" >> $GITHUB_OUTPUT
+            echo "::notice:: No repositories linked to $feature_ticket – workflow ends here."
+            echo "repositories_found=false" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Send repository dispatch to delete feature repositories
