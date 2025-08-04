@@ -10,6 +10,7 @@ import { selectedColumnIdsAtom } from '../../../../Resources/Listing/listingAtom
 import { Visualization } from '../../../../Resources/models';
 import {
   labelBusinessActivity,
+  labelBusinessView,
   labelResourcesStatus
 } from '../translatedLabels';
 import {
@@ -42,6 +43,11 @@ const useLinkToResourceStatus = (): UseLinkToResourceStatus => {
     // TO FIX when Resources Status will handle BA/BV properly
     const resourceTypes = pluck('resourceType', resources);
     const hasOnlyBA = all(equals('business-activity'), resourceTypes);
+    const hasOnlyBV = all(equals('business-view'), resourceTypes);
+
+    if (hasOnlyBV) {
+      return `/main.php?p=20701&status=all&bv_id=${resources[0].resources[0].id}`;
+    }
 
     if (hasOnlyBA) {
       return `/monitoring/bam/bas/${resources[0].resources[0].id}`;
@@ -84,6 +90,11 @@ const useLinkToResourceStatus = (): UseLinkToResourceStatus => {
     // TO FIX when Resources Status will handle BA/BV properly
     const resourceTypes = pluck('resourceType', resources);
     const hasOnlyBA = all(equals('business-activity'), resourceTypes);
+    const hasOnlyBV = all(equals('business-view'), resourceTypes);
+
+    if (hasOnlyBV) {
+      return labelBusinessView;
+    }
 
     if (hasOnlyBA) {
       return labelBusinessActivity;
