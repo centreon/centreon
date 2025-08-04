@@ -156,7 +156,7 @@ runs:
         fi
 
         echo "[DEBUG] - Build target path."
-        POOL_SUBPATH="${{ inputs.major_version }}/${{ inputs.stability }}/${{ inputs.module_name }}"
+        POOL_SUBPATH="${{ inputs.major_version }}/${{ inputs.stability }}/${{ inputs.module }}"
         TARGET_PATH="$ROOT_REPO_PATH/pool/${POOL_SUBPATH}/"
         echo "[DEBUG] - Target path: $TARGET_PATH"
 
