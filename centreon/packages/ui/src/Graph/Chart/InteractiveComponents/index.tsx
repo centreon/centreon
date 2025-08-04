@@ -37,6 +37,10 @@ import type {
   InteractedZone as ZoomPreviewModel
 } from '../models';
 
+import {
+  computPixelsToShiftMouse,
+  computeGElementMarginLeft
+} from '../../common/utils';
 import Annotations from './Annotations';
 import type { TimelineEvent } from './Annotations/models';
 import Bar from './Bar';
@@ -80,6 +84,8 @@ interface Props {
     fx?: (pointX: number) => number;
     fy?: (pointY: number) => number;
   };
+  hasSecondUnit?: boolean;
+  maxLeftAxisCharacters: number;
 }
 
 const InteractionWithGraph = ({
@@ -87,7 +93,9 @@ const InteractionWithGraph = ({
   commonData,
   annotationData,
   timeShiftZonesData,
-  transformMatrix
+  transformMatrix,
+  hasSecondUnit,
+  maxLeftAxisCharacters
 }: Props): JSX.Element => {
   const { classes } = useStyles();
 
@@ -151,10 +159,15 @@ const InteractionWithGraph = ({
 
       return;
     }
+    const pixelToShift = computPixelsToShiftMouse(xScale);
     const timeValue = getTimeValue({
       timeSeries,
-      x: pointPosition[0],
-      xScale
+      x: pointPosition[0] - pixelToShift,
+      xScale,
+      marginLeft: computeGElementMarginLeft({
+        maxCharacters: maxLeftAxisCharacters,
+        hasSecondUnit
+      })
     });
 
     if (isNil(timeValue)) {
