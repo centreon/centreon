@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,17 +21,19 @@
 
 declare(strict_types=1);
 
-namespace Tests\Core\Dashboard\Application\UseCase\ShareDashboard;
+namespace Core\MonitoringServer\Application\UseCase\UpdateMonitoringServer;
 
-use Core\Application\Common\UseCase\ResponseStatusInterface;
-use Core\Dashboard\Application\UseCase\ShareDashboard\ShareDashboardPresenterInterface;
-
-class ShareDashboardPresenterStub implements ShareDashboardPresenterInterface
+final class UpdateMonitoringServerRequest
 {
-    public ResponseStatusInterface $data;
-
-    public function presentResponse(ResponseStatusInterface $response): void
-    {
-        $this->data = $response;
+    public function __construct(
+        public int $id,
+        public string $name,
+        public ?string $engineStartCommand,
+        public ?string $engineStopCommand,
+        public ?string $engineRestartCommand,
+        public ?string $engineReloadCommand,
+        public ?string $brokerReloadCommand,
+    ) {
     }
 }
+

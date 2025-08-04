@@ -23,13 +23,21 @@ declare(strict_types=1);
 
 namespace Core\MonitoringServer\Application\Repository;
 
-interface WriteMonitoringServerRepositoryInterface {
+use Core\MonitoringServer\Model\MonitoringServer;
+
+interface WriteMonitoringServerRepositoryInterface
+{
     /**
      * Define the monitoring server as changed since its last configuration export.
      *
      * @param int $monitoringServerId
-     *
-     * @throws \Throwable
      */
     public function notifyConfigurationChange(int $monitoringServerId): void;
+
+    /**
+     * Update a monitoring server.
+     *
+     * @param MonitoringServer $monitoringServer
+     */
+    public function update(MonitoringServer $monitoringServer): void;
 }
