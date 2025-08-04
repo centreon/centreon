@@ -156,7 +156,7 @@ runs:
         fi
 
         echo "[DEBUG] - Build target path."
-        POOL_SUBPATH="${{ inputs.version }}/${{ inputs.stability }}/${{ inputs.module_name }}"
+        POOL_SUBPATH="${{ inputs.major_version }}/${{ inputs.stability }}/${{ inputs.module_name }}"
         TARGET_PATH="$ROOT_REPO_PATH/pool/${POOL_SUBPATH}/"
         echo "[DEBUG] - Target path: $TARGET_PATH"
 
@@ -182,7 +182,7 @@ runs:
 
         for ARTIFACT_DL in $(dir -1|grep -E $ARTIFACT_SEARCH_PATTERN); do
           ARCH=$(echo $ARTIFACT_DL | cut -d '_' -f3 | cut -d '.' -f1)
-          DEB_PROP="${{ inputs.distrib }}-${{ inputs.version }}-${{ inputs.stability }}/main/$ARCH"
+          DEB_PROP="${{ inputs.distrib }}-${{ inputs.major_version }}-${{ inputs.stability }}/main/$ARCH"
           echo "[DEBUG] - Promoting (upload) $ARTIFACT_DL to stable $TARGET_PATH."
           jf rt upload "$ARTIFACT_DL" "$TARGET_PATH" --deb "${DEB_PROP}"  --detailed-summary --flat $DRY_RUN_FLAG
         done
