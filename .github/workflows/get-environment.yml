@@ -299,7 +299,7 @@ jobs:
 
             console.log(`Final stability: ${stability}`);
             // core.setOutput('stability', stability);
-            core.setOutput('stability', 'testing');
+            core.setOutput('stability', 'unstable');
 
             let isTargetingFeatureBranch = false;
 
