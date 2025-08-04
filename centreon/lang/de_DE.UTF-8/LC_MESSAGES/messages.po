@@ -2616,6 +2616,10 @@ msgid "Common properties"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
+msgid "Compact"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
 msgid "Compact time period"
 msgstr ""
 
@@ -6007,6 +6011,10 @@ msgstr ""
 msgid "Exporting and reloading the configuration. Please wait..."
 msgstr ""
 
+#: centreon/www/install/front_translate.php
+msgid "Extended"
+msgstr ""
+
 #: centreon/www/install/smarty_translate.php
 msgid "Extended Info"
 msgstr "Erweiterte Informationen"
@@ -6449,6 +6457,16 @@ msgstr "Dauer, für die vorgesorgt werden soll"
 msgid "Fourth of month"
 msgstr "Vierter des Monats"
 
+#: centreon/www/include/Administration/parameters/general/form.php
+msgid "Free text search behavior"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid ""
+"Free text search behavior can be configured in the Administration > "
+"Parameters > Centreon UI page."
+msgstr ""
+
 #: centreon/www/include/configuration/configNagios/formNagios.php
 msgid "Freshness"
 msgstr "Aktualität"
@@ -6499,6 +6517,10 @@ msgstr "Vollständige Sicherung"
 
 #: centreon/www/install/front_translate.php
 msgid "Full name attribute"
+msgstr ""
+
+#: centreon/www/include/Administration/parameters/general/form.php
+msgid "Full search"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
@@ -7692,7 +7714,6 @@ msgstr ""
 
 #: centreon/www/include/Administration/parameters/centstorage/form.php
 #: centreon/www/include/Administration/parameters/debug/form.php
-#: centreon/www/include/Administration/parameters/general/form.php
 #: centreon/www/include/Administration/parameters/ldap/form.php
 #: centreon/www/include/Administration/parameters/rrdtool/form.php
 msgid "Impossible to validate, one or more field is incorrect"
@@ -8456,6 +8477,10 @@ msgstr "Limit pro Seite (Standardwert)"
 #: centreon/www/include/Administration/parameters/general/form.php
 msgid "Limit per page for Monitoring"
 msgstr "Limit pro Seite für das Monitoring"
+
+#: centreon/www/include/Administration/parameters/general/form.php
+msgid "Limited search"
+msgstr ""
 
 #: centreon/www/include/views/componentTemplates/formComponentTemplate.php
 msgid "Line color"
@@ -9900,7 +9925,7 @@ msgid "Name of the logger"
 msgstr "Name des Protokollierers"
 
 #: centreon/www/install/front_translate.php
-msgid "Need help with search bar usage?"
+msgid "Need help using the search bar ?"
 msgstr ""
 
 #: centreon/www/include/options/media/images/syncDir.php
@@ -12015,6 +12040,10 @@ msgstr ""
 
 #: centreon/www/install/front_translate.php
 msgid "Resource name"
+msgstr ""
+
+#: centreon/www/include/Administration/parameters/general/form.php
+msgid "Resource status performance"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
