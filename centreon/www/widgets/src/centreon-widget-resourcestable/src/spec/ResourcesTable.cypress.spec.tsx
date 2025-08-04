@@ -557,14 +557,12 @@ describe('Open tickets', () => {
     cy.contains(labelConfirm).click();
 
     cy.waitForRequest('@postTicketClose').then(({ request }) => {
-      expect(request.body).equal(
-        JSON.stringify({
-          data: {
-            selection: '14;19',
-            rule_id: '1'
-          }
-        })
-      );
+      expect(request.body).deep.equal({
+        data: {
+          selection: '14;19',
+          rule_id: '1'
+        }
+      });
     });
 
     cy.contains(labelTicketClosed).should('be.visible');
@@ -602,14 +600,12 @@ describe('Open tickets', () => {
     cy.contains(labelConfirm).click();
 
     cy.waitForRequest('@postTicketClose').then(({ request }) => {
-      expect(request.body).equal(
-        JSON.stringify({
-          data: {
-            selection: '6',
-            rule_id: '1'
-          }
-        })
-      );
+      expect(request.body).deep.equal({
+        data: {
+          selection: '6',
+          rule_id: '1'
+        }
+      });
     });
 
     cy.contains(labelTicketClosed).should('be.visible');

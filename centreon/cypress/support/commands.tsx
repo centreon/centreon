@@ -2,18 +2,16 @@
 import '@centreon/js-config/cypress/component/commands';
 import '@testing-library/cypress/add-commands';
 
-import React from 'react';
-
 import dayjs from 'dayjs';
-import timezonePlugin from 'dayjs/plugin/timezone';
-import utcPlugin from 'dayjs/plugin/utc';
-import localizedFormat from 'dayjs/plugin/localizedFormat';
-import isToday from 'dayjs/plugin/isToday';
-import isYesterday from 'dayjs/plugin/isYesterday';
-import weekday from 'dayjs/plugin/weekday';
+import duration from 'dayjs/plugin/duration';
 import isBetween from 'dayjs/plugin/isBetween';
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
-import duration from 'dayjs/plugin/duration';
+import isToday from 'dayjs/plugin/isToday';
+import isYesterday from 'dayjs/plugin/isYesterday';
+import localizedFormat from 'dayjs/plugin/localizedFormat';
+import timezonePlugin from 'dayjs/plugin/timezone';
+import utcPlugin from 'dayjs/plugin/utc';
+import weekday from 'dayjs/plugin/weekday';
 import { equals } from 'ramda';
 
 import { SearchParameter } from '@centreon/ui';
@@ -38,6 +36,14 @@ dayjs.extend(weekday);
 dayjs.extend(isBetween);
 dayjs.extend(isSameOrBefore);
 dayjs.extend(duration);
+
+Cypress.on('uncaught:exception', (err) => {
+  if (err.message.includes('CancelledError')) {
+    return false;
+  }
+
+  return true;
+});
 
 Cypress.Commands.add('displayFilterMenu', () => {
   cy.get('[aria-label="Filter options"]').click();

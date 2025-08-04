@@ -23,25 +23,17 @@ declare(strict_types=1);
 
 namespace Core\Security\Token\Application\UseCase\AddToken;
 
-final class AddTokenResponse
+use Core\Application\Common\UseCase\StandardResponseInterface;
+use Core\Security\Token\Domain\Model\Token;
+
+final class AddTokenResponse implements StandardResponseInterface
 {
-    public string $name = '';
+    public function __construct(public Token $token, public string $tokenString)
+    {
+    }
 
-    public int $userId = 0;
-
-    public string $userName = '';
-
-    public ?int $creatorId = null;
-
-    public string $creatorName = '';
-
-    public string $token = '';
-
-    public bool $isRevoked = false;
-
-    public function __construct(
-        public \DateTimeInterface $creationDate = new \DateTimeImmutable(),
-        public \DateTimeInterface $expirationDate = new \DateTimeImmutable(),
-    )
-    {}
+    public function getData(): self
+    {
+        return $this;
+    }
 }

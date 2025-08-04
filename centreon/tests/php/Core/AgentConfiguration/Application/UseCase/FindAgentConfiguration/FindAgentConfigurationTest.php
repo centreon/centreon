@@ -34,10 +34,12 @@ use Core\AgentConfiguration\Domain\Model\ConnectionModeEnum;
 use Core\AgentConfiguration\Domain\Model\Poller;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
+use Core\Host\Application\Repository\ReadHostRepositoryInterface;
 
 beforeEach(function (): void {
     $this->useCase = new FindAgentConfiguration(
         readRepository: $this->readRepository = $this->createMock(ReadAgentConfigurationRepositoryInterface::class),
+        readHostRepository: $this->readHostRepository = $this->createMock(ReadHostRepositoryInterface::class),
     );
 });
 
@@ -80,8 +82,7 @@ it('should present a FindConfigurationResponse when everything is ok', function 
             'conf_server_port' => 454,
             'conf_certificate' => 'conf-certif.crt',
             'conf_private_key' => 'conf-key.key'
-        ],
-        ConnectionModeEnum::SECURE
+        ]
     );
 
     $pollers = [

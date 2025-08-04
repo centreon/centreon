@@ -899,7 +899,7 @@ describe('Notification column', () => {
       cy.waitForRequest('@listing');
       cy.contains('Memory').should('be.visible');
 
-      cy.findAllByRole('row').should('have.length', 6);
+      cy.findAllByRole('row').should('have.length', 7);
 
       cy.findAllByRole('row')
         .eq(1)
@@ -918,7 +918,7 @@ describe('Notification column', () => {
       cy.waitForRequest('@listing');
       cy.contains('Memory').should('be.visible');
 
-      cy.findAllByRole('row').should('have.length', 6);
+      cy.findAllByRole('row').should('have.length', 7);
 
       cy.findAllByRole('row')
         .eq(2)
@@ -938,7 +938,7 @@ describe('Notification column', () => {
       cy.waitForRequest('@listing');
       cy.contains('Memory').should('be.visible');
 
-      cy.findAllByRole('row').should('have.length', 6);
+      cy.findAllByRole('row').should('have.length', 7);
 
       cy.findAllByRole('row')
         .eq(4)
@@ -949,6 +949,19 @@ describe('Notification column', () => {
           'background-color',
           equals(mode, 'dark') ? 'rgb(6, 74, 63)' : 'rgb(216, 243, 239)'
         );
+
+      cy.makeSnapshot();
+    });
+
+    it('displays a Down icon when the parent status is null', () => {
+      cy.waitForRequest('@filterRequest');
+      cy.waitForRequest('@listing');
+      cy.contains('Memory').should('be.visible');
+
+      cy.findByTestId('Add columns').click();
+      cy.findByText('Parent').click();
+
+      cy.contains(/^D$/).should('be.visible');
 
       cy.makeSnapshot();
     });

@@ -18,6 +18,7 @@ const useStyles = makeStyles()((theme) => ({
 }));
 
 type Props = {
+  dataTestid?: string;
   ariaLabel?: string;
   className?: string;
   onClick: (event) => void;
@@ -44,6 +45,7 @@ export const IconButton = ({
   className,
   tooltipPlacement,
   tooltipClassName,
+  dataTestid,
   ...props
 }: Props): JSX.Element => {
   const { classes, cx } = useStyles();
@@ -59,7 +61,7 @@ export const IconButton = ({
           aria-label={ariaLabel}
           className={cx(classes.button, className)}
           color="primary"
-          data-testid={ariaLabel}
+          data-testid={dataTestid || ariaLabel}
           id={getNormalizedId(ariaLabel || '')}
           {...props}
         />

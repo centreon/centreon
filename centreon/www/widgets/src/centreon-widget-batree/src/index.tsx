@@ -14,12 +14,7 @@ const Widget = ({ panelData, store, ...rest }: WidgetProps): JSX.Element => {
 
   return (
     <Module seedName="centreon-widget-batree" store={store}>
-      <FederatedComponent
-        panelData={panelData}
-        path="/bam/widget"
-        store={store}
-        {...rest}
-      />
+      <FederatedComponent panelData={panelData} path="/bam/widget" {...rest} />
     </Module>
   );
 };

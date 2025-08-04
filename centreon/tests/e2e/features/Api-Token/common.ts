@@ -14,6 +14,7 @@ interface Token {
   duration: keyof typeof durationMap;
   name: string;
   userId: number;
+  type: string;
 }
 
 const durationMap = {
@@ -28,10 +29,11 @@ const columns = ['Name', 'Creation Date', 'Expiration Date', 'User', 'Creator'];
 
 const columnsFromLabels = [
   'Name',
+  'Type',
+  'User',
+  'Creator',
   'Creation date',
   'Expiration date',
-  'User',
-  'Creator'
 ];
 
 export { Contact, durationMap, Token, columns, columnsFromLabels };

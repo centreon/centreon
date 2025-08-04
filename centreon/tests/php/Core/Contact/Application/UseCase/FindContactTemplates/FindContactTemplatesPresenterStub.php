@@ -23,33 +23,16 @@ declare(strict_types=1);
 
 namespace Tests\Core\Contact\Application\UseCase\FindContactTemplates;
 
-use Symfony\Component\HttpFoundation\Response;
 use Core\Contact\Application\UseCase\FindContactTemplates\FindContactTemplatesResponse;
 use Core\Contact\Application\UseCase\FindContactTemplates\FindContactTemplatesPresenterInterface;
-use Core\Application\Common\UseCase\{
-    AbstractPresenter
-};
+use Core\Application\Common\UseCase\{AbstractPresenter, ResponseStatusInterface};
 
 class FindContactTemplatesPresenterStub extends AbstractPresenter implements FindContactTemplatesPresenterInterface
 {
-    /**
-     * @var FindContactTemplatesResponse
-     */
-    public $response;
+    public FindContactTemplatesResponse|ResponseStatusInterface $data;
 
-    /**
-     * @param FindContactTemplatesResponse $response
-     */
-    public function present(mixed $response): void
+    public function presentResponse(FindContactTemplatesResponse|ResponseStatusInterface $response): void
     {
-        $this->response = $response;
-    }
-
-    /**
-     * @return Response
-     */
-    public function show(): Response
-    {
-        return new Response();
+        $this->data = $response;
     }
 }

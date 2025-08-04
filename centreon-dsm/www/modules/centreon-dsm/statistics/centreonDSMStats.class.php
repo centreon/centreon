@@ -70,9 +70,8 @@ class CentreonDSMStats
             return ['dsm' => $data];
         } catch (Throwable $e) {
             throw new StatisticException(
-                'Unable to get Centreon DSM statistics: ' . $e->getMessage(),
-                (int) $e->getCode(),
-                $e
+                message: 'Unable to get Centreon DSM statistics: ' . $e->getMessage(),
+                previous: $e
             );
         }
     }

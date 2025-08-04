@@ -7,7 +7,7 @@ import {
 import { useQueryClient } from '@tanstack/react-query';
 import { FormikHelpers } from 'formik';
 import { useAtom } from 'jotai';
-import { equals, omit, pluck } from 'ramda';
+import { equals, map, omit, pluck } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import {
   getAgentConfigurationEndpoint,
@@ -76,6 +76,14 @@ const adaptCMAConfigurationToAPI = (
     type: (agentConfiguration.type as SelectEntry).id,
     configuration: {
       is_reverse: configuration.isReverse,
+      tokens:
+        equals(agentConfiguration?.connectionMode?.id, 'no-tls') ||
+        configuration.isReverse
+          ? []
+          : map(
+              ({ name, creatorId }) => ({ name, creator_id: creatorId }),
+              agentConfiguration.configuration.tokens
+            ),
       otel_ca_certificate: getFieldBasedOnCertificate(
         configuration.otelCaCertificate
       ),
@@ -86,12 +94,21 @@ const adaptCMAConfigurationToAPI = (
         configuration.otelPrivateKey
       ),
       hosts: configuration.hosts.map((host) => ({
+        id: host.id,
         address: host.address,
         port: host.port,
         poller_ca_name: getFieldBasedOnCertificate(host.pollerCaName),
         poller_ca_certificate: getFieldBasedOnCertificate(
           host.pollerCaCertificate
-        )
+        ),
+        token:
+          equals(agentConfiguration?.connectionMode?.id, 'no-tls') ||
+          !configuration.isReverse
+            ? null
+            : {
+                name: host?.token?.name,
+                creator_id: host?.token?.creatorId
+              }
       }))
     }
   };

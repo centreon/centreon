@@ -108,6 +108,8 @@ class FindPerformanceMetricsDataPresenter extends AbstractPresenter implements F
             'metric_id' => $generalInformation->getId(),
             'metric' => $generalInformation->getName(),
             'metric_legend' => $generalInformation->getAlias(),
+            'host_name' => $generalInformation->getHostName(),
+            'service_name' => $generalInformation->getServiceName(),
             'unit' => $generalInformation->getUnit(),
             'min' => $realTimeDataInformation->getMinimumValueLimit(),
             'max' => $realTimeDataInformation->getMaximumValueLimit(),

@@ -1,3 +1,4 @@
+export type { ParentSizeProps } from '@visx/responsive/lib/components/ParentSize';
 export { default as LineChart } from './Chart';
 export { default as ThresholdLines } from './Chart/BasicComponents/Lines/Threshold';
 export { default as useLineChartData } from './Chart/useChartData';
@@ -9,8 +10,9 @@ export { Text as GraphText } from './Text';
 export { HeatMap } from './HeatMap';
 export { BarStack } from './BarStack';
 export { PieChart } from './PieChart';
+export { Timeline } from './Timeline';
 export * from './Tree';
-export type { LineChartData } from './common/models';
+export type { LineChartData, Threshold, Thresholds } from './common/models';
 export * from './common/timeSeries';
 export type { Metric } from './common/timeSeries/models';
 export * from './Chart/models';

@@ -27,6 +27,10 @@ use Core\AgentConfiguration\Domain\Model\ConfigurationParameters\CmaConfiguratio
 use Core\AgentConfiguration\Domain\Model\ConfigurationParameters\TelegrafConfigurationParameters;
 use Core\AgentConfiguration\Domain\Model\ConnectionModeEnum;
 use Core\AgentConfiguration\Domain\Model\Type;
+use Core\Host\Application\Repository\ReadHostRepositoryInterface;
+use Core\Security\Token\Application\Repository\ReadTokenRepositoryInterface;
+use Core\Security\Token\Domain\Model\JwtToken;
+use Core\Security\Token\Domain\Model\Token;
 
 /**
  * @phpstan-import-type _TelegrafParameters from TelegrafConfigurationParameters
@@ -37,6 +41,8 @@ class AgentConfiguration extends AbstractObjectJSON
     public function __construct(
         private readonly Backend $backend,
         private readonly ReadAgentConfigurationRepositoryInterface $readAgentConfigurationRepository,
+        private readonly ReadTokenRepositoryInterface $readTokenRepository,
+        private readonly ReadHostRepositoryInterface $readHostRepository,
     ) {
         $this->generate_filename = 'otl_server.json';
     }
@@ -104,15 +110,57 @@ class AgentConfiguration extends AbstractObjectJSON
      */
     private function formatCmaConfiguration(array $data, ConnectionModeEnum $connectionMode): array
     {
+        $tokens = $data['tokens'] !== []
+            ? $this->readTokenRepository->findByNames(array_map(
+                    static fn(array $token): string => $token['name'],
+                    $data['tokens'] ?? []
+            ))
+            : [];
+
+        $tokens = array_filter(
+            $tokens,
+            static fn(Token $token): bool =>  !(
+                $token->isRevoked()
+                || ($token->getExpirationDate() !== null && $token->getExpirationdate() < new \DateTimeImmutable())
+            )
+        );
         $configuration = [
             'otel_server' => $this->formatOtelConfiguration($data, $connectionMode),
             'centreon_agent' => [
                 'check_interval' => CmaConfigurationParameters::DEFAULT_CHECK_INTERVAL,
                 'export_period' => CmaConfigurationParameters::DEFAULT_EXPORT_PERIOD,
-            ]
+            ],
+            'tokens' => array_map(
+                static fn(JwtToken $token): array => [
+                    'token' => $token->getToken(),
+                    'encoding_key' => $token->getEncodingKey(),
+                ],
+                $tokens
+            ),
         ];
 
         if ($data['is_reverse']) {
+            $hostIds = array_map(static fn(array $host): int => $host['id'], $data['hosts']);
+            $hosts = $this->readHostRepository->findByIds($hostIds);
+
+            $tokenNames = array_filter(
+                array_map(
+                    static fn(array $host): ?string => $host['token'] !== null ? $host['token']['name'] : null,
+                    $data['hosts']
+                )
+            );
+            $tokens = $tokenNames !== []
+                ? $this->readTokenRepository->findByNames($tokenNames)
+                : [];
+
+            $tokens = array_filter(
+                $tokens,
+                static fn(Token $token): bool =>  !(
+                    $token->isRevoked()
+                    || ($token->getExpirationDate() !== null && $token->getExpirationDate() < new \DateTimeImmutable())
+                )
+            );
+
             $configuration['centreon_agent']['reverse_connections'] = array_map(
                 static fn(array $host): array => [
                     'host' => $host['address'],
@@ -122,8 +170,17 @@ class AgentConfiguration extends AbstractObjectJSON
                         ? $host['poller_ca_certificate']
                         : '',
                     'ca_name' => $host['poller_ca_name'],
+                    'token' => isset($tokens[$host['token']['name']])
+                        ? [
+                            'token' => $tokens[$host['token']['name']]->getToken(),
+                            'encoding_key' => $tokens[$host['token']['name']]->getEncodingKey(),
+                        ]
+                        : null,
                 ],
-                $data['hosts']
+                array_filter(
+                    $data['hosts'],
+                    static fn(array $host): bool => $hosts[$host['id']] ? true : false
+                )
             );
         }
 

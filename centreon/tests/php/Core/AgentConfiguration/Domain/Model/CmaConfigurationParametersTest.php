@@ -33,12 +33,17 @@ beforeEach(function (): void {
         'otel_public_certificate' => 'otel_certif_filename',
         'otel_ca_certificate' => 'ca_certif_filename',
         'otel_private_key' => 'otel_key_filename',
+        'tokens' => [],
         'hosts' => [
             [
                 'address' => '0.0.0.0',
                 'port' => 442,
                 'poller_ca_certificate' => 'poller_certif',
-                'poller_ca_name' => 'ca_name'
+                'poller_ca_name' => 'ca_name',
+                'token' => [
+                    'name' => 'tokenName',
+                    'creator_id' => 1,
+                ],
             ]
         ]
     ];
@@ -68,24 +73,6 @@ foreach (
 foreach (
     [
         'otel_public_certificate',
-        'otel_private_key'
-    ] as $field
-) {
-    it(
-        "should throw an exception when a {$field} is too short",
-        function () use ($field) : void {
-            $this->parameters[$field] = '';
-
-            new CmaConfigurationParameters($this->parameters, ConnectionModeEnum::SECURE);
-        }
-    )->throws(
-        AssertionException::notEmptyString("configuration.{$field}")->getMessage()
-    );
-}
-
-foreach (
-    [
-        'otel_public_certificate',
         'otel_ca_certificate',
         'otel_private_key'
     ] as $field
@@ -101,7 +88,7 @@ foreach (
     )->throws(
         AssertionException::maxLength(
             CmaConfigurationParameters::CERTIFICATE_BASE_PATH . $tooLong,
-            CmaConfigurationParameters::MAX_LENGTH+ strlen(CmaConfigurationParameters::CERTIFICATE_BASE_PATH),
+            CmaConfigurationParameters::MAX_LENGTH + strlen(CmaConfigurationParameters::CERTIFICATE_BASE_PATH),
             CmaConfigurationParameters::MAX_LENGTH,
             "configuration.{$field}"
         )->getMessage()

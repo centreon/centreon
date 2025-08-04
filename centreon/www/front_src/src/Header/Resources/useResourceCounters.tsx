@@ -52,7 +52,7 @@ const useResourceCounters: UseRessourceCounters = ({
   decoder
 }) => {
   const navigate = useNavigate();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   const userPermissions = useAtomValue(userPermissionsAtom);
 
@@ -92,7 +92,7 @@ const useResourceCounters: UseRessourceCounters = ({
       isAllowed,
       isLoading
     }),
-    [isLoading, data]
+    [isLoading, data, i18n.language]
   );
 };
 
