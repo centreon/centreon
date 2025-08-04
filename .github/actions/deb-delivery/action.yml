@@ -123,6 +123,6 @@ runs:
 
           # upload local artifact
           echo "Uploading $file"
-          jf rt upload "$file" "$ROOT_REPO_PATH/pool/${POOL_SUBPATH}/" --flat --deb "${DEB_PROP}/main/$ARCH" --detailed-summary
+          jf rt upload "$file" "$ROOT_REPO_PATH/pool/${POOL_SUBPATH}/" --flat --deb "${DEB_PROP}" --detailed-summary
         done
       shell: bash
