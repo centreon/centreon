@@ -43,12 +43,15 @@ Cypress.Commands.add(
   Cypress.Commands.add('updateHostGroupViaApi', (body: HostGroup, hostGroup_name: string) => {
     let query =
       `SELECT h.hg_id from hostgroup as h WHERE h.hg_name='${hostGroup_name}'`;
+    // If body contains "geo_coords_after_truncate" don't add it to the body 
+    const filteredBody = { ...body };
+    delete (filteredBody as any).geo_coords_after_truncate;
     cy.requestOnDatabase({
       database: 'centreon',
       query
     }).then(([rows]) => {
       cy.request({
-        body: body,
+        body: filteredBody,
         method: 'PUT',
         url: `/centreon/api/beta/configuration/hosts/groups/${rows[0].hg_id}`
       }).then((response) => {
