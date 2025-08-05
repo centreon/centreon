@@ -586,8 +586,10 @@ jobs:
         uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
         with:
           script: |
-            if (${{ contains(github.event.pull_request.labels.*.name, 'database') && 'true' || 'false' }}) { const delivery_type = 'feature' }
-            else { delivery_type = 'classic' }
+            let delivery_type  = 'classic';
+            if (${{ contains(github.event.pull_request.labels.*.name, 'database') && 'true' || 'false' }}) {
+              delivery_type = 'feature';
+            }
 
             core.setOutput('delivery_type', delivery_type);
 
