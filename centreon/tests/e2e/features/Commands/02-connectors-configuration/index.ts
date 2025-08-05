@@ -34,13 +34,15 @@ When('the user creates a connector', () => {
     rootItemNumber: 3,
     subMenu: 'Commands'
   });
-  cy.waitForElementInIframe(
-    '#main-content',
-    'select[name="o1"]'
-  );
+  cy.waitForElementInIframe('#main-content', 'select[name="o1"]');
   // Click on the "Add" button
   cy.getIframeBody().contains('a', 'Add').click();
-  cy.addConnectors(data.connector);
+  cy.addConnectors({
+    ...data.connector,
+    commandLine: data.connector.command_line,
+    usedByCommand: data.connector.used_by_command,
+    isEnabled: data.connector.is_enabled
+  });
   // Click on the first "Save" button
   cy.getIframeBody()
     .find('input[class="btc bt_success"][name^="submit"]')
@@ -71,7 +73,12 @@ When('the user changes the properties of a connector', () => {
   );
   // Click on the connector
   cy.getIframeBody().contains(data.connector.name).click();
-  cy.updateConnectors(data.connectorUpdated);
+  cy.updateConnectors({
+    ...data.connectorUpdated,
+    commandLine: data.connectorUpdated.command_line,
+    usedByCommand: data.connectorUpdated.used_by_command,
+    isEnabled: data.connectorUpdated.is_enabled
+  });
   // Click on the first "Save" button
   cy.getIframeBody()
     .find('input[class="btc bt_success"][name^="submit"]')
@@ -89,7 +96,12 @@ Then('the properties are updated', () => {
   cy.getIframeBody().contains(data.connectorUpdated.name).should('exist');
   // Click on the connector
   cy.getIframeBody().contains(data.connectorUpdated.name).click();
-  cy.checkValuesOfConnectors(data.connectorUpdated.name, data.connectorUpdated);
+  cy.checkValuesOfConnectors(data.connectorUpdated.name, {
+    ...data.connectorUpdated,
+    commandLine: data.connectorUpdated.command_line,
+    usedByCommand: data.connectorUpdated.used_by_command,
+    isEnabled: data.connectorUpdated.is_enabled
+  });
 });
 
 When('the user duplicates a connector', () => {
@@ -118,7 +130,7 @@ When('the user duplicates a connector', () => {
       "javascript: { setO(this.form.elements['o1'].value); submit(); }"
     );
   // Click on the Duplicate option
-  cy.getIframeBody().find('select[name="o1"]').select("Duplicate");
+  cy.getIframeBody().find('select[name="o1"]').select('Duplicate');
 });
 
 Then('the new connector has the same properties', () => {
@@ -130,39 +142,47 @@ Then('the new connector has the same properties', () => {
   );
   // Click on the duplicated connector
   cy.getIframeBody().contains('a', `${data.connectorUpdated.name}_1`).click();
-  cy.checkValuesOfConnectors(`${data.connectorUpdated.name}_1`, data.connectorUpdated);
+  cy.checkValuesOfConnectors(`${data.connectorUpdated.name}_1`, {
+    ...data.connectorUpdated,
+    commandLine: data.connectorUpdated.command_line,
+    usedByCommand: data.connectorUpdated.used_by_command,
+    isEnabled: data.connectorUpdated.is_enabled
+  });
 });
 
-When('the user updates the status of a connector to {string}', (type: string) => {
-  cy.navigateTo({
-    page: 'Connectors',
-    rootItemNumber: 3,
-    subMenu: 'Commands'
-  });
-  // Wait for the updated connector to be charged on the DOM
-  cy.waitForElementInIframe(
-    '#main-content',
-    `a:contains("${data.connectorUpdated.name}")`
-  );
-  switch (type) {
-    case 'Disabled':
-      // Click on the "Disabled" icon to disable the connector
-      cy.getIframeBody()
-        .contains(data.connectorUpdated.name)
-        .parents('tr')
-        .find('img[alt="Disabled"]')
-        .click({ force: true });
-      break;
-    case 'Enabled':
-      // Click on the "Enabled" icon to enable the connector
-      cy.getIframeBody()
-        .contains(data.connectorUpdated.name)
-        .parents('tr')
-        .find('img[alt="Enabled"]')
-        .click({ force: true });
-      break;
+When(
+  'the user updates the status of a connector to {string}',
+  (type: string) => {
+    cy.navigateTo({
+      page: 'Connectors',
+      rootItemNumber: 3,
+      subMenu: 'Commands'
+    });
+    // Wait for the updated connector to be charged on the DOM
+    cy.waitForElementInIframe(
+      '#main-content',
+      `a:contains("${data.connectorUpdated.name}")`
+    );
+    switch (type) {
+      case 'Disabled':
+        // Click on the "Disabled" icon to disable the connector
+        cy.getIframeBody()
+          .contains(data.connectorUpdated.name)
+          .parents('tr')
+          .find('img[alt="Disabled"]')
+          .click({ force: true });
+        break;
+      case 'Enabled':
+        // Click on the "Enabled" icon to enable the connector
+        cy.getIframeBody()
+          .contains(data.connectorUpdated.name)
+          .parents('tr')
+          .find('img[alt="Enabled"]')
+          .click({ force: true });
+        break;
+    }
   }
-});
+);
 
 Then('the new connector is updated with {string} status', (type: string) => {
   // Refresh the page
@@ -231,7 +251,7 @@ When('the user deletes a connector', () => {
       "javascript: { setO(this.form.elements['o1'].value); submit(); }"
     );
   // Click on the Delete option
-  cy.getIframeBody().find('select[name="o1"]').select("Delete");
+  cy.getIframeBody().find('select[name="o1"]').select('Delete');
 });
 
 Then('the deleted connector is not displayed in the list', () => {

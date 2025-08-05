@@ -58,6 +58,22 @@ interface GetYupValidatorTypeProps {
   t: TFunction;
 }
 
+export const boundariesValidationSchema = object()
+  .shape({
+    min: number(),
+    max: number().test(
+      'isMinAboveMax',
+      labelMinMustLowerThanMax,
+      (value, context) => {
+        if (isNil(value) || isNil(context.parent.min)) {
+          return true;
+        }
+        return Number(value || 0) > context.parent.min;
+      }
+    )
+  })
+  .optional();
+
 const getResourcesValidation = (properties) => {
   return properties.required ? mixed().required() : mixed();
 };
