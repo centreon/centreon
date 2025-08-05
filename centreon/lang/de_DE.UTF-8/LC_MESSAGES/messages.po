@@ -19528,10 +19528,6 @@ msgstr ""
 msgid "removed"
 msgstr ""
 
-#: centreon/www/include/monitoring/downtime/listDowntime.php
-msgid "s"
-msgstr "s"
-
 #: centreon/www/install/dashboard_widgets.php
 msgid "scaleLogarithmicBase"
 msgstr ""
