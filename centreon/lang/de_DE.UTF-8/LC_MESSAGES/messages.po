@@ -21029,10 +21029,6 @@ msgstr "es ist erforderlich"
 msgid "s"
 msgstr "s"
 
-#: unknown
-msgid "unknown"
-msgstr "unbekannt"
-
 # msgid "Data is aggregated monthly over the last 12 months for graphs presenting host groups."
 # msgstr ""
 
