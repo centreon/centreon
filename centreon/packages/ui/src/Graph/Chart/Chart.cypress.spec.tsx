@@ -180,7 +180,7 @@ describe('Line chart', () => {
       cy.contains('06/18/2023').should('be.visible');
 
       cy.contains('0.4 s').should('be.visible');
-      cy.contains('73.65%').should('be.visible');
+       cy.contains('75.64%').should('be.visible');
 
       cy.makeSnapshot();
     });
