@@ -1,17 +1,17 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
+import { configureProviderAcls, getAccessGroupId } from '../../../../commons';
 import {
-  configureSAML,
-  initializeSAMLUser,
-  navigateToSAMLConfigPage,
+  configureSaml,
+  initializeSamlUser,
+  navigateToSamlConfigPage,
   saveSamlFormIfEnabled
 } from '../common';
-import { configureProviderAcls, getAccessGroupId } from '../../../../commons';
 
 before(() => {
   cy.startContainers({ profiles: ['saml'] }).then(() => {
     configureProviderAcls();
-    initializeSAMLUser();
+    initializeSamlUser();
   });
 });
 
@@ -53,16 +53,16 @@ Given('an administrator is logged on the platform', () => {
 When(
   'the administrator sets valid settings in the Roles mapping and saves',
   () => {
-    navigateToSAMLConfigPage();
+    navigateToSamlConfigPage();
 
     cy.getByLabel({
       label: 'Enable SAMLv2 authentication',
       tag: 'input'
     }).check();
 
-    configureSAML();
+    configureSaml();
 
-    cy.getByLabel({ label: 'Roles mapping' }).click();
+    cy.get('[data-testid="Roles mapping-header"]').click();
 
     cy.getByLabel({
       label: 'Enable automatic management',

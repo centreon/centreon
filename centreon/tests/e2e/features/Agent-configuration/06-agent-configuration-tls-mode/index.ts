@@ -1,4 +1,3 @@
-/* eslint-disable cypress/unsafe-to-chain-command */
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
 import agentsConfiguration from '../../../fixtures/agents-configuration/agent-config.json';
@@ -79,7 +78,7 @@ Then(
   (agentType: string) => {
     cy.get('[class*="warning"]')
       .should('be.visible')
-      .and('contain.text', agentType == 'CMA' ? cmaMessage : telegrafMessage);
+      .and('contain.text', agentType === 'CMA' ? cmaMessage : telegrafMessage);
   }
 );
 

@@ -252,6 +252,8 @@ const Chart = ({
     [axis?.showGridLines]
   );
 
+  const hasSecondUnit = useMemo(() => Boolean(secondUnit), [secondUnit]);
+
   if ((!isInViewport && !skipIntersectionObserver) || !height) {
     return (
       <Skeleton
@@ -305,7 +307,7 @@ const Chart = ({
                 timeSeries={timeSeries}
                 xScale={xScale}
                 maxAxisCharacters={maxLeftAxisCharacters}
-                hasSecondUnit={Boolean(secondUnit)}
+                hasSecondUnit={hasSecondUnit}
               >
                 <>
                   {!isEmpty(linesDisplayedAsBar) && (
@@ -333,6 +335,8 @@ const Chart = ({
                       width={graphWidth}
                       xScale={xScale}
                       yScalesPerUnit={yScalesPerUnit}
+                      hasSecondUnit={hasSecondUnit}
+                      maxLeftAxisCharacters={maxLeftAxisCharacters}
                       {...shapeLines}
                     />
                   )}
@@ -361,6 +365,8 @@ const Chart = ({
                     }}
                     zoomData={{ ...zoomPreview }}
                     transformMatrix={transformMatrix}
+                    hasSecondUnit={hasSecondUnit}
+                    maxLeftAxisCharacters={maxLeftAxisCharacters}
                   />
                   {thresholds?.enabled && (
                     <Thresholds
