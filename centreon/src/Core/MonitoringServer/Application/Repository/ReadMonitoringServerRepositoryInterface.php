@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Core\MonitoringServer\Application\Repository;
 
+use Centreon\Domain\Exception\EntityNotFoundException;
 use Core\MonitoringServer\Model\MonitoringServer;
 
 interface ReadMonitoringServerRepositoryInterface {
@@ -30,8 +31,6 @@ interface ReadMonitoringServerRepositoryInterface {
      * Determine if a monitoring server exists by its ID.
      *
      * @param int $monitoringServerId
-     *
-     * @throws \Throwable
      *
      * @return bool
      */
@@ -42,9 +41,25 @@ interface ReadMonitoringServerRepositoryInterface {
      *
      * @param int $hostId
      *
-     * @throws \Throwable
-     *
      * @return MonitoringServer|null
      */
     public function findByHost(int $hostId): ?MonitoringServer;
+
+    /**
+     * Find all the Monitoring Servers.
+     *
+     * @return MonitoringServer[]
+     */
+    public function findAll(): array;
+
+    /**
+     * Get a monitoring server.
+     *
+     * @param int $monitoringServerId
+     *
+     * @throws EntityNotFoundException when no Monitoring server are found
+     *
+     * @return MonitoringServer
+     */
+    public function get(int $monitoringServerId): MonitoringServer;
 }
