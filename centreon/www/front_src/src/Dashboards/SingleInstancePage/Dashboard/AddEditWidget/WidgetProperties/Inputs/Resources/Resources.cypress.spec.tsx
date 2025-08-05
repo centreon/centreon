@@ -182,7 +182,6 @@ const initialize = ({
                 forceSingleAutocompleteConditions
               }
               forcedResourceType={forcedResourceType}
-              defaultResourceTypes={defaultResourceTypes}
             />
           </Formik>
         </Provider>

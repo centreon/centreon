@@ -78,22 +78,6 @@ const getResourcesValidation = (properties) => {
   return properties.required ? mixed().required() : mixed();
 };
 
-export const boundariesValidationSchema = object()
-  .shape({
-    min: number().optional(),
-    max: number().test(
-      'isMinAboveMax',
-      labelMinMustLowerThanMax,
-      (value, context) => {
-        if (isNil(value) || isNil(context.parent.min)) {
-          return true;
-        }
-        return Number(value || 0) > context.parent.min;
-      }
-    )
-  })
-  .optional();
-
 const getYupValidatorType = ({
   t,
   properties

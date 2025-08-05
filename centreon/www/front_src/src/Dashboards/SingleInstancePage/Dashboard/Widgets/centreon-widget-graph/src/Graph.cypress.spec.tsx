@@ -482,7 +482,7 @@ describe('Graph Widget', () => {
       });
     });
   });
-  
+
   legendData.forEach(({ resourcesType, graphDataPath }) => {
     it(`do not display the ${resourcesType} name from the legend and tooltip when it\'s redundant`, () => {
       initializeComponent({
