@@ -389,7 +389,7 @@ jobs:
   promote:
     # needs: [get-environment, deliver-rpm, deliver-deb]
     needs: [get-environment, deliver-deb]
-    if: ${{ false }}
+    # if: ${{ false }}
     # if: |
     #   needs.get-environment.outputs.skip_workflow == 'false' &&
     #   (contains(fromJson('["stable", "testing"]'), needs.get-environment.outputs.stability) && github.event_name != 'workflow_dispatch') &&
