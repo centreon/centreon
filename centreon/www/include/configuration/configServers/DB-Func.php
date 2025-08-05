@@ -35,6 +35,7 @@
  */
 
 use Centreon\Domain\PlatformTopology\Model\PlatformRegistered;
+use Core\MonitoringServer\Model\MonitoringServer;
 
 if (!isset($centreon)) {
     exit();
@@ -1452,4 +1453,37 @@ function duplicateRemoteServerInformation(int $duplicatedId, int $newId): void
         $insertRemoteServerStatement->bindValue(":serverId", $newId, \PDO::PARAM_INT);
         $insertRemoteServerStatement->execute();
     }
+}
+
+function isValidStartCommandSyntax(string $command): bool
+{
+    return (bool) preg_match(MonitoringServer::VALID_COMMAND_START_REGEX, $command);
+}
+
+function isValidStopCommandSyntax(string $command): bool
+{
+    return (bool) preg_match(MonitoringServer::VALID_COMMAND_STOP_REGEX, $command);
+}
+function isValidRestartCommandSyntax(string $command): bool
+{
+    return (bool) preg_match(MonitoringServer::VALID_COMMAND_RESTART_REGEX, $command);
+}
+function isValidReloadCommandSyntax(string $command): bool
+{
+    return (bool) preg_match(MonitoringServer::VALID_COMMAND_RELOAD_REGEX, $command);
+}
+function isValidPath(string $path): bool
+{
+    return (bool) preg_match(
+        '/^(\/[\w^ \s\-\_\\\"\']+)+\/?$/',
+        $path
+    );
+}
+
+function isValidTrapInit(string $trapScript): bool
+{
+    return (bool) preg_match(
+        '/^[a-zA-Z0-9\-\_]+$/',
+        $trapScript
+    );
 }
