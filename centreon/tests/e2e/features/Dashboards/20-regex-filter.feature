@@ -1,17 +1,37 @@
-@REQ_MON-113483
-Feature: Managing favorites using the web page widget
-  As a Centreon User with dashboard update rights,
-  I need to configure a web page widget to manage favorite dashboards
-  to easily add or remove dashboards from the favorites list.
+Feature: Filtering resources using regex in dashboard widgets
+    As a Centreon user with rights to update dashboards,
+    I want to configure widgets using regex-based filters
+    so that I can display only the relevant hosts or services in my dashboard.
 
-  @TEST_MON-156343
-  Scenario: Adding dashbaord to favourites
-    Given a dashboard having a configured web page widget
-    When the dashboard administrator clicks on the favourite icon
-    Then the dashboard is added to the favourites list
+  @TEST_MON-178797
+  Scenario: Create and configure a Group Monitoring widget with regex-based host group selection
+    Given a dashboard in the dashboard administrator user's dashboard library
+    When the dashboard administrator user selects the option to add a new widget
+    And the dashboard administrator user selects the widget type "Group monitoring"
+    Then configuration properties for the Group monitoring widget are displayed
+    And the Save button is disabled
+    When the dashboard administrator applies a regex filter to select host group resources for the widget
+    Then a table representing the statuses of this list of resources are displayed in the widget preview
+    And the Save button is enabled
+    When the user saves the Group monitoring widget
+    Then the Group monitoring widget is added in the dashboard's layout
 
-  @TEST_MON-156343
-  Scenario: Removing dashbaord from favourites
-    Given a dashboard having another configured web page widget
-    When the dashboard administrator clicks on the favourite icon of the first dashboard in the favourites list
-    Then the dashboard should be removed from the favourites list
+  @TEST_MON-178798
+  Scenario: Creating and configuring a Resource Table widget with regex-based host filtering
+    Given a dashboard in the dashboard administrator user's dashboard library
+    When the dashboard administrator user selects the option to add a new widget
+    And the dashboard administrator selects the widget type "resource table"
+    Then configuration properties for the resource table widget are displayed
+    When the dashboard administrator applies a regex filter to select the hosts displayed by the widget
+    And the user saves the resource table widget
+    Then the resource table widget is added to the dashboard layout and shows the filtered host correctly
+
+  @TEST_MON-178799
+  Scenario: Create and configure a Resource Table widget with regex-based service filtering
+    Given a dashboard in the dashboard administrator user's dashboard library
+    When the dashboard administrator user selects the option to add a new widget
+    And the dashboard administrator selects the widget type "resource table"
+    Then configuration properties for the resource table widget are displayed
+    When the dashboard administrator selects a service using a regex filter to configure the widget’s data source
+    And the user saves the resource table widget
+    Then the resource table widget is added to the dashboard layout and shows the filtered service correctly
