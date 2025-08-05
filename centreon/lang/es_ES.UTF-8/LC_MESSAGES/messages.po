@@ -14732,6 +14732,10 @@ msgstr ""
 msgid "The class %s does not exist"
 msgstr ""
 
+#: centreon/www/include/configuration/configServers/formServers.php
+msgid "The command format is invalid"
+msgstr ""
+
 #: centreon/src/Core/Dashboard/Application/Exception/DashboardException.php
 #, php-format
 msgid "The contact ID #%d does not exist"
@@ -14939,6 +14943,10 @@ msgstr ""
 msgid "The path does not exist"
 msgstr ""
 
+#: centreon/www/include/configuration/configServers/formServers.php
+msgid "The path format is invalid"
+msgstr ""
+
 #: centreon/src/Centreon/Domain/PlatformTopology/Exception/PlatformTopologyException.php
 #, php-format
 msgid "The platform '%s'@'%s' cannot be found on the Central"
@@ -15023,6 +15031,10 @@ msgstr ""
 
 #: centreon/www/install/front_translate.php
 msgid "The resource access rule was successfully updated"
+msgstr ""
+
+#: centreon/www/include/configuration/configServers/formServers.php
+msgid "The script path is invalid"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
