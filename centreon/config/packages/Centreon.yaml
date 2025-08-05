@@ -122,6 +122,7 @@ services:
             - method: setFirstKey
               arguments: ['%env(APP_SECRET)%']
         public: true
+        shared: false
 
     Core\Installation\Infrastructure\InstallationHelper:
         public: true
@@ -563,6 +564,22 @@ services:
 
     CentreonNotification\Domain\Repository\DependencyRepository:
         class: CentreonNotification\Domain\Repository\DependencyRepository
+        public: true
+
+    Core\MonitoringServer\Application\Repository\ReadMonitoringServerRepositoryInterface:
+        class: Core\MonitoringServer\Infrastructure\Repository\DbReadMonitoringServerRepository
+        public: true
+
+    Core\MonitoringServer\Application\Repository\WriteMonitoringServerRepositoryInterface:
+        class: Core\MonitoringServer\Infrastructure\Repository\DbWriteMonitoringServerRepository
+        public: true
+
+    Core\Macro\Application\Repository\ReadHostMacroRepositoryInterface:
+        class: Core\Macro\Infrastructure\Repository\DbReadHostMacroRepository
+        public: true
+
+    Core\Macro\Application\Repository\ReadServiceMacroRepositoryInterface:
+        class: Core\Macro\Infrastructure\Repository\DbReadServiceMacroRepository
         public: true
 
     # Configuration Notifications

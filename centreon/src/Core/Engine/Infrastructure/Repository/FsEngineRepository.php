@@ -72,7 +72,8 @@ final readonly class FsEngineRepository implements EngineRepositoryInterface
                 );
             }
             $engineContent = $this->serializer->serialize($engineSecrets, 'json');
-            $this->filesystem->dumpFile($this->engineContextPath, $engineContent);
+            // Don't use the Filesystem::dumpFile method here because it will override the rights of the file.
+            file_put_contents($this->engineContextPath, $engineContent);
         } catch (IOException $ex) {
             throw new RepositoryException(
                 'Unable to write content of engine-context file. check that file exists',
