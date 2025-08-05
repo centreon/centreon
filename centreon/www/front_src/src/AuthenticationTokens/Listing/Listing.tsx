@@ -2,12 +2,9 @@ import { MemoizedListing } from '@centreon/ui';
 import Actions from './Actions';
 import { useColumns } from './Columns/Columns';
 import useListing from './useListing';
-import useLoadData from './useLoadData';
 
-const Listing = (): JSX.Element => {
+const Listing = ({ data, isLoading }): JSX.Element => {
   const { columns } = useColumns();
-
-  const { isLoading, data } = useLoadData();
 
   const {
     changePage,
