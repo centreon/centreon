@@ -160,9 +160,8 @@ const checkServicesAreMonitored = (services: Array<MonitoredService>): void => {
         condition += ` AND s.acknowledged = ${acknowledged === true ? 1 : 0}`;
       }
       if (inDowntime !== null) {
-        condition += ` AND s.scheduled_downtime_depth = ${
-          inDowntime === true ? 1 : 0
-        }`;
+        condition += ` AND s.scheduled_downtime_depth = ${inDowntime === true ? 1 : 0
+          }`;
       }
       if (statusType !== '') {
         condition += ` AND s.state_type = ${getStatusTypeNumberFromString(
@@ -428,7 +427,7 @@ const configureProviderAcls = (): Cypress.Chainable => {
 };
 
 const configureACLGroups = (path: string): Cypress.Chainable => {
-  cy.getByLabel({ label: 'Roles mapping' }).click();
+  cy.get('[data-testid="Roles mapping-header"]').click();
 
   cy.getByLabel({
     label: 'Enable automatic management',
