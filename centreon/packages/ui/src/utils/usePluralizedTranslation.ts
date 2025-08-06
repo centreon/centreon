@@ -1,5 +1,5 @@
-import { useTranslation } from 'react-i18next';
 import pluralize from 'pluralize';
+import { useTranslation } from 'react-i18next';
 
 interface TProps {
   count: number;

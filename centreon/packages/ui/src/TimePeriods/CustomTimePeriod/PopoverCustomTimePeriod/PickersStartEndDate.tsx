@@ -10,14 +10,13 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { Typography } from '@mui/material';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 
-import { userAtom } from '@centreon/ui-context';
-
 import DateTimePickerInput from '../../DateTimePickerInput';
 import {
   CustomTimePeriodProperty,
   DateTimePickerInputModel
 } from '../../models';
 import { errorTimePeriodAtom } from '../../timePeriodsAtoms';
+import { useLocale } from '../../../utils';
 
 import ErrorText from './ErrorText';
 import { PickersData, PickersStartEndDateDirection } from './models';
@@ -111,7 +110,7 @@ const PickersStartEndDate = ({
 }: Props): JSX.Element => {
   const { classes, cx } = useStyles();
 
-  const { locale } = useAtomValue(userAtom);
+  const locale = useLocale();
   const error = useAtomValue(errorTimePeriodAtom);
 
   const maxStart = rangeStartDate?.max || endDate;

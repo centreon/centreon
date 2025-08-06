@@ -1,7 +1,7 @@
 --
 -- Insert version
 --
-INSERT INTO `informations` (`key` ,`value`) VALUES ('version', '24.04.15');
+INSERT INTO `informations` (`key` ,`value`) VALUES ('version', '24.04.16');
 --
 -- Contenu de la table `contact`
 --
@@ -151,7 +151,8 @@ INSERT INTO `options` (`key`, `value`) VALUES
 ('openid_connect_client_secret', ''),
 ('openid_connect_client_basic_auth', '0'),
 ('openid_connect_verify_peer', '0'),
-('unified_sql_db_type', 'mysql');
+('unified_sql_db_type', 'mysql'),
+('resource_status_search_mode', 1);
 
 --
 -- Contenu de la table `giv_components_template`
@@ -1484,7 +1485,7 @@ INSERT INTO `password_expiration_excluded_users` (provider_configuration_id, use
 VALUES (1, 4);
 
 INSERT INTO provider_configuration (`type`, `name`, `custom_configuration`, `is_active`, `is_forced`)
-VALUES ('saml', 'SAML', '{"remote_login_url":"","entity_id_url":"","certificate":"","user_id_attribute":"","logout_from":false,"logout_from_url":null,"auto_import":false,"contact_template_id":null,"email_bind_attribute":null,"fullname_bind_attribute":null,"authentication_conditions":{"is_enabled":false,"attribute_path":"","authorized_values":[]},"roles_mapping":{"is_enabled":false,"apply_only_first_role":false,"attribute_path":""},"groups_mapping":{"is_enabled":false,"attribute_path":""}}', 0, 0);
+VALUES ('saml', 'SAML', '{"remote_login_url":"","entity_id_url":"","certificate":"","user_id_attribute":"","requested_authn_context":"minimum","logout_from":false,"logout_from_url":null,"auto_import":false,"contact_template_id":null,"email_bind_attribute":null,"fullname_bind_attribute":null,"authentication_conditions":{"is_enabled":false,"attribute_path":"","authorized_values":[]},"roles_mapping":{"is_enabled":false,"apply_only_first_role":false,"attribute_path":""},"groups_mapping":{"is_enabled":false,"attribute_path":""}}', 0, 0);
 
 INSERT INTO dashboard_widgets (`name`)
 VALUES ('centreon-widget-generictext');

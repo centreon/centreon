@@ -24,13 +24,19 @@ declare(strict_types=1);
 namespace Core\ActionLog\Application\Repository;
 
 use Core\ActionLog\Domain\Model\ActionLog;
+use Core\Common\Domain\Exception\RepositoryException;
 
+/**
+ * Interface.
+ *
+ * @class WriteActionLogRepositoryInterface
+ */
 interface WriteActionLogRepositoryInterface
 {
     /**
      * @param ActionLog $actionLog
      *
-     * @throws \Throwable
+     * @throws RepositoryException
      *
      * @return int
      */
@@ -40,7 +46,7 @@ interface WriteActionLogRepositoryInterface
      * @param ActionLog $actionLog
      * @param array<string, string|int|bool> $details
      *
-     * @throws \Throwable
+     * @throws RepositoryException
      */
     public function addActionDetails(ActionLog $actionLog, array $details): void;
 }

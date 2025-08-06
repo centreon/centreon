@@ -7,7 +7,7 @@ const defaultUser: User = {
   id: undefined,
   isAdmin: undefined,
   isExportButtonEnabled: false,
-  locale: navigator.language,
+  locale: null,
   name: '',
   themeMode: ThemeMode.light,
   timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,

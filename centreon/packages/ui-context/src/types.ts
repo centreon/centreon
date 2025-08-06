@@ -26,7 +26,7 @@ export interface User {
   id?: number;
   isAdmin?: boolean;
   isExportButtonEnabled: boolean;
-  locale: string;
+  locale: string | null;
   name: string;
   themeMode?: ThemeMode;
   timezone: string;

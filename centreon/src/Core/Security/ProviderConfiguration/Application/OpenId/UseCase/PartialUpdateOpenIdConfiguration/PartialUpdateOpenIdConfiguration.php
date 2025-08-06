@@ -29,6 +29,7 @@ use Centreon\Domain\Log\LoggerTrait;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
 use Core\Common\Application\Type\NoValue;
+use Core\Common\Domain\Exception\RepositoryException;
 use Core\Contact\Application\Repository\ReadContactGroupRepositoryInterface;
 use Core\Contact\Application\Repository\ReadContactTemplateRepositoryInterface;
 use Core\Contact\Domain\Model\ContactGroup;
@@ -108,13 +109,38 @@ final class PartialUpdateOpenIdConfiguration
         } catch (AssertionException|AssertionFailedException|ConfigurationException $ex) {
             $this->error(
                 'Unable to perform partial update on OpenID Provider because one or several parameters are invalid',
-                ['trace' => $ex->getTraceAsString()]
+                [
+                    'exception' => [
+                        'type' => $ex::class,
+                        'message' => $ex->getMessage(),
+                        'file' => $ex->getFile(),
+                        'line' => $ex->getLine(),
+                        'trace' => $ex->getTraceAsString(),
+                    ],
+                ]
             );
             $presenter->setResponseStatus(new ErrorResponse($ex->getMessage()));
 
             return;
-        } catch (\Throwable $ex) {
-            $this->error('Error during Opend ID Provider Partial Update', ['trace' => $ex->getTraceAsString()]);
+        } catch (RepositoryException $exception) {
+            $this->error(
+                'Error during Opend ID Provider Partial Update',
+                ['exception' => $exception->getContext()]
+            );
+            $presenter->setResponseStatus(new ErrorResponse($exception->getMessage()));
+
+            return;
+        }
+        catch (\Throwable $ex) {
+            $this->error('Error during Opend ID Provider Partial Update', [
+                'exception' => [
+                    'type' => $ex::class,
+                    'message' => $ex->getMessage(),
+                    'file' => $ex->getFile(),
+                    'line' => $ex->getLine(),
+                    'trace' => $ex->getTraceAsString(),
+                ],
+            ]);
             $presenter->setResponseStatus(new PartialUpdateOpenIdConfigurationErrorResponse());
 
             return;
@@ -126,6 +152,8 @@ final class PartialUpdateOpenIdConfiguration
     /**
      * @param CustomConfiguration $customConfig
      * @param PartialUpdateOpenIdConfigurationRequest $request
+     *
+     * @throws \Throwable
      *
      * @return CustomConfiguration
      */
@@ -196,6 +224,8 @@ final class PartialUpdateOpenIdConfiguration
     /**
      * @param _RoleMapping $paramValue
      * @param ACLConditions $aclConditions
+     *
+     * @throws \Throwable
      *
      * @return ACLConditions
      */

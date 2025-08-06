@@ -15,6 +15,9 @@ export {
   featureFlagsDerivedAtom
 } from './platformFeauresAtom';
 
+export { browserLocaleAtom } from './browserLocaleAtom';
+export { isResourceStatusFullSearchEnabledAtom } from './isResourceStatusFullSearchEnabledAtom';
+
 export type {
   User,
   UserContext,
