@@ -52,6 +52,7 @@ trait HostGroupRepositoryTrait
             WHERE res.acl_res_activate = '1' AND ag.acl_group_id IN ({$bindQuery})
             SQL;
 
+        /** @phpstan-ignore-next-line */
         $statement = $this->db->prepare($this->translateDbName($request));
 
         foreach ($bindValues as $key => $value) {
