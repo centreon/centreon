@@ -31,7 +31,7 @@ Feature: HostConfiguration
     Then the host is successfully created
     And the geo-coordinates value is truncated "48.855034,2.346670"
 
-  @TEST_MON6177012
+  @TEST_MON-177012
   Scenario: Edit an existing host and enter geo-coordinates longer than 32 characters
     Given the admin is on the Hosts Listing page
     And a host is already configured
