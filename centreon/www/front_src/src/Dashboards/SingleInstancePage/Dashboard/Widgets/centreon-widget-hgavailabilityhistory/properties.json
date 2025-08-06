@@ -75,11 +75,11 @@
         },
         {
           "id": "host-category",
-          "name": "Host categories"
+          "name": "Host Categories"
         },
         {
           "id": "host",
-          "name": "Host"
+          "name": "Hosts"
         }
       ]
     },
@@ -104,6 +104,7 @@
   "data": {
     "resources": {
       "type": "resources",
+      "singleResourceType": true,
       "defaultValue": [],
       "required": true,
       "useAdditionalResources": false,
