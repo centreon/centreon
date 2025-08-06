@@ -8234,5 +8234,5 @@ msgstr ""
 "de convertir les fichiers MIBs importés dans Centreon."
 
 #: www/include/options/accessLists/resourcesACL/help.php:90
-msgid "Image folders that will be displayed to users. Images that belong to these folders will be visible."
-msgstr "Dossiers d'images qui seront affichés aux utilisateurs. Les images appartenant à ces dossiers seront visibles."
+msgid "Select the image folders that will be visible to users linked to this access rule."
+msgstr "Sélectionnez les dossiers d'images qui seront visibles par les utilisateurs liés à cette règle d'accès."
