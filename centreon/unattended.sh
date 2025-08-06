@@ -431,7 +431,6 @@ function setup_mysql() {
 		log "INFO" "Successfully installed the $dbms repository"
 	fi
 	systemctl enable --now $mysql_service_name
-	echo "default-authentication-plugin=caching_sha2_password" >> /etc/my.cnf.d/mysql-server.cnf
 	sed -Ei 's/LimitNOFILE\s\=\s[0-9]{1,}/LimitNOFILE = 32000/' /usr/lib/systemd/system/$mysql_service_name.service
 	systemctl daemon-reload
 }
