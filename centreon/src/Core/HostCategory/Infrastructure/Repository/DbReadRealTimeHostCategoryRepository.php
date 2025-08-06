@@ -64,18 +64,17 @@ class DbReadRealTimeHostCategoryRepository extends AbstractRepositoryRDB impleme
          * 3 = host categories.
          */
         $request = <<<'SQL'
-                SELECT
-                    1 AS REALTIME,
-                    host_categories.id AS id,
-                    host_categories.name AS name,
-                    host_categories.type AS `type`
-                FROM `:dbstg`.resources
-                INNER JOIN `:dbstg`.resources_tags rtags
-                    ON rtags.resource_id = resources.resource_id
-                INNER JOIN `:dbstg`.tags AS host_categories
-                    ON host_categories.tag_id  = rtags.tag_id
-                    AND host_categories.`type` = 3
-
+            SELECT
+                1 AS REALTIME,
+                host_categories.id AS id,
+                host_categories.name AS name,
+                host_categories.type AS `type`
+            FROM `:dbstg`.resources
+            INNER JOIN `:dbstg`.resources_tags rtags
+                ON rtags.resource_id = resources.resource_id
+            INNER JOIN `:dbstg`.tags AS host_categories
+                ON host_categories.tag_id  = rtags.tag_id
+                AND host_categories.`type` = 3
             SQL;
 
         $searchRequest = $sqlTranslator?->translateSearchParameterToSql();
@@ -144,25 +143,25 @@ class DbReadRealTimeHostCategoryRepository extends AbstractRepositoryRDB impleme
          * 3 = host categories.
          */
         $request = <<<'SQL'
-                SELECT
-                    1 AS REALTIME,
-                    host_categories.id AS id,
-                    host_categories.name AS name,
-                    host_categories.type AS `type`
-                FROM `:dbstg`.resources
-                INNER JOIN `:dbstg`.resources_tags rtags
-                    ON rtags.resource_id = resources.resource_id
-                INNER JOIN `:dbstg`.tags AS host_categories
-                    ON host_categories.tag_id  = rtags.tag_id
-                    AND host_categories.`type` = 3
-                INNER JOIN `:db`.acl_resources_hc_relations arhr
-                    ON host_categories.id = arhr.hc_id
-                INNER JOIN `:db`.acl_resources res
-                    ON arhr.acl_res_id = res.acl_res_id
-                INNER JOIN `:db`.acl_res_group_relations argr
-                    ON res.acl_res_id = argr.acl_res_id
-                INNER JOIN `:db`.acl_groups ag
-                    ON argr.acl_group_id = ag.acl_group_id
+            SELECT
+                1 AS REALTIME,
+                host_categories.id AS id,
+                host_categories.name AS name,
+                host_categories.type AS `type`
+            FROM `:dbstg`.resources
+            INNER JOIN `:dbstg`.resources_tags rtags
+                ON rtags.resource_id = resources.resource_id
+            INNER JOIN `:dbstg`.tags AS host_categories
+                ON host_categories.tag_id  = rtags.tag_id
+                AND host_categories.`type` = 3
+            INNER JOIN `:db`.acl_resources_hc_relations arhr
+                ON host_categories.id = arhr.hc_id
+            INNER JOIN `:db`.acl_resources res
+                ON arhr.acl_res_id = res.acl_res_id
+            INNER JOIN `:db`.acl_res_group_relations argr
+                ON res.acl_res_id = argr.acl_res_id
+            INNER JOIN `:db`.acl_groups ag
+                ON argr.acl_group_id = ag.acl_group_id
             SQL;
 
         $searchRequest = $sqlTranslator?->translateSearchParameterToSql();
@@ -215,16 +214,6 @@ class DbReadRealTimeHostCategoryRepository extends AbstractRepositoryRDB impleme
         return $hostCategories;
     }
 
-    /**
-     * @param _HostCategoryResultSet $data
-     *
-     * @return Tag
-     */
-    private function createFromRecord(array $data): Tag
-    {
-        return new Tag(id: $data['id'], name: $data['name'], type: $data['type']);
-    }
-
     public function existByName(array $names): array
     {
         try {
@@ -242,7 +231,7 @@ class DbReadRealTimeHostCategoryRepository extends AbstractRepositoryRDB impleme
                     WHERE
                         type = 3
                         AND `name` IN ({$bindQuery})
-                SQL
+                    SQL
             );
 
             $statement = $this->db->prepare($query);
@@ -292,7 +281,7 @@ class DbReadRealTimeHostCategoryRepository extends AbstractRepositoryRDB impleme
                         type = 3
                         AND `name` IN ({$bindQueryNames})
                         AND ag.acl_group_id IN ({$bindQueryAccessGroups})
-                SQL
+                    SQL
             );
 
             $statement = $this->db->prepare($query);
@@ -313,5 +302,14 @@ class DbReadRealTimeHostCategoryRepository extends AbstractRepositoryRDB impleme
             );
         }
     }
-}
 
+    /**
+     * @param _HostCategoryResultSet $data
+     *
+     * @return Tag
+     */
+    private function createFromRecord(array $data): Tag
+    {
+        return new Tag(id: $data['id'], name: $data['name'], type: $data['type']);
+    }
+}

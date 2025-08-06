@@ -56,4 +56,3 @@ interface ReadRealTimeHostCategoryRepositoryInterface
      */
     public function existByNameAndAccessGroups(array $names, array $accessGroups): array;
 }
-
