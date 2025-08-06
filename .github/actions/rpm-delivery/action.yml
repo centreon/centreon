@@ -91,22 +91,21 @@ runs:
         done
 
         if [[ "${{ inputs.is_cloud }}" == "true" ]]; then
-          ROOT_REPO_PATHS="rpm-standard-internal"
+          ROOT_REPO_PATH="rpm-standard-internal"
         else
-          ROOT_REPO_PATHS="rpm-standard"
+          ROOT_REPO_PATH="rpm-standard"
         fi
 
-        if [[ "${{ inputs.release_type }}" == "hotfix" || "${{ inputs.release_type }}" == "release" ]]; then
-          UPLOAD_REPO_PATH="${{ inputs.version }}/${{ inputs.distrib }}/${{ inputs.stability }}-${{ inputs.release_type }}/$ARCH/${{ inputs.module_name }}/"
-        else
-          UPLOAD_REPO_PATH="${{ inputs.version }}/${{ inputs.distrib }}/${{ inputs.stability }}/$ARCH/${{ inputs.module_name }}/"
-        fi
+        for ARCH in "noarch" "x86_64"; do
+          if [[ "${{ inputs.release_type }}" == "hotfix" || "${{ inputs.release_type }}" == "release" ]]; then
+            UPLOAD_REPO_PATH="${{ inputs.version }}/${{ inputs.distrib }}/${{ inputs.stability }}-${{ inputs.release_type }}/$ARCH/${{ inputs.module_name }}/"
+          else
+            UPLOAD_REPO_PATH="${{ inputs.version }}/${{ inputs.distrib }}/${{ inputs.stability }}/$ARCH/${{ inputs.module_name }}/"
+          fi
+          if [ "$(ls -A $ARCH)" ]; then
+            jf rt upload "$ARCH/*.rpm" "$ROOT_REPO_PATH/$UPLOAD_REPO_PATH" --sync-deletes="$ROOT_REPO_PATH/$UPLOAD_REPO_PATH" --flat  --detailed-summary
+          fi
 
-        for ROOT_REPO_PATH in "$ROOT_REPO_PATHS"; do
-          for ARCH in "noarch" "x86_64"; do
-            if [ "$(ls -A $ARCH)" ]; then
-              jf rt upload "$ARCH/*.rpm" "$ROOT_REPO_PATH/$UPLOAD_REPO_PATH" --sync-deletes="$ROOT_REPO_PATH/$UPLOAD_REPO_PATH" --flat  --detailed-summary
-            fi
-          done
+          curl -H "Authorization: Bearer ${{ inputs.artifactory_token }}" -X POST "https://centreon.jfrog.io/artifactory/api/yum/$ROOT_REPO_PATH?path=/${{ inputs.version }}/${{ inputs.distrib }}/${{ inputs.stability }}/$ARCH&async=1"
         done
       shell: bash
