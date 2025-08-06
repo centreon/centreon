@@ -120,9 +120,7 @@ class LegacyReadServiceNotificationRepository extends AbstractDbReadNotification
 
         /**
          * @var array{
-         *      service_use_only_contacts_from_host:string,
-         *      contacts_cache?: int[],
-         *      contact_groups_cache?: int[]
+         *      service_use_only_contacts_from_host:string
          * }|null $service
          */
         $service = $serviceInstance->getServiceFromCache($serviceId);
@@ -132,8 +130,7 @@ class LegacyReadServiceNotificationRepository extends AbstractDbReadNotification
             && (
                 $service['service_use_only_contacts_from_host'] === '1'
                 || (
-                    array_key_exists('contacts_cache', $service) && $service['contacts_cache'] === []
-                    && array_key_exists('contact_groups_cache', $service) && $service['contact_groups_cache'] === []
+                    empty($notifiedContactIds) && empty($notifiedContactGroupIds)
                 )
             )
         ) {
