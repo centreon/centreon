@@ -508,7 +508,6 @@ describe('Resources tree', () => {
 
     cy.findAllByTestId(labelSelectAResource).eq(0).click();
     cy.contains('Host 0').click();
-    cy.findAllByTestId(labelSelectAResource).eq(0).click();
     cy.findAllByTestId(labelSelectAResource).eq(1).click();
     cy.contains('Service 0').click();
 
