@@ -506,27 +506,27 @@ describe('Resources tree', () => {
       defaultResourceTypes: ['host', 'service']
     });
 
-    // cy.findAllByTestId(labelSelectAResource).eq(0).click();
-    // cy.contains('Host 0').click();
-    // cy.findAllByTestId(labelSelectAResource).eq(0).click();
-    // cy.findAllByTestId(labelSelectAResource).eq(1).click();
-    // cy.contains('Service 0').click();
+    cy.findAllByTestId(labelSelectAResource).eq(0).click();
+    cy.contains('Host 0').click();
+    cy.findAllByTestId(labelSelectAResource).eq(0).click();
+    cy.findAllByTestId(labelSelectAResource).eq(1).click();
+    cy.contains('Service 0').click();
 
-    // cy.findAllByTestId(labelResourceType).eq(0).parent().click();
-    // cy.contains(/^Meta service$/).click();
+    cy.findAllByTestId(labelResourceType).eq(0).parent().click();
+    cy.contains(/^Meta service$/).click();
 
-    // cy.findAllByTestId(labelSelectAResource).eq(0).click();
-    // cy.contains('Meta service 0').click();
+    cy.findAllByTestId(labelSelectAResource).eq(0).click();
+    cy.contains('Meta service 0').click();
 
-    // cy.contains('Service').should('not.exist');
+    cy.contains('Service').should('not.exist');
 
-    // cy.findAllByTestId(labelResourceType).eq(0).parent().click();
-    // cy.contains(/^Host$/).click();
+    cy.findAllByTestId(labelResourceType).eq(0).parent().click();
+    cy.contains(/^Host$/).click();
 
-    // cy.contains('Service').should('be.visible');
-    // cy.contains('Host').should('be.visible');
-    // cy.contains('Host 0').should('not.exist');
-    // cy.contains('Service 0').should('not.exist');
+    cy.contains('Service').should('be.visible');
+    cy.contains('Host').should('be.visible');
+    cy.contains('Host 0').should('not.exist');
+    cy.contains('Service 0').should('not.exist');
 
     it('handles regex resources when the regex resource type is filled and the sub resource type field is clicked', () => {
       initialize({
