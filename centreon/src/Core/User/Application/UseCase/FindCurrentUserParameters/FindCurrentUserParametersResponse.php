@@ -42,6 +42,7 @@ final class FindCurrentUserParametersResponse
         public ?string $locale = null,
         public bool $isAdmin = false,
         public bool $useDeprecatedPages = false,
+        public bool $useDeprecatedCustomViews = false,
         public bool $isExportButtonEnabled = false,
         public bool $canManageApiTokens = false,
         ?UserTheme $theme = null,
