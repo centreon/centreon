@@ -18,6 +18,7 @@
         "notification_interval" : "34",
         "notification_period" : "none",
         "geo_coordinates" : "2.3522219,48.856614",
+        "geoCoordinatesTruncated": "2.352221,48.856614",
         "graph_template" : "Latency",
         "enabled" : "1",
         "comments" : "metaServiceComments"

@@ -118,6 +118,7 @@ $form->addElement('select2', 'hg_hosts', _('Members'), [], $attrHost1);
 $form->registerRule('validate_geo_coords', 'function', 'validateGeoCoords');
 $form->addElement('text', 'geo_coords', _('Geographic coordinates'), $attrsText);
 $form->addRule('geo_coords', _('geo coords are not valid'), 'validate_geo_coords');
+$form->applyFilter('geo_coords', 'truncateGeoCoords');
 
 if (! $isCloudPlatform) {
     // Extended information
