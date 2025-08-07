@@ -56,14 +56,12 @@ final class FindImageFoldersController extends AbstractController
             $folders = $useCase();
 
             $response = new FindImageFoldersResponse(
-                array_map(function (ImageFolder $folder): ImageFolderDto {
-                    return new ImageFolderDto(
-                        id: $folder->id()->value,
-                        name: $folder->name()->value,
-                        alias: $folder->alias()?->value,
-                        comment: $folder->description()?->value,
-                    );
-                }, $folders),
+                array_map(static fn (ImageFolder $folder): ImageFolderDto => new ImageFolderDto(
+                    id: $folder->id()->value,
+                    name: $folder->name()->value,
+                    alias: $folder->alias()?->value,
+                    comment: $folder->description()?->value,
+                ), $folders),
             );
 
             return JsonResponse::fromJsonString(

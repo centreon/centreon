@@ -77,14 +77,13 @@ final class FindImageFoldersTest extends TestCase
             $this->imageFolderReader
         );
 
-        $response = $useCase();
+        $resultFolders = $useCase();
 
-        $this->assertInstanceOf(FindImageFoldersResponse::class, $response);
-        $this->assertCount(2, $response->folders);
-        $this->assertSame('Folder 1', $response->folders[0]->name);
-        $this->assertSame('alias1', $response->folders[0]->alias);
-        $this->assertSame('desc1', $response->folders[0]->comment);
-        $this->assertNull($response->folders[1]->alias);
+        $this->assertCount(2, $resultFolders);
+        $this->assertSame('Folder 1', $resultFolders[0]->name()->value);
+        $this->assertSame('alias1', $resultFolders[0]->alias()->value);
+        $this->assertSame('desc1', $resultFolders[0]->description()->value);
+        $this->assertNull($resultFolders[1]->alias()?->value);
     }
 
     public function testInvokeAsUserWithFullAccessReturnsAllFolders(): void
@@ -121,10 +120,10 @@ final class FindImageFoldersTest extends TestCase
             $this->imageFolderReader
         );
 
-        $response = $useCase();
+        $resultFolders = $useCase();
 
-        $this->assertCount(1, $response->folders);
-        $this->assertSame('User Folder', $response->folders[0]->name);
+        $this->assertCount(1, $resultFolders);
+        $this->assertSame('User Folder', $resultFolders[0]->name()->value);
     }
 
     public function testInvokeAsUserWithNoFullAccessReturnsFilteredFolders(): void
@@ -161,10 +160,10 @@ final class FindImageFoldersTest extends TestCase
             $this->imageFolderReader
         );
 
-        $response = $useCase();
+        $resultFolders = $useCase();
 
-        $this->assertCount(1, $response->folders);
-        $this->assertSame('User Folder', $response->folders[0]->name);
+        $this->assertCount(1, $resultFolders);
+        $this->assertSame('User Folder', $resultFolders[0]->name()->value);
     }
 
     private function createImageFolder(int $id, string $name, ?string $alias = null, ?string $description = null): ImageFolder
