@@ -22,7 +22,7 @@ Feature: Filtering resources using regex in dashboard widgets
     When the dashboard administrator user selects the option to add a new widget
     And the dashboard administrator selects the widget type "resource table"
     Then configuration properties for the resource table widget are displayed
-    When the dashboard administrator applies a regex filter to select the hosts displayed by the widget
+    When the dashboard administrator applies a regex filter to select the hosts and services displayed by the widget
     And the user saves the resource table widget
     Then the resource table widget is added to the dashboard layout and shows the filtered host correctly
 

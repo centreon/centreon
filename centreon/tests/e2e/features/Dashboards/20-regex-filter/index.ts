@@ -311,7 +311,7 @@ Then(
 );
 
 When(
-  'the dashboard administrator applies a regex filter to select the hosts displayed by the widget',
+  'the dashboard administrator applies a regex filter to select the hosts and services displayed by the widget',
   () => {
     cy.getByTestId({ testId: 'Resource type' }).realClick();
     cy.getByLabel({ label: 'Host' }).click();
@@ -320,10 +320,20 @@ When(
     cy.getByTestId({ testId: 'Exit regex mode-host' }).should('be.visible');
     cy.get('#EnterRegexhost').type('^cen.*er$');
     cy.wait('@resourceRequest');
+    cy.getByTestId({ testId: 'Add filter' }).click();
+    cy.getByTestId({ testId: 'Resource type' }).eq(1).realClick();
+    cy.getByLabel({ label: 'Service' }).click();
+    cy.getByTestId({ testId: 'RegexIcon' }).eq(1).should('be.visible');
+    cy.getByTestId({ testId: 'RegexIcon' }).eq(1).click();
+    cy.get('#EnterRegexservice').type('^CPU$');
+    cy.wait('@resourceRequest');
     cy.getByLabel({ label: 'Title' }).type(genericTextWidgets.default.title);
     cy.getByLabel({ label: 'RichTextEditor' })
       .eq(0)
       .type(genericTextWidgets.default.description);
+    cy.get('input[name="problem"]').click();
+    cy.get('input[name="unhandled_problems"]').click();
+    cy.get('input[name="warning"]').click();
   }
 );
 
