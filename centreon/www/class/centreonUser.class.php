@@ -403,6 +403,11 @@ class CentreonUser
         $this->version = $version;
     }
 
+    public function setPasswd(string $passwd): void
+    {
+        $this->passwd = $passwd;
+    }
+
     /**
      * @return mixed|null
      */
