@@ -176,7 +176,7 @@ runs:
             ;;
         esac
 
-        SRC_PATHS=$(jf rt search --include-dirs $SOURCE_ROOT_REPO_PATH/pool/testing/${{ inputs.release_type }}/${{ inputs.module }}/${SEARCH_PATTERN} | jq -r '.[].path')
+        SRC_PATHS=$(jf rt search --include-dirs $SOURCE_ROOT_REPO_PATH/pool/${{ inputs.major_version }}/testing/${{ inputs.release_type }}/${{ inputs.module }}/${SEARCH_PATTERN} | jq -r '.[].path')
 
         if [[ ${SRC_PATHS[@]} ]]; then
           for SRC_PATH in ${SRC_PATHS[@]}; do
