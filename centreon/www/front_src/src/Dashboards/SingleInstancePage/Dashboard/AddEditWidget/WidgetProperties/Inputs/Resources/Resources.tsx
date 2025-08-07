@@ -36,6 +36,8 @@ const Resources = ({
   excludedResourceTypes,
   required,
   useAdditionalResources,
+  forcedResourceType,
+  defaultResourceTypes,
   allowRegexOnResourceTypes
 }: WidgetPropertyProps): JSX.Element => {
   const { classes } = useResourceStyles();
@@ -71,6 +73,8 @@ const Resources = ({
     required,
     restrictedResourceTypes,
     useAdditionalResources,
+    forcedResourceType,
+    defaultResourceTypes,
     allowRegexOnResourceTypes
   });
 
@@ -153,7 +157,7 @@ const Resources = ({
                         isValidatingResources ||
                         (equals(
                           resource.resourceType,
-                          WidgetResourceType.service
+                          defaultResourceTypes?.[1]
                         ) &&
                           !hasSelectedHostForSingleMetricwidget) ||
                         !resource.resourceType

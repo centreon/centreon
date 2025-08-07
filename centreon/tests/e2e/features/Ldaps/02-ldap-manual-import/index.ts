@@ -1,8 +1,7 @@
-/* eslint-disable cypress/unsafe-to-chain-command */
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
-const UIDtoSearchFor = '(&(uid=centréon-ldap4)(objectClass=posixAccount))';
-const DNtoSearchFor = 'cn=centréon-ldap4,ou=users,dc=centreon,dc=com';
+const uiDtoSearchFor = '(&(uid=centréon-ldap4)(objectClass=posixAccount))';
+const dNtoSearchFor = 'cn=centréon-ldap4,ou=users,dc=centreon,dc=com';
 const ldapLogin = 'centréon-ldap4';
 
 before(() => {
@@ -93,7 +92,7 @@ When(
     cy.getIframeBody()
       .find('input[name="ldap_search_filter[1]"]')
       .clear()
-      .type(UIDtoSearchFor);
+      .type(uiDtoSearchFor);
     // Click on the "Search" button
     cy.getIframeBody().find('input[name="ldap_search_button"]').click();
     // Wait for the get Ldaps result request to be done
@@ -109,7 +108,7 @@ Then('the LDAP search result displays the expected alias', () => {
     .find('tbody tr.list_one')
     .should('have.length', 1);
   // Check that the filter return the right value
-  cy.getIframeBody().contains(DNtoSearchFor).should('be.visible');
+  cy.getIframeBody().contains(dNtoSearchFor).should('be.visible');
 });
 
 When('the user imports the searched user', () => {
@@ -162,8 +161,7 @@ Given('the ldap user has rights to access the contacts listing page', () => {
   // Wait for the 'Group Name' to be visible in the DOM
   cy.waitForElementInIframe('#main-content', 'input[name="acl_group_name"]');
   // Select the ldap user from the Linked Contacts list
-  cy.getIframeBody().find('select#cg_contacts-f')
-  .select(ldapLogin);
+  cy.getIframeBody().find('select#cg_contacts-f').select(ldapLogin);
   // Add the selected ldap user
   cy.getIframeBody().find('input[name="add"]').eq(0).click();
   // Click on the first 'Save' button
@@ -184,19 +182,19 @@ Given('the ldap user has rights to access the contacts listing page', () => {
   // Type a value in the field 'ACL Definition'
   cy.getIframeBody().find('input[name="acl_topo_name"]').type('action');
   // Chose the 'ALL' option from the Linked Groups list
-  cy.getIframeBody().find('select#acl_groups-f')
-  .select('ALL');
+  cy.getIframeBody().find('select#acl_groups-f').select('ALL');
   // Add the select option
   cy.getIframeBody().find('input[name="add"]').eq(0).click();
   // Check the 'Configuration' accessible page
-  cy.getIframeBody().find('input[name="acl_r_topos[6]"]').click({force: true});
-  // Click to open the sub menus 
+  cy.getIframeBody()
+    .find('input[name="acl_r_topos[6]"]')
+    .click({ force: true });
+  // Click to open the sub menus
   cy.getIframeBody().find('#img_3').click();
   // Check the 'Users' accessible page
   cy.getIframeBody().find('#img_3_2').click();
   // Check 'Read/Write' option
-  cy.getIframeBody().find('input[name="acl_r_topos[84]"][value="1"]')
-  .check();
+  cy.getIframeBody().find('input[name="acl_r_topos[84]"][value="1"]').check();
   // Click on the first 'Save' button
   cy.getIframeBody().find('input[name="submitA"]').eq(0).click();
   cy.exportConfig();
@@ -212,7 +210,7 @@ When('the ldap user goes to the contacts listing page', () => {
 });
 
 Then('the ldap user cannot update the contact dn', () => {
-  // Click on the ldap user 
+  // Click on the ldap user
   cy.getIframeBody().contains('a', ldapLogin).click();
   cy.wait('@getTimeZone');
   // Wait for the 'Alias / Login' field to be visible in the DOM
@@ -222,8 +220,9 @@ Then('the ldap user cannot update the contact dn', () => {
   // Click outside the form
   cy.get('body').click(0, 0);
   // Check that the 'DN' field is hidden
-  cy.getIframeBody().find('input#contact_ldap_dn')
-  .should('have.attr', 'type', 'hidden');
+  cy.getIframeBody()
+    .find('input#contact_ldap_dn')
+    .should('have.attr', 'type', 'hidden');
 });
 
 Then('the ldap user cannot update the contact password', () => {

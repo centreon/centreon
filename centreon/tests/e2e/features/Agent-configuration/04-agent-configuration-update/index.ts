@@ -49,7 +49,13 @@ Given('a non-admin user is in the Agents Configuration page', () => {
 
 Given('an already existing agent configuration', () => {
   cy.contains('button', 'Add agent configuration').click();
-  cy.addTelegrafAgent(agentsConfiguration.telegraf1);
+  cy.addTelegrafAgent({
+    ...agentsConfiguration.telegraf1,
+    publicCertificationFileName:
+      agentsConfiguration.telegraf1.publicCertfFileName,
+    privateKeyFileName: agentsConfiguration.telegraf1.privateKFileName,
+    certificateFileName: agentsConfiguration.telegraf1.certfFileName
+  });
   cy.getByTestId({ testId: 'submit' }).click();
   cy.wait('@addAgents');
 });
@@ -106,7 +112,13 @@ Then('a pop up is displayed with all of the agent information', () => {
 });
 
 When('the user updates some information', () => {
-  cy.updateTelegrafAgent(agentsConfiguration.telegraf2);
+  cy.updateTelegrafAgent({
+    ...agentsConfiguration.telegraf2,
+    publicCertificationFileName:
+      agentsConfiguration.telegraf2.publicCertfFileName,
+    privateKeyFileName: agentsConfiguration.telegraf2.privateKFileName,
+    certificateFileName: agentsConfiguration.telegraf2.certfFileName
+  });
 });
 
 When('the user clicks on Save', () => {
