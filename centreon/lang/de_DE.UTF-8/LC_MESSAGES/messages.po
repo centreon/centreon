@@ -1222,21 +1222,9 @@ msgstr "Fehler beim Deaktivieren der zentralen Menüs"
 msgid "An error occurred while enabling the central menus"
 msgstr "Fehler beim Aktivieren der zentralen Menüs"
 
-#: centreon/www/class/centreonCustomView.class.php
-msgid "An error occurred while retrieving groups linked to ViewId on database"
-msgstr ""
-"Beim Ermitteln von mit der Ansichts-ID (ViewId) verknüpften Gruppen auf der "
-"Datenbank ist ein Fehler aufgetreten"
-
 #: centreon/src/Core/Notification/Application/UseCase/FindNotifications/FindNotifications.php
 msgid "An error occurred while retrieving the notifications listing"
 msgstr ""
-
-#: centreon/www/class/centreonCustomView.class.php
-msgid "An error occurred while retrieving users linked to ViewId on database"
-msgstr ""
-"Beim Ermitteln von mit der Ansichts-ID (ViewId) verknüpften Benutzern auf "
-"der Datenbank ist ein Fehler aufgetreten"
 
 #: centreon/src/Centreon/Domain/RemoteServer/RemoteServerService.php
 msgid "An error occurred while searching any remote children"
@@ -17869,6 +17857,20 @@ msgstr "Adresse6"
 #: unknown
 msgid "Advanced mode"
 msgstr "Erweiterter Modus"
+
+#: unknown
+msgid ""
+"An error occurred while retrieving groups linked to ViewId on database"
+msgstr ""
+"Beim Ermitteln von mit der Ansichts-ID (ViewId) verknüpften Gruppen auf "
+"der Datenbank ist ein Fehler aufgetreten"
+
+#: unknown
+msgid ""
+"An error occurred while retrieving users linked to ViewId on database"
+msgstr ""
+"Beim Ermitteln von mit der Ansichts-ID (ViewId) verknüpften Benutzern auf "
+"der Datenbank ist ein Fehler aufgetreten"
 
 #: unknown
 msgid "Append"

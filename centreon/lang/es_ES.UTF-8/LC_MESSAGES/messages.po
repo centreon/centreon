@@ -1214,16 +1214,8 @@ msgstr ""
 msgid "An error occurred while enabling the central menus"
 msgstr ""
 
-#: centreon/www/class/centreonCustomView.class.php
-msgid "An error occurred while retrieving groups linked to ViewId on database"
-msgstr ""
-
 #: centreon/src/Core/Notification/Application/UseCase/FindNotifications/FindNotifications.php
 msgid "An error occurred while retrieving the notifications listing"
-msgstr ""
-
-#: centreon/www/class/centreonCustomView.class.php
-msgid "An error occurred while retrieving users linked to ViewId on database"
 msgstr ""
 
 #: centreon/src/Centreon/Domain/RemoteServer/RemoteServerService.php
