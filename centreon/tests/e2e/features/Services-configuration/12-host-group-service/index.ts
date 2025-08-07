@@ -136,7 +136,8 @@ When('the user Add a new host group service', () => {
       noteUrl: data.default.noteurl,
       actionUrl: data.default.actionurl,
       atlIcon: data.default.atlicon,
-      geoCoords: data.default.geocoords
+      geoCoords: data.default.geocoords,
+      geoCoordsTruncated: data.hostgroupservice.geoCoordsTruncated
     },
     false,
     htmldata.dataForCreation.map((elt) => ({
@@ -186,7 +187,8 @@ When('the user changes the properties of the host group service', () => {
       noteUrl: data.hostgroupservice.noteurl,
       actionUrl: data.hostgroupservice.actionurl,
       atlIcon: data.hostgroupservice.atlicon,
-      geoCoords: data.hostgroupservice.geocoords
+      geoCoords: data.hostgroupservice.geocoords,
+      geoCoordsTruncated: data.hostgroupservice.geoCoordsTruncated
     },
     true,
     htmldata.dataForUpdate
@@ -216,7 +218,8 @@ Then('the properties are updated', () => {
     noteUrl: data.hostgroupservice.noteurl,
     actionUrl: data.hostgroupservice.actionurl,
     atlIcon: data.hostgroupservice.atlicon,
-    geoCoords: data.hostgroupservice.geocoords
+    geoCoords: data.hostgroupservice.geocoords,
+    geoCoordsTruncated: data.hostgroupservice.geoCoordsTruncated
   });
 });
 
@@ -255,7 +258,8 @@ Then('the new duplicated host group service has the same properties', () => {
     noteUrl: data.hostgroupservice.noteurl,
     actionUrl: data.hostgroupservice.actionurl,
     atlIcon: data.hostgroupservice.atlicon,
-    geoCoords: data.hostgroupservice.geocoords
+    geoCoords: data.hostgroupservice.geocoords,
+    geoCoordsTruncated: data.hostgroupservice.geoCoordsTruncated
   });
 });
 

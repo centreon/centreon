@@ -132,7 +132,120 @@ describe('Form list', () => {
   });
 });
 
-const initializeFile = (): void => {
+const initializeFormWithSections = (): void => {
+  cy.mount({
+    Component: (
+      <Form
+        isCollapsible
+        initialValues={{
+          list: []
+        }}
+        groups={[
+          {
+            name: 'First group',
+            order: 1
+          },
+          {
+            name: 'Third group',
+            order: 3
+          },
+          {
+            name: 'Second group',
+            order: 2
+          },
+          {
+            name: 'Fourth group',
+            order: 4
+          }
+        ]}
+        inputs={[
+          {
+            fieldName: 'First name',
+            group: 'First group',
+            label: 'Name',
+            type: InputType.Text
+          },
+          {
+            fieldName: 'Divider',
+            group: 'First group',
+            label: 'Divider',
+            type: InputType.Divider
+          },
+          {
+            fieldName: 'Second name',
+            group: 'First group',
+            label: 'Name',
+            type: InputType.Text
+          },
+          {
+            fieldName: 'Third name',
+            group: 'First group',
+            label: 'Name',
+            type: InputType.Text
+          },
+          {
+            fieldName: 'Fourth name',
+            group: 'First group',
+            label: 'Name',
+            type: InputType.Text
+          },
+          {
+            fieldName: 'Fifth name',
+            group: 'First group',
+            label: 'Name',
+            type: InputType.Text
+          },
+          {
+            fieldName: 'Sixth name',
+            group: 'First group',
+            label: 'Name',
+            type: InputType.Text
+          },
+          {
+            fieldName: 'Seventh name',
+            group: 'First group',
+            label: 'Name',
+            type: InputType.Text
+          },
+          {
+            fieldName: 'Eighth name',
+            group: 'First group',
+            label: 'Name',
+            type: InputType.Text
+          },
+          {
+            fieldName: 'Ninth name',
+            group: 'First group',
+            label: 'Name',
+            type: InputType.Text
+          },
+          {
+            fieldName: 'First second group name',
+            group: 'Second group',
+            label: 'Name',
+            type: InputType.Text
+          },
+          {
+            fieldName: 'First third group name',
+            group: 'Third group',
+            label: 'Name',
+            type: InputType.Text
+          },
+          {
+            fieldName: 'First fourth group name',
+            group: 'Fourth group',
+            label: 'Name',
+            type: InputType.Text
+          }
+        ]}
+        submit={cy.stub()}
+        validationSchema={object()}
+      />
+    )
+  });
+};
+
+const initializeFile = () => {
   cy.mount({
     Component: (
       <Form
@@ -141,7 +254,7 @@ const initializeFile = (): void => {
         }}
         inputs={[
           {
-            fieldName: 'file',
+            fieldName: 'list',
             group: '',
             label: 'json',
             type: InputType.File,
@@ -167,6 +280,28 @@ describe('File', () => {
     });
     cy.contains('package.json').should('be.visible');
 
+    cy.makeSnapshot();
+  });
+});
+
+describe('Form with sections', () => {
+  beforeEach(initializeFormWithSections);
+  it('displays sections when correct amount of sections', () => {
+    cy.contains('First group').should('be.visible');
+    cy.contains('Second group').should('be.visible');
+    cy.contains('Third group').should('be.visible');
+    cy.contains('Fourth group').should('be.visible');
+    cy.makeSnapshot();
+  });
+
+  it('scrolls correctly to section', () => {
+    cy.window().then((win) => {
+      const initialScrollY = win.scrollY;
+      cy.contains('Third group').click();
+      cy.window().its('scrollY').should('be.greaterThan', initialScrollY);
+    });
+
+    cy.wait(500); // Wait for the scroll animation to complete
     cy.makeSnapshot();
   });
 });
