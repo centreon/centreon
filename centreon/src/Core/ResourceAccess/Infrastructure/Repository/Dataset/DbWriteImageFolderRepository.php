@@ -66,7 +66,7 @@ final class DbWriteImageFolderRepository extends DatabaseRepository implements W
             );
         } catch (ValueObjectException|CollectionException|ConnectionException $ex) {
             throw new RepositoryException(
-                message: "An error occured while linking resources to dataset",
+                message: "An error occured while linking resources to dataset: {$ex->getMessage()}",
                 context: [
                     'rule_id' => $ruleId,
                     'dataset_id' => $datasetId,
