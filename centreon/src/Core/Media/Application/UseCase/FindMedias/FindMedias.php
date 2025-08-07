@@ -102,7 +102,7 @@ final class FindMedias
     /**
      * @throws RepositoryException|RequestParametersTranslatorException
      *
-     * @return Traversable<Media>
+     * @return Traversable<int, Media>
      */
     private function findAsAdmin(): \Traversable
     {
