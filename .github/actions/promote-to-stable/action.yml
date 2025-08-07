@@ -163,7 +163,7 @@ runs:
         SOURCE_ROOT_REPO_PATH="${ROOT_REPO_PATH_PREFIX}standard${SOURCE_ROOT_REPO_PATH_SUFFIX}"
         TARGET_ROOT_REPO_PATH="${ROOT_REPO_PATH_PREFIX}standard${TARGET_ROOT_REPO_PATH_SUFFIX}"
         SOURCE_ROOT_REPO_PATH="apt-kdu"
-        TARGET_ROOT_REPO_PATH"apt-kdu
+        TARGET_ROOT_REPO_PATH"apt-kdu"
 
         echo "[DEBUG] - Get path of testing DEB packages to promote to stable."
 
