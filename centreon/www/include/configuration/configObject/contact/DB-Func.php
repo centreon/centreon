@@ -1626,12 +1626,12 @@ function validatePasswordModification(array $fields): array|true
 
     // If the admin wants to change the user password, he must provide his current password
     if (!empty($newPassword) && empty($currentAdminPassword)) {
-        return ['current_password' => _('You must enter your current password')];
+        return ['current_password' => _('Your current administrator password is required to change the user password')];
     }
 
     // If the admin provided a current password, we check if it matches the one in the database
     if (!empty($currentAdminPassword) && password_verify($currentAdminPassword, $centreon->user->passwd) === false) {
-        return ['current_password' => _('Your current password is incorrect')];
+        return ['current_password' => _('Your current administrator password is incorrect')];
     }
 
     // If the admin does not want to change his password, we do not need to check the new password

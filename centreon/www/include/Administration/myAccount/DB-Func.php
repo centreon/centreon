@@ -193,7 +193,7 @@ function validatePasswordModification(array $fields): array|true
 
     // If the user wants to change his password, he must provide his current password
     if (!empty($newPassword) && empty($currentPassword)) {
-        return ['current_password' => _('You must enter your current password')];
+        return ['current_password' => _('Your current password is required to change your password')];
     }
 
     // If the user provided a current password, we check if it matches the one in the database
