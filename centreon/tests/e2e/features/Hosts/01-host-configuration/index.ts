@@ -1,7 +1,7 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 import { checkHostsAreMonitored, checkServicesAreMonitored } from 'commons';
 
-const hostName = 'New-Host-Name';
+let hostName = '';
 let hostWithGeoCoords = 'New-Host-Name-for-geo';
 const hostAddress = '127.0.0.1';
 const services = {
@@ -100,7 +100,8 @@ When('a host is configured', () => {
   cy.submitResults(resultsToSubmit);
 });
 
-When('the user changes the name of a host to "New Host Name"', () => {
+When('the admin changes the name of a host to {string}', (name: string) => {
+  hostName = name;
   cy.visitHostsListingPage();
   cy.getIframeBody().contains(services.serviceOk.host).click({
     force: true
@@ -112,12 +113,16 @@ When('the user changes the name of a host to "New Host Name"', () => {
   cy.wait('@getTimeZone');
 });
 
-Then('the host name is updated to "New Host Name" on the Host Page', () => {
-  cy.exportConfig();
-  cy.getIframeBody().contains(hostName).should('exist');
-});
+Then(
+  'the updated name should be updated on the host page to {string}',
+  (name: string) => {
+    hostName = name;
+    cy.exportConfig();
+    cy.getIframeBody().contains(hostName).should('exist');
+  }
+);
 
-When('the user duplicates a host', () => {
+When('the admin duplicates a host', () => {
   cy.visitHostsListingPage();
   cy.getIframeBody().find('div.md-checkbox.md-checkbox-inline').eq(2).click();
   cy.getIframeBody()
@@ -137,7 +142,7 @@ Then('a new host is created with identical fields', () => {
   cy.getIframeBody().contains(`${services.serviceOk.host}_1`).should('exist');
 });
 
-When('the user deletes the host', () => {
+When('the admin deletes the host', () => {
   cy.visitHostsListingPage();
   cy.getIframeBody().find('div.md-checkbox.md-checkbox-inline').eq(2).click();
   cy.getIframeBody()
@@ -157,7 +162,7 @@ Then('the host is not visible in the host list', () => {
   cy.getIframeBody().contains(services.serviceOk.host).should('not.exist');
 });
 
-Given('the admin is on the Hosts Listing page', () => {
+Given('the admin is on the hosts listing page', () => {
   cy.visitHostsListingPage();
 });
 
@@ -179,7 +184,7 @@ Given('the admin fills in the required fields to create a host', () => {
     .type(hostAddress);
 });
 
-When('he clicks on "Save"', () => {
+When('the admin saves the host', () => {
   cy.getIframeBody().find('input.btc.bt_success[name^="submit"]').eq(0).click();
   cy.wait('@getTimeZone');
 });
@@ -214,7 +219,7 @@ Given('a host is already configured', () => {
   cy.getIframeBody().contains('a', hostWithGeoCoords).should('be.visible');
 });
 
-When('the user open the edit form on this host', () => {
+When('the admin opens the edit form on this host', () => {
   cy.getIframeBody().contains('a', hostWithGeoCoords).click();
   cy.waitForElementInIframe('#main-content', 'input[name="host_name"]');
 });
