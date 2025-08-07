@@ -392,6 +392,16 @@ $form->addGroup($tab, 'contact_oreon', _('Reach Centreon Front-end'), '&nbsp;');
 
 if ($o !== MASSIVE_CHANGE) {
     $form->addElement(
+            'password',
+            'current_admin_password',
+            _('Your current administrator password'),
+            [
+                    'size' => '30',
+                    'autocomplete' => 'off',
+                    'id' => 'current_admin_password',
+            ]
+    );
+    $form->addElement(
         'password',
         'contact_passwd',
         _('Password'),

@@ -1609,28 +1609,43 @@ function validatePasswordCreation(array $fields)
  * Validate password creation using defined security policy.
  *
  * @param array<string,mixed> $fields
- * @return mixed
+ *
+ * @return array<string,string>|true
  */
-function validatePasswordModification(array $fields)
+function validatePasswordModification(array $fields): array|true
 {
-    global $pearDB;
-    $errors = [];
+    global $pearDB, $centreon;
+    $newPassword = $fields['contact_passwd'];
+    $currentAdminPassword = $fields['current_admin_password'];
+    $contactId = $fields['contact_id'];
 
-    if (empty($fields['contact_passwd'])) {
+    // If the admin does not want to change the user password, we do not need to check it
+    if (empty($newPassword) && empty($currentAdminPassword)) {
         return true;
     }
 
-    $password = $fields['contact_passwd'];
-    $contactId = $fields['contact_id'];
+    // If the admin wants to change the user password, he must provide his current password
+    if (!empty($newPassword) && empty($currentAdminPassword)) {
+        return ['current_password' => _('You must enter your current password')];
+    }
+
+    // If the admin provided a current password, we check if it matches the one in the database
+    if (!empty($currentAdminPassword) && password_verify($currentAdminPassword, $centreon->user->passwd) === false) {
+        return ['current_password' => _('Your current password is incorrect')];
+    }
+
+    // If the admin does not want to change his password, we do not need to check the new password
+    if (empty($newPassword)) {
+        return true;
+    }
 
     try {
         $contact = new CentreonContact($pearDB);
-        $contact->respectPasswordPolicyOrFail($password, $contactId);
+        $contact->respectPasswordPolicyOrFail($newPassword, $contactId);
+        return true;
     } catch (Throwable $e) {
-        $errors['contact_passwd'] = $e->getMessage();
+        return ['contact_passwd' => $e->getMessage()];
     }
-
-    return $errors !== [] ? $errors : true;
 }
 
 /**
