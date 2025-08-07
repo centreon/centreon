@@ -10,13 +10,13 @@ import { labelFilters } from '../translatedLabels';
 
 import Filters from './Filters';
 import { useStyles } from './Filters.styles';
-import useCoutChangedFilters from './useCoutChangedFilters';
+import useCountChangedFilters from './useCountChangedFilters';
 
 const PopoverFilter = (): JSX.Element => {
   const { t } = useTranslation();
   const { classes } = useStyles();
 
-  const { changedFiltersCount } = useCoutChangedFilters();
+  const { changedFiltersCount } = useCountChangedFilters();
 
   return (
     <Suspense

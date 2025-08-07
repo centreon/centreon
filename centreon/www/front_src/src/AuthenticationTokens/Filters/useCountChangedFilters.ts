@@ -15,7 +15,7 @@ interface Props {
   changedFiltersCount: number;
 }
 
-const useCoutChangedFilters = (): Props => {
+const useCountChangedFilters = (): Props => {
   const filters = useAtomValue(filtersAtom);
 
   const changedFiltersCount = countDifferences(filtersInitialValues, filters);
@@ -26,4 +26,4 @@ const useCoutChangedFilters = (): Props => {
   };
 };
 
-export default useCoutChangedFilters;
+export default useCountChangedFilters;

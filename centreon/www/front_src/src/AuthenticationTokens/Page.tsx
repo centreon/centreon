@@ -16,7 +16,7 @@ import { useSearchParams } from 'react-router';
 import { LoadingSkeleton } from '@centreon/ui';
 import { isNil, isNotEmpty } from 'ramda';
 import { useLayoutEffect } from 'react';
-import useCoutChangedFilters from './Filters/useCoutChangedFilters';
+import useCountChangedFilters from './Filters/useCountChangedFilters';
 import {
   labelAddToken,
   labelAuthenticationTokens,
@@ -28,7 +28,7 @@ const WelcomePage = ({ labels, dataTestId, onCreate }) => {
   const { isLoading, data } = useLoadData();
 
   const setIsWelcomePageDisplayed = useSetAtom(isWelcomePageDisplayedAtom);
-  const { isClear } = useCoutChangedFilters();
+  const { isClear } = useCountChangedFilters();
 
   useLayoutEffect(() => {
     if (!isLoading && (!isClear || (isClear && isNotEmpty(data?.result)))) {
