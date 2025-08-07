@@ -18810,3 +18810,22 @@ msgstr "s"
 #: unknown
 msgid "unknown"
 msgstr "unbekannt"
+
+#: centreon/www/include/Administration/parameters/general/form.php
+msgid "Full search"
+msgstr ""
+
+#: centreon/www/include/Administration/parameters/general/form.php
+msgid "Limited search"
+msgstr ""
+
+#: centreon/www/include/Administration/parameters/general/form.php
+msgid "Free text search behavior"
+msgstr ""
+
+#: centreon/www/include/Administration/parameters/general/form.php
+msgid "Resource status performance"
+msgstr ""
+
+# msgid "Free text search behavior can be configured in the Administration > Parameters > Centreon UI page."
+# msgstr ""
