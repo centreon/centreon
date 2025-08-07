@@ -97,6 +97,9 @@ if ($cct['contact_auth_type'] === 'local') {
     $form->addElement('text', 'contact_email', _('Email'), $attrsText)->freeze();
 }
 $form->addElement('text', 'contact_pager', _('Pager'), $attrsText);
+
+// Password Management
+
 if ($cct['contact_auth_type'] === 'local') {
     $form->addFormRule('validatePasswordModification');
     $statement = $pearDB->prepare(
@@ -121,6 +124,12 @@ if ($cct['contact_auth_type'] === 'local') {
             }
         }
     }
+    $form->addElement(
+            'password',
+            'current_password',
+            _('Current Password'),
+            ['size' => '30', 'autocomplete' => 'off', 'id' => 'current_password']
+    );
     $form->addElement(
         'password',
         'contact_passwd',
@@ -150,13 +159,16 @@ $form->addElement(
         'id' => 'generateAutologinKeyButton',
         'data-testid' => _('Generate')]
 );
+
+// Preferences
+
 $form->addElement('select', 'contact_lang', _('Language'), $langs);
 if (! isCloudPlatform()) {
     $form->addElement('checkbox', 'show_deprecated_pages', _('Use deprecated monitoring pages'), null, $attrsText);
 }
 $form->addElement('checkbox', 'show_deprecated_custom_views', _('Use deprecated custom views'), null, $attrsText);
 
-// ------------------------ Topoogy ----------------------------
+// ------------------------ Topology ----------------------------
 $pages = [];
 $aclUser = $centreon->user->lcaTStr;
 if (! empty($aclUser)) {
@@ -372,7 +384,7 @@ $form->registerRule('exist', 'callback', 'testExistence');
 $form->addRule('contact_name', _('Name already in use'), 'exist');
 $form->registerRule('existAlias', 'callback', 'testAliasExistence');
 $form->addRule('contact_alias', _('Name already in use'), 'existAlias');
-$form->setRequiredNote("<font style='color: red;'>*</font>" . _('Required fields'));
+$form->setRequiredNote("<span style='color: red;'>*</span>" . _('Required fields'));
 $form->addFormRule('checkAutologinValue');
 
 // Smarty template initialization
