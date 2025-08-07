@@ -31,7 +31,6 @@ use Core\Media\Domain\Model\ImageFolder\ImageFolder;
 use Core\Media\Domain\Model\ImageFolder\ImageFolderDescription;
 use Core\Media\Domain\Model\ImageFolder\ImageFolderId;
 use Core\Media\Domain\Model\ImageFolder\ImageFolderName;
-use Core\Media\Infrastructure\API\FindImageFolders\FindImageFoldersResponse;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use PHPUnit\Framework\MockObject\MockObject;
