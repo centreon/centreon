@@ -463,7 +463,7 @@ Cypress.Commands.add('checkValuesOfHostGroupService', (name:string, body: HostGr
   cy.getIframeBody().find('#esi_icon_image')
     .should('have.value', '1'); 
   cy.getIframeBody().find('input[name="esi_icon_image_alt"]').should('have.value',body.atlicon);
-  cy.getIframeBody().find('input[name="geo_coords"]').should('have.value',body.geocoords);
+  cy.getIframeBody().find('input[name="geo_coords"]').should('have.value',body.geoCoordsTruncated);
   cy.getIframeBody().find('textarea[name="service_comment"]').should('have.value',body.comment);
 });
 
@@ -562,6 +562,7 @@ interface HostGroupService {
   actionurl: string,
   atlicon: string,
   geocoords: string,
+  geoCoordsTruncated: string,
   comment: string,
 }
 
