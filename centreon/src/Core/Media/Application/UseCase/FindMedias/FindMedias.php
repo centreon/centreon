@@ -77,7 +77,7 @@ final class FindMedias
                 [
                     'request_parameters' => $this->requestParameters->toArray(),
                     'exception' => [
-                        'message' => $ex->getPrevious()->getMessage(),
+                        'message' => $ex->getPrevious()?->getMessage(),
                         'trace' => $ex->getTraceAsString(),
                     ],
                 ]
@@ -89,7 +89,7 @@ final class FindMedias
                 $ex->getMessage(),
                 [
                     'exception' => [
-                        'message' => $ex->getPrevious()->getMessage(),
+                        'message' => $ex->getPrevious()?->getMessage(),
                         'trace' => $ex->getTraceAsString(),
                     ],
                 ]
@@ -112,7 +112,7 @@ final class FindMedias
     /**
      * @throws RepositoryException|RequestParametersTranslatorException
      *
-     * @return \Traversable<Media>
+     * @return \Traversable<int, Media>
      */
     private function findAsUser(): \Traversable
     {

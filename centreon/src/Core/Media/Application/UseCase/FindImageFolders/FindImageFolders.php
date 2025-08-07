@@ -25,7 +25,7 @@ namespace Core\Media\Application\UseCase\FindImageFolders;
 
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
-use Core\Common\Infrastructure\RepositoryException;
+use Core\Common\Domain\Exception\RepositoryException;
 use Core\Media\Application\Repository\ReadImageFolderRepositoryInterface;
 use Core\Media\Domain\Model\ImageFolder\ImageFolder;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;

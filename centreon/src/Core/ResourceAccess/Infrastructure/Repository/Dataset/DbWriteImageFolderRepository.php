@@ -25,8 +25,11 @@ namespace Core\ResourceAccess\Infrastructure\Repository\Dataset;
 
 use Adaptation\Database\Connection\Collection\BatchInsertParameters;
 use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\Exception\ConnectionException;
 use Adaptation\Database\Connection\ValueObject\QueryParameter;
+use Core\Common\Domain\Exception\CollectionException;
 use Core\Common\Domain\Exception\RepositoryException;
+use Core\Common\Domain\Exception\ValueObjectException;
 use Core\Common\Infrastructure\Repository\DatabaseRepository;
 use Core\ResourceAccess\Application\Repository\WriteDatasetRepositoryInterface;
 use Core\ResourceAccess\Domain\Model\DatasetFilter\Providers\ImageFolderFilterType;
@@ -40,26 +43,37 @@ final class DbWriteImageFolderRepository extends DatabaseRepository implements W
      */
     public function linkResourcesToDataset(int $ruleId, int $datasetId, array $resourceIds): void
     {
-        if ([] === $resourceIds) {
-            return;
-        }
+        try {
+            if ([] === $resourceIds) {
+                return;
+            }
 
-        $insertQueryParameters = [];
-        foreach ($resourceIds as $index => $value) {
-            $insertQueryParameters[] = QueryParameters::create([
-                QueryParameter::int('datasetId', $datasetId),
-                QueryParameter::int('folderId' . $index, $value),
-            ]);
-        }
+            $insertQueryParameters = [];
+            foreach ($resourceIds as $index => $value) {
+                $insertQueryParameters[] = QueryParameters::create([
+                    QueryParameter::int('datasetId', $datasetId),
+                    QueryParameter::int('folderId' . $index, $value),
+                ]);
+            }
 
-        $this->connection->batchInsert(
-            tableName: 'acl_resources_image_folder_relations',
-            columns: [
-                'acl_res_id',
-                'dir_id',
-            ],
-            batchInsertParameters: BatchInsertParameters::create($insertQueryParameters)
-        );
+            $this->connection->batchInsert(
+                tableName: 'acl_resources_image_folder_relations',
+                columns: [
+                    'acl_res_id',
+                    'dir_id',
+                ],
+                batchInsertParameters: BatchInsertParameters::create($insertQueryParameters)
+            );
+        } catch (ValueObjectException|CollectionException|ConnectionException $ex) {
+            throw new RepositoryException(
+                message: "An error occured while linking resources to dataset",
+                context: [
+                    'rule_id' => $ruleId,
+                    'dataset_id' => $datasetId,
+                    'resource_ids' => $resourceIds,
+                ],
+            );
+        }
     }
 
     /**
