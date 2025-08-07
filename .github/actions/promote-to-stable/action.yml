@@ -130,7 +130,7 @@ runs:
       shell: bash
 
     - name: Promote DEB packages to stable
-      if: ${{ inputs.is_cloud == 'false' }}
+      # if: ${{ inputs.is_cloud == 'false' }}
       run: |
         set -eux
 
