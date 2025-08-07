@@ -102,9 +102,9 @@ final class FindMedias
     /**
      * @throws RepositoryException|RequestParametersTranslatorException
      *
-     * @return Traversable<int, Media>
+     * @return iterable<Media>
      */
-    private function findAsAdmin(): \Traversable
+    private function findAsAdmin(): iterable
     {
         return $this->mediaReader->findByRequestParameters($this->requestParameters);
     }
