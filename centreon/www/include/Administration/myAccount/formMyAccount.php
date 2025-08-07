@@ -444,14 +444,12 @@ if ($form->validate()) {
             || $showDeprecatedPages !== $cct['show_deprecated_pages']
             || $showDeprecatedCustomViews !== $cct['show_deprecated_custom_views']
     ) {
-        $contactStatement = $pearDB->prepare(
-            'SELECT * FROM contact WHERE contact_id = :contact_id'
-        );
-        $contactStatement->bindValue(':contact_id', $centreon->user->get_id(), PDO::PARAM_INT);
-        $contactStatement->execute();
-        if ($contact = $contactStatement->fetch()) {
-            $_SESSION['centreon'] = new Centreon($contact);
-        }
+        /** @var Centreon $centreon */
+        $centreon = $_SESSION['centreon'];
+        $centreon->user->set_lang($form->getSubmitValue('contact_lang'));
+        $centreon->user->setShowDeprecatedPages($showDeprecatedPages);
+        $centreon->user->setShowDeprecatedCustomViews($showDeprecatedCustomViews);
+        $_SESSION['centreon'] = $centreon;
         $_SESSION[$sessionKeyFreeze] = true;
         echo '<script>parent.location.href = "main.php?p=' . $p . '&o=c";</script>';
 

@@ -232,7 +232,7 @@ class CentreonUser
         }
     }
 
-    // Get
+    // Getters
 
     /**
      * @return int|mixed|string|null
@@ -331,17 +331,7 @@ class CentreonUser
         return $this->showDeprecatedCustomViews;
     }
 
-    /**
-     * @param bool $showDeprecatedPages
-     *
-     * @return void
-     */
-    public function setShowDeprecatedPages(bool $showDeprecatedPages): void
-    {
-        $this->showDeprecatedPages = $showDeprecatedPages;
-    }
-
-    // Set
+    // Setters
 
     /**
      * @param $id
@@ -407,6 +397,18 @@ class CentreonUser
     {
         $this->passwd = $passwd;
     }
+
+    public function setShowDeprecatedPages(bool $showDeprecatedPages): void
+    {
+        $this->showDeprecatedPages = $showDeprecatedPages;
+    }
+
+    public function setShowDeprecatedCustomViews(bool $showDeprecatedCustomViews): void
+    {
+        $this->showDeprecatedCustomViews = $showDeprecatedCustomViews;
+    }
+
+    // Methods
 
     /**
      * @return mixed|null
