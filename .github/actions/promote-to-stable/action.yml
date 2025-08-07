@@ -186,18 +186,6 @@ runs:
           echo "::warning::No source path found."
         fi
 
-        echo "[DEBUG] - Build target path."
-        POOL_SUBPATH="${{ inputs.major_version }}/${{ inputs.stability }}/${{ inputs.module }}"
-        if [[ "${{ inputs.major_version }}" < "25.05" ]]; then
-          POOL_SUBPATH="${{ inputs.module }}"
-          DEB_PROP="${{ inputs.distrib }}}/main/$ARCH"
-        else
-          POOL_SUBPATH="${{ inputs.major_version }}/${{ inputs.stability }}/${{ inputs.module }}"
-          DEB_PROP="${{ inputs.distrib }}-${{ inputs.version }}-${{ inputs.stability }}/main/$ARCH"
-        fi
-        TARGET_PATH="$TARGET_ROOT_REPO_PATH/pool/${POOL_SUBPATH}/"
-        echo "[DEBUG] - Target path: $TARGET_PATH"
-
         echo "[DEBUG] - Promoting DEB testing artifacts to stable."
         for ARTIFACT in ${SRC_PATHS[@]}; do
           echo "[DEBUG] - Downloading $ARTIFACT from TESTING."
@@ -220,7 +208,15 @@ runs:
 
         for ARTIFACT_DL in $(dir -1|grep -E $ARTIFACT_SEARCH_PATTERN); do
           ARCH=$(echo $ARTIFACT_DL | cut -d '_' -f3 | cut -d '.' -f1)
-          DEB_PROP="${{ inputs.distrib }}-${{ inputs.major_version }}-${{ inputs.stability }}/main/$ARCH"
+          if [[ "${{ inputs.major_version }}" < "25.05" ]]; then
+            POOL_SUBPATH="${{ inputs.module }}"
+            DEB_PROP="${{ inputs.distrib }}}/main/$ARCH"
+          else
+            POOL_SUBPATH="${{ inputs.major_version }}/${{ inputs.stability }}/${{ inputs.module }}"
+            DEB_PROP="${{ inputs.distrib }}-${{ inputs.version }}-${{ inputs.stability }}/main/$ARCH"
+          fi
+          TARGET_PATH="$TARGET_ROOT_REPO_PATH/pool/${POOL_SUBPATH}/"
+
           echo "[DEBUG] - Promoting (upload) $ARTIFACT_DL to stable $TARGET_PATH."
           jf rt upload "$ARTIFACT_DL" "$TARGET_PATH" --deb "${DEB_PROP}" --detailed-summary --flat $DRY_RUN_FLAG
         done
