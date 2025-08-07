@@ -67,9 +67,9 @@ runs:
         # Cloud specific promote
         # delivery by default to onprem, override to internal if is_cloud is true
         if [[ ${{ inputs.is_cloud }} == "true" ]]; then
-          ROOT_REPO_PATH="rpm-standard-internal"
+          ROOT_REPO_PATH="rpm-standard-internal-kdu"
         else
-          ROOT_REPO_PATH="rpm-standard"
+          ROOT_REPO_PATH="rpm-standard-kdu"
         fi
 
         # Search for testing packages candidate for promote
@@ -183,7 +183,8 @@ runs:
             echo "[DEBUG] - Source path found: $SRC_PATH"
           done
         else
-          echo "::warning::No source path found."
+          echo "::error::Nothing to promote."
+          exit 1
         fi
 
         echo "[DEBUG] - Promoting DEB testing artifacts to stable."
