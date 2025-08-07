@@ -32,6 +32,14 @@ inputs:
 runs:
   using: "composite"
   steps:
+    - name: Validate inputs
+      uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+      with:
+        script: |
+          if (! ['release', 'hotfix'].includes('${{ inputs.release_type }}')) {
+            throw new Error('release_type input must be defined (release or hotfix)');
+          }
+
     - uses: jfrog/setup-jfrog-cli@ff5cb544114ffc152db9cea1cd3d5978d5074946 # v4.5.11
       env:
         JF_URL: https://centreon.jfrog.io
@@ -113,6 +121,8 @@ runs:
             jf rt upload "$ARTIFACT_DL" "$TARGET_PATH" --flat $DRY_RUN_FLAG
           done
 
+          curl -H "Authorization: Bearer ${{ inputs.artifactory_token }}" -X POST "https://centreon.jfrog.io/artifactory/api/yum/$ROOT_REPO_PATH?path=/${{ inputs.major_version }}/${{ inputs.distrib }}/stable/$ARCH&async=1"
+
           # Cleanup before next round of candidates
           rm -f *.rpm
         done
@@ -120,7 +130,7 @@ runs:
       shell: bash
 
     - name: Promote DEB packages to stable
-      # if: ${{ contains(fromJSON('["bullseye", "bookworm"]') , inputs.distrib) && inputs.is_cloud == 'false' }}
+      if: ${{ inputs.is_cloud == 'false' }}
       run: |
         set -eux
 
@@ -131,8 +141,29 @@ runs:
         # Define ROOT_REPO_PATH for debian
         # There is no cloud ROOT_REPO_PATH for debian, only onprem
         # Should there be a need to deploy debian to cloud repositories, please use the same condition as RPM promotion
-        ROOT_REPO_PATH="apt-standard-${{ inputs.major_version }}"
-        ROOT_REPO_PATH="apt-kdu"
+        ROOT_REPO_PATH_PREFIX=""
+        if [[ "${{ steps.parse-distrib.outputs.distrib_family }}" == "debian" ]]; then
+          ROOT_REPO_PATH_PREFIX="apt-"
+        elif [[ "${{ steps.parse-distrib.outputs.distrib_family }}" == "ubuntu" ]]; then
+          ROOT_REPO_PATH_PREFIX="ubuntu-"
+        else
+          echo "::error::Unsupported distribution family: ${{ steps.parse-distrib.outputs.distrib_family }}"
+          exit 1
+        fi
+
+        SOURCE_ROOT_REPO_PATH_SUFFIX=""
+        TARGET_ROOT_REPO_PATH_SUFFIX=""
+        if [[ "${{ inputs.is_cloud }}" == "true" ]]; then
+          SOURCE_ROOT_REPO_PATH_SUFFIX="-internal"
+          TARGET_ROOT_REPO_PATH_SUFFIX="-internal"
+        elif [[ "${{ inputs.major_version }}" < "25.05" ]]; then
+          TARGET_ROOT_REPO_PATH_SUFFIX="-${{ inputs.major_version }}-stable"
+        fi
+
+        SOURCE_ROOT_REPO_PATH="${ROOT_REPO_PATH_PREFIX}standard${ROOT_REPO_PATH_SUFFIX}"
+        TARGET_ROOT_REPO_PATH="${ROOT_REPO_PATH_PREFIX}standard${TARGET_ROOT_REPO_PATH_SUFFIX}"
+        SOURCE_ROOT_REPO_PATH="apt-kdu"
+        TARGET_ROOT_REPO_PATH"apt-kdu
 
         echo "[DEBUG] - Get path of testing DEB packages to promote to stable."
 
@@ -144,7 +175,8 @@ runs:
             SEARCH_PATTERN="*${{ steps.parse-distrib.outputs.package_distrib_name }}*.deb"
             ;;
         esac
-        SRC_PATHS=$(jf rt search --include-dirs $ROOT_REPO_PATH-testing/pool/${{ inputs.module }}/${SEARCH_PATTERN} | jq -r '.[].path')
+
+        SRC_PATHS=$(jf rt search --include-dirs $SOURCE_ROOT_REPO_PATH/pool/testing/${{ inputs.release_type }}/${{ inputs.module }}/${SEARCH_PATTERN} | jq -r '.[].path')
 
         if [[ ${SRC_PATHS[@]} ]]; then
           for SRC_PATH in ${SRC_PATHS[@]}; do
@@ -157,7 +189,14 @@ runs:
 
         echo "[DEBUG] - Build target path."
         POOL_SUBPATH="${{ inputs.major_version }}/${{ inputs.stability }}/${{ inputs.module }}"
-        TARGET_PATH="$ROOT_REPO_PATH/pool/${POOL_SUBPATH}/"
+        if [[ "${{ inputs.major_version }}" < "25.05" ]]; then
+          POOL_SUBPATH="${{ inputs.module }}"
+          DEB_PROP="${{ inputs.distrib }}}/main/$ARCH"
+        else
+          POOL_SUBPATH="${{ inputs.version }}/${{ inputs.stability }}/${{ inputs.module_name }}"
+          DEB_PROP="${{ inputs.distrib }}-${{ inputs.version }}-${{ inputs.stability }}/main/$ARCH"
+        fi
+        TARGET_PATH="$TARGET_ROOT_REPO_PATH/pool/${POOL_SUBPATH}/"
         echo "[DEBUG] - Target path: $TARGET_PATH"
 
         echo "[DEBUG] - Promoting DEB testing artifacts to stable."
@@ -184,8 +223,10 @@ runs:
           ARCH=$(echo $ARTIFACT_DL | cut -d '_' -f3 | cut -d '.' -f1)
           DEB_PROP="${{ inputs.distrib }}-${{ inputs.major_version }}-${{ inputs.stability }}/main/$ARCH"
           echo "[DEBUG] - Promoting (upload) $ARTIFACT_DL to stable $TARGET_PATH."
-          jf rt upload "$ARTIFACT_DL" "$TARGET_PATH" --deb "${DEB_PROP}"  --detailed-summary --flat $DRY_RUN_FLAG
+          jf rt upload "$ARTIFACT_DL" "$TARGET_PATH" --deb "${DEB_PROP}" --detailed-summary --flat $DRY_RUN_FLAG
         done
+
+        curl -H "Authorization: Bearer ${{ inputs.artifactory_token }}" -X POST "https://centreon.jfrog.io/artifactory/api/deb/reindex/$TARGET_ROOT_REPO_PATH?async=1"
 
         rm -f *.deb
       shell: bash

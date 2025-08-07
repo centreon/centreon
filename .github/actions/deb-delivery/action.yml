@@ -74,7 +74,7 @@ runs:
         if [[ "${{ steps.parse-distrib.outputs.distrib_family }}" == "debian" ]]; then
           ROOT_REPO_PATH_PREFIX="apt-"
         elif [[ "${{ steps.parse-distrib.outputs.distrib_family }}" == "ubuntu" ]]; then
-          ROOT_REPO_PATH="ubuntu-"
+          ROOT_REPO_PATH_PREFIX="ubuntu-"
         else
           echo "::error::Unsupported distribution family: ${{ steps.parse-distrib.outputs.distrib_family }}"
           exit 1
