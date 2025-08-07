@@ -174,7 +174,7 @@ afterEach(() => {
 });
 
 Given(
-  "a dashboard in the dashboard administrator user's dashboard library",
+  "a dashboard exists in the dashboard administrator's library",
   () => {
     cy.insertDashboard({ ...dashboards.default });
     cy.visitDashboard(dashboards.default.name);
@@ -199,7 +199,7 @@ When(
 );
 
 Then(
-  'configuration properties for the Group monitoring widget are displayed',
+  'configuration options for the "Group monitoring" widget are displayed',
   () => {
     cy.contains('Host').should('exist');
     cy.contains('Service').should('exist');
@@ -216,7 +216,7 @@ Then('the Save button is disabled', () => {
 });
 
 When(
-  'the dashboard administrator applies a regex filter to select host group resources for the widget',
+  'the dashboard administrator user applies a regex filter to select host group resources for the widget',
   () => {
     cy.getByLabel({ label: 'Title' }).type(genericTextWidgets.default.title);
     cy.getByLabel({ label: 'RichTextEditor' })
@@ -246,7 +246,7 @@ When(
 );
 
 Then(
-  'a table representing the statuses of this list of resources are displayed in the widget preview',
+  'a table showing statuses of the matching resources are displayed in the widget preview',
   () => {
     cy.get('[class$="-status"]')
       .eq(0)
@@ -267,7 +267,7 @@ Then('the Save button is enabled', () => {
   cy.getByTestId({ testId: 'confirm' }).should('be.enabled');
 });
 
-When('the user saves the Group monitoring widget', () => {
+When('the user saves the "Group monitoring" widget', () => {
   cy.getByTestId({ testId: 'confirm' }).click();
 });
 
@@ -283,7 +283,7 @@ Then("the Group monitoring widget is added in the dashboard's layout", () => {
 });
 
 When(
-  'the dashboard administrator selects the widget type "resource table"',
+  'the dashboard administrator user selects the widget type "Resource table"',
   () => {
     cy.getByTestId({ testId: 'Widget type' }).click();
     cy.contains('Resource table').click();
@@ -291,7 +291,7 @@ When(
 );
 
 Then(
-  'configuration properties for the resource table widget are displayed',
+  'configuration options for the "Resource table" widget are displayed',
   () => {
     cy.contains('Widget properties').should('exist');
     cy.getByLabel({ label: 'Title' }).should('exist');
@@ -311,7 +311,7 @@ Then(
 );
 
 When(
-  'the dashboard administrator applies a regex filter to select the hosts and services displayed by the widget',
+  'the dashboard administrator user applies a regex filter to select the hosts and services displayed by the widget',
   () => {
     cy.getByTestId({ testId: 'Resource type' }).realClick();
     cy.getByLabel({ label: 'Host' }).click();
@@ -337,12 +337,12 @@ When(
   }
 );
 
-When('the user saves the resource table widget', () => {
+When('the user saves the "Resource table" widget', () => {
   cy.getByTestId({ testId: 'confirm' }).click();
 });
 
 Then(
-  'the resource table widget is added to the dashboard layout and shows the filtered host correctly',
+  'the resource table widget is added to the dashboard layout and correctly displays the filtered hosts',
   () => {
     cy.waitUntil(
       () =>
