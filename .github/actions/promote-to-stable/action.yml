@@ -184,7 +184,6 @@ runs:
           done
         else
           echo "::warning::No source path found."
-          continue
         fi
 
         echo "[DEBUG] - Build target path."
@@ -193,7 +192,7 @@ runs:
           POOL_SUBPATH="${{ inputs.module }}"
           DEB_PROP="${{ inputs.distrib }}}/main/$ARCH"
         else
-          POOL_SUBPATH="${{ inputs.version }}/${{ inputs.stability }}/${{ inputs.module_name }}"
+          POOL_SUBPATH="${{ inputs.major_version }}/${{ inputs.stability }}/${{ inputs.module }}"
           DEB_PROP="${{ inputs.distrib }}-${{ inputs.version }}-${{ inputs.stability }}/main/$ARCH"
         fi
         TARGET_PATH="$TARGET_ROOT_REPO_PATH/pool/${POOL_SUBPATH}/"
