@@ -3,7 +3,12 @@ import Actions from './Actions';
 import { useColumns } from './Columns/Columns';
 import useListing from './useListing';
 
-const Listing = ({ data, isLoading }): JSX.Element => {
+interface Props {
+  data?;
+  isLoading: boolean;
+}
+
+const Listing = ({ data, isLoading }: Props): JSX.Element => {
   const { columns } = useColumns();
 
   const {
