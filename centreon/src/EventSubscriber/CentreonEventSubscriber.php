@@ -509,6 +509,7 @@ class CentreonEventSubscriber implements EventSubscriberInterface
             ->setTimezoneId($user->getTimezoneId())
             ->setDefaultPage($user->getDefaultPage())
             ->setUseDeprecatedPages($user->isUsingDeprecatedPages())
+            ->setUseDeprecatedCustomViews($user->isUsingDeprecatedCustomViews())
             ->setTheme($user->getTheme() ?? 'light')
             ->setUserInterfaceDensity($user->getUserInterfaceDensity());
     }

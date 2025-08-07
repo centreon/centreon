@@ -1,0 +1,61 @@
+name: delete-feature-repositories
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+on:
+  pull_request:
+    types:
+      - closed
+
+jobs:
+  delete-feature-repositories:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: jfrog/setup-jfrog-cli@f748a0599171a192a2668afee8d0497f7c1069df # v4.5.6
+        env:
+          JF_URL: https://centreon.jfrog.io
+          JF_ACCESS_TOKEN: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
+
+      - name: Check if feature branch had associated feature repository
+        id: check
+        shell: bash
+        run: |
+          set -x
+          feature_ticket=$(echo "${{ github.head_ref }}" | grep -oE 'MON-[0-9]+')
+          if [[ -n "$feature_ticket" ]] && jf rt curl -s -X GET /api/repositories \
+            | jq -r '.[].key' | grep -q "$feature_ticket"; then
+            echo "::notice::Repositories associated with $feature_ticket found – deletion will be requested."
+            echo "repositories_found=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "::notice::No repositories linked to $feature_ticket – workflow ends here."
+            echo "repositories_found=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Send repository dispatch to delete feature repositories
+        shell: bash
+        if: |
+          steps.check.outputs.repositories_found == 'true'
+        run: |
+          set -x
+          echo "Sending repository dispatch to delete feature repository workflow..."
+          feature_ticket=$(echo "${{ github.head_ref }}" | grep -oE 'MON-[0-9]+')
+          curl --fail-with-body -X POST \
+            -H "Authorization: Bearer ${{ secrets.CENTREON_TECHNIQUE_PAT }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            https://api.github.com/repos/centreon/delivery-tooling/dispatches \
+            -d "$(jq -n \
+              --arg feature_ticket "$feature_ticket" \
+              '{
+                event_type: "delete-feature-repositories",
+                client_payload: {
+                  feature_ticket: $feature_ticket
+                }
+              }'
+            )"
+
+          if [ $? -ne 0 ]; then
+            echo "::error::Failure to send repository dispatch to delete feature repository. You may want to perform that operation manually."
+            exit 1
+          fi
