@@ -125,14 +125,14 @@ if ($cct['contact_auth_type'] === 'local') {
         }
     }
     $form->addElement(
-            'password',
-            'current_password',
-            _('Current password'),
-            [
-                    'size' => '30',
-                    'autocomplete' => 'off',
-                    'id' => 'current_password'
-            ]
+        'password',
+        'current_password',
+        _('Current password'),
+        [
+            'size' => '30',
+            'autocomplete' => 'off',
+            'id' => 'current_password',
+        ]
     );
     $form->addElement(
         'password',

@@ -1625,12 +1625,12 @@ function validatePasswordModification(array $fields): array|true
     }
 
     // If the admin wants to change the user password, he must provide his current password
-    if (!empty($newPassword) && empty($currentAdminPassword)) {
+    if (! empty($newPassword) && empty($currentAdminPassword)) {
         return ['current_admin_password' => _('Your current administrator password is required to change the user password')];
     }
 
     // If the admin provided a current password, we check if it matches the one in the database
-    if (!empty($currentAdminPassword) && password_verify($currentAdminPassword, $centreon->user->passwd) === false) {
+    if (! empty($currentAdminPassword) && password_verify($currentAdminPassword, $centreon->user->passwd) === false) {
         return ['current_admin_password' => _('Your current administrator password is incorrect')];
     }
 
@@ -1642,6 +1642,7 @@ function validatePasswordModification(array $fields): array|true
     try {
         $contact = new CentreonContact($pearDB);
         $contact->respectPasswordPolicyOrFail($newPassword, $contactId);
+
         return true;
     } catch (Throwable $e) {
         return ['contact_passwd' => $e->getMessage()];
