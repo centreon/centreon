@@ -23,13 +23,13 @@ declare(strict_types=1);
 
 namespace Core\Media\Infrastructure\API\FindImageFolders;
 
-final class ImageFolderDto
+final readonly class ImageFolderDto
 {
-    public int $id = 0;
-
-    public string $name = '';
-
-    public ?string $alias = null;
-
-    public ?string $comment = null;
+    public function __construct(
+        public int $id,
+        public string $name,
+        public ?string $alias,
+        public ?string $comment,
+    ) {
+    }
 }

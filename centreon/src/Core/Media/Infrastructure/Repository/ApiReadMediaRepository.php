@@ -24,8 +24,8 @@ declare(strict_types=1);
 namespace Core\Media\Infrastructure\Repository;
 
 use Assert\AssertionFailedException;
-use Centreon\Domain\Repository\RepositoryException;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
+use Core\Common\Domain\Exception\RepositoryException;
 use Core\Common\Infrastructure\Repository\ApiCallIterator;
 use Core\Common\Infrastructure\Repository\ApiRepositoryTrait;
 use Core\Media\Application\Repository\ReadMediaRepositoryInterface;
@@ -33,7 +33,6 @@ use Core\Media\Domain\Model\Media;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
-use Traversable;
 
 class ApiReadMediaRepository implements ReadMediaRepositoryInterface
 {
@@ -52,8 +51,8 @@ class ApiReadMediaRepository implements ReadMediaRepositoryInterface
     public function findByRequestParametersAndAccessGroups(
         RequestParametersInterface $requestParameters,
         array $accessGroups,
-    ): Traversable {
-        throw RepositoryException::notYetImplemented();
+    ): \Traversable {
+        throw new RepositoryException('Not yet implemented');
     }
 
     /**
@@ -61,7 +60,7 @@ class ApiReadMediaRepository implements ReadMediaRepositoryInterface
      */
     public function findById(int $mediaId): ?Media
     {
-        throw RepositoryException::notYetImplemented();
+        throw new RepositoryException('Not yet implemented');
     }
 
     /**
@@ -69,7 +68,7 @@ class ApiReadMediaRepository implements ReadMediaRepositoryInterface
      */
     public function findByIds(array $mediaIds): array
     {
-        throw RepositoryException::notYetImplemented();
+        throw new RepositoryException('Not yet implemented');
     }
 
     /**
@@ -77,13 +76,13 @@ class ApiReadMediaRepository implements ReadMediaRepositoryInterface
      */
     public function existsByPath(string $path): bool
     {
-        throw RepositoryException::notYetImplemented();
+        throw new RepositoryException('Not yet implemented');
     }
 
     /**
      * @inheritDoc
      */
-    public function findAll(): Traversable&\Countable
+    public function findAll(): \Traversable&\Countable
     {
         $apiEndpoint = $this->router->generate('FindMedias');
         $options = [
@@ -118,9 +117,9 @@ class ApiReadMediaRepository implements ReadMediaRepositoryInterface
     /**
      * @inheritDoc
      */
-    public function findByRequestParameters(RequestParametersInterface $requestParameters): Traversable
+    public function findByRequestParameters(RequestParametersInterface $requestParameters): \Traversable
     {
-        throw RepositoryException::notYetImplemented();
+        throw new RepositoryException('Not yet implemented');
     }
 
     /**

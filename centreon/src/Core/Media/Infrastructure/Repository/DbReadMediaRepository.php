@@ -32,7 +32,6 @@ use Core\Common\Infrastructure\Repository\SqlMultipleBindTrait;
 use Core\Media\Application\Repository\ReadMediaRepositoryInterface;
 use Core\Media\Domain\Model\Media;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
-use PDO;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -114,10 +113,10 @@ class DbReadMediaRepository extends AbstractRepositoryRDB implements ReadMediaRe
         }
 
         foreach ($bindValues as $bindKey => $bindValue) {
-            $statement->bindValue($bindKey, $bindValue, PDO::PARAM_INT);
+            $statement->bindValue($bindKey, $bindValue, \PDO::PARAM_INT);
         }
 
-        $statement->setFetchMode(PDO::FETCH_ASSOC);
+        $statement->setFetchMode(\PDO::FETCH_ASSOC);
         $statement->execute();
 
         $result = $this->db->query('SELECT FOUND_ROWS()');
@@ -162,12 +161,12 @@ class DbReadMediaRepository extends AbstractRepositoryRDB implements ReadMediaRe
             SQL;
 
         $statement = $this->db->prepare($this->translateDbName($request));
-        $statement->bindValue(':mediaId', $mediaId, PDO::PARAM_INT);
+        $statement->bindValue(':mediaId', $mediaId, \PDO::PARAM_INT);
 
         $statement->execute();
 
         /** @var _Media|false */
-        $record = $statement->fetch(PDO::FETCH_ASSOC);
+        $record = $statement->fetch(\PDO::FETCH_ASSOC);
 
         if ($record === false) {
             return null;
@@ -206,9 +205,9 @@ class DbReadMediaRepository extends AbstractRepositoryRDB implements ReadMediaRe
 
         $statement = $this->db->prepare($this->translateDbName($request));
         foreach ($bindValues as $key => $value) {
-            $statement->bindValue($key, $value, PDO::PARAM_INT);
+            $statement->bindValue($key, $value, \PDO::PARAM_INT);
         }
-        $statement->setFetchMode(PDO::FETCH_ASSOC);
+        $statement->setFetchMode(\PDO::FETCH_ASSOC);
 
         $statement->execute();
 
@@ -276,9 +275,9 @@ class DbReadMediaRepository extends AbstractRepositoryRDB implements ReadMediaRe
             SQL_WRAP;
         $index = 0;
         $statement = $this->db->prepare($this->translateDbName($request));
-        $statement->bindParam(':from', $index, PDO::PARAM_INT);
-        $statement->bindValue(':max_item_by_request', self::MAX_ITEMS_BY_REQUEST, PDO::PARAM_INT);
-        $statement->setFetchMode(PDO::FETCH_ASSOC);
+        $statement->bindParam(':from', $index, \PDO::PARAM_INT);
+        $statement->bindValue(':max_item_by_request', self::MAX_ITEMS_BY_REQUEST, \PDO::PARAM_INT);
+        $statement->setFetchMode(\PDO::FETCH_ASSOC);
         $statement->execute();
 
         $result = $this->db->query('SELECT FOUND_ROWS()');
@@ -388,7 +387,7 @@ class DbReadMediaRepository extends AbstractRepositoryRDB implements ReadMediaRe
             $value = $data[$type];
             $statement->bindValue($key, $value, $type);
         }
-        $statement->setFetchMode(PDO::FETCH_ASSOC);
+        $statement->setFetchMode(\PDO::FETCH_ASSOC);
         $statement->execute();
         $result = $this->db->query('SELECT FOUND_ROWS()');
 

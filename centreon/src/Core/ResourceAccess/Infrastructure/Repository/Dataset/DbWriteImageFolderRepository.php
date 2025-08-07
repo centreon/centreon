@@ -26,6 +26,7 @@ namespace Core\ResourceAccess\Infrastructure\Repository\Dataset;
 use Adaptation\Database\Connection\Collection\BatchInsertParameters;
 use Adaptation\Database\Connection\Collection\QueryParameters;
 use Adaptation\Database\Connection\ValueObject\QueryParameter;
+use Core\Common\Domain\Exception\RepositoryException;
 use Core\Common\Infrastructure\Repository\DatabaseRepository;
 use Core\ResourceAccess\Application\Repository\WriteDatasetRepositoryInterface;
 use Core\ResourceAccess\Domain\Model\DatasetFilter\Providers\ImageFolderFilterType;
@@ -34,6 +35,8 @@ final class DbWriteImageFolderRepository extends DatabaseRepository implements W
 {
     /**
      * @inheritDoc
+     *
+     * @throws RepositoryException
      */
     public function linkResourcesToDataset(int $ruleId, int $datasetId, array $resourceIds): void
     {
@@ -69,6 +72,8 @@ final class DbWriteImageFolderRepository extends DatabaseRepository implements W
 
     /**
      * @inheritDoc
+     *
+     * @throws RepositoryException
      */
     public function updateDatasetAccess(int $ruleId, int $datasetId, bool $fullAccess): void
     {

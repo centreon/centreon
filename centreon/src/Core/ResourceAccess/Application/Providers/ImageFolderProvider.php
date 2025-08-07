@@ -47,7 +47,7 @@ final class ImageFolderProvider implements DatasetProviderInterface
      */
     public function areResourcesValid(array $resourceIds): array
     {
-        return $this->repository->foldersExist($resourceIds);
+        return $this->repository->findExistingFolderIds($resourceIds);
     }
 
     /**

@@ -28,7 +28,7 @@ use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Common\Domain\Exception\RepositoryException;
 use Core\Common\Infrastructure\ExceptionLogger\ExceptionLogger;
 use Core\Media\Application\UseCase\FindImageFolders\FindImageFolders;
-use Exception;
+use Core\Media\Domain\Model\ImageFolder\ImageFolder;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -40,31 +40,42 @@ final class FindImageFoldersController extends AbstractController
     public function __construct(
         private readonly ExceptionLogger $exceptionLogger,
         private readonly RequestParametersInterface $requestParameters,
-        private readonly SerializerInterface $serializer
+        private readonly SerializerInterface $serializer,
     ) {
     }
 
     #[Route(
         path: '/configuration/media/folders',
         name: 'FindImageFolders',
-        methods: 'GET'
+        methods: 'GET',
     )]
     public function __invoke(
-        FindImageFolders $useCase
+        FindImageFolders $useCase,
     ): Response {
         try {
-            $response = $useCase();
+            $folders = $useCase();
+
+            $response = new FindImageFoldersResponse(
+                array_map(function (ImageFolder $folder): ImageFolderDto {
+                    return new ImageFolderDto(
+                        id: $folder->id()->value,
+                        name: $folder->name()->value,
+                        alias: $folder->alias()?->value,
+                        comment: $folder->description()?->value,
+                    );
+                }, $folders),
+            );
 
             return JsonResponse::fromJsonString(
                 $this->serializer->serialize(
                     [
-                        'result' => $response->folders,
+                        'result' => $response->folderDtos,
                         'meta' => $this->requestParameters->toArray(),
                     ],
                     JsonEncoder::FORMAT,
                 )
             );
-        } catch (RepositoryException|Exception $exception) {
+        } catch (RepositoryException|\Exception $exception) {
             $this->exceptionLogger->log($exception);
 
             return new JsonResponse(

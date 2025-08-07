@@ -25,10 +25,9 @@ namespace Core\Media\Application\UseCase\FindImageFolders;
 
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
+use Core\Common\Infrastructure\RepositoryException;
 use Core\Media\Application\Repository\ReadImageFolderRepositoryInterface;
 use Core\Media\Domain\Model\ImageFolder\ImageFolder;
-use Core\Media\Infrastructure\API\FindImageFolders\FindImageFoldersResponse;
-use Core\Media\Infrastructure\API\FindImageFolders\ImageFolderDto;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 
 final readonly class FindImageFolders
@@ -41,49 +40,40 @@ final readonly class FindImageFolders
     ) {
     }
 
-    public function __invoke(): FindImageFoldersResponse
+    /**
+     * @throws RepositoryException
+     *
+     * @return array<ImageFolder>
+     */
+    public function __invoke(): array
     {
         return $this->user->isAdmin() ? $this->findAsAdmin() : $this->findAsUser();
     }
 
-    private function findAsAdmin(): FindImageFoldersResponse
+    /**
+     * @throws RepositoryException
+     *
+     * @return array<ImageFolder>
+     */
+    private function findAsAdmin(): array
     {
-        $folders = $this->imageFolderReader->findByRequestParameters($this->requestParameters);
-
-        return $this->createResponse($folders);
+        return $this->imageFolderReader->findByRequestParameters($this->requestParameters);
     }
 
-    private function findAsUser(): FindImageFoldersResponse
+    /**
+     * @throws RepositoryException
+     *
+     * @return array<ImageFolder>
+     */
+    private function findAsUser(): array
     {
         $accessGroups = $this->accessGroupReader->findByContact($this->user);
 
-        $folders = $this->imageFolderReader->hasAccessToAllImageFolders($accessGroups)
+        return $this->imageFolderReader->hasAccessToAllImageFolders($accessGroups)
             ? $this->imageFolderReader->findByRequestParameters($this->requestParameters)
             : $this->imageFolderReader->findByRequestParametersAndAccessGroups(
                 $this->requestParameters,
                 $accessGroups
             );
-
-        return $this->createResponse($folders);
-    }
-
-    /**
-     * @param ImageFolder[] $folders
-     * @return FindImageFoldersResponse
-     */
-    private function createResponse(array $folders): FindImageFoldersResponse
-    {
-        $response = new FindImageFoldersResponse();
-        foreach ($folders as $folder) {
-            $dto = new ImageFolderDto();
-            $dto->id = $folder->id()->value;
-            $dto->name = $folder->name()->value;
-            $dto->alias = $folder->alias()?->value;
-            $dto->comment = $folder->description()?->value;
-
-            $response->folders[] = $dto;
-        }
-
-        return $response;
     }
 }

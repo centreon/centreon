@@ -34,18 +34,18 @@ interface ReadImageFolderRepositoryInterface
     /**
      * @param int[] $folderIds
      *
-     * @throws \Throwable
+     * @throws RepositoryException
      *
      * @return int[]
      */
-    public function foldersExist(array $folderIds): array;
+    public function findExistingFolderIds(array $folderIds): array;
 
     /**
      * Method dedicated and specific to Resource Access Management
      *
      * @param int[] $folderIds
      *
-     * @throws \Throwable
+     * @throws RepositoryException
      *
      * @return ResourceNamesById
      */
@@ -53,7 +53,9 @@ interface ReadImageFolderRepositoryInterface
 
     /**
      * @param RequestParametersInterface $requestParameters
+     *
      * @throws RepositoryException
+     *
      * @return ImageFolder[]
      */
     public function findByRequestParameters(RequestParametersInterface $requestParameters): array;
@@ -61,7 +63,9 @@ interface ReadImageFolderRepositoryInterface
     /**
      * @param RequestParametersInterface $requestParameters
      * @param AccessGroup[] $accessGroups
+     *
      * @throws RepositoryException
+     *
      * @return ImageFolder[]
      */
     public function findByRequestParametersAndAccessGroups(
@@ -74,6 +78,7 @@ interface ReadImageFolderRepositoryInterface
      *  giving access to all media folders
      *
      * @param AccessGroup[] $accessGroups
+     *
      * @return bool
      */
     public function hasAccessToAllImageFolders(array $accessGroups): bool;

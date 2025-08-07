@@ -36,7 +36,6 @@ use Core\Media\Application\Repository\ReadImageFolderRepositoryInterface;
 use Core\Media\Application\Repository\ReadMediaRepositoryInterface;
 use Core\Media\Domain\Model\Media;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
-use Traversable;
 
 final class FindMedias
 {
@@ -73,29 +72,49 @@ final class FindMedias
             $medias = $this->user->isAdmin() ? $this->findAsAdmin() : $this->findAsUser();
             $presenter->presentResponse($this->createResponse($medias));
         } catch (RequestParametersTranslatorException $ex) {
+            $this->error(
+                $ex->getMessage(),
+                [
+                    'request_parameters' => $this->requestParameters->toArray(),
+                    'exception' => [
+                        'message' => $ex->getPrevious()->getMessage(),
+                        'trace' => $ex->getTraceAsString(),
+                    ],
+                ]
+            );
+
             $presenter->presentResponse(new ErrorResponse($ex->getMessage()));
-            $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
         } catch (\Throwable $ex) {
-            $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
+            $this->error(
+                $ex->getMessage(),
+                [
+                    'exception' => [
+                        'message' => $ex->getPrevious()->getMessage(),
+                        'trace' => $ex->getTraceAsString(),
+                    ],
+                ]
+            );
+
             $presenter->presentResponse(new ErrorResponse(MediaException::errorWhileSearchingForMedias()));
         }
     }
 
     /**
-     * @throws \Throwable
+     * @throws RepositoryException|RequestParametersTranslatorException
+     *
      * @return Traversable<Media>
      */
-    private function findAsAdmin(): Traversable
+    private function findAsAdmin(): \Traversable
     {
         return $this->mediaReader->findByRequestParameters($this->requestParameters);
     }
 
     /**
-     * @throws RepositoryException
-     * @throws \Throwable
-     * @return Traversable<Media>
+     * @throws RepositoryException|RequestParametersTranslatorException
+     *
+     * @return \Traversable<Media>
      */
-    private function findAsUser(): Traversable
+    private function findAsUser(): \Traversable
     {
         $accessGroups = $this->accessGroupReader->findByContact($this->user);
 
@@ -112,11 +131,11 @@ final class FindMedias
     }
 
     /**
-     * @param Traversable<int, Media> $medias
+     * @param \Traversable<int, Media> $medias
      *
      * @return FindMediasResponse
      */
-    private function createResponse(Traversable $medias): FindMediasResponse
+    private function createResponse(\Traversable $medias): FindMediasResponse
     {
         $response = new FindMediasResponse();
         foreach ($medias as $media) {

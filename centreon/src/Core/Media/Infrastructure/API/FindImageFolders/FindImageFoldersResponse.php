@@ -23,13 +23,13 @@ declare(strict_types=1);
 
 namespace Core\Media\Infrastructure\API\FindImageFolders;
 
-final class FindImageFoldersResponse
+final readonly class FindImageFoldersResponse
 {
     /**
-     * @param ImageFolderDto[] $folders
+     * @param ImageFolderDto[] $folderDtos
      */
     public function __construct(
-        public array $folders = []
+        public array $folderDtos,
     ) {
     }
 }

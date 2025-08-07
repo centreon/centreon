@@ -324,7 +324,7 @@ final class DbReadImageFolderRepository extends DatabaseRepository implements Re
     /**
      * @inheritDoc
      */
-    public function foldersExist(array $folderIds): array
+    public function findExistingFolderIds(array $folderIds): array
     {
         if ($folderIds === []) {
             return [];
