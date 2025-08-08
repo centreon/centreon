@@ -8234,5 +8234,5 @@ msgstr ""
 "de convertir les fichiers MIBs importés dans Centreon."
 
 #: centreon/www/include/configuration/configObject/contact/help.php
-msgid "For security reasons, to be able to change this user's password, you (the currently logged-in administrator) must verify your identity by entering your own password."
-msgstr "Pour des raisons de sécurité, afin de pouvoir changer le mot de passe de cet utilisateur, vous (l'administrateur actuellement connecté) devez vérifier votre identité en saisissant votre propre mot de passe."
+msgid "For security reasons, to be able to change this user's password, you (the currently logged-in user) must verify your identity by entering your own password."
+msgstr "Pour des raisons de sécurité, afin de pouvoir changer le mot de passe de cet utilisateur, vous (l'utilisateur actuellement connecté) devez vérifier votre identité en saisissant votre propre mot de passe."

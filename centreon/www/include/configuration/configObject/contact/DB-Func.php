@@ -1617,32 +1617,32 @@ function validatePasswordModification(array $fields): array|true
     global $pearDB, $centreon;
     $newPassword = $fields['contact_passwd'];
     $confirmPassword = $fields['contact_passwd2'];
-    $currentAdminPassword = $fields['current_admin_password'];
+    $currentPassword = $fields['current_password'];
     $contactId = $fields['contact_id'];
 
     // If the user does not want to change his password, we do not need to check it
-    if (empty($newPassword) && empty($confirmPassword) && empty($currentAdminPassword)) {
+    if (empty($newPassword) && empty($confirmPassword) && empty($currentPassword)) {
         return true;
     }
 
-    // If the user only provided a confirmation password, we return a message indicating that it is not necessary
-    if (empty($newPassword) && ! empty($confirmPassword) && empty($currentAdminPassword)) {
-        return ['contact_passwd2' => _('The password field is empty, so confirmation is not necessary')];
+    // If the user only provided a confirmation password, he must provide a new password and a current password
+    if (empty($newPassword) && ! empty($confirmPassword) && empty($currentPassword)) {
+        return ['contact_passwd2' => _('Please fill in both password fields')];
     }
 
-    // If the user only provided his current password, we return a message indicating that it is not necessary
-    if (empty($newPassword) && ! empty($currentAdminPassword)) {
-        return ['current_password' => _('The password field is empty, so your current password is not necessary')];
+    // If the user only provided his current password, he must provide a new password
+    if (empty($newPassword) && ! empty($currentPassword)) {
+        return ['current_password' => _('Please fill in both password fields')];
     }
 
     // If the user wants to change his password, he must provide his current password
-    if (! empty($newPassword) && empty($currentAdminPassword)) {
-        return ['current_password' => _('Your current password is required to change your password')];
+    if (! empty($newPassword) && empty($currentPassword)) {
+        return ['current_password' => _('Please fill in both password fields')];
     }
 
     // If the user provided a current password, we check if it matches the one in the database
-    if (! empty($currentAdminPassword) && password_verify($currentAdminPassword, $centreon->user->passwd) === false) {
-        return ['current_password' => _('Your current password is incorrect')];
+    if (! empty($currentPassword) && password_verify($currentPassword, $centreon->user->passwd) === false) {
+        return ['current_password' => _('Authentication failed')];
     }
 
     try {

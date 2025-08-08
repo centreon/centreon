@@ -1714,6 +1714,8 @@ msgid "Authentication denied"
 msgstr "Authentification refusée"
 
 #: centreon/src/Core/Security/Authentication/Domain/Exception/AuthenticationException.php
+#: centreon/www/include/Administration/myAccount/formMyAccount.php
+#: centreon/www/include/configuration/configObject/contact/formContact.php
 msgid "Authentication failed"
 msgstr "Echec de l'authentification"
 
@@ -24348,21 +24350,10 @@ msgid "will display resources with host name starting by'"
 msgstr "affichera les ressources avec un nom d'hôte commençant par"
 
 #: centreon/www/include/configuration/configObject/contact/formContact.php
-msgid "Your current administrator password"
-msgstr "Votre mot de passe administrateur actuel"
+msgid "Your current password"
+msgstr "Votre mot de passe actuel"
 
 #: centreon/www/include/configuration/configObject/contact/formContact.php
-msgid "Your current administrator password is incorrect"
-msgstr "Votre mot de passe administrateur actuel est incorrect"
-
-#: centreon/www/include/configuration/configObject/contact/formContact.php
-msgid "Your current administrator password is required to change the user password"
-msgstr "Votre mot de passe administrateur actuel est requis pour changer le mot de passe de l'utilisateur"
-
 #: centreon/www/include/Administration/myAccount/formMyAccount.php
-msgid "Your current password is incorrect"
-msgstr "Votre mot de passe actuel est incorrect"
-
-#: centreon/www/include/Administration/myAccount/formMyAccount.php
-msgid "Your current password is required to change your password"
-msgstr "Votre mot de passe actuel est requis pour changer votre mot de passe"
+msgid "Please fill in both password fields"
+msgstr "Veuillez remplir les deux champs du mot de passe"

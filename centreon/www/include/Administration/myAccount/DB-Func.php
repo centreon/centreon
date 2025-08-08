@@ -192,24 +192,24 @@ function validatePasswordModification(array $fields): array|true
         return true;
     }
 
-    // If the user only provided a confirmation password, we return a message indicating that it is not necessary
+    // If the user only provided a confirmation password, he must provide a new password and a current password
     if (empty($newPassword) && ! empty($confirmPassword) && empty($currentPassword)) {
-        return ['contact_passwd2' => _('The password field is empty, so confirmation is not necessary')];
+        return ['contact_passwd2' => _('Please fill in both password fields')];
     }
 
-    // If the user only provided his current password, we return a message indicating that it is not necessary
+    // If the user only provided his current password, he must provide a new password
     if (empty($newPassword) && ! empty($currentPassword)) {
-        return ['current_password' => _('The password field is empty, so your current password is not necessary')];
+        return ['current_password' => _('Please fill in both password fields')];
     }
 
     // If the user wants to change his password, he must provide his current password
     if (! empty($newPassword) && empty($currentPassword)) {
-        return ['current_password' => _('Your current password is required to change your password')];
+        return ['current_password' => _('Please fill in both password fields')];
     }
 
     // If the user provided a current password, we check if it matches the one in the database
     if (! empty($currentPassword) && password_verify($currentPassword, $centreon->user->passwd) === false) {
-        return ['current_password' => _('Your current password is incorrect')];
+        return ['current_password' => _('Authentication failed')];
     }
 
     try {
