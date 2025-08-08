@@ -38,7 +38,6 @@ use Core\Host\Application\Converter\HostEventConverter;
 use Core\Infrastructure\Common\Api\Router;
 use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface;
 use Core\Security\Vault\Domain\Model\VaultConfiguration;
-use PHPUnit\TextUI\XmlConfiguration\CodeCoverage\Report\Html;
 use Symfony\Component\HttpClient\CurlHttpClient;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
@@ -147,7 +146,7 @@ function hostMacHandler()
  */
 function hasHostNameNeverUsed($name = null)
 {
-    global $pearDB, $form;
+    global $pearDB, $form, $centreon;
 
     $id = null;
     if (isset($form)) {
@@ -158,7 +157,7 @@ function hasHostNameNeverUsed($name = null)
         'SELECT host_name, host_id FROM host '
         . "WHERE host_name = :host_name AND host_register = '1'"
     );
-    $hostName = HtmlSanitizer::createFromString($name)->sanitize()->getString();
+    $hostName = CentreonDB::escape($centreon->checkIllegalChar($name));
 
     $prepare->bindValue(':host_name', $hostName, PDO::PARAM_STR);
     $prepare->execute();
@@ -201,9 +200,7 @@ function hasHostTemplateNeverUsed($name = null)
         'SELECT host_name, host_id FROM host '
         . "WHERE host_name = :host_name AND host_register = '0'"
     );
-    $hostName = HtmlSanitizer::createFromString($name)->sanitize()->getString();
-
-    $prepare->bindValue(':host_name', $hostName, PDO::PARAM_STR);
+    $prepare->bindValue(':host_name', $name, PDO::PARAM_STR);
     $prepare->execute();
     $total = $prepare->rowCount();
     $result = $prepare->fetch(PDO::FETCH_ASSOC);
@@ -416,7 +413,6 @@ function multipleHostInDB($hosts = [], $nbrDup = [])
             foreach ($row as $key2 => $value2) {
                 $value2 = is_int($value2) ? (string) $value2 : $value2;
                 if ($key2 == 'host_name') {
-                    $value2 = HtmlSanitizer::createFromString($value2)->sanitize()->getString();
                     $hostName = $value2 . '_' . $i;
                     $value2 = $value2 . '_' . $i;
                 }
@@ -1212,9 +1208,7 @@ function updateHost($hostId = null, $isMassiveChange = false, $configuration = n
         }
     }
 
-    $hostName = HtmlSanitizer::sanitize($ret['host_name'] ?? $form->getSubmitValue('host_name'));
-    $ret['host_name'] = $host->checkIllegalChar($hostName, $server_id);
-
+    $ret['host_name'] = $host->checkIllegalChar($ret['host_name'], $server_id);
     if ($ret['host_snmp_community'] === PASSWORD_REPLACEMENT_VALUE) {
         unset($ret['host_snmp_community']);
     }
@@ -1511,14 +1505,13 @@ function updateHost_MC($hostId = null)
 
     $dbResultX = $pearDB->query("SELECT host_name FROM `host` WHERE host_id='" . $hostId . "' LIMIT 1");
     $row = $dbResultX->fetch();
-    $hostName = HtmlSanitizer::createFromString($row['host_name'])->sanitize()->getString();
 
     // Prepare value for changelog
     $fields = CentreonLogAction::prepareChanges($submittedValues);
     $centreon->CentreonLogAction->insertLog(
         object_type: ActionLog::OBJECT_TYPE_HOST,
         object_id: $hostId,
-        object_name: $hostName,
+        object_name: $row['host_name'],
         action_type: ActionLog::ACTION_TYPE_MASS_CHANGE,
         fields: $fields
     );
@@ -2566,7 +2559,7 @@ function sanitizeFormHostParameters(array $ret): array
                 break;
             case 'host_name':
                 if (! empty($inputValue)) {
-                    $inputValue = HtmlSanitizer::createFromString($inputValue)->sanitize()->getString();
+                    $inputValue = HtmlAnalyzer::sanitizeAndRemoveTags($inputValue);
                     $bindParams[':' . $inputName] = [
                         PDO::PARAM_STR => ($inputValue === '' || $inputValue === false)
                             ? null
@@ -3000,8 +2993,8 @@ function getPayloadForHostTemplate(bool $isCloudPlatform, array $formData): arra
     global $pearDB;
 
     $payload = [
-        'name' => HtmlSanitizer::createFromString($formData['host_name'])->sanitize()->getString(),
-        'alias' => HtmlSanitizer::createFromString($formData['host_alias'])->sanitize()->getString(),
+        'name' => $formData['host_name'],
+        'alias' => $formData['host_alias'] ?: null,
         'snmp_version' => $formData['host_snmp_version'] ?: null,
         'snmp_community' => $formData['host_snmp_community'] ?: null,
         'note_url' => $formData['ehi_notes_url'] ?: null,
