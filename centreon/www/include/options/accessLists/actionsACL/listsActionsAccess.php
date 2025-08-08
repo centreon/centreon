@@ -106,7 +106,7 @@ for ($i = 0; $topo = $statement->fetchRow(); $i++) {
         'RowMenu_select' => $selectedElements->toHtml(),
         'RowMenu_name' => $topo['acl_action_name'],
         'RowMenu_link' => 'main.php?p=' . $p . '&o=c&acl_action_id=' . $topo['acl_action_id'],
-        'RowMenu_alias' => htmlspecialchars($topo['acl_action_description']),
+        'RowMenu_alias' => $topo['acl_action_description'],
         'RowMenu_status' => $topo['acl_action_activate'] ? _('Enabled') : _('Disabled'),
         'RowMenu_badge' => $topo['acl_action_activate'] ? 'service_ok' : 'service_critical',
         'RowMenu_options' => $moptions];
