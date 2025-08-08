@@ -74,17 +74,7 @@ runs:
 
         # Search for testing packages candidate for promote
         for ARCH in "noarch" "x86_64"; do
-
-          # Build search path based on is_cloud and release_type values
-          # if cloud, search in testing-<release_type> path
-          # if non-cloud, search in the testing usual path
-          if [[ "${{ inputs.is_cloud }}" == "true" && "${{ inputs.release_type }}" == "hotfix" ]] || [[ "${{ inputs.is_cloud }}" == "true" && "${{ inputs.release_type }}" == "release" ]]; then
-            SEARCH_REPO_PATH="${{ inputs.major_version }}/${{ inputs.distrib }}/testing-${{ inputs.release_type }}/$ARCH/${{ inputs.module }}"
-          elif [[ "${{ inputs.is_cloud }}" == "false" ]];then
-            SEARCH_REPO_PATH="${{ inputs.major_version }}/${{ inputs.distrib }}/testing/$ARCH/${{ inputs.module }}"
-          else
-            echo "Invalid combination of release_type and is_cloud"
-          fi
+          SEARCH_REPO_PATH="${{ inputs.major_version }}/${{ inputs.distrib }}/testing-${{ inputs.release_type }}/$ARCH/${{ inputs.module }}"
 
           echo "[DEBUG] - Get path of $ARCH testing artifacts to promote to stable."
           SRC_PATHS=$(jf rt search --include-dirs $ROOT_REPO_PATH/$SEARCH_REPO_PATH/*.rpm | jq -r '.[].path')
