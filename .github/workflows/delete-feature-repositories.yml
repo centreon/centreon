@@ -24,8 +24,10 @@ jobs:
         run: |
           set -x
           feature_ticket=$(echo "${{ github.head_ref }}" | grep -oE 'MON-[0-9]+')
-          if [[ -n "$feature_ticket" ]] && jf rt curl -s -X GET /api/repositories \
-            | jq -r '.[].key' | grep -q "$feature_ticket"; then
+          if [[ -z "$feature_ticket" ]]; then
+            echo "::notice::Ticket ID not found due to the branch name not corresponding to standards."
+            echo "repositories_found=false" >> "$GITHUB_OUTPUT"
+          elif jf rt curl -s -X GET /api/repositories | jq -r '.[].key' | grep -q "$feature_ticket"; then
             echo "::notice::Repositories associated with $feature_ticket found – deletion will be requested."
             echo "repositories_found=true" >> "$GITHUB_OUTPUT"
           else
