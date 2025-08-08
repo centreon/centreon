@@ -232,6 +232,8 @@ Given('an agent configuration already created linked with two pollers', () => {
   cy.getByLabel({ label: 'Pollers', tag: 'input' }).click();
   cy.contains('Central').click();
   cy.contains('Poller-1').click();
+  // Click outside to close the pollers dropdown list
+  cy.contains('h6', 'Pollers').click();
   cy.getByLabel({ label: 'Public certificate(.crt,.cer)', tag: 'input' })
     .eq(0)
     .type(agentsConfiguration.telegraf1.publicCertfFileName);
@@ -417,6 +419,8 @@ Then('only the filtered pollers are listed in the Pollers field', () => {
   cy.get('[class^="MuiPopper-root MuiAutocomplete-popper"]').contains(
     'Poller-1'
   );
+  // Click outside to close the pollers dropdown list
+  cy.contains('h6', 'Pollers').click();
 });
 
 When('the non-admin user fills in all the information', () => {

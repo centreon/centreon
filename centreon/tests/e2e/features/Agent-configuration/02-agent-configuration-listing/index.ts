@@ -88,6 +88,8 @@ Given('an already existing agent configuration', () => {
   );
   cy.getByLabel({ label: 'Pollers', tag: 'input' }).click();
   cy.contains('Central').click();
+  // Click outside to close the pollers dropdown list
+  cy.contains('h6', 'Pollers').click();
   cy.getByLabel({ label: 'Public certificate(.crt,.cer)', tag: 'input' })
     .eq(0)
     .type(agentsConfiguration.telegraf1.publicCertfFileName);
