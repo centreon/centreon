@@ -393,8 +393,7 @@ jobs:
           is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
 
   promote:
-    # needs: [get-environment, deliver-rpm, deliver-deb]
-    needs: [get-environment, deliver-deb]
+    needs: [get-environment, deliver-rpm, deliver-deb]
     # if: ${{ false }}
     # if: |
     #   needs.get-environment.outputs.skip_workflow == 'false' &&
@@ -406,8 +405,7 @@ jobs:
     runs-on: centreon-common
     strategy:
       matrix:
-        distrib: [bookworm]
-        # distrib: [el8, el9, bookworm]
+        distrib: [el8, el9, bookworm]
 
     steps:
       - name: Checkout sources
