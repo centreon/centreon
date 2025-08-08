@@ -222,7 +222,7 @@ describe('Agent configurations', () => {
     cy.contains('You are going to delete the').should('be.visible');
     cy.contains('AC 0').should('be.visible');
     cy.contains(
-      'agent configuration. All configuration parameters for this agent will be deleted. This action cannot be undone.'
+      'agent configuration. All parameters for this agent configuration will be deleted. This action cannot be undone.'
     ).should('be.visible');
 
     cy.contains(labelCancel).click();
@@ -247,7 +247,7 @@ describe('Agent configurations', () => {
     cy.contains('You are going to delete the').should('be.visible');
     cy.contains('AC 0').should('be.visible');
     cy.contains(
-      'agent configuration. All configuration parameters for this agent will be deleted. This action cannot be undone.'
+      'agent configuration. All parameters for this agent configuration will be deleted. This action cannot be undone.'
     ).should('be.visible');
 
     cy.contains(/^Delete$/).click();
