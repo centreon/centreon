@@ -24041,3 +24041,11 @@ msgstr "Clé privée"
 #: unknown
 msgid "CA"
 msgstr "CA"
+
+#: unknown
+msgid "Poller/agent configuration created"
+msgstr "Configuration d'agent créée"
+
+#: unknown
+msgid "Poller/agent configuration updated"
+msgstr "Configuration d'agent mise à jour"
