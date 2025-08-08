@@ -24023,6 +24023,10 @@ msgid "Add poller/agent configuration"
 msgstr "Ajouter une configuration de poller/agent"
 
 #: unknown
+msgid "Update poller/agent configuration"
+msgstr "Modifier une configuration de poller/agent"
+
+#: unknown
 msgid "Welcome to the poller/agent configuration page"
 msgstr "Bienvenue sur la page de configuration du poller/agent"
 
