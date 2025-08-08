@@ -225,22 +225,6 @@ function multipleActionInDB($actions = [], $nbrDup = [])
         $row = $dbResult->fetch();
 
         for ($i = 1; $i <= $nbrDup[$key]; $i++) {
-            /* $val = null; */
-            /* foreach ($row as $key2 => $value2) { */
-            /*     $value2 = is_int($value2) ? (string) $value2 : $value2; */
-            /*     if ($key2 == 'acl_action_name') { */
-            /*         $acl_action_name = $value2 . '_' . $i; */
-            /*         $value2 = $value2 . '_' . $i; */
-            /*     } */
-            /*     $val ? $val .= ($value2 != null ? (", '" . $value2 . "'") : ', NULL') */
-            /*         : $val .= ($value2 != null ? ("'" . $value2 . "'") : 'NULL'); */
-            /*     if ($key2 != 'acl_action_id') { */
-            /*         $fields[$key2] = $value2; */
-            /*     } */
-            /*     if (isset($acl_action_name)) { */
-            /*         $fields['acl_action_name'] = $acl_action_name; */
-            /*     } */
-            /* } */
             $aclActionName = $row['acl_action_name'] . '_' . $i;
             if (testActionExistence($aclActionName)) {
                 $pearDB->executeStatement(
