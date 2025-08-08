@@ -6685,10 +6685,6 @@ msgstr ""
 msgid "Expression in"
 msgstr "Expression en"
 
-#: centreon/www/install/front_translate.php
-msgid "Extended"
-msgstr "Étendu"
-
 #: centreon/www/install/smarty_translate.php
 msgid "Extended Info"
 msgstr "Informations complémentaires"
@@ -23998,10 +23994,6 @@ msgstr "affichera les ressources avec un nom d'hôte commençant par"
 #: unknown
 msgid "{{total}} element(s) found"
 msgstr "{{total}} élément(s) trouvé(s)"
-
-#: unknown
-msgid "Compact"
-msgstr "Compact"
 
 #: unknown
 msgid "Extended"
