@@ -236,7 +236,7 @@ function multipleActionInDB($actions = [], $nbrDup = [])
                         QueryParameter::string('aclActionName', $aclActionName),
                         QueryParameter::string(
                             'aclActionDescription',
-                            HtmlSanitizer::createFromString($row['acl_action_description'])->getString()
+                            $row['acl_action_description']
                         ),
                         QueryParameter::string(
                             'aclActionActivate',
@@ -329,7 +329,7 @@ function insertAction($ret)
     );
     $statement->bindValue(
         ':aclActionDescription',
-        HtmlSanitizer::createFromString($ret['acl_action_description'])->getString(),
+        $ret['acl_action_description'],
         PDO::PARAM_STR
     );
     $statement->bindValue(
@@ -392,16 +392,16 @@ function updateAction($aclActionId = null)
             WHERE acl_action_id = :acl_action_id
             SQL,
         QueryParameters::create([
-            QueryParameter::string('acl_action_name', HtmlSanitizer::createFromString($ret['acl_action_name'])->getString()),
+            QueryParameter::string('acl_action_name', $ret['acl_action_name']),
             QueryParameter::string(
                 'acl_action_description',
-                HtmlSanitizer::createFromString($ret['acl_action_description'])->getString()
+               $ret['acl_action_description']
             ),
             QueryParameter::string(
                 'acl_action_activate',
-                HtmlSanitizer::createFromString($ret['acl_action_activate']['acl_action_activate'])->getString()
+                $ret['acl_action_activate']['acl_action_activate']
             ),
-            QueryParameter::int('acl_action_id', HtmlSanitizer::createFromString($ret['acl_action_id'])->getString()),
+            QueryParameter::int('acl_action_id', $ret['acl_action_id']),
         ])
     );
 }
