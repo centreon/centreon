@@ -395,7 +395,7 @@ function updateAction($aclActionId = null)
             QueryParameter::string('acl_action_name', $ret['acl_action_name']),
             QueryParameter::string(
                 'acl_action_description',
-               $ret['acl_action_description']
+                $ret['acl_action_description']
             ),
             QueryParameter::string(
                 'acl_action_activate',
