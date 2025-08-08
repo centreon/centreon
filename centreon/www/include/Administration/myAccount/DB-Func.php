@@ -183,12 +183,23 @@ function validatePasswordModification(array $fields): array|true
 {
     global $pearDB, $centreon;
     $newPassword = $fields['contact_passwd'];
+    $confirmPassword = $fields['contact_passwd2'];
     $currentPassword = $fields['current_password'];
     $contactId = (int) $centreon->user->get_id();
 
     // If the user does not want to change his password, we do not need to check it
-    if (empty($newPassword) && empty($currentPassword)) {
+    if (empty($newPassword) && empty($confirmPassword) && empty($currentPassword)) {
         return true;
+    }
+
+    // If the user only provided a confirmation password, we return a message indicating that it is not necessary
+    if (empty($newPassword) && ! empty($confirmPassword) && empty($currentPassword)) {
+        return ['contact_passwd2' => _('The password field is empty, so confirmation is not necessary')];
+    }
+
+    // If the user only provided his current password, we return a message indicating that it is not necessary
+    if (empty($newPassword) && ! empty($currentPassword)) {
+        return ['current_password' => _('The password field is empty, so your current password is not necessary')];
     }
 
     // If the user wants to change his password, he must provide his current password
@@ -199,11 +210,6 @@ function validatePasswordModification(array $fields): array|true
     // If the user provided a current password, we check if it matches the one in the database
     if (! empty($currentPassword) && password_verify($currentPassword, $centreon->user->passwd) === false) {
         return ['current_password' => _('Your current password is incorrect')];
-    }
-
-    // If the user does not want to change his password, we do not need to check the new password
-    if (empty($newPassword)) {
-        return true;
     }
 
     try {
