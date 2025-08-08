@@ -24043,5 +24043,5 @@ msgid "CA"
 msgstr "CA"
 
 #: unknown
-msgid "CA"
-msgstr "CA"
+msgid "CA Common Name (CN)"
+msgstr "Nom commun CA (CN)"
