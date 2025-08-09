@@ -7,7 +7,7 @@ when@prod:
             system:
                 type: error_log
                 level: warning
-                formatter: monolog.formatter.line
+                formatter: monolog.formater
                 channels: ['!centreon']
             centreon:
                 type: service
@@ -20,7 +20,7 @@ when@dev:
             system:
                 type: error_log
                 level: warning
-                formatter: monolog.formatter.line
+                formatter: monolog.formater
                 channels: ['!centreon']
             centreon:
                 type: service
