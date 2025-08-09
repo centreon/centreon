@@ -1,4 +1,9 @@
 framework:
     router:
-        strict_requirements: ~
-        utf8: true
+        strict_requirements: true
+
+when@prod:
+    framework:
+        router:
+            strict_requirements: ~
+            utf8: true
