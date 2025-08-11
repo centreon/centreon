@@ -447,8 +447,8 @@ if ($form->validate()) {
         /** @var Centreon $centreon */
         $centreon = $_SESSION['centreon'];
         $centreon->user->set_lang($form->getSubmitValue('contact_lang'));
-        $centreon->user->setShowDeprecatedPages($showDeprecatedPages);
-        $centreon->user->setShowDeprecatedCustomViews($showDeprecatedCustomViews);
+        $centreon->user->setShowDeprecatedPages((bool) $showDeprecatedPages);
+        $centreon->user->setShowDeprecatedCustomViews((bool) $showDeprecatedCustomViews);
         $_SESSION['centreon'] = $centreon;
         $_SESSION[$sessionKeyFreeze] = true;
         echo '<script>parent.location.href = "main.php?p=' . $p . '&o=c";</script>';
