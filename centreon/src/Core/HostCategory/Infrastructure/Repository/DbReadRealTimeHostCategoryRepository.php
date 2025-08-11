@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Core\HostCategory\Infrastructure\Repository;
 
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
+use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
 use Core\Common\Domain\Exception\RepositoryException;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
@@ -42,6 +43,14 @@ use Core\Tag\RealTime\Domain\Model\Tag;
 class DbReadRealTimeHostCategoryRepository extends AbstractRepositoryRDB implements ReadRealTimeHostCategoryRepositoryInterface
 {
     use SqlMultipleBindTrait;
+
+    /**
+     * @param DatabaseConnection $db
+     */
+    public function __construct(DatabaseConnection $db)
+    {
+        $this->db = $db;
+    }
 
     /**
      * @inheritDoc
