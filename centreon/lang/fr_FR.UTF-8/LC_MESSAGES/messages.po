@@ -24356,4 +24356,4 @@ msgstr "Votre mot de passe actuel"
 #: centreon/www/include/configuration/configObject/contact/formContact.php
 #: centreon/www/include/Administration/myAccount/formMyAccount.php
 msgid "Please fill in all password fields"
-msgstr "Veuillez remplir tous les champs du mot de passe"
+msgstr "Veuillez remplir tous les champs mot de passe"
