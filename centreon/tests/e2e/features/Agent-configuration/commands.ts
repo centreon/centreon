@@ -2,6 +2,8 @@ Cypress.Commands.add('fillCmaMandatoryFields', (body: Cma) => {
   cy.getByLabel({ label: 'Name', tag: 'input' }).type(body.name);
   cy.getByLabel({ label: 'Pollers', tag: 'input' }).click();
   cy.contains(body.pollerName).click();
+  // Click outside to close the pollers dropdown list
+  cy.contains('h6', 'Pollers').click();
   cy.getByLabel({ label: 'Public certificate(.crt,.cer)', tag: 'input' }).type(
     body.publicCertificationFileName
   );
@@ -20,6 +22,8 @@ Cypress.Commands.add('fillTelegrafMandatoryFields', (body: Telegraf) => {
   cy.getByLabel({ label: 'Name', tag: 'input' }).type(body.name);
   cy.getByLabel({ label: 'Pollers', tag: 'input' }).click();
   cy.contains(body.pollerName).click();
+  // Click outside to close the pollers dropdown list
+  cy.contains('h6', 'Pollers').click();
   cy.getByLabel({ label: 'Public certificate(.crt,.cer)', tag: 'input' })
     .eq(0)
     .type(body.publicCertificationFileName);
@@ -70,6 +74,8 @@ Cypress.Commands.add('addTelegrafAgent', (body: Telegraf) => {
   cy.getByLabel({ label: 'Name', tag: 'input' }).type(body.name);
   cy.getByLabel({ label: 'Pollers', tag: 'input' }).click();
   cy.contains('Central').click();
+  // Click outside to close the pollers dropdown list
+  cy.contains('h6', 'Pollers').click();
   cy.getByLabel({ label: 'Public certificate(.crt,.cer)', tag: 'input' })
     .eq(0)
     .type(body.publicCertificationFileName);
@@ -90,6 +96,8 @@ Cypress.Commands.add('updateTelegrafAgent', (body: Telegraf) => {
   cy.getByLabel({ label: 'Name', tag: 'input' }).clear().type(body.name);
   cy.getByLabel({ label: 'Pollers', tag: 'input' }).click();
   cy.contains('Poller-1').click();
+  // Click outside to close the pollers dropdown list
+  cy.contains('h6', 'Pollers').click();
   cy.getByLabel({ label: 'Public certificate(.crt,.cer)', tag: 'input' })
     .eq(0)
     .clear()
