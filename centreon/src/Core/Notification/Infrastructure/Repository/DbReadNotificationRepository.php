@@ -411,7 +411,7 @@ class DbReadNotificationRepository extends AbstractRepositoryRDB implements Read
         $statement = $this->db->prepare(
             $this->translateDbName(
                 <<<SQL
-                    SELECT result.id, COUNT(result.contact_id)
+                    SELECT result.id, COUNT(DISTINCT result.contact_id)
                     FROM (
                         SELECT notif.id, contact.contact_id
                         FROM `:db`.notification notif
