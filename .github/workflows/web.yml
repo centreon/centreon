@@ -189,21 +189,6 @@ jobs:
           static_cache_key: ${{ github.sha }}-${{ github.run_id }}-static
           build_command: pnpm centreon:build
 
-      - name: Create Jira ticket on nightly build failure
-        if: |
-          needs.get-environment.outputs.is_nightly == 'true' && github.run_attempt == 1 &&
-          failure() &&
-          startsWith(github.ref_name, 'dev') &&
-          github.repository == 'centreon/centreon'
-        uses: ./.github/actions/create-jira-ticket
-        with:
-          jira_base_url: ${{ secrets.JIRA_BASE_URL }}
-          jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
-          jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
-          module_name: "centreon-web"
-          ticket_labels: '["Nightly", "Pipeline", "nightly-${{ github.ref_name }}", "${{ github.job }}"]'
-          ticket_squad: "Product Backlog"
-
   backend-dependencies:
     needs: [get-environment]
     if: |
@@ -323,8 +308,10 @@ jobs:
   frontend-web-lint:
     runs-on: ubuntu-24.04
     needs: [changes, get-environment]
-    if: ${{ needs.get-environment.outputs.skip_workflow == 'false' && needs.changes.outputs.has_frontend_changes == 'true' && needs.get-environment.outputs.stability != 'stable' }}
-
+    if: |
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      needs.changes.outputs.has_frontend_changes == 'true' &&
+      needs.get-environment.outputs.stability != 'stable'
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
@@ -654,7 +641,6 @@ jobs:
       ! contains(needs.*.result, 'failure') &&
       ! contains(needs.*.result, 'cancelled') &&
       needs.get-environment.outputs.stability != 'stable'
-
     strategy:
       fail-fast: false
       matrix:
@@ -671,16 +657,13 @@ jobs:
           - package_extension: deb
             image: packaging-nfpm-jammy
             distrib: jammy
-
+    name: package ${{ matrix.distrib }}
     runs-on: ubuntu-24.04
-
     container:
       image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.image }}:${{ needs.get-environment.outputs.major_version }}
       credentials:
         username: ${{ secrets.HARBOR_CENTREON_PULL_USERNAME }}
         password: ${{ secrets.HARBOR_CENTREON_PULL_TOKEN }}
-
-    name: package ${{ matrix.distrib }}
 
     steps:
       - name: Checkout sources
@@ -780,21 +763,6 @@ jobs:
           stability: ${{ needs.get-environment.outputs.stability }}
           is_nightly: ${{ needs.get-environment.outputs.is_nightly }}
 
-      - name: Create Jira ticket on nightly build failure
-        if: |
-          needs.get-environment.outputs.is_nightly == 'true' && github.run_attempt == 1 &&
-          failure() &&
-          startsWith(github.ref_name, 'dev') &&
-          github.repository == 'centreon/centreon'
-        uses: ./.github/actions/create-jira-ticket
-        with:
-          jira_base_url: ${{ secrets.JIRA_BASE_URL }}
-          jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
-          jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
-          module_name: "centreon-web"
-          ticket_labels: '["Nightly", "Pipeline", "nightly-${{ github.ref_name }}", "${{ github.job }}"]'
-          ticket_squad: "DevSecOps"
-
   dockerize:
     runs-on: ubuntu-24.04
     needs: [get-environment, package]
@@ -806,9 +774,7 @@ jobs:
       fail-fast: false
       matrix:
         include: ${{ fromJson(needs.get-environment.outputs.os_and_database_matrix).operating_systems }}
-
     name: dockerize ${{ matrix.operating_system }}
-
     steps:
       - name: Checkout sources
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
@@ -927,21 +893,6 @@ jobs:
           path: ./docker-image
           key: docker-image-${{ env.project }}-slim-${{ matrix.operating_system }}-${{ github.head_ref || github.ref_name }}
 
-      - name: Create Jira ticket on nightly build failure
-        if: |
-          needs.get-environment.outputs.is_nightly == 'true' && github.run_attempt == 1 &&
-          failure() &&
-          startsWith(github.ref_name, 'dev') &&
-          github.repository == 'centreon/centreon'
-        uses: ./.github/actions/create-jira-ticket
-        with:
-          jira_base_url: ${{ secrets.JIRA_BASE_URL }}
-          jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
-          jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
-          module_name: "centreon-web"
-          ticket_labels: '["Nightly", "Pipeline", "nightly-${{ github.ref_name }}", "${{ github.job }}"]'
-          ticket_squad: "DevSecOps"
-
   create-xray-test-plan-and-test-execution:
     needs: [get-environment, dockerize]
     if: ${{ needs.get-environment.outputs.skip_workflow == 'false' && !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && ( needs.get-environment.outputs.stability == 'testing' || github.event_name == 'schedule' ) && github.repository == 'centreon/centreon' }}
@@ -949,8 +900,7 @@ jobs:
       fail-fast: false
       matrix:
         include: ${{ fromJson(needs.get-environment.outputs.os_and_database_matrix).operating_systems }}
-    name: create-xray-test-plan-and-test-execution-${{ matrix.operating_system }}
-
+    name: create-xray-test-plan-and-test-execution ${{ matrix.operating_system }}
     uses: ./.github/workflows/create-xray-test-plan-and-test-execution.yml
     with:
       major_version: ${{ needs.get-environment.outputs.major_version }}
@@ -982,8 +932,7 @@ jobs:
       fail-fast: false
       matrix:
         include: ${{ fromJson(needs.get-environment.outputs.os_and_database_matrix).databases }}
-    name: newman-test-${{ matrix.operating_system }}-${{ matrix.database }}
-
+    name: newman-test ${{ matrix.operating_system }}-${{ matrix.database }}
     uses: ./.github/workflows/newman.yml
     with:
       collection_path: centreon/tests/rest_api/collections
@@ -1015,8 +964,7 @@ jobs:
       fail-fast: false
       matrix:
         include: ${{ fromJson(needs.get-environment.outputs.os_and_database_matrix).operating_systems }}
-    name: legacy-e2e-test-${{ matrix.operating_system }}-${{ matrix.database }}
-
+    name: legacy-e2e-test ${{ matrix.operating_system }}-${{ matrix.database }}
     uses: ./.github/workflows/behat-test.yml
     with:
       name: legacy-e2e
@@ -1056,8 +1004,7 @@ jobs:
       fail-fast: false
       matrix:
         include: ${{ fromJson(needs.get-environment.outputs.os_and_database_matrix).operating_systems }}
-    name: e2e-test-${{ matrix.operating_system }}-${{ matrix.database }}
-
+    name: e2e-test ${{ matrix.operating_system }}-${{ matrix.database }}
     uses: ./.github/workflows/cypress-e2e-parallelization.yml
     with:
       name: e2e
@@ -1096,8 +1043,7 @@ jobs:
       fail-fast: false
       matrix:
         include: ${{ fromJson(needs.get-environment.outputs.os_and_database_matrix).main }}
-    name: performances-test-${{ matrix.operating_system }}-${{ matrix.database }}
-
+    name: performances-test ${{ matrix.operating_system }}-${{ matrix.database }}
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
@@ -1247,20 +1193,27 @@ jobs:
   deliver-rpm:
     runs-on: centreon-common
     needs:
-      [changes, get-environment, e2e-test, performances-test, legacy-e2e-test]
+      [
+        changes,
+        get-environment,
+        newman-test,
+        e2e-test,
+        performances-test,
+        legacy-e2e-test
+      ]
     if: |
       needs.get-environment.outputs.skip_workflow == 'false' &&
-      contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability) &&
+      ((needs.get-environment.outputs.delivery_type == 'feature' && contains(github.event.pull_request.labels.*.name, 'delivery-feature')) ||
+      contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability)) &&
       ! cancelled() &&
       ! contains(needs.*.result, 'failure') &&
       ! contains(needs.*.result, 'cancelled') &&
       needs.changes.outputs.trigger_delivery == 'true' &&
       github.repository == 'centreon/centreon'
-
     strategy:
       matrix:
         distrib: [el8, el9]
-
+    name: deliver-rpm ${{ matrix.distrib }}
     steps:
       - name: Checkout sources
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
@@ -1276,26 +1229,20 @@ jobs:
           stability: ${{ needs.get-environment.outputs.stability }}
           release_type: ${{ needs.get-environment.outputs.release_type }}
           is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
-
-      - name: Create Jira ticket on nightly build failure
-        if: |
-          needs.get-environment.outputs.is_nightly == 'true' && github.run_attempt == 1 &&
-          failure() &&
-          startsWith(github.ref_name, 'dev') &&
-          github.repository == 'centreon/centreon'
-        uses: ./.github/actions/create-jira-ticket
-        with:
-          jira_base_url: ${{ secrets.JIRA_BASE_URL }}
-          jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
-          jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
-          module_name: "centreon-web"
-          ticket_labels: '["Nightly", "Pipeline", "nightly-${{ github.ref_name }}", "${{ github.job }}"]'
-          ticket_squad: "DevSecOps"
+          delivery_type: ${{ needs.get-environment.outputs.delivery_type }}
+          centreon_technique_pat: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
 
   deliver-deb:
     runs-on: centreon-common
     needs:
-      [changes, get-environment, e2e-test, performances-test, legacy-e2e-test]
+      [
+        changes,
+        get-environment,
+        newman-test,
+        e2e-test,
+        performances-test,
+        legacy-e2e-test
+      ]
     if: |
       needs.get-environment.outputs.skip_workflow == 'false' &&
       contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability) &&
@@ -1305,11 +1252,10 @@ jobs:
       needs.changes.outputs.trigger_delivery == 'true' &&
       github.repository == 'centreon/centreon' &&
       (needs.get-environment.outputs.is_cloud == 'false' || needs.get-environment.outputs.stability == 'unstable')
-
     strategy:
       matrix:
         distrib: [bookworm]
-
+    name: deliver-deb ${{ matrix.distrib }}
     steps:
       - name: Checkout sources
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
@@ -1326,21 +1272,6 @@ jobs:
           release_type: ${{ needs.get-environment.outputs.release_type }}
           is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
 
-      - name: Create Jira ticket on nightly build failure
-        if: |
-          needs.get-environment.outputs.is_nightly == 'true' && github.run_attempt == 1 &&
-          failure() &&
-          startsWith(github.ref_name, 'dev') &&
-          github.repository == 'centreon/centreon'
-        uses: ./.github/actions/create-jira-ticket
-        with:
-          jira_base_url: ${{ secrets.JIRA_BASE_URL }}
-          jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
-          jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
-          module_name: "centreon-web"
-          ticket_labels: '["Nightly", "Pipeline", "nightly-${{ github.ref_name }}", "${{ github.job }}"]'
-          ticket_squad: "DevSecOps"
-
   promote:
     needs: [get-environment, deliver-deb, deliver-rpm]
     if: |
@@ -1354,7 +1285,7 @@ jobs:
     strategy:
       matrix:
         distrib: [el8, el9, bookworm]
-
+    name: promote ${{ matrix.distrib }}
     steps:
       - name: Checkout sources
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
@@ -1404,3 +1335,27 @@ jobs:
             echo "Cache $row was deleted."
           done <<< "$cache_keys"
         shell: bash
+
+  create-jira-nightly-ticket:
+    runs-on: ubuntu-24.04
+    needs: [
+      get-environment,
+      deliver-rpm,
+      deliver-deb
+    ]
+    if: |
+      needs.get-environment.outputs.is_nightly == 'true' && github.run_attempt == 1 &&
+      (failure() || cancelled() || contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')) &&
+      github.repository == 'centreon/centreon'
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Create Jira ticket based on nightly build failure
+        uses: ./.github/actions/create-jira-ticket
+        with:
+          jira_base_url: ${{ secrets.JIRA_BASE_URL }}
+          jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
+          jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
+          module_name: "centreon-web"
+          ticket_reason_for_creation: "Nightly"

@@ -21,7 +21,8 @@ export enum InputType {
   Checkbox = 11,
   CheckboxGroup = 12,
   List = 13,
-  File = 14
+  File = 14,
+  Divider = 15
 }
 
 interface FieldsTableGetRequiredProps {
