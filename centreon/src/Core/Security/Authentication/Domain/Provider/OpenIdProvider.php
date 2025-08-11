@@ -426,6 +426,20 @@ class OpenIdProvider implements OpenIdProviderInterface
     }
 
     /**
+     * Get OIDC token for session.
+     *
+     * @return string|null
+     */
+    public function getTokenForSession(): ?string
+    {
+        if (! array_key_exists('id_token', $this->connectionTokenResponseContent)) {
+            throw SSOAuthenticationException::requestForConnectionTokenFail();
+        }
+
+        return $this->connectionTokenResponseContent['id_token'];
+    }
+
+    /**
      * Extract Payload from JWT token.
      *
      * @param string $token
