@@ -96,25 +96,26 @@ $calcType = array("AVE" => _("Average"), "SOM" => _("Sum"), "MIN" => _("Min"), "
  */
 $conditionStr = "";
 $metaStrParams = [];
-//binding query params for non admin  acl rules
-if (!$acl->admin && $metaStr) {
-    $metaStrList = explode(',', $metaStr);
-    foreach ($metaStrList as $index => $metaId) {
-        $metaStrParams[':meta_' . $index] = (int) str_replace("'", "", $metaId);
-    }
-    $queryParams = implode(',', array_keys($metaStrParams));
-
-    if ($search !== '') {
-        $conditionStr = "AND meta_id IN (" . $queryParams . ")";
+// binding query params for non admin  acl rules
+$searchIsNull = $search === null || $search === '';
+// the metaStr are the metas linked to the user's ACL
+if ($acl->admin === '0' || $acl->admin === false) {
+    if ($metaStr === "''" || $metaStr === '') {
+        $queryParams = '0';
     } else {
-        $conditionStr = "WHERE meta_id IN (" . $queryParams . ")";
+        $metaStrList = explode(',', $metaStr);
+        foreach ($metaStrList as $index => $metaId) {
+            $metaStrParams[':meta_' . $index] = (int) str_replace("'", '', $metaId);
+        }
+        $queryParams = implode(',', array_keys($metaStrParams));
     }
+    $conditionStr = ! $searchIsNull ? 'AND meta_id IN (' . $queryParams . ')' : 'WHERE meta_id IN (' . $queryParams . ')';
 }
-if ($search !== '') {
-    $statement = $pearDB->prepare("SELECT * FROM meta_service " .
-        "WHERE meta_name LIKE :search " . $conditionStr .
-        " ORDER BY meta_name LIMIT :offset, :limit");
-    $statement->bindValue(':search', '%' . $search . '%', \PDO::PARAM_STR);
+if (! $searchIsNull) {
+    $statement = $pearDB->prepare('SELECT * FROM meta_service '
+        . 'WHERE meta_name LIKE :search ' . $conditionStr
+        . ' ORDER BY meta_name LIMIT :offset, :limit');
+    $statement->bindValue(':search', '%' . $search . '%', PDO::PARAM_STR);
 } else {
     $statement = $pearDB->prepare("SELECT * FROM meta_service " . $conditionStr .
         " ORDER BY meta_name LIMIT :offset, :limit");
