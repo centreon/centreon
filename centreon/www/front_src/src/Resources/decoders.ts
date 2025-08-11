@@ -155,6 +155,18 @@ const resourceDecoder = JsonDecoder.object<Resource>(
   'Resource'
 );
 
+export const metricsResourceDecoder = JsonDecoder.object<
+  Omit<Resource, 'uuid'>
+>(
+  {
+    ...commonDecoders,
+    parent: JsonDecoder.optional(
+      JsonDecoder.object<Parent>(commonDecoders, 'ResourceParent')
+    )
+  },
+  'Resource'
+);
+
 const acknowledgementDecoder = JsonDecoder.object<AcknowledgementDetails>(
   {
     author_id: JsonDecoder.number,
