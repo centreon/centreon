@@ -194,17 +194,17 @@ function validatePasswordModification(array $fields): array|true
 
     // If the user only provided a confirmation password, he must provide a new password and a current password
     if (empty($newPassword) && ! empty($confirmPassword) && empty($currentPassword)) {
-        return ['contact_passwd2' => _('Please fill in both password fields')];
+        return ['contact_passwd2' => _('Please fill in all password fields')];
     }
 
     // If the user only provided his current password, he must provide a new password
     if (empty($newPassword) && ! empty($currentPassword)) {
-        return ['current_password' => _('Please fill in both password fields')];
+        return ['current_password' => _('Please fill in all password fields')];
     }
 
     // If the user wants to change his password, he must provide his current password
     if (! empty($newPassword) && empty($currentPassword)) {
-        return ['current_password' => _('Please fill in both password fields')];
+        return ['current_password' => _('Please fill in all password fields')];
     }
 
     // If the user provided a current password, we check if it matches the one in the database
