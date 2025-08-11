@@ -113,7 +113,7 @@ try {
         if (str_contains($versionName, 'MySQL') && version_compare($versionNumber, '8.0.0', '>=')) {
             // Compatibility adaptation for mysql 8 with php7.1 before 7.1.16, or php7.2 before 7.2.4.
             $prepareAlter = $link->prepare(
-                'ALTER USER :dbUser@:host IDENTIFIED WITH mysql_native_password BY :dbPass'
+                'ALTER USER :dbUser@:host IDENTIFIED WITH caching_sha2_password BY :dbPass'
             );
             foreach ($queryValues as $key => $value) {
                 $prepareAlter->bindValue($key, $value, PDO::PARAM_STR);
