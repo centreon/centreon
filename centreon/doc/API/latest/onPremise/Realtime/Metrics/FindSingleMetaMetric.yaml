@@ -1,12 +1,11 @@
 get:
   tags:
     - Metrics
-  summary: 'Get service metric data'
+  summary: 'Get meta service metric data'
   description: |
-    Retrieve the data for a specific metric of a service
+    Retrieve the data for a specific metric of a meta service
   parameters:
-    - $ref: 'Schema/HostId.yaml'
-    - $ref: 'Schema/ServiceId.yaml'
+    - $ref: 'Schema/MetaServiceId.yaml'
     - $ref: 'Schema/MetricName.yaml'
   responses:
     '200':

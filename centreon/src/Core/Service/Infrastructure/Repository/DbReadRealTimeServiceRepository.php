@@ -245,6 +245,38 @@ class DbReadRealTimeServiceRepository extends AbstractRepositoryRDB implements R
     }
 
     /**
+     * @inheritDoc
+     */
+    public function existsByDescription(int $metaServiceId): array|false
+    {
+        $query = <<<'SQL'
+                SELECT service_id, host_id
+                FROM `:dbstg`.services s
+                WHERE s.description = :metaId
+            SQL;
+
+        try {
+            return $this->db->fetchAssociative(
+                $this->translateDbName($query),
+                QueryParameters::create([
+                    QueryParameter::string('metaId', "meta_{$metaServiceId}"),
+                ])
+            );
+        } catch (ValueObjectException|CollectionException|ConnectionException $e) {
+            throw new RepositoryException(
+                sprintf(
+                    'Error checking existence of meta service as service with description: meta_%d',
+                    $metaServiceId
+                ),
+                [
+                    'metaServiceId' => $metaServiceId,
+                ],
+                $e
+            );
+        }
+    }
+
+    /**
      * @param SqlRequestParametersTranslator $sqlTranslator
      * @param bool $calculateNumberOfRows
      * @param int[] $accessGroupIds

@@ -204,6 +204,25 @@ class DbReadMetricRepository extends AbstractRepositoryDRB implements ReadMetric
     }
 
     /**
+     * @inheritDoc
+     */
+    public function findSingleMetaMetricValue(
+        array $service,
+        string $metricName,
+        RequestParametersInterface $requestParameters,
+        array $accessGroups = []
+    ): Metric|null {
+
+        return $this->findSingleMetricValue(
+            $service['host_id'],
+            $service['service_id'],
+            $metricName,
+            $requestParameters,
+            $accessGroups
+        );
+    }
+
+    /**
      * Execute SQL Query to find Metrics.
      *
      * @param string $query

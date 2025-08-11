@@ -124,4 +124,23 @@ interface ReadMetricRepositoryInterface
         RequestParametersInterface $requestParameters,
         array $accessGroups = []
     ): Metric|null;
+
+    /**
+     * Retrieve a single metric value for a given metaService
+     *
+     * @param array<int> $service
+     * @param string $metricName
+     * @param RequestParametersInterface $requestParameters
+     * @param AccessGroup[] $accessGroups
+     *
+     * @throws RepositoryException
+     *
+     * @return Metric|null
+     */
+    public function findSingleMetaMetricValue(
+        array $service,
+        string $metricName,
+        RequestParametersInterface $requestParameters,
+        array $accessGroups = []
+    ): Metric|null;
 }
