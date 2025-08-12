@@ -122,8 +122,6 @@ $updateTopologyForAuthenticationTokens = function () use ($pearDB, &$errorMessag
     );
 };
 
-<<<<<<< HEAD
-=======
 $addResourceStatusSearchModeOption = function () use ($pearDB, &$errorMessage): void {
     $errorMessage = "Unable to retrieve 'resource_status_search_mode' option from options table";
     $optionExists = $pearDB->fetchFirstColumn("SELECT 1 FROM options WHERE `key` = 'resource_status_search_mode'");
@@ -134,7 +132,6 @@ $addResourceStatusSearchModeOption = function () use ($pearDB, &$errorMessage): 
     }
 };
 
->>>>>>> 24.10.x
 try {
     // DDL statements for configuration database
     $createJwtTable();
@@ -146,10 +143,7 @@ try {
 
     $updateSamlProviderConfiguration($pearDB);
     $updateTopologyForAuthenticationTokens();
-<<<<<<< HEAD
-=======
     $addResourceStatusSearchModeOption();
->>>>>>> 24.10.x
 
     $pearDB->commit();
 
