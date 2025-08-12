@@ -21,7 +21,11 @@
 
 use Adaptation\Database\Connection\Collection\BatchInsertParameters;
 use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\Exception\ConnectionException;
 use Adaptation\Database\Connection\ValueObject\QueryParameter;
+use Core\Common\Domain\Exception\CollectionException;
+use Core\Common\Domain\Exception\RepositoryException;
+use Core\Common\Domain\Exception\ValueObjectException;
 
 /**
  * @param null $name
@@ -272,10 +276,13 @@ function duplicateContactGroups($idTD, $acl_id, $pearDB)
 
 /**
  * Update ACL entry
- * @param $acl_id
- * @param null|mixed $aclId
+ *
+ * @param null|int $aclId
+ *
+ * @throws RepositoryException
+ * @return void
  */
-function updateLCAInDB($aclId = null)
+function updateLCAInDB($aclId = null): void
 {
     global $form, $centreon;
 
@@ -309,8 +316,11 @@ function updateLCAInDB($aclId = null)
 
 /**
  * Insert ACL entry
+ *
+ * @throws RepositoryException
+ * @return int
  */
-function insertLCAInDB()
+function insertLCAInDB(): int
 {
     global $form, $centreon;
 
@@ -343,29 +353,32 @@ function insertLCAInDB()
 
 /**
  * Insert LCA in DB
+ *
+ * @throws RepositoryException
  */
-function insertLCA()
+function insertLCA(): int
 {
     global $form, $pearDB;
 
     $submittedValues = $form->getSubmitValues();
     $resourceValues = sanitizeResourceParameters($submittedValues);
 
-    $queryParameters = QueryParameters::create(
-        [
-            QueryParameter::string('aclResourceName', $resourceValues['acl_res_name']),
-            QueryParameter::string('aclResourceAlias', $resourceValues['acl_res_alias']),
-            QueryParameter::string('allHosts', $resourceValues['all_hosts']),
-            QueryParameter::string('allHostGroups', $resourceValues['all_hostgroups']),
-            QueryParameter::string('allServiceGroups', $resourceValues['all_servicegroups']),
-            QueryParameter::string('allImageFolders', $resourceValues['all_image_folders']),
-            QueryParameter::string('aclResourceActivate', $resourceValues['acl_res_activate']),
-            QueryParameter::string('aclResourceComment', $resourceValues['acl_res_comment']),
-        ]
-    );
+    try {
+        $queryParameters = QueryParameters::create(
+            [
+                QueryParameter::string('aclResourceName', $resourceValues['acl_res_name']),
+                QueryParameter::string('aclResourceAlias', $resourceValues['acl_res_alias']),
+                QueryParameter::string('allHosts', $resourceValues['all_hosts']),
+                QueryParameter::string('allHostGroups', $resourceValues['all_hostgroups']),
+                QueryParameter::string('allServiceGroups', $resourceValues['all_servicegroups']),
+                QueryParameter::string('allImageFolders', $resourceValues['all_image_folders']),
+                QueryParameter::string('aclResourceActivate', $resourceValues['acl_res_activate']),
+                QueryParameter::string('aclResourceComment', $resourceValues['acl_res_comment']),
+            ]
+        );
 
-    $pearDB->insert(
-        <<<'SQL'
+        $pearDB->insert(
+            <<<'SQL'
                 INSERT INTO `acl_resources`
                 (
                     acl_res_name,
@@ -391,15 +404,25 @@ function insertLCA()
                     :aclResourceComment
                 )
             SQL,
-        $queryParameters
-    );
+            $queryParameters
+        );
 
-    return $pearDB->getLastInsertId();
+        return (int) $pearDB->getLastInsertId();
+    } catch (ValueObjectException|CollectionException|ConnectionException $e) {
+        throw new RepositoryException(
+            message: 'Unable to insert ACL resource in database',
+            context: ['submitted_values' => $resourceValues],
+            previous: $e
+        );
+    }
 }
 
 /**
  * Update resource ACL in DB
+ *
  * @param int|null $aclId
+ *
+ * @throws RepositoryException
  */
 function updateLCA(?int $aclId = null): void
 {
@@ -413,8 +436,9 @@ function updateLCA(?int $aclId = null): void
 
     $resourceValues = sanitizeResourceParameters($submittedValues);
 
-    $pearDB->update(
-        <<<'SQL'
+    try {
+        $pearDB->update(
+            <<<'SQL'
                 UPDATE `acl_resources`
                 SET
                     acl_res_name = :aclResourceName,
@@ -428,28 +452,37 @@ function updateLCA(?int $aclId = null): void
                     changed = 1
                 WHERE acl_res_id = :aclResourceId
             SQL,
-        QueryParameters::create(
-            [
-                QueryParameter::string('aclResourceName', $resourceValues['acl_res_name']),
-                QueryParameter::string('aclResourceAlias', $resourceValues['acl_res_alias']),
-                QueryParameter::string('allHosts', $resourceValues['all_hosts']),
-                QueryParameter::string('allHostGroups', $resourceValues['all_hostgroups']),
-                QueryParameter::string('allServiceGroups', $resourceValues['all_servicegroups']),
-                QueryParameter::string('allImageFolders', $resourceValues['all_image_folders']),
-                QueryParameter::string('aclResourceActivate', $resourceValues['acl_res_activate']),
-                QueryParameter::string('aclResourceComment', $resourceValues['acl_res_comment']),
-                QueryParameter::int('aclResourceId', $aclId),
-            ]
-        )
-    );
+            QueryParameters::create(
+                [
+                    QueryParameter::string('aclResourceName', $resourceValues['acl_res_name']),
+                    QueryParameter::string('aclResourceAlias', $resourceValues['acl_res_alias']),
+                    QueryParameter::string('allHosts', $resourceValues['all_hosts']),
+                    QueryParameter::string('allHostGroups', $resourceValues['all_hostgroups']),
+                    QueryParameter::string('allServiceGroups', $resourceValues['all_servicegroups']),
+                    QueryParameter::string('allImageFolders', $resourceValues['all_image_folders']),
+                    QueryParameter::string('aclResourceActivate', $resourceValues['acl_res_activate']),
+                    QueryParameter::string('aclResourceComment', $resourceValues['acl_res_comment']),
+                    QueryParameter::int('aclResourceId', $aclId),
+                ]
+            )
+        );
+    } catch (ValueObjectException|CollectionException|ConnectionException $e) {
+        throw new RepositoryException(
+            message: 'Unable to update ACL resource in database',
+            context: ['submitted_values' => $resourceValues],
+            previous: $e
+        );
+    }
 }
 
 /** ****************
  *
- * @param $aclId
- * @return unknown_type
+ * @param int|null $aclId
+ *
+ * @throws RepositoryException
+ * @return void
  */
-function updateGroups($aclId = null)
+function updateGroups($aclId = null): void
 {
     global $form, $pearDB;
 
@@ -457,43 +490,51 @@ function updateGroups($aclId = null)
         return;
     }
 
-    $aclResourceId = QueryParameter::int('aclResourceId', $aclId);
+    try {
+        $aclResourceId = QueryParameter::int('aclResourceId', $aclId);
 
-    $pearDB->delete(
-        'DELETE FROM acl_res_group_relations WHERE acl_res_id = :aclResourceId',
-        QueryParameters::create([$aclResourceId]),
-    );
+        $pearDB->delete(
+            'DELETE FROM acl_res_group_relations WHERE acl_res_id = :aclResourceId',
+            QueryParameters::create([$aclResourceId]),
+        );
 
-    $aclGroupsSubmitted = $form->getSubmitValue('acl_groups');
+        $aclGroupsSubmitted = $form->getSubmitValue('acl_groups');
 
-    $insertParameters = [];
+        $insertParameters = [];
 
-    if (is_array($aclGroupsSubmitted) && [] !== $aclGroupsSubmitted) {
-        foreach ($aclGroupsSubmitted as $index => $aclGroupId) {
-            $insertParameters[] = QueryParameters::create([
-                $aclResourceId,
-                QueryParameter::int('acl_group' . $index, (int) $aclGroupId),
-            ]);
+        if (is_array($aclGroupsSubmitted) && [] !== $aclGroupsSubmitted) {
+            foreach ($aclGroupsSubmitted as $index => $aclGroupId) {
+                $insertParameters[] = QueryParameters::create([
+                    $aclResourceId,
+                    QueryParameter::int('acl_group' . $index, (int) $aclGroupId),
+                ]);
+            }
+
+            $pearDB->batchInsert(
+                tableName: 'acl_res_group_relations',
+                columns: [
+                    'acl_res_id',
+                    'acl_group_id',
+                ],
+                batchInsertParameters: BatchInsertParameters::create($insertParameters),
+            );
         }
-
-        $pearDB->batchInsert(
-            tableName: 'acl_res_group_relations',
-            columns: [
-                'acl_res_id',
-                'acl_group_id',
-            ],
-            batchInsertParameters: BatchInsertParameters::create($insertParameters),
+    } catch (ValueObjectException|CollectionException|ConnectionException $e) {
+        throw new RepositoryException(
+            message: 'Unable to update ACL groups in database',
+            context: ['acl_id' => $aclId],
+            previous: $e
         );
     }
 }
 
-/** ******************
+/**
+ * @param null|int $aclId
  *
- * @param $acl_id
- * @param null|mixed $aclId
- * @return unknown_type
+ * @throws RepositoryException
+ * @return void
  */
-function updateHosts($aclId = null)
+function updateHosts($aclId = null): void
 {
     global $form, $pearDB;
 
@@ -501,41 +542,51 @@ function updateHosts($aclId = null)
         return;
     }
 
-    $aclResourceId = QueryParameter::int('aclResourceId', $aclId);
+    try {
+        $aclResourceId = QueryParameter::int('aclResourceId', $aclId);
 
-    $pearDB->delete(
-        'DELETE FROM acl_resources_host_relations WHERE acl_res_id = :aclResourceId',
-        QueryParameters::create([$aclResourceId]),
-    );
+        $pearDB->delete(
+            'DELETE FROM acl_resources_host_relations WHERE acl_res_id = :aclResourceId',
+            QueryParameters::create([$aclResourceId]),
+        );
 
-    $hostsSubmitted = $form->getSubmitValue('acl_hosts');
+        $hostsSubmitted = $form->getSubmitValue('acl_hosts');
 
-    $insertParameters = [];
+        $insertParameters = [];
 
-    if (is_array($hostsSubmitted) && [] !== $hostsSubmitted) {
-        foreach ($hostsSubmitted as $index => $hostId) {
-            $insertParameters[] = QueryParameters::create([
-                $aclResourceId,
-                QueryParameter::int('host_host_id' . $index, (int) $hostId),
-            ]);
+        if (is_array($hostsSubmitted) && [] !== $hostsSubmitted) {
+            foreach ($hostsSubmitted as $index => $hostId) {
+                $insertParameters[] = QueryParameters::create([
+                    $aclResourceId,
+                    QueryParameter::int('host_host_id' . $index, (int) $hostId),
+                ]);
+            }
+
+            $pearDB->batchInsert(
+                tableName: 'acl_resources_host_relations',
+                columns: [
+                    'acl_res_id',
+                    'host_host_id',
+                ],
+                batchInsertParameters: BatchInsertParameters::create($insertParameters),
+            );
         }
-
-        $pearDB->batchInsert(
-            tableName: 'acl_resources_host_relations',
-            columns: [
-                'acl_res_id',
-                'host_host_id',
-            ],
-            batchInsertParameters: BatchInsertParameters::create($insertParameters),
+    } catch (ValueObjectException|CollectionException|ConnectionException $e) {
+        throw new RepositoryException(
+            message: 'Unable to update ACL hosts in database',
+            context: ['acl_id' => $aclId],
+            previous: $e
         );
     }
 }
 
-/** ******************
+/**
+ * @param int|null $aclId
  *
- * @param $aclId
+ * @throws RepositoryException
+ * @return void
  */
-function updateImageFolders($aclId = null)
+function updateImageFolders($aclId = null): void
 {
     global $form, $pearDB;
 
@@ -543,56 +594,66 @@ function updateImageFolders($aclId = null)
         return;
     }
 
-    $insertParameters = [];
+    try {
+        $insertParameters = [];
 
-    $aclResourceId = QueryParameter::int('aclResourceId', $aclId);
+        $aclResourceId = QueryParameter::int('aclResourceId', $aclId);
 
-    $pearDB->delete(
-        'DELETE FROM acl_resources_image_folder_relations WHERE acl_res_id = :aclResourceId',
-        QueryParameters::create([$aclResourceId]),
-    );
+        $pearDB->delete(
+            'DELETE FROM acl_resources_image_folder_relations WHERE acl_res_id = :aclResourceId',
+            QueryParameters::create([$aclResourceId]),
+        );
 
-    $imageFoldersSubmitted = $form->getSubmitValue('acl_image_folder');
+        $imageFoldersSubmitted = $form->getSubmitValue('acl_image_folder');
 
-    // Find directory IDs for system directories that are dashboards, centreon-map, ppm
-    $systemDirectoryIds = $pearDB->fetchFirstColumn(
-        "SELECT dir_id FROM view_img_dir WHERE dir_name IN ('centreon-map', 'dashboards', 'ppm')"
-    );
+        // Find directory IDs for system directories that are dashboards, centreon-map, ppm
+        $systemDirectoryIds = $pearDB->fetchFirstColumn(
+            "SELECT dir_id FROM view_img_dir WHERE dir_name IN ('centreon-map', 'dashboards', 'ppm')"
+        );
 
-    foreach ($systemDirectoryIds as $systemDirectoryId) {
-        $insertParameters[] = QueryParameters::create([
-            $aclResourceId,
-            QueryParameter::int('directory_id' . $systemDirectoryId, (int) $systemDirectoryId),
-        ]);
-    }
-
-    if (is_array($imageFoldersSubmitted) && [] !== $imageFoldersSubmitted) {
-        foreach ($imageFoldersSubmitted as $imageFolderId) {
+        foreach ($systemDirectoryIds as $systemDirectoryId) {
             $insertParameters[] = QueryParameters::create([
                 $aclResourceId,
-                QueryParameter::int('directory_id' . $imageFolderId, (int) $imageFolderId),
+                QueryParameter::int('directory_id' . $systemDirectoryId, (int) $systemDirectoryId),
             ]);
         }
-    }
 
-    if ([] !== $insertParameters) {
-        $pearDB->batchInsert(
-            tableName: 'acl_resources_image_folder_relations',
-            columns: [
-                'acl_res_id',
-                'dir_id',
-            ],
-            batchInsertParameters: BatchInsertParameters::create($insertParameters),
+        if (is_array($imageFoldersSubmitted) && [] !== $imageFoldersSubmitted) {
+            foreach ($imageFoldersSubmitted as $imageFolderId) {
+                $insertParameters[] = QueryParameters::create([
+                    $aclResourceId,
+                    QueryParameter::int('directory_id' . $imageFolderId, (int) $imageFolderId),
+                ]);
+            }
+        }
+
+        if ([] !== $insertParameters) {
+            $pearDB->batchInsert(
+                tableName: 'acl_resources_image_folder_relations',
+                columns: [
+                    'acl_res_id',
+                    'dir_id',
+                ],
+                batchInsertParameters: BatchInsertParameters::create($insertParameters),
+            );
+        }
+    } catch (ValueObjectException|CollectionException|ConnectionException $e) {
+        throw new RepositoryException(
+            message: 'Unable to update ACL image folders in database',
+            context: ['acl_id' => $aclId],
+            previous: $e
         );
     }
 }
 
-/** ******************
+/**
  *
- * @param $aclId
- * @return unknown_type
+ * @param null|int $aclId
+ *
+ * @throws RepositoryException
+ * @return void
  */
-function updatePollers($aclId = null)
+function updatePollers($aclId = null): void
 {
     global $form, $pearDB;
 
@@ -600,42 +661,51 @@ function updatePollers($aclId = null)
         return;
     }
 
-    $aclResourceId = QueryParameter::int('aclResourceId', $aclId);
+    try {
+        $aclResourceId = QueryParameter::int('aclResourceId', $aclId);
 
-    $pearDB->delete(
-        'DELETE FROM acl_resources_poller_relations WHERE acl_res_id = :aclResourceId',
-        QueryParameters::create([$aclResourceId]),
-    );
+        $pearDB->delete(
+            'DELETE FROM acl_resources_poller_relations WHERE acl_res_id = :aclResourceId',
+            QueryParameters::create([$aclResourceId]),
+        );
 
-    $pollersSubmitted = $form->getSubmitValue('acl_pollers');
+        $pollersSubmitted = $form->getSubmitValue('acl_pollers');
 
-    $insertParameters = [];
+        $insertParameters = [];
 
-    if (is_array($pollersSubmitted) && [] !== $pollersSubmitted) {
-        foreach ($pollersSubmitted as $index => $pollerId) {
-            $insertParameters[] = QueryParameters::create([
-                $aclResourceId,
-                QueryParameter::int('poller_id' . $index, (int) $pollerId),
-            ]);
+        if (is_array($pollersSubmitted) && [] !== $pollersSubmitted) {
+            foreach ($pollersSubmitted as $index => $pollerId) {
+                $insertParameters[] = QueryParameters::create([
+                    $aclResourceId,
+                    QueryParameter::int('poller_id' . $index, (int) $pollerId),
+                ]);
+            }
+
+            $pearDB->batchInsert(
+                tableName: 'acl_resources_poller_relations',
+                columns: [
+                    'acl_res_id',
+                    'poller_id',
+                ],
+                batchInsertParameters: BatchInsertParameters::create($insertParameters),
+            );
         }
-
-        $pearDB->batchInsert(
-            tableName: 'acl_resources_poller_relations',
-            columns: [
-                'acl_res_id',
-                'poller_id',
-            ],
-            batchInsertParameters: BatchInsertParameters::create($insertParameters),
+    } catch (ValueObjectException|CollectionException|ConnectionException $e) {
+        throw new RepositoryException(
+            message: 'Unable to update ACL pollers in database',
+            context: ['acl_id' => $aclId],
+            previous: $e
         );
     }
 }
 
-/** ********************
+/**
+ * @param null|int $aclId
  *
- * @param $aclId
- * @return unknown_type
+ * @throws RepositoryException
+ * @return void
  */
-function updateHostexcludes($aclId = null)
+function updateHostexcludes($aclId = null): void
 {
     global $form, $pearDB;
 
@@ -643,42 +713,52 @@ function updateHostexcludes($aclId = null)
         return;
     }
 
-    $aclResourceId = QueryParameter::int('aclResourceId', $aclId);
+    try {
+        $aclResourceId = QueryParameter::int('aclResourceId', $aclId);
 
-    $pearDB->delete(
-        'DELETE FROM acl_resources_hostex_relations WHERE acl_res_id = :aclResourceId',
-        QueryParameters::create([$aclResourceId]),
-    );
+        $pearDB->delete(
+            'DELETE FROM acl_resources_hostex_relations WHERE acl_res_id = :aclResourceId',
+            QueryParameters::create([$aclResourceId]),
+        );
 
-    $hostsToExcludeSubmitted = $form->getSubmitValue('acl_hostexclude');
+        $hostsToExcludeSubmitted = $form->getSubmitValue('acl_hostexclude');
 
-    $insertParameters = [];
+        $insertParameters = [];
 
-    if (is_array($hostsToExcludeSubmitted) && [] !== $hostsToExcludeSubmitted) {
-        foreach ($hostsToExcludeSubmitted as $index => $hostId) {
-            $insertParameters[] = QueryParameters::create([
-                $aclResourceId,
-                QueryParameter::int('host_host_id' . $index, (int) $hostId),
-            ]);
+        if (is_array($hostsToExcludeSubmitted) && [] !== $hostsToExcludeSubmitted) {
+            foreach ($hostsToExcludeSubmitted as $index => $hostId) {
+                $insertParameters[] = QueryParameters::create([
+                    $aclResourceId,
+                    QueryParameter::int('host_host_id' . $index, (int) $hostId),
+                ]);
+            }
+
+            $pearDB->batchInsert(
+                tableName: 'acl_resources_hostex_relations',
+                columns: [
+                    'acl_res_id',
+                    'host_host_id',
+                ],
+                batchInsertParameters: BatchInsertParameters::create($insertParameters),
+            );
         }
-
-        $pearDB->batchInsert(
-            tableName: 'acl_resources_hostex_relations',
-            columns: [
-                'acl_res_id',
-                'host_host_id',
-            ],
-            batchInsertParameters: BatchInsertParameters::create($insertParameters),
+    } catch (ValueObjectException|CollectionException|ConnectionException $e) {
+        throw new RepositoryException(
+            message: 'Unable to update ACL host excludes in database',
+            context: ['acl_id' => $aclId],
+            previous: $e
         );
     }
 
 }
 
 /**
- * Update hostgroups entry in DB
- * @param $aclId
+ * @param null|int $aclId
+ *
+ * @throws RepositoryException
+ * @return void
  */
-function updateHostGroups($aclId = null)
+function updateHostGroups($aclId = null): void
 {
     global $form, $pearDB;
 
@@ -686,41 +766,53 @@ function updateHostGroups($aclId = null)
         return;
     }
 
-    $aclResourceId = QueryParameter::int('aclResourceId', $aclId);
+    try {
+        $aclResourceId = QueryParameter::int('aclResourceId', $aclId);
 
-    $pearDB->delete(
-        'DELETE FROM acl_resources_hg_relations WHERE acl_res_id = :aclResourceId',
-        QueryParameters::create([$aclResourceId]),
-    );
+        $pearDB->delete(
+            'DELETE FROM acl_resources_hg_relations WHERE acl_res_id = :aclResourceId',
+            QueryParameters::create([$aclResourceId]),
+        );
 
-    $hostGroupsSubmitted = $form->getSubmitValue('acl_hostgroup');
+        $hostGroupsSubmitted = $form->getSubmitValue('acl_hostgroup');
 
-    $insertParameters = [];
+        $insertParameters = [];
 
-    if (is_array($hostGroupsSubmitted) && [] !== $hostGroupsSubmitted) {
-        foreach ($hostGroupsSubmitted as $index => $hostGroupId) {
-            $insertParameters[] = QueryParameters::create([
-                $aclResourceId,
-                QueryParameter::int('hg_hg_id' . $index, (int) $hostGroupId),
-            ]);
+        if (is_array($hostGroupsSubmitted) && [] !== $hostGroupsSubmitted) {
+            foreach ($hostGroupsSubmitted as $index => $hostGroupId) {
+                $insertParameters[] = QueryParameters::create([
+                    $aclResourceId,
+                    QueryParameter::int('hg_hg_id' . $index, (int) $hostGroupId),
+                ]);
+            }
+
+            $pearDB->batchInsert(
+                tableName: 'acl_resources_hg_relations',
+                columns: [
+                    'acl_res_id',
+                    'hg_hg_id',
+                ],
+                batchInsertParameters: BatchInsertParameters::create($insertParameters),
+            );
         }
-
-        $pearDB->batchInsert(
-            tableName: 'acl_resources_hg_relations',
-            columns: [
-                'acl_res_id',
-                'hg_hg_id',
-            ],
-            batchInsertParameters: BatchInsertParameters::create($insertParameters),
+    } catch (ValueObjectException|CollectionException|ConnectionException $e) {
+        throw new RepositoryException(
+            message: 'Unable to update ACL host groups in database',
+            context: ['acl_id' => $aclId],
+            previous: $e
         );
     }
 }
 
 /**
  * Update Service categories entries in DB
- * @param $aclId
+ *
+ * @param null|int $aclId
+ *
+ * @throws RepositoryException
+ * @return void
  */
-function updateServiceCategories($aclId = null)
+function updateServiceCategories($aclId = null): void
 {
     global $form, $pearDB;
 
@@ -728,41 +820,53 @@ function updateServiceCategories($aclId = null)
         return;
     }
 
-    $aclResourceId = QueryParameter::int('aclResourceId', $aclId);
+    try {
+        $aclResourceId = QueryParameter::int('aclResourceId', $aclId);
 
-    $pearDB->delete(
-        'DELETE FROM acl_resources_sc_relations WHERE acl_res_id = :aclResourceId',
-        QueryParameters::create([$aclResourceId]),
-    );
+        $pearDB->delete(
+            'DELETE FROM acl_resources_sc_relations WHERE acl_res_id = :aclResourceId',
+            QueryParameters::create([$aclResourceId]),
+        );
 
-    $serviceCategoriesSubmitted = $form->getSubmitValue('acl_sc');
+        $serviceCategoriesSubmitted = $form->getSubmitValue('acl_sc');
 
-    $insertParameters = [];
+        $insertParameters = [];
 
-    if (is_array($serviceCategoriesSubmitted) && [] !== $serviceCategoriesSubmitted) {
-        foreach ($serviceCategoriesSubmitted as $index => $serviceCategoryId) {
-            $insertParameters[] = QueryParameters::create([
-                $aclResourceId,
-                QueryParameter::int('sc_id' . $index, (int) $serviceCategoryId),
-            ]);
+        if (is_array($serviceCategoriesSubmitted) && [] !== $serviceCategoriesSubmitted) {
+            foreach ($serviceCategoriesSubmitted as $index => $serviceCategoryId) {
+                $insertParameters[] = QueryParameters::create([
+                    $aclResourceId,
+                    QueryParameter::int('sc_id' . $index, (int) $serviceCategoryId),
+                ]);
+            }
+
+            $pearDB->batchInsert(
+                tableName: 'acl_resources_sc_relations',
+                columns: [
+                    'acl_res_id',
+                    'sc_id',
+                ],
+                batchInsertParameters: BatchInsertParameters::create($insertParameters),
+            );
         }
-
-        $pearDB->batchInsert(
-            tableName: 'acl_resources_sc_relations',
-            columns: [
-                'acl_res_id',
-                'sc_id',
-            ],
-            batchInsertParameters: BatchInsertParameters::create($insertParameters),
+    } catch (ValueObjectException|CollectionException|ConnectionException $e) {
+        throw new RepositoryException(
+            message: 'Unable to update ACL service categories in database',
+            context: ['acl_id' => $aclId],
+            previous: $e
         );
     }
 }
 
 /**
  * Update HC entries in DB
- * @param $aclId
+ *
+ * @param null|int $aclId
+ *
+ * @throws RepositoryException
+ * @return void
  */
-function updateHostCategories($aclId = null)
+function updateHostCategories($aclId = null): void
 {
     global $form, $pearDB;
 
@@ -770,41 +874,53 @@ function updateHostCategories($aclId = null)
         return;
     }
 
-    $aclResourceId = QueryParameter::int('aclResourceId', $aclId);
+    try {
+        $aclResourceId = QueryParameter::int('aclResourceId', $aclId);
 
-    $pearDB->delete(
-        'DELETE FROM acl_resources_hc_relations WHERE acl_res_id = :aclResourceId',
-        QueryParameters::create([$aclResourceId]),
-    );
+        $pearDB->delete(
+            'DELETE FROM acl_resources_hc_relations WHERE acl_res_id = :aclResourceId',
+            QueryParameters::create([$aclResourceId]),
+        );
 
-    $hostCategoriesSubmitted = $form->getSubmitValue('acl_hc');
+        $hostCategoriesSubmitted = $form->getSubmitValue('acl_hc');
 
-    $insertParameters = [];
+        $insertParameters = [];
 
-    if (is_array($hostCategoriesSubmitted) && [] !== $hostCategoriesSubmitted) {
-        foreach ($hostCategoriesSubmitted as $index => $hostCategoryId) {
-            $insertParameters[] = QueryParameters::create([
-                $aclResourceId,
-                QueryParameter::int('hc_id' . $index, (int) $hostCategoryId),
-            ]);
+        if (is_array($hostCategoriesSubmitted) && [] !== $hostCategoriesSubmitted) {
+            foreach ($hostCategoriesSubmitted as $index => $hostCategoryId) {
+                $insertParameters[] = QueryParameters::create([
+                    $aclResourceId,
+                    QueryParameter::int('hc_id' . $index, (int) $hostCategoryId),
+                ]);
+            }
+
+            $pearDB->batchInsert(
+                tableName: 'acl_resources_hc_relations',
+                columns: [
+                    'acl_res_id',
+                    'hc_id',
+                ],
+                batchInsertParameters: BatchInsertParameters::create($insertParameters),
+            );
         }
-
-        $pearDB->batchInsert(
-            tableName: 'acl_resources_hc_relations',
-            columns: [
-                'acl_res_id',
-                'hc_id',
-            ],
-            batchInsertParameters: BatchInsertParameters::create($insertParameters),
+    } catch (ValueObjectException|CollectionException|ConnectionException $e) {
+        throw new RepositoryException(
+            message: 'Unable to update ACL host categories in database',
+            context: ['acl_id' => $aclId],
+            previous: $e
         );
     }
 }
 
 /**
  * Update Service groups entries in DB
- * @param $aclId
+ *
+ * @param null|int $aclId
+ *
+ * @throws RepositoryException
+ * @return void
  */
-function updateServiceGroups($aclId = null)
+function updateServiceGroups($aclId = null): void
 {
     global $form, $pearDB;
 
@@ -812,41 +928,53 @@ function updateServiceGroups($aclId = null)
         return;
     }
 
-    $aclResourceId = QueryParameter::int('aclResourceId', $aclId);
+    try {
+        $aclResourceId = QueryParameter::int('aclResourceId', $aclId);
 
-    $pearDB->delete(
-        'DELETE FROM acl_resources_sg_relations WHERE acl_res_id = :aclResourceId',
-        QueryParameters::create([$aclResourceId]),
-    );
+        $pearDB->delete(
+            'DELETE FROM acl_resources_sg_relations WHERE acl_res_id = :aclResourceId',
+            QueryParameters::create([$aclResourceId]),
+        );
 
-    $serviceGroupsSubmitted = $form->getSubmitValue('acl_sg');
+        $serviceGroupsSubmitted = $form->getSubmitValue('acl_sg');
 
-    $insertParameters = [];
+        $insertParameters = [];
 
-    if (is_array($serviceGroupsSubmitted) && [] !== $serviceGroupsSubmitted) {
-        foreach ($serviceGroupsSubmitted as $index => $serviceGroupId) {
-            $insertParameters[] = QueryParameters::create([
-                $aclResourceId,
-                QueryParameter::int('sg_id' . $index, (int) $serviceGroupId),
-            ]);
+        if (is_array($serviceGroupsSubmitted) && [] !== $serviceGroupsSubmitted) {
+            foreach ($serviceGroupsSubmitted as $index => $serviceGroupId) {
+                $insertParameters[] = QueryParameters::create([
+                    $aclResourceId,
+                    QueryParameter::int('sg_id' . $index, (int) $serviceGroupId),
+                ]);
+            }
+
+            $pearDB->batchInsert(
+                tableName: 'acl_resources_sg_relations',
+                columns: [
+                    'acl_res_id',
+                    'sg_id',
+                ],
+                batchInsertParameters: BatchInsertParameters::create($insertParameters),
+            );
         }
-
-        $pearDB->batchInsert(
-            tableName: 'acl_resources_sg_relations',
-            columns: [
-                'acl_res_id',
-                'sg_id',
-            ],
-            batchInsertParameters: BatchInsertParameters::create($insertParameters),
+    } catch (ValueObjectException|CollectionException|ConnectionException $e) {
+        throw new RepositoryException(
+            message: 'Unable to update ACL service groups in database',
+            context: ['acl_id' => $aclId],
+            previous: $e
         );
     }
 }
 
 /**
  * Update Meta services entries in DB
- * @param $aclId
+ *
+ * @param null|int $aclId
+ *
+ * @throws RepositoryException
+ * @return void
  */
-function updateMetaServices($aclId = null)
+function updateMetaServices($aclId = null): void
 {
     global $form, $pearDB;
 
@@ -854,32 +982,40 @@ function updateMetaServices($aclId = null)
         return;
     }
 
-    $aclResourceId = QueryParameter::int('aclResourceId', $aclId);
+    try {
+        $aclResourceId = QueryParameter::int('aclResourceId', $aclId);
 
-    $pearDB->delete(
-        'DELETE FROM acl_resources_meta_relations WHERE acl_res_id = :aclResourceId',
-        QueryParameters::create([$aclResourceId]),
-    );
+        $pearDB->delete(
+            'DELETE FROM acl_resources_meta_relations WHERE acl_res_id = :aclResourceId',
+            QueryParameters::create([$aclResourceId]),
+        );
 
-    $metaServicesSubmitted = $form->getSubmitValue('acl_meta');
+        $metaServicesSubmitted = $form->getSubmitValue('acl_meta');
 
-    $insertParameters = [];
+        $insertParameters = [];
 
-    if (is_array($metaServicesSubmitted) && [] !== $metaServicesSubmitted) {
-        foreach ($metaServicesSubmitted as $index => $metaServiceId) {
-            $insertParameters[] = QueryParameters::create([
-                $aclResourceId,
-                QueryParameter::int('meta_id' . $index, (int) $metaServiceId),
-            ]);
+        if (is_array($metaServicesSubmitted) && [] !== $metaServicesSubmitted) {
+            foreach ($metaServicesSubmitted as $index => $metaServiceId) {
+                $insertParameters[] = QueryParameters::create([
+                    $aclResourceId,
+                    QueryParameter::int('meta_id' . $index, (int) $metaServiceId),
+                ]);
+            }
+
+            $pearDB->batchInsert(
+                tableName: 'acl_resources_meta_relations',
+                columns: [
+                    'acl_res_id',
+                    'meta_id',
+                ],
+                batchInsertParameters: BatchInsertParameters::create($insertParameters),
+            );
         }
-
-        $pearDB->batchInsert(
-            tableName: 'acl_resources_meta_relations',
-            columns: [
-                'acl_res_id',
-                'meta_id',
-            ],
-            batchInsertParameters: BatchInsertParameters::create($insertParameters),
+    } catch (ValueObjectException|CollectionException|ConnectionException $e) {
+        throw new RepositoryException(
+            message: 'Unable to update ACL meta services in database',
+            context: ['acl_id' => $aclId],
+            previous: $e
         );
     }
 }
@@ -888,6 +1024,8 @@ function updateMetaServices($aclId = null)
  * sanitize resources parameter for Create / Update a Resource ACL
  *
  * @param array<string, mixed> $resources
+ *
+ * @throws InvalidArgumentException
  * @return array<string, mixed>
  */
 function sanitizeResourceParameters(array $resources): array
