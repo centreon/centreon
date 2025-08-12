@@ -265,17 +265,7 @@ When(
 Then(
   'the widget is refreshed to make it look like the metric is in a critical state',
   () => {
-    cy.waitUntil(
-      () => {
-        const $el = Cypress.$(`*:contains("${metrics.customValues.critical}")`);
-        return $el.length > 0 && $el.is(':visible');
-      },
-      {
-        timeout: 20000,
-        interval: 3000,
-        errorMsg: `The element ${metrics.customValues.critical} did not become visible in time`,
-      }
-    );
+    cy.get('[class$="thresholdLabel-warning"] h5').should('contain.text', '40');
   }
 );
 

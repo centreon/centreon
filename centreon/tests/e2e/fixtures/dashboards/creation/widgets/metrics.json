@@ -8,7 +8,7 @@
       "critical": "Critical: 50%"
     },
     "customValues": {
-      "warning": "Warning: 40",
+      "warning": "Warning: 40 ms",
       "critical": "Critical: 40 ms"
     }
   }
