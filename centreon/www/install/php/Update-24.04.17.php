@@ -1,5 +1,4 @@
 <?php
-
 /*
  * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
@@ -19,9 +18,6 @@
  *
  */
 
-use Adaptation\Database\Connection\Collection\QueryParameters;
-use Adaptation\Database\Connection\ValueObject\QueryParameter;
-
 require_once __DIR__ . '/../../../bootstrap.php';
 
 /**
@@ -32,51 +28,6 @@ $version = '24.04.17';
 $errorMessage = '';
 
 // TODO add your functions here
-
-$updateSamlProviderConfiguration = function (CentreonDB $pearDB) use (&$errorMessage): void {
-    $errorMessage = 'Unable to retrieve SAML provider configuration';
-    $samlConfiguration = $pearDB->fetchAssociative(
-        <<<'SQL'
-            SELECT * FROM `provider_configuration`
-            WHERE `type` = 'saml'
-            SQL
-    );
-
-    if (! $samlConfiguration || ! isset($samlConfiguration['custom_configuration'])) {
-        throw new \Exception('SAML configuration is missing');
-    }
-
-    $customConfiguration = json_decode($samlConfiguration['custom_configuration'], true, JSON_THROW_ON_ERROR);
-
-    if (!isset($customConfiguration['requested_authn_context'])) {
-        $customConfiguration['requested_authn_context'] = 'minimum';
-        $query = <<<'SQL'
-                UPDATE `provider_configuration`
-                SET `custom_configuration` = :custom_configuration
-                WHERE `type` = 'saml'
-            SQL;
-        $queryParameters = QueryParameters::create(
-            [
-                QueryParameter::string(
-                    'custom_configuration',
-                    json_encode($customConfiguration, JSON_THROW_ON_ERROR)
-                )
-            ]
-        );
-
-        $pearDB->update($query, $queryParameters);
-    }
-};
-
-$addResourceStatusSearchModeOption = function () use ($pearDB, &$errorMessage): void {
-    $errorMessage = "Unable to retrieve 'resource_status_search_mode' option from options table";
-    $optionExists = $pearDB->fetchFirstColumn("SELECT 1 FROM options WHERE `key` = 'resource_status_search_mode'");
-
-    $errorMessage = "Unable to insert option 'resource_status_search_mode' option into table options";
-    if (false === (bool) $optionExists) {
-        $pearDB->insert("INSERT INTO `options` (`key`, `value`) VALUES ('resource_status_search_mode', 1)");
-    }
-};
 
 try {
     // DDL statements for real time database
@@ -91,9 +42,6 @@ try {
     }
 
     // TODO add your function calls to update the configuration database data here
-
-    $updateSamlProviderConfiguration($pearDB);
-    $addResourceStatusSearchModeOption();
 
     $pearDB->commit();
 
