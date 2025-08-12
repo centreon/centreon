@@ -24006,8 +24006,10 @@ msgstr "affichera les ressources avec un nom d'hôte commençant par"
 #: unknown
 msgid "{{total}} element(s) found"
 msgstr "{{total}} élément(s) trouvé(s)"
-<<<<<<< HEAD
-=======
+
+#: unknown
+msgid "Monitored hosts"
+msgstr "Hôtes supervisés"
 
 #: unknown
 msgid "Extended"
@@ -24031,39 +24033,3 @@ msgstr "Performances de la page Statut des ressources"
 
 msgid "Free text search behavior can be configured in the Administration > Parameters > Centreon UI page."
 msgstr "Le comportement de la recherche texte libre peut être configuré à la page Administration > Paramètres > Centreon web page."
-<<<<<<< HEAD
-
-#: unknown
-msgid "Add poller/agent configuration"
-msgstr "Ajouter une configuration de poller/agent"
-
-#: unknown
-msgid "Update poller/agent configuration"
-msgstr "Modifier une configuration de poller/agent"
-
-#: unknown
-msgid "Welcome to the poller/agent configuration page"
-msgstr "Bienvenue sur la page de configuration du poller/agent"
-
-#: unknown
-msgid "Poller/agent configuration"
-msgstr "Configuration du poller/agent"
-
-#: unknown
-msgid "Private key"
-msgstr "Clé privée"
-
-#: unknown
-msgid "CA"
-msgstr "CA"
-
-#: unknown
-msgid "Poller/agent configuration created"
-msgstr "Configuration d'agent créée"
-
-#: unknown
-msgid "Poller/agent configuration updated"
-msgstr "Configuration d'agent mise à jour"
->>>>>>> 24.10.x
-=======
->>>>>>> de1675919c (Remove conflict marks)
