@@ -41,6 +41,7 @@ class UpdateRulePresenter extends DefaultPresenter implements UpdateRulePresente
             ExceptionLogger::create()->log($response->getException(), $response->getContext());
         } elseif (
             ($response instanceof ConflictResponse || $response instanceof InvalidArgumentResponse)
+            && isset($context['exception'])
             && $response->getContext()['exception'] instanceof \Throwable
         ) {
             ExceptionLogger::create()->log($response->getContext()['exception'], $response->getContext());
