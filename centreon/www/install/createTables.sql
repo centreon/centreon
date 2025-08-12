@@ -707,7 +707,7 @@ CREATE TABLE `contact` (
   `contact_host_notification_options` varchar(200) DEFAULT NULL,
   `contact_service_notification_options` varchar(200) DEFAULT NULL,
   `contact_email` varchar(200) DEFAULT NULL,
-  `contact_pager` varchar(200) DEFAULT NULL,
+  `contact_pager` varchar(300) DEFAULT NULL,
   `contact_address1` varchar(200) DEFAULT NULL,
   `contact_address2` varchar(200) DEFAULT NULL,
   `contact_address3` varchar(200) DEFAULT NULL,
