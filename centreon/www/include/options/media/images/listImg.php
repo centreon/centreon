@@ -108,7 +108,9 @@ try {
             SQL;
     }
     $query .= ' GROUP BY images.img_id, directories.dir_id';
-    $query .= ' ORDER BY dir_alias, img_name LIMIT ' . $num * $limit . ', ' . $limit;
+    $query .= ' ORDER BY dir_alias, img_name LIMIT :offset, :limit';
+    $queryParameters[] = QueryParameter::int('offset', $num * $limit);
+    $queryParameters[] = QueryParameter::int('limit', $limit);
 
     /** @var CentreonDB $pearDB */
     $res = $pearDB->fetchAllAssociative($query, QueryParameters::create($queryParameters));

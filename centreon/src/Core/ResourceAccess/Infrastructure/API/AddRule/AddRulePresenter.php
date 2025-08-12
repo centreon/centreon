@@ -44,8 +44,11 @@ final class AddRulePresenter extends AbstractPresenter implements AddRulePresent
     {
         if ($response instanceof ResponseStatusInterface) {
             if ($response instanceof ErrorResponse && ! is_null($response->getException())) {
-                ExceptionLogger::create()->log($response->getException());
-            } elseif ($response instanceof ConflictResponse || $response instanceof InvalidArgumentResponse) {
+                ExceptionLogger::create()->log($response->getException(), $response->getContext());
+            } elseif (
+                ($response instanceof ConflictResponse || $response instanceof InvalidArgumentResponse)
+                && $response->getContext()['exception'] instanceof \Throwable
+            ) {
                 ExceptionLogger::create()->log($response->getContext()['exception']);
             } elseif ($response instanceof ForbiddenResponse) {
                 Logger::create()->warning(
