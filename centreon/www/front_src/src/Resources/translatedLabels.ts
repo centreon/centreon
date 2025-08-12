@@ -327,9 +327,6 @@ export const labelFilterRessources =
 
 export const labelCompact = 'Compact';
 export const labelExtended = 'Extended';
-<<<<<<< HEAD
-=======
 
 export const labelFreeTextSearchBehavior =
   'Free text search behavior can be configured in the Administration > Parameters > Centreon UI page.';
->>>>>>> 24.10.x
