@@ -767,12 +767,9 @@ function updateMetaServiceContact($metaId)
         return;
     }
     global $form, $pearDB, $centreon;
-    $qbDelete = $pearDB->createQueryBuilder();
-    $queryPurge = $qbDelete->delete('meta_contact')
-        ->where('meta_id = :meta_id')
-        ->getQuery();
+    $queryDelete = 'DELETE FROM meta_contact WHERE meta_id = :meta_id';
     try {
-        $pearDB->delete($queryPurge, QueryParameters::create([
+        $pearDB->delete($queryDelete, QueryParameters::create([
             QueryParameter::int('meta_id', (int) $metaId)
         ]));
     } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
