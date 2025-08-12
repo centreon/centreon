@@ -20065,14 +20065,6 @@ msgstr "Standard"
 msgid "it's required"
 msgstr "es ist erforderlich"
 
-#: unknown
-msgid "s"
-msgstr "s"
-
-#: unknown
-msgid "unknown"
-msgstr "unbekannt"
-
 #: centreon/www/include/Administration/parameters/general/form.php
 msgid "Full search"
 msgstr ""
