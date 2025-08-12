@@ -39,7 +39,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
     requirements: [
         'hostId' => '\d+',
         'serviceId' => '\d+',
-        'metricName' => '[^/]+',
+        'metricName' => '.+',
     ],
     condition: "request.attributes.get('version') >= 25.07"
 )]
