@@ -10776,17 +10776,16 @@ msgid "Name of the logger"
 msgstr "Nom du journal d'évènements"
 
 #: centreon/www/install/front_translate.php
-<<<<<<< HEAD
 msgid "Need help with search bar usage?"
 msgstr "Besoin d'aide pour utiliser la barre de recherche ?"
 
 #: centreon/www/include/monitoring/downtime/listDowntime.php
 msgid "Never Started"
 msgstr "Jamais démarré"
-=======
+
+#: centreon/www/install/front_translate.php
 msgid "Need help using the search bar ?"
 msgstr "Besoin d'aide pour utiliser la barre de recherche ?"
->>>>>>> 24.10.x
 
 #: centreon/www/install/front_translate.php
 msgid "Never expire"
@@ -24030,4 +24029,3 @@ msgstr "Performances de la page Statut des ressources"
 
 msgid "Free text search behavior can be configured in the Administration > Parameters > Centreon UI page."
 msgstr "Le comportement de la recherche texte libre peut être configuré à la page Administration > Paramètres > Centreon web page."
->>>>>>> 24.10.x
