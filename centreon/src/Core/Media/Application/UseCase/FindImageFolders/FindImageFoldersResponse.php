@@ -21,15 +21,17 @@
 
 declare(strict_types=1);
 
-namespace Core\Media\Infrastructure\API\FindImageFolders;
+namespace Core\Media\Application\UseCase\FindImageFolders;
+
+use Core\Media\Domain\Model\ImageFolder\ImageFolder;
 
 final readonly class FindImageFoldersResponse
 {
     /**
-     * @param ImageFolderDto[] $folderDtos
+     * @param ImageFolder[] $imageFolders
      */
     public function __construct(
-        public array $folderDtos,
+        public array $imageFolders,
     ) {
     }
 }

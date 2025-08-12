@@ -76,7 +76,8 @@ final class FindImageFoldersTest extends TestCase
             $this->imageFolderReader
         );
 
-        $resultFolders = $useCase();
+        $response = $useCase();
+        $resultFolders = $response->imageFolders;
 
         $this->assertCount(2, $resultFolders);
         $this->assertSame('Folder 1', $resultFolders[0]->name()->value);
@@ -119,7 +120,8 @@ final class FindImageFoldersTest extends TestCase
             $this->imageFolderReader
         );
 
-        $resultFolders = $useCase();
+        $response = $useCase();
+        $resultFolders = $response->imageFolders;
 
         $this->assertCount(1, $resultFolders);
         $this->assertSame('User Folder', $resultFolders[0]->name()->value);
@@ -159,7 +161,8 @@ final class FindImageFoldersTest extends TestCase
             $this->imageFolderReader
         );
 
-        $resultFolders = $useCase();
+        $response = $useCase();
+        $resultFolders = $response->imageFolders;
 
         $this->assertCount(1, $resultFolders);
         $this->assertSame('User Folder', $resultFolders[0]->name()->value);

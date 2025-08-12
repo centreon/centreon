@@ -42,12 +42,13 @@ final readonly class FindImageFolders
 
     /**
      * @throws RepositoryException
-     *
-     * @return array<ImageFolder>
+     * @return FindImageFoldersResponse
      */
-    public function __invoke(): array
+    public function __invoke(): FindImageFoldersResponse
     {
-        return $this->user->isAdmin() ? $this->findAsAdmin() : $this->findAsUser();
+        return new FindImageFoldersResponse(
+            $this->user->isAdmin() ? $this->findAsAdmin() : $this->findAsUser()
+        );
     }
 
     /**
