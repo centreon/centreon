@@ -12519,11 +12519,7 @@ msgstr ""
 
 #: centreon/www/install/front_translate.php
 msgid "Public certificate(.crt,.cer)"
-msgstr "Certificat public(.crt,cer)"
-
-#: centreon/www/install/front_translate.php
-msgid "Public certificate(.crt,.cer)"
-msgstr "Certificat public(.crt,cer)"
+msgstr "Certificat public (.crt,cer)"
 
 #: centreon/www/include/home/customViews/formLoad.php
 msgid "Public views list"
@@ -24002,14 +23998,6 @@ msgstr "affichera les ressources avec un nom d'hôte commençant par"
 #: unknown
 msgid "{{total}} element(s) found"
 msgstr "{{total}} élément(s) trouvé(s)"
-
-#: unknown
-msgid "Monitored hosts"
-msgstr "Hôtes supervisés"
-
-#: unknown
-msgid "Extended"
-msgstr "Étendu"
 
 #: centreon/www/include/Administration/parameters/general/form.php
 msgid "Full search"
