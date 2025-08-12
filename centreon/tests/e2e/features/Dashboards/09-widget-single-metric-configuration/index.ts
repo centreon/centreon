@@ -235,17 +235,7 @@ When(
 Then(
   'the widget is refreshed to make it look like the metric is in a warning state',
   () => {
-    cy.waitUntil(
-      () => {
-        const $el = Cypress.$(`*:contains("${metrics.customValues.warning}")`);
-        return $el.length > 0 && $el.is(':visible');
-      },
-      {
-        timeout: 20000,
-        interval: 3000,
-        errorMsg: `The element ${metrics.customValues.warning} did not become visible in time`,
-      }
-    );
+    cy.get('[class$="thresholdLabel-warning"] h5').should('contain.text', '40');
   }
 );
 
