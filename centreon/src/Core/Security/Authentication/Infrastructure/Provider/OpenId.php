@@ -326,6 +326,7 @@ class OpenId implements ProviderAuthenticationInterface
      * Redirect the user to the OIDC end-session endpoint
      *
      * @param string $idToken
+     * @param bool $stay
      *
      * @throws Exception
      *
