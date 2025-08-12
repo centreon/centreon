@@ -12521,6 +12521,10 @@ msgstr ""
 msgid "Public certificate(.crt,.cer)"
 msgstr "Certificat public(.crt,cer)"
 
+#: centreon/www/install/front_translate.php
+msgid "Public certificate(.crt,.cer)"
+msgstr "Certificat public(.crt,cer)"
+
 #: centreon/www/include/home/customViews/formLoad.php
 msgid "Public views list"
 msgstr "List des vues publiques"
@@ -23998,3 +24002,61 @@ msgstr "affichera les ressources avec un nom d'hôte commençant par"
 #: unknown
 msgid "{{total}} element(s) found"
 msgstr "{{total}} élément(s) trouvé(s)"
+<<<<<<< HEAD
+=======
+
+#: unknown
+msgid "Extended"
+msgstr "Étendu"
+
+#: centreon/www/include/Administration/parameters/general/form.php
+msgid "Full search"
+msgstr "Recherche étendue"
+
+#: centreon/www/include/Administration/parameters/general/form.php
+msgid "Limited search"
+msgstr "Recherche restreinte"
+
+#: centreon/www/include/Administration/parameters/general/form.php
+msgid "Free text search behavior"
+msgstr "Comportement de la recherche texte libre"
+
+#: centreon/www/include/Administration/parameters/general/form.php
+msgid "Resource status performance"
+msgstr "Performances de la page Statut des ressources"
+
+msgid "Free text search behavior can be configured in the Administration > Parameters > Centreon UI page."
+msgstr "Le comportement de la recherche texte libre peut être configuré à la page Administration > Paramètres > Centreon web page."
+
+#: unknown
+msgid "Add poller/agent configuration"
+msgstr "Ajouter une configuration de poller/agent"
+
+#: unknown
+msgid "Update poller/agent configuration"
+msgstr "Modifier une configuration de poller/agent"
+
+#: unknown
+msgid "Welcome to the poller/agent configuration page"
+msgstr "Bienvenue sur la page de configuration du poller/agent"
+
+#: unknown
+msgid "Poller/agent configuration"
+msgstr "Configuration du poller/agent"
+
+#: unknown
+msgid "Private key"
+msgstr "Clé privée"
+
+#: unknown
+msgid "CA"
+msgstr "CA"
+
+#: unknown
+msgid "Poller/agent configuration created"
+msgstr "Configuration d'agent créée"
+
+#: unknown
+msgid "Poller/agent configuration updated"
+msgstr "Configuration d'agent mise à jour"
+>>>>>>> 24.10.x

@@ -50,6 +50,7 @@ export const useValidationSchema = (): Schema<AgentConfigurationForm> => {
             : validCertificateExtensionRegex.test(value))
       });
 
+<<<<<<< HEAD
   const certificateValidation = (isFile?: boolean) =>
     string().when('$connectionMode.id', {
       is: (value: string) =>
@@ -58,6 +59,14 @@ export const useValidationSchema = (): Schema<AgentConfigurationForm> => {
       then: () => certificateFileValidation(isFile).nullable(),
       otherwise: () => string().nullable()
     });
+=======
+  const certificateValidation = string().when('$connectionMode.id', {
+    is: 'secure',
+    // biome-ignore lint/suspicious/noThenProperty: <explanation>
+    then: () => certificateFileValidation.nullable(),
+    otherwise: () => string().nullable()
+  });
+>>>>>>> 24.10.x
 
   const portValidation = number()
     .min(1, t(labelPortMustStartFrom1))
@@ -66,11 +75,19 @@ export const useValidationSchema = (): Schema<AgentConfigurationForm> => {
 
   const telegrafConfigurationSchema = {
     confServerPort: portValidation,
+<<<<<<< HEAD
     otelPublicCertificate: certificateValidation(),
     otelCaCertificate: certificateValidation(),
     otelPrivateKey: certificateValidation(true),
     confCertificate: certificateValidation(),
     confPrivateKey: certificateValidation(true)
+=======
+    otelPublicCertificate: certificateValidation,
+    otelCaCertificate: certificateValidation,
+    otelPrivateKey: certificateValidation,
+    confCertificate: certificateValidation,
+    confPrivateKey: certificateValidation
+>>>>>>> 24.10.x
   };
 
   const CMAConfigurationSchema = {
@@ -95,9 +112,15 @@ export const useValidationSchema = (): Schema<AgentConfigurationForm> => {
           .required(),
       otherwise: (schema) => schema.nullable()
     }),
+<<<<<<< HEAD
     otelPublicCertificate: certificateValidation(),
     otelCaCertificate: certificateValidation(),
     otelPrivateKey: certificateValidation(true),
+=======
+    otelPublicCertificate: certificateValidation,
+    otelCaCertificate: certificateValidation,
+    otelPrivateKey: certificateValidation,
+>>>>>>> 24.10.x
     hosts: array()
       .of(
         object({
@@ -111,7 +134,11 @@ export const useValidationSchema = (): Schema<AgentConfigurationForm> => {
             })
             .required(t(labelRequired)),
           port: portValidation,
+<<<<<<< HEAD
           pollerCaCertificate: certificateValidation(),
+=======
+          pollerCaCertificate: certificateValidation,
+>>>>>>> 24.10.x
           pollerCaName: string().nullable(),
           token: object().when(['$type', '$connectionMode', '$configuration'], {
             is: (type, connectionMode, configuration) =>
