@@ -18810,7 +18810,3 @@ msgstr "s"
 #: unknown
 msgid "unknown"
 msgstr "unbekannt"
-
-#: centreon/www/include/Administration/parameters/general/form.php
-msgid "Limited search"
-msgstr ""
