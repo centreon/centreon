@@ -37,20 +37,15 @@ class UpdateRulePresenter extends DefaultPresenter implements UpdateRulePresente
 {
     public function presentResponse(ResponseStatusInterface $response): void
     {
-        if ($response instanceof ResponseStatusInterface) {
-            if ($response instanceof ErrorResponse && ! is_null($response->getException())) {
-                ExceptionLogger::create()->log($response->getException(), $response->getContext());
-            } elseif ($response instanceof ConflictResponse || $response instanceof InvalidArgumentResponse) {
-                ExceptionLogger::create()->log($response->getContext()['exception'], $response->getContext());
-            } elseif ($response instanceof ForbiddenResponse) {
-                Logger::create()->warning(
-                    "User doesn't have sufficient rights to update a resource access rule",
-                    $response->getContext()
-                );
-            }
-            $this->setResponseStatus($response);
-
-            return;
+        if ($response instanceof ErrorResponse && ! is_null($response->getException())) {
+            ExceptionLogger::create()->log($response->getException(), $response->getContext());
+        } elseif ($response instanceof ConflictResponse || $response instanceof InvalidArgumentResponse) {
+            ExceptionLogger::create()->log($response->getContext()['exception'], $response->getContext());
+        } elseif ($response instanceof ForbiddenResponse) {
+            Logger::create()->warning(
+                "User doesn't have sufficient rights to update a resource access rule",
+                $response->getContext()
+            );
         }
 
         $this->setResponseStatus($response);

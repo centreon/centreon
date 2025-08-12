@@ -146,7 +146,7 @@ class DbReadMediaRepository extends AbstractRepositoryRDB implements ReadMediaRe
                 message: 'An error occurred while fetching media by request parameters and access groups.',
                 context: [
                     'request_parameters' => $requestParameters->toArray(),
-                    'access_groups' => $accessGroupIds ?? [],
+                    'access_groups' => $accessGroupIds,
                 ],
                 previous: $e,
             );
