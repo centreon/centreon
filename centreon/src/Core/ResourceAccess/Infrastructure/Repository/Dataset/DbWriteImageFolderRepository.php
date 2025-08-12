@@ -38,8 +38,6 @@ final class DbWriteImageFolderRepository extends DatabaseRepository implements W
 {
     /**
      * @inheritDoc
-     *
-     * @throws RepositoryException
      */
     public function linkResourcesToDataset(int $ruleId, int $datasetId, array $resourceIds): void
     {
@@ -66,12 +64,13 @@ final class DbWriteImageFolderRepository extends DatabaseRepository implements W
             );
         } catch (ValueObjectException|CollectionException|ConnectionException $ex) {
             throw new RepositoryException(
-                message: "An error occured while linking resources to dataset: {$ex->getMessage()}",
+                message: "An error occurred while linking resources to dataset: {$ex->getMessage()}",
                 context: [
                     'rule_id' => $ruleId,
                     'dataset_id' => $datasetId,
                     'resource_ids' => $resourceIds,
                 ],
+                previous: $ex
             );
         }
     }
@@ -86,20 +85,30 @@ final class DbWriteImageFolderRepository extends DatabaseRepository implements W
 
     /**
      * @inheritDoc
-     *
-     * @throws RepositoryException
      */
     public function updateDatasetAccess(int $ruleId, int $datasetId, bool $fullAccess): void
     {
-        $queryParameters = QueryParameters::create([
-            QueryParameter::int('datasetId', $datasetId),
-            QueryParameter::string('access', $fullAccess ? '1' : '0'),
-        ]);
+        try {
+            $queryParameters = QueryParameters::create([
+                QueryParameter::int('datasetId', $datasetId),
+                QueryParameter::string('access', $fullAccess ? '1' : '0'),
+            ]);
 
-        $query = <<<'SQL'
-                UPDATE `:db`.acl_resources SET all_image_folders = :access WHERE acl_res_id = :datasetId
-            SQL;
+            $query = <<<'SQL'
+                    UPDATE `:db`.acl_resources SET all_image_folders = :access WHERE acl_res_id = :datasetId
+                SQL;
 
-        $this->connection->update($this->translateDbName($query), $queryParameters);
+            $this->connection->update($this->translateDbName($query), $queryParameters);
+        } catch (ValueObjectException|CollectionException|ConnectionException $ex) {
+            throw new RepositoryException(
+                message: "An error occurred while updating dataset access: {$ex->getMessage()}",
+                context: [
+                    'rule_id' => $ruleId,
+                    'dataset_id' => $datasetId,
+                    'full_access' => $fullAccess,
+                ],
+                previous: $ex
+            );
+        }
     }
 }

@@ -79,6 +79,8 @@ interface ReadImageFolderRepositoryInterface
      *
      * @param AccessGroup[] $accessGroups
      *
+     * @throws RepositoryException
+     *
      * @return bool
      */
     public function hasAccessToAllImageFolders(array $accessGroups): bool;

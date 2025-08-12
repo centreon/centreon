@@ -27,12 +27,14 @@ use Adaptation\Database\Connection\Collection\QueryParameters;
 use Adaptation\Database\Connection\ConnectionInterface;
 use Adaptation\Database\Connection\Enum\QueryParameterTypeEnum;
 use Adaptation\Database\Connection\Exception\ConnectionException;
+use Adaptation\Database\QueryBuilder\Exception\QueryBuilderException;
 use Adaptation\Database\QueryBuilder\QueryBuilderInterface;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Centreon\Domain\RequestParameters\RequestParameters;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
 use Core\Common\Domain\Exception\CollectionException;
 use Core\Common\Domain\Exception\RepositoryException;
+use Core\Common\Domain\Exception\TransformerException;
 use Core\Common\Domain\Exception\ValueObjectException;
 use Core\Common\Domain\TrimmedString;
 use Core\Common\Infrastructure\Repository\DatabaseRepository;
@@ -54,7 +56,7 @@ final class DbReadImageFolderRepository extends DatabaseRepository implements Re
     public function __construct(
         ConnectionInterface $connection,
         QueryBuilderInterface $queryBuilder,
-        private SqlRequestParametersTranslator $sqlRequestTranslator
+        private readonly SqlRequestParametersTranslator $sqlRequestTranslator
     ) {
         parent::__construct($connection, $queryBuilder);
 
@@ -109,7 +111,9 @@ final class DbReadImageFolderRepository extends DatabaseRepository implements Re
 
             $records = $this->connection->iterateAssociative(
                 $this->translateDbName($queryBuilder->getQuery()),
-                SearchRequestParametersTransformer::reverseToQueryParameters($this->sqlRequestTranslator->getSearchValues())
+                SearchRequestParametersTransformer::reverseToQueryParameters(
+                    $this->sqlRequestTranslator->getSearchValues()
+                )
             );
 
             $folders = [];
@@ -128,15 +132,20 @@ final class DbReadImageFolderRepository extends DatabaseRepository implements Re
 
             $total = $this->connection->fetchOne(
                 $this->translateDbName($queryTotal),
-                SearchRequestParametersTransformer::reverseToQueryParameters($this->sqlRequestTranslator->getSearchValues())
+                SearchRequestParametersTransformer::reverseToQueryParameters(
+                    $this->sqlRequestTranslator->getSearchValues()
+                )
             );
 
             $this->sqlRequestTranslator->getRequestParameters()->setTotal($total);
 
             return $folders;
-        } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
+        } catch (QueryBuilderException|TransformerException|ConnectionException $exception) {
             throw new RepositoryException(
-                message: sprintf('An error occured while retrieving image folders: %s', $exception->getMessage()),
+                message: sprintf('An error occurred while retrieving image folders: %s', $exception->getMessage()),
+                context: [
+                    'request_parameters' => $requestParameters->toArray(),
+                ],
                 previous: $exception,
             );
         }
@@ -145,8 +154,10 @@ final class DbReadImageFolderRepository extends DatabaseRepository implements Re
     /**
      * @inheritDoc
      */
-    public function findByRequestParametersAndAccessGroups(RequestParametersInterface $requestParameters, array $accessGroups): array
-    {
+    public function findByRequestParametersAndAccessGroups(
+        RequestParametersInterface $requestParameters,
+        array $accessGroups
+    ): array {
         $accessGroupIds = array_map(
             static fn (AccessGroup $accessGroup): int => $accessGroup->getId(),
             $accessGroups
@@ -265,11 +276,12 @@ final class DbReadImageFolderRepository extends DatabaseRepository implements Re
             $this->sqlRequestTranslator->getRequestParameters()->setTotal((int) $total);
 
             return $folders;
-        } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
+        } catch (\Exception $exception) {
             throw new RepositoryException(
-                message: sprintf('An error occured while retrieving image folders: %s', $exception->getMessage()),
+                message: sprintf('An error occurred while retrieving image folders: %s', $exception->getMessage()),
                 context: [
                     'access_groups' => $accessGroupIds,
+                    'request_parameters' => $requestParameters->toArray(),
                 ],
                 previous: $exception,
             );
@@ -291,11 +303,12 @@ final class DbReadImageFolderRepository extends DatabaseRepository implements Re
                 $accessGroups
             );
 
-            ['parameters' => $queryParameters, 'placeholderList' => $placeHolders] = $this->createMultipleBindParameters(
-                values: $accessGroupIds,
-                prefix: 'access_group_id',
-                paramType: QueryParameterTypeEnum::INTEGER
-            );
+            ['parameters' => $queryParameters, 'placeholderList' => $placeHolders]
+                = $this->createMultipleBindParameters(
+                    values: $accessGroupIds,
+                    prefix: 'access_group_id',
+                    paramType: QueryParameterTypeEnum::INTEGER
+                );
 
             $request = <<<SQL
                 SELECT res.all_image_folders
@@ -315,7 +328,8 @@ final class DbReadImageFolderRepository extends DatabaseRepository implements Re
             return in_array(1, $values, true);
         } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
             throw new RepositoryException(
-                message: sprintf('An error occured while retrieving image folders: %s', $exception->getMessage()),
+                message: sprintf('An error occurred while retrieving image folders: %s', $exception->getMessage()),
+                context: ['access_groups' => $accessGroups],
                 previous: $exception,
             );
         }
@@ -331,14 +345,12 @@ final class DbReadImageFolderRepository extends DatabaseRepository implements Re
         }
 
         try {
-            [
-                'parameters' => $queryParameters,
-                'placeholderList' => $queryBindString
-            ] = $this->createMultipleBindParameters(
-                values: $folderIds,
-                prefix: 'directory_id',
-                paramType: QueryParameterTypeEnum::INTEGER,
-            );
+            ['parameters' => $queryParameters, 'placeholderList' => $queryBindString]
+                = $this->createMultipleBindParameters(
+                    values: $folderIds,
+                    prefix: 'directory_id',
+                    paramType: QueryParameterTypeEnum::INTEGER,
+                );
 
             $query = <<<SQL
                     SELECT dir_id FROM `:db`.view_img_dir WHERE dir_id IN ({$queryBindString})
@@ -350,10 +362,11 @@ final class DbReadImageFolderRepository extends DatabaseRepository implements Re
             );
         } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
             throw new RepositoryException(
-                message: sprintf('An error occured while testing folders accessibility in database: %s', $exception->getMessage()),
-                context: [
-                    'directory_ids' => $folderIds,
-                ],
+                message: sprintf(
+                    'An error occurred while testing folders accessibility in database: %s',
+                    $exception->getMessage()
+                ),
+                context: ['directory_ids' => $folderIds],
                 previous: $exception,
             );
         }
@@ -371,11 +384,12 @@ final class DbReadImageFolderRepository extends DatabaseRepository implements Re
         }
 
         try {
-            ['parameters' => $queryParameters, 'placeholderList' => $queryBindString] = $this->createMultipleBindParameters(
-                values: $folderIds,
-                prefix: 'directory_id',
-                paramType: QueryParameterTypeEnum::INTEGER,
-            );
+            ['parameters' => $queryParameters, 'placeholderList' => $queryBindString]
+                = $this->createMultipleBindParameters(
+                    values: $folderIds,
+                    prefix: 'directory_id',
+                    paramType: QueryParameterTypeEnum::INTEGER,
+                );
 
             $query = <<<SQL
                     SELECT dir_id, dir_name FROM `:db`.view_img_dir WHERE dir_id IN ({$queryBindString})
@@ -394,10 +408,8 @@ final class DbReadImageFolderRepository extends DatabaseRepository implements Re
             return $folders;
         } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
             throw new RepositoryException(
-                message: sprintf('An error occured while retrieving media folders: %s', $exception->getMessage()),
-                context: [
-                    'directory_ids' => $folderIds,
-                ],
+                message: sprintf('An error occurred while retrieving media folders: %s', $exception->getMessage()),
+                context: ['directory_ids' => $folderIds],
                 previous: $exception,
             );
         }
@@ -405,6 +417,7 @@ final class DbReadImageFolderRepository extends DatabaseRepository implements Re
 
     /**
      * @param array{id:int, name:string, alias:?string, comment:?string} $record
+     *
      * @throws InvalidArgumentException
      * @return ImageFolder
      */

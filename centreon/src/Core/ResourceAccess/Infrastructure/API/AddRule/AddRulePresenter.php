@@ -23,9 +23,15 @@ declare(strict_types=1);
 
 namespace Core\ResourceAccess\Infrastructure\API\AddRule;
 
+use Centreon\Domain\Log\Logger;
 use Core\Application\Common\UseCase\AbstractPresenter;
+use Core\Application\Common\UseCase\ConflictResponse;
 use Core\Application\Common\UseCase\CreatedResponse;
+use Core\Application\Common\UseCase\ErrorResponse;
+use Core\Application\Common\UseCase\ForbiddenResponse;
+use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Application\Common\UseCase\ResponseStatusInterface;
+use Core\Common\Infrastructure\ExceptionLogger\ExceptionLogger;
 use Core\Infrastructure\Common\Presenter\PresenterTrait;
 use Core\ResourceAccess\Application\UseCase\AddRule\AddRulePresenterInterface;
 use Core\ResourceAccess\Application\UseCase\AddRule\AddRuleResponse;
@@ -34,34 +40,43 @@ final class AddRulePresenter extends AbstractPresenter implements AddRulePresent
 {
     use PresenterTrait;
 
-    /**
-     * @inheritDoc
-     */
     public function presentResponse(AddRuleResponse|ResponseStatusInterface $response): void
     {
         if ($response instanceof ResponseStatusInterface) {
+            if ($response instanceof ErrorResponse && ! is_null($response->getException())) {
+                ExceptionLogger::create()->log($response->getException());
+            } elseif ($response instanceof ConflictResponse || $response instanceof InvalidArgumentResponse) {
+                ExceptionLogger::create()->log($response->getContext()['exception']);
+            } elseif ($response instanceof ForbiddenResponse) {
+                Logger::create()->warning(
+                    "User doesn't have sufficient rights to add a rule",
+                    $response->getContext()
+                );
+            }
             $this->setResponseStatus($response);
-        } else {
-            $this->present(
-                new CreatedResponse(
-                    $response->id,
-                    [
-                        'id' => $response->id,
-                        'name' => $response->name,
-                        'description' => $response->description,
-                        'is_enabled' => $response->isEnabled,
-                        'contacts' => [
-                            'ids' => $response->contactIds,
-                            'all' => $response->applyToAllContacts,
-                        ],
-                        'contact_groups' => [
-                            'ids' => $response->contactGroupIds,
-                            'all' => $response->applyToAllContactGroups,
-                        ],
-                        'dataset_filters' => $response->datasetFilters,
-                    ]
-                )
-            );
+
+            return;
         }
+
+        $this->present(
+            new CreatedResponse(
+                $response->id,
+                [
+                    'id' => $response->id,
+                    'name' => $response->name,
+                    'description' => $response->description,
+                    'is_enabled' => $response->isEnabled,
+                    'contacts' => [
+                        'ids' => $response->contactIds,
+                        'all' => $response->applyToAllContacts,
+                    ],
+                    'contact_groups' => [
+                        'ids' => $response->contactGroupIds,
+                        'all' => $response->applyToAllContactGroups,
+                    ],
+                    'dataset_filters' => $response->datasetFilters,
+                ]
+            )
+        );
     }
 }

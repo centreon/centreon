@@ -27,6 +27,7 @@ use Assert\AssertionFailedException;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
+use Core\Common\Domain\Exception\RepositoryException;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 use Core\Common\Infrastructure\Repository\SqlMultipleBindTrait;
 use Core\Media\Application\Repository\ReadMediaRepositoryInterface;
@@ -59,86 +60,97 @@ class DbReadMediaRepository extends AbstractRepositoryRDB implements ReadMediaRe
         RequestParametersInterface $requestParameters,
         array $accessGroups,
     ): \Traversable {
-        if ([] === $accessGroups) {
-            return new \EmptyIterator();
-        }
-
-        $accessGroupIds = array_map(
-            static fn (AccessGroup $accessGroup): int => $accessGroup->getId(),
-            $accessGroups
-        );
-
-        [$bindValues, $bindQuery] = $this->createMultipleBindQuery($accessGroupIds, ':access_group_id');
-
-        $sqlTranslator = new SqlRequestParametersTranslator($requestParameters);
-        $sqlTranslator->setConcordanceArray([
-            'id' => 'img_id',
-            'name' => 'img_path',
-            'directory' => 'dir_name',
-        ]);
-        $request = <<<SQL_WRAP
-            SELECT SQL_CALC_FOUND_ROWS
-                `img`.img_id,
-                `img`.img_path,
-                `img`.img_comment,
-                `dir`.dir_name
-            FROM `:db`.`view_img` img
-            INNER JOIN `:db`.`view_img_dir_relation` rel
-                ON rel.img_img_id = img.img_id
-            INNER JOIN `:db`.`view_img_dir` dir
-                ON dir.dir_id = rel.dir_dir_parent_id
-            INNER JOIN `:db`.acl_resources_image_folder_relations amdr
-                ON amdr.dir_id = dir.dir_id
-            INNER JOIN `:db`.acl_res_group_relations argr
-                ON argr.acl_res_id = amdr.acl_res_id
-                AND argr.acl_group_id IN ({$bindQuery})
-            SQL_WRAP;
-
-        $searchRequest = $sqlTranslator->translateSearchParameterToSql();
-        if ($searchRequest !== null) {
-            $request .= $searchRequest;
-        }
-
-        // Handle sort
-        $sortRequest = $sqlTranslator->translateSortParameterToSql();
-        $request .= $sortRequest ?? ' ORDER BY img_id';
-        $request .= $sqlTranslator->translatePaginationToSql();
-        $statement = $this->db->prepare($this->translateDbName($request));
-
-        foreach ($sqlTranslator->getSearchValues() as $key => $data) {
-            /** @var int $type */
-            $type = key($data);
-            $value = $data[$type];
-            $statement->bindValue($key, $value, $type);
-        }
-
-        foreach ($bindValues as $bindKey => $bindValue) {
-            $statement->bindValue($bindKey, $bindValue, \PDO::PARAM_INT);
-        }
-
-        $statement->setFetchMode(\PDO::FETCH_ASSOC);
-        $statement->execute();
-
-        $result = $this->db->query('SELECT FOUND_ROWS()');
-
-        if ($result !== false && ($total = $result->fetchColumn()) !== false) {
-            $sqlTranslator->getRequestParameters()->setTotal((int) $total);
-        }
-
-        return new class ($statement, $this->createMedia(...)) implements \IteratorAggregate {
-            public function __construct(
-                readonly private \PDOStatement $statement,
-                readonly private \Closure $factory,
-            ) {
+        try {
+            if ([] === $accessGroups) {
+                return new \EmptyIterator();
             }
 
-            public function getIterator(): \Traversable
-            {
-                foreach ($this->statement as $result) {
-                    yield ($this->factory)($result);
+            $accessGroupIds = array_map(
+                static fn (AccessGroup $accessGroup): int => $accessGroup->getId(),
+                $accessGroups
+            );
+
+            [$bindValues, $bindQuery] = $this->createMultipleBindQuery($accessGroupIds, ':access_group_id');
+
+            $sqlTranslator = new SqlRequestParametersTranslator($requestParameters);
+            $sqlTranslator->setConcordanceArray([
+                'id' => 'img_id',
+                'name' => 'img_path',
+                'directory' => 'dir_name',
+            ]);
+            $request = <<<SQL_WRAP
+                SELECT SQL_CALC_FOUND_ROWS
+                    `img`.img_id,
+                    `img`.img_path,
+                    `img`.img_comment,
+                    `dir`.dir_name
+                FROM `:db`.`view_img` img
+                INNER JOIN `:db`.`view_img_dir_relation` rel
+                    ON rel.img_img_id = img.img_id
+                INNER JOIN `:db`.`view_img_dir` dir
+                    ON dir.dir_id = rel.dir_dir_parent_id
+                INNER JOIN `:db`.acl_resources_image_folder_relations amdr
+                    ON amdr.dir_id = dir.dir_id
+                INNER JOIN `:db`.acl_res_group_relations argr
+                    ON argr.acl_res_id = amdr.acl_res_id
+                    AND argr.acl_group_id IN ({$bindQuery})
+                SQL_WRAP;
+
+            $searchRequest = $sqlTranslator->translateSearchParameterToSql();
+            if ($searchRequest !== null) {
+                $request .= $searchRequest;
+            }
+
+            // Handle sort
+            $sortRequest = $sqlTranslator->translateSortParameterToSql();
+            $request .= $sortRequest ?? ' ORDER BY img_id';
+            $request .= $sqlTranslator->translatePaginationToSql();
+            $statement = $this->db->prepare($this->translateDbName($request));
+
+            foreach ($sqlTranslator->getSearchValues() as $key => $data) {
+                /** @var int $type */
+                $type = key($data);
+                $value = $data[$type];
+                $statement->bindValue($key, $value, $type);
+            }
+
+            foreach ($bindValues as $bindKey => $bindValue) {
+                $statement->bindValue($bindKey, $bindValue, \PDO::PARAM_INT);
+            }
+
+            $statement->setFetchMode(\PDO::FETCH_ASSOC);
+            $statement->execute();
+
+            $result = $this->db->query('SELECT FOUND_ROWS()');
+
+            if ($result !== false && ($total = $result->fetchColumn()) !== false) {
+                $sqlTranslator->getRequestParameters()->setTotal((int) $total);
+            }
+
+            return new class ($statement, $this->createMedia(...)) implements \IteratorAggregate {
+                public function __construct(
+                    readonly private \PDOStatement $statement,
+                    readonly private \Closure $factory,
+                ) {
                 }
-            }
-        };
+
+                public function getIterator(): \Traversable
+                {
+                    foreach ($this->statement as $result) {
+                        yield ($this->factory)($result);
+                    }
+                }
+            };
+        } catch (\Exception $e) {
+            throw new RepositoryException(
+                message: 'An error occurred while fetching media by request parameters and access groups.',
+                context: [
+                    'request_parameters' => $requestParameters->toArray(),
+                    'access_groups' => $accessGroupIds ?? [],
+                ],
+                previous: $e,
+            );
+        }
     }
 
     /**

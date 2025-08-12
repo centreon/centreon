@@ -33,6 +33,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
+use Symfony\Component\Serializer\Exception\ExceptionInterface;
 use Symfony\Component\Serializer\SerializerInterface;
 
 final class FindImageFoldersController extends AbstractController
@@ -73,7 +74,7 @@ final class FindImageFoldersController extends AbstractController
                     JsonEncoder::FORMAT,
                 )
             );
-        } catch (RepositoryException|\Exception $exception) {
+        } catch (RepositoryException|\Exception|ExceptionInterface $exception) {
             $this->exceptionLogger->log($exception);
 
             return new JsonResponse(

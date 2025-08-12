@@ -25,9 +25,7 @@ namespace Core\Media\Application\UseCase\FindMedias;
 
 use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
-use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
-use Centreon\Infrastructure\RequestParameters\RequestParametersTranslatorException;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Common\Domain\Exception\RepositoryException;
@@ -37,16 +35,14 @@ use Core\Media\Application\Repository\ReadMediaRepositoryInterface;
 use Core\Media\Domain\Model\Media;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 
-final class FindMedias
+final readonly class FindMedias
 {
-    use LoggerTrait;
-
     public function __construct(
-        private readonly RequestParametersInterface $requestParameters,
-        private readonly ReadMediaRepositoryInterface $mediaReader,
-        private readonly ReadAccessGroupRepositoryInterface $accessGroupReader,
-        private readonly ReadImageFolderRepositoryInterface $mediaFolderReader,
-        private readonly ContactInterface $user,
+        private RequestParametersInterface $requestParameters,
+        private ReadMediaRepositoryInterface $mediaReader,
+        private ReadAccessGroupRepositoryInterface $accessGroupReader,
+        private ReadImageFolderRepositoryInterface $mediaFolderReader,
+        private ContactInterface $user,
     ) {
     }
 
@@ -56,51 +52,37 @@ final class FindMedias
     public function __invoke(FindMediasPresenterInterface $presenter): void
     {
         try {
-            $this->info(
-                'Find medias',
-                ['user' => $this->user->getId(), 'request' => $this->requestParameters->toArray()]
-            );
             if (! $this->canAccessToListing()) {
-                $this->error(
-                    "User doesn't have sufficient rights to list media",
-                    ['user_id' => $this->user->getId()]
+                $presenter->presentResponse(
+                    new ForbiddenResponse(
+                        message: MediaException::listingNotAllowed(),
+                        context: [
+                            'user_id' => $this->user->getId(),
+                            'request_parameters' => $this->requestParameters->toArray(),
+                        ]
+                    )
                 );
-                $presenter->presentResponse(new ForbiddenResponse(MediaException::listingNotAllowed()));
 
                 return;
             }
             $medias = $this->user->isAdmin() ? $this->findAsAdmin() : $this->findAsUser();
             $presenter->presentResponse($this->createResponse($medias));
-        } catch (RequestParametersTranslatorException $ex) {
-            $this->error(
-                $ex->getMessage(),
-                [
-                    'request_parameters' => $this->requestParameters->toArray(),
-                    'exception' => [
-                        'message' => $ex->getPrevious()?->getMessage(),
-                        'trace' => $ex->getTraceAsString(),
+        } catch (\Exception $ex) {
+            $presenter->presentResponse(
+                new ErrorResponse(
+                    message: MediaException::errorWhileSearchingForMedias(),
+                    context: [
+                        'user_id' => $this->user->getId(),
+                        'request_parameters' => $this->requestParameters->toArray(),
                     ],
-                ]
+                    exception: $ex
+                )
             );
-
-            $presenter->presentResponse(new ErrorResponse($ex->getMessage()));
-        } catch (\Throwable $ex) {
-            $this->error(
-                $ex->getMessage(),
-                [
-                    'exception' => [
-                        'message' => $ex->getPrevious()?->getMessage(),
-                        'trace' => $ex->getTraceAsString(),
-                    ],
-                ]
-            );
-
-            $presenter->presentResponse(new ErrorResponse(MediaException::errorWhileSearchingForMedias()));
         }
     }
 
     /**
-     * @throws RepositoryException|RequestParametersTranslatorException
+     * @throws RepositoryException
      *
      * @return \Traversable<int, Media>
      */
@@ -110,7 +92,7 @@ final class FindMedias
     }
 
     /**
-     * @throws RepositoryException|RequestParametersTranslatorException
+     * @throws RepositoryException
      *
      * @return \Traversable<int, Media>
      */

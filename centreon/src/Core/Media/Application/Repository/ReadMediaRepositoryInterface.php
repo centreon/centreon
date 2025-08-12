@@ -24,7 +24,6 @@ declare(strict_types=1);
 namespace Core\Media\Application\Repository;
 
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
-use Centreon\Infrastructure\RequestParameters\RequestParametersTranslatorException;
 use Core\Common\Domain\Exception\RepositoryException;
 use Core\Media\Domain\Model\Media;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
@@ -52,7 +51,7 @@ interface ReadMediaRepositoryInterface
     /**
      * @param RequestParametersInterface $requestParameters
      *
-     * @throws \Throwable
+     * @throws RepositoryException
      *
      * @return \Traversable<int, Media>
      */
@@ -62,7 +61,7 @@ interface ReadMediaRepositoryInterface
      * @param RequestParametersInterface $requestParameters
      * @param AccessGroup[] $accessGroups
      *
-     * @throws RepositoryException|RequestParametersTranslatorException
+     * @throws RepositoryException
      *
      * @return \Traversable<int, Media>
      */
