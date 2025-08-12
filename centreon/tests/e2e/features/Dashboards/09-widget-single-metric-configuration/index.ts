@@ -235,7 +235,17 @@ When(
 Then(
   'the widget is refreshed to make it look like the metric is in a warning state',
   () => {
-    cy.contains(metrics.customValues.warning).should('be.visible');
+    cy.waitUntil(
+      () => {
+        const $el = Cypress.$(`*:contains("${metrics.customValues.warning}")`);
+        return $el.length > 0 && $el.is(':visible');
+      },
+      {
+        timeout: 20000,
+        interval: 3000,
+        errorMsg: `The element ${metrics.customValues.warning} did not become visible in time`,
+      }
+    );
   }
 );
 
@@ -255,7 +265,17 @@ When(
 Then(
   'the widget is refreshed to make it look like the metric is in a critical state',
   () => {
-    cy.contains(metrics.customValues.critical).should('be.visible');
+    cy.waitUntil(
+      () => {
+        const $el = Cypress.$(`*:contains("${metrics.customValues.critical}")`);
+        return $el.length > 0 && $el.is(':visible');
+      },
+      {
+        timeout: 20000,
+        interval: 3000,
+        errorMsg: `The element ${metrics.customValues.critical} did not become visible in time`,
+      }
+    );
   }
 );
 
