@@ -20091,4 +20091,3 @@ msgstr ""
 
 # msgid "Free text search behavior can be configured in the Administration > Parameters > Centreon UI page."
 # msgstr ""
->>>>>>> 24.10.x
