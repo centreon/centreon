@@ -19,7 +19,12 @@
  */
 
 use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\Exception\ConnectionException;
 use Adaptation\Database\Connection\ValueObject\QueryParameter;
+use Core\Common\Domain\Exception\CollectionException;
+use Core\Common\Domain\Exception\RepositoryException;
+use Core\Common\Domain\Exception\ValueObjectException;
+use Core\Common\Infrastructure\ExceptionLogger\ExceptionLogger;
 
 if (! isset($centreon)) {
     exit();
@@ -45,68 +50,80 @@ if (isset($_POST['searchM'])) {
     $search = $centreon->historySearch[$url];
 }
 
-$queryParameters = [];
+try {
+    $queryParameters = [];
 
-if (
-    $centreon->user->admin === '1'
-    || $centreon->user->access->hasAccessToAllImageFolders
-) {
-    $query = <<<'SQL'
-            SELECT
-                images.*,
-                directories.*
-            FROM view_img_dir AS `directories`
-            LEFT JOIN view_img_dir_relation AS `vidr`
-                ON vidr.dir_dir_parent_id = directories.dir_id
-            LEFT JOIN view_img AS `images`
-                ON images.img_id = vidr.img_img_id
-        SQL;
-} else {
-    $query = <<<'SQL'
-            SELECT
-                images.*,
-                directories.*
-            FROM view_img_dir AS `directories`
-            LEFT JOIN view_img_dir_relation AS `vidr`
-                ON vidr.dir_dir_parent_id = directories.dir_id
-            LEFT JOIN view_img AS `images`
-                ON images.img_id = vidr.img_img_id
-            INNER JOIN acl_resources_image_folder_relations armdr
-                ON armdr.dir_id = vidr.dir_dir_parent_id
-            INNER JOIN acl_resources ar
-                ON ar.acl_res_id = armdr.acl_res_id
-            INNER JOIN acl_res_group_relations argr
-                ON argr.acl_res_id = ar.acl_res_id
-            LEFT JOIN acl_group_contacts_relations gcr
-                ON gcr.acl_group_id = argr.acl_group_id
-            LEFT JOIN acl_group_contactgroups_relations gcgr
-                ON gcgr.acl_group_id = argr.acl_group_id
-            LEFT JOIN contactgroup_contact_relation cgcr
-                ON cgcr.contactgroup_cg_id = gcgr.cg_cg_id
-                AND (cgcr.contact_contact_id = :contactId OR gcr.contact_contact_id = :contactId)
-        SQL;
-    $queryParameters[] = QueryParameter::int('contactId', $centreon->user->user_id);
-}
+    if (
+        $centreon->user->admin === '1'
+        || $centreon->user->access->hasAccessToAllImageFolders
+    ) {
+        $query = <<<'SQL'
+                SELECT
+                    images.*,
+                    directories.*
+                FROM view_img_dir AS `directories`
+                LEFT JOIN view_img_dir_relation AS `vidr`
+                    ON vidr.dir_dir_parent_id = directories.dir_id
+                LEFT JOIN view_img AS `images`
+                    ON images.img_id = vidr.img_img_id
+            SQL;
+    } else {
+        $query = <<<'SQL'
+                SELECT
+                    images.*,
+                    directories.*
+                FROM view_img_dir AS `directories`
+                LEFT JOIN view_img_dir_relation AS `vidr`
+                    ON vidr.dir_dir_parent_id = directories.dir_id
+                LEFT JOIN view_img AS `images`
+                    ON images.img_id = vidr.img_img_id
+                INNER JOIN acl_resources_image_folder_relations armdr
+                    ON armdr.dir_id = vidr.dir_dir_parent_id
+                INNER JOIN acl_resources ar
+                    ON ar.acl_res_id = armdr.acl_res_id
+                INNER JOIN acl_res_group_relations argr
+                    ON argr.acl_res_id = ar.acl_res_id
+                LEFT JOIN acl_group_contacts_relations gcr
+                    ON gcr.acl_group_id = argr.acl_group_id
+                LEFT JOIN acl_group_contactgroups_relations gcgr
+                    ON gcgr.acl_group_id = argr.acl_group_id
+                LEFT JOIN contactgroup_contact_relation cgcr
+                    ON cgcr.contactgroup_cg_id = gcgr.cg_cg_id
+                    AND (cgcr.contact_contact_id = :contactId OR gcr.contact_contact_id = :contactId)
+            SQL;
+        $queryParameters[] = QueryParameter::int('contactId', $centreon->user->user_id);
+    }
 
-if ($search) {
-    $queryParameters[] = QueryParameter::string(
-        'search',
-        '%' . HtmlSanitizer::createFromString($search)->getString() . '%',
+    if ($search) {
+        $queryParameters[] = QueryParameter::string(
+            'search',
+            '%' . HtmlSanitizer::createFromString($search)->getString() . '%',
+        );
+        $query .= <<<'SQL'
+                WHERE (images.img_name LIKE :search OR directories.dir_name LIKE :search) AND directories.dir_name NOT IN ('centreon-map', 'dashboards', 'ppm')
+            SQL;
+    } else {
+        $query .= <<<'SQL'
+                WHERE directories.dir_name NOT IN ('centreon-map', 'dashboards', 'ppm')
+            SQL;
+    }
+    $query .= ' GROUP BY images.img_id, directories.dir_id';
+    $query .= ' ORDER BY dir_alias, img_name LIMIT ' . $num * $limit . ', ' . $limit;
+
+    /** @var CentreonDB $pearDB */
+    $res = $pearDB->fetchAllAssociative($query, QueryParameters::create($queryParameters));
+    $rows = count($res);
+} catch (ValueObjectException|CollectionException|ConnectionException $e) {
+    $exception = new RepositoryException(
+        message: 'Unable to retrieve images and directories',
+        context: ['search' => $search, 'contactId' => $centreon->user->user_id],
+        previous: $e
     );
-    $query .= <<<'SQL'
-            WHERE (images.img_name LIKE :search OR directories.dir_name LIKE :search) AND directories.dir_name NOT IN ('centreon-map', 'dashboards', 'ppm')
-        SQL;
-} else {
-    $query .= <<<'SQL'
-            WHERE directories.dir_name NOT IN ('centreon-map', 'dashboards', 'ppm')
-        SQL;
-}
-$query .= ' GROUP BY images.img_id, directories.dir_id';
-$query .= ' ORDER BY dir_alias, img_name LIMIT ' . $num * $limit . ', ' . $limit;
+    ExceptionLogger::create()->log($exception);
 
-/** @var CentreonDB $pearDB */
-$res = $pearDB->fetchAllAssociative($query, QueryParameters::create($queryParameters));
-$rows = count($res);
+    throw $exception;
+}
+
 include './include/common/checkPagination.php';
 
 // Smarty template initialization

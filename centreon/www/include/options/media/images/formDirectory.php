@@ -25,7 +25,12 @@
 
 use Adaptation\Database\Connection\Collection\QueryParameters;
 use Adaptation\Database\Connection\Enum\QueryParameterTypeEnum;
+use Adaptation\Database\Connection\Exception\ConnectionException;
 use Adaptation\Database\Connection\ValueObject\QueryParameter;
+use Core\Common\Domain\Exception\CollectionException;
+use Core\Common\Domain\Exception\RepositoryException;
+use Core\Common\Domain\Exception\ValueObjectException;
+use Core\Common\Infrastructure\ExceptionLogger\ExceptionLogger;
 
 $dir = [];
 $list = [];
@@ -70,62 +75,82 @@ if ($o == IMAGE_MODIFY_DIRECTORY && $directoryId) {
 // # Database retrieve information for differents elements list we need on the page
 //
 // Images comes from DB -> Store in $imgs Array
-$imgs = [];
+try {
+    $imgs = [];
 
-$queryParameters = [];
-$request = <<<'SQL'
-        SELECT
-            images.img_id,
-            CONCAT(directories.dir_alias, '/', images.img_name) AS imagePath
-        FROM view_img AS images
-        INNER JOIN view_img_dir_relation vidr
-            ON vidr.img_img_id = images.img_id
-        INNER JOIN view_img_dir AS directories
-            ON directories.dir_id = vidr.dir_dir_parent_id
-    SQL;
-
-if (! $userCanSeeAllFolders) {
-    $request .= <<<'SQL'
-            INNER JOIN acl_resources_image_folder_relations armdr
-                ON armdr.dir_id = directories.dir_id
-            INNER JOIN acl_resources ar
-                ON ar.acl_res_id = armdr.acl_res_id
-            INNER JOIN acl_res_group_relations argr
-                ON argr.acl_res_id = ar.acl_res_id
-            LEFT JOIN acl_group_contacts_relations gcr
-                ON gcr.acl_group_id = argr.acl_group_id
-            LEFT JOIN acl_group_contactgroups_relations gcgr
-                ON gcgr.acl_group_id = argr.acl_group_id
-            LEFT JOIN contactgroup_contact_relation cgcr
-                ON cgcr.contactgroup_cg_id = gcgr.cg_cg_id
-                AND (cgcr.contact_contact_id = :contactId OR gcr.contact_contact_id = :contactId)
-        SQL;
-    $queryParameters[] = QueryParameter::int('contactId', $centreon->user->user_id);
-}
-
-if ($o == IMAGE_MOVE && $selected !== []) {
-    [
-        'parameters' => $bindImageParameters,
-        'placeholderList' => $bindQuery
-    ] = createMultipleBindParameters($selected, 'imageId', QueryParameterTypeEnum::INTEGER);
-
-    $request .= <<<SQL
-            WHERE images.img_id IN ({$bindQuery}) AND directories.dir_name NOT IN ('centreon-map', 'ppm', 'dashboards')
+    $queryParameters = [];
+    $request = <<<'SQL'
+            SELECT
+                images.img_id,
+                CONCAT(directories.dir_alias, '/', images.img_name) AS imagePath
+            FROM view_img AS images
+            INNER JOIN view_img_dir_relation vidr
+                ON vidr.img_img_id = images.img_id
+            INNER JOIN view_img_dir AS directories
+                ON directories.dir_id = vidr.dir_dir_parent_id
         SQL;
 
-    $queryParameters = array_merge($queryParameters, $bindImageParameters);
+    if (! $userCanSeeAllFolders) {
+        $request .= <<<'SQL'
+                INNER JOIN acl_resources_image_folder_relations armdr
+                    ON armdr.dir_id = directories.dir_id
+                INNER JOIN acl_resources ar
+                    ON ar.acl_res_id = armdr.acl_res_id
+                INNER JOIN acl_res_group_relations argr
+                    ON argr.acl_res_id = ar.acl_res_id
+                LEFT JOIN acl_group_contacts_relations gcr
+                    ON gcr.acl_group_id = argr.acl_group_id
+                LEFT JOIN acl_group_contactgroups_relations gcgr
+                    ON gcgr.acl_group_id = argr.acl_group_id
+                LEFT JOIN contactgroup_contact_relation cgcr
+                    ON cgcr.contactgroup_cg_id = gcgr.cg_cg_id
+                    AND (cgcr.contact_contact_id = :contactId OR gcr.contact_contact_id = :contactId)
+            SQL;
+        $queryParameters[] = QueryParameter::int('contactId', $centreon->user->user_id);
+    }
+
+    if ($o == IMAGE_MOVE && $selected !== []) {
+        [
+            'parameters' => $bindImageParameters,
+            'placeholderList' => $bindQuery
+        ] = createMultipleBindParameters($selected, 'imageId', QueryParameterTypeEnum::INTEGER);
+
+        $request .= <<<SQL
+                WHERE images.img_id IN ({$bindQuery}) AND directories.dir_name NOT IN ('centreon-map', 'ppm', 'dashboards')
+            SQL;
+
+        $queryParameters = array_merge($queryParameters, $bindImageParameters);
+    }
+
+    $request .= ' GROUP BY directories.dir_id ORDER BY directories.dir_alias, images.img_name';
+
+    /** @var CentreonDB $pearDB */
+    $records = $pearDB->iterateAssociative($request, QueryParameters::create($queryParameters));
+
+    foreach ($records as $record) {
+        $imgs[$record['img_id']] = htmlentities($record['imagePath'], ENT_QUOTES, 'utf-8');
+    }
+} catch (ValueObjectException|CollectionException|ConnectionException $e) {
+    $exception =  new RepositoryException(
+        message: 'Error while retrieving images from database: ' . $e->getMessage(),
+        previous: $e
+    );
+    ExceptionLogger::create()->log($exception);
+
+    throw $exception;
 }
 
-$request .= ' GROUP BY directories.dir_id ORDER BY directories.dir_alias, images.img_name';
+try {
+    $directories = getListDirectory();
+} catch (RepositoryException $e) {
+    CentreonLog::create()->error(
+        logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
+        message: 'Error while retrieving image directories: ' . $e->getMessage(),
+        exception: $e
+    );
 
-/** @var CentreonDB $pearDB */
-$records = $pearDB->iterateAssociative($request, QueryParameters::create($queryParameters));
-
-foreach ($records as $record) {
-    $imgs[$record['img_id']] = htmlentities($record['imagePath'], ENT_QUOTES, 'utf-8');
+    throw $e;
 }
-
-$directories = getListDirectory();
 
 // #########################################################
 // Var information to format the element

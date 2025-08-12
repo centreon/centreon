@@ -25,6 +25,7 @@ use Adaptation\Database\Connection\ValueObject\QueryParameter;
 use Core\Common\Domain\Exception\CollectionException;
 use Core\Common\Domain\Exception\RepositoryException;
 use Core\Common\Domain\Exception\ValueObjectException;
+use Core\Common\Infrastructure\ExceptionLogger\ExceptionLogger;
 
 if (! isset($centreon)) {
     exit();
@@ -35,80 +36,84 @@ if ($o === RESOURCE_ACCESS_MODIFY || $o === RESOURCE_ACCESS_WATCH) {
 
     try {
         $queryParameters = new QueryParameters([
-                QueryParameter::int('resourceAccessId', $aclId),
+            QueryParameter::int('resourceAccessId', $aclId),
         ]);
 
         $aclResourceInformation = $pearDB->fetchAssociative(
-                'SELECT * FROM acl_resources WHERE acl_res_id = :resourceAccessId',
-                $queryParameters
+            'SELECT * FROM acl_resources WHERE acl_res_id = :resourceAccessId',
+            $queryParameters
         );
 
         $acl = array_map('myDecode', $aclResourceInformation);
 
         // poller relations
         $acl['acl_pollers'] = $pearDB->fetchFirstColumn(
-                'SELECT poller_id FROM acl_resources_poller_relations WHERE acl_res_id = :resourceAccessId',
-                $queryParameters
+            'SELECT poller_id FROM acl_resources_poller_relations WHERE acl_res_id = :resourceAccessId',
+            $queryParameters
         );
 
         // host relations
         $acl['acl_hosts'] = $pearDB->fetchFirstColumn(
-                'SELECT host_host_id FROM acl_resources_host_relations WHERE acl_res_id = :resourceAccessId',
-                $queryParameters
+            'SELECT host_host_id FROM acl_resources_host_relations WHERE acl_res_id = :resourceAccessId',
+            $queryParameters
         );
 
         // host exclusions
         $acl['acl_hostexclude'] = $pearDB->fetchFirstColumn(
-                'SELECT host_host_id FROM acl_resources_hostex_relations WHERE acl_res_id = :resourceAccessId',
-                $queryParameters
+            'SELECT host_host_id FROM acl_resources_hostex_relations WHERE acl_res_id = :resourceAccessId',
+            $queryParameters
         );
 
         // host groups relations
         $acl['acl_hostgroup'] = $pearDB->fetchFirstColumn(
-                'SELECT hg_hg_id FROM acl_resources_hg_relations WHERE acl_res_id = :resourceAccessId',
-                $queryParameters
+            'SELECT hg_hg_id FROM acl_resources_hg_relations WHERE acl_res_id = :resourceAccessId',
+            $queryParameters
         );
 
         // ACL Groups relations
         $acl['acl_groups'] = $pearDB->fetchFirstColumn(
-                'SELECT DISTINCT acl_group_id FROM acl_res_group_relations WHERE acl_res_id = :resourceAccessId',
-                $queryParameters
+            'SELECT DISTINCT acl_group_id FROM acl_res_group_relations WHERE acl_res_id = :resourceAccessId',
+            $queryParameters
         );
 
         // Service categories relations
         $acl['acl_sc'] = $pearDB->fetchFirstColumn(
-                'SELECT DISTINCT sc_id FROM acl_resources_sc_relations WHERE acl_res_id = :resourceAccessId',
-                $queryParameters
+            'SELECT DISTINCT sc_id FROM acl_resources_sc_relations WHERE acl_res_id = :resourceAccessId',
+            $queryParameters
         );
 
         // Host categories relations
         $acl['acl_hc'] = $pearDB->fetchFirstColumn(
-                'SELECT DISTINCT hc_id FROM acl_resources_hc_relations WHERE acl_res_id = :resourceAccessId',
-                $queryParameters
+            'SELECT DISTINCT hc_id FROM acl_resources_hc_relations WHERE acl_res_id = :resourceAccessId',
+            $queryParameters
         );
 
         // Service groups relations
         $acl['acl_sg'] = $pearDB->fetchFirstColumn(
-                'SELECT DISTINCT sg_id FROM acl_resources_sg_relations WHERE acl_res_id = :resourceAccessId',
-                $queryParameters
+            'SELECT DISTINCT sg_id FROM acl_resources_sg_relations WHERE acl_res_id = :resourceAccessId',
+            $queryParameters
         );
 
         // Meta services relations
         $acl['acl_meta'] = $pearDB->fetchFirstColumn(
-                'SELECT DISTINCT meta_id FROM acl_resources_meta_relations WHERE acl_res_id = :resourceAccessId',
-                $queryParameters
+            'SELECT DISTINCT meta_id FROM acl_resources_meta_relations WHERE acl_res_id = :resourceAccessId',
+            $queryParameters
         );
 
         // Image folder relations
         $acl['acl_image_folder'] = $pearDB->fetchFirstColumn(
-                'SELECT DISTINCT dir_id FROM acl_resources_image_folder_relations WHERE acl_res_id = :resourceAccessId',
-                $queryParameters
+            'SELECT DISTINCT dir_id FROM acl_resources_image_folder_relations WHERE acl_res_id = :resourceAccessId',
+            $queryParameters
         );
     } catch (ValueObjectException|CollectionException|ConnectionException $e) {
-        throw new RepositoryException(
-                message: 'Error while retrieving ACL information',
-                previous: $e
+        $exception = new RepositoryException(
+            message: 'Error while retrieving ACL information',
+            context: ['aclId' => $aclId],
+            previous: $e
         );
+        ExceptionLogger::create()->log($exception);
+
+        throw $exception;
     }
 }
 
@@ -137,10 +142,13 @@ try {
     $metaServices = $pearDB->fetchAllKeyValue('SELECT meta_id, meta_name FROM meta_service ORDER BY meta_name');
     $imageFolders = $pearDB->fetchAllKeyValue("SELECT dir_id, dir_name FROM view_img_dir WHERE dir_name NOT IN ('dashboards', 'ppm', 'centreon-map') ORDER BY dir_name");
 } catch (ConnectionException $e) {
-    throw new RepositoryException(
+    $exception = new RepositoryException(
         message: 'Error while retrieving data to fill the selectors for ACL form',
         previous: $e
     );
+    ExceptionLogger::create()->log($exception);
+
+    throw $exception;
 }
 
 // Var information to format the element
@@ -471,6 +479,7 @@ if ($form->validate()) {
                 message: 'Error while inserting ACL: ' . $e->getMessage(),
                 exception: $e,
             );
+
             throw $e;
         }
     } elseif ($form->getSubmitValue('submitC')) {
@@ -483,6 +492,7 @@ if ($form->validate()) {
                 customContext: ['aclId' => $aclObj->getValue()],
                 exception: $e,
             );
+
             throw $e;
         }
     }

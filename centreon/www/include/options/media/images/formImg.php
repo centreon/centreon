@@ -20,7 +20,12 @@
  */
 
 use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\Exception\ConnectionException;
 use Adaptation\Database\Connection\ValueObject\QueryParameter;
+use Core\Common\Domain\Exception\CollectionException;
+use Core\Common\Domain\Exception\RepositoryException;
+use Core\Common\Domain\Exception\ValueObjectException;
+use Core\Common\Infrastructure\ExceptionLogger\ExceptionLogger;
 
 require_once _CENTREON_PATH_ . 'www/class/centreonImageManager.php';
 require_once __DIR__ . '/../../../../../bootstrap.php';
@@ -38,32 +43,53 @@ $userCanSeeAllFolders = ((int) $centreon->user->admin === 1 || $centreon->user->
 $img = ['img_path' => null];
 
 if ($o == IMAGE_MODIFY || $o == IMAGE_WATCH) {
-    $query = <<<'SQL'
-            SELECT
-                image.img_id,
-                image.img_name,
-                image.img_path,
-                image.img_comment,
-                directory.dir_id,
-                directory.dir_name AS `directories`,
-                directory.dir_alias
-            FROM view_img AS image
-            INNER JOIN view_img_dir_relation AS vidr
-            ON vidr.img_img_id = image.img_id
-            INNER JOIN view_img_dir AS directory
-                ON directory.dir_id = vidr.dir_dir_parent_id
-            WHERE image.img_id = :imageId
-            LIMIT 1
-        SQL;
+    try {
+        $query = <<<'SQL'
+                SELECT
+                    image.img_id,
+                    image.img_name,
+                    image.img_path,
+                    image.img_comment,
+                    directory.dir_id,
+                    directory.dir_name AS `directories`,
+                    directory.dir_alias
+                FROM view_img AS image
+                INNER JOIN view_img_dir_relation AS vidr
+                ON vidr.img_img_id = image.img_id
+                INNER JOIN view_img_dir AS directory
+                    ON directory.dir_id = vidr.dir_dir_parent_id
+                WHERE image.img_id = :imageId
+                LIMIT 1
+            SQL;
 
-    $queryParameters = QueryParameters::create([QueryParameter::int('imageId', $imageId)]);
+        $queryParameters = QueryParameters::create([QueryParameter::int('imageId', $imageId)]);
+        $img = $pearDB->fetchAssociative($query, $queryParameters);
+        $img_path = sprintf('%s/%s/%s', BASE_CENTREON_IMG_DIRECTORY, $img['dir_alias'], $img['img_path']);
+    } catch (ValueObjectException|CollectionException|ConnectionException $e) {
+        $exception = new RepositoryException(
+            message: 'Error while retrieving image information',
+            context: ['imageId' => $imageId],
+            previous: $e
+        );
+        ExceptionLogger::create()->log($exception);
 
-    $img = $pearDB->fetchAssociative($query, $queryParameters);
-    $img_path = sprintf('%s/%s/%s', BASE_CENTREON_IMG_DIRECTORY, $img['dir_alias'], $img['img_path']);
+        throw $exception;
+    }
+
 }
 
 // Get Directories
-$directoryIds = getListDirectory();
+try {
+    $directoryIds = getListDirectory();
+} catch (RepositoryException $e) {
+    CentreonLog::create()->error(
+        logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
+        message: 'Error while retrieving image directories: ' . $e->getMessage(),
+        exception: $e
+    );
+
+    throw $e;
+}
 $directoryListForSelect = $directoryIds;
 $directoryListForSelect[0] = '';
 asort($directoryListForSelect);

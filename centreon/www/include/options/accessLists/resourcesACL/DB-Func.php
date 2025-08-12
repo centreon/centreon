@@ -379,31 +379,31 @@ function insertLCA(): int
 
         $pearDB->insert(
             <<<'SQL'
-                INSERT INTO `acl_resources`
-                (
-                    acl_res_name,
-                    acl_res_alias,
-                    all_hosts,
-                    all_hostgroups,
-                    all_servicegroups,
-                    all_image_folders,
-                    acl_res_activate,
-                    changed,
-                    acl_res_comment
-                )
-                VALUES
-                (
-                    :aclResourceName,
-                    :aclResourceAlias,
-                    :allHosts,
-                    :allHostGroups,
-                    :allServiceGroups,
-                    :allImageFolders,
-                    :aclResourceActivate,
-                    1,
-                    :aclResourceComment
-                )
-            SQL,
+                    INSERT INTO `acl_resources`
+                    (
+                        acl_res_name,
+                        acl_res_alias,
+                        all_hosts,
+                        all_hostgroups,
+                        all_servicegroups,
+                        all_image_folders,
+                        acl_res_activate,
+                        changed,
+                        acl_res_comment
+                    )
+                    VALUES
+                    (
+                        :aclResourceName,
+                        :aclResourceAlias,
+                        :allHosts,
+                        :allHostGroups,
+                        :allServiceGroups,
+                        :allImageFolders,
+                        :aclResourceActivate,
+                        1,
+                        :aclResourceComment
+                    )
+                SQL,
             $queryParameters
         );
 
@@ -439,19 +439,19 @@ function updateLCA(?int $aclId = null): void
     try {
         $pearDB->update(
             <<<'SQL'
-                UPDATE `acl_resources`
-                SET
-                    acl_res_name = :aclResourceName,
-                    acl_res_alias = :aclResourceAlias,
-                    all_hosts = :allHosts,
-                    all_hostgroups = :allHostGroups,
-                    all_servicegroups = :allServiceGroups,
-                    all_image_folders = :allImageFolders,
-                    acl_res_activate = :aclResourceActivate,
-                    acl_res_comment = :aclResourceComment,
-                    changed = 1
-                WHERE acl_res_id = :aclResourceId
-            SQL,
+                    UPDATE `acl_resources`
+                    SET
+                        acl_res_name = :aclResourceName,
+                        acl_res_alias = :aclResourceAlias,
+                        all_hosts = :allHosts,
+                        all_hostgroups = :allHostGroups,
+                        all_servicegroups = :allServiceGroups,
+                        all_image_folders = :allImageFolders,
+                        acl_res_activate = :aclResourceActivate,
+                        acl_res_comment = :aclResourceComment,
+                        changed = 1
+                    WHERE acl_res_id = :aclResourceId
+                SQL,
             QueryParameters::create(
                 [
                     QueryParameter::string('aclResourceName', $resourceValues['acl_res_name']),
@@ -647,7 +647,6 @@ function updateImageFolders($aclId = null): void
 }
 
 /**
- *
  * @param null|int $aclId
  *
  * @throws RepositoryException
