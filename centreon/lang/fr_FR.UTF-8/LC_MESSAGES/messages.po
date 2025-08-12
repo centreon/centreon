@@ -10784,6 +10784,10 @@ msgid "Never Started"
 msgstr "Jamais démarré"
 
 #: centreon/www/install/front_translate.php
+msgid "Need help using the search bar ?"
+msgstr "Besoin d'aide pour utiliser la barre de recherche ?"
+
+#: centreon/www/install/front_translate.php
 msgid "Never expire"
 msgstr "N'expire jamais"
 
@@ -24027,6 +24031,7 @@ msgstr "Performances de la page Statut des ressources"
 
 msgid "Free text search behavior can be configured in the Administration > Parameters > Centreon UI page."
 msgstr "Le comportement de la recherche texte libre peut être configuré à la page Administration > Paramètres > Centreon web page."
+<<<<<<< HEAD
 
 #: unknown
 msgid "Add poller/agent configuration"
@@ -24060,3 +24065,5 @@ msgstr "Configuration d'agent créée"
 msgid "Poller/agent configuration updated"
 msgstr "Configuration d'agent mise à jour"
 >>>>>>> 24.10.x
+=======
+>>>>>>> de1675919c (Remove conflict marks)
