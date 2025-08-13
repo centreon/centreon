@@ -12,6 +12,8 @@ on:
 jobs:
   delete-feature-repositories:
     runs-on: ubuntu-24.04
+    env:
+      GH_TOKEN: ${{ github.token }}
     steps:
       - uses: jfrog/setup-jfrog-cli@f748a0599171a192a2668afee8d0497f7c1069df # v4.5.6
         env:
@@ -34,7 +36,6 @@ jobs:
             echo "::notice::No repositories linked to $feature_ticket – workflow ends here."
             echo "repositories_found=false" >> "$GITHUB_OUTPUT"
           fi
-
 
       - name: Check if other feature branches/pull requests of the same ticket exist on other repositories
         id: check_other_feature_prs
