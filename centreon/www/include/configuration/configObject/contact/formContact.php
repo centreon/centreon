@@ -65,8 +65,14 @@ $dbResult->closeCursor();
  */
 try {
     $passwordSecurityPolicy = (new CentreonContact($pearDB))->getPasswordSecurityPolicy();
-    $encodedPasswordPolicy = json_encode($passwordSecurityPolicy);
-} catch (PDOException $e) {
+    $encodedPasswordPolicy = json_encode($passwordSecurityPolicy, JSON_THROW_ON_ERROR);
+} catch (PDOException|JsonException $e) {
+    CentreonLog::create()->error(
+        logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
+        message: 'Error while retrieving password security policy: ' . $e->getMessage(),
+        exception: $e
+    );
+
     return false;
 }
 
@@ -391,6 +397,16 @@ $tab[] = $form->createElement(
 $form->addGroup($tab, 'contact_oreon', _('Reach Centreon Front-end'), '&nbsp;');
 
 if ($o !== MASSIVE_CHANGE) {
+    $form->addElement(
+        'password',
+        'current_password',
+        _('Your current password'),
+        [
+            'size' => '30',
+            'autocomplete' => 'off',
+            'id' => 'current_password',
+        ]
+    );
     $form->addElement(
         'password',
         'contact_passwd',

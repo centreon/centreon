@@ -93,6 +93,7 @@ $help['ldap_group'] = dgettext('help', 'LDAP groups of user, for informative pur
 
 // Centreon specific authentication
 $help['centreon_login'] = dgettext('help', 'Specify if the contact is allowed to login into centreon.');
+$help['current_password'] = dgettext('help', "For security reasons, to be able to change this user's password, you (the currently logged-in user) must verify your identity by entering your own password.");
 $help['password'] = dgettext('help', 'Define the password for the centreon login here.');
 $help['password2'] = dgettext('help', 'Enter the password again.');
 $help['language'] = dgettext('help', 'Define the default language for the user for the centreon front-end here.');
