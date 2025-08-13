@@ -77,9 +77,3 @@ export const labelCMAauthenticationToken = 'CMA authentication token(s)';
 export const labelSelectExistingCMATokens = 'Select existing CMA token(s)';
 export const labelSelectExistingCMAToken = 'Select existing CMA token';
 export const labelCreateNewCMAToken = 'Create new CMA token';
-
-export const labelDeletePollerConfirmation =
-  'You are going to delete the configuration for the <strong>{{ poller }}</strong> poller from the <strong>{{ agent }}</strong> agent configuration. All configuration parameters for this poller will be deleted. This action cannot be undone.';
-
-export const labelDeleteAgentConfirmation =
-  'You are going to delete the <strong>{{ agent }}</strong> agent configuration. All parameters for this agent configuration will be deleted. This action cannot be undone.';
