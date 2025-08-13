@@ -159,6 +159,8 @@
     "post-update-cmd": [
       "@auto-scripts"
     ],
+    "symfony:update": "composer update symfony/* --with-all-dependencies --no-scripts",
+    "symfony:update:test": "composer update symfony/* --with-all-dependencies --no-scripts --dry-run",
     "require:check": "../php-tools/vendor/bin/composer-require-checker check composer.json",
     "symfony:check": "php bin/console lint:yaml config src --parse-tags && php bin/console lint:container",
     "rector:legacy": "../php-tools/vendor/bin/rector process --config=rector.legacy.php --dry-run",
