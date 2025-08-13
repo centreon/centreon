@@ -446,8 +446,8 @@ msgid ""
 "down the poller server."
 msgstr ""
 "Marque esta opción si su comando requiere funciones del shell como tuberías, "
-"redirecciones, expansión de comodines, etc. Tenga en cuenta que los comandos "
-"que requieren shell ralentizan el servidor del sondeo."
+"redirecciones, consultas tipo glob, etc. Tenga en cuenta que los comandos "
+"que requieren shell ralentizan el servidor del colectores."
 
 #: centreon/www/include/configuration/configObject/traps-mibs/help.php
 msgid ""
