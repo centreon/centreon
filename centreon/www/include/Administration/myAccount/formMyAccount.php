@@ -172,7 +172,7 @@ $form->addElement(
 
 $form->addElement('select', 'contact_lang', _('Language'), $langs);
 if (! isCloudPlatform()) {
-    $form->addElement('checkbox', 'show_deprecated_pages', _('Use deprecated monitoring pages'), null, $attrsText);
+    $form->addElement('checkbox', 'show_deprecated_pages', _('Use deprecated pages'), null, $attrsText);
 }
 
 // ------------------------ Topology ----------------------------
