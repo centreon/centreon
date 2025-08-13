@@ -26,7 +26,7 @@
     "cypress:install": "cypress install",
     "generate:lockfile:analysis": "npm shrinkwrap && mv ./npm-shrinkwrap.json ./package-lock.json",
     "preview:api:doc": "pnpm --package=@redocly/cli dlx openapi preview-docs ./doc/API/centreon-api.yaml",
-    "install:arm:binaries": "pnpm i -D @swc/core-linux-arm64-gnu@1.6.6 @rspack/binding-linux-arm64-gnu@1.1.6 -w && pnpm remove @swc/core-linux-arm64-gnu @rspack/binding-linux-arm64-gnu"
+    "install:arm:binaries": "pnpm i -D @swc/core-linux-arm64-gnu@1.13.3 @rspack/binding-linux-arm64-gnu@1.1.6 -w && pnpm remove @swc/core-linux-arm64-gnu @rspack/binding-linux-arm64-gnu"
   },
   "devDependencies": {
     "@4tw/cypress-drag-drop": "^2.3.0",
@@ -42,9 +42,9 @@
     "@rspack/plugin-react-refresh": "^1.0.1",
     "@simonsmith/cypress-image-snapshot": "9.1.0",
     "@svgr/webpack": "^8.1.0",
-    "@swc/core": "1.6.6",
-    "@swc/core-linux-x64-gnu": "1.6.6",
-    "@swc/jest": "^0.2.36",
+    "@swc/core": "^1.13.3",
+    "@swc/core-linux-x64-gnu": "^1.13.3",
+    "@swc/jest": "^0.2.39",
     "@tailwindcss/postcss": "^4.1.7",
     "@testing-library/cypress": "^10.0.3",
     "@testing-library/dom": "^10.4.0",
@@ -88,7 +88,7 @@
     "resolve-url-loader": "^5.0.0",
     "style-loader": "^4.0.0",
     "swc-loader": "^0.2.6",
-    "swc-plugin-coverage-instrument": "^0.0.24",
+    "swc-plugin-coverage-instrument": "^0.0.28",
     "typescript": "^5.8.2",
     "webpack-merge": "^6.0.1"
   },
@@ -164,12 +164,17 @@
     "suiteName": "jest tests",
     "output": "./jest-test-results.xml"
   },
-  "workspaces": ["packages/*", "www/widgets"],
+  "workspaces": [
+    "packages/*",
+    "www/widgets"
+  ],
   "msw": {
     "workerDirectory": "www/front_src/public"
   },
   "nyc": {
     "report-dir": "coverage",
-    "reporter": ["json"]
+    "reporter": [
+      "json"
+    ]
   }
 }
