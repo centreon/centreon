@@ -18521,10 +18521,6 @@ msgstr "Maximum"
 msgid "The URL provided for the website does not use a valid URL pattern."
 msgstr "L'URL fournie pour le site web n'utilise pas un modèle d'URL valide."
 
-#: unknown
-msgid "{{total}} element(s) found"
-msgstr "{{total}} élément(s) trouvé(s)"
-
 #: centreon/www/include/configuration/configObject/contact/formContact.php
 msgid "Your current password"
 msgstr "Votre mot de passe actuel"
