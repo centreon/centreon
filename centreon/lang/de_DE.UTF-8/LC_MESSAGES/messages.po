@@ -10680,7 +10680,7 @@ msgid "Name of the logger"
 msgstr "Name des Protokollierers"
 
 #: centreon/www/install/front_translate.php
-msgid "Need help with search bar usage?"
+msgid "Need help using the search bar ?"
 msgstr ""
 
 #: centreon/www/include/monitoring/downtime/listDowntime.php
@@ -20064,3 +20064,22 @@ msgstr "Standard"
 #: unknown
 msgid "it's required"
 msgstr "es ist erforderlich"
+
+#: centreon/www/include/Administration/parameters/general/form.php
+msgid "Full search"
+msgstr ""
+
+#: centreon/www/include/Administration/parameters/general/form.php
+msgid "Limited search"
+msgstr ""
+
+#: centreon/www/include/Administration/parameters/general/form.php
+msgid "Free text search behavior"
+msgstr ""
+
+#: centreon/www/include/Administration/parameters/general/form.php
+msgid "Resource status performance"
+msgstr ""
+
+# msgid "Free text search behavior can be configured in the Administration > Parameters > Centreon UI page."
+# msgstr ""

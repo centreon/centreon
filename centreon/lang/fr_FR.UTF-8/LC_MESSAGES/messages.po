@@ -10775,13 +10775,13 @@ msgstr "Le nom est déjà utilisé"
 msgid "Name of the logger"
 msgstr "Nom du journal d'évènements"
 
-#: centreon/www/install/front_translate.php
-msgid "Need help with search bar usage?"
-msgstr "Besoin d'aide pour utiliser la barre de recherche ?"
-
 #: centreon/www/include/monitoring/downtime/listDowntime.php
 msgid "Never Started"
 msgstr "Jamais démarré"
+
+#: centreon/www/install/front_translate.php
+msgid "Need help using the search bar ?"
+msgstr "Besoin d'aide pour utiliser la barre de recherche ?"
 
 #: centreon/www/install/front_translate.php
 msgid "Never expire"
@@ -12519,7 +12519,7 @@ msgstr ""
 
 #: centreon/www/install/front_translate.php
 msgid "Public certificate(.crt,.cer)"
-msgstr "Certificat public(.crt,cer)"
+msgstr "Certificat public (.crt,cer)"
 
 #: centreon/www/include/home/customViews/formLoad.php
 msgid "Public views list"
@@ -23998,3 +23998,22 @@ msgstr "affichera les ressources avec un nom d'hôte commençant par"
 #: unknown
 msgid "{{total}} element(s) found"
 msgstr "{{total}} élément(s) trouvé(s)"
+
+#: centreon/www/include/Administration/parameters/general/form.php
+msgid "Full search"
+msgstr "Recherche étendue"
+
+#: centreon/www/include/Administration/parameters/general/form.php
+msgid "Limited search"
+msgstr "Recherche restreinte"
+
+#: centreon/www/include/Administration/parameters/general/form.php
+msgid "Free text search behavior"
+msgstr "Comportement de la recherche texte libre"
+
+#: centreon/www/include/Administration/parameters/general/form.php
+msgid "Resource status performance"
+msgstr "Performances de la page Statut des ressources"
+
+msgid "Free text search behavior can be configured in the Administration > Parameters > Centreon UI page."
+msgstr "Le comportement de la recherche texte libre peut être configuré à la page Administration > Paramètres > Centreon web page."
