@@ -204,6 +204,25 @@ class DbReadMetricRepository extends AbstractRepositoryDRB implements ReadMetric
     }
 
     /**
+     * @inheritDoc
+     */
+    public function findSingleMetaMetricValue(
+        array $service,
+        string $metricName,
+        RequestParametersInterface $requestParameters,
+        array $accessGroups = []
+    ): Metric|null {
+
+        return $this->findSingleMetricValue(
+            $service['host_id'],
+            $service['service_id'],
+            $metricName,
+            $requestParameters,
+            $accessGroups
+        );
+    }
+
+    /**
      * Execute SQL Query to find Metrics.
      *
      * @param string $query
@@ -341,7 +360,7 @@ class DbReadMetricRepository extends AbstractRepositoryDRB implements ReadMetric
             SELECT DISTINCT metric_id as id, metric_name as name, unit_name, current_value, warn,
             warn_low, crit, crit_low
             FROM  `:dbstg`.metrics m
-                INNER JOIN  `:dbstg`.index_data ON m.index_id =  `:dbstg`.index_data.id
+                INNER JOIN  `:dbstg`.index_data id ON m.index_id =  id.id
             SQL;
 
         $accessGroupIds = \array_map(
@@ -359,8 +378,8 @@ class DbReadMetricRepository extends AbstractRepositoryDRB implements ReadMetric
 
         $metricNameCondition = $metricName !== null ? ' AND m.metric_name = :metricName' : '';
         $query .= <<<'SQL'
-             WHERE `:dbstg`.index_data.host_id = :hostId
-             AND `:dbstg`.index_data.service_id = :serviceId
+             WHERE id.host_id = :hostId
+             AND id.service_id = :serviceId
             SQL;
         $query .= $metricNameCondition;
 

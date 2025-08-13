@@ -4031,6 +4031,8 @@ paths:
           $ref: '#/components/responses/InternalServerError'
   /monitoring/hosts/{hostId}/services/{serviceId}/metrics/{metricName}:
     $ref: './latest/onPremise/Realtime/Metrics/FindSingleMetric.yaml'
+  /monitoring/metaService/{metaServiceId}/metrics/{metricName}:
+    $ref: './latest/onPremise/Realtime/Metrics/FindSingleMetaMetric.yaml'
   /monitoring/resources/acknowledge:
     post:
       tags:

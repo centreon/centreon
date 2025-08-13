@@ -76,4 +76,15 @@ interface ReadRealTimeServiceRepositoryInterface
      * @return bool
      */
     public function exists(int $serviceId, int $hostId): bool;
+
+    /**
+     * Indicates whether the service already exists for a meta service ID
+     *
+     * @param int $metaServiceId
+     *
+     * @throws RepositoryException
+     *
+     * @return array<int>|false
+     */
+    public function existsByDescription(int $metaServiceId): array|false;
 }

@@ -21,17 +21,17 @@
 
 declare(strict_types=1);
 
-namespace Core\Dashboard\Infrastructure\API\FindSingleMetric;
+namespace Core\Dashboard\Infrastructure\API\FindSingleMetaMetric;
 
 use Core\Application\Common\UseCase\AbstractPresenter;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ResponseStatusInterface;
 use Core\Common\Infrastructure\ExceptionLogger\ExceptionLogger;
-use Core\Dashboard\Application\UseCase\FindSingleMetric\FindSingleMetricPresenterInterface;
-use Core\Dashboard\Application\UseCase\FindSingleMetric\FindSingleMetricResponse;
+use Core\Dashboard\Application\UseCase\FindSingleMetaMetric\FindSingleMetaMetricPresenterInterface;
+use Core\Dashboard\Application\UseCase\FindSingleMetaMetric\FindSingleMetaMetricResponse;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 
-final class FindSingleMetricPresenter extends AbstractPresenter implements FindSingleMetricPresenterInterface
+final class FindSingleMetaMetricPresenter extends AbstractPresenter implements FindSingleMetaMetricPresenterInterface
 {
     public function __construct(
         protected PresenterFormatterInterface $presenterFormatter,
@@ -40,7 +40,7 @@ final class FindSingleMetricPresenter extends AbstractPresenter implements FindS
         parent::__construct($presenterFormatter);
     }
 
-    public function presentResponse(FindSingleMetricResponse|ResponseStatusInterface $response): void
+    public function presentResponse(FindSingleMetaMetricResponse|ResponseStatusInterface $response): void
     {
         if ($response instanceof ResponseStatusInterface) {
             if (($response instanceof ErrorResponse) && ! is_null($response->getException())) {

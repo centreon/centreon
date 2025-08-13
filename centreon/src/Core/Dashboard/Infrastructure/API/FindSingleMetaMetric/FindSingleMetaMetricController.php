@@ -21,24 +21,23 @@
 
 declare(strict_types=1);
 
-namespace Core\Dashboard\Infrastructure\API\FindSingleMetric;
+namespace Core\Dashboard\Infrastructure\API\FindSingleMetaMetric;
 
 use Centreon\Application\Controller\AbstractController;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
-use Core\Dashboard\Application\UseCase\FindSingleMetric\FindSingleMetric;
-use Core\Dashboard\Application\UseCase\FindSingleMetric\FindSingleMetricRequest;
+use Core\Dashboard\Application\UseCase\FindSingleMetaMetric\FindSingleMetaMetric;
+use Core\Dashboard\Application\UseCase\FindSingleMetaMetric\FindSingleMetaMetricRequest;
 use Core\Security\Infrastructure\Voters\ApiRealtimeVoter;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[Route(
-    path: '/monitoring/hosts/{hostId}/services/{serviceId}/metrics/{metricName}',
-    name: 'FindSingleMetric',
+    path: '/monitoring/metaservice/{metaServiceId}/metrics/{metricName}',
+    name: 'FindSingleMetaMetric',
     methods: ['GET'],
     requirements: [
-        'hostId' => '\d+',
-        'serviceId' => '\d+',
+        'metaServiceId' => '\d+',
         'metricName' => '.+',
     ],
     condition: "request.attributes.get('version') >= 25.07"
@@ -49,37 +48,33 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
     'You are not allowed to retrieve metrics in real-time',
     Response::HTTP_FORBIDDEN
 )]
-final class FindSingleMetricController extends AbstractController
+final class FindSingleMetaMetricController extends AbstractController
 {
     /**
-     * @param int $hostId
-     * @param int $serviceId
+     * @param int $metaServiceId
      * @param string $metricName
-     * @param FindSingleMetric $useCase
-     * @param FindSingleMetricPresenter $presenter
+     * @param FindSingleMetaMetric $useCase
+     * @param FindSingleMetaMetricPresenter $presenter
      *
      * @return Response
      */
     public function __invoke(
-        int $hostId,
-        int $serviceId,
+        int $metaServiceId,
         string $metricName,
-        FindSingleMetric $useCase,
-        FindSingleMetricPresenter $presenter
+        FindSingleMetaMetric $useCase,
+        FindSingleMetaMetricPresenter $presenter
     ): Response {
         try {
-            $request = new FindSingleMetricRequest(
-                hostId: $hostId,
-                serviceId: $serviceId,
+            $request = new FindSingleMetaMetricRequest(
+                metaServiceId: $metaServiceId,
                 metricName: $metricName
             );
         } catch (\InvalidArgumentException $e) {
             $presenter->present(new InvalidArgumentResponse(
                 'Invalid parameters provided : ' . $e->getMessage(),
                 [
-                    'host_id' => $hostId,
-                    'service_id' => $serviceId,
-                    'metric_name' => $metricName,
+                    'metaServiceId' => $metaServiceId,
+                    'metricName' => $metricName,
                 ]
             ));
 
