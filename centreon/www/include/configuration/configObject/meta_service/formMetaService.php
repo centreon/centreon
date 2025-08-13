@@ -34,7 +34,14 @@
  *
  */
 
-if (!isset($centreon)) {
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\Exception\ConnectionException;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
+use Core\Common\Domain\Exception\CollectionException;
+use Core\Common\Domain\Exception\RepositoryException;
+use Core\Common\Domain\Exception\ValueObjectException;
+
+if (! isset($centreon)) {
     exit();
 }
 
@@ -58,23 +65,41 @@ if ($oreon->user->admin) {
 
 $initialValues = [];
 $ms = [];
-if (($o == "c" || $o == "w") && $meta_id) {
-    $DBRESULT = $pearDB->query("SELECT * FROM meta_service WHERE meta_id = '" . $meta_id . "' LIMIT 1");
-    // Set base value
-    $ms = array_map("myDecode", $DBRESULT->fetchRow());
-    $ms['metric'] = [$ms['metric'] => $ms['metric']];
+try {
+    if (($o == 'c' || $o == 'w') && $meta_id) {
+        $params = QueryParameters::create([
+            QueryParameter::int('meta_id', (int) $meta_id),
+        ]);
+        $DBRESULT = $pearDB->fetchAssociative('SELECT * FROM meta_service WHERE meta_id = :meta_id LIMIT 1', $params);
+        // Set base value
+        $ms = array_map('myDecode', $DBRESULT);
+        $ms['metric'] = [$ms['metric'] => $ms['metric']];
 
-    // Set Service Notification Options
-    $tmp = explode(',', $ms["notification_options"]);
-    foreach ($tmp as $key => $value) {
-        $ms["ms_notifOpts"][trim($value)] = 1;
+        if (! isCloudPlatform()) {
+            // Set Service Notification Options
+            $tmp = explode(',', $ms['notification_options']);
+            foreach ($tmp as $key => $value) {
+                $ms['ms_notifOpts'][trim($value)] = 1;
+            }
+        }
     }
-}
+} catch (ValueObjectException|CollectionException|ConnectionException|RepositoryException $exception) {
+    CentreonLog::create()->error(
+        CentreonLog::TYPE_SQL,
+        'Error while preparing initial values for meta_service',
+        [
+            'meta_id' => $meta_id,
+        ],
+        $exception
+    );
 
-/*
- * Calc Type
- */
-$calType = ["AVE" => _("Average"), "SOM" => _("Sum"), "MIN" => _("Min"), "MAX" => _("Max")];
+    $msg = new CentreonMsg();
+    $msg->setImage('./img/icons/warning.png');
+    $msg->setTextStyle('bold');
+    $msg->setText('Error while processing meta_service data');
+}
+// Calc Type
+$calType = ['AVE' => _('Average'), 'SOM' => _('Sum'), 'MIN' => _('Min'), 'MAX' => _('Max')];
 
 /*
  * Data source type
@@ -346,7 +371,11 @@ if ($form->validate()) {
     $msObj = $form->getElement('meta_id');
     if ($form->getSubmitValue("submitA")) {
         $msObj->setValue(insertMetaServiceInDB());
-    } elseif ($form->getSubmitValue("submitC")) {
+        // Update ACL and meta service string for the next listing
+        $acl = new CentreonACL($centreon->user->get_id(), $centreon->user->admin === '1');
+        $aclDbName = $acl->getNameDBAcl();
+        $metaStr = $acl->getMetaServiceString();
+    } elseif ($form->getSubmitValue('submitC')) {
         updateMetaServiceInDB($msObj->getValue());
     }
     $o = null;
