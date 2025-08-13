@@ -21770,10 +21770,6 @@ msgstr "Performances de la page Statut des ressources"
 msgid "Free text search behavior can be configured in the Administration > Parameters > Centreon UI page."
 msgstr "Le comportement de la recherche texte libre peut être configuré à la page Administration > Paramètres > Centreon web page."
 
-#: unknown
-msgid "{{total}} element(s) found"
-msgstr "{{total}} élément(s) trouvé(s)"
-
 #: centreon/www/include/configuration/configObject/contact/formContact.php
 msgid "Your current password"
 msgstr "Votre mot de passe actuel"
