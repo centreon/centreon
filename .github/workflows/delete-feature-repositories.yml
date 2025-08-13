@@ -44,7 +44,7 @@ jobs:
         shell: bash
         run: |
           set -x
-          if [[ -n $(gh pr list --repo centreon/centreon --head ${{ github.head_ref }} --state open --json number | jq -r '.[].number') ]] \
+          if [[ -n $(gh pr list --repo centreon/centreon-modules --head ${{ github.head_ref }} --state open --json number | jq -r '.[].number') ]] \
           || [[ -n $(gh pr list --repo centreon/centreon-collect --head ${{ github.head_ref }} --state open --json number | jq -r '.[].number') ]]; then
             echo "::notice::Other open feature pull requests have been found on other repositories: no feature repository deletion will be requested."
             echo "feature_prs_found=true" >> "$GITHUB_OUTPUT"
