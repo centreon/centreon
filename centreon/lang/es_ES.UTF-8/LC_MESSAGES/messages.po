@@ -21641,3 +21641,6 @@ msgstr "periodo de tiempo"
 #: unknown
 msgid "topology_name"
 msgstr "Nombre de la topología."
+
+# msgid "Free text search behavior can be configured in the Administration > Parameters > Centreon UI page."
+# msgstr ""

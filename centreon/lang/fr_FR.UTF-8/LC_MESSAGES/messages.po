@@ -6488,7 +6488,7 @@ msgid ""
 "Parameters > Centreon UI page."
 msgstr ""
 "Le comportement de la recherche texte libre peut être configuré à la page "
-"Administration > Paramètres > Centreon web page."
+"Administration > Paramètres > Centreon web."
 
 #: centreon/www/include/configuration/configNagios/formNagios.php
 msgid "Freshness"
