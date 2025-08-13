@@ -92,12 +92,12 @@ jobs:
           runner: ubuntu-24.04
 
       - name: Install dependencies for PHP quality tools
-        run: composer install --optimize-autoloader --prefer-dist --no-interaction --no-progress --quiet --no-suggest
+        run: composer install --optimize-autoloader --prefer-dist --no-interaction --no-progress --quiet --no-suggest --no-scripts
         working-directory: php-tools
         shell: bash
 
       - name: Install dependencies for centreon-open-tickets
-        run: composer install --optimize-autoloader --prefer-dist --no-interaction --no-progress --quiet --no-suggest
+        run: composer install --optimize-autoloader --prefer-dist --no-interaction --no-progress --quiet --no-suggest --no-scripts
         working-directory: centreon-open-tickets
         shell: bash
 

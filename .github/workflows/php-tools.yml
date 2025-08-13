@@ -35,7 +35,7 @@ jobs:
           runner: ubuntu-24.04
 
       - name: Install dependencies
-        run: composer install --optimize-autoloader --prefer-dist --no-interaction --no-progress --quiet --no-suggest
+        run: composer install --optimize-autoloader --prefer-dist --no-interaction --no-progress --quiet --no-suggest --no-scripts
         working-directory: php-tools
         shell: bash
 
