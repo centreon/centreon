@@ -4835,9 +4835,9 @@ msgstr ""
 "sélectionnés, sous forme de tableau."
 
 #: centreon/www/install/dashboard_widgets.php
-msgid "Displays the real-time average of the metric and a trend curve."
+msgid "Displays the future evolution of a metric as a trend curve, based on its recent average data."
 msgstr ""
-"Affiche la moyenne de la métrique en temps réel et une courbe de tendance."
+"Affiche l'évolution future d'une métrique sous forme de courbe de tendance, calculée à partir de ses données moyennes récentes."
 
 #: centreon/www/install/dashboard_widgets.php
 msgid "Displays the time according to the selected time zone, or a timer."

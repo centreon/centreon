@@ -5022,7 +5022,7 @@ msgid ""
 msgstr ""
 
 #: centreon/www/install/dashboard_widgets.php
-msgid "Displays the real-time average of the metric and a trend curve."
+msgid "Displays the future evolution of a metric as a trend curve, based on its recent average data."
 msgstr ""
 
 #: centreon/www/install/dashboard_widgets.php
