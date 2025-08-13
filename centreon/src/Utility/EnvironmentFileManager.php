@@ -41,7 +41,9 @@ class EnvironmentFileManager
     public function __construct(private string $environmentFilePath)
     {
         $this->environmentFilePath = $this->addDirectorySeparatorIfNeeded($this->environmentFilePath);
-        $this->environmentMode = getenv('APP_ENV') ?: self::APP_ENV_PROD;
+        $this->environmentMode = (isset($_SERVER['APP_ENV']) && is_scalar($_SERVER['APP_ENV']))
+            ? (string) $_SERVER['APP_ENV']
+            : 'prod';
     }
 
     /**
