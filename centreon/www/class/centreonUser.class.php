@@ -383,16 +383,6 @@ class CentreonUser
         $this->passwd = $passwd;
     }
 
-    public function setShowDeprecatedPages(bool $showDeprecatedPages): void
-    {
-        $this->showDeprecatedPages = $showDeprecatedPages;
-    }
-
-    public function setShowDeprecatedCustomViews(bool $showDeprecatedCustomViews): void
-    {
-        $this->showDeprecatedCustomViews = $showDeprecatedCustomViews;
-    }
-
     // Methods
 
     /**
