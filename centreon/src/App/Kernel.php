@@ -41,7 +41,10 @@ declare(strict_types=1);
 
 namespace App;
 
+use Core\Common\Infrastructure\DependencyInjection\Compiler\RemoveModuleRouteLoaderPass;
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
+use Symfony\Component\DependencyInjection\Compiler\PassConfig;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\ErrorHandler\Debug;
 use Symfony\Component\HttpKernel\Kernel as BaseKernel;
 
@@ -72,6 +75,11 @@ class Kernel extends BaseKernel
         if (\defined('_CENTREON_CACHEDIR_')) {
             $this->cacheDir = _CENTREON_CACHEDIR_ . '/symfony';
         }
+    }
+
+    protected function build(ContainerBuilder $container): void
+    {
+        $container->addCompilerPass(new RemoveModuleRouteLoaderPass(), PassConfig::TYPE_BEFORE_REMOVING);
     }
 
     public static function createForWeb(): self
