@@ -1,12 +1,13 @@
 <?php
+
 /*
- * Copyright 2005 - 2019 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -166,14 +167,14 @@ class HTML_QuickFormCustom extends HTML_QuickForm
      * To validate grouped elements as separated entities,
      * use addGroupRule instead of addRule.
      *
-     * @param    string     $element       Form element name
-     * @param    string     $message       Message to display for invalid data
-     * @param    string     $type          Rule type, use getRegisteredRules() to get types
-     * @param    string     $format        (optional)Required for extra rule data
-     * @param    string     $validation    (optional)Where to perform validation: "server", "client"
-     * @param    boolean    $reset         Client-side validation: reset the form element to its original value if there is an error?
-     * @param    boolean    $force         Force the rule to be applied, even if the target form element does not exist
-     * @throws   HTML_QuickForm_Error
+     * @param string|string[] $element Form element name
+     * @param string $message Message to display for invalid data
+     * @param string $type Rule type, use getRegisteredRules() to get types
+     * @param string $format (optional)Required for extra rule data
+     * @param string $validation (optional)Where to perform validation: "server", "client"
+     * @param bool $reset Client-side validation: reset the form element to its original value if there is an error?
+     * @param bool $force Force the rule to be applied, even if the target form element does not exist
+     * @throws HTML_QuickForm_Error
      */
     public function addRule($element, $message, $type, $format = null, $validation = 'server', $reset = false, $force = false)
     {
