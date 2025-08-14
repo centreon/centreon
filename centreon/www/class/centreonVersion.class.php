@@ -176,7 +176,7 @@ class CentreonVersion
         $query = 'SELECT wm.title AS name, version, COUNT(widget_id) AS count
             FROM widgets AS w
             INNER JOIN widget_models AS wm ON (w.widget_model_id = wm.widget_model_id)
-            GROUP BY name';
+            GROUP BY name, version';
         $result = $this->db->query($query);
         while ($row = $result->fetch()) {
             $data[] = ['name' => $row['name'], 'version' => $row['version'], 'used' => $row['count']];
