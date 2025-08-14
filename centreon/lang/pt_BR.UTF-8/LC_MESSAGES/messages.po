@@ -1625,6 +1625,8 @@ msgstr "Depuração de Autenticação"
 msgid "Authentication denied"
 msgstr ""
 
+#: centreon/www/include/Administration/myAccount/DB-Func.php
+#: centreon/www/include/configuration/configObject/contact/DB-Func.php
 #: centreon/src/Core/Security/Authentication/Domain/Exception/AuthenticationException.php
 msgid "Authentication failed"
 msgstr ""
@@ -3894,6 +3896,7 @@ msgid "Current page only"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
+#: centreon/www/include/Administration/myAccount/formMyAccount.php
 msgid "Current password"
 msgstr ""
 
@@ -12528,6 +12531,11 @@ msgstr ""
 msgid "Please enter a valid URL or IP address"
 msgstr ""
 
+#: centreon/www/include/Administration/myAccount/DB-Func.php
+#: centreon/www/include/configuration/configObject/contact/DB-Func.php
+msgid "Please fill in all password fields"
+msgstr ""
+
 #: centreon/www/install/steps/functions.php
 #, php-format
 msgid "Please install MariaDB version %s instead of %s."
@@ -18584,6 +18592,10 @@ msgstr ""
 #: centreon/www/class/centreonAuth.class.php
 msgid "Your credentials are incorrect."
 msgstr "Suas credencias estão incorretas."
+
+#: centreon/www/include/configuration/configObject/contact/formContact.php
+msgid "Your current password"
+msgstr ""
 
 #: centreon/www/install/step_upgrade/step4.php
 #, php-format

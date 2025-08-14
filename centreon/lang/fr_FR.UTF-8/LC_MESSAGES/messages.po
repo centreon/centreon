@@ -1673,9 +1673,9 @@ msgstr "Enregistrer les authentifications"
 msgid "Authentication denied"
 msgstr "Authentification refusée"
 
+#: centreon/www/include/Administration/myAccount/DB-Func.php
+#: centreon/www/include/configuration/configObject/contact/DB-Func.php
 #: centreon/src/Core/Security/Authentication/Domain/Exception/AuthenticationException.php
-#: centreon/www/include/Administration/myAccount/formMyAccount.php
-#: centreon/www/include/configuration/configObject/contact/formContact.php
 msgid "Authentication failed"
 msgstr "Echec de l'authentification"
 
@@ -12145,6 +12145,11 @@ msgstr "Veuillez saisir un nom pour la règle d'accès aux ressources dupliquée
 msgid "Please enter a valid URL or IP address"
 msgstr "Entrez une URL ou une adresse IP valide"
 
+#: centreon/www/include/Administration/myAccount/DB-Func.php
+#: centreon/www/include/configuration/configObject/contact/DB-Func.php
+msgid "Please fill in all password fields"
+msgstr "Veuillez remplir tous les champs mot de passe"
+
 #: centreon/www/install/steps/functions.php
 #, php-format
 msgid "Please install MariaDB version %s instead of %s."
@@ -18352,6 +18357,10 @@ msgstr "Votre commentaire a été enregistré."
 msgid "Your credentials are incorrect."
 msgstr "Vos informations d'identification sont incorrectes."
 
+#: centreon/www/include/configuration/configObject/contact/formContact.php
+msgid "Your current password"
+msgstr "Votre mot de passe actuel"
+
 #: centreon/www/install/step_upgrade/step4.php
 #, php-format
 msgid "Your current version is %s."
@@ -24024,12 +24033,3 @@ msgstr "affichera les ressources avec un nom d'hôte commençant par"
 #: unknown
 msgid "{{total}} element(s) found"
 msgstr "{{total}} élément(s) trouvé(s)"
-
-#: centreon/www/include/configuration/configObject/contact/formContact.php
-msgid "Your current password"
-msgstr "Votre mot de passe actuel"
-
-#: centreon/www/include/configuration/configObject/contact/formContact.php
-#: centreon/www/include/Administration/myAccount/formMyAccount.php
-msgid "Please fill in all password fields"
-msgstr "Veuillez remplir tous les champs mot de passe"
