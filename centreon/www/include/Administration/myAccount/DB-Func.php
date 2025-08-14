@@ -161,11 +161,11 @@ function updateContact($contactId = null)
     );
     $stmt->bindValue(
         ':contactTheme',
-        !empty($ret['contact_theme']['contact_theme']) ? $ret['contact_theme']['contact_theme'] : "light",
+        !empty($submitValues['contact_theme']['contact_theme']) ? $submitValues['contact_theme']['contact_theme'] : "light",
         \PDO::PARAM_STR
     );
-    $stmt->bindValue(':defaultPage', !empty($ret['default_page']) ? $ret['default_page'] : null, \PDO::PARAM_INT);
-    $stmt->bindValue(':showDeprecatedPages', isset($ret['show_deprecated_pages']) ? 1 : 0, \PDO::PARAM_STR);
+    $stmt->bindValue(':defaultPage', !empty($submitValues['default_page']) ? $submitValues['default_page'] : null, \PDO::PARAM_INT);
+    $stmt->bindValue(':showDeprecatedPages', isset($submitValues['show_deprecated_pages']) ? 1 : 0, \PDO::PARAM_STR);
     $stmt->bindValue(':contactId', $contactId, \PDO::PARAM_INT);
     $stmt->execute();
 
