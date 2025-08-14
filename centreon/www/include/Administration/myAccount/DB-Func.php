@@ -183,7 +183,7 @@ function updateContact($contactId = null)
  *
  * @return array<string,string>|true
  */
-function validatePasswordModification(array $fields): array|true
+function validatePasswordModification(array $fields): array|bool
 {
     global $pearDB, $centreon;
     $newPassword = $fields['contact_passwd'];
