@@ -5216,10 +5216,6 @@ msgstr "Eliminar la asociación"
 msgid "Dissociate this view ?"
 msgstr "¿Eliminar la asociación de esta vista?"
 
-#: centreon/www/include/configuration/configServers/listServers.php
-msgid "Distant Poller"
-msgstr ""
-
 #: centreon/www/install/react_translation.php
 #: centreon/www/install/front_translate.php
 #: centreon/www/include/configuration/configServers/formServers.php
@@ -14207,6 +14203,7 @@ msgstr "Directorio de sondas"
 #: centreon/www/include/monitoring/status/ServicesServiceGroups/serviceSummaryBySG.php
 #: centreon/www/include/monitoring/downtime/AddDowntime.php
 #: centreon/www/include/configuration/configGenerateTraps/formGenerateTraps.php
+#: centreon/www/include/configuration/configServers/listServers.php
 #: centreon/www/include/configuration/configObject/host/listHost.php
 #: centreon/www/include/configuration/configKnowledge/search.php
 #: centreon/www/include/eventLogs/xml/data.php
