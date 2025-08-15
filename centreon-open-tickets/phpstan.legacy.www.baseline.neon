@@ -177,7 +177,7 @@ parameters:
 
 		-
 			message: '#^\[CENTREON\-RULE\]\: \(VariableLengthCustomRule\) o must contain 3 or more characters\.$#'
-			count: 6
+			count: 5
 			path: www/modules/centreon-open-tickets/views/rules/index.php
 
 		-
