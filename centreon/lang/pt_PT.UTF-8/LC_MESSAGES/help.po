@@ -439,6 +439,17 @@ msgstr ""
 "Script de inicialização do processo Centreontrapd para reiniciá-lo no "
 "coletor."
 
+#: centreon/www/include/configuration/configObject/command/help.php
+msgid ""
+"Check this option if your command requires shell features like pipes, "
+"redirections, globbing etc. Note that commands requiring shell are slowing "
+"down the poller server."
+msgstr ""
+"Assinale esta opção se o seu comando necessitar de funcionalidades do shell, "
+"como pipes, redirecionamentos, caracteres universais (globbing), etc. Tenha "
+"em atenção que comandos que requerem o shell podem abrandar o servidor de "
+"sondagem."
+
 #: centreon/www/include/configuration/configObject/traps-mibs/help.php
 msgid ""
 "Choose a local MIB file containing SNMP trap definitions to upload and "
@@ -1999,19 +2010,6 @@ msgstr ""
 "Se esta opção estiver desabilitada (padrão), os parâmetros serão tratados "
 "como regexps apenas se eles contiverem um *,? ,, ou \\ Se esta opção for "
 "ativada, todos os parâmetros serão tratados como expressões regulares."
-
-#: centreon/www/include/configuration/configObject/command/help.php
-msgid ""
-"If your command requires shell features like pipes, redirections, globbing "
-"etc. check this box. If you are using Monitoring Engine this option cannot "
-"be disabled. Note that commands that require shell are slowing down the "
-"poller server."
-msgstr ""
-"Se o seu comando requer funções de shell, como pipes, redirecionamentos, "
-"curingas, etc., marque esta caixa. \n"
-"Se você usar o Nagios, esta opção não pode ser desativada. \n"
-"Observe que os comandos que exigem o shell tornam o servidor de coleta mais "
-"lento."
 
 #: centreon/www/include/Administration/parameters/knowledgeBase/help.php
 msgid "Ignore ssl certificate."

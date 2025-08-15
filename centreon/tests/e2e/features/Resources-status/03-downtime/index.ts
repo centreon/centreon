@@ -216,6 +216,9 @@ Given('a resource is in downtime', () => {
     .then((val) => {
       return val.css('background-color') === actionBackgroundColors.inDowntime;
     });
+  cy.waitForRequestCount('getServicesStatus', 2, 10, 5000).then(() => {
+      cy.log('Condition met: Request passed at least twice');
+  });
 });
 
 Given('that you have to go to the downtime page', () => {
@@ -227,17 +230,16 @@ Given('that you have to go to the downtime page', () => {
 });
 
 When('I search for the resource currently "In Downtime" in the list', () => {
-  cy.wait('@getTimeZone').then(() => {
-  cy.waitForElementInIframe("#main-content", 'a:contains("Add a downtime")');
-  clickToSearch(1);
-
+  cy.waitForElementInIframe(
+      '#main-content',
+      `td.ListColLeft a:contains("service1")`
+  );
   cy.getIframeBody()
     .contains(serviceInDtName)
     .parent()
     .parent()
     .find('input[type="checkbox"]:first')
     .as('serviceInDT');
-});
 });
 
 Then('the user starts downtime configuration on the resource', () => {
@@ -256,7 +258,10 @@ Then('the user cancels the downtime configuration', () => {
 });
 
 Then('the line disappears from the listing', () => {
-  cy.wait('@getTimeZone');
+  cy.waitForElementInIframeToDisappear(
+    '#main-content',
+    `td.ListColLeft a:contains("service1")`
+  );
   cy.waitUntil(
     () => {
       cy.getIframeBody().find('input[name="SearchB"]').click();
@@ -344,26 +349,29 @@ Given('multiple resources are in downtime', () => {
     .then((val) => {
       return val.css('background-color') === actionBackgroundColors.inDowntime;
     });
+  cy.waitForRequestCount('getServicesStatus', 2, 10, 5000).then(() => {
+    cy.log('Condition met: Request passed at least twice');
+  });
 });
 
 When('I search for the resources currently "In Downtime" in the list', () => {
-  cy.wait('@getTimeZone').then(() => {
-    cy.waitForElementInIframe("#main-content", 'a:contains("Add a downtime")');
-    clickToSearch(2);
-    cy.getIframeBody()
-      .contains(serviceInDtName)
-      .parent()
-      .parent()
-      .find('input[type="checkbox"]:first')
-      .as('serviceInDT');
+  cy.waitForElementInIframe(
+    '#main-content',
+    `td.ListColLeft a:contains("${serviceInDtName}")`
+  );
+  cy.getIframeBody()
+    .contains(serviceInDtName)
+    .parent()
+    .parent()
+    .find('input[type="checkbox"]:first')
+    .as('serviceInDT');
 
-    cy.getIframeBody()
-      .contains(secondServiceInDtName)
-      .parent()
-      .parent()
-      .find('input[type="checkbox"]:first')
-      .as('secondServiceInDT');
-  });
+  cy.getIframeBody()
+    .contains(secondServiceInDtName)
+    .parent()
+    .parent()
+    .find('input[type="checkbox"]:first')
+    .as('secondServiceInDT');
 });
 
 Then('the user starts downtime configuration on the resources', () => {
