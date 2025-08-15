@@ -13,7 +13,10 @@ interface OidcConfigValues {
   tokenEndpoint: string;
 }
 
-const getOidcConfigValues = ({ providerAddress }): OidcConfigValues => ({
+const getOidcConfigValues = ({
+  providerAddress = 'sso-proxy',
+  providerPort = 8080
+}): OidcConfigValues => ({
   authEndpoint: '/auth',
   baseUrl: `http://${providerAddress}:8080/realms/Centreon_SSO/protocol/openid-connect`,
   clientID: 'centreon-oidc-frontend',
@@ -73,7 +76,7 @@ const configureOpenIDConnect = (): Cypress.Chainable => {
       .type(`{selectall}{backspace}${oidcConfigValues.clientSecret}`);
     cy.getByLabel({ label: 'Scopes', tag: 'input' })
       .should('be.visible')
-      .type(`{selectall}{backspace}${oidcConfigValues.scopes}`);
+      .type(`{selectall}{backspace}${oidcConfigValues.scopes}{enter}`);
     cy.getByLabel({ label: 'Login attribute path', tag: 'input' })
       .should('be.visible')
       .type(`{selectall}{backspace}${oidcConfigValues.loginAttrPath}`);
