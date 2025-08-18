@@ -1,4 +1,3 @@
-import { alpha } from '@mui/system';
 import { makeStyles } from 'tss-react/mui';
 
 export const useResourceStyles = makeStyles()((theme) => ({
@@ -42,6 +41,18 @@ export const useResourceStyles = makeStyles()((theme) => ({
   },
   warningText: {
     color: theme.palette.warning.main
+  },
+  regexIcon: {
+    marginRight: theme.spacing(4),
+    padding: 0
+  },
+  selectedRegexIcon: {
+    padding: 0
+  },
+  selectedRegexIconColor: {
+    color: theme.palette.background.paper,
+    backgroundColor: theme.palette.primary.main,
+    borderRadius: '50%'
   }
 }));
 
@@ -102,11 +113,3 @@ export const useTextFieldStyles = makeStyles<{ hasMarginBottom: boolean }>()(
     }
   })
 );
-
-export const useWarningStyles = makeStyles()((theme) => ({
-  warningBox: {
-    backgroundColor: alpha(theme.palette.warning.main, 0.3),
-    borderRadius: theme.shape.borderRadius,
-    padding: theme.spacing(1.5)
-  }
-}));

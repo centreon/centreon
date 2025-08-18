@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -448,8 +448,7 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
                 GROUP_CONCAT(topology.topology_name) as topologies,
                 c.contact_name,
                 c.contact_id,
-                c.contact_email,
-                ag.acl_group_name
+                c.contact_email
             FROM `:db`.contact c
             LEFT JOIN `:db`.contactgroup_contact_relation cgcr
                 ON cgcr.contact_contact_id = c.contact_id
@@ -468,17 +467,29 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
                 ON topology.topology_id = acltr.topology_topology_id
             LEFT JOIN `:db`.topology parent
                 ON topology.topology_parent = parent.topology_page
-            WHERE
-                c.contact_admin = '0'
+            SQL_WRAP;
+
+        $searchRequest = $sqlTranslator->translateSearchParameterToSql();
+        $query .= $searchRequest !== null
+            ? <<<SQL_WRAP
+
+                {$searchRequest}
+                AND c.contact_admin = '0'
                 AND c.contact_oreon = '1'
                 AND parent.topology_name = 'Dashboards'
                 AND topology.topology_name IN ('Viewer','Administrator','Creator')
                 AND acltr.access_right IS NOT NULL
-            SQL_WRAP;
+                SQL_WRAP
+            : <<<'SQL_WRAP'
 
-        $searchRequest = $sqlTranslator->translateSearchParameterToSql();
-        $query .= $searchRequest !== null ? ' AND ' . $searchRequest : '';
-        $query .= ' GROUP BY c.contact_id, ag.acl_group_name';
+                WHERE c.contact_admin = '0'
+                AND c.contact_oreon = '1'
+                AND parent.topology_name = 'Dashboards'
+                AND topology.topology_name IN ('Viewer','Administrator','Creator')
+                AND acltr.access_right IS NOT NULL
+                SQL_WRAP;
+
+        $query .= ' GROUP BY c.contact_id, c.contact_name';
 
         $query .= $sqlTranslator->translatePaginationToSql();
 
@@ -757,7 +768,7 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
             }
 
             $contactGroupIds = array_map(
-                static fn(ContactGroup $contactGroup): int => $contactGroup->getId(),
+                static fn (ContactGroup $contactGroup): int => $contactGroup->getId(),
                 $contactGroups
             );
 
@@ -1130,7 +1141,7 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
                 ? explode(',', $contactRole['topologies'])
                 : [];
             $roles = array_map(
-                static fn(string $topology): DashboardGlobalRole => DashboardGlobalRoleConverter::fromString(
+                static fn (string $topology): DashboardGlobalRole => DashboardGlobalRoleConverter::fromString(
                     $topology
                 ),
                 $topologies
@@ -1160,7 +1171,7 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
     {
         $topologies = explode(',', $contactRole['topologies']);
         $roles = array_map(
-            static fn(string $topology): DashboardGlobalRole => DashboardGlobalRoleConverter::fromString(
+            static fn (string $topology): DashboardGlobalRole => DashboardGlobalRoleConverter::fromString(
                 $topology
             ),
             $topologies

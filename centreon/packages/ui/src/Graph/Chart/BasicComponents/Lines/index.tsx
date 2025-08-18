@@ -40,6 +40,8 @@ interface Props extends GlobalAreaLines {
   xScale: ScaleLinear<number, number>;
   yScalesPerUnit: Record<string, ScaleLinear<number, number>>;
   lineStyle: LineStyle | Array<LineStyle>;
+  hasSecondUnit?: boolean;
+  maxLeftAxisCharacters: number;
 }
 
 const Lines = ({
@@ -56,7 +58,9 @@ const Lines = ({
   areaRegularLines,
   scale,
   scaleLogarithmicBase,
-  lineStyle
+  lineStyle,
+  hasSecondUnit,
+  maxLeftAxisCharacters
 }: Props): JSX.Element => {
   const { stackedLinesData, invertedStackedLinesData } = useStackedLines({
     lines: displayedLines,
@@ -78,7 +82,9 @@ const Lines = ({
     graphHeight: height,
     graphSvgRef,
     graphWidth: width,
-    xScale
+    xScale,
+    hasSecondUnit,
+    maxLeftAxisCharacters
   };
 
   return (
@@ -192,6 +198,8 @@ const Lines = ({
                       transparency={transparency}
                       xScale={xScale}
                       yScale={yScale}
+                      maxLeftAxisCharacters={maxLeftAxisCharacters}
+                      hasSecondUnit={hasSecondUnit}
                     />
                   )}
                   {style?.showPoints &&

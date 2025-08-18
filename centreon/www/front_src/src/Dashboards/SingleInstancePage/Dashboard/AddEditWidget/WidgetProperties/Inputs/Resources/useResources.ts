@@ -1,7 +1,7 @@
 import { ChangeEvent, useCallback, useEffect, useMemo, useState } from 'react';
 
 import { useFormikContext } from 'formik';
-import { useAtomValue } from 'jotai';
+import { useAtomValue, useSetAtom } from 'jotai';
 import {
   T,
   always,
@@ -11,6 +11,7 @@ import {
   find,
   flatten,
   gte,
+  head,
   includes,
   isEmpty,
   isNil,
@@ -21,11 +22,14 @@ import {
   pluck,
   project,
   propEq,
-  reject
+  reject,
+  uniqBy,
+  type
 } from 'ramda';
 
 import {
   QueryParameter,
+  RegexSearchParameter,
   SearchParameter,
   SelectEntry,
   buildListingEndpoint
@@ -54,13 +58,20 @@ import {
   WidgetPropertyProps,
   WidgetResourceType
 } from '../../../models';
-import { getDataProperty } from '../utils';
+import {
+  buildResourceTypeNameForSearchParameter,
+  getDataProperty
+} from '../utils';
+import { resourceTypeToToggleRegexAtom } from './atoms';
 
-interface UseResourcesState {
+export interface UseResourcesState {
   addButtonHidden?: boolean;
   addResource: () => void;
   changeIdValue: (resourceType) => (({ name }) => string) | undefined;
   changeResource: (index: number) => (_, resources: SelectEntry) => void;
+  changeRegexField: (
+    index: number
+  ) => (event: ChangeEvent<HTMLInputElement>) => void;
   changeResourceType: (
     index: number
   ) => (e: ChangeEvent<HTMLInputElement>) => void;
@@ -86,6 +97,19 @@ interface UseResourcesState {
   singleResourceSelection?: boolean;
   value: Array<WidgetDataResource>;
   isValidatingResources: boolean;
+  getIsRegexAllowedOnResourceType: (
+    resourceType: WidgetResourceType
+  ) => boolean;
+  getIsRegexFieldOnResourceType: (resourceType: WidgetResourceType) => boolean;
+  changeRegexFieldOnResourceType: ({
+    resourceType,
+    index,
+    bypassResourcesCheck
+  }: {
+    resourceType: WidgetResourceType;
+    index: number;
+    bypassResourcesCheck?: boolean;
+  }) => () => void;
 }
 
 export const resourceTypeBaseEndpoints = {
@@ -195,12 +219,28 @@ const singleMetricBaseResources = [
   }
 ];
 
+const isResourcesString = (resources: Array<SelectEntry> | string) =>
+  equals(type(resources), 'String');
+
+const getIsRegexResourceType = ({
+  resourceType,
+  resources
+}): boolean | undefined =>
+  resources?.some(
+    (resource: WidgetDataResource) =>
+      resourceType === resource.resourceType &&
+      isResourcesString(resource.resources)
+  );
+
 const useResources = ({
   propertyName,
   restrictedResourceTypes,
   required,
   useAdditionalResources,
-  excludedResourceTypes
+  excludedResourceTypes,
+  forcedResourceType,
+  defaultResourceTypes,
+  allowRegexOnResourceTypes
 }: Pick<
   WidgetPropertyProps,
   | 'propertyName'
@@ -208,6 +248,9 @@ const useResources = ({
   | 'excludedResourceTypes'
   | 'required'
   | 'useAdditionalResources'
+  | 'forcedResourceType'
+  | 'defaultResourceTypes'
+  | 'allowRegexOnResourceTypes'
 >): UseResourcesState => {
   const [isValidatingResources, setIsValidatingResources] = useState(false);
 
@@ -218,6 +261,38 @@ const useResources = ({
     () => getDataProperty({ obj: values, propertyName }),
     [getDataProperty({ obj: values, propertyName })]
   );
+
+  const [isRegexFieldPerResourceType, setIsRegexPerResourceType] = useState({
+    [WidgetResourceType.host]: getIsRegexResourceType({
+      resourceType: WidgetResourceType.host,
+      resources: value
+    }),
+    [WidgetResourceType.service]: getIsRegexResourceType({
+      resourceType: WidgetResourceType.service,
+      resources: value
+    }),
+    [WidgetResourceType.serviceGroup]: getIsRegexResourceType({
+      resourceType: WidgetResourceType.serviceGroup,
+      resources: value
+    }),
+    [WidgetResourceType.metaService]: getIsRegexResourceType({
+      resourceType: WidgetResourceType.metaService,
+      resources: value
+    }),
+    [WidgetResourceType.serviceCategory]: getIsRegexResourceType({
+      resourceType: WidgetResourceType.serviceCategory,
+      resources: value
+    }),
+    [WidgetResourceType.hostGroup]: getIsRegexResourceType({
+      resourceType: WidgetResourceType.hostGroup,
+      resources: value
+    }),
+    [WidgetResourceType.hostCategory]: getIsRegexResourceType({
+      resourceType: WidgetResourceType.hostCategory,
+      resources: value
+    })
+  });
+  const setResourceToToggleRegex = useSetAtom(resourceTypeToToggleRegexAtom);
 
   const isTouched = useMemo<boolean | undefined>(
     () => getDataProperty({ obj: touched, propertyName }),
@@ -237,10 +312,12 @@ const useResources = ({
     resourceType: WidgetResourceType
   ): boolean | undefined => {
     return (
-      (widgetProperties?.singleMetricSelection &&
-        widgetProperties?.singleResourceSelection &&
-        equals(resourceType, WidgetResourceType.service)) ||
-      (widgetProperties?.singleMetricSelection &&
+      (Boolean(defaultResourceTypes) &&
+        Boolean(forcedResourceType) &&
+        equals(resourceType, last(defaultResourceTypes || [])) &&
+        value?.length > 1) ||
+      (Boolean(defaultResourceTypes) &&
+        Boolean(forcedResourceType) &&
         widgetProperties?.singleResourceSelection &&
         equals(restrictedResourceTypes?.length, 1))
     );
@@ -248,7 +325,8 @@ const useResources = ({
 
   const hideResourceDeleteButton = (): boolean | undefined => {
     return (
-      widgetProperties?.singleMetricSelection &&
+      Boolean(defaultResourceTypes) &&
+      Boolean(forcedResourceType) &&
       widgetProperties?.singleResourceSelection
     );
   };
@@ -256,11 +334,18 @@ const useResources = ({
   const changeResourceType =
     (index: number) => (e: ChangeEvent<HTMLInputElement>) => {
       if (
-        widgetProperties?.singleMetricSelection &&
+        defaultResourceTypes &&
         widgetProperties?.singleResourceSelection &&
-        equals(WidgetResourceType.host, e.target.value)
+        includes(e.target.value, restrictedResourceTypes || []) &&
+        equals(e.target.value, head(defaultResourceTypes || []))
       ) {
-        setFieldValue(`data.${propertyName}`, singleMetricBaseResources);
+        setFieldValue(
+          `data.${propertyName}`,
+          defaultResourceTypes.map((resourceType) => ({
+            resourceType,
+            resources: []
+          }))
+        );
 
         return;
       }
@@ -424,6 +509,7 @@ const useResources = ({
   ): {
     customParameters: Array<QueryParameter>;
     searchParameters: Array<SearchParameter>;
+    regexParameters?: RegexSearchParameter;
   } => {
     const usesResourcesEndpoint = includes(resourceType, [
       WidgetResourceType.host,
@@ -442,10 +528,11 @@ const useResources = ({
     }
 
     const searchParameter = value?.[index - 1].resourceType as string;
-    const searchValues = pluck(
-      'name',
+    const searchValues = isResourcesString(
       parentResources || value?.[index - 1].resources
-    );
+    )
+      ? parentResources || value?.[index - 1].resources
+      : pluck('name', parentResources || value?.[index - 1].resources);
 
     if (!usesResourcesEndpoint) {
       const customParameters = isOfTypeService
@@ -478,7 +565,11 @@ const useResources = ({
             }
           },
           ...searchForExactResource
-        ]
+        ],
+        regexParameters: {
+          fields: [buildResourceTypeNameForSearchParameter(searchParameter)],
+          value: searchValues
+        }
       };
     }
 
@@ -526,17 +617,26 @@ const useResources = ({
           ]
         : parameters.search?.lists;
 
-      const { customParameters, searchParameters } = getQueryParameters(
-        index,
-        resourceType,
-        resourcesToSearch,
-        parentResources
-      );
+      const { customParameters, searchParameters, regexParameters } =
+        getQueryParameters(
+          index,
+          resourceType,
+          resourcesToSearch,
+          parentResources
+        );
 
       const searchConditions = [
         ...flatten(parameters.search?.conditions || []),
         ...searchParameters
       ];
+
+      const search = isResourcesString(
+        parentResources || value?.[index - 1]?.resources
+      )
+        ? {
+            regex: regexParameters
+          }
+        : { conditions: searchConditions, lists: searchLists };
 
       return buildListingEndpoint({
         baseEndpoint: endpoint,
@@ -544,10 +644,7 @@ const useResources = ({
         parameters: {
           ...parameters,
           limit: 30,
-          search: {
-            conditions: searchConditions,
-            lists: searchLists
-          }
+          search
         }
       });
     };
@@ -603,17 +700,20 @@ const useResources = ({
         );
       }, availableResourceTypes);
 
-      const forceAddServiceToOptions =
-        widgetProperties?.singleMetricSelection &&
-        widgetProperties?.singleResourceSelection &&
-        equals(resource.resourceType, WidgetResourceType.service);
-
-      return forceAddServiceToOptions
-        ? [
-            ...filteredResourceTypeOptions,
-            { id: WidgetResourceType.service, name: labelService }
-          ]
-        : filteredResourceTypeOptions;
+      return uniqBy(
+        ({ id }) => id,
+        forcedResourceType
+          ? [
+              ...filteredResourceTypeOptions,
+              {
+                id: forcedResourceType,
+                name: allResources.find(({ id }) =>
+                  equals(id, forcedResourceType)
+                ).name
+              }
+            ]
+          : filteredResourceTypeOptions
+      );
     },
     [
       additionalResources,
@@ -630,11 +730,14 @@ const useResources = ({
       return;
     }
 
-    if (
-      widgetProperties?.singleMetricSelection &&
-      widgetProperties?.singleResourceSelection
-    ) {
-      setFieldValue(`data.${propertyName}`, singleMetricBaseResources);
+    if (defaultResourceTypes && widgetProperties?.singleResourceSelection) {
+      setFieldValue(
+        `data.${propertyName}`,
+        defaultResourceTypes.map((resourceType) => ({
+          resourceType,
+          resources: []
+        }))
+      );
 
       return;
     }
@@ -663,17 +766,72 @@ const useResources = ({
   };
 
   const hasSelectedHostForSingleMetricwidget = useMemo(() => {
+    if (value?.length === 1) {
+      return true;
+    }
     const hasSelectedHost = value?.some(
       ({ resources, resourceType }) =>
-        equals(resourceType, WidgetResourceType.host) && !isEmpty(resources)
+        equals(resourceType, head(defaultResourceTypes || [])) &&
+        !isEmpty(resources)
     );
 
     return (
-      widgetProperties?.singleMetricSelection &&
+      defaultResourceTypes &&
+      forcedResourceType &&
       widgetProperties?.singleResourceSelection &&
       hasSelectedHost
     );
   }, [value, widgetProperties]);
+
+  const getIsRegexAllowedOnResourceType = useCallback(
+    (resourceType: WidgetResourceType) =>
+      isNil(allowRegexOnResourceTypes)
+        ? false
+        : allowRegexOnResourceTypes.includes(resourceType),
+    [allowRegexOnResourceTypes]
+  );
+
+  const getIsRegexFieldOnResourceType = useCallback(
+    (resourceType: WidgetResourceType) =>
+      isNil(allowRegexOnResourceTypes)
+        ? false
+        : isRegexFieldPerResourceType[resourceType],
+    [allowRegexOnResourceTypes, isRegexFieldPerResourceType]
+  );
+
+  const changeRegexFieldOnResourceType = useCallback(
+    ({ resourceType, index, bypassResourcesCheck = false }) =>
+      (): void => {
+        if (!isEmpty(value?.[index].resources) && !bypassResourcesCheck) {
+          setResourceToToggleRegex({
+            resourceType,
+            index,
+            isRegexMode: isRegexFieldPerResourceType[resourceType]
+          });
+
+          return;
+        }
+
+        setIsRegexPerResourceType((current) => ({
+          ...current,
+          [resourceType]: !current[resourceType]
+        }));
+        setFieldValue(`data.${propertyName}.${index}.resources`, []);
+      },
+    [value, isRegexFieldPerResourceType]
+  );
+
+  const changeRegexField =
+    (index: number) => (event: ChangeEvent<HTMLInputElement>) => {
+      setFieldValue(
+        `data.${propertyName}.${index}.resources`,
+        event.target.value
+      );
+      setFieldTouched(`data.${propertyName}`, true, false);
+
+      setIsValidatingResources(true);
+      validateNextResource({ index, parentResources: event.target.value });
+    };
 
   return {
     addResource,
@@ -693,7 +851,11 @@ const useResources = ({
     singleResourceSelection: widgetProperties?.singleResourceSelection,
     value: value || [],
     isValidatingResources,
-    hideResourceDeleteButton
+    hideResourceDeleteButton,
+    getIsRegexAllowedOnResourceType,
+    getIsRegexFieldOnResourceType,
+    changeRegexFieldOnResourceType,
+    changeRegexField
   };
 };
 

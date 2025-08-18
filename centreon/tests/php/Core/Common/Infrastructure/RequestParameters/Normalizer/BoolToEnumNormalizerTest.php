@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ use Core\Common\Infrastructure\RequestParameters\Normalizer\BoolToEnumNormalizer
 
 it(
     'should success with NULL when allowed',
-    fn() => expect(
+    fn () => expect(
         (new BoolToEnumNormalizer(nullable: true))
             ->normalize(null)
     )->toBe(null)
@@ -39,7 +39,7 @@ it(
 
 it(
     'should success',
-    fn($tested, $expected) => expect(
+    fn ($tested, $expected) => expect(
         (new BoolToEnumNormalizer('customFALSE', 'customTRUE'))
             ->normalize($tested)
     )->toBe($expected)
@@ -65,7 +65,7 @@ it(
 
 it(
     'should fail',
-    fn($tested) => (new BoolToEnumNormalizer())->normalize($tested)
+    fn ($tested) => (new BoolToEnumNormalizer())->normalize($tested)
 )
     ->with(
         [

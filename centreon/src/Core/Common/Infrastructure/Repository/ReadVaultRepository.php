@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,7 +31,8 @@ use Core\Security\Vault\Domain\Model\VaultConfiguration;
 
 class ReadVaultRepository extends AbstractVaultRepository implements ReadVaultRepositoryInterface
 {
-    use LoggerTrait, VaultTrait;
+    use LoggerTrait;
+    use VaultTrait;
 
     /**
      * @inheritDoc
@@ -73,27 +74,27 @@ class ReadVaultRepository extends AbstractVaultRepository implements ReadVaultRe
         }
         $urls = [];
         foreach ($paths as $resourceId => $path) {
-                $customPathElements = explode('::', $path);
-                $uuid = $this->getUuidFromPath($path);
-                // remove vault key from path
-                array_pop($customPathElements);
+            $customPathElements = explode('::', $path);
+            $uuid = $this->getUuidFromPath($path);
+            // remove vault key from path
+            array_pop($customPathElements);
 
-                // Keep only the uri from the path
-                $customPath = end($customPathElements);
-                $url = $this->vaultConfiguration->getAddress() . ':' . $this->vaultConfiguration->getPort()
-                    . '/v1/' . $customPath;
-                $url = sprintf('%s://%s', parent::DEFAULT_SCHEME, $url);
-                $urls[$uuid] = $url;
+            // Keep only the uri from the path
+            $customPath = end($customPathElements);
+            $url = $this->vaultConfiguration->getAddress() . ':' . $this->vaultConfiguration->getPort()
+                . '/v1/' . $customPath;
+            $url = sprintf('%s://%s', parent::DEFAULT_SCHEME, $url);
+            $urls[$uuid] = $url;
         }
         $responses = $this->sendMultiplexedRequest('GET', $urls);
         $vaultData = [];
         foreach ($responses as $uuid => $response) {
-                foreach ($paths as $resourceId => $path) {
-                    if (str_contains($path, $uuid)  ) {
-                        $data = $response['data']['data'];
-                        $vaultData[$resourceId] = $data;
-                    }
+            foreach ($paths as $resourceId => $path) {
+                if (str_contains($path, $uuid)) {
+                    $data = $response['data']['data'];
+                    $vaultData[$resourceId] = $data;
                 }
+            }
         }
 
         return $vaultData;

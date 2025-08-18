@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -128,7 +128,7 @@ class DbHostGroupResourceRepository extends AbstractRepositoryRDB implements Not
         }
 
         $accessGroupIds = array_map(
-            static fn(AccessGroup $accessGroup) => $accessGroup->getId(),
+            static fn (AccessGroup $accessGroup) => $accessGroup->getId(),
             $accessGroups
         );
 
@@ -172,7 +172,7 @@ class DbHostGroupResourceRepository extends AbstractRepositoryRDB implements Not
         $concatenator->bindValuesToStatement($statement);
         $statement->execute();
         $resources = array_map(
-            (fn($data) => new ConfigurationResource($data['hg_id'], $data['hg_name'])),
+            (fn ($data) => new ConfigurationResource($data['hg_id'], $data['hg_name'])),
             $statement->fetchAll(\PDO::FETCH_ASSOC)
         );
 
@@ -208,7 +208,7 @@ class DbHostGroupResourceRepository extends AbstractRepositoryRDB implements Not
         [$hostgroupEvents, $includedServiceEvents] = $this->retrieveEvents($notificationId);
 
         $accessGroupIds = array_map(
-            static fn(AccessGroup $accessGroup) => $accessGroup->getId(),
+            static fn (AccessGroup $accessGroup) => $accessGroup->getId(),
             $accessGroups
         );
         $concatenator = $this->getConcatenatorForFindRequest($accessGroupIds)
@@ -223,7 +223,7 @@ class DbHostGroupResourceRepository extends AbstractRepositoryRDB implements Not
         $statement->execute();
 
         $resources = array_map(
-            (fn($data) => new ConfigurationResource($data['hg_id'], $data['hg_name'])),
+            (fn ($data) => new ConfigurationResource($data['hg_id'], $data['hg_name'])),
             $statement->fetchAll(\PDO::FETCH_ASSOC)
         );
 
@@ -306,7 +306,7 @@ class DbHostGroupResourceRepository extends AbstractRepositoryRDB implements Not
         array $accessGroups
     ): array {
         $accessGroupIds = array_map(
-            static fn(AccessGroup $accessGroup) => $accessGroup->getId(),
+            static fn (AccessGroup $accessGroup) => $accessGroup->getId(),
             $accessGroups
         );
 
@@ -314,21 +314,22 @@ class DbHostGroupResourceRepository extends AbstractRepositoryRDB implements Not
         [$bindAccessGroupValues, $subAccessGroupQuery] = $this->createMultipleBindQuery($accessGroupIds, ':aid_');
 
         $statement = $this->db->prepare(
-            $this->translateDbName(<<<SQL
-                SELECT notification_id, COUNT(DISTINCT rel.hg_id)
-                FROM `:db`.notification_hg_relation rel
-                INNER JOIN `:db`.acl_resources_hg_relations arhr
-                    ON rel.hg_id = arhr.hg_hg_id
-                INNER JOIN `:db`.acl_resources res
-                    ON arhr.acl_res_id = res.acl_res_id
-                INNER JOIN `:db`.acl_res_group_relations argr
-                    ON res.acl_res_id = argr.acl_res_id
-                INNER JOIN `:db`.acl_groups ag
-                    ON argr.acl_group_id = ag.acl_group_id
-                WHERE ag.acl_group_id IN ({$subAccessGroupQuery})
-                    AND notification_id IN ({$subNotificationQuery})
-                GROUP BY notification_id
-                SQL
+            $this->translateDbName(
+                <<<SQL
+                    SELECT notification_id, COUNT(DISTINCT rel.hg_id)
+                    FROM `:db`.notification_hg_relation rel
+                    INNER JOIN `:db`.acl_resources_hg_relations arhr
+                        ON rel.hg_id = arhr.hg_hg_id
+                    INNER JOIN `:db`.acl_resources res
+                        ON arhr.acl_res_id = res.acl_res_id
+                    INNER JOIN `:db`.acl_res_group_relations argr
+                        ON res.acl_res_id = argr.acl_res_id
+                    INNER JOIN `:db`.acl_groups ag
+                        ON argr.acl_group_id = ag.acl_group_id
+                    WHERE ag.acl_group_id IN ({$subAccessGroupQuery})
+                        AND notification_id IN ({$subNotificationQuery})
+                    GROUP BY notification_id
+                    SQL
             )
         );
         foreach ([...$bindNotificationValues, ...$bindAccessGroupValues] as $key => $value) {
@@ -348,12 +349,13 @@ class DbHostGroupResourceRepository extends AbstractRepositoryRDB implements Not
     {
         [$bindNotificationValues, $subNotificationQuery] = $this->createMultipleBindQuery($notificationIds, ':id_');
         $statement = $this->db->prepare(
-            $this->translateDbName(<<<SQL
-                SELECT notification_id, COUNT(DISTINCT rel.hg_id)
-                FROM `:db`.notification_hg_relation rel
-                WHERE notification_id IN ({$subNotificationQuery})
-                GROUP BY notification_id
-                SQL
+            $this->translateDbName(
+                <<<SQL
+                    SELECT notification_id, COUNT(DISTINCT rel.hg_id)
+                    FROM `:db`.notification_hg_relation rel
+                    WHERE notification_id IN ({$subNotificationQuery})
+                    GROUP BY notification_id
+                    SQL
             )
         );
         foreach ($bindNotificationValues as $key => $value) {

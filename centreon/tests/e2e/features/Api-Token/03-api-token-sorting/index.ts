@@ -1,4 +1,4 @@
-import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
+import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
 import { Contact, Token, columns, durationMap } from '../common';
 
@@ -34,19 +34,23 @@ Given('I am logged in as an administrator', () => {
   });
 });
 
-Given('API tokens with predefined details are created', () => {
+Given('Authentication tokens with predefined details are created', () => {
   cy.fixture('api-token/tokens.json').then((tokens: Record<string, Token>) => {
     Object.values(tokens).forEach((token) => {
       const today = new Date();
       const expirationDate = new Date(today);
       const duration = durationMap[token.duration];
       expirationDate.setDate(today.getDate() + duration);
-      const expirationDateISOString = expirationDate.toISOString();
+      // Get the ISO string without milliseconds
+      const expirationDateIsoString = `${expirationDate.toISOString().split('.')[0]}Z`;
 
       const payload = {
-        expiration_date: expirationDateISOString,
+        // biome-ignore lint/style/useNamingConvention: <explanation>
+        expiration_date: expirationDateIsoString,
         name: token.name,
-        user_id: token.userId
+        // biome-ignore lint/style/useNamingConvention: <explanation>
+        user_id: token.userId,
+        type: token.type
       };
       cy.request({
         body: payload,
@@ -62,7 +66,7 @@ Given('API tokens with predefined details are created', () => {
   });
 });
 
-Given('I am on the API tokens page', () => {
+Given('I am on the Authentication tokens page', () => {
   cy.visitApiTokens();
 });
 

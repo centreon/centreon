@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -93,9 +93,12 @@ final class UpdateAgentConfigurationController extends AbstractController
         $updateRequest->id = $id;
         $updateRequest->type = $data['type'];
         $updateRequest->name = $data['name'];
-        $updateRequest->connectionMode = $data['connection_mode'] === 'no-tls'
-            ? ConnectionModeEnum::NO_TLS
-            : ConnectionModeEnum::SECURE;
+        $updateRequest->connectionMode = match ($data['connection_mode']) {
+            'no-tls' => ConnectionModeEnum::NO_TLS,
+            'insecure' => ConnectionModeEnum::INSECURE,
+            'secure' => ConnectionModeEnum::SECURE,
+            default => ConnectionModeEnum::SECURE,
+        };
         $updateRequest->pollerIds = $data['poller_ids'];
         $updateRequest->configuration = $data['configuration'];
 

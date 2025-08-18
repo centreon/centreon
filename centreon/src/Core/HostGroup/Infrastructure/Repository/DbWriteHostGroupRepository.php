@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,9 @@ use Utility\SqlConcatenator;
 
 class DbWriteHostGroupRepository extends AbstractRepositoryDRB implements WriteHostGroupRepositoryInterface
 {
-    use RepositoryTrait, LoggerTrait, SqlMultipleBindTrait;
+    use RepositoryTrait;
+    use LoggerTrait;
+    use SqlMultipleBindTrait;
 
     public function __construct(DatabaseConnection $db)
     {
@@ -69,12 +71,7 @@ class DbWriteHostGroupRepository extends AbstractRepositoryDRB implements WriteH
             SET
                 hg_name = :name,
                 hg_alias = :alias,
-                hg_notes = :notes,
-                hg_notes_url = :notes_url,
-                hg_action_url = :action_url,
                 hg_icon_image = :icon_image,
-                hg_map_icon_image = :map_icon_image,
-                hg_rrd_retention = :rrd_retention,
                 geo_coords = :geo_coords,
                 hg_comment = :comment,
                 hg_activate = :activate
@@ -98,12 +95,7 @@ class DbWriteHostGroupRepository extends AbstractRepositoryDRB implements WriteH
                 (
                     hg_name,
                     hg_alias,
-                    hg_notes,
-                    hg_notes_url,
-                    hg_action_url,
                     hg_icon_image,
-                    hg_map_icon_image,
-                    hg_rrd_retention,
                     geo_coords,
                     hg_comment,
                     hg_activate
@@ -112,12 +104,7 @@ class DbWriteHostGroupRepository extends AbstractRepositoryDRB implements WriteH
                 (
                     :name,
                     :alias,
-                    :notes,
-                    :notes_url,
-                    :action_url,
                     :icon_image,
-                    :map_icon_image,
-                    :rrd_retention,
                     :geo_coords,
                     :comment,
                     :activate
@@ -299,12 +286,7 @@ class DbWriteHostGroupRepository extends AbstractRepositoryDRB implements WriteH
     {
         $statement->bindValue(':name', $newHostGroup->getName());
         $statement->bindValue(':alias', $this->emptyStringAsNull($newHostGroup->getAlias()));
-        $statement->bindValue(':notes', $this->emptyStringAsNull($newHostGroup->getNotes()));
-        $statement->bindValue(':notes_url', $this->emptyStringAsNull($newHostGroup->getNotesUrl()));
-        $statement->bindValue(':action_url', $this->emptyStringAsNull($newHostGroup->getActionUrl()));
         $statement->bindValue(':icon_image', $newHostGroup->getIconId(), \PDO::PARAM_INT);
-        $statement->bindValue(':map_icon_image', $newHostGroup->getIconMapId(), \PDO::PARAM_INT);
-        $statement->bindValue(':rrd_retention', $newHostGroup->getRrdRetention(), \PDO::PARAM_INT);
         $statement->bindValue(':geo_coords', $newHostGroup->getGeoCoords()?->__toString());
         $statement->bindValue(':comment', $this->emptyStringAsNull($newHostGroup->getComment()));
         $statement->bindValue(':activate', (new BoolToEnumNormalizer())->normalize($newHostGroup->isActivated()));

@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,13 +28,15 @@ use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
-use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Application\Common\UseCase\PresenterInterface;
 use Core\Security\Token\Application\Exception\TokenException;
 use Core\Security\Token\Application\Repository\ReadTokenRepositoryInterface;
 use Core\Security\Token\Application\Repository\WriteTokenRepositoryInterface;
+use Core\Security\Token\Domain\Model\ApiToken;
+use Core\Security\Token\Domain\Model\JwtToken;
+use Core\Security\Token\Domain\Model\Token;
 
 final class DeleteToken
 {
@@ -52,10 +54,10 @@ final class DeleteToken
      * @param int $userId
      * @param PresenterInterface $presenter
      */
-    public function __invoke( PresenterInterface $presenter, string $tokenName, ?int $userId = null): void
+    public function __invoke(PresenterInterface $presenter, string $tokenName, ?int $userId = null): void
     {
         try {
-            if (! $this->user->hasTopologyRole(Contact::ROLE_ADMINISTRATION_API_TOKENS_RW)) {
+            if (! $this->user->hasTopologyRole(Contact::ROLE_ADMINISTRATION_AUTHENTICATION_TOKENS_RW)) {
                 $this->error(
                     "User doesn't have sufficient rights to delete a token",
                     ['user_id' => $this->user->getId()]
@@ -79,23 +81,31 @@ final class DeleteToken
                 return;
             }
 
-            if (
-                ! $this->user->isAdmin()
-                && $token->getUserId() !== $this->user->getId()
-                && ! $this->user->hasRole(Contact::ROLE_MANAGE_TOKENS)
-            ) {
+            if (! $this->canUserDeleteToken($this->user, $token)) {
                 $this->error(
                     'Not allowed to delete token linked to user who isn\'t the requester',
                     ['token_name' => $tokenName, 'user_id' => $userId, 'requester_id' => $this->user->getId()]
                 );
                 $presenter->setResponseStatus(
-                    new InvalidArgumentResponse(TokenException::notAllowedToDeleteTokenForUser($token->getUserId()))
+                    new ForbiddenResponse(TokenException::notAllowedToDeleteTokenForUser($userId))
                 );
 
                 return;
             }
 
             $this->writeTokenRepository->deleteByNameAndUserId($tokenName, $userId);
+
+            $this->info(
+                'Delete token succeeded',
+                [
+                    'event' => 'Token deletion',
+                    'datetime' => (new \DateTimeImmutable())->format('Y-m-d H:i:s'),
+                    'requester_id' => $this->user->getId(),
+                    'user_id' => $userId,
+                    'token_type' => $token->getType()->name,
+                    'token_name' => $tokenName,
+                ]
+            );
 
             $presenter->setResponseStatus(new NoContentResponse());
         } catch (\Throwable $ex) {
@@ -104,5 +114,17 @@ final class DeleteToken
             );
             $this->error((string) $ex);
         }
+    }
+
+    private function canUserDeleteToken(
+        ContactInterface $user,
+        Token $token,
+    ): bool {
+        return (bool) (
+            $user->isAdmin()
+            || $user->hasRole(Contact::ROLE_MANAGE_TOKENS)
+            || ($token instanceof ApiToken && $token->getUserId() === $user->getId())
+            || ($token instanceof JwtToken && $token->getCreatorId() === $user->getId())
+        );
     }
 }

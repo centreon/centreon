@@ -1,9 +1,9 @@
 {
 	"info": {
-		"_postman_id": "2711f95d-beea-46bd-a40d-6420f03bd43d",
+		"_postman_id": "779482d8-64f4-47c0-8b32-ef082332a5bb",
 		"name": "Parameters",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "16182525"
+		"_exporter_id": "29556865"
 	},
 	"item": [
 		{
@@ -79,7 +79,8 @@
 									"        \"monitoring_default_acknowledgement_force_active_checks\": true,\r",
 									"        \"monitoring_default_acknowledgement_with_services\": true,\r",
 									"        \"monitoring_default_downtime_fixed\": true,\r",
-									"        \"monitoring_default_downtime_with_services\": true\r",
+									"        \"monitoring_default_downtime_with_services\": true,\r",
+									"        \"is_resource_status_full_search_enabled\":true\r",
 									"    });\r",
 									"});\r",
 									"\r",
@@ -405,8 +406,8 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The parameters are not listed, because the user does not have sufficient rights.\", function () {\r",
-									"    pm.response.to.have.status(403);\r",
+									"pm.test(\"The parameters are listed, because the user have sufficient rights.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
 									"});\r",
 									""
 								],
@@ -851,7 +852,8 @@
 									"        \"monitoring_default_acknowledgement_force_active_checks\": true,\r",
 									"        \"monitoring_default_acknowledgement_with_services\": true,\r",
 									"        \"monitoring_default_downtime_fixed\": true,\r",
-									"        \"monitoring_default_downtime_with_services\": true\r",
+									"        \"monitoring_default_downtime_with_services\": true,\r",
+									"        \"is_resource_status_full_search_enabled\":true\r",
 									"    });\r",
 									"});\r",
 									"\r",

@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2021 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,6 +18,7 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Centreon\Domain\HostConfiguration\Exception;
@@ -43,7 +44,7 @@ class HostSeverityException extends \Exception
      * @param \Throwable|null $ex
      * @return self
      */
-    public static function findHostSeverityException(array $data = [], \Throwable $ex = null): self
+    public static function findHostSeverityException(array $data = [], ?\Throwable $ex = null): self
     {
         return new self(
             sprintf(_('Error when searching for the host severity (%s)'), $data['id'] ?? $data['name'] ?? null),
@@ -57,7 +58,7 @@ class HostSeverityException extends \Exception
      * @param \Throwable|null $ex
      * @return self
      */
-    public static function notFoundException(array $data = [], \Throwable $ex = null): self
+    public static function notFoundException(array $data = [], ?\Throwable $ex = null): self
     {
         return new self(
             sprintf(_('Host severity (%s) not found'), $data['id'] ?? $data['name'] ?? null),

@@ -1,12 +1,13 @@
 <?php
+
 /*
- * Copyright 2005 - 2019 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,6 +18,7 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Centreon\Infrastructure\Proxy;
@@ -38,8 +40,8 @@ class ProxyRepositoryRDB extends AbstractRepositoryDRB implements ProxyRepositor
      */
     public function updateProxy(Proxy $proxy): void
     {
-        $request =
-            'DELETE FROM `:db`.options 
+        $request
+            = 'DELETE FROM `:db`.options 
             WHERE `key` IN (\'proxy_url\', \'proxy_port\', \'proxy_user\', \'proxy_password\')';
 
         $request = $this->translateDbName($request);
@@ -54,7 +56,7 @@ class ProxyRepositoryRDB extends AbstractRepositoryDRB implements ProxyRepositor
             'proxy_url' => $proxy->getUrl(),
             'proxy_port' => $proxy->getPort(),
             'proxy_user' => $proxy->getUser(),
-            'proxy_password' => $proxy->getPassword()
+            'proxy_password' => $proxy->getPassword(),
         ];
 
         foreach ($data as $key => $value) {
@@ -76,13 +78,14 @@ class ProxyRepositoryRDB extends AbstractRepositoryDRB implements ProxyRepositor
         $statement = $this->db->query($request);
         if ($statement !== false) {
             $proxyDetails = $statement->fetchAll(\PDO::FETCH_KEY_PAIR);
-            if (!empty($proxyDetails)) {
+            if (! empty($proxyDetails)) {
                 $proxy->setUrl($proxyDetails['proxy_url'] ?? null);
                 $proxy->setPort(isset($proxyDetails['proxy_port']) ? (int) $proxyDetails['proxy_port'] : null);
                 $proxy->setUser($proxyDetails['proxy_user'] ?? null);
                 $proxy->setPassword($proxyDetails['proxy_password'] ?? null);
             }
         }
+
         return $proxy;
     }
 }

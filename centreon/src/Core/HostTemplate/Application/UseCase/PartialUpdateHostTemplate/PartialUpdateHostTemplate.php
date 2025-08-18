@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -68,7 +68,8 @@ use Utility\Difference\BasicDifference;
 
 final class PartialUpdateHostTemplate
 {
-    use LoggerTrait,VaultTrait;
+    use LoggerTrait;
+    use VaultTrait;
 
     /** @var AccessGroup[] */
     private array $accessGroups = [];
@@ -212,16 +213,16 @@ final class PartialUpdateHostTemplate
             ? (int) $inheritanceMode[0]->getValue()
             : 0;
 
-        if (! $request->name instanceOf NoValue) {
+        if (! $request->name instanceof NoValue) {
             $this->validation->assertIsValidName($request->name, $hostTemplate);
             $hostTemplate->setName($request->name);
         }
 
-        if (! $request->alias instanceOf NoValue) {
+        if (! $request->alias instanceof NoValue) {
             $hostTemplate->setAlias($request->alias);
         }
 
-        if (! $request->snmpVersion instanceOf NoValue) {
+        if (! $request->snmpVersion instanceof NoValue) {
             $hostTemplate->setSnmpVersion(
                 $request->snmpVersion === ''
                     ? null
@@ -229,59 +230,59 @@ final class PartialUpdateHostTemplate
             );
         }
 
-        if (! $request->snmpCommunity instanceOf NoValue) {
+        if (! $request->snmpCommunity instanceof NoValue) {
             $hostTemplate->setSnmpCommunity($request->snmpCommunity);
         }
 
-        if (! $request->timezoneId instanceOf NoValue) {
+        if (! $request->timezoneId instanceof NoValue) {
             $this->validation->assertIsValidTimezone($request->timezoneId);
             $hostTemplate->setTimezoneId($request->timezoneId);
         }
 
-        if (! $request->severityId instanceOf NoValue) {
+        if (! $request->severityId instanceof NoValue) {
             $this->validation->assertIsValidSeverity($request->severityId);
             $hostTemplate->setSeverityId($request->severityId);
         }
 
-        if (! $request->checkCommandId instanceOf NoValue) {
+        if (! $request->checkCommandId instanceof NoValue) {
             $this->validation->assertIsValidCommand($request->checkCommandId, CommandType::Check, 'checkCommandId');
             $hostTemplate->setCheckCommandId($request->checkCommandId);
         }
 
-        if (! $request->checkCommandArgs instanceOf NoValue) {
+        if (! $request->checkCommandArgs instanceof NoValue) {
             $hostTemplate->setCheckCommandArgs($request->checkCommandArgs);
         }
 
-        if (! $request->checkTimeperiodId instanceOf NoValue) {
+        if (! $request->checkTimeperiodId instanceof NoValue) {
             $this->validation->assertIsValidTimePeriod($request->checkTimeperiodId, 'checkTimeperiodId');
             $hostTemplate->setCheckTimeperiodId($request->checkTimeperiodId);
         }
 
-        if (! $request->maxCheckAttempts instanceOf NoValue) {
+        if (! $request->maxCheckAttempts instanceof NoValue) {
             $hostTemplate->setMaxCheckAttempts($request->maxCheckAttempts);
         }
 
-        if (! $request->normalCheckInterval instanceOf NoValue) {
+        if (! $request->normalCheckInterval instanceof NoValue) {
             $hostTemplate->setNormalCheckInterval($request->normalCheckInterval);
         }
 
-        if (! $request->retryCheckInterval instanceOf NoValue) {
+        if (! $request->retryCheckInterval instanceof NoValue) {
             $hostTemplate->setRetryCheckInterval($request->retryCheckInterval);
         }
 
-        if (! $request->activeCheckEnabled instanceOf NoValue) {
+        if (! $request->activeCheckEnabled instanceof NoValue) {
             $hostTemplate->setActiveCheckEnabled(YesNoDefaultConverter::fromScalar($request->activeCheckEnabled));
         }
 
-        if (! $request->passiveCheckEnabled instanceOf NoValue) {
+        if (! $request->passiveCheckEnabled instanceof NoValue) {
             $hostTemplate->setPassiveCheckEnabled(YesNoDefaultConverter::fromScalar($request->passiveCheckEnabled));
         }
 
-        if (! $request->notificationEnabled instanceOf NoValue) {
+        if (! $request->notificationEnabled instanceof NoValue) {
             $hostTemplate->setNotificationEnabled(YesNoDefaultConverter::fromScalar($request->notificationEnabled));
         }
 
-        if (! $request->notificationOptions instanceOf NoValue) {
+        if (! $request->notificationOptions instanceof NoValue) {
             $hostTemplate->setNotificationOptions(
                 $request->notificationOptions === null
                     ? []
@@ -289,100 +290,100 @@ final class PartialUpdateHostTemplate
             );
         }
 
-        if (! $request->notificationInterval instanceOf NoValue) {
+        if (! $request->notificationInterval instanceof NoValue) {
             $hostTemplate->setNotificationInterval($request->notificationInterval);
         }
 
-        if (! $request->notificationTimeperiodId instanceOf NoValue) {
+        if (! $request->notificationTimeperiodId instanceof NoValue) {
             $this->validation->assertIsValidTimePeriod($request->notificationTimeperiodId, 'notificationTimeperiodId');
             $hostTemplate->setNotificationTimeperiodId($request->notificationTimeperiodId);
         }
 
-        if (! $request->addInheritedContactGroup instanceOf NoValue) {
+        if (! $request->addInheritedContactGroup instanceof NoValue) {
             $hostTemplate->setAddInheritedContactGroup(
                 $inheritanceMode === 1 ? $request->addInheritedContactGroup : false
             );
         }
 
-        if (! $request->addInheritedContact instanceOf NoValue) {
+        if (! $request->addInheritedContact instanceof NoValue) {
             $hostTemplate->setAddInheritedContact(
                 $inheritanceMode === 1 ? $request->addInheritedContact : false
             );
         }
 
-        if (! $request->firstNotificationDelay instanceOf NoValue) {
+        if (! $request->firstNotificationDelay instanceof NoValue) {
             $hostTemplate->setFirstNotificationDelay($request->firstNotificationDelay);
         }
 
-        if (! $request->recoveryNotificationDelay instanceOf NoValue) {
+        if (! $request->recoveryNotificationDelay instanceof NoValue) {
             $hostTemplate->setRecoveryNotificationDelay($request->recoveryNotificationDelay);
         }
 
-        if (! $request->acknowledgementTimeout instanceOf NoValue) {
+        if (! $request->acknowledgementTimeout instanceof NoValue) {
             $hostTemplate->setAcknowledgementTimeout($request->acknowledgementTimeout);
         }
 
-        if (! $request->freshnessChecked instanceOf NoValue) {
+        if (! $request->freshnessChecked instanceof NoValue) {
             $hostTemplate->setFreshnessChecked(YesNoDefaultConverter::fromScalar($request->freshnessChecked));
         }
 
-        if (! $request->freshnessThreshold instanceOf NoValue) {
+        if (! $request->freshnessThreshold instanceof NoValue) {
             $hostTemplate->setFreshnessThreshold($request->freshnessThreshold);
         }
 
-        if (! $request->flapDetectionEnabled instanceOf NoValue) {
+        if (! $request->flapDetectionEnabled instanceof NoValue) {
             $hostTemplate->setFlapDetectionEnabled(YesNoDefaultConverter::fromScalar($request->flapDetectionEnabled));
         }
 
-        if (! $request->lowFlapThreshold instanceOf NoValue) {
+        if (! $request->lowFlapThreshold instanceof NoValue) {
             $hostTemplate->setLowFlapThreshold($request->lowFlapThreshold);
         }
 
-        if (! $request->highFlapThreshold instanceOf NoValue) {
+        if (! $request->highFlapThreshold instanceof NoValue) {
             $hostTemplate->setHighFlapThreshold($request->highFlapThreshold);
         }
 
-        if (! $request->eventHandlerEnabled instanceOf NoValue) {
+        if (! $request->eventHandlerEnabled instanceof NoValue) {
             $hostTemplate->setEventHandlerEnabled(YesNoDefaultConverter::fromScalar($request->eventHandlerEnabled));
         }
 
-        if (! $request->eventHandlerCommandId instanceOf NoValue) {
+        if (! $request->eventHandlerCommandId instanceof NoValue) {
             $this->validation->assertIsValidCommand($request->eventHandlerCommandId, null, 'eventHandlerCommandId');
             $hostTemplate->setEventHandlerCommandId($request->eventHandlerCommandId);
         }
 
-        if (! $request->eventHandlerCommandArgs instanceOf NoValue) {
+        if (! $request->eventHandlerCommandArgs instanceof NoValue) {
             $hostTemplate->setEventHandlerCommandArgs($request->eventHandlerCommandArgs);
         }
 
-        if (! $request->noteUrl instanceOf NoValue) {
+        if (! $request->noteUrl instanceof NoValue) {
             $hostTemplate->setNoteUrl($request->noteUrl);
         }
 
-        if (! $request->note instanceOf NoValue) {
+        if (! $request->note instanceof NoValue) {
             $hostTemplate->setNote($request->note);
         }
 
-        if (! $request->actionUrl instanceOf NoValue) {
+        if (! $request->actionUrl instanceof NoValue) {
             $hostTemplate->setActionUrl($request->actionUrl);
         }
 
-        if (! $request->iconId instanceOf NoValue) {
+        if (! $request->iconId instanceof NoValue) {
             $this->validation->assertIsValidIcon($request->iconId);
             $hostTemplate->setIconId($request->iconId);
         }
 
-        if (! $request->iconAlternative instanceOf NoValue) {
+        if (! $request->iconAlternative instanceof NoValue) {
             $hostTemplate->setIconAlternative($request->iconAlternative);
         }
 
-        if (! $request->comment instanceOf NoValue) {
+        if (! $request->comment instanceof NoValue) {
             $hostTemplate->setComment($request->comment);
         }
 
         if (
             $this->writeVaultRepository->isVaultConfigured()
-            && ! $request->snmpCommunity instanceOf NoValue
+            && ! $request->snmpCommunity instanceof NoValue
             && ! $this->isAVaultPath($request->snmpCommunity)
         ) {
             $vaultPaths = $this->writeVaultRepository->upsert(
@@ -410,7 +411,7 @@ final class PartialUpdateHostTemplate
             ['host_template_id' => $hostTemplate->getId(), 'macros' => $request->macros]
         );
 
-        if ($request->macros instanceOf NoValue) {
+        if ($request->macros instanceof NoValue) {
             $this->info('Macros not provided, nothing to update');
 
             return;
@@ -514,7 +515,7 @@ final class PartialUpdateHostTemplate
             ['host_template_id' => $hostTemplate->getId(), 'categories' => $request->categories]
         );
 
-        if ($request->categories instanceOf NoValue) {
+        if ($request->categories instanceof NoValue) {
             $this->info('Categories not provided, nothing to update');
 
             return;
@@ -534,7 +535,7 @@ final class PartialUpdateHostTemplate
         }
 
         $originalCategoryIds = array_map(
-            static fn(HostCategory $category): int => $category->getId(),
+            static fn (HostCategory $category): int => $category->getId(),
             $originalCategories
         );
 
@@ -560,7 +561,7 @@ final class PartialUpdateHostTemplate
             ['host_template_id' => $hostTemplateId, 'template_ids' => $dto->templates]
         );
 
-        if ($dto->templates instanceOf NoValue) {
+        if ($dto->templates instanceof NoValue) {
             $this->info('Parent templates not provided, nothing to update');
 
             return;
@@ -656,7 +657,7 @@ final class PartialUpdateHostTemplate
             $vaultData = $this->readVaultRepository->findFromPath($macro->getValue());
             $vaultKey = '_HOST' . $macro->getName();
             if (isset($vaultData[$vaultKey])) {
-                $inVaultMacro = new Macro($macro->getOwnerId(),$macro->getName(), $vaultData[$vaultKey]);
+                $inVaultMacro = new Macro($macro->getOwnerId(), $macro->getName(), $vaultData[$vaultKey]);
                 $inVaultMacro->setDescription($macro->getDescription());
                 $inVaultMacro->setIsPassword($macro->isPassword());
                 $inVaultMacro->setOrder($macro->getOrder());

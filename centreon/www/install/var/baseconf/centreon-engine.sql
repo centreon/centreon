@@ -1,5 +1,5 @@
 INSERT INTO `nagios_server` (`id`, `name`, `localhost`, `is_default`, `last_restart`, `ns_ip_address`, `ns_activate`, `ns_status`, `engine_start_command`, `engine_stop_command`, `engine_restart_command`, `engine_reload_command`, `broker_reload_command`, `nagios_bin`, `nagiostats_bin`, `nagios_perfdata`, `centreonbroker_cfg_path`, `centreonbroker_module_path`, `centreonconnector_path`, `ssh_port`, `gorgone_communication_type`, `gorgone_port`, `init_script_centreontrapd`, `snmp_trapd_path_conf`) VALUES
-(1, 'Central', '1', 1, 0, '127.0.0.1', '1', '0', 'service centengine start', 'service centengine stop', 'service centengine restart', 'service centengine reload', 'service cbd reload', '@monitoring_binary@', '@centreon_engine_stats_binary@', '@monitoring_varlog@/service-perfdata', '', NULL, '@centreon_engine_connectors@', 22, '1',  5556, 'centreontrapd', '/etc/snmp/centreon_traps/');
+(1, 'Central', '1', 1, 0, '127.0.0.1', '1', '0', 'systemctl start centengine', 'systemctl stop centengine', 'systemctl restart centengine', 'systemctl reload centengine', 'systemctl reload cbd', '@monitoring_binary@', '@centreon_engine_stats_binary@', '@monitoring_varlog@/service-perfdata', '', NULL, '@centreon_engine_connectors@', 22, '1',  5556, 'centreontrapd', '/etc/snmp/centreon_traps/');
 
 INSERT INTO `cfg_nagios` (`nagios_id`, `nagios_name`) VALUES (1, 'Centreon Engine Central');
 UPDATE `cfg_nagios` SET `log_file` = '@monitoring_varlog@/centengine.log',
@@ -84,9 +84,10 @@ UPDATE `cfg_nagios` SET `log_file` = '@monitoring_varlog@/centengine.log',
     `max_debug_file_size` = '1000000000',
     `log_pid` = '1',
     `cfg_file` = 'centengine.cfg',
-    `logger_version` = 'log_v2_enabled';
+    `logger_version` = 'log_v2_enabled',
+    `broker_module_cfg_file` = '@centreonbroker_etc@/central-module.json';
 
-INSERT INTO `cfg_nagios_logger` 
+INSERT INTO `cfg_nagios_logger`
 (`cfg_nagios_id`, `log_v2_logger`, `log_level_functions`, `log_level_config`, `log_level_events`, `log_level_checks`, `log_level_notifications`, `log_level_eventbroker`, `log_level_external_command`, `log_level_commands`, `log_level_downtimes`, `log_level_comments`, `log_level_macros`, `log_level_process`, `log_level_runtime`) VALUES
 (1, 'file', 'warning', 'info', 'info', 'info', 'info', 'warning', 'info', 'warning', 'info', 'info', 'warning', 'info', 'warning');
 

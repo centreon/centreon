@@ -8,7 +8,6 @@ import { makeStyles } from 'tss-react/mui';
 
 import {
   Timeline,
-  TimelineContent,
   TimelineDot,
   TimelineItem,
   TimelineSeparator
@@ -178,14 +177,14 @@ const Events = ({ timeline, infiniteScrollTriggerRef }: Props): JSX.Element => {
                               {icon(t)}
                             </TimelineDot>
                           </TimelineSeparator>
-                          <TimelineContent className={classes.contentContainer}>
+                          <div className={`pl-4 ${classes.contentContainer}`}>
                             <Paper>
                               <Event event={event} />
                             </Paper>
                             {equals(lastEvent, event) && (
                               <div ref={infiniteScrollTriggerRef} />
                             )}
-                          </TimelineContent>
+                          </div>
                         </TimelineItem>
                         {isNotLastEvent && (
                           <div className={classes.dividerContainer}>

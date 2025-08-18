@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -112,7 +112,7 @@ class NotificationResourceFactory
     private function createNotificationResource(
         NotificationResourceRepositoryInterface $resourceRepository,
         array $resource
-    ): NotificationResource{
+    ): NotificationResource {
         $resourceIds = array_unique($resource['ids']);
 
         if ($this->user->isAdmin()) {
@@ -139,7 +139,7 @@ class NotificationResourceFactory
         return new NotificationResource(
             $resourceRepository->resourceType(),
             $resourceRepository->eventEnum(),
-            array_map((fn($resourceId) => new ConfigurationResource($resourceId, '')), $resourceIds),
+            array_map((fn ($resourceId) => new ConfigurationResource($resourceId, '')), $resourceIds),
             ($resourceRepository->eventEnumConverter())::fromBitFlags($resource['events']),
             $resource['includeServiceEvents']
                 ? NotificationServiceEventConverter::fromBitFlags($resource['includeServiceEvents'])

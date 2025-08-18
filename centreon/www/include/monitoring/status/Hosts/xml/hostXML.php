@@ -1,59 +1,44 @@
 <?php
+
 /*
- * Copyright 2005-2019 Centreon
- * Centreon is developed by : Julien Mathis and Romain Le Merlus under
- * GPL Licence 2.0.
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation ; either version 2 of the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <http://www.gnu.org/licenses>.
- *
- * Linking this program statically or dynamically with other modules is making a
- * combined work based on this program. Thus, the terms and conditions of the GNU
- * General Public License cover the whole combination.
- *
- * As a special exception, the copyright holders of this program give Centreon
- * permission to link this program with independent modules to produce an executable,
- * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of Centreon choice, provided that
- * Centreon also meet, for each linked independent module, the terms  and conditions
- * of the license of that module. An independent module is a module which is not
- * derived from this program. If you modify this program, you may extend this
- * exception to your version of the program, but you are not obliged to do so. If you
- * do not wish to do so, delete this exception statement from your version.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * For more information : contact@centreon.com
  *
  */
 
-require_once realpath(__DIR__ . "/../../../../../../bootstrap.php");
-include_once _CENTREON_PATH_ . "www/class/centreonXMLBGRequest.class.php";
-include_once _CENTREON_PATH_ . "www/class/centreonInstance.class.php";
-include_once _CENTREON_PATH_ . "www/class/centreonCriticality.class.php";
-include_once _CENTREON_PATH_ . "www/class/centreonMedia.class.php";
-include_once _CENTREON_PATH_ . "www/include/common/common-Func.php";
-include_once _CENTREON_PATH_ . "www/class/centreonUtils.class.php";
+require_once realpath(__DIR__ . '/../../../../../../bootstrap.php');
+include_once _CENTREON_PATH_ . 'www/class/centreonXMLBGRequest.class.php';
+include_once _CENTREON_PATH_ . 'www/class/centreonInstance.class.php';
+include_once _CENTREON_PATH_ . 'www/class/centreonCriticality.class.php';
+include_once _CENTREON_PATH_ . 'www/class/centreonMedia.class.php';
+include_once _CENTREON_PATH_ . 'www/include/common/common-Func.php';
+include_once _CENTREON_PATH_ . 'www/class/centreonUtils.class.php';
 
-/*
- * Create XML Request Objects
- */
+// Create XML Request Objects
 CentreonSession::start();
 
-if (!isset($_SESSION['centreon'])) {
+if (! isset($_SESSION['centreon'])) {
     exit;
 }
 $centreon = $_SESSION['centreon'];
 
 $obj = new CentreonXMLBGRequest($dependencyInjector, session_id(), 1, 1, 0, 1);
-if (!isset($obj->session_id) || !CentreonSession::checkSession($obj->session_id, $obj->DB)) {
-    print "Bad Session ID";
+if (! isset($obj->session_id) || ! CentreonSession::checkSession($obj->session_id, $obj->DB)) {
+    echo 'Bad Session ID';
+
     exit();
 }
 
@@ -66,7 +51,7 @@ $hostObj = new CentreonHost($obj->DB);
 $obj->getDefaultFilters();
 
 // Check Arguments From GET tab
-$o = isset($_GET['o']) ? \HtmlAnalyzer::sanitizeAndRemoveTags($_GET['o']) : 'h';
+$o = isset($_GET['o']) ? HtmlAnalyzer::sanitizeAndRemoveTags($_GET['o']) : 'h';
 $p = filter_input(INPUT_GET, 'p', FILTER_VALIDATE_INT, ['options' => ['default' => 2]]);
 $num = filter_input(INPUT_GET, 'num', FILTER_VALIDATE_INT, ['options' => ['default' => 0]]);
 $limit = filter_input(INPUT_GET, 'limit', FILTER_VALIDATE_INT, ['options' => ['default' => 20]]);
@@ -76,21 +61,21 @@ $criticalityId = filter_input(
     FILTER_VALIDATE_INT,
     ['options' => ['default' => $obj->defaultCriticality]]
 );
-//if instance value is not set, displaying all active pollers linked resources
+// if instance value is not set, displaying all active pollers linked resources
 $instance = filter_var($obj->defaultPoller ?? -1, FILTER_VALIDATE_INT);
 $hostgroups = filter_var($obj->defaultHostgroups ?? 0, FILTER_VALIDATE_INT);
 
-$search = isset($_GET['search']) ? \HtmlAnalyzer::sanitizeAndRemoveTags($_GET['search']) : '';
-$statusHost = isset($_GET['statusHost']) ? \HtmlAnalyzer::sanitizeAndRemoveTags($_GET['statusHost']) : '';
-$statusFilter = isset($_GET['statusFilter']) ? \HtmlAnalyzer::sanitizeAndRemoveTags($_GET['statusFilter']) : '';
-$order = isset($_GET['order']) && $_GET['order'] === "DESC" ? "DESC" : "ASC";
+$search = isset($_GET['search']) ? HtmlAnalyzer::sanitizeAndRemoveTags($_GET['search']) : '';
+$statusHost = isset($_GET['statusHost']) ? HtmlAnalyzer::sanitizeAndRemoveTags($_GET['statusHost']) : '';
+$statusFilter = isset($_GET['statusFilter']) ? HtmlAnalyzer::sanitizeAndRemoveTags($_GET['statusFilter']) : '';
+$order = isset($_GET['order']) && $_GET['order'] === 'DESC' ? 'DESC' : 'ASC';
 
-if (isset($_GET['sort_type']) && $_GET['sort_type'] === "host_name") {
-    $sort_type = "name";
-} elseif ($o === "hpb" || $o === "h_unhandled") {
-    $sort_type = $obj->checkArgument("sort_type", $_GET, "");
+if (isset($_GET['sort_type']) && $_GET['sort_type'] === 'host_name') {
+    $sort_type = 'name';
+} elseif ($o === 'hpb' || $o === 'h_unhandled') {
+    $sort_type = $obj->checkArgument('sort_type', $_GET, '');
 } else {
-    $sort_type = $obj->checkArgument("sort_type", $_GET, "host_name");
+    $sort_type = $obj->checkArgument('sort_type', $_GET, 'host_name');
 }
 // Store in session the last type of call
 $_SESSION['monitoring_host_status'] = $statusHost;
@@ -101,13 +86,11 @@ $obj->setInstanceHistory($instance);
 $obj->setHostGroupsHistory($hostgroups);
 $obj->setCriticality($criticalityId);
 
-//saving bound values
+// saving bound values
 $queryValues = [];
 
-/*
- * Get Host status
- */
-$rq1 = <<<SQL_WRAP
+// Get Host status
+$rq1 = <<<'SQL_WRAP'
         SELECT SQL_CALC_FOUND_ROWS DISTINCT
             1 AS REALTIME,
             h.state,
@@ -142,17 +125,17 @@ $rq1 = <<<SQL_WRAP
             ON h.instance_id = i.instance_id
     SQL_WRAP;
 
-if (!$obj->is_admin) {
+if (! $obj->is_admin) {
     $rq1 .= <<<SQL
 
-    INNER JOIN centreon_acl
-        ON centreon_acl.host_id = h.host_id
-        AND centreon_acl.group_id IN ({$obj->grouplistStr})
-    SQL;
+        INNER JOIN centreon_acl
+            ON centreon_acl.host_id = h.host_id
+            AND centreon_acl.group_id IN ({$obj->grouplistStr})
+        SQL;
 }
 
 if ($hostgroups) {
-    $rq1 .= <<<SQL
+    $rq1 .= <<<'SQL'
 
         INNER JOIN hosts_hostgroups hhg
             ON hhg.host_id = h.host_id
@@ -160,11 +143,11 @@ if ($hostgroups) {
             ON hg.hostgroup_id = :hostgroup
             AND hg.hostgroup_id = hhg.hostgroup_id
         SQL;
-    $queryValues['hostgroup'] = [\PDO::PARAM_INT => $hostgroups];
+    $queryValues['hostgroup'] = [PDO::PARAM_INT => $hostgroups];
 }
 
 if ($criticalityId) {
-    $rq1 .= <<<SQL
+    $rq1 .= <<<'SQL'
 
         INNER JOIN customvariables cvs
             ON cvs.host_id = h.host_id
@@ -172,7 +155,7 @@ if ($criticalityId) {
             AND cvs.service_id = 0
             AND cvs.value = :criticalityId
         SQL;
-    $queryValues['criticalityId'] = [\PDO::PARAM_STR => $criticalityId];
+    $queryValues['criticalityId'] = [PDO::PARAM_STR => $criticalityId];
 }
 
 $rq1 .= <<<SQL
@@ -185,76 +168,76 @@ $rq1 .= <<<SQL
         AND h.instance_id = i.instance_id
     SQL;
 
-if ($search != "") {
-    $rq1 .= " AND (h.name LIKE :search
+if ($search != '') {
+    $rq1 .= ' AND (h.name LIKE :search
         OR h.alias LIKE :search
-        OR h.address LIKE :search) ";
-    $queryValues['search'] = [\PDO::PARAM_STR => '%' . $search . '%'];
+        OR h.address LIKE :search) ';
+    $queryValues['search'] = [PDO::PARAM_STR => '%' . $search . '%'];
 }
 
-if ($statusHost == "h_unhandled") {
+if ($statusHost == 'h_unhandled') {
     $rq1 .= " AND h.state = 1
         AND h.state_type = '1'
         AND h.acknowledged = 0
         AND h.scheduled_downtime_depth = 0";
-} elseif ($statusHost == "hpb") {
-    $rq1 .= " AND (h.state != 0 AND h.state != 4) ";
+} elseif ($statusHost == 'hpb') {
+    $rq1 .= ' AND (h.state != 0 AND h.state != 4) ';
 }
 
-if ($statusFilter == "up") {
-    $rq1 .= " AND h.state = 0 ";
-} elseif ($statusFilter == "down") {
-    $rq1 .= " AND h.state = 1 ";
-} elseif ($statusFilter == "unreachable") {
-    $rq1 .= " AND h.state = 2 ";
-} elseif ($statusFilter == "pending") {
-    $rq1 .= " AND h.state = 4 ";
+if ($statusFilter == 'up') {
+    $rq1 .= ' AND h.state = 0 ';
+} elseif ($statusFilter == 'down') {
+    $rq1 .= ' AND h.state = 1 ';
+} elseif ($statusFilter == 'unreachable') {
+    $rq1 .= ' AND h.state = 2 ';
+} elseif ($statusFilter == 'pending') {
+    $rq1 .= ' AND h.state = 4 ';
 }
 
-if ($instance != -1 && !empty($instance)) {
-    $rq1 .= " AND h.instance_id = :instance ";
+if ($instance != -1 && ! empty($instance)) {
+    $rq1 .= ' AND h.instance_id = :instance ';
     $queryValues['instance'] = [
-        \PDO::PARAM_INT => $instance
+        PDO::PARAM_INT => $instance,
     ];
 }
-$rq1 .= " AND h.enabled = 1";
+$rq1 .= ' AND h.enabled = 1';
 switch ($sort_type) {
     case 'name':
-        $rq1 .= " ORDER BY h.name " . $order;
+        $rq1 .= ' ORDER BY h.name ' . $order;
         break;
     case 'current_state':
-        $rq1 .= " ORDER BY h.state " . $order . ",h.name";
+        $rq1 .= ' ORDER BY h.state ' . $order . ',h.name';
         break;
     case 'last_state_change':
-        $rq1 .= " ORDER BY h.last_state_change " . $order . ",h.name";
+        $rq1 .= ' ORDER BY h.last_state_change ' . $order . ',h.name';
         break;
     case 'last_hard_state_change':
-        $rq1 .= " ORDER BY h.last_hard_state_change " . $order . ",h.name";
+        $rq1 .= ' ORDER BY h.last_hard_state_change ' . $order . ',h.name';
         break;
     case 'last_check':
-        $rq1 .= " ORDER BY h.last_check " . $order . ",h.name";
+        $rq1 .= ' ORDER BY h.last_check ' . $order . ',h.name';
         break;
     case 'current_check_attempt':
-        $rq1 .= " ORDER BY h.check_attempt " . $order . ",h.name";
+        $rq1 .= ' ORDER BY h.check_attempt ' . $order . ',h.name';
         break;
     case 'ip':
         // Not SQL portable
-        $rq1 .= " ORDER BY IFNULL(inet_aton(h.address), h.address) " . $order . ",h.name";
+        $rq1 .= ' ORDER BY IFNULL(inet_aton(h.address), h.address) ' . $order . ',h.name';
         break;
     case 'plugin_output':
-        $rq1 .= " ORDER BY h.output " . $order . ",h.name";
+        $rq1 .= ' ORDER BY h.output ' . $order . ',h.name';
         break;
     case 'criticality_id':
     default:
-        $rq1 .= " ORDER BY isnull " . $order . ", criticality " . $order . ", h.name";
+        $rq1 .= ' ORDER BY isnull ' . $order . ', criticality ' . $order . ', h.name';
         break;
 }
-$rq1 .= " LIMIT :numLimit, :limit";
+$rq1 .= ' LIMIT :numLimit, :limit';
 $queryValues['numLimit'] = [
-    \PDO::PARAM_INT => (int)($num * $limit)
+    PDO::PARAM_INT => (int) ($num * $limit),
 ];
 $queryValues['limit'] = [
-    \PDO::PARAM_INT => (int)$limit
+    PDO::PARAM_INT => (int) $limit,
 ];
 
 $dbResult = $obj->DBC->prepare($rq1);
@@ -287,36 +270,36 @@ if ($obj->DBC->numberRows()) {
     }
 }
 
-$obj->XML->startElement("reponse");
-$obj->XML->startElement("i");
-$obj->XML->writeElement("numrows", $numRows);
-$obj->XML->writeElement("num", $num);
-$obj->XML->writeElement("limit", $limit);
-$obj->XML->writeElement("p", $p);
-$obj->XML->writeElement("o", $o);
-$obj->XML->writeElement("sort_type", $sort_type);
-$obj->XML->writeElement("hard_state_label", _("Hard State Duration"));
-$obj->XML->writeElement("parent_host_label", _("Top Priority Hosts"));
-$obj->XML->writeElement("regular_host_label", _("Secondary Priority Hosts"));
-$obj->XML->writeElement("http_action_link", _("HTTP Action Link"));
-$obj->XML->writeElement("notif_disabled", _("Notification is disabled"));
-$obj->XML->writeElement("use_criticality", $criticalityUsed);
+$obj->XML->startElement('reponse');
+$obj->XML->startElement('i');
+$obj->XML->writeElement('numrows', $numRows);
+$obj->XML->writeElement('num', $num);
+$obj->XML->writeElement('limit', $limit);
+$obj->XML->writeElement('p', $p);
+$obj->XML->writeElement('o', $o);
+$obj->XML->writeElement('sort_type', $sort_type);
+$obj->XML->writeElement('hard_state_label', _('Hard State Duration'));
+$obj->XML->writeElement('parent_host_label', _('Top Priority Hosts'));
+$obj->XML->writeElement('regular_host_label', _('Secondary Priority Hosts'));
+$obj->XML->writeElement('http_action_link', _('HTTP Action Link'));
+$obj->XML->writeElement('notif_disabled', _('Notification is disabled'));
+$obj->XML->writeElement('use_criticality', $criticalityUsed);
 $obj->XML->endElement();
 
 $delimInit = 0;
 while ($data = $dbResult->fetch()) {
-    if ($data["last_state_change"] > 0 && time() > $data["last_state_change"]) {
-        $duration = CentreonDuration::toString(time() - $data["last_state_change"]);
+    if ($data['last_state_change'] > 0 && time() > $data['last_state_change']) {
+        $duration = CentreonDuration::toString(time() - $data['last_state_change']);
     } else {
-        $duration = "N/A";
+        $duration = 'N/A';
     }
 
-    if (($data["last_hard_state_change"] > 0) && ($data["last_hard_state_change"] >= $data["last_state_change"])) {
-        $hard_duration = CentreonDuration::toString(time() - $data["last_hard_state_change"]);
-    } elseif ($data["last_hard_state_change"] > 0) {
-        $hard_duration = " N/A ";
+    if (($data['last_hard_state_change'] > 0) && ($data['last_hard_state_change'] >= $data['last_state_change'])) {
+        $hard_duration = CentreonDuration::toString(time() - $data['last_hard_state_change']);
+    } elseif ($data['last_hard_state_change'] > 0) {
+        $hard_duration = ' N/A ';
     } else {
-        $hard_duration = "N/A";
+        $hard_duration = 'N/A';
     }
 
     if ($data['is_parent']) {
@@ -324,101 +307,101 @@ while ($data = $dbResult->fetch()) {
     }
 
     $class = null;
-    if ($data["scheduled_downtime_depth"] > 0) {
-        $class = "line_downtime";
-    } elseif ($data["state"] == 1) {
-        $class = $data["acknowledged"] == 1 ? "line_ack" : "list_down";
-    } elseif ($data["acknowledged"] == 1) {
-        $class = "line_ack";
+    if ($data['scheduled_downtime_depth'] > 0) {
+        $class = 'line_downtime';
+    } elseif ($data['state'] == 1) {
+        $class = $data['acknowledged'] == 1 ? 'line_ack' : 'list_down';
+    } elseif ($data['acknowledged'] == 1) {
+        $class = 'line_ack';
     }
 
-    $obj->XML->startElement("l");
+    $obj->XML->startElement('l');
     $trClass = $obj->getNextLineClass();
     if (isset($class)) {
         $trClass = $class;
     }
-    $obj->XML->writeAttribute("class", $trClass);
-    $obj->XML->writeElement("o", $ct++);
-    $obj->XML->writeElement("hc", $obj->colorHost[$data["state"]]);
-    $obj->XML->writeElement("f", $flag);
-    $obj->XML->writeElement("hid", $data["host_id"]);
-    $obj->XML->writeElement("hn", CentreonUtils::escapeSecure($data["name"]), false);
-    $obj->XML->writeElement("hnl", CentreonUtils::escapeSecure(urlencode($data["name"])));
-    $obj->XML->writeElement("a", ($data["address"] ? CentreonUtils::escapeSecure($data["address"]) : "N/A"));
-    $obj->XML->writeElement("ou", ($data["output"] ? CentreonUtils::escapeSecure($data["output"]) : "N/A"));
+    $obj->XML->writeAttribute('class', $trClass);
+    $obj->XML->writeElement('o', $ct++);
+    $obj->XML->writeElement('hc', $obj->colorHost[$data['state']]);
+    $obj->XML->writeElement('f', $flag);
+    $obj->XML->writeElement('hid', $data['host_id']);
+    $obj->XML->writeElement('hn', CentreonUtils::escapeSecure($data['name']), false);
+    $obj->XML->writeElement('hnl', CentreonUtils::escapeSecure(urlencode($data['name'])));
+    $obj->XML->writeElement('a', ($data['address'] ? CentreonUtils::escapeSecure($data['address']) : 'N/A'));
+    $obj->XML->writeElement('ou', ($data['output'] ? CentreonUtils::escapeSecure($data['output']) : 'N/A'));
     $obj->XML->writeElement(
-        "lc",
-        ($data["last_check"] != 0 ? CentreonDuration::toString(time() - $data["last_check"]) : "N/A")
+        'lc',
+        ($data['last_check'] != 0 ? CentreonDuration::toString(time() - $data['last_check']) : 'N/A')
     );
-    $obj->XML->writeElement("cs", _($obj->statusHost[$data["state"]]), false);
-    $obj->XML->writeElement("pha", $data["acknowledged"]);
-    $obj->XML->writeElement("pce", $data["passive_checks"]);
-    $obj->XML->writeElement("ace", $data["active_checks"]);
-    $obj->XML->writeElement("lsc", ($duration ?: "N/A"));
-    $obj->XML->writeElement("lhs", ($hard_duration ?: "N/A"));
-    $obj->XML->writeElement("ha", $data["acknowledged"]);
-    $obj->XML->writeElement("hdtm", $data["scheduled_downtime_depth"]);
+    $obj->XML->writeElement('cs', _($obj->statusHost[$data['state']]), false);
+    $obj->XML->writeElement('pha', $data['acknowledged']);
+    $obj->XML->writeElement('pce', $data['passive_checks']);
+    $obj->XML->writeElement('ace', $data['active_checks']);
+    $obj->XML->writeElement('lsc', ($duration ?: 'N/A'));
+    $obj->XML->writeElement('lhs', ($hard_duration ?: 'N/A'));
+    $obj->XML->writeElement('ha', $data['acknowledged']);
+    $obj->XML->writeElement('hdtm', $data['scheduled_downtime_depth']);
     $obj->XML->writeElement(
-        "hdtmXml",
-        "./include/monitoring/downtime/xml/broker/makeXMLForDowntime.php?hid=" . $data['host_id']
+        'hdtmXml',
+        './include/monitoring/downtime/xml/broker/makeXMLForDowntime.php?hid=' . $data['host_id']
     );
-    $obj->XML->writeElement("hdtmXsl", "./include/monitoring/downtime/xsl/popupForDowntime.xsl");
+    $obj->XML->writeElement('hdtmXsl', './include/monitoring/downtime/xsl/popupForDowntime.xsl');
     $obj->XML->writeElement(
-        "hackXml",
-        "./include/monitoring/acknowlegement/xml/broker/makeXMLForAck.php?hid=" . $data['host_id']
+        'hackXml',
+        './include/monitoring/acknowlegement/xml/broker/makeXMLForAck.php?hid=' . $data['host_id']
     );
-    $obj->XML->writeElement("hackXsl", "./include/monitoring/acknowlegement/xsl/popupForAck.xsl");
-    $obj->XML->writeElement("hae", $data["active_checks"]);
-    $obj->XML->writeElement("hpe", $data["passive_checks"]);
-    $obj->XML->writeElement("ne", $data["notify"]);
+    $obj->XML->writeElement('hackXsl', './include/monitoring/acknowlegement/xsl/popupForAck.xsl');
+    $obj->XML->writeElement('hae', $data['active_checks']);
+    $obj->XML->writeElement('hpe', $data['passive_checks']);
+    $obj->XML->writeElement('ne', $data['notify']);
     $obj->XML->writeElement(
-        "tr",
-        $data["check_attempt"] . "/" . $data["max_check_attempts"] . " (" . $obj->stateType[$data["state_type"]] . ")"
+        'tr',
+        $data['check_attempt'] . '/' . $data['max_check_attempts'] . ' (' . $obj->stateType[$data['state_type']] . ')'
     );
 
     if (isset($data['criticality']) && $data['criticality'] != '' && isset($critCache[$data['host_id']])) {
-        $obj->XML->writeElement("hci", 1); // has criticality
+        $obj->XML->writeElement('hci', 1); // has criticality
         $critData = $criticality->getData($critCache[$data['host_id']]);
-        $obj->XML->writeElement("ci", $media->getFilename($critData['icon_id']));
-        $obj->XML->writeElement("cih", CentreonUtils::escapeSecure($critData['name']));
+        $obj->XML->writeElement('ci', $media->getFilename($critData['icon_id']));
+        $obj->XML->writeElement('cih', CentreonUtils::escapeSecure($critData['name']));
     } else {
-        $obj->XML->writeElement("hci", 0); // has no criticality
+        $obj->XML->writeElement('hci', 0); // has no criticality
     }
-    $obj->XML->writeElement("ico", $data["icon_image"]);
-    $obj->XML->writeElement("isp", $data["is_parent"] ? 1 : 0);
-    $obj->XML->writeElement("isf", $data["flapping"]);
+    $obj->XML->writeElement('ico', $data['icon_image']);
+    $obj->XML->writeElement('isp', $data['is_parent'] ? 1 : 0);
+    $obj->XML->writeElement('isf', $data['flapping']);
     $parenth = 0;
     if ($ct === 1 && $data['is_parent']) {
         $parenth = 1;
     }
-    if (!$sort_type && $delimInit && !$data['is_parent']) {
+    if (! $sort_type && $delimInit && ! $data['is_parent']) {
         $delim = 1;
         $delimInit = 0;
     } else {
         $delim = 0;
     }
-    $obj->XML->writeElement("parenth", $parenth);
-    $obj->XML->writeElement("delim", $delim);
+    $obj->XML->writeElement('parenth', $parenth);
+    $obj->XML->writeElement('delim', $delim);
 
-    if ($data["notes"] != "") {
+    if ($data['notes'] != '') {
         $obj->XML->writeElement(
-            "hnn",
+            'hnn',
             CentreonUtils::escapeSecure(
                 $hostObj->replaceMacroInString(
-                    $data["host_id"],
+                    $data['host_id'],
                     str_replace(
                         'HOSTNAME$',
-                        $data["name"],
-                        str_replace('$HOSTADDRESS$', $data["address"], $data["notes"])
+                        $data['name'],
+                        str_replace('$HOSTADDRESS$', $data['address'], $data['notes'])
                     )
                 )
             )
         );
     } else {
-        $obj->XML->writeElement("hnn", "none");
+        $obj->XML->writeElement('hnn', 'none');
     }
 
-    if ($data["notes_url"] != "") {
+    if ($data['notes_url'] != '') {
         $str = str_replace('$HOSTNAME$', $data['name'], $data['notes_url']);
         $str = str_replace('$HOSTALIAS$', $data['alias'], $str);
         $str = str_replace('$HOSTADDRESS$', $data['address'], $str);
@@ -434,14 +417,14 @@ while ($data = $dbResult->fetch()) {
             $str
         );
         $obj->XML->writeElement(
-            "hnu",
-            CentreonUtils::escapeSecure($hostObj->replaceMacroInString($data["host_id"], $str))
+            'hnu',
+            CentreonUtils::escapeSecure($hostObj->replaceMacroInString($data['host_id'], $str))
         );
     } else {
-        $obj->XML->writeElement("hnu", "none");
+        $obj->XML->writeElement('hnu', 'none');
     }
 
-    if ($data["action_url"] != "") {
+    if ($data['action_url'] != '') {
         $str = $data['action_url'];
         $str = str_replace('$HOSTNAME$', $data['name'], $str);
         $str = str_replace('$HOSTALIAS$', $data['alias'], $str);
@@ -458,19 +441,19 @@ while ($data = $dbResult->fetch()) {
             $str
         );
         $obj->XML->writeElement(
-            "hau",
-            CentreonUtils::escapeSecure($hostObj->replaceMacroInString($data["host_id"], $str))
+            'hau',
+            CentreonUtils::escapeSecure($hostObj->replaceMacroInString($data['host_id'], $str))
         );
     } else {
-        $obj->XML->writeElement("hau", "none");
+        $obj->XML->writeElement('hau', 'none');
     }
-    $obj->XML->writeElement("chartIcon", returnSvg("www/img/icons/chart.svg", "var(--icons-fill-color)", 18, 18));
+    $obj->XML->writeElement('chartIcon', returnSvg('www/img/icons/chart.svg', 'var(--icons-fill-color)', 18, 18));
     $obj->XML->endElement();
 }
 $dbResult->closeCursor();
 
-if (!$ct) {
-    $obj->XML->writeElement("infos", "none");
+if (! $ct) {
+    $obj->XML->writeElement('infos', 'none');
 }
 $obj->XML->endElement();
 

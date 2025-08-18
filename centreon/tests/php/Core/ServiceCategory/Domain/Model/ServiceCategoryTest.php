@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -54,7 +54,7 @@ it('should throw an exception when service category name is empty', function ():
     new ServiceCategory(1, '', $this->categoryAlias);
 })->throws(
     \Assert\InvalidArgumentException::class,
-        AssertionException::minLength('', 0, ServiceCategory::MIN_NAME_LENGTH, 'ServiceCategory::name')
+    AssertionException::minLength('', 0, ServiceCategory::MIN_NAME_LENGTH, 'ServiceCategory::name')
         ->getMessage()
 );
 
@@ -74,7 +74,7 @@ it('should throw an exception when service category alias is empty', function ()
     new ServiceCategory(1, $this->categoryName, '');
 })->throws(
     \Assert\InvalidArgumentException::class,
-        AssertionException::minLength('', 0, ServiceCategory::MIN_ALIAS_LENGTH, 'ServiceCategory::alias')
+    AssertionException::minLength('', 0, ServiceCategory::MIN_ALIAS_LENGTH, 'ServiceCategory::alias')
         ->getMessage()
 );
 
