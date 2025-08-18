@@ -422,17 +422,18 @@ class SAML implements ProviderAuthenticationInterface
     }
 
     /**
+     * @param ?array $logoutOptions
      * @throws Error
      */
-    public function logout(): void
+    public function logout($logoutOptions = null): void
     {
         $returnTo = '/login';
 
-        $samlNameId = $_SESSION['saml']['samlNameId'] ?? null;
-        $samlSessionIndex = $_SESSION['saml']['samlSessionIndex'] ?? null;
-        $samlNameIdFormat = $_SESSION['saml']['samlNameIdFormat'] ?? null;
-        $samlNameIdNameQualifier = $_SESSION['saml']['samlNameIdNameQualifier'] ?? null;
-        $samlNameIdSPNameQualifier = $_SESSION['saml']['samlNameIdSPNameQualifier'] ?? null;
+        $samlNameId = $logoutOptions['session']['samlNameId'] ?? null;
+        $samlSessionIndex = $logoutOptions['session']['samlSessionIndex'] ?? null;
+        $samlNameIdFormat = $logoutOptions['session']['samlNameIdFormat'] ?? null;
+        $samlNameIdNameQualifier = $logoutOptions['session']['samlNameIdNameQualifier'] ?? null;
+        $samlNameIdSPNameQualifier = $logoutOptions['session']['samlNameIdSPNameQualifier'] ?? null;
 
         $this->loginLogger->info(Provider::SAML, 'logout from SAML and redirect');
 

@@ -55,6 +55,11 @@ class WriteSessionRepository implements WriteSessionRepositoryInterface
     {
         $this->writeSessionTokenRepository->deleteSession($this->requestStack->getSession()->getId());
         $centreon = $this->requestStack->getSession()->get('centreon');
+
+        if ($centreon && $centreon->user->authType === Provider::SAML) {
+            $logoutOptions = ['session' => $_SESSION['saml']];
+        }
+
         $this->requestStack->getSession()->invalidate();
 
         if ($centreon && $centreon->user->authType === Provider::SAML) {
@@ -68,7 +73,7 @@ class WriteSessionRepository implements WriteSessionRepositoryInterface
                 && $customConfiguration->getLogoutFrom() === CustomConfiguration::LOGOUT_FROM_CENTREON_AND_IDP
             ) {
                 $this->info('Logout from Centreon and SAML IDP...');
-                $provider->logout(); // The redirection is done here by the IDP
+                $provider->logout($logoutOptions); // The redirection is done here by the IDP
             }
         }
     }
