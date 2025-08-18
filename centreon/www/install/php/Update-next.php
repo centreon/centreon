@@ -30,12 +30,24 @@ $errorMessage = '';
 
 // TODO add your functions here
 
+$alterContactPagerSize = function () use ($pearDB, &$errorMessage): void {
+    $errorMessage = 'Unable to alter contact_pager column size in contact table';
+    if ($pearDB->isColumnExist('contact', 'contact_pager')) {
+        $pearDB->executeStatement(
+            <<<'SQL'
+                ALTER TABLE `contact`
+                    MODIFY COLUMN `contact_pager` VARCHAR(300)
+                SQL
+        );
+    }
+};
+
 try {
     // DDL statements for real time database
     // TODO add your function calls to update the real time database structure here
 
     // DDL statements for configuration database
-    // TODO add your function calls to update the configuration database structure here
+    $alterContactPagerSize();
 
     // Transactional queries for configuration database
     if (! $pearDB->inTransaction()) {
