@@ -319,7 +319,10 @@ abstract class CentreonObject
             $uniqueLabel = $this->object->getUniqueLabelField();
             $objectId = $params['objectId'];
             unset($params['objectId']);
-            unset($params['is_extended']);
+
+            if (array_key_exists('is_extended', $params)) {
+                unset($params['is_extended']);
+            }
 
             if (
                 isset($params[$uniqueLabel])
