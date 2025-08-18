@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2020 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,6 +18,7 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Centreon\Infrastructure\Gorgone;
@@ -36,14 +37,12 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 class ResponseRepositoryAPI implements ResponseRepositoryInterface
 {
     /**
-     * @var HttpClientInterface Http client library that will be used to
-     * communicate with the Gorgone server through its API.
+     * @var HttpClientInterface http client library that will be used to
+     *                          communicate with the Gorgone server through its API
      */
     private $client;
 
-    /**
-     * @var ConfigurationLoaderApiInterface
-     */
+    /** @var ConfigurationLoaderApiInterface */
     private $configuration;
 
     /**
@@ -69,7 +68,7 @@ class ResponseRepositoryAPI implements ResponseRepositoryInterface
         if ($this->configuration->getApiUsername() !== null) {
             $options = array_merge(
                 $options,
-                [ 'auth_basic' => $this->configuration->getApiUsername() . ':'
+                ['auth_basic' => $this->configuration->getApiUsername() . ':'
                     . $this->configuration->getApiPassword()]
             );
         }
@@ -86,6 +85,7 @@ class ResponseRepositoryAPI implements ResponseRepositoryInterface
             if ($response->getStatusCode() !== 200) {
                 throw new \Exception('Request error', $response->getStatusCode());
             }
+
             return $response->getContent();
         } catch (\Throwable $ex) {
             throw new \Exception($ex->getMessage(), (int) $ex->getCode(), $ex);

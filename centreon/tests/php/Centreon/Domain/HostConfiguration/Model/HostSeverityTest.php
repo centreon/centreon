@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2021 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,6 +18,7 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Tests\Centreon\Domain\HostConfiguration\Model;
@@ -34,9 +35,7 @@ use PHPUnit\Framework\TestCase;
  */
 class HostSeverityTest extends TestCase
 {
-    /**
-     * @var Image Define the image that should be associated with this severity.
-     */
+    /** @var Image define the image that should be associated with this severity */
     protected $icon;
 
     protected function setUp(): void
@@ -197,15 +196,16 @@ class HostSeverityTest extends TestCase
     }
 
     /**
-     * @return HostSeverity
      * @throws \Assert\AssertionFailedException
+     * @return HostSeverity
      */
     public static function createEntity(): HostSeverity
     {
         $icon = (new Image())->setId(1)->setName('my icon')->setPath('/');
+
         return (new HostSeverity('Severity', 'Alias severity', 42, $icon))
             ->setId(10)
             ->setActivated(true)
-            ->setComments("blablabla");
+            ->setComments('blablabla');
     }
 }

@@ -10,6 +10,8 @@ import {
 } from '../common/timeSeries';
 import { getColorFromDataAndTresholds } from '../common/utils';
 
+import { type ReactElement } from 'react';
+import useResizeObserver from 'use-resize-observer';
 import { useTextStyles } from './Text.styles';
 
 export interface Props {
@@ -22,6 +24,7 @@ export interface Props {
   };
   thresholds: Thresholds;
   prefThresholds?: number;
+  minThresholds?: string;
 }
 
 export const Text = ({
@@ -30,10 +33,12 @@ export const Text = ({
   displayAsRaw,
   labels,
   baseColor,
-  prefThresholds = 14
-}: Props): JSX.Element | null => {
+  prefThresholds = 14,
+  minThresholds
+}: Props): ReactElement | null => {
   const theme = useTheme();
   const { classes, cx } = useTextStyles();
+  const { ref, width = 0 } = useResizeObserver();
 
   if (isNil(data)) {
     return null;
@@ -64,8 +69,12 @@ export const Text = ({
     })
   );
 
+  const canDisplayThresholdLabel = width > 150;
+  const warningLabel = canDisplayThresholdLabel ? `${labels.warning}: ` : '';
+  const criticalLabel = canDisplayThresholdLabel ? `${labels.critical}: ` : '';
+
   return (
-    <div className={classes.graphText}>
+    <div className={classes.graphText} ref={ref}>
       <FluidTypography
         max="40px"
         pref={14}
@@ -82,18 +91,20 @@ export const Text = ({
       {thresholds.enabled && (
         <div className={classes.thresholds}>
           <FluidTypography
-            containerClassName={cx(classes.thresholdLeft, classes.warning)}
+            containerClassName={cx(classes.thresholdLabel, classes.warning)}
             max="30px"
             pref={prefThresholds}
-            text={`${labels.warning}: ${warningThresholdLabels.join(' - ')}`}
+            text={`${warningLabel}${warningThresholdLabels.join(' - ')}`}
             variant="h5"
+            min={minThresholds}
           />
           <FluidTypography
-            containerClassName={cx(classes.thresholdRight, classes.critical)}
+            containerClassName={cx(classes.thresholdLabel, classes.critical)}
             max="30px"
             pref={prefThresholds}
-            text={`${labels.critical}: ${criticalThresholdLabels.join(' - ')}`}
+            text={`${criticalLabel}${criticalThresholdLabels.join(' - ')}`}
             variant="h5"
+            min={minThresholds}
           />
         </div>
       )}

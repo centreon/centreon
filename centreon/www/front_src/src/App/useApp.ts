@@ -6,11 +6,12 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate, useSearchParams } from 'react-router';
 
 import type { Actions } from '@centreon/ui';
-import { getData, postData, useRequest, useSnackbar } from '@centreon/ui';
+import { getData, useRequest, useSnackbar } from '@centreon/ui';
 import {
   acknowledgementAtom,
   aclAtom,
   downtimeAtom,
+  isResourceStatusFullSearchEnabledAtom,
   platformNameAtom,
   platformVersionsAtom,
   refreshIntervalAtom,
@@ -88,9 +89,11 @@ const useApp = (): UseAppState => {
   const setResourcesAcl = useSetAtom(aclAtom);
   const setAcknowledgement = useSetAtom(acknowledgementAtom);
   const setAreUserParametersLoaded = useSetAtom(areUserParametersLoadedAtom);
-
   const setPlaformName = useSetAtom(platformNameAtom);
   const setUserPermissions = useSetAtom(userPermissionsAtom);
+  const setIsResourceStatusFullSearchEnabled = useSetAtom(
+    isResourceStatusFullSearchEnabledAtom
+  );
 
   const { getNavigation } = useNavigation();
 
@@ -145,6 +148,9 @@ const useApp = (): UseAppState => {
           with_services:
             retrievedParameters.monitoring_default_acknowledgement_with_services
         });
+        setIsResourceStatusFullSearchEnabled(
+          retrievedParameters.is_resource_status_full_search_enabled
+        );
       })
       .catch((error) => {
         if (pathEq(401, ['response', 'status'])(error)) {

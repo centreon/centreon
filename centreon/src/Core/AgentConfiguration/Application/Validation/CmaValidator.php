@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,8 +43,7 @@ class CmaValidator implements TypeValidatorInterface
         private readonly ReadHostRepositoryInterface $readHostRepository,
         private readonly ReadTokenRepositoryInterface $tokenRepository,
         private readonly ContactInterface $user,
-    )
-    {
+    ) {
     }
 
     /**
@@ -81,14 +80,15 @@ class CmaValidator implements TypeValidatorInterface
                 $this->validateTokens($value);
             }
 
-            if ($key === 'hosts') {
+            if ($key === 'hosts' && $configuration['is_reverse'] === true) {
                 foreach ($value as $host) {
                     /** @var array{
                      *		id: int,
                      *		address: string,
                      *		port: int,
                      *		poller_ca_certificate: ?string,
-                     *		poller_ca_name: ?string
+                     *		poller_ca_name: ?string,
+                     *		token: ?array{name:string,creator_id:int}
                      *	} $host
                      */
                     if ($host['poller_ca_certificate'] !== null) {
@@ -97,15 +97,27 @@ class CmaValidator implements TypeValidatorInterface
                     if (! $this->readHostRepository->exists(hostId: $host['id'])) {
                         throw AgentConfigurationException::invalidHostId($host['id']);
                     }
+
+                    if (
+                        $request->connectionMode !== ConnectionModeEnum::NO_TLS
+                        && $host['token'] === null
+                    ) {
+                        throw AgentConfigurationException::tokensAreMandatory();
+                    }
+
+                    if ($host['token'] !== null) {
+                        $this->validateTokens([$host['token']]);
+                    }
                 }
             }
         }
 
         if (
             $request->connectionMode !== ConnectionModeEnum::NO_TLS
-            && $value === []
+            && $configuration['is_reverse'] === false
+            && $configuration['tokens'] === []
         ) {
-            AgentConfigurationException::tokensAreMandatory();
+            throw AgentConfigurationException::tokensAreMandatory();
         }
     }
 
@@ -122,7 +134,7 @@ class CmaValidator implements TypeValidatorInterface
             ? '/\.\/|\.\.\/|\/\/|^(?!.*\.(cer|crt)$).+$/'
             : '/\.\/|\.\.\/|\/\/|^(?!.*\.key$).+$/';
 
-        if ($value === null || preg_match($pattern, $value)) {
+        if ($value !== null && preg_match($pattern, $value)) {
             throw AgentConfigurationException::invalidFilename($name, (string) $value);
         }
     }
@@ -141,7 +153,7 @@ class CmaValidator implements TypeValidatorInterface
             $tokenObj = $this->tokenRepository->findByNameAndUserId($token['name'], $token['creator_id']);
             if (
                 $tokenObj === null
-                || ! $tokenObj instanceOf JwtToken
+                || ! $tokenObj instanceof JwtToken
                 || $tokenObj->isRevoked()
                 || ($tokenObj->getExpirationDate() !== null && $tokenObj->getExpirationDate() < new \DateTimeImmutable())
             ) {

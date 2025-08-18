@@ -463,7 +463,7 @@ CREATE TABLE `cfg_centreonbroker` (
   `stats_activate` enum('0','1') DEFAULT '1',
   `daemon` TINYINT(1),
   `pool_size` int(11) DEFAULT NULL,
-  `bbdo_version` varchar(50) DEFAULT '3.0.1',
+  `bbdo_version` varchar(50) DEFAULT '3.1.0',
   PRIMARY KEY (`config_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -697,7 +697,7 @@ CREATE TABLE `connector` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `contact` (
+CREATE TABLE IF NOT EXISTS `contact` (
   `contact_id` int(11) NOT NULL AUTO_INCREMENT,
   `timeperiod_tp_id` int(11) DEFAULT NULL,
   `timeperiod_tp_id2` int(11) DEFAULT NULL,
@@ -707,7 +707,7 @@ CREATE TABLE `contact` (
   `contact_host_notification_options` varchar(200) DEFAULT NULL,
   `contact_service_notification_options` varchar(200) DEFAULT NULL,
   `contact_email` varchar(200) DEFAULT NULL,
-  `contact_pager` varchar(200) DEFAULT NULL,
+  `contact_pager` varchar(300) DEFAULT NULL,
   `contact_address1` varchar(200) DEFAULT NULL,
   `contact_address2` varchar(200) DEFAULT NULL,
   `contact_address3` varchar(200) DEFAULT NULL,
@@ -734,12 +734,14 @@ CREATE TABLE `contact` (
   `contact_autologin_key` varchar(255) DEFAULT NULL,
   `default_page` int(11) DEFAULT NULL,
   `show_deprecated_pages` enum('0','1') DEFAULT '0',
+  `show_deprecated_custom_views` enum('0','1') DEFAULT '0',
   `contact_charset` varchar(255) DEFAULT NULL,
   `contact_register` tinyint(6) NOT NULL DEFAULT '1',
   `contact_ldap_last_sync` int(11) NOT NULL DEFAULT 0,
   `contact_ldap_required_sync` enum('0','1') NOT NULL DEFAULT '0',
   `login_attempts` INT(11) UNSIGNED DEFAULT NULL,
   `blocking_time` BIGINT(20) UNSIGNED DEFAULT NULL,
+  `is_service_account` boolean DEFAULT 0 COMMENT 'Indicates if the contact is a service account (ex: centreon-gorgone)',
   PRIMARY KEY (`contact_id`),
   KEY `name_index` (`contact_name`),
   KEY `alias_index` (`contact_alias`),
@@ -1626,14 +1628,14 @@ CREATE TABLE `nagios_server` (
   `ns_ip_address` varchar(255) DEFAULT NULL,
   `ns_activate` enum('1','0') DEFAULT '1',
   `ns_status` enum('0','1','2','3','4') DEFAULT '0',
-  `engine_start_command` varchar(255) DEFAULT 'service centengine start',
-  `engine_stop_command` varchar(255) DEFAULT 'service centengine stop',
-  `engine_restart_command` varchar(255) DEFAULT 'service centengine restart',
-  `engine_reload_command` varchar(255) DEFAULT 'service centengine reload',
+  `engine_start_command` varchar(255) DEFAULT 'systemctl start centengine',
+  `engine_stop_command` varchar(255) DEFAULT 'systemctl stop centengine',
+  `engine_restart_command` varchar(255) DEFAULT 'systemctl restart centengine',
+  `engine_reload_command` varchar(255) DEFAULT 'systemctl reload centengine',
   `nagios_bin` varchar(255) DEFAULT NULL,
   `nagiostats_bin` varchar(255) DEFAULT NULL,
   `nagios_perfdata` varchar(255) DEFAULT NULL,
-  `broker_reload_command` varchar(255) DEFAULT 'service cbd reload',
+  `broker_reload_command` varchar(255) DEFAULT 'systemctl reload cbd',
   `centreonbroker_cfg_path` varchar(255) DEFAULT NULL,
   `centreonbroker_module_path` varchar(255) DEFAULT NULL,
   `centreonconnector_path` varchar(255) DEFAULT NULL,
@@ -1944,7 +1946,7 @@ CREATE TABLE `topology` (
   `readonly` enum('0','1') NOT NULL DEFAULT '1',
   `is_react` enum('0','1') NOT NULL DEFAULT '0',
   PRIMARY KEY (`topology_id`),
-  KEY `topology_page` (`topology_page`),
+  UNIQUE KEY `topology_page` (`topology_page`),
   KEY `topology_parent` (`topology_parent`),
   KEY `topology_order` (`topology_order`),
   KEY `topology_group` (`topology_group`)
@@ -1994,7 +1996,7 @@ CREATE TABLE `traps` (
   `traps_customcode` text,
   `traps_comments` text,
   UNIQUE KEY `traps_name` (`traps_name`,`traps_oid`),
-  KEY `traps_id` (`traps_id`),
+  UNIQUE KEY `traps_id` (`traps_id`),
   KEY `traps_ibfk_1` (`manufacturer_id`),
   KEY `traps_ibfk_2` (`severity_id`),
   CONSTRAINT `traps_ibfk_1` FOREIGN KEY (`manufacturer_id`) REFERENCES `traps_vendor` (`id`) ON DELETE CASCADE,

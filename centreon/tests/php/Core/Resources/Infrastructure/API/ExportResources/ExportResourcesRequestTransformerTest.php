@@ -7,7 +7,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -29,14 +29,14 @@ use Core\Resources\Infrastructure\API\ExportResources\ExportResourcesInput;
 use Core\Resources\Infrastructure\API\ExportResources\ExportResourcesRequestTransformer;
 use Mockery;
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->filter = Mockery::mock(ResourceFilter::class);
     $this->contact = new Contact();
     $this->contact->setId(1);
     $this->contact->setAdmin(true);
 });
 
-it('test transform inputs to request to export resources with pagination', function () {
+it('test transform inputs to request to export resources with pagination', function (): void {
     $input = new ExportResourcesInput(
         'csv',
         '0',
@@ -57,7 +57,7 @@ it('test transform inputs to request to export resources with pagination', funct
         ->and($request->isAdmin)->toBeTrue();
 });
 
-it('test transform inputs to request to export resources without pagination', function () {
+it('test transform inputs to request to export resources without pagination', function (): void {
     $input = new ExportResourcesInput(
         'csv',
         '1',

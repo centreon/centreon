@@ -1,54 +1,39 @@
 <?php
 
-/**
- * Copyright 2005-2020 Centreon
- * Centreon is developped by : Julien Mathis and Romain Le Merlus under
- * GPL Licence 2.0.
+/*
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation ; either version 2 of the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <http://www.gnu.org/licenses>.
- *
- * Linking this program statically or dynamically with other modules is making a
- * combined work based on this program. Thus, the terms and conditions of the GNU
- * General Public License cover the whole combination.
- *
- * As a special exception, the copyright holders of this program give Centreon
- * permission to link this program with independent modules to produce an executable,
- * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of Centreon choice, provided that
- * Centreon also meet, for each linked independent module, the terms  and conditions
- * of the license of that module. An independent module is a module which is not
- * derived from this program. If you modify this program, you may extend this
- * exception to your version of the program, but you are not obliged to do so. If you
- * do not wish to do so, delete this exception statement from your version.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * For more information : contact@centreon.com
  *
  */
 
 require_once __DIR__ . '/../../../../bootstrap.php';
-require_once realpath(__DIR__ . "/../../../../config/centreon.config.php");
-require_once _CENTREON_PATH_ . "www/class/centreon.class.php";
-require_once _CENTREON_PATH_ . "www/class/centreonDB.class.php";
-require_once _CENTREON_PATH_ . "www/class/centreonCustomView.class.php";
-require_once _CENTREON_PATH_ . "www/class/centreonWidget.class.php";
-require_once _CENTREON_PATH_ . "www/class/centreonSession.class.php";
-require_once _CENTREON_PATH_ . "www/class/centreonUser.class.php";
-require_once _CENTREON_PATH_ . "www/class/centreonXML.class.php";
-require_once _CENTREON_PATH_ . "www/class/centreonContactgroup.class.php";
+require_once realpath(__DIR__ . '/../../../../config/centreon.config.php');
+require_once _CENTREON_PATH_ . 'www/class/centreon.class.php';
+require_once _CENTREON_PATH_ . 'www/class/centreonDB.class.php';
+require_once _CENTREON_PATH_ . 'www/class/centreonCustomView.class.php';
+require_once _CENTREON_PATH_ . 'www/class/centreonWidget.class.php';
+require_once _CENTREON_PATH_ . 'www/class/centreonSession.class.php';
+require_once _CENTREON_PATH_ . 'www/class/centreonUser.class.php';
+require_once _CENTREON_PATH_ . 'www/class/centreonXML.class.php';
+require_once _CENTREON_PATH_ . 'www/class/centreonContactgroup.class.php';
 
 session_start();
 session_write_close();
 
-if (empty($_POST['action']) || !isset($_SESSION['centreon'])) {
+if (empty($_POST['action']) || ! isset($_SESSION['centreon'])) {
     exit();
 }
 
@@ -65,70 +50,70 @@ $postFilter = [
     'widget_id' => [
         'filter' => FILTER_VALIDATE_INT,
         'options' => [
-            'default' => false
-        ]
+            'default' => false,
+        ],
     ],
     'custom_view_id' => [
         'filter' => FILTER_VALIDATE_INT,
         'options' => [
-            'default' => false
-        ]
+            'default' => false,
+        ],
     ],
     'timer' => [
         'filter' => FILTER_VALIDATE_INT,
         'options' => [
-            'default' => false
-        ]
+            'default' => false,
+        ],
     ],
     'public' => [
         'filter' => FILTER_VALIDATE_INT,
         'options' => [
-            'default' => false
-        ]
+            'default' => false,
+        ],
     ],
     'user_id' => [
         'filter' => FILTER_VALIDATE_INT,
         'options' => [
-            'default' => false
-        ]
+            'default' => false,
+        ],
     ],
     'viewLoad' => [
         'filter' => FILTER_VALIDATE_INT,
         'options' => [
-            'default' => false
-        ]
+            'default' => false,
+        ],
     ],
     'layout' => [
         'options' => [
-            'default' => ''
-        ]
+            'default' => '',
+        ],
     ],
     'widget_model_id' => [
         'filter' => FILTER_VALIDATE_INT,
         'options' => [
-            'default' => false
-        ]
+            'default' => false,
+        ],
     ],
     'widget_model_id' => [
         'filter' => FILTER_VALIDATE_INT,
         'options' => [
-            'default' => false
-        ]
+            'default' => false,
+        ],
     ],
 ];
 
 $postInputs = filter_input_array(INPUT_POST, $postFilter);
 
 $postInputs['name'] = isset($_POST['name'])
-    ? \HtmlAnalyzer::sanitizeAndRemoveTags($_POST['name'])
+    ? HtmlAnalyzer::sanitizeAndRemoveTags($_POST['name'])
     : null;
 
 $postInputs['widget_title'] = isset($_POST['widget_title'])
-    ? \HtmlAnalyzer::sanitizeAndRemoveTags($_POST['widget_title'])
+    ? HtmlAnalyzer::sanitizeAndRemoveTags($_POST['widget_title'])
     : null;
 
 $lockedUsers = [];
-if (!empty($_POST['lockedUsers'])) {
+if (! empty($_POST['lockedUsers'])) {
     foreach ($_POST['lockedUsers'] as $lockedUserId) {
         if (filter_var($lockedUserId, FILTER_VALIDATE_INT) !== false) {
             $lockedUsers[] = (int) $lockedUserId;
@@ -136,7 +121,7 @@ if (!empty($_POST['lockedUsers'])) {
     }
 }
 $unlockedUsers = [];
-if (!empty($_POST['unlockedUsers'])) {
+if (! empty($_POST['unlockedUsers'])) {
     foreach ($_POST['unlockedUsers'] as $unlockedUserId) {
         if (filter_var($unlockedUserId, FILTER_VALIDATE_INT) !== false) {
             $unlockedUsers[] = (int) $unlockedUserId;
@@ -144,7 +129,7 @@ if (!empty($_POST['unlockedUsers'])) {
     }
 }
 $lockedUsergroups = [];
-if (!empty($_POST['lockedUsergroups'])) {
+if (! empty($_POST['lockedUsergroups'])) {
     foreach ($_POST['lockedUsergroups'] as $lockedUsergroupsId) {
         if (filter_var($lockedUsergroupsId, FILTER_VALIDATE_INT) !== false) {
             $lockedUsergroups[] = (int) $lockedUsergroupsId;
@@ -152,7 +137,7 @@ if (!empty($_POST['lockedUsergroups'])) {
     }
 }
 $unlockedUsergroups = [];
-if (!empty($_POST['unlockedUsergroups'])) {
+if (! empty($_POST['unlockedUsergroups'])) {
     foreach ($_POST['unlockedUsergroups'] as $unlockedUsergroupsId) {
         if (filter_var($unlockedUsergroupsId, FILTER_VALIDATE_INT) !== false) {
             $unlockedUsergroups[] = (int) $unlockedUsergroupsId;
@@ -161,22 +146,21 @@ if (!empty($_POST['unlockedUsergroups'])) {
 }
 
 $positions = [];
-if (!empty($_POST['positions'])) {
+if (! empty($_POST['positions'])) {
     foreach ($_POST['positions'] as $position) {
-        if (\HtmlAnalyzer::sanitizeAndRemoveTags($position) !== false) {
+        if (HtmlAnalyzer::sanitizeAndRemoveTags($position) !== false) {
             $positions[] = $position;
         }
     }
 }
 
 $createLoad = '';
-if (!empty($_POST['create_load']['create_load'])) {
+if (! empty($_POST['create_load']['create_load'])) {
     $createLoad = $_POST['create_load']['create_load'];
 }
 
-
 $postInputs['layout'] = isset($_POST['layout']['layout'])
-    ? \HtmlAnalyzer::sanitizeAndRemoveTags($_POST['layout']['layout'])
+    ? HtmlAnalyzer::sanitizeAndRemoveTags($_POST['layout']['layout'])
     : null;
 
 $viewObj = new CentreonCustomView($centreon, $db);
@@ -188,7 +172,7 @@ if ($postInputs['custom_view_id']) {
     // check wether or not user can modify the view (locked & visible)
     $permission = $viewObj->checkPermission($postInputs['custom_view_id']);
 } else {
-    $postInputs['custom_view_id'] = "";
+    $postInputs['custom_view_id'] = '';
 }
 // check if the user can perform the provided action
 $authorized = ($centreon->user->admin === '0') ? $viewObj->checkUserActions($action) : true;
@@ -196,7 +180,7 @@ $xml->startElement('response');
 try {
     switch ($action) {
         case 'add':
-            if (!empty($createLoad)) {
+            if (! empty($createLoad)) {
                 if ($createLoad === 'create') {
                     $postInputs['custom_view_id'] = $viewObj->addCustomView(
                         $postInputs['name'],
@@ -207,7 +191,7 @@ try {
                     if ($postInputs['widget_id']) {
                         $widgetObj->updateViewWidgetRelations($postInputs['custom_view_id']);
                     }
-                } elseif ($createLoad === 'load' && !empty($postInputs['viewLoad'])) {
+                } elseif ($createLoad === 'load' && ! empty($postInputs['viewLoad'])) {
                     $postInputs['custom_view_id'] = $viewObj->loadCustomView($postInputs['viewLoad'], $authorized);
                 }
             }
@@ -227,8 +211,8 @@ try {
                     $widgetObj->updateViewWidgetRelations($postInputs['custom_view_id'], $postInputs['widget_id']);
                 }
 
-                //update share
-                if (!$postInputs['public']) {
+                // update share
+                if (! $postInputs['public']) {
                     $postInputs['public'] = 0;
                 }
 

@@ -20,10 +20,14 @@ on:
     branches:
       - dev-[2-9][0-9].[0-9][0-9].x
       - "[2-9][0-9].[0-9][0-9].x"
+      - 'release-[2-9][0-9].[0-9][0-9]-next'
+      - 'hotfix-[2-9][0-9].[0-9][0-9]-next'
     paths:
       - ".version"
       - ".version.centreon-ha"
       - "centreon-ha/**"
+    tags:
+      - "centreon-ha-*"
 
 env:
   module: ha
@@ -124,6 +128,8 @@ jobs:
           stability: ${{ needs.get-environment.outputs.stability }}
           release_type: ${{ needs.get-environment.outputs.release_type }}
           is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
+          delivery_type: ${{ needs.get-environment.outputs.delivery_type }}
+          centreon_technique_pat: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
 
   deliver-deb:
     needs: [get-environment, package]

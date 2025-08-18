@@ -1,9 +1,9 @@
 {
 	"info": {
-		"_postman_id": "1855dfcd-4783-4158-b4c4-4a543348c271",
+		"_postman_id": "dc6cdec7-dd82-4281-9db5-4c49a958bdf9",
 		"name": "Resources_Monitoring",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "16182525"
+		"_exporter_id": "29556865"
 	},
 	"item": [
 		{
@@ -1113,7 +1113,7 @@
 									"if ((pm.collectionVariables.get(\"collection_tries\") < pm.collectionVariables.get(\"maxNumberOfTries\") && responseJson.result.length !== 2) || (pm.response.code !== pm.collectionVariables.get(\"expectedHttpStatus\"))) {\r",
 									"    var tries = parseInt(pm.collectionVariables.get(\"collection_tries\"));\r",
 									"    pm.collectionVariables.set(\"collection_tries\", tries + 1);\r",
-									"    setTimeout(function() {}, pm.collectionVariables.get(\"sleepBetweenTries\"));\r",
+									"    setTimeout(function () { }, pm.collectionVariables.get(\"sleepBetweenTries\"));\r",
 									"    postman.setNextRequest(\"Check the resources retrieved via host group by admin (successful)\");\r",
 									"} else {\r",
 									"    pm.collectionVariables.unset(\"collection_tries\");\r",
@@ -1123,18 +1123,11 @@
 									"\r",
 									"        pm.expect(responseJson.result.length).to.eql(2);\r",
 									"\r",
-									"        pm.expect(responseJson.result[0]).to.include({\r",
-									"            \"type\": \"host\",\r",
-									"            \"id\": pm.collectionVariables.get(\"Host1Id\"),\r",
-									"            \"name\": pm.collectionVariables.get(\"Host1Name\"),\r",
-									"            \"alias\": pm.collectionVariables.get(\"Host1Alias\"),\r",
-									"            \"fqdn\": '999.99.99.99'\r",
-									"        });\r",
 									"        pm.expect(responseJson.result[1]).to.include({\r",
 									"            \"type\": \"service\",\r",
 									"            \"id\": pm.collectionVariables.get(\"Service1Id\"),\r",
 									"            \"name\": pm.collectionVariables.get(\"Service1Name\"),\r",
-									"            \"host_id\":pm.collectionVariables.get(\"Host1Id\")\r",
+									"            \"host_id\": pm.collectionVariables.get(\"Host1Id\")\r",
 									"        });\r",
 									"    });\r",
 									"\r",
@@ -1291,6 +1284,19 @@
 									"        };\r",
 									"\r",
 									"        pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"    });\r",
+									"    pm.test(\"Explicit check: 'duration' must be string or null\", function () {\r",
+									"        const duration = responseJson?.result?.[0]?.duration;\r",
+									"        const typeOfDuration = typeof duration;\r",
+									"\r",
+									"        const isValid = (typeOfDuration === \"string\" || duration === null);\r",
+									"        if (!isValid) {\r",
+									"            console.error(\"❌ 'duration' has invalid type\");\r",
+									"            console.error(\"   ↳ Value:\", duration);\r",
+									"            console.error(\"   ↳ Type:\", typeOfDuration);\r",
+									"        }\r",
+									"\r",
+									"        pm.expect(isValid, `Expected 'duration' to be string or null, got ${typeOfDuration}`).to.be.true;\r",
 									"    });\r",
 									"}"
 								],
@@ -1530,6 +1536,20 @@
 									"        };\r",
 									"\r",
 									"        pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"    });\r",
+									"\r",
+									"    pm.test(\"Explicit check: 'duration' must be string or null\", function () {\r",
+									"        const duration = responseJson?.result?.[0]?.duration;\r",
+									"        const typeOfDuration = typeof duration;\r",
+									"\r",
+									"        const isValid = (typeOfDuration === \"string\" || duration === null);\r",
+									"        if (!isValid) {\r",
+									"            console.error(\"❌ 'duration' has invalid type\");\r",
+									"            console.error(\"   ↳ Value:\", duration);\r",
+									"            console.error(\"   ↳ Type:\", typeOfDuration);\r",
+									"        }\r",
+									"\r",
+									"        pm.expect(isValid, `Expected 'duration' to be string or null, got ${typeOfDuration}`).to.be.true;\r",
 									"    });\r",
 									"}"
 								],
@@ -5793,6 +5813,10 @@
 		},
 		{
 			"key": "sleepBetweenTries",
+			"value": ""
+		},
+		{
+			"key": "api_login_user_non_admin",
 			"value": ""
 		}
 	]

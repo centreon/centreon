@@ -126,9 +126,10 @@ if [ "$PROJECT" = "centreon" ]; then
     $MSGMERGE --no-fuzzy-matching --sort-output -q $BASE_DIR_PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/messages.po $BASE_DIR_PROJECT/lang/messages.pot -o $BASE_DIR_PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/messages_new.po
     mv -f $BASE_DIR_PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/messages_new.po $BASE_DIR_PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/messages.po
     # uncomment obsolete translations
-    sed -i -r 's/^#~//g' $BASE_DIR_PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/messages.po
+    sed -i -r 's/^#~ msgid/#: unknown\nmsgid/g' $BASE_DIR_PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/messages.po
+    sed -i -r 's/^#~ //g' $BASE_DIR_PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/messages.po
 
-    missing_translation=$(msggrep -v -T -e "." $BASE_DIR_PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/messages.po | grep -c ^msgstr)
+    missing_translation=$(msggrep -v -T -e "." $BASE_DIR_PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/messages.po | grep -c ^msgstr || true)
     if [[ $missing_translation -gt 0 && "$LANG" == "fr_FR" ]]; then
         echo "::warning::$missing_translation strings are not translated in $PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/messages.po"
     fi
@@ -147,9 +148,10 @@ if [ "$PROJECT" = "centreon" ]; then
     $MSGMERGE --no-fuzzy-matching --sort-output -q $BASE_DIR_PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/help.po $BASE_DIR_PROJECT/lang/help.pot -o $BASE_DIR_PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/help_new.po
     mv -f $BASE_DIR_PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/help_new.po $BASE_DIR_PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/help.po
     # uncomment obsolete translations
-    sed -i -r 's/^#~//g' $BASE_DIR_PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/help.po
+    sed -i -r 's/^#~ msgid/#: unknown\nmsgid/g' $BASE_DIR_PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/help.po
+    sed -i -r 's/^#~ //g' $BASE_DIR_PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/help.po
 
-    missing_translation=$(msggrep -v -T -e "." $BASE_DIR_PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/help.po | grep -c ^msgstr)
+    missing_translation=$(msggrep -v -T -e "." $BASE_DIR_PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/help.po | grep -c ^msgstr || true)
     if [[ $missing_translation -gt 0 && "$LANG" == "fr_FR" ]]; then
         echo "::warning::$missing_translation strings are not translated in $PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/help.po"
     fi

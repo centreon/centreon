@@ -13,7 +13,7 @@ const RedirectToTokensPage = (): JSX.Element => {
   const { t } = useTranslation();
 
   return (
-    <Box sx={{ mt: -1 }}>
+    <Box className="-mt-4">
       <Button
         icon={<AddIcon />}
         iconVariant="start"

@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -148,7 +148,7 @@ class NewCommand
             argumentExample: new TrimmedString($command->getArgumentExample()),
             arguments: $command->getArguments(),
             macros: array_map(
-                fn(CommandMacro $macro) => NewCommandMacro::createFromMacro($macro),
+                fn (CommandMacro $macro) => NewCommandMacro::createFromMacro($macro),
                 $command->getMacros()
             ),
             connectorId: $command->getConnector()?->getId(),

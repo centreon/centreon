@@ -9,9 +9,9 @@ import {
   labelAgentConfigurationCreated,
   labelAgentConfigurationUpdated,
   labelAgentType,
-  labelAgentTypes,
   labelAgentsConfigurations,
   labelCACommonName,
+  labelCMAauthenticationToken,
   labelCaCertificate,
   labelCancel,
   labelClear,
@@ -22,9 +22,9 @@ import {
   labelDeleteAgent,
   labelDeletePoller,
   labelEncryptionLevel,
-  labelHostConfigurations,
   labelInvalidExtension,
   labelInvalidPath,
+  labelMonitoredHosts,
   labelName,
   labelNoTLS,
   labelOTLPReceiver,
@@ -37,6 +37,7 @@ import {
   labelRequired,
   labelSave,
   labelSelectExistingCMAToken,
+  labelSelectExistingCMATokens,
   labelSelectHost,
   labelTLS,
   labelWarningEncryptionLevelCMA,
@@ -112,9 +113,9 @@ describe('Agent configurations', () => {
 
     cy.findAllByTestId('Search').find('input').type('My agent');
     cy.findByLabelText('Filters').click();
-    cy.findByLabelText(labelAgentTypes).click({ force: true });
+    cy.findByLabelText(labelAgentType).click({ force: true });
     cy.get('[data-option-index="1"]').click();
-    cy.findByLabelText(labelPollers).click({ force: true });
+    cy.findByLabelText(labelPoller).click({ force: true });
 
     cy.waitForRequest('@getFilterPollers');
 
@@ -139,7 +140,7 @@ describe('Agent configurations', () => {
     });
 
     cy.findByLabelText('Filters').click();
-    cy.findByLabelText(labelPollers).click({ force: true });
+    cy.findByLabelText(labelPoller).click({ force: true });
 
     cy.waitForRequest('@getFilterPollers');
 
@@ -163,7 +164,7 @@ describe('Agent configurations', () => {
     });
 
     cy.findByLabelText('Filters').click();
-    cy.findByLabelText(labelAgentTypes).click({ force: true });
+    cy.findByLabelText(labelAgentType).click({ force: true });
     cy.get('[data-option-index="1"]').click();
 
     cy.findByTestId('CancelIcon').click();
@@ -185,9 +186,9 @@ describe('Agent configurations', () => {
 
     cy.findAllByTestId('Search').find('input').type('My agent');
     cy.findByLabelText('Filters').click();
-    cy.findByLabelText(labelAgentTypes).click({ force: true });
+    cy.findByLabelText(labelAgentType).click({ force: true });
     cy.get('[data-option-index="1"]').click();
-    cy.findByLabelText(labelPollers).click({ force: true });
+    cy.findByLabelText(labelPoller).click({ force: true });
 
     cy.waitForRequest('@getFilterPollers');
 
@@ -220,7 +221,7 @@ describe('Agent configurations', () => {
     cy.contains('You are going to delete the').should('be.visible');
     cy.contains('AC 0').should('be.visible');
     cy.contains(
-      'agent configuration. All configuration parameters for this agent will be deleted. This action cannot be undone.'
+      'agent configuration. All parameters for this agent configuration will be deleted. This action cannot be undone.'
     ).should('be.visible');
 
     cy.contains(labelCancel).click();
@@ -245,7 +246,7 @@ describe('Agent configurations', () => {
     cy.contains('You are going to delete the').should('be.visible');
     cy.contains('AC 0').should('be.visible');
     cy.contains(
-      'agent configuration. All configuration parameters for this agent will be deleted. This action cannot be undone.'
+      'agent configuration. All parameters for this agent configuration will be deleted. This action cannot be undone.'
     ).should('be.visible');
 
     cy.contains(/^Delete$/).click();
@@ -416,7 +417,7 @@ describe('Agent configurations modal', () => {
           otel_ca_certificate: 'test.crt',
           otel_public_certificate: 'test.cer',
           conf_certificate: '/sub/test.crt',
-          conf_private_key: 'test.crt',
+          conf_private_key: 'test.key',
           conf_server_port: 9090
         },
         poller_ids: [1, 2]
@@ -447,7 +448,7 @@ describe('Agent configurations modal', () => {
           otel_ca_certificate: 'test.crt',
           otel_public_certificate: 'test.cer',
           conf_certificate: '/sub/test.crt',
-          conf_private_key: 'test.crt',
+          conf_private_key: 'test.key',
           conf_server_port: 9090
         },
         poller_ids: [1, 2]
@@ -488,13 +489,12 @@ describe('Agent configurations modal', () => {
     cy.findByLabelText(labelPublicCertificate).blur();
     cy.findAllByLabelText(labelPrivateKey).eq(0).type('filename.abc').blur();
 
-    cy.contains(labelRequired).should('be.visible');
     cy.contains(labelInvalidExtension).should('be.visible');
 
     cy.findByLabelText(labelAgentType).click();
     cy.get('[data-option-index="0"]').click();
 
-    cy.contains(labelHostConfigurations).should('not.exist');
+    cy.contains(labelMonitoredHosts).should('not.exist');
     cy.contains(labelRequired).should('not.exist');
     cy.contains(labelInvalidExtension).should('not.exist');
     cy.findByLabelText(labelName).should('have.value', 'My agent');
@@ -539,7 +539,7 @@ describe('Agent configurations modal', () => {
     cy.findByLabelText(labelCaCertificate).type('test.crt');
     cy.findByLabelText(labelPrivateKey).type('privateKey.key');
 
-    cy.findByLabelText(labelSelectExistingCMAToken).click();
+    cy.findByLabelText(labelSelectExistingCMATokens).click();
     cy.waitForRequest('@getTokens');
     cy.contains('token 1').click();
 
@@ -648,7 +648,13 @@ describe('Agent configurations modal', () => {
     cy.contains('central').click();
     cy.findByLabelText(labelCACommonName).type('test.crt');
 
-    cy.findByLabelText(labelSelectExistingCMAToken).should('not.exist');
+    cy.findByTestId('submit').should('be.disabled');
+
+    cy.findByLabelText(labelSelectExistingCMAToken).click();
+    cy.waitForRequest('@getTokens');
+    cy.contains('token 1').click();
+
+    cy.findByLabelText(labelCMAauthenticationToken).should('not.exist');
 
     cy.findByTestId('submit').click();
 
@@ -670,7 +676,8 @@ describe('Agent configurations modal', () => {
               address: '127.0.0.2',
               port: 4317,
               poller_ca_name: 'test.crt',
-              poller_ca_certificate: 'test.crt'
+              poller_ca_certificate: 'test.crt',
+              token: { name: 'token 1', creator_id: 1 }
             }
           ]
         }
@@ -782,7 +789,7 @@ describe('Agent configurations modal', () => {
     cy.findByLabelText(labelSelectHost).click();
     cy.contains('central').click();
     cy.findByLabelText(labelCACommonName).should('not.exist');
-    cy.findByLabelText(labelSelectExistingCMAToken).should('not.exist');
+    cy.findByLabelText(labelSelectExistingCMATokens).should('not.exist');
 
     cy.makeSnapshot();
 
@@ -806,7 +813,8 @@ describe('Agent configurations modal', () => {
               address: '127.0.0.2',
               port: 4317,
               poller_ca_name: null,
-              poller_ca_certificate: null
+              poller_ca_certificate: null,
+              token: null
             }
           ]
         }

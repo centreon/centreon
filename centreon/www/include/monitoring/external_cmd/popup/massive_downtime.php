@@ -1,40 +1,25 @@
 <?php
 
 /*
- * Copyright 2005-2020 Centreon
- * Centreon is developed by : Julien Mathis and Romain Le Merlus under
- * GPL Licence 2.0.
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation ; either version 2 of the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <http://www.gnu.org/licenses>.
- *
- * Linking this program statically or dynamically with other modules is making a
- * combined work based on this program. Thus, the terms and conditions of the GNU
- * General Public License cover the whole combination.
- *
- * As a special exception, the copyright holders of this program give Centreon
- * permission to link this program with independent modules to produce an executable,
- * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of Centreon choice, provided that
- * Centreon also meet, for each linked independent module, the terms  and conditions
- * of the license of that module. An independent module is a module which is not
- * derived from this program. If you modify this program, you may extend this
- * exception to your version of the program, but you are not obliged to do so. If you
- * do not wish to do so, delete this exception statement from your version.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * For more information : contact@centreon.com
  *
  */
 
-if (!isset($centreon)) {
+if (! isset($centreon)) {
     exit();
 }
 
@@ -53,7 +38,7 @@ if (isset($_GET['select'])) {
 }
 
 // Smarty template initialization
-$path = _CENTREON_PATH_ . "/www/include/monitoring/external_cmd/popup/";
+$path = _CENTREON_PATH_ . '/www/include/monitoring/external_cmd/popup/';
 $tpl = SmartyBC::createSmartyTemplate($path, './templates/');
 
 $form = new HTML_QuickFormCustom('select_form', 'GET', 'main.php');
@@ -61,19 +46,19 @@ $form = new HTML_QuickFormCustom('select_form', 'GET', 'main.php');
 $form->addElement(
     'header',
     'title',
-    _("Set downtimes")
+    _('Set downtimes')
 );
 
-$tpl->assign('authorlabel', _("Alias"));
+$tpl->assign('authorlabel', _('Alias'));
 $tpl->assign('authoralias', $centreon->user->get_alias());
 
 $form->addElement(
     'textarea',
     'comment',
-    _("Comment"),
-    ["rows" => "5", "cols" => "70", "id" => "popupComment"]
+    _('Comment'),
+    ['rows' => '5', 'cols' => '70', 'id' => 'popupComment']
 );
-$form->setDefaults(["comment" => sprintf(_("Downtime set by %s"), $centreon->user->alias)]);
+$form->setDefaults(['comment' => sprintf(_('Downtime set by %s'), $centreon->user->alias)]);
 
 $form->addElement(
     'text',
@@ -104,7 +89,7 @@ $form->addElement(
 $form->addElement(
     'text',
     'timezone_warning',
-    _("*The timezone used is configured on your user settings")
+    _('*The timezone used is configured on your user settings')
 );
 
 $form->addElement(
@@ -113,10 +98,10 @@ $form->addElement(
     _('Duration'),
     ['id' => 'duration', 'width' => '30', 'disabled' => 'true']
 );
-//setting default values
+// setting default values
 $defaultDuration = 7200;
 $defaultScale = 's';
-//overriding the default duration and scale by the user's value from the administration fields
+// overriding the default duration and scale by the user's value from the administration fields
 if (
     isset($centreon->optGen['monitoring_dwt_duration'])
     && $centreon->optGen['monitoring_dwt_duration']
@@ -131,11 +116,11 @@ if (
 }
 $form->setDefaults(['duration' => $defaultDuration]);
 
-$scaleChoices = ["s" => _("Seconds"), "m" => _("Minutes"), "h" => _("Hours"), "d" => _("Days")];
+$scaleChoices = ['s' => _('Seconds'), 'm' => _('Minutes'), 'h' => _('Hours'), 'd' => _('Days')];
 $form->addElement(
     'select',
     'duration_scale',
-    _("Scale of time"),
+    _('Scale of time'),
     $scaleChoices,
     ['id' => 'duration_scale', 'disabled' => 'true']
 );
@@ -144,18 +129,18 @@ $form->setDefaults(['duration_scale' => $defaultScale]);
 $chckbox[] = $form->addElement(
     'checkbox',
     'fixed',
-    _("Fixed"),
-    "",
-    ["id" => "fixed"]
+    _('Fixed'),
+    '',
+    ['id' => 'fixed']
 );
 $chckbox[0]->setChecked(true);
 
 $chckbox2[] = $form->addElement(
     'checkbox',
     'downtimehostservice',
-    _("Set downtimes on services attached to hosts"),
-    "",
-    ["id" => "downtimehostservice"]
+    _('Set downtimes on services attached to hosts'),
+    '',
+    ['id' => 'downtimehostservice']
 );
 $chckbox2[0]->setChecked(true);
 
@@ -163,29 +148,29 @@ $form->addElement(
     'hidden',
     'author',
     $centreon->user->get_alias(),
-    ["id" => "author"]
+    ['id' => 'author']
 );
 
 $form->addRule(
     'comment',
-    _("Comment is required"),
+    _('Comment is required'),
     'required',
     '',
     'client'
 );
-$form->setJsWarnings(_("Invalid information entered"), _("Please correct these fields"));
+$form->setJsWarnings(_('Invalid information entered'), _('Please correct these fields'));
 
 $form->addElement(
     'button',
     'submit',
-    _("Set downtime"),
-    ["onClick" => "send_the_command();", "class" => "btc bt_info"]
+    _('Set downtime'),
+    ['onClick' => 'send_the_command();', 'class' => 'btc bt_info']
 );
 $form->addElement(
     'reset',
     'reset',
-    _("Reset"),
-    ["class" => "btc bt_default"]
+    _('Reset'),
+    ['class' => 'btc bt_default']
 );
 
 // adding hidden fields to get the result of datepicker in an unlocalized format
@@ -210,19 +195,19 @@ $renderer->setErrorTemplate('<font color="red">{$error}</font><br />{$html}');
 $form->accept($renderer);
 $tpl->assign('form', $renderer->toArray());
 
-$defaultFixed = "";
-if (isset($centreon->optGen['monitoring_dwt_fixed']) &&
-    $centreon->optGen['monitoring_dwt_fixed']
+$defaultFixed = '';
+if (isset($centreon->optGen['monitoring_dwt_fixed'])
+    && $centreon->optGen['monitoring_dwt_fixed']
 ) {
-    $defaultFixed = "checked";
+    $defaultFixed = 'checked';
 }
 $tpl->assign('defaultFixed', $defaultFixed);
 
-$defaultSetDwtOnSvc = "";
-if (isset($centreon->optGen['monitoring_dwt_svc']) &&
-    $centreon->optGen['monitoring_dwt_svc']
+$defaultSetDwtOnSvc = '';
+if (isset($centreon->optGen['monitoring_dwt_svc'])
+    && $centreon->optGen['monitoring_dwt_svc']
 ) {
-    $defaultSetDwtOnSvc = "checked";
+    $defaultSetDwtOnSvc = 'checked';
 }
 $tpl->assign('defaultSetDwtOnSvc', $defaultSetDwtOnSvc);
 
@@ -230,4 +215,4 @@ $tpl->assign('o', $o);
 $tpl->assign('p', $p);
 $tpl->assign('cmd', $cmd);
 $tpl->assign('select', $select);
-$tpl->display("massive_downtime.ihtml");
+$tpl->display('massive_downtime.ihtml');

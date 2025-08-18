@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,6 +32,7 @@ use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\Infrastructure\Common\Presenter\PresenterTrait;
 use Core\Metric\Domain\Model\MetricInformation\MetricInformation;
 use Symfony\Component\HttpFoundation\JsonResponse;
+
 use function array_map;
 
 class FindPerformanceMetricsDataPresenter extends AbstractPresenter implements FindPerformanceMetricsDataPresenterInterface
@@ -55,7 +56,7 @@ class FindPerformanceMetricsDataPresenter extends AbstractPresenter implements F
             $this->present([
                 'base' => $response->base,
                 'metrics' => array_map($this->formatMetricInformation(...), $response->metricsInformation),
-                'times' => array_map(fn($date) => $this->formatDateToIso8601($date), $response->times),
+                'times' => array_map(fn ($date) => $this->formatDateToIso8601($date), $response->times),
             ]);
         }
     }

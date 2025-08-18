@@ -1,0 +1,5 @@
+doctrine:
+   dbal:
+       connections:
+           default:
+               use_savepoints: true

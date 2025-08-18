@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2021 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,6 +18,7 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Centreon\Domain\Authentication\UseCase;
@@ -74,11 +75,11 @@ class AuthenticateApi
         );
         $response->setApiAuthentication($contact, $token);
         $this->debug(
-            "[AUTHENTICATE API] Authentication success",
+            '[AUTHENTICATE API] Authentication success',
             [
-                "provider_name" => LocalProvider::NAME,
-                "contact_id" => $contact->getId(),
-                "contact_alias" => $contact->getAlias()
+                'provider_name' => LocalProvider::NAME,
+                'contact_id' => $contact->getId(),
+                'contact_alias' => $contact->getAlias(),
             ]
         );
     }
@@ -86,8 +87,8 @@ class AuthenticateApi
     /**
      * Find the local provider or throw an Exception.
      *
-     * @return ProviderAuthenticationInterface
      * @throws ProviderException
+     * @return ProviderAuthenticationInterface
      */
     private function findLocalProviderOrFail(): ProviderAuthenticationInterface
     {
@@ -116,8 +117,8 @@ class AuthenticateApi
      * Retrieve user from provider or throw an Exception.
      *
      * @param ProviderAuthenticationInterface $localProvider
-     * @return ContactInterface
      * @throws AuthenticationException
+     * @return ContactInterface
      */
     private function getUserFromProviderOrFail(ProviderAuthenticationInterface $localProvider): ContactInterface
     {
@@ -135,6 +136,7 @@ class AuthenticateApi
                 '[AUTHENTICATE API] No contact could be found from provider',
                 ['provider_name' => LocalProvider::NAME]
             );
+
             throw AuthenticationException::userNotFound();
         }
 
@@ -147,8 +149,8 @@ class AuthenticateApi
      * @param ContactInterface $contact
      * @param NewProviderToken $providerToken
      * @param NewProviderToken|null $providerRefreshToken
-     * @return void
      * @throws AuthenticationException
+     * @return void
      */
     private function createAPIAuthenticationTokens(
         string $token,

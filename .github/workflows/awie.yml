@@ -24,12 +24,16 @@ on:
       - dev-[2-9][0-9].[0-9][0-9].x
       - master
       - "[2-9][0-9].[0-9][0-9].x"
+      - 'release-[2-9][0-9].[0-9][0-9]-next'
+      - 'hotfix-[2-9][0-9].[0-9][0-9]-next'
     paths:
       - ".version"
       - ".version.centreon-awie"
       - "centreon-awie/**"
       - "!centreon-awie/features/**"
       - "!centreon-awie/behat.yml"
+    tags:
+      - "centreon-awie-*"
 
 env:
   module: awie
@@ -39,6 +43,31 @@ jobs:
     uses: ./.github/workflows/get-environment.yml
     with:
       version_file: centreon-awie/www/modules/centreon-awie/conf.php
+
+  check-version-consistency:
+    runs-on: ubuntu-24.04
+    needs: [get-environment]
+    if: |
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      needs.get-environment.outputs.stability == 'testing'
+    env:
+      version: ${{ needs.get-environment.outputs.major_version }}.${{ needs.get-environment.outputs.minor_version }}
+      version_file: .version.centreon-awie
+      configuration_file: centreon-awie/www/modules/centreon-awie/conf.php
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Check ${{ env.version_file }}
+        uses: ./.github/actions/check-version-consistency
+        with:
+          file: ${{ env.version_file }}
+          version: ${{ env.version }}
+
+      - name: Check ${{ env.configuration_file }}
+        uses: ./.github/actions/check-version-consistency
+        with:
+          file: ${{ env.configuration_file }}
+          version: ${{ env.version }}
 
   changes:
     needs: [get-environment]
@@ -56,7 +85,11 @@ jobs:
 
       - uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36 # v3.0.2
         id: filter
+        if: |
+          github.event_name == 'pull_request' &&
+          needs.get-environment.outputs.stability != 'testing'
         with:
+          base: ${{ github.head_ref || github.ref_name }}
           filters: |
             has_backend_changes:
               - 'centreon-awie/*.php'
@@ -73,8 +106,8 @@ jobs:
         with:
           is_nightly: 'false'
           has_frontend_changes: 'false'
-          has_backend_changes: ${{ steps.filter.outputs.has_backend_changes }}
-          has_test_changes: ${{ steps.filter.outputs.has_test_changes }}
+          has_backend_changes: ${{ steps.filter.outputs.has_backend_changes || true }}
+          has_test_changes: ${{ steps.filter.outputs.has_test_changes || true }}
 
   backend-lint:
     runs-on: ubuntu-24.04
@@ -87,25 +120,133 @@ jobs:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Setup PHP
-        uses: shivammathur/setup-php@cf4cade2721270509d5b1c766ab3549210a39a2a # v2.33.0
+        uses: shivammathur/setup-php@0f7f1d08e3e32076e51cae65eb0b0c871405b16e # v2.34.1
         with:
           php-version: 8.2
           coverage: none
         env:
           runner: ubuntu-24.04
 
-      - name: Install Dependencies
-        run: composer install --optimize-autoloader
+      - name: Install dependencies for PHP quality tools
+        run: composer install --optimize-autoloader --prefer-dist --no-interaction --no-progress --quiet --no-suggest
+        working-directory: php-tools
+        shell: bash
+
+      - name: Install dependencies for centreon-awie
+        run: composer install --optimize-autoloader --prefer-dist --no-interaction --no-progress --quiet --no-suggest
         working-directory: centreon-awie
         shell: bash
 
-      - name: Run of phpstan on /www at level 6
-        run: vendor/bin/phpstan analyse --no-progress --level=6 --configuration=phpstan.neon
+      - name: 🛠️ Rector checks
         working-directory: centreon-awie
+        run: |
+          echo "Run of these Rector tests: rector:legacy" && set -e
+
+          pids=()
+          statuses=()
+
+          run_task() {
+            name=$1
+            shift
+            "$@" -- --no-progress-bar
+            result=$?
+            if [ $result -eq 0 ]; then
+              echo "✅ Rector $name: Success"
+            else
+              echo "❌ Rector $name: Failed"
+            fi
+            return $result
+          }
+
+          # Start tasks in background
+          run_task legacy composer rector:legacy & pids+=($!)
+
+          # Wait for all, and record if any failed
+          exit_code=0
+          for pid in "${pids[@]}"; do
+            if ! wait "$pid"; then
+              exit_code=1
+            fi
+          done
+
+          exit $exit_code
+
+      - name: 🧹 PHP-CS-Fixer checks
+        working-directory: centreon-awie
+        run: |
+          echo "Run of these PHP-CS-Fixer tests: cs:legacy" && set -e
+
+          pids=()
+          statuses=()
+
+          run_task() {
+            name=$1
+            shift
+            "$@" -- --format=txt --show-progress=none
+            result=$?
+            if [ $result -eq 0 ]; then
+              echo "✅ PHP-CS-Fixer $name: Success"
+            else
+              echo "❌ PHP-CS-Fixer $name: Failed"
+            fi
+            return $result
+          }
+
+          # Start tasks in background
+          run_task legacy composer cs:legacy & pids+=($!)
+
+          # Wait for all, and record if any failed
+          exit_code=0
+          for pid in "${pids[@]}"; do
+            if ! wait "$pid"; then
+              exit_code=1
+            fi
+          done
+
+          exit $exit_code
+
+      - name: 🔍 PHPStan checks
+        working-directory: centreon-awie
+        run: |
+          echo "Run of these PHPStan tests: stan:legacy" && set -e
+
+          pids=()
+          statuses=()
+
+          run_task() {
+            name=$1
+            shift
+            "$@" -- --no-progress
+            result=$?
+            if [ $result -eq 0 ]; then
+              echo "✅ PHPStan $name: Success"
+            else
+              echo "❌ PHPStan $name: Failed"
+            fi
+            return $result
+          }
+
+          # Start tasks in background
+          run_task legacy composer stan:legacy & pids+=($!)
+
+          # Wait for all, and record if any failed
+          exit_code=0
+          for pid in "${pids[@]}"; do
+            if ! wait "$pid"; then
+              exit_code=1
+            fi
+          done
+
+          exit $exit_code
 
   package:
-    needs: [get-environment, backend-lint]
-    if: ${{ needs.get-environment.outputs.skip_workflow == 'false' && needs.get-environment.outputs.stability != 'stable' }}
+    needs: [get-environment, check-version-consistency, backend-lint]
+    if: |
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      needs.get-environment.outputs.stability != 'stable' &&
+      ! cancelled() &&
+      ! contains(needs.*.result, 'failure') &&
+      ! contains(needs.*.result, 'cancelled')
 
     strategy:
       fail-fast: false
@@ -211,6 +352,8 @@ jobs:
           stability: ${{ needs.get-environment.outputs.stability }}
           release_type: ${{ needs.get-environment.outputs.release_type }}
           is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
+          delivery_type: ${{ needs.get-environment.outputs.delivery_type }}
+          centreon_technique_pat: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
 
   deliver-deb:
     needs: [changes, get-environment, package]

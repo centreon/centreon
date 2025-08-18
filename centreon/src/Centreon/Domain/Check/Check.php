@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2020 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,6 +18,7 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Centreon\Domain\Check;
@@ -28,29 +29,19 @@ class Check
     public const VALIDATION_GROUPS_SERVICE_CHECK = ['check_service'];
     public const VALIDATION_GROUPS_META_SERVICE_CHECK = ['check_meta_service'];
 
-    /**
-     * @var int Resource id
-     */
+    /** @var int Resource id */
     private $resourceId;
 
-    /**
-     * @var int|null Parent resource id
-     */
+    /** @var int|null Parent resource id */
     private $parentResourceId;
 
-    /**
-     * @var \DateTime
-     */
+    /** @var \DateTime */
     private $checkTime;
 
-    /**
-     * @var bool
-     */
+    /** @var bool */
     private $isForced = false;
 
-    /**
-     * @var bool Indicates if this downtime should be applied to linked services
-     */
+    /** @var bool Indicates if this downtime should be applied to linked services */
     private $withServices = false;
 
     /**
@@ -68,6 +59,7 @@ class Check
     public function setResourceId(int $resourceId): Check
     {
         $this->resourceId = $resourceId;
+
         return $this;
     }
 
@@ -86,6 +78,7 @@ class Check
     public function setParentResourceId(?int $parentResourceId): Check
     {
         $this->parentResourceId = $parentResourceId;
+
         return $this;
     }
 
@@ -104,6 +97,7 @@ class Check
     public function setCheckTime(?\DateTime $checkTime): Check
     {
         $this->checkTime = $checkTime;
+
         return $this;
     }
 
@@ -122,6 +116,7 @@ class Check
     public function setForced(bool $isForced): Check
     {
         $this->isForced = $isForced;
+
         return $this;
     }
 

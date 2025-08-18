@@ -131,10 +131,10 @@ export default () => {
           cy.waitForRequest('@getAllHostGroups');
 
           cy.get(`[data-testid="add-resource"]`).click();
-
-          cy.findAllByTestId(labelName).eq(1).clear().type(getPayload({}).name);
-          cy.findAllByTestId(labelAlias)
-            .eq(1)
+          cy.get(`[data-testid-suffix="test-${labelName}"]`)
+            .clear()
+            .type(getPayload({}).name);
+          cy.get(`[data-testid-suffix="test-${labelAlias}"]`)
             .clear()
             .type(getPayload({}).alias);
           cy.findAllByTestId(labelComments)
@@ -190,7 +190,9 @@ export default () => {
 
           cy.waitForRequest('@getHostGroupDetails');
 
-          cy.findAllByTestId(labelName).eq(1).clear().type('Updated name');
+          cy.get(`[data-testid-suffix="test-${labelName}"]`)
+            .clear()
+            .type('Updated name');
 
           cy.get(`button[data-testid="submit"`).click();
 
@@ -235,6 +237,35 @@ export default () => {
       cy.get(`button[data-testid="submit"`).should('not.be.disabled');
 
       cy.makeSnapshot('validate geographic coordianates with correct value');
+
+      cy.findByLabelText('close').click();
+      cy.findByLabelText('Discard').click();
+    });
+
+    it('disables the save button when the platform is cloud and Resource Access Rules field is empty', () => {
+      initialize({ isCloudPlatform: true, hasWriteAccess: true });
+
+      cy.waitForRequest('@getAllHostGroups');
+
+      cy.get(`[data-testid="add-resource"]`).click();
+
+      const nameInput = cy.findAllByTestId(labelName).eq(1).clear();
+
+      cy.findByTestId('tab-General information').click();
+
+      nameInput.type('name');
+
+      cy.get(`button[data-testid="submit"`).should('be.disabled');
+
+      cy.findByTestId(labelApplyResourceAccessRule).click();
+
+      cy.waitForRequest('@getAccessRules');
+
+      cy.contains('rule 1').click();
+
+      cy.get(`button[data-testid="submit"`).should('not.be.disabled');
+
+      cy.makeSnapshot();
 
       cy.findByLabelText('close').click();
       cy.findByLabelText('Discard').click();

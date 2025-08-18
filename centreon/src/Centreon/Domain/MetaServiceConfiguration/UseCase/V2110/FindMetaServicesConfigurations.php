@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2021 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,6 +18,7 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Centreon\Domain\MetaServiceConfiguration\UseCase\V2110;
@@ -25,9 +26,8 @@ namespace Centreon\Domain\MetaServiceConfiguration\UseCase\V2110;
 use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
-use Centreon\Domain\MetaServiceConfiguration\Interfaces\MetaServiceConfigurationServiceInterface;
-use Centreon\Domain\MetaServiceConfiguration\UseCase\V2110\FindMetaServicesConfigurationsResponse;
 use Centreon\Domain\MetaServiceConfiguration\Exception\MetaServiceConfigurationException;
+use Centreon\Domain\MetaServiceConfiguration\Interfaces\MetaServiceConfigurationServiceInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
@@ -40,7 +40,6 @@ use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 class FindMetaServicesConfigurations
 {
     use LoggerTrait;
-
     public const AUTHORIZED_ACL_GROUPS = ['customer_admin_acl'];
 
     /**
@@ -60,8 +59,8 @@ class FindMetaServicesConfigurations
     /**
      * Execute the use case for which this class was designed.
      *
-     * @return FindMetaServicesConfigurationsResponse
      * @throws AccessDeniedException|MetaServiceConfigurationException
+     * @return FindMetaServicesConfigurationsResponse
      */
     public function execute(): FindMetaServicesConfigurationsResponse
     {
@@ -85,7 +84,7 @@ class FindMetaServicesConfigurations
         return $response;
     }
 
-   /**
+    /**
      * Indicates if the current user is admin or not (cloud + onPremise context).
      *
      * @return bool

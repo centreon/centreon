@@ -1,14 +1,13 @@
 <?php
 
 /*
- *
- * Copyright 2005 - 2021 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -66,11 +65,11 @@ class PlatformTopologyRepositoryRDB extends AbstractRepositoryDRB implements Pla
     public function addPlatformToTopology(PlatformInterface $platform): void
     {
         $statement = $this->db->prepare(
-            $this->translateDbName("
+            $this->translateDbName('
                 INSERT INTO `:db`.platform_topology
                     (`address`, `name`, `type`, `parent_id`, `server_id`, `hostname`, `pending`)
                 VALUES (:address, :name, :type, :parentId, :serverId, :hostname, :pendingStatus)
-            ")
+            ')
         );
         $statement->bindValue(':address', $platform->getAddress(), \PDO::PARAM_STR);
         $statement->bindValue(':name', $platform->getName(), \PDO::PARAM_STR);
@@ -242,7 +241,6 @@ class PlatformTopologyRepositoryRDB extends AbstractRepositoryDRB implements Pla
         return $platformTopology;
     }
 
-
     /**
      * @inheritDoc
      */
@@ -325,7 +323,7 @@ class PlatformTopologyRepositoryRDB extends AbstractRepositoryDRB implements Pla
     {
         $statement = $this->db->prepare(
             $this->translateDbName(
-                "UPDATE `:db`.`platform_topology` SET
+                'UPDATE `:db`.`platform_topology` SET
                 `address` = :address,
                 `hostname` = :hostname,
                 `name` = :name,
@@ -333,7 +331,7 @@ class PlatformTopologyRepositoryRDB extends AbstractRepositoryDRB implements Pla
                 `parent_id` = :parentId,
                 `server_id` = :serverId,
                 `pending` = :pendingStatus
-                WHERE id = :id"
+                WHERE id = :id'
             )
         );
         $statement->bindValue(':address', $platform->getAddress(), \PDO::PARAM_STR);

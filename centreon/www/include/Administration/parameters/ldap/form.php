@@ -1,40 +1,25 @@
 <?php
 
 /*
- * Copyright 2005-2021 Centreon
- * Centreon is developed by : Julien Mathis and Romain Le Merlus under
- * GPL Licence 2.0.
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation ; either version 2 of the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <http://www.gnu.org/licenses>.
- *
- * Linking this program statically or dynamically with other modules is making a
- * combined work based on this program. Thus, the terms and conditions of the GNU
- * General Public License cover the whole combination.
- *
- * As a special exception, the copyright holders of this program give Centreon
- * permission to link this program with independent modules to produce an executable,
- * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of Centreon choice, provided that
- * Centreon also meet, for each linked independent module, the terms  and conditions
- * of the license of that module. An independent module is a module which is not
- * derived from this program. If you modify this program, you may extend this
- * exception to your version of the program, but you are not obliged to do so. If you
- * do not wish to do so, delete this exception statement from your version.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * For more information : contact@centreon.com
  *
  */
 
-if (!isset($oreon)) {
+if (! isset($oreon)) {
     exit();
 }
 
@@ -42,9 +27,9 @@ require_once _CENTREON_PATH_ . 'www/class/centreonLDAP.class.php';
 require_once _CENTREON_PATH_ . 'www/class/CentreonLDAPAdmin.class.php';
 require_once __DIR__ . '/DB-Func.php';
 
-$attrsText = ["size" => "40"];
-$attrsText2 = ["size" => "5"];
-$attrsTextarea = ["rows" => "4", "cols" => "60"];
+$attrsText = ['size' => '40'];
+$attrsText2 = ['size' => '5'];
+$attrsTextarea = ['rows' => '4', 'cols' => '60'];
 $attrsAdvSelect = null;
 
 $arId = filter_var(
@@ -55,48 +40,48 @@ $arId = filter_var(
 /**
  * Ldap form
  */
-$form = new HTML_QuickFormCustom('Form', 'post', "?p=" . $p . "&o=" . $o);
-$form->addElement('header', 'title', _("Modify General Options"));
+$form = new HTML_QuickFormCustom('Form', 'post', '?p=' . $p . '&o=' . $o);
+$form->addElement('header', 'title', _('Modify General Options'));
 
 /**
  * Ldap info
  */
-$form->addElement('header', 'ldap', _("General information"));
+$form->addElement('header', 'ldap', _('General information'));
 
 $form->addElement('text', 'ar_name', _('Configuration name'), $attrsText);
 $form->addElement('textarea', 'ar_description', _('Description'), $attrsTextarea);
 
-$ldapEnable[] = $form->createElement('radio', 'ldap_auth_enable', null, _("Yes"), '1');
-$ldapEnable[] = $form->createElement('radio', 'ldap_auth_enable', null, _("No"), '0');
-$form->addGroup($ldapEnable, 'ldap_auth_enable', _("Enable LDAP authentication"), '&nbsp;');
+$ldapEnable[] = $form->createElement('radio', 'ldap_auth_enable', null, _('Yes'), '1');
+$ldapEnable[] = $form->createElement('radio', 'ldap_auth_enable', null, _('No'), '0');
+$form->addGroup($ldapEnable, 'ldap_auth_enable', _('Enable LDAP authentication'), '&nbsp;');
 
-$ldapStorePassword[] = $form->createElement('radio', 'ldap_store_password', null, _("Yes"), '1');
-$ldapStorePassword[] = $form->createElement('radio', 'ldap_store_password', null, _("No"), '0');
-$form->addGroup($ldapStorePassword, 'ldap_store_password', _("Store LDAP password"), '&nbsp;');
+$ldapStorePassword[] = $form->createElement('radio', 'ldap_store_password', null, _('Yes'), '1');
+$ldapStorePassword[] = $form->createElement('radio', 'ldap_store_password', null, _('No'), '0');
+$form->addGroup($ldapStorePassword, 'ldap_store_password', _('Store LDAP password'), '&nbsp;');
 
-$ldapAutoImport[] = $form->createElement('radio', 'ldap_auto_import', null, _("Yes"), '1');
-$ldapAutoImport[] = $form->createElement('radio', 'ldap_auto_import', null, _("No"), '0');
-$form->addGroup($ldapAutoImport, 'ldap_auto_import', _("Auto import users"), '&nbsp;');
+$ldapAutoImport[] = $form->createElement('radio', 'ldap_auto_import', null, _('Yes'), '1');
+$ldapAutoImport[] = $form->createElement('radio', 'ldap_auto_import', null, _('No'), '0');
+$form->addGroup($ldapAutoImport, 'ldap_auto_import', _('Auto import users'), '&nbsp;');
 
 $ldapUseDns[] = $form->createElement(
     'radio',
     'ldap_srv_dns',
     null,
-    _("Yes"),
+    _('Yes'),
     '1',
-    ['id' => 'ldap_srv_dns_y', 'onclick' => "toggleParams(false);"]
+    ['id' => 'ldap_srv_dns_y', 'onclick' => 'toggleParams(false);']
 );
 $ldapUseDns[] = $form->createElement(
     'radio',
     'ldap_srv_dns',
     null,
-    _("No"),
+    _('No'),
     '0',
-    ['id' => 'ldap_srv_dns_n', 'onclick' => "toggleParams(true);"]
+    ['id' => 'ldap_srv_dns_n', 'onclick' => 'toggleParams(true);']
 );
-$form->addGroup($ldapUseDns, 'ldap_srv_dns', _("Use service DNS"), '&nbsp;');
+$form->addGroup($ldapUseDns, 'ldap_srv_dns', _('Use service DNS'), '&nbsp;');
 
-$form->addElement('text', 'ldap_dns_use_domain', _("Alternative domain for ldap"), $attrsText);
+$form->addElement('text', 'ldap_dns_use_domain', _('Alternative domain for ldap'), $attrsText);
 
 $form->addElement('text', 'ldap_connection_timeout', _('LDAP connection timeout'), $attrsText2);
 $form->addElement('text', 'ldap_search_limit', _('LDAP search size limit'), $attrsText2);
@@ -105,31 +90,31 @@ $form->addElement('text', 'ldap_search_timeout', _('LDAP search timeout'), $attr
 /**
  * LDAP's scanning options sub menu
  */
-$form->addElement('header', 'ldapScanOption', _("Synchronization Options"));
+$form->addElement('header', 'ldapScanOption', _('Synchronization Options'));
 // option to disable the auto-scan of the LDAP - by default auto-scan is enabled
 $ldapAutoScan[] = $form->createElement(
     'radio',
     'ldap_auto_sync',
     null,
-    _("Yes"),
+    _('Yes'),
     '1',
-    ['id' => 'ldap_auto_sync_y', 'onclick' => "toggleParamSync(false);"]
+    ['id' => 'ldap_auto_sync_y', 'onclick' => 'toggleParamSync(false);']
 );
 $ldapAutoScan[] = $form->createElement(
     'radio',
     'ldap_auto_sync',
     null,
-    _("No"),
+    _('No'),
     '0',
-    ['id' => 'ldap_auto_sync_n', 'onclick' => "toggleParamSync(true);"]
+    ['id' => 'ldap_auto_sync_n', 'onclick' => 'toggleParamSync(true);']
 );
-$form->addGroup($ldapAutoScan, 'ldap_auto_sync', _("Enable LDAP synchronization on login"), '&nbsp;');
+$form->addGroup($ldapAutoScan, 'ldap_auto_sync', _('Enable LDAP synchronization on login'), '&nbsp;');
 // default interval before re-scanning the whole LDAP. By default, a duration of one hour is set
 $form->addElement('text', 'ldap_sync_interval', _('LDAP synchronization interval (in hours)'), $attrsText2);
-$form->addRule('ldap_sync_interval', _("Compulsory field"), 'required');
+$form->addRule('ldap_sync_interval', _('Compulsory field'), 'required');
 // A minimum value of 1 hour is required and it should be an integer
 $form->registerRule('minimalValue', 'callback', 'minimalValue');
-$form->addRule('ldap_sync_interval', _("An integer with a minimum value of 1 is required"), 'minimalValue');
+$form->addRule('ldap_sync_interval', _('An integer with a minimum value of 1 is required'), 'minimalValue');
 
 /**
  * list of contact template available
@@ -149,7 +134,7 @@ $form->addElement(
     $LdapContactTplList,
     ['id' => 'ldap_contact_tmpl']
 );
-$form->addRule('ldap_contact_tmpl', _("Compulsory Field"), 'required');
+$form->addRule('ldap_contact_tmpl', _('Compulsory Field'), 'required');
 
 /**
  * Default contactgroup for imported contact
@@ -160,37 +145,37 @@ $cgDeRoute = './api/internal.php?object=centreon_configuration_contactgroup'
 $attrContactGroup = ['datasourceOrigin' => 'ajax', 'availableDatasetRoute' => $cgAvRoute, 'defaultDatasetRoute' => $cgDeRoute, 'multiple' => false, 'linkedObject' => 'centreonContactgroup'];
 $form->addElement('select2', 'ldap_default_cg', _('Default contactgroup'), [], $attrContactGroup);
 
-$form->addElement('header', 'ldapinfo', _("LDAP Information"));
+$form->addElement('header', 'ldapinfo', _('LDAP Information'));
 $form->addElement('header', 'ldapserver', _('LDAP Servers'));
-$form->addElement('text', 'bind_dn', _("Bind user"), ["size" => "40", "autocomplete" => "off"]);
-$form->addElement('password', 'bind_pass', _("Bind password"), ["size" => "40", "autocomplete" => "new-password"]);
-$form->addElement('select', 'protocol_version', _("Protocol version"), ['3' => 3, '2' => 2]);
+$form->addElement('text', 'bind_dn', _('Bind user'), ['size' => '40', 'autocomplete' => 'off']);
+$form->addElement('password', 'bind_pass', _('Bind password'), ['size' => '40', 'autocomplete' => 'new-password']);
+$form->addElement('select', 'protocol_version', _('Protocol version'), ['3' => 3, '2' => 2]);
 $form->addElement(
     'select',
     'ldap_template',
-    _("Template"),
-    ['0' => "", 'Active Directory' => _("Active Directory"), 'Okta' => _("Okta"), 'Posix' => _("Posix")],
+    _('Template'),
+    ['0' => '', 'Active Directory' => _('Active Directory'), 'Okta' => _('Okta'), 'Posix' => _('Posix')],
     ['id' => 'ldap_template', 'onchange' => 'applyTemplate(this.value);']
 );
 $form->registerRule('checkLdapFilter', 'callback', 'checkLdapFilterSyntax');
-$form->addElement('text', 'user_base_search', _("Search user base DN"), $attrsText);
-$form->addElement('text', 'group_base_search', _("Search group base DN"), $attrsText);
-$form->addElement('text', 'user_filter', _("User filter"), $attrsText);
-$form->addRule('user_filter', _("Incorrect LDAP filter syntax"), 'checkLdapFilter');
-$form->addElement('text', 'alias', _("Login attribute"), $attrsText);
-$form->addElement('text', 'user_group', _("User group attribute"), $attrsText);
-$form->addElement('text', 'user_name', _("User displayname attribute"), $attrsText);
-$form->addElement('text', 'user_firstname', _("User firstname attribute"), $attrsText);
-$form->addElement('text', 'user_lastname', _("User lastname attribute"), $attrsText);
-$form->addElement('text', 'user_email', _("User email attribute"), $attrsText);
-$form->addElement('text', 'user_pager', _("User pager attribute"), $attrsText);
-$form->addElement('text', 'group_filter', _("Group filter"), $attrsText);
-$form->addRule('group_filter', _("Incorrect LDAP filter syntax"), 'checkLdapFilter');
-$form->addElement('text', 'group_name', _("Group attribute"), $attrsText);
-$form->addElement('text', 'group_member', _("Group member attribute"), $attrsText);
+$form->addElement('text', 'user_base_search', _('Search user base DN'), $attrsText);
+$form->addElement('text', 'group_base_search', _('Search group base DN'), $attrsText);
+$form->addElement('text', 'user_filter', _('User filter'), $attrsText);
+$form->addRule('user_filter', _('Incorrect LDAP filter syntax'), 'checkLdapFilter');
+$form->addElement('text', 'alias', _('Login attribute'), $attrsText);
+$form->addElement('text', 'user_group', _('User group attribute'), $attrsText);
+$form->addElement('text', 'user_name', _('User displayname attribute'), $attrsText);
+$form->addElement('text', 'user_firstname', _('User firstname attribute'), $attrsText);
+$form->addElement('text', 'user_lastname', _('User lastname attribute'), $attrsText);
+$form->addElement('text', 'user_email', _('User email attribute'), $attrsText);
+$form->addElement('text', 'user_pager', _('User pager attribute'), $attrsText);
+$form->addElement('text', 'group_filter', _('Group filter'), $attrsText);
+$form->addRule('group_filter', _('Incorrect LDAP filter syntax'), 'checkLdapFilter');
+$form->addElement('text', 'group_name', _('Group attribute'), $attrsText);
+$form->addElement('text', 'group_member', _('Group member attribute'), $attrsText);
 
-$form->addRule('ar_name', _("Compulsory field"), 'required');
-$form->addRule('ar_description', _("Compulsory field"), 'required');
+$form->addRule('ar_name', _('Compulsory field'), 'required');
+$form->addRule('ar_description', _('Compulsory field'), 'required');
 
 $form->addElement('hidden', 'gopt_id');
 $redirect = $form->addElement('hidden', 'o');
@@ -225,52 +210,48 @@ $gopt = [];
 if ($arId) {
     $gopt = $ldapAdmin->getGeneralOptions($arId);
     $res = $pearDB->prepare(
-        "SELECT `ar_name`, `ar_description`, `ar_enable`, `ar_sync_base_date`
+        'SELECT `ar_name`, `ar_description`, `ar_enable`, `ar_sync_base_date`
         FROM `auth_ressource`
-        WHERE ar_id = :arId"
+        WHERE ar_id = :arId'
     );
     $res->bindValue('arId', $arId, PDO::PARAM_INT);
     $res->execute();
     while ($row = $res->fetch()) {
         // sanitize name and description
-        $gopt['ar_name'] = \HtmlAnalyzer::sanitizeAndRemoveTags($row['ar_name']);
-        $gopt['ar_description'] = \HtmlAnalyzer::sanitizeAndRemoveTags($row['ar_description']);
+        $gopt['ar_name'] = HtmlAnalyzer::sanitizeAndRemoveTags($row['ar_name']);
+        $gopt['ar_description'] = HtmlAnalyzer::sanitizeAndRemoveTags($row['ar_description']);
         $gopt['ldap_auth_enable'] = $row['ar_enable'];
         $gopt['ar_sync_base_date'] = $row['ar_sync_base_date'];
     }
     unset($res);
 
-    /*
-     * Preset values of ldap servers
-     */
+    // Preset values of ldap servers
     $cdata = CentreonData::getInstance();
     $serversArray = $ldapAdmin->getServersFromResId($arId);
     $cdata->addJsData('clone-values-ldapservers', htmlspecialchars(json_encode($serversArray), ENT_QUOTES));
     $cdata->addJsData('clone-count-ldapservers', count($serversArray));
 }
 
-/*
- * LDAP servers
- */
+// LDAP servers
 $cloneSet = [];
 $cloneSet[] = $form->addElement(
     'text',
     'address[#index#]',
-    _("Host address"),
-    ["size" => "30", "id" => "address_#index#"]
+    _('Host address'),
+    ['size' => '30', 'id' => 'address_#index#']
 );
 $cloneSet[] = $form->addElement(
     'text',
     'port[#index#]',
-    _("Port"),
-    ["size" => "10", "id" => "port_#index#"]
+    _('Port'),
+    ['size' => '10', 'id' => 'port_#index#']
 );
 $cbssl = $form->addElement(
     'checkbox',
     'ssl[#index#]',
-    _("SSL"),
-    "",
-    ["id" => "ssl_#index#"]
+    _('SSL'),
+    '',
+    ['id' => 'ssl_#index#']
 );
 $cbssl->setText('');
 $cloneSet[] = $cbssl;
@@ -278,9 +259,9 @@ $cloneSet[] = $cbssl;
 $cbtls = $form->addElement(
     'checkbox',
     'tls[#index#]',
-    _("TLS"),
-    "",
-    ["id" => "tls_#index#"]
+    _('TLS'),
+    '',
+    ['id' => 'tls_#index#']
 );
 $cbtls->setText('');
 $cloneSet[] = $cbtls;
@@ -291,26 +272,26 @@ $form->setDefaults($gopt);
 $ar = $form->addElement('hidden', 'ar_id');
 $ar->setValue($arId);
 
-$subC = $form->addElement('submit', 'submitC', _("Save"), ["class" => "btc bt_success"]);
-$DBRESULT = $form->addElement('reset', 'reset', _("Reset"), ["class" => "btc bt_default"]);
+$subC = $form->addElement('submit', 'submitC', _('Save'), ['class' => 'btc bt_success']);
+$DBRESULT = $form->addElement('reset', 'reset', _('Reset'), ['class' => 'btc bt_default']);
 
 $nbOfInitialRows = 0;
 $maxHostId = 1;
 if ($arId) {
     $res = $pearDB->prepare(
-        "SELECT COUNT(*) as nb FROM auth_ressource_host WHERE auth_ressource_id = :arId"
+        'SELECT COUNT(*) as nb FROM auth_ressource_host WHERE auth_ressource_id = :arId'
     );
-    $res->bindValue(':arId', (int)$arId, \PDO::PARAM_INT);
+    $res->bindValue(':arId', (int) $arId, PDO::PARAM_INT);
     $res->execute();
     $row = $res->fetch();
     $nbOfInitialRows = $row['nb'];
 
     $res = $pearDB->prepare(
-        "SELECT MAX(ldap_host_id) as cnt 
+        'SELECT MAX(ldap_host_id) as cnt 
         FROM auth_ressource_host 
-        WHERE auth_ressource_id = :arId"
+        WHERE auth_ressource_id = :arId'
     );
-    $res->bindValue(':arId', (int)$arId, \PDO::PARAM_INT);
+    $res->bindValue(':arId', (int) $arId, PDO::PARAM_INT);
     $res->execute();
     if ($res->rowCount()) {
         $row = $res->fetch();
@@ -327,18 +308,18 @@ $allHostsOk = true;
 if ($form->validate()) {
     $values = $form->getSubmitValues();
     // sanitize name and description
-    $values['ar_name'] = \HtmlAnalyzer::sanitizeAndRemoveTags($values['ar_name']);
-    $values['ar_description'] = \HtmlAnalyzer::sanitizeAndRemoveTags($values['ar_description']);
+    $values['ar_name'] = HtmlAnalyzer::sanitizeAndRemoveTags($values['ar_name']);
+    $values['ar_description'] = HtmlAnalyzer::sanitizeAndRemoveTags($values['ar_description']);
 
     // Check if sanitized name and description are not empty
     if (
-        "" === $values['ar_name']
-        || "" === $values['ar_description']
+        '' === $values['ar_name']
+        || '' === $values['ar_description']
     ) {
         $validNameOrDescription = false;
     } else {
         // Test if filter string is valid
-        if (!CentreonLDAP::validateFilterPattern($values['user_filter'])) {
+        if (! CentreonLDAP::validateFilterPattern($values['user_filter'])) {
             $filterValid = false;
         }
 
@@ -351,12 +332,12 @@ if ($form->validate()) {
         }
 
         if ($filterValid && $allHostsOk) {
-            if (!isset($values['ldap_contact_tmpl'])) {
-                $values['ldap_contact_tmpl'] = "";
+            if (! isset($values['ldap_contact_tmpl'])) {
+                $values['ldap_contact_tmpl'] = '';
             }
 
-            if (!isset($values['ldap_default_cg'])) {
-                $values['ldap_default_cg'] = "";
+            if (! isset($values['ldap_default_cg'])) {
+                $values['ldap_default_cg'] = '';
             }
 
             // setting a reference time to calculate the expected synchronization
@@ -368,7 +349,7 @@ if ($form->validate()) {
             if (
                 isset($values['ldap_auto_sync']['ldap_auto_sync'])
                 && $gopt['ldap_auto_sync'] === $values['ldap_auto_sync']['ldap_auto_sync']
-                && !empty($gopt['ar_sync_base_date'])
+                && ! empty($gopt['ar_sync_base_date'])
                 && ($gopt['ar_sync_base_date'] + ($values['ldap_sync_interval'] * 3600)) > $currentTime
                 && $currentTime > $gopt['ar_sync_base_date']
             ) {
@@ -384,67 +365,63 @@ if ($form->validate()) {
             }
 
             $arId = $ldapAdmin->setGeneralOptions($values, $values['ar_id']);
-            $o = "w";
+            $o = 'w';
             $valid = true;
 
-            if (!isset($values['ldap_srv_dns']['ldap_srv_dns']) || !$values['ldap_srv_dns']['ldap_srv_dns']) {
-                $tpl->assign("hideDnsOptions", 1);
+            if (! isset($values['ldap_srv_dns']['ldap_srv_dns']) || ! $values['ldap_srv_dns']['ldap_srv_dns']) {
+                $tpl->assign('hideDnsOptions', 1);
             } else {
-                $tpl->assign("hideDnsOptions", 0);
+                $tpl->assign('hideDnsOptions', 0);
             }
 
-            $tpl->assign("hideSyncInterval", (int)$values['ldap_auto_sync']['ldap_auto_sync'] ?? 0);
+            $tpl->assign('hideSyncInterval', (int) $values['ldap_auto_sync']['ldap_auto_sync'] ?? 0);
             $form->freeze();
         }
     }
 }
 
-if (!$form->validate() && isset($_POST["gopt_id"])) {
-    print("<div class='msg' align='center'>" . _("Impossible to validate, one or more field is incorrect") . "</div>");
+if (! $form->validate() && isset($_POST['gopt_id'])) {
+    echo "<div class='msg' align='center'>" . _('Impossible to validate, one or more field is incorrect') . '</div>';
 } elseif (false === $filterValid) {
-    print("<div class='msg' align='center'>"
-        . _("Bad ldap filter: missing %s pattern. Check user or group filter") . "</div>");
+    echo "<div class='msg' align='center'>"
+        . _('Bad ldap filter: missing %s pattern. Check user or group filter') . '</div>';
 } elseif (false === $allHostsOk) {
-    print("<div class='msg' align='center'>" . _("Invalid LDAP Host parameters") . "</div>");
+    echo "<div class='msg' align='center'>" . _('Invalid LDAP Host parameters') . '</div>';
 } elseif (false === $validNameOrDescription) {
-    print("<div class='msg' align='center'>" . _("Invalid name or description") . "</div>");
+    echo "<div class='msg' align='center'>" . _('Invalid name or description') . '</div>';
 }
 
 $form->addElement(
-    "button",
-    "change",
-    _("Modify"),
-    ["onClick" => "javascript:window.location.href='?p=" . $p . "&o=ldap&ar_id=" . $arId . "'"]
+    'button',
+    'change',
+    _('Modify'),
+    ['onClick' => "javascript:window.location.href='?p=" . $p . '&o=ldap&ar_id=' . $arId . "'"]
 );
 
-/*
- * Prepare help texts
- */
-$helptext = "";
-include_once("help.php");
+// Prepare help texts
+$helptext = '';
+include_once 'help.php';
 foreach ($help as $key => $text) {
     $helptext .= '<span style="display:none" id="help:' . $key . '">' . $text . '</span>' . "\n";
 }
-$tpl->assign("helptext", $helptext);
+$tpl->assign('helptext', $helptext);
 
 if ($valid) {
     require_once $path . 'ldap/list.php';
 } else {
-    /*
-     * Apply a template definition
-     */
+    // Apply a template definition
     $renderer = new HTML_QuickForm_Renderer_ArraySmarty($tpl);
     $renderer->setRequiredTemplate('{$label}&nbsp;<font color="red" size="1">*</font>');
     $renderer->setErrorTemplate('<font color="red">{$error}</font><br />{$html}');
     $form->accept($renderer);
-    $tpl->assign("hideSyncInterval", 0);
+    $tpl->assign('hideSyncInterval', 0);
     $tpl->assign('form', $renderer->toArray());
     $tpl->assign('centreon_path', $centreon->optGen['oreon_path']);
     $tpl->assign('cloneSet', $cloneSet);
     $tpl->assign('o', $o);
-    $tpl->assign("optGen_ldap_properties", _("LDAP Properties"));
+    $tpl->assign('optGen_ldap_properties', _('LDAP Properties'));
     $tpl->assign('addNewHostLabel', _('LDAP servers'));
     $tpl->assign('manualImport', _('Import users manually'));
     $tpl->assign('valid', $valid);
-    $tpl->display("form.ihtml");
+    $tpl->display('form.ihtml');
 }

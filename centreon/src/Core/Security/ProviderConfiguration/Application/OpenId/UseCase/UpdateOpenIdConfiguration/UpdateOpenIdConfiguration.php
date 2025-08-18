@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -63,7 +63,8 @@ use Core\Security\Vault\Domain\Model\VaultConfiguration;
  */
 class UpdateOpenIdConfiguration
 {
-    use LoggerTrait, VaultTrait;
+    use LoggerTrait;
+    use VaultTrait;
 
     /**
      * @param WriteOpenIdConfigurationRepositoryInterface $repository
@@ -492,7 +493,7 @@ class UpdateOpenIdConfiguration
             $data[VaultConfiguration::OPENID_CLIENT_SECRET_KEY] = $requestArray['client_secret'];
         }
 
-        if (! empty($data)) {
+        if ($data !== []) {
             $vaultPaths = $this->writeVaultRepository->upsert(
                 $uuid,
                 $data

@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -78,8 +78,8 @@ it('should present a provider configuration', function (): void {
             []
         ),
         'authentication_conditions' => new AuthenticationConditions(false, '', new Endpoint(), []),
-        "groups_mapping" => new GroupsMapping(false, "", new Endpoint(), []),
-        'redirect_url' => null
+        'groups_mapping' => new GroupsMapping(false, '', new Endpoint(), []),
+        'redirect_url' => null,
     ]);
     $configuration->setCustomConfiguration($customConfiguration);
 
