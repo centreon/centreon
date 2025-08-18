@@ -511,7 +511,15 @@ class CentreonHost extends CentreonObject
             $centreonConfig = new CentreonConfigurationChange($this->dependencyInjector['configuration_db']);
             $previousPollerIds = $centreonConfig->findPollersForConfigChangeFlagFromHostIds([$hostId]);
 
-            parent::setparam($parameters);
+            if ($params['is_extended'] === true) {
+                unset($params['objectId']);
+                unset($params['is_extended']);
+                $extended = new Centreon_Object_Host_Extended($this->dependencyInjector);
+                $extended->update($hostId, $params);
+            } else {
+                var_dump($parameters);
+                parent::setparam($parameters);
+            }
 
             $centreonConfig->signalConfigurationChange(
                 CentreonConfigurationChange::RESOURCE_TYPE_HOST,
@@ -746,106 +754,103 @@ class CentreonHost extends CentreonObject
         }
 
         $objectId = $this->getObjectId($params[self::ORDER_UNIQUENAME]);
-        if ($objectId != 0) {
-            $extended = false;
-            $commandObject = new CentreonCommand($this->dependencyInjector);
-            switch ($params[1]) {
-                case 'check_command':
-                    $params[1] = 'command_command_id';
-                    $params[2] = $commandObject->getId($params[2]);
-                    break;
-                case 'check_command_arguments':
-                    $params[1] = 'command_command_id_arg1';
-                    break;
-                case 'event_handler':
-                    $params[1] = 'command_command_id2';
-                    $params[2] = $commandObject->getId($params[2]);
-                    break;
-                case 'event_handler_arguments':
-                    $params[1] = 'command_command_id_arg2';
-                    break;
-                case 'check_period':
-                    $params[1] = 'timeperiod_tp_id';
-                    $tpObj = new CentreonTimePeriod($this->dependencyInjector);
-                    $params[2] = $tpObj->getTimeperiodId($params[2]);
-                    break;
-                case 'notification_period':
-                    $params[1] = 'timeperiod_tp_id2';
-                    $tpObj = new CentreonTimePeriod($this->dependencyInjector);
-                    $params[2] = $tpObj->getTimeperiodId($params[2]);
-                    break;
-                case 'geo_coords':
-                    if (! CentreonUtils::validateGeoCoords($params[2])) {
-                        throw new CentreonClapiException(self::INVALID_GEO_COORDS);
-                    }
-                    break;
-                case 'contact_additive_inheritance':
-                case 'cg_additive_inheritance':
-                case 'flap_detection_options':
-                    break;
-                case 'notes':
-                case 'notes_url':
-                case 'action_url':
-                case 'icon_image':
-                case 'icon_image_alt':
-                case 'statusmap_image':
-                case '2d_coords':
-                case '3d_coords':
-                    $extended = true;
-                    break;
-                case 'host_notification_options':
-                    $aNotifs = explode(',', $params[2]);
-                    foreach ($aNotifs as $notif) {
-                        if (! array_key_exists($notif, self::$aAuthorizedNotificationsOptions)) {
-                            throw new CentreonClapiException(self::UNKNOWN_NOTIFICATION_OPTIONS);
-                        }
-                    }
-                    break;
-                case self::HOST_LOCATION:
-                    $iIdTimezone = $this->timezoneObject->getIdByParameter(
-                        $this->timezoneObject->getUniqueLabelField(),
-                        $params[2]
-                    );
-                    if (count($iIdTimezone)) {
-                        $iIdTimezone = $iIdTimezone[0];
-                    } else {
-                        throw new CentreonClapiException(self::UNKNOWN_TIMEZONE);
-                    }
-                    $params[1] = 'host_location';
-                    $params[2] = $iIdTimezone;
-                    break;
-                default:
-                    if (! preg_match('/^host_/', $params[1])) {
-                        $params[1] = 'host_' . $params[1];
-                    }
-                    break;
-            }
+        if ($objectId == 0) {
+            throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ":" . $params[self::ORDER_UNIQUENAME]);
+        }
 
-            if ($extended == false) {
-                $updateParams = [$params[1] => $params[2]];
-                $updateParams['objectId'] = $objectId;
+        $extended = false;
+        $commandObject = new CentreonCommand($this->dependencyInjector);
+        switch ($params[1]) {
+            case "check_command":
+                $params[1] = "command_command_id";
+                $params[2] = $commandObject->getId($params[2]);
+                break;
+            case "check_command_arguments":
+                $params[1] = "command_command_id_arg1";
+                break;
+            case "event_handler":
+                $params[1] = "command_command_id2";
+                $params[2] = $commandObject->getId($params[2]);
+                break;
+            case "event_handler_arguments":
+                $params[1] = "command_command_id_arg2";
+                break;
+            case "check_period":
+                $params[1] = "timeperiod_tp_id";
+                $tpObj = new CentreonTimePeriod($this->dependencyInjector);
+                $params[2] = $tpObj->getTimeperiodId($params[2]);
+                break;
+            case "notification_period":
+                $params[1] = "timeperiod_tp_id2";
+                $tpObj = new CentreonTimePeriod($this->dependencyInjector);
+                $params[2] = $tpObj->getTimeperiodId($params[2]);
+                break;
+            case "geo_coords":
+                if (!CentreonUtils::validateGeoCoords($params[2])) {
+                    throw new CentreonClapiException(self::INVALID_GEO_COORDS);
+                }
+                break;
+            case "contact_additive_inheritance":
+            case "cg_additive_inheritance":
+            case "flap_detection_options":
+                break;
+            case "notes":
+            case "notes_url":
+            case "action_url":
+            case "icon_image":
+            case "icon_image_alt":
+            case "statusmap_image":
+            case "2d_coords":
+            case "3d_coords":
+                $extended = true;
+                break;
+            case "host_notification_options":
+                $aNotifs = explode(",", $params[2]);
+                foreach ($aNotifs as $notif) {
+                    if (!array_key_exists($notif, self::$aAuthorizedNotificationsOptions)) {
+                        throw new CentreonClapiException(self::UNKNOWN_NOTIFICATION_OPTIONS);
+                    }
+                }
+                break;
+            case self::HOST_LOCATION:
+                $iIdTimezone = $this->timezoneObject->getIdByParameter(
+                    $this->timezoneObject->getUniqueLabelField(),
+                    $params[2]
+                );
+                if (count($iIdTimezone)) {
+                    $iIdTimezone = $iIdTimezone[0];
+                } else {
+                    throw new CentreonClapiException(self::UNKNOWN_TIMEZONE);
+                }
+                $params[1] = 'host_location';
+                $params[2] = $iIdTimezone;
+                break;
+            default:
+                if (!preg_match("/^host_/", $params[1])) {
+                    $params[1] = "host_" . $params[1];
+                }
+                break;
+        }
 
-                return $updateParams;
-            }
-            $params[1] = 'ehi_' . $params[1];
-            if ($params[1] == 'ehi_icon_image' || $params[1] == 'ehi_statusmap_image') {
+        if ($extended == true) {
+            $params[1] = "ehi_" . $params[1];
+            if ($params[1] == "ehi_icon_image" || $params[1] == "ehi_statusmap_image") {
                 if ($params[2]) {
                     $id = CentreonUtils::getImageId($params[2], $this->db);
                     if (is_null($id)) {
-                        throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ':' . $params[2]);
+                        throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ":" . $params[2]);
                     }
                     $params[2] = $id;
                 } else {
                     $params[2] = null;
                 }
             }
-            $extended = new Centreon_Object_Host_Extended($this->dependencyInjector);
-            $extended->update($objectId, [$params[1] => $params[2]]);
-
-            return [];
         }
+        $updateParams = [$params[1] => $params[2]];
+        $updateParams['objectId'] = $objectId;
+        $updateParams['is_extended'] = $extended;
 
-        throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ':' . $params[self::ORDER_UNIQUENAME]);
+        return $updateParams;
     }
 
     /**
