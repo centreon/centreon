@@ -170,9 +170,9 @@ try {
     if ($form->validate()) {
         $cntObj = new CentreonConnector($pearDB);
         $tab = $form->getSubmitValues();
-        $connectorValues = array();
-        $connectorValues['name'] = \HtmlAnalyzer::sanitizeAndRemoveTags($tab['connector_name']);
-        $connectorValues['description'] = \HtmlAnalyzer::sanitizeAndRemoveTags($tab['connector_description']);
+        $connectorValues = [];
+        $connectorValues['name'] = $tab['connector_name'];
+        $connectorValues['description'] = $tab['connector_description'];
         $connectorValues['enabled'] = $tab['connector_status']['connector_status'] === '0' ? 0 : 1;
         $connectorValues['command_id'] = isset($tab['command_id']) ? $tab['command_id'] : null;
         $connectorValues['command_line'] = $tab['command_line'];
