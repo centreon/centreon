@@ -46,7 +46,7 @@
     "pear/pear-core-minimal": "1.10.*",
     "phpdocumentor/reflection-docblock": "5.4.*",
     "pimple/pimple": "3.5.*",
-    "psr/container": "1.1.*",
+    "psr/container": "2.0.*",
     "smarty-gettext/smarty-gettext": "1.7.*",
     "smarty/smarty": "4.5.*",
     "symfony/asset": "7.3.*",
@@ -90,6 +90,7 @@
     "php-vfs/php-vfs": "1.4.*",
     "robertfausk/mink-panther-driver": "1.1.*",
     "squizlabs/php_codesniffer": "3.10.*",
+    "symfony/debug-bundle": "7.3.*",
     "symfony/phpunit-bridge": "7.3.*",
     "symfony/stopwatch": "7.3.*",
     "symfony/var-dumper": "7.3.*",
@@ -143,11 +144,23 @@
     },
     "allow-plugins": {
       "pestphp/pest-plugin": false,
-      "symfony/flex": false,
+      "symfony/flex": true,
       "symfony/runtime": true
     }
   },
   "scripts": {
+    "auto-scripts": {
+      "cache:clear": "symfony-cmd",
+      "assets:install %PUBLIC_DIR%": "symfony-cmd"
+    },
+    "post-install-cmd": [
+      "@auto-scripts"
+    ],
+    "post-update-cmd": [
+      "@auto-scripts"
+    ],
+    "symfony:update": "composer update symfony/* --with-all-dependencies --no-scripts",
+    "symfony:update:test": "composer update symfony/* --with-all-dependencies --no-scripts --dry-run",
     "require:check": "../php-tools/vendor/bin/composer-require-checker check composer.json",
     "symfony:check": "php bin/console lint:yaml config src --parse-tags && php bin/console lint:container",
     "rector:legacy": "../php-tools/vendor/bin/rector process --config=rector.legacy.php --dry-run",
@@ -243,11 +256,15 @@
       "@test"
     ]
   },
+  "conflict": {
+    "symfony/symfony": "*"
+  },
   "extra": {
+    "public-dir": "www",
     "symfony": {
       "allow-contrib": true,
       "require": "7.3.*",
-      "public-dir": "www"
+      "docker": false
     }
   }
 }

@@ -5,7 +5,7 @@ services:
     autoconfigure: true # Automatically registers your services as commands, event subscribers, controller...
 
   CentreonOpenTickets\:
-    resource: '../../../src/CentreonOpenTickets/*'
+    resource: '../../src/CentreonOpenTickets/*'
 
   _instanceof:
     Core\Resources\Infrastructure\Repository\ExtraDataProviders\ExtraDataProviderInterface:

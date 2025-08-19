@@ -831,7 +831,7 @@ function updateMetaServiceContact($metaId)
     if (! $metaId || ! is_numeric($metaId)) {
         return;
     }
-    global $form, $pearDB;
+    global $form, $pearDB, $centreon;
     $qbDelete = $pearDB->createQueryBuilder();
     $queryPurge = $qbDelete->delete('meta_contact')
         ->where('meta_id = :meta_id')
@@ -851,27 +851,75 @@ function updateMetaServiceContact($metaId)
         );
     }
     $ret = CentreonUtils::mergeWithInitialValues($form, 'ms_cs');
-    if (count($ret)) {
-        // Build a single INSERT query with multiple values
-        $values = [];
-        $params = [];
-        try {
-            foreach ($ret as $key => $contactId) {
-                $values[] = "(:metaId_{$key}, :contactId_{$key})";
-                $params["metaId_{$key}"] = QueryParameter::int("metaId_{$key}", (int) $metaId);
-                $params["contactId_{$key}"] = QueryParameter::int("contactId_{$key}", (int) $contactId);
-            }
-            $queryAddRelation = 'INSERT INTO meta_contact (meta_id, contact_id) VALUES ' . implode(', ', $values);
+    $userId = $centreon->user->get_id();
+    if (! in_array($userId, $ret) && $centreon->user->admin !== '1') {
+        $ret[] = $userId;
+    }
+
+    $values = '';
+    $params = [];
+
+    try {
+        foreach ($ret as $key => $contactId) {
+            $values .= " (:metaId_{$key}, :contactId_{$key})";
+            $params["metaId_{$key}"] = QueryParameter::int("metaId_{$key}", (int) $metaId);
+            $params["contactId_{$key}"] = QueryParameter::int("contactId_{$key}", (int) $contactId);
+        }
+        $queryAddRelation = "INSERT INTO meta_contact (meta_id, contact_id) VALUES {$values}";
+        $isTransactionActive = $pearDB->isTransactionActive();
+        if (! $isTransactionActive) {
+            $pearDB->beginTransaction();
+        }
+
+        if ($values !== '') {
             $pearDB->insert($queryAddRelation, QueryParameters::create(array_values($params)));
-        } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
-            CentreonLog::create()->error(
-                CentreonLog::TYPE_SQL,
-                'Error inserting meta_contact relations',
-                [
-                    'metaId' => $metaId,
-                ],
-                $exception
-            );
+        }
+
+        if ($centreon->user->admin !== '1') {
+            // get ACL resources IDs for the current user
+            $acl = new CentreonACL($centreon->user->user_id, $centreon->user->admin);
+            $selectAclQuery = "SELECT ar.acl_res_id
+                    FROM acl_res_group_relations argr
+                    INNER JOIN acl_resources ar on ar.acl_res_id = argr.acl_res_id and ar.acl_res_activate = '1'
+                    WHERE acl_group_id IN ({$acl->getAccessGroupsString('ID')})";
+            $aclResIds = $pearDB->fetchAllAssociative($selectAclQuery);
+            $paramsAcl = [QueryParameter::int('metaId', (int) $metaId)];
+            $values = '';
+            foreach ($aclResIds as $aclResId) {
+                $values .= " (:acl_res_id_{$aclResId['acl_res_id']}, :metaId)";
+                $paramsAcl[] = QueryParameter::int("acl_res_id_{$aclResId['acl_res_id']}", (int) $aclResId['acl_res_id']);
+            }
+            // update acl_resources_meta_relations
+            if ($values !== '') {
+                $queryAcl = "INSERT INTO acl_resources_meta_relations (acl_res_id, meta_id) VALUES {$values}";
+                $pearDB->insert($queryAcl, QueryParameters::create($paramsAcl));
+            }
+        }
+        if (! $isTransactionActive) {
+            $pearDB->commitTransaction();
+        }
+    } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
+        CentreonLog::create()->error(
+            CentreonLog::TYPE_SQL,
+            'Error updating Meta Service Contact',
+            [
+                'metaId' => $metaId,
+            ],
+            $exception
+        );
+        if (! $isTransactionActive) {
+            try {
+                $pearDB->rollBackTransaction();
+            } catch (ConnectionException $rollbackException) {
+                CentreonLog::create()->error(
+                    CentreonLog::TYPE_SQL,
+                    "Rollback failed for updating meta service contact: {$rollbackException->getMessage()}",
+                    [
+                        'metaId' => $metaId,
+                        'exception' => $rollbackException->getContext(),
+                    ]
+                );
+            }
         }
     }
 }
