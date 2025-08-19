@@ -1035,6 +1035,8 @@ msgstr "Informations supplémentaires"
 
 #: centreon/www/include/configuration/configObject/contact/formContact.php
 #: centreon/www/include/configuration/configObject/host/formHost.php
+#: centreon/www/include/configuration/configServers/formServers.php
+#: centreon/www/include/configuration/configServers/listServers.php
 msgid "Address"
 msgstr "Adresse"
 
@@ -8795,8 +8797,6 @@ msgid "IP"
 msgstr "IP"
 
 #: centreon/www/include/monitoring/status/Hosts/hostJS.php
-#: centreon/www/include/configuration/configServers/formServers.php
-#: centreon/www/include/configuration/configServers/listServers.php
 #: centreon/www/include/options/session/connected_user.php
 #: centreon/www/include/options/accessLists/reloadACL/reloadACL.php
 msgid "IP Address"
@@ -14614,8 +14614,8 @@ msgstr "Assistant de configuration du serveur"
 
 #: centreon/www/install/react_translation.php
 #: centreon/www/install/front_translate.php
-msgid "Server IP address"
-msgstr "Adresse IP du serveur"
+msgid "Server Address"
+msgstr "Adresse du serveur"
 
 #: centreon/www/include/configuration/configServers/formServers.php
 msgid "Server Information"
@@ -16194,16 +16194,16 @@ msgid "The '%s' command name already exists"
 msgstr "Le nom de commande '%s' existe déjà"
 
 #: centreon/www/include/configuration/configServers/formServers.php
-msgid "The IP address is already registered"
-msgstr "L'adresse IP est déjà enregistrée"
+msgid "The address is already registered"
+msgstr "L'adresse est déjà enregistrée"
 
 #: centreon/www/include/configuration/configServers/formServers.php
-msgid "The IP address is already registered on another poller"
-msgstr "L'adresse IP est déjà enregistrée sur un autre collecteur"
+msgid "The address is already registered on another poller"
+msgstr "L'adresse est déjà enregistrée sur un autre collecteur"
 
 #: centreon/www/include/configuration/configServers/formServers.php
-msgid "The IP address is incorrect"
-msgstr "L'adresse IP est incorrecte"
+msgid "The address is incorrect"
+msgstr "L'adresse est incorrecte"
 
 #: centreon/src/Centreon/Domain/Service/JsonValidator/Validator.php
 msgid "The JSON cannot be decoded"

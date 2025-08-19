@@ -17,7 +17,7 @@ export const labelCreateRemoteServer = 'Create new Remote Server';
 export const labelSelectRemoteServer = 'Select a Remote Server';
 export const labelSelectRemoteLinks = 'Select Pending Remote Links';
 export const labelServerName = 'Server Name';
-export const labelServerIp = 'Server IP address';
+export const labelServerIp = 'Server Address';
 
 export const labelDbUser = 'Database username';
 export const labelDbPassword = 'Database password';

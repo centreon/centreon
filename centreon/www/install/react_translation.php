@@ -36,7 +36,7 @@ echo _('Add a Centreon Poller');
 echo _('Remote Server Configuration');
 echo _('Create new Remote Server');
 echo _('Server Name');
-echo _('Server IP address');
+echo _('Server Address');
 echo _('Database username');
 echo _('Database password');
 echo _('Centreon Central IP address, as seen by this server');

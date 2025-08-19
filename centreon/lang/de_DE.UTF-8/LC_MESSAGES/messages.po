@@ -1027,6 +1027,8 @@ msgstr ""
 
 #: centreon/www/include/configuration/configObject/contact/formContact.php
 #: centreon/www/include/configuration/configObject/host/formHost.php
+#: centreon/www/include/configuration/configServers/formServers.php
+#: centreon/www/include/configuration/configServers/listServers.php
 msgid "Address"
 msgstr "Adresse"
 
@@ -8681,8 +8683,6 @@ msgid "IP"
 msgstr "IP"
 
 #: centreon/www/include/monitoring/status/Hosts/hostJS.php
-#: centreon/www/include/configuration/configServers/formServers.php
-#: centreon/www/include/configuration/configServers/listServers.php
 #: centreon/www/include/options/session/connected_user.php
 #: centreon/www/include/options/accessLists/reloadACL/reloadACL.php
 msgid "IP Address"
@@ -14467,7 +14467,7 @@ msgstr "Server Konfigurationsassistent"
 
 #: centreon/www/install/react_translation.php
 #: centreon/www/install/front_translate.php
-msgid "Server IP address"
+msgid "Server Address"
 msgstr "Server IP-Adresse"
 
 #: centreon/www/include/configuration/configServers/formServers.php
@@ -16042,16 +16042,16 @@ msgid "The '%s' command name already exists"
 msgstr ""
 
 #: centreon/www/include/configuration/configServers/formServers.php
-msgid "The IP address is already registered"
-msgstr "Die IP-Adresse ist bereits registriert"
+msgid "The address is already registered"
+msgstr "Die Adresse ist bereits registriert"
 
 #: centreon/www/include/configuration/configServers/formServers.php
-msgid "The IP address is already registered on another poller"
-msgstr "Die IP-Adresse ist bereits auf einem anderen Poller registriert"
+msgid "The address is already registered on another poller"
+msgstr "Die Adresse ist bereits auf einem anderen Poller registriert"
 
 #: centreon/www/include/configuration/configServers/formServers.php
-msgid "The IP address is incorrect"
-msgstr "Die IP-Adresse ist falsch"
+msgid "The address is incorrect"
+msgstr "Die Adresse ist falsch"
 
 #: centreon/src/Centreon/Domain/Service/JsonValidator/Validator.php
 msgid "The JSON cannot be decoded"
