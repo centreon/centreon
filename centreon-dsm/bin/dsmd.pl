@@ -232,7 +232,7 @@ sub get_alarms {
         FROM mod_dsm_cache mdc, hosts
         WHERE mdc.host_id = hosts.host_id AND
             hosts.enabled = '1'
-        GROUP BY CONCAT(mdc.host_id, '_', mdc.pool_prefix)
+        GROUP BY mdc.host_id, mdc.pool_prefix
         "
     );
     if ($status == -1) {
