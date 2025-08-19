@@ -252,7 +252,7 @@ $form->addElement('select', 'o1', null, $actions, ['onchange' => "javascript:sub
 $form->addElement('select', 'o2', null, $actions, ['onchange' => "javascript:submitO('o2');"]);
 if ($centreon->user->admin === '1') {
     $form->addElement(
-        'button',
+        'a',
         'syncDir',
         _('Synchronize Media Directory'),
         ['onClick' => "openPopup({$p})", 'class' => 'btc bt_info ml-2 mr-1'],
