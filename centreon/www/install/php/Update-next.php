@@ -194,8 +194,22 @@ $flagContactsAsServiceAccount = function () use ($pearDB, &$errorMessage): void 
     );
 };
 
+$alterContactPagerSize = function () use ($pearDB, &$errorMessage): void {
+    $errorMessage = 'Unable to alter contact_pager column size in contact table';
+    if ($pearDB->isColumnExist('contact', 'contact_pager')) {
+        $pearDB->executeStatement(
+            <<<'SQL'
+                ALTER TABLE `contact`
+                    MODIFY COLUMN `contact_pager` VARCHAR(300)
+                SQL
+        );
+    }
+};
+
 try {
+
     $addIsEncryptionReadyColumn();
+    $alterContactPagerSize();
 
     if (! $pearDB->inTransaction()) {
         $pearDB->beginTransaction();
