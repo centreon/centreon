@@ -23377,7 +23377,7 @@ msgstr "Nome da Topologia"
 # msgid "Hostgroup availability history"
 # msgstr ""
 
-# msgid "Displays the availability history of hosts, host categories or hostgroups belonging to a hostgroup."
+# msgid "Displays the availability history of hosts, host categories or hostgroups."
 # msgstr ""
 
 # msgid "Thresholds can be hidden if the custom min and max values of the Y axis are below/above the thresholds."
