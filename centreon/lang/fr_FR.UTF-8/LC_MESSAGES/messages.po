@@ -3894,7 +3894,7 @@ msgstr "Vues personnalisées"
 
 #: centreon/www/install/dashboard_widgets.php
 msgid "Custom boundaries apply to the percentage."
-msgstr ""
+msgstr "Les limitations personnalisées s'appliquent au pourcentage."
 
 #: centreon/www/include/configuration/configObject/traps/formTraps.php
 msgid "Custom code"
@@ -18518,7 +18518,7 @@ msgstr "Horodatage d'écriture (déprécié)"
 
 #: centreon/www/install/dashboard_widgets.php
 msgid "Y-axis boundaries"
-msgstr ""
+msgstr "Limitations de l'axe Y"
 
 #: centreon/www/install/dashboard_widgets.php
 msgid "Y-axis label rotation"
@@ -24369,3 +24369,12 @@ msgstr "Affiche l’historique de la disponibilité d’hôtes, catégories d’
 
 msgid "Thresholds can be hidden if the custom min and max values of the Y axis are below/above the thresholds."
 msgstr "Les seuils peuvent être masqués si les valeurs minimales et maximales personnalisées de l'axe Y sont respectivement inférieures et supérieures aux seuils."
+
+msgid "These time periods are defined in MBI'S ETL options."
+msgstr "Ces périodes sont définies dans les options ETL de MBI."
+
+msgid "No data is displayed because the selected resources have not been configured in any MBI report or do not contain enough data."
+msgstr "Aucune donnée n'est affichée car les ressources sélectionnées n'ont été configurées dans aucun rapport MBI ou ne contiennent pas suffisamment de données."
+
+msgid "Click here to configure MBI jobs. Please note that data aggregation may take several days."
+msgstr "Cliquez ici pour configurer les jobs MBI. Veuillez noter que l'agrégation des données peut prendre plusieurs jours."
