@@ -199,6 +199,7 @@ RUN apt update && \
 
 COPY centreon-gorgone/centreon /etc/sudoers.d/centreon
 COPY --chmod=755 centreon-gorgone/service /usr/local/bin/service
+COPY --chown=centreon-gorgone:centreon-gorgone --chmod=775 centreon-gorgone/config/ /etc/centreon-gorgone/
 
 RUN groupadd -g 6000 centreon && \
     useradd -u 6000 -g centreon -m -r -d /var/spool/centreon -c "Centreon" -s /bin/bash centreon && \

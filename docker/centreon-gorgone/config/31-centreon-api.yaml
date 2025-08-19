@@ -1,0 +1,9 @@
+gorgone:
+  tpapi:
+    - name: centreonv2
+      base_url: "http://apache/centreon/api/latest/"
+      username: admin
+      password: Centreon2025!
+    - name: clapi
+      username: admin
+      password: Centreon2025!
