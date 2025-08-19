@@ -942,16 +942,16 @@
         },
         {
             "name": "api-platform/core",
-            "version": "v4.1.18",
+            "version": "v4.1.19",
             "source": {
                 "type": "git",
                 "url": "https://github.com/api-platform/core.git",
-                "reference": "fe921cda3edd0c2efa0c75446dea56a3fb69000d"
+                "reference": "1dcc0da1bc56f2161ecfa863f7820e332a622d37"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/api-platform/core/zipball/fe921cda3edd0c2efa0c75446dea56a3fb69000d",
-                "reference": "fe921cda3edd0c2efa0c75446dea56a3fb69000d",
+                "url": "https://api.github.com/repos/api-platform/core/zipball/1dcc0da1bc56f2161ecfa863f7820e332a622d37",
+                "reference": "1dcc0da1bc56f2161ecfa863f7820e332a622d37",
                 "shasum": ""
             },
             "require": {
@@ -967,6 +967,7 @@
                 "symfony/serializer": "^6.4 || ^7.0",
                 "symfony/translation-contracts": "^3.3",
                 "symfony/type-info": "^7.2",
+                "symfony/validator": "^6.4 || ^7.1",
                 "symfony/web-link": "^6.4 || ^7.1",
                 "willdurand/negotiation": "^3.1"
             },
@@ -1152,9 +1153,9 @@
             ],
             "support": {
                 "issues": "https://github.com/api-platform/core/issues",
-                "source": "https://github.com/api-platform/core/tree/v4.1.18"
+                "source": "https://github.com/api-platform/core/tree/v4.1.19"
             },
-            "time": "2025-07-03T13:10:08+00:00"
+            "time": "2025-07-18T11:49:35+00:00"
         },
         {
             "name": "beberlei/assert",
@@ -3861,22 +3862,27 @@
         },
         {
             "name": "psr/container",
-            "version": "1.1.2",
+            "version": "2.0.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/php-fig/container.git",
-                "reference": "513e0666f7216c7459170d56df27dfcefe1689ea"
+                "reference": "c71ecc56dfe541dbd90c5360474fbc405f8d5963"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-fig/container/zipball/513e0666f7216c7459170d56df27dfcefe1689ea",
-                "reference": "513e0666f7216c7459170d56df27dfcefe1689ea",
+                "url": "https://api.github.com/repos/php-fig/container/zipball/c71ecc56dfe541dbd90c5360474fbc405f8d5963",
+                "reference": "c71ecc56dfe541dbd90c5360474fbc405f8d5963",
                 "shasum": ""
             },
             "require": {
                 "php": ">=7.4.0"
             },
             "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "2.0.x-dev"
+                }
+            },
             "autoload": {
                 "psr-4": {
                     "Psr\\Container\\": "src/"
@@ -3903,9 +3909,9 @@
             ],
             "support": {
                 "issues": "https://github.com/php-fig/container/issues",
-                "source": "https://github.com/php-fig/container/tree/1.1.2"
+                "source": "https://github.com/php-fig/container/tree/2.0.2"
             },
-            "time": "2021-11-05T16:50:12+00:00"
+            "time": "2021-11-05T16:47:00+00:00"
         },
         {
             "name": "psr/event-dispatcher",
@@ -8003,16 +8009,16 @@
         },
         {
             "name": "symfony/twig-bridge",
-            "version": "v7.3.0",
+            "version": "v7.3.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/twig-bridge.git",
-                "reference": "082eb15d8a4f9afee0acc4709fbe3aaf26d48891"
+                "reference": "81d1c69769cf913240afdd4c9673304ddca964b0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/twig-bridge/zipball/082eb15d8a4f9afee0acc4709fbe3aaf26d48891",
-                "reference": "082eb15d8a4f9afee0acc4709fbe3aaf26d48891",
+                "url": "https://api.github.com/repos/symfony/twig-bridge/zipball/81d1c69769cf913240afdd4c9673304ddca964b0",
+                "reference": "81d1c69769cf913240afdd4c9673304ddca964b0",
                 "shasum": ""
             },
             "require": {
@@ -8094,7 +8100,7 @@
             "description": "Provides integration for Twig with various Symfony components",
             "homepage": "https://symfony.com",
             "support": {
-                "source": "https://github.com/symfony/twig-bridge/tree/v7.3.0"
+                "source": "https://github.com/symfony/twig-bridge/tree/v7.3.2"
             },
             "funding": [
                 {
@@ -8106,24 +8112,28 @@
                     "type": "github"
                 },
                 {
+                    "url": "https://github.com/nicolas-grekas",
+                    "type": "github"
+                },
+                {
                     "url": "https://tidelift.com/funding/github/packagist/symfony/symfony",
                     "type": "tidelift"
                 }
             ],
-            "time": "2025-05-19T13:28:56+00:00"
+            "time": "2025-07-26T16:47:03+00:00"
         },
         {
             "name": "symfony/twig-bundle",
-            "version": "v7.3.1",
+            "version": "v7.3.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/twig-bundle.git",
-                "reference": "bc23c11d9716fc2261ee26a32e654b0e8b1b1896"
+                "reference": "5d85220df4d8d79e6a9ca57eea6f70004de39657"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/twig-bundle/zipball/bc23c11d9716fc2261ee26a32e654b0e8b1b1896",
-                "reference": "bc23c11d9716fc2261ee26a32e654b0e8b1b1896",
+                "url": "https://api.github.com/repos/symfony/twig-bundle/zipball/5d85220df4d8d79e6a9ca57eea6f70004de39657",
+                "reference": "5d85220df4d8d79e6a9ca57eea6f70004de39657",
                 "shasum": ""
             },
             "require": {
@@ -8178,7 +8188,7 @@
             "description": "Provides a tight integration of Twig into the Symfony full-stack framework",
             "homepage": "https://symfony.com",
             "support": {
-                "source": "https://github.com/symfony/twig-bundle/tree/v7.3.1"
+                "source": "https://github.com/symfony/twig-bundle/tree/v7.3.2"
             },
             "funding": [
                 {
@@ -8190,11 +8200,15 @@
                     "type": "github"
                 },
                 {
+                    "url": "https://github.com/nicolas-grekas",
+                    "type": "github"
+                },
+                {
                     "url": "https://tidelift.com/funding/github/packagist/symfony/symfony",
                     "type": "tidelift"
                 }
             ],
-            "time": "2025-06-24T04:04:43+00:00"
+            "time": "2025-07-10T08:47:49+00:00"
         },
         {
             "name": "symfony/type-info",
@@ -13569,6 +13583,77 @@
                 }
             ],
             "time": "2024-09-25T14:21:43+00:00"
+        },
+        {
+            "name": "symfony/debug-bundle",
+            "version": "v7.3.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/debug-bundle.git",
+                "reference": "781acc90f31f5fe18915f9276890864ebbbe3da8"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/debug-bundle/zipball/781acc90f31f5fe18915f9276890864ebbbe3da8",
+                "reference": "781acc90f31f5fe18915f9276890864ebbbe3da8",
+                "shasum": ""
+            },
+            "require": {
+                "composer-runtime-api": ">=2.1",
+                "ext-xml": "*",
+                "php": ">=8.2",
+                "symfony/config": "^7.3",
+                "symfony/dependency-injection": "^6.4|^7.0",
+                "symfony/http-kernel": "^6.4|^7.0",
+                "symfony/twig-bridge": "^6.4|^7.0",
+                "symfony/var-dumper": "^6.4|^7.0"
+            },
+            "require-dev": {
+                "symfony/web-profiler-bundle": "^6.4|^7.0"
+            },
+            "type": "symfony-bundle",
+            "autoload": {
+                "psr-4": {
+                    "Symfony\\Bundle\\DebugBundle\\": ""
+                },
+                "exclude-from-classmap": [
+                    "/Tests/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Fabien Potencier",
+                    "email": "fabien@symfony.com"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "https://symfony.com/contributors"
+                }
+            ],
+            "description": "Provides a tight integration of the Symfony VarDumper component and the ServerLogCommand from MonologBridge into the Symfony full-stack framework",
+            "homepage": "https://symfony.com",
+            "support": {
+                "source": "https://github.com/symfony/debug-bundle/tree/v7.3.0"
+            },
+            "funding": [
+                {
+                    "url": "https://symfony.com/sponsor",
+                    "type": "custom"
+                },
+                {
+                    "url": "https://github.com/fabpot",
+                    "type": "github"
+                },
+                {
+                    "url": "https://tidelift.com/funding/github/packagist/symfony/symfony",
+                    "type": "tidelift"
+                }
+            ],
+            "time": "2025-05-04T13:21:13+00:00"
         },
         {
             "name": "symfony/dom-crawler",

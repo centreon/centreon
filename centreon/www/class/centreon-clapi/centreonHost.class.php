@@ -1716,6 +1716,9 @@ class CentreonHost extends CentreonObject
             }
             $this->deployServices($hostId, $templateId);
         }
+
+        $aclObj = new CentreonACL($this->dependencyInjector);
+        $aclObj->reload(false);
     }
 
     /**

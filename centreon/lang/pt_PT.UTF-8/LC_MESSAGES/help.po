@@ -1690,6 +1690,13 @@ msgstr ""
 "Caminho para o log de eventos. \n"
 "Para visualizar eventos na saída padrão, selecione \"stdout\" ou \"stderr\"."
 
+#: centreon/www/include/configuration/configObject/contact/help.php
+msgid ""
+"For security reasons, to be able to change this user's password, you (the "
+"currently logged-in user) must verify your identity by entering your own "
+"password."
+msgstr ""
+
 #: centreon/www/include/Administration/parameters/remote/help.php
 msgid "Full URL allowing access to the API of the Centreon's central server."
 msgstr ""

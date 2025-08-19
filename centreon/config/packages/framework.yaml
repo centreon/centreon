@@ -22,3 +22,9 @@ framework:
         mapping:
             paths:
                 - '%kernel.project_dir%/config/symfony_serializer'
+
+when@test:
+    framework:
+        test: true
+        session:
+            storage_id: session.storage.mock_file
