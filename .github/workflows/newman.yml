@@ -613,22 +613,3 @@ jobs:
           source_paths: postman-html-reports/**/*.html
           source_name_pattern: postman-html-reports-
           github_token: ${{ secrets.GITHUB_TOKEN }}
-
-  create-jira-nightly-ticket:
-    needs: [newman-test-run, synchronize-with-xray, regroup-artifacts]
-    runs-on: ubuntu-24.04
-    if: |
-      inputs.is_nightly == 'true' && github.run_attempt == 1 &&
-      (failure() || cancelled()) &&
-      startsWith(github.ref_name, 'dev') &&
-      github.repository == 'centreon/centreon'
-    steps:
-      - name: Create Jira ticket if nightly build failure
-        uses: ./.github/actions/create-jira-ticket
-        with:
-          jira_base_url: ${{ secrets.jira_base_url }}
-          jira_user_email: ${{ secrets.jira_user_email }}
-          jira_api_token: ${{ secrets.jira_api_token }}
-          module_name: "centreon-web"
-          ticket_labels: '["Nightly", "Pipeline", "nightly-${{ github.ref_name }}", "newman-${{ inputs.os }}-${{ inputs.database_image }}"]'
-          ticket_squad: "Product Backlog"
