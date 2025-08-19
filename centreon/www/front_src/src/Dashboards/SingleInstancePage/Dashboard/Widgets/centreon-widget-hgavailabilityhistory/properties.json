@@ -1,6 +1,6 @@
 {
   "title": "Hostgroup availability history",
-  "description": "Displays the availability history of hosts, host categories or hostgroups belonging to a hostgroup.",
+  "description": "Displays the availability history of hosts, host categories or hostgroups.",
   "widgetType": "MBI",
   "canExpand": true,
   "moduleName": "centreon-widget-hgavailabilityhistory",
