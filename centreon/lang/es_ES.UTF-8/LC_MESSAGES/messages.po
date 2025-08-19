@@ -24926,5 +24926,5 @@ msgstr "Nombre de la topología."
 # msgid "Hostgroup availability history"
 # msgstr ""
 
-# msgid "Displays the availability history of hosts, host categories or hostgroups belonging to a hostgroup."
+# msgid "Displays the availability history of hosts, host categories or hostgroups."
 # msgstr ""
