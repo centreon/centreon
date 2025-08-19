@@ -50,9 +50,9 @@
       "*": "dist"
     },
     "allow-plugins": {
-      "symfony/flex": false,
       "pestphp/pest-plugin": true,
-      "symfony/runtime": true
+      "symfony/flex": false,
+      "symfony/runtime": false
     }
   },
   "scripts": {
