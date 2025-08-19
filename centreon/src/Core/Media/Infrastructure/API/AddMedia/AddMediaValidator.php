@@ -29,7 +29,7 @@ use Symfony\Component\HttpFoundation\Request;
 
 class AddMediaValidator
 {
-    /** @var array<string, mixed> */
+    /** @var array<string|int, mixed> */
     private array $allProperties = [];
 
     public function __construct(readonly private Request $request)
