@@ -2963,7 +2963,7 @@ function callHostApi(string $url, string $httpMethod, array $payload): array
         [
             'headers' => [
                 'Content-Type' => 'application/json',
-                'Cookie' => 'PHPSESSID=' . $_COOKIE['PHPSESSID'],
+                'Cookie' => 'PHPSESSID=' . $_COOKIE['PHPSESSID'] . '; XDEBUG_SESSION=XDEBUG_KEY',
             ],
             'body' => json_encode($payload, JSON_THROW_ON_ERROR),
         ],
@@ -3252,4 +3252,12 @@ function getPayloadForHost(bool $isCloudPlatform, array $formData): array
     }
 
     return $payload;
+}
+
+function computeMacroValue(string|null $value): string|null {
+    if ($value === null) {
+        return $value;
+    }
+    
+    return $value;
 }

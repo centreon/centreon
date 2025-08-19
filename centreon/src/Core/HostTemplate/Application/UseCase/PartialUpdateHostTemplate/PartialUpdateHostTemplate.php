@@ -230,10 +230,6 @@ final class PartialUpdateHostTemplate
             );
         }
 
-        if (! $request->snmpCommunity instanceof NoValue) {
-            $hostTemplate->setSnmpCommunity($request->snmpCommunity);
-        }
-
         if (! $request->timezoneId instanceof NoValue) {
             $this->validation->assertIsValidTimezone($request->timezoneId);
             $hostTemplate->setTimezoneId($request->timezoneId);
@@ -381,19 +377,7 @@ final class PartialUpdateHostTemplate
             $hostTemplate->setComment($request->comment);
         }
 
-        if (
-            $this->writeVaultRepository->isVaultConfigured()
-            && ! $request->snmpCommunity instanceof NoValue
-            && ! $this->isAVaultPath($request->snmpCommunity)
-        ) {
-            $vaultPaths = $this->writeVaultRepository->upsert(
-                $this->uuid ?? null,
-                [VaultConfiguration::HOST_SNMP_COMMUNITY_KEY => $hostTemplate->getSnmpCommunity()]
-            );
-            $vaultPath = $vaultPaths[VaultConfiguration::HOST_SNMP_COMMUNITY_KEY];
-            $this->uuid ??= $this->getUuidFromPath($vaultPath);
-            $hostTemplate->setSnmpCommunity($vaultPath);
-        }
+       $this->updateSnmpCommunity($hostTemplate, $request->snmpCommunity);
 
         $this->writeHostTemplateRepository->update($hostTemplate);
     }
@@ -667,5 +651,56 @@ final class PartialUpdateHostTemplate
         }
 
         return $updatedMacros;
+    }
+
+    /**
+     * Update SNMP community for a host template, handling vault storage and clearing logic.
+     *
+     * @param HostTemplate $hostTemplate
+     * @param NoValue|string|null $snmpCommunity
+     *
+     * @throws \Throwable
+     */
+    private function updateSnmpCommunity(HostTemplate $hostTemplate, NoValue|string|null $snmpCommunity): void
+    {
+        if ($snmpCommunity instanceof NoValue) {
+            return;
+        }
+
+        // If vault is not configured, just set the value directly
+        if (! $this->writeVaultRepository->isVaultConfigured()) {
+            $hostTemplate->setSnmpCommunity($snmpCommunity);
+
+            return;
+        }
+
+        // If the value is already a vault path, do nothing
+        if (is_string($snmpCommunity) && $this->isAVaultPath($snmpCommunity)) {
+            return;
+        }
+
+        // If the current value is a vault path and we want to clear it
+        if ($this->isAVaultPath($hostTemplate->getSnmpCommunity()) && empty($snmpCommunity)) {
+            $this->writeVaultRepository->upsert(
+                uuid: $this->getUuidFromPath($hostTemplate->getSnmpCommunity()),
+                deletes: [VaultConfiguration::HOST_SNMP_COMMUNITY_KEY => $snmpCommunity]
+            );
+            $hostTemplate->setSnmpCommunity($snmpCommunity);
+
+            return;
+        }
+
+        // If the new value is empty, do nothing
+        if (empty($snmpCommunity)) {
+            return;
+        }
+
+        // Otherwise, store in vault and update host template
+        $vaultPaths = $this->writeVaultRepository->upsert(
+            uuid: $this->uuid ?? null,
+            inserts: [VaultConfiguration::HOST_SNMP_COMMUNITY_KEY => $snmpCommunity],
+        );
+        $this->uuid ??= $this->getUuidFromPath($vaultPaths[VaultConfiguration::HOST_SNMP_COMMUNITY_KEY]);
+        $hostTemplate->setSnmpCommunity($vaultPaths[VaultConfiguration::HOST_SNMP_COMMUNITY_KEY]);
     }
 }
