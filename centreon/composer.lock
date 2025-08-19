@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "6ef9e23536748cdec4a15ee0eea58dea",
+    "content-hash": "b07fbbf150efbb876316b788ecb80729",
     "packages": [
         {
             "name": "amphp/amp",
@@ -9395,16 +9395,16 @@
         },
         {
             "name": "centreon/centreon-test-lib",
-            "version": "dev-master",
+            "version": "dev-MON-167547-ACL-medias",
             "source": {
                 "type": "git",
                 "url": "https://github.com/centreon/centreon-test-lib.git",
-                "reference": "42b0b5c3a3cde5df2721750e76b30e0907426764"
+                "reference": "390e182c4ed97e424630c080eeb89e1a4f42ba52"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/centreon/centreon-test-lib/zipball/42b0b5c3a3cde5df2721750e76b30e0907426764",
-                "reference": "42b0b5c3a3cde5df2721750e76b30e0907426764",
+                "url": "https://api.github.com/repos/centreon/centreon-test-lib/zipball/390e182c4ed97e424630c080eeb89e1a4f42ba52",
+                "reference": "390e182c4ed97e424630c080eeb89e1a4f42ba52",
                 "shasum": ""
             },
             "require": {
@@ -9426,7 +9426,6 @@
                 "behat/mink": "Browser controller/emulator abstraction for PHP",
                 "behat/mink-selenium2-driver": "Mink driver using Selenium"
             },
-            "default-branch": true,
             "type": "library",
             "autoload": {
                 "psr-4": {
@@ -9449,9 +9448,9 @@
             ],
             "support": {
                 "issues": "https://github.com/centreon/centreon-test-lib/issues",
-                "source": "https://github.com/centreon/centreon-test-lib/tree/master"
+                "source": "https://github.com/centreon/centreon-test-lib/tree/MON-167547-ACL-medias"
             },
-            "time": "2025-07-21T09:54:54+00:00"
+            "time": "2025-08-19T09:12:19+00:00"
         },
         {
             "name": "composer/pcre",
@@ -14336,7 +14335,7 @@
         "ext-xmlwriter": "*",
         "ext-zip": "*"
     },
-    "platform-dev": [],
+    "platform-dev": {},
     "platform-overrides": {
         "php": "8.2"
     },
