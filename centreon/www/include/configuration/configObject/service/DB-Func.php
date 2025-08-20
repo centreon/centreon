@@ -2027,6 +2027,7 @@ function insertServiceForCloud($submittedValues = [], $onDemandMacro = null)
         try {
             /** @var WriteVaultRepositoryInterface $writeVaultRepository */
             $writeVaultRepository = $kernel->getContainer()->get(WriteVaultRepositoryInterface::class);
+            $writeVaultRepository->setCustomPath(AbstractVaultRepository::SERVICE_VAULT_PATH);
             insertServiceSecretsInVault($writeVaultRepository, $passwordMacros);
         } catch (Throwable $ex) {
             error_log((string) $ex);
@@ -2567,10 +2568,6 @@ function updateService($service_id = null, $from_MC = false, $params = [])
         /** @var WriteVaultRepositoryInterface $writeVaultRepository */
         $writeVaultRepository = $kernel->getContainer()->get(WriteVaultRepositoryInterface::class);
         $writeVaultRepository->setCustomPath(AbstractVaultRepository::SERVICE_VAULT_PATH);
-        $updatedPasswordMacros = array_filter($service->getFormattedMacros(), function ($macro) {
-            return $macro['macroPassword'] === '1'
-                && ! str_starts_with($macro['macroValue'], VaultConfiguration::VAULT_PATH_PATTERN);
-        });
         try {
             updateServiceSecretsInVault(
                 $readVaultRepository,
@@ -2578,7 +2575,7 @@ function updateService($service_id = null, $from_MC = false, $params = [])
                 $logger,
                 $vaultPath,
                 (int) $service_id,
-                $updatedPasswordMacros,
+                $service->getFormattedMacros(),
             );
         } catch (Throwable $ex) {
             error_log((string) $ex);
