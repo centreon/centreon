@@ -676,6 +676,12 @@ final class PartialUpdateHost
                 $action === 'INSERT' ? [$macroPrefixedName => $macro->getValue()] : [],
                 $action === 'DELETE' ? [$macroPrefixedName => $macro->getValue()] : [],
             );
+
+            // No need to update the macro if it is being deleted
+            if ($action === 'DELETE') {
+                return $macro;
+            }
+
             $this->uuid ??= $this->getUuidFromPath($vaultPaths[$macroPrefixedName]);
 
             $inVaultMacro = new Macro($macro->getOwnerId(), $macro->getName(), $vaultPaths[$macroPrefixedName]);

@@ -28,6 +28,8 @@ require_once _CENTREON_PATH_ . 'www/class/centreonContactgroup.class.php';
 require_once _CENTREON_PATH_ . 'www/class/centreonACL.class.php';
 require_once _CENTREON_PATH_ . 'www/include/common/vault-functions.php';
 
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
 use App\Kernel;
 use Centreon\Domain\Log\Logger;
 use Core\ActionLog\Domain\Model\ActionLog;
@@ -2813,7 +2815,7 @@ function insertByApi(array $formData, bool $isCloudPlatform, string $basePath, b
 
     $payload = $isTemplate
         ? getPayloadForHostTemplate($isCloudPlatform, $formData)
-        : getPayloadForHost($isCloudPlatform, $formData);
+        : getPayloadForHost($isCloudPlatform, $formData, $kernel);
 
     $url = $router->generate(
         $isTemplate ? 'AddHostTemplate' : 'AddHost',
@@ -2924,7 +2926,7 @@ function updateByApi(array $formData, bool $isCloudPlatform, string $basePath, b
 
     $payload = $isTemplate
         ? getPayloadForHostTemplate($isCloudPlatform, $formData)
-        : getPayloadForHost($isCloudPlatform, $formData);
+        : getPayloadForHost($isCloudPlatform, $formData, $kernel);
     $parameters = [];
     if ($basePath) {
         $parameters = $isTemplate
@@ -3121,7 +3123,7 @@ function getPayloadForHostTemplate(bool $isCloudPlatform, array $formData): arra
  * @param array $formData
  * @return array<string,mixed>
  */
-function getPayloadForHost(bool $isCloudPlatform, array $formData): array
+function getPayloadForHost(bool $isCloudPlatform, array $formData, Kernel $kernel): array
 {
     global $pearDB;
 
@@ -3162,10 +3164,14 @@ function getPayloadForHost(bool $isCloudPlatform, array $formData): array
         'categories' => array_map(static fn (string $id): int => (int) $id, $formData['host_hcs'] ?? []),
         'groups' => array_map(static fn (string $id): int => (int) $id, $formData['host_hgs'] ?? []),
         'macros' => array_map(
-            static function (int|string $key, string $name, string $value) use ($formData): array {
+            static function (int|string $key, string $name, string $value) use ($formData, $kernel): array {
                 return [
                     'name' => $name,
-                    'value' => $value === PASSWORD_REPLACEMENT_VALUE ? null : $value,
+                    'value' => $value === PASSWORD_REPLACEMENT_VALUE ? computeMacroValue(
+                        ['key' => $key, 'value' => $value, 'name' => $name],
+                        $formData['host_id'],
+                        $kernel
+                    ) : $value,
                     'is_password' => (bool) ($formData['macroPassword'][$key] ?? false),
                     'description' => $formData["macroDescription_{$key}"],
                 ];
@@ -3254,10 +3260,49 @@ function getPayloadForHost(bool $isCloudPlatform, array $formData): array
     return $payload;
 }
 
-function computeMacroValue(string|null $value): string|null {
-    if ($value === null) {
+/**
+ * 
+ */
+function computeMacroValue(array $macroInformations, int $hostId, Kernel $kernel): string|null {
+    global $pearDB;
+    $value = $macroInformations['value'] ?? null;
+
+    $macroOriginalNameKey = 'macroOriginalName_' . $macroInformations['key'];
+    if (isset($_REQUEST[$macroOriginalNameKey])) {
+        $storedMacroName = '$_HOST' . $_REQUEST[$macroOriginalNameKey] . '$';
+        $value = $pearDB->fetchOne(
+            <<<SQL
+                SELECT host_macro_value
+                FROM on_demand_macro_host
+                WHERE host_macro_name = :host_macro_name
+                AND host_host_id = :host_host_id
+                SQL,
+            QueryParameters::create(
+                [
+                    QueryParameter::string('host_macro_name', $storedMacroName),
+                    QueryParameter::int('host_host_id', $hostId),
+                ]
+            )
+        );
+
+        $readVaultRepository = $kernel->getContainer()->get(ReadVaultRepositoryInterface::class);
+        if (! str_starts_with($value, 'secret::') || ! $readVaultRepository->isVaultConfigured()) {
+            return $value;
+        }
+
+        $vaultedMacros = getHostSecretsFromVault(
+            $readVaultRepository,
+            $hostId,
+            $value,
+            Logger::create()
+        );
+
+        if (isset($vaultedMacros['_HOST' . $_REQUEST[$macroOriginalNameKey]])) {
+            return $vaultedMacros['_HOST' . $_REQUEST[$macroOriginalNameKey]];
+        }
+
         return $value;
     }
-    
+
     return $value;
 }
