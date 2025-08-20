@@ -609,6 +609,12 @@ final class PartialUpdateHostTemplate
                 $action === 'DELETE' ? [$macroPrefixedName => $macro->getValue()] : [],
             );
             $vaultPath = $vaultPaths[$macroPrefixedName];
+
+            // No need to update the macro if it is being deleted
+            if ($action === 'DELETE') {
+                return $macro;
+            }
+
             $this->uuid ??= $this->getUuidFromPath($vaultPath);
 
             $inVaultMacro = new Macro($macro->getOwnerId(), $macro->getName(), $vaultPath);

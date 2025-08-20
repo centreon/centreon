@@ -2814,7 +2814,7 @@ function insertByApi(array $formData, bool $isCloudPlatform, string $basePath, b
     $router = $kernel->getContainer()->get(Router::class);
 
     $payload = $isTemplate
-        ? getPayloadForHostTemplate($isCloudPlatform, $formData)
+        ? getPayloadForHostTemplate($isCloudPlatform, $formData, $kernel)
         : getPayloadForHost($isCloudPlatform, $formData, $kernel);
 
     $url = $router->generate(
@@ -2925,7 +2925,7 @@ function updateByApi(array $formData, bool $isCloudPlatform, string $basePath, b
     $router = $kernel->getContainer()->get(Router::class);
 
     $payload = $isTemplate
-        ? getPayloadForHostTemplate($isCloudPlatform, $formData)
+        ? getPayloadForHostTemplate($isCloudPlatform, $formData, $kernel)
         : getPayloadForHost($isCloudPlatform, $formData, $kernel);
     $parameters = [];
     if ($basePath) {
@@ -2990,7 +2990,7 @@ function callHostApi(string $url, string $httpMethod, array $payload): array
  *
  * @return array<string,mixed>
  */
-function getPayloadForHostTemplate(bool $isCloudPlatform, array $formData): array
+function getPayloadForHostTemplate(bool $isCloudPlatform, array $formData, Kernel $kernel): array
 {
     global $pearDB;
 
@@ -3026,10 +3026,14 @@ function getPayloadForHostTemplate(bool $isCloudPlatform, array $formData): arra
         'templates' => array_map(static fn (string $id): int => (int) $id, $formData['tpSelect'] ?? []),
         'categories' => array_map(static fn (string $id): int => (int) $id, $formData['host_hcs'] ?? []),
         'macros' => array_map(
-            static function (int $key, string $name, string $value) use ($formData): array {
+            static function (int|string $key, string $name, string $value) use ($formData, $kernel): array {
                 return [
                     'name' => $name,
-                    'value' => $value === PASSWORD_REPLACEMENT_VALUE ? null : $value,
+                    'value' => $value === PASSWORD_REPLACEMENT_VALUE ? computeMacroValue(
+                        ['key' => $key, 'value' => $value, 'name' => $name],
+                        $formData['host_id'],
+                        $kernel
+                    ) : $value,
                     'is_password' => (bool) ($formData['macroPassword'][$key] ?? false),
                     'description' => $formData["macroDescription_{$key}"],
                 ];
