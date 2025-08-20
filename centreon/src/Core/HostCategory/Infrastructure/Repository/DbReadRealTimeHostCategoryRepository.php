@@ -303,6 +303,8 @@ class DbReadRealTimeHostCategoryRepository extends AbstractRepositoryRDB impleme
                 $statement->bindValue($accessGroupKey, $accessGroupId, \PDO::PARAM_INT);
             }
 
+            $statement->execute();
+
             return $statement->fetchAll(\PDO::FETCH_COLUMN);
         } catch (\Throwable $exception) {
             throw new RepositoryException(
