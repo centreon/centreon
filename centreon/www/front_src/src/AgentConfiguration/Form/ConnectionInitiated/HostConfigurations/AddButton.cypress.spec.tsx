@@ -2,7 +2,7 @@ import AddButton from './AddButton';
 
 const defaultProps = {
   addButtonDisabled: false,
-  onAddItem: () => void
+  onAddItem: () => {}
 };
 
 const initialize = (values): void => {
