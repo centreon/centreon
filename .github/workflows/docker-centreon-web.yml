@@ -68,10 +68,6 @@ jobs:
         working-directory: ${{ env.base_directory }}
         shell: bash
 
-      - name: Create centreon web configuration file
-        run: mv centreon/config/centreon.config.php.template centreon/config/centreon.config.php
-        shell: bash
-
       - name: Cache vendor directory
         uses: actions/cache/save@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
         with:
