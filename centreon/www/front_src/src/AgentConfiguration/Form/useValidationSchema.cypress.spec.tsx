@@ -20,23 +20,26 @@ describe('useValidationSchema - certificateValidation', () => {
 
   beforeEach(() => {
     // Mock the useTranslation hook for Cypress
-    cy.stub().as('useTranslation').returns({
-      t: (key: string) => key
-    });
+    cy.stub()
+      .as('useTranslation')
+      .returns({
+        t: (key: string) => key
+      });
 
-    cy.mount(
-      {
-        Component: <ValidationSchemaTestComponent
+    cy.mount({
+      Component: (
+        <ValidationSchemaTestComponent
           onSchemaReady={(s) => {
             schema = s;
           }}
         />
-      }).then(() => {
-        // Wait for the component to mount and schema to be set
-        cy.wrap(null).should(() => {
-          expect(schema).to.exist;
-        });
+      )
+    }).then(() => {
+      // Wait for the component to mount and schema to be set
+      cy.wrap(null).should(() => {
+        expect(schema).to.exist;
       });
+    });
   });
 
   it('should validate certificate files with .crt extension when connection mode is secure', () => {
