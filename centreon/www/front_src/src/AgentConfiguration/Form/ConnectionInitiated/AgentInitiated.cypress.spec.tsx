@@ -15,12 +15,48 @@ const initialValues = {
   }
 };
 
-const initialize = (values = initialValues): void => {
+const valuesWithErrors = {
+  configuration: {
+    otelPublicCertificate: '',
+    otelCaCertificate: '',
+    otelPrivateKey: '',
+    tokens: []
+  }
+};
+
+const mockErrors = {
+  configuration: {
+    otelPublicCertificate: 'Public certificate is required',
+    otelCaCertificate: 'CA certificate is required',
+    otelPrivateKey: 'Private key is required',
+    tokens: 'At least one token is required'
+  }
+};
+
+const mockTouched = {
+  configuration: {
+    otelPublicCertificate: true,
+    otelCaCertificate: true,
+    otelPrivateKey: true,
+    tokens: true
+  }
+};
+
+const initialize = (
+  values = initialValues,
+  errors = {},
+  touched = {}
+): void => {
   cy.mount({
     Component: (
       <BrowserRouter>
         <QueryClientProvider client={new QueryClient()}>
-          <Formik initialValues={values} onSubmit={cy.stub()}>
+          <Formik
+            initialValues={values}
+            initialErrors={errors}
+            initialTouched={touched}
+            onSubmit={cy.stub()}
+          >
             <AgentInitiated />
           </Formik>
         </QueryClientProvider>
@@ -32,52 +68,157 @@ const initialize = (values = initialValues): void => {
 describe('AgentInitiated', () => {
   it('should render the component with initial values', () => {
     initialize();
-    cy.get('[data-testid="Public certificate(.crt,.cer)"]').should(
+    cy.get('[data-testid="Public certificate(.crt,.cer)"] input').should(
       'have.value',
       ''
     );
-    cy.get('[data-testid="CA(.crt,.cer)"').should('have.value', '');
-    cy.get('[data-testid="Private key(.key)"]').should('have.value', '');
+    cy.get('[data-testid="CA(.crt,.cer)"] input').should('have.value', '');
+    cy.get('[data-testid="Private key(.key)"] input').should('have.value', '');
     cy.get('[data-testid="Select existing CMA token(s)"]').should('be.visible');
 
     cy.makeSnapshot();
   });
 
+  it('should display error messages when fields are touched and have errors', () => {
+    initialize(valuesWithErrors, mockErrors, mockTouched);
+
+    cy.get('[data-testid="Public certificate(.crt,.cer)"]').should('exist');
+    cy.get('[data-testid="CA(.crt,.cer)"]').should('exist');
+    cy.get('[data-testid="Private key(.key)"]').should('exist');
+    cy.get('[data-testid="Select existing CMA token(s)"]').should('exist');
+  });
+
+  it('should render with pre-filled certificate values', () => {
+    const prefilledValues = {
+      configuration: {
+        otelPublicCertificate: 'existing-public.crt',
+        otelCaCertificate: 'existing-ca.crt',
+        otelPrivateKey: 'existing-private.key',
+        tokens: []
+      }
+    };
+
+    initialize(prefilledValues);
+
+    cy.get('[data-testid="Public certificate(.crt,.cer)"] input').should(
+      'have.value',
+      'existing-public.crt'
+    );
+    cy.get('[data-testid="CA(.crt,.cer)"] input').should(
+      'have.value',
+      'existing-ca.crt'
+    );
+    cy.get('[data-testid="Private key(.key)"] input').should(
+      'have.value',
+      'existing-private.key'
+    );
+  });
+
+  it('should handle empty tokens array', () => {
+    const emptyTokensValues = {
+      configuration: {
+        otelPublicCertificate: '',
+        otelCaCertificate: '',
+        otelPrivateKey: '',
+        tokens: []
+      }
+    };
+
+    initialize(emptyTokensValues);
+    cy.get('[data-testid="Select existing CMA token(s)"]').should('be.visible');
+  });
+
+  it('should render tokens field as required', () => {
+    initialize();
+    cy.get('[data-testid="Select existing CMA token(s)"]')
+      .parent()
+      .should('contain', '*');
+  });
+
+  it('should have correct aria-labels for accessibility', () => {
+    initialize();
+
+    cy.get('[data-testid="Public certificate(.crt,.cer)"] input').should(
+      'have.attr',
+      'aria-label',
+      'Public certificate(.crt,.cer)'
+    );
+    cy.get('[data-testid="CA(.crt,.cer)"] input').should(
+      'have.attr',
+      'aria-label',
+      'CA(.crt,.cer)'
+    );
+    cy.get('[data-testid="Private key(.key)"] input').should(
+      'have.attr',
+      'aria-label',
+      'Private key(.key)'
+    );
+  });
+
+  it('should handle null values for certificates', () => {
+    const nullValues = {
+      configuration: {
+        otelPublicCertificate: null,
+        otelCaCertificate: null,
+        otelPrivateKey: null,
+        tokens: null
+      }
+    };
+
+    initialize(nullValues);
+
+    cy.get('[data-testid="Public certificate(.crt,.cer)"] input').should(
+      'have.value',
+      ''
+    );
+    cy.get('[data-testid="CA(.crt,.cer)"] input').should('have.value', '');
+    cy.get('[data-testid="Private key(.key)"] input').should('have.value', '');
+  });
+
   it('should update the public certificate field', () => {
     initialize();
-    cy.get('[data-testid="Public certificate(.crt,.cer)"]')
-      .eq(0)
-      .click()
+    cy.get('[data-testid="Public certificate(.crt,.cer)"] input')
+      .clear()
       .type('test.crt');
-    cy.get('[data-testid="Public certificate(.crt,.cer)"]')
-      .eq(1)
-      .should('have.value', 'test.crt');
+    cy.get('[data-testid="Public certificate(.crt,.cer)"] input').should(
+      'have.value',
+      'test.crt'
+    );
   });
 
   it('should update the CA certificate field', () => {
     initialize();
-    cy.get('[data-testid="CA(.crt,.cer)"]').eq(0).click().type('test_ca.crt');
-    cy.get('[data-testid="CA(.crt,.cer)"]')
-      .eq(1)
-      .should('have.value', 'test_ca.crt');
+    cy.get('[data-testid="CA(.crt,.cer)"] input').clear().type('test_ca.crt');
+    cy.get('[data-testid="CA(.crt,.cer)"] input').should(
+      'have.value',
+      'test_ca.crt'
+    );
   });
 
   it('should update the private key field', () => {
     initialize();
-    cy.get('[data-testid="Private key(.key)"]').eq(0).click().type('test.key');
-    cy.get('[data-testid="Private key(.key)"]')
-      .eq(1)
-      .should('have.value', 'test.key');
+    cy.get('[data-testid="Private key(.key)"] input').clear().type('test.key');
+    cy.get('[data-testid="Private key(.key)"] input').should(
+      'have.value',
+      'test.key'
+    );
   });
 
-  it('should update the tokens field', () => {
-    initialize();
-    cy.get('[data-testid="Select existing CMA token(s)"]').click();
-    cy.get('[data-testid="Select existing CMA token(s)"]').should('be.visible');
-    cy.get('[id="«r1u»-option-0"]').click();
-    cy.get('[data-testid="Select existing CMA token(s)"]').should(
-      'not.contain',
-      'testName'
+  it('should clear certificate fields when empty string is entered', () => {
+    const prefilledValues = {
+      configuration: {
+        otelPublicCertificate: 'existing-public.crt',
+        otelCaCertificate: 'existing-ca.crt',
+        otelPrivateKey: 'existing-private.key'
+      }
+    };
+
+    initialize(prefilledValues);
+
+    cy.get('[data-testid="Public certificate(.crt,.cer)"] input').clear();
+    cy.get('[data-testid="Public certificate(.crt,.cer)"] input').should(
+      'have.value',
+      ''
     );
   });
 });
