@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -411,7 +411,7 @@ class DbReadNotificationRepository extends AbstractRepositoryRDB implements Read
         $statement = $this->db->prepare(
             $this->translateDbName(
                 <<<SQL
-                    SELECT result.id, COUNT(result.contact_id)
+                    SELECT result.id, COUNT(DISTINCT result.contact_id)
                     FROM (
                         SELECT notif.id, contact.contact_id
                         FROM `:db`.notification notif

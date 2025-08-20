@@ -1,5 +1,24 @@
 <?php
 
+/*
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * For more information : contact@centreon.com
+ *
+ */
+
 $help = [];
 $help['mc_update'] = dgettext(
     'help',
@@ -74,6 +93,7 @@ $help['ldap_group'] = dgettext('help', 'LDAP groups of user, for informative pur
 
 // Centreon specific authentication
 $help['centreon_login'] = dgettext('help', 'Specify if the contact is allowed to login into centreon.');
+$help['current_password'] = dgettext('help', "For security reasons, to be able to change this user's password, you (the currently logged-in user) must verify your identity by entering your own password.");
 $help['password'] = dgettext('help', 'Define the password for the centreon login here.');
 $help['password2'] = dgettext('help', 'Enter the password again.');
 $help['language'] = dgettext('help', 'Define the default language for the user for the centreon front-end here.');

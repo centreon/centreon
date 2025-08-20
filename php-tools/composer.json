@@ -1,6 +1,6 @@
 {
   "name": "centreon/tools",
-  "version": "25.07",
+  "version": "25.09",
   "description": "Centreon - Tools for development",
   "require": {
     "php": "8.2.*",
@@ -12,6 +12,8 @@
     "phpstan/phpstan-beberlei-assert": "2.0.*",
     "phpstan/phpstan-mockery": "2.0.*",
     "phpstan/phpstan-phpunit": "2.0.*",
+    "phpstan/phpstan-symfony": "^2.0",
+    "phpstan/phpstan-webmozart-assert": "^2.0",
     "rector/rector": "2.1.*"
   },
   "autoload": {

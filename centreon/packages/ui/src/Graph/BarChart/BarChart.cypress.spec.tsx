@@ -30,10 +30,20 @@ const initialize = ({
   tooltip,
   axis,
   orientation,
-  barStyle
+  barStyle,
+  min,
+  max
 }: Pick<
   BarChartProps,
-  'data' | 'legend' | 'axis' | 'barStyle' | 'orientation' | 'tooltip' | 'start'
+  | 'data'
+  | 'legend'
+  | 'axis'
+  | 'barStyle'
+  | 'orientation'
+  | 'tooltip'
+  | 'start'
+  | 'min'
+  | 'max'
 >): void => {
   cy.adjustViewport();
 
@@ -47,6 +57,8 @@ const initialize = ({
           legend={legend}
           orientation={orientation ?? 'horizontal'}
           tooltip={tooltip}
+          min={min}
+          max={max}
           {...defaultArgs}
         />
       </div>
@@ -138,8 +150,6 @@ describe('Bar chart', () => {
       cy.contains(':40 AM').should('be.visible');
 
       cy.findByTestId('stacked-bar-3-0-0.16196').should('be.visible');
-
-      cy.makeSnapshot();
     });
 
     it(`displays bar chart ${orientation}ly with a mix of stacked and non-stacked data centered in zero`, () => {
@@ -288,5 +298,18 @@ describe('Bar chart', () => {
 
     cy.contains('05/31/2023').should('be.visible');
     cy.contains('06/07/2023').should('be.visible');
+  });
+
+  it('displays the bar chart according to min and max boundaries', () => {
+    initialize({
+      data: dataLastWeek,
+      min: -0.05,
+      max: 1
+    });
+
+    cy.contains('05/31/2023').should('be.visible');
+    cy.contains('06/07/2023').should('be.visible');
+    cy.contains('1 s').should('be.visible');
+    cy.contains('1%').should('be.visible');
   });
 });

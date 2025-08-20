@@ -1,34 +1,19 @@
 <?php
 
 /*
- * Copyright 2005-2020 Centreon
- * Centreon is developed by : Julien Mathis and Romain Le Merlus under
- * GPL Licence 2.0.
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation ; either version 2 of the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <http://www.gnu.org/licenses>.
- *
- * Linking this program statically or dynamically with other modules is making a
- * combined work based on this program. Thus, the terms and conditions of the GNU
- * General Public License cover the whole combination.
- *
- * As a special exception, the copyright holders of this program give Centreon
- * permission to link this program with independent modules to produce an executable,
- * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of Centreon choice, provided that
- * Centreon also meet, for each linked independent module, the terms  and conditions
- * of the license of that module. An independent module is a module which is not
- * derived from this program. If you modify this program, you may extend this
- * exception to your version of the program, but you are not obliged to do so. If you
- * do not wish to do so, delete this exception statement from your version.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * For more information : contact@centreon.com
  *
@@ -112,6 +97,9 @@ if ($cct['contact_auth_type'] === 'local') {
     $form->addElement('text', 'contact_email', _('Email'), $attrsText)->freeze();
 }
 $form->addElement('text', 'contact_pager', _('Pager'), $attrsText);
+
+// Password Management
+
 if ($cct['contact_auth_type'] === 'local') {
     $form->addFormRule('validatePasswordModification');
     $statement = $pearDB->prepare(
@@ -136,6 +124,16 @@ if ($cct['contact_auth_type'] === 'local') {
             }
         }
     }
+    $form->addElement(
+        'password',
+        'current_password',
+        _('Current password'),
+        [
+            'size' => '30',
+            'autocomplete' => 'off',
+            'id' => 'current_password',
+        ]
+    );
     $form->addElement(
         'password',
         'contact_passwd',
@@ -165,13 +163,16 @@ $form->addElement(
         'id' => 'generateAutologinKeyButton',
         'data-testid' => _('Generate')]
 );
+
+// Preferences
+
 $form->addElement('select', 'contact_lang', _('Language'), $langs);
 if (! isCloudPlatform()) {
     $form->addElement('checkbox', 'show_deprecated_pages', _('Use deprecated monitoring pages'), null, $attrsText);
 }
 $form->addElement('checkbox', 'show_deprecated_custom_views', _('Use deprecated custom views'), null, $attrsText);
 
-// ------------------------ Topoogy ----------------------------
+// ------------------------ Topology ----------------------------
 $pages = [];
 $aclUser = $centreon->user->lcaTStr;
 if (! empty($aclUser)) {
@@ -387,7 +388,7 @@ $form->registerRule('exist', 'callback', 'testExistence');
 $form->addRule('contact_name', _('Name already in use'), 'exist');
 $form->registerRule('existAlias', 'callback', 'testAliasExistence');
 $form->addRule('contact_alias', _('Name already in use'), 'existAlias');
-$form->setRequiredNote("<font style='color: red;'>*</font>" . _('Required fields'));
+$form->setRequiredNote("<span style='color: red;'>*</span>" . _('Required fields'));
 $form->addFormRule('checkAutologinValue');
 
 // Smarty template initialization
@@ -443,14 +444,12 @@ if ($form->validate()) {
             || $showDeprecatedPages !== $cct['show_deprecated_pages']
             || $showDeprecatedCustomViews !== $cct['show_deprecated_custom_views']
     ) {
-        $contactStatement = $pearDB->prepare(
-            'SELECT * FROM contact WHERE contact_id = :contact_id'
-        );
-        $contactStatement->bindValue(':contact_id', $centreon->user->get_id(), PDO::PARAM_INT);
-        $contactStatement->execute();
-        if ($contact = $contactStatement->fetch()) {
-            $_SESSION['centreon'] = new Centreon($contact);
-        }
+        /** @var Centreon $centreon */
+        $centreon = $_SESSION['centreon'];
+        $centreon->user->set_lang($form->getSubmitValue('contact_lang'));
+        $centreon->user->setShowDeprecatedPages((bool) $showDeprecatedPages);
+        $centreon->user->setShowDeprecatedCustomViews((bool) $showDeprecatedCustomViews);
+        $_SESSION['centreon'] = $centreon;
         $_SESSION[$sessionKeyFreeze] = true;
         echo '<script>parent.location.href = "main.php?p=' . $p . '&o=c";</script>';
 

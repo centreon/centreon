@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
     inputs:
       nightly_manual_trigger:
-        description: 'Set to true to trigger a nightly run'
+        description: "Set to true to trigger a nightly run"
         required: true
         default: false
         type: boolean
@@ -33,8 +33,8 @@ on:
       - dev-[2-9][0-9].[0-9][0-9].x
       - master
       - "[2-9][0-9].[0-9][0-9].x"
-      - 'release-[2-9][0-9].[0-9][0-9]-next'
-      - 'hotfix-[2-9][0-9].[0-9][0-9]-next'
+      - "release-[2-9][0-9].[0-9][0-9]-next"
+      - "hotfix-[2-9][0-9].[0-9][0-9]-next"
     paths:
       - ".version"
       - ".version.centreon-web"
@@ -50,6 +50,7 @@ on:
 env:
   base_directory: centreon
   widgets_directory: centreon/www/widgets
+  e2e_directory: centreon/tests/e2e
 
 jobs:
   changes:
@@ -172,26 +173,11 @@ jobs:
           file: ${{ env.update_file }}
           version: ${{ env.version }}
 
-  gherkin-lint:
-    runs-on: ubuntu-24.04
-    needs: [get-environment, changes]
-    if: |
-      needs.get-environment.outputs.skip_workflow == 'false' &&
-      needs.get-environment.outputs.stability != 'stable' &&
-      needs.changes.outputs.has_test_changes == 'true'
-    steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-
-      - uses: ./.github/actions/gherkin-lint
-        with:
-          features_path: centreon/tests/e2e/features
-
   frontend-web-build:
     needs: [get-environment]
     if: |
       needs.get-environment.outputs.skip_workflow == 'false'
     runs-on: ubuntu-24.04
-
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
@@ -205,27 +191,11 @@ jobs:
           static_cache_key: ${{ github.sha }}-${{ github.run_id }}-static
           build_command: pnpm centreon:build
 
-      - name: Create Jira ticket on nightly build failure
-        if: |
-          needs.get-environment.outputs.is_nightly == 'true' && github.run_attempt == 1 &&
-          failure() &&
-          startsWith(github.ref_name, 'dev') &&
-          github.repository == 'centreon/centreon'
-        uses: ./.github/actions/create-jira-ticket
-        with:
-          jira_base_url: ${{ secrets.JIRA_BASE_URL }}
-          jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
-          jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
-          module_name: "centreon-web"
-          ticket_labels: '["Nightly", "Pipeline", "nightly-${{ github.ref_name }}", "${{ github.job }}"]'
-          ticket_squad: "Product Backlog"
-
   backend-dependencies:
     needs: [get-environment]
     if: |
       needs.get-environment.outputs.skip_workflow == 'false'
     runs-on: ubuntu-24.04
-
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
@@ -236,8 +206,12 @@ jobs:
         env:
           runner: ubuntu-24.04
 
+      - name: Create configuration file
+        run: cp config/centreon.config.php.template config/centreon.config.php
+        working-directory: ${{ env.base_directory }}
+
       - name: Install Dependencies
-        run: composer install --no-dev --optimize-autoloader --prefer-dist --no-interaction --no-progress --quiet --no-suggest
+        run: composer install --no-dev --optimize-autoloader --prefer-dist --no-interaction --no-progress --quiet --no-scripts
         working-directory: ${{ env.base_directory }}
         shell: bash
 
@@ -340,8 +314,10 @@ jobs:
   frontend-web-lint:
     runs-on: ubuntu-24.04
     needs: [changes, get-environment]
-    if: ${{ needs.get-environment.outputs.skip_workflow == 'false' && needs.changes.outputs.has_frontend_changes == 'true' && needs.get-environment.outputs.stability != 'stable' }}
-
+    if: |
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      needs.changes.outputs.has_frontend_changes == 'true' &&
+      needs.get-environment.outputs.stability != 'stable'
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
@@ -422,6 +398,10 @@ jobs:
         env:
           runner: ubuntu-24.04
 
+      - name: Create configuration file
+        run: cp config/centreon.config.php.template config/centreon.config.php
+        working-directory: centreon
+
       - name: Install dependencies
         uses: ramsey/composer-install@3cf229dc2919194e9e36783941438d17239e8520 # v3.1.1
         with:
@@ -455,18 +435,18 @@ jobs:
           runner: ubuntu-24.04
 
       - name: Install dependencies for PHP quality tools
-        run: composer install --optimize-autoloader --prefer-dist --no-interaction --no-progress --quiet --no-suggest
+        run: composer install --optimize-autoloader --prefer-dist --no-interaction --no-progress --quiet --no-scripts
         working-directory: php-tools
-        shell: bash
-
-      - name: Install dependencies for centreon-web
-        run: composer install --optimize-autoloader --prefer-dist --no-interaction --no-progress --quiet --no-suggest
-        working-directory: centreon
         shell: bash
 
       - name: Create configuration file
         run: cp config/centreon.config.php.template config/centreon.config.php
         working-directory: centreon
+
+      - name: Install dependencies for centreon-web
+        run: composer install --optimize-autoloader --prefer-dist --no-interaction --no-progress --quiet --no-scripts
+        working-directory: centreon
+        shell: bash
 
       - name: ⚙️ Check Symfony configuration
         run: composer symfony:check
@@ -477,123 +457,181 @@ jobs:
         run: |
           echo "Run of these Rector tests: rector:legacy, rector:core, rector:new" && set -e
 
-          {
-            composer rector:legacy -- --no-progress-bar && echo "✅ Rector Legacy: Success" || { echo "❌ Rector Legacy: Failed"; exit 1; }
-          } &
-          pids+=($!)
+          pids=()
+          statuses=()
 
-          {
-            composer rector:core -- --no-progress-bar && echo "✅ Rector Core: Success" || { echo "❌ Rector Core: Failed"; exit 1; }
-          } &
-          pids+=($!)
+          run_task() {
+            name=$1
+            shift
+            "$@" -- --no-progress-bar
+            result=$?
+            if [ $result -eq 0 ]; then
+              echo "✅ Rector $name: Success"
+            else
+              echo "❌ Rector $name: Failed"
+            fi
+            return $result
+          }
 
-          {
-            composer rector:new -- --no-progress-bar && echo "✅ Rector New: Success" || { echo "❌ Rector New: Failed"; exit 1; }
-          } &
-          pids+=($!)
+          # Start tasks in background
+          run_task legacy composer rector:legacy & pids+=($!)
+          run_task core composer rector:core & pids+=($!)
+          run_task new composer rector:new & pids+=($!)
 
-          if ! wait -n; then
-            kill "${pids[@]}" 2>/dev/null || true
-            exit 1
-          fi
+          # Wait for all, and record if any failed
+          exit_code=0
+          for pid in "${pids[@]}"; do
+            if ! wait "$pid"; then
+              exit_code=1
+            fi
+          done
 
-          wait
+          exit $exit_code
 
       - name: 🧹 PHP-CS-Fixer checks
         working-directory: centreon
         run: |
           echo "Run of these PHP-CS-Fixer tests: cs:legacy, cs:core, cs:new" && set -e
 
-          {
-            composer cs:legacy -- --format=txt --show-progress=none && echo "✅ PHP-CS-Fixer Legacy (www, src, tests): Success" || { echo "❌ PHP-CS-Fixer Legacy (www, src, tests): Failed"; exit 1; }
-          } &
-          pids+=($!)
+          pids=()
+          statuses=()
 
-          {
-            composer cs:core -- --format=txt --show-progress=none && echo "✅ PHP-CS-Fixer Core: Success" || { echo "❌ PHP-CS-Fixer Core: Failed"; exit 1; }
-          } &
-          pids+=($!)
+          run_task() {
+            name=$1
+            shift
+            "$@" -- --format=txt --show-progress=none
+            result=$?
+            if [ $result -eq 0 ]; then
+            echo "✅ PHP-CS-Fixer $name: Success"
+            else
+            echo "❌ PHP-CS-Fixer $name: Failed"
+            fi
+            return $result
+          }
 
-          {
-            composer cs:new -- --format=txt --show-progress=none && echo "✅ PHP-CS-Fixer New: Success" || { echo "❌ PHP-CS-Fixer New: Failed"; exit 1; }
-          } &
-          pids+=($!)
+          # Start tasks in background
+          run_task legacy composer cs:legacy & pids+=($!)
+          run_task core composer cs:core & pids+=($!)
+          run_task new composer cs:new & pids+=($!)
 
-          if ! wait -n; then
-            kill "${pids[@]}" 2>/dev/null || true
-            exit 1
-          fi
+          # Wait for all, and record if any failed
+          exit_code=0
+          for pid in "${pids[@]}"; do
+            if ! wait "$pid"; then
+              exit_code=1
+            fi
+          done
 
-          wait
+          exit $exit_code
 
       - name: 🔍 PHPStan checks
         working-directory: centreon
         run: |
           echo "Run of these PHPStan tests: stan:legacy:www, stan:legacy:src, stan:legacy:test, stan:core, stan:core:test, stan:new, stan:new:test" && set -e
 
-          {
-            composer stan:legacy:www -- --no-progress && echo "✅ PHPStan Legacy (www): Success" || { echo "❌ PHPStan Legacy (www): Failed"; exit 1; }
-          } &
-          pids+=($!)
+          pids=()
+          statuses=()
 
-          {
-            composer stan:legacy:src -- --no-progress && echo "✅ PHPStan Legacy (src): Success" || { echo "❌ PHPStan Legacy (src): Failed"; exit 1; }
-          } &
-          pids+=($!)
+          run_task() {
+            name=$1
+            shift
+            "$@" -- --no-progress
+            result=$?
+            if [ $result -eq 0 ]; then
+              echo "✅ PHPStan $name: Success"
+            else
+              echo "❌ PHPStan $name: Failed"
+            fi
+            return $result
+          }
 
-          {
-            composer stan:legacy:test -- --no-progress && echo "✅ PHPStan Legacy (test): Success" || { echo "❌ PHPStan Legacy (test): Failed"; exit 1; }
-          } &
-          pids+=($!)
+          # Start tasks in background
+          run_task legacy:www composer stan:legacy:www & pids+=($!)
+          run_task legacy:src composer stan:legacy:src & pids+=($!)
+          run_task legacy:test composer stan:legacy:test & pids+=($!)
+          run_task core:src composer stan:core:src & pids+=($!)
+          run_task core:test composer stan:core:test & pids+=($!)
+          run_task new:src composer stan:new:src & pids+=($!)
+          run_task new:test composer stan:new:test & pids+=($!)
 
-          {
-            composer stan:core:src -- --no-progress && echo "✅ PHPStan Core (src): Success" || { echo "❌ PHPStan Core (src): Failed"; exit 1; }
-          } &
-          pids+=($!)
+          # Wait for all, and record if any failed
+          exit_code=0
+          for pid in "${pids[@]}"; do
+            if ! wait "$pid"; then
+              exit_code=1
+            fi
+          done
 
-          {
-            composer stan:core:test -- --no-progress && echo "✅ PHPStan Core (test): Success" || { echo "❌ PHPStan Core (test): Failed"; exit 1; }
-          } &
-          pids+=($!)
-
-          {
-            composer stan:new:src -- --no-progress && echo "✅ PHPStan New (src): Success" || { echo "❌ PHPStan New (src): Failed"; exit 1; }
-          } &
-          pids+=($!)
-
-          {
-            composer stan:new:test -- --no-progress && echo "✅ PHPStan New (test): Success" || { echo "❌ PHPStan New (test): Failed"; exit 1; }
-          } &
-          pids+=($!)
-
-          if ! wait -n; then
-            kill "${pids[@]}" 2>/dev/null || true
-            exit 1
-          fi
-
-          wait
+          exit $exit_code
 
       - name: 📐 Deptrac checks
         working-directory: centreon
         run: |
           echo "Run of these Deptrac tests: dep:new" && set -e
 
-          {
-            composer dep:new -- --no-progress --formatter=github-actions && echo "✅ Deptrac New: Success" || { echo "❌ Deptrac New: Failed"; exit 1; }
-          } &
-          pids+=($!)
+          pids=()
+          statuses=()
 
-          if ! wait -n; then
-            kill "${pids[@]}" 2>/dev/null || true
-            exit 1
-          fi
+          run_task() {
+            name=$1
+            shift
+            "$@" -- --no-progress
+            result=$?
+            if [ $result -eq 0 ]; then
+              echo "✅ Deptrac $name: Success"
+            else
+              echo "❌ Deptrac $name: Failed"
+            fi
+            return $result
+          }
 
-          wait
+          # Start tasks in background
+          run_task new composer dep:new & pids+=($!)
+
+          # Wait for all, and record if any failed
+          exit_code=0
+          for pid in "${pids[@]}"; do
+            if ! wait "$pid"; then
+              exit_code=1
+            fi
+          done
+
+          exit $exit_code
+
+  gherkin-lint:
+    runs-on: ubuntu-24.04
+    needs: [get-environment, changes]
+    if: |
+      needs.changes.outputs.has_test_changes == 'true' &&
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      needs.get-environment.outputs.stability != 'stable'
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - uses: ./.github/actions/gherkin-lint
+        with:
+          features_path: ${{ env.e2e_directory }}/features
+
+  e2e-lint:
+    runs-on: ubuntu-22.04
+    needs: [get-environment, changes]
+    if: |
+      needs.changes.outputs.has_test_changes == 'true' &&
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      needs.get-environment.outputs.stability != 'stable'
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - uses: ./.github/actions/frontend-lint
+        with:
+          frontend_directory: ${{ env.e2e_directory }}
+          module_name: ${{ env.base_directory }}
+          dependencies_lock_file: ${{ env.base_directory }}/pnpm-lock.yaml
+          pat: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
   package:
     needs:
       [
-        gherkin-lint,
         get-environment,
         check-version-consistency,
         translation-build,
@@ -604,6 +642,8 @@ jobs:
         frontend-web-lint,
         frontend-unit-test,
         frontend-component-test,
+        gherkin-lint,
+        e2e-lint,
       ]
     if: |
       needs.get-environment.outputs.skip_workflow == 'false' &&
@@ -611,7 +651,6 @@ jobs:
       ! contains(needs.*.result, 'failure') &&
       ! contains(needs.*.result, 'cancelled') &&
       needs.get-environment.outputs.stability != 'stable'
-
     strategy:
       fail-fast: false
       matrix:
@@ -628,16 +667,13 @@ jobs:
           - package_extension: deb
             image: packaging-nfpm-jammy
             distrib: jammy
-
+    name: package ${{ matrix.distrib }}
     runs-on: ubuntu-24.04
-
     container:
       image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.image }}:${{ needs.get-environment.outputs.major_version }}
       credentials:
         username: ${{ secrets.HARBOR_CENTREON_PULL_USERNAME }}
         password: ${{ secrets.HARBOR_CENTREON_PULL_TOKEN }}
-
-    name: package ${{ matrix.distrib }}
 
     steps:
       - name: Checkout sources
@@ -737,21 +773,6 @@ jobs:
           stability: ${{ needs.get-environment.outputs.stability }}
           is_nightly: ${{ needs.get-environment.outputs.is_nightly }}
 
-      - name: Create Jira ticket on nightly build failure
-        if: |
-          needs.get-environment.outputs.is_nightly == 'true' && github.run_attempt == 1 &&
-          failure() &&
-          startsWith(github.ref_name, 'dev') &&
-          github.repository == 'centreon/centreon'
-        uses: ./.github/actions/create-jira-ticket
-        with:
-          jira_base_url: ${{ secrets.JIRA_BASE_URL }}
-          jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
-          jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
-          module_name: "centreon-web"
-          ticket_labels: '["Nightly", "Pipeline", "nightly-${{ github.ref_name }}", "${{ github.job }}"]'
-          ticket_squad: "DevSecOps"
-
   dockerize:
     runs-on: ubuntu-24.04
     needs: [get-environment, package]
@@ -763,9 +784,7 @@ jobs:
       fail-fast: false
       matrix:
         include: ${{ fromJson(needs.get-environment.outputs.os_and_database_matrix).operating_systems }}
-
     name: dockerize ${{ matrix.operating_system }}
-
     steps:
       - name: Checkout sources
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
@@ -884,21 +903,6 @@ jobs:
           path: ./docker-image
           key: docker-image-${{ env.project }}-slim-${{ matrix.operating_system }}-${{ github.head_ref || github.ref_name }}
 
-      - name: Create Jira ticket on nightly build failure
-        if: |
-          needs.get-environment.outputs.is_nightly == 'true' && github.run_attempt == 1 &&
-          failure() &&
-          startsWith(github.ref_name, 'dev') &&
-          github.repository == 'centreon/centreon'
-        uses: ./.github/actions/create-jira-ticket
-        with:
-          jira_base_url: ${{ secrets.JIRA_BASE_URL }}
-          jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
-          jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
-          module_name: "centreon-web"
-          ticket_labels: '["Nightly", "Pipeline", "nightly-${{ github.ref_name }}", "${{ github.job }}"]'
-          ticket_squad: "DevSecOps"
-
   create-xray-test-plan-and-test-execution:
     needs: [get-environment, dockerize]
     if: ${{ needs.get-environment.outputs.skip_workflow == 'false' && !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && ( needs.get-environment.outputs.stability == 'testing' || github.event_name == 'schedule' ) && github.repository == 'centreon/centreon' }}
@@ -906,8 +910,7 @@ jobs:
       fail-fast: false
       matrix:
         include: ${{ fromJson(needs.get-environment.outputs.os_and_database_matrix).operating_systems }}
-    name: create-xray-test-plan-and-test-execution-${{ matrix.operating_system }}
-
+    name: create-xray-test-plan-and-test-execution ${{ matrix.operating_system }}
     uses: ./.github/workflows/create-xray-test-plan-and-test-execution.yml
     with:
       major_version: ${{ needs.get-environment.outputs.major_version }}
@@ -920,7 +923,13 @@ jobs:
       xray_jira_token: ${{ secrets.XRAY_JIRA_TOKEN }}
 
   newman-test:
-    needs: [get-environment, changes, create-xray-test-plan-and-test-execution, dockerize]
+    needs:
+      [
+        get-environment,
+        changes,
+        create-xray-test-plan-and-test-execution,
+        dockerize
+      ]
     if: |
       needs.get-environment.outputs.skip_workflow == 'false' &&
       ! cancelled() &&
@@ -933,8 +942,7 @@ jobs:
       fail-fast: false
       matrix:
         include: ${{ fromJson(needs.get-environment.outputs.os_and_database_matrix).databases }}
-    name: newman-test-${{ matrix.operating_system }}-${{ matrix.database }}
-
+    name: newman-test ${{ matrix.operating_system }}-${{ matrix.database }}
     uses: ./.github/workflows/newman.yml
     with:
       collection_path: centreon/tests/rest_api/collections
@@ -966,8 +974,7 @@ jobs:
       fail-fast: false
       matrix:
         include: ${{ fromJson(needs.get-environment.outputs.os_and_database_matrix).operating_systems }}
-    name: legacy-e2e-test-${{ matrix.operating_system }}-${{ matrix.database }}
-
+    name: legacy-e2e-test ${{ matrix.operating_system }}-${{ matrix.database }}
     uses: ./.github/workflows/behat-test.yml
     with:
       name: legacy-e2e
@@ -987,7 +994,15 @@ jobs:
       jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
 
   e2e-test:
-    needs: [get-environment, changes, dockerize, create-xray-test-plan-and-test-execution]
+    needs:
+      [
+        get-environment,
+        changes,
+        dockerize,
+        create-xray-test-plan-and-test-execution,
+        gherkin-lint,
+        e2e-lint,
+      ]
     if: |
       needs.get-environment.outputs.skip_workflow == 'false' &&
       !cancelled() &&
@@ -999,8 +1014,7 @@ jobs:
       fail-fast: false
       matrix:
         include: ${{ fromJson(needs.get-environment.outputs.os_and_database_matrix).operating_systems }}
-    name: e2e-test-${{ matrix.operating_system }}-${{ matrix.database }}
-
+    name: e2e-test ${{ matrix.operating_system }}-${{ matrix.database }}
     uses: ./.github/workflows/cypress-e2e-parallelization.yml
     with:
       name: e2e
@@ -1039,8 +1053,7 @@ jobs:
       fail-fast: false
       matrix:
         include: ${{ fromJson(needs.get-environment.outputs.os_and_database_matrix).main }}
-    name: performances-test-${{ matrix.operating_system }}-${{ matrix.database }}
-
+    name: performances-test ${{ matrix.operating_system }}-${{ matrix.database }}
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
@@ -1080,13 +1093,7 @@ jobs:
 
   deliver-sources:
     runs-on: centreon-common
-    needs:
-      [
-        get-environment,
-        e2e-test,
-        performances-test,
-        legacy-e2e-test,
-      ]
+    needs: [get-environment, e2e-test, performances-test, legacy-e2e-test]
     if: ${{ needs.get-environment.outputs.skip_workflow == 'false' && !cancelled() && contains(fromJson('["stable"]'), needs.get-environment.outputs.stability) && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && github.event_name != 'workflow_dispatch' && github.repository == 'centreon/centreon' }}
 
     steps:
@@ -1199,23 +1206,24 @@ jobs:
       [
         changes,
         get-environment,
+        newman-test,
         e2e-test,
         performances-test,
-        legacy-e2e-test,
+        legacy-e2e-test
       ]
     if: |
       needs.get-environment.outputs.skip_workflow == 'false' &&
-      contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability) &&
+      ((needs.get-environment.outputs.delivery_type == 'feature' && contains(github.event.pull_request.labels.*.name, 'delivery-feature')) ||
+      contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability)) &&
       ! cancelled() &&
       ! contains(needs.*.result, 'failure') &&
       ! contains(needs.*.result, 'cancelled') &&
       needs.changes.outputs.trigger_delivery == 'true' &&
       github.repository == 'centreon/centreon'
-
     strategy:
       matrix:
         distrib: [el8, el9]
-
+    name: deliver-rpm ${{ matrix.distrib }}
     steps:
       - name: Checkout sources
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
@@ -1231,21 +1239,8 @@ jobs:
           stability: ${{ needs.get-environment.outputs.stability }}
           release_type: ${{ needs.get-environment.outputs.release_type }}
           is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
-
-      - name: Create Jira ticket on nightly build failure
-        if: |
-          needs.get-environment.outputs.is_nightly == 'true' && github.run_attempt == 1 &&
-          failure() &&
-          startsWith(github.ref_name, 'dev') &&
-          github.repository == 'centreon/centreon'
-        uses: ./.github/actions/create-jira-ticket
-        with:
-          jira_base_url: ${{ secrets.JIRA_BASE_URL }}
-          jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
-          jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
-          module_name: "centreon-web"
-          ticket_labels: '["Nightly", "Pipeline", "nightly-${{ github.ref_name }}", "${{ github.job }}"]'
-          ticket_squad: "DevSecOps"
+          delivery_type: ${{ needs.get-environment.outputs.delivery_type }}
+          centreon_technique_pat: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
 
   deliver-deb:
     runs-on: centreon-common
@@ -1253,9 +1248,10 @@ jobs:
       [
         changes,
         get-environment,
+        newman-test,
         e2e-test,
         performances-test,
-        legacy-e2e-test,
+        legacy-e2e-test
       ]
     if: |
       needs.get-environment.outputs.skip_workflow == 'false' &&
@@ -1266,11 +1262,10 @@ jobs:
       needs.changes.outputs.trigger_delivery == 'true' &&
       github.repository == 'centreon/centreon' &&
       (needs.get-environment.outputs.is_cloud == 'false' || needs.get-environment.outputs.stability == 'unstable')
-
     strategy:
       matrix:
         distrib: [bookworm]
-
+    name: deliver-deb ${{ matrix.distrib }}
     steps:
       - name: Checkout sources
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
@@ -1287,21 +1282,6 @@ jobs:
           release_type: ${{ needs.get-environment.outputs.release_type }}
           is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
 
-      - name: Create Jira ticket on nightly build failure
-        if: |
-          needs.get-environment.outputs.is_nightly == 'true' && github.run_attempt == 1 &&
-          failure() &&
-          startsWith(github.ref_name, 'dev') &&
-          github.repository == 'centreon/centreon'
-        uses: ./.github/actions/create-jira-ticket
-        with:
-          jira_base_url: ${{ secrets.JIRA_BASE_URL }}
-          jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
-          jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
-          module_name: "centreon-web"
-          ticket_labels: '["Nightly", "Pipeline", "nightly-${{ github.ref_name }}", "${{ github.job }}"]'
-          ticket_squad: "DevSecOps"
-
   promote:
     needs: [get-environment, deliver-deb, deliver-rpm]
     if: |
@@ -1315,7 +1295,7 @@ jobs:
     strategy:
       matrix:
         distrib: [el8, el9, bookworm]
-
+    name: promote ${{ matrix.distrib }}
     steps:
       - name: Checkout sources
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
@@ -1365,3 +1345,27 @@ jobs:
             echo "Cache $row was deleted."
           done <<< "$cache_keys"
         shell: bash
+
+  create-jira-nightly-ticket:
+    runs-on: ubuntu-24.04
+    needs: [
+      get-environment,
+      deliver-rpm,
+      deliver-deb
+    ]
+    if: |
+      needs.get-environment.outputs.is_nightly == 'true' && github.run_attempt == 1 &&
+      (failure() || cancelled() || contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')) &&
+      github.repository == 'centreon/centreon'
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Create Jira ticket based on nightly build failure
+        uses: ./.github/actions/create-jira-ticket
+        with:
+          jira_base_url: ${{ secrets.JIRA_BASE_URL }}
+          jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
+          jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
+          module_name: "centreon-web"
+          ticket_reason_for_creation: "Nightly"

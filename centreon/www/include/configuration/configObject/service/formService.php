@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -954,6 +954,7 @@ $form->addElement('select', 'esi_icon_image', _('Icon'), $extImg, [
 $form->registerRule('validate_geo_coords', 'function', 'validateGeoCoords');
 $form->addElement('text', 'geo_coords', _('Geographic coordinates'), $attrsText);
 $form->addRule('geo_coords', _('geo coords are not valid'), 'validate_geo_coords');
+$form->applyFilter('geo_coords', 'truncateGeoCoords');
 
 // Criticality
 $criticality = new CentreonCriticality($pearDB);

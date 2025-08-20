@@ -1,7 +1,7 @@
 {
   "name": "centreon/centreon-open-tickets",
   "description": "Module dedicated to open case on various Ticket systems",
-  "version": "25.07",
+  "version": "25.09",
   "type": "project",
   "keywords": [
     "centreon",
@@ -50,9 +50,9 @@
       "*": "dist"
     },
     "allow-plugins": {
-      "symfony/flex": false,
       "pestphp/pest-plugin": true,
-      "symfony/runtime": true
+      "symfony/flex": false,
+      "symfony/runtime": false
     }
   },
   "scripts": {

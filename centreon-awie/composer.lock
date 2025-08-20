@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "28e9228499808a22668f02af99da24c2",
+    "content-hash": "7c52316d00465d95e60d7620c418f1ef",
     "packages": [],
     "packages-dev": [
         {
@@ -943,16 +943,16 @@
         },
         {
             "name": "api-platform/core",
-            "version": "v4.1.18",
+            "version": "v4.1.19",
             "source": {
                 "type": "git",
                 "url": "https://github.com/api-platform/core.git",
-                "reference": "fe921cda3edd0c2efa0c75446dea56a3fb69000d"
+                "reference": "1dcc0da1bc56f2161ecfa863f7820e332a622d37"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/api-platform/core/zipball/fe921cda3edd0c2efa0c75446dea56a3fb69000d",
-                "reference": "fe921cda3edd0c2efa0c75446dea56a3fb69000d",
+                "url": "https://api.github.com/repos/api-platform/core/zipball/1dcc0da1bc56f2161ecfa863f7820e332a622d37",
+                "reference": "1dcc0da1bc56f2161ecfa863f7820e332a622d37",
                 "shasum": ""
             },
             "require": {
@@ -968,6 +968,7 @@
                 "symfony/serializer": "^6.4 || ^7.0",
                 "symfony/translation-contracts": "^3.3",
                 "symfony/type-info": "^7.2",
+                "symfony/validator": "^6.4 || ^7.1",
                 "symfony/web-link": "^6.4 || ^7.1",
                 "willdurand/negotiation": "^3.1"
             },
@@ -1153,9 +1154,9 @@
             ],
             "support": {
                 "issues": "https://github.com/api-platform/core/issues",
-                "source": "https://github.com/api-platform/core/tree/v4.1.18"
+                "source": "https://github.com/api-platform/core/tree/v4.1.19"
             },
-            "time": "2025-07-03T13:10:08+00:00"
+            "time": "2025-07-18T11:49:35+00:00"
         },
         {
             "name": "beberlei/assert",
@@ -1226,24 +1227,24 @@
         },
         {
             "name": "behat/behat",
-            "version": "v3.22.0",
+            "version": "v3.23.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Behat/Behat.git",
-                "reference": "a93098a77753c3cfdc4c485d75141924a78ceb93"
+                "reference": "c465af8756adaaa6d962c3176a0a6c594361809b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Behat/Behat/zipball/a93098a77753c3cfdc4c485d75141924a78ceb93",
-                "reference": "a93098a77753c3cfdc4c485d75141924a78ceb93",
+                "url": "https://api.github.com/repos/Behat/Behat/zipball/c465af8756adaaa6d962c3176a0a6c594361809b",
+                "reference": "c465af8756adaaa6d962c3176a0a6c594361809b",
                 "shasum": ""
             },
             "require": {
                 "behat/gherkin": "^4.12.0",
                 "composer-runtime-api": "^2.2",
-                "composer/xdebug-handler": "^3.0",
+                "composer/xdebug-handler": "^1.4 || ^2.0 || ^3.0",
                 "ext-mbstring": "*",
-                "nikic/php-parser": "^5.2",
+                "nikic/php-parser": "^4.19.2 || ^5.2",
                 "php": "8.1.* || 8.2.* || 8.3.* || 8.4.* ",
                 "psr/container": "^1.0 || ^2.0",
                 "symfony/config": "^5.4 || ^6.4 || ^7.0",
@@ -1257,6 +1258,7 @@
                 "friendsofphp/php-cs-fixer": "^3.68",
                 "phpstan/phpstan": "^2.0",
                 "phpunit/phpunit": "^9.6",
+                "rector/rector": "^2.0",
                 "sebastian/diff": "^4.0",
                 "symfony/polyfill-php84": "^1.31",
                 "symfony/process": "^5.4 || ^6.4 || ^7.0"
@@ -1312,9 +1314,9 @@
             ],
             "support": {
                 "issues": "https://github.com/Behat/Behat/issues",
-                "source": "https://github.com/Behat/Behat/tree/v3.22.0"
+                "source": "https://github.com/Behat/Behat/tree/v3.23.0"
             },
-            "time": "2025-05-06T15:25:03+00:00"
+            "time": "2025-07-15T16:58:54+00:00"
         },
         {
             "name": "behat/gherkin",
@@ -1619,15 +1621,15 @@
         },
         {
             "name": "centreon/centreon",
-            "version": "25.07",
+            "version": "25.09",
             "dist": {
                 "type": "path",
                 "url": "../centreon",
-                "reference": "01fb65c4a6347818cb0a2942d52fa7097a4cbb1b"
+                "reference": "36f6f9022f84cc2543ab31e2d09962e828d58c8c"
             },
             "require": {
                 "amphp/http-client": "4.6.*",
-                "api-platform/core": "^4.1",
+                "api-platform/core": "4.1.*",
                 "api-platform/symfony": "*",
                 "beberlei/assert": "3.3.*",
                 "curl/curl": "2.5.*",
@@ -1667,7 +1669,7 @@
                 "php": "8.2.*",
                 "phpdocumentor/reflection-docblock": "5.4.*",
                 "pimple/pimple": "3.5.*",
-                "psr/container": "1.1.*",
+                "psr/container": "2.0.*",
                 "smarty-gettext/smarty-gettext": "1.7.*",
                 "smarty/smarty": "4.5.*",
                 "symfony/asset": "7.3.*",
@@ -1701,6 +1703,9 @@
                 "symfony/yaml": "7.3.*",
                 "webmozart/assert": "1.11.*"
             },
+            "conflict": {
+                "symfony/symfony": "*"
+            },
             "replace": {
                 "paragonie/random_compat": "2.*",
                 "symfony/polyfill-ctype": "*",
@@ -1730,7 +1735,8 @@
                 "symfony": {
                     "allow-contrib": true,
                     "require": "7.3.*",
-                    "public-dir": "www"
+                    "public-dir": "www",
+                    "docker": false
                 }
             },
             "autoload": {
@@ -1762,6 +1768,15 @@
                 ]
             },
             "scripts": {
+                "auto-scripts": {
+                    "cache:clear": "symfony-cmd"
+                },
+                "post-install-cmd": [
+                    "@auto-scripts"
+                ],
+                "post-update-cmd": [
+                    "@auto-scripts"
+                ],
                 "require:check": [
                     "../php-tools/vendor/bin/composer-require-checker check composer.json"
                 ],
@@ -1772,13 +1787,13 @@
                     "../php-tools/vendor/bin/rector process --config=rector.legacy.php --dry-run"
                 ],
                 "rector:legacy:fix": [
-                    "../php-tools/vendor/bin/rector --config=rector.legacy.php process"
+                    "../php-tools/vendor/bin/rector process --config=rector.legacy.php"
                 ],
                 "rector:core": [
                     "../php-tools/vendor/bin/rector process --config=rector.core.php --dry-run"
                 ],
                 "rector:core:fix": [
-                    "../php-tools/vendor/bin/rector --config=rector.core.php process"
+                    "../php-tools/vendor/bin/rector process --config=rector.core.php"
                 ],
                 "rector:new": [
                     "../php-tools/vendor/bin/rector process --config=rector.new.php --dry-run"
@@ -1923,42 +1938,39 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/centreon/centreon-test-lib.git",
-                "reference": "be81af2a94edb04e89575b937d003952d83f1f11"
+                "reference": "42b0b5c3a3cde5df2721750e76b30e0907426764"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/centreon/centreon-test-lib/zipball/be81af2a94edb04e89575b937d003952d83f1f11",
-                "reference": "be81af2a94edb04e89575b937d003952d83f1f11",
+                "url": "https://api.github.com/repos/centreon/centreon-test-lib/zipball/42b0b5c3a3cde5df2721750e76b30e0907426764",
+                "reference": "42b0b5c3a3cde5df2721750e76b30e0907426764",
                 "shasum": ""
             },
             "require": {
-                "behat/behat": "^3.0",
+                "behat/behat": "3.23.*",
                 "ext-curl": "*",
                 "ext-pdo": "*",
-                "guzzlehttp/guzzle": "^7.3",
-                "justinrainbow/json-schema": "^5.2",
-                "league/openapi-psr7-validator": "^0.17",
-                "nyholm/psr7": "^1.3",
+                "guzzlehttp/guzzle": "7.9.*",
+                "justinrainbow/json-schema": "5.3.*",
+                "league/openapi-psr7-validator": "0.17.*",
+                "nyholm/psr7": "1.8.*",
                 "pestphp/pest": "2.36.*",
-                "php": "8.2",
-                "psr/http-client": "^1.0",
+                "php": "8.2.*",
+                "psr/http-client": "1.0.*",
                 "symfony/http-client": "7.3.*",
                 "symfony/property-access": "7.3.*",
-                "webmozart/assert": "^1.9"
+                "webmozart/assert": "1.11.*"
             },
             "suggest": {
                 "behat/mink": "Browser controller/emulator abstraction for PHP",
-                "behat/mink-selenium2-driver": "Mink driver using Selenium",
-                "phpstan/phpstan": "PHP static analysis"
+                "behat/mink-selenium2-driver": "Mink driver using Selenium"
             },
             "default-branch": true,
             "type": "library",
             "autoload": {
                 "psr-4": {
                     "Centreon\\Command\\": "src/Command",
-                    "Centreon\\PHPStan\\": "src/PHPStan",
                     "Centreon\\Test\\Mock\\": "src/mock",
-                    "Centreon\\PhpCsFixer\\": "src/PhpCsFixer",
                     "Centreon\\Test\\Behat\\": "src/behat",
                     "Centreon\\Test\\Traits\\": "src/traits"
                 }
@@ -1978,7 +1990,7 @@
                 "issues": "https://github.com/centreon/centreon-test-lib/issues",
                 "source": "https://github.com/centreon/centreon-test-lib/tree/master"
             },
-            "time": "2025-07-07T12:36:25+00:00"
+            "time": "2025-07-21T09:54:54+00:00"
         },
         {
             "name": "composer/pcre",
@@ -6705,22 +6717,27 @@
         },
         {
             "name": "psr/container",
-            "version": "1.1.2",
+            "version": "2.0.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/php-fig/container.git",
-                "reference": "513e0666f7216c7459170d56df27dfcefe1689ea"
+                "reference": "c71ecc56dfe541dbd90c5360474fbc405f8d5963"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-fig/container/zipball/513e0666f7216c7459170d56df27dfcefe1689ea",
-                "reference": "513e0666f7216c7459170d56df27dfcefe1689ea",
+                "url": "https://api.github.com/repos/php-fig/container/zipball/c71ecc56dfe541dbd90c5360474fbc405f8d5963",
+                "reference": "c71ecc56dfe541dbd90c5360474fbc405f8d5963",
                 "shasum": ""
             },
             "require": {
                 "php": ">=7.4.0"
             },
             "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "2.0.x-dev"
+                }
+            },
             "autoload": {
                 "psr-4": {
                     "Psr\\Container\\": "src/"
@@ -6747,9 +6764,9 @@
             ],
             "support": {
                 "issues": "https://github.com/php-fig/container/issues",
-                "source": "https://github.com/php-fig/container/tree/1.1.2"
+                "source": "https://github.com/php-fig/container/tree/2.0.2"
             },
-            "time": "2021-11-05T16:50:12+00:00"
+            "time": "2021-11-05T16:47:00+00:00"
         },
         {
             "name": "psr/event-dispatcher",

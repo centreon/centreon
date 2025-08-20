@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -423,6 +423,20 @@ class OpenIdProvider implements OpenIdProviderInterface
     public function getUserContactGroups(): array
     {
         return $this->groupsMapping->getUserContactGroups();
+    }
+
+    /**
+     * Get OIDC token for session.
+     *
+     * @return string|null
+     */
+    public function getTokenForSession(): ?string
+    {
+        if (! array_key_exists('id_token', $this->connectionTokenResponseContent)) {
+            throw SSOAuthenticationException::requestForConnectionTokenFail();
+        }
+
+        return $this->connectionTokenResponseContent['id_token'];
     }
 
     /**

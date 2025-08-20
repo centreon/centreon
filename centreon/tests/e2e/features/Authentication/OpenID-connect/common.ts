@@ -1,11 +1,9 @@
-/* eslint-disable cypress/no-unnecessary-waiting */
-
 import { ActionClapi } from '../../../commons';
 
 interface OidcConfigValues {
   authEndpoint: string;
   baseUrl: string;
-  clientID: string;
+  clientId: string;
   clientSecret: string;
   introspectionTokenEndpoint: string;
   loginAttrPath: string;
@@ -13,10 +11,13 @@ interface OidcConfigValues {
   tokenEndpoint: string;
 }
 
-const getOidcConfigValues = ({ providerAddress = 'localhost', providerPort = 8080 }): OidcConfigValues => ({
+const getOidcConfigValues = ({
+  providerAddress = 'sso-proxy',
+  providerPort = 8080
+}): OidcConfigValues => ({
   authEndpoint: '/auth',
   baseUrl: `http://${providerAddress}:${providerPort}/realms/Centreon_SSO/protocol/openid-connect`,
-  clientID: 'centreon-oidc-frontend',
+  clientId: 'centreon-oidc-frontend',
   clientSecret: 'IKbUBottl5eoyhf0I5Io2nuDsTA85D50',
   introspectionTokenEndpoint: '/token/introspect',
   loginAttrPath: 'preferred_username',
@@ -24,7 +25,7 @@ const getOidcConfigValues = ({ providerAddress = 'localhost', providerPort = 808
   tokenEndpoint: '/token'
 });
 
-const initializeOIDCUserAndGetLoginPage = (): Cypress.Chainable => {
+const initializeOidcUserAndGetLoginPage = (): Cypress.Chainable => {
   return cy
     .fixture('resources/clapi/contact-OIDC/OIDC-authentication-user.json')
     .then((fixture: Array<ActionClapi>) => {
@@ -46,7 +47,7 @@ const removeContact = (): Cypress.Chainable => {
   });
 };
 
-const configureOpenIDConnect = (): Cypress.Chainable => {
+const configureOpenIdConnect = (): Cypress.Chainable => {
   cy.contains('Enable OpenID Connect authentication').should('be.visible');
 
   return cy.getContainerIpAddress('openid').then((containerIpAddress) => {
@@ -68,13 +69,13 @@ const configureOpenIDConnect = (): Cypress.Chainable => {
       .type(`{selectall}{backspace}${oidcConfigValues.tokenEndpoint}`);
     cy.getByLabel({ label: 'Client ID', tag: 'input' })
       .should('be.visible')
-      .type(`{selectall}{backspace}${oidcConfigValues.clientID}`);
+      .type(`{selectall}{backspace}${oidcConfigValues.clientId}`);
     cy.getByLabel({ label: 'Client secret', tag: 'input' })
       .should('be.visible')
       .type(`{selectall}{backspace}${oidcConfigValues.clientSecret}`);
     cy.getByLabel({ label: 'Scopes', tag: 'input' })
       .should('be.visible')
-      .type(`{selectall}{backspace}${oidcConfigValues.scopes}`);
+      .type(`{selectall}{backspace}${oidcConfigValues.scopes}{enter}`);
     cy.getByLabel({ label: 'Login attribute path', tag: 'input' })
       .should('be.visible')
       .type(`{selectall}{backspace}${oidcConfigValues.loginAttrPath}`);
@@ -96,21 +97,21 @@ const configureOpenIDConnect = (): Cypress.Chainable => {
 
 const saveOpenIdFormIfEnabled = () => {
   return cy.getByLabel({ label: 'save button', tag: 'button' }).then(($btn) => {
-    if ($btn.is(":disabled")) {
+    if ($btn.is(':disabled')) {
       return;
-    } else {
-      cy.wrap($btn).click();
-
-      return cy.wait('@updateOIDCProvider')
-        .its('response.statusCode')
-        .should('eq', 204);
     }
+    cy.wrap($btn).click();
+
+    return cy
+      .wait('@updateOIDCProvider')
+      .its('response.statusCode')
+      .should('eq', 204);
   });
 };
 
 export {
   removeContact,
-  initializeOIDCUserAndGetLoginPage,
-  configureOpenIDConnect,
+  initializeOidcUserAndGetLoginPage,
+  configureOpenIdConnect,
   saveOpenIdFormIfEnabled
 };
