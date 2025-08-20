@@ -260,6 +260,7 @@ const useFormInputs = ({
       additionalLabelClassName: classes.additionalLabel,
       fieldName: '',
       grid: {
+        gridTemplateColumns: 'repeat(3, 1fr)',
         className: classes.channels,
         columns: [
           {

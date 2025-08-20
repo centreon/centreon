@@ -162,7 +162,7 @@ class HTML_QuickFormCustom extends HTML_QuickForm
      * To validate grouped elements as separated entities,
      * use addGroupRule instead of addRule.
      *
-     * @param string $element Form element name
+     * @param string|string[] $element Form element name
      * @param string $message Message to display for invalid data
      * @param string $type Rule type, use getRegisteredRules() to get types
      * @param string $format (optional)Required for extra rule data

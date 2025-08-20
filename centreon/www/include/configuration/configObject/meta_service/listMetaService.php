@@ -76,16 +76,21 @@ $calcType = ['AVE' => _('Average'), 'SOM' => _('Sum'), 'MIN' => _('Min'), 'MAX' 
 $conditionStr = '';
 $metaStrParams = [];
 // binding query params for non admin  acl rules
-if (! $acl->admin && $metaStr) {
-    $metaStrList = explode(',', $metaStr);
-    foreach ($metaStrList as $index => $metaId) {
-        $metaStrParams[':meta_' . $index] = (int) str_replace("'", '', $metaId);
+$searchIsNull = $search === null || $search === '';
+// the metaStr are the metas linked to the user's ACL
+if ($acl->admin === '0' || $acl->admin === false) {
+    if ($metaStr === "''" || $metaStr === '') {
+        $queryParams = '0';
+    } else {
+        $metaStrList = explode(',', $metaStr);
+        foreach ($metaStrList as $index => $metaId) {
+            $metaStrParams[':meta_' . $index] = (int) str_replace("'", '', $metaId);
+        }
+        $queryParams = implode(',', array_keys($metaStrParams));
     }
-    $queryParams = implode(',', array_keys($metaStrParams));
-
-    $conditionStr = $search !== '' ? 'AND meta_id IN (' . $queryParams . ')' : 'WHERE meta_id IN (' . $queryParams . ')';
+    $conditionStr = ! $searchIsNull ? 'AND meta_id IN (' . $queryParams . ')' : 'WHERE meta_id IN (' . $queryParams . ')';
 }
-if ($search !== '') {
+if (! $searchIsNull) {
     $statement = $pearDB->prepare('SELECT * FROM meta_service '
         . 'WHERE meta_name LIKE :search ' . $conditionStr
         . ' ORDER BY meta_name LIMIT :offset, :limit');

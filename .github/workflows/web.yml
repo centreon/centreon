@@ -204,8 +204,12 @@ jobs:
         env:
           runner: ubuntu-24.04
 
+      - name: Create configuration file
+        run: cp config/centreon.config.php.template config/centreon.config.php
+        working-directory: ${{ env.base_directory }}
+
       - name: Install Dependencies
-        run: composer install --no-dev --optimize-autoloader --prefer-dist --no-interaction --no-progress --quiet --no-suggest
+        run: composer install --no-dev --optimize-autoloader --prefer-dist --no-interaction --no-progress --quiet --no-scripts
         working-directory: ${{ env.base_directory }}
         shell: bash
 
@@ -392,6 +396,10 @@ jobs:
         env:
           runner: ubuntu-24.04
 
+      - name: Create configuration file
+        run: cp config/centreon.config.php.template config/centreon.config.php
+        working-directory: centreon
+
       - name: Install dependencies
         uses: ramsey/composer-install@3cf229dc2919194e9e36783941438d17239e8520 # v3.1.1
         with:
@@ -425,18 +433,18 @@ jobs:
           runner: ubuntu-24.04
 
       - name: Install dependencies for PHP quality tools
-        run: composer install --optimize-autoloader --prefer-dist --no-interaction --no-progress --quiet --no-suggest
+        run: composer install --optimize-autoloader --prefer-dist --no-interaction --no-progress --quiet --no-scripts
         working-directory: php-tools
-        shell: bash
-
-      - name: Install dependencies for centreon-web
-        run: composer install --optimize-autoloader --prefer-dist --no-interaction --no-progress --quiet --no-suggest
-        working-directory: centreon
         shell: bash
 
       - name: Create configuration file
         run: cp config/centreon.config.php.template config/centreon.config.php
         working-directory: centreon
+
+      - name: Install dependencies for centreon-web
+        run: composer install --optimize-autoloader --prefer-dist --no-interaction --no-progress --quiet --no-scripts
+        working-directory: centreon
+        shell: bash
 
       - name: ⚙️ Check Symfony configuration
         run: composer symfony:check
@@ -1193,10 +1201,18 @@ jobs:
   deliver-rpm:
     runs-on: centreon-common
     needs:
-      [changes, get-environment, e2e-test, performances-test, legacy-e2e-test]
+      [
+        changes,
+        get-environment,
+        newman-test,
+        e2e-test,
+        performances-test,
+        legacy-e2e-test
+      ]
     if: |
       needs.get-environment.outputs.skip_workflow == 'false' &&
-      contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability) &&
+      ((needs.get-environment.outputs.delivery_type == 'feature' && contains(github.event.pull_request.labels.*.name, 'delivery-feature')) ||
+      contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability)) &&
       ! cancelled() &&
       ! contains(needs.*.result, 'failure') &&
       ! contains(needs.*.result, 'cancelled') &&
@@ -1221,11 +1237,20 @@ jobs:
           stability: ${{ needs.get-environment.outputs.stability }}
           release_type: ${{ needs.get-environment.outputs.release_type }}
           is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
+          delivery_type: ${{ needs.get-environment.outputs.delivery_type }}
+          centreon_technique_pat: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
 
   deliver-deb:
     runs-on: centreon-common
     needs:
-      [changes, get-environment, e2e-test, performances-test, legacy-e2e-test]
+      [
+        changes,
+        get-environment,
+        newman-test,
+        e2e-test,
+        performances-test,
+        legacy-e2e-test
+      ]
     if: |
       needs.get-environment.outputs.skip_workflow == 'false' &&
       contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability) &&

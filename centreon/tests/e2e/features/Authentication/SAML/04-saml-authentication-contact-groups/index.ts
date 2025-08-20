@@ -58,7 +58,7 @@ When(
 
     configureSaml();
 
-    cy.getByLabel({ label: 'Groups mapping' }).click();
+    cy.get('[data-testid="Groups mapping-header"]').click();
 
     cy.getByLabel({
       label: 'Enable automatic management',
