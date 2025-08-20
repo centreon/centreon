@@ -37,6 +37,8 @@ describe('AgentInitiated', () => {
         cy.get('[data-testid="CA(.crt,.cer)"').should('have.value', '');
         cy.get('[data-testid="Private key(.key)"]').should('have.value', '');
         cy.get('[data-testid="Select existing CMA token(s)"]').should('be.visible');
+
+        cy.makeSnapshot();
     });
 
     it('should update the public certificate field', () => {
