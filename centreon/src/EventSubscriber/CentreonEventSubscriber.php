@@ -415,14 +415,16 @@ class CentreonEventSubscriber implements EventSubscriberInterface
         }
         
         $request = $event->getRequest();
+        $locale = $user->getLocale();
         if ($user->getLang() === 'browser') {
             $locale = $this->guessLocale($request);
-            $user->setLocale($locale);
+            // set locale to null in case detection by browser is enabled so the frontend can handle it by itself
+            $user->setLocale(null);
         }
 
         EntityCreator::setContact($user);
         
-        $this->initLanguage($user);
+        $this->initLanguage($locale);
         $this->initGlobalContact($user);
     }
 
@@ -435,7 +437,9 @@ class CentreonEventSubscriber implements EventSubscriberInterface
      */
     private function guessLocale(Request $request): string
     {
-        $preferredLanguage = $request->getPreferredLanguage(['fr-FR', 'en-US', 'es-ES', 'pr-BR', 'pt-PT', 'de-DE']);
+        // getPreferredLanguage always returns a value
+        // if no preferred value can be extracted from the request headers, the first provided locale is returned
+        $preferredLanguage = $request->getPreferredLanguage(['en_US', 'fr_FR', 'es_ES', 'pr_BR', 'pt_PT', 'de_DE']);
         
         // Reformating is necessary as the standard format uses "-" and we decided to store "_"
         $locale = $preferredLanguage ? str_replace('-', '_', $preferredLanguage): 'en_US';
@@ -466,11 +470,11 @@ class CentreonEventSubscriber implements EventSubscriberInterface
     /**
      * Init language to manage translation.
      *
-     * @param ContactInterface $user
+     * @param string $locale
      */
-    private function initLanguage(ContactInterface $user): void
+    private function initLanguage(string $locale): void
     {
-        $lang = $user->getLocale() . '.' . Contact::DEFAULT_CHARSET;
+        $lang = $locale . '.' . Contact::DEFAULT_CHARSET;
 
         putenv('LANG=' . $lang);
         setlocale(LC_ALL, $lang);

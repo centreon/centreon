@@ -142,10 +142,20 @@ class CentreonLang
     {
         $fullLocale = '';
 
-        $as = ['fr' => 'fr_FR', 'fr_FR' => 'fr_FR', 'en' => 'en_US', 'en_US' => 'en_US'];
+        $as = [
+            'en' => 'en_US',
+            'fr' => 'fr_FR',
+            'de' => 'de_DE',
+            'es' => 'es_ES',
+            'pt' => 'pt_PT'
+        ];
+        foreach ($as as $short => $long) {
+            $as[$long] = $short;
+        }
+        $as['pt_BR'] = 'pt_BR';
 
         if (isset($as[$shortLocale])) {
-            $fullLocale .= $as[$shortLocale];
+            $fullLocale = $as[$shortLocale];
         } else {
             $fullLocale = 'en_US';
         }
