@@ -99,6 +99,10 @@ runs:
         fi
 
     - name: Publish RPMs
+      shell: bash
+      env:
+        JF_URL: https://centreon.jfrog.io
+        JF_ACCESS_TOKEN: ${{ inputs.artifactory_token }}
       run: |
         set -eux
 
@@ -192,6 +196,10 @@ runs:
               fi
             fi
           done
-        done
 
-      shell: bash
+        # On feature repositories, recalculate metadata when delivery is completed since this is not done manually on those
+        if [[ "${{ inputs.delivery_type }}" == "feature" ]]; then
+          curl -H "Authorization: Bearer ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}" -X POST "${{ env.JF_URL }}/artifactory/api/yum/$ROOT_REPO_PATH?path=/${{ inputs.version }}/${{ inputs.distrib }}/${{ inputs.stability }}/$ARCH&async=0"
+        fi
+
+        done
