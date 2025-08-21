@@ -1,6 +1,7 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Formik } from 'formik';
 import { BrowserRouter } from 'react-router';
+import { getTokensEndpoint } from '../../api/endpoints';
 import AgentInitiated from './AgentInitiated';
 
 const initialValues = {
@@ -220,5 +221,91 @@ describe('AgentInitiated', () => {
       'have.value',
       ''
     );
+  });
+
+  it('should handle CMA tokens selection and change', () => {
+    initialize();
+    cy.stub(getTokensEndpoint);
+
+    cy.get('[data-testid="Select existing CMA token(s)"]').click();
+
+    cy.get('[data-testid="Select existing CMA token(s)"]').type(
+      'new-token{enter}'
+    );
+  });
+
+  it('should handle token deletion', () => {
+    const valuesWithTokens = {
+      configuration: {
+        otelPublicCertificate: '',
+        otelCaCertificate: '',
+        otelPrivateKey: '',
+        tokens: [
+          { name: 'token1', id: 1, inputValue: 'input1' },
+          { name: 'token2', id: 2, inputValue: 'input2' }
+        ]
+      }
+    };
+
+    initialize(valuesWithTokens);
+
+    cy.get('[data-testid="Select existing CMA token(s)"]').should('be.visible');
+
+    cy.get('[data-testid="Select existing CMA token(s)"]')
+      .get('[data-testid="CancelIcon"]')
+      .first()
+      .click();
+  });
+
+  it('should handle empty tokens when changing CMA tokens', () => {
+    initialize();
+
+    cy.get('[data-testid="Select existing CMA token(s)"]').click();
+
+    cy.get('body').click();
+  });
+
+  it('should call changeCMATokens when token selection changes', () => {
+    initialize();
+
+    cy.get('[data-testid="Select existing CMA token(s)"]').click();
+
+    cy.get('[data-testid="Select existing CMA token(s)"]').type('test-token');
+
+    cy.get('[data-testid="Select existing CMA token(s)"]').clear();
+  });
+
+  it('should properly remove tokens when delete is clicked', () => {
+    const valuesWithMultipleTokens = {
+      configuration: {
+        otelPublicCertificate: '',
+        otelCaCertificate: '',
+        otelPrivateKey: '',
+        tokens: [
+          { name: 'token1', id: 1, inputValue: 'input1' },
+          { name: 'token2', id: 2, inputValue: 'input2' },
+          { name: 'token3', id: 3, inputValue: 'input3' }
+        ]
+      }
+    };
+
+    initialize(valuesWithMultipleTokens);
+
+    cy.get('[data-testid="tag-option-chip-1"]').should('contain', 'token1');
+    cy.get('[data-testid="tag-option-chip-2"]').should('contain', 'token2');
+    cy.get('[data-testid="tag-option-chip-3"]').should('contain', 'token3');
+
+    cy.get('[data-testid="Select existing CMA token(s)"]')
+      .get('[data-testid="CancelIcon"]')
+      .first()
+      .click();
+
+    cy.get('[data-testid="tag-option-chip-2"]').should('contain', 'token2');
+    cy.get('[data-testid="tag-option-chip-3"]').should('contain', 'token3');
+
+    cy.get('[data-testid="Select existing CMA token(s)"]')
+      .get('[data-testid="CancelIcon"]')
+      .first()
+      .click();
   });
 });
