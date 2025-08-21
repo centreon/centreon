@@ -2965,7 +2965,7 @@ function callHostApi(string $url, string $httpMethod, array $payload): array
         [
             'headers' => [
                 'Content-Type' => 'application/json',
-                'Cookie' => 'PHPSESSID=' . $_COOKIE['PHPSESSID'] . '; XDEBUG_SESSION=XDEBUG_KEY',
+                'Cookie' => 'PHPSESSID=' . $_COOKIE['PHPSESSID'],
             ],
             'body' => json_encode($payload, JSON_THROW_ON_ERROR),
         ],

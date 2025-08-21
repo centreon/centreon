@@ -748,7 +748,7 @@ final class PartialUpdateHost
         }
 
         // If the value is already a vault path, do nothing
-        if ($this->isAVaultPath($snmpCommunity ??  '')) {
+        if ($this->isAVaultPath($snmpCommunity ?? '')) {
             return;
         }
 
