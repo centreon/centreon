@@ -610,7 +610,7 @@ class CentreonService
                 $valPassword = null;
                 if (isset($_REQUEST['is_password'][$key])) {
                     $valPassword = $_REQUEST['is_password'][$key] === '1' ? '1' : null;
-                } else if  ($_REQUEST['macroValue'][$key]) {
+                } elseif ($_REQUEST['macroValue'][$key]) {
                     $valPassword = $_REQUEST['macroValue'][$key] === self::PASSWORD_REPLACEMENT_VALUE ? '1' : null;
                 }
                 $arr[$i]['macroPassword_#index#'] = $valPassword;

@@ -1710,8 +1710,6 @@ function updateServiceInDBForOnPrem($serviceId = null, $massiveChange = false, $
     signalConfigurationChange('service', $serviceId, $previousPollerIds);
 }
 
-
-
 /**
  * Insert additional options for service template
  *
