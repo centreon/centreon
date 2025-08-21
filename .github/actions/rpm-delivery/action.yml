@@ -152,7 +152,7 @@ runs:
         # FEATURE REPOSITORY
         if [[ "${{ inputs.delivery_type }}" == "feature" ]]; then
           echo "[DEBUG] : Delivery to feature repositories, using rpm-feature repo."
-          ROOT_REPO_PATHS="rpm-standard-$(echo "${{ github.head_ref || github.ref_name }}" | grep -oP '^.*-MON-[0-9]+')"
+          ROOT_REPO_PATHS="rpm-standard-feature-$(echo "${{ github.head_ref || github.ref_name }}" | grep -oP '^.*MON-[0-9]+')"
           UPLOAD_REPO_PATH="${{ inputs.version }}/${{ inputs.distrib }}/${{ inputs.stability }}/$ARCH/${{ inputs.module_name }}/"
 
         # CLOUD + HOTFIX + REPO STANDARD INTERNAL OR CLOUD + RELEASE + REPO STANDARD INTERNAL
