@@ -377,7 +377,7 @@ final class PartialUpdateHostTemplate
             $hostTemplate->setComment($request->comment);
         }
 
-       $this->updateSnmpCommunity($hostTemplate, $request->snmpCommunity);
+        $this->updateSnmpCommunity($hostTemplate, $request->snmpCommunity);
 
         $this->writeHostTemplateRepository->update($hostTemplate);
     }
@@ -663,11 +663,11 @@ final class PartialUpdateHostTemplate
      * Update SNMP community for a host template, handling vault storage and clearing logic.
      *
      * @param HostTemplate $hostTemplate
-     * @param NoValue|string|null $snmpCommunity
+     * @param NoValue|string $snmpCommunity
      *
      * @throws \Throwable
      */
-    private function updateSnmpCommunity(HostTemplate $hostTemplate, NoValue|string|null $snmpCommunity): void
+    private function updateSnmpCommunity(HostTemplate $hostTemplate, NoValue|string $snmpCommunity): void
     {
         if ($snmpCommunity instanceof NoValue) {
             return;
@@ -681,7 +681,7 @@ final class PartialUpdateHostTemplate
         }
 
         // If the value is already a vault path, do nothing
-        if (is_string($snmpCommunity) && $this->isAVaultPath($snmpCommunity)) {
+        if ($this->isAVaultPath($snmpCommunity)) {
             return;
         }
 

@@ -742,13 +742,13 @@ final class PartialUpdateHost
 
         // If vault is not configured, just set the value directly
         if (! $this->writeVaultRepository->isVaultConfigured()) {
-            $host->setSnmpCommunity($snmpCommunity);
+            $host->setSnmpCommunity($snmpCommunity ?? '');
 
             return;
         }
 
         // If the value is already a vault path, do nothing
-        if (is_string($snmpCommunity) && $this->isAVaultPath($snmpCommunity)) {
+        if ($this->isAVaultPath($snmpCommunity ??  '')) {
             return;
         }
 
@@ -756,9 +756,9 @@ final class PartialUpdateHost
         if ($this->isAVaultPath($host->getSnmpCommunity()) && empty($snmpCommunity)) {
             $this->writeVaultRepository->upsert(
                 uuid: $this->getUuidFromPath($host->getSnmpCommunity()),
-                deletes: [VaultConfiguration::HOST_SNMP_COMMUNITY_KEY => $snmpCommunity]
+                deletes: [VaultConfiguration::HOST_SNMP_COMMUNITY_KEY => $snmpCommunity ?? '']
             );
-            $host->setSnmpCommunity($snmpCommunity);
+            $host->setSnmpCommunity($snmpCommunity ?? '');
 
             return;
         }

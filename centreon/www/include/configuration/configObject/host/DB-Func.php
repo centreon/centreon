@@ -3264,10 +3264,8 @@ function getPayloadForHost(bool $isCloudPlatform, array $formData, Kernel $kerne
     return $payload;
 }
 
-/**
- * 
- */
-function computeMacroValue(array $macroInformations, int $hostId, Kernel $kernel): string|null {
+function computeMacroValue(array $macroInformations, int $hostId, Kernel $kernel): string|null
+{
     global $pearDB;
     $value = $macroInformations['value'] ?? null;
     $macroOriginalNameKey = 'macroOriginalName_' . $macroInformations['key'];
@@ -3277,7 +3275,7 @@ function computeMacroValue(array $macroInformations, int $hostId, Kernel $kernel
     }
 
     $value = $pearDB->fetchOne(
-        <<<SQL
+        <<<'SQL'
             SELECT host_macro_value
             FROM on_demand_macro_host
             WHERE host_macro_name = :host_macro_name
@@ -3303,9 +3301,5 @@ function computeMacroValue(array $macroInformations, int $hostId, Kernel $kernel
         Logger::create()
     );
 
-    if (isset($vaultedMacros['_HOST' . $_REQUEST[$macroOriginalNameKey]])) {
-        return $vaultedMacros['_HOST' . $_REQUEST[$macroOriginalNameKey]];
-    }
-
-    return $value;
+    return $vaultedMacros['_HOST' . $_REQUEST[$macroOriginalNameKey]] ?? $value;
 }

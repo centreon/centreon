@@ -69,11 +69,20 @@ final class HostMacroFactory
         return $macro;
     }
 
+    /**
+     * Compute macro value based on the data and inherited macros.
+     *
+     * @param array{name:string,value:string|null,is_password:bool,description:string|null} $data
+     * @param array<string,Macro> $inheritedMacros
+     *
+     * @return string
+     */
     private static function computeValue(array $data, array $inheritedMacros): string
     {
         if (array_key_exists($data['name'], $inheritedMacros)) {
             return $inheritedMacros[$data['name']]->getValue();
         }
+
         return $data['value'] ?? '';
     }
 }
