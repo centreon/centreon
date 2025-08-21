@@ -24390,4 +24390,4 @@ msgid "No data is displayed because the selected resources have not been configu
 msgstr "Aucune donnée n'est affichée car les ressources sélectionnées n'ont été configurées dans aucun rapport MBI ou ne contiennent pas suffisamment de données."
 
 msgid "Please note that data aggregation may take several days."
-msgstr "Cliquez ici pour configurer les jobs MBI. Veuillez noter que l'agrégation des données peut prendre plusieurs jours."
+msgstr "Veuillez noter que l'agrégation des données peut prendre plusieurs jours."
