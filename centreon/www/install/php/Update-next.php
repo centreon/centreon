@@ -262,7 +262,6 @@ $alignCMAAgentConfigurationWithNewSchema = function () use ($pearDB, &$errorMess
             }
         }
 
-        $configuration = json_encode($configuration);
         $pearDB->update(
             <<<SQL
                 UPDATE agent_configuration
