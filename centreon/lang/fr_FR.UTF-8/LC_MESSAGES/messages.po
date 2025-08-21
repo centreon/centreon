@@ -24389,5 +24389,5 @@ msgstr "Ces périodes temporelles sont définies dans les options ETL de MBI."
 msgid "No data is displayed because the selected resources have not been configured in any MBI report or do not contain enough data."
 msgstr "Aucune donnée n'est affichée car les ressources sélectionnées n'ont été configurées dans aucun rapport MBI ou ne contiennent pas suffisamment de données."
 
-msgid "Click here to configure MBI jobs. Please note that data aggregation may take several days."
+msgid "Please note that data aggregation may take several days."
 msgstr "Cliquez ici pour configurer les jobs MBI. Veuillez noter que l'agrégation des données peut prendre plusieurs jours."
