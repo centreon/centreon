@@ -1,10 +1,11 @@
 import React from 'react';
+import { AnyObject, ObjectSchema } from 'yup';
 import { AgentType } from '../models';
 import { useValidationSchema } from './useValidationSchema';
 
 // Dummy component to test the hook
 const ValidationSchemaTestComponent: React.FC<{
-  onSchemaReady: (schema: any) => void;
+  onSchemaReady: (schema) => void;
 }> = ({ onSchemaReady }) => {
   const schema = useValidationSchema();
 
@@ -16,7 +17,7 @@ const ValidationSchemaTestComponent: React.FC<{
 };
 
 describe('useValidationSchema - certificateValidation', () => {
-  let schema: any;
+  let schema: ObjectSchema<{}, AnyObject, {}, ''>;
 
   beforeEach(() => {
     // Mock the useTranslation hook for Cypress
