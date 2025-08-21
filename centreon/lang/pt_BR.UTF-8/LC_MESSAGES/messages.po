@@ -23522,3 +23522,9 @@ msgstr "Nome da Topologia"
 
 # msgid "Thresholds can be hidden if the custom min and max values of the Y axis are below/above the thresholds."
 # msgstr ""
+
+# msgid "No data is displayed because the selected resources have not been configured in any MBI report or do not contain enough data."
+# msgstr ""
+
+# msgid "Please note that data aggregation may take several days."
+# msgstr ""
