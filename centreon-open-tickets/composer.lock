@@ -1555,7 +1555,7 @@
             "dist": {
                 "type": "path",
                 "url": "../centreon",
-                "reference": "abd9c47ba30f00e918b15b1e9733ad53a85b5dc7"
+                "reference": "607a015c28a81a2bba5f51dad11e0e8cbbd8f52b"
             },
             "require": {
                 "amphp/http-client": "4.6.*",
@@ -1653,6 +1653,7 @@
                 "mockery/mockery": "1.6.*",
                 "pestphp/pest": "2.36.*",
                 "php-vfs/php-vfs": "1.4.*",
+                "phpunit/phpunit": "10.5.*",
                 "robertfausk/mink-panther-driver": "1.1.*",
                 "squizlabs/php_codesniffer": "3.10.*",
                 "symfony/debug-bundle": "7.3.*",
@@ -1674,8 +1675,7 @@
             "autoload": {
                 "psr-4": {
                     "": "src/",
-                    "ConfigGenerateRemote\\": "www/class/config-generate-remote/",
-                    "Tests\\": "tests/php/"
+                    "ConfigGenerateRemote\\": "www/class/config-generate-remote/"
                 },
                 "classmap": [
                     "www/class/",
@@ -1698,6 +1698,12 @@
                     "www/lib/HTML/QuickForm/selectoptgroup.php",
                     "www/class/centreon-clapi/centreonACL.class.php"
                 ]
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Centreon\\Test\\Mock\\": "tests/php/mock/",
+                    "Tests\\": "tests/php/"
+                }
             },
             "scripts": {
                 "auto-scripts": {
@@ -1877,12 +1883,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/centreon/centreon-test-lib.git",
-                "reference": "3919e0c98fb4d7d71d84382de58fbddacd1c63da"
+                "reference": "324eb6422473983fc5fda3f9f0fd346ca07d8a1a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/centreon/centreon-test-lib/zipball/3919e0c98fb4d7d71d84382de58fbddacd1c63da",
-                "reference": "3919e0c98fb4d7d71d84382de58fbddacd1c63da",
+                "url": "https://api.github.com/repos/centreon/centreon-test-lib/zipball/324eb6422473983fc5fda3f9f0fd346ca07d8a1a",
+                "reference": "324eb6422473983fc5fda3f9f0fd346ca07d8a1a",
                 "shasum": ""
             },
             "require": {
@@ -1906,28 +1912,22 @@
             "type": "library",
             "autoload": {
                 "psr-4": {
-                    "Centreon\\Command\\": "src/Command",
-                    "Centreon\\Test\\Mock\\": "src/mock",
-                    "Centreon\\Test\\Behat\\": "src/behat",
-                    "Centreon\\Test\\Traits\\": "src/traits"
+                    "Centreon\\Command\\": "src/Command"
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "Apache-2.0"
             ],
-            "description": "Library using for Behat test and PHPUnit test",
+            "description": "Library using for Behat test",
             "keywords": [
-                "Behat",
-                "centreon",
-                "phpunit",
-                "testing"
+                "Behat"
             ],
             "support": {
                 "issues": "https://github.com/centreon/centreon-test-lib/issues",
                 "source": "https://github.com/centreon/centreon-test-lib/tree/MON-175014-master-clean-unit-test"
             },
-            "time": "2025-08-21T07:38:06+00:00"
+            "time": "2025-08-21T09:11:39+00:00"
         },
         {
             "name": "composer/pcre",

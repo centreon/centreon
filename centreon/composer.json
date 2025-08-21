@@ -110,8 +110,7 @@
   "autoload": {
     "psr-4": {
       "": "src/",
-      "ConfigGenerateRemote\\": "www/class/config-generate-remote/",
-      "Tests\\": "tests/php/"
+      "ConfigGenerateRemote\\": "www/class/config-generate-remote/"
     },
     "classmap": [
       "www/class/",
@@ -134,6 +133,12 @@
       "www/lib/HTML/QuickForm/selectoptgroup.php",
       "www/class/centreon-clapi/centreonACL.class.php"
     ]
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Centreon\\Test\\Mock\\": "tests/php/mock/",
+      "Tests\\": "tests/php/"
+    }
   },
   "config": {
     "secure-http": false,
