@@ -29,6 +29,7 @@ use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Entity\EntityCreator;
 use Centreon\Domain\Entity\EntityValidator;
 use Centreon\Domain\Exception\EntityNotFoundException;
+use Centreon\Domain\Service\I18nService;
 use Centreon\Domain\RequestParameters\{Interfaces\RequestParametersInterface,
     RequestParameters,
     RequestParametersException};
@@ -413,39 +414,17 @@ class CentreonEventSubscriber implements EventSubscriberInterface
         if ($user === null) {
             return;
         }
-        
+
         $request = $event->getRequest();
-        $locale = $user->getLocale();
         if ($user->getLang() === 'browser') {
-            $locale = $this->guessLocale($request);
-            // set locale to null in case detection by browser is enabled so the frontend can handle it by itself
-            $user->setLocale(null);
+            $locale = I18nService::guessLocaleFromRequest($request);
+            $user->setLocale($locale);
         }
 
         EntityCreator::setContact($user);
-        
-        $this->initLanguage($locale);
+
+        $this->initLanguage($user);
         $this->initGlobalContact($user);
-    }
-
-    /**
-     * Guess the locale to use according to the provided Accept-Language header (sent by browser or http client)
-     * 
-     * @todo improve this by moving the logic in a dedicated service
-     * @todo improve the array of supported locales by INJECTING them instead
-     * @param Request $request
-     */
-    private function guessLocale(Request $request): string
-    {
-        // getPreferredLanguage always returns a value
-        // if no preferred value can be extracted from the request headers, the first provided locale is returned
-        $preferredLanguage = $request->getPreferredLanguage(['en_US', 'fr_FR', 'es_ES', 'pr_BR', 'pt_PT', 'de_DE']);
-        
-        // Reformating is necessary as the standard format uses "-" and we decided to store "_"
-        $locale = $preferredLanguage ? str_replace('-', '_', $preferredLanguage): 'en_US';
-
-        // Also Safari has its own format "fr-fr" instead of "fr-FR" hence the strtoupper
-        return substr($locale, 0, -2) . strtoupper(substr($locale, -2));
     }
 
     /**
@@ -470,11 +449,11 @@ class CentreonEventSubscriber implements EventSubscriberInterface
     /**
      * Init language to manage translation.
      *
-     * @param string $locale
+     * @param ContactInterface $user
      */
-    private function initLanguage(string $locale): void
+    private function initLanguage(ContactInterface $user): void
     {
-        $lang = $locale . '.' . Contact::DEFAULT_CHARSET;
+        $lang = $user->getLocale() . '.' . Contact::DEFAULT_CHARSET;
 
         putenv('LANG=' . $lang);
         setlocale(LC_ALL, $lang);

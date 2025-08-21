@@ -33,6 +33,8 @@
  *
  */
 
+use Centreon\Domain\Service\I18nService;
+
 /**
  * Class
  *
@@ -120,49 +122,8 @@ class CentreonLang
      */
     private function getBrowserDefaultLanguage()
     {
-        $currentLocale = '';
-        
-        if (version_compare(PHP_VERSION, '5.2.0') >= 0 && isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
-            $browserLocale = $_SERVER['HTTP_ACCEPT_LANGUAGE'];
-            $currentLocale .= Locale::acceptFromHttp($browserLocale);
-        } else {
-            $currentLocale .= $this->parseHttpAcceptHeader();
-        }
-
-        return $this->getFullLocale($currentLocale);
+        return I18nService::guessLocaleFromRequest();
     }
-
-    /**
-     * Used to convert the browser language's from a short string to a string
-     *
-     * @param string $shortLocale
-     * @return string $fullLocale
-     */
-    private function getFullLocale($shortLocale)
-    {
-        $fullLocale = '';
-
-        $as = [
-            'en' => 'en_US',
-            'fr' => 'fr_FR',
-            'de' => 'de_DE',
-            'es' => 'es_ES',
-            'pt' => 'pt_PT'
-        ];
-        foreach ($as as $short => $long) {
-            $as[$long] = $short;
-        }
-        $as['pt_BR'] = 'pt_BR';
-
-        if (isset($as[$shortLocale])) {
-            $fullLocale = $as[$shortLocale];
-        } else {
-            $fullLocale = 'en_US';
-        }
-
-        return $fullLocale;
-    }
-
 
     /**
      *  Sets list of charsets
