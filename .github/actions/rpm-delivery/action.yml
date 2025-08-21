@@ -195,11 +195,10 @@ runs:
                 jf rt upload "$ARCH/*.rpm" "$ROOT_REPO_PATH/${{ inputs.version }}/${{ inputs.distrib }}/${{ inputs.stability }}/$ARCH/${{ inputs.module_name }}/" --sync-deletes="$ROOT_REPO_PATH/${{ inputs.version }}/${{ inputs.distrib }}/${{ inputs.stability }}/$ARCH/${{ inputs.module_name }}/" --flat
               fi
             fi
+
+          # On feature repositories, recalculate metadata when delivery is completed since this is not done manually on those
+          if [[ "${{ inputs.delivery_type }}" == "feature" ]]; then
+            curl -H "Authorization: Bearer ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}" -X POST "${{ env.JF_URL }}/artifactory/api/yum/$ROOT_REPO_PATH?path=/${{ inputs.version }}/${{ inputs.distrib }}/${{ inputs.stability }}/$ARCH&async=0"
+          fi
           done
-
-        # On feature repositories, recalculate metadata when delivery is completed since this is not done manually on those
-        if [[ "${{ inputs.delivery_type }}" == "feature" ]]; then
-          curl -H "Authorization: Bearer ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}" -X POST "${{ env.JF_URL }}/artifactory/api/yum/$ROOT_REPO_PATH?path=/${{ inputs.version }}/${{ inputs.distrib }}/${{ inputs.stability }}/$ARCH&async=0"
-        fi
-
         done
