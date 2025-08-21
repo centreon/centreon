@@ -23,8 +23,6 @@ use Adaptation\Database\Connection\Collection\QueryParameters;
 use Adaptation\Database\Connection\ValueObject\QueryParameter;
 use Core\Common\Domain\TrimmedString;
 use Core\Security\Token\Domain\Model\NewJwtToken;
-use Core\Security\Token\Domain\Model\TokenFactory;
-use Core\Security\Token\Domain\Model\TokenTypeEnum;
 
 require_once __DIR__ . '/../../../bootstrap.php';
 
@@ -197,7 +195,7 @@ $generateToken = function () use ($pearDB): array {
             QueryParameter::string(':encoding_key', $token->getEncodingKey()),
             QueryParameter::bool(':is_revoked', false),
             QueryParameter::int(':creation_date', $token->getCreationDate()->getTimestamp()),
-            QueryParameter::null(':expiration_date')
+            QueryParameter::null(':expiration_date'),
         ])
     );
 
@@ -220,7 +218,7 @@ $alignCMAAgentConfigurationWithNewSchema = function () use ($pearDB, &$errorMess
             WHERE `type` = 'centreon-agent'
             SQL
     );
-    if (empty($agentConfigurations)) {
+    if ($agentConfigurations === []) {
         return;
     }
     $tokenInformation = $generateToken();
@@ -241,7 +239,7 @@ $alignCMAAgentConfigurationWithNewSchema = function () use ($pearDB, &$errorMess
                 }
                 if (! array_key_exists('id', $host)) {
                     $hostId = $pearDB->fetchOne(
-                        <<<SQL
+                        <<<'SQL'
                             SELECT host_id
                             FROM host
                             WHERE host_address = :hostAddress
@@ -253,7 +251,7 @@ $alignCMAAgentConfigurationWithNewSchema = function () use ($pearDB, &$errorMess
                 }
             }
         } else {
-            // `hosts` should be an empty array for reverse connection
+            // `hosts` should be an empty array for not reverse connection
             if (! array_key_exists('hosts', $configuration)) {
                 $configuration['hosts'] = [];
             }
@@ -263,19 +261,18 @@ $alignCMAAgentConfigurationWithNewSchema = function () use ($pearDB, &$errorMess
         }
 
         $pearDB->update(
-            <<<SQL
+            <<<'SQL'
                 UPDATE agent_configuration
                 SET configuration = :configuration
                 WHERE id = :id
                 SQL,
             QueryParameters::create([
                 QueryParameter::string(':configuration', json_encode($configuration)),
-                QueryParameter::int(':id', $agentConfiguration['id'])
+                QueryParameter::int(':id', $agentConfiguration['id']),
             ])
         );
     }
 };
-
 
 try {
     // DDL statements for real time database
@@ -289,13 +286,13 @@ try {
         $pearDB->beginTransaction();
     }
 
+    $alignCMAAgentConfigurationWithNewSchema();
     $updateDashboardAndCustomViewsTopology();
     $updateContactsShowDeprecatedCustomViews();
     $updateCfgParameters();
     $bbdoCfgUpdate();
     $addResourceStatusSearchModeOption();
     $flagContactsAsServiceAccount();
-    $alignCMAAgentConfigurationWithNewSchema();
 
     $pearDB->commit();
 
