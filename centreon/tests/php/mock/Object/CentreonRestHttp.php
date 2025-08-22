@@ -20,6 +20,6 @@ class CentreonRestHttp extends BaseObject
 {
     public function call()
     {
-        return array('company' => 'token');
+        return ['company' => 'token'];
     }
 }

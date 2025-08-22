@@ -37,7 +37,7 @@ class CentreonUser extends \CentreonUser
     /** @var mixed|null */
     public $lang;
     /** @var string */
-    public $charset;
+    public $charset = "UTF-8";
     /** @var mixed|null */
     public $passwd;
     /** @var mixed|null */
@@ -45,7 +45,7 @@ class CentreonUser extends \CentreonUser
     /** @var mixed|null */
     public $admin;
     /** @var int */
-    public $version;
+    public $version = 3;
     /** @var mixed|null */
     public $default_page;
     /** @var mixed|null */
@@ -53,7 +53,7 @@ class CentreonUser extends \CentreonUser
     /** @var mixed|null */
     public $js_effects;
     /** @var null */
-    public $is_admin;
+    public $is_admin = null;
     /** @var mixed|null */
     public $theme;
 
@@ -72,15 +72,12 @@ class CentreonUser extends \CentreonUser
         $this->email = isset($user["contact_email"]) ?
             html_entity_decode($user["contact_email"], ENT_QUOTES, "UTF-8") : null;
         $this->lang = $user["contact_lang"] ?? null;
-        $this->charset = "UTF-8";
         $this->passwd = $user["contact_passwd"] ?? null;
         $this->token = $user['contact_autologin_key'] ?? null;
         $this->admin = $user["contact_admin"] ?? null;
-        $this->version = 3;
         $this->default_page = $user["default_page"] ?? null;
         $this->gmt = $user["contact_location"] ?? null;
         $this->js_effects = $user["contact_js_effects"] ?? null;
-        $this->is_admin = null;
         $this->theme = $user['contact_theme'] ?? null;
     }
 }

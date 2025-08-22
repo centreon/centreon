@@ -20,12 +20,12 @@ class CentreonResources extends BaseObject
 {
     public function getResourceByName($db, $resourceName)
     {
-        return array(
+        return [
             'resource_id' => 1,
             'resource_name' => $resourceName,
             'resource_line' => '/usr/lib/centreon/plugins',
             'resource_comment' => 'Centreon Plugin Path',
             'resource_activate' => 1
-        );
+        ];
     }
 }

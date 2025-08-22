@@ -59,20 +59,20 @@ class CentreonHost extends BaseObject
     {
         self::$countHostFunction++;
         if (self::$countHostFunction <= 2) {
-            return array(
-                array(
+            return [
+                [
                     "host_id" => self::$countHostFunction,
                     "host_name" => "10.30.2." . self::$countHostFunction
-                )
-            );
+                ]
+            ];
         } else {
-            return array();
+            return [];
         }
     }
 
     public function getServices($hostId)
     {
-        return array("180" => "Ping");
+        return ["180" => "Ping"];
     }
 
 }

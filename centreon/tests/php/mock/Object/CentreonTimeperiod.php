@@ -55,21 +55,21 @@ class CentreonTimeperiod extends BaseObject
 
     public function getLinkedHostsByName()
     {
-        return array();
+        return [];
     }
 
     public function getLinkedServicesByName()
     {
-        return array();
+        return [];
     }
 
     public function getLinkedContactsByName()
     {
-        return array();
+        return [];
     }
 
     public function getLinkedTimeperiodsByName()
     {
-        return array();
+        return [];
     }
 }

@@ -12,7 +12,7 @@ namespace Centreon\Test\Mock\Object;
 class BaseObject
 {
     protected $incrementalId = 1;
-    private static $countFunction = array();
+    private static $countFunction = [];
     
     public function __construct($fakeDb)
     {
@@ -36,18 +36,12 @@ class BaseObject
         if (array_key_exists($calledMethod, $customResult)) {
 
             if (!is_array($customResult[$calledMethod])) {
-
                 $result = $customResult[$calledMethod];
-
-            } else if (isset($customResult[$calledMethod]['at']) &&
+            } elseif (isset($customResult[$calledMethod]['at']) &&
                 array_key_exists(self::$countFunction[$calledMethod], $customResult[$calledMethod]['at'])) {
-
                 $result = $customResult[$calledMethod]['at'][self::$countFunction[$calledMethod]];
-
-            } else if (array_key_exists('any', $customResult[$calledMethod])) {
-
+            } elseif (array_key_exists('any', $customResult[$calledMethod])) {
                 $result = $customResult[$calledMethod]['any'];
-
             }
         }
 

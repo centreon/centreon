@@ -9413,12 +9413,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/centreon/centreon-test-lib.git",
-                "reference": "324eb6422473983fc5fda3f9f0fd346ca07d8a1a"
+                "reference": "bdba1c649ba92b4311de2394fa4ff54ac8e1fd6b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/centreon/centreon-test-lib/zipball/324eb6422473983fc5fda3f9f0fd346ca07d8a1a",
-                "reference": "324eb6422473983fc5fda3f9f0fd346ca07d8a1a",
+                "url": "https://api.github.com/repos/centreon/centreon-test-lib/zipball/bdba1c649ba92b4311de2394fa4ff54ac8e1fd6b",
+                "reference": "bdba1c649ba92b4311de2394fa4ff54ac8e1fd6b",
                 "shasum": ""
             },
             "require": {
@@ -9442,7 +9442,8 @@
             "type": "library",
             "autoload": {
                 "psr-4": {
-                    "Centreon\\Command\\": "src/Command"
+                    "Centreon\\Command\\": "src/Command",
+                    "Centreon\\Test\\Behat\\": "src/behat"
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -9457,7 +9458,7 @@
                 "issues": "https://github.com/centreon/centreon-test-lib/issues",
                 "source": "https://github.com/centreon/centreon-test-lib/tree/MON-175014-master-clean-unit-test"
             },
-            "time": "2025-08-21T09:11:39+00:00"
+            "time": "2025-08-22T10:52:01+00:00"
         },
         {
             "name": "composer/pcre",

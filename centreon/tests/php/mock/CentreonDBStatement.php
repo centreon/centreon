@@ -29,6 +29,11 @@ use Centreon\Test\Mock\CentreonDB;
  */
 class CentreonDBStatement extends \CentreonDBStatement
 {
+    public $currentResultset;
+    /**
+     * @var array<int|string, mixed>
+     */
+    public $fetchObjectName;
     /**
      * @var string
      */
@@ -102,7 +107,7 @@ class CentreonDBStatement extends \CentreonDBStatement
         int $type = \PDO::PARAM_STR
     ): bool {
         if (is_null($this->params)) {
-            $this->params = array();
+            $this->params = [];
         }
         if (is_int($param)) {
             $this->params[$param - 1] = $value;
