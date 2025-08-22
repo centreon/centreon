@@ -178,17 +178,17 @@ $generateToken = function () use ($pearDB): array {
     // Reuse an existing cma-default token if available for this creator
     $existing = $pearDB->fetchAssociative(
         <<<'SQL'
-            SELECT token_name, creator_id
-            FROM jwt_tokens
-            WHERE token_name = :token_name AND creator_id = :creator_id
-            LIMIT 1
-        SQL,
+                SELECT token_name, creator_id
+                FROM jwt_tokens
+                WHERE token_name = :token_name AND creator_id = :creator_id
+                LIMIT 1
+            SQL,
         QueryParameters::create([
             QueryParameter::string(':token_name', 'cma-default'),
             QueryParameter::int(':creator_id', (int) $admin['contact_id']),
         ])
     );
-    if (!empty($existing)) {
+    if (! empty($existing)) {
         return ['name' => 'cma-default', 'creator_id' => (int) $admin['contact_id']];
     }
 
@@ -201,9 +201,9 @@ $generateToken = function () use ($pearDB): array {
 
     $pearDB->executeStatement(
         <<<'SQL'
-            INSERT INTO `jwt_tokens` (token_string,token_name,creator_id,creator_name,encoding_key,is_revoked,creation_date,expiration_date)
-            VALUES (:token_string,:token_name,:creator_id,:creator_name,:encoding_key,:is_revoked,:creation_date,:expiration_date)
-        SQL,
+                INSERT INTO `jwt_tokens` (token_string,token_name,creator_id,creator_name,encoding_key,is_revoked,creation_date,expiration_date)
+                VALUES (:token_string,:token_name,:creator_id,:creator_name,:encoding_key,:is_revoked,:creation_date,:expiration_date)
+            SQL,
         QueryParameters::create([
             QueryParameter::string(':token_string', (string) $token->getToken()),
             QueryParameter::string(':token_name', (string) $token->getName()),
@@ -217,6 +217,7 @@ $generateToken = function () use ($pearDB): array {
     );
 
     return ['name' => 'cma-default', 'creator_id' => (int) $admin['contact_id']];
+
     return ['name' => 'cma-default', 'creator_id' => $admin['contact_id']];
 };
 
@@ -251,8 +252,8 @@ $alignCMAAgentConfigurationWithNewSchema = function () use ($pearDB, &$errorMess
             if (! array_key_exists('tokens', $configuration)) {
                 $configuration['tokens'] = [];
             }
-             if (! isset($configuration['hosts']) || ! is_array($configuration['hosts'])) {
-                 $configuration['hosts'] = [];
+            if (! isset($configuration['hosts']) || ! is_array($configuration['hosts'])) {
+                $configuration['hosts'] = [];
             }
             foreach ($configuration['hosts'] as &$host) {
                 if (! array_key_exists('token', $host)) {
@@ -283,10 +284,10 @@ $alignCMAAgentConfigurationWithNewSchema = function () use ($pearDB, &$errorMess
 
         $pearDB->update(
             <<<'SQL'
-                UPDATE agent_configuration
-                SET configuration = :configuration
-                WHERE id = :id
-            SQL,
+                    UPDATE agent_configuration
+                    SET configuration = :configuration
+                    WHERE id = :id
+                SQL,
             QueryParameters::create([
                 QueryParameter::string(':configuration', json_encode($configuration, JSON_THROW_ON_ERROR)),
                 QueryParameter::int(':id', $agentConfiguration['id']),
