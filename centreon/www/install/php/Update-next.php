@@ -176,7 +176,7 @@ $generateToken = function () use ($pearDB): array {
     );
 
     $token = new NewJwtToken(
-        name: new TrimmedString('cma-hotfix'),
+        name: new TrimmedString('cma-default'),
         creatorId: $admin['contact_id'],
         creatorName: new TrimmedString($admin['contact_name']),
         expirationDate: null
@@ -199,7 +199,7 @@ $generateToken = function () use ($pearDB): array {
         ])
     );
 
-    return ['name' => 'cma-hotfix', 'creator_id' => $admin['contact_id']];
+    return ['name' => 'cma-default', 'creator_id' => $admin['contact_id']];
 };
 
 /**
