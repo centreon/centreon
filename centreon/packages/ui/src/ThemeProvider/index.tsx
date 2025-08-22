@@ -110,45 +110,43 @@ const getButtonRootStyle = ({ size }: ButtonProps): CSSInterpolation => {
   };
 };
 
-export const getTheme = (mode: ThemeMode): ThemeOptions => (
-  console.log('test getTheme', mode),
-  {
-    components: {
-      MuiButton: {
-        defaultProps: { size: 'small' },
-        styleOverrides: {
-          root: ({ ownerState }) => getButtonRootStyle(ownerState)
-        }
-      },
-      MuiChip: {
-        styleOverrides: {
-          root: ({ ownerState, theme }) => ({
-            backgroundColor: !ownerState.color && theme.palette.divider,
-            ...(equals(ownerState.size, 'medium') && {
-              borderRadius: theme.spacing(1.25),
-              fontSize: theme.typography.body2.fontSize,
-              height: theme.spacing(2.5),
-              lineHeight: theme.spacing(2.5),
-              minWidth: theme.spacing(2.5)
-            }),
-            ...(equals(ownerState.size, 'small') && {
-              borderRadius: theme.spacing(0.75),
-              fontSize: theme.typography.caption.fontSize,
-              height: theme.spacing(1.5),
-              lineHeight: theme.spacing(1.5),
-              minWidth: theme.spacing(1.5)
-            }),
-            '& .MuiChip-label': {
-              '&:empty': {
-                display: 'none'
-              },
-              lineHeight: 1
-            }
-          })
-        }
-      },
-      MuiCssBaseline: {
-        styleOverrides: () => `
+export const getTheme = (mode: ThemeMode): ThemeOptions => ({
+  components: {
+    MuiButton: {
+      defaultProps: { size: 'small' },
+      styleOverrides: {
+        root: ({ ownerState }) => getButtonRootStyle(ownerState)
+      }
+    },
+    MuiChip: {
+      styleOverrides: {
+        root: ({ ownerState, theme }) => ({
+          backgroundColor: !ownerState.color && theme.palette.divider,
+          ...(equals(ownerState.size, 'medium') && {
+            borderRadius: theme.spacing(1.25),
+            fontSize: theme.typography.body2.fontSize,
+            height: theme.spacing(2.5),
+            lineHeight: theme.spacing(2.5),
+            minWidth: theme.spacing(2.5)
+          }),
+          ...(equals(ownerState.size, 'small') && {
+            borderRadius: theme.spacing(0.75),
+            fontSize: theme.typography.caption.fontSize,
+            height: theme.spacing(1.5),
+            lineHeight: theme.spacing(1.5),
+            minWidth: theme.spacing(1.5)
+          }),
+          '& .MuiChip-label': {
+            '&:empty': {
+              display: 'none'
+            },
+            lineHeight: 1
+          }
+        })
+      }
+    },
+    MuiCssBaseline: {
+      styleOverrides: () => `
         @font-face {
           font-family: 'Roboto';
           font-style: normal;
@@ -174,85 +172,85 @@ export const getTheme = (mode: ThemeMode): ThemeOptions => (
           src: local('Roboto'), local('Roboto-Bold'), url(${RobotoBoldWoff2}) format('woff2');
         }
       `
-      },
-      MuiInputBase: {
-        styleOverrides: {
-          root: ({ ownerState, theme }) => ({
-            ...getInputBaseInputStyle(ownerState),
-            backgroundColor: theme.palette.background.paper
-          })
-        }
-      },
-      MuiList: {
-        styleOverrides: {
-          root: () => ({
-            '&.MuiMenu-list': {
-              paddingBottom: 0,
-              paddingTop: 0
-            }
-          })
-        }
-      },
-      MuiMenuItem: {
-        styleOverrides: {
-          root: ({ theme }) => ({
-            '&:hover, &.Mui-selected, &.Mui-selected:hover, &.Mui-selected:focus':
-            {
-              background: equals(theme.palette.mode, ThemeMode.dark)
-                ? theme.palette.primary.dark
-                : theme.palette.primary.light,
-              color: equals(theme.palette.mode, ThemeMode.dark)
-                ? theme.palette.common.white
-                : theme.palette.primary.main
-            },
-            fontSize: theme.typography.body2.fontSize
-          })
-        }
-      },
-      MuiOutlinedInput: {
-        styleOverrides: {
-          input: ({ ownerState }) => getInputBaseRootStyle(ownerState)
-        }
-      },
-      MuiPaper: {
-        defaultProps: {
-          variant: 'outlined'
-        },
-        styleOverrides: {
-          root: ({ theme }) => ({
-            [`[role="tooltip"] &, &.MuiMenu-paper, &.${autocompleteClasses.paper}`]:
-            {
-              backgroundColor: theme.palette.background.default,
-              border: 'none',
-              borderRadius: `${theme.shape.borderRadius}px`,
-              boxShadow: theme.shadows[3]
-            }
-          })
-        }
-      },
-      MuiTextField: {
-        defaultProps: {
-          variant: 'outlined'
-        }
+    },
+    MuiInputBase: {
+      styleOverrides: {
+        root: ({ ownerState, theme }) => ({
+          ...getInputBaseInputStyle(ownerState),
+          backgroundColor: theme.palette.background.paper
+        })
       }
     },
-    palette: getPalette(mode),
-    typography: {
-      body1: {
-        fontSize: '0.875rem'
+    MuiList: {
+      styleOverrides: {
+        root: () => ({
+          '&.MuiMenu-list': {
+            paddingBottom: 0,
+            paddingTop: 0
+          }
+        })
+      }
+    },
+    MuiMenuItem: {
+      styleOverrides: {
+        root: ({ theme }) => ({
+          '&:hover, &.Mui-selected, &.Mui-selected:hover, &.Mui-selected:focus':
+          {
+            background: equals(theme.palette.mode, ThemeMode.dark)
+              ? theme.palette.primary.dark
+              : theme.palette.primary.light,
+            color: equals(theme.palette.mode, ThemeMode.dark)
+              ? theme.palette.common.white
+              : theme.palette.primary.main
+          },
+          fontSize: theme.typography.body2.fontSize
+        })
+      }
+    },
+    MuiOutlinedInput: {
+      styleOverrides: {
+        input: ({ ownerState }) => getInputBaseRootStyle(ownerState)
+      }
+    },
+    MuiPaper: {
+      defaultProps: {
+        variant: 'outlined'
       },
-      body2: {
-        fontSize: '0.75rem'
-      },
-      button: {
-        textTransform: 'none'
-      },
-      caption: {
-        fontSize: '0.625rem'
-      },
-      fontFamily: 'Roboto, Arial'
+      styleOverrides: {
+        root: ({ theme }) => ({
+          [`[role="tooltip"] &, &.MuiMenu-paper, &.${autocompleteClasses.paper}`]:
+          {
+            backgroundColor: theme.palette.background.default,
+            border: 'none',
+            borderRadius: `${theme.shape.borderRadius}px`,
+            boxShadow: theme.shadows[3]
+          }
+        })
+      }
+    },
+    MuiTextField: {
+      defaultProps: {
+        variant: 'outlined'
+      }
     }
-  });
+  },
+  palette: getPalette(mode),
+  typography: {
+    body1: {
+      fontSize: '0.875rem'
+    },
+    body2: {
+      fontSize: '0.75rem'
+    },
+    button: {
+      textTransform: 'none'
+    },
+    caption: {
+      fontSize: '0.625rem'
+    },
+    fontFamily: 'Roboto, Arial'
+  }
+});
 
 interface Props {
   children: ReactNode;
@@ -265,8 +263,6 @@ const ThemeProvider = ({ children }: Props): JSX.Element => {
     () => createTheme(getTheme(themeMode || ThemeMode.light)),
     [themeMode]
   );
-
-  console.log('test themeProvider', theme, themeMode);
 
   return (
     <StyledEngineProvider injectFirst enableCssLayer>

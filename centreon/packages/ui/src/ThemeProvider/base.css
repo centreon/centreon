@@ -1,13 +1,13 @@
 @layer base {
   ::-webkit-scrollbar {
-    height: var(--spacing-1);
-    width: var(--spacing-1);
+    height: var(--spacing-2);
+    width: var(--spacing-2);
     background-color: transparent;
   }
 
   ::-webkit-scrollbar-thumb {
     background-color: var(--color-text-disabled);
-    border-radius: var(--spacing-2);
+    border-radius: var(--spacing-1);
   }
 
   ::-webkit-scrollbar-thumb:hover {
