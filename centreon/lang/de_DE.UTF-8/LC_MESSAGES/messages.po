@@ -4931,7 +4931,9 @@ msgid ""
 msgstr ""
 
 #: centreon/www/install/dashboard_widgets.php
-msgid "Displays the future evolution of a metric as a trend curve, based on its recent average data."
+msgid ""
+"Displays the future evolution of a metric as a trend curve, based on its "
+"recent average data."
 msgstr ""
 
 #: centreon/www/install/dashboard_widgets.php
@@ -7755,10 +7757,6 @@ msgstr "Graphen pro Seite für die Performance"
 
 #: centreon/www/install/dashboard_widgets.php
 msgid "Graph style"
-msgstr ""
-
-#: centreon/www/install/dashboard_widgets.php
-msgid "Style for average data"
 msgstr ""
 
 #: centreon/www/install/smarty_translate.php
@@ -15820,6 +15818,10 @@ msgstr "Zeichenfolge"
 
 #: centreon/www/install/front_translate.php
 msgid "Strong"
+msgstr ""
+
+#: centreon/www/install/dashboard_widgets.php
+msgid "Style for average data"
 msgstr ""
 
 #: centreon/www/install/dashboard_widgets.php
