@@ -251,6 +251,9 @@ $alignCMAAgentConfigurationWithNewSchema = function () use ($pearDB, &$errorMess
             if (! array_key_exists('tokens', $configuration)) {
                 $configuration['tokens'] = [];
             }
+             if (! isset($configuration['hosts']) || ! is_array($configuration['hosts'])) {
+                 $configuration['hosts'] = [];
+            }
             foreach ($configuration['hosts'] as &$host) {
                 if (! array_key_exists('token', $host)) {
                     $host['token'] = $tokenInformation;
