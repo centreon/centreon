@@ -18518,9 +18518,12 @@ msgstr "Renforcé"
 msgid "Maximum"
 msgstr "Maximum"
 
+<<<<<<< HEAD
 msgid "The URL provided for the website does not use a valid URL pattern."
 msgstr "L'URL fournie pour le site web n'utilise pas un modèle d'URL valide."
 
+=======
+>>>>>>> 23.10.x
 #: centreon/www/include/configuration/configObject/contact/formContact.php
 msgid "Your current password"
 msgstr "Votre mot de passe actuel"
