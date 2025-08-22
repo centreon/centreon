@@ -23,8 +23,8 @@ import {
   project,
   propEq,
   reject,
-  uniqBy,
-  type
+  type,
+  uniqBy
 } from 'ramda';
 
 import {
