@@ -175,10 +175,27 @@ $generateToken = function () use ($pearDB): array {
             SQL
     );
 
+    // Reuse an existing cma-default token if available for this creator
+    $existing = $pearDB->fetchAssociative(
+        <<<'SQL'
+            SELECT token_name, creator_id
+            FROM jwt_tokens
+            WHERE token_name = :token_name AND creator_id = :creator_id
+            LIMIT 1
+        SQL,
+        QueryParameters::create([
+            QueryParameter::string(':token_name', 'cma-default'),
+            QueryParameter::int(':creator_id', (int) $admin['contact_id']),
+        ])
+    );
+    if (!empty($existing)) {
+        return ['name' => 'cma-default', 'creator_id' => (int) $admin['contact_id']];
+    }
+
     $token = new NewJwtToken(
         name: new TrimmedString('cma-default'),
-        creatorId: $admin['contact_id'],
-        creatorName: new TrimmedString($admin['contact_name']),
+        creatorId: (int) $admin['contact_id'],
+        creatorName: new TrimmedString((string) $admin['contact_name']),
         expirationDate: null
     );
 
@@ -186,19 +203,20 @@ $generateToken = function () use ($pearDB): array {
         <<<'SQL'
             INSERT INTO `jwt_tokens` (token_string,token_name,creator_id,creator_name,encoding_key,is_revoked,creation_date,expiration_date)
             VALUES (:token_string,:token_name,:creator_id,:creator_name,:encoding_key,:is_revoked,:creation_date,:expiration_date)
-            SQL,
+        SQL,
         QueryParameters::create([
-            QueryParameter::string(':token_string', $token->getToken()),
-            QueryParameter::string(':token_name', $token->getName()),
-            QueryParameter::int(':creator_id', $token->getCreatorId()),
-            QueryParameter::string(':creator_name', $token->getCreatorName()),
-            QueryParameter::string(':encoding_key', $token->getEncodingKey()),
+            QueryParameter::string(':token_string', (string) $token->getToken()),
+            QueryParameter::string(':token_name', (string) $token->getName()),
+            QueryParameter::int(':creator_id', (int) $token->getCreatorId()),
+            QueryParameter::string(':creator_name', (string) $token->getCreatorName()),
+            QueryParameter::string(':encoding_key', (string) $token->getEncodingKey()),
             QueryParameter::bool(':is_revoked', false),
             QueryParameter::int(':creation_date', $token->getCreationDate()->getTimestamp()),
             QueryParameter::null(':expiration_date'),
         ])
     );
 
+    return ['name' => 'cma-default', 'creator_id' => (int) $admin['contact_id']];
     return ['name' => 'cma-default', 'creator_id' => $admin['contact_id']];
 };
 
