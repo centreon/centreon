@@ -283,9 +283,9 @@ $alignCMAAgentConfigurationWithNewSchema = function () use ($pearDB, &$errorMess
                 UPDATE agent_configuration
                 SET configuration = :configuration
                 WHERE id = :id
-                SQL,
+            SQL,
             QueryParameters::create([
-                QueryParameter::string(':configuration', json_encode($configuration)),
+                QueryParameter::string(':configuration', json_encode($configuration, JSON_THROW_ON_ERROR)),
                 QueryParameter::int(':id', $agentConfiguration['id']),
             ])
         );
