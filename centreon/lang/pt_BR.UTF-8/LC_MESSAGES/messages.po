@@ -5177,7 +5177,7 @@ msgid ""
 msgstr ""
 
 #: centreon/www/install/dashboard_widgets.php
-msgid "Displays the future evolution of a metric, based on its history."
+msgid "Displays the future evolution of a metric as a trend curve, based on its recent average data."
 msgstr ""
 
 #: centreon/www/install/dashboard_widgets.php
@@ -8115,7 +8115,7 @@ msgid "Graph style"
 msgstr ""
 
 #: centreon/www/install/dashboard_widgets.php
-msgid "Graph style for average"
+msgid "Style for average data"
 msgstr ""
 
 #: centreon/www/install/smarty_translate.php
