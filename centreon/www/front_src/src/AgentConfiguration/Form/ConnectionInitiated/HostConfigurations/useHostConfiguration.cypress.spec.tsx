@@ -49,6 +49,7 @@ const TestComponent = ({ index }: { index: number }) => {
 
       {/* Test buttons */}
       <button
+        type="button"
         data-testid="select-host-button"
         onClick={() =>
           selectHost(null, { id: 1, name: 'test-host', address: '192.168.1.1' })
@@ -57,6 +58,7 @@ const TestComponent = ({ index }: { index: number }) => {
         Select Host
       </button>
       <button
+        type="button"
         data-testid="change-token-button"
         onClick={() =>
           changeCMAToken(null, [{ id: 'token1', name: 'Token 1' }])
@@ -76,8 +78,8 @@ const TestWrapper = ({
 }: {
   children: React.ReactNode;
   initialValues: AgentConfigurationForm;
-  errors?: any;
-  touched?: any;
+  errors?: Record<string, string>;
+  touched?: Record<string, boolean>;
 }) => {
   const queryClient = new QueryClient({
     defaultOptions: {

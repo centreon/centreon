@@ -1,8 +1,28 @@
 import { useState } from 'react';
 
 import dayjs from 'dayjs';
+import timezone from 'dayjs/plugin/timezone';
+import utc from 'dayjs/plugin/utc';
+import { Provider, createStore } from 'jotai';
+
+import { ListingVariant, userAtom } from '@centreon/ui-context';
 
 import DateInput from './DateInput';
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
+
+const retrievedUser = {
+  alias: 'Test User',
+  canManageApiTokens: true,
+  default_page: '/monitoring/resources',
+  is_export_button_enabled: true,
+  isExportButtonEnabled: true,
+  locale: 'fr_FR.UTF8',
+  name: 'Test User',
+  use_deprecated_pages: false,
+  user_interface_density: ListingVariant.compact
+};
 
 interface TestWrapperProps {
   initialDate?: Date | null;
@@ -24,7 +44,9 @@ const TestWrapper = ({
         setDisplayCalendar={setDisplayCalendar}
       />
       <div data-testid="current-date">
-        {date ? dayjs(date).format('YYYY-MM-DD HH:mm') : 'No date set'}
+        {date
+          ? dayjs(date).tz('Europe/Paris').format('YYYY-MM-DD HH:mm')
+          : 'No date set'}
       </div>
       <div data-testid="calendar-display">
         {displayCalendar ? 'Calendar shown' : 'Calendar hidden'}
@@ -34,7 +56,21 @@ const TestWrapper = ({
 };
 
 const initialize = (args) => {
-  cy.mount({ Component: <TestWrapper {...args} /> });
+  // Create a store with consistent locale settings
+  const store = createStore();
+  store.set(userAtom, {
+    ...retrievedUser,
+    locale: 'fr_FR.UTF8', // Force French locale for consistent DD/MM/YYYY format
+    timezone: 'Europe/Paris'
+  });
+
+  cy.mount({
+    Component: (
+      <Provider store={store}>
+        <TestWrapper {...args} />
+      </Provider>
+    )
+  });
 };
 
 describe('DateInput Component', () => {
@@ -55,7 +91,7 @@ describe('DateInput Component', () => {
   });
 
   it('should render with provided initial date', () => {
-    const initialDate = new Date('2025-08-25T14:30:00');
+    const initialDate = new Date('2025-08-25T14:30:00+02:00'); // Explicit timezone to match Europe/Paris
     initialize({ initialDate });
 
     cy.get('[data-testid="calendarInput"]').should(
@@ -124,7 +160,7 @@ describe('DateInput Component', () => {
   });
 
   it('should not commit invalid date when pressing Enter', () => {
-    const initialDate = new Date('2025-08-25T14:30:00');
+    const initialDate = new Date('2025-08-25T14:30:00+02:00'); // Explicit timezone
     initialize({ initialDate });
 
     cy.get('[data-testid="calendarInput"]')
@@ -164,7 +200,7 @@ describe('DateInput Component', () => {
   });
 
   it('should maintain date format consistency', () => {
-    const testDate = new Date('2025-12-25T15:45:30');
+    const testDate = new Date('2025-12-25T15:45:30+01:00'); // Explicit timezone for winter time
     initialize({ initialDate: testDate });
 
     // Check that the date is displayed in the expected format
