@@ -805,7 +805,6 @@ describe('Dashboard', () => {
         ...editorRoles
       });
 
-
       cy.findAllByLabelText(labelMoreActions).eq(0).click();
       cy.findByLabelText(labelDuplicate).click();
 

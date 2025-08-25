@@ -1647,6 +1647,34 @@ function validateGeoCoords()
     return false;
 }
 
+function truncateGeoCoords(): string
+{
+    global $form;
+    $coords = trim($form->getElementValue('geo_coords'));
+
+    $parts = explode(',', $coords);
+    if (count($parts) !== 2) {
+        return $coords;
+    }
+
+    $latitude = truncateDecimals($parts[0]);
+    $longitude = truncateDecimals($parts[1]);
+
+    return sprintf('%s,%s', $latitude, $longitude);
+}
+
+function truncateDecimals(string $value): string
+{
+    if (! str_contains($value, '.')) {
+        return $value;
+    }
+
+    [$intPart, $decimalPart] = explode('.', $value, 2);
+    $decimalPart = mb_substr($decimalPart, 0, 6);
+
+    return $intPart . '.' . $decimalPart;
+}
+
 /**
  * Get the select option.
  *
