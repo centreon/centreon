@@ -1,34 +1,19 @@
 <?php
 
 /*
- * Copyright 2005-2015 Centreon
- * Centreon is developped by : Julien Mathis and Romain Le Merlus under
- * GPL Licence 2.0.
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation ; either version 2 of the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <http://www.gnu.org/licenses>.
- *
- * Linking this program statically or dynamically with other modules is making a
- * combined work based on this program. Thus, the terms and conditions of the GNU
- * General Public License cover the whole combination.
- *
- * As a special exception, the copyright holders of this program give Centreon
- * permission to link this program with independent modules to produce an executable,
- * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of Centreon choice, provided that
- * Centreon also meet, for each linked independent module, the terms  and conditions
- * of the license of that module. An independent module is a module which is not
- * derived from this program. If you modify this program, you may extend this
- * exception to your version of the program, but you are not obliged to do so. If you
- * do not wish to do so, delete this exception statement from your version.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * For more information : contact@centreon.com
  *
@@ -124,19 +109,18 @@ function updateContact($contactId = null)
         return;
     }
 
-    $ret = [];
-    $ret = $form->getSubmitValues();
+    $submitValues = $form->getSubmitValues();
     // remove illegal chars in data sent by the user
-    $ret['contact_name'] = CentreonUtils::escapeSecure($ret['contact_name'], CentreonUtils::ESCAPE_ILLEGAL_CHARS);
-    $ret['contact_alias'] = CentreonUtils::escapeSecure($ret['contact_alias'], CentreonUtils::ESCAPE_ILLEGAL_CHARS);
-    $ret['contact_email'] = !empty($ret['contact_email']) ?
-        CentreonUtils::escapeSecure($ret['contact_email'], CentreonUtils::ESCAPE_ILLEGAL_CHARS) : '';
-    $ret['contact_pager'] = !empty($ret['contact_pager']) ?
-        CentreonUtils::escapeSecure($ret['contact_pager'], CentreonUtils::ESCAPE_ILLEGAL_CHARS) : '';
-    $ret['contact_autologin_key'] = !empty($ret['contact_autologin_key']) ?
-        CentreonUtils::escapeSecure($ret['contact_autologin_key'], CentreonUtils::ESCAPE_ILLEGAL_CHARS) : '';
-    $ret['contact_lang'] = !empty($ret['contact_lang']) ?
-        CentreonUtils::escapeSecure($ret['contact_lang'], CentreonUtils::ESCAPE_ILLEGAL_CHARS) : '';
+    $submitValues['contact_name'] = CentreonUtils::escapeSecure($submitValues['contact_name'], CentreonUtils::ESCAPE_ILLEGAL_CHARS);
+    $submitValues['contact_alias'] = CentreonUtils::escapeSecure($submitValues['contact_alias'], CentreonUtils::ESCAPE_ILLEGAL_CHARS);
+    $submitValues['contact_email'] = ! empty($submitValues['contact_email'])
+        ? CentreonUtils::escapeSecure($submitValues['contact_email'], CentreonUtils::ESCAPE_ILLEGAL_CHARS) : '';
+    $submitValues['contact_pager'] = ! empty($submitValues['contact_pager'])
+        ? CentreonUtils::escapeSecure($submitValues['contact_pager'], CentreonUtils::ESCAPE_ILLEGAL_CHARS) : '';
+    $submitValues['contact_autologin_key'] = ! empty($submitValues['contact_autologin_key'])
+        ? CentreonUtils::escapeSecure($submitValues['contact_autologin_key'], CentreonUtils::ESCAPE_ILLEGAL_CHARS) : '';
+    $submitValues['contact_lang'] = ! empty($submitValues['contact_lang'])
+        ? CentreonUtils::escapeSecure($submitValues['contact_lang'], CentreonUtils::ESCAPE_ILLEGAL_CHARS) : '';
 
     $rq = 'UPDATE contact SET ' .
           'contact_name = :contactName, ' .
@@ -151,71 +135,95 @@ function updateContact($contactId = null)
     $rq .= ' WHERE contact_id = :contactId';
 
     $stmt = $pearDB->prepare($rq);
-    $stmt->bindValue(':contactName', $ret['contact_name'], \PDO::PARAM_STR);
-    $stmt->bindValue(':contactAlias', $ret['contact_alias'], \PDO::PARAM_STR);
-    $stmt->bindValue(':contactLang', $ret['contact_lang'], \PDO::PARAM_STR);
+    $stmt->bindValue(':contactName', $submitValues['contact_name'], PDO::PARAM_STR);
+    $stmt->bindValue(':contactAlias', $submitValues['contact_alias'], PDO::PARAM_STR);
+    $stmt->bindValue(':contactLang', $submitValues['contact_lang'], PDO::PARAM_STR);
     $stmt->bindValue(
         ':contactEmail',
-        !empty($ret['contact_email']) ? $ret['contact_email'] : null,
-        \PDO::PARAM_STR
+        ! empty($submitValues['contact_email']) ? $submitValues['contact_email'] : null,
+        PDO::PARAM_STR
     );
     $stmt->bindValue(
         ':contactPager',
-        !empty($ret['contact_pager']) ? $ret['contact_pager'] : null,
-        \PDO::PARAM_STR
+        ! empty($submitValues['contact_pager']) ? $submitValues['contact_pager'] : null,
+        PDO::PARAM_STR
     );
     $stmt->bindValue(
         ':contactAutologinKey',
-        !empty($ret['contact_autologin_key']) ? $ret['contact_autologin_key'] : null,
-        \PDO::PARAM_STR
+        ! empty($submitValues['contact_autologin_key']) ? $submitValues['contact_autologin_key'] : null,
+        PDO::PARAM_STR
     );
     $stmt->bindValue(
         ':contactLocation',
-        !empty($ret['contact_location']) ? $ret['contact_location'] : null,
-        \PDO::PARAM_INT
+        ! empty($submitValues['contact_location']) ? $submitValues['contact_location'] : null,
+        PDO::PARAM_INT
     );
-    $stmt->bindValue(':defaultPage', !empty($ret['default_page']) ? $ret['default_page'] : null, \PDO::PARAM_INT);
-    $stmt->bindValue(':showDeprecatedPages', isset($ret['show_deprecated_pages']) ? 1 : 0, \PDO::PARAM_STR);
-    $stmt->bindValue(':contactId', $contactId, \PDO::PARAM_INT);
+    $stmt->bindValue(':defaultPage', ! empty($submitValues['default_page']) ? $submitValues['default_page'] : null, PDO::PARAM_INT);
+    $stmt->bindValue(':showDeprecatedPages', isset($submitValues['show_deprecated_pages']) ? 1 : 0, PDO::PARAM_STR);
+    $stmt->bindValue(':contactId', $contactId, PDO::PARAM_INT);
     $stmt->execute();
 
-    if (isset($ret["contact_passwd"]) && !empty($ret["contact_passwd"])) {
-        $hashedPassword = password_hash($ret["contact_passwd"], \CentreonAuth::PASSWORD_HASH_ALGORITHM);
-        $contact = new \CentreonContact($pearDB);
+    if (isset($submitValues['contact_passwd']) && ! empty($submitValues['contact_passwd'])) {
+        $hashedPassword = password_hash($submitValues['contact_passwd'], CentreonAuth::PASSWORD_HASH_ALGORITHM);
+        $contact = new CentreonContact($pearDB);
         $contact->renewPasswordByContactId($contactId, $hashedPassword);
+        $centreon->user->setPasswd($hashedPassword);
     }
 
-    /*
-     * Update user object..
-     */
-    $centreon->user->name = $ret['contact_name'];
-    $centreon->user->alias = $ret['contact_alias'];
-    $centreon->user->lang = $ret['contact_lang'];
-    $centreon->user->email = $ret['contact_email'];
-    $centreon->user->setToken(isset($ret['contact_autologin_key']) ? $ret['contact_autologin_key'] : "''");
+    // Update user object..
+    $centreon->user->name = $submitValues['contact_name'];
+    $centreon->user->alias = $submitValues['contact_alias'];
+    $centreon->user->lang = $submitValues['contact_lang'];
+    $centreon->user->email = $submitValues['contact_email'];
+    $centreon->user->setToken($submitValues['contact_autologin_key'] ?? "''");
 }
 
 /**
  * @param array<string,mixed> $fields
+ *
+ * @return array<string,string>|true
  */
-function validatePasswordModification(array $fields)
+function validatePasswordModification(array $fields): array|bool
 {
     global $pearDB, $centreon;
-    $errors = [];
-    $password = $fields['contact_passwd'];
+    $newPassword = $fields['contact_passwd'];
+    $confirmPassword = $fields['contact_passwd2'];
+    $currentPassword = $fields['current_password'];
     $contactId = (int) $centreon->user->get_id();
-    if (empty($password)) {
+
+    // If the user does not want to change his password, we do not need to check it
+    if (empty($newPassword) && empty($confirmPassword) && empty($currentPassword)) {
         return true;
     }
 
-    try {
-        $contact = new \CentreonContact($pearDB);
-        $contact->respectPasswordPolicyOrFail($password, $contactId);
-    } catch (\Throwable $e) {
-        $errors['contact_passwd'] = $e->getMessage();
+    // If the user only provided a confirmation password, he must provide a new password and a current password
+    if (empty($newPassword) && ! empty($confirmPassword) && empty($currentPassword)) {
+        return ['contact_passwd2' => _('Please fill in all password fields')];
     }
 
-    return count($errors) > 0 ? $errors : true;
+    // If the user only provided his current password, he must provide a new password
+    if (empty($newPassword) && ! empty($currentPassword)) {
+        return ['current_password' => _('Please fill in all password fields')];
+    }
+
+    // If the user wants to change his password, he must provide his current password
+    if (! empty($newPassword) && empty($currentPassword)) {
+        return ['current_password' => _('Please fill in all password fields')];
+    }
+
+    // If the user provided a current password, we check if it matches the one in the database
+    if (! empty($currentPassword) && password_verify($currentPassword, $centreon->user->passwd) === false) {
+        return ['current_password' => _('Authentication failed')];
+    }
+
+    try {
+        $contact = new CentreonContact($pearDB);
+        $contact->respectPasswordPolicyOrFail($newPassword, $contactId);
+
+        return true;
+    } catch (Throwable $e) {
+        return ['contact_passwd' => $e->getMessage()];
+    }
 }
 
 /**
