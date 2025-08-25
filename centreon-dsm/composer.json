@@ -10,7 +10,7 @@
   },
   "require-dev": {
     "centreon/centreon": "@dev",
-    "centreon/centreon-test-lib": "dev-MON-175014-master-clean-unit-test"
+    "centreon/centreon-test-lib": "dev-master"
   },
   "repositories": [
     {

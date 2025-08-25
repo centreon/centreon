@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "37fc86a4de1dc1b1fa99d3ad093bd168",
+    "content-hash": "98a152c9646d008242f0b0b5f61cfad8",
     "packages": [
         {
             "name": "amphp/amp",
@@ -9409,16 +9409,16 @@
         },
         {
             "name": "centreon/centreon-test-lib",
-            "version": "dev-MON-175014-master-clean-unit-test",
+            "version": "dev-master",
             "source": {
                 "type": "git",
                 "url": "https://github.com/centreon/centreon-test-lib.git",
-                "reference": "bdba1c649ba92b4311de2394fa4ff54ac8e1fd6b"
+                "reference": "b6eb799c0c06be38e28d9b6bfd82003c2bc8d8ce"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/centreon/centreon-test-lib/zipball/bdba1c649ba92b4311de2394fa4ff54ac8e1fd6b",
-                "reference": "bdba1c649ba92b4311de2394fa4ff54ac8e1fd6b",
+                "url": "https://api.github.com/repos/centreon/centreon-test-lib/zipball/b6eb799c0c06be38e28d9b6bfd82003c2bc8d8ce",
+                "reference": "b6eb799c0c06be38e28d9b6bfd82003c2bc8d8ce",
                 "shasum": ""
             },
             "require": {
@@ -9439,6 +9439,7 @@
                 "behat/mink": "Browser controller/emulator abstraction for PHP",
                 "behat/mink-selenium2-driver": "Mink driver using Selenium"
             },
+            "default-branch": true,
             "type": "library",
             "autoload": {
                 "psr-4": {
@@ -9456,9 +9457,9 @@
             ],
             "support": {
                 "issues": "https://github.com/centreon/centreon-test-lib/issues",
-                "source": "https://github.com/centreon/centreon-test-lib/tree/MON-175014-master-clean-unit-test"
+                "source": "https://github.com/centreon/centreon-test-lib/tree/master"
             },
-            "time": "2025-08-22T10:52:01+00:00"
+            "time": "2025-08-25T14:27:53+00:00"
         },
         {
             "name": "composer/pcre",

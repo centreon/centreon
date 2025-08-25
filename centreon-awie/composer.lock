@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "2fdf69998f37d305dc4763122410b9f5",
+    "content-hash": "7c52316d00465d95e60d7620c418f1ef",
     "packages": [],
     "packages-dev": [
         {
@@ -1532,7 +1532,7 @@
             "dist": {
                 "type": "path",
                 "url": "../centreon",
-                "reference": "607a015c28a81a2bba5f51dad11e0e8cbbd8f52b"
+                "reference": "1c527b96b08644d53db1614c554eb20ddacec2dc"
             },
             "require": {
                 "amphp/http-client": "4.6.*",
@@ -1623,7 +1623,7 @@
             },
             "require-dev": {
                 "behat/mink-selenium2-driver": "1.6.*",
-                "centreon/centreon-test-lib": "dev-MON-175014-master-clean-unit-test",
+                "centreon/centreon-test-lib": "dev-master",
                 "dama/doctrine-test-bundle": "8.2.*",
                 "friends-of-behat/mink": "1.11.*",
                 "friends-of-behat/mink-extension": "2.7.*",
@@ -1856,16 +1856,16 @@
         },
         {
             "name": "centreon/centreon-test-lib",
-            "version": "dev-MON-175014-master-clean-unit-test",
+            "version": "dev-master",
             "source": {
                 "type": "git",
                 "url": "https://github.com/centreon/centreon-test-lib.git",
-                "reference": "bdba1c649ba92b4311de2394fa4ff54ac8e1fd6b"
+                "reference": "b6eb799c0c06be38e28d9b6bfd82003c2bc8d8ce"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/centreon/centreon-test-lib/zipball/bdba1c649ba92b4311de2394fa4ff54ac8e1fd6b",
-                "reference": "bdba1c649ba92b4311de2394fa4ff54ac8e1fd6b",
+                "url": "https://api.github.com/repos/centreon/centreon-test-lib/zipball/b6eb799c0c06be38e28d9b6bfd82003c2bc8d8ce",
+                "reference": "b6eb799c0c06be38e28d9b6bfd82003c2bc8d8ce",
                 "shasum": ""
             },
             "require": {
@@ -1886,6 +1886,7 @@
                 "behat/mink": "Browser controller/emulator abstraction for PHP",
                 "behat/mink-selenium2-driver": "Mink driver using Selenium"
             },
+            "default-branch": true,
             "type": "library",
             "autoload": {
                 "psr-4": {
@@ -1903,9 +1904,9 @@
             ],
             "support": {
                 "issues": "https://github.com/centreon/centreon-test-lib/issues",
-                "source": "https://github.com/centreon/centreon-test-lib/tree/MON-175014-master-clean-unit-test"
+                "source": "https://github.com/centreon/centreon-test-lib/tree/master"
             },
-            "time": "2025-08-22T10:52:01+00:00"
+            "time": "2025-08-25T14:27:53+00:00"
         },
         {
             "name": "composer/pcre",
