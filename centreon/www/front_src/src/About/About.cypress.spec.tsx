@@ -2,7 +2,6 @@ import { Provider, createStore, useAtomValue } from 'jotai';
 
 import {
   ThemeMode,
-  ListingVariant,
   platformVersionsAtom,
   userAtom
 } from '@centreon/ui-context';
@@ -90,21 +89,6 @@ describe('About page', () => {
   });
 
   it('displays the about page in dark mode', () => {
-    store.set(userAtom, {
-      alias: 'admin',
-      canManageApiTokens: false,
-      default_page: '/monitoring/resources',
-      id: 1,
-      isAdmin: true,
-      isExportButtonEnabled: false,
-      locale: 'en',
-      name: 'admin',
-      themeMode: ThemeMode.dark,
-      timezone: 'Europe/Paris',
-      use_deprecated_pages: false,
-      user_interface_density: ListingVariant.compact
-    });
-
     const userData = renderHook(() => useAtomValue(userAtom));
     userData.result.current.themeMode = ThemeMode.dark;
 
