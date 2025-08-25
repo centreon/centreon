@@ -46,7 +46,7 @@ jobs:
         uses: centreon/github-actions-ensure-sha-pinned-actions@47d553c67ceb08ad660deaeb3b994e47a3dd8fc3 # v3.0.23.3
         with:
           allowlist: |
-            centreon/security-tools  # internal security team's actions
+            centreon/security-tools
 
   yaml-lint:
     runs-on: ubuntu-24.04
