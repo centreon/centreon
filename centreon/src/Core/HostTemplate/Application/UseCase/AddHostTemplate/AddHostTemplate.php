@@ -301,6 +301,8 @@ final class AddHostTemplate
                     ['_HOST' . $macro->getName() => $macro->getValue()],
                 );
                 $vaultPath = $vaultPaths['_HOST' . $macro->getName()];
+                $this->uuid ??= $this->getUuidFromPath($vaultPath);
+
                 $inVaultMacro = new Macro($macro->getOwnerId(), $macro->getName(), $vaultPath);
                 $inVaultMacro->setDescription($macro->getDescription());
                 $inVaultMacro->setIsPassword($macro->isPassword());
