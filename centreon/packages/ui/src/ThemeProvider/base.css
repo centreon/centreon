@@ -42,7 +42,8 @@
     ::-webkit-scrollbar-thumb {
       background-color: var(--color-divider);
     }
-    
-    scrollbar-color: var(--color-divider) var(--color-background-default);
+    * {
+      scrollbar-color: var(--color-divider) var(--color-background-default);
+    }
   }
 }

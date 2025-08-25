@@ -146,7 +146,7 @@ export const getTheme = (mode: ThemeMode): ThemeOptions => ({
       }
     },
     MuiCssBaseline: {
-      styleOverrides: () => `
+      styleOverrides: (theme) => `
         @font-face {
           font-family: 'Roboto';
           font-style: normal;
@@ -170,6 +170,9 @@ export const getTheme = (mode: ThemeMode): ThemeOptions => ({
           font-style: normal;
           font-weight: 700;
           src: local('Roboto'), local('Roboto-Bold'), url(${RobotoBoldWoff2}) format('woff2');
+        }
+        body {
+          background-color: ${theme.palette.background.paper};
         }
       `
     },

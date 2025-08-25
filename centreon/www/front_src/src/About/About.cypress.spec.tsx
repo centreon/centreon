@@ -1,14 +1,14 @@
-import { renderHook } from '@testing-library/react';
 import { Provider, createStore, useAtomValue } from 'jotai';
 
 import {
   ThemeMode,
+  ListingVariant,
   platformVersionsAtom,
   userAtom
 } from '@centreon/ui-context';
 
 import { PlatformVersions } from '../api/models';
-
+import '../App.css';
 import About from './About';
 import { contributors } from './Sections/Contibutors';
 import { developers } from './Sections/Developers';
@@ -18,6 +18,7 @@ import {
   labelCentreonsGithub,
   labelCommunity
 } from './translatedLabels';
+import { renderHook } from '@testing-library/react';
 
 const externalLinks = [
   {
@@ -36,8 +37,12 @@ const externalLinks = [
 
 const platformVersion: PlatformVersions = {
   modules: {},
+  widgets: {},
   web: {
-    version: '23.04.0'
+    version: '23.04.0',
+    fix: '0',
+    major: '23',
+    minor: '04'
   }
 };
 
@@ -86,6 +91,21 @@ describe('About page', () => {
   });
 
   it('displays the about page in dark mode', () => {
+    store.set(userAtom, {
+      alias: 'admin',
+      canManageApiTokens: false,
+      default_page: '/monitoring/resources',
+      id: 1,
+      isAdmin: true,
+      isExportButtonEnabled: false,
+      locale: 'en',
+      name: 'admin',
+      themeMode: ThemeMode.dark,
+      timezone: 'Europe/Paris',
+      use_deprecated_pages: false,
+      user_interface_density: ListingVariant.compact
+    });
+
     const userData = renderHook(() => useAtomValue(userAtom));
     userData.result.current.themeMode = ThemeMode.dark;
 
