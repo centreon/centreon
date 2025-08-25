@@ -1052,6 +1052,7 @@ if ($o !== HOST_MASSIVE_CHANGE) {
     $form->addRule('host_name', _('Unauthorized value'), 'sanitize');
     $form->addRule('host_address', _('Compulsory Address'), 'required');
     $form->addRule('host_address', _('Unauthorized value'), 'sanitize');
+    $form->applyFilter('host_address', 'strip_tags');
     if (! $isCloudPlatform) {
         $form->registerRule('cg_group_exists', 'callback', 'testCg');
         $form->addRule(
