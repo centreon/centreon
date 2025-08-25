@@ -8,7 +8,6 @@ import {
 } from '@centreon/ui-context';
 
 import { PlatformVersions } from '../api/models';
-import '../App.css';
 import About from './About';
 import { contributors } from './Sections/Contibutors';
 import { developers } from './Sections/Developers';
