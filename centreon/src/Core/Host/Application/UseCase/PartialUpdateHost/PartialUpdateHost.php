@@ -231,10 +231,6 @@ final class PartialUpdateHost
             $host->setAlias($dto->alias ?? '');
         }
 
-        if (! $dto->snmpCommunity instanceof NoValue) {
-            $host->setSnmpCommunity($dto->snmpCommunity ?? '');
-        }
-
         if (! $dto->noteUrl instanceof NoValue) {
             $host->setNoteUrl($dto->noteUrl ?? '');
         }
@@ -402,19 +398,7 @@ final class PartialUpdateHost
             );
         }
 
-        if (
-            $this->writeVaultRepository->isVaultConfigured()
-            && ! $dto->snmpCommunity instanceof NoValue
-            && ! $this->isAVaultPath((string) $dto->snmpCommunity)
-        ) {
-            $vaultPaths = $this->writeVaultRepository->upsert(
-                $this->uuid ?? null,
-                [VaultConfiguration::HOST_SNMP_COMMUNITY_KEY => $host->getSnmpCommunity()]
-            );
-            $this->uuid ??= $this->getUuidFromPath($vaultPaths[VaultConfiguration::HOST_SNMP_COMMUNITY_KEY]);
-            $host->setSnmpCommunity($vaultPaths[VaultConfiguration::HOST_SNMP_COMMUNITY_KEY]);
-        }
-
+        $this->updateSnmpCommunity($host, $dto->snmpCommunity);
         $this->writeHostRepository->update($host);
     }
 
@@ -692,6 +676,12 @@ final class PartialUpdateHost
                 $action === 'INSERT' ? [$macroPrefixedName => $macro->getValue()] : [],
                 $action === 'DELETE' ? [$macroPrefixedName => $macro->getValue()] : [],
             );
+
+            // No need to update the macro if it is being deleted
+            if ($action === 'DELETE') {
+                return $macro;
+            }
+
             $this->uuid ??= $this->getUuidFromPath($vaultPaths[$macroPrefixedName]);
 
             $inVaultMacro = new Macro($macro->getOwnerId(), $macro->getName(), $vaultPaths[$macroPrefixedName]);
@@ -734,5 +724,56 @@ final class PartialUpdateHost
         }
 
         return $updatedMacros;
+    }
+
+    /**
+     * Update SNMP community for a host, handling vault storage and clearing logic.
+     *
+     * @param Host $host
+     * @param NoValue|string|null $snmpCommunity
+     *
+     * @throws \Throwable
+     */
+    private function updateSnmpCommunity(Host $host, NoValue|string|null $snmpCommunity): void
+    {
+        if ($snmpCommunity instanceof NoValue) {
+            return;
+        }
+
+        // If vault is not configured, just set the value directly
+        if (! $this->writeVaultRepository->isVaultConfigured()) {
+            $host->setSnmpCommunity($snmpCommunity ?? '');
+
+            return;
+        }
+
+        // If the value is already a vault path, do nothing
+        if ($this->isAVaultPath($snmpCommunity ?? '')) {
+            return;
+        }
+
+        // If the current value is a vault path and we want to clear it
+        if ($this->isAVaultPath($host->getSnmpCommunity()) && empty($snmpCommunity)) {
+            $this->writeVaultRepository->upsert(
+                uuid: $this->getUuidFromPath($host->getSnmpCommunity()),
+                deletes: [VaultConfiguration::HOST_SNMP_COMMUNITY_KEY => $snmpCommunity ?? '']
+            );
+            $host->setSnmpCommunity($snmpCommunity ?? '');
+
+            return;
+        }
+
+        // If the new value is empty, do nothing
+        if (empty($snmpCommunity)) {
+            return;
+        }
+
+        // Otherwise, store in vault and update host
+        $vaultPaths = $this->writeVaultRepository->upsert(
+            uuid: $this->uuid ?? null,
+            inserts: [VaultConfiguration::HOST_SNMP_COMMUNITY_KEY => $snmpCommunity],
+        );
+        $this->uuid ??= $this->getUuidFromPath($vaultPaths[VaultConfiguration::HOST_SNMP_COMMUNITY_KEY]);
+        $host->setSnmpCommunity($vaultPaths[VaultConfiguration::HOST_SNMP_COMMUNITY_KEY]);
     }
 }

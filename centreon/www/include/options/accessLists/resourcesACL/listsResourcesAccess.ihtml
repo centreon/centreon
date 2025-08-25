@@ -43,7 +43,7 @@
 		<tr class={$elemArr[elem].MenuClass}>
 			<td class="ListColPicker">{$elemArr[elem].RowMenu_select}</td>
 			<td class="ListColLeft"><a href="{$elemArr[elem].RowMenu_link}">{$elemArr[elem].RowMenu_name}</a></td>
-			<td class="ListColLeft"><a href="{$elemArr[elem].RowMenu_link}">{$elemArr[elem].RowMenu_alias}</a></td>
+			<td class="ListColLeft"><a href="{$elemArr[elem].RowMenu_link}">{$elemArr[elem].RowMenu_alias|escape:"html"}</a></td>
 			<td class="ListColCenter">{$elemArr[elem].RowMenu_all_hosts}</td>
 			<td class="ListColCenter">{$elemArr[elem].RowMenu_all_hostgroups}</td>
 			<td class="ListColCenter">{$elemArr[elem].RowMenu_all_servicegroups}</td>

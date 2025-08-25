@@ -117,7 +117,7 @@ class CentreonHost
         }
         $listHost = [];
         while ($row = $stmt->fetch()) {
-            $listHost[$row['host_id']] = $row['host_name'];
+            $listHost[$row['host_id']] = htmlspecialchars($row['host_name'], ENT_QUOTES, 'UTF-8');
         }
 
         return $listHost;
@@ -143,7 +143,7 @@ class CentreonHost
         $dbResult->bindValue(':hostId', $hostId, PDO::PARAM_INT);
         $dbResult->execute();
         while ($multiTp = $dbResult->fetch()) {
-            $mTp[$multiTp['host_tpl_id']] = $multiTp['host_name'];
+            $mTp[$multiTp['host_tpl_id']] = htmlspecialchars($multiTp['host_name'], ENT_QUOTES, 'UTF-8');
         }
 
         return $mTp;
