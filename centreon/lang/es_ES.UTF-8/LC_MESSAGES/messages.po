@@ -1664,6 +1664,8 @@ msgstr "Registrar las autenticaciones."
 msgid "Authentication denied"
 msgstr ""
 
+#: centreon/www/include/Administration/myAccount/DB-Func.php
+#: centreon/www/include/configuration/configObject/contact/DB-Func.php
 #: centreon/src/Core/Security/Authentication/Domain/Exception/AuthenticationException.php
 msgid "Authentication failed"
 msgstr ""
@@ -4054,6 +4056,7 @@ msgid "Current page only"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
+#: centreon/www/include/Administration/myAccount/formMyAccount.php
 msgid "Current password"
 msgstr ""
 
@@ -5189,7 +5192,9 @@ msgid ""
 msgstr ""
 
 #: centreon/www/install/dashboard_widgets.php
-msgid "Displays the future evolution of a metric, based on its history."
+msgid ""
+"Displays the future evolution of a metric as a trend curve, based on its "
+"recent average data."
 msgstr ""
 
 #: centreon/www/install/dashboard_widgets.php
@@ -5212,10 +5217,6 @@ msgstr "Eliminar la asociación"
 #: centreon/www/install/smarty_translate.php
 msgid "Dissociate this view ?"
 msgstr "¿Eliminar la asociación de esta vista?"
-
-#: centreon/www/include/configuration/configServers/listServers.php
-msgid "Distant Poller"
-msgstr ""
 
 #: centreon/www/install/react_translation.php
 #: centreon/www/install/front_translate.php
@@ -9103,10 +9104,6 @@ msgstr "Tabla de rendimiento por página"
 
 #: centreon/www/install/dashboard_widgets.php
 msgid "Graph style"
-msgstr ""
-
-#: centreon/www/install/dashboard_widgets.php
-msgid "Graph style for average"
 msgstr ""
 
 #: centreon/www/install/smarty_translate.php
@@ -14088,6 +14085,11 @@ msgstr ""
 msgid "Please enter a valid URL or IP address"
 msgstr ""
 
+#: centreon/www/include/Administration/myAccount/DB-Func.php
+#: centreon/www/include/configuration/configObject/contact/DB-Func.php
+msgid "Please fill in all password fields"
+msgstr ""
+
 #: centreon/www/install/steps/functions.php
 #, php-format
 msgid "Please install MariaDB version %s instead of %s."
@@ -14199,6 +14201,7 @@ msgstr "Directorio de sondas"
 #: centreon/www/include/monitoring/status/ServicesServiceGroups/serviceSummaryBySG.php
 #: centreon/www/include/monitoring/downtime/AddDowntime.php
 #: centreon/www/include/configuration/configGenerateTraps/formGenerateTraps.php
+#: centreon/www/include/configuration/configServers/listServers.php
 #: centreon/www/include/configuration/configObject/host/listHost.php
 #: centreon/www/include/configuration/configKnowledge/search.php
 #: centreon/www/include/eventLogs/xml/data.php
@@ -17359,6 +17362,10 @@ msgid "Strong"
 msgstr ""
 
 #: centreon/www/install/dashboard_widgets.php
+msgid "Style for average data"
+msgstr ""
+
+#: centreon/www/install/dashboard_widgets.php
 msgid "Sub input 1"
 msgstr ""
 
@@ -20477,6 +20484,10 @@ msgstr ""
 #: centreon/www/class/centreonAuth.class.php
 msgid "Your credentials are incorrect."
 msgstr "Sus credenciales son incorrectas."
+
+#: centreon/www/include/configuration/configObject/contact/formContact.php
+msgid "Your current password"
+msgstr ""
 
 #: centreon/www/install/step_upgrade/step4.php
 #, php-format

@@ -1724,6 +1724,16 @@ msgstr ""
 "Chemin d'accès au journal d'évènements. Pour visualiser les évènements sur "
 "la sortie standard, sélectionner \"stdout\" ou \"stderr\"."
 
+#: centreon/www/include/configuration/configObject/contact/help.php
+msgid ""
+"For security reasons, to be able to change this user's password, you (the "
+"currently logged-in user) must verify your identity by entering your own "
+"password."
+msgstr ""
+"Pour des raisons de sécurité, afin de pouvoir changer le mot de passe de cet "
+"utilisateur, vous (l'utilisateur actuellement connecté) devez vérifier votre "
+"identité en saisissant votre propre mot de passe."
+
 #: centreon/www/include/Administration/parameters/remote/help.php
 msgid "Full URL allowing access to the API of the Centreon's central server."
 msgstr "URL complète permettant d'accéder à l'API du serveur central Centreon."

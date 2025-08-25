@@ -89,6 +89,7 @@ export type {
   SearchMatch
 } from './api/buildListingEndpoint/models';
 export { default as buildListingDecoder } from './api/buildListingDecoder';
+export { customFetch } from './api/customFetch';
 
 export { default as ContentWithCircularLoading } from './ContentWithCircularProgress';
 export {

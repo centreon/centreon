@@ -1713,6 +1713,8 @@ msgstr "Enregistrer les authentifications"
 msgid "Authentication denied"
 msgstr "Authentification refusée"
 
+#: centreon/www/include/Administration/myAccount/DB-Func.php
+#: centreon/www/include/configuration/configObject/contact/DB-Func.php
 #: centreon/src/Core/Security/Authentication/Domain/Exception/AuthenticationException.php
 msgid "Authentication failed"
 msgstr "Echec de l'authentification"
@@ -3855,6 +3857,7 @@ msgid "Current page only"
 msgstr "Page courante seulement"
 
 #: centreon/www/install/front_translate.php
+#: centreon/www/include/Administration/myAccount/formMyAccount.php
 msgid "Current password"
 msgstr "Mot de passe actuel"
 
@@ -5004,9 +5007,12 @@ msgstr ""
 "sélectionnés, sous forme de tableau."
 
 #: centreon/www/install/dashboard_widgets.php
-msgid "Displays the future evolution of a metric, based on its history."
+msgid ""
+"Displays the future evolution of a metric as a trend curve, based on its "
+"recent average data."
 msgstr ""
-"Affiche l'évolution future d'une métrique, sur la base de son historique."
+"Affiche l'évolution future d'une métrique sous forme de courbe de tendance, "
+"calculée à partir de ses données moyennes récentes."
 
 #: centreon/www/install/dashboard_widgets.php
 msgid "Displays the time according to the selected time zone, or a timer."
@@ -5032,10 +5038,6 @@ msgstr "Supprimer l'association"
 #: centreon/www/install/smarty_translate.php
 msgid "Dissociate this view ?"
 msgstr "Supprimer l'associatino de cette vue ?"
-
-#: centreon/www/include/configuration/configServers/listServers.php
-msgid "Distant Poller"
-msgstr "Collecteur distant"
 
 #: centreon/www/install/react_translation.php
 #: centreon/www/install/front_translate.php
@@ -7867,10 +7869,6 @@ msgstr "Graphique de performance par page"
 #: centreon/www/install/dashboard_widgets.php
 msgid "Graph style"
 msgstr "Style de graphe"
-
-#: centreon/www/install/dashboard_widgets.php
-msgid "Graph style for average"
-msgstr "Style du graphique de moyenne"
 
 #: centreon/www/install/smarty_translate.php
 #: centreon/www/include/configuration/configObject/command/formCommand.php
@@ -12749,6 +12747,11 @@ msgstr "Veuillez saisir un nom pour la règle d'accès aux ressources dupliquée
 msgid "Please enter a valid URL or IP address"
 msgstr "Entrez une URL ou une adresse IP valide"
 
+#: centreon/www/include/Administration/myAccount/DB-Func.php
+#: centreon/www/include/configuration/configObject/contact/DB-Func.php
+msgid "Please fill in all password fields"
+msgstr "Veuillez remplir tous les champs mot de passe"
+
 #: centreon/www/install/steps/functions.php
 #, php-format
 msgid "Please install MariaDB version %s instead of %s."
@@ -12863,6 +12866,7 @@ msgstr "Répertoire des sondes"
 #: centreon/www/include/monitoring/status/ServicesServiceGroups/serviceSummaryBySG.php
 #: centreon/www/include/monitoring/downtime/AddDowntime.php
 #: centreon/www/include/configuration/configGenerateTraps/formGenerateTraps.php
+#: centreon/www/include/configuration/configServers/listServers.php
 #: centreon/www/include/configuration/configObject/host/listHost.php
 #: centreon/www/include/configuration/configKnowledge/search.php
 #: centreon/www/include/eventLogs/xml/data.php
@@ -15968,6 +15972,10 @@ msgstr "Chaine"
 #: centreon/www/install/front_translate.php
 msgid "Strong"
 msgstr "Fort"
+
+#: centreon/www/install/dashboard_widgets.php
+msgid "Style for average data"
+msgstr "Style des données de moyenne"
 
 #: centreon/www/install/dashboard_widgets.php
 msgid "Sub input 1"
@@ -19239,6 +19247,10 @@ msgstr "Votre commentaire a été enregistré."
 msgid "Your credentials are incorrect."
 msgstr "Vos informations d'identification sont incorrectes."
 
+#: centreon/www/include/configuration/configObject/contact/formContact.php
+msgid "Your current password"
+msgstr "Votre mot de passe actuel"
+
 #: centreon/www/install/step_upgrade/step4.php
 #, php-format
 msgid "Your current version is %s."
@@ -20975,6 +20987,10 @@ msgid ""
 msgstr ""
 "Affiche l’historique de la disponibilité d'une activité métier ou vue "
 "métier pour une période donnée."
+
+#: unknown
+msgid "Distant Poller"
+msgstr "Collecteur distant"
 
 #: unknown
 msgid "Do you confirm  the duplication ?"
