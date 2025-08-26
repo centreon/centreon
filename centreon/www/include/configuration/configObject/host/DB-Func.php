@@ -2340,6 +2340,7 @@ function createHostTemplateService($hostId = null, $htm_id = null)
     if (
         ! empty($submittedValues['dupSvTplAssoc']['dupSvTplAssoc'])
         || $isCloudPlatform === true
+        && $submittedValues['host_register'] != 0
     ) {
         generateHostServiceMultiTemplate($hostId, $hostId);
     }
