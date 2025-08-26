@@ -71,28 +71,28 @@ class DbReadRealTimeHostCategoryRepository extends AbstractRepositoryRDB impleme
          * 3 = host categories.
          */
         $request = <<<'SQL'
-            SELECT
-                1 AS REALTIME,
-                host_categories.id AS id,
-                host_categories.name AS name,
-                host_categories.type AS `type`
-            FROM `:dbstg`.resources
-            INNER JOIN `:dbstg`.resources_tags rtags
-                ON rtags.resource_id = resources.resource_id
-            INNER JOIN `:dbstg`.tags AS host_categories
-                ON host_categories.tag_id  = rtags.tag_id
-                AND host_categories.`type` = 3
+                SELECT
+                    1 AS REALTIME,
+                    host_categories.id AS id,
+                    host_categories.name AS name,
+                    host_categories.type AS `type`
+                FROM `:dbstg`.resources
+                INNER JOIN `:dbstg`.resources_tags rtags
+                    ON rtags.resource_id = resources.resource_id
+                INNER JOIN `:dbstg`.tags AS host_categories
+                    ON host_categories.tag_id  = rtags.tag_id
+                    AND host_categories.`type` = 3
             SQL;
 
         $searchRequest = $sqlTranslator?->translateSearchParameterToSql();
 
         if ($searchRequest !== null) {
             $request .= <<<'SQL'
-                    LEFT JOIN `:dbstg`.resources_tags rtags_host_groups
-                        ON rtags_host_groups.resource_id = resources.resource_id
-                    LEFT JOIN `:dbstg`.tags AS host_groups
-                        ON rtags_host_groups.tag_id = host_groups.tag_id
-                        AND host_groups.`type` = 1
+                LEFT JOIN `:dbstg`.resources_tags rtags_host_groups
+                    ON rtags_host_groups.resource_id = resources.resource_id
+                LEFT JOIN `:dbstg`.tags AS host_groups
+                    ON rtags_host_groups.tag_id = host_groups.tag_id
+                    AND host_groups.`type` = 1
                 SQL;
 
             $request .= $searchRequest;
@@ -150,25 +150,25 @@ class DbReadRealTimeHostCategoryRepository extends AbstractRepositoryRDB impleme
          * 3 = host categories.
          */
         $request = <<<'SQL'
-            SELECT
-                1 AS REALTIME,
-                host_categories.id AS id,
-                host_categories.name AS name,
-                host_categories.type AS `type`
-            FROM `:dbstg`.resources
-            INNER JOIN `:dbstg`.resources_tags rtags
-                ON rtags.resource_id = resources.resource_id
-            INNER JOIN `:dbstg`.tags AS host_categories
-                ON host_categories.tag_id  = rtags.tag_id
-                AND host_categories.`type` = 3
-            INNER JOIN `:db`.acl_resources_hc_relations arhr
-                ON host_categories.id = arhr.hc_id
-            INNER JOIN `:db`.acl_resources res
-                ON arhr.acl_res_id = res.acl_res_id
-            INNER JOIN `:db`.acl_res_group_relations argr
-                ON res.acl_res_id = argr.acl_res_id
-            INNER JOIN `:db`.acl_groups ag
-                ON argr.acl_group_id = ag.acl_group_id
+                SELECT
+                    1 AS REALTIME,
+                    host_categories.id AS id,
+                    host_categories.name AS name,
+                    host_categories.type AS `type`
+                FROM `:dbstg`.resources
+                INNER JOIN `:dbstg`.resources_tags rtags
+                    ON rtags.resource_id = resources.resource_id
+                INNER JOIN `:dbstg`.tags AS host_categories
+                    ON host_categories.tag_id  = rtags.tag_id
+                    AND host_categories.`type` = 3
+                INNER JOIN `:db`.acl_resources_hc_relations arhr
+                    ON host_categories.id = arhr.hc_id
+                INNER JOIN `:db`.acl_resources res
+                    ON arhr.acl_res_id = res.acl_res_id
+                INNER JOIN `:db`.acl_res_group_relations argr
+                    ON res.acl_res_id = argr.acl_res_id
+                INNER JOIN `:db`.acl_groups ag
+                    ON argr.acl_group_id = ag.acl_group_id
             SQL;
 
         $searchRequest = $sqlTranslator?->translateSearchParameterToSql();
