@@ -14955,7 +14955,7 @@ msgstr "Assistente de Configuração de Servidor"
 #: centreon/www/install/react_translation.php
 #: centreon/www/install/front_translate.php
 msgid "Server Address"
-msgstr "Endereço IP do Servidor"
+msgstr "Endereço do Servidor"
 
 #: centreon/www/include/configuration/configServers/formServers.php
 msgid "Server Information"
