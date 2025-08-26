@@ -34,6 +34,10 @@ final class Sort extends Constraint
     public string $invalidSortDirectionMesssage
         = '{{ key }} has invalid sort direction ({{ direction }}). Expected directions [{{ values }}].';
 
+    /**
+     * @param array<int, string> $sortKeys
+     * @param array<int, string> $sortDirections
+     */
     #[HasNamedArguments]
     public function __construct(
         public array $sortKeys,

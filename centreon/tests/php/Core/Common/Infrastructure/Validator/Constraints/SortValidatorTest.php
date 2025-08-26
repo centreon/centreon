@@ -67,7 +67,7 @@ final class SortValidatorTest extends ConstraintValidatorTestCase
     }
 
     /**
-     * @return Generator<string,mixed>
+     * @return \Generator<string,mixed>
      */
     public static function providerInvalidData(): \Generator
     {
