@@ -1,0 +1,4 @@
+#!/usr/bin/env sh
+
+# scan for secrets before commit
+gitleaks detect --no-git --verbose
