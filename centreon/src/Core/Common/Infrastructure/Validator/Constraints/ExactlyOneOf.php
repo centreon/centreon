@@ -23,28 +23,29 @@ declare(strict_types=1);
 
 namespace Core\Common\Infrastructure\Validator\Constraints;
 
-use Symfony\Component\Validator\Attribute\HasNamedArguments;
 use Symfony\Component\Validator\Constraint;
+use Webmozart\Assert\Assert;
 
 #[\Attribute]
-final class Sort extends Constraint
+final class ExactlyOneOf extends Constraint
 {
-    public string $invalidSortKeyMessage = '{{ key }} is not a valid sort value. Expected values [{{ values }}].';
-
-    public string $invalidSortDirectionMesssage
-        = '{{ key }} has invalid sort direction ({{ direction }}). Expected directions [{{ values }}].';
+    public string $message = 'Exactly one of the following query parameters must be provided: {{ fields }}';
 
     /**
-     * @param array<int, string> $sortKeys
-     * @param array<int, string> $sortDirections
+     * @param array<string> $fields
      */
-    #[HasNamedArguments]
     public function __construct(
-        public array $sortKeys,
-        public array $sortDirections,
+        private readonly array $fields,
+        ?array $options = null,
         ?array $groups = null,
-        mixed $payload = null,
+        ?string $payload = null,
     ) {
-        parent::__construct([], $groups, $payload);
+        Assert::count($fields, 2);
+        parent::__construct($options, $groups, $payload);
+    }
+
+    public function getTarget(): string
+    {
+        return self::CLASS_CONSTRAINT;
     }
 }
