@@ -2,9 +2,7 @@
   "federatedComponentsConfiguration": [
     {
       "path": "/widgets/resourcestable",
-      "federatedComponents": [
-        "./resourcestable"
-      ],
+      "federatedComponents": ["./resourcestable"],
       "panelMinWidth": 6,
       "panelMinHeight": 3
     }
