@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -63,7 +63,7 @@ class AddCommandValidation
      */
     public function assertAreValidArguments(AddCommandRequest $request): void
     {
-        $argumentNames = array_unique(array_map(fn(ArgumentDto $arg) => $arg->name, $request->arguments));
+        $argumentNames = array_unique(array_map(fn (ArgumentDto $arg) => $arg->name, $request->arguments));
 
         preg_match_all('/\$(?<args>ARG\d+)\$/', $request->commandLine, $matches);
         $commandArguments = array_unique($matches['args']);

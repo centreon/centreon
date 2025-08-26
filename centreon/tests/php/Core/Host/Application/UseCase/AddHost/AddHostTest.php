@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -64,7 +64,6 @@ use Core\Macro\Application\Repository\WriteHostMacroRepositoryInterface;
 use Core\Macro\Domain\Model\Macro;
 use Core\MonitoringServer\Application\Repository\WriteMonitoringServerRepositoryInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
-use phpDocumentor\Reflection\Types\This;
 use Tests\Core\Host\Infrastructure\API\AddHost\AddHostPresenterStub;
 
 beforeEach(function (): void {
@@ -195,8 +194,24 @@ beforeEach(function (): void {
 
     // Settup groups
     $this->groups = [
-        $this->groupA = new HostGroup(6, 'grp-name-A', 'grp-alias-A', '', '', '', null, null, null, null, '', true),
-        $this->groupB = new HostGroup(7, 'grp-name-B', 'grp-alias-B', '', '', '', null, null, null, null, '', true),
+        $this->groupA = new HostGroup(
+            id: 6,
+            name: 'grp-name-A',
+            alias: 'grp-alias-A',
+            iconId: null,
+            geoCoords: null,
+            comment: '',
+            isActivated: true
+        ),
+        $this->groupB = new HostGroup(
+            id: 7,
+            name: 'grp-name-B',
+            alias: 'grp-alias-B',
+            iconId: null,
+            geoCoords: null,
+            comment: '',
+            isActivated: true
+        ),
     ];
     $this->request->groups = [$this->groupA->getId(), $this->groupB->getId()];
 
@@ -559,7 +574,7 @@ it('should present a ConflictResponse when a parent template ID is not valid', f
         ->toBe(
             HostException::idsDoNotExist(
                 'templates',
-                 $this->request->templates
+                $this->request->templates
             )->getMessage()
         );
 });
@@ -670,8 +685,8 @@ it('should return created object on success (with admin user)', function (): voi
         ->method('findNamesByIds')
         ->willReturn(
             array_combine(
-                array_map((fn($row) => $row['id']), $this->parentTemplates),
-                array_map((fn($row) => $row['name']), $this->parentTemplates)
+                array_map((fn ($row) => $row['id']), $this->parentTemplates),
+                array_map((fn ($row) => $row['name']), $this->parentTemplates)
             )
         );
     $this->readHostMacroRepository
@@ -764,22 +779,22 @@ it('should return created object on success (with admin user)', function (): voi
         ->toBe(YesNoDefaultConverter::toInt($this->host->getEventHandlerEnabled()))
         ->and($response->categories)
         ->toBe(array_map(
-            (fn($category) => ['id' => $category->getId(), 'name' => $category->getName()]),
+            (fn ($category) => ['id' => $category->getId(), 'name' => $category->getName()]),
             $this->categories
         ))
         ->and($response->groups)
         ->toBe(array_map(
-            (fn($group) => ['id' => $group->getId(), 'name' => $group->getName()]),
+            (fn ($group) => ['id' => $group->getId(), 'name' => $group->getName()]),
             $this->groups
         ))
         ->and($response->templates)
         ->toBe(array_map(
-            (fn($template) => ['id' => $template['id'], 'name' => $template['name']]),
+            (fn ($template) => ['id' => $template['id'], 'name' => $template['name']]),
             $this->parentTemplates
         ))
         ->and($response->macros)
         ->toBe(array_map(
-            (fn($macro) => [
+            (fn ($macro) => [
                 'name' => $macro->getName(),
                 'value' => $macro->getValue(),
                 'isPassword' => $macro->isPassword(),
@@ -880,8 +895,8 @@ it('should return created object on success (with non-admin user)', function ():
         ->method('findNamesByIds')
         ->willReturn(
             array_combine(
-                array_map((fn($row) => $row['id']), $this->parentTemplates),
-                array_map((fn($row) => $row['name']), $this->parentTemplates)
+                array_map((fn ($row) => $row['id']), $this->parentTemplates),
+                array_map((fn ($row) => $row['name']), $this->parentTemplates)
             )
         );
     $this->readHostMacroRepository
@@ -974,22 +989,22 @@ it('should return created object on success (with non-admin user)', function ():
         ->toBe(YesNoDefaultConverter::toInt($this->host->getEventHandlerEnabled()))
         ->and($response->categories)
         ->toBe(array_map(
-            (fn($category) => ['id' => $category->getId(), 'name' => $category->getName()]),
+            (fn ($category) => ['id' => $category->getId(), 'name' => $category->getName()]),
             $this->categories
         ))
         ->and($response->groups)
         ->toBe(array_map(
-            (fn($group) => ['id' => $group->getId(), 'name' => $group->getName()]),
+            (fn ($group) => ['id' => $group->getId(), 'name' => $group->getName()]),
             $this->groups
         ))
         ->and($response->templates)
         ->toBe(array_map(
-            (fn($template) => ['id' => $template['id'], 'name' => $template['name']]),
+            (fn ($template) => ['id' => $template['id'], 'name' => $template['name']]),
             $this->parentTemplates
         ))
         ->and($response->macros)
         ->toBe(array_map(
-            (fn($macro) => [
+            (fn ($macro) => [
                 'name' => $macro->getName(),
                 'value' => $macro->getValue(),
                 'isPassword' => $macro->isPassword(),
@@ -1003,4 +1018,4 @@ it('should return created object on success (with non-admin user)', function ():
         ->toBe($this->host->addInheritedContact())
         ->and($response->isActivated)
         ->toBe($this->host->isActivated());
-    });
+});

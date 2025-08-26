@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,7 +51,7 @@ use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Tests\Core\ResourceAccess\Infrastructure\API\PartialRuleUpdate\PartialRuleUpdatePresenterStub;
 
 beforeEach(closure: function (): void {
-   $this->presenter = new PartialRuleUpdatePresenterStub($this->createMock(PresenterFormatterInterface::class));
+    $this->presenter = new PartialRuleUpdatePresenterStub($this->createMock(PresenterFormatterInterface::class));
 
     foreach ([
         HostFilterType::class,
@@ -265,4 +265,3 @@ it(
             ->toBeInstanceOf(NoContentResponse::class);
     }
 );
-

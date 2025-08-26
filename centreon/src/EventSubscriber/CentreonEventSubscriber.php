@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,6 +39,7 @@ use Psr\Log\LogLevel;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\DependencyInjection\Exception\InvalidArgumentException;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\{ExceptionEvent, RequestEvent, ResponseEvent};
 use Symfony\Component\HttpKernel\Exception\HttpException;
@@ -84,7 +85,8 @@ class CentreonEventSubscriber implements EventSubscriberInterface
         readonly private string $apiVersionLatest,
         readonly private string $apiHeaderName,
         readonly private string $translationPath,
-    ) {}
+    ) {
+    }
 
     /**
      * Returns an array of event names this subscriber wants to listen to.
@@ -321,10 +323,15 @@ class CentreonEventSubscriber implements EventSubscriberInterface
                     $statusCode = Response::HTTP_INTERNAL_SERVER_ERROR;
                     $errorCode = $statusCode;
                 }
-            } else if ($event->getThrowable() instanceof HttpException) {
-                    $errorCode = $event->getThrowable()->getStatusCode();
-                    $statusCode = $event->getThrowable()->getStatusCode();
-
+            } elseif ($event->getThrowable() instanceof HttpException) {
+                $errorCode = $event->getThrowable()->getStatusCode();
+                $statusCode = $event->getThrowable()->getStatusCode();
+                if (
+                    $statusCode === Response::HTTP_UNPROCESSABLE_ENTITY
+                    && empty($event->getThrowable()->getMessage())
+                ) {
+                    $message = 'The data sent does not comply with the defined validation constraints';
+                }
             } else {
                 $errorCode = $event->getThrowable()->getCode();
                 $statusCode = $event->getThrowable()->getCode()
@@ -396,20 +403,44 @@ class CentreonEventSubscriber implements EventSubscriberInterface
 
     /**
      * Set contact if he is logged in.
+     * @param RequestEvent $event
      */
-    public function initUser(): void
+    public function initUser(RequestEvent $event): void
     {
-        if ($user = $this->security->getUser()) {
-            /**
-             * @var Contact $user
-             */
-            EntityCreator::setContact($user);
-            /**
-             * @var ContactInterface $user
-             */
-            $this->initLanguage($user);
-            $this->initGlobalContact($user);
+        /** @var ?Contact $user */
+        $user = $this->security->getUser();
+        if ($user === null) {
+            return;
         }
+
+        $request = $event->getRequest();
+        if ($user->getLang() === 'browser') {
+            $locale = $this->guessLocale($request);
+            $user->setLocale($locale);
+        }
+
+        EntityCreator::setContact($user);
+
+        $this->initLanguage($user);
+        $this->initGlobalContact($user);
+    }
+
+    /**
+     * Guess the locale to use according to the provided Accept-Language header (sent by browser or http client)
+     *
+     * @todo improve this by moving the logic in a dedicated service
+     * @todo improve the array of supported locales by INJECTING them instead
+     * @param Request $request
+     */
+    private function guessLocale(Request $request): string
+    {
+        $preferredLanguage = $request->getPreferredLanguage(['fr-FR', 'en-US', 'es-ES', 'pr-BR', 'pt-PT', 'de-DE']);
+
+        // Reformating is necessary as the standard format uses "-" and we decided to store "_"
+        $locale = $preferredLanguage ? str_replace('-', '_', $preferredLanguage) : 'en_US';
+
+        // Also Safari has its own format "fr-fr" instead of "fr-FR" hence the strtoupper
+        return substr($locale, 0, -2) . strtoupper(substr($locale, -2));
     }
 
     /**
@@ -438,26 +469,13 @@ class CentreonEventSubscriber implements EventSubscriberInterface
      */
     private function initLanguage(ContactInterface $user): void
     {
-        $locale = $user->getLocale() ?? $this->getBrowserLocale();
-        $lang = $locale . '.' . Contact::DEFAULT_CHARSET;
+        $lang = $user->getLocale() . '.' . Contact::DEFAULT_CHARSET;
 
         putenv('LANG=' . $lang);
         setlocale(LC_ALL, $lang);
         bindtextdomain('messages', $this->translationPath);
         bind_textdomain_codeset('messages', Contact::DEFAULT_CHARSET);
         textdomain('messages');
-    }
-
-    /**
-     * Get browser locale if set in http header.
-     *
-     * @return string The browser locale
-     */
-    private function getBrowserLocale(): string
-    {
-        return isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])
-            ? (string) \Locale::acceptFromHttp($_SERVER['HTTP_ACCEPT_LANGUAGE'])
-            : Contact::DEFAULT_LOCALE;
     }
 
     /**
@@ -491,6 +509,7 @@ class CentreonEventSubscriber implements EventSubscriberInterface
             ->setTimezoneId($user->getTimezoneId())
             ->setDefaultPage($user->getDefaultPage())
             ->setUseDeprecatedPages($user->isUsingDeprecatedPages())
+            ->setUseDeprecatedCustomViews($user->isUsingDeprecatedCustomViews())
             ->setTheme($user->getTheme() ?? 'light')
             ->setUserInterfaceDensity($user->getUserInterfaceDensity());
     }

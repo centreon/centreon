@@ -52,12 +52,6 @@ const DurationField = (): JSX.Element => {
     setFieldValue('duration', value);
   };
 
-  //   const durationValue = getDuration({
-  //     endTime: currentData.expirationDate,
-  //     isCustomizeDate: equals(values?.duration?.id, 'customize'),
-  //     startTime: currentData.creationDate
-  //   });
-
   return (
     <div className={classes.container}>
       <SingleAutocompleteField
@@ -67,7 +61,6 @@ const DurationField = (): JSX.Element => {
         id="duration"
         label={t(labelDuration)}
         options={options}
-        // required={!token}
         required={true}
         value={values.duration}
         onChange={changeDuration}

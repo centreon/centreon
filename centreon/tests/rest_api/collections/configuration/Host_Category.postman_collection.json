@@ -1,11 +1,11 @@
 {
 	"info": {
-		"_postman_id": "f1e522fd-6cec-4838-9d77-946a8bc64fd9",
+		"_postman_id": "7ca7ec6b-1c8b-4a5e-8b4e-2736d3cb5a95",
 		"name": "Host_Category",
 		"description": "This collection has fixes for these tickets :\n\n- [MON-34389](https://centreon.atlassian.net/browse/MON-34389) (Search by host group)\n    \n- [MON-20165](https://centreon.atlassian.net/browse/MON-20165) (Add location header)\n    \n- [MON-62132](https://centreon.atlassian.net/browse/MON-62132) (Remove snmp_community from response)",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "29556865",
-		"_collection_link": "https://centreon-api-testing.postman.co/workspace/Centreon-Web---API-v2~d8660f05-3c64-4c5b-af73-1a5543bff4e1/collection/16182525-f1e522fd-6cec-4838-9d77-946a8bc64fd9?action=share&source=collection_link&creator=29556865"
+		"_exporter_id": "16182525",
+		"_collection_link": "https://centreon-api-testing.postman.co/workspace/develop-OSS~7c78046c-a719-4dae-bbf9-70e6e2c5b9bd/collection/16182525-7ca7ec6b-1c8b-4a5e-8b4e-2736d3cb5a95?action=share&source=collection_link&creator=16182525"
 	},
 	"item": [
 		{
@@ -2240,18 +2240,41 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The host group has been successfully created\", function () {\r",
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The host group has been successfully created, with name '\" + pm.collectionVariables.get(\"HostGroup1Name\") + \"' and alias '\" + pm.collectionVariables.get(\"HostGroup1Alias\") + \"'.\", function () {\r",
 									"    pm.response.to.have.status(201);\r",
 									"\r",
-									"    var response = pm.response.json();\r",
-									"    console.log(\"Full Response:\", response);\r",
+									"    // Creation of a variable with the ID of the new host group\r",
+									"    pm.collectionVariables.set(\"HostGroup1Id\", responseJson.id);\r",
 									"\r",
-									"    pm.collectionVariables.set(\"HostGroup1Id\", Number(response.id));\r",
+									"    pm.expect(responseJson).to.eql({\r",
+									"        \"id\": pm.collectionVariables.get(\"HostGroup1Id\"),\r",
+									"        \"name\": pm.collectionVariables.get(\"HostGroup1Name\"),\r",
+									"        \"alias\": pm.collectionVariables.get(\"HostGroup1Alias\"),\r",
+									"        \"icon_id\": null,\r",
+									"        \"geo_coords\": null,\r",
+									"        \"comment\": null,\r",
+									"        \"hosts\": []\r",
+									"    });\r",
+									"    \r",
+									"});\r",
 									"\r",
-									"    // Vérifier que les propriétés obligatoires existent\r",
-									"    pm.expect(response).to.have.property(\"id\");\r",
-									"    pm.expect(response).to.have.property(\"name\");\r",
-									"    pm.expect(response).to.have.property(\"alias\");\r",
+									"pm.test(\"Schema validation for host group creation response\", function () {\r",
+									"    const schema = {\r",
+									"        type: \"object\",\r",
+									"        properties: {\r",
+									"            id: { type: \"integer\" },\r",
+									"            name: { type: \"string\" },\r",
+									"            alias: { type: [\"string\", \"null\"] },\r",
+									"            icon_id: { type: [\"integer\", \"null\"] },\r",
+									"            geo_coords: { type: [\"string\", \"null\"] },\r",
+									"            comment: { type: [\"string\", \"null\"] },\r",
+									"            hosts: { type: \"array\" }\r",
+									"        },\r",
+									"        required: [\"id\", \"name\", \"alias\", \"icon_id\", \"geo_coords\", \"comment\", \"hosts\"]\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
 									"});"
 								],
 								"type": "text/javascript",
@@ -2309,28 +2332,42 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The host group has been successfully created\", function () {\r",
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The host group has been successfully created, with name '\" + pm.collectionVariables.get(\"HostGroup2Name\") + \"' and alias '\" + pm.collectionVariables.get(\"HostGroup2Alias\") + \"'.\", function () {\r",
 									"    pm.response.to.have.status(201);\r",
 									"\r",
-									"    var response = pm.response.json();\r",
-									"    console.log(\"Full Response:\", response);\r",
+									"    // Creation of a variable with the ID of the new host group\r",
+									"    pm.collectionVariables.set(\"HostGroup2Id\", responseJson.id);\r",
 									"\r",
-									"    pm.collectionVariables.set(\"HostGroup2Id\", Number(response.id));\r",
-									"\r",
-									"    console.log(\"HostGroup2Id:\", pm.collectionVariables.get(\"HostGroup2Id\"));\r",
-									"    console.log(\"HostGroup2Name:\", pm.collectionVariables.get(\"HostGroup2Name\"));\r",
-									"    console.log(\"HostGroup2Alias:\", pm.collectionVariables.get(\"HostGroup2Alias\"));\r",
-									"\r",
-									"    pm.expect(response).to.have.property(\"id\");\r",
-									"    pm.expect(response).to.have.property(\"name\");\r",
-									"    pm.expect(response).to.have.property(\"alias\");\r",
-									"\r",
-									"    pm.expect(response).to.include({\r",
+									"    pm.expect(responseJson).to.eql({\r",
 									"        \"id\": pm.collectionVariables.get(\"HostGroup2Id\"),\r",
 									"        \"name\": pm.collectionVariables.get(\"HostGroup2Name\"),\r",
-									"        \"alias\": pm.collectionVariables.get(\"HostGroup2Alias\")\r",
+									"        \"alias\": pm.collectionVariables.get(\"HostGroup2Alias\"),\r",
+									"        \"icon_id\": null,\r",
+									"        \"geo_coords\": null,\r",
+									"        \"comment\": null,\r",
+									"        \"hosts\": []\r",
 									"    });\r",
-									"});\r"
+									"    \r",
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation for host group creation response\", function () {\r",
+									"    const schema = {\r",
+									"        type: \"object\",\r",
+									"        properties: {\r",
+									"            id: { type: \"integer\" },\r",
+									"            name: { type: \"string\" },\r",
+									"            alias: { type: [\"string\", \"null\"] },\r",
+									"            icon_id: { type: [\"integer\", \"null\"] },\r",
+									"            geo_coords: { type: [\"string\", \"null\"] },\r",
+									"            comment: { type: [\"string\", \"null\"] },\r",
+									"            hosts: { type: \"array\" }\r",
+									"        },\r",
+									"        required: [\"id\", \"name\", \"alias\", \"icon_id\", \"geo_coords\", \"comment\", \"hosts\"]\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});"
 								],
 								"type": "text/javascript",
 								"packages": {}
@@ -2583,11 +2620,11 @@
 							"listen": "test",
 							"script": {
 								"exec": [
+									"const responseJson = pm.response.json();\r",
 									"pm.test(\"The host category has been successfully created, with name '\" + pm.collectionVariables.get(\"HostCategory2Name\") + \"' and alias '\" + pm.collectionVariables.get(\"HostCategory2Alias\") + \"'.\", function () {\r",
 									"    pm.response.to.have.status(201);\r",
 									"\r",
 									"    // Creation of a variable with the ID of the new host category\r",
-									"    var responseJson = JSON.parse(responseBody);\r",
 									"    pm.collectionVariables.set(\"HostCategory2Id\", responseJson.id);\r",
 									"\r",
 									"    pm.expect(responseJson).to.eql({\r",
@@ -2598,9 +2635,26 @@
 									"        \"comment\":null\r",
 									"    });\r",
 									"    \r",
-									"});\r"
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation for host category creation response\", function () {\r",
+									"    const schema = {\r",
+									"        type: \"object\",\r",
+									"        properties: {\r",
+									"            id: { type: \"integer\" },\r",
+									"            name: { type: \"string\" },\r",
+									"            alias: { type: \"string\" },\r",
+									"            is_activated: { type: \"boolean\" },\r",
+									"            comment: { type: [\"string\", \"null\"] }\r",
+									"        },\r",
+									"        required: [\"id\", \"name\", \"alias\", \"is_activated\", \"comment\"],\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -2611,7 +2665,8 @@
 									"pm.collectionVariables.set(\"HostCategory2Alias\", \"Oh I'm your second category!\");\r",
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -12473,140 +12528,6 @@
 					""
 				]
 			}
-		}
-	],
-	"variable": [
-		{
-			"key": "api_login_user_RW",
-			"value": ""
-		},
-		{
-			"key": "api_password_user_RW",
-			"value": ""
-		},
-		{
-			"key": "api_login_user_RW_filters",
-			"value": ""
-		},
-		{
-			"key": "api_password_user_RW_filters",
-			"value": ""
-		},
-		{
-			"key": "api_login_user_Read",
-			"value": ""
-		},
-		{
-			"key": "api_password_user_Read",
-			"value": ""
-		},
-		{
-			"key": "api_login_user_Read_filters",
-			"value": ""
-		},
-		{
-			"key": "api_password_user_Read_filters",
-			"value": ""
-		},
-		{
-			"key": "api_login_user_Nothing",
-			"value": ""
-		},
-		{
-			"key": "api_password_user_Nothing",
-			"value": ""
-		},
-		{
-			"key": "HostGroup1Name",
-			"value": ""
-		},
-		{
-			"key": "HostGroup1Alias",
-			"value": ""
-		},
-		{
-			"key": "HostGroup2Name",
-			"value": ""
-		},
-		{
-			"key": "HostGroup2Alias",
-			"value": ""
-		},
-		{
-			"key": "HostCategory2Name",
-			"value": ""
-		},
-		{
-			"key": "HostCategory2Alias",
-			"value": ""
-		},
-		{
-			"key": "HostCategory2Id",
-			"value": ""
-		},
-		{
-			"key": "Host1Name",
-			"value": ""
-		},
-		{
-			"key": "Host1Alias",
-			"value": ""
-		},
-		{
-			"key": "Host2Name",
-			"value": ""
-		},
-		{
-			"key": "Host2Alias",
-			"value": ""
-		},
-		{
-			"key": "Host2Id",
-			"value": ""
-		},
-		{
-			"key": "Host3Name",
-			"value": ""
-		},
-		{
-			"key": "Host3Alias",
-			"value": ""
-		},
-		{
-			"key": "HostGroup1Id",
-			"value": ""
-		},
-		{
-			"key": "HostGroup2Id",
-			"value": ""
-		},
-		{
-			"key": "Host1Id",
-			"value": ""
-		},
-		{
-			"key": "Host3Id",
-			"value": ""
-		},
-		{
-			"key": "HostCategory4Name",
-			"value": ""
-		},
-		{
-			"key": "HostCategory4Alias",
-			"value": ""
-		},
-		{
-			"key": "HostCategory4Id",
-			"value": ""
-		},
-		{
-			"key": "ACLResources",
-			"value": ""
-		},
-		{
-			"key": "HostcategoryTotal",
-			"value": ""
 		}
 	]
 }

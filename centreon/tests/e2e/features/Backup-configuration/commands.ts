@@ -79,12 +79,13 @@ Cypress.Commands.add('selectCurrentDayCheckbox', () => {
 });
 
 Cypress.Commands.add('exportConfig', () => {
-  cy.getByTestId({ testId: 'ExpandMoreIcon' }).eq(0).click();
+  cy.getByLabel({ label: 'Pollers', tag: 'button' }).click();
   cy.getByTestId({ testId: 'Export configuration' }).click();
   cy.getByTestId({ testId: 'Confirm' }).click();
 });
 
 declare global {
+  // biome-ignore lint/style/noNamespace: <explanation>
   namespace Cypress {
     interface Chainable {
       enterIframe: (iframeSelector: string) => Cypress.Chainable;

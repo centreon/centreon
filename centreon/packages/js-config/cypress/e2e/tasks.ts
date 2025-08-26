@@ -139,6 +139,11 @@ export default (on: Cypress.PluginEvents): void => {
         return null;
       }
     },
+    getContainerMappedPort: async ({ containerName, containerPort }) => {
+      const container = getContainer(containerName);
+
+      return container.getMappedPort(containerPort);
+    },
     requestOnDatabase: async ({ database, query }) => {
       let container: StartedTestContainer | null = null;
 
@@ -267,6 +272,54 @@ export default (on: Cypress.PluginEvents): void => {
     },
     fileExists: async ( filePath ) => {
       return fs.existsSync(filePath);
+    },
+    getExportedFile({ downloadsFolder }: { downloadsFolder: string }): string {
+      const files = fs
+        .readdirSync(downloadsFolder)
+        .filter((name) => name.startsWith("ResourceStatusExport_all") && name.endsWith(".csv"))
+        .map((name) => ({
+          name,
+          time: fs.statSync(path.join(downloadsFolder, name)).mtime.getTime()
+        }))
+        .sort((a, b) => b.time - a.time);
+
+      if (files.length === 0) {
+        throw new Error("No exported file found");
+      }
+
+      return path.join(downloadsFolder, files[0].name);
+    },
+    readCsvFile({ filePath }: { filePath: string }): Promise<string> {
+      return new Promise((resolve, reject) => {
+        fs.readFile(filePath, "utf8", (err, data) => {
+          if (err) return reject(err);
+          resolve(data);
+        });
+      });
+    },
+    clearDownloadsFolder({ downloadsFolder }: { downloadsFolder: string }): null {
+      if (!fs.existsSync(downloadsFolder)) {
+        return null;
+      }
+
+      const files = fs.readdirSync(downloadsFolder);
+      for (const file of files) {
+        const filePath = path.join(downloadsFolder, file);
+        fs.unlinkSync(filePath);
+      }
+
+      return null;
+    },
+    isDownloadComplete({ downloadsFolder }: { downloadsFolder: string }): boolean {
+      if (!fs.existsSync(downloadsFolder)) return false;
+
+      const files = fs
+        .readdirSync(downloadsFolder)
+        .filter(
+          (name) => !name.endsWith(".crdownload") && !name.endsWith(".tmp")
+        );
+
+      return files.length > 0;
     },
   });
 };

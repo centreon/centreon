@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,6 +18,7 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Tests\Core\Infrastructure\Common\Api;
@@ -83,7 +84,7 @@ it(
             '8080',
             '/centreon/api/latest/test',
         ],
-        'http://127.0.0.1:8080/centreon'
+        'http://127.0.0.1:8080/centreon',
     ],
     [
         [
@@ -92,7 +93,7 @@ it(
             '4443',
             '/api/latest/test',
         ],
-        'https://my.monitoring:4443'
+        'https://my.monitoring:4443',
     ],
     [
         [
@@ -101,7 +102,7 @@ it(
             '',
             '/api/latest/test',
         ],
-        'https://test'
+        'https://test',
     ],
     [
         [
@@ -110,6 +111,6 @@ it(
             '',
             '/monitoring/centreon/authentication/logout',
         ],
-        'http://192.168.0.1/monitoring/centreon'
+        'http://192.168.0.1/monitoring/centreon',
     ],
 ]);

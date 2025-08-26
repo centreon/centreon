@@ -4,6 +4,7 @@ import { SvgIconProps, TypographyProps } from '@mui/material';
 
 import { SelectEntry } from '../../InputField/Select';
 import { ConditionsSearchParameter } from '../../api/buildListingEndpoint/models';
+import { QueryParameter } from '../../queryParameters/models';
 
 export enum InputType {
   Switch = 0,
@@ -20,7 +21,8 @@ export enum InputType {
   Checkbox = 11,
   CheckboxGroup = 12,
   List = 13,
-  File = 14
+  File = 14,
+  Divider = 15
 }
 
 interface FieldsTableGetRequiredProps {
@@ -55,12 +57,14 @@ export interface InputProps {
   };
   connectedAutocomplete?: {
     additionalConditionParameters: Array<ConditionsSearchParameter>;
+    customQueryParameters: Array<QueryParameter>;
     chipColor?: string;
     endpoint?: string;
     filterKey?: string;
     getRenderedOptionText?: (option) => string | JSX.Element;
     disableSelectAll?: boolean;
     limitTags?: number;
+    decoder?;
   };
   file?: {
     multiple?: boolean;

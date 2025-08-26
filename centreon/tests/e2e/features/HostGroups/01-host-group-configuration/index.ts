@@ -1,6 +1,8 @@
-/* eslint-disable cypress/unsafe-to-chain-command */
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
-import { checkHostsAreMonitored, checkServicesAreMonitored } from 'e2e/commons';
+import {
+  checkHostsAreMonitored,
+  checkServicesAreMonitored
+} from '../../../commons';
 
 import hostGroups from '../../../fixtures/host-groups/host-group.json';
 
@@ -116,7 +118,7 @@ When('a host group is configured', () => {
         .getByLabel({ label: 'Up status hosts', tag: 'a' })
         .invoke('text')
         .then((text) => {
-          if (text != '2') {
+          if (text !== '2') {
             cy.exportConfig();
           }
 
@@ -136,7 +138,7 @@ When('the user changes some properties of the configured host group', () => {
   cy.wait('@getGroups');
   cy.contains('p', hostGroups.default.name).eq(0).click();
   cy.wait('@getGroupDetails');
-  cy.contains('p', 'Modify a host group').should('be.visible');
+  cy.contains('Modify a host group').should('be.visible');
   // Update Name field
   cy.getByTestId({ testId: 'Name' })
     .eq(1)
@@ -152,12 +154,13 @@ When('the user changes some properties of the configured host group', () => {
   cy.wait('@getHosts');
   cy.contains('Centreon-Server').click();
   // Update geo coordinates for MAP
+  cy.contains('Modify a host group').click();
   cy.getByTestId({ testId: 'Geographic coordinates for MAP' })
     .eq(1)
     .clear()
     .type(hostGroups.forTest.geo_coords);
   // Update icon
-  cy.getByTestId({ testId: 'ArrowDropDownIcon' }).eq(2).click();
+  cy.getByLabel({ label: 'Open' }).eq(1).click();
   cy.wait('@getIcons');
   cy.contains('p', 'centreon').click();
   // Update Comment field
@@ -184,9 +187,10 @@ Then('these properties are updated', () => {
   // check values of hosts members
   cy.contains('span', 'host2').should('be.visible');
   cy.contains('span', 'Centreon-Server').should('be.visible');
+  cy.contains('Modify a host group').click();
   cy.getByTestId({ testId: 'Geographic coordinates for MAP' })
     .eq(1)
-    .should('have.value', hostGroups.forTest.geo_coords);
+    .should('have.value', hostGroups.forTest.geo_coords_after_truncate);
   // Check value of the icon
   cy.get('img[alt="logo-centreon-colors.png"]').should('be.visible');
   cy.getByTestId({ testId: 'Comments' })
@@ -195,14 +199,22 @@ Then('these properties are updated', () => {
 });
 
 When('the user duplicates the configured host group', () => {
-  cy.updateHostGroupViaApi(hostGroups.forDuplicate, hostGroups.default.name);
+  cy.updateHostGroupViaApi(
+    {
+      ...hostGroups.forDuplicate,
+      iconId: hostGroups.forDuplicate.icon_id,
+      geoCoords: hostGroups.forDuplicate.geo_coords,
+      isActivated: hostGroups.forDuplicate.is_activated
+    },
+    hostGroups.default.name
+  );
   cy.navigateTo({
     page: 'Host Groups',
     rootItemNumber: 3,
     subMenu: 'Hosts'
   });
   cy.wait('@getGroups');
-  cy.getByTestId({ testId: 'ContentCopyOutlinedIcon' }).eq(1).click();
+  cy.getByLabel({ label: 'Duplicate' }).eq(1).click();
   cy.get('[type="submit"][aria-label="Duplicate"]').click();
   cy.wait('@getGroups');
 });
@@ -218,9 +230,10 @@ Then('a new host group is created with identical properties', () => {
     .should('have.value', hostGroups.forDuplicate.alias);
   // check values of hosts members
   cy.contains('span', 'host2').should('be.visible');
+  cy.contains('Modify a host group').click();
   cy.getByTestId({ testId: 'Geographic coordinates for MAP' })
     .eq(1)
-    .should('have.value', hostGroups.forDuplicate.geo_coords);
+    .should('have.value', hostGroups.forDuplicate.geo_coords_after_truncate);
   // Check value of the icon
   cy.get('img[alt="logo-centreon-colors.png"]').should('be.visible');
   cy.getByTestId({ testId: 'Comments' })
@@ -235,7 +248,7 @@ When('the user deletes the configured host group', () => {
     subMenu: 'Hosts'
   });
   cy.wait('@getGroups');
-  cy.getByTestId({ testId: 'DeleteOutlineIcon' }).eq(1).click();
+  cy.getByLabel({ label: 'Delete' }).eq(1).click();
   cy.get('[type="submit"][aria-label="Delete"]').click();
   cy.wait('@getGroups');
   cy.exportConfig();

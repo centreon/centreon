@@ -1,33 +1,19 @@
 <?php
-/**
- * Copyright 2005-2015 Centreon
- * Centreon is developped by : Julien Mathis and Romain Le Merlus under
- * GPL Licence 2.0.
+
+/*
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation ; either version 2 of the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <http://www.gnu.org/licenses>.
- *
- * Linking this program statically or dynamically with other modules is making a
- * combined work based on this program. Thus, the terms and conditions of the GNU
- * General Public License cover the whole combination.
- *
- * As a special exception, the copyright holders of this program give Centreon
- * permission to link this program with independent modules to produce an executable,
- * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of Centreon choice, provided that
- * Centreon also meet, for each linked independent module, the terms  and conditions
- * of the license of that module. An independent module is a module which is not
- * derived from this program. If you modify this program, you may extend this
- * exception to your version of the program, but you are not obliged to do so. If you
- * do not wish to do so, delete this exception statement from your version.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * For more information : contact@centreon.com
  *
@@ -56,8 +42,8 @@ class CentreonMeta
     /**
      * Return host id
      *
-     * @return int
      * @throws PDOException
+     * @return int
      */
     public function getRealHostId()
     {
@@ -95,8 +81,8 @@ class CentreonMeta
      *
      * @param int $metaId
      *
-     * @return int
      * @throws PDOException
+     * @return int
      */
     public function getRealServiceId($metaId)
     {
@@ -115,6 +101,7 @@ class CentreonMeta
                 $services[$metaId] = $row['service_id'];
             }
         }
+
         return $services[$metaId] ?? 0;
     }
 
@@ -123,8 +110,8 @@ class CentreonMeta
      *
      * @param string $serviceDisplayName
      *
-     * @return int
      * @throws PDOException
+     * @return int
      */
     public function getMetaIdFromServiceDisplayName($serviceDisplayName)
     {
@@ -194,27 +181,27 @@ class CentreonMeta
      * @param array $values
      * @param array $options
      *
-     * @return array
      * @throws PDOException
+     * @return array
      */
     public function getObjectForSelect2($values = [], $options = [])
     {
         $items = [];
         $listValues = '';
         $queryValues = [];
-        if (!empty($values)) {
+        if (! empty($values)) {
             foreach ($values as $k => $v) {
                 $listValues .= ':meta' . $v . ',';
-                $queryValues['meta' . $v] = (int)$v;
+                $queryValues['meta' . $v] = (int) $v;
             }
             $listValues = rtrim($listValues, ',');
         } else {
             $listValues .= '""';
         }
 
-        # get list of selected meta
-        $query = 'SELECT meta_id, meta_name FROM meta_service ' .
-            'WHERE meta_id IN (' . $listValues . ') ORDER BY meta_name ';
+        // get list of selected meta
+        $query = 'SELECT meta_id, meta_name FROM meta_service '
+            . 'WHERE meta_id IN (' . $listValues . ') ORDER BY meta_name ';
         $stmt = $this->db->prepare($query);
         if ($queryValues !== []) {
             foreach ($queryValues as $key => $id) {
@@ -226,9 +213,9 @@ class CentreonMeta
         while ($row = $stmt->fetch()) {
             $items[] = ['id' => $row['meta_id'], 'text' => $row['meta_name']];
         }
+
         return $items;
     }
-
 
     /**
      * Get the list of all meta-service
@@ -237,9 +224,9 @@ class CentreonMeta
      */
     public function getList()
     {
-        $queryList = "SELECT `meta_id`, `meta_name`
+        $queryList = 'SELECT `meta_id`, `meta_name`
  	    	FROM `meta_service`
- 	    	ORDER BY `meta_name`";
+ 	    	ORDER BY `meta_name`';
 
         try {
             $res = $this->db->query($queryList);
@@ -250,6 +237,7 @@ class CentreonMeta
         while ($row = $res->fetchRow()) {
             $listMeta[$row['meta_id']] = $row['meta_name'];
         }
+
         return $listMeta;
     }
 
@@ -259,24 +247,24 @@ class CentreonMeta
      * @param int $id
      * @param array $parameters
      *
-     * @return array
      * @throws PDOException
+     * @return array
      */
     public function getParameters($id, $parameters = [])
     {
-        $sElement = "*";
+        $sElement = '*';
         $values = [];
         if (empty($id) || empty($parameters)) {
             return [];
         }
 
         if (count($parameters) > 0) {
-            $sElement = implode(",", $parameters);
+            $sElement = implode(',', $parameters);
         }
 
-        $query = "SELECT " . $sElement . " "
-            . "FROM meta_service "
-            . "WHERE meta_id = " . $this->db->escape($id) . " ";
+        $query = 'SELECT ' . $sElement . ' '
+            . 'FROM meta_service '
+            . 'WHERE meta_id = ' . $this->db->escape($id) . ' ';
 
         $res = $this->db->query($query);
 
@@ -293,8 +281,8 @@ class CentreonMeta
      * @param int $metaId
      * @param string $metaName
      *
-     * @return int
      * @throws PDOException
+     * @return int
      */
     public function insertVirtualService($metaId, $metaName)
     {
@@ -303,8 +291,8 @@ class CentreonMeta
 
         $composedName = 'meta_' . $metaId;
 
-        $queryService = 'SELECT service_id, display_name FROM service ' .
-            'WHERE service_register = "2" AND service_description = "' . $composedName . '" ';
+        $queryService = 'SELECT service_id, display_name FROM service '
+            . 'WHERE service_register = "2" AND service_description = "' . $composedName . '" ';
         $res = $this->db->query($queryService);
         if ($res->rowCount()) {
             $row = $res->fetchRow();

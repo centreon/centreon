@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2020 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,6 +18,7 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Centreon\Infrastructure\ActionLog;
@@ -32,9 +33,7 @@ use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
 
 class ActionLogRepositoryRDB extends AbstractRepositoryDRB implements ActionLogRepositoryInterface
 {
-    /**
-     * @var SqlRequestParametersTranslator
-     */
+    /** @var SqlRequestParametersTranslator */
     private $sqlRequestTranslator;
 
     /**
@@ -73,6 +72,7 @@ class ActionLogRepositoryRDB extends AbstractRepositoryDRB implements ActionLogR
         $statement->bindValue(':action_type', $actionLog->getActionType(), \PDO::PARAM_STR);
         $statement->bindValue(':contact_id', $actionLog->getContactId(), \PDO::PARAM_INT);
         $statement->execute();
+
         return (int) $this->db->lastInsertId();
     }
 
@@ -89,7 +89,7 @@ class ActionLogRepositoryRDB extends AbstractRepositoryDRB implements ActionLogR
         }
         // We avoid to start again a database transaction
         $isAlreadyInTransaction = $this->db->inTransaction();
-        if (!$isAlreadyInTransaction) {
+        if (! $isAlreadyInTransaction) {
             $this->db->beginTransaction();
         }
         try {
@@ -106,13 +106,14 @@ class ActionLogRepositoryRDB extends AbstractRepositoryDRB implements ActionLogR
                 $statement->bindValue(':action_log_id', $actionLog->getId(), \PDO::PARAM_INT);
                 $statement->execute();
             }
-            if (!$isAlreadyInTransaction) {
+            if (! $isAlreadyInTransaction) {
                 $this->db->commit();
             }
         } catch (\Exception $ex) {
-            if (!$isAlreadyInTransaction) {
+            if (! $isAlreadyInTransaction) {
                 $this->db->rollBack();
             }
+
             throw $ex;
         }
     }

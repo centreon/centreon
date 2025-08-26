@@ -88,12 +88,13 @@ Given('Authentication tokens with predefined details are created', () => {
       const duration = durationMap[token.duration];
       expirationDate.setDate(today.getDate() + duration);
       // Get the ISO string without milliseconds
-      const expirationDateISOString =
-        expirationDate.toISOString().split('.')[0] + 'Z';
+      const expirationDateIsoString = `${expirationDate.toISOString().split('.')[0]}Z`;
 
       const payload = {
-        expiration_date: expirationDateISOString,
+        // biome-ignore lint/style/useNamingConvention: <explanation>
+        expiration_date: expirationDateIsoString,
         name: token.name,
+        // biome-ignore lint/style/useNamingConvention: <explanation>
         user_id: token.userId,
         type: 'api'
       };
@@ -120,12 +121,12 @@ Given('I am on the Authentication tokens page', () => {
 });
 
 When('I filter tokens by {string} and click on Search', (filterBy: string) => {
-  cy.getByTestId({ testId: 'TuneIcon' }).click();
+  cy.getByTestId({ testId: 'Filters' }).click();
   if (filterBy === 'Name') {
     cy.getByTestId({ tag: 'input', testId: 'Name' }).type(tokensToSearch.name);
     cy.getByTestId({ testId: 'Search' }).click();
     cy.wait('@getTokens');
-    cy.getByTestId({ testId: 'TuneIcon' }).click();
+    cy.getByTestId({ testId: 'Filters' }).click();
     return;
   }
 
@@ -159,7 +160,7 @@ When('I filter tokens by {string} and click on Search', (filterBy: string) => {
   }
   cy.getByTestId({ testId: 'Search' }).click();
   cy.wait('@getTokens');
-  cy.getByTestId({ testId: 'TuneIcon' }).click();
+  cy.getByTestId({ testId: 'Filters' }).click();
 });
 
 Then(

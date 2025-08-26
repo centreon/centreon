@@ -3,7 +3,9 @@ import { useTranslation } from 'react-i18next';
 import { Form } from '@centreon/ui';
 import { FormActions } from '@centreon/ui/components';
 
+import { useFormikContext } from 'formik';
 import { useAtomValue } from 'jotai';
+import { equals, isNil } from 'ramda';
 import { tokenAtom } from '../../atoms';
 import {
   labelCancel,
@@ -19,6 +21,7 @@ const Actions =
   ({ close, token }) =>
   (): JSX.Element => {
     const { t } = useTranslation();
+    const { values } = useFormikContext();
 
     const actionsLabels = {
       cancel: t(labelCancel),
@@ -27,12 +30,16 @@ const Actions =
       }
     };
 
+    const disableSubmit =
+      equals(values?.duration.id, 'customize') && isNil(values?.customizeDate);
+
     return (
       <FormActions
         labels={actionsLabels}
         variant={'create'}
         onCancel={close}
         isCancelButtonVisible={!token}
+        disableSubmit={disableSubmit}
       />
     );
   };

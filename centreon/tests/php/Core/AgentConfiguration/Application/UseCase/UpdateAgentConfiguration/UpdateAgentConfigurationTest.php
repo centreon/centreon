@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -58,6 +58,7 @@ beforeEach(function (): void {
         validator: $this->validator = $this->createMock(Validator::class),
         repositoryManager: $this->dataStorageEngine = $this->createMock(RepositoryManagerInterface::class),
         user: $this->user = $this->createMock(ContactInterface::class),
+        isCloudPlatform: false,
     );
 
     $this->request = new UpdateAgentConfigurationRequest();

@@ -16,29 +16,62 @@ on:
       - ".version"
       - ".version.centreon-open-tickets"
       - "centreon-open-tickets/**"
-      - "!centreon-open-tickets/veracode.json"
-      - "!centreon-open-tickets/.veracode-exclusions"
   push:
     branches:
       - develop
       - dev-[2-9][0-9].[0-9][0-9].x
       - master
       - "[2-9][0-9].[0-9][0-9].x"
+      - "release-[2-9][0-9].[0-9][0-9]-next"
+      - "hotfix-[2-9][0-9].[0-9][0-9]-next"
     paths:
       - ".version"
       - ".version.centreon-open-tickets"
       - "centreon-open-tickets/**"
-      - "!centreon-open-tickets/veracode.json"
-      - "!centreon-open-tickets/.veracode-exclusions"
+    tags:
+      - "centreon-open-tickets-*"
 
 env:
   module: open-tickets
+  e2e_directory: centreon-open-tickets/tests/e2e
 
 jobs:
   get-environment:
     uses: ./.github/workflows/get-environment.yml
     with:
       version_file: centreon-open-tickets/www/modules/centreon-open-tickets/conf.php
+
+  check-version-consistency:
+    runs-on: ubuntu-24.04
+    needs: [get-environment]
+    if: |
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      needs.get-environment.outputs.stability == 'testing'
+    env:
+      version: ${{ needs.get-environment.outputs.major_version }}.${{ needs.get-environment.outputs.minor_version }}
+      version_file: .version.centreon-open-tickets
+      configuration_file: centreon-open-tickets/www/modules/centreon-open-tickets/conf.php
+      widget_file: centreon-open-tickets/widgets/open-tickets/configs.xml
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Check ${{ env.version_file }}
+        uses: ./.github/actions/check-version-consistency
+        with:
+          file: ${{ env.version_file }}
+          version: ${{ env.version }}
+
+      - name: Check ${{ env.configuration_file }}
+        uses: ./.github/actions/check-version-consistency
+        with:
+          file: ${{ env.configuration_file }}
+          version: ${{ env.version }}
+
+      - name: Check ${{ env.widget_file }}
+        uses: ./.github/actions/check-version-consistency
+        with:
+          file: ${{ env.widget_file }}
+          version: ${{ env.version }}
 
   backend-lint:
     runs-on: ubuntu-24.04
@@ -51,25 +84,127 @@ jobs:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Setup PHP
-        uses: shivammathur/setup-php@c541c155eee45413f5b09a52248675b1a2575231 # v2.31.1
+        uses: shivammathur/setup-php@0f7f1d08e3e32076e51cae65eb0b0c871405b16e # v2.34.1
         with:
           php-version: 8.2
           coverage: none
         env:
           runner: ubuntu-24.04
 
-      - name: Install Dependencies
-        run: composer install --optimize-autoloader
+      - name: Install dependencies for PHP quality tools
+        run: composer install --optimize-autoloader --prefer-dist --no-interaction --no-progress --quiet --no-scripts
+        working-directory: php-tools
+        shell: bash
+
+      - name: Install dependencies for centreon-open-tickets
+        run: composer install --optimize-autoloader --prefer-dist --no-interaction --no-progress --quiet --no-scripts
         working-directory: centreon-open-tickets
         shell: bash
 
-      - name: Run of phpstan on /www at level 2
-        run: vendor/bin/phpstan analyse --no-progress --level=2 --configuration=phpstan.neon
+      - name: 🛠️ Rector checks
         working-directory: centreon-open-tickets
+        run: |
+          echo "Run of these Rector tests: rector:legacy" && set -e
 
-      - name: Run of phpstan on /src at level max
-        run: vendor/bin/phpstan analyse --no-progress --level=9 --configuration=phpstan.core.neon
+          pids=()
+          statuses=()
+
+          run_task() {
+            name=$1
+            shift
+            "$@" -- --no-progress-bar
+            result=$?
+            if [ $result -eq 0 ]; then
+              echo "✅ Rector $name: Success"
+            else
+              echo "❌ Rector $name: Failed"
+            fi
+            return $result
+          }
+
+          # Start tasks in background
+          run_task legacy composer rector:legacy & pids+=($!)
+
+          # Wait for all, and record if any failed
+          exit_code=0
+          for pid in "${pids[@]}"; do
+            if ! wait "$pid"; then
+              exit_code=1
+            fi
+          done
+
+          exit $exit_code
+
+      - name: 🧹 PHP-CS-Fixer checks
         working-directory: centreon-open-tickets
+        run: |
+          echo "Run of these PHP-CS-Fixer tests: cs:legacy:www, cs:legacy:src" && set -e
+
+          pids=()
+          statuses=()
+
+          run_task() {
+            name=$1
+            shift
+            "$@" -- --format=txt --show-progress=none
+            result=$?
+            if [ $result -eq 0 ]; then
+              echo "✅ PHP-CS-Fixer $name: Success"
+            else
+              echo "❌ PHP-CS-Fixer $name: Failed"
+            fi
+            return $result
+          }
+
+          # Start tasks in background
+          run_task legacy:www composer cs:legacy:www & pids+=($!)
+          run_task legacy:src composer cs:legacy:src & pids+=($!)
+
+          # Wait for all, and record if any failed
+          exit_code=0
+          for pid in "${pids[@]}"; do
+            if ! wait "$pid"; then
+              exit_code=1
+            fi
+          done
+
+          exit $exit_code
+
+      - name: 🔍 PHPStan checks
+        working-directory: centreon-open-tickets
+        run: |
+          echo "Run of these PHPStan tests: stan:legacy:www, stan:legacy:src, stan:legacy:test" && set -e
+
+          pids=()
+          statuses=()
+
+          run_task() {
+            name=$1
+            shift
+            "$@" -- --no-progress
+            result=$?
+            if [ $result -eq 0 ]; then
+              echo "✅ PHPStan $name: Success"
+            else
+              echo "❌ PHPStan $name: Failed"
+            fi
+            return $result
+          }
+
+          # Start tasks in background
+          run_task legacy:www composer stan:legacy:www & pids+=($!)
+          run_task legacy:src composer stan:legacy:src & pids+=($!)
+          run_task legacy:test composer stan:legacy:test & pids+=($!)
+
+          # Wait for all, and record if any failed
+          exit_code=0
+          for pid in "${pids[@]}"; do
+            if ! wait "$pid"; then
+              exit_code=1
+            fi
+          done
+
+          exit $exit_code
 
   backend-unit-test:
     runs-on: ubuntu-24.04
@@ -82,7 +217,7 @@ jobs:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Setup PHP
-        uses: shivammathur/setup-php@c541c155eee45413f5b09a52248675b1a2575231 # v2.31.1
+        uses: shivammathur/setup-php@0f7f1d08e3e32076e51cae65eb0b0c871405b16e # v2.34.1
         with:
           php-version: 8.2
           coverage: none
@@ -90,7 +225,7 @@ jobs:
           runner: ubuntu-24.04
 
       - name: Install dependencies
-        uses: ramsey/composer-install@a2636af0004d1c0499ffca16ac0b4cc94df70565 # v3.1.0
+        uses: ramsey/composer-install@3cf229dc2919194e9e36783941438d17239e8520 # v3.1.1
         with:
           working-directory: centreon-open-tickets
           composer-options: "--optimize-autoloader"
@@ -105,16 +240,51 @@ jobs:
           path: "centreon/build/phpunit.xml"
           format: "php-junit"
 
+  gherkin-lint:
+    needs: [get-environment]
+    if: |
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      needs.get-environment.outputs.stability != 'stable'
+    runs-on: centreon-ubuntu-22.04
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - uses: ./.github/actions/gherkin-lint
+        with:
+          features_path: ${{ env.e2e_directory }}
+
+  e2e-lint:
+    needs: [get-environment]
+    if: |
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      needs.get-environment.outputs.stability != 'stable'
+    runs-on: centreon-ubuntu-22.04
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - uses: ./.github/actions/frontend-lint
+        with:
+          frontend_directory: ${{ env.e2e_directory }}
+          module_name: ${{ env.module }}
+          dependencies_lock_file: ${{ env.e2e_directory }}/pnpm-lock.yaml
+          pat: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+
   package:
     needs:
       [
         get-environment,
+        check-version-consistency,
         backend-lint,
-        backend-unit-test
+        backend-unit-test,
+        gherkin-lint,
+        e2e-lint,
       ]
     if: |
       needs.get-environment.outputs.skip_workflow == 'false' &&
-      needs.get-environment.outputs.stability != 'stable'
+      needs.get-environment.outputs.stability != 'stable' &&
+      ! cancelled() &&
+      ! contains(needs.*.result, 'failure') &&
+      ! contains(needs.*.result, 'cancelled')
 
     strategy:
       fail-fast: false
@@ -260,10 +430,10 @@ jobs:
           mv *.${{ steps.matrix_include.outputs.package_extension }} packages-centreon/
         shell: bash
 
-      - uses: docker/setup-buildx-action@b5ca514318bd6ebac0fb2aedd5d36ec1b5c232a2 # v3.10.0
+      - uses: docker/setup-buildx-action@e468171a9de216ec08956ac3ada2f0791b6bd435 # v3.11.1
 
       - name: Build and push web image
-        uses: docker/build-push-action@471d1dc4e07e5cdedd4c2171150001c434f0b7a4 # v6.15.0
+        uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 # v6.18.0
         env:
           DOCKER_BUILD_CHECKS_ANNOTATIONS: false
           DOCKER_BUILD_SUMMARY: false
@@ -285,7 +455,10 @@ jobs:
       needs.get-environment.outputs.skip_workflow == 'false' &&
       contains(fromJson('["stable"]'), needs.get-environment.outputs.stability) &&
       github.event_name != 'workflow_dispatch' &&
-      github.repository == 'centreon/centreon'
+      github.repository == 'centreon/centreon' &&
+      ! cancelled() &&
+      ! contains(needs.*.result, 'failure') &&
+      ! contains(needs.*.result, 'cancelled')
 
     steps:
       - name: Checkout sources
@@ -327,7 +500,8 @@ jobs:
       xray_jira_token: ${{ secrets.XRAY_JIRA_TOKEN }}
 
   e2e-test:
-    needs: [get-environment, create-xray-test-plan-and-test-execution, dockerize]
+    needs:
+      [get-environment, create-xray-test-plan-and-test-execution, dockerize]
     if: |
       needs.get-environment.outputs.skip_workflow == 'false' &&
       ! cancelled() &&
@@ -380,7 +554,6 @@ jobs:
       ! contains(needs.*.result, 'cancelled') &&
       github.repository == 'centreon/centreon'
     runs-on: centreon-common
-
     strategy:
       matrix:
         distrib: [el8, el9]
@@ -400,6 +573,8 @@ jobs:
           stability: ${{ needs.get-environment.outputs.stability }}
           release_type: ${{ needs.get-environment.outputs.release_type }}
           is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
+          delivery_type: ${{ needs.get-environment.outputs.delivery_type }}
+          centreon_technique_pat: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
 
   deliver-deb:
     needs: [get-environment, package]
@@ -412,7 +587,6 @@ jobs:
       github.repository == 'centreon/centreon' &&
       (needs.get-environment.outputs.is_cloud == 'false' || needs.get-environment.outputs.stability == 'unstable')
     runs-on: centreon-common
-
     strategy:
       matrix:
         distrib: [bookworm]

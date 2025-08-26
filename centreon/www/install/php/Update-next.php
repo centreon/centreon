@@ -1,7 +1,5 @@
 <?php
 
-use Adaptation\Database\Connection\Collection\QueryParameters;
-use Adaptation\Database\Connection\ValueObject\QueryParameter;
 /*
  * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
@@ -9,7 +7,7 @@ use Adaptation\Database\Connection\ValueObject\QueryParameter;
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -21,6 +19,11 @@ use Adaptation\Database\Connection\ValueObject\QueryParameter;
  *
  */
 
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
+use Core\Common\Domain\TrimmedString;
+use Core\Security\Token\Domain\Model\NewJwtToken;
+
 require_once __DIR__ . '/../../../bootstrap.php';
 
 /**
@@ -30,235 +33,292 @@ require_once __DIR__ . '/../../../bootstrap.php';
 $version = 'xx.xx.x';
 $errorMessage = '';
 
-// -------------------------------------------- Host Group Configuration -------------------------------------------- //
-
 /**
- * Update topology for host group configuration pages.
- *
- * @param CentreonDB $pearDB
- *
- * @throws CentreonDbException
+ * Add column `show_deprecated_custom_views` to contact table.
+ * @var CentreonDB $pearDB
  */
-$updateTopologyForHostGroup = function (CentreonDB $pearDB) use (&$errorMessage): void {
-    $errorMessage = 'Unable to retrieve data from topology table';
-    $statement = $pearDB->executeQuery(
-        <<<'SQL'
-            SELECT 1 FROM `topology`
-            WHERE `topology_name` = 'Host Groups'
-                AND `topology_page` = 60105
-        SQL
-    );
-    $topologyAlreadyExists = (bool) $statement->fetch(\PDO::FETCH_COLUMN);
-
-    if (! $topologyAlreadyExists) {
-        $errorMessage = 'Unable to insert new host group configuration topology';
-        $pearDB->executeQuery(
+$addDeprecateCustomViewsToContact =  function () use (&$errorMessage, &$pearDB): void {
+    $errorMessage = 'Unable to add column show_deprecated_custom_views to contact table';
+    if (! $pearDB->isColumnExist('contact', 'show_deprecated_custom_views')) {
+        $pearDB->executeStatement(
             <<<'SQL'
-                INSERT INTO `topology` (`topology_name`,`topology_url`,`readonly`,`is_react`,`topology_parent`,`topology_page`,`topology_order`,`topology_group`,`topology_show`)
-                VALUES ('Host Groups', '/configuration/hosts/groups', '1', '1', 601, 60105,21,1,'1')
-            SQL
+                ALTER TABLE contact ADD COLUMN show_deprecated_custom_views ENUM('0','1') DEFAULT '0'
+                SQL
         );
-    }
-
-    $errorMessage = 'Unable to update old host group configuration topology';
-    $pearDB->executeQuery(
-        <<<'SQL'
-            UPDATE `topology`
-            SET `is_react` = '1',
-                `topology_url` = '/configuration/hosts/groups',
-            WHERE `topology_name` = 'Host Groups'
-                AND `topology_page` = 60102
-        SQL
-    );
-};
-
-$updateSamlProviderConfiguration = function (CentreonDB $pearDB) use (&$errorMessage): void {
-    $errorMessage = 'Unable to retrieve SAML provider configuration';
-    $samlConfiguration = $pearDB->fetchAssociative(
-        <<<'SQL'
-            SELECT * FROM `provider_configuration`
-            WHERE `type` = 'saml'
-            SQL
-    );
-
-    if (! $samlConfiguration || ! isset($samlConfiguration['custom_configuration'])) {
-        throw new \Exception('SAML configuration is missing');
-    }
-
-    $customConfiguration = json_decode($samlConfiguration['custom_configuration'], true, JSON_THROW_ON_ERROR);
-
-    if (!isset($customConfiguration['requested_authn_context'])) {
-        $customConfiguration['requested_authn_context'] = 'minimum';
-        $query = <<<'SQL'
-                UPDATE `provider_configuration`
-                SET `custom_configuration` = :custom_configuration
-                WHERE `type` = 'saml'
-            SQL;
-        $queryParameters = QueryParameters::create(
-            [
-                QueryParameter::string(
-                    'custom_configuration',
-                    json_encode($customConfiguration, JSON_THROW_ON_ERROR)
-                )
-            ]
-        );
-
-        $pearDB->update($query, $queryParameters);
     }
 };
 
-// -------------------------------------------- Agent Configuration -------------------------------------------- //
 /**
- * Add prefix "/etc/pki/" and extensions (.crt, .key) to certificate and key paths in agent_configuration table.
- *
- * @param CentreonDB $pearDB
- *
- * @throws CentreonDbException
- *
- * @return void
+ * Switch Topology Order between Dashboards and Custom Views.
  */
-$updateAgentConfiguration = function (CentreonDB $pearDB) use (&$errorMessage): void {
-    $errorMessage = 'Unable to retrieve data from agent_configuration table';
-    $statement = $pearDB->executeQuery(
+$updateDashboardAndCustomViewsTopology = function () use (&$errorMessage, &$pearDB): void {
+    $errorMessage = 'Unable to update topology of Custom Views';
+    $pearDB->update(
         <<<'SQL'
-            SELECT `id`, `configuration` FROM `agent_configuration`
-        SQL
+            UPDATE topology SET topology_order = 2, is_deprecated ="1" WHERE topology_name = "Custom Views"
+            SQL
     );
-
-    $errorMessage = 'Unable to update agent_configuration table';
-    $updates = [];
-    while ($row = $statement->fetch(\PDO::FETCH_ASSOC)) {
-        $config = json_decode($row['configuration'], true);
-        if (! is_array($config)) {
-            continue;
-        }
-
-        foreach ($config as $key => $value) {
-            if (str_ends_with($key, '_certificate') && is_string($value)) {
-                $filename = str_starts_with($value, '/etc/pki/') ? substr($value, 9) : ltrim($value, '/');
-                $filename = preg_replace('/(\.crt|\.cer)$/', '', $filename);
-                $config[$key] = '/etc/pki/' . ltrim($filename, '/') . '.crt';
-            } elseif (str_ends_with($key, '_key') && is_string($value)) {
-                $filename = str_starts_with($value, '/etc/pki/') ? substr($value, 9) : ltrim($value, '/');
-                $filename = preg_replace('/\.key$/', '', $filename);
-                $config[$key] = '/etc/pki/' . ltrim($filename, '/') . '.key';
-            }
-
-            if ($key === 'hosts') {
-                foreach ($value as $index => $host) {
-                    if (! is_array($host)) {
-                        continue;
-                    }
-
-                    if (isset($host['poller_ca_certificate']) && is_string($host['poller_ca_certificate'])) {
-                        $config[$key][$index]['poller_ca_certificate'] = '/etc/pki/' . ltrim($host['poller_ca_certificate'], '/') . '.crt';
-                    }
-                }
-            }
-        }
-
-        $updatedConfig = json_encode($config);
-        $updates[] = [
-            'id' => $row['id'],
-            'configuration' => $updatedConfig
-        ];
-    }
-
-    if (! empty($updates)) {
-        $query = 'UPDATE `agent_configuration` SET `configuration` = CASE `id` ';
-        $params = [];
-        $whereParams = [];
-
-        foreach ($updates as $index => $update) {
-            $idParam = ":case_id{$index}";
-            $configParam = ":case_config{$index}";
-            $query .= "WHEN {$idParam} THEN {$configParam} ";
-            $params[$idParam] = $update['id'];
-            $params[$configParam] = $update['configuration'];
-
-            $whereParams[] = ":where_id{$index}";
-            $params[":where_id{$index}"] = $update['id'];
-        }
-
-        $query .= 'END WHERE `id` IN (' . implode(', ', $whereParams) . ')';
-
-        $statement = $pearDB->prepareQuery($query);
-        $pearDB->executePreparedQuery($statement, $params);
-    }
+    $errorMessage = 'Unable to update topology of Dashboards';
+    $pearDB->update(
+        <<<'SQL'
+            UPDATE topology SET topology_order = 1 WHERE topology_name = "Dashboards"
+            SQL
+    );
 };
 
 /**
-  * Add Column connection_mode to agent_configuration table.
-  * This Column is used to define the connection mode of the agent between ("no-tls","tls","secure","insecure").
-  *
-  * @param CentreonDB $pearDB
-  *
-  * @throws CentreonDbException
-  */
-  $addConnectionModeColumnToAgentConfiguration = function () use ($pearDB, &$errorMessage): void {
-    $errorMessage = 'Unable to add connection_mode column to agent_configuration table';
+ * Set Show Deprecated Custom Views to true by default is there is existing custom views.
+ */
+$updateContactsShowDeprecatedCustomViews = function () use (&$errorMessage, &$pearDB): void {
+    $errorMessage = 'Unable to retrieve custom views';
+    $configuredCustomViews = $pearDB->fetchFirstColumn(
+        <<<'SQL'
+            SELECT 1 FROM custom_views LIMIT 1
+            SQL
+    );
+
+    if (true === (bool) $configuredCustomViews) {
+        $pearDB->update(
+            <<<'SQL'
+                UPDATE contact SET show_deprecated_custom_views = '1'
+                SQL
+        );
+    }
+};
+
+$updateCfgParameters = function () use ($pearDB, &$errorMessage): void {
+    $errorMessage = 'Unable to update cfg_nagios table';
+
+    $pearDB->update(
+        <<<'SQL'
+                UPDATE cfg_nagios
+                SET enable_flap_detection = '1',
+                    host_down_disable_service_checks = '1'
+                WHERE enable_flap_detection != '1'
+                   OR host_down_disable_service_checks != '1'
+            SQL
+    );
+};
+
+/** -------------------------------------------- BBDO cfg update -------------------------------------------- */
+$bbdoDefaultUpdate = function () use ($pearDB, &$errorMessage): void {
+    if ($pearDB->isColumnExist('cfg_centreonbroker', 'bbdo_version') !== 1) {
+        $errorMessage = "Unable to update 'bbdo_version' column to 'cfg_centreonbroker' table";
+        $pearDB->executeStatement('ALTER TABLE `cfg_centreonbroker` MODIFY `bbdo_version` VARCHAR(50) DEFAULT "3.1.0"');
+    }
+};
+
+$bbdoCfgUpdate = function () use ($pearDB, &$errorMessage): void {
+    $errorMessage = "Unable to update 'bbdo_version' version in 'cfg_centreonbroker' table";
+    $pearDB->update('UPDATE `cfg_centreonbroker` SET `bbdo_version` = "3.1.0"');
+};
+
+$addResourceStatusSearchModeOption = function () use ($pearDB, &$errorMessage): void {
+    $errorMessage = "Unable to retrieve 'resource_status_search_mode' option from options table";
+    $optionExists = $pearDB->fetchFirstColumn("SELECT 1 FROM options WHERE `key` = 'resource_status_search_mode'");
+
+    $errorMessage = "Unable to insert option 'resource_status_search_mode' option into table options";
+    if (false === (bool) $optionExists) {
+        $pearDB->insert("INSERT INTO `options` (`key`, `value`) VALUES ('resource_status_search_mode', 1)");
+    }
+};
+
+/** ------------------------------------------ Services as contacts ------------------------------------------ */
+$addServiceFlagToContacts = function () use ($pearDB, &$errorMessage): void {
+    $errorMessage = 'Unable to update contact table';
+    if (! $pearDB->isColumnExist('contact', 'is_service_account')) {
+        $pearDB->executeStatement(
+            <<<'SQL'
+                ALTER TABLE `contact`
+                    ADD COLUMN `is_service_account` boolean DEFAULT 0 COMMENT 'Indicates if the contact is a service account (ex: centreon-gorgone)'
+                SQL
+        );
+    }
+};
+
+// @var mixed $pearDB
+$flagContactsAsServiceAccount = function () use ($pearDB, &$errorMessage): void {
+    $errorMessage = 'Unable to update contact table';
     $pearDB->executeStatement(
         <<<'SQL'
-            ALTER TABLE `agent_configuration`
-            ADD COLUMN `connection_mode` ENUM('no-tls', 'secure', 'insecure') DEFAULT 'secure' NOT NULL
+            UPDATE `contact`
+            SET `is_service_account` = 1
+            WHERE `contact_name` IN ('centreon-gorgone', 'CBIS', 'centreon-map')
             SQL
     );
 };
 
-// -------------------------------------------- Token -------------------------------------------- //
-
-$createJwtTable = function () use ($pearDB, &$errorMessage) {
-    $errorMessage = 'Failed to create table jwt_tokens';
-
-    $pearDB->executeQuery(
-        <<<'SQL'
-            CREATE TABLE IF NOT EXISTS `jwt_tokens` (
-                `token_string` varchar(4096) DEFAULT NULL COMMENT 'Encoded JWT token',
-                `token_name` VARCHAR(255) NOT NULL COMMENT 'Token name',
-                `creator_id` INT(11) DEFAULT NULL COMMENT 'User ID of the token creator',
-                `creator_name` VARCHAR(255) DEFAULT NULL COMMENT 'User name of the token creator',
-                `encoding_key` VARCHAR(255) DEFAULT NULL COMMENT 'encoding key',
-                `is_revoked` BOOLEAN NOT NULL DEFAULT 0 COMMENT 'Define if token is revoked',
-                `creation_date` bigint UNSIGNED NOT NULL COMMENT 'Creation date of the token',
-                `expiration_date` bigint UNSIGNED DEFAULT NULL COMMENT 'Expiration date of the token',
-                PRIMARY KEY (`token_name`),
-                CONSTRAINT `jwt_tokens_user_id_fk` FOREIGN KEY (`creator_id`)
-                REFERENCES `contact` (`contact_id`) ON DELETE CASCADE
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Table for JWT tokens'
-            SQL
-    );
+$alterContactPagerSize = function () use ($pearDB, &$errorMessage): void {
+    $errorMessage = 'Unable to alter contact_pager column size in contact table';
+    if ($pearDB->isColumnExist('contact', 'contact_pager')) {
+        $pearDB->executeStatement(
+            <<<'SQL'
+                ALTER TABLE `contact`
+                    MODIFY COLUMN `contact_pager` VARCHAR(300)
+                SQL
+        );
+    }
 };
 
-$updateTopologyForAuthenticationTokens = function () use ($pearDB, &$errorMessage) {
-    $errorMessage = 'Unable to update new authentication tokens topology';
-    $pearDB->executeQuery(
+/**
+ * Generate a token based on the first found admin contact to update old agent_configurations
+ *
+ * @return array{token_name: string, creator_id: int}
+ */
+$generateToken = function () use ($pearDB): array {
+    $admin = $pearDB->fetchAssociative(
         <<<'SQL'
-            UPDATE `topology`
-                SET
-                    `topology_name` = 'Authentication Tokens',
-                    `topology_url` = '/administration/authentication-token'
-            WHERE `topology_name` = 'API Tokens' AND `topology_url` = '/administration/api-token';
+            SELECT contact_id, contact_name
+            FROM contact
+            WHERE contact_admin = '1'
+            LIMIT 1
             SQL
     );
+
+    // Reuse an existing cma-default token if available for this creator
+    $existing = $pearDB->fetchAssociative(
+        <<<'SQL'
+                SELECT token_name, creator_id
+                FROM jwt_tokens
+                WHERE token_name = :token_name AND creator_id = :creator_id
+                LIMIT 1
+            SQL,
+        QueryParameters::create([
+            QueryParameter::string(':token_name', 'cma-default'),
+            QueryParameter::int(':creator_id', (int) $admin['contact_id']),
+        ])
+    );
+    if (! empty($existing)) {
+        return ['name' => 'cma-default', 'creator_id' => (int) $admin['contact_id']];
+    }
+
+    $token = new NewJwtToken(
+        name: new TrimmedString('cma-default'),
+        creatorId: (int) $admin['contact_id'],
+        creatorName: new TrimmedString((string) $admin['contact_name']),
+        expirationDate: null
+    );
+
+    $pearDB->executeStatement(
+        <<<'SQL'
+                INSERT INTO `jwt_tokens` (token_string,token_name,creator_id,creator_name,encoding_key,is_revoked,creation_date,expiration_date)
+                VALUES (:token_string,:token_name,:creator_id,:creator_name,:encoding_key,:is_revoked,:creation_date,:expiration_date)
+            SQL,
+        QueryParameters::create([
+            QueryParameter::string(':token_string', (string) $token->getToken()),
+            QueryParameter::string(':token_name', (string) $token->getName()),
+            QueryParameter::int(':creator_id', (int) $token->getCreatorId()),
+            QueryParameter::string(':creator_name', (string) $token->getCreatorName()),
+            QueryParameter::string(':encoding_key', (string) $token->getEncodingKey()),
+            QueryParameter::bool(':is_revoked', false),
+            QueryParameter::int(':creation_date', $token->getCreationDate()->getTimestamp()),
+            QueryParameter::null(':expiration_date'),
+        ])
+    );
+
+    return ['name' => 'cma-default', 'creator_id' => (int) $admin['contact_id']];
+
+    return ['name' => 'cma-default', 'creator_id' => $admin['contact_id']];
+};
+
+/**
+ * Align inconsistent Agent Configuration with the new schema:
+ *      - Add a `tokens` key for each configuration in non reverse
+ *      - Add a `token` key for each configuration in reverse
+ *      - Add a `id` key for each hosts in each in reverse configuration
+ *          - host id is based on the first ID found for this address.
+ *          - As many hosts could have the same address, users should validate that the picken host is the good one.
+ */
+$alignCMAAgentConfigurationWithNewSchema = function () use ($pearDB, &$errorMessage, $generateToken): void {
+    $errorMessage = 'Unable to align agent configuration with new schema';
+    $agentConfigurations = $pearDB->fetchAllAssociative(
+        <<<'SQL'
+            SELECT * FROM `agent_configuration`
+            WHERE `type` = 'centreon-agent'
+            SQL
+    );
+    if ($agentConfigurations === []) {
+        return;
+    }
+    $tokenInformation = $generateToken();
+    foreach ($agentConfigurations as $agentConfiguration) {
+        $configuration = json_decode(
+            json: $agentConfiguration['configuration'],
+            associative: true,
+            flags: JSON_THROW_ON_ERROR
+        );
+        if ($configuration['is_reverse']) {
+            // `tokens` should be an empty array for reverse connection
+            if (! array_key_exists('tokens', $configuration)) {
+                $configuration['tokens'] = [];
+            }
+            if (! isset($configuration['hosts']) || ! is_array($configuration['hosts'])) {
+                $configuration['hosts'] = [];
+            }
+            foreach ($configuration['hosts'] as &$host) {
+                if (! array_key_exists('token', $host)) {
+                    $host['token'] = $tokenInformation;
+                }
+                if (! array_key_exists('id', $host)) {
+                    $hostId = $pearDB->fetchOne(
+                        <<<'SQL'
+                            SELECT host_id
+                            FROM host
+                            WHERE host_address = :hostAddress
+                            LIMIT 1
+                            SQL,
+                        QueryParameters::create([QueryParameter::string(':hostAddress', $host['address'])])
+                    );
+                    $host['id'] = $hostId;
+                }
+            }
+        } else {
+            // `hosts` should be an empty array for not reverse connection
+            if (! array_key_exists('hosts', $configuration)) {
+                $configuration['hosts'] = [];
+            }
+            if (! array_key_exists('tokens', $configuration)) {
+                $configuration['tokens'] = [$tokenInformation];
+            }
+        }
+
+        $pearDB->update(
+            <<<'SQL'
+                    UPDATE agent_configuration
+                    SET configuration = :configuration
+                    WHERE id = :id
+                SQL,
+            QueryParameters::create([
+                QueryParameter::string(':configuration', json_encode($configuration, JSON_THROW_ON_ERROR)),
+                QueryParameter::int(':id', $agentConfiguration['id']),
+            ])
+        );
+    }
 };
 
 try {
-    $createJwtTable();
-    $addConnectionModeColumnToAgentConfiguration();
+    // DDL statements for real time database
+    // TODO add your function calls to update the real time database structure here
+
+    // DDL statements for configuration database
+    $alterContactPagerSize();
 
     // Transactional queries for configuration database
     if (! $pearDB->inTransaction()) {
         $pearDB->beginTransaction();
     }
 
-    $updateTopologyForHostGroup($pearDB);
-    $updateSamlProviderConfiguration($pearDB);
-    $updateAgentConfiguration($pearDB);
-    $updateTopologyForAuthenticationTokens();
+    $alignCMAAgentConfigurationWithNewSchema();
+    $updateDashboardAndCustomViewsTopology();
+    $updateContactsShowDeprecatedCustomViews();
+    $updateCfgParameters();
+    $bbdoCfgUpdate();
+    $addResourceStatusSearchModeOption();
+    $flagContactsAsServiceAccount();
 
     $pearDB->commit();
 
-} catch (\Throwable $exception) {
+} catch (Throwable $exception) {
     CentreonLog::create()->error(
         logTypeId: CentreonLog::TYPE_UPGRADE,
         message: "UPGRADE - {$version}: " . $errorMessage,
@@ -268,19 +328,19 @@ try {
         if ($pearDB->inTransaction()) {
             $pearDB->rollBack();
         }
-    } catch (\PDOException $rollbackException) {
+    } catch (PDOException $rollbackException) {
         CentreonLog::create()->error(
             logTypeId: CentreonLog::TYPE_UPGRADE,
             message: "UPGRADE - {$version}: error while rolling back the upgrade operation for : {$errorMessage}",
             exception: $rollbackException
         );
 
-        throw new \Exception(
+        throw new Exception(
             "UPGRADE - {$version}: error while rolling back the upgrade operation for : {$errorMessage}",
             (int) $rollbackException->getCode(),
             $rollbackException
         );
     }
 
-    throw new \Exception("UPGRADE - {$version}: " . $errorMessage, (int) $exception->getCode(), $exception);
+    throw new Exception("UPGRADE - {$version}: " . $errorMessage, (int) $exception->getCode(), $exception);
 }

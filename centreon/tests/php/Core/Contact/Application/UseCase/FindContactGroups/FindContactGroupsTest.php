@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -83,7 +83,7 @@ it('should present a ForbiddenResponse if the user doesn\'t have read menu acces
     $this->user
         ->expects($this->any())
         ->method('hasTopologyRole')
-        ->willReturnCallback(fn(string $role): bool => match ($role) {
+        ->willReturnCallback(fn (string $role): bool => match ($role) {
             Contact::ROLE_CONFIGURATION_USERS_CONTACT_GROUPS_READ, Contact::ROLE_CONFIGURATION_USERS_CONTACT_GROUPS_READ_WRITE => false,
             default => true,
         });

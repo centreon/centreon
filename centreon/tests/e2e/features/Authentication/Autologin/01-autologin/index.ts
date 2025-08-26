@@ -1,10 +1,10 @@
-import { When, Then, Given } from '@badeball/cypress-cucumber-preprocessor';
+import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
-import { initializeConfigACLAndGetLoginPage } from '../common';
+import { initializeConfigAclAndGetLoginPage } from '../common';
 
 before(() => {
   cy.startContainers().then(() => {
-    return initializeConfigACLAndGetLoginPage();
+    return initializeConfigAclAndGetLoginPage();
   });
 });
 

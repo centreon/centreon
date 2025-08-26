@@ -55,7 +55,7 @@ const ContainerDescription = ({
         {toPairs(palette[keyTheme]).map(
           ([key, value]) =>
             !includes(key, keysToRemove) && (
-              <Grid item key={key} xs={6}>
+              <Grid item key={key} size={6}>
                 <div className={classes.headerContainer}>
                   <Typography variant="h6">{key}</Typography>
                   <Typography variant="button">{value}</Typography>

@@ -23,7 +23,7 @@ paths = [
 regexTarget = "match"
 regexes = [
   '''ABCDEFG1234567890''', # test credential
-  '''IKbUBottl5eoyhf0I5Io2nuDsTA85D50''', #test token
+  '''IKbUBottl5eoyhf0I5Io2nuDsTA85D50''', #test token used by keycloak docker image
   '''R0MIlEL91Hhh2OJIGIS9y43TDFWCRX0r2aClU7sI''', # test token
   '''6a174c20-f6de-a53c-74d2-6018fcceff64''', # test key
   '''Ns4CuByx9MBIZhkO83mMaKYrceFJ21YNmGDw59K8''', # test key

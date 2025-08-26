@@ -230,7 +230,7 @@ const ContentWithGrid = ({
   const { classes } = useContentStyles({ isDragging });
 
   return (
-    <Grid item style={style} xs={xs} {...listeners} {...attributes}>
+    <Grid item style={style} size={xs} {...listeners} {...attributes}>
       <Paper className={classes.content} ref={itemRef}>
         <Typography>{name as string}</Typography>
       </Paper>
@@ -244,7 +244,7 @@ const RootComponent = ({
 }: RootComponentProps): JSX.Element => (
   <Grid container spacing={1} style={{ width: '550px' }}>
     {not(isInDragOverlay) && (
-      <Grid item xs={12}>
+      <Grid item size={12}>
         <Typography align="center">This item cannot move</Typography>
       </Grid>
     )}
