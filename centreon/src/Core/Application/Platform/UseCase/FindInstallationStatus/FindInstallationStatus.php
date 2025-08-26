@@ -25,16 +25,16 @@ namespace Core\Application\Platform\UseCase\FindInstallationStatus;
 
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Application\Common\UseCase\ErrorResponse;
-use Core\Application\Platform\Repository\ReadPlatformRepositoryInterface;
+use Core\Platform\Infrastructure\CentreonInstallationVerifier;
 
 final class FindInstallationStatus
 {
     use LoggerTrait;
 
     /**
-     * @param ReadPlatformRepositoryInterface $repository
+     * @param CentreonInstallationVerifier $centreonInstallationVerifier
      */
-    public function __construct(private ReadPlatformRepositoryInterface $repository)
+    public function __construct(private CentreonInstallationVerifier $centreonInstallationVerifier)
     {
     }
 
@@ -44,8 +44,8 @@ final class FindInstallationStatus
     public function __invoke(FindInstallationStatusPresenterInterface $presenter): void
     {
         $this->info('check installation status of centreon web');
-        $isCentreonWebInstalled = $this->repository->isCentreonWebInstalled();
-        $isCentreonWebUpgradeAvailable = $this->repository->isCentreonWebInstallableOrUpgradable();
+        $isCentreonWebInstalled = $this->centreonInstallationVerifier->isCentreonWebInstalled();
+        $isCentreonWebUpgradeAvailable = $this->centreonInstallationVerifier->isCentreonWebInstallableOrUpgradable();
 
         if ($isCentreonWebInstalled === false && $isCentreonWebUpgradeAvailable === false) {
             $this->critical(

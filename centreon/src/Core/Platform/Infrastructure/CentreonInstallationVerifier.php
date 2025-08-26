@@ -21,14 +21,18 @@
 
 declare(strict_types=1);
 
-namespace Core\Infrastructure\Platform\Repository;
+namespace Core\Platform\Infrastructure;
 
-use Core\Application\Platform\Repository\ReadPlatformRepositoryInterface;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
-class FileReadPlatformRepository implements ReadPlatformRepositoryInterface
+final readonly class CentreonInstallationVerifier
 {
-    public function __construct(private string $etcDir, private string $installDir)
-    {
+    public function __construct(
+        #[Autowire(param: 'centreon_etc_path')]
+        private string $etcDirectory,
+        #[Autowire(param: 'centreon_install_path')]
+        private string $installDirectory
+    ) {
     }
 
     /**
@@ -36,7 +40,7 @@ class FileReadPlatformRepository implements ReadPlatformRepositoryInterface
      */
     public function isCentreonWebInstalled(): bool
     {
-        return file_exists($this->etcDir . '/centreon.conf.php');
+        return file_exists($this->etcDirectory . '/centreon.conf.php');
     }
 
     /**
@@ -44,6 +48,6 @@ class FileReadPlatformRepository implements ReadPlatformRepositoryInterface
      */
     public function isCentreonWebInstallableOrUpgradable(): bool
     {
-        return is_dir($this->installDir);
+        return is_dir($this->installDirectory);
     }
 }
