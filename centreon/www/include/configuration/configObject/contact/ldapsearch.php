@@ -136,7 +136,7 @@ foreach ($ids as $arId) {
                         $isvalid = '1';
                     }
                     $in_database = '0';
-                    if (in_array(htmlentities($searchResult[$i]['alias'], ENT_QUOTES, 'UTF-8'), $listLdapUsers)) {
+                    if (in_array(htmlspecialchars($searchResult[$i]['alias'], ENT_QUOTES, 'UTF-8'), $listLdapUsers)) {
                         $in_database = '1';
                     }
 
