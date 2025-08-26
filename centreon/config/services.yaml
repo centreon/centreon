@@ -137,6 +137,10 @@ services:
             $apiHeaderName: '%api.header%'
             $translationPath: '%translation_path%'
 
+    Core\Common\Infrastructure\Routing\ModuleRouteLoader:
+        arguments:
+            $installationPath: '%centreon_install_path%'
+
     Core\Security\Token\Application\Repository\ReadTokenRepositoryInterface:
         class: Core\Security\Token\Infrastructure\Repository\DbReadTokenRepository
         public: true

@@ -37,13 +37,23 @@ abstract readonly class ModuleRouteLoader implements RouteLoaderInterface
         private AttributeFileLoader $loader,
         #[Autowire(param: 'kernel.project_dir')]
         private string $projectDir,
-        private ModuleInstallationVerifier $installationVerifier
+        private ModuleInstallationVerifier $installationVerifier,
+        private string $installationPath
     ) {
     }
 
     final public function __invoke(): RouteCollection
     {
         $routes = new RouteCollection();
+
+        /**
+         * Dont populate RouteCollection during install / upgrade process to avoid DI of services that could need
+         * some configurations that don't exists at this moment of the lifecycle of the software.
+         */
+        if (is_dir($this->installationPath)) {
+            return $routes;
+        }
+
         try {
             if (! $this->installationVerifier->isInstallComplete($this->getModuleName())) {
                 return $routes;

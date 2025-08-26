@@ -26,8 +26,10 @@ namespace Core\Module\Infrastructure;
 use Core\Common\Domain\Exception\RepositoryException;
 use Core\Module\Application\Repository\ModuleInformationRepositoryInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
+use Symfony\Component\DependencyInjection\Attribute\Lazy;
 
-final readonly class ModuleInstallationVerifier
+#[Lazy]
+class ModuleInstallationVerifier
 {
     public function __construct(
         #[Autowire(param: 'kernel.project_dir')]
