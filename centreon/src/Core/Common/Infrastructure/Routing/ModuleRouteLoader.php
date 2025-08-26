@@ -38,6 +38,7 @@ abstract readonly class ModuleRouteLoader implements RouteLoaderInterface
         #[Autowire(param: 'kernel.project_dir')]
         private string $projectDir,
         private ModuleInstallationVerifier $installationVerifier,
+        #[Autowire(param: 'centreon_install_path')]
         private string $installationPath
     ) {
     }
