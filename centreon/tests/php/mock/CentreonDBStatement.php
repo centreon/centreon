@@ -31,34 +31,31 @@ namespace Centreon\Test\Mock;
  */
 class CentreonDBStatement extends \CentreonDBStatement
 {
-    public $currentResultset;
 
     /** @var array<int|string, mixed> */
     public $fetchObjectName;
 
-    /** @var string */
-    protected $query;
+    protected string $query;
 
-    /** @var array */
-    protected $resultsets;
+    /** @var array<CentreonDBResultSet> */
+    protected array $resultsets;
 
-    /** @var CentreonDB */
-    protected $db;
+    protected CentreonDB $db;
 
-    /** @var array */
-    protected $params = null;
+    /** @var array<int|string, mixed>|null */
+    protected ?array $params = null;
 
-    protected $currentResultSet = null;
+    /** @var CentreonDBResultSet|null */
+    protected ?CentreonDBResultSet $currentResultSet = null;
 
     /**
      * Constructor
      *
      * @param string $query
-     * @param array $resultset The resultset for a query
+     * @param array<CentreonDBResultSet> $resultsets
      * @param CentreonDB $db
-     * @param mixed $resultsets
      */
-    public function __construct($query, $resultsets, CentreonDB $db)
+    public function __construct($query, array $resultsets, CentreonDB $db)
     {
         $this->query = $query;
         $this->resultsets = $resultsets;
@@ -116,9 +113,13 @@ class CentreonDBStatement extends \CentreonDBStatement
 
     /**
      * Execute statement
-     * @param null|mixed $params
+     *
+     * @param array|null $parameters
+     *
+     * @throws \Exception
+     * @return bool
      */
-    public function execute($params = null): bool
+    public function execute($parameters = null): bool
     {
         $matching = null;
 
@@ -142,8 +143,8 @@ class CentreonDBStatement extends \CentreonDBStatement
         // trigger callback
         $this->currentResultSet->executeCallback($this->params);
 
-        // log queries if query will be execute in transaction
-        $this->db->transactionLogQuery($this->query, $this->params, $this->currentResultSet);
+        // log queries if query will be executed in transaction
+        $this->db->transactionLogQuery($this->query, $this->currentResultSet, $this->params);
 
         return true;
     }
@@ -161,9 +162,9 @@ class CentreonDBStatement extends \CentreonDBStatement
     /**
      * Return a result
      *
-     * @return array
+     * @return false|array
      */
-    public function fetchRow()
+    public function fetchRow(): false|array
     {
         if (! is_null($this->currentResultSet)) {
             return $this->currentResultSet->fetchRow();
@@ -175,13 +176,17 @@ class CentreonDBStatement extends \CentreonDBStatement
     /**
      * Return a result
      *
-     * @return mixed
+     * @param int $mode
+     * @param int $cursorOrientation
+     * @param int $cursorOffset
+     *
+     * @return false|array
      */
     public function fetch(
         int $mode = \PDO::FETCH_DEFAULT,
         int $cursorOrientation = \PDO::FETCH_ORI_NEXT,
         int $cursorOffset = 0
-    ): mixed {
+    ): false|array {
         return $this->fetchRow();
     }
 
@@ -191,7 +196,7 @@ class CentreonDBStatement extends \CentreonDBStatement
     public function resetResultSet(): void
     {
         if (! is_null($this->currentResultSet)) {
-            $this->currentResultset->fetchRow();
+            $this->currentResultSet->fetchRow();
         }
     }
 
@@ -200,7 +205,7 @@ class CentreonDBStatement extends \CentreonDBStatement
      *
      * @return int
      */
-    public function numRows()
+    public function numRows(): int
     {
         if (! is_null($this->currentResultSet)) {
             return $this->currentResultSet->numRows();
@@ -220,6 +225,9 @@ class CentreonDBStatement extends \CentreonDBStatement
     /**
      * Return a result
      *
+     * @param int $mode
+     * @param mixed ...$args
+     *
      * @return array
      */
     public function fetchAll(int $mode = \PDO::FETCH_DEFAULT, mixed ...$args): array
@@ -236,11 +244,12 @@ class CentreonDBStatement extends \CentreonDBStatement
     /**
      * Set fetch mode
      *
-     * @param mixed $mode
-     * @param mixed $params
-     * @return bool
+     * @param int $mode
+     * @param mixed ...$args
+     *
+     * @return true
      */
-    public function setFetchMode(int $mode, ...$args): bool
+    public function setFetchMode($mode, ...$args): true
     {
         $this->fetchObjectName = $args;
 

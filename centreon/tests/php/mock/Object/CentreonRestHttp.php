@@ -23,7 +23,7 @@ namespace Centreon\Test\Mock\Object;
 
 class CentreonRestHttp extends BaseObject
 {
-    public function call()
+    public function call(): array
     {
         return ['company' => 'token'];
     }

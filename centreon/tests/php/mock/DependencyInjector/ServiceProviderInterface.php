@@ -21,9 +21,11 @@
 
 namespace Centreon\Test\Mock\DependencyInjector;
 
+use Pimple\Container;
+
 interface ServiceProviderInterface
 {
-    public function register(\Pimple\Container $container);
+    public function register(Container $container);
 
-    public function terminate(\Pimple\Container $container);
+    public function terminate(Container $container);
 }

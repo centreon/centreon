@@ -21,21 +21,24 @@
 
 namespace Centreon\Test\Mock\DependencyInjector;
 
+use Pimple\Container;
+use Symfony\Component\Filesystem\Filesystem;
+
 class FilesystemProvider implements ServiceProviderInterface
 {
-    private $filesystem;
+    private Filesystem $filesystem;
 
-    public function __construct($filesystem)
+    public function __construct(Filesystem $filesystem)
     {
         $this->filesystem = $filesystem;
     }
 
-    public function register(\Pimple\Container $container): void
+    public function register(Container $container): void
     {
         $container['filesystem'] = $this->filesystem;
     }
 
-    public function terminate(\Pimple\Container $container): void
+    public function terminate(Container $container): void
     {
         $container['filesystem'] = null;
     }

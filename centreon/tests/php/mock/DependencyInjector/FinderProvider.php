@@ -21,21 +21,24 @@
 
 namespace Centreon\Test\Mock\DependencyInjector;
 
+use Pimple\Container;
+use Symfony\Component\Finder\Finder;
+
 class FinderProvider implements ServiceProviderInterface
 {
-    private $finder;
+    private Finder $finder;
 
-    public function __construct($finder)
+    public function __construct(Finder $finder)
     {
         $this->finder = $finder;
     }
 
-    public function register(\Pimple\Container $container): void
+    public function register(Container $container): void
     {
         $container['finder'] = $this->finder;
     }
 
-    public function terminate(\Pimple\Container $container): void
+    public function terminate(Container $container): void
     {
         $container['finder'] = null;
     }

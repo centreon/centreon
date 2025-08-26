@@ -21,21 +21,24 @@
 
 namespace Centreon\Test\Mock\DependencyInjector;
 
+use Centreon\Test\Mock\CentreonDB;
+use Pimple\Container;
+
 class ConfigurationDBProvider implements ServiceProviderInterface
 {
-    private $db;
+    private CentreonDB $db;
 
-    public function __construct(\Centreon\Test\Mock\CentreonDB $db)
+    public function __construct(CentreonDB $db)
     {
         $this->db = $db;
     }
 
-    public function register(\Pimple\Container $container): void
+    public function register(Container $container): void
     {
         $container['configuration_db'] = $this->db;
     }
 
-    public function terminate(\Pimple\Container $container): void
+    public function terminate(Container $container): void
     {
         $container['configuration_db'] = null;
     }

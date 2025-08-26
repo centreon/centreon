@@ -23,13 +23,9 @@ namespace Centreon\Test\Mock\Object;
 
 class BaseObject
 {
-    protected $incrementalId = 1;
+    protected int $incrementalId = 1;
 
-    private static $countFunction = [];
-
-    public function __construct($fakeDb)
-    {
-    }
+    private static array $countFunction = [];
 
     protected function realResult($expectedResult)
     {

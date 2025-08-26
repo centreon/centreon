@@ -25,13 +25,10 @@ class CentreonCommand extends BaseObject
 {
     public function getCommandIdByName($commandName)
     {
-        switch ($commandName) {
-            // A existant command, need for test update/insert command
-            case 'check_centreon_ping':
-                return null;
-        }
-
-        return $this->getIncrementedId();
+        return match ($commandName) {
+            'check_centreon_ping' => null,
+            default => $this->getIncrementedId(),
+        };
     }
 
     public function insert($parameters): void

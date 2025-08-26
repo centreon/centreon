@@ -31,9 +31,9 @@ namespace Centreon\Test\Mock;
  */
 abstract class Mock
 {
-    protected $incrementalId = 1;
+    protected int $incrementalId = 1;
 
-    private static $countFunction = [];
+    private static array $countFunction = [];
 
     /**
      * Constructor
@@ -45,11 +45,12 @@ abstract class Mock
     /**
      * Return real result
      *
-     * @param any $expectedResult the original result
-     * @param mixed $stackTraceId
-     * @return $result
+     * @param $expectedResult
+     * @param int $stackTraceId
+     *
+     * @return array|mixed $result
      */
-    protected function realResult($expectedResult, $stackTraceId = 1)
+    protected function realResult($expectedResult, int $stackTraceId = 1)
     {
         global $customResult;
         if (! isset($customResult) || ! is_array($customResult)) {

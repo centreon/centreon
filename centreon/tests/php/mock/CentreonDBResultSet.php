@@ -31,11 +31,9 @@ namespace Centreon\Test\Mock;
  */
 class CentreonDBResultSet extends CentreonDBStatement
 {
-    protected $resultset = [];
+    protected array $resultset = [];
 
-    protected $params = null;
-
-    protected $pos = 0;
+    protected int $pos = 0;
 
     /** @var callable */
     protected $callback;
@@ -44,10 +42,10 @@ class CentreonDBResultSet extends CentreonDBStatement
      * Constructor
      *
      * @param array $resultset The resultset for a query
-     * @param array $params The parameters of query, if not set :
+     * @param null $params The parameters of query, if not set :
      *                      * the query has not parameters
      *                      * the result is generic for the query
-     * @param callable $callback execute a callback when a query is executed
+     * @param callable|null $callback execute a callback when a query is executed
      */
     public function __construct($resultset, $params = null, ?callable $callback = null)
     {
@@ -62,9 +60,10 @@ class CentreonDBResultSet extends CentreonDBStatement
 
     /**
      * Execute the callback comes from the test case object
-     * @param null|mixed $values
+     *
+     * @param mixed|null $values
      */
-    public function executeCallback($values = null): void
+    public function executeCallback(mixed $values = null): void
     {
         if ($this->callback !== null) {
             call_user_func($this->callback, $values);
@@ -74,9 +73,9 @@ class CentreonDBResultSet extends CentreonDBStatement
     /**
      * Return a result
      *
-     * @return array
+     * @return array|false
      */
-    public function fetchRow()
+    public function fetchRow(): array|false
     {
         if (! isset($this->resultset[$this->pos])) {
             return false;
@@ -88,18 +87,25 @@ class CentreonDBResultSet extends CentreonDBStatement
     /**
      * Return a result
      *
-     * @return mixed
+     * @param int $mode
+     * @param int $cursorOrientation
+     * @param int $cursorOffset
+     *
+     * @return array|false
      */
     public function fetch(
         int $mode = \PDO::FETCH_DEFAULT,
         int $cursorOrientation = \PDO::FETCH_ORI_NEXT,
         int $cursorOffset = 0
-    ): mixed {
+    ): array|false {
         return $this->fetchRow();
     }
 
     /**
      * Return all results
+     *
+     * @param int $mode
+     * @param mixed ...$args
      *
      * @return array
      */
@@ -131,7 +137,7 @@ class CentreonDBResultSet extends CentreonDBStatement
      *
      * @return int
      */
-    public function numRows()
+    public function numRows(): int
     {
         return $this->rowCount();
     }
@@ -149,13 +155,14 @@ class CentreonDBResultSet extends CentreonDBStatement
     /**
      * If the queries match
      *
-     * @param array $params The parameters of current query
+     * @param array|null $params The parameters of current query
+     *
      * @return int The level of match
      *             * 0 - Not match
      *             * 1 - Match by default (the result set params is null by the query has $params)
      *             * 2 - Exact match
      */
-    public function match($params = null)
+    public function match(array $params = null): int
     {
         if ($this->params === $params) {
             return 2;
@@ -170,10 +177,7 @@ class CentreonDBResultSet extends CentreonDBStatement
         return 0;
     }
 
-    /**
-     * @return bool
-     */
-    public function closeCursor(): bool
+    public function closeCursor(): true
     {
         return true;
     }

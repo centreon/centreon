@@ -28,7 +28,7 @@ class CentreonMedia extends BaseObject
         return $this->getIncrementedId();
     }
 
-    public function getDirectoryName()
+    public function getDirectoryName(): string
     {
         return 'directory_name';
     }
@@ -43,7 +43,7 @@ class CentreonMedia extends BaseObject
 
     }
 
-    public function getMediaDirectory()
+    public function getMediaDirectory(): string
     {
         return 'directory_name';
     }

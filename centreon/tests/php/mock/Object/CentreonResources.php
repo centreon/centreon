@@ -23,7 +23,7 @@ namespace Centreon\Test\Mock\Object;
 
 class CentreonResources extends BaseObject
 {
-    public function getResourceByName($db, $resourceName)
+    public function getResourceByName($db, $resourceName): array
     {
         return [
             'resource_id' => 1,

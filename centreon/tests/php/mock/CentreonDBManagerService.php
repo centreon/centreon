@@ -35,8 +35,7 @@ use Centreon\Infrastructure\Service\CentreonDBManagerService as BaseCentreonDBMa
  */
 class CentreonDBManagerService extends BaseCentreonDBManagerService
 {
-    /** @var CentreonDBAdapter */
-    protected $manager;
+    protected CentreonDBAdapter $manager;
 
     public function __construct()
     {
@@ -58,27 +57,27 @@ class CentreonDBManagerService extends BaseCentreonDBManagerService
         return $this->manager->getRepository($repository);
     }
 
-    public function resetResultSet()
+    public function resetResultSet(): CentreonDBAdapter
     {
         return $this->manager->resetResultSet();
     }
 
-    public function addResultSet($query, $result, $params = null, ?callable $callback = null)
+    public function addResultSet($query, $result, $params = null, ?callable $callback = null): CentreonDBAdapter
     {
         return $this->manager->addResultSet($query, $result, $params, $callback);
     }
 
-    public function setCommitCallback(?callable $callback = null)
+    public function setCommitCallback(?callable $callback = null): CentreonDBAdapter
     {
         return $this->manager->setCommitCallback($callback);
     }
 
-    public function addRepositoryMock(string $className, object $repository)
+    public function addRepositoryMock(string $className, object $repository): CentreonDBAdapter
     {
         return $this->manager->addRepositoryMock($className, $repository);
     }
 
-    public function setLastInsertId(?int $id = null)
+    public function setLastInsertId(?int $id = null): static
     {
         $this->manager->setLastInsertId($id);
 

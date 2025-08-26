@@ -21,9 +21,11 @@
 
 namespace Centreon\Test\Mock\DependencyInjector;
 
-class ServiceContainer extends \Pimple\Container
+use Pimple\Container;
+
+class ServiceContainer extends Container
 {
-    private $providers = [];
+    private array $providers = [];
 
     public function registerProvider(ServiceProviderInterface $provider): void
     {

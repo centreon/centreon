@@ -35,7 +35,7 @@ use Centreon\Infrastructure\CentreonLegacyDB\ServiceEntityRepository;
 class CentreonDBAdapter extends BaseCentreonDBAdapter
 {
     /** @var array */
-    protected $mocks = [];
+    protected array $mocks = [];
 
     public function getRepository($repository): ServiceEntityRepository
     {
@@ -46,11 +46,13 @@ class CentreonDBAdapter extends BaseCentreonDBAdapter
         return parent::getRepository($repository);
     }
 
-    public function resetResultSet(): CentreonDBAdapter
+    public function resetResultSet(): static
     {
         $this->mocks = [];
 
-        $this->getCentreonDBInstance()->resetResultSet();
+        /** @var CentreonDB $db */
+        $db = $this->getCentreonDBInstance();
+        $db->resetResultSet();
 
         return $this;
     }
@@ -60,28 +62,34 @@ class CentreonDBAdapter extends BaseCentreonDBAdapter
         return $this->mocks;
     }
 
-    public function addResultSet($query, $result, $params = null, ?callable $callback = null): CentreonDBAdapter
+    public function addResultSet($query, $result, $params = null, ?callable $callback = null): static
     {
-        $this->getCentreonDBInstance()->addResultSet($query, $result, $params, $callback);
+        /** @var CentreonDB $db */
+        $db = $this->getCentreonDBInstance();
+        $db->addResultSet($query, $result, $params, $callback);
 
         return $this;
     }
 
-    public function setCommitCallback(?callable $callback = null): CentreonDBAdapter
+    public function setCommitCallback(?callable $callback = null): static
     {
-        $this->getCentreonDBInstance()->setCommitCallback($callback);
+        /** @var CentreonDB $db */
+        $db = $this->getCentreonDBInstance();
+        $db->setCommitCallback($callback);
 
         return $this;
     }
 
-    public function setLastInsertId(?int $id = null)
+    public function setLastInsertId(?int $id = null): static
     {
-        $this->getCentreonDBInstance()->setLastInsertId($id);
+        /** @var CentreonDB $db */
+        $db = $this->getCentreonDBInstance();
+        $db->setLastInsertId($id);
 
         return $this;
     }
 
-    public function addRepositoryMock(string $className, object $repository): CentreonDBAdapter
+    public function addRepositoryMock(string $className, object $repository): static
     {
         $this->mocks[$className] = $repository;
 

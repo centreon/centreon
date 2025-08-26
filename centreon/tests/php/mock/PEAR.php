@@ -35,9 +35,9 @@ class PEAR
      * Test if it's a PEAR Error
      *
      * @param mixed $obj
-     * @return bool It's in error
+     * @return false It's in error
      */
-    public static function isError($obj)
+    public static function isError(mixed $obj): false
     {
         return false;
     }

@@ -23,7 +23,7 @@ namespace Centreon\Test\Mock\Object;
 
 class CentreonHost extends BaseObject
 {
-    private static $countHostFunction = 0;
+    private static int $countHostFunction = 0;
 
     public function getHostId($host_name)
     {
@@ -60,7 +60,7 @@ class CentreonHost extends BaseObject
 
     }
 
-    public function getHostByAddress($host_ip, $filter)
+    public function getHostByAddress($host_ip, $filter): array
     {
         self::$countHostFunction++;
         if (self::$countHostFunction <= 2) {
@@ -75,7 +75,7 @@ class CentreonHost extends BaseObject
         return [];
     }
 
-    public function getServices($hostId)
+    public function getServices($hostId): array
     {
         return ['180' => 'Ping'];
     }
