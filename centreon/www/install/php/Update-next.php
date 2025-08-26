@@ -105,7 +105,6 @@ $generateToken = function () use ($pearDB): array {
 
     return ['name' => 'cma-default', 'creator_id' => (int) $admin['contact_id']];
 
-    return ['name' => 'cma-default', 'creator_id' => $admin['contact_id']];
 };
 
 /**
