@@ -33,11 +33,6 @@ use Symfony\Component\Validator\Test\ConstraintValidatorTestCase;
  */
 final class SortValidatorTest extends ConstraintValidatorTestCase
 {
-    protected function createValidator(): ConstraintValidatorInterface
-    {
-        return new SortValidator();
-    }
-
     public function testValidData(): void
     {
         $this->validator->validate(
@@ -81,10 +76,16 @@ final class SortValidatorTest extends ConstraintValidatorTestCase
             '{{ key }} is not a valid sort value. Expected values [{{ values }}].',
             ['{{ key }}' => 'service', '{{ values }}' => 'host_category, host_group, host, service_category'],
         ];
+
         yield 'invalid sort direction' => [
             '{"host":"INVALID"}',
             '{{ key }} has invalid sort direction ({{ direction }}). Expected directions [{{ values }}].',
             ['{{ key }}' => 'host', '{{ direction }}' => 'INVALID', '{{ values }}' => 'ASC,DESC'],
         ];
+    }
+
+    protected function createValidator(): ConstraintValidatorInterface
+    {
+        return new SortValidator();
     }
 }

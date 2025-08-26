@@ -30,8 +30,8 @@ use Symfony\Component\Validator\Constraint;
 final class Sort extends Constraint
 {
     public string $invalidSortKeyMessage = '{{ key }} is not a valid sort value. Expected values [{{ values }}].';
-    public string $invalidSortDirectionMesssage =
-        '{{ key }} has invalid sort direction ({{ direction }}). Expected directions [{{ values }}].';
+    public string $invalidSortDirectionMesssage
+        = '{{ key }} has invalid sort direction ({{ direction }}). Expected directions [{{ values }}].';
 
     #[HasNamedArguments]
     public function __construct(

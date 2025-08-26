@@ -50,11 +50,11 @@ final class SortValidator extends ConstraintValidator
             $decodedValue = json_decode($value, true, JSON_THROW_ON_ERROR);
 
             foreach ($decodedValue as $sortKey => $sortDirection) {
-                if (! in_array($sortKey, $constraint->sortKeys)) {
+                if (! in_array($sortKey, $constraint->sortKeys, true)) {
                     $invalidSortKeys[] = $sortKey;
                 }
 
-                if (! in_array($sortDirection, $constraint->sortDirections)) {
+                if (! in_array($sortDirection, $constraint->sortDirections, true)) {
                     $invalidSortDirections[$sortKey] = $sortDirection;
                 }
             }
