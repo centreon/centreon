@@ -25,7 +25,7 @@ namespace Core\Platform\Infrastructure;
 
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
-final readonly class CentreonInstallationVerifier
+readonly class CentreonInstallationVerifier
 {
     public function __construct(
         #[Autowire(param: 'centreon_etc_path')]
