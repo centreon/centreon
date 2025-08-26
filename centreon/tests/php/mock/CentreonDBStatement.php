@@ -1,23 +1,25 @@
 <?php
-/**
- * Copyright 2019 Centreon
+
+/*
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
+ * For more information : contact@centreon.com
+ *
  */
 
 namespace Centreon\Test\Mock;
-
-use Centreon\Test\Mock\CentreonDB;
 
 /**
  * Mock class for resultset
@@ -30,29 +32,22 @@ use Centreon\Test\Mock\CentreonDB;
 class CentreonDBStatement extends \CentreonDBStatement
 {
     public $currentResultset;
-    /**
-     * @var array<int|string, mixed>
-     */
+
+    /** @var array<int|string, mixed> */
     public $fetchObjectName;
-    /**
-     * @var string
-     */
+
+    /** @var string */
     protected $query;
 
-    /**
-     * @var array
-     */
+    /** @var array */
     protected $resultsets;
 
-    /**
-     * @var \Centreon\Test\Mock\CentreonDB
-     */
+    /** @var CentreonDB */
     protected $db;
 
-    /**
-     * @var array
-     */
+    /** @var array */
     protected $params = null;
+
     protected $currentResultSet = null;
 
     /**
@@ -61,6 +56,7 @@ class CentreonDBStatement extends \CentreonDBStatement
      * @param string $query
      * @param array $resultset The resultset for a query
      * @param CentreonDB $db
+     * @param mixed $resultsets
      */
     public function __construct($query, $resultsets, CentreonDB $db)
     {
@@ -120,6 +116,7 @@ class CentreonDBStatement extends \CentreonDBStatement
 
     /**
      * Execute statement
+     * @param null|mixed $params
      */
     public function execute($params = null): bool
     {
@@ -168,7 +165,7 @@ class CentreonDBStatement extends \CentreonDBStatement
      */
     public function fetchRow()
     {
-        if (!is_null($this->currentResultSet)) {
+        if (! is_null($this->currentResultSet)) {
             return $this->currentResultSet->fetchRow();
         }
 
@@ -193,7 +190,7 @@ class CentreonDBStatement extends \CentreonDBStatement
      */
     public function resetResultSet(): void
     {
-        if (!is_null($this->currentResultSet)) {
+        if (! is_null($this->currentResultSet)) {
             $this->currentResultset->fetchRow();
         }
     }
@@ -205,7 +202,7 @@ class CentreonDBStatement extends \CentreonDBStatement
      */
     public function numRows()
     {
-        if (!is_null($this->currentResultSet)) {
+        if (! is_null($this->currentResultSet)) {
             return $this->currentResultSet->numRows();
         }
 
@@ -235,7 +232,6 @@ class CentreonDBStatement extends \CentreonDBStatement
 
         return $results;
     }
-
 
     /**
      * Set fetch mode
