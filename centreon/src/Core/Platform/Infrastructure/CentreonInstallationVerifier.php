@@ -36,7 +36,9 @@ readonly class CentreonInstallationVerifier
     }
 
     /**
-     * @inheritDoc
+     * Check that Centreon is installed (if the configuration exists)
+     *
+     * @return bool
      */
     public function isCentreonWebInstalled(): bool
     {
@@ -44,7 +46,9 @@ readonly class CentreonInstallationVerifier
     }
 
     /**
-     * @inheritDoc
+     * Check if Centreon is Installable or Upgradable (if the install directory exists)
+     *
+     * @return bool
      */
     public function isCentreonWebInstallableOrUpgradable(): bool
     {
