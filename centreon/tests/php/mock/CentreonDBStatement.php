@@ -31,7 +31,6 @@ namespace Centreon\Test\Mock;
  */
 class CentreonDBStatement extends \CentreonDBStatement
 {
-
     /** @var array<int|string, mixed> */
     public $fetchObjectName;
 

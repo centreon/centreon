@@ -43,15 +43,9 @@ class CentreonDB extends \CentreonDB
     /** @var string|false */
     protected string|false $lastInsertId = false;
 
-    /**
-     * Constructor
-     *
-     * @param string $db
-     * @param int $retry
-     * @param bool $silent
-     */
-    public function __construct($db = 'centreon', $retry = 3, $silent = false)
+    public function __construct()
     {
+
     }
 
     /**
@@ -107,13 +101,13 @@ class CentreonDB extends \CentreonDB
      * @param string $query The query to catch
      * @param array $result The resultset
      * @param array|null $params The parameters of query, if not set :
-     *                      * the query has not parameters
-     *                      * the result is generic for the query
+     *                           * the query has not parameters
+     *                           * the result is generic for the query
      * @param callable|null $callback execute a callback when a query is executed
      *
      * @return CentreonDB
      */
-    public function addResultSet(string $query, array $result, array $params = null, ?callable $callback = null): CentreonDB
+    public function addResultSet(string $query, array $result, ?array $params = null, ?callable $callback = null): CentreonDB
     {
         if (! isset($this->queries[$query])) {
             $this->queries[$query] = [];

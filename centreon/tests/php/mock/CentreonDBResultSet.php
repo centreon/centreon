@@ -43,8 +43,8 @@ class CentreonDBResultSet extends CentreonDBStatement
      *
      * @param array $resultset The resultset for a query
      * @param null $params The parameters of query, if not set :
-     *                      * the query has not parameters
-     *                      * the result is generic for the query
+     *                     * the query has not parameters
+     *                     * the result is generic for the query
      * @param callable|null $callback execute a callback when a query is executed
      */
     public function __construct($resultset, $params = null, ?callable $callback = null)
@@ -162,7 +162,7 @@ class CentreonDBResultSet extends CentreonDBStatement
      *             * 1 - Match by default (the result set params is null by the query has $params)
      *             * 2 - Exact match
      */
-    public function match(array $params = null): int
+    public function match(?array $params = null): int
     {
         if ($this->params === $params) {
             return 2;
