@@ -32,16 +32,15 @@ final class ExactlyOneOf extends Constraint
     public string $message = 'Exactly one of the following query parameters must be provided: {{ fields }}';
 
     /**
-     * @param array<string> $fields
+     * @param array<string> $properties
      */
     public function __construct(
-        private readonly array $fields,
-        ?array $options = null,
+        public array $properties,
         ?array $groups = null,
         ?string $payload = null,
     ) {
-        Assert::count($fields, 2);
-        parent::__construct($options, $groups, $payload);
+        Assert::count($properties, 2);
+        parent::__construct([], $groups, $payload);
     }
 
     public function getTarget(): string

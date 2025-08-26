@@ -40,17 +40,17 @@ final class ExactlyOneOfValidator extends ConstraintValidator
             throw new UnexpectedValueException($object, 'object');
         }
 
-        $fields = $constraint->fields;
+        $properties = $constraint->properties;
         $presentCount = 0;
-        foreach ($fields as $field) {
-            if (property_exists($object, $field) && $object->$field !== null) {
+        foreach ($properties as $property) {
+            if (property_exists($object, $property) && ! is_null($object->$property)) {
                 $presentCount++;
             }
         }
 
         if ($presentCount !== 1) {
             $this->context->buildViolation($constraint->message)
-                ->setParameter('{{ fields }}', implode(', ', $fields))
+                ->setParameter('{{ fields }}', implode(', ', $properties))
                 ->addViolation();
         }
     }
