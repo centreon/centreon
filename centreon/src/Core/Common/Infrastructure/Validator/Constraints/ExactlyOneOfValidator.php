@@ -43,7 +43,7 @@ final class ExactlyOneOfValidator extends ConstraintValidator
         $properties = $constraint->properties;
         $presentCount = 0;
         foreach ($properties as $property) {
-            if (property_exists($object, $property) && ! is_null($object->$property)) {
+            if (property_exists($object, $property) && ! is_null($object->{$property})) {
                 $presentCount++;
             }
         }

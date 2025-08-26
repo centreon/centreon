@@ -65,24 +65,29 @@ final class ExactlyOneOfValidatorTest extends ConstraintValidatorTestCase
     public static function validDataProvider(): \Generator
     {
         yield 'first property is not null, second property is null' => [
-            new class {
+            new class () {
                 public ?int $firstProperty = 1;
+
                 public ?string $secondProperty = null;
+
                 public array $thirdProperty = [];
             },
         ];
 
         yield 'first property is null, second property is not null' => [
-            new class {
+            new class () {
                 public ?int $firstProperty = null;
+
                 public ?string $secondProperty = 'value';
+
                 public array $thirdProperty = [];
             },
         ];
 
         yield 'one property is missing' => [
-            new class {
+            new class () {
                 public ?int $firstProperty = 1;
+
                 public array $thirdProperty = [];
             },
         ];
@@ -94,23 +99,27 @@ final class ExactlyOneOfValidatorTest extends ConstraintValidatorTestCase
     public static function invalidDataProvider(): \Generator
     {
         yield 'both properties are null' => [
-            new class {
+            new class () {
                 public ?int $firstProperty = null;
+
                 public ?string $secondProperty = null;
+
                 public array $thirdProperty = [];
             },
         ];
 
         yield 'both properties are not null' => [
-            new class {
+            new class () {
                 public ?int $firstProperty = 1;
+
                 public ?string $secondProperty = 'value';
+
                 public array $thirdProperty = [];
             },
         ];
 
         yield 'both properties are missing' => [
-            new class {
+            new class () {
                 public array $thirdProperty = [];
             },
         ];
