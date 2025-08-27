@@ -23,15 +23,15 @@ declare(strict_types=1);
 
 namespace Tests\Core\Common\Infrastructure\Validator\Constraints;
 
-use Core\Common\Infrastructure\Validator\Constraints\ExactlyOneOf;
-use Core\Common\Infrastructure\Validator\Constraints\ExactlyOneOfValidator;
+use Core\Common\Infrastructure\Validator\Constraints\ExactlyBoth;
+use Core\Common\Infrastructure\Validator\Constraints\ExactlyBothValidator;
 use Symfony\Component\Validator\ConstraintValidatorInterface;
 use Symfony\Component\Validator\Test\ConstraintValidatorTestCase;
 
 /**
  * @extends ConstraintValidatorTestCase<ConstraintValidatorInterface>
  */
-final class ExactlyOneOfValidatorTest extends ConstraintValidatorTestCase
+final class ExactlyBothValidatorTest extends ConstraintValidatorTestCase
 {
     public const PROPERTIES = ['firstProperty', 'secondProperty'];
 
@@ -40,7 +40,7 @@ final class ExactlyOneOfValidatorTest extends ConstraintValidatorTestCase
      */
     public function testValidData(object $object): void
     {
-        $constraint = new ExactlyOneOf(properties: self::PROPERTIES);
+        $constraint = new ExactlyBoth(properties: self::PROPERTIES);
         $this->validator->validate($object, $constraint);
 
         $this->assertNoViolation();
@@ -51,7 +51,7 @@ final class ExactlyOneOfValidatorTest extends ConstraintValidatorTestCase
      */
     public function testInvalidData(object $object): void
     {
-        $constraint = new ExactlyOneOf(properties: self::PROPERTIES);
+        $constraint = new ExactlyBoth(properties: self::PROPERTIES);
         $this->validator->validate($object, $constraint);
 
         $this->buildViolation($constraint->message)
@@ -64,29 +64,11 @@ final class ExactlyOneOfValidatorTest extends ConstraintValidatorTestCase
      */
     public static function validDataProvider(): \Generator
     {
-        yield 'first property is not null, second property is null' => [
+        yield 'both properties are not null' => [
             new class () {
                 public ?int $firstProperty = 1;
-
-                public ?string $secondProperty = null;
-
-                public array $thirdProperty = [];
-            },
-        ];
-
-        yield 'first property is null, second property is not null' => [
-            new class () {
-                public ?int $firstProperty = null;
 
                 public ?string $secondProperty = 'value';
-
-                public array $thirdProperty = [];
-            },
-        ];
-
-        yield 'one property is missing' => [
-            new class () {
-                public ?int $firstProperty = 1;
 
                 public array $thirdProperty = [];
             },
@@ -108,10 +90,18 @@ final class ExactlyOneOfValidatorTest extends ConstraintValidatorTestCase
             },
         ];
 
-        yield 'both properties are not null' => [
+        yield 'one property is null' => [
             new class () {
                 public ?int $firstProperty = 1;
 
+                public ?string $secondProperty = null;
+
+                public array $thirdProperty = [];
+            },
+        ];
+
+        yield 'one property is missing' => [
+            new class () {
                 public ?string $secondProperty = 'value';
 
                 public array $thirdProperty = [];
@@ -127,6 +117,6 @@ final class ExactlyOneOfValidatorTest extends ConstraintValidatorTestCase
 
     protected function createValidator(): ConstraintValidatorInterface
     {
-        return new ExactlyOneOfValidator();
+        return new ExactlyBothValidator();
     }
 }

@@ -27,14 +27,15 @@ use Symfony\Component\Validator\Constraint;
 use Webmozart\Assert\Assert;
 
 /**
- * A custom constraint applied at the class level to validate a logical XOR between two properties.
+ * A custom constraint applied at the class level to validate a logical AND between two properties.
  *
- * Ensures that exactly one of the specified properties is set (i.e., not both or neither).
+ * Ensures that both specified properties are set (i.e., not just one). Validation fails if only one
+ * of the properties is set or if both are null/empty.
  */
 #[\Attribute]
-final class ExactlyOneOf extends Constraint
+final class ExactlyBoth extends Constraint
 {
-    public string $message = 'Exactly one of the following query parameters must be provided: {{ properties }}.';
+    public string $message = 'Both {{ properties }} must be provided in query parameters.';
 
     /**
      * @param array<string> $properties
