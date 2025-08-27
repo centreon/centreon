@@ -204,8 +204,12 @@ jobs:
         env:
           runner: ubuntu-24.04
 
+      - name: Create configuration file
+        run: cp config/centreon.config.php.template config/centreon.config.php
+        working-directory: ${{ env.base_directory }}
+
       - name: Install Dependencies
-        run: composer install --no-dev --optimize-autoloader --prefer-dist --no-interaction --no-progress --quiet --no-suggest
+        run: composer install --no-dev --optimize-autoloader --prefer-dist --no-interaction --no-progress --quiet --no-scripts
         working-directory: ${{ env.base_directory }}
         shell: bash
 
@@ -392,6 +396,10 @@ jobs:
         env:
           runner: ubuntu-24.04
 
+      - name: Create configuration file
+        run: cp config/centreon.config.php.template config/centreon.config.php
+        working-directory: centreon
+
       - name: Install dependencies
         uses: ramsey/composer-install@3cf229dc2919194e9e36783941438d17239e8520 # v3.1.1
         with:
@@ -425,18 +433,18 @@ jobs:
           runner: ubuntu-24.04
 
       - name: Install dependencies for PHP quality tools
-        run: composer install --optimize-autoloader --prefer-dist --no-interaction --no-progress --quiet --no-suggest
+        run: composer install --optimize-autoloader --prefer-dist --no-interaction --no-progress --quiet --no-scripts
         working-directory: php-tools
-        shell: bash
-
-      - name: Install dependencies for centreon-web
-        run: composer install --optimize-autoloader --prefer-dist --no-interaction --no-progress --quiet --no-suggest
-        working-directory: centreon
         shell: bash
 
       - name: Create configuration file
         run: cp config/centreon.config.php.template config/centreon.config.php
         working-directory: centreon
+
+      - name: Install dependencies for centreon-web
+        run: composer install --optimize-autoloader --prefer-dist --no-interaction --no-progress --quiet --no-scripts
+        working-directory: centreon
+        shell: bash
 
       - name: ⚙️ Check Symfony configuration
         run: composer symfony:check

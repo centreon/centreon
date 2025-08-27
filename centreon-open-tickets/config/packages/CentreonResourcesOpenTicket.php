@@ -27,7 +27,7 @@ use CentreonOpenTickets\Resources\Infrastructure\API\TicketExtraDataFormatter;
 use CentreonOpenTickets\Resources\Infrastructure\Repository\OpenTicketExtraDataProvider;
 
 return static function (ContainerConfigurator $container): void {
-    $openTicketsRouteConfigFileRelativePath = __DIR__ . '/../../../www/modules/centreon-open-tickets/routes/CentreonOpenTickets.yaml';
+    $openTicketsRouteConfigFileRelativePath = __DIR__ . '/../../www/modules/centreon-open-tickets/routes/CentreonOpenTickets.yaml';
 
     /**
      * Only assign tags to the services if Open Ticket Module is installed through packages (files)
