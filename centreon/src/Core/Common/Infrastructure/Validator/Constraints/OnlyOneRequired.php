@@ -21,32 +21,33 @@
 
 declare(strict_types=1);
 
-namespace Core\Common\Domain\Model;
+namespace Core\Common\Infrastructure\Validator\Constraints;
+
+use Symfony\Component\Validator\Constraint;
 
 /**
- * @template T
+ * A custom constraint applied at the class level to validate a logical XOR between two properties.
+ *
+ * Ensures that exactly one of the specified properties is set (i.e., not both or neither).
  */
-final readonly class PaginationResult
+#[\Attribute]
+final class OnlyOneRequired extends Constraint
 {
+    public string $message = 'Exactly one of the following must be provided: {{ properties }}.';
+
     /**
-     * @param array<T> $result
+     * @param array<string> $properties
      */
     public function __construct(
-        private array $result,
-        private Meta $meta,
+        public array $properties,
+        ?array $groups = null,
+        ?string $payload = null,
     ) {
+        parent::__construct([], $groups, $payload);
     }
 
-    /**
-     * @return array<T>
-     */
-    public function result(): array
+    public function getTargets(): string
     {
-        return $this->result;
-    }
-
-    public function meta(): Meta
-    {
-        return $this->meta;
+        return self::CLASS_CONSTRAINT;
     }
 }

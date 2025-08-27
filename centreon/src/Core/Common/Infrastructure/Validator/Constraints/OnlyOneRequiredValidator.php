@@ -28,12 +28,12 @@ use Symfony\Component\Validator\ConstraintValidator;
 use Symfony\Component\Validator\Exception\UnexpectedTypeException;
 use Symfony\Component\Validator\Exception\UnexpectedValueException;
 
-final class ExactlyOneOfValidator extends ConstraintValidator
+final class OnlyOneRequiredValidator extends ConstraintValidator
 {
     public function validate(mixed $object, Constraint $constraint): void
     {
-        if (! $constraint instanceof ExactlyOneOf) {
-            throw new UnexpectedTypeException($constraint, ExactlyOneOf::class);
+        if (! $constraint instanceof OnlyOneRequired) {
+            throw new UnexpectedTypeException($constraint, OnlyOneRequired::class);
         }
 
         if (! is_object($object)) {

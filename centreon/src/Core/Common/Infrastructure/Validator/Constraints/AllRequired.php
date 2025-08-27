@@ -24,7 +24,6 @@ declare(strict_types=1);
 namespace Core\Common\Infrastructure\Validator\Constraints;
 
 use Symfony\Component\Validator\Constraint;
-use Webmozart\Assert\Assert;
 
 /**
  * A custom constraint applied at the class level to validate a logical AND between two properties.
@@ -33,9 +32,9 @@ use Webmozart\Assert\Assert;
  * of the properties is set or if both are null/empty.
  */
 #[\Attribute]
-final class ExactlyBoth extends Constraint
+final class AllRequired extends Constraint
 {
-    public string $message = 'Both {{ properties }} must be provided in query parameters.';
+    public string $message = 'All {{ properties }} must be provided.';
 
     /**
      * @param array<string> $properties
@@ -45,7 +44,6 @@ final class ExactlyBoth extends Constraint
         ?array $groups = null,
         ?string $payload = null,
     ) {
-        Assert::count($properties, 2);
         parent::__construct([], $groups, $payload);
     }
 

@@ -21,41 +21,18 @@
 
 declare(strict_types=1);
 
-namespace Core\Common\Domain\Model;
+namespace Core\Common\Domain\Repository;
 
-final readonly class Meta
+/**
+ * @template T of object
+ *
+ * @extends \IteratorAggregate<array-key, T>
+ */
+interface PaginatorInterface extends \IteratorAggregate, \Countable
 {
-    public function __construct(
-        private int $page,
-        private int $limit,
-        private string $search,
-        private string $sortBy,
-        private int $total,
-    ) {
-    }
+    public function currentPage(): int;
 
-    public function page(): int
-    {
-        return $this->page;
-    }
+    public function itemsPerPage(): int;
 
-    public function limit(): int
-    {
-        return $this->limit;
-    }
-
-    public function search(): string
-    {
-        return $this->search;
-    }
-
-    public function sortBy(): string
-    {
-        return $this->sortBy;
-    }
-
-    public function total(): int
-    {
-        return $this->total;
-    }
+    public function totalItems(): int;
 }

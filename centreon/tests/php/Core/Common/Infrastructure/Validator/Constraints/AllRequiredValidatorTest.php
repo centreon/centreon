@@ -23,15 +23,15 @@ declare(strict_types=1);
 
 namespace Tests\Core\Common\Infrastructure\Validator\Constraints;
 
-use Core\Common\Infrastructure\Validator\Constraints\ExactlyBoth;
-use Core\Common\Infrastructure\Validator\Constraints\ExactlyBothValidator;
+use Core\Common\Infrastructure\Validator\Constraints\AllRequired;
+use Core\Common\Infrastructure\Validator\Constraints\AllRequiredValidator;
 use Symfony\Component\Validator\ConstraintValidatorInterface;
 use Symfony\Component\Validator\Test\ConstraintValidatorTestCase;
 
 /**
  * @extends ConstraintValidatorTestCase<ConstraintValidatorInterface>
  */
-final class ExactlyBothValidatorTest extends ConstraintValidatorTestCase
+final class AllRequiredValidatorTest extends ConstraintValidatorTestCase
 {
     public const PROPERTIES = ['firstProperty', 'secondProperty'];
 
@@ -40,7 +40,7 @@ final class ExactlyBothValidatorTest extends ConstraintValidatorTestCase
      */
     public function testValidData(object $object): void
     {
-        $constraint = new ExactlyBoth(properties: self::PROPERTIES);
+        $constraint = new AllRequired(properties: self::PROPERTIES);
         $this->validator->validate($object, $constraint);
 
         $this->assertNoViolation();
@@ -51,7 +51,7 @@ final class ExactlyBothValidatorTest extends ConstraintValidatorTestCase
      */
     public function testInvalidData(object $object): void
     {
-        $constraint = new ExactlyBoth(properties: self::PROPERTIES);
+        $constraint = new AllRequired(properties: self::PROPERTIES);
         $this->validator->validate($object, $constraint);
 
         $this->buildViolation($constraint->message)
@@ -117,6 +117,6 @@ final class ExactlyBothValidatorTest extends ConstraintValidatorTestCase
 
     protected function createValidator(): ConstraintValidatorInterface
     {
-        return new ExactlyBothValidator();
+        return new AllRequiredValidator();
     }
 }

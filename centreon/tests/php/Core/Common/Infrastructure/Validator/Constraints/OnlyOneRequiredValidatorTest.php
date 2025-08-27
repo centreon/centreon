@@ -23,15 +23,15 @@ declare(strict_types=1);
 
 namespace Tests\Core\Common\Infrastructure\Validator\Constraints;
 
-use Core\Common\Infrastructure\Validator\Constraints\ExactlyOneOf;
-use Core\Common\Infrastructure\Validator\Constraints\ExactlyOneOfValidator;
+use Core\Common\Infrastructure\Validator\Constraints\OnlyOneRequired;
+use Core\Common\Infrastructure\Validator\Constraints\OnlyOneRequiredValidator;
 use Symfony\Component\Validator\ConstraintValidatorInterface;
 use Symfony\Component\Validator\Test\ConstraintValidatorTestCase;
 
 /**
  * @extends ConstraintValidatorTestCase<ConstraintValidatorInterface>
  */
-final class ExactlyOneOfValidatorTest extends ConstraintValidatorTestCase
+final class OnlyOneRequiredValidatorTest extends ConstraintValidatorTestCase
 {
     public const PROPERTIES = ['firstProperty', 'secondProperty'];
 
@@ -40,7 +40,7 @@ final class ExactlyOneOfValidatorTest extends ConstraintValidatorTestCase
      */
     public function testValidData(object $object): void
     {
-        $constraint = new ExactlyOneOf(properties: self::PROPERTIES);
+        $constraint = new OnlyOneRequired(properties: self::PROPERTIES);
         $this->validator->validate($object, $constraint);
 
         $this->assertNoViolation();
@@ -51,7 +51,7 @@ final class ExactlyOneOfValidatorTest extends ConstraintValidatorTestCase
      */
     public function testInvalidData(object $object): void
     {
-        $constraint = new ExactlyOneOf(properties: self::PROPERTIES);
+        $constraint = new OnlyOneRequired(properties: self::PROPERTIES);
         $this->validator->validate($object, $constraint);
 
         $this->buildViolation($constraint->message)
@@ -127,6 +127,6 @@ final class ExactlyOneOfValidatorTest extends ConstraintValidatorTestCase
 
     protected function createValidator(): ConstraintValidatorInterface
     {
-        return new ExactlyOneOfValidator();
+        return new OnlyOneRequiredValidator();
     }
 }
