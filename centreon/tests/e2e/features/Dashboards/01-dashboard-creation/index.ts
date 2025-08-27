@@ -209,7 +209,7 @@ Given(
 
 When('the dashboard administrator user starts to edit the dashboard', () => {
   cy.contains(dashboards.fromDashboardCreatorUser.name).click();
-  cy.waitForElementToBeVisible('[data-testid="edit_dashboard"]')
+  cy.waitForElementToBeVisible('[data-testid="edit_dashboard"]');
   cy.getByTestId({ testId: 'edit_dashboard' }).click();
   cy.location('search').should('include', 'edit=true');
   cy.get('button[type=button]').contains('Add a widget').should('exist');

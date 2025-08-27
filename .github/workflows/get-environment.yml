@@ -14,6 +14,9 @@ on:
       is_cloud:
         description: "context of release (cloud or not cloud)"
         value: ${{ jobs.get-environment.outputs.is_cloud }}
+      delivery_type:
+        description: "context of delivery (feature branch or classic delivery)"
+        value: ${{ jobs.get-environment.outputs.delivery_type }}
       linked_dev_branch:
         description: "linked develop branch"
         value: ${{ jobs.get-environment.outputs.linked_dev_branch }}
@@ -60,6 +63,7 @@ jobs:
     outputs:
       latest_major_version: ${{ steps.latest_major_version.outputs.latest_major_version }}
       is_cloud: ${{ steps.detect_cloud_version.outputs.isCloud }}
+      delivery_type: ${{ steps.detect_delivery_type.outputs.delivery_type }}
       linked_dev_branch: ${{ steps.linked_branches.outputs.linked_dev_branch }}
       linked_stable_branch: ${{ steps.linked_branches.outputs.linked_stable_branch }}
       major_version: ${{ steps.get_version.outputs.major_version }}
@@ -152,7 +156,7 @@ jobs:
                 }
 
                 if (hasReadOn && hasReadPullRequest && hasReadPaths) {
-                  const matches = line.match(/^\s{6}-\s['"](.+)['"]\s*$/);
+                  const matches = line.match(/^\s{6}-\s['"]?(.+)['"]?\s*$/);
                   if (matches) {
                     paths.push(matches[1].trim());
                   } else {
@@ -461,7 +465,7 @@ jobs:
             let releaseScope = "unknown";
 
             // in a nightly context, whatever the event_name is, the release context does not matter
-            if ( process.env.IS_NIGHTLY == 'true' ) {
+            if ( process.env.IS_NIGHTLY == 'true' || eventName === "workflow_run" ) {
               releaseScope = isCloudCandidate ? "cloud" : "onprem";
             } else if ( "${{ github.event_name }}" === "pull_request" ) {
               // handle if triggering event is a pull_request
@@ -577,6 +581,18 @@ jobs:
             core.setOutput("releaseScope", releaseScope);
             core.setOutput("isCloud", isCloud);
 
+      - name: "Detect delivery type"
+        id: detect_delivery_type
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        with:
+          script: |
+            let delivery_type  = 'classic';
+            if (${{ contains(github.event.pull_request.labels.*.name, 'delivery-feature') && 'true' || 'false' }}) {
+              delivery_type = 'feature';
+            }
+
+            core.setOutput('delivery_type', delivery_type);
+
       - name: Detect linked dev and stable branches
         id: linked_branches
         uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
@@ -646,6 +662,7 @@ jobs:
               [{data: 'Name', header: true}, {data: 'Value', header: true}],
               ['latest_major_version', '${{ steps.latest_major_version.outputs.latest_major_version }}'],
               ['is_cloud', '${{ steps.detect_cloud_version.outputs.isCloud }}'],
+              ['delivery_type', '${{ steps.detect_delivery_type.outputs.delivery_type }}'],
               ['linked_dev_branch', '${{ steps.linked_branches.outputs.linked_dev_branch }}'],
               ['linked_stable_branch', '${{ steps.linked_branches.outputs.linked_stable_branch }}'],
               ['major_version', '${{ steps.get_version.outputs.major_version }}'],

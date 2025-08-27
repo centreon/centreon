@@ -17,7 +17,7 @@ import {
 import { CircularProgress, useTheme } from '@mui/material';
 
 import { Props as AutocompleteFieldProps } from '..';
-import { ListingModel, ListingMapModel, SelectEntry } from '../../../..';
+import { ListingMapModel, ListingModel, SelectEntry } from '../../../..';
 import {
   ConditionsSearchParameter,
   SearchParameter
@@ -122,26 +122,31 @@ const ConnectedAutocompleteField = (
       }
     });
 
-    const getOptionResult = useCallback((
-      newOptions: ListingModel<TData> | ListingMapModel<TData>
-    ): OptionResult<TData> => {
-      if ('result' in newOptions) return {
-        result: newOptions.result || [],
-        total: newOptions.meta.total || 1,
-        limit: newOptions.meta.limit || 1,
-      };
-      if ('content' in newOptions) return {
-        result: newOptions.content || [],
-        total: newOptions.totalElements || 1,
-        limit: newOptions.size || 1,
-      };
+    const getOptionResult = useCallback(
+      (
+        newOptions: ListingModel<TData> | ListingMapModel<TData>
+      ): OptionResult<TData> => {
+        if ('result' in newOptions)
+          return {
+            result: newOptions.result || [],
+            total: newOptions.meta.total || 1,
+            limit: newOptions.meta.limit || 1
+          };
+        if ('content' in newOptions)
+          return {
+            result: newOptions.content || [],
+            total: newOptions.totalElements || 1,
+            limit: newOptions.size || 1
+          };
 
-      return {
-        result: [],
-        total: 1,
-        limit: 1,
-      }
-    }, []);
+        return {
+          result: [],
+          total: 1,
+          limit: 1
+        };
+      },
+      []
+    );
 
     const lastOptionRef = useIntersectionObserver({
       action: () => setPage(page + 1),

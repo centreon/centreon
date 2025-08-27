@@ -37,9 +37,8 @@ $help['command_line_help'] = dgettext(
 );
 $help['enable_shell'] = dgettext(
     'help',
-    'If your command requires shell features like pipes, redirections, globbing etc. check this box. '
-    . 'If you are using Monitoring Engine this option cannot be disabled. Note that commands that require shell '
-    . 'are slowing down the poller server.'
+    'Check this option if your command requires shell features like pipes, redirections, globbing etc. '
+    . 'Note that commands requiring shell are slowing down the poller server.'
 );
 $help['arg_example'] = dgettext(
     'help',

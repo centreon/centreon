@@ -1,5 +1,6 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
+import { checkIfConfigurationIsExported } from '../../../commons';
 import {
   breakSomePollers,
   checkIfConfigurationIsNotExported,
@@ -12,7 +13,6 @@ import {
   testHostName,
   waitPollerListToLoad
 } from '../common';
-import { checkIfConfigurationIsExported } from '../../../commons';
 
 let dateBeforeLogin: Date;
 
@@ -113,7 +113,7 @@ When('I click on the Export configuration button', () => {
 });
 
 Then('I am redirected to generate page', () => {
-  cy.url().should('include', `/centreon/main.php?p=60902&poller=`);
+  cy.url().should('include', '/centreon/main.php?p=60902&poller=');
 });
 
 Then('the selected poller names are displayed', () => {
@@ -186,8 +186,8 @@ Then('the configuration is generated on selected pollers', () => {
   checkIfConfigurationIsExported({ dateBeforeLogin, hostName: testHostName });
 });
 
-Then('the selected pollers are {string}', (poller_action: string) => {
-  checkIfMethodIsAppliedToPollers(poller_action);
+Then('the selected pollers are {string}', (pollerAction: string) => {
+  checkIfMethodIsAppliedToPollers(pollerAction);
 
   cy.logout();
 

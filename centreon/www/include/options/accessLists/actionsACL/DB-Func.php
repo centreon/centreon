@@ -19,6 +19,8 @@
  *
  */
 
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
 use Core\Application\Common\Session\Repository\ReadSessionRepositoryInterface;
 
 if (! isset($centreon)) {
@@ -218,31 +220,30 @@ function multipleActionInDB($actions = [], $nbrDup = [])
 {
     global $pearDB, $centreon;
 
-    foreach ($actions as $key => $value) {
+    foreach (array_keys($actions) as $key) {
         $dbResult = $pearDB->query("SELECT * FROM acl_actions WHERE acl_action_id = '" . $key . "' LIMIT 1");
         $row = $dbResult->fetch();
-        $row['acl_action_id'] = '';
 
         for ($i = 1; $i <= $nbrDup[$key]; $i++) {
-            $val = null;
-            foreach ($row as $key2 => $value2) {
-                $value2 = is_int($value2) ? (string) $value2 : $value2;
-                if ($key2 == 'acl_action_name') {
-                    $acl_action_name = $value2 . '_' . $i;
-                    $value2 = $value2 . '_' . $i;
-                }
-                $val ? $val .= ($value2 != null ? (", '" . $value2 . "'") : ', NULL')
-                    : $val .= ($value2 != null ? ("'" . $value2 . "'") : 'NULL');
-                if ($key2 != 'acl_action_id') {
-                    $fields[$key2] = $value2;
-                }
-                if (isset($acl_action_name)) {
-                    $fields['acl_action_name'] = $acl_action_name;
-                }
-            }
-            if (testActionExistence($acl_action_name)) {
-                $rq = $val ? 'INSERT INTO acl_actions VALUES (' . $val . ')' : null;
-                $pearDB->query($rq);
+            $aclActionName = $row['acl_action_name'] . '_' . $i;
+            if (testActionExistence($aclActionName)) {
+                $pearDB->executeStatement(
+                    <<<'SQL'
+                        INSERT INTO acl_actions (acl_action_name, acl_action_description, acl_action_activate)
+                        VALUES (:aclActionName, :aclActionDescription, :aclActionActivate)
+                        SQL,
+                    QueryParameters::create([
+                        QueryParameter::string('aclActionName', $aclActionName),
+                        QueryParameter::string(
+                            'aclActionDescription',
+                            $row['acl_action_description']
+                        ),
+                        QueryParameter::string(
+                            'aclActionActivate',
+                            $row['acl_action_activate']
+                        ),
+                    ])
+                );
                 $dbResult = $pearDB->query('SELECT MAX(acl_action_id) FROM acl_actions');
                 $maxId = $dbResult->fetch();
                 $dbResult->closeCursor();
@@ -274,9 +275,13 @@ function multipleActionInDB($actions = [], $nbrDup = [])
                     $centreon->CentreonLogAction->insertLog(
                         'action access',
                         $maxId['MAX(acl_action_id)'],
-                        $acl_action_name,
+                        $aclActionName,
                         'a',
-                        $fields
+                        [
+                            'acl_action_name' => $aclActionName,
+                            'acl_action_description' => $row['acl_action_description'],
+                            'acl_action_activate' => $row['acl_action_activate'],
+                        ]
                     );
                 }
             }
@@ -324,7 +329,7 @@ function insertAction($ret)
     );
     $statement->bindValue(
         ':aclActionDescription',
-        htmlentities($ret['acl_action_description'], ENT_QUOTES, 'UTF-8'),
+        $ret['acl_action_description'],
         PDO::PARAM_STR
     );
     $statement->bindValue(
@@ -378,13 +383,27 @@ function updateAction($aclActionId = null)
     global $form, $pearDB;
 
     $ret = $form->getSubmitValues();
-    $rq = 'UPDATE acl_actions ';
-    $rq .= "SET acl_action_name = '" . htmlentities($ret['acl_action_name'], ENT_QUOTES, 'UTF-8') . "', "
-        . "acl_action_description = '" . htmlentities($ret['acl_action_description'], ENT_QUOTES, 'UTF-8') . "', "
-        . "acl_action_activate = '"
-        . htmlentities($ret['acl_action_activate']['acl_action_activate'], ENT_QUOTES, 'UTF-8') . "' "
-        . "WHERE acl_action_id = '" . $aclActionId . "'";
-    $pearDB->query($rq);
+    $pearDB->executeStatement(
+        <<<'SQL'
+            UPDATE acl_actions
+            SET acl_action_name = :acl_action_name,
+                acl_action_description = :acl_action_description,
+                acl_action_activate = :acl_action_activate
+            WHERE acl_action_id = :acl_action_id
+            SQL,
+        QueryParameters::create([
+            QueryParameter::string('acl_action_name', $ret['acl_action_name']),
+            QueryParameter::string(
+                'acl_action_description',
+                $ret['acl_action_description']
+            ),
+            QueryParameter::string(
+                'acl_action_activate',
+                $ret['acl_action_activate']['acl_action_activate']
+            ),
+            QueryParameter::int('acl_action_id', $ret['acl_action_id']),
+        ])
+    );
 }
 
 /**

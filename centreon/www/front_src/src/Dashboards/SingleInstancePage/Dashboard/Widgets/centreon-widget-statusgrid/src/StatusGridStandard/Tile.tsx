@@ -1,4 +1,4 @@
-import { T, always, cond, equals, isNil } from 'ramda';
+import { T, always, cond, equals } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { Link, useNavigate } from 'react-router';
 
