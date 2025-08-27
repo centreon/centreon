@@ -32,7 +32,7 @@ final class FindInstallationStatus
     use LoggerTrait;
 
     /**
-     * @param CentreonInstallationVerifier $centreonInstallationVerifier
+     * @param InstallationVerifierInterface $centreonInstallationVerifier
      */
     public function __construct(private InstallationVerifierInterface $centreonInstallationVerifier)
     {
