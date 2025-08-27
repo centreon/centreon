@@ -825,7 +825,7 @@ class CentreonService extends CentreonObject
                     }
                 }
             }
-            $extended = new Centreon_Object_Service_Extended($this->dependencyInjector);
+            $extended = new \Centreon_Object_Service_Extended($this->dependencyInjector);
             $extended->update($objectId, [$params[2] => $params[3]]);
             $centreonConfig = new CentreonConfigurationChange($this->dependencyInjector['configuration_db']);
             $hostId = $centreonConfig->findHostsForConfigChangeFlagFromServiceIds([$objectId]);
