@@ -272,7 +272,7 @@ if ($hostgroup) {
         $mainQueryParameters[':poller_id'] = [\PDO::PARAM_INT => $poller];
 
         $request = <<<SQL
-            SELECT SQL_CALC_FOUND_ROWS DISTINCT 
+            SELECT SQL_CALC_FOUND_ROWS DISTINCT
                 h.host_id, h.host_name, host_alias, host_address, host_activate, host_template_model_htm_id
             FROM host h
             INNER JOIN ns_host_relation nshr
@@ -323,7 +323,7 @@ if ($hostgroup) {
                 h.host_register = '1'
                 $sqlFilterCase
             ORDER BY h.host_name
-            LIMIT :offset, :limit 
+            LIMIT :offset, :limit
             SQL;
     } else {
         $request = <<<SQL
@@ -336,7 +336,7 @@ if ($hostgroup) {
                 host_register = '1'
                 $sqlFilterCase
             ORDER BY h.host_name
-            LIMIT :offset, :limit 
+            LIMIT :offset, :limit
             SQL;
     }
 }
@@ -409,6 +409,7 @@ for ($i = 0; $host = $dbResult->fetch(); $i++) {
         if (count($tplArr)) {
             $firstTpl = 1;
             foreach ($tplArr as $key => $value) {
+                $value = htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
                 if ($firstTpl) {
                     $tplStr .= "<a href='main.php?p=60103&o=c&host_id=$key'>$value</a>";
                     $firstTpl = 0;
@@ -443,25 +444,23 @@ for ($i = 0; $host = $dbResult->fetch(); $i++) {
         }
 
         // Create Array Data for template list
-        $elemArr[$i] = array(
-            "MenuClass" => "list_" . $style,
-            "RowMenu_select" => $selectedElements->toHtml(),
-            "RowMenu_name" => $host["host_name"],
-            "RowMenu_name_link" => HtmlAnalyzer::sanitizeAndRemoveTags($host["host_name"]),
-            "RowMenu_id" => $host["host_id"],
-            "RowMenu_icone" => $host_icone,
-            "RowMenu_link" => "main.php?p=" . $p . "&o=c&host_id=" . $host['host_id'],
-            "RowMenu_desc" => CentreonUtils::escapeSecure($host["host_alias"]),
-            "RowMenu_address" => CentreonUtils::escapeSecure($host["host_address"]),
-            "RowMenu_poller" => isset($tab_relation[$host["host_id"]])
-                ? $tab_relation[$host["host_id"]]
-                : "",
-            "RowMenu_parent" => CentreonUtils::escapeSecure($tplStr),
-            "RowMenu_status" => $host["host_activate"] ? _("Enabled") : _("Disabled"),
-            "RowMenu_badge" => $host["host_activate"] ? "service_ok" : "service_critical",
-            "RowMenu_options" => $moptions,
-            "isSvgFile" => $isSvgFile
-        );
+        $elemArr[$i] = [
+            'MenuClass' => 'list_' . $style,
+            'RowMenu_select' => $selectedElements->toHtml(),
+            'RowMenu_name' => $host['host_name'],
+            'RowMenu_name_link' => HtmlAnalyzer::sanitizeAndRemoveTags($host['host_name']),
+            'RowMenu_id' => $host['host_id'],
+            'RowMenu_icone' => $host_icone,
+            'RowMenu_link' => 'main.php?p=' . $p . '&o=c&host_id=' . $host['host_id'],
+            'RowMenu_desc' => $host['host_alias'],
+            'RowMenu_address' => CentreonUtils::escapeSecure($host['host_address']),
+            'RowMenu_poller' => $tab_relation[$host['host_id']] ?? '',
+            'RowMenu_parent' => CentreonUtils::escapeSecure($tplStr),
+            'RowMenu_status' => $host['host_activate'] ? _('Enabled') : _('Disabled'),
+            'RowMenu_badge' => $host['host_activate'] ? 'service_ok' : 'service_critical',
+            'RowMenu_options' => $moptions,
+            'isSvgFile' => $isSvgFile,
+        ];
 
         $style != "two"
             ? $style = "two"

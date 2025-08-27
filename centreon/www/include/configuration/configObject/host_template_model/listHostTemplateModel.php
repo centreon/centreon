@@ -154,6 +154,7 @@ for ($i = 0; $host = $DBRESULT->fetch(); $i++) {
     if (count($tplArr)) {
         $firstTpl = 1;
         foreach ($tplArr as $key => $value) {
+            $value = htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
             if ($firstTpl) {
                 $tplStr .= "<a href='main.php?p=60103&o=c&host_id=" . $key . "'>" . $value . "</a>";
                 $firstTpl = 0;
@@ -185,19 +186,19 @@ for ($i = 0; $host = $DBRESULT->fetch(); $i++) {
     $svArr = array();
     $svStr = null;
     $svArr = getMyHostServices($host['host_id']);
-    $elemArr[$i] = array(
-        "MenuClass" => "list_" . $style,
-        "RowMenu_select" => $selectedElements->toHtml(),
-        "RowMenu_name" => CentreonUtils::escapeSecure($host["host_name"]),
-        "RowMenu_link" => "main.php?p=" . $p . "&o=c&host_id=" . $host['host_id'],
-        "RowMenu_desc" => CentreonUtils::escapeSecure($host["host_alias"]),
-        "RowMenu_icone" => $host_icone,
-        "RowMenu_svChilds" => count($svArr),
-        "RowMenu_parent" => CentreonUtils::escapeSecure($tplStr),
-        "RowMenu_options" => $moptions,
-        "isHostTemplateSvgFile" => $isHostTemplateSvgFile
-    );
-    $style != "two" ? $style = "two" : $style = "one";
+    $elemArr[$i] = [
+        'MenuClass' => 'list_' . $style,
+        'RowMenu_select' => $selectedElements->toHtml(),
+        'RowMenu_name' => $host['host_name'],
+        'RowMenu_link' => 'main.php?p=' . $p . '&o=c&host_id=' . $host['host_id'],
+        'RowMenu_desc' => $host['host_alias'],
+        'RowMenu_icone' => $host_icone,
+        'RowMenu_svChilds' => count($svArr),
+        'RowMenu_parent' => CentreonUtils::escapeSecure($tplStr),
+        'RowMenu_options' => $moptions,
+        'isHostTemplateSvgFile' => $isHostTemplateSvgFile,
+    ];
+    $style = $style != 'two' ? 'two' : 'one';
 }
 $tpl->assign("elemArr", $elemArr);
 

@@ -137,7 +137,7 @@ class CentreonHost
         }
         $listHost = array();
         while ($row = $stmt->fetch()) {
-            $listHost[$row['host_id']] = $row['host_name'];
+            $listHost[$row['host_id']] = htmlspecialchars($row['host_name'], ENT_QUOTES, 'UTF-8');
         }
         return $listHost;
     }
@@ -161,7 +161,7 @@ class CentreonHost
         $dbResult->bindValue(':hostId', $hostId, \PDO::PARAM_INT);
         $dbResult->execute();
         while ($multiTp = $dbResult->fetch()) {
-            $mTp[$multiTp["host_tpl_id"]] = $multiTp["host_name"];
+            $mTp[$multiTp['host_tpl_id']] = htmlspecialchars($multiTp['host_name'], ENT_QUOTES, 'UTF-8');
         }
 
         return $mTp;
@@ -706,7 +706,7 @@ class CentreonHost
               FROM host
               LEFT JOIN ns_host_relation ns
                 ON ns.host_host_id = host.host_id
-              WHERE host_id = :hostId 
+              WHERE host_id = :hostId
               LIMIT 1';
             $stmt = $this->db->prepare($query);
             $stmt->bindValue(':hostId', (int) $hostParam, \PDO::PARAM_INT);
