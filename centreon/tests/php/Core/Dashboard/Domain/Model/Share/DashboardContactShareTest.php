@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,32 +23,30 @@ declare(strict_types=1);
 
 namespace Tests\Core\Dashboard\Domain\Model\Share;
 
+use Centreon\Domain\Common\Assertion\AssertionException;
 use Core\Dashboard\Domain\Model\Dashboard;
 use Core\Dashboard\Domain\Model\Refresh;
-use Centreon\Domain\Common\Assertion\AssertionException;
+use Core\Dashboard\Domain\Model\Refresh\RefreshType;
 use Core\Dashboard\Domain\Model\Role\DashboardSharingRole;
 use Core\Dashboard\Domain\Model\Share\DashboardContactShare;
-use Core\Dashboard\Domain\Model\Refresh\RefreshType;
 use Core\Dashboard\Infrastructure\Model\DashboardSharingRoleConverter;
 
 beforeEach(function (): void {
-    $this->createDashboardContactShare = function (array $fields = []): DashboardContactShare {
-        return new DashboardContactShare(
-            new Dashboard(
-                99,
-                'dashboard-name',
-                null,
-                null,
-                new \DateTimeImmutable(),
-                new \DateTimeImmutable(),
-                new Refresh(RefreshType::Global, null),
-            ),
-            $fields['id'] ?? 1,
-            $fields['name'] ?? 'contact-name',
-            $fields['email'] ?? 'contact-email',
-            DashboardSharingRoleConverter::fromString($fields['role'] ?? 'viewer')
-        );
-    };
+    $this->createDashboardContactShare = fn (array $fields = []): DashboardContactShare => new DashboardContactShare(
+        new Dashboard(
+            99,
+            'dashboard-name',
+            null,
+            null,
+            new \DateTimeImmutable(),
+            new \DateTimeImmutable(),
+            new Refresh(RefreshType::Global, null),
+        ),
+        $fields['id'] ?? 1,
+        $fields['name'] ?? 'contact-name',
+        $fields['email'] ?? 'contact-email',
+        DashboardSharingRoleConverter::fromString($fields['role'] ?? 'viewer')
+    );
 });
 
 it(
@@ -67,14 +65,14 @@ it(
 
 it(
     'should throw an exception when dashboard contact share name is an empty string',
-    fn() => ($this->createDashboardContactShare)(['name' => ''])
+    fn () => ($this->createDashboardContactShare)(['name' => ''])
 )->throws(
     AssertionException::class,
     AssertionException::notEmptyString('DashboardContactShare::contactName')->getMessage()
 );
 it(
     'should throw an exception when dashboard contact share email is an empty string',
-    fn() => ($this->createDashboardContactShare)(['email' => ''])
+    fn () => ($this->createDashboardContactShare)(['email' => ''])
 )->throws(
     AssertionException::class,
     AssertionException::notEmptyString('DashboardContactShare::contactEmail')->getMessage()
@@ -84,9 +82,8 @@ it(
 
 it(
     'should throw an exception when dashboard contact share id is not a positive integer',
-    fn() => ($this->createDashboardContactShare)(['id' => 0])
+    fn () => ($this->createDashboardContactShare)(['id' => 0])
 )->throws(
     AssertionException::class,
     AssertionException::positiveInt(0, 'DashboardContactShare::contactId')->getMessage()
 );
-

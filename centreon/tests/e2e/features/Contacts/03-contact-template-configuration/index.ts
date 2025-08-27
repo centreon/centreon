@@ -1,4 +1,3 @@
-/* eslint-disable cypress/unsafe-to-chain-command */
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
 import contactTemplates from '../../../fixtures/users/contact.json';
@@ -59,14 +58,22 @@ When('a contact template is configured', () => {
   });
   cy.wait('@getTimeZone');
   cy.getIframeBody().contains('a', 'Add').click();
-  cy.addOrUpdateContactTemplate(contactTemplates.defaultTemplate);
+  cy.addOrUpdateContactTemplate({
+    ...contactTemplates.defaultTemplate,
+    usedContactTemplate: contactTemplates.defaultTemplate.usedCTemplate,
+    notCommands: contactTemplates.defaultTemplate.NotCommands
+  });
 });
 
 When(
   'the user updates the properties of the configured contact template',
   () => {
     cy.getIframeBody().contains(contactTemplates.defaultTemplate.alias).click();
-    cy.addOrUpdateContactTemplate(contactTemplates.templateForUpdate);
+    cy.addOrUpdateContactTemplate({
+      ...contactTemplates.templateForUpdate,
+      usedContactTemplate: contactTemplates.templateForUpdate.usedCTemplate,
+      notCommands: contactTemplates.templateForUpdate.NotCommands
+    });
   }
 );
 
@@ -103,7 +110,7 @@ Then('the properties are updated', () => {
     .find('option:selected')
     .then(($selectedOptions) => {
       const selectedTexts = Array.from($selectedOptions).map(
-        (option) => option.text
+        (option) => (option as HTMLOptionElement).text
       );
       expect(selectedTexts).to.include.members([
         contactTemplates.defaultTemplate.NotCommands,
@@ -123,7 +130,7 @@ Then('the properties are updated', () => {
     .find('option:selected')
     .then(($selectedOptions) => {
       const selectedTexts = Array.from($selectedOptions).map(
-        (option) => option.text
+        (option) => (option as HTMLOptionElement).text
       );
       expect(selectedTexts).to.include.members([
         contactTemplates.defaultTemplate.NotCommands,
@@ -170,7 +177,7 @@ Then('a new contact template is created with identical properties', () => {
     .find('option:selected')
     .then(($selectedOptions) => {
       const selectedTexts = Array.from($selectedOptions).map(
-        (option) => option.text
+        (option) => (option as HTMLOptionElement).text
       );
       expect(selectedTexts).to.include.members([
         contactTemplates.defaultTemplate.NotCommands
@@ -185,7 +192,7 @@ Then('a new contact template is created with identical properties', () => {
     .find('option:selected')
     .then(($selectedOptions) => {
       const selectedTexts = Array.from($selectedOptions).map(
-        (option) => option.text
+        (option) => (option as HTMLOptionElement).text
       );
       expect(selectedTexts).to.include.members([
         contactTemplates.defaultTemplate.NotCommands

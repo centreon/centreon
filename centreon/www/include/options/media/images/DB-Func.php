@@ -1,34 +1,19 @@
 <?php
 
-/**
- * Copyright 2005-2021 Centreon
- * Centreon is developed by : Julien Mathis and Romain Le Merlus under
- * GPL Licence 2.0.
+/*
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation ; either version 2 of the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <http://www.gnu.org/licenses>.
- *
- * Linking this program statically or dynamically with other modules is making a
- * combined work based on this program. Thus, the terms and conditions of the GNU
- * General Public License cover the whole combination.
- *
- * As a special exception, the copyright holders of this program give Centreon
- * permission to link this program with independent modules to produce an executable,
- * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of Centreon choice, provided that
- * Centreon also meet, for each linked independent module, the terms  and conditions
- * of the license of that module. An independent module is a module which is not
- * derived from this program. If you modify this program, you may extend this
- * exception to your version of the program, but you are not obliged to do so. If you
- * do not wish to do so, delete this exception statement from your version.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * For more information : contact@centreon.com
  *
@@ -36,42 +21,35 @@
 
 use enshrined\svgSanitize\Sanitizer;
 
-if (!isset($oreon)) {
+if (! isset($oreon)) {
     exit();
 }
 
 function sanitizeFilename($filename)
 {
-    $cleanstr = str_replace(
+    return str_replace(
         [' ', '/', '\\'],
-        "_",
+        '_',
         $filename
     );
-    return $cleanstr;
 }
 
 function sanitizePath($path)
 {
-    $cleanstr = str_replace(
+    return str_replace(
         ['#', '/', '\\'],
-        "_",
+        '_',
         $path
     );
-    return $cleanstr;
 }
-
 
 function extractDir($zipfile, $path)
 {
     if (file_exists($zipfile)) {
         $files = [];
-        $zip = new ZipArchive;
+        $zip = new ZipArchive();
         if ($zip->open($zipfile) === true) {
-            if ($zip->extractTo($path) === true) {
-                return true;
-            } else {
-                return false;
-            }
+            return (bool) ($zip->extractTo($path) === true);
             $zip->close();
         } else {
             return false;
@@ -83,16 +61,17 @@ function extractDir($zipfile, $path)
 
 function isValidImage($filename)
 {
-    if (!$filename) {
+    if (! $filename) {
         return false;
     }
     $imginfo = getimagesize($filename);
 
     if (isset($imginfo) && false !== $imginfo) {
         return true;
-    } else {
-        return is_gd2($filename);
     }
+
+    return is_gd2($filename);
+
     return false;
 }
 
@@ -104,50 +83,51 @@ function is_gd2($filename)
     $gd_res = imagecreatefromgd2($filename);
     if ($gd_res) {
         imagedestroy($gd_res);
+
         return true;
     }
+
     return false;
 }
 
-
-function insertImg($src_dir, $src_file, $dst_dir, $dst_file, $img_comment = "")
+function insertImg($src_dir, $src_file, $dst_dir, $dst_file, $img_comment = '')
 {
     global $pearDB;
-    $mediadir = "./img/media/";
+    $mediadir = './img/media/';
 
-    if (!($dir_id = testDirectoryExistence($dst_dir))) {
+    if (! ($dir_id = testDirectoryExistence($dst_dir))) {
         $dir_id = insertDirectory($dst_dir);
     }
 
     $dst_file = sanitizeFilename($dst_file);
-    $dst  = $mediadir.$dst_dir."/".$dst_file;
+    $dst  = $mediadir . $dst_dir . '/' . $dst_file;
     if (is_file($dst)) {
         return false;
     } // file exists
-    if (!rename($src_dir.$src_file, $dst)) {
+    if (! rename($src_dir . $src_file, $dst)) {
         return false;
     } // access denied, path error
 
-    $img_parts = explode(".", $dst_file);
+    $img_parts = explode('.', $dst_file);
     $img_name = $img_parts[0];
 
     $prepare = $pearDB->prepare(
-        "INSERT INTO view_img (img_name, img_path, img_comment) VALUES "
-        . "(:image_name, :image_path, :image_comment)"
+        'INSERT INTO view_img (img_name, img_path, img_comment) VALUES '
+        . '(:image_name, :image_path, :image_comment)'
     );
-    $prepare->bindValue(':image_name', $img_name, \PDO::PARAM_STR);
-    $prepare->bindValue(':image_path', $dst_file, \PDO::PARAM_STR);
-    $prepare->bindValue(':image_comment', $img_comment, \PDO::PARAM_STR);
+    $prepare->bindValue(':image_name', $img_name, PDO::PARAM_STR);
+    $prepare->bindValue(':image_path', $dst_file, PDO::PARAM_STR);
+    $prepare->bindValue(':image_comment', $img_comment, PDO::PARAM_STR);
 
     $prepare->execute();
     $image_id = $pearDB->lastInsertId();
 
     $prepare2 = $pearDB->prepare(
-        "INSERT INTO view_img_dir_relation (dir_dir_parent_id, img_img_id) "
-        . "VALUES (:dir_id, :image_id)"
+        'INSERT INTO view_img_dir_relation (dir_dir_parent_id, img_img_id) '
+        . 'VALUES (:dir_id, :image_id)'
     );
-    $prepare2->bindValue(':dir_id', $dir_id, \PDO::PARAM_INT);
-    $prepare2->bindValue(':image_id', $image_id, \PDO::PARAM_INT);
+    $prepare2->bindValue(':dir_id', $dir_id, PDO::PARAM_INT);
+    $prepare2->bindValue(':image_id', $image_id, PDO::PARAM_INT);
     $prepare2->execute();
 
     return $image_id;
@@ -157,7 +137,7 @@ function deleteMultImg($images = [])
 {
     foreach (array_keys($images) as $selector) {
         $id = explode('-', $selector);
-        if (count($id)!=2) {
+        if (count($id) != 2) {
             continue;
         }
         deleteImg($id[1]);
@@ -166,27 +146,27 @@ function deleteMultImg($images = [])
 
 function deleteImg($imageId)
 {
-    if (!isset($imageId)) {
+    if (! isset($imageId)) {
         return;
     }
     $imageId = (int) $imageId;
 
     global $pearDB;
 
-    $mediadir = "./img/media/";
-    $query = <<<SQL
-        SELECT dir.dir_alias, img.img_path
-        FROM view_img img
-        INNER JOIN view_img_dir_relation rel ON img.img_id = rel.img_img_id
-        INNER JOIN view_img_dir dir ON rel.dir_dir_parent_id = dir.dir_id
-        WHERE img.img_id = :imageId
-    SQL;
+    $mediadir = './img/media/';
+    $query = <<<'SQL'
+            SELECT dir.dir_alias, img.img_path
+            FROM view_img img
+            INNER JOIN view_img_dir_relation rel ON img.img_id = rel.img_img_id
+            INNER JOIN view_img_dir dir ON rel.dir_dir_parent_id = dir.dir_id
+            WHERE img.img_id = :imageId
+        SQL;
 
     $dbResult = $pearDB->prepare($query);
     $dbResult->bindValue(':imageId', $imageId, PDO::PARAM_INT);
     $dbResult->execute();
     foreach ($dbResult->fetchAll(PDO::FETCH_ASSOC) as $imagePath) {
-        $fullpath = $mediadir . basename($imagePath["dir_alias"]) . "/" . basename($imagePath["img_path"]);
+        $fullpath = $mediadir . basename($imagePath['dir_alias']) . '/' . basename($imagePath['img_path']);
         if (is_file($fullpath)) {
             unlink($fullpath);
         }
@@ -204,13 +184,14 @@ function deleteImg($imageId)
         $pearDB->commit();
     } catch (PDOException $e) {
         $pearDB->rollBack();
+
         throw $e;
     }
 }
 
 function moveMultImg($images, $dirName)
 {
-    if (count($images)>0) {
+    if (count($images) > 0) {
         foreach ($images as $id) {
             moveImg($id, $dirName);
         }
@@ -219,56 +200,56 @@ function moveMultImg($images, $dirName)
 
 function moveImg($img_id, $dir_alias)
 {
-    if (!$img_id) {
+    if (! $img_id) {
         return;
     }
     global $pearDB;
-    $mediadir = "./img/media/";
+    $mediadir = './img/media/';
     $prepare = $pearDB->prepare(
-        "SELECT dir_id, dir_alias, img_path, img_comment "
-        . "FROM view_img, view_img_dir, view_img_dir_relation "
-        . "WHERE img_id = :image_id AND img_id = img_img_id "
-        . "AND dir_dir_parent_id = dir_id"
+        'SELECT dir_id, dir_alias, img_path, img_comment '
+        . 'FROM view_img, view_img_dir, view_img_dir_relation '
+        . 'WHERE img_id = :image_id AND img_id = img_img_id '
+        . 'AND dir_dir_parent_id = dir_id'
     );
-    $prepare->bindValue(':image_id', $img_id, \PDO::PARAM_INT);
+    $prepare->bindValue(':image_id', $img_id, PDO::PARAM_INT);
 
-    if (!$prepare->execute()) {
+    if (! $prepare->execute()) {
         return;
     }
     $img_info = $prepare->fetch(PDO::FETCH_ASSOC);
-    $image_info_path = basename($img_info["img_path"]);
-    $image_info_dir_alias = basename($img_info["dir_alias"]);
+    $image_info_path = basename($img_info['img_path']);
+    $image_info_dir_alias = basename($img_info['dir_alias']);
     $dir_alias = $dir_alias ? sanitizePath($dir_alias) : $image_info_dir_alias;
-    if ($dir_alias != $img_info["dir_alias"]) {
-        $oldpath = $mediadir . $image_info_dir_alias . "/" . $image_info_path;
-        $newpath = $mediadir . $dir_alias . "/" . $image_info_path;
+    if ($dir_alias != $img_info['dir_alias']) {
+        $oldpath = $mediadir . $image_info_dir_alias . '/' . $image_info_path;
+        $newpath = $mediadir . $dir_alias . '/' . $image_info_path;
 
-        if (!file_exists($newpath)) {
+        if (! file_exists($newpath)) {
             /**
              * Only if file doesn't already exist in the destination
              */
-            if (!testDirectoryExistence($dir_alias)) {
+            if (! testDirectoryExistence($dir_alias)) {
                 $dir_id = insertDirectory($dir_alias);
             } else {
                 $prepare2 = $pearDB->prepare(
-                    "SELECT dir_id FROM view_img_dir WHERE dir_alias = :dir_alias"
+                    'SELECT dir_id FROM view_img_dir WHERE dir_alias = :dir_alias'
                 );
-                $prepare2->bindValue(':dir_alias', $dir_alias, \PDO::PARAM_STR);
+                $prepare2->bindValue(':dir_alias', $dir_alias, PDO::PARAM_STR);
 
-                if (!$prepare2->execute()) {
+                if (! $prepare2->execute()) {
                     return;
                 }
                 $dir_info = $prepare2->fetch();
-                $dir_id = $dir_info["dir_id"];
+                $dir_id = $dir_info['dir_id'];
             }
 
             if (rename($oldpath, $newpath)) {
                 $prepare2 = $pearDB->prepare(
-                    "UPDATE view_img_dir_relation SET dir_dir_parent_id = :dir_id "
-                    . " WHERE img_img_id = :image_id"
+                    'UPDATE view_img_dir_relation SET dir_dir_parent_id = :dir_id '
+                    . ' WHERE img_img_id = :image_id'
                 );
-                $prepare2->bindValue(':dir_id', $dir_id, \PDO::PARAM_INT);
-                $prepare2->bindValue(':image_id', $img_id, \PDO::PARAM_INT);
+                $prepare2->bindValue(':dir_id', $dir_id, PDO::PARAM_INT);
+                $prepare2->bindValue(':image_id', $img_id, PDO::PARAM_INT);
                 $prepare2->execute();
             }
         }
@@ -277,7 +258,7 @@ function moveImg($img_id, $dir_alias)
 
 function testDirectoryCallback($name)
 {
-    return testDirectoryExistence($name)==0;
+    return testDirectoryExistence($name) == 0;
 }
 
 function testDirectoryExistence($name)
@@ -285,59 +266,62 @@ function testDirectoryExistence($name)
     global $pearDB;
     $dir_id = 0;
     $prepare = $pearDB->prepare(
-        "SELECT dir_name, dir_id FROM view_img_dir WHERE dir_name = :dir_name"
+        'SELECT dir_name, dir_id FROM view_img_dir WHERE dir_name = :dir_name'
     );
-    $prepare->bindValue(':dir_name', $name, \PDO::PARAM_STR);
+    $prepare->bindValue(':dir_name', $name, PDO::PARAM_STR);
     $prepare->execute();
     $result = $prepare->fetch(PDO::FETCH_ASSOC);
     if (isset($result['dir_id'])) {
         $dir_id = $result['dir_id'];
     }
+
     return $dir_id;
 }
 
 function testDirectoryIsEmpty($directoryId)
 {
-    if (!$directoryId) {
+    if (! $directoryId) {
         return true;
     }
     global $pearDB;
 
     $statement = $pearDB->prepare('SELECT img_img_id FROM view_img_dir_relation WHERE dir_dir_parent_id = :directoryId');
-    $statement->bindValue(':directoryId', $directoryId, \PDO::PARAM_INT);
+    $statement->bindValue(':directoryId', $directoryId, PDO::PARAM_INT);
     $statement->execute();
     $empty = ($statement->fetchColumn() > 0) ? false : true;
     $statement->closeCursor();
+
     return $empty;
 }
 
-function insertDirectory($dir_alias, $dir_comment = "")
+function insertDirectory($dir_alias, $dir_comment = '')
 {
     global $pearDB;
-    $mediadir = "./img/media/";
+    $mediadir = './img/media/';
     $dir_alias_safe = basename($dir_alias);
     @mkdir($mediadir . $dir_alias_safe);
     if (is_dir($mediadir . $dir_alias_safe)) {
-        touch($mediadir . $dir_alias_safe . "/index.html");
+        touch($mediadir . $dir_alias_safe . '/index.html');
         $prepare = $pearDB->prepare(
-            "INSERT INTO view_img_dir (dir_name, dir_alias, dir_comment) VALUES "
-            . "(:dir_alias, :dir_alias, :dir_comment)"
+            'INSERT INTO view_img_dir (dir_name, dir_alias, dir_comment) VALUES '
+            . '(:dir_alias, :dir_alias, :dir_comment)'
         );
-        $prepare->bindValue(':dir_alias', $dir_alias_safe, \PDO::PARAM_STR);
-        $prepare->bindValue(':dir_comment', $dir_comment, \PDO::PARAM_STR);
+        $prepare->bindValue(':dir_alias', $dir_alias_safe, PDO::PARAM_STR);
+        $prepare->bindValue(':dir_comment', $dir_comment, PDO::PARAM_STR);
         $prepare->execute();
         $dir_id = $pearDB->lastInsertId();
+
         return $dir_id;
-    } else {
-        return "";
     }
+
+    return '';
 }
 
 function deleteMultDirectory($dirs = [])
 {
     foreach (array_keys($dirs) as $selector) {
         $id = explode('-', $selector);
-        if (count($id)!=1) {
+        if (count($id) != 1) {
             continue;
         }
         deleteDirectory($id[0]);
@@ -347,70 +331,70 @@ function deleteMultDirectory($dirs = [])
 function deleteDirectory($directoryId)
 {
     global $pearDB;
-    $mediadir = "./img/media/";
+    $mediadir = './img/media/';
     $directoryId = (int) $directoryId;
 
     // Purge images of the directory
-    $statement1 = $pearDB->prepare("SELECT img_img_id FROM view_img_dir_relation WHERE dir_dir_parent_id = :directoryId");
+    $statement1 = $pearDB->prepare('SELECT img_img_id FROM view_img_dir_relation WHERE dir_dir_parent_id = :directoryId');
     $statement1->bindValue(':directoryId', $directoryId, PDO::PARAM_INT);
     $statement1->execute();
     while ($img = $statement1->fetch()) {
-        deleteImg($img["img_img_id"]);
+        deleteImg($img['img_img_id']);
     }
     $statement1->closeCursor();
 
     // Delete directory
-    $statement2 = $pearDB->prepare("SELECT dir_alias FROM view_img_dir WHERE dir_id = :directoryId");
+    $statement2 = $pearDB->prepare('SELECT dir_alias FROM view_img_dir WHERE dir_id = :directoryId');
     $statement2->bindValue(':directoryId', $directoryId, PDO::PARAM_INT);
     $statement2->execute();
     $dirAlias = $statement2->fetch();
     $statement2->closeCursor();
 
-    $safeDirAlias = basename($dirAlias["dir_alias"]);
+    $safeDirAlias = basename($dirAlias['dir_alias']);
     $filenames = scandir($mediadir . $safeDirAlias);
     foreach ($filenames as $fileName) {
-        if (is_file($mediadir . $safeDirAlias . "/" . $fileName)) {
-            unlink($mediadir . $safeDirAlias . "/" . $fileName);
+        if (is_file($mediadir . $safeDirAlias . '/' . $fileName)) {
+            unlink($mediadir . $safeDirAlias . '/' . $fileName);
         }
     }
     rmdir($mediadir . $safeDirAlias);
 
-    if (!is_dir($mediadir . $safeDirAlias)) {
-        $statement3 = $pearDB->prepare("DELETE FROM view_img_dir WHERE dir_id = :directoryId");
+    if (! is_dir($mediadir . $safeDirAlias)) {
+        $statement3 = $pearDB->prepare('DELETE FROM view_img_dir WHERE dir_id = :directoryId');
         $statement3->bindValue(':directoryId', $directoryId, PDO::PARAM_INT);
         $statement3->execute();
     }
 }
 
-function updateDirectory($dir_id, $dir_alias, $dir_comment = "")
+function updateDirectory($dir_id, $dir_alias, $dir_comment = '')
 {
-    if (!$dir_id) {
+    if (! $dir_id) {
         return;
     }
 
     global $pearDB;
-    $mediadir = "./img/media/";
-    $prepare = $pearDB->prepare("SELECT dir_alias FROM view_img_dir WHERE dir_id = :dir_id ");
-    $prepare->bindValue(':dir_id', $dir_id, \PDO::PARAM_INT);
+    $mediadir = './img/media/';
+    $prepare = $pearDB->prepare('SELECT dir_alias FROM view_img_dir WHERE dir_id = :dir_id ');
+    $prepare->bindValue(':dir_id', $dir_id, PDO::PARAM_INT);
     $prepare->execute();
     $old_dir = $prepare->fetch(PDO::FETCH_ASSOC);
     $dir_alias = sanitizePath($dir_alias);
-    if (!is_dir($mediadir . $old_dir["dir_alias"])) {
+    if (! is_dir($mediadir . $old_dir['dir_alias'])) {
         mkdir($mediadir . $dir_alias);
     } else {
-        rename($mediadir . $old_dir["dir_alias"], $mediadir . $dir_alias);
+        rename($mediadir . $old_dir['dir_alias'], $mediadir . $dir_alias);
     }
 
-    if (is_dir($mediadir.$dir_alias)) {
+    if (is_dir($mediadir . $dir_alias)) {
         $prepare = $pearDB->prepare(
-            "UPDATE view_img_dir SET dir_name = :dir_name, "
-            . "dir_alias = :dir_alias, dir_comment = :dir_comment "
-            . "WHERE dir_id = :dir_id"
+            'UPDATE view_img_dir SET dir_name = :dir_name, '
+            . 'dir_alias = :dir_alias, dir_comment = :dir_comment '
+            . 'WHERE dir_id = :dir_id'
         );
-        $prepare->bindValue(':dir_name', $dir_alias, \PDO::PARAM_STR);
-        $prepare->bindValue(':dir_alias', $dir_alias, \PDO::PARAM_STR);
-        $prepare->bindValue(':dir_comment', $dir_comment, \PDO::PARAM_STR);
-        $prepare->bindValue(':dir_id', $dir_id, \PDO::PARAM_INT);
+        $prepare->bindValue(':dir_name', $dir_alias, PDO::PARAM_STR);
+        $prepare->bindValue(':dir_alias', $dir_alias, PDO::PARAM_STR);
+        $prepare->bindValue(':dir_comment', $dir_comment, PDO::PARAM_STR);
+        $prepare->bindValue(':dir_id', $dir_id, PDO::PARAM_INT);
         $prepare->execute();
     }
 }
@@ -419,11 +403,11 @@ function getListDirectory($filter = null)
 {
     global $pearDB;
 
-    $query = "SELECT dir_id, dir_name FROM view_img_dir ";
-    if (!is_null($filter) && strlen($filter) > 0) {
+    $query = 'SELECT dir_id, dir_name FROM view_img_dir ';
+    if (! is_null($filter) && strlen($filter) > 0) {
         $query .= "WHERE dir_name LIKE '" . $filter . "%' ";
     }
-    $query .= "ORDER BY dir_name";
+    $query .= 'ORDER BY dir_name';
     $list_dir = [];
     $dbresult = $pearDB->query($query);
     while ($row = $dbresult->fetch(PDO::FETCH_ASSOC)) {
@@ -433,6 +417,7 @@ function getListDirectory($filter = null)
         );
     }
     $dbresult->closeCursor();
+
     return $list_dir;
 }
 
@@ -440,75 +425,69 @@ function getListDirectory($filter = null)
  * Check MIME Type of file
  *
  * @param array $file
- * @return boolean
+ * @return bool
  */
 function isCorrectMIMEType(array $file): bool
 {
     $mimeTypeFileExtensionConcordance = [
-        "svg" => "image/svg+xml",
-        "jpg" => "image/jpeg",
-        "jpeg" => "image/jpeg",
-        "gif" => "image/gif",
-        "png" => "image/png",
-        "zip" => "application/zip",
-        "gzip" => "application/x-gzip"
+        'svg' => 'image/svg+xml',
+        'jpg' => 'image/jpeg',
+        'jpeg' => 'image/jpeg',
+        'gif' => 'image/gif',
+        'png' => 'image/png',
+        'zip' => 'application/zip',
+        'gzip' => 'application/x-gzip',
     ];
-    $fileExtension = end(explode(".", $file["name"]));
-    if (!array_key_exists($fileExtension, $mimeTypeFileExtensionConcordance)) {
+    $fileExtension = end(explode('.', $file['name']));
+    if (! array_key_exists($fileExtension, $mimeTypeFileExtensionConcordance)) {
         return false;
     }
 
     $mimeType = mime_content_type($file['tmp_name']);
     if (
-        !preg_match('/(^image\/(jpg|jpeg|svg\+xml|gif|png)$)|(^application(\/zip)|(\/x-gzip)$)/', $mimeType)
+        ! preg_match('/(^image\/(jpg|jpeg|svg\+xml|gif|png)$)|(^application(\/zip)|(\/x-gzip)$)/', $mimeType)
         || (preg_match('/^image\//', $mimeType) && $mimeType !== $mimeTypeFileExtensionConcordance[$fileExtension])
     ) {
         return false;
     }
     $dir = sys_get_temp_dir() . '/pendingMedia';
     switch ($mimeType) {
-        /*
-        * .zip archive
-        */
+        // .zip archive
         case 'application/zip':
             $zip = new ZipArchive();
             if (isValidMIMETypeFromArchive($dir, $file['tmp_name'], $zip) === true) {
                 return true;
-            } else {
-                // remove the pending images from tmp
-                removeRecursiveTempDirectory($dir);
-                return false;
             }
+            // remove the pending images from tmp
+            removeRecursiveTempDirectory($dir);
+
+            return false;
             break;
-        /*
-        *.tgz archive
-        */
+            // .tgz archive
         case 'application/x-gzip':
-            /*
-            * Append an extension to temp file to be able to instanciate a PharData object
-            */
+            // Append an extension to temp file to be able to instanciate a PharData object
             $archiveNewName = $file['tmp_name'] . '.tgz';
             rename($file['tmp_name'], $archiveNewName);
             $tar = new PharData($archiveNewName);
             if (isValidMIMETypeFromArchive($dir, null, null, $tar) === true) {
-                //remove the .tgz from tmp
+                // remove the .tgz from tmp
                 unlink($archiveNewName);
+
                 return true;
-            } else {
-                //remove the .tgz and the pending images from tmp
-                unlink($archiveNewName);
-                removeRecursiveTempDirectory($dir);
-                return false;
             }
+            // remove the .tgz and the pending images from tmp
+            unlink($archiveNewName);
+            removeRecursiveTempDirectory($dir);
+
+            return false;
             break;
-        /*
-        * single image
-        */
+            // single image
         case 'image/svg+xml':
             $sanitizer = new Sanitizer();
             $uploadedSVG = file_get_contents($file['tmp_name']);
             $cleanSVG = $sanitizer->sanitize($uploadedSVG);
             file_put_contents($file['tmp_name'], $cleanSVG);
+
             return true;
             break;
         case 'image/jpeg':
@@ -519,15 +498,17 @@ function isCorrectMIMEType(array $file): bool
             if (! $image) {
                 CentreonLog::create()->error(
                     CentreonLog::TYPE_BUSINESS_LOG,
-                    "Unable to validate image, your image may be corrupted",
+                    'Unable to validate image, your image may be corrupted',
                     [
                         'mime_type' => $mimeType,
                         'filename' => $file['name'],
-                        'extension' => $fileExtension
+                        'extension' => $fileExtension,
                     ]
                 );
+
                 return false;
             }
+
             return true;
             break;
         case 'image/png':
@@ -538,15 +519,17 @@ function isCorrectMIMEType(array $file): bool
             if (! $image) {
                 CentreonLog::create()->error(
                     CentreonLog::TYPE_BUSINESS_LOG,
-                    "Unable to validate image, your image may be corrupted",
+                    'Unable to validate image, your image may be corrupted',
                     [
                         'mime_type' => $mimeType,
                         'filename' => $file['name'],
-                        'extension' => $fileExtension
+                        'extension' => $fileExtension,
                     ]
                 );
+
                 return false;
             }
+
             return true;
             break;
         case 'image/gif':
@@ -557,22 +540,23 @@ function isCorrectMIMEType(array $file): bool
             if (! $image) {
                 CentreonLog::create()->error(
                     CentreonLog::TYPE_BUSINESS_LOG,
-                    "Unable to validate image, your image may be corrupted",
+                    'Unable to validate image, your image may be corrupted',
                     [
                         'mime_type' => $mimeType,
                         'filename' => $file['name'],
-                        'extension' => $fileExtension
+                        'extension' => $fileExtension,
                     ]
                 );
+
                 return false;
             }
+
             return true;
             break;
         default:
             return true;
     }
 }
-
 
 /**
  * Remove a directory and its content
@@ -585,8 +569,8 @@ function removeRecursiveTempDirectory(string $dir): void
     if (is_dir($dir)) {
         $objects = scandir($dir);
         foreach ($objects as $object) {
-            if ($object !== "." && $object !== "..") {
-                if (is_dir($dir . DIRECTORY_SEPARATOR . $object) && !is_link($dir . DIRECTORY_SEPARATOR . $object)) {
+            if ($object !== '.' && $object !== '..') {
+                if (is_dir($dir . DIRECTORY_SEPARATOR . $object) && ! is_link($dir . DIRECTORY_SEPARATOR . $object)) {
                     removeRecursiveTempDirectory($dir . DIRECTORY_SEPARATOR . $object);
                 } else {
                     unlink($dir . DIRECTORY_SEPARATOR . $object);
@@ -604,13 +588,13 @@ function removeRecursiveTempDirectory(string $dir): void
  * @param string $filename
  * @param ZipArchive $zip
  * @param PharData $tar
- * @return boolean
+ * @return bool
  */
 function isValidMIMETypeFromArchive(
     string $dir,
-    string $filename = null,
-    ZipArchive $zip = null,
-    PharData $tar = null
+    ?string $filename = null,
+    ?ZipArchive $zip = null,
+    ?PharData $tar = null
 ): bool {
     $files = [];
 
@@ -637,24 +621,24 @@ function isValidMIMETypeFromArchive(
     }
 
     $mimeTypeFileExtensionConcordance = [
-        "svg" => "image/svg+xml",
-        "jpg" => "image/jpeg",
-        "jpeg" => "image/jpeg",
-        "gif" => "image/gif",
-        "png" => "image/png",
-        "zip" => "application/zip",
-        "gzip" => "application/x-gzip"
+        'svg' => 'image/svg+xml',
+        'jpg' => 'image/jpeg',
+        'jpeg' => 'image/jpeg',
+        'gif' => 'image/gif',
+        'png' => 'image/png',
+        'zip' => 'application/zip',
+        'gzip' => 'application/x-gzip',
     ];
 
     foreach ($files as $file) {
-        $fileExtension = end(explode(".", $file));
-        if (!array_key_exists($fileExtension, $mimeTypeFileExtensionConcordance)) {
+        $fileExtension = end(explode('.', $file));
+        if (! array_key_exists($fileExtension, $mimeTypeFileExtensionConcordance)) {
             return false;
         }
 
         $mimeType = mime_content_type($dir . '/' . $file);
         if (
-            !preg_match('/(^image\/(jpg|jpeg|svg\+xml|gif|png)$)/', $mimeType)
+            ! preg_match('/(^image\/(jpg|jpeg|svg\+xml|gif|png)$)/', $mimeType)
             || (preg_match('/^image\//', $mimeType) && $mimeType !== $mimeTypeFileExtensionConcordance[$fileExtension])
         ) {
             return false;
@@ -674,12 +658,13 @@ function isValidMIMETypeFromArchive(
                 if (! $image) {
                     CentreonLog::create()->error(
                         CentreonLog::TYPE_BUSINESS_LOG,
-                        "Unable to validate image, your image may be corrupted",
+                        'Unable to validate image, your image may be corrupted',
                         [
                             'filename' => $file['name'],
-                            'extension' => $fileExtension
+                            'extension' => $fileExtension,
                         ]
                     );
+
                     return false;
                 }
                 break;
@@ -691,12 +676,13 @@ function isValidMIMETypeFromArchive(
                 if (! $image) {
                     CentreonLog::create()->error(
                         CentreonLog::TYPE_BUSINESS_LOG,
-                        "Unable to validate image, your image may be corrupted",
+                        'Unable to validate image, your image may be corrupted',
                         [
                             'filename' => $file['name'],
-                            'extension' => $fileExtension
+                            'extension' => $fileExtension,
                         ]
                     );
+
                     return false;
                 }
                 break;
@@ -708,12 +694,13 @@ function isValidMIMETypeFromArchive(
                 if (! $image) {
                     CentreonLog::create()->error(
                         CentreonLog::TYPE_BUSINESS_LOG,
-                        "Unable to validate image, your image may be corrupted",
+                        'Unable to validate image, your image may be corrupted',
                         [
                             'filename' => $file['name'],
-                            'extension' => $fileExtension
+                            'extension' => $fileExtension,
                         ]
                     );
+
                     return false;
                 }
                 break;
@@ -721,6 +708,7 @@ function isValidMIMETypeFromArchive(
                 return true;
         }
     }
+
     return true;
 }
 
@@ -741,10 +729,11 @@ function getFilesFromTempDirectory(string $tempDirectory): array
                 'filename' => [
                     'name' => $file,
                     'tmp_name' => $file,
-                    'size' => filesize($directory . DIRECTORY_SEPARATOR . $file)
-                ]
+                    'size' => filesize($directory . DIRECTORY_SEPARATOR . $file),
+                ],
             ];
         }
     }
+
     return $filesInfo;
 }

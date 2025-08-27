@@ -1,11 +1,11 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
-import { initializeWebSSOUserAndGetLoginPage } from '../common';
+import { initializeWebSsoUserAndGetLoginPage } from '../common';
 
 before(() => {
   cy.startContainers();
 
-  initializeWebSSOUserAndGetLoginPage();
+  initializeWebSsoUserAndGetLoginPage();
 });
 
 beforeEach(() => {

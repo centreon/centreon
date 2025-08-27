@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,31 +23,29 @@ declare(strict_types=1);
 
 namespace Tests\Core\Dashboard\Domain\Model\Share;
 
+use Centreon\Domain\Common\Assertion\AssertionException;
 use Core\Dashboard\Domain\Model\Dashboard;
 use Core\Dashboard\Domain\Model\Refresh;
-use Centreon\Domain\Common\Assertion\AssertionException;
+use Core\Dashboard\Domain\Model\Refresh\RefreshType;
 use Core\Dashboard\Domain\Model\Role\DashboardSharingRole;
 use Core\Dashboard\Domain\Model\Share\DashboardContactGroupShare;
-use Core\Dashboard\Domain\Model\Refresh\RefreshType;
 use Core\Dashboard\Infrastructure\Model\DashboardSharingRoleConverter;
 
 beforeEach(function (): void {
-    $this->createDashboardContactGroupShare = function (array $fields = []): DashboardContactGroupShare {
-        return new DashboardContactGroupShare(
-            new Dashboard(
-                99,
-                'dashboard-name',
-                null,
-                null,
-                new \DateTimeImmutable(),
-                new \DateTimeImmutable(),
-                new Refresh(RefreshType::Global, null),
-            ),
-            $fields['id'] ?? 1,
-            $fields['name'] ?? 'contact-group-name',
-            DashboardSharingRoleConverter::fromString($fields['role'] ?? 'viewer')
-        );
-    };
+    $this->createDashboardContactGroupShare = fn (array $fields = []): DashboardContactGroupShare => new DashboardContactGroupShare(
+        new Dashboard(
+            99,
+            'dashboard-name',
+            null,
+            null,
+            new \DateTimeImmutable(),
+            new \DateTimeImmutable(),
+            new Refresh(RefreshType::Global, null),
+        ),
+        $fields['id'] ?? 1,
+        $fields['name'] ?? 'contact-group-name',
+        DashboardSharingRoleConverter::fromString($fields['role'] ?? 'viewer')
+    );
 });
 
 it(
@@ -66,7 +64,7 @@ it(
 
 it(
     'should throw an exception when dashboard contact group share name is an empty string',
-    fn() => ($this->createDashboardContactGroupShare)(['name' => ''])
+    fn () => ($this->createDashboardContactGroupShare)(['name' => ''])
 )->throws(
     AssertionException::class,
     AssertionException::notEmptyString('DashboardContactGroupShare::contactGroupName')->getMessage()
@@ -76,9 +74,8 @@ it(
 
 it(
     'should throw an exception when dashboard contact group share id is not a positive integer',
-    fn() => ($this->createDashboardContactGroupShare)(['id' => 0])
+    fn () => ($this->createDashboardContactGroupShare)(['id' => 0])
 )->throws(
     AssertionException::class,
     AssertionException::positiveInt(0, 'DashboardContactGroupShare::contactGroupId')->getMessage()
 );
-

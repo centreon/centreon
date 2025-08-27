@@ -1,33 +1,19 @@
 <?php
+
 /*
- * Copyright 2005-2015 Centreon
- * Centreon is developped by : Julien Mathis and Romain Le Merlus under
- * GPL Licence 2.0.
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation ; either version 2 of the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <http://www.gnu.org/licenses>.
- *
- * Linking this program statically or dynamically with other modules is making a
- * combined work based on this program. Thus, the terms and conditions of the GNU
- * General Public License cover the whole combination.
- *
- * As a special exception, the copyright holders of this program give Centreon
- * permission to link this program with independent modules to produce an executable,
- * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of Centreon choice, provided that
- * Centreon also meet, for each linked independent module, the terms  and conditions
- * of the license of that module. An independent module is a module which is not
- * derived from this program. If you modify this program, you may extend this
- * exception to your version of the program, but you are not obliged to do so. If you
- * do not wish to do so, delete this exception statement from your version.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * For more information : contact@centreon.com
  *
@@ -43,7 +29,6 @@ use Core\Common\Infrastructure\Repository\SqlMultipleBindTrait;
 class CentreonMonitoring
 {
     use SqlMultipleBindTrait;
-
     public const SERVICE_STATUS_OK = 0;
     public const SERVICE_STATUS_WARNING = 1;
     public const SERVICE_STATUS_CRITICAL = 2;
@@ -52,8 +37,10 @@ class CentreonMonitoring
 
     /** @var string */
     protected $poller;
+
     /** @var CentreonDB */
     protected $DB;
+
     /** @var */
     protected $objBroker;
 
@@ -110,7 +97,7 @@ class CentreonMonitoring
     ): int {
         $toBind = [':service_status' => $serviceStatus, ':host_name' => $hostName];
         if ($centreonXMLBGRequest->is_admin) {
-            $query = <<<SQL
+            $query = <<<'SQL'
                 SELECT count(distinct s.service_id) as count, 1 AS REALTIME
                 FROM services s
                 INNER JOIN hosts h
@@ -142,10 +129,10 @@ class CentreonMonitoring
             $toBind = [...$toBind, ...$bindValues];
         }
 
-        # Acknowledgement filter
+        // Acknowledgement filter
         if ($o === 'svcSum_ack_0') {
             $query .= ' AND s.acknowledged = 0 AND s.state != 0 ';
-        } elseif ($o === "svcSum_ack_1") {
+        } elseif ($o === 'svcSum_ack_1') {
             $query .= ' AND s.acknowledged = 1 AND s.state != 0 ';
         }
         $statement = $centreonXMLBGRequest->DBC->prepare($query);
@@ -178,7 +165,7 @@ class CentreonMonitoring
         }
         [$hostIdsToBind, $hostNamesSubQuery] = $this->createMultipleBindQuery($hostIds, ':host_id_');
         $toBind = $hostIdsToBind;
-        $query = <<<SQL
+        $query = <<<'SQL'
             SELECT
                 1 AS REALTIME,
                 h.name, s.description AS service_name, s.state, s.service_id,
@@ -212,35 +199,35 @@ class CentreonMonitoring
                 AND h.name NOT LIKE '\_Module\_%'
             SQL;
 
-        if ($o === "svcgrid_pb" || $o === "svcOV_pb") {
-            $query .= " AND s.state != 0 ";
-        } elseif ($o === "svcgrid_ack_0" || $o === "svcOV_ack_0") {
-            $query .= " AND s.acknowledged = 0 AND s.state != 0 ";
-        } elseif ($o === "svcgrid_ack_1" || $o === "svcOV_ack_1") {
-            $query .= " AND s.acknowledged = 1 ";
+        if ($o === 'svcgrid_pb' || $o === 'svcOV_pb') {
+            $query .= ' AND s.state != 0 ';
+        } elseif ($o === 'svcgrid_ack_0' || $o === 'svcOV_ack_0') {
+            $query .= ' AND s.acknowledged = 0 AND s.state != 0 ';
+        } elseif ($o === 'svcgrid_ack_1' || $o === 'svcOV_ack_1') {
+            $query .= ' AND s.acknowledged = 1 ';
         }
 
         $query .= " AND h.host_id IN ({$hostNamesSubQuery}) ";
 
-        # Instance filter
+        // Instance filter
         if ($monitoringServerId !== -1) {
-            $query .=  " AND h.instance_id = :monitoring_server_id";
+            $query .=  ' AND h.instance_id = :monitoring_server_id';
             $toBind[':monitoring_server_id'] = $monitoringServerId;
         }
 
-        $query .= " ORDER BY tri ASC, service_name";
+        $query .= ' ORDER BY tri ASC, service_name';
 
         $serviceDetails = [];
         $statement = $centreonXMLBGRequest->DBC->prepare($query);
         $centreonXMLBGRequest->DBC->executePreparedQuery($statement, $toBind);
 
         while ($result = $centreonXMLBGRequest->DBC->fetch($statement)) {
-            if (! isset($serviceDetails[$result["name"]])) {
-                $serviceDetails[$result["name"]] = [];
+            if (! isset($serviceDetails[$result['name']])) {
+                $serviceDetails[$result['name']] = [];
             }
-            $serviceDetails[$result["name"]][$result["service_name"]] = [
-                'state' => $result["state"],
-                'service_id' => $result['service_id']
+            $serviceDetails[$result['name']][$result['service_name']] = [
+                'state' => $result['state'],
+                'service_id' => $result['service_id'],
             ];
         }
         $centreonXMLBGRequest->DBC->closeQuery($statement);

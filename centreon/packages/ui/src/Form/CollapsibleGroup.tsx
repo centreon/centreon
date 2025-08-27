@@ -35,12 +35,6 @@ const useStyles = makeStyles()((theme) => ({
     display: 'flex',
     flexDirection: 'row'
   },
-  groupTitleIcon: {
-    alignItems: 'center',
-    columnGap: theme.spacing(1),
-    display: 'flex',
-    flexDirection: 'row'
-  },
   tooltip: {
     maxWidth: theme.spacing(60)
   },
@@ -77,7 +71,7 @@ const CollapsibleGroup = ({
           disableGutters
           disableRipple
           aria-label={group?.name}
-          className={cx(classes.groupTitleContainer, containerClassName)}
+          className={`${cx(classes.groupTitleContainer, containerClassName)} bg-background-listing-header`}
           onClick={toggle}
         >
           {containerComponentChildren}
@@ -94,12 +88,17 @@ const CollapsibleGroup = ({
     <>
       {hasGroupTitle && (
         <ContainerComponent>
-          {isCollapsible && <CollapseIcon />}
-          <div className={classes.groupTitleIcon}>
+          <div
+            data-testid={`${group?.name}-header`}
+            className={
+              'snap-y flex flex-row justify-between w-full pl-3 pr-1 text-white items-center'
+            }
+          >
             <Typography
-              className="groupText"
+              className="groupText scroll-m-12 snap-start"
               variant="h6"
               {...group?.titleAttributes}
+              data-section-group-form-id={group?.name}
             >
               {t(group?.name as string)}
             </Typography>
@@ -116,6 +115,7 @@ const CollapsibleGroup = ({
                 </MuiIconButton>
               </Tooltip>
             )}
+            {isCollapsible && <CollapseIcon />}
           </div>
         </ContainerComponent>
       )}

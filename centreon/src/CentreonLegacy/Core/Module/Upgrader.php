@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,6 @@ declare(strict_types=1);
 
 namespace CentreonLegacy\Core\Module;
 
-use Symfony\Component\Filesystem\Exception\IOException;
 use Symfony\Component\Finder\Finder;
 
 class Upgrader extends Module
@@ -69,33 +68,10 @@ class Upgrader extends Module
             $this->upgradePhpFiles($upgradePath, false);
         }
 
-        // make sure that if necessary route files are correctly generated.
-        $this->generateRoutes();
-
         // finally, upgrade to current version
         $this->upgradeVersion($this->moduleConfiguration['mod_release']);
 
         return $this->moduleId;
-    }
-
-    /**
-     * This method intends to generate routes from available route files eg copy the
-     * RouteFile.wait.yaml to the final RouteFile.yaml.
-     *
-     * @throws \Exception
-     * @throws IOException
-     */
-    private function generateRoutes(): void
-    {
-        $generateRoutesFile = $this->getModulePath($this->moduleName) . '/php/generate_routes.php';
-
-        // routes should be generated only if generate_routes.php is available and routes directory exists
-        if (
-            $this->services->get('filesystem')->exists($generateRoutesFile)
-            && $this->services->get('filesystem')->exists($this->getModulePath($this->moduleName) . '/routes/')
-        ) {
-            $this->utils->executePhpFile($generateRoutesFile);
-        }
     }
 
     /**

@@ -1,41 +1,47 @@
 <?php
 
 /*
- * Copyright 2016-2019 Centreon (http://www.centreon.com/)
- *
- * Centreon is a full-fledged industry-strength solution that meets
- * the needs in IT infrastructure and application monitoring for
- * service performance.
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,*
+ * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
+ * For more information : contact@centreon.com
+ *
  */
 
 class Automatic
 {
-    /** @var Centreon  */
+    /** @var Centreon */
     protected $centreon;
+
     /** @var CentreonDB */
     protected $dbCentstorage;
+
     /** @var CentreonDB */
     protected $dbCentreon;
+
     /** @var string */
     protected $centreonPath;
+
     /** @var string */
     protected $openTicketPath;
+
     /** @var Centreon_OpenTickets_Rule */
     protected $rule;
+
     /** @var string */
     protected $uniqId;
+
     /** @var array<string, int> */
     protected $registerProviders;
 
@@ -67,9 +73,118 @@ class Automatic
     }
 
     /**
+     * Open a service ticket
+     *
+     * @param mixed $params
+     * @return array
+     */
+    public function openService($params)
+    {
+        $ruleInfo = $this->getRuleInfo($params['rule_name']);
+        $contact = $this->getContactInformation($params);
+        $service = $this->getServiceInformation($params);
+
+        $rv = $this->submitTicket($params, $ruleInfo, $contact, [], [$service]);
+        $this->doChainRules($rv['chainRuleList'], $params, $contact, [], [$service]);
+
+        $this->externalServiceCommands($rv['providerClass'], $rv['ticket_id'], $contact, $service);
+
+        return ['code' => 0, 'message' => 'Open ticket ' . $rv['ticket_id']];
+    }
+
+    /**
+     * Open a host ticket
+     *
+     * @param mixed $params
+     * @return array
+     */
+    public function openHost($params)
+    {
+        $ruleInfo = $this->getRuleInfo($params['rule_name']);
+        $contact = $this->getContactInformation($params);
+        $host = $this->getHostInformation($params);
+
+        $rv = $this->submitTicket($params, $ruleInfo, $contact, [$host], []);
+        $this->doChainRules($rv['chainRuleList'], $params, $contact, [$host], []);
+
+        $this->externalHostCommands($rv['providerClass'], $rv['ticket_id'], $contact, $host);
+
+        return ['code' => 0, 'message' => 'Open ticket ' . $rv['ticket_id']];
+    }
+
+    /**
+     * Close a host ticket
+     *
+     * @param mixed $params
+     * @return array
+     */
+    public function closeHost($params)
+    {
+        $ruleInfo = $this->getRuleInfo($params['rule_name']);
+        $host = $this->getHostInformation($params);
+        $providerClass = $this->getProviderClass($ruleInfo);
+        $macroName = $providerClass->getMacroTicketId();
+
+        $ticketId = $this->getHostTicket($params, $macroName);
+
+        $rv = ['code' => 0, 'message' => 'no ticket found for host: ' . $host['name']];
+
+        if ($ticketId) {
+            $closeTicketData = [
+                $ticketId => [],
+            ];
+
+            try {
+                $providerClass->closeTicket($closeTicketData);
+                $this->changeMacroHost($macroName, $host);
+                $rv = ['code' => 0, 'message' => 'ticket ' . $ticketId . ' has been closed'];
+            } catch (Exception $e) {
+                $rv = ['code' => -1, 'message' => $e->getMessage()];
+            }
+        }
+
+        return $rv;
+    }
+
+    /**
+     * Close a service ticket
+     *
+     * @param mixed $params
+     * @return array
+     */
+    public function closeService($params)
+    {
+        $ruleInfo = $this->getRuleInfo($params['rule_name']);
+        $service = $this->getServiceInformation($params);
+        $providerClass = $this->getProviderClass($ruleInfo);
+        $macroName = $providerClass->getMacroTicketId();
+
+        $ticketId = $this->getServiceTicket($params, $macroName);
+
+        $rv = ['code' => 0, 'message' => 'no ticket found for service: '
+            . $service['host_name'] . ' ' . $service['description']];
+
+        if ($ticketId) {
+            $closeTicketData = [
+                $ticketId => [],
+            ];
+
+            try {
+                $providerClass->closeTicket($closeTicketData);
+                $this->changeMacroService($macroName, $service);
+                $rv = ['code' => 0, 'message' => 'ticket ' . $ticketId . ' has been closed'];
+            } catch (Exception $e) {
+                $rv = ['code' => -1, 'message' => $e->getMessage()];
+            }
+        }
+
+        return $rv;
+    }
+
+    /**
      * Get rule information
      *
-     * @param  string   $name
+     * @param string $name
      * @return array
      */
     protected function getRuleInfo($name)
@@ -80,7 +195,7 @@ class Automatic
         );
         $stmt->bindParam(':alias', $name, PDO::PARAM_STR);
         $stmt->execute();
-        if (!($ruleInfo = $stmt->fetch(PDO::FETCH_ASSOC))) {
+        if (! ($ruleInfo = $stmt->fetch(PDO::FETCH_ASSOC))) {
             throw new Exception('Wrong parameter rule_id');
         }
 
@@ -124,9 +239,9 @@ class Automatic
     /**
      * Get service information
      *
-     * @param  mixed   $params
+     * @param mixed $params
+     * @throws Exception
      * @return mixed
-     * @throws \Exception
      */
     protected function getServiceInformation($params)
     {
@@ -141,18 +256,18 @@ class Automatic
             WHERE services.host_id = :host_id AND
                 services.service_id = :service_id AND
                 services.host_id = hosts.host_id';
-        if (!$this->centreon->user->admin) {
-            $query .=
-                ' AND EXISTS(
-                SELECT * FROM centreon_acl WHERE centreon_acl.group_id IN (' .
-                $this->centreon->user->groupListStr . ') AND ' .
-                '   centreon_acl.host_id = :host_id AND centreon_acl.service_id = :service_id)';
+        if (! $this->centreon->user->admin) {
+            $query
+                .= ' AND EXISTS(
+                SELECT * FROM centreon_acl WHERE centreon_acl.group_id IN ('
+                . $this->centreon->user->groupListStr . ') AND '
+                . '   centreon_acl.host_id = :host_id AND centreon_acl.service_id = :service_id)';
         }
         $stmt = $this->dbCentstorage->prepare($query);
         $stmt->bindParam(':host_id', $params['host_id'], PDO::PARAM_INT);
         $stmt->bindParam(':service_id', $params['service_id'], PDO::PARAM_INT);
         $stmt->execute();
-        if (!($service = $stmt->fetch(PDO::FETCH_ASSOC))) {
+        if (! ($service = $stmt->fetch(PDO::FETCH_ASSOC))) {
             throw new Exception('Wrong parameter host_id/service_id or acl');
         }
 
@@ -208,24 +323,24 @@ class Automatic
     /**
      * Get host information
      *
-     * @param  mixed   $params
+     * @param mixed $params
+     * @throws Exception
      * @return mixed
-     * @throws \Exception
      */
     protected function getHostInformation($params)
     {
         $query = 'SELECT * FROM hosts WHERE hosts.host_id = :host_id';
-        if (!$this->centreon->user->admin) {
-            $query .=
-                ' AND EXISTS(
-                SELECT * FROM centreon_acl WHERE centreon_acl.group_id IN (' .
-                $this->centreon->user->groupListStr . ') AND ' .
-                '   centreon_acl.host_id = :host_id)';
+        if (! $this->centreon->user->admin) {
+            $query
+                .= ' AND EXISTS(
+                SELECT * FROM centreon_acl WHERE centreon_acl.group_id IN ('
+                . $this->centreon->user->groupListStr . ') AND '
+                . '   centreon_acl.host_id = :host_id)';
         }
         $stmt = $this->dbCentstorage->prepare($query);
         $stmt->bindParam(':host_id', $params['host_id'], PDO::PARAM_INT);
         $stmt->execute();
-        if (!($host = $stmt->fetch(PDO::FETCH_ASSOC))) {
+        if (! ($host = $stmt->fetch(PDO::FETCH_ASSOC))) {
             throw new Exception('Wrong parameter host_id or acl');
         }
 
@@ -262,9 +377,9 @@ class Automatic
     /**
      * Get provider class
      *
-     * @param  array   $ruleInfo
+     * @param array $ruleInfo
+     * @throws Exception
      * @return object
-     * @throws \Exception
      */
     protected function getProviderClass($ruleInfo)
     {
@@ -281,7 +396,7 @@ class Automatic
         }
 
         $file = $this->openTicketPath . 'providers/' . $providerName . '/' . $providerName . 'Provider.class.php';
-        if (!file_exists($file)) {
+        if (! file_exists($file)) {
             throw new Exception('Provider not exist');
         }
 
@@ -303,13 +418,13 @@ class Automatic
     /**
      * Get form values
      *
-     * @param  mixed   $params
-     * @param  mixed   $groups
+     * @param mixed $params
+     * @param mixed $groups
      * @return array
      */
     protected function getForm($params, $groups)
     {
-        $form = [ 'title' => 'automate' ];
+        $form = ['title' => 'automate'];
         if (isset($params['extra_properties']) && is_array($params['extra_properties'])) {
             foreach ($params['extra_properties'] as $key => $value) {
                 $form[$key] = $value;
@@ -317,13 +432,12 @@ class Automatic
         }
 
         foreach ($groups as $groupId => $groupEntry) {
-            if (!isset($params['select'][$groupId])) {
+            if (! isset($params['select'][$groupId])) {
                 if (count($groupEntry['values']) == 1) {
                     foreach ($groupEntry['values'] as $key => $value) {
                         $form['select_' . $groupId] = $key . '___' . $value;
                         if (
-                            isset($groupEntry['placeholder'])
-                            && isset($groupEntry['placeholder'][$key])
+                            isset($groupEntry['placeholder'], $groupEntry['placeholder'][$key])
                         ) {
                             $form['select_' . $groupId] .= '___' . $groupEntry['placeholder'][$key];
                         }
@@ -337,15 +451,14 @@ class Automatic
                     $params['select'][$groupId] == $key
                     || $params['select'][$groupId] == $value
                     || (
-                        isset($groupEntry['placeholder'])
-                        && isset($groupEntry['placeholder'][$key])
+                        isset($groupEntry['placeholder'], $groupEntry['placeholder'][$key])
+
                         && $params['select'][$groupId] == $groupEntry['placeholder'][$key]
-                       )
+                    )
                 ) {
                     $form['select_' . $groupId] = $key . '___' . $value;
                     if (
-                        isset($groupEntry['placeholder'])
-                        && isset($groupEntry['placeholder'][$key])
+                        isset($groupEntry['placeholder'], $groupEntry['placeholder'][$key])
                     ) {
                         $form['select_' . $groupId] .= '___' . $groupEntry['placeholder'][$key];
                     }
@@ -359,11 +472,11 @@ class Automatic
     /**
      * Submit provider ticket
      *
-     * @param  mixed $params
-     * @param  array $ruleInfo
-     * @param  array $contact
-     * @param  array $host
-     * @param  array $service
+     * @param mixed $params
+     * @param array $ruleInfo
+     * @param array $contact
+     * @param array $host
+     * @param array $service
      * @return array
      */
     protected function submitTicket($params, $ruleInfo, $contact, $host, $service)
@@ -377,8 +490,8 @@ class Automatic
                 'user' => [
                     'name' => $contact['name'],
                     'alias' => $contact['alias'],
-                    'email' => $contact['email']
-                ]
+                    'email' => $contact['email'],
+                ],
             ],
             true
         );
@@ -409,11 +522,11 @@ class Automatic
     /**
      * Do rule chaining
      *
-     * @param  array $chainRuleList
-     * @param  mixed $params
-     * @param  array $contact
-     * @param  array $host
-     * @param  array $service
+     * @param array $chainRuleList
+     * @param mixed $params
+     * @param array $contact
+     * @param array $host
+     * @param array $service
      * @return void
      */
     protected function doChainRules($chainRuleList, $params, $contact, $host, $service)
@@ -442,8 +555,8 @@ class Automatic
      *
      * @param object $providerClass
      * @param string $ticketId
-     * @param array  $contact
-     * @param array  $service
+     * @param array $contact
+     * @param array $service
      * @return void
      */
     protected function externalServiceCommands($providerClass, $ticketId, $contact, $service)
@@ -456,7 +569,7 @@ class Automatic
             $methodExternalName = 'setProcessCommand';
         }
 
-        $command = "CHANGE_CUSTOM_SVC_VAR;%s;%s;%s;%s";
+        $command = 'CHANGE_CUSTOM_SVC_VAR;%s;%s;%s;%s';
         call_user_func_array(
             [$externalCmd, $methodExternalName],
             [
@@ -467,7 +580,7 @@ class Automatic
                     $providerClass->getMacroTicketId(),
                     $ticketId
                 ),
-                $service['instance_id']
+                $service['instance_id'],
             ]
         );
 
@@ -476,7 +589,7 @@ class Automatic
             $notify = ! empty($this->centreon->optGen['monitoring_ack_notify']) ? 1 : 0;
             $persistent = ! empty($this->centreon->optGen['monitoring_ack_persistent']) ? 1 : 0;
 
-            $command = "ACKNOWLEDGE_SVC_PROBLEM;%s;%s;%s;%s;%s;%s;%s";
+            $command = 'ACKNOWLEDGE_SVC_PROBLEM;%s;%s;%s;%s;%s;%s;%s';
             call_user_func_array(
                 [$externalCmd, $methodExternalName],
                 [
@@ -490,13 +603,13 @@ class Automatic
                         $contact['alias'],
                         'open ticket: ' . $ticketId
                     ),
-                    $service['instance_id']
+                    $service['instance_id'],
                 ]
             );
         }
 
         if ($providerClass->doesScheduleCheck()) {
-            $command = "SCHEDULE_FORCED_SVC_CHECK;%s;%s;%d";
+            $command = 'SCHEDULE_FORCED_SVC_CHECK;%s;%s;%d';
             call_user_func_array(
                 [$externalCmd, $methodExternalName],
                 [
@@ -506,7 +619,7 @@ class Automatic
                         $service['description'],
                         time()
                     ),
-                    $service['instance_id']
+                    $service['instance_id'],
                 ]
             );
         }
@@ -519,8 +632,8 @@ class Automatic
      *
      * @param object $providerClass
      * @param string $ticketId
-     * @param array  $contact
-     * @param array  $host
+     * @param array $contact
+     * @param array $host
      * @return void
      */
     protected function externalHostCommands($providerClass, $ticketId, $contact, $host)
@@ -533,7 +646,7 @@ class Automatic
             $methodExternalName = 'setProcessCommand';
         }
 
-        $command = "CHANGE_CUSTOM_HOST_VAR;%s;%s;%s";
+        $command = 'CHANGE_CUSTOM_HOST_VAR;%s;%s;%s';
         call_user_func_array(
             [$externalCmd, $methodExternalName],
             [
@@ -543,7 +656,7 @@ class Automatic
                     $providerClass->getMacroTicketId(),
                     $ticketId
                 ),
-                $host['instance_id']
+                $host['instance_id'],
             ]
         );
 
@@ -552,7 +665,7 @@ class Automatic
             $notify = ! empty($this->centreon->optGen['monitoring_ack_notify']) ? 1 : 0;
             $persistent = ! empty($this->centreon->optGen['monitoring_ack_persistent']) ? 1 : 0;
 
-            $command = "ACKNOWLEDGE_HOST_PROBLEM;%s;%s;%s;%s;%s;%s";
+            $command = 'ACKNOWLEDGE_HOST_PROBLEM;%s;%s;%s;%s;%s;%s';
             call_user_func_array(
                 [$externalCmd, $methodExternalName],
                 [
@@ -565,13 +678,13 @@ class Automatic
                         $contact['alias'],
                         'open ticket: ' . $ticketId
                     ),
-                    $host['instance_id']
+                    $host['instance_id'],
                 ]
             );
         }
 
         if ($providerClass->doesScheduleCheck()) {
-            $command = "SCHEDULE_FORCED_HOST_CHECK;%s;%d";
+            $command = 'SCHEDULE_FORCED_HOST_CHECK;%s;%d';
             call_user_func_array(
                 [$externalCmd, $methodExternalName],
                 [
@@ -580,7 +693,7 @@ class Automatic
                         $host['name'],
                         time()
                     ),
-                    $host['instance_id']
+                    $host['instance_id'],
                 ]
             );
         }
@@ -589,61 +702,20 @@ class Automatic
     }
 
     /**
-     * Open a service ticket
-     *
-     * @param  mixed $params
-     * @return array
-     */
-    public function openService($params)
-    {
-        $ruleInfo = $this->getRuleInfo($params['rule_name']);
-        $contact = $this->getContactInformation($params);
-        $service = $this->getServiceInformation($params);
-
-        $rv = $this->submitTicket($params, $ruleInfo, $contact, [], [$service]);
-        $this->doChainRules($rv['chainRuleList'], $params, $contact, [], [$service]);
-
-        $this->externalServiceCommands($rv['providerClass'], $rv['ticket_id'], $contact, $service);
-
-        return ['code' => 0, 'message' => 'Open ticket ' . $rv['ticket_id']];
-    }
-
-    /**
-     * Open a host ticket
-     *
-     * @param  mixed $params
-     * @return array
-     */
-    public function openHost($params)
-    {
-        $ruleInfo = $this->getRuleInfo($params['rule_name']);
-        $contact = $this->getContactInformation($params);
-        $host = $this->getHostInformation($params);
-
-        $rv = $this->submitTicket($params, $ruleInfo, $contact, [$host], []);
-        $this->doChainRules($rv['chainRuleList'], $params, $contact, [$host], []);
-
-        $this->externalHostCommands($rv['providerClass'], $rv['ticket_id'], $contact, $host);
-
-        return ['code' => 0, 'message' => 'Open ticket ' . $rv['ticket_id']];
-    }
-
-    /**
-     *
      * @param mixed $params
      * @param string $macroName
      * @return ?int $ticketId
-    */
+     */
     protected function getHostTicket($params, $macroName)
     {
         $stmt = $this->dbCentstorage->prepare(
-            "SELECT SQL_CALC_FOUND_ROWS mot.ticket_value AS ticket_id 
+            'SELECT SQL_CALC_FOUND_ROWS mot.ticket_value AS ticket_id 
             FROM hosts h 
             LEFT JOIN customvariables cv ON (h.host_id = cv.host_id 
             AND (cv.service_id IS NULL or cv.service_id = 0) 
             AND cv.name = :macro_name)
             LEFT JOIN mod_open_tickets mot ON cv.value = mot.ticket_value 
-            WHERE h.host_id = :host_id"
+            WHERE h.host_id = :host_id'
         );
         $stmt->bindParam(':macro_name', $macroName, PDO::PARAM_STR);
         $stmt->bindParam(':host_id', $params['host_id'], PDO::PARAM_INT);
@@ -657,19 +729,18 @@ class Automatic
     }
 
     /**
-     *
      * @param mixed $params
      * @param string $macroName
      * @return ?int $ticketId
-    */
+     */
     protected function getServiceTicket($params, $macroName)
     {
         $stmt = $this->dbCentstorage->prepare(
-            "SELECT SQL_CALC_FOUND_ROWS mot.ticket_value AS ticket_id 
+            'SELECT SQL_CALC_FOUND_ROWS mot.ticket_value AS ticket_id 
             FROM services s 
             LEFT JOIN customvariables cv ON ( cv.service_id = :service_id AND cv.name = :macro_name)
             LEFT JOIN mod_open_tickets mot ON cv.value = mot.ticket_value 
-            WHERE s.service_id = :service_id"
+            WHERE s.service_id = :service_id'
         );
         $stmt->bindParam(':service_id', $params['service_id'], PDO::PARAM_INT);
         $stmt->bindParam(':macro_name', $macroName, PDO::PARAM_STR);
@@ -684,78 +755,9 @@ class Automatic
     }
 
     /**
-     * Close a host ticket
-     *
-     * @param  mixed $params
-     * @return array
-     */
-    public function closeHost($params)
-    {
-        $ruleInfo = $this->getRuleInfo($params['rule_name']);
-        $host = $this->getHostInformation($params);
-        $providerClass = $this->getProviderClass($ruleInfo);
-        $macroName = $providerClass->getMacroTicketId();
-
-        $ticketId = $this->getHostTicket($params, $macroName);
-
-        $rv = ['code' => 0, 'message' => 'no ticket found for host: ' . $host['name']];
-
-        if ($ticketId) {
-            $closeTicketData = [
-                $ticketId => []
-            ];
-
-            try {
-                $providerClass->closeTicket($closeTicketData);
-                $this->changeMacroHost($macroName, $host);
-                $rv = ['code' => 0, 'message' => 'ticket ' . $ticketId . ' has been closed'];
-            } catch (Exception $e) {
-                $rv = [ 'code' => -1, 'message' => $e->getMessage() ];
-            }
-        }
-
-        return $rv;
-    }
-
-    /**
-     * Close a service ticket
-     *
-     * @param  mixed $params
-     * @return array
-     */
-    public function closeService($params)
-    {
-        $ruleInfo = $this->getRuleInfo($params['rule_name']);
-        $service = $this->getServiceInformation($params);
-        $providerClass = $this->getProviderClass($ruleInfo);
-        $macroName = $providerClass->getMacroTicketId();
-
-        $ticketId = $this->getServiceTicket($params, $macroName);
-
-        $rv = ['code' => 0, 'message' => 'no ticket found for service: '
-            . $service['host_name'] . " " . $service['description']];
-
-        if ($ticketId) {
-            $closeTicketData = [
-                $ticketId => []
-            ];
-
-            try {
-                $providerClass->closeTicket($closeTicketData);
-                $this->changeMacroService($macroName, $service);
-                $rv = ['code' => 0, 'message' => 'ticket ' . $ticketId . ' has been closed'];
-            } catch (Exception $e) {
-                $rv = [ 'code' => -1, 'message' => $e->getMessage() ];
-            }
-        }
-
-        return $rv;
-    }
-
-    /**
      * Reset the ticket custom macro for host
      *
-     * @param  string $macroName
+     * @param string $macroName
      * @param array $host
      * @return void
      */
@@ -769,7 +771,7 @@ class Automatic
             $methodExternalName = 'setProcessCommand';
         }
 
-        $command = "CHANGE_CUSTOM_HOST_VAR;%s;%s;%s";
+        $command = 'CHANGE_CUSTOM_HOST_VAR;%s;%s;%s';
         call_user_func_array(
             [$externalCmd, $methodExternalName],
             [
@@ -777,9 +779,9 @@ class Automatic
                     $command,
                     $host['name'],
                     $macroName,
-                    ""
+                    ''
                 ),
-                $host['instance_id']
+                $host['instance_id'],
             ]
         );
 
@@ -789,7 +791,7 @@ class Automatic
     /**
      * Reset the ticket custom macro for service
      *
-     * @param  string $macroName
+     * @param string $macroName
      * @param array $service
      * @return void
      */
@@ -803,7 +805,7 @@ class Automatic
             $methodExternalName = 'setProcessCommand';
         }
 
-        $command = "CHANGE_CUSTOM_SVC_VAR;%s;%s;%s;%s";
+        $command = 'CHANGE_CUSTOM_SVC_VAR;%s;%s;%s;%s';
         call_user_func_array(
             [$externalCmd, $methodExternalName],
             [
@@ -812,9 +814,9 @@ class Automatic
                     $service['host_name'],
                     $service['description'],
                     $macroName,
-                    ""
+                    ''
                 ),
-                $service['instance_id']
+                $service['instance_id'],
             ]
         );
 

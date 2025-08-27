@@ -89,3 +89,19 @@ export const options: PanelOptions = {
   statusTypes: [],
   statuses: ['success', 'problem', 'undefined']
 };
+
+export const resourcesRegex: Array<Resource> = [
+  {
+    resourceType: 'service',
+    resources: '^Loa'
+  },
+  {
+    resourceType: 'host',
+    resources: [
+      {
+        id: 1,
+        name: 'H1'
+      }
+    ]
+  }
+];

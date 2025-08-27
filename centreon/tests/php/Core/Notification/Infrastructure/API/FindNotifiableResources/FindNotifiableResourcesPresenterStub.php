@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * For more information : user@centreon.com
+ * For more information : contact@centreon.com
  *
  */
 
@@ -39,7 +39,8 @@ class FindNotifiableResourcesPresenterStub extends AbstractPresenter implements 
     /** @var ResponseStatusInterface|null */
     public ?ResponseStatusInterface $responseStatus = null;
 
-    public function __construct(protected PresenterFormatterInterface $presenterFormatter) {
+    public function __construct(protected PresenterFormatterInterface $presenterFormatter)
+    {
         parent::__construct($presenterFormatter);
     }
 

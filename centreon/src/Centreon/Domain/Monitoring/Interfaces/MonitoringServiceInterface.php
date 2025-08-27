@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2020 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,20 +18,17 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Centreon\Domain\Monitoring\Interfaces;
 
-use Centreon\Domain\Monitoring\Host;
-use Centreon\Domain\Monitoring\Service;
-use Centreon\Domain\Monitoring\HostGroup;
-use Centreon\Domain\Monitoring\ServiceGroup;
-use Centreon\Domain\Repository\RepositoryException;
 use Centreon\Domain\Contact\Interfaces\ContactFilterInterface;
-use Centreon\Domain\MonitoringServer\Exception\MonitoringServerException;
-use Centreon\Domain\HostConfiguration\HostConfigurationException;
 use Centreon\Domain\Monitoring\Exception\MonitoringServiceException;
-use Centreon\Domain\ServiceConfiguration\ServiceConfigurationException;
+use Centreon\Domain\Monitoring\Host;
+use Centreon\Domain\Monitoring\HostGroup;
+use Centreon\Domain\Monitoring\Service;
+use Centreon\Domain\Monitoring\ServiceGroup;
 
 /**
  * @package Centreon\Domain\Monitoring\Interfaces
@@ -42,8 +39,8 @@ interface MonitoringServiceInterface extends ContactFilterInterface
      * Find all hosts.
      *
      * @param bool $withServices Indicates whether hosts must be completed with their services
-     * @return Host[]
      * @throws \Exception
+     * @return Host[]
      */
     public function findHosts(bool $withServices = false): array;
 
@@ -53,17 +50,17 @@ interface MonitoringServiceInterface extends ContactFilterInterface
      * @param bool $withHosts Indicates whether hosts groups must be completed with their hosts
      * @param bool $withServices Indicates whether hosts must be completed with their services
      * @param int|null $hostId Return only hostgroups for specific host null by default
-     * @return HostGroup[]
      * @throws \Exception
+     * @return HostGroup[]
      */
-    public function findHostGroups(bool $withHosts = false, bool $withServices = false, int $hostId = null): array;
+    public function findHostGroups(bool $withHosts = false, bool $withServices = false, ?int $hostId = null): array;
 
     /**
      * Find a host based on his ID.
      *
      * @param int $hostId Id of the host to be found
-     * @return Host|null
      * @throws \Exception
+     * @return Host|null
      */
     public function findOneHost(int $hostId): ?Host;
 
@@ -72,8 +69,8 @@ interface MonitoringServiceInterface extends ContactFilterInterface
      *
      * @param int $hostId Host ID for which the service belongs
      * @param int $serviceId Service ID to find
-     * @return Service|null
      * @throws \Exception
+     * @return Service|null
      */
     public function findOneService(int $hostId, int $serviceId): ?Service;
 
@@ -81,8 +78,8 @@ interface MonitoringServiceInterface extends ContactFilterInterface
      * Find a service based on its description
      *
      * @param string $description description of the service
-     * @return Service|null
      * @throws \Exception
+     * @return Service|null
      */
     public function findOneServiceByDescription(string $description): ?Service;
 
@@ -91,16 +88,16 @@ interface MonitoringServiceInterface extends ContactFilterInterface
      *
      * @param bool $withHosts Indicates whether service groups must be completed with their hosts
      * @param bool $withServices Indicates whether hosts must be completed with their services
-     * @return ServiceGroup[]
      * @throws \Exception
+     * @return ServiceGroup[]
      */
     public function findServiceGroups(bool $withHosts = false, bool $withServices = false): array;
 
     /**
      * Find all services.
      *
-     * @return Service[]
      * @throws \Exception
+     * @return Service[]
      */
     public function findServices(): array;
 
@@ -117,8 +114,8 @@ interface MonitoringServiceInterface extends ContactFilterInterface
      * Indicates whether a host exists.
      *
      * @param int $hostId Host id to find
-     * @return bool
      * @throws \Exception
+     * @return bool
      */
     public function isHostExists(int $hostId): bool;
 
@@ -127,8 +124,8 @@ interface MonitoringServiceInterface extends ContactFilterInterface
      *
      * @param int $hostId Host id to find
      * @param int $serviceId Service id to find
-     * @return bool
      * @throws \Exception
+     * @return bool
      */
     public function isServiceExists(int $hostId, int $serviceId): bool;
 
@@ -169,8 +166,8 @@ interface MonitoringServiceInterface extends ContactFilterInterface
      *
      * @param int $hostId Host id associated to the service
      * @param int $serviceId Service id
-     * @return string|null Return the command line if it exists
      * @throws MonitoringServiceException
+     * @return string|null Return the command line if it exists
      */
     public function findCommandLineOfService(int $hostId, int $serviceId): ?string;
 }

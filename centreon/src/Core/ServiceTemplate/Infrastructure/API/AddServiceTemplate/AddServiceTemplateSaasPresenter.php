@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -64,18 +64,18 @@ class AddServiceTemplateSaasPresenter extends AbstractPresenter implements AddSe
                         'severity_id' => $response->severityId,
                         'host_templates' => $response->hostTemplateIds,
                         'is_locked' => $response->isLocked,
-                        'categories' => array_map(fn($category): array => [
+                        'categories' => array_map(fn ($category): array => [
                             'id' => $category['id'],
                             'name' => $category['name'],
                         ], $response->categories),
-                        'macros' => array_map(fn(MacroDto $macro): array => [
+                        'macros' => array_map(fn (MacroDto $macro): array => [
                             'name' => $macro->name,
                             // Note: do not handle vault storage at the moment
                             'value' => $macro->isPassword ? null : $macro->value,
                             'is_password' => $macro->isPassword,
                             'description' => $macro->description,
                         ], $response->macros),
-                        'groups' => array_map(fn($group): array => [
+                        'groups' => array_map(fn ($group): array => [
                             'id' => $group['serviceGroupId'],
                             'name' => $group['serviceGroupName'],
                             'host_template_id' => $group['hostTemplateId'],

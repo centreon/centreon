@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,12 +22,12 @@
 require_once __DIR__ . '/../../class/centreonLog.class.php';
 $centreonLog = new CentreonLog();
 
-//error specific content
+// error specific content
 $versionOfTheUpgrade = 'UPGRADE - 23.04.1: ';
 $errorMessage = '';
 
-$alterTopologyForFeatureFlag = function(CentreonDB $pearDB): void {
-    if (!$pearDB->isColumnExist('topology', 'topology_feature_flag')) {
+$alterTopologyForFeatureFlag = function (CentreonDB $pearDB): void {
+    if (! $pearDB->isColumnExist('topology', 'topology_feature_flag')) {
         $pearDB->query(
             <<<'SQL'
                 ALTER TABLE `topology`
@@ -38,22 +38,21 @@ $alterTopologyForFeatureFlag = function(CentreonDB $pearDB): void {
     }
 };
 
-$removeNagiosPathImg = function(CentreonDB $pearDB): void {
+$removeNagiosPathImg = function (CentreonDB $pearDB): void {
     $selectStatement = $pearDB->query("SELECT 1 FROM options WHERE `key`='nagios_path_img'");
-    if($selectStatement->rowCount() > 0) {
+    if ($selectStatement->rowCount() > 0) {
         $pearDB->query("DELETE FROM options WHERE `key`='nagios_path_img'");
     }
 };
 
-$alterTopologyForTopologyUrlSubstitue = function(CentreonDB $pearDB): void {
-    if(!$pearDB->isColumnExist('topology', 'topology_url_substitute')) {
+$alterTopologyForTopologyUrlSubstitue = function (CentreonDB $pearDB): void {
+    if (! $pearDB->isColumnExist('topology', 'topology_url_substitute')) {
         $pearDB->query(
             <<<'SQL'
-                ALTER TABLE `topology`
-                ADD COLUMN `topology_url_substitute` VARCHAR(255) DEFAULT NULL
-                AFTER `topology_url_opt`
-            SQL
-
+                    ALTER TABLE `topology`
+                    ADD COLUMN `topology_url_substitute` VARCHAR(255) DEFAULT NULL
+                    AFTER `topology_url_opt`
+                SQL
         );
     }
 };
@@ -74,7 +73,7 @@ try {
 
     $errorMessage = 'Impossible to add column topology_url_substitute to topology table';
     $alterTopologyForTopologyUrlSubstitue($pearDB);
-} catch (\Exception $e) {
+} catch (Exception $e) {
     if ($pearDB->inTransaction()) {
         $pearDB->rollBack();
     }
@@ -87,5 +86,5 @@ try {
             . ' - Trace : ' . $e->getTraceAsString()
     );
 
-    throw new \Exception($versionOfTheUpgrade . $errorMessage, (int) $e->getCode(), $e);
+    throw new Exception($versionOfTheUpgrade . $errorMessage, (int) $e->getCode(), $e);
 }

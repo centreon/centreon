@@ -1,4 +1,3 @@
-/* eslint-disable cypress/unsafe-to-chain-command */
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
 import {
@@ -70,7 +69,7 @@ before(() => {
   }).as('listAllDashboards');
   cy.intercept({
     method: 'POST',
-    url: `/centreon/api/latest/configuration/dashboards/*/access_rights/contacts`
+    url: '/centreon/api/latest/configuration/dashboards/*/access_rights/contacts'
   }).as('addContactToDashboardShareList');
   cy.intercept({
     method: 'GET',
@@ -164,7 +163,7 @@ before(() => {
       status: 'ok'
     }
   ]);
-  ['Disk-/', 'Load', 'Memory', 'Ping','TCP-connections'].forEach((service) => {
+  ['Disk-/', 'Load', 'Memory', 'Ping', 'TCP-connections'].forEach((service) => {
     cy.scheduleServiceCheck({ host: 'Centreon-Server', service });
   });
 
@@ -183,11 +182,11 @@ beforeEach(() => {
   }).as('listAllDashboards');
   cy.intercept({
     method: 'POST',
-    url: `/centreon/api/latest/configuration/dashboards/*/access_rights/contacts`
+    url: 'centreon/api/latest/configuration/dashboards/*/access_rights/contacts'
   }).as('addContactToDashboardShareList');
   cy.intercept({
     method: 'PATCH',
-    url: `/centreon/api/latest/configuration/dashboards/*`
+    url: '/centreon/api/latest/configuration/dashboards/*'
   }).as('updateDashboard');
   cy.intercept({
     method: 'GET',
@@ -677,9 +676,10 @@ When(
 );
 
 Then('the graph should be displayed as a bar chart', () => {
-  cy.waitForElementToBeVisible('div[data-as-list="false"] p.MuiTypography-root');
-  cy.get('div[data-as-list="false"] p.MuiTypography-root')
-  .then(($els) => {
+  cy.waitForElementToBeVisible(
+    'div[data-as-list="false"] p.MuiTypography-root'
+  );
+  cy.get('div[data-as-list="false"] p.MuiTypography-root').then(($els) => {
     const labels = [...$els].map((el) => el.innerText.trim());
     cy.log('Labels:', labels.join(', '));
     expect(labels).to.include.members(['rta', 'pl', 'rtmax', 'rtmin']);
