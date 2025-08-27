@@ -96,6 +96,10 @@
         }
     },
     "data": {
+        "metrics": {
+            "type": "metrics",
+            "defaultValue": []
+          },
         "resources": {
             "type": "resources",
             "defaultValue": [],
