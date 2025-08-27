@@ -45,10 +45,6 @@ function checkLdapFilterSyntax(string $filterValue): bool
         return false;
     }
 
-    if (! preg_match('/=%s\)/', $filterValue)) {
-        return false;
-    }
-
     // check for parentheses
     if (substr_count($filterValue, '(') !== substr_count($filterValue, ')')
         || ! str_starts_with($filterValue, '(')

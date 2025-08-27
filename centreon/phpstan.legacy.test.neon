@@ -20,6 +20,7 @@ parameters:
         - tests/php/Centreon
         - tests/php/CentreonLegacy
         - tests/php/CentreonRemote
+        - tests/php/mock
         - tests/php/Security
         - tests/php/Utility
         - tests/php/www
