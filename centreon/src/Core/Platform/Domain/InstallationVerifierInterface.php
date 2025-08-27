@@ -25,7 +25,6 @@ namespace Core\Platform\Domain;
 
 interface InstallationVerifierInterface
 {
-
     /**
      * Check that Centreon is installed (if the configuration exists)
      *
