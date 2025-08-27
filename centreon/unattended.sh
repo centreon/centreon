@@ -431,7 +431,7 @@ function setup_mysql() {
 		log "INFO" "Successfully installed the $dbms repository"
 	fi
 	systemctl enable --now $mysql_service_name
-	if ! [[ $CENTREON_VERSION == "25.09" || $CENTREON_VERSION =~ "25.1"[0-2] || $CENTREON_VERSION =~ "26.0"[1-9] ]]; then
+	if ! [[ "$version" == "25.09" || "$version" =~ "25.1"[0-2] || "$version" =~ "26.0"[1-9] ]]; then
 		echo "default-authentication-plugin=mysql_native_password" >> $mysql_config_file
 	fi
 	sed -Ei 's/LimitNOFILE\s\=\s[0-9]{1,}/LimitNOFILE = 32000/' /usr/lib/systemd/system/$mysql_service_name.service
@@ -785,7 +785,7 @@ EOF
 	else
 		systemctl restart $mysql_service_name
 		log "INFO" "Executing SQL requests for $dbms"
-		if [[ $CENTREON_VERSION == "25.09" || $CENTREON_VERSION =~ "25.1"[0-2] || $CENTREON_VERSION =~ "26.0"[1-9] ]]; then
+		if [[ "$version" == "25.09" || "$version" =~ "25.1"[0-2] || "$version" =~ "26.0"[1-9] ]]; then
 			default_authentication_plugin="caching_sha2_password"
 		else
 			default_authentication_plugin="mysql_native_password"
