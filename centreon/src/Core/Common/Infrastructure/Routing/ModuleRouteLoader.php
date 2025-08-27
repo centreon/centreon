@@ -25,7 +25,7 @@ namespace Core\Common\Infrastructure\Routing;
 
 use Core\Common\Infrastructure\ExceptionLogger\ExceptionLogger;
 use Core\Module\Infrastructure\ModuleInstallationVerifier;
-use Core\Platform\Infrastructure\CentreonInstallationVerifier;
+use Core\Platform\Domain\InstallationVerifierInterface;
 use Symfony\Bundle\FrameworkBundle\Routing\RouteLoaderInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Routing\Loader\AttributeFileLoader;
@@ -39,7 +39,7 @@ abstract readonly class ModuleRouteLoader implements RouteLoaderInterface
         #[Autowire(param: 'kernel.project_dir')]
         private string $projectDir,
         private ModuleInstallationVerifier $moduleInstallationVerifier,
-        private CentreonInstallationVerifier $centreonInstallationVerifier
+        private InstallationVerifierInterface $centreonInstallationVerifier
     ) {
     }
 
