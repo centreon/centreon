@@ -68,7 +68,7 @@ it('should present an error response when the user is not admin and doesn\'t hav
         ->toBeInstanceOf(ForbiddenResponse::class)
         ->and($this->presenter->responseStatus?->getMessage())
         ->toBe(NotificationException::listNotAllowed()->getMessage());
-})->skip();
+});
 
 it('should present an empty response when no notifications are configured', function (): void {
     $contact = (new Contact())->setAdmin(true)->setId(1)->setTopologyRules(
@@ -93,7 +93,7 @@ it('should present an empty response when no notifications are configured', func
         ->and($this->presenter->response->notifications)
         ->toBeArray()
         ->toBeEmpty();
-})->skip();
+});
 
 it('should get the resources count with ACL calculation when the user is not admin', function (): void {
     $contact = (new Contact())->setAdmin(false)->setId(1)->setTopologyRules(
