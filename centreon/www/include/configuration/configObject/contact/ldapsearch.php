@@ -136,7 +136,7 @@ foreach ($ids as $arId) {
                         $isvalid = '1';
                     }
                     $in_database = '0';
-                    if (in_array(htmlspecialchars($searchResult[$i]['alias'], ENT_QUOTES, 'UTF-8'), $listLdapUsers)) {
+                    if (in_array($searchResult[$i]['alias'], $listLdapUsers)) {
                         $in_database = '1';
                     }
 
@@ -153,7 +153,7 @@ foreach ($ids as $arId) {
                     $searchResult[$i]['name'] = str_replace("\'", "\\\'", $searchResult[$i]['name']);
 
                     $buffer->startElement('user');
-                    $query = 'SELECT `ar_id`, `ar_name` 
+                    $query = 'SELECT `ar_id`, `ar_name`
                               FROM auth_ressource
                               WHERE ar_id = ' . $pearDB->escape($arId);
                     $resServer = $pearDB->query($query);

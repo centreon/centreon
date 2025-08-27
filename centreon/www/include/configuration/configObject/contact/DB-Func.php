@@ -45,7 +45,7 @@ function testContactExistence($name = null)
         $id = $form->getSubmitValue('contact_id');
     }
 
-    $contactName = htmlspecialchars($centreon->checkIllegalChar($name), ENT_QUOTES, 'UTF-8');
+    $contactName = $centreon->checkIllegalChar($name);
 
     $query = <<<'SQL'
         SELECT contact_name, contact_id FROM contact WHERE contact_name = :contact_name
@@ -54,7 +54,7 @@ function testContactExistence($name = null)
     $contact = $pearDB->fetchAssociative(
         $query,
         QueryParameters::create([
-            QueryParameter::string(':contact_name', $contactName),
+            QueryParameter::string('contact_name', $contactName),
         ])
     );
 
