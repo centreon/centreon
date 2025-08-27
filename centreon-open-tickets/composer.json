@@ -26,11 +26,16 @@
     "beberlei/assert": "3.3.*",
     "centreon/centreon": "@dev",
     "centreon/centreon-test-lib": "dev-master",
+    "pestphp/pest": "2.36.*",
     "symfony/console": "7.3.*"
   },
   "autoload": {
     "psr-4": {
-      "CentreonOpenTickets\\": "src/CentreonOpenTickets",
+      "CentreonOpenTickets\\": "src/CentreonOpenTickets"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
       "Tests\\": "tests/php/"
     }
   },
@@ -64,12 +69,12 @@
     "cs:legacy:src": "../php-tools/vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.legacy.src.php --verbose --dry-run --diff",
     "cs:legacy:src:fix": "../php-tools/vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.legacy.src.php --verbose --diff",
     "cs:legacy": [
-        "@cs:legacy:www",
-        "@cs:legacy:src"
+      "@cs:legacy:www",
+      "@cs:legacy:src"
     ],
     "cs:legacy:fix": [
-        "@cs:legacy:www:fix",
-        "@cs:legacy:src:fix"
+      "@cs:legacy:www:fix",
+      "@cs:legacy:src:fix"
     ],
     "stan:legacy:www": "../php-tools/vendor/bin/phpstan analyse -c phpstan.legacy.www.neon --memory-limit=1G",
     "stan:legacy:www:baseline": "../php-tools/vendor/bin/phpstan analyse --generate-baseline -c phpstan.legacy.www.neon --memory-limit=1G",
@@ -78,9 +83,9 @@
     "stan:legacy:test": "../php-tools/vendor/bin/phpstan analyse -c phpstan.legacy.test.neon --memory-limit=1G",
     "stan:legacy:test:baseline": "../php-tools/vendor/bin/phpstan analyse --generate-baseline -c phpstan.legacy.test.neon --memory-limit=1G",
     "stan:legacy": [
-        "@stan:legacy:www",
-        "@stan:legacy:src",
-        "@stan:legacy:test"
+      "@stan:legacy:www",
+      "@stan:legacy:src",
+      "@stan:legacy:test"
     ],
     "test": "pest --do-not-cache-result",
     "test:ci": "@test --log-junit ./build/phpunit.xml --coverage-clover ./build/coverage.xml",

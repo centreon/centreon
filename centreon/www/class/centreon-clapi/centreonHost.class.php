@@ -839,8 +839,16 @@ class CentreonHost extends CentreonObject
                     $params[2] = null;
                 }
             }
+
             $extended = new Centreon_Object_Host_Extended($this->dependencyInjector);
             $extended->update($objectId, [$params[1] => $params[2]]);
+            $centreonConfig = new CentreonConfigurationChange($this->dependencyInjector['configuration_db']);
+            $previousPollerIds = $centreonConfig->findPollersForConfigChangeFlagFromHostIds([$objectId]);
+            $centreonConfig->signalConfigurationChange(
+                CentreonConfigurationChange::RESOURCE_TYPE_HOST,
+                $objectId,
+                $previousPollerIds
+            );
 
             return [];
         }
