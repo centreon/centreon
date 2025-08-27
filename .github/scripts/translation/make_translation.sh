@@ -107,7 +107,7 @@ if [ "$PROJECT" = "centreon" ]; then
     $PHP $BASE_DIR/extractTranslationFromDashboardProperties.php $BASE_DIR_PROJECT > $BASE_DIR_PROJECT/www/install/dashboard_widgets.php
 
     echo "List all PHP files excluding help.php files"
-    find $BASE_DIR_PROJECT -name '*.php' | grep -v "help" > $PO_SRC
+    find $BASE_DIR_PROJECT -name '*.php' | grep -v "help" | sort > $PO_SRC
     echo "Generate messages.pot file including all strings to translate"
     POT_FILE_PATH=$(realpath --relative-to="${PWD}" "$BASE_DIR_PROJECT/lang/messages.pot")
     $XGETTEXT --sort-output --from-code=UTF-8 --default-domain=messages -k_ --files-from=$PO_SRC --output=$POT_FILE_PATH > /dev/null 2>&1
@@ -135,7 +135,7 @@ if [ "$PROJECT" = "centreon" ]; then
     fi
 
     echo "List all help.php files"
-    find $BASE_DIR_PROJECT/www -name 'help.php' > $PO_SRC
+    find $BASE_DIR_PROJECT/www -name 'help.php' | sort > $PO_SRC
     echo "Generate help.pot file including all strings to translate"
     POT_FILE_PATH=$(realpath --relative-to="${PWD}" "$BASE_DIR_PROJECT/lang/help.pot")
     $XGETTEXT --sort-output --from-code=UTF-8 --default-domain=messages -k_ --files-from=$PO_SRC --output=$POT_FILE_PATH > /dev/null 2>&1
