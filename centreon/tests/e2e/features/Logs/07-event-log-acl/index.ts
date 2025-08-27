@@ -6,7 +6,7 @@ import data_acl_g from "../../../fixtures/acls/acl-access-group.json";
 import data_acl_m from "../../../fixtures/acls/acl-access-menu.json";
 import data_acl_r from "../../../fixtures/acls/acl-access-ressources.json";
 
-import { checkHostsAreMonitored, checkServicesAreMonitored } from 'e2e/commons';
+import { checkHostsAreMonitored, checkServicesAreMonitored } from '../../../commons';
 
 const services = {
   serviceCritical: {
