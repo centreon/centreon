@@ -1,27 +1,25 @@
 <?php
 
-/**
- * Copyright 2019-2021 Centreon
+/*
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
+ * For more information : contact@centreon.com
+ *
  */
 
 namespace Centreon\Test\Mock;
-
-// \CentreonDB is not autoloaded in module unit tests, so we need to mock it
-if (!class_exists("\CentreonDB")) {
-    (new \PHPUnit\Framework\MockObject\Generator)->getMock("\CentreonDB", []);
-}
 
 /**
  * Mock class for dbconn
@@ -33,42 +31,28 @@ if (!class_exists("\CentreonDB")) {
  */
 class CentreonDB extends \CentreonDB
 {
+    /** @var array */
+    protected array $queries = [];
 
-    /**
-     * @var array
-     */
-    protected $queries = [];
-
-    /**
-     * @var callable
-     */
+    /** @var callable */
     protected $commitCallback;
 
-    /**
-     * @var array
-     */
-    protected $transactionQueries;
+    /** @var array|null */
+    protected ?array $transactionQueries = null;
 
-    /**
-     * @var string|false
-     */
-    protected $lastInsertId = false;
+    /** @var string|false */
+    protected string|false $lastInsertId = false;
 
-    /**
-     * Constructor
-     *
-     * @param string $db
-     * @param int $retry
-     * @param bool $silent
-     */
-    public function __construct($db = 'centreon', $retry = 3, $silent = false)
+    public function __construct()
     {
+
     }
 
     /**
      * Stub for function query
      *
-     * {@inheritdoc}
+     * {@inheritDoc}
+     * @throws \Exception
      * @return CentreonDBStatement|false The resultset
      */
     public function query($queryString, $parameters = null, ...$parametersArgs): CentreonDBStatement|false
@@ -79,20 +63,22 @@ class CentreonDB extends \CentreonDB
     /**
      * Stub escape function
      *
-     * @param string $string The string to escape
+     * @param string $str The string to escape
      * @param bool $htmlSpecialChars
+     *
      * @return string The string escaped
      */
-    public static function escape($string, $htmlSpecialChars = false)
+    public static function escape($str, $htmlSpecialChars = false): string
     {
-        return $string;
+        return $str;
     }
 
     /**
      * Stub quote function
      *
      * @param string $string The string to escape
-     * @param string $paramtype
+     * @param int $type
+     *
      * @return string|false The string escaped
      */
     public function quote(string $string, int $type = \PDO::PARAM_STR): string|false
@@ -114,14 +100,16 @@ class CentreonDB extends \CentreonDB
      *
      * @param string $query The query to catch
      * @param array $result The resultset
-     * @param array $params The parameters of query, if not set :
-     *   * the query has not parameters
-     *   * the result is generic for the query
-     * @param callable $callback execute a callback when a query is executed
+     * @param array|null $params The parameters of query, if not set :
+     *                           * the query has not parameters
+     *                           * the result is generic for the query
+     * @param callable|null $callback execute a callback when a query is executed
+     *
+     * @return CentreonDB
      */
-    public function addResultSet($query, $result, $params = null, callable $callback = null)
+    public function addResultSet(string $query, array $result, ?array $params = null, ?callable $callback = null): CentreonDB
     {
-        if (!isset($this->queries[$query])) {
+        if (! isset($this->queries[$query])) {
             $this->queries[$query] = [];
         }
         $this->queries[$query][] = new CentreonDBResultSet($result, $params, $callback);
@@ -132,9 +120,11 @@ class CentreonDB extends \CentreonDB
     /**
      * Add a callback set to test exception in commit of transaction
      *
-     * @param callable $callback execute a callback when a query is executed
+     * @param callable|null $callback execute a callback when a query is executed
+     *
+     * @return CentreonDB
      */
-    public function setCommitCallback(callable $callback = null)
+    public function setCommitCallback(?callable $callback = null): CentreonDB
     {
         $this->commitCallback = $callback;
 
@@ -142,14 +132,15 @@ class CentreonDB extends \CentreonDB
     }
 
     /**
-     * @param $query
+     * @param string $query
      * @param array $options
-     * @return CentreonDBStatement
+     *
      * @throws \Exception
+     * @return CentreonDBStatement|false
      */
     public function prepare(string $query, array $options = []): CentreonDBStatement|false
     {
-        if (!isset($this->queries[$query])) {
+        if (! isset($this->queries[$query])) {
             throw new \Exception('Query is not set.' . "\nQuery : " . $query);
         }
 
@@ -160,12 +151,14 @@ class CentreonDB extends \CentreonDB
      * Execute a query with values
      *
      * @param string $query The query to execute
-     * @param array $values The list of values for the query
+     * @param null $values The list of values for the query
+     *
+     * @throws \Exception
      * @return CentreonDBResultSet The resultset
      */
-    public function execute($query, $values = null)
+    public function execute($query, $values = null): CentreonDBResultSet
     {
-        if (!array_key_exists($query, $this->queries)) {
+        if (! array_key_exists($query, $this->queries)) {
             throw new \Exception('Query is not set.' . "\nQuery : " . $query);
         }
 
@@ -177,7 +170,8 @@ class CentreonDB extends \CentreonDB
 
             if ($result === 2) {
                 return $resultSet;
-            } elseif ($result === 1 && $matching === null) {
+            }
+            if ($result === 1 && $matching === null) {
                 $matching = $resultSet;
             }
         }
@@ -190,17 +184,17 @@ class CentreonDB extends \CentreonDB
         $matching->executeCallback($values);
 
         // log queries if query will be execute in transaction
-        $this->transactionLogQuery($query, $values, $matching);
+        $this->transactionLogQuery($query, $matching, $values);
 
         return $matching;
     }
 
     /**
+     * @param mixed $val
      *
-     * @param type $enable
-     * @return type
+     * @return void
      */
-    public function autoCommit($enable): void
+    public function autoCommit($val): void
     {
         return;
     }
@@ -216,8 +210,8 @@ class CentreonDB extends \CentreonDB
     }
 
     /**
-     * @return bool
      * @throws \Exception
+     * @return bool
      */
     public function commit(): bool
     {
@@ -241,15 +235,17 @@ class CentreonDB extends \CentreonDB
     }
 
     /**
-     * @param string|false $id
+     * @param false|string $id
      */
-    public function setLastInsertId($id = false): void
+    public function setLastInsertId(false|string $id = false): void
     {
         $this->lastInsertId = $id;
     }
 
     /**
-     * @return int|null
+     * @param string|null $name
+     *
+     * @return string|false
      */
     public function lastInsertId(?string $name = null): string|false
     {
@@ -260,10 +256,10 @@ class CentreonDB extends \CentreonDB
      * Log queries if query will be execute in transaction
      *
      * @param string $query
-     * @param array $values
-     * @param array $matching
+     * @param array|null $values
+     * @param CentreonDBResultSet $matching
      */
-    public function transactionLogQuery(string $query, array $values = null, $matching): void
+    public function transactionLogQuery(string $query, CentreonDBResultSet $matching, ?array $values = null): void
     {
         if ($this->transactionQueries !== null) {
             $this->transactionQueries[] = [
