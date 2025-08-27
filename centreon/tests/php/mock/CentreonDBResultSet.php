@@ -1,18 +1,22 @@
 <?php
-/**
- * Copyright 2019 Centreon
+
+/*
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
+ * For more information : contact@centreon.com
+ *
  */
 
 namespace Centreon\Test\Mock;
@@ -27,25 +31,23 @@ namespace Centreon\Test\Mock;
  */
 class CentreonDBResultSet extends CentreonDBStatement
 {
-    protected $resultset = [];
-    protected $params = null;
-    protected $pos = 0;
+    protected array $resultset = [];
 
-    /**
-     * @var callable
-     */
+    protected int $pos = 0;
+
+    /** @var callable */
     protected $callback;
 
     /**
      * Constructor
      *
      * @param array $resultset The resultset for a query
-     * @param array $params The parameters of query, if not set :
-     *   * the query has not parameters
-     *   * the result is generic for the query
-     * @param callable $callback execute a callback when a query is executed
+     * @param null $params The parameters of query, if not set :
+     *                     * the query has not parameters
+     *                     * the result is generic for the query
+     * @param callable|null $callback execute a callback when a query is executed
      */
-    public function __construct($resultset, $params = null, callable $callback = null)
+    public function __construct($resultset, $params = null, ?callable $callback = null)
     {
         $this->resultset = $resultset;
         $this->params = $params;
@@ -58,8 +60,10 @@ class CentreonDBResultSet extends CentreonDBStatement
 
     /**
      * Execute the callback comes from the test case object
+     *
+     * @param mixed|null $values
      */
-    public function executeCallback($values = null): void
+    public function executeCallback(mixed $values = null): void
     {
         if ($this->callback !== null) {
             call_user_func($this->callback, $values);
@@ -69,37 +73,46 @@ class CentreonDBResultSet extends CentreonDBStatement
     /**
      * Return a result
      *
-     * @return array
+     * @return array|false
      */
-    public function fetchRow()
+    public function fetchRow(): array|false
     {
-        if (!isset($this->resultset[$this->pos])) {
+        if (! isset($this->resultset[$this->pos])) {
             return false;
         }
+
         return $this->resultset[$this->pos++];
     }
 
     /**
      * Return a result
      *
-     * @return mixed
+     * @param int $mode
+     * @param int $cursorOrientation
+     * @param int $cursorOffset
+     *
+     * @return array|false
      */
     public function fetch(
         int $mode = \PDO::FETCH_DEFAULT,
         int $cursorOrientation = \PDO::FETCH_ORI_NEXT,
         int $cursorOffset = 0
-    ): mixed {
+    ): array|false {
         return $this->fetchRow();
     }
 
     /**
      * Return all results
      *
+     * @param int $mode
+     * @param mixed ...$args
+     *
      * @return array
      */
     public function fetchAll(int $mode = \PDO::FETCH_DEFAULT, mixed ...$args): array
     {
         $this->pos = count($this->resultset);
+
         return $this->resultset;
     }
 
@@ -124,7 +137,7 @@ class CentreonDBResultSet extends CentreonDBStatement
      *
      * @return int
      */
-    public function numRows()
+    public function numRows(): int
     {
         return $this->rowCount();
     }
@@ -142,29 +155,29 @@ class CentreonDBResultSet extends CentreonDBStatement
     /**
      * If the queries match
      *
-     * @param array $params The parameters of current query
+     * @param array|null $params The parameters of current query
+     *
      * @return int The level of match
-     *   * 0 - Not match
-     *   * 1 - Match by default (the result set params is null by the query has $params)
-     *   * 2 - Exact match
+     *             * 0 - Not match
+     *             * 1 - Match by default (the result set params is null by the query has $params)
+     *             * 2 - Exact match
      */
-    public function match($params = null)
+    public function match(?array $params = null): int
     {
         if ($this->params === $params) {
             return 2;
-        } elseif ($this->params === null) {
+        }
+        if ($this->params === null) {
             return 1;
-        } elseif ($params !== null) {
+        }
+        if ($params !== null) {
             ksort($params);
         }
 
         return 0;
     }
 
-    /**
-     * @return bool
-     */
-    public function closeCursor(): bool
+    public function closeCursor(): true
     {
         return true;
     }
