@@ -732,26 +732,33 @@ class CentreonHost extends CentreonObject
             if ($extended == false) {
                 $updateParams = [$params[1] => $params[2]];
                 $updateParams['objectId'] = $objectId;
+
                 return $updateParams;
-            } else {
-                $params[1] = "ehi_" . $params[1];
-                if ($params[1] == "ehi_icon_image" || $params[1] == "ehi_statusmap_image") {
-                    if ($params[2]) {
-                        $id = CentreonUtils::getImageId($params[2], $this->db);
-                        if (is_null($id)) {
-                            throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ":" . $params[2]);
-                        }
-                        $params[2] = $id;
-                    } else {
-                        $params[2] = null;
-                    }
-                }
-                $extended = new Centreon_Object_Host_Extended($this->dependencyInjector);
-                $extended->update($objectId, [$params[1] => $params[2]]);
-                return [];
             }
-        } else {
-            throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ":" . $params[self::ORDER_UNIQUENAME]);
+            $params[1] = "ehi_" . $params[1];
+            if ($params[1] == "ehi_icon_image" || $params[1] == "ehi_statusmap_image") {
+                if ($params[2]) {
+                    $id = CentreonUtils::getImageId($params[2], $this->db);
+                    if (is_null($id)) {
+                        throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ":" . $params[2]);
+                    }
+                    $params[2] = $id;
+                } else {
+                    $params[2] = null;
+                }
+            }
+
+            $extended = new Centreon_Object_Host_Extended($this->dependencyInjector);
+            $extended->update($objectId, [$params[1] => $params[2]]);
+            $centreonConfig = new CentreonConfigurationChange($this->dependencyInjector['configuration_db']);
+            $previousPollerIds = $centreonConfig->findPollersForConfigChangeFlagFromHostIds([$objectId]);
+            $centreonConfig->signalConfigurationChange(
+                CentreonConfigurationChange::RESOURCE_TYPE_HOST,
+                $objectId,
+                $previousPollerIds
+            );
+
+            return [];
         }
     }
 
@@ -1063,6 +1070,9 @@ class CentreonHost extends CentreonObject
             }
             $this->deployServices($hostId, $templateId);
         }
+
+        $aclObj = new CentreonACL($this->dependencyInjector);
+        $aclObj->reload(false);
     }
 
     /**
