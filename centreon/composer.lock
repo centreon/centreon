@@ -9409,16 +9409,16 @@
         },
         {
             "name": "centreon/centreon-test-lib",
-            "version": "dev-MON-167547-ACL-medias",
+            "version": "dev-master",
             "source": {
                 "type": "git",
                 "url": "https://github.com/centreon/centreon-test-lib.git",
-                "reference": "b6eb799c0c06be38e28d9b6bfd82003c2bc8d8ce"
+                "reference": "d94614c87484a7f35d109292790305d113ec3d17"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/centreon/centreon-test-lib/zipball/b6eb799c0c06be38e28d9b6bfd82003c2bc8d8ce",
-                "reference": "b6eb799c0c06be38e28d9b6bfd82003c2bc8d8ce",
+                "url": "https://api.github.com/repos/centreon/centreon-test-lib/zipball/d94614c87484a7f35d109292790305d113ec3d17",
+                "reference": "d94614c87484a7f35d109292790305d113ec3d17",
                 "shasum": ""
             },
             "require": {
@@ -9439,6 +9439,7 @@
                 "behat/mink": "Browser controller/emulator abstraction for PHP",
                 "behat/mink-selenium2-driver": "Mink driver using Selenium"
             },
+            "default-branch": true,
             "type": "library",
             "autoload": {
                 "psr-4": {
@@ -9456,9 +9457,9 @@
             ],
             "support": {
                 "issues": "https://github.com/centreon/centreon-test-lib/issues",
-                "source": "https://github.com/centreon/centreon-test-lib/tree/MON-167547-ACL-medias"
+                "source": "https://github.com/centreon/centreon-test-lib/tree/master"
             },
-            "time": "2025-08-25T14:27:53+00:00"
+            "time": "2025-08-27T12:01:22+00:00"
         },
         {
             "name": "composer/pcre",
@@ -14427,7 +14428,7 @@
         "ext-xmlwriter": "*",
         "ext-zip": "*"
     },
-    "platform-dev": {},
+    "platform-dev": [],
     "platform-overrides": {
         "php": "8.2"
     },
