@@ -590,7 +590,7 @@ jobs:
         with:
           script: |
             let delivery_type  = 'classic';
-            if (${{ contains(github.event.pull_request.labels.*.name, 'database') && 'true' || 'false' }}) {
+            if (${{ contains(github.event.pull_request.labels.*.name, 'delivery-feature') && 'true' || 'false' }}) {
               delivery_type = 'feature';
             }
 

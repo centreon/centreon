@@ -99,6 +99,10 @@ runs:
         fi
 
     - name: Publish RPMs
+      shell: bash
+      env:
+        JF_URL: https://centreon.jfrog.io
+        JF_ACCESS_TOKEN: ${{ inputs.artifactory_token }}
       run: |
         set -eux
 
@@ -149,7 +153,7 @@ runs:
         done
 
         if [[ "${{ inputs.delivery_type }}" == "feature" ]]; then
-          ROOT_REPO_PATH="rpm-standard-$(echo "${{ github.head_ref || github.ref_name }}" | grep -oP '^.*-MON-[0-9]+')"
+          ROOT_REPO_PATH="rpm-standard-feature-$(echo "${{ github.head_ref || github.ref_name }}" | grep -oP '^.*-MON-[0-9]+')"
         elif [[ "${{ inputs.is_cloud }}" == "true" ]]; then
           ROOT_REPO_PATH="rpm-standard-internal-kdu"
         else
@@ -166,6 +170,5 @@ runs:
             jf rt upload "$ARCH/*.rpm" "$ROOT_REPO_PATH/$UPLOAD_REPO_PATH" --sync-deletes="$ROOT_REPO_PATH/$UPLOAD_REPO_PATH" --flat  --detailed-summary
           fi
 
-          curl -H "Authorization: Bearer ${{ inputs.artifactory_token }}" -X POST "https://centreon.jfrog.io/artifactory/api/yum/$ROOT_REPO_PATH?path=/${{ inputs.version }}/${{ inputs.distrib }}/${{ inputs.stability }}/$ARCH&async=1"
+          curl -H "Authorization: Bearer ${{ env.JF_ACCESS_TOKEN }}" -X POST "${{ env.JF_URL }}/artifactory/api/yum/$ROOT_REPO_PATH?path=/${{ inputs.version }}/${{ inputs.distrib }}/${{ inputs.stability }}/$ARCH&async=0"
         done
-      shell: bash

@@ -1609,28 +1609,50 @@ function validatePasswordCreation(array $fields)
  * Validate password creation using defined security policy.
  *
  * @param array<string,mixed> $fields
- * @return mixed
+ *
+ * @return array<string,string>|true
  */
-function validatePasswordModification(array $fields)
+function validatePasswordModification(array $fields): array|true
 {
-    global $pearDB;
-    $errors = [];
+    global $pearDB, $centreon;
+    $newPassword = $fields['contact_passwd'];
+    $confirmPassword = $fields['contact_passwd2'];
+    $currentPassword = $fields['current_password'];
+    $contactId = $fields['contact_id'];
 
-    if (empty($fields['contact_passwd'])) {
+    // If the user does not want to change his password, we do not need to check it
+    if (empty($newPassword) && empty($confirmPassword) && empty($currentPassword)) {
         return true;
     }
 
-    $password = $fields['contact_passwd'];
-    $contactId = $fields['contact_id'];
+    // If the user only provided a confirmation password, he must provide a new password and a current password
+    if (empty($newPassword) && ! empty($confirmPassword) && empty($currentPassword)) {
+        return ['contact_passwd2' => _('Please fill in all password fields')];
+    }
+
+    // If the user only provided his current password, he must provide a new password
+    if (empty($newPassword) && ! empty($currentPassword)) {
+        return ['current_password' => _('Please fill in all password fields')];
+    }
+
+    // If the user wants to change his password, he must provide his current password
+    if (! empty($newPassword) && empty($currentPassword)) {
+        return ['current_password' => _('Please fill in all password fields')];
+    }
+
+    // If the user provided a current password, we check if it matches the one in the database
+    if (! empty($currentPassword) && password_verify($currentPassword, $centreon->user->passwd) === false) {
+        return ['current_password' => _('Authentication failed')];
+    }
 
     try {
         $contact = new CentreonContact($pearDB);
-        $contact->respectPasswordPolicyOrFail($password, $contactId);
-    } catch (Throwable $e) {
-        $errors['contact_passwd'] = $e->getMessage();
-    }
+        $contact->respectPasswordPolicyOrFail($newPassword, $contactId);
 
-    return $errors !== [] ? $errors : true;
+        return true;
+    } catch (Throwable $e) {
+        return ['contact_passwd' => $e->getMessage()];
+    }
 }
 
 /**
