@@ -24,17 +24,17 @@ declare(strict_types=1);
 namespace Tests\Core\Application\Platform\UseCase\FindInstallationStatus;
 
 use Core\Application\Platform\UseCase\FindInstallationStatus\FindInstallationStatus;
-use Core\Platform\Infrastructure\CentreonInstallationVerifier;
+use Core\Platform\Domain\InstallationVerifierInterface;
 use PHPUnit\Framework\TestCase;
 
 class FindInstallationStatusTest extends TestCase
 {
-    /** @var CentreonInstallationVerifier&\PHPUnit\Framework\MockObject\MockObject */
+    /** @var InstallationVerifierInterface&\PHPUnit\Framework\MockObject\MockObject */
     public $centreonInstallationVerifier;
 
     public function setUp(): void
     {
-        $this->centreonInstallationVerifier = $this->createMock(CentreonInstallationVerifier::class);
+        $this->centreonInstallationVerifier = $this->createMock(InstallationVerifierInterface::class);
     }
 
     /**

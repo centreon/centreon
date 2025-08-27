@@ -25,7 +25,7 @@ namespace Core\Application\Platform\UseCase\FindInstallationStatus;
 
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Application\Common\UseCase\ErrorResponse;
-use Core\Platform\Infrastructure\CentreonInstallationVerifier;
+use Core\Platform\Domain\InstallationVerifierInterface;
 
 final class FindInstallationStatus
 {
@@ -34,7 +34,7 @@ final class FindInstallationStatus
     /**
      * @param CentreonInstallationVerifier $centreonInstallationVerifier
      */
-    public function __construct(private CentreonInstallationVerifier $centreonInstallationVerifier)
+    public function __construct(private InstallationVerifierInterface $centreonInstallationVerifier)
     {
     }
 

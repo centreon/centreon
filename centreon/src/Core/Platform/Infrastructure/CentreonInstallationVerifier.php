@@ -23,9 +23,10 @@ declare(strict_types=1);
 
 namespace Core\Platform\Infrastructure;
 
+use Core\Platform\Domain\InstallationVerifierInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
-class CentreonInstallationVerifier
+final readonly class CentreonInstallationVerifier extends InstallationVerifierInterface
 {
     public function __construct(
         #[Autowire(param: 'centreon_etc_path')]
@@ -35,21 +36,11 @@ class CentreonInstallationVerifier
     ) {
     }
 
-    /**
-     * Check that Centreon is installed (if the configuration exists)
-     *
-     * @return bool
-     */
     public function isCentreonWebInstalled(): bool
     {
         return file_exists($this->etcDirectory . '/centreon.conf.php');
     }
 
-    /**
-     * Check if Centreon is Installable or Upgradable (if the install directory exists)
-     *
-     * @return bool
-     */
     public function isCentreonWebInstallableOrUpgradable(): bool
     {
         return is_dir($this->installDirectory);
