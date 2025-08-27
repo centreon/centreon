@@ -213,6 +213,9 @@ const downtimeDecoder = JsonDecoder.object<Downtime>(
 
 const groupDecoder = JsonDecoder.object<Group>(
   {
+    configuration_uri: JsonDecoder.optional(
+      JsonDecoder.nullable(JsonDecoder.string)
+    ),
     configuration_endpoint: JsonDecoder.optional(
       JsonDecoder.nullable(JsonDecoder.string)
     ),
