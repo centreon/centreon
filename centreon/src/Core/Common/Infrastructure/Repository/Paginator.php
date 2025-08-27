@@ -34,7 +34,9 @@ use Webmozart\Assert\Assert;
 final readonly class Paginator implements PaginatorInterface
 {
     private int $offset;
+
     private int $limit;
+
     private int $lastPage;
 
     /**
