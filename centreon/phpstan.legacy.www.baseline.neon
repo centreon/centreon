@@ -404,30 +404,6 @@ parameters:
 			path: www/include/options/accessLists/menusACL/DB-Func.php
 
 		-
-			message: '#^Function updateGroups\(\) should return unknown_type but return statement is missing\.$#'
-			identifier: return.missing
-			count: 2
-			path: www/include/options/accessLists/resourcesACL/DB-Func.php
-
-		-
-			message: '#^Function updateHostexcludes\(\) should return unknown_type but return statement is missing\.$#'
-			identifier: return.missing
-			count: 2
-			path: www/include/options/accessLists/resourcesACL/DB-Func.php
-
-		-
-			message: '#^Function updateHosts\(\) should return unknown_type but return statement is missing\.$#'
-			identifier: return.missing
-			count: 2
-			path: www/include/options/accessLists/resourcesACL/DB-Func.php
-
-		-
-			message: '#^Function updatePollers\(\) should return unknown_type but return statement is missing\.$#'
-			identifier: return.missing
-			count: 2
-			path: www/include/options/accessLists/resourcesACL/DB-Func.php
-
-		-
 			message: '#^Undefined variable\: \$acl_res_name$#'
 			identifier: variable.undefined
 			count: 1

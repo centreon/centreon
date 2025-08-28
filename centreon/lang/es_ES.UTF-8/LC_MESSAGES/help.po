@@ -7261,3 +7261,7 @@ msgstr "Ancho de la rejilla."
 #: unknown
 msgid "Your OpenId Connect redirect url (this server)."
 msgstr "Su URL de redirección de OpenId Connect (este servidor)."
+
+#: www/include/options/accessLists/resourcesACL/help.php:90
+msgid "Select the image folders that will be visible to users linked to this access rule."
+msgstr ""
