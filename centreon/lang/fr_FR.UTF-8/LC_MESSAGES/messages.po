@@ -1676,6 +1676,8 @@ msgstr "Authentification refusée"
 #: centreon/src/Core/Security/Authentication/Domain/Exception/AuthenticationException.php
 #: centreon/www/include/Administration/myAccount/DB-Func.php
 #: centreon/www/include/configuration/configObject/contact/DB-Func.php
+#: centreon/www/include/Administration/myAccount/formMyAccount.php
+#: centreon/www/include/configuration/configObject/contact/formContact.php
 msgid "Authentication failed"
 msgstr "Echec de l'authentification"
 
@@ -3703,6 +3705,7 @@ msgstr "Page courante seulement"
 
 #: centreon/www/include/Administration/myAccount/formMyAccount.php
 #: centreon/www/install/front_translate.php
+#: centreon/www/include/Administration/myAccount/formMyAccount.php
 msgid "Current password"
 msgstr "Mot de passe actuel"
 
@@ -12145,6 +12148,8 @@ msgstr "Veuillez saisir un nom pour la règle d'accès aux ressources dupliquée
 msgid "Please enter a valid URL or IP address"
 msgstr "Entrez une URL ou une adresse IP valide"
 
+#: centreon/www/include/configuration/configObject/contact/formContact.php
+#: centreon/www/include/Administration/myAccount/formMyAccount.php
 #: centreon/www/include/Administration/myAccount/DB-Func.php
 #: centreon/www/include/configuration/configObject/contact/DB-Func.php
 msgid "Please fill in all password fields"
@@ -24033,3 +24038,19 @@ msgstr "affichera les ressources avec un nom d'hôte commençant par"
 #: unknown
 msgid "{{total}} element(s) found"
 msgstr "{{total}} élément(s) trouvé(s)"
+
+#: unknown
+msgid "Private key"
+msgstr "Clé privée"
+
+#: unknown
+msgid "CA"
+msgstr "CA"
+
+#: unknown
+msgid "Poller/agent configuration created"
+msgstr "Configuration d'agent créée"
+
+#: unknown
+msgid "Poller/agent configuration updated"
+msgstr "Configuration d'agent mise à jour"
