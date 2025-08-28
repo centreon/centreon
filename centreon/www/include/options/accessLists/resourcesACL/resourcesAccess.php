@@ -19,6 +19,17 @@
  *
  */
 
+const RESOURCE_ACCESS_ADD = 'a';
+const RESOURCE_ACCESS_WATCH = 'w';
+const RESOURCE_ACCESS_MODIFY = 'c';
+const RESOURCE_ACCESS_MASSIVE_CHANGE = 'mc';
+const RESOURCE_ACCESS_ACTIVATION = 's';
+const RESOURCE_ACCESS_MASSIVE_ACTIVATION = 'ms';
+const RESOURCE_ACCESS_DEACTIVATION = 'u';
+const RESOURCE_ACCESS_MASSIVE_DEACTIVATION = 'mu';
+const RESOURCE_ACCESS_DUPLICATION = 'm';
+const RESOURCE_ACCESS_DELETION = 'd';
+
 if (! isset($centreon)) {
     exit();
 }
@@ -52,16 +63,16 @@ if (isset($_POST['o1'], $_POST['o2'])) {
 }
 
 switch ($o) {
-    case 'a':
+    case RESOURCE_ACCESS_ADD:
         require_once __DIR__ . '/formResourcesAccess.php';
         break; // Add a LCA
-    case 'w':
+    case RESOURCE_ACCESS_WATCH:
         require_once __DIR__ . '/formResourcesAccess.php';
         break; // Watch a LCA
-    case 'c':
+    case RESOURCE_ACCESS_MODIFY:
         require_once __DIR__ . '/formResourcesAccess.php';
         break; // Modify a LCA
-    case 's':
+    case RESOURCE_ACCESS_ACTIVATION:
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
@@ -71,7 +82,7 @@ switch ($o) {
         }
         require_once __DIR__ . '/listsResourcesAccess.php';
         break; // Activate a LCA
-    case 'ms':
+    case RESOURCE_ACCESS_MASSIVE_ACTIVATION:
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
@@ -81,7 +92,7 @@ switch ($o) {
         }
         require_once __DIR__ . '/listsResourcesAccess.php';
         break; // Activate n LCA
-    case 'u':
+    case RESOURCE_ACCESS_DEACTIVATION:
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
@@ -91,7 +102,7 @@ switch ($o) {
         }
         require_once __DIR__ . '/listsResourcesAccess.php';
         break; // Desactivate a LCA
-    case 'mu':
+    case RESOURCE_ACCESS_MASSIVE_DEACTIVATION:
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
@@ -101,7 +112,7 @@ switch ($o) {
         }
         require_once __DIR__ . '/listsResourcesAccess.php';
         break; // Desactivate n LCA
-    case 'm':
+    case RESOURCE_ACCESS_DUPLICATION:
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
@@ -111,7 +122,7 @@ switch ($o) {
         }
         require_once __DIR__ . '/listsResourcesAccess.php';
         break; // Duplicate n LCAs
-    case 'd':
+    case RESOURCE_ACCESS_DELETION:
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();

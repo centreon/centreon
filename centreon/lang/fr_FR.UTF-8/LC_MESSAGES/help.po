@@ -2038,6 +2038,12 @@ msgstr ""
 "Caractères illégaux dans les commandes externes. Ces caractères seront "
 "supprimés avant traitement par Centreon Gorgone."
 
+#: centreon/www/include/options/accessLists/resourcesACL/help.php
+msgid ""
+"Image folders that will be displayed to users. Images that belong to these "
+"folders will be visible."
+msgstr ""
+
 #: centreon/www/include/options/media/images/help.php
 msgid "Images."
 msgstr "Images."
@@ -7069,6 +7075,14 @@ msgid ""
 msgstr ""
 "Sélectionner la catégorie dans laquelle doit se trouver ce service. Les "
 "catégories peuvent être utilisées pour affiner les ACL d'un service."
+
+#: unknown
+msgid ""
+"Select the image folders that will be visible to users linked to this "
+"access rule."
+msgstr ""
+"Sélectionnez les dossiers d'images qui seront visibles par les "
+"utilisateurs liés à cette règle d'accès."
 
 #: unknown
 msgid "Service CRITICAL Color."

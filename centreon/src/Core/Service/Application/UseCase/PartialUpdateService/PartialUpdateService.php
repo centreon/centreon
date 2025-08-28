@@ -605,6 +605,12 @@ final class PartialUpdateService
                 $action === 'INSERT' ? [$macroPrefixName => $macro->getValue()] : [],
                 $action === 'DELETE' ? [$macroPrefixName => $macro->getValue()] : [],
             );
+
+            // No need to update the macro if it is being deleted
+            if ($action === 'DELETE') {
+                return $macro;
+            }
+
             $vaultPath = $vaultPaths[$macroPrefixName];
             $this->uuid ??= $this->getUuidFromPath($vaultPath);
 

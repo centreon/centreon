@@ -155,6 +155,12 @@ msgstr ""
 
 #: centreon/www/include/options/accessLists/resourcesACL/formResourcesAccess.php
 msgid ""
+"<b><i>Help :</i></b> Select image folders that can be seen by associated "
+"users."
+msgstr ""
+
+#: centreon/www/include/options/accessLists/resourcesACL/formResourcesAccess.php
+msgid ""
 "<b><i>Help :</i></b> Select meta services that can be seen by associated "
 "users."
 msgstr ""
@@ -628,6 +634,7 @@ msgstr ""
 #: centreon/www/include/options/accessLists/groupsACL/listGroupConfig.php
 #: centreon/www/include/options/accessLists/menusACL/formMenusAccess.php
 #: centreon/www/include/options/accessLists/menusACL/listsMenusAccess.php
+#: centreon/www/include/options/accessLists/resourcesACL/formResourcesAccess.php
 #: centreon/www/include/options/accessLists/resourcesACL/formResourcesAccess.php
 #: centreon/www/include/options/accessLists/resourcesACL/formResourcesAccess.php
 #: centreon/www/include/options/accessLists/resourcesACL/formResourcesAccess.php
@@ -1360,6 +1367,15 @@ msgstr ""
 msgid "All hosts selected"
 msgstr ""
 
+#: centreon/www/include/options/accessLists/resourcesACL/listsResourcesAccess.php
+#: centreon/www/install/front_translate.php
+msgid "All image folders"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "All image folders selected"
+msgstr ""
+
 #: centreon/www/install/front_translate.php
 msgid "All metrics on this service are working fine."
 msgstr ""
@@ -1873,6 +1889,7 @@ msgstr ""
 #: centreon/www/include/options/accessLists/groupsACL/formGroupConfig.php
 #: centreon/www/include/options/accessLists/groupsACL/formGroupConfig.php
 #: centreon/www/include/options/accessLists/menusACL/formMenusAccess.php
+#: centreon/www/include/options/accessLists/resourcesACL/formResourcesAccess.php
 #: centreon/www/include/options/accessLists/resourcesACL/formResourcesAccess.php
 #: centreon/www/include/options/accessLists/resourcesACL/formResourcesAccess.php
 #: centreon/www/include/options/accessLists/resourcesACL/formResourcesAccess.php
@@ -4701,6 +4718,10 @@ msgid "Description"
 msgstr ""
 
 #: centreon/www/include/options/media/images/formDirectory.php
+msgid "Destination Directory"
+msgstr ""
+
+#: centreon/www/include/options/media/images/formDirectory.php
 msgid "Destination directory"
 msgstr ""
 
@@ -7314,6 +7335,11 @@ msgstr ""
 
 #: centreon/www/include/options/media/images/formImg.php
 #: centreon/www/include/options/media/images/formImg.php
+msgid "Existing directory"
+msgstr ""
+
+#: centreon/www/include/options/media/images/formImg.php
+#: centreon/www/include/options/media/images/formImg.php
 msgid "Existing or new directory"
 msgstr ""
 
@@ -9423,6 +9449,12 @@ msgstr ""
 msgid "Image Type"
 msgstr ""
 
+#: centreon/www/include/options/accessLists/resourcesACL/formResourcesAccess.php
+#: centreon/www/include/options/accessLists/resourcesACL/formResourcesAccess.php
+#: centreon/www/install/front_translate.php
+msgid "Image folders"
+msgstr ""
+
 #: centreon/www/include/options/media/images/formImg.php
 msgid "Image or archive"
 msgstr ""
@@ -9511,6 +9543,10 @@ msgstr ""
 
 #: centreon/www/include/options/accessLists/resourcesACL/formResourcesAccess.php
 msgid "Include all hosts"
+msgstr ""
+
+#: centreon/www/include/options/accessLists/resourcesACL/formResourcesAccess.php
+msgid "Include all image folders"
 msgstr ""
 
 #: centreon/www/include/options/accessLists/resourcesACL/formResourcesAccess.php
@@ -12236,6 +12272,7 @@ msgstr ""
 #: centreon/www/include/options/accessLists/resourcesACL/listsResourcesAccess.php
 #: centreon/www/include/options/accessLists/resourcesACL/listsResourcesAccess.php
 #: centreon/www/include/options/accessLists/resourcesACL/listsResourcesAccess.php
+#: centreon/www/include/options/accessLists/resourcesACL/listsResourcesAccess.php
 #: centreon/www/include/views/componentTemplates/listComponentTemplates.php
 #: centreon/www/include/views/graphTemplates/listGraphTemplates.php
 #: centreon/www/install/front_translate.php
@@ -14341,6 +14378,7 @@ msgstr ""
 #: centreon/www/include/options/accessLists/resourcesACL/formResourcesAccess.php
 #: centreon/www/include/options/accessLists/resourcesACL/formResourcesAccess.php
 #: centreon/www/include/options/accessLists/resourcesACL/formResourcesAccess.php
+#: centreon/www/include/options/accessLists/resourcesACL/formResourcesAccess.php
 msgid "Remove"
 msgstr ""
 
@@ -15696,6 +15734,7 @@ msgstr ""
 #: centreon/www/include/options/accessLists/resourcesACL/formResourcesAccess.php
 #: centreon/www/include/options/accessLists/resourcesACL/formResourcesAccess.php
 #: centreon/www/include/options/accessLists/resourcesACL/formResourcesAccess.php
+#: centreon/www/include/options/accessLists/resourcesACL/formResourcesAccess.php
 msgid "Selected"
 msgstr ""
 
@@ -16481,6 +16520,10 @@ msgstr ""
 
 #: centreon/www/include/options/accessLists/resourcesACL/formResourcesAccess.php
 msgid "Shared Resources"
+msgstr ""
+
+#: centreon/www/include/options/accessLists/resourcesACL/formResourcesAccess.php
+msgid "Shared image folders"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
@@ -19939,6 +19982,7 @@ msgstr ""
 #: centreon/www/include/monitoring/objectDetails/hostDetails.php
 #: centreon/www/include/monitoring/objectDetails/serviceDetails.php
 #: centreon/www/include/monitoring/recurrentDowntime/formDowntime.php
+#: centreon/www/include/options/accessLists/resourcesACL/listsResourcesAccess.php
 #: centreon/www/include/options/accessLists/resourcesACL/listsResourcesAccess.php
 #: centreon/www/include/options/accessLists/resourcesACL/listsResourcesAccess.php
 #: centreon/www/include/options/accessLists/resourcesACL/listsResourcesAccess.php
