@@ -170,5 +170,5 @@ runs:
             jf rt upload "$ARCH/*.rpm" "$ROOT_REPO_PATH/$UPLOAD_REPO_PATH" --sync-deletes="$ROOT_REPO_PATH/$UPLOAD_REPO_PATH" --flat  --detailed-summary
           fi
 
-          curl -H "Authorization: Bearer ${{ env.JF_ACCESS_TOKEN }}" -X POST "${{ env.JF_URL }}/artifactory/api/yum/$ROOT_REPO_PATH?path=/${{ inputs.version }}/${{ inputs.distrib }}/${{ inputs.stability }}/$ARCH&async=0"
+          curl -H "Authorization: Bearer ${{ env.JF_ACCESS_TOKEN }}" -X POST "${{ env.JF_URL }}/artifactory/api/yum/$ROOT_REPO_PATH?path=/${{ inputs.version }}/${{ inputs.distrib }}/${{ inputs.stability }}/$ARCH&async=1"
         done
