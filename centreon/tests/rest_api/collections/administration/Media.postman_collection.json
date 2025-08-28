@@ -1,9 +1,17 @@
 {
 	"info": {
+<<<<<<< HEAD
 		"_postman_id": "fffb8ab1-f939-4948-ab6b-6c5e185e2577",
 		"name": "Media",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "29556865"
+=======
+		"_postman_id": "a5e40c01-388c-4770-814a-6fe07277e828",
+		"name": "Media",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "28117716",
+		"_collection_link": "https://centreon-api-testing.postman.co/workspace/develop-OSS~7c78046c-a719-4dae-bbf9-70e6e2c5b9bd/collection/28117716-a5e40c01-388c-4770-814a-6fe07277e828?action=share&source=collection_link&creator=28117716"
+>>>>>>> f8c741b47e (feat(acl): implement ACL on image folders (#7923))
 	},
 	"item": [
 		{

@@ -390,6 +390,13 @@ $updateOnPremiseACLs = function () use ($pearDB, &$errorMessage): void {
             SQL
     );
 };
+<<<<<<< HEAD
+=======
+
+try {
+    // DDL statements for real time database
+    // TODO add your function calls to update the real time database structure here
+>>>>>>> f8c741b47e (feat(acl): implement ACL on image folders (#7923))
 
 try {
 

@@ -7994,3 +7994,7 @@ msgid "snmpttconvertmib binary with complete path."
 msgstr ""
 "Caminho completo para o script snmpttconvertmib. \n"
 "O último torna possível converter os arquivos MIB importados no Centreon."
+
+#: www/include/options/accessLists/resourcesACL/help.php:90
+msgid "Select the image folders that will be visible to users linked to this access rule."
+msgstr ""

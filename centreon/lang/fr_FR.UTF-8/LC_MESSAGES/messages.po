@@ -24496,3 +24496,29 @@ msgstr "alerte"
 #: unknown
 msgid "will display resources with host name starting by'"
 msgstr "affichera les ressources avec un nom d'hôte commençant par"
+
+#: centreon/www/include/options/accessLists/resourcesACL/formResourcesAccess.php
+msgid "Shared image folders"
+msgstr "Dossiers d'images partagés"
+
+#: centreon/www/include/options/accessLists/resourcesACL/formResourcesAccess.php
+msgid "Include all image folders"
+msgstr "Inclure tous les dossiers d'images"
+
+#: centreon/www/include/options/accessLists/resourcesACL/formResourcesAccess.php
+msgid ""
+"<b><i>Help :</i></b> Select image folders that can be seen by associated users."
+msgstr ""
+"<b><i>Aide :</i></b> Sélectionner les dossiers d'images qui peuvent être vus par les utilisateurs associés."
+
+#: centreon/www/include/options/accessLists/resourcesACL/formResourcesAccess.php
+msgid "Image folders"
+msgstr "Dossiers d'images"
+
+#: centreon/www/install/front_translate.php
+msgid "All image folders selected"
+msgstr "Tous les dossiers d'images sont sélectionnés"
+
+#: centreon/www/include/options/accessLists/resourcesACL/listsResourcesAccess.php
+msgid "All image folders"
+msgstr "Tous les dossiers d'images"

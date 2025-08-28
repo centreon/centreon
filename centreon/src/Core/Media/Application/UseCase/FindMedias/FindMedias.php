@@ -72,6 +72,30 @@ final readonly class FindMedias
      * @return \Traversable<int, Media>
      */
     private function findAsAdmin(): \Traversable
+<<<<<<< HEAD
+=======
+    {
+        return $this->mediaReader->findByRequestParameters($this->requestParameters);
+    }
+
+    /**
+     * @throws RepositoryException
+     *
+     * @return \Traversable<int, Media>
+     */
+    private function findAsUser(): \Traversable
+    {
+        $accessGroups = $this->accessGroupReader->findByContact($this->user);
+
+        if ($this->mediaFolderReader->hasAccessToAllImageFolders($accessGroups)) {
+            return $this->mediaReader->findByRequestParameters($this->requestParameters);
+        }
+
+        return $this->mediaReader->findByRequestParametersAndAccessGroups($this->requestParameters, $accessGroups);
+    }
+
+    private function canAccessToListing(): bool
+>>>>>>> f8c741b47e (feat(acl): implement ACL on image folders (#7923))
     {
         return $this->mediaReader->findByRequestParameters($this->requestParameters);
     }
