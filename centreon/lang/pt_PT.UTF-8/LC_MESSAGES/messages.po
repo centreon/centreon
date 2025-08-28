@@ -145,6 +145,12 @@ msgstr ""
 
 #: centreon/www/include/options/accessLists/resourcesACL/formResourcesAccess.php
 msgid ""
+"<b><i>Help :</i></b> Select image folders that can be seen by associated "
+"users."
+msgstr ""
+
+#: centreon/www/include/options/accessLists/resourcesACL/formResourcesAccess.php
+msgid ""
 "<b><i>Help :</i></b> Select meta services that can be seen by associated "
 "users."
 msgstr ""
@@ -1296,6 +1302,15 @@ msgstr ""
 
 #: centreon/www/install/front_translate.php
 msgid "All hosts selected"
+msgstr ""
+
+#: centreon/www/include/options/accessLists/resourcesACL/listsResourcesAccess.php
+#: centreon/www/install/front_translate.php
+msgid "All image folders"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "All image folders selected"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
@@ -4707,6 +4722,10 @@ msgid "Description"
 msgstr "Descrição"
 
 #: centreon/www/include/options/media/images/formDirectory.php
+msgid "Destination Directory"
+msgstr ""
+
+#: centreon/www/include/options/media/images/formDirectory.php
 msgid "Destination directory"
 msgstr "Diretorio de destino"
 
@@ -7083,6 +7102,10 @@ msgid "Execution was too long and reached timeout"
 msgstr ""
 
 #: centreon/www/include/options/media/images/formImg.php
+msgid "Existing directory"
+msgstr ""
+
+#: centreon/www/include/options/media/images/formImg.php
 msgid "Existing or new directory"
 msgstr "Existente ou novo diretorio"
 
@@ -9022,6 +9045,11 @@ msgstr "Nome da Imagem"
 msgid "Image Type"
 msgstr "Tipo de Imagem"
 
+#: centreon/www/include/options/accessLists/resourcesACL/formResourcesAccess.php
+#: centreon/www/install/front_translate.php
+msgid "Image folders"
+msgstr ""
+
 #: centreon/www/include/options/media/images/formImg.php
 msgid "Image or archive"
 msgstr "Imagem ou ficheiro"
@@ -9109,6 +9137,10 @@ msgstr "Inclui todos os grupos de host"
 #: centreon/www/include/options/accessLists/resourcesACL/formResourcesAccess.php
 msgid "Include all hosts"
 msgstr "Inclui todos os hosts"
+
+#: centreon/www/include/options/accessLists/resourcesACL/formResourcesAccess.php
+msgid "Include all image folders"
+msgstr ""
 
 #: centreon/www/include/options/accessLists/resourcesACL/formResourcesAccess.php
 msgid "Include all servicegroups"
@@ -15522,6 +15554,10 @@ msgstr ""
 #: centreon/www/include/options/accessLists/resourcesACL/formResourcesAccess.php
 msgid "Shared Resources"
 msgstr "Recursos Compartilhados"
+
+#: centreon/www/include/options/accessLists/resourcesACL/formResourcesAccess.php
+msgid "Shared image folders"
+msgstr ""
 
 #: centreon/www/install/front_translate.php
 msgid "Shares"
@@ -23373,29 +23409,3 @@ msgstr "período de tempo"
 #: unknown
 msgid "topology_name"
 msgstr "Nome da Topologia"
-
-#: centreon/www/include/options/accessLists/resourcesACL/formResourcesAccess.php
-msgid "Shared image folders"
-msgstr ""
-
-#: centreon/www/include/options/accessLists/resourcesACL/formResourcesAccess.php
-msgid "Include all image folders"
-msgstr ""
-
-#: centreon/www/include/options/accessLists/resourcesACL/formResourcesAccess.php
-msgid ""
-"<b><i>Help :</i></b> Select image folders that can be seen by associated users."
-msgstr ""
-""
-
-#: centreon/www/include/options/accessLists/resourcesACL/formResourcesAccess.php
-msgid "Image folders"
-msgstr ""
-
-#: centreon/www/install/front_translate.php
-msgid "All image folders selected"
-msgstr ""
-
-#: centreon/www/include/options/accessLists/resourcesACL/listsResourcesAccess.php
-msgid "All image folders"
-msgstr ""

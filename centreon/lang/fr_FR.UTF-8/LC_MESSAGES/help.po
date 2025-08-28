@@ -2038,6 +2038,12 @@ msgstr ""
 "Caractères illégaux dans les commandes externes. Ces caractères seront "
 "supprimés avant traitement par Centreon Gorgone."
 
+#: centreon/www/include/options/accessLists/resourcesACL/help.php
+msgid ""
+"Image folders that will be displayed to users. Images that belong to these "
+"folders will be visible."
+msgstr ""
+
 #: centreon/www/include/options/media/images/help.php
 msgid "Images."
 msgstr "Images."
@@ -7071,6 +7077,14 @@ msgstr ""
 "catégories peuvent être utilisées pour affiner les ACL d'un service."
 
 #: unknown
+msgid ""
+"Select the image folders that will be visible to users linked to this "
+"access rule."
+msgstr ""
+"Sélectionnez les dossiers d'images qui seront visibles par les "
+"utilisateurs liés à cette règle d'accès."
+
+#: unknown
 msgid "Service CRITICAL Color."
 msgstr "Couleur des services en statut critique."
 
@@ -8240,7 +8254,3 @@ msgid "snmpttconvertmib binary with complete path."
 msgstr ""
 "Chemin d'accès complet vers le script snmpttconvertmib. Ce dernier permet "
 "de convertir les fichiers MIBs importés dans Centreon."
-
-#: www/include/options/accessLists/resourcesACL/help.php:90
-msgid "Select the image folders that will be visible to users linked to this access rule."
-msgstr "Sélectionnez les dossiers d'images qui seront visibles par les utilisateurs liés à cette règle d'accès."
