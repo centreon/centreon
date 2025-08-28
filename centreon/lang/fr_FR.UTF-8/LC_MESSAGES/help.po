@@ -8130,8 +8130,6 @@ msgid "snmpttconvertmib binary with complete path."
 msgstr ""
 "Chemin d'accès complet vers le script snmpttconvertmib. Ce dernier permet "
 "de convertir les fichiers MIBs importés dans Centreon."
-<<<<<<< HEAD
-=======
 
 #: centreon/www/include/Administration/parameters/general/help.php
 msgid ""
@@ -8146,4 +8144,3 @@ msgstr ""
 #: centreon/www/include/configuration/configObject/contact/help.php
 msgid "For security reasons, to be able to change this user's password, you (the currently logged-in user) must verify your identity by entering your own password."
 msgstr "Pour des raisons de sécurité, afin de pouvoir changer le mot de passe de cet utilisateur, vous (l'utilisateur actuellement connecté) devez vérifier votre identité en saisissant votre propre mot de passe."
->>>>>>> 24.10.x
