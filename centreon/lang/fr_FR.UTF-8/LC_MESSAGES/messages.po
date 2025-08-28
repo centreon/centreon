@@ -24040,22 +24040,6 @@ msgid "{{total}} element(s) found"
 msgstr "{{total}} élément(s) trouvé(s)"
 
 #: unknown
-msgid "Add poller/agent configuration"
-msgstr "Ajouter une configuration de poller/agent"
-
-#: unknown
-msgid "Update poller/agent configuration"
-msgstr "Modifier une configuration de poller/agent"
-
-#: unknown
-msgid "Welcome to the poller/agent configuration page"
-msgstr "Bienvenue sur la page de configuration du poller/agent"
-
-#: unknown
-msgid "Poller/agent configuration"
-msgstr "Configuration du poller/agent"
-
-#: unknown
 msgid "Private key"
 msgstr "Clé privée"
 
