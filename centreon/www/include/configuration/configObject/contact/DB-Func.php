@@ -58,11 +58,11 @@ function testContactExistence($name = null)
         ])
     );
 
-    if ($contact && $contact['contact_id'] === $id) {
+    if ($contact && $contact['contact_id'] === (int) $id) {
         return true;
     }
 
-    return ! ($contact && $contact['contact_id'] !== $id);
+    return ! ($contact && $contact['contact_id'] !== (int) $id);
 }
 
 /**
