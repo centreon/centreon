@@ -1105,7 +1105,9 @@ jobs:
       [
         changes,
         get-environment,
-        package
+        e2e-test,
+        performances-test,
+        legacy-e2e-test,
       ]
     if: |
       needs.get-environment.outputs.skip_workflow == 'false' &&
@@ -1157,7 +1159,9 @@ jobs:
       [
         changes,
         get-environment,
-        package
+        e2e-test,
+        performances-test,
+        legacy-e2e-test,
       ]
     if: |
       needs.get-environment.outputs.skip_workflow == 'false' &&
