@@ -27,7 +27,6 @@ s:@CENTPLUGINSTRAPS_BINDIR@:/usr/share/centreon/bin:g
 s:@P1_PL@:/usr/sbin/p1.pl:g
 s:@CENTSTORAGE_RRD@:/var/lib/centreon:g
 s:@NAGIOS_IMG@:/usr/share/nagios/html/images/logos:g
-s:@WEB_USER@:apache:g
 s:@DB_CENTSTORAGE@:centreon_storage:g
 s:@NAGIOS_PLUGINS@:/usr/lib64/nagios/plugins:g
 s:@CENTREON_USER@:centreon:g

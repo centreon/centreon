@@ -60,4 +60,4 @@ services:
 
     Core\Media\Application\UseCase\FindMedias\FindMedias:
         arguments:
-            $readMediaRepository: '@Core\Media\Infrastructure\Repository\FileProxyReadMediaRepository'
+            $mediaReader: '@Core\Media\Infrastructure\Repository\FileProxyReadMediaRepository'

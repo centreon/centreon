@@ -1,18 +1,22 @@
 <?php
-/**
- * Copyright 2019 Centreon
+
+/*
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
+ * For more information : contact@centreon.com
+ *
  */
 
 namespace Centreon\Test\Mock;
@@ -30,11 +34,8 @@ use Centreon\Infrastructure\CentreonLegacyDB\ServiceEntityRepository;
  */
 class CentreonDBAdapter extends BaseCentreonDBAdapter
 {
-
-    /**
-     * @var array
-     */
-    protected $mocks = [];
+    /** @var array */
+    protected array $mocks = [];
 
     public function getRepository($repository): ServiceEntityRepository
     {
@@ -45,11 +46,13 @@ class CentreonDBAdapter extends BaseCentreonDBAdapter
         return parent::getRepository($repository);
     }
 
-    public function resetResultSet(): CentreonDBAdapter
+    public function resetResultSet(): static
     {
         $this->mocks = [];
 
-        $this->getCentreonDBInstance()->resetResultSet();
+        /** @var CentreonDB $db */
+        $db = $this->getCentreonDBInstance();
+        $db->resetResultSet();
 
         return $this;
     }
@@ -59,28 +62,34 @@ class CentreonDBAdapter extends BaseCentreonDBAdapter
         return $this->mocks;
     }
 
-    public function addResultSet($query, $result, $params = null, callable $callback = null): CentreonDBAdapter
+    public function addResultSet($query, $result, $params = null, ?callable $callback = null): static
     {
-        $this->getCentreonDBInstance()->addResultSet($query, $result, $params, $callback);
+        /** @var CentreonDB $db */
+        $db = $this->getCentreonDBInstance();
+        $db->addResultSet($query, $result, $params, $callback);
 
         return $this;
     }
 
-    public function setCommitCallback(callable $callback = null): CentreonDBAdapter
+    public function setCommitCallback(?callable $callback = null): static
     {
-        $this->getCentreonDBInstance()->setCommitCallback($callback);
+        /** @var CentreonDB $db */
+        $db = $this->getCentreonDBInstance();
+        $db->setCommitCallback($callback);
 
         return $this;
     }
 
-    public function setLastInsertId(int $id = null)
+    public function setLastInsertId(?int $id = null): static
     {
-        $this->getCentreonDBInstance()->setLastInsertId($id);
+        /** @var CentreonDB $db */
+        $db = $this->getCentreonDBInstance();
+        $db->setLastInsertId($id);
 
         return $this;
     }
 
-    public function addRepositoryMock(string $className, object $repository): CentreonDBAdapter
+    public function addRepositoryMock(string $className, object $repository): static
     {
         $this->mocks[$className] = $repository;
 
