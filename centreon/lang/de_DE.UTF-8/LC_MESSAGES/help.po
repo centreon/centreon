@@ -6835,7 +6835,3 @@ msgstr ""
 #: unknown
 msgid "Whether this host group is enabled."
 msgstr "Legt fest, ob die Host-Gruppe aktiviert ist."
-
-#: www/include/options/accessLists/resourcesACL/help.php:90
-msgid "Select the image folders that will be visible to users linked to this access rule."
-msgstr ""
