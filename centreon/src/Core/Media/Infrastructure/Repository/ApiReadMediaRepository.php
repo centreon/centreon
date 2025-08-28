@@ -24,8 +24,8 @@ declare(strict_types=1);
 namespace Core\Media\Infrastructure\Repository;
 
 use Assert\AssertionFailedException;
-use Centreon\Domain\Repository\RepositoryException;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
+use Core\Common\Domain\Exception\RepositoryException;
 use Core\Common\Infrastructure\Repository\ApiCallIterator;
 use Core\Common\Infrastructure\Repository\ApiRepositoryTrait;
 use Core\Media\Application\Repository\ReadMediaRepositoryInterface;
@@ -48,9 +48,19 @@ class ApiReadMediaRepository implements ReadMediaRepositoryInterface
     /**
      * @inheritDoc
      */
+    public function findByRequestParametersAndAccessGroups(
+        RequestParametersInterface $requestParameters,
+        array $accessGroups,
+    ): \Traversable {
+        throw new RepositoryException('Not yet implemented');
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function findById(int $mediaId): ?Media
     {
-        throw RepositoryException::notYetImplemented();
+        throw new RepositoryException('Not yet implemented');
     }
 
     /**
@@ -58,7 +68,7 @@ class ApiReadMediaRepository implements ReadMediaRepositoryInterface
      */
     public function findByIds(array $mediaIds): array
     {
-        throw RepositoryException::notYetImplemented();
+        throw new RepositoryException('Not yet implemented');
     }
 
     /**
@@ -66,7 +76,7 @@ class ApiReadMediaRepository implements ReadMediaRepositoryInterface
      */
     public function existsByPath(string $path): bool
     {
-        throw RepositoryException::notYetImplemented();
+        throw new RepositoryException('Not yet implemented');
     }
 
     /**
@@ -109,7 +119,7 @@ class ApiReadMediaRepository implements ReadMediaRepositoryInterface
      */
     public function findByRequestParameters(RequestParametersInterface $requestParameters): \Traversable
     {
-        throw RepositoryException::notYetImplemented();
+        throw new RepositoryException('Not yet implemented');
     }
 
     /**

@@ -19,39 +19,80 @@
  *
  */
 
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\Exception\ConnectionException;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
+use Core\Common\Domain\Exception\CollectionException;
+use Core\Common\Domain\Exception\RepositoryException;
+use Core\Common\Domain\Exception\ValueObjectException;
+use Core\Common\Infrastructure\ExceptionLogger\ExceptionLogger;
+
 require_once _CENTREON_PATH_ . 'www/class/centreonImageManager.php';
 require_once __DIR__ . '/../../../../../bootstrap.php';
 
+const BASE_CENTREON_IMG_DIRECTORY = './img/media';
+
+/** @var Centreon $centreon */
 if (! isset($centreon)) {
     exit();
 }
 
+$userCanSeeAllFolders = ((int) $centreon->user->admin === 1 || $centreon->user->access->hasAccessToAllImageFolders);
+
 // Database retrieve information
 $img = ['img_path' => null];
+
 if ($o == IMAGE_MODIFY || $o == IMAGE_WATCH) {
-    $result = $pearDB->query("SELECT * FROM view_img WHERE img_id = {$imageId} LIMIT 1");
+    try {
+        $query = <<<'SQL'
+                SELECT
+                    image.img_id,
+                    image.img_name,
+                    image.img_path,
+                    image.img_comment,
+                    directory.dir_id,
+                    directory.dir_name AS `directories`,
+                    directory.dir_alias
+                FROM view_img AS image
+                INNER JOIN view_img_dir_relation AS vidr
+                ON vidr.img_img_id = image.img_id
+                INNER JOIN view_img_dir AS directory
+                    ON directory.dir_id = vidr.dir_dir_parent_id
+                WHERE image.img_id = :imageId
+                LIMIT 1
+            SQL;
 
-    // Set base value
-    $img = array_map('myDecode', $result->fetchRow());
+        $queryParameters = QueryParameters::create([QueryParameter::int('imageId', $imageId)]);
+        $img = $pearDB->fetchAssociative($query, $queryParameters);
+        $img_path = sprintf('%s/%s/%s', BASE_CENTREON_IMG_DIRECTORY, $img['dir_alias'], $img['img_path']);
+    } catch (ValueObjectException|CollectionException|ConnectionException $e) {
+        $exception = new RepositoryException(
+            message: 'Error while retrieving image information',
+            context: ['imageId' => $imageId],
+            previous: $e
+        );
+        ExceptionLogger::create()->log($exception);
 
-    // Set Directories
-    $DBRESULT = $pearDB->query(
-        'SELECT dir_id, dir_name, dir_alias, img_path FROM view_img '
-        . 'JOIN view_img_dir_relation ON img_id = view_img_dir_relation.img_img_id '
-        . 'JOIN view_img_dir ON dir_id = dir_dir_parent_id '
-        . "WHERE img_id = {$imageId} LIMIT 1"
-    );
-    $dir = $DBRESULT->fetchRow();
-    $img_path = "./img/media/{$dir['dir_alias']}/{$dir['img_path']}";
-    $img['directories'] = $dir['dir_name'];
-    $DBRESULT->closeCursor();
+        throw $exception;
+    }
+
 }
 
 // Get Directories
-$dir_ids = getListDirectory();
-$dir_list_sel = $dir_ids;
-$dir_list_sel[0] = '';
-asort($dir_list_sel);
+try {
+    $directoryIds = getListDirectory();
+} catch (RepositoryException $e) {
+    CentreonLog::create()->error(
+        logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
+        message: 'Error while retrieving image directories: ' . $e->getMessage(),
+        exception: $e
+    );
+
+    throw $e;
+}
+$directoryListForSelect = $directoryIds;
+$directoryListForSelect[0] = '';
+asort($directoryListForSelect);
 
 // Styles
 $attrsText = ['size' => '35'];
@@ -60,20 +101,24 @@ $attrsTextarea = ['rows' => '5', 'cols' => '80'];
 
 // Form begin
 $form = new HTML_QuickFormCustom('Form', 'post', '?p=' . $p);
+
 if ($o == IMAGE_ADD) {
     $form->addElement('header', 'title', _('Add Image(s)'));
     $form->addElement(
         'autocomplete',
         'directories',
-        _('Existing or new directory'),
-        $dir_ids,
-        ['id' => 'directories']
+        $userCanSeeAllFolders ? _('Existing or new directory') : _('Existing directory'),
+        $directoryIds,
+        [
+            'id' => 'directories',
+            'style' => $userCanSeeAllFolders ? '' : 'display:none;',
+        ]
     );
     $form->addElement(
         'select',
         'list_dir',
         '',
-        $dir_list_sel,
+        $directoryListForSelect,
         ['onchange' => 'document.getElementById("directories").value = this.options[this.selectedIndex].text;']
     );
     $form->addElement('file', 'filename', _('Image or archive'));
@@ -88,21 +133,29 @@ if ($o == IMAGE_ADD) {
 } elseif ($o == IMAGE_MODIFY) {
     $form->addElement('header', 'title', _('Modify Image'));
     $form->addElement('text', 'img_name', _('Image Name'), $attrsText);
+
+    // Small hack for user with not enough rights to see all folders and avoid creation of a directory that user will not see
+    // post creation. Pure cosmetic
     $form->addElement(
         'autocomplete',
         'directories',
-        _('Existing or new directory'),
-        $dir_ids,
-        ['id' => 'directories']
+        $userCanSeeAllFolders ? _('Existing or new directory') : _('Existing directory'),
+        $directoryIds,
+        [
+            'id' => 'directories',
+            'style' => $userCanSeeAllFolders ? '' : 'display:none;',
+        ]
     );
-    $list_dir = $form->addElement(
+
+    $directorySelect = $form->addElement(
         'select',
         'list_dir',
-        '',
-        $dir_list_sel,
+        '&nbsp;',
+        $directoryListForSelect,
         ['onchange' => 'document.getElementById("directories").value = this.options[this.selectedIndex].text;']
     );
-    $list_dir->setSelected($dir['dir_id']);
+
+    $directorySelect->setSelected($img['dir_id']);
     $form->addElement('file', 'filename', _('Image'));
     $subC = $form->addElement(
         'submit',
@@ -122,7 +175,7 @@ if ($o == IMAGE_ADD) {
         'autocomplete',
         'directories',
         _('Directory'),
-        $dir_ids,
+        $directoryIds,
         ['id', 'directories']
     );
     $form->addElement('file', 'filename', _('Image'));
@@ -135,6 +188,7 @@ if ($o == IMAGE_ADD) {
     );
     $form->setDefaults($img);
 }
+
 $form->addElement(
     'button',
     'cancel',

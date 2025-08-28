@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Centreon\Infrastructure\RequestParameters;
 
+use Adaptation\Database\QueryBuilder\QueryBuilderInterface;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Centreon\Domain\RequestParameters\RequestParameters;
 use Centreon\Infrastructure\DatabaseConnection;
@@ -108,6 +109,14 @@ class SqlRequestParametersTranslator
         return ! empty($whereQuery) ? ' WHERE ' . $whereQuery : null;
     }
 
+    public function appendQueryBuilderWithSearchParameter(QueryBuilderInterface $queryBuilder): void
+    {
+        $search = $this->requestParameters->getSearch();
+        if (! empty($search)) {
+            $queryBuilder->where($this->createDatabaseQuery($search));
+        }
+    }
+
     /**
      * Translate the sort parameters into SQL request.
      *
@@ -131,6 +140,33 @@ class SqlRequestParametersTranslator
         }
 
         return ! empty($orderQuery) ? ' ORDER BY ' . $orderQuery : null;
+    }
+
+    public function appendQueryBuilderWithSortParameter(QueryBuilderInterface $queryBuilder): void
+    {
+        foreach ($this->requestParameters->getSort() as $name => $order) {
+            if (array_key_exists($name, $this->concordanceArray)) {
+                $queryBuilder->addOrderBy(
+                    sprintf(
+                        '%s IS NULL, %s',
+                        $this->concordanceArray[$name],
+                        $this->concordanceArray[$name],
+                    ),
+                    $order
+                );
+            }
+        }
+    }
+
+    public function appendQueryBuilderWithPagination(QueryBuilderInterface $queryBuilder): void
+    {
+        $page = $this->requestParameters->getPage();
+        $limit = $this->requestParameters->getLimit();
+        $offset = ($page - 1) * $limit;
+
+        $queryBuilder
+            ->limit($limit)
+            ->offset($offset);
     }
 
     /**
@@ -461,7 +497,7 @@ class SqlRequestParametersTranslator
      */
     private function isAggregateOperator($key): bool
     {
-        return is_string($key) && in_array($key, $this->aggregateOperators);
+        return is_string($key) && in_array($key, $this->aggregateOperators, true);
     }
 
     /**
