@@ -25,6 +25,7 @@ namespace Core\Contact\Application\Repository;
 
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
+use Core\Common\Domain\Exception\RepositoryException;
 use Core\Contact\Domain\Model\ContactGroup;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
@@ -124,7 +125,7 @@ interface ReadContactGroupRepositoryInterface
      *
      * @param int ...$ids
      *
-     * @throws \Throwable
+     * @throws RepositoryException
      *
      * @return array<int, array{id: int, name: string}>
      */
