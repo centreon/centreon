@@ -64,7 +64,7 @@ interface ExpressionBuilderInterface
     public function comparison(
         string $leftExpression,
         ComparisonOperatorEnum $operator,
-        string $rightExpression
+        string $rightExpression,
     ): string;
 
     /**
