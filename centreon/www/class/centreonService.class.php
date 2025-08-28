@@ -34,6 +34,7 @@ class CentreonService
 {
     private const TABLE_SERVICE_CONFIGURATION = 'service';
     private const TABLE_SERVICE_REALTIME = 'services';
+    private const PASSWORD_REPLACEMENT_VALUE = '**********';
 
     /** @var CentreonDB */
     protected $db;
@@ -609,6 +610,8 @@ class CentreonService
                 $valPassword = null;
                 if (isset($_REQUEST['is_password'][$key])) {
                     $valPassword = $_REQUEST['is_password'][$key] === '1' ? '1' : null;
+                } elseif ($_REQUEST['macroValue'][$key]) {
+                    $valPassword = $_REQUEST['macroValue'][$key] === self::PASSWORD_REPLACEMENT_VALUE ? '1' : null;
                 }
                 $arr[$i]['macroPassword_#index#'] = $valPassword;
 
