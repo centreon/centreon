@@ -40,7 +40,7 @@ const store = createStore();
 
 const ListingWithQueryProvider = (): JSX.Element => {
   return (
-    <div style={{ height: '100vh' }}>
+    <div style={{ height: '90vh' }}>
       <Provider store={store}>
         <TestQueryProvider>
           <SnackbarProvider>
@@ -427,6 +427,8 @@ describe('Listing row actions: Duplicate button', () => {
     cy.findByText(labelDuplicate).should('be.disabled');
     cy.findByText(labelDiscard).click();
 
+    cy.findByText(labelDiscard).should('not.exist');
+
     cy.makeSnapshot();
   });
 
@@ -448,6 +450,8 @@ describe('Listing row actions: Duplicate button', () => {
 
     cy.findByText(labelDiscard).click();
 
+    cy.findByText(labelDiscard).should('not.exist');
+
     cy.makeSnapshot();
   });
 
@@ -462,6 +466,8 @@ describe('Listing row actions: Duplicate button', () => {
     cy.findByTestId('Confirm').should('be.disabled');
 
     cy.findByText(labelDiscard).click();
+
+    cy.findByText(labelDiscard).should('not.exist');
 
     cy.makeSnapshot();
   });
@@ -538,10 +544,6 @@ describe('column sorting', () => {
       });
 
       cy.contains('notification1').should('exist');
-
-      cy.makeSnapshot(
-        `column sorting --  executes a listing request when the ${label} column is clicked`
-      );
     });
   });
 });

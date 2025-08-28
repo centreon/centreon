@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -58,13 +58,11 @@ final class DeleteNotificationsPresenter extends AbstractPresenter implements De
     {
         if ($response instanceof DeleteNotificationsResponse) {
             $multiStatusResponse = [
-                'results' => array_map(function (DeleteNotificationsStatusResponse $notificationDto) {
-                    return [
-                        'href' => $this->getDeletedNotificationHref($notificationDto->id),
-                        'status' => $this->enumToIntConverter($notificationDto->status),
-                        'message' => $notificationDto->message,
-                    ];
-                }, $response->results),
+                'results' => array_map(fn (DeleteNotificationsStatusResponse $notificationDto) => [
+                    'href' => $this->getDeletedNotificationHref($notificationDto->id),
+                    'status' => $this->enumToIntConverter($notificationDto->status),
+                    'message' => $notificationDto->message,
+                ], $response->results),
             ];
 
             $this->present($multiStatusResponse);

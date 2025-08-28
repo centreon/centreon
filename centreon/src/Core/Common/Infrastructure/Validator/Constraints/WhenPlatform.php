@@ -93,7 +93,10 @@ final class WhenPlatform extends Composite
         return ['platform', 'constraints'];
     }
 
-    public function getTargets(): string|array
+    /**
+     * @return string[]
+     */
+    public function getTargets(): array
     {
         return [self::CLASS_CONSTRAINT, self::PROPERTY_CONSTRAINT];
     }

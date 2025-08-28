@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,12 +27,12 @@ use Assert\AssertionFailedException;
 use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
-use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\{ConflictResponse,
     CreatedResponse,
     ErrorResponse,
     InvalidArgumentResponse,
     PresenterInterface};
+use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Common\Domain\TrimmedString;
 use Core\TimePeriod\Application\Exception\TimePeriodException;
 use Core\TimePeriod\Application\Repository\ReadTimePeriodRepositoryInterface;
@@ -122,25 +122,19 @@ final class AddTimePeriod
         $response->id = $timePeriod->getId();
         $response->name = $timePeriod->getName();
         $response->alias = $timePeriod->getAlias();
-        $response->days = array_map(function (Day $day) {
-            return [
-                'day' => $day->getDay(),
-                'time_range' => (string) $day->getTimeRange(),
-            ];
-        }, $timePeriod->getDays());
-        $response->templates = array_map(function (Template $template) {
-            return [
-                'id' => $template->getId(),
-                'alias' => $template->getAlias(),
-            ];
-        }, $timePeriod->getTemplates());
-        $response->exceptions = array_map(function (ExtraTimePeriod $exception) {
-            return [
-                'id' => $exception->getId(),
-                'day_range' => $exception->getDayRange(),
-                'time_range' => (string) $exception->getTimeRange(),
-            ];
-        }, $timePeriod->getExtraTimePeriods());
+        $response->days = array_map(fn (Day $day) => [
+            'day' => $day->getDay(),
+            'time_range' => (string) $day->getTimeRange(),
+        ], $timePeriod->getDays());
+        $response->templates = array_map(fn (Template $template) => [
+            'id' => $template->getId(),
+            'alias' => $template->getAlias(),
+        ], $timePeriod->getTemplates());
+        $response->exceptions = array_map(fn (ExtraTimePeriod $exception) => [
+            'id' => $exception->getId(),
+            'day_range' => $exception->getDayRange(),
+            'time_range' => (string) $exception->getTimeRange(),
+        ], $timePeriod->getExtraTimePeriods());
 
         return $response;
     }

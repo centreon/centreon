@@ -11,12 +11,14 @@ info:
     + Added new endpoint to bulk duplicate hostgroups
     + Added endpoint to export resources : only csv format available for the moment
     + Added endpoint to count resources
+    + Added endpoint to list media folders
     +
     # Updated features
     + Updated endpoint to add an hostgroup
     + Updated endpoint to update an hostgroup
     + Update FindHostGroups response
     + Added 'requested_authn_context' property to SAML provider configuration endpoints (GET, PUT)
+    + Added 'url' property to /configuration/medias and rename property 'filename' to 'name' in returned response and search capabilities
     +
     # Information
     All dates are in **ISO 8601** format
@@ -840,6 +842,8 @@ paths:
           $ref: '#/components/responses/InternalServerError'
   /configuration/medias:
     $ref: './latest/onPremise/Configuration/Media/AddAndFindMedia.yaml'
+  /configuration/media/folders:
+    $ref: './latest/onPremise/Configuration/Media/FindImageFolders.yaml'
   /configuration/medias/{media_id}/content:
     $ref: './latest/onPremise/Configuration/Media/UpdateMedia.yaml'
   /configuration/proxy:

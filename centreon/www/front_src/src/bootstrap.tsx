@@ -1,6 +1,7 @@
 import { createRoot } from 'react-dom/client';
 
 import Provider from './Main/Provider';
+import './app.css';
 
 const container = document.getElementById('root') as HTMLElement;
 

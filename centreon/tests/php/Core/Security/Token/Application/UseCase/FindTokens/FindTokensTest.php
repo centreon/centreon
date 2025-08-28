@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,24 +19,19 @@
  *
  */
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Tests\Core\Security\Token\Application\UseCase\FindTokens;
 
 use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
-use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Application\Common\UseCase\ErrorResponse;
-use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Common\Domain\TrimmedString;
 use Core\Security\Token\Application\Exception\TokenException;
 use Core\Security\Token\Application\UseCase\FindTokens\FindTokens;
 use Core\Security\Token\Application\UseCase\FindTokens\FindTokensResponse;
-use Core\Security\Token\Application\UseCase\FindTokens\TokenDto;
 use Core\Security\Token\Domain\Model\ApiToken;
 use Core\Security\Token\Domain\Model\JwtToken;
-use Core\Security\Token\Domain\Model\Token;
-use Core\Security\Token\Domain\Model\TokenTypeEnum;
 use Core\Security\Token\Infrastructure\Repository\DbReadTokenRepository;
 
 beforeEach(closure: function (): void {

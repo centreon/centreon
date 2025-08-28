@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,16 +18,16 @@
  * For more information : contact@centreon.com
  *
  */
+
 require_once __DIR__ . '/../../class/centreonLog.class.php';
 $centreonLog = new CentreonLog();
 
-//error specific content
+// error specific content
 $versionOfTheUpgrade = 'UPGRADE - 23.10.0: ';
 $errorMessage = '';
 
-
 // ------------ CREATE TABLE
-$createTablesForDashboard = function(CentreonDB $pearDB): void {
+$createTablesForDashboard = function (CentreonDB $pearDB): void {
     $pearDB->query(
         <<<'SQL'
             CREATE TABLE IF NOT EXISTS `dashboard` (
@@ -127,7 +127,7 @@ $createTablesForDashboard = function(CentreonDB $pearDB): void {
     );
 };
 
-$createTablesForNotificationConfiguration = function(CentreonDB $pearDB): void {
+$createTablesForNotificationConfiguration = function (CentreonDB $pearDB): void {
     $pearDB->query(
         <<<'SQL'
             CREATE TABLE IF NOT EXISTS `notification` (
@@ -221,7 +221,7 @@ $alterResourceTableStmnt = function (CentreonDB $pearDBO): void {
     );
 };
 
-$alterMetricsTable = function(CentreonDB $pearDBO): void {
+$alterMetricsTable = function (CentreonDB $pearDBO): void {
     $pearDBO->query(
         <<<'SQL'
             ALTER TABLE `metrics`
@@ -230,8 +230,8 @@ $alterMetricsTable = function(CentreonDB $pearDBO): void {
     );
 };
 
-$alterTopologyForFeatureFlag = function(CentreonDB $pearDB): void {
-    if (!$pearDB->isColumnExist('topology', 'topology_feature_flag')) {
+$alterTopologyForFeatureFlag = function (CentreonDB $pearDB): void {
+    if (! $pearDB->isColumnExist('topology', 'topology_feature_flag')) {
         $pearDB->query(
             <<<'SQL'
                 ALTER TABLE `topology`
@@ -243,7 +243,7 @@ $alterTopologyForFeatureFlag = function(CentreonDB $pearDB): void {
 };
 
 $alterSecurityTokenTable = function (CentreonDB $pearDB): void {
-    if (!$pearDB->isColumnExist('security_authentication_tokens', 'token_name')) {
+    if (! $pearDB->isColumnExist('security_authentication_tokens', 'token_name')) {
         $pearDB->query(
             <<<'SQL'
                 ALTER TABLE `security_authentication_tokens`
@@ -261,14 +261,14 @@ $alterSecurityTokenTable = function (CentreonDB $pearDB): void {
 };
 
 // ------------ INSERT / UPDATE / DELETE
-$removeNagiosPathImg = function(CentreonDB $pearDB): void {
+$removeNagiosPathImg = function (CentreonDB $pearDB): void {
     $selectStatement = $pearDB->query("SELECT 1 FROM options WHERE `key`='nagios_path_img'");
     if ($selectStatement->rowCount() > 0) {
         $pearDB->query("DELETE FROM options WHERE `key`='nagios_path_img'");
     }
 };
 
-$enableDisabledServiceTemplates = function(CentreonDB $pearDB): void {
+$enableDisabledServiceTemplates = function (CentreonDB $pearDB): void {
     $pearDB->query(
         <<<'SQL'
             UPDATE `service`
@@ -279,7 +279,7 @@ $enableDisabledServiceTemplates = function(CentreonDB $pearDB): void {
     );
 };
 
-$enableDisabledHostTemplates = function(CentreonDB $pearDB): void {
+$enableDisabledHostTemplates = function (CentreonDB $pearDB): void {
     $pearDB->query(
         <<<'SQL'
             UPDATE `host`
@@ -290,14 +290,14 @@ $enableDisabledHostTemplates = function(CentreonDB $pearDB): void {
     );
 };
 
-$updateTopologyForDashboards = function(CentreonDB $pearDB): void {
+$updateTopologyForDashboards = function (CentreonDB $pearDB): void {
     $statement = $pearDB->query(
         <<<'SQL'
             SELECT 1 FROM `topology` WHERE `topology_name` = 'Dashboards'
             SQL
     );
 
-    if (false === (bool) $statement->fetch(\PDO::FETCH_COLUMN)) {
+    if (false === (bool) $statement->fetch(PDO::FETCH_COLUMN)) {
         $pearDB->query(
             <<<'SQL'
                 INSERT INTO `topology`
@@ -321,14 +321,14 @@ $updateTopologyForDashboards = function(CentreonDB $pearDB): void {
     }
 };
 
-$updateTopologyForApiTokens = function(CentreonDb $pearDB): void {
+$updateTopologyForApiTokens = function (CentreonDb $pearDB): void {
     $statement = $pearDB->query(
         <<<'SQL'
             SELECT 1 FROM `topology` WHERE `topology_name` = 'API Tokens'
             SQL
     );
 
-    if (false === (bool) $statement->fetch(\PDO::FETCH_COLUMN)) {
+    if (false === (bool) $statement->fetch(PDO::FETCH_COLUMN)) {
         $pearDB->query(
             <<<'SQL'
                 INSERT INTO `topology`
@@ -341,14 +341,14 @@ $updateTopologyForApiTokens = function(CentreonDb $pearDB): void {
     }
 };
 
-$populateDahsboardTables = function(CentreonDb $pearDB): void {
+$populateDahsboardTables = function (CentreonDb $pearDB): void {
     if ($pearDB->isColumnExist('dashboard_widgets', 'name')) {
         $statement = $pearDB->query(
             <<<'SQL'
                 SELECT 1 FROM `dashboard_widgets` WHERE `name` = 'centreon-widget-generictext'
                 SQL
         );
-        if (false === (bool) $statement->fetch(\PDO::FETCH_COLUMN)) {
+        if (false === (bool) $statement->fetch(PDO::FETCH_COLUMN)) {
             $pearDB->query(
                 <<<'SQL'
                     INSERT INTO `dashboard_widgets` (`name`, `version`)
@@ -372,18 +372,19 @@ $renameLegacyDashboardInTopology = function (CentreonDB $pearDB): void {
     );
 };
 
-$createHostCategoriesIndex = function(CentreonDb $pearDB): void {
+$createHostCategoriesIndex = function (CentreonDb $pearDB): void {
     if (! $pearDB->isIndexExists('hostcategories', 'level_index')) {
         $pearDB->query('CREATE INDEX `level_index` ON `hostcategories` (`level`)');
     }
 };
 
-$createAclResourcesHcRelationsConstraint = function(CentreonDB $pearDB): void {
+$createAclResourcesHcRelationsConstraint = function (CentreonDB $pearDB): void {
     if (! $pearDB->isConstraintExists('acl_resources_hc_relations', 'acl_resources_hc_relations_pk')) {
-        $pearDB->query(<<<'SQL'
-            ALTER TABLE `acl_resources_hc_relations`
-                ADD CONSTRAINT `acl_resources_hc_relations_pk` UNIQUE (`hc_id`, `acl_res_id`)
-            SQL
+        $pearDB->query(
+            <<<'SQL'
+                ALTER TABLE `acl_resources_hc_relations`
+                    ADD CONSTRAINT `acl_resources_hc_relations_pk` UNIQUE (`hc_id`, `acl_res_id`)
+                SQL
         );
     }
 };
@@ -419,7 +420,7 @@ try {
     if (! $pearDB->inTransaction()) {
         $pearDB->beginTransaction();
     }
-    $errorMessage = "Unable to Delete nagios_path_img from options table";
+    $errorMessage = 'Unable to Delete nagios_path_img from options table';
     $removeNagiosPathImg($pearDB);
 
     $errorMessage = 'Unable to activate deactivated service templates';
@@ -428,10 +429,10 @@ try {
     $errorMessage = 'Unable to activate deactivated host templates';
     $enableDisabledHostTemplates($pearDB);
 
-    $errorMessage = "Unable to update topology for Dashboard";
+    $errorMessage = 'Unable to update topology for Dashboard';
     $updateTopologyForDashboards($pearDB);
 
-    $errorMessage = "Unable to update topology for API Tokens";
+    $errorMessage = 'Unable to update topology for API Tokens';
     $updateTopologyForApiTokens($pearDB);
 
     $errorMessage = 'Unable to populate dashboard_widgets table';
@@ -441,7 +442,7 @@ try {
     $renameLegacyDashboardInTopology($pearDB);
 
     $pearDB->commit();
-} catch (\Exception $e) {
+} catch (Exception $e) {
     if ($pearDB->inTransaction()) {
         $pearDB->rollBack();
     }
@@ -454,5 +455,5 @@ try {
         . ' - Trace : ' . $e->getTraceAsString()
     );
 
-    throw new \Exception($versionOfTheUpgrade . $errorMessage, (int) $e->getCode(), $e);
+    throw new Exception($versionOfTheUpgrade . $errorMessage, (int) $e->getCode(), $e);
 }

@@ -28,6 +28,8 @@ export interface TelegrafConfiguration {
 }
 
 export interface HostConfiguration {
+  id: number;
+  name: string;
   address: string;
   port: number;
   pollerCaCertificate: string | null;
@@ -40,6 +42,7 @@ export interface CMAConfiguration {
   otelCaCertificate: string | null;
   otelPrivateKey: string | null;
   hosts: Array<HostConfiguration>;
+  tokens?: Array<{ name: string; creatorId: number }>;
 }
 
 export interface TelegrafConfigurationAPI {
@@ -66,6 +69,7 @@ export interface CMAConfigurationAPI {
   otel_private_key: string | null;
   hosts: Array<HostConfigurationToAPI>;
   connection_mode: string;
+  tokens?: Array<{ name: string; creatorId: number }>; // optional for now
 }
 
 export interface AgentConfiguration

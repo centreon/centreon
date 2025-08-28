@@ -1,6 +1,7 @@
 import { ComponentMeta, ComponentStory } from '@storybook/react';
 
 import MultiSelectEntries from '.';
+import '../ThemeProvider/tailwindcss.css';
 
 export default {
   argTypes: {

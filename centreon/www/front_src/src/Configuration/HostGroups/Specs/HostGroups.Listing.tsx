@@ -80,7 +80,7 @@ export default () => {
         cy.waitForRequest('@getAllHostGroups');
 
         cy.findAllByText('0')
-          .eq(isEnabledHost ? 7 : 8)
+          .eq(isEnabledHost ? 8 : 7)
           .trigger('mouseover');
 
         cy.contains(

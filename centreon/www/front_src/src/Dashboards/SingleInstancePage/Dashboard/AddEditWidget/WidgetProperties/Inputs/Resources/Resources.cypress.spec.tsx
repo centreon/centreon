@@ -7,19 +7,28 @@ import { Method, TestQueryProvider } from '@centreon/ui';
 
 import { hasEditPermissionAtom, isEditingAtom } from '../../../../atoms';
 import {
+  labelActivateRegex,
   labelAddFilter,
+  labelDeactivateRegex,
   labelDelete,
+  labelDoYouWantToLeaveTheClassicMode,
+  labelDoYouWantToLeaveTheRegexMode,
+  labelEnterRegex,
   labelHost,
   labelHostCategory,
   labelHostGroup,
+  labelLeave,
   labelResourceType,
   labelSelectAResource,
   labelService,
   labelServiceCategory,
-  labelServiceGroup
+  labelServiceGroup,
+  labelStay,
+  labelYourChangesWillNotBeSavedIfYouSwitchClassicMode,
+  labelYourChangesWillNotBeSavedIfYouSwitchRegexMode
 } from '../../../../translatedLabels';
 import { widgetPropertiesAtom } from '../../../atoms';
-import { WidgetResourceType } from '../../../models';
+import { WidgetPropertyProps, WidgetResourceType } from '../../../models';
 
 import Resources from './Resources';
 import { resourceTypeBaseEndpoints, resourceTypeOptions } from './useResources';
@@ -38,16 +47,24 @@ const generateResources = (resourceLabel: string): object => ({
   }))
 });
 
-interface InitializeProps {
+interface InitializeProps
+  extends Pick<
+    WidgetPropertyProps,
+    | 'allowRegexOnResourceTypes'
+    | 'excludedResourceTypes'
+    | 'restrictedResourceTypes'
+    | 'singleResourceType'
+  > {
   emptyData?: boolean;
-  excludedResourceTypes?: Array<string>;
   hasEditPermission?: boolean;
   isEditing?: boolean;
   properties?: FederatedWidgetProperties;
   restrictedResourceTypes?: Array<string>;
-  singleMetricSelection?: boolean;
   singleResourceSelection?: boolean;
   singleResourceType?: boolean;
+  forcedResourceType?: string;
+  defaultResourceTypes?: Array<string>;
+  singleMetricSelection?: boolean;
 }
 
 const initialize = ({
@@ -57,14 +74,15 @@ const initialize = ({
   restrictedResourceTypes = [],
   excludedResourceTypes = [],
   singleResourceSelection = false,
-  singleMetricSelection = false,
   emptyData = false,
-  properties = widgetDataProperties
+  properties = widgetDataProperties,
+  forcedResourceType,
+  defaultResourceTypes,
+  allowRegexOnResourceTypes
 }: InitializeProps): void => {
   const store = createStore();
   store.set(widgetPropertiesAtom, {
     ...properties,
-    singleMetricSelection,
     singleResourceSelection
   });
   store.set(isEditingAtom, isEditing);
@@ -149,7 +167,10 @@ const initialize = ({
               propertyName="resources"
               restrictedResourceTypes={restrictedResourceTypes}
               singleResourceType={singleResourceType}
+              allowRegexOnResourceTypes={allowRegexOnResourceTypes}
               type=""
+              forcedResourceType={forcedResourceType}
+              defaultResourceTypes={defaultResourceTypes}
             />
           </Formik>
         </Provider>
@@ -160,7 +181,11 @@ const initialize = ({
 
 describe('Resources', () => {
   it('displays host and service type when the corresponding atom is set to true', () => {
-    initialize({ singleMetricSelection: true, singleResourceSelection: true });
+    initialize({
+      forcedResourceType: 'service',
+      defaultResourceTypes: ['host', 'service'],
+      singleResourceSelection: true
+    });
 
     cy.findAllByTestId(labelResourceType).eq(0).should('have.value', 'host');
     cy.findAllByTestId(labelResourceType).eq(1).should('have.value', 'service');
@@ -169,6 +194,7 @@ describe('Resources', () => {
     cy.findAllByTestId(labelSelectAResource).eq(0).click();
     cy.waitForRequest('@getHosts');
     cy.contains('Host 0').click();
+    cy.findAllByTestId(labelSelectAResource).eq(0).click();
 
     cy.findAllByTestId(labelSelectAResource).eq(1).click();
     cy.waitForRequest('@getServices').then(({ request }) => {
@@ -177,13 +203,10 @@ describe('Resources', () => {
       );
     });
     cy.contains('Service 0').click();
+    cy.findAllByTestId(labelSelectAResource).eq(1).click();
 
-    cy.findAllByTestId(labelSelectAResource)
-      .eq(0)
-      .should('have.value', 'Host 0');
-    cy.findAllByTestId(labelSelectAResource)
-      .eq(1)
-      .should('have.value', 'Service 0');
+    cy.contains('Host 0').should('be.visible');
+    cy.contains('Service 0').should('be.visible');
 
     cy.makeSnapshot();
   });
@@ -443,8 +466,9 @@ describe('Resources tree', () => {
   it('allows to select a meta-service or host as resource type when corresponding props and restricted resoource types are set', () => {
     initialize({
       restrictedResourceTypes: ['host', 'meta-service'],
-      singleMetricSelection: true,
-      singleResourceSelection: true
+      singleResourceSelection: true,
+      forcedResourceType: 'service',
+      defaultResourceTypes: ['host', 'service']
     });
 
     cy.findAllByTestId(labelResourceType).eq(0).parent().click();
@@ -457,6 +481,257 @@ describe('Resources tree', () => {
 
     cy.contains('Service').should('be.visible');
     cy.contains('Host').should('be.visible');
+
+    cy.makeSnapshot();
+  });
+
+  it('unselects a service when a meta-service is choosen and the host type is selected back', () => {
+    initialize({
+      restrictedResourceTypes: ['host', 'meta-service'],
+      singleResourceSelection: true,
+      forcedResourceType: 'service',
+      defaultResourceTypes: ['host', 'service']
+    });
+
+    cy.findAllByTestId(labelSelectAResource).eq(0).click();
+    cy.contains('Host 0').click();
+    cy.findAllByTestId(labelSelectAResource).eq(0).click();
+    cy.findAllByTestId(labelSelectAResource).eq(1).click();
+    cy.contains('Service 0').click();
+
+    cy.findAllByTestId(labelResourceType).eq(0).parent().click();
+    cy.contains(/^Meta service$/).click();
+
+    cy.findAllByTestId(labelSelectAResource).eq(0).click();
+    cy.contains('Meta service 0').click();
+
+    cy.contains('Service').should('not.exist');
+
+    cy.findAllByTestId(labelResourceType).eq(0).parent().click();
+    cy.contains(/^Host$/).click();
+
+    cy.contains('Service').should('be.visible');
+    cy.contains('Host').should('be.visible');
+    cy.contains('Host 0').should('not.exist');
+    cy.contains('Service 0').should('not.exist');
+
+    it('handles regex resources when the regex resource type is filled and the sub resource type field is clicked', () => {
+      initialize({
+        restrictedResourceTypes: ['host', 'service'],
+        allowRegexOnResourceTypes: [WidgetResourceType.host]
+      });
+
+      cy.findAllByTestId(labelResourceType).eq(0).parent().click();
+      cy.contains(/^Host$/).click();
+      cy.findByTestId(`${labelActivateRegex}-host`).click();
+      cy.findByTestId(`${labelEnterRegex}-host`).type('^Cen');
+      cy.contains(labelAddFilter).click();
+      cy.findAllByTestId(labelResourceType).eq(1).parent().click();
+      cy.contains(/^Service$/).click();
+      cy.findByTestId(labelSelectAResource).click();
+
+      cy.waitForRequest('@getServices').then(({ request }) => {
+        expect(request.url.searchParams.get('search')).to.equal(
+          '{"$or":[{"host.name":{"$rg":"^Cen"}}]}'
+        );
+      });
+
+      cy.makeSnapshot();
+    });
+
+    it('displays a confirmation modal when a host is selected and the input mode is changed', () => {
+      initialize({
+        restrictedResourceTypes: ['host', 'service'],
+        allowRegexOnResourceTypes: [WidgetResourceType.host]
+      });
+
+      cy.findAllByTestId(labelResourceType).eq(0).parent().click();
+      cy.contains(/^Host$/).click();
+      cy.findAllByTestId(labelSelectAResource).eq(0).click();
+      cy.contains('Host 0').click();
+      cy.findByTestId(`${labelActivateRegex}-host`).click();
+
+      cy.contains(labelDoYouWantToLeaveTheClassicMode).should('be.visible');
+      cy.contains(labelYourChangesWillNotBeSavedIfYouSwitchClassicMode).should(
+        'be.visible'
+      );
+
+      cy.makeSnapshot();
+    });
+
+    it('displays a confirmation modal when the regex field is filled and the input mode is swtched', () => {
+      initialize({
+        restrictedResourceTypes: ['host', 'service'],
+        allowRegexOnResourceTypes: [WidgetResourceType.host]
+      });
+
+      cy.findAllByTestId(labelResourceType).eq(0).parent().click();
+      cy.contains(/^Host$/).click();
+      cy.findByTestId(`${labelActivateRegex}-host`).click();
+      cy.get('[id="EnterRegexhost"]').type('Host');
+      cy.findByTestId(`${labelDeactivateRegex}-host`).click();
+
+      cy.contains(labelDoYouWantToLeaveTheRegexMode).should('be.visible');
+      cy.contains(labelYourChangesWillNotBeSavedIfYouSwitchRegexMode).should(
+        'be.visible'
+      );
+
+      cy.makeSnapshot();
+    });
+
+    it('does not switch the input mode when a resource is selected, the input mode button is clicked and the corresponding button is clicked', () => {
+      initialize({
+        restrictedResourceTypes: ['host', 'service'],
+        allowRegexOnResourceTypes: [WidgetResourceType.host]
+      });
+
+      cy.findAllByTestId(labelResourceType).eq(0).parent().click();
+      cy.contains(/^Host$/).click();
+      cy.findAllByTestId(labelSelectAResource).eq(0).click();
+      cy.contains('Host 0').click();
+      cy.findByTestId(`${labelActivateRegex}-host`).click();
+
+      cy.contains(labelDoYouWantToLeaveTheClassicMode).should('be.visible');
+      cy.contains(labelYourChangesWillNotBeSavedIfYouSwitchClassicMode).should(
+        'be.visible'
+      );
+      cy.contains(labelStay).click();
+
+      cy.contains('Host 0').should('be.visible');
+
+      cy.makeSnapshot();
+    });
+
+    it('switches the input mode when a resource is selected, the input mode button is clicked and the corresponding button is clicked', () => {
+      initialize({
+        restrictedResourceTypes: ['host', 'service'],
+        allowRegexOnResourceTypes: [WidgetResourceType.host]
+      });
+
+      cy.findAllByTestId(labelResourceType).eq(0).parent().click();
+      cy.contains(/^Host$/).click();
+      cy.findAllByTestId(labelSelectAResource).eq(0).click();
+      cy.contains('Host 0').click();
+      cy.findByTestId(`${labelActivateRegex}-host`).click();
+
+      cy.contains(labelDoYouWantToLeaveTheClassicMode).should('be.visible');
+      cy.contains(labelYourChangesWillNotBeSavedIfYouSwitchClassicMode).should(
+        'be.visible'
+      );
+      cy.contains(labelLeave).click();
+
+      cy.contains('Host 0').should('not.exist');
+
+      cy.makeSnapshot();
+    });
+  });
+
+  it('handles regex resources when the regex resource type is filled and the sub resource type field is clicked', () => {
+    initialize({
+      restrictedResourceTypes: ['host', 'service'],
+      allowRegexOnResourceTypes: [WidgetResourceType.host]
+    });
+
+    cy.findAllByTestId(labelResourceType).eq(0).parent().click();
+    cy.contains(/^Host$/).click();
+    cy.findByTestId(`${labelActivateRegex}-host`).click();
+    cy.findByTestId(`${labelEnterRegex}-host`).type('^Cen');
+    cy.contains(labelAddFilter).click();
+    cy.findAllByTestId(labelResourceType).eq(1).parent().click();
+    cy.contains(/^Service$/).click();
+    cy.findByTestId(labelSelectAResource).click();
+
+    cy.waitForRequest('@getServices').then(({ request }) => {
+      expect(request.url.searchParams.get('search')).to.equal(
+        '{"$or":[{"host.name":{"$rg":"^Cen"}}]}'
+      );
+    });
+
+    cy.makeSnapshot();
+  });
+
+  it('displays a confirmation modal when a host is selected and the input mode is changed', () => {
+    initialize({
+      restrictedResourceTypes: ['host', 'service'],
+      allowRegexOnResourceTypes: [WidgetResourceType.host]
+    });
+
+    cy.findAllByTestId(labelResourceType).eq(0).parent().click();
+    cy.contains(/^Host$/).click();
+    cy.findAllByTestId(labelSelectAResource).eq(0).click();
+    cy.contains('Host 0').click();
+    cy.findByTestId(`${labelActivateRegex}-host`).click();
+
+    cy.contains(labelDoYouWantToLeaveTheClassicMode).should('be.visible');
+    cy.contains(labelYourChangesWillNotBeSavedIfYouSwitchClassicMode).should(
+      'be.visible'
+    );
+
+    cy.makeSnapshot();
+  });
+
+  it('displays a confirmation modal when the regex field is filled and the input mode is swtched', () => {
+    initialize({
+      restrictedResourceTypes: ['host', 'service'],
+      allowRegexOnResourceTypes: [WidgetResourceType.host]
+    });
+
+    cy.findAllByTestId(labelResourceType).eq(0).parent().click();
+    cy.contains(/^Host$/).click();
+    cy.findByTestId(`${labelActivateRegex}-host`).click();
+    cy.get('[id="EnterRegexhost"]').type('Host');
+    cy.findByTestId(`${labelDeactivateRegex}-host`).click();
+
+    cy.contains(labelDoYouWantToLeaveTheRegexMode).should('be.visible');
+    cy.contains(labelYourChangesWillNotBeSavedIfYouSwitchRegexMode).should(
+      'be.visible'
+    );
+
+    cy.makeSnapshot();
+  });
+
+  it('does not switch the input mode when a resource is selected, the input mode button is clicked and the corresponding button is clicked', () => {
+    initialize({
+      restrictedResourceTypes: ['host', 'service'],
+      allowRegexOnResourceTypes: [WidgetResourceType.host]
+    });
+
+    cy.findAllByTestId(labelResourceType).eq(0).parent().click();
+    cy.contains(/^Host$/).click();
+    cy.findAllByTestId(labelSelectAResource).eq(0).click();
+    cy.contains('Host 0').click();
+    cy.findByTestId(`${labelActivateRegex}-host`).click();
+
+    cy.contains(labelDoYouWantToLeaveTheClassicMode).should('be.visible');
+    cy.contains(labelYourChangesWillNotBeSavedIfYouSwitchClassicMode).should(
+      'be.visible'
+    );
+    cy.contains(labelStay).click();
+
+    cy.contains('Host 0').should('be.visible');
+
+    cy.makeSnapshot();
+  });
+
+  it('switches the input mode when a resource is selected, the input mode button is clicked and the corresponding button is clicked', () => {
+    initialize({
+      restrictedResourceTypes: ['host', 'service'],
+      allowRegexOnResourceTypes: [WidgetResourceType.host]
+    });
+
+    cy.findAllByTestId(labelResourceType).eq(0).parent().click();
+    cy.contains(/^Host$/).click();
+    cy.findAllByTestId(labelSelectAResource).eq(0).click();
+    cy.contains('Host 0').click();
+    cy.findByTestId(`${labelActivateRegex}-host`).click();
+
+    cy.contains(labelDoYouWantToLeaveTheClassicMode).should('be.visible');
+    cy.contains(labelYourChangesWillNotBeSavedIfYouSwitchClassicMode).should(
+      'be.visible'
+    );
+    cy.contains(labelLeave).click();
+
+    cy.contains('Host 0').should('not.exist');
 
     cy.makeSnapshot();
   });

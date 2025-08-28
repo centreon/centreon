@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2021 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,15 +18,16 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Centreon\Infrastructure\PlatformInformation\Repository;
 
-use Centreon\Infrastructure\DatabaseConnection;
-use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
-use Centreon\Domain\PlatformInformation\Model\PlatformInformation;
 use Centreon\Domain\PlatformInformation\Interfaces\PlatformInformationRepositoryInterface;
+use Centreon\Domain\PlatformInformation\Model\PlatformInformation;
+use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\PlatformInformation\Repository\Model\PlatformInformationFactoryRDB;
+use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
 
 /**
  * This class is designed to manage the repository of the platform topology requests
@@ -78,7 +79,7 @@ class PlatformInformationRepositoryRDB extends AbstractRepositoryDRB implements 
                     $row['key'] = 'centralServerAddress';
                 }
 
-                //Renaming informations.apiCredentials to PlatformInformation encryptedApiCredentials property.
+                // Renaming informations.apiCredentials to PlatformInformation encryptedApiCredentials property.
                 if ('apiCredentials' === $row['key']) {
                     $row['key'] = 'encryptedApiCredentials';
                 }
@@ -142,7 +143,7 @@ class PlatformInformationRepositoryRDB extends AbstractRepositoryDRB implements 
                  * each key of queryParameters used into the insertStatement also needs to be deleted before
                  * being reinserted. So they're stored into $deletedKeys that is used into the delete query
                  */
-                $deletedKeys[] = "'$key'";
+                $deletedKeys[] = "'{$key}'";
                 foreach ($bindParams as $paramType => $paramValue) {
                     $insertStatement->bindValue(':' . $key, $paramValue, $paramType);
                 }
@@ -151,7 +152,7 @@ class PlatformInformationRepositoryRDB extends AbstractRepositoryDRB implements 
             /**
              * Delete only the updated key
              */
-            $this->db->query($this->translateDbName("DELETE FROM `:db`.informations WHERE `key` IN ($deletedKeyList)"));
+            $this->db->query($this->translateDbName("DELETE FROM `:db`.informations WHERE `key` IN ({$deletedKeyList})"));
 
             /**
              * Insert updated values
@@ -160,6 +161,7 @@ class PlatformInformationRepositoryRDB extends AbstractRepositoryDRB implements 
             $this->db->commit();
         } catch (\Exception $ex) {
             $this->db->rollBack();
+
             throw $ex;
         }
     }
@@ -180,37 +182,37 @@ class PlatformInformationRepositoryRDB extends AbstractRepositoryDRB implements 
         $queryValues = [];
         if ($platformInformation->getCentralServerAddress() !== null) {
             $queryParameters['authorizedMaster'] = [
-                \PDO::PARAM_STR => $platformInformation->getCentralServerAddress()
+                \PDO::PARAM_STR => $platformInformation->getCentralServerAddress(),
             ];
             $queryValues[] = "('authorizedMaster', :authorizedMaster)";
         }
         if ($platformInformation->getApiUsername() !== null) {
             $queryParameters['apiUsername'] = [
-                \PDO::PARAM_STR => $platformInformation->getApiUsername()
+                \PDO::PARAM_STR => $platformInformation->getApiUsername(),
             ];
             $queryValues[] = "('apiUsername', :apiUsername)";
         }
         if ($platformInformation->getEncryptedApiCredentials() !== null) {
             $queryParameters['apiCredentials'] = [
-                \PDO::PARAM_STR => $platformInformation->getEncryptedApiCredentials()
+                \PDO::PARAM_STR => $platformInformation->getEncryptedApiCredentials(),
             ];
             $queryValues[] = "('apiCredentials', :apiCredentials)";
         }
         if ($platformInformation->getApiScheme() !== null) {
             $queryParameters['apiScheme'] = [
-                \PDO::PARAM_STR => $platformInformation->getApiScheme()
+                \PDO::PARAM_STR => $platformInformation->getApiScheme(),
             ];
             $queryValues[] = "('apiScheme', :apiScheme)";
         }
         if ($platformInformation->getApiPort() !== null) {
             $queryParameters['apiPort'] = [
-                \PDO::PARAM_INT => $platformInformation->getApiPort()
+                \PDO::PARAM_INT => $platformInformation->getApiPort(),
             ];
             $queryValues[] = "('apiPort', :apiPort)";
         }
         if ($platformInformation->getApiPath() !== null) {
             $queryParameters['apiPath'] = [
-                \PDO::PARAM_STR => $platformInformation->getApiPath()
+                \PDO::PARAM_STR => $platformInformation->getApiPath(),
             ];
             $queryValues[] = "('apiPath', :apiPath)";
         }

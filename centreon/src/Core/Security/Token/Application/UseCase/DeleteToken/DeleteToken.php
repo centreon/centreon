@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -54,7 +54,7 @@ final class DeleteToken
      * @param int $userId
      * @param PresenterInterface $presenter
      */
-    public function __invoke( PresenterInterface $presenter, string $tokenName, ?int $userId = null): void
+    public function __invoke(PresenterInterface $presenter, string $tokenName, ?int $userId = null): void
     {
         try {
             if (! $this->user->hasTopologyRole(Contact::ROLE_ADMINISTRATION_AUTHENTICATION_TOKENS_RW)) {
@@ -94,6 +94,18 @@ final class DeleteToken
             }
 
             $this->writeTokenRepository->deleteByNameAndUserId($tokenName, $userId);
+
+            $this->info(
+                'Delete token succeeded',
+                [
+                    'event' => 'Token deletion',
+                    'datetime' => (new \DateTimeImmutable())->format('Y-m-d H:i:s'),
+                    'requester_id' => $this->user->getId(),
+                    'user_id' => $userId,
+                    'token_type' => $token->getType()->name,
+                    'token_name' => $tokenName,
+                ]
+            );
 
             $presenter->setResponseStatus(new NoContentResponse());
         } catch (\Throwable $ex) {

@@ -1,0 +1,27 @@
+parameters:
+    paths:
+        - ./src/App
+
+    layers:
+        - name: Shared
+          collectors:
+              - type: directory
+                value: src/App/Shared/.*
+
+        - name: Vendors
+          collectors:
+              - { type: classNameRegex, value: '#^ApiPlatform\\#' }
+              - { type: classNameRegex, value: '#^Symfony\\#' }
+              - { type: classNameRegex, value: '#^Webmozart\\#' }
+
+        - name: LegacyKernel
+          collectors:
+              - { type: classNameRegex, value: '#^App\\Kernel$#' }
+
+    ruleset:
+        Shared: [ Vendors ]
+        LegacyKernel: [ Vendors ]
+
+    skip_violations:
+        App\Shared\Infrastructure\Legacy\LegacyKernelWrapper: 
+            - App\Kernel

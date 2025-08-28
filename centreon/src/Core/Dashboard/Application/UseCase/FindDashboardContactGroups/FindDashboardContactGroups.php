@@ -116,8 +116,8 @@ final class FindDashboardContactGroups
         return $this->isCloudPlatform
             ? $this->readDashboardShareRepository->findContactGroupsByRequestParameters($this->requestParameters)
             : $this->readDashboardShareRepository->findContactGroupsWithAccessRightByRequestParameters(
-            $this->requestParameters
-        );
+                $this->requestParameters
+            );
     }
 
     /**

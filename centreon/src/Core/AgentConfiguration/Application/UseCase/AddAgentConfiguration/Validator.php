@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,6 @@ use Centreon\Domain\Log\LoggerTrait;
 use Core\AgentConfiguration\Application\Exception\AgentConfigurationException;
 use Core\AgentConfiguration\Application\Repository\ReadAgentConfigurationRepositoryInterface;
 use Core\AgentConfiguration\Application\Validation\TypeValidatorInterface;
-use Core\AgentConfiguration\Domain\Model\ConnectionModeEnum;
 use Core\AgentConfiguration\Domain\Model\Poller;
 use Core\AgentConfiguration\Domain\Model\Type;
 use Core\Common\Domain\TrimmedString;
@@ -71,9 +70,7 @@ class Validator
         $this->validateNameOrFail($request);
         $this->validatePollersOrFail($request);
         $this->validateTypeOrFail($request);
-        if ($request->connectionMode !== ConnectionModeEnum::NO_TLS) {
-            $this->validateParametersOrFail($request);
-        }
+        $this->validateParametersOrFail($request);
     }
 
     /**
@@ -133,7 +130,7 @@ class Validator
                 $this->readAcRepository->findPollersByType($type)
             );
         }
-        $pollerIds = array_map(fn(Poller $poller) => $poller->id, $unavailablePollers);
+        $pollerIds = array_map(fn (Poller $poller) => $poller->id, $unavailablePollers);
 
         if ([] !== $invalidPollers = array_intersect($pollerIds, $request->pollerIds)) {
             throw AgentConfigurationException::alreadyAssociatedPollers($invalidPollers);

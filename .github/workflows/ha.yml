@@ -20,10 +20,14 @@ on:
     branches:
       - dev-[2-9][0-9].[0-9][0-9].x
       - "[2-9][0-9].[0-9][0-9].x"
+      - 'release-[2-9][0-9].[0-9][0-9]-next'
+      - 'hotfix-[2-9][0-9].[0-9][0-9]-next'
     paths:
       - ".version"
       - ".version.centreon-ha"
       - "centreon-ha/**"
+    tags:
+      - "centreon-ha-*"
 
 env:
   module: ha
@@ -74,7 +78,14 @@ jobs:
   deliver-sources:
     runs-on: centreon-common
     needs: [get-environment, package]
-    if: ${{ contains(fromJson('["stable"]'), needs.get-environment.outputs.stability) && github.event_name != 'workflow_dispatch' && github.repository == 'centreon/centreon' }}
+    if: |
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      needs.get-environment.outputs.stability == 'stable' &&
+      github.event_name != 'workflow_dispatch' &&
+      ! cancelled() &&
+      ! contains(needs.*.result, 'failure') &&
+      ! contains(needs.*.result, 'cancelled') &&
+      github.repository == 'centreon/centreon'
 
     steps:
       - name: Checkout sources
@@ -117,6 +128,8 @@ jobs:
           stability: ${{ needs.get-environment.outputs.stability }}
           release_type: ${{ needs.get-environment.outputs.release_type }}
           is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
+          delivery_type: ${{ needs.get-environment.outputs.delivery_type }}
+          centreon_technique_pat: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
 
   deliver-deb:
     needs: [get-environment, package]
@@ -149,7 +162,12 @@ jobs:
 
 #   promote:
 #     needs: [get-environment]
-#     if: ${{ needs.get-environment.outputs.skip_workflow == 'false' && contains(fromJson('["stable"]'), needs.get-environment.outputs.stability) && github.event_name != 'workflow_dispatch' && needs.get-environment.outputs.is_cloud == 'false' && github.repository == 'centreon/centreon' }}
+#     if: |
+#       needs.get-environment.outputs.skip_workflow == 'false' &&
+#       contains(fromJson('["stable"]'), needs.get-environment.outputs.stability) &&
+#       github.event_name != 'workflow_dispatch' &&
+#       needs.get-environment.outputs.is_cloud == 'false' &&
+#       github.repository == 'centreon/centreon'
 #     runs-on: centreon-common
 #     strategy:
 #       matrix:

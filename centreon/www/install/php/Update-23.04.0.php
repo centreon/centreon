@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@
 require_once __DIR__ . '/../../class/centreonLog.class.php';
 $centreonLog = new CentreonLog();
 
-//error specific content
+// error specific content
 $versionOfTheUpgrade = 'UPGRADE - 23.04.0: ';
 $errorMessage = '';
 
@@ -32,8 +32,7 @@ $errorMessage = '';
  *
  * @param CentreonDB $pearDB
  */
-$decodeIllegalCharactersNagios = function(CentreonDB $pearDB): void
-{
+$decodeIllegalCharactersNagios = function (CentreonDB $pearDB): void {
     $configs = $pearDB->query(
         <<<'SQL'
             SELECT
@@ -66,22 +65,21 @@ $decodeIllegalCharactersNagios = function(CentreonDB $pearDB): void
             continue;
         }
 
-        $statement->bindValue(':illegal_object_name_chars', $modified['illegal_object_name_chars'], \PDO::PARAM_STR);
-        $statement->bindValue(':illegal_macro_output_chars', $modified['illegal_macro_output_chars'], \PDO::PARAM_STR);
-        $statement->bindValue(':nagios_id', $modified['nagios_id'], \PDO::PARAM_INT);
+        $statement->bindValue(':illegal_object_name_chars', $modified['illegal_object_name_chars'], PDO::PARAM_STR);
+        $statement->bindValue(':illegal_macro_output_chars', $modified['illegal_macro_output_chars'], PDO::PARAM_STR);
+        $statement->bindValue(':nagios_id', $modified['nagios_id'], PDO::PARAM_INT);
         $statement->execute();
     }
 };
 
-$updateOpenIdCustomConfiguration = function (CentreonDB $pearDB): void
-{
+$updateOpenIdCustomConfiguration = function (CentreonDB $pearDB): void {
     $customConfigurationJson = $pearDB->query(
         <<<'SQL'
-        SELECT custom_configuration
-            FROM provider_configuration
-        WHERE
-            name = 'openid'
-        SQL
+            SELECT custom_configuration
+                FROM provider_configuration
+            WHERE
+                name = 'openid'
+            SQL
     )->fetchColumn();
 
     $customConfiguration = json_decode($customConfigurationJson, true);
@@ -90,44 +88,44 @@ $updateOpenIdCustomConfiguration = function (CentreonDB $pearDB): void
         $updatedCustomConfigurationEncoded = json_encode($customConfiguration);
 
         $statement = $pearDB->prepare(
-            <<<SQL
-            UPDATE provider_configuration
-                SET custom_configuration = :encodedConfiguration
-            WHERE
-                name = 'openid'
-            SQL
+            <<<'SQL'
+                UPDATE provider_configuration
+                    SET custom_configuration = :encodedConfiguration
+                WHERE
+                    name = 'openid'
+                SQL
         );
-        $statement->bindValue(':encodedConfiguration', $updatedCustomConfigurationEncoded, \PDO::PARAM_STR);
+        $statement->bindValue(':encodedConfiguration', $updatedCustomConfigurationEncoded, PDO::PARAM_STR);
         $statement->execute();
     }
 };
 
 $insertSAMLProviderConfiguration = function (CentreonDB $pearDB): void {
     $customConfiguration = [
-        "remote_login_url" => '',
-        "entity_id_url" => '',
-        "certificate" => '',
-        "user_id_attribute" => '',
-        "logout_from" => true,
-        "logout_from_url" => null,
-        "auto_import" => false,
-        "contact_template_id" => null,
-        "email_bind_attribute" => '',
-        "fullname_bind_attribute" => '',
-        "authentication_conditions" => [
+        'remote_login_url' => '',
+        'entity_id_url' => '',
+        'certificate' => '',
+        'user_id_attribute' => '',
+        'logout_from' => true,
+        'logout_from_url' => null,
+        'auto_import' => false,
+        'contact_template_id' => null,
+        'email_bind_attribute' => '',
+        'fullname_bind_attribute' => '',
+        'authentication_conditions' => [
             'is_enabled' => false,
             'attribute_path' => '',
-            'authorized_values' => []
+            'authorized_values' => [],
         ],
-        "roles_mapping" => [
+        'roles_mapping' => [
             'is_enabled' => false,
             'apply_only_first_role' => false,
             'attribute_path' => '',
         ],
-        "groups_mapping" => [
+        'groups_mapping' => [
             'is_enabled' => false,
             'attribute_path' => '',
-        ]
+        ],
     ];
 
     $isActive = false;
@@ -137,28 +135,27 @@ $insertSAMLProviderConfiguration = function (CentreonDB $pearDB): void {
         VALUES ('saml','SAML', :customConfiguration, :isActive, :isForced)"
     );
 
-    $insertStatement->bindValue(':isActive', $isActive, \PDO::PARAM_INT);
-    $insertStatement->bindValue(':isForced', $isForced, \PDO::PARAM_INT);
+    $insertStatement->bindValue(':isActive', $isActive, PDO::PARAM_INT);
+    $insertStatement->bindValue(':isForced', $isForced, PDO::PARAM_INT);
     $insertStatement->bindValue(':customConfiguration', json_encode($customConfiguration));
     $insertStatement->execute();
 };
 
 try {
     if ($pearDB->isColumnExist('cfg_centreonbroker', 'event_queues_total_size') === 0) {
-        $errorMessage = "Impossible to update cfg_centreonbroker table";
+        $errorMessage = 'Impossible to update cfg_centreonbroker table';
         $pearDB->query(
-            "ALTER TABLE `cfg_centreonbroker`
+            'ALTER TABLE `cfg_centreonbroker`
             ADD COLUMN `event_queues_total_size` INT(11) DEFAULT NULL
-            AFTER `event_queue_max_size`"
+            AFTER `event_queue_max_size`'
         );
     }
 
-    $errorMessage = "Impossible to delete color picker topology_js entries";
+    $errorMessage = 'Impossible to delete color picker topology_js entries';
     $pearDB->query(
         "DELETE FROM `topology_JS`
         WHERE `PathName_js` = './include/common/javascript/color_picker_mb.js'"
     );
-
 
     // Transactional queries
     $pearDB->beginTransaction();
@@ -168,7 +165,7 @@ try {
     $ldapResult = $query->fetchAll(PDO::FETCH_ASSOC);
     // insert entry ldap_connection_timeout  with default value
     if (! $ldapResult) {
-        $errorMessage = "Unable to add default ldap connection timeout";
+        $errorMessage = 'Unable to add default ldap connection timeout';
         $pearDB->query(
             "INSERT INTO auth_ressource_info (ar_id, ari_name, ari_value)
                         (SELECT ar_id, 'ldap_connection_timeout', '' FROM auth_ressource)"
@@ -185,7 +182,7 @@ try {
     $insertSAMLProviderConfiguration($pearDB);
 
     $pearDB->commit();
-} catch (\Exception $e) {
+} catch (Exception $e) {
     if ($pearDB->inTransaction()) {
         $pearDB->rollBack();
     }
@@ -198,5 +195,5 @@ try {
         . ' - Trace : ' . $e->getTraceAsString()
     );
 
-    throw new \Exception($versionOfTheUpgrade . $errorMessage, (int) $e->getCode(), $e);
+    throw new Exception($versionOfTheUpgrade . $errorMessage, (int) $e->getCode(), $e);
 }

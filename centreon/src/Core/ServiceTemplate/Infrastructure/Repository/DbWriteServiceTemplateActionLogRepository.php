@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2024 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -110,7 +110,7 @@ class DbWriteServiceTemplateActionLogRepository extends AbstractRepositoryRDB im
 
     public function linkToHosts(int $serviceTemplateId, array $hostTemplateIds): void
     {
-       $this->writeServiceTemplateRepository->linkToHosts($serviceTemplateId, $hostTemplateIds);
+        $this->writeServiceTemplateRepository->linkToHosts($serviceTemplateId, $hostTemplateIds);
     }
 
     public function unlinkHosts(int $serviceTemplateId): void
@@ -123,8 +123,8 @@ class DbWriteServiceTemplateActionLogRepository extends AbstractRepositoryRDB im
         try {
             $currentServiceTemplate = $this->readServiceTemplateRepository->findById($serviceTemplate->getId());
 
-            $currentServiceTemplateDetails = $currentServiceTemplate 
-                ? $this->getServiceTemplatePropertiesAsArray($currentServiceTemplate) 
+            $currentServiceTemplateDetails = $currentServiceTemplate
+                ? $this->getServiceTemplatePropertiesAsArray($currentServiceTemplate)
                 : [];
             $updatedServiceTemplateDetails = $this->getServiceTemplatePropertiesAsArray($serviceTemplate);
             $diff = array_diff_assoc($updatedServiceTemplateDetails, $currentServiceTemplateDetails);
@@ -170,7 +170,7 @@ class DbWriteServiceTemplateActionLogRepository extends AbstractRepositoryRDB im
             }
 
             if (is_array($value)) {
-                if (empty($value)) {
+                if ($value === []) {
                     $value = '';
                 } elseif (is_string($value[0])) {
                     $value = implode(',', str_replace(["\n", "\t", "\r"], ['#BR#', '#T#', '#R#'], $value));
