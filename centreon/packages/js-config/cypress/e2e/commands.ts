@@ -296,7 +296,11 @@ Cypress.Commands.add('logoutViaAPI', (): Cypress.Chainable => {
   return cy
     .request({
       method: 'GET',
-      url: '/centreon/authentication/logout'
+      url: '/centreon/authentication/logout',
+      failOnStatusCode: false,
+    })
+    .then((response) => {
+      cy.log(`Logout response: ${response.status}`);
     })
     .visit('/')
     .getByLabel({ label: 'Alias', tag: 'input' });
