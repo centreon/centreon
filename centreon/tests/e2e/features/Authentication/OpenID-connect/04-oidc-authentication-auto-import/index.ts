@@ -118,7 +118,7 @@ Then(
     cy.loginKeycloak('user-non-admin-for-OIDC-authentication');
     cy.wait('@getUserInformation').its('response.statusCode').should('eq', 200);
     cy.url().should('include', '/monitoring/resources');
-
+    cy.waitForElementToBeVisible('[aria-label="Profile"]', 20000, 2000);
     cy.logout();
     cy.getByLabel({ label: 'Alias', tag: 'input' }).should('exist');
 
