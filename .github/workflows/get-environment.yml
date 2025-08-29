@@ -302,8 +302,7 @@ jobs:
             }
 
             console.log(`Final stability: ${stability}`);
-            // core.setOutput('stability', stability);
-            core.setOutput('stability', 'testing');
+            core.setOutput('stability', stability);
 
             let isTargetingFeatureBranch = false;
 
@@ -412,8 +411,6 @@ jobs:
               RELEASE_TYPE="release"
             fi
           fi
-
-          RELEASE_TYPE="hotfix"
 
           if [[ -n "$RELEASE_TYPE" ]]; then
             echo "ref_type is: $REF_TYPE"
