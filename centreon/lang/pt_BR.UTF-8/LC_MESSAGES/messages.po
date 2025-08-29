@@ -23597,33 +23597,3 @@ msgstr "período de tempo"
 #: unknown
 msgid "topology_name"
 msgstr "Nome da Topologia"
-
-# msgid "Data is aggregated monthly over the last 12 months for graphs presenting host groups."
-# msgstr ""
-
-# msgid "Data is aggregated monthly over the last 12 months for graphs presenting host categories."
-# msgstr ""
-
-# msgid "Data is aggregated daily for graphs presenting hosts."
-# msgstr ""
-
-# msgid "If you want to display the graph with host categories and hosts, you must select only one hostgroup."
-# msgstr ""
-
-# msgid "Display with this resource type"
-# msgstr ""
-
-# msgid "Hostgroup availability history"
-# msgstr ""
-
-# msgid "Displays the availability history of hosts, host categories or hostgroups."
-# msgstr ""
-
-# msgid "Thresholds can be hidden if the custom min and max values of the Y axis are below/above the thresholds."
-# msgstr ""
-
-# msgid "No data is displayed because the selected resources have not been configured in any MBI report or do not contain enough data."
-# msgstr ""
-
-# msgid "Please note that data aggregation may take several days."
-# msgstr ""

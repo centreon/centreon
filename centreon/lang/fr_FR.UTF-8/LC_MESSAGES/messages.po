@@ -24496,36 +24496,3 @@ msgstr "alerte"
 #: unknown
 msgid "will display resources with host name starting by'"
 msgstr "affichera les ressources avec un nom d'hôte commençant par"
-
-msgid "Data is aggregated monthly over the last 12 months for graphs presenting host groups."
-msgstr "Les données sont agrégées mensuellement sur les 12 derniers mois pour les graphes présentant des groupes d'hôtes."
-
-msgid "Data is aggregated monthly over the last 12 months for graphs presenting host categories."
-msgstr "Les données sont agrégées mensuellement sur les 12 derniers mois pour les graphes présentant des catégories d'hôtes."
-
-msgid "Data is aggregated daily for graphs presenting hosts."
-msgstr "Les données sont agrégées quotidiennement pour les graphes présentant des hôtes."
-
-msgid "If you want to display the graph with host categories and hosts, you must select only one hostgroup."
-msgstr "Si vous souhaitez afficher le graphe avec les catégories d'hôtes et les hôtes, vous ne devez sélectionner qu'un seul groupe d'hôtes."
-
-msgid "Display with this resource type"
-msgstr "Afficher les ressources avec ce type"
-
-msgid "Hostgroup availability history"
-msgstr "Historique de la disponibilité des groupes d’hôtes"
-
-msgid "Displays the availability history of hosts, host categories or hostgroups."
-msgstr "Affiche l’historique de la disponibilité d’hôtes, catégories d’hôtes ou groupes d’hôtes."
-
-msgid "Thresholds can be hidden if the custom min and max values of the Y axis are below/above the thresholds."
-msgstr "Les seuils peuvent être masqués si les valeurs minimales et maximales personnalisées de l'axe Y sont respectivement inférieures et supérieures aux seuils."
-
-msgid "These time periods are defined in MBI'S ETL options."
-msgstr "Ces périodes temporelles sont définies dans les options ETL de MBI."
-
-msgid "No data is displayed because the selected resources have not been configured in any MBI report or do not contain enough data."
-msgstr "Aucune donnée n'est affichée car les ressources sélectionnées n'ont été configurées dans aucun rapport MBI ou ne contiennent pas suffisamment de données."
-
-msgid "Please note that data aggregation may take several days."
-msgstr "Veuillez noter que l'agrégation des données peut prendre plusieurs jours."
