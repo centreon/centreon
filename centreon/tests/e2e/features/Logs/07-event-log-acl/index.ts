@@ -92,7 +92,7 @@ Then("the admin user should see all event logs", () => {
 });
 
 When("the admin creates an access group for the restricted user", () => {
-  // cy.setUserTokenApiV1();
+  cy.setUserTokenApiV1();
   cy.addContact({
     admin: restrictedUser.admin,
     email: restrictedUser.email,
@@ -220,7 +220,6 @@ Then(
       .click();
     cy.getIframeBody().find("button.btc.bt_success").contains("Ok").click();
     // check event logs
-    // check event logs
     cy.getIframeBody().find("a").contains("Centreon-Server").should("not.exist");
   },
 );
@@ -347,26 +346,28 @@ Then(
   "the restricted user should see only the event logs related to the assigned resources",
   () => {
     cy.waitForElementInIframe("#main-content", 'select[id="host_filter"]');
-    cy.getIframeBody()
-      .find('select[id="host_filter"]')
-      .siblings("span.select2-container")
-      .click();
 
-    cy.getIframeBody()
-      .find("button.btc.bt_info")
-      .contains("Select all")
-      .click();
-    cy.getIframeBody().find("button.btc.bt_success").contains("Ok").click();
+    cy.selectHostAndCheckService(services.serviceCritical.template);
+    // cy.getIframeBody()
+    //   .find('select[id="host_filter"]')
+    //   .siblings("span.select2-container")
+    //   .click();
 
-    cy.getIframeBody()
-      .find('input.bt_success[name="graph"][value="Apply period"]')
-      .click();
+    // cy.getIframeBody()
+    //   .find("button.btc.bt_info")
+    //   .contains("Select all")
+    //   .click();
+    // cy.getIframeBody().find("button.btc.bt_success").contains("Ok").click();
 
-    // check event logs
-    cy.getIframeBody()
-      .find("a", { timeout: 120000 }) // waits up to 2 minutes to find the <a>
-      .contains(services.serviceCritical.name, { timeout: 120000 }) // waits up to 2 minutes for text match
-      .should("exist", { timeout: 120000 });
+    // cy.getIframeBody()
+    //   .find('input.bt_success[name="graph"][value="Apply period"]')
+    //   .click();
+
+    // // check event logs
+    // cy.getIframeBody()
+    //   .find("a", { timeout: 120000 }) // waits up to 2 minutes to find the <a>
+    //   .contains(services.serviceCritical.name, { timeout: 120000 }) // waits up to 2 minutes for text match
+    //   .should("exist", { timeout: 120000 });
   },
 );
 

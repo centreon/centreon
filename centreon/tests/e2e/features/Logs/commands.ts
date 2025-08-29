@@ -184,6 +184,54 @@ Cypress.Commands.add('submitResult', (service: string, status:string) => {
   cy.getByLabel({ label: "Refresh" }).click();
 });
 
+Cypress.Commands.add("selectHostAndCheckService", (serviceName: string) => {
+  function selectHostFilter() {
+    cy.getIframeBody()
+      .find('select[id="host_filter"]')
+      .siblings("span.select2-container")
+      .click();
+
+    cy.getIframeBody()
+      .find("button.btc.bt_info")
+      .contains("Select all")
+      .click();
+
+    cy.getIframeBody().find("button.btc.bt_success").contains("Ok").click();
+    cy.getIframeBody()
+      .find('input.bt_success[name="graph"][value="Apply period"]')
+      .should('be.visible')
+      .click();
+  }
+
+  selectHostFilter();
+
+  cy.waitUntil(
+    () =>
+      cy
+        .getIframeBody()
+        .find("a") // récupérer tous les liens <a>
+        .then(($links) => {
+          const found = Array.from($links).some(
+            (el) =>
+              el.textContent?.trim() === serviceName &&
+              Cypress.$(el).is(":visible"),
+          );
+          if (found) {
+            return true;
+          } else {
+            cy.reload();
+            selectHostFilter();
+            return false;
+          }
+        }),
+    {
+      timeout: 120000,
+      interval: 3000,
+      errorMsg: `Le service "${serviceName}" n'est pas visible après plusieurs tentatives`,
+    },
+  );
+});
+
 interface submitResult {
   service: string;
   status: string;
@@ -214,7 +262,7 @@ declare global {
       addTimePeriodViaApi: (body: TimePeriod) => Cypress.Chainable;
       updateTimePeriodViaApi: (
         name: string,
-        body: TimePeriod
+        body: TimePeriod,
       ) => Cypress.Chainable;
       deleteTimePeriodViaApi: (name: string) => Cypress.Chainable;
       checkLogDetails: (
@@ -233,17 +281,18 @@ declare global {
         trIndex: number,
         firstTd: string,
         secondTd: string,
-        thirdTd: string
+        thirdTd: string,
       ) => Cypress.Chainable;
       addSubjectViaApiV2: (
         payload: Record<string, unknown>,
-        url: string
+        url: string,
       ) => Cypress.Chainable;
       deleteSubjectViaApiV2: (url: string) => Cypress.Chainable;
       updateSubjectViaApiV2: (
         payload: Record<string, unknown>,
-        url: string
+        url: string,
       ) => Cypress.Chainable;
+      selectHostAndCheckService(serviceName: string): Chainable<void>;
     }
   }
 }
