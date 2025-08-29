@@ -67,9 +67,9 @@ runs:
         # Cloud specific promote
         # delivery by default to onprem, override to internal if is_cloud is true
         if [[ ${{ inputs.is_cloud }} == "true" ]]; then
-          ROOT_REPO_PATH="rpm-standard-internal-kdu"
+          ROOT_REPO_PATH="rpm-standard-internal"
         else
-          ROOT_REPO_PATH="rpm-standard-kdu"
+          ROOT_REPO_PATH="rpm-standard"
         fi
 
         # Search for testing packages candidate for promote
@@ -154,8 +154,6 @@ runs:
 
         SOURCE_ROOT_REPO_PATH="${ROOT_REPO_PATH_PREFIX}standard${SOURCE_ROOT_REPO_PATH_SUFFIX}"
         TARGET_ROOT_REPO_PATH="${ROOT_REPO_PATH_PREFIX}standard${TARGET_ROOT_REPO_PATH_SUFFIX}"
-        SOURCE_ROOT_REPO_PATH="apt-kdu"
-        TARGET_ROOT_REPO_PATH="apt-kdu"
 
         echo "[DEBUG] - Get path of testing DEB packages to promote to stable."
 
@@ -197,7 +195,7 @@ runs:
             DEB_PROP="${{ inputs.distrib }}}/main/$ARCH"
           else
             POOL_SUBPATH="${{ inputs.major_version }}/${{ inputs.stability }}/${{ inputs.module_name }}"
-            DEB_PROP="${{ inputs.distrib }}-${{ inputs.version }}-${{ inputs.stability }}/main/$ARCH"
+            DEB_PROP="${{ inputs.distrib }}-${{ inputs.major_version }}-${{ inputs.stability }}/main/$ARCH"
           fi
           TARGET_PATH="$TARGET_ROOT_REPO_PATH/pool/${POOL_SUBPATH}/"
 
