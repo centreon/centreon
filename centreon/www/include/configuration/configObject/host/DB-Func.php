@@ -2523,7 +2523,8 @@ function applytpl(array $hostIds)
 
     foreach ($hostIds as $hostId) {
         $hostObj->deployServices($hostId);
-        $centreon->user->access->updateACL(['type' => 'HOST', 'id' => $hostId, 'action' => 'UPDATE']);
+        $centreon->user->access->updateACL(["type" => 'HOST', 'id' => $hostId, "action" => "UPDATE"]);
+        signalConfigurationChange('host', (int) $hostId);
     }
 }
 
