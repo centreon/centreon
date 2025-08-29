@@ -1,4 +1,4 @@
-import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
+import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 import { last } from 'ramda';
 
 import dashboards from '../../../fixtures/dashboards/check-permissions/dashboards.json';
@@ -69,8 +69,8 @@ after(() => {
 });
 
 afterEach(() => {
-  cy.visit('/centreon/home/dashboards');
-  cy.logout();
+  cy.visitDashboards();
+  cy.logoutViaAPI();
 });
 
 Given('an admin user is logged in on a platform with dashboards', () => {

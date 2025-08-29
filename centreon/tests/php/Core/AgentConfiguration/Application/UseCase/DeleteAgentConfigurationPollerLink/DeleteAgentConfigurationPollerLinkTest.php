@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,6 +30,7 @@ use Core\AgentConfiguration\Application\Repository\WriteAgentConfigurationReposi
 use Core\AgentConfiguration\Application\UseCase\DeleteAgentConfigurationPollerLink\DeleteAgentConfigurationPollerLink;
 use Core\AgentConfiguration\Domain\Model\AgentConfiguration;
 use Core\AgentConfiguration\Domain\Model\ConfigurationParametersInterface;
+use Core\AgentConfiguration\Domain\Model\ConnectionModeEnum;
 use Core\AgentConfiguration\Domain\Model\Poller;
 use Core\AgentConfiguration\Domain\Model\Type;
 use Core\Application\Common\UseCase\ErrorResponse;
@@ -48,6 +49,7 @@ beforeEach(function (): void {
         $this->readAccessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class),
         $this->readMonitoringServerRepository = $this->createMock(ReadMonitoringServerRepositoryInterface::class),
         $this->user = $this->createMock(ContactInterface::class),
+        false
     );
     $this->presenterFormatter = $this->createMock(PresenterFormatterInterface::class);
     $this->presenter = new DefaultPresenter($this->presenterFormatter);
@@ -59,6 +61,7 @@ beforeEach(function (): void {
         id: $this->testedAcId = 1,
         name: 'ac-name',
         type: Type::TELEGRAF,
+        connectionMode: ConnectionModeEnum::SECURE,
         configuration: $this->createMock(ConfigurationParametersInterface::class),
     ));
 });
@@ -144,8 +147,8 @@ it('should present an ErrorResponse when the poller is the only one linked to th
             AgentConfigurationException::onlyOnePoller(
                 $this->pollerId,
                 $this->testedAcId
-                )->getMessage()
-            );
+            )->getMessage()
+        );
 });
 
 it('should present a NoContentResponse on success', function (): void {

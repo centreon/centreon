@@ -4,6 +4,7 @@ import { makeStyles } from 'tss-react/mui';
 import { Theme } from '@mui/material';
 
 import ButtonSave from '.';
+import '../../ThemeProvider/tailwindcss.css';
 
 const useStyles = makeStyles()((theme: Theme) => ({
   root: {

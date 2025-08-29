@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Core\AgentConfiguration\Application\UseCase\AddAgentConfiguration;
 
+use Core\AgentConfiguration\Domain\Model\ConnectionModeEnum;
 use Core\AgentConfiguration\Domain\Model\Poller;
 use Core\AgentConfiguration\Domain\Model\Type;
 
@@ -34,10 +35,12 @@ final class AddAgentConfigurationResponse
      * @param string $name
      * @param array<string,mixed> $configuration
      * @param Poller[] $pollers
+     * @param ConnectionModeEnum $connectionMode
      */
     public function __construct(
         public int $id = 0,
         public Type $type = Type::TELEGRAF,
+        public ConnectionModeEnum $connectionMode = ConnectionModeEnum::SECURE,
         public string $name = '',
         public array $configuration = [],
         public array $pollers = [],

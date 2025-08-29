@@ -28,7 +28,7 @@ interface Props {
 
 const MoreActions = ({ close, anchor }: Props): JSX.Element => {
   const { t } = useTranslation();
-  const { classes } = useActionsStyles();
+  const { classes } = useActionsStyles({});
 
   const { openDeleteModal, openDuplicateModal, enable, disable, isMutating } =
     useMassiveActions();

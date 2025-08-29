@@ -1,8 +1,8 @@
 import { equals, flatten } from 'ramda';
 
 import { useInfiniteScrollListing } from '@centreon/ui';
-import { getFormattedResources } from '../../../../../utils';
 import { Resource } from '../../../../models';
+import { isResourceString } from '../../../../utils';
 import { tooltipPageAtom } from '../../StatusGridStandard/Tooltip/atoms';
 import { ResourceStatus } from '../../StatusGridStandard/models';
 import {
@@ -47,9 +47,7 @@ export const useLoadResources = ({
     return resourcesEndpoint;
   };
 
-  const formattedResources = getFormattedResources({ array: resources });
-
-  const resourcesToApplyToSearch = formattedResources.map((resource) => {
+  const resourcesToApplyToSearch = resources.map((resource) => {
     if (!equals(resourceType, resource.resourceType)) {
       return {
         ...resource,
@@ -64,10 +62,18 @@ export const useLoadResources = ({
 
   const resourcesSearchConditions = resourcesToApplyToSearch.map(
     ({ resourceType: type, resources: resourcesToApply }) => {
+      if (isResourceString(resourcesToApply)) {
+        return {
+          field: resourceType,
+          values: {
+            $rg: resourcesToApply
+          }
+        };
+      }
       return resourcesToApply.map((resource) => ({
         field: type,
         values: {
-          $rg: `^${resource.name}$`.replace('/', '\\/')
+          $rg: `^${resource.name}$`
         }
       }));
     }

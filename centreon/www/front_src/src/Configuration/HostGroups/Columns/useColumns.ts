@@ -40,11 +40,13 @@ const useColumns = (): Props => {
     {
       Component: Hosts({ enabled: true }),
       id: 'enabled_hosts_count',
+      clickable: true,
       label: t(labelEnabledHosts),
       type: ColumnType.component
     },
     {
       Component: Hosts({ enabled: false }),
+      clickable: true,
       id: 'disabled_hosts_count',
       label: t(labelDisabledHosts),
       type: ColumnType.component

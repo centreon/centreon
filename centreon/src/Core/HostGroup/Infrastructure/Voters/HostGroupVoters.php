@@ -34,14 +34,18 @@ use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 final class HostGroupVoters extends Voter
 {
     public const HOSTGROUP_DELETE = 'hostgroup_delete';
+    public const HOSTGROUP_ADD = 'hostgroup_add';
     public const HOSTGROUP_LIST = 'hostgroup_list';
     public const HOSTGROUP_ENABLE_DISABLE = 'hostgroup_enable_disable';
     public const HOSTGROUP_DUPLICATE = 'hostgroup_duplicate';
+    public const HOSTGROUP_UPDATE = 'hostgroup_update';
     private const ALLOWED_ATTRIBUTES = [
+        self::HOSTGROUP_ADD,
         self::HOSTGROUP_LIST,
         self::HOSTGROUP_DELETE,
         self::HOSTGROUP_ENABLE_DISABLE,
         self::HOSTGROUP_DUPLICATE,
+        self::HOSTGROUP_UPDATE,
     ];
 
     /**
@@ -66,7 +70,9 @@ final class HostGroupVoters extends Voter
         return match ($attribute) {
             self::HOSTGROUP_LIST => $this->checkUserReadRights($user),
             self::HOSTGROUP_DELETE,
+            self::HOSTGROUP_ADD,
             self::HOSTGROUP_ENABLE_DISABLE,
+            self::HOSTGROUP_UPDATE,
             self::HOSTGROUP_DUPLICATE => $this->checkUserWriteRights($user),
             default => false,
         };

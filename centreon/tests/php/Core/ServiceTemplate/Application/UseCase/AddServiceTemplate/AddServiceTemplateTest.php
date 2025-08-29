@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -813,7 +813,7 @@ it('should present an AddServiceTemplateResponse when everything has gone well',
         'readServiceGroupRepository' => [[
             'method' => 'findByService',
             'expected' => [
-                [$newServiceTemplateId, [['relation' => $serviceGroupRelation, 'serviceGroup' => $serviceGroup]]]
+                [$newServiceTemplateId, [['relation' => $serviceGroupRelation, 'serviceGroup' => $serviceGroup]]],
             ],
         ]],
         'readHostTemplateRepository' => [[
@@ -880,12 +880,11 @@ it('should present an AddServiceTemplateResponse when everything has gone well',
             ->and($expectedMacro->description)->toBe('');
     }
     expect($dto->groups)->toBe(
-       [[
-        'serviceGroupId' => $request->serviceGroups[0]->serviceGroupId,
-        'serviceGroupName' => $serviceGroup->getName(),
-        'hostTemplateId' => $request->serviceGroups[0]->hostTemplateId,
-        'hostTemplateName' => $hostTemplateName,
-       ]]
+        [[
+            'serviceGroupId' => $request->serviceGroups[0]->serviceGroupId,
+            'serviceGroupName' => $serviceGroup->getName(),
+            'hostTemplateId' => $request->serviceGroups[0]->hostTemplateId,
+            'hostTemplateName' => $hostTemplateName,
+        ]]
     );
-
 });

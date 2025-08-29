@@ -5,6 +5,7 @@ import { Box } from '@mui/material';
 import { ColumnType } from '../../Listing/models';
 
 import { DataTable } from './index';
+import '../../ThemeProvider/tailwindcss.css';
 
 const meta: Meta<typeof DataTable> = {
   component: DataTable

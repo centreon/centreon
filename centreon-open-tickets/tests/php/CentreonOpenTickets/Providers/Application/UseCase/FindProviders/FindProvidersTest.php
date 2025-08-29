@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,6 @@ namespace Tests\CentreonOpenTickets\Providers\Application\UseCase\FindProviders;
 
 use Centreon\Domain\Repository\RepositoryException;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
-use Centreon\Infrastructure\RequestParameters\RequestParametersTranslatorException;
 use CentreonOpenTickets\Providers\Application\Exception\ProviderException;
 use CentreonOpenTickets\Providers\Application\Repository\ReadProviderRepositoryInterface;
 use CentreonOpenTickets\Providers\Application\UseCase\FindProviders;

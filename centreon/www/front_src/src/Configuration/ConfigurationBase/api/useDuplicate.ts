@@ -2,7 +2,7 @@ import { useQueryClient } from '@tanstack/react-query';
 
 import { Method, ResponseError, useMutationQuery } from '@centreon/ui';
 import { useAtomValue } from 'jotai';
-import { configurationAtom } from '../../atoms';
+import { configurationAtom } from '../atoms';
 
 interface UseDuplicateProps {
   duplicateMutation: ({ ids, nbDuplicates }) => Promise<object | ResponseError>;
@@ -12,7 +12,7 @@ interface UseDuplicateProps {
 const useDuplicate = (): UseDuplicateProps => {
   const configuration = useAtomValue(configurationAtom);
 
-  const endpoint = configuration?.api?.endpoints?.duplicate;
+  const endpoint = configuration?.api?.endpoints?.duplicate as string;
 
   const queryClient = useQueryClient();
 
@@ -20,7 +20,7 @@ const useDuplicate = (): UseDuplicateProps => {
     getEndpoint: () => endpoint,
     method: Method.POST,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['listHostGroups'] });
+      queryClient.invalidateQueries({ queryKey: ['listResources'] });
     }
   });
 

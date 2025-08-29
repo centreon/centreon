@@ -22,8 +22,14 @@ export const labelDuplications = 'Duplications';
 export const labelEnableDisable = 'Enable/Disable';
 
 // actions
-export const labelAddResource = (type) => `Add a ${type}`;
-export const labelUpdateResource = (type) => `Modify a ${type}`;
+
+export const labelModalTitle = ({
+  action,
+  type
+}: { action: string; type: string }) => {
+  const article = /^[aeiou]/i.test(type) ? 'an' : 'a';
+  return `${action} ${article} ${type}`;
+};
 
 export const labelDeleteResource = (type) => `Delete ${type}`;
 export const labelDuplicateResource = (type) => `Duplicate ${type}`;
@@ -33,6 +39,8 @@ export const labelResourceDisabled = (type) => `${type} disabled`;
 export const labelResourceEnabled = (type) => `${type} enabled`;
 export const labelResourceDuplicated = (type) => `${type} duplicated`;
 export const labelResourceDeleted = (type) => `${type} deleted`;
+export const labelResourceCreated = (type) => `${type} created`;
+export const labelResourceUpdated = (type) => `${type} updated`;
 
 export const labelFailedToDeleteResources = (type) =>
   `Failed to delete the ${type}`;
@@ -59,3 +67,6 @@ export const labelDuplicateResourceConfirmation = (type) =>
   `You are about to duplicate the <strong>{{ name }}</strong> ${type}. How many duplications would you like to make?`;
 export const labelDuplicateResourcesConfirmation = (type) =>
   `You are about to duplicate <strong>{{ count }} ${type}.</strong> How many duplications would you like to make?`;
+
+// Form
+export const labelSave = 'Save';

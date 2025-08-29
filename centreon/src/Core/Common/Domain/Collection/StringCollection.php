@@ -7,7 +7,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -30,8 +30,7 @@ use Core\Common\Domain\Exception\CollectionException;
  *
  * @class StringCollection
  * @package Core\Common\Domain\Collection
- * @template TItem of string
- * @extends Collection<TItem>
+ * @extends Collection<string>
  */
 class StringCollection extends Collection
 {

@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,6 @@ use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Centreon\Infrastructure\RequestParameters\RequestParametersTranslatorException;
 use Core\Application\Common\UseCase\ErrorResponse;
-use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\ResourceAccess\Application\Exception\RuleException;
 use Core\ResourceAccess\Application\Repository\ReadResourceAccessRepositoryInterface;
 use Core\ResourceAccess\Domain\Model\TinyRule;
@@ -64,22 +63,15 @@ final class FindRules
     {
         $this->info('Finding resource access rules', ['request_parameters' => $this->requestParameters]);
 
-        if (! $this->isAuthorized()) {
-            $this->error(
-                "User doesn't have sufficient rights to list resource access rules",
-                [
-                    'user_id' => $this->user->getId(),
-                ]
-            );
-            $presenter->presentResponse(
-                new ForbiddenResponse(RuleException::notAllowed()->getMessage())
-            );
-
-            return;
-        }
-
         try {
-            $rules = $this->repository->findAllByRequestParameters($this->requestParameters);
+            if ($this->canUserListAllRules()) {
+                $rules = $this->repository->findAllByRequestParameters($this->requestParameters);
+            } else {
+                $rules = $this->repository->findAllByRequestParametersAndUserId(
+                    $this->requestParameters,
+                    $this->user->getId()
+                );
+            }
             $presenter->presentResponse(
                 $this->createResponse($rules)
             );
@@ -121,7 +113,7 @@ final class FindRules
      *
      * @return bool
      */
-    private function isAuthorized(): bool
+    private function canUserListAllRules(): bool
     {
         if ($this->user->isAdmin()) {
             return true;

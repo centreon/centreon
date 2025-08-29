@@ -1,10 +1,9 @@
 {
 	"info": {
-		"_postman_id": "8c713371-1013-4f2b-9af3-70eb42a92ca0",
+		"_postman_id": "138a039b-d133-48d9-8f18-ce2a4f20954c",
 		"name": "Host_Severity",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "16182525",
-		"_collection_link": "https://centreon-api-v2-configuration.postman.co/workspace/API-v2~d8660f05-3c64-4c5b-af73-1a5543bff4e1/collection/16182525-8c713371-1013-4f2b-9af3-70eb42a92ca0?action=share&source=collection_link&creator=16182525"
+		"_exporter_id": "16182525"
 	},
 	"item": [
 		{
@@ -2239,14 +2238,14 @@
 							"listen": "test",
 							"script": {
 								"exec": [
+									"const responseJson = pm.response.json();\r",
 									"pm.test(\"The host severity has been successfully created, with name '\" + pm.collectionVariables.get(\"HostSeverity1Name\") + \"' and alias '\" + pm.collectionVariables.get(\"HostSeverity1Alias\") + \"'.\", function () {\r",
 									"    pm.response.to.have.status(201);\r",
 									"\r",
 									"    // Creation of a variable with the ID of the new host severity\r",
-									"    var response = pm.response.json();\r",
-									"    pm.collectionVariables.set(\"HostSeverity1Id\", response.id);\r",
+									"    pm.collectionVariables.set(\"HostSeverity1Id\", responseJson.id);\r",
 									"    \r",
-									"    pm.expect(response).to.eql({\r",
+									"    pm.expect(responseJson).to.eql({\r",
 									"        \"id\": pm.collectionVariables.get(\"HostSeverity1Id\"),\r",
 									"        \"name\": pm.collectionVariables.get(\"HostSeverity1Name\"),\r",
 									"        \"alias\": pm.collectionVariables.get(\"HostSeverity1Alias\"),\r",
@@ -2260,6 +2259,24 @@
 									"\r",
 									"pm.test(\"The Location parameter is in the header.\", function () {\r",
 									"    pm.response.to.have.header(\"Location\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation for the host severity creation response\", function () {\r",
+									"    const schema = {\r",
+									"        type: \"object\",\r",
+									"        properties: {\r",
+									"            id: { type: \"integer\" },\r",
+									"            name: { type: \"string\" },\r",
+									"            alias: { type: \"string\" },\r",
+									"            level: { type: \"integer\" },\r",
+									"            icon_id: { type: \"integer\" },\r",
+									"            is_activated: { type: \"boolean\" },\r",
+									"            comment: { type: [\"string\", \"null\"] }\r",
+									"        },\r",
+									"        required: [\"id\", \"name\", \"alias\", \"level\", \"icon_id\", \"is_activated\", \"comment\"],\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
 									"});"
 								],
 								"type": "text/javascript",
@@ -2338,9 +2355,48 @@
 									"        \"comment\":\"I look like a category but with something more\"\r",
 									"    });\r",
 									"    \r",
-									"})"
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation for the host severity listing response\", function () {\r",
+									"    const schema = {\r",
+									"        type: \"object\",\r",
+									"        properties: {\r",
+									"            result: {\r",
+									"                type: \"array\",\r",
+									"                items: {\r",
+									"                    type: \"object\",\r",
+									"                    properties: {\r",
+									"                        id: { type: \"integer\" },\r",
+									"                        name: { type: \"string\" },\r",
+									"                        alias: { type: \"string\" },\r",
+									"                        level: { type: \"integer\" },\r",
+									"                        icon_id: { type: \"integer\" },\r",
+									"                        is_activated: { type: \"boolean\" },\r",
+									"                        comment: { type: [\"string\", \"null\"] }\r",
+									"                    },\r",
+									"                    required: [\"id\", \"name\", \"alias\", \"level\", \"icon_id\", \"is_activated\", \"comment\"]\r",
+									"                }\r",
+									"            },\r",
+									"            meta: {\r",
+									"                type: \"object\",\r",
+									"                properties: {\r",
+									"                    page: { type: \"integer\" },\r",
+									"                    limit: { type: \"integer\" },\r",
+									"                    search: { type: \"object\" },\r",
+									"                    sort_by: { type: \"object\" },\r",
+									"                    total: { type: \"integer\" }\r",
+									"                }\r",
+									"            }\r",
+									"        },\r",
+									"        required: [\"result\", \"meta\"]\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"\r",
+									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -2387,16 +2443,14 @@
 							"script": {
 								"exec": [
 									"const responseJson = pm.response.json();\r",
-									"console.log(responseJson);\r",
 									"\r",
 									"pm.test(\"The host severity has been successfully created, with name '\" + pm.collectionVariables.get(\"HostSeverity2Name\") + \"' and alias '\" + pm.collectionVariables.get(\"HostSeverity2Alias\") + \"'.\", function () {\r",
 									"    pm.response.to.have.status(201);\r",
 									"\r",
 									"    // Creation of a variable with the ID of the new host severity\r",
-									"    var response = pm.response.json();\r",
-									"    pm.collectionVariables.set(\"HostSeverity2Id\", response.id);\r",
+									"    pm.collectionVariables.set(\"HostSeverity2Id\", responseJson.id);\r",
 									"\r",
-									"    pm.expect(response).to.eql({\r",
+									"    pm.expect(responseJson).to.eql({\r",
 									"        \"id\": pm.collectionVariables.get(\"HostSeverity2Id\"),\r",
 									"        \"name\": pm.collectionVariables.get(\"HostSeverity2Name\"),\r",
 									"        \"alias\": pm.collectionVariables.get(\"HostSeverity2Alias\"),\r",
@@ -2410,9 +2464,28 @@
 									"\r",
 									"pm.test(\"The Location parameter is in the header.\", function () {\r",
 									"    pm.response.to.have.header(\"Location\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation for the host severity creation response\", function () {\r",
+									"    const schema = {\r",
+									"        type: \"object\",\r",
+									"        properties: {\r",
+									"            id: { type: \"integer\" },\r",
+									"            name: { type: \"string\" },\r",
+									"            alias: { type: \"string\" },\r",
+									"            level: { type: \"integer\" },\r",
+									"            icon_id: { type: \"integer\" },\r",
+									"            is_activated: { type: \"boolean\" },\r",
+									"            comment: { type: [\"string\", \"null\"] }\r",
+									"        },\r",
+									"        required: [\"id\", \"name\", \"alias\", \"level\", \"icon_id\", \"is_activated\", \"comment\"],\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
 									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -2423,7 +2496,8 @@
 									"pm.collectionVariables.set(\"HostSeverity2Alias\", \"Oh I'm your second severity!\");\r",
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -2496,9 +2570,48 @@
 									"        \"comment\": null\r",
 									"    });\r",
 									"    \r",
-									"})"
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation for the host severity listing response\", function () {\r",
+									"    const schema = {\r",
+									"        type: \"object\",\r",
+									"        properties: {\r",
+									"            result: {\r",
+									"                type: \"array\",\r",
+									"                items: {\r",
+									"                    type: \"object\",\r",
+									"                    properties: {\r",
+									"                        id: { type: \"integer\" },\r",
+									"                        name: { type: \"string\" },\r",
+									"                        alias: { type: \"string\" },\r",
+									"                        level: { type: \"integer\" },\r",
+									"                        icon_id: { type: \"integer\" },\r",
+									"                        is_activated: { type: \"boolean\" },\r",
+									"                        comment: { type: [\"string\", \"null\"] }\r",
+									"                    },\r",
+									"                    required: [\"id\", \"name\", \"alias\", \"level\", \"icon_id\", \"is_activated\", \"comment\"]\r",
+									"                }\r",
+									"            },\r",
+									"            meta: {\r",
+									"                type: \"object\",\r",
+									"                properties: {\r",
+									"                    page: { type: \"integer\" },\r",
+									"                    limit: { type: \"integer\" },\r",
+									"                    search: { type: \"object\" },\r",
+									"                    sort_by: { type: \"object\" },\r",
+									"                    total: { type: \"integer\" }\r",
+									"                }\r",
+									"            }\r",
+									"        },\r",
+									"        required: [\"result\", \"meta\"]\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"\r",
+									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -2549,9 +2662,24 @@
 									"    pm.response.to.have.status(400);\r",
 									"\r",
 									"    pm.expect(responseJson.message).to.eql(\"[name] The property name is required\\n\");\r",
-									"});"
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation test for the host severity creation response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": 'object',\r",
+									"        \"properties\": {\r",
+									"            \"code\": { \"type\": 'integer' },\r",
+									"            \"message\": { \"type\": 'string' }\r",
+									"        },\r",
+									"        \"required\": ['code', 'message']\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});\r",
+									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -2560,7 +2688,8 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -2602,9 +2731,24 @@
 									"    pm.response.to.have.status(400);\r",
 									"\r",
 									"    pm.expect(responseJson.message).to.eql(\"[NewHostSeverity::name] The string is empty, but non empty string was expected\");\r",
-									"});"
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation test for the host severity creation response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": 'object',\r",
+									"        \"properties\": {\r",
+									"            \"code\": { \"type\": 'integer' },\r",
+									"            \"message\": { \"type\": 'string' }\r",
+									"        },\r",
+									"        \"required\": ['code', 'message']\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});\r",
+									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -2613,7 +2757,8 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -2655,9 +2800,24 @@
 									"    pm.response.to.have.status(400);\r",
 									"\r",
 									"    pm.expect(responseJson.message).to.eql(\"[alias] The property alias is required\\n[level] The property level is required\\n[icon_id] The property icon_id is required\\n\");\r",
-									"});"
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation test for the host severity creation response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": 'object',\r",
+									"        \"properties\": {\r",
+									"            \"code\": { \"type\": 'integer' },\r",
+									"            \"message\": { \"type\": 'string' }\r",
+									"        },\r",
+									"        \"required\": ['code', 'message']\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});\r",
+									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -2666,7 +2826,8 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -2708,9 +2869,24 @@
 									"    pm.response.to.have.status(400);\r",
 									"\r",
 									"    pm.expect(responseJson.message).to.eql(\"[name] Boolean value found, but a string is required\\n[alias] NULL value found, but a string is required\\n[level] String value found, but an integer is required\\n[icon_id] NULL value found, but an integer is required\\n[is_activated] String value found, but a boolean is required\\n[comment] Integer value found, but a string or a null is required\\n\");\r",
-									"});"
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation test for the host severity creation response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": 'object',\r",
+									"        \"properties\": {\r",
+									"            \"code\": { \"type\": 'integer' },\r",
+									"            \"message\": { \"type\": 'string' }\r",
+									"        },\r",
+									"        \"required\": ['code', 'message']\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});\r",
+									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -2719,7 +2895,8 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -2756,14 +2933,14 @@
 							"listen": "test",
 							"script": {
 								"exec": [
+									"const responseJson = pm.response.json();\r",
 									"pm.test(\"The host severity has been successfully created, with name '\" + pm.collectionVariables.get(\"HostSeverity3Name\") + \"' and alias '\" + pm.collectionVariables.get(\"HostSeverity3Alias\") + \"'.\", function () {\r",
 									"    pm.response.to.have.status(201);\r",
 									"\r",
 									"    // Creation of a variable with the ID of the new host severity\r",
-									"    var response = pm.response.json();\r",
-									"    pm.collectionVariables.set(\"HostSeverity3Id\", response.id);\r",
+									"    pm.collectionVariables.set(\"HostSeverity3Id\", responseJson.id);\r",
 									"\r",
-									"    pm.expect(response).to.eql({\r",
+									"    pm.expect(responseJson).to.eql({\r",
 									"        \"id\": pm.collectionVariables.get(\"HostSeverity3Id\"),\r",
 									"        \"name\": pm.collectionVariables.get(\"HostSeverity3Name\"),\r",
 									"        \"alias\": pm.collectionVariables.get(\"HostSeverity3Alias\"),\r",
@@ -2777,9 +2954,28 @@
 									"\r",
 									"pm.test(\"The Location parameter is in the header.\", function () {\r",
 									"    pm.response.to.have.header(\"Location\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation for the host severity creation response\", function () {\r",
+									"    const schema = {\r",
+									"        type: \"object\",\r",
+									"        properties: {\r",
+									"            id: { type: \"integer\" },\r",
+									"            name: { type: \"string\" },\r",
+									"            alias: { type: \"string\" },\r",
+									"            level: { type: \"integer\" },\r",
+									"            icon_id: { type: \"integer\" },\r",
+									"            is_activated: { type: \"boolean\" },\r",
+									"            comment: { type: [\"string\", \"null\"] }\r",
+									"        },\r",
+									"        required: [\"id\", \"name\", \"alias\", \"level\", \"icon_id\", \"is_activated\", \"comment\"],\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
 									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -2790,7 +2986,8 @@
 									"pm.collectionVariables.set(\"HostSeverity3Alias\", \"Finally, a third successful sévérity!\");\r",
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -2851,9 +3048,28 @@
 									"        \"comment\": null\r",
 									"    });\r",
 									"    \r",
-									"})"
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation for the host severity listing response\", function () {\r",
+									"    const schema = {\r",
+									"        type: \"object\",\r",
+									"        properties: {\r",
+									"            id: { type: \"integer\" },\r",
+									"            name: { type: \"string\" },\r",
+									"            alias: { type: \"string\" },\r",
+									"            level: { type: \"integer\" },\r",
+									"            icon_id: { type: \"integer\" },\r",
+									"            is_activated: { type: \"boolean\" },\r",
+									"            comment: { type: [\"string\", \"null\"] }\r",
+									"        },\r",
+									"        required: [\"id\", \"name\", \"alias\", \"level\", \"icon_id\", \"is_activated\", \"comment\"],\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -2946,9 +3162,48 @@
 									"        \"comment\": \"\"\r",
 									"    });\r",
 									"    \r",
-									"})"
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation for the host severity listing response\", function () {\r",
+									"    const schema = {\r",
+									"        type: \"object\",\r",
+									"        properties: {\r",
+									"            result: {\r",
+									"                type: \"array\",\r",
+									"                items: {\r",
+									"                    type: \"object\",\r",
+									"                    properties: {\r",
+									"                        id: { type: \"integer\" },\r",
+									"                        name: { type: \"string\" },\r",
+									"                        alias: { type: \"string\" },\r",
+									"                        level: { type: \"integer\" },\r",
+									"                        icon_id: { type: \"integer\" },\r",
+									"                        is_activated: { type: \"boolean\" },\r",
+									"                        comment: { type: [\"string\", \"null\"] }\r",
+									"                    },\r",
+									"                    required: [\"id\", \"name\", \"alias\", \"level\", \"icon_id\", \"is_activated\", \"comment\"]\r",
+									"                }\r",
+									"            },\r",
+									"            meta: {\r",
+									"                type: \"object\",\r",
+									"                properties: {\r",
+									"                    page: { type: \"integer\" },\r",
+									"                    limit: { type: \"integer\" },\r",
+									"                    search: { type: \"object\" },\r",
+									"                    sort_by: { type: \"object\" },\r",
+									"                    total: { type: \"integer\" }\r",
+									"                }\r",
+									"            }\r",
+									"        },\r",
+									"        required: [\"result\", \"meta\"]\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"\r",
+									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -3137,9 +3392,48 @@
 									"        \"comment\": \"\"\r",
 									"    });\r",
 									"\r",
-									"})"
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation for the host severity listing response\", function () {\r",
+									"    const schema = {\r",
+									"        type: \"object\",\r",
+									"        properties: {\r",
+									"            result: {\r",
+									"                type: \"array\",\r",
+									"                items: {\r",
+									"                    type: \"object\",\r",
+									"                    properties: {\r",
+									"                        id: { type: \"integer\" },\r",
+									"                        name: { type: \"string\" },\r",
+									"                        alias: { type: \"string\" },\r",
+									"                        level: { type: \"integer\" },\r",
+									"                        icon_id: { type: \"integer\" },\r",
+									"                        is_activated: { type: \"boolean\" },\r",
+									"                        comment: { type: [\"string\", \"null\"] }\r",
+									"                    },\r",
+									"                    required: [\"id\", \"name\", \"alias\", \"level\", \"icon_id\", \"is_activated\", \"comment\"]\r",
+									"                }\r",
+									"            },\r",
+									"            meta: {\r",
+									"                type: \"object\",\r",
+									"                properties: {\r",
+									"                    page: { type: \"integer\" },\r",
+									"                    limit: { type: \"integer\" },\r",
+									"                    search: { type: \"object\" },\r",
+									"                    sort_by: { type: \"object\" },\r",
+									"                    total: { type: \"integer\" }\r",
+									"                }\r",
+									"            }\r",
+									"        },\r",
+									"        required: [\"result\", \"meta\"]\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"\r",
+									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -3322,14 +3616,14 @@
 							"listen": "test",
 							"script": {
 								"exec": [
+									"const responseJson = pm.response.json();\r",
 									"pm.test(\"The host severity has been successfully created, with name '\" + pm.collectionVariables.get(\"HostSeverity4Name\") + \"' and alias '\" + pm.collectionVariables.get(\"HostSeverity4Alias\") + \"'.\", function () {\r",
 									"    pm.response.to.have.status(201);\r",
 									"\r",
 									"    // Creation of a variable with the ID of the new host severity\r",
-									"    var response = pm.response.json();\r",
-									"    pm.collectionVariables.set(\"HostSeverity4Id\", response.id);\r",
+									"    pm.collectionVariables.set(\"HostSeverity4Id\", responseJson.id);\r",
 									"\r",
-									"    pm.expect(response).to.eql({\r",
+									"    pm.expect(responseJson).to.eql({\r",
 									"        \"id\": pm.collectionVariables.get(\"HostSeverity4Id\"),\r",
 									"        \"name\": pm.collectionVariables.get(\"HostSeverity4Name\"),\r",
 									"        \"alias\": pm.collectionVariables.get(\"HostSeverity4Alias\"),\r",
@@ -3343,9 +3637,28 @@
 									"\r",
 									"pm.test(\"The Location parameter is in the header.\", function () {\r",
 									"    pm.response.to.have.header(\"Location\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation for the host severity creation response\", function () {\r",
+									"    const schema = {\r",
+									"        type: \"object\",\r",
+									"        properties: {\r",
+									"            id: { type: \"integer\" },\r",
+									"            name: { type: \"string\" },\r",
+									"            alias: { type: \"string\" },\r",
+									"            level: { type: \"integer\" },\r",
+									"            icon_id: { type: \"integer\" },\r",
+									"            is_activated: { type: \"boolean\" },\r",
+									"            comment: { type: [\"string\", \"null\"] }\r",
+									"        },\r",
+									"        required: [\"id\", \"name\", \"alias\", \"level\", \"icon_id\", \"is_activated\", \"comment\"],\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
 									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -3356,7 +3669,8 @@
 									"pm.collectionVariables.set(\"HostSeverity4Alias\", \"I'm the fourth successful severity!\");\r",
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -3439,9 +3753,48 @@
 									"        \"is_activated\": true\r",
 									"    });\r",
 									"    \r",
-									"})"
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation for the host severity listing response\", function () {\r",
+									"    const schema = {\r",
+									"        type: \"object\",\r",
+									"        properties: {\r",
+									"            result: {\r",
+									"                type: \"array\",\r",
+									"                items: {\r",
+									"                    type: \"object\",\r",
+									"                    properties: {\r",
+									"                        id: { type: \"integer\" },\r",
+									"                        name: { type: \"string\" },\r",
+									"                        alias: { type: \"string\" },\r",
+									"                        level: { type: \"integer\" },\r",
+									"                        icon_id: { type: \"integer\" },\r",
+									"                        is_activated: { type: \"boolean\" },\r",
+									"                        comment: { type: [\"string\", \"null\"] }\r",
+									"                    },\r",
+									"                    required: [\"id\", \"name\", \"alias\", \"level\", \"icon_id\", \"is_activated\", \"comment\"]\r",
+									"                }\r",
+									"            },\r",
+									"            meta: {\r",
+									"                type: \"object\",\r",
+									"                properties: {\r",
+									"                    page: { type: \"integer\" },\r",
+									"                    limit: { type: \"integer\" },\r",
+									"                    search: { type: \"object\" },\r",
+									"                    sort_by: { type: \"object\" },\r",
+									"                    total: { type: \"integer\" }\r",
+									"                }\r",
+									"            }\r",
+									"        },\r",
+									"        required: [\"result\", \"meta\"]\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"\r",
+									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -3511,9 +3864,28 @@
 									"        \"is_activated\": true\r",
 									"    });\r",
 									"  \r",
-									"})"
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation for the host severity listing response\", function () {\r",
+									"    const schema = {\r",
+									"        type: \"object\",\r",
+									"        properties: {\r",
+									"            id: { type: \"integer\" },\r",
+									"            name: { type: \"string\" },\r",
+									"            alias: { type: \"string\" },\r",
+									"            level: { type: \"integer\" },\r",
+									"            icon_id: { type: \"integer\" },\r",
+									"            is_activated: { type: \"boolean\" },\r",
+									"            comment: { type: [\"string\", \"null\"] }\r",
+									"        },\r",
+									"        required: [\"id\", \"name\", \"alias\", \"level\", \"icon_id\", \"is_activated\", \"comment\"],\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -3703,9 +4075,48 @@
 									"        \"comment\": \"I was created by the Read/Write user\"\r",
 									"    });\r",
 									"\r",
-									"})"
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation for the host severity listing response\", function () {\r",
+									"    const schema = {\r",
+									"        type: \"object\",\r",
+									"        properties: {\r",
+									"            result: {\r",
+									"                type: \"array\",\r",
+									"                items: {\r",
+									"                    type: \"object\",\r",
+									"                    properties: {\r",
+									"                        id: { type: \"integer\" },\r",
+									"                        name: { type: \"string\" },\r",
+									"                        alias: { type: \"string\" },\r",
+									"                        level: { type: \"integer\" },\r",
+									"                        icon_id: { type: \"integer\" },\r",
+									"                        is_activated: { type: \"boolean\" },\r",
+									"                        comment: { type: [\"string\", \"null\"] }\r",
+									"                    },\r",
+									"                    required: [\"id\", \"name\", \"alias\", \"level\", \"icon_id\", \"is_activated\", \"comment\"]\r",
+									"                }\r",
+									"            },\r",
+									"            meta: {\r",
+									"                type: \"object\",\r",
+									"                properties: {\r",
+									"                    page: { type: \"integer\" },\r",
+									"                    limit: { type: \"integer\" },\r",
+									"                    search: { type: \"object\" },\r",
+									"                    sort_by: { type: \"object\" },\r",
+									"                    total: { type: \"integer\" }\r",
+									"                }\r",
+									"            }\r",
+									"        },\r",
+									"        required: [\"result\", \"meta\"]\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"\r",
+									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -4134,20 +4545,20 @@
 					"response": []
 				},
 				{
-					"name": "Creation of a new host severity bu user With/Write with filters (successful)",
+					"name": "Creation of a new host severity by user With/Write with filters (successful)",
 					"event": [
 						{
 							"listen": "test",
 							"script": {
 								"exec": [
+									"const responseJson = pm.response.json();\r",
 									"pm.test(\"The host severity has been successfully created, with name '\" + pm.collectionVariables.get(\"HostSeverity5Name\") + \"' and alias '\" + pm.collectionVariables.get(\"HostSeverity5Alias\") + \"'.\", function () {\r",
 									"    pm.response.to.have.status(201);\r",
 									"\r",
 									"    // Creation of a variable with the ID of the new host severity\r",
-									"    var response = pm.response.json();\r",
-									"    pm.collectionVariables.set(\"HostSeverity5Id\", response.id);\r",
+									"    pm.collectionVariables.set(\"HostSeverity5Id\", responseJson.id);\r",
 									"\r",
-									"    pm.expect(response).to.eql({\r",
+									"    pm.expect(responseJson).to.eql({\r",
 									"        \"id\": pm.collectionVariables.get(\"HostSeverity5Id\"),\r",
 									"        \"name\": pm.collectionVariables.get(\"HostSeverity5Name\"),\r",
 									"        \"alias\": pm.collectionVariables.get(\"HostSeverity5Alias\"),\r",
@@ -4161,9 +4572,28 @@
 									"\r",
 									"pm.test(\"The Location parameter is in the header.\", function () {\r",
 									"    pm.response.to.have.header(\"Location\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation for the host severity creation response\", function () {\r",
+									"    const schema = {\r",
+									"        type: \"object\",\r",
+									"        properties: {\r",
+									"            id: { type: \"integer\" },\r",
+									"            name: { type: \"string\" },\r",
+									"            alias: { type: \"string\" },\r",
+									"            level: { type: \"integer\" },\r",
+									"            icon_id: { type: \"integer\" },\r",
+									"            is_activated: { type: \"boolean\" },\r",
+									"            comment: { type: [\"string\", \"null\"] }\r",
+									"        },\r",
+									"        required: [\"id\", \"name\", \"alias\", \"level\", \"icon_id\", \"is_activated\", \"comment\"],\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
 									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -4174,7 +4604,8 @@
 									"pm.collectionVariables.set(\"HostSeverity5Alias\", \"I'm the fifth successful severity!\");\r",
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -4237,9 +4668,48 @@
 									"        \"comment\": \"I was created by the Read/Write user\"\r",
 									"    });\r",
 									"    \r",
-									"})"
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation for the host severity listing response\", function () {\r",
+									"    const schema = {\r",
+									"        type: \"object\",\r",
+									"        properties: {\r",
+									"            result: {\r",
+									"                type: \"array\",\r",
+									"                items: {\r",
+									"                    type: \"object\",\r",
+									"                    properties: {\r",
+									"                        id: { type: \"integer\" },\r",
+									"                        name: { type: \"string\" },\r",
+									"                        alias: { type: \"string\" },\r",
+									"                        level: { type: \"integer\" },\r",
+									"                        icon_id: { type: \"integer\" },\r",
+									"                        is_activated: { type: \"boolean\" },\r",
+									"                        comment: { type: [\"string\", \"null\"] }\r",
+									"                    },\r",
+									"                    required: [\"id\", \"name\", \"alias\", \"level\", \"icon_id\", \"is_activated\", \"comment\"]\r",
+									"                }\r",
+									"            },\r",
+									"            meta: {\r",
+									"                type: \"object\",\r",
+									"                properties: {\r",
+									"                    page: { type: \"integer\" },\r",
+									"                    limit: { type: \"integer\" },\r",
+									"                    search: { type: \"object\" },\r",
+									"                    sort_by: { type: \"object\" },\r",
+									"                    total: { type: \"integer\" }\r",
+									"                }\r",
+									"            }\r",
+									"        },\r",
+									"        required: [\"result\", \"meta\"]\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"\r",
+									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -4308,9 +4778,28 @@
 									"        \"comment\": \"I was created by the Read/Write user\"\r",
 									"    });\r",
 									"  \r",
-									"})"
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation for the host severity listing response\", function () {\r",
+									"    const schema = {\r",
+									"        type: \"object\",\r",
+									"        properties: {\r",
+									"            id: { type: \"integer\" },\r",
+									"            name: { type: \"string\" },\r",
+									"            alias: { type: \"string\" },\r",
+									"            level: { type: \"integer\" },\r",
+									"            icon_id: { type: \"integer\" },\r",
+									"            is_activated: { type: \"boolean\" },\r",
+									"            comment: { type: [\"string\", \"null\"] }\r",
+									"        },\r",
+									"        required: [\"id\", \"name\", \"alias\", \"level\", \"icon_id\", \"is_activated\", \"comment\"],\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -4365,9 +4854,23 @@
 									"    pm.response.to.have.status(404);\r",
 									"    pm.expect(responseJson.message).to.eql(\"Host severity not found\");\r",
 									"});\r",
+									"\r",
+									"pm.test(\"Schema validation test for the host severity listing response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": 'object',\r",
+									"        \"properties\": {\r",
+									"            \"code\": { \"type\": 'integer' },\r",
+									"            \"message\": { \"type\": 'string' }\r",
+									"        },\r",
+									"        \"required\": ['code', 'message']\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});\r",
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -4421,9 +4924,24 @@
 									"pm.test(\"Host severity not found\", function () {\r",
 									"    pm.response.to.have.status(404);\r",
 									"    pm.expect(responseJson.message).to.eql(\"Host severity not found\");\r",
-									"});"
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation test for the host severity update response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": 'object',\r",
+									"        \"properties\": {\r",
+									"            \"code\": { \"type\": 'integer' },\r",
+									"            \"message\": { \"type\": 'string' }\r",
+									"        },\r",
+									"        \"required\": ['code', 'message']\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});\r",
+									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -4432,7 +4950,8 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -4477,9 +4996,24 @@
 									"pm.test(\"Host severity not found\", function () {\r",
 									"    pm.response.to.have.status(404);\r",
 									"    pm.expect(responseJson.message).to.eql(\"Host severity not found\");\r",
-									"});"
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation test for the host severity deletion response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": 'object',\r",
+									"        \"properties\": {\r",
+									"            \"code\": { \"type\": 'integer' },\r",
+									"            \"message\": { \"type\": 'string' }\r",
+									"        },\r",
+									"        \"required\": ['code', 'message']\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});\r",
+									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -4488,7 +5022,8 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -4665,9 +5200,24 @@
 									"    pm.response.to.have.status(403);\r",
 									"\r",
 									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to create/modify a host severity\");\r",
-									"});"
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation test for the host severity creation response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": 'object',\r",
+									"        \"properties\": {\r",
+									"            \"code\": { \"type\": 'integer' },\r",
+									"            \"message\": { \"type\": 'string' }\r",
+									"        },\r",
+									"        \"required\": ['code', 'message']\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});\r",
+									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -4676,7 +5226,8 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -4720,9 +5271,24 @@
 									"pm.test(\"The user does not have the correct rights to delete a host severity\", function () {\r",
 									"    pm.response.to.have.status(403);\r",
 									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to delete host severities\");\r",
-									"});"
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation test for the host severity deletion response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": 'object',\r",
+									"        \"properties\": {\r",
+									"            \"code\": { \"type\": 'integer' },\r",
+									"            \"message\": { \"type\": 'string' }\r",
+									"        },\r",
+									"        \"required\": ['code', 'message']\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});\r",
+									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -4731,7 +5297,8 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -4776,9 +5343,24 @@
 									"pm.test(\"The user does not have the correct rights to modify a host severity\", function () {\r",
 									"    pm.response.to.have.status(403);\r",
 									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to create/modify a host severity\");\r",
-									"});"
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation test for the host severity update response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": 'object',\r",
+									"        \"properties\": {\r",
+									"            \"code\": { \"type\": 'integer' },\r",
+									"            \"message\": { \"type\": 'string' }\r",
+									"        },\r",
+									"        \"required\": ['code', 'message']\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});\r",
+									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -4787,7 +5369,8 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -4871,9 +5454,48 @@
 									"        \"is_activated\": true\r",
 									"    });\r",
 									"    \r",
-									"})"
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation for the host severity listing response\", function () {\r",
+									"    const schema = {\r",
+									"        type: \"object\",\r",
+									"        properties: {\r",
+									"            result: {\r",
+									"                type: \"array\",\r",
+									"                items: {\r",
+									"                    type: \"object\",\r",
+									"                    properties: {\r",
+									"                        id: { type: \"integer\" },\r",
+									"                        name: { type: \"string\" },\r",
+									"                        alias: { type: \"string\" },\r",
+									"                        level: { type: \"integer\" },\r",
+									"                        icon_id: { type: \"integer\" },\r",
+									"                        is_activated: { type: \"boolean\" },\r",
+									"                        comment: { type: [\"string\", \"null\"] }\r",
+									"                    },\r",
+									"                    required: [\"id\", \"name\", \"alias\", \"level\", \"icon_id\", \"is_activated\", \"comment\"]\r",
+									"                }\r",
+									"            },\r",
+									"            meta: {\r",
+									"                type: \"object\",\r",
+									"                properties: {\r",
+									"                    page: { type: \"integer\" },\r",
+									"                    limit: { type: \"integer\" },\r",
+									"                    search: { type: \"object\" },\r",
+									"                    sort_by: { type: \"object\" },\r",
+									"                    total: { type: \"integer\" }\r",
+									"                }\r",
+									"            }\r",
+									"        },\r",
+									"        required: [\"result\", \"meta\"]\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"\r",
+									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -4943,9 +5565,28 @@
 									"        \"is_activated\": true\r",
 									"    });\r",
 									"  \r",
-									"})"
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation for the host severity listing response\", function () {\r",
+									"    const schema = {\r",
+									"        type: \"object\",\r",
+									"        properties: {\r",
+									"            id: { type: \"integer\" },\r",
+									"            name: { type: \"string\" },\r",
+									"            alias: { type: \"string\" },\r",
+									"            level: { type: \"integer\" },\r",
+									"            icon_id: { type: \"integer\" },\r",
+									"            is_activated: { type: \"boolean\" },\r",
+									"            comment: { type: [\"string\", \"null\"] }\r",
+									"        },\r",
+									"        required: [\"id\", \"name\", \"alias\", \"level\", \"icon_id\", \"is_activated\", \"comment\"],\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -5376,9 +6017,24 @@
 									"pm.test(\"The user does not have the correct rights to modify a host severity\", function () {\r",
 									"    pm.response.to.have.status(403);\r",
 									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to create/modify a host severity\");\r",
-									"});"
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation test for the host severity update response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": 'object',\r",
+									"        \"properties\": {\r",
+									"            \"code\": { \"type\": 'integer' },\r",
+									"            \"message\": { \"type\": 'string' }\r",
+									"        },\r",
+									"        \"required\": ['code', 'message']\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});\r",
+									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -5387,7 +6043,8 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -5451,9 +6108,48 @@
 									"        \"is_activated\": true\r",
 									"    });\r",
 									"    \r",
-									"})"
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation for the host severity listing response\", function () {\r",
+									"    const schema = {\r",
+									"        type: \"object\",\r",
+									"        properties: {\r",
+									"            result: {\r",
+									"                type: \"array\",\r",
+									"                items: {\r",
+									"                    type: \"object\",\r",
+									"                    properties: {\r",
+									"                        id: { type: \"integer\" },\r",
+									"                        name: { type: \"string\" },\r",
+									"                        alias: { type: \"string\" },\r",
+									"                        level: { type: \"integer\" },\r",
+									"                        icon_id: { type: \"integer\" },\r",
+									"                        is_activated: { type: \"boolean\" },\r",
+									"                        comment: { type: [\"string\", \"null\"] }\r",
+									"                    },\r",
+									"                    required: [\"id\", \"name\", \"alias\", \"level\", \"icon_id\", \"is_activated\", \"comment\"]\r",
+									"                }\r",
+									"            },\r",
+									"            meta: {\r",
+									"                type: \"object\",\r",
+									"                properties: {\r",
+									"                    page: { type: \"integer\" },\r",
+									"                    limit: { type: \"integer\" },\r",
+									"                    search: { type: \"object\" },\r",
+									"                    sort_by: { type: \"object\" },\r",
+									"                    total: { type: \"integer\" }\r",
+									"                }\r",
+									"            }\r",
+									"        },\r",
+									"        required: [\"result\", \"meta\"]\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"\r",
+									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -5523,9 +6219,28 @@
 									"        \"is_activated\": true\r",
 									"    });\r",
 									"  \r",
-									"})"
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation for the host severity listing response\", function () {\r",
+									"    const schema = {\r",
+									"        type: \"object\",\r",
+									"        properties: {\r",
+									"            id: { type: \"integer\" },\r",
+									"            name: { type: \"string\" },\r",
+									"            alias: { type: \"string\" },\r",
+									"            level: { type: \"integer\" },\r",
+									"            icon_id: { type: \"integer\" },\r",
+									"            is_activated: { type: \"boolean\" },\r",
+									"            comment: { type: [\"string\", \"null\"] }\r",
+									"        },\r",
+									"        required: [\"id\", \"name\", \"alias\", \"level\", \"icon_id\", \"is_activated\", \"comment\"],\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -5580,9 +6295,24 @@
 									"    pm.response.to.have.status(404);\r",
 									"    pm.expect(responseJson.message).to.eql(\"Host severity not found\");\r",
 									"  \r",
-									"})"
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation test for the host severity listing response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": 'object',\r",
+									"        \"properties\": {\r",
+									"            \"code\": { \"type\": 'integer' },\r",
+									"            \"message\": { \"type\": 'string' }\r",
+									"        },\r",
+									"        \"required\": ['code', 'message']\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});\r",
+									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -5769,9 +6499,23 @@
 									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to create/modify a host severity\");\r",
 									"\r",
 									"});\r",
+									"\r",
+									"pm.test(\"Schema validation test for the host severity creation response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": 'object',\r",
+									"        \"properties\": {\r",
+									"            \"code\": { \"type\": 'integer' },\r",
+									"            \"message\": { \"type\": 'string' }\r",
+									"        },\r",
+									"        \"required\": ['code', 'message']\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});\r",
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -5780,7 +6524,8 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -5824,9 +6569,24 @@
 									"pm.test(\"The host severity has not been  deleted, because the user does have the corrects rights\", function () {\r",
 									"    pm.response.to.have.status(403);\r",
 									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to delete host severities\");\r",
-									"});"
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation test for the host severity deletion response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": 'object',\r",
+									"        \"properties\": {\r",
+									"            \"code\": { \"type\": 'integer' },\r",
+									"            \"message\": { \"type\": 'string' }\r",
+									"        },\r",
+									"        \"required\": ['code', 'message']\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});\r",
+									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -5835,7 +6595,8 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -5877,9 +6638,24 @@
 									"pm.test(\"The host severity has not been updated, because the user does have the corrects rights\", function () {\r",
 									"    pm.response.to.have.status(403);\r",
 									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to create/modify a host severity\");\r",
-									"});"
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation test for the host severity update response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": 'object',\r",
+									"        \"properties\": {\r",
+									"            \"code\": { \"type\": 'integer' },\r",
+									"            \"message\": { \"type\": 'string' }\r",
+									"        },\r",
+									"        \"required\": ['code', 'message']\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});\r",
+									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -5888,7 +6664,8 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -5933,9 +6710,24 @@
 									"pm.test(\"The host severities have not been listed, because the user does have the corrects rights\", function () {\r",
 									"    pm.response.to.have.status(403);\r",
 									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to access host severities\");\r",
-									"});"
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation test for the host severity listing response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": 'object',\r",
+									"        \"properties\": {\r",
+									"            \"code\": { \"type\": 'integer' },\r",
+									"            \"message\": { \"type\": 'string' }\r",
+									"        },\r",
+									"        \"required\": ['code', 'message']\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});\r",
+									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -5988,9 +6780,24 @@
 									"pm.test(\"The host severity has not been listed, because the user does have the corrects rights\", function () {\r",
 									"    pm.response.to.have.status(403);\r",
 									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to access host severities\");\r",
-									"});"
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation test for the host severity listing response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": 'object',\r",
+									"        \"properties\": {\r",
+									"            \"code\": { \"type\": 'integer' },\r",
+									"            \"message\": { \"type\": 'string' }\r",
+									"        },\r",
+									"        \"required\": ['code', 'message']\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});\r",
+									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -6109,345 +6916,6 @@
 					"response": []
 				}
 			]
-		},
-		{
-			"name": "Reset",
-			"item": [
-				{
-					"name": "Login with admin user",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"const responseJson = pm.response.json();\r",
-									"pm.test(\"Login successful. The account displayed in response matches with credentials and has admin rights.\", function () {\r",
-									"    pm.response.to.have.status(200);\r",
-									"    pm.expect(responseJson.contact.alias).to.eql(pm.environment.get('api_login'));\r",
-									"    pm.expect(responseJson.contact.is_admin).to.eql(true);\r",
-									"    pm.environment.set(\"token\", responseJson.security.token);\r",
-									"    pm.environment.set(\"currentUserName\", responseJson.contact.alias);\r",
-									"    pm.environment.set(\"currentUserID\", responseJson.contact.id);\r",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"protocolProfileBehavior": {
-						"disableCookies": true
-					},
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n  \"security\": {\r\n    \"credentials\": {\r\n      \"login\": \"{{api_login}}\",\r\n      \"password\": \"{{api_password}}\"\r\n    }\r\n  }\r\n}\r\n\r\n",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}/login",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"login"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Show available host severity for deletion",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"/*\r",
-									"/  Check code status\r",
-									"*/\r",
-									"const responseJson = pm.response.json();\r",
-									"pm.test(\"A list of host severities has been successfully fetched.\", function () {\r",
-									"    pm.response.to.have.status(200);\r",
-									"\r",
-									"\r",
-									"    let hostsSeverityCreated = [];\r",
-									"    for(let count = 0; count < responseJson.result.length; count++){\r",
-									"        hostsSeverityCreated.push(responseJson.result[count].id);\r",
-									"    }\r",
-									"\r",
-									"    pm.collectionVariables.set(\"hostsSeverityCreated\", hostsSeverityCreated);\r",
-									"    pm.collectionVariables.set(\"HostSeverityTotal\", responseJson.meta.total);\r",
-									"});\r",
-									""
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"protocolProfileBehavior": {
-						"disableBodyPruning": true
-					},
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "centreon-auth-token",
-								"value": "{{token}}",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}/configuration/hosts/severities",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"configuration",
-								"hosts",
-								"severities"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Deletion of all hosts severities",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									"let hostsSeverityCreated = pm.collectionVariables.get(\"hostsSeverityCreated\");\r",
-									"\r",
-									"let currentHostSeverity = hostsSeverityCreated.shift();\r",
-									"pm.collectionVariables.set(\"currentHostSeverity\", currentHostSeverity);\r",
-									"pm.collectionVariables.set(\"hostsSeverityCreated\", hostsSeverityCreated);"
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"Host Severity\" + pm.collectionVariables.get(\"currentHostSeverity\") + \" has successfully been deleted.\", function () {\r",
-									"    pm.response.to.have.status(204);\r",
-									"});\r",
-									"\r",
-									"\r",
-									"const hostsSeverities = pm.collectionVariables.get(\"hostsSeverityCreated\");\r",
-									"const HostSeverityTotal = pm.collectionVariables.get(\"HostSeverityTotal\");\r",
-									"\r",
-									"if (hostsSeverities.length > 0) {\r",
-									"    postman.setNextRequest(\"Deletion of all hosts severities\");\r",
-									"} else {\r",
-									"    postman.setNextRequest(\"Check if there are any host severities left to delete\");\r",
-									"}\r",
-									""
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "DELETE",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/configuration/hosts/severities/{{currentHostSeverity}}",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"configuration",
-								"hosts",
-								"severities",
-								"{{currentHostSeverity}}"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Check if there are any host severities left to delete",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"/*\r",
-									"/  Check code status\r",
-									"*/\r",
-									"const responseJson = pm.response.json();\r",
-									"pm.test(\"A list of host severities has been successfully fetched.\", function () {\r",
-									"    pm.response.to.have.status(200);\r",
-									"\r",
-									"\r",
-									"    let hostsSeverityCreated = [];\r",
-									"    for(let count = 0; count < responseJson.result.length; count++){\r",
-									"        hostsSeverityCreated.push(responseJson.result[count].id);\r",
-									"    }\r",
-									"\r",
-									"    pm.collectionVariables.set(\"hostsSeverityCreated\", hostsSeverityCreated);\r",
-									"    pm.collectionVariables.set(\"HostSeverityTotal\", responseJson.meta.total);\r",
-									"});\r",
-									"\r",
-									"\r",
-									"const hostSeverities = pm.collectionVariables.get(\"hostsSeverityCreated\");\r",
-									"const HostSeverityTotal = pm.collectionVariables.get(\"HostSeverityTotal\");\r",
-									"\r",
-									"if (hostSeverities.length > 0) {\r",
-									"    postman.setNextRequest(\"Deletion of all hosts severities\");\r",
-									"} else if (HostSeverityTotal > 0) {\r",
-									"    postman.setNextRequest(\"Check if there are any host severities left to delete\");\r",
-									"}\r",
-									"else {\r",
-									"    pm.collectionVariables.unset(\"currentHostSeverity\");\r",
-									"    pm.collectionVariables.unset(\"hostsSeverityCreated\");\r",
-									"}\r",
-									""
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"protocolProfileBehavior": {
-						"disableBodyPruning": true
-					},
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "centreon-auth-token",
-								"value": "{{token}}",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}/configuration/hosts/severities",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"configuration",
-								"hosts",
-								"severities"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Logout from admin user",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"const responseJson = pm.response.json();\r",
-									"pm.test(\"Logout successful. The displayed message is the one that is expected ('Successful logout').\", function() {\r",
-									"    pm.response.to.have.status(200);\r",
-									"    pm.expect(responseJson.message).to.eql(\"Successful logout\");\r",
-									"    pm.environment.unset(\"token\");\r",
-									"    pm.environment.unset(\"currentUserName\");\r",
-									"    pm.environment.unset(\"currentUserID\");\r",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"auth": {
-							"type": "apikey",
-							"apikey": [
-								{
-									"key": "value",
-									"value": "{{token}}",
-									"type": "string"
-								},
-								{
-									"key": "key",
-									"value": "X-AUTH-TOKEN",
-									"type": "string"
-								},
-								{
-									"key": "in",
-									"value": "header",
-									"type": "string"
-								}
-							]
-						},
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/logout",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"logout"
-							],
-							"variable": [
-								{
-									"key": "protocol",
-									"value": "{{protocol}}",
-									"description": "HTTP schema (This can only be one of http,https)"
-								},
-								{
-									"key": "server",
-									"value": "{{server}}",
-									"description": "IP address or hostname of Centreon server"
-								},
-								{
-									"key": "port",
-									"value": "{{port}}",
-									"description": "Port used by HTTP server"
-								},
-								{
-									"key": "version",
-									"value": "{{version}}",
-									"description": "Version of the API"
-								}
-							]
-						},
-						"description": "Entry point to delete an existing authentication token."
-					},
-					"response": []
-				}
-			]
 		}
 	],
 	"auth": {
@@ -6483,6 +6951,88 @@
 					""
 				]
 			}
+		}
+	],
+	"variable": [
+		{
+			"key": "api_login_user_RW",
+			"value": ""
+		},
+		{
+			"key": "api_password_user_RW",
+			"value": ""
+		},
+		{
+			"key": "api_login_user_RW_filters",
+			"value": ""
+		},
+		{
+			"key": "api_password_user_RW_filters",
+			"value": ""
+		},
+		{
+			"key": "api_login_user_Read",
+			"value": ""
+		},
+		{
+			"key": "api_password_user_Read",
+			"value": ""
+		},
+		{
+			"key": "api_login_user_Read_filters",
+			"value": ""
+		},
+		{
+			"key": "api_password_user_Read_filters",
+			"value": ""
+		},
+		{
+			"key": "api_login_user_Nothing",
+			"value": ""
+		},
+		{
+			"key": "api_password_user_Nothing",
+			"value": ""
+		},
+		{
+			"key": "HostSeverity1Name",
+			"value": ""
+		},
+		{
+			"key": "HostSeverity1Alias",
+			"value": ""
+		},
+		{
+			"key": "HostSeverity1Id",
+			"value": ""
+		},
+		{
+			"key": "HostSeverity4Name",
+			"value": ""
+		},
+		{
+			"key": "HostSeverity4Alias",
+			"value": ""
+		},
+		{
+			"key": "HostSeverity4Id",
+			"value": ""
+		},
+		{
+			"key": "ACLResources",
+			"value": ""
+		},
+		{
+			"key": "HostSeverity5Name",
+			"value": ""
+		},
+		{
+			"key": "HostSeverity5Alias",
+			"value": ""
+		},
+		{
+			"key": "HostSeverity5Id",
+			"value": ""
 		}
 	]
 }

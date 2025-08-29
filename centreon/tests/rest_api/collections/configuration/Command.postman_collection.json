@@ -1,10 +1,9 @@
 {
 	"info": {
-		"_postman_id": "f853286c-c341-4231-b868-3d9d7dac80dd",
+		"_postman_id": "19162b9b-7ae0-4e30-a0ed-1a537d082fc6",
 		"name": "Command",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "16182525",
-		"_collection_link": "https://centreon-api-v2-configuration.postman.co/workspace/API-v2~d8660f05-3c64-4c5b-af73-1a5543bff4e1/collection/16182525-f853286c-c341-4231-b868-3d9d7dac80dd?action=share&source=collection_link&creator=16182525"
+		"_exporter_id": "16182525"
 	},
 	"item": [
 		{
@@ -1465,7 +1464,8 @@
 									"pm.collectionVariables.set(\"Command1Name\", \"command_1\");\r",
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -1508,9 +1508,69 @@
 									"        \"id\": 1, \r",
 									"        \"name\": 'Default_Graph'\r",
 									"    });\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation for the command response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": \"object\",\r",
+									"        \"properties\": {\r",
+									"            \"id\": { \"type\": \"integer\" },\r",
+									"            \"name\": { \"type\": \"string\" },\r",
+									"            \"type\": { \"type\": \"integer\" },\r",
+									"            \"command_line\": { \"type\": \"string\" },\r",
+									"            \"is_shell\": { \"type\": \"boolean\" },\r",
+									"            \"is_activated\": { \"type\": \"boolean\" },\r",
+									"            \"is_locked\": { \"type\": \"boolean\" },\r",
+									"            \"argument_example\": { \"type\": \"string\" },\r",
+									"            \"arguments\": {\r",
+									"                \"type\": \"array\",\r",
+									"                \"items\": {\r",
+									"                    \"type\": \"object\",\r",
+									"                    \"properties\": {\r",
+									"                        \"name\": { \"type\": \"string\" },\r",
+									"                        \"description\": { \"type\": \"string\" }\r",
+									"                    },\r",
+									"                    \"required\": [\"name\", \"description\"]\r",
+									"                }\r",
+									"            },\r",
+									"            \"macros\": {\r",
+									"                \"type\": \"array\",\r",
+									"                \"items\": {\r",
+									"                    \"type\": \"object\",\r",
+									"                    \"properties\": {\r",
+									"                        \"name\": { \"type\": \"string\" },\r",
+									"                        \"type\": { \"type\": \"string\" },\r",
+									"                        \"description\": { \"type\": \"string\" }\r",
+									"                    },\r",
+									"                    \"required\": [\"name\", \"type\", \"description\"]\r",
+									"                }\r",
+									"            },\r",
+									"            \"connector\": {\r",
+									"                \"type\": \"object\",\r",
+									"                \"properties\": {\r",
+									"                    \"id\": { \"type\": \"integer\" },\r",
+									"                    \"name\": { \"type\": \"string\" }\r",
+									"                },\r",
+									"                \"required\": [\"id\", \"name\"]\r",
+									"            },\r",
+									"            \"grap_template\": {\r",
+									"                \"type\": \"object\",\r",
+									"                \"properties\": {\r",
+									"                    \"id\": { \"type\": \"integer\" },\r",
+									"                    \"name\": { \"type\": \"string\" }\r",
+									"                },\r",
+									"                \"required\": [\"id\", \"name\"]\r",
+									"            }\r",
+									"                        \r",
+									"        },\r",
+									"        \"required\": [\"id\", \"name\", \"type\", \"command_line\", \"is_shell\", \"is_activated\", \"is_locked\", \"argument_example\", \"arguments\", \"macros\", \"connector\", \"grap_template\"]\r",
+									"    };\r",
+									"    \r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
 									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -1549,7 +1609,8 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -1562,9 +1623,23 @@
 									"\r",
 									"    pm.expect(responseJson.message).to.eql(\"[name] Boolean value found, but a string is required\\n[type] String value found, but an integer is required\\n[command_line] Integer value found, but a string is required\\n[argument_example] Integer value found, but a null or a string is required\\n[arguments[0].name] Integer value found, but a string is required\\n[arguments[0].description] Boolean value found, but a null or a string is required\\n[macros[0].name] Integer value found, but a string is required\\n[macros[0].type] String value found, but an integer is required\\n[macros[0].description] Boolean value found, but a null or a string is required\\n[connector_id] String value found, but a null or an integer is required\\n[graph_template_id] Boolean value found, but a null or an integer is required\\n\");\r",
 									"});\r",
+									"\r",
+									"pm.test(\"Schema validation test for the command response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": 'object',\r",
+									"        \"properties\": {\r",
+									"            \"code\": { \"type\": 'integer' },\r",
+									"            \"message\": { \"type\": 'string' }\r",
+									"        },\r",
+									"        \"required\": ['code', 'message']\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});\r",
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -1603,7 +1678,8 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -1616,9 +1692,23 @@
 									"\r",
 									"    pm.expect(responseJson.message).to.eql(\"[name] The property name is required\\n\");\r",
 									"});\r",
+									"\r",
+									"pm.test(\"Schema validation test for the command response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": 'object',\r",
+									"        \"properties\": {\r",
+									"            \"code\": { \"type\": 'integer' },\r",
+									"            \"message\": { \"type\": 'string' }\r",
+									"        },\r",
+									"        \"required\": ['code', 'message']\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});\r",
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -1657,7 +1747,8 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -1670,9 +1761,23 @@
 									"\r",
 									"    pm.expect(responseJson.message).to.eql(\"[type] The property type is required\\n\");\r",
 									"});\r",
+									"\r",
+									"pm.test(\"Schema validation test for the command response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": 'object',\r",
+									"        \"properties\": {\r",
+									"            \"code\": { \"type\": 'integer' },\r",
+									"            \"message\": { \"type\": 'string' }\r",
+									"        },\r",
+									"        \"required\": ['code', 'message']\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});\r",
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -1711,7 +1816,8 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -1724,9 +1830,23 @@
 									"\r",
 									"    pm.expect(responseJson.message).to.eql(\"[command_line] The property command_line is required\\n\");\r",
 									"});\r",
+									"\r",
+									"pm.test(\"Schema validation test for the command response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": 'object',\r",
+									"        \"properties\": {\r",
+									"            \"code\": { \"type\": 'integer' },\r",
+									"            \"message\": { \"type\": 'string' }\r",
+									"        },\r",
+									"        \"required\": ['code', 'message']\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});\r",
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -1765,7 +1885,8 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -1778,9 +1899,23 @@
 									"\r",
 									"    pm.expect(responseJson.message).to.eql(\"[NewCommand::commandLine] The string is empty, but non empty string was expected\");\r",
 									"});\r",
+									"\r",
+									"pm.test(\"Schema validation test for the command response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": 'object',\r",
+									"        \"properties\": {\r",
+									"            \"code\": { \"type\": 'integer' },\r",
+									"            \"message\": { \"type\": 'string' }\r",
+									"        },\r",
+									"        \"required\": ['code', 'message']\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});\r",
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -1819,7 +1954,8 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -1832,9 +1968,23 @@
 									"\r",
 									"    pm.expect(responseJson.message).to.eql(\"[NewCommand::name] The string is empty, but non empty string was expected\");\r",
 									"});\r",
+									"\r",
+									"pm.test(\"Schema validation test for the command response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": 'object',\r",
+									"        \"properties\": {\r",
+									"            \"code\": { \"type\": 'integer' },\r",
+									"            \"message\": { \"type\": 'string' }\r",
+									"        },\r",
+									"        \"required\": ['code', 'message']\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});\r",
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -1897,9 +2047,49 @@
 									"        \"is_activated\": true\r",
 									"    });\r",
 									"\r",
-									"})"
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation for the command response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": \"object\",\r",
+									"        \"properties\": {\r",
+									"            \"result\": {\r",
+									"                \"type\": \"array\",\r",
+									"                \"items\": {\r",
+									"                    \"type\": \"object\",\r",
+									"                    \"properties\": {\r",
+									"                        \"id\": { \"type\": \"integer\" },\r",
+									"                        \"name\": { \"type\": \"string\" },\r",
+									"                        \"type\": { \"type\": \"integer\" },\r",
+									"                        \"command_line\": { \"type\": \"string\" },\r",
+									"                        \"is_shell\": { \"type\": \"boolean\" },\r",
+									"                        \"is_activated\": { \"type\": \"boolean\" },\r",
+									"                        \"is_locked\": { \"type\": \"boolean\" }                                    \r",
+									"                    },\r",
+									"                    \"required\": [\"id\", \"name\", \"type\", \"command_line\", \"is_shell\", \"is_activated\", \"is_locked\"]\r",
+									"                }\r",
+									"            },\r",
+									"            \"meta\": {\r",
+									"                \"type\": \"object\",\r",
+									"                \"properties\": {\r",
+									"                    \"page\": { \"type\": \"integer\" },\r",
+									"                    \"limit\": { \"type\": \"integer\" },\r",
+									"                    \"search\": { \"type\": \"object\" },\r",
+									"                    \"sort_by\": { \"type\": \"object\" },\r",
+									"                    \"total\": { \"type\": \"integer\" }\r",
+									"                },\r",
+									"                \"required\": [\"page\", \"limit\", \"search\", \"sort_by\", \"total\"]\r",
+									"            }\r",
+									"        },\r",
+									"        \"required\": [\"result\", \"meta\"]\r",
+									"    }\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});\r",
+									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -2111,9 +2301,49 @@
 									"        \"is_activated\": true\r",
 									"    });\r",
 									"\r",
-									"})"
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation for the command response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": \"object\",\r",
+									"        \"properties\": {\r",
+									"            \"result\": {\r",
+									"                \"type\": \"array\",\r",
+									"                \"items\": {\r",
+									"                    \"type\": \"object\",\r",
+									"                    \"properties\": {\r",
+									"                        \"id\": { \"type\": \"integer\" },\r",
+									"                        \"name\": { \"type\": \"string\" },\r",
+									"                        \"type\": { \"type\": \"integer\" },\r",
+									"                        \"command_line\": { \"type\": \"string\" },\r",
+									"                        \"is_shell\": { \"type\": \"boolean\" },\r",
+									"                        \"is_activated\": { \"type\": \"boolean\" },\r",
+									"                        \"is_locked\": { \"type\": \"boolean\" }                                    \r",
+									"                    },\r",
+									"                    \"required\": [\"id\", \"name\", \"type\", \"command_line\", \"is_shell\", \"is_activated\", \"is_locked\"]\r",
+									"                }\r",
+									"            },\r",
+									"            \"meta\": {\r",
+									"                \"type\": \"object\",\r",
+									"                \"properties\": {\r",
+									"                    \"page\": { \"type\": \"integer\" },\r",
+									"                    \"limit\": { \"type\": \"integer\" },\r",
+									"                    \"search\": { \"type\": \"object\" },\r",
+									"                    \"sort_by\": { \"type\": \"object\" },\r",
+									"                    \"total\": { \"type\": \"integer\" }\r",
+									"                },\r",
+									"                \"required\": [\"page\", \"limit\", \"search\", \"sort_by\", \"total\"]\r",
+									"            }\r",
+									"        },\r",
+									"        \"required\": [\"result\", \"meta\"]\r",
+									"    }\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});\r",
+									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -2171,21 +2401,22 @@
 									"pm.collectionVariables.set(\"Command2Name\", \"command_2\");\r",
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
 							"listen": "test",
 							"script": {
 								"exec": [
+									"const responseJson = pm.response.json();\r",
 									"pm.test(\"The command has been successfully created, with name '\" + pm.collectionVariables.get(\"Command2Name\") + \"'.\", function () {\r",
 									"    pm.response.to.have.status(201);\r",
 									"\r",
 									"    // Creation of a variable with the ID of the new command \r",
-									"    var response = JSON.parse(responseBody);\r",
-									"    pm.collectionVariables.set(\"Command2Id\", response.id);\r",
+									"    pm.collectionVariables.set(\"Command2Id\", responseJson.id);\r",
 									"\r",
-									"    pm.expect(response).to.include({\r",
+									"    pm.expect(responseJson).to.include({\r",
 									"        \"id\": pm.collectionVariables.get(\"Command2Id\"),\r",
 									"        \"name\": pm.collectionVariables.get(\"Command2Name\"),\r",
 									"        \"type\": 4,\r",
@@ -2195,26 +2426,86 @@
 									"        \"is_locked\": false,\r",
 									"        \"argument_example\": \"abcbbbbcccc\"\r",
 									"    });\r",
-									"    pm.expect(response.arguments[0]).to.include({\r",
+									"    pm.expect(responseJson.arguments[0]).to.include({\r",
 									"        \"name\": \"ARG465\", \r",
 									"        \"description\": \"I'm a wonderful argument\"\r",
 									"    });\r",
-									"    pm.expect(response.macros[0]).to.include({\r",
+									"    pm.expect(responseJson.macros[0]).to.include({\r",
 									"        \"name\": \"twixou\", \r",
 									"        \"type\": '2', \r",
 									"        \"description\": \"Such a beautiful cat\"\r",
 									"    });\r",
-									"    pm.expect(response.connector).to.include({\r",
+									"    pm.expect(responseJson.connector).to.include({\r",
 									"        \"id\": 1, \r",
 									"        \"name\": 'Perl Connector'\r",
 									"    });\r",
-									"    pm.expect(response.grap_template).to.include({\r",
+									"    pm.expect(responseJson.grap_template).to.include({\r",
 									"        \"id\": 5, \r",
 									"        \"name\": 'CPU'\r",
 									"    });\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation for the command response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": \"object\",\r",
+									"        \"properties\": {\r",
+									"            \"id\": { \"type\": \"integer\" },\r",
+									"            \"name\": { \"type\": \"string\" },\r",
+									"            \"type\": { \"type\": \"integer\" },\r",
+									"            \"command_line\": { \"type\": \"string\" },\r",
+									"            \"is_shell\": { \"type\": \"boolean\" },\r",
+									"            \"is_activated\": { \"type\": \"boolean\" },\r",
+									"            \"is_locked\": { \"type\": \"boolean\" },\r",
+									"            \"argument_example\": { \"type\": \"string\" },\r",
+									"            \"arguments\": {\r",
+									"                \"type\": \"array\",\r",
+									"                \"items\": {\r",
+									"                    \"type\": \"object\",\r",
+									"                    \"properties\": {\r",
+									"                        \"name\": { \"type\": \"string\" },\r",
+									"                        \"description\": { \"type\": \"string\" }\r",
+									"                    },\r",
+									"                    \"required\": [\"name\", \"description\"]\r",
+									"                }\r",
+									"            },\r",
+									"            \"macros\": {\r",
+									"                \"type\": \"array\",\r",
+									"                \"items\": {\r",
+									"                    \"type\": \"object\",\r",
+									"                    \"properties\": {\r",
+									"                        \"name\": { \"type\": \"string\" },\r",
+									"                        \"type\": { \"type\": \"string\" },\r",
+									"                        \"description\": { \"type\": \"string\" }\r",
+									"                    },\r",
+									"                    \"required\": [\"name\", \"type\", \"description\"]\r",
+									"                }\r",
+									"            },\r",
+									"            \"connector\": {\r",
+									"                \"type\": \"object\",\r",
+									"                \"properties\": {\r",
+									"                    \"id\": { \"type\": \"integer\" },\r",
+									"                    \"name\": { \"type\": \"string\" }\r",
+									"                },\r",
+									"                \"required\": [\"id\", \"name\"]\r",
+									"            },\r",
+									"            \"grap_template\": {\r",
+									"                \"type\": \"object\",\r",
+									"                \"properties\": {\r",
+									"                    \"id\": { \"type\": \"integer\" },\r",
+									"                    \"name\": { \"type\": \"string\" }\r",
+									"                },\r",
+									"                \"required\": [\"id\", \"name\"]\r",
+									"            }\r",
+									"                        \r",
+									"        },\r",
+									"        \"required\": [\"id\", \"name\", \"type\", \"command_line\", \"is_shell\", \"is_activated\", \"is_locked\", \"argument_example\", \"arguments\", \"macros\", \"connector\", \"grap_template\"]\r",
+									"    };\r",
+									"    \r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
 									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -2254,21 +2545,22 @@
 									"pm.collectionVariables.set(\"Command3Name\", \"command_3\");\r",
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
 							"listen": "test",
 							"script": {
 								"exec": [
+									"const responseJson = pm.response.json();\r",
 									"pm.test(\"The command has been successfully created, with name '\" + pm.collectionVariables.get(\"Command3Name\") + \"'.\", function () {\r",
 									"    pm.response.to.have.status(201);\r",
 									"\r",
 									"    // Creation of a variable with the ID of the new command \r",
-									"    var response = JSON.parse(responseBody);\r",
-									"    pm.collectionVariables.set(\"Command3Id\", response.id);\r",
+									"    pm.collectionVariables.set(\"Command3Id\", responseJson.id);\r",
 									"\r",
-									"    pm.expect(response).to.include({\r",
+									"    pm.expect(responseJson).to.include({\r",
 									"        \"id\": pm.collectionVariables.get(\"Command3Id\"),\r",
 									"        \"name\": pm.collectionVariables.get(\"Command3Name\"),\r",
 									"        \"type\": 3,\r",
@@ -2280,11 +2572,70 @@
 									"        \"connector\": null,\r",
 									"        \"grap_template\": null\r",
 									"    });\r",
-									"    pm.expect(response.arguments).to.be.an('Array').that.is.empty;\r",
-									"    pm.expect(response.macros).to.be.an('Array').that.is.empty;\r",
+									"    pm.expect(responseJson.arguments).to.be.an('Array').that.is.empty;\r",
+									"    pm.expect(responseJson.macros).to.be.an('Array').that.is.empty;\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation for the command response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": \"object\",\r",
+									"        \"properties\": {\r",
+									"            \"id\": { \"type\": \"integer\" },\r",
+									"            \"name\": { \"type\": \"string\" },\r",
+									"            \"type\": { \"type\": \"integer\" },\r",
+									"            \"command_line\": { \"type\": \"string\" },\r",
+									"            \"is_shell\": { \"type\": \"boolean\" },\r",
+									"            \"is_activated\": { \"type\": \"boolean\" },\r",
+									"            \"is_locked\": { \"type\": \"boolean\" },\r",
+									"            \"argument_example\": { \"type\": [ \"string\", \"null\" ] },\r",
+									"            \"arguments\": {\r",
+									"                \"type\": \"array\",\r",
+									"                \"items\": {\r",
+									"                    \"type\": \"object\",\r",
+									"                    \"properties\": {\r",
+									"                        \"name\": { \"type\": \"string\" },\r",
+									"                        \"description\": { \"type\": \"string\" }\r",
+									"                    },\r",
+									"                    \"required\": [\"name\", \"description\"]\r",
+									"                }\r",
+									"            },\r",
+									"            \"macros\": {\r",
+									"                \"type\": \"array\",\r",
+									"                \"items\": {\r",
+									"                    \"type\": \"object\",\r",
+									"                    \"properties\": {\r",
+									"                        \"name\": { \"type\": \"string\" },\r",
+									"                        \"type\": { \"type\": \"string\" },\r",
+									"                        \"description\": { \"type\": \"string\" }\r",
+									"                    },\r",
+									"                    \"required\": [\"name\", \"type\", \"description\"]\r",
+									"                }\r",
+									"            },\r",
+									"            \"connector\": {\r",
+									"                \"type\": [\"object\", \"null\"],\r",
+									"                \"properties\": {\r",
+									"                    \"id\": { \"type\": \"integer\" },\r",
+									"                    \"name\": { \"type\": \"string\" }\r",
+									"                }\r",
+									"            },\r",
+									"            \"grap_template\": {\r",
+									"                \"type\": [\"object\", \"null\"],\r",
+									"                \"properties\": {\r",
+									"                    \"id\": { \"type\": \"integer\" },\r",
+									"                    \"name\": { \"type\": \"string\" }\r",
+									"                },\r",
+									"                \"required\": [\"id\", \"name\"]\r",
+									"            }\r",
+									"                        \r",
+									"        },\r",
+									"        \"required\": [\"id\", \"name\", \"type\", \"command_line\", \"is_shell\", \"is_activated\", \"is_locked\", \"argument_example\", \"arguments\", \"macros\", \"connector\", \"grap_template\"]\r",
+									"    };\r",
+									"    \r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
 									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -2367,9 +2718,49 @@
 									"        \"is_activated\": true\r",
 									"    });\r",
 									"\r",
-									"})"
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation for the command response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": \"object\",\r",
+									"        \"properties\": {\r",
+									"            \"result\": {\r",
+									"                \"type\": \"array\",\r",
+									"                \"items\": {\r",
+									"                    \"type\": \"object\",\r",
+									"                    \"properties\": {\r",
+									"                        \"id\": { \"type\": \"integer\" },\r",
+									"                        \"name\": { \"type\": \"string\" },\r",
+									"                        \"type\": { \"type\": \"integer\" },\r",
+									"                        \"command_line\": { \"type\": \"string\" },\r",
+									"                        \"is_shell\": { \"type\": \"boolean\" },\r",
+									"                        \"is_activated\": { \"type\": \"boolean\" },\r",
+									"                        \"is_locked\": { \"type\": \"boolean\" }                                    \r",
+									"                    },\r",
+									"                    \"required\": [\"id\", \"name\", \"type\", \"command_line\", \"is_shell\", \"is_activated\", \"is_locked\"]\r",
+									"                }\r",
+									"            },\r",
+									"            \"meta\": {\r",
+									"                \"type\": \"object\",\r",
+									"                \"properties\": {\r",
+									"                    \"page\": { \"type\": \"integer\" },\r",
+									"                    \"limit\": { \"type\": \"integer\" },\r",
+									"                    \"search\": { \"type\": \"object\" },\r",
+									"                    \"sort_by\": { \"type\": \"object\" },\r",
+									"                    \"total\": { \"type\": \"integer\" }\r",
+									"                },\r",
+									"                \"required\": [\"page\", \"limit\", \"search\", \"sort_by\", \"total\"]\r",
+									"            }\r",
+									"        },\r",
+									"        \"required\": [\"result\", \"meta\"]\r",
+									"    }\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});\r",
+									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -2557,7 +2948,8 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -2570,9 +2962,23 @@
 									"\r",
 									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to add a command\");\r",
 									"});\r",
+									"\r",
+									"pm.test(\"Schema validation test for the command response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": 'object',\r",
+									"        \"properties\": {\r",
+									"            \"code\": { \"type\": 'integer' },\r",
+									"            \"message\": { \"type\": 'string' }\r",
+									"        },\r",
+									"        \"required\": ['code', 'message']\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});\r",
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -2655,9 +3061,49 @@
 									"        \"is_activated\": true\r",
 									"    });\r",
 									"\r",
-									"})"
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation for the command response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": \"object\",\r",
+									"        \"properties\": {\r",
+									"            \"result\": {\r",
+									"                \"type\": \"array\",\r",
+									"                \"items\": {\r",
+									"                    \"type\": \"object\",\r",
+									"                    \"properties\": {\r",
+									"                        \"id\": { \"type\": \"integer\" },\r",
+									"                        \"name\": { \"type\": \"string\" },\r",
+									"                        \"type\": { \"type\": \"integer\" },\r",
+									"                        \"command_line\": { \"type\": \"string\" },\r",
+									"                        \"is_shell\": { \"type\": \"boolean\" },\r",
+									"                        \"is_activated\": { \"type\": \"boolean\" },\r",
+									"                        \"is_locked\": { \"type\": \"boolean\" }                                    \r",
+									"                    },\r",
+									"                    \"required\": [\"id\", \"name\", \"type\", \"command_line\", \"is_shell\", \"is_activated\", \"is_locked\"]\r",
+									"                }\r",
+									"            },\r",
+									"            \"meta\": {\r",
+									"                \"type\": \"object\",\r",
+									"                \"properties\": {\r",
+									"                    \"page\": { \"type\": \"integer\" },\r",
+									"                    \"limit\": { \"type\": \"integer\" },\r",
+									"                    \"search\": { \"type\": \"object\" },\r",
+									"                    \"sort_by\": { \"type\": \"object\" },\r",
+									"                    \"total\": { \"type\": \"integer\" }\r",
+									"                },\r",
+									"                \"required\": [\"page\", \"limit\", \"search\", \"sort_by\", \"total\"]\r",
+									"            }\r",
+									"        },\r",
+									"        \"required\": [\"result\", \"meta\"]\r",
+									"    }\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});\r",
+									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -2845,7 +3291,8 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -2858,9 +3305,23 @@
 									"\r",
 									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to add a command\");\r",
 									"});\r",
+									"\r",
+									"pm.test(\"Schema validation test for the command response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": 'object',\r",
+									"        \"properties\": {\r",
+									"            \"code\": { \"type\": 'integer' },\r",
+									"            \"message\": { \"type\": 'string' }\r",
+									"        },\r",
+									"        \"required\": ['code', 'message']\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});\r",
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -2904,9 +3365,24 @@
 									"pm.test(\"The commands have not been  listed, because the user does have the corrects rights\", function () {\r",
 									"    pm.response.to.have.status(403);\r",
 									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to access commands\");\r",
-									"});"
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation test for the command response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": 'object',\r",
+									"        \"properties\": {\r",
+									"            \"code\": { \"type\": 'integer' },\r",
+									"            \"message\": { \"type\": 'string' }\r",
+									"        },\r",
+									"        \"required\": ['code', 'message']\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});\r",
+									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],

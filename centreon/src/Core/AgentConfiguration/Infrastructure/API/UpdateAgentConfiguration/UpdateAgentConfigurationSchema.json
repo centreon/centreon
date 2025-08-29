@@ -20,6 +20,15 @@
         "name": {
             "type": "string"
         },
+        "connection_mode": {
+            "type": "string",
+            "enum": [
+                "secure",
+                "no-tls",
+                "insecure"
+            ],
+            "default": "secure"
+        },
         "poller_ids": {
             "type": "array",
             "items": {

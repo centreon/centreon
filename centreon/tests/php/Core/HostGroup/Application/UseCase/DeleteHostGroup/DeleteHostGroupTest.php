@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -52,18 +52,13 @@ beforeEach(function (): void {
     );
 
     $this->testedHostGroup = new HostGroup(
-        $this->hostgroupId = 1,
-        'hg-name',
-        'hg-alias',
-        '',
-        '',
-        '',
-        null,
-        null,
-        null,
-        GeoCoords::fromString('-2,100'),
-        '',
-        true
+        id: $this->hostgroupId = 1,
+        name: 'hg-name',
+        alias: 'hg-alias',
+        iconId: null,
+        geoCoords: GeoCoords::fromString('-2,100'),
+        comment: '',
+        isActivated: true
     );
 });
 

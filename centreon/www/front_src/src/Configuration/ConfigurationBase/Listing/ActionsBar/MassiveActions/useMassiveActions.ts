@@ -6,7 +6,6 @@ import { ResponseError, useBulkResponse } from '@centreon/ui';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 
-import { configurationAtom } from '../../../../atoms';
 import { useDisable, useEnable } from '../../../api';
 import {
   resourcesToDeleteAtom,
@@ -15,6 +14,7 @@ import {
 } from '../../atoms';
 
 import { map, pick } from 'ramda';
+import { configurationAtom } from '../../../atoms';
 import {
   labelFailedToDisableResources,
   labelFailedToDisableSomeResources,

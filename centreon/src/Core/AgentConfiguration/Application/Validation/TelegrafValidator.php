@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,14 +50,14 @@ class TelegrafValidator implements TypeValidatorInterface
         /** @var _TelegrafParameters $configuration */
         $configuration = $request->configuration;
         foreach ($configuration as $key => $value) {
-            if (
-                (
-                    str_ends_with($key, '_certificate')
-                    || str_ends_with($key, '_key')
-                )
-                && 1 === preg_match('/\.\/|\.\.\/|\.cert$|\.crt$|\.key$/', (string) $value)
-            ) {
-                throw AgentConfigurationException::invalidFilename("configuration.{$key}", (string) $value);
+            if (str_ends_with($key, '_certificate') && (is_string($value) || is_null($value))) {
+                if (1 === preg_match('/\.\/|\.\.\/|\/\/|^(?!.*\.(cer|crt)$).+$/', (string) $value)) {
+                    throw AgentConfigurationException::invalidFilename("configuration.{$key}", (string) $value);
+                }
+            } elseif (str_ends_with($key, '_key') && (is_string($value) || is_null($value))) {
+                if (1 === preg_match('/\.\/|\.\.\/|\/\/|^(?!.*\.key$).+$/', (string) $value)) {
+                    throw AgentConfigurationException::invalidFilename("configuration.{$key}", (string) $value);
+                }
             }
         }
     }

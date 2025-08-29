@@ -25,10 +25,10 @@ namespace Core\Dashboard\Application\UseCase\FindDashboardContacts;
 
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
-use Centreon\Domain\Repository\RepositoryException;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ResponseStatusInterface;
+use Core\Common\Domain\Exception\RepositoryException;
 use Core\Contact\Application\Repository\ReadContactGroupRepositoryInterface;
 use Core\Contact\Application\Repository\ReadContactRepositoryInterface;
 use Core\Dashboard\Application\Exception\DashboardException;
@@ -141,7 +141,7 @@ final class FindDashboardContacts
             $this->requestParameters
         );
 
-        if ($this->isCloudPlatform === false ) {
+        if ($this->isCloudPlatform === false) {
             $total = $this->requestParameters->getTotal();
             $admins = $this->readContactRepository->findAdminWithRequestParameters(
                 $this->requestParameters

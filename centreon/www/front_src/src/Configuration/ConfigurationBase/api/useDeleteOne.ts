@@ -2,7 +2,7 @@ import { useQueryClient } from '@tanstack/react-query';
 
 import { Method, ResponseError, useMutationQuery } from '@centreon/ui';
 import { useAtomValue } from 'jotai';
-import { configurationAtom } from '../../atoms';
+import { configurationAtom } from '../atoms';
 
 interface UseDeleteOneProps {
   deleteOneMutation: ({ id }) => Promise<object | ResponseError>;
@@ -13,13 +13,13 @@ const useDeleteOne = (): UseDeleteOneProps => {
   const queryClient = useQueryClient();
 
   const configuration = useAtomValue(configurationAtom);
-  const endpoint = configuration?.api?.endpoints?.deleteOne;
+  const getEndpoint = configuration?.api?.endpoints?.deleteOne;
 
   const { isMutating, mutateAsync } = useMutationQuery({
-    getEndpoint: endpoint,
+    getEndpoint,
     method: Method.DELETE,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['listHostGroups'] });
+      queryClient.invalidateQueries({ queryKey: ['listResources'] });
     }
   });
 

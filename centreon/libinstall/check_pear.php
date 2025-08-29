@@ -1,45 +1,46 @@
 #!@PHP_BIN@
 <?php
+
 /*
- * Centreon is developed with GPL Licence 2.0:
- * http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt
- * Developed by: Julien Mathis - Romain Le Merlus
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
- * The Software is provided to you AS IS and WITH ALL FAULTS.
- * Centreon makes no representation and gives no warranty whatsoever,
- * whether express or implied, and without limitation, with regard to the quality,
- * any particular or intended purpose of the Software found on the Centreon website.
- * In no event will Centreon be liable for any direct, indirect, punitive, special,
- * incidental or consequential damages however they may arise and even if Centreon has
- * been previously advised of the possibility of such damages.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * For information: contact@centreon.com
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * Developer: Maximilien Bersoult
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * For more information : contact@centreon.com
  *
  */
 
-/*
- * Error Level
- */
+// Error Level
 error_reporting(E_ERROR | E_PARSE);
 
 function usage()
 {
-    print $argv[0] . " check|install [file]\n";
-    print "\tcheck\tcheck if the package list is installed\n";
-    print "\tupgrade\tupgrade the packages\n";
-    print "\tinstall\tinstall the packages\n";
+    echo $argv[0] . " check|install [file]\n";
+    echo "\tcheck\tcheck if the package list is installed\n";
+    echo "\tupgrade\tupgrade the packages\n";
+    echo "\tinstall\tinstall the packages\n";
 }
 
 function check_file($file)
 {
-    if (!file_exists($file)) {
+    if (! file_exists($file)) {
         fwrite(STDERR, "The file with the list of packages does not exist\n");
+
         exit(2);
     }
-    if (!is_readable($file)) {
+    if (! is_readable($file)) {
         fwrite(STDERR, "The file with the list of packages cannot be read\n");
+
         exit(2);
     }
 }
@@ -57,18 +58,19 @@ function get_list($file)
         $packages[] = $package;
     }
     fclose($fd);
-    return($packages);
+
+    return $packages;
 }
 
 function check($packages)
 {
-    $config =& PEAR_Config::singleton();
-    $reg =& $config->getRegistry();
+    $config = & PEAR_Config::singleton();
+    $reg = & $config->getRegistry();
     $ret = 0;
     foreach ($packages as $package) {
-        //echo "\033[s\033[1;37m" . $package['name'] . "\033[0m\033[33G\033[0;37m" . $package['version'] . "\033[0m\033[45G";
+        // echo "\033[s\033[1;37m" . $package['name'] . "\033[0m\033[33G\033[0;37m" . $package['version'] . "\033[0m\033[45G";
         echo "\033[s" . $package['name'] . "\033[0m\033[33G" . $package['version'] . "\033[0m\033[45G";
-        $package_info =& $reg->getPackage($package['name']);
+        $package_info = & $reg->getPackage($package['name']);
         if (is_null($package_info)) {
             $ret = 1;
             echo "\033[u\033[60G\033[1;31mNOK\033[0m\n";
@@ -83,18 +85,19 @@ function check($packages)
             }
         }
     }
-    return($ret);
+
+    return $ret;
 }
 
 function install($packages)
 {
-    $config =& PEAR_Config::singleton();
-    $reg =& $config->getRegistry();
+    $config = & PEAR_Config::singleton();
+    $reg = & $config->getRegistry();
     PEAR_Command::setFrontendType('CLI');
     $cmd = PEAR_Command::factory('install', $config);
     $ret = 0;
     foreach ($packages as $package) {
-        if (!$reg->packageExists($package['name'])) {
+        if (! $reg->packageExists($package['name'])) {
             echo "\033[s" . $package['name'] . "\033[0m\033[33G" . $package['version'] . "\033[0m\033[45G";
             $name = $package['name'];
             if (isset($package['status'])) {
@@ -103,8 +106,8 @@ function install($packages)
             ob_start();
             $ok = $cmd->run('install', ['soft' => true, 'onlyreqdeps' => true], [$name]);
             ob_end_clean();
-            $package_info =& $reg->getPackage($package['name']);
-            if (!is_null($package_info)) {
+            $package_info = & $reg->getPackage($package['name']);
+            if (! is_null($package_info)) {
                 echo $package_info->getVersion();
                 echo "\033[u\033[60G\033[1;32mOK\033[0m\n";
             } else {
@@ -113,23 +116,24 @@ function install($packages)
             }
         }
     }
-    return($ret);
+
+    return $ret;
 }
 
 function upgrade($packages)
 {
-    $config =& PEAR_Config::singleton();
-    $reg =& $config->getRegistry();
+    $config = & PEAR_Config::singleton();
+    $reg = & $config->getRegistry();
     PEAR_Command::setFrontendType('CLI');
     $cmd = PEAR_Command::factory('install', $config);
     $ret = 0;
     foreach ($packages as $package) {
-        $package_info =& $reg->getPackage($package['name']);
+        $package_info = & $reg->getPackage($package['name']);
         if (is_null($package_info)) {
             continue;
         }
 
-        if ($package['name'] == "PEAR") {
+        if ($package['name'] == 'PEAR') {
             ob_start();
             $ok = $cmd->run('install', ['soft' => true, 'nodeps' => true, 'force' => true], [$package['name']]);
             ob_end_clean();
@@ -145,8 +149,8 @@ function upgrade($packages)
             ob_start();
             $ok = $cmd->run('install', ['soft' => true, 'onlyreqdeps' => true, 'upgrade' => true], [$name]);
             ob_end_clean();
-            $package_info =& $reg->getPackage($package['name']);
-            if (!is_null($package_info)) {
+            $package_info = & $reg->getPackage($package['name']);
+            if (! is_null($package_info)) {
                 echo $package_info->getVersion();
                 echo "\033[u\033[60G\033[1;32mOK\033[0m\n";
             } else {
@@ -160,6 +164,7 @@ function upgrade($packages)
 if (count($argv) < 2 || count($argv) > 3) {
     fwrite(STDERR, "Incorrect number of arguments\n");
     usage();
+
     exit(2);
 }
 
@@ -168,9 +173,9 @@ check_file($file);
 
 $packages = get_list($file);
 
-require_once('PEAR.php');
-require_once('PEAR/Config.php');
-require_once('PEAR/Command.php');
+require_once 'PEAR.php';
+require_once 'PEAR/Config.php';
+require_once 'PEAR/Command.php';
 
 $ret = 0;
 
@@ -187,8 +192,8 @@ switch ($argv[1]) {
     default:
         fwrite(STDERR, "Incorrect argument\n");
         usage();
+
         exit(2);
 }
 
 exit($ret);
-?>

@@ -1,13 +1,13 @@
-import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
+import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
 import {
   checkHostsAreMonitored,
   checkServicesAreMonitored
 } from '../../../commons';
-import dashboardAdministratorUser from '../../../fixtures/users/user-dashboard-administrator.json';
 import dashboards from '../../../fixtures/dashboards/creation/dashboards.json';
-import genericTextWidgets from '../../../fixtures/dashboards/creation/widgets/genericText.json';
 import groupMonitoringwidget from '../../../fixtures/dashboards/creation/widgets/dashboardWithGroupMonitoringWidget.json';
+import genericTextWidgets from '../../../fixtures/dashboards/creation/widgets/genericText.json';
+import dashboardAdministratorUser from '../../../fixtures/users/user-dashboard-administrator.json';
 
 const hostGroupName = 'Linux-Servers';
 
@@ -155,11 +155,11 @@ beforeEach(() => {
   }).as('listAllDashboards');
   cy.intercept({
     method: 'POST',
-    url: `/centreon/api/latest/configuration/dashboards/*/access_rights/contacts`
+    url: '/centreon/api/latest/configuration/dashboards/*/access_rights/contacts'
   }).as('addContactToDashboardShareList');
   cy.intercept({
     method: 'PATCH',
-    url: `/centreon/api/latest/configuration/dashboards/*`
+    url: '/centreon/api/latest/configuration/dashboards/*'
   }).as('updateDashboard');
   cy.intercept({
     method: 'GET',
@@ -199,7 +199,7 @@ When(
   () => {
     cy.get('*[class^="react-grid-layout"]').children().should('have.length', 0);
     cy.getByTestId({ testId: 'edit_dashboard' }).click();
-    cy.getByTestId({ testId: 'AddIcon' }).should('have.length', 1).click();
+    cy.contains('div[class*="-addWidgetPanel"] h5', 'Add a widget').click();
   }
 );
 
@@ -334,10 +334,9 @@ Given('a dashboard featuring two group monitoring widgets', () => {
 });
 
 When('the dashboard administrator user deletes one of the widgets', () => {
-  cy.getByTestId({ testId: 'DeleteIcon' }).click();
   cy.getByLabel({
-    label: 'Delete',
-    tag: 'button'
+    label: 'Delete widget',
+    tag: 'li'
   }).realClick();
 });
 
@@ -365,14 +364,14 @@ Given('a dashboard having a configured group monitoring widget', () => {
 When(
   'the dashboard administrator user duplicates the group monitoring widget',
   () => {
-    cy.getByTestId({ testId: 'RefreshIcon' }).should('be.visible');
-    cy.getByTestId({ testId: 'RefreshIcon' }).click();
+    cy.getByTestId({ testId: 'refresh' }).should('be.visible');
+    cy.getByTestId({ testId: 'refresh' }).click();
     cy.getByLabel({
       label: 'Edit dashboard',
       tag: 'button'
     }).click();
-    cy.getByTestId({ testId: 'MoreHorizIcon' }).click();
-    cy.getByTestId({ testId: 'ContentCopyIcon' }).click({ force: true });
+    cy.getByTestId({ testId: 'More actions' }).click();
+    cy.getByTestId({ testId: 'Duplicate' }).click({ force: true });
   }
 );
 
@@ -407,7 +406,6 @@ Given('a dashboard configuring group monitoring widget', () => {
 When(
   'the dashboard administrator user updates the displayed resource type of the widget',
   () => {
-    cy.getByTestId({ testId: 'ExpandMoreIcon' }).eq(0).click();
     cy.get('input[name="host"].PrivateSwitchBase-input').click();
   }
 );
@@ -441,7 +439,7 @@ When('the dashboard administrator clicks on a random resource', () => {
   cy.contains('a', 'Linux-Servers')
     .should('have.attr', 'href')
     .then((href) => {
-      cy.visit(href);
+      cy.visit(href.toString());
     });
 });
 

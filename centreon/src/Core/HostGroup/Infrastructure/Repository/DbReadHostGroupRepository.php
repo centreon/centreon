@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,12 +47,7 @@ use Utility\SqlConcatenator;
  *     hg_id: int,
  *     hg_name: string,
  *     hg_alias: ?string,
- *     hg_notes: ?string,
- *     hg_notes_url: ?string,
- *     hg_action_url: ?string,
  *     hg_icon_image: ?int,
- *     hg_map_icon_image: ?int,
- *     hg_rrd_retention: ?int,
  *     geo_coords: ?string,
  *     hg_comment: ?string,
  *     hg_activate: '0'|'1'
@@ -60,7 +55,9 @@ use Utility\SqlConcatenator;
  */
 class DbReadHostGroupRepository extends AbstractRepositoryDRB implements ReadHostGroupRepositoryInterface
 {
-    use SqlMultipleBindTrait, HostCategoryRepositoryTrait, HostGroupRepositoryTrait;
+    use SqlMultipleBindTrait;
+    use HostCategoryRepositoryTrait;
+    use HostGroupRepositoryTrait;
 
     public function __construct(DatabaseConnection $db)
     {
@@ -113,12 +110,7 @@ class DbReadHostGroupRepository extends AbstractRepositoryDRB implements ReadHos
                 hg.hg_id,
                 hg.hg_name,
                 hg.hg_alias,
-                hg.hg_notes,
-                hg.hg_notes_url,
-                hg.hg_action_url,
                 hg.hg_icon_image,
-                hg.hg_map_icon_image,
-                hg.hg_rrd_retention,
                 hg.geo_coords,
                 hg.hg_comment,
                 hg.hg_activate
@@ -198,12 +190,7 @@ class DbReadHostGroupRepository extends AbstractRepositoryDRB implements ReadHos
                 hg.hg_id,
                 hg.hg_name,
                 hg.hg_alias,
-                hg.hg_notes,
-                hg.hg_notes_url,
-                hg.hg_action_url,
                 hg.hg_icon_image,
-                hg.hg_map_icon_image,
-                hg.hg_rrd_retention,
                 hg.geo_coords,
                 hg.hg_comment,
                 hg.hg_activate
@@ -306,9 +293,7 @@ class DbReadHostGroupRepository extends AbstractRepositoryDRB implements ReadHos
         }
 
         $accessGroupIds = $this->accessGroupsToIds($accessGroups);
-
         if ($this->hasAccessToAllHostGroups($accessGroupIds)) {
-
             return $this->findOne($hostGroupId);
         }
         $concatenator = $this->getFindHostGroupConcatenator(null, $accessGroupIds);
@@ -478,12 +463,7 @@ class DbReadHostGroupRepository extends AbstractRepositoryDRB implements ReadHos
                 hg.hg_id,
                 hg.hg_name,
                 hg.hg_alias,
-                hg.hg_notes,
-                hg.hg_notes_url,
-                hg.hg_action_url,
                 hg.hg_icon_image,
-                hg.hg_map_icon_image,
-                hg.hg_rrd_retention,
                 hg.geo_coords,
                 hg.hg_comment,
                 hg.hg_activate
@@ -647,12 +627,7 @@ class DbReadHostGroupRepository extends AbstractRepositoryDRB implements ReadHos
                         hg.hg_id,
                         hg.hg_name,
                         hg.hg_alias,
-                        hg.hg_notes,
-                        hg.hg_notes_url,
-                        hg.hg_action_url,
                         hg.hg_icon_image,
-                        hg.hg_map_icon_image,
-                        hg.hg_rrd_retention,
                         hg.geo_coords,
                         hg.hg_comment,
                         hg.hg_activate
@@ -895,21 +870,16 @@ class DbReadHostGroupRepository extends AbstractRepositoryDRB implements ReadHos
     private function createHostGroupFromArray(array $result): HostGroup
     {
         return new HostGroup(
-            $result['hg_id'],
-            $result['hg_name'],
-            (string) $result['hg_alias'],
-            (string) $result['hg_notes'],
-            (string) $result['hg_notes_url'],
-            (string) $result['hg_action_url'],
-            $result['hg_icon_image'],
-            $result['hg_map_icon_image'],
-            $result['hg_rrd_retention'],
-            match ($geoCoords = $result['geo_coords']) {
+            id: $result['hg_id'],
+            name: $result['hg_name'],
+            alias : (string) $result['hg_alias'],
+            iconId: $result['hg_icon_image'],
+            geoCoords: match ($geoCoords = $result['geo_coords']) {
                 null, '' => null,
                 default => GeoCoords::fromString($geoCoords),
             },
-            (string) $result['hg_comment'],
-            (bool) $result['hg_activate'],
+            comment: (string) $result['hg_comment'],
+            isActivated: (bool) $result['hg_activate'],
         );
     }
 

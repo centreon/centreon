@@ -28,14 +28,12 @@ module.exports = ({
         addMatchImageSnapshotPlugin(on, config);
 
         cypressCodeCoverageTask(on, config);
-        on('task', {
-          coverageReport: () => {
-            return null;
-          }
-        });
 
         on('before:browser:launch', (browser, launchOptions) => {
-          if (browser.name === 'chrome' && browser.isHeadless) {
+          if (
+            ['chrome', 'chromium'].includes(browser.name) &&
+            browser.isHeadless
+          ) {
             launchOptions.args.push('--headless=new');
             launchOptions.args.push('--force-color-profile=srgb');
             launchOptions.args.push('--window-size=1400,1200');

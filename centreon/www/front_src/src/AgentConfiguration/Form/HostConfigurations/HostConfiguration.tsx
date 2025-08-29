@@ -8,14 +8,19 @@ import { Box } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { hostsConfigurationEndpoint } from '../../api/endpoints';
 import { HostConfiguration as HostConfigurationModel } from '../../models';
-import {
-  labelAddHost,
-  labelCaCertificate,
-  labelCertificate,
-  labelDNSIP,
-  labelPort
-} from '../../translatedLabels';
+
+import RedirectToTokensPage from '../RedirectToTokensPage';
 import { useHostConfiguration } from './useHostConfiguration';
+
+import CMATokens from './CMATokenField';
+
+import {
+  labelCACommonName,
+  labelCaCertificate,
+  labelDNSIP,
+  labelPort,
+  labelSelectHost
+} from '../../translatedLabels';
 
 interface Props {
   index: number;
@@ -30,7 +35,10 @@ const HostConfiguration = ({ index, host }: Props): JSX.Element => {
     hostErrors,
     hostTouched,
     changePort,
-    changeStringInput
+    areCertificateFieldsVisible,
+    changeStringInput,
+    changeCMAToken,
+    token
   } = useHostConfiguration({
     index
   });
@@ -45,8 +53,8 @@ const HostConfiguration = ({ index, host }: Props): JSX.Element => {
       }}
     >
       <SingleConnectedAutocompleteField
-        label={t(labelAddHost)}
-        value={null}
+        required
+        label={t(labelSelectHost)}
         onChange={selectHost}
         getEndpoint={(parameters) =>
           buildListingEndpoint({
@@ -54,9 +62,8 @@ const HostConfiguration = ({ index, host }: Props): JSX.Element => {
             parameters
           })
         }
-        fieldName="name"
+        value={{ id: host.id, name: host.name }}
       />
-      <div />
       <TextField
         required
         value={host.address}
@@ -89,42 +96,53 @@ const HostConfiguration = ({ index, host }: Props): JSX.Element => {
           }
         }}
       />
-      <TextField
-        value={host?.pollerCaCertificate || ''}
-        onChange={changeStringInput('pollerCaCertificate')}
-        label={t(labelCertificate)}
-        dataTestId={labelCertificate}
-        textFieldSlotsAndSlotProps={{
-          slotProps: {
-            htmlInput: {
-              'aria-label': labelCertificate
+
+      {areCertificateFieldsVisible && (
+        <>
+          <TextField
+            value={host?.pollerCaCertificate || ''}
+            onChange={changeStringInput('pollerCaCertificate')}
+            label={t(labelCaCertificate)}
+            dataTestId={labelCaCertificate}
+            textFieldSlotsAndSlotProps={{
+              slotProps: {
+                htmlInput: {
+                  'aria-label': labelCaCertificate
+                }
+              }
+            }}
+            fullWidth
+            error={
+              (hostTouched?.pollerCaCertificate &&
+                hostErrors?.pollerCaCertificate) ||
+              undefined
             }
-          }
-        }}
-        fullWidth
-        error={
-          (hostTouched?.pollerCaCertificate &&
-            hostErrors?.pollerCaCertificate) ||
-          undefined
-        }
-      />
-      <TextField
-        value={host?.pollerCaName || ''}
-        onChange={changeStringInput('pollerCaName')}
-        label={t(labelCaCertificate)}
-        textFieldSlotsAndSlotProps={{
-          slotProps: {
-            htmlInput: {
-              'aria-label': labelCaCertificate
+          />
+
+          <TextField
+            value={host?.pollerCaName || ''}
+            onChange={changeStringInput('pollerCaName')}
+            label={t(labelCACommonName)}
+            textFieldSlotsAndSlotProps={{
+              slotProps: {
+                htmlInput: {
+                  'aria-label': labelCACommonName
+                }
+              }
+            }}
+            dataTestId={labelCACommonName}
+            fullWidth
+            error={
+              (hostTouched?.pollerCaName && hostErrors?.pollerCaName) ||
+              undefined
             }
-          }
-        }}
-        dataTestId={labelCaCertificate}
-        fullWidth
-        error={
-          (hostTouched?.pollerCaName && hostErrors?.pollerCaName) || undefined
-        }
-      />
+          />
+
+          <CMATokens changeCMAToken={changeCMAToken} value={token} />
+          <div />
+          <RedirectToTokensPage />
+        </>
+      )}
     </Box>
   );
 };

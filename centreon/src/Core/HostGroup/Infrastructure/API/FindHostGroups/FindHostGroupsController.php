@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,8 +42,7 @@ final class FindHostGroupsController extends AbstractController
 {
     public function __invoke(
         FindHostGroups $useCase,
-        StandardPresenter $presenter,
-        bool $isCloudPlatform,
+        StandardPresenter $presenter
     ): Response {
         $response = $useCase();
 
@@ -51,10 +50,6 @@ final class FindHostGroupsController extends AbstractController
             return $this->createResponse($response);
         }
 
-        return JsonResponse::fromJsonString($presenter->present(
-            $response,
-            ['groups' => [$isCloudPlatform ? 'HostGroup:List:Saas' : 'HostGroup:List:OnPrem'],
-            ]
-        ));
+        return JsonResponse::fromJsonString($presenter->present($response, ['groups' => ['HostGroup:List']]));
     }
 }

@@ -1,0 +1,61 @@
+parameters:
+	ignoreErrors:
+		-
+			message: '#^\[CENTREON\-RULE\]\: \(VariableLengthCustomRule\) i must contain 3 or more characters\.$#'
+			count: 19
+			path: www/modules/centreon-dsm/core/configuration/services/DB-Func.php
+
+		-
+			message: '#^\[CENTREON\-RULE\]\: \(VariableLengthCustomRule\) t must contain 3 or more characters\.$#'
+			count: 6
+			path: www/modules/centreon-dsm/core/configuration/services/DB-Func.php
+
+		-
+			message: '#^\[CENTREON\-RULE\]\: \(VariableLengthCustomRule\) o must contain 3 or more characters\.$#'
+			count: 13
+			path: www/modules/centreon-dsm/core/configuration/services/formSlot.php
+
+		-
+			message: '#^\[CENTREON\-RULE\]\: \(VariableLengthCustomRule\) p must contain 3 or more characters\.$#'
+			count: 3
+			path: www/modules/centreon-dsm/core/configuration/services/formSlot.php
+
+		-
+			message: '#^\[CENTREON\-RULE\]\: \(VariableLengthCustomRule\) i must contain 3 or more characters\.$#'
+			count: 3
+			path: www/modules/centreon-dsm/core/configuration/services/listSlot.php
+
+		-
+			message: '#^\[CENTREON\-RULE\]\: \(VariableLengthCustomRule\) o1 must contain 3 or more characters\.$#'
+			count: 3
+			path: www/modules/centreon-dsm/core/configuration/services/listSlot.php
+
+		-
+			message: '#^\[CENTREON\-RULE\]\: \(VariableLengthCustomRule\) o2 must contain 3 or more characters\.$#'
+			count: 3
+			path: www/modules/centreon-dsm/core/configuration/services/listSlot.php
+
+		-
+			message: '#^\[CENTREON\-RULE\]\: \(VariableLengthCustomRule\) p must contain 3 or more characters\.$#'
+			count: 6
+			path: www/modules/centreon-dsm/core/configuration/services/listSlot.php
+
+		-
+			message: '#^\[CENTREON\-RULE\]\: \(VariableLengthCustomRule\) rq must contain 3 or more characters\.$#'
+			count: 3
+			path: www/modules/centreon-dsm/core/configuration/services/listSlot.php
+
+		-
+			message: '#^\[CENTREON\-RULE\]\: \(VariableLengthCustomRule\) cG must contain 3 or more characters\.$#'
+			count: 6
+			path: www/modules/centreon-dsm/core/configuration/services/slots.php
+
+		-
+			message: '#^\[CENTREON\-RULE\]\: \(VariableLengthCustomRule\) cP must contain 3 or more characters\.$#'
+			count: 6
+			path: www/modules/centreon-dsm/core/configuration/services/slots.php
+
+		-
+			message: '#^\[CENTREON\-RULE\]\: \(VariableLengthCustomRule\) o must contain 3 or more characters\.$#'
+			count: 1
+			path: www/modules/centreon-dsm/core/configuration/services/slots.php

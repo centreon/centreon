@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -151,18 +151,18 @@ final class FindServices
                 ]
                 : null;
             $dto->hosts = array_map(
-                fn(int $hostId): array => ['id' => $hostId, 'name' => $hostNames?->getName($hostId) ?? ''],
+                fn (int $hostId): array => ['id' => $hostId, 'name' => $hostNames?->getName($hostId) ?? ''],
                 $service->getHostIds()
             );
             $dto->categories = $service->getCategoryIds() !== []
                 ? array_map(
-                    fn(int $categoryId): array => ['id' => $categoryId, 'name' => $categoryNames?->getName($categoryId) ?? ''],
+                    fn (int $categoryId): array => ['id' => $categoryId, 'name' => $categoryNames?->getName($categoryId) ?? ''],
                     $service->getCategoryIds()
                 )
                 : [];
             $dto->groups = $service->getGroups() !== []
                 ? array_map(
-                    fn(ServiceGroupRelation $sgRel): array => [
+                    fn (ServiceGroupRelation $sgRel): array => [
                         'id' => $sgRel->getServiceGroupId(),
                         'name' => $groupNames?->getName($sgRel->getServiceGroupId()) ?? '',
                         'hostId' => $sgRel->getHostId() ?? 0,

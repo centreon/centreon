@@ -1,0 +1,20 @@
+includes:
+    - ../php-tools/phpstan/config/common.neon
+
+parameters:
+
+    level: max
+
+    scanFiles:
+        - .php-cs-fixer.core.php
+        - .php-cs-fixer.legacy.php
+        - .php-cs-fixer.new.php
+        - castor.php
+        - rector.core.php
+        - rector.legacy.php
+        - rector.new.php
+
+    paths:
+        - config.new
+        - src/Adaptation
+        - src/App

@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -77,6 +77,9 @@ final class CustomConfiguration implements CustomConfigurationInterface, SAMLCus
 
     /** @var string */
     private string $userIdAttribute = '';
+
+    /** @var RequestedAuthnContextEnum */
+    private RequestedAuthnContextEnum $requestedAuthnContext;
 
     /** @var bool */
     private bool $logoutFrom = true;
@@ -156,6 +159,22 @@ final class CustomConfiguration implements CustomConfigurationInterface, SAMLCus
     public function setUserIdAttribute(string $value): void
     {
         $this->userIdAttribute = $value;
+    }
+
+    /**
+     * @return RequestedAuthnContextEnum
+     */
+    public function getRequestedAuthnContext(): RequestedAuthnContextEnum
+    {
+        return $this->requestedAuthnContext;
+    }
+
+    /**
+     * @param RequestedAuthnContextEnum $value
+     */
+    public function setRequestedAuthnContext(RequestedAuthnContextEnum $value): void
+    {
+        $this->requestedAuthnContext = $value;
     }
 
     /**
@@ -387,6 +406,7 @@ final class CustomConfiguration implements CustomConfigurationInterface, SAMLCus
 
         $this->setLogoutFromUrl($json['logout_from_url']);
         $this->setUserIdAttribute($json['user_id_attribute']);
+        $this->setRequestedAuthnContext(RequestedAuthnContextEnum::fromString($json['requested_authn_context']));
         $this->setAutoImportEnabled($json['auto_import']);
         $this->setUserNameBindAttribute($json['fullname_bind_attribute']);
         $this->setEmailBindAttribute($json['email_bind_attribute']);
@@ -421,16 +441,18 @@ final class CustomConfiguration implements CustomConfigurationInterface, SAMLCus
             'remote_login_url',
             'certificate',
             'user_id_attribute',
+            'requested_authn_context',
             'logout_from',
         ];
 
+        $emptyParameters = [];
         foreach ($mandatoryFields as $key) {
             if (! array_key_exists($key, $json)) {
                 $emptyParameters[] = $key;
             }
         }
 
-        if (! empty($emptyParameters)) {
+        if ($emptyParameters !== []) {
             throw ConfigurationException::missingMandatoryParameters($emptyParameters);
         }
 
@@ -474,7 +496,7 @@ final class CustomConfiguration implements CustomConfigurationInterface, SAMLCus
         if (empty($userNameBindAttribute)) {
             $missingMandatoryParameters[] = 'fullname_bind_attribute';
         }
-        if (! empty($missingMandatoryParameters)) {
+        if ($missingMandatoryParameters !== []) {
             throw ConfigurationException::missingAutoImportMandatoryParameters(
                 $missingMandatoryParameters
             );

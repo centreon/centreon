@@ -13,9 +13,13 @@ import {
   QueryParameter,
   buildListingEndpoint
 } from '@centreon/ui';
-import { getFormattedResources } from '../../../../utils';
 import { Resource } from '../../../models';
-import { formatBAStatus, formatStatus } from '../../../utils';
+import {
+  buildResourceTypeNameForSearchParameter,
+  formatBAStatus,
+  formatStatus,
+  isResourceString
+} from '../../../utils';
 
 export const resourcesEndpoint = '/monitoring/resources';
 export const hostsEndpoint = '/monitoring/resources/hosts';
@@ -68,9 +72,7 @@ export const getListingCustomQueryParameters = ({
   states,
   resources
 }: GetCustomQueryParametersProps): Array<QueryParameter> => {
-  const formattedResources = getFormattedResources({ array: resources });
-
-  const resourcesToApplyToCustomParameters = formattedResources.filter(
+  const resourcesToApplyToCustomParameters = resources.filter(
     ({ resourceType }) => includes(resourceType, resourceTypesCustomParameters)
   );
 
@@ -106,9 +108,10 @@ export const getListingQueryParameters = ({
   limit,
   page
 }: GetListingQueryParametersProps): ListingParameters => {
-  const formattedResources = getFormattedResources({ array: resources });
-  const resourcesToApplyToSearchParameters = formattedResources.filter(
-    ({ resourceType }) => includes(resourceType, resourceTypesSearchParameters)
+  const resourcesToApplyToSearchParameters = resources.filter(
+    ({ resourceType, resources: resourcesToApply }) =>
+      includes(resourceType, resourceTypesSearchParameters) &&
+      !isResourceString(resourcesToApply)
   );
 
   const searchConditions = resourcesToApplyToSearchParameters.map(
@@ -116,17 +119,31 @@ export const getListingQueryParameters = ({
       return resourcesToApply.map((resource) => ({
         field: resourcesSearchMapping[resourceType],
         values: {
-          $rg: `^${resource.name}$`.replace('/', '\\/')
+          $rg: `^${resource.name}$`
         }
       }));
     }
   );
 
-  const search = isEmpty(flatten(searchConditions))
+  const resourcesWithRegexConditions = resources
+    .filter((resource) => isResourceString(resource.resources))
+    .map((resource) => ({
+      field: buildResourceTypeNameForSearchParameter(resource.resourceType),
+      values: {
+        $rg: resource.resources
+      }
+    }));
+
+  const search = isEmpty(
+    flatten([...searchConditions, ...resourcesWithRegexConditions])
+  )
     ? {}
     : {
         search: {
-          conditions: flatten(searchConditions)
+          conditions: flatten([
+            ...searchConditions,
+            ...resourcesWithRegexConditions
+          ])
         }
       };
 
@@ -181,9 +198,7 @@ export const buildCondensedViewEndpoint = ({
   baseEndpoint,
   statuses
 }: BuildResourcesEndpointProps): string => {
-  const formattedResources = getFormattedResources({ array: resources });
-
-  const resourcesToApply = formattedResources.map((resource) => {
+  const resourcesToApply = resources.map((resource) => {
     if (!equals(type, resource.resourceType)) {
       return {
         ...resource,
@@ -196,12 +211,22 @@ export const buildCondensedViewEndpoint = ({
 
   const searchConditions = resourcesToApply.map(
     ({ resourceType, resources: resourcesToApply }) => {
-      return resourcesToApply.map((resource) => ({
-        field: resourceType,
-        values: {
-          $rg: `^${resource.name}$`.replace('/', '\\/')
-        }
-      }));
+      if (isResourceString(resourcesToApply)) {
+        return {
+          field: resourceType,
+          values: {
+            $rg: resourcesToApply
+          }
+        };
+      }
+      return resourcesToApply.map((resource) => {
+        return {
+          field: resourceType,
+          values: {
+            $rg: `^${resource.name}$`
+          }
+        };
+      });
     }
   );
 

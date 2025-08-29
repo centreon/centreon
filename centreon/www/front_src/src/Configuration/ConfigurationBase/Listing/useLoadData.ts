@@ -1,16 +1,15 @@
 import { useAtomValue } from 'jotai';
-import { equals } from 'ramda';
+import { equals, isNotEmpty, isNotNil, pluck } from 'ramda';
 
 import { useGetAll } from '../api';
 import { limitAtom, pageAtom, sortFieldAtom, sortOrderAtom } from './atoms';
-import { HostGroupListItem, List } from './models';
 
 import { useMemo } from 'react';
-import { configurationAtom, filtersAtom } from '../../atoms';
 import { FieldType } from '../../models';
+import { configurationAtom, filtersAtom } from '../atoms';
 
 interface LoadDataState {
-  data?: List<HostGroupListItem>;
+  data?;
   isLoading: boolean;
 }
 
@@ -24,7 +23,7 @@ const useLoadData = (): LoadDataState => {
 
   const searchConditions = useMemo(() => {
     const hasStatusFilter = configuration?.filtersConfiguration?.some(
-      (filter) => filter.fieldType === FieldType.Status
+      (filter) => equals(filter.fieldType, FieldType.Status)
     );
 
     const statusCondition =
@@ -34,10 +33,25 @@ const useLoadData = (): LoadDataState => {
 
     const otherConditions = configuration?.filtersConfiguration?.reduce(
       (acc, filter) => {
-        if (filter.fieldType === FieldType.Status) return acc;
+        if (equals(filter.fieldType, FieldType.Status)) return acc;
 
-        const fieldName = filter.fieldName;
+        const fieldName = filter.fieldName as string;
         const filterValue = filters[fieldName];
+
+        if (
+          equals(filter.fieldType, FieldType.MultiAutocomplete) ||
+          equals(filter.fieldType, FieldType.MultiConnectedAutocomplete)
+        ) {
+          return isNotNil(filterValue) && isNotEmpty(filterValue)
+            ? [
+                ...acc,
+                {
+                  field: fieldName,
+                  values: { $in: pluck('id', filterValue) }
+                }
+              ]
+            : acc;
+        }
 
         return filterValue
           ? [...acc, { field: fieldName, values: { $rg: filterValue } }]

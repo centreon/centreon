@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -92,9 +92,9 @@ class FindHostNotificationPolicy
         }
 
         $inheritanceMode = $this->optionService->findSelectedOptions(['inheritance_mode']);
-            $inheritanceMode = isset($inheritanceMode[0])
-            ? (int) $inheritanceMode[0]->getValue()
-            : 0;
+        $inheritanceMode = isset($inheritanceMode[0])
+        ? (int) $inheritanceMode[0]->getValue()
+        : 0;
 
         [$notifiedContactsIds, $notifiedContactGroupsIds] = $this->getNotifiedContactsAndContactGroupsIds($hostId, $inheritanceMode, $presenter);
 
@@ -186,7 +186,7 @@ class FindHostNotificationPolicy
         } else {
             $accessGroups = $this->accessGroupRepository->findByContact($this->contact);
             $accessGroupIds = array_map(
-                fn($accessGroup) => $accessGroup->getId(),
+                fn ($accessGroup) => $accessGroup->getId(),
                 $accessGroups
             );
 
@@ -311,13 +311,13 @@ class FindHostNotificationPolicy
                 );
                 break;
             case self::INHERITANCE_MODE_CLOSE:
-                if (count($hostContacts) === 0) {
+                if ($hostContacts === []) {
                     $hostContacts = array_unique(
                         array_merge($hostContacts, $this->closeInheritance($hostTemplates, $parents, self::TYPE_CONTACT, $presenter)),
                         SORT_NUMERIC
                     );
                 }
-                if (count($hostContactGroups) === 0) {
+                if ($hostContactGroups === []) {
                     $hostContactGroups = array_unique(
                         array_merge($hostContactGroups, $this->closeInheritance($hostTemplates, $parents, self::TYPE_CONTACT_GROUP, $presenter)),
                         SORT_NUMERIC
@@ -439,7 +439,7 @@ class FindHostNotificationPolicy
                 ? $this->readHostNotificationRepository->findContactsByHostOrHostTemplate($currentTemplateId)
                 : $this->readHostNotificationRepository->findContactGroupsByHostOrHostTemplate($currentTemplateId);
 
-                if (count($values) > 0) {
+                if ($values !== []) {
                     return $values;
                 }
 
@@ -493,7 +493,7 @@ class FindHostNotificationPolicy
                 ? [$this->readHostNotificationRepository->findContactsByHostOrHostTemplate($currentTemplateId), $hostTemplateData->addInheritedContact()]
                 : [$this->readHostNotificationRepository->findContactGroupsByHostOrHostTemplate($currentTemplateId), $hostTemplateData->addInheritedContactGroup()];
 
-                if (count($values) > 0) {
+                if ($values !== []) {
                     $computed = array_merge($computed, $values);
                     $currentLevelCatch = $level;
 
@@ -507,7 +507,7 @@ class FindHostNotificationPolicy
                 }
             }
 
-            if (count(value: $computed) > 0) {
+            if ($computed !== []) {
                 return array_unique($computed, SORT_NUMERIC);
             }
         }

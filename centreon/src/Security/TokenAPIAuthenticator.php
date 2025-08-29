@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,9 @@ namespace Security;
 
 use Centreon\Domain\Contact\Interfaces\ContactRepositoryInterface;
 use Centreon\Domain\Exception\ContactDisabledException;
+use Centreon\Domain\Log\LoggerTrait;
 use Core\Security\Token\Application\Repository\ReadTokenRepositoryInterface;
+use Core\Security\Token\Domain\Model\ApiToken;
 use Security\Domain\Authentication\Interfaces\AuthenticationRepositoryInterface;
 use Security\Domain\Authentication\Model\LocalProvider;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -48,6 +50,8 @@ use Symfony\Component\Security\Http\EntryPoint\AuthenticationEntryPointInterface
  */
 class TokenAPIAuthenticator extends AbstractAuthenticator implements AuthenticationEntryPointInterface
 {
+    use LoggerTrait;
+
     /**
      * TokenAPIAuthenticator constructor.
      *
@@ -101,6 +105,8 @@ class TokenAPIAuthenticator extends AbstractAuthenticator implements Authenticat
      */
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $providerKey): ?Response
     {
+        $this->logTokenUsage($request);
+
         return null;
     }
 
@@ -157,10 +163,36 @@ class TokenAPIAuthenticator extends AbstractAuthenticator implements Authenticat
             throw new ContactDisabledException();
         }
 
-        if (! $this->readTokenRepository->isTokenTypeManual($apiToken)) {
+        if ($this->readTokenRepository->isTokenTypeAuto($apiToken)) {
             $this->authenticationRepository->updateProviderTokenExpirationDate($providerToken);
         }
 
         return $contact;
+    }
+
+    private function logTokenUsage(Request $request): void
+    {
+        try {
+            $tokenString = $request->headers->get('X-AUTH-TOKEN');
+            if ($tokenString && ! $this->readTokenRepository->isTokenTypeAuto($tokenString)) {
+                /** @var ApiToken|null $apiToken */
+                $apiToken = $this->readTokenRepository->find($tokenString);
+                if ($apiToken instanceof ApiToken) {
+                    $this->info(
+                        'Api token used',
+                        [
+                            'event' => 'Token usage',
+                            'datetime' => (new \DateTimeImmutable())->format('Y-m-d H:i:s'),
+                            'user_id' => $apiToken->getUserId(),
+                            'token_name' => $apiToken->getName(),
+                            'endpoint' => $request->getRequestUri(),
+                            'http_method' => $request->getMethod(),
+                        ]
+                    );
+                }
+            }
+        } catch (\Throwable $e) {
+            $this->error('Token usage log failure');
+        }
     }
 }

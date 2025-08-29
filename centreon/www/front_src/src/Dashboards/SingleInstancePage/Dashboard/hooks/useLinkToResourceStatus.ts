@@ -10,10 +10,10 @@ import { selectedColumnIdsAtom } from '../../../../Resources/Listing/listingAtom
 import { Visualization } from '../../../../Resources/models';
 import {
   labelBusinessActivity,
+  labelBusinessView,
   labelResourcesStatus
 } from '../translatedLabels';
 import {
-  getFormattedResources,
   getResourcesUrlForMetricsWidgets,
   getUrlForResourcesOnlyWidgets
 } from '../utils';
@@ -41,25 +41,23 @@ const useLinkToResourceStatus = (): UseLinkToResourceStatus => {
     const resources = data[resourcesInputKey];
 
     // TO FIX when Resources Status will handle BA/BV properly
-    const resourceTypes = pluck(
-      'resourceType',
-      getFormattedResources({ array: resources })
-    );
+    const resourceTypes = pluck('resourceType', resources);
     const hasOnlyBA = all(equals('business-activity'), resourceTypes);
+    const hasOnlyBV = all(equals('business-view'), resourceTypes);
+
+    if (hasOnlyBV) {
+      return `/main.php?p=20701&status=all&bv_id=${resources[0].resources[0].id}`;
+    }
 
     if (hasOnlyBA) {
-      return `/main.php?p=20701&o=d&ba_id=${getFormattedResources({ array: resources })[0].resources[0].id}`;
+      return `/monitoring/bam/bas/${resources[0].resources[0].id}`;
     }
 
     if (data?.resources && isNil(data?.metrics)) {
       const { statuses } = options;
 
-      const formattedResources = getFormattedResources({
-        array: data.resources
-      });
-
       const linkToResourceStatus = getUrlForResourcesOnlyWidgets({
-        resources: formattedResources,
+        resources: resources,
         states: options?.states || [],
         statuses,
         type:
@@ -92,6 +90,11 @@ const useLinkToResourceStatus = (): UseLinkToResourceStatus => {
     // TO FIX when Resources Status will handle BA/BV properly
     const resourceTypes = pluck('resourceType', resources);
     const hasOnlyBA = all(equals('business-activity'), resourceTypes);
+    const hasOnlyBV = all(equals('business-view'), resourceTypes);
+
+    if (hasOnlyBV) {
+      return labelBusinessView;
+    }
 
     if (hasOnlyBA) {
       return labelBusinessActivity;

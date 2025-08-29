@@ -7,11 +7,11 @@ import pluralize from 'pluralize';
 import { equals, isEmpty, pluck } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
-import { configurationAtom } from '../../../atoms';
 import {
   resourcesToDuplicateAtom,
   selectedRowsAtom
 } from '../../Listing/atoms';
+import { configurationAtom } from '../../atoms';
 
 import { useDuplicate as useDuplicateRequest } from '../../api';
 import {

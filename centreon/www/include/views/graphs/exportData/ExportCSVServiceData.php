@@ -1,33 +1,19 @@
 <?php
+
 /*
- * Copyright 2005-2015 Centreon
- * Centreon is developped by : Julien Mathis and Romain Le Merlus under
- * GPL Licence 2.0.
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation ; either version 2 of the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <http://www.gnu.org/licenses>.
- *
- * Linking this program statically or dynamically with other modules is making a
- * combined work based on this program. Thus, the terms and conditions of the GNU
- * General Public License cover the whole combination.
- *
- * As a special exception, the copyright holders of this program give Centreon
- * permission to link this program with independent modules to produce an executable,
- * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of Centreon choice, provided that
- * Centreon also meet, for each linked independent module, the terms  and conditions
- * of the license of that module. An independent module is a module which is not
- * derived from this program. If you modify this program, you may extend this
- * exception to your version of the program, but you are not obliged to do so. If you
- * do not wish to do so, delete this exception statement from your version.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * For more information : contact@centreon.com
  *
@@ -35,16 +21,17 @@
 
 function get_error($str)
 {
-    echo $str . "<br />";
+    echo $str . '<br />';
+
     exit(0);
 }
 
-require_once realpath(__DIR__ . "/../../../../../config/centreon.config.php");
-include_once _CENTREON_PATH_ . "www/class/centreonDB.class.php";
-include_once _CENTREON_PATH_ . "www/class/HtmlAnalyzer.php";
+require_once realpath(__DIR__ . '/../../../../../config/centreon.config.php');
+include_once _CENTREON_PATH_ . 'www/class/centreonDB.class.php';
+include_once _CENTREON_PATH_ . 'www/class/HtmlAnalyzer.php';
 
 $pearDB = new CentreonDB();
-$pearDBO = new CentreonDB("centstorage");
+$pearDBO = new CentreonDB('centstorage');
 
 session_start();
 session_write_close();
@@ -52,7 +39,7 @@ session_write_close();
 $sid = session_id();
 if (isset($sid)) {
     $res = $pearDB->query("SELECT * FROM session WHERE session_id = '" . $sid . "'");
-    if (!$session = $res->fetchRow()) {
+    if (! $session = $res->fetchRow()) {
         get_error('bad session id');
     }
 } else {
@@ -63,7 +50,7 @@ $index = filter_var(
     $_GET['index'] ?? $_POST['index'] ?? false,
     FILTER_VALIDATE_INT
 );
-$period = \HtmlAnalyzer::sanitizeAndRemoveTags(
+$period = HtmlAnalyzer::sanitizeAndRemoveTags(
     $_GET['period'] ?? $_POST['period'] ?? 'today'
 );
 $start = filter_var(
@@ -74,15 +61,15 @@ $end = filter_var(
     $_GET['end'] ?? false,
     FILTER_VALIDATE_INT
 );
-$chartId = \HtmlAnalyzer::sanitizeAndRemoveTags(
+$chartId = HtmlAnalyzer::sanitizeAndRemoveTags(
     $_GET['chartId'] ?? null
 );
 
-if (!empty($chartId)) {
+if (! empty($chartId)) {
     if (preg_match('/([0-9]+)_([0-9]+)/', $chartId, $matches)) {
         // Should be allowed chartId matching int_int regexp
-        $hostId = (int)$matches[1];
-        $serviceId = (int)$matches[2];
+        $hostId = (int) $matches[1];
+        $serviceId = (int) $matches[2];
 
         // Making sure that splitted values are positive.
         if ($hostId > 0 && $serviceId > 0) {
@@ -92,37 +79,37 @@ if (!empty($chartId)) {
                 . ' AND service_id = :serviceId';
 
             $stmt = $pearDBO->prepare($query);
-            $stmt->bindValue(':hostId', $hostId, \PDO::PARAM_INT);
-            $stmt->bindValue(':serviceId', $serviceId, \PDO::PARAM_INT);
+            $stmt->bindValue(':hostId', $hostId, PDO::PARAM_INT);
+            $stmt->bindValue(':serviceId', $serviceId, PDO::PARAM_INT);
             $stmt->execute();
-            while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+            while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
                 $index = $row['id'];
             }
         }
     } else {
-        die('Resource not found');
+        exit('Resource not found');
     }
 }
 if ($index !== false) {
     $stmt = $pearDBO->prepare(
         'SELECT host_name, service_description FROM index_data WHERE id = :index'
     );
-    $stmt->bindValue(':index', $index, \PDO::PARAM_INT);
+    $stmt->bindValue(':index', $index, PDO::PARAM_INT);
     $stmt->execute();
-    while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
-        $hName = $row["host_name"];
-        $sName = $row["service_description"];
+    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+        $hName = $row['host_name'];
+        $sName = $row['service_description'];
     }
 
-    header("Content-Type: application/csv-tab-delimited-table");
-    if (isset($hName) && isset($sName)) {
-        header("Content-disposition: filename=" . $hName . "_" . $sName . ".csv");
+    header('Content-Type: application/csv-tab-delimited-table');
+    if (isset($hName, $sName)) {
+        header('Content-disposition: filename=' . $hName . '_' . $sName . '.csv');
     } else {
-        header("Content-disposition: filename=" . $index . ".csv");
+        header('Content-disposition: filename=' . $index . '.csv');
     }
 
     if ($start === false || $end === false) {
-        die('Start or end time is not consistent or not an integer');
+        exit('Start or end time is not consistent or not an integer');
     }
 
     $listMetric = [];
@@ -130,27 +117,27 @@ if ($index !== false) {
     $listEmptyMetric = [];
 
     $stmt = $pearDBO->prepare(
-        'SELECT DISTINCT metric_id, metric_name ' .
-        'FROM metrics, index_data ' .
-        'WHERE metrics.index_id = index_data.id AND id = :index ORDER BY metric_name'
+        'SELECT DISTINCT metric_id, metric_name '
+        . 'FROM metrics, index_data '
+        . 'WHERE metrics.index_id = index_data.id AND id = :index ORDER BY metric_name'
     );
 
-    $stmt->bindValue(':index', $index, \PDO::PARAM_INT);
+    $stmt->bindValue(':index', $index, PDO::PARAM_INT);
     $stmt->execute();
 
-    while ($indexData = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+    while ($indexData = $stmt->fetch(PDO::FETCH_ASSOC)) {
         $listMetric[$indexData['metric_id']] = $indexData['metric_name'];
         $listEmptyMetric[$indexData['metric_id']] = '';
         $stmt2 = $pearDBO->prepare(
-            "SELECT ctime, `value` FROM data_bin WHERE id_metric = :metricId " .
-            "AND ctime >= :start AND ctime < :end"
+            'SELECT ctime, `value` FROM data_bin WHERE id_metric = :metricId '
+            . 'AND ctime >= :start AND ctime < :end'
         );
-        $stmt2->bindValue(':start', $start, \PDO::PARAM_INT);
-        $stmt2->bindValue(':end', $end, \PDO::PARAM_INT);
-        $stmt2->bindValue(':metricId', $indexData['metric_id'], \PDO::PARAM_INT);
+        $stmt2->bindValue(':start', $start, PDO::PARAM_INT);
+        $stmt2->bindValue(':end', $end, PDO::PARAM_INT);
+        $stmt2->bindValue(':metricId', $indexData['metric_id'], PDO::PARAM_INT);
         $stmt2->execute();
-        while ($data = $stmt2->fetch(\PDO::FETCH_ASSOC)) {
-            $datas[$data["ctime"]][$indexData["metric_id"]] = $data["value"];
+        while ($data = $stmt2->fetch(PDO::FETCH_ASSOC)) {
+            $datas[$data['ctime']][$indexData['metric_id']] = $data['value'];
         }
     }
 }
@@ -163,21 +150,21 @@ foreach ($datas as $key => $data) {
     ksort($datas[$key]);
 }
 
-print "time;humantime";
+echo 'time;humantime';
 if (count($listMetric)) {
     ksort($listMetric);
-    print ";" . implode(';', $listMetric);
+    echo ';' . implode(';', $listMetric);
 }
-print "\n";
+echo "\n";
 
 foreach ($datas as $ctime => $tab) {
-    print $ctime . ";" . date("Y-m-d H:i:s", $ctime);
+    echo $ctime . ';' . date('Y-m-d H:i:s', $ctime);
     foreach ($tab as $metric_value) {
         if ($metric_value !== '') {
-            printf(";%f", $metric_value);
+            printf(';%f', $metric_value);
         } else {
-            print(";");
+            echo ';';
         }
     }
-    print "\n";
+    echo "\n";
 }

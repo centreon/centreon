@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -70,6 +70,25 @@ interface WriteHostGroupRepositoryInterface
      * @throws \Throwable
      */
     public function unlinkFromHost(int $hostId, array $groupIds): void;
+
+    /**
+     * Add a list of hosts to a host group.
+     *
+     * @param int $hostGroupId
+     * @param int[] $hostIds
+     *
+     * @throws \Throwable
+     */
+    public function addHostLinks(int $hostGroupId, array $hostIds): void;
+
+    /**
+     * Delete a list of hosts from an host group.
+     *
+     * @param int $hostGroupId
+     * @param int[] $hostIds
+     * @return void
+     */
+    public function deleteHostLinks(int $hostGroupId, array $hostIds): void;
 
     /**
      * Set an host group as enabled or disabled.

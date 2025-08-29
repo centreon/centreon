@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -75,6 +75,7 @@ final class FindSAMLConfiguration
         $response->remoteLoginUrl = $customConfiguration->getRemoteLoginUrl();
         $response->publicCertificate = $customConfiguration->getPublicCertificate();
         $response->userIdAttribute = $customConfiguration->getUserIdAttribute();
+        $response->requestedAuthnContext = $customConfiguration->getRequestedAuthnContext()->toString();
         $response->logoutFrom = $customConfiguration->getLogoutFrom();
         $response->logoutFromUrl = $customConfiguration->getLogoutFromUrl();
         $response->isAutoImportEnabled = $customConfiguration->isAutoImportEnabled();

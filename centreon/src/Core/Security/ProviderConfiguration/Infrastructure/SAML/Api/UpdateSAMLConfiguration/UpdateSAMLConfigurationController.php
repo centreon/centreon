@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -78,6 +78,7 @@ final class UpdateSAMLConfigurationController extends AbstractController
         $updateRequest->remoteLoginUrl = $requestData['remote_login_url'];
         $updateRequest->publicCertificate = $requestData['certificate'];
         $updateRequest->userIdAttribute = $requestData['user_id_attribute'];
+        $updateRequest->requestedAuthnContext = $requestData['requested_authn_context'];
         $updateRequest->logoutFrom = $requestData['logout_from'];
         $updateRequest->logoutFromUrl = $requestData['logout_from_url'];
         $updateRequest->isAutoImportEnabled = $requestData['auto_import'];

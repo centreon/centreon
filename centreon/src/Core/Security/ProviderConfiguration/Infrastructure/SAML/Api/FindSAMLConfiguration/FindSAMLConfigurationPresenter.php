@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,6 +45,7 @@ class FindSAMLConfigurationPresenter extends AbstractPresenter implements FindSA
             'remote_login_url' => $data->remoteLoginUrl,
             'certificate' => $data->publicCertificate,
             'user_id_attribute' => $data->userIdAttribute,
+            'requested_authn_context' => $data->requestedAuthnContext,
             'logout_from' => $data->logoutFrom,
             'logout_from_url' => $data->logoutFromUrl,
             'auto_import' => $data->isAutoImportEnabled,

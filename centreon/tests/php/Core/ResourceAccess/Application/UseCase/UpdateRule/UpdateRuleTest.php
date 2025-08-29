@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,12 +24,12 @@ declare(strict_types=1);
 namespace Tests\Core\ResourceAccess\Application\UseCase\UpdateRule;
 
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
-use Centreon\Domain\Repository\Interfaces\DataStorageEngineInterface;
 use Core\Application\Common\UseCase\ConflictResponse;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
+use Core\Common\Application\Repository\RepositoryManagerInterface;
 use Core\Contact\Application\Repository\ReadContactRepositoryInterface;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\ResourceAccess\Application\Exception\RuleException;
@@ -43,6 +43,7 @@ use Core\ResourceAccess\Domain\Model\DatasetFilter\DatasetFilterValidator;
 use Core\ResourceAccess\Domain\Model\DatasetFilter\Providers\HostCategoryFilterType;
 use Core\ResourceAccess\Domain\Model\DatasetFilter\Providers\HostFilterType;
 use Core\ResourceAccess\Domain\Model\DatasetFilter\Providers\HostGroupFilterType;
+use Core\ResourceAccess\Domain\Model\DatasetFilter\Providers\ImageFolderFilterType;
 use Core\ResourceAccess\Domain\Model\DatasetFilter\Providers\MetaServiceFilterType;
 use Core\ResourceAccess\Domain\Model\DatasetFilter\Providers\ServiceCategoryFilterType;
 use Core\ResourceAccess\Domain\Model\DatasetFilter\Providers\ServiceFilterType;
@@ -64,6 +65,7 @@ beforeEach(closure: function (): void {
         ServiceGroupFilterType::class,
         ServiceCategoryFilterType::class,
         MetaServiceFilterType::class,
+        ImageFolderFilterType::class,
     ] as $className) {
         $this->filterTypes[] = new $className();
     }
@@ -79,7 +81,7 @@ beforeEach(closure: function (): void {
         writeRepository: $this->writeRepository = $this->createMock(WriteResourceAccessRepositoryInterface::class),
         validator: $this->validator = $this->createMock(UpdateRuleValidation::class),
         datasetValidator: $this->datasetValidator,
-        dataStorageEngine: $this->createMock(DataStorageEngineInterface::class),
+        repositoryManager: $this->createMock(RepositoryManagerInterface::class),
         isCloudPlatform: true
     );
 

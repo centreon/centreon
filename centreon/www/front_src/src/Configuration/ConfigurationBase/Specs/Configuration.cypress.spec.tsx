@@ -1,9 +1,9 @@
-import { ResourceType } from '../../models';
-
 import Actions from './Configuration.Actions';
 import Filters from './Configuration.Filters';
 import Layout from './Configuration.Layout';
 import Modal from './Configuration.Modal';
+
+import { ResourceType } from '../../models';
 
 const testCases = [
   { resourceType: ResourceType.Host },

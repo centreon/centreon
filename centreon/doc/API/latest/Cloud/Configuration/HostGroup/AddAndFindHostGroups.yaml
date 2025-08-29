@@ -46,6 +46,7 @@ post:
     Mandatory body properties are:
 
     * name
+    * resource_access_rules
   requestBody:
     required: true
     content:
@@ -70,4 +71,3 @@ post:
       $ref: '../../../Common/Response/Conflict.yaml'
     '500':
       $ref: '../../../Common/Response/InternalServerError.yaml'
-

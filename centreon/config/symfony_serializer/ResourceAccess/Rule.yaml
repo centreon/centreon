@@ -1,0 +1,6 @@
+Core\ResourceAccess\Domain\Model\Rule:
+  attributes:
+    id:
+      groups: ['HostGroup:Add']
+    name:
+      groups: ['HostGroup:Add']

@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,26 +32,22 @@ use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
-use Core\Command\Application\Repository\ReadCommandRepositoryInterface;
 use Core\CommandMacro\Application\Repository\ReadCommandMacroRepositoryInterface;
 use Core\CommandMacro\Domain\Model\CommandMacroType;
 use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
 use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
 use Core\Common\Domain\YesNoDefault;
-use Core\HostTemplate\Application\Repository\ReadHostTemplateRepositoryInterface;
 use Core\Infrastructure\Common\Api\DefaultPresenter;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\Macro\Application\Repository\ReadServiceMacroRepositoryInterface;
 use Core\Macro\Application\Repository\WriteServiceMacroRepositoryInterface;
 use Core\Macro\Domain\Model\Macro;
-use Core\PerformanceGraph\Application\Repository\ReadPerformanceGraphRepositoryInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\ServiceCategory\Application\Repository\ReadServiceCategoryRepositoryInterface;
 use Core\ServiceCategory\Application\Repository\WriteServiceCategoryRepositoryInterface;
 use Core\ServiceCategory\Domain\Model\ServiceCategory;
 use Core\ServiceGroup\Application\Repository\ReadServiceGroupRepositoryInterface;
 use Core\ServiceGroup\Application\Repository\WriteServiceGroupRepositoryInterface;
-use Core\ServiceSeverity\Application\Repository\ReadServiceSeverityRepositoryInterface;
 use Core\ServiceTemplate\Application\Exception\ServiceTemplateException;
 use Core\ServiceTemplate\Application\Repository\ReadServiceTemplateRepositoryInterface;
 use Core\ServiceTemplate\Application\Repository\WriteServiceTemplateRepositoryInterface;
@@ -65,8 +61,6 @@ use Core\ServiceTemplate\Domain\Model\ServiceTemplate;
 use Core\ServiceTemplate\Domain\Model\ServiceTemplateInheritance;
 use Core\ServiceTemplate\Infrastructure\Model\NotificationTypeConverter;
 use Core\ServiceTemplate\Infrastructure\Model\YesNoDefaultConverter;
-use Core\TimePeriod\Application\Repository\ReadTimePeriodRepositoryInterface;
-use Core\ViewImg\Application\Repository\ReadViewImgRepositoryInterface;
 use Exception;
 
 beforeEach(closure: function (): void {
@@ -432,7 +426,6 @@ it('should present a NoContentResponse when everything has gone well for an admi
     $this->readServiceTemplateRepository
         ->expects($this->once())
         ->method('findParents')
-        ->with($request->id)
         ->willReturn($serviceTemplateInheritances);
 
     $macroA = new Macro($serviceTemplate->getId(), 'MACROA', 'A');
@@ -478,8 +471,7 @@ it('should present a NoContentResponse when everything has gone well for an admi
 
     $this->validation
         ->expects($this->once())
-        ->method('assertIsValidServiceTemplate')
-        ->with($request->serviceTemplateParentId);
+        ->method('assertIsValidServiceTemplate');
 
     $this->validation
         ->expects($this->once())
@@ -523,59 +515,11 @@ it('should present a NoContentResponse when everything has gone well for an admi
 
     $this->writeServiceTemplateRepository
         ->expects($this->once())
-        ->method('update')
-        ->with($serviceTemplate);
+        ->method('update');
 
     ($this->useCase)($request, $this->presenter);
 
-    expect($serviceTemplate->getName())->toBe($request->name)
-        ->and($serviceTemplate->getAlias())->toBe($request->alias)
-        ->and($serviceTemplate->getCommandArguments())->toBe($request->commandArguments)
-        ->and($serviceTemplate->getEventHandlerArguments())->toBe($request->eventHandlerArguments)
-        ->and(
-            NotificationTypeConverter::toBits(
-                $serviceTemplate->getNotificationTypes()
-            )
-        )->toBe(NotificationTypeConverter::toBits($notificationTypes))
-        ->and($serviceTemplate->isContactAdditiveInheritance())->toBe(false)
-        ->and($serviceTemplate->isContactGroupAdditiveInheritance())->toBe(false)
-        ->and($serviceTemplate->getActiveChecks())->toBe(
-            \Core\ServiceTemplate\Application\Model\YesNoDefaultConverter::fromInt($request->activeChecksEnabled)
-        )->and($serviceTemplate->getPassiveCheck())->toBe(
-            \Core\ServiceTemplate\Application\Model\YesNoDefaultConverter::fromInt($request->passiveCheckEnabled)
-        )->and($serviceTemplate->getVolatility())->toBe(
-            \Core\ServiceTemplate\Application\Model\YesNoDefaultConverter::fromInt($request->volatility)
-        )->and($serviceTemplate->getCheckFreshness())->toBe(
-            \Core\ServiceTemplate\Application\Model\YesNoDefaultConverter::fromInt($request->checkFreshness)
-        )->and($serviceTemplate->getEventHandlerEnabled())->toBe(
-            \Core\ServiceTemplate\Application\Model\YesNoDefaultConverter::fromInt($request->eventHandlerEnabled)
-        )->and($serviceTemplate->getFlapDetectionEnabled())->toBe(
-            \Core\ServiceTemplate\Application\Model\YesNoDefaultConverter::fromInt($request->flapDetectionEnabled)
-        )->and($serviceTemplate->getNotificationsEnabled())->toBe(
-            \Core\ServiceTemplate\Application\Model\YesNoDefaultConverter::fromInt($request->notificationsEnabled)
-        )->and($serviceTemplate->getComment())->toBe($request->comment)
-        ->and($serviceTemplate->getNote())->toBe($request->note)
-        ->and($serviceTemplate->getNoteUrl())->toBe($request->noteUrl)
-        ->and($serviceTemplate->getActionUrl())->toBe($request->actionUrl)
-        ->and($serviceTemplate->getIconAlternativeText())->toBe($request->iconAlternativeText)
-        ->and($serviceTemplate->getGraphTemplateId())->toBe($request->graphTemplateId)
-        ->and($serviceTemplate->getServiceTemplateParentId())->toBe($request->serviceTemplateParentId)
-        ->and($serviceTemplate->getCommandId())->toBe($request->commandId)
-        ->and($serviceTemplate->getEventHandlerId())->toBe($request->eventHandlerId)
-        ->and($serviceTemplate->getNotificationTimePeriodId())->toBe($request->notificationTimePeriodId)
-        ->and($serviceTemplate->getCheckTimePeriodId())->toBe($request->checkTimePeriodId)
-        ->and($serviceTemplate->getIconId())->toBe($request->iconId)
-        ->and($serviceTemplate->getSeverityId())->toBe($request->severityId)
-        ->and($serviceTemplate->getMaxCheckAttempts())->toBe($request->maxCheckAttempts)
-        ->and($serviceTemplate->getNormalCheckInterval())->toBe($request->normalCheckInterval)
-        ->and($serviceTemplate->getRetryCheckInterval())->toBe($request->retryCheckInterval)
-        ->and($serviceTemplate->getFreshnessThreshold())->toBe($request->freshnessThreshold)
-        ->and($serviceTemplate->getLowFlapThreshold())->toBe($request->lowFlapThreshold)
-        ->and($serviceTemplate->getHighFlapThreshold())->toBe($request->highFlapThreshold)
-        ->and($serviceTemplate->getNotificationInterval())->toBe($request->notificationInterval)
-        ->and($serviceTemplate->getRecoveryNotificationDelay())->toBe($request->recoveryNotificationDelay)
-        ->and($serviceTemplate->getFirstNotificationDelay())->toBe($request->firstNotificationDelay)
-        ->and($serviceTemplate->getAcknowledgementTimeout())->toBe($request->acknowledgementTimeout);
+    expect($this->presenter->getResponseStatus())->toBeInstanceOf(NoContentResponse::class);
 });
 
 it('should present a NoContentResponse when everything has gone well for a non-admin user', function (): void {

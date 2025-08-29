@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -26,13 +26,13 @@ namespace Tests\Core\Security\ProviderConfiguration\Application\WebSSO\UpdateWeb
 use Centreon\Domain\Common\Assertion\AssertionException;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
-use Core\Security\ProviderConfiguration\Domain\WebSSO\Model\WebSSOConfigurationFactory;
+use Core\Security\ProviderConfiguration\Application\WebSSO\Repository\WriteWebSSOConfigurationRepositoryInterface;
 use Core\Security\ProviderConfiguration\Application\WebSSO\UseCase\UpdateWebSSOConfiguration\{
     UpdateWebSSOConfiguration,
-    UpdateWebSSOConfigurationRequest,
-    UpdateWebSSOConfigurationPresenterInterface
+    UpdateWebSSOConfigurationPresenterInterface,
+    UpdateWebSSOConfigurationRequest
 };
-use Core\Security\ProviderConfiguration\Application\WebSSO\Repository\WriteWebSSOConfigurationRepositoryInterface;
+use Core\Security\ProviderConfiguration\Domain\WebSSO\Model\WebSSOConfigurationFactory;
 
 beforeEach(function (): void {
     $this->repository = $this->createMock(WriteWebSSOConfigurationRepositoryInterface::class);
@@ -69,7 +69,7 @@ it('should have an Error Response when parameters are invalid', function (): voi
     $updateWebSSOConfigurationRequest = new UpdateWebSSOConfigurationRequest();
     $updateWebSSOConfigurationRequest->isActive = true;
     $updateWebSSOConfigurationRequest->isForced = false;
-    $badIpAddress = "abcd_.@";
+    $badIpAddress = 'abcd_.@';
     $updateWebSSOConfigurationRequest->trustedClientAddresses = [$badIpAddress];
     $updateWebSSOConfigurationRequest->blacklistClientAddresses = [];
     $updateWebSSOConfigurationRequest->loginHeaderAttribute = 'HTTP_AUTH_USER';

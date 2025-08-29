@@ -1,4 +1,4 @@
-import { ColumnType, buildListingDecoder } from '@centreon/ui';
+import { ColumnType, InputType, buildListingDecoder } from '@centreon/ui';
 import { JsonDecoder } from 'ts.data.json';
 import { Endpoints, FieldType } from '../../models';
 
@@ -42,7 +42,9 @@ export const getEndpoints = (resourceType): Endpoints => ({
   delete: `/configuration/${resourceType}/_delete`,
   duplicate: `/configuration/${resourceType}/_duplicate`,
   enable: `/configuration/${resourceType}/_enable`,
-  disable: `/configuration/${resourceType}/_disable`
+  disable: `/configuration/${resourceType}/_disable`,
+  create: `/configuration/${resourceType}`,
+  update: ({ id }) => `/configuration/${resourceType}/${id}`
 });
 
 export const columns = [
@@ -90,14 +92,48 @@ export const filtersInitialValues = {
   disabled: false
 };
 
-export const getLabelDuplicateOne = (type, name) =>
-  `You are about to duplicate the ${name} ${type}. How many duplications would you like to make?`;
+export const groups = [
+  {
+    name: 'General informations',
+    order: 1,
+    isDividerHidden: true
+  },
+  {
+    name: 'Extended informations',
+    order: 2,
+    isDividerHidden: true
+  }
+];
 
-export const getLabelDuplicateMany = (type, count) =>
-  `You are about to duplicate ${count} ${type}. How many duplications would you like to make?`;
+export const inputs = [
+  {
+    fieldName: 'name',
+    group: 'General informations',
+    label: 'Name',
+    type: InputType.Text
+  },
+  {
+    fieldName: 'alias',
+    group: 'General informations',
+    label: 'Alias',
+    type: InputType.Text
+  },
+  {
+    fieldName: 'coordinates',
+    group: 'Extended informations',
+    label: 'Coordinates',
+    type: InputType.Text
+  }
+];
 
 export const getLabelDeleteOne = (type, name) =>
   `You are about to delete the ${name} ${type}. This action cannot be undone. Do you want to delete it?`;
 
 export const getLabelDeleteMany = (type, count) =>
   `You are about to delete ${count} ${type}. This action cannot be undone. Do you want to delete them?`;
+
+export const getLabelDuplicateOne = (type, name) =>
+  `You are about to duplicate the ${name} ${type}. How many duplications would you like to make?`;
+
+export const getLabelDuplicateMany = (type, count) =>
+  `You are about to duplicate ${count} ${type}. How many duplications would you like to make?`;

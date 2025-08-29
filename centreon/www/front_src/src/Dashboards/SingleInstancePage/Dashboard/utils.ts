@@ -13,8 +13,7 @@ import {
 import { centreonBaseURL } from '@centreon/ui';
 
 import { WidgetResourceType } from './AddEditWidget/models';
-import { Resource } from './Widgets/models';
-import { getIsMetaServiceSelected } from './Widgets/utils';
+import { getIsMetaServiceSelected, isResourceString } from './Widgets/utils';
 
 export const isGenericText = equals<string | undefined>('/widgets/generictext');
 export const isRichTextEditorEmpty = (editorState: string): boolean => {
@@ -58,6 +57,20 @@ export const getResourcesUrlForMetricsWidgets = ({
   widgetName
 }): string => {
   const filters = data?.resources.map(({ resourceType, resources }) => {
+    if (isResourceString(resources)) {
+      const name = cond<Array<string>, string>([
+        [equals('host'), always('parent_name')],
+        [equals('service'), always('name')],
+        [equals('meta-service'), always('name')],
+        [T, identity]
+      ])(resourceType);
+
+      return {
+        name: name.replace('-', '_'),
+        value: [{ id: resources, name: resources }]
+      };
+    }
+
     if (
       [
         WidgetResourceType.host,
@@ -186,7 +199,11 @@ export const getUrlForResourcesOnlyWidgets = ({
         name: name.replace('-', '_'),
         value: flatten(
           (res || []).map(({ resources: subResources }) => {
-            return subResources?.map(({ name: resourceName }) => ({
+            if (isResourceString(subResources)) {
+              return [{ id: subResources, name: subResources }];
+            }
+
+            return subResources.map(({ name: resourceName }) => ({
               id: includes(name, ['name', 'parent_name'])
                 ? `\\b${resourceName}\\b`
                 : resourceName,
@@ -213,23 +230,4 @@ export const getUrlForResourcesOnlyWidgets = ({
   return `/monitoring/resources?filter=${encodeURIComponent(
     JSON.stringify(filterQueryParameter)
   )}&fromTopCounter=true`;
-};
-
-interface GetFormattedResources {
-  array: Array<Resource>;
-  filterName?: string;
-  resourceType?: string;
-}
-
-export const getFormattedResources = ({
-  array,
-  filterName = 'hostgroup',
-  resourceType = WidgetResourceType.hostGroup
-}: GetFormattedResources): Array<Resource> => {
-  return array?.map((item) => {
-    if (equals(item.resourceType, filterName)) {
-      return { ...item, resourceType };
-    }
-    return item;
-  });
 };

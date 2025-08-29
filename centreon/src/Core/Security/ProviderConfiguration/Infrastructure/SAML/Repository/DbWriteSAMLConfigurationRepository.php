@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -159,6 +159,7 @@ class DbWriteSAMLConfigurationRepository extends AbstractRepositoryDRB implement
             'entity_id_url' => $customConfiguration->getEntityIDUrl(),
             'certificate' => $customConfiguration->getPublicCertificate(),
             'user_id_attribute' => $customConfiguration->getUserIdAttribute(),
+            'requested_authn_context' => $customConfiguration->getRequestedAuthnContext()->toString(),
             'logout_from' => $customConfiguration->getLogoutFrom(),
             'logout_from_url' => $customConfiguration->getLogoutFromUrl(),
             'auto_import' => $customConfiguration->isAutoImportEnabled(),

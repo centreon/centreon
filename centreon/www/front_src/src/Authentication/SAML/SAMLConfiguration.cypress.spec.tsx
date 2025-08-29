@@ -46,6 +46,7 @@ import {
   labelFullNameAttribute,
   labelLogoutUrl,
   labelRemoteLoginUrl,
+  labelRequestedAuthnContext,
   labelRequired,
   labelSAMLOnly,
   labelUserIdAttribute
@@ -143,6 +144,7 @@ describe('SAMLConfiguration', () => {
       'have.value',
       retrievedSAMLConfiguration.user_id_attribute
     );
+    cy.findByTestId(labelRequestedAuthnContext).should('have.value', 'minimum');
     cy.findByLabelText(labelCentreonUIOnly).should('not.be.checked');
     cy.findByLabelText(labelBothIdentityProviderAndCentreonUI).should(
       'be.checked'
@@ -267,7 +269,7 @@ describe('SAMLConfiguration', () => {
   it('disables auto import fields when auto import is disabled', () => {
     cy.waitForRequest('@getSAMLConfiguration');
 
-    cy.contains(labelAutoImportUsers).click();
+    cy.get(`[data-section-group-form-id="${labelAutoImportUsers}"]`).click();
 
     cy.findByLabelText(labelEnableAutoImport).click();
 
@@ -279,7 +281,7 @@ describe('SAMLConfiguration', () => {
   it('hides the "Logout URL" field when the "Centreon UI only" option is selected', () => {
     cy.waitForRequest('@getSAMLConfiguration');
 
-    cy.contains(labelIdentityProvider).click();
+    cy.get(`[data-section-group-form-id="${labelIdentityProvider}"]`).click();
 
     cy.findByLabelText(labelCentreonUIOnly).click();
 
@@ -289,7 +291,9 @@ describe('SAMLConfiguration', () => {
   it('adds a new condition value when the last condition value field is filled', () => {
     cy.waitForRequest('@getSAMLConfiguration');
 
-    cy.contains(labelAuthenticationConditions).click();
+    cy.get(
+      `[data-section-group-form-id="${labelAuthenticationConditions}"]`
+    ).click();
 
     cy.findAllByLabelText(labelConditionValue).eq(1).type('value2');
     cy.findAllByLabelText(labelConditionValue).should('have.length', 3);
@@ -299,7 +303,9 @@ describe('SAMLConfiguration', () => {
   it('removes a condition value when the "Delete the relation" button is clicked', () => {
     cy.waitForRequest('@getSAMLConfiguration');
 
-    cy.contains(labelAuthenticationConditions).click();
+    cy.get(
+      `[data-section-group-form-id="${labelAuthenticationConditions}"]`
+    ).click();
 
     cy.findAllByLabelText(labelConditionValue).should('have.length', 2);
 
@@ -312,7 +318,7 @@ describe('SAMLConfiguration', () => {
   it('sorts "roles/ACL access group" rows when the handler is dragged', () => {
     cy.waitForRequest('@getSAMLConfiguration');
 
-    cy.contains(labelRolesMapping).click();
+    cy.get(`[data-section-group-form-id="${labelRolesMapping}"]`).click();
 
     cy.findAllByLabelText(labelRoleValue).eq(1).type('A role');
     cy.findAllByLabelText(labelAclAccessGroup).eq(1).click();
@@ -336,7 +342,7 @@ describe('SAMLConfiguration', () => {
   it('removes the "roles/ACL access group" row when the "Delete the relation" button is clicked', () => {
     cy.waitForRequest('@getSAMLConfiguration');
 
-    cy.contains(labelRolesMapping).click();
+    cy.get(`[data-section-group-form-id="${labelRolesMapping}"]`).click();
 
     cy.findAllByLabelText(labelDeleteRelation).eq(1).click();
 
@@ -347,7 +353,7 @@ describe('SAMLConfiguration', () => {
   it('removes the sortable handler when "apply only first role" is disabled', () => {
     cy.waitForRequest('@getSAMLConfiguration');
 
-    cy.contains(labelRolesMapping).click();
+    cy.get(`[data-section-group-form-id="${labelRolesMapping}"]`).click();
 
     cy.findByLabelText(labelApplyOnlyFirtsRole).click();
 
@@ -357,7 +363,7 @@ describe('SAMLConfiguration', () => {
   it('adds a new "groups/contact group" row when the last "group/contact group" row is filled', () => {
     cy.waitForRequest('@getSAMLConfiguration');
 
-    cy.contains(labelGroupsMapping).click();
+    cy.get(`[data-section-group-form-id="${labelGroupsMapping}"]`).click();
 
     cy.findAllByLabelText(labelGroupValue).eq(1).type('A group');
     cy.findAllByLabelText(labelContactGroup).eq(1).click();
@@ -375,7 +381,7 @@ describe('SAMLConfiguration', () => {
   it('removes the "groups/contact group" row when the "Delete the relation" button is clicked', () => {
     cy.waitForRequest('@getSAMLConfiguration');
 
-    cy.contains(labelGroupsMapping).click();
+    cy.get(`[data-section-group-form-id="${labelGroupsMapping}"]`).click();
 
     cy.findAllByLabelText(labelDeleteRelation).eq(2).click();
 
@@ -386,7 +392,7 @@ describe('SAMLConfiguration', () => {
   it('saves the SAML configuration when a field is updated', () => {
     cy.waitForRequest('@getSAMLConfiguration');
 
-    cy.contains(labelIdentityProvider).click();
+    cy.get(`[data-section-group-form-id="${labelIdentityProvider}"]`).click();
 
     cy.contains(labelSave).should('be.disabled');
 
@@ -402,7 +408,7 @@ describe('SAMLConfiguration', () => {
   it('disables the "Save" button when the required fields are cleared', () => {
     cy.waitForRequest('@getSAMLConfiguration');
 
-    cy.contains(labelIdentityProvider).click();
+    cy.get(`[data-section-group-form-id="${labelIdentityProvider}"]`).click();
 
     cy.findByLabelText(labelRemoteLoginUrl).clear();
     cy.findByLabelText(labelEntityIdURL).clear();
@@ -418,7 +424,7 @@ describe('SAMLConfiguration', () => {
   it('disables the "Save" button when the "Logout URL" field is cleared', () => {
     cy.waitForRequest('@getSAMLConfiguration');
 
-    cy.contains(labelIdentityProvider).click();
+    cy.get(`[data-section-group-form-id="${labelIdentityProvider}"]`).click();
 
     cy.findByLabelText(labelLogoutUrl).clear();
     cy.findByLabelText(labelBothIdentityProviderAndCentreonUI).click();
