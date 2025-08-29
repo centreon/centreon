@@ -203,9 +203,9 @@ function updateOnDemandMacroHostTableWithVaultPath(CentreonDB $pearDB, array $ma
 {
     $statementUpdateMacro = $pearDB->prepare(
         <<<'SQL'
-                UPDATE `on_demand_macro_host` 
-                    SET host_macro_value = :path 
-                WHERE host_macro_id = :macroId 
+                UPDATE `on_demand_macro_host`
+                    SET host_macro_value = :path
+                WHERE host_macro_id = :macroId
                     AND host_macro_name = :name
             SQL
     );
@@ -782,9 +782,9 @@ function updateOnDemandMacroServiceTableWithVaultPath(CentreonDB $pearDB, array 
 {
     $statementUpdateMacro = $pearDB->prepare(
         <<<'SQL'
-                UPDATE `on_demand_macro_service` 
-                    SET svc_macro_value = :path 
-                WHERE svc_macro_id = :macroId 
+                UPDATE `on_demand_macro_service`
+                    SET svc_macro_value = :path
+                WHERE svc_macro_id = :macroId
                     AND svc_macro_name = :name
             SQL
     );
@@ -1025,7 +1025,12 @@ function prepareServiceUpdatePayload(array $macros, array $serviceSecretsFromVau
 
     // Add macros to payload if they are password type and their values have changed
     foreach ($macros as $macroInfos) {
-        $serviceSecretsFromVault[$macroInfos['macroName']] = $macroInfos['macroValue'];
+        if (
+            $macroInfos['macroPassword'] === '1'
+            && ! str_starts_with($macroInfos['macroValue'], VaultConfiguration::VAULT_PATH_PATTERN)
+        ) {
+            $serviceSecretsFromVault[$macroInfos['macroName']] = $macroInfos['macroValue'];
+        }
     }
 
     $payload['to_insert'] = $serviceSecretsFromVault;

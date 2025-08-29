@@ -27,6 +27,7 @@ import { areResourcesFullfilled } from '../utils';
 import { SelectField } from '@centreon/ui';
 import ConfirmationResourceTypeToggleRegexModal from './ConfirmationResourceTypeToggleRegexModal';
 import ResourceField from './ResourceField';
+import useDefaultSelectTypeData from './useDefaultSelectType';
 import useResources from './useResources';
 
 const Resources = ({
@@ -38,6 +39,8 @@ const Resources = ({
   useAdditionalResources,
   forcedResourceType,
   defaultResourceTypes,
+  selectType,
+  forceSingleAutocompleteConditions,
   allowRegexOnResourceTypes
 }: WidgetPropertyProps): JSX.Element => {
   const { classes } = useResourceStyles();
@@ -63,6 +66,7 @@ const Resources = ({
     hasSelectedHostForSingleMetricwidget,
     isValidatingResources,
     hideResourceDeleteButton,
+    checkForceSingleAutocomplete,
     getIsRegexAllowedOnResourceType,
     getIsRegexFieldOnResourceType,
     changeRegexFieldOnResourceType,
@@ -78,6 +82,9 @@ const Resources = ({
     allowRegexOnResourceTypes
   });
 
+  const { getDefaultDisabledSelectType, getDefaultRequiredSelectType } =
+    useDefaultSelectTypeData({ value, selectType });
+
   const { canEditField } = useCanEditProperties();
 
   const deleteButtonHidden =
@@ -88,6 +95,11 @@ const Resources = ({
   const isAddButtonHidden = !canEditField || singleResourceType;
   const isAddButtonDisabled =
     !areResourcesFullfilled(value) || isLastResourceInTree;
+
+  const getResourceTypeSelectedOptionId = (resourceType: WidgetResourceType) =>
+    equals(resourceType, 'hostgroup')
+      ? WidgetResourceType.hostGroup
+      : resourceType;
 
   return (
     <div className={classes.resourcesContainer}>
@@ -106,17 +118,15 @@ const Resources = ({
           displayItemsAsLinked
           IconAdd={<AddIcon />}
           addButtonHidden={isAddButtonHidden}
+          onAddItem={addResource}
           addbuttonDisabled={isAddButtonDisabled}
           labelAdd={t(labelAddFilter)}
-          onAddItem={addResource}
         >
           {value.map((resource, index) => {
-            const resourceTypeSelectedOptionId = equals(
-              resource.resourceType,
-              'hostgroup'
-            )
-              ? WidgetResourceType.hostGroup
-              : resource.resourceType;
+            const forceSingleAutocomplete = checkForceSingleAutocomplete({
+              resourceType: resource.resourceType,
+              forceSingleAutocompleteConditions
+            });
 
             const allowRegex = getIsRegexAllowedOnResourceType(
               resource.resourceType
@@ -131,28 +141,40 @@ const Resources = ({
                 deleteButtonHidden={
                   deleteButtonHidden ||
                   getResourceStatic(resource.resourceType) ||
-                  hideResourceDeleteButton()
+                  hideResourceDeleteButton() ||
+                  getDefaultRequiredSelectType(resource.resourceType)
                 }
                 key={`${index}${resource.resourceType}`}
                 labelDelete={t(labelDelete)}
                 onDeleteItem={deleteResource(index)}
               >
                 <SelectField
+                  formControlProps={{
+                    required: getDefaultRequiredSelectType(
+                      resource.resourceType
+                    )
+                  }}
                   className={classes.resourceType}
                   dataTestId={labelResourceType}
                   disabled={
                     !canEditField ||
                     isValidatingResources ||
-                    getResourceStatic(resource.resourceType)
+                    getResourceStatic(resource.resourceType) ||
+                    getDefaultDisabledSelectType(resource.resourceType)
                   }
                   label={t(labelSelectResourceType) as string}
                   options={getResourceTypeOptions(index, resource)}
-                  selectedOptionId={resourceTypeSelectedOptionId}
+                  selectedOptionId={getResourceTypeSelectedOptionId(
+                    resource.resourceType
+                  )}
                   onChange={changeResourceType(index)}
                 />
                 <ResourceField
+                  singleResourceSelection={
+                    singleResourceSelection || forceSingleAutocomplete
+                  }
                   disabled={
-                    singleResourceSelection
+                    singleResourceSelection || forceSingleAutocomplete
                       ? !canEditField ||
                         isValidatingResources ||
                         (equals(
@@ -160,10 +182,12 @@ const Resources = ({
                           defaultResourceTypes?.[1]
                         ) &&
                           !hasSelectedHostForSingleMetricwidget) ||
-                        !resource.resourceType
+                        !resource.resourceType ||
+                        getDefaultDisabledSelectType(resource.resourceType)
                       : !canEditField ||
                         isValidatingResources ||
-                        !resource.resourceType
+                        !resource.resourceType ||
+                        getDefaultDisabledSelectType(resource.resourceType)
                   }
                   resource={resource}
                   index={index}

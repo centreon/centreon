@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Core\ResourceAccess\Application\Providers;
 
+use Core\Common\Domain\Exception\RepositoryException;
 use Core\ResourceAccess\Domain\Model\DatasetFilter\ResourceNamesById;
 
 interface DatasetProviderInterface
@@ -37,12 +38,16 @@ interface DatasetProviderInterface
     /**
      * @param int[] $resourceIds
      *
+     * @throws RepositoryException
+     *
      * @return int[]
      */
     public function areResourcesValid(array $resourceIds): array;
 
     /**
      * @param int[] $ids
+     *
+     * @throws RepositoryException
      *
      * @return ResourceNamesById
      */
