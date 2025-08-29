@@ -19529,6 +19529,10 @@ msgid "C"
 msgstr "C"
 
 #: unknown
+msgid "CA"
+msgstr "CA"
+
+#: unknown
 msgid "CRITICAL Alerts"
 msgstr "Alertes CRITICAL"
 
@@ -22058,6 +22062,14 @@ msgid "Poller/Centreon Server"
 msgstr "Collecteur"
 
 #: unknown
+msgid "Poller/agent configuration created"
+msgstr "Configuration d'agent créée"
+
+#: unknown
+msgid "Poller/agent configuration updated"
+msgstr "Configuration d'agent mise à jour"
+
+#: unknown
 msgid "Port expected at most 65535"
 msgstr "Le numéro de port maximum attendu est 65535"
 
@@ -22084,6 +22096,10 @@ msgstr "Fichier de pre-cache des objets"
 #: unknown
 msgid "Prefix"
 msgstr "Préfixe des tables"
+
+#: unknown
+msgid "Private key"
+msgstr "Clé privée"
 
 #: unknown
 msgid "Private key file. "
