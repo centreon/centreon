@@ -48,6 +48,7 @@ $finder = Finder::create()
         __DIR__ . '/tests/php/Centreon',
         __DIR__ . '/tests/php/CentreonLegacy',
         __DIR__ . '/tests/php/CentreonRemote',
+        __DIR__ . '/tests/php/mock',
         __DIR__ . '/tests/php/Security',
         __DIR__ . '/tests/php/Utility',
         __DIR__ . '/tests/php/www',

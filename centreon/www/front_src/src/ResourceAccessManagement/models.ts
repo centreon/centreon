@@ -13,7 +13,8 @@ export enum ResourceTypeEnum {
   MetaService = 'meta_service',
   Service = 'service',
   ServiceCategory = 'service_category',
-  ServiceGroup = 'servicegroup'
+  ServiceGroup = 'servicegroup',
+  ImageFolder = 'image_folder'
 }
 
 export interface MetaType {

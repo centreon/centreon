@@ -1,39 +1,26 @@
 <?php
 
 /*
- * Copyright 2005-2015 Centreon
- * Centreon is developped by : Julien Mathis and Romain Le Merlus under
- * GPL Licence 2.0.
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation ; either version 2 of the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <http://www.gnu.org/licenses>.
- *
- * Linking this program statically or dynamically with other modules is making a
- * combined work based on this program. Thus, the terms and conditions of the GNU
- * General Public License cover the whole combination.
- *
- * As a special exception, the copyright holders of this program give Centreon
- * permission to link this program with independent modules to produce an executable,
- * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of Centreon choice, provided that
- * Centreon also meet, for each linked independent module, the terms  and conditions
- * of the license of that module. An independent module is a module which is not
- * derived from this program. If you modify this program, you may extend this
- * exception to your version of the program, but you are not obliged to do so. If you
- * do not wish to do so, delete this exception statement from your version.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * For more information : contact@centreon.com
  *
  */
 
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
 use Core\Application\Common\Session\Repository\ReadSessionRepositoryInterface;
 
 if (! isset($centreon)) {
@@ -233,31 +220,30 @@ function multipleActionInDB($actions = [], $nbrDup = [])
 {
     global $pearDB, $centreon;
 
-    foreach ($actions as $key => $value) {
+    foreach (array_keys($actions) as $key) {
         $dbResult = $pearDB->query("SELECT * FROM acl_actions WHERE acl_action_id = '" . $key . "' LIMIT 1");
         $row = $dbResult->fetch();
-        $row['acl_action_id'] = '';
 
         for ($i = 1; $i <= $nbrDup[$key]; $i++) {
-            $val = null;
-            foreach ($row as $key2 => $value2) {
-                $value2 = is_int($value2) ? (string) $value2 : $value2;
-                if ($key2 == 'acl_action_name') {
-                    $acl_action_name = $value2 . '_' . $i;
-                    $value2 = $value2 . '_' . $i;
-                }
-                $val ? $val .= ($value2 != null ? (", '" . $value2 . "'") : ', NULL')
-                    : $val .= ($value2 != null ? ("'" . $value2 . "'") : 'NULL');
-                if ($key2 != 'acl_action_id') {
-                    $fields[$key2] = $value2;
-                }
-                if (isset($acl_action_name)) {
-                    $fields['acl_action_name'] = $acl_action_name;
-                }
-            }
-            if (testActionExistence($acl_action_name)) {
-                $rq = $val ? 'INSERT INTO acl_actions VALUES (' . $val . ')' : null;
-                $pearDB->query($rq);
+            $aclActionName = $row['acl_action_name'] . '_' . $i;
+            if (testActionExistence($aclActionName)) {
+                $pearDB->executeStatement(
+                    <<<'SQL'
+                        INSERT INTO acl_actions (acl_action_name, acl_action_description, acl_action_activate)
+                        VALUES (:aclActionName, :aclActionDescription, :aclActionActivate)
+                        SQL,
+                    QueryParameters::create([
+                        QueryParameter::string('aclActionName', $aclActionName),
+                        QueryParameter::string(
+                            'aclActionDescription',
+                            $row['acl_action_description']
+                        ),
+                        QueryParameter::string(
+                            'aclActionActivate',
+                            $row['acl_action_activate']
+                        ),
+                    ])
+                );
                 $dbResult = $pearDB->query('SELECT MAX(acl_action_id) FROM acl_actions');
                 $maxId = $dbResult->fetch();
                 $dbResult->closeCursor();
@@ -289,9 +275,13 @@ function multipleActionInDB($actions = [], $nbrDup = [])
                     $centreon->CentreonLogAction->insertLog(
                         'action access',
                         $maxId['MAX(acl_action_id)'],
-                        $acl_action_name,
+                        $aclActionName,
                         'a',
-                        $fields
+                        [
+                            'acl_action_name' => $aclActionName,
+                            'acl_action_description' => $row['acl_action_description'],
+                            'acl_action_activate' => $row['acl_action_activate'],
+                        ]
                     );
                 }
             }
@@ -339,7 +329,7 @@ function insertAction($ret)
     );
     $statement->bindValue(
         ':aclActionDescription',
-        htmlentities($ret['acl_action_description'], ENT_QUOTES, 'UTF-8'),
+        $ret['acl_action_description'],
         PDO::PARAM_STR
     );
     $statement->bindValue(
@@ -393,13 +383,27 @@ function updateAction($aclActionId = null)
     global $form, $pearDB;
 
     $ret = $form->getSubmitValues();
-    $rq = 'UPDATE acl_actions ';
-    $rq .= "SET acl_action_name = '" . htmlentities($ret['acl_action_name'], ENT_QUOTES, 'UTF-8') . "', "
-        . "acl_action_description = '" . htmlentities($ret['acl_action_description'], ENT_QUOTES, 'UTF-8') . "', "
-        . "acl_action_activate = '"
-        . htmlentities($ret['acl_action_activate']['acl_action_activate'], ENT_QUOTES, 'UTF-8') . "' "
-        . "WHERE acl_action_id = '" . $aclActionId . "'";
-    $pearDB->query($rq);
+    $pearDB->executeStatement(
+        <<<'SQL'
+            UPDATE acl_actions
+            SET acl_action_name = :acl_action_name,
+                acl_action_description = :acl_action_description,
+                acl_action_activate = :acl_action_activate
+            WHERE acl_action_id = :acl_action_id
+            SQL,
+        QueryParameters::create([
+            QueryParameter::string('acl_action_name', $ret['acl_action_name']),
+            QueryParameter::string(
+                'acl_action_description',
+                $ret['acl_action_description']
+            ),
+            QueryParameter::string(
+                'acl_action_activate',
+                $ret['acl_action_activate']['acl_action_activate']
+            ),
+            QueryParameter::int('acl_action_id', $ret['acl_action_id']),
+        ])
+    );
 }
 
 /**

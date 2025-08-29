@@ -153,7 +153,8 @@ INSERT INTO `options` (`key`, `value`) VALUES
 ('openid_connect_client_secret', ''),
 ('openid_connect_client_basic_auth', '0'),
 ('openid_connect_verify_peer', '0'),
-('unified_sql_db_type', 'mysql');
+('unified_sql_db_type', 'mysql'),
+('resource_status_search_mode', 1);
 
 --
 -- Contenu de la table `giv_components_template`

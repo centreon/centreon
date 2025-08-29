@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -301,6 +301,8 @@ final class AddHostTemplate
                     ['_HOST' . $macro->getName() => $macro->getValue()],
                 );
                 $vaultPath = $vaultPaths['_HOST' . $macro->getName()];
+                $this->uuid ??= $this->getUuidFromPath($vaultPath);
+
                 $inVaultMacro = new Macro($macro->getOwnerId(), $macro->getName(), $vaultPath);
                 $inVaultMacro->setDescription($macro->getDescription());
                 $inVaultMacro->setIsPassword($macro->isPassword());

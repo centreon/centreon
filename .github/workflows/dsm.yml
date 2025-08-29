@@ -76,7 +76,7 @@ jobs:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Setup PHP
-        uses: shivammathur/setup-php@0f7f1d08e3e32076e51cae65eb0b0c871405b16e # v2.34.1
+        uses: shivammathur/setup-php@ccf2c627fe61b1b4d924adfcbd19d661a18133a0 # v2.35.2
         with:
           php-version: 8.2
           coverage: none
@@ -84,12 +84,12 @@ jobs:
           runner: ubuntu-24.04
 
       - name: Install dependencies for PHP quality tools
-        run: composer install --optimize-autoloader --prefer-dist --no-interaction --no-progress --quiet --no-suggest
+        run: composer install --optimize-autoloader --prefer-dist --no-interaction --no-progress --quiet --no-scripts
         working-directory: php-tools
         shell: bash
 
       - name: Install dependencies for centreon-dsm
-        run: composer install --optimize-autoloader --prefer-dist --no-interaction --no-progress --quiet --no-suggest
+        run: composer install --optimize-autoloader --prefer-dist --no-interaction --no-progress --quiet --no-scripts
         working-directory: centreon-dsm
         shell: bash
 
@@ -238,7 +238,14 @@ jobs:
 
       - name: Change macro
         run: |
-          find ./centreon-dsm -type f | xargs sed -i -f ./centreon-dsm/packaging/src/centreon-macroreplacement.txt
+          MACRO_REPLACEMENT_FILE="centreon-dsm/packaging/src/centreon-macroreplacement.txt"
+          if [[ "${{ matrix.package_extension }}" == "rpm" ]]; then
+            APACHE_USER="apache"
+          else
+            APACHE_USER="www-data"
+          fi
+          echo "s#@WEB_USER@#$APACHE_USER#g" >> $MACRO_REPLACEMENT_FILE
+          find ./centreon-dsm -type f | xargs sed -i -f $MACRO_REPLACEMENT_FILE
         shell: bash
 
       - name: Package
@@ -315,6 +322,9 @@ jobs:
           stability: ${{ needs.get-environment.outputs.stability }}
           release_type: ${{ needs.get-environment.outputs.release_type }}
           is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
+          delivery_type: ${{ needs.get-environment.outputs.delivery_type }}
+          centreon_technique_pat: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
+
 
   deliver-deb:
     needs: [get-environment, package]

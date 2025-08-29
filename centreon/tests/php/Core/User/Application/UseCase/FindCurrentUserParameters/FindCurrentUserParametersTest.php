@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -76,6 +76,7 @@ it(
         $this->contact->method('getLocale')->willReturn($locale = ($this->randomString)());
         $this->contact->method('isAdmin')->willReturn($isAdmin = ($this->randomBool)());
         $this->contact->method('isUsingDeprecatedPages')->willReturn($useDeprecatedPages = ($this->randomBool)());
+        $this->contact->method('isUsingDeprecatedCustomViews')->willReturn($useDeprecatedCustomViews = ($this->randomBool)());
         $this->contact->method('getTheme')
             ->willReturn(UserThemeConverter::toString($theme = UserTheme::Dark));
         $this->contact->method('getUserInterfaceDensity')
@@ -95,6 +96,7 @@ it(
             ->and($this->presenter->data->locale)->toBe($locale)
             ->and($this->presenter->data->isAdmin)->toBe($isAdmin)
             ->and($this->presenter->data->useDeprecatedPages)->toBe($useDeprecatedPages)
+            ->and($this->presenter->data->useDeprecatedCustomViews)->toBe($useDeprecatedCustomViews)
             ->and($this->presenter->data->isExportButtonEnabled)->toBe($isExportButtonEnabled)
             ->and($this->presenter->data->theme)->toBe($theme)
             ->and($this->presenter->data->userInterfaceDensity)->toBe($uiDensity)

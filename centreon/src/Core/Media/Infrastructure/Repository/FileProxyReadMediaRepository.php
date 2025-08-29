@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -106,6 +106,14 @@ class FileProxyReadMediaRepository implements ReadMediaRepositoryInterface
                 return count($this->medias);
             }
         };
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findByRequestParametersAndAccessGroups(RequestParametersInterface $requestParameters, array $accessGroups): \Traversable
+    {
+        return $this->createTraversable($this->dbReadMediaRepository->findByRequestParametersAndAccessGroups($requestParameters, $accessGroups));
     }
 
     /**

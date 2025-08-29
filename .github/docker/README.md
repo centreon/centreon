@@ -61,6 +61,8 @@ Currently, the following profiles are available:
 * `glpi`: must be used with `centreon-open-tickets` image to link glpi automatically in open-tickets providers
 * `vault`: register automatically hashicorp vault and migrate credentials
 * `openid`: run a docker image of keycloak
+  * Add the following entry to your **/etc/hosts** : `127.0.0.1 sso-proxy`
+  * :warning: On Windows: **C:\Windows\System32\drivers\etc\hosts**
   * centreon configuration is done automatically with auto import enabled
   * login user: **oidc** / **Centreon!2021**
   * :warning: ACLs must be configured manually

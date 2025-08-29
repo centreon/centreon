@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Core\ResourceAccess\Application\UseCase\UpdateRule;
 
 use Centreon\Domain\Log\LoggerTrait;
+use Core\Common\Domain\Exception\RepositoryException;
 use Core\Contact\Application\Repository\ReadContactGroupRepositoryInterface;
 use Core\Contact\Application\Repository\ReadContactRepositoryInterface;
 use Core\ResourceAccess\Application\Exception\RuleException;
@@ -105,6 +106,7 @@ class UpdateRuleValidation
      * @param int[] $ids
      *
      * @throws RuleException
+     * @throws RepositoryException
      */
     public function assertIdsAreValid(string $type, array $ids): void
     {

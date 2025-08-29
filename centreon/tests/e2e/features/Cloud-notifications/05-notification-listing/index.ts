@@ -1,12 +1,12 @@
-import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
+import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
 import {
   checkHostsAreMonitored,
   checkServicesAreMonitored
 } from '../../../commons';
-import { createNotification, enableNotificationFeature } from '../common';
-import notificationBody from '../../../fixtures/notifications/notification-creation.json';
 import data from '../../../fixtures/notifications/data-for-notification.json';
+import notificationBody from '../../../fixtures/notifications/notification-creation.json';
+import { createNotification, enableNotificationFeature } from '../common';
 
 const previousPageLabel = 'Previous page';
 const nextPageLabel = 'Next page';

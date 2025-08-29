@@ -39,6 +39,8 @@ export interface WidgetPropertyProps {
   requireResourceType?: boolean;
   required?: boolean;
   restrictedResourceTypes?: Array<string>;
+  forcedResourceType?: string;
+  defaultResourceTypes?: Array<string>;
   secondaryLabel?: Array<string> | string;
   show?: ShowInput;
   singleResourceType?: boolean;
@@ -62,11 +64,14 @@ export interface WidgetPropertyProps {
   type: string;
   useAdditionalResources?: boolean;
   isRequiredProperty?: boolean;
+  tooltipLabel?: string;
+  subInputsDelimiter?: string;
+  allowRegexOnResourceTypes?: Array<WidgetResourceType>;
 }
 
 export interface WidgetDataResource {
   resourceType: WidgetResourceType;
-  resources: Array<SelectEntry>;
+  resources: Array<SelectEntry> | string;
 }
 export interface WidgetDataMetric {
   id: number;

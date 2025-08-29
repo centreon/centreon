@@ -101,7 +101,7 @@ jobs:
           password: ${{ secrets.registry_password }}
 
       - name: Setup PHP
-        uses: shivammathur/setup-php@0f7f1d08e3e32076e51cae65eb0b0c871405b16e # v2.34.1
+        uses: shivammathur/setup-php@ccf2c627fe61b1b4d924adfcbd19d661a18133a0 # v2.35.2
         with:
           php-version: 8.2
           coverage: none
@@ -119,8 +119,12 @@ jobs:
         with:
           node-version: 20
 
+      - name: Create configuration file
+        run: cp config/centreon.config.php.template config/centreon.config.php
+        working-directory: ${{ inputs.module_name }}
+
       - name: Install dependencies
-        run: composer install --optimize-autoloader
+        run: composer install --optimize-autoloader --no-scripts
         working-directory: ${{ inputs.module_name }}
 
       - name: Restore standard slim image from cache
@@ -229,25 +233,3 @@ jobs:
         with:
           name: ${{ inputs.name }}-${{ inputs.os }}-${{ matrix.type_of_report }}-*
           failOnError: false
-
-  create-jira-nightly-ticket:
-    needs: [behat-test-run, behat-test-report, regroup-artifacts]
-    runs-on: ubuntu-24.04
-    if: |
-      inputs.is_nightly == 'true' && github.run_attempt == 1 &&
-      (failure() || cancelled()) &&
-      startsWith(github.ref_name, 'dev') &&
-      github.repository == 'centreon/centreon'
-    steps:
-      - name: Checkout sources
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-
-      - name: Create Jira ticket on nightly build failure
-        uses: ./.github/actions/create-jira-ticket
-        with:
-          jira_base_url: ${{ secrets.jira_base_url }}
-          jira_user_email: ${{ secrets.jira_user_email }}
-          jira_api_token: ${{ secrets.jira_api_token }}
-          module_name: "centreon-web"
-          ticket_labels: '["Nightly", "Pipeline", "nightly-${{ github.ref_name }}", "legacy-e2e-${{ inputs.os }}-${{ inputs.database_image }}"]'
-          ticket_squad: "Product Backlog"

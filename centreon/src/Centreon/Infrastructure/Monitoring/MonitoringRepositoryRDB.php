@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2020 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,6 +18,7 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Centreon\Infrastructure\Monitoring;
@@ -548,8 +549,12 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
             }
         }
 
-        $request = 'SELECT SQL_CALC_FOUND_ROWS DISTINCT 1 AS REALTIME, hg.* FROM `:dbstg`.`hostgroups` hg '
-            . $subRequest;
+        $request = <<<'SQL'
+                SELECT SQL_CALC_FOUND_ROWS DISTINCT 1 AS REALTIME, hg.* 
+                FROM `:dbstg`.`hostgroups` hg 
+                    INNER JOIN `:db` . `hostgroup` chg ON chg.hg_id = hg.hostgroup_id 
+            SQL;
+        $request .= $subRequest;
 
         $request = $this->translateDbName($request);
 
@@ -1485,9 +1490,13 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
             }
         }
 
-        $request
-            = 'SELECT SQL_CALC_FOUND_ROWS DISTINCT 1 AS REALTIME, sg.*
-            FROM `:dbstg`.`servicegroups` sg ' . $subRequest;
+        $request = <<<'SQL'
+                SELECT SQL_CALC_FOUND_ROWS DISTINCT 1 AS REALTIME, sg.*
+                FROM `:dbstg`.`servicegroups` sg 
+                    INNER JOIN `:db`.`servicegroup` csg
+                        ON csg.sg_id = sg.servicegroup_id
+            SQL;
+        $request .= $subRequest;
         $request = $this->translateDbName($request);
 
         // Search
