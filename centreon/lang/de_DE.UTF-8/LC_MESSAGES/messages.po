@@ -19575,10 +19575,6 @@ msgstr ""
 msgid "removed"
 msgstr ""
 
-#: centreon/www/include/monitoring/downtime/listDowntime.php
-msgid "s"
-msgstr "s"
-
 #: centreon/www/install/dashboard_widgets.php
 msgid "scaleLogarithmicBase"
 msgstr ""
@@ -21079,3 +21075,34 @@ msgstr "Standard"
 #: unknown
 msgid "it's required"
 msgstr "es ist erforderlich"
+
+#: unknown
+msgid "s"
+msgstr "s"
+
+# msgid "Data is aggregated monthly over the last 12 months for graphs presenting host groups."
+# msgstr ""
+
+# msgid "Data is aggregated monthly over the last 12 months for graphs presenting host categories."
+# msgstr ""
+
+# msgid "Data is aggregated daily for graphs presenting hosts."
+# msgstr ""
+
+# msgid "If you want to display the graph with host categories and hosts, you must select only one hostgroup."
+# msgstr ""
+
+# msgid "Display with this resource type"
+# msgstr ""
+
+# msgid "Hostgroup availability history"
+# msgstr ""
+
+# msgid "Displays the availability history of hosts, host categories or hostgroups."
+# msgstr ""
+
+# msgid "No data is displayed because the selected resources have not been configured in any MBI report or do not contain enough data."
+# msgstr ""
+
+# msgid "Please note that data aggregation may take several days."
+# msgstr ""
