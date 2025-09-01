@@ -27,7 +27,6 @@ require_once __DIR__ . '/../../../bootstrap.php';
 $version = '24.04.18';
 $errorMessage = '';
 
-// TODO add your functions here
 
 $alterContactPagerSize = function () use ($pearDB, &$errorMessage): void {
     $errorMessage = 'Unable to alter contact_pager column size in contact table';
