@@ -25,6 +25,7 @@ namespace Core\Security\Authentication\Application\UseCase\LogoutSession;
 
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Application\Common\UseCase\ErrorResponse;
+use Core\Common\Domain\Exception\RepositoryException;
 use Core\Security\Authentication\Application\Repository\WriteSessionRepositoryInterface;
 
 class LogoutSession
@@ -42,6 +43,8 @@ class LogoutSession
     /**
      * @param mixed $token
      * @param LogoutSessionPresenterInterface $presenter
+     *
+     * @throws RepositoryException
      */
     public function __invoke(
         mixed $token,

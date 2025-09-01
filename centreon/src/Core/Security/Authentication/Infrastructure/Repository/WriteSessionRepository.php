@@ -23,21 +23,20 @@ declare(strict_types=1);
 
 namespace Core\Security\Authentication\Infrastructure\Repository;
 
-use Centreon\Domain\Log\LoggerTrait;
+use Core\Common\Domain\Exception\RepositoryException;
 use Core\Security\Authentication\Application\Provider\ProviderAuthenticationFactoryInterface;
 use Core\Security\Authentication\Application\Repository\WriteSessionRepositoryInterface;
 use Core\Security\Authentication\Application\Repository\WriteSessionTokenRepositoryInterface;
 use Core\Security\Authentication\Infrastructure\Provider\OpenId;
 use Core\Security\Authentication\Infrastructure\Provider\SAML;
 use Core\Security\ProviderConfiguration\Domain\Model\Provider;
-use Core\Security\ProviderConfiguration\Domain\OpenId\Model\CustomConfiguration as OpenIdCustomConfiguration;
 use Core\Security\ProviderConfiguration\Domain\SAML\Model\CustomConfiguration;
 use Exception;
+use OneLogin\Saml2\Error;
 use Symfony\Component\HttpFoundation\RequestStack;
 
-class WriteSessionRepository implements WriteSessionRepositoryInterface
+readonly class WriteSessionRepository implements WriteSessionRepositoryInterface
 {
-    use LoggerTrait;
 
     /**
      * @param RequestStack $requestStack
@@ -45,23 +44,22 @@ class WriteSessionRepository implements WriteSessionRepositoryInterface
      * @param ProviderAuthenticationFactoryInterface $providerFactory
      */
     public function __construct(
-        private readonly RequestStack $requestStack,
-        private readonly WriteSessionTokenRepositoryInterface $writeSessionTokenRepository,
-        private readonly ProviderAuthenticationFactoryInterface $providerFactory
+        private RequestStack $requestStack,
+        private WriteSessionTokenRepositoryInterface $writeSessionTokenRepository,
+        private ProviderAuthenticationFactoryInterface $providerFactory
     ) {
     }
 
     /**
      * @inheritDoc
      */
-    public function invalidate(): void
+    public function invalidate(?callable $callback = null): void
     {
         $session = $this->requestStack->getSession();
         $idToken = $session->get('openid_id_token') ?? '';
         $sessionId = $session->getId();
         $this->writeSessionTokenRepository->deleteSession($sessionId);
         $centreon = $session->get('centreon');
-        $session->invalidate();
 
         if ($centreon && $centreon->user->authType === Provider::SAML) {
             /** @var SAML $provider */
@@ -73,8 +71,15 @@ class WriteSessionRepository implements WriteSessionRepositoryInterface
                 $configuration->isActive()
                 && $customConfiguration->getLogoutFrom() === CustomConfiguration::LOGOUT_FROM_CENTREON_AND_IDP
             ) {
-                $this->info('Logout from Centreon and SAML IDP...');
-                $provider->logout(); // The redirection is done here by the IDP
+                try {
+                    $provider->logout();
+                } catch (Error $e) {
+                    throw new RepositoryException(
+                        message: 'SAML logout failed: ' . $e->getMessage(),
+                        context: ['user_id' => $centreon->user->user_id],
+                        previous: $e
+                    );
+                }
             }
         }
 
@@ -82,27 +87,37 @@ class WriteSessionRepository implements WriteSessionRepositoryInterface
             /** @var OpenId $provider */
             $provider = $this->providerFactory->create(Provider::OPENID);
             $configuration = $provider->getConfiguration();
-            /** @var OpenIdCustomConfiguration $customConfiguration */
-            $customConfiguration = $configuration->getCustomConfiguration();
             $isLogin = $this->requestStack->getSession()->get('isLogin') ?? false;
             if ($configuration->isActive()) {
                 try {
                     $provider->logout($idToken, $isLogin);
                 } catch (Exception $e) {
-                    $this->error('OpenID logout failed: ' . $e->getMessage(), [
-                        'exception' => $e,
-                    ]);
+                    throw new RepositoryException(
+                        message: 'OpenID logout failed: ' . $e->getMessage(),
+                        context: ['user_id' => $centreon->user->user_id],
+                        previous: $e
+                    );
                 }
             }
         }
+
+        if ($callback !== null) {
+            try {
+                $callback();
+            } catch (\Throwable $e) {
+                throw new RepositoryException(
+                    message: 'An error occurred while executing the invalidate callback: ' . $e->getMessage(),
+                    context: ['user_id' => $centreon->user->user_id],
+                    previous: $e
+                );
+            }
+        }
+
+        $session->invalidate();
     }
 
     /**
-     * Start a session (included the legacy session).
-     *
-     * @param \Centreon $legacySession
-     *
-     * @return bool
+     * @inheritDoc
      */
     public function start(\Centreon $legacySession): bool
     {
@@ -110,7 +125,6 @@ class WriteSessionRepository implements WriteSessionRepositoryInterface
             return true;
         }
 
-        $this->info('[AUTHENTICATE] Starting Centreon Session');
         $this->requestStack->getSession()->start();
         $this->requestStack->getSession()->set('centreon', $legacySession);
         $this->requestStack->getSession()->set('isLogin', true);
@@ -118,7 +132,15 @@ class WriteSessionRepository implements WriteSessionRepositoryInterface
 
         $isSessionStarted = $this->requestStack->getSession()->isStarted();
         if ($isSessionStarted === false) {
-            $this->invalidate();
+            try {
+                $this->invalidate();
+            } catch (RepositoryException $e) {
+                throw new RepositoryException(
+                    message: 'An error occurred while invalidating the session after a failed start: ' . $e->getMessage(),
+                    context: ['user_id'=>$legacySession->user->user_id],
+                    previous: $e
+                );
+            }
         }
 
         return $isSessionStarted;

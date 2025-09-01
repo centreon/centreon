@@ -24,32 +24,33 @@ declare(strict_types=1);
 namespace Core\Security\Authentication\Application\UseCase\LogoutSession\SAML;
 
 use Centreon\Domain\Log\LoggerTrait;
+use Core\Common\Domain\Exception\RepositoryException;
 use Core\Security\Authentication\Application\Provider\ProviderAuthenticationFactoryInterface;
 use Core\Security\Authentication\Application\Repository\WriteSessionRepositoryInterface;
 use Core\Security\Authentication\Infrastructure\Provider\SAML;
 use Core\Security\ProviderConfiguration\Domain\Model\Provider;
 
-class LogoutFromIdp
+readonly class LogoutFromIdp
 {
-    use LoggerTrait;
-
     /**
      * @param WriteSessionRepositoryInterface $writeSessionRepository
      * @param ProviderAuthenticationFactoryInterface $providerFactory
      */
     public function __construct(
-        private readonly WriteSessionRepositoryInterface $writeSessionRepository,
-        private readonly ProviderAuthenticationFactoryInterface $providerFactory
+        private WriteSessionRepositoryInterface $writeSessionRepository,
+        private ProviderAuthenticationFactoryInterface $providerFactory
     ) {
     }
 
+    /**
+     * @throws RepositoryException
+     * @return void
+     */
     public function __invoke(): void
     {
         session_start();
-        $this->info('SAML SLS invoked');
         /** @var SAML $provider */
         $provider = $this->providerFactory->create(Provider::SAML);
-        $this->writeSessionRepository->invalidate();
-        $provider->handleCallbackLogoutResponse();
+        $this->writeSessionRepository->invalidate([$provider, 'handleCallbackLogoutResponse']);
     }
 }
