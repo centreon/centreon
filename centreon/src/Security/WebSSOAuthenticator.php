@@ -32,7 +32,6 @@ use Centreon\Domain\Option\Interfaces\OptionServiceInterface;
 use Centreon\Domain\Platform\Interfaces\PlatformRepositoryInterface;
 use Centreon\Domain\Repository\Interfaces\DataStorageEngineInterface;
 use Centreon\Domain\VersionHelper;
-use Core\Common\Domain\Exception\ExceptionFormatter;
 use Core\Common\Domain\Exception\RepositoryException;
 use Core\Common\Infrastructure\ExceptionLogger\ExceptionLogger;
 use Core\Infrastructure\Common\Api\HttpUrlTrait;
@@ -198,8 +197,9 @@ class WebSSOAuthenticator extends AbstractAuthenticator
         } catch (SSOAuthenticationException|CentreonAuthenticationException $exception) {
             ExceptionLogger::create()->log(
                 throwable: $exception,
-                context: ['user_id' => $this->provider->getAuthenticatedUser()->getId() ?? 'unknown']
+                context: ['user_id' => $this->provider->getAuthenticatedUser()?->getId() ?? 'unknown']
             );
+
             throw new AuthenticationException($exception->getMessage(), $exception->getCode(), previous: $exception);
         }
 
@@ -371,6 +371,7 @@ class WebSSOAuthenticator extends AbstractAuthenticator
                     throw CentreonAuthenticationException::notAuthenticated(previous: $rollbackException);
                 }
             }
+
             throw CentreonAuthenticationException::notAuthenticated(previous: $exception);
         }
     }

@@ -52,6 +52,7 @@ final class LogoutSessionController extends AbstractController
             $useCase($request->cookies->get('PHPSESSID'), $presenter);
         } catch (RepositoryException $e) {
             ExceptionLogger::create()->log($e);
+
             throw $e;
         }
 

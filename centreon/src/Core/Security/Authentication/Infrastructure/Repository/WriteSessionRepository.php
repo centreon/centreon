@@ -37,7 +37,6 @@ use Symfony\Component\HttpFoundation\RequestStack;
 
 readonly class WriteSessionRepository implements WriteSessionRepositoryInterface
 {
-
     /**
      * @param RequestStack $requestStack
      * @param WriteSessionTokenRepositoryInterface $writeSessionTokenRepository
@@ -137,7 +136,7 @@ readonly class WriteSessionRepository implements WriteSessionRepositoryInterface
             } catch (RepositoryException $e) {
                 throw new RepositoryException(
                     message: 'An error occurred while invalidating the session after a failed start: ' . $e->getMessage(),
-                    context: ['user_id'=>$legacySession->user->user_id],
+                    context: ['user_id' => $legacySession->user->user_id],
                     previous: $e
                 );
             }

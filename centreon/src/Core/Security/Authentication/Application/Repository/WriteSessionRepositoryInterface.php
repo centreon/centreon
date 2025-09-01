@@ -41,9 +41,8 @@ interface WriteSessionRepositoryInterface
      *
      * @param \Centreon $legacySession
      *
-     * @return bool
-     *
      * @throws RepositoryException
+     * @return bool
      */
     public function start(\Centreon $legacySession): bool;
 }

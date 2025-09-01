@@ -86,7 +86,8 @@ final class Login
         private MenuServiceInterface $menuService,
         private string $defaultRedirectUri,
         private readonly ThirdPartyLoginForm $thirdPartyLoginForm,
-    ) {}
+    ) {
+    }
 
     /**
      * @param LoginRequest $loginRequest
@@ -112,8 +113,8 @@ final class Login
 
             if ($this->sessionRepository->start($this->provider->getLegacySession())) {
                 if ($this->readTokenRepository->hasAuthenticationTokensByToken(
-                        $this->requestStack->getSession()->getId()
-                    ) === false) {
+                    $this->requestStack->getSession()->getId()
+                ) === false) {
                     if ($loginRequest->providerName === Provider::SAML && $this->thirdPartyLoginForm->isActive()) {
                         $this->createAuthenticationTokens(
                             $authToken = Encryption::generateRandomString(),
