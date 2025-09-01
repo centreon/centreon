@@ -52,7 +52,6 @@ try {
         $pearDB->beginTransaction();
     }
 
-    // TODO add your function calls to update the configuration database data here
 
     $pearDB->commit();
 
