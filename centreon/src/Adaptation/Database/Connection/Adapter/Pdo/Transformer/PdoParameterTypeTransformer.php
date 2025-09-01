@@ -55,7 +55,7 @@ abstract readonly class PdoParameterTypeTransformer
             \PDO::PARAM_STR => QueryParameterTypeEnum::STRING,
             \PDO::PARAM_LOB => QueryParameterTypeEnum::LARGE_OBJECT,
             \PDO::PARAM_BOOL => QueryParameterTypeEnum::BOOLEAN,
-            default => throw new TransformerException('Unknown PDO parameter type', ['pdo_parameter_type' => $pdoParameterType])
+            default => throw new TransformerException('Unknown PDO parameter type', ['pdo_parameter_type' => $pdoParameterType]),
         };
     }
 }

@@ -3313,6 +3313,17 @@
 			"script": {
 				"type": "text/javascript",
 				"exec": [
+					"if (!pm.request.headers.has('Content-Type')) {",
+					"    pm.request.headers.add({ key: 'Content-Type', value: 'application/json' });",
+					"}"
+				]
+			}
+		},
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
 					""
 				]
 			}
