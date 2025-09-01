@@ -22,6 +22,7 @@ import {
   labelDeleteAgent,
   labelDeletePoller,
   labelEncryptionLevel,
+  labelInsecure,
   labelInvalidExtension,
   labelInvalidPath,
   labelMonitoredHosts,
