@@ -407,7 +407,7 @@ class CentreonLogAction
                     $list_modifications[$i]['action_log_id'] = $field['action_log_id'];
                     $list_modifications[$i]['field_name'] = $field['field_name'];
                     $list_modifications[$i]['field_value_before'] = '';
-                    $list_modifications[$i]['field_value_after'] = HtmlSanitizer::createFromString($field['field_value'])->sanitize()->getString();
+                    $list_modifications[$i]['field_value_after'] = $field['field_value'];
                     foreach ($macroPasswordRef as $macroPasswordId) {
                         // handle the display modification for the fields macroOldValue_n while nothing was set before
                         if (str_contains($field['field_name'], 'macroOldValue_' . $macroPasswordId)) {
@@ -417,8 +417,8 @@ class CentreonLogAction
                 } elseif (isset($ref[$field['field_name']]) && $ref[$field['field_name']] != $field['field_value']) {
                     $list_modifications[$i]['action_log_id'] = $field['action_log_id'];
                     $list_modifications[$i]['field_name'] = $field['field_name'];
-                    $list_modifications[$i]['field_value_before'] = HtmlSanitizer::createFromString($ref[$field['field_name']])->sanitize()->getString();
-                    $list_modifications[$i]['field_value_after'] = HtmlSanitizer::createFromString($field['field_value'])->sanitize()->getString();
+                    $list_modifications[$i]['field_value_before'] = $ref[$field['field_name']];
+                    $list_modifications[$i]['field_value_after'] = $field['field_value'];
                     foreach ($macroPasswordRef as $macroPasswordId) {
                         // handle the display modification for the fields macroOldValue_n for "Before" and "After" value
                         if (str_contains($field['field_name'], 'macroOldValue_' . $macroPasswordId)) {
@@ -427,7 +427,7 @@ class CentreonLogAction
                         }
                     }
                 }
-                $ref[$field['field_name']] = HtmlSanitizer::createFromString($field['field_value'])->sanitize()->getString();
+                $ref[$field['field_name']] = $field['field_value'];
                 $i++;
             }
         }
