@@ -24,7 +24,7 @@ interface CheckHiddenConditionProps {
   values: FormikValues;
 }
 
-const checkHiddenCondition = ({
+export const checkHiddenCondition = ({
   hiddenCondition,
   hasModule,
   featureFlags,
