@@ -23,7 +23,6 @@ declare(strict_types=1);
 
 namespace Core\Security\Authentication\Application\UseCase\LogoutSession\SAML;
 
-use Centreon\Domain\Log\LoggerTrait;
 use Core\Common\Domain\Exception\RepositoryException;
 use Core\Security\Authentication\Application\Provider\ProviderAuthenticationFactoryInterface;
 use Core\Security\Authentication\Application\Repository\WriteSessionRepositoryInterface;

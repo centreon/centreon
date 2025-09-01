@@ -29,7 +29,6 @@ use Core\Common\Domain\Exception\RepositoryException;
 use Core\Common\Infrastructure\ExceptionLogger\ExceptionLogger;
 use Core\Infrastructure\Common\Api\HttpUrlTrait;
 use Core\Security\Authentication\Application\UseCase\LogoutSession\SAML\LogoutFromIdp;
-use OneLogin\Saml2\Error;
 
 final class SLSController extends AbstractController
 {
@@ -48,6 +47,7 @@ final class SLSController extends AbstractController
             $usecase();
         } catch (RepositoryException $e) {
             ExceptionLogger::create()->log($e);
+
             throw $e;
         }
     }

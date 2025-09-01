@@ -30,7 +30,7 @@ class AuthenticationException extends \Exception
      *
      * @return self
      */
-    public static function notAuthenticated(\Throwable $previous = null): self
+    public static function notAuthenticated(?\Throwable $previous = null): self
     {
         return new self(_('Authentication failed'), previous: $previous);
     }
