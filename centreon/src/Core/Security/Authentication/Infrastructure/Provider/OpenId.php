@@ -318,6 +318,9 @@ class OpenId implements ProviderAuthenticationInterface
         return $this->provider->getAclConditionsMatches();
     }
 
+    /**
+     * @throws SSOAuthenticationException
+     */
     public function getTokenForSession(): ?string
     {
         return $this->provider->getTokenForSession();
@@ -327,9 +330,9 @@ class OpenId implements ProviderAuthenticationInterface
      * Redirect the user to the OIDC end-session endpoint
      *
      * @param string $idToken
+     * @param bool $stay
      *
      * @throws Exception
-     *
      * @return string|null
      */
     public function logout(string $idToken, bool $stay = false): string|null

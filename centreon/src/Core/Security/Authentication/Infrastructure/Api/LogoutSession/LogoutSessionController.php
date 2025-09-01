@@ -24,6 +24,8 @@ declare(strict_types=1);
 namespace Core\Security\Authentication\Infrastructure\Api\LogoutSession;
 
 use Centreon\Application\Controller\AbstractController;
+use Core\Common\Domain\Exception\RepositoryException;
+use Core\Common\Infrastructure\ExceptionLogger\ExceptionLogger;
 use Core\Infrastructure\Common\Api\HttpUrlTrait;
 use Core\Security\Authentication\Application\UseCase\LogoutSession\LogoutSession;
 use Core\Security\Authentication\Application\UseCase\LogoutSession\LogoutSessionPresenterInterface;
@@ -38,6 +40,7 @@ final class LogoutSessionController extends AbstractController
      * @param Request $request
      * @param LogoutSessionPresenterInterface $presenter
      *
+     * @throws RepositoryException
      * @return object
      */
     public function __invoke(
@@ -45,7 +48,12 @@ final class LogoutSessionController extends AbstractController
         Request $request,
         LogoutSessionPresenterInterface $presenter,
     ): object {
-        $useCase($request->cookies->get('PHPSESSID'), $presenter);
+        try {
+            $useCase($request->cookies->get('PHPSESSID'), $presenter);
+        } catch (RepositoryException $e) {
+            ExceptionLogger::create()->log($e);
+            throw $e;
+        }
 
         return $this->redirect($this->getBaseUrl() . '/login');
     }

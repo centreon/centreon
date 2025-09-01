@@ -33,6 +33,8 @@ use Core\Application\Common\UseCase\ErrorAuthenticationConditionsResponse;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\PresenterInterface;
 use Core\Application\Common\UseCase\UnauthorizedResponse;
+use Core\Common\Domain\Exception\ExceptionFormatter;
+use Core\Common\Domain\Exception\RepositoryException;
 use Core\Security\Authentication\Application\Provider\ProviderAuthenticationFactoryInterface;
 use Core\Security\Authentication\Application\Provider\ProviderAuthenticationInterface;
 use Core\Security\Authentication\Application\Repository\ReadTokenRepositoryInterface;
@@ -84,8 +86,7 @@ final class Login
         private MenuServiceInterface $menuService,
         private string $defaultRedirectUri,
         private readonly ThirdPartyLoginForm $thirdPartyLoginForm,
-    ) {
-    }
+    ) {}
 
     /**
      * @param LoginRequest $loginRequest
@@ -110,7 +111,9 @@ final class Login
             $this->updateACL($user);
 
             if ($this->sessionRepository->start($this->provider->getLegacySession())) {
-                if ($this->readTokenRepository->hasAuthenticationTokensByToken($this->requestStack->getSession()->getId()) === false) {
+                if ($this->readTokenRepository->hasAuthenticationTokensByToken(
+                        $this->requestStack->getSession()->getId()
+                    ) === false) {
                     if ($loginRequest->providerName === Provider::SAML && $this->thirdPartyLoginForm->isActive()) {
                         $this->createAuthenticationTokens(
                             $authToken = Encryption::generateRandomString(),
@@ -137,7 +140,10 @@ final class Login
                             $request->getSession()
                                 ->set('openid_id_token', $provider->getTokenForSession());
                         } catch (SSOAuthenticationException $e) {
-                            throw new AuthenticationException('OpenID authentication failed: ' . $e->getMessage(), previous: $e);
+                            throw new AuthenticationException(
+                                'OpenID authentication failed: ' . $e->getMessage(),
+                                previous: $e
+                            );
                         }
 
                         $this->createAuthenticationTokens(
@@ -167,27 +173,39 @@ final class Login
                 )
             );
         } catch (PasswordExpiredException $exception) {
-            $this->info('The password expired', ['trace' => (string) $exception]);
+            $this->info('The password expired', ['exception' => ExceptionFormatter::format($exception)]);
             $response = new PasswordExpiredResponse($exception->getMessage());
             $response->setBody(['password_is_expired' => true]);
             $presenter->setResponseStatus($response);
 
             return;
         } catch (AuthenticationException $exception) {
-            $this->error('An error occurred during authentication', ['trace' => (string) $exception]);
+            $this->error(
+                message: 'An error occurred during authentication',
+                context: ['exception' => ExceptionFormatter::format($exception)]
+            );
             $presenter->setResponseStatus(new UnauthorizedResponse($exception->getMessage()));
 
             return;
         } catch (AclConditionsException $exception) {
-            $this->error('An error occured while matching your ACL conditions', ['trace' => (string) $exception]);
+            $this->error(
+                message: 'An error occured while matching your ACL conditions',
+                context: ['exception' => ExceptionFormatter::format($exception)]
+            );
             $presenter->setResponseStatus(new ErrorAclConditionsResponse($exception->getMessage()));
-        } catch (AuthenticationConditionsException $ex) {
-            $this->error('An error occured while matching your authentication conditions', ['trace' => (string) $ex]);
-            $presenter->setResponseStatus(new ErrorAuthenticationConditionsResponse($ex->getMessage()));
+        } catch (AuthenticationConditionsException $exception) {
+            $this->error(
+                message: 'An error occured while matching your authentication conditions',
+                context: ['exception' => ExceptionFormatter::format($exception)]
+            );
+            $presenter->setResponseStatus(new ErrorAuthenticationConditionsResponse($exception->getMessage()));
 
             return;
-        } catch (\Throwable $ex) {
-            $this->error('An error occurred during authentication', ['trace' => (string) $ex]);
+        } catch (\Throwable $exception) {
+            $this->error(
+                message: 'An error occurred during authentication',
+                context: ['exception' => ExceptionFormatter::format($exception)]
+            );
             $presenter->setResponseStatus(new ErrorResponse('An error occurred during authentication'));
 
             return;
@@ -203,7 +221,7 @@ final class Login
      * @param NewProviderToken|null $providerRefreshToken
      * @param string|null $clientIp
      *
-     * @throws AuthenticationException
+     * @throws AuthenticationException|RepositoryException
      */
     private function createAuthenticationTokens(
         string $sessionToken,
@@ -212,11 +230,14 @@ final class Login
         ?NewProviderToken $providerRefreshToken,
         ?string $clientIp,
     ): void {
-
         $isAlreadyInTransaction = $this->dataStorageEngine->isAlreadyinTransaction();
 
         if (! $isAlreadyInTransaction) {
-            $this->dataStorageEngine->startTransaction();
+            try {
+                $this->dataStorageEngine->startTransaction();
+            } catch (\Exception $e) {
+                throw new RepositoryException('Could not start transaction', previous: $e);
+            }
         }
 
         try {
@@ -234,7 +255,11 @@ final class Login
             }
         } catch (\Exception) {
             if (! $isAlreadyInTransaction) {
-                $this->dataStorageEngine->rollbackTransaction();
+                try {
+                    $this->dataStorageEngine->rollbackTransaction();
+                } catch (\Exception $e) {
+                    throw new RepositoryException('Could not rollback transaction', previous: $e);
+                }
             }
 
             throw AuthenticationException::notAuthenticated();
