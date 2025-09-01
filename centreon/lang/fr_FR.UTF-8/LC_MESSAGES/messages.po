@@ -2517,8 +2517,8 @@ msgstr ""
 
 #: centreon/www/install/front_translate.php
 #: centreon/www/install/react_translation.php
-msgid "Centreon Central IP address, as seen by this server"
-msgstr "Adresse IP du Central Centreon, telle que vue par ce serveur"
+msgid "Centreon Central address, as seen by this server"
+msgstr "Adresse du Central Centreon, telle que vue par ce serveur"
 
 #: centreon/www/include/configuration/configServers/formServers.php
 msgid "Centreon Connector"

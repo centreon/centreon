@@ -23,7 +23,7 @@ export const labelDbUser = 'Database username';
 export const labelDbPassword = 'Database password';
 
 export const labelCentreonCentralIp =
-  'Centreon Central IP address, as seen by this server';
+  'Centreon Central address, as seen by this server';
 export const labelCentreonFolder = 'Centreon Web Folder on Remote';
 
 export const labelLinkedRemoteMaster =

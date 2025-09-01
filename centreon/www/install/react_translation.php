@@ -39,7 +39,7 @@ echo _('Server Name');
 echo _('Server address');
 echo _('Database username');
 echo _('Database password');
-echo _('Centreon Central IP address, as seen by this server');
+echo _('Centreon Central address, as seen by this server');
 echo _('Centreon Web Folder on Remote');
 echo _('Select Pending Remote Links');
 echo _('Select IP');
