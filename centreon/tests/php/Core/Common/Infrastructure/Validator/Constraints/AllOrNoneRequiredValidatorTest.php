@@ -23,15 +23,15 @@ declare(strict_types=1);
 
 namespace Tests\Core\Common\Infrastructure\Validator\Constraints;
 
-use Core\Common\Infrastructure\Validator\Constraints\AllRequired;
-use Core\Common\Infrastructure\Validator\Constraints\AllRequiredValidator;
+use Core\Common\Infrastructure\Validator\Constraints\AllOrNoneRequired;
+use Core\Common\Infrastructure\Validator\Constraints\AllOnNoneRequiredValidator;
 use Symfony\Component\Validator\ConstraintValidatorInterface;
 use Symfony\Component\Validator\Test\ConstraintValidatorTestCase;
 
 /**
  * @extends ConstraintValidatorTestCase<ConstraintValidatorInterface>
  */
-final class AllRequiredValidatorTest extends ConstraintValidatorTestCase
+final class AllOrNoneRequiredValidatorTest extends ConstraintValidatorTestCase
 {
     public const PROPERTIES = ['firstProperty', 'secondProperty'];
 
@@ -40,7 +40,7 @@ final class AllRequiredValidatorTest extends ConstraintValidatorTestCase
      */
     public function testValidData(object $object): void
     {
-        $constraint = new AllRequired(properties: self::PROPERTIES);
+        $constraint = new AllOrNoneRequired(properties: self::PROPERTIES);
         $this->validator->validate($object, $constraint);
 
         $this->assertNoViolation();
@@ -51,7 +51,7 @@ final class AllRequiredValidatorTest extends ConstraintValidatorTestCase
      */
     public function testInvalidData(object $object): void
     {
-        $constraint = new AllRequired(properties: self::PROPERTIES);
+        $constraint = new AllOrNoneRequired(properties: self::PROPERTIES);
         $this->validator->validate($object, $constraint);
 
         $this->buildViolation($constraint->message)
@@ -64,6 +64,22 @@ final class AllRequiredValidatorTest extends ConstraintValidatorTestCase
      */
     public static function validDataProvider(): \Generator
     {
+        yield 'both properties are null' => [
+            new class () {
+                public ?int $firstProperty = null;
+
+                public ?string $secondProperty = null;
+
+                public array $thirdProperty = [];
+            },
+        ];
+
+        yield 'both properties are missing' => [
+            new class () {
+                public array $thirdProperty = [];
+            },
+        ];
+
         yield 'both properties are not null' => [
             new class () {
                 public ?int $firstProperty = 1;
@@ -80,16 +96,6 @@ final class AllRequiredValidatorTest extends ConstraintValidatorTestCase
      */
     public static function invalidDataProvider(): \Generator
     {
-        yield 'both properties are null' => [
-            new class () {
-                public ?int $firstProperty = null;
-
-                public ?string $secondProperty = null;
-
-                public array $thirdProperty = [];
-            },
-        ];
-
         yield 'one property is null' => [
             new class () {
                 public ?int $firstProperty = 1;
@@ -107,16 +113,10 @@ final class AllRequiredValidatorTest extends ConstraintValidatorTestCase
                 public array $thirdProperty = [];
             },
         ];
-
-        yield 'both properties are missing' => [
-            new class () {
-                public array $thirdProperty = [];
-            },
-        ];
     }
 
     protected function createValidator(): ConstraintValidatorInterface
     {
-        return new AllRequiredValidator();
+        return new AllOnNoneRequiredValidator();
     }
 }

@@ -28,12 +28,12 @@ use Symfony\Component\Validator\ConstraintValidator;
 use Symfony\Component\Validator\Exception\UnexpectedTypeException;
 use Symfony\Component\Validator\Exception\UnexpectedValueException;
 
-final class AllRequiredValidator extends ConstraintValidator
+final class AllOnNoneRequiredValidator extends ConstraintValidator
 {
     public function validate(mixed $object, Constraint $constraint): void
     {
-        if (! $constraint instanceof AllRequired) {
-            throw new UnexpectedTypeException($constraint, AllRequired::class);
+        if (! $constraint instanceof AllOrNoneRequired) {
+            throw new UnexpectedTypeException($constraint, AllOrNoneRequired::class);
         }
 
         if (! is_object($object)) {
@@ -48,7 +48,7 @@ final class AllRequiredValidator extends ConstraintValidator
             }
         }
 
-        if ($presentCount !== count($properties)) {
+        if (! ($presentCount === count($properties) xor $presentCount === 0)) {
             $this->context->buildViolation($constraint->message)
                 ->setParameter('{{ properties }}', implode(', ', $properties))
                 ->addViolation();

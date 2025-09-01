@@ -26,15 +26,15 @@ namespace Core\Common\Infrastructure\Validator\Constraints;
 use Symfony\Component\Validator\Constraint;
 
 /**
- * A custom constraint applied at the class level to validate a logical AND between two properties.
+ * A custom constraint applied at the class level to validate a logical NOT XOR (XNOR) between two properties.
  *
  * Ensures that both specified properties are set (i.e., not just one). Validation fails if only one
  * of the properties is set or if both are null/empty.
  */
 #[\Attribute]
-final class AllRequired extends Constraint
+final class AllOrNoneRequired extends Constraint
 {
-    public string $message = 'All {{ properties }} must be provided.';
+    public string $message = 'Either all {{ properties }} must be provided or none.';
 
     /**
      * @param array<string> $properties
