@@ -35,7 +35,7 @@ use Exception;
 use OneLogin\Saml2\Error;
 use Symfony\Component\HttpFoundation\RequestStack;
 
-readonly class WriteSessionRepository implements WriteSessionRepositoryInterface
+class WriteSessionRepository implements WriteSessionRepositoryInterface
 {
     /**
      * @param RequestStack $requestStack
@@ -43,9 +43,9 @@ readonly class WriteSessionRepository implements WriteSessionRepositoryInterface
      * @param ProviderAuthenticationFactoryInterface $providerFactory
      */
     public function __construct(
-        private RequestStack $requestStack,
-        private WriteSessionTokenRepositoryInterface $writeSessionTokenRepository,
-        private ProviderAuthenticationFactoryInterface $providerFactory
+        private readonly RequestStack $requestStack,
+        private readonly WriteSessionTokenRepositoryInterface $writeSessionTokenRepository,
+        private readonly ProviderAuthenticationFactoryInterface $providerFactory
     ) {
     }
 
