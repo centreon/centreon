@@ -42,7 +42,6 @@ $alterContactPagerSize = function () use ($pearDB, &$errorMessage): void {
 
 try {
     // DDL statements for real time database
-    // TODO add your function calls to update the real time database structure here
 
     // DDL statements for configuration database
     $alterContactPagerSize();
