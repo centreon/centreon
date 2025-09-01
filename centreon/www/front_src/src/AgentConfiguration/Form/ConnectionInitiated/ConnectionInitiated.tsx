@@ -75,7 +75,8 @@ const ConnectionInitiated = (): JSX.Element => {
   const { classes } = useStyles();
   const { t } = useTranslation();
 
-  const { values, setFieldValue } = useFormikContext<AgentConfigurationForm>();
+  const { values, setFieldValue, validateForm } =
+    useFormikContext<AgentConfigurationForm>();
 
   const handleChange =
     (name: string) =>
@@ -99,6 +100,10 @@ const ConnectionInitiated = (): JSX.Element => {
       }
 
       setFieldValue(`configuration.${name}`, checked);
+
+      setTimeout(() => {
+        validateForm();
+      }, 0);
     };
 
   const isNoTLSMode = useMemo(
