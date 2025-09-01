@@ -18,7 +18,7 @@ import {
 } from '../../utils';
 
 import SingleMetricRenderer from './SingleMetricRenderer';
-import { getMetricsEndpoint } from './api/endpoints';
+import { selectEndpoint } from './api/endpoints';
 import { FormThreshold, SingleMetricGraphType, ValueFormat } from './models';
 
 interface Props {
@@ -72,6 +72,10 @@ const Graph = ({
         ?.resources || []
     );
 
+    if (isMetaServiceSelected) {
+      return resources[0]?.resources[0]?.id;
+    }
+
     return metrics.find(({ serviceName }) => equals(serviceName, service?.name))
       ?.serviceId;
   };
@@ -83,11 +87,13 @@ const Graph = ({
 
   const baseEndpoint = getWidgetEndpoint({
     dashboardId,
-    defaultEndpoint: getMetricsEndpoint({
+    defaultEndpoint: selectEndpoint({
+      isMetaServiceSelected,
+      idForService: getServiceId(),
       hostId,
-      serviceId: getServiceId(),
       metricName
     }),
+    displayType,
     isOnPublicPage,
     playlistHash,
     widgetId: id
@@ -102,7 +108,7 @@ const Graph = ({
     refreshCount,
     refreshInterval: refreshIntervalToUse,
     resources,
-    isEnabled: Boolean(hostId && getServiceId())
+    isEnabled: Boolean(hostId && (getServiceId() || isMetaServiceSelected))
   });
 
   const displayAsRaw = equals('raw')(valueFormat);

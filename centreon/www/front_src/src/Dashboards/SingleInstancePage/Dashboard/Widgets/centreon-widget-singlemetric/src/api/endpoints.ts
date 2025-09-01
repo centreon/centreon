@@ -6,3 +6,32 @@ interface Props {
 
 export const getMetricsEndpoint = ({ hostId, serviceId, metricName }: Props) =>
   `./api/latest/monitoring/hosts/${hostId}/services/${serviceId}/metrics/${metricName}`;
+
+interface MetaServiceProps {
+  metaServiceId: number;
+  metricName: string;
+}
+
+export const getMetricsMetaServiceEndpoint = ({
+  metaServiceId,
+  metricName
+}: MetaServiceProps) =>
+  `./api/latest/monitoring/metaservice/${metaServiceId}/metrics/${metricName}`;
+
+interface SelectEndpointProps {
+  isMetaServiceSelected: boolean;
+  idForService: number;
+  hostId: number;
+  metricName: string;
+}
+
+export const selectEndpoint = ({
+  isMetaServiceSelected,
+  idForService,
+  hostId,
+  metricName
+}: SelectEndpointProps) => {
+  return isMetaServiceSelected
+    ? getMetricsMetaServiceEndpoint({ metaServiceId: idForService, metricName })
+    : getMetricsEndpoint({ hostId, serviceId: idForService, metricName });
+};
