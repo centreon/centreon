@@ -28,7 +28,7 @@ use Symfony\Component\Validator\ConstraintValidator;
 use Symfony\Component\Validator\Exception\UnexpectedTypeException;
 use Symfony\Component\Validator\Exception\UnexpectedValueException;
 
-final class AllOnNoneRequiredValidator extends ConstraintValidator
+final class AllOrNoneRequiredValidator extends ConstraintValidator
 {
     public function validate(mixed $object, Constraint $constraint): void
     {

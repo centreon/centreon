@@ -24,7 +24,7 @@ declare(strict_types=1);
 namespace Tests\Core\Common\Infrastructure\Validator\Constraints;
 
 use Core\Common\Infrastructure\Validator\Constraints\AllOrNoneRequired;
-use Core\Common\Infrastructure\Validator\Constraints\AllOnNoneRequiredValidator;
+use Core\Common\Infrastructure\Validator\Constraints\AllOrNoneRequiredValidator;
 use Symfony\Component\Validator\ConstraintValidatorInterface;
 use Symfony\Component\Validator\Test\ConstraintValidatorTestCase;
 
@@ -117,6 +117,6 @@ final class AllOrNoneRequiredValidatorTest extends ConstraintValidatorTestCase
 
     protected function createValidator(): ConstraintValidatorInterface
     {
-        return new AllOnNoneRequiredValidator();
+        return new AllOrNoneRequiredValidator();
     }
 }
