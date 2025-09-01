@@ -15,6 +15,7 @@ export const developers = [
   'Laurent Pinsivy',
   'Loïc Thomas',
   'Maximilien Bersoult',
+  'MF DOOM',
   'Quentin Garnier',
   'Rémi Grès',
   'Tamaz Cheishvili',
