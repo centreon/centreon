@@ -3914,7 +3914,7 @@ msgstr "Vues personnalisées"
 
 #: centreon/www/install/dashboard_widgets.php
 msgid "Custom boundaries apply to the percentage."
-msgstr ""
+msgstr "Les limitations personnalisées s'appliquent au pourcentage."
 
 #: centreon/www/include/configuration/configObject/traps/formTraps.php
 msgid "Custom code"
@@ -4061,6 +4061,28 @@ msgstr "Sources de données"
 #: centreon/www/install/smarty_translate.php
 msgid "Data free"
 msgstr "Espace libre"
+
+#: centreon/www/install/dashboard_widgets.php
+msgid "Data is aggregated daily for graphs presenting hosts."
+msgstr ""
+"Les données sont agrégées quotidiennement pour les graphes présentant des "
+"hôtes."
+
+#: centreon/www/install/dashboard_widgets.php
+msgid ""
+"Data is aggregated monthly over the last 12 months for graphs presenting "
+"host categories."
+msgstr ""
+"Les données sont agrégées mensuellement sur les 12 derniers mois pour les "
+"graphes présentant des catégories d'hôtes."
+
+#: centreon/www/install/dashboard_widgets.php
+msgid ""
+"Data is aggregated monthly over the last 12 months for graphs presenting "
+"host groups."
+msgstr ""
+"Les données sont agrégées mensuellement sur les 12 derniers mois pour les "
+"graphes présentant des groupes d'hôtes."
 
 #: centreon/www/install/smarty_translate.php
 msgid "Data size"
@@ -4869,6 +4891,10 @@ msgid "Display availability and performance as"
 msgstr "Afficher la disponibilité et la performance sous forme de"
 
 #: centreon/www/install/dashboard_widgets.php
+msgid "Display availability as"
+msgstr ""
+
+#: centreon/www/install/dashboard_widgets.php
 msgid "Display average as"
 msgstr "Afficher la moyenne sous forme de"
 
@@ -4959,6 +4985,10 @@ msgid "Display view:"
 msgstr "Afficher la vue :"
 
 #: centreon/www/install/dashboard_widgets.php
+msgid "Display with this resource type"
+msgstr "Afficher les ressources avec ce type"
+
+#: centreon/www/install/dashboard_widgets.php
 msgid "Display with this view"
 msgstr "Afficher avec cette vue"
 
@@ -5010,6 +5040,13 @@ msgstr ""
 #: centreon/www/install/dashboard_widgets.php
 msgid "Displays metrics for a given time period."
 msgstr "Affiche les métriques pour une période donnée."
+
+#: centreon/www/install/dashboard_widgets.php
+msgid ""
+"Displays the availability history of hosts, host categories or hostgroups."
+msgstr ""
+"Affiche l’historique de la disponibilité d’hôtes, catégories d’hôtes ou "
+"groupes d’hôtes."
 
 #: centreon/www/install/dashboard_widgets.php
 msgid ""
@@ -8187,6 +8224,7 @@ msgstr "Acquitter un hôte"
 #: centreon/www/include/configuration/configObject/host/formHost.php
 #: centreon/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php
 #: centreon/www/include/monitoring/objectDetails/hostDetails.php
+#: centreon/www/install/dashboard_widgets.php
 msgid "Host Categories"
 msgstr "Catégories d'hôte"
 
@@ -8417,6 +8455,7 @@ msgstr "Groupe d'hôtes"
 msgid "Host group (%s) not found"
 msgstr "Groupe d'hôte (%s) non trouvé"
 
+#: centreon/www/install/dashboard_widgets.php
 #: centreon/www/install/front_translate.php
 msgid "Host groups"
 msgstr "Groupes d'hôtes"
@@ -8637,6 +8676,10 @@ msgstr "Groupe d'hôtes"
 msgid "Hostgroup Relations"
 msgstr "Groupes d'hôtes d'appartenance"
 
+#: centreon/www/install/dashboard_widgets.php
+msgid "Hostgroup availability history"
+msgstr "Historique de la disponibilité des groupes d’hôtes"
+
 #: centreon/www/install/smarty_translate.php
 msgid "Hostgroup dependency"
 msgstr "Dépendance de groupe d'hôtes"
@@ -8688,6 +8731,7 @@ msgstr "Résumé des statuts par groupes d'hôtes"
 #: centreon/www/include/monitoring/status/ServicesServiceGroups/xml/serviceSummaryBySGXML.php
 #: centreon/www/include/options/accessLists/resourcesACL/formResourcesAccess.php
 #: centreon/www/include/reporting/dashboard/csvExport/csv_HostGroupLogs.php
+#: centreon/www/install/dashboard_widgets.php
 #: centreon/www/install/front_translate.php
 #: centreon/www/install/menu_translation.php
 #: centreon/www/widgets/global-health/src/global_health.php
@@ -8920,6 +8964,14 @@ msgstr ""
 msgid "If you leave {{dashboardName}}, your changes will not be saved."
 msgstr ""
 "Si vous quittez {{dashboardName}}, vos changements ne seront pas sauvegardés."
+
+#: centreon/www/install/dashboard_widgets.php
+msgid ""
+"If you want to display the graph with host categories and hosts, you must "
+"select only one hostgroup."
+msgstr ""
+"Si vous souhaitez afficher le graphe avec les catégories d'hôtes et les "
+"hôtes, vous ne devez sélectionner qu'un seul groupe d'hôtes."
 
 #: centreon/www/include/Administration/parameters/knowledgeBase/formKnowledgeBase.php
 msgid "Ignore ssl certificate"
@@ -16831,6 +16883,10 @@ msgstr "Le widget {{name}} sera définitivement supprimé."
 msgid "There are not enough arguments to build the object %s"
 msgstr "Il n'y a pas assez d'arguments pour construire l'objet %s"
 
+#: centreon/www/install/dashboard_widgets.php
+msgid "These time periods are defined in MBI'S ETL options."
+msgstr "Ces périodes temporelles sont définies dans les options ETL de MBI."
+
 #: centreon/www/install/front_translate.php
 msgid ""
 "They will be permanently deleted and users will no longer have these "
@@ -18564,7 +18620,7 @@ msgstr "Horodatage d'écriture (déprécié)"
 
 #: centreon/www/install/dashboard_widgets.php
 msgid "Y-axis boundaries"
-msgstr ""
+msgstr "Limitations de l'axe Y"
 
 #: centreon/www/install/dashboard_widgets.php
 msgid "Y-axis label rotation"
@@ -22382,6 +22438,15 @@ msgid "No data available"
 msgstr "Aucune donnée disponible"
 
 #: unknown
+msgid ""
+"No data is displayed because the selected resources have not been "
+"configured in any MBI report or do not contain enough data."
+msgstr ""
+"Aucune donnée n'est affichée car les ressources sélectionnées n'ont été "
+"configurées dans aucun rapport MBI ou ne contiennent pas suffisamment de "
+"données."
+
+#: unknown
 msgid "No downtime scheduled for hosts"
 msgstr "Aucune plage de maintenance planifiée pour les hôtes"
 
@@ -22664,6 +22729,11 @@ msgstr ""
 msgid "Please enter a name for the resource access rule to duplicate"
 msgstr ""
 "Veuillez saisir un nom pour la règle d'accès aux ressources à dupliquer"
+
+#: unknown
+msgid "Please note that data aggregation may take several days."
+msgstr ""
+"Veuillez noter que l'agrégation des données peut prendre plusieurs jours."
 
 #: unknown
 msgid "Please select an user in order to display resources"
@@ -23584,6 +23654,15 @@ msgstr "Ce champ est obligatoire"
 #: unknown
 msgid "Threshold"
 msgstr "Seuil"
+
+#: unknown
+msgid ""
+"Thresholds can be hidden if the custom min and max values of the Y axis "
+"are below/above the thresholds."
+msgstr ""
+"Les seuils peuvent être masqués si les valeurs minimales et maximales "
+"personnalisées de l'axe Y sont respectivement inférieures et supérieures "
+"aux seuils."
 
 #: unknown
 msgid "Ticket management"

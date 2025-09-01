@@ -60,7 +60,7 @@ class Kernel extends BaseKernel
     {
         if (! self::$instance instanceof self) {
             include_once \dirname(__DIR__, 2) . '/config/bootstrap.php';
-            if (isset($_SERVER['APP_DEBUG']) && '1' === $_SERVER['APP_DEBUG']) {
+            if (isset($_SERVER['APP_DEBUG']) && $_SERVER['APP_DEBUG'] === '1') {
                 umask(0000);
                 Debug::enable();
             } else {
