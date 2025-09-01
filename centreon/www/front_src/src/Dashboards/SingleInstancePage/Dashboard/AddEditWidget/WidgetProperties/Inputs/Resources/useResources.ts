@@ -23,8 +23,8 @@ import {
   project,
   propEq,
   reject,
-  uniqBy,
-  type
+  type,
+  uniqBy
 } from 'ramda';
 
 import {
@@ -37,6 +37,7 @@ import {
 import { additionalResourcesAtom } from '@centreon/ui-context';
 
 import { baseEndpoint } from '../../../../../../../api/endpoint';
+import { WidgetHiddenCondition } from '../../../../../../../federatedModules/models';
 import { getIsMetaServiceSelected } from '../../../../Widgets/utils';
 import {
   labelHost,
@@ -52,7 +53,10 @@ import {
   hasMetricInputTypeDerivedAtom,
   widgetPropertiesMetaPropertiesDerivedAtom
 } from '../../../atoms';
+import { checkHiddenCondition } from '../../handleHiddenConditions';
+
 import {
+  ForceSingleAutocompleteConditions,
   Widget,
   WidgetDataResource,
   WidgetPropertyProps,
@@ -63,6 +67,11 @@ import {
   getDataProperty
 } from '../utils';
 import { resourceTypeToToggleRegexAtom } from './atoms';
+
+interface CheckForceSingleAutocompleteProps {
+  resourceType: string;
+  forceSingleAutocompleteConditions: ForceSingleAutocompleteConditions;
+}
 
 export interface UseResourcesState {
   addButtonHidden?: boolean;
@@ -97,6 +106,9 @@ export interface UseResourcesState {
   singleResourceSelection?: boolean;
   value: Array<WidgetDataResource>;
   isValidatingResources: boolean;
+  checkForceSingleAutocomplete: (
+    props: CheckForceSingleAutocompleteProps
+  ) => boolean;
   getIsRegexAllowedOnResourceType: (
     resourceType: WidgetResourceType
   ) => boolean;
@@ -208,17 +220,6 @@ const getAdditionalQueryParameters = (
   }
 ];
 
-const singleMetricBaseResources = [
-  {
-    resourceType: WidgetResourceType.host,
-    resources: []
-  },
-  {
-    resourceType: WidgetResourceType.service,
-    resources: []
-  }
-];
-
 const isResourcesString = (resources: Array<SelectEntry> | string) =>
   equals(type(resources), 'String');
 
@@ -238,9 +239,9 @@ const useResources = ({
   required,
   useAdditionalResources,
   excludedResourceTypes,
+  allowRegexOnResourceTypes,
   forcedResourceType,
-  defaultResourceTypes,
-  allowRegexOnResourceTypes
+  defaultResourceTypes
 }: Pick<
   WidgetPropertyProps,
   | 'propertyName'
@@ -248,9 +249,9 @@ const useResources = ({
   | 'excludedResourceTypes'
   | 'required'
   | 'useAdditionalResources'
+  | 'allowRegexOnResourceTypes'
   | 'forcedResourceType'
   | 'defaultResourceTypes'
-  | 'allowRegexOnResourceTypes'
 >): UseResourcesState => {
   const [isValidatingResources, setIsValidatingResources] = useState(false);
 
@@ -783,6 +784,42 @@ const useResources = ({
     );
   }, [value, widgetProperties]);
 
+  const checkForceSingleAutocomplete = useCallback(
+    ({
+      resourceType,
+      forceSingleAutocompleteConditions
+    }: CheckForceSingleAutocompleteProps): boolean => {
+      if (
+        !forceSingleAutocompleteConditions ||
+        resourceType !== forceSingleAutocompleteConditions.resourceType
+      ) {
+        return false;
+      }
+
+      if (type(forceSingleAutocompleteConditions.conditions) === 'Array') {
+        return (
+          forceSingleAutocompleteConditions.conditions as Array<WidgetHiddenCondition>
+        ).some((condition) =>
+          checkHiddenCondition({
+            hasModule: true,
+            featureFlags: null,
+            hiddenCondition: condition,
+            values
+          })
+        );
+      }
+
+      return checkHiddenCondition({
+        hasModule: true,
+        featureFlags: null,
+        hiddenCondition:
+          forceSingleAutocompleteConditions.condition as WidgetHiddenCondition,
+        values
+      });
+    },
+    [values]
+  );
+
   const getIsRegexAllowedOnResourceType = useCallback(
     (resourceType: WidgetResourceType) =>
       isNil(allowRegexOnResourceTypes)
@@ -852,6 +889,7 @@ const useResources = ({
     value: value || [],
     isValidatingResources,
     hideResourceDeleteButton,
+    checkForceSingleAutocomplete,
     getIsRegexAllowedOnResourceType,
     getIsRegexFieldOnResourceType,
     changeRegexFieldOnResourceType,
