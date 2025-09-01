@@ -60,6 +60,13 @@ const internalWidgets: Array<
     panelDefaultWidth: 12
   },
   {
+    name: 'baavailabilityhistory',
+    panelMinHeight: 3,
+    panelMinWidth: 8,
+    panelDefaultHeight: 4,
+    panelDefaultWidth: 12
+  },
+  {
     name: 'groupmonitoring',
     panelMinWidth: 8,
     panelMinHeight: 3,
@@ -68,8 +75,8 @@ const internalWidgets: Array<
   },
   {
     name: 'resourcestable',
-    panelMinWidth: 12,
-    panelMinHeight: 3,
+    panelMinWidth: 6,
+    panelMinHeight: 4,
     panelDefaultHeight: 4,
     panelDefaultWidth: 12
   },
@@ -77,7 +84,14 @@ const internalWidgets: Array<
   { name: 'statuschart', panelMinWidth: 4, panelMinHeight: 3 },
   { name: 'statusgrid', panelDefaultHeight: 3 },
   { name: 'topbottom' },
-  { name: 'webpage' }
+  { name: 'webpage' },
+  {
+    name: 'hgavailabilityhistory',
+    panelMinHeight: 3,
+    panelMinWidth: 8,
+    panelDefaultHeight: 4,
+    panelDefaultWidth: 12
+  }
 ];
 
 export const internalWidgetComponents: Array<FederatedModule> =

@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,13 +43,11 @@ class DeleteRulesPresenterStub extends AbstractPresenter implements DeleteRulesP
     {
         if ($response instanceof DeleteRulesResponse) {
             $multiStatusResponse = [
-                'results' => array_map(function (DeleteRulesStatusResponse $dto) {
-                    return [
-                        'self' => self::HREF . $dto->id,
-                        'status' => $this->enumToIntConverter($dto->status),
-                        'message' => $dto->message,
-                    ];
-                }, $response->responseStatuses),
+                'results' => array_map(fn (DeleteRulesStatusResponse $dto) => [
+                    'self' => self::HREF . $dto->id,
+                    'status' => $this->enumToIntConverter($dto->status),
+                    'message' => $dto->message,
+                ], $response->responseStatuses),
             ];
 
             $this->response = new MultiStatusResponse($multiStatusResponse);

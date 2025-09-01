@@ -1,4 +1,3 @@
-/* eslint-disable cypress/unsafe-to-chain-command */
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
 beforeEach(() => {
@@ -74,7 +73,7 @@ Then('the deleted contact should not be visible in the user list', () => {
     .should('be.visible');
   cy.getIframeBody()
     .find('a[href*="contact_id"]')
-    .filter((index, element) => {
+    .filter((_index, element) => {
       return (
         Cypress.$(element).text().trim() === 'user-with-access-to-allmodules'
       );
@@ -86,7 +85,10 @@ Then(
   'the admin can log in to Centreon Web with the duplicated contact account',
   () => {
     cy.logout();
-    cy.loginByDuplicatedOrUpdatedUser('user-with-access-to-allmodules', 'user-with-access-to-allmodules_1');
+    cy.loginByDuplicatedOrUpdatedUser(
+      'user-with-access-to-allmodules',
+      'user-with-access-to-allmodules_1'
+    );
     cy.url().should('include', '/centreon/monitoring/resources');
   }
 );

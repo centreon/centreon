@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,22 +50,20 @@ class FindNotificationsPresenter extends AbstractPresenter implements FindNotifi
         } else {
             $this->present(
                 [
-                    'result' => array_map(static function ($notificationDto) {
-                        return [
-                            'id' => $notificationDto->id,
-                            'is_activated' => $notificationDto->isActivated,
-                            'name' => $notificationDto->name,
-                            'user_count' => $notificationDto->usersCount,
-                            'channels' => self::convertNotificationChannelToString(
-                                $notificationDto->notificationChannels
-                            ),
-                            'resources' => $notificationDto->resources,
-                            'timeperiod' => [
-                                'id' => $notificationDto->timeperiodId,
-                                'name' => $notificationDto->timeperiodName,
-                            ],
-                        ];
-                    }, $response->notifications),
+                    'result' => array_map(static fn ($notificationDto) => [
+                        'id' => $notificationDto->id,
+                        'is_activated' => $notificationDto->isActivated,
+                        'name' => $notificationDto->name,
+                        'user_count' => $notificationDto->usersCount,
+                        'channels' => self::convertNotificationChannelToString(
+                            $notificationDto->notificationChannels
+                        ),
+                        'resources' => $notificationDto->resources,
+                        'timeperiod' => [
+                            'id' => $notificationDto->timeperiodId,
+                            'name' => $notificationDto->timeperiodName,
+                        ],
+                    ], $response->notifications),
                     'meta' => $this->requestParameters->toArray(),
                 ]
             );

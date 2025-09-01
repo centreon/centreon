@@ -10,11 +10,11 @@ import { Provider } from 'jotai';
 
 import { Box } from '@mui/material';
 
+import Loading from '../../LoadingSkeleton';
 import LoadingSkeleton from '../Chart/LoadingSkeleton';
 import { LineChartProps } from '../Chart/models';
 import useChartData from '../Chart/useChartData';
 import { LineChartData, Thresholds } from '../common/models';
-import Loading from '../../LoadingSkeleton';
 
 import useResizeObserver from 'use-resize-observer';
 import ResponsiveBarChart from './ResponsiveBarChart';
@@ -26,7 +26,17 @@ dayjs.extend(timezonePlugin);
 
 export interface BarChartProps
   extends Partial<
-    Pick<LineChartProps, 'tooltip' | 'legend' | 'height' | 'axis' | 'header'>
+    Pick<
+      LineChartProps,
+      | 'tooltip'
+      | 'legend'
+      | 'height'
+      | 'axis'
+      | 'header'
+      | 'min'
+      | 'max'
+      | 'boundariesUnit'
+    >
   > {
   barStyle?: BarStyle;
   data?: LineChartData;
@@ -58,9 +68,12 @@ const BarChart = ({
     opacity: 1,
     radius: 0.2
   },
-  skipIntersectionObserver
+  skipIntersectionObserver,
+  min,
+  max,
+  boundariesUnit
 }: BarChartProps): JSX.Element => {
-  const { adjustedData } = useChartData({ data, end, start });
+  const { adjustedData } = useChartData({ data, end, start, min, max });
   const { ref, width, height: responsiveHeight } = useResizeObserver();
 
   if (loading && !adjustedData) {
@@ -93,6 +106,9 @@ const BarChart = ({
             tooltip={tooltip}
             width={width || 0}
             skipIntersectionObserver={skipIntersectionObserver}
+            min={min}
+            max={max}
+            boundariesUnit={boundariesUnit}
           />
         )}
       </Box>

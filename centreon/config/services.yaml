@@ -7,7 +7,7 @@
 parameters:
     locale: en
     api.header: "Api-Version"
-    api.version.latest: "25.07"
+    api.version.latest: "25.09"
     database_host: "%env(hostCentreon)%"
     database_port: "%env(port)%"
     database_db: "%env(db)%"
@@ -50,15 +50,15 @@ services:
 
     security.provider.tokenapi:
         class: Security\TokenAPIAuthenticator
-        public: false
+        public: true
 
     security.provider.sessionapi:
         class: Security\SessionAPIAuthenticator
-        public: false
+        public: true
 
     security.provider.websso:
         class: Security\WebSSOAuthenticator
-        public: false
+        public: true
 
     Centreon\Domain\Entity\EntityValidator:
         class: Centreon\Domain\Entity\EntityValidator

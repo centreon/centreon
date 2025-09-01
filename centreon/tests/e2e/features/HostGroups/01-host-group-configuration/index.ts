@@ -1,6 +1,8 @@
-/* eslint-disable cypress/unsafe-to-chain-command */
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
-import { checkHostsAreMonitored, checkServicesAreMonitored } from 'e2e/commons';
+import {
+  checkHostsAreMonitored,
+  checkServicesAreMonitored
+} from '../../../commons';
 
 import hostGroups from '../../../fixtures/host-groups/host-group.json';
 
@@ -116,7 +118,7 @@ When('a host group is configured', () => {
         .getByLabel({ label: 'Up status hosts', tag: 'a' })
         .invoke('text')
         .then((text) => {
-          if (text != '2') {
+          if (text !== '2') {
             cy.exportConfig();
           }
 
@@ -188,7 +190,7 @@ Then('these properties are updated', () => {
   cy.contains('Modify a host group').click();
   cy.getByTestId({ testId: 'Geographic coordinates for MAP' })
     .eq(1)
-    .should('have.value', hostGroups.forTest.geo_coords);
+    .should('have.value', hostGroups.forTest.geo_coords_after_truncate);
   // Check value of the icon
   cy.get('img[alt="logo-centreon-colors.png"]').should('be.visible');
   cy.getByTestId({ testId: 'Comments' })
@@ -197,7 +199,15 @@ Then('these properties are updated', () => {
 });
 
 When('the user duplicates the configured host group', () => {
-  cy.updateHostGroupViaApi(hostGroups.forDuplicate, hostGroups.default.name);
+  cy.updateHostGroupViaApi(
+    {
+      ...hostGroups.forDuplicate,
+      iconId: hostGroups.forDuplicate.icon_id,
+      geoCoords: hostGroups.forDuplicate.geo_coords,
+      isActivated: hostGroups.forDuplicate.is_activated
+    },
+    hostGroups.default.name
+  );
   cy.navigateTo({
     page: 'Host Groups',
     rootItemNumber: 3,
@@ -223,7 +233,7 @@ Then('a new host group is created with identical properties', () => {
   cy.contains('Modify a host group').click();
   cy.getByTestId({ testId: 'Geographic coordinates for MAP' })
     .eq(1)
-    .should('have.value', hostGroups.forDuplicate.geo_coords);
+    .should('have.value', hostGroups.forDuplicate.geo_coords_after_truncate);
   // Check value of the icon
   cy.get('img[alt="logo-centreon-colors.png"]').should('be.visible');
   cy.getByTestId({ testId: 'Comments' })

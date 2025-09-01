@@ -1,11 +1,19 @@
 <?php
-/**
- * CENTREON
+
+/*
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
- * Source Copyright 2005-2015 CENTREON
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * Unauthorized reproduction, copy and distribution
- * are not allowed.
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * For more information : contact@centreon.com
  *
@@ -16,8 +24,7 @@
  */
 function getLineTemplate(string $evenCssClass, string $oddCssClass): object
 {
-    return new class($evenCssClass, $oddCssClass)
-    {
+    return new class ($evenCssClass, $oddCssClass) {
         private int $counter = 0;
 
         public function __construct(private string $evenCssClass, private string $oddCssClass)
@@ -32,6 +39,7 @@ function getLineTemplate(string $evenCssClass, string $oddCssClass): object
         public function reset(): string
         {
             $this->counter = 0;
+
             return '';
         }
     };
@@ -40,13 +48,13 @@ function getLineTemplate(string $evenCssClass, string $oddCssClass): object
 function versionCentreon($pearDB)
 {
     if (is_null($pearDB)) {
-        throw new \Exception('No Database connect available');
+        throw new Exception('No Database connect available');
     }
 
     $query = 'SELECT `value` FROM `informations` WHERE `key` = "version"';
     $dbResult = $pearDB->query($query);
-    if (!$dbResult) {
-        throw new \Exception("An error occured");
+    if (! $dbResult) {
+        throw new Exception('An error occured');
     }
     $row = $dbResult->fetch();
 
@@ -55,42 +63,40 @@ function versionCentreon($pearDB)
 
 function getWikiConfig($pearDB)
 {
-    $errorMsg = 'MediaWiki is not installed or configured. Please refer to the ' .
-        '<a href="https://docs.centreon.com/docs/administration/knowledge-base/" target="_blank" >' .
-        'documentation.</a>';
+    $errorMsg = 'MediaWiki is not installed or configured. Please refer to the '
+        . '<a href="https://docs.centreon.com/docs/administration/knowledge-base/" target="_blank" >'
+        . 'documentation.</a>';
 
     if (is_null($pearDB)) {
-        throw new \Exception($errorMsg);
+        throw new Exception($errorMsg);
     }
 
     $res = $pearDB->query("SELECT * FROM `options` WHERE options.key LIKE 'kb_wiki_url'");
 
     if ($res->rowCount() == 0) {
-        throw new \Exception($errorMsg);
+        throw new Exception($errorMsg);
     }
 
     $gopt = [];
     $opt = $res->fetchRow();
 
-
-    if (empty($opt["value"])) {
-        throw new \Exception($errorMsg);
-    } else {
-        $gopt[$opt["key"]] = html_entity_decode($opt["value"], ENT_QUOTES, "UTF-8");
+    if (empty($opt['value'])) {
+        throw new Exception($errorMsg);
     }
+    $gopt[$opt['key']] = html_entity_decode($opt['value'], ENT_QUOTES, 'UTF-8');
 
     $pattern = '#^http://|https://#';
     $WikiURL = $gopt['kb_wiki_url'];
     $checkWikiUrl = preg_match($pattern, $WikiURL);
 
-    if (!$checkWikiUrl) {
+    if (! $checkWikiUrl) {
         $gopt['kb_wiki_url'] = 'http://' . $WikiURL;
     }
 
     $res->closeCursor();
+
     return $gopt;
 }
-
 
 function getWikiVersion($apiWikiURL)
 {
@@ -106,7 +112,7 @@ function getWikiVersion($apiWikiURL)
 
     $data = http_build_query($post);
 
-    /* Get contents */
+    // Get contents
     $curl = curl_init();
     curl_setopt($curl, CURLOPT_URL, $apiWikiURL);
     curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
@@ -119,7 +125,6 @@ function getWikiVersion($apiWikiURL)
 
     $wikiStringVersion = $content->query->general->generator;
     $wikiDataVersion = explode(' ', $wikiStringVersion);
-    $wikiVersion = (float)$wikiDataVersion[1];
 
-    return $wikiVersion;
+    return (float) $wikiDataVersion[1];
 }

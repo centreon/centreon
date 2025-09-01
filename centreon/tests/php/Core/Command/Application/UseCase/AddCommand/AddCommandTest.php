@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -130,25 +130,26 @@ it('should present a ForbiddenResponse when the user has insufficient rights', f
 it(
     'should present a ForbiddenResponse when the user has insufficient rights on the required command type',
     function (): void {
-    $this->user
-        ->expects($this->atMost(4))
-        ->method('hasTopologyRole')
-        ->willReturnMap(
-            [
-                [Contact::ROLE_CONFIGURATION_COMMANDS_CHECKS_RW, true],
-                [Contact::ROLE_CONFIGURATION_COMMANDS_NOTIFICATIONS_RW, false],
-                [Contact::ROLE_CONFIGURATION_COMMANDS_MISCELLANEOUS_RW, true],
-                [Contact::ROLE_CONFIGURATION_COMMANDS_DISCOVERY_RW, true],
-            ]
-        );
+        $this->user
+            ->expects($this->atMost(4))
+            ->method('hasTopologyRole')
+            ->willReturnMap(
+                [
+                    [Contact::ROLE_CONFIGURATION_COMMANDS_CHECKS_RW, true],
+                    [Contact::ROLE_CONFIGURATION_COMMANDS_NOTIFICATIONS_RW, false],
+                    [Contact::ROLE_CONFIGURATION_COMMANDS_MISCELLANEOUS_RW, true],
+                    [Contact::ROLE_CONFIGURATION_COMMANDS_DISCOVERY_RW, true],
+                ]
+            );
 
-    ($this->useCase)($this->request, $this->presenter);
+        ($this->useCase)($this->request, $this->presenter);
 
-    expect($this->presenter->response)
-        ->toBeInstanceOf(ForbiddenResponse::class)
-        ->and($this->presenter->response->getMessage())
-        ->toBe(CommandException::addNotAllowed()->getMessage());
-});
+        expect($this->presenter->response)
+            ->toBeInstanceOf(ForbiddenResponse::class)
+            ->and($this->presenter->response->getMessage())
+            ->toBe(CommandException::addNotAllowed()->getMessage());
+    }
+);
 
 it(
     'should present a ConflictResponse when an a request parameter is invalid',

@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -231,7 +231,7 @@ it('throws an exception when group ID does not exist with admin user', function 
         ->method('exist')
         ->willReturn([]);
 
-    $this->validation->assertIsValidServiceGroups([1, 2],3);
+    $this->validation->assertIsValidServiceGroups([1, 2], 3);
 })->throws(
     ServiceException::class,
     ServiceException::idsDoNotExist('service_groups', [1, 2])->getMessage()
