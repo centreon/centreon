@@ -23,12 +23,16 @@ declare(strict_types=1);
 
 namespace Core\ResourceAccess\Application\Repository;
 
+use Core\Common\Domain\Exception\RepositoryException;
+
 interface WriteDatasetRepositoryInterface
 {
     /**
      * @param int $ruleId
      * @param int $datasetId
      * @param int[] $resourceIds
+     *
+     * @throws RepositoryException
      */
     public function linkResourcesToDataset(int $ruleId, int $datasetId, array $resourceIds): void;
 
@@ -43,6 +47,8 @@ interface WriteDatasetRepositoryInterface
      * @param int $ruleId
      * @param int $datasetId
      * @param bool $fullAccess
+     *
+     * @throws RepositoryException
      */
     public function updateDatasetAccess(int $ruleId, int $datasetId, bool $fullAccess): void;
 }

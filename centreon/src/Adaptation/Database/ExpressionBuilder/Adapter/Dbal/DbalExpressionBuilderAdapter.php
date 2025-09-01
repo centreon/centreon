@@ -117,7 +117,7 @@ final readonly class DbalExpressionBuilderAdapter implements ExpressionBuilderIn
     public function comparison(
         string $leftExpression,
         ComparisonOperatorEnum $operator,
-        string $rightExpression
+        string $rightExpression,
     ): string {
         return $this->dbalExpressionBuilder->comparison($leftExpression, $operator->value, $rightExpression);
     }

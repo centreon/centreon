@@ -145,6 +145,12 @@ msgstr ""
 
 #: centreon/www/include/options/accessLists/resourcesACL/formResourcesAccess.php
 msgid ""
+"<b><i>Help :</i></b> Select image folders that can be seen by associated "
+"users."
+msgstr ""
+
+#: centreon/www/include/options/accessLists/resourcesACL/formResourcesAccess.php
+msgid ""
 "<b><i>Help :</i></b> Select meta services that can be seen by associated "
 "users."
 msgstr ""
@@ -1296,6 +1302,15 @@ msgstr ""
 
 #: centreon/www/install/front_translate.php
 msgid "All hosts selected"
+msgstr ""
+
+#: centreon/www/include/options/accessLists/resourcesACL/listsResourcesAccess.php
+#: centreon/www/install/front_translate.php
+msgid "All image folders"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "All image folders selected"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
@@ -4220,6 +4235,22 @@ msgstr "Fontes de dados"
 msgid "Data free"
 msgstr "Espaço livre"
 
+#: centreon/www/install/dashboard_widgets.php
+msgid "Data is aggregated daily for graphs presenting hosts."
+msgstr ""
+
+#: centreon/www/install/dashboard_widgets.php
+msgid ""
+"Data is aggregated monthly over the last 12 months for graphs presenting "
+"host categories."
+msgstr ""
+
+#: centreon/www/install/dashboard_widgets.php
+msgid ""
+"Data is aggregated monthly over the last 12 months for graphs presenting "
+"host groups."
+msgstr ""
+
 #: centreon/www/install/smarty_translate.php
 msgid "Data size"
 msgstr "Tamanho dos dados"
@@ -4707,6 +4738,10 @@ msgid "Description"
 msgstr "Descrição"
 
 #: centreon/www/include/options/media/images/formDirectory.php
+msgid "Destination Directory"
+msgstr ""
+
+#: centreon/www/include/options/media/images/formDirectory.php
 msgid "Destination directory"
 msgstr "Diretorio de destino"
 
@@ -5022,6 +5057,10 @@ msgid "Display availability and performance as"
 msgstr ""
 
 #: centreon/www/install/dashboard_widgets.php
+msgid "Display availability as"
+msgstr ""
+
+#: centreon/www/install/dashboard_widgets.php
 msgid "Display average as"
 msgstr ""
 
@@ -5111,6 +5150,10 @@ msgid "Display view:"
 msgstr ""
 
 #: centreon/www/install/dashboard_widgets.php
+msgid "Display with this resource type"
+msgstr ""
+
+#: centreon/www/install/dashboard_widgets.php
 msgid "Display with this view"
 msgstr ""
 
@@ -5151,6 +5194,11 @@ msgstr ""
 
 #: centreon/www/install/dashboard_widgets.php
 msgid "Displays metrics for a given time period."
+msgstr ""
+
+#: centreon/www/install/dashboard_widgets.php
+msgid ""
+"Displays the availability history of hosts, host categories or hostgroups."
 msgstr ""
 
 #: centreon/www/install/dashboard_widgets.php
@@ -7083,6 +7131,10 @@ msgid "Execution was too long and reached timeout"
 msgstr ""
 
 #: centreon/www/include/options/media/images/formImg.php
+msgid "Existing directory"
+msgstr ""
+
+#: centreon/www/include/options/media/images/formImg.php
 msgid "Existing or new directory"
 msgstr "Existente ou novo diretorio"
 
@@ -8279,6 +8331,7 @@ msgstr ""
 #: centreon/www/include/configuration/configObject/host/formHost.php
 #: centreon/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php
 #: centreon/www/include/monitoring/objectDetails/hostDetails.php
+#: centreon/www/install/dashboard_widgets.php
 msgid "Host Categories"
 msgstr "Categorias do Host"
 
@@ -8509,6 +8562,7 @@ msgstr ""
 msgid "Host group (%s) not found"
 msgstr ""
 
+#: centreon/www/install/dashboard_widgets.php
 #: centreon/www/install/front_translate.php
 msgid "Host groups"
 msgstr ""
@@ -8726,6 +8780,10 @@ msgstr "Grupo de Host"
 msgid "Hostgroup Relations"
 msgstr "Relações de Grupo de Hosts"
 
+#: centreon/www/install/dashboard_widgets.php
+msgid "Hostgroup availability history"
+msgstr ""
+
 #: centreon/www/install/smarty_translate.php
 msgid "Hostgroup dependency"
 msgstr "Dependencia de grupo de Hosts"
@@ -8777,6 +8835,7 @@ msgstr "Resumo de Grupo de Hosts"
 #: centreon/www/include/monitoring/status/ServicesServiceGroups/xml/serviceSummaryBySGXML.php
 #: centreon/www/include/options/accessLists/resourcesACL/formResourcesAccess.php
 #: centreon/www/include/reporting/dashboard/csvExport/csv_HostGroupLogs.php
+#: centreon/www/install/dashboard_widgets.php
 #: centreon/www/install/front_translate.php
 #: centreon/www/install/menu_translation.php
 #: centreon/www/widgets/global-health/src/global_health.php
@@ -8993,6 +9052,12 @@ msgstr ""
 msgid "If you leave {{dashboardName}}, your changes will not be saved."
 msgstr ""
 
+#: centreon/www/install/dashboard_widgets.php
+msgid ""
+"If you want to display the graph with host categories and hosts, you must "
+"select only one hostgroup."
+msgstr ""
+
 #: centreon/www/include/Administration/parameters/knowledgeBase/formKnowledgeBase.php
 msgid "Ignore ssl certificate"
 msgstr "Ignore o certificado ssl"
@@ -9021,6 +9086,11 @@ msgstr "Nome da Imagem"
 #: centreon/www/include/views/graphTemplates/formGraphTemplate.php
 msgid "Image Type"
 msgstr "Tipo de Imagem"
+
+#: centreon/www/include/options/accessLists/resourcesACL/formResourcesAccess.php
+#: centreon/www/install/front_translate.php
+msgid "Image folders"
+msgstr ""
 
 #: centreon/www/include/options/media/images/formImg.php
 msgid "Image or archive"
@@ -9109,6 +9179,10 @@ msgstr "Inclui todos os grupos de host"
 #: centreon/www/include/options/accessLists/resourcesACL/formResourcesAccess.php
 msgid "Include all hosts"
 msgstr "Inclui todos os hosts"
+
+#: centreon/www/include/options/accessLists/resourcesACL/formResourcesAccess.php
+msgid "Include all image folders"
+msgstr ""
 
 #: centreon/www/include/options/accessLists/resourcesACL/formResourcesAccess.php
 msgid "Include all servicegroups"
@@ -15523,6 +15597,10 @@ msgstr ""
 msgid "Shared Resources"
 msgstr "Recursos Compartilhados"
 
+#: centreon/www/include/options/accessLists/resourcesACL/formResourcesAccess.php
+msgid "Shared image folders"
+msgstr ""
+
 #: centreon/www/install/front_translate.php
 msgid "Shares"
 msgstr ""
@@ -16956,6 +17034,10 @@ msgstr ""
 #: centreon/src/Centreon/Infrastructure/Serializer/Exception/SerializerException.php
 #, php-format
 msgid "There are not enough arguments to build the object %s"
+msgstr ""
+
+#: centreon/www/install/dashboard_widgets.php
+msgid "These time periods are defined in MBI'S ETL options."
 msgstr ""
 
 #: centreon/www/install/front_translate.php

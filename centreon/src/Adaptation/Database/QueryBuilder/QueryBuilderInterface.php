@@ -201,7 +201,7 @@ interface QueryBuilderInterface
         string $fromAlias,
         string $join,
         string $joinAlias,
-        string $condition
+        string $condition,
     ): self;
 
     /**
@@ -226,7 +226,7 @@ interface QueryBuilderInterface
         string $fromAlias,
         string $join,
         string $joinAlias,
-        string $condition
+        string $condition,
     ): self;
 
     /**
@@ -251,7 +251,7 @@ interface QueryBuilderInterface
         string $fromAlias,
         string $join,
         string $joinAlias,
-        string $condition
+        string $condition,
     ): self;
 
     /**
@@ -276,7 +276,7 @@ interface QueryBuilderInterface
         string $fromAlias,
         string $join,
         string $joinAlias,
-        string $condition
+        string $condition,
     ): self;
 
     /**
@@ -551,4 +551,11 @@ interface QueryBuilderInterface
      * @return QueryBuilderInterface this QueryBuilder instance
      */
     public function resetOrderBy(): self;
+
+    /**
+     * Resets the limit for the query.
+     *
+     * @return QueryBuilderInterface this QueryBuilder instance
+     */
+    public function resetLimit(): self;
 }

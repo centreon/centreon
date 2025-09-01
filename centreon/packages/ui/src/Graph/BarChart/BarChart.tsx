@@ -73,7 +73,7 @@ const BarChart = ({
   max,
   boundariesUnit
 }: BarChartProps): JSX.Element => {
-  const { adjustedData } = useChartData({ data, end, start });
+  const { adjustedData } = useChartData({ data, end, start, min, max });
   const { ref, width, height: responsiveHeight } = useResizeObserver();
 
   if (loading && !adjustedData) {
