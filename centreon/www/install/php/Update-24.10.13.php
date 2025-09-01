@@ -30,7 +30,7 @@ require_once __DIR__ . '/../../../bootstrap.php';
  * This file contains changes to be included in the next version.
  * The actual version number should be added in the variable $version.
  */
-$version = 'xx.xx.x';
+$version = '24.10.13';
 $errorMessage = '';
 
 // TODO add your functions here
