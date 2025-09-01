@@ -111,6 +111,14 @@ class FileProxyReadMediaRepository implements ReadMediaRepositoryInterface
     /**
      * @inheritDoc
      */
+    public function findByRequestParametersAndAccessGroups(RequestParametersInterface $requestParameters, array $accessGroups): \Traversable
+    {
+        return $this->createTraversable($this->dbReadMediaRepository->findByRequestParametersAndAccessGroups($requestParameters, $accessGroups));
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function findByRequestParameters(RequestParametersInterface $requestParameters): \Traversable
     {
         return $this->createTraversable($this->dbReadMediaRepository->findByRequestParameters($requestParameters));

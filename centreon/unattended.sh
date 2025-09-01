@@ -775,7 +775,7 @@ function secure_dbms_setup() {
 		systemctl restart mariadb
 		log "INFO" "Executing SQL requests for $dbms"
 		mysql -u root --verbose <<-EOF
-			UPDATE mysql.global_priv SET priv=json_set(priv, '$.plugin', 'caching_sha2_password', '$.authentication_string', PASSWORD('$db_root_password')) WHERE User='root';
+			UPDATE mysql.global_priv SET priv=json_set(priv, '$.plugin', 'mysql_native_password', '$.authentication_string', PASSWORD('$db_root_password')) WHERE User='root';
 			DELETE FROM mysql.global_priv WHERE User='root' AND Host NOT IN ('localhost', '127.0.0.1', '::1');
 			DELETE FROM mysql.global_priv WHERE User='';
 			DROP DATABASE IF EXISTS test;

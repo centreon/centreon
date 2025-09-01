@@ -66,6 +66,7 @@
     "symfony/http-foundation": "7.3.*",
     "symfony/http-kernel": "7.3.*",
     "symfony/lock": "7.3.*",
+    "symfony/messenger": "7.3.*",
     "symfony/mime": "7.3.*",
     "symfony/monolog-bundle": "3.10.*",
     "symfony/property-info": "7.3.*",
@@ -211,6 +212,8 @@
     ],
     "test": "pest --do-not-cache-result",
     "test:ci": "@test --log-junit ./build/phpunit.xml --coverage-clover ./build/coverage-be.xml",
+    "test:new": "./vendor/bin/phpunit --configuration phpunit.new.xml",
+    "test:new:wip": "@test:new --group wip",
     "rector": [
       "@rector:legacy",
       "@rector:core",
@@ -260,6 +263,7 @@
       "@legacy:check",
       "@core:check",
       "@new:check",
+      "@test:new",
       "@test"
     ]
   },

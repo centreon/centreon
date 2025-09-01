@@ -34,7 +34,7 @@ get:
     The available parameters to **search** / **sort_by** are:
     
     * id
-    * filename
+    * name
     * directory
   parameters:
     - $ref: '../../Common/QueryParameter/Limit.yaml'

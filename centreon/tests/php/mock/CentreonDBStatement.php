@@ -1,23 +1,25 @@
 <?php
-/**
- * Copyright 2019 Centreon
+
+/*
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
+ * For more information : contact@centreon.com
+ *
  */
 
 namespace Centreon\Test\Mock;
-
-use Centreon\Test\Mock\CentreonDB;
 
 /**
  * Mock class for resultset
@@ -29,40 +31,30 @@ use Centreon\Test\Mock\CentreonDB;
  */
 class CentreonDBStatement extends \CentreonDBStatement
 {
-    public $currentResultset;
-    /**
-     * @var array<int|string, mixed>
-     */
+    /** @var array<int|string, mixed> */
     public $fetchObjectName;
-    /**
-     * @var string
-     */
-    protected $query;
 
-    /**
-     * @var array
-     */
-    protected $resultsets;
+    protected string $query;
 
-    /**
-     * @var \Centreon\Test\Mock\CentreonDB
-     */
-    protected $db;
+    /** @var array<CentreonDBResultSet> */
+    protected array $resultsets;
 
-    /**
-     * @var array
-     */
-    protected $params = null;
-    protected $currentResultSet = null;
+    protected CentreonDB $db;
+
+    /** @var array<int|string, mixed>|null */
+    protected ?array $params = null;
+
+    /** @var CentreonDBResultSet|null */
+    protected ?CentreonDBResultSet $currentResultSet = null;
 
     /**
      * Constructor
      *
      * @param string $query
-     * @param array $resultset The resultset for a query
+     * @param array<CentreonDBResultSet> $resultsets
      * @param CentreonDB $db
      */
-    public function __construct($query, $resultsets, CentreonDB $db)
+    public function __construct($query, array $resultsets, CentreonDB $db)
     {
         $this->query = $query;
         $this->resultsets = $resultsets;
@@ -120,8 +112,13 @@ class CentreonDBStatement extends \CentreonDBStatement
 
     /**
      * Execute statement
+     *
+     * @param array|null $parameters
+     *
+     * @throws \Exception
+     * @return bool
      */
-    public function execute($params = null): bool
+    public function execute($parameters = null): bool
     {
         $matching = null;
 
@@ -145,8 +142,8 @@ class CentreonDBStatement extends \CentreonDBStatement
         // trigger callback
         $this->currentResultSet->executeCallback($this->params);
 
-        // log queries if query will be execute in transaction
-        $this->db->transactionLogQuery($this->query, $this->params, $this->currentResultSet);
+        // log queries if query will be executed in transaction
+        $this->db->transactionLogQuery($this->query, $this->currentResultSet, $this->params);
 
         return true;
     }
@@ -164,11 +161,11 @@ class CentreonDBStatement extends \CentreonDBStatement
     /**
      * Return a result
      *
-     * @return array
+     * @return false|array
      */
-    public function fetchRow()
+    public function fetchRow(): false|array
     {
-        if (!is_null($this->currentResultSet)) {
+        if (! is_null($this->currentResultSet)) {
             return $this->currentResultSet->fetchRow();
         }
 
@@ -178,13 +175,17 @@ class CentreonDBStatement extends \CentreonDBStatement
     /**
      * Return a result
      *
-     * @return mixed
+     * @param int $mode
+     * @param int $cursorOrientation
+     * @param int $cursorOffset
+     *
+     * @return false|array
      */
     public function fetch(
         int $mode = \PDO::FETCH_DEFAULT,
         int $cursorOrientation = \PDO::FETCH_ORI_NEXT,
         int $cursorOffset = 0
-    ): mixed {
+    ): false|array {
         return $this->fetchRow();
     }
 
@@ -193,8 +194,8 @@ class CentreonDBStatement extends \CentreonDBStatement
      */
     public function resetResultSet(): void
     {
-        if (!is_null($this->currentResultSet)) {
-            $this->currentResultset->fetchRow();
+        if (! is_null($this->currentResultSet)) {
+            $this->currentResultSet->fetchRow();
         }
     }
 
@@ -203,9 +204,9 @@ class CentreonDBStatement extends \CentreonDBStatement
      *
      * @return int
      */
-    public function numRows()
+    public function numRows(): int
     {
-        if (!is_null($this->currentResultSet)) {
+        if (! is_null($this->currentResultSet)) {
             return $this->currentResultSet->numRows();
         }
 
@@ -223,6 +224,9 @@ class CentreonDBStatement extends \CentreonDBStatement
     /**
      * Return a result
      *
+     * @param int $mode
+     * @param mixed ...$args
+     *
      * @return array
      */
     public function fetchAll(int $mode = \PDO::FETCH_DEFAULT, mixed ...$args): array
@@ -236,15 +240,15 @@ class CentreonDBStatement extends \CentreonDBStatement
         return $results;
     }
 
-
     /**
      * Set fetch mode
      *
-     * @param mixed $mode
-     * @param mixed $params
-     * @return bool
+     * @param int $mode
+     * @param mixed ...$args
+     *
+     * @return true
      */
-    public function setFetchMode(int $mode, ...$args): bool
+    public function setFetchMode($mode, ...$args): true
     {
         $this->fetchObjectName = $args;
 
