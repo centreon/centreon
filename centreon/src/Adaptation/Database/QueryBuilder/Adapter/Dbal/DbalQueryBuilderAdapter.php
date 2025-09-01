@@ -50,7 +50,7 @@ final readonly class DbalQueryBuilderAdapter implements QueryBuilderInterface
      */
     public function __construct(
         private DoctrineDbalQueryBuilder $dbalQueryBuilder,
-        private ConnectionConfig $connectionConfig
+        private ConnectionConfig $connectionConfig,
     ) {
     }
 
@@ -305,7 +305,7 @@ final readonly class DbalQueryBuilderAdapter implements QueryBuilderInterface
         string $fromAlias,
         string $join,
         string $joinAlias,
-        string $condition
+        string $condition,
     ): QueryBuilderInterface {
         $this->dbalQueryBuilder->join($fromAlias, $join, $joinAlias, $condition);
 
@@ -334,7 +334,7 @@ final readonly class DbalQueryBuilderAdapter implements QueryBuilderInterface
         string $fromAlias,
         string $join,
         string $joinAlias,
-        string $condition
+        string $condition,
     ): QueryBuilderInterface {
         $this->dbalQueryBuilder->innerJoin($fromAlias, $join, $joinAlias, $condition);
 
@@ -363,7 +363,7 @@ final readonly class DbalQueryBuilderAdapter implements QueryBuilderInterface
         string $fromAlias,
         string $join,
         string $joinAlias,
-        string $condition
+        string $condition,
     ): QueryBuilderInterface {
         $this->dbalQueryBuilder->leftJoin($fromAlias, $join, $joinAlias, $condition);
 
@@ -392,7 +392,7 @@ final readonly class DbalQueryBuilderAdapter implements QueryBuilderInterface
         string $fromAlias,
         string $join,
         string $joinAlias,
-        string $condition
+        string $condition,
     ): QueryBuilderInterface {
         $this->dbalQueryBuilder->rightJoin($fromAlias, $join, $joinAlias, $condition);
 
