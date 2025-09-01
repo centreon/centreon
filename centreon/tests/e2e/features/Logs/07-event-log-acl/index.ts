@@ -1,4 +1,4 @@
-import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
+import { Given, When, Then } from "@badeball/cypress-cucumber-preprocessor";
 
 import adminUser from "../../../fixtures/users/admin.json";
 import restrictedUser from "../../../fixtures/users/restricted-user.json";
@@ -6,7 +6,10 @@ import data_acl_g from "../../../fixtures/acls/acl-access-group.json";
 import data_acl_m from "../../../fixtures/acls/acl-access-menu.json";
 import data_acl_r from "../../../fixtures/acls/acl-access-ressources.json";
 
-import { checkHostsAreMonitored, checkServicesAreMonitored } from '../../../commons';
+import {
+  checkHostsAreMonitored,
+  checkServicesAreMonitored,
+} from "../../../commons";
 
 const services = {
   serviceCritical: {
@@ -88,7 +91,6 @@ Then("the admin user should see all event logs", () => {
       );
       expect(found).to.be.true;
     });
-
 });
 
 When("the admin creates an access group for the restricted user", () => {
@@ -138,42 +140,42 @@ When("the admin creates an access group for the restricted user", () => {
 Then(
   "the admin grants the restricted user event Monitoring through the Menu Access ACL",
   () => {
-  cy.navigateTo({
-    page: "Menus Access",
-    rootItemNumber: 4,
-    subMenu: "ACL",
-  });
-  cy.wait("@getTimeZone");
-  // Wait for the "Add" button to be available inside the iframe and click it
-  cy.waitForElementInIframe("#main-content", 'a:contains("Add")');
-  cy.getIframeBody().contains("a", "Add").click();
+    cy.navigateTo({
+      page: "Menus Access",
+      rootItemNumber: 4,
+      subMenu: "ACL",
+    });
+    cy.wait("@getTimeZone");
+    // Wait for the "Add" button to be available inside the iframe and click it
+    cy.waitForElementInIframe("#main-content", 'a:contains("Add")');
+    cy.getIframeBody().contains("a", "Add").click();
 
-  cy.wait("@getTimeZone");
-  // Wait for the ACL name input field to be available
-  cy.waitForElementInIframe("#main-content", 'input[name="acl_topo_name"]');
-  // Fill in the ACL menu access name field with the provided data
-  cy.getIframeBody()
-    .find('input[name="acl_topo_name"]')
-    .type(data_acl_m.name);
-  // Fill in the ACL menu access alias field with the provided data
-  cy.getIframeBody()
-    .find('input[name="acl_topo_alias"]')
-    .type(data_acl_m.alias);
-  // Select the ACL group from the available list
-  cy.getIframeBody()
-    .find('select[name="acl_groups-f[]"]')
-    .select(data_acl_g.name);
-  // Click the button to move the selected ACL group to the assigned list
-  cy.getIframeBody()
-    .find('input[name="add"]')
-    .filter((index, el) => el.getAttribute("onclick")?.includes("acl_groups"))
-    .click();
-  // Enable specific menu access permissions by checking the corresponding checkboxes
-  cy.getIframeBody()
-    .find('input[name="acl_r_topos[2]"]') // Access to Monitoring Menu
-    .check({ force: true });
-  cy.getIframeBody().find('input[name="submitA"]').eq(0).click();
-  cy.reload();
+    cy.wait("@getTimeZone");
+    // Wait for the ACL name input field to be available
+    cy.waitForElementInIframe("#main-content", 'input[name="acl_topo_name"]');
+    // Fill in the ACL menu access name field with the provided data
+    cy.getIframeBody()
+      .find('input[name="acl_topo_name"]')
+      .type(data_acl_m.name);
+    // Fill in the ACL menu access alias field with the provided data
+    cy.getIframeBody()
+      .find('input[name="acl_topo_alias"]')
+      .type(data_acl_m.alias);
+    // Select the ACL group from the available list
+    cy.getIframeBody()
+      .find('select[name="acl_groups-f[]"]')
+      .select(data_acl_g.name);
+    // Click the button to move the selected ACL group to the assigned list
+    cy.getIframeBody()
+      .find('input[name="add"]')
+      .filter((index, el) => el.getAttribute("onclick")?.includes("acl_groups"))
+      .click();
+    // Enable specific menu access permissions by checking the corresponding checkboxes
+    cy.getIframeBody()
+      .find('input[name="acl_r_topos[2]"]') // Access to Monitoring Menu
+      .check({ force: true });
+    cy.getIframeBody().find('input[name="submitA"]').eq(0).click();
+    cy.reload();
   },
 );
 
@@ -220,7 +222,10 @@ Then(
       .click();
     cy.getIframeBody().find("button.btc.bt_success").contains("Ok").click();
     // check event logs
-    cy.getIframeBody().find("a").contains("Centreon-Server").should("not.exist");
+    cy.getIframeBody()
+      .find("a")
+      .contains("Centreon-Server")
+      .should("not.exist");
   },
 );
 
@@ -230,14 +235,13 @@ When("the admin creates host resources", () => {
     hostGroup: "Linux-Servers",
     name: services.serviceWarning.host,
     template: "generic-host",
-  })
-    .addService({
-      activeCheckEnabled: false,
-      host: services.serviceWarning.host,
-      maxCheckAttempts: 1,
-      name: services.serviceWarning.name,
-      template: services.serviceWarning.template,
-    })
+  }).addService({
+    activeCheckEnabled: false,
+    host: services.serviceWarning.host,
+    maxCheckAttempts: 1,
+    name: services.serviceWarning.name,
+    template: services.serviceWarning.template,
+  });
   cy.addHost({
     hostGroup: "Linux-Servers",
     name: services.serviceCritical.host,
@@ -251,8 +255,10 @@ When("the admin creates host resources", () => {
       template: services.serviceCritical.template,
     })
     .applyPollerConfiguration();
-  checkHostsAreMonitored([{ name: services.serviceCritical.host },
-                          { name: services.serviceWarning.host }]);
+  checkHostsAreMonitored([
+    { name: services.serviceCritical.host },
+    { name: services.serviceWarning.host },
+  ]);
   checkServicesAreMonitored([
     { name: services.serviceCritical.name },
     { name: services.serviceWarning.name },
@@ -283,7 +289,6 @@ When("the admin creates host resources", () => {
     { interval: 10000, timeout: 600000 },
   );
 });
-
 
 Then(
   "the admin assigns specific resources to the restricted user via Resource Access ACL",
@@ -325,10 +330,7 @@ Then(
     // Select hosts
     cy.getIframeBody()
       .find("select#acl_hosts-f")
-      .select([
-        services.serviceWarning.host,
-        services.serviceCritical.host,
-      ]);
+      .select([services.serviceWarning.host, services.serviceCritical.host]);
     // Click the button to move the selected ACL group to the assigned list
     cy.getIframeBody()
       .find('input[name="add"]')
@@ -347,7 +349,7 @@ Then(
   () => {
     cy.waitForElementInIframe("#main-content", 'select[id="host_filter"]');
 
-    cy.selectHostAndCheckService(services.serviceCritical.template);
+    cy.selectHostAndCheckService(services.serviceCritical.name);
     // cy.getIframeBody()
     //   .find('select[id="host_filter"]')
     //   .siblings("span.select2-container")
