@@ -35,7 +35,7 @@ jobs:
           SHELLCHECK_OPTS: "--severity=error"
         run: |
           ${{ steps.get_actionlint.outputs.executable }} \
-            -ignore 'label "centreon-(collect-arm64|ubuntu-22.04|common)" is unknown' \
+            -ignore 'label "centreon-(collect-arm64|ubuntu-22.04|common|perf-testing)" is unknown' \
             -ignore 'label "infrastructure" is unknown' \
             -ignore '"github.head_ref" is potentially untrusted' \
             -pyflakes= \
