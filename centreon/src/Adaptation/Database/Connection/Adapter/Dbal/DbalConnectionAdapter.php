@@ -55,7 +55,7 @@ final class DbalConnectionAdapter implements ConnectionInterface
      */
     private function __construct(
         private readonly DoctrineDbalConnection $dbalConnection,
-        private readonly ConnectionConfig $connectionConfig
+        private readonly ConnectionConfig $connectionConfig,
     ) {
     }
 
@@ -758,7 +758,7 @@ final class DbalConnectionAdapter implements ConnectionInterface
      */
     public function isUnbufferedQueryActive(): bool
     {
-        return false === $this->isBufferedQueryActive;
+        return $this->isBufferedQueryActive === false;
     }
 
     /**
@@ -794,7 +794,7 @@ final class DbalConnectionAdapter implements ConnectionInterface
         string $message,
         array $customContext = [],
         string $query = '',
-        ?\Throwable $previous = null
+        ?\Throwable $previous = null,
     ): void {
         // prepare context of the database exception
         $context = [
