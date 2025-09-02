@@ -22,7 +22,6 @@
 declare(strict_types=1);
 
 use PhpCsFixer\Finder;
-use Tools\PhpCsFixer\PhpCsFixerRuleSet;
 
 $config = require_once __DIR__ . '/../php-tools/php-cs-fixer/config/base.strict.php';
 
@@ -42,13 +41,11 @@ $finder = Finder::create()
         __DIR__ . '/rector.php',
     ]);
 
-$rules = array_merge(
-    [
-        '@Symfony' => true,
-        '@Symfony:risky' => true,
-    ],
-    PhpCsFixerRuleSet::getRules()
-);
+$rules = $config->getRules();
+
+$rules['method_argument_space'] = ['on_multiline' => 'ignore'];
+$rules['trailing_comma_in_multiline'] = ['after_heredoc' => true, 'elements' => ['array_destructuring', 'arrays', 'match', 'parameters']];
+$rules['yoda_style'] = ['equal' => false, 'identical' => false, 'less_and_greater' => false];
 
 return $config
     ->setRules($rules)
