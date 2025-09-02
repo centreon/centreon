@@ -1426,12 +1426,8 @@ msgid "Authentication denied"
 msgstr ""
 
 #: centreon/src/Core/Security/Authentication/Domain/Exception/AuthenticationException.php
-<<<<<<< HEAD
 #: centreon/www/include/Administration/myAccount/DB-Func.php
-=======
-#: centreon/www/include/Administration/myAccount/formMyAccount.php
-#: centreon/www/include/configuration/configObject/contact/formContact.php
->>>>>>> 9393f607835f1a2c54bf59cccbdd9d88cb2588f7
+
 msgid "Authentication failed"
 msgstr "Echec de l'authentification"
 
@@ -21814,34 +21810,3 @@ msgstr "alerte"
 #: unknown
 msgid "will display resources with host name starting by'"
 msgstr "affichera les ressources avec un nom d'hôte commençant par"
-<<<<<<< HEAD
-=======
-
-#: centreon/www/include/Administration/parameters/general/form.php
-msgid "Full search"
-msgstr "Recherche étendue"
-
-#: centreon/www/include/Administration/parameters/general/form.php
-msgid "Limited search"
-msgstr "Recherche restreinte"
-
-#: centreon/www/include/Administration/parameters/general/form.php
-msgid "Free text search behavior"
-msgstr "Comportement de la recherche texte libre"
-
-#: centreon/www/include/Administration/parameters/general/form.php
-msgid "Resource status performance"
-msgstr "Performances de la page Statut des ressources"
-
-msgid "Free text search behavior can be configured in the Administration > Parameters > Centreon UI page."
-msgstr "Le comportement de la recherche texte libre peut être configuré à la page Administration > Paramètres > Centreon web page."
-
-#: centreon/www/include/configuration/configObject/contact/formContact.php
-msgid "Your current password"
-msgstr "Votre mot de passe actuel"
-
-#: centreon/www/include/configuration/configObject/contact/formContact.php
-#: centreon/www/include/Administration/myAccount/formMyAccount.php
-msgid "Please fill in all password fields"
-msgstr "Veuillez remplir tous les champs mot de passe"
->>>>>>> 9393f607835f1a2c54bf59cccbdd9d88cb2588f7
