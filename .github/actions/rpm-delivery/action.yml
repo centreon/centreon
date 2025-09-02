@@ -163,12 +163,14 @@ runs:
         for ARCH in "noarch" "x86_64"; do
           if [[ "${{ inputs.release_type }}" == "hotfix" || "${{ inputs.release_type }}" == "release" ]]; then
             UPLOAD_REPO_PATH="${{ inputs.version }}/${{ inputs.distrib }}/${{ inputs.stability }}-${{ inputs.release_type }}/$ARCH/${{ inputs.module_name }}/"
+            REINDEX_STABILITY="${{ inputs.stability }}-${{ inputs.release_type }}"
           else
             UPLOAD_REPO_PATH="${{ inputs.version }}/${{ inputs.distrib }}/${{ inputs.stability }}/$ARCH/${{ inputs.module_name }}/"
+            REINDEX_STABILITY="${{ inputs.stability }}"
           fi
           if [ "$(ls -A $ARCH)" ]; then
             jf rt upload "$ARCH/*.rpm" "$ROOT_REPO_PATH/$UPLOAD_REPO_PATH" --sync-deletes="$ROOT_REPO_PATH/$UPLOAD_REPO_PATH" --flat  --detailed-summary
           fi
 
-          curl -H "Authorization: Bearer ${{ env.JF_ACCESS_TOKEN }}" -X POST "${{ env.JF_URL }}/artifactory/api/yum/$ROOT_REPO_PATH?path=/${{ inputs.version }}/${{ inputs.distrib }}/${{ inputs.stability }}/$ARCH&async=1"
+          curl -H "Authorization: Bearer ${{ env.JF_ACCESS_TOKEN }}" -X POST "${{ env.JF_URL }}/artifactory/api/yum/$ROOT_REPO_PATH?path=/${{ inputs.version }}/${{ inputs.distrib }}/${REINDEX_STABILITY}/$ARCH&async=1"
         done
