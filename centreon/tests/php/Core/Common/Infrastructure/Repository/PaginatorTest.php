@@ -46,7 +46,7 @@ final class PaginatorTest extends TestCase
             totalItems: count($items),
         );
 
-        static::assertSame($lastPage, $paginator->lastPage());
+        self::assertSame($lastPage, $paginator->lastPage());
     }
 
     /**
@@ -55,7 +55,9 @@ final class PaginatorTest extends TestCase
     public static function lastPageDataProvider(): \Generator
     {
         yield [3, 1];
+
         yield [2, 2];
+
         yield [1, 3];
     }
 
@@ -79,11 +81,11 @@ final class PaginatorTest extends TestCase
             totalItems: count($items),
         );
 
-        static::assertSame(count($pageItems), $paginator->count());
+        self::assertSame(count($pageItems), $paginator->count());
 
         $i = 0;
         foreach ($paginator as $item) {
-            static::assertEquals($pageItems[$i], $item);
+            self::assertEquals($pageItems[$i], $item);
             $i++;
         }
     }
