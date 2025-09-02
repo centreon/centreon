@@ -1,4 +1,4 @@
---
+s--
 -- Insert version
 --
 INSERT INTO `informations` (`key` ,`value`) VALUES ('version', '24.04.18');
