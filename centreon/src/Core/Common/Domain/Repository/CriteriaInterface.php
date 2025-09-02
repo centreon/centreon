@@ -23,6 +23,10 @@ declare(strict_types=1);
 
 namespace Core\Common\Domain\Repository;
 
+/**
+ * Interface used to represent a set of criteria passed to a repository
+ * for querying entities, including filtering, sorting, and pagination.
+ */
 interface CriteriaInterface
 {
 }
