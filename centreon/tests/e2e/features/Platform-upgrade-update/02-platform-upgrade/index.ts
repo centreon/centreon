@@ -258,7 +258,7 @@ EOF`,
                         return cy.execInContainer(
                           {
                             command: `bash -e <<EOF
-                            echo "deb https://${Cypress.env('INTERNAL_REPO_USERNAME')}:${Cypress.env('INTERNAL_REPO_PASSWORD')}@packages.centreon.com/apt-standard-internal-unstable/ ${Cypress.env('WEB_IMAGE_OS')} main" > /etc/apt/sources.list.d/centreon-unstable.list
+                            echo "deb https://${Cypress.env('INTERNAL_REPO_USERNAME')}:${Cypress.env('INTERNAL_REPO_PASSWORD')}@packages.centreon.com/apt-standard-internal/ ${Cypress.env('WEB_IMAGE_OS')}-${major_version}-unstable main" > /etc/apt/sources.list.d/centreon-unstable.list
                             apt-get update
 EOF`,
                             name: 'web'
@@ -269,9 +269,9 @@ EOF`,
 
                       return cy.execInContainer({
                         command: `bash -e <<EOF
-                        echo "deb https://packages.centreon.com/apt-standard-${major_version}-stable/ ${Cypress.env('WEB_IMAGE_OS')} main" > /etc/apt/sources.list.d/centreon-stable.list
-                        echo "deb https://packages.centreon.com/apt-standard-${major_version}-testing/ ${Cypress.env('WEB_IMAGE_OS')} main" > /etc/apt/sources.list.d/centreon-testing.list
-                        echo "deb https://packages.centreon.com/apt-standard-${major_version}-unstable/ ${Cypress.env('WEB_IMAGE_OS')} main" > /etc/apt/sources.list.d/centreon-unstable.list
+                        echo "deb https://packages.centreon.com/apt-standard/ ${Cypress.env('WEB_IMAGE_OS')}-${major_version}-stable main" > /etc/apt/sources.list.d/centreon-stable.list
+                        echo "deb https://packages.centreon.com/apt-standard/ ${Cypress.env('WEB_IMAGE_OS')}-${major_version}-testing main" > /etc/apt/sources.list.d/centreon-testing.list
+                        echo "deb https://packages.centreon.com/apt-standard/ ${Cypress.env('WEB_IMAGE_OS')}-${major_version}-unstable main" > /etc/apt/sources.list.d/centreon-unstable.list
                         apt-get update
 EOF`,
                         name: 'web'
