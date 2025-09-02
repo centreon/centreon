@@ -29,7 +29,7 @@ jobs:
           if [[ -z "$feature_ticket" ]]; then
             echo "::notice::Ticket ID not found due to the branch name not corresponding to standards."
             echo "repositories_found=false" >> "$GITHUB_OUTPUT"
-          elif jf rt curl -s -X GET /api/repositories | jq -r '.[].key' | grep -q "$feature_ticket"; then
+          elif jf rt curl -s -X GET /api/repositories | jq -r '.[].key' | grep "$feature_ticket"; then
             echo "::notice::Repositories associated with $feature_ticket found – deletion will be requested."
             echo "repositories_found=true" >> "$GITHUB_OUTPUT"
           else
