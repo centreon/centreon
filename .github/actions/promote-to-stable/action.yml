@@ -192,7 +192,7 @@ runs:
           ARCH=$(echo $ARTIFACT_DL | cut -d '_' -f3 | cut -d '.' -f1)
           if [[ "${{ inputs.major_version }}" < "25.05" ]]; then
             POOL_SUBPATH="${{ inputs.module_name }}"
-            DEB_PROP="${{ inputs.distrib }}}/main/$ARCH"
+            DEB_PROP="${{ inputs.distrib }}/main/$ARCH"
           else
             POOL_SUBPATH="${{ inputs.major_version }}/${{ inputs.stability }}/${{ inputs.module_name }}"
             DEB_PROP="${{ inputs.distrib }}-${{ inputs.major_version }}-${{ inputs.stability }}/main/$ARCH"
