@@ -81,6 +81,11 @@ final readonly class Paginator implements PaginatorInterface
         return $this->itemsPerPage;
     }
 
+    public function lastPage(): int
+    {
+        return $this->lastPage;
+    }
+
     public function totalItems(): int
     {
         return $this->totalItems;
