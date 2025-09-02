@@ -28,7 +28,7 @@ use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\OpenApi\Model;
 use App\ResourceConfiguration\Domain\Security\GlobalMacroPermissionEnum;
-use App\ResourceConfiguration\Infrastructure\ApiPlatform\State\ListGlobalMacrosProcessor;
+use App\ResourceConfiguration\Infrastructure\ApiPlatform\State\ListGlobalMacrosProvider;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ApiResource(
@@ -36,13 +36,13 @@ use Symfony\Component\Validator\Constraints as Assert;
     operations: [
         new GetCollection(
             uriTemplate: '/configuration/macros/globals',
-            processor: ListGlobalMacrosProcessor::class,
+            provider: ListGlobalMacrosProvider::class,
             openapi: new Model\Operation(
                 responses: [
                 ],
             ),
-            /* security: "is_granted('" . GlobalMacroPermissionEnum::CanRead->value . "')", */
-            /* securityMessage: 'You are not allowed to list global macros', */
+            security: "is_granted('" . GlobalMacroPermissionEnum::CanRead->value . "')",
+            securityMessage: 'You are not allowed to list global macros',
         ),
     ],
 )]

@@ -14,4 +14,6 @@ framework:
                 middleware:
                     - validation
 
+            query.bus: ~
+
         default_bus: command.bus

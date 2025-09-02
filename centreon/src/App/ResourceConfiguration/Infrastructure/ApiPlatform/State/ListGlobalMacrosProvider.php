@@ -24,7 +24,7 @@ declare(strict_types=1);
 namespace App\ResourceConfiguration\Infrastructure\ApiPlatform\State;
 
 use ApiPlatform\Metadata\Operation;
-use ApiPlatform\State\ProcessorInterface;
+use ApiPlatform\State\ProviderInterface;
 use App\ResourceConfiguration\Application\Query\ListGlobalMacrosQuery;
 use App\ResourceConfiguration\Domain\Collection\GlobalMacroCollection;
 use App\ResourceConfiguration\Infrastructure\ApiPlatform\Resource\GlobalMacroResource;
@@ -35,7 +35,7 @@ use App\Shared\Infrastructure\ApiPlatform\Transformer\TransformerInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Webmozart\Assert\Assert;
 
-final readonly class ListGlobalMacrosProcessor implements ProcessorInterface
+final readonly class ListGlobalMacrosProvider implements ProviderInterface
 {
     public function __construct(
         private QueryBus $queryBus,
@@ -44,7 +44,7 @@ final readonly class ListGlobalMacrosProcessor implements ProcessorInterface
     ) {
     }
 
-    public function process($data, Operation $operation, array $uriVariables = [], array $context = []): GlobalMacroResourceCollection
+    public function provide(Operation $operation, array $uriVariables = [], array $context = []): GlobalMacroResourceCollection
     {
         // TODO: handle request parameters
         $query = new ListGlobalMacrosQuery();
@@ -55,7 +55,7 @@ final readonly class ListGlobalMacrosProcessor implements ProcessorInterface
         $resourceCollection = new GlobalMacroResourceCollection();
 
         foreach ($collection as $item) {
-            $resource = ($this->transformer)($item);
+            $resource = $this->transformer->toResource($item);
             Assert::isInstanceOf($resource, GlobalMacroResource::class);
             $resourceCollection->add($resource);
         }
