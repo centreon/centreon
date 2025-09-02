@@ -121,7 +121,7 @@ describe('ConnectionInitiated', () => {
 
     cy.contains('By agent')
       .parent()
-      .find('svg[data-testid="DoneIcon"]')
+      .find('svg[data-testid="By agent selected"]')
       .should('be.visible');
   });
 
@@ -130,7 +130,7 @@ describe('ConnectionInitiated', () => {
 
     cy.contains('By poller')
       .parent()
-      .find('svg[data-testid="DoneIcon"]')
+      .find('svg[data-testid="By poller selected"]')
       .should('be.visible');
   });
 
