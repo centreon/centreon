@@ -384,7 +384,7 @@ jobs:
       name: e2e
       module_name: centreon-open-tickets
       image_name: centreon-open-tickets
-      database_image: bitnami/${{ matrix.database }}
+      database_image: bitnamilegacy/${{ matrix.database }}
       os: ${{ matrix.operating_system }}
       features_path: tests/e2e/features
       major_version: ${{ needs.get-environment.outputs.major_version }}
