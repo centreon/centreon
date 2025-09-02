@@ -32,7 +32,7 @@ use Core\Common\Domain\ValueObject\ValueObjectInterface;
  *
  * @class   QueryParameter
  */
-final readonly class QueryParameter implements ValueObjectInterface
+final readonly class QueryParameter implements ValueObjectInterface, \Stringable
 {
     /**
      * QueryParameter constructor.

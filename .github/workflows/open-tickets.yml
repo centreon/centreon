@@ -519,7 +519,7 @@ jobs:
       name: e2e
       module_name: centreon-open-tickets
       image_name: centreon-open-tickets
-      database_image: bitnami/${{ matrix.database }}
+      database_image: bitnamilegacy/${{ matrix.database }}
       os: ${{ matrix.operating_system }}
       features_path: tests/e2e/features
       major_version: ${{ needs.get-environment.outputs.major_version }}
@@ -628,7 +628,7 @@ jobs:
         uses: ./.github/actions/promote-to-stable
         with:
           artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
-          module: open-tickets
+          module_name: open-tickets
           distrib: ${{ matrix.distrib }}
           major_version: ${{ needs.get-environment.outputs.major_version }}
           minor_version: ${{ needs.get-environment.outputs.minor_version }}
