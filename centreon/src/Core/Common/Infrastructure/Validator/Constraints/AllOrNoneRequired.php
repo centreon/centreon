@@ -28,8 +28,8 @@ use Symfony\Component\Validator\Constraint;
 /**
  * A custom constraint applied at the class level to validate a logical NOT XOR (XNOR) between two properties.
  *
- * Ensures that both specified properties are set (i.e., not just one). Validation fails if only one
- * of the properties is set or if both are null/empty.
+ * Ensures that either both specified properties are set (i.e., not just one) or both are null/empty. Validation fails
+ * if only one of the properties is set.
  */
 #[\Attribute]
 final class AllOrNoneRequired extends Constraint
