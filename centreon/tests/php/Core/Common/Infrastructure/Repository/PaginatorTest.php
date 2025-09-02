@@ -67,9 +67,9 @@ final class PaginatorTest extends TestCase
     public function testIterator(int $currentPage, int $itemsPerPage, array $pageItems): void
     {
         $items = [
-            (object)['name' => 'first'],
-            (object)['name' => 'second'],
-            (object)['name' => 'third'],
+            (object) ['name' => 'first'],
+            (object) ['name' => 'second'],
+            (object) ['name' => 'third'],
         ];
 
         $paginator = new Paginator(
@@ -97,21 +97,21 @@ final class PaginatorTest extends TestCase
             1,
             3,
             [
-                (object)['name' => 'first'],
-                (object)['name' => 'second'],
-                (object)['name' => 'third'],
+                (object) ['name' => 'first'],
+                (object) ['name' => 'second'],
+                (object) ['name' => 'third'],
             ],
         ];
 
         yield [2, 3, []];
 
-        yield [2, 2, [(object)['name' => 'third']]];
+        yield [2, 2, [(object) ['name' => 'third']]];
 
-        yield [1, 1, [(object)['name' => 'first']]];
+        yield [1, 1, [(object) ['name' => 'first']]];
 
-        yield [2, 1, [(object)['name' => 'second']]];
+        yield [2, 1, [(object) ['name' => 'second']]];
 
-        yield [3, 1, [(object)['name' => 'third']]];
+        yield [3, 1, [(object) ['name' => 'third']]];
 
         yield [4, 1, []];
     }
