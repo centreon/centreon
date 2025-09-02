@@ -825,7 +825,7 @@ describe('Agent configurations modal', () => {
     cy.contains(labelAgentConfigurationCreated).should('be.visible');
   });
 
-  it('send a Post request with certificate fields when connection mode is insecure', () => {
+  it('saves the form with certificate fields when connection mode is insecure', () => {
     initialize({});
 
     cy.contains(labelAdd).click();
