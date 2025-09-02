@@ -42,7 +42,7 @@ Given('I am on the Authentication tokens page', () => {
 });
 
 When('I click on the "Add" button', () => {
-  cy.getByTestId({ testId: 'Add' }).click();
+  cy.getByLabel({ label: 'create' }).click();
 });
 
 When('I fill in the following required fields', (dataTable: DataTable) => {
@@ -89,7 +89,7 @@ Then(
 );
 
 Given('a basic Authentication token is generated', () => {
-  cy.getByTestId({ testId: 'Add' }).click();
+  cy.getByLabel({ label: 'create' }).click();
 
   cy.get('#Name').type(token.name);
 
