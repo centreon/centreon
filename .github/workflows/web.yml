@@ -107,7 +107,6 @@ jobs:
             has_upgrade_changes:
               - 'centreon/www/install/**'
               - 'centreon/packaging/**'
-              - 'centreon/tests/e2e/**'
           token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
       - uses: ./.github/actions/changes-trigger-checks
