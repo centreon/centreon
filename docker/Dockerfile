@@ -84,12 +84,14 @@ RUN groupadd -g 6000 centreon && \
     useradd -u 6002 -g centreon-broker -m -r -d /var/lib/centreon-broker -c "Centreon Broker"  -s /bin/bash centreon-broker && \
     groupadd -g 6003 centreon-gorgone && \
     useradd -u 6003 -g centreon-gorgone -m -r -d /var/lib/centreon-gorgone -c "Centreon Gorgone"  -s /bin/bash centreon-gorgone &&\
+    usermod -aG centreon-broker centreon-engine  && \
+    usermod -aG centreon-engine centreon-broker && \
     mkdir -p /etc/centreon-broker/ /var/log/centreon-engine/ /var/log/centreon-broker/ /var/lib/centreon-engine/rw && \
     chown -R centreon-engine:centreon-engine /etc/centreon-engine /var/log/centreon-engine /var/lib/centreon-engine && \
     chown -R centreon-broker:centreon-broker /etc/centreon-broker/ /var/log/centreon-broker/ && \
     touch /var/log/centreon-engine/retention.dat && \
     chown -R centreon-engine:centreon-engine /etc/centreon-engine && \
-    chmod 775 /etc/centreon-engine /etc/centreon-broker && \
+    chmod 775 /etc/centreon-engine /etc/centreon-broker /var/log/centreon-broker/ /var/log/centreon-engine/ && \
     chmod +x /usr/share/centreon/lib/centreon-broker/* && \
     chmod +x /entrypoint.sh
 
@@ -98,7 +100,7 @@ COPY centreon-engine/api_control.py /var/lib/centreon-engine/api_control.py
 # # Set the working directory
 WORKDIR /var/lib/centreon-engine
 
-#USER centreon-engine
+USER centreon-engine
 
 # # Set the entrypoint (adjust as needed)
 ENTRYPOINT ["/entrypoint.sh"]
@@ -154,7 +156,7 @@ COPY centreon-broker/api_control.py /var/lib/centreon-broker/api_control.py
 # # Set the working directory
 WORKDIR /var/lib/centreon-broker
 
-#USER centreon-broker
+USER centreon-broker
 
 # # Set the entrypoint (adjust as needed)
 ENTRYPOINT ["/entrypoint.sh"]
@@ -193,13 +195,10 @@ RUN apt update && \
     libnet-curl-perl \
     libcrypt-openssl-aes-perl \
     libssh-session-perl \
+    libxml-simple-perl \
     sudo && \
     apt clean && \
     rm -rf /var/lib/apt/lists/*
-
-COPY centreon-gorgone/centreon /etc/sudoers.d/centreon
-COPY --chmod=755 centreon-gorgone/service /usr/local/bin/service
-COPY --chown=centreon-gorgone:centreon-gorgone --chmod=775 centreon-gorgone/config/ /etc/centreon-gorgone/
 
 RUN groupadd -g 6000 centreon && \
     useradd -u 6000 -g centreon -m -r -d /var/spool/centreon -c "Centreon" -s /bin/bash centreon && \
@@ -210,33 +209,26 @@ RUN groupadd -g 6000 centreon && \
     groupadd -g 6003 centreon-gorgone && \
     useradd -u 6003 -g centreon-gorgone -m -r -d /var/lib/centreon-gorgone -c "Centreon Gorgone"  -s /bin/bash centreon-gorgone && \
     usermod -aG centreon centreon-gorgone &&\
+    usermod -aG www-data centreon-gorgone &&\
     mkdir -p /etc/centreon/config.d/ && \
     chown centreon. /etc/centreon/config.d/ && \
     chmod 775 /etc/centreon/config.d/ &&\
     mv /usr/sbin/service /usr/sbin/service.orig && \
     ln -s /usr/local/bin/service /usr/sbin/service
-    # chown -R centreon-gorgone:centreon-gorgone /var/log/centreon-gorgone && \
-    # chmod 775 /var/log/centreon-gorgone && \
-    # touch /var/log/centreon-gorgone/gorgoned.log && \
-    # chown centreon-gorgone:centreon-gorgone /var/log/centreon-gorgone/gorgoned.log && \
-    # chmod 664 /var/log/centreon-gorgone/gorgoned.log
 
 # Copy specific binaries or libraries from the builder stage
 COPY --from=builder --chown=centreon-gorgone:centreon-gorgone --chmod=775 /etc/centreon-gorgone /etc/centreon-gorgone
 COPY --from=builder --chown=centreon-gorgone:centreon-gorgone --chmod=775 /var/log/centreon-gorgone /var/log/centreon-gorgone
 COPY --from=builder --chown=centreon-gorgone:centreon-gorgone /var/lib/centreon-gorgone /var/lib/centreon-gorgone
 COPY --from=builder --chown=centreon-gorgone:centreon-gorgone /var/cache/centreon-gorgone /var/cache/centreon-gorgone
-COPY --from=builder --chown=centreon-gorgone:centreon-gorgone /centreon-collect/perl-libs/lib/centreon/ /usr/share/perl5/centreon/ 
+COPY --from=builder --chown=centreon-gorgone:centreon-gorgone /centreon-collect/perl-libs/lib/centreon/ /usr/share/perl5/centreon/
 COPY --from=builder /usr/share/perl5/gorgone /usr/share/perl5/gorgone
 COPY --from=builder /usr/bin/gorgoned /usr/bin/gorgoned
+COPY --chmod=755 centreon-gorgone/service /usr/local/bin/service
+COPY --chown=centreon-gorgone:centreon-gorgone --chmod=775 centreon-gorgone/config/ /etc/centreon-gorgone/config.d/ 
+COPY --chmod=600 centreon-gorgone/centreon /etc/sudoers.d/centreon
 
-# Create necessary directories and set permissions
-
-# RUN mkdir -p /var/log/centreon-gorgone/  && \
-#     chown -R centreon-gorgone:centreon-gorgone /var/log/centreon-gorgone/
-
-#USER centreon-gorgone
-# COPY centreon-gorgone/40-gorgoned.yaml /etc/centreon-gorgone/40-gorgoned.yaml
+USER centreon-gorgone
 # Set the working directory
 WORKDIR /etc/centreon-gorgone/
 

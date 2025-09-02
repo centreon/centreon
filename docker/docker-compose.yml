@@ -14,6 +14,10 @@ services:
       - app-centcore:/var/lib/centreon/centcore:rw,z
     networks:
       - app-network
+    healthcheck:
+      test: ["CMD", "test", "-f", "/tmp/docker.ready"]
+      interval: 10s
+      timeout: 2s
 
 
   apache:
@@ -52,6 +56,7 @@ services:
     volumes:
       - app-engine:/etc/centreon-engine:rw,z
       - app-broker:/etc/centreon-broker:rw,z
+      - app-centcmd:/var/lib/centreon-engine/rw:rw,z
   gorgone:
     image: gorgone:latest
     container_name: gorgone
@@ -63,6 +68,10 @@ services:
       - app-etc:/etc/centreon/:rw
       - app-gorgone:/etc/centreon-gorgone:rw,z
       - app-centcore:/var/lib/centreon/centcore:rw,z
+      - app-centcmd:/var/lib/centreon-engine/rw:rw,z
+    depends_on:
+      php-fpm:
+        condition: service_healthy
 
   db:
     image: mariadb:10.11
@@ -84,6 +93,7 @@ volumes:
   app-broker:
   app-gorgone:
   app-centcore:
+  app-centcmd:
   app-db:
   app-metrics:
   app-status:
