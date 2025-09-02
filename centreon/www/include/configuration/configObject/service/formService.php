@@ -1025,16 +1025,14 @@ if ($o !== SERVICE_MASSIVE_CHANGE) {
     $form->addRule('service_description', _('Compulsory Name'), 'required');
     // If we are using a Template, no need to check the value, we hope there are in the Template
     if (! $form->getSubmitValue('service_template_model_stm_id')) {
-        if (! $isCloudPlatform) {
-            $form->addRule('command_command_id', _('Compulsory Command'), 'required');
-        }
+        $form->addRule('command_command_id', _('Compulsory Command'), 'required');
         if (! $form->getSubmitValue('service_hPars') && $serviceHgParsFieldIsAdded) {
             $form->addRule('service_hgPars', _('HostGroup or Host Required'), 'required');
         }
         if (! $form->getSubmitValue('service_hgPars') && $serviceHParsFieldIsAdded) {
             $form->addRule('service_hPars', _('HostGroup or Host Required'), 'required');
         }
-    } elseif (! $isCloudPlatform) {
+    } else {
         $form->addFormRule('checkServiceTemplateHasCommand');
     }
     if (! $form->getSubmitValue('service_hPars') && $serviceHgParsFieldIsAdded) {

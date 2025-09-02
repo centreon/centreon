@@ -77,10 +77,6 @@ class Command extends AbstractObject
             $this->getMailBin();
         }
 
-        if (! $this->isVaultEnabled) {
-            $this->getVaultConfigurationStatus();
-        }
-
         // enable_shell is 0 we remove it
         $command_line = html_entity_decode($this->commands[$command_id]['command_line_base'] ?? '');
         $command_line = str_replace('#BR#', '\\n', $command_line);

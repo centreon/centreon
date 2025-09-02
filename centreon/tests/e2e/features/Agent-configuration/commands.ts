@@ -121,7 +121,7 @@ Cypress.Commands.add('addCmaToken', () => {
     page: 'Authentication Tokens',
     rootItemNumber: 1
   });
-  cy.getByTestId({ testId: 'Add' }).click();
+  cy.getByLabel({ label: 'create' }).click();
   cy.contains('Create authentication token').should('be.visible');
   cy.get('#Name').type('CMA-Token-001');
   cy.getByTestId({ testId: 'Type' }).click();
