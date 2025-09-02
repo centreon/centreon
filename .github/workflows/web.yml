@@ -1302,7 +1302,7 @@ jobs:
         uses: ./.github/actions/promote-to-stable
         with:
           artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
-          module: web
+          module_name: web
           distrib: ${{ matrix.distrib }}
           major_version: ${{ needs.get-environment.outputs.major_version }}
           minor_version: ${{ needs.get-environment.outputs.minor_version }}
@@ -1354,6 +1354,7 @@ jobs:
     if: |
       needs.get-environment.outputs.is_nightly == 'true' && github.run_attempt == 1 &&
       (failure() || cancelled() || contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')) &&
+      startsWith(github.ref_name, 'dev') &&
       github.repository == 'centreon/centreon'
     steps:
       - name: Checkout sources
