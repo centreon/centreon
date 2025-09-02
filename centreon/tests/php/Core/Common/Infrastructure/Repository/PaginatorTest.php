@@ -83,10 +83,10 @@ final class PaginatorTest extends TestCase
 
         self::assertSame(count($pageItems), $paginator->count());
 
-        $i = 0;
+        $index = 0;
         foreach ($paginator as $item) {
-            self::assertEquals($pageItems[$i], $item);
-            $i++;
+            self::assertEquals($pageItems[$index], $item);
+            $index++;
         }
     }
 
