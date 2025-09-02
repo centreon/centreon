@@ -118,8 +118,13 @@ const useFormInputs = ({ canEdit }: { canEdit: boolean }): FormInputsState => {
       fieldName: 'resourceAccessRules',
       group: t(labelResourceAccessRule),
       label: t(labelApplyResourceAccessRule),
+<<<<<<< HEAD
       required: canEdit,
       getDisabled: () => !canEdit,
+=======
+      required: hasWriteAccess,
+      getDisabled: () => !hasWriteAccess,
+>>>>>>> 4d5b7fe19c (Resolve conflicts)
       type: InputType.MultiConnectedAutocomplete
     },
     {
