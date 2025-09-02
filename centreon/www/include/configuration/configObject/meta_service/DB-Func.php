@@ -496,12 +496,17 @@ function multipleMetaServiceInDB($metas = [], $nbrDup = [])
  */
 function updateMetaServiceInDB($metaId = null)
 {
+    global $isCloudPlatform;
+
     if (! $metaId) {
         return;
     }
     updateMetaService($metaId);
-    updateMetaServiceContact($metaId);
-    updateMetaServiceContactGroup($metaId);
+
+    if (! $isCloudPlatform) {
+        updateMetaServiceContact($metaId);
+        updateMetaServiceContactGroup($metaId);
+    }
 }
 
 /**
@@ -511,9 +516,14 @@ function updateMetaServiceInDB($metaId = null)
  */
 function insertMetaServiceInDB()
 {
+    global $isCloudPlatform;
+
     $metaId = insertMetaService();
-    updateMetaServiceContact($metaId);
-    updateMetaServiceContactGroup($metaId);
+
+    if (! $isCloudPlatform) {
+        updateMetaServiceContact($metaId);
+        updateMetaServiceContactGroup($metaId);
+    }
 
     return $metaId;
 }
