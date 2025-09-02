@@ -20,6 +20,7 @@ import {
   labelConfigurationServer,
   labelConnectionInitiatedByPoller,
   labelEncryptionLevel,
+  labelInsecure,
   labelMonitoredHosts,
   labelName,
   labelNoTLS,
@@ -50,6 +51,10 @@ export const agentTypes: Array<SelectEntry> = [
 
 export const connectionModes: Array<SelectEntry> = [
   { id: ConnectionMode.secure, name: labelTLS },
+  {
+    id: ConnectionMode.insecure,
+    name: labelInsecure
+  },
   { id: ConnectionMode.noTLS, name: labelNoTLS }
 ];
 
