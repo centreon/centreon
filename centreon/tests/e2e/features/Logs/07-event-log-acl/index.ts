@@ -350,26 +350,7 @@ Then(
     cy.waitForElementInIframe("#main-content", 'select[id="host_filter"]');
 
     cy.selectHostAndCheckService(services.serviceCritical.name);
-    // cy.getIframeBody()
-    //   .find('select[id="host_filter"]')
-    //   .siblings("span.select2-container")
-    //   .click();
 
-    // cy.getIframeBody()
-    //   .find("button.btc.bt_info")
-    //   .contains("Select all")
-    //   .click();
-    // cy.getIframeBody().find("button.btc.bt_success").contains("Ok").click();
-
-    // cy.getIframeBody()
-    //   .find('input.bt_success[name="graph"][value="Apply period"]')
-    //   .click();
-
-    // // check event logs
-    // cy.getIframeBody()
-    //   .find("a", { timeout: 120000 }) // waits up to 2 minutes to find the <a>
-    //   .contains(services.serviceCritical.name, { timeout: 120000 }) // waits up to 2 minutes for text match
-    //   .should("exist", { timeout: 120000 });
   },
 );
 
