@@ -148,6 +148,8 @@ $flagContactsAsServiceAccount = function () use ($pearDB, &$errorMessage): void 
     );
 };
 
+/** --------------------------------------------- Contact Pager --------------------------------------------- */
+
 $alterContactPagerSize = function () use ($pearDB, &$errorMessage): void {
     $errorMessage = 'Unable to alter contact_pager column size in contact table';
     if ($pearDB->isColumnExist('contact', 'contact_pager')) {
@@ -159,6 +161,8 @@ $alterContactPagerSize = function () use ($pearDB, &$errorMessage): void {
         );
     }
 };
+
+/** -------------------------------------- AgentConfiguration updates -------------------------------------- */
 
 /**
  * Generate a token based on the first found admin contact to update old agent_configurations
@@ -247,7 +251,13 @@ $alignCMAAgentConfigurationWithNewSchema = function () use ($pearDB, &$errorMess
             associative: true,
             flags: JSON_THROW_ON_ERROR
         );
+        $configuration['agent_initiated'] = true;
+        $configuration['poller_initiated'] = false;
+
         if ($configuration['is_reverse']) {
+            $configuration['poller_initiated'] = true;
+            unset($configuration['is_reverse']);
+
             // `tokens` should be an empty array for reverse connection
             if (! array_key_exists('tokens', $configuration)) {
                 $configuration['tokens'] = [];
