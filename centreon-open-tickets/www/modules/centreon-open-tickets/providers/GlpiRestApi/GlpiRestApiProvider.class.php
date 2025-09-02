@@ -1303,7 +1303,7 @@ class GlpiRestApiProvider extends AbstractProvider
         if (isset($ticketArguments['requester']) && $ticketArguments['requester'] != -1) {
             $fields['input']['_users_id_requester'] = $ticketArguments['requester'];
         }
-        
+
         $info['postFields'] = json_encode($fields);
 
         // $file = fopen("/var/log/php-fpm/glpi.log", "a");
@@ -1313,8 +1313,8 @@ class GlpiRestApiProvider extends AbstractProvider
         try {
             $this->glpiCallResult['response'] = $this->curlQuery($info);
             $ticketId = $this->glpiCallResult['response']['id'];
-        } catch (\Exception $e) {
-            throw new \Exception($e->getMessage(), $e->getCode());
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage(), $e->getCode());
         }
 
         return $ticketId;
