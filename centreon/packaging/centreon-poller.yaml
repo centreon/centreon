@@ -49,7 +49,7 @@ contents:
     file_info:
       mode: 0755
 
-  - src: "../bin/{registerServerTopology.sh,registerServerTopologyTemplate}"
+  - src: "../bin/{registerServerTopology.sh,registerServerTopologyTemplate,writeEngineSecrets.sh}"
     dst: "/usr/share/centreon/bin/"
     file_info:
       mode: 0755
