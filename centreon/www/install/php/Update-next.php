@@ -250,7 +250,7 @@ $alignCMAAgentConfigurationWithNewSchema = function () use ($pearDB, &$errorMess
             associative: true,
             flags: JSON_THROW_ON_ERROR
         );
-        $configuration['agent_initiated'] = true;
+        $configuration['agent_initiated'] = false;
         $configuration['poller_initiated'] = false;
 
         if ($configuration['is_reverse']) {
@@ -282,6 +282,7 @@ $alignCMAAgentConfigurationWithNewSchema = function () use ($pearDB, &$errorMess
                 }
             }
         } else {
+            $configuration['agent_initiated'] = true;
             // `hosts` should be an empty array for not reverse connection
             if (! array_key_exists('hosts', $configuration)) {
                 $configuration['hosts'] = [];
