@@ -813,12 +813,13 @@ describe('Agent configurations modal', () => {
     cy.findByLabelText(labelEncryptionLevel).click();
     cy.contains(labelNoTLS).click();
 
-    cy.findByLabelText(labelConnectionInitiated).click();
-
     cy.findByLabelText(labelPublicCertificate).should('not.exist');
     cy.findAllByLabelText(labelCaCertificate).should('not.exist');
-    cy.findAllByLabelText(labelCaCertificate).should('not.exist');
     cy.findAllByLabelText(labelPrivateKey).should('not.exist');
+
+    cy.contains(labelByPoller).click();
+    cy.contains('Enable').click();
+
     cy.findByLabelText(labelSelectHost).click();
     cy.contains('central').click();
     cy.findByLabelText(labelCACommonName).should('not.exist');
@@ -835,7 +836,8 @@ describe('Agent configurations modal', () => {
         connection_mode: 'no-tls',
         poller_ids: [1],
         configuration: {
-          is_reverse: true,
+          agent_initiated: true,
+          poller_initiated: true,
           tokens: [],
           otel_ca_certificate: null,
           otel_public_certificate: null,
