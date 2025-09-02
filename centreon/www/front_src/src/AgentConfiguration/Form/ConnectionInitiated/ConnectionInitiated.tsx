@@ -37,7 +37,12 @@ const TabContent = ({ label, tooltipLabel, name }: TabContentProps) => {
 
   return (
     <div className={classes.tabContent}>
-      {values.configuration[name] && <DoneIcon className={classes.doneIcon} />}
+      {values.configuration[name] && (
+        <DoneIcon
+          className={classes.doneIcon}
+          data-testid={`${label} selected`}
+        />
+      )}
       <div>{t(label)}</div>
       {tooltipLabel && (
         <Tooltip label={t(tooltipLabel)}>
