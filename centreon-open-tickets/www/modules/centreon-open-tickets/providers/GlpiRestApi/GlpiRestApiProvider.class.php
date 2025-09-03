@@ -1267,31 +1267,21 @@ class GlpiRestApiProvider extends AbstractProvider
         $fields['input'] = ['name' => $ticketArguments['title'], 'content' => $ticketArguments['content'], 'entities_id' => $ticketArguments['entity'], 'urgency' => $ticketArguments['urgency'], 'itilcategories_id' => $ticketArguments['category'], 'impact' => $ticketArguments['impact'], 'priority' => $ticketArguments['priority']];
 
         if (isset($ticketArguments['user']) && $ticketArguments['user'] != -1) {
-            switch ($ticketArguments['user_role']) {
-                case 1:
-                    $userRole = '_users_id_requester';
-                    break;
-                case 2:
-                    $userRole = '_users_id_assign';
-                    break;
-                default:
-                    $userRole = '_users_id_observer';
-            }
+            $userRole = match ($ticketArguments['user_role']) {
+                1 => '_users_id_requester',
+                2 => '_users_id_assign',
+                default => '_users_id_observer',
+            };
 
             $fields['input'][$userRole] = $ticketArguments['user'];
         }
 
         if (isset($ticketArguments['group']) && $ticketArguments['group'] != -1) {
-            switch ($ticketArguments['group_role']) {
-                case 1:
-                    $groupRole = '_groups_id_requester';
-                    break;
-                case 2:
-                    $groupRole = '_groups_id_assign';
-                    break;
-                default:
-                    $groupRole = '_groups_id_observer';
-            }
+            $groupRole = match ($ticketArguments['group_role']) {
+                1 => '_groups_id_requester',
+                2 => '_groups_id_assign',
+                default => '_groups_id_observer',
+            };
 
             $fields['input'][$groupRole] = $ticketArguments['group'];
         }
@@ -1306,15 +1296,11 @@ class GlpiRestApiProvider extends AbstractProvider
 
         $info['postFields'] = json_encode($fields);
 
-        // $file = fopen("/var/log/php-fpm/glpi.log", "a");
-        // fwrite($file, print_r($info['postFields'], true));
-        // fclose($file);
-
         try {
             $this->glpiCallResult['response'] = $this->curlQuery($info);
             $ticketId = $this->glpiCallResult['response']['id'];
         } catch (Exception $e) {
-            throw new Exception($e->getMessage(), $e->getCode());
+            throw new Exception($e->getMessage(), $e->getCode(), $e);
         }
 
         return $ticketId;
