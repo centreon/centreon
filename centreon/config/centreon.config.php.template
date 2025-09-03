@@ -28,7 +28,7 @@ use Symfony\Component\HttpClient\CurlHttpClient;
 
 // Define constants
 $constants = [
-    '_CENTREON_PATH_' => @CENTREON_PATH@,
+    '_CENTREON_PATH_' => realpath(__DIR__ . '/..') . '/',
     '_CENTREON_ETC_' => '@CENTREON_ETC@',
     '_CENTREON_LOG_' => '@CENTREON_LOG@',
     '_CENTREON_CACHEDIR_' => '@CENTREON_CACHEDIR@',
