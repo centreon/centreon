@@ -11,7 +11,7 @@ import { useAtom, useSetAtom } from 'jotai';
 import { isWelcomePageDisplayedAtom, modalStateAtom } from './atoms';
 import { TokenType } from './models';
 
-import { useSearchParams } from 'react-router';
+import { useSearchParams } from 'react-router-dom';
 
 import { LoadingSkeleton } from '@centreon/ui';
 import { isNil, isNotEmpty } from 'ramda';
