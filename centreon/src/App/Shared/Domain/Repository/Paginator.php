@@ -21,9 +21,20 @@
 
 declare(strict_types=1);
 
-namespace App\Shared\Application\Query;
+namespace App\Shared\Domain\Repository;
 
-interface QueryBus
+/**
+ * @template T of object
+ *
+ * @extends \IteratorAggregate<array-key, T>
+ */
+interface Paginator extends \IteratorAggregate, \Countable
 {
-    public function ask(object $query): mixed;
+    public function getCurrentPage(): int;
+
+    public function getItemsPerPage(): int;
+
+    public function getLastPage(): int;
+
+    public function getTotalItems(): int;
 }

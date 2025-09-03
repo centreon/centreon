@@ -63,8 +63,8 @@ final class GlobalMacroResource
         #[Assert\Length(max: 255)]
         public ?string $comment = null,
 
-        public ?bool $isPassword = null,
-        public ?bool $isActivated = null,
+        public bool $isPassword = false,
+        public bool $isActivated = false,
     ) {
     }
 }

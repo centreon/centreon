@@ -24,43 +24,54 @@ declare(strict_types=1);
 namespace App\ResourceConfiguration\Infrastructure\ApiPlatform\State;
 
 use ApiPlatform\Metadata\Operation;
+use ApiPlatform\State\Pagination\Pagination;
+use ApiPlatform\State\Pagination\PaginatorInterface;
+use ApiPlatform\State\Pagination\TraversablePaginator;
 use ApiPlatform\State\ProviderInterface;
-use App\ResourceConfiguration\Application\Query\ListGlobalMacrosQuery;
-use App\ResourceConfiguration\Domain\Collection\GlobalMacroCollection;
+use App\ResourceConfiguration\Domain\Repository\GlobalMacroCriteria;
+use App\ResourceConfiguration\Domain\Repository\GlobalMacroRepository;
 use App\ResourceConfiguration\Infrastructure\ApiPlatform\Resource\GlobalMacroResource;
-use App\ResourceConfiguration\Infrastructure\ApiPlatform\Resource\GlobalMacroResourceCollection;
 use App\ResourceConfiguration\Infrastructure\ApiPlatform\Transformer\GlobalMacroTransformer;
-use App\Shared\Application\Query\QueryBus;
+use App\Shared\Domain\Repository\Paginator;
 use App\Shared\Infrastructure\ApiPlatform\Transformer\TransformerInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
-use Webmozart\Assert\Assert;
 
 final readonly class ListGlobalMacrosProvider implements ProviderInterface
 {
+    /** @param TransformerInterface<GlobalMacro,GlobalMacroResource> $transformer */
     public function __construct(
-        private QueryBus $queryBus,
         #[Autowire(service: GlobalMacroTransformer::class)]
         private TransformerInterface $transformer,
+        private GlobalMacroRepository $repository,
+        private Pagination $pagination,
     ) {
     }
 
-    public function provide(Operation $operation, array $uriVariables = [], array $context = []): GlobalMacroResourceCollection
+    public function provide(Operation $operation, array $uriVariables = [], array $context = []): PaginatorInterface|array
     {
-        // TODO: handle request parameters
-        $query = new ListGlobalMacrosQuery();
-
-        $collection = $this->queryBus->execute($query);
-        Assert::isInstanceOf($collection, GlobalMacroCollection::class);
-
-        $resourceCollection = new GlobalMacroResourceCollection();
-
-        foreach ($collection as $item) {
-            $resource = $this->transformer->toResource($item);
-            Assert::isInstanceOf($resource, GlobalMacroResource::class);
-            $resourceCollection->add($resource);
+        $criteria = new GlobalMacroCriteria();
+        if ($this->pagination->isEnabled($operation, $context)) {
+            $criteria = $criteria->withPagination(
+                $this->pagination->getPage($context),
+                $this->pagination->getLimit($operation, $context)
+            );
+        }
+        $criteria = $criteria->withName($context['filters']['name'] ?? null);
+        $models = $this->repository->findAll($criteria);
+        $resources = [];
+        foreach ($models as $model) {
+            $resources[] = $this->transformer->toResource($model);
+        }
+        if($models instanceof Paginator) {
+            return new TraversablePaginator(
+                new \ArrayIterator($resources),
+                $models->getCurrentPage(),
+                $models->getItemsPerPage(),
+                $models->getTotalItems()
+            );
         }
 
-        return $resourceCollection;
+        return $resources;
     }
 }
 
