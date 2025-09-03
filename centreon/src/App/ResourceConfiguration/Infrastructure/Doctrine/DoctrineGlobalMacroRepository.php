@@ -29,8 +29,11 @@ use App\ResourceConfiguration\Domain\Aggregate\GlobalMacroId;
 use App\ResourceConfiguration\Domain\Aggregate\GlobalMacroName;
 use App\ResourceConfiguration\Domain\Aggregate\GlobalMacroExpression;
 use App\ResourceConfiguration\Domain\Collection\GlobalMacroCollection;
+use App\ResourceConfiguration\Domain\Repository\GlobalMacroCriteria;
 use App\ResourceConfiguration\Domain\Repository\GlobalMacroRepository;
+use App\Shared\Domain\Repository\Paginator;
 use App\Shared\Infrastructure\Doctrine\DoctrineRepository;
+use App\Shared\Infrastructure\InMemory\InMemoryPaginator;
 use Doctrine\DBAL\Connection;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
@@ -54,25 +57,38 @@ final readonly class DoctrineGlobalMacroRepository extends DoctrineRepository im
     ) {
     }
 
-    public function findAll(): GlobalMacroCollection
+    public function findAll(?GlobalMacroCriteria $criteria = null): Paginator|array
     {
         $qb = $this->connection->createQueryBuilder();
 
         $qb->select('resource_id', 'resource_name', 'resource_line', 'resource_comment', 'resource_activate', 'is_password')
-            ->from(self::TABLE_NAME);
+           ->from(self::TABLE_NAME);
+        if ($criteria?->getName() !== null) {
+            $qb->where($qb->expr()->like('resource_name', '"%' . $criteria->getName() . '%"'));
+        }
+        $qbCount = clone $qb;
+        if($criteria?->getPage() !== null) {
+            $qb->setFirstResult(($criteria->getPage() - 1) * $criteria->getItemsPerPage())
+                ->setMaxResults($criteria->getItemsPerPage());
+        }
 
         /**
          * @var RowTypeAlias[] $rows
          */
         $rows = $qb->executeQuery()->fetchAllAssociative();
+        $globalMacros = array_map($this->createGlobalMacro(...), $rows);
+        if ($criteria?->getPage() !== null) {
+            $count = $qbCount->select('count(1)')->executeQuery()->fetchOne();
 
-        $collection = new GlobalMacroCollection();
-
-        foreach ($rows as $row) {
-            $collection->add($this->createGlobalMacro($row));
+            return new InMemoryPaginator(
+                $globalMacros,
+                $count,
+                $criteria->getPage(),
+                $criteria->getItemsPerPage()
+            );
         }
 
-        return $collection;
+        return $globalMacros;
     }
 
     /**

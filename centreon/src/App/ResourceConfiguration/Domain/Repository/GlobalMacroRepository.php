@@ -23,9 +23,11 @@ declare(strict_types=1);
 
 namespace App\ResourceConfiguration\Domain\Repository;
 
-use App\ResourceConfiguration\Domain\Collection\GlobalMacroCollection;
+use App\ResourceConfiguration\Domain\Aggregate\GlobalMacro;
+use App\Shared\Domain\Repository\Paginator;
 
 interface GlobalMacroRepository
 {
-    public function findAll(): GlobalMacroCollection;
+    /** @return Paginator<GlobalMacro>|array<GlobalMacro> */
+    public function findAll(?GlobalMacroCriteria $criteria = null): Paginator|array;
 }
