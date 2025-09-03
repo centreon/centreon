@@ -23,8 +23,10 @@ if [ ! -f /etc/centreon/centreon.conf.php ] && [ -d /usr/share/centreon/www/inst
     su www-data -s /bin/bash -c "SERVER_ADDR='127.0.0.1' php insertBaseConf.php"
     su www-data -s /bin/bash -c "php partitionTables.php"
 
-    mysql -h${MYSQL_HOST} -uroot centreon -e "UPDATE cfg_centreonbroker_info SET config_value = '${MYSQL_HOST}' WHERE config_key = 'db_host'"
-    mysql -h${MYSQL_HOST} -uroot -e "GRANT ALL ON *.* to 'centreon'@'%' WITH GRANT OPTION"
+  mysql -h${MYSQL_HOST} -uroot -p${MYSQL_PWD} -e "UPDATE cfg_centreonbroker_info SET config_value = '${MYSQL_HOST}' WHERE config_key = 'db_host'"
+  mysql -h${MYSQL_HOST} -uroot -p${MYSQL_PWD} -e "CREATE USER IF NOT EXISTS 'centreon'@'%' IDENTIFIED BY 'centreon'"
+  mysql -h${MYSQL_HOST} -uroot -p${MYSQL_PWD} -e "UPDATE options SET `value` = 'gorgone' WHERE `key` = 'gorgone_api_address'"
+  mysql -h${MYSQL_HOST} -uroot -p${MYSQL_PWD} -e "GRANT ALL ON *.* TO 'centreon'@'%'"
 
     if [ "$CENTREON_DATASET" = "1" ]; then
       echo "CENTREON_DATASET environment variable is set, dump will be inserted."
