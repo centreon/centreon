@@ -48,7 +48,7 @@ final class AllOrNoneRequiredValidator extends ConstraintValidator
             }
         }
 
-        if (! ($presentCount === count($properties) xor $presentCount === 0)) {
+        if ($presentCount !== count($properties) && $presentCount !== 0) {
             $this->context->buildViolation($constraint->message)
                 ->setParameter('{{ properties }}', implode(', ', $properties))
                 ->addViolation();

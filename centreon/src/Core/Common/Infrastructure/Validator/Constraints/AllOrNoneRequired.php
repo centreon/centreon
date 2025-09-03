@@ -31,7 +31,7 @@ use Symfony\Component\Validator\Constraint;
  * Ensures that either both specified properties are set (i.e., not just one) or both are null/empty. Validation fails
  * if only one of the properties is set.
  */
-#[\Attribute]
+#[\Attribute(\Attribute::TARGET_CLASS)]
 final class AllOrNoneRequired extends Constraint
 {
     public string $message = 'Either all {{ properties }} must be provided or none.';

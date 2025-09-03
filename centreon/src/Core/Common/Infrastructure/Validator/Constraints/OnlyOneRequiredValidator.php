@@ -46,9 +46,17 @@ final class OnlyOneRequiredValidator extends ConstraintValidator
             if (property_exists($object, $property) && $object->{$property} !== null) {
                 $presentCount++;
             }
+
+            if ($presentCount > 1) {
+                $this->context->buildViolation($constraint->message)
+                    ->setParameter('{{ properties }}', implode(', ', $properties))
+                    ->addViolation();
+
+                return;
+            }
         }
 
-        if ($presentCount !== 1) {
+        if ($presentCount === 0) {
             $this->context->buildViolation($constraint->message)
                 ->setParameter('{{ properties }}', implode(', ', $properties))
                 ->addViolation();

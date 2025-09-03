@@ -30,7 +30,7 @@ use Symfony\Component\Validator\Constraint;
  *
  * Ensures that exactly one of the specified properties is set (i.e., not both or neither).
  */
-#[\Attribute]
+#[\Attribute(\Attribute::TARGET_CLASS)]
 final class OnlyOneRequired extends Constraint
 {
     public string $message = 'Exactly one of the following must be provided: {{ properties }}.';
