@@ -1,3 +1,6 @@
+import { isNil, isNotEmpty } from 'ramda';
+import { useLayoutEffect } from 'react';
+
 import { DataTable, PageHeader, PageLayout } from '@centreon/ui/components';
 import { useTranslation } from 'react-i18next';
 import { DeleteDialog, DisableDialog, EnableDialog } from './Dialogs';
@@ -14,9 +17,10 @@ import { TokenType } from './models';
 import { useSearchParams } from 'react-router-dom';
 
 import { LoadingSkeleton } from '@centreon/ui';
-import { isNil, isNotEmpty } from 'ramda';
-import { useLayoutEffect } from 'react';
+import { Box } from '@mui/material';
+
 import useCountChangedFilters from './Filters/useCountChangedFilters';
+import { useStyles } from './Page.styles';
 import {
   labelAddToken,
   labelAuthenticationTokens,
@@ -51,6 +55,8 @@ const WelcomePage = ({ labels, dataTestId, onCreate }) => {
 };
 
 const Page = (): JSX.Element => {
+  const { classes } = useStyles();
+
   const { t } = useTranslation();
   const [, setSearchParams] = useSearchParams();
 
@@ -96,7 +102,9 @@ const Page = (): JSX.Element => {
               onCreate={openCreatetModal}
             />
           ) : (
-            <Listing isLoading={isLoading} data={data} />
+            <Box className={classes.listing}>
+              <Listing isLoading={isLoading} data={data} />
+            </Box>
           )}
         </DataTable>
       </PageLayout.Body>
