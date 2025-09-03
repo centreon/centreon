@@ -22,7 +22,7 @@
 // Creating container
 use Pimple\Container;
 
-// global $dependencyInjector;
+global $dependencyInjector;
 $dependencyInjector = Centreon\LegacyContainer::getInstance();
 
 // Define Centreon Configuration Database Connection
