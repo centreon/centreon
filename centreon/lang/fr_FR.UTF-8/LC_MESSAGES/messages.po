@@ -10927,7 +10927,7 @@ msgstr "Sans étape"
 
 #: centreon/www/install/front_translate.php
 msgid "No TLS"
-msgstr ""
+msgstr "Sans TLS"
 
 #: centreon/www/include/options/accessLists/menusACL/formMenusAccess.php
 msgid "No access"
@@ -24049,3 +24049,7 @@ msgstr "affichera les ressources avec un nom d'hôte commençant par"
 #: unknown
 msgid "{{total}} element(s) found"
 msgstr "{{total}} élément(s) trouvé(s)"
+
+#: unknown
+msgid "Insecure TLS"
+msgstr "TLS non sécurisé"
