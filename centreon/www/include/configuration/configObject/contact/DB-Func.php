@@ -45,18 +45,24 @@ function testContactExistence($name = null)
         $id = $form->getSubmitValue('contact_id');
     }
 
-    $query = "SELECT contact_name, contact_id FROM contact WHERE contact_name = '" .
-        htmlentities($centreon->checkIllegalChar($name), ENT_QUOTES, "UTF-8") . "'";
-    $dbResult = $pearDB->query($query);
-    $contact = $dbResult->fetch();
+    $contactName = $centreon->checkIllegalChar($name);
 
-    if ($dbResult->rowCount() >= 1 && $contact["contact_id"] == $id) {
-        return true;
-    } elseif ($dbResult->rowCount() >= 1 && $contact["contact_id"] != $id) {
-        return false;
-    } else {
+    $query = <<<'SQL'
+        SELECT contact_name, contact_id FROM contact WHERE contact_name = :contact_name
+        SQL;
+
+    $contact = $pearDB->fetchAssociative(
+        $query,
+        QueryParameters::create([
+            QueryParameter::string('contact_name', $contactName),
+        ])
+    );
+
+    if ($contact && $contact['contact_id'] === (int) $id) {
         return true;
     }
+
+    return ! ($contact && $contact['contact_id'] !== (int) $id);
 }
 
 /**
