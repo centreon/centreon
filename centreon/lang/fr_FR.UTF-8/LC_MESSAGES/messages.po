@@ -5965,7 +5965,7 @@ msgstr "Erreur durant la suppression d'un groupe de services"
 
 #: centreon/src/Core/Security/Token/Application/Exception/TokenException.php
 msgid "Error while deleting a token"
-msgstr "Erreur lors de la suppression d'un token"
+msgstr "Erreur lors de la suppression d'un jeton"
 
 #: centreon/src/Core/AdditionalConnectorConfiguration/Application/Exception/AccException.php
 msgid "Error while deleting an additional configuration"
@@ -22062,14 +22062,6 @@ msgid "Poller/Centreon Server"
 msgstr "Collecteur"
 
 #: unknown
-msgid "Poller/agent configuration created"
-msgstr "Configuration d'agent créée"
-
-#: unknown
-msgid "Poller/agent configuration updated"
-msgstr "Configuration d'agent mise à jour"
-
-#: unknown
 msgid "Port expected at most 65535"
 msgstr "Le numéro de port maximum attendu est 65535"
 
@@ -24049,3 +24041,7 @@ msgstr "affichera les ressources avec un nom d'hôte commençant par"
 #: unknown
 msgid "{{total}} element(s) found"
 msgstr "{{total}} élément(s) trouvé(s)"
+
+#: unknown
+msgid "poller"
+msgstr "collecteur"
