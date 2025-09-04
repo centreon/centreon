@@ -356,7 +356,7 @@ try {
                             Could not write to VMWare's configuration file '%s' for monitoring server '%s'.
                             Please add writing permissions for the webserver's user.
                             MSG,
-                        basename($fileCfg),
+                        basename($listVmWareFile[0] ?? ''),
                         $host['name']
                     ));
                 }

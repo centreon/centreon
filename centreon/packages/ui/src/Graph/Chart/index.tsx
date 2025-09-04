@@ -97,26 +97,26 @@ const WrapperChart = ({
         <Loading height={height || '100%'} width={width} />
       ) : (
         <Chart
-              annotationEvent={annotationEvent}
-              axis={axis}
-              barStyle={barStyle}
-              displayAnchor={displayAnchor}
-              graphData={adjustedData}
-              graphInterval={{ end, start }}
-              graphRef={ref}
-              header={header}
-              height={height || responsiveHeight}
-              legend={legend}
-              limitLegend={limitLegend}
-              lineStyle={lineStyle}
-              shapeLines={shapeLines}
-              thresholdUnit={thresholdUnit}
-              thresholds={thresholds}
-              timeShiftZones={timeShiftZones}
-              tooltip={tooltip}
-              width={width || responsiveWidth || 0}
-              zoomPreview={zoomPreview}
-            />
+          annotationEvent={annotationEvent}
+          axis={axis}
+          barStyle={barStyle}
+          displayAnchor={displayAnchor}
+          graphData={adjustedData}
+          graphInterval={{ end, start }}
+          graphRef={ref}
+          header={header}
+          height={height || responsiveHeight}
+          legend={legend}
+          limitLegend={limitLegend}
+          lineStyle={lineStyle}
+          shapeLines={shapeLines}
+          thresholdUnit={thresholdUnit}
+          thresholds={thresholds}
+          timeShiftZones={timeShiftZones}
+          tooltip={tooltip}
+          width={width || responsiveWidth || 0}
+          zoomPreview={zoomPreview}
+        />
       )}
     </div>
   );
