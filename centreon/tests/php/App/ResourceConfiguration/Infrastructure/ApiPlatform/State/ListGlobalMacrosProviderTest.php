@@ -29,7 +29,6 @@ use Tests\App\Shared\ApiTestCase;
 
 final class ListGlobalMacrosProviderTest extends ApiTestCase
 {
-    /** @group wip */
     public function testFindAllGlobalMacrosWithoutParameter(): void
     {
         $this->login();
@@ -46,7 +45,6 @@ final class ListGlobalMacrosProviderTest extends ApiTestCase
         );
     }
 
-    /** @group wip */
     public function testFindAllGlobalMacrosIsUnauthorizedForUserWithoutSufficientACL(): void
     {
         $this->login('user');
@@ -55,11 +53,11 @@ final class ListGlobalMacrosProviderTest extends ApiTestCase
         $this->assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN);
     }
 
-    /** @group wip */
     public function testFindAllGlobalMacrosWithNameCriteria(): void
     {
         $this->login();
 
+        //Like operator
         $response = $this->request('GET', '/api/latest/configuration/macros/globals', ['query' => ['name' => ['lk' => 'USER1']]]);
         self::assertResponseIsSuccessful();
         $this->assertCount(1, $response->toArray()['member']);
@@ -71,7 +69,12 @@ final class ListGlobalMacrosProviderTest extends ApiTestCase
             ]
         );
 
+        //Like operator with no match
+        $response = $this->request('GET', '/api/latest/configuration/macros/globals', ['query' => ['name' => ['lk' => 'USER3']]]);
+        self::assertResponseIsSuccessful();
+        $this->assertCount(0, $response->toArray()['member']);
 
+        //Equal Operator
         $response = $this->request('GET', '/api/latest/configuration/macros/globals', ['query' => ['name' => ['eq' => '$USER1$']]]);
         self::assertResponseIsSuccessful();
         $this->assertCount(1, $response->toArray()['member']);
@@ -83,12 +86,12 @@ final class ListGlobalMacrosProviderTest extends ApiTestCase
             ]
         );
 
+        //Equal Operator with no match
         $response = $this->request('GET', '/api/latest/configuration/macros/globals', ['query' => ['name' => ['eq' => 'USER1']]]);
         self::assertResponseIsSuccessful();
         $this->assertCount(0, $response->toArray()['member']);
     }
 
-    /** @group wip */
     public function testFindAllGlobalMAcrosWithPagination(): void
     {
 

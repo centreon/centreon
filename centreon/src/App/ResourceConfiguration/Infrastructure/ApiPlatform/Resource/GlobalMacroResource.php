@@ -60,13 +60,29 @@ final class GlobalMacroResource
 
         #[Assert\NotNull]
         #[Assert\Length(min: 1, max: 255)]
+        #[Assert\Regex(
+            pattern: '/^\$.*\$$/',
+            message: 'The name must start and end with a dollar sign and contain only uppercase letters, numbers, and underscores.'
+        )]
+        #[ApiProperty(
+            description: 'Name of the global macro',
+            openapiContext: ['example' => '$USER1$']
+        )]
         public ?string $name = null,
 
         #[Assert\NotNull]
         #[Assert\Length(min: 1, max: 255)]
+        #[ApiProperty(
+            description: 'Expression (value) of the global macro',
+            openapiContext: ['example' => '/usr/lib64/nagios/plugins']
+        )]
         public ?string $expression = null,
 
         #[Assert\Length(max: 255)]
+        #[ApiProperty(
+            description: 'Additional information about the macro',
+            openapiContext: ['example' => 'This macro is used to define the path of plugins']
+        )]
         public ?string $comment = null,
 
         public bool $isPassword = false,
