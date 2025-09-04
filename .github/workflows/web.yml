@@ -949,7 +949,7 @@ jobs:
       container_name: my_centreon_container
       centreon_url: http://localhost
       centreon_image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-web-slim-${{ matrix.operating_system }}:${{ github.head_ref || github.ref_name }}
-      database_image: bitnami/${{ matrix.database }}
+      database_image: bitnamilegacy/${{ matrix.database }}
       dependencies_lock_file: centreon/pnpm-lock.yaml
       major_version: ${{ needs.get-environment.outputs.major_version }}
       is_nightly: ${{ needs.get-environment.outputs.is_nightly }}
@@ -977,7 +977,7 @@ jobs:
     with:
       name: legacy-e2e
       module_name: centreon
-      database_image: bitnami/${{ matrix.database }}
+      database_image: bitnamilegacy/${{ matrix.database }}
       image_name: centreon-web
       os: ${{ matrix.operating_system }}
       features_path: features
@@ -1018,7 +1018,7 @@ jobs:
       name: e2e
       module_name: centreon
       image_name: centreon-web
-      database_image: bitnami/${{ matrix.database }}
+      database_image: bitnamilegacy/${{ matrix.database }}
       os: ${{ matrix.operating_system }}
       features_path: tests/e2e/features
       major_version: ${{ needs.get-environment.outputs.major_version }}
@@ -1068,7 +1068,7 @@ jobs:
           path: "centreon/lighthouse"
           image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-web-slim-alma9
           image_version: ${{ github.head_ref || github.ref_name }}
-          database_image: bitnami/mariadb:10.11
+          database_image: bitnamilegacy/mariadb:10.11
           image_lighthouse_version: ${{ needs.get-environment.outputs.major_version }}
           module: centreon
           dependencies_lock_file: centreon/pnpm-lock.yaml
@@ -1302,7 +1302,7 @@ jobs:
         uses: ./.github/actions/promote-to-stable
         with:
           artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
-          module: web
+          module_name: web
           distrib: ${{ matrix.distrib }}
           major_version: ${{ needs.get-environment.outputs.major_version }}
           minor_version: ${{ needs.get-environment.outputs.minor_version }}
@@ -1354,6 +1354,7 @@ jobs:
     if: |
       needs.get-environment.outputs.is_nightly == 'true' && github.run_attempt == 1 &&
       (failure() || cancelled() || contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')) &&
+      startsWith(github.ref_name, 'dev') &&
       github.repository == 'centreon/centreon'
     steps:
       - name: Checkout sources
