@@ -126,14 +126,16 @@ class HostTemplate extends AbstractHost
 
     /**
      * @param $host_id
+     * @param $hostTemplateMacros
      *
      * @throws LogicException
      * @throws PDOException
      * @throws ServiceCircularReferenceException
      * @throws ServiceNotFoundException
      * @return mixed|null
+     * @return mixed|null
      */
-    public function generateFromHostId($host_id)
+    public function generateFromHostId($host_id, $hostTemplateMacros = [])
     {
         if (is_null($this->hosts)) {
             $this->getHosts();
@@ -154,9 +156,8 @@ class HostTemplate extends AbstractHost
 
         $this->hosts[$host_id]['host_id'] = $host_id;
         $this->getImages($this->hosts[$host_id]);
-        $this->getMacros($this->hosts[$host_id]);
         $this->getHostTimezone($this->hosts[$host_id]);
-        $this->getHostTemplates($this->hosts[$host_id]);
+        $this->getHostTemplates($this->hosts[$host_id], hostTemplateMacros: $hostTemplateMacros);
         $this->getHostCommands($this->hosts[$host_id]);
         $this->getHostPeriods($this->hosts[$host_id]);
 
@@ -168,7 +169,7 @@ class HostTemplate extends AbstractHost
         $this->getContactGroups($this->hosts[$host_id]);
         $this->getContacts($this->hosts[$host_id]);
         $this->getSeverity($host_id);
-
+        $this->formatMacros($this->hosts[$host_id], $hostTemplateMacros);
         $this->generateObjectInFile($this->hosts[$host_id], $host_id);
 
         return $this->hosts[$host_id]['name'];

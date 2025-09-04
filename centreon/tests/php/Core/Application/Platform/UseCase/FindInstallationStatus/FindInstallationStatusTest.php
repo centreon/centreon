@@ -23,18 +23,18 @@ declare(strict_types=1);
 
 namespace Tests\Core\Application\Platform\UseCase\FindInstallationStatus;
 
-use Core\Application\Platform\Repository\ReadPlatformRepositoryInterface;
 use Core\Application\Platform\UseCase\FindInstallationStatus\FindInstallationStatus;
+use Core\Platform\Domain\InstallationVerifierInterface;
 use PHPUnit\Framework\TestCase;
 
 class FindInstallationStatusTest extends TestCase
 {
-    /** @var ReadPlatformRepositoryInterface&\PHPUnit\Framework\MockObject\MockObject */
-    public $repository;
+    /** @var InstallationVerifierInterface&\PHPUnit\Framework\MockObject\MockObject */
+    public $centreonInstallationVerifier;
 
     public function setUp(): void
     {
-        $this->repository = $this->createMock(ReadPlatformRepositoryInterface::class);
+        $this->centreonInstallationVerifier = $this->createMock(InstallationVerifierInterface::class);
     }
 
     /**
@@ -42,16 +42,16 @@ class FindInstallationStatusTest extends TestCase
      */
     public function testFindInstallationStatus(): void
     {
-        $useCase = new FindInstallationStatus($this->repository);
+        $useCase = new FindInstallationStatus($this->centreonInstallationVerifier);
 
         $presenter = new FindInstallationStatusPresenterStub();
 
-        $this->repository
+        $this->centreonInstallationVerifier
             ->expects($this->once())
             ->method('isCentreonWebInstallableOrUpgradable')
             ->willReturn(true);
 
-        $this->repository
+        $this->centreonInstallationVerifier
             ->expects($this->once())
             ->method('isCentreonWebInstalled')
             ->willReturn(true);
