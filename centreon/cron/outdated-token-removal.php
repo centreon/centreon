@@ -98,7 +98,7 @@ function deleteExpiredProviderTokens(CentreonDB $pearDB): void
     } catch (Throwable $e) {
         CentreonLog::create()->error(
             CentreonLog::TYPE_BUSINESS_LOG,
-            'TokenRemoval CRON: failed to delete expired tokens which are not linked to a refresh toke'
+            'TokenRemoval CRON: failed to delete expired tokens which are not linked to a refresh token'
         );
 
         throw $e;
