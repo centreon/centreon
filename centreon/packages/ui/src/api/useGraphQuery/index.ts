@@ -139,7 +139,7 @@ const useGraphQuery = ({
               field: equals(resource.resourceType, 'hostgroup')
                 ? resourceTypeQueryParameter[WidgetResourceType.hostGroup]
                 : resourceTypeQueryParameter[resource.resourceType],
-                values: equals(resource.resourceType, 'service')
+              values: equals(resource.resourceType, 'service')
                 ? pluck('name', resource.resources)
                 : pluck('id', resource.resources)
             }))
@@ -170,7 +170,7 @@ const useGraphQuery = ({
     data.current = graphData;
   }
 
-   const getCurrentMetrics = () => {
+  const getCurrentMetrics = () => {
     if (!data.current) {
       return undefined;
     }
@@ -186,7 +186,6 @@ const useGraphQuery = ({
           )(metrics);
         });
   };
-
 
   const formatLegend = ({
     host = null,
