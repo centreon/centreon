@@ -1,13 +1,14 @@
 import { useMemo } from 'react';
 
 import { ResponseError, useSnackbar } from '@centreon/ui';
-import { useAtom } from 'jotai';
+import { useAtom, useSetAtom } from 'jotai';
 import { isEmpty } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
 import { useEnable as useEnableRequest } from '../../api';
 
-import { tokensToEnableAtom } from '../../atoms';
+import { useQueryClient } from '@tanstack/react-query';
+import { isRevokingDialogCanceledAtom, tokensToEnableAtom } from '../../atoms';
 import { labelTokenEnabled } from '../../translatedLabels';
 
 interface UseDeleteState {
@@ -21,14 +22,23 @@ interface UseDeleteState {
 const useEnable = (): UseDeleteState => {
   const { t } = useTranslation();
   const { showSuccessMessage } = useSnackbar();
+  const queryClient = useQueryClient();
 
   const [tokensToEnable, setTokensToEnable] = useAtom(tokensToEnableAtom);
+  const setIsRevokingDialogCanceled = useSetAtom(isRevokingDialogCanceledAtom);
 
   const name = tokensToEnable[0]?.name;
   const userId = tokensToEnable[0]?.user?.id || tokensToEnable[0]?.creator?.id;
 
   const isOpened = useMemo(() => !isEmpty(tokensToEnable), [tokensToEnable]);
-  const resetSelections = (): void => setTokensToEnable([]);
+
+  const resetSelections = (): void => {
+    setTokensToEnable([]);
+
+    setIsRevokingDialogCanceled(true);
+
+    queryClient.invalidateQueries({ queryKey: ['listTokens'] });
+  };
 
   const { enableMutation, isMutating } = useEnableRequest();
 
@@ -40,7 +50,7 @@ const useEnable = (): UseDeleteState => {
         return;
       }
 
-      resetSelections();
+      setTokensToEnable([]);
 
       showSuccessMessage(t(labelTokenEnabled));
     });
