@@ -1,11 +1,6 @@
-import type { ParentSizeProps } from '@visx/responsive/lib/components/ParentSize';
-
 import { ParentSize } from '../..';
 
 import ResponsiveTimeline from './ResponsiveTimeline';
-import type { TimelineProps } from './models';
-
-interface Props extends ParentSizeProps, TimelineProps {}
 
 const Timeline = ({
   data,
