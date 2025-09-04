@@ -40,6 +40,12 @@ use Symfony\Component\Validator\Constraints as Assert;
             openapi: new Model\Operation(
                 responses: [
                 ],
+                parameters: [ new Model\Parameter(
+                    name: 'name',
+                    in: 'query',
+                    description: 'Filter by name (supports "lk" and "eq" operators)',
+                    required: false,
+                )],
             ),
             security: "is_granted('" . GlobalMacroPermissionEnum::CanRead->value . "')",
             securityMessage: 'You are not allowed to list global macros',

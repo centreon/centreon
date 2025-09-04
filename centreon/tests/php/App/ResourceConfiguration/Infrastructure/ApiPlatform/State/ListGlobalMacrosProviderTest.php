@@ -59,7 +59,8 @@ final class ListGlobalMacrosProviderTest extends ApiTestCase
     public function testFindAllGlobalMacrosWithNameCriteria(): void
     {
         $this->login();
-        $response = $this->request('GET', '/api/latest/configuration/macros/globals', ['query' => ['name' => 'USER1']]);
+
+        $response = $this->request('GET', '/api/latest/configuration/macros/globals', ['query' => ['name' => ['lk' => 'USER1']]]);
         self::assertResponseIsSuccessful();
         $this->assertCount(1, $response->toArray()['member']);
         self::assertJsonContains(
@@ -69,6 +70,32 @@ final class ListGlobalMacrosProviderTest extends ApiTestCase
                 ],
             ]
         );
+
+
+        $response = $this->request('GET', '/api/latest/configuration/macros/globals', ['query' => ['name' => ['eq' => '$USER1$']]]);
+        self::assertResponseIsSuccessful();
+        $this->assertCount(1, $response->toArray()['member']);
+        self::assertJsonContains(
+            [
+                'member' => [
+                    ['name' => '$USER1$'],
+                ],
+            ]
+        );
+
+        $response = $this->request('GET', '/api/latest/configuration/macros/globals', ['query' => ['name' => ['eq' => 'USER1']]]);
+        self::assertResponseIsSuccessful();
+        $this->assertCount(0, $response->toArray()['member']);
+    }
+
+    /** @group wip */
+    public function testFindAllGlobalMAcrosWithPagination(): void
+    {
+
+        $this->login();
+        $response = $this->request('GET', '/api/latest/configuration/macros/globals', ['query' => ['page' => '2', 'itemsPerPage' => '1']]);
+        self::assertResponseIsSuccessful();
+        $this->assertCount(1, $response->toArray()['member']);
     }
 
     protected static function apiUsers(): array

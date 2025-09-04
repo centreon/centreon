@@ -47,7 +47,7 @@ abstract class ApiTestCase extends SymfonyApiTestCase
         try {
             foreach (static::apiUsers() as $apiUser) {
                 if (\is_string($apiUser)) {
-                    $apiUser = ['identifier' => $apiUser, 'admin' => false,];
+                    $apiUser = ['identifier' => $apiUser, 'admin' => false];
                 }
 
                 self::createApiUser($connection, $apiUser['identifier'], $apiUser['admin'] ?? false);
