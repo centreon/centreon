@@ -1267,7 +1267,7 @@ class GlpiRestApiProvider extends AbstractProvider
         $fields['input'] = ['name' => $ticketArguments['title'], 'content' => $ticketArguments['content'], 'entities_id' => $ticketArguments['entity'], 'urgency' => $ticketArguments['urgency'], 'itilcategories_id' => $ticketArguments['category'], 'impact' => $ticketArguments['impact'], 'priority' => $ticketArguments['priority']];
 
         if (isset($ticketArguments['user']) && $ticketArguments['user'] != -1) {
-            $userRole = match ($ticketArguments['user_role']) {
+            $userRole = match ((int) ($ticketArguments['user_role'] ?? 0)) {
                 1 => '_users_id_requester',
                 2 => '_users_id_assign',
                 default => '_users_id_observer',
@@ -1277,7 +1277,7 @@ class GlpiRestApiProvider extends AbstractProvider
         }
 
         if (isset($ticketArguments['group']) && $ticketArguments['group'] != -1) {
-            $groupRole = match ($ticketArguments['group_role']) {
+            $groupRole = match ((int) ($ticketArguments['group_role'] ?? 0)) {
                 1 => '_groups_id_requester',
                 2 => '_groups_id_assign',
                 default => '_groups_id_observer',
