@@ -21,21 +21,33 @@
 
 declare(strict_types=1);
 
-namespace Core\Application\Platform\Repository;
+namespace Core\Engine\Application\Repository;
 
-interface ReadPlatformRepositoryInterface
+use Centreon\Domain\Common\Assertion\AssertionException;
+use Core\Common\Domain\Exception\RepositoryException;
+use Core\Engine\Domain\Model\EngineSecrets;
+
+interface EngineRepositoryInterface
 {
     /**
-     * Check if an upgrade is available.
+     * Get engine secrets.
      *
-     * @return bool
+     * @throws RepositoryException|AssertionException
+     * @return EngineSecrets
      */
-    public function isCentreonWebInstallableOrUpgradable(): bool;
+    public function getEngineSecrets(): EngineSecrets;
 
     /**
-     * Check if centreon is installed.
+     * Update engine secrets.
      *
-     * @return bool
+     * @throws RepositoryException
      */
-    public function isCentreonWebInstalled(): bool;
+    public function writeEngineSecrets(EngineSecrets $engineSecrets): void;
+
+    /**
+     * Check that Engine Context has content.
+     *
+     * @throws RepositoryException
+     */
+    public function engineSecretsHasContent(): bool;
 }

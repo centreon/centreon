@@ -34,6 +34,32 @@ $version = 'xx.xx.x';
 $errorMessage = '';
 
 /**
+ * Add Column Encryption ready for poller configuration
+ */
+$addIsEncryptionReadyColumn = function () use ($pearDB, $pearDBO, &$errorMessage): void {
+    if ($pearDB->isColumnExist('nagios_server', 'is_encryption_ready') !== 1) {
+        $errorMessage = "Unable to add 'is_encryption_ready' column to 'nagios_server' table";
+        $pearDB->query("ALTER TABLE `nagios_server` ADD COLUMN `is_encryption_ready` enum('0', '1') NOT NULL DEFAULT '1'");
+    }
+    if ($pearDBO->isColumnExist('instances', 'is_encryption_ready') !== 1) {
+        $errorMessage = "Unable to add 'is_encryption_ready' column to 'instances' table";
+        $pearDBO->query("ALTER TABLE `instances` ADD COLUMN `is_encryption_ready` enum('0', '1') NOT NULL DEFAULT '0'");
+    }
+};
+
+/**
+ * Set encryption ready to false by default for all existing pollers to ensure retrocompatibility
+ */
+$setEncryptionReadyToFalseByDefaultOnNagiosServer = function () use ($pearDB, &$errorMessage): void {
+    $errorMessage = "Unable to update 'is_encryption_ready' column on 'nagios_server' table";
+    $pearDB->executeQuery(
+        <<<'SQL'
+            UPDATE nagios_server SET `is_encryption_ready` = '0' WHERE `localhost` = '0'
+            SQL
+    );
+};
+
+/**
  * Add column `show_deprecated_custom_views` to contact table.
  * @var CentreonDB $pearDB
  */
@@ -64,6 +90,31 @@ $updateDashboardAndCustomViewsTopology = function () use (&$errorMessage, &$pear
             UPDATE topology SET topology_order = 1 WHERE topology_name = "Dashboards"
             SQL
     );
+};
+
+/**
+ * Set encryption ready to false by default for all existing pollers to ensure retrocompatibility
+ */
+$setEncryptionReadyToFalseByDefaultOnInstances = function () use ($pearDB, $pearDBO, &$errorMessage): void {
+    $errorMessage = "Unable to update 'is_encryption_ready' column on 'nagios_server' table";
+
+    /** @var CentreonDB $pearDB */
+    $instanceIds = $pearDB->fetchFirstColumn(
+        <<<'SQL'
+                SELECT `id` FROM nagios_server WHERE `localhost` = '0';
+            SQL
+    );
+    if ($instanceIds === []) {
+        return;
+    }
+
+    $instanceIdsAsString = implode(',', $instanceIds);
+    $statement = $pearDBO->prepare(
+        <<<SQL
+            UPDATE instances SET `is_encryption_ready` = '0' WHERE `instance_id` IN ({$instanceIdsAsString});
+            SQL
+    );
+    $statement->execute();
 };
 
 /**
@@ -341,19 +392,23 @@ $updateOnPremiseACLs = function () use ($pearDB, &$errorMessage): void {
 };
 
 try {
-    // DDL statements for real time database
-    // TODO add your function calls to update the real time database structure here
 
+    $addIsEncryptionReadyColumn();
     // DDL statements for configuration database
     $addImageFolderResourceAccessRelationTable();
     $addAllImageFoldersColumn();
     $alterContactPagerSize();
 
-    // Transactional queries for configuration database
     if (! $pearDB->inTransaction()) {
         $pearDB->beginTransaction();
     }
 
+    if (! $pearDBO->inTransaction()) {
+        $pearDBO->beginTransaction();
+    }
+
+    $setEncryptionReadyToFalseByDefaultOnNagiosServer();
+    $setEncryptionReadyToFalseByDefaultOnInstances();
     $alignCMAAgentConfigurationWithNewSchema();
     $updateDashboardAndCustomViewsTopology();
     $updateContactsShowDeprecatedCustomViews();
@@ -364,6 +419,7 @@ try {
     $updateOnPremiseACLs();
 
     $pearDB->commit();
+    $pearDBO->commit();
 
 } catch (Throwable $exception) {
     CentreonLog::create()->error(
@@ -374,6 +430,9 @@ try {
     try {
         if ($pearDB->inTransaction()) {
             $pearDB->rollBack();
+        }
+        if ($pearDBO->inTransaction()) {
+            $pearDBO->rollBack();
         }
     } catch (PDOException $rollbackException) {
         CentreonLog::create()->error(
