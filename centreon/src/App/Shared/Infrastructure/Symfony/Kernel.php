@@ -69,10 +69,6 @@ final class Kernel extends BaseKernel
             $definition->addTag('messenger.message_handler', ['bus' => 'command.bus']);
         });
 
-        $container->registerAttributeForAutoconfiguration(AsQueryHandler::class, static function (ChildDefinition $definition): void {
-            $definition->addTag('messenger.message_handler', ['bus' => 'query.bus']);
-        });
-
         $container->registerAttributeForAutoconfiguration(AsEventHandler::class, static function (ChildDefinition $definition): void {
             $definition->addTag('messenger.message_handler', ['bus' => 'event.bus']);
         });

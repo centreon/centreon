@@ -30,6 +30,7 @@ final class GlobalMacroCriteria
     private ?int $page = null;
     private ?int $itemsPerPage = null;
     private ?string $name = null;
+    private ?string $operator = null;
 
     public function withPagination(int $page, int $itemsPerPage): self
     {
@@ -53,6 +54,15 @@ final class GlobalMacroCriteria
         return $new;
     }
 
+    public function withOperator(string $operator): self
+    {
+        Assert::oneOf($operator, ['lk', 'eq']);
+        $new = clone $this;
+        $new->operator = $operator;
+
+        return $new;
+    }
+
     public function getPage(): ?int
     {
         return $this->page;
@@ -66,5 +76,10 @@ final class GlobalMacroCriteria
     public function getName(): ?string
     {
         return $this->name;
+    }
+
+    public function getOperator(): ?string
+    {
+        return $this->operator;
     }
 }

@@ -64,7 +64,11 @@ final readonly class DoctrineGlobalMacroRepository extends DoctrineRepository im
         $qb->select('resource_id', 'resource_name', 'resource_line', 'resource_comment', 'resource_activate', 'is_password')
            ->from(self::TABLE_NAME);
         if ($criteria?->getName() !== null) {
-            $qb->where($qb->expr()->like('resource_name', '"%' . $criteria->getName() . '%"'));
+            if ($criteria?->getOperator() === 'lk') {
+                $qb->where($qb->expr()->like('resource_name', '"%' . $criteria->getName() . '%"'));
+            } elseif ($criteria?->getOperator() === 'eq') {
+                $qb->where($qb->expr()->eq('resource_name', '"' . $criteria->getName() . '"'));
+            }
         }
         $qbCount = clone $qb;
         if($criteria?->getPage() !== null) {

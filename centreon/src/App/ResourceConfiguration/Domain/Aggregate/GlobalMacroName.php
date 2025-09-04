@@ -31,5 +31,7 @@ final readonly class GlobalMacroName
         public string $value,
     ) {
         Assert::lengthBetween($value, 1, 255);
+        Assert::startsWith($value, '$');
+        Assert::endsWith($value, '$');
     }
 }
