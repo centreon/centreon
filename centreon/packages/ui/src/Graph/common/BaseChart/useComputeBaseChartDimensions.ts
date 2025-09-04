@@ -39,7 +39,7 @@ export const useComputeBaseChartDimensions = ({
     width: legendRefWidth,
     height: legendRefHeight
   } = useResizeObserver();
-  const { ref: titleRef, height: titleRefHeight } = useResizeObserver();
+  const { height: titleRefHeight } = useResizeObserver();
 
   const currentLegendHeight = legendHeight ?? (legendRefHeight || 0);
 
