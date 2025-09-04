@@ -814,6 +814,10 @@ msgid "Add a template"
 msgstr "Template hinzufügen"
 
 #: centreon/www/install/front_translate.php
+msgid "Add a token"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
 #: centreon/www/install/smarty_translate.php
 msgid "Add a widget"
 msgstr "Widget hinzufügen"
@@ -17435,6 +17439,10 @@ msgid "Welcome to the agent configuration page"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
+msgid "Welcome to the authentication tokens page"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
 msgid "Welcome to the notifications interface"
 msgstr ""
 
@@ -17959,6 +17967,13 @@ msgstr ""
 
 #: centreon/www/install/front_translate.php
 msgid "You can choose only one resource for each resource type."
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid ""
+"You can create two types of tokens: API tokens to manipulate Centreon "
+"objects via the API, or CMA tokens to allow the CMA monitoring agent to "
+"authenticate to the corresponding poller."
 msgstr ""
 
 #: centreon/www/install/front_translate.php
