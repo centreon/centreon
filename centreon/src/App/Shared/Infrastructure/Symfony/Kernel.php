@@ -24,7 +24,6 @@ declare(strict_types=1);
 namespace App\Shared\Infrastructure\Symfony;
 
 use App\Shared\Application\Command\AsCommandHandler;
-use App\Shared\Application\Query\AsQueryHandler;
 use App\Shared\Domain\Event\AsEventHandler;
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
 use Symfony\Component\DependencyInjection\ChildDefinition;

@@ -62,7 +62,7 @@ final readonly class DoctrineGlobalMacroRepository extends DoctrineRepository im
         $qb = $this->connection->createQueryBuilder();
 
         $qb->select('resource_id', 'resource_name', 'resource_line', 'resource_comment', 'resource_activate', 'is_password')
-           ->from(self::TABLE_NAME);
+            ->from(self::TABLE_NAME);
         if ($criteria?->getName() !== null) {
             if ($criteria?->getOperator() === 'lk') {
                 $qb->where($qb->expr()->like('resource_name', '"%' . $criteria->getName() . '%"'));
