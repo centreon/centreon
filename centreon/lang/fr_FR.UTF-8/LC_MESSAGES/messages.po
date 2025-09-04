@@ -822,6 +822,10 @@ msgid "Add a template"
 msgstr "Ajouter un modèle"
 
 #: centreon/www/install/front_translate.php
+msgid "Add a token"
+msgstr "Ajouter un jeton"
+
+#: centreon/www/install/front_translate.php
 #: centreon/www/install/smarty_translate.php
 msgid "Add a widget"
 msgstr "Ajouter widget"
@@ -17583,6 +17587,10 @@ msgid "Welcome to the agent configuration page"
 msgstr "Bienvenue sur la page des configurations d'agent"
 
 #: centreon/www/install/front_translate.php
+msgid "Welcome to the authentication tokens page"
+msgstr "Bienvenue sur la page des jetons d'authentification"
+
+#: centreon/www/install/front_translate.php
 msgid "Welcome to the notifications interface"
 msgstr "Bienvenue dans l'interface de gestion des notifications"
 
@@ -18150,6 +18158,16 @@ msgstr "Vous n'avez pas la permission d'accéder à la configuration"
 msgid "You can choose only one resource for each resource type."
 msgstr ""
 "Vous ne pouvez choisir qu'une seule ressource pour chaque type de ressource."
+
+#: centreon/www/install/front_translate.php
+msgid ""
+"You can create two types of tokens: API tokens to manipulate Centreon "
+"objects via the API, or CMA tokens to allow the CMA monitoring agent to "
+"authenticate to the corresponding poller."
+msgstr ""
+"Vous pouvez créer deux types de jetons : des jetons API pour manipuler les "
+"objets Centreon via l'API, ou des jetons CMA pour permettre à l'agent de "
+"supervision CMA de s’authentifier auprès du collecteur correspondant."
 
 #: centreon/www/install/front_translate.php
 msgid "You can see the full list on"
