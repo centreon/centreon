@@ -7,7 +7,6 @@ import { useTranslation } from 'react-i18next';
 
 import { useEnable as useEnableRequest } from '../../api';
 
-import { useQueryClient } from '@tanstack/react-query';
 import { isRevokingDialogCanceledAtom, tokensToEnableAtom } from '../../atoms';
 import { labelTokenEnabled } from '../../translatedLabels';
 
@@ -22,7 +21,6 @@ interface UseDeleteState {
 const useEnable = (): UseDeleteState => {
   const { t } = useTranslation();
   const { showSuccessMessage } = useSnackbar();
-  const queryClient = useQueryClient();
 
   const [tokensToEnable, setTokensToEnable] = useAtom(tokensToEnableAtom);
   const setIsRevokingDialogCanceled = useSetAtom(isRevokingDialogCanceledAtom);
@@ -36,8 +34,6 @@ const useEnable = (): UseDeleteState => {
     setTokensToEnable([]);
 
     setIsRevokingDialogCanceled(true);
-
-    queryClient.invalidateQueries({ queryKey: ['listTokens'] });
   };
 
   const { enableMutation, isMutating } = useEnableRequest();

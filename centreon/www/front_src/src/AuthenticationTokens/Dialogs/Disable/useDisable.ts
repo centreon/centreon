@@ -6,8 +6,6 @@ import { isEmpty } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
 import { useDisable as useDisableRequest } from '../../api';
-
-import { useQueryClient } from '@tanstack/react-query';
 import { isRevokingDialogCanceledAtom, tokensToDisableAtom } from '../../atoms';
 import { labelTokenDisabled } from '../../translatedLabels';
 
@@ -22,7 +20,6 @@ interface UseDeleteState {
 const useDisable = (): UseDeleteState => {
   const { t } = useTranslation();
   const { showSuccessMessage } = useSnackbar();
-  const queryClient = useQueryClient();
 
   const [tokensToDisable, setTokensToDisable] = useAtom(tokensToDisableAtom);
 
@@ -37,8 +34,6 @@ const useDisable = (): UseDeleteState => {
     setTokensToDisable([]);
 
     setIsRevokingDialogCanceled(true);
-
-    queryClient.invalidateQueries({ queryKey: ['listTokens'] });
   };
 
   const { disableMutation, isMutating } = useDisableRequest();
