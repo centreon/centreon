@@ -10,6 +10,7 @@ import {
   pluck,
   project,
   type,
+  project,
   uniq,
   uniqBy
 } from 'ramda';
