@@ -69,7 +69,11 @@ const useAxisY = ({
         return '';
       }
 
-      return formatMetricValueWithUnit({ base: data.baseAxis, unit, value }) as string;
+      return formatMetricValueWithUnit({
+        base: data.baseAxis,
+        unit,
+        value
+      }) as string;
     };
 
   const labelProps = ({
