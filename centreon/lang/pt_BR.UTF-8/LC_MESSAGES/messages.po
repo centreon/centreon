@@ -4913,10 +4913,6 @@ msgstr "Desassociado"
 msgid "Dissociate this view ?"
 msgstr "Desassociar essa visualização ?"
 
-#: centreon/www/include/configuration/configServers/listServers.php
-msgid "Distant Poller"
-msgstr "Poste de amarração distante"
-
 #: centreon/www/include/configuration/configServers/formServers.php
 #: centreon/www/install/front_translate.php
 #: centreon/www/install/react_translation.php
@@ -12637,6 +12633,7 @@ msgstr "Diretorio de Plugins"
 #: centreon/www/include/configuration/configGenerateTraps/formGenerateTraps.php
 #: centreon/www/include/configuration/configKnowledge/search.php
 #: centreon/www/include/configuration/configObject/host/listHost.php
+#: centreon/www/include/configuration/configServers/listServers.php
 #: centreon/www/include/eventLogs/xml/data.php
 #: centreon/www/include/monitoring/downtime/AddDowntime.php
 #: centreon/www/include/monitoring/objectDetails/hostDetails.php
@@ -20152,6 +20149,10 @@ msgstr "Opções de exibição"
 #: unknown
 msgid "Display Template"
 msgstr "Mostrar Modelo"
+
+#: unknown
+msgid "Distant Poller"
+msgstr "Poste de amarração distante"
 
 #: unknown
 msgid "Do you confirm  the duplication ?"

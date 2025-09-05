@@ -4723,10 +4723,6 @@ msgstr "Supprimer l'association"
 msgid "Dissociate this view ?"
 msgstr "Supprimer l'associatino de cette vue ?"
 
-#: centreon/www/include/configuration/configServers/listServers.php
-msgid "Distant Poller"
-msgstr "Collecteur distant"
-
 #: centreon/www/include/configuration/configServers/formServers.php
 #: centreon/www/install/front_translate.php
 #: centreon/www/install/react_translation.php
@@ -12251,6 +12247,7 @@ msgstr "Répertoire des sondes"
 #: centreon/www/include/configuration/configGenerateTraps/formGenerateTraps.php
 #: centreon/www/include/configuration/configKnowledge/search.php
 #: centreon/www/include/configuration/configObject/host/listHost.php
+#: centreon/www/include/configuration/configServers/listServers.php
 #: centreon/www/include/eventLogs/xml/data.php
 #: centreon/www/include/monitoring/downtime/AddDowntime.php
 #: centreon/www/include/monitoring/objectDetails/hostDetails.php
@@ -20283,6 +20280,10 @@ msgid ""
 msgstr ""
 "Affiche la valeur d'une seule métrique sous forme de texte, de jauge ou "
 "de diagramme à barres."
+
+#: unknown
+msgid "Distant Poller"
+msgstr "Collecteur distant"
 
 #: unknown
 msgid "Do you confirm  the duplication ?"

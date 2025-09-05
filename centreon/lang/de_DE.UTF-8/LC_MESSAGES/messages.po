@@ -4667,10 +4667,6 @@ msgstr "Dissoziieren"
 msgid "Dissociate this view ?"
 msgstr "Ansicht dissoziieren?"
 
-#: centreon/www/include/configuration/configServers/listServers.php
-msgid "Distant Poller"
-msgstr "Entfernter Poller"
-
 #: centreon/www/include/configuration/configServers/formServers.php
 #: centreon/www/install/front_translate.php
 #: centreon/www/install/react_translation.php
@@ -12149,6 +12145,7 @@ msgstr "Verzeichnis für Plugins"
 #: centreon/www/include/configuration/configGenerateTraps/formGenerateTraps.php
 #: centreon/www/include/configuration/configKnowledge/search.php
 #: centreon/www/include/configuration/configObject/host/listHost.php
+#: centreon/www/include/configuration/configServers/listServers.php
 #: centreon/www/include/eventLogs/xml/data.php
 #: centreon/www/include/monitoring/downtime/AddDowntime.php
 #: centreon/www/include/monitoring/objectDetails/hostDetails.php
@@ -19474,6 +19471,10 @@ msgstr "SSL Peerverifizierung deaktivieren"
 #: unknown
 msgid "Display Template"
 msgstr "Anzeigentemplate"
+
+#: unknown
+msgid "Distant Poller"
+msgstr "Entfernter Poller"
 
 #: unknown
 msgid "Edit"
