@@ -23,15 +23,12 @@ declare(strict_types=1);
 
 namespace Core\Security\Authentication\Application\UseCase\LogoutSession;
 
-use Centreon\Domain\Log\LoggerTrait;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Common\Domain\Exception\RepositoryException;
 use Core\Security\Authentication\Application\Repository\WriteSessionRepositoryInterface;
 
 class LogoutSession
 {
-    use LoggerTrait;
-
     /**
      * @param WriteSessionRepositoryInterface $writeSessionRepository
      */
@@ -43,22 +40,23 @@ class LogoutSession
     /**
      * @param mixed $token
      * @param LogoutSessionPresenterInterface $presenter
-     *
-     * @throws RepositoryException
      */
     public function __invoke(
         mixed $token,
         LogoutSessionPresenterInterface $presenter,
     ): void {
-        $this->info('Processing session logout...');
-
         if ($token === null || is_string($token) === false) {
-            $this->debug('Try to logout without token');
-            $presenter->setResponseStatus(new ErrorResponse(_('No session token provided')));
+            $presenter->setResponseStatus(new ErrorResponse(message: _('No session token provided')));
 
             return;
         }
 
-        $this->writeSessionRepository->invalidate();
+        try {
+            $this->writeSessionRepository->invalidate();
+        } catch (RepositoryException $e) {
+            $presenter->setResponseStatus(
+                new ErrorResponse(message: _('An error occurred during session logout'), exception: $e),
+            );
+        }
     }
 }

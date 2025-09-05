@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,18 +21,17 @@
 
 declare(strict_types=1);
 
-namespace Core\Security\Authentication\Application\Provider;
+namespace Core\Security\Authentication\Domain\Exception;
 
-use Core\Security\Authentication\Domain\Exception\ProviderException;
+use Core\Common\Domain\Exception\BusinessLogicException;
 
-interface ProviderAuthenticationFactoryInterface
+class SamlException extends BusinessLogicException
 {
-    /**
-     * @param string $providerType
-     *
-     * @throws ProviderException
-     *
-     * @return ProviderAuthenticationInterface
-     */
-    public function create(string $providerType): ProviderAuthenticationInterface;
+    public function __construct(
+        string $message,
+        array $context = [],
+        ?\Throwable $previous = null
+    ) {
+        parent::__construct($message, self::ERROR_CODE_INTERNAL, $context, $previous);
+    }
 }

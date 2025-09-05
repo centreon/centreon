@@ -30,11 +30,9 @@ interface WriteSessionRepositoryInterface
     /**
      * Invalidate a session.
      *
-     * @param callable|null $callback
-     *
      * @throws RepositoryException
      */
-    public function invalidate(?callable $callback = null): void;
+    public function invalidate(): void;
 
     /**
      * Start a session (included the legacy session).
@@ -42,6 +40,7 @@ interface WriteSessionRepositoryInterface
      * @param \Centreon $legacySession
      *
      * @throws RepositoryException
+     *
      * @return bool
      */
     public function start(\Centreon $legacySession): bool;
