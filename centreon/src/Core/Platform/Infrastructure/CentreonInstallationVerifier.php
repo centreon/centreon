@@ -26,13 +26,13 @@ namespace Core\Platform\Infrastructure;
 use Core\Platform\Domain\InstallationVerifierInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
-final readonly class CentreonInstallationVerifier implements InstallationVerifierInterface
+final class CentreonInstallationVerifier implements InstallationVerifierInterface
 {
     public function __construct(
         #[Autowire(param: 'centreon_etc_path')]
-        private string $etcDirectory,
+        private readonly string $etcDirectory,
         #[Autowire(param: 'centreon_install_path')]
-        private string $installDirectory
+        private readonly string $installDirectory
     ) {
     }
 
