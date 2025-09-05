@@ -28,6 +28,7 @@ use ApiPlatform\State\Pagination\Pagination;
 use ApiPlatform\State\Pagination\PaginatorInterface;
 use ApiPlatform\State\Pagination\TraversablePaginator;
 use ApiPlatform\State\ProviderInterface;
+use App\ResourceConfiguration\Domain\Aggregate\GlobalMacro;
 use App\ResourceConfiguration\Domain\Repository\GlobalMacroCriteria;
 use App\ResourceConfiguration\Domain\Repository\GlobalMacroRepository;
 use App\ResourceConfiguration\Infrastructure\ApiPlatform\Resource\GlobalMacroResource;
@@ -36,6 +37,9 @@ use App\Shared\Domain\Repository\Paginator;
 use App\Shared\Infrastructure\ApiPlatform\Transformer\TransformerInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
+/**
+ * @implements ProviderInterface<GlobalMacroResource>
+ */
 final readonly class ListGlobalMacrosProvider implements ProviderInterface
 {
     /**
@@ -49,7 +53,10 @@ final readonly class ListGlobalMacrosProvider implements ProviderInterface
     ) {
     }
 
-    public function provide(Operation $operation, array $uriVariables = [], array $context = []): PaginatorInterface|array
+    /**
+     * @return iterable<GlobalMacroResource>
+     */
+    public function provide(Operation $operation, array $uriVariables = [], array $context = []): iterable
     {
         $criteria = new GlobalMacroCriteria();
         if ($this->pagination->isEnabled($operation, $context)) {
@@ -58,10 +65,15 @@ final readonly class ListGlobalMacrosProvider implements ProviderInterface
                 $this->pagination->getLimit($operation, $context)
             );
         }
-        if (isset($context['filters']['name'])) {
-            if (isset($context['filters']['name']['lk'])) {
+        if (
+            isset($context['filters']) &&
+            is_array($context['filters']) &&
+            isset($context['filters']['name']) &&
+            is_array($context['filters']['name'])
+        ) {
+            if (isset($context['filters']['name']['lk']) && is_string($context['filters']['name']['lk'])) {
                 $criteria = $criteria->withOperator('lk')->withName($context['filters']['name']['lk']);
-            } elseif (isset($context['filters']['name']['eq'])) {
+            } elseif (isset($context['filters']['name']['eq']) && is_string($context['filters']['name']['eq'])) {
                 $criteria = $criteria->withOperator('eq')->withName($context['filters']['name']['eq']);
             }
         }

@@ -72,7 +72,7 @@ final readonly class InMemoryPaginator implements Paginator
 
     public function count(): int
     {
-        return count($this->getIterator());
+        return count($this->items);
     }
 
     public function getIterator(): \Traversable

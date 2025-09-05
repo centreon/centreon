@@ -41,7 +41,7 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
  *  resource_id: int,
  *  resource_name: string,
  *  resource_line: string,
- *  resource_comment: string,
+ *  resource_comment: string|null,
  *  resource_activate: '0'|'1',
  *  is_password: 0|1
  * }
@@ -63,9 +63,9 @@ final readonly class DoctrineGlobalMacroRepository extends DoctrineRepository im
         $qb->select('resource_id', 'resource_name', 'resource_line', 'resource_comment', 'resource_activate', 'is_password')
             ->from(self::TABLE_NAME);
         if ($criteria?->getName() !== null) {
-            if ($criteria?->getOperator() === 'lk') {
+            if ($criteria->getOperator() === 'lk') {
                 $qb->where($qb->expr()->like('resource_name', '"%' . $criteria->getName() . '%"'));
-            } elseif ($criteria?->getOperator() === 'eq') {
+            } elseif ($criteria->getOperator() === 'eq') {
                 $qb->where($qb->expr()->eq('resource_name', '"' . $criteria->getName() . '"'));
             }
         }
@@ -81,13 +81,14 @@ final readonly class DoctrineGlobalMacroRepository extends DoctrineRepository im
         $rows = $qb->executeQuery()->fetchAllAssociative();
         $globalMacros = array_map($this->createGlobalMacro(...), $rows);
         if ($criteria?->getPage() !== null) {
+            /** @var int $count */
             $count = $qbCount->select('count(1)')->executeQuery()->fetchOne();
 
             return new InMemoryPaginator(
                 $globalMacros,
                 $count,
                 $criteria->getPage(),
-                $criteria->getItemsPerPage()
+                $criteria->getItemsPerPage() ?? 0
             );
         }
 

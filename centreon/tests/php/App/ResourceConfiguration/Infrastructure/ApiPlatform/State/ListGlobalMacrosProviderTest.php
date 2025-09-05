@@ -60,7 +60,7 @@ final class ListGlobalMacrosProviderTest extends ApiTestCase
         // Like operator
         $response = $this->request('GET', '/api/latest/configuration/macros/globals', ['query' => ['name' => ['lk' => 'USER1']]]);
         self::assertResponseIsSuccessful();
-        $this->assertCount(1, $response->toArray()['member']);
+        $this->assertCount(1, (array) $response->toArray()['member']);
         self::assertJsonContains(
             [
                 'member' => [
@@ -72,12 +72,12 @@ final class ListGlobalMacrosProviderTest extends ApiTestCase
         // Like operator with no match
         $response = $this->request('GET', '/api/latest/configuration/macros/globals', ['query' => ['name' => ['lk' => 'USER3']]]);
         self::assertResponseIsSuccessful();
-        $this->assertCount(0, $response->toArray()['member']);
+        $this->assertCount(0, (array) $response->toArray()['member']);
 
         // Equal Operator
         $response = $this->request('GET', '/api/latest/configuration/macros/globals', ['query' => ['name' => ['eq' => '$USER1$']]]);
         self::assertResponseIsSuccessful();
-        $this->assertCount(1, $response->toArray()['member']);
+        $this->assertCount(1, (array) $response->toArray()['member']);
         self::assertJsonContains(
             [
                 'member' => [
@@ -89,7 +89,7 @@ final class ListGlobalMacrosProviderTest extends ApiTestCase
         // Equal Operator with no match
         $response = $this->request('GET', '/api/latest/configuration/macros/globals', ['query' => ['name' => ['eq' => 'USER1']]]);
         self::assertResponseIsSuccessful();
-        $this->assertCount(0, $response->toArray()['member']);
+        $this->assertCount(0, (array) $response->toArray()['member']);
     }
 
     public function testFindAllGlobalMAcrosWithPagination(): void
@@ -98,7 +98,7 @@ final class ListGlobalMacrosProviderTest extends ApiTestCase
         $this->login();
         $response = $this->request('GET', '/api/latest/configuration/macros/globals', ['query' => ['page' => '2', 'itemsPerPage' => '1']]);
         self::assertResponseIsSuccessful();
-        $this->assertCount(1, $response->toArray()['member']);
+        $this->assertCount(1, (array) $response->toArray()['member']);
     }
 
     protected static function apiUsers(): array
