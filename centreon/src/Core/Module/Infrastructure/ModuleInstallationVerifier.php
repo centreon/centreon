@@ -25,14 +25,14 @@ namespace Core\Module\Infrastructure;
 
 use Core\Common\Domain\Exception\RepositoryException;
 use Core\Module\Application\Repository\ModuleInformationRepositoryInterface;
+use Symfony\Component\DependencyInjection\Attribute\Autoconfigure;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
-use Symfony\Component\DependencyInjection\Attribute\Lazy;
 
 /**
  * This class needs to be lazy because it is used in routing loading and it uses services that are not always available depending
  * on the state of the application (installed or not).
  */
-#[Lazy]
+#[Autoconfigure(lazy: true)]
 class ModuleInstallationVerifier
 {
     public function __construct(
