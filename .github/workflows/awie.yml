@@ -7,12 +7,12 @@ concurrency:
 on:
   workflow_dispatch:
   pull_request:
-    # paths:
-    #   - ".version"
-    #   - ".version.centreon-awie"
-    #   - "centreon-awie/**"
-    #   - "!centreon-awie/features/**"
-    #   - "!centreon-awie/behat.yml"
+    paths:
+      - ".version"
+      - ".version.centreon-awie"
+      - "centreon-awie/**"
+      - "!centreon-awie/features/**"
+      - "!centreon-awie/behat.yml"
   push:
     branches:
       - develop
@@ -415,11 +415,11 @@ jobs:
           release_type: ${{ needs.get-environment.outputs.release_type }}
           is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
 
-  # set-skip-label:
-  #   needs: [get-environment, deliver-rpm, deliver-deb, promote]
-  #   if: |
-  #     needs.get-environment.outputs.skip_workflow == 'false' &&
-  #     ! cancelled() &&
-  #     ! contains(needs.*.result, 'failure') &&
-  #     ! contains(needs.*.result, 'cancelled')
-  #   uses: ./.github/workflows/set-pull-request-skip-label.yml
+  set-skip-label:
+    needs: [get-environment, deliver-rpm, deliver-deb, promote]
+    if: |
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      ! cancelled() &&
+      ! contains(needs.*.result, 'failure') &&
+      ! contains(needs.*.result, 'cancelled')
+    uses: ./.github/workflows/set-pull-request-skip-label.yml
