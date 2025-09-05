@@ -553,8 +553,12 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
             }
         }
 
-        $request = 'SELECT SQL_CALC_FOUND_ROWS DISTINCT 1 AS REALTIME, hg.* FROM `:dbstg`.`hostgroups` hg ' .
-            $subRequest;
+        $request = <<<'SQL'
+                SELECT SQL_CALC_FOUND_ROWS DISTINCT 1 AS REALTIME, hg.* 
+                FROM `:dbstg`.`hostgroups` hg 
+                    INNER JOIN `:db` . `hostgroup` chg ON chg.hg_id = hg.hostgroup_id 
+            SQL;
+        $request .= $subRequest;
 
         $request = $this->translateDbName($request);
 
@@ -1610,9 +1614,13 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
             }
         }
 
-        $request =
-            'SELECT SQL_CALC_FOUND_ROWS DISTINCT 1 AS REALTIME, sg.*
-            FROM `:dbstg`.`servicegroups` sg ' . $subRequest;
+        $request = <<<'SQL'
+                SELECT SQL_CALC_FOUND_ROWS DISTINCT 1 AS REALTIME, sg.*
+                FROM `:dbstg`.`servicegroups` sg 
+                    INNER JOIN `:db`.`servicegroup` csg
+                        ON csg.sg_id = sg.servicegroup_id
+            SQL;
+        $request .= $subRequest;
         $request = $this->translateDbName($request);
 
         // Search

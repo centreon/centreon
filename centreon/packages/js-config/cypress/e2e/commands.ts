@@ -166,6 +166,12 @@ Cypress.Commands.add('getContainersLogs', () => {
   return cy.task('getContainersLogs');
 });
 
+Cypress.Commands.add('getContainerMappedPort', (containerName: string, containerPort: number) => {
+  cy.log(`Getting mapped port ${containerPort} of container ${containerName}`);
+
+  return cy.task('getContainerMappedPort', { containerName, containerPort });
+});
+
 interface CopyFromContainerProps {
   destination: string;
   name?: string;
@@ -290,7 +296,11 @@ Cypress.Commands.add('logoutViaAPI', (): Cypress.Chainable => {
   return cy
     .request({
       method: 'GET',
-      url: '/centreon/authentication/logout'
+      url: '/centreon/authentication/logout',
+      failOnStatusCode: false,
+    })
+    .then((response) => {
+      cy.log(`Logout response: ${response.status}`);
     })
     .visit('/')
     .getByLabel({ label: 'Alias', tag: 'input' });
@@ -907,6 +917,7 @@ declare global {
       getContainerId: (containerName: string) => Cypress.Chainable;
       getContainerIpAddress: (containerName: string) => Cypress.Chainable;
       getContainersLogs: () => Cypress.Chainable;
+      getContainerMappedPort: (containerName: string, containerPort: number) => Cypress.Chainable;
       getIframeBody: () => Cypress.Chainable;
       getLogDirectory: () => Cypress.Chainable;
       getTimeFromHeader: () => Cypress.Chainable;

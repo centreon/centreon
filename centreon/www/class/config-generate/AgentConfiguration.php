@@ -27,6 +27,10 @@ use Core\AgentConfiguration\Domain\Model\ConfigurationParameters\CmaConfiguratio
 use Core\AgentConfiguration\Domain\Model\ConfigurationParameters\TelegrafConfigurationParameters;
 use Core\AgentConfiguration\Domain\Model\ConnectionModeEnum;
 use Core\AgentConfiguration\Domain\Model\Type;
+use Core\Host\Application\Repository\ReadHostRepositoryInterface;
+use Core\Security\Token\Application\Repository\ReadTokenRepositoryInterface;
+use Core\Security\Token\Domain\Model\JwtToken;
+use Core\Security\Token\Domain\Model\Token;
 
 /**
  * @phpstan-import-type _TelegrafParameters from TelegrafConfigurationParameters
@@ -37,6 +41,8 @@ class AgentConfiguration extends AbstractObjectJSON
     public function __construct(
         private readonly Backend $backend,
         private readonly ReadAgentConfigurationRepositoryInterface $readAgentConfigurationRepository,
+        private readonly ReadTokenRepositoryInterface $readTokenRepository,
+        private readonly ReadHostRepositoryInterface $readHostRepository,
     ) {
         $this->generate_filename = 'otl_server.json';
     }
@@ -74,10 +80,13 @@ class AgentConfiguration extends AbstractObjectJSON
      * The configuration is based on the data from the AgentConfiguration table.
      * It returns an array with the configuration for the OpenTelemetry HTTP server.
      *
-     * @param _TelegrafParameters|_CmaParameters $data The data from the AgentConfiguration table.
-     * @return array<string, array<string, string>> The configuration for the OpenTelemetry HTTP server.
+     * @param _TelegrafParameters|_CmaParameters $data the data from the AgentConfiguration table
+     * @param array<JwtToken> $tokens
+     * @param ConnectionModeEnum $connectionMode
+     *
+     * @return array<string, array<string, string>> the configuration for the OpenTelemetry HTTP server
      */
-    private function formatOtelConfiguration(array $data, ConnectionModeEnum $connectionMode): array
+    private function formatOtelConfiguration(array $data, array $tokens, ConnectionModeEnum $connectionMode): array
     {
         return [
             'host' => ModelAgentConfiguration::DEFAULT_HOST,
@@ -92,6 +101,10 @@ class AgentConfiguration extends AbstractObjectJSON
             'ca_certificate' => ! empty($data['otel_ca_certificate'])
                 ? $data['otel_ca_certificate']
                 : '',
+            'trusted_tokens' => array_map(
+                static fn (JwtToken $token): string => $token->getToken(),
+                array_values($tokens)
+            ),
         ];
     }
 
@@ -104,15 +117,37 @@ class AgentConfiguration extends AbstractObjectJSON
      */
     private function formatCmaConfiguration(array $data, ConnectionModeEnum $connectionMode): array
     {
+        $tokens = $this->filterTokens($data['tokens'] ?? []);
         $configuration = [
-            'otel_server' => $this->formatOtelConfiguration($data, $connectionMode),
+            'otel_server' => $this->formatOtelConfiguration($data, $tokens, $connectionMode),
             'centreon_agent' => [
                 'check_interval' => CmaConfigurationParameters::DEFAULT_CHECK_INTERVAL,
                 'export_period' => CmaConfigurationParameters::DEFAULT_EXPORT_PERIOD,
-            ]
+            ],
         ];
 
         if ($data['is_reverse']) {
+            $hostIds = array_map(static fn(array $host): int => $host['id'], $data['hosts']);
+            $hosts = $this->readHostRepository->findByIds($hostIds);
+
+            $tokenNames = array_filter(
+                array_map(
+                    static fn(array $host): ?string => $host['token'] !== null ? $host['token']['name'] : null,
+                    $data['hosts']
+                )
+            );
+            $tokens = $tokenNames !== []
+                ? $this->readTokenRepository->findByNames($tokenNames)
+                : [];
+
+            $tokens = array_filter(
+                $tokens,
+                static fn(Token $token): bool =>  !(
+                    $token->isRevoked()
+                    || ($token->getExpirationDate() !== null && $token->getExpirationDate() < new \DateTimeImmutable())
+                )
+            );
+
             $configuration['centreon_agent']['reverse_connections'] = array_map(
                 static fn(array $host): array => [
                     'host' => $host['address'],
@@ -122,8 +157,14 @@ class AgentConfiguration extends AbstractObjectJSON
                         ? $host['poller_ca_certificate']
                         : '',
                     'ca_name' => $host['poller_ca_name'],
+                    'token' => isset($tokens[$host['token']['name']])
+                        ? $tokens[$host['token']['name']]->getToken()
+                        : null,
                 ],
-                $data['hosts']
+                array_filter(
+                    $data['hosts'],
+                    static fn(array $host): bool => $hosts[$host['id']] ? true : false
+                )
             );
         }
 
@@ -136,12 +177,15 @@ class AgentConfiguration extends AbstractObjectJSON
      * The configuration is based on the data from the AgentConfiguration table.
      * It returns an array with the configuration for the Telegraf HTTP server.
      *
-     * @param _TelegrafParameters $data The data from the AgentConfiguration table.
-     * @return array<string, array<string, mixed>> The configuration for the Telegraf HTTP server.
+     * @param _TelegrafParameters $data the data from the AgentConfiguration table
+     * @param ConnectionModeEnum $connectionMode
+     *
+     * @return array<string, array<string, mixed>> the configuration for the Telegraf HTTP server
      */
     private function formatTelegraphConfiguration(array $data, ConnectionModeEnum $connectionMode): array
     {
-        $otelConfiguration = $this->formatOtelConfiguration($data, $connectionMode);
+        $tokens = $this->filterTokens($data['tokens'] ?? []);
+        $otelConfiguration = $this->formatOtelConfiguration($data, $tokens, $connectionMode);
 
         return [
             'otel_server' => $otelConfiguration,
@@ -158,5 +202,28 @@ class AgentConfiguration extends AbstractObjectJSON
                 ]
             ]
         ];
+    }
+
+    /**
+     * @param array<JwtToken> $tokens
+     *
+     * @return array<JwtToken>
+     */
+    private function filterTokens(array $dataTokens): array
+    {
+        $tokens = $dataTokens !== []
+            ? $this->readTokenRepository->findByNames(array_map(
+                static fn (array $token): string => $token['name'],
+                $dataTokens
+            ))
+            : [];
+
+        return array_filter(
+            $tokens,
+            static fn (Token $token): bool => ! (
+                $token->isRevoked()
+                || ($token->getExpirationDate() !== null && $token->getExpirationDate() < new DateTimeImmutable())
+            )
+        );
     }
 }

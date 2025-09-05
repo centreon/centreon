@@ -119,7 +119,7 @@ runs:
       shell: bash
 
     - name: Promote DEB packages to stable
-      if: ${{ contains(fromJSON('["bullseye", "bookworm"]') , inputs.distrib) }}
+      if: ${{ contains(fromJSON('["bookworm", "noble"]') , inputs.distrib) }}
       run: |
         set -eux
 
@@ -127,10 +127,16 @@ runs:
         echo "[DEBUG] - Minor version: ${{ inputs.minor_version }}"
         echo "[DEBUG] - Distrib: ${{ inputs.distrib }}"
 
-        # Define ROOT_REPO_PATH for debian
+        if [[ ${{ inputs.distrib }} == "noble" ]]; then
+          ROOT_REPO_PREFIX="ubuntu"
+        else
+          ROOT_REPO_PREFIX="apt"
+        fi
+
+        # Define ROOT_REPO_PATH for debian/ubuntu
         # There is no cloud ROOT_REPO_PATH for debian, only onprem
         # Should there be a need to deploy debian to cloud repositories, please use the same condition as RPM promotion
-        ROOT_REPO_PATH="apt-standard-${{ inputs.major_version }}"
+        ROOT_REPO_PATH="$ROOT_REPO_PREFIX-standard-${{ inputs.major_version }}"
 
         echo "[DEBUG] - Get path of testing DEB packages to promote to stable."
 

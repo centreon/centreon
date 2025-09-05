@@ -84,7 +84,7 @@ if (isset($ret) && is_array($ret) && $ret['topology_page'] != "" && $p != $ret['
     $p = $ret['topology_page'];
 }
 
-$acl = $oreon->user->access;
+$acl = new CentreonACL($oreon->user->get_id(), $oreon->user->admin);
 $aclDbName = $acl->getNameDBAcl();
 $metaStr = $acl->getMetaServiceString();
 

@@ -137,7 +137,7 @@ class AgentConfigurationException extends \Exception
     public static function invalidFilename(string $name, string $value): self
     {
         return new self(
-            sprintf(_("Filename '%s' (%s) is invalid"), $value, $name),
+            sprintf(_("File path or format '%s' (%s) is invalid"), $value, $name),
             self::CODE_CONFLICT
         );
     }
@@ -148,5 +148,23 @@ class AgentConfigurationException extends \Exception
             sprintf(_('Poller ID #%d is the only one linked to poller/agent configuration ID #%d'), $pollerId, $acId),
             self::CODE_CONFLICT
         );
+    }
+
+    public static function invalidToken(string $name, int $creatorId): self
+    {
+        return new self(
+            sprintf(_('Token with name "%s" and creator ID "%d" is not valid'), $name, $creatorId),
+            self::CODE_CONFLICT
+        );
+    }
+
+    public static function tokensAreMandatory(): self
+    {
+        return new self(_('Tokens are mandatory'), self::CODE_CONFLICT);
+    }
+
+    public static function invalidHostId(int $hostId): self
+    {
+        return new self(sprintf(_('Host ID #%d is invalid'), $hostId));
     }
 }

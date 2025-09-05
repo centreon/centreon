@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 
 import { Box } from '@mui/material';
 
-import { Gauge, GraphText, SingleBar } from '@centreon/ui';
+import { Gauge, GraphText, SingleBar, Thresholds } from '@centreon/ui';
 
 import { labelCritical, labelWarning } from '../../translatedLabels';
 
@@ -15,7 +15,7 @@ interface Props {
     baseColor?: string;
     data?;
     displayAsRaw?: boolean;
-    thresholds;
+    thresholds: Thresholds;
   };
   singleMetricGraphType: SingleMetricGraphType;
 }
@@ -28,6 +28,10 @@ const SingleMetricRenderer = ({
 
   const { t } = useTranslation();
 
+  const hasTwoThresholds =
+    graphProps.thresholds.critical.length === 2 ||
+    graphProps.thresholds.warning.length === 2;
+
   return (
     <Box className={graphClasses.graphContainer}>
       <Box className={graphClasses.content}>
@@ -39,6 +43,8 @@ const SingleMetricRenderer = ({
             always(
               <GraphText
                 {...graphProps}
+                prefThresholds={hasTwoThresholds ? 7 : 11}
+                minThresholds="8px"
                 labels={{
                   critical: t(labelCritical),
                   warning: t(labelWarning)

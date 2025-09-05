@@ -1,12 +1,26 @@
 import { ParentSize } from '../..';
 
 import ResponsiveTimeline from './ResponsiveTimeline';
-import type { TimelineProps } from './models';
 
-const Timeline = (props: TimelineProps): JSX.Element => (
-  <ParentSize>
+const Timeline = ({
+  data,
+  startDate,
+  endDate,
+  TooltipContent,
+  tooltipClassName,
+  ...rest
+}): JSX.Element => (
+  <ParentSize {...rest}>
     {({ width, height }) => (
-      <ResponsiveTimeline {...props} height={height} width={width} />
+      <ResponsiveTimeline
+        data={data}
+        startDate={startDate}
+        endDate={endDate}
+        TooltipContent={TooltipContent}
+        tooltipClassName={tooltipClassName}
+        height={height}
+        width={width}
+      />
     )}
   </ParentSize>
 );

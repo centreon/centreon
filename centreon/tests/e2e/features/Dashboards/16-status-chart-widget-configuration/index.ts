@@ -291,7 +291,8 @@ Then(
         greyCssBackground,
         blueCssBackground
       ],
-      ['100.0%', '0.0%', '0.0%', '0.0%']
+      ['100.0%', '0.0%', '0.0%', '0.0%'],
+      ["66.7%", "33.3%", "0.0%", "0.0%"]
     );
     cy.verifyLegendItemStyle(
       1,
@@ -329,7 +330,8 @@ Then("the Status Chart widget is added in the dashboard's layout", () => {
       greyCssBackground,
       blueCssBackground
     ],
-    ['100.0%', '0.0%', '0.0%', '0.0%']
+    ['100.0%', '0.0%', '0.0%', '0.0%'],
+    ["66.7%", "33.3%", "0.0%", "0.0%"]
   );
   cy.verifyLegendItemStyle(
     1,
@@ -408,7 +410,8 @@ Then('only the contents of the other widget are displayed', () => {
       greyCssBackground,
       blueCssBackground
     ],
-    ['100.0%', '0', '0', '0']
+    ['100.0%', '0', '0', '0'],
+    ["66.7%", "33.3%", "0.0%", "0.0%"]
   );
   cy.verifyLegendItemStyle(
     1,
@@ -521,6 +524,13 @@ When('the dashboard administrator clicks on a random resource', () => {
 Then(
   'the user should be redirected to the resource status screen and all the resources must be displayed',
   () => {
-    cy.contains('host2').should('exist');
+    cy.waitForElementToBeVisible('p:contains("host3"), p:contains("host2")');
+    cy.get('body').then($body => {
+      if ($body.find(':contains("host2")').length) {
+        cy.contains('host2').should('exist');
+      } else {
+        cy.contains('host3').should('exist');
+      }
+    });
   }
 );

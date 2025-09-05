@@ -50,23 +50,23 @@ $tpl = SmartyBC::createSmartyTemplate("./include/eventLogs/template");
 $getInputs = [
     'engine' => filter_input(INPUT_GET, 'engine', FILTER_VALIDATE_BOOLEAN, ['options' => ['default' => false]]),
     'id' => filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT, ['options' => ['default' => 1]]),
-    'h' => isset($_GET['h']) ? \HtmlAnalyzer::sanitizeAndRemoveTags($_GET['h']) : null,
-    'hg' => isset($_GET['hg']) ? \HtmlAnalyzer::sanitizeAndRemoveTags($_GET['hg']) : null,
-    'poller' => isset($_GET['poller']) ? \HtmlAnalyzer::sanitizeAndRemoveTags($_GET['poller']) : null,
-    'svc' => isset($_GET['svc']) ? \HtmlAnalyzer::sanitizeAndRemoveTags($_GET['svc']) : null,
-    'svcg' => isset($_GET['svcg']) ? \HtmlAnalyzer::sanitizeAndRemoveTags($_GET['svcg']) : null,
-    'output' => isset($_GET['output']) ? \HtmlAnalyzer::sanitizeAndRemoveTags($_GET['output']) : null,
+    'h' => isset($_GET['h']) ? HtmlSanitizer::createFromString($_GET['h'])->sanitize()->getString() : null,
+    'hg' => isset($_GET['hg']) ? HtmlSanitizer::createFromString($_GET['hg'])->sanitize()->getString() : null,
+    'poller' => isset($_GET['poller']) ? HtmlSanitizer::createFromString($_GET['poller'])->sanitize()->getString() : null,
+    'svc' => isset($_GET['svc']) ? HtmlSanitizer::createFromString($_GET['svc'])->sanitize()->getString() : null,
+    'svcg' => isset($_GET['svcg']) ? HtmlSanitizer::createFromString($_GET['svcg'])->sanitize()->getString() : null,
+    'output' => isset($_GET['output']) ? HtmlSanitizer::createFromString($_GET['output'])->sanitize()->getString() : null,
 ];
 
 $postInputs = [
     'engine' => filter_input(INPUT_POST, 'engine', FILTER_VALIDATE_BOOLEAN, ['options' => ['default' => false]]),
     'id' => filter_input(INPUT_POST, 'id', FILTER_VALIDATE_INT, ['options' => ['default' => 1]]),
-    'h' => isset($_POST['h']) ? \HtmlAnalyzer::sanitizeAndRemoveTags($_POST['h']) : null,
-    'hg' => isset($_POST['hg']) ? \HtmlAnalyzer::sanitizeAndRemoveTags($_POST['hg']) : null,
-    'poller' => isset($_POST['poller']) ? \HtmlAnalyzer::sanitizeAndRemoveTags($_POST['poller']) : null,
-    'svc' => isset($_POST['svc']) ? \HtmlAnalyzer::sanitizeAndRemoveTags($_POST['svc']) : null,
-    'svcg' => isset($_POST['svcg']) ? \HtmlAnalyzer::sanitizeAndRemoveTags($_POST['svcg']) : null,
-    'output' => isset($_POST['output']) ? \HtmlAnalyzer::sanitizeAndRemoveTags($_POST['output']) : null,
+    'h' => isset($_POST['h']) ? HtmlSanitizer::createFromString($_POST['h'])->sanitize()->getString() : null,
+    'hg' => isset($_POST['hg']) ? HtmlSanitizer::createFromString($_POST['hg'])->sanitize()->getString() : null,
+    'poller' => isset($_POST['poller']) ? HtmlSanitizer::createFromString($_POST['poller'])->sanitize()->getString() : null,
+    'svc' => isset($_POST['svc']) ? HtmlSanitizer::createFromString($_POST['svc'])->sanitize()->getString() : null,
+    'svcg' => isset($_POST['svcg']) ? HtmlSanitizer::createFromString($_POST['svcg'])->sanitize()->getString() : null,
+    'output' => isset($_POST['output']) ? HtmlSanitizer::createFromString($_POST['output'])->sanitize()->getString() : null,
 ];
 
 $serviceGrpArray = [];
@@ -94,11 +94,18 @@ if (isset($getInputs['hg'])) {
 
 $defaultServices = [];
 if (isset($getInputs['svc'])) {
-    $svc = explode(",", $getInputs['svc']);
+    $services = explode(',', $getInputs['svc']);
+
+    // Verify that each services is a couple hostId_serviceId
+    foreach ($services as $service) {
+        if (! preg_match('/^\d+_\d+$/', $service)) {
+            throw new Exception('Invalid format provided for service. Expected hostId_serviceId');
+        }
+    }
     $serviceObj = new CentreonService($pearDB);
-    $serviceArray = $serviceObj->getServicesDescr($svc);
+    $serviceArray = $serviceObj->getServicesDescr($services);
     foreach ($serviceArray as $defaultService) {
-        if ($defaultService['host_name'] == '_Module_Meta'
+        if ($defaultService['host_name'] === '_Module_Meta'
             && preg_match('/^meta_(\d+)/', $defaultService['description'], $matches)
         ) {
             $defaultService['host_name'] = 'Meta';

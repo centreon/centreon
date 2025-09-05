@@ -1599,20 +1599,23 @@ function updateHost_MC($hostId = null)
         );
     }
 
-    $request = "UPDATE host SET ";
-    foreach (array_keys($bindParams) as $token) {
-        $request .= ltrim($token, ':') . " = " . $token . ", ";
-    }
-    $request = rtrim($request, ', ');
-    $request .= " WHERE host_id = :hostId";
-    $statement = $pearDB->prepare($request);
-    foreach ($bindParams as $token => $bindValues) {
-        foreach ($bindValues as $paramType => $value) {
-            $statement->bindValue($token, $value, $paramType);
+    if (! empty($bindParams)) {
+        $request = "UPDATE host SET ";
+        foreach (array_keys($bindParams) as $token) {
+            $request .= ltrim($token, ':') . " = " . $token . ", ";
         }
+        $request = rtrim($request, ', ');
+        $request .= " WHERE host_id = :hostId";
+
+        $statement = $pearDB->prepare($request);
+        foreach ($bindParams as $token => $bindValues) {
+            foreach ($bindValues as $paramType => $value) {
+                $statement->bindValue($token, $value, $paramType);
+            }
+        }
+        $statement->bindValue(':hostId', $hostId, \PDO::PARAM_INT);
+        $statement->execute();
     }
-    $statement->bindValue(':hostId', $hostId, \PDO::PARAM_INT);
-    $statement->execute();
 
     /*
      *  update multiple templates
@@ -2745,10 +2748,16 @@ function sanitizeFormHostParameters(array $ret): array
                     ];
                 }
                 break;
+            case 'host_alias':
+                $bindParams[':' . $inputName] = [
+                    \PDO::PARAM_STR => ($inputValue === '' || $inputValue === false)
+                        ? null
+                        : $inputValue
+                ];
+                break;
             case 'host_address':
             case 'command_command_id_arg1':
             case 'command_command_id_arg2':
-            case 'host_alias':
             case 'host_snmp_community':
             case 'host_snmp_version':
             case 'host_comment':

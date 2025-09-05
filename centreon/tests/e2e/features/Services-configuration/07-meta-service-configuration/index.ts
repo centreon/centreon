@@ -161,7 +161,7 @@ When('the user changes the properties of a meta service', () => {
   cy.getIframeBody()
     .find('input[name="geo_coords"]')
     .clear()
-    .type('2.3522219,48.856614');
+    .type(data.default.geo_coordinates);
   cy.getIframeBody().find('select[name="graph_id"]').select('Memory');
   cy.getIframeBody()
     .find('textarea[name="meta_comment"]')
@@ -230,7 +230,7 @@ Then('the properties are updated', () => {
     .should('be.visible');
   cy.getIframeBody()
     .find('input[name="geo_coords"]')
-    .should('have.value', '2.3522219,48.856614');
+    .should('have.value', data.default.geoCoordinatesTruncated);
   cy.getIframeBody()
     .find('select[name="graph_id"]')
     .find('option:selected')
@@ -326,7 +326,7 @@ Then('the new meta service has the same properties', () => {
     .should('be.visible');
   cy.getIframeBody()
     .find('input[name="geo_coords"]')
-    .should('have.value', data.default.geo_coordinates);
+    .should('have.value', data.default.geoCoordinatesTruncated);
   cy.getIframeBody()
     .find('select[name="graph_id"]')
     .find('option:selected')

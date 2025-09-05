@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,9 @@ declare(strict_types=1);
 namespace Core\Dashboard\Application\Repository;
 
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
+use Centreon\Domain\Repository\RepositoryException;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
+use Core\Contact\Domain\Model\ContactGroup;
 use Core\Dashboard\Domain\Model\Dashboard;
 use Core\Dashboard\Domain\Model\Role\DashboardContactGroupRole;
 use Core\Dashboard\Domain\Model\Role\DashboardContactRole;
@@ -32,6 +34,7 @@ use Core\Dashboard\Domain\Model\Share\DashboardContactGroupShare;
 use Core\Dashboard\Domain\Model\Share\DashboardContactShare;
 use Core\Dashboard\Domain\Model\Share\DashboardSharingRoles;
 
+/** @package Core\Dashboard\Application\Repository */
 interface ReadDashboardShareRepositoryInterface
 {
     /**
@@ -134,9 +137,10 @@ interface ReadDashboardShareRepositoryInterface
 
     /**
      * Find users with Topology ACLs on dashboards.
+     * For cloud case all users with Dashboard ACLS (cloud admins included).
+     * For on-premise case all users with Dashboard ACLS withouth admins (as admins does not have ACLs).
      *
      * @param RequestParametersInterface $requestParameters
-     * @param bool $isCloudPlatform
      *
      * @throws \Throwable|\UnexpectedValueException
      *
@@ -144,7 +148,6 @@ interface ReadDashboardShareRepositoryInterface
      */
     public function findContactsWithAccessRightByRequestParameters(
         RequestParametersInterface $requestParameters,
-        bool $isCloudPlatform
     ): array;
 
     /**
@@ -174,6 +177,18 @@ interface ReadDashboardShareRepositoryInterface
     ): array;
 
     /**
+     * @param ContactGroup[] $contactGroups
+     * @param RequestParametersInterface $requestParameters
+     *
+     * @throws RepositoryException
+     * @return DashboardContactRole[]
+     */
+    public function findContactsWithAccessRightsByContactGroupsAndRequestParameters(
+        array $contactGroups,
+        RequestParametersInterface $requestParameters
+    ): array;
+
+    /**
      * Find contact groups with Topology ACLs on dashboards.
      *
      * @param RequestParametersInterface $requestParameters
@@ -183,6 +198,19 @@ interface ReadDashboardShareRepositoryInterface
      * @return DashboardContactGroupRole[]
      */
     public function findContactGroupsWithAccessRightByRequestParameters(
+        RequestParametersInterface $requestParameters
+    ): array;
+
+    /**
+     * Find all contactgroups by requestParameters (all contactgroups will have the Viewer Role by default - cloud case).
+     *
+     * @param RequestParametersInterface $requestParameters
+     *
+     * @throws RepositoryException
+     *
+     * @return DashboardContactGroupRole[]
+     */
+    public function findContactGroupsByRequestParameters(
         RequestParametersInterface $requestParameters
     ): array;
 
@@ -208,6 +236,21 @@ interface ReadDashboardShareRepositoryInterface
      * @return DashboardContactGroupRole[]
      */
     public function findContactGroupsWithAccessRightByUserAndRequestParameters(
+        RequestParametersInterface $requestParameters,
+        int $contactId
+    ): array;
+
+    /**
+     * Find contact groups for current user.
+     *
+     * @param RequestParametersInterface $requestParameters
+     * @param int $contactId
+     *
+     * @throws RepositoryException
+     *
+     * @return DashboardContactGroupRole[]
+     */
+    public function findContactGroupsByUserAndRequestParameters(
         RequestParametersInterface $requestParameters,
         int $contactId
     ): array;

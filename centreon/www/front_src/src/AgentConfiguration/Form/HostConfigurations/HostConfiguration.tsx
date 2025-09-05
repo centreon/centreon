@@ -8,14 +8,19 @@ import { Box } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { hostsConfigurationEndpoint } from '../../api/endpoints';
 import { HostConfiguration as HostConfigurationModel } from '../../models';
+
+import RedirectToTokensPage from '../RedirectToTokensPage';
+import { useHostConfiguration } from './useHostConfiguration';
+
+import CMATokens from './CMATokenField';
+
 import {
-  labelAddHost,
   labelCACommonName,
   labelCaCertificate,
   labelDNSIP,
-  labelPort
+  labelPort,
+  labelSelectHost
 } from '../../translatedLabels';
-import { useHostConfiguration } from './useHostConfiguration';
 
 interface Props {
   index: number;
@@ -31,7 +36,9 @@ const HostConfiguration = ({ index, host }: Props): JSX.Element => {
     hostTouched,
     changePort,
     areCertificateFieldsVisible,
-    changeStringInput
+    changeStringInput,
+    changeCMAToken,
+    token
   } = useHostConfiguration({
     index
   });
@@ -46,8 +53,8 @@ const HostConfiguration = ({ index, host }: Props): JSX.Element => {
       }}
     >
       <SingleConnectedAutocompleteField
-        label={t(labelAddHost)}
-        value={null}
+        required
+        label={t(labelSelectHost)}
         onChange={selectHost}
         getEndpoint={(parameters) =>
           buildListingEndpoint({
@@ -55,9 +62,8 @@ const HostConfiguration = ({ index, host }: Props): JSX.Element => {
             parameters
           })
         }
-        fieldName="name"
+        value={{ id: host.id, name: host.name }}
       />
-      <div />
       <TextField
         required
         value={host.address}
@@ -83,38 +89,44 @@ const HostConfiguration = ({ index, host }: Props): JSX.Element => {
           max: 65535
         }}
       />
-      {areCertificateFieldsVisible && (
-        <TextField
-          value={host?.pollerCaCertificate || ''}
-          onChange={changeStringInput('pollerCaCertificate')}
-          label={t(labelCaCertificate)}
-          dataTestId={labelCaCertificate}
-          inputProps={{
-            'aria-label': labelCaCertificate
-          }}
-          fullWidth
-          error={
-            (hostTouched?.pollerCaCertificate &&
-              hostErrors?.pollerCaCertificate) ||
-            undefined
-          }
-        />
-      )}
 
       {areCertificateFieldsVisible && (
-        <TextField
-          value={host?.pollerCaName || ''}
-          onChange={changeStringInput('pollerCaName')}
-          label={t(labelCACommonName)}
-          inputProps={{
-            'aria-label': labelCACommonName
-          }}
-          dataTestId={labelCACommonName}
-          fullWidth
-          error={
-            (hostTouched?.pollerCaName && hostErrors?.pollerCaName) || undefined
-          }
-        />
+        <>
+          <TextField
+            value={host?.pollerCaCertificate || ''}
+            onChange={changeStringInput('pollerCaCertificate')}
+            label={t(labelCaCertificate)}
+            dataTestId={labelCaCertificate}
+            inputProps={{
+              'aria-label': labelCaCertificate
+            }}
+            fullWidth
+            error={
+              (hostTouched?.pollerCaCertificate &&
+                hostErrors?.pollerCaCertificate) ||
+              undefined
+            }
+          />
+
+          <TextField
+            value={host?.pollerCaName || ''}
+            onChange={changeStringInput('pollerCaName')}
+            label={t(labelCACommonName)}
+            inputProps={{
+              'aria-label': labelCACommonName
+            }}
+            dataTestId={labelCACommonName}
+            fullWidth
+            error={
+              (hostTouched?.pollerCaName && hostErrors?.pollerCaName) ||
+              undefined
+            }
+          />
+
+          <CMATokens changeCMAToken={changeCMAToken} value={token} />
+          <div />
+          <RedirectToTokensPage />
+        </>
       )}
     </Box>
   );

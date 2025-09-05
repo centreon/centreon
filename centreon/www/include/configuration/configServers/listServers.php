@@ -222,7 +222,7 @@ foreach ($servers as $config) {
         $nagiosInfo[$config['id']]['last_alive'])
         ? $nagiosInfo[$config['id']]['last_alive']
         : '-';
-    $serverType = $config['localhost'] ? _('Central') : _('Distant Poller');
+    $serverType = $config['localhost'] ? _('Central') : _('Poller');
     $serverType = in_array($config['ns_ip_address'], $remotesServerIPs)
         ? _('Remote Server')
         : $serverType;
