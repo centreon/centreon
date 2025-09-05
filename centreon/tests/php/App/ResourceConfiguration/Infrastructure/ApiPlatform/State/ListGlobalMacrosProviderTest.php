@@ -92,7 +92,7 @@ final class ListGlobalMacrosProviderTest extends ApiTestCase
         $this->assertCount(0, (array) $response->toArray()['member']);
     }
 
-    public function testFindAllGlobalMAcrosWithPagination(): void
+    public function testFindAllGlobalMacrosWithPagination(): void
     {
 
         $this->login();

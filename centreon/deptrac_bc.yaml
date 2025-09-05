@@ -61,7 +61,5 @@ parameters:
             - Security\SessionAPIAuthenticator
         App\Shared\Infrastructure\Legacy\LegacySecurity:
             - Centreon\Domain\Contact\Contact
-        App\ResourceConfiguration\Infrastructure\Legacy\LegacyServiceCategoryPermissionVoter:
-            - Centreon\Domain\Contact\Contact
-        App\ResourceConfiguration\Infrastructure\Legacy\LegacyGlobalMacroPermissionVoter:
+        App\ResourceConfiguration\Infrastructure\Legacy:
             - Centreon\Domain\Contact\Contact

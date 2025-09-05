@@ -81,15 +81,16 @@ final readonly class ListGlobalMacrosProvider implements ProviderInterface
         foreach ($models as $model) {
             $resources[] = $this->transformer->toResource($model);
         }
-        if ($models instanceof Paginator) {
-            return new TraversablePaginator(
-                new \ArrayIterator($resources),
-                $models->getCurrentPage(),
-                $models->getItemsPerPage(),
-                $models->getTotalItems()
-            );
+
+        if (! $models instanceof Paginator) {
+            return $resources;
         }
 
-        return $resources;
+        return new TraversablePaginator(
+            new \ArrayIterator($resources),
+            $models->getCurrentPage(),
+            $models->getItemsPerPage(),
+            $models->getTotalItems()
+        );
     }
 }

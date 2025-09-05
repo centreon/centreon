@@ -38,8 +38,6 @@ use Symfony\Component\Validator\Constraints as Assert;
             uriTemplate: '/configuration/macros/globals',
             provider: ListGlobalMacrosProvider::class,
             openapi: new Model\Operation(
-                responses: [
-                ],
                 parameters: [new Model\Parameter(
                     name: 'name',
                     in: 'query',

@@ -80,19 +80,20 @@ final readonly class DoctrineGlobalMacroRepository extends DoctrineRepository im
          */
         $rows = $qb->executeQuery()->fetchAllAssociative();
         $globalMacros = array_map($this->createGlobalMacro(...), $rows);
-        if ($criteria?->getPage() !== null) {
-            /** @var int $count */
-            $count = $qbCount->select('count(1)')->executeQuery()->fetchOne();
 
-            return new InMemoryPaginator(
-                $globalMacros,
-                $count,
-                $criteria->getPage(),
-                $criteria->getItemsPerPage() ?? 0
-            );
+        if ($criteria?->getPage() === null) {
+            return $globalMacros;
         }
 
-        return $globalMacros;
+        /** @var int $count */
+        $count = $qbCount->select('count(1)')->executeQuery()->fetchOne();
+
+        return new InMemoryPaginator(
+            items: $globalMacros,
+            totalItems: $count,
+            currentPage: $criteria->getPage(),
+            itemsPerPage: $criteria->getItemsPerPage() ?? 0
+        );
     }
 
     /**

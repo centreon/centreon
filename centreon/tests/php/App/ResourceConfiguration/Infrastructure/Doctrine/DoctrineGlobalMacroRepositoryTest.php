@@ -24,7 +24,9 @@ declare(strict_types=1);
 namespace Tests\App\ResourceConfiguration\Infrastructure\Doctrine;
 
 use App\ResourceConfiguration\Domain\Aggregate\GlobalMacro;
+use App\ResourceConfiguration\Domain\Repository\GlobalMacroCriteria;
 use App\ResourceConfiguration\Infrastructure\Doctrine\DoctrineGlobalMacroRepository;
+use App\Shared\Infrastructure\InMemory\InMemoryPaginator;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 final class DoctrineGlobalMacroRepositoryTest extends KernelTestCase
@@ -44,5 +46,30 @@ final class DoctrineGlobalMacroRepositoryTest extends KernelTestCase
         $globalMacros = $this->repository->findAll();
         self::containsOnlyInstancesOf(GlobalMacro::class);
         self::assertCount(2, $globalMacros);
+    }
+
+    public function testFindAllWithNameCriteria(): void
+    {
+        $criteria = new GlobalMacroCriteria();
+        $criteria = $criteria->withName('USER1');
+        $criteria = $criteria->withOperator('lk');
+
+        $globalMacros = $this->repository->findAll($criteria);
+        self::containsOnlyInstancesOf(GlobalMacro::class);
+        self::assertCount(1, $globalMacros);
+    }
+
+    public function testFindAllWithPagination(): void
+    {
+        $criteria = new GlobalMacroCriteria();
+        $criteria = $criteria->withPagination(page: 1, itemsPerPage: 1);
+
+        $paginator = $this->repository->findAll($criteria);
+        self::assertInstanceOf(InMemoryPaginator::class, $paginator);
+        self::assertCount(1, $paginator);
+        self::assertSame(1, $paginator->getCurrentPage());
+        self::assertSame(1, $paginator->getItemsPerPage());
+        self::assertSame(2, $paginator->getTotalItems());
+        self::assertSame(2, $paginator->getLastPage());
     }
 }
