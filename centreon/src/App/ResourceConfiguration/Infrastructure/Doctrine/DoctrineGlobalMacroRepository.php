@@ -25,10 +25,9 @@ namespace App\ResourceConfiguration\Infrastructure\Doctrine;
 
 use App\ResourceConfiguration\Domain\Aggregate\GlobalMacro;
 use App\ResourceConfiguration\Domain\Aggregate\GlobalMacroComment;
+use App\ResourceConfiguration\Domain\Aggregate\GlobalMacroExpression;
 use App\ResourceConfiguration\Domain\Aggregate\GlobalMacroId;
 use App\ResourceConfiguration\Domain\Aggregate\GlobalMacroName;
-use App\ResourceConfiguration\Domain\Aggregate\GlobalMacroExpression;
-use App\ResourceConfiguration\Domain\Collection\GlobalMacroCollection;
 use App\ResourceConfiguration\Domain\Repository\GlobalMacroCriteria;
 use App\ResourceConfiguration\Domain\Repository\GlobalMacroRepository;
 use App\Shared\Domain\Repository\Paginator;
@@ -71,7 +70,7 @@ final readonly class DoctrineGlobalMacroRepository extends DoctrineRepository im
             }
         }
         $qbCount = clone $qb;
-        if($criteria?->getPage() !== null) {
+        if ($criteria?->getPage() !== null) {
             $qb->setFirstResult(($criteria->getPage() - 1) * $criteria->getItemsPerPage())
                 ->setMaxResults($criteria->getItemsPerPage());
         }

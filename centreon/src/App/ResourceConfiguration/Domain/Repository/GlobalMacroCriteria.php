@@ -28,8 +28,11 @@ use Webmozart\Assert\Assert;
 final class GlobalMacroCriteria
 {
     private ?int $page = null;
+
     private ?int $itemsPerPage = null;
+
     private ?string $name = null;
+
     private ?string $operator = null;
 
     public function withPagination(int $page, int $itemsPerPage): self

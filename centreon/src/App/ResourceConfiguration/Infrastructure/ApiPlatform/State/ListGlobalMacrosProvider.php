@@ -16,7 +16,7 @@
  * limitations under the License.
  *
  * For more information : contact@centreon.com
-*
+ *
  */
 
 declare(strict_types=1);
@@ -38,7 +38,9 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 final readonly class ListGlobalMacrosProvider implements ProviderInterface
 {
-    /** @param TransformerInterface<GlobalMacro,GlobalMacroResource> $transformer */
+    /**
+     * @param TransformerInterface<GlobalMacro,GlobalMacroResource> $transformer
+     */
     public function __construct(
         #[Autowire(service: GlobalMacroTransformer::class)]
         private TransformerInterface $transformer,
@@ -68,7 +70,7 @@ final readonly class ListGlobalMacrosProvider implements ProviderInterface
         foreach ($models as $model) {
             $resources[] = $this->transformer->toResource($model);
         }
-        if($models instanceof Paginator) {
+        if ($models instanceof Paginator) {
             return new TraversablePaginator(
                 new \ArrayIterator($resources),
                 $models->getCurrentPage(),
@@ -80,4 +82,3 @@ final readonly class ListGlobalMacrosProvider implements ProviderInterface
         return $resources;
     }
 }
-

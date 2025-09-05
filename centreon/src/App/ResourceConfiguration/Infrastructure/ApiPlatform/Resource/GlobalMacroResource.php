@@ -40,7 +40,7 @@ use Symfony\Component\Validator\Constraints as Assert;
             openapi: new Model\Operation(
                 responses: [
                 ],
-                parameters: [ new Model\Parameter(
+                parameters: [new Model\Parameter(
                     name: 'name',
                     in: 'query',
                     description: 'Filter by name (supports "lk" and "eq" operators)',

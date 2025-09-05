@@ -28,6 +28,8 @@ use App\Shared\Domain\Repository\Paginator;
 
 interface GlobalMacroRepository
 {
-    /** @return Paginator<GlobalMacro>|array<GlobalMacro> */
+    /**
+     * @return Paginator<GlobalMacro>|array<GlobalMacro>
+     */
     public function findAll(?GlobalMacroCriteria $criteria = null): Paginator|array;
 }

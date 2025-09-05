@@ -39,11 +39,10 @@ final class DoctrineGlobalMacroRepositoryTest extends KernelTestCase
         $this->repository = $repository;
     }
 
-    /** @group wip */
     public function testFindAll(): void
     {
         $globalMacros = $this->repository->findAll();
-        self::containsOnlyInstancesOf(GlobalMacro::class, $globalMacros);
+        self::containsOnlyInstancesOf(GlobalMacro::class);
         self::assertCount(2, $globalMacros);
     }
 }
