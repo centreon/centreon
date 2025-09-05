@@ -24,11 +24,13 @@ declare(strict_types=1);
 namespace Core\Security\Authentication\Infrastructure\Api\LogoutSession;
 
 use Centreon\Application\Controller\AbstractController;
-use Core\Common\Domain\Exception\RepositoryException;
+use Core\Application\Common\UseCase\ErrorResponse;
+use Core\Application\Common\UseCase\ResponseStatusInterface;
 use Core\Common\Infrastructure\ExceptionLogger\ExceptionLogger;
 use Core\Infrastructure\Common\Api\HttpUrlTrait;
 use Core\Security\Authentication\Application\UseCase\LogoutSession\LogoutSession;
 use Core\Security\Authentication\Application\UseCase\LogoutSession\LogoutSessionPresenterInterface;
+use Symfony\Component\HttpFoundation\Exception\BadRequestException;
 use Symfony\Component\HttpFoundation\Request;
 
 final class LogoutSessionController extends AbstractController
@@ -40,7 +42,7 @@ final class LogoutSessionController extends AbstractController
      * @param Request $request
      * @param LogoutSessionPresenterInterface $presenter
      *
-     * @throws RepositoryException
+     * @throws BadRequestException
      * @return object
      */
     public function __invoke(
@@ -48,12 +50,14 @@ final class LogoutSessionController extends AbstractController
         Request $request,
         LogoutSessionPresenterInterface $presenter,
     ): object {
-        try {
-            $useCase($request->cookies->get('PHPSESSID'), $presenter);
-        } catch (RepositoryException $e) {
-            ExceptionLogger::create()->log($e);
+        $useCase($request->cookies->get('PHPSESSID'), $presenter);
 
-            throw $e;
+        // TODO: response is not used, should we return a response ? (we return a redirection to login page)
+        $response = $presenter->getResponseStatus();
+        if ($response instanceof ResponseStatusInterface) {
+            if ($response instanceof ErrorResponse && ! is_null($response->getException())) {
+                ExceptionLogger::create()->log($response->getException());
+            }
         }
 
         return $this->redirect($this->getBaseUrl() . '/login');

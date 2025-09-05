@@ -53,13 +53,11 @@ use DateTimeImmutable;
 use FOS\RestBundle\View\View;
 use Security\Domain\Authentication\Interfaces\{AuthenticationServiceInterface, SessionRepositoryInterface};
 use Security\Domain\Authentication\Model\Session;
-use Symfony\Component\HttpFoundation\{Request, Response};
+use Symfony\Component\HttpFoundation\{Exception\SessionNotFoundException, Request, Response};
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Exception\{
     AuthenticationException,
-    BadCredentialsException,
     CredentialsExpiredException,
-    SessionUnavailableException,
     UserNotFoundException
 };
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -77,30 +75,19 @@ class WebSSOAuthenticator extends AbstractAuthenticator
     private ProviderAuthenticationInterface $provider;
 
     /**
-     * @param AuthenticationServiceInterface $authenticationService
-     * @param SessionRepositoryInterface $sessionRepository
-     * @param DataStorageEngineInterface $dataStorageEngine
-     * @param OptionServiceInterface $optionService
-     * @param WriteTokenRepositoryInterface $writeTokenRepository
-     * @param WriteSessionRepositoryInterface $writeSessionRepository
-     * @param ProviderAuthenticationFactoryInterface $providerFactory
-     * @param ContactRepositoryInterface $contactRepository
-     * @param MenuServiceInterface $menuService
-     * @param PlatformRepositoryInterface $platformRepository
-     *
      * @throws \Exception
      */
     public function __construct(
-        private AuthenticationServiceInterface $authenticationService,
-        private SessionRepositoryInterface $sessionRepository,
-        private DataStorageEngineInterface $dataStorageEngine,
-        private OptionServiceInterface $optionService,
-        private WriteTokenRepositoryInterface $writeTokenRepository,
-        private WriteSessionRepositoryInterface $writeSessionRepository,
-        private ProviderAuthenticationFactoryInterface $providerFactory,
-        private ContactRepositoryInterface $contactRepository,
-        private MenuServiceInterface $menuService,
-        private PlatformRepositoryInterface $platformRepository
+        private readonly AuthenticationServiceInterface $authenticationService,
+        private readonly SessionRepositoryInterface $sessionRepository,
+        private readonly DataStorageEngineInterface $dataStorageEngine,
+        private readonly OptionServiceInterface $optionService,
+        private readonly WriteTokenRepositoryInterface $writeTokenRepository,
+        private readonly WriteSessionRepositoryInterface $writeSessionRepository,
+        private readonly ProviderAuthenticationFactoryInterface $providerFactory,
+        private readonly ContactRepositoryInterface $contactRepository,
+        private readonly MenuServiceInterface $menuService,
+        private readonly PlatformRepositoryInterface $platformRepository
     ) {
         /** @var string $webVersion */
         $webVersion = $this->platformRepository->getWebVersion();
@@ -166,46 +153,91 @@ class WebSSOAuthenticator extends AbstractAuthenticator
     public function authenticate(Request $request): SelfValidatingPassport
     {
         try {
-            $this->info('Starting authentication with WebSSO');
+            $session = $request->getSession();
+        } catch (SessionNotFoundException $e) {
+            ExceptionLogger::create()->log(
+                throwable: $e,
+                context: [
+                    'action' => 'Getting session from request',
+                    'client_ip' => $request->getClientIp() ?? 'unknown',
+                ]
+            );
+
+            throw new AuthenticationException(
+                message: 'Authentication by WebSSO failed: ' . $e->getMessage(),
+                previous: $e
+            );
+        }
+
+        $this->info('Starting authentication with WebSSO');
+
+        try {
             $this->provider->authenticateOrFail(
                 LoginRequest::createForSSO($request->getClientIp() ?? '')
             );
-
-            $user = $this->provider->findUserOrFail();
-            $this->createSession($request, $this->provider);
-            $this->info(
-                'Authenticated successfully',
-                ['user' => $user->getAlias(), 'sessionId' => $request->getSession()->getId()]
-            );
-
-            // getRedirectionUri() expects ONLY a string as its second parameter
-            $referer = $request->headers->get('referer', '');
-            if (! empty($referer)) {
-                $referer = parse_url($referer, PHP_URL_QUERY);
-                if (! is_string($referer)) {
-                    $referer = '';
-                }
-            }
-
-            View::createRedirect(
-                $this->getRedirectionUri(
-                    $this->provider->getAuthenticatedUser(),
-                    $referer
-                ),
-                200
-            );
-        } catch (SSOAuthenticationException|CentreonAuthenticationException $exception) {
+        } catch (SSOAuthenticationException $e) {
             ExceptionLogger::create()->log(
-                throwable: $exception,
-                context: ['user_id' => $this->provider->getAuthenticatedUser()?->getId() ?? 'unknown']
+                throwable: $e,
+                context: [
+                    'user_id' => $this->provider->getAuthenticatedUser()?->getId() ?? 'unknown',
+                    'provider' => $this->provider->getConfiguration()->getType(),
+                    'action' => 'WebSSO Authentication by provider',
+                    'client_ip' => $request->getClientIp() ?? 'unknown',
+                ]
             );
 
-            throw new AuthenticationException($exception->getMessage(), $exception->getCode(), previous: $exception);
+            throw new AuthenticationException(
+                message: 'Authentication by WebSSO failed because authentication by provider failed: ' . $e->getMessage(),
+                previous: $e
+            );
         }
+
+        $user = $this->provider->findUserOrFail();
+
+        try {
+            $this->createSession($request, $this->provider);
+        } catch (CentreonAuthenticationException $centreonAuthenticationException) {
+            ExceptionLogger::create()->log(
+                throwable: $centreonAuthenticationException,
+                context: [
+                    'user_id' => $this->provider->getAuthenticatedUser()?->getId() ?? 'unknown',
+                    'provider' => $this->provider->getConfiguration()->getType(),
+                    'action' => 'Creating session',
+                    'client_ip' => $request->getClientIp() ?? 'unknown',
+                ]
+            );
+
+            throw new AuthenticationException(
+                message: 'Authentication by WebSSO failed because creating session failed: ' . $centreonAuthenticationException->getMessage(),
+                previous: $centreonAuthenticationException
+            );
+        }
+
+        $this->info(
+            'Authenticated successfully',
+            ['user' => $user->getAlias(), 'sessionId' => $session->getId()]
+        );
+
+        // getRedirectionUri() expects ONLY a string as its second parameter
+        $referer = $request->headers->get('referer', '');
+        if (! empty($referer)) {
+            $referer = parse_url($referer, PHP_URL_QUERY);
+            if (! is_string($referer)) {
+                $referer = '';
+            }
+        }
+
+        View::createRedirect(
+            $this->getRedirectionUri(
+                $this->provider->getAuthenticatedUser(),
+                $referer
+            ),
+            200
+        );
 
         return new SelfValidatingPassport(
             new UserBadge(
-                $request->getSession()->getId(),
+                $session->getId(),
                 function ($userIdentifier) {
                     return $this->getUser($userIdentifier);
                 }
@@ -218,10 +250,9 @@ class WebSSOAuthenticator extends AbstractAuthenticator
      *
      * @param string $sessionId
      *
-     * @throws BadCredentialsException
-     * @throws SessionUnavailableException
      * @throws ContactDisabledException
-     *
+     * @throws CredentialsExpiredException
+     * @throws UserNotFoundException
      * @return UserInterface
      */
     private function getUser(string $sessionId): UserInterface
@@ -259,27 +290,40 @@ class WebSSOAuthenticator extends AbstractAuthenticator
 
         try {
             $successStartSession = $this->writeSessionRepository->start($provider->getLegacySession());
-        } catch (RepositoryException $exception) {
-            throw CentreonAuthenticationException::notAuthenticated($exception);
+        } catch (RepositoryException $e) {
+            throw CentreonAuthenticationException::notAuthenticated($e);
         }
 
-        if ($successStartSession === true) {
-            $sessionId = $request->getSession()->getId();
-
-            // @todo: why are we not using findUserOrFail()?
-            $authenticatedUser = $provider->getAuthenticatedUser();
-            if (null === $authenticatedUser) {
-                throw CentreonAuthenticationException::notAuthenticated();
+        if (! $successStartSession) {
+            try {
+                $this->writeSessionRepository->invalidate();
+            } catch (RepositoryException $e) {
+                throw CentreonAuthenticationException::notAuthenticated($e);
             }
 
-            $this->createTokenIfNotExist(
-                $sessionId,
-                $provider->getConfiguration()->getId(),
-                $authenticatedUser,
-                $request->getClientIp() ?? '' // @todo: what should happen if no IP was found?
-            );
-            $request->headers->set('Set-Cookie', 'PHPSESSID=' . $sessionId);
+            throw CentreonAuthenticationException::notAuthenticated();
         }
+
+        try {
+            $sessionId = $request->getSession()->getId();
+        } catch (SessionNotFoundException $e) {
+            throw CentreonAuthenticationException::notAuthenticated($e);
+        }
+
+        // @todo: why are we not using findUserOrFail()?
+        $authenticatedUser = $provider->getAuthenticatedUser();
+        if (null === $authenticatedUser) {
+            throw CentreonAuthenticationException::notAuthenticated();
+        }
+
+        $this->createTokenIfNotExist(
+            $sessionId,
+            $provider->getConfiguration()->getId(),
+            $authenticatedUser,
+            $request->getClientIp() ?? '' // @todo: what should happen if no IP was found?
+        );
+
+        $request->headers->set('Set-Cookie', 'PHPSESSID=' . $sessionId);
     }
 
     /**
@@ -323,7 +367,6 @@ class WebSSOAuthenticator extends AbstractAuthenticator
         } catch (\Exception $exception) {
             throw CentreonAuthenticationException::notAuthenticated(previous: $exception);
         }
-
     }
 
     /**

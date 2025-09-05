@@ -28,7 +28,7 @@ class ProviderException extends \Exception
     /**
      * Exception thrown when a Provider class was unexpected.
      *
-     * @param class-string $class
+     * @param string $class
      *
      * @return self
      */
