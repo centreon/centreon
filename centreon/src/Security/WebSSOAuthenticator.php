@@ -35,7 +35,6 @@ use Centreon\Domain\VersionHelper;
 use Core\Common\Domain\Exception\RepositoryException;
 use Core\Common\Infrastructure\ExceptionLogger\ExceptionLogger;
 use Core\Infrastructure\Common\Api\HttpUrlTrait;
-use Exception;
 use Core\Security\Authentication\Application\Provider\{
     ProviderAuthenticationFactoryInterface,
     ProviderAuthenticationInterface
@@ -89,7 +88,7 @@ class WebSSOAuthenticator extends AbstractAuthenticator
      * @param MenuServiceInterface $menuService
      * @param PlatformRepositoryInterface $platformRepository
      *
-     * @throws Exception
+     * @throws \Exception
      */
     public function __construct(
         private readonly AuthenticationServiceInterface $authenticationService,
