@@ -49,6 +49,7 @@ final class SLSController extends AbstractController
             $usecase();
         } catch (ProviderException|SamlException $e) {
             ExceptionLogger::create()->log($e);
+
             // TODO: improve error handling to have a response and not an exception
             throw $e;
         }
