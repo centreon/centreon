@@ -46,6 +46,10 @@ inputs:
   is_nightly:
     description: "nightly status"
     required: false
+  upload_artifacts:
+    description: "Upload packages as artifacts"
+    required: false
+    default: "false"
 
 runs:
   using: composite
