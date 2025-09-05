@@ -1,12 +1,10 @@
 import type { CommonWidgetProps, Data } from '../../models';
 
 import { Module } from '@centreon/ui';
-import { equals, last, pluck } from 'ramda';
 import FederatedComponent from '../../../../front_src/src/components/FederatedComponents';
 import NoResources from '../../NoResources';
-import { PanelOptions } from './models';
-import { labelSelectBAToDisplayPreview } from './translatedLabels';
 import { areResourcesFullfilled } from '../../utils';
+import { PanelOptions } from './models';
 
 interface Props extends CommonWidgetProps<PanelOptions> {
   panelData: Data;
