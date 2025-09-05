@@ -62,7 +62,7 @@ final class GlobalMacroResource
         #[Assert\Length(min: 1, max: 255)]
         #[Assert\Regex(
             pattern: '/^\$.*\$$/',
-            message: 'The name must start and end with a dollar sign and contain only uppercase letters, numbers, and underscores.'
+            message: 'The name must start and end with a dollar sign'
         )]
         #[ApiProperty(
             description: 'Name of the global macro',
