@@ -25,7 +25,6 @@ namespace App\ResourceConfiguration\Infrastructure\ApiPlatform\State;
 
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\Pagination\Pagination;
-use ApiPlatform\State\Pagination\PaginatorInterface;
 use ApiPlatform\State\Pagination\TraversablePaginator;
 use ApiPlatform\State\ProviderInterface;
 use App\ResourceConfiguration\Domain\Aggregate\GlobalMacro;
@@ -66,10 +65,10 @@ final readonly class ListGlobalMacrosProvider implements ProviderInterface
             );
         }
         if (
-            isset($context['filters']) &&
-            is_array($context['filters']) &&
-            isset($context['filters']['name']) &&
-            is_array($context['filters']['name'])
+            isset($context['filters'])
+            && is_array($context['filters'])
+            && isset($context['filters']['name'])
+            && is_array($context['filters']['name'])
         ) {
             if (isset($context['filters']['name']['lk']) && is_string($context['filters']['name']['lk'])) {
                 $criteria = $criteria->withOperator('lk')->withName($context['filters']['name']['lk']);
