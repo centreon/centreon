@@ -410,7 +410,7 @@ if ($o !== MASSIVE_CHANGE && $authTypeConnectedUser === CentreonAuth::AUTH_TYPE_
     );
 
     $form->addElement(
-            'password',
+        'password',
         'contact_passwd2',
         _('Confirm Password'),
         [
@@ -436,25 +436,25 @@ if ($o !== MASSIVE_CHANGE && $authTypeConnectedUser === CentreonAuth::AUTH_TYPE_
     // Autologin mangement
 
     $form->addElement(
-            'text',
-            'contact_autologin_key',
-            _('Autologin Key'),
-            [
-                    'size' => '90',
-                    'id' => 'aKey',
-                    'data-testid' => 'aKey',
-            ]
+        'text',
+        'contact_autologin_key',
+        _('Autologin Key'),
+        [
+            'size' => '90',
+            'id' => 'aKey',
+            'data-testid' => 'aKey',
+        ]
     );
 
     $form->addElement(
-            'button',
-            'contact_gen_akey',
-            _('Generate'),
-            [
-                    'onclick' => "generatePassword('aKey', '{$encodedPasswordPolicy}');",
-                    'id' => 'generateAutologinKeyButton',
-                    'data-testid' => 'generateAutologinKeyButton',
-            ]
+        'button',
+        'contact_gen_akey',
+        _('Generate'),
+        [
+            'onclick' => "generatePassword('aKey', '{$encodedPasswordPolicy}');",
+            'id' => 'generateAutologinKeyButton',
+            'data-testid' => 'generateAutologinKeyButton',
+        ]
     );
 }
 
