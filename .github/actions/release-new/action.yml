@@ -94,6 +94,8 @@ runs:
         RELEASE_CLOUD="" # (0 = not a release cloud, 1 = release cloud)
         MAJOR_VERSION=""
         MINOR_VERSION=""
+        NEW_MAJOR_VERSION=""
+        NEW_MINOR_VERSION=""
         COMPONENT_DIR=""
         PREVIOUS_STABLE_BUNDLE_TAG="${{ steps.get_previous_release_bundle_tag.outputs.previous_stable_bundle_tag }}"
         PREVIOUS_STABLE_COMPONENT_TAG=""

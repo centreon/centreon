@@ -30,6 +30,7 @@ use Centreon\Domain\RequestParameters\RequestParameters;
 use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
+use Core\Common\Domain\Exception\RepositoryException;
 use Core\Common\Infrastructure\Repository\SqlMultipleBindTrait;
 use Core\Common\Infrastructure\RequestParameters\Normalizer\BoolToEnumNormalizer;
 use Core\Contact\Application\Repository\ReadContactGroupRepositoryInterface;
@@ -125,42 +126,50 @@ class DbReadContactGroupRepository extends AbstractRepositoryDRB implements Read
      */
     public function findNamesByIds(int ...$ids): array
     {
-        if ([] === $ids) {
-            return [];
+        try {
+            if ([] === $ids) {
+                return [];
+            }
+
+            $ids = array_unique($ids);
+
+            $fields = '';
+            foreach ($ids as $index => $id) {
+                $fields .= ('' === $fields ? '' : ', ') . ':id_' . $index;
+            }
+
+            $select = <<<SQL
+                SELECT
+                    `cg_id` as `id`,
+                    `cg_name` as `name`
+                FROM
+                    `:db`.`contactgroup`
+                WHERE
+                    `cg_id` IN ({$fields})
+                SQL;
+
+            $statement = $this->db->prepare($this->translateDbName($select));
+            foreach ($ids as $index => $id) {
+                $statement->bindValue(':id_' . $index, $id, \PDO::PARAM_INT);
+            }
+            $statement->setFetchMode(\PDO::FETCH_ASSOC);
+            $statement->execute();
+
+            // Retrieve data
+            $names = [];
+            foreach ($statement as $result) {
+                /** @var array{ id: int, name: string } $result */
+                $names[$result['id']] = $result;
+            }
+
+            return $names;
+        } catch (\PDOException $e) {
+            throw new RepositoryException(
+                message: 'An error occurred while retrieving contact group names by IDs',
+                context: ['ids' => $ids],
+                previous: $e
+            );
         }
-
-        $ids = array_unique($ids);
-
-        $fields = '';
-        foreach ($ids as $index => $id) {
-            $fields .= ('' === $fields ? '' : ', ') . ':id_' . $index;
-        }
-
-        $select = <<<SQL
-            SELECT
-                `cg_id` as `id`,
-                `cg_name` as `name`
-            FROM
-                `:db`.`contactgroup`
-            WHERE
-                `cg_id` IN ({$fields})
-            SQL;
-
-        $statement = $this->db->prepare($this->translateDbName($select));
-        foreach ($ids as $index => $id) {
-            $statement->bindValue(':id_' . $index, $id, \PDO::PARAM_INT);
-        }
-        $statement->setFetchMode(\PDO::FETCH_ASSOC);
-        $statement->execute();
-
-        // Retrieve data
-        $names = [];
-        foreach ($statement as $result) {
-            /** @var array{ id: int, name: string } $result */
-            $names[$result['id']] = $result;
-        }
-
-        return $names;
     }
 
     /**

@@ -66,6 +66,7 @@
     "symfony/http-foundation": "7.3.*",
     "symfony/http-kernel": "7.3.*",
     "symfony/lock": "7.3.*",
+    "symfony/messenger": "7.3.*",
     "symfony/mime": "7.3.*",
     "symfony/monolog-bundle": "3.10.*",
     "symfony/property-info": "7.3.*",
@@ -87,7 +88,9 @@
     "friends-of-behat/mink": "1.11.*",
     "friends-of-behat/mink-extension": "2.7.*",
     "mockery/mockery": "1.6.*",
+    "pestphp/pest": "2.36.*",
     "php-vfs/php-vfs": "1.4.*",
+    "phpunit/phpunit": "10.5.*",
     "robertfausk/mink-panther-driver": "1.1.*",
     "squizlabs/php_codesniffer": "3.10.*",
     "symfony/debug-bundle": "7.3.*",
@@ -108,8 +111,7 @@
   "autoload": {
     "psr-4": {
       "": "src/",
-      "ConfigGenerateRemote\\": "www/class/config-generate-remote/",
-      "Tests\\": "tests/php/"
+      "ConfigGenerateRemote\\": "www/class/config-generate-remote/"
     },
     "classmap": [
       "www/class/",
@@ -133,6 +135,12 @@
       "www/class/centreon-clapi/centreonACL.class.php"
     ]
   },
+  "autoload-dev": {
+    "psr-4": {
+      "Centreon\\Test\\Mock\\": "tests/php/mock/",
+      "Tests\\": "tests/php/"
+    }
+  },
   "config": {
     "secure-http": false,
     "sort-packages": true,
@@ -143,7 +151,7 @@
       "*": "dist"
     },
     "allow-plugins": {
-      "pestphp/pest-plugin": false,
+      "pestphp/pest-plugin": true,
       "symfony/flex": true,
       "symfony/runtime": true
     }
@@ -204,6 +212,8 @@
     ],
     "test": "pest --do-not-cache-result",
     "test:ci": "@test --log-junit ./build/phpunit.xml --coverage-clover ./build/coverage-be.xml",
+    "test:new": "./vendor/bin/phpunit --configuration phpunit.new.xml",
+    "test:new:wip": "@test:new --group wip",
     "rector": [
       "@rector:legacy",
       "@rector:core",
@@ -253,6 +263,7 @@
       "@legacy:check",
       "@core:check",
       "@new:check",
+      "@test:new",
       "@test"
     ]
   },

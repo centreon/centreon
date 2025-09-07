@@ -26,7 +26,7 @@ services:
     platform: linux/amd64
     env_file:
       - .env
-    image: "${MYSQL_IMAGE:-bitnami/mariadb:10.11}"
+    image: "${MYSQL_IMAGE:-bitnamilegacy/mariadb:10.11}"
     ports: ["3306"]
     deploy:
       resources:

@@ -496,12 +496,18 @@ function multipleMetaServiceInDB($metas = [], $nbrDup = [])
  */
 function updateMetaServiceInDB($metaId = null)
 {
+    global $isCloudPlatform;
+
     if (! $metaId) {
         return;
     }
     updateMetaService($metaId);
-    updateMetaServiceContact($metaId);
-    updateMetaServiceContactGroup($metaId);
+
+    if (! $isCloudPlatform) {
+        updateMetaServiceContact($metaId);
+        updateMetaServiceContactGroup($metaId);
+    }
+    updateAclResourcesMetaRelations($metaId);
 }
 
 /**
@@ -511,9 +517,15 @@ function updateMetaServiceInDB($metaId = null)
  */
 function insertMetaServiceInDB()
 {
+    global $isCloudPlatform;
+
     $metaId = insertMetaService();
-    updateMetaServiceContact($metaId);
-    updateMetaServiceContactGroup($metaId);
+
+    if (! $isCloudPlatform) {
+        updateMetaServiceContact($metaId);
+        updateMetaServiceContactGroup($metaId);
+    }
+    updateAclResourcesMetaRelations($metaId);
 
     return $metaId;
 }
@@ -856,47 +868,19 @@ function updateMetaServiceContact($metaId)
         $ret[] = $userId;
     }
 
-    $values = '';
+    $values = [];
     $params = [];
 
     try {
         foreach ($ret as $key => $contactId) {
-            $values .= " (:metaId_{$key}, :contactId_{$key})";
+            $values[] = " (:metaId_{$key}, :contactId_{$key})";
             $params["metaId_{$key}"] = QueryParameter::int("metaId_{$key}", (int) $metaId);
             $params["contactId_{$key}"] = QueryParameter::int("contactId_{$key}", (int) $contactId);
         }
-        $queryAddRelation = "INSERT INTO meta_contact (meta_id, contact_id) VALUES {$values}";
-        $isTransactionActive = $pearDB->isTransactionActive();
-        if (! $isTransactionActive) {
-            $pearDB->beginTransaction();
-        }
-
-        if ($values !== '') {
+        $valuesString = implode(',', $values);
+        $queryAddRelation = "INSERT INTO meta_contact (meta_id, contact_id) VALUES {$valuesString}";
+        if ($values !== []) {
             $pearDB->insert($queryAddRelation, QueryParameters::create(array_values($params)));
-        }
-
-        if ($centreon->user->admin !== '1') {
-            // get ACL resources IDs for the current user
-            $acl = new CentreonACL($centreon->user->user_id, $centreon->user->admin);
-            $selectAclQuery = "SELECT ar.acl_res_id
-                    FROM acl_res_group_relations argr
-                    INNER JOIN acl_resources ar on ar.acl_res_id = argr.acl_res_id and ar.acl_res_activate = '1'
-                    WHERE acl_group_id IN ({$acl->getAccessGroupsString('ID')})";
-            $aclResIds = $pearDB->fetchAllAssociative($selectAclQuery);
-            $paramsAcl = [QueryParameter::int('metaId', (int) $metaId)];
-            $values = '';
-            foreach ($aclResIds as $aclResId) {
-                $values .= " (:acl_res_id_{$aclResId['acl_res_id']}, :metaId)";
-                $paramsAcl[] = QueryParameter::int("acl_res_id_{$aclResId['acl_res_id']}", (int) $aclResId['acl_res_id']);
-            }
-            // update acl_resources_meta_relations
-            if ($values !== '') {
-                $queryAcl = "INSERT INTO acl_resources_meta_relations (acl_res_id, meta_id) VALUES {$values}";
-                $pearDB->insert($queryAcl, QueryParameters::create($paramsAcl));
-            }
-        }
-        if (! $isTransactionActive) {
-            $pearDB->commitTransaction();
         }
     } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
         CentreonLog::create()->error(
@@ -907,20 +891,6 @@ function updateMetaServiceContact($metaId)
             ],
             $exception
         );
-        if (! $isTransactionActive) {
-            try {
-                $pearDB->rollBackTransaction();
-            } catch (ConnectionException $rollbackException) {
-                CentreonLog::create()->error(
-                    CentreonLog::TYPE_SQL,
-                    "Rollback failed for updating meta service contact: {$rollbackException->getMessage()}",
-                    [
-                        'metaId' => $metaId,
-                        'exception' => $rollbackException->getContext(),
-                    ]
-                );
-            }
-        }
     }
 }
 
@@ -990,6 +960,56 @@ function updateMetaServiceContactGroup($metaId = null)
                 $exception
             );
         }
+    }
+}
+
+function updateAclResourcesMetaRelations(int $metaId): void
+{
+    global $pearDB, $centreon;
+    if ($metaId <= 0 || $centreon->user->admin === '1') {
+        return;
+    }
+
+    // get ACL resources IDs for the current user
+    $acl = new CentreonACL($centreon->user->user_id, $centreon->user->admin);
+    $selectAclQuery = "SELECT DISTINCT ar.acl_res_id
+            FROM acl_res_group_relations argr
+            INNER JOIN acl_resources ar on ar.acl_res_id = argr.acl_res_id and ar.acl_res_activate = '1'
+            WHERE acl_group_id IN ({$acl->getAccessGroupsString('ID')})";
+    try {
+        $aclResIds = $pearDB->fetchAllAssociative($selectAclQuery);
+        if ($aclResIds !== []) {
+            $aclResIdsImploded = implode(',', array_map(fn ($row) => $row['acl_res_id'], $aclResIds));
+
+            // clean old relations
+            $queryClean = "DELETE FROM acl_resources_meta_relations WHERE meta_id = :metaId AND acl_res_id IN ({$aclResIdsImploded})";
+            $pearDB->delete($queryClean, QueryParameters::create([
+                QueryParameter::int('metaId', (int) $metaId),
+            ]));
+
+            // insert new relations
+            $paramsAcl = [QueryParameter::int('metaId', (int) $metaId)];
+            $values = [];
+            foreach ($aclResIds as $aclResId) {
+                $values[] = " (:acl_res_id_{$aclResId['acl_res_id']}, :metaId)";
+                $paramsAcl[] = QueryParameter::int("acl_res_id_{$aclResId['acl_res_id']}", (int) $aclResId['acl_res_id']);
+            }
+            // update acl_resources_meta_relations
+            if ($values !== []) {
+                $valuesString = implode(',', $values);
+                $queryAcl = "INSERT INTO acl_resources_meta_relations (acl_res_id, meta_id) VALUES {$valuesString}";
+                $pearDB->insert($queryAcl, QueryParameters::create($paramsAcl));
+            }
+        }
+    } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
+        CentreonLog::create()->error(
+            CentreonLog::TYPE_SQL,
+            'Error updating acl_resources_meta_relations',
+            [
+                'metaId' => $metaId,
+            ],
+            $exception
+        );
     }
 }
 

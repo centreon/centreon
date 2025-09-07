@@ -34,6 +34,32 @@ $version = 'xx.xx.x';
 $errorMessage = '';
 
 /**
+ * Add Column Encryption ready for poller configuration
+ */
+$addIsEncryptionReadyColumn = function () use ($pearDB, $pearDBO, &$errorMessage): void {
+    if ($pearDB->isColumnExist('nagios_server', 'is_encryption_ready') !== 1) {
+        $errorMessage = "Unable to add 'is_encryption_ready' column to 'nagios_server' table";
+        $pearDB->query("ALTER TABLE `nagios_server` ADD COLUMN `is_encryption_ready` enum('0', '1') NOT NULL DEFAULT '1'");
+    }
+    if ($pearDBO->isColumnExist('instances', 'is_encryption_ready') !== 1) {
+        $errorMessage = "Unable to add 'is_encryption_ready' column to 'instances' table";
+        $pearDBO->query("ALTER TABLE `instances` ADD COLUMN `is_encryption_ready` enum('0', '1') NOT NULL DEFAULT '0'");
+    }
+};
+
+/**
+ * Set encryption ready to false by default for all existing pollers to ensure retrocompatibility
+ */
+$setEncryptionReadyToFalseByDefaultOnNagiosServer = function () use ($pearDB, &$errorMessage): void {
+    $errorMessage = "Unable to update 'is_encryption_ready' column on 'nagios_server' table";
+    $pearDB->executeQuery(
+        <<<'SQL'
+            UPDATE nagios_server SET `is_encryption_ready` = '0' WHERE `localhost` = '0'
+            SQL
+    );
+};
+
+/**
  * Add column `show_deprecated_custom_views` to contact table.
  * @var CentreonDB $pearDB
  */
@@ -64,6 +90,31 @@ $updateDashboardAndCustomViewsTopology = function () use (&$errorMessage, &$pear
             UPDATE topology SET topology_order = 1 WHERE topology_name = "Dashboards"
             SQL
     );
+};
+
+/**
+ * Set encryption ready to false by default for all existing pollers to ensure retrocompatibility
+ */
+$setEncryptionReadyToFalseByDefaultOnInstances = function () use ($pearDB, $pearDBO, &$errorMessage): void {
+    $errorMessage = "Unable to update 'is_encryption_ready' column on 'nagios_server' table";
+
+    /** @var CentreonDB $pearDB */
+    $instanceIds = $pearDB->fetchFirstColumn(
+        <<<'SQL'
+                SELECT `id` FROM nagios_server WHERE `localhost` = '0';
+            SQL
+    );
+    if ($instanceIds === []) {
+        return;
+    }
+
+    $instanceIdsAsString = implode(',', $instanceIds);
+    $statement = $pearDBO->prepare(
+        <<<SQL
+            UPDATE instances SET `is_encryption_ready` = '0' WHERE `instance_id` IN ({$instanceIdsAsString});
+            SQL
+    );
+    $statement->execute();
 };
 
 /**
@@ -161,6 +212,41 @@ $alterContactPagerSize = function () use ($pearDB, &$errorMessage): void {
 };
 
 /**
+ * @var CentreonDB $pearDB
+ */
+$addImageFolderResourceAccessRelationTable = function () use ($pearDB, &$errorMessage): void {
+    $errorMessage = 'Failed to create relation table acl_resources_image_folder_relations';
+
+    $pearDB->executeStatement(
+        <<<'SQL'
+                CREATE TABLE IF NOT EXISTS `acl_resources_image_folder_relations` (
+                      `dir_id` int(11) DEFAULT NULL COMMENT 'Unique identifier of the image folder',
+                      `acl_res_id` int(11) DEFAULT NULL COMMENT 'Unique identifier of the ACL resource',
+                      KEY `dir_id` (`dir_id`),
+                      KEY `acl_res_id` (`acl_res_id`),
+                      CONSTRAINT `acl_resources_image_folder_relations_ibfk_1` FOREIGN KEY (`dir_id`) REFERENCES `view_img_dir` (`dir_id`) ON DELETE CASCADE,
+                      CONSTRAINT `acl_resources_image_folder_relations_ibfk_2` FOREIGN KEY (`acl_res_id`) REFERENCES `acl_resources` (`acl_res_id`) ON DELETE CASCADE
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Relation table between ACL resources and image folders';
+            SQL
+    );
+};
+
+/**
+ * @var CentreonDB $pearDB
+ */
+$addAllImageFoldersColumn = function () use ($pearDB, &$errorMessage): void {
+    $errorMessage = 'Failed to add column all_image_folders to acl_resources table';
+
+    if (! $pearDB->isColumnExist('acl_resources', 'all_image_folders')) {
+        $pearDB->executeStatement(
+            <<<'SQL'
+                    ALTER TABLE acl_resources ADD COLUMN `all_image_folders` TINYINT NOT NULL DEFAULT '0' AFTER `all_servicegroups`
+                SQL
+        );
+    }
+};
+
+/*
  * Generate a token based on the first found admin contact to update old agent_configurations
  *
  * @return array{token_name: string, creator_id: int}
@@ -296,18 +382,33 @@ $alignCMAAgentConfigurationWithNewSchema = function () use ($pearDB, &$errorMess
     }
 };
 
-try {
-    // DDL statements for real time database
-    // TODO add your function calls to update the real time database structure here
+$updateOnPremiseACLs = function () use ($pearDB, &$errorMessage): void {
+    $errorMessage = 'Failed to set all_image_folders to 1 for existing acl resource accesses';
+    $pearDB->update(
+        <<<'SQL'
+                UPDATE acl_resources SET all_image_folders = '1' WHERE cloud_specific = '0'
+            SQL
+    );
+};
 
+try {
+
+    $addIsEncryptionReadyColumn();
     // DDL statements for configuration database
+    $addImageFolderResourceAccessRelationTable();
+    $addAllImageFoldersColumn();
     $alterContactPagerSize();
 
-    // Transactional queries for configuration database
     if (! $pearDB->inTransaction()) {
         $pearDB->beginTransaction();
     }
 
+    if (! $pearDBO->inTransaction()) {
+        $pearDBO->beginTransaction();
+    }
+
+    $setEncryptionReadyToFalseByDefaultOnNagiosServer();
+    $setEncryptionReadyToFalseByDefaultOnInstances();
     $alignCMAAgentConfigurationWithNewSchema();
     $updateDashboardAndCustomViewsTopology();
     $updateContactsShowDeprecatedCustomViews();
@@ -315,8 +416,10 @@ try {
     $bbdoCfgUpdate();
     $addResourceStatusSearchModeOption();
     $flagContactsAsServiceAccount();
+    $updateOnPremiseACLs();
 
     $pearDB->commit();
+    $pearDBO->commit();
 
 } catch (Throwable $exception) {
     CentreonLog::create()->error(
@@ -327,6 +430,9 @@ try {
     try {
         if ($pearDB->inTransaction()) {
             $pearDB->rollBack();
+        }
+        if ($pearDBO->inTransaction()) {
+            $pearDBO->rollBack();
         }
     } catch (PDOException $rollbackException) {
         CentreonLog::create()->error(
