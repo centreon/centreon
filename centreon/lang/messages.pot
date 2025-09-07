@@ -853,6 +853,10 @@ msgid "Add a template"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
+msgid "Add a token"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
 #: centreon/www/install/smarty_translate.php
 msgid "Add a widget"
 msgstr ""
@@ -4925,10 +4929,6 @@ msgstr ""
 
 #: centreon/www/install/smarty_translate.php
 msgid "Dissociate this view ?"
-msgstr ""
-
-#: centreon/www/include/configuration/configServers/listServers.php
-msgid "Distant Poller"
 msgstr ""
 
 #: centreon/www/include/configuration/configServers/formServers.php
@@ -13102,6 +13102,7 @@ msgstr ""
 #: centreon/www/include/configuration/configKnowledge/search.php
 #: centreon/www/include/configuration/configObject/host/listHost.php
 #: centreon/www/include/configuration/configObject/host/listHost.php
+#: centreon/www/include/configuration/configServers/listServers.php
 #: centreon/www/include/eventLogs/xml/data.php
 #: centreon/www/include/monitoring/downtime/AddDowntime.php
 #: centreon/www/include/monitoring/objectDetails/hostDetails.php
@@ -18863,6 +18864,10 @@ msgid "Welcome to the agent configuration page"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
+msgid "Welcome to the authentication tokens page"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
 msgid "Welcome to the notifications interface"
 msgstr ""
 
@@ -19476,6 +19481,13 @@ msgstr ""
 
 #: centreon/www/install/front_translate.php
 msgid "You can choose only one resource for each resource type."
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid ""
+"You can create two types of tokens: API tokens to manipulate Centreon "
+"objects via the API, or CMA tokens to allow the CMA monitoring agent to "
+"authenticate to the corresponding poller."
 msgstr ""
 
 #: centreon/www/install/front_translate.php
