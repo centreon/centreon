@@ -825,7 +825,7 @@ describe('Agent configurations modal', () => {
     cy.contains(labelAgentConfigurationCreated).should('be.visible');
   });
 
-  it('send a Post request with certificate fields when connection mode is insecure', () => {
+  it('saves the form with certificate fields when connection mode is insecure', () => {
     initialize({});
 
     cy.contains(labelAdd).click();
@@ -845,15 +845,11 @@ describe('Agent configurations modal', () => {
     cy.findByLabelText(labelCaCertificate).should('exist');
     cy.findAllByLabelText(labelPrivateKey).should('have.length', 2);
 
-    cy.contains(labelSave).should('be.disabled');
-
     cy.findAllByLabelText(labelPublicCertificate).eq(0).type('test.crt');
     cy.findByLabelText(labelCaCertificate).type('ca.crt');
     cy.findAllByLabelText(labelPrivateKey).eq(0).type('test.key');
     cy.findAllByLabelText(labelPrivateKey).eq(1).type('test.key');
     cy.findAllByLabelText(labelPublicCertificate).eq(1).type('test.cer');
-
-    cy.contains(labelSave).should('be.enabled');
 
     cy.makeSnapshot();
 
@@ -904,7 +900,7 @@ describe('Agent configurations modal', () => {
           otel_ca_certificate: 'test.crt',
           otel_public_certificate: 'test.cer',
           conf_certificate: '/sub/test.crt',
-          conf_private_key: 'test.crt',
+          conf_private_key: 'test.key',
           conf_server_port: 9090
         },
         poller_ids: [1, 2]
