@@ -1,4 +1,3 @@
-import { labelPortExpectedAtMost } from '../../VaultConfiguration/translatedLabels';
 import initialize from './initialize';
 
 import {
@@ -45,6 +44,8 @@ import {
   labelWarningEncryptionLevelTelegraf,
   labelWelcomeToTheAgentsConfigurationPage
 } from '../translatedLabels';
+
+import { labelPortExpectedAtMost } from '../../VaultConfiguration/translatedLabels';
 
 describe('Agent configurations', () => {
   it('displays a welcome label when the listing is empty', () => {
