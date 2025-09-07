@@ -874,6 +874,7 @@ describe('Agent configurations modal', () => {
     cy.findByLabelText(labelName).type('Insecure Agent');
     cy.findByLabelText(labelPollers).click();
     cy.contains('poller1').click();
+    cy.contains('Add agent configuration').click();
     cy.findAllByLabelText(labelPort).eq(0).clear().type('1234');
 
     cy.findAllByLabelText(labelPublicCertificate).eq(0).should('exist');
