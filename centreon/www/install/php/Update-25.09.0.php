@@ -399,10 +399,6 @@ try {
     $addAllImageFoldersColumn();
     $alterContactPagerSize();
 
-    if (! $pearDB->inTransaction()) {
-        $pearDB->beginTransaction();
-    }
-
     if (! $pearDBO->inTransaction()) {
         $pearDBO->beginTransaction();
     }
