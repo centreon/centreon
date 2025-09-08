@@ -398,6 +398,9 @@ try {
     $addImageFolderResourceAccessRelationTable();
     $addAllImageFoldersColumn();
     $alterContactPagerSize();
+$addDeprecateCustomViewsToContact();
+$bbdoDefaultUpdate();
+$addServiceFlagToContacts();
 
     if (! $pearDBO->inTransaction()) {
         $pearDBO->beginTransaction();
