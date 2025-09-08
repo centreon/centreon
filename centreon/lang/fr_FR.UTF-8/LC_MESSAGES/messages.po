@@ -14701,12 +14701,6 @@ msgstr "Configuration du Serveur"
 msgid "Server Configuration Wizard"
 msgstr "Assistant de configuration du serveur"
 
-#: centreon/www/install/front_translate.php
-#: centreon/www/install/react_translation.php
-#: centreon/www/install/centreon_broker_translation.php
-msgid "Server address"
-msgstr "Adresse du serveur"
-
 #: centreon/www/include/configuration/configServers/formServers.php
 msgid "Server Information"
 msgstr "Informations sur le serveur"
@@ -14715,6 +14709,12 @@ msgstr "Informations sur le serveur"
 #: centreon/www/install/react_translation.php
 msgid "Server Name"
 msgstr "Nom du serveur"
+
+#: centreon/www/install/centreon_broker_translation.php
+#: centreon/www/install/front_translate.php
+#: centreon/www/install/react_translation.php
+msgid "Server address"
+msgstr "Adresse du serveur"
 
 #: centreon/www/install/centreon_broker_translation.php
 msgid "Server port"
@@ -16287,18 +16287,6 @@ msgstr "Le champ %s avec la valeur '%d' n'existe pas"
 msgid "The '%s' command name already exists"
 msgstr "Le nom de commande '%s' existe déjà"
 
-#: centreon/www/include/configuration/configServers/formServers.php
-msgid "The address is already registered"
-msgstr "L'adresse est déjà enregistrée"
-
-#: centreon/www/include/configuration/configServers/formServers.php
-msgid "The address is already registered on another poller"
-msgstr "L'adresse est déjà enregistrée sur un autre collecteur"
-
-#: centreon/www/include/configuration/configServers/formServers.php
-msgid "The address is incorrect"
-msgstr "L'adresse est incorrecte"
-
 #: centreon/src/Centreon/Domain/Service/JsonValidator/Validator.php
 msgid "The JSON cannot be decoded"
 msgstr "La réponse au format JSON ne peut pas être décodée"
@@ -16323,6 +16311,18 @@ msgstr "Le nom de configuration additionnelle '%s' existe déjà"
 msgid "The address '%s' of '%s' is not valid or not resolvable"
 msgstr ""
 "L'adresse '%s' de la plateforme '%s' n'est pas valide ou ne peut être résolue"
+
+#: centreon/www/include/configuration/configServers/formServers.php
+msgid "The address is already registered"
+msgstr "L'adresse est déjà enregistrée"
+
+#: centreon/www/include/configuration/configServers/formServers.php
+msgid "The address is already registered on another poller"
+msgstr "L'adresse est déjà enregistrée sur un autre collecteur"
+
+#: centreon/www/include/configuration/configServers/formServers.php
+msgid "The address is incorrect"
+msgstr "L'adresse est incorrecte"
 
 #: centreon/www/install/front_translate.php
 msgid "The address is invalid"

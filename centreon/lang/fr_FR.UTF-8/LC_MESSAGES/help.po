@@ -65,6 +65,10 @@ msgstr "Valeur absolue pour le niveau warning (seuil bas)."
 msgid "Additional Remote Server to which this server will be attached"
 msgstr "Remote Server additionnel auquel ce collecteur sera lié"
 
+#: centreon/www/include/configuration/configServers/help.php
+msgid "Address of the poller"
+msgstr "Adresse du collecteur"
+
 #: centreon/www/include/configuration/configObject/contact/help.php
 msgid ""
 "Addresses 1-6 are optional and used to define additional \"addresses\" for "
@@ -1868,10 +1872,6 @@ msgid ""
 msgstr ""
 "Adresse IP ou nom d'hôte à utiliser pour communiquer avec l'API Gorgone. "
 "Gardez la valeur par défaut (127.0.0.1)."
-
-#: centreon/www/include/configuration/configServers/help.php
-msgid "Address of the poller"
-msgstr "Adresse du collecteur"
 
 #: centreon/www/include/configuration/configCentreonBroker/help.php
 msgid "IP address or hostname of the database server."
