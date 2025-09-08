@@ -121,14 +121,14 @@ const emptyServiceMetrics: Data = {
   metrics: [],
   resources: [
     {
-        "resourceType": "host",
-        "resources": []
+      resourceType: 'host',
+      resources: []
     },
     {
-        "resourceType": "service",
-        "resources": []
+      resourceType: 'service',
+      resources: []
     }
-]
+  ]
 };
 
 const metaServiceData: Data = {
@@ -185,7 +185,7 @@ const initializeComponent = ({
     cy.interceptAPIRequest({
       alias: 'getLineChart',
       method: Method.GET,
-      path: `${getMetricsEndpoint({ hostId: 1, serviceId: 1, metricName: data.metrics[0].name })}**`,
+      path: `${getMetricsEndpoint({ hostId: 1, serviceId: 1, metricName: data.metrics?.[0]?.name })}**`,
       response: lineChart
     });
 
@@ -197,6 +197,13 @@ const initializeComponent = ({
         playlistHash: 'hash',
         widgetId: '1'
       })}`,
+      response: lineChart
+    });
+
+    cy.interceptAPIRequest({
+      alias: 'getMetaServiceChart',
+      method: Method.GET,
+      path: '**monitoring/metaservice/1/metrics/free',
       response: lineChart
     });
   });
@@ -613,13 +620,6 @@ describe('Single metric Widget', () => {
       data: metaServiceData
     });
 
-    cy.waitForRequest('@getLineChart').then(({ request }) => {
-      const searchParameters = request.url.searchParams;
-
-      expect(searchParameters.get('search')).to.equal(
-        '{"$and":[{"metaservice.id":{"$in":[1]}}]}'
-      );
-      expect(searchParameters.get('metrics_names')).to.equal(null);
-    });
+    cy.waitForRequest('@getMetaServiceChart');
   });
 });
