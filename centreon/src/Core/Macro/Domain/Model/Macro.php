@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,6 +39,8 @@ class Macro
     private string $description = '';
 
     private int $order = 0;
+
+    private bool $shouldBeEncrypted = false;
 
     /**
      * @param int $ownerId
@@ -78,6 +80,8 @@ class Macro
 
     public function setValue(string $value): self
     {
+        Assertion::maxLength($this->name, self::MAX_NAME_LENGTH, "{$this->shortName}::name");
+        Assertion::maxLength($this->value, self::MAX_VALUE_LENGTH, "{$this->shortName}::value");
         $this->value = $value;
 
         return $this;
@@ -165,5 +169,17 @@ class Macro
         }
 
         return [$directMacros, $inheritedMacros];
+    }
+
+    public function setShouldBeEncrypted(bool $shouldBeEncrypted): self
+    {
+        $this->shouldBeEncrypted = $shouldBeEncrypted;
+
+        return $this;
+    }
+
+    public function shouldBeEncrypted(): bool
+    {
+        return $this->shouldBeEncrypted;
     }
 }

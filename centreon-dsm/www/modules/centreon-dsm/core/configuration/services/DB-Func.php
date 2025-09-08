@@ -1,34 +1,19 @@
 <?php
 
 /*
- * Copyright 2005-2021 Centreon
- * Centreon is developed by : Julien Mathis and Romain Le Merlus under
- * GPL Licence 2.0.
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation ; either version 2 of the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <http://www.gnu.org/licenses>.
- *
- * Linking this program statically or dynamically with other modules is making a
- * combined work based on this program. Thus, the terms and conditions of the GNU
- * General Public License cover the whole combination.
- *
- * As a special exception, the copyright holders of this program give Centreon
- * permission to link this program with independent modules to produce an executable,
- * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of Centreon choice, provided that
- * Centreon also meet, for each linked independent module, the terms  and conditions
- * of the license of that module. An independent module is a module which is not
- * derived from this program. If you modify this program, you may extend this
- * exception to your version of the program, but you are not obliged to do so. If you
- * do not wish to do so, delete this exception statement from your version.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * For more information : contact@centreon.com
  *
@@ -196,7 +181,7 @@ function enablePoolInDB($pool_id = null, $pool_arr = [])
 
             $listServices = getListServiceForPool($id);
             if (! empty($listServices)) {
-                $bindPlaceholders = array_map(fn(int $index) => ':service_id_' . $index, array_keys($listServices));
+                $bindPlaceholders = array_map(fn (int $index) => ':service_id_' . $index, array_keys($listServices));
                 $bindPlaceholdersAsString = implode(', ', $bindPlaceholders);
                 $query = sprintf(
                     <<<'SQL'
@@ -207,7 +192,7 @@ function enablePoolInDB($pool_id = null, $pool_arr = [])
                     $bindPlaceholdersAsString
                 );
 
-                $bindValues = array_map(fn(int $serviceId) => [$serviceId, \PDO::PARAM_INT], $listServices);
+                $bindValues = array_map(fn (int $serviceId) => [$serviceId, PDO::PARAM_INT], $listServices);
                 $bindParams = array_combine($bindPlaceholders, $bindValues);
                 $statement = $pearDB->prepareQuery($query);
                 $pearDB->executePreparedQuery($statement, $bindParams, true);
@@ -264,7 +249,7 @@ function disablePoolInDB($pool_id = null, $pool_arr = [])
             // Update services in Centreon configuration
             $listServices = getListServiceForPool($id);
             if (! empty($listServices)) {
-                $bindPlaceholders = array_map(fn(int $index) => ':service_id_' . $index, array_keys($listServices));
+                $bindPlaceholders = array_map(fn (int $index) => ':service_id_' . $index, array_keys($listServices));
                 $bindPlaceholdersAsString = implode(', ', $bindPlaceholders);
                 $query = sprintf(
                     <<<'SQL'
@@ -275,7 +260,7 @@ function disablePoolInDB($pool_id = null, $pool_arr = [])
                     $bindPlaceholdersAsString
                 );
 
-                $bindValues = array_map(fn(int $serviceId) => [$serviceId, \PDO::PARAM_INT], $listServices);
+                $bindValues = array_map(fn (int $serviceId) => [$serviceId, PDO::PARAM_INT], $listServices);
                 $bindParams = array_combine($bindPlaceholders, $bindValues);
                 $statement = $pearDB->prepareQuery($query);
                 $pearDB->executePreparedQuery($statement, $bindParams, true);
@@ -308,7 +293,7 @@ function deletePoolInDB($pools = [])
             // Delete services in Centreon configuration
             $listServices = getListServiceForPool($key);
             if (! empty($listServices)) {
-                $bindPlaceholders = array_map(fn(int $index) => ':service_id_' . $index, array_keys($listServices));
+                $bindPlaceholders = array_map(fn (int $index) => ':service_id_' . $index, array_keys($listServices));
                 $bindPlaceholdersAsString = implode(', ', $bindPlaceholders);
                 $query = sprintf(
                     <<<'SQL'
@@ -318,7 +303,7 @@ function deletePoolInDB($pools = [])
                     $bindPlaceholdersAsString
                 );
 
-                $bindValues = array_map(fn(int $serviceId) => [$serviceId, \PDO::PARAM_INT], $listServices);
+                $bindValues = array_map(fn (int $serviceId) => [$serviceId, PDO::PARAM_INT], $listServices);
                 $bindParams = array_combine($bindPlaceholders, $bindValues);
                 $statement = $pearDB->prepareQuery($query);
                 $pearDB->executePreparedQuery($statement, $bindParams, true);
@@ -442,15 +427,15 @@ function multiplePoolInDB($pool = [], $nbrDup = [])
                 unset($row['pool_id']);
 
                 $fields = [
-                    'pool_name' => \PDO::PARAM_STR,
-                    'pool_host_id' => \PDO::PARAM_INT,
-                    'pool_description' => \PDO::PARAM_STR,
-                    'pool_number' => \PDO::PARAM_INT,
-                    'pool_prefix' => \PDO::PARAM_STR,
-                    'pool_cmd_id' => \PDO::PARAM_INT,
-                    'pool_args' => \PDO::PARAM_STR,
-                    'pool_activate' => \PDO::PARAM_STR,
-                    'pool_service_template_id' => \PDO::PARAM_INT,
+                    'pool_name' => PDO::PARAM_STR,
+                    'pool_host_id' => PDO::PARAM_INT,
+                    'pool_description' => PDO::PARAM_STR,
+                    'pool_number' => PDO::PARAM_INT,
+                    'pool_prefix' => PDO::PARAM_STR,
+                    'pool_cmd_id' => PDO::PARAM_INT,
+                    'pool_args' => PDO::PARAM_STR,
+                    'pool_activate' => PDO::PARAM_STR,
+                    'pool_service_template_id' => PDO::PARAM_INT,
                 ];
 
                 for ($i = 1; $i <= $nbrDup[$key]; $i++) {
@@ -460,7 +445,7 @@ function multiplePoolInDB($pool = [], $nbrDup = [])
                     $row['pool_activate'] = '0';
 
                     foreach ($fields as $field => $type) {
-                        $parameters[":{$field}"] = [$row[$field], $row[$field] === null ? \PDO::PARAM_NULL : $type];
+                        $parameters[":{$field}"] = [$row[$field], $row[$field] === null ? PDO::PARAM_NULL : $type];
                     }
 
                     if (! testPoolExistence($row['pool_name'])) {
@@ -830,7 +815,7 @@ function insertPool($ret = [])
 
         $parameters = [];
         foreach ($fields as $field => $type) {
-            $field === 'pool_activate' ? $value = $ret[$field][$field] : $value = $ret[$field] ?? null;
+            $value = $field === 'pool_activate' ? $ret[$field][$field] : $ret[$field] ?? null;
             $parameters[":{$field}"] = [$value, $value !== null ? $type : PDO::PARAM_NULL];
         }
 
@@ -924,7 +909,7 @@ function updatePool($pool_id = null)
 
         $parameters = [];
         foreach ($fields as $field => $type) {
-            $field === 'pool_activate' ? $value = $ret[$field][$field] : $value = $ret[$field] ?? null;
+            $value = $field === 'pool_activate' ? $ret[$field][$field] : $ret[$field] ?? null;
             $parameters[":{$field}"] = [$value, $value !== null ? $type : PDO::PARAM_NULL];
         }
 

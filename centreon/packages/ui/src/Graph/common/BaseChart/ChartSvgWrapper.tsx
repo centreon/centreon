@@ -8,6 +8,7 @@ import { ChartAxis } from '../../Chart/models';
 import Axes from '../Axes';
 import Grids from '../Grids';
 import { Line, TimeValue } from '../timeSeries/models';
+import { computeGElementMarginLeft } from '../utils';
 
 interface Props {
   allUnits: Array<string>;
@@ -58,10 +59,10 @@ const ChartSvgWrapper = ({
       width="100%"
     >
       <Group.Group
-        left={
-          maxAxisCharacters * 5 +
-          (hasSecondUnit ? margin.top * 0.8 : margin.top * 0.6)
-        }
+        left={computeGElementMarginLeft({
+          maxCharacters: maxAxisCharacters,
+          hasSecondUnit
+        })}
         top={margin.top}
       >
         {showGridLines && (

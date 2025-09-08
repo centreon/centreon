@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,17 +24,17 @@ require_once __DIR__ . '/../../class/centreonLog.class.php';
 
 $centreonLog = new CentreonLog();
 
-//error specific content
+// error specific content
 $versionOfTheUpgrade = 'UPGRADE - 24.07.0: ';
 $errorMessage = '';
 
-$deleteVaultTables = function(CentreonDB $pearDB) use(&$errorMessage): void {
+$deleteVaultTables = function (CentreonDB $pearDB) use (&$errorMessage): void {
     $errorMessage = 'Unable to drop table vault configuration';
-        $pearDB->query(
-            <<<'SQL'
-                DROP TABLE IF EXISTS `vault_configuration`
-                SQL
-        );
+    $pearDB->query(
+        <<<'SQL'
+            DROP TABLE IF EXISTS `vault_configuration`
+            SQL
+    );
 
     $errorMessage = 'Unable to drop table vault';
     $pearDB->query(
@@ -45,18 +45,18 @@ $deleteVaultTables = function(CentreonDB $pearDB) use(&$errorMessage): void {
 
 };
 
-$updateCfgResourceTable = function (CentreonDB $pearDB) use(&$errorMessage): void {
+$updateCfgResourceTable = function (CentreonDB $pearDB) use (&$errorMessage): void {
     $errorMessage = 'Unable to update table cfg_resource';
-    if (!$pearDB->isColumnExist('cfg_resource', 'is_password')) {
+    if (! $pearDB->isColumnExist('cfg_resource', 'is_password')) {
         $pearDB->query(
             <<<'SQL'
-            ALTER TABLE `cfg_resource` ADD COLUMN `is_password` tinyint(1) NOT NULL DEFAULT 0
-            SQL
+                ALTER TABLE `cfg_resource` ADD COLUMN `is_password` tinyint(1) NOT NULL DEFAULT 0
+                SQL
         );
     }
 };
 
-$updateBrokerCfgFieldTable = function (CentreonDB $pearDB) use(&$errorMessage): void {
+$updateBrokerCfgFieldTable = function (CentreonDB $pearDB) use (&$errorMessage): void {
     $errorMessage = 'Unable to update table cb_field';
     $pearDB->query(
         <<<'SQL'
@@ -76,7 +76,7 @@ try {
     $updateBrokerCfgFieldTable($pearDB);
 
     $pearDB->commit();
-} catch (\Exception $e) {
+} catch (Exception $e) {
 
     if ($pearDB->inTransaction()) {
         $pearDB->rollBack();
@@ -90,5 +90,5 @@ try {
         . ' - Trace : ' . $e->getTraceAsString()
     );
 
-    throw new \Exception($versionOfTheUpgrade . $errorMessage, (int) $e->getCode(), $e);
+    throw new Exception($versionOfTheUpgrade . $errorMessage, (int) $e->getCode(), $e);
 }

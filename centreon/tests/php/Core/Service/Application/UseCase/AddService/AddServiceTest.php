@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -65,7 +65,8 @@ use Tests\Core\Service\Infrastructure\API\AddService\AddServicePresenterStub;
 
 beforeEach(function (): void {
     $this->useCasePresenter = new AddServicePresenterStub(
-        $this->presenterFormatter = $this->createMock(PresenterFormatterInterface::class));
+        $this->presenterFormatter = $this->createMock(PresenterFormatterInterface::class)
+    );
     $this->addUseCase = new AddService(
         $this->readMonitoringServerRepository = $this->createMock(ReadMonitoringServerRepositoryInterface::class),
         $this->writeMonitoringServerRepository = $this->createMock(WriteMonitoringServerRepositoryInterface::class),
@@ -760,12 +761,12 @@ it('should present an AddServiceResponse when everything has gone well', functio
             ->and($expectedMacro->description)->toBe('');
     }
     expect($dto->groups)->toBe(
-       [['id' => $serviceGroup->getId(), 'name' => $serviceGroup->getName()]]
+        [['id' => $serviceGroup->getId(), 'name' => $serviceGroup->getName()]]
     );
     expect($dto->categories)->toBe(
-       [
-           ['id' => $categoryA->getId(), 'name' => $categoryA->getName()],
-           ['id' => $categoryB->getId(), 'name' => $categoryB->getName()],
-       ]
+        [
+            ['id' => $categoryA->getId(), 'name' => $categoryA->getName()],
+            ['id' => $categoryB->getId(), 'name' => $categoryB->getName()],
+        ]
     );
 });

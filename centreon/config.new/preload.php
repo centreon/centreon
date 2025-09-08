@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /*
  * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
@@ -18,7 +16,10 @@ declare(strict_types=1);
  * limitations under the License.
  *
  * For more information : contact@centreon.com
+ *
  */
+
+declare(strict_types=1);
 
 if (file_exists(dirname(__DIR__) . '/var/cache/prod/App_Shared_Infrastructure_Symfony_KernelProdContainer.preload.php')) {
     require_once dirname(__DIR__) . '/var/cache/prod/App_Shared_Infrastructure_Symfony_KernelProdContainer.preload.php';

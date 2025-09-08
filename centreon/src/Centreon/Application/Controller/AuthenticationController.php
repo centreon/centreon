@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2019 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -23,16 +23,16 @@ declare(strict_types=1);
 
 namespace Centreon\Application\Controller;
 
-use FOS\RestBundle\View\View;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
-use Centreon\Domain\Authentication\UseCase\Logout;
-use Centreon\Domain\Authentication\UseCase\LogoutRequest;
 use Centreon\Domain\Authentication\UseCase\AuthenticateApi;
 use Centreon\Domain\Authentication\UseCase\AuthenticateApiRequest;
 use Centreon\Domain\Authentication\UseCase\AuthenticateApiResponse;
+use Centreon\Domain\Authentication\UseCase\Logout;
+use Centreon\Domain\Authentication\UseCase\LogoutRequest;
 use Core\Security\Authentication\Domain\Exception\AuthenticationException;
+use FOS\RestBundle\View\View;
 use Security\Infrastructure\Authentication\API\Model_2110\ApiAuthenticationFactory;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @package Centreon\Application\Controller
@@ -65,8 +65,8 @@ class AuthenticationController extends AbstractController
         } catch (AuthenticationException $e) {
             return $this->view(
                 [
-                    "code" => Response::HTTP_UNAUTHORIZED,
-                    "message" => _(self::INVALID_CREDENTIALS_MESSAGE),
+                    'code' => Response::HTTP_UNAUTHORIZED,
+                    'message' => _(self::INVALID_CREDENTIALS_MESSAGE),
                 ],
                 Response::HTTP_UNAUTHORIZED
             );
@@ -80,8 +80,8 @@ class AuthenticationController extends AbstractController
      *
      * @param Request $request
      * @param Logout $logout
-     * @return View
      * @throws \RestException
+     * @return View
      */
     public function logout(Request $request, Logout $logout): View
     {
@@ -89,8 +89,8 @@ class AuthenticationController extends AbstractController
 
         if ($token === null) {
             return $this->view([
-                "code" => Response::HTTP_UNAUTHORIZED,
-                "message" => _(self::INVALID_CREDENTIALS_MESSAGE)
+                'code' => Response::HTTP_UNAUTHORIZED,
+                'message' => _(self::INVALID_CREDENTIALS_MESSAGE),
             ], Response::HTTP_UNAUTHORIZED);
         }
 
@@ -98,7 +98,7 @@ class AuthenticationController extends AbstractController
         $logout->execute($request);
 
         return $this->view([
-            'message' => 'Successful logout'
+            'message' => 'Successful logout',
         ]);
     }
 }

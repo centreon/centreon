@@ -7,7 +7,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -31,18 +31,16 @@ use Core\Common\Domain\Exception\ValueObjectException;
 use Doctrine\DBAL\ParameterType as DbalParameterType;
 
 /**
- * Class
+ * Class.
  *
  * @class   DbalParametersTransformer
- * @package Adaptation\Database\Adapter\Dbal\Transformer
  */
 abstract readonly class DbalParametersTransformer
 {
     /**
-     * @param QueryParameters $queryParameters
-     *
      * @throws TransformerException
-     * @return array{0: array<string,mixed>, 1: array<string,mixed>}
+     *
+     * @return array{0: array<string, mixed>, 1: array<string, DbalParameterType>}
      */
     public static function transformFromQueryParameters(QueryParameters $queryParameters): array
     {
@@ -51,11 +49,11 @@ abstract readonly class DbalParametersTransformer
         foreach ($queryParameters->getIterator() as $queryParameter) {
             // remove : from the key to avoid issues with named parameters, dbal doesn't accept : in the key
             $name = $queryParameter->getName();
-            if (str_starts_with($queryParameter->getName(), ':')) {
-                $name = mb_substr($queryParameter->getName(), 1);
+            if (str_starts_with((string) $queryParameter->getName(), ':')) {
+                $name = mb_substr((string) $queryParameter->getName(), 1);
             }
             $params[$name] = $queryParameter->getValue();
-            if (! is_null($queryParameter->getType())) {
+            if ($queryParameter->getType() !== null) {
                 $types[$name] = DbalParameterTypeTransformer::transformFromQueryParameterType(
                     $queryParameter->getType()
                 );
@@ -66,11 +64,10 @@ abstract readonly class DbalParametersTransformer
     }
 
     /**
-     * @param array<string,mixed> $params
-     * @param array<string,mixed> $types
+     * @param array<string, mixed> $params
+     * @param array<string, DbalParameterType> $types
      *
      * @throws TransformerException
-     * @return QueryParameters
      */
     public static function reverseToQueryParameters(array $params, array $types): QueryParameters
     {
@@ -86,11 +83,7 @@ abstract readonly class DbalParametersTransformer
 
             return $queryParameters;
         } catch (CollectionException|ValueObjectException $exception) {
-            throw new TransformerException(
-                "Error while reversing to QueryParameters : {$exception->getMessage()}",
-                ['params' => $params, 'types' => $types],
-                $exception
-            );
+            throw new TransformerException("Error while reversing to QueryParameters : {$exception->getMessage()}", ['params' => $params, 'types' => $types], $exception);
         }
     }
 }

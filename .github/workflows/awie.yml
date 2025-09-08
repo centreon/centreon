@@ -7,11 +7,6 @@ concurrency:
 on:
   workflow_dispatch:
   pull_request:
-    types:
-      - opened
-      - synchronize
-      - reopened
-      - ready_for_review
     paths:
       - ".version"
       - ".version.centreon-awie"
@@ -24,12 +19,16 @@ on:
       - dev-[2-9][0-9].[0-9][0-9].x
       - master
       - "[2-9][0-9].[0-9][0-9].x"
+      - 'release-[2-9][0-9].[0-9][0-9]-next'
+      - 'hotfix-[2-9][0-9].[0-9][0-9]-next'
     paths:
       - ".version"
       - ".version.centreon-awie"
       - "centreon-awie/**"
       - "!centreon-awie/features/**"
       - "!centreon-awie/behat.yml"
+    tags:
+      - "centreon-awie-*"
 
 env:
   module: awie
@@ -81,7 +80,11 @@ jobs:
 
       - uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36 # v3.0.2
         id: filter
+        if: |
+          github.event_name == 'pull_request' &&
+          needs.get-environment.outputs.stability != 'testing'
         with:
+          base: ${{ github.head_ref || github.ref_name }}
           filters: |
             has_backend_changes:
               - 'centreon-awie/*.php'
@@ -98,8 +101,8 @@ jobs:
         with:
           is_nightly: 'false'
           has_frontend_changes: 'false'
-          has_backend_changes: ${{ steps.filter.outputs.has_backend_changes }}
-          has_test_changes: ${{ steps.filter.outputs.has_test_changes }}
+          has_backend_changes: ${{ steps.filter.outputs.has_backend_changes || true }}
+          has_test_changes: ${{ steps.filter.outputs.has_test_changes || true }}
 
   backend-lint:
     runs-on: ubuntu-24.04
@@ -112,21 +115,124 @@ jobs:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Setup PHP
-        uses: shivammathur/setup-php@cf4cade2721270509d5b1c766ab3549210a39a2a # v2.33.0
+        uses: shivammathur/setup-php@ccf2c627fe61b1b4d924adfcbd19d661a18133a0 # v2.35.2
         with:
           php-version: 8.2
           coverage: none
         env:
           runner: ubuntu-24.04
 
-      - name: Install Dependencies
-        run: composer install --optimize-autoloader
+      - name: Install dependencies for PHP quality tools
+        run: composer install --optimize-autoloader --prefer-dist --no-interaction --no-progress --quiet --no-scripts
+        working-directory: php-tools
+        shell: bash
+
+      - name: Install dependencies for centreon-awie
+        run: composer install --optimize-autoloader --prefer-dist --no-interaction --no-progress --quiet --no-scripts
         working-directory: centreon-awie
         shell: bash
 
-      - name: Run of phpstan on /www at level 6
-        run: vendor/bin/phpstan analyse --no-progress --level=6 --configuration=phpstan.neon
+      - name: 🛠️ Rector checks
         working-directory: centreon-awie
+        run: |
+          echo "Run of these Rector tests: rector:legacy" && set -e
+
+          pids=()
+          statuses=()
+
+          run_task() {
+            name=$1
+            shift
+            "$@" -- --no-progress-bar
+            result=$?
+            if [ $result -eq 0 ]; then
+              echo "✅ Rector $name: Success"
+            else
+              echo "❌ Rector $name: Failed"
+            fi
+            return $result
+          }
+
+          # Start tasks in background
+          run_task legacy composer rector:legacy & pids+=($!)
+
+          # Wait for all, and record if any failed
+          exit_code=0
+          for pid in "${pids[@]}"; do
+            if ! wait "$pid"; then
+              exit_code=1
+            fi
+          done
+
+          exit $exit_code
+
+      - name: 🧹 PHP-CS-Fixer checks
+        working-directory: centreon-awie
+        run: |
+          echo "Run of these PHP-CS-Fixer tests: cs:legacy" && set -e
+
+          pids=()
+          statuses=()
+
+          run_task() {
+            name=$1
+            shift
+            "$@" -- --format=txt --show-progress=none
+            result=$?
+            if [ $result -eq 0 ]; then
+              echo "✅ PHP-CS-Fixer $name: Success"
+            else
+              echo "❌ PHP-CS-Fixer $name: Failed"
+            fi
+            return $result
+          }
+
+          # Start tasks in background
+          run_task legacy composer cs:legacy & pids+=($!)
+
+          # Wait for all, and record if any failed
+          exit_code=0
+          for pid in "${pids[@]}"; do
+            if ! wait "$pid"; then
+              exit_code=1
+            fi
+          done
+
+          exit $exit_code
+
+      - name: 🔍 PHPStan checks
+        working-directory: centreon-awie
+        run: |
+          echo "Run of these PHPStan tests: stan:legacy" && set -e
+
+          pids=()
+          statuses=()
+
+          run_task() {
+            name=$1
+            shift
+            "$@" -- --no-progress
+            result=$?
+            if [ $result -eq 0 ]; then
+              echo "✅ PHPStan $name: Success"
+            else
+              echo "❌ PHPStan $name: Failed"
+            fi
+            return $result
+          }
+
+          # Start tasks in background
+          run_task legacy composer stan:legacy & pids+=($!)
+
+          # Wait for all, and record if any failed
+          exit_code=0
+          for pid in "${pids[@]}"; do
+            if ! wait "$pid"; then
+              exit_code=1
+            fi
+          done
+
+          exit $exit_code
 
   package:
     needs: [get-environment, check-version-consistency, backend-lint]
@@ -241,6 +347,8 @@ jobs:
           stability: ${{ needs.get-environment.outputs.stability }}
           release_type: ${{ needs.get-environment.outputs.release_type }}
           is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
+          delivery_type: ${{ needs.get-environment.outputs.delivery_type }}
+          centreon_technique_pat: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
 
   deliver-deb:
     needs: [changes, get-environment, package]
@@ -297,7 +405,7 @@ jobs:
         uses: ./.github/actions/promote-to-stable
         with:
           artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
-          module: awie
+          module_name: awie
           distrib: ${{ matrix.distrib }}
           major_version: ${{ needs.get-environment.outputs.major_version }}
           minor_version: ${{ needs.get-environment.outputs.minor_version }}

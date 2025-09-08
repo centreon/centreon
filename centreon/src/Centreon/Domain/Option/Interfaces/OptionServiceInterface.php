@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2020 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,6 +18,7 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Centreon\Domain\Option\Interfaces;
@@ -39,8 +40,8 @@ interface OptionServiceInterface
      * </code>
      *
      * @param string[] $optionsToFind Keys of the options to find
-     * @return Option[] Options list corresponding to the options requested
      * @throws \Exception
+     * @return Option[] Options list corresponding to the options requested
      */
     public function findSelectedOptions(array $optionsToFind): array;
 
@@ -48,8 +49,8 @@ interface OptionServiceInterface
      * Find all options.
      *
      * @param bool $useCache Indicates whether we should use the cache system or not (TRUE by default)
-     * @return Option[] Returns all available options
      * @throws \Exception
+     * @return Option[] Returns all available options
      */
     public function findAllOptions(bool $useCache): array;
 }

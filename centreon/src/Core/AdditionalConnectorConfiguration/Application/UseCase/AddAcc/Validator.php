@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -132,7 +132,7 @@ class Validator
         $type = Type::from($request->type);
 
         $pollers = $this->readAccRepository->findPollersByType($type);
-        $pollerIds = array_map(fn(Poller $poller) => $poller->id, $pollers);
+        $pollerIds = array_map(fn (Poller $poller) => $poller->id, $pollers);
 
         if ([] !== $invalidPollers = array_intersect($pollerIds, $request->pollers)) {
             throw AccException::alreadyAssociatedPollers($type, $invalidPollers);

@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,7 +47,9 @@ use Utility\SqlConcatenator;
  */
 class DbReadServiceCategoryRepository extends AbstractRepositoryRDB implements ReadServiceCategoryRepositoryInterface
 {
-    use LoggerTrait, ServiceGroupRepositoryTrait, SqlMultipleBindTrait;
+    use LoggerTrait;
+    use ServiceGroupRepositoryTrait;
+    use SqlMultipleBindTrait;
 
     public function __construct(DatabaseConnection $db)
     {
@@ -100,12 +102,13 @@ class DbReadServiceCategoryRepository extends AbstractRepositoryRDB implements R
 
         $sqlConcatenator = new SqlConcatenator();
         $sqlConcatenator->defineSelect(
-            $this->translateDbName(<<<'SQL'
-                SELECT sc.sc_id
-                FROM `:db`.service_categories sc
-                WHERE sc.sc_id IN (:service_categories_ids)
-                    AND sc.level IS NULL
-                SQL
+            $this->translateDbName(
+                <<<'SQL'
+                    SELECT sc.sc_id
+                    FROM `:db`.service_categories sc
+                    WHERE sc.sc_id IN (:service_categories_ids)
+                        AND sc.level IS NULL
+                    SQL
             )
         );
         $sqlConcatenator->storeBindValueMultiple(':service_categories_ids', $serviceCategoriesIds, \PDO::PARAM_INT);
@@ -131,7 +134,7 @@ class DbReadServiceCategoryRepository extends AbstractRepositoryRDB implements R
         }
 
         $accessGroupIds = array_map(
-            static fn($accessGroup): int => $accessGroup->getId(),
+            static fn ($accessGroup): int => $accessGroup->getId(),
             $accessGroups
         );
 
@@ -144,21 +147,22 @@ class DbReadServiceCategoryRepository extends AbstractRepositoryRDB implements R
 
         $sqlConcatenator = new SqlConcatenator();
         $sqlConcatenator->defineSelect(
-            $this->translateDbName(<<<'SQL'
-                SELECT sc.sc_id, sc.sc_name, sc.sc_description, sc.sc_activate
-                FROM `:db`.service_categories sc
-                INNER JOIN `:db`.service_categories_relation scr
-                    ON scr.sc_id = sc.sc_id
-                INNER JOIN `:db`.acl_resources_sc_relations arhr
-                    ON sc.sc_id = arhr.sc_id
-                INNER JOIN `:db`.acl_resources res
-                    ON arhr.acl_res_id = res.acl_res_id
-                INNER JOIN `:db`.acl_res_group_relations argr
-                    ON res.acl_res_id = argr.acl_res_id
-                WHERE scr.sc_id IN (:service_categories_ids)
-                    AND sc.level IS NULL
-                    AND argr.acl_group_id IN (:access_group_ids)
-                SQL
+            $this->translateDbName(
+                <<<'SQL'
+                    SELECT sc.sc_id, sc.sc_name, sc.sc_description, sc.sc_activate
+                    FROM `:db`.service_categories sc
+                    INNER JOIN `:db`.service_categories_relation scr
+                        ON scr.sc_id = sc.sc_id
+                    INNER JOIN `:db`.acl_resources_sc_relations arhr
+                        ON sc.sc_id = arhr.sc_id
+                    INNER JOIN `:db`.acl_resources res
+                        ON arhr.acl_res_id = res.acl_res_id
+                    INNER JOIN `:db`.acl_res_group_relations argr
+                        ON res.acl_res_id = argr.acl_res_id
+                    WHERE scr.sc_id IN (:service_categories_ids)
+                        AND sc.level IS NULL
+                        AND argr.acl_group_id IN (:access_group_ids)
+                    SQL
             )
         );
         $sqlConcatenator->storeBindValueMultiple(':service_categories_ids', $serviceCategoriesIds, \PDO::PARAM_INT);
@@ -203,7 +207,7 @@ class DbReadServiceCategoryRepository extends AbstractRepositoryRDB implements R
         }
 
         $accessGroupIds = array_map(
-            static fn($accessGroup) => $accessGroup->getId(),
+            static fn ($accessGroup) => $accessGroup->getId(),
             $accessGroups
         );
 
@@ -247,12 +251,13 @@ class DbReadServiceCategoryRepository extends AbstractRepositoryRDB implements R
     {
         $this->info('Get a service category with id #' . $serviceCategoryId);
 
-        $request = $this->translateDbName(<<<'SQL'
-            SELECT sc.sc_id, sc.sc_name, sc.sc_description, sc.sc_activate
-            FROM `:db`.service_categories sc
-            WHERE sc.sc_id = :serviceCategoryId
-                AND sc.level IS NULL
-            SQL
+        $request = $this->translateDbName(
+            <<<'SQL'
+                SELECT sc.sc_id, sc.sc_name, sc.sc_description, sc.sc_activate
+                FROM `:db`.service_categories sc
+                WHERE sc.sc_id = :serviceCategoryId
+                    AND sc.level IS NULL
+                SQL
         );
         $statement = $this->db->prepare($request);
         $statement->bindValue(':serviceCategoryId', $serviceCategoryId, \PDO::PARAM_INT);
@@ -309,14 +314,15 @@ class DbReadServiceCategoryRepository extends AbstractRepositoryRDB implements R
      */
     public function findByService(int $serviceId): array
     {
-        $request = $this->translateDbName(<<<'SQL'
-            SELECT sc.sc_id, sc.sc_name, sc.sc_description, sc.sc_activate
-            FROM `:db`.service_categories sc
-            INNER JOIN `:db`.service_categories_relation scr
-                ON scr.sc_id = sc.sc_id
-            WHERE scr.service_service_id = :service_id
-                AND sc.level IS NULL
-            SQL
+        $request = $this->translateDbName(
+            <<<'SQL'
+                SELECT sc.sc_id, sc.sc_name, sc.sc_description, sc.sc_activate
+                FROM `:db`.service_categories sc
+                INNER JOIN `:db`.service_categories_relation scr
+                    ON scr.sc_id = sc.sc_id
+                WHERE scr.service_service_id = :service_id
+                    AND sc.level IS NULL
+                SQL
         );
         $statement = $this->db->prepare($request);
         $statement->bindValue(':service_id', $serviceId, \PDO::PARAM_INT);
@@ -341,7 +347,7 @@ class DbReadServiceCategoryRepository extends AbstractRepositoryRDB implements R
         }
 
         $accessGroupIds = array_map(
-            static fn($accessGroup) => $accessGroup->getId(),
+            static fn ($accessGroup) => $accessGroup->getId(),
             $accessGroups
         );
 
@@ -354,22 +360,23 @@ class DbReadServiceCategoryRepository extends AbstractRepositoryRDB implements R
 
         $sqlConcatenator = new SqlConcatenator();
         $sqlConcatenator->defineSelect(
-            $this->translateDbName(<<<'SQL'
-                SELECT sc.sc_id, sc.sc_name, sc.sc_description, sc.sc_activate
-                FROM `:db`.service_categories sc
-                INNER JOIN `:db`.service_categories_relation scr
-                    ON scr.sc_id = sc.sc_id
-                INNER JOIN `:db`.acl_resources_sc_relations arhr
-                    ON sc.sc_id = arhr.sc_id
-                INNER JOIN `:db`.acl_resources res
-                    ON arhr.acl_res_id = res.acl_res_id
-                INNER JOIN `:db`.acl_res_group_relations argr
-                    ON res.acl_res_id = argr.acl_res_id
-                WHERE scr.service_service_id = :service_id
-                    AND sc.level IS NULL
-                    AND argr.acl_group_id IN (:access_group_ids)
-                GROUP BY sc.sc_id
-                SQL
+            $this->translateDbName(
+                <<<'SQL'
+                    SELECT sc.sc_id, sc.sc_name, sc.sc_description, sc.sc_activate
+                    FROM `:db`.service_categories sc
+                    INNER JOIN `:db`.service_categories_relation scr
+                        ON scr.sc_id = sc.sc_id
+                    INNER JOIN `:db`.acl_resources_sc_relations arhr
+                        ON sc.sc_id = arhr.sc_id
+                    INNER JOIN `:db`.acl_resources res
+                        ON arhr.acl_res_id = res.acl_res_id
+                    INNER JOIN `:db`.acl_res_group_relations argr
+                        ON res.acl_res_id = argr.acl_res_id
+                    WHERE scr.service_service_id = :service_id
+                        AND sc.level IS NULL
+                        AND argr.acl_group_id IN (:access_group_ids)
+                    GROUP BY sc.sc_id
+                    SQL
             )
         );
         $sqlConcatenator->storeBindValue(':service_id', $serviceId, \PDO::PARAM_INT);
@@ -423,7 +430,7 @@ class DbReadServiceCategoryRepository extends AbstractRepositoryRDB implements R
         $concat = new SqlConcatenator();
 
         $accessGroupIds = array_map(
-            static fn($accessGroup) => $accessGroup->getId(),
+            static fn ($accessGroup) => $accessGroup->getId(),
             $accessGroups
         );
 

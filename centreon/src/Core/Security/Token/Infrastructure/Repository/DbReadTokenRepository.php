@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,7 +49,8 @@ use Core\Security\Token\Domain\Model\TokenTypeEnum;
  */
 class DbReadTokenRepository extends DatabaseRepository implements ReadTokenRepositoryInterface
 {
-    use LoggerTrait, SqlMultipleBindTrait;
+    use LoggerTrait;
+    use SqlMultipleBindTrait;
     private const TYPE_API_MANUAL = 'manual';
     private const TYPE_API_AUTO = 'auto';
 
@@ -60,8 +61,7 @@ class DbReadTokenRepository extends DatabaseRepository implements ReadTokenRepos
         ConnectionInterface $connection,
         QueryBuilderInterface $queryBuilder,
         SqlRequestParametersTranslator $sqlRequestTranslator,
-    )
-    {
+    ) {
         parent::__construct($connection, $queryBuilder);
         $this->sqlRequestTranslator = $sqlRequestTranslator;
         $this->sqlRequestTranslator
@@ -78,8 +78,7 @@ class DbReadTokenRepository extends DatabaseRepository implements ReadTokenRepos
             'is_revoked' => 'is_revoked',
             'type' => 'token_type',
         ]);
-        $normaliserClass = new class implements NormalizerInterface
-        {
+        $normaliserClass = new class () implements NormalizerInterface {
             /**
              * @inheritDoc
              */
@@ -180,7 +179,7 @@ class DbReadTokenRepository extends DatabaseRepository implements ReadTokenRepos
                 ['exception' => $exception->getContext()],
                 $exception
             );
-        }  catch (\Throwable $exception) {
+        } catch (\Throwable $exception) {
             $this->error(
                 "Finding token by token string failed : {$exception->getMessage()}",
                 [

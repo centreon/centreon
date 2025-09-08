@@ -4,8 +4,8 @@
 OPTIONS="hst:v:r:l:p:d:V:"
 declare -A SUPPORTED_LOG_LEVEL=([DEBUG]=0 [INFO]=1 [WARN]=2 [ERROR]=3)
 declare -A SUPPORTED_TOPOLOGY=([central]=1 [poller]=1)
-declare -A SUPPORTED_VERSION=([21.10]=1 [22.04]=1 [22.10]=1 [23.04]=1 [23.10]=1 [24.04]=1 [24.10]=1)
-declare -A SUPPORTED_REPOSITORY=([testing]=1 [unstable]=1 [stable]=1)
+declare -A SUPPORTED_VERSION=([23.10]=1 [24.04]=1 [24.10]=1)
+declare -A SUPPORTED_REPOSITORY=([testing-hotfix]=1 [testing-release]=1 [unstable]=1 [stable]=1)
 declare -A SUPPORTED_DBMS=([MariaDB]=1 [MySQL]=1)
 default_timeout_in_sec=5
 script_short_name="$(basename $0)"
@@ -85,7 +85,7 @@ function usage() {
 	echo
 	echo "Usage:"
 	echo
-	echo " $script_short_name [install|update (default: install)] [-t <central|poller> (default: central)] [-v <24.10> (default: 24.10)] [-r <stable|testing|unstable> (default: stable)] [-d <MariaDB|MySQL> (default: MariaDB)] [-l <DEBUG|INFO|WARN|ERROR>] [-s (for silent install)] [-p <centreon admin password>] [-h (show this help output)] [-V configure a vault, using format <address>;<port>;<root_path>;<role_id>;<secret_id>]"
+	echo " $script_short_name [install|update (default: install)] [-t <central|poller> (default: central)] [-v <24.10> (default: 24.10)] [-r <stable|testing-hotfix|testing-release|unstable> (default: stable)] [-d <MariaDB|MySQL> (default: MariaDB)] [-l <DEBUG|INFO|WARN|ERROR>] [-s (for silent install)] [-p <centreon admin password>] [-h (show this help output)] [-V configure a vault, using format <address>;<port>;<root_path>;<role_id>;<secret_id>]"
 	echo
 	echo Example:
 	echo
@@ -431,7 +431,9 @@ function setup_mysql() {
 		log "INFO" "Successfully installed the $dbms repository"
 	fi
 	systemctl enable --now $mysql_service_name
-	echo "default-authentication-plugin=mysql_native_password" >> /etc/my.cnf.d/mysql-server.cnf
+	if ! [[ "$version" == "25.09" || "$version" =~ "25.1"[0-2] || "$version" =~ "26.0"[1-9] ]]; then
+		echo "default-authentication-plugin=mysql_native_password" >> $mysql_config_file
+	fi
 	sed -Ei 's/LimitNOFILE\s\=\s[0-9]{1,}/LimitNOFILE = 32000/' /usr/lib/systemd/system/$mysql_service_name.service
 	systemctl daemon-reload
 }
@@ -504,8 +506,8 @@ function set_required_prerequisite() {
 			;;
 
 		9*)
-			if ! [[ "$version" == "23.04" || "$version" == "23.10" || "$version" == "24.04" || "$version" == "24.10" ]]; then
-				error_and_exit "Only Centreon version >=23.04 is compatible with EL9, you chose $version"
+			if ! [[ "$version" == "23.10" || "$version" == "24.04" || "$version" == "24.10" ]]; then
+				error_and_exit "Only Centreon version >=23.10 is compatible with EL9, you chose $version"
 			fi
 
 			log "INFO" "Setting specific part for v9 ($detected_os_version)"
@@ -536,7 +538,7 @@ function set_required_prerequisite() {
 
 			if [ "$topology" == "central" ]; then
 				case "$version" in
-					"23.04" | "23.10" | "24.04")
+					"23.10" | "24.04")
 						#install_remi_repo
 						log "INFO" "Installing PHP 8.1 and enable it"
 						$PKG_MGR module reset php -y -q
@@ -588,8 +590,8 @@ function set_required_prerequisite() {
 		debian-release*)
 			case "$detected_os_version" in
 			11)
-				if ! [[ "$version" == "22.04" || "$version" == "22.10" || "$version" == "23.04" || "$version" == "23.10" || "$version" == "24.04" ]]; then
-					error_and_exit "For Debian $detected_os_version, only Centreon versions >= 22.04 are compatible. You chose $version"
+				if ! [[ "$version" == "23.10" || "$version" == "24.04" ]]; then
+					error_and_exit "For Debian $detected_os_version, only Centreon versions >= 23.10 are compatible. You chose $version"
 				fi
 				PHP_SERVICE_UNIT="php8.1-fpm"
 				;;
@@ -633,7 +635,11 @@ function set_required_prerequisite() {
 		set_centreon_repos
 		IFS=', ' read -r -a array_apt <<<"$CENTREON_REPO"
 		for _repo in "${array_apt[@]}"; do
-			echo "deb https://packages.centreon.com/$repo_prefix-standard-$_repo/ $(lsb_release -sc) main" | tee /etc/apt/sources.list.d/centreon-$_repo.list
+		    if [[ "$version" < "25.10" ]]; then
+			    echo "deb https://packages.centreon.com/$repo_prefix-standard-$_repo/ $(lsb_release -sc) main" | tee /etc/apt/sources.list.d/centreon-$_repo.list
+			else
+				echo "deb https://packages.centreon.com/$repo_prefix-standard/ $(lsb_release -sc)-$_repo main" | tee /etc/apt/sources.list.d/centreon-$_repo.list
+			fi
 
 			SIMPLEREPO=$(echo $_repo | cut -d '-' -f2)
 			echo "deb $ARCH https://packages.centreon.com/$repo_prefix-plugins-$SIMPLEREPO/ $(lsb_release -sc) main" | tee /etc/apt/sources.list.d/centreon-plugins-$SIMPLEREPO.list
@@ -644,7 +650,7 @@ function set_required_prerequisite() {
 			# Add PHP repo
 			# if OLD VERSIONS => PHP 8.1(install remi repos), else PHP 8.2 (do not install remi repos)
 			case "$version" in
-				"22.10" | "23.04" | "23.10" | "24.04")
+				"23.10" | "24.04")
 					echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" | tee /etc/apt/sources.list.d/sury-php.list
 					wget -O- https://packages.sury.org/php/apt.gpg | gpg --dearmor | tee /etc/apt/trusted.gpg.d/php.gpg  > /dev/null 2>&1
 					;;
@@ -774,8 +780,13 @@ EOF
 	else
 		systemctl restart $mysql_service_name
 		log "INFO" "Executing SQL requests for $dbms"
+		if [[ "$version" == "25.09" || "$version" =~ "25.1"[0-2] || "$version" =~ "26.0"[1-9] ]]; then
+			default_authentication_plugin="caching_sha2_password"
+		else
+			default_authentication_plugin="mysql_native_password"
+		fi
 		mysql -u root --verbose <<-EOF
-			ALTER USER 'root'@'localhost' IDENTIFIED WITH 'mysql_native_password' BY '${db_root_password}';
+			ALTER USER 'root'@'localhost' IDENTIFIED WITH '${default_authentication_plugin}' BY '${db_root_password}';
 			DELETE FROM mysql.user WHERE User='';
 			DELETE FROM mysql.user WHERE User='root' AND Host NOT IN ('localhost', '127.0.0.1', '::1');
 			DROP DATABASE IF EXISTS test;
@@ -1238,11 +1249,7 @@ function play_update() {
 		error_and_exit "Centreon admin password is not defined"
 	fi
 
-	if [[ "$version" == "21.10" || "$version" == "22.04" ]]; then
-		error_and_exit "Your Centreon version is not supported for silent update, please connect to UI and perform update manually."
-	else
-		play_update_api
-	fi
+	play_update_api
 }
 #========= end of function play_update()
 
@@ -1492,7 +1499,7 @@ install)
 	fi
 
 	case $version in
-		"22.10"|"23.04"|"23.10")
+		"23.10")
 			gorgone_selinux_package_name="centreon-gorgoned-selinux"
 			;;
 		*)

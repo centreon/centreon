@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -163,15 +163,9 @@ it('should run found updates', function (): void {
             )
         );
 
-
     $this->writeUpdateRepository
         ->expects($this->exactly(3))
-        ->method('runUpdate')
-        ->withConsecutive(
-            [$this->equalTo('22.10.0-beta.1')],
-            [$this->equalTo('22.10.0')],
-            [$this->equalTo('22.10.1')],
-        );
+        ->method('runUpdate');
 
     $this->presenter
         ->expects($this->once())

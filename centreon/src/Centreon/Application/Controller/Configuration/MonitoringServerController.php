@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2021 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,25 +18,26 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Centreon\Application\Controller\Configuration;
 
+use Centreon\Application\Controller\AbstractController;
 use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Exception\EntityNotFoundException;
 use Centreon\Domain\Exception\TimeoutException;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\MonitoringServer\Exception\MonitoringServerException;
-use FOS\RestBundle\View\View;
-use FOS\RestBundle\Context\Context;
+use Centreon\Domain\MonitoringServer\Interfaces\MonitoringServerServiceInterface;
 use Centreon\Domain\MonitoringServer\MonitoringServer;
-use Centreon\Application\Controller\AbstractController;
-use Centreon\Domain\MonitoringServer\UseCase\ReloadConfiguration;
+use Centreon\Domain\MonitoringServer\UseCase\GenerateAllConfigurations;
 use Centreon\Domain\MonitoringServer\UseCase\GenerateConfiguration;
 use Centreon\Domain\MonitoringServer\UseCase\ReloadAllConfigurations;
-use Centreon\Domain\MonitoringServer\UseCase\GenerateAllConfigurations;
+use Centreon\Domain\MonitoringServer\UseCase\ReloadConfiguration;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
-use Centreon\Domain\MonitoringServer\Interfaces\MonitoringServerServiceInterface;
+use FOS\RestBundle\Context\Context;
+use FOS\RestBundle\View\View;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
@@ -81,17 +82,13 @@ class MonitoringServerController extends AbstractController
          * @var Contact $user
          */
         $user = $this->getUser();
-        if ($this->isCloudPlatform && !$user->isAdmin()) {
+        if ($this->isCloudPlatform && ! $user->isAdmin()) {
             $excludeCentral = $requestParameters->getExtraParameter('exclude_central');
 
-            if (in_array($excludeCentral, [true, "true", 1], true)) {
+            if (in_array($excludeCentral, [true, 'true', 1], true)) {
                 $remoteServers = $this->monitoringServerService->findRemoteServersIps();
                 $servers = array_values(array_filter($servers, function ($server) use ($remoteServers) {
-                    if ($server->isLocalhost() && !in_array($server->getAddress(), $remoteServers, true)) {
-                        return false;
-                    }
-
-                    return true;
+                    return ! ($server->isLocalhost() && ! in_array($server->getAddress(), $remoteServers, true));
                 }));
 
                 $requestParameters->setTotal(count($servers));
@@ -101,7 +98,7 @@ class MonitoringServerController extends AbstractController
         return $this->view(
             [
                 'result' => $servers,
-                'meta' => $requestParameters->toArray()
+                'meta' => $requestParameters->toArray(),
             ]
         )->setContext($context);
     }
@@ -109,9 +106,9 @@ class MonitoringServerController extends AbstractController
     /**
      * @param GenerateConfiguration $generateConfiguration
      * @param int $monitoringServerId
-     * @return View
      * @throws EntityNotFoundException
      * @throws MonitoringServerException
+     * @return View
      */
     public function generateConfiguration(GenerateConfiguration $generateConfiguration, int $monitoringServerId): View
     {
@@ -121,14 +118,15 @@ class MonitoringServerController extends AbstractController
                 $generateConfiguration->execute($monitoringServerId);
             }
         );
+
         return $this->view(null, Response::HTTP_NO_CONTENT);
     }
 
     /**
      * @param GenerateAllConfigurations $generateAllConfigurations
-     * @return View
      * @throws EntityNotFoundException
      * @throws MonitoringServerException
+     * @return View
      */
     public function generateAllConfigurations(GenerateAllConfigurations $generateAllConfigurations): View
     {
@@ -138,15 +136,16 @@ class MonitoringServerController extends AbstractController
                 $generateAllConfigurations->execute();
             }
         );
+
         return $this->view(null, Response::HTTP_NO_CONTENT);
     }
 
     /**
      * @param ReloadConfiguration $reloadConfiguration
      * @param int $monitoringServerId
-     * @return View
      * @throws EntityNotFoundException
      * @throws MonitoringServerException
+     * @return View
      */
     public function reloadConfiguration(ReloadConfiguration $reloadConfiguration, int $monitoringServerId): View
     {
@@ -156,14 +155,15 @@ class MonitoringServerController extends AbstractController
                 $reloadConfiguration->execute($monitoringServerId);
             }
         );
+
         return $this->view(null, Response::HTTP_NO_CONTENT);
     }
 
     /**
      * @param ReloadAllConfigurations $reloadAllConfigurations
-     * @return View
      * @throws EntityNotFoundException
      * @throws MonitoringServerException
+     * @return View
      */
     public function reloadAllConfigurations(ReloadAllConfigurations $reloadAllConfigurations): View
     {
@@ -173,6 +173,7 @@ class MonitoringServerController extends AbstractController
                 $reloadAllConfigurations->execute();
             }
         );
+
         return $this->view(null, Response::HTTP_NO_CONTENT);
     }
 
@@ -182,9 +183,9 @@ class MonitoringServerController extends AbstractController
      * @param GenerateConfiguration $generateConfiguration
      * @param ReloadConfiguration $reloadConfiguration
      * @param int $monitoringServerId
-     * @return View
      * @throws EntityNotFoundException
      * @throws MonitoringServerException
+     * @return View
      */
     public function generateAndReloadConfiguration(
         GenerateConfiguration $generateConfiguration,
@@ -198,6 +199,7 @@ class MonitoringServerController extends AbstractController
                 $reloadConfiguration->execute($monitoringServerId);
             }
         );
+
         return $this->view(null, Response::HTTP_NO_CONTENT);
     }
 
@@ -206,9 +208,9 @@ class MonitoringServerController extends AbstractController
      *
      * @param GenerateAllConfigurations $generateAllConfigurations
      * @param ReloadAllConfigurations $reloadAllConfigurations
-     * @return View
      * @throws EntityNotFoundException
      * @throws MonitoringServerException
+     * @return View
      */
     public function generateAndReloadAllConfigurations(
         GenerateAllConfigurations $generateAllConfigurations,
@@ -221,6 +223,7 @@ class MonitoringServerController extends AbstractController
                 $reloadAllConfigurations->execute();
             }
         );
+
         return $this->view(null, Response::HTTP_NO_CONTENT);
     }
 
@@ -243,14 +246,17 @@ class MonitoringServerController extends AbstractController
             $callable();
         } catch (TimeoutException $ex) {
             $this->error($ex->getMessage());
+
             throw new MonitoringServerException(
                 'The operation timed out - please use the legacy export menu to workaround this problem'
             );
-        } catch (EntityNotFoundException | AccessDeniedException $ex) {
+        } catch (EntityNotFoundException|AccessDeniedException $ex) {
             $this->error($ex->getMessage());
+
             throw $ex;
         } catch (\Exception $ex) {
             $this->error($ex->getMessage());
+
             throw new MonitoringServerException(
                 'There was an consistency error in the exported files  - please use the legacy export menu to '
                 . 'troubleshoot'

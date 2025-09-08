@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@
  *
  */
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Tests\Core\Media\Application\UseCase\MigrateAllMedias;
 
@@ -45,7 +45,7 @@ beforeEach(function (): void {
     $this->request->contact = $this->contact;
 });
 
-it('should present an Exception if the user is not an administrator', function (): void{
+it('should present an Exception if the user is not an administrator', function (): void {
     $this->request->contact
         ->expects($this->once())
         ->method('isAdmin')
@@ -57,7 +57,7 @@ it('should present an Exception if the user is not an administrator', function (
         ->toBe(MediaException::operationRequiresAdminUser()->getMessage());
 });
 
-it('should present a MigrateAllMediasResponse when the user is an admin', function (): void{
+it('should present a MigrateAllMediasResponse when the user is an admin', function (): void {
     $this->request->contact
         ->expects($this->once())
         ->method('isAdmin')

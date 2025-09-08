@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2020 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,24 +18,23 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Centreon\Domain\Monitoring\Comment;
 
 use Centreon\Domain\Contact\Contact;
-use Centreon\Domain\Monitoring\Host;
-use Centreon\Domain\Monitoring\Service;
-use Centreon\Domain\Entity\EntityValidator;
-use Centreon\Domain\Monitoring\MonitoringService;
-use Centreon\Domain\Service\AbstractCentreonService;
-use Centreon\Domain\Exception\EntityNotFoundException;
-use JMS\Serializer\Exception\ValidationFailedException;
-use Centreon\Domain\Monitoring\Comment\CommentException;
 use Centreon\Domain\Engine\Interfaces\EngineServiceInterface;
-use Centreon\Domain\Monitoring\Interfaces\MonitoringServiceInterface;
-use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
-use Centreon\Domain\Monitoring\Interfaces\MonitoringRepositoryInterface;
+use Centreon\Domain\Entity\EntityValidator;
+use Centreon\Domain\Exception\EntityNotFoundException;
 use Centreon\Domain\Monitoring\Comment\Interfaces\CommentServiceInterface;
+use Centreon\Domain\Monitoring\Host;
+use Centreon\Domain\Monitoring\Interfaces\MonitoringRepositoryInterface;
+use Centreon\Domain\Monitoring\Interfaces\MonitoringServiceInterface;
+use Centreon\Domain\Monitoring\Service;
+use Centreon\Domain\Service\AbstractCentreonService;
+use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use JMS\Serializer\Exception\ValidationFailedException;
 
 /**
  * Monitoring class used to manage result submitting to services, hosts and resources
@@ -47,29 +46,19 @@ class CommentService extends AbstractCentreonService implements CommentServiceIn
     public const VALIDATION_GROUPS_HOST_ADD_COMMENT = ['add_host_comment'];
     public const VALIDATION_GROUPS_SERVICE_ADD_COMMENT = ['add_service_comment'];
 
-    /**
-     * @var EngineServiceInterface Used to send external commands to engine.
-     */
+    /** @var EngineServiceInterface used to send external commands to engine */
     private $engineService;
 
-    /**
-     * @var EntityValidator
-     */
+    /** @var EntityValidator */
     private $validator;
 
-    /**
-     * @var MonitoringRepositoryInterface
-     */
+    /** @var MonitoringRepositoryInterface */
     private $monitoringRepository;
 
-    /**
-     * @var ReadAccessGroupRepositoryInterface
-     */
+    /** @var ReadAccessGroupRepositoryInterface */
     private $accessGroupRepository;
 
-    /**
-     * @var MonitoringServiceInterface
-     */
+    /** @var MonitoringServiceInterface */
     private $monitoringService;
 
     /**
@@ -249,7 +238,7 @@ class CommentService extends AbstractCentreonService implements CommentServiceIn
          * the resource ids provided
          */
         if ($this->contact->isAdmin()) {
-            if (!empty($resourceIds['host'])) {
+            if (! empty($resourceIds['host'])) {
                 try {
                     $hosts = $this->monitoringRepository->findHostsByIdsForAdminUser($resourceIds['host']);
                 } catch (\Throwable $ex) {
@@ -257,7 +246,7 @@ class CommentService extends AbstractCentreonService implements CommentServiceIn
                 }
             }
 
-            if (!empty($resourceIds['service'])) {
+            if (! empty($resourceIds['service'])) {
                 try {
                     $services = $this->monitoringRepository->findServicesByIdsForAdminUser($resourceIds['service']);
                 } catch (\Throwable $ex) {
@@ -265,7 +254,7 @@ class CommentService extends AbstractCentreonService implements CommentServiceIn
                 }
             }
 
-            if (!empty($resourceIds['metaservice'])) {
+            if (! empty($resourceIds['metaservice'])) {
                 try {
                     foreach ($resourceIds['metaservice'] as $resourceId) {
                         $metaServices[$resourceId['service_id']] = $this->monitoringRepository
@@ -278,7 +267,7 @@ class CommentService extends AbstractCentreonService implements CommentServiceIn
         } else {
             $accessGroups = $this->accessGroupRepository->findByContact($this->contact);
 
-            if (!empty($resourceIds['host'])) {
+            if (! empty($resourceIds['host'])) {
                 try {
                     $hosts = $this->monitoringRepository
                         ->filterByAccessGroups($accessGroups)
@@ -288,7 +277,7 @@ class CommentService extends AbstractCentreonService implements CommentServiceIn
                 }
             }
 
-            if (!empty($resourceIds['service'])) {
+            if (! empty($resourceIds['service'])) {
                 try {
                     $services = $this->monitoringRepository
                         ->filterByAccessGroups($accessGroups)
@@ -298,7 +287,7 @@ class CommentService extends AbstractCentreonService implements CommentServiceIn
                 }
             }
 
-            if (!empty($resourceIds['metaservice'])) {
+            if (! empty($resourceIds['metaservice'])) {
                 try {
                     foreach ($resourceIds['metaservice'] as $resourceId) {
                         $metaServices[$resourceId['service_id']] = $this->monitoringRepository

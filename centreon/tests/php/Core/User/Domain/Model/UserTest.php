@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,21 +28,19 @@ use Centreon\Domain\Common\Assertion\AssertionException;
 use Core\User\Domain\Model\User;
 
 beforeEach(function (): void {
-        $this->createUser = static function (array $fields = []): User {
-        return new User(
-            ...[
-                'id' => 1,
-                'name' => 'user-name',
-                'alias' => 'user-alias',
-                'email' => 'user@email.com',
-                'isAdmin' => false,
-                'theme' => User::THEME_LIGHT,
-                'userInterfaceDensity' => User::USER_INTERFACE_DENSITY_EXTENDED,
-                'canReachFrontend' => true,
-                ...$fields,
-            ]
-        );
-    };
+    $this->createUser = static fn (array $fields = []): User => new User(
+        ...[
+            'id' => 1,
+            'name' => 'user-name',
+            'alias' => 'user-alias',
+            'email' => 'user@email.com',
+            'isAdmin' => false,
+            'theme' => User::THEME_LIGHT,
+            'userInterfaceDensity' => User::USER_INTERFACE_DENSITY_EXTENDED,
+            'canReachFrontend' => true,
+            ...$fields,
+        ]
+    );
 });
 
 // too short fields
@@ -57,7 +55,7 @@ foreach (
     $tooShort = '';
     it(
         "should throw an exception when user {$field} is too short",
-        fn() => ($this->createUser)([$field => $tooShort])
+        fn () => ($this->createUser)([$field => $tooShort])
     )->throws(
         InvalidArgumentException::class,
         AssertionException::minLength($tooShort, 0, $length, "User::{$field}")->getMessage()
@@ -76,7 +74,7 @@ foreach (
     $tooLong = str_repeat('a', $length + 1);
     it(
         "should throw an exception when user {$field} is too long",
-        fn() => ($this->createUser)([$field => $tooLong])
+        fn () => ($this->createUser)([$field => $tooLong])
     )->throws(
         InvalidArgumentException::class,
         AssertionException::maxLength($tooLong, $length + 1, $length, "User::{$field}")->getMessage()
@@ -86,7 +84,7 @@ foreach (
 // invalid fields
 it(
     'should throw an exception when user ID is invalid',
-    fn() => ($this->createUser)(['id' => 0])
+    fn () => ($this->createUser)(['id' => 0])
 )->throws(
     InvalidArgumentException::class,
     AssertionException::positiveInt(0, 'User::id')->getMessage()
@@ -94,7 +92,7 @@ it(
 
 it(
     'should throw an exception when user interface density is invalid',
-    fn() => ($this->createUser)(['userInterfaceDensity' => 'hello world'])
+    fn () => ($this->createUser)(['userInterfaceDensity' => 'hello world'])
 )->throws(
     \InvalidArgumentException::class,
     'User interface view mode provided not handled'

@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,7 +31,6 @@ use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 use Core\Common\Infrastructure\Repository\SqlMultipleBindTrait;
 use Core\Contact\Domain\Model\ContactGroup;
 use Core\ResourceAccess\Application\Repository\ReadResourceAccessRepositoryInterface;
-use Core\ResourceAccess\Domain\Model\DatasetFilter\DatasetFilter;
 use Core\ResourceAccess\Domain\Model\DatasetFilter\DatasetFilterRelation;
 use Core\ResourceAccess\Domain\Model\DatasetFilter\DatasetFilterValidator;
 use Core\ResourceAccess\Domain\Model\Rule;
@@ -58,7 +57,8 @@ use Core\ResourceAccess\Domain\Model\TinyRule;
  */
 final class DbReadResourceAccessRepository extends AbstractRepositoryRDB implements ReadResourceAccessRepositoryInterface
 {
-    use LoggerTrait, SqlMultipleBindTrait;
+    use LoggerTrait;
+    use SqlMultipleBindTrait;
 
     /**
      * @param DatabaseConnection $db
@@ -469,7 +469,7 @@ final class DbReadResourceAccessRepository extends AbstractRepositoryRDB impleme
      */
     public function findLastLevelDatasetFilterByRuleIdsAndType(array $ruleIds, string $type): array
     {
-        if (empty($ruleIds)) {
+        if ($ruleIds === []) {
             return [];
         }
         [$bindValues, $bindQuery] = $this->createMultipleBindQuery($ruleIds, ':rule_id_');

@@ -1,11 +1,11 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
-import { configureOpenIDConnect } from '../common';
 import {
   configureACLGroups,
   configureProviderAcls,
   getUserContactId
 } from '../../../../commons';
+import { configureOpenIdConnect } from '../common';
 
 before(() => {
   cy.startContainers({ profiles: ['openid'] }).then(() => {
@@ -67,10 +67,10 @@ When(
       tag: 'input'
     }).check();
 
-    configureOpenIDConnect();
+    configureOpenIdConnect();
 
     // Auto import users section
-    cy.getByLabel({ label: 'Auto import users' }).click();
+    cy.get('[data-testid="Auto import users-header"]').click();
     cy.getByLabel({ label: 'Enable auto import', tag: 'input' }).check();
     cy.getByLabel({
       label: 'Contact template',
