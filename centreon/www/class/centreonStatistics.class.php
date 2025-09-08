@@ -421,11 +421,14 @@ class CentreonStatistics
 
         $configSums = $this->dbConfig->fetchAllAssociative(
             <<<'SQL'
-                SELECT type, count(id) as nb_ac_per_type, count(rel.poller_id) as nb_poller_per_type
+                SELECT
+                    ac.type,
+                    count(DISTINCT ac.id) as nb_ac_per_type,
+                    count(rel.poller_id) as nb_poller_per_type
                 FROM agent_configuration ac
                 JOIN ac_poller_relation rel
                     ON ac.id = rel.ac_id
-                GROUP BY type
+                GROUP BY ac.type
                 SQL
         );
         foreach ($configSums as $configSum) {
