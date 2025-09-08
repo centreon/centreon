@@ -29,7 +29,7 @@ use Tests\App\Shared\ApiTestCase;
 
 final class ListGlobalMacrosProviderTest extends ApiTestCase
 {
-    public function testFindAllGlobalMacrosWithoutParameter(): void
+    public function testItFindAllGlobalMacrosWithoutParameter(): void
     {
         $this->login();
 
@@ -45,7 +45,7 @@ final class ListGlobalMacrosProviderTest extends ApiTestCase
         );
     }
 
-    public function testFindAllGlobalMacrosIsUnauthorizedForUserWithoutSufficientACL(): void
+    public function testItFindAllGlobalMacrosIsUnauthorizedForUserWithoutSufficientACL(): void
     {
         $this->login('user');
 
@@ -53,7 +53,7 @@ final class ListGlobalMacrosProviderTest extends ApiTestCase
         $this->assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN);
     }
 
-    public function testFindAllGlobalMacrosWithNameCriteria(): void
+    public function testItFindAllGlobalMacrosWithNameCriteria(): void
     {
         $this->login();
 
@@ -92,7 +92,7 @@ final class ListGlobalMacrosProviderTest extends ApiTestCase
         $this->assertCount(0, (array) $response->toArray()['member']);
     }
 
-    public function testFindAllGlobalMacrosWithPagination(): void
+    public function testItFindAllGlobalMacrosWithPagination(): void
     {
 
         $this->login();

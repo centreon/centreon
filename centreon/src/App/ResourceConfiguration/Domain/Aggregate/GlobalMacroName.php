@@ -27,11 +27,12 @@ use Webmozart\Assert\Assert;
 
 final readonly class GlobalMacroName
 {
+    public const NAMING_VALIDATION_REGEX = '/^\$.*\$$/';
+
     public function __construct(
         public string $value,
     ) {
         Assert::lengthBetween($value, 1, 255);
-        Assert::startsWith($value, '$');
-        Assert::endsWith($value, '$');
+        Assert::regex($value, self::NAMING_VALIDATION_REGEX);
     }
 }

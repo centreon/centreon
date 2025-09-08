@@ -64,18 +64,17 @@ final readonly class ListGlobalMacrosProvider implements ProviderInterface
                 $this->pagination->getLimit($operation, $context)
             );
         }
-        if (
-            isset($context['filters'])
-            && is_array($context['filters'])
-            && isset($context['filters']['name'])
-            && is_array($context['filters']['name'])
-        ) {
-            if (isset($context['filters']['name']['lk']) && is_string($context['filters']['name']['lk'])) {
-                $criteria = $criteria->withOperator('lk')->withName($context['filters']['name']['lk']);
-            } elseif (isset($context['filters']['name']['eq']) && is_string($context['filters']['name']['eq'])) {
-                $criteria = $criteria->withOperator('eq')->withName($context['filters']['name']['eq']);
+
+        $nameFilter = $context['filters']['name'] ?? null;
+        if (is_array($nameFilter)) {
+            foreach (GlobalMacroCriteria::ALLOWED_OPERATORS as $op) {
+                if (isset($nameFilter[$op]) && is_string($nameFilter[$op])) {
+                    $criteria = $criteria->withOperator($op)->withName($nameFilter[$op]);
+                    break;
+                }
             }
         }
+
         $models = $this->repository->findAll($criteria);
         $resources = [];
         foreach ($models as $model) {

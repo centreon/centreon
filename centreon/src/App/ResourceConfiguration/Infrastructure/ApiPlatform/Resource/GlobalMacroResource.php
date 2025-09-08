@@ -27,12 +27,13 @@ use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\OpenApi\Model;
+use App\ResourceConfiguration\Domain\Aggregate\GlobalMacroName;
 use App\ResourceConfiguration\Domain\Security\GlobalMacroPermissionEnum;
 use App\ResourceConfiguration\Infrastructure\ApiPlatform\State\ListGlobalMacrosProvider;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ApiResource(
-    shortName: 'GlobalMacro',
+    shortName: 'global macros collection',
     operations: [
         new GetCollection(
             uriTemplate: '/configuration/macros/globals',
@@ -59,8 +60,8 @@ final class GlobalMacroResource
         #[Assert\NotNull]
         #[Assert\Length(min: 1, max: 255)]
         #[Assert\Regex(
-            pattern: '/^\$.*\$$/',
-            message: 'The name must start and end with a dollar sign'
+            pattern: GlobalMacroName::NAMING_VALIDATION_REGEX,
+            message: "The name must start and end with a '$'"
         )]
         #[ApiProperty(
             description: 'Name of the global macro',

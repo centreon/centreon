@@ -27,6 +27,13 @@ use Webmozart\Assert\Assert;
 
 final class GlobalMacroCriteria
 {
+    public const EQUAL_OPERATOR = 'eq';
+    public const LIKE_OPERATOR = 'lk';
+    public const ALLOWED_OPERATORS = [
+        self::EQUAL_OPERATOR,
+        self::LIKE_OPERATOR,
+    ];
+
     private ?int $page = null;
 
     private ?int $itemsPerPage = null;
