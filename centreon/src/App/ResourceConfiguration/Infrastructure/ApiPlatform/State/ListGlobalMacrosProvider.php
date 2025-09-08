@@ -65,11 +65,12 @@ final readonly class ListGlobalMacrosProvider implements ProviderInterface
             );
         }
 
+        /** @var array{filters: array{name?: array<string,string>}} $context */
         $nameFilter = $context['filters']['name'] ?? null;
         if (is_array($nameFilter)) {
-            foreach (GlobalMacroCriteria::ALLOWED_OPERATORS as $op) {
-                if (isset($nameFilter[$op]) && is_string($nameFilter[$op])) {
-                    $criteria = $criteria->withOperator($op)->withName($nameFilter[$op]);
+            foreach (GlobalMacroCriteria::ALLOWED_OPERATORS as $operator) {
+                if (isset($nameFilter[$operator])) {
+                    $criteria = $criteria->withOperator($operator)->withName($nameFilter[$operator]);
                     break;
                 }
             }
