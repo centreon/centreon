@@ -369,9 +369,9 @@ const updatePlatformPackages = (): Cypress.Chainable => {
           installCommands = [
             ...installCommands,
             `rm -f ${containerPackageDirectory}/centreon{,-central,-mariadb,-mysql}-${major_version}*.rpm`,
-            `dnf module reset -y php`,
-            `dnf module install -y php:8.2`,
-            `dnf module enable -y php:8.2`,
+            'dnf module reset -y php',
+            'dnf module install -y php:8.2',
+            'dnf module enable -y php:8.2',
             `dnf install -y ${containerPackageDirectory}/*.rpm`
           ];
           break;
