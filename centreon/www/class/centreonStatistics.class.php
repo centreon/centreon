@@ -346,7 +346,7 @@ class CentreonStatistics
 
         return [
             'managers' => $statementManagerCount ?: 0,
-            'tokens' => $statementTokenInfos
+            'tokens' => $statementTokenInfos,
         ];
     }
 
