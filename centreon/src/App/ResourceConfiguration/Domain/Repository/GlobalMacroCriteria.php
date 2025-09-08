@@ -66,7 +66,7 @@ final class GlobalMacroCriteria
 
     public function withOperator(string $operator): self
     {
-        Assert::oneOf($operator, ['lk', 'eq']);
+        Assert::oneOf($operator, self::ALLOWED_OPERATORS);
         $new = clone $this;
         $new->operator = $operator;
 
