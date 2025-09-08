@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,18 +42,16 @@ final class FindMetricsByServicePresenter extends AbstractPresenter implements F
         if ($response instanceof ResponseStatusInterface) {
             $this->setResponseStatus($response);
         } else {
-            $this->present(array_map(function (MetricDto $metric) {
-                return [
-                    'id' => $metric->id,
-                    'name' => $metric->name,
-                    'unit' => $metric->unit,
-                    'current_value' => $metric->currentValue,
-                    'warning_high_threshold' => $metric->warningHighThreshold,
-                    'warning_low_threshold' => $metric->warningLowThreshold,
-                    'critical_high_threshold' => $metric->criticalHighThreshold,
-                    'critical_low_threshold' => $metric->criticalLowThreshold,
-                ];
-            }, $response->metricsDto));
+            $this->present(array_map(fn (MetricDto $metric) => [
+                'id' => $metric->id,
+                'name' => $metric->name,
+                'unit' => $metric->unit,
+                'current_value' => $metric->currentValue,
+                'warning_high_threshold' => $metric->warningHighThreshold,
+                'warning_low_threshold' => $metric->warningLowThreshold,
+                'critical_high_threshold' => $metric->criticalHighThreshold,
+                'critical_low_threshold' => $metric->criticalLowThreshold,
+            ], $response->metricsDto));
         }
     }
 }

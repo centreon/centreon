@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2021 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,18 +18,18 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Centreon\Infrastructure\Monitoring\MetaService\Repository;
 
-use Assert\AssertionFailedException;
-use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
+use Centreon\Domain\Monitoring\MetaService\Interfaces\MetaServiceMetric\MetaServiceMetricRepositoryInterface;
 use Centreon\Domain\RequestParameters\RequestParameters;
+use Centreon\Infrastructure\DatabaseConnection;
+use Centreon\Infrastructure\Monitoring\MetaService\Repository\Model\MetaServiceMetricFactoryRdb;
 use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
-use Centreon\Infrastructure\Monitoring\MetaService\Repository\Model\MetaServiceMetricFactoryRdb;
-use Centreon\Domain\Monitoring\MetaService\Interfaces\MetaServiceMetric\MetaServiceMetricRepositoryInterface;
 
 /**
  * This class is designed to represent the MariaDb repository to manage meta service metrics.
@@ -39,9 +39,7 @@ use Centreon\Domain\Monitoring\MetaService\Interfaces\MetaServiceMetric\MetaServ
 class MetaServiceMetricRepositoryRDB extends AbstractRepositoryDRB implements
     MetaServiceMetricRepositoryInterface
 {
-    /**
-     * @var SqlRequestParametersTranslator
-     */
+    /** @var SqlRequestParametersTranslator */
     private $sqlRequestTranslator;
 
     /**
@@ -56,7 +54,6 @@ class MetaServiceMetricRepositoryRDB extends AbstractRepositoryDRB implements
             ->getRequestParameters()
             ->setConcordanceStrictMode(RequestParameters::CONCORDANCE_MODE_STRICT);
     }
-
 
     /**
      * @inheritDoc
@@ -102,7 +99,7 @@ class MetaServiceMetricRepositoryRDB extends AbstractRepositoryDRB implements
             'host_name' => 'idd.host_name',
         ]);
 
-        $request = "SELECT SQL_CALC_FOUND_ROWS
+        $request = 'SELECT SQL_CALC_FOUND_ROWS
                 1 AS REALTIME,
                 msr.metric_id,
                 msr.host_id,
@@ -116,10 +113,10 @@ class MetaServiceMetricRepositoryRDB extends AbstractRepositoryDRB implements
             INNER JOIN `:dbstg`.`metrics` m
                 ON msr.metric_id = m.metric_id
             INNER JOIN `:dbstg`.`index_data` idd
-                ON m.index_id = idd.id";
+                ON m.index_id = idd.id';
 
         if ($contactId !== null) {
-            $request .= " INNER JOIN `:db`.acl_resources_host_relations arhr
+            $request .= ' INNER JOIN `:db`.acl_resources_host_relations arhr
                     ON msr.host_id = arhr.host_host_id
                 INNER JOIN `:db`.acl_resources res
                     ON arhr.acl_res_id = res.acl_res_id
@@ -134,20 +131,20 @@ class MetaServiceMetricRepositoryRDB extends AbstractRepositoryDRB implements
                     ON ag.acl_group_id = agcgr.acl_group_id
                 LEFT JOIN `:db`.contactgroup_contact_relation cgcr
                     ON cgcr.contactgroup_cg_id = agcgr.cg_cg_id
-                    AND cgcr.contact_contact_id = :contact_id";
+                    AND cgcr.contact_contact_id = :contact_id';
         }
 
         $request = $this->translateDbName($request);
 
         // Search
         $searchRequest = $this->sqlRequestTranslator->translateSearchParameterToSql();
-        $request .= !is_null($searchRequest)
+        $request .= ! is_null($searchRequest)
             ? $searchRequest . ' AND msr.meta_id = :id'
             : ' WHERE msr.meta_id = :id';
 
         // Sort
         $sortRequest = $this->sqlRequestTranslator->translateSortParameterToSql();
-        $request .= !is_null($sortRequest)
+        $request .= ! is_null($sortRequest)
             ? $sortRequest
             : ' ORDER BY m.metric_name ASC';
 
@@ -171,6 +168,7 @@ class MetaServiceMetricRepositoryRDB extends AbstractRepositoryDRB implements
         while (($record = $statement->fetch(\PDO::FETCH_ASSOC)) !== false) {
             $metaServicesMetrics[] = MetaServiceMetricFactoryRdb::create($record);
         }
+
         return $metaServicesMetrics;
     }
 
@@ -183,7 +181,7 @@ class MetaServiceMetricRepositoryRDB extends AbstractRepositoryDRB implements
             'host_name' => 'idd.host_name',
         ]);
 
-        $request = "SELECT SQL_CALC_FOUND_ROWS
+        $request = 'SELECT SQL_CALC_FOUND_ROWS
                 1 AS REALTIME,
                 m.metric_id,
                 idd.host_id,
@@ -193,11 +191,11 @@ class MetaServiceMetricRepositoryRDB extends AbstractRepositoryDRB implements
                 m.metric_name,
                 m.unit_name,
                 m.current_value
-            FROM `:dbstg`.metrics m, `:dbstg`.index_data idd";
+            FROM `:dbstg`.metrics m, `:dbstg`.index_data idd';
 
         // apply ACL filter
         if ($contactId !== null) {
-            $request .= " INNER JOIN `:db`.acl_resources_host_relations arhr
+            $request .= ' INNER JOIN `:db`.acl_resources_host_relations arhr
                     ON idd.host_id = arhr.host_host_id
                 INNER JOIN `:db`.acl_resources res
                     ON arhr.acl_res_id = res.acl_res_id
@@ -212,14 +210,14 @@ class MetaServiceMetricRepositoryRDB extends AbstractRepositoryDRB implements
                     ON ag.acl_group_id = agcgr.acl_group_id
                 LEFT JOIN `:db`.contactgroup_contact_relation cgcr
                     ON cgcr.contactgroup_cg_id = agcgr.cg_cg_id
-                    AND cgcr.contact_contact_id = :contact_id";
+                    AND cgcr.contact_contact_id = :contact_id';
         }
 
         $request = $this->translateDbName($request);
 
         // Search
         $searchRequest = $this->sqlRequestTranslator->translateSearchParameterToSql();
-        $request .= !is_null($searchRequest)
+        $request .= ! is_null($searchRequest)
             ? $searchRequest . ' AND idd.service_description LIKE :regexp AND idd.id = m.index_id'
             : ' WHERE idd.service_description LIKE :regexp AND idd.id = m.index_id';
 
@@ -227,7 +225,7 @@ class MetaServiceMetricRepositoryRDB extends AbstractRepositoryDRB implements
 
         // Sort
         $sortRequest = $this->sqlRequestTranslator->translateSortParameterToSql();
-        $request .= !is_null($sortRequest)
+        $request .= ! is_null($sortRequest)
             ? $sortRequest
             : ' ORDER BY m.metric_name ASC';
 
@@ -253,6 +251,7 @@ class MetaServiceMetricRepositoryRDB extends AbstractRepositoryDRB implements
         while (($record = $statement->fetch(\PDO::FETCH_ASSOC)) !== false) {
             $metaServicesMetrics[] = MetaServiceMetricFactoryRdb::create($record);
         }
+
         return $metaServicesMetrics;
     }
 }

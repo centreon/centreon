@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -77,8 +77,7 @@ final class AddHostTemplateController extends AbstractController
         AddHostTemplate $useCase,
         AddHostTemplateOnPremPresenter $presenter,
         Request $request
-    ): Response
-    {
+    ): Response {
         try {
             /**
              * @var array{
@@ -191,8 +190,7 @@ final class AddHostTemplateController extends AbstractController
         AddHostTemplate $useCase,
         AddHostTemplateSaasPresenter $presenter,
         Request $request
-    ): Response
-    {
+    ): Response {
         try {
             /**
              * @var array{
@@ -202,6 +200,8 @@ final class AddHostTemplateController extends AbstractController
              *     snmp_community?: string,
              *     timezone_id?: null|int,
              *     severity_id?: null|int,
+             *     check_command_id?: null|int,
+             *     check_command_args?: string[],
              *     check_timeperiod_id?: null|int,
              *     max_check_attempts?: null|int,
              *     normal_check_interval?: null|int,
@@ -229,6 +229,8 @@ final class AddHostTemplateController extends AbstractController
             $dto->retryCheckInterval = $data['retry_check_interval'] ?? null;
             $dto->timezoneId = $data['timezone_id'] ?? null;
             $dto->severityId = $data['severity_id'] ?? null;
+            $dto->checkCommandId = $data['check_command_id'] ?? null;
+            $dto->checkCommandArgs = $data['check_command_args'] ?? [];
             $dto->checkTimeperiodId = $data['check_timeperiod_id'] ?? null;
             $dto->noteUrl = $data['note_url'] ?? '';
             $dto->note = $data['note'] ?? '';

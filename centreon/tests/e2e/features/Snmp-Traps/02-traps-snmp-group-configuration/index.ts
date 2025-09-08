@@ -1,4 +1,4 @@
-import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
+import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
 import data from '../../../fixtures/snmp-traps/snmp-trap.json';
 import { CreateOrUpdateTrapGroup } from '../common';
@@ -68,7 +68,7 @@ Then('the properties are updated', () => {
     .find('option:selected')
     .then(($selectedOptions) => {
       const selectedTexts = Array.from($selectedOptions).map(
-        (option) => option.text
+        (option) => option.textContent
       );
       expect(selectedTexts).to.include.members([
         data.snmpGroup2.traps[0],
@@ -96,7 +96,7 @@ Then('the a new trap group is created with identical properties', () => {
     .find('option:selected')
     .then(($selectedOptions) => {
       const selectedTexts = Array.from($selectedOptions).map(
-        (option) => option.text
+        (option) => option.textContent
       );
       expect(selectedTexts).to.include.members([
         data.snmpGroup1.traps[0],

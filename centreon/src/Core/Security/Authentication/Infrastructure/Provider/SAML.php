@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -273,6 +273,7 @@ class SAML implements ProviderAuthenticationInterface
             'default_page' => $user->getDefaultPage(),
             'contact_location' => (string) $user->getTimezoneId(),
             'show_deprecated_pages' => $user->isUsingDeprecatedPages(),
+            'show_deprecated_custom_views' => $user->isUsingDeprecatedCustomViews(),
             'reach_api' => $user->hasAccessToApiConfiguration() ? 1 : 0,
             'reach_api_rt' => $user->hasAccessToApiRealTime() ? 1 : 0,
             'contact_theme' => $user->getTheme() ?? 'light',

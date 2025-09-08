@@ -1,13 +1,24 @@
-FROM debian:bullseye
+FROM alpine:3.22
 
-RUN <<EOF
+RUN sh -e <<EOF
 
-apt-get update
-apt-get install -y locales php-cli gettext zstd
-apt-get clean
+apk add --no-cache --update \
+  bash \
+  coreutils \
+  curl \
+  findutils \
+  gettext \
+  git \
+  musl \
+  musl-utils \
+  musl-locales \
+  php82-cli \
+  tar \
+  tzdata \
+  zstd
+
+ln -s /usr/bin/php82 /usr/bin/php
 
 EOF
 
-ENV LANG en_US.utf8
-
-WORKDIR /src
+ENV LANG=en_US.utf8

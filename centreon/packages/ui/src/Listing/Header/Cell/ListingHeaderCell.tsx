@@ -12,7 +12,8 @@ import { Column } from '../../models';
 import { DraggableIconButton } from '../_internals/DraggableIconButton';
 import HeaderLabel from '../_internals/Label';
 
-import { StylesProps, useStyles } from './ListingHeaderCell.styles';
+import useStyleTable from '../../useStyleTable';
+import { StylesProps } from './ListingHeaderCell.styles';
 
 type Props = Pick<
   ListingProps<unknown>,
@@ -39,11 +40,7 @@ const ListingHeaderCell = ({
   listingVariant,
   ...props
 }: Props): JSX.Element => {
-  const { classes, cx } = useStyles({
-    isDragging,
-    isInDragOverlay,
-    listingVariant
-  });
+  const { dataStyle } = useStyleTable({ listingVariant });
   const columnLabel = column.shortLabel || column.label;
 
   const columnSortField = column.sortField || column.id;
@@ -72,32 +69,38 @@ const ListingHeaderCell = ({
 
   return (
     <TableCell
-      className={classes.tableCell}
+      className={`bg-background-listing-header border-b-0 h-[inherit] py-0 px-2 ${isInDragOverlay && 'block opacity-70'}`}
       component={'div' as unknown as React.ElementType<TableCellBaseProps>}
-      data-isdragging={isDragging}
-      data-isindragoverlay={isInDragOverlay}
       ref={itemRef}
-      style={style}
+      style={{
+        ...style,
+        height: dataStyle.header.height
+      }}
     >
-      <div className={classes.content}>
+      <div className="flex items-center h-full justify-between text-white p-0">
         {column.sortable ? (
           <TableSortLabel
             active={sortField === columnSortField}
             aria-label={`Column ${column.label}`}
-            className={classes.active}
+            className="text-white"
+            classes={{
+              icon: 'text-white'
+            }}
             direction={sortOrder || 'desc'}
             onClick={sort}
           >
             {headerContent}
           </TableSortLabel>
         ) : (
-          <div className={classes.simpleHeaderCellContent}>{headerContent}</div>
+          <div className="mr-4 inline-flex items-center select-none">
+            {headerContent}
+          </div>
         )}
 
         {columnConfiguration?.sortable && areColumnsEditable && (
           <DraggableIconButton
             {...props}
-            className={cx(classes.dragHandle, 'dragHandle')}
+            className={`p-0 ${isDragging ? 'cursor-grabbing' : 'cursor-grab'} text-white  opacity-0 hover:opacity-100 focus:opacity-100`}
             columnLabel={columnLabel}
           />
         )}

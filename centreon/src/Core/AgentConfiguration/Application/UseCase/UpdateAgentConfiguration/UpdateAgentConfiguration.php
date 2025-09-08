@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -55,7 +55,9 @@ final class UpdateAgentConfiguration
         private readonly Validator $validator,
         private readonly RepositoryManagerInterface $repositoryManager,
         private readonly ContactInterface $user,
-    ) {}
+        private readonly bool $isCloudPlatform,
+    ) {
+    }
 
     public function __invoke(
         UpdateAgentConfigurationRequest $request,
@@ -77,6 +79,22 @@ final class UpdateAgentConfiguration
                 );
 
                 return;
+            }
+
+            if ($this->isCloudPlatform && ! $this->user->isAdmin()) {
+                $linkedPollerIds = array_map(
+                    static fn (Poller $poller): int => $poller->id,
+                    $this->readAcRepository->findPollersByAcId($request->id)
+                );
+
+                $centralPoller = $this->readMonitoringServerRepository->findCentralByIds($linkedPollerIds);
+                if ($centralPoller !== null) {
+                    $presenter->setResponseStatus(
+                        new ForbiddenResponse(AgentConfigurationException::accessNotAllowed())
+                    );
+
+                    return;
+                }
             }
 
             if (null === $agentConfiguration = $this->getAgentConfiguration($request->id)) {
@@ -157,7 +175,7 @@ final class UpdateAgentConfiguration
 
         if (! $this->user->isAdmin()) {
             $pollerIds = array_map(
-                static fn(Poller $poller): int => $poller->id,
+                static fn (Poller $poller): int => $poller->id,
                 $this->readAcRepository->findPollersByAcId($agentConfiguration->getId())
             );
             $accessGroups = $this->readAccessGroupRepository->findByContact($this->user);

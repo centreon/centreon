@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,14 +23,21 @@ declare(strict_types=1);
 
 namespace Core\Security\Token\Application\UseCase\AddToken;
 
+use Core\Security\Token\Domain\Model\TokenTypeEnum;
+
 final class AddTokenRequest
 {
-    public string $name = '';
-
-    public int $userId = 0;
-
+    /**
+     * @param string $name
+     * @param TokenTypeEnum $type
+     * @param int $userId
+     * @param \DateTimeInterface|null $expirationDate
+     */
     public function __construct(
-        public \DateTimeInterface $expirationDate = new \DateTimeImmutable(),
-    )
-    {}
+        public string $name = '',
+        public TokenTypeEnum $type = TokenTypeEnum::API,
+        public int $userId = 0,
+        public ?\DateTimeInterface $expirationDate = null,
+    ) {
+    }
 }

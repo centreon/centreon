@@ -82,7 +82,7 @@ const useValidationSchema = (): UseValidationSchemaState => {
         object({
           allOfResourceType: boolean(),
           resourceType: string().matches(
-            /(host|service)(group|_category)?|meta_service|business_view|all/
+            /(host|service)(group|_category)?|meta_service|business_view|image_folder|all/
           ),
           resources: array().when(
             ['allOfResourceType', 'resourceType'],
@@ -91,7 +91,8 @@ const useValidationSchema = (): UseValidationSchemaState => {
                 'business_view',
                 'host',
                 'hostgroup',
-                'servicegroup'
+                'servicegroup',
+                'image_folder'
               ];
 
               if (equals('all', resourceType)) {

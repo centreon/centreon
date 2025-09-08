@@ -1,4 +1,3 @@
-/* eslint-disable cypress/unsafe-to-chain-command */
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
 import periods from '../../../fixtures/time-periods/time-period.json';
@@ -29,7 +28,15 @@ Given('a user is logged in a Centreon server via APIv2', () => {
 });
 
 When('a call to the endpoint "Add" a time period is done via APIv2', () => {
-  cy.addTimePeriodViaApi(periods.default);
+  cy.addTimePeriodViaApi({
+    ...periods.default,
+    days: periods.default.days.map((day) => ({
+      ...day,
+      timeRange: day.time_range
+    })),
+    templates: periods.default.templates,
+    exceptions: periods.default.exceptions
+  });
 });
 
 Then('a new time period is displayed on the time periods page', () => {
@@ -111,13 +118,29 @@ Then(
 );
 
 Given('a time period is configured via APIv2', () => {
-  cy.addTimePeriodViaApi(periods.default);
+  cy.addTimePeriodViaApi({
+    ...periods.default,
+    days: periods.default.days.map((day) => ({
+      ...day,
+      timeRange: day.time_range
+    })),
+    templates: periods.default.templates,
+    exceptions: periods.default.exceptions
+  });
 });
 
 When(
   'a call to the endpoint "Update" a time period is done on the configured time period via APIv2',
   () => {
-    cy.updateTimePeriodViaApi(periods.default.name, periods.time_period1);
+    cy.updateTimePeriodViaApi(periods.default.name, {
+      ...periods.time_period1,
+      days: periods.time_period1.days.map((day) => ({
+        ...day,
+        timeRange: day.time_range
+      })),
+      templates: periods.time_period1.templates,
+      exceptions: periods.time_period1.exceptions
+    });
   }
 );
 

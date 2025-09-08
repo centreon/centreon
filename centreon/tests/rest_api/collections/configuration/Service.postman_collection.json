@@ -1,9 +1,10 @@
 {
 	"info": {
-		"_postman_id": "133feab3-d48a-4146-826f-f02250a0619d",
+		"_postman_id": "8a86c1e8-be3b-4488-bca6-5105368c22c5",
 		"name": "Service",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "16182525"
+		"_exporter_id": "16182525",
+		"_collection_link": "https://centreon-api-testing.postman.co/workspace/develop-OSS~7c78046c-a719-4dae-bbf9-70e6e2c5b9bd/collection/16182525-8a86c1e8-be3b-4488-bca6-5105368c22c5?action=share&source=collection_link&creator=16182525"
 	},
 	"item": [
 		{
@@ -2330,6 +2331,9 @@
 									"    pm.collectionVariables.set(\"ServiceCategory1Id\", responseJson.id);\r",
 									"\r",
 									"    pm.expect(responseJson).to.eql({\r",
+									"        \"@context\": \"/centreon/api/latest/contexts/ServiceCategory\",\r",
+									"        \"@type\": \"ServiceCategory\",\r",
+									"        \"@id\": \"/centreon/api/latest/service_categories/\" + pm.collectionVariables.get(\"ServiceCategory1Id\"),\r",
 									"        \"id\": pm.collectionVariables.get(\"ServiceCategory1Id\"),\r",
 									"        \"name\": pm.collectionVariables.get(\"ServiceCategory1Name\"),\r",
 									"        \"alias\": pm.collectionVariables.get(\"ServiceCategory1Alias\"),\r",
@@ -2341,6 +2345,9 @@
 									"  const schema = {\r",
 									"    type: \"object\",\r",
 									"    properties: {\r",
+									"      \"@context\": { type: \"string\" },\r",
+									"      \"@id\": { type: \"string\" },\r",
+									"      \"@type\": { type: \"string\" },\r",
 									"      id: { type: \"integer\" },\r",
 									"      name: { type: \"string\" },\r",
 									"      alias: { type: \"string\" },\r",
@@ -2410,6 +2417,9 @@
 									"    pm.collectionVariables.set(\"ServiceCategory2Id\", responseJson.id);\r",
 									"\r",
 									"    pm.expect(responseJson).to.eql({\r",
+									"        \"@context\": \"/centreon/api/latest/contexts/ServiceCategory\",\r",
+									"        \"@type\": \"ServiceCategory\",\r",
+									"        \"@id\": \"/centreon/api/latest/service_categories/\" + pm.collectionVariables.get(\"ServiceCategory2Id\"),\r",
 									"        \"id\": pm.collectionVariables.get(\"ServiceCategory2Id\"),\r",
 									"        \"name\": pm.collectionVariables.get(\"ServiceCategory2Name\"),\r",
 									"        \"alias\": pm.collectionVariables.get(\"ServiceCategory2Alias\"),\r",
@@ -2421,6 +2431,9 @@
 									"  const schema = {\r",
 									"    type: \"object\",\r",
 									"    properties: {\r",
+									"      \"@context\": { type: \"string\" },\r",
+									"      \"@id\": { type: \"string\" },\r",
+									"      \"@type\": { type: \"string\" },\r",
 									"      id: { type: \"integer\" },\r",
 									"      name: { type: \"string\" },\r",
 									"      alias: { type: \"string\" },\r",
@@ -2796,7 +2809,24 @@
 									"        \"hosts\": []\r",
 									"    });\r",
 									"});\r",
-									""
+									"\r",
+									"pm.test(\"Schema validation for host group creation response\", function () {\r",
+									"    const schema = {\r",
+									"        type: \"object\",\r",
+									"        properties: {\r",
+									"            id: { type: \"integer\" },\r",
+									"            name: { type: \"string\" },\r",
+									"            alias: { type: [\"string\", \"null\"] },\r",
+									"            icon_id: { type: [\"integer\", \"null\"] },\r",
+									"            geo_coords: { type: [\"string\", \"null\"] },\r",
+									"            comment: { type: [\"string\", \"null\"] },\r",
+									"            hosts: { type: \"array\" }\r",
+									"        },\r",
+									"        required: [\"id\", \"name\", \"alias\", \"icon_id\", \"geo_coords\", \"comment\", \"hosts\"]\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});"
 								],
 								"type": "text/javascript",
 								"packages": {}
@@ -27447,6 +27477,17 @@
 		]
 	},
 	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"if (!pm.request.headers.has('Content-Type')) {",
+					"    pm.request.headers.add({ key: 'Content-Type', value: 'application/json' });",
+					"}"
+				]
+			}
+		},
 		{
 			"listen": "prerequest",
 			"script": {

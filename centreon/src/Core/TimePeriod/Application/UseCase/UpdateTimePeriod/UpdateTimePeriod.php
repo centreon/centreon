@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,6 @@ use Assert\AssertionFailedException;
 use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
-use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\{
     ConflictResponse,
     ErrorResponse,
@@ -36,6 +35,7 @@ use Core\Application\Common\UseCase\{
     NotFoundResponse,
     PresenterInterface
 };
+use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Common\Domain\TrimmedString;
 use Core\TimePeriod\Application\Exception\TimePeriodException;
 use Core\TimePeriod\Application\Repository\ReadTimePeriodRepositoryInterface;

@@ -77,12 +77,14 @@ const useFormInputs = ({
     {
       name: t(labelSelectResourcesAndEvents),
       order: 1,
-      titleAttributes
+      titleAttributes,
+      isDividerHidden: true
     },
     {
       name: t(labelNotificationSettings),
       order: 2,
-      titleAttributes
+      titleAttributes,
+      isDividerHidden: true
     }
   ];
 
@@ -258,6 +260,7 @@ const useFormInputs = ({
       additionalLabelClassName: classes.additionalLabel,
       fieldName: '',
       grid: {
+        gridTemplateColumns: 'repeat(3, 1fr)',
         className: classes.channels,
         columns: [
           {

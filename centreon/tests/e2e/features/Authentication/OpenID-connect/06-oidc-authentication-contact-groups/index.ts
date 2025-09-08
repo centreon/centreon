@@ -1,15 +1,15 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
-import {
-  configureOpenIDConnect,
-  initializeOIDCUserAndGetLoginPage
-} from '../common';
 import { configureProviderAcls, getUserContactId } from '../../../../commons';
+import {
+  configureOpenIdConnect,
+  initializeOidcUserAndGetLoginPage
+} from '../common';
 
 before(() => {
   cy.startContainers({ profiles: ['openid'] }).then(() => {
     configureProviderAcls();
-    initializeOIDCUserAndGetLoginPage();
+    initializeOidcUserAndGetLoginPage();
   });
 });
 
@@ -58,14 +58,15 @@ Given('an administrator is logged in the platform', () => {
 When(
   'the administrator sets valid settings in the Groups mapping and saves',
   () => {
-    configureOpenIDConnect();
-
     cy.getByLabel({
       label: 'Enable OpenID Connect authentication',
       tag: 'input'
     }).check();
 
-    cy.getByLabel({ label: 'Groups mapping' }).click();
+    configureOpenIdConnect();
+
+    cy.get('[data-testid="Groups mapping-header"]').click();
+
     cy.getByLabel({
       label: 'Enable automatic management',
       tag: 'input'

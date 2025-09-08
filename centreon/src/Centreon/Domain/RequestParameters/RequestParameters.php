@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2020 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,6 +18,7 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Centreon\Domain\RequestParameters;
@@ -34,15 +35,12 @@ class RequestParameters implements RequestParametersInterface
     public const NAME_FOR_SEARCH = 'search';
     public const NAME_FOR_SORT = 'sort_by';
     public const NAME_FOR_TOTAL = 'total';
-
     public const ORDER_ASC = 'ASC';
     public const ORDER_DESC = 'DESC';
     public const DEFAULT_ORDER = self::ORDER_ASC;
-
     public const DEFAULT_LIMIT = 10;
     public const DEFAULT_PAGE = 1;
     public const DEFAULT_SEARCH_OPERATOR = self::OPERATOR_EQUAL;
-
     public const OPERATOR_EQUAL = '$eq';
     public const OPERATOR_NOT_EQUAL = '$neq';
     public const OPERATOR_LESS_THAN = '$lt';
@@ -54,13 +52,27 @@ class RequestParameters implements RequestParametersInterface
     public const OPERATOR_REGEXP = '$rg';
     public const OPERATOR_IN = '$in';
     public const OPERATOR_NOT_IN = '$ni';
-
+    public const LIST_SEARCH_OPERATORS = [
+        self::OPERATOR_EQUAL,
+        self::OPERATOR_NOT_EQUAL,
+        self::OPERATOR_LESS_THAN,
+        self::OPERATOR_LESS_THAN_OR_EQUAL,
+        self::OPERATOR_GREATER_THAN,
+        self::OPERATOR_GREATER_THAN_OR_EQUAL,
+        self::OPERATOR_LIKE,
+        self::OPERATOR_NOT_LIKE,
+        self::OPERATOR_REGEXP,
+        self::OPERATOR_IN,
+        self::OPERATOR_NOT_IN,
+    ];
     public const AGGREGATE_OPERATOR_OR = '$or';
     public const AGGREGATE_OPERATOR_AND = '$and';
-
+    public const LIST_AGGREGATE_OPERATORS = [
+        self::AGGREGATE_OPERATOR_AND,
+        self::AGGREGATE_OPERATOR_OR,
+    ];
     public const CONCORDANCE_MODE_NO_STRICT = 0;
     public const CONCORDANCE_MODE_STRICT = 1;
-
     public const CONCORDANCE_ERRMODE_SILENT = 0;
     public const CONCORDANCE_ERRMODE_EXCEPTION = 1;
 
@@ -70,38 +82,26 @@ class RequestParameters implements RequestParametersInterface
 
     /**
      * @var int Indicates whether we should consider only known search parameters.
-     * Used in the data repository classes.
+     *          Used in the data repository classes.
      */
     private $concordanceStrictMode = self::CONCORDANCE_MODE_NO_STRICT;
 
-    /**
-     * @var int Indicates error behaviour when there unknown search parameters in strict mode.
-     */
+    /** @var int indicates error behaviour when there unknown search parameters in strict mode */
     private $concordanceErrorMode = self::CONCORDANCE_ERRMODE_EXCEPTION;
 
-    /**
-     * @var array Array representing fields to search for
-     */
+    /** @var array Array representing fields to search for */
     private $search = [];
 
-    /**
-     * @var array Field to order
-     */
+    /** @var array Field to order */
     private $sort = [];
 
-    /**
-     * @var int Number of the page
-     */
+    /** @var int Number of the page */
     private $page = 1;
 
-    /**
-     * @var int Number of records per page
-     */
+    /** @var int Number of records per page */
     private $limit = 10;
 
-    /**
-     * @var int Total of lines founds without limit
-     */
+    /** @var int Total of lines founds without limit */
     private $total = 0;
 
     /**
@@ -120,6 +120,7 @@ class RequestParameters implements RequestParametersInterface
         if (array_key_exists($parameterName, $this->extraParameters)) {
             return $this->extraParameters[$parameterName];
         }
+
         return null;
     }
 
@@ -138,6 +139,7 @@ class RequestParameters implements RequestParametersInterface
     public function setConcordanceStrictMode(int $concordanceStrictMode): self
     {
         $this->concordanceStrictMode = $concordanceStrictMode;
+
         return $this;
     }
 
@@ -156,6 +158,7 @@ class RequestParameters implements RequestParametersInterface
     public function setConcordanceErrorMode(int $concordanceErrorMode): self
     {
         $this->concordanceErrorMode = $concordanceErrorMode;
+
         return $this;
     }
 
@@ -176,34 +179,28 @@ class RequestParameters implements RequestParametersInterface
                 }
             }
         }
+
         return false;
     }
 
     /**
      * @inheritDoc
+     *
+     * Return an array of search names.
+     * If $withValueAndOperator is true, the array will contain associative arrays as: [<operator> => <value>]
      */
-    public function extractSearchNames(): array
+    public function extractSearchNames(bool $withValueAndOperator = false): array
     {
-        $notAllowedKeys = [
-            self::AGGREGATE_OPERATOR_AND,
-            self::AGGREGATE_OPERATOR_OR,
-            self::OPERATOR_EQUAL,
-            self::OPERATOR_NOT_EQUAL,
-            self::OPERATOR_LESS_THAN,
-            self::OPERATOR_LESS_THAN_OR_EQUAL,
-            self::OPERATOR_GREATER_THAN,
-            self::OPERATOR_GREATER_THAN_OR_EQUAL,
-            self::OPERATOR_LIKE,
-            self::OPERATOR_NOT_LIKE,
-            self::OPERATOR_REGEXP,
-            self::OPERATOR_IN,
-            self::OPERATOR_NOT_IN
-        ];
+        $notAllowedKeys = array_merge(self::LIST_SEARCH_OPERATORS, self::LIST_AGGREGATE_OPERATORS);
         $names = [];
-        $searchIn = function ($data) use (&$searchIn, &$names, $notAllowedKeys): void {
+        $searchIn = function ($data) use (&$searchIn, &$names, $notAllowedKeys, $withValueAndOperator): void {
             foreach ($data as $key => $value) {
-                if (!in_array($key, $names) && !in_array($key, $notAllowedKeys) && !is_int($key)) {
-                    $names[] = $key;
+                if (! in_array($key, $names) && ! in_array($key, $notAllowedKeys) && ! is_int($key)) {
+                    if ($withValueAndOperator) {
+                        $names[$key] = $value;
+                    } else {
+                        $names[] = $key;
+                    }
                 }
                 if (is_object($value) || is_array($value)) {
                     $searchIn((array) $value);
@@ -211,30 +208,8 @@ class RequestParameters implements RequestParametersInterface
             }
         };
         $searchIn($this->search);
+
         return $names;
-    }
-
-    /**
-     * Try to fix the schema in case of bad structure
-     *
-     * @throws \Exception
-     */
-    private function fixSchema(): void
-    {
-        $search = $this->search;
-
-        if (!empty($search)) {
-            if (
-                (
-                    !isset($search[RequestParameters::AGGREGATE_OPERATOR_AND])
-                    && !isset($search[RequestParameters::AGGREGATE_OPERATOR_OR])
-                )
-                || (count($this->search) > 1)
-            ) {
-                $newSearch[RequestParameters::AGGREGATE_OPERATOR_AND] = $search;
-                $this->search = $newSearch;
-            }
-        }
     }
 
     /**
@@ -248,10 +223,10 @@ class RequestParameters implements RequestParametersInterface
             self::NAME_FOR_SEARCH => $this->search !== []
                 ? json_decode(json_encode($this->search), true)
                 : new \stdClass(),
-            self::NAME_FOR_SORT => !empty($this->sort)
+            self::NAME_FOR_SORT => $this->sort !== []
                 ? json_decode(json_encode($this->sort), true)
                 : new \stdClass(),
-            self::NAME_FOR_TOTAL => $this->total
+            self::NAME_FOR_TOTAL => $this->total,
         ];
     }
 
@@ -267,7 +242,7 @@ class RequestParameters implements RequestParametersInterface
                 if ($key === $parameterToExtract) {
                     unset($parameters[$key]);
                 } elseif (is_array($value) || is_object($value)) {
-                    $value = (array)$value;
+                    $value = (array) $value;
                     $extractFunction($parameterToExtract, $value);
                 }
             }
@@ -349,11 +324,11 @@ class RequestParameters implements RequestParametersInterface
     public function setSort(string $sortRequest): void
     {
         $sortRequestToAnalyze = json_decode($sortRequest ?: self::DEFAULT_SEARCH_OPERATOR, true);
-        if (!is_array($sortRequestToAnalyze)) {
-            if ($sortRequest[0] != '{') {
+        if (! is_array($sortRequestToAnalyze)) {
+            if (! empty($sortRequest) && $sortRequest[0] != '{') {
                 $this->sort = [$sortRequest => self::DEFAULT_ORDER];
             } else {
-                throw new \RestBadRequestException("Bad format for the sort request parameter");
+                throw new \RestBadRequestException('Bad format for the sort request parameter');
             }
         } else {
             foreach ($sortRequestToAnalyze as $name => $order) {
@@ -363,7 +338,7 @@ class RequestParameters implements RequestParametersInterface
                     $sortFound,
                     PREG_OFFSET_CAPTURE
                 );
-                if (!$isMatched || !in_array(strtoupper($order), $this->authorizedOrders)) {
+                if (! $isMatched || ! in_array(strtoupper($order), $this->authorizedOrders)) {
                     unset($sortRequestToAnalyze[$name]);
                 } else {
                     $sortRequestToAnalyze[$name] = strtoupper($order);
@@ -395,5 +370,28 @@ class RequestParameters implements RequestParametersInterface
     public function unsetSearch(): void
     {
         $this->search = [];
+    }
+
+    /**
+     * Try to fix the schema in case of bad structure
+     *
+     * @throws \Exception
+     */
+    private function fixSchema(): void
+    {
+        $search = $this->search;
+
+        if (! empty($search)) {
+            if (
+                (
+                    ! isset($search[RequestParameters::AGGREGATE_OPERATOR_AND])
+                    && ! isset($search[RequestParameters::AGGREGATE_OPERATOR_OR])
+                )
+                || (count($this->search) > 1)
+            ) {
+                $newSearch[RequestParameters::AGGREGATE_OPERATOR_AND] = $search;
+                $this->search = $newSearch;
+            }
+        }
     }
 }

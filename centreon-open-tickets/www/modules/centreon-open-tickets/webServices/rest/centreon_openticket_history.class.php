@@ -1,34 +1,36 @@
 <?php
+
 /*
- * Copyright 2016-2019 Centreon (http://www.centreon.com/)
- *
- * Centreon is a full-fledged industry-strength solution that meets
- * the needs in IT infrastructure and application monitoring for
- * service performance.
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,*
+ * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
+ * For more information : contact@centreon.com
+ *
  */
 
-require_once _CENTREON_PATH_ . "/www/class/centreonDB.class.php";
-require_once _CENTREON_PATH_ . "/www/api/class/webService.class.php";
+require_once _CENTREON_PATH_ . '/www/class/centreonDB.class.php';
+require_once _CENTREON_PATH_ . '/www/api/class/webService.class.php';
 
 class CentreonOpenticketHistory extends CentreonWebService
 {
-    /** @var Centreon  */
+    /** @var Centreon */
     public $centreon;
-    /** @var CentreonDB  */
+
+    /** @var CentreonDB */
     public $pearDBMonitoring;
-    /** @var CentreonDB|null  */
+
+    /** @var CentreonDB|null */
     protected $pearDB;
 
     /**
@@ -59,13 +61,12 @@ class CentreonOpenticketHistory extends CentreonWebService
          */
         $result = ['code' => 0, 'message' => 'history saved'];
 
-        if (!isset($this->arguments['ticket_id'])
-            || !isset($this->arguments['user'])
-            || !isset($this->arguments['subject'])
-            || !is_array($this->arguments['links'])
+        if (! isset($this->arguments['ticket_id'])
+            || ! isset($this->arguments['user'])
+            || ! isset($this->arguments['subject'])
+            || ! is_array($this->arguments['links'])
         ) {
-            $result = ['code' => 1, 'message' => 'parameters missing'];
-            return $result;
+            return ['code' => 1, 'message' => 'parameters missing'];
         }
         $timestamp = time();
         if (isset($this->arguments['timestamp'])) {
@@ -82,7 +83,7 @@ class CentreonOpenticketHistory extends CentreonWebService
             AND services.description = ?'
         );
         foreach ($this->arguments['links'] as $link) {
-            if (isset($link['hostname']) && isset($link['service_description'])) {
+            if (isset($link['hostname'], $link['service_description'])) {
                 $res = $this->pearDBMonitoring->execute(
                     $stmt_service,
                     [$link['hostname'], $link['service_description']]
@@ -102,45 +103,41 @@ class CentreonOpenticketHistory extends CentreonWebService
         }
 
         if (count($links_ok) == 0) {
-            $result = ['code' => 1, 'message' => 'links parameters missing or wrong'];
-            return $result;
+            return ['code' => 1, 'message' => 'links parameters missing or wrong'];
         }
 
-        /* Insert data */
+        // Insert data
         $this->pearDBMonitoring->beginTransaction();
         $res = $this->pearDBMonitoring->query(
-            "INSERT INTO mod_open_tickets (`timestamp`, `user`, `ticket_value`) VALUES (" .
-                $this->pearDBMonitoring->quote($timestamp) . ", " .
-                $this->pearDBMonitoring->quote($this->arguments['user']) . ", " .
-                $this->pearDBMonitoring->quote($this->arguments['ticket_id']) .
-            ")"
+            'INSERT INTO mod_open_tickets (`timestamp`, `user`, `ticket_value`) VALUES ('
+                . $this->pearDBMonitoring->quote($timestamp) . ', '
+                . $this->pearDBMonitoring->quote($this->arguments['user']) . ', '
+                . $this->pearDBMonitoring->quote($this->arguments['ticket_id'])
+            . ')'
         );
         if (true === PEAR::isError($res)) {
-            $result = ['code' => 1, 'message' => 'cannot insert in database'];
-            return $result;
+            return ['code' => 1, 'message' => 'cannot insert in database'];
         }
 
-        /* Get Autoincrement */
-        $res = $this->pearDBMonitoring->query("SELECT LAST_INSERT_ID() AS last_id");
-        if (true === PEAR::isError($res) || !($row = $res->fetch())) {
-            $result = ['code' => 1, 'message' => 'database issue'];
-            return $result;
+        // Get Autoincrement
+        $res = $this->pearDBMonitoring->query('SELECT LAST_INSERT_ID() AS last_id');
+        if (true === PEAR::isError($res) || ! ($row = $res->fetch())) {
+            return ['code' => 1, 'message' => 'database issue'];
         }
         $auto_ticket = $row['last_id'];
 
-        /* Insert data */
+        // Insert data
         $res = $this->pearDBMonitoring->query(
-            "INSERT INTO mod_open_tickets_data (`ticket_id`, `subject`) VALUES (" .
-                $this->pearDBMonitoring->quote($auto_ticket) . ", " .
-                $this->pearDBMonitoring->quote($this->arguments['subject']) .
-            ")"
+            'INSERT INTO mod_open_tickets_data (`ticket_id`, `subject`) VALUES ('
+                . $this->pearDBMonitoring->quote($auto_ticket) . ', '
+                . $this->pearDBMonitoring->quote($this->arguments['subject'])
+            . ')'
         );
         if (true === PEAR::isError($res)) {
-            $result = ['code' => 1, 'message' => 'cannot insert in database'];
-            return $result;
+            return ['code' => 1, 'message' => 'cannot insert in database'];
         }
 
-        /* Insert data */
+        // Insert data
         foreach ($links_ok as $link_ok) {
             $names = '';
             $values = '';
@@ -151,18 +148,18 @@ class CentreonOpenticketHistory extends CentreonWebService
                 $append = ', ';
             }
             $res = $this->pearDBMonitoring->query(
-                "INSERT INTO mod_open_tickets_link (`ticket_id`, $names) VALUES (" .
-                    $this->pearDBMonitoring->quote($auto_ticket) . ", " .
-                    $values .
-                ")"
+                "INSERT INTO mod_open_tickets_link (`ticket_id`, {$names}) VALUES ("
+                    . $this->pearDBMonitoring->quote($auto_ticket) . ', '
+                    . $values
+                . ')'
             );
             if (true === PEAR::isError($res)) {
-                $result = ['code' => 1, 'message' => 'cannot insert in database'];
-                return $result;
+                return ['code' => 1, 'message' => 'cannot insert in database'];
             }
         }
 
         $this->pearDBMonitoring->commit();
+
         return $result;
     }
 }

@@ -16,7 +16,6 @@ import {
   SelectActionListingHeaderCell,
   SelectActionListingHeaderCellProps
 } from './Cell/SelectActionListingHeaderCell';
-import { useStyles } from './ListingHeader.styles';
 
 type Props = Pick<
   ListingProps<unknown>,
@@ -62,8 +61,6 @@ const ListingHeader = ({
   predefinedRowsSelection,
   onSelectRowsWithCondition
 }: Props): JSX.Element => {
-  const { classes, cx } = useStyles();
-
   const visibleColumns = getVisibleColumns({
     columnConfiguration,
     columns
@@ -105,8 +102,8 @@ const ListingHeader = ({
   );
 
   return (
-    <TableHead className={cx(classes.row, 'listingHeader')} component="div">
-      <TableRow className={classes.row} component="div">
+    <TableHead className="contents" component="div">
+      <TableRow className="contents" component="div">
         {checkable && (
           <SelectActionListingHeaderCell
             predefinedRowsSelection={predefinedRowsSelection}

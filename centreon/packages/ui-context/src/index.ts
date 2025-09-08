@@ -23,6 +23,8 @@ export {
   federatedModulesAtom,
   federatedWidgetsAtom
 } from './federatedModulesAndWidgetsAtoms';
+export { browserLocaleAtom } from './browserLocaleAtom';
+export { isResourceStatusFullSearchEnabledAtom } from './isResourceStatusFullSearchEnabledAtom';
 
 export type {
   User,

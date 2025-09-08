@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -63,7 +63,7 @@ use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryIn
 use Tests\Core\Host\Infrastructure\API\PartialUpdateHost\PartialUpdateHostPresenterStub;
 
 beforeEach(function (): void {
-     $this->presenter = new PartialUpdateHostPresenterStub($this->createMock(PresenterFormatterInterface::class));
+    $this->presenter = new PartialUpdateHostPresenterStub($this->createMock(PresenterFormatterInterface::class));
 
     $this->useCase = new PartialUpdateHost(
         writeHostRepository: $this->writeHostRepository = $this->createMock(WriteHostRepositoryInterface::class),
@@ -235,8 +235,24 @@ beforeEach(function (): void {
 
     // Settup groups
     $this->groups = [
-        $this->groupA = new HostGroup(6, 'grp-name-A', 'grp-alias-A', '', '', '', null, null, null, null, '', true),
-        $this->groupB = new HostGroup(7, 'grp-name-B', 'grp-alias-B', '', '', '', null, null, null, null, '', true),
+        $this->groupA = new HostGroup(
+            id: 6,
+            name: 'grp-name-A',
+            alias: 'grp-alias-A',
+            iconId: null,
+            geoCoords: null,
+            comment: '',
+            isActivated: true
+        ),
+        $this->groupB = new HostGroup(
+            id: 7,
+            name: 'grp-name-B',
+            alias: 'grp-alias-B',
+            iconId: null,
+            geoCoords: null,
+            comment: '',
+            isActivated: true
+        ),
     ];
     $this->request->groups = [$this->groupA->getId(), $this->groupB->getId()];
 });
@@ -269,7 +285,7 @@ it('should present an ErrorResponse when an exception is thrown', function (): v
     $this->readAccessGroupRepository
         ->expects($this->once())
         ->method('findByContact')
-        ->willThrowException(new \Exception);
+        ->willThrowException(new \Exception());
 
     ($this->useCase)($this->request, $this->presenter, $this->hostId);
 
@@ -301,7 +317,7 @@ it('should present a NotFoundResponse when the host does not exist', function ()
         ->toBe('Host not found');
 });
 
- // Tests for host
+// Tests for host
 
 it('should present a ConflictResponse when name is already used', function (): void {
     $this->user
@@ -645,7 +661,7 @@ it('should present a ConflictResponse when a parent template ID is not valid', f
         ->method('assertAreValidTemplates')
         ->willThrowException(HostException::idsDoNotExist('templates', $this->request->templates));
 
-    ($this->useCase)($this->request, $this->presenter, $this->hostId );
+    ($this->useCase)($this->request, $this->presenter, $this->hostId);
 
     expect($this->presenter->response)
         ->toBeInstanceOf(ConflictResponse::class)
@@ -705,7 +721,7 @@ it('should present a ConflictResponse when a parent template creates a circular 
         ->method('assertAreValidTemplates')
         ->willThrowException(HostException::circularTemplateInheritance());
 
-    ($this->useCase)($this->request, $this->presenter, $this->hostId );
+    ($this->useCase)($this->request, $this->presenter, $this->hostId);
 
     expect($this->presenter->response)
         ->toBeInstanceOf(ConflictResponse::class)

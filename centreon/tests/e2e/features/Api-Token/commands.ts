@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-namespace */
-
 Cypress.Commands.add('visitApiTokens', () => {
   cy.intercept({
     method: 'GET',
@@ -8,11 +6,11 @@ Cypress.Commands.add('visitApiTokens', () => {
   }).as('getTokens');
 
   cy.url().then((url) => {
-    if (url.includes('/administration/api-token')) {
-      cy.visit('/centreon/administration/api-token');
+    if (url.includes('/administration/authentication-token')) {
+      cy.visit('/centreon/administration/authentication-token');
     } else {
       cy.navigateTo({
-        page: 'API Tokens',
+        page: 'Authentication Tokens',
         rootItemNumber: 4
       });
     }
@@ -20,10 +18,11 @@ Cypress.Commands.add('visitApiTokens', () => {
 
   cy.wait('@getTokens');
 
-  cy.contains('h6', 'API tokens').should('be.visible');
+  cy.contains('h1', 'Authentication tokens').should('be.visible');
 });
 
 declare global {
+  // biome-ignore lint/style/noNamespace: <explanation>
   namespace Cypress {
     interface Chainable {
       visitApiTokens: () => Cypress.Chainable;

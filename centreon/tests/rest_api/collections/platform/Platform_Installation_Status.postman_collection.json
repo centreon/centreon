@@ -1,10 +1,9 @@
 {
 	"info": {
-		"_postman_id": "0ec47e55-c9da-4d27-b33c-5fda87bf70fe",
+		"_postman_id": "af4c7900-a23c-4201-a12a-2b555a8c4965",
 		"name": "Platform_Installation_Status",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "16182525",
-		"_collection_link": "https://centreon-api-testing.postman.co/workspace/Migration-of-%2522behat%2522-tests~e335ae07-f9ab-4b8d-bc6c-19b9f0078df4/collection/16182525-0ec47e55-c9da-4d27-b33c-5fda87bf70fe?action=share&source=collection_link&creator=16182525"
+		"_exporter_id": "16182525"
 	},
 	"item": [
 		{
@@ -65,7 +64,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"var responseJson = pm.response.json();\r",
+									"const responseJson = pm.response.json();\r",
 									"pm.test(\"The platform installation status is successfully displayed.\", function () {\r",
 									"    pm.response.to.have.status(200);\r",
 									"    pm.expect(responseJson).to.eql({\r",
@@ -73,7 +72,19 @@
 									"        \"has_upgrade_available\": false\r",
 									"    });\r",
 									"});\r",
-									""
+									"\r",
+									"pm.test(\"Schema validation for the platform installation status response\", function () {\r",
+									"    const schema = {\r",
+									"        type: \"object\",\r",
+									"        properties: {\r",
+									"            is_installed: { type: \"boolean\" },\r",
+									"            has_upgrade_available: { type: \"boolean\" }\r",
+									"        },\r",
+									"        required: [\"is_installed\", \"has_upgrade_available\"]\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});"
 								],
 								"type": "text/javascript",
 								"packages": {}

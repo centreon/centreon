@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,6 +48,7 @@ final class DeleteAgentConfiguration
         private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
         private readonly ReadMonitoringServerRepositoryInterface $readMonitoringServerRepository,
         private readonly ContactInterface $user,
+        private readonly bool $isCloudPlatform,
     ) {
     }
 
@@ -78,11 +79,23 @@ final class DeleteAgentConfiguration
             }
 
             $linkedPollerIds = array_map(
-                static fn(Poller $poller): int => $poller->id,
+                static fn (Poller $poller): int => $poller->id,
                 $this->readAcRepository->findPollersByAcId($id)
             );
 
             if (false === $this->user->isAdmin()) {
+                // non admin cannot delete central on cloud platform
+                if ($this->isCloudPlatform) {
+                    $centralPoller = $this->readMonitoringServerRepository->findCentralByIds($linkedPollerIds);
+                    if ($centralPoller !== null) {
+                        $presenter->setResponseStatus(new ForbiddenResponse(
+                            AgentConfigurationException::accessNotAllowed()
+                        ));
+
+                        return;
+                    }
+                }
+
                 $accessGroups = $this->readAccessGroupRepository->findByContact($this->user);
                 $accessiblePollerIds = $this->readMonitoringServerRepository->existByAccessGroups(
                     $linkedPollerIds,
