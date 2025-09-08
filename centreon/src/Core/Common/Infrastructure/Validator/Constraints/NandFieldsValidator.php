@@ -28,12 +28,12 @@ use Symfony\Component\Validator\ConstraintValidator;
 use Symfony\Component\Validator\Exception\UnexpectedTypeException;
 use Symfony\Component\Validator\Exception\UnexpectedValueException;
 
-final class OnlyOneRequiredValidator extends ConstraintValidator
+final class NandFieldsValidator extends ConstraintValidator
 {
     public function validate(mixed $object, Constraint $constraint): void
     {
-        if (! $constraint instanceof OnlyOneRequired) {
-            throw new UnexpectedTypeException($constraint, OnlyOneRequired::class);
+        if (! $constraint instanceof NandFields) {
+            throw new UnexpectedTypeException($constraint, NandFields::class);
         }
 
         if (! is_object($object)) {
@@ -54,12 +54,6 @@ final class OnlyOneRequiredValidator extends ConstraintValidator
 
                 return;
             }
-        }
-
-        if ($presentCount === 0) {
-            $this->context->buildViolation($constraint->message)
-                ->setParameter('{{ properties }}', implode(', ', $properties))
-                ->addViolation();
         }
     }
 }

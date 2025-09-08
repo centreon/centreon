@@ -26,14 +26,14 @@ namespace Core\Common\Infrastructure\Validator\Constraints;
 use Symfony\Component\Validator\Constraint;
 
 /**
- * A custom constraint applied at the class level to validate a logical XOR between two properties.
+ * A custom constraint applied at the class level to validate a logical NAND (NOT AND) between two properties.
  *
- * Ensures that exactly one of the specified properties is set (i.e., not both or neither).
+ * Ensures that exactly one or none of the specified properties is set.
  */
 #[\Attribute(\Attribute::TARGET_CLASS)]
-final class OnlyOneRequired extends Constraint
+final class NandFields extends Constraint
 {
-    public string $message = 'Exactly one of the following must be provided: {{ properties }}.';
+    public string $message = 'Only one or none of the following must be provided: {{ properties }}.';
 
     /**
      * @param array<string> $properties
