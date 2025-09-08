@@ -455,6 +455,7 @@ function set_required_prerequisite() {
 		8*)
 			log "INFO" "Setting specific part for v8 ($detected_os_version)"
 			RELEASE_REPO_FILE="https://packages.centreon.com/artifactory/rpm-standard/$version/el8/centreon-$version.repo"
+			REMI_RELEASE_RPM_URL="https://rpms.remirepo.net/enterprise/remi-release-8.rpm"
 			PHP_SERVICE_UNIT="php-fpm"
 			HTTP_SERVICE_UNIT="httpd"
 			PKG_MGR="dnf"
@@ -487,10 +488,11 @@ function set_required_prerequisite() {
 			if [ "$topology" == "central" ]; then
 				case "$version" in
 					"23.10" | "24.04")
+					    install_remi_repo
 						log "INFO" "Installing PHP 8.1 and enable it"
 						$PKG_MGR module reset php -y -q
-						$PKG_MGR module install php:8.1 -y -q
-						$PKG_MGR module enable php:8.1 -y -q
+						$PKG_MGR module install php:remi-8.1 -y -q
+						$PKG_MGR module enable php:remi-8.1 -y -q
 						;;
 					"24.10")
 						log "INFO" "Installing PHP 8.2 and enable it"
