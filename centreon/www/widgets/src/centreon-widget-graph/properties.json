@@ -155,6 +155,7 @@
             "method": "includes",
             "when": "options.displayType",
             "matches": ["bar", "bar-stacked"]
+            "matches": ["bar", "bar-stacked"]
           }
         },
         "showArea": {
@@ -209,6 +210,7 @@
             "target": "options",
             "method": "includes",
             "when": "options.displayType",
+            "matches": ["bar", "bar-stacked"]
             "matches": ["bar", "bar-stacked"]
           },
           "options": [
@@ -334,6 +336,7 @@
             "target": "options",
             "method": "includes",
             "when": "options.displayType",
+            "matches": ["line"]
             "matches": ["line"]
           }
         },
