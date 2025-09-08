@@ -59,7 +59,7 @@ final readonly class ListPluginsProvider implements ProviderInterface
     public function provide(Operation $operation, array $uriVariables = [], array $context = []): iterable
     {
         $pluginPathOption = $this->optionRepository->findByName(new OptionName(Option::PLUGIN_PATH_OPTION_NAME));
-        if (!$pluginPathOption instanceof \App\ResourceConfiguration\Domain\Aggregate\Option) {
+        if (! $pluginPathOption instanceof Option) {
             throw new PluginPathOptionDoesNotExistsException(['name' => Option::PLUGIN_PATH_OPTION_NAME]);
         }
         $models = $this->pluginRepository->findByPath($pluginPathOption->value->value);
