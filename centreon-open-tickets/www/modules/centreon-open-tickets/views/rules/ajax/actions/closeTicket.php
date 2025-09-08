@@ -19,6 +19,8 @@
  *
  */
 
+use Adaptation\Database\Connection\Exception\ConnectionException;
+
 $resultat = ['code' => 0, 'msg' => 'ok'];
 
 // Load provider class
@@ -125,9 +127,21 @@ $query .= ' AND motl.host_id = hosts.host_id
     ) ORDER BY `host_name`, `description`, `timestamp` DESC';
 
 $hosts_done = [];
+try {
+    $dbResult = $db_storage->fetchAllAssociative($query);
+} catch (ConnectionException $e) {
+    CentreonLog::create()->error(
+        CentreonLog::TYPE_SQL,
+        'Error while fetching tickets to close: ' . $e->getMessage(),
+        exception: $e
+    );
+    $resultat['code'] = 1;
+    $resultat['msg'] = 'Error while fetching tickets to close: ' . $e->getMessage();
 
-$dbResult = $db_storage->query($query);
-while ($row = $dbResult->fetch()) {
+    return;
+}
+
+foreach ($dbResult as $row) {
     if (isset($hosts_done[$row['host_name'] . ';' . $row['description']])) {
         continue;
     }
