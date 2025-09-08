@@ -335,7 +335,6 @@
             "method": "includes",
             "when": "options.displayType",
             "matches": ["line"]
-            "matches": ["line"]
           }
         },
         "barOpacity": {
