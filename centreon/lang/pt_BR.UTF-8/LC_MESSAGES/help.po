@@ -1836,8 +1836,8 @@ msgid ""
 msgstr ""
 
 #: centreon/www/include/configuration/configServers/help.php
-msgid "IP address of the poller"
-msgstr "Endereço IP do coletor"
+msgid "Address of the poller"
+msgstr "Endereço do coletor"
 
 #: centreon/www/include/configuration/configCentreonBroker/help.php
 msgid "IP address or hostname of the database server."
