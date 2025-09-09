@@ -857,7 +857,6 @@ function updateHostGroupInDBForCloud(int $hostGroupId, array $submittedValues, b
     }
 
     if (isset($submittedValues['hg_name'])) {
-
         $submittedValues['hg_name'] = $centreon->checkIllegalChar($submittedValues['hg_name']);
         $request .= ', hg_name = :name';
         $bindValues[':name'] = [
