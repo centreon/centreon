@@ -8741,6 +8741,10 @@ msgstr ""
 msgid "Inputs"
 msgstr "Entradas"
 
+#: centreon/www/install/front_translate.php
+msgid "Insecure TLS"
+msgstr ""
+
 #: centreon/www/install/centreon_broker_translation.php
 msgid "Insert in index data"
 msgstr "Insere dados na tabela de indice"
@@ -22463,15 +22467,3 @@ msgstr "período de tempo"
 #: unknown
 msgid "topology_name"
 msgstr "Nome da Topologia"
-
-#: unknown
-# msgid "TLS"
-# msgstr ""
-
-#: unknown
-# msgid "No TLS"
-# msgstr ""
-
-#: unknown
-# msgid "Insecure TLS"
-# msgstr ""
