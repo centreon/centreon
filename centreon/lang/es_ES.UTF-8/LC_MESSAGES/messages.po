@@ -23972,3 +23972,15 @@ msgstr "periodo de tiempo"
 #: unknown
 msgid "topology_name"
 msgstr "Nombre de la topología."
+
+#: unknown
+# msgid "TLS"
+# msgstr ""
+
+#: unknown
+# msgid "No TLS"
+# msgstr ""
+
+#: unknown
+# msgid "Insecure TLS"
+# msgstr ""
