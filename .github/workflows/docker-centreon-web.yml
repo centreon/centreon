@@ -63,6 +63,10 @@ jobs:
         env:
           runner: ubuntu-24.04
 
+      - name: Create configuration file
+        run: cp config/centreon.config.php.template config/centreon.config.php
+        working-directory: ${{ env.base_directory }}
+
       - name: Install Dependencies
         run: composer install --no-dev --optimize-autoloader
         working-directory: ${{ env.base_directory }}
