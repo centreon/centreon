@@ -76,14 +76,14 @@ COPY --from=builder /usr/share/centreon/lib/centreon-broker/ /usr/share/centreon
 
 COPY centreon-engine/entrypoint.sh /entrypoint.sh
 
-RUN groupadd -g 6000 centreon && \
-    useradd -u 6000 -g centreon -m -r -d /var/spool/centreon -c "Centreon" -s /bin/bash centreon && \
-    groupadd -g 6001 centreon-engine && \
-    useradd -u 6001 -g centreon-engine -m -r -d /var/lib/centreon-engine -c "Centreon Engine" -s /bin/bash centreon-engine && \
-    groupadd -g 6002 centreon-broker && \
-    useradd -u 6002 -g centreon-broker -m -r -d /var/lib/centreon-broker -c "Centreon Broker"  -s /bin/bash centreon-broker && \
-    groupadd -g 6003 centreon-gorgone && \
-    useradd -u 6003 -g centreon-gorgone -m -r -d /var/lib/centreon-gorgone -c "Centreon Gorgone"  -s /bin/bash centreon-gorgone &&\
+RUN groupadd -g 900 centreon &&\
+    useradd -u 900 -g centreon -m -r -d /var/spool/centreon -c "Centreon" -s /bin/bash centreon &&\
+    groupadd -g 901 centreon-engine &&\
+    useradd -u 901 -g centreon-engine -m -r -d /var/lib/centreon-engine -c "Centreon Engine" -s /bin/bash centreon-engine &&\
+    groupadd -g 902 centreon-broker &&\
+    useradd -u 902 -g centreon-broker -m -r -d /var/lib/centreon-broker -c "Centreon Broker"  -s /bin/bash centreon-broker &&\
+    groupadd -g 903 centreon-gorgone &&\
+    useradd -u 903 -g centreon-gorgone -m -r -d /var/lib/centreon-gorgone -c "Centreon Gorgone"  -s /bin/bash centreon-gorgone &&\
     usermod -aG centreon-broker centreon-engine  && \
     usermod -aG centreon-engine centreon-broker && \
     mkdir -p /etc/centreon-broker/ /var/log/centreon-engine/ /var/log/centreon-broker/ /var/lib/centreon-engine/rw && \
@@ -138,14 +138,14 @@ COPY --from=builder /usr/share/centreon/lib/centreon-broker/ /usr/share/centreon
 COPY centreon-broker/entrypoint.sh /entrypoint.sh
 COPY centreon-broker/watchdog.json /etc/centreon-broker/watchdog.json
 
-RUN groupadd -g 6000 centreon && \
-    useradd -u 6000 -g centreon -m -r -d /var/spool/centreon -c "Centreon" -s /bin/bash centreon && \
-    groupadd -g 6001 centreon-engine && \
-    useradd -u 6001 -g centreon-engine -m -r -d /var/lib/centreon-engine -c "Centreon Engine" -s /bin/bash centreon-engine && \
-    groupadd -g 6002 centreon-broker && \
-    useradd -u 6002 -g centreon-broker -m -r -d /var/lib/centreon-broker -c "Centreon Broker"  -s /bin/bash centreon-broker && \
-    groupadd -g 6003 centreon-gorgone && \
-    useradd -u 6003 -g centreon-gorgone -m -r -d /var/lib/centreon-gorgone -c "Centreon Gorgone"  -s /bin/bash centreon-gorgone &&\
+RUN groupadd -g 900 centreon &&\
+    useradd -u 900 -g centreon -m -r -d /var/spool/centreon -c "Centreon" -s /bin/bash centreon &&\
+    groupadd -g 901 centreon-engine &&\
+    useradd -u 901 -g centreon-engine -m -r -d /var/lib/centreon-engine -c "Centreon Engine" -s /bin/bash centreon-engine &&\
+    groupadd -g 902 centreon-broker &&\
+    useradd -u 902 -g centreon-broker -m -r -d /var/lib/centreon-broker -c "Centreon Broker"  -s /bin/bash centreon-broker &&\
+    groupadd -g 903 centreon-gorgone &&\
+    useradd -u 903 -g centreon-gorgone -m -r -d /var/lib/centreon-gorgone -c "Centreon Gorgone"  -s /bin/bash centreon-gorgone &&\
     mkdir -p /etc/centreon-broker/ /var/log/centreon-broker/ /var/lib/centreon/status/ /var/lib/centreon/metrics/ && \
     chown -R centreon-broker:centreon-broker /etc/centreon-broker/ /var/log/centreon-broker/ && \
     chmod +x /usr/share/centreon/lib/centreon-broker/* &&\
@@ -200,14 +200,14 @@ RUN apt update && \
     apt clean && \
     rm -rf /var/lib/apt/lists/*
 
-RUN groupadd -g 6000 centreon && \
-    useradd -u 6000 -g centreon -m -r -d /var/spool/centreon -c "Centreon" -s /bin/bash centreon && \
-    groupadd -g 6001 centreon-engine && \
-    useradd -u 6001 -g centreon-engine -m -r -d /var/lib/centreon-engine -c "Centreon Engine" -s /bin/bash centreon-engine && \
-    groupadd -g 6002 centreon-broker && \
-    useradd -u 6002 -g centreon-broker -m -r -d /var/lib/centreon-broker -c "Centreon Broker"  -s /bin/bash centreon-broker && \
-    groupadd -g 6003 centreon-gorgone && \
-    useradd -u 6003 -g centreon-gorgone -m -r -d /var/lib/centreon-gorgone -c "Centreon Gorgone"  -s /bin/bash centreon-gorgone && \
+RUN groupadd -g 900 centreon &&\
+    useradd -u 900 -g centreon -m -r -d /var/spool/centreon -c "Centreon" -s /bin/bash centreon &&\
+    groupadd -g 901 centreon-engine &&\
+    useradd -u 901 -g centreon-engine -m -r -d /var/lib/centreon-engine -c "Centreon Engine" -s /bin/bash centreon-engine &&\
+    groupadd -g 902 centreon-broker &&\
+    useradd -u 902 -g centreon-broker -m -r -d /var/lib/centreon-broker -c "Centreon Broker"  -s /bin/bash centreon-broker &&\
+    groupadd -g 903 centreon-gorgone &&\
+    useradd -u 903 -g centreon-gorgone -m -r -d /var/lib/centreon-gorgone -c "Centreon Gorgone"  -s /bin/bash centreon-gorgone &&\
     usermod -aG centreon centreon-gorgone &&\
     usermod -aG www-data centreon-gorgone &&\
     mkdir -p /etc/centreon/config.d/ && \
