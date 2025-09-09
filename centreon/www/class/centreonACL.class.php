@@ -2429,7 +2429,7 @@ class CentreonACL
 
             $db = CentreonDBInstance::getDbCentreonInstance();
 
-            while (false !== ($hasAccessToAll = $db->fetchOne($query, QueryParameters::create($bindQueryParameters)))) {
+            while (false !== ($hasAccessToAll = $db->fetchFirstColumn($query, QueryParameters::create($bindQueryParameters)))) {
                 if (true === (bool) $hasAccessToAll) {
                     return true;
                 }
