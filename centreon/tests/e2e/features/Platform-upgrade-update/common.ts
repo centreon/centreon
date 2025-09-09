@@ -131,7 +131,7 @@ EOF`,
 const installCentreon = (version: string): Cypress.Chainable => {
   cy.log(`installing version ${version}...`);
 
-  const versionMatches = version.match(/(\d+)\.(\d+)\.\d+/);
+  const versionMatches = version.match(/(\d+)\.(\d+)\.(\d+)/);
   if (!versionMatches) {
     throw new Error('Cannot parse version number.');
   }
@@ -200,6 +200,13 @@ const installCentreon = (version: string): Cypress.Chainable => {
       `centreon-trap='${packageVersionSuffix}'`,
       `centreon-perl-libs='${packageVersionSuffix}'`
     ];
+    if (
+      Number(versionMatches[1]) < 24
+      || (Number(versionMatches[1]) === 24 && Number(versionMatches[2]) < 10)
+      || (Number(versionMatches[1]) === 24 && Number(versionMatches[2]) === 10 && Number(versionMatches[3]) < 7)
+    ) {
+      packagesToInstall.push(`centreon-common=${packageVersionSuffix}`);
+    }
     if (Number(versionMatches[1]) < 24) {
       packagesToInstall.push(`centreon-web-apache=${packageVersionSuffix}`);
     }
@@ -365,19 +372,12 @@ const updatePlatformPackages = (): Cypress.Chainable => {
 
       switch (Cypress.env('WEB_IMAGE_OS')) {
         case 'alma8':
-          installCommands = [
-            ...installCommands,
-            `rm -f ${containerPackageDirectory}/centreon{,-central,-mariadb,-mysql}-${major_version}*.rpm`,
-            'dnf module reset -y php',
-            'dnf module install -y php:remi-8.2',
-            `dnf install -y ${containerPackageDirectory}/*.rpm`
-          ];
-          break;
         case 'alma9':
           installCommands = [
             ...installCommands,
             `rm -f ${containerPackageDirectory}/centreon{,-central,-mariadb,-mysql}-${major_version}*.rpm`,
             'dnf module reset -y php',
+            'dnf module install -y php:8.2',
             'dnf module enable -y php:8.2',
             `dnf install -y ${containerPackageDirectory}/*.rpm`
           ];
