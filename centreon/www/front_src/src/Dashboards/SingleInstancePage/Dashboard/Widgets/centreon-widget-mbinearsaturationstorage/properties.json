@@ -96,11 +96,7 @@
         }
     },
     "data": {
-        "metrics": {
-            "type": "metrics",
-            "defaultValue": []
-          },
-        "resources": {
+    "resources": {
             "type": "resources",
             "defaultValue": [],
             "required": true,
@@ -110,21 +106,11 @@
                 "service",
                 "service-group",
                 "meta-service"
-            ],
-            "forceSingleAutocompleteConditions": {
-                "resourceType": "host-group",
-                "conditions": [
-                    {
-                        "target": "options",
-                        "when": "options.resourceTypes",
-                        "method": "includes",
-                        "matches": [
-                            "host",
-                            "host-category"
-                        ]
-                    }
-                ]
-            }
+            ]
+        },
+        "metrics": {
+            "type": "metrics",
+            "defaultValue": []
         }
     },
     "singleResourceSelection": true
