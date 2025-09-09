@@ -28,12 +28,12 @@ final readonly class FindSingleMetaMetricResponse
     public function __construct(
         public int $id,
         public string $name,
-        public ?string $unit,
-        public ?float $currentValue,
-        public ?float $warningHighThreshold,
-        public ?float $warningLowThreshold,
-        public ?float $criticalHighThreshold,
-        public ?float $criticalLowThreshold
+        public ?string $unit = null,
+        public ?float $currentValue = null,
+        public ?float $warningHighThreshold = null,
+        public ?float $warningLowThreshold = null,
+        public ?float $criticalHighThreshold = null,
+        public ?float $criticalLowThreshold = null
     ) {
     }
 }
