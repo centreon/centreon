@@ -382,9 +382,9 @@ $tab[] = $form->createElement(
 $form->addGroup($tab, 'contact_oreon', _('Reach Centreon Front-end'), '&nbsp;');
 
 if (
-        $o !== MASSIVE_CHANGE
-        && $authTypeConnectedUser === CentreonAuth::AUTH_TYPE_LOCAL
-        && $authTypeContact !== CentreonAuth::AUTH_TYPE_LDAP
+    $o !== MASSIVE_CHANGE
+    && $authTypeConnectedUser === CentreonAuth::AUTH_TYPE_LOCAL
+    && $authTypeContact !== CentreonAuth::AUTH_TYPE_LDAP
 ) {
 
     // Password Management

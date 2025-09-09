@@ -161,13 +161,13 @@ if ($cct['contact_auth_type'] === 'local') {
     $form->addElement('text', 'contact_autologin_key', _('Autologin Key'), ['size' => '30', 'id' => 'aKey']);
 
     $form->addElement(
-            'button',
-            'contact_gen_akey',
-            _('Generate'),
-            ['onclick' => "generatePassword('aKey', '{$encodedPasswordPolicy}');",
-                    'class' => 'btc bt_info',
-                    'id' => 'generateAutologinKeyButton',
-                    'data-testid' => _('Generate')]
+        'button',
+        'contact_gen_akey',
+        _('Generate'),
+        ['onclick' => "generatePassword('aKey', '{$encodedPasswordPolicy}');",
+            'class' => 'btc bt_info',
+            'id' => 'generateAutologinKeyButton',
+            'data-testid' => _('Generate')]
     );
 }
 
