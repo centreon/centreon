@@ -18,7 +18,12 @@ interface Containers {
   [key: string]: StartedTestContainer;
 }
 
-class NotFoundContainerError extends Error {}
+class NotFoundContainerError extends Error {
+  constructor(message) {
+    super(message);
+    this.name = 'NotFoundContainerError';
+  }
+}
 
 export default (on: Cypress.PluginEvents): void => {
   let dockerEnvironment: StartedDockerComposeEnvironment | null = null;

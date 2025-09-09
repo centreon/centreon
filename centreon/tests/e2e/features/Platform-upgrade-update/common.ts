@@ -174,7 +174,11 @@ const installCentreon = (version: string): Cypress.Chainable => {
       `centreon-trap='${packageVersionSuffix}'`,
       `centreon-perl-libs='${packageVersionSuffix}'`
     ];
-    if (Number(versionMatches[1]) === 24 && Number(versionMatches[2]) === 10 && Number(versionMatches[3]) < 7) {
+    if (
+      Number(versionMatches[1]) < 24
+      || (Number(versionMatches[1]) === 24 && Number(versionMatches[2]) < 10)
+      || (Number(versionMatches[1]) === 24 && Number(versionMatches[2]) === 10 && Number(versionMatches[3]) < 7)
+    ) {
       packagesToInstall.push(`centreon-common=${packageVersionSuffix}`);
     }
     if (Number(versionMatches[1]) < 24) {
