@@ -488,18 +488,17 @@ function set_required_prerequisite() {
 			if [ "$topology" == "central" ]; then
 				case "$version" in
 					"23.10" | "24.04")
-						install_remi_repo
+					    install_remi_repo
 						log "INFO" "Installing PHP 8.1 and enable it"
 						$PKG_MGR module reset php -y -q
 						$PKG_MGR module install php:remi-8.1 -y -q
 						$PKG_MGR module enable php:remi-8.1 -y -q
 						;;
 					"24.10")
-						install_remi_repo
 						log "INFO" "Installing PHP 8.2 and enable it"
 						$PKG_MGR module reset php -y -q
-						$PKG_MGR module install php:remi-8.2 -y -q
-						$PKG_MGR module enable php:remi-8.2 -y -q
+						$PKG_MGR module install php:8.2 -y -q
+						$PKG_MGR module enable php:8.2 -y -q
 						;;
 					*)
 						log "INFO" "Installing PHP 8.2 from OS official repositories"
@@ -638,7 +637,7 @@ function set_required_prerequisite() {
 		set_centreon_repos
 		IFS=', ' read -r -a array_apt <<<"$CENTREON_REPO"
 		for _repo in "${array_apt[@]}"; do
-		    if [[ "$version" < "25.10" && "$_repo" == "stable" ]]; then
+		    if [[ "$version" < "25.10" ]]; then
 			    echo "deb https://packages.centreon.com/$repo_prefix-standard-$_repo/ $(lsb_release -sc) main" | tee /etc/apt/sources.list.d/centreon-$_repo.list
 			else
 				echo "deb https://packages.centreon.com/$repo_prefix-standard/ $(lsb_release -sc)-$_repo main" | tee /etc/apt/sources.list.d/centreon-$_repo.list
