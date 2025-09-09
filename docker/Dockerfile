@@ -75,6 +75,7 @@ COPY --from=builder --chmod=755 /centreon-collect/build/broker/neb/cbmod.so /usr
 COPY --from=builder /usr/share/centreon/lib/centreon-broker/ /usr/share/centreon/lib/centreon-broker/
 
 COPY centreon-engine/entrypoint.sh /entrypoint.sh
+COPY centreon-engine/config/engine-context.json /etc/centreon-engine/engine-context.json
 
 RUN groupadd -g 900 centreon &&\
     useradd -u 900 -g centreon -m -r -d /var/spool/centreon -c "Centreon" -s /bin/bash centreon &&\
@@ -92,6 +93,7 @@ RUN groupadd -g 900 centreon &&\
     touch /var/log/centreon-engine/retention.dat && \
     chown -R centreon-engine:centreon-engine /etc/centreon-engine && \
     chmod 775 /etc/centreon-engine /etc/centreon-broker /var/log/centreon-broker/ /var/log/centreon-engine/ && \
+    chmod 660 /etc/centreon-engine/engine-context.json && \
     chmod +x /usr/share/centreon/lib/centreon-broker/* && \
     chmod +x /entrypoint.sh
 
