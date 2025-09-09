@@ -16,15 +16,15 @@ on:
   schedule:
     - cron: "0 3 * * 1-5"
   pull_request:
-    paths:
-      - ".version"
-      - ".version.centreon-web"
-      - "centreon/**"
-      - "!centreon/cypress/**"
-      - "!centreon/features/**"
-      - "!centreon/lighthouse/**"
-      - "!centreon/tests/**"
-      - "!centreon/packages/**"
+    # paths:
+    #   - ".version"
+    #   - ".version.centreon-web"
+    #   - "centreon/**"
+    #   - "!centreon/cypress/**"
+    #   - "!centreon/features/**"
+    #   - "!centreon/lighthouse/**"
+    #   - "!centreon/tests/**"
+    #   - "!centreon/packages/**"
   push:
     branches:
       - develop
@@ -107,6 +107,7 @@ jobs:
             has_upgrade_changes:
               - 'centreon/www/install/**'
               - 'centreon/packaging/**'
+              - 'centreon/tests/**'
           token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
       - uses: ./.github/actions/changes-trigger-checks
