@@ -1,7 +1,11 @@
 import { useEffect, useState } from 'react';
 
-import { useSetAtom } from 'jotai';
-import { tokensToDisableAtom, tokensToEnableAtom } from '../../../atoms';
+import { useAtom, useSetAtom } from 'jotai';
+import {
+  isRevokingDialogCanceledAtom,
+  tokensToDisableAtom,
+  tokensToEnableAtom
+} from '../../../atoms';
 
 interface Props {
   change: (e: React.BaseSyntheticEvent) => void;
@@ -11,6 +15,9 @@ interface Props {
 const useStatus = ({ row }): Props => {
   const setTokensToDisable = useSetAtom(tokensToDisableAtom);
   const setTokensToEnable = useSetAtom(tokensToEnableAtom);
+  const [isRevokingDialogCanceled, setIsRevokingDialog] = useAtom(
+    isRevokingDialogCanceledAtom
+  );
 
   const isActivated = !row.isRevoked;
 
@@ -19,8 +26,10 @@ const useStatus = ({ row }): Props => {
   useEffect(() => {
     if (isActivated !== checked) {
       setChecked(isActivated);
+
+      setIsRevokingDialog(false);
     }
-  }, [isActivated]);
+  }, [isActivated, isRevokingDialogCanceled]);
 
   const change = (e: React.BaseSyntheticEvent): void => {
     const value = e.target.checked;
