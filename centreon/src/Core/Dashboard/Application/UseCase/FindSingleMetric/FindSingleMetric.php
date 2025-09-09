@@ -32,7 +32,7 @@ use Core\Metric\Domain\Model\Metric;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\Service\Application\Repository\ReadRealTimeServiceRepositoryInterface;
 
-final class FindSingleMetric
+final readonly class FindSingleMetric
 {
     /**
      * @param ContactInterface $user

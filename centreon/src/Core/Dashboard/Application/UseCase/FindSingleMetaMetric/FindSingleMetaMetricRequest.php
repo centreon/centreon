@@ -25,6 +25,11 @@ namespace Core\Dashboard\Application\UseCase\FindSingleMetaMetric;
 
 final readonly class FindSingleMetaMetricRequest
 {
+    /**
+     * @param int $metaServiceId
+     * @param string $metricName
+     * @throws \InvalidArgumentException
+     */
     public function __construct(
         public int $metaServiceId,
         public string $metricName,

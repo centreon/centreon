@@ -25,6 +25,12 @@ namespace Core\Dashboard\Application\UseCase\FindSingleMetric;
 
 final readonly class FindSingleMetricRequest
 {
+    /**
+     * @param int $hostId
+     * @param int $serviceId
+     * @param string $metricName
+     * @throws \InvalidArgumentException
+     */
     public function __construct(
         public int $hostId,
         public int $serviceId,
