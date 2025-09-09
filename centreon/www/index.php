@@ -28,6 +28,7 @@ require_once __DIR__ . '/class/centreonDB.class.php';
 const AUTOLOGIN_FIELDS = ['autologin', 'useralias', 'token'];
 
 updateCentreonBaseUri();
+
 include __DIR__ . '/index.html';
 
 CentreonSession::start();
