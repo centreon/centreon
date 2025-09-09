@@ -18,32 +18,3 @@
  * For more information : contact@centreon.com
  *
  */
-
-declare(strict_types=1);
-
-namespace Core\Infrastructure\Platform\Repository;
-
-use Core\Application\Platform\Repository\ReadPlatformRepositoryInterface;
-
-class FileReadPlatformRepository implements ReadPlatformRepositoryInterface
-{
-    public function __construct(private string $etcDir, private string $installDir)
-    {
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function isCentreonWebInstalled(): bool
-    {
-        return file_exists($this->etcDir . '/centreon.conf.php');
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function isCentreonWebInstallableOrUpgradable(): bool
-    {
-        return is_dir($this->installDir);
-    }
-}
