@@ -2402,7 +2402,10 @@ class CentreonACL
     private function hasAccessToAllImageFolders(): bool
     {
         $accessGroups = $this->getAccessGroups();
-        if ($accessGroups === []) {
+        $aclResources = $this->getResourceGroups();
+
+        // Users not linked to an ACL group or ACL resource will not be able to see images.
+        if ($accessGroups === [] || $aclResources === []) {
             return false;
         }
 
