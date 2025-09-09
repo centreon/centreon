@@ -304,7 +304,7 @@ class CentreonContact
      * @param string $password
      * @param int|null $contactId
      *
-     * @throws PDOException
+     * @throws Exception
      * @return void
      */
     public function respectPasswordPolicyOrFail(string $password, ?int $contactId): void
@@ -404,14 +404,16 @@ class CentreonContact
      * @param int $contactId
      * @param string $hashedPassword
      *
-     * @throws PDOException
      * @return void
      */
     public function renewPasswordByContactId(int $contactId, string $hashedPassword): void
     {
-        $this->addPasswordByContactId($contactId, $hashedPassword);
+        try {
+            $this->addPasswordByContactId($contactId, $hashedPassword);
+            $this->deleteOldPasswords($contactId);
+        } catch (PDOException $e) {
 
-        $this->deleteOldPasswords($contactId);
+        }
     }
 
     /**
