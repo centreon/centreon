@@ -18,6 +18,8 @@ interface Containers {
   [key: string]: StartedTestContainer;
 }
 
+class NotFoundContainerError extends Error {}
+
 export default (on: Cypress.PluginEvents): void => {
   let dockerEnvironment: StartedDockerComposeEnvironment | null = null;
   const containers: Containers = {};
@@ -30,7 +32,7 @@ export default (on: Cypress.PluginEvents): void => {
     } else if (containers[containerName]) {
       container = containers[containerName];
     } else {
-      throw new Error(`Cannot get container ${containerName}`);
+      throw new NotFoundContainerError(`Cannot get container ${containerName}`);
     }
 
     return container;
@@ -67,7 +69,11 @@ export default (on: Cypress.PluginEvents): void => {
             });
           });
       } catch (error) {
-        console.error(error);
+        if (error instanceof NotFoundContainerError) {
+          console.log(`Cannot get ${source} from container ${serviceName} because it doesn't exist.`);
+        } else {
+          console.error(error);
+        }
       }
 
       return null;
