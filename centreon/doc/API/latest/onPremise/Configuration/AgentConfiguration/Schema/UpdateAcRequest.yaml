@@ -29,7 +29,20 @@ properties:
     enum: [secure, no-tls, insecure]
     default: secure
     example: secure
+      Supported types:
+        * telegraf
+        * centreon-agent
+    example: telegraf
+  connection_mode:
+    type: string
+    description: |
+      Connection mode for the configuration
 
+      Supported modes:
+        * secure
+        * no-tls
+        * insecure
+    example: no-tls
   poller_ids:
     type: array
     items:
