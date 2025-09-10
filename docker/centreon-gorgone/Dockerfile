@@ -65,7 +65,7 @@ RUN apt update && \
 # COPY --from=builder /usr/share/perl5/gorgone /usr/share/perl5/gorgone
 # COPY --from=builder /usr/bin/gorgoned /usr/bin/gorgoned
 COPY --chmod=755 service /usr/local/bin/service
-# COPY --chown=centreon-gorgone:centreon-gorgone --chmod=775 centreon-gorgone/config/ /etc/centreon-gorgone/config.d/ 
+COPY --chown=centreon-gorgone:centreon-gorgone --chmod=775 config/40-gorgoned.yaml /etc/centreon-gorgone/config.d/40-gorgoned.yaml 
 COPY --chmod=600 centreon /etc/sudoers.d/centreon
 
 
