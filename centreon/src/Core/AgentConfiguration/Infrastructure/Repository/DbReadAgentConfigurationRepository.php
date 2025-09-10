@@ -403,6 +403,7 @@ class DbReadAgentConfigurationRepository extends AbstractRepositoryRDB implement
         $connectionMode = match ($row['connection_mode']) {
             'secure' => ConnectionModeEnum::SECURE,
             'no-tls' => ConnectionModeEnum::NO_TLS,
+            'insecure' => ConnectionModeEnum::INSECURE,
             default => throw new \InvalidArgumentException('Invalid connection mode'),
         };
 

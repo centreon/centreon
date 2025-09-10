@@ -19,6 +19,7 @@ import {
   AgentConfigurationAPI,
   AgentType,
   CMAConfiguration,
+  ConnectionMode,
   TelegrafConfiguration
 } from '../models';
 import {
@@ -33,7 +34,10 @@ const adaptTelegrafConfigurationToAPI = (
     agentConfiguration.configuration as TelegrafConfiguration;
 
   const getFieldBasedOnCertificate = (field) =>
-    equals(agentConfiguration?.connectionMode?.id, 'secure') ? field : null;
+    equals(agentConfiguration?.connectionMode?.id, ConnectionMode.secure) ||
+    equals(agentConfiguration?.connectionMode?.id, ConnectionMode.insecure)
+      ? field
+      : null;
 
   return {
     ...omit(['pollers', 'connectionMode'], agentConfiguration),
@@ -67,7 +71,10 @@ const adaptCMAConfigurationToAPI = (
   const configuration = agentConfiguration.configuration as CMAConfiguration;
 
   const getFieldBasedOnCertificate = (field) =>
-    equals(agentConfiguration?.connectionMode?.id, 'secure') ? field : null;
+    equals(agentConfiguration?.connectionMode?.id, ConnectionMode.secure) ||
+    equals(agentConfiguration?.connectionMode?.id, ConnectionMode.insecure)
+      ? field
+      : null;
 
   return {
     ...omit(['pollers', 'connectionMode'], agentConfiguration),
