@@ -61,14 +61,20 @@ final readonly class DoctrineGlobalMacroRepository extends DoctrineRepository im
         $qb = $this->connection->createQueryBuilder();
 
         $qb->select('resource_id', 'resource_name', 'resource_line', 'resource_comment', 'resource_activate', 'is_password')
-            ->from(self::TABLE_NAME);
-        if ($criteria?->getName() !== null) {
-            if ($criteria->getOperator() === 'lk') {
-                $qb->where($qb->expr()->like('resource_name', '"%' . $criteria->getName() . '%"'));
-            } elseif ($criteria->getOperator() === 'eq') {
-                $qb->where($qb->expr()->eq('resource_name', '"' . $criteria->getName() . '"'));
+           ->from(self::TABLE_NAME);
+
+        if ($nameCriteria = $criteria?->getNames()) {
+            foreach ($nameCriteria as $operator => $names) {
+                if ($operator === 'lk') {
+                    foreach ($names as $name) {
+                        $qb->andWhere($qb->expr()->like('resource_name', '"%' . $name . '%"'));
+                    }
+                } elseif ($operator === 'eq') {
+                    $qb->andWhere($qb->expr()->in('resource_name', $names));
+                }
             }
         }
+
         $qbCount = clone $qb;
         if ($criteria?->getPage() !== null) {
             $qb->setFirstResult(($criteria->getPage() - 1) * $criteria->getItemsPerPage())
@@ -80,7 +86,6 @@ final readonly class DoctrineGlobalMacroRepository extends DoctrineRepository im
          */
         $rows = $qb->executeQuery()->fetchAllAssociative();
         $globalMacros = array_map($this->createGlobalMacro(...), $rows);
-
         if ($criteria?->getPage() === null) {
             return $globalMacros;
         }

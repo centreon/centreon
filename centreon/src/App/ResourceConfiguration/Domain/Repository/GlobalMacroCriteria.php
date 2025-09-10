@@ -27,20 +27,16 @@ use Webmozart\Assert\Assert;
 
 final class GlobalMacroCriteria
 {
-    public const EQUAL_OPERATOR = 'eq';
-    public const LIKE_OPERATOR = 'lk';
-    public const ALLOWED_OPERATORS = [
-        self::EQUAL_OPERATOR,
-        self::LIKE_OPERATOR,
-    ];
+    public const OPERATOR_EQUAL = 'eq';
+    public const OPERATOR_LIKE = 'lk';
+    public const ALLOWED_OPERATORS = [self::OPERATOR_EQUAL, self::OPERATOR_LIKE];
 
     private ?int $page = null;
 
     private ?int $itemsPerPage = null;
 
-    private ?string $name = null;
-
-    private ?string $operator = null;
+    /** @var array<self::OPERATOR_*, list<string>> */
+    private array $names = [];
 
     public function withPagination(int $page, int $itemsPerPage): self
     {
@@ -54,24 +50,25 @@ final class GlobalMacroCriteria
         return $new;
     }
 
-    public function withName(string $name): self
+    /**
+     * @param non-empty-string $name
+     * @param self::OPERATOR_* $operator
+     */
+    public function withName(string $name, string $operator): self
     {
         Assert::notEmpty($name);
+        Assert::inArray($operator, self::ALLOWED_OPERATORS);
+
+        $names = $this->names[$operator] ?? [];
+        $names[] = $name;
+        $names = array_values(array_unique($names));
 
         $new = clone $this;
-        $new->name = $name;
+        $new->names[$operator] = $names;
 
         return $new;
     }
 
-    public function withOperator(string $operator): self
-    {
-        Assert::oneOf($operator, self::ALLOWED_OPERATORS);
-        $new = clone $this;
-        $new->operator = $operator;
-
-        return $new;
-    }
 
     public function getPage(): ?int
     {
@@ -83,13 +80,12 @@ final class GlobalMacroCriteria
         return $this->itemsPerPage;
     }
 
-    public function getName(): ?string
+    /**
+     * @return array<self::OPERATOR_*, list<string>>
+     */
+    public function getNames(): array
     {
-        return $this->name;
+        return $this->names;
     }
 
-    public function getOperator(): ?string
-    {
-        return $this->operator;
-    }
 }

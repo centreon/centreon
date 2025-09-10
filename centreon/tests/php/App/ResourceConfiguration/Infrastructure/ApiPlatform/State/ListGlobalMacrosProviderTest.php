@@ -99,6 +99,8 @@ final class ListGlobalMacrosProviderTest extends ApiTestCase
         $response = $this->request('GET', '/api/latest/configuration/macros/globals', ['query' => ['page' => '2', 'itemsPerPage' => '1']]);
         self::assertResponseIsSuccessful();
         $this->assertCount(1, (array) $response->toArray()['member']);
+        // test total items
+        // test assert matches json collection schema
     }
 
     protected static function apiUsers(): array

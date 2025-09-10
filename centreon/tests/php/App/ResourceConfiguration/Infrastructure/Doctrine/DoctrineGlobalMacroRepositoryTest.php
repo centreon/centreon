@@ -53,7 +53,7 @@ final class DoctrineGlobalMacroRepositoryTest extends KernelTestCase
         $criteria = new GlobalMacroCriteria();
         $criteria = $criteria->withName('USER1');
         $criteria = $criteria->withOperator('lk');
-
+        //test equal
         $globalMacros = $this->repository->findAll($criteria);
         self::containsOnlyInstancesOf(GlobalMacro::class);
         self::assertCount(1, $globalMacros);
