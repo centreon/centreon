@@ -312,6 +312,12 @@ function checkAutologinValue(array $fields)
             && password_verify($fields['contact_autologin_key'], $result['password'])
         ) {
             $errors['contact_autologin_key'] = _('Your autologin key must be different than your current password');
+
+            LoggerPassword::create()->warning(
+                reason: 'autologin key same as current password',
+                initiatorId: (int) $centreon->user->get_id(),
+                targetId: (int) $centreon->user->get_id(),
+            );
         } elseif (
             ! empty($fields['contact_passwd'])
             && $fields['contact_passwd'] === $fields['contact_autologin_key']
@@ -319,6 +325,12 @@ function checkAutologinValue(array $fields)
             $errorMessage = _('Your new password and autologin key must be different');
             $errors['contact_passwd'] = $errorMessage;
             $errors['contact_autologin_key'] = $errorMessage;
+
+            LoggerPassword::create()->warning(
+                reason: 'new password and autologin key are the same',
+                initiatorId: (int) $centreon->user->get_id(),
+                targetId: (int) $centreon->user->get_id(),
+            );
         }
     }
 

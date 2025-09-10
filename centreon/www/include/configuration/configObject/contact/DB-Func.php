@@ -735,6 +735,7 @@ function updateContact($contactId = null): void
         try {
             $contact = new CentreonContact($pearDB);
             $contact->renewPasswordByContactId($contactId, $ret['contact_passwd']);
+
             LoggerPassword::create()->success(
                 initiatorId: (int) $centreon->user->get_id(),
                 targetId: (int) $contactId,
@@ -1618,9 +1619,10 @@ function sanitizeFormContactParameters(array $ret): array
  * Validate password creation using defined security policy.
  *
  * @param array $fields
- * @return mixed
+ *
+ * @return array|true
  */
-function validatePasswordCreation(array $fields)
+function validatePasswordCreation(array $fields): true|array
 {
     global $pearDB;
     $errors = [];
@@ -1634,8 +1636,14 @@ function validatePasswordCreation(array $fields)
     try {
         $contact = new CentreonContact($pearDB);
         $contact->respectPasswordPolicyOrFail($password, null);
-    } catch (Throwable $e) {
+    } catch (Exception $e) {
         $errors['contact_passwd'] = $e->getMessage();
+
+        LoggerPassword::create()->warning(
+            reason: 'new password does not respect the password policy',
+            initiatorId: $fields['contact_id'] ?? 'unknown',
+            targetId: $fields['contact_id'] ?? 'unknown',
+        );
     }
 
     return $errors !== [] ? $errors : true;
@@ -1751,6 +1759,12 @@ function validateAutologin(array $fields)
                 $errors['contact_autologin_key'] = _(
                     'Your autologin key must be different than your current password'
                 );
+
+                LoggerPassword::create()->warning(
+                    reason: 'autologin key is the same as current password',
+                    initiatorId: (int) $fields['contact_id'],
+                    targetId: (int) $fields['contact_id'],
+                );
             }
         }
         if (
@@ -1760,6 +1774,12 @@ function validateAutologin(array $fields)
             $errorMessage = 'Your password and autologin key should be different';
             $errors['contact_passwd'] = _($errorMessage);
             $errors['contact_autologin_key'] = _($errorMessage);
+
+            LoggerPassword::create()->warning(
+                reason: 'autologin key is the same as new password',
+                initiatorId: (int) $fields['contact_id'],
+                targetId: (int) $fields['contact_id'],
+            );
         }
     }
 
