@@ -2,14 +2,20 @@ import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
 import contacts from '../../../fixtures/users/contact.json';
 
-const checkFirstContactFromListing = () => {
+let isAdmin = true;
+let contactPageIndex = 3;
+const checkContactFromListing = () => {
   cy.navigateTo({
     page: 'Contacts / Users',
-    rootItemNumber: 3,
+    rootItemNumber: contactPageIndex,
     subMenu: 'Users'
   });
   cy.wait('@getTimeZone');
-  cy.getIframeBody().find('div.md-checkbox.md-checkbox-inline').eq(3).click();
+  const index = isAdmin ? 3 : 1;
+  cy.getIframeBody()
+    .find('div.md-checkbox.md-checkbox-inline')
+    .eq(index)
+    .click();
   cy.getIframeBody()
     .find('select[name="o1"]')
     .invoke(
@@ -21,6 +27,9 @@ const checkFirstContactFromListing = () => {
 
 beforeEach(() => {
   cy.startContainers();
+  cy.setUserTokenApiV1().executeCommandsViaClapi(
+    'resources/clapi/config-ACL/contacts-management-acl-user.json'
+  );
   cy.intercept({
     method: 'GET',
     url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
@@ -29,15 +38,22 @@ beforeEach(() => {
     method: 'GET',
     url: '/centreon/include/common/userTimezone.php'
   }).as('getTimeZone');
+  cy.intercept({
+    method: 'GET',
+    url: '/centreon/include/common/webServices/rest/internal.php?object=centreon_administration_aclgroup&action=list*'
+  }).as('getAclGroups');
+  //
 });
 
 afterEach(() => {
   cy.stopContainers();
 });
 
-Given('an admin user is logged in a Centreon server', () => {
+Given('a {string} user is logged in a Centreon server', (user: string) => {
+  contactPageIndex = user === 'admin' ? 3 : 0;
+  isAdmin = user === 'admin';
   cy.loginByTypeOfUser({
-    jsonName: 'admin',
+    jsonName: user === 'admin' ? 'admin' : 'contacts-management-acl-user',
     loginViaApi: false
   });
 });
@@ -45,17 +61,35 @@ Given('an admin user is logged in a Centreon server', () => {
 When('a contact is configured', () => {
   cy.navigateTo({
     page: 'Contacts / Users',
-    rootItemNumber: 3,
+    rootItemNumber: contactPageIndex,
     subMenu: 'Users'
   });
   cy.wait('@getTimeZone');
   cy.getIframeBody().contains('a', 'Add').click();
   cy.addOrUpdateContact(contacts.default);
+  if (!isAdmin) {
+    // Add the contact to the ACL Group of the connected non-admin user
+    cy.getIframeBody().contains('a', 'Centreon Authentication').click();
+    // Click outside the form
+    cy.get('body').click(0, 0);
+    cy.getIframeBody()
+      .find('ul[class="select2-selection__rendered"]')
+      .eq(3)
+      .click();
+    cy.wait('@getAclGroups');
+    cy.getIframeBody().contains('div', 'user-ACLGROUP').click();
+  }
+  cy.getIframeBody().find('input.btc.bt_success[name^="submit"]').eq(0).click();
+  cy.wait('@getTimeZone');
+  cy.exportConfig();
 });
 
 When('the user updates some contact properties', () => {
   cy.getIframeBody().contains(contacts.default.alias).click();
   cy.addOrUpdateContact(contacts.contactForUpdate);
+  cy.getIframeBody().find('input.btc.bt_success[name^="submit"]').eq(0).click();
+  cy.wait('@getTimeZone');
+  cy.exportConfig();
 });
 
 Then('these properties are updated', () => {
@@ -80,7 +114,7 @@ Then('these properties are updated', () => {
 });
 
 When('the user duplicates the configured contact', () => {
-  checkFirstContactFromListing();
+  checkContactFromListing();
   cy.getIframeBody().find('select[name="o1"]').select('Duplicate');
   cy.wait('@getTimeZone');
   cy.exportConfig();
@@ -108,7 +142,7 @@ Then('a new contact is created with identical properties', () => {
 });
 
 When('the user deletes the configured contact', () => {
-  checkFirstContactFromListing();
+  checkContactFromListing();
   cy.getIframeBody().find('select[name="o1"').select('Delete');
   cy.wait('@getTimeZone');
   cy.exportConfig();

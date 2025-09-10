@@ -34,9 +34,6 @@ Cypress.Commands.add('addOrUpdateContact', (body: Contact) => {
   cy.getIframeBody().find('input[id="contact_pager"]').clear().type(body.pager);
   cy.getIframeBody().find('#contact_template_id').select(body.template);
   cy.getIframeBody().contains('label', body.isNotificationsEnabled).click();
-  cy.getIframeBody().find('input.btc.bt_success[name^="submit"]').eq(0).click();
-  cy.wait('@getTimeZone');
-  cy.exportConfig();
 });
 
 Cypress.Commands.add('addOrUpdateContactGroup', (body: ContactGroup) => {
