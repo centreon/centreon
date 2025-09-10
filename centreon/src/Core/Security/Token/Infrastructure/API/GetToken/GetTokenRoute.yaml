@@ -5,7 +5,6 @@ GetTokenByUserId:
     tokenName: '.+'
     userId: '\d+'
   controller: 'Core\Security\Token\Infrastructure\API\GetToken\GetTokenController'
-  condition: "request.attributes.get('version') >= 25.03"
 
 # This is the same usecase as above but take the current user in place of {userId}
 GetToken:
@@ -14,4 +13,3 @@ GetToken:
   requirements:
     tokenName: '.+'
   controller: 'Core\Security\Token\Infrastructure\API\GetToken\GetTokenController'
-  condition: "request.attributes.get('version') >= 25.03"
