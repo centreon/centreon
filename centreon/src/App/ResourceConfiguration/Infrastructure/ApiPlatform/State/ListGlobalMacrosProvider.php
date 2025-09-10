@@ -31,9 +31,8 @@ use App\ResourceConfiguration\Domain\Aggregate\GlobalMacro;
 use App\ResourceConfiguration\Domain\Repository\GlobalMacroCriteria;
 use App\ResourceConfiguration\Domain\Repository\GlobalMacroRepository;
 use App\ResourceConfiguration\Infrastructure\ApiPlatform\Resource\GlobalMacroResource;
-use App\ResourceConfiguration\Infrastructure\ApiPlatform\Transformer\GlobalMacroTransformer;
 use App\Shared\Domain\Repository\Paginator;
-use App\Shared\Infrastructure\ApiPlatform\Transformer\TransformerInterface;
+use App\Shared\Infrastructure\TransformerInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 /**
@@ -45,7 +44,7 @@ final readonly class ListGlobalMacrosProvider implements ProviderInterface
      * @param TransformerInterface<GlobalMacro,GlobalMacroResource> $transformer
      */
     public function __construct(
-        #[Autowire(service: GlobalMacroTransformer::class)]
+        #[Autowire(service: ResourceGlobalMacroTransformer::class)]
         private TransformerInterface $transformer,
         private GlobalMacroRepository $repository,
         private Pagination $pagination,
@@ -82,7 +81,7 @@ final readonly class ListGlobalMacrosProvider implements ProviderInterface
         $models = $this->repository->findAll($criteria);
         $resources = [];
         foreach ($models as $model) {
-            $resources[] = $this->transformer->toResource($model);
+            $resources[] = $this->transformer->transform($model);
         }
 
         if (! $models instanceof Paginator) {

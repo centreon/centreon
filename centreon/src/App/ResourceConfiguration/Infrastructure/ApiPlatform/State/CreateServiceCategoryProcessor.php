@@ -29,10 +29,9 @@ use App\ResourceConfiguration\Application\Command\CreateServiceCategoryCommand;
 use App\ResourceConfiguration\Domain\Aggregate\ServiceCategory;
 use App\ResourceConfiguration\Domain\Aggregate\ServiceCategoryName;
 use App\ResourceConfiguration\Infrastructure\ApiPlatform\Resource\ServiceCategoryResource;
-use App\ResourceConfiguration\Infrastructure\ApiPlatform\Transformer\ServiceCategoryTransformer;
 use App\Shared\Application\Command\CommandBus;
-use App\Shared\Infrastructure\ApiPlatform\Transformer\TransformerInterface;
 use App\Shared\Infrastructure\Legacy\LegacySecurity;
+use App\Shared\Infrastructure\TransformerInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Webmozart\Assert\Assert;
 
@@ -46,7 +45,7 @@ final readonly class CreateServiceCategoryProcessor implements ProcessorInterfac
      */
     public function __construct(
         private CommandBus $commandBus,
-        #[Autowire(service: ServiceCategoryTransformer::class)]
+        #[Autowire(service: ResourceServiceCategoryTransformer::class)]
         private TransformerInterface $transformer,
         private LegacySecurity $legacySecurity,
     ) {
@@ -67,6 +66,6 @@ final readonly class CreateServiceCategoryProcessor implements ProcessorInterfac
         $model = $this->commandBus->execute($command);
         Assert::isInstanceOf($model, ServiceCategory::class);
 
-        return $this->transformer->toResource($model);
+        return $this->transformer->transform($model);
     }
 }

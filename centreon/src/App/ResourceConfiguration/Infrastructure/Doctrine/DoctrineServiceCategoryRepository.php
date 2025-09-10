@@ -28,6 +28,7 @@ use App\ResourceConfiguration\Domain\Aggregate\ServiceCategoryId;
 use App\ResourceConfiguration\Domain\Aggregate\ServiceCategoryName;
 use App\ResourceConfiguration\Domain\Repository\ServiceCategoryRepository;
 use App\Shared\Infrastructure\Doctrine\DoctrineRepository;
+use App\Shared\Infrastructure\TransformerInterface;
 use Doctrine\DBAL\Connection;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
@@ -41,6 +42,8 @@ final readonly class DoctrineServiceCategoryRepository extends DoctrineRepositor
     public function __construct(
         #[Autowire(service: 'doctrine.dbal.default_connection')]
         private Connection $connection,
+        #[Autowire(service: ServiceCategoryTransformer::class)]
+        private TransformerInterface $transformer,
     ) {
     }
 
@@ -87,19 +90,6 @@ final readonly class DoctrineServiceCategoryRepository extends DoctrineRepositor
             return null;
         }
 
-        return $this->createServiceCategory($row);
-    }
-
-    /**
-     * @param RowTypeAlias $row
-     */
-    private function createServiceCategory(array $row): ServiceCategory
-    {
-        return new ServiceCategory(
-            id: new ServiceCategoryId($row['sc_id']),
-            name: new ServiceCategoryName($row['sc_name']),
-            alias: new ServiceCategoryName($row['sc_description']),
-            activated: $row['sc_activate'] === '1',
-        );
+        return $this->transformer->transform($row);
     }
 }

@@ -21,24 +21,29 @@
 
 declare(strict_types=1);
 
-namespace App\ResourceConfiguration\Infrastructure\ApiPlatform\Transformer;
+namespace App\ResourceConfiguration\Infrastructure\Doctrine;
 
 use App\ResourceConfiguration\Domain\Aggregate\ServiceCategory;
+use App\ResourceConfiguration\Domain\Aggregate\ServiceCategoryId;
+use App\ResourceConfiguration\Domain\Aggregate\ServiceCategoryName;
 use App\ResourceConfiguration\Infrastructure\ApiPlatform\Resource\ServiceCategoryResource;
-use App\Shared\Infrastructure\ApiPlatform\Transformer\TransformerInterface;
+use App\ResourceConfiguration\Infrastructure\Doctrine\DoctrineServiceCategoryRepository;
+use App\Shared\Infrastructure\TransformerInterface;
 
 /**
+ * @phpstan-import-type RowTypeAlias from DoctrineServiceCategoryRepository
+ *
  * @implements TransformerInterface<ServiceCategory, ServiceCategoryResource>
  */
 final readonly class ServiceCategoryTransformer implements TransformerInterface
 {
-    public function toResource(object $model): ServiceCategoryResource
+    public function transform(object|array $from): ServiceCategory
     {
-        return new ServiceCategoryResource(
-            id: $model->id()->value,
-            name: $model->name->value,
-            alias: $model->alias->value,
-            isActivated: $model->activated,
+        return new ServiceCategory(
+            id: new ServiceCategoryId($from['sc_id']),
+            name: new ServiceCategoryName($from['sc_name']),
+            alias: new ServiceCategoryName($from['sc_description']),
+            activated: $from['sc_activate'] === '1',
         );
     }
 }

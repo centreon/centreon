@@ -21,18 +21,19 @@
 
 declare(strict_types=1);
 
-namespace App\Shared\Infrastructure\ApiPlatform\Transformer;
+namespace App\Shared\Infrastructure;
 
 /**
- * @template TModel of object
- * @template TResource of object
+ * @template TFrom of object|array
+ * @template TTo of object|array
  */
 interface TransformerInterface
 {
     /**
-     * @param TModel $model
+     * @param TFrom $from
      *
-     * @return TResource
+     * @return TTo
      */
-    public function toResource(object $model): object;
+    public function transform(object|array $from): object|array;
 }
+

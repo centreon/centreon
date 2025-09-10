@@ -21,26 +21,26 @@
 
 declare(strict_types=1);
 
-namespace App\ResourceConfiguration\Infrastructure\ApiPlatform\Transformer;
+namespace App\ResourceConfiguration\Infrastructure\ApiPlatform\State;
 
 use App\ResourceConfiguration\Domain\Aggregate\GlobalMacro;
 use App\ResourceConfiguration\Infrastructure\ApiPlatform\Resource\GlobalMacroResource;
-use App\Shared\Infrastructure\ApiPlatform\Transformer\TransformerInterface;
+use App\Shared\Infrastructure\TransformerInterface;
 
 /**
- * @implements TransformerInterface<GlobalMacro, GlobalMacroResource>
+ * @implements TransformerInterface<GlobalMacro,GlobalMacroResource>
  */
-final readonly class GlobalMacroTransformer implements TransformerInterface
+final readonly class ResourceGlobalMacroTransformer implements TransformerInterface
 {
-    public function toResource(object $model): GlobalMacroResource
+    public function transform(object|array $from): GlobalMacroResource
     {
         return new GlobalMacroResource(
-            id: $model->id()->value,
-            name: $model->name->value,
-            expression: $model->expression->value,
-            comment: $model->comment?->value,
-            isActivated: $model->activated,
-            isPassword: $model->isPassword
+            id: $from->id()->value,
+            name: $from->name->value,
+            expression: $from->expression->value,
+            comment: $from->comment?->value,
+            isActivated: $from->activated,
+            isPassword: $from->isPassword
         );
     }
 }

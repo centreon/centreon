@@ -33,10 +33,9 @@ use App\ResourceConfiguration\Infrastructure\ApiPlatform\State\ListGlobalMacrosP
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ApiResource(
-    shortName: 'global macros collection',
     operations: [
         new GetCollection(
-            uriTemplate: '/configuration/macros/globals',
+            uriTemplate: '/configuration/global-macros',
             provider: ListGlobalMacrosProvider::class,
             openapi: new Model\Operation(
                 parameters: [new Model\Parameter(

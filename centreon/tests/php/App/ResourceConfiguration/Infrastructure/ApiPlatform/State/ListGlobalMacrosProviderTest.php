@@ -29,11 +29,12 @@ use Tests\App\Shared\ApiTestCase;
 
 final class ListGlobalMacrosProviderTest extends ApiTestCase
 {
+    private const BASE_ENDPOINT = '/api/latest/configuration/global-macros';
     public function testItFindAllGlobalMacrosWithoutParameter(): void
     {
         $this->login();
 
-        $this->request('GET', '/api/latest/configuration/macros/globals');
+        $this->request('GET', self::BASE_ENDPOINT);
         self::assertResponseIsSuccessful();
         self::assertMatchesResourceCollectionJsonSchema(GlobalMacroResource::class);
         self::assertJsonContains(
@@ -49,16 +50,15 @@ final class ListGlobalMacrosProviderTest extends ApiTestCase
     {
         $this->login('user');
 
-        $this->request('GET', '/api/latest/configuration/macros/globals');
+        $this->request('GET', self::BASE_ENDPOINT);
         $this->assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN);
     }
 
-    public function testItFindAllGlobalMacrosWithNameCriteria(): void
+    public function testItFindAllGlobalMacrosWithNameLikeOperator(): void
     {
         $this->login();
 
-        // Like operator
-        $response = $this->request('GET', '/api/latest/configuration/macros/globals', ['query' => ['name' => ['lk' => 'USER1']]]);
+        $response = $this->request('GET', self::BASE_ENDPOINT, ['query' => ['name' => ['lk' => 'USER1']]]);
         self::assertResponseIsSuccessful();
         $this->assertCount(1, (array) $response->toArray()['member']);
         self::assertJsonContains(
@@ -68,14 +68,22 @@ final class ListGlobalMacrosProviderTest extends ApiTestCase
                 ],
             ]
         );
+    }
 
-        // Like operator with no match
-        $response = $this->request('GET', '/api/latest/configuration/macros/globals', ['query' => ['name' => ['lk' => 'USER3']]]);
+    public function testItFindAllGlobalMacrosWithNameLikeOperatorNoMatch(): void
+    {
+        $this->login();
+
+        $response = $this->request('GET', self::BASE_ENDPOINT, ['query' => ['name' => ['lk' => 'USER3']]]);
         self::assertResponseIsSuccessful();
         $this->assertCount(0, (array) $response->toArray()['member']);
+    }
 
-        // Equal Operator
-        $response = $this->request('GET', '/api/latest/configuration/macros/globals', ['query' => ['name' => ['eq' => '$USER1$']]]);
+    public function testItFindAllGlobalMacrosWithNameEqualOperator(): void
+    {
+        $this->login();
+
+        $response = $this->request('GET', self::BASE_ENDPOINT, ['query' => ['name' => ['eq' => '$USER1$']]]);
         self::assertResponseIsSuccessful();
         $this->assertCount(1, (array) $response->toArray()['member']);
         self::assertJsonContains(
@@ -85,9 +93,13 @@ final class ListGlobalMacrosProviderTest extends ApiTestCase
                 ],
             ]
         );
+    }
 
-        // Equal Operator with no match
-        $response = $this->request('GET', '/api/latest/configuration/macros/globals', ['query' => ['name' => ['eq' => 'USER1']]]);
+    public function testItFindAllGlobalMacrosWithNameEqualOperatorNoMatch(): void
+    {
+        $this->login();
+
+        $response = $this->request('GET', self::BASE_ENDPOINT, ['query' => ['name' => ['eq' => 'USER1']]]);
         self::assertResponseIsSuccessful();
         $this->assertCount(0, (array) $response->toArray()['member']);
     }
@@ -96,11 +108,26 @@ final class ListGlobalMacrosProviderTest extends ApiTestCase
     {
 
         $this->login();
-        $response = $this->request('GET', '/api/latest/configuration/macros/globals', ['query' => ['page' => '2', 'itemsPerPage' => '1']]);
+        $response = $this->request('GET', self::BASE_ENDPOINT, ['query' => ['page' => '2', 'itemsPerPage' => '1']]);
         self::assertResponseIsSuccessful();
+        self::assertMatchesResourceCollectionJsonSchema(GlobalMacroResource::class);
         $this->assertCount(1, (array) $response->toArray()['member']);
-        // test total items
-        // test assert matches json collection schema
+        $this->assertCount(1, (array) $response->toArray()['member']);
+        $this->assertEquals(2, $response->toArray()['totalItems']);
+    }
+
+    public function testIfFindAllGlobalMacrosWithPaginationAndAnOperator(): void
+    {
+        $this->login();
+        $response = $this->request(
+            'GET',
+            self::BASE_ENDPOINT,
+            ['query' => ['page' => '1', 'itemsPerPage' => '1', 'name' => ['lk' => ['USER']]]]
+        );
+        self::assertResponseIsSuccessful();
+        self::assertMatchesResourceCollectionJsonSchema(GlobalMacroResource::class);
+        $this->assertCount(1, (array) $response->toArray()['member']);
+        $this->assertEquals(1, $response->toArray()['totalItems']);
     }
 
     protected static function apiUsers(): array

@@ -23,17 +23,14 @@ declare(strict_types=1);
 
 namespace App\ResourceConfiguration\Infrastructure\Doctrine;
 
-use App\ResourceConfiguration\Domain\Aggregate\GlobalMacro;
-use App\ResourceConfiguration\Domain\Aggregate\GlobalMacroComment;
-use App\ResourceConfiguration\Domain\Aggregate\GlobalMacroExpression;
-use App\ResourceConfiguration\Domain\Aggregate\GlobalMacroId;
-use App\ResourceConfiguration\Domain\Aggregate\GlobalMacroName;
 use App\ResourceConfiguration\Domain\Repository\GlobalMacroCriteria;
 use App\ResourceConfiguration\Domain\Repository\GlobalMacroRepository;
 use App\Shared\Domain\Repository\Paginator;
 use App\Shared\Infrastructure\Doctrine\DoctrineRepository;
 use App\Shared\Infrastructure\InMemory\InMemoryPaginator;
+use App\Shared\Infrastructure\TransformerInterface;
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\ParameterType;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 /**
@@ -53,6 +50,8 @@ final readonly class DoctrineGlobalMacroRepository extends DoctrineRepository im
     public function __construct(
         #[Autowire(service: 'doctrine.dbal.default_connection')]
         private Connection $connection,
+        #[Autowire(service: GlobalMacroTransformer::class)]
+        private TransformerInterface $transformer,
     ) {
     }
 
@@ -62,19 +61,35 @@ final readonly class DoctrineGlobalMacroRepository extends DoctrineRepository im
 
         $qb->select('resource_id', 'resource_name', 'resource_line', 'resource_comment', 'resource_activate', 'is_password')
            ->from(self::TABLE_NAME);
-
         if ($nameCriteria = $criteria?->getNames()) {
+            $paramIndex = 0;
+
             foreach ($nameCriteria as $operator => $names) {
                 if ($operator === 'lk') {
+                    $likeParts = [];
                     foreach ($names as $name) {
-                        $qb->andWhere($qb->expr()->like('resource_name', '"%' . $name . '%"'));
+                        $paramName = 'name' . $paramIndex++;
+                        $likeParts[] = 'resource_name LIKE :' . $paramName;
+                        $qb->setParameter($paramName, '%' . $name . '%');
+                    }
+                    if ($likeParts) {
+                        $qb->andWhere('(' . implode(' OR ', $likeParts) . ')');
                     }
                 } elseif ($operator === 'eq') {
-                    $qb->andWhere($qb->expr()->in('resource_name', $names));
+                    $placeholders = [];
+                    foreach ($names as $name) {
+                        $paramName = 'name' . $paramIndex++;
+                        $placeholders[] = ':' . $paramName;
+                        $qb->setParameter($paramName, $name);
+                    }
+                    if ($placeholders) {
+                        $qb->andWhere(
+                            'resource_name IN (' . implode(',', $placeholders) . ')'
+                        );
+                    }
                 }
             }
         }
-
         $qbCount = clone $qb;
         if ($criteria?->getPage() !== null) {
             $qb->setFirstResult(($criteria->getPage() - 1) * $criteria->getItemsPerPage())
@@ -85,7 +100,7 @@ final readonly class DoctrineGlobalMacroRepository extends DoctrineRepository im
          * @var RowTypeAlias[] $rows
          */
         $rows = $qb->executeQuery()->fetchAllAssociative();
-        $globalMacros = array_map($this->createGlobalMacro(...), $rows);
+        $globalMacros = array_map($this->transformer->transform(...), $rows);
         if ($criteria?->getPage() === null) {
             return $globalMacros;
         }
@@ -98,21 +113,6 @@ final readonly class DoctrineGlobalMacroRepository extends DoctrineRepository im
             totalItems: $count,
             currentPage: $criteria->getPage(),
             itemsPerPage: $criteria->getItemsPerPage() ?? 0
-        );
-    }
-
-    /**
-     * @param RowTypeAlias $row
-     */
-    private function createGlobalMacro(array $row): GlobalMacro
-    {
-        return new GlobalMacro(
-            id: new GlobalMacroId($row['resource_id']),
-            name: new GlobalMacroName($row['resource_name']),
-            expression: new GlobalMacroExpression($row['resource_line']),
-            comment: $row['resource_comment'] !== null ? new GlobalMacroComment($row['resource_comment']) : null,
-            activated: $row['resource_activate'] === '1',
-            isPassword: $row['is_password'] === 1,
         );
     }
 }

@@ -21,25 +21,24 @@
 
 declare(strict_types=1);
 
-namespace App\ResourceConfiguration\Domain\Aggregate;
+namespace App\ResourceConfiguration\Infrastructure\ApiPlatform\State;
 
-use App\Shared\Domain\Aggregate\AggregateRoot;
+use App\ResourceConfiguration\Domain\Aggregate\ServiceCategory;
+use App\ResourceConfiguration\Infrastructure\ApiPlatform\Resource\ServiceCategoryResource;
+use App\Shared\Infrastructure\TransformerInterface;
 
-final class Option extends AggregateRoot
+/**
+ * @implements TransformerInterface<ServiceCategory, ServiceCategoryResource>
+ */
+final readonly class ResourceServiceCategoryTransformer implements TransformerInterface
 {
-    public const PLUGIN_PATH_OPTION_NAME = 'nagios_path_plugins';
-
-    public function __construct(
-        public readonly OptionName $name,
-        public readonly OptionValue $value,
-    ) {
-    }
-
-    public function static fromRawData(array $data): self
+    public function transform(object|array $from): ServiceCategoryResource
     {
-        return new self(
-            new OptionName($data['name']),
-            new OptionValue($data['value']),
+        return new ServiceCategoryResource(
+            id: $from->id()->value,
+            name: $from->name->value,
+            alias: $from->alias->value,
+            isActivated: $from->activated,
         );
     }
 }

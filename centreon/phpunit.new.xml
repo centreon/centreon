@@ -15,6 +15,9 @@
         <testsuite name="resource_configuration">
             <directory>tests/php/App/ResourceConfiguration</directory>
         </testsuite>
+        <testsuite name="shared">
+            <directory>tests/php/App/Shared</directory>
+        </testsuite>
     </testsuites>
 
     <php>
