@@ -1,11 +1,12 @@
 import { useAtomValue } from 'jotai';
-import { equals, mergeRight } from 'ramda';
+import { equals, mergeDeepRight } from 'ramda';
 import { CSSInterpolation } from 'tss-react';
 
 import {
   ButtonProps,
   InputBaseProps,
   ThemeProvider as MuiThemeProvider,
+  PaletteOptions,
   StyledEngineProvider,
   Theme,
   createTheme
@@ -258,8 +259,8 @@ export const getTheme = (mode: ThemeMode): ThemeOptions => ({
 interface Props {
   children: ReactNode;
   overrideTheme?: {
-    light: Partial<ThemeOptions>;
-    dark: Partial<ThemeOptions>;
+    light: Partial<PaletteOptions>;
+    dark: Partial<PaletteOptions>;
   };
 }
 
@@ -269,7 +270,9 @@ const ThemeProvider = ({ children, overrideTheme }: Props): JSX.Element => {
   const theme = useMemo(() => {
     const overrideThemeByMode = overrideTheme?.[themeMode || 'light'];
     return createTheme(
-      mergeRight(getTheme(themeMode || ThemeMode.light), overrideThemeByMode)
+      mergeDeepRight(getTheme(themeMode || ThemeMode.light), {
+        palette: overrideThemeByMode || {}
+      })
     );
   }, [themeMode, overrideTheme]);
 
