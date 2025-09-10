@@ -21,36 +21,16 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Domain\Aggregate\GlobalMacro;
+namespace App\MonitoringConfiguration\Domain\Repository;
 
+use App\MonitoringConfiguration\Domain\Aggregate\GlobalMacro\GlobalMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\Poller;
-use App\Shared\Domain\Aggregate\AggregateRoot;
 use App\Shared\Domain\Collection;
 
-final class GlobalMacro extends AggregateRoot
+interface PollerRepository
 {
     /**
-     * @param Collection<Poller> $pollers
+     * @return Collection<Poller>
      */
-    public function __construct(
-        ?GlobalMacroId $id,
-        public readonly GlobalMacroName $name,
-        public readonly GlobalMacroExpression $expression,
-        public readonly ?GlobalMacroComment $comment,
-        public readonly bool $isPassword,
-        public readonly bool $activated,
-        public readonly Collection $pollers,
-    ) {
-        parent::__construct($id);
-    }
-
-    public function addPoller(Poller $poller): void
-    {
-        if ($this->pollers->contains($poller)) {
-            return;
-        }
-
-        $this->pollers->add($poller);
-        $poller->addGlobalMacro($this);
-    }
+    public function findAllByGlobalMacro(GlobalMacro $globalMacro): Collection;
 }

@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace App\Shared\Infrastructure\InMemory;
 
+use App\Shared\Domain\Collection;
 use App\Shared\Domain\Repository\Paginator;
 use Webmozart\Assert\Assert;
 
@@ -36,10 +37,10 @@ final readonly class InMemoryPaginator implements Paginator
     private int $lastPage;
 
     /**
-     * @param array<T> $items
+     * @param Collection<T> $items
      */
     public function __construct(
-        private array $items,
+        private Collection $items,
         private int $totalItems,
         private int $currentPage,
         private int $itemsPerPage,
@@ -77,6 +78,6 @@ final readonly class InMemoryPaginator implements Paginator
 
     public function getIterator(): \Traversable
     {
-        return new \ArrayIterator($this->items);
+        return $this->items;
     }
 }
