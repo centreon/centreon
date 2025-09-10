@@ -1,6 +1,0 @@
-FindRealTimeHostCategories:
-    methods: GET
-    path: /monitoring/hosts/categories
-    controller: 'Core\HostCategory\Infrastructure\API\FindRealTimeHostCategories\FindRealTimeHostCategoriesController'
-    condition: "request.attributes.get('version') >= 22.10"
-

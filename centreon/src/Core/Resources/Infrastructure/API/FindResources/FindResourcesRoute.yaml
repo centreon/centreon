@@ -1,5 +1,0 @@
-FindResources:
-    methods: GET
-    path: /monitoring/resources
-    controller: 'Core\Resources\Infrastructure\API\FindResources\FindResourcesController'
-    condition: "request.attributes.get('version') >= 21.10"

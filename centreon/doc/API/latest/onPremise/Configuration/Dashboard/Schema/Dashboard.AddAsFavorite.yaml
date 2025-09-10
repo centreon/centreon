@@ -1,7 +1,0 @@
-type: object
-required:
-  - dashboard_id
-properties:
-  dashboard_id:
-    type: integer
-    example: 1

@@ -1,5 +1,0 @@
-AddAgentConfiguration:
-  methods: POST
-  path: /configuration/agent-configurations
-  controller: 'Core\AgentConfiguration\Infrastructure\API\AddAgentConfiguration\AddAgentConfigurationController'
-  condition: "request.attributes.get('version') >= 24.10"

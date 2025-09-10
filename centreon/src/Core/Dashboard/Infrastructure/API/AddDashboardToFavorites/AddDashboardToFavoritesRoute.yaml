@@ -1,5 +1,0 @@
-AddFavoriteDashboard:
-  methods: POST
-  path: /configuration/dashboards/favorites
-  controller: 'Core\Dashboard\Infrastructure\API\AddDashboardToFavorites\AddDashboardToFavoritesController'
-  condition: "request.attributes.get('version') >= 24.10"

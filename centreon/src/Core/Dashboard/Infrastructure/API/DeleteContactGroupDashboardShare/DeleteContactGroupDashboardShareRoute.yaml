@@ -1,8 +1,0 @@
-DeleteContactGroupDashboardShare:
-  methods: DELETE
-  path: /configuration/dashboards/{dashboardId}/access_rights/contactgroups/{contactGroupId}
-  requirements:
-    dashboardId: '\d+'
-    contactGroupId: '\d+'
-  controller: 'Core\Dashboard\Infrastructure\API\DeleteContactGroupDashboardShare\DeleteContactGroupDashboardShareController'
-  condition: "request.attributes.get('version') >= 23.10"

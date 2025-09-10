@@ -1,7 +1,0 @@
-<table class="ToolbarTable table">
-    <tr class="ToolbarTR">
-        <td style="width: auto;">
-            <select class='toolbar'>{$actions}</select>
-        </td>
-    </tr>
-</table>

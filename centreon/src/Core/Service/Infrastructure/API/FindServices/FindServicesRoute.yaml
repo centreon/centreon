@@ -1,5 +1,0 @@
-FindServices:
-  methods: GET
-  path: /configuration/services
-  controller: 'Core\Service\Infrastructure\API\FindServices\FindServicesController'
-  condition: "request.attributes.get('version') >= 23.10"

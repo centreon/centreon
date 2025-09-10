@@ -1,7 +1,0 @@
-PartialUpdateDashboard:
-  methods: POST
-  path: /configuration/dashboards/{dashboardId}
-  requirements:
-    dashboardId: '\d+'
-  controller: 'Core\Dashboard\Infrastructure\API\PartialUpdateDashboard\PartialUpdateDashboardController'
-  condition: "request.attributes.get('version') >= 23.10"

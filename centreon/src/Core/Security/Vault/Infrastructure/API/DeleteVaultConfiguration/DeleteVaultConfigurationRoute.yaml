@@ -1,5 +1,0 @@
-DeleteVaultConfiguration:
-  methods: DELETE
-  path: /administration/vaults/configurations
-  controller: 'Core\Security\Vault\Infrastructure\API\DeleteVaultConfiguration\DeleteVaultConfigurationController'
-  condition: "request.attributes.get('version') >= 23.04 and request.attributes.get('feature.vault')"

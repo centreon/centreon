@@ -1,5 +1,0 @@
-{
-    "action": "ADDPARENT",
-    "object": "HOST",
-    "values": "test_host_ack;test_host"
-}

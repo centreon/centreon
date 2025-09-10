@@ -1,6 +1,0 @@
-{
-  "centreonbroker_etc": "\/etc\/centreon-broker",
-  "centreonbroker_log": "\/var\/log\/centreon-broker",
-  "centreonbroker_varlib": "\/var\/lib\/centreon-broker",
-  "centreonbroker_lib": "\/usr\/share\/centreon\/lib\/centreon-broker"
-}

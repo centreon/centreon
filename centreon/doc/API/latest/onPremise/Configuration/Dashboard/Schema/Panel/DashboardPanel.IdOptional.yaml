@@ -1,8 +1,0 @@
-type: object
-
-properties:
-  id:
-    type: integer
-    nullable: true
-    description: "Dashboard panel ID"
-    example: 1

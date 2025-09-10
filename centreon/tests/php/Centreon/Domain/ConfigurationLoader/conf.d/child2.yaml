@@ -1,2 +1,0 @@
-loop: no loop
-extra: !include child3.yaml
