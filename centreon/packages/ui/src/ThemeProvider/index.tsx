@@ -26,7 +26,7 @@ import { ReactNode, useMemo } from 'react';
 import { getPalette } from './palettes';
 
 declare module '@mui/styles/defaultTheme' {
-  interface DefaultTheme extends Theme { }
+  interface DefaultTheme extends Theme {}
 }
 
 declare module '@mui/material/TextField' {
@@ -198,14 +198,14 @@ export const getTheme = (mode: ThemeMode): ThemeOptions => ({
       styleOverrides: {
         root: ({ theme }) => ({
           '&:hover, &.Mui-selected, &.Mui-selected:hover, &.Mui-selected:focus':
-          {
-            background: equals(theme.palette.mode, ThemeMode.dark)
-              ? theme.palette.primary.dark
-              : theme.palette.primary.light,
-            color: equals(theme.palette.mode, ThemeMode.dark)
-              ? theme.palette.common.white
-              : theme.palette.primary.main
-          },
+            {
+              background: equals(theme.palette.mode, ThemeMode.dark)
+                ? theme.palette.primary.dark
+                : theme.palette.primary.light,
+              color: equals(theme.palette.mode, ThemeMode.dark)
+                ? theme.palette.common.white
+                : theme.palette.primary.main
+            },
           fontSize: theme.typography.body2.fontSize
         })
       }
@@ -222,12 +222,12 @@ export const getTheme = (mode: ThemeMode): ThemeOptions => ({
       styleOverrides: {
         root: ({ theme }) => ({
           [`[role="tooltip"] &, &.MuiMenu-paper, &.${autocompleteClasses.paper}`]:
-          {
-            backgroundColor: theme.palette.background.default,
-            border: 'none',
-            borderRadius: `${theme.shape.borderRadius}px`,
-            boxShadow: theme.shadows[3]
-          }
+            {
+              backgroundColor: theme.palette.background.default,
+              border: 'none',
+              borderRadius: `${theme.shape.borderRadius}px`,
+              boxShadow: theme.shadows[3]
+            }
         })
       }
     },
@@ -263,7 +263,11 @@ const ThemeProvider = ({ children }: Props): JSX.Element => {
   const { themeMode } = useAtomValue(userAtom);
 
   const theme = useMemo(
-    () => createTheme(getTheme(themeMode || ThemeMode.light)),
+    () =>
+      createTheme({
+        ...getTheme(themeMode || ThemeMode.light),
+        cssVariables: true
+      }),
     [themeMode]
   );
 
