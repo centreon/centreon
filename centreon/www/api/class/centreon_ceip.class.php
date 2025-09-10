@@ -92,7 +92,6 @@ class CentreonCeip extends CentreonWebService
             ? [
                 'visitor' => $this->getVisitorInformation(),
                 'account' => $this->getAccountInformation(),
-                'agent' => $this->getAgentInformation(),
                 'excludeAllText' => true,
                 'ceip' => true,
             ]

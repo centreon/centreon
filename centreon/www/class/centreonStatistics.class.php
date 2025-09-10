@@ -438,9 +438,9 @@ class CentreonStatistics
 
         $pearDBO = new CentreonDB(CentreonDB::LABEL_DB_REALTIME);
         $query = <<<'SQL'
-                    SELECT `poller_id`, `enabled`, `infos`
-                    FROM `agent_information`
-                SQL;
+            SELECT `poller_id`, `enabled`, `infos`
+                FROM `agent_information`
+            SQL;
         $statement = $pearDBO->executeQuery($query);
 
         while (is_array($row = $pearDBO->fetch($statement))) {
