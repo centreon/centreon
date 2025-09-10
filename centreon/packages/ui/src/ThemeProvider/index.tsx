@@ -267,8 +267,10 @@ const ThemeProvider = ({ children, overrideTheme }: Props): JSX.Element => {
   const { themeMode } = useAtomValue(userAtom);
 
   const theme = useMemo(() => {
-    const overrideThemeByMode = overrideTheme?[themeMode];
-    return createTheme(mergeRight(getTheme(themeMode || ThemeMode.light), overrideThemeByMode));
+    const overrideThemeByMode = overrideTheme?.[themeMode || 'light'];
+    return createTheme(
+      mergeRight(getTheme(themeMode || ThemeMode.light), overrideThemeByMode)
+    );
   }, [themeMode, overrideTheme]);
 
   return (
