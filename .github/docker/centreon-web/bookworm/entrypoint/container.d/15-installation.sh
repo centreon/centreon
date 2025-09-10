@@ -49,7 +49,7 @@ echo "Dummy centengine called"
 echo "Total Errors:   0"
 exit 0
 EOF
-chmod +x /usr/sbin/centengineup 
+chmod +x /usr/sbin/centengine
 
 
 setAdminLanguage() {
