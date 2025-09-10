@@ -266,9 +266,9 @@ export const lightPalette: PaletteOptions = {
   },
   primary: {
     contrastText: '#fff',
-    dark: '#255891',
-    light: '#cde7fc',
-    main: '#2E68AA'
+    dark: 'var(--color-primary-dark)',
+    light: 'var(--color-primary-light)',
+    main: 'var(--color-primary-main)'
   },
   secondary: {
     contrastText: '#fff',
@@ -410,9 +410,9 @@ export const darkPalette: PaletteOptions = {
   },
   primary: {
     contrastText: '#000',
-    dark: '#4974A5',
-    light: '#8bbff9',
-    main: '#6eaff8'
+    dark: 'var(--color-primary-dark)',
+    light: 'var(--color-primary-light)',
+    main: 'var(--color-primary-main)'
   },
   secondary: {
     contrastText: '#fff',

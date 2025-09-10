@@ -263,11 +263,7 @@ const ThemeProvider = ({ children }: Props): JSX.Element => {
   const { themeMode } = useAtomValue(userAtom);
 
   const theme = useMemo(
-    () =>
-      createTheme({
-        ...getTheme(themeMode || ThemeMode.light),
-        cssVariables: true
-      }),
+    () => createTheme(getTheme(themeMode || ThemeMode.light)),
     [themeMode]
   );
 
