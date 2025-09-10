@@ -21,6 +21,7 @@ RUN apt-get update && apt-get install -y \
     libonig-dev \
     wget \
     gpg \
+    sudo \
     && docker-php-ext-configure ldap --with-libdir=lib/x86_64-linux-gnu \
     && docker-php-ext-install \
         pdo_mysql \
@@ -101,15 +102,15 @@ EOF
 COPY --chmod=755 ./.github/docker/centreon-web/bookworm/entrypoint /usr/share/centreon
 COPY --chown=www-data:www-data ./.github/docker/centreon-web/bookworm/configuration /usr/share/centreon/www/install/tmp
 COPY --chmod=600 ./centreon/packaging/src/sudoersCentreon /etc/sudoers.d/centreon
-COPY --chmod=755 ./.github/docker/centreon-web/init/service /usr/local/bin/service 
+COPY --chmod=755 ./.github/docker/centreon-web/init/systemctl /usr/local/bin/systemctl 
 
 COPY ./.github/docker/centreon-web/sql/* /usr/local/src/sql/data/
 RUN mv /usr/share/centreon/ /var/www/html/ &&\
-    mv /usr/sbin/service /usr/sbin/service.orig &&\
+    mv /usr/sbin/systemctl /usr/sbin/systemctl.orig &&\
     chown -R www-data:www-data /var/www/html/centreon &&\
     sed -i 's/User_Alias *CENTREON=%@CENTREON_GROUP@/User_Alias      CENTREON=%centreon/' /etc/sudoers.d/centreon &&\
     ln -s /var/www/html/centreon/ /usr/share/centreon &&\
-    ln -s /usr/local/bin/service /usr/sbin/service
+    ln -s /usr/local/bin/systemctl /usr/bin/systemctl
 
 WORKDIR /var/www/html
 

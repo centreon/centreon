@@ -1,8 +1,8 @@
 #!/bin/sh
 # filepath: /usr/local/bin/service
 
-SERVICE="$1"
-ACTION="$2"
+SERVICE="$2"
+ACTION="$1"
 
 case "$SERVICE" in
   centengine|cbd)

@@ -1,19 +1,6 @@
 FROM debian:12-slim AS gorgone
 
 # Install runtime dependencies specific to the new container
-
-RUN groupadd -g 900 centreon &&\
-    useradd -u 900 -g centreon -m -r -d /var/spool/centreon -c "Centreon" -s /bin/bash centreon &&\
-    groupadd -g 901 centreon-engine &&\
-    useradd -u 901 -g centreon-engine -m -r -d /var/lib/centreon-engine -c "Centreon Engine" -s /bin/bash centreon-engine &&\
-    groupadd -g 902 centreon-broker &&\
-    useradd -u 902 -g centreon-broker -m -r -d /var/lib/centreon-broker -c "Centreon Broker"  -s /bin/bash centreon-broker &&\
-    groupadd -g 903 centreon-gorgone &&\
-    useradd -u 903 -g centreon-gorgone -m -r -d /var/lib/centreon-gorgone -c "Centreon Gorgone"  -s /bin/bash centreon-gorgone &&\
-    usermod -aG centreon centreon-gorgone
-
-COPY packages/ /tmp/packages-centreon
- 
 RUN apt update && \
     apt install -y \
     perl-modules \
@@ -44,10 +31,27 @@ RUN apt update && \
     libcrypt-openssl-aes-perl \
     libssh-session-perl \
     libxml-simple-perl \
-    sudo && \
+    sudo
+
+COPY --chmod=755 systemctl /usr/local/bin/systemctl
+COPY --chown=centreon-gorgone:centreon-gorgone --chmod=775 config/40-gorgoned.yaml /etc/centreon-gorgone/config.d/40-gorgoned.yaml 
+COPY --chmod=600 centreon /etc/sudoers.d/centreon
+COPY packages/ /tmp/packages-centreon
+
+RUN groupadd -g 900 centreon &&\
+    useradd -u 900 -g centreon -m -r -d /var/spool/centreon -c "Centreon" -s /bin/bash centreon &&\
+    groupadd -g 901 centreon-engine &&\
+    useradd -u 901 -g centreon-engine -m -r -d /var/lib/centreon-engine -c "Centreon Engine" -s /bin/bash centreon-engine &&\
+    groupadd -g 902 centreon-broker &&\
+    useradd -u 902 -g centreon-broker -m -r -d /var/lib/centreon-broker -c "Centreon Broker"  -s /bin/bash centreon-broker &&\
+    groupadd -g 903 centreon-gorgone &&\
+    useradd -u 903 -g centreon-gorgone -m -r -d /var/lib/centreon-gorgone -c "Centreon Gorgone"  -s /bin/bash centreon-gorgone &&\
+    usermod -aG centreon centreon-gorgone && \
     apt install -y /tmp/packages-centreon/centreon-*.deb && \
     apt clean && \
-    rm -rf /var/lib/apt/lists/* /tmp/packages-centreon
+    rm -rf /var/lib/apt/lists/* /tmp/packages-centreon &&\
+    mv /usr/bin/systemctl /usr/bin/systemctl.orig && \
+    ln -s /usr/local/bin/systemctl /usr/bin/systemctl
 
 
 #     mkdir -p /etc/centreon/config.d/ && \
@@ -64,9 +68,7 @@ RUN apt update && \
 # COPY --from=builder --chown=centreon-gorgone:centreon-gorgone /centreon-collect/perl-libs/lib/centreon/ /usr/share/perl5/centreon/
 # COPY --from=builder /usr/share/perl5/gorgone /usr/share/perl5/gorgone
 # COPY --from=builder /usr/bin/gorgoned /usr/bin/gorgoned
-COPY --chmod=755 service /usr/local/bin/service
-COPY --chown=centreon-gorgone:centreon-gorgone --chmod=775 config/40-gorgoned.yaml /etc/centreon-gorgone/config.d/40-gorgoned.yaml 
-COPY --chmod=600 centreon /etc/sudoers.d/centreon
+
 
 
 # Set the working directory
