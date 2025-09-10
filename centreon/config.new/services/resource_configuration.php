@@ -48,5 +48,5 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->autowire()
         ->autoconfigure();
 
-    $services->load('App\\ResourceConfiguration\\', __DIR__ . '/../../src/App/ResourceConfiguration');
+    $services->load('App\\MonitoringConfiguration\\', __DIR__ . '/../../src/App/MonitoringConfiguration');
 };

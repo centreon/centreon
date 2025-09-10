@@ -1,7 +1,7 @@
 parameters:
     paths:
         - ./src/App/ActivityLogging
-        - ./src/App/ResourceConfiguration
+        - ./src/App/MonitoringConfiguration
         - ./src/App/Shared
 
     layers:
@@ -65,5 +65,5 @@ parameters:
             - Security\SessionAPIAuthenticator
         App\Shared\Infrastructure\Legacy\LegacySecurity: 
             - Centreon\Domain\Contact\Contact
-        App\ResourceConfiguration\Infrastructure\Legacy\LegacyServiceCategoryPermissionVoter:
+        App\MonitoringConfiguration\Infrastructure\Legacy\LegacyServiceCategoryPermissionVoter:
             - Centreon\Domain\Contact\Contact

@@ -21,11 +21,11 @@
 
 declare(strict_types=1);
 
-namespace Tests\App\ResourceConfiguration\Infrastructure\Doctrine;
+namespace Tests\App\MonitoringConfiguration\Infrastructure\Doctrine;
 
-use App\ResourceConfiguration\Domain\Aggregate\ServiceCategory;
-use App\ResourceConfiguration\Domain\Aggregate\ServiceCategoryName;
-use App\ResourceConfiguration\Infrastructure\Doctrine\DoctrineServiceCategoryRepository;
+use App\MonitoringConfiguration\Domain\Aggregate\ServiceCategory;
+use App\MonitoringConfiguration\Domain\Aggregate\ServiceCategoryName;
+use App\MonitoringConfiguration\Infrastructure\Doctrine\DoctrineServiceCategoryRepository;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 final class DoctrineServiceCategoryRepositoryTest extends KernelTestCase

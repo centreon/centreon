@@ -21,12 +21,12 @@
 
 declare(strict_types=1);
 
-namespace Tests\App\ResourceConfiguration\Infrastructure\ApiPlatform\State;
+namespace Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\State;
 
 use App\ActivityLogging\Domain\Repository\ActivityLogRepository;
-use App\ResourceConfiguration\Domain\Aggregate\ServiceCategoryName;
-use App\ResourceConfiguration\Domain\Repository\ServiceCategoryRepository;
-use App\ResourceConfiguration\Infrastructure\ApiPlatform\Resource\ServiceCategoryResource;
+use App\MonitoringConfiguration\Domain\Aggregate\ServiceCategoryName;
+use App\MonitoringConfiguration\Domain\Repository\ServiceCategoryRepository;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\ServiceCategoryResource;
 use Tests\App\Shared\ApiTestCase;
 
 final class CreateServiceCategoryProcessorTest extends ApiTestCase

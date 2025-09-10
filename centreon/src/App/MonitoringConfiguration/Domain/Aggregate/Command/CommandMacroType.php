@@ -21,17 +21,10 @@
 
 declare(strict_types=1);
 
-namespace App\ResourceConfiguration\Application\Command;
+namespace App\ResourceConfiguration\Domain\Aggregate\Command;
 
-use App\ResourceConfiguration\Domain\Aggregate\ServiceCategoryName;
-
-final readonly class CreateServiceCategoryCommand
+enum CommandMacroType: string
 {
-    public function __construct(
-        public ServiceCategoryName $name,
-        public ServiceCategoryName $alias,
-        public bool $activated,
-        public int $creatorId,
-    ) {
-    }
+    case HOST = '1';
+    case SERVICE = '2';
 }

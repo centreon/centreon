@@ -21,15 +21,15 @@
 
 declare(strict_types=1);
 
-namespace Tests\App\ResourceConfiguration\Application\Command;
+namespace Tests\App\MonitoringConfiguration\Application\Command;
 
-use App\ResourceConfiguration\Application\Command\CreateServiceCategoryCommand;
-use App\ResourceConfiguration\Application\Command\CreateServiceCategoryCommandHandler;
-use App\ResourceConfiguration\Domain\Aggregate\ServiceCategoryName;
-use App\ResourceConfiguration\Domain\Event\ServiceCategoryCreated;
-use App\ResourceConfiguration\Domain\Exception\ServiceCategoryAlreadyExistsException;
+use App\MonitoringConfiguration\Application\Command\CreateServiceCategoryCommand;
+use App\MonitoringConfiguration\Application\Command\CreateServiceCategoryCommandHandler;
+use App\MonitoringConfiguration\Domain\Aggregate\ServiceCategoryName;
+use App\MonitoringConfiguration\Domain\Event\ServiceCategoryCreated;
+use App\MonitoringConfiguration\Domain\Exception\ServiceCategoryAlreadyExistsException;
 use PHPUnit\Framework\TestCase;
-use Tests\App\ResourceConfiguration\Infrastructure\Double\FakeServiceCategoryRepository;
+use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeServiceCategoryRepository;
 use Tests\App\Shared\Double\EventBusSpy;
 
 final class CreateServiceCategoryCommandTest extends TestCase
