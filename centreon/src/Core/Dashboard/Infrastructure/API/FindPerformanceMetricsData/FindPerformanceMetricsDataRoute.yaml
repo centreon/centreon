@@ -1,5 +1,0 @@
-FindPerformanceMetricsData:
-  methods: GET
-  path: /monitoring/dashboard/metrics/performances/data
-  controller: 'Core\Dashboard\Infrastructure\API\FindPerformanceMetricsData\FindPerformanceMetricsDataController'
-  condition: "request.attributes.get('version') >= 23.10"

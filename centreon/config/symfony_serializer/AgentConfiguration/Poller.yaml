@@ -1,6 +1,0 @@
-Core\AgentConfiguration\Domain\Model\Poller:
-  attributes:
-    id:
-      groups: ['AgentConfiguration:Read']
-    name:
-      groups: ['AgentConfiguration:Read']

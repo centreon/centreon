@@ -1,8 +1,0 @@
-Core\Dashboard\Application\UseCase\FindFavoriteDashboards\Response\ThumbnailResponseDto:
-  attributes:
-    id:
-      groups: ['FavoriteDashboards:Read']
-    name:
-      groups: ['FavoriteDashboards:Read']
-    directory:
-      groups: ['FavoriteDashboards:Read']

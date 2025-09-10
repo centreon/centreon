@@ -1,5 +1,0 @@
-FindDashboards:
-  methods: GET
-  path: /configuration/dashboards
-  controller: 'Core\Dashboard\Infrastructure\API\FindDashboards\FindDashboardsController'
-  condition: "request.attributes.get('version') >= 23.10"

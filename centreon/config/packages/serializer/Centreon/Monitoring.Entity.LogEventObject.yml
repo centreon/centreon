@@ -1,7 +1,0 @@
-Centreon\Domain\Monitoring\Entity\LogEventObject:
-    properties:
-        id:
-            type: int
-            groups:
-                - 'log_event_list'
-                - 'log_event_full'

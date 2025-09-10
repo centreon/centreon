@@ -1,5 +1,0 @@
-{
-    "action": "SETPARAM",
-    "object": "HOST",
-    "values": "test_host_ack;check_command;check_centreon_cpu"
-}

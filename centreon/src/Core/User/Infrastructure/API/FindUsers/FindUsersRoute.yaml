@@ -1,5 +1,0 @@
-FindUsersNew:
-  methods: GET
-  path: /configuration/users
-  controller: 'Core\User\Infrastructure\API\FindUsers\FindUsersController'
-  condition: "request.attributes.get('version') >= 22.04"

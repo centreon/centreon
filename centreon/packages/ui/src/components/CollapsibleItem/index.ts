@@ -1,1 +1,0 @@
-export { CollapsibleItem } from './CollapsibleItem';

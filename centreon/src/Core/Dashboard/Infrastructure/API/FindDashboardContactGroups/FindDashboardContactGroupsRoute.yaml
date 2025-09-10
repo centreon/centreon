@@ -1,5 +1,0 @@
-FindDashboardContactGroups:
-  methods: GET
-  path: /configuration/dashboards/contactgroups
-  controller: 'Core\Dashboard\Infrastructure\API\FindDashboardContactGroups\FindDashboardContactGroupsController'
-  condition: "request.attributes.get('version') >= 23.10"

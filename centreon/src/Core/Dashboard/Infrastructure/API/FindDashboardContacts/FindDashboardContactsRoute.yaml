@@ -1,5 +1,0 @@
-FindDashboardContacts:
-  methods: GET
-  path: /configuration/dashboards/contacts
-  controller: 'Core\Dashboard\Infrastructure\API\FindDashboardContacts\FindDashboardContactsController'
-  condition: "request.attributes.get('version') >= 23.10"

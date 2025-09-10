@@ -1,5 +1,0 @@
-FindTokens:
-  methods: GET
-  path: /administration/tokens
-  controller: 'Core\Security\Token\Infrastructure\API\FindTokens\FindTokensController'
-  condition: "request.attributes.get('version') >= 23.10"

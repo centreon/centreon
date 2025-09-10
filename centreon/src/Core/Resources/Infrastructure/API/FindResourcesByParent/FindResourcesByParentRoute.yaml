@@ -1,5 +1,0 @@
-FindResourcesByParent:
-    methods: GET
-    path: /monitoring/resources/hosts
-    controller: 'Core\Resources\Infrastructure\API\FindResourcesByParent\FindResourcesByParentController'
-    condition: "request.attributes.get('version') >= 23.10"

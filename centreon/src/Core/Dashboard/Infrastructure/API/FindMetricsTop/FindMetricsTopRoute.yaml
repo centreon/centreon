@@ -1,5 +1,0 @@
-FindMetricsTop:
-  methods: GET
-  path: /monitoring/dashboard/metrics/top
-  controller: 'Core\Dashboard\Infrastructure\API\FindMetricsTop\FindMetricsTopController'
-  condition: "request.attributes.get('version') >= 23.10"
