@@ -24,10 +24,12 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Infrastructure\Dbal;
 
 use App\MonitoringConfiguration\Domain\Aggregate\GlobalMacro\GlobalMacro;
+use App\MonitoringConfiguration\Domain\Aggregate\GlobalMacro\GlobalMacroId;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\Poller;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\GlobalMacroCriteria;
 use App\MonitoringConfiguration\Domain\Repository\GlobalMacroRepository;
-use App\Shared\Domain\Repository\Paginator;
-use App\Shared\Infrastructure\Doctrine\DoctrineRepository;
+use App\Shared\Domain\Collection;
+use App\Shared\Infrastructure\Dbal\DbalRepository;
 use App\Shared\Infrastructure\InMemory\InMemoryPaginator;
 use App\Shared\Infrastructure\TransformerInterface;
 use Doctrine\DBAL\Connection;
@@ -37,15 +39,15 @@ use Webmozart\Assert\Assert;
 
 /**
  * @phpstan-type RowTypeAlias = array{
- *  gm_resource_id: int,
- *  gm_resource_name: string,
- *  gm_resource_line: string,
- *  gm_resource_comment: string|null,
- *  gm_resource_activate: '0'|'1',
- *  gm_is_password: 0|1,
+ *   gm_resource_id: int,
+ *   gm_resource_name: string,
+ *   gm_resource_line: string,
+ *   gm_resource_comment: string|null,
+ *   gm_resource_activate: '0'|'1',
+ *   gm_is_password: 0|1,
  * }
  */
-final readonly class DbalGlobalMacroRepository extends DoctrineRepository implements GlobalMacroRepository
+final readonly class DbalGlobalMacroRepository extends DbalRepository implements GlobalMacroRepository
 {
     public const TABLE_NAME = 'cfg_resource';
 
@@ -58,11 +60,15 @@ final readonly class DbalGlobalMacroRepository extends DoctrineRepository implem
 
         #[Autowire(service: DbalGlobalMacroTransformer::class)]
         private TransformerInterface $transformer,
+
+        private DbalPollerRepository $pollerRepository,
     ) {
     }
 
-    public function findAll(?GlobalMacroCriteria $criteria = null): Paginator|array
+    public function findAll(?GlobalMacroCriteria $criteria = null): \IteratorAggregate&\Countable
     {
+        $lazyRelations = $criteria?->hasLazyRelations() ?? false;
+
         $qb = $this->connection->createQueryBuilder();
         $qb->select(...self::getSelectColumns())
             ->from(self::TABLE_NAME, 'gm')
@@ -78,7 +84,7 @@ final readonly class DbalGlobalMacroRepository extends DoctrineRepository implem
             /** @var array<RowTypeAlias> $rows */
             $rows = $qb->executeQuery()->fetchAllAssociative();
 
-            return $this->createGlobalMacros($rows);
+            return $this->createGlobalMacros($rows, $lazyRelations);
         }
 
         $this->paginate($qb, $criteria);
@@ -89,7 +95,7 @@ final readonly class DbalGlobalMacroRepository extends DoctrineRepository implem
         $rows = $qb->executeQuery()->fetchAllAssociative();
 
         return new InMemoryPaginator(
-            items: $this->createGlobalMacros($rows),
+            items: $this->createGlobalMacros($rows, $lazyRelations),
             totalItems: $count,
             currentPage: $criteria->getPage() ?? throw new \LogicException('Unexpected null page'),
             itemsPerPage: $criteria->getItemsPerPage() ?? throw new \LogicException('Unexpected null items per page'),
@@ -134,19 +140,37 @@ final readonly class DbalGlobalMacroRepository extends DoctrineRepository implem
     /**
      * @param array<RowTypeAlias> $rows
      *
-     * @return array<GlobalMacro>
+     * @return Collection<GlobalMacro>
      */
-    private function createGlobalMacros(array $rows): array
+    private function createGlobalMacros(array $rows, bool $lazyRelations = true): Collection
     {
-        return array_map($this->createGlobalMacro(...), $rows);
+        return new Collection(array_map(fn (array $row): GlobalMacro => $this->createGlobalMacro($row, $lazyRelations), $rows), GlobalMacro::class);
     }
 
     /**
      * @param RowTypeAlias $row
      */
-    private function createGlobalMacro(array $row): GlobalMacro
+    private function createGlobalMacro(array $row, bool $lazyRelations = true): GlobalMacro
     {
-        return $this->transformer->transform($row);
+        $globalMacro = $this->transformer->transform($row);
+
+        $pollers = $lazyRelations
+            ? new Collection(fn (): array => $this->pollerRepository->findAllByGlobalMacro($globalMacro)->toArray(), Poller::class)
+            : $this->pollerRepository->findAllByGlobalMacro($globalMacro);
+
+        /** @var GlobalMacroId $id */
+        $id = $globalMacro->id();
+
+        // create a new instance with same values but with the poller collection
+        return new GlobalMacro(
+            id: $id,
+            name: $globalMacro->name,
+            expression: $globalMacro->expression,
+            comment: $globalMacro->comment,
+            activated: $globalMacro->activated,
+            isPassword: $globalMacro->isPassword,
+            pollers: $pollers,
+        );
     }
 
     private function paginate(QueryBuilder $qb, GlobalMacroCriteria $criteria): void
@@ -169,6 +193,7 @@ final readonly class DbalGlobalMacroRepository extends DoctrineRepository implem
             ->setMaxResults(null)
             ->executeQuery()
             ->fetchOne();
+
         Assert::integer($count);
 
         return $count;

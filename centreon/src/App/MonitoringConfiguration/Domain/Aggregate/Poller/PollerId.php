@@ -21,15 +21,10 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Domain\Repository;
+namespace App\MonitoringConfiguration\Domain\Aggregate\Poller;
 
-use App\MonitoringConfiguration\Domain\Aggregate\GlobalMacro\GlobalMacro;
-use App\MonitoringConfiguration\Domain\Repository\Criteria\GlobalMacroCriteria;
+use App\Shared\Domain\Aggregate\AggregateRootId;
 
-interface GlobalMacroRepository
+final readonly class PollerId extends AggregateRootId
 {
-    /**
-     * @return \IteratorAggregate<int, GlobalMacro>&\Countable
-     */
-    public function findAll(?GlobalMacroCriteria $criteria = null): \IteratorAggregate&\Countable;
 }

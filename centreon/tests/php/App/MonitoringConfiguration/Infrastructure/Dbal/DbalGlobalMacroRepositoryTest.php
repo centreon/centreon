@@ -21,11 +21,12 @@
 
 declare(strict_types=1);
 
-namespace Tests\App\ResourceConfiguration\Infrastructure\Dbal;
+namespace Tests\App\MonitoringConfiguration\Infrastructure\Dbal;
 
 use App\MonitoringConfiguration\Domain\Aggregate\GlobalMacro\GlobalMacro;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\GlobalMacroCriteria;
 use App\MonitoringConfiguration\Infrastructure\Dbal\DbalGlobalMacroRepository;
+use App\Shared\Domain\Collection;
 use App\Shared\Infrastructure\InMemory\InMemoryPaginator;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
@@ -106,5 +107,66 @@ final class DbalGlobalMacroRepositoryTest extends KernelTestCase
         self::assertSame(2, $paginator->getItemsPerPage());
         self::assertSame(2, $paginator->getTotalItems());
         self::assertSame(1, $paginator->getLastPage());
+    }
+
+    public function testRetrievePollersRelationEagerly(): void
+    {
+        $criteria = new GlobalMacroCriteria();
+        $criteria = $criteria->withName('$USER1$', GlobalMacroCriteria::OPERATOR_EQUAL);
+
+        $globalMacros = $this->repository->findAll($criteria);
+        self::assertCount(1, $globalMacros);
+
+        $globalMacro = iterator_to_array($globalMacros)[0] ?? null;
+        self::assertInstanceOf(GlobalMacro::class, $globalMacro);
+
+        // as we are eager by defaults, elements are an array
+        $reflection = new \ReflectionClass(Collection::class);
+        $elements = $reflection->getProperty('elements')->getValue($globalMacro->pollers);
+        self::assertIsArray($elements);
+
+        $pollers = $globalMacro->pollers;
+        self::assertCount(1, $pollers);
+
+        $poller = $pollers->toArray()[0];
+
+        $pollerGlobalMacros = $poller->globalMacros;
+        self::assertCount(2, $pollerGlobalMacros);
+
+        // references are kept
+        foreach ($pollerGlobalMacros as $pollerGlobalMacro) {
+            self::assertSame($poller, $pollerGlobalMacro->pollers->toArray()[0]);
+        }
+    }
+
+    public function testRetrievePollersRelationLazily(): void
+    {
+        $criteria = new GlobalMacroCriteria();
+        $criteria = $criteria
+            ->withName('$USER1$', GlobalMacroCriteria::OPERATOR_EQUAL)
+            ->withLazyRelations();
+
+        $globalMacros = $this->repository->findAll($criteria);
+        self::assertCount(1, $globalMacros);
+
+        $globalMacro = iterator_to_array($globalMacros)[0];
+
+        // as we are eager by defaults, elements are null
+        $reflection = new \ReflectionClass(Collection::class);
+        $elements = $reflection->getProperty('elements')->getValue($globalMacro->pollers);
+        self::assertNull($elements);
+
+        $pollers = $globalMacro->pollers;
+        self::assertCount(1, $pollers);
+
+        $poller = $pollers->toArray()[0];
+
+        $pollerGlobalMacros = $poller->globalMacros;
+        self::assertCount(2, $pollerGlobalMacros);
+
+        // references are kept
+        foreach ($pollerGlobalMacros as $pollerGlobalMacro) {
+            self::assertSame($poller, $pollerGlobalMacro->pollers->toArray()[0]);
+        }
     }
 }
