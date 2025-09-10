@@ -46,9 +46,10 @@ fi
 cat <<EOF > /usr/sbin/centengine
 #!/bin/sh
 echo "Dummy centengine called"
+echo "Total Errors:   0"
 exit 0
 EOF
-chmod +x /usr/sbin/centengine
+chmod +x /usr/sbin/centengineup 
 
 
 setAdminLanguage() {
