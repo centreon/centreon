@@ -745,6 +745,7 @@ function updateContact($contactId = null): void
                 reason: 'password update failed',
                 initiatorId: (int) $centreon->user->get_id(),
                 targetId: (int) $contactId,
+                exception: $e,
             );
 
             throw new RepositoryException(
@@ -1643,6 +1644,7 @@ function validatePasswordCreation(array $fields): true|array
             reason: 'new password does not respect the password policy',
             initiatorId: $fields['contact_id'] ?? 'unknown',
             targetId: $fields['contact_id'] ?? 'unknown',
+            exception: $e,
         );
     }
 
@@ -1723,6 +1725,7 @@ function validatePasswordModification(array $fields): array|true
             reason: 'new password does not respect the password policy',
             initiatorId: (int) $centreon->user->get_id(),
             targetId: (int) $contactId,
+            exception: $e,
         );
 
         return ['contact_passwd' => $e->getMessage()];

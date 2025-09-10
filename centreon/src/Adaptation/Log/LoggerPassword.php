@@ -49,7 +49,7 @@ final readonly class LoggerPassword
         );
     }
 
-    public function warning(string $reason, int $initiatorId, int $targetId): void
+    public function warning(string $reason, int $initiatorId, int $targetId, ?\Throwable $exception = null): void
     {
         $this->logger->warning(
             "Password change failed ({$reason})",
@@ -59,6 +59,7 @@ final readonly class LoggerPassword
                 'initiator_user_id' => $initiatorId,
                 'target_user_id' => $targetId,
                 'ip_address' => $_SERVER['REMOTE_ADDR'] ?? 'unknown',
+                'exception_message' => $exception?->getMessage() ?? null,
             ]
         );
     }

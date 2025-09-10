@@ -195,6 +195,7 @@ function updateContact($contactId = null): void
                 reason: 'password update failed',
                 initiatorId: (int) $centreon->user->get_id(),
                 targetId: (int) $centreon->user->get_id(),
+                exception: $e
             );
 
             throw new RepositoryException(
@@ -284,6 +285,7 @@ function validatePasswordModification(array $fields): array|true
             reason: 'new password does not respect password policy',
             initiatorId: (int) $centreon->user->get_id(),
             targetId: (int) $centreon->user->get_id(),
+            exception: $e,
         );
 
         return ['contact_passwd' => $e->getMessage()];
@@ -312,12 +314,6 @@ function checkAutologinValue(array $fields)
             && password_verify($fields['contact_autologin_key'], $result['password'])
         ) {
             $errors['contact_autologin_key'] = _('Your autologin key must be different than your current password');
-
-            LoggerPassword::create()->warning(
-                reason: 'autologin key same as current password',
-                initiatorId: (int) $centreon->user->get_id(),
-                targetId: (int) $centreon->user->get_id(),
-            );
         } elseif (
             ! empty($fields['contact_passwd'])
             && $fields['contact_passwd'] === $fields['contact_autologin_key']

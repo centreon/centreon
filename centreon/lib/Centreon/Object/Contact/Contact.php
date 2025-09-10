@@ -228,6 +228,7 @@ class Centreon_Object_Contact extends Centreon_Object
                     reason: 'password update failed',
                     initiatorId: 'unknown', // FIXME How to get initiator id here?
                     targetId: (int) $contactId,
+                    exception: $e
                 );
 
                 throw $e;
