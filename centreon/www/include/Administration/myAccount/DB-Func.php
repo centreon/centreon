@@ -369,11 +369,6 @@ function updateNonLocalContactInDB($contact_id = null): void
     $stmt->bindValue(':contactId', $contact_id, PDO::PARAM_INT);
     $stmt->execute();
     $stmt->closeCursor();
-    if (! empty($ret['contact_passwd'])) {
-        $hashedPassword = password_hash($ret['contact_passwd'], CentreonAuth::PASSWORD_HASH_ALGORITHM);
-        $contact = new CentreonContact($pearDB);
-        $contact->renewPasswordByContactId($contact_id, $hashedPassword);
-    }
 
     // Update user object..
     $centreon->user->lang = $ret['contact_lang'];
