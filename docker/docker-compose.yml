@@ -60,6 +60,8 @@ services:
       - app-broker:/etc/centreon-broker:rw,z
       - app-centcmd:/var/lib/centreon-engine/rw:rw,z
   gorgone:
+    environment:
+      - TYPE=central
     image: gorgone:latest
     container_name: gorgone
     hostname: gorgone
