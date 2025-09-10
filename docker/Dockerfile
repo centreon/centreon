@@ -57,7 +57,8 @@ RUN apt update && \
     monitoring-plugins-basic \
     python3 \
     python3-venv \
-    iputils-ping && \
+    iputils-ping \
+    sudo && \
     echo "deb https://packages.centreon.com/apt-plugins-stable/ $(lsb_release -sc) main" | tee /etc/apt/sources.list.d/centreon-plugins.list &&\
     wget -O- https://apt-key.centreon.com | gpg --dearmor | tee /etc/apt/trusted.gpg.d/centreon.gpg > /dev/null 2>&1 && \
     apt update && \
@@ -87,10 +88,12 @@ RUN groupadd -g 900 centreon &&\
     useradd -u 903 -g centreon-gorgone -m -r -d /var/lib/centreon-gorgone -c "Centreon Gorgone"  -s /bin/bash centreon-gorgone &&\
     usermod -aG centreon-broker centreon-engine  && \
     usermod -aG centreon-engine centreon-broker && \
-    mkdir -p /etc/centreon-broker/ /var/log/centreon-engine/ /var/log/centreon-broker/ /var/lib/centreon-engine/rw && \
-    chown -R centreon-engine:centreon-engine /etc/centreon-engine /var/log/centreon-engine /var/lib/centreon-engine && \
+    usermod -aG sudo centreon-engine && \
+    echo "centreon-engine ALL=(ALL) NOPASSWD: /usr/bin/apt, /usr/bin/apt-get" > /etc/sudoers.d/centreon-engine && \  
+    chmod 440 /etc/sudoers.d/centreon-engine && \
+    mkdir -p /etc/centreon-broker/ /var/log/centreon-engine/ /var/log/centreon-broker/ /var/lib/centreon-engine/rw /var/lib/centreon/centplugins/ && \
+    chown -R centreon-engine:centreon-engine /etc/centreon-engine /var/log/centreon-engine /var/lib/centreon-engine /var/lib/centreon/centplugins/ && \
     chown -R centreon-broker:centreon-broker /etc/centreon-broker/ /var/log/centreon-broker/ && \
-    touch /var/log/centreon-engine/retention.dat && \
     chown -R centreon-engine:centreon-engine /etc/centreon-engine && \
     chmod 775 /etc/centreon-engine /etc/centreon-broker /var/log/centreon-broker/ /var/log/centreon-engine/ && \
     chmod 660 /etc/centreon-engine/engine-context.json && \
@@ -148,6 +151,7 @@ RUN groupadd -g 900 centreon &&\
     useradd -u 902 -g centreon-broker -m -r -d /var/lib/centreon-broker -c "Centreon Broker"  -s /bin/bash centreon-broker &&\
     groupadd -g 903 centreon-gorgone &&\
     useradd -u 903 -g centreon-gorgone -m -r -d /var/lib/centreon-gorgone -c "Centreon Gorgone"  -s /bin/bash centreon-gorgone &&\
+    usermod -aG centreon centreon-broker  && \
     mkdir -p /etc/centreon-broker/ /var/log/centreon-broker/ /var/lib/centreon/status/ /var/lib/centreon/metrics/ && \
     chown -R centreon-broker:centreon-broker /etc/centreon-broker/ /var/log/centreon-broker/ && \
     chmod +x /usr/share/centreon/lib/centreon-broker/* &&\

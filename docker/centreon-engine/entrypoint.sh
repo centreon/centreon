@@ -1,4 +1,6 @@
 #!/bin/bash
+sudo apt update
+sudo apt install -y centreon-plugin\*
 
 python3 -m venv . 
 source bin/activate 

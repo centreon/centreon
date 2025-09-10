@@ -1,6 +1,7 @@
-FROM debian:12-slim AS gorgone
+FROM debian:12-slim
 
 ENV TYPE=
+
 # Install runtime dependencies specific to the new container
 RUN apt update && \
     apt install -y \
@@ -34,9 +35,7 @@ RUN apt update && \
     libxml-simple-perl \
     sudo
 
-
 COPY --chmod=755 systemctl /usr/local/bin/systemctl
-# COPY --chown=centreon-gorgone:centreon-gorgone --chmod=775 config/40-gorgoned.yaml /etc/centreon-gorgone/config.d/40-gorgoned.yaml 
 COPY --chmod=755 entrypoint /var/lib/centreon-gorgone/
 COPY --chmod=600 centreon /etc/sudoers.d/centreon
 COPY packages/ /tmp/packages-centreon
@@ -50,33 +49,20 @@ RUN groupadd -g 900 centreon &&\
     groupadd -g 903 centreon-gorgone &&\
     useradd -u 903 -g centreon-gorgone -m -r -d /var/lib/centreon-gorgone -c "Centreon Gorgone"  -s /bin/bash centreon-gorgone &&\
     usermod -aG centreon centreon-gorgone && \
+    usermod -aG www-data centreon-gorgone && \
+    usermod -aG centreon-engine centreon-gorgone && \
+    mv /usr/bin/systemctl /usr/bin/systemctl.orig && \
+    ln -s /usr/local/bin/systemctl /usr/bin/systemctl && \
     apt install -y /tmp/packages-centreon/centreon-*.deb && \
     apt clean && \
-    rm -rf /var/lib/apt/lists/* /tmp/packages-centreon &&\
-    mv /usr/bin/systemctl /usr/bin/systemctl.orig && \
-    ln -s /usr/local/bin/systemctl /usr/bin/systemctl
+    rm -rf /var/lib/apt/lists/* /tmp/packages-centreon
 
-
-#     mkdir -p /etc/centreon/config.d/ && \
-#     chown centreon. /etc/centreon/config.d/ && \
-#     chmod 775 /etc/centreon/config.d/ &&\
-#     mv /usr/sbin/service /usr/sbin/service.orig && \
-#     ln -s /usr/local/bin/service /usr/sbin/service
-
-# # Copy specific binaries or libraries from the builder stage
-# COPY --from=builder --chown=centreon-gorgone:centreon-gorgone --chmod=775 /etc/centreon-gorgone /etc/centreon-gorgone
-# COPY --from=builder --chown=centreon-gorgone:centreon-gorgone --chmod=775 /var/log/centreon-gorgone /var/log/centreon-gorgone
-# COPY --from=builder --chown=centreon-gorgone:centreon-gorgone /var/lib/centreon-gorgone /var/lib/centreon-gorgone
-# COPY --from=builder --chown=centreon-gorgone:centreon-gorgone /var/cache/centreon-gorgone /var/cache/centreon-gorgone
-# COPY --from=builder --chown=centreon-gorgone:centreon-gorgone /centreon-collect/perl-libs/lib/centreon/ /usr/share/perl5/centreon/
-# COPY --from=builder /usr/share/perl5/gorgone /usr/share/perl5/gorgone
-# COPY --from=builder /usr/bin/gorgoned /usr/bin/gorgoned
 
 
 
 # Set the working directory
-WORKDIR /etc/centreon-gorgone/
-#USER centreon-gorgone
+WORKDIR /var/lib/centreon-gorgone
+USER centreon-gorgone
 
 ENTRYPOINT [ "/var/lib/centreon-gorgone/container.sh" ]
 # Set a different entrypoint for the new container

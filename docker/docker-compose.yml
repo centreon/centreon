@@ -59,6 +59,7 @@ services:
       - app-engine:/etc/centreon-engine:rw,z
       - app-broker:/etc/centreon-broker:rw,z
       - app-centcmd:/var/lib/centreon-engine/rw:rw,z
+      - app-centlog:/var/log/centreon-engine:rw
   gorgone:
     environment:
       - TYPE=central
@@ -98,6 +99,7 @@ volumes:
   app-gorgone:
   app-centcore:
   app-centcmd:
+  app-centlog:
   app-db:
   app-metrics:
   app-status:
