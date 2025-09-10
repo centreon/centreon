@@ -1,5 +1,6 @@
 FROM debian:12-slim AS gorgone
 
+ENV TYPE=
 # Install runtime dependencies specific to the new container
 RUN apt update && \
     apt install -y \
@@ -34,8 +35,9 @@ RUN apt update && \
     sudo
 
 COPY --chmod=755 systemctl /usr/local/bin/systemctl
-COPY --chown=centreon-gorgone:centreon-gorgone --chmod=775 config/40-gorgoned.yaml /etc/centreon-gorgone/config.d/40-gorgoned.yaml 
-COPY --chmod=600 centreon /etc/sudoers.d/centreon
+# COPY --chown=centreon-gorgone:centreon-gorgone --chmod=775 config/40-gorgoned.yaml /etc/centreon-gorgone/config.d/40-gorgoned.yaml 
+COPY --chmod=600 ./centreon/packaging/src/sudoersCentreon /etc/sudoers.d/centreon
+COPY --chmod=755 ./centreon/docker/centreon-web/bookworm/entrypoint /var/lib/centreon-gorgone/
 COPY packages/ /tmp/packages-centreon
 
 RUN groupadd -g 900 centreon &&\
@@ -47,6 +49,7 @@ RUN groupadd -g 900 centreon &&\
     groupadd -g 903 centreon-gorgone &&\
     useradd -u 903 -g centreon-gorgone -m -r -d /var/lib/centreon-gorgone -c "Centreon Gorgone"  -s /bin/bash centreon-gorgone &&\
     usermod -aG centreon centreon-gorgone && \
+    sed -i 's/User_Alias *CENTREON=%@CENTREON_GROUP@/User_Alias      CENTREON=%centreon/' /etc/sudoers.d/centreon &&\
     apt install -y /tmp/packages-centreon/centreon-*.deb && \
     apt clean && \
     rm -rf /var/lib/apt/lists/* /tmp/packages-centreon &&\
@@ -75,5 +78,6 @@ RUN groupadd -g 900 centreon &&\
 WORKDIR /etc/centreon-gorgone/
 #USER centreon-gorgone
 
+ENTRYPOINT [ "/var/lib/centreon-gorgone/container.sh" ]
 # Set a different entrypoint for the new container
 CMD ["/usr/bin/perl", "/usr/bin/gorgoned", "--config=/etc/centreon-gorgone/config.yaml", "--severity=debug"]
