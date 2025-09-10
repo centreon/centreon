@@ -1191,13 +1191,13 @@ if ($valid) {
 } else {
     // Password does not match
     if (
-            $form->getElementError('contact_passwd') === _('Passwords do not match')
-            || $form->getElementError('contact_passwd2') === _('Passwords do not match')
+        $form->getElementError('contact_passwd') === _('Passwords do not match')
+        || $form->getElementError('contact_passwd2') === _('Passwords do not match')
     ) {
         LoggerPassword::create()->warning(
-                reason: 'password confirmation does not match',
-                initiatorId: $centreon->user->get_id(),
-                targetId: $centreon->user->get_id(),
+            reason: 'password confirmation does not match',
+            initiatorId: $centreon->user->get_id(),
+            targetId: $centreon->user->get_id(),
         );
     }
     // Apply a template definition
