@@ -1081,6 +1081,8 @@ msgstr ""
 
 #: centreon/www/include/configuration/configObject/contact/formContact.php
 #: centreon/www/include/configuration/configObject/host/formHost.php
+#: centreon/www/include/configuration/configServers/formServers.php
+#: centreon/www/include/configuration/configServers/listServers.php
 msgid "Address"
 msgstr ""
 
@@ -2569,7 +2571,7 @@ msgstr ""
 
 #: centreon/www/install/front_translate.php
 #: centreon/www/install/react_translation.php
-msgid "Centreon Central IP address, as seen by this server"
+msgid "Centreon Central address, as seen by this server"
 msgstr ""
 
 #: centreon/www/include/configuration/configServers/formServers.php
@@ -9368,8 +9370,6 @@ msgstr ""
 msgid "IP"
 msgstr ""
 
-#: centreon/www/include/configuration/configServers/formServers.php
-#: centreon/www/include/configuration/configServers/listServers.php
 #: centreon/www/include/monitoring/status/Hosts/hostJS.php
 #: centreon/www/include/options/accessLists/reloadACL/reloadACL.php
 #: centreon/www/include/options/session/connected_user.php
@@ -15813,11 +15813,6 @@ msgstr ""
 msgid "Server Configuration Wizard"
 msgstr ""
 
-#: centreon/www/install/front_translate.php
-#: centreon/www/install/react_translation.php
-msgid "Server IP address"
-msgstr ""
-
 #: centreon/www/include/configuration/configServers/formServers.php
 msgid "Server Information"
 msgstr ""
@@ -15828,6 +15823,8 @@ msgid "Server Name"
 msgstr ""
 
 #: centreon/www/install/centreon_broker_translation.php
+#: centreon/www/install/front_translate.php
+#: centreon/www/install/react_translation.php
 msgid "Server address"
 msgstr ""
 
@@ -17489,18 +17486,6 @@ msgstr ""
 msgid "The '%s' command name already exists"
 msgstr ""
 
-#: centreon/www/include/configuration/configServers/formServers.php
-msgid "The IP address is already registered"
-msgstr ""
-
-#: centreon/www/include/configuration/configServers/formServers.php
-msgid "The IP address is already registered on another poller"
-msgstr ""
-
-#: centreon/www/include/configuration/configServers/formServers.php
-msgid "The IP address is incorrect"
-msgstr ""
-
 #: centreon/src/Centreon/Domain/Service/JsonValidator/Validator.php
 msgid "The JSON cannot be decoded"
 msgstr ""
@@ -17523,6 +17508,18 @@ msgstr ""
 #: centreon/src/Centreon/Domain/PlatformTopology/Model/PlatformRegistered.php
 #, php-format
 msgid "The address '%s' of '%s' is not valid or not resolvable"
+msgstr ""
+
+#: centreon/www/include/configuration/configServers/formServers.php
+msgid "The address is already registered"
+msgstr ""
+
+#: centreon/www/include/configuration/configServers/formServers.php
+msgid "The address is already registered on another poller"
+msgstr ""
+
+#: centreon/www/include/configuration/configServers/formServers.php
+msgid "The address is incorrect"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
