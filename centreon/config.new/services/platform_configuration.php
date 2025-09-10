@@ -28,7 +28,11 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $services->defaults()
         ->autowire()
+        ->public()
         ->autoconfigure();
 
-    $services->load('App\\ResourceConfiguration\\', __DIR__ . '/../../src/App/ResourceConfiguration');
+    $services->load('App\\PlatformConfiguration\\', __DIR__ . '/../../src/App/PlatformConfiguration')
+        ->exclude([
+            __DIR__ . '/../../src/App/PlatformConfiguration/Domain/Aggregate',
+        ]);
 };

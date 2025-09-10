@@ -21,14 +21,15 @@
 
 declare(strict_types=1);
 
-use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
+namespace App\PlatformConfiguration\Domain\Aggregate;
 
-return static function (ContainerConfigurator $containerConfigurator): void {
-    $services = $containerConfigurator->services();
+use Webmozart\Assert\Assert;
 
-    $services->defaults()
-        ->autowire()
-        ->autoconfigure();
-
-    $services->load('App\\ResourceConfiguration\\', __DIR__ . '/../../src/App/ResourceConfiguration');
-};
+final readonly class RecipientGroupName
+{
+    public function __construct(
+        public string $value,
+    ) {
+        Assert::lengthBetween($value, 1, 255);
+    }
+}

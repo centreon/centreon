@@ -21,14 +21,18 @@
 
 declare(strict_types=1);
 
-use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
+namespace App\PlatformConfiguration\Domain\Repository;
 
-return static function (ContainerConfigurator $containerConfigurator): void {
-    $services = $containerConfigurator->services();
+use App\PlatformConfiguration\Domain\Aggregate\Recipient;
+use App\PlatformConfiguration\Domain\Aggregate\RecipientGroup;
+use App\Shared\Domain\Aggregate\Collection;
 
-    $services->defaults()
-        ->autowire()
-        ->autoconfigure();
+interface RecipientGroupRepository
+{
+    public function add(RecipientGroup $group): void;
 
-    $services->load('App\\ResourceConfiguration\\', __DIR__ . '/../../src/App/ResourceConfiguration');
-};
+    /**
+     * @return Collection<RecipientGroup>
+     */
+    public function findByRecipient(Recipient $recipient): Collection;
+}

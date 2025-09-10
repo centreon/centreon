@@ -21,14 +21,31 @@
 
 declare(strict_types=1);
 
-use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
+namespace App\PlatformConfiguration\Domain\Aggregate;
 
-return static function (ContainerConfigurator $containerConfigurator): void {
-    $services = $containerConfigurator->services();
+use App\Shared\Domain\Aggregate\AggregateRoot;
+use App\Shared\Domain\Aggregate\Collection;
 
-    $services->defaults()
-        ->autowire()
-        ->autoconfigure();
+final class Recipient extends AggregateRoot
+{
+    /**
+     * @param Collection<RecipientGroup> $groups
+     */
+    public function __construct(
+        ?RecipientId $id,
+        public readonly RecipientName $name,
+        public readonly Collection $groups,
+    ) {
+        parent::__construct($id);
+    }
 
-    $services->load('App\\ResourceConfiguration\\', __DIR__ . '/../../src/App/ResourceConfiguration');
-};
+    public function addGroup(RecipientGroup $group): void
+    {
+        if ($this->groups->contains($group)) {
+            return;
+        }
+
+        $this->groups->add($group);
+        $group->addRecipient($this);
+    }
+}

@@ -15,6 +15,9 @@
         <testsuite name="resource_configuration">
             <directory>tests/php/App/ResourceConfiguration</directory>
         </testsuite>
+        <testsuite name="platform_configuration">
+            <directory>tests/php/App/PlatformConfiguration</directory>
+        </testsuite>
     </testsuites>
 
     <php>

@@ -21,14 +21,10 @@
 
 declare(strict_types=1);
 
-use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
+namespace App\PlatformConfiguration\Domain\Aggregate;
 
-return static function (ContainerConfigurator $containerConfigurator): void {
-    $services = $containerConfigurator->services();
+use App\Shared\Domain\Aggregate\AggregateRootId;
 
-    $services->defaults()
-        ->autowire()
-        ->autoconfigure();
-
-    $services->load('App\\ResourceConfiguration\\', __DIR__ . '/../../src/App/ResourceConfiguration');
-};
+final readonly class RecipientGroupId extends AggregateRootId
+{
+}
