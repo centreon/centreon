@@ -8,10 +8,10 @@ parameters:
               - type: directory
                 value: src/App/ActivityLogging/.*
 
-        - name: ResourceConfiguration
+        - name: MonitoringConfiguration
           collectors:
               - type: directory
-                value: src/App/ResourceConfiguration/.*
+                value: src/App/MonitoringConfiguration/.*
 
         - name: Shared
           collectors:
@@ -41,8 +41,8 @@ parameters:
               - { type: classNameRegex, value: '#TypeAlias$#' }
 
     ruleset:
-        ActivityLogging: [ ResourceConfiguration, Shared, Vendors, TypeAliases ]
-        ResourceConfiguration: [ Shared, Vendors, TypeAliases ]
+        ActivityLogging: [ MonitoringConfiguration, Shared, Vendors, TypeAliases ]
+        MonitoringConfiguration: [ Shared, Vendors, TypeAliases ]
         Shared: [ Vendors, TypeAliases ]
         Legacy: [ Vendors, TypeAliases ]
 
@@ -61,7 +61,7 @@ parameters:
             - Security\SessionAPIAuthenticator
         App\Shared\Infrastructure\Legacy\LegacySecurity:
             - Centreon\Domain\Contact\Contact
-        App\ResourceConfiguration\Infrastructure\Legacy\LegacyServiceCategoryPermissionVoter:
+        App\MonitoringConfiguration\Infrastructure\Legacy\LegacyServiceCategoryPermissionVoter:
             - Centreon\Domain\Contact\Contact
-        App\ResourceConfiguration\Infrastructure\Legacy\LegacyGlobalMacroPermissionVoter:
+        App\MonitoringConfiguration\Infrastructure\Legacy\LegacyGlobalMacroPermissionVoter:
             - Centreon\Domain\Contact\Contact
