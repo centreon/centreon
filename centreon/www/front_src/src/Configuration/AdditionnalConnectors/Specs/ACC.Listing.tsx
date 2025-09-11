@@ -21,12 +21,19 @@ export default (): void => {
   describe('Listing', () => {
     beforeEach(initialize);
     it('displays the first page of the ACC listing', () => {
+      cy.waitForRequest('@getConnectors');
+
       cy.contains('VMWare1');
       cy.contains('Description for VMWare1');
 
       cy.matchImageSnapshot();
     });
     it('sends a listing request with the selected limit when the corresponding button is clicked', () => {
+      cy.waitForRequest('@getConnectors');
+
+      cy.contains('VMWare1');
+      cy.contains('Description for VMWare1');
+
       cy.get('#Rows\\ per\\ page').click();
       cy.contains(/^20$/).click();
 
@@ -36,6 +43,10 @@ export default (): void => {
     });
 
     it('sends a listing request with the selected page when the corresponding button is clicked', () => {
+      cy.waitForRequest('@getConnectors');
+      cy.contains('VMWare1');
+      cy.contains('Description for VMWare1');
+
       cy.findByLabelText('Next page').click();
 
       cy.waitForRequest('@getConnectors').then(({ request }) => {
