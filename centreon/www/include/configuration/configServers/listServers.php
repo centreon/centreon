@@ -118,18 +118,18 @@ $lvl_access = ($centreon->user->access->page($p) == 1) ? 'w' : 'r';
 $tpl->assign('mode_access', $lvl_access);
 
 // start header menu
-$tpl->assign("headerMenu_name", _("Name"));
-$tpl->assign("headerMenu_ip_address", _("IP Address"));
-$tpl->assign("headerMenu_type", _("Server type"));
-$tpl->assign("headerMenu_is_running", _("Is running ?"));
-$tpl->assign("headerMenu_hasChanged", _("Conf Changed"));
-$tpl->assign("headerMenu_pid", _("PID"));
-$tpl->assign("headerMenu_version", _("Version"));
-$tpl->assign("headerMenu_uptime", _("Uptime"));
-$tpl->assign("headerMenu_lastUpdateTime", _("Last Update"));
-$tpl->assign("headerMenu_status", _("Status"));
-$tpl->assign("headerMenu_default", _("Default"));
-$tpl->assign("headerMenu_options", _("Options"));
+$tpl->assign('headerMenu_name', _('Name'));
+$tpl->assign('headerMenu_ip_address', _('Address'));
+$tpl->assign('headerMenu_type', _('Server type'));
+$tpl->assign('headerMenu_is_running', _('Is running ?'));
+$tpl->assign('headerMenu_hasChanged', _('Conf Changed'));
+$tpl->assign('headerMenu_pid', _('PID'));
+$tpl->assign('headerMenu_version', _('Version'));
+$tpl->assign('headerMenu_uptime', _('Uptime'));
+$tpl->assign('headerMenu_lastUpdateTime', _('Last Update'));
+$tpl->assign('headerMenu_status', _('Status'));
+$tpl->assign('headerMenu_default', _('Default'));
+$tpl->assign('headerMenu_options', _('Options'));
 
 /*
  * Poller list
