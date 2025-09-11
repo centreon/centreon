@@ -245,7 +245,7 @@ sub exportBackup($) {
                 print STDERR "No file to export in " . $TEMP_DB_DIR . "\n";
             } else {
                 # Convoluted way to build the command because we need the glob()
-                my @scp_command = ("scp");
+                my @scp_command = ("scp", "-o", "BatchMode=yes", "-o", "ConnectTimeout=30");
                 push (@scp_command, @files);
                 push (@scp_command, "$scp_user\@$scp_host:$scp_directory/");
                 system(@scp_command);
@@ -265,7 +265,7 @@ sub exportBackup($) {
                 print STDERR "No file to export in " . $TEMP_CENTRAL_DIR . "\n";
             } else {
                 # Convoluted way to build the command because we need the glob()
-                my @scp_command = ("scp");
+                my @scp_command = ("scp", "-o", "BatchMode=yes", "-o", "ConnectTimeout=30");
                 push (@scp_command, @files);
                 push (@scp_command, "$scp_user\@$scp_host:$scp_directory/");
                 system(@scp_command);
