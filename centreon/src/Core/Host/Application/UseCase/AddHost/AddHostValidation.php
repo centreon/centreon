@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Core\Host\Application\UseCase\AddHost;
 
+use Centreon\Domain\Common\Assertion\Assertion;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Command\Application\Repository\ReadCommandRepositoryInterface;
@@ -73,7 +74,10 @@ class AddHostValidation
      */
     public function assertIsValidName(string $name): void
     {
+        Assertion::regex($name, '/^[^~!$%^&*"|\'<>?,()=]*$/', 'Host::name');
+
         $formattedName = Host::formatName($name);
+
         if ($this->readHostRepository->existsByName($formattedName)) {
             $this->error('Host name already exists', compact('name', 'formattedName'));
 
