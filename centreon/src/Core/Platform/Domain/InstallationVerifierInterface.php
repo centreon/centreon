@@ -26,14 +26,14 @@ namespace Core\Platform\Domain;
 interface InstallationVerifierInterface
 {
     /**
-     * Check that Centreon is installed (if the configuration exists)
+     * Check that Centreon is installed (if the configuration exists).
      *
      * @return bool
      */
     public function isCentreonWebInstalled(): bool;
 
     /**
-     * Check if Centreon is Installable or Upgradable (if the install directory exists)
+     * Check if Centreon is Installable or Upgradable (if the install directory exists).
      *
      * @return bool
      */
