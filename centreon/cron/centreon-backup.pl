@@ -544,7 +544,7 @@ sub centralBackup() {
 
     # Apache or httpd
     my $ApacheConfdir = getApacheDirectory();
-    if (defined $apache_dir) {
+    if (defined $ApacheConfdir) {
         system("cp", "-pr", $ApacheConfdir, "$TEMP_CENTRAL_ETC_DIR/apache");
         if ($? != 0) {
             print STDERR "Unable to copy Apache configuration files\n";
