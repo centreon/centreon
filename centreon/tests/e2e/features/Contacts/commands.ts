@@ -125,6 +125,15 @@ Cypress.Commands.add(
   }
 );
 
+Cypress.Commands.add('visitContactsPage', (index: number) => {
+  cy.navigateTo({
+    page: 'Contacts / Users',
+    rootItemNumber: index,
+    subMenu: 'Users'
+  });
+  cy.wait('@getTimeZone');
+});
+
 declare global {
   // biome-ignore lint/style/noNamespace: <explanation>
   namespace Cypress {
@@ -136,6 +145,7 @@ declare global {
         jsonName: string,
         login: string
       ) => Cypress.Chainable;
+      visitContactsPage: (index: number) => Cypress.Chainable;
     }
   }
 }

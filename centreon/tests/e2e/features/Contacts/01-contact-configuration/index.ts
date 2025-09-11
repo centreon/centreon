@@ -5,12 +5,7 @@ import contacts from '../../../fixtures/users/contact.json';
 let isAdmin = true;
 let contactPageIndex = 3;
 const checkContactFromListing = () => {
-  cy.navigateTo({
-    page: 'Contacts / Users',
-    rootItemNumber: contactPageIndex,
-    subMenu: 'Users'
-  });
-  cy.wait('@getTimeZone');
+  cy.visitContactsPage(contactPageIndex);
   const index = isAdmin ? 3 : 1;
   cy.getIframeBody()
     .find('div.md-checkbox.md-checkbox-inline')
@@ -59,12 +54,7 @@ Given('a {string} user is logged in a Centreon server', (user: string) => {
 });
 
 When('a contact is configured', () => {
-  cy.navigateTo({
-    page: 'Contacts / Users',
-    rootItemNumber: contactPageIndex,
-    subMenu: 'Users'
-  });
-  cy.wait('@getTimeZone');
+  cy.visitContactsPage(contactPageIndex);
   cy.getIframeBody().contains('a', 'Add').click();
   cy.addOrUpdateContact(contacts.default);
   if (!isAdmin) {
@@ -150,4 +140,67 @@ When('the user deletes the configured contact', () => {
 
 Then('the deleted contact is not visible anymore on the contact page', () => {
   cy.getIframeBody().contains(contacts.default.name).should('not.exist');
+});
+
+Given('the contact configuration page is displayed', () => {
+  cy.visitContactsPage(contactPageIndex);
+});
+
+When('the user clicks on the contact creation button', () => {
+  cy.getIframeBody().contains('a', 'Add').click();
+});
+
+When('he does not fill in the {string} field', (field: string) => {
+  cy.waitForElementInIframe('#main-content', 'input[id="contact_alias"]');
+  // Fill All the required fields first
+  cy.getIframeBody()
+    .find('input[id="contact_alias"]')
+    .clear()
+    .type(contacts.default.alias);
+  cy.getIframeBody()
+    .find('input[id="contact_name"]')
+    .clear()
+    .type(contacts.default.name);
+  cy.getIframeBody()
+    .find('input[id="contact_email"]')
+    .clear()
+    .type(contacts.default.email);
+
+  // Remove the content of one of the required field that we have already filled
+  switch (field) {
+    case 'Alias':
+      cy.getIframeBody().find('input[id="contact_alias"]').clear();
+      break;
+    case 'Full Name':
+      cy.getIframeBody().find('input[id="contact_name"]').clear();
+      break;
+    case 'Email':
+      cy.getIframeBody().find('input[id="contact_email"]').clear();
+      break;
+    default:
+      throw new Error(`Unknown field: ${field}`);
+  }
+  // Click to save the contact
+  cy.getIframeBody().find('input.btc.bt_success[name^="submit"]').eq(0).click();
+});
+
+Then('the user is not brought back to the contact configuration page', () => {
+  // Check that the add form is still open.
+  cy.getIframeBody().contains('a', 'General Information').should('be.visible');
+  cy.wait('@getTimeZone');
+});
+
+Then(
+  'he sees an error displayed above the {string} field with a message {string}',
+  (_field: string, message: string) => {
+    cy.waitForElementInIframe('#main-content', `font:contains("${message}")`);
+  }
+);
+
+Then('the contact is not created', () => {
+  // Return to the contacts listing page
+  cy.getIframeBody().contains('a', 'Contacts / Users').click();
+  cy.wait('@getTimeZone');
+  // Check that the contact is not present in the listing
+  cy.getIframeBody().contains('a', contacts.default.name).should('not.exist');
 });
