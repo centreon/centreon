@@ -4401,9 +4401,7 @@
 									"    pm.expect(responseJson.message).to.include('[Host::name]');",
 									"    pm.expect(responseJson.message).to.include('doesn\\'t match the regex');",
 									"    pm.expect(responseJson.message).to.include('/^[^~!$%^&*\"|\\'<>?,()=]*$/');",
-									"});",
-									"",
-
+									"});"
 								],
 								"type": "text/javascript",
 								"packages": {}
