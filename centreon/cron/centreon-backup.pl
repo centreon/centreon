@@ -183,7 +183,7 @@ sub print_usage() {
     print $PROGNAME . "\n";
     print "\t-V | --version\t\tShow plugin version\n";
     print "\t-h | --help\t\tUsage help\n";
-    print "\t-d | --debug\t\tPdisplay debug information\n";
+    print "\t-d | --debug\t\tDisplay debug information\n";
     print "\n";
     print "Obligatory options:\n";
     print "\t-T | --backup-type <value> Type of backup in (central, databases, poller).\n";
@@ -249,7 +249,7 @@ sub exportBackup($) {
                 push (@scp_command, @files);
                 push (@scp_command, "$scp_user\@$scp_host:$scp_directory/");
                 system(@scp_command);
-                if ($? ne 0) {
+                if ($? != 0) {
                     print STDERR "Error when trying to export files of " . $TEMP_DB_DIR . "\n";
                 } else {
                     print "All files were copied with success using SCP on " . $scp_user . "@" . $scp_host . ":" . $scp_directory . "\n";
@@ -269,7 +269,7 @@ sub exportBackup($) {
                 push (@scp_command, @files);
                 push (@scp_command, "$scp_user\@$scp_host:$scp_directory/");
                 system(@scp_command);
-                if ($? ne 0) {
+                if ($? != 0) {
                     print STDERR "Error when trying to export files of " . $TEMP_CENTRAL_DIR . "\n";
                 } else {
                     print "All files were copied with success using SCP on " . $scp_user . "@" . $scp_host . ":" . $scp_directory . "\n";
@@ -364,7 +364,7 @@ sub gzippedSqlDump {
 
     # thanks https://www.perlmonks.org/?node_id=908100 !
     local *FROM_MYSQLDUMP;
-    open(local *INPUT,  '<', '/dev/null') or die $!;
+    open(local *INPUT,  '<', '/dev/null') or return 1;
     open(local *OUTPUT, '>', $backup_file) or return 1;
 
     my $mysqldump_pid = open3('<&INPUT', \*FROM_MYSQLDUMP, '>&STDERR',
@@ -422,7 +422,7 @@ sub databasesBackup() {
         if (grep $_ == $dayOfWeek, @fullBackupDays) {
             print "Dumping Db with LVM snapshot (full)\n";
             system("$CENTREONDIR/cron/centreon-backup-mysql.sh", "-b", $TEMP_DB_DIR, "-d", $today);
-            if ($? ne 0) {
+            if ($? != 0) {
                 print STDERR "Cannot backup with LVM snapshot. Maybe you can try with mysqldump\n";
             }
         }
@@ -431,7 +431,7 @@ sub databasesBackup() {
         if (grep $_ == $dayOfWeek, @partialBackupDays) {
             print "Dumping Db with LVM snapshot (partial)\n";
             system("$CENTREONDIR/cron/centreon-backup-mysql.sh", "-b", $TEMP_DB_DIR, "-d", $today, "-p");
-            if ($? ne 0) {
+            if ($? != 0) {
                 print STDERR "Cannot backup with LVM snapshot. Maybe you can try with mysqldump\n";
             }
         }
@@ -543,23 +543,29 @@ sub centralBackup() {
     }
 
     # Apache or httpd
-    system("cp", "-pr", getApacheDirectory(), "$TEMP_CENTRAL_ETC_DIR/apache");
-    if ($? ne 0) {
-        print STDERR "Unable to copy Apache configuration files\n";
+    my $ApacheConfdir = getApacheDirectory();
+    if (defined $apache_dir) {
+        system("cp", "-pr", $ApacheConfdir, "$TEMP_CENTRAL_ETC_DIR/apache");
+        if ($? != 0) {
+            print STDERR "Unable to copy Apache configuration files\n";
+        }
     }
 
     # Centreon etc
     system("cp", "-pr", $CENTREON_ETC, "$TEMP_CENTRAL_ETC_DIR/centreon");
-    if ($? ne 0) {
+    if ($? != 0) {
         print STDERR "Unable to copy Centreon configuration files\n";
     }
 
     # Centreon Broker etc
     system("cp", "-r", "/etc/centreon-broker", "$TEMP_CENTRAL_ETC_DIR/centreon-broker");
+    if ($? != 0) {
+        print STDERR "Unable to copy Centreon Broker configuration files\n";
+    }
 
     # SNMP configuration
     system("cp", "-pr", "/etc/snmp", "$TEMP_CENTRAL_ETC_DIR/snmp");
-    if ($? ne 0) {
+    if ($? != 0) {
         print STDERR "Unable to copy SNMP configuration files\n";
     }
 
@@ -578,7 +584,7 @@ sub centralBackup() {
     $MYSQL_CONF = getMySQLConfFile();
     if ( -e $MYSQL_CONF) {
         system("cp", "-pr", $MYSQL_CONF, "$TEMP_CENTRAL_ETC_DIR/mysql/");
-        if ($? ne 0) {
+        if ($? != 0) {
             print STDERR "Unable to copy MySQL configuration file\n";
         }
     } else {
@@ -602,7 +608,7 @@ sub centralBackup() {
         my $file_dest = $file;
         $file_dest =~ s/\//_/g;
         system("cp", "-p", $file, "$TEMP_CENTRAL_ETC_DIR/php/$file_dest");
-        if ($? ne 0) {
+        if ($? != 0) {
             print STDERR "Unable to copy PHP configuration file\n";
         }
     }
@@ -655,7 +661,7 @@ sub centralBackup() {
     } else {
         $centreon_log_path =~ s/\/$//;
         system("cp", "-pr", "$centreon_log_path/", "$TEMP_CENTRAL_LOG_DIR/");
-        if ($? ne 0) {
+        if ($? != 0) {
             print STDERR "Unable to copy Centreon logs files\n";
         }
     }
@@ -696,7 +702,7 @@ sub centralBackup() {
             }
         }
         system("cp", "-pr", $origFile, $tempLicDir);
-        if ($? ne 0) {
+        if ($? != 0) {
             print STDERR "Unable to copy Centreon configuration files\n";
         }
     }
@@ -833,6 +839,9 @@ sub monitoringengineBackup() {
     my $centreon_home = "/var/spool/centreon";
     if (-d "$centreon_home/.ssh" ) {
         system("cp", "-pr", "$centreon_home/.ssh", "$TEMP_CENTRAL_DIR/ssh");
+        if ($? != 0) {
+            print STDERR "Unable to copy SSH keys for Centreon\n";
+        }
     } else {
         print STDERR "No SSH keys for Centreon\n";
     }
@@ -840,8 +849,11 @@ sub monitoringengineBackup() {
     my $centreonengine_home = "/var/lib/centreon-engine/";
     if (-d "$centreonengine_home/.ssh") {
         system("cp", "-pr", "$centreonengine_home/.ssh", "$TEMP_CENTRAL_DIR/ssh-centreon-engine");
+        if ($? != 0) {
+            print STDERR "Unable to copy SSH keys for Centreon Engine\n";
+        }
     } else {
-        print STDERR "No ssh keys for Centreon Engine\n";
+        print STDERR "No SSH keys for Centreon Engine\n";
     }
 
     ##################
