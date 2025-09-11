@@ -546,27 +546,35 @@ sub centralBackup() {
     my $today = sprintf("%d-%02d-%02d", (1900 + $year), ($mon + 1), $mday);
     print "[" . sprintf("%4d-%02d-%02d %02d:%02d:%02d", (1900 + $year), ($mon + 1), $mday, $hour, $min, $sec) . "] Start central backup process\n";
 
-    ###################################
-    # Get configuration program files #
-    ###################################
-
-    # Create path
-    mkpath($TEMP_CENTRAL_ETC_DIR, { mode => 0755, error => \my $err_list });
-    if (@$err_list) {
-        for my $diag (@$err_list) {
-            my ($file, $message) = %$diag;
-            if ($file eq '') {
-                print STDERR "Unable to create temporary directories because: " . $message . "\n";
-            } else {
-                print STDERR "Problem with file  " . $file . ": " . $message . "\n";
+    # Create paths
+    foreach (($TEMP_CENTRAL_ETC_DIR,
+              $TEMP_CENTRAL_ETC_DIR . "/apache",
+              $TEMP_CENTRAL_ETC_DIR . "/mysql",
+              $TEMP_CENTRAL_ETC_DIR . "/php",
+              $TEMP_CENTRAL_LOG_DIR,
+              $TEMP_CENTRAL_LIC_DIR
+              )) {
+        mkpath($_, { mode => 0755, error => \my $err_list });
+        if (@$err_list) {
+            for my $diag (@$err_list) {
+                my ($file, $message) = %$diag;
+                if ($file eq '') {
+                    print STDERR "Unable to create temporary directories because: " . $message . "\n";
+                } else {
+                    print STDERR "Problem with file  " . $file . ": " . $message . "\n";
+                }
             }
         }
     }
 
+    ###################################
+    # Get configuration program files #
+    ###################################
+
     # Apache or httpd
     my $ApacheConfdir = getApacheDirectory();
     if (defined $ApacheConfdir) {
-        system("cp", "-pr", $ApacheConfdir, "$TEMP_CENTRAL_ETC_DIR/apache");
+        system("cp", "-pr", $ApacheConfdir, "$TEMP_CENTRAL_ETC_DIR/apache/");
         if ($? != 0) {
             print STDERR "Unable to copy Apache configuration files\n";
         }
@@ -591,17 +599,6 @@ sub centralBackup() {
     }
 
     # MySQL configuration
-    mkpath($TEMP_CENTRAL_ETC_DIR . "/mysql", { mode => 0755, error => \my $err_list });
-    if (@$err_list) {
-        for my $diag (@$err_list) {
-            my ($file, $message) = %$diag;
-            if ($file eq '') {
-                print STDERR "Unable to create temporary directories because: " . $message . "\n";
-            } else {
-                print STDERR "Problem with file  " . $file . ": " . $message . "\n";
-            }
-        }
-    }
     $MYSQL_CONF = getMySQLConfFile();
     if ( -e $MYSQL_CONF) {
         system("cp", "-pr", $MYSQL_CONF, "$TEMP_CENTRAL_ETC_DIR/mysql/");
@@ -613,17 +610,6 @@ sub centralBackup() {
     }
 
     # PHP.ini
-    mkpath($TEMP_CENTRAL_ETC_DIR . "/php", { mode => 0755, error => \my $err_list });
-    if (@$err_list) {
-        for my $diag (@$err_list) {
-            my ($file, $message) = %$diag;
-            if ($file eq '') {
-                print STDERR "Unable to create temporary directories because: " . $message . "\n";
-            } else {
-                print STDERR "Problem with file  " . $file . ": " . $message . "\n";
-            }
-        }
-    }
     my @tab_php_ini = getPHPConfFile();
     foreach my $file (@tab_php_ini) {
         my $file_dest = $file;
@@ -638,17 +624,6 @@ sub centralBackup() {
     # Get Centreon logs #
     #####################
     # This backup is crazy ! We backup system logs, it's not a good choice to backup them like that.
-    mkpath($TEMP_CENTRAL_LOG_DIR, { mode => 0755, error => \my $err_list });
-    if (@$err_list) {
-        for my $diag (@$err_list) {
-            my ($file, $message) = %$diag;
-            if ($file eq '') {
-                print STDERR "Unable to create temporary directories because: " . $message . "\n";
-            } else {
-                print STDERR "Problem with file  " . $file . ": " . $message . "\n";
-            }
-        }
-    }
 
     # Try to Centreon logs directory
     my $centreon_log_path = "";
@@ -691,18 +666,6 @@ sub centralBackup() {
     # Licences     #
     ################
     # Centreon licences
-    mkpath($TEMP_CENTRAL_LIC_DIR, { mode => 0755, error => \my $err_list });
-    if (@$err_list) {
-        for my $diag (@$err_list) {
-            my ($file, $message) = %$diag;
-            if ($file eq '') {
-                print STDERR "Unable to create temporary directories because: " . $message . "\n";
-            } else {
-                print STDERR "Problem with file  " . $file . ": " . $message . "\n";
-            }
-        }
-    }
-
     find(\&getLicFile, $CENTREONDIR . "/" . $CENTREON_MODULES_PATH);
 
     foreach my $licfile ( @licfiles ) {
@@ -765,8 +728,23 @@ sub monitoringengineBackup() {
     my $today = sprintf("%d-%02d-%02d",(1900+$year),($mon+1),$mday);
     print "[" . sprintf("%4d-%02d-%02d %02d:%02d:%02d", (1900+$year), ($mon+1), $mday, $hour, $min, $sec) . "] Start monitoring engine backup process\n";
 
-    # create path
-    mkpath($TEMP_CENTRAL_DIR, {mode => 0755, error => \my $err_list});
+    # Create paths
+    foreach (($TEMP_CENTRAL_DIR,
+              $TEMP_CENTRAL_DIR . "/logs",
+              $TEMP_CENTRAL_ETC_DIR
+              )) {
+        mkpath($_, { mode => 0755, error => \my $err_list });
+        if (@$err_list) {
+            for my $diag (@$err_list) {
+                my ($file, $message) = %$diag;
+                if ($file eq '') {
+                    print STDERR "Unable to create temporary directories because: " . $message . "\n";
+                } else {
+                    print STDERR "Problem with file  " . $file . ": " . $message . "\n";
+                }
+            }
+        }
+    }
 
     my $sth2 = $dbh->prepare("SELECT n.nagios_name, n.cfg_dir, n.log_file, ns.* FROM nagios_server ns, cfg_nagios n WHERE ns.id = n.nagios_server_id AND n.nagios_activate = '1' AND ns.localhost = '1';");
     if (!$sth2->execute()) {
@@ -801,18 +779,6 @@ sub monitoringengineBackup() {
     ########
     # Logs #
     ########
-    mkpath($TEMP_CENTRAL_DIR."/logs", {mode => 0755, error => \my $err_list});
-    if (@$err_list) {
-        for my $diag (@$err_list) {
-            my ($file, $message) = %$diag;
-            if ($file eq '') {
-                print STDERR "Unable to create temporary directories because: " . $message . "\n";
-            } else {
-                print STDERR "Problem with file  " . $file . ": " . $message . "\n";
-            }
-        }
-    }
-
     copy($nagios_server->{log_file}, ($TEMP_CENTRAL_DIR."/logs/centengine.log"));
     my $logs_archive_directory = substr($nagios_server->{log_archive_path}, 0, rindex($nagios_server->{log_archive_path}, "/"));
     if (-d $logs_archive_directory) {
@@ -825,18 +791,6 @@ sub monitoringengineBackup() {
     #################
     # Configuration #
     #################
-    mkpath($TEMP_CENTRAL_ETC_DIR, { mode => 0755, error => \my $err_list });
-    if (@$err_list) {
-        for my $diag (@$err_list) {
-            my ($file, $message) = %$diag;
-            if ($file eq '') {
-                print STDERR "Unable to create temporary directories because: " . $message . "\n";
-            } else {
-                print STDERR "Problem with file  " . $file . ": " . $message . "\n";
-            }
-        }
-    }
-
     system("cp", "-pr", $nagios_server->{cfg_dir}, "$TEMP_CENTRAL_ETC_DIR/centreon-engine");
     if ($? != 0) {
         print STDERR "Unable to copy Monitoring Engine configuration files\n";
