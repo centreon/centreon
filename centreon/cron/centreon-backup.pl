@@ -367,14 +367,16 @@ sub gzippedSqlDump {
     open(local *INPUT,  '<', '/dev/null') or return 1;
     open(local *OUTPUT, '>', $backup_file) or return 1;
 
-    my $mysqldump_pid = open3('<&INPUT', \*FROM_MYSQLDUMP, '>&STDERR',
-        mysqldump => (
-            '-u', $mysql_user,
-            '-p'.$mysql_passwd,
-            '-h', $mysql_host,
-            $database,
-        ),
-    );
+    my $mysqldump_pid = eval {
+        open3('<&INPUT', \*FROM_MYSQLDUMP, '>&STDERR',
+            mysqldump => (
+                '-u', $mysql_user,
+                '-p'.$mysql_passwd,
+                '-h', $mysql_host,
+                $database,
+            ),
+        )
+    };
 
     my $gzip_pid = eval {
         open3('<&FROM_MYSQLDUMP', '>&OUTPUT', '>&STDERR',
