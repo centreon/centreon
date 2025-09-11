@@ -39,7 +39,7 @@ Feature: ContactConfiguration
       | "admin"     |
       | "non-admin"  |
 
-  @ignore
+  @TEST_MON-184141
   Scenario Outline: Missing required field during the creation of a contact
     Given a <userType> user is logged in a Centreon server
     And the contact configuration page is displayed
@@ -51,12 +51,12 @@ Feature: ContactConfiguration
 
     Examples:
       | userType | field          | message           |
-      | admin    | Alias / Login  | Compulsory Alias  |
-      | admin    | Full Name      | Compulsory Name   |
-      | admin    | Email          | Valid Email       |
-      | non-admin| Alias / Login  | Compulsory Alias  |
-      | non-admin| Full Name      | Compulsory Name   |
-      | non-admin| Email          | Valid Email       |
+      | "admin"   | "Alias"  | Compulsory Alias  |
+      | "admin"   | "Full Name"      | Compulsory Name   |
+      | "admin"    | "Email"         | Valid Email       |
+      | "non-admin"| "Alias" | Compulsory Alias  |
+      | "non-admin"| "Full Name"      | Compulsory Name   |
+      | "non-admin"| "Email"          | Valid Email       |
 
   @ignore
   Scenario Outline: Error during the update of a contact
@@ -70,8 +70,8 @@ Feature: ContactConfiguration
 
     Examples:
       | userType   |
-      | admin      |
-      | non-admin  |
+      | "admin"     |
+      | "non-admin"  |
 
   @ignore
   Scenario: Check the list of contacts
