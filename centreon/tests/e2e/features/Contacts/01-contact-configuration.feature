@@ -38,7 +38,7 @@ Feature: ContactConfiguration
       | userType   |
       | "admin"     |
       | "non-admin"  |
-  
+
   @ignore
   Scenario Outline: Missing required field during the creation of a contact
     Given a <userType> user is logged in a Centreon server
@@ -48,7 +48,7 @@ Feature: ContactConfiguration
     Then the user is not brought back to the contact configuration page
     And he sees an error displayed above the <field> field with a message "<message>"
     And the contact is not created
-  
+
     Examples:
       | userType | field          | message           |
       | admin    | Alias / Login  | Compulsory Alias  |
@@ -67,14 +67,14 @@ Feature: ContactConfiguration
     Then the user is not brought back to the contact configuration page
     And they see an error displayed in the form
     And the contact is not updated
-  
+
     Examples:
       | userType   |
       | admin      |
       | non-admin  |
 
-  @ignore  
-  Scenario: Check the list of contacts 
+  @ignore
+  Scenario: Check the list of contacts
     Given a non-admin user with READ ONLY rights is logged in a Centreon server
     And the contact configuration page is displayed
     When the non-admin user with READ ONLY rights clicks on a contact
