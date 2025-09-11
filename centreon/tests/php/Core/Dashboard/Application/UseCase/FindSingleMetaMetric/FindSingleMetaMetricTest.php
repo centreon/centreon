@@ -177,7 +177,7 @@ it('maps a "not found" exception to NotFoundResponse', function (): void {
     $this->serviceRepo->shouldReceive('existsByDescription')->once()->andReturn($this->service);
 
     $this->metricRepo
-        ->shouldReceive('FindSingleMetaMetricValue')
+        ->shouldReceive('findSingleMetaMetricValue')
         ->once()
         ->andReturn(null);
 

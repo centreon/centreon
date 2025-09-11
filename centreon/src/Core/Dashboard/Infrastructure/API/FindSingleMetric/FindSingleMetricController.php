@@ -74,7 +74,7 @@ final class FindSingleMetricController extends AbstractController
                 metricName: $metricName
             );
         } catch (\InvalidArgumentException $e) {
-            $presenter->present(new InvalidArgumentResponse(
+            $presenter->presentResponse(new InvalidArgumentResponse(
                 'Invalid parameters provided : ' . $e->getMessage(),
                 [
                     'host_id' => $hostId,

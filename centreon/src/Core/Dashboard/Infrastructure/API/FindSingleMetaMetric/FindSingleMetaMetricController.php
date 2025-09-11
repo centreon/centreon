@@ -70,7 +70,7 @@ final class FindSingleMetaMetricController extends AbstractController
                 metricName: $metricName
             );
         } catch (\InvalidArgumentException $e) {
-            $presenter->present(new InvalidArgumentResponse(
+            $presenter->presentResponse(new InvalidArgumentResponse(
                 'Invalid parameters provided : ' . $e->getMessage(),
                 [
                     'metaServiceId' => $metaServiceId,

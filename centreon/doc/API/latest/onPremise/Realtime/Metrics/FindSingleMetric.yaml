@@ -14,7 +14,15 @@ get:
       content:
         application/json:
           schema:
-            $ref: 'Schema/Metric.yaml'
+            type: object
+            required: [metrics]
+            properties:
+              metrics:
+                type: array
+                minItems: 1
+                maxItems: 1
+                items:
+                  $ref: 'Schema/Metric.yaml'
     '400':
       $ref: '../../Common/Response/BadRequest.yaml'
     '403':
