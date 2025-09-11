@@ -362,6 +362,8 @@ sub getPHPConfFile() {
 sub gzippedSqlDump {
     my ($database, $backup_file) = @_;
 
+    return 1 if (!defined $BIN_GZIP || $BIN_GZIP eq '' || !-x $BIN_GZIP);
+
     # thanks https://www.perlmonks.org/?node_id=908100 !
     local *FROM_MYSQLDUMP;
     open(local *INPUT,  '<', '/dev/null') or return 1;
@@ -378,6 +380,12 @@ sub gzippedSqlDump {
         )
     };
 
+    if (!$mysqldump_pid) {
+        close OUTPUT;
+        unlink $backup_file;
+        return 1;
+    }
+
     my $gzip_pid = eval {
         open3('<&FROM_MYSQLDUMP', '>&OUTPUT', '>&STDERR',
             $BIN_GZIP
@@ -385,13 +393,24 @@ sub gzippedSqlDump {
     };
 
     if (!$gzip_pid) {
-        kill(KILL => $mysqldump_pid);
+        kill 'KILL', $mysqldump_pid;
         waitpid($mysqldump_pid, 0);
+        close OUTPUT;
+        unlink $backup_file;
         return 1;
     }
 
     waitpid($mysqldump_pid, 0);
+    my $mysqldump_rc = $? >> 8;
     waitpid($gzip_pid, 0);
+    my $gzip_rc = $? >> 8;
+
+    close OUTPUT;
+
+    if ($mysqldump_rc != 0 || $gzip_rc != 0) {
+        unlink $backup_file;
+        return 1;
+    }
 
     return 0;
 }
