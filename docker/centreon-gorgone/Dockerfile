@@ -55,10 +55,8 @@ RUN groupadd -g 900 centreon &&\
     ln -s /usr/local/bin/systemctl /usr/bin/systemctl && \
     apt install -y /tmp/packages-centreon/centreon-*.deb && \
     apt clean && \
-    rm -rf /var/lib/apt/lists/* /tmp/packages-centreon
-
-
-
+    rm -rf /var/lib/apt/lists/* /tmp/packages-centreon && \
+    chown -R centreon-gorgone:centreon-gorgone /var/lib/centreon-gorgone
 
 # Set the working directory
 WORKDIR /var/lib/centreon-gorgone

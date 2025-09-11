@@ -1,5 +1,5 @@
 #!/bin/sh
-
+set -e
 TYPE="${TYPE:-central}" 
 
 if [ "$TYPE" = "central" ]; then
@@ -68,6 +68,7 @@ gorgone:
             timeout: 10
 
 EOF
+    ls -lrh /var/lib/ | grep centreon
 
 elif [ "$TYPE" = "poller" ]; then
     echo "Configuring for poller"
