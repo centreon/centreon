@@ -52,12 +52,14 @@ final class DbalGlobalMacroRepositoryTest extends KernelTestCase
     {
         $criteria = new GlobalMacroCriteria();
         $criteria = $criteria->withName('USER1', GlobalMacroCriteria::OPERATOR_LIKE);
+
         $globalMacros = $this->repository->findAll($criteria);
         self::containsOnlyInstancesOf(GlobalMacro::class);
         self::assertCount(1, $globalMacros);
 
         $criteria = new GlobalMacroCriteria();
         $criteria = $criteria->withName('$USER1$', GlobalMacroCriteria::OPERATOR_EQUAL);
+
         $globalMacros = $this->repository->findAll($criteria);
         self::containsOnlyInstancesOf(GlobalMacro::class);
         self::assertCount(1, $globalMacros);
