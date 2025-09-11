@@ -21,18 +21,10 @@
 
 declare(strict_types=1);
 
-namespace App\Shared\Infrastructure;
+namespace App\ResourceConfiguration\Domain\Event\ServiceCategory;
 
-/**
- * @template TFrom
- * @template TTo
- */
-interface TransformerInterface
+use App\Shared\Domain\Event\AggregateCreated;
+
+final readonly class ServiceCategoryCreated extends AggregateCreated
 {
-    /**
-     * @param TFrom $from
-     *
-     * @return TTo
-     */
-    public function transform(mixed $from): mixed;
 }

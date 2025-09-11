@@ -21,18 +21,10 @@
 
 declare(strict_types=1);
 
-namespace App\Shared\Infrastructure;
+namespace App\ResourceConfiguration\Domain\Exception\ServiceCategory;
 
-/**
- * @template TFrom
- * @template TTo
- */
-interface TransformerInterface
+use App\Shared\Domain\Exception\AggregateAlreadyExistsException;
+
+final class ServiceCategoryAlreadyExistsException extends AggregateAlreadyExistsException
 {
-    /**
-     * @param TFrom $from
-     *
-     * @return TTo
-     */
-    public function transform(mixed $from): mixed;
 }

@@ -21,18 +21,9 @@
 
 declare(strict_types=1);
 
-namespace App\Shared\Infrastructure;
+namespace App\ResourceConfiguration\Domain\Security\GlobalMacro;
 
-/**
- * @template TFrom
- * @template TTo
- */
-interface TransformerInterface
+enum GlobalMacroPermissionEnum: string
 {
-    /**
-     * @param TFrom $from
-     *
-     * @return TTo
-     */
-    public function transform(mixed $from): mixed;
+    case CanRead = 'can_read_global_macro';
 }

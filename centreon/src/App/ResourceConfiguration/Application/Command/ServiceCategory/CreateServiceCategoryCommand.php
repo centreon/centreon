@@ -21,18 +21,17 @@
 
 declare(strict_types=1);
 
-namespace App\Shared\Infrastructure;
+namespace App\ResourceConfiguration\Application\Command\ServiceCategory;
 
-/**
- * @template TFrom
- * @template TTo
- */
-interface TransformerInterface
+use App\ResourceConfiguration\Domain\Aggregate\ServiceCategory\ServiceCategoryName;
+
+final readonly class CreateServiceCategoryCommand
 {
-    /**
-     * @param TFrom $from
-     *
-     * @return TTo
-     */
-    public function transform(mixed $from): mixed;
+    public function __construct(
+        public ServiceCategoryName $name,
+        public ServiceCategoryName $alias,
+        public bool $activated,
+        public int $creatorId,
+    ) {
+    }
 }

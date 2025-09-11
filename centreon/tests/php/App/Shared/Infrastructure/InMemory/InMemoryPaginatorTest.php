@@ -1,13 +1,31 @@
 <?php
 
+/*
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * For more information : contact@centreon.com
+ *
+ */
+
 declare(strict_types=1);
 
 namespace Tests\App\Shared\Infrastructure\InMemory;
 
-use PHPUnit\Framework\TestCase;
 use App\Shared\Infrastructure\InMemory\InMemoryPaginator;
+use PHPUnit\Framework\TestCase;
 
-/** @group wip */
 final class InMemoryPaginatorTest extends TestCase
 {
     public function testGetItemsPerPage(): void
@@ -36,14 +54,14 @@ final class InMemoryPaginatorTest extends TestCase
 
     public function testCountReturnsNumberOfItems(): void
     {
-        $items = [(object)['id' => 1], (object)['id' => 2]];
+        $items = [(object) ['id' => 1], (object) ['id' => 2]];
         $paginator = new InMemoryPaginator($items, 2, 1, 10);
         $this->assertSame(2, $paginator->count());
     }
 
     public function testGetIteratorReturnsTraversable(): void
     {
-        $items = [(object)['id' => 1], (object)['id' => 2]];
+        $items = [(object) ['id' => 1], (object) ['id' => 2]];
         $paginator = new InMemoryPaginator($items, 2, 1, 10);
         $iterator = $paginator->getIterator();
         $this->assertInstanceOf(\Traversable::class, $iterator);

@@ -21,18 +21,18 @@
 
 declare(strict_types=1);
 
-namespace App\Shared\Infrastructure;
+namespace App\ResourceConfiguration\Domain\Aggregate\ServiceCategory;
 
-/**
- * @template TFrom
- * @template TTo
- */
-interface TransformerInterface
+use App\Shared\Domain\Aggregate\AggregateRoot;
+
+final class ServiceCategory extends AggregateRoot
 {
-    /**
-     * @param TFrom $from
-     *
-     * @return TTo
-     */
-    public function transform(mixed $from): mixed;
+    public function __construct(
+        ?ServiceCategoryId $id,
+        public readonly ServiceCategoryName $name,
+        public readonly ServiceCategoryName $alias,
+        public readonly bool $activated,
+    ) {
+        parent::__construct($id);
+    }
 }

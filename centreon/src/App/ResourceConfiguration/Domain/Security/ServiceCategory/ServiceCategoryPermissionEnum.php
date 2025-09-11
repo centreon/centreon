@@ -21,18 +21,10 @@
 
 declare(strict_types=1);
 
-namespace App\Shared\Infrastructure;
+namespace App\ResourceConfiguration\Domain\Security\ServiceCategory;
 
-/**
- * @template TFrom
- * @template TTo
- */
-interface TransformerInterface
+enum ServiceCategoryPermissionEnum: string
 {
-    /**
-     * @param TFrom $from
-     *
-     * @return TTo
-     */
-    public function transform(mixed $from): mixed;
+    case CanRead = 'can_read_service_category';
+    case CanWrite = 'can_write_service_category';
 }

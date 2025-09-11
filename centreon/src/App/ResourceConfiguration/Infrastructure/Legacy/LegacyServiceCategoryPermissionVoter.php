@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace App\ResourceConfiguration\Infrastructure\Legacy;
 
-use App\ResourceConfiguration\Domain\Security\ServiceCategoryPermissionEnum;
+use App\ResourceConfiguration\Domain\Security\ServiceCategory\ServiceCategoryPermissionEnum;
 use Centreon\Domain\Contact\Contact;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Vote;

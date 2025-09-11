@@ -23,10 +23,10 @@ declare(strict_types=1);
 
 namespace Tests\App\ResourceConfiguration\Infrastructure\Double;
 
-use App\ResourceConfiguration\Domain\Aggregate\ServiceCategory;
-use App\ResourceConfiguration\Domain\Aggregate\ServiceCategoryId;
-use App\ResourceConfiguration\Domain\Aggregate\ServiceCategoryName;
-use App\ResourceConfiguration\Domain\Repository\ServiceCategoryRepository;
+use App\ResourceConfiguration\Domain\Aggregate\ServiceCategory\ServiceCategory;
+use App\ResourceConfiguration\Domain\Aggregate\ServiceCategory\ServiceCategoryId;
+use App\ResourceConfiguration\Domain\Aggregate\ServiceCategory\ServiceCategoryName;
+use App\ResourceConfiguration\Domain\Repository\ServiceCategory\ServiceCategoryRepository;
 use App\Shared\Domain\Aggregate\AggregateRoot;
 
 final class FakeServiceCategoryRepository implements ServiceCategoryRepository

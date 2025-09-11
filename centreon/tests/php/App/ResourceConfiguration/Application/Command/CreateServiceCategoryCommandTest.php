@@ -23,11 +23,11 @@ declare(strict_types=1);
 
 namespace Tests\App\ResourceConfiguration\Application\Command;
 
-use App\ResourceConfiguration\Application\Command\CreateServiceCategoryCommand;
-use App\ResourceConfiguration\Application\Command\CreateServiceCategoryCommandHandler;
-use App\ResourceConfiguration\Domain\Aggregate\ServiceCategoryName;
-use App\ResourceConfiguration\Domain\Event\ServiceCategoryCreated;
-use App\ResourceConfiguration\Domain\Exception\ServiceCategoryAlreadyExistsException;
+use App\ResourceConfiguration\Application\Command\ServiceCategory\CreateServiceCategoryCommand;
+use App\ResourceConfiguration\Application\Command\ServiceCategory\CreateServiceCategoryCommandHandler;
+use App\ResourceConfiguration\Domain\Aggregate\ServiceCategory\ServiceCategoryName;
+use App\ResourceConfiguration\Domain\Event\ServiceCategory\ServiceCategoryCreated;
+use App\ResourceConfiguration\Domain\Exception\ServiceCategory\ServiceCategoryAlreadyExistsException;
 use PHPUnit\Framework\TestCase;
 use Tests\App\ResourceConfiguration\Infrastructure\Double\FakeServiceCategoryRepository;
 use Tests\App\Shared\Double\EventBusSpy;

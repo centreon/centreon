@@ -21,18 +21,15 @@
 
 declare(strict_types=1);
 
-namespace App\Shared\Infrastructure;
+namespace App\ResourceConfiguration\Domain\Repository\GlobalMacro;
 
-/**
- * @template TFrom
- * @template TTo
- */
-interface TransformerInterface
+use App\ResourceConfiguration\Domain\Aggregate\GlobalMacro\GlobalMacro;
+use App\Shared\Domain\Repository\Paginator;
+
+interface GlobalMacroRepository
 {
     /**
-     * @param TFrom $from
-     *
-     * @return TTo
+     * @return Paginator<GlobalMacro>|array<GlobalMacro>
      */
-    public function transform(mixed $from): mixed;
+    public function findAll(?GlobalMacroCriteria $criteria = null): Paginator|array;
 }

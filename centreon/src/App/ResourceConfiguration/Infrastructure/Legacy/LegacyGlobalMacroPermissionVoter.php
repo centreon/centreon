@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace App\ResourceConfiguration\Infrastructure\Legacy;
 
-use App\ResourceConfiguration\Domain\Security\GlobalMacroPermissionEnum;
+use App\ResourceConfiguration\Domain\Security\GlobalMacro\GlobalMacroPermissionEnum;
 use Centreon\Domain\Contact\Contact;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Vote;

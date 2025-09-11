@@ -21,18 +21,20 @@
 
 declare(strict_types=1);
 
-namespace App\Shared\Infrastructure;
+namespace App\ResourceConfiguration\Domain\Aggregate\GlobalMacro;
 
-/**
- * @template TFrom
- * @template TTo
- */
-interface TransformerInterface
+use App\Shared\Domain\Aggregate\AggregateRoot;
+
+final class GlobalMacro extends AggregateRoot
 {
-    /**
-     * @param TFrom $from
-     *
-     * @return TTo
-     */
-    public function transform(mixed $from): mixed;
+    public function __construct(
+        ?GlobalMacroId $id,
+        public readonly GlobalMacroName $name,
+        public readonly GlobalMacroExpression $expression,
+        public readonly ?GlobalMacroComment $comment,
+        public readonly bool $isPassword,
+        public readonly bool $activated,
+    ) {
+        parent::__construct($id);
+    }
 }

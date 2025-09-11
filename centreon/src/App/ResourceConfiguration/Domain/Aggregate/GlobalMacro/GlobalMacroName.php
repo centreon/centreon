@@ -21,18 +21,18 @@
 
 declare(strict_types=1);
 
-namespace App\Shared\Infrastructure;
+namespace App\ResourceConfiguration\Domain\Aggregate\GlobalMacro;
 
-/**
- * @template TFrom
- * @template TTo
- */
-interface TransformerInterface
+use Webmozart\Assert\Assert;
+
+final readonly class GlobalMacroName
 {
-    /**
-     * @param TFrom $from
-     *
-     * @return TTo
-     */
-    public function transform(mixed $from): mixed;
+    public const NAMING_VALIDATION_REGEX = '/^\$.*\$$/';
+
+    public function __construct(
+        public string $value,
+    ) {
+        Assert::lengthBetween($value, 1, 255);
+        Assert::regex($value, self::NAMING_VALIDATION_REGEX);
+    }
 }

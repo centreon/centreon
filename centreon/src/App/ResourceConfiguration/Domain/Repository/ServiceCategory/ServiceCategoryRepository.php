@@ -21,18 +21,14 @@
 
 declare(strict_types=1);
 
-namespace App\Shared\Infrastructure;
+namespace App\ResourceConfiguration\Domain\Repository\ServiceCategory;
 
-/**
- * @template TFrom
- * @template TTo
- */
-interface TransformerInterface
+use App\ResourceConfiguration\Domain\Aggregate\ServiceCategory\ServiceCategory;
+use App\ResourceConfiguration\Domain\Aggregate\ServiceCategory\ServiceCategoryName;
+
+interface ServiceCategoryRepository
 {
-    /**
-     * @param TFrom $from
-     *
-     * @return TTo
-     */
-    public function transform(mixed $from): mixed;
+    public function add(ServiceCategory $serviceCategory): void;
+
+    public function findOneByName(ServiceCategoryName $name): ?ServiceCategory;
 }

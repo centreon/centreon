@@ -21,18 +21,15 @@
 
 declare(strict_types=1);
 
-namespace App\Shared\Infrastructure;
+namespace App\ResourceConfiguration\Domain\Aggregate\GlobalMacro;
 
-/**
- * @template TFrom
- * @template TTo
- */
-interface TransformerInterface
+use Webmozart\Assert\Assert;
+
+final readonly class GlobalMacroComment
 {
-    /**
-     * @param TFrom $from
-     *
-     * @return TTo
-     */
-    public function transform(mixed $from): mixed;
+    public function __construct(
+        public string $value,
+    ) {
+        Assert::maxLength($value, 255);
+    }
 }
