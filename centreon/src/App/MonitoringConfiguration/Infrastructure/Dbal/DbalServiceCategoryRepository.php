@@ -39,6 +39,9 @@ final readonly class DbalServiceCategoryRepository extends DoctrineRepository im
 {
     private const TABLE_NAME = 'service_categories';
 
+    /**
+     * @param TransformerInterface<RowTypeAlias, ServiceCategory> $transformer
+     */
     public function __construct(
         #[Autowire(service: 'doctrine.dbal.default_connection')]
         private Connection $connection,

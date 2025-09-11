@@ -64,7 +64,6 @@ final class InMemoryPaginatorTest extends TestCase
         $items = [(object) ['id' => 1], (object) ['id' => 2]];
         $paginator = new InMemoryPaginator($items, 2, 1, 10);
         $iterator = $paginator->getIterator();
-        $this->assertInstanceOf(\Traversable::class, $iterator);
         $this->assertSame($items, iterator_to_array($iterator));
     }
 

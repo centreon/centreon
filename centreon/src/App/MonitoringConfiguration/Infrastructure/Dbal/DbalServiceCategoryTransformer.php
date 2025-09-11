@@ -26,19 +26,15 @@ namespace App\MonitoringConfiguration\Infrastructure\Dbal;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceCategory\ServiceCategory;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceCategory\ServiceCategoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceCategory\ServiceCategoryName;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\ServiceCategoryResource;
 use App\Shared\Infrastructure\TransformerInterface;
 
 /**
  * @phpstan-import-type RowTypeAlias from DbalServiceCategoryRepository
  *
- * @implements TransformerInterface<ServiceCategory, ServiceCategoryResource>
+ * @implements TransformerInterface<RowTypeAlias, ServiceCategory>
  */
 final readonly class DbalServiceCategoryTransformer implements TransformerInterface
 {
-    /**
-     * @param RowTypeAlias $from
-     */
     public function transform(mixed $from): ServiceCategory
     {
         return new ServiceCategory(

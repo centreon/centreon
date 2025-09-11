@@ -33,6 +33,7 @@ use App\Shared\Infrastructure\TransformerInterface;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
+use Webmozart\Assert\Assert;
 
 /**
  * @phpstan-type RowTypeAlias = array{
@@ -162,12 +163,14 @@ final readonly class DbalGlobalMacroRepository extends DoctrineRepository implem
     {
         $qb = clone $qb; // avoid modifying the initial query builder
 
-        /** @var int $count */
-        return $qb
+        $count = $qb
             ->select('COUNT(DISTINCT gm.resource_id)')
             ->setFirstResult(0) // reset any pagination
             ->setMaxResults(null)
             ->executeQuery()
             ->fetchOne();
+        Assert::integer($count);
+
+        return $count;
     }
 }
