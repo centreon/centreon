@@ -58,7 +58,7 @@ Feature: ContactConfiguration
       | "non-admin"| "Full Name"      | Compulsory Name   |
       | "non-admin"| "Email"          | Valid Email       |
 
-  @ignore
+  @TEST_MON-184160
   Scenario Outline: Error during the update of a contact
     Given a <userType> user is logged in a Centreon server
     And the contact configuration page is displayed
