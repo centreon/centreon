@@ -100,7 +100,6 @@ overrides:
       - centreon-plugin-Applications-Databases-Mysql
       - centreon-plugin-Applications-Monitoring-Centreon-Central
       - centreon-plugin-Applications-Monitoring-Centreon-Database
-      - centreon-plugin-Applications-Monitoring-Centreon-Map4-Jmx
       - centreon-plugin-Applications-Monitoring-Centreon-Poller
       - centreon-plugin-Applications-Protocol-Dns
       - centreon-plugin-Applications-Protocol-Ftp
@@ -140,7 +139,6 @@ overrides:
       - centreon-plugin-applications-databases-mysql
       - centreon-plugin-applications-monitoring-centreon-central
       - centreon-plugin-applications-monitoring-centreon-database
-      - centreon-plugin-applications-monitoring-centreon-map4-jmx
       - centreon-plugin-applications-monitoring-centreon-poller
       - centreon-plugin-applications-protocol-dns
       - centreon-plugin-applications-protocol-ftp
