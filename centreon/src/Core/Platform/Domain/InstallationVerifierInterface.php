@@ -4,7 +4,7 @@
  * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not use this file except in compliance with the License
  * You may obtain a copy of the License at
  *
  * https://www.apache.org/licenses/LICENSE-2.0
@@ -21,29 +21,21 @@
 
 declare(strict_types=1);
 
-namespace Core\Infrastructure\Platform\Repository;
+namespace Core\Platform\Domain;
 
-use Core\Application\Platform\Repository\ReadPlatformRepositoryInterface;
-
-class FileReadPlatformRepository implements ReadPlatformRepositoryInterface
+interface InstallationVerifierInterface
 {
-    public function __construct(private string $etcDir, private string $installDir)
-    {
-    }
+    /**
+     * Check that Centreon is installed (if the configuration exists).
+     *
+     * @return bool
+     */
+    public function isCentreonWebInstalled(): bool;
 
     /**
-     * @inheritDoc
+     * Check if Centreon is Installable or Upgradable (if the install directory exists).
+     *
+     * @return bool
      */
-    public function isCentreonWebInstalled(): bool
-    {
-        return file_exists($this->etcDir . '/centreon.conf.php');
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function isCentreonWebInstallableOrUpgradable(): bool
-    {
-        return is_dir($this->installDir);
-    }
+    public function isCentreonWebInstallableOrUpgradable(): bool;
 }
