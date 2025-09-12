@@ -75,9 +75,9 @@ class AddHostValidation
      */
     public function assertIsValidName(string $name): void
     {
-        Assertion::regex(
+        Assertion::unauthorizedCharacters(
             $name,
-            '/^[^' . MonitoringServer::ILLEGAL_CHARACTERS . ']*$/',
+            MonitoringServer::ILLEGAL_CHARACTERS,
             'Host::name'
         );
 
