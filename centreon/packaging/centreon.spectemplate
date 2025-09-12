@@ -259,7 +259,6 @@ Requires:   perl-DBD-SQLite
 Requires:   centreon-plugin-Applications-Databases-Mysql
 Requires:   centreon-plugin-Applications-Monitoring-Centreon-Central
 Requires:   centreon-plugin-Applications-Monitoring-Centreon-Database
-Requires:   centreon-plugin-Applications-Monitoring-Centreon-Map4-Jmx
 Requires:   centreon-plugin-Applications-Monitoring-Centreon-Poller
 Requires:   centreon-plugin-Applications-Protocol-Dns
 Requires:   centreon-plugin-Applications-Protocol-Ftp
