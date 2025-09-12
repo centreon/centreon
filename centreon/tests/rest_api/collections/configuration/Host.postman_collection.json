@@ -3,8 +3,8 @@
 		"_postman_id": "e3a1bf9d-7d4c-4e8d-be04-a45fb0ac97fe",
 		"name": "Host",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "16182525",
-		"_collection_link": "https://centreon-api-testing.postman.co/workspace/develop-OSS~7c78046c-a719-4dae-bbf9-70e6e2c5b9bd/collection/16182525-e3a1bf9d-7d4c-4e8d-be04-a45fb0ac97fe?action=share&source=collection_link&creator=16182525"
+		"_exporter_id": "28117716",
+		"_collection_link": "https://centreon-api-testing.postman.co/workspace/develop-OSS~7c78046c-a719-4dae-bbf9-70e6e2c5b9bd/collection/16182525-e3a1bf9d-7d4c-4e8d-be04-a45fb0ac97fe?action=share&source=collection_link&creator=28117716"
 	},
 	"item": [
 		{
@@ -2906,8 +2906,8 @@
 									"        \"notification_options\": 31,\r",
 									"        \"notification_interval\": 5,\r",
 									"        \"notification_timeperiod_id\": 2,\r",
-									"        \"add_inherited_contact_group\": true,\r",
-									"        \"add_inherited_contact\": true,\r",
+									"        \"add_inherited_contact_group\": false,\r",
+									"        \"add_inherited_contact\": false,\r",
 									"        \"first_notification_delay\": 2,\r",
 									"        \"recovery_notification_delay\": 1,\r",
 									"        \"acknowledgement_timeout\": 5,\r",
@@ -3050,7 +3050,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"name\": \"{{HostTemplate1Name}}\",\r\n    \"alias\": \"{{HostTemplate1Alias}}\",\r\n    \"snmp_version\": \"2c\",\r\n    \"snmp_community\": \"   snmpCommunity-test\",\r\n    \"timezone_id\": 1,\r\n    \"check_command_id\": {{CommandId}},\r\n    \"severity_id\": {{HostSeverity2Id}},\r\n    \"check_command_args\": [\"OUTPUT\"],\r\n    \"check_timeperiod_id\": 1,\r\n    \"note_url\": \"noteUrl-value\",\r\n    \"note\": \"note-value\",\r\n    \"action_url\": \"actionUrl-value\",\r\n    \"max_check_attempts\": 3,\r\n    \"normal_check_interval\": 5,\r\n    \"retry_check_interval\": 2,\r\n    \"active_check_enabled\": 1,\r\n    \"passive_check_enabled\": 0,\r\n    \"notification_enabled\": 2,\r\n    \"notification_options\": 31,\r\n    \"notification_interval\": 5,\r\n    \"notification_timeperiod_id\": 2,\r\n    \"add_inherited_contact_group\": true,\r\n    \"add_inherited_contact\": true,\r\n    \"first_notification_delay\": 2,\r\n    \"recovery_notification_delay\": 1,\r\n    \"acknowledgement_timeout\": 5,\r\n    \"freshness_checked\": 1,\r\n    \"freshness_threshold\": 2,\r\n    \"flap_detection_enabled\": 1,\r\n    \"low_flap_threshold\": 25,\r\n    \"high_flap_threshold\": 75,\r\n    \"event_handler_enabled\": 2,\r\n    \"event_handler_command_id\": {{CommandId}},\r\n    \"event_handler_command_args\": [\"%d\"],\r\n    \"icon_id\": 1,\r\n    \"icon_alternative\": \"3\",\r\n    \"categories\": [ {{HostCategory1Id}} ],\r\n    \"comment\": \"1, 2, 3\",\r\n    \"macros\": [\r\n        {\r\n        \"name\": \"nameA\",\r\n        \"value\": \"valueA\",\r\n        \"is_password\": false,\r\n        \"description\": \"some text\"\r\n        },\r\n        {\r\n        \"name\": \"nameB\",\r\n        \"value\": \"valueB\",\r\n        \"is_password\": true,\r\n        \"description\": null\r\n        }\r\n    ]\r\n}\r\n",
+							"raw": "{\r\n    \"name\": \"{{HostTemplate1Name}}\",\r\n    \"alias\": \"{{HostTemplate1Alias}}\",\r\n    \"snmp_version\": \"2c\",\r\n    \"snmp_community\": \"   snmpCommunity-test\",\r\n    \"timezone_id\": 1,\r\n    \"check_command_id\": {{CommandId}},\r\n    \"severity_id\": {{HostSeverity2Id}},\r\n    \"check_command_args\": [\"OUTPUT\"],\r\n    \"check_timeperiod_id\": 1,\r\n    \"note_url\": \"noteUrl-value\",\r\n    \"note\": \"note-value\",\r\n    \"action_url\": \"actionUrl-value\",\r\n    \"max_check_attempts\": 3,\r\n    \"normal_check_interval\": 5,\r\n    \"retry_check_interval\": 2,\r\n    \"active_check_enabled\": 1,\r\n    \"passive_check_enabled\": 0,\r\n    \"notification_enabled\": 2,\r\n    \"notification_options\": 31,\r\n    \"notification_interval\": 5,\r\n    \"notification_timeperiod_id\": 2,\r\n    \"first_notification_delay\": 2,\r\n    \"recovery_notification_delay\": 1,\r\n    \"acknowledgement_timeout\": 5,\r\n    \"freshness_checked\": 1,\r\n    \"freshness_threshold\": 2,\r\n    \"flap_detection_enabled\": 1,\r\n    \"low_flap_threshold\": 25,\r\n    \"high_flap_threshold\": 75,\r\n    \"event_handler_enabled\": 2,\r\n    \"event_handler_command_id\": {{CommandId}},\r\n    \"event_handler_command_args\": [\"%d\"],\r\n    \"icon_id\": 1,\r\n    \"icon_alternative\": \"3\",\r\n    \"categories\": [ {{HostCategory1Id}} ],\r\n    \"comment\": \"1, 2, 3\",\r\n    \"macros\": [\r\n        {\r\n        \"name\": \"nameA\",\r\n        \"value\": \"valueA\",\r\n        \"is_password\": false,\r\n        \"description\": \"some text\"\r\n        },\r\n        {\r\n        \"name\": \"nameB\",\r\n        \"value\": \"valueB\",\r\n        \"is_password\": true,\r\n        \"description\": null\r\n        }\r\n    ]\r\n}\r\n",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -3120,8 +3120,6 @@
 									"        \"notification_options\": 31,\r",
 									"        \"notification_interval\": 5,\r",
 									"        \"notification_timeperiod_id\": 2,\r",
-									"        \"add_inherited_contact_group\": true,\r",
-									"        \"add_inherited_contact\": true,\r",
 									"        \"first_notification_delay\": 2,\r",
 									"        \"recovery_notification_delay\": 1,\r",
 									"        \"acknowledgement_timeout\": 5,\r",
@@ -3929,7 +3927,7 @@
 					"response": []
 				},
 				{
-					"name": "Add a new host without name",
+					"name": "Denied adding a host without key name",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -4003,7 +4001,7 @@
 					"response": []
 				},
 				{
-					"name": "Add a new host without address",
+					"name": "Denied adding a host without key address",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -4077,7 +4075,7 @@
 					"response": []
 				},
 				{
-					"name": "Add a new host without monitoring server",
+					"name": "Denied adding a host without key monitoring server",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -4151,7 +4149,7 @@
 					"response": []
 				},
 				{
-					"name": "Add a new host with empty name",
+					"name": "Denied adding a host with an empty name",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -4225,7 +4223,7 @@
 					"response": []
 				},
 				{
-					"name": "Add a new host with empty address",
+					"name": "Denied adding a host with an empty address",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -4299,7 +4297,7 @@
 					"response": []
 				},
 				{
-					"name": "Add a new host with wrong type of value",
+					"name": "Denied adding a host with wrong type of value",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -4373,13 +4371,15 @@
 					"response": []
 				},
 				{
-					"name": "Add a new host with special characters - should fail validation",
+					"name": "Add a new host with special characters defined",
 					"event": [
 						{
 							"listen": "prerequest",
 							"script": {
 								"exec": [
-									"pm.collectionVariables.set(\"Host3Name\", \"hôst~3!\");"
+									"pm.collectionVariables.set(\"Host3Name\", \"hôst~3!\");\r",
+									"pm.collectionVariables.set(\"Host3Alias\", \"I'm the third host créated by admin!\");\r",
+									""
 								],
 								"type": "text/javascript",
 								"packages": {}
@@ -4389,38 +4389,30 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"const responseJson = pm.response.json();",
-									"",
-									"pm.test(\"Host creation should fail due to invalid characters in name\", function () {",
-									"    pm.response.to.have.status(400);",
-									"});",
-									"",
-									"pm.test(\"Response should contain validation error for host name\", function () {",
-									"    pm.expect(responseJson).to.have.property('code', 400);",
-									"    pm.expect(responseJson).to.have.property('message');",
-									"    pm.expect(responseJson.message).to.include('[Host::name]');",
-									"    pm.expect(responseJson.message).to.include('doesn\\'t match the regex');",
-									"    pm.expect(responseJson.message).to.include('/^[^~!$%^&*\"|\\'<>?,()=]*$/');",
-									"});",
-									"",
-									"pm.test(\"Verify the rejected host name contains special characters\", function () {",
-									"    const hostName = pm.collectionVariables.get(\"Host3Name\");",
-									"    pm.expect(hostName).to.equal(\"hôst~3!\");",
-									"    pm.expect(responseJson.message).to.include(hostName);",
-									"});",
-									"",
-									"pm.test(\"Schema validation for error response\", function () {",
-									"    const schema = {",
-									"        type: \"object\",",
-									"        properties: {",
-									"            code: { type: \"integer\" },",
-									"            message: { type: \"string\" }",
-									"        },",
-									"        required: [\"code\", \"message\"]",
-									"    };",
-									"",
-									"    pm.expect(responseJson).to.have.jsonSchema(schema);",
-									"});"
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The host template has not been created with name '\" + pm.collectionVariables.get(\"Host3Name\") + \"' and alias '\" + pm.collectionVariables.get(\"Host3Alias\") + \"'.\", function () {\r",
+									"    pm.response.to.have.status(400);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"The host has not been created, because the address is empty.\", function () {\r",
+									"    pm.response.to.have.status(400);\r",
+									"\r",
+									"    pm.expect(responseJson.message).to.eql(\"[Host::name] The value (\" + pm.collectionVariables.get(\"Host3Name\") + \") doesn't match the regex '/^[^~!$%^&*\\\"|'<>?,()=]*$/'\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation test for the host creation response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": 'object',\r",
+									"        \"properties\": {\r",
+									"            \"code\": { \"type\": 'integer' },\r",
+									"            \"message\": { \"type\": 'string' }\r",
+									"        },\r",
+									"        \"required\": ['code', 'message']\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});\r",
+									""
 								],
 								"type": "text/javascript",
 								"packages": {}
@@ -4438,7 +4430,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"name\": \"{{Host3Name}}\",\n    \"address\": \"127.0.0.1\",\n    \"monitoring_server_id\": 1\n}",
+							"raw": "{\r\n    \"name\": \"{{Host3Name}}\",\r\n    \"alias\": \"{{Host3Alias}}\",\r\n    \"snmp_version\": \"2c\",\r\n    \"snmp_community\": \"snmpCommunity-tést\",\r\n    \"address\": \"127.0.0.1\",\r\n    \"monitoring_server_id\": 1,\r\n    \"timezone_id\": 2,\r\n    \"check_command_id\": {{CommandId}},\r\n    \"check_timeperiod_id\": 1,\r\n    \"note_url\": \"noteUrl!!!!\",\r\n    \"note\": \"notéé\",\r\n    \"action_url\": \"actionUrl-ouêp\",\r\n    \"max_check_attempts\": 6,\r\n    \"normal_check_interval\": 5,\r\n    \"retry_check_interval\": 2,\r\n    \"active_check_enabled\": 1,\r\n    \"passive_check_enabled\": 0,\r\n    \"event_handler_enabled\": 2,\r\n    \"event_handler_command_id\": {{CommandId}},\r\n    \"event_handler_command_args\": [],\r\n    \"icon_id\": 1,\r\n    \"icon_alternative\": \"3\",\r\n    \"categories\": [ {{HostCategory1Id}} ],\r\n    \"groups\": [ {{HostGroup1Id}} ],\r\n    \"templates\": [ {{HostTemplate1Id}} ],\r\n    \"comment\": \"I am an other test\"\r\n}\r\n",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -4541,7 +4533,6 @@
 									"    pm.expect(responseJson.result[1].templates).to.be.an('Array').that.is.empty;\r",
 									"    pm.expect(responseJson.result[1].categories).to.be.an('Array').that.is.empty;\r",
 									"    pm.expect(responseJson.result[1].groups).to.be.an('Array').that.is.empty;\r",
-									"\r",
 									"});\r",
 									"\r",
 									"pm.test(\"Schema validation for the host listing response\", function () {\r",
@@ -4830,10 +4821,6 @@
 									"        id: pm.collectionVariables.get(\"HostGroup1Id\"),\r",
 									"        name: pm.collectionVariables.get(\"HostGroup1Name\")\r",
 									"    });\r",
-									"\r",
-									"\r",
-									"\r",
-									"\r",
 									"});\r",
 									"\r",
 									"pm.test(\"Schema validation for the host listing response\", function () {\r",
@@ -5101,7 +5088,7 @@
 							"response": []
 						},
 						{
-							"name": "Add a new host to be deleted later",
+							"name": "Add a new host",
 							"event": [
 								{
 									"listen": "prerequest",
@@ -5305,230 +5292,6 @@
 								"body": {
 									"mode": "raw",
 									"raw": "{\r\n    \"name\": \"{{Host4Name}}\",\r\n    \"alias\": \"{{Host4Alias}}\",\r\n    \"address\": \"127.0.0.1\",\r\n    \"monitoring_server_id\": 1,\r\n    \"snmp_version\": \"1\",\r\n    \"snmp_community\": \"\",\r\n    \"check_command_id\": {{CommandId}},\r\n    \"categories\": [ {{HostCategory1Id}} ],\r\n    \"templates\": [ {{HostTemplate1Id}} ],\r\n    \"comment\": \"Blabloubli\",\r\n    \"macros\": [\r\n        {\r\n        \"name\": \"Coucou\",\r\n        \"value\": \"Oh no\",\r\n        \"is_password\": true,\r\n        \"description\": \"null\"\r\n        }\r\n    ]\r\n}\r\n",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
-								"url": {
-									"raw": "{{baseUrl}}/configuration/hosts",
-									"host": [
-										"{{baseUrl}}"
-									],
-									"path": [
-										"configuration",
-										"hosts"
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "Add a new host",
-							"event": [
-								{
-									"listen": "prerequest",
-									"script": {
-										"exec": [
-											"pm.collectionVariables.set(\"Host5Name\", \"host-5\");\r",
-											"pm.collectionVariables.set(\"Host5Alias\", \"I'm the fifth host but I was created by user R/W\");\r",
-											""
-										],
-										"type": "text/javascript",
-										"packages": {}
-									}
-								},
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"const responseJson = pm.response.json();\r",
-											"pm.test(\"The host has been successfully created, with name '\" + pm.collectionVariables.get(\"Host5Name\") + \"' and alias '\" + pm.collectionVariables.get(\"Host5Alias\") + \"'.\", function () {\r",
-											"    pm.response.to.have.status(201);\r",
-											"\r",
-											"    // Creation of a variable with the ID of the new host \r",
-											"    pm.collectionVariables.set(\"Host5Id\", responseJson.id);\r",
-											"\r",
-											"    pm.expect(responseJson).to.include({\r",
-											"        \"id\": pm.collectionVariables.get(\"Host5Id\"),\r",
-											"        \"name\": pm.collectionVariables.get(\"Host5Name\"),\r",
-											"        \"alias\": pm.collectionVariables.get(\"Host5Alias\"),\r",
-											"        \"address\": \"127.0.0.1\",\r",
-											"        \"monitoring_server_id\": 1,\r",
-											"        \"snmp_version\": \"1\",\r",
-											"        \"timezone_id\": null,\r",
-											"        \"severity_id\": null,\r",
-											"        \"check_command_id\": pm.collectionVariables.get(\"CommandId\"),\r",
-											"        \"check_timeperiod_id\": null,\r",
-											"        \"note_url\": null,\r",
-											"        \"note\": null,\r",
-											"        \"action_url\": null,\r",
-											"        \"max_check_attempts\": null,\r",
-											"        \"normal_check_interval\": null,\r",
-											"        \"retry_check_interval\": null,\r",
-											"        \"active_check_enabled\": 2,\r",
-											"        \"passive_check_enabled\": 2,\r",
-											"        \"notification_enabled\": 2,\r",
-											"        \"notification_options\": null,\r",
-											"        \"notification_interval\": null,\r",
-											"        \"notification_timeperiod_id\": null,\r",
-											"        \"add_inherited_contact_group\": false,\r",
-											"        \"add_inherited_contact\": false,\r",
-											"        \"first_notification_delay\": null,\r",
-											"        \"recovery_notification_delay\": null,\r",
-											"        \"acknowledgement_timeout\": null,\r",
-											"        \"freshness_checked\": 2,\r",
-											"        \"freshness_threshold\": null,\r",
-											"        \"flap_detection_enabled\": 2,\r",
-											"        \"low_flap_threshold\": null,\r",
-											"        \"high_flap_threshold\": null,\r",
-											"        \"event_handler_enabled\": 2,\r",
-											"        \"event_handler_command_id\": null,\r",
-											"        \"icon_id\": null,\r",
-											"        \"icon_alternative\": null,\r",
-											"        \"comment\": \"Blabloubli\",\r",
-											"        \"geo_coords\": null,\r",
-											"        \"is_activated\": true\r",
-											"    });\r",
-											"    pm.expect(responseJson.check_command_args).to.be.an('Array').that.is.empty;\r",
-											"    pm.expect(responseJson.event_handler_command_args).to.be.an('Array').that.is.empty;\r",
-											"    pm.expect(responseJson.templates[0]).to.include({\r",
-											"        \"id\": pm.collectionVariables.get(\"HostTemplate1Id\"),\r",
-											"        \"name\": pm.collectionVariables.get(\"HostTemplate1Name\")\r",
-											"    });\r",
-											"    pm.expect(responseJson.categories[0]).to.include({\r",
-											"        \"id\": pm.collectionVariables.get(\"HostCategory1Id\"),\r",
-											"        \"name\": pm.collectionVariables.get(\"HostCategory1Name\")\r",
-											"    });\r",
-											"    pm.expect(responseJson.groups).to.be.an('Array').that.is.empty;\r",
-											"    pm.expect(responseJson.macros[0]).to.include({\r",
-											"        \"name\": \"COUCOU\",\r",
-											"        \"value\": null,\r",
-											"        \"is_password\": true,\r",
-											"        \"description\": \"null\"\r",
-											"    });\r",
-											"});\r",
-											"\r",
-											"pm.test(\"Schema validation for the host creation response\", function () {\r",
-											"    const schema = {\r",
-											"        type: \"object\",\r",
-											"        properties: {\r",
-											"            id: { type: \"integer\" },\r",
-											"            name: { type: \"string\" },\r",
-											"            alias: { type: [\"string\", \"null\"] },\r",
-											"            address: { type: \"string\" },\r",
-											"            monitoring_server_id: { type: \"integer\" },\r",
-											"            snmp_version: { type: [\"string\", \"null\"] },\r",
-											"            timezone_id: { type: [\"integer\", \"null\"] },\r",
-											"            severity_id: { type: [\"integer\", \"null\"] },\r",
-											"            check_command_id: { type: [\"integer\", \"null\"] },\r",
-											"            check_timeperiod_id: { type: [\"integer\", \"null\"] },\r",
-											"            note_url: { type: [\"string\", \"null\"] },\r",
-											"            note: { type: [\"string\", \"null\"] },\r",
-											"            action_url: { type: [\"string\", \"null\"] },\r",
-											"            max_check_attempts: { type: [\"integer\", \"null\"] },\r",
-											"            normal_check_interval: { type: [\"integer\", \"null\"] },\r",
-											"            retry_check_interval: { type: [\"integer\", \"null\"] },\r",
-											"            active_check_enabled: { type: \"integer\" },\r",
-											"            passive_check_enabled: { type: \"integer\" },\r",
-											"            notification_enabled: { type: \"integer\" },\r",
-											"            notification_options: { type: [\"integer\", \"null\"] },\r",
-											"            notification_interval: { type: [\"integer\", \"null\"] },\r",
-											"            notification_timeperiod_id: { type: [\"integer\", \"null\"] },\r",
-											"            add_inherited_contact_group: { type: \"boolean\" },\r",
-											"            add_inherited_contact: { type: \"boolean\" },\r",
-											"            first_notification_delay: { type: [\"integer\", \"null\"] },\r",
-											"            recovery_notification_delay: { type: [\"integer\", \"null\"] },\r",
-											"            acknowledgement_timeout: { type: [\"integer\", \"null\"] },\r",
-											"            freshness_checked: { type: \"integer\" },\r",
-											"            freshness_threshold: { type: [\"integer\", \"null\"] },\r",
-											"            flap_detection_enabled: { type: \"integer\" },\r",
-											"            low_flap_threshold: { type: [\"integer\", \"null\"] },\r",
-											"            high_flap_threshold: { type: [\"integer\", \"null\"] },\r",
-											"            event_handler_enabled: { type: \"integer\" },\r",
-											"            event_handler_command_id: { type: [\"integer\", \"null\"] },\r",
-											"            icon_id: { type: [\"integer\", \"null\"] },\r",
-											"            icon_alternative: { type: [\"string\", \"null\"] },\r",
-											"            comment: { type: [\"string\", \"null\"] },\r",
-											"            geo_coords: { type: [\"string\", \"null\"] },\r",
-											"            is_activated: { type: \"boolean\" },\r",
-											"            check_command_args: {\r",
-											"                type: \"array\",\r",
-											"                items: {\r",
-											"                    type: \"string\"\r",
-											"                }\r",
-											"            },\r",
-											"            event_handler_command_args: {\r",
-											"                type: \"array\",\r",
-											"                items: {\r",
-											"                    type: \"string\"\r",
-											"                }\r",
-											"            },\r",
-											"            categories: {\r",
-											"                type: \"array\",\r",
-											"                items: {\r",
-											"                    type: \"object\",\r",
-											"                    properties: {\r",
-											"                        id: { type: \"integer\" },\r",
-											"                        name: { type: \"string\" }\r",
-											"                    }\r",
-											"                }\r",
-											"            },\r",
-											"            templates: {\r",
-											"                type: \"array\",\r",
-											"                items: {\r",
-											"                    type: \"object\",\r",
-											"                    properties: {\r",
-											"                        id: { type: \"integer\" },\r",
-											"                        name: { type: \"string\" }\r",
-											"                    }\r",
-											"                }\r",
-											"            },\r",
-											"            groups: {\r",
-											"                type: \"array\",\r",
-											"                items: {\r",
-											"                    type: \"object\",\r",
-											"                    properties: {\r",
-											"                        id: { type: \"integer\" },\r",
-											"                        name: { type: \"string\" }\r",
-											"                    }\r",
-											"                }\r",
-											"            },\r",
-											"            macros: {\r",
-											"                type: \"array\",\r",
-											"                items: {\r",
-											"                    type: \"object\",\r",
-											"                    properties: {\r",
-											"                        id: { type: \"integer\" },\r",
-											"                        name: { type: \"string\" }\r",
-											"                    }\r",
-											"                }\r",
-											"            }\r",
-											"        },\r",
-											"        required: [\"id\", \"monitoring_server_id\", \"name\", \"address\", \"alias\", \"snmp_version\", \"geo_coords\", \"note_url\", \"note\", \"action_url\", \"icon_alternative\", \"comment\", \"timezone_id\", \"severity_id\", \"check_command_id\", \"check_timeperiod_id\", \"notification_timeperiod_id\", \"event_handler_command_id\", \"icon_id\", \"max_check_attempts\", \"normal_check_interval\", \"retry_check_interval\", \"notification_options\", \"notification_interval\", \"first_notification_delay\", \"recovery_notification_delay\", \"acknowledgement_timeout\", \"freshness_threshold\", \"low_flap_threshold\", \"high_flap_threshold\", \"freshness_checked\", \"active_check_enabled\", \"passive_check_enabled\", \"notification_enabled\", \"flap_detection_enabled\", \"event_handler_enabled\", \"check_command_args\", \"event_handler_command_args\", \"categories\", \"groups\", \"templates\", \"macros\", \"add_inherited_contact_group\", \"add_inherited_contact\", \"is_activated\"]\r",
-											"    };\r",
-											"\r",
-											"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
-											"});"
-										],
-										"type": "text/javascript",
-										"packages": {}
-									}
-								}
-							],
-							"request": {
-								"method": "POST",
-								"header": [
-									{
-										"key": "centreon-auth-token",
-										"value": "{{token}}",
-										"type": "text"
-									}
-								],
-								"body": {
-									"mode": "raw",
-									"raw": "{\r\n    \"name\": \"{{Host5Name}}\",\r\n    \"alias\": \"{{Host5Alias}}\",\r\n    \"address\": \"127.0.0.1\",\r\n    \"monitoring_server_id\": 1,\r\n    \"snmp_version\": \"1\",\r\n    \"snmp_community\": \"\",\r\n    \"check_command_id\": {{CommandId}},\r\n    \"categories\": [ {{HostCategory1Id}} ],\r\n    \"templates\": [ {{HostTemplate1Id}} ],\r\n    \"comment\": \"Blabloubli\",\r\n    \"macros\": [\r\n        {\r\n        \"name\": \"Coucou\",\r\n        \"value\": \"Oh no\",\r\n        \"is_password\": true,\r\n        \"description\": \"null\"\r\n        }\r\n    ]\r\n}\r\n",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -5878,8 +5641,8 @@
 											"*/\r",
 											"const responseJson = pm.response.json();\r",
 											"pm.test(\"The hosts retrieved are listed with all parameters\", function() {\r",
-											"    // Check the number of hosts (2)\r",
-											"    pm.expect(responseJson.result.length).to.eql(2);\r",
+											"    // Check the number of hosts (3)\r",
+											"    pm.expect(responseJson.result.length).to.eql(3);\r",
 											"\r",
 											"    // Check the properties of each host\r",
 											"    pm.expect(responseJson.result[0]).to.include({\r",
@@ -5921,7 +5684,43 @@
 											"        name: pm.collectionVariables.get(\"HostGroup1Name\")\r",
 											"    });\r",
 											"\r",
+											"\r",
+											"\r",
 											"    pm.expect(responseJson.result[1]).to.include({\r",
+											"        \"id\": pm.collectionVariables.get(\"Host3Id\"),\r",
+											"        \"name\": pm.collectionVariables.get(\"Host3Name\"),\r",
+											"        \"alias\": pm.collectionVariables.get(\"Host3Alias\"),\r",
+											"        \"address\": \"127.0.0.1\",\r",
+											"        \"normal_check_interval\": 5,\r",
+											"        \"retry_check_interval\": 2,\r",
+											"        \"notification_timeperiod\": null,\r",
+											"        \"severity\": null,\r",
+											"        \"is_activated\": true\r",
+											"    });\r",
+											"\r",
+											"    pm.expect(responseJson.result[1].monitoring_server).to.eql({\r",
+											"        id: 1,\r",
+											"        name: \"Central\"\r",
+											"    });\r",
+											"    pm.expect(responseJson.result[1].check_timeperiod).to.eql({\r",
+											"        id: 1,\r",
+											"        name: \"24x7\"\r",
+											"    });\r",
+											"    pm.expect(responseJson.result[1].templates).to.eql([{\r",
+											"        id: pm.collectionVariables.get(\"HostTemplate1Id\"),\r",
+											"        name: pm.collectionVariables.get(\"HostTemplate1Name\")\r",
+											"    }]);\r",
+											"    pm.expect(responseJson.result[1].categories).to.eql([{\r",
+											"        id: pm.collectionVariables.get(\"HostCategory1Id\"),\r",
+											"        name: pm.collectionVariables.get(\"HostCategory1Name\")\r",
+											"    }]);\r",
+											"    pm.expect(responseJson.result[1].groups).to.eql([{\r",
+											"        id: pm.collectionVariables.get(\"HostGroup1Id\"),\r",
+											"        name: pm.collectionVariables.get(\"HostGroup1Name\")\r",
+											"    }]);\r",
+											"\r",
+											"\r",
+											"    pm.expect(responseJson.result[2]).to.include({\r",
 											"        \"id\": pm.collectionVariables.get(\"Host4Id\"),\r",
 											"        \"name\": pm.collectionVariables.get(\"Host4Name\"),\r",
 											"        \"alias\": pm.collectionVariables.get(\"Host4Alias\"),\r",
@@ -5934,19 +5733,19 @@
 											"        \"is_activated\": true\r",
 											"    });\r",
 											"\r",
-											"    pm.expect(responseJson.result[1].monitoring_server).to.eql({\r",
+											"    pm.expect(responseJson.result[2].monitoring_server).to.eql({\r",
 											"        id: 1, \r",
 											"        name: \"Central\"\r",
 											"    });\r",
-											"    pm.expect(responseJson.result[1].templates).to.eql([{\r",
+											"    pm.expect(responseJson.result[2].templates).to.eql([{\r",
 											"        id: pm.collectionVariables.get(\"HostTemplate1Id\"),\r",
 											"        name: pm.collectionVariables.get(\"HostTemplate1Name\")\r",
 											"    }]);\r",
-											"    pm.expect(responseJson.result[1].categories).to.eql([{\r",
+											"    pm.expect(responseJson.result[2].categories).to.eql([{\r",
 											"        id: pm.collectionVariables.get(\"HostCategory1Id\"),\r",
 											"        name: pm.collectionVariables.get(\"HostCategory1Name\")\r",
 											"    }]);\r",
-											"    pm.expect(responseJson.result[1].groups).to.be.an('Array').that.is.empty;\r",
+											"    pm.expect(responseJson.result[2].groups).to.be.an('Array').that.is.empty;\r",
 											"\r",
 											"});\r",
 											"\r",
@@ -6149,8 +5948,8 @@
 											"*/\r",
 											"const responseJson = pm.response.json();\r",
 											"pm.test(\"The hosts retrieved are listed with all parameters\", function() {\r",
-											"    // Check the number of hosts (2)\r",
-											"    pm.expect(responseJson.result.length).to.eql(2);\r",
+											"    // Check the number of hosts (3)\r",
+											"    pm.expect(responseJson.result.length).to.eql(3);\r",
 											"\r",
 											"    // Check the properties of each host\r",
 											"    pm.expect(responseJson.result[0]).to.include({\r",
@@ -6192,7 +5991,43 @@
 											"        name: pm.collectionVariables.get(\"HostGroup1Name\")\r",
 											"    });\r",
 											"\r",
+											"\r",
+											"\r",
 											"    pm.expect(responseJson.result[1]).to.include({\r",
+											"        \"id\": pm.collectionVariables.get(\"Host3Id\"),\r",
+											"        \"name\": pm.collectionVariables.get(\"Host3Name\"),\r",
+											"        \"alias\": pm.collectionVariables.get(\"Host3Alias\"),\r",
+											"        \"address\": \"127.0.0.1\",\r",
+											"        \"normal_check_interval\": 5,\r",
+											"        \"retry_check_interval\": 2,\r",
+											"        \"notification_timeperiod\": null,\r",
+											"        \"severity\": null,\r",
+											"        \"is_activated\": true\r",
+											"    });\r",
+											"\r",
+											"    pm.expect(responseJson.result[1].monitoring_server).to.eql({\r",
+											"        id: 1,\r",
+											"        name: \"Central\"\r",
+											"    });\r",
+											"    pm.expect(responseJson.result[1].check_timeperiod).to.eql({\r",
+											"        \"id\": 1,\r",
+											"        \"name\": \"24x7\"\r",
+											"    });\r",
+											"    pm.expect(responseJson.result[1].templates).to.eql([{\r",
+											"        id: pm.collectionVariables.get(\"HostTemplate1Id\"),\r",
+											"        name: pm.collectionVariables.get(\"HostTemplate1Name\")\r",
+											"    }]);\r",
+											"    pm.expect(responseJson.result[1].categories).to.eql([{\r",
+											"        id: pm.collectionVariables.get(\"HostCategory1Id\"),\r",
+											"        name: pm.collectionVariables.get(\"HostCategory1Name\")\r",
+											"    }]);\r",
+											"    pm.expect(responseJson.result[1].groups).to.eql([{\r",
+											"        id: pm.collectionVariables.get(\"HostGroup1Id\"),\r",
+											"        name: pm.collectionVariables.get(\"HostGroup1Name\")\r",
+											"    }]);\r",
+											"\r",
+											"\r",
+											"    pm.expect(responseJson.result[2]).to.include({\r",
 											"        \"id\": pm.collectionVariables.get(\"Host4Id\"),\r",
 											"        \"name\": pm.collectionVariables.get(\"Host4Name\"),\r",
 											"        \"alias\": pm.collectionVariables.get(\"Host4Alias\"),\r",
@@ -6202,27 +6037,27 @@
 											"        \"severity\": null,\r",
 											"        \"is_activated\": true\r",
 											"    });\r",
-											"    pm.expect(responseJson.result[1].monitoring_server).to.eql({\r",
+											"    pm.expect(responseJson.result[2].monitoring_server).to.eql({\r",
 											"        id: 1, \r",
 											"        name: \"Central\"\r",
 											"    });\r",
-											"    pm.expect(responseJson.result[1].templates).to.eql([{\r",
+											"    pm.expect(responseJson.result[2].templates).to.eql([{\r",
 											"        id: pm.collectionVariables.get(\"HostTemplate1Id\"),\r",
 											"        name: pm.collectionVariables.get(\"HostTemplate1Name\")\r",
 											"    }]);\r",
-											"    pm.expect(responseJson.result[1].notification_timeperiod).to.eql({\r",
+											"    pm.expect(responseJson.result[2].notification_timeperiod).to.eql({\r",
 											"        \"id\": 4,\r",
 											"        \"name\": \"workhours\"\r",
 											"    });\r",
-											"    pm.expect(responseJson.result[1].check_timeperiod).to.eql({\r",
+											"    pm.expect(responseJson.result[2].check_timeperiod).to.eql({\r",
 											"        \"id\": 3,\r",
 											"        \"name\": \"nonworkhours\"\r",
 											"    });\r",
-											"    pm.expect(responseJson.result[1].categories).to.eql([{\r",
+											"    pm.expect(responseJson.result[2].categories).to.eql([{\r",
 											"        id: pm.collectionVariables.get(\"HostCategory2Id\"),\r",
 											"        name: pm.collectionVariables.get(\"HostCategory2Name\")\r",
 											"    }]);\r",
-											"    pm.expect(responseJson.result[1].groups).to.be.an('Array').that.is.empty;\r",
+											"    pm.expect(responseJson.result[2].groups).to.be.an('Array').that.is.empty;\r",
 											"\r",
 											"});\r",
 											"\r",
@@ -6420,8 +6255,8 @@
 											"*/\r",
 											"const responseJson = pm.response.json();\r",
 											"pm.test(\"The hosts retrieved are listed with all parameters\", function() {\r",
-											"    // Check the number of hosts (1)\r",
-											"    pm.expect(responseJson.result.length).to.eql(1);\r",
+											"    // Check the number of hosts (2)\r",
+											"    pm.expect(responseJson.result.length).to.eql(2);\r",
 											"\r",
 											"    // Check the properties of each host\r",
 											"    pm.expect(responseJson.result[0]).to.include({\r",
@@ -6462,6 +6297,41 @@
 											"        id: pm.collectionVariables.get(\"HostGroup1Id\"),\r",
 											"        name: pm.collectionVariables.get(\"HostGroup1Name\")\r",
 											"    });\r",
+											"\r",
+											"\r",
+											"\r",
+											"    pm.expect(responseJson.result[1]).to.include({\r",
+											"        \"id\": pm.collectionVariables.get(\"Host3Id\"),\r",
+											"        \"name\": pm.collectionVariables.get(\"Host3Name\"),\r",
+											"        \"alias\": pm.collectionVariables.get(\"Host3Alias\"),\r",
+											"        \"address\": \"127.0.0.1\",\r",
+											"        \"normal_check_interval\": 5,\r",
+											"        \"retry_check_interval\": 2,\r",
+											"        \"notification_timeperiod\": null,\r",
+											"        \"severity\": null,\r",
+											"        \"is_activated\": true\r",
+											"    });\r",
+											"\r",
+											"    pm.expect(responseJson.result[1].monitoring_server).to.eql({\r",
+											"        id: 1,\r",
+											"        name: \"Central\"\r",
+											"    });\r",
+											"    pm.expect(responseJson.result[1].check_timeperiod).to.eql({\r",
+											"        \"id\": 1,\r",
+											"        \"name\": \"24x7\"\r",
+											"    });\r",
+											"    pm.expect(responseJson.result[1].templates).to.eql([{\r",
+											"        id: pm.collectionVariables.get(\"HostTemplate1Id\"),\r",
+											"        name: pm.collectionVariables.get(\"HostTemplate1Name\")\r",
+											"    }]);\r",
+											"    pm.expect(responseJson.result[1].categories).to.eql([{\r",
+											"        id: pm.collectionVariables.get(\"HostCategory1Id\"),\r",
+											"        name: pm.collectionVariables.get(\"HostCategory1Name\")\r",
+											"    }]);\r",
+											"    pm.expect(responseJson.result[1].groups).to.eql([{\r",
+											"        id: pm.collectionVariables.get(\"HostGroup1Id\"),\r",
+											"        name: pm.collectionVariables.get(\"HostGroup1Name\")\r",
+											"    }]);\r",
 											"\r",
 											"});\r",
 											"\r",
@@ -7434,8 +7304,8 @@
 											"*/\r",
 											"const responseJson = pm.response.json();\r",
 											"pm.test(\"The hosts retrieved are listed with all parameters\", function() {\r",
-											"    // Check the number of hosts (3)\r",
-											"    pm.expect(responseJson.result.length).to.eql(3);\r",
+											"    // Check the number of hosts (4)\r",
+											"    pm.expect(responseJson.result.length).to.eql(4);\r",
 											"\r",
 											"    // Check the properties of each host\r",
 											"    pm.expect(responseJson.result[0]).to.include({\r",
@@ -7471,14 +7341,14 @@
 											"        name: pm.collectionVariables.get(\"HostGroup1Name\")\r",
 											"    });\r",
 											"\r",
+											"    \r",
 											"    pm.expect(responseJson.result[1]).to.include({\r",
-											"        \"id\": pm.collectionVariables.get(\"Host5Id\"),\r",
-											"        \"name\": pm.collectionVariables.get(\"Host5Name\"),\r",
-											"        \"alias\": pm.collectionVariables.get(\"Host5Alias\"),\r",
+											"        \"id\": pm.collectionVariables.get(\"Host3Id\"),\r",
+											"        \"name\": pm.collectionVariables.get(\"Host3Name\"),\r",
+											"        \"alias\": pm.collectionVariables.get(\"Host3Alias\"),\r",
 											"        \"address\": \"127.0.0.1\",\r",
-											"        \"normal_check_interval\": null,\r",
-											"        \"retry_check_interval\": null,\r",
-											"        \"check_timeperiod\": null,\r",
+											"        \"normal_check_interval\": 5,\r",
+											"        \"retry_check_interval\": 2,\r",
 											"        \"notification_timeperiod\": null,\r",
 											"        \"severity\": null,\r",
 											"        \"is_activated\": true\r",
@@ -7492,14 +7362,24 @@
 											"        id: pm.collectionVariables.get(\"HostTemplate1Id\"),\r",
 											"        name: pm.collectionVariables.get(\"HostTemplate1Name\")\r",
 											"    }]);\r",
-											"    pm.expect(responseJson.result[1].categories).to.be.an('Array').that.is.empty;\r",
-											"    pm.expect(responseJson.result[1].groups).to.be.an('Array').that.is.empty;\r",
+											"    pm.expect(responseJson.result[1].check_timeperiod).to.eql({\r",
+											"        id: 1,\r",
+											"        name: \"24x7\"\r",
+											"    });\r",
+											"    pm.expect(responseJson.result[1].categories).to.eql([{\r",
+											"        id: pm.collectionVariables.get(\"HostCategory1Id\"),\r",
+											"        name: pm.collectionVariables.get(\"HostCategory1Name\")\r",
+											"    }]);\r",
+											"    pm.expect(responseJson.result[1].groups).to.eql([{\r",
+											"        id: pm.collectionVariables.get(\"HostGroup1Id\"),\r",
+											"        name: pm.collectionVariables.get(\"HostGroup1Name\")\r",
+											"    }]);\r",
 											"\r",
 											"\r",
 											"    pm.expect(responseJson.result[2]).to.include({\r",
-											"        \"id\": pm.collectionVariables.get(\"Host6Id\"),\r",
-											"        \"name\": pm.collectionVariables.get(\"Host6Name\"),\r",
-											"        \"alias\": pm.collectionVariables.get(\"Host6Alias\"),\r",
+											"        \"id\": pm.collectionVariables.get(\"Host5Id\"),\r",
+											"        \"name\": pm.collectionVariables.get(\"Host5Name\"),\r",
+											"        \"alias\": pm.collectionVariables.get(\"Host5Alias\"),\r",
 											"        \"address\": \"127.0.0.1\",\r",
 											"        \"normal_check_interval\": null,\r",
 											"        \"retry_check_interval\": null,\r",
@@ -7519,6 +7399,31 @@
 											"    }]);\r",
 											"    pm.expect(responseJson.result[2].categories).to.be.an('Array').that.is.empty;\r",
 											"    pm.expect(responseJson.result[2].groups).to.be.an('Array').that.is.empty;\r",
+											"\r",
+											"\r",
+											"    pm.expect(responseJson.result[3]).to.include({\r",
+											"        \"id\": pm.collectionVariables.get(\"Host6Id\"),\r",
+											"        \"name\": pm.collectionVariables.get(\"Host6Name\"),\r",
+											"        \"alias\": pm.collectionVariables.get(\"Host6Alias\"),\r",
+											"        \"address\": \"127.0.0.1\",\r",
+											"        \"normal_check_interval\": null,\r",
+											"        \"retry_check_interval\": null,\r",
+											"        \"check_timeperiod\": null,\r",
+											"        \"notification_timeperiod\": null,\r",
+											"        \"severity\": null,\r",
+											"        \"is_activated\": true\r",
+											"    });\r",
+											"\r",
+											"    pm.expect(responseJson.result[3].monitoring_server).to.eql({\r",
+											"        id: 1, \r",
+											"        name: \"Central\"\r",
+											"    });\r",
+											"    pm.expect(responseJson.result[3].templates).to.eql([{\r",
+											"        id: pm.collectionVariables.get(\"HostTemplate1Id\"),\r",
+											"        name: pm.collectionVariables.get(\"HostTemplate1Name\")\r",
+											"    }]);\r",
+											"    pm.expect(responseJson.result[3].categories).to.be.an('Array').that.is.empty;\r",
+											"    pm.expect(responseJson.result[3].groups).to.be.an('Array').that.is.empty;\r",
 											"\r",
 											"});\r",
 											"\r",
@@ -8091,8 +7996,8 @@
 											"*/\r",
 											"const responseJson = pm.response.json();\r",
 											"pm.test(\"The hosts retrieved are listed with all parameters\", function() {\r",
-											"    // Check the number of hosts (2)\r",
-											"    pm.expect(responseJson.result.length).to.eql(2);\r",
+											"    // Check the number of hosts (3)\r",
+											"    pm.expect(responseJson.result.length).to.eql(3);\r",
 											"\r",
 											"    // Check the properties of each host\r",
 											"    pm.expect(responseJson.result[0]).to.include({\r",
@@ -8128,7 +8033,42 @@
 											"        name: pm.collectionVariables.get(\"HostGroup1Name\")\r",
 											"    });\r",
 											"\r",
+											"\r",
 											"    pm.expect(responseJson.result[1]).to.include({\r",
+											"        \"id\": pm.collectionVariables.get(\"Host3Id\"),\r",
+											"        \"name\": pm.collectionVariables.get(\"Host3Name\"),\r",
+											"        \"alias\": pm.collectionVariables.get(\"Host3Alias\"),\r",
+											"        \"address\": \"127.0.0.1\",\r",
+											"        \"normal_check_interval\": 5,\r",
+											"        \"retry_check_interval\": 2,\r",
+											"        \"notification_timeperiod\": null,\r",
+											"        \"severity\": null,\r",
+											"        \"is_activated\": true\r",
+											"    });\r",
+											"\r",
+											"    pm.expect(responseJson.result[1].monitoring_server).to.eql({\r",
+											"        id: 1, \r",
+											"        name: \"Central\"\r",
+											"    });\r",
+											"    pm.expect(responseJson.result[1].templates).to.eql([{\r",
+											"        id: pm.collectionVariables.get(\"HostTemplate1Id\"),\r",
+											"        name: pm.collectionVariables.get(\"HostTemplate1Name\")\r",
+											"    }]);\r",
+											"    pm.expect(responseJson.result[1].check_timeperiod).to.eql({\r",
+											"        id: 1,\r",
+											"        name: \"24x7\"\r",
+											"    });\r",
+											"    pm.expect(responseJson.result[1].categories).to.eql([{\r",
+											"        id: pm.collectionVariables.get(\"HostCategory1Id\"),\r",
+											"        name: pm.collectionVariables.get(\"HostCategory1Name\")\r",
+											"    }]);\r",
+											"    pm.expect(responseJson.result[1].groups).to.eql([{\r",
+											"        id: pm.collectionVariables.get(\"HostGroup1Id\"),\r",
+											"        name: pm.collectionVariables.get(\"HostGroup1Name\")\r",
+											"    }]);\r",
+											"\r",
+											"\r",
+											"    pm.expect(responseJson.result[2]).to.include({\r",
 											"        \"id\": pm.collectionVariables.get(\"Host6Id\"),\r",
 											"        \"name\": pm.collectionVariables.get(\"Host6Name\"),\r",
 											"        \"alias\": pm.collectionVariables.get(\"Host6Alias\"),\r",
@@ -8140,19 +8080,19 @@
 											"        \"severity\": null,\r",
 											"        \"is_activated\": true\r",
 											"    });\r",
-											"    pm.expect(responseJson.result[1].monitoring_server).to.eql({\r",
+											"    pm.expect(responseJson.result[2].monitoring_server).to.eql({\r",
 											"        id: 1, \r",
 											"        name: \"Central\"\r",
 											"    });\r",
-											"    pm.expect(responseJson.result[1].templates).to.eql([{\r",
+											"    pm.expect(responseJson.result[2].templates).to.eql([{\r",
 											"        id: pm.collectionVariables.get(\"HostTemplate1Id\"),\r",
 											"        name: pm.collectionVariables.get(\"HostTemplate1Name\")\r",
 											"    }]);\r",
-											"    pm.expect(responseJson.result[1].categories).to.eql([{\r",
+											"    pm.expect(responseJson.result[2].categories).to.eql([{\r",
 											"        id: pm.collectionVariables.get(\"HostCategory1Id\"),\r",
 											"        name: pm.collectionVariables.get(\"HostCategory1Name\")\r",
 											"    }]);\r",
-											"    pm.expect(responseJson.result[1].groups).to.be.an('Array').that.is.empty;\r",
+											"    pm.expect(responseJson.result[2].groups).to.be.an('Array').that.is.empty;\r",
 											"\r",
 											"});\r",
 											"\r",
@@ -8350,8 +8290,8 @@
 											"*/\r",
 											"const responseJson = pm.response.json();\r",
 											"pm.test(\"The hosts retrieved are listed with all parameters\", function() {\r",
-											"    // Check the number of hosts (1)\r",
-											"    pm.expect(responseJson.result.length).to.eql(1);\r",
+											"    // Check the number of hosts (2)\r",
+											"    pm.expect(responseJson.result.length).to.eql(2);\r",
 											"\r",
 											"    // Check the properties of each host\r",
 											"    pm.expect(responseJson.result[0]).to.include({\r",
@@ -8386,6 +8326,40 @@
 											"        id: pm.collectionVariables.get(\"HostGroup1Id\"),\r",
 											"        name: pm.collectionVariables.get(\"HostGroup1Name\")\r",
 											"    });\r",
+											"\r",
+											"\r",
+											"    pm.expect(responseJson.result[1]).to.include({\r",
+											"        \"id\": pm.collectionVariables.get(\"Host3Id\"),\r",
+											"        \"name\": pm.collectionVariables.get(\"Host3Name\"),\r",
+											"        \"alias\": pm.collectionVariables.get(\"Host3Alias\"),\r",
+											"        \"address\": \"127.0.0.1\",\r",
+											"        \"normal_check_interval\": 5,\r",
+											"        \"retry_check_interval\": 2,\r",
+											"        \"notification_timeperiod\": null,\r",
+											"        \"severity\": null,\r",
+											"        \"is_activated\": true\r",
+											"    });\r",
+											"\r",
+											"    pm.expect(responseJson.result[1].monitoring_server).to.eql({\r",
+											"        id: 1, \r",
+											"        name: \"Central\"\r",
+											"    });\r",
+											"    pm.expect(responseJson.result[1].templates).to.eql([{\r",
+											"        id: pm.collectionVariables.get(\"HostTemplate1Id\"),\r",
+											"        name: pm.collectionVariables.get(\"HostTemplate1Name\")\r",
+											"    }]);\r",
+											"    pm.expect(responseJson.result[1].check_timeperiod).to.eql({\r",
+											"        id: 1,\r",
+											"        name: \"24x7\"\r",
+											"    });\r",
+											"    pm.expect(responseJson.result[1].categories).to.eql([{\r",
+											"        id: pm.collectionVariables.get(\"HostCategory1Id\"),\r",
+											"        name: pm.collectionVariables.get(\"HostCategory1Name\")\r",
+											"    }]);\r",
+											"    pm.expect(responseJson.result[1].groups).to.eql([{\r",
+											"        id: pm.collectionVariables.get(\"HostGroup1Id\"),\r",
+											"        name: pm.collectionVariables.get(\"HostGroup1Name\")\r",
+											"    }]);\r",
 											"\r",
 											"});\r",
 											"\r",
@@ -8688,7 +8662,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n  \"action\": \"addhostexclusion\",\n  \"object\": \"ACLRESOURCE\",\n  \"values\": \"All Resources;{{Host5Name}}\"\n}"
+									"raw": "{\n  \"action\": \"addhostexclusion\",\n  \"object\": \"ACLRESOURCE\",\n  \"values\": \"All Resources;{{Host3Name}}\"\n}"
 								},
 								"url": {
 									"raw": "{{baseUriCentreonCLAPI}}?action=action&object=centreon_clapi",
@@ -9121,14 +9095,14 @@
 									}
 								},
 								"url": {
-									"raw": "{{baseUrl}}/configuration/hosts/{{Host5Id}}",
+									"raw": "{{baseUrl}}/configuration/hosts/{{Host3Id}}",
 									"host": [
 										"{{baseUrl}}"
 									],
 									"path": [
 										"configuration",
 										"hosts",
-										"{{Host5Id}}"
+										"{{Host3Id}}"
 									]
 								}
 							},
@@ -9166,14 +9140,14 @@
 									}
 								],
 								"url": {
-									"raw": "{{baseUrl}}/configuration/hosts/{{Host5Id}}",
+									"raw": "{{baseUrl}}/configuration/hosts/{{Host3Id}}",
 									"host": [
 										"{{baseUrl}}"
 									],
 									"path": [
 										"configuration",
 										"hosts",
-										"{{Host5Id}}"
+										"{{Host3Id}}"
 									]
 								}
 							},
@@ -11668,18 +11642,18 @@
 											"*/\r",
 											"const responseJson = pm.response.json();\r",
 											"pm.test(\"The hosts retrieved are listed with all parameters\", function() {\r",
-											"    // Check the number of hosts (2)\r",
-											"    pm.expect(responseJson.result.length).to.eql(2);\r",
+											"    // Check the number of hosts (3)\r",
+											"    pm.expect(responseJson.result.length).to.eql(3);\r",
 											"\r",
+											"    // Check the properties of each host\r",
 											"    pm.expect(responseJson.result[0]).to.include({\r",
-											"        \"id\": pm.collectionVariables.get(\"Host7Id\"),\r",
-											"        \"name\": pm.collectionVariables.get(\"Host7Name\"),\r",
-											"        \"alias\": pm.collectionVariables.get(\"Host7Alias\"),\r",
+											"        \"id\": pm.collectionVariables.get(\"Host3Id\"),\r",
+											"        \"name\": pm.collectionVariables.get(\"Host3Name\"),\r",
+											"        \"alias\": pm.collectionVariables.get(\"Host3Alias\"),\r",
 											"        \"address\": \"127.0.0.1\",\r",
-											"        \"normal_check_interval\": null,\r",
-											"        \"retry_check_interval\": null,\r",
+											"        \"normal_check_interval\": 5,\r",
+											"        \"retry_check_interval\": 2,\r",
 											"        \"notification_timeperiod\": null,\r",
-											"        \"check_timeperiod\": null,\r",
 											"        \"severity\": null,\r",
 											"        \"is_activated\": true\r",
 											"    });\r",
@@ -11692,6 +11666,10 @@
 											"        id: pm.collectionVariables.get(\"HostTemplate1Id\"),\r",
 											"        name: pm.collectionVariables.get(\"HostTemplate1Name\")\r",
 											"    }]);\r",
+											"    pm.expect(responseJson.result[0].check_timeperiod).to.eql({\r",
+											"        id: 1,\r",
+											"        name: \"24x7\"\r",
+											"    });\r",
 											"    pm.expect(responseJson.result[0].categories).to.eql([{\r",
 											"        id: pm.collectionVariables.get(\"HostCategory1Id\"),\r",
 											"        name: pm.collectionVariables.get(\"HostCategory1Name\")\r",
@@ -11703,9 +11681,9 @@
 											"\r",
 											"\r",
 											"    pm.expect(responseJson.result[1]).to.include({\r",
-											"        \"id\": pm.collectionVariables.get(\"Host8Id\"),\r",
-											"        \"name\": pm.collectionVariables.get(\"Host8Name\"),\r",
-											"        \"alias\": pm.collectionVariables.get(\"Host8Alias\"),\r",
+											"        \"id\": pm.collectionVariables.get(\"Host7Id\"),\r",
+											"        \"name\": pm.collectionVariables.get(\"Host7Name\"),\r",
+											"        \"alias\": pm.collectionVariables.get(\"Host7Alias\"),\r",
 											"        \"address\": \"127.0.0.1\",\r",
 											"        \"normal_check_interval\": null,\r",
 											"        \"retry_check_interval\": null,\r",
@@ -11728,6 +11706,37 @@
 											"        name: pm.collectionVariables.get(\"HostCategory1Name\")\r",
 											"    }]);\r",
 											"    pm.expect(responseJson.result[1].groups).to.eql([{\r",
+											"        id: pm.collectionVariables.get(\"HostGroup1Id\"),\r",
+											"        name: pm.collectionVariables.get(\"HostGroup1Name\")\r",
+											"    }]);\r",
+											"\r",
+											"\r",
+											"    pm.expect(responseJson.result[2]).to.include({\r",
+											"        \"id\": pm.collectionVariables.get(\"Host8Id\"),\r",
+											"        \"name\": pm.collectionVariables.get(\"Host8Name\"),\r",
+											"        \"alias\": pm.collectionVariables.get(\"Host8Alias\"),\r",
+											"        \"address\": \"127.0.0.1\",\r",
+											"        \"normal_check_interval\": null,\r",
+											"        \"retry_check_interval\": null,\r",
+											"        \"notification_timeperiod\": null,\r",
+											"        \"check_timeperiod\": null,\r",
+											"        \"severity\": null,\r",
+											"        \"is_activated\": true\r",
+											"    });\r",
+											"\r",
+											"    pm.expect(responseJson.result[2].monitoring_server).to.eql({\r",
+											"        id: 1, \r",
+											"        name: \"Central\"\r",
+											"    });\r",
+											"    pm.expect(responseJson.result[2].templates).to.eql([{\r",
+											"        id: pm.collectionVariables.get(\"HostTemplate1Id\"),\r",
+											"        name: pm.collectionVariables.get(\"HostTemplate1Name\")\r",
+											"    }]);\r",
+											"    pm.expect(responseJson.result[2].categories).to.eql([{\r",
+											"        id: pm.collectionVariables.get(\"HostCategory1Id\"),\r",
+											"        name: pm.collectionVariables.get(\"HostCategory1Name\")\r",
+											"    }]);\r",
+											"    pm.expect(responseJson.result[2].groups).to.eql([{\r",
 											"        id: pm.collectionVariables.get(\"HostGroup1Id\"),\r",
 											"        name: pm.collectionVariables.get(\"HostGroup1Name\")\r",
 											"    }]);\r",
@@ -11928,18 +11937,18 @@
 											"*/\r",
 											"const responseJson = pm.response.json();\r",
 											"pm.test(\"The hosts retrieved are listed with all parameters\", function() {\r",
-											"    // Check the number of hosts (1)\r",
-											"    pm.expect(responseJson.result.length).to.eql(1);\r",
+											"    // Check the number of hosts (2)\r",
+											"    pm.expect(responseJson.result.length).to.eql(2);\r",
 											"\r",
+											"    // Check the properties of each host\r",
 											"    pm.expect(responseJson.result[0]).to.include({\r",
-											"        \"id\": pm.collectionVariables.get(\"Host7Id\"),\r",
-											"        \"name\": pm.collectionVariables.get(\"Host7Name\"),\r",
-											"        \"alias\": pm.collectionVariables.get(\"Host7Alias\"),\r",
+											"        \"id\": pm.collectionVariables.get(\"Host3Id\"),\r",
+											"        \"name\": pm.collectionVariables.get(\"Host3Name\"),\r",
+											"        \"alias\": pm.collectionVariables.get(\"Host3Alias\"),\r",
 											"        \"address\": \"127.0.0.1\",\r",
-											"        \"normal_check_interval\": null,\r",
-											"        \"retry_check_interval\": null,\r",
+											"        \"normal_check_interval\": 5,\r",
+											"        \"retry_check_interval\": 2,\r",
 											"        \"notification_timeperiod\": null,\r",
-											"        \"check_timeperiod\": null,\r",
 											"        \"severity\": null,\r",
 											"        \"is_activated\": true\r",
 											"    });\r",
@@ -11952,11 +11961,46 @@
 											"        id: pm.collectionVariables.get(\"HostTemplate1Id\"),\r",
 											"        name: pm.collectionVariables.get(\"HostTemplate1Name\")\r",
 											"    }]);\r",
+											"    pm.expect(responseJson.result[0].check_timeperiod).to.eql({\r",
+											"        id: 1,\r",
+											"        name: \"24x7\"\r",
+											"    });\r",
 											"    pm.expect(responseJson.result[0].categories).to.eql([{\r",
 											"        id: pm.collectionVariables.get(\"HostCategory1Id\"),\r",
 											"        name: pm.collectionVariables.get(\"HostCategory1Name\")\r",
 											"    }]);\r",
 											"    pm.expect(responseJson.result[0].groups).to.eql([{\r",
+											"        id: pm.collectionVariables.get(\"HostGroup1Id\"),\r",
+											"        name: pm.collectionVariables.get(\"HostGroup1Name\")\r",
+											"    }]);\r",
+											"\r",
+											"\r",
+											"    pm.expect(responseJson.result[1]).to.include({\r",
+											"        \"id\": pm.collectionVariables.get(\"Host7Id\"),\r",
+											"        \"name\": pm.collectionVariables.get(\"Host7Name\"),\r",
+											"        \"alias\": pm.collectionVariables.get(\"Host7Alias\"),\r",
+											"        \"address\": \"127.0.0.1\",\r",
+											"        \"normal_check_interval\": null,\r",
+											"        \"retry_check_interval\": null,\r",
+											"        \"notification_timeperiod\": null,\r",
+											"        \"check_timeperiod\": null,\r",
+											"        \"severity\": null,\r",
+											"        \"is_activated\": true\r",
+											"    });\r",
+											"\r",
+											"    pm.expect(responseJson.result[1].monitoring_server).to.eql({\r",
+											"        id: 1, \r",
+											"        name: \"Central\"\r",
+											"    });\r",
+											"    pm.expect(responseJson.result[1].templates).to.eql([{\r",
+											"        id: pm.collectionVariables.get(\"HostTemplate1Id\"),\r",
+											"        name: pm.collectionVariables.get(\"HostTemplate1Name\")\r",
+											"    }]);\r",
+											"    pm.expect(responseJson.result[1].categories).to.eql([{\r",
+											"        id: pm.collectionVariables.get(\"HostCategory1Id\"),\r",
+											"        name: pm.collectionVariables.get(\"HostCategory1Name\")\r",
+											"    }]);\r",
+											"    pm.expect(responseJson.result[1].groups).to.eql([{\r",
 											"        id: pm.collectionVariables.get(\"HostGroup1Id\"),\r",
 											"        name: pm.collectionVariables.get(\"HostGroup1Name\")\r",
 											"    }]);\r",
@@ -12262,7 +12306,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n  \"action\": \"addhostexclusion\",\n  \"object\": \"ACLRESOURCE\",\n  \"values\": \"{{ACLResources}};{{Host5Name}}\"\n}"
+									"raw": "{\n  \"action\": \"addhostexclusion\",\n  \"object\": \"ACLRESOURCE\",\n  \"values\": \"{{ACLResources}};{{Host3Name}}\"\n}"
 								},
 								"url": {
 									"raw": "{{baseUriCentreonCLAPI}}?action=action&object=centreon_clapi",
@@ -12685,14 +12729,14 @@
 									}
 								],
 								"url": {
-									"raw": "{{baseUrl}}/configuration/hosts/{{Host5Id}}",
+									"raw": "{{baseUrl}}/configuration/hosts/{{Host3Id}}",
 									"host": [
 										"{{baseUrl}}"
 									],
 									"path": [
 										"configuration",
 										"hosts",
-										"{{Host5Id}}"
+										"{{Host3Id}}"
 									]
 								}
 							},
@@ -12850,18 +12894,18 @@
 									"*/\r",
 									"const responseJson = pm.response.json();\r",
 									"pm.test(\"The hosts retrieved are listed with all parameters\", function() {\r",
-									"    // Check the number of hosts (1)\r",
-									"    pm.expect(responseJson.result.length).to.eql(1);\r",
+									"    // Check the number of hosts (2)\r",
+									"    pm.expect(responseJson.result.length).to.eql(2);\r",
 									"\r",
+									"    // Check the properties of each host\r",
 									"    pm.expect(responseJson.result[0]).to.include({\r",
-									"        \"id\": pm.collectionVariables.get(\"Host7Id\"),\r",
-									"        \"name\": pm.collectionVariables.get(\"Host7Name\"),\r",
-									"        \"alias\": pm.collectionVariables.get(\"Host7Alias\"),\r",
+									"        \"id\": pm.collectionVariables.get(\"Host3Id\"),\r",
+									"        \"name\": pm.collectionVariables.get(\"Host3Name\"),\r",
+									"        \"alias\": pm.collectionVariables.get(\"Host3Alias\"),\r",
 									"        \"address\": \"127.0.0.1\",\r",
-									"        \"normal_check_interval\": null,\r",
-									"        \"retry_check_interval\": null,\r",
+									"        \"normal_check_interval\": 5,\r",
+									"        \"retry_check_interval\": 2,\r",
 									"        \"notification_timeperiod\": null,\r",
-									"        \"check_timeperiod\": null,\r",
 									"        \"severity\": null,\r",
 									"        \"is_activated\": true\r",
 									"    });\r",
@@ -12874,11 +12918,46 @@
 									"        id: pm.collectionVariables.get(\"HostTemplate1Id\"),\r",
 									"        name: pm.collectionVariables.get(\"HostTemplate1Name\")\r",
 									"    }]);\r",
+									"    pm.expect(responseJson.result[0].check_timeperiod).to.eql({\r",
+									"        id: 1,\r",
+									"        name: \"24x7\"\r",
+									"    });\r",
 									"    pm.expect(responseJson.result[0].categories).to.eql([{\r",
 									"        id: pm.collectionVariables.get(\"HostCategory1Id\"),\r",
 									"        name: pm.collectionVariables.get(\"HostCategory1Name\")\r",
 									"    }]);\r",
 									"    pm.expect(responseJson.result[0].groups).to.eql([{\r",
+									"        id: pm.collectionVariables.get(\"HostGroup1Id\"),\r",
+									"        name: pm.collectionVariables.get(\"HostGroup1Name\")\r",
+									"    }]);\r",
+									"\r",
+									"\r",
+									"    pm.expect(responseJson.result[1]).to.include({\r",
+									"        \"id\": pm.collectionVariables.get(\"Host7Id\"),\r",
+									"        \"name\": pm.collectionVariables.get(\"Host7Name\"),\r",
+									"        \"alias\": pm.collectionVariables.get(\"Host7Alias\"),\r",
+									"        \"address\": \"127.0.0.1\",\r",
+									"        \"normal_check_interval\": null,\r",
+									"        \"retry_check_interval\": null,\r",
+									"        \"notification_timeperiod\": null,\r",
+									"        \"check_timeperiod\": null,\r",
+									"        \"severity\": null,\r",
+									"        \"is_activated\": true\r",
+									"    });\r",
+									"\r",
+									"    pm.expect(responseJson.result[1].monitoring_server).to.eql({\r",
+									"        id: 1, \r",
+									"        name: \"Central\"\r",
+									"    });\r",
+									"    pm.expect(responseJson.result[1].templates).to.eql([{\r",
+									"        id: pm.collectionVariables.get(\"HostTemplate1Id\"),\r",
+									"        name: pm.collectionVariables.get(\"HostTemplate1Name\")\r",
+									"    }]);\r",
+									"    pm.expect(responseJson.result[1].categories).to.eql([{\r",
+									"        id: pm.collectionVariables.get(\"HostCategory1Id\"),\r",
+									"        name: pm.collectionVariables.get(\"HostCategory1Name\")\r",
+									"    }]);\r",
+									"    pm.expect(responseJson.result[1].groups).to.eql([{\r",
 									"        id: pm.collectionVariables.get(\"HostGroup1Id\"),\r",
 									"        name: pm.collectionVariables.get(\"HostGroup1Name\")\r",
 									"    }]);\r",
@@ -13141,14 +13220,14 @@
 							}
 						},
 						"url": {
-							"raw": "{{baseUrl}}/configuration/hosts/{{Host5Id}}",
+							"raw": "{{baseUrl}}/configuration/hosts/{{Host3Id}}",
 							"host": [
 								"{{baseUrl}}"
 							],
 							"path": [
 								"configuration",
 								"hosts",
-								"{{Host5Id}}"
+								"{{Host3Id}}"
 							]
 						}
 					},
@@ -13200,14 +13279,14 @@
 							}
 						],
 						"url": {
-							"raw": "{{baseUrl}}/configuration/hosts/{{Host5Id}}",
+							"raw": "{{baseUrl}}/configuration/hosts/{{Host3Id}}",
 							"host": [
 								"{{baseUrl}}"
 							],
 							"path": [
 								"configuration",
 								"hosts",
-								"{{Host5Id}}"
+								"{{Host3Id}}"
 							]
 						}
 					},
@@ -13525,14 +13604,14 @@
 							}
 						},
 						"url": {
-							"raw": "{{baseUrl}}/configuration/hosts/{{Host5Id}}",
+							"raw": "{{baseUrl}}/configuration/hosts/{{Host3Id}}",
 							"host": [
 								"{{baseUrl}}"
 							],
 							"path": [
 								"configuration",
 								"hosts",
-								"{{Host5Id}}"
+								"{{Host3Id}}"
 							]
 						}
 					},
@@ -13711,6 +13790,144 @@
 					""
 				]
 			}
+		}
+	],
+	"variable": [
+		{
+			"key": "api_login_user_RW",
+			"value": ""
+		},
+		{
+			"key": "api_password_user_RW",
+			"value": ""
+		},
+		{
+			"key": "api_login_user_RW_filters",
+			"value": ""
+		},
+		{
+			"key": "api_password_user_RW_filters",
+			"value": ""
+		},
+		{
+			"key": "api_login_user_Read",
+			"value": ""
+		},
+		{
+			"key": "api_password_user_Read",
+			"value": ""
+		},
+		{
+			"key": "api_login_user_Read_filters",
+			"value": ""
+		},
+		{
+			"key": "api_password_user_Read_filters",
+			"value": ""
+		},
+		{
+			"key": "api_login_user_Nothing",
+			"value": ""
+		},
+		{
+			"key": "api_password_user_Nothing",
+			"value": ""
+		},
+		{
+			"key": "HostSeverity1Name",
+			"value": ""
+		},
+		{
+			"key": "HostSeverity1Alias",
+			"value": ""
+		},
+		{
+			"key": "HostSeverity1Id",
+			"value": ""
+		},
+		{
+			"key": "HostSeverity2Name",
+			"value": ""
+		},
+		{
+			"key": "HostSeverity2Alias",
+			"value": ""
+		},
+		{
+			"key": "HostSeverity2Id",
+			"value": ""
+		},
+		{
+			"key": "HostCategory1Name",
+			"value": ""
+		},
+		{
+			"key": "HostCategory1Alias",
+			"value": ""
+		},
+		{
+			"key": "HostCategory1Id",
+			"value": ""
+		},
+		{
+			"key": "HostCategory2Name",
+			"value": ""
+		},
+		{
+			"key": "HostCategory2Alias",
+			"value": ""
+		},
+		{
+			"key": "HostCategory2Id",
+			"value": ""
+		},
+		{
+			"key": "HostGroup1Name",
+			"value": ""
+		},
+		{
+			"key": "HostGroup1Alias",
+			"value": ""
+		},
+		{
+			"key": "HostGroup1Id",
+			"value": ""
+		},
+		{
+			"key": "Command1Name",
+			"value": ""
+		},
+		{
+			"key": "CommandId",
+			"value": ""
+		},
+		{
+			"key": "HostTemplate1Name",
+			"value": ""
+		},
+		{
+			"key": "HostTemplate1Alias",
+			"value": ""
+		},
+		{
+			"key": "HostTemplate1Id",
+			"value": ""
+		},
+		{
+			"key": "Host2Name",
+			"value": ""
+		},
+		{
+			"key": "Host2Id",
+			"value": ""
+		},
+		{
+			"key": "Host3Name",
+			"value": ""
+		},
+		{
+			"key": "Host3Alias",
+			"value": ""
 		}
 	]
 }
