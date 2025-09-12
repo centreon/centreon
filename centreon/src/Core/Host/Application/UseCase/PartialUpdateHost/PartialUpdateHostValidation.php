@@ -37,6 +37,7 @@ use Core\HostGroup\Application\Repository\ReadHostGroupRepositoryInterface;
 use Core\HostSeverity\Application\Repository\ReadHostSeverityRepositoryInterface;
 use Core\HostTemplate\Application\Repository\ReadHostTemplateRepositoryInterface;
 use Core\MonitoringServer\Application\Repository\ReadMonitoringServerRepositoryInterface;
+use Core\MonitoringServer\Model\MonitoringServer;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Core\TimePeriod\Application\Repository\ReadTimePeriodRepositoryInterface;
 use Core\Timezone\Application\Repository\ReadTimezoneRepositoryInterface;
@@ -88,7 +89,11 @@ class PartialUpdateHostValidation
      */
     public function assertIsValidName(string $name, Host $host): void
     {
-        Assertion::regex($name, '/^[^~!$%^&*"|\'<>?,()=]*$/', 'Host::name');
+        Assertion::regex(
+            $name,
+            '/^[^' . MonitoringServer::ILLEGAL_CHARACTERS . ']*$/',
+            'Host::name'
+        );
 
         if ($host->isNameIdentical($name)) {
 

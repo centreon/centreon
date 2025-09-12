@@ -36,6 +36,7 @@ use Core\HostGroup\Application\Repository\ReadHostGroupRepositoryInterface;
 use Core\HostSeverity\Application\Repository\ReadHostSeverityRepositoryInterface;
 use Core\HostTemplate\Application\Repository\ReadHostTemplateRepositoryInterface;
 use Core\MonitoringServer\Application\Repository\ReadMonitoringServerRepositoryInterface;
+use Core\MonitoringServer\Model\MonitoringServer;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Core\TimePeriod\Application\Repository\ReadTimePeriodRepositoryInterface;
@@ -74,7 +75,11 @@ class AddHostValidation
      */
     public function assertIsValidName(string $name): void
     {
-        Assertion::regex($name, '/^[^~!$%^&*"|\'<>?,()=]*$/', 'Host::name');
+        Assertion::regex(
+            $name,
+            '/^[^' . MonitoringServer::ILLEGAL_CHARACTERS . ']*$/',
+            'Host::name'
+        );
 
         $formattedName = Host::formatName($name);
 
