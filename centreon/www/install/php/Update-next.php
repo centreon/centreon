@@ -19,6 +19,9 @@
  *
  */
 
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
+
 require_once __DIR__ . '/../../../bootstrap.php';
 
 /**
