@@ -211,6 +211,7 @@ $alterContactPagerSize = function () use ($pearDB, &$errorMessage): void {
     }
 };
 
+/** ------------------------------------------ ACL Media ------------------------------------------ */
 /**
  * @var CentreonDB $pearDB
  */
@@ -246,6 +247,7 @@ $addAllImageFoldersColumn = function () use ($pearDB, &$errorMessage): void {
     }
 };
 
+/** ------------------------------------------ Agent Configuration ------------------------------------------ */
 /*
  * Generate a token based on the first found admin contact to update old agent_configurations
  *
@@ -303,8 +305,6 @@ $generateToken = function () use ($pearDB): array {
     );
 
     return ['name' => 'cma-default', 'creator_id' => (int) $admin['contact_id']];
-
-    return ['name' => 'cma-default', 'creator_id' => $admin['contact_id']];
 };
 
 /**
@@ -401,6 +401,10 @@ try {
     $addDeprecateCustomViewsToContact();
     $bbdoDefaultUpdate();
     $addServiceFlagToContacts();
+
+    if (! $pearDB->inTransaction()) {
+        $pearDB->beginTransaction();
+    }
 
     if (! $pearDBO->inTransaction()) {
         $pearDBO->beginTransaction();
