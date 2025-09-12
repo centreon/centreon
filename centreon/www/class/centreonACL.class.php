@@ -2402,7 +2402,10 @@ class CentreonACL
     private function hasAccessToAllImageFolders(): bool
     {
         $accessGroups = $this->getAccessGroups();
-        if ($accessGroups === []) {
+        $aclResources = $this->getResourceGroups();
+
+        // Users not linked to an ACL group or ACL resource will not be able to see images.
+        if ($accessGroups === [] || $aclResources === []) {
             return false;
         }
 
@@ -2429,7 +2432,7 @@ class CentreonACL
 
             $db = CentreonDBInstance::getDbCentreonInstance();
 
-            while (false !== ($hasAccessToAll = $db->fetchOne($query, QueryParameters::create($bindQueryParameters)))) {
+            while (false !== ($hasAccessToAll = $db->fetchFirstColumn($query, QueryParameters::create($bindQueryParameters)))) {
                 if (true === (bool) $hasAccessToAll) {
                     return true;
                 }

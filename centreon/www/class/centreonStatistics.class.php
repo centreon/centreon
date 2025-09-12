@@ -321,8 +321,7 @@ class CentreonStatistics
                         FROM contact
                         WHERE
                             contact_admin = '1'
-                            AND contact_name != 'centreon-gorgone'
-
+                            AND is_service_account = '0'
                     )
                     OR contact_id IN (
                         SELECT contact_id
