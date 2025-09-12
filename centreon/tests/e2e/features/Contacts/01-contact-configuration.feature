@@ -61,11 +61,11 @@ Feature: ContactConfiguration
   @TEST_MON-184160
   Scenario Outline: Error during the update of a contact
     Given a <userType> user is logged in a Centreon server
-    And the contact configuration page is displayed
-    When the <userType> user clicks on a contact
-    And they clear the contents of a mandatory field
+    And a contact is configured
+    When the <userType> user clicks on a this contact
+    And the <userType> clears the contents of a mandatory field
     Then the user is not brought back to the contact configuration page
-    And they see an error displayed in the form
+    And the <userType> sees an error displayed in the form
     And the contact is not updated
 
     Examples:
