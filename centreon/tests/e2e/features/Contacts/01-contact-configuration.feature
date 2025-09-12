@@ -73,10 +73,11 @@ Feature: ContactConfiguration
       | "admin"     |
       | "non-admin"  |
 
-  @ignore
+  @TEST_MON-184168
   Scenario: Check the list of contacts
-    Given a non-admin user with READ ONLY rights is logged in a Centreon server
-    And the contact configuration page is displayed
-    When the non-admin user with READ ONLY rights clicks on a contact
+    Given a non-admin user with READ ONLY rights is configured by the admin
+    And a contact is configured
+    When the non-admin user with READ ONLY rights is logged in a Centreon Server
+    And the non-admin user with READ ONLY rights displays contacts configuration
+    And the non-admin user with READ ONLY rights clicks on the configured contact
     Then the form of this contact is displayed in READ ONLY mode
-    And the non-admin user with READ ONLY rights cannot update fields

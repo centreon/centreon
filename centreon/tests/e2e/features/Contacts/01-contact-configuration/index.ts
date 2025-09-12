@@ -4,6 +4,7 @@ import contacts from '../../../fixtures/users/contact.json';
 
 let isAdmin = true;
 let contactPageIndex = 3;
+let accessGroup = 'user-ACLGROUP';
 const checkContactFromListing = () => {
   cy.visitContactsPage(contactPageIndex);
   const index = isAdmin ? 3 : 1;
@@ -25,6 +26,9 @@ beforeEach(() => {
   cy.setUserTokenApiV1().executeCommandsViaClapi(
     'resources/clapi/config-ACL/contacts-management-acl-user.json'
   );
+  cy.setUserTokenApiV1().executeCommandsViaClapi(
+    'resources/clapi/config-ACL/contacts-management-acl-user-readonly-rights.json'
+  );
   cy.intercept({
     method: 'GET',
     url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
@@ -37,7 +41,6 @@ beforeEach(() => {
     method: 'GET',
     url: '/centreon/include/common/webServices/rest/internal.php?object=centreon_administration_aclgroup&action=list*'
   }).as('getAclGroups');
-  //
 });
 
 afterEach(() => {
@@ -67,7 +70,7 @@ When('a contact is configured', () => {
       .eq(3)
       .click();
     cy.wait('@getAclGroups');
-    cy.getIframeBody().contains('div', 'user-ACLGROUP').click();
+    cy.getIframeBody().contains('div', accessGroup).click();
   }
   cy.getIframeBody().find('input.btc.bt_success[name^="submit"]').eq(0).click();
   cy.wait('@getTimeZone');
@@ -182,12 +185,12 @@ When('he does not fill in the {string} field', (field: string) => {
   }
   // Click to save the contact
   cy.getIframeBody().find('input.btc.bt_success[name^="submit"]').eq(0).click();
+  cy.wait('@getTimeZone');
 });
 
 Then('the user is not brought back to the contact configuration page', () => {
   // Check that the add form is still open.
   cy.getIframeBody().contains('a', 'General Information').should('be.visible');
-  cy.wait('@getTimeZone');
 });
 
 Then(
@@ -203,4 +206,99 @@ Then('the contact is not created', () => {
   cy.wait('@getTimeZone');
   // Check that the contact is not present in the listing
   cy.getIframeBody().contains('a', contacts.default.name).should('not.exist');
+});
+
+When('the {string} user clicks on a this contact', () => {
+  cy.getIframeBody().contains(contacts.default.alias).click();
+});
+
+When('the {string} clears the contents of a mandatory field', () => {
+  cy.waitForElementInIframe('#main-content', 'input[id="contact_alias"]');
+  cy.getIframeBody().find('input[id="contact_alias"]').clear();
+  cy.getIframeBody().find('input[id="contact_name"]').clear();
+  cy.getIframeBody().find('input[id="contact_email"]').clear();
+  // Click to save the changes
+  cy.getIframeBody().find('input.btc.bt_success[name^="submit"]').eq(0).click();
+  cy.wait('@getTimeZone');
+});
+
+Then('the {string} sees an error displayed in the form', () => {
+  cy.waitForElementInIframe(
+    '#main-content',
+    'font:contains("Compulsory Alias")'
+  );
+  cy.getIframeBody().contains('Compulsory Name').should('be.visible');
+  cy.getIframeBody().contains('Valid Email').should('be.visible');
+});
+
+Then('the contact is not updated', () => {
+  // Return to the contacts listing page
+  cy.getIframeBody().contains('a', 'Contacts / Users').click();
+  cy.wait('@getTimeZone');
+  // Check that the contact alias is not updated
+  cy.waitForElementInIframe(
+    '#main-content',
+    `a:contains("${contacts.default.alias}")`
+  );
+  cy.getIframeBody().contains('a', contacts.default.alias).should('be.visible');
+});
+
+Given(
+  'a non-admin user with READ ONLY rights is configured by the admin',
+  () => {
+    cy.loginByTypeOfUser({
+      jsonName: 'admin',
+      loginViaApi: false
+    });
+    isAdmin = false;
+    accessGroup = 'user-ACLGROUP-READ';
+    // The configuration of the non-admin user with READ ONLY rights is already done on the beforeEach step
+  }
+);
+
+When(
+  'the non-admin user with READ ONLY rights is logged in a Centreon Server',
+  () => {
+    // Logout from the admin account
+    cy.logout();
+    //Log in as a non-admin user with READ ONLY rights
+    cy.loginByTypeOfUser({
+      jsonName: 'contacts-user-readonly',
+      loginViaApi: false
+    });
+    contactPageIndex = 0;
+  }
+);
+
+When(
+  'the non-admin user with READ ONLY rights displays contacts configuration',
+  () => {
+    cy.visitContactsPage(contactPageIndex);
+    // Check that the page is on READ ONLY mod
+    cy.getIframeBody().contains('a', 'Add').should('not.exist');
+  }
+);
+
+When(
+  'the non-admin user with READ ONLY rights clicks on the configured contact',
+  () => {
+    cy.waitForElementInIframe(
+      '#main-content',
+      `a:contains("${contacts.default.alias}")`
+    );
+    cy.getIframeBody().contains('a', contacts.default.alias).click();
+    // Wait until the form is visible
+    cy.waitForElementInIframe(
+      '#main-content',
+      'a:contains("General Information")'
+    );
+  }
+);
+
+Then('the form of this contact is displayed in READ ONLY mode', () => {
+  cy.getIframeBody()
+    .find('#tab1 input:not([class*="select"])')
+    .each(($input) => {
+      cy.wrap($input).should('have.attr', 'type', 'hidden');
+    });
 });
