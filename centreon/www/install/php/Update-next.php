@@ -36,7 +36,7 @@ $errorMessage = '';
  *      - Add is_agent_initiated bool
  *      - Remove is_reverse bool
  */
-$alignCMAAgentConfigurationWithNewSchema = function () use ($pearDB, &$errorMessage, $generateToken): void {
+$alignCMAAgentConfigurationWithNewSchema = function () use ($pearDB, &$errorMessage): void {
     $errorMessage = 'Unable to align agent configuration with new schema';
     $agentConfigurations = $pearDB->fetchAllAssociative(
         <<<'SQL'
