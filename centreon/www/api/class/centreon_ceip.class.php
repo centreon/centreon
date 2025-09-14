@@ -253,12 +253,12 @@ class CentreonCeip extends CentreonWebService
         /**
          * Getting License information.
          */
-        $dependencyInjector = LegacyContainer::getInstance();
-        $fingerprintService = $dependencyInjector[ServiceProvider::LM_FINGERPRINT];
-
         $productLicense = 'Open Source';
         $licenseClientName = '';
         try {
+            $dependencyInjector = LegacyContainer::getInstance();
+            $fingerprintService = $dependencyInjector[ServiceProvider::LM_FINGERPRINT];
+
             $centreonModules = ['epp', 'bam', 'map', 'mbi'];
 
             /** @var LicenseService $licenseObject */
