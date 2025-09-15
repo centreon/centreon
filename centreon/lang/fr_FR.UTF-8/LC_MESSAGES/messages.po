@@ -17836,7 +17836,7 @@ msgstr ""
 
 #: centreon/src/Core/AgentConfiguration/Application/Exception/AgentConfigurationException.php
 msgid "You are not allowed to access agent configurations"
-msgstr "Vous n'êtes pas autorisé à accéder aux configurations agent"
+msgstr "Vous n'avez pas la permission d'accéder aux configurations d'agent"
 
 #: centreon/src/Core/ServiceCategory/Application/Exception/ServiceCategoryException.php
 msgid "You are not allowed to access service categories"
