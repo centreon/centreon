@@ -150,14 +150,14 @@ class CentreonVersion
     {
         $data = [];
 
-        if (function_exists('shell_exec') && is_readable('/etc/os-release')) {
-            $result = shell_exec('cat /etc/os-release');
-
-            preg_match_all('/(.*)="?(.*)"(?U)/', $result, $matches, PREG_PATTERN_ORDER);
-            $osRelease = array_combine($matches[1], $matches[2]);
-
-            $data['OS_name'] = $osRelease['NAME'];
-            $data['OS_version'] = $osRelease['VERSION_ID'];
+        if (is_readable('/etc/os-release')) {
+            $osRelease = parse_ini_file('/etc/os-release', false, INI_SCANNER_RAW) ?: [];
+            if (isset($osRelease['NAME'])) {
+                $data['OS_name'] = $osRelease['NAME'];
+            }
+            if (isset($osRelease['VERSION_ID'])) {
+                $data['OS_version'] = $osRelease['VERSION_ID'];
+            }
         }
 
         return $data;
