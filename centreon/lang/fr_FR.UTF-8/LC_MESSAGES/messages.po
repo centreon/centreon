@@ -221,7 +221,7 @@ msgstr "Une plateforme avec le nom : '%s' ou l'adresse : '%s' existe déjà"
 msgid ""
 "An agent configuration is already associated with poller ID(s) '%s'"
 msgstr ""
-"Une configuration collecteur/agent est déjà associée au(x) ID(s) de "
+"Une configuration agent est déjà associée au(x) ID(s) de "
 "collecteur(s) '%s'"
 
 #: centreon/www/install/front_translate.php
@@ -2522,7 +2522,7 @@ msgstr ""
 msgid ""
 "Changing the type of an existing agent configuration is not allowed"
 msgstr ""
-"Changer le type d'une configuration collecteur/agent existante n'est pas "
+"Changer le type d'une configuration agent existante n'est pas "
 "autorisé"
 
 #: centreon/src/Core/AdditionalConnectorConfiguration/Application/Exception/AccException.php
@@ -5889,7 +5889,7 @@ msgstr "Erreur lors de l'ajout d'un média"
 
 #: centreon/src/Core/AgentConfiguration/Application/Exception/AgentConfigurationException.php
 msgid "Error while adding an agent configuration"
-msgstr "Erreur lors de l'ajout de la configuration collecteur/agent"
+msgstr "Erreur lors de l'ajout de la configuration agent"
 
 #: centreon/src/Core/ResourceAccess/Application/Exception/RuleException.php
 msgid "Error while adding a resource access rule"
@@ -5957,7 +5957,7 @@ msgstr "Erreur lors de la suppression de la configuration de notification"
 
 #: centreon/src/Core/AgentConfiguration/Application/Exception/AgentConfigurationException.php
 msgid "Error while deleting an agent configuration"
-msgstr "Erreur lors de la suppression de la configuration collecteur/agent"
+msgstr "Erreur lors de la suppression de la configuration agent"
 
 #: centreon/src/Core/ServiceGroup/Application/Exception/ServiceGroupException.php
 msgid "Error while deleting a service group"
@@ -6096,7 +6096,7 @@ msgstr "Erreur lors de la récupération d'une configuration de notifications"
 
 #: centreon/src/Core/AgentConfiguration/Application/Exception/AgentConfigurationException.php
 msgid "Error while retrieving an agent configuration"
-msgstr "Erreur durant la récupération d'une configuration collecteur/agent"
+msgstr "Erreur durant la récupération d'une configuration agent"
 
 #: centreon/src/Core/ResourceAccess/Application/Exception/RuleException.php
 msgid "Error while retrieving a resource access rule"
@@ -6142,7 +6142,7 @@ msgstr "Erreur lors de la récupération du statut des hôtes"
 #: centreon/src/Core/AgentConfiguration/Application/Exception/AgentConfigurationException.php
 msgid "Error while retrieving multiple agent configurations"
 msgstr ""
-"Erreur durant la récupération de multiples configurations collecteur/agent"
+"Erreur durant la récupération de multiples configurations agent"
 
 #: centreon/src/Core/Dashboard/Application/Exception/DashboardException.php
 msgid "Error while retrieving newly created dashboard"
@@ -6371,7 +6371,7 @@ msgstr "Erreur lors de la mise à jour de la configuration d'une notification"
 
 #: centreon/src/Core/AgentConfiguration/Application/Exception/AgentConfigurationException.php
 msgid "Error while updating an agent configuration"
-msgstr "Erreur lors de la mise à jour de la configuration collecteur/agent"
+msgstr "Erreur lors de la mise à jour de la configuration agent"
 
 #: centreon/src/Core/Service/Application/Exception/ServiceException.php
 msgid "Error while updating a service"
@@ -15795,7 +15795,7 @@ msgstr ""
 #: centreon/src/Core/AgentConfiguration/Application/Exception/AgentConfigurationException.php
 #, php-format
 msgid "The agent configuration name '%s' already exists"
-msgstr "La configuration collecteur/agent '%s' existe déjà"
+msgstr "La configuration agent '%s' existe déjà"
 
 #: centreon/src/Centreon/Domain/Proxy/Proxy.php
 #, php-format
@@ -17836,7 +17836,7 @@ msgstr ""
 
 #: centreon/src/Core/AgentConfiguration/Application/Exception/AgentConfigurationException.php
 msgid "You are not allowed to access agent configurations"
-msgstr "Vous n'êtes pas autorisé à accéder aux configurations collecteur/agent"
+msgstr "Vous n'êtes pas autorisé à accéder aux configurations agent"
 
 #: centreon/src/Core/ServiceCategory/Application/Exception/ServiceCategoryException.php
 msgid "You are not allowed to access service categories"
