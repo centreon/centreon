@@ -18020,7 +18020,7 @@ msgstr "Vous n'avez pas la permission de supprimer des jetons"
 #, php-format
 msgid "You are not allowed to delete tokens linked to user ID %d"
 msgstr ""
-"Vous n'êtes pas autorisé à supprimer des jetons liés à l'ID d'utilisateur %d"
+"Vous n'avez pas la permission de supprimer des jetons liés à l'ID d'utilisateur %d"
 
 #: centreon/www/include/options/session/connected_user.php
 msgid "You are not allowed to disconnect this user"
