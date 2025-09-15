@@ -6096,7 +6096,7 @@ msgstr "Erreur lors de la récupération d'une configuration de notifications"
 
 #: centreon/src/Core/AgentConfiguration/Application/Exception/AgentConfigurationException.php
 msgid "Error while retrieving an agent configuration"
-msgstr "Erreur durant la récupération d'une configuration agent"
+msgstr "Erreur durant la récupération d'une configuration d'agent"
 
 #: centreon/src/Core/ResourceAccess/Application/Exception/RuleException.php
 msgid "Error while retrieving a resource access rule"
