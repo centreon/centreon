@@ -18014,7 +18014,7 @@ msgstr "Vous n'êtes pas autorisé à supprimer des sévérités de services"
 
 #: centreon/src/Core/Security/Token/Application/Exception/TokenException.php
 msgid "You are not allowed to delete tokens"
-msgstr "Vous n'êtes pas autorisé à supprimer des jetons"
+msgstr "Vous n'avez pas la permission de supprimer des jetons"
 
 #: centreon/src/Core/Security/Token/Application/Exception/TokenException.php
 #, php-format
