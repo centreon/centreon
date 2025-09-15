@@ -6,8 +6,8 @@ import {
   AgentConfigurationForm,
   ConnectionMode,
   HostConfiguration
-} from '../../models';
-import { portRegex } from '../useValidationSchema';
+} from '../../../models';
+import { portRegex } from '../../useValidationSchema';
 
 interface UseHostConfigurationProps {
   index: number;
@@ -36,7 +36,8 @@ export const useHostConfiguration = ({
     errors,
     touched,
     setFieldError,
-    values
+    values,
+    validateForm
   } = useFormikContext<AgentConfigurationForm>();
 
   const selectHost = useCallback(
@@ -48,8 +49,13 @@ export const useHostConfiguration = ({
       setFieldValue(`configuration.hosts.${index}.id`, id, false);
       setFieldValue(`configuration.hosts.${index}.address`, address, false);
       setFieldValue(`configuration.hosts.${index}.port`, 4317, false);
+
       setFieldError(`configuration.hosts.${index}.address`, undefined);
       setFieldError(`configuration.hosts.${index}.port`, undefined);
+
+      setTimeout(() => {
+        validateForm();
+      }, 0);
     },
     [index]
   );
