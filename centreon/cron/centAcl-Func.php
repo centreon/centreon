@@ -545,7 +545,7 @@ function getContactsNotLinkedToAclGroup(int $aclGroupId): array
                 contact_id
             FROM contact
             WHERE
-                contact_name != 'centreon-gorgone'
+                is_service_account = '0'
                 AND contact_register = '1'
                 AND contact_activate = '1'
                 AND contact_admin = '0'
