@@ -5,7 +5,7 @@ interface Props {
 }
 
 export const getMetricsEndpoint = ({ hostId, serviceId, metricName }: Props) =>
-  `./api/latest/monitoring/hosts/${hostId}/services/${serviceId}/metrics/${metricName}`;
+  `./api/latest/monitoring/hosts/${hostId}/services/${serviceId}/metrics/${encodeURIComponent(metricName)}`;
 
 interface MetaServiceProps {
   metaServiceId: number;
@@ -16,7 +16,7 @@ export const getMetricsMetaServiceEndpoint = ({
   metaServiceId,
   metricName
 }: MetaServiceProps) =>
-  `./api/latest/monitoring/metaservice/${metaServiceId}/metrics/${metricName}`;
+  `./api/latest/monitoring/metaservice/${metaServiceId}/metrics/${encodeURIComponent(metricName)}`;
 
 interface SelectEndpointProps {
   isMetaServiceSelected: boolean;
