@@ -5,6 +5,8 @@ parameters:
 
     level: max
 
+    treatPhpDocTypesAsCertain: false
+
     scanFiles:
         - .php-cs-fixer.core.php
         - .php-cs-fixer.legacy.php
