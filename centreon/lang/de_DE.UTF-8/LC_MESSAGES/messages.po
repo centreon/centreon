@@ -814,6 +814,10 @@ msgid "Add a template"
 msgstr "Template hinzufügen"
 
 #: centreon/www/install/front_translate.php
+msgid "Add a token"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
 #: centreon/www/install/smarty_translate.php
 msgid "Add a widget"
 msgstr "Widget hinzufügen"
@@ -1008,6 +1012,8 @@ msgstr "Zusätzlich Aktualitätslatenz"
 
 #: centreon/www/include/configuration/configObject/contact/formContact.php
 #: centreon/www/include/configuration/configObject/host/formHost.php
+#: centreon/www/include/configuration/configServers/formServers.php
+#: centreon/www/include/configuration/configServers/listServers.php
 msgid "Address"
 msgstr "Adresse"
 
@@ -2338,7 +2344,7 @@ msgstr ""
 
 #: centreon/www/install/front_translate.php
 #: centreon/www/install/react_translation.php
-msgid "Centreon Central IP address, as seen by this server"
+msgid "Centreon Central address, as seen by this server"
 msgstr "IP des zentralen Centreon Servers, aus der Sicht dieses Servers"
 
 #: centreon/www/include/configuration/configServers/formServers.php
@@ -4662,10 +4668,6 @@ msgstr "Dissoziieren"
 #: centreon/www/install/smarty_translate.php
 msgid "Dissociate this view ?"
 msgstr "Ansicht dissoziieren?"
-
-#: centreon/www/include/configuration/configServers/listServers.php
-msgid "Distant Poller"
-msgstr "Entfernter Poller"
 
 #: centreon/www/include/configuration/configServers/formServers.php
 #: centreon/www/install/front_translate.php
@@ -8227,8 +8229,6 @@ msgstr ""
 msgid "IP"
 msgstr "IP"
 
-#: centreon/www/include/configuration/configServers/formServers.php
-#: centreon/www/include/configuration/configServers/listServers.php
 #: centreon/www/include/monitoring/status/Hosts/hostJS.php
 #: centreon/www/include/options/accessLists/reloadACL/reloadACL.php
 #: centreon/www/include/options/session/connected_user.php
@@ -8518,6 +8518,10 @@ msgstr ""
 #: centreon/www/include/configuration/configCentreonBroker/listCentreonBroker.php
 msgid "Inputs"
 msgstr "Inputs"
+
+#: centreon/www/install/front_translate.php
+msgid "Insecure TLS"
+msgstr ""
 
 #: centreon/www/install/centreon_broker_translation.php
 msgid "Insert in index data"
@@ -12145,6 +12149,7 @@ msgstr "Verzeichnis für Plugins"
 #: centreon/www/include/configuration/configGenerateTraps/formGenerateTraps.php
 #: centreon/www/include/configuration/configKnowledge/search.php
 #: centreon/www/include/configuration/configObject/host/listHost.php
+#: centreon/www/include/configuration/configServers/listServers.php
 #: centreon/www/include/eventLogs/xml/data.php
 #: centreon/www/include/monitoring/downtime/AddDowntime.php
 #: centreon/www/include/monitoring/objectDetails/hostDetails.php
@@ -13819,11 +13824,6 @@ msgstr "Serverkonfiguration"
 msgid "Server Configuration Wizard"
 msgstr "Server Konfigurationsassistent"
 
-#: centreon/www/install/front_translate.php
-#: centreon/www/install/react_translation.php
-msgid "Server IP address"
-msgstr "Server IP-Adresse"
-
 #: centreon/www/include/configuration/configServers/formServers.php
 msgid "Server Information"
 msgstr "Serverinformationen"
@@ -13834,8 +13834,10 @@ msgid "Server Name"
 msgstr "Servername"
 
 #: centreon/www/install/centreon_broker_translation.php
+#: centreon/www/install/front_translate.php
+#: centreon/www/install/react_translation.php
 msgid "Server address"
-msgstr ""
+msgstr "Server adresse"
 
 #: centreon/www/install/centreon_broker_translation.php
 msgid "Server port"
@@ -15297,18 +15299,6 @@ msgstr ""
 msgid "The '%s' command name already exists"
 msgstr ""
 
-#: centreon/www/include/configuration/configServers/formServers.php
-msgid "The IP address is already registered"
-msgstr "Die IP-Adresse ist bereits registriert"
-
-#: centreon/www/include/configuration/configServers/formServers.php
-msgid "The IP address is already registered on another poller"
-msgstr "Die IP-Adresse ist bereits auf einem anderen Poller registriert"
-
-#: centreon/www/include/configuration/configServers/formServers.php
-msgid "The IP address is incorrect"
-msgstr "Die IP-Adresse ist falsch"
-
 #: centreon/src/Centreon/Domain/Service/JsonValidator/Validator.php
 msgid "The JSON cannot be decoded"
 msgstr "Das JSON konnte nicht decodiert werden"
@@ -15333,6 +15323,18 @@ msgstr ""
 msgid "The address '%s' of '%s' is not valid or not resolvable"
 msgstr ""
 "Die Adresse '%s' von '%s' ist ungültig bzw. kann nicht aufgelöst werden"
+
+#: centreon/www/include/configuration/configServers/formServers.php
+msgid "The address is already registered"
+msgstr "Die Adresse ist bereits registriert"
+
+#: centreon/www/include/configuration/configServers/formServers.php
+msgid "The address is already registered on another poller"
+msgstr "Die Adresse ist bereits auf einem anderen Poller registriert"
+
+#: centreon/www/include/configuration/configServers/formServers.php
+msgid "The address is incorrect"
+msgstr "Die Adresse ist falsch"
 
 #: centreon/www/install/front_translate.php
 msgid "The address is invalid"
@@ -17435,6 +17437,10 @@ msgid "Welcome to the agent configuration page"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
+msgid "Welcome to the authentication tokens page"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
 msgid "Welcome to the notifications interface"
 msgstr ""
 
@@ -17959,6 +17965,13 @@ msgstr ""
 
 #: centreon/www/install/front_translate.php
 msgid "You can choose only one resource for each resource type."
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid ""
+"You can create two types of tokens: API tokens to manipulate Centreon "
+"objects via the API, or CMA tokens to allow the CMA monitoring agent to "
+"authenticate to the corresponding poller."
 msgstr ""
 
 #: centreon/www/install/front_translate.php
@@ -19459,6 +19472,10 @@ msgstr "SSL Peerverifizierung deaktivieren"
 #: unknown
 msgid "Display Template"
 msgstr "Anzeigentemplate"
+
+#: unknown
+msgid "Distant Poller"
+msgstr "Entfernter Poller"
 
 #: unknown
 msgid "Edit"

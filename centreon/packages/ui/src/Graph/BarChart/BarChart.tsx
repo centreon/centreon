@@ -10,11 +10,11 @@ import { Provider } from 'jotai';
 
 import { Box } from '@mui/material';
 
+import Loading from '../../LoadingSkeleton';
 import LoadingSkeleton from '../Chart/LoadingSkeleton';
 import { LineChartProps } from '../Chart/models';
 import useChartData from '../Chart/useChartData';
 import { LineChartData, Thresholds } from '../common/models';
-import Loading from '../../LoadingSkeleton';
 
 import useResizeObserver from 'use-resize-observer';
 import ResponsiveBarChart from './ResponsiveBarChart';
@@ -77,20 +77,20 @@ const BarChart = ({
           <Loading height={height || '100%'} width={width} />
         ) : (
           <ResponsiveBarChart
-              axis={axis}
-              barStyle={barStyle}
-              graphData={adjustedData}
-              graphRef={ref}
-              header={header}
-              height={height || responsiveHeight}
-              legend={legend}
-              limitLegend={limitLegend}
-              orientation={orientation}
-              thresholdUnit={thresholdUnit}
-              thresholds={thresholds}
-              tooltip={tooltip}
-              width={width || 0}
-            />
+            axis={axis}
+            barStyle={barStyle}
+            graphData={adjustedData}
+            graphRef={ref}
+            header={header}
+            height={height || responsiveHeight}
+            legend={legend}
+            limitLegend={limitLegend}
+            orientation={orientation}
+            thresholdUnit={thresholdUnit}
+            thresholds={thresholds}
+            tooltip={tooltip}
+            width={width || 0}
+          />
         )}
       </Box>
     </Provider>
