@@ -21703,7 +21703,7 @@ msgstr "Aucune configuration LDAP active !"
 
 #: unknown
 msgid "No active poller is defined in Centreon."
-msgstr "Aucun collecteur actif est défini dans Centreon."
+msgstr "Aucun collecteur actif n'est défini dans Centreon."
 
 #: unknown
 msgid "No command selected"
