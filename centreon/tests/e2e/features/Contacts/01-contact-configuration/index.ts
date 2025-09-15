@@ -251,6 +251,7 @@ Given(
       jsonName: 'admin',
       loginViaApi: false
     });
+    contactPageIndex = 3;
     isAdmin = false;
     accessGroup = 'user-ACLGROUP-READ';
     // The configuration of the non-admin user with READ ONLY rights is already done on the beforeEach step
