@@ -5957,7 +5957,7 @@ msgstr "Erreur lors de la suppression de la configuration de notification"
 
 #: centreon/src/Core/AgentConfiguration/Application/Exception/AgentConfigurationException.php
 msgid "Error while deleting an agent configuration"
-msgstr "Erreur lors de la suppression de la configuration agent"
+msgstr "Erreur lors de la suppression de la configuration d'agent"
 
 #: centreon/src/Core/ServiceGroup/Application/Exception/ServiceGroupException.php
 msgid "Error while deleting a service group"
