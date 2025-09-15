@@ -107,7 +107,7 @@ it('throws an exception when name contains invalid characters', function (): voi
     $this->validation->assertIsValidName('hôst~3!', $host);
 })->throws(
     \InvalidArgumentException::class,
-    "[Host::name] The value (hôst~3!) doesn't match the regex '/^[^~!$%^&*\"|'<>?,()=]*$/'"
+    '[Host::name] The value contains unauthorized characters: ~!'
 );
 
 it('does not throw an exception when name is identical to given host', function (): void {
