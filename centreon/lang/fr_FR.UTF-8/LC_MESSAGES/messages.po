@@ -6371,7 +6371,7 @@ msgstr "Erreur lors de la mise à jour de la configuration d'une notification"
 
 #: centreon/src/Core/AgentConfiguration/Application/Exception/AgentConfigurationException.php
 msgid "Error while updating an agent configuration"
-msgstr "Erreur lors de la mise à jour de la configuration agent"
+msgstr "Erreur lors de la mise à jour de la configuration d'agent"
 
 #: centreon/src/Core/Service/Application/Exception/ServiceException.php
 msgid "Error while updating a service"
