@@ -5,7 +5,7 @@ import {
   AgentConfigurationForm,
   CMAConfiguration,
   HostConfiguration
-} from '../../models';
+} from '../../../models';
 
 interface UseHostConfigurationsState {
   addHostConfiguration: () => void;

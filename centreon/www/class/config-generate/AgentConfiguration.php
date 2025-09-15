@@ -131,7 +131,7 @@ class AgentConfiguration extends AbstractObjectJSON
             ],
         ];
 
-        if ($data['is_reverse']) {
+        if ($data['poller_initiated'] === true) {
             $hostIds = array_map(static fn (array $host): int => $host['id'], $data['hosts']);
             $hosts = $this->readHostRepository->findByIds($hostIds);
 
