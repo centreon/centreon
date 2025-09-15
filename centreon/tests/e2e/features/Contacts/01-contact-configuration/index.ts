@@ -263,7 +263,7 @@ When(
     cy.logout();
     //Log in as a non-admin user with READ ONLY rights
     cy.loginByTypeOfUser({
-      jsonName: 'contacts-user-readonly',
+      jsonName: 'contacts-management-acl-user-readonly-rights',
       loginViaApi: false
     });
     contactPageIndex = 0;
