@@ -321,7 +321,7 @@ try {
                 /**
                  * VMWare configuration
                  */
-                if (count($listVmWareFile) != 1) {
+                if (!is_array($listVmWareFile) || count($listVmWareFile) != 1) {
                     throw new Exception(
                         sprintf(
                             <<<'MSG'
