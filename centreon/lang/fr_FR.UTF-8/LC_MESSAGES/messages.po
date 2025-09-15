@@ -17952,7 +17952,7 @@ msgstr "Vous n'êtes pas autorisé à ajouter des médias"
 
 #: centreon/src/Core/Security/Token/Application/Exception/TokenException.php
 msgid "You are not allowed to add tokens"
-msgstr "Vous n'êtes pas autorisé à ajouter des jetons"
+msgstr "Vous n'avez pas la permission d'ajouter des jetons"
 
 #: centreon/src/Core/Security/Token/Application/Exception/TokenException.php
 #, php-format
