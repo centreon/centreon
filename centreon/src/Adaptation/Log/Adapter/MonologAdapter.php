@@ -25,7 +25,7 @@ namespace Adaptation\Log\Adapter;
 
 use Adaptation\Log\Enum\LogChannelEnum;
 use Adaptation\Log\Exception\LoggerException;
-use Monolog\Formatter\JsonFormatter;
+use Monolog\Formatter\LineFormatter;
 use Monolog\Handler\RotatingFileHandler;
 use Monolog\Level;
 use Monolog\Logger as MonologLogger;
@@ -119,7 +119,7 @@ final readonly class MonologAdapter implements LoggerInterface
             // TODO if another channel is needed, uncomment the following line
             // default => throw LoggerException::channelNotImplemented($this->channel->value),
         };
-        $handler->setFormatter(new JsonFormatter());
+        $handler->setFormatter(new LineFormatter());
 
         $this->logger->pushHandler($handler);
     }

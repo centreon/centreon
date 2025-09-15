@@ -42,7 +42,6 @@ when@prod:
                 type: stream
                 path: php://stderr
                 level: debug
-                formatter: monolog.formatter.json
             console:
                 type: console
                 process_psr_3_messages: false
@@ -51,4 +50,3 @@ when@prod:
                 type: stream
                 channels: [deprecation]
                 path: php://stderr
-                formatter: monolog.formatter.json
