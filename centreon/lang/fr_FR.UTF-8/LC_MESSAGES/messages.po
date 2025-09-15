@@ -23155,7 +23155,7 @@ msgstr "Point de terminaison de jeton"
 
 #: unknown
 msgid "Token can not empty, null or not defined"
-msgstr "Le jeton ne peut être ni null, ni vide ou non défini"
+msgstr "Le jeton ne peut être ni null, ni vide ni non défini"
 
 #: unknown
 msgid "Token copied to the clipboard"
