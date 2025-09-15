@@ -15795,7 +15795,7 @@ msgstr ""
 #: centreon/src/Core/AgentConfiguration/Application/Exception/AgentConfigurationException.php
 #, php-format
 msgid "The agent configuration name '%s' already exists"
-msgstr "La configuration agent '%s' existe déjà"
+msgstr "La configuration d'agent '%s' existe déjà"
 
 #: centreon/src/Centreon/Domain/Proxy/Proxy.php
 #, php-format
