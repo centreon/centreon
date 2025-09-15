@@ -12285,7 +12285,7 @@ msgstr "Filtrer par collecteur"
 msgid ""
 "Poller ID #%d is the only one linked to agent configuration ID #%d"
 msgstr ""
-"L'ID de collecteur #%d est le seul lié à l'ID de configuration collecteur/"
+"L'ID de collecteur #%d est le seul lié à l'ID de configurationd'"
 "agent #%d"
 
 #: centreon/www/include/configuration/configServers/formServers.php
