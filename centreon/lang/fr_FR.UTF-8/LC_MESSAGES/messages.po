@@ -219,10 +219,10 @@ msgstr "Une plateforme avec le nom : '%s' ou l'adresse : '%s' existe déjà"
 #: centreon/src/Core/AgentConfiguration/Application/Exception/AgentConfigurationException.php
 #, php-format
 msgid ""
-"A poller/agent configuration is already associated with poller ID(s) '%s'"
+"An agent configuration is already associated with poller ID(s) '%s'"
 msgstr ""
-"Une configuration collecteur/agent est déjà associée au(x) ID(s) de "
-"collecteur(s) '%s'"
+"Une configuration d'agent est déjà associée à/aux ID(s) de "
+"collecteur '%s'"
 
 #: centreon/www/install/front_translate.php
 msgid "A-Z"
@@ -2526,9 +2526,9 @@ msgstr ""
 
 #: centreon/src/Core/AgentConfiguration/Application/Exception/AgentConfigurationException.php
 msgid ""
-"Changing the type of an existing poller/agent configuration is not allowed"
+"Changing the type of an existing agent configuration is not allowed"
 msgstr ""
-"Changer le type d'une configuration collecteur/agent existante n'est pas "
+"Changer le type d'une configuration d'agent existante n'est pas "
 "autorisé"
 
 #: centreon/src/Core/AdditionalConnectorConfiguration/Application/Exception/AccException.php
@@ -5890,8 +5890,8 @@ msgid "Error while adding a media"
 msgstr "Erreur lors de l'ajout d'un média"
 
 #: centreon/src/Core/AgentConfiguration/Application/Exception/AgentConfigurationException.php
-msgid "Error while adding a poller/agent configuration"
-msgstr "Erreur lors de l'ajout de la configuration collecteur/agent"
+msgid "Error while adding an agent configuration"
+msgstr "Erreur lors de l'ajout de la configuration d'agent"
 
 #: centreon/src/Core/ResourceAccess/Application/Exception/RuleException.php
 msgid "Error while adding a resource access rule"
@@ -5903,7 +5903,7 @@ msgstr "Erreur durant l'ajout d'un groupe de services"
 
 #: centreon/src/Core/Security/Token/Application/Exception/TokenException.php
 msgid "Error while adding a token"
-msgstr "Erreur lors de l'ajout d'un token"
+msgstr "Erreur lors de l'ajout d'un jeton"
 
 #: centreon/src/Core/AdditionalConnectorConfiguration/Application/Exception/AccException.php
 msgid "Error while adding an additional configuration"
@@ -5958,8 +5958,8 @@ msgid "Error while deleting a notification configuration"
 msgstr "Erreur lors de la suppression de la configuration de notification"
 
 #: centreon/src/Core/AgentConfiguration/Application/Exception/AgentConfigurationException.php
-msgid "Error while deleting a poller/agent configuration"
-msgstr "Erreur lors de la suppression de la configuration collecteur/agent"
+msgid "Error while deleting an agent configuration"
+msgstr "Erreur lors de la suppression de la configuration d'agent"
 
 #: centreon/src/Core/ServiceGroup/Application/Exception/ServiceGroupException.php
 msgid "Error while deleting a service group"
@@ -5967,7 +5967,7 @@ msgstr "Erreur durant la suppression d'un groupe de services"
 
 #: centreon/src/Core/Security/Token/Application/Exception/TokenException.php
 msgid "Error while deleting a token"
-msgstr "Erreur lors de la suppression d'un token"
+msgstr "Erreur lors de la suppression d'un jeton"
 
 #: centreon/src/Core/AdditionalConnectorConfiguration/Application/Exception/AccException.php
 msgid "Error while deleting an additional configuration"
@@ -6097,8 +6097,8 @@ msgid "Error while retrieving a notification configuration"
 msgstr "Erreur lors de la récupération d'une configuration de notifications"
 
 #: centreon/src/Core/AgentConfiguration/Application/Exception/AgentConfigurationException.php
-msgid "Error while retrieving a poller/agent configuration"
-msgstr "Erreur durant la récupération d'une configuration collecteur/agent"
+msgid "Error while retrieving an agent configuration"
+msgstr "Erreur durant la récupération d'une configuration d'agent"
 
 #: centreon/src/Core/ResourceAccess/Application/Exception/RuleException.php
 msgid "Error while retrieving a resource access rule"
@@ -6114,7 +6114,7 @@ msgstr "Erreur lors de la récupération d'un modèle de service"
 
 #: centreon/src/Core/Security/Token/Application/Exception/TokenException.php
 msgid "Error while retrieving a token"
-msgstr "Erreur lors de la récupération du token"
+msgstr "Erreur lors de la récupération du jeton"
 
 #: centreon/src/Core/AdditionalConnectorConfiguration/Application/Exception/AccException.php
 msgid "Error while retrieving an additional configuration"
@@ -6142,9 +6142,9 @@ msgid "Error while retrieving host statuses distribution"
 msgstr "Erreur lors de la récupération du statut des hôtes"
 
 #: centreon/src/Core/AgentConfiguration/Application/Exception/AgentConfigurationException.php
-msgid "Error while retrieving multiple poller/agent configurations"
+msgid "Error while retrieving multiple agent configurations"
 msgstr ""
-"Erreur durant la récupération de multiples configurations collecteur/agent"
+"Erreur durant la récupération de plusieurs configurations d'agent"
 
 #: centreon/src/Core/Dashboard/Application/Exception/DashboardException.php
 msgid "Error while retrieving newly created dashboard"
@@ -6372,8 +6372,8 @@ msgid "Error while updating a notification configuration"
 msgstr "Erreur lors de la mise à jour de la configuration d'une notification"
 
 #: centreon/src/Core/AgentConfiguration/Application/Exception/AgentConfigurationException.php
-msgid "Error while updating a poller/agent configuration"
-msgstr "Erreur lors de la mise à jour de la configuration collecteur/agent"
+msgid "Error while updating an agent configuration"
+msgstr "Erreur lors de la mise à jour de la configuration d'agent"
 
 #: centreon/src/Core/Service/Application/Exception/ServiceException.php
 msgid "Error while updating a service"
@@ -11004,7 +11004,7 @@ msgstr "Aucune plateforme parente n'a été trouvée pour : '%s'@'%s'"
 
 #: centreon/www/include/configuration/configGenerate/formGenerateFiles.php
 msgid "No poller selected"
-msgstr "Pas de satellite sélectionné"
+msgstr "Pas de collecteur sélectionné"
 
 #: centreon/src/Core/Security/Authentication/Domain/Exception/SSOAuthenticationException.php
 msgid "No refresh token has been found"
@@ -12288,9 +12288,9 @@ msgstr "Filtrer par collecteur"
 #: centreon/src/Core/AgentConfiguration/Application/Exception/AgentConfigurationException.php
 #, php-format
 msgid ""
-"Poller ID #%d is the only one linked to poller/agent configuration ID #%d"
+"Poller ID #%d is the only one linked to agent configuration ID #%d"
 msgstr ""
-"L'ID de collecteur #%d est le seul lié à l'ID de configuration collecteur/"
+"L'ID de collecteur #%d est le seul lié à l'ID de configurationd'"
 "agent #%d"
 
 #: centreon/www/include/configuration/configServers/formServers.php
@@ -15796,8 +15796,8 @@ msgstr ""
 
 #: centreon/src/Core/AgentConfiguration/Application/Exception/AgentConfigurationException.php
 #, php-format
-msgid "The poller/agent configuration name '%s' already exists"
-msgstr "La configuration collecteur/agent '%s' existe déjà"
+msgid "The agent configuration name '%s' already exists"
+msgstr "La configuration d'agent '%s' existe déjà"
 
 #: centreon/src/Centreon/Domain/Proxy/Proxy.php
 #, php-format
@@ -15940,7 +15940,7 @@ msgstr "Le jeton ne peut pas être vide"
 #: centreon/src/Core/Security/Token/Application/Exception/TokenException.php
 #, php-format
 msgid "The token name '%s' already exists"
-msgstr "Le nom de token '%s' existe déjà"
+msgstr "Le nom du jeton '%s' existe déjà"
 
 #: centreon/www/api/class/centreon_configuration_broker.class.php
 #: centreon/www/class/centreonConfigCentreonBroker.php
@@ -17841,8 +17841,8 @@ msgstr ""
 "Vous n'êtes pas autorisé à accéder aux hôtes dans le cadre du temps réel"
 
 #: centreon/src/Core/AgentConfiguration/Application/Exception/AgentConfigurationException.php
-msgid "You are not allowed to access poller/agent configurations"
-msgstr "Vous n'êtes pas autorisé à accéder aux configurations collecteur/agent"
+msgid "You are not allowed to access agent configurations"
+msgstr "Vous n'avez pas la permission d'accéder aux configurations d'agent"
 
 #: centreon/src/Core/ServiceCategory/Application/Exception/ServiceCategoryException.php
 msgid "You are not allowed to access service categories"
@@ -17958,7 +17958,7 @@ msgstr "Vous n'êtes pas autorisé à ajouter des médias"
 
 #: centreon/src/Core/Security/Token/Application/Exception/TokenException.php
 msgid "You are not allowed to add tokens"
-msgstr "Vous n'êtes pas autorisé à ajouter des tokens"
+msgstr "Vous n'avez pas la permission d'ajouter des jetons"
 
 #: centreon/src/Core/Security/Token/Application/Exception/TokenException.php
 #, php-format
@@ -18020,13 +18020,13 @@ msgstr "Vous n'êtes pas autorisé à supprimer des sévérités de services"
 
 #: centreon/src/Core/Security/Token/Application/Exception/TokenException.php
 msgid "You are not allowed to delete tokens"
-msgstr "Vous n'êtes pas autorisé à supprimer des tokens"
+msgstr "Vous n'avez pas la permission de supprimer des jetons"
 
 #: centreon/src/Core/Security/Token/Application/Exception/TokenException.php
 #, php-format
 msgid "You are not allowed to delete tokens linked to user ID %d"
 msgstr ""
-"Vous n'êtes pas autorisé à supprimer des tokens liés à l'ID d'utilisateur %d"
+"Vous n'avez pas la permission de supprimer des jetons liés à l'ID d'utilisateur %d"
 
 #: centreon/www/include/options/session/connected_user.php
 msgid "You are not allowed to disconnect this user"
@@ -20447,7 +20447,7 @@ msgstr "Erreur lors de l'expiration de la session"
 
 #: unknown
 msgid "Error during token creation"
-msgstr "Erreur lors de la création du token"
+msgstr "Erreur lors de la création du jeton"
 
 #: unknown
 msgid "Error from Central's register API : "
@@ -20471,7 +20471,7 @@ msgstr "Erreur lors de la supression d'un serveur de supervision"
 
 #: unknown
 msgid "Error when deleting tokens for one contact"
-msgstr "Erreur lors de la suppression des tokens pour un contact"
+msgstr "Erreur lors de la suppression des jetons pour un contact"
 
 #: unknown
 msgid "Error when installing patch : %s."
@@ -20479,7 +20479,7 @@ msgstr "Erreur lors de l'installation du correctif : %s."
 
 #: unknown
 msgid "Error when recovering the number of tokens"
-msgstr "Erreur lors de la récupération du nombre de token"
+msgstr "Erreur lors de la récupération du nombre de jetons"
 
 #: unknown
 msgid "Error when searching for a resource of monitoring server"
@@ -21723,7 +21723,7 @@ msgstr "Aucune configuration LDAP active !"
 
 #: unknown
 msgid "No active poller is defined in Centreon."
-msgstr "Aucun satellite actif est défini dans Centreon."
+msgstr "Aucun collecteur actif n'est défini dans Centreon."
 
 #: unknown
 msgid "No command selected"
@@ -22080,14 +22080,6 @@ msgstr "Statistiques des collecteurs"
 #: unknown
 msgid "Poller/Centreon Server"
 msgstr "Collecteur"
-
-#: unknown
-msgid "Poller/agent configuration created"
-msgstr "Configuration d'agent créée"
-
-#: unknown
-msgid "Poller/agent configuration updated"
-msgstr "Configuration d'agent mise à jour"
 
 #: unknown
 msgid "Port expected at most 65535"
@@ -23183,7 +23175,7 @@ msgstr "Point de terminaison de jeton"
 
 #: unknown
 msgid "Token can not empty, null or not defined"
-msgstr "Le token ne peut être ni null, ni vide ou non défini"
+msgstr "Le jeton ne peut être ni null, ni vide ni non défini"
 
 #: unknown
 msgid "Token copied to the clipboard"
@@ -23191,11 +23183,11 @@ msgstr "Jeton copié dans le presse-papiers"
 
 #: unknown
 msgid "Token expired."
-msgstr "Token expiré."
+msgstr "Jeton expiré."
 
 #: unknown
 msgid "Token not found"
-msgstr "Token non trouvé"
+msgstr "Jeton non trouvé"
 
 #: unknown
 msgid "Tooltips"
@@ -23729,7 +23721,7 @@ msgstr ""
 #: unknown
 msgid "You are not allowed to add tokens linked to user with ID %d"
 msgstr ""
-"Vous n'êtes pas autorisé à créer des tokens liés à l'ID d'utilisateur %d"
+"Vous n'êtes pas autorisé à créer des jetons liés à l'ID d'utilisateur %d"
 
 #: unknown
 msgid "You are not allowed to create host categories"
@@ -24069,3 +24061,7 @@ msgstr "affichera les ressources avec un nom d'hôte commençant par"
 #: unknown
 msgid "{{total}} element(s) found"
 msgstr "{{total}} élément(s) trouvé(s)"
+
+#: unknown
+msgid "poller"
+msgstr "collecteur"
