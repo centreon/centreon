@@ -25,15 +25,18 @@ namespace Adaptation\Log;
 
 use Psr\Log\LoggerInterface;
 
-final readonly class LoggerPassword
+final  class LoggerPassword
 {
-    private function __construct(private LoggerInterface $logger)
-    {
-    }
+    private static ?self $instance = null;
+
+    private function __construct(private readonly LoggerInterface $logger) {}
 
     public static function create(): self
     {
-        return new self(Logger::create(Enum\LogChannelEnum::PASSWORD));
+        if (self::$instance ===null) {
+            self::$instance = new self(Logger::create(Enum\LogChannelEnum::PASSWORD));
+        }
+        return self::$instance;
     }
 
     public function success(int $initiatorId, int $targetId): void

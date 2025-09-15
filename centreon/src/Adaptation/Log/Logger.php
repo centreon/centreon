@@ -26,24 +26,17 @@ namespace Adaptation\Log;
 use Adaptation\Log\Adapter\MonologAdapter;
 use Adaptation\Log\Enum\LogChannelEnum;
 use Adaptation\Log\Exception\LoggerException;
-use Psr\Log\InvalidArgumentException;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 
-final class Logger implements LoggerInterface
+final readonly class Logger implements LoggerInterface
 {
-    private static ?self $instance = null;
-
-    private function __construct(private readonly LoggerInterface $logger) {}
+    private function __construct(private LoggerInterface $logger) {}
 
     public static function create(LogChannelEnum $channel): LoggerInterface
     {
         try {
-            if (is_null(self::$instance)) {
-                self::$instance = new self(MonologAdapter::create($channel));
-            }
-
-            return self::$instance;
+            return new self(MonologAdapter::create($channel));
         } catch (LoggerException $e) {
             error_log(sprintf('Create logger failed: %s', $e->getMessage()));
             return new self(new NullLogger());
@@ -94,8 +87,8 @@ final class Logger implements LoggerInterface
     {
         try {
             $this->logger->log($level, $message, $context);
-        } catch (InvalidArgumentException $e) {
-            error_log(sprintf('Logging failed: %s', $e));
+        } catch (\Throwable $e) {
+            error_log($e->getMessage());
         }
     }
 }

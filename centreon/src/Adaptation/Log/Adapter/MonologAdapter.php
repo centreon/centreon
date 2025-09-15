@@ -32,17 +32,14 @@ use Monolog\Logger as MonologLogger;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
 
-final class MonologAdapter implements LoggerInterface
+final readonly class MonologAdapter implements LoggerInterface
 {
-
-    private static ?self $instance = null;
-
     /**
      * @throws LoggerException
      */
     private function __construct(
-        private readonly MonologLogger $logger,
-        private readonly LogChannelEnum $channel,
+        private MonologLogger $logger,
+        private LogChannelEnum $channel,
     ) {
         $this->createLoggerFromChannel();
     }
@@ -52,11 +49,9 @@ final class MonologAdapter implements LoggerInterface
      */
     public static function create(LogChannelEnum $channel): LoggerInterface
     {
-        if (self::$instance === null) {
-            $logger = new MonologLogger($channel->value);
-            self::$instance = new self($logger, $channel);
-        }
-        return self::$instance;
+        $logger = new MonologLogger($channel->value);
+
+        return new self($logger, $channel);
     }
 
     public function emergency(\Stringable|string $message, array $context = []): void
@@ -101,11 +96,19 @@ final class MonologAdapter implements LoggerInterface
 
     /**
      * @param 'alert'|'critical'|'debug'|'emergency'|'error'|'info'|'notice'|'warning'|Level $level
-     * @throws \InvalidArgumentException
+     *
+     * @throws LoggerException
      */
     public function log(mixed $level, \Stringable|string $message, array $context = []): void
     {
-        $this->logger->log($level, $message, $context);
+        try {
+            $this->logger->log($level, $message, $context);
+        } catch (\InvalidArgumentException $e) {
+            throw new LoggerException(
+                message: sprintf('Logging failed: %s', $e->getMessage()),
+                previous: $e,
+            );
+        }
     }
 
     /**
