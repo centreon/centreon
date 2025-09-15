@@ -100,7 +100,24 @@
             "type": "resources",
             "defaultValue": [],
             "required": true,
-            "useAdditionalResources": false,
+            "useAdditionalResources": true,
+                  "singleResourceType": true,
+
+            "selectType": {
+                "defaultResourceType": [
+                    { "resourceType": "host-group", "requied": true },
+                    {
+                        "resourceType": "host-category",
+                        "requied": false,
+                        "disabled": { "when": "resourceType", "matches": "host-group" }
+                    },
+                    {
+                        "resourceType": "service-category",
+                        "requied": false,
+                        "disabled": { "when": "resourceType", "matches": ["host-group", "host-category"] }
+                    }
+                ]
+            },
             "excludedResourceTypes": [
                 "host",
                 "service",
