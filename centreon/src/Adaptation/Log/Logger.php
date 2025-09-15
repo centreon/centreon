@@ -30,19 +30,22 @@ use Psr\Log\InvalidArgumentException;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 
-final readonly class Logger implements LoggerInterface
+final class Logger implements LoggerInterface
 {
-    private function __construct(private LoggerInterface $logger)
-    {
-    }
+    private static ?self $instance = null;
+
+    private function __construct(private readonly LoggerInterface $logger) {}
 
     public static function create(LogChannelEnum $channel): LoggerInterface
     {
         try {
-            return new self(MonologAdapter::create($channel));
+            if (is_null(self::$instance)) {
+                self::$instance = new self(MonologAdapter::create($channel));
+            }
+
+            return self::$instance;
         } catch (LoggerException $e) {
             error_log(sprintf('Create logger failed: %s', $e->getMessage()));
-
             return new self(new NullLogger());
         }
     }
