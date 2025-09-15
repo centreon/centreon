@@ -2522,7 +2522,7 @@ msgstr ""
 msgid ""
 "Changing the type of an existing agent configuration is not allowed"
 msgstr ""
-"Changer le type d'une configuration agent existante n'est pas "
+"Changer le type d'une configuration d'agent existante n'est pas "
 "autorisé"
 
 #: centreon/src/Core/AdditionalConnectorConfiguration/Application/Exception/AccException.php
