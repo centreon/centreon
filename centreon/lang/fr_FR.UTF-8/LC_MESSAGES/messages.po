@@ -5889,7 +5889,7 @@ msgstr "Erreur lors de l'ajout d'un média"
 
 #: centreon/src/Core/AgentConfiguration/Application/Exception/AgentConfigurationException.php
 msgid "Error while adding an agent configuration"
-msgstr "Erreur lors de l'ajout de la configuration agent"
+msgstr "Erreur lors de l'ajout de la configuration d'agent"
 
 #: centreon/src/Core/ResourceAccess/Application/Exception/RuleException.php
 msgid "Error while adding a resource access rule"
