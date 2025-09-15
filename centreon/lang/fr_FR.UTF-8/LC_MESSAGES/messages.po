@@ -222,7 +222,7 @@ msgid ""
 "An agent configuration is already associated with poller ID(s) '%s'"
 msgstr ""
 "Une configuration d'agent est déjà associée à/aux ID(s) de "
-"collecteur(s) '%s'"
+"collecteur '%s'"
 
 #: centreon/www/install/front_translate.php
 msgid "A-Z"
