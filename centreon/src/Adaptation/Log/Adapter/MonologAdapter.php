@@ -103,8 +103,6 @@ final readonly class MonologAdapter implements LoggerInterface
         $this->logger->log($level, $message, $context);
     }
 
-    // -------------------------------------- PRIVATE METHODS -------------------------------------- //
-
     /**
      * @throws LoggerException
      */
