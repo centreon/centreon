@@ -216,14 +216,6 @@ msgstr "Une macro est formatée de façon incorrecte."
 msgid "A platform using the name : '%s' or address : '%s' already exists"
 msgstr "Une plateforme avec le nom : '%s' ou l'adresse : '%s' existe déjà"
 
-#: centreon/src/Core/AgentConfiguration/Application/Exception/AgentConfigurationException.php
-#, php-format
-msgid ""
-"An agent configuration is already associated with poller ID(s) '%s'"
-msgstr ""
-"Une configuration d'agent est déjà associée à/aux ID(s) de "
-"collecteur '%s'"
-
 #: centreon/www/install/front_translate.php
 msgid "A-Z"
 msgstr "A-Z"
@@ -1376,6 +1368,12 @@ msgstr ""
 "Une configuration additionnelle de type '%s' est déjà associée à l'ID de "
 "collecteur '%s'"
 
+#: centreon/src/Core/AgentConfiguration/Application/Exception/AgentConfigurationException.php
+#, php-format
+msgid "An agent configuration is already associated with poller ID(s) '%s'"
+msgstr ""
+"Une configuration d'agent est déjà associée à/aux ID(s) de collecteur '%s'"
+
 #: centreon/www/install/front_translate.php
 msgid ""
 "An agent is a piece of software you install on the host you want to monitor, "
@@ -2525,11 +2523,9 @@ msgstr ""
 "immédiatement"
 
 #: centreon/src/Core/AgentConfiguration/Application/Exception/AgentConfigurationException.php
-msgid ""
-"Changing the type of an existing agent configuration is not allowed"
+msgid "Changing the type of an existing agent configuration is not allowed"
 msgstr ""
-"Changer le type d'une configuration d'agent existante n'est pas "
-"autorisé"
+"Changer le type d'une configuration d'agent existante n'est pas autorisé"
 
 #: centreon/src/Core/AdditionalConnectorConfiguration/Application/Exception/AccException.php
 msgid ""
@@ -5889,10 +5885,6 @@ msgstr "Erreur lors de la création du modèle d'hôtes"
 msgid "Error while adding a media"
 msgstr "Erreur lors de l'ajout d'un média"
 
-#: centreon/src/Core/AgentConfiguration/Application/Exception/AgentConfigurationException.php
-msgid "Error while adding an agent configuration"
-msgstr "Erreur lors de l'ajout de la configuration d'agent"
-
 #: centreon/src/Core/ResourceAccess/Application/Exception/RuleException.php
 msgid "Error while adding a resource access rule"
 msgstr "Erreur lors de l'ajout d'une règle d'accès aux ressources"
@@ -5908,6 +5900,10 @@ msgstr "Erreur lors de l'ajout d'un jeton"
 #: centreon/src/Core/AdditionalConnectorConfiguration/Application/Exception/AccException.php
 msgid "Error while adding an additional configuration"
 msgstr "Erreur lors de l'ajout d'une configuration additionnelle"
+
+#: centreon/src/Core/AgentConfiguration/Application/Exception/AgentConfigurationException.php
+msgid "Error while adding an agent configuration"
+msgstr "Erreur lors de l'ajout de la configuration d'agent"
 
 #: centreon/src/Centreon/Domain/Authentication/Exception/AuthenticationException.php
 msgid "Error while adding authentication token"
@@ -5957,10 +5953,6 @@ msgstr "Erreur lors de la suppression du modèle d'hôtes"
 msgid "Error while deleting a notification configuration"
 msgstr "Erreur lors de la suppression de la configuration de notification"
 
-#: centreon/src/Core/AgentConfiguration/Application/Exception/AgentConfigurationException.php
-msgid "Error while deleting an agent configuration"
-msgstr "Erreur lors de la suppression de la configuration d'agent"
-
 #: centreon/src/Core/ServiceGroup/Application/Exception/ServiceGroupException.php
 msgid "Error while deleting a service group"
 msgstr "Erreur durant la suppression d'un groupe de services"
@@ -5972,6 +5964,10 @@ msgstr "Erreur lors de la suppression d'un jeton"
 #: centreon/src/Core/AdditionalConnectorConfiguration/Application/Exception/AccException.php
 msgid "Error while deleting an additional configuration"
 msgstr "Erreur lors de la suppression d'une configuration additionnelle"
+
+#: centreon/src/Core/AgentConfiguration/Application/Exception/AgentConfigurationException.php
+msgid "Error while deleting an agent configuration"
+msgstr "Erreur lors de la suppression de la configuration d'agent"
 
 #: centreon/src/Centreon/Domain/Authentication/Exception/AuthenticationException.php
 msgid "Error while deleting expired token"
@@ -6096,10 +6092,6 @@ msgstr "Error lors de la récupération d'un modèle d'hôtes"
 msgid "Error while retrieving a notification configuration"
 msgstr "Erreur lors de la récupération d'une configuration de notifications"
 
-#: centreon/src/Core/AgentConfiguration/Application/Exception/AgentConfigurationException.php
-msgid "Error while retrieving an agent configuration"
-msgstr "Erreur durant la récupération d'une configuration d'agent"
-
 #: centreon/src/Core/ResourceAccess/Application/Exception/RuleException.php
 msgid "Error while retrieving a resource access rule"
 msgstr "Erreur lors de la récupération d'une règle d'accès aux données"
@@ -6119,6 +6111,10 @@ msgstr "Erreur lors de la récupération du jeton"
 #: centreon/src/Core/AdditionalConnectorConfiguration/Application/Exception/AccException.php
 msgid "Error while retrieving an additional configuration"
 msgstr "Erreur durant la récupération d'une configuration additionnelle"
+
+#: centreon/src/Core/AgentConfiguration/Application/Exception/AgentConfigurationException.php
+msgid "Error while retrieving an agent configuration"
+msgstr "Erreur durant la récupération d'une configuration d'agent"
 
 #: centreon/src/Core/Dashboard/Application/Exception/DashboardException.php
 msgid ""
@@ -6143,8 +6139,7 @@ msgstr "Erreur lors de la récupération du statut des hôtes"
 
 #: centreon/src/Core/AgentConfiguration/Application/Exception/AgentConfigurationException.php
 msgid "Error while retrieving multiple agent configurations"
-msgstr ""
-"Erreur durant la récupération de plusieurs configurations d'agent"
+msgstr "Erreur durant la récupération de plusieurs configurations d'agent"
 
 #: centreon/src/Core/Dashboard/Application/Exception/DashboardException.php
 msgid "Error while retrieving newly created dashboard"
@@ -6371,10 +6366,6 @@ msgstr "Erreur lors de la modification d'un média"
 msgid "Error while updating a notification configuration"
 msgstr "Erreur lors de la mise à jour de la configuration d'une notification"
 
-#: centreon/src/Core/AgentConfiguration/Application/Exception/AgentConfigurationException.php
-msgid "Error while updating an agent configuration"
-msgstr "Erreur lors de la mise à jour de la configuration d'agent"
-
 #: centreon/src/Core/Service/Application/Exception/ServiceException.php
 msgid "Error while updating a service"
 msgstr "Erreur lors de la mise à jour d'un service"
@@ -6386,6 +6377,10 @@ msgstr "Erreur lors de la modification d'un modèle de services"
 #: centreon/src/Core/AdditionalConnectorConfiguration/Application/Exception/AccException.php
 msgid "Error while updating an additional configuration"
 msgstr "Erreur lors de la mise à jour d'une configuration additionnelle"
+
+#: centreon/src/Core/AgentConfiguration/Application/Exception/AgentConfigurationException.php
+msgid "Error while updating an agent configuration"
+msgstr "Erreur lors de la mise à jour de la configuration d'agent"
 
 #: centreon/src/Centreon/Domain/Authentication/Exception/AuthenticationException.php
 msgid "Error while updating authentication tokens"
@@ -12287,11 +12282,9 @@ msgstr "Filtrer par collecteur"
 
 #: centreon/src/Core/AgentConfiguration/Application/Exception/AgentConfigurationException.php
 #, php-format
-msgid ""
-"Poller ID #%d is the only one linked to agent configuration ID #%d"
+msgid "Poller ID #%d is the only one linked to agent configuration ID #%d"
 msgstr ""
-"L'ID de collecteur #%d est le seul lié à l'ID de configurationd'"
-"agent #%d"
+"L'ID de collecteur #%d est le seul lié à l'ID de configurationd'agent #%d"
 
 #: centreon/www/include/configuration/configServers/formServers.php
 #: centreon/www/install/smarty_translate.php
@@ -15456,6 +15449,11 @@ msgstr "L'adresse est incorrecte"
 msgid "The address is invalid"
 msgstr "L'addresse est invalide"
 
+#: centreon/src/Core/AgentConfiguration/Application/Exception/AgentConfigurationException.php
+#, php-format
+msgid "The agent configuration name '%s' already exists"
+msgstr "La configuration d'agent '%s' existe déjà"
+
 #: centreon/src/Core/Service/Application/Exception/ServiceException.php
 msgid "The check command cannot be null if the service template is null"
 msgstr ""
@@ -15793,11 +15791,6 @@ msgid ""
 msgstr ""
 "La plateforme '%s'@'%s n'est pas liée à un central. Veuillez d'abord "
 "utiliser l'assistant"
-
-#: centreon/src/Core/AgentConfiguration/Application/Exception/AgentConfigurationException.php
-#, php-format
-msgid "The agent configuration name '%s' already exists"
-msgstr "La configuration d'agent '%s' existe déjà"
 
 #: centreon/src/Centreon/Domain/Proxy/Proxy.php
 #, php-format
@@ -17799,6 +17792,10 @@ msgstr ""
 msgid "You are not allowed to access additional configurations"
 msgstr "Vous n'êtes pas autorisé à accéder aux configurations additionnelles"
 
+#: centreon/src/Core/AgentConfiguration/Application/Exception/AgentConfigurationException.php
+msgid "You are not allowed to access agent configurations"
+msgstr "Vous n'avez pas la permission d'accéder aux configurations d'agent"
+
 #: centreon/src/Core/Command/Application/Exception/CommandException.php
 msgid "You are not allowed to access commands"
 msgstr "Vous n'êtes pas autorisé à accéder aux commandes"
@@ -17839,10 +17836,6 @@ msgstr "Vous n'êtes pas autorisé à accéder aux modèles d'hôtes"
 msgid "You are not allowed to access hosts in the real time context"
 msgstr ""
 "Vous n'êtes pas autorisé à accéder aux hôtes dans le cadre du temps réel"
-
-#: centreon/src/Core/AgentConfiguration/Application/Exception/AgentConfigurationException.php
-msgid "You are not allowed to access agent configurations"
-msgstr "Vous n'avez pas la permission d'accéder aux configurations d'agent"
 
 #: centreon/src/Core/ServiceCategory/Application/Exception/ServiceCategoryException.php
 msgid "You are not allowed to access service categories"
@@ -18026,7 +18019,8 @@ msgstr "Vous n'avez pas la permission de supprimer des jetons"
 #, php-format
 msgid "You are not allowed to delete tokens linked to user ID %d"
 msgstr ""
-"Vous n'avez pas la permission de supprimer des jetons liés à l'ID d'utilisateur %d"
+"Vous n'avez pas la permission de supprimer des jetons liés à l'ID "
+"d'utilisateur %d"
 
 #: centreon/www/include/options/session/connected_user.php
 msgid "You are not allowed to disconnect this user"
@@ -23967,6 +23961,10 @@ msgid "platform not found"
 msgstr "plateforme non trouvée"
 
 #: unknown
+msgid "poller"
+msgstr "collecteur"
+
+#: unknown
 msgid "px"
 msgstr "px"
 
@@ -24061,7 +24059,3 @@ msgstr "affichera les ressources avec un nom d'hôte commençant par"
 #: unknown
 msgid "{{total}} element(s) found"
 msgstr "{{total}} élément(s) trouvé(s)"
-
-#: unknown
-msgid "poller"
-msgstr "collecteur"
