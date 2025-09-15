@@ -28,7 +28,6 @@ use Centreon\Domain\Entity\Task;
 require_once realpath(__DIR__ . '/../../../../../config/centreon.config.php');
 require_once realpath(__DIR__ . '/../../../../../config/bootstrap.php');
 require_once realpath(__DIR__ . '/../../../../../bootstrap.php');
-require_once _CENTREON_PATH_ . '/www/class/centreonSession.class.php';
 require_once _CENTREON_PATH_ . 'www/include/configuration/configGenerate/DB-Func.php';
 require_once _CENTREON_PATH_ . 'www/class/centreonDB.class.php';
 require_once _CENTREON_PATH_ . 'www/class/centreonSession.class.php';
@@ -253,7 +252,7 @@ try {
                         sprintf(
                             _(
                                 "Could not find configuration directory '%s' for monitoring engine '%s'.
-                                 Please check it's path or create it"
+                                 Please check its path or create it"
                             ),
                             $nagiosCfg['cfg_dir'],
                             $host['name']
@@ -290,7 +289,7 @@ try {
                                     sprintf(
                                         _(
                                             "Centreon Broker's configuration directory '%s' does not exist and could not
-                                             be created for monitoring engine '%s'. Please check it's path or create it"
+                                             be created for monitoring engine '%s'. Please check its path or create it"
                                         ),
                                         $centreonBrokerDirCfg,
                                         $host['name']
@@ -322,12 +321,12 @@ try {
                 /**
                  * VMWare configuration
                  */
-                if (count($listVmWareFile) > 1) {
+                if (count($listVmWareFile) != 1) {
                     throw new Exception(
                         sprintf(
                             <<<'MSG'
-                                There are more than one VMWare configuration file for monitoring engine '%s'.
-                                Please check it's path or create it
+                                There must be one and only one VMWare configuration file for monitoring engine '%s'.
+                                Please check its path or create it
                                 MSG,
                             $host['name']
                         )
@@ -356,7 +355,7 @@ try {
                 }
                 if (count($listBrokerFile) > 0) {
                     passthru(
-                        escapeshellcmd("echo 'SENDCBCFG:{$host['id']}") . ' >> ' . escapeshellcmd($centcore_pipe),
+                        escapeshellcmd("echo 'SENDCBCFG:{$host['id']}'") . ' >> ' . escapeshellcmd($centcore_pipe),
                         $return
                     );
                     if ($return) {
