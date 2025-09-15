@@ -221,7 +221,7 @@ msgstr "Une plateforme avec le nom : '%s' ou l'adresse : '%s' existe déjà"
 msgid ""
 "An agent configuration is already associated with poller ID(s) '%s'"
 msgstr ""
-"Une configuration agent est déjà associée au(x) ID(s) de "
+"Une configuration d'agent est déjà associée à/aux ID(s) de "
 "collecteur(s) '%s'"
 
 #: centreon/www/install/front_translate.php
