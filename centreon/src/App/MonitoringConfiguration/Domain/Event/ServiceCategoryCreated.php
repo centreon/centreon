@@ -21,7 +21,7 @@
 
 declare(strict_types=1);
 
-namespace App\ResourceConfiguration\Domain\Event;
+namespace App\MonitoringConfiguration\Domain\Event;
 
 use App\Shared\Domain\Event\AggregateCreated;
 

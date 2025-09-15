@@ -27,9 +27,15 @@ use App\ActivityLogging\Domain\Aggregate\ActionEnum;
 use App\ActivityLogging\Domain\Aggregate\ActivityLog;
 use App\ActivityLogging\Domain\Aggregate\TargetTypeEnum;
 use App\ActivityLogging\Domain\Event\LogActivityEventHandler;
+<<<<<<< HEAD
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceCategory;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceCategoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceCategoryName;
+=======
+use App\MonitoringConfiguration\Domain\Aggregate\ServiceCategory\ServiceCategory;
+use App\MonitoringConfiguration\Domain\Aggregate\ServiceCategory\ServiceCategoryId;
+use App\MonitoringConfiguration\Domain\Aggregate\ServiceCategory\ServiceCategoryName;
+>>>>>>> origin/MON-183044-collection
 use App\MonitoringConfiguration\Domain\Event\ServiceCategoryCreated;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;

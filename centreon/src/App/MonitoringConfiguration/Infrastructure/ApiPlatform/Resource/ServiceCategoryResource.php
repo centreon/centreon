@@ -21,14 +21,14 @@
 
 declare(strict_types=1);
 
-namespace App\ResourceConfiguration\Infrastructure\ApiPlatform\Resource;
+namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource;
 
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\OpenApi\Model;
-use App\ResourceConfiguration\Domain\Security\ServiceCategoryPermissionEnum;
-use App\ResourceConfiguration\Infrastructure\ApiPlatform\State\CreateServiceCategoryProcessor;
+use App\MonitoringConfiguration\Domain\Security\ServiceCategoryPermissionEnum;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\CreateServiceCategoryProcessor;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ApiResource(

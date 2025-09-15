@@ -21,7 +21,7 @@
 
 declare(strict_types=1);
 
-namespace App\ResourceConfiguration\Domain\Exception;
+namespace App\MonitoringConfiguration\Domain\Exception;
 
 use App\Shared\Domain\Exception\AggregateAlreadyExistsException;
 

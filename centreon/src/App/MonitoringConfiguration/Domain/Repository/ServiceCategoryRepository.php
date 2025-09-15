@@ -21,10 +21,10 @@
 
 declare(strict_types=1);
 
-namespace App\ResourceConfiguration\Domain\Repository;
+namespace App\MonitoringConfiguration\Domain\Repository;
 
-use App\ResourceConfiguration\Domain\Aggregate\ServiceCategory;
-use App\ResourceConfiguration\Domain\Aggregate\ServiceCategoryName;
+use App\MonitoringConfiguration\Domain\Aggregate\ServiceCategory\ServiceCategory;
+use App\MonitoringConfiguration\Domain\Aggregate\ServiceCategory\ServiceCategoryName;
 
 interface ServiceCategoryRepository
 {

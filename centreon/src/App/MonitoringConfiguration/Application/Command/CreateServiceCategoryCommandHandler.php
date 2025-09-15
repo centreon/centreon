@@ -21,12 +21,12 @@
 
 declare(strict_types=1);
 
-namespace App\ResourceConfiguration\Application\Command;
+namespace App\MonitoringConfiguration\Application\Command;
 
-use App\ResourceConfiguration\Domain\Aggregate\ServiceCategory;
-use App\ResourceConfiguration\Domain\Event\ServiceCategoryCreated;
-use App\ResourceConfiguration\Domain\Exception\ServiceCategoryAlreadyExistsException;
-use App\ResourceConfiguration\Domain\Repository\ServiceCategoryRepository;
+use App\MonitoringConfiguration\Domain\Aggregate\ServiceCategory\ServiceCategory;
+use App\MonitoringConfiguration\Domain\Event\ServiceCategoryCreated;
+use App\MonitoringConfiguration\Domain\Exception\ServiceCategoryAlreadyExistsException;
+use App\MonitoringConfiguration\Domain\Repository\ServiceCategoryRepository;
 use App\Shared\Application\Command\AsCommandHandler;
 use App\Shared\Domain\Event\EventBus;
 

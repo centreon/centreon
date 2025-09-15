@@ -21,9 +21,9 @@
 
 declare(strict_types=1);
 
-namespace App\ResourceConfiguration\Infrastructure\Legacy;
+namespace App\MonitoringConfiguration\Infrastructure\Legacy;
 
-use App\ResourceConfiguration\Domain\Security\ServiceCategoryPermissionEnum;
+use App\MonitoringConfiguration\Domain\Security\ServiceCategoryPermissionEnum;
 use Centreon\Domain\Contact\Contact;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Vote;

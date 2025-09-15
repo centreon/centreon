@@ -23,7 +23,11 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Application\Command;
 
+<<<<<<< HEAD
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceCategoryName;
+=======
+use App\MonitoringConfiguration\Domain\Aggregate\ServiceCategory\ServiceCategoryName;
+>>>>>>> origin/MON-183044-collection
 
 final readonly class CreateServiceCategoryCommand
 {

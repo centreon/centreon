@@ -21,7 +21,7 @@
 
 declare(strict_types=1);
 
-namespace App\ResourceConfiguration\Domain\Security;
+namespace App\MonitoringConfiguration\Domain\Security;
 
 enum ServiceCategoryPermissionEnum: string
 {
