@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace Adaptation\Log\Exception;
 
-final class LoggerException extends \Exception
+final class LoggerException extends \LogicException
 {
     public function __construct(string $message, ?\Throwable $previous = null)
     {
