@@ -6142,7 +6142,7 @@ msgstr "Erreur lors de la récupération du statut des hôtes"
 #: centreon/src/Core/AgentConfiguration/Application/Exception/AgentConfigurationException.php
 msgid "Error while retrieving multiple agent configurations"
 msgstr ""
-"Erreur durant la récupération de multiples configurations agent"
+"Erreur durant la récupération de plusieurs configurations d'agent"
 
 #: centreon/src/Core/Dashboard/Application/Exception/DashboardException.php
 msgid "Error while retrieving newly created dashboard"
