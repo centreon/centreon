@@ -19,9 +19,6 @@
  *
  */
 
-use Adaptation\Database\Connection\Collection\QueryParameters;
-use Adaptation\Database\Connection\ValueObject\QueryParameter;
-
 require_once __DIR__ . '/../../../bootstrap.php';
 
 /**
@@ -31,55 +28,7 @@ require_once __DIR__ . '/../../../bootstrap.php';
 $version = 'xx.xx.x';
 $errorMessage = '';
 
-/** -------------------------------------- AgentConfiguration updates -------------------------------------- */
-
-/**
- * Align preexisting Agent Configuration with the new schema:
- *      - Add is_poller_initiated bool
- *      - Add is_agent_initiated bool
- *      - Remove is_reverse bool
- */
-$alignCMAAgentConfigurationWithNewSchema = function () use ($pearDB, &$errorMessage): void {
-    $errorMessage = 'Unable to align agent configuration with new schema';
-    $agentConfigurations = $pearDB->fetchAllAssociative(
-        <<<'SQL'
-            SELECT * FROM `agent_configuration`
-            WHERE `type` = 'centreon-agent'
-            SQL
-    );
-    if ($agentConfigurations === []) {
-        return;
-    }
-    foreach ($agentConfigurations as $agentConfiguration) {
-        $configuration = json_decode(
-            json: $agentConfiguration['configuration'],
-            associative: true,
-            flags: JSON_THROW_ON_ERROR
-        );
-        $configuration['agent_initiated'] = false;
-        $configuration['poller_initiated'] = false;
-
-        if ($configuration['is_reverse']) {
-            $configuration['poller_initiated'] = true;
-            unset($configuration['is_reverse']);
-        } else {
-            $configuration['agent_initiated'] = true;
-            unset($configuration['is_reverse']);
-        }
-
-        $pearDB->update(
-            <<<'SQL'
-                    UPDATE agent_configuration
-                    SET configuration = :configuration
-                    WHERE id = :id
-                SQL,
-            QueryParameters::create([
-                QueryParameter::string(':configuration', json_encode($configuration, JSON_THROW_ON_ERROR)),
-                QueryParameter::int(':id', $agentConfiguration['id']),
-            ])
-        );
-    }
-};
+// TODO add your functions here
 
 try {
     // DDL statements for real time database
@@ -94,10 +43,8 @@ try {
     }
 
     // TODO add your function calls to update the configuration database data here
-    $alignCMAAgentConfigurationWithNewSchema();
 
     $pearDB->commit();
-
 } catch (Throwable $exception) {
     CentreonLog::create()->error(
         logTypeId: CentreonLog::TYPE_UPGRADE,
