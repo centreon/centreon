@@ -441,6 +441,12 @@ jobs:
         run: cp config/centreon.config.php.template config/centreon.config.php
         working-directory: centreon
 
+      - name: Ensure Symfony cache directory exists and is writable
+        run: |
+          sudo mkdir -p /var/cache/centreon/symfony.new
+          sudo mkdir -p /var/cache/centreon/symfony
+          sudo chown -R $USER:$USER /var/cache/centreon
+
       - name: Install dependencies for centreon-web
         run: composer install --optimize-autoloader --prefer-dist --no-interaction --no-progress --quiet --no-scripts
         working-directory: centreon
