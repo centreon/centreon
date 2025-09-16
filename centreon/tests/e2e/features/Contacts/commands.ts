@@ -104,6 +104,15 @@ Cypress.Commands.add('loginByDuplicatedOrUpdatedUser', (jsonName: string, login:
   });
 });
 
+Cypress.Commands.add('visitContactsPage', (index: number) => {
+  cy.navigateTo({
+    page: 'Contacts / Users',
+    rootItemNumber: index,
+    subMenu: 'Users'
+  });
+  cy.wait('@getTimeZone');
+});
+
 interface Contact {
 alias: string,
 name: string,
@@ -138,6 +147,7 @@ namespace Cypress {
     addOrUpdateContactGroup: (body: ContactGroup) => Cypress.Chainable;
     addOrUpdateContactTemplate: (body: ContactTemplate) => Cypress.Chainable;
     loginByDuplicatedOrUpdatedUser: (jsonName: string, login: string) => Cypress.Chainable;
+    visitContactsPage: (index: number) => Cypress.Chainable;
   }
 }
 }
