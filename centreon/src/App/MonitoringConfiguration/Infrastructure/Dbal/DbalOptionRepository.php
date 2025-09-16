@@ -62,6 +62,7 @@ final readonly class DbalOptionRepository extends DoctrineRepository implements 
         if ($row === false) {
             throw new OptionDoesNotExistException(['option_name' => $name->value]);
         }
+
         return $this->createOption($row);
     }
 
