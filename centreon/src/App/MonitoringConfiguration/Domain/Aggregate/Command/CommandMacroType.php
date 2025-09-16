@@ -21,7 +21,7 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Domain\Aggregate\CommandMacro;
+namespace App\MonitoringConfiguration\Domain\Aggregate\Command;
 
 enum CommandMacroType: string
 {

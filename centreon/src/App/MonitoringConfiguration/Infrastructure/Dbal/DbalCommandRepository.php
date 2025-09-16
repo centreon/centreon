@@ -56,11 +56,11 @@ final readonly class DbalCommandRepository extends DbalRepository implements Com
             'c.command_name',
             'c.command_type',
             'c.command_line',
-            'c.command_argument_example',
-            'c.command_connector',
-            'c.command_graph_template_id',
+            'c.command_example',
+            // 'c.connector_id', // need a joint here
+            // 'c.graph_id', // need a joint here
             'c.command_comment',
-            'c.command_is_shell_enabled',
+            'c.enable_shell',
             'c.command_activate',
             'c.command_locked'
         )
@@ -75,8 +75,18 @@ final readonly class DbalCommandRepository extends DbalRepository implements Com
             return null;
         }
 
-        return $this->transformer->transform($row);
+        return $this->createCommand($row);
     }
 
-    // add processing for the collections
+    private function createCommand(array $row): Command
+    {
+        $command = $this->transformer->transform($row);
+        $commandMacros = $this->findAllByCommand($command);
+
+        foreach ($commandMacros as $macro) {
+            $command->addCommandMacro($macro);
+        }
+
+        return $command;
+    }
 }

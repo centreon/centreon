@@ -42,7 +42,7 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Command\FindCom
                     404 => new Model\Response('Command resource not found'),
                 ],
             ),
-            security: "is_granted('" . CommandPermissionEnum::CanReadChecks->value . "')", // handle the other cases in the provider
+            // security: "is_granted('" . CommandPermissionEnum::CanReadChecks->value . "')", // handle the other cases in the provider
             securityMessage: 'You are not allowed to access commands',
         ),
     ],

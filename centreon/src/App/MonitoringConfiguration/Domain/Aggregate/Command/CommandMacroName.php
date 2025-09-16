@@ -21,18 +21,16 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Domain\Aggregate\CommandMacro;
+namespace App\MonitoringConfiguration\Domain\Aggregate\Command;
 
-use Command;
+use Webmozart\Assert\Assert;
 
-final readonly class CommandMacro // move this to Command/
+final readonly class CommandMacroName
 {
+
     public function __construct(
-        public readonly CommandMacroId $commandMacroId,
-        public readonly CommandMacroName $name,
-        public readonly CommandMacroType $type,
-        public readonly CommandMacroDescription $description,
-        public readonly Command $command,
+        public string $value,
     ) {
+        Assert::lengthBetween($value, 1, 255);
     }
 }

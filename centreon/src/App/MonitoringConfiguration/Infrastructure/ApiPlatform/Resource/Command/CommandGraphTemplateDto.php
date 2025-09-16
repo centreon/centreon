@@ -23,22 +23,21 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Command;
 
-use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandConnector;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandGraphTemplate;
 
-final class CommandConnectorDto
+final class CommandGraphTemplateDto
 {
     public function __construct(
         public int $id,
-
         public ?string $name = null, // check if nullable
     ) {
     }
 
-    public static function createFromCommandConnector(CommandConnector $connector): self
+    public static function createFromCommandGraphTemplate(CommandGraphTemplate $graphTemplate): self
     {
         return new self(
-            id: $connector->id()->value,
-            name: $connector->name?->value, // to be checked if nullable
+            id: $graphTemplate->id()->value,
+            name: $graphTemplate->name?->value, // to be checked if nullable
         );
     }
 }

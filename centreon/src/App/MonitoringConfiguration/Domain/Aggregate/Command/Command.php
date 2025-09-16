@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Domain\Aggregate\Command;
 
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandMacro;
 use App\Shared\Domain\Aggregate\AggregateRoot;
 use App\Shared\Domain\Collection;
 
@@ -48,6 +49,9 @@ final class Command extends AggregateRoot
 
     public function addCommandMacro(CommandMacro $macro): self
     {
+        if ($this->macros->contains($macro)) {
+            return $this;
+        }
         $this->macros->add($macro);
 
         return $this;

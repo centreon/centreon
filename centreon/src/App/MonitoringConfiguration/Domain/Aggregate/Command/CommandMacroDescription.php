@@ -21,24 +21,16 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Command;
+namespace App\MonitoringConfiguration\Domain\Aggregate\Command;
 
-use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandConnector;
+use Webmozart\Assert\Assert;
 
-final class CommandConnectorDto
+final readonly class CommandMacroDescription
 {
+
     public function __construct(
-        public int $id,
-
-        public ?string $name = null, // check if nullable
+        public string $value,
     ) {
-    }
-
-    public static function createFromCommandConnector(CommandConnector $connector): self
-    {
-        return new self(
-            id: $connector->id()->value,
-            name: $connector->name?->value, // to be checked if nullable
-        );
+        Assert::maxLength($value, 65535);
     }
 }

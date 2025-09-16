@@ -21,16 +21,18 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Domain\Aggregate\CommandMacro;
+namespace App\MonitoringConfiguration\Domain\Aggregate\Command;
 
-use Webmozart\Assert\Assert;
+use Command;
 
-final readonly class CommandMacroDescription
+final readonly class CommandMacro // move this to Command/
 {
-
     public function __construct(
-        public string $value,
+        public readonly CommandMacroId $commandMacroId,
+        public readonly CommandMacroName $name,
+        public readonly CommandMacroType $type,
+        public readonly CommandMacroDescription $description,
+        public readonly Command $command,
     ) {
-        Assert::maxLength($value, 65535);
     }
 }

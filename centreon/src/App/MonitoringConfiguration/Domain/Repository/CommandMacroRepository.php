@@ -21,16 +21,16 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Domain\Aggregate\CommandMacro;
+namespace App\MonitoringConfiguration\Domain\Repository;
 
-use Webmozart\Assert\Assert;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\Command;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandMacro;
+use App\Shared\Domain\Collection;
 
-final readonly class CommandMacroName
+interface CommandMacroRepository
 {
-
-    public function __construct(
-        public string $value,
-    ) {
-        Assert::lengthBetween($value, 1, 255);
-    }
+    /**
+     * @return Collection<CommandMacro>
+     */
+    public function findAllByCommand(Command $command): Collection;
 }
