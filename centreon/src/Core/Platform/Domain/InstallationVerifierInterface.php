@@ -21,21 +21,21 @@
 
 declare(strict_types=1);
 
-namespace Core\Application\Platform\Repository;
+namespace Core\Platform\Domain;
 
-interface ReadPlatformRepositoryInterface
+interface InstallationVerifierInterface
 {
     /**
-     * Check if an upgrade is available.
-     *
-     * @return bool
-     */
-    public function isCentreonWebInstallableOrUpgradable(): bool;
-
-    /**
-     * Check if centreon is installed.
+     * Check that Centreon is installed (if the configuration exists)
      *
      * @return bool
      */
     public function isCentreonWebInstalled(): bool;
+
+    /**
+     * Check if Centreon is Installable or Upgradable (if the install directory exists)
+     *
+     * @return bool
+     */
+    public function isCentreonWebInstallableOrUpgradable(): bool;
 }
