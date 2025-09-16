@@ -446,8 +446,8 @@ jobs:
         working-directory: centreon
         shell: bash
 
-      - name: ⚙️ Check Symfony configuration
-        run: composer symfony:check
+      - name: ⚙️ Check Symfony configuration (legacy and new)
+        run: composer symfony:check && composer symfony:new:check
         working-directory: centreon
 
       - name: 🛠️ Rector checks
