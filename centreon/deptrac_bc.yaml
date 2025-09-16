@@ -8,10 +8,10 @@ parameters:
               - type: directory
                 value: src/App/ActivityLogging/.*
 
-        - name: ResourceConfiguration
+        - name: MonitoringConfiguration
           collectors:
               - type: directory
-                value: src/App/ResourceConfiguration/.*
+                value: src/App/MonitoringConfiguration/.*
 
         - name: Shared
           collectors:
@@ -41,25 +41,27 @@ parameters:
               - { type: classNameRegex, value: '#TypeAlias$#' }
 
     ruleset:
-        ActivityLogging: [ ResourceConfiguration, Shared, Vendors, TypeAliases ]
-        ResourceConfiguration: [ Shared, Vendors, TypeAliases ]
+        ActivityLogging: [ MonitoringConfiguration, Shared, Vendors, TypeAliases ]
+        MonitoringConfiguration: [ Shared, Vendors, TypeAliases ]
         Shared: [ Vendors, TypeAliases ]
         Legacy: [ Vendors, TypeAliases ]
 
     skip_violations:
-        App\Shared\Infrastructure\Legacy\LegacyKernelWrapper: 
+        App\Shared\Infrastructure\Legacy\LegacyKernelWrapper:
             - App\Kernel
-        App\Shared\Infrastructure\Legacy\LegacyContainer: 
+        App\Shared\Infrastructure\Legacy\LegacyContainer:
             - App\Kernel
-        App\Shared\Infrastructure\Legacy\LegacyContactProviderWrapper: 
+        App\Shared\Infrastructure\Legacy\LegacyContactProviderWrapper:
             - Centreon\Domain\Contact\ContactProvider
-        App\Shared\Infrastructure\Legacy\LegacyTokenApiAuthenticatorWrapper: 
+        App\Shared\Infrastructure\Legacy\LegacyTokenApiAuthenticatorWrapper:
             - Security\TokenAPIAuthenticator
-        App\Shared\Infrastructure\Legacy\LegacyWebSsoAuthenticatorWrapper: 
+        App\Shared\Infrastructure\Legacy\LegacyWebSsoAuthenticatorWrapper:
             - Security\WebSSOAuthenticator
-        App\Shared\Infrastructure\Legacy\LegacySessionApiAuthenticatorWrapper: 
+        App\Shared\Infrastructure\Legacy\LegacySessionApiAuthenticatorWrapper:
             - Security\SessionAPIAuthenticator
-        App\Shared\Infrastructure\Legacy\LegacySecurity: 
+        App\Shared\Infrastructure\Legacy\LegacySecurity:
             - Centreon\Domain\Contact\Contact
-        App\ResourceConfiguration\Infrastructure\Legacy\LegacyServiceCategoryPermissionVoter:
+        App\MonitoringConfiguration\Infrastructure\Legacy\LegacyServiceCategoryPermissionVoter:
+            - Centreon\Domain\Contact\Contact
+        App\MonitoringConfiguration\Infrastructure\Legacy\LegacyGlobalMacroPermissionVoter:
             - Centreon\Domain\Contact\Contact
