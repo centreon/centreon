@@ -1,0 +1,18 @@
+## BEGIN: CLUSTER-MONITORING SUDO
+
+User_Alias      CLUSTER-MONITORING=%centreon
+Defaults:CLUSTER-MONITORING !requiretty
+
+# crm_mon
+CLUSTER-MONITORING   ALL = NOPASSWD: /usr/sbin/crm_mon -1 -r -f 2>&1
+
+# clustat
+CLUSTER-MONITORING   ALL = NOPASSWD: /usr/sbin/clustat -x 2>&1
+
+# constraints
+CLUSTER-MONITORING   ALL = NOPASSWD: /usr/sbin/crm_resource --constraints -r centreon
+CLUSTER-MONITORING   ALL = NOPASSWD: /usr/sbin/crm_resource --constraints -r ms_mysql-clone
+CLUSTER-MONITORING   ALL = NOPASSWD: /usr/sbin/crm_resource --constraints -r php-clone
+CLUSTER-MONITORING   ALL = NOPASSWD: /usr/sbin/crm_resource --constraints -r cbd_rrd-clone
+
+## END: CLUSTER-MONITORING SUDO
