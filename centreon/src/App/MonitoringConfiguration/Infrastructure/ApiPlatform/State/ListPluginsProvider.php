@@ -57,12 +57,12 @@ final readonly class ListPluginsProvider implements ProviderInterface
     public function provide(Operation $operation, array $uriVariables = [], array $context = []): iterable
     {
         $pluginPathOption = $this->optionRepository->getByName(new OptionName(Option::PLUGIN_PATH_OPTION_NAME));
-        $models = $this->pluginRepository->findByPath($pluginPathOption->value);
-        $resources = [];
-        foreach ($models as $model) {
-            $resources[] = $this->transformer->transform($model);
+        $plugins = $this->pluginRepository->findByPath($pluginPathOption->value);
+        $pluginResources = [];
+        foreach ($plugins as $plugin) {
+            $resources[] = $this->transformer->transform($plugin);
         }
 
-        return $resources;
+        return $pluginResources ;
     }
 }
