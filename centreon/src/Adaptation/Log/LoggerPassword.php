@@ -35,7 +35,7 @@ final class LoggerPassword
 
     public static function create(): self
     {
-        if (!self::$instance instanceof LoggerPassword) {
+        if (! self::$instance instanceof self) {
             self::$instance = new self(Logger::create(Enum\LogChannelEnum::PASSWORD));
         }
 
