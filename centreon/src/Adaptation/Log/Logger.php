@@ -31,7 +31,9 @@ use Psr\Log\NullLogger;
 
 final readonly class Logger implements LoggerInterface
 {
-    private function __construct(private LoggerInterface $logger) {}
+    private function __construct(private LoggerInterface $logger)
+    {
+    }
 
     public static function create(LogChannelEnum $channel): LoggerInterface
     {
@@ -39,6 +41,7 @@ final readonly class Logger implements LoggerInterface
             return new self(MonologAdapter::create($channel));
         } catch (LoggerException $e) {
             error_log(sprintf('Create logger failed: %s', $e->getMessage()));
+
             return new self(new NullLogger());
         }
     }
