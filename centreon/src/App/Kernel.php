@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace App;
 
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\ErrorHandler\Debug;
 use Symfony\Component\HttpKernel\Kernel as BaseKernel;
 
@@ -107,5 +108,15 @@ class Kernel extends BaseKernel
     public function getLogDir(): string
     {
         return $this->logDir;
+    }
+
+    public function build(ContainerBuilder $container): void
+    {
+        /** @var class-string $class */
+        $class = 'CentreonAnomalyDetection\DependencyInjection\TagIndicatorPass';
+
+        if (class_exists($class)) {
+            $container->addCompilerPass(new $class());
+        }
     }
 }
