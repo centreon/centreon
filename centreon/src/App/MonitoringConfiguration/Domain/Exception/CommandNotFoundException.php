@@ -21,10 +21,10 @@
 
 declare(strict_types=1);
 
-namespace App\ResourceConfiguration\Domain\Aggregate\Command;
+namespace App\MonitoringConfiguration\Domain\Exception;
 
-enum CommandMacroType: string
+use App\Shared\Domain\Exception\AggregateNotFoundException;
+
+final class CommandNotFoundException extends AggregateNotFoundException
 {
-    case HOST = '1';
-    case SERVICE = '2';
 }

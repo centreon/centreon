@@ -21,18 +21,22 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Domain\Aggregate\Command;
+namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource;
 
-use Webmozart\Assert\Assert;
-
-final readonly class CommandArgumentName
+final class CommandConnectorDto
 {
-    public const NAME_VALIDATION_REGEX = '/^ARG\d+$/';
-
     public function __construct(
-        public string $value,
+        public int $id,
+
+        public ?string $name = null, // check if nullable
     ) {
-        Assert::lengthBetween($value, 1, 255);
-        Assert::regex($value, self::NAME_VALIDATION_REGEX);
+    }
+
+    public static function createFromCommandConnector(CommandConnector $connector): self
+    {
+        return new self(
+            id: $connector->id()->value,
+            name: $connector->name?->value, // to be checked if nullable
+        );
     }
 }

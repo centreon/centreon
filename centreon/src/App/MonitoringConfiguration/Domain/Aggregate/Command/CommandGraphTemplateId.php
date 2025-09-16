@@ -21,7 +21,7 @@
 
 declare(strict_types=1);
 
-namespace App\ResourceConfiguration\Domain\Aggregate\Command;
+namespace App\MonitoringConfiguration\Domain\Aggregate\Command;
 
 use App\Shared\Domain\Aggregate\AggregateRootId;
 

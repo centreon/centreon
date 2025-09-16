@@ -25,11 +25,7 @@ namespace Tests\App\MonitoringConfiguration\Application\Command;
 
 use App\MonitoringConfiguration\Application\Command\CreateServiceCategoryCommand;
 use App\MonitoringConfiguration\Application\Command\CreateServiceCategoryCommandHandler;
-<<<<<<< HEAD:centreon/tests/php/App/ResourceConfiguration/Application/Command/CreateServiceCategoryCommandTest.php
-use App\MonitoringConfiguration\Domain\Aggregate\ServiceCategoryName;
-=======
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceCategory\ServiceCategoryName;
->>>>>>> origin/MON-183044-collection:centreon/tests/php/App/MonitoringConfiguration/Application/Command/CreateServiceCategoryCommandTest.php
 use App\MonitoringConfiguration\Domain\Event\ServiceCategoryCreated;
 use App\MonitoringConfiguration\Domain\Exception\ServiceCategoryAlreadyExistsException;
 use PHPUnit\Framework\TestCase;

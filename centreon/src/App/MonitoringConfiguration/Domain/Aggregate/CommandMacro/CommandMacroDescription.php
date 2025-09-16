@@ -21,18 +21,16 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Domain\Aggregate\Command;
+namespace App\MonitoringConfiguration\Domain\Aggregate\CommandMacro;
 
 use Webmozart\Assert\Assert;
 
-final readonly class CommandArgumentName
+final readonly class CommandMacroDescription
 {
-    public const NAME_VALIDATION_REGEX = '/^ARG\d+$/';
 
     public function __construct(
         public string $value,
     ) {
-        Assert::lengthBetween($value, 1, 255);
-        Assert::regex($value, self::NAME_VALIDATION_REGEX);
+        Assert::maxLength($value, 65535);
     }
 }

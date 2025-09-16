@@ -21,33 +21,38 @@
 
 declare(strict_types=1);
 
-namespace App\ResourceConfiguration\Domain\Aggregate\Command;
+namespace App\MonitoringConfiguration\Domain\Aggregate\Command;
 
 use App\Shared\Domain\Aggregate\AggregateRoot;
+use App\Shared\Domain\Collection;
 
 final class Command extends AggregateRoot
 {
     public function __construct(
         ?CommandId $id,
-        public readonly CommandName $name,
-        public readonly CommandType $type,
-        public readonly CommandLine $commandLine,
+        public readonly ?CommandName $name,
+        public readonly ?CommandType $type,
+        public readonly ?CommandLine $commandLine,
         public readonly ?CommandArgumentExample $argumentExample,
         public readonly ?CommandConnector $connector,
         public readonly ?CommandGraphTemplate $graphTemplate,
         public readonly ?CommandComment $comment,
-        public readonly bool $isShellEnabled = false,
-        public readonly bool $isActivated = true, // this is the activation status, check if we need to rename it
-        public readonly bool $isLocked = false,
-         /**
-         * @var CommandArgument[] $arguments
-         */
-        public readonly array $arguments = [],
-        /**
-         * @var CommandMacro[] $macros
-         */
-        public readonly array $macros = [],
+        public readonly bool $isShellEnabled,
+        public readonly bool $isActivated,
+        public readonly bool $isLocked,
+        public readonly Collection $arguments,
+        public readonly Collection $macros,
     ) {
         parent::__construct($id);
     }
+
+    public function addCommandMacro(CommandMacro $macro): self
+    {
+        $this->macros->add($macro);
+
+        return $this;
+    }
+
+    // dans la repo : instantier une commande avec la collection macro vide
+    // creer tous les macros et les ajouter a la commande
 }

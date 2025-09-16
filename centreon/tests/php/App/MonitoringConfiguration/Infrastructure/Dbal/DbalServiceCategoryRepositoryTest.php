@@ -21,19 +21,11 @@
 
 declare(strict_types=1);
 
-<<<<<<< HEAD:centreon/tests/php/App/ResourceConfiguration/Infrastructure/Doctrine/DoctrineServiceCategoryRepositoryTest.php
-namespace Tests\App\MonitoringConfiguration\Infrastructure\Doctrine;
-
-use App\MonitoringConfiguration\Domain\Aggregate\ServiceCategory;
-use App\MonitoringConfiguration\Domain\Aggregate\ServiceCategoryName;
-use App\MonitoringConfiguration\Infrastructure\Doctrine\DoctrineServiceCategoryRepository;
-=======
 namespace Tests\App\MonitoringConfiguration\Infrastructure\Dbal;
 
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceCategory\ServiceCategory;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceCategory\ServiceCategoryName;
 use App\MonitoringConfiguration\Infrastructure\Dbal\DbalServiceCategoryRepository;
->>>>>>> origin/MON-183044-collection:centreon/tests/php/App/MonitoringConfiguration/Infrastructure/Dbal/DbalServiceCategoryRepositoryTest.php
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 final class DbalServiceCategoryRepositoryTest extends KernelTestCase

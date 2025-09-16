@@ -21,18 +21,12 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Domain\Aggregate\Command;
+namespace App\MonitoringConfiguration\Domain\Security;
 
-use Webmozart\Assert\Assert;
-
-final readonly class CommandArgumentName
+enum CommandPermissionEnum: string
 {
-    public const NAME_VALIDATION_REGEX = '/^ARG\d+$/';
-
-    public function __construct(
-        public string $value,
-    ) {
-        Assert::lengthBetween($value, 1, 255);
-        Assert::regex($value, self::NAME_VALIDATION_REGEX);
-    }
+    case CanReadChecks = 'can_read_command_checks';
+    case CanReadNotifications = 'can_read_command_notifications';
+    case CanReadMiscellaneous = 'can_read_command_miscellaneous';
+    case CanReadDiscovery = 'can_read_command_discovery';
 }

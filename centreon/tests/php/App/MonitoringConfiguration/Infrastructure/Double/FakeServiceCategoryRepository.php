@@ -23,15 +23,9 @@ declare(strict_types=1);
 
 namespace Tests\App\MonitoringConfiguration\Infrastructure\Double;
 
-<<<<<<< HEAD:centreon/tests/php/App/ResourceConfiguration/Infrastructure/Double/FakeServiceCategoryRepository.php
-use App\MonitoringConfiguration\Domain\Aggregate\ServiceCategory;
-use App\MonitoringConfiguration\Domain\Aggregate\ServiceCategoryId;
-use App\MonitoringConfiguration\Domain\Aggregate\ServiceCategoryName;
-=======
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceCategory\ServiceCategory;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceCategory\ServiceCategoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceCategory\ServiceCategoryName;
->>>>>>> origin/MON-183044-collection:centreon/tests/php/App/MonitoringConfiguration/Infrastructure/Double/FakeServiceCategoryRepository.php
 use App\MonitoringConfiguration\Domain\Repository\ServiceCategoryRepository;
 use App\Shared\Domain\Aggregate\AggregateRoot;
 

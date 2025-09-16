@@ -21,19 +21,17 @@
 
 declare(strict_types=1);
 
-namespace App\ResourceConfiguration\Application\Query;
+namespace App\MonitoringConfiguration\Application\Query;
 
-use App\ResourceConfiguration\Domain\Aggregate\Command\Command;
-use App\ResourceConfiguration\Domain\Repository\CommandRepository;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\Command;
+use App\MonitoringConfiguration\Domain\Repository\CommandRepository;
 use App\Shared\Application\Query\AsQueryHandler;
-use App\Shared\Domain\Event\EventBus;
 
 #[AsQueryHandler]
 final readonly class FindCommandQueryHandler
 {
     public function __construct(
         private CommandRepository $repository,
-        private EventBus $eventBus,
     ) {
     }
 

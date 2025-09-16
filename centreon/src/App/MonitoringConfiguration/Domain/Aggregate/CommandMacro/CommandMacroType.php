@@ -21,16 +21,10 @@
 
 declare(strict_types=1);
 
-namespace App\ResourceConfiguration\Domain\Aggregate\Command;
+namespace App\MonitoringConfiguration\Domain\Aggregate\CommandMacro;
 
-use Webmozart\Assert\Assert;
-
-final readonly class CommandMacroName
+enum CommandMacroType: string
 {
-
-    public function __construct(
-        public string $value,
-    ) {
-        Assert::lengthBetween($value, 1, 255);
-    }
+    case HOST = '1';
+    case SERVICE = '2';
 }

@@ -21,7 +21,7 @@
 
 declare(strict_types=1);
 
-namespace App\ResourceConfiguration\Domain\Aggregate\Command;
+namespace App\MonitoringConfiguration\Domain\Aggregate\Command;
 
 final readonly class CommandConnector // TODO: Check if the connector should be an entity and not a VO
 {

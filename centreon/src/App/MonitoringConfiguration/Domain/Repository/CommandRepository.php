@@ -21,12 +21,12 @@
 
 declare(strict_types=1);
 
-namespace App\ResourceConfiguration\Domain\Repository;
+namespace App\MonitoringConfiguration\Domain\Repository;
 
-use App\ResourceConfiguration\Domain\Aggregate\Command\Command;
-use App\ResourceConfiguration\Domain\Aggregate\Command\CommandId;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\Command;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
 
 interface CommandRepository
 {
-    public function findOneById(CommandId $id): ?Command;
+    public function getById(CommandId $id): Command;
 }

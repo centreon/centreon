@@ -21,18 +21,19 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Domain\Aggregate\Command;
+namespace App\Shared\Domain\Exception;
 
-use Webmozart\Assert\Assert;
-
-final readonly class CommandArgumentName
+abstract class AggregateNotFoundException extends \RuntimeException
 {
-    public const NAME_VALIDATION_REGEX = '/^ARG\d+$/';
-
+    /**
+     * @param array<string, mixed> $criteria
+     */
     public function __construct(
-        public string $value,
+        public readonly array $criteria,
+        string $message = 'Resource not found.',
+        int $code = 0,
+        ?\Throwable $previous = null,
     ) {
-        Assert::lengthBetween($value, 1, 255);
-        Assert::regex($value, self::NAME_VALIDATION_REGEX);
+        parent::__construct($message, $code, $previous);
     }
 }
