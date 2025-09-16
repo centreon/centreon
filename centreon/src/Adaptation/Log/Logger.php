@@ -31,6 +31,9 @@ use Psr\Log\NullLogger;
 
 final readonly class Logger implements LoggerInterface
 {
+    public const ROTATING_MAX_FILES = 7;
+    public const DATE_FORMAT = \DateTimeInterface::RFC3339;
+
     private function __construct(private LoggerInterface $logger)
     {
     }

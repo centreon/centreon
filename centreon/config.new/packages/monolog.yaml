@@ -10,10 +10,15 @@ when@dev:
                 path: "%kernel.logs_dir%/%kernel.environment%.log"
                 level: debug
                 channels: ["!event"]
+                formatter: monolog.formatter.line
+                formatter_options: &formatter_options
+                  date_format: !php/const DateTimeInterface::RFC3339
             console:
                 type: console
                 process_psr_3_messages: false
                 channels: ["!event", "!doctrine", "!console"]
+                formatter: monolog.formatter.line
+                formatter_options: *formatter_options
 
 when@test:
     monolog:
@@ -24,10 +29,14 @@ when@test:
                 handler: nested
                 excluded_http_codes: [404, 405]
                 channels: ["!event"]
+                formatter: monolog.formatter.line
+                formatter_options: *formatter_options
             nested:
                 type: stream
                 path: "%kernel.logs_dir%/%kernel.environment%.log"
                 level: debug
+                formatter: monolog.formatter.line
+                formatter_options: *formatter_options
 
 when@prod:
     monolog:
@@ -38,15 +47,23 @@ when@prod:
                 handler: nested
                 excluded_http_codes: [404, 405]
                 buffer_size: 50
+                formatter: monolog.formatter.line
+                formatter_options: *formatter_options
             nested:
                 type: stream
                 path: php://stderr
                 level: debug
+                formatter: monolog.formatter.line
+                formatter_options: *formatter_options
             console:
                 type: console
                 process_psr_3_messages: false
                 channels: ["!event", "!doctrine"]
+                formatter: monolog.formatter.line
+                formatter_options: *formatter_options
             deprecation:
                 type: stream
                 channels: [deprecation]
                 path: php://stderr
+                formatter: monolog.formatter.line
+                formatter_options: *formatter_options

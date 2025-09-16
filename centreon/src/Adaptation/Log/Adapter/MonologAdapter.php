@@ -25,6 +25,7 @@ namespace Adaptation\Log\Adapter;
 
 use Adaptation\Log\Enum\LogChannelEnum;
 use Adaptation\Log\Exception\LoggerException;
+use Adaptation\Log\Logger;
 use Monolog\Formatter\LineFormatter;
 use Monolog\Handler\RotatingFileHandler;
 use Monolog\Level;
@@ -119,14 +120,14 @@ final readonly class MonologAdapter implements LoggerInterface
         $handler = match ($this->channel) {
             LogChannelEnum::PASSWORD => new RotatingFileHandler(
                 $this->getLogFileFromChannel(LogChannelEnum::PASSWORD),
-                7,
+                Logger::ROTATING_MAX_FILES,
                 LogLevel::INFO
             ),
             // TODO if another channel is needed, uncomment the following line
             // default => throw LoggerException::channelNotImplemented($this->channel->value),
         };
 
-        $handler->setFormatter(new LineFormatter(dateFormat: \DateTimeInterface::RFC3339));
+        $handler->setFormatter(new LineFormatter(null, Logger::DATE_FORMAT));
 
         $this->logger->pushHandler($handler);
     }
