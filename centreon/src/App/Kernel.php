@@ -112,7 +112,6 @@ class Kernel extends BaseKernel
 
     protected function build(ContainerBuilder $container): void
     {
-        /** @var class-string $class */
         $class = 'CentreonAnomalyDetection\DependencyInjection\TagIndicatorPass';
 
         if (class_exists($class)) {
