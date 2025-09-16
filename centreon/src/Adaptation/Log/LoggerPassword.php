@@ -65,7 +65,7 @@ final class LoggerPassword
                 'initiator_user_id' => $initiatorId,
                 'target_user_id' => $targetId,
                 'ip_address' => $_SERVER['REMOTE_ADDR'] ?? 'unknown',
-                'exception_message' => $exception?->getMessage() ?? null,
+                'exception' => $exception,
             ]
         );
     }
