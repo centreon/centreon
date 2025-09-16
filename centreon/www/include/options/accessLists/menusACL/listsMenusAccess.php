@@ -26,21 +26,21 @@ if (! isset($centreon)) {
 include './include/common/autoNumLimit.php';
 
 $searchStr = '';
-$search = null;
 
-if (isset($_POST['searchACLM'])) {
-    $search = $_POST['searchACLM'];
-    $centreon->historySearch[$url] = $search;
-} elseif (isset($_GET['searchACLM'])) {
-    $search = $_GET['searchACLM'];
+$search = $_POST['searchACLM'] ?? $_GET['searchACLM'] ?? null;
+if (! is_null($search)) {
     $centreon->historySearch[$url] = $search;
 } elseif (isset($centreon->historySearch[$url])) {
     $search = $centreon->historySearch[$url];
 }
 
+if (! is_null($search)) {
+    $search = HtmlSanitizer::createFromString($search)->sanitize()->getString();
+}
+
 if ($search) {
-    $searchStr .= " WHERE (acl_topo_name LIKE '%" . htmlentities($search, ENT_QUOTES, 'UTF-8')
-        . "%' OR acl_topo_alias LIKE '" . htmlentities($search, ENT_QUOTES, 'UTF-8') . "')";
+    $searchStr .= " WHERE (acl_topo_name LIKE '%" . $search . "%' "
+        . "OR acl_topo_alias LIKE '" . $search . "')";
 }
 
 $rq = 'SELECT SQL_CALC_FOUND_ROWS acl_topo_id, acl_topo_name, acl_topo_alias, acl_topo_activate '
