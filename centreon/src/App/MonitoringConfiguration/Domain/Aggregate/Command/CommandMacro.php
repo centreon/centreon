@@ -23,16 +23,13 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Domain\Aggregate\Command;
 
-use Command;
-
-final readonly class CommandMacro // move this to Command/
+final readonly class CommandMacro
 {
     public function __construct(
-        public readonly CommandMacroId $commandMacroId,
+        public readonly CommandMacroId $id,
         public readonly CommandMacroName $name,
         public readonly CommandMacroType $type,
-        public readonly CommandMacroDescription $description,
-        public readonly Command $command,
+        public readonly ?CommandMacroDescription $description,
     ) {
     }
 }

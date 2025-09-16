@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Domain\Aggregate\Command;
 
-final readonly class CommandConnector // TODO: Check if the connector should be an entity and not a VO
+final readonly class CommandConnector
 {
     public function __construct(
         public readonly CommandConnectorId $id,

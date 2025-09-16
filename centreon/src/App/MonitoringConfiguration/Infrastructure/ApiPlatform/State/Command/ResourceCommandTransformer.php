@@ -24,9 +24,11 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Command;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Command\Command;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandArgument;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Command\CommandResource;
-use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandConnector;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandMacro;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\CommandConnectorDto;
+use App\Shared\Domain\Collection;
 use App\Shared\Infrastructure\TransformerInterface;
 
 /**
@@ -49,8 +51,8 @@ final readonly class ResourceCommandTransformer implements TransformerInterface
             isShellEnabled: $from->isShellEnabled,
             isActivated: $from->isActivated ?? false,
             isLocked: $from->isLocked ?? false,
-            // arguments
-            // macros
+            macros: $from->macros,
+            arguments: $from->arguments
         );
     }
 }

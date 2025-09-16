@@ -21,22 +21,10 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Application\Query;
+namespace App\MonitoringConfiguration\Domain\Aggregate\Command;
 
-use App\MonitoringConfiguration\Domain\Aggregate\Command\Command;
-use App\MonitoringConfiguration\Domain\Repository\CommandRepository;
-use App\Shared\Application\Query\AsQueryHandler;
+use App\Shared\Domain\Aggregate\AggregateRootId;
 
-#[AsQueryHandler]
-final readonly class FindCommandQueryHandler
+final readonly class CommandMacroId extends AggregateRootId
 {
-    public function __construct(
-        private CommandRepository $repository,
-    ) {
-    }
-
-    public function __invoke(FindCommandQuery $query): Command
-    {
-        return $this->repository->findOneById($query->id);
-    }
 }

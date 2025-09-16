@@ -23,7 +23,6 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Domain\Aggregate\Command;
 
-use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandMacro;
 use App\Shared\Domain\Aggregate\AggregateRoot;
 use App\Shared\Domain\Collection;
 
@@ -57,6 +56,13 @@ final class Command extends AggregateRoot
         return $this;
     }
 
-    // dans la repo : instantier une commande avec la collection macro vide
-    // creer tous les macros et les ajouter a la commande
+    public function addCommandArgument(CommandArgument $argument): self
+    {
+        if ($this->arguments->contains($argument)) {
+            return $this;
+        }
+        $this->arguments->add($argument);
+
+        return $this;
+    }
 }

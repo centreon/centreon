@@ -30,6 +30,7 @@ use ApiPlatform\OpenApi\Model;
 use App\MonitoringConfiguration\Domain\Security\CommandPermissionEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandGraphTemplate;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Command\FindCommandProvider;
+use App\Shared\Domain\Collection;
 
 #[ApiResource(
     shortName: 'Command',
@@ -112,6 +113,26 @@ final class CommandResource
             openapiContext: ['example' => 0, 'enum' => [0, 1]]
         )]
         public bool $isLocked,
+
+        #[ApiProperty(
+            description: 'The list of command macros related to the command',
+            openapiContext: [
+                'type' => 'array',
+                'items' => ['id' => 'int', 'name' => 'string'], //check in docs/code
+                'example' => ['ARG1', 'ARG2', 'ARG3'], // check in docs/code
+            ]
+        )]
+        public Collection $macros,
+
+        #[ApiProperty(
+            description: 'The list of arguments related to the command',
+            openapiContext: [
+                'type' => 'array',
+                'items' => ['id' => 'int', 'name' => 'string'], // check in docs/code
+                'example' => [['id' => 1, 'name' => 'ARG1', 'value' => 'localhost']], // check in docs/code
+            ]
+        )]
+        public Collection $arguments,
     ) {
     }
 }

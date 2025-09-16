@@ -30,6 +30,6 @@ final readonly class CommandComment
     public function __construct(
         public string $value = '',
     ) {
-        Assert::lengthBetween($value, 1, 65535);
+        Assert::maxLength($value, 65535);
     }
 }

@@ -21,10 +21,14 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Infrastructure\Dbal;
+namespace App\MonitoringConfiguration\Infrastructure\Dbal\Command;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Command\Command;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandArgument;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandArgumentDescription;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandArgumentName;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandMacro;
 use App\MonitoringConfiguration\Domain\Repository\CommandRepository;
 use App\Shared\Infrastructure\Dbal\DbalRepository;
 use App\Shared\Infrastructure\TransformerInterface;
@@ -43,7 +47,17 @@ final readonly class DbalCommandRepository extends DbalRepository implements Com
         private Connection $connection,
 
         #[Autowire(service: DbalCommandTransformer::class)]
-        private TransformerInterface $transformer,
+        private TransformerInterface $commandTransformer,
+
+        #[Autowire(service: DbalCommandMacroTransformer::class)]
+        private TransformerInterface $commandMacroTransformer,
+
+        #[Autowire(service: DbalCommandArgumentTransformer::class)]
+        private TransformerInterface $commandArgumentTransformer,
+
+        private DbalCommandMacroRepository $commandMacroRepository,
+
+        private DbalCommandArgumentRepository $commandArgumentRepository,
     ) {
     }
 
@@ -57,8 +71,8 @@ final readonly class DbalCommandRepository extends DbalRepository implements Com
             'c.command_type',
             'c.command_line',
             'c.command_example',
-            // 'c.connector_id', // need a joint here
-            // 'c.graph_id', // need a joint here
+            'c.connector_id', // need a joint here
+            'c.graph_id', // need a joint here
             'c.command_comment',
             'c.enable_shell',
             'c.command_activate',
@@ -80,11 +94,20 @@ final readonly class DbalCommandRepository extends DbalRepository implements Com
 
     private function createCommand(array $row): Command
     {
-        $command = $this->transformer->transform($row);
-        $commandMacros = $this->findAllByCommand($command);
+        $command = $this->commandTransformer->transform($row);
+        $commandMacros = $this->commandMacroRepository->findAllByCommand($command);
+        $commandArguments = $this->commandArgumentRepository->findAllByCommand($command);
 
-        foreach ($commandMacros as $macro) {
-            $command->addCommandMacro($macro);
+        foreach ($commandMacros as $commandMacro) {
+            $command->addCommandMacro(
+                $commandMacro
+            );
+        }
+
+        foreach ($commandArguments as $commandArgument) {
+            $command->addCommandArgument(
+                $commandArgument
+            );
         }
 
         return $command;

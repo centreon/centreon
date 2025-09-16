@@ -21,7 +21,7 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Infrastructure\Dbal;
+namespace App\MonitoringConfiguration\Infrastructure\Dbal\Command;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Command\Command;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandArgument;
@@ -33,7 +33,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandLine;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandName;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandType;
-use App\MonitoringConfiguration\Domain\Aggregate\CommandMacro\CommandMacro;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandMacro;
 use App\Shared\Infrastructure\TransformerInterface;
 use App\Shared\Domain\Collection;
 

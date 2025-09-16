@@ -21,14 +21,16 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Application\Query;
+namespace App\MonitoringConfiguration\Domain\Repository;
 
-use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\Command;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandArgument;
+use App\Shared\Domain\Collection;
 
-final readonly class FindCommandQuery
+interface CommandArgumentRepository
 {
-    public function __construct(
-        public readonly CommandId $id
-    ) {
-    }
+    /**
+     * @return Collection<CommandArgument>
+     */
+    public function findAllByCommand(Command $command): Collection;
 }
