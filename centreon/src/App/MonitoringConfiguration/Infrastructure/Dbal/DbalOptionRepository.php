@@ -25,10 +25,10 @@ namespace App\MonitoringConfiguration\Infrastructure\Dbal;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Option\Option;
 use App\MonitoringConfiguration\Domain\Aggregate\Option\OptionName;
-use App\MonitoringConfiguration\Domain\Aggregate\Option\OptionValue;
 use App\MonitoringConfiguration\Domain\Exception\OptionDoesNotExistException;
 use App\MonitoringConfiguration\Domain\Repository\OptionRepository;
 use App\Shared\Infrastructure\Doctrine\DoctrineRepository;
+use App\Shared\Infrastructure\TransformerInterface;
 use Doctrine\DBAL\Connection;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
@@ -45,13 +45,16 @@ final readonly class DbalOptionRepository extends DoctrineRepository implements 
     public function __construct(
         #[Autowire(service: 'doctrine.dbal.default_connection')]
         private Connection $connection,
+
+        #[Autowire(service: DbalOptionTransformer::class)]
+        private TransformerInterface $transformer
     ) {
     }
 
     public function getByName(OptionName $name): Option
     {
         $qb = $this->connection->createQueryBuilder();
-        $qb->select('`key`', '`value`')
+        $qb->select('`key` AS option_name', '`value` AS option_value')
             ->from(self::TABLE_NAME)
             ->where('`key` = :name')
             ->setParameter('name', $name->value)
@@ -63,17 +66,7 @@ final readonly class DbalOptionRepository extends DoctrineRepository implements 
             throw new OptionDoesNotExistException(['option_name' => $name->value]);
         }
 
-        return $this->createOption($row);
-    }
-
-    /**
-     * @param RowTypeAlias $row
-     */
-    private function createOption(array $row): Option
-    {
-        return new Option(
-            name: new OptionName($row['key']),
-            value: new OptionValue($row['value']),
-        );
+        return $this->transformer->transform($row);
     }
 }
+

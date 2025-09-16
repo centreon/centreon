@@ -43,14 +43,9 @@ final readonly class FileSystemPluginRepository implements PluginRepository
         $pluginInfos = $this->finder->files()->in($path->value);
         $plugins = [];
         foreach ($pluginInfos as $pluginInfo) {
-            $plugins[] = $this->createPlugin($pluginInfo->getFilename());
+            $plugins[] = new Plugin(new PluginName($pluginInfo->getFilename()));
         }
 
         return $plugins;
-    }
-
-    private function createPlugin(string $pluginName): Plugin
-    {
-        return new Plugin(new PluginName($pluginName));
     }
 }
