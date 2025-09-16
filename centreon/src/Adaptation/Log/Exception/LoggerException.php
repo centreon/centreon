@@ -30,8 +30,8 @@ final class LoggerException extends \LogicException
         parent::__construct($message, 0, $previous);
     }
 
-    public static function channelNotImplemented(string $channel): self
+    public static function channelNotConfigured(string $channel): self
     {
-        return new self(sprintf('The logging channel "%s" is not implemented.', $channel));
+        return new self(sprintf('The logging channel "%s" is not configured.', $channel));
     }
 }
