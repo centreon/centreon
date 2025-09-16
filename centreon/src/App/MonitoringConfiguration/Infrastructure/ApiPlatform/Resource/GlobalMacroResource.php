@@ -38,12 +38,28 @@ use Symfony\Component\Validator\Constraints as Assert;
             uriTemplate: '/configuration/global-macros',
             provider: ListGlobalMacrosProvider::class,
             openapi: new Model\Operation(
-                parameters: [new Model\Parameter(
-                    name: 'name',
-                    in: 'query',
-                    description: 'Filter by name (supports "lk" and "eq" operators)',
-                    required: false,
-                )],
+                parameters: [
+                    new Model\Parameter(
+                        name: 'name[lk]',
+                        in: 'query',
+                        description: 'Filter by name using "like" operator',
+                        required: false,
+                        schema: [
+                            'type' => 'array',
+                            'items' => ['type' => 'string'],
+                        ],
+                    ),
+                    new Model\Parameter(
+                        name: 'name[eq]',
+                        in: 'query',
+                        description: 'Filter by name using "equals" operator',
+                        required: false,
+                        schema: [
+                            'type' => 'array',
+                            'items' => ['type' => 'string'],
+                        ],
+                    ),
+                ],
             ),
             security: "is_granted('" . GlobalMacroPermissionEnum::CanRead->value . "')",
             securityMessage: 'You are not allowed to list global macros',
