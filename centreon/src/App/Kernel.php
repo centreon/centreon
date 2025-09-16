@@ -110,7 +110,7 @@ class Kernel extends BaseKernel
         return $this->logDir;
     }
 
-    public function build(ContainerBuilder $container): void
+    protected function build(ContainerBuilder $container): void
     {
         /** @var class-string $class */
         $class = 'CentreonAnomalyDetection\DependencyInjection\TagIndicatorPass';
