@@ -450,10 +450,6 @@ jobs:
         run: composer symfony:check
         working-directory: centreon
 
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
       - name: Get changed PHP files
         id: changed-files
         run: |
@@ -470,7 +466,6 @@ jobs:
 
           pids=()
           statuses=()
-
 
           run_task() {
             name=$1
