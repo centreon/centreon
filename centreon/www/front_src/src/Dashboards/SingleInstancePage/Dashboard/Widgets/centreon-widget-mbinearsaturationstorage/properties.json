@@ -100,24 +100,31 @@
             "type": "resources",
             "defaultValue": [],
             "required": true,
-            "useAdditionalResources": true,
-                  "singleResourceType": true,
-
+            "useAdditionalResources": false,
+            "singleResourceType": true,
             "selectType": {
                 "defaultResourceType": [
                     { "resourceType": "host-group", "requied": true },
                     {
                         "resourceType": "host-category",
-                        "requied": false,
+                        "requied": true,
                         "disabled": { "when": "resourceType", "matches": "host-group" }
                     },
                     {
                         "resourceType": "service-category",
-                        "requied": false,
+                        "requied": true,
                         "disabled": { "when": "resourceType", "matches": ["host-group", "host-category"] }
                     }
                 ]
             },
+            "forceSingleAutocompleteConditions": {
+                "resourceType": "host-group",
+                "conditions": [
+                    {
+                        "method": "truthy"
+                    }
+                ]
+           },
             "excludedResourceTypes": [
                 "host",
                 "service",
@@ -130,5 +137,5 @@
             "defaultValue": []
         }
     },
-    "singleResourceSelection": true
+    "singleResourceSelection": false
 }

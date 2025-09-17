@@ -31,7 +31,7 @@ export const checkHiddenCondition = ({
   values
 }: CheckHiddenConditionProps): boolean => {
   const { target, method, when, matches } = hiddenCondition;
-
+  
   if (equals(target, 'featureFlags')) {
     return !hasModule || equals(featureFlags?.[hiddenCondition.when], matches);
   }
@@ -70,6 +70,10 @@ export const checkHiddenCondition = ({
     const formValue = path(when.split('.'), values);
 
     return !hasModule || isEmpty(formValue) || isNil(formValue);
+  }
+
+  if (equals(method, 'truthy')) {
+    return true;
   }
 
   return !hasModule || equals(path(when.split('.'), values), matches);
