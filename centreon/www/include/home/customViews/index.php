@@ -18,7 +18,6 @@
  *
  */
 
-use Symfony\Component\HttpFoundation\Request;
 require_once _CENTREON_PATH_ . 'www/class/centreonCustomView.class.php';
 require_once _CENTREON_PATH_ . 'www/class/centreonWidget.class.php';
 require_once _CENTREON_PATH_ . 'www/class/centreonContactgroup.class.php';
