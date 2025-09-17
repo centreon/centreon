@@ -45,7 +45,6 @@ try {
     // TODO add your function calls to update the configuration database data here
 
     $pearDB->commit();
-
 } catch (Throwable $exception) {
     CentreonLog::create()->error(
         logTypeId: CentreonLog::TYPE_UPGRADE,

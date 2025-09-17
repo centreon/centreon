@@ -24496,3 +24496,23 @@ msgstr "alerte"
 #: unknown
 msgid "will display resources with host name starting by'"
 msgstr "affichera les ressources avec un nom d'hôte commençant par"
+
+#: unknown
+msgid "Connection initiated"
+msgstr "Connexion initiée"
+
+#: unknown
+msgid "By agent"
+msgstr "Par l’agent"
+
+#: unknown
+msgid "By poller"
+msgstr "Par le collecteur"
+
+#: unknown
+msgid "This is the most common case: the agent initiates the connection to the poller."
+msgstr "Il s’agit du cas le plus courant : l’agent initie la connexion vers le collecteur."
+
+#: unknown
+msgid "If the agent is not allowed to connect to the poller for security reasons (e.g. when the poller is in a DMZ), you can use a poller-initiated connection."
+msgstr "Si l’agent n’est pas autorisé à se connecter au collecteur pour des raisons de sécurité (par exemple si le collecteur est en DMZ), vous pouvez utiliser une connexion initiée par le collecteur."

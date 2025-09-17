@@ -6,21 +6,26 @@ import {
 } from '@centreon/ui';
 import { Box } from '@mui/material';
 import { useTranslation } from 'react-i18next';
-import { hostsConfigurationEndpoint } from '../../api/endpoints';
-import { HostConfiguration as HostConfigurationModel } from '../../models';
+import {
+  getTokensEndpoint,
+  hostsConfigurationEndpoint
+} from '../../../api/endpoints';
+import { HostConfiguration as HostConfigurationModel } from '../../../models';
 
 import RedirectToTokensPage from '../RedirectToTokensPage';
 import { useHostConfiguration } from './useHostConfiguration';
 
-import CMATokens from './CMATokenField';
+import { useHostConfigurationsStyle } from './HostConfigurationsStyle';
 
+import { listTokensDecoder } from '../../../api/decoders';
 import {
   labelCACommonName,
   labelCaCertificate,
   labelDNSIP,
   labelPort,
+  labelSelectExistingCMAToken,
   labelSelectHost
-} from '../../translatedLabels';
+} from '../../../translatedLabels';
 
 interface Props {
   index: number;
@@ -28,6 +33,8 @@ interface Props {
 }
 
 const HostConfiguration = ({ index, host }: Props): JSX.Element => {
+  const { classes } = useHostConfigurationsStyle();
+
   const { t } = useTranslation();
   const {
     selectHost,
@@ -47,7 +54,7 @@ const HostConfiguration = ({ index, host }: Props): JSX.Element => {
     <Box
       sx={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(2, 1fr)',
+        gridTemplateColumns: 'repeat(3, 1fr)',
         gap: 2,
         width: 'calc(100% - 24px)'
       }}
@@ -66,14 +73,17 @@ const HostConfiguration = ({ index, host }: Props): JSX.Element => {
       />
       <TextField
         required
+        className={classes.input}
         value={host.address}
         onChange={changeAddress}
         label={t(labelDNSIP)}
         dataTestId={labelDNSIP}
         fullWidth
-        slotProps={{
-          htmlInput: {
-            'aria-label': labelDNSIP
+        textFieldSlotsAndSlotProps={{
+          slotProps: {
+            htmlInput: {
+              'aria-label': labelDNSIP
+            }
           }
         }}
         error={hostTouched?.address && hostErrors?.address}
@@ -95,6 +105,7 @@ const HostConfiguration = ({ index, host }: Props): JSX.Element => {
             }
           }
         }}
+        className={classes.input}
       />
 
       {areCertificateFieldsVisible && (
@@ -117,6 +128,7 @@ const HostConfiguration = ({ index, host }: Props): JSX.Element => {
                 hostErrors?.pollerCaCertificate) ||
               undefined
             }
+            className={classes.input}
           />
 
           <TextField
@@ -136,11 +148,23 @@ const HostConfiguration = ({ index, host }: Props): JSX.Element => {
               (hostTouched?.pollerCaName && hostErrors?.pollerCaName) ||
               undefined
             }
+            className={classes.input}
           />
-
-          <CMATokens changeCMAToken={changeCMAToken} value={token} />
-          <div />
-          <RedirectToTokensPage />
+          <Box className="flex flex-col">
+            <SingleConnectedAutocompleteField
+              required
+              disableClearable={false}
+              dataTestId={labelSelectExistingCMAToken}
+              field="token_name"
+              getEndpoint={getTokensEndpoint}
+              label={t(labelSelectExistingCMAToken)}
+              value={token || null}
+              onChange={changeCMAToken}
+              decoder={listTokensDecoder}
+              error={(hostTouched?.token && hostErrors?.token) || undefined}
+            />
+            <RedirectToTokensPage />
+          </Box>
         </>
       )}
     </Box>
