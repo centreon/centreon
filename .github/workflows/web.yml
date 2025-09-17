@@ -457,11 +457,14 @@ jobs:
 
           pids=()
           statuses=()
+          
+          git fetch origin ${{ github.base_ref }}
+          DIFF_FILES=$(git diff --name-only origin/${{ github.base_ref }}...${{ g
 
           run_task() {
             name=$1
             shift
-            "$@" -- --no-progress-bar
+            "$@" -- $DIFF_FILES --no-progress-bar
             result=$?
             if [ $result -eq 0 ]; then
               echo "✅ Rector $name: Success"
@@ -472,6 +475,10 @@ jobs:
           }
 
           # Start tasks in background
+          if [ -z "$DIFF_FILES" ]; then
+            echo "No files changed, skipping Rector checks."
+            exit 0
+          fi
           run_task legacy composer rector:legacy & pids+=($!)
           run_task core composer rector:core & pids+=($!)
           run_task new composer rector:new & pids+=($!)
