@@ -26,11 +26,8 @@ use Adaptation\Database\Connection\ValueObject\QueryParameter;
 
 require_once __DIR__ . '/../../../bootstrap.php';
 
-/**
- * This file contains changes to be included in the next version.
- * The actual version number should be added in the variable $version.
- */
 $version = 'xx.xx.x';
+
 $errorMessage = '';
 
 /** @var ConnectionInterface $pearDB */
@@ -111,6 +108,7 @@ try {
         message: "UPGRADE - {$version}: " . $errorMessage,
         exception: $throwable
     );
+
     try {
         if ($pearDB->isTransactionActive()) {
             $pearDB->rollBackTransaction();
@@ -123,10 +121,13 @@ try {
         );
 
         throw new RuntimeException(
-            "UPGRADE - {$version}: error while rolling back the upgrade operation for : {$errorMessage}",
+            message: "UPGRADE - {$version}: error while rolling back the upgrade operation for : {$errorMessage}",
             previous: $rollbackException
         );
     }
 
-    throw new RuntimeException("UPGRADE - {$version}: " . $errorMessage, previous: $throwable);
+    throw new RuntimeException(
+        message: "UPGRADE - {$version}: " . $errorMessage,
+        previous: $throwable
+    );
 }
