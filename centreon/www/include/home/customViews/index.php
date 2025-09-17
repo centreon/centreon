@@ -342,9 +342,6 @@ if (isset($_SESSION['customview_edit_mode'])) {
     $modeEdit = ($_SESSION['customview_edit_mode'] === 'true') ? 'true' : 'false';
 }
 
-$resourcesStatusLabel = _('Dashboards');
-$basePath = (Request::createFromGlobals())->getBasePath();
-$redirectionUrl = $basePath . '/home/dashboards/library';
 ?>
 
 
