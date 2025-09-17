@@ -450,22 +450,32 @@ jobs:
         run: composer symfony:check
         working-directory: centreon
 
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get changed PHP files
+        id: changed-files
+        run: |
+          git fetch origin ${{ github.base_ref }} --depth=1
+          CHANGED_FILES=$(git diff --name-only origin/${{ github.base_ref }}...${{ github.sha }} -- '*.php')
+          echo "files=$CHANGED_FILES" >> $GITHUB_OUTPUT
+
       - name: 🛠️ Rector checks
+        if: steps.changed-files.outputs.files != ''
         working-directory: centreon
         run: |
           echo "Run of these Rector tests: rector:legacy, rector:core, rector:new" && set -e
+          echo "Files: ${{ steps.changed-files.outputs.files }}"
 
           pids=()
           statuses=()
 
-          git fetch origin ${{ github.base_ref }}
-          git fetch origin ${{ github.head_ref }}
-          DIFF_FILES=$(git diff --name-only origin/${{ github.base_ref }}...${{ github.head_ref }})
 
           run_task() {
             name=$1
             shift
-            "$@" -- $DIFF_FILES --no-progress-bar
+            "$@" -- ${{ steps.changed-files.outputs.files }} --no-progress-bar
             result=$?
             if [ $result -eq 0 ]; then
               echo "✅ Rector $name: Success"
@@ -476,10 +486,6 @@ jobs:
           }
 
           # Start tasks in background
-          if [ -z "$DIFF_FILES" ]; then
-            echo "No files changed, skipping Rector checks."
-            exit 0
-          fi
           run_task legacy composer rector:legacy & pids+=($!)
           run_task core composer rector:core & pids+=($!)
           run_task new composer rector:new & pids+=($!)
