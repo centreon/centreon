@@ -244,7 +244,10 @@ sub exportBackup($) {
             if (@files == 0) {
                 print STDERR "No file to export in " . $TEMP_DB_DIR . "\n";
             } else {
-                # Convoluted way to build the command because we need the glob()
+                # Convoluted way to build the command as a single array:
+                # system() does not expand wildcards like the shell, so we need
+                # to use glob() and we also need to flatten as a single array
+                # the list of options of the command and the result of glob()
                 my @scp_command = ("scp", "-o", "BatchMode=yes", "-o", "ConnectTimeout=30");
                 push (@scp_command, @files);
                 push (@scp_command, "$scp_user\@$scp_host:$scp_directory/");
@@ -264,7 +267,10 @@ sub exportBackup($) {
             if (@files == 0) {
                 print STDERR "No file to export in " . $TEMP_CENTRAL_DIR . "\n";
             } else {
-                # Convoluted way to build the command because we need the glob()
+                # Convoluted way to build the command as a single array:
+                # system() does not expand wildcards like the shell, so we need
+                # to use glob() and we also need to flatten as a single array
+                # the list of options of the command and the result of glob()
                 my @scp_command = ("scp", "-o", "BatchMode=yes", "-o", "ConnectTimeout=30");
                 push (@scp_command, @files);
                 push (@scp_command, "$scp_user\@$scp_host:$scp_directory/");
