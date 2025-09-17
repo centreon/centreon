@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace App;
 
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
+use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\ErrorHandler\Debug;
 use Symfony\Component\HttpKernel\Kernel as BaseKernel;
@@ -115,7 +116,9 @@ class Kernel extends BaseKernel
         $class = 'CentreonAnomalyDetection\DependencyInjection\TagIndicatorPass';
 
         if (class_exists($class)) {
-            $container->addCompilerPass(new $class());
+            /** @var CompilerPassInterface $compilerPass */
+            $compilerPass = new $class();
+            $container->addCompilerPass($compilerPass);
         }
     }
 }
