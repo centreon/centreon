@@ -34,20 +34,23 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 /**
  * @phpstan-type RowTypeAlias = array{
- *  key: string,
- *  value: string,
+ *  option_name: string,
+ *  option_value: string,
  * }
  */
 final readonly class DbalOptionRepository extends DoctrineRepository implements OptionRepository
 {
     private const TABLE_NAME = 'options';
 
+    /**
+     * @param TransformerInterface<RowTypeAlias, Option> $transformer
+     */
     public function __construct(
         #[Autowire(service: 'doctrine.dbal.default_connection')]
         private Connection $connection,
 
         #[Autowire(service: DbalOptionTransformer::class)]
-        private TransformerInterface $transformer
+        private TransformerInterface $transformer,
     ) {
     }
 
@@ -59,14 +62,11 @@ final readonly class DbalOptionRepository extends DoctrineRepository implements 
             ->where('`key` = :name')
             ->setParameter('name', $name->value)
             ->setMaxResults(1);
-
         /** @var RowTypeAlias|false $row */
         $row = $qb->executeQuery()->fetchAssociative();
         if ($row === false) {
             throw new OptionDoesNotExistException(['option_name' => $name->value]);
         }
-
         return $this->transformer->transform($row);
     }
 }
-

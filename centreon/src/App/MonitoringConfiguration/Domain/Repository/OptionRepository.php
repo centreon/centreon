@@ -25,6 +25,7 @@ namespace App\MonitoringConfiguration\Domain\Repository;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Option\Option;
 use App\MonitoringConfiguration\Domain\Aggregate\Option\OptionName;
+use App\MonitoringConfiguration\Domain\Exception\OptionDoesNotExistException;
 
 interface OptionRepository
 {

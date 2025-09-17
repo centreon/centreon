@@ -1,4 +1,3 @@
-
 <?php
 
 /*
@@ -29,6 +28,11 @@ use App\MonitoringConfiguration\Domain\Aggregate\Option\OptionName;
 use App\MonitoringConfiguration\Domain\Aggregate\Option\OptionValue;
 use App\Shared\Infrastructure\TransformerInterface;
 
+/**
+ * @phpstan-import-type RowTypeAlias from DbalOptionRepository
+ *
+ * @implements TransformerInterface<RowTypeAlias, Option>
+ */
 final readonly class DbalOptionTransformer implements TransformerInterface
 {
     public function transform(mixed $from): Option

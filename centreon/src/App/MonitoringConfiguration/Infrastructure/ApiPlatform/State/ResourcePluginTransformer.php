@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\State;
 
-use App\MonitoringConfiguration\Domain\Aggregate\Plugin;
+use App\MonitoringConfiguration\Domain\Aggregate\Plugin\Plugin;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\PluginResource;
 use App\Shared\Infrastructure\TransformerInterface;
 

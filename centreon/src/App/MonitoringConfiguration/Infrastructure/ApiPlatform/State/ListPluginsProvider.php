@@ -58,11 +58,12 @@ final readonly class ListPluginsProvider implements ProviderInterface
     {
         $pluginPathOption = $this->optionRepository->getByName(new OptionName(Option::PLUGIN_PATH_OPTION_NAME));
         $plugins = $this->pluginRepository->findByPath($pluginPathOption->value);
+
         $pluginResources = [];
         foreach ($plugins as $plugin) {
-            $resources[] = $this->transformer->transform($plugin);
+            $pluginResources[] = $this->transformer->transform($plugin);
         }
 
-        return $pluginResources ;
+        return $pluginResources;
     }
 }
