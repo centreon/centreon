@@ -471,7 +471,7 @@ jobs:
           run_task() {
             name=$1
             shift
-            "$@" -- ${{ steps.changed-files.outputs.files }} --no-progress-bar
+            "$@" -- --no-progress-bar
             result=$?
             if [ $result -eq 0 ]; then
               echo "✅ Rector $name: Success"
