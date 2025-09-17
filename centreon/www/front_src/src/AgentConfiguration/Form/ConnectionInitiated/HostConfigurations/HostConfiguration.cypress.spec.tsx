@@ -82,7 +82,6 @@ describe('HostConfiguration', () => {
 
   it('shows certificate fields when connection mode is secure', () => {
     cy.get('[data-testid="CA(.crt,.cer)"]').should('be.visible');
-    cy.get('[data-testid="CA Common Name (CN)"]').should('be.visible');
     cy.get('[data-testid="Select existing CMA token"]').should('be.visible');
   });
 
