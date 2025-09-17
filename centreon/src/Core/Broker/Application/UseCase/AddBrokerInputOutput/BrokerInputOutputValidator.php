@@ -118,7 +118,7 @@ class BrokerInputOutputValidator
      */
     private function validateFieldOrFail(string $name, mixed $value, BrokerInputOutputField $field): void
     {
-        if ($field->isRequired() && (! isset($value) || '' === $value)) {
+        if ($field->isRequired() && (! isset($value) || $value === '')) {
             throw BrokerException::missingParameter($name);
         }
 
@@ -126,7 +126,7 @@ class BrokerInputOutputValidator
             'int' => $value === null || is_int($value),
             'text', 'password' => $value === null || is_string($value),
             'select', 'radio' => in_array($value, $field->getListValues(), true),
-            default => false
+            default => false,
         };
 
         if ($isValid === false) {

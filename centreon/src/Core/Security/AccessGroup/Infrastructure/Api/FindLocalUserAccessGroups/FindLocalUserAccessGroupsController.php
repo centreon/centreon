@@ -39,7 +39,7 @@ final class FindLocalUserAccessGroupsController extends AbstractController
      */
     public function __invoke(
         FindLocalUserAccessGroups $useCase,
-        FindLocalUserAccessGroupsPresenterInterface $presenter
+        FindLocalUserAccessGroupsPresenterInterface $presenter,
     ): object {
         $this->denyAccessUnlessGrantedForApiConfiguration();
         $useCase($presenter);

@@ -147,7 +147,7 @@ class CentreonRtDowntime extends CentreonObject
             }
 
             echo "hosts;services\n";
-            if ([] !== $hostsToReturn || [] !== $servicesToReturn) {
+            if ($hostsToReturn !== [] || $servicesToReturn !== []) {
                 echo implode('|', $hostsToReturn) . ';' . implode('|', $servicesToReturn) . "\n";
             }
         }
@@ -509,7 +509,7 @@ class CentreonRtDowntime extends CentreonObject
         $fixed,
         $duration,
         $comment,
-        $withServices = true
+        $withServices = true,
     ): void {
         if ($resource === '') {
             throw new CentreonClapiException(self::MISSINGPARAMETER);
@@ -553,7 +553,7 @@ class CentreonRtDowntime extends CentreonObject
         $end,
         $fixed,
         $duration,
-        $comment
+        $comment,
     ): void {
         if ($resource === '') {
             throw new CentreonClapiException(self::MISSINGPARAMETER);
@@ -609,7 +609,7 @@ class CentreonRtDowntime extends CentreonObject
         $fixed,
         $duration,
         $comment,
-        $withServices = true
+        $withServices = true,
     ): void {
         if ($resource === '') {
             throw new CentreonClapiException(self::MISSINGPARAMETER);
@@ -665,7 +665,7 @@ class CentreonRtDowntime extends CentreonObject
         string $end,
         int $fixed,
         ?int $duration,
-        string $comment
+        string $comment,
     ): void {
         if ($resource === '') {
             throw new CentreonClapiException(self::MISSINGPARAMETER);
@@ -726,7 +726,7 @@ class CentreonRtDowntime extends CentreonObject
         $end,
         $fixed,
         $duration,
-        $comment
+        $comment,
     ): void {
         if ($resource === '') {
             throw new CentreonClapiException(self::MISSINGPARAMETER);

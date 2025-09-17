@@ -64,7 +64,7 @@ class NewHostGroup
         $this->comment = trim($this->comment);
         Assertion::maxLength($this->comment, self::MAX_COMMENT_LENGTH, "{$shortName}::comment");
 
-        if (null !== $iconId) {
+        if ($iconId !== null) {
             Assertion::positiveInt($iconId, "{$shortName}::iconId");
         }
     }

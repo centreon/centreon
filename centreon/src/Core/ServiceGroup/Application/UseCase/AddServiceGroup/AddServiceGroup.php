@@ -54,7 +54,7 @@ final class AddServiceGroup
         private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
         private readonly WriteAccessGroupRepositoryInterface $writeAccessGroupRepository,
         private readonly DataStorageEngineInterface $dataStorageEngine,
-        private readonly ContactInterface $contact
+        private readonly ContactInterface $contact,
     ) {
     }
 
@@ -64,7 +64,7 @@ final class AddServiceGroup
      */
     public function __invoke(
         AddServiceGroupRequest $request,
-        PresenterInterface $presenter
+        PresenterInterface $presenter,
     ): void {
         try {
             if ($this->contact->isAdmin()) {

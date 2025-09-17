@@ -424,7 +424,7 @@ class CentreonRtAcknowledgement extends CentreonObject
         $comment,
         $sticky,
         $notify,
-        $persistent
+        $persistent,
     ): void {
         if ($resource === '') {
             throw new CentreonClapiException(self::MISSINGPARAMETER);
@@ -467,7 +467,7 @@ class CentreonRtAcknowledgement extends CentreonObject
         $comment,
         $sticky,
         $notify,
-        $persistent
+        $persistent,
     ): void {
         if ($resource === '') {
             throw new CentreonClapiException(self::MISSINGPARAMETER);

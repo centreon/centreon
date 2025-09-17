@@ -234,7 +234,7 @@ class CentreonHomeCustomview extends CentreonWebService
                             break;
                         }
                     }
-                    if (false === $paramClassFound) {
+                    if ($paramClassFound === false) {
                         throw new Exception('No connector found for ' . $param['ft_typename']);
                     }
                     $className = 'CentreonWidgetParamsConnector' . ucfirst($param['ft_typename']);

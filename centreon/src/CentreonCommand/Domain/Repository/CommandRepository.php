@@ -47,7 +47,7 @@ class CommandRepository extends AbstractRepositoryRDB implements PaginationRepos
         $filters = null,
         ?int $limit = null,
         ?int $offset = null,
-        $ordering = []
+        $ordering = [],
     ): array {
         $sql = 'SELECT SQL_CALC_FOUND_ROWS `command_id` AS `id`, `command_name` AS `name` '
             . 'FROM `' . Command::TABLE . '`';

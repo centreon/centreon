@@ -45,7 +45,7 @@ class YesNoDefaultConverter
             true, '1', self::CASE_YES, (string) self::CASE_YES => YesNoDefault::Yes,
             false, '0', self::CASE_NO, (string) self::CASE_NO => YesNoDefault::No,
             null, '2', self::CASE_DEFAULT, (string) self::CASE_DEFAULT => YesNoDefault::Default,
-            default => throw new \ValueError("\"{$value}\" is not a valid backing value for enum YesNoDefault")
+            default => throw new \ValueError("\"{$value}\" is not a valid backing value for enum YesNoDefault"),
         };
     }
 
@@ -62,7 +62,7 @@ class YesNoDefaultConverter
         return match ($enum) {
             YesNoDefault::Yes => self::CASE_YES,
             YesNoDefault::No => self::CASE_NO,
-            YesNoDefault::Default => self::CASE_DEFAULT
+            YesNoDefault::Default => self::CASE_DEFAULT,
         };
     }
 

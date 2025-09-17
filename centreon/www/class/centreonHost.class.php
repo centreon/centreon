@@ -161,7 +161,7 @@ class CentreonHost
         $freePp = ['applications-databases-mysql', 'applications-monitoring-centreon-central', 'applications-monitoring-centreon-database', 'applications-monitoring-centreon-poller', 'base-generic', 'hardware-printers-standard-rfc3805-snmp', 'hardware-ups-standard-rfc1628-snmp', 'network-cisco-standard-snmp', 'operatingsystems-linux-snmp', 'operatingsystems-windows-snmp'];
         $ppList = [];
         $dbResult = $this->db->query('SELECT `name` FROM modules_informations WHERE `name` = "centreon-pp-manager"');
-        if (empty($dbResult->fetch()) || true === $this->isAllowed()) {
+        if (empty($dbResult->fetch()) || $this->isAllowed() === true) {
             return $ppList;
         }
         $dbResult = $this->db->query(
@@ -785,10 +785,10 @@ class CentreonHost
         $macroPassword = [],
         $macroDescription = [],
         $isMassiveChange = false,
-        $cmdId = false
+        $cmdId = false,
     ): void {
 
-        if (false === $isMassiveChange) {
+        if ($isMassiveChange === false) {
             $query = 'DELETE FROM on_demand_macro_host WHERE host_host_id = :hostId';
             $stmt = $this->db->prepare($query);
             $stmt->bindParam(':hostId', $hostId, PDO::PARAM_INT);
@@ -1078,7 +1078,7 @@ class CentreonHost
                 if ($hId == $templateId) {
                     return false;
                 }
-                if (false === $this->hasNoInfiniteLoop($hId, $templateId, $antiTplLoop)) {
+                if ($this->hasNoInfiniteLoop($hId, $templateId, $antiTplLoop) === false) {
                     return false;
                 }
             }
@@ -1102,7 +1102,7 @@ class CentreonHost
         &$macroInput,
         &$macroValue,
         &$macroPassword,
-        $cmdId = false
+        $cmdId = false,
     ): void {
         $aTemplates = $this->getTemplateChain($host_id, [], -1, true, 'host_name,host_id,command_command_id');
 
@@ -1388,7 +1388,7 @@ class CentreonHost
         $alreadyProcessed = [],
         $depth = -1,
         $allFields = false,
-        $fields = []
+        $fields = [],
     ) {
         $templates = [];
         if (($depth == -1) || ($depth > 0)) {
@@ -1478,7 +1478,7 @@ class CentreonHost
         $alreadyProcessed = [],
         $depth = -1,
         $fields = [],
-        $values = []
+        $values = [],
     ) {
         if ($depth != 0) {
             $depth--;
@@ -1589,7 +1589,7 @@ class CentreonHost
         &$macroArray,
         &$form,
         $fromKey,
-        $macrosArrayToCompare = null
+        $macrosArrayToCompare = null,
     ): void {
         if (isset($form['macroInput']['#index#'])) {
             unset($form['macroInput']['#index#']);
@@ -2416,7 +2416,7 @@ class CentreonHost
      */
     private function getHostChain(
         $hostId,
-        &$alreadyProcessed
+        &$alreadyProcessed,
     ): void {
         if (! in_array($hostId, $alreadyProcessed)) {
             $alreadyProcessed[$hostId] = $hostId;

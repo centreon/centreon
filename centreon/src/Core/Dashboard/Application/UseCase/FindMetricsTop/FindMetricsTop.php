@@ -55,7 +55,7 @@ final readonly class FindMetricsTop
         private ReadAccessGroupRepositoryInterface $accessGroupRepository,
         private ReadDashboardPerformanceMetricRepositoryInterface $dashboardMetricRepository,
         private DashboardRights $rights,
-        private bool $isCloudPlatform
+        private bool $isCloudPlatform,
     ) {
     }
 
@@ -86,7 +86,7 @@ final readonly class FindMetricsTop
 
                 return;
             }
-            if ([] === $resourceMetrics) {
+            if ($resourceMetrics === []) {
                 $presenter->presentResponse(new NotFoundResponse('metrics'));
 
                 return;

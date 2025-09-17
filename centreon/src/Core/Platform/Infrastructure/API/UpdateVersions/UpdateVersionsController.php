@@ -42,7 +42,7 @@ final class UpdateVersionsController extends AbstractController
      */
     public function __invoke(
         UpdateVersions $useCase,
-        UpdateVersionsPresenterInterface $presenter
+        UpdateVersionsPresenterInterface $presenter,
     ): object {
         $this->denyAccessUnlessGrantedForApiConfiguration();
 

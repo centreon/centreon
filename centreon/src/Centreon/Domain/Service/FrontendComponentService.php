@@ -128,7 +128,7 @@ class FrontendComponentService
         string $dir,
         array &$results = [],
         string $regex = '/.*/',
-        bool $recursive = true
+        bool $recursive = true,
     ): array {
         $files = [];
         if (is_dir($dir)) {

@@ -38,7 +38,7 @@ final class FindRealTimeHostStatusesCountController extends AbstractController
      */
     public function __invoke(
         FindRealTimeHostStatusesCount $useCase,
-        FindRealTimeHostStatusesCountPresenterInterface $presenter
+        FindRealTimeHostStatusesCountPresenterInterface $presenter,
     ): Response {
         $this->denyAccessUnlessGrantedForApiRealtime();
 

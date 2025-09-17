@@ -49,7 +49,7 @@ class WebSSOConfiguration implements ProviderConfigurationInterface
         private array $blacklistClientAddresses,
         private ?string $loginHeaderAttribute,
         private ?string $patternMatchingLogin,
-        private ?string $patternReplaceLogin
+        private ?string $patternReplaceLogin,
     ) {
         foreach ($trustedClientAddresses as $trustedClientAddress) {
             Assertion::ipAddress($trustedClientAddress, 'WebSSOConfiguration::trustedClientAddresses');

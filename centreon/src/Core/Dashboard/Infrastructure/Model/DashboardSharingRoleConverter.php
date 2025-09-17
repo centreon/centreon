@@ -47,7 +47,7 @@ class DashboardSharingRoleConverter
         return match ($string) {
             'editor' => DashboardSharingRole::Editor,
             'viewer' => DashboardSharingRole::Viewer,
-            default => throw new \InvalidArgumentException("\"{$string}\" is not a valid string for enum DashboardSharingRole")
+            default => throw new \InvalidArgumentException("\"{$string}\" is not a valid string for enum DashboardSharingRole"),
         };
     }
 }

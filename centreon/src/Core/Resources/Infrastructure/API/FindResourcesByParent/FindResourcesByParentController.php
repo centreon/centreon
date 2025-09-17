@@ -51,7 +51,7 @@ final class FindResourcesByParentController extends AbstractController
     public function __invoke(
         FindResourcesByParent $useCase,
         FindResourcesByParentPresenter $presenter,
-        Request $request
+        Request $request,
     ): Response {
         $this->denyAccessUnlessGrantedForApiRealtime();
 

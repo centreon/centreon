@@ -93,7 +93,7 @@ class UpdateOpenIdConfiguration
      */
     public function __invoke(
         UpdateOpenIdConfigurationPresenterInterface $presenter,
-        UpdateOpenIdConfigurationRequest $request
+        UpdateOpenIdConfigurationRequest $request,
     ): void {
         $this->info('Updating OpenID Provider');
         try {
@@ -291,7 +291,7 @@ class UpdateOpenIdConfiguration
      */
     private function findAccessGroupFromFoundAccessGroups(
         int $accessGroupIdFromRequest,
-        array $foundAccessGroups
+        array $foundAccessGroups,
     ): ?AccessGroup {
         foreach ($foundAccessGroups as $foundAccessGroup) {
             if ($accessGroupIdFromRequest === $foundAccessGroup->getId()) {
@@ -435,7 +435,7 @@ class UpdateOpenIdConfiguration
      */
     private function findContactGroupFromFoundcontactGroups(
         int $contactGroupIdFromRequest,
-        array $foundContactGroups
+        array $foundContactGroups,
     ): ?ContactGroup {
         foreach ($foundContactGroups as $foundContactGroup) {
             if ($contactGroupIdFromRequest === $foundContactGroup->getId()) {
@@ -460,7 +460,7 @@ class UpdateOpenIdConfiguration
      */
     private function manageClientIdAndClientSecretIntoVault(
         array $requestArray,
-        CustomConfiguration $customConfiguration
+        CustomConfiguration $customConfiguration,
     ): array {
         // No need to do anything if vault is not configured
         if (! $this->vaultConfigurationRepository->exists()) {
