@@ -457,7 +457,7 @@ jobs:
 
           pids=()
           statuses=()
-          
+
           git fetch origin ${{ github.base_ref }}
           DIFF_FILES=$(git diff --name-only origin/${{ github.base_ref }}...${{ github.head_ref }})
 
