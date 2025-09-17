@@ -27,25 +27,28 @@ use App\MonitoringConfiguration\Domain\Aggregate\Option\OptionValue;
 use App\MonitoringConfiguration\Domain\Aggregate\Plugin\Plugin;
 use App\MonitoringConfiguration\Domain\Aggregate\Plugin\PluginName;
 use App\MonitoringConfiguration\Domain\Repository\PluginRepository;
+use App\Shared\Domain\Collection;
 use Symfony\Component\Finder\Finder;
+use Symfony\Component\Finder\SplFileInfo;
 
 final readonly class FileSystemPluginRepository implements PluginRepository
 {
     private Finder $finder;
 
-    public function __construct(
-    ) {
+    public function __construct()
+    {
         $this->finder = new Finder();
     }
 
-    public function findByPath(OptionValue $path): array
+    public function findByPath(OptionValue $path): Collection
     {
         $pluginInfos = $this->finder->files()->in($path->value);
-        $plugins = [];
-        foreach ($pluginInfos as $pluginInfo) {
-            $plugins[] = new Plugin(new PluginName($pluginInfo->getFilename()));
-        }
-
-        return $plugins;
+        return new Collection(
+            array_map(
+                static fn (SplFileInfo $plugin) => new Plugin(new PluginName($plugin->getFilename())),
+                iterator_to_array($pluginInfos->getIterator())
+            ),
+            Plugin::class
+        );
     }
 }

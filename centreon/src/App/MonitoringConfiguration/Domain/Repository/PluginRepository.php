@@ -25,11 +25,12 @@ namespace App\MonitoringConfiguration\Domain\Repository;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Option\OptionValue;
 use App\MonitoringConfiguration\Domain\Aggregate\Plugin\Plugin;
+use App\Shared\Domain\Collection;
 
 interface PluginRepository
 {
     /**
-     * @return array<Plugin>
+     * @return Collection<Plugin>
      */
-    public function findByPath(OptionValue $path): array;
+    public function findByPath(OptionValue $path): Collection;
 }

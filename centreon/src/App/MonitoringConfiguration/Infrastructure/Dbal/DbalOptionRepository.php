@@ -27,7 +27,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Option\Option;
 use App\MonitoringConfiguration\Domain\Aggregate\Option\OptionName;
 use App\MonitoringConfiguration\Domain\Exception\OptionDoesNotExistException;
 use App\MonitoringConfiguration\Domain\Repository\OptionRepository;
-use App\Shared\Infrastructure\Doctrine\DoctrineRepository;
+use App\Shared\Infrastructure\Dbal\DbalRepository;
 use App\Shared\Infrastructure\TransformerInterface;
 use Doctrine\DBAL\Connection;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
@@ -38,7 +38,7 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
  *  option_value: string,
  * }
  */
-final readonly class DbalOptionRepository extends DoctrineRepository implements OptionRepository
+final readonly class DbalOptionRepository extends DbalRepository implements OptionRepository
 {
     private const TABLE_NAME = 'options';
 
