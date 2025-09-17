@@ -459,6 +459,7 @@ jobs:
           statuses=()
 
           git fetch origin ${{ github.base_ref }}
+          git fetch origin ${{ github.head_ref }}
           DIFF_FILES=$(git diff --name-only origin/${{ github.base_ref }}...${{ github.head_ref }})
 
           run_task() {
