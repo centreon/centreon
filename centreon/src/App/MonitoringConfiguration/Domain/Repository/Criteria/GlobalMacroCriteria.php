@@ -38,6 +38,8 @@ final class GlobalMacroCriteria
     /** @var array<self::OPERATOR_*, list<string>> */
     private array $names = [];
 
+    private bool $lazyRelations = false;
+
     public function withPagination(int $page, int $itemsPerPage): self
     {
         Assert::positiveInteger($page);
@@ -68,6 +70,14 @@ final class GlobalMacroCriteria
         return $new;
     }
 
+    public function withLazyRelations(bool $lazyRelations = true): self
+    {
+        $new = clone $this;
+        $new->lazyRelations = $lazyRelations;
+
+        return $new;
+    }
+
     public function getPage(): ?int
     {
         return $this->page;
@@ -84,5 +94,10 @@ final class GlobalMacroCriteria
     public function getNames(): array
     {
         return $this->names;
+    }
+
+    public function hasLazyRelations(): bool
+    {
+        return $this->lazyRelations;
     }
 }

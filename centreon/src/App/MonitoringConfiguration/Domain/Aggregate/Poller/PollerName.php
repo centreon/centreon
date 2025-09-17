@@ -21,15 +21,15 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Domain\Repository;
+namespace App\MonitoringConfiguration\Domain\Aggregate\Poller;
 
-use App\MonitoringConfiguration\Domain\Aggregate\GlobalMacro\GlobalMacro;
-use App\MonitoringConfiguration\Domain\Repository\Criteria\GlobalMacroCriteria;
+use Webmozart\Assert\Assert;
 
-interface GlobalMacroRepository
+final readonly class PollerName
 {
-    /**
-     * @return \IteratorAggregate<int, GlobalMacro>&\Countable
-     */
-    public function findAll(?GlobalMacroCriteria $criteria = null): \IteratorAggregate&\Countable;
+    public function __construct(
+        public string $value,
+    ) {
+        Assert::lengthBetween($value, 1, 255);
+    }
 }

@@ -27,7 +27,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\ServiceCategory\ServiceCategory
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceCategory\ServiceCategoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceCategory\ServiceCategoryName;
 use App\MonitoringConfiguration\Domain\Repository\ServiceCategoryRepository;
-use App\Shared\Infrastructure\Doctrine\DoctrineRepository;
+use App\Shared\Infrastructure\Dbal\DbalRepository;
 use App\Shared\Infrastructure\TransformerInterface;
 use Doctrine\DBAL\Connection;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
@@ -35,7 +35,7 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
 /**
  * @phpstan-type RowTypeAlias = array{sc_id: int, sc_name: string, sc_description: string, sc_activate: '0'|'1'}
  */
-final readonly class DbalServiceCategoryRepository extends DoctrineRepository implements ServiceCategoryRepository
+final readonly class DbalServiceCategoryRepository extends DbalRepository implements ServiceCategoryRepository
 {
     private const TABLE_NAME = 'service_categories';
 
@@ -68,7 +68,7 @@ final readonly class DbalServiceCategoryRepository extends DoctrineRepository im
         $id = (int) $this->connection->lastInsertId();
 
         if ($id === 0) {
-            throw new \RuntimeException(sprintf('Unable to retrieve last insert ID for "%s".', self::TABLE_NAME));
+            throw new \RuntimeException(\sprintf('Unable to retrieve last insert ID for "%s".', self::TABLE_NAME));
         }
 
         $this->setId($serviceCategory, new ServiceCategoryId($id));

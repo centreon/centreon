@@ -28,6 +28,8 @@ use App\MonitoringConfiguration\Domain\Aggregate\GlobalMacro\GlobalMacroComment;
 use App\MonitoringConfiguration\Domain\Aggregate\GlobalMacro\GlobalMacroExpression;
 use App\MonitoringConfiguration\Domain\Aggregate\GlobalMacro\GlobalMacroId;
 use App\MonitoringConfiguration\Domain\Aggregate\GlobalMacro\GlobalMacroName;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\Poller;
+use App\Shared\Domain\Collection;
 use App\Shared\Infrastructure\TransformerInterface;
 
 /**
@@ -49,6 +51,7 @@ final readonly class DbalGlobalMacroTransformer implements TransformerInterface
             comment: $from['gm_resource_comment'] !== null ? new GlobalMacroComment($from['gm_resource_comment']) : null,
             activated: $from['gm_resource_activate'] === '1',
             isPassword: $from['gm_is_password'] === 1,
+            pollers: new Collection([], Poller::class), // must be filled by callers
         );
     }
 }
