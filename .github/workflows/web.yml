@@ -451,18 +451,19 @@ jobs:
         working-directory: centreon
 
       - name: Get changed PHP files
-        id: changed-files
-        run: |
-          git fetch origin ${{ github.base_ref }} --depth=1
-          CHANGED_FILES=$(git diff --name-only origin/${{ github.base_ref }}...${{ github.sha }} -- '*.php')
-          echo "files=$CHANGED_FILES" >> $GITHUB_OUTPUT
+        id: changed-php
+        uses: tj-actions/changed-files@ed68ef82c095e0d48ec87eccea555d944a631a4c # v46.0.5
+        with:
+          files: |
+            **/*.php
 
       - name: 🛠️ Rector checks
-        if: steps.changed-files.outputs.files != ''
+        if: steps.changed-php.outputs.any_changed == 'true'
         working-directory: centreon
         run: |
           echo "Run of these Rector tests: rector:legacy, rector:core, rector:new" && set -e
-          echo "Files: ${{ steps.changed-files.outputs.files }}"
+          echo "PHP files changed:"
+          echo "${{ steps.changed-php.outputs.all_changed_files }}"
 
           pids=()
           statuses=()
