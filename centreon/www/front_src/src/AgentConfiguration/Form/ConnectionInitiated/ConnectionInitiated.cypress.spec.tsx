@@ -3,6 +3,7 @@ import { Formik } from 'formik';
 import { BrowserRouter } from 'react-router';
 
 import { ConnectionMode } from '../../models';
+
 import ConnectionInitiated from './ConnectionInitiated';
 
 interface Host {
