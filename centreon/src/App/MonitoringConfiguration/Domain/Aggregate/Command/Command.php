@@ -28,20 +28,24 @@ use App\Shared\Domain\Collection;
 
 final class Command extends AggregateRoot
 {
+    /**
+     * @param Collection<CommandArgument> $arguments
+     * @param Collection<CommandMacro> $macros
+     */
     public function __construct(
         ?CommandId $id,
-        public readonly ?CommandName $name,
-        public readonly ?CommandType $type,
+        public readonly CommandName $name,
+        public readonly bool $isShellEnabled,
+        public readonly bool $isActivated,
+        public readonly bool $isLocked,
+        public readonly CommandType $type,
+        public readonly Collection $arguments,
+        public readonly Collection $macros,
         public readonly ?CommandLine $commandLine,
         public readonly ?CommandArgumentExample $argumentExample,
         public readonly ?CommandConnector $connector,
         public readonly ?CommandGraphTemplate $graphTemplate,
         public readonly ?CommandComment $comment,
-        public readonly bool $isShellEnabled,
-        public readonly bool $isActivated,
-        public readonly bool $isLocked,
-        public readonly Collection $arguments,
-        public readonly Collection $macros,
     ) {
         parent::__construct($id);
     }

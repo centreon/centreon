@@ -33,11 +33,12 @@ use Doctrine\DBAL\Connection;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 /**
- * @phpstan-import-type RowTypeAlias from DbalCommandMacroRepository as CommandMacroRowTypeAlias
- *
  * @phpstan-type RowTypeAlias = array{
  *   command_macro_id: int,
  *   command_macro_name: string,
+ *   command_macro_type: string,
+ *   command_macro_desciption: string,
+ *   command_command_id: int
  * } */
 final readonly class DbalCommandMacroRepository extends DbalRepository implements CommandMacroRepository
 {
@@ -63,7 +64,9 @@ final readonly class DbalCommandMacroRepository extends DbalRepository implement
             ->where('command_command_id = :command_id')
             ->setParameter('command_id', $command->id()->value);
 
+        /** @var array<RowTypeAlias> $rows */
         $rows = $qb->executeQuery()->fetchAllAssociative();
+
         return $this->createCommandMacros($rows);
     }
 
@@ -79,6 +82,6 @@ final readonly class DbalCommandMacroRepository extends DbalRepository implement
             $commandMacros[] = $this->commandMacroTransformer->transform($commandMacroRow);
         }
 
-        return new Collection(array_values($commandMacros), CommandMacro::class);
+        return new Collection($commandMacros, CommandMacro::class);
     }
 }

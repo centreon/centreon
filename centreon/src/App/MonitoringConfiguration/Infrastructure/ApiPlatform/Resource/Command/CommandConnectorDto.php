@@ -30,7 +30,7 @@ final class CommandConnectorDto
     public function __construct(
         public int $id,
 
-        public ?string $name = null, // check if nullable
+        public string $name,
     ) {
     }
 
@@ -38,7 +38,7 @@ final class CommandConnectorDto
     {
         return new self(
             id: $connector->id->value,
-            name: $connector->name?->value, // to be checked if nullable
+            name: $connector->name->value,
         );
     }
 }

@@ -43,7 +43,7 @@ final readonly class DbalCommandMacroTransformer implements TransformerInterface
             id: new CommandMacroId($from['command_macro_id']),
             name: new CommandMacroName($from['command_macro_name']),
             type: CommandMacroType::from($from['command_macro_type']),
-            description: new CommandMacroDescription($from['command_macro_description'] ?? null),
+            description: new CommandMacroDescription($from['command_macro_desciption']),
         );
     }
 }

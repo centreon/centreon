@@ -25,15 +25,16 @@ namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Command;
 
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProviderInterface;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\Command;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Command\CommandResource;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\GlobalMacroResource;
 use App\MonitoringConfiguration\Infrastructure\Dbal\Command\DbalCommandRepository;
 use App\Shared\Infrastructure\TransformerInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
+use Webmozart\Assert\Assert;
 
 /**
- * @implements ProviderInterface<GlobalMacroResource>
+ * @implements ProviderInterface<CommandResource>
  */
 final readonly class FindCommandProvider implements ProviderInterface
 {
@@ -41,15 +42,17 @@ final readonly class FindCommandProvider implements ProviderInterface
      * @param TransformerInterface<Command,CommandResource> $transformer
      */
     public function __construct(
-       #[Autowire(service: ResourceCommandTransformer::class)]
-       private TransformerInterface $transformer,
-       private DbalCommandRepository $repository,
+        #[Autowire(service: ResourceCommandTransformer::class)]
+        private TransformerInterface $transformer,
+        private DbalCommandRepository $repository,
     ) {
     }
 
     public function provide(Operation $operation, array $uriVariables = [], array $context = []): CommandResource
     {
-        $id = new CommandId((int) $uriVariables['id']);
+        Assert::integer($uriVariables['id']);
+
+        $id = new CommandId($uriVariables['id']);
 
         $model = $this->repository->getById($id);
 

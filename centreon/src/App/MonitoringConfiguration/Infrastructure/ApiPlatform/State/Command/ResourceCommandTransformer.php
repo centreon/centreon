@@ -24,12 +24,9 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Command;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Command\Command;
-use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandArgument;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Command\CommandResource;
-use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandMacro;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Command\CommandConnectorDto;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Command\CommandGraphTemplateDto;
-use App\Shared\Domain\Collection;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Command\CommandResource;
 use App\Shared\Infrastructure\TransformerInterface;
 
 /**
@@ -41,9 +38,14 @@ final readonly class ResourceCommandTransformer implements TransformerInterface
     {
         return new CommandResource(
             id: $from->id()->value,
-            name: $from->name?->value,
+            name: $from->name->value,
+            type: $from->type->value,
+            isShellEnabled: $from->isShellEnabled,
+            isActivated: $from->isActivated ?? false,
+            isLocked: $from->isLocked ?? false,
+            macros: $from->macros,
+            arguments: $from->arguments,
             commandLine: $from->commandLine?->value,
-            type: $from->type?->value,
             argumentExample: $from->argumentExample?->value,
             connector: $from->connector !== null
                 ? CommandConnectorDto::createFromCommandConnector($from->connector)
@@ -52,11 +54,6 @@ final readonly class ResourceCommandTransformer implements TransformerInterface
                 ? CommandGraphTemplateDto::createFromCommandGraphTemplate($from->graphTemplate)
                 : null,
             comment: $from->comment?->value,
-            isShellEnabled: $from->isShellEnabled,
-            isActivated: $from->isActivated ?? false,
-            isLocked: $from->isLocked ?? false,
-            macros: $from->macros,
-            arguments: $from->arguments
         );
     }
 }

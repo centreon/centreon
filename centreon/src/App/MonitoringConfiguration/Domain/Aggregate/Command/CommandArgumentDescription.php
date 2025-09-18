@@ -27,7 +27,6 @@ use Webmozart\Assert\Assert;
 
 final readonly class CommandArgumentDescription
 {
-
     public function __construct(
         public string $value,
     ) {

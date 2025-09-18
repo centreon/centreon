@@ -24,17 +24,31 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Infrastructure\Dbal\Command;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Command\Command;
-use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandArgument;
-use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandArgumentDescription;
-use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandArgumentName;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
-use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandMacro;
+use App\MonitoringConfiguration\Domain\Exception\CommandNotFoundException;
 use App\MonitoringConfiguration\Domain\Repository\CommandRepository;
 use App\Shared\Infrastructure\Dbal\DbalRepository;
 use App\Shared\Infrastructure\TransformerInterface;
 use Doctrine\DBAL\Connection;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
+/**
+ * @phpstan-type RowTypeAlias = array{
+ *   command_id: int,
+ *   command_name: string,
+ *   command_line: string,
+ *   command_example: string|null,
+ *   command_type: int,
+ *   enable_shell: string,
+ *   command_activate: string,
+ *   command_locked: string,
+ *   command_comment: string|null,
+ *   connector_id: int|null,
+ *   connector_name: string|null,
+ *   graph_template_id: int|null,
+ *   graph_template_name: string|null,
+ * }
+ */
 final readonly class DbalCommandRepository extends DbalRepository implements CommandRepository
 {
     public const TABLE_NAME = 'command';
@@ -42,7 +56,7 @@ final readonly class DbalCommandRepository extends DbalRepository implements Com
     public const GRAPH_TEMPLATE_TABLE_NAME = 'giv_graphs_template';
 
     /**
-     * @param TransformerInterface<RowTypeAlias, Command> $transformer
+     * @param TransformerInterface<RowTypeAlias, Command> $commandTransformer
      */
     public function __construct(
         #[Autowire(service: 'doctrine.dbal.default_connection')]
@@ -73,7 +87,7 @@ final readonly class DbalCommandRepository extends DbalRepository implements Com
             'c.command_comment',
             'c.connector_id',
             'connector.name AS connector_name',
-            'NULLIF(c.graph_id, 0) AS graph_template_id', //should fix the create for the null graph template that is 0 in db + upgrade script too
+            'NULLIF(c.graph_id, 0) AS graph_template_id', // should fix the create for the null graph template that is 0 in db + upgrade script too
             'graph.name AS graph_template_name'
         )
             ->from(self::TABLE_NAME, 'c')
@@ -83,15 +97,19 @@ final readonly class DbalCommandRepository extends DbalRepository implements Com
             ->setParameter('id', $id->value)
             ->setMaxResults(1);
 
+        /** @var RowTypeAlias $row */
         $row = $qb->executeQuery()->fetchAssociative();
 
         if (! $row) {
-            return null;
+            throw new CommandNotFoundException(['id' => $id->value]);
         }
 
         return $this->createCommand($row);
     }
 
+    /**
+     * @param RowTypeAlias $row
+     */
     private function createCommand(array $row): Command
     {
         $command = $this->commandTransformer->transform($row);

@@ -36,8 +36,9 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
  * @phpstan-import-type RowTypeAlias from DbalCommandArgumentRepository as CommandArgumentRowTypeAlias
  *
  * @phpstan-type RowTypeAlias = array{
- *   command_macro_id: int,
- *   command_macro_name: string,
+ *   cmd_id: int,
+ *   macro_name: string,
+ *   macro_description: string,
  * } */
 final readonly class DbalCommandArgumentRepository extends DbalRepository implements CommandArgumentRepository
 {
@@ -63,6 +64,7 @@ final readonly class DbalCommandArgumentRepository extends DbalRepository implem
             ->where('cmd_id  = :command_id')
             ->setParameter('command_id', $command->id()->value);
 
+        /** @var array<RowTypeAlias> $rows */
         $rows = $qb->executeQuery()->fetchAllAssociative();
 
         return $this->createCommandArguments($rows);
@@ -80,6 +82,6 @@ final readonly class DbalCommandArgumentRepository extends DbalRepository implem
             $commandArguments[] = $this->commandArgumentTransformer->transform($commandArgumentRow);
         }
 
-        return new Collection(array_values($commandArguments), CommandArgument::class);
+        return new Collection($commandArguments, CommandArgument::class);
     }
 }

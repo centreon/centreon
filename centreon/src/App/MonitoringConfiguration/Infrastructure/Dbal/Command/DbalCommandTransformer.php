@@ -35,11 +35,11 @@ use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandGraphTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandGraphTemplateName;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandLine;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandName;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandType;
-use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandMacro;
-use App\Shared\Infrastructure\TransformerInterface;
 use App\Shared\Domain\Collection;
+use App\Shared\Infrastructure\TransformerInterface;
 
 /**
  * @phpstan-import-type RowTypeAlias from DbalCommandRepository
@@ -54,15 +54,15 @@ final readonly class DbalCommandTransformer implements TransformerInterface
             id: new CommandId($from['command_id']),
             name: $from['command_name'] !== null ? new CommandName($from['command_name']) : null,
             commandLine: $from['command_line'] !== null ? new CommandLine($from['command_line']) : null,
-            type: CommandType::tryFrom($from['command_type']),
+            type: CommandType::from($from['command_type']),
             argumentExample: $from['command_example'] !== null ? new CommandArgumentExample($from['command_example']) : null,
             connector: $from['connector_id'] !== null ? new CommandConnector(
                 id: new CommandConnectorId($from['connector_id']),
-                name: new CommandConnectorName($from['connector_name'])
+                name: new CommandConnectorName((string) $from['connector_name'])
             ) : null,
             graphTemplate: $from['graph_template_id'] !== null ? new CommandGraphTemplate(
                 id: new CommandGraphTemplateId($from['graph_template_id']),
-                name: new CommandGraphTemplateName($from['graph_template_name'])
+                name: new CommandGraphTemplateName((string) $from['graph_template_name'])
             ) : null,
             comment: $from['command_comment'] !== null ? new CommandComment($from['command_comment']) : null,
             isShellEnabled: $from['enable_shell'] === 1,

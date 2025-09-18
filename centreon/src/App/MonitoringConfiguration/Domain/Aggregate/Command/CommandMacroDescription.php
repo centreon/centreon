@@ -27,9 +27,8 @@ use Webmozart\Assert\Assert;
 
 final readonly class CommandMacroDescription
 {
-
     public function __construct(
-        public ?string $value,
+        public string $value,
     ) {
         Assert::maxLength($value, 65535);
     }

@@ -29,7 +29,7 @@ final class CommandGraphTemplateDto
 {
     public function __construct(
         public int $id,
-        public ?string $name = null, // check if nullable
+        public string $name,
     ) {
     }
 
@@ -37,7 +37,7 @@ final class CommandGraphTemplateDto
     {
         return new self(
             id: $graphTemplate->id->value,
-            name: $graphTemplate->name?->value, // to be checked if nullable
+            name: $graphTemplate->name->value,
         );
     }
 }

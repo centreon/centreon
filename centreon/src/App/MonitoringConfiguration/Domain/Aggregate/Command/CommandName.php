@@ -33,6 +33,6 @@ final readonly class CommandName
         public string $value,
     ) {
         Assert::lengthBetween($value, 1, 200);
-        Assert::regex($value, self::NAME_VALIDATION_REGEX );
+        Assert::regex($value, self::NAME_VALIDATION_REGEX);
     }
 }

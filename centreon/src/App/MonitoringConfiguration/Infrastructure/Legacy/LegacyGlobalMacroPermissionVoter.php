@@ -38,7 +38,7 @@ final class LegacyGlobalMacroPermissionVoter extends Voter
      * @var array<value-of<GlobalMacroPermissionEnum>, string>
      */
     private const LEGACY_PERMISSION_MAP = [
-        // GlobalMacroPermissionEnum::CanRead->value => Contact::ROLE_CONFIGURATION_POLLERS_GLOBAL_MACRO_RW,
+        GlobalMacroPermissionEnum::CanRead->value => Contact::ROLE_CONFIGURATION_POLLERS_GLOBAL_MACRO_RW,
     ];
 
     protected function supports(string $attribute, mixed $subject): bool
