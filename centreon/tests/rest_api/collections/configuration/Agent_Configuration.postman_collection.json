@@ -1151,7 +1151,7 @@
 									"pm.test(\"The poller has not been removed from the AC.\", function () {\r",
 									"    pm.response.to.have.status(500);\r",
 									"    \r",
-									"    pm.expect(responseJson.message).to.eql(\"Poller ID #\" + pm.collectionVariables.get(\"poller1_Id\") + \" is the only one linked to poller/agent configuration ID #\"+ pm.collectionVariables.get(\"AC2Id\"))\r",
+									"    pm.expect(responseJson.message).to.eql(\"Poller ID #\" + pm.collectionVariables.get(\"poller1_Id\") + \" is the only one linked to agent configuration ID #\"+ pm.collectionVariables.get(\"AC2Id\"))\r",
 									"});"
 								],
 								"type": "text/javascript",
@@ -1776,7 +1776,7 @@
 									"pm.test(\"The AC has not been created, because the poller is already used.\", function () {\r",
 									"    pm.response.to.have.status(500);\r",
 									"\r",
-									"    pm.expect(responseJson.message).to.eql(\"A poller/agent configuration is already associated with poller ID(s) '\" + pm.collectionVariables.get(\"poller1_Id\") + \"'\");\r",
+									"    pm.expect(responseJson.message).to.eql(\"An agent configuration is already associated with poller ID(s) '\" + pm.collectionVariables.get(\"poller1_Id\") + \"'\");\r",
 									"\r",
 									"});"
 								],
@@ -1920,7 +1920,7 @@
 									"pm.test(\"The AC has not been updated because the type cannot be changed.\", function () {\r",
 									"    pm.response.to.have.status(500);\r",
 									"\r",
-									"    pm.expect(responseJson.message).to.eql(\"Changing the type of an existing poller/agent configuration is not allowed\");\r",
+									"    pm.expect(responseJson.message).to.eql(\"Changing the type of an existing agent configuration is not allowed\");\r",
 									"});"
 								],
 								"type": "text/javascript",
@@ -3032,7 +3032,7 @@
 									"pm.test(\"The AC has not been created.\", function () {\r",
 									"    pm.response.to.have.status(403);\r",
 									"    \r",
-									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to access poller/agent configurations\");\r",
+									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to access agent configurations\");\r",
 									"});"
 								],
 								"type": "text/javascript",
@@ -3087,7 +3087,7 @@
 									"pm.test(\"The AC has not been listed.\", function () {\r",
 									"    pm.response.to.have.status(403);\r",
 									"    \r",
-									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to access poller/agent configurations\");\r",
+									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to access agent configurations\");\r",
 									"});"
 								],
 								"type": "text/javascript",
@@ -3146,7 +3146,7 @@
 									"pm.test(\"The AC has not been created.\", function () {\r",
 									"    pm.response.to.have.status(403);\r",
 									"    \r",
-									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to access poller/agent configurations\");\r",
+									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to access agent configurations\");\r",
 									"});"
 								],
 								"type": "text/javascript",
@@ -3202,7 +3202,7 @@
 									"pm.test(\"The AC has not been created.\", function () {\r",
 									"    pm.response.to.have.status(403);\r",
 									"    \r",
-									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to access poller/agent configurations\");\r",
+									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to access agent configurations\");\r",
 									"});"
 								],
 								"type": "text/javascript",
@@ -4870,7 +4870,7 @@
 									"pm.test(\"The AC has not been update, because the user does not see the poller.\", function () {\r",
 									"    pm.response.to.have.status(404);\r",
 									"\r",
-									"    pm.expect(responseJson.message).to.eql(\"Poller/agent Configuration not found\");\r",
+									"    pm.expect(responseJson.message).to.eql(\"Agent Configuration not found\");\r",
 									"\r",
 									"});"
 								],

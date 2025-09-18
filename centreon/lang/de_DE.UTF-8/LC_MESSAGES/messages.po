@@ -206,12 +206,6 @@ msgid "A platform using the name : '%s' or address : '%s' already exists"
 msgstr ""
 "Eine Plattform mit dem Namen: '%s' oder der Adresse: '%s' existiert bereits"
 
-#: centreon/src/Core/AgentConfiguration/Application/Exception/AgentConfigurationException.php
-#, php-format
-msgid ""
-"A poller/agent configuration is already associated with poller ID(s) '%s'"
-msgstr ""
-
 #: centreon/www/install/front_translate.php
 msgid "A-Z"
 msgstr ""
@@ -1365,6 +1359,11 @@ msgid ""
 "ID(s) '%s'"
 msgstr ""
 
+#: centreon/src/Core/AgentConfiguration/Application/Exception/AgentConfigurationException.php
+#, php-format
+msgid "An agent configuration is already associated with poller ID(s) '%s'"
+msgstr ""
+
 #: centreon/www/install/front_translate.php
 msgid ""
 "An agent is a piece of software you install on the host you want to monitor, "
@@ -2483,8 +2482,7 @@ msgid "Changes to the envelope size will be applied immediately"
 msgstr ""
 
 #: centreon/src/Core/AgentConfiguration/Application/Exception/AgentConfigurationException.php
-msgid ""
-"Changing the type of an existing poller/agent configuration is not allowed"
+msgid "Changing the type of an existing agent configuration is not allowed"
 msgstr ""
 
 #: centreon/src/Core/AdditionalConnectorConfiguration/Application/Exception/AccException.php
@@ -5830,10 +5828,6 @@ msgstr ""
 msgid "Error while adding a media"
 msgstr ""
 
-#: centreon/src/Core/AgentConfiguration/Application/Exception/AgentConfigurationException.php
-msgid "Error while adding a poller/agent configuration"
-msgstr ""
-
 #: centreon/src/Core/ResourceAccess/Application/Exception/RuleException.php
 msgid "Error while adding a resource access rule"
 msgstr ""
@@ -5848,6 +5842,10 @@ msgstr ""
 
 #: centreon/src/Core/AdditionalConnectorConfiguration/Application/Exception/AccException.php
 msgid "Error while adding an additional configuration"
+msgstr ""
+
+#: centreon/src/Core/AgentConfiguration/Application/Exception/AgentConfigurationException.php
+msgid "Error while adding an agent configuration"
 msgstr ""
 
 #: centreon/src/Centreon/Domain/Authentication/Exception/AuthenticationException.php
@@ -5898,10 +5896,6 @@ msgstr ""
 msgid "Error while deleting a notification configuration"
 msgstr ""
 
-#: centreon/src/Core/AgentConfiguration/Application/Exception/AgentConfigurationException.php
-msgid "Error while deleting a poller/agent configuration"
-msgstr ""
-
 #: centreon/src/Core/ServiceGroup/Application/Exception/ServiceGroupException.php
 msgid "Error while deleting a service group"
 msgstr ""
@@ -5912,6 +5906,10 @@ msgstr ""
 
 #: centreon/src/Core/AdditionalConnectorConfiguration/Application/Exception/AccException.php
 msgid "Error while deleting an additional configuration"
+msgstr ""
+
+#: centreon/src/Core/AgentConfiguration/Application/Exception/AgentConfigurationException.php
+msgid "Error while deleting an agent configuration"
 msgstr ""
 
 #: centreon/src/Centreon/Domain/Authentication/Exception/AuthenticationException.php
@@ -6037,10 +6035,6 @@ msgstr ""
 msgid "Error while retrieving a notification configuration"
 msgstr ""
 
-#: centreon/src/Core/AgentConfiguration/Application/Exception/AgentConfigurationException.php
-msgid "Error while retrieving a poller/agent configuration"
-msgstr ""
-
 #: centreon/src/Core/ResourceAccess/Application/Exception/RuleException.php
 msgid "Error while retrieving a resource access rule"
 msgstr ""
@@ -6059,6 +6053,10 @@ msgstr ""
 
 #: centreon/src/Core/AdditionalConnectorConfiguration/Application/Exception/AccException.php
 msgid "Error while retrieving an additional configuration"
+msgstr ""
+
+#: centreon/src/Core/AgentConfiguration/Application/Exception/AgentConfigurationException.php
+msgid "Error while retrieving an agent configuration"
 msgstr ""
 
 #: centreon/src/Core/Dashboard/Application/Exception/DashboardException.php
@@ -6083,7 +6081,7 @@ msgid "Error while retrieving host statuses distribution"
 msgstr ""
 
 #: centreon/src/Core/AgentConfiguration/Application/Exception/AgentConfigurationException.php
-msgid "Error while retrieving multiple poller/agent configurations"
+msgid "Error while retrieving multiple agent configurations"
 msgstr ""
 
 #: centreon/src/Core/Dashboard/Application/Exception/DashboardException.php
@@ -6303,10 +6301,6 @@ msgstr ""
 msgid "Error while updating a notification configuration"
 msgstr ""
 
-#: centreon/src/Core/AgentConfiguration/Application/Exception/AgentConfigurationException.php
-msgid "Error while updating a poller/agent configuration"
-msgstr ""
-
 #: centreon/src/Core/Service/Application/Exception/ServiceException.php
 msgid "Error while updating a service"
 msgstr ""
@@ -6317,6 +6311,10 @@ msgstr ""
 
 #: centreon/src/Core/AdditionalConnectorConfiguration/Application/Exception/AccException.php
 msgid "Error while updating an additional configuration"
+msgstr ""
+
+#: centreon/src/Core/AgentConfiguration/Application/Exception/AgentConfigurationException.php
+msgid "Error while updating an agent configuration"
 msgstr ""
 
 #: centreon/src/Centreon/Domain/Authentication/Exception/AuthenticationException.php
@@ -12184,8 +12182,7 @@ msgstr "Pollerfilter"
 
 #: centreon/src/Core/AgentConfiguration/Application/Exception/AgentConfigurationException.php
 #, php-format
-msgid ""
-"Poller ID #%d is the only one linked to poller/agent configuration ID #%d"
+msgid "Poller ID #%d is the only one linked to agent configuration ID #%d"
 msgstr ""
 
 #: centreon/www/include/configuration/configServers/formServers.php
@@ -15340,6 +15337,11 @@ msgstr "Die Adresse ist falsch"
 msgid "The address is invalid"
 msgstr ""
 
+#: centreon/src/Core/AgentConfiguration/Application/Exception/AgentConfigurationException.php
+#, php-format
+msgid "The agent configuration name '%s' already exists"
+msgstr ""
+
 #: centreon/src/Core/Service/Application/Exception/ServiceException.php
 msgid "The check command cannot be null if the service template is null"
 msgstr ""
@@ -15665,11 +15667,6 @@ msgid ""
 msgstr ""
 "Die Plattform: '%s'@'%s' is nicht mit dem zentralen Server verbunden. Bitte "
 "verwenden Sie zuerst den Einrichtungsassistent"
-
-#: centreon/src/Core/AgentConfiguration/Application/Exception/AgentConfigurationException.php
-#, php-format
-msgid "The poller/agent configuration name '%s' already exists"
-msgstr ""
 
 #: centreon/src/Centreon/Domain/Proxy/Proxy.php
 #, php-format
@@ -17627,6 +17624,10 @@ msgstr ""
 msgid "You are not allowed to access additional configurations"
 msgstr ""
 
+#: centreon/src/Core/AgentConfiguration/Application/Exception/AgentConfigurationException.php
+msgid "You are not allowed to access agent configurations"
+msgstr ""
+
 #: centreon/src/Core/Command/Application/Exception/CommandException.php
 msgid "You are not allowed to access commands"
 msgstr ""
@@ -17665,10 +17666,6 @@ msgstr ""
 
 #: centreon/src/Core/Host/Application/Exception/HostException.php
 msgid "You are not allowed to access hosts in the real time context"
-msgstr ""
-
-#: centreon/src/Core/AgentConfiguration/Application/Exception/AgentConfigurationException.php
-msgid "You are not allowed to access poller/agent configurations"
 msgstr ""
 
 #: centreon/src/Core/ServiceCategory/Application/Exception/ServiceCategoryException.php
