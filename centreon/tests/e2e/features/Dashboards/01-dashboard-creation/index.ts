@@ -12,9 +12,9 @@ before(() => {
   );
 });
 
-after(() => {
-  cy.stopContainers();
-});
+// after(() => {
+//   cy.stopContainers();
+// });
 
 beforeEach(() => {
   // cy.intercept({
