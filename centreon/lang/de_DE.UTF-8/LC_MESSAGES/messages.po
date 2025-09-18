@@ -3967,7 +3967,6 @@ msgstr ""
 msgid "Dashboard updated"
 msgstr ""
 
-#: centreon/www/include/home/customViews/index.php
 #: centreon/www/install/front_translate.php
 #: centreon/www/install/menu_translation.php
 msgid "Dashboards"
@@ -19339,7 +19338,6 @@ msgstr ""
 msgid "[%s]: No authorization code return by external provider"
 msgstr "[%s]: Keine Autorisierungscode-Rückgabe durch externen Anbieter"
 
-#: centreon/www/include/home/customViews/index.php
 #: centreon/www/include/monitoring/objectDetails/hostDetails.php
 #: centreon/www/include/monitoring/objectDetails/serviceDetails.php
 #: centreon/www/include/monitoring/status/Hosts/host.php

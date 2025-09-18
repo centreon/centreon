@@ -4030,7 +4030,6 @@ msgstr "Intervalle global du tableau de bord"
 msgid "Dashboard updated"
 msgstr "Tableau de bord mis à jour"
 
-#: centreon/www/include/home/customViews/index.php
 #: centreon/www/install/front_translate.php
 #: centreon/www/install/menu_translation.php
 msgid "Dashboards"
@@ -19620,7 +19619,6 @@ msgid "[%s]: No authorization code return by external provider"
 msgstr ""
 "[%s] : Aucun code d'autorisation n'a été retourné par le fournisseur externe"
 
-#: centreon/www/include/home/customViews/index.php
 #: centreon/www/include/monitoring/objectDetails/hostDetails.php
 #: centreon/www/include/monitoring/objectDetails/serviceDetails.php
 #: centreon/www/include/monitoring/status/Hosts/host.php
