@@ -70,10 +70,8 @@ const WrapperChart = ({
   const ref = useRef<HTMLDivElement | null>(null);
 
   const { adjustedData } = useChartData({ data, end, start });
-  const {
-    width: responsiveWidth,
-    height: responsiveHeight
-  } = useResizeObserver({ ref });
+  const { width: responsiveWidth, height: responsiveHeight } =
+    useResizeObserver({ ref });
 
   useEffect(() => {
     getRef?.(ref);
