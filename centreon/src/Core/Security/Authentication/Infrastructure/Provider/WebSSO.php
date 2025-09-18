@@ -89,6 +89,7 @@ class WebSSO implements ProviderAuthenticationInterface
             'default_page' => $user->getDefaultPage(),
             'contact_location' => (string) $user->getTimezoneId(),
             'show_deprecated_pages' => $user->isUsingDeprecatedPages(),
+            'show_deprecated_custom_views' => $user->isUsingDeprecatedCustomViews(),
             'reach_api' => $user->hasAccessToApiConfiguration() ? 1 : 0,
             'reach_api_rt' => $user->hasAccessToApiRealTime() ? 1 : 0,
             'contact_theme' => $user->getTheme() ?? 'light',

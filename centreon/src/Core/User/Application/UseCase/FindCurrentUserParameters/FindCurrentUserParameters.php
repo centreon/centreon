@@ -71,6 +71,7 @@ final class FindCurrentUserParameters
         $dto->locale = $user->getLocale();
         $dto->isAdmin = $user->isAdmin();
         $dto->useDeprecatedPages = $user->isUsingDeprecatedPages();
+        $dto->useDeprecatedCustomViews = $user->isUsingDeprecatedCustomViews();
         $dto->isExportButtonEnabled = $this->hasExportButtonRole($user);
         $dto->canManageApiTokens = $this->canManageApiTokens($user);
         $dto->theme = UserThemeConverter::fromString($user->getTheme());
