@@ -27,7 +27,8 @@ use App\MonitoringConfiguration\Domain\Aggregate\Command\Command;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandArgument;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Command\CommandResource;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandMacro;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\CommandConnectorDto;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Command\CommandConnectorDto;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Command\CommandGraphTemplateDto;
 use App\Shared\Domain\Collection;
 use App\Shared\Infrastructure\TransformerInterface;
 
@@ -44,9 +45,12 @@ final readonly class ResourceCommandTransformer implements TransformerInterface
             commandLine: $from->commandLine?->value,
             type: $from->type?->value,
             argumentExample: $from->argumentExample?->value,
-            connector: $from->connector !== null ?
-                CommandConnectorDto::createFromCommandConnector($from->connector) : null,
-            graphTemplate: $from->graphTemplate?->value,
+            connector: $from->connector !== null
+                ? CommandConnectorDto::createFromCommandConnector($from->connector)
+                : null,
+            graphTemplate: $from->graphTemplate !== null
+                ? CommandGraphTemplateDto::createFromCommandGraphTemplate($from->graphTemplate)
+                : null,
             comment: $from->comment?->value,
             isShellEnabled: $from->isShellEnabled,
             isActivated: $from->isActivated ?? false,

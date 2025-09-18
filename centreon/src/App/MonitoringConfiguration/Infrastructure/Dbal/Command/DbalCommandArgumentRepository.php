@@ -55,7 +55,7 @@ final readonly class DbalCommandArgumentRepository extends DbalRepository implem
     ) {
     }
 
-    public function findAllByCommand(Command $command)
+    public function findAllByCommand(Command $command): Collection
     {
         $qb = $this->connection->createQueryBuilder();
         $qb->select('cmd_id', 'macro_name', 'macro_description')

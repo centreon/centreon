@@ -37,7 +37,7 @@ final class CommandConnectorDto
     public static function createFromCommandConnector(CommandConnector $connector): self
     {
         return new self(
-            id: $connector->id()->value,
+            id: $connector->id->value,
             name: $connector->name?->value, // to be checked if nullable
         );
     }

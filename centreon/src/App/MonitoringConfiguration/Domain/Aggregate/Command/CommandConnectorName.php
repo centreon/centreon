@@ -25,7 +25,7 @@ namespace App\MonitoringConfiguration\Domain\Aggregate\Command;
 
 use Webmozart\Assert\Assert;
 
-final readonly class CommandMacroName
+final readonly class CommandConnectorName
 {
 
     public function __construct(

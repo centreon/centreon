@@ -28,7 +28,11 @@ use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandArgument;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandArgumentExample;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandComment;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandConnector;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandConnectorId;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandConnectorName;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandGraphTemplate;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandGraphTemplateId;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandGraphTemplateName;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandLine;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandName;
@@ -38,7 +42,7 @@ use App\Shared\Infrastructure\TransformerInterface;
 use App\Shared\Domain\Collection;
 
 /**
- * @phpstan-import-type RowTypeAlias from DbalServiceCategoryRepository
+ * @phpstan-import-type RowTypeAlias from DbalCommandRepository
  *
  * @implements TransformerInterface<RowTypeAlias, Command>
  */
@@ -52,8 +56,14 @@ final readonly class DbalCommandTransformer implements TransformerInterface
             commandLine: $from['command_line'] !== null ? new CommandLine($from['command_line']) : null,
             type: CommandType::tryFrom($from['command_type']),
             argumentExample: $from['command_example'] !== null ? new CommandArgumentExample($from['command_example']) : null,
-            connector: null, //$from['command_connector'] !== null ? new CommandConnector($from['command_connector']) : null,
-            graphTemplate: null, //$from['graph_id'] !== null ? new CommandGraphTemplate($from['graph_id']) : null,
+            connector: $from['connector_id'] !== null ? new CommandConnector(
+                id: new CommandConnectorId($from['connector_id']),
+                name: new CommandConnectorName($from['connector_name'])
+            ) : null,
+            graphTemplate: $from['graph_template_id'] !== null ? new CommandGraphTemplate(
+                id: new CommandGraphTemplateId($from['graph_template_id']),
+                name: new CommandGraphTemplateName($from['graph_template_name'])
+            ) : null,
             comment: $from['command_comment'] !== null ? new CommandComment($from['command_comment']) : null,
             isShellEnabled: $from['enable_shell'] === 1,
             isActivated: $from['command_activate'] === '1',

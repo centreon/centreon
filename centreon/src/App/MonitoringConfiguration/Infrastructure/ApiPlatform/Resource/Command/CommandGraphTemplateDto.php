@@ -36,7 +36,7 @@ final class CommandGraphTemplateDto
     public static function createFromCommandGraphTemplate(CommandGraphTemplate $graphTemplate): self
     {
         return new self(
-            id: $graphTemplate->id()->value,
+            id: $graphTemplate->id->value,
             name: $graphTemplate->name?->value, // to be checked if nullable
         );
     }

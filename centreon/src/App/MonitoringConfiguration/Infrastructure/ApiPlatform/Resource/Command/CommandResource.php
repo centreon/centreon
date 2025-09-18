@@ -28,9 +28,11 @@ use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\OpenApi\Model;
 use App\MonitoringConfiguration\Domain\Security\CommandPermissionEnum;
-use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandGraphTemplate;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Command\CommandConnectorDto;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Command\CommandGraphTemplateDto;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Command\FindCommandProvider;
 use App\Shared\Domain\Collection;
+use Command;
 
 #[ApiResource(
     shortName: 'Command',
@@ -82,13 +84,13 @@ final class CommandResource
             description: 'The connector used to separate arguments in the command line',
             openapiContext: ['example' => null]
         )]
-        public ?CommandConnector $connector = null,
+        public ?CommandConnectorDto $connector = null,
 
         #[ApiProperty(
             description: 'The graph template used for the command',
             openapiContext: ['example' => null]
         )]
-        public ?CommandGraphTemplate $graphTemplate = null,
+        public ?CommandGraphTemplateDto $graphTemplate = null,
 
         #[ApiProperty(
             description: 'Additional information about the command',
