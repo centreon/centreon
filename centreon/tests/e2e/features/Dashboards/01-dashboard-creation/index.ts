@@ -12,15 +12,15 @@ before(() => {
   );
 });
 
-// after(() => {
-//   cy.stopContainers();
-// });
+after(() => {
+  cy.stopContainers();
+});
 
 beforeEach(() => {
-  // cy.intercept({
-  //   method: 'GET',
-  //   url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
-  // }).as('getNavigationList');
+  cy.intercept({
+    method: 'GET',
+    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
+  }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
     url: '/centreon/api/latest/configuration/dashboards'
@@ -50,7 +50,7 @@ Given(
 );
 
 When('the user opens the form to create a new dashboard', () => {
-  cy.getByLabel({ label: 'create', tag: 'button' }).click();
+  cy.getByLabel({ label: 'aa', tag: 'button' }).click();
 });
 
 Then(
