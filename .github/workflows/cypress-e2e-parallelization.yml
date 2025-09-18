@@ -203,6 +203,7 @@ jobs:
           artifactory_internal_repo_password: ${{ secrets.artifactory_internal_repo_password }}
 
       - name: Display container logs
+        if: failure()
         run: |
           echo "::group::docker compose logs"
           docker compose -f .github/docker/docker-compose.yml logs
