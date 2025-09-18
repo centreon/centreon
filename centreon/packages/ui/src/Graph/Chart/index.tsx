@@ -1,4 +1,4 @@
-import { RefCallback, memo, useEffect } from 'react';
+import { RefCallback, memo, useEffect, useRef } from 'react';
 
 import dayjs from 'dayjs';
 import 'dayjs/locale/en';
@@ -67,13 +67,13 @@ const WrapperChart = ({
   ...rest
 }: Props): JSX.Element | null => {
   const { classes, cx } = useChartStyles();
+  const ref = useRef<HTMLDivElement | null>(null);
 
   const { adjustedData } = useChartData({ data, end, start });
   const {
-    ref,
     width: responsiveWidth,
     height: responsiveHeight
-  } = useResizeObserver();
+  } = useResizeObserver({ ref });
 
   useEffect(() => {
     getRef?.(ref);
@@ -93,7 +93,7 @@ const WrapperChart = ({
       ref={ref}
       className={cx(classes.wrapperContainer, rest?.containerStyle)}
     >
-      {!responsiveHeight ? (
+      {!responsiveHeight || !data ? (
         <Loading height={height || '100%'} width={width} />
       ) : (
         <Chart
