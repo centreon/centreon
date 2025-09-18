@@ -59,6 +59,15 @@ on:
       is_nightly:
         required: true
         type: string
+      centreon_image:
+        required: true
+        type: string
+      centreon_url:
+        required: true
+        type: string
+      container_name:
+        required: true
+        type: string
     secrets:
       registry_username:
         required: true
@@ -116,6 +125,10 @@ jobs:
     env:
       IMAGE_TAG: ${{ github.head_ref || github.ref_name }}
       SLIM_IMAGE_NAME: ${{ inputs.image_name }}-slim-${{ inputs.os }}
+      CONTAINER_NAME: ${{ inputs.container_name }}
+      CENTREON_URL: ${{ inputs.centreon_url }}
+      WEB_IMAGE: ${{ inputs.centreon_image }}
+      DATABASE_IMAGE: ${{ inputs.database_image }}
 
     steps:
       - name: Checkout sources
