@@ -52,8 +52,8 @@ final readonly class DbalCommandTransformer implements TransformerInterface
     {
         return new Command(
             id: new CommandId($from['command_id']),
-            name: $from['command_name'] !== null ? new CommandName($from['command_name']) : null,
-            commandLine: $from['command_line'] !== null ? new CommandLine($from['command_line']) : null,
+            name: new CommandName($from['command_name']),
+            commandLine: new CommandLine($from['command_line']),
             type: CommandType::from($from['command_type']),
             argumentExample: $from['command_example'] !== null ? new CommandArgumentExample($from['command_example']) : null,
             connector: $from['connector_id'] !== null ? new CommandConnector(

@@ -39,9 +39,13 @@ final class LegacyCommandPermissionVoter extends Voter
      */
     private const LEGACY_PERMISSION_MAP = [
         CommandPermissionEnum::CanReadChecks->value => Contact::ROLE_CONFIGURATION_COMMANDS_CHECKS_R,
+        CommandPermissionEnum::CanReadAndWriteChecks->value => Contact::ROLE_CONFIGURATION_COMMANDS_CHECKS_RW,
         CommandPermissionEnum::CanReadNotifications->value => Contact::ROLE_CONFIGURATION_COMMANDS_NOTIFICATIONS_R,
+        CommandPermissionEnum::CanReadAndWriteNotifications->value => Contact::ROLE_CONFIGURATION_COMMANDS_NOTIFICATIONS_RW,
         CommandPermissionEnum::CanReadMiscellaneous->value => Contact::ROLE_CONFIGURATION_COMMANDS_MISCELLANEOUS_R,
+        CommandPermissionEnum::CanReadAndWriteMiscellaneous->value => Contact::ROLE_CONFIGURATION_COMMANDS_MISCELLANEOUS_RW,
         CommandPermissionEnum::CanReadDiscovery->value => Contact::ROLE_CONFIGURATION_COMMANDS_DISCOVERY_R,
+        CommandPermissionEnum::CanReadAndWriteDiscovery->value => Contact::ROLE_CONFIGURATION_COMMANDS_DISCOVERY_RW,
     ];
 
     protected function supports(string $attribute, mixed $subject): bool

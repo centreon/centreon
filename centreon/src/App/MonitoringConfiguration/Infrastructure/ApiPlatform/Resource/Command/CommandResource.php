@@ -29,6 +29,7 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\OpenApi\Model;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandArgument;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandMacro;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandType;
 use App\MonitoringConfiguration\Domain\Security\CommandPermissionEnum;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Command\FindCommandProvider;
 use App\Shared\Domain\Collection;
@@ -42,10 +43,28 @@ use App\Shared\Domain\Collection;
             openapi: new Model\Operation(
                 responses: [
                     404 => new Model\Response('Command resource not found'),
+                    403 => new Model\Response('You are not allowed to access this command'),
                 ],
             ),
-            // security: "is_granted('" . CommandPermissionEnum::CanReadChecks->value . "')", // handle the other cases in the provider
-            securityMessage: 'You are not allowed to access commands',
+            security: '
+                (object.type == ' . CommandType::Notification->value . ' and (
+                    is_granted("' . CommandPermissionEnum::CanReadNotifications->value . '") or
+                    is_granted("' . CommandPermissionEnum::CanReadAndWriteNotifications->value . '")
+                )) or
+                (object.type == ' . CommandType::Check->value . ' and (
+                    is_granted("' . CommandPermissionEnum::CanReadChecks->value . '") or
+                    is_granted("' . CommandPermissionEnum::CanReadAndWriteChecks->value . '")
+                )) or
+                (object.type == ' . CommandType::Miscellaneous->value . ' and (
+                    is_granted("' . CommandPermissionEnum::CanReadMiscellaneous->value . '") or
+                    is_granted("' . CommandPermissionEnum::CanReadAndWriteMiscellaneous->value . '")
+                )) or
+                (object.type == ' . CommandType::Discovery->value . ' and (
+                    is_granted("' . CommandPermissionEnum::CanReadDiscovery->value . '") or
+                    is_granted("' . CommandPermissionEnum::CanReadAndWriteDiscovery->value . '")
+                ))
+            ',
+            securityMessage: 'You are not allowed to access this command',
         ),
     ],
 )]
@@ -70,6 +89,12 @@ final class CommandResource
             openapiContext: ['example' => 1, 'enum' => [1, 2, 3, 4]]
         )]
         public int $type,
+
+        #[ApiProperty(
+            description: 'The command line used to execute the command',
+            openapiContext: ['example' => '$USER1$/check_http -H $ARG1$ -w $ARG2$ -c $ARG3$'] // check docs for more examples
+        )]
+        public string $commandLine,
 
         #[ApiProperty(
             description: 'Indicates whether the command can be executed through a shell',
@@ -108,12 +133,6 @@ final class CommandResource
             ]
         )]
         public Collection $arguments,
-
-        #[ApiProperty(
-            description: 'The command line used to execute the command',
-            openapiContext: ['example' => '$USER1$/check_http -H $ARG1$ -w $ARG2$ -c $ARG3$'] // check docs for more examples
-        )]
-        public ?string $commandLine = null,
 
         #[ApiProperty(
             description: 'Example of arguments that can be passed to the command',

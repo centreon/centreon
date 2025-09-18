@@ -26,7 +26,11 @@ namespace App\MonitoringConfiguration\Domain\Security;
 enum CommandPermissionEnum: string
 {
     case CanReadChecks = 'can_read_command_checks';
+    case CanReadAndWriteChecks = 'can_read_and_write_command_checks';
     case CanReadNotifications = 'can_read_command_notifications';
+    case CanReadAndWriteNotifications = 'can_read_and_write_command_notifications';
     case CanReadMiscellaneous = 'can_read_command_miscellaneous';
+    case CanReadAndWriteMiscellaneous = 'can_read_and_write_command_miscellaneous';
     case CanReadDiscovery = 'can_read_command_discovery';
+    case CanReadAndWriteDiscovery = 'can_read_and_write_command_discovery';
 }
