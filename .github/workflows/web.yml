@@ -997,8 +997,8 @@ jobs:
       [
         get-environment,
         changes,
-        dockerize,
-        create-xray-test-plan-and-test-execution,
+        # dockerize,
+        # create-xray-test-plan-and-test-execution,
         gherkin-lint,
         e2e-lint,
       ]

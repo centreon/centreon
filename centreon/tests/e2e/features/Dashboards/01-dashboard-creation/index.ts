@@ -17,10 +17,10 @@ after(() => {
 });
 
 beforeEach(() => {
-  cy.intercept({
-    method: 'GET',
-    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
-  }).as('getNavigationList');
+  // cy.intercept({
+  //   method: 'GET',
+  //   url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
+  // }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
     url: '/centreon/api/latest/configuration/dashboards'
@@ -56,7 +56,7 @@ When('the user opens the form to create a new dashboard', () => {
 Then(
   'the creation form is displayed and contains the fields to create a dashboard',
   () => {
-    cy.contains('Create dashboard').should('not.be.visible');
+    cy.contains('Create dashboard').should('be.visible');
 
     cy.getByLabel({ label: 'Name', tag: 'input' }).should('be.empty');
 
