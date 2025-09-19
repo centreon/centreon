@@ -130,7 +130,7 @@ final readonly class MonologAdapter implements LoggerInterface
             $handler->setFormatter(new LineFormatter(null, Logger::DATE_FORMAT));
 
             $this->logger->pushHandler($handler);
-        }  catch (\InvalidArgumentException $e) {
+        } catch (\InvalidArgumentException $e) {
             throw LoggerException::loggerCreationFailed($this->channel->value, $e);
         }
     }
