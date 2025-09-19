@@ -102,7 +102,7 @@ $cleanGlobalMacrosName = function () use ($pearDB, &$errorMessage): void {
             <<<'SQL'
                 UPDATE cfg_resource
                 SET resource_name = :resource_name
-                WHERE id = :id
+                WHERE resource_id = :id
                 SQL,
             QueryParameters::create([
                 QueryParameter::string(':resource_name', $newName),
