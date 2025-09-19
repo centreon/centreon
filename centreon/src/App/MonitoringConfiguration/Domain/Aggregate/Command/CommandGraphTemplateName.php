@@ -30,6 +30,6 @@ final readonly class CommandGraphTemplateName
     public function __construct(
         public string $value,
     ) {
-        Assert::lengthBetween($value, 1, 255);
+        Assert::maxLength($value, 255);
     }
 }

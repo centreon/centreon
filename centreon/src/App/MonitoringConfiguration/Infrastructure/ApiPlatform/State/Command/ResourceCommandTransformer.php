@@ -24,9 +24,12 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Command;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Command\Command;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Command\CommandArgumentDto;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Command\CommandConnectorDto;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Command\CommandGraphTemplateDto;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Command\CommandResource;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Command\CommandMacroDto;
+use App\Shared\Domain\Collection;
 use App\Shared\Infrastructure\TransformerInterface;
 
 /**
@@ -44,8 +47,14 @@ final readonly class ResourceCommandTransformer implements TransformerInterface
             isShellEnabled: $from->isShellEnabled,
             isActivated: $from->isActivated ?? false,
             isLocked: $from->isLocked ?? false,
-            macros: $from->macros,
-            arguments: $from->arguments,
+            macros: new Collection(
+                array_map(fn ($macro) => CommandMacroDto::createFromCommandMacro($macro), $from->macros->toArray()),
+                CommandMacroDto::class
+            ),
+            arguments: new Collection(
+                array_map(fn ($argument) => CommandArgumentDto::createFromCommandArgument($argument), $from->arguments->toArray()),
+                CommandArgumentDto::class
+            ),
             argumentExample: $from->argumentExample?->value,
             connector: $from->connector !== null
                 ? CommandConnectorDto::createFromCommandConnector($from->connector)

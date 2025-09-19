@@ -21,15 +21,27 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Domain\Aggregate\Command;
+namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Command;
 
-use Webmozart\Assert\Assert;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandMacro;
 
-final readonly class CommandComment
+final class CommandMacroDto
 {
     public function __construct(
-        public string $value,
+        public int $id,
+        public string $name,
+        public string $type,
+        public ?string $description = null,
     ) {
-        Assert::maxLength($value, 65535);
+    }
+
+    public static function createFromCommandMacro(CommandMacro $macro): self
+    {
+        return new self(
+            id: $macro->id->value,
+            name: $macro->name->value,
+            type: $macro->type->value,
+            description: $macro->description->value,
+        );
     }
 }

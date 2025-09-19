@@ -59,7 +59,13 @@ final readonly class DbalCommandMacroRepository extends DbalRepository implement
     public function findAllByCommand(Command $command): Collection
     {
         $qb = $this->connection->createQueryBuilder();
-        $qb->select('command_macro_id', 'command_macro_name', 'command_macro_type', 'command_macro_desciption', 'command_command_id')
+        $qb->select(
+            'command_macro_id',
+            'command_macro_name',
+            'command_macro_type',
+            'command_macro_desciption',
+            'command_command_id'
+        )
             ->from(self::TABLE_NAME)
             ->where('command_command_id = :command_id')
             ->setParameter('command_id', $command->id()->value);

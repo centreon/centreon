@@ -79,7 +79,7 @@ final class CommandResource
         public int $id,
 
         #[ApiProperty(
-            description: 'The name of the command',
+            description: 'The command name',
             openapiContext: ['example' => 'check_http']
         )]
         public string $name,

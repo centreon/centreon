@@ -21,15 +21,23 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Domain\Aggregate\Command;
+namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Command;
 
-use Webmozart\Assert\Assert;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandArgument;
 
-final readonly class CommandComment
+final class CommandArgumentDto
 {
     public function __construct(
-        public string $value,
+        public string $name,
+        public ?string $description = null,
     ) {
-        Assert::maxLength($value, 65535);
+    }
+
+    public static function createFromCommandArgument(CommandArgument $argument): self
+    {
+        return new self(
+            name: $argument->name->value,
+            description: $argument->description->value,
+        );
     }
 }
