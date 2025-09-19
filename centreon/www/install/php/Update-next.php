@@ -457,6 +457,8 @@ try {
     $addResourceStatusSearchModeOption();
     $flagContactsAsServiceAccount();
     $updateOnPremiseACLs();
+    $cleanGlobalMacrosName();
+    $fixTypoInStandardMacroName();
 
     $pearDB->commit();
     $pearDBO->commit();
