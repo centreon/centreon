@@ -30,10 +30,10 @@ $version = 'xx.xx.x';
 
 $errorMessage = '';
 
-/** @var ConnectionInterface $pearDB */
-global $pearDB;
-/** @var ConnectionInterface $pearDBO */
-global $pearDBO;
+/**
+ * @var ConnectionInterface $pearDB
+ * @var ConnectionInterface $pearDBO
+ */
 
 // -------------------------------------- AgentConfiguration updates --------------------------------------
 
