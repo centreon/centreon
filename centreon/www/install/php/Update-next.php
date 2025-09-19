@@ -28,12 +28,12 @@ require_once __DIR__ . '/../../../bootstrap.php';
 
 $version = 'xx.xx.x';
 
+$errorMessage = '';
+
 /**
  * @var ConnectionInterface $pearDB
  * @var ConnectionInterface $pearDBO
  */
-
-$errorMessage = '';
 
 // -------------------------------------- AgentConfiguration updates --------------------------------------
 

@@ -14,12 +14,12 @@ use Adaptation\Database\Connection\Exception\ConnectionException;
 
 $version = 'xx.xx.x';
 
+$errorMessage = '';
+
 /**
  * @var ConnectionInterface $pearDB
  * @var ConnectionInterface $pearDBO
  */
-
-$errorMessage = '';
 
 // TODO add your functions here
 
