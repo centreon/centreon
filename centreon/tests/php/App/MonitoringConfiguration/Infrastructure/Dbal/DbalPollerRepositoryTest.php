@@ -58,6 +58,6 @@ final class DbalOptionRepositoryTest extends KernelTestCase
                 new Collection([], Poller::class)
             )
         );
-        self::assertInstanceOf(Collection::class, $pollers);
+        self::assertCount(1, $pollers);
     }
 }
