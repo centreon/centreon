@@ -1,12 +1,6 @@
 parameters:
 	ignoreErrors:
 		-
-			message: '#^Access to constant LM_FINGERPRINT on an unknown class CentreonLicense\\ServiceProvider\.$#'
-			identifier: class.notFound
-			count: 1
-			path: www/api/class/centreon_ceip.class.php
-
-		-
 			message: '#^Class centreonGraphPoller referenced with incorrect case\: CentreonGraphPoller\.$#'
 			identifier: class.nameCase
 			count: 1
