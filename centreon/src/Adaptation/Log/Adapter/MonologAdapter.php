@@ -27,7 +27,7 @@ use Adaptation\Log\Enum\LogChannelEnum;
 use Adaptation\Log\Exception\LoggerException;
 use Adaptation\Log\Logger;
 use Monolog\Formatter\LineFormatter;
-use Monolog\Handler\RotatingFileHandler;
+use Monolog\Handler\StreamHandler;
 use Monolog\Level;
 use Monolog\Logger as MonologLogger;
 use Psr\Log\LoggerInterface;
@@ -117,19 +117,22 @@ final readonly class MonologAdapter implements LoggerInterface
      */
     private function createLoggerFromChannel(): void
     {
-        $handler = match ($this->channel) {
-            LogChannelEnum::PASSWORD => new RotatingFileHandler(
-                $this->getLogFileFromChannel(LogChannelEnum::PASSWORD),
-                Logger::ROTATING_MAX_FILES,
-                LogLevel::INFO
-            ),
-            // TODO if another channel is needed, uncomment the following line
-            // default => throw LoggerException::channelNotImplemented($this->channel->value),
-        };
+        try {
+            $handler = match ($this->channel) {
+                LogChannelEnum::PASSWORD => new StreamHandler(
+                    $this->getLogFileFromChannel(LogChannelEnum::PASSWORD),
+                    LogLevel::INFO
+                ),
+                // TODO if another channel is needed, uncomment the following line
+                // default => throw LoggerException::channelNotImplemented($this->channel->value),
+            };
 
-        $handler->setFormatter(new LineFormatter(null, Logger::DATE_FORMAT));
+            $handler->setFormatter(new LineFormatter(null, Logger::DATE_FORMAT));
 
-        $this->logger->pushHandler($handler);
+            $this->logger->pushHandler($handler);
+        }  catch (\InvalidArgumentException $e) {
+            throw LoggerException::loggerCreationFailed($this->channel->value, $e);
+        }
     }
 
     /**

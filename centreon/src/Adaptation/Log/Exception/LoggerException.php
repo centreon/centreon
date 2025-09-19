@@ -34,4 +34,9 @@ final class LoggerException extends \LogicException
     {
         return new self(sprintf('The logging channel "%s" is not configured.', $channel));
     }
+
+    public static function loggerCreationFailed(string $channel, \Throwable $e): self
+    {
+        return new self(sprintf('Logger creation failed for this channel "%s".', $channel), $e);
+    }
 }
