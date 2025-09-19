@@ -41,19 +41,15 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
  *   enable_shell: bool,
  *   command_activate: bool,
  *   command_locked: bool,
- *   command_example: string|null,
  *   command_comment: string|null,
  *   connector_id: int|null,
  *   connector_name: string|null,
- *   graph_template_id: int|null,
- *   graph_template_name: string|null,
  * }
  */
 final readonly class DbalCommandRepository extends DbalRepository implements CommandRepository
 {
     public const TABLE_NAME = 'command';
     public const CONNECTOR_TABLE_NAME = 'connector';
-    public const GRAPH_TEMPLATE_TABLE_NAME = 'giv_graphs_template';
 
     /**
      * @param TransformerInterface<RowTypeAlias, Command> $commandTransformer
@@ -64,10 +60,6 @@ final readonly class DbalCommandRepository extends DbalRepository implements Com
 
         #[Autowire(service: DbalCommandTransformer::class)]
         private TransformerInterface $commandTransformer,
-
-        private DbalCommandMacroRepository $commandMacroRepository,
-
-        private DbalCommandArgumentRepository $commandArgumentRepository,
     ) {
     }
 
@@ -87,12 +79,9 @@ final readonly class DbalCommandRepository extends DbalRepository implements Com
             'c.command_comment',
             'c.connector_id',
             'connector.name AS connector_name',
-            'NULLIF(c.graph_id, 0) AS graph_template_id', // should fix the create for the null graph template that is 0 in db + upgrade script too
-            'graph.name AS graph_template_name'
         )
             ->from(self::TABLE_NAME, 'c')
             ->leftJoin('c', self::CONNECTOR_TABLE_NAME, 'connector', 'c.connector_id = connector.id')
-            ->leftJoin('c', self::GRAPH_TEMPLATE_TABLE_NAME, 'graph', 'c.graph_id = graph.graph_id')
             ->where('c.command_id = :id')
             ->setParameter('id', $id->value)
             ->setMaxResults(1);
@@ -104,30 +93,6 @@ final readonly class DbalCommandRepository extends DbalRepository implements Com
             throw new CommandNotFoundException(['id' => $id->value]);
         }
 
-        return $this->createCommand($row);
-    }
-
-    /**
-     * @param RowTypeAlias $row
-     */
-    private function createCommand(array $row): Command
-    {
-        $command = $this->commandTransformer->transform($row);
-        $commandMacros = $this->commandMacroRepository->findAllByCommand($command);
-        $commandArguments = $this->commandArgumentRepository->findAllByCommand($command);
-
-        foreach ($commandMacros as $commandMacro) {
-            $command->addCommandMacro(
-                $commandMacro
-            );
-        }
-
-        foreach ($commandArguments as $commandArgument) {
-            $command->addCommandArgument(
-                $commandArgument
-            );
-        }
-
-        return $command;
+        return $this->commandTransformer->transform($row);
     }
 }

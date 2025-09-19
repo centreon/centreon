@@ -24,14 +24,9 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Domain\Aggregate\Command;
 
 use App\Shared\Domain\Aggregate\AggregateRoot;
-use App\Shared\Domain\Collection;
 
 final class Command extends AggregateRoot
 {
-    /**
-     * @param Collection<CommandArgument> $arguments
-     * @param Collection<CommandMacro> $macros
-     */
     public function __construct(
         ?CommandId $id,
         public readonly CommandName $name,
@@ -40,33 +35,9 @@ final class Command extends AggregateRoot
         public readonly bool $isShellEnabled,
         public readonly bool $isActivated,
         public readonly bool $isLocked,
-        public readonly Collection $arguments,
-        public readonly Collection $macros,
-        public readonly ?CommandArgumentExample $argumentExample,
         public readonly ?CommandConnector $connector,
-        public readonly ?CommandGraphTemplate $graphTemplate,
         public readonly ?CommandComment $comment,
     ) {
         parent::__construct($id);
-    }
-
-    public function addCommandMacro(CommandMacro $macro): self
-    {
-        if ($this->macros->contains($macro)) {
-            return $this;
-        }
-        $this->macros->add($macro);
-
-        return $this;
-    }
-
-    public function addCommandArgument(CommandArgument $argument): self
-    {
-        if ($this->arguments->contains($argument)) {
-            return $this;
-        }
-        $this->arguments->add($argument);
-
-        return $this;
     }
 }

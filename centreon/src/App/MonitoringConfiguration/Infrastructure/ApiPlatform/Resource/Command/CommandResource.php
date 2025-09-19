@@ -27,12 +27,9 @@ use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\OpenApi\Model;
-use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandArgument;
-use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandType;
 use App\MonitoringConfiguration\Domain\Security\CommandPermissionEnum;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Command\FindCommandProvider;
-use App\Shared\Domain\Collection;
 
 #[ApiResource(
     shortName: 'Command',
@@ -70,10 +67,6 @@ use App\Shared\Domain\Collection;
 )]
 final class CommandResource
 {
-    /**
-     * @param Collection<CommandArgument> $arguments
-     * @param Collection<CommandMacro> $macros
-     */
     public function __construct(
         #[ApiProperty(identifier: true, writable: false)]
         public int $id,
@@ -92,7 +85,7 @@ final class CommandResource
 
         #[ApiProperty(
             description: 'The command line used to execute the command',
-            openapiContext: ['example' => '$USER1$/check_http -H $ARG1$ -w $ARG2$ -c $ARG3$'] // check docs for more examples
+            openapiContext: ['example' => '$USER1$/check_http -H $ARG1$ -w $ARG2$ -c $ARG3$']
         )]
         public string $commandLine,
 
@@ -115,42 +108,17 @@ final class CommandResource
         public bool $isLocked,
 
         #[ApiProperty(
-            description: 'The list of command macros related to the command',
-            openapiContext: [
-                'type' => 'array',
-                'items' => ['id' => 'int', 'name' => 'string'], // check in docs/code
-                'example' => ['ARG1', 'ARG2', 'ARG3'], // check in docs/code
-            ]
-        )]
-        public Collection $macros,
-
-        #[ApiProperty(
-            description: 'The list of arguments related to the command',
-            openapiContext: [
-                'type' => 'array',
-                'items' => ['id' => 'int', 'name' => 'string'], // check in docs/code
-                'example' => [['id' => 1, 'name' => 'ARG1', 'value' => 'localhost']], // check in docs/code
-            ]
-        )]
-        public Collection $arguments,
-
-        #[ApiProperty(
-            description: 'Example of arguments that can be passed to the command',
-            openapiContext: ['example' => 'ARG1: host to check, ARG2: warning threshold, ARG3: critical threshold'] // check in docs/code
-        )]
-        public ?string $argumentExample = null,
-
-        #[ApiProperty(
             description: 'The connector used to separate arguments in the command line',
-            openapiContext: ['example' => null]
+            openapiContext: [
+                'type' => 'object',
+                'properties' => [
+                    'id' => ['type' => 'integer'],
+                    'name' => ['type' => 'string'],
+                ],
+                'example' => ['id' => 1, 'name' => 'SSH'],
+            ]
         )]
         public ?CommandConnectorDto $connector = null,
-
-        #[ApiProperty(
-            description: 'The graph template used for the command',
-            openapiContext: ['example' => null]
-        )]
-        public ?CommandGraphTemplateDto $graphTemplate = null,
 
         #[ApiProperty(
             description: 'Additional information about the command',
