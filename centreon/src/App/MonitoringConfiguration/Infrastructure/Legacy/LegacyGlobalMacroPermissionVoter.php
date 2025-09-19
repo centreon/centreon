@@ -38,7 +38,7 @@ final class LegacyGlobalMacroPermissionVoter extends Voter
      * @var array<value-of<GlobalMacroPermissionEnum>, string>
      */
     private const LEGACY_PERMISSION_MAP = [
-        // GlobalMacroPermissionEnum::CanRead->value => Contact::ROLE_CONFIGURATION_POLLERS_GLOBAL_MACRO_RW,
+        GlobalMacroPermissionEnum::CanRead->value => Contact::ROLE_CONFIGURATION_POLLERS_GLOBAL_MACRO_RW,
     ];
 
     protected function supports(string $attribute, mixed $subject): bool
@@ -57,7 +57,7 @@ final class LegacyGlobalMacroPermissionVoter extends Voter
         }
 
         if (! $user->hasTopologyRole(self::LEGACY_PERMISSION_MAP[$attribute])) {
-            $vote?->addReason('The user has not the required topology role: ' . self::LEGACY_PERMISSION_MAP[$attribute]);
+            $vote?->addReason('The user do not have the required topology role: ' . self::LEGACY_PERMISSION_MAP[$attribute]);
 
             return false;
         }
