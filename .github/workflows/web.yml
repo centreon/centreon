@@ -445,7 +445,6 @@ jobs:
         run: |
           sudo mkdir -p /var/cache/centreon/symfony.new
           sudo mkdir -p /var/cache/centreon/symfony
-          sudo chown -R $USER:$USER /var/cache/centreon
 
       - name: Install dependencies for centreon-web
         run: composer install --optimize-autoloader --prefer-dist --no-interaction --no-progress --quiet --no-scripts
