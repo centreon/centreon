@@ -391,6 +391,15 @@ $updateOnPremiseACLs = function () use ($pearDB, &$errorMessage): void {
     );
 };
 
+$fixTypoInStandardMacroName = function () use ($pearDB, &$errorMessage): void {
+    $errorMessage = 'Failed to fix typo in standard macro name';
+    $pearDB->update(
+        <<<'SQL'
+                UPDATE nagios_macro SET macro_name = '$TOTALHOSTSUNREACHABLEUNHANDLED$' WHERE macro_id = 65
+            SQL
+    );
+};
+
 try {
 
     $addIsEncryptionReadyColumn();

@@ -45,7 +45,7 @@ final class DbalOptionRepositoryTest extends KernelTestCase
     {
         $option = $this->repository->getByName(new OptionName(Option::PLUGIN_PATH_OPTION_NAME));
         self::assertSame(Option::PLUGIN_PATH_OPTION_NAME, $option->name->value);
-        self::assertSame('/usr/lib64/names/plugins', $option->value->value);
+        self::assertSame('/usr/lib64/nagios/plugins/', $option->value->value);
     }
 
     public function testItThrowExceptionWhenOptionDoesNotExist(): void

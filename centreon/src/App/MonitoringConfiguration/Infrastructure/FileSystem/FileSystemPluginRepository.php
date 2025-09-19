@@ -43,9 +43,10 @@ final readonly class FileSystemPluginRepository implements PluginRepository
     public function findByPath(OptionValue $path): Collection
     {
         $pluginInfos = $this->finder->files()->in($path->value);
+
         return new Collection(
             array_map(
-                static fn (SplFileInfo $plugin) => new Plugin(new PluginName($plugin->getFilename())),
+                static fn (SplFileInfo $plugin): Plugin => new Plugin(new PluginName($plugin->getFilename())),
                 iterator_to_array($pluginInfos->getIterator())
             ),
             Plugin::class
