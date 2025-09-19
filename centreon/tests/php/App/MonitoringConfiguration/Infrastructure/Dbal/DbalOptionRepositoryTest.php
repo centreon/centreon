@@ -21,7 +21,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\App\MonitoringConfiguration\Infrastructure\Doctrine;
+namespace Tests\App\MonitoringConfiguration\Infrastructure\Dbal;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Option\Option;
 use App\MonitoringConfiguration\Domain\Aggregate\Option\OptionName;
