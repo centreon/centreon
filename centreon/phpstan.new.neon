@@ -34,7 +34,6 @@ services:
               - ApiPlatform\Metadata\ApiResource
           classes:
               - ApiPlatform\State\ProcessorInterface
-              - App\Shared\Infrastructure\Dbal\DbalRepository
               - App\MonitoringConfiguration\Infrastructure\Legacy\LegacyServiceCategoryPermissionVoter
               - App\Shared\Infrastructure\TransformerInterface
       tags: [phpstan.rules.rule]
