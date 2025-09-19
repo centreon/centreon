@@ -5,7 +5,7 @@ import { Box, Link } from '@mui/material';
 import { JSX } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link as RouterLink } from 'react-router';
-import { labelCreateNewCMAToken } from '../translatedLabels';
+import { labelCreateNewCMAToken } from '../../translatedLabels';
 
 const tokensPageURL = '/administration/authentication-token?mode=edit&type=cma';
 
@@ -13,7 +13,7 @@ const RedirectToTokensPage = (): JSX.Element => {
   const { t } = useTranslation();
 
   return (
-    <Box className="-mt-4">
+    <Box>
       <Button
         icon={<AddIcon />}
         iconVariant="start"
