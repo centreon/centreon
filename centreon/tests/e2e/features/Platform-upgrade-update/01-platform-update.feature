@@ -18,6 +18,6 @@ Feature: Update platform from version A to version B of the same MAJOR
     Examples:
       | version_from           |
       | first minor            |
-      # | last stable            |
-      # | penultimate stable     |
-      # | antepenultimate stable |
+      | last stable            |
+      | penultimate stable     |
+      | antepenultimate stable |
