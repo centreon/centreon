@@ -28,7 +28,7 @@ use ApiPlatform\State\ProviderInterface;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\Command;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Command\CommandResource;
-use App\MonitoringConfiguration\Infrastructure\Dbal\Command\DbalCommandRepository;
+use App\MonitoringConfiguration\Infrastructure\Dbal\DbalCommandRepository;
 use App\Shared\Infrastructure\TransformerInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Webmozart\Assert\Assert;
