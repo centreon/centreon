@@ -57,7 +57,7 @@ final class LegacyGlobalMacroPermissionVoter extends Voter
         }
 
         if (! $user->hasTopologyRole(self::LEGACY_PERMISSION_MAP[$attribute])) {
-            $vote?->addReason('The user do not have the required topology role: ' . self::LEGACY_PERMISSION_MAP[$attribute]);
+            $vote?->addReason('The user does not have the required topology role: ' . self::LEGACY_PERMISSION_MAP[$attribute]);
 
             return false;
         }
