@@ -570,6 +570,5 @@ function deleteFromVault(array $data): void
 
 function validateName(string $name): bool
 {
-
     return (bool) preg_match(GlobalMacroName::NAMING_VALIDATION_REGEX, $name);
 }
