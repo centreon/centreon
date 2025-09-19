@@ -42,7 +42,7 @@ final readonly class ResourceCommandTransformer implements TransformerInterface
             commandLine: $from->commandLine->value,
             isShellEnabled: $from->isShellEnabled,
             isActivated: $from->isActivated ?? false,
-            isLocked: $from->isLocked ?? false,
+            isFromMonitoringConnector: $from->isFromMonitoringConnector ?? false,
             connector: $from->connector !== null
                 ? CommandConnectorDto::createFromCommandConnector($from->connector)
                 : null,

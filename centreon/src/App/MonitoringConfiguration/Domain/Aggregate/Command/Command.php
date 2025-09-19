@@ -34,7 +34,7 @@ final class Command extends AggregateRoot
         public readonly CommandLine $commandLine,
         public readonly bool $isShellEnabled,
         public readonly bool $isActivated,
-        public readonly bool $isLocked,
+        public readonly bool $isFromMonitoringConnector,
         public readonly ?CommandConnector $connector,
         public readonly ?CommandComment $comment,
     ) {

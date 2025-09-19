@@ -102,20 +102,20 @@ final class CommandResource
         public bool $isActivated,
 
         #[ApiProperty(
-            description: 'Indicates whether the command is locked or not',
+            description: 'Indicates whether the command comes from a monitoring connector',
             openapiContext: ['example' => 0, 'enum' => [0, 1]]
         )]
-        public bool $isLocked,
+        public bool $isFromMonitoringConnector,
 
         #[ApiProperty(
-            description: 'The connector used to separate arguments in the command line',
+            description: 'Connectors are run in background and execute specific commands without the need to execute a binary, thus enhancing performance',
             openapiContext: [
                 'type' => 'object',
                 'properties' => [
                     'id' => ['type' => 'integer'],
                     'name' => ['type' => 'string'],
                 ],
-                'example' => ['id' => 1, 'name' => 'SSH'],
+                'example' => ['id' => 1, 'name' => 'SSH Connector'],
             ]
         )]
         public ?CommandConnectorDto $connector = null,

@@ -55,7 +55,7 @@ final readonly class DbalCommandTransformer implements TransformerInterface
             comment: $from['command_comment'] !== null ? new CommandComment($from['command_comment']) : null,
             isShellEnabled: $from['enable_shell'] === 1,
             isActivated: $from['command_activate'] === '1',
-            isLocked: $from['command_locked'] === 1,
+            isFromMonitoringConnector: $from['command_locked'] === 1,
         );
     }
 }
