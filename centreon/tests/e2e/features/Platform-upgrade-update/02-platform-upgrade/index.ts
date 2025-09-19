@@ -291,5 +291,6 @@ EOF`,
 );
 
 after(() => {
-  cy.stopContainers();
+  cy.visitEmptyPage()
+    .stopContainer({ name: "web" });
 });
