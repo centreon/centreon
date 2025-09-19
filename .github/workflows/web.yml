@@ -443,8 +443,15 @@ jobs:
 
       - name: Ensure Symfony cache directories exist and are writable (legacy and new)
         run: |
+          echo "Ensure Symfony cache directories exist" && set -e
           sudo mkdir -p /var/cache/centreon/symfony.new
           sudo mkdir -p /var/cache/centreon/symfony
+          echo "Current permissions and ownership of /var/cache/centreon/symfony.new" && set -e
+          ls -ld /var/cache/centreon/symfony.new
+          echo "Current permissions and ownership of /var/cache/centreon/symfony" && set -e
+          ls -ld /var/cache/centreon/symfony
+          echo "Set permissions on Symfony cache directories with $USER" && set -e
+          sudo chown -R $USER:$USER /var/cache/centreon/symfony.new
 
       - name: Install dependencies for centreon-web
         run: composer install --optimize-autoloader --prefer-dist --no-interaction --no-progress --quiet --no-scripts
