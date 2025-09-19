@@ -6,11 +6,11 @@ import { makeStyles } from 'tss-react/mui';
 import {
   Box,
   InputAdornment,
-  Box,
   TextField as MuiTextField,
   TextFieldProps,
   Theme,
   Tooltip,
+  Typography
 } from '@mui/material';
 
 import { getNormalizedId } from '../../utils';
