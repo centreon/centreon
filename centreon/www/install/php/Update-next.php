@@ -391,7 +391,7 @@ $updateOnPremiseACLs = function () use ($pearDB, &$errorMessage): void {
     );
 };
 
-$fixTypoInStandardMacroName = function () use ($pearDB, &$errorMessage):void {
+$fixTypoInStandardMacroName = function () use ($pearDB, &$errorMessage): void {
     $errorMessage = 'Failed to fix typo in standard macro name';
     $pearDB->update(
         <<<'SQL'
