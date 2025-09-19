@@ -391,6 +391,37 @@ $updateOnPremiseACLs = function () use ($pearDB, &$errorMessage): void {
     );
 };
 
+$cleanGlobalMacrosName = function () use ($pearDB, &$errorMessage): void {
+    $errorMessage = 'Failed to update cfg_resource table';
+    $invalidMacros = $pearDB->fetchAllAssociative(
+        <<<'SQL'
+            SELECT resource_id, resource_name FROM cfg_resource
+            WHERE resource_name NOT LIKE '\$%' OR resource_name NOT LIKE '%\$'
+            SQL
+    );
+
+    foreach ($invalidMacros as $macro) {
+        $newName = $macro['resource_name'];
+        if (str_starts_with($newName, '$') === false) {
+            $newName = '$' . $newName;
+        }
+        if (str_ends_with($newName, '$') === false) {
+            $newName .= '$';
+        }
+        $pearDB->update(
+            <<<'SQL'
+                UPDATE cfg_resource
+                SET resource_name = :resource_name
+                WHERE id = :id
+                SQL,
+            QueryParameters::create([
+                QueryParameter::string(':resource_name', $newName),
+                QueryParameter::int(':id', (int) $macro['resource_id']),
+            ])
+        );
+    }
+};
+
 try {
 
     $addIsEncryptionReadyColumn();
