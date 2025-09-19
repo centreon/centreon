@@ -86,9 +86,9 @@ const LoginForm = (): JSX.Element => {
         onChange={handleChange(aliasFieldName)}
       />
       <TextField
+        forceUncontrolled
         fullWidth
         required
-        forceUncontrolled
         EndAdornment={passwordEndAdornment}
         StartAdornment={LockIcon}
         ariaLabel={labelPassword}

@@ -84,12 +84,12 @@ export type TextProps = {
   displayErrorInTooltip?: boolean;
   error?: string;
   externalValueForAutoSize?: string;
+  forceUncontrolled?: boolean;
   open?: boolean;
   required?: boolean;
   size?: SizeVariant;
   transparent?: boolean;
   value?: string;
-  forceUncontrolled?: boolean;
 } & Omit<TextFieldProps, 'variant' | 'size' | 'error'>;
 
 const TextField = forwardRef(
