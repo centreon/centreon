@@ -2,15 +2,12 @@ framework:
     messenger:
         transports:
             sync: 'sync://'
+
         buses:
             command.bus:
                 middleware:
                     - validation
                     - App\Shared\Infrastructure\Messenger\DoctrineTransactionMiddleware
-
-            query.bus:
-                middleware:
-                    - validation
 
             event.bus:
                 default_middleware: allow_no_handlers
