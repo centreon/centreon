@@ -204,9 +204,13 @@ $form = new HTML_QuickFormCustom('Form', 'post', '?p=' . $p);
 // Smarty template initialization
 $tpl = SmartyBC::createSmartyTemplate($path);
 
-/**
- * @var Centreon\Domain\Service\ModuleFormManager $moduleFormManager
- */
+// Auth type of the user connected
+$authTypeConnectedUser = $centreon->user->authType;
+$tpl->assign('authTypeConnectedUser', $authTypeConnectedUser);
+// Auth type of the contact edited
+$authTypeContact = $cct['contact_auth_type'];
+$tpl->assign('authTypeContact', $authTypeContact);
+
 if ($o == ADD_CONTACT) {
     $form->addElement('header', 'title', _('Add a User'));
 
@@ -287,32 +291,13 @@ if ($o != MASSIVE_CHANGE) {
     $attrsText['data-testid'] = 'contact_alias';
     $form->addElement('text', 'contact_alias', _('Alias / Login'), $attrsText);
 
-    $form->addElement(
-        'text',
-        'contact_autologin_key',
-        _('Autologin Key'),
-        [
-            'size' => '90',
-            'id' => 'aKey',
-            'data-testid' => 'aKey',
-        ]
-    );
-    $form->addElement(
-        'button',
-        'contact_gen_akey',
-        _('Generate'),
-        [
-            'onclick' => "generatePassword('aKey', '{$encodedPasswordPolicy}');",
-            'id' => 'generateAutologinKeyButton',
-            'data-testid' => 'generateAutologinKeyButton',
-        ]
-    );
     /**
      * Contact email attributes
      */
     $attrsTextMail['id'] = 'contact_email';
     $attrsTextMail['data-testid'] = 'contact_email';
     $form->addElement('text', 'contact_email', _('Email'), $attrsTextMail);
+
     /**
      * Contact Pager attributes
      */
@@ -397,7 +382,14 @@ $tab[] = $form->createElement(
 );
 $form->addGroup($tab, 'contact_oreon', _('Reach Centreon Front-end'), '&nbsp;');
 
-if ($o !== MASSIVE_CHANGE) {
+if (
+    $o !== MASSIVE_CHANGE
+    && $authTypeConnectedUser === CentreonAuth::AUTH_TYPE_LOCAL
+    && $authTypeContact !== CentreonAuth::AUTH_TYPE_LDAP
+) {
+
+    // Password Management
+
     $form->addElement(
         'password',
         'current_password',
@@ -408,6 +400,7 @@ if ($o !== MASSIVE_CHANGE) {
             'id' => 'current_password',
         ]
     );
+
     $form->addElement(
         'password',
         'contact_passwd',
@@ -420,6 +413,7 @@ if ($o !== MASSIVE_CHANGE) {
             'onkeypress' => 'resetPwdType(this);',
         ]
     );
+
     $form->addElement(
         'password',
         'contact_passwd2',
@@ -432,6 +426,7 @@ if ($o !== MASSIVE_CHANGE) {
             'onkeypress' => 'resetPwdType(this);',
         ]
     );
+
     $form->addElement(
         'button',
         'contact_gen_passwd',
@@ -440,6 +435,30 @@ if ($o !== MASSIVE_CHANGE) {
             'onclick' => "generatePassword('passwd', '{$encodedPasswordPolicy}');",
             'id' => 'contact_gen_passwd',
             'data-testid' => 'contact_gen_passwd',
+        ]
+    );
+
+    // Autologin Management
+
+    $form->addElement(
+        'text',
+        'contact_autologin_key',
+        _('Autologin Key'),
+        [
+            'size' => '90',
+            'id' => 'aKey',
+            'data-testid' => 'aKey',
+        ]
+    );
+
+    $form->addElement(
+        'button',
+        'contact_gen_akey',
+        _('Generate'),
+        [
+            'onclick' => "generatePassword('aKey', '{$encodedPasswordPolicy}');",
+            'id' => 'generateAutologinKeyButton',
+            'data-testid' => 'generateAutologinKeyButton',
         ]
     );
 }
@@ -706,11 +725,11 @@ $form->addElement(
     $attrTimezones
 );
 
-$auth_type = $o != MASSIVE_CHANGE ? [] : [null => null];
+$contactAuthTypeSelect = $o != MASSIVE_CHANGE ? [] : [null => null];
 
-$auth_type['local'] = 'Centreon';
+$contactAuthTypeSelect['local'] = 'Centreon';
 if ($centreon->optGen['ldap_auth_enable'] == 1) {
-    $auth_type['ldap'] = 'LDAP';
+    $contactAuthTypeSelect['ldap'] = 'LDAP';
     /**
      * LDAP Distinguished Name attributes
      */
@@ -733,7 +752,7 @@ $form->addElement(
     'select',
     'contact_auth_type',
     _('Authentication Source'),
-    $auth_type,
+    $contactAuthTypeSelect,
     [
         'id' => 'contact_auth_type',
         'data-testid' => 'contact_auth_type',
@@ -1213,7 +1232,7 @@ if ($valid) {
     if ($centreon->optGen['ldap_auth_enable']) {
         $tpl->assign('ldap', $centreon->optGen['ldap_auth_enable']);
     }
-    $tpl->assign('auth_type', $contactAuthType);
+    $tpl->assign('contactAuthType', $contactAuthType);
 
     if ($isRemote === false) {
         $tpl->display('formContact.ihtml');
