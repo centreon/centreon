@@ -37,8 +37,7 @@ export const labelAddAHost = 'Add a host';
 export const labelParameters = 'Parameters';
 export const labelDNSIP = 'DNS/IP';
 export const labelSelectHost = 'Select host';
-export const labelConnectionInitiatedByPoller =
-  'Connection initiated by poller';
+
 export const labelAgent = 'Agent';
 export const labelConfigurationServer = 'Configuration provider';
 export const labelAgentConfigurationCreated = 'Agent configuration created';
@@ -78,3 +77,15 @@ export const labelCMAauthenticationToken = 'CMA authentication token(s)';
 export const labelSelectExistingCMATokens = 'Select existing CMA token(s)';
 export const labelSelectExistingCMAToken = 'Select existing CMA token';
 export const labelCreateNewCMAToken = 'Create new CMA token';
+
+export const labelEnable = 'Enable';
+export const labelConnectionInitiated = 'Connection initiated';
+export const labelByAgent = 'By agent';
+export const labelByPoller = 'By poller';
+export const labelByAgentTooltip =
+  'This is the most common case: the agent initiates the connection to the poller.';
+export const labelByPollerTooltip =
+  'If the agent is not allowed to connect to the poller for security reasons (e.g. when the poller is in a DMZ), you can use a poller-initiated connection.';
+
+export const labelAtLeastOneConnexionMode =
+  'Au moins un des modes de connexion doit être activé.';
