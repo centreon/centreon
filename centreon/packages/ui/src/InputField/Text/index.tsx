@@ -95,6 +95,7 @@ export type TextProps = {
   size?: SizeVariant;
   transparent?: boolean;
   value?: string;
+  forceUncontrolled?: boolean;
 } & Omit<TextFieldProps, 'variant' | 'size' | 'error'>;
 
 const TextField = forwardRef(
@@ -119,6 +120,7 @@ const TextField = forwardRef(
       required = false,
       containerClassName,
       type,
+      forceUncontrolled,
       ...rest
     }: TextProps,
     ref: React.ForwardedRef<HTMLDivElement>
@@ -137,7 +139,7 @@ const TextField = forwardRef(
     const tooltipTitle = displayErrorInTooltip && !isNil(error) ? error : '';
 
     const getValueProps = useCallback((): object => {
-      if (debounced) {
+      if (debounced || forceUncontrolled) {
         return {};
       }
 
@@ -146,7 +148,7 @@ const TextField = forwardRef(
       }
 
       return { value: innerValue };
-    }, [innerValue, debounced, defaultValue]);
+    }, [innerValue, debounced, defaultValue, forceUncontrolled]);
 
     return (
       <Box
@@ -214,7 +216,7 @@ const TextField = forwardRef(
         </Tooltip>
         {autoSize && (
           <Typography className={classes.hiddenText} ref={inputRef}>
-            {rest.value || externalValueForAutoSize || innerValue}
+            {rest?.value || externalValueForAutoSize || innerValue}
           </Typography>
         )}
       </Box>
