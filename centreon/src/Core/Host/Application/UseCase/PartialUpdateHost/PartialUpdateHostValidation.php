@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Core\Host\Application\UseCase\PartialUpdateHost;
 
+use Centreon\Domain\Common\Assertion\Assertion;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Command\Application\Repository\ReadCommandRepositoryInterface;
@@ -36,6 +37,7 @@ use Core\HostGroup\Application\Repository\ReadHostGroupRepositoryInterface;
 use Core\HostSeverity\Application\Repository\ReadHostSeverityRepositoryInterface;
 use Core\HostTemplate\Application\Repository\ReadHostTemplateRepositoryInterface;
 use Core\MonitoringServer\Application\Repository\ReadMonitoringServerRepositoryInterface;
+use Core\MonitoringServer\Model\MonitoringServer;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Core\TimePeriod\Application\Repository\ReadTimePeriodRepositoryInterface;
 use Core\Timezone\Application\Repository\ReadTimezoneRepositoryInterface;
@@ -87,11 +89,18 @@ class PartialUpdateHostValidation
      */
     public function assertIsValidName(string $name, Host $host): void
     {
+        Assertion::unauthorizedCharacters(
+            $name,
+            MonitoringServer::ILLEGAL_CHARACTERS,
+            'Host::name'
+        );
+
         if ($host->isNameIdentical($name)) {
 
             return;
         }
         $formattedName = Host::formatName($name);
+
         if ($this->readHostRepository->existsByName($formattedName)) {
             $this->error('Host name already exists', compact('name', 'formattedName'));
 

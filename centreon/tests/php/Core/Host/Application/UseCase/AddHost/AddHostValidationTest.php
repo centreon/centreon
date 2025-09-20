@@ -81,6 +81,27 @@ it('throws an exception when name is invalid', function (): void {
     HostException::nameIsInvalid()->getMessage()
 );
 
+it('throws an exception when name contains invalid characters', function (): void {
+    $this->readHostRepository
+        ->expects($this->never())
+        ->method('existsByName');
+
+    $this->validation->assertIsValidName('hôst~3!');
+})->throws(
+    \InvalidArgumentException::class,
+    '[Host::name] The value contains unauthorized characters: ~!'
+);
+
+it('does not throw when name contains only valid characters', function (): void {
+    $this->readHostRepository
+        ->expects($this->once())
+        ->method('existsByName')
+        ->willReturn(false);
+
+    // Example with valid characters
+    $this->validation->assertIsValidName('valid_name123');
+});
+
 it('throws an exception when monitoring server ID does not exist', function (): void {
     $this->readMonitoringServerRepository
         ->expects($this->once())
