@@ -31,7 +31,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandConnectorName;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandLine;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandName;
-use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandType;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandTypeEnum;
 use App\Shared\Infrastructure\TransformerInterface;
 
 /**
@@ -47,7 +47,7 @@ final readonly class DbalCommandTransformer implements TransformerInterface
             id: new CommandId($from['command_id']),
             name: new CommandName($from['command_name']),
             commandLine: new CommandLine($from['command_line']),
-            type: CommandType::from($from['command_type']),
+            type: CommandTypeEnum::from($from['command_type']),
             connector: $from['connector_id'] !== null ? new CommandConnector(
                 id: new CommandConnectorId($from['connector_id']),
                 name: new CommandConnectorName((string) $from['connector_name'])

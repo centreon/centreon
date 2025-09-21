@@ -23,29 +23,28 @@ declare(strict_types=1);
 
 namespace Tests\App\MonitoringConfiguration\Infrastructure\Dbal;
 
-use App\MonitoringConfiguration\Domain\Aggregate\Command\Command;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
-use App\MonitoringConfiguration\Infrastructure\Dbal\DbalCommandRepository;
+use App\MonitoringConfiguration\Domain\Repository\CommandRepository;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 final class DbalCommandRepositoryTest extends KernelTestCase
 {
-    private DbalCommandRepository $repository;
+    private CommandRepository $repository;
 
     protected function setUp(): void
     {
-        /** @var DbalCommandRepository $repository */
-        $repository = self::getContainer()->get(DbalCommandRepository::class);
+        /** @var CommandRepository $repository */
+        $repository = self::getContainer()->get(CommandRepository::class);
 
         $this->repository = $repository;
     }
 
-    public function testFindOneByName(): void
+    public function testGetById(): void
     {
         $commandId = new CommandId(2);
 
         $command = $this->repository->getById($commandId);
 
-        self::assertInstanceOf(Command::class, $command);
+        self::assertEquals($commandId, $command->id()->value);
     }
 }

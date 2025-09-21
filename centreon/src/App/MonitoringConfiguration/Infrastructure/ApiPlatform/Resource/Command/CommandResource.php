@@ -27,7 +27,7 @@ use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\OpenApi\Model;
-use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandType;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandTypeEnum;
 use App\MonitoringConfiguration\Domain\Security\CommandPermissionEnum;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Command\FindCommandProvider;
 
@@ -44,19 +44,19 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Command\FindCom
                 ],
             ),
             security: '
-                (object.type == ' . CommandType::Notification->value . ' and (
+                (object.type == ' . CommandTypeEnum::Notification->value . ' and (
                     is_granted("' . CommandPermissionEnum::CanReadNotifications->value . '") or
                     is_granted("' . CommandPermissionEnum::CanReadAndWriteNotifications->value . '")
                 )) or
-                (object.type == ' . CommandType::Check->value . ' and (
+                (object.type == ' . CommandTypeEnum::Check->value . ' and (
                     is_granted("' . CommandPermissionEnum::CanReadChecks->value . '") or
                     is_granted("' . CommandPermissionEnum::CanReadAndWriteChecks->value . '")
                 )) or
-                (object.type == ' . CommandType::Miscellaneous->value . ' and (
+                (object.type == ' . CommandTypeEnum::Miscellaneous->value . ' and (
                     is_granted("' . CommandPermissionEnum::CanReadMiscellaneous->value . '") or
                     is_granted("' . CommandPermissionEnum::CanReadAndWriteMiscellaneous->value . '")
                 )) or
-                (object.type == ' . CommandType::Discovery->value . ' and (
+                (object.type == ' . CommandTypeEnum::Discovery->value . ' and (
                     is_granted("' . CommandPermissionEnum::CanReadDiscovery->value . '") or
                     is_granted("' . CommandPermissionEnum::CanReadAndWriteDiscovery->value . '")
                 ))

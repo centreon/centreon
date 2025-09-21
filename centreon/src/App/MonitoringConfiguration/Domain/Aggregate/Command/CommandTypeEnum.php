@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Domain\Aggregate\Command;
 
-enum CommandType: int
+enum CommandTypeEnum: int
 {
     case Notification = 1;
     case Check = 2;

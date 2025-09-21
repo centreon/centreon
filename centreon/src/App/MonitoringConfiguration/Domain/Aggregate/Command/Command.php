@@ -30,7 +30,7 @@ final class Command extends AggregateRoot
     public function __construct(
         ?CommandId $id,
         public readonly CommandName $name,
-        public readonly CommandType $type,
+        public readonly CommandTypeEnum $type,
         public readonly CommandLine $commandLine,
         public readonly bool $isShellEnabled,
         public readonly bool $isActivated,
