@@ -51,7 +51,7 @@ final class ServiceGroupProvider implements DatasetProviderInterface
      */
     public function isValidFor(string $type): bool
     {
-        return ServiceGroupFilterType::TYPE_NAME === $type;
+        return $type === ServiceGroupFilterType::TYPE_NAME;
     }
 
     /**

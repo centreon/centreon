@@ -39,7 +39,7 @@ class FindNotificationPolicyPresenter extends AbstractPresenter implements FindN
     public function __construct(
         private ContactHypermediaCreator $contactHypermediaCreator,
         private ContactGroupHypermediaCreator $contactGroupHypermediaCreator,
-        protected PresenterFormatterInterface $presenterFormatter
+        protected PresenterFormatterInterface $presenterFormatter,
     ) {
         parent::__construct($presenterFormatter);
     }

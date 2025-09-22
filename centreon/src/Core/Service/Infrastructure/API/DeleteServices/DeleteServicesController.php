@@ -42,7 +42,7 @@ final class DeleteServicesController extends AbstractController
     public function __invoke(
         DeleteServices $useCase,
         #[MapRequestPayload()] DeleteServicesInput $request,
-        StandardPresenter $presenter
+        StandardPresenter $presenter,
     ): Response {
         $response = $useCase(DeleteServicesRequestTransformer::transform($request));
 

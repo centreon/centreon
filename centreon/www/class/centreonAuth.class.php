@@ -127,7 +127,7 @@ class CentreonAuth
         $pearDB,
         $CentreonLog,
         $encryptType = self::ENCRYPT_MD5,
-        $token = ''
+        $token = '',
     ) {
         $this->dependencyInjector = $dependencyInjector;
         $this->CentreonLog = $CentreonLog;

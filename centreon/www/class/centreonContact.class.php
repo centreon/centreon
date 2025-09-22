@@ -384,7 +384,7 @@ class CentreonContact
     public function replacePasswordByContactId(
         int $contactId,
         string $oldHashedPassword,
-        string $newHashedPassword
+        string $newHashedPassword,
     ): void {
         $statement = $this->db->prepare(
             'UPDATE `contact_password`

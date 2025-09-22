@@ -69,7 +69,7 @@ class Validator
      */
     public function validateRequestOrFail(
         UpdateAgentConfigurationRequest $request,
-        AgentConfiguration $agentConfiguration
+        AgentConfiguration $agentConfiguration,
     ): void {
         $this->validateNameOrFail($request, $agentConfiguration);
         $this->validatePollersOrFail($request, $agentConfiguration);
@@ -87,7 +87,7 @@ class Validator
      */
     public function validateNameOrFail(
         UpdateAgentConfigurationRequest $request,
-        AgentConfiguration $agentConfiguration
+        AgentConfiguration $agentConfiguration,
     ): void {
         $trimmedName = new TrimmedString($request->name);
 
@@ -109,7 +109,7 @@ class Validator
      */
     public function validateTypeOrFail(
         UpdateAgentConfigurationRequest $request,
-        AgentConfiguration $agentConfiguration
+        AgentConfiguration $agentConfiguration,
     ): void {
         $type = Type::from($request->type);
 
@@ -129,9 +129,9 @@ class Validator
      */
     public function validatePollersOrFail(
         UpdateAgentConfigurationRequest $request,
-        AgentConfiguration $agentConfiguration
+        AgentConfiguration $agentConfiguration,
     ): void {
-        if ([] === $request->pollerIds) {
+        if ($request->pollerIds === []) {
             throw AgentConfigurationException::arrayCanNotBeEmpty('pollerIds');
         }
 
@@ -146,7 +146,7 @@ class Validator
                 $isPollerIdValid = $this->readMonitoringServerRepository->existsByAccessGroups($pollerId, $agentConfigurationcessGroups);
             }
 
-            if (false === $isPollerIdValid) {
+            if ($isPollerIdValid === false) {
                 $invalidPollers[] = $pollerId;
             }
         }

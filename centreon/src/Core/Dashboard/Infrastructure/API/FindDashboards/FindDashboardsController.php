@@ -46,7 +46,7 @@ final class FindDashboardsController extends AbstractController
      */
     public function __invoke(
         FindDashboards $useCase,
-        FindDashboardsPresenter $presenter
+        FindDashboardsPresenter $presenter,
     ): Response {
         $this->denyAccessUnlessGrantedForApiConfiguration();
 

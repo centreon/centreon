@@ -54,7 +54,7 @@ final readonly class FindPerformanceMetrics
         private ReadAccessGroupRepositoryInterface $accessGroupRepository,
         private ReadDashboardPerformanceMetricRepositoryInterface $dashboardMetricRepository,
         private DashboardRights $rights,
-        private bool $isCloudPlatform
+        private bool $isCloudPlatform,
     ) {
     }
 

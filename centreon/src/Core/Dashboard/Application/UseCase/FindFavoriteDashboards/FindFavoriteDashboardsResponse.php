@@ -32,7 +32,7 @@ final class FindFavoriteDashboardsResponse implements ListingResponseInterface
      * @param DashboardResponseDto[] $dashboards
      */
     public function __construct(
-        public array $dashboards
+        public array $dashboards,
     ) {
     }
 

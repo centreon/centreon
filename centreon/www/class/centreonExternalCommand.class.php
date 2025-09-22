@@ -275,7 +275,7 @@ class CentreonExternalCommand
         $notify,
         $persistent,
         $author,
-        $comment
+        $comment,
     ): void {
         $pollerId = $this->getPollerID($hostName);
 
@@ -306,7 +306,7 @@ class CentreonExternalCommand
         $notify,
         $persistent,
         $author,
-        $comment
+        $comment,
     ): void {
         $pollerId = $this->getPollerID($hostName);
 
@@ -382,7 +382,7 @@ class CentreonExternalCommand
         $persistant,
         $duration = null,
         $withServices = false,
-        $hostOrCentreonTime = '0'
+        $hostOrCentreonTime = '0',
     ): void {
         global $centreon;
 
@@ -458,7 +458,7 @@ class CentreonExternalCommand
         $end,
         $persistant,
         $duration = null,
-        $hostOrCentreonTime = '0'
+        $hostOrCentreonTime = '0',
     ): void {
         global $centreon;
 

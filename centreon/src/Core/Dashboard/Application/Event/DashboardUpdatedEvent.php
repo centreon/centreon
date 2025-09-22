@@ -37,7 +37,7 @@ final readonly class DashboardUpdatedEvent
         private string $directory,
         private string $content,
         private string $filename,
-        private int|null $thumbnailId = null
+        private int|null $thumbnailId = null,
     ) {
     }
 

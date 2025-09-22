@@ -51,7 +51,7 @@ final class UpdateHostSeverityController extends AbstractController
         int $hostSeverityId,
         Request $request,
         UpdateHostSeverity $useCase,
-        DefaultPresenter $presenter
+        DefaultPresenter $presenter,
     ): Response {
         $this->denyAccessUnlessGrantedForApiConfiguration();
 

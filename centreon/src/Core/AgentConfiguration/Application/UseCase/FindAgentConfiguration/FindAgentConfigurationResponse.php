@@ -40,7 +40,7 @@ final class FindAgentConfigurationResponse implements StandardResponseInterface
     public function __construct(
         public readonly AgentConfiguration $agentConfiguration,
         public readonly ?HostNamesById $hostNamesById,
-        public readonly array $pollers
+        public readonly array $pollers,
     ) {
     }
 

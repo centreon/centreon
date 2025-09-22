@@ -123,9 +123,9 @@ class DbReadUserRepository extends AbstractRepositoryRDB implements ReadUserRepo
     public function findByAccessGroupsUserAndRequestParameters(
         array $accessGroups,
         ContactInterface $user,
-        ?RequestParametersInterface $requestParameters = null
+        ?RequestParametersInterface $requestParameters = null,
     ): array {
-        if ([] === $accessGroups) {
+        if ($accessGroups === []) {
             return [];
         }
 

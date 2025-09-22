@@ -56,7 +56,7 @@ final readonly class ExportResources
      */
     public function __invoke(
         ExportResourcesRequest $request,
-        ExportResourcesPresenterInterface $presenter
+        ExportResourcesPresenterInterface $presenter,
     ): void {
         $response = new ExportResourcesResponse();
 

@@ -49,7 +49,7 @@ class UpdateRuleValidation
         private readonly ReadResourceAccessRepositoryInterface $repository,
         private readonly ReadContactRepositoryInterface $contactRepository,
         private readonly ReadContactGroupRepositoryInterface $contactGroupRepository,
-        \Traversable $repositoryProviders
+        \Traversable $repositoryProviders,
     ) {
         $this->repositoryProviders = iterator_to_array($repositoryProviders);
     }
@@ -134,11 +134,11 @@ class UpdateRuleValidation
         array $contactIds,
         array $contactGroupIds,
         bool $applyToAllContacts,
-        bool $applyToAllContactGroups
+        bool $applyToAllContactGroups,
     ): void {
         if (
-            [] === $contactIds
-            && [] === $contactGroupIds
+            $contactIds === []
+            && $contactGroupIds === []
             && $applyToAllContacts === false
             && $applyToAllContactGroups === false
         ) {

@@ -110,7 +110,7 @@ final class PartialUpdateHost
     public function __invoke(
         PartialUpdateHostRequest $request,
         PresenterInterface $presenter,
-        int $hostId
+        int $hostId,
     ): void {
         try {
             if (! $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_HOSTS_WRITE)) {
@@ -643,7 +643,7 @@ final class PartialUpdateHost
     private function retrieveHostUuidFromVault(Host $host): void
     {
         $this->uuid = $this->getUuidFromPath($host->getSnmpCommunity());
-        if (null === $this->uuid) {
+        if ($this->uuid === null) {
             $macros = $this->readHostMacroRepository->findByHostId($host->getId());
             foreach ($macros as $macro) {
                 if (
@@ -706,7 +706,7 @@ final class PartialUpdateHost
     {
         $updatedMacros = [];
         foreach ($macros as $key => $macro) {
-            if (false === $macro->isPassword() || false === $this->isAVaultPath($macro->getValue())) {
+            if ($macro->isPassword() === false || $this->isAVaultPath($macro->getValue()) === false) {
                 $updatedMacros[$key] = $macro;
                 continue;
             }

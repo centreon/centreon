@@ -43,7 +43,7 @@ final class FindTimePeriod
      */
     public function __construct(
         readonly private ReadTimePeriodRepositoryInterface $readTimePeriodRepository,
-        readonly private ContactInterface $user
+        readonly private ContactInterface $user,
     ) {
     }
 

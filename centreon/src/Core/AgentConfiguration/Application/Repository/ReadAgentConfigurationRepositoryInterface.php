@@ -110,7 +110,7 @@ interface ReadAgentConfigurationRepositoryInterface
      */
     public function findAllByRequestParametersAndAccessGroups(
         RequestParametersInterface $requestParameters,
-        array $accessGroups
+        array $accessGroups,
     ): array;
 
     /**

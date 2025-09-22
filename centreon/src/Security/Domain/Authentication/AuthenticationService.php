@@ -50,7 +50,7 @@ class AuthenticationService implements AuthenticationServiceInterface
         private SessionRepositoryInterface $sessionRepository,
         private ReadConfigurationRepositoryInterface $readConfigurationFactory,
         private ProviderAuthenticationFactoryInterface $providerFactory,
-        private ReadTokenRepositoryInterface $readTokenRepository
+        private ReadTokenRepositoryInterface $readTokenRepository,
     ) {
     }
 
