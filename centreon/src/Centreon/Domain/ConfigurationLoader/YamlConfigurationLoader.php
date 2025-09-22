@@ -76,7 +76,7 @@ class YamlConfigurationLoader
     private function iterateConfiguration(
         array $configuration,
         string $currentDirectory,
-        string $historyLoadedFile
+        string $historyLoadedFile,
     ): array {
         foreach ($configuration as $key => $value) {
             if (is_array($value)) {

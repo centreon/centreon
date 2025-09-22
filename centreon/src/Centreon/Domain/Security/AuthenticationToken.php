@@ -49,7 +49,7 @@ class AuthenticationToken
         string $token,
         int $contactId,
         \DateTime $generatedDate,
-        bool $isValid
+        bool $isValid,
     ) {
         $this->token = $token;
         $this->contactId = $contactId;

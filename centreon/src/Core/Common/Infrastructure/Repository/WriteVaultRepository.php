@@ -33,7 +33,7 @@ class WriteVaultRepository extends AbstractVaultRepository implements WriteVault
     public function __construct(
         private readonly UUIDGeneratorInterface $uuidGenerator,
         protected ReadVaultConfigurationRepositoryInterface $configurationRepository,
-        protected AmpHttpClient $httpClient
+        protected AmpHttpClient $httpClient,
     ) {
         parent::__construct($configurationRepository, $httpClient);
     }

@@ -15,16 +15,21 @@ api_platform:
             vary: ['Content-Type', 'Authorization', 'Origin', 'X-Auth-Token']
         denormalization_context:
             collect_denormalization_errors: true
+        pagination_client_items_per_page: true
 
     mapping:
         paths:
-            - '%kernel.project_dir%/src/App/ResourceConfiguration/Infrastructure/ApiPlatform/Resource/'
+            - '%kernel.project_dir%/src/App/MonitoringConfiguration/Infrastructure/ApiPlatform/Resource/'
 
     swagger:
          api_keys:
              apiKey:
                 name: X-Auth-Token
                 type: header
+
+    collection:
+        pagination:
+            items_per_page_parameter_name: itemsPerPage
 
     formats:
         jsonld: ['application/ld+json']

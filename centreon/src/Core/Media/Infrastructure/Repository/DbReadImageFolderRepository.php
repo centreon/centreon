@@ -56,7 +56,7 @@ final class DbReadImageFolderRepository extends DatabaseRepository implements Re
     public function __construct(
         ConnectionInterface $connection,
         QueryBuilderInterface $queryBuilder,
-        private readonly SqlRequestParametersTranslator $sqlRequestTranslator
+        private readonly SqlRequestParametersTranslator $sqlRequestTranslator,
     ) {
         parent::__construct($connection, $queryBuilder);
 
@@ -94,14 +94,14 @@ final class DbReadImageFolderRepository extends DatabaseRepository implements Re
                 )
                 ->from('`:db`.view_img_dir', 'folders');
 
-            if ([] !== $requestParameters->getSearch()) {
+            if ($requestParameters->getSearch() !== []) {
                 $this->sqlRequestTranslator->appendQueryBuilderWithSearchParameter($queryBuilder);
                 $queryBuilder->andWhere("folders.dir_name NOT IN ('centreon-map', 'dashboards', 'ppm')");
             } else {
                 $queryBuilder->where("folders.dir_name NOT IN ('centreon-map', 'dashboards', 'ppm')");
             }
 
-            if ([] !== $requestParameters->getSort()) {
+            if ($requestParameters->getSort() !== []) {
                 $this->sqlRequestTranslator->appendQueryBuilderWithSortParameter($queryBuilder);
             } else {
                 $queryBuilder->orderBy('folders.dir_name', 'ASC');
@@ -156,14 +156,14 @@ final class DbReadImageFolderRepository extends DatabaseRepository implements Re
      */
     public function findByRequestParametersAndAccessGroups(
         RequestParametersInterface $requestParameters,
-        array $accessGroups
+        array $accessGroups,
     ): array {
         $accessGroupIds = array_map(
             static fn (AccessGroup $accessGroup): int => $accessGroup->getId(),
             $accessGroups
         );
 
-        if ([] === $accessGroupIds) {
+        if ($accessGroupIds === []) {
             return [];
         }
 
@@ -181,7 +181,7 @@ final class DbReadImageFolderRepository extends DatabaseRepository implements Re
 
             [
                 'parameters' => $accessGroupQueryParameters,
-                'placeholderList' => $accessGroupQueryPlaceHolders
+                'placeholderList' => $accessGroupQueryPlaceHolders,
             ] = $this->createMultipleBindParameters(
                 values: $accessGroupIds,
                 prefix: 'access_group_id',
@@ -223,7 +223,7 @@ final class DbReadImageFolderRepository extends DatabaseRepository implements Re
                 );
 
             // handle search
-            if ([] !== $requestParameters->getSearch()) {
+            if ($requestParameters->getSearch() !== []) {
                 $this->sqlRequestTranslator->appendQueryBuilderWithSearchParameter($queryBuilder);
                 $queryBuilder->andWhere("folders.dir_name NOT IN ('centreon-map', 'dashboards', 'ppm')");
             } else {
@@ -231,7 +231,7 @@ final class DbReadImageFolderRepository extends DatabaseRepository implements Re
             }
 
             // handle sort
-            if ([] !== $requestParameters->getSort()) {
+            if ($requestParameters->getSort() !== []) {
                 $this->sqlRequestTranslator->appendQueryBuilderWithSortParameter($queryBuilder);
             } else {
                 $queryBuilder->orderBy('folders.dir_name', 'ASC');

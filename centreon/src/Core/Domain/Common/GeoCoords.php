@@ -74,7 +74,7 @@ class GeoCoords implements \Stringable
         $parts = explode(',', $coords);
         $parts = array_map('trim', $parts);
 
-        if (2 !== \count($parts)) {
+        if (\count($parts) !== 2) {
             throw InvalidGeoCoordException::invalidFormat();
         }
 

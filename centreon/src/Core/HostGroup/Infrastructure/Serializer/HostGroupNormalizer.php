@@ -38,7 +38,7 @@ final class HostGroupNormalizer implements NormalizerInterface
     public function __construct(
         private readonly string $mediaPath,
         #[Autowire(service: 'serializer.normalizer.object')]
-        private readonly NormalizerInterface $normalizer
+        private readonly NormalizerInterface $normalizer,
     ) {
     }
 

@@ -70,7 +70,7 @@ class CentreonDBStatement extends \CentreonDBStatement
         mixed &$var,
         int $type = \PDO::PARAM_STR,
         int $maxLength = 0,
-        mixed $driverOptions = null
+        mixed $driverOptions = null,
     ): bool {
         return true;
     }
@@ -83,7 +83,7 @@ class CentreonDBStatement extends \CentreonDBStatement
         mixed &$var,
         int $type = \PDO::PARAM_STR,
         int $maxLength = 0,
-        mixed $driverOptions = null
+        mixed $driverOptions = null,
     ): bool {
         $this->bindValue($param, $var);
 
@@ -96,7 +96,7 @@ class CentreonDBStatement extends \CentreonDBStatement
     public function bindValue(
         string|int $param,
         mixed $value,
-        int $type = \PDO::PARAM_STR
+        int $type = \PDO::PARAM_STR,
     ): bool {
         if (is_null($this->params)) {
             $this->params = [];
@@ -184,7 +184,7 @@ class CentreonDBStatement extends \CentreonDBStatement
     public function fetch(
         int $mode = \PDO::FETCH_DEFAULT,
         int $cursorOrientation = \PDO::FETCH_ORI_NEXT,
-        int $cursorOffset = 0
+        int $cursorOffset = 0,
     ): false|array {
         return $this->fetchRow();
     }

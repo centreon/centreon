@@ -34,7 +34,7 @@ try {
     }
 
     // Platform_topology refacto
-    if (0 === $pearDB->isColumnExist('platform_topology', 'pending')) {
+    if ($pearDB->isColumnExist('platform_topology', 'pending') === 0) {
         // Create the new column
         $errorMessage = 'Unable to add pending column to platform_topology table';
         $pearDB->query(

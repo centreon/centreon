@@ -38,7 +38,7 @@ final class FindRulesPresenter extends AbstractPresenter implements FindRulesPre
      */
     public function __construct(
         private readonly RequestParametersInterface $requestParameters,
-        protected PresenterFormatterInterface $presenterFormatter
+        protected PresenterFormatterInterface $presenterFormatter,
     ) {
         parent::__construct($presenterFormatter);
     }

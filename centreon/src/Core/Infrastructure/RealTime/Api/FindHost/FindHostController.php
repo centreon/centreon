@@ -39,7 +39,7 @@ final class FindHostController extends AbstractController
     public function __invoke(
         int $hostId,
         FindHost $useCase,
-        FindHostPresenterInterface $presenter
+        FindHostPresenterInterface $presenter,
     ): object {
         /**
          * Deny access if user has no rights on the real time.
