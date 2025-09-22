@@ -8,9 +8,7 @@ const Actions = (): JSX.Element => {
 
   return (
     <div className={classes.container}>
-      <div className={classes.actions}>
-        <AddButton />
-      </div>
+      <AddButton />
       <div className={classes.searchBar}>
         <Search />
       </div>

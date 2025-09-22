@@ -22,11 +22,6 @@ export const useActionsStyles = makeStyles()((theme) => ({
     display: 'flex',
     alignItems: 'center'
   },
-  actions: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: theme.spacing(1.5)
-  },
   searchBar: {
     width: '100%',
     paddingInline: theme.spacing(1),
