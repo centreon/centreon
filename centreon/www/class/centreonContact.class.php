@@ -304,7 +304,7 @@ class CentreonContact
      * @param string $password
      * @param int|null $contactId
      *
-     * @throws PDOException
+     * @throws Exception
      * @return void
      */
     public function respectPasswordPolicyOrFail(string $password, ?int $contactId): void
