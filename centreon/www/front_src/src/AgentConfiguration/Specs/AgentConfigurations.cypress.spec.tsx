@@ -704,7 +704,7 @@ describe('Agent configurations modal', () => {
     cy.findByLabelText(labelSelectHost).click();
     cy.contains('central').click();
     cy.findByLabelText(labelCaCertificate).type('test.crt');
-    cy.findByLabelText(labelCACommonName).type('test.crt');
+    cy.findByLabelText(labelCACommonName).should('not.exist');
 
     cy.findByLabelText(labelSelectExistingCMAToken).click();
     cy.waitForRequest('@getTokens');
@@ -730,7 +730,7 @@ describe('Agent configurations modal', () => {
               id: 1,
               address: '127.0.0.2',
               port: 4317,
-              poller_ca_name: 'test.crt',
+              poller_ca_name: '',
               poller_ca_certificate: 'test.crt',
               token: { name: 'token 1', creator_id: 1 }
             }
@@ -965,5 +965,71 @@ describe('Agent configurations modal', () => {
     });
 
     cy.contains(labelAgentConfigurationUpdated).should('be.visible');
+  });
+
+  it('displays the CA common name field when connection mode is set to insecure', () => {
+    initialize({});
+
+    cy.contains(labelAdd).click();
+    cy.findByLabelText(labelAgentType).click();
+    cy.get('[data-option-index="1"]').click();
+
+    cy.findByLabelText(labelEncryptionLevel).click();
+    cy.contains(labelInsecure).click();
+
+    cy.findByLabelText(labelName).type('My agent');
+    cy.findByLabelText(labelPollers).click();
+    cy.contains('poller1').click();
+    cy.contains(labelConnectionInitiated).click({ force: true });
+    cy.findByLabelText(labelPublicCertificate).type('/test.cer');
+    cy.findAllByLabelText(labelCaCertificate).eq(0).type('test.crt');
+    cy.findAllByLabelText(labelPrivateKey).eq(0).type('private.key');
+    cy.findByLabelText(labelSelectExistingCMATokens).click();
+    cy.waitForRequest('@getTokens');
+    cy.contains('token 1').click();
+
+    cy.contains(labelByPoller).click();
+    cy.contains('Enable').click();
+    cy.findByLabelText(labelSelectHost).click();
+    cy.contains('central').click();
+    cy.findByLabelText(labelCaCertificate).type('test.crt');
+    cy.findByLabelText(labelCACommonName).type('test.crt');
+
+    cy.findByLabelText(labelSelectExistingCMAToken).click();
+    cy.waitForRequest('@getTokens');
+    cy.contains('token 1').click();
+
+    cy.findByTestId('submit').click();
+
+    cy.waitForRequest('@postAgentConfiguration').then(({ request }) => {
+      expect(request.body).deep.equal({
+        name: 'My agent',
+        type: 'centreon-agent',
+        connection_mode: 'insecure',
+        poller_ids: [1],
+        configuration: {
+          tokens: [{ name: 'token 1', creator_id: 1 }],
+          agent_initiated: true,
+          poller_initiated: true,
+          otel_ca_certificate: 'test.crt',
+          otel_public_certificate: '/test.cer',
+          otel_private_key: 'private.key',
+          hosts: [
+            {
+              id: 1,
+              address: '127.0.0.2',
+              port: 4317,
+              poller_ca_name: 'test.crt',
+              poller_ca_certificate: 'test.crt',
+              token: { name: 'token 1', creator_id: 1 }
+            }
+          ]
+        }
+      });
+    });
+
+    cy.contains(labelAgentConfigurationCreated).should('be.visible');
+
+    cy.makeSnapshot();
   });
 });
