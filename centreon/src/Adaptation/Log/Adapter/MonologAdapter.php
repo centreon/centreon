@@ -33,7 +33,7 @@ use Monolog\Logger as MonologLogger;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
 
-final readonly class MonologAdapter implements LoggerInterface
+final class MonologAdapter implements LoggerInterface
 {
     /**
      * @param MonologLogger $logger
@@ -41,8 +41,8 @@ final readonly class MonologAdapter implements LoggerInterface
      * @throws LoggerException
      */
     private function __construct(
-        private MonologLogger $logger,
-        private LogChannelEnum $channel,
+        private readonly MonologLogger $logger,
+        private readonly LogChannelEnum $channel,
     ) {
         $this->createLoggerFromChannel();
     }
