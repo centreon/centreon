@@ -66,7 +66,7 @@ class DeleteRulesPresenterStub extends AbstractPresenter implements DeleteRulesP
         return match ($code) {
             ResponseCode::OK => Response::HTTP_NO_CONTENT,
             ResponseCode::NotFound => Response::HTTP_NOT_FOUND,
-            ResponseCode::Error => Response::HTTP_INTERNAL_SERVER_ERROR
+            ResponseCode::Error => Response::HTTP_INTERNAL_SERVER_ERROR,
         };
     }
 }

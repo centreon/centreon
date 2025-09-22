@@ -48,7 +48,7 @@ class CommentController extends AbstractController
     public function __construct(
         private CommentServiceInterface $commentService,
         private MonitoringServiceInterface $monitoringService,
-        private ReadAccessGroupRepositoryInterface $readAccessGroupRepository
+        private ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
     ) {
     }
 
@@ -61,7 +61,7 @@ class CommentController extends AbstractController
      * @return View
      */
     public function addResourcesComment(
-        Request $request
+        Request $request,
     ): View {
         $this->denyAccessUnlessGrantedForApiRealtime();
         /**
@@ -69,14 +69,14 @@ class CommentController extends AbstractController
          */
         $contact = $this->getUser();
 
-        if (false === $contact->isAdmin()) {
+        if ($contact->isAdmin() === false) {
             $accessGroups = $this->readAccessGroupRepository->findByContact($contact);
             $accessGroupIds = array_map(
                 fn ($accessGroup) => $accessGroup->getId(),
                 $accessGroups
             );
 
-            if (false === $this->readAccessGroupRepository->hasAccessToResources($accessGroupIds)) {
+            if ($this->readAccessGroupRepository->hasAccessToResources($accessGroupIds) === false) {
                 return $this->view(null, Response::HTTP_FORBIDDEN);
             }
         }
@@ -138,7 +138,7 @@ class CommentController extends AbstractController
      */
     public function addHostComment(
         Request $request,
-        int $hostId
+        int $hostId,
     ): View {
         $this->denyAccessUnlessGrantedForApiRealtime();
         /**
@@ -180,7 +180,7 @@ class CommentController extends AbstractController
     public function addServiceComment(
         Request $request,
         int $hostId,
-        int $serviceId
+        int $serviceId,
     ): View {
         $this->denyAccessUnlessGrantedForApiRealtime();
 
@@ -226,7 +226,7 @@ class CommentController extends AbstractController
      */
     public function addMetaServiceComment(
         Request $request,
-        int $metaId
+        int $metaId,
     ): View {
         $this->denyAccessUnlessGrantedForApiRealtime();
 

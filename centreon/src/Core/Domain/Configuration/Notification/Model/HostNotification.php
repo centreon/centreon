@@ -48,7 +48,7 @@ class HostNotification implements NotificationInterface
      * @param TimePeriod $timePeriod
      */
     public function __construct(
-        private TimePeriod $timePeriod
+        private TimePeriod $timePeriod,
     ) {
     }
 

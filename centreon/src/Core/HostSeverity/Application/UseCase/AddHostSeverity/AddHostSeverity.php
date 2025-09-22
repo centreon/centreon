@@ -50,7 +50,7 @@ final class AddHostSeverity
         private readonly WriteHostSeverityRepositoryInterface $writeHostSeverityRepository,
         private readonly ReadHostSeverityRepositoryInterface $readHostSeverityRepository,
         private readonly ReadViewImgRepositoryInterface $readViewImgRepository,
-        private readonly ContactInterface $user
+        private readonly ContactInterface $user,
     ) {
     }
 
@@ -78,7 +78,7 @@ final class AddHostSeverity
                     new ConflictResponse(HostSeverityException::hostNameAlreadyExists())
                 );
             } elseif (
-                0 === $request->iconId
+                $request->iconId === 0
                 || ! $this->readViewImgRepository->existsOne($request->iconId)
             ) {
                 $this->error(

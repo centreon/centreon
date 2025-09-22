@@ -197,7 +197,7 @@ class CredentialMigrator implements \IteratorAggregate, \Countable
      */
     private function migrateHostAndHostTemplateCredentials(
         CredentialDto $credential,
-        array &$existingUuids
+        array &$existingUuids,
     ): array {
         if ($credential->resourceId === null) {
             throw new \Exception('Resource ID should not be null');
@@ -263,7 +263,7 @@ class CredentialMigrator implements \IteratorAggregate, \Countable
      */
     private function migrateServiceAndServiceTemplateCredentials(
         CredentialDto $credential,
-        array &$existingUuids
+        array &$existingUuids,
     ): array {
         if ($credential->resourceId === null) {
             throw new \Exception('Resource ID should not be null');
@@ -413,7 +413,7 @@ class CredentialMigrator implements \IteratorAggregate, \Countable
      */
     private function migrateBrokerInputOutputPasswords(
         CredentialDto $credential,
-        array &$existingUuids
+        array &$existingUuids,
     ): array {
         if ($credential->resourceId === null) {
             throw new \Exception('Resource ID should not be null');

@@ -43,10 +43,6 @@ $finder = Finder::create()
 
 $rules = $config->getRules();
 
-$rules['method_argument_space'] = ['on_multiline' => 'ignore'];
-$rules['trailing_comma_in_multiline'] = ['after_heredoc' => true, 'elements' => ['array_destructuring', 'arrays', 'match', 'parameters']];
-$rules['yoda_style'] = ['equal' => false, 'identical' => false, 'less_and_greater' => false];
-
 return $config
     ->setRules($rules)
     ->setFinder($finder)

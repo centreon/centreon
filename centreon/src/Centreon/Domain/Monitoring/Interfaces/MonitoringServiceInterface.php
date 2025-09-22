@@ -156,7 +156,7 @@ interface MonitoringServiceInterface extends ContactFilterInterface
      */
     public function hidePasswordInServiceCommandLine(
         Service $monitoringService,
-        string $replacementValue = '***'
+        string $replacementValue = '***',
     ): void;
 
     /**

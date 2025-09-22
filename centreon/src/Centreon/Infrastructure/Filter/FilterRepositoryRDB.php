@@ -317,7 +317,7 @@ class FilterRepositoryRDB extends AbstractRepositoryDRB implements FilterReposit
         string $pageName,
         ?string $searchRequest = null,
         ?string $sortRequest = null,
-        ?string $paginationRequest = null
+        ?string $paginationRequest = null,
     ): array {
         $request = $this->translateDbName('
             SELECT SQL_CALC_FOUND_ROWS id, name, user_id, page_name, criterias, `order`
@@ -445,7 +445,7 @@ class FilterRepositoryRDB extends AbstractRepositoryDRB implements FilterReposit
         int $userId,
         string $pageName,
         int $lowOrder,
-        int $highOrder
+        int $highOrder,
     ): void {
         $filters = $this->findFiltersByUserId($userId, $pageName, null, null, null);
 
@@ -470,7 +470,7 @@ class FilterRepositoryRDB extends AbstractRepositoryDRB implements FilterReposit
         int $userId,
         string $pageName,
         int $lowOrder,
-        int $highOrder
+        int $highOrder,
     ): void {
         $filters = $this->findFiltersByUserId($userId, $pageName, null, null, null);
 

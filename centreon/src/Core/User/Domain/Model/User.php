@@ -69,7 +69,7 @@ class User
         protected string $theme,
         protected string $userInterfaceDensity,
         protected bool $canReachFrontend,
-        protected bool $isServiceAccount = false
+        protected bool $isServiceAccount = false,
     ) {
         Assertion::positiveInt($this->id, 'User::id');
 

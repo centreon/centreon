@@ -51,7 +51,7 @@ final class UpdateHostSeverity
         private readonly ReadHostSeverityRepositoryInterface $readHostSeverityRepository,
         private readonly ReadViewImgRepositoryInterface $readViewImgRepository,
         private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
-        private readonly ContactInterface $user
+        private readonly ContactInterface $user,
     ) {
     }
 
@@ -121,7 +121,7 @@ final class UpdateHostSeverity
             }
 
             if (
-                0 === $request->iconId
+                $request->iconId === 0
                 || ! $this->readViewImgRepository->existsOne($request->iconId)
             ) {
                 $this->error(

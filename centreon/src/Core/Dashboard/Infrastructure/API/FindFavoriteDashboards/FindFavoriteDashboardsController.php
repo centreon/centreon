@@ -40,7 +40,7 @@ final class FindFavoriteDashboardsController extends AbstractController
 {
     public function __invoke(
         FindFavoriteDashboards $useCase,
-        StandardPresenter $presenter
+        StandardPresenter $presenter,
     ): Response {
         $response = $useCase();
 

@@ -320,7 +320,7 @@ class PlatformTopologyException extends \Exception
         string $type,
         string $name,
         string $address,
-        string $parentType
+        string $parentType,
     ): self {
         return new self(
             sprintf(

@@ -55,7 +55,7 @@ class AgentConfigurationFactory
             connectionMode: $connectionMode,
             configuration: match ($type) {
                 Type::TELEGRAF => new TelegrafConfigurationParameters($parameters),
-                Type::CMA => new CmaConfigurationParameters($parameters, $connectionMode)
+                Type::CMA => new CmaConfigurationParameters($parameters, $connectionMode),
             }
         );
     }
@@ -85,7 +85,7 @@ class AgentConfigurationFactory
             connectionMode: $connectionMode,
             configuration: match ($type) {
                 Type::TELEGRAF => new TelegrafConfigurationParameters($parameters),
-                Type::CMA => new CmaConfigurationParameters($parameters, $connectionMode)
+                Type::CMA => new CmaConfigurationParameters($parameters, $connectionMode),
             }
         );
     }

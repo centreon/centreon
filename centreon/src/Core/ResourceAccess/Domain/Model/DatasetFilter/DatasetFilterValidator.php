@@ -44,7 +44,7 @@ class DatasetFilterValidator
             $this->hiearchy[$filterType->getName()] = $filterType->getPossibleChildren();
         }
 
-        if ([] === $this->hiearchy) {
+        if ($this->hiearchy === []) {
             throw new \InvalidArgumentException('You must add at least one dataset filter type provider');
         }
 

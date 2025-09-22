@@ -42,7 +42,7 @@ class HostSeverity extends NewHostSeverity
         string $name,
         string $alias,
         int $level,
-        int $iconId
+        int $iconId,
     ) {
         parent::__construct($name, $alias, $level, $iconId);
     }

@@ -61,7 +61,7 @@ while ($row = $dbResult->fetch(PDO::FETCH_ASSOC)) {
     $result[$row['key']] = $row['value'];
 }
 
-if ('yes' !== $result['isRemote']) {
+if ($result['isRemote'] !== 'yes') {
     include_once _CENTREON_PATH_ . '/www/include/core/errors/alt_error.php';
 
     return null;
