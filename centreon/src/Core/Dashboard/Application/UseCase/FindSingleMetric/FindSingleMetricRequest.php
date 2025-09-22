@@ -42,7 +42,7 @@ final readonly class FindSingleMetricRequest
         if ($serviceId <= 0) {
             throw new \InvalidArgumentException("serviceId must be greater than 0, {$serviceId} given");
         }
-        if ('' === trim($metricName)) {
+        if (trim($metricName) === '') {
             throw new \InvalidArgumentException('metricName cannot be empty');
         }
     }

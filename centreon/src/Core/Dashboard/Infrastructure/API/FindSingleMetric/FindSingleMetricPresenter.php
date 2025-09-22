@@ -35,7 +35,7 @@ final class FindSingleMetricPresenter extends AbstractPresenter implements FindS
 {
     public function __construct(
         protected PresenterFormatterInterface $presenterFormatter,
-        private readonly ExceptionLogger $exceptionLogger
+        private readonly ExceptionLogger $exceptionLogger,
     ) {
         parent::__construct($presenterFormatter);
     }

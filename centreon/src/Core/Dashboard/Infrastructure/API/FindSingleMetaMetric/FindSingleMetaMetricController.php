@@ -62,7 +62,7 @@ final class FindSingleMetaMetricController extends AbstractController
         int $metaServiceId,
         string $metricName,
         FindSingleMetaMetric $useCase,
-        FindSingleMetaMetricPresenter $presenter
+        FindSingleMetaMetricPresenter $presenter,
     ): Response {
         try {
             $request = new FindSingleMetaMetricRequest(

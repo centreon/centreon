@@ -101,7 +101,7 @@ interface ReadMetricRepositoryInterface
         int $serviceId,
         array $accessGroups,
         RequestParametersInterface $requestParameters,
-        ?string $metricName = null
+        ?string $metricName = null,
     ): array;
 
     /**
@@ -122,7 +122,7 @@ interface ReadMetricRepositoryInterface
         int $serviceId,
         string $metricName,
         RequestParametersInterface $requestParameters,
-        array $accessGroups = []
+        array $accessGroups = [],
     ): Metric|null;
 
     /**
@@ -141,6 +141,6 @@ interface ReadMetricRepositoryInterface
         array $service,
         string $metricName,
         RequestParametersInterface $requestParameters,
-        array $accessGroups = []
+        array $accessGroups = [],
     ): Metric|null;
 }

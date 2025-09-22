@@ -37,7 +37,7 @@ final readonly class FindSingleMetaMetricRequest
         if ($metaServiceId <= 0) {
             throw new \InvalidArgumentException("metaServiceId must be greater than 0, {$metaServiceId} given");
         }
-        if ('' === trim($metricName)) {
+        if (trim($metricName) === '') {
             throw new \InvalidArgumentException('metricName cannot be empty');
         }
     }

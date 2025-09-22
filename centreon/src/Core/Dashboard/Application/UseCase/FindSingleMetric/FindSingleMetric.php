@@ -46,7 +46,7 @@ final readonly class FindSingleMetric
         private ReadMetricRepositoryInterface $metricRepository,
         private ReadRealTimeServiceRepositoryInterface $serviceRepository,
         private ReadAccessGroupRepositoryInterface $accessGroupRepository,
-        private RequestParametersInterface $requestParameters
+        private RequestParametersInterface $requestParameters,
     ) {
     }
 
@@ -56,7 +56,7 @@ final readonly class FindSingleMetric
      */
     public function __invoke(
         FindSingleMetricRequest $request,
-        FindSingleMetricPresenterInterface $presenter
+        FindSingleMetricPresenterInterface $presenter,
     ): void {
         try {
             if (! $this->serviceRepository->exists($request->serviceId, $request->hostId)) {

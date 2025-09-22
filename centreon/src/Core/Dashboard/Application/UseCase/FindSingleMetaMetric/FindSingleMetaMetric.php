@@ -46,7 +46,7 @@ final readonly class FindSingleMetaMetric
         private ReadMetricRepositoryInterface $metricRepository,
         private ReadRealTimeServiceRepositoryInterface $serviceRepository,
         private ReadAccessGroupRepositoryInterface $accessGroupRepository,
-        private RequestParametersInterface $requestParameters
+        private RequestParametersInterface $requestParameters,
     ) {
     }
 
@@ -56,7 +56,7 @@ final readonly class FindSingleMetaMetric
      */
     public function __invoke(
         FindSingleMetaMetricRequest $request,
-        FindSingleMetaMetricPresenterInterface $presenter
+        FindSingleMetaMetricPresenterInterface $presenter,
     ): void {
         try {
             $service = $this->serviceRepository->existsByDescription($request->metaServiceId);

@@ -33,7 +33,7 @@ final readonly class FindSingleMetricResponse
         public ?float $warningHighThreshold = null,
         public ?float $warningLowThreshold = null,
         public ?float $criticalHighThreshold = null,
-        public ?float $criticalLowThreshold = null
+        public ?float $criticalLowThreshold = null,
     ) {
     }
 }

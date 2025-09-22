@@ -65,7 +65,7 @@ final class FindSingleMetricController extends AbstractController
         int $serviceId,
         string $metricName,
         FindSingleMetric $useCase,
-        FindSingleMetricPresenter $presenter
+        FindSingleMetricPresenter $presenter,
     ): Response {
         try {
             $request = new FindSingleMetricRequest(
