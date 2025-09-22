@@ -86,7 +86,7 @@ export const useGetAgentConfigurations = (): UseGetAgentConfigurationsState => {
     ...pollersConditions
   ];
 
-  const { data, isLoading } = useFetchQuery<
+  const { data, isFetching } = useFetchQuery<
     ListingModel<AgentConfigurationListing>
   >({
     decoder: agentConfigurationsListingDecoder,
@@ -119,7 +119,7 @@ export const useGetAgentConfigurations = (): UseGetAgentConfigurationsState => {
     data: agentConfigurations,
     isDataEmpty: isEmpty(agentConfigurations),
     hasData,
-    isLoading,
+    isLoading: isFetching,
     total: data?.meta.total || 0
   };
 };
