@@ -36,6 +36,8 @@ use Psr\Log\LogLevel;
 final readonly class MonologAdapter implements LoggerInterface
 {
     /**
+     * @param MonologLogger $logger
+     * @param LogChannelEnum $channel
      * @throws LoggerException
      */
     private function __construct(
@@ -46,7 +48,10 @@ final readonly class MonologAdapter implements LoggerInterface
     }
 
     /**
+     * @param LogChannelEnum $channel
+     *
      * @throws LoggerException
+     * @return LoggerInterface
      */
     public static function create(LogChannelEnum $channel): LoggerInterface
     {
@@ -97,6 +102,8 @@ final readonly class MonologAdapter implements LoggerInterface
 
     /**
      * @param 'alert'|'critical'|'debug'|'emergency'|'error'|'info'|'notice'|'warning'|Level $level
+     * @param \Stringable|string $message
+     * @param array $context
      *
      * @throws LoggerException
      */
@@ -141,6 +148,10 @@ final readonly class MonologAdapter implements LoggerInterface
      *  - <APP_ENV> is defined by the current Symfony mode (prod, dev, test)
      *  - <channel> is the channel name defined in LogChannelEnum
      * Example: /var/log/centreon/prod.password.log
+     *
+     * @param LogChannelEnum $channelEnum
+     *
+     * @return string
      */
     private function getLogFileFromChannel(LogChannelEnum $channelEnum): string
     {
