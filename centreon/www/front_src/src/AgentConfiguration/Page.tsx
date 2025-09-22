@@ -20,13 +20,14 @@ import {
 } from './translatedLabels';
 
 const WelcomePage = ({ labels, dataTestId, onCreate }) => {
+  const { isLoading, data } = useGetAgentConfigurations();
+
   const setIsWelcomePageDisplayed = useSetAtom(isWelcomePageDisplayedAtom);
 
-  const { isLoading, data } = useGetAgentConfigurations();
   const { isClear } = useCountChangedFilters();
 
   useLayoutEffect(() => {
-    if (!isLoading && (!isClear || (isClear && isNotEmpty(data)))) {
+    if (!isLoading && (!isClear || (isClear && isNotEmpty(data?.result)))) {
       setIsWelcomePageDisplayed(false);
     }
   }, [isLoading]);
@@ -52,7 +53,7 @@ const AgentConfigurationPage = (): JSX.Element => {
     isWelcomePageDisplayedAtom
   );
 
-  const { isLoading, total, data } = useGetAgentConfigurations();
+  const { isLoading, data } = useGetAgentConfigurations();
 
   const setOpenFormModal = useSetAtom(openFormModalAtom);
 
@@ -89,7 +90,11 @@ const AgentConfigurationPage = (): JSX.Element => {
               onCreate={openCreatetModal}
             />
           ) : (
-            <ACListing rows={data} total={total} isLoading={isLoading} />
+            <ACListing
+              rows={data?.result}
+              total={data?.meta.total}
+              isLoading={isLoading}
+            />
           )}
         </DataTable>
       </PageLayout.Body>
