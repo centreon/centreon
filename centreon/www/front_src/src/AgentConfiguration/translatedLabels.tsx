@@ -89,3 +89,6 @@ export const labelByPollerTooltip =
 
 export const labelAtLeastOneConnexionMode =
   'Au moins un des modes de connexion doit être activé.';
+
+export const labelSelectAtLeastOneColumn =
+  'At least one column must be selected';

@@ -5,3 +5,5 @@ export const filtersInitialValues = {
 };
 
 export const baseKey = 'centreon-app-agent-configuration-25.10-';
+
+export const defaultSelectedColumnIds = ['name', 'type', 'pollers', 'actions'];

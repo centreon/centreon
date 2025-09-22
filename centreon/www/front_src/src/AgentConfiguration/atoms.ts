@@ -3,7 +3,11 @@ import { atom } from 'jotai';
 import { atomWithStorage } from 'jotai/utils';
 import { equals, findIndex, remove } from 'ramda';
 import { AgentType } from './models';
-import { baseKey, filtersInitialValues } from './utils';
+import {
+  baseKey,
+  defaultSelectedColumnIds,
+  filtersInitialValues
+} from './utils';
 
 export const pageAtom = atom(0);
 export const limitAtom = atom(10);
@@ -71,4 +75,9 @@ export const isWelcomePageDisplayedAtom = atom<boolean>(true);
 export const filtersAtom = atomWithStorage(
   `${baseKey}_filters`,
   filtersInitialValues
+);
+
+export const selectedColumnIdsAtom = atomWithStorage(
+  `${baseKey}_column-ids`,
+  defaultSelectedColumnIds
 );
