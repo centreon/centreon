@@ -24,8 +24,8 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Command;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Command\Command;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Command\CommandConnectorDto;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Command\CommandResource;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Command\ConnectorDto;
 use App\Shared\Infrastructure\TransformerInterface;
 
 /**
@@ -44,7 +44,7 @@ final readonly class ResourceCommandTransformer implements TransformerInterface
             isActivated: $from->isActivated ?? false,
             isFromMonitoringConnector: $from->isFromMonitoringConnector ?? false,
             connector: $from->connector !== null
-                ? CommandConnectorDto::createFromCommandConnector($from->connector)
+                ? ConnectorDto::createFromCommandConnector($from->connector)
                 : null,
             comment: $from->comment?->value,
         );

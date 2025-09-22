@@ -21,29 +21,25 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Domain\Aggregate\Command;
+namespace App\MonitoringConfiguration\Infrastructure\Dbal;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Connector\Connector;
-use App\Shared\Domain\Aggregate\AggregateRoot;
+use App\MonitoringConfiguration\Domain\Aggregate\Connector\ConnectorId;
+use App\MonitoringConfiguration\Domain\Aggregate\Connector\ConnectorName;
+use App\Shared\Infrastructure\TransformerInterface;
 
-final class Command extends AggregateRoot
+/**
+ * @phpstan-import-type RowTypeAlias from DbalConnectorRepository
+ *
+ * @implements TransformerInterface<RowTypeAlias, Connector>
+ */
+final readonly class DbalConnectorTransformer implements TransformerInterface
 {
-    public function __construct(
-        ?CommandId $id,
-        public readonly CommandName $name,
-        public readonly CommandTypeEnum $type,
-        public readonly CommandLine $commandLine,
-        public readonly bool $isShellEnabled,
-        public readonly bool $isActivated,
-        public readonly bool $isFromMonitoringConnector,
-        public ?Connector $connector,
-        public readonly ?CommandComment $comment,
-    ) {
-        parent::__construct($id);
-    }
-
-    public function addConnector(Connector $connector): void
+    public function transform(mixed $from): Connector
     {
-        $this->connector = $connector;
+        return new Connector(
+            id: new ConnectorId($from['id']),
+            name: new ConnectorName($from['name']),
+        );
     }
 }

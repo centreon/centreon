@@ -21,29 +21,12 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Domain\Aggregate\Command;
+namespace App\MonitoringConfiguration\Domain\Repository;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Connector\Connector;
-use App\Shared\Domain\Aggregate\AggregateRoot;
+use App\MonitoringConfiguration\Domain\Aggregate\Connector\ConnectorId;
 
-final class Command extends AggregateRoot
+interface ConnectorRepository
 {
-    public function __construct(
-        ?CommandId $id,
-        public readonly CommandName $name,
-        public readonly CommandTypeEnum $type,
-        public readonly CommandLine $commandLine,
-        public readonly bool $isShellEnabled,
-        public readonly bool $isActivated,
-        public readonly bool $isFromMonitoringConnector,
-        public ?Connector $connector,
-        public readonly ?CommandComment $comment,
-    ) {
-        parent::__construct($id);
-    }
-
-    public function addConnector(Connector $connector): void
-    {
-        $this->connector = $connector;
-    }
+    public function findById(ConnectorId $id): ?Connector;
 }

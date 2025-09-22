@@ -118,7 +118,7 @@ final class CommandResource
                 'example' => ['id' => 1, 'name' => 'SSH Connector'],
             ]
         )]
-        public ?CommandConnectorDto $connector = null,
+        public ?ConnectorDto $connector = null,
 
         #[ApiProperty(
             description: 'Additional information about the command',

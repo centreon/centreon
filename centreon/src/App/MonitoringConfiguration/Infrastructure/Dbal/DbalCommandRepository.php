@@ -25,6 +25,7 @@ namespace App\MonitoringConfiguration\Infrastructure\Dbal;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Command\Command;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
+use App\MonitoringConfiguration\Domain\Aggregate\Connector\ConnectorId;
 use App\MonitoringConfiguration\Domain\Exception\CommandNotFoundException;
 use App\MonitoringConfiguration\Domain\Repository\CommandRepository;
 use App\Shared\Infrastructure\Dbal\DbalRepository;
@@ -43,23 +44,23 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
  *   command_locked: bool,
  *   command_comment: string|null,
  *   connector_id: int|null,
- *   connector_name: string|null,
  * }
  */
 final readonly class DbalCommandRepository extends DbalRepository implements CommandRepository
 {
     public const TABLE_NAME = 'command';
-    public const CONNECTOR_TABLE_NAME = 'connector';
 
     /**
-     * @param TransformerInterface<RowTypeAlias, Command> $commandTransformer
+     * @param TransformerInterface<RowTypeAlias, Command> $transformer
      */
     public function __construct(
         #[Autowire(service: 'doctrine.dbal.default_connection')]
         private Connection $connection,
 
         #[Autowire(service: DbalCommandTransformer::class)]
-        private TransformerInterface $commandTransformer,
+        private TransformerInterface $transformer,
+
+        private DbalConnectorRepository $connectorRepository,
     ) {
     }
 
@@ -68,21 +69,19 @@ final readonly class DbalCommandRepository extends DbalRepository implements Com
         $qb = $this->connection->createQueryBuilder();
 
         $qb->select(
-            'c.command_id',
-            'c.command_name',
-            'c.command_line',
-            'c.command_example',
-            'c.command_type',
-            'c.enable_shell',
-            'c.command_activate',
-            'c.command_locked',
-            'c.command_comment',
-            'c.connector_id',
-            'connector.name AS connector_name',
+            'command_id',
+            'command_name',
+            'command_line',
+            'command_example',
+            'command_type',
+            'enable_shell',
+            'command_activate',
+            'command_locked',
+            'command_comment',
+            'connector_id',
         )
-            ->from(self::TABLE_NAME, 'c')
-            ->leftJoin('c', self::CONNECTOR_TABLE_NAME, 'connector', 'c.connector_id = connector.id')
-            ->where('c.command_id = :id')
+            ->from(self::TABLE_NAME)
+            ->where('command_id = :id')
             ->setParameter('id', $id->value)
             ->setMaxResults(1);
 
@@ -93,6 +92,22 @@ final readonly class DbalCommandRepository extends DbalRepository implements Com
             throw new CommandNotFoundException(['id' => $id->value]);
         }
 
-        return $this->commandTransformer->transform($row);
+        return $this->createCommand($row);
+    }
+
+    /**
+     * @param RowTypeAlias $row
+     */
+    private function createCommand(array $row): Command
+    {
+        $command = $this->transformer->transform($row);
+
+        if (isset($row['connector_id']) && $row['connector_id'] !== null) {
+            $connectorId = $row['connector_id'];
+            $connector = $this->connectorRepository->findById(new ConnectorId($connectorId));
+            $command->addConnector($connector);
+        }
+
+        return $command;
     }
 }

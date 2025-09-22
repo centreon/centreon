@@ -21,15 +21,24 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Domain\Aggregate\Command;
+namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Command;
 
-use Webmozart\Assert\Assert;
+use App\MonitoringConfiguration\Domain\Aggregate\Connector\Connector;
 
-final readonly class CommandConnectorName
+final class ConnectorDto
 {
     public function __construct(
-        public string $value,
+        public int $id,
+
+        public string $name,
     ) {
-        Assert::maxLength($value, 255);
+    }
+
+    public static function createFromCommandConnector(Connector $connector): self
+    {
+        return new self(
+            id: $connector->id->value,
+            name: $connector->name->value,
+        );
     }
 }

@@ -21,10 +21,13 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Domain\Aggregate\Command;
+namespace App\MonitoringConfiguration\Domain\Aggregate\Connector;
 
-use App\Shared\Domain\Aggregate\AggregateRootId;
-
-final readonly class CommandConnectorId extends AggregateRootId
+final readonly class Connector
 {
+    public function __construct(
+        public readonly ConnectorId $id,
+        public readonly ConnectorName $name,
+    ) {
+    }
 }

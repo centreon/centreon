@@ -27,8 +27,8 @@ use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProviderInterface;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\Command;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
+use App\MonitoringConfiguration\Domain\Repository\CommandRepository;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Command\CommandResource;
-use App\MonitoringConfiguration\Infrastructure\Dbal\DbalCommandRepository;
 use App\Shared\Infrastructure\TransformerInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Webmozart\Assert\Assert;
@@ -44,7 +44,7 @@ final readonly class FindCommandProvider implements ProviderInterface
     public function __construct(
         #[Autowire(service: ResourceCommandTransformer::class)]
         private TransformerInterface $transformer,
-        private DbalCommandRepository $repository,
+        private CommandRepository $repository,
     ) {
     }
 
