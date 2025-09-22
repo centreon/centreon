@@ -2254,8 +2254,8 @@ msgid "CA Common Name (CN)"
 msgstr "Nom commun CA (CN)"
 
 #: centreon/www/install/front_translate.php
-msgid "CA(.crt,.cer)"
-msgstr "CA(.crt,.cer)"
+msgid "CA (.crt,.cer)"
+msgstr "CA (.crt,.cer)"
 
 #: centreon/www/install/front_translate.php
 msgid "CMA authentication token(s)"
@@ -13173,8 +13173,8 @@ msgid "Private key path"
 msgstr "Chemin de la clé privée"
 
 #: centreon/www/install/front_translate.php
-msgid "Private key(.key)"
-msgstr "Clé privée(.key)"
+msgid "Private key (.key)"
+msgstr "Clé privée (.key)"
 
 #: centreon/www/install/dashboard_widgets.php
 msgid "Problem (Critical)"
@@ -13280,8 +13280,8 @@ msgid "Public certificate"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
-msgid "Public certificate(.crt,.cer)"
-msgstr "Certificat public(.crt,cer)"
+msgid "Public certificate (.crt,.cer)"
+msgstr "Certificat public (.crt,cer)"
 
 #: centreon/www/include/home/customViews/formLoad.php
 msgid "Public views list"

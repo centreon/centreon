@@ -2194,7 +2194,7 @@ msgid "CA Common Name (CN)"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
-msgid "CA(.crt,.cer)"
+msgid "CA (.crt,.cer)"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
@@ -14490,7 +14490,7 @@ msgid "Private key path"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
-msgid "Private key(.key)"
+msgid "Private key (.key)"
 msgstr ""
 
 #: centreon/www/install/dashboard_widgets.php
@@ -14597,7 +14597,7 @@ msgid "Public certificate"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
-msgid "Public certificate(.crt,.cer)"
+msgid "Public certificate (.crt,.cer)"
 msgstr "Certificado publico"
 
 #: centreon/www/include/home/customViews/formLoad.php
@@ -17351,9 +17351,9 @@ msgstr "Reconocimiento persistente en caso de cambio de estado no correcto"
 # msgstr ""
 # msgid "Extension not allowed"
 # msgstr ""
-# msgid "Public certificate(.crt,.cer)"
+# msgid "Public certificate (.crt,.cer)"
 # msgstr ""
-# msgid "CA(.crt,.cer)"
+# msgid "CA (.crt,.cer)"
 # msgstr ""
 # msgid "CA Common Name (CN)"
 # msgstr ""
