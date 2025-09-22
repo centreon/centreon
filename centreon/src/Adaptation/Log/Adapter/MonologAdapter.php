@@ -103,7 +103,7 @@ final readonly class MonologAdapter implements LoggerInterface
     /**
      * @param 'alert'|'critical'|'debug'|'emergency'|'error'|'info'|'notice'|'warning'|Level $level
      * @param \Stringable|string $message
-     * @param array $context
+     * @param array<string,mixed> $context
      *
      * @throws LoggerException
      */
