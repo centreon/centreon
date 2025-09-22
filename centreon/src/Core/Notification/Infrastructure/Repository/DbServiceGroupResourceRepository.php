@@ -191,9 +191,9 @@ class DbServiceGroupResourceRepository extends AbstractRepositoryRDB implements 
      */
     public function findByNotificationIdAndAccessGroups(
         int $notificationId,
-        array $accessGroups
+        array $accessGroups,
     ): ?NotificationResource {
-        if ([] === $accessGroups) {
+        if ($accessGroups === []) {
             return null;
         }
 
@@ -298,7 +298,7 @@ class DbServiceGroupResourceRepository extends AbstractRepositoryRDB implements 
      */
     public function countResourcesByNotificationIdsAndAccessGroups(
         array $notificationIds,
-        array $accessGroups
+        array $accessGroups,
     ): array {
         $accessGroupIds = array_map(
             static fn (AccessGroup $accessGroup) => $accessGroup->getId(),
@@ -462,7 +462,7 @@ class DbServiceGroupResourceRepository extends AbstractRepositoryRDB implements 
                     SQL
             );
 
-        if ([] !== $accessGroupIds) {
+        if ($accessGroupIds !== []) {
             $concatenator->appendJoins(
                 <<<'SQL'
                     INNER JOIN `:db`.acl_resources_sg_relations arsr
@@ -510,7 +510,7 @@ class DbServiceGroupResourceRepository extends AbstractRepositoryRDB implements 
                     SQL
             );
 
-        if ([] !== $accessGroupIds) {
+        if ($accessGroupIds !== []) {
             $concatenator->appendJoins(
                 <<<'SQL'
                     INNER JOIN `:db`.acl_resources_sg_relations arsr
@@ -556,7 +556,7 @@ class DbServiceGroupResourceRepository extends AbstractRepositoryRDB implements 
                     SQL
             );
 
-        if ([] !== $accessGroupIds) {
+        if ($accessGroupIds !== []) {
             $concatenator->appendJoins(
                 <<<'SQL'
                     INNER JOIN `:db`.acl_resources_sg_relations arsr

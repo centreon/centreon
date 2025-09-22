@@ -27,7 +27,7 @@ final readonly class EngineSecrets
 {
     public function __construct(
         public EngineKey $firstKey,
-        public EngineKey $secondKey
+        public EngineKey $secondKey,
     ) {
     }
 }

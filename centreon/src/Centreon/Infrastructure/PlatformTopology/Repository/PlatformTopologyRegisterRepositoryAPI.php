@@ -71,7 +71,7 @@ class PlatformTopologyRegisterRepositoryAPI implements PlatformTopologyRegisterR
     public function registerPlatformToParent(
         PlatformInterface $platform,
         PlatformInformation $platformInformation,
-        ?Proxy $proxy = null
+        ?Proxy $proxy = null,
     ): void {
         /**
          * Call the API on the n-1 server to register it too
@@ -101,7 +101,7 @@ class PlatformTopologyRegisterRepositoryAPI implements PlatformTopologyRegisterR
             );
 
             // Get request status code and return the error message
-            if (Response::HTTP_CREATED !== $registerResponse->getStatusCode()) {
+            if ($registerResponse->getStatusCode() !== Response::HTTP_CREATED) {
                 $errorMessage = sprintf(
                     _("The platform: '%s'@'%s' cannot be added to the Central linked to this Remote"),
                     $platform->getName(),
@@ -141,7 +141,7 @@ class PlatformTopologyRegisterRepositoryAPI implements PlatformTopologyRegisterR
     public function deletePlatformToParent(
         PlatformInterface $platform,
         PlatformInformation $platformInformation,
-        ?Proxy $proxy = null
+        ?Proxy $proxy = null,
     ): void {
         try {
             $token = $this->getToken($platformInformation, $proxy);
@@ -158,7 +158,7 @@ class PlatformTopologyRegisterRepositoryAPI implements PlatformTopologyRegisterR
             );
 
             // Get request status code and return the error message
-            if (Response::HTTP_OK !== $getResponse->getStatusCode()) {
+            if ($getResponse->getStatusCode() !== Response::HTTP_OK) {
                 $errorMessage = sprintf(
                     _("The platform: '%s'@'%s' cannot be found on the Central"),
                     $platform->getName(),
@@ -206,7 +206,7 @@ class PlatformTopologyRegisterRepositoryAPI implements PlatformTopologyRegisterR
             );
 
             // Get request status code and return the error message
-            if (Response::HTTP_NO_CONTENT !== $deleteResponse->getStatusCode()) {
+            if ($deleteResponse->getStatusCode() !== Response::HTTP_NO_CONTENT) {
                 $errorMessage = sprintf(
                     _("The platform: '%s'@'%s' cannot be delete from the Central"),
                     $platform->getName(),
@@ -252,7 +252,7 @@ class PlatformTopologyRegisterRepositoryAPI implements PlatformTopologyRegisterR
      */
     private function getToken(
         PlatformInformation $platformInformation,
-        ?Proxy $proxy = null
+        ?Proxy $proxy = null,
     ): string {
         // Central's API endpoints base path building
         $this->baseApiEndpoint = $platformInformation->getApiScheme() . '://'
@@ -264,11 +264,11 @@ class PlatformTopologyRegisterRepositoryAPI implements PlatformTopologyRegisterR
         // Enable specific options
         $optionPayload = [];
         // Enable proxy
-        if (null !== $proxy && ! empty((string) $proxy)) {
+        if ($proxy !== null && ! empty((string) $proxy)) {
             $optionPayload['proxy'] = (string) $proxy;
         }
         // On https scheme, the SSL verify_peer needs to be specified
-        if ('https' === $platformInformation->getApiScheme()) {
+        if ($platformInformation->getApiScheme() === 'https') {
             $optionPayload['verify_peer'] = $platformInformation->hasApiPeerValidation();
             $optionPayload['verify_host'] = $platformInformation->hasApiPeerValidation();
         }
@@ -298,7 +298,7 @@ class PlatformTopologyRegisterRepositoryAPI implements PlatformTopologyRegisterR
 
         $token = $loginResponse->toArray()['security']['token'] ?? false;
 
-        if (false === $token) {
+        if ($token === false) {
             throw PlatformTopologyRepositoryException::failToGetToken($platformInformation->getCentralServerAddress());
         }
 

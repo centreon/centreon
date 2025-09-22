@@ -43,7 +43,7 @@ final class AddDashboardToFavoritesController extends AbstractController
      */
     public function __invoke(
         AddDashboardToFavorites $useCase,
-        #[MapRequestPayload] AddDashboardToFavoritesInput $input
+        #[MapRequestPayload] AddDashboardToFavoritesInput $input,
     ): Response {
         return $this->createResponse(
             $useCase(

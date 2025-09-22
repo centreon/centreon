@@ -162,7 +162,7 @@ final class FindResourcesRequestValidator
             iterator_to_array($resourceTypes)
         );
 
-        if ([] === $this->resourceTypes) {
+        if ($this->resourceTypes === []) {
             throw new \InvalidArgumentException(
                 'You must add at least one provider',
                 self::ERROR_NO_PROVIDERS

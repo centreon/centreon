@@ -33,7 +33,7 @@ final class FindServiceController extends AbstractController
         int $hostId,
         int $serviceId,
         FindService $useCase,
-        FindServicePresenterInterface $presenter
+        FindServicePresenterInterface $presenter,
     ): object {
         /**
          * Deny access if user has no rights on the real time.

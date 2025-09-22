@@ -66,7 +66,7 @@ class Acknowledgement
         private int $id,
         private int $hostId,
         private int $serviceId,
-        private \DateTime $entryTime
+        private \DateTime $entryTime,
     ) {
     }
 

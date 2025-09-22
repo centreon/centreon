@@ -42,7 +42,7 @@ final class ServiceGroupService extends AbstractCentreonService implements Servi
      */
     public function __construct(
         ServiceGroupRepositoryInterface $serviceGroupRepository,
-        ReadAccessGroupRepositoryInterface $accessGroupRepository
+        ReadAccessGroupRepositoryInterface $accessGroupRepository,
     ) {
         $this->serviceGroupRepository = $serviceGroupRepository;
         $this->accessGroupRepository = $accessGroupRepository;

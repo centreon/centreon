@@ -304,7 +304,7 @@ class CentreonContact
      * @param string $password
      * @param int|null $contactId
      *
-     * @throws PDOException
+     * @throws Exception
      * @return void
      */
     public function respectPasswordPolicyOrFail(string $password, ?int $contactId): void
@@ -384,7 +384,7 @@ class CentreonContact
     public function replacePasswordByContactId(
         int $contactId,
         string $oldHashedPassword,
-        string $newHashedPassword
+        string $newHashedPassword,
     ): void {
         $statement = $this->db->prepare(
             'UPDATE `contact_password`

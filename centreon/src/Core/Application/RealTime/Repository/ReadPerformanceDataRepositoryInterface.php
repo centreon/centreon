@@ -39,6 +39,6 @@ interface ReadPerformanceDataRepositoryInterface
     public function findDataByMetricsAndDates(
         array $metrics,
         DateTimeInterface $startDate,
-        DateTimeInterface $endDate
+        DateTimeInterface $endDate,
     ): iterable;
 }

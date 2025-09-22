@@ -52,32 +52,32 @@ class DashboardRights
 
     public function canDelete(DashboardSharingRoles $roles): bool
     {
-        return DashboardSharingRole::Editor === $roles->getTheMostPermissiveRole();
+        return $roles->getTheMostPermissiveRole() === DashboardSharingRole::Editor;
     }
 
     public function canUpdate(DashboardSharingRoles $roles): bool
     {
-        return DashboardSharingRole::Editor === $roles->getTheMostPermissiveRole();
+        return $roles->getTheMostPermissiveRole() === DashboardSharingRole::Editor;
     }
 
     public function canCreateShare(DashboardSharingRoles $roles): bool
     {
-        return DashboardSharingRole::Editor === $roles->getTheMostPermissiveRole();
+        return $roles->getTheMostPermissiveRole() === DashboardSharingRole::Editor;
     }
 
     public function canDeleteShare(DashboardSharingRoles $roles): bool
     {
-        return DashboardSharingRole::Editor === $roles->getTheMostPermissiveRole();
+        return $roles->getTheMostPermissiveRole() === DashboardSharingRole::Editor;
     }
 
     public function canUpdateShare(DashboardSharingRoles $roles): bool
     {
-        return DashboardSharingRole::Editor === $roles->getTheMostPermissiveRole();
+        return $roles->getTheMostPermissiveRole() === DashboardSharingRole::Editor;
     }
 
     public function canAccessShare(DashboardSharingRoles $roles): bool
     {
-        return null !== $roles->getTheMostPermissiveRole();
+        return $roles->getTheMostPermissiveRole() !== null;
     }
 
     public function hasAdminRole(): bool

@@ -98,7 +98,7 @@ class Validator
      */
     public function validatePollersOrFail(AddAgentConfigurationRequest $request): void
     {
-        if ([] === $request->pollerIds) {
+        if ($request->pollerIds === []) {
             throw AgentConfigurationException::arrayCanNotBeEmpty('pollerIds');
         }
 
@@ -113,7 +113,7 @@ class Validator
                 $isPollerIdValid = $this->readMonitoringServerRepository->existsByAccessGroups($pollerId, $agentConfigurationcessGroups);
             }
 
-            if (false === $isPollerIdValid) {
+            if ($isPollerIdValid === false) {
                 $invalidPollers[] = $pollerId;
             }
         }

@@ -37,7 +37,7 @@ interface AccParametersInterface
     public static function update(
         EncryptionInterface $encryption,
         self $currentObj,
-        array $newDatas
+        array $newDatas,
     ): self;
 
     /**

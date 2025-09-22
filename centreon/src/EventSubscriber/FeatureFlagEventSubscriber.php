@@ -39,7 +39,7 @@ class FeatureFlagEventSubscriber implements EventSubscriberInterface
      * @param FeatureFlags $featureFlags
      */
     public function __construct(
-        private readonly FeatureFlags $featureFlags
+        private readonly FeatureFlags $featureFlags,
     ) {
     }
 

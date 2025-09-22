@@ -2189,11 +2189,11 @@ msgid "By poller"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
-msgid "CA Common Name (CN)"
+msgid "CA (.crt,.cer)"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
-msgid "CA(.crt,.cer)"
+msgid "CA Common Name (CN)"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
@@ -11815,6 +11815,10 @@ msgstr ""
 msgid "Name is already in use"
 msgstr "Nome já esta em uso"
 
+#: centreon/www/include/configuration/configResources/formResources.php
+msgid "Name must start and end with a '$'"
+msgstr ""
+
 #: centreon/www/install/centreon_broker_translation.php
 msgid "Name of the logger"
 msgstr "Nome do registrador"
@@ -13491,16 +13495,16 @@ msgstr "Exibir Valor Mínimo"
 msgid "Print Total Value"
 msgstr "Exibir o valor total"
 
+#: centreon/www/install/front_translate.php
+msgid "Private key (.key)"
+msgstr ""
+
 #: centreon/www/install/centreon_broker_translation.php
 msgid "Private key file."
 msgstr "Arquivo de chave privada (SSH)"
 
 #: centreon/www/install/centreon_broker_translation.php
 msgid "Private key path"
-msgstr ""
-
-#: centreon/www/install/front_translate.php
-msgid "Private key(.key)"
 msgstr ""
 
 #: centreon/www/install/dashboard_widgets.php
@@ -13607,8 +13611,8 @@ msgid "Public certificate"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
-msgid "Public certificate(.crt,.cer)"
-msgstr "Certificado público"
+msgid "Public certificate (.crt,.cer)"
+msgstr "Certificado público (.crt,.cer)"
 
 #: centreon/www/include/home/customViews/formLoad.php
 msgid "Public views list"
