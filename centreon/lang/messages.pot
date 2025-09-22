@@ -12145,6 +12145,10 @@ msgstr ""
 msgid "Name is already in use"
 msgstr ""
 
+#: centreon/www/include/configuration/configResources/formResources.php
+msgid "Name must start and end with a '$'"
+msgstr ""
+
 #: centreon/www/install/centreon_broker_translation.php
 msgid "Name of the logger"
 msgstr ""
