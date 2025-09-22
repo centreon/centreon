@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,30 +21,19 @@
 
 declare(strict_types=1);
 
-namespace Core\Application\Common\UseCase;
+namespace Core\Dashboard\Application\UseCase\FindSingleMetaMetric;
 
-final class InvalidArgumentResponse extends AbstractResponse
+final readonly class FindSingleMetaMetricResponse
 {
-    /**
-     * InvalidArgumentResponse constructor
-     *
-     * @param string|\Throwable $message Only to have a message
-     * @param array<string,mixed> $context
-     * @param \Throwable|null $exception
-     */
     public function __construct(
-        string|\Throwable $message,
-        array $context = [],
-        private readonly ?\Throwable $exception = null,
+        public int $id,
+        public string $name,
+        public ?string $unit = null,
+        public ?float $currentValue = null,
+        public ?float $warningHighThreshold = null,
+        public ?float $warningLowThreshold = null,
+        public ?float $criticalHighThreshold = null,
+        public ?float $criticalLowThreshold = null,
     ) {
-        parent::__construct($message, $context);
-    }
-
-    /**
-     * @return null|\Throwable
-     */
-    public function getException(): ?\Throwable
-    {
-        return $this->exception;
     }
 }
