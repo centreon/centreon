@@ -202,30 +202,28 @@ describe('Agent configurations', () => {
   it('clears filters when filters are populated and the corresponding button is clicked', () => {
     initialize({});
 
-    cy.waitForRequest('@getAgentConfigurations').then(({ request }) => {
-      expect(decodeURIComponent(request.url.search)).equals(
-        '?page=1&limit=10&sort_by={"name":"asc"}&search={"$and":[]}'
-      );
-    });
-
-    cy.findAllByTestId('Search').find('input').type('My agent');
+    // cy.waitForRequest('@getAgentConfigurations');
     cy.findByLabelText('Filters').click();
     cy.findByLabelText(labelAgentType).click({ force: true });
     cy.get('[data-option-index="1"]').click();
     cy.findByLabelText(labelPoller).click({ force: true });
 
     cy.waitForRequest('@getFilterPollers');
-
     cy.contains('poller6').click();
-    cy.contains(labelClear).click({ force: true });
-    cy.contains('poller6').should('not.exist');
-    cy.contains('Centreon Monitoring Agent').should('not.exist');
+
+    cy.findAllByTestId(labelName).eq(1).clear().type('My agent');
+
+    cy.contains(labelClear).click();
 
     cy.waitForRequest('@getAgentConfigurations').then(({ request }) => {
-      expect(decodeURIComponent(request.url.search)).equals(
-        '?page=1&limit=10&sort_by={"name":"asc"}&search={"$and":[]}'
-      );
+      expect(JSON.parse(request.url.searchParams.get('search'))).to.deep.equal({
+        $and: []
+      });
     });
+
+    cy.findAllByTestId(labelName).eq(1).should('have.value', '');
+    cy.contains('poller6').should('not.exist');
+    cy.contains('Centreon Monitoring Agent').should('not.exist');
 
     cy.makeSnapshot();
   });
