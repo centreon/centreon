@@ -91,7 +91,9 @@ class I18nService
             ->sortByName();
         $locales = [];
         foreach ($dirs as $dir) {
-            if (!preg_match('/^([a-z]{2}_[A-Z]{2})/', $dir->getBasename(), $matches) || empty($matches[1])) continue;
+            if (! preg_match('/^([a-z]{2}_[A-Z]{2})/', $dir->getBasename(), $matches)) {
+                continue;
+            }
             $locales[] = $matches[1];
         }
         $enUSIndex = array_search("en_US", $locales, true);
