@@ -17,7 +17,7 @@ export const useSearch = (): UseSearch => {
   const [filters, setFilters] = useAtom(filtersAtom);
 
   const reload = (): void => {
-    queryClient.invalidateQueries({ queryKey: ['listTokens'] });
+    queryClient.invalidateQueries({ queryKey: ['listAgentConfigurations'] });
   };
 
   const searchDebounced = useRef(
