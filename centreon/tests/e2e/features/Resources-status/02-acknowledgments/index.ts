@@ -54,6 +54,7 @@ Given('the user has the necessary rights to page Resource Status', () => {
   cy.get(searchInput).should('exist');
 });
 
+
 Given(
   'the user has the necessary rights to acknowledge & disacknowledge',
   () => {
