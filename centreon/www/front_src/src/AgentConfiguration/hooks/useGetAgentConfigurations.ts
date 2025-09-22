@@ -83,6 +83,9 @@ export const useGetAgentConfigurations = (): UseGetAgentConfigurationsState => {
     ...pollersConditions
   ];
 
+  console.log('filters: ', filters);
+  console.log('conditions: ', conditions);
+
   const { data, isFetching } = useFetchQuery<
     ListingModel<AgentConfigurationListing>
   >({
