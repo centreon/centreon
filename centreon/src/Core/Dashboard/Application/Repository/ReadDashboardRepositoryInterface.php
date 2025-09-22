@@ -53,7 +53,7 @@ interface ReadDashboardRepositoryInterface
      */
     public function findByRequestParameterAndContact(
         ?RequestParametersInterface $requestParameters,
-        ContactInterface $contact
+        ContactInterface $contact,
     ): array;
 
     /**

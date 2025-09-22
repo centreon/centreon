@@ -52,7 +52,7 @@ class DbReadServicegroupRepository extends AbstractRepositoryDRB implements Read
     public function findAllByHostIdAndServiceIdAndAccessGroupIds(
         int $hostId,
         int $serviceId,
-        array $accessGroupIds
+        array $accessGroupIds,
     ): array {
         $servicegroups = [];
 

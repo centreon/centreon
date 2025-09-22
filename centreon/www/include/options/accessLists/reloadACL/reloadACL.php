@@ -65,7 +65,7 @@ if (isset($_GET['o']) && $_GET['o'] === 'r') {
         foreach (array_keys(array_filter($userIds)) as $userId) {
             $bindParams[':user_' . $userId] = $userId;
         }
-        if ([] !== $bindParams) {
+        if ($bindParams !== []) {
             $userIdAsString = implode(', ', array_keys($bindParams));
             $statement = $pearDB->prepareQuery(
                 <<<SQL

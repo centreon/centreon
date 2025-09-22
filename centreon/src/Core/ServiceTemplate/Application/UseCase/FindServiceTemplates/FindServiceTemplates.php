@@ -43,7 +43,7 @@ final class FindServiceTemplates
         private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
         private readonly ReadServiceTemplateRepositoryInterface $repository,
         private readonly RequestParametersInterface $requestParameters,
-        private readonly ContactInterface $user
+        private readonly ContactInterface $user,
     ) {
     }
 

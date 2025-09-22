@@ -197,7 +197,7 @@ function unblockContactInDB(int|array|null $contact = null): void
 {
     global $pearDB, $centreon;
 
-    if (null === $contact || [] === $contact) {
+    if ($contact === null || $contact === []) {
         return;
     }
 
@@ -1248,7 +1248,7 @@ function insertLdapContactInDB($tmpContacts = [])
             $pearDB->query(sprintf($sqlUpdate, $tmplSql));
         }
         $listGroup = [];
-        if (false !== $ldap->connect()) {
+        if ($ldap->connect() !== false) {
             $listGroup = $ldap->listGroupsForUser($tmpContacts['dn'][$select_key]);
         }
         if ($listGroup !== []) {

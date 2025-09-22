@@ -37,7 +37,7 @@ try {
         WHERE timezone_name = 'Asia/Yangon'"
     );
     $timezone = $res->fetch();
-    if (false === $timezone) {
+    if ($timezone === false) {
         $errorMessage = 'Cannot add Asia/Yangon to timezone list';
         $stmt = $pearDB->query(
             'INSERT INTO timezone (timezone_name, timezone_offset, timezone_dst_offset, timezone_description)

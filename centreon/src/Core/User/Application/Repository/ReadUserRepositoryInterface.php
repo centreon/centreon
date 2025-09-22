@@ -57,7 +57,7 @@ interface ReadUserRepositoryInterface
     public function findByAccessGroupsUserAndRequestParameters(
         array $accessGroups,
         ContactInterface $user,
-        ?RequestParametersInterface $requestParameters
+        ?RequestParametersInterface $requestParameters,
     ): array;
 
     /**

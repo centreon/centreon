@@ -72,7 +72,7 @@ function isValidImage($filename)
     }
     $imginfo = getimagesize($filename);
 
-    if (isset($imginfo) && false !== $imginfo) {
+    if (isset($imginfo) && $imginfo !== false) {
         return true;
     }
 
@@ -452,7 +452,7 @@ function getListDirectory($filter = null): array
         }
 
         // Handling a potential filter even though I do not know where it comes from (no BC break).
-        if (null !== $filter && '' !== $filter) {
+        if ($filter !== null && $filter !== '') {
             $query .= <<<'SQL'
                     WHERE directories.dir_name LIKE :filter AND directories.dir_name NOT IN ('centreon-map', 'ppm', 'dashboards')
                 SQL;
@@ -648,7 +648,7 @@ function isValidMIMETypeFromArchive(
     string $dir,
     ?string $filename = null,
     ?ZipArchive $zip = null,
-    ?PharData $tar = null
+    ?PharData $tar = null,
 ): bool {
     $files = [];
 

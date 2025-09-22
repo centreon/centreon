@@ -61,7 +61,7 @@ final class LoginRequest
         string $username,
         string $password,
         ?string $clientIp = null,
-        ?string $refererQueryParameters = null
+        ?string $refererQueryParameters = null,
     ): self {
 
         return new self(

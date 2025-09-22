@@ -85,7 +85,7 @@ class ProxyController extends AbstractController
     public function updateProxy(
         Request $request,
         EntityValidator $entityValidator,
-        SerializerInterface $serializer
+        SerializerInterface $serializer,
     ): View {
         $this->denyAccessUnlessGrantedForApiConfiguration();
 

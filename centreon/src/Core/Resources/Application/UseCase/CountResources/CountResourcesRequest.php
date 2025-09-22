@@ -45,7 +45,7 @@ final readonly class CountResourcesRequest
         public ResourceFilter $resourceFilter,
         public bool $allPages,
         public int $contactId,
-        public bool $isAdmin
+        public bool $isAdmin,
     ) {
         $this->validateRequest();
     }

@@ -51,7 +51,7 @@ class DbWriteServiceSeverityActionLogRepository extends AbstractRepositoryRDB im
         private readonly ReadServiceSeverityRepositoryInterface $readServiceSeverityRepository,
         private readonly WriteActionLogRepositoryInterface $writeActionLogRepository,
         private readonly ContactInterface $contact,
-        DatabaseConnection $db
+        DatabaseConnection $db,
     ) {
         $this->db = $db;
     }
@@ -239,7 +239,7 @@ class DbWriteServiceSeverityActionLogRepository extends AbstractRepositoryRDB im
      */
     private function getServiceSeverityDiff(
         ServiceSeverity $initialSeverity,
-        ServiceSeverity $updatedServiceSeverity
+        ServiceSeverity $updatedServiceSeverity,
     ): array {
         $diff = [];
         $reflection = new \ReflectionClass($initialSeverity);

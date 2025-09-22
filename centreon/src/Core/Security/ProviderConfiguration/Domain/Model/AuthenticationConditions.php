@@ -63,7 +63,7 @@ class AuthenticationConditions
         private bool $isEnabled,
         private string $attributePath,
         private ?Endpoint $endpoint,
-        private array $authorizedValues
+        private array $authorizedValues,
     ) {
         $this->validateMandatoryParametersForEnabledCondition(
             $isEnabled,
@@ -207,7 +207,7 @@ class AuthenticationConditions
     private function validateMandatoryParametersForEnabledCondition(
         bool $isEnabled,
         string $attributePath,
-        array $authorizedValues
+        array $authorizedValues,
     ): void {
         if ($isEnabled) {
             $mandatoryParameters = [];

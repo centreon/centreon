@@ -49,7 +49,7 @@ final class GetHostGroup
         private readonly ReadMediaRepositoryInterface $readMediaRepository,
         private readonly ReadContactGroupRepositoryInterface $readContactGroupRepository,
         private readonly bool $isCloudPlatform,
-        private readonly ContactInterface $user
+        private readonly ContactInterface $user,
     ) {
     }
 

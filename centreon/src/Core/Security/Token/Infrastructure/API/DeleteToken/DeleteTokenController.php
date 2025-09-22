@@ -45,7 +45,7 @@ final class DeleteTokenController extends AbstractController
         DefaultPresenter $presenter,
         DeleteToken $useCase,
         string $tokenName,
-        ?int $userId = null
+        ?int $userId = null,
     ): Response {
         $this->denyAccessUnlessGrantedForApiConfiguration();
 

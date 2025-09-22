@@ -72,7 +72,7 @@ class ActionLog
         string $objectName,
         string $actionType,
         int $contactId,
-        ?\DateTime $creationDate = null
+        ?\DateTime $creationDate = null,
     ) {
         $this->objectType = $objectType;
         $this->objectId = $objectId;

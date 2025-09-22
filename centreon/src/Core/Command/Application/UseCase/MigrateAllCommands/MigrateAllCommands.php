@@ -78,7 +78,7 @@ final class MigrateAllCommands
             public function __construct(
                 readonly private \Iterator&\Countable $commands,
                 readonly private WriteCommandRepositoryInterface $writeCommandRepository,
-                readonly private LoggerInterface $logger
+                readonly private LoggerInterface $logger,
             ) {
             }
 

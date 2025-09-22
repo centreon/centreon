@@ -70,7 +70,7 @@ final class AddRuleController extends AbstractController
     public function __invoke(
         Request $request,
         AddRule $useCase,
-        AddRulePresenter $presenter
+        AddRulePresenter $presenter,
     ): Response {
         $this->denyAccessUnlessGrantedForApiConfiguration();
 

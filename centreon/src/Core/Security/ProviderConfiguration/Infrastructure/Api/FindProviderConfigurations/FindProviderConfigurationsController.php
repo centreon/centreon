@@ -39,7 +39,7 @@ final class FindProviderConfigurationsController extends AbstractController
      */
     public function __invoke(
         FindProviderConfigurations $findProviderConfigurations,
-        FindProviderConfigurationsPresenterInterface $presenter
+        FindProviderConfigurationsPresenterInterface $presenter,
     ): object {
         $findProviderConfigurations($presenter);
 
