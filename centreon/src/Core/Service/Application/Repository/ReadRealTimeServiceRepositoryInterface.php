@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Core\Service\Application\Repository;
 
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
+use Core\Common\Domain\Exception\RepositoryException;
 use Core\Service\Domain\Model\ServiceStatusesCount;
 
 interface ReadRealTimeServiceRepositoryInterface
@@ -63,4 +64,27 @@ interface ReadRealTimeServiceRepositoryInterface
         RequestParametersInterface $requestParameters,
         array $accessGroupIds,
     ): ServiceStatusesCount;
+
+    /**
+     * Indicates whether the service already exists for the given service ID and host ID
+     *
+     * @param int $serviceId
+     * @param int $hostId
+     *
+     * @throws RepositoryException
+     *
+     * @return bool
+     */
+    public function exists(int $serviceId, int $hostId): bool;
+
+    /**
+     * Indicates whether the service already exists for a meta service ID
+     *
+     * @param int $metaServiceId
+     *
+     * @throws RepositoryException
+     *
+     * @return array<int>|false
+     */
+    public function existsByDescription(int $metaServiceId): array|false;
 }

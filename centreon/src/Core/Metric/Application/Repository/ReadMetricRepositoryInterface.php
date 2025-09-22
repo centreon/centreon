@@ -25,6 +25,7 @@ namespace Core\Metric\Application\Repository;
 
 use Centreon\Domain\Monitoring\Service;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
+use Core\Common\Domain\Exception\RepositoryException;
 use Core\Metric\Domain\Model\Metric;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
@@ -89,6 +90,7 @@ interface ReadMetricRepositoryInterface
      * @param int $serviceId
      * @param AccessGroup[] $accessGroups
      * @param RequestParametersInterface $requestParameters
+     * @param string|null $metricName
      *
      * @throws \Throwable
      *
@@ -99,5 +101,46 @@ interface ReadMetricRepositoryInterface
         int $serviceId,
         array $accessGroups,
         RequestParametersInterface $requestParameters,
+        ?string $metricName = null,
     ): array;
+
+    /**
+     * Retrieve a single metric value for a given host and service
+     *
+     * @param int $hostId
+     * @param int $serviceId
+     * @param string $metricName
+     * @param RequestParametersInterface $requestParameters
+     * @param AccessGroup[] $accessGroups
+     *
+     * @throws RepositoryException
+     *
+     * @return Metric|null
+     */
+    public function findSingleMetricValue(
+        int $hostId,
+        int $serviceId,
+        string $metricName,
+        RequestParametersInterface $requestParameters,
+        array $accessGroups = [],
+    ): Metric|null;
+
+    /**
+     * Retrieve a single metric value for a given metaService
+     *
+     * @param array<int> $service
+     * @param string $metricName
+     * @param RequestParametersInterface $requestParameters
+     * @param AccessGroup[] $accessGroups
+     *
+     * @throws RepositoryException
+     *
+     * @return Metric|null
+     */
+    public function findSingleMetaMetricValue(
+        array $service,
+        string $metricName,
+        RequestParametersInterface $requestParameters,
+        array $accessGroups = [],
+    ): Metric|null;
 }
