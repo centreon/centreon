@@ -38,6 +38,7 @@ final class MonologAdapter implements LoggerInterface
     /**
      * @param MonologLogger $logger
      * @param LogChannelEnum $channel
+     *
      * @throws LoggerException
      */
     private function __construct(
@@ -51,6 +52,7 @@ final class MonologAdapter implements LoggerInterface
      * @param LogChannelEnum $channel
      *
      * @throws LoggerException
+     *
      * @return LoggerInterface
      */
     public static function create(LogChannelEnum $channel): LoggerInterface
@@ -147,7 +149,7 @@ final class MonologAdapter implements LoggerInterface
      *  - _CENTREON_LOG_ is defined in the main Centreon configuration file (centreon.conf.php)
      *  - <APP_ENV> is defined by the current Symfony mode (prod, dev, test)
      *  - <channel> is the channel name defined in LogChannelEnum
-     * Example: /var/log/centreon/prod.password.log
+     * Example: /var/log/centreon/prod.password.log.
      *
      * @param LogChannelEnum $channelEnum
      *
