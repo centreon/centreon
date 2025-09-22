@@ -31,10 +31,19 @@ use App\Shared\Infrastructure\TransformerInterface;
 use Doctrine\DBAL\Connection;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
+/**
+ * @phpstan-type RowTypeAlias = array{
+ *   id: int,
+ *   name: string,
+ * }
+ */
 final readonly class DbalConnectorRepository extends DbalRepository implements ConnectorRepository
 {
     public const TABLE_NAME = 'connector';
 
+    /**
+     * @param TransformerInterface<RowTypeAlias, Connector> $transformer
+     */
     public function __construct(
         #[Autowire(service: 'doctrine.dbal.default_connection')]
         private Connection $connection,
@@ -44,7 +53,7 @@ final readonly class DbalConnectorRepository extends DbalRepository implements C
     ) {
     }
 
-    public function findById(ConnectorId $id): Connector
+    public function findById(ConnectorId $id): ?Connector
     {
         $qb = $this->connection->createQueryBuilder();
 
@@ -57,6 +66,7 @@ final readonly class DbalConnectorRepository extends DbalRepository implements C
             ->setParameter('id', $id->value)
             ->setMaxResults(1);
 
+        /** @var RowTypeAlias $row */
         $row = $qb->executeQuery()->fetchAssociative();
 
         if ($row === false) {

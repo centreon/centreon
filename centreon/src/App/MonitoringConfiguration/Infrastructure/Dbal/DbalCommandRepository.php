@@ -25,6 +25,7 @@ namespace App\MonitoringConfiguration\Infrastructure\Dbal;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Command\Command;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
+use App\MonitoringConfiguration\Domain\Aggregate\Connector\Connector;
 use App\MonitoringConfiguration\Domain\Aggregate\Connector\ConnectorId;
 use App\MonitoringConfiguration\Domain\Exception\CommandNotFoundException;
 use App\MonitoringConfiguration\Domain\Repository\CommandRepository;
@@ -102,10 +103,12 @@ final readonly class DbalCommandRepository extends DbalRepository implements Com
     {
         $command = $this->transformer->transform($row);
 
-        if (isset($row['connector_id']) && $row['connector_id'] !== null) {
+        if ($row['connector_id'] !== null) {
             $connectorId = $row['connector_id'];
             $connector = $this->connectorRepository->findById(new ConnectorId($connectorId));
-            $command->addConnector($connector);
+            if ($connector instanceof Connector) {
+                $command->addConnector($connector);
+            }
         }
 
         return $command;

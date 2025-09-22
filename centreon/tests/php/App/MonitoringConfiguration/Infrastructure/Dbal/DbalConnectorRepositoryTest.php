@@ -23,39 +23,38 @@ declare(strict_types=1);
 
 namespace Tests\App\MonitoringConfiguration\Infrastructure\Dbal;
 
-use App\MonitoringConfiguration\Domain\Aggregate\Command\Command;
-use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
-use App\MonitoringConfiguration\Domain\Exception\CommandNotFoundException;
-use App\MonitoringConfiguration\Domain\Repository\CommandRepository;
+use App\MonitoringConfiguration\Domain\Aggregate\Connector\Connector;
+use App\MonitoringConfiguration\Domain\Aggregate\Connector\ConnectorId;
+use App\MonitoringConfiguration\Domain\Repository\ConnectorRepository;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
-final class DbalCommandRepositoryTest extends KernelTestCase
+final class DbalConnectorRepositoryTest extends KernelTestCase
 {
-    private CommandRepository $repository;
+    private ConnectorRepository $repository;
 
     protected function setUp(): void
     {
-        /** @var CommandRepository $repository */
-        $repository = self::getContainer()->get(CommandRepository::class);
+        /** @var ConnectorRepository $repository */
+        $repository = self::getContainer()->get(ConnectorRepository::class);
 
         $this->repository = $repository;
     }
 
-    public function testGetById(): void
+    public function testFindByIdNotFound(): void
     {
-        $commandId = new CommandId(2);
+        $connectorId = new ConnectorId(9999);
 
-        $command = $this->repository->getById($commandId);
+        $connector = $this->repository->findById($connectorId);
 
-        $this->assertInstanceOf(Command::class, $command);
+        $this->assertNull($connector);
     }
 
-    public function testGetByIdNotFound(): void
+    public function testFindById(): void
     {
-        $commandId = new CommandId(9999);
+        $connectorId = new ConnectorId(1);
 
-        $this->expectException(CommandNotFoundException::class);
+        $connector = $this->repository->findById($connectorId);
 
-        $this->repository->getById($commandId);
+        $this->assertInstanceOf(Connector::class, $connector);
     }
 }
