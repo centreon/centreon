@@ -12,6 +12,7 @@ import { LoadingSkeleton } from '@centreon/ui';
 import { isNil, isNotEmpty } from 'ramda';
 
 import useCountChangedFilters from './Listing/Actions/useCountChangedFilters';
+
 import {
   labelAddAgentConfiguration,
   labelAgentsConfigurations,
