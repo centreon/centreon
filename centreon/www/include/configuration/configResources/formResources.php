@@ -140,6 +140,8 @@ function myReplace()
 
 $form->applyFilter('__ALL__', 'myTrim');
 $form->applyFilter('resource_name', 'myReplace');
+$form->registerRule('validateName', 'callback', 'validateName');
+$form->addRule('resource_name', _("Name must start and end with a '$'"), 'validateName');
 $form->addRule('resource_name', _('Compulsory Name'), 'required');
 $form->addRule('resource_line', _('Compulsory Alias'), 'required');
 $form->addRule('instance_id', _('Compulsory Instance'), 'required');

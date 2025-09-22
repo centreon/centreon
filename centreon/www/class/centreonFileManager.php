@@ -87,7 +87,7 @@ class CentreonFileManager implements iFileManager
         $rawFile,
         $mediaPath,
         $destinationDir,
-        $comment = ''
+        $comment = '',
     ) {
 
         $this->dependencyInjector = $dependencyInjector;

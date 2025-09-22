@@ -171,7 +171,7 @@ class CentreonCeip extends CentreonWebService
                 : 'user';
 
             // If user have access to monitoring configuration, it's an operator
-            if (0 !== strcmp($role, 'admin') && $this->user->access->page('601') > 0) {
+            if (strcmp($role, 'admin') !== 0 && $this->user->access->page('601') > 0) {
                 $role = 'editor';
             }
         }
@@ -371,7 +371,7 @@ class CentreonCeip extends CentreonWebService
     {
         $sql = "SELECT `value` FROM `options` WHERE `key` = 'send_statistics' LIMIT 1";
 
-        return '1' === $this->sqlFetchValue($sql);
+        return $this->sqlFetchValue($sql) === '1';
     }
 
     /**

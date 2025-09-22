@@ -47,7 +47,7 @@ class EngineCommandGenerator
      */
     public function addHandler(HandlerInterface $handler): void
     {
-        if ([] === $this->handlers) {
+        if ($this->handlers === []) {
             $this->handlers[] = $handler;
         } else {
             $lastHandler = $this->handlers[array_key_last($this->handlers)];
@@ -64,7 +64,7 @@ class EngineCommandGenerator
      */
     public function getEngineCommand(string $command): string
     {
-        if ([] === $this->handlers) {
+        if ($this->handlers === []) {
             return $command;
         }
 

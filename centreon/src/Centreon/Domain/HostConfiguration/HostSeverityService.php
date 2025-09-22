@@ -49,7 +49,7 @@ class HostSeverityService implements HostSeverityServiceInterface
      */
     public function __construct(
         HostSeverityReadRepositoryInterface $repository,
-        ContactInterface $contact
+        ContactInterface $contact,
     ) {
         $this->readRepository = $repository;
         $this->contact = $contact;

@@ -45,7 +45,7 @@ final class DeleteDashboardController extends AbstractController
     public function __invoke(
         int $dashboardId,
         DeleteDashboard $useCase,
-        DeleteDashboardPresenter $presenter
+        DeleteDashboardPresenter $presenter,
     ): Response {
         $this->denyAccessUnlessGrantedForApiConfiguration();
 

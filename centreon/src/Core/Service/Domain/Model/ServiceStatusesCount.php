@@ -36,7 +36,7 @@ class ServiceStatusesCount
         private readonly int $totalWarning,
         private readonly int $totalUnknown,
         private readonly int $totalCritical,
-        private readonly int $totalPending
+        private readonly int $totalPending,
     ) {
     }
 

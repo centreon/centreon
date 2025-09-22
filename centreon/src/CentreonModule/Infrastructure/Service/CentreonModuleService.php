@@ -52,7 +52,7 @@ class CentreonModuleService
         ?string $search = null,
         ?bool $installed = null,
         ?bool $updated = null,
-        ?array $typeList = null
+        ?array $typeList = null,
     ): array {
         $result = [];
 

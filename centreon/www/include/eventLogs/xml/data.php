@@ -663,7 +663,7 @@ try {
     $rows = $statement->rowCount();
 
     // If the current page is out of bounds, adjust it
-    if (! $export && 0 === $rows && $paginator->isOutOfUpperBound()) {
+    if (! $export && $rows === 0 && $paginator->isOutOfUpperBound()) {
         // Update the offset in both $queryValues and $flatQueryValues
         $newOffset = $paginator->getOffsetMaximum();
         $queryValues[':offset'] = [$newOffset, PDO::PARAM_INT];

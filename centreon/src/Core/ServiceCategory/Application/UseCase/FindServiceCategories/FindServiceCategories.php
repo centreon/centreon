@@ -53,7 +53,7 @@ final class FindServiceCategories
         private readonly ReadAccessGroupRepositoryInterface $accessGroupRepository,
         private readonly RequestParametersInterface $requestParameters,
         private readonly ContactInterface $user,
-        private readonly bool $isCloudPlatform
+        private readonly bool $isCloudPlatform,
     ) {
     }
 

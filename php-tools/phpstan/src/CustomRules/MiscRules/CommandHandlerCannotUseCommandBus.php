@@ -64,7 +64,7 @@ final readonly class CommandHandlerCannotUseCommandBus implements Rule
         }
 
         foreach ($constructor->getParams() as $param) {
-            if (($param->type instanceof Identifier || $param->type instanceof Name) && 'App\Shared\Application\Command\CommandBus' === $param->type->toString()) {
+            if (($param->type instanceof Identifier || $param->type instanceof Name) && $param->type->toString() === 'App\Shared\Application\Command\CommandBus') {
                 return [
                     RuleErrorBuilder::message('A command handler class cannot use command bus.')
                         ->identifier('command.handler.bus')

@@ -107,7 +107,7 @@ abstract class SourceAbstract implements SourceInterface
         Module $entity,
         ?string $search = null,
         ?bool $installed = null,
-        ?bool $updated = null
+        ?bool $updated = null,
     ): bool {
         if ($search !== null && stripos($entity->getKeywords() . $entity->getName(), $search) === false) {
             return false;

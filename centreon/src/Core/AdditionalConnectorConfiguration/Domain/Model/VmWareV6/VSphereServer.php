@@ -29,7 +29,7 @@ class VSphereServer
         private readonly string $name,
         private readonly string $url,
         private readonly string $username,
-        private readonly string $password
+        private readonly string $password,
     ) {
     }
 

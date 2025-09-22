@@ -118,7 +118,7 @@ class DbReadServiceRepository extends AbstractRepositoryRDB implements ReadServi
     {
         $this->debug('Check existence of services', ['service_ids' => $serviceIds]);
 
-        if ([] === $serviceIds) {
+        if ($serviceIds === []) {
             return [];
         }
 
@@ -499,7 +499,7 @@ class DbReadServiceRepository extends AbstractRepositoryRDB implements ReadServi
      */
     public function findByRequestParameterAndAccessGroup(
         RequestParametersInterface $requestParameters,
-        array $accessGroups
+        array $accessGroups,
     ): array {
         if ($accessGroups === []) {
             $this->debug('No access group for this user, return empty');
@@ -951,7 +951,7 @@ class DbReadServiceRepository extends AbstractRepositoryRDB implements ReadServi
         $statement->execute();
 
         while (false !== ($hasAccessToAll = $statement->fetchColumn())) {
-            if (true === (bool) $hasAccessToAll) {
+            if ((bool) $hasAccessToAll === true) {
                 return true;
             }
         }
@@ -993,7 +993,7 @@ class DbReadServiceRepository extends AbstractRepositoryRDB implements ReadServi
         $statement->execute();
 
         while (false !== ($hasAccessToAll = $statement->fetchColumn())) {
-            if (true === (bool) $hasAccessToAll) {
+            if ((bool) $hasAccessToAll === true) {
                 return true;
             }
         }
@@ -1024,7 +1024,7 @@ class DbReadServiceRepository extends AbstractRepositoryRDB implements ReadServi
                 'f' => NotificationType::Flapping,
                 's' => NotificationType::DowntimeScheduled,
                 'n' => NotificationType::None,
-                default => throw new \Exception("Notification type '{$type}' unknown")
+                default => throw new \Exception("Notification type '{$type}' unknown"),
             };
         }
 
@@ -1119,7 +1119,7 @@ class DbReadServiceRepository extends AbstractRepositoryRDB implements ReadServi
         return match ($value) {
             '0' => YesNoDefault::No,
             '1' => YesNoDefault::Yes,
-            default => YesNoDefault::Default
+            default => YesNoDefault::Default,
         };
     }
 }

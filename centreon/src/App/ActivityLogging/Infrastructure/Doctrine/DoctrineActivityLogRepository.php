@@ -33,14 +33,14 @@ use App\ActivityLogging\Domain\Aggregate\TargetId;
 use App\ActivityLogging\Domain\Aggregate\TargetName;
 use App\ActivityLogging\Domain\Aggregate\TargetTypeEnum;
 use App\ActivityLogging\Domain\Repository\ActivityLogRepository;
-use App\Shared\Infrastructure\Doctrine\DoctrineRepository;
+use App\Shared\Infrastructure\Dbal\DbalRepository;
 use Doctrine\DBAL\Connection;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 /**
  * @phpstan-type RowTypeAlias = array{action_log_id: int, action_log_date: int, object_id: int, object_name: string, object_type: string, action_type: string, log_contact_id: int, field_name: string|null, field_value: string|null}
  */
-final readonly class DoctrineActivityLogRepository extends DoctrineRepository implements ActivityLogRepository
+final readonly class DoctrineActivityLogRepository extends DbalRepository implements ActivityLogRepository
 {
     private const TABLE_NAME = 'log_action';
     private const DETAIL_TABLE_NAME = 'log_action_modification';

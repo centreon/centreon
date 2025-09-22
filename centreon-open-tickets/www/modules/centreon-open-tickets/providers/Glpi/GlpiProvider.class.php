@@ -335,7 +335,7 @@ class GlpiProvider extends AbstractProvider
         $contact,
         $host_problems,
         $service_problems,
-        $extra_ticket_arguments = []
+        $extra_ticket_arguments = [],
     ) {
         $result = ['ticket_id' => null, 'ticket_error_message' => null, 'ticket_is_ok' => 0, 'ticket_time' => time()];
 

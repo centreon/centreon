@@ -51,7 +51,7 @@ class CmaValidator implements TypeValidatorInterface
      */
     public function isValidFor(Type $type): bool
     {
-        return Type::CMA === $type;
+        return $type === Type::CMA;
     }
 
     /**

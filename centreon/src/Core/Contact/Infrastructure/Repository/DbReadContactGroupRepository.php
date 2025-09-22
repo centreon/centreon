@@ -96,7 +96,7 @@ class DbReadContactGroupRepository extends AbstractRepositoryDRB implements Read
         foreach ($accessGroupIds as $key => $accessGroupId) {
             $bind[':access_group_' . $key] = $accessGroupId;
         }
-        if ([] === $bind) {
+        if ($bind === []) {
             return false;
         }
 
@@ -127,7 +127,7 @@ class DbReadContactGroupRepository extends AbstractRepositoryDRB implements Read
     public function findNamesByIds(int ...$ids): array
     {
         try {
-            if ([] === $ids) {
+            if ($ids === []) {
                 return [];
             }
 
@@ -135,7 +135,7 @@ class DbReadContactGroupRepository extends AbstractRepositoryDRB implements Read
 
             $fields = '';
             foreach ($ids as $index => $id) {
-                $fields .= ('' === $fields ? '' : ', ') . ':id_' . $index;
+                $fields .= ($fields === '' ? '' : ', ') . ':id_' . $index;
             }
 
             $select = <<<SQL

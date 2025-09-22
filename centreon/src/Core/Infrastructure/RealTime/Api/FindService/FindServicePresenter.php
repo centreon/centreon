@@ -42,7 +42,7 @@ class FindServicePresenter extends AbstractPresenter implements FindServicePrese
      */
     public function __construct(
         private HypermediaCreator $hypermediaCreator,
-        protected PresenterFormatterInterface $presenterFormatter
+        protected PresenterFormatterInterface $presenterFormatter,
     ) {
         parent::__construct($presenterFormatter);
     }

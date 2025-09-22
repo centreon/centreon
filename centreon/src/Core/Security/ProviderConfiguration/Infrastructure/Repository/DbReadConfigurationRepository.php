@@ -78,7 +78,7 @@ final class DbReadConfigurationRepository extends AbstractRepositoryDRB implemen
      */
     public function __construct(
         DatabaseConnection $db,
-        private ReadOpenIdConfigurationRepositoryInterface $readOpenIdConfigurationRepository
+        private ReadOpenIdConfigurationRepositoryInterface $readOpenIdConfigurationRepository,
     ) {
         $this->db = $db;
     }
@@ -172,7 +172,7 @@ final class DbReadConfigurationRepository extends AbstractRepositoryDRB implemen
      * @return CustomConfigurationInterface
      */
     private function loadCustomConfigurationFromConfiguration(
-        Configuration $configuration
+        Configuration $configuration,
     ): CustomConfigurationInterface {
 
         switch ($configuration->getType()) {
@@ -362,7 +362,7 @@ final class DbReadConfigurationRepository extends AbstractRepositoryDRB implemen
      * @return AuthenticationConditions
      */
     private function createAuthenticationConditionsFromRecord(
-        array $authenticationConditionsRecord
+        array $authenticationConditionsRecord,
     ): AuthenticationConditions {
 
         $endpoint = null;

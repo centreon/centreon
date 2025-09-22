@@ -58,7 +58,7 @@ class NotificationValidator
     public function validateUsersAndContactGroups(
         array $userIds,
         array $contactGroupsIds,
-        ContactInterface $currentContact
+        ContactInterface $currentContact,
     ): void {
         if ($userIds === [] && $contactGroupsIds === []) {
             throw NotificationException::emptyArrayNotAllowed('users, contactgroups');
@@ -96,7 +96,7 @@ class NotificationValidator
         $contactDifference = new BasicDifference($contactIdsToValidate, $existingContactIds);
         $missingContact = $contactDifference->getRemoved();
 
-        if ([] !== $missingContact) {
+        if ($missingContact !== []) {
             $this->error(
                 'Invalid ID(s) provided',
                 ['propertyName' => 'users', 'propertyValues' => array_values($missingContact)]
@@ -131,7 +131,7 @@ class NotificationValidator
         $difference = new BasicDifference($contactGroupIds, $existingContactGroups);
         $missingContactGroups = $difference->getRemoved();
 
-        if ([] !== $missingContactGroups) {
+        if ($missingContactGroups !== []) {
             $this->error(
                 'Invalid ID(s) provided',
                 ['propertyName' => 'contactgroups', 'propertyValues' => array_values($missingContactGroups)]

@@ -53,7 +53,7 @@ class Information
     public function __construct(
         ContainerInterface $services,
         ?License $licenseObj = null,
-        ?Utils $utils = null
+        ?Utils $utils = null,
     ) {
         $this->services = $services;
         $this->licenseObj = $licenseObj ?? $services->get(ServiceProvider::CENTREON_LEGACY_MODULE_LICENSE);

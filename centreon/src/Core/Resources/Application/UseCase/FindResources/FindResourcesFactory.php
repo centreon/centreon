@@ -100,7 +100,7 @@ final class FindResourcesFactory
     private static function createNullableDateTimeImmutable(null|\DateTimeImmutable|\DateTime $date): ?\DateTimeImmutable
     {
         return match (true) {
-            null === $date => null,
+            $date === null => null,
             $date instanceof \DateTime => \DateTimeImmutable::createFromMutable($date),
             $date instanceof \DateTimeImmutable => $date,
         };
@@ -113,7 +113,7 @@ final class FindResourcesFactory
      */
     private static function createNullableNotesResponseDto(?Notes $notes): ?NotesResponseDto
     {
-        if (null === $notes) {
+        if ($notes === null) {
             return null;
         }
 
@@ -131,7 +131,7 @@ final class FindResourcesFactory
      */
     private static function createNullableParentResourceResponseDto(?ResourceEntity $parentResource): ?ParentResourceResponseDto
     {
-        if (null === $parentResource) {
+        if ($parentResource === null) {
             return null;
         }
 
@@ -156,7 +156,7 @@ final class FindResourcesFactory
      */
     private static function createNullableStatusResponseDto(?ResourceStatus $status): ?ResourceStatusResponseDto
     {
-        if (null === $status) {
+        if ($status === null) {
             return null;
         }
 
@@ -175,7 +175,7 @@ final class FindResourcesFactory
      */
     private static function createNullableSeverityResponseDto(?Severity $severity): ?SeverityResponseDto
     {
-        if (null === $severity) {
+        if ($severity === null) {
             return null;
         }
 
@@ -196,7 +196,7 @@ final class FindResourcesFactory
      */
     private static function createNullableIconResponseDto(null|LegacyIcon|Icon $icon): ?IconResponseDto
     {
-        if (null === $icon) {
+        if ($icon === null) {
             return null;
         }
 

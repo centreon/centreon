@@ -96,7 +96,7 @@ class Validator
      */
     public function validatePollersOrFail(AddAccRequest $request): void
     {
-        if ([] === $request->pollers) {
+        if ($request->pollers === []) {
             throw AccException::arrayCanNotBeEmpty('pollers');
         }
 
@@ -110,7 +110,7 @@ class Validator
                 $isPollerIdValid = $this->readMonitoringServerRepository->existsByAccessGroups($pollerId, $accessGroups);
             }
 
-            if (false === $isPollerIdValid) {
+            if ($isPollerIdValid === false) {
                 $invalidPollers[] = $pollerId;
             }
         }

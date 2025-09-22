@@ -97,7 +97,7 @@ class MigrateAllCredentialsPresenter extends CliAbstractPresenter implements Mig
         return match ($dto->type) {
             CredentialTypeEnum::TYPE_HOST, CredentialTypeEnum::TYPE_HOST_TEMPLATE => '_HOST' . $dto->credentialName,
             CredentialTypeEnum::TYPE_SERVICE => '_SERVICE' . $dto->credentialName,
-            default => $dto->credentialName
+            default => $dto->credentialName,
         };
 
     }

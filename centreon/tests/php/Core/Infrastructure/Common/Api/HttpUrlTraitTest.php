@@ -44,7 +44,7 @@ it(
     'formats properly base uri',
     function (
         $requestUri,
-        $baseUri
+        $baseUri,
     ): void {
         $this->httpServerBag->replace(['REQUEST_URI' => $requestUri]);
 
@@ -65,7 +65,7 @@ it(
     'formats properly base url',
     function (
         $requestParameters,
-        $baseUrl
+        $baseUrl,
     ): void {
         $this->httpServerBag->replace([
             'HTTPS' => $requestParameters[0],
