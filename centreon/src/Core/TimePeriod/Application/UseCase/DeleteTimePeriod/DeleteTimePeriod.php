@@ -50,7 +50,7 @@ final class DeleteTimePeriod
     public function __construct(
         readonly private ReadTimePeriodRepositoryInterface $readTimePeriodRepository,
         readonly private WriteTimePeriodRepositoryInterface $writeTimePeriodRepository,
-        readonly private ContactInterface $user
+        readonly private ContactInterface $user,
     ) {
     }
 

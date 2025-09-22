@@ -186,7 +186,7 @@ class EntityCreator
     private function convertValueBeforeInsert(
         $value,
         $destinationType,
-        bool $allowNull = true
+        bool $allowNull = true,
     ) {
         if (is_null($value)) {
             if ($allowNull) {

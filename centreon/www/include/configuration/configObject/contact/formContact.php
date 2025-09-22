@@ -159,7 +159,7 @@ if (
     && ! empty($cct['contact_ldap_dn'])
 ) {
     $ldap = new CentreonLDAP($pearDB, null, $cct['ar_id']);
-    if (false !== $ldap->connect()) {
+    if ($ldap->connect() !== false) {
         $cgLdap = $ldap->listGroupsForUser($cct['contact_ldap_dn']);
     }
 }

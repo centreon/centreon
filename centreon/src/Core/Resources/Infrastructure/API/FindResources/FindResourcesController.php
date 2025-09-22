@@ -52,7 +52,7 @@ final class FindResourcesController extends AbstractController
     public function __invoke(
         FindResources $useCase,
         FindResourcesPresenter $presenter,
-        Request $request
+        Request $request,
     ): Response {
         $this->denyAccessUnlessGrantedForApiRealtime();
 

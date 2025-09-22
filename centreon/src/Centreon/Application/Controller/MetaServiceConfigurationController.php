@@ -47,7 +47,7 @@ class MetaServiceConfigurationController extends AbstractController
     public function findOneMetaServiceConfiguration(
         RequestParametersInterface $requestParameters,
         FindOneMetaServiceConfiguration $findMetaServiceConfiguration,
-        int $metaId
+        int $metaId,
     ): View {
         $this->denyAccessUnlessGrantedForApiConfiguration();
         $response = $findMetaServiceConfiguration->execute($metaId);
@@ -68,7 +68,7 @@ class MetaServiceConfigurationController extends AbstractController
      */
     public function findMetaServicesConfigurations(
         RequestParametersInterface $requestParameters,
-        FindMetaServicesConfigurations $findMetasServicesConfigurations
+        FindMetaServicesConfigurations $findMetasServicesConfigurations,
     ): View {
         $this->denyAccessUnlessGrantedForApiConfiguration();
         $response = $findMetasServicesConfigurations->execute();

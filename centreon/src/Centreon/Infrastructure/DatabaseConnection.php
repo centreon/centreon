@@ -804,7 +804,7 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
         string $message,
         array $customContext = [],
         string $query = '',
-        ?\Throwable $previous = null
+        ?\Throwable $previous = null,
     ): void {
         // prepare context of the database exception
         $context = [
@@ -835,7 +835,7 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
      */
     private function executeSelectQuery(
         string $query,
-        ?QueryParameters $queryParameters = null
+        ?QueryParameters $queryParameters = null,
     ): \PDOStatement {
         try {
             $this->validateSelectQuery($query);

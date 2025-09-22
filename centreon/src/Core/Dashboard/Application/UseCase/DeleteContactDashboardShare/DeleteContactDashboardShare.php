@@ -57,14 +57,14 @@ final class DeleteContactDashboardShare
         private readonly ContactInterface $contact,
         private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
         private readonly ReadContactRepositoryInterface $readContactRepository,
-        private readonly bool $isCloudPlatform
+        private readonly bool $isCloudPlatform,
     ) {
     }
 
     public function __invoke(
         int $dashboardId,
         int $contactId,
-        DeleteContactDashboardSharePresenterInterface $presenter
+        DeleteContactDashboardSharePresenterInterface $presenter,
     ): void {
         try {
             if ($this->isUserAdmin()) {
@@ -115,7 +115,7 @@ final class DeleteContactDashboardShare
     private function deleteContactShareAsAdmin(Dashboard $dashboard, int $contactId): ResponseStatusInterface
     {
         $contact = $this->contactRepository->findById($contactId);
-        if (null === $contact) {
+        if ($contact === null) {
             $this->warning('Contact (%s) not found', ['id' => $contactId]);
 
             return new NotFoundResponse('Contact');
@@ -139,7 +139,7 @@ final class DeleteContactDashboardShare
     private function deleteContactShareAsContact(Dashboard $dashboard, int $contactId): ResponseStatusInterface
     {
         $contact = $this->contactRepository->findById($contactId);
-        if (null === $contact) {
+        if ($contact === null) {
             $this->warning('Contact (%s) not found', ['id' => $contactId]);
 
             return new NotFoundResponse('Contact');

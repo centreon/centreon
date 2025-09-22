@@ -33,7 +33,7 @@ final class ResourceStatusResponseDto
     public function __construct(
         public ?int $code = null,
         public ?string $name = null,
-        public ?int $severityCode = null
+        public ?int $severityCode = null,
     ) {
     }
 }

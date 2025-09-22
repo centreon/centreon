@@ -66,7 +66,7 @@ final class FindHost
         private ReadAcknowledgementRepositoryInterface $acknowledgementRepository,
         private MonitoringServiceInterface $monitoringService,
         private ReadTagRepositoryInterface $tagRepository,
-        private ReadSeverityRepositoryInterface $severityRepository
+        private ReadSeverityRepositoryInterface $severityRepository,
     ) {
     }
 

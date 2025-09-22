@@ -46,7 +46,7 @@ final class DeleteHostGroup
         private readonly ReadHostGroupRepositoryInterface $readHostGroupRepository,
         private readonly WriteHostGroupRepositoryInterface $writeHostGroupRepository,
         private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
-        private readonly ContactInterface $contact
+        private readonly ContactInterface $contact,
     ) {
     }
 

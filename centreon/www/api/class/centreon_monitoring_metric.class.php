@@ -161,10 +161,10 @@ class CentreonMonitoringMetric extends CentreonConfigurationObjects
         }
 
         // Validate options
-        if (false === isset($this->arguments['start'])
-            || false === is_numeric($this->arguments['start'])
-            || false === isset($this->arguments['end'])
-            || false === is_numeric($this->arguments['end'])
+        if (isset($this->arguments['start']) === false
+            || is_numeric($this->arguments['start']) === false
+            || isset($this->arguments['end']) === false
+            || is_numeric($this->arguments['end']) === false
         ) {
             throw new RestBadRequestException('Bad parameters');
         }
@@ -175,7 +175,7 @@ class CentreonMonitoringMetric extends CentreonConfigurationObjects
         // Get the numbers of points
         $rows = 200;
         if (isset($this->arguments['rows'])) {
-            if (false === is_numeric($this->arguments['rows'])) {
+            if (is_numeric($this->arguments['rows']) === false) {
                 throw new RestBadRequestException('Bad parameters');
             }
             $rows = $this->arguments['rows'];
@@ -184,7 +184,7 @@ class CentreonMonitoringMetric extends CentreonConfigurationObjects
             throw new RestBadRequestException('The rows must be greater as 10');
         }
 
-        if (false === isset($this->arguments['ids'])) {
+        if (isset($this->arguments['ids']) === false) {
             self::sendResult([]);
         }
 
@@ -194,7 +194,7 @@ class CentreonMonitoringMetric extends CentreonConfigurationObjects
 
         foreach ($ids as $id) {
             [$hostId, $serviceId] = explode('_', $id);
-            if (false === is_numeric($hostId) || false === is_numeric($serviceId)) {
+            if (is_numeric($hostId) === false || is_numeric($serviceId) === false) {
                 throw new RestBadRequestException('Bad parameters');
             }
 
@@ -212,7 +212,7 @@ class CentreonMonitoringMetric extends CentreonConfigurationObjects
                 if (! $dbResult) {
                     throw new Exception('An error occured');
                 }
-                if (0 == $stmt->rowCount()) {
+                if ($stmt->rowCount() == 0) {
                     throw new RestForbiddenException('Access denied');
                 }
             }

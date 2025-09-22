@@ -137,7 +137,7 @@ class CentreonEventSubscriber implements EventSubscriberInterface
             $query[RequestParameters::NAME_FOR_LIMIT] ?? RequestParameters::DEFAULT_LIMIT,
             FILTER_VALIDATE_INT
         );
-        if (false === $limit) {
+        if ($limit === false) {
             throw RequestParametersException::integer(RequestParameters::NAME_FOR_LIMIT);
         }
         $this->requestParameters->setLimit($limit);
@@ -146,7 +146,7 @@ class CentreonEventSubscriber implements EventSubscriberInterface
             $query[RequestParameters::NAME_FOR_PAGE] ?? RequestParameters::DEFAULT_PAGE,
             FILTER_VALIDATE_INT
         );
-        if (false === $page) {
+        if ($page === false) {
             throw RequestParametersException::integer(RequestParameters::NAME_FOR_PAGE);
         }
         $this->requestParameters->setPage($page);

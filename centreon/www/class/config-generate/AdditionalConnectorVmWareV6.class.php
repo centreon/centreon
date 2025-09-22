@@ -47,7 +47,7 @@ class AdditionalConnectorVmWareV6 extends AbstractObjectJSON
         Container $dependencyInjector,
         private readonly Backend $backend,
         private readonly ReadAccRepositoryInterface $readAdditionalConnectorRepository,
-        private readonly ReadMonitoringServerRepositoryInterface $readyMonitoringServerRepository
+        private readonly ReadMonitoringServerRepositoryInterface $readyMonitoringServerRepository,
     ) {
         parent::__construct($dependencyInjector);
     }

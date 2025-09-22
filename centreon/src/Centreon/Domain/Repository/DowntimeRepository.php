@@ -78,7 +78,7 @@ class DowntimeRepository extends ServiceEntityRepository
     public static function getFilterSql(
         array $pollerIds,
         ?array $hostTemplateChain = null,
-        ?array $serviceTemplateChain = null
+        ?array $serviceTemplateChain = null,
     ): string {
         // prevent SQL exception
         if (! $pollerIds) {

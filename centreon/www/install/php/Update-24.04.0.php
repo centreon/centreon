@@ -129,7 +129,7 @@ $insertTopologyForResourceAccessManagement = function (CentreonDB $pearDB) use (
             SQL
     );
 
-    if (false === (bool) $statement->fetch(PDO::FETCH_COLUMN)) {
+    if ((bool) $statement->fetch(PDO::FETCH_COLUMN) === false) {
         $pearDB->query(
             <<<'SQL'
                 INSERT INTO `topology`

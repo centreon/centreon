@@ -42,7 +42,7 @@ final class FindProviders
      */
     public function __construct(
         private RequestParametersInterface $requestParameters,
-        private ReadProviderRepositoryInterface $repository
+        private ReadProviderRepositoryInterface $repository,
     ) {
     }
 

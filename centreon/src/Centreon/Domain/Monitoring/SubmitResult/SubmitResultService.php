@@ -67,7 +67,7 @@ class SubmitResultService extends AbstractCentreonService implements SubmitResul
         ReadAccessGroupRepositoryInterface $accessGroupRepository,
         MonitoringRepositoryInterface $monitoringRepository,
         EngineServiceInterface $engineService,
-        EntityValidator $validator
+        EntityValidator $validator,
     ) {
         $this->accessGroupRepository = $accessGroupRepository;
         $this->monitoringRepository = $monitoringRepository;
