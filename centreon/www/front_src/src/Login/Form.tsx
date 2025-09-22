@@ -54,7 +54,7 @@ const LoginForm = (): JSX.Element => {
     fieldName: aliasFieldName,
     touched
   });
-  const passwordValue = prop(passwordFieldName, values);
+
   const passwordError = getTouchedError({
     errors,
     fieldName: passwordFieldName,
@@ -86,6 +86,7 @@ const LoginForm = (): JSX.Element => {
         onChange={handleChange(aliasFieldName)}
       />
       <TextField
+        forceUncontrolled
         fullWidth
         required
         EndAdornment={passwordEndAdornment}
@@ -94,11 +95,10 @@ const LoginForm = (): JSX.Element => {
         error={passwordError}
         inputProps={{
           'aria-label': t(labelPassword) as string,
-          autocomplete: 'new-password'
+          autocomplete: 'current-password'
         }}
         label={t(labelPassword)}
         type={isVisible ? 'text' : 'password'}
-        value={passwordValue || ''}
         onBlur={handleBlur(passwordFieldName)}
         onChange={handleChange(passwordFieldName)}
       />
