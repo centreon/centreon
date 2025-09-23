@@ -1528,7 +1528,7 @@ function sanitizeFormContactParameters(array $ret): array
  *
  * @return array|true
  */
-function validatePasswordCreation(array $fields): true|array
+function validatePasswordCreation(array $fields): bool|array
 {
     global $pearDB;
     $errors = [];
