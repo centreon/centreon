@@ -33,7 +33,7 @@ final class ConnectorDto
     ) {
     }
 
-    public static function createFromCommandConnector(Connector $connector): self
+    public static function createFromConnector(Connector $connector): self
     {
         return new self(
             id: $connector->id->value,

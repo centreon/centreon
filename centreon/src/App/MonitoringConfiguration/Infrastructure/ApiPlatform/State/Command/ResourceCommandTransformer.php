@@ -44,7 +44,7 @@ final readonly class ResourceCommandTransformer implements TransformerInterface
             isActivated: $from->isActivated ?? false,
             isFromMonitoringConnector: $from->isFromMonitoringConnector ?? false,
             connector: $from->connector !== null
-                ? ConnectorDto::createFromCommandConnector($from->connector)
+                ? ConnectorDto::createFromConnector($from->connector)
                 : null,
             comment: $from->comment?->value,
         );
