@@ -9,11 +9,7 @@ import DeleteModal from './DeleteModal';
 import AddModal from './Form/AddModal';
 import UpdateModal from './Form/UpdateModal';
 import Listing from './Listing';
-import {
-  canDeleteSubItemsAtom,
-  formLabelButtonsAtom,
-  openFormModalAtom
-} from './atoms';
+import { canDeleteSubItemsAtom, openFormModalAtom } from './atoms';
 import { useGetItems } from './hooks/useGetItems';
 import type { CrudPageRootProps } from './models';
 
@@ -36,7 +32,7 @@ export const CrudPageRoot = <
   form
 }: CrudPageRootProps<TData, TFilters, TItem, TItemForm>): JSX.Element => {
   const previousCanDeleteSubItemRef = useRef<boolean | undefined>();
-  const previousFormLabelButtonsRef = useRef<unknown | null>(null);
+
   const { isDataEmpty, hasItems, isLoading, items, total } = useGetItems<
     TData,
     TFilters
@@ -50,27 +46,12 @@ export const CrudPageRoot = <
 
   const setOpenFormModal = useSetAtom(openFormModalAtom);
   const setCanDeleteSubItem = useSetAtom(canDeleteSubItemsAtom);
-  const setFormLabelButton = useSetAtom(formLabelButtonsAtom);
 
   if (
     !equals(previousCanDeleteSubItemRef.current, subItems?.canDeleteSubItems)
   ) {
     setCanDeleteSubItem(subItems?.canDeleteSubItems ?? true);
     previousCanDeleteSubItemRef.current = subItems?.canDeleteSubItems;
-  }
-
-  if (!equals(previousFormLabelButtonsRef.current, form.labels)) {
-    setFormLabelButton({
-      add: {
-        cancel: form.labels.add.cancel,
-        confirm: form.labels.add.confirm
-      },
-      update: {
-        cancel: form.labels.update.cancel,
-        confirm: form.labels.update.confirm
-      }
-    });
-    previousFormLabelButtonsRef.current = form.labels;
   }
 
   const add = useCallback(() => setOpenFormModal('add'), []);

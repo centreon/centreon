@@ -1,40 +1,25 @@
 import { UnsavedChangesDialog } from '@centreon/ui';
-import SaveIcon from '@mui/icons-material/Save';
-import { Box, CircularProgress } from '@mui/material';
-import { useFormikContext } from 'formik';
-import { useAtom, useAtomValue } from 'jotai';
-import { equals } from 'ramda';
-import { useCallback, useEffect, useMemo } from 'react';
-import { Button } from '../../Button';
-import {
-  askBeforeCloseFormModalAtom,
-  formLabelButtonsAtom,
-  openFormModalAtom
-} from '../atoms';
+import { useTranslation } from 'react-i18next';
 
-const Buttons = (): JSX.Element => {
+import { useFormikContext } from 'formik';
+import { useAtom } from 'jotai';
+
+import { ReactElement, useCallback, useEffect } from 'react';
+
+import { equals } from 'ramda';
+import { FormActions } from '../../Form';
+import { askBeforeCloseFormModalAtom, openFormModalAtom } from '../atoms';
+import { labelCancel, labelSave } from '../translatedLabels';
+
+const Buttons = (): ReactElement => {
+  const { t } = useTranslation();
+
   const [askBeforeCloseForm, setAskBeforeCloseFormModal] = useAtom(
     askBeforeCloseFormModalAtom
   );
   const [openFormModal, setOpenFormModal] = useAtom(openFormModalAtom);
-  const labels = useAtomValue(formLabelButtonsAtom);
 
   const { isValid, dirty, isSubmitting, submitForm } = useFormikContext();
-
-  const isSubmitDisabled = useMemo(
-    () => !dirty || !isValid || isSubmitting,
-    [dirty, isValid, isSubmitting]
-  );
-  const cancelLabel = useMemo(
-    () =>
-      equals(openFormModal, 'add') ? labels.add.cancel : labels.update.cancel,
-    [labels, openFormModal]
-  );
-  const confirmLabel = useMemo(
-    () =>
-      equals(openFormModal, 'add') ? labels.add.confirm : labels.update.confirm,
-    [labels, openFormModal]
-  );
 
   const discard = useCallback(() => {
     setAskBeforeCloseFormModal(false);
@@ -67,22 +52,19 @@ const Buttons = (): JSX.Element => {
     close();
   }, [askBeforeCloseForm, dirty]);
 
+  const actionsLabels = {
+    cancel: t(labelCancel),
+    submit: {
+      create: t(labelSave),
+      update: t(labelSave)
+    }
+  };
+
+  const variant = equals(openFormModal, 'add') ? 'create' : 'update';
+
   return (
     <>
-      <Box sx={{ display: 'flex', gap: 2, justifyContent: 'flex-end' }}>
-        {isSubmitting && <CircularProgress size={24} />}
-        <Button variant="ghost" onClick={close}>
-          {cancelLabel}
-        </Button>
-        <Button
-          disabled={isSubmitDisabled}
-          iconVariant="start"
-          icon={<SaveIcon />}
-          onClick={submitForm}
-        >
-          {confirmLabel}
-        </Button>
-      </Box>
+      <FormActions labels={actionsLabels} variant={variant} onCancel={close} />
       <UnsavedChangesDialog
         isSubmitting={isSubmitting}
         isValidForm={isValid}
