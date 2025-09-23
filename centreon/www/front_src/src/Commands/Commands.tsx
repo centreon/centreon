@@ -1,14 +1,24 @@
 import { Typography } from '@mui/material';
-import { useAtom, useSetAtom } from 'jotai';
+
 import { identity, isNil } from 'ramda';
-import { useEffect } from 'react';
 
 import { CrudPage, CrudPageRootProps } from '@centreon/ui/components';
 import { columns } from './Columns/Columns';
 import Filters from './Filters/Filters';
 
+import Form from './Form/Form';
 import { filtersAtom } from './atoms';
 import { Filters as FiltersType } from './models';
+import {
+  labelAddCommand,
+  labelCencel,
+  labelCommands,
+  labelModifyCommand,
+  labelSave,
+  labelSearch,
+  labelWelcomePageDescription,
+  labelWelcomePageTitle
+} from './translatedLabels';
 
 interface Item {
   id: number;
@@ -35,16 +45,16 @@ const getSearchParameters = ({ filters }) => ({
 });
 
 const labels = {
-  title: 'Items',
+  title: labelCommands,
   welcome: {
-    title: 'Welcome to the items page',
-    description: 'This page handles item'
+    title: labelWelcomePageTitle,
+    description: labelWelcomePageDescription
   },
   actions: {
-    create: 'Create item'
+    create: labelAddCommand
   },
   listing: {
-    search: 'Search'
+    search: labelSearch
   }
 };
 
@@ -57,44 +67,23 @@ const defaultProps: CrudPageRootProps<Item, FiltersType, Item, Item> = {
   columns,
   filters: <Filters />,
   form: {
+    modalSize: 'xlarge',
     getItem: {
       baseEndpoint: (id) => `/item/${id}`,
       adapter: identity,
       itemQueryKey: 'item'
     },
-    Form: ({ initialValues }) => {
-      const [askBeforeCloseForm, setAskBeforeCloseFormModal] = useAtom(
-        CrudPage.askBeforeCloseFormModalAtom
-      );
-      const setOpenFormModal = useSetAtom(CrudPage.openFormModalAtom);
-
-      useEffect(() => {
-        if (!askBeforeCloseForm) {
-          return;
-        }
-
-        setOpenFormModal(null);
-        setAskBeforeCloseFormModal(false);
-      }, [askBeforeCloseForm]);
-
-      return (
-        <Typography>
-          This is a placeholder for the form
-          <br />
-          Initial values: {JSON.stringify(initialValues)}
-        </Typography>
-      );
-    },
+    Form,
     labels: {
       add: {
-        title: 'Add item',
-        cancel: 'Cancel',
-        confirm: 'Add'
+        title: labelAddCommand,
+        cancel: labelCencel,
+        confirm: labelSave
       },
       update: {
-        title: 'Update item',
-        cancel: 'Cancel',
-        confirm: 'Update'
+        title: labelModifyCommand,
+        cancel: labelCencel,
+        confirm: labelSave
       }
     }
   },
