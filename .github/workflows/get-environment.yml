@@ -65,8 +65,7 @@ jobs:
       major_version: ${{ steps.get_version.outputs.major_version }}
       minor_version: ${{ steps.get_version.outputs.minor_version }}
       release: ${{ steps.get_release.outputs.release }}
-      #stability: ${{ steps.get_stability.outputs.stability }}
-      stability: unstable
+      stability: ${{ steps.get_stability.outputs.stability }}
       target_stability: ${{ steps.get_stability.outputs.target_stability }}
       release_type: ${{ steps.get_release_type.outputs.release_type }}
       os_and_database_matrix: ${{ steps.get_os_database_matrix.outputs.result }}
