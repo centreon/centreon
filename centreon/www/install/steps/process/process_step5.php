@@ -48,8 +48,7 @@ if (
 }
 
 if (
-    ! in_array('admin_password', $err['required'])
-    && ! preg_match(
+    ! preg_match(
         '/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{12,}$/',
         $parameters['admin_password']
     )
