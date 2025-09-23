@@ -5,3 +5,5 @@ export const CrudPage = Object.assign(CrudPageRoot, {
   openFormModalAtom,
   askBeforeCloseFormModalAtom
 });
+
+export { CrudPageRootProps } from './models';

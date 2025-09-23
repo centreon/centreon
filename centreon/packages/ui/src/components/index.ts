@@ -11,6 +11,8 @@ export * from './ItemComposition';
 export * from './Avatar';
 export * from './CollapsibleItem';
 export * from './Inputs';
+export * from './CrudPage';
+
 export { default as Zoom } from './Zoom/Zoom';
 export type { ZoomState } from './Zoom/models';
 export * from './Tabs';
