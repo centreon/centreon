@@ -243,11 +243,22 @@ class CentreonCeip extends CentreonWebService
          * Getting License information.
          */
         $dependencyInjector = LegacyContainer::getInstance();
-        $fingerprintService = $dependencyInjector[ServiceProvider::LM_FINGERPRINT];
-
         $productLicense = 'Open Source';
+        if (
+            ! class_exists('\\CentreonLicense\\ServiceProvider', false)
+            || ! $dependencyInjector->offsetExists('lm.license')
+        ) {
+            return [
+                'companyName' => '',
+                'licenseType' => $productLicense,
+                'platformEnvironment' => 'demo',
+            ];
+        }
+
         $licenseClientName = '';
         try {
+            $fingerprintService = $dependencyInjector[ServiceProvider::LM_FINGERPRINT];
+
             $centreonModules = ['epp', 'bam', 'map', 'mbi'];
 
             /** @var LicenseService $licenseObject */
@@ -277,12 +288,12 @@ class CentreonCeip extends CentreonWebService
                         'Y-m-d',
                         $licenseInformation[$module]['licensing']['end']
                     ) ?: throw new Exception('Invalid date format');
-                    $licenseDurationInMonths = $licenseEnd->diff($licenseStart)->m;
+                    $licenseDurationInDays = (int) ($licenseEnd->diff($licenseStart)->days ?? 0);
                     if ($module === 'epp') {
                         $productLicense = 'IT Edition';
                         if ($licenseInformation[$module]['licensing']['type'] === 'IT100') {
                             $productLicense = 'IT-100 Edition';
-                        } else if ($hostsLimitation === -1 && $licenseDurationInMonths > 3) {
+                        } elseif ((int) $hostsLimitation === -1 && $licenseDurationInDays > 90) {
                             $productLicense = 'MSP Edition';
                             $fingerprint = $fingerprintService->calculateFingerprint();
                         }
@@ -290,7 +301,7 @@ class CentreonCeip extends CentreonWebService
                     if (in_array($module, ['mbi', 'bam', 'map'], true)) {
                         $productLicense = 'Business Edition';
                         $fingerprint = $fingerprintService->calculateFingerprint();
-                        if ($hostsLimitation === -1 && $licenseDurationInMonths > 3) {
+                        if ((int) $hostsLimitation === -1 && $licenseDurationInDays > 90) {
                             $productLicense = 'MSP Edition';
                         }
                         break;
