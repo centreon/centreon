@@ -138,7 +138,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        distrib: [el8, el9, bookworm, noble]
+        distrib: [el8, el9, bookworm, noble, jammy]
         include:
           - package_extension: rpm
             image: packaging-nfpm-alma8
@@ -149,6 +149,9 @@ jobs:
           - package_extension: deb
             image: packaging-nfpm-bookworm
             distrib: bookworm
+          - package_extension: deb
+            image: packaging-nfpm-jammy
+            distrib: jammy
           - package_extension: deb
             image: packaging-nfpm-noble
             distrib: noble
@@ -258,7 +261,7 @@ jobs:
 
     strategy:
       matrix:
-        distrib: [bookworm, noble]
+        distrib: [bookworm, noble, jammy]
 
     steps:
       - name: Checkout sources
@@ -288,7 +291,7 @@ jobs:
     runs-on: centreon-common
     strategy:
       matrix:
-        distrib: [el8, el9, bookworm, noble]
+        distrib: [el8, el9, bookworm, noble, jammy]
 
     steps:
       - name: Checkout sources
