@@ -21,19 +21,10 @@
 
 declare(strict_types=1);
 
-namespace Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\State;
+namespace App\MonitoringConfiguration\Domain\Aggregate\Command;
 
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Command\CommandResource;
-use Tests\App\Shared\ApiTestCase;
+use App\Shared\Domain\Aggregate\AggregateRootId;
 
-final class FindCommandProviderTest extends ApiTestCase
+final readonly class CommandId extends AggregateRootId
 {
-    public function testItFindCommand(): void
-    {
-        $this->login();
-
-        $this->request('GET', '/api/latest/configuration/commands/1');
-        self::assertResponseIsSuccessful();
-        self::assertMatchesResourceItemJsonSchema(CommandResource::class);
-    }
 }

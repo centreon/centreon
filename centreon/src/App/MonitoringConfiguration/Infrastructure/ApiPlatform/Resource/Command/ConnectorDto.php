@@ -21,19 +21,23 @@
 
 declare(strict_types=1);
 
-namespace Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\State;
+namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Command;
 
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Command\CommandResource;
-use Tests\App\Shared\ApiTestCase;
+use App\MonitoringConfiguration\Domain\Aggregate\Connector\Connector;
 
-final class FindCommandProviderTest extends ApiTestCase
+final class ConnectorDto
 {
-    public function testItFindCommand(): void
-    {
-        $this->login();
+    public function __construct(
+        public int $id,
+        public string $name,
+    ) {
+    }
 
-        $this->request('GET', '/api/latest/configuration/commands/1');
-        self::assertResponseIsSuccessful();
-        self::assertMatchesResourceItemJsonSchema(CommandResource::class);
+    public static function createFromConnector(Connector $connector): self
+    {
+        return new self(
+            id: $connector->id->value,
+            name: $connector->name->value,
+        );
     }
 }

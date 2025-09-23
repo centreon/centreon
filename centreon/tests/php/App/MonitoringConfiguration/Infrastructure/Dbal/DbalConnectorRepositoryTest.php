@@ -23,38 +23,38 @@ declare(strict_types=1);
 
 namespace Tests\App\MonitoringConfiguration\Infrastructure\Dbal;
 
-use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
-use App\MonitoringConfiguration\Domain\Exception\CommandNotFoundException;
-use App\MonitoringConfiguration\Infrastructure\Dbal\DbalCommandRepository;
+use App\MonitoringConfiguration\Domain\Aggregate\Connector\Connector;
+use App\MonitoringConfiguration\Domain\Aggregate\Connector\ConnectorId;
+use App\MonitoringConfiguration\Infrastructure\Dbal\DbalConnectorRepository;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
-final class DbalCommandRepositoryTest extends KernelTestCase
+final class DbalConnectorRepositoryTest extends KernelTestCase
 {
-    private DbalCommandRepository $repository;
+    private DbalConnectorRepository $repository;
 
     protected function setUp(): void
     {
-        /** @var DbalCommandRepository $repository */
-        $repository = self::getContainer()->get(DbalCommandRepository::class);
+        /** @var DbalConnectorRepository $repository */
+        $repository = self::getContainer()->get(DbalConnectorRepository::class);
 
         $this->repository = $repository;
     }
 
-    public function testGetById(): void
+    public function testFindByIdNotFound(): void
     {
-        $commandId = new CommandId(2);
+        $connectorId = new ConnectorId(9999);
 
-        $command = $this->repository->getById($commandId);
+        $connector = $this->repository->findById($connectorId);
 
-        self::assertEquals($commandId, $command->id());
+        self::assertNull($connector);
     }
 
-    public function testGetByIdNotFound(): void
+    public function testFindById(): void
     {
-        $commandId = new CommandId(9999);
+        $connectorId = new ConnectorId(1);
 
-        $this->expectException(CommandNotFoundException::class);
+        $connector = $this->repository->findById($connectorId);
 
-        $this->repository->getById($commandId);
+        self::assertInstanceOf(Connector::class, $connector);
     }
 }

@@ -21,19 +21,16 @@
 
 declare(strict_types=1);
 
-namespace Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\State;
+namespace App\MonitoringConfiguration\Domain\Repository;
 
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Command\CommandResource;
-use Tests\App\Shared\ApiTestCase;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\Command;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
+use App\MonitoringConfiguration\Domain\Exception\CommandNotFoundException;
 
-final class FindCommandProviderTest extends ApiTestCase
+interface CommandRepository
 {
-    public function testItFindCommand(): void
-    {
-        $this->login();
-
-        $this->request('GET', '/api/latest/configuration/commands/1');
-        self::assertResponseIsSuccessful();
-        self::assertMatchesResourceItemJsonSchema(CommandResource::class);
-    }
+    /**
+     * @throws CommandNotFoundException
+     */
+    public function getById(CommandId $id): Command;
 }
