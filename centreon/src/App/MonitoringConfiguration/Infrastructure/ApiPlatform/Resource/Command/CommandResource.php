@@ -44,19 +44,19 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Command\FindCom
                 ],
             ),
             security: '
-                (object.type == ' . CommandTypeEnum::Notification->value . ' and (
+                (object.type == "' . CommandTypeEnum::Notification->name . '" and (
                     is_granted("' . CommandPermissionEnum::CanReadNotifications->value . '") or
                     is_granted("' . CommandPermissionEnum::CanReadAndWriteNotifications->value . '")
                 )) or
-                (object.type == ' . CommandTypeEnum::Check->value . ' and (
+                (object.type == "' . CommandTypeEnum::Check->name . '" and (
                     is_granted("' . CommandPermissionEnum::CanReadChecks->value . '") or
                     is_granted("' . CommandPermissionEnum::CanReadAndWriteChecks->value . '")
                 )) or
-                (object.type == ' . CommandTypeEnum::Miscellaneous->value . ' and (
+                (object.type == "' . CommandTypeEnum::Miscellaneous->name . '" and (
                     is_granted("' . CommandPermissionEnum::CanReadMiscellaneous->value . '") or
                     is_granted("' . CommandPermissionEnum::CanReadAndWriteMiscellaneous->value . '")
                 )) or
-                (object.type == ' . CommandTypeEnum::Discovery->value . ' and (
+                (object.type == "' . CommandTypeEnum::Discovery->name . '" and (
                     is_granted("' . CommandPermissionEnum::CanReadDiscovery->value . '") or
                     is_granted("' . CommandPermissionEnum::CanReadAndWriteDiscovery->value . '")
                 ))
@@ -79,9 +79,9 @@ final class CommandResource
 
         #[ApiProperty(
             description: 'The type of command (1: notification, 2: check, 3: Miscellaneous, 4: Discovery)',
-            openapiContext: ['example' => 1, 'enum' => [1, 2, 3, 4]]
+            openapiContext: ['example' => 'Check', 'enum' => 'Check, Notification, Miscellaneous, Discovery'],
         )]
-        public int $type,
+        public string $type,
 
         #[ApiProperty(
             description: 'The command line used to execute the command',
