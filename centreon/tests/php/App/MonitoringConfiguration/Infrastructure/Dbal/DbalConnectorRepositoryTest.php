@@ -25,17 +25,17 @@ namespace Tests\App\MonitoringConfiguration\Infrastructure\Dbal;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Connector\Connector;
 use App\MonitoringConfiguration\Domain\Aggregate\Connector\ConnectorId;
-use App\MonitoringConfiguration\Domain\Repository\ConnectorRepository;
+use App\MonitoringConfiguration\Infrastructure\Dbal\DbalConnectorRepository;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 final class DbalConnectorRepositoryTest extends KernelTestCase
 {
-    private ConnectorRepository $repository;
+    private DbalConnectorRepository $repository;
 
     protected function setUp(): void
     {
-        /** @var ConnectorRepository $repository */
-        $repository = self::getContainer()->get(ConnectorRepository::class);
+        /** @var DbalConnectorRepository $repository */
+        $repository = self::getContainer()->get(DbalConnectorRepository::class);
 
         $this->repository = $repository;
     }
@@ -46,7 +46,7 @@ final class DbalConnectorRepositoryTest extends KernelTestCase
 
         $connector = $this->repository->findById($connectorId);
 
-        $this->assertNull($connector);
+        self::assertNull($connector);
     }
 
     public function testFindById(): void
@@ -55,6 +55,6 @@ final class DbalConnectorRepositoryTest extends KernelTestCase
 
         $connector = $this->repository->findById($connectorId);
 
-        $this->assertInstanceOf(Connector::class, $connector);
+        self::assertInstanceOf(Connector::class, $connector);
     }
 }
