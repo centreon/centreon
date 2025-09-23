@@ -27,13 +27,18 @@ final class NotFoundResponse extends AbstractResponse
 {
     /**
      * @param string|\Throwable $objectNotFound
+     * @param array<string,mixed> $context
      */
-    public function __construct(string|\Throwable $objectNotFound)
+    public function __construct(
+        string|\Throwable $objectNotFound,
+        array $context = [],
+    )
     {
         parent::__construct(
             \is_string($objectNotFound)
                 ? $objectNotFound . ' not found'
-                : $objectNotFound
+                : $objectNotFound,
+            $context
         );
     }
 }

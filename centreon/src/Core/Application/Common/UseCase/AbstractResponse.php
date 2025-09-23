@@ -32,6 +32,7 @@ abstract class AbstractResponse implements ResponseStatusInterface
 {
     /**
      * @param string|\Throwable $message
+     * @param array<string,mixed> $context
      */
     public function __construct(
         private readonly string|\Throwable $message,
