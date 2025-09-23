@@ -38,10 +38,13 @@ runs:
 
     - uses: jfrog/setup-jfrog-cli@26da2259ee7690e63b5410d7451b2938d08ce1f9 # v4.0.0
       env:
-        JF_URL: https://centreon.jfrog.io
+        JF_URL: https://packages.centreon.com
         JF_ACCESS_TOKEN: ${{ inputs.artifactory_token }}
 
     - name: Publish RPMs
+      env:
+        JF_URL: https://packages.centreon.com
+        JF_ACCESS_TOKEN: ${{ inputs.artifactory_token }}
       run: |
         set -eux
 
@@ -126,6 +129,8 @@ runs:
                 jf rt upload "$ARCH/*.rpm" "$ROOT_REPO_PATH/${{ inputs.version }}/${{ inputs.distrib }}/${{ inputs.stability }}/$ARCH/${{ inputs.module_name }}/" --sync-deletes="$ROOT_REPO_PATH/${{ inputs.version }}/${{ inputs.distrib }}/${{ inputs.stability }}/$ARCH/${{ inputs.module_name }}/" --flat
               fi
             fi
+
+            curl -H "Authorization: Bearer ${{ env.JF_ACCESS_TOKEN }}" -X POST "${{ env.JF_URL }}/artifactory/api/yum/$ROOT_REPO_PATH?path=/${{ inputs.version }}/${{ inputs.distrib }}/${{ inputs.stability }}/$ARCH&async=1"
           done
         done
 
