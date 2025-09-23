@@ -54,9 +54,6 @@ jobs:
             image: packaging-bookworm
             distrib: bookworm
           - package_extension: deb
-            image: packaging-nfpm-jammy
-            distrib: jammy
-          - package_extension: deb
             image: packaging-noble
             distrib: noble
 
@@ -145,7 +142,7 @@ jobs:
 
     strategy:
       matrix:
-        distrib: [bookworm, noble, jammy]
+        distrib: [bookworm, noble]
     steps:
       - name: Checkout sources
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
@@ -174,7 +171,7 @@ jobs:
     runs-on: centreon-common
     strategy:
       matrix:
-        distrib: [el8, el9, bookworm, noble, jammy]
+        distrib: [el8, el9, bookworm, noble]
 
     steps:
       - name: Checkout sources
