@@ -91,19 +91,16 @@ final class CommandResource
 
         #[ApiProperty(
             description: 'Indicates whether the command can be executed through a shell',
-            openapiContext: ['example' => 0, 'enum' => [0, 1]]
         )]
         public bool $isShellEnabled,
 
         #[ApiProperty(
             description: 'Indicates whether the command is activated or not',
-            openapiContext: ['example' => 1, 'enum' => [0, 1]]
         )]
         public bool $isActivated,
 
         #[ApiProperty(
             description: 'Indicates whether the command comes from a monitoring connector',
-            openapiContext: ['example' => 0, 'enum' => [0, 1]]
         )]
         public bool $isFromMonitoringConnector,
 
