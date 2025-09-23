@@ -35,7 +35,7 @@ final class ListGlobalMacrosProviderTest extends ApiTestCase
     {
         $this->login();
 
-        $response = $this->request('GET', self::BASE_ENDPOINT);
+        $this->request('GET', self::BASE_ENDPOINT);
         self::assertResponseIsSuccessful();
         self::assertMatchesResourceCollectionJsonSchema(GlobalMacroResource::class);
         self::assertJsonContains(
