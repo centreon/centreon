@@ -122,6 +122,25 @@ $fixTypoInStandardMacroName = function () use ($pearDB, &$errorMessage): void {
     );
 };
 /** -------------------------------------- Command redesign updates-------------------------------------- */
+$addNewCommandPage = function () use ($pearDB, &$errorMessage): void {
+    $errorMessage = 'Unable to add new command page topology';
+    $alreadyExist = $pearDB->fetchOne(
+        <<<'SQL'
+            SELECT 1 FROM topology WHERE topology_page = 60808
+            SQL
+    );
+    if ($alreadyExist) {
+        return;
+    }
+
+    $pearDB->executeStatement(
+        <<<'SQL'
+            INSERT INTO `topology` (`topology_name`, `topology_url`, `readonly`, `is_react`, `topology_parent`, `topology_page`, `topology_order`, `topology_group`)
+            VALUES ( 'Commands', '/configuration/commands', '1', '1', 608, 60808, 1, 1)
+            SQL
+    );
+};
+
 $deleteCommandsTopologyRights = function (int $aclTopologyId) use ($pearDB, &$errorMessage): void {
     $errorMessage = 'Unable to delete from table acl_topology_relations';
     $pearDB->executeStatement(
@@ -138,6 +157,23 @@ $deleteCommandsTopologyRights = function (int $aclTopologyId) use ($pearDB, &$er
         ])
     );
 };
+
+$insertNewCommandsTopologyRights = function (int $aclTopologyId) use ($pearDB, &$errorMessage): void {
+    $errorMessage = 'Unable to insert into table acl_topology_relations';
+    $pearDB->executeStatement(
+        <<<'SQL'
+            INSERT INTO acl_topology_relations (acl_topo_id, topology_topology_id, access_right)
+            VALUES (:acl_topo_id, :topology_topology_id, :access_right)
+            SQL,
+        QueryParameters::create([
+            QueryParameter::int('acl_topo_id', $aclTopologyId),
+            QueryParameter::int('topology_topology_id', 60808),
+            QueryParameter::int('access_right', 1),
+        ])
+    );
+};
+
+
 
 $getOrCreateActionGroup = function (int $aclGroupId, array &$actionGroupRelations) use ($pearDB, &$errorMessage): ?array {
 
@@ -286,6 +322,7 @@ $moveCommandACLTopologyIntoACLActions = function () use ($pearDB, &$errorMessage
 
     $topologyToClean = array_unique($topologyToClean ?? []);
     foreach ($topologyToClean ?? [] as $aclTopologyId) {
+        $addNewCommandTopology($aclTopologyId);
         $deleteCommandsTopologyRights($aclTopologyId);
     }
 };
@@ -306,6 +343,7 @@ try {
     $alignCMAAgentConfigurationWithNewSchema();
     $cleanGlobalMacrosName();
     $fixTypoInStandardMacroName();
+    $addNewCommandPage();
     $moveCommandACLTopologyIntoACLActions();
 
     $pearDB->commit();

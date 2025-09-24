@@ -199,6 +199,10 @@ INSERT INTO `topology` (`topology_name`, `topology_url`, `readonly`, `is_react`,
 -- add vault configuration page
 INSERT INTO `topology` (`topology_name`, `topology_url`, `readonly`, `is_react`, `topology_parent`, `topology_page`, `topology_order`, `topology_group`, `topology_feature_flag`) VALUES ( 'Vault', '/administration/parameters/vault', '1', '1', 501, 50112, 100, 1, 'vault');
 
+-- add command configuration page
+INSERT INTO `topology` (`topology_name`, `topology_url`, `readonly`, `is_react`, `topology_parent`, `topology_page`, `topology_order`, `topology_group`)
+VALUES ( 'Commands', '/configuration/commands', '1', '1', 608, 60808, 1, 1);
+
 /*!40000 ALTER TABLE `topology` ENABLE KEYS */;
 UNLOCK TABLES;
 
