@@ -242,7 +242,7 @@ $tpl = initSmartyTpl($path, $tpl);
 $authTypeConnectedUser = $centreon->user->authType;
 $tpl->assign('authTypeConnectedUser', $authTypeConnectedUser);
 // Auth type of the contact edited
-$authTypeContact = $cct['contact_auth_type'];
+$authTypeContact = $cct['contact_auth_type'] ?? null;
 $tpl->assign('authTypeContact', $authTypeContact);
 
 if ($o == ADD_CONTACT) {
