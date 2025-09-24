@@ -173,8 +173,6 @@ $insertNewCommandsTopologyRights = function (int $aclTopologyId) use ($pearDB, &
     );
 };
 
-
-
 $getOrCreateActionGroup = function (int $aclGroupId, array &$actionGroupRelations) use ($pearDB, &$errorMessage): ?array {
 
     $actionGroup = null;
