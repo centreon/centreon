@@ -1382,7 +1382,6 @@ function updateHost($hostId = null, $isMassiveChange = false, $configuration = n
         }
     }
 
-    $ret["host_name"] = $host->checkIllegalChar($ret["host_name"], $server_id);
     if ($ret['host_snmp_community'] === PASSWORD_REPLACEMENT_VALUE) {
         unset($ret['host_snmp_community']);
     }

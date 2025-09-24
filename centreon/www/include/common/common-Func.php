@@ -1675,6 +1675,16 @@ function truncateDecimals(string $value): string
     return $intPart . '.' . $decimalPart;
 }
 
+function checkHostNameUnauthorizedChars($string)
+{
+    $pattern = '/[~!$%^&*"|\'<>?,()=]/';
+    if (preg_match($pattern, $string)) {
+        return false;
+    }
+
+    return true;
+}
+
 /**
  * Get the select option.
  *

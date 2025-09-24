@@ -1004,7 +1004,6 @@ $form->applyFilter('ehi_action_url', 'limitUrlLength');
 $from_list_menu = false;
 if ($o !== HOST_MASSIVE_CHANGE) {
     $form->applyFilter('host_name', 'myReplace');
-
     if (
         isset($centreon->optGen['strict_hostParent_poller_management'])
         && $centreon->optGen['strict_hostParent_poller_management'] === 1
@@ -1019,6 +1018,8 @@ if ($o !== HOST_MASSIVE_CHANGE) {
     // Test existence
     $form->registerRule('testModule', 'callback', 'testHostName');
     $form->addRule('host_name', _('_Module_ is not a legal expression'), 'testModule');
+    $form->registerRule('checkHostName', 'callback', 'checkHostNameUnauthorizedChars');
+    $form->addRule('host_name', _('The value contains unauthorized characters'), 'checkHostName');
     $form->registerRule('existTemplate', 'callback', 'hasHostTemplateNeverUsed');
     $form->registerRule('exist', 'callback', 'hasHostNameNeverUsed');
     $form->registerRule('sanitize', 'callback', 'isNotEmptyAfterStringSanitize');
