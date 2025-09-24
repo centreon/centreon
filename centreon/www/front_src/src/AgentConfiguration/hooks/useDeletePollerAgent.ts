@@ -14,7 +14,7 @@ export const useDeletePollerAgent = (): UseDeletePollerAgent => {
     getEndpoint: (_meta) => getPollerAgentEndpoint(_meta),
     method: Method.DELETE,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['agent-configurations'] });
+      queryClient.invalidateQueries({ queryKey: ['listAgentConfigurations'] });
     }
   });
 

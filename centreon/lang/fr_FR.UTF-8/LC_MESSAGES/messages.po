@@ -24074,5 +24074,9 @@ msgid "will display resources with host name starting by'"
 msgstr "affichera les ressources avec un nom d'hôte commençant par"
 
 #: unknown
+msgid "poller"
+msgstr "collecteur"
+
+#: unknown
 msgid "{{total}} element(s) found"
 msgstr "{{total}} élément(s) trouvé(s)"
