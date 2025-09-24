@@ -36,6 +36,7 @@ export interface DefaultResourceType {
   resourceType: string;
   requied?: boolean;
   disabled?: DisabledDefaultResourceType;
+  isSearchBypass?: boolean;
 }
 export interface SelectType {
   defaultResourceType: Array<DefaultResourceType>;

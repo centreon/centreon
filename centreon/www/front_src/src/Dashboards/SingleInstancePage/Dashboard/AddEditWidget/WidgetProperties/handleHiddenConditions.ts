@@ -31,7 +31,7 @@ export const checkHiddenCondition = ({
   values
 }: CheckHiddenConditionProps): boolean => {
   const { target, method, when, matches } = hiddenCondition;
-  
+
   if (equals(target, 'featureFlags')) {
     return !hasModule || equals(featureFlags?.[hiddenCondition.when], matches);
   }

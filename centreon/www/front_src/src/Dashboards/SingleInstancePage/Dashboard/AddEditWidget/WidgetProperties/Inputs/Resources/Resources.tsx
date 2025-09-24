@@ -79,7 +79,8 @@ const Resources = ({
     useAdditionalResources,
     forcedResourceType,
     defaultResourceTypes,
-    allowRegexOnResourceTypes
+    allowRegexOnResourceTypes,
+    selectType
   });
 
   const { getDefaultDisabledSelectType, getDefaultRequiredSelectType } =
