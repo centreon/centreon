@@ -112,7 +112,7 @@ class EntityValidator
         array $dataToValidate,
         array $groups = ['Default'],
         bool $allowExtraFields = true,
-        bool $allowMissingFields = false
+        bool $allowMissingFields = false,
     ): ConstraintViolationListInterface {
         if ($groups === []) {
             $groups[] = Constraint::DEFAULT_GROUP;
@@ -163,7 +163,7 @@ class EntityValidator
      */
     public static function formatErrors(
         ConstraintViolationListInterface $violations,
-        bool $showPropertiesInSnakeCase = false
+        bool $showPropertiesInSnakeCase = false,
     ): string {
         $errorMessages = '';
         /** @var array<ConstraintViolationInterface> $violations */
@@ -256,7 +256,7 @@ class EntityValidator
      * @return ConstraintViolationListInterface
      */
     private function removeDuplicatedViolation(
-        ConstraintViolationListInterface $violations
+        ConstraintViolationListInterface $violations,
     ): ConstraintViolationListInterface {
         /** @var array<int, ConstraintViolationInterface> $violationCodes */
         $violationCodes = [];

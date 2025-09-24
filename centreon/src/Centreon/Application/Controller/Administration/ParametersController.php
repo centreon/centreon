@@ -65,7 +65,7 @@ class ParametersController extends AbstractController
     ];
 
     public function __construct(
-        private OptionServiceInterface $optionService
+        private OptionServiceInterface $optionService,
     ) {
     }
 

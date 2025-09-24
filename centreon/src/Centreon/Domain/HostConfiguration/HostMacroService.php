@@ -44,7 +44,7 @@ class HostMacroService implements HostMacroServiceInterface
      */
     public function __construct(
         private HostMacroWriteRepositoryInterface $writeRepository,
-        private HostMacroReadRepositoryInterface $readRepository
+        private HostMacroReadRepositoryInterface $readRepository,
     ) {
     }
 

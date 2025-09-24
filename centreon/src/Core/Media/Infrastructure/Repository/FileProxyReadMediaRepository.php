@@ -76,7 +76,7 @@ class FileProxyReadMediaRepository implements ReadMediaRepositoryInterface
              */
             public function __construct(
                 readonly private string $absoluteMediaPath,
-                readonly private \Traversable&\Countable $medias
+                readonly private \Traversable&\Countable $medias,
             ) {
             }
 
@@ -138,7 +138,7 @@ class FileProxyReadMediaRepository implements ReadMediaRepositoryInterface
              */
             public function __construct(
                 readonly private string $absoluteMediaPath,
-                readonly private \Traversable $medias
+                readonly private \Traversable $medias,
             ) {
             }
 

@@ -79,7 +79,7 @@ if (isset($_POST['url'])) {
                 'page',
                 FILTER_VALIDATE_INT
             );
-            if (false !== $page) {
+            if ($page !== false) {
                 $centreon->historyPage[$url] = $page;
             }
         }

@@ -40,7 +40,7 @@ try {
         WHERE (`key` = 'isRemote' AND `value` = 'no') OR (`key` = 'isCentral' AND `value` = 'no')
     ");
     $row = $result->fetch();
-    if (2 === (int) $row['count']) {
+    if ((int) $row['count'] === 2) {
         $errorMessage = "Unable to modify isCentral flag value in 'informations' table.";
         $stmt = $pearDB->query("UPDATE `informations` SET `value` = 'yes' WHERE `key` = 'isCentral'");
     }
@@ -52,7 +52,7 @@ try {
         SELECT `value` FROM `informations`
         WHERE `key` = 'isRemote'
     ");
-    if ('yes' === $serverType->fetch()['value']) {
+    if ($serverType->fetch()['value'] === 'yes') {
         $showPage = '1';
     }
     // Create a new menu page related to remote. Hidden by default on a Central

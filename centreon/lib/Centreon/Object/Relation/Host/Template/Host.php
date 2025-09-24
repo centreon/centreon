@@ -147,7 +147,7 @@ class Centreon_Object_Relation_Host_Template_Host extends Centreon_Object_Relati
         $order = null,
         $sort = 'ASC',
         $filters = [],
-        $filterType = 'OR'
+        $filterType = 'OR',
     ) {
         if (! isset($this->firstObject) || ! isset($this->secondObject)) {
             throw new Exception('Unsupported method on this object');

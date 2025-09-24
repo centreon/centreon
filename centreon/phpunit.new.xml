@@ -12,8 +12,11 @@
         <testsuite name="activity_logging">
             <directory>tests/php/App/ActivityLogging</directory>
         </testsuite>
-        <testsuite name="resource_configuration">
-            <directory>tests/php/App/ResourceConfiguration</directory>
+        <testsuite name="monitoring_configuration">
+            <directory>tests/php/App/MonitoringConfiguration</directory>
+        </testsuite>
+        <testsuite name="shared">
+            <directory>tests/php/App/Shared</directory>
         </testsuite>
     </testsuites>
 

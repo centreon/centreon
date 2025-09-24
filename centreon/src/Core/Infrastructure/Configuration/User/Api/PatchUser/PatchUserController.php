@@ -45,7 +45,7 @@ final class PatchUserController extends AbstractController
     public function __invoke(
         Request $request,
         PatchUser $useCase,
-        PatchUserPresenterInterface $presenter
+        PatchUserPresenterInterface $presenter,
     ): object {
         $this->denyAccessUnlessGrantedForApiConfiguration();
         $this->debug('Validating request body');

@@ -52,7 +52,7 @@ class FindMetaServicesConfigurations
         private readonly MetaServiceConfigurationServiceInterface $metaServiceConfigurationService,
         private readonly ContactInterface $contact,
         private readonly ReadAccessGroupRepositoryInterface $accessGroupRepository,
-        private readonly bool $isCloudPlatform
+        private readonly bool $isCloudPlatform,
     ) {
     }
 

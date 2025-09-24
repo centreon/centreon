@@ -65,7 +65,7 @@ abstract class AbstractVaultRepository
 
     public function __construct(
         protected ReadVaultConfigurationRepositoryInterface $configurationRepository,
-        protected AmpHttpClient $httpClient
+        protected AmpHttpClient $httpClient,
     ) {
         $this->vaultConfiguration = $configurationRepository->find();
     }

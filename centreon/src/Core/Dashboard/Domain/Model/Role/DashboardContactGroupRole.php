@@ -33,7 +33,7 @@ class DashboardContactGroupRole
     public function __construct(
         private readonly int $contactGroupId,
         private readonly string $contactGroupName,
-        private readonly array $roles
+        private readonly array $roles,
     ) {
     }
 

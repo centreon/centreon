@@ -58,7 +58,7 @@ class CentreonContactgroup
 
         $query = 'SELECT a.cg_id, a.cg_name, a.cg_ldap_dn, b.ar_name FROM contactgroup a ';
         $query .= ' LEFT JOIN auth_ressource b ON a.ar_id = b.ar_id';
-        if (false === $withLdap) {
+        if ($withLdap === false) {
             $query .= " WHERE a.cg_type != 'ldap'";
         }
         $query .= ' ORDER BY a.cg_name';
@@ -115,7 +115,7 @@ class CentreonContactgroup
                 foreach ($ldapGroups as $ldapGroup) {
                     $ldapGroupName = $ldapGroup['name'];
                     if (
-                        false === array_search($ldapGroupName . ' (LDAP : ' . $ldapRow['ar_name'] . ')', $cgs)
+                        array_search($ldapGroupName . ' (LDAP : ' . $ldapRow['ar_name'] . ')', $cgs) === false
                         && preg_match('/' . $filter . '/i', $ldapGroupName)
                     ) {
                         $cgs['[' . $ldapRow['ar_id'] . ']' . $ldapGroupName] = $this->formatLdapContactgroupName(
@@ -183,7 +183,7 @@ class CentreonContactgroup
     public function insertLdapGroup(string $cgName): ?int
     {
         // Parse contactgroup name
-        if (false === preg_match('/\[(\d+)\](.*)/', $cgName, $matches)) {
+        if (preg_match('/\[(\d+)\](.*)/', $cgName, $matches) === false) {
             return 0;
         }
         $arId = (int) $matches[1];
@@ -328,7 +328,7 @@ class CentreonContactgroup
         while ($ldapRow = $ldapRes->fetch()) {
             $ldapConn = new CentreonLDAP($this->db, null, $ldapRow['ar_id']);
             $connectionResult = $ldapConn->connect();
-            if (false != $connectionResult) {
+            if ($connectionResult != false) {
                 $res = $this->db->prepare(
                     'SELECT cg_id, cg_name, cg_ldap_dn FROM contactgroup '
                     . "WHERE cg_type = 'ldap' AND ar_id = :arId"
@@ -366,11 +366,11 @@ class CentreonContactgroup
                 try {
                     while ($row = $res->fetch()) {
                         // Test is the group has not been moved or deleted in ldap
-                        if ((empty($row['cg_ldap_dn']) || false === $ldapConn->getEntry($row['cg_ldap_dn']))
+                        if ((empty($row['cg_ldap_dn']) || $ldapConn->getEntry($row['cg_ldap_dn']) === false)
                             && ldap_errno($ldapConn->getDs()) != 3
                         ) {
                             $dn = $ldapConn->findGroupDn($row['cg_name']);
-                            if (false === $dn && ldap_errno($ldapConn->getDs()) != 3) {
+                            if ($dn === false && ldap_errno($ldapConn->getDs()) != 3) {
                                 // Delete the ldap group in contactgroup
                                 try {
                                     $stmt = $this->db->prepare(
@@ -494,9 +494,9 @@ class CentreonContactgroup
     {
         global $pearDB;
         foreach ($listCgs as $cg) {
-            if (false === is_numeric($cg)) {
+            if (is_numeric($cg) === false) {
                 // Parse the name
-                if (false === preg_match('/\[(\d+)\](.*)/', $cg, $matches)) {
+                if (preg_match('/\[(\d+)\](.*)/', $cg, $matches) === false) {
                     return false;
                 }
                 $cg_name = $matches[2];

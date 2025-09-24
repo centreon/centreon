@@ -104,7 +104,7 @@ class NagiosServerRepository extends AbstractRepositoryRDB implements Pagination
             if (
                 array_key_exists('ids', $filters)
                 && is_array($filters['ids'])
-                && [] !== $filters['ids']
+                && $filters['ids'] !== []
             ) {
                 $idsListKey = [];
 

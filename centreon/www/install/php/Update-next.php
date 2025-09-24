@@ -85,6 +85,46 @@ $alignCMAAgentConfigurationWithNewSchema = function () use ($pearDB, &$errorMess
     }
 };
 
+$cleanGlobalMacrosName = function () use ($pearDB, &$errorMessage): void {
+    $errorMessage = 'Failed to update cfg_resource table';
+    $invalidMacros = $pearDB->fetchAllAssociative(
+        <<<'SQL'
+            SELECT resource_id, resource_name FROM cfg_resource
+            WHERE resource_name NOT LIKE '\$%' OR resource_name NOT LIKE '%\$'
+            SQL
+    );
+
+    foreach ($invalidMacros as $macro) {
+        $newName = $macro['resource_name'];
+        if (str_starts_with($newName, '$') === false) {
+            $newName = '$' . $newName;
+        }
+        if (str_ends_with($newName, '$') === false) {
+            $newName .= '$';
+        }
+        $pearDB->update(
+            <<<'SQL'
+                UPDATE cfg_resource
+                SET resource_name = :resource_name
+                WHERE resource_id = :id
+                SQL,
+            QueryParameters::create([
+                QueryParameter::string(':resource_name', $newName),
+                QueryParameter::int(':id', (int) $macro['resource_id']),
+            ])
+        );
+    }
+};
+
+$fixTypoInStandardMacroName = function () use ($pearDB, &$errorMessage): void {
+    $errorMessage = 'Failed to fix typo in standard macro name';
+    $pearDB->update(
+        <<<'SQL'
+                UPDATE nagios_macro SET macro_name = '$TOTALHOSTSUNREACHABLEUNHANDLED$' WHERE macro_id = 65
+            SQL
+    );
+};
+
 try {
     // DDL statements for real time database
     // TODO add your function calls to update the real time database structure here
@@ -99,6 +139,8 @@ try {
 
     // TODO add your function calls to update the configuration database data here
     $alignCMAAgentConfigurationWithNewSchema();
+    $cleanGlobalMacrosName();
+    $fixTypoInStandardMacroName();
 
     $pearDB->commitTransaction();
 

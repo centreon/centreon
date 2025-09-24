@@ -33,7 +33,7 @@ function createPerformanceMetric(
     float $rta,
     float $packetLoss,
     float $rtmax,
-    float $rtmin
+    float $rtmin,
 ): PerformanceMetric {
     $metricValues = [];
     $metrics = ['rta' => $rta, 'pl' => $packetLoss, 'rtmax' => $rtmax, 'rtmin' => $rtmin];

@@ -502,7 +502,7 @@ function updateGroups($aclId = null): void
 
         $insertParameters = [];
 
-        if (is_array($aclGroupsSubmitted) && [] !== $aclGroupsSubmitted) {
+        if (is_array($aclGroupsSubmitted) && $aclGroupsSubmitted !== []) {
             foreach ($aclGroupsSubmitted as $index => $aclGroupId) {
                 $insertParameters[] = QueryParameters::create([
                     $aclResourceId,
@@ -554,7 +554,7 @@ function updateHosts($aclId = null): void
 
         $insertParameters = [];
 
-        if (is_array($hostsSubmitted) && [] !== $hostsSubmitted) {
+        if (is_array($hostsSubmitted) && $hostsSubmitted !== []) {
             foreach ($hostsSubmitted as $index => $hostId) {
                 $insertParameters[] = QueryParameters::create([
                     $aclResourceId,
@@ -618,7 +618,7 @@ function updateImageFolders($aclId = null): void
             ]);
         }
 
-        if (is_array($imageFoldersSubmitted) && [] !== $imageFoldersSubmitted) {
+        if (is_array($imageFoldersSubmitted) && $imageFoldersSubmitted !== []) {
             foreach ($imageFoldersSubmitted as $imageFolderId) {
                 $insertParameters[] = QueryParameters::create([
                     $aclResourceId,
@@ -627,7 +627,7 @@ function updateImageFolders($aclId = null): void
             }
         }
 
-        if ([] !== $insertParameters) {
+        if ($insertParameters !== []) {
             $pearDB->batchInsert(
                 tableName: 'acl_resources_image_folder_relations',
                 columns: [
@@ -672,7 +672,7 @@ function updatePollers($aclId = null): void
 
         $insertParameters = [];
 
-        if (is_array($pollersSubmitted) && [] !== $pollersSubmitted) {
+        if (is_array($pollersSubmitted) && $pollersSubmitted !== []) {
             foreach ($pollersSubmitted as $index => $pollerId) {
                 $insertParameters[] = QueryParameters::create([
                     $aclResourceId,
@@ -724,7 +724,7 @@ function updateHostexcludes($aclId = null): void
 
         $insertParameters = [];
 
-        if (is_array($hostsToExcludeSubmitted) && [] !== $hostsToExcludeSubmitted) {
+        if (is_array($hostsToExcludeSubmitted) && $hostsToExcludeSubmitted !== []) {
             foreach ($hostsToExcludeSubmitted as $index => $hostId) {
                 $insertParameters[] = QueryParameters::create([
                     $aclResourceId,
@@ -777,7 +777,7 @@ function updateHostGroups($aclId = null): void
 
         $insertParameters = [];
 
-        if (is_array($hostGroupsSubmitted) && [] !== $hostGroupsSubmitted) {
+        if (is_array($hostGroupsSubmitted) && $hostGroupsSubmitted !== []) {
             foreach ($hostGroupsSubmitted as $index => $hostGroupId) {
                 $insertParameters[] = QueryParameters::create([
                     $aclResourceId,
@@ -831,7 +831,7 @@ function updateServiceCategories($aclId = null): void
 
         $insertParameters = [];
 
-        if (is_array($serviceCategoriesSubmitted) && [] !== $serviceCategoriesSubmitted) {
+        if (is_array($serviceCategoriesSubmitted) && $serviceCategoriesSubmitted !== []) {
             foreach ($serviceCategoriesSubmitted as $index => $serviceCategoryId) {
                 $insertParameters[] = QueryParameters::create([
                     $aclResourceId,
@@ -885,7 +885,7 @@ function updateHostCategories($aclId = null): void
 
         $insertParameters = [];
 
-        if (is_array($hostCategoriesSubmitted) && [] !== $hostCategoriesSubmitted) {
+        if (is_array($hostCategoriesSubmitted) && $hostCategoriesSubmitted !== []) {
             foreach ($hostCategoriesSubmitted as $index => $hostCategoryId) {
                 $insertParameters[] = QueryParameters::create([
                     $aclResourceId,
@@ -939,7 +939,7 @@ function updateServiceGroups($aclId = null): void
 
         $insertParameters = [];
 
-        if (is_array($serviceGroupsSubmitted) && [] !== $serviceGroupsSubmitted) {
+        if (is_array($serviceGroupsSubmitted) && $serviceGroupsSubmitted !== []) {
             foreach ($serviceGroupsSubmitted as $index => $serviceGroupId) {
                 $insertParameters[] = QueryParameters::create([
                     $aclResourceId,
@@ -993,7 +993,7 @@ function updateMetaServices($aclId = null): void
 
         $insertParameters = [];
 
-        if (is_array($metaServicesSubmitted) && [] !== $metaServicesSubmitted) {
+        if (is_array($metaServicesSubmitted) && $metaServicesSubmitted !== []) {
             foreach ($metaServicesSubmitted as $index => $metaServiceId) {
                 $insertParameters[] = QueryParameters::create([
                     $aclResourceId,

@@ -38,7 +38,7 @@ final class FindRulesController extends AbstractController
      */
     public function __invoke(
         FindRules $useCase,
-        FindRulesPresenterInterface $presenter
+        FindRulesPresenterInterface $presenter,
     ): Response {
         $this->denyAccessUnlessGrantedForApiConfiguration();
 

@@ -53,7 +53,7 @@ final class FindDashboard
         private readonly ContactInterface $contact,
         private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
         private readonly ReadUserProfileRepositoryInterface $userProfileReader,
-        private readonly bool $isCloudPlatform
+        private readonly bool $isCloudPlatform,
     ) {
     }
 
@@ -96,7 +96,7 @@ final class FindDashboard
     {
         $dashboard = $this->readDashboardRepository->findOne($dashboardId);
 
-        if (null === $dashboard) {
+        if ($dashboard === null) {
             return new NotFoundResponse('Dashboard');
         }
 
@@ -118,7 +118,7 @@ final class FindDashboard
     {
         $dashboard = $this->readDashboardRepository->findOneByContact($dashboardId, $this->contact);
 
-        if (null === $dashboard) {
+        if ($dashboard === null) {
             return new NotFoundResponse('Dashboard');
         }
 

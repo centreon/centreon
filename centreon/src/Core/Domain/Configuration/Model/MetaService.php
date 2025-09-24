@@ -84,7 +84,7 @@ class MetaService
         private string $name,
         private string $calculationType,
         private int $metaSelectionMode,
-        private string $dataSourceType
+        private string $dataSourceType,
     ) {
         Assertion::maxLength($name, self::MAX_NAME_LENGTH, 'MetaService::name');
         Assertion::notEmpty($name, 'MetaService::name');

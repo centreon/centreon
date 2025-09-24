@@ -80,7 +80,7 @@ final class ServiceCategory extends AbstractObject
     public function insertServiceToServiceCategoryMembers(
         int $serviceCategoryId,
         int $serviceId,
-        string $serviceDescription
+        string $serviceDescription,
     ): void {
         if (! isset($this->serviceCategories[$serviceCategoryId])) {
             $this->addServiceCategoryToList($serviceCategoryId);

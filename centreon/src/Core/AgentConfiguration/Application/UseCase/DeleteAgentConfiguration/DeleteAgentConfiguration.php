@@ -54,7 +54,7 @@ final class DeleteAgentConfiguration
 
     public function __invoke(
         int $id,
-        PresenterInterface $presenter
+        PresenterInterface $presenter,
     ): void {
         try {
             if (! $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_POLLERS_AGENT_CONFIGURATIONS_RW)) {
@@ -72,7 +72,7 @@ final class DeleteAgentConfiguration
                 return;
             }
 
-            if (null === $this->readAcRepository->find($id)) {
+            if ($this->readAcRepository->find($id) === null) {
                 $presenter->setResponseStatus(new NotFoundResponse('Poller/agent Configuration'));
 
                 return;
@@ -83,7 +83,7 @@ final class DeleteAgentConfiguration
                 $this->readAcRepository->findPollersByAcId($id)
             );
 
-            if (false === $this->user->isAdmin()) {
+            if ($this->user->isAdmin() === false) {
                 // non admin cannot delete central on cloud platform
                 if ($this->isCloudPlatform) {
                     $centralPoller = $this->readMonitoringServerRepository->findCentralByIds($linkedPollerIds);

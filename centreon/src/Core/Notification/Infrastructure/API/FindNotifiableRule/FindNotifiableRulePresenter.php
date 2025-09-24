@@ -37,7 +37,7 @@ final class FindNotifiableRulePresenter extends AbstractPresenter implements Fin
             $this->present([
                 'notification_id' => $data->notificationId,
                 'channels' => [
-                    'email' => null === $data->channels->email ? null : [
+                    'email' => $data->channels->email === null ? null : [
                         'subject' => $data->channels->email->subject,
                         'formatted_message' => $data->channels->email->formattedMessage,
                         'contacts' => array_map(
@@ -48,11 +48,11 @@ final class FindNotifiableRulePresenter extends AbstractPresenter implements Fin
                             $data->channels->email->contacts
                         ),
                     ],
-                    'slack' => null === $data->channels->slack ? null : [
+                    'slack' => $data->channels->slack === null ? null : [
                         'slack_channel' => $data->channels->slack->slackChannel,
                         'message' => $data->channels->slack->message,
                     ],
-                    'sms' => null === $data->channels->sms ? null : [
+                    'sms' => $data->channels->sms === null ? null : [
                         'phone_number' => $data->channels->sms->phoneNumber,
                         'message' => $data->channels->sms->message,
                     ],

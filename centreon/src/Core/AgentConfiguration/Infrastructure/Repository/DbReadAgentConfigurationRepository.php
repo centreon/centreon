@@ -56,7 +56,7 @@ class DbReadAgentConfigurationRepository extends AbstractRepositoryRDB implement
     use MonitoringServerRepositoryTrait;
 
     public function __construct(
-        DatabaseConnection $db
+        DatabaseConnection $db,
     ) {
         $this->db = $db;
     }
@@ -258,7 +258,7 @@ class DbReadAgentConfigurationRepository extends AbstractRepositoryRDB implement
      */
     public function findAllByRequestParametersAndAccessGroups(
         RequestParametersInterface $requestParameters,
-        array $accessGroups
+        array $accessGroups,
     ): array {
         if ($accessGroups === []) {
             return [];

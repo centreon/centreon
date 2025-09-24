@@ -54,7 +54,7 @@ class RefreshTypeConverter
             'manual' => RefreshType::Manual,
             default => throw new \InvalidArgumentException(
                 "\"{$refreshType}\" is not a valid string for enum RefreshType"
-            )
+            ),
         };
     }
 }

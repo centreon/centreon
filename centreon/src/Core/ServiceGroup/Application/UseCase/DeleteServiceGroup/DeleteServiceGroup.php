@@ -46,7 +46,7 @@ final class DeleteServiceGroup
         private readonly ReadServiceGroupRepositoryInterface $readServiceGroupRepository,
         private readonly WriteServiceGroupRepositoryInterface $writeServiceGroupRepository,
         private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
-        private readonly ContactInterface $contact
+        private readonly ContactInterface $contact,
     ) {
     }
 

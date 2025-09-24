@@ -82,7 +82,7 @@ class Centreon_Wizard
      */
     public function getValues($step)
     {
-        if (false === isset($this->_values[$step])) {
+        if (isset($this->_values[$step]) === false) {
             return [];
         }
 
@@ -100,7 +100,7 @@ class Centreon_Wizard
      */
     public function getValue($step, $name, $default = '')
     {
-        if (false === isset($this->_values[$step]) || false === isset($this->_values[$step][$name])) {
+        if (isset($this->_values[$step]) === false || isset($this->_values[$step][$name]) === false) {
             return $default;
         }
 

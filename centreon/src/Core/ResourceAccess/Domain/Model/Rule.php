@@ -53,7 +53,7 @@ class Rule extends NewRule
         bool $applyToAllContactGroups = false,
         array $linkedContactGroups = [],
         array $datasets = [],
-        bool $isEnabled = true
+        bool $isEnabled = true,
     ) {
         $this->shortName = (new \ReflectionClass($this))->getShortName();
 
