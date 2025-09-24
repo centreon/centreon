@@ -16469,3 +16469,6 @@ msgstr "Erweiterter Modus"
 
 # msgid "Maximum"
 # msgstr ""
+
+msgid "The URL provided for the website does not use a valid URL pattern."
+msgstr "L'URL fournie pour le site web n'utilise pas un modèle d'URL valide."

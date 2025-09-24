@@ -34,7 +34,10 @@
  *
  */
 
+use App\Kernel;
 use Core\ActionLog\Domain\Model\ActionLog;
+use Core\ServiceTemplate\Application\Repository\ReadServiceTemplateRepositoryInterface;
+use Core\ServiceTemplate\Domain\Model\ServiceTemplateInheritance;
 
 if (!isset($centreon)) {
     exit();
@@ -67,6 +70,31 @@ function setHostChangeFlag($db, $hostId = null, $hostgroupId = null)
     $statement->bindValue(':fieldValue', (int) $val, \PDO::PARAM_INT);
     $statement->execute();
     return null;
+}
+
+/**
+ * This is a quickform rule for checking if circular inheritance is used
+ *
+ * @return bool
+ */
+function checkCircularInheritance(int $templateId)
+{
+    global $form;
+
+    $data = $form->getSubmitValues();
+    if ((int) $data['service_id'] === $templateId) {
+        return false;
+    }
+
+    $kernel = Kernel::createForWeb();
+    $repository = $kernel->getContainer()->get(ReadServiceTemplateRepositoryInterface::class);
+    $inheritanceArray = $repository->findParents($templateId);
+    $parentsIds = array_map(
+        static fn (ServiceTemplateInheritance $inheritancePair): int => $inheritancePair->getParentId(),
+        $inheritanceArray
+    );
+
+    return ! (in_array((int) $data['service_id'], $parentsIds, true));
 }
 
 /**

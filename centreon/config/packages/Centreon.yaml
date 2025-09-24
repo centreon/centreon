@@ -511,5 +511,9 @@ services:
         arguments:
             $notifiableResourceRequestProviders: !tagged_iterator 'configuration.notification.notifiable.resource.request.provider'
 
+    Core\ServiceTemplate\Application\Repository\ReadServiceTemplateRepositoryInterface:
+        class: Core\ServiceTemplate\Infrastructure\Repository\DbReadServiceTemplateRepository
+        public: true
+
 imports:
     - { resource: ../../src/Core/**/Infrastructure/Configuration/symfony.yaml }

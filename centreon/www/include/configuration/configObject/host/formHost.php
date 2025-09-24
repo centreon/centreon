@@ -1089,6 +1089,7 @@ if ($o !== HOST_MASSIVE_CHANGE) {
             . ' please verified if a Centreon contactgroup has the same name.'),
         'cg_group_exists'
     );
+    $form->applyFilter('host_address', 'strip_tags');
 } elseif ($o === HOST_MASSIVE_CHANGE) {
     if ($form->getSubmitValue("submitMC")) {
         $from_list_menu = false;
