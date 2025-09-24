@@ -646,8 +646,6 @@ const useResources = ({
           type.resourceType === resourceType && type.isSearchBypass === true
       );
 
-      console.log('test bypass', isSearchBypass, resourceType);
-
       return buildListingEndpoint({
         baseEndpoint: endpoint,
         customQueryParameters: customParameters,
