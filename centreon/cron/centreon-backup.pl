@@ -40,6 +40,7 @@ use Getopt::Long;
 use File::Path;
 use File::Copy;
 use File::Find;
+use File::Which qw(which);
 use File::Basename;
 use IO::Dir;
 use IPC::Open3 qw( open3 );
@@ -214,18 +215,16 @@ sub trim($) {
 }
 
 sub getbinaries() {
-    $BIN_GZIP = `which gzip`;
-    $BIN_GZIP = trim($BIN_GZIP);
-
-    if ($BIN_GZIP =~ /no .* in/) {
+    $BIN_GZIP = which('gzip') || '';
+    if (!$BIN_GZIP || !-x $BIN_GZIP) {
         print STDERR "Unable to get gzip binary\n";
+        exit 1;
     }
 
-    $BIN_TAR = `which tar`;
-    $BIN_TAR = trim($BIN_TAR);
-
-    if ($BIN_TAR =~ /no .* in/) {
+    $BIN_TAR = which('tar') || '';
+    if (!$BIN_TAR || !-x $BIN_TAR) {
         print STDERR "Unable to get tar binary\n";
+        exit 1;
     }
 }
 
