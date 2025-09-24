@@ -694,29 +694,32 @@ function updateMetaService($metaId = null)
     global $form, $pearDB, $centreon;
     checkMetaHost();
     $ret = $form->getSubmitValues();
-    $query = "UPDATE meta_service SET
-        meta_name = :meta_name,
-        meta_display = :meta_display,
-        check_period = :check_period,
-        max_check_attempts = :max_check_attempts,
-        normal_check_interval = :normal_check_interval,
-        retry_check_interval = :retry_check_interval,
-        notification_interval = :notification_interval,
-        notification_period = :notification_period,
-        notification_options = :notification_options,
-        notifications_enabled = :notifications_enabled,
-        calcul_type = :calcul_type,
-        data_source_type = :data_source_type,
-        meta_select_mode = :meta_select_mode,
-        regexp_str = :regexp_str,
-        metric = :metric,
-        warning = :warning,
-        critical = :critical,
-        graph_id = :graph_id,
-        meta_comment = :meta_comment,
-        geo_coords = :geo_coords,
-        meta_activate = :meta_activate
-     WHERE meta_id = :meta_id";
+    $qb = $pearDB->createQueryBuilder();
+    $qb->update('meta_service')
+        ->set('meta_name', ':meta_name')
+        ->set('meta_display', ':meta_display')
+        ->set('check_period', ':check_period')
+        ->set('max_check_attempts', ':max_check_attempts')
+        ->set('normal_check_interval', ':normal_check_interval')
+        ->set('retry_check_interval', ':retry_check_interval')
+        ->set('notification_interval', ':notification_interval')
+        ->set('notification_period', ':notification_period')
+        ->set('notification_options', ':notification_options')
+        ->set('notifications_enabled', ':notifications_enabled')
+        ->set('calcul_type', ':calcul_type')
+        ->set('data_source_type', ':data_source_type')
+        ->set('meta_select_mode', ':meta_select_mode')
+        ->set('regexp_str', ':regexp_str')
+        ->set('metric', ':metric')
+        ->set('warning', ':warning')
+        ->set('critical', ':critical')
+        ->set('graph_id', ':graph_id')
+        ->set('meta_comment', ':meta_comment')
+        ->set('geo_coords', ':geo_coords')
+        ->set('meta_activate', ':meta_activate')
+        ->where('meta_id = :meta_id');
+    $query = $qb->getQuery();
+    $params = [];
     try {
         $params = [
             QueryParameter::string('meta_name', getParamValue($ret, "meta_name", sanitize: true)),
