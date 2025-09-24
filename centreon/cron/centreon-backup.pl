@@ -538,7 +538,7 @@ sub databasesBackup() {
             if ($file eq '') {
                 print STDERR "Unable to remove temporary directories because: " . $message . "\n";
             } else {
-                print STDERR "Problem unlinking " . $file . ": " . $message, . "\n";
+                print STDERR "Problem unlinking " . $file . ": " . $message . "\n";
             }
         }
     }
