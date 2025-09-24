@@ -427,6 +427,16 @@ msgstr ""
 "Centreontrapd Initialisierungsskript für den Neustart des Prozesses auf dem "
 "Poller."
 
+#: centreon/www/include/configuration/configObject/command/help.php
+msgid ""
+"Check this option if your command requires shell features like pipes, "
+"redirections, globbing etc. Note that commands requiring shell are slowing "
+"down the poller server."
+msgstr ""
+"Aktivieren Sie diese Option, wenn Ihr Befehl Shell-Funktionen wie Pipes, "
+"Umleitungen, Globbing usw. benötigt. Beachten Sie, dass Befehle, die eine "
+"Shell erfordern, den Poller-Server verlangsamen."
+
 #: centreon/www/include/configuration/configObject/traps-mibs/help.php
 msgid ""
 "Choose a local MIB file containing SNMP trap definitions to upload and "
@@ -483,9 +493,9 @@ msgstr ""
 "werden, wenn jede Trap genau einem Monitoring Engine Status zugeordnet "
 "werden kann."
 
-#: centreon/www/include/configuration/configObject/service/help.php
-#: centreon/www/include/configuration/configObject/host/help.php
 #: centreon/www/include/configuration/configObject/contact/help.php
+#: centreon/www/include/configuration/configObject/host/help.php
+#: centreon/www/include/configuration/configObject/service/help.php
 #: centreon/www/include/monitoring/recurrentDowntime/help.php
 msgid ""
 "Choose the update mode for the below field: incremental adds the selected "
@@ -511,8 +521,8 @@ msgstr ""
 "Legen Sie fest, ob der verbundene Service aktiv erneut überprüft werden "
 "soll, nachdem diese Trap ausgeführt wurde."
 
-#: centreon/www/include/configuration/configObject/service/help.php
 #: centreon/www/include/configuration/configObject/host/help.php
+#: centreon/www/include/configuration/configObject/service/help.php
 msgid ""
 "Clickable URL displayed in the Notes column of the Resources Status page."
 msgstr ""
@@ -810,9 +820,9 @@ msgstr ""
 msgid "Define an optional string of notes pertaining to the host group."
 msgstr "Optionale Notizen zur Hostgruppe."
 
+#: centreon/www/include/configuration/configObject/host/help.php
 #: centreon/www/include/configuration/configObject/hostgroup/help.php
 #: centreon/www/include/configuration/configObject/service/help.php
-#: centreon/www/include/configuration/configObject/host/help.php
 msgid ""
 "Define an optional string that is used in the alternative description of the "
 "icon image."
@@ -1471,8 +1481,8 @@ msgstr ""
 "durch diese Option (Entweder regelmäßig oder on-demand). Standardmäßig sind "
 "aktive Service-Überprüfungen aktiviert."
 
-#: centreon/www/include/configuration/configObject/service/help.php
 #: centreon/www/include/configuration/configObject/host/help.php
+#: centreon/www/include/configuration/configObject/service/help.php
 msgid ""
 "Enable or disable passive checks here. When disabled submitted states will "
 "be not accepted."
@@ -1724,6 +1734,13 @@ msgstr ""
 "Pfad für einen Dateilogger. Für einen Standardlogger, entweder 'stdout' oder "
 "'stderr'."
 
+#: centreon/www/include/configuration/configObject/contact/help.php
+msgid ""
+"For security reasons, to be able to change this user's password, you (the "
+"currently logged-in user) must verify your identity by entering your own "
+"password."
+msgstr ""
+
 #: centreon/www/include/Administration/parameters/remote/help.php
 msgid "Full URL allowing access to the API of the Centreon's central server."
 msgstr ""
@@ -1755,8 +1772,8 @@ msgid ""
 "are 48.51,2.20"
 msgstr ""
 
-#: centreon/www/include/configuration/configObject/service/help.php
 #: centreon/www/include/configuration/configObject/host/help.php
+#: centreon/www/include/configuration/configObject/service/help.php
 msgid ""
 "Geographic coordinates to allow Centreon MAP to plot the resource on a "
 "geographic view. Format: Latitude,Longitude. For example, Paris' coordinates "
@@ -2015,18 +2032,6 @@ msgstr ""
 "enthalten. Wenn diese Option aktiviert ist, werden alle entsprechenden "
 "Einstellungen as reguläre Ausdrücke interpretiert."
 
-#: centreon/www/include/configuration/configObject/command/help.php
-msgid ""
-"If your command requires shell features like pipes, redirections, globbing "
-"etc. check this box. If you are using Monitoring Engine this option cannot "
-"be disabled. Note that commands that require shell are slowing down the "
-"poller server."
-msgstr ""
-"Wenn Ihr Befehl Shell-Features wie Pipes, Umleitungen, Globbing, etc. "
-"benötigt, sollte diese Option aktiviert werden. Wenn Sie die Monitoring "
-"Engine verwenden, kann diese Option nicht deaktiviert werden. Hinweis: "
-"Befehle die die Shell benötigen, verlangsamen den Poller-Server."
-
 #: centreon/www/include/Administration/parameters/knowledgeBase/help.php
 msgid "Ignore ssl certificate."
 msgstr "SSL-Zertifikat ignorieren."
@@ -2048,9 +2053,9 @@ msgstr ""
 msgid "Images."
 msgstr "Bilder."
 
-#: centreon/www/include/options/accessLists/resourcesACL/help.php
-#: centreon/www/include/options/accessLists/menusACL/help.php
 #: centreon/www/include/options/accessLists/actionsACL/help.php
+#: centreon/www/include/options/accessLists/menusACL/help.php
+#: centreon/www/include/options/accessLists/resourcesACL/help.php
 msgid "Implied ACL groups."
 msgstr "Implizite Zugriffssteuerungslistengruppen (ACL Gruppen)."
 
@@ -2062,8 +2067,8 @@ msgstr "Implizite Benutzergruppen."
 msgid "Implied users."
 msgstr "Implizite Benutzer."
 
-#: centreon/www/include/configuration/configObject/service/help.php
 #: centreon/www/include/configuration/configObject/host/help.php
+#: centreon/www/include/configuration/configObject/service/help.php
 msgid ""
 "Information note displayed as a tooltip in the Notes column of the Resources "
 "Status page."
@@ -3320,8 +3325,8 @@ msgstr ""
 "LDAP-Suchfilter für die Benutzersuche<br/>In Filtern kann %s genutzt werden. "
 "%s wird beim Autologin durch Login ersetzt bzw. beim LDAP-Import durch *"
 
-#: centreon/www/include/configuration/configObject/hostgroup/help.php
 #: centreon/www/include/configuration/configObject/host/help.php
+#: centreon/www/include/configuration/configObject/hostgroup/help.php
 msgid ""
 "The SNMP community and version specified here can be referenced in the check "
 "command by using the $_HOSTSNMPCOMMUNITY$ and $_HOSTSNMPVERSION$ macros."
@@ -4276,8 +4281,8 @@ msgstr ""
 "Servicedefinition muss mindestens ein Kontakt bzw. eine Kontaktgruppe "
 "angegeben."
 
-#: centreon/www/include/configuration/configObject/service/help.php
 #: centreon/www/include/configuration/configObject/host/help.php
+#: centreon/www/include/configuration/configObject/service/help.php
 msgid ""
 "This is a list of contacts that should be notified whenever there are "
 "problems (or recoveries) with this host. Useful if you want notifications to "
@@ -4777,6 +4782,18 @@ msgid ""
 msgstr ""
 "Diese Option legt fest, welches Datum/Zeit-Format von der Monitoring Engine "
 "für das Web-Interface und Datum/Zeit-Makros verwendet."
+
+#: centreon/www/include/Administration/parameters/general/help.php
+msgid ""
+"This option can be used to avoid search performance issues in Resource "
+"status, when dealing with large amounts of data.\n"
+"Limited search: Free text search will be performed only on the following "
+"fields: host name, alias and address, and service description. Use if you "
+"have a large amount of data.\n"
+"Full search: Free text search will also be performed on the \"information\" "
+"field. This is appropriate only if you have a small amount of data, as it "
+"affects performance."
+msgstr ""
 
 #: centreon/www/include/configuration/configNagios/help.php
 msgid ""
@@ -5545,8 +5562,8 @@ msgstr ""
 "Makros die an den Broker gesendet werden, gefiltert werden sollen. Wenn Sie "
 "diese Option nicht verstehen, sollte sie nicht aktiviert werden."
 
-#: centreon/www/include/configuration/configObject/service/help.php
 #: centreon/www/include/configuration/configObject/host/help.php
+#: centreon/www/include/configuration/configObject/service/help.php
 msgid ""
 "This parameters are passed to the event handler commands in the same way "
 "check command parameters are handled. The format is: !ARG1!ARG2!...ARGn"
@@ -5857,8 +5874,8 @@ msgstr ""
 "Wenn diese Option aktiviert ist und neue Alerts auftreten, werden "
 "Benachrichtigungen in der Überwachungskonsole angezeigt."
 
-#: centreon/www/include/configuration/configObject/service/help.php
 #: centreon/www/include/configuration/configObject/host/help.php
+#: centreon/www/include/configuration/configObject/service/help.php
 msgid ""
 "When enabled, the contact definition will not override the definitions on "
 "template levels, it will be appended instead."
@@ -5875,8 +5892,8 @@ msgstr ""
 "Templateebene nicht überschrieben. Stattdessen werden die Kontaktgruppen "
 "kumuliert."
 
-#: centreon/www/include/configuration/configObject/service/help.php
 #: centreon/www/include/configuration/configObject/host/help.php
+#: centreon/www/include/configuration/configObject/service/help.php
 msgid ""
 "When enabled, the contactgroup definition will not override the definitions "
 "on template levels, it will be appended instead."
@@ -6821,10 +6838,3 @@ msgstr ""
 "Diese Option legt fest, ob die Monitoring Engine Host- und "
 "Serviceüberprüfungsleistungsdaten verarbeitet. Diese Option ist "
 "standardmäßig deaktiviert."
-
-#: centreon/www/include/Administration/parameters/general/help.php
-msgid ""
-"This option can be used to avoid search performance issues in Resource status, when dealing with large amounts of data."
-"Limited search: Free text search will be performed only on the following fields: host name, alias and address, and service description. Use if you have a large amount of data."
-"Full search: Free text search will also be performed on the \"information\" field. This is appropriate only if you have a small amount of data, as it affects performance."
-msgstr ""

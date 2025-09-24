@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,21 +21,15 @@
 
 declare(strict_types=1);
 
-namespace Core\Application\Platform\Repository;
+namespace Core\Module\Domain\Model;
 
-interface ReadPlatformRepositoryInterface
+final class ModuleInformation
 {
-    /**
-     * Check if an upgrade is available.
-     *
-     * @return bool
-     */
-    public function isCentreonWebInstallableOrUpgradable(): bool;
-
-    /**
-     * Check if centreon is installed.
-     *
-     * @return bool
-     */
-    public function isCentreonWebInstalled(): bool;
+    public function __construct(
+        public string $packageName,
+        public string $displayName,
+        public string $version,
+    ) {
+    }
 }
+

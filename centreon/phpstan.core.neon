@@ -55,6 +55,7 @@ parameters:
                 - src/Core/Resources/Infrastructure/API/FindResources/FindResourcesRequestValidator.php
                 - src/Core/Security/Authentication/Application/UseCase/Login/Login.php
                 - src/Core/Security/Authentication/Domain/Provider/OpenIdProvider.php
+                - src/Core/Security/Authentication/Infrastructure/Provider/OpenId.php
                 - src/Core/Security/ProviderConfiguration/Application/OpenId/UseCase/UpdateOpenIdConfiguration/UpdateOpenIdConfiguration.php
                 - src/Core/Security/ProviderConfiguration/Application/SAML/UseCase/UpdateSAMLConfiguration/UpdateSAMLConfiguration.php
                 - src/Core/Security/ProviderConfiguration/Domain/SecurityAccess/AttributePath/HttpUrlFetcher.php
@@ -75,6 +76,7 @@ parameters:
                 - src/Core/AgentConfiguration/Infrastructure/Repository
                 - src/Core/Common/Infrastructure/Repository
                 - src/Core/Contact/Infrastructure/Repository
+                - src/Core/Module/Infrastructure/Repository
 
         - # [CENTREON-RULE]: The class is extended or mocked. MUST be used only as a baseline.
             reportUnmatched: false

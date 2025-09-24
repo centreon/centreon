@@ -207,7 +207,7 @@ Then('these properties are updated', () => {
     .should('have.value', '1');
   cy.getIframeBody()
     .find('input[name="geo_coords"]')
-    .should('have.value', hostGroups.forTest.geo_coords);
+    .should('have.value', hostGroups.forTest.geo_coords_after_truncate);
   cy.getIframeBody()
     .find('input[name="hg_rrd_retention"]')
     .should('have.value', hostGroups.forTest.rrd);
@@ -227,13 +227,13 @@ When('the user duplicates the configured host group', () => {
 });
 
 Then('a new host group is created with identical properties', () => {
-  cy.getIframeBody().contains(hostGroups.forTest.name).should('exist');
-  cy.getIframeBody().contains(hostGroups.forTest.name).click();
+  cy.getIframeBody().contains(`${hostGroups.forTest.name}_1`).should('exist');
+  cy.getIframeBody().contains(`${hostGroups.forTest.name}_1`).click();
 
   cy.waitForElementInIframe('#main-content', 'input[name="hg_name"]');
   cy.getIframeBody()
     .find('input[name="hg_name"]')
-    .should('have.value', hostGroups.forTest.name);
+    .should('have.value', `${hostGroups.forTest.name}_1`);
   cy.getIframeBody()
     .find('input[name="hg_alias"]')
     .should('have.value', hostGroups.forTest.alias);
@@ -266,7 +266,7 @@ Then('a new host group is created with identical properties', () => {
     .should('have.value', '1');
   cy.getIframeBody()
     .find('input[name="geo_coords"]')
-    .should('have.value', hostGroups.forTest.geo_coords);
+    .should('have.value', hostGroups.forTest.geo_coords_after_truncate);
   cy.getIframeBody()
     .find('input[name="hg_rrd_retention"]')
     .should('have.value', hostGroups.forTest.rrd);

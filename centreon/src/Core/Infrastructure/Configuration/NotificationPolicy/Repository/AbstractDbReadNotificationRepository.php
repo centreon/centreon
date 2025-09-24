@@ -129,7 +129,7 @@ abstract class AbstractDbReadNotificationRepository extends AbstractRepositoryDR
 
         $request = $this->translateDbName(
             <<<SQL
-                SELECT
+                SELECT DISTINCT
                     c.contact_id,
                     c.contact_alias,
                     c.contact_name,
@@ -257,7 +257,7 @@ abstract class AbstractDbReadNotificationRepository extends AbstractRepositoryDR
 
         $request = $this->translateDbName(
             <<<SQL
-                SELECT
+                SELECT DISTINCT
                     cg_id AS `id`,
                     cg_name AS `name`,
                     cg_alias AS `alias`,

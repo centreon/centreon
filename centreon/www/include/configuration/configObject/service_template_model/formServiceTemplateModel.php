@@ -200,7 +200,7 @@ if (($o === SERVICE_TEMPLATE_MODIFY || $o === SERVICE_TEMPLATE_WATCH) && isset($
     $statement->bindValue(':service_id', $service_id, \PDO::PARAM_INT);
     $statement->execute();
     // Set base value
-    $service_list = $statement->fetch();
+    $service_list = $statement->fetch() ?: [];
     $service = array_map('myDecodeSvTP', $service_list);
     $serviceTplId = $service['service_template_model_stm_id'];
     $cmdId = $isCloudPlatform ? '' : $service['command_command_id'];
@@ -890,6 +890,10 @@ if (is_array($select)) {
 
 $form->applyFilter('__ALL__', 'myTrim');
 $from_list_menu = false;
+if ($o === SERVICE_TEMPLATE_MODIFY) {
+    $form->registerRule('checkCircularInheritance', 'callback', 'checkCircularInheritance');
+    $form->addRule('service_template_model_stm_id', _('Circular inheritance not allowed'), 'checkCircularInheritance');
+}
 if ($o !== SERVICE_TEMPLATE_MASSIVE_CHANGE) {
     $form->addRule('service_description', _('Compulsory Name'), 'required');
     $form->addRule('service_alias', _('Compulsory Name'), 'required');

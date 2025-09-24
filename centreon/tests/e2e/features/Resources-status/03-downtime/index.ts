@@ -10,6 +10,17 @@ import {
 const serviceInDtName = 'service1';
 const secondServiceInDtName = 'service2';
 
+const  clickToSearch = (count) => {
+  cy.getIframeBody().then(($body) => {
+    const rows = Cypress.$($body).find('table.ListTable > tbody > tr[class^="list_"]');
+    if (rows.length !== count) {
+      cy.getIframeBody().find('input[name="SearchB"]').click();
+      cy.wait('@getTimeZone');
+      clickToSearch(count);
+    }
+  });
+}
+
 beforeEach(() => {
   cy.startContainers();
 

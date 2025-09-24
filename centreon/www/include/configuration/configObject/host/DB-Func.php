@@ -2914,10 +2914,16 @@ function sanitizeFormHostParameters(array $ret): array
                     ];
                 }
                 break;
+            case 'host_alias':
+                $bindParams[':' . $inputName] = [
+                    \PDO::PARAM_STR => ($inputValue === '' || $inputValue === false)
+                        ? null
+                        : $inputValue
+                ];
+                break;
             case 'host_address':
             case 'command_command_id_arg1':
             case 'command_command_id_arg2':
-            case 'host_alias':
             case 'host_snmp_community':
             case 'host_snmp_version':
             case 'host_comment':

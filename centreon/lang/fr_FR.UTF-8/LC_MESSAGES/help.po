@@ -450,6 +450,16 @@ msgstr ""
 "Script d'initialisation du processus Centreontrapd pour redémarrer celui-ci "
 "sur le collecteur."
 
+#: centreon/www/include/configuration/configObject/command/help.php
+msgid ""
+"Check this option if your command requires shell features like pipes, "
+"redirections, globbing etc. Note that commands requiring shell are slowing "
+"down the poller server."
+msgstr ""
+"Cochez cette option si votre commande nécessite les fonctions du shell comme "
+"les pipes, les redirections, jokers, etc. Notez que les commandes qui "
+"nécessitent le shell ralentissent le serveur de collecte."
+
 #: centreon/www/include/configuration/configObject/traps-mibs/help.php
 msgid ""
 "Choose a local MIB file containing SNMP trap definitions to upload and "
@@ -504,9 +514,9 @@ msgstr ""
 "avec le message d'état. Ce mode simple peut être utilisé si chaque trap peut "
 "être associé à exactement un état du moteur de supervision."
 
-#: centreon/www/include/configuration/configObject/service/help.php
-#: centreon/www/include/configuration/configObject/host/help.php
 #: centreon/www/include/configuration/configObject/contact/help.php
+#: centreon/www/include/configuration/configObject/host/help.php
+#: centreon/www/include/configuration/configObject/service/help.php
 #: centreon/www/include/monitoring/recurrentDowntime/help.php
 msgid ""
 "Choose the update mode for the below field: incremental adds the selected "
@@ -532,8 +542,8 @@ msgstr ""
 "Définit si il est nécessaire ou pas de contrôler le service de manière "
 "active après réception d'un trap SNMP."
 
-#: centreon/www/include/configuration/configObject/service/help.php
 #: centreon/www/include/configuration/configObject/host/help.php
+#: centreon/www/include/configuration/configObject/service/help.php
 msgid ""
 "Clickable URL displayed in the Notes column of the Resources Status page."
 msgstr ""
@@ -834,9 +844,9 @@ msgstr ""
 msgid "Define an optional string of notes pertaining to the host group."
 msgstr "Définit une chaine optionnelle pertinente pour le groupe d'hôtes."
 
+#: centreon/www/include/configuration/configObject/host/help.php
 #: centreon/www/include/configuration/configObject/hostgroup/help.php
 #: centreon/www/include/configuration/configObject/service/help.php
-#: centreon/www/include/configuration/configObject/host/help.php
 msgid ""
 "Define an optional string that is used in the alternative description of the "
 "icon image."
@@ -1479,8 +1489,8 @@ msgstr ""
 "ceux à la demande) de ce service. Par défaut les contrôles actifs de service "
 "sont activés."
 
-#: centreon/www/include/configuration/configObject/service/help.php
 #: centreon/www/include/configuration/configObject/host/help.php
+#: centreon/www/include/configuration/configObject/service/help.php
 msgid ""
 "Enable or disable passive checks here. When disabled submitted states will "
 "be not accepted."
@@ -1741,6 +1751,16 @@ msgstr ""
 "Chemin d'accès au journal d'évènements. Pour visualiser les évènements sur "
 "la sortie standard, sélectionner \"stdout\" ou \"stderr\"."
 
+#: centreon/www/include/configuration/configObject/contact/help.php
+msgid ""
+"For security reasons, to be able to change this user's password, you (the "
+"currently logged-in user) must verify your identity by entering your own "
+"password."
+msgstr ""
+"Pour des raisons de sécurité, afin de pouvoir changer le mot de passe de cet "
+"utilisateur, vous (l'utilisateur actuellement connecté) devez vérifier votre "
+"identité en saisissant votre propre mot de passe."
+
 #: centreon/www/include/Administration/parameters/remote/help.php
 msgid "Full URL allowing access to the API of the Centreon's central server."
 msgstr "URL complète permettant d'accéder à l'API du serveur central Centreon."
@@ -1775,8 +1795,8 @@ msgstr ""
 "d’hôtes sur une vue géographique. Format : Latitude,Longitude. Par exemple "
 "pour Paris, saisir : 48.51,2.20"
 
-#: centreon/www/include/configuration/configObject/service/help.php
 #: centreon/www/include/configuration/configObject/host/help.php
+#: centreon/www/include/configuration/configObject/service/help.php
 msgid ""
 "Geographic coordinates to allow Centreon MAP to plot the resource on a "
 "geographic view. Format: Latitude,Longitude. For example, Paris' coordinates "
@@ -2025,18 +2045,6 @@ msgstr ""
 "contiennent un *, ?, +, ou un \\.. Si cette option est activée, tous les "
 "paramètres seront traités comme des expressions régulières."
 
-#: centreon/www/include/configuration/configObject/command/help.php
-msgid ""
-"If your command requires shell features like pipes, redirections, globbing "
-"etc. check this box. If you are using Monitoring Engine this option cannot "
-"be disabled. Note that commands that require shell are slowing down the "
-"poller server."
-msgstr ""
-"Si votre commande nécessite les fonctions du shell comme les pipes, les "
-"redirections, jokers, etc., cochez cette case. Si vous utilisez Nagios cette "
-"option ne peut pas être désactivée. Notez que les commandes qui nécessitent "
-"le shell ralentissent le serveur de collecte."
-
 #: centreon/www/include/Administration/parameters/knowledgeBase/help.php
 msgid "Ignore ssl certificate."
 msgstr ""
@@ -2056,9 +2064,9 @@ msgstr ""
 msgid "Images."
 msgstr "Images."
 
-#: centreon/www/include/options/accessLists/resourcesACL/help.php
-#: centreon/www/include/options/accessLists/menusACL/help.php
 #: centreon/www/include/options/accessLists/actionsACL/help.php
+#: centreon/www/include/options/accessLists/menusACL/help.php
+#: centreon/www/include/options/accessLists/resourcesACL/help.php
 msgid "Implied ACL groups."
 msgstr "Groupes d'accès liés."
 
@@ -2070,8 +2078,8 @@ msgstr "Groupes d'utilisateurs liés."
 msgid "Implied users."
 msgstr "Utilisateurs liés."
 
-#: centreon/www/include/configuration/configObject/service/help.php
 #: centreon/www/include/configuration/configObject/host/help.php
+#: centreon/www/include/configuration/configObject/service/help.php
 msgid ""
 "Information note displayed as a tooltip in the Notes column of the Resources "
 "Status page."
@@ -3338,8 +3346,8 @@ msgstr ""
 "que filtre. %s sera remplacé par le l'identifiant dans pour la connexion "
 "automatique (autologin) ou par * pour l'import LDAP."
 
-#: centreon/www/include/configuration/configObject/hostgroup/help.php
 #: centreon/www/include/configuration/configObject/host/help.php
+#: centreon/www/include/configuration/configObject/hostgroup/help.php
 msgid ""
 "The SNMP community and version specified here can be referenced in the check "
 "command by using the $_HOSTSNMPCOMMUNITY$ and $_HOSTSNMPVERSION$ macros."
@@ -4317,8 +4325,8 @@ msgstr ""
 "Vous devez spécifier au moins un contact ou groupe de contacts dans chaque "
 "définition de service."
 
-#: centreon/www/include/configuration/configObject/service/help.php
 #: centreon/www/include/configuration/configObject/host/help.php
+#: centreon/www/include/configuration/configObject/service/help.php
 msgid ""
 "This is a list of contacts that should be notified whenever there are "
 "problems (or recoveries) with this host. Useful if you want notifications to "
@@ -4813,6 +4821,27 @@ msgstr ""
 "Cette option vous permet de spécifier le format de la date/heure que le "
 "moteur de supervision utilisera dans l'interface web et dans les macros de "
 "date/heure."
+
+#: centreon/www/include/Administration/parameters/general/help.php
+msgid ""
+"This option can be used to avoid search performance issues in Resource "
+"status, when dealing with large amounts of data.\n"
+"Limited search: Free text search will be performed only on the following "
+"fields: host name, alias and address, and service description. Use if you "
+"have a large amount of data.\n"
+"Full search: Free text search will also be performed on the \"information\" "
+"field. This is appropriate only if you have a small amount of data, as it "
+"affects performance."
+msgstr ""
+"Cette option peut être utilisée pour éviter les problèmes de performance de "
+"la recherche dans la page Statut des ressources, lorsque vous manipulez de "
+"grandes quantités de données.\n"
+"Recherche limitée : La recherche texte libre ne portera que sur les champs "
+"suivants : nom, alias et adresse d'hôte, et description de service. À "
+"utiliser si vous disposez d'une grande quantité de données.\n"
+"Recherche étendue : La recherche texte libre sera également effectuée dans "
+"le champ Informations. Cette option n'est adaptée que si vous disposez d'une "
+"petite quantité de données, car elle affecte les performances."
 
 #: centreon/www/include/configuration/configNagios/help.php
 msgid ""
@@ -5564,8 +5593,8 @@ msgid ""
 "enabling this option, please do not enable it."
 msgstr ""
 
-#: centreon/www/include/configuration/configObject/service/help.php
 #: centreon/www/include/configuration/configObject/host/help.php
+#: centreon/www/include/configuration/configObject/service/help.php
 msgid ""
 "This parameters are passed to the event handler commands in the same way "
 "check command parameters are handled. The format is: !ARG1!ARG2!...ARGn"
@@ -5862,8 +5891,8 @@ msgstr ""
 "Lorsque l'option est activée, les messages de notification sont affichés "
 "quand une nouvelle alerte apparaît dans la console de supervision temps réel."
 
-#: centreon/www/include/configuration/configObject/service/help.php
 #: centreon/www/include/configuration/configObject/host/help.php
+#: centreon/www/include/configuration/configObject/service/help.php
 msgid ""
 "When enabled, the contact definition will not override the definitions on "
 "template levels, it will be appended instead."
@@ -5879,8 +5908,8 @@ msgstr ""
 "Lorsqu'activé, la définition des groupes de contacts additionnels ne "
 "remplace pas les définitions issues des modèles, elle sera complétée."
 
-#: centreon/www/include/configuration/configObject/service/help.php
 #: centreon/www/include/configuration/configObject/host/help.php
+#: centreon/www/include/configuration/configObject/service/help.php
 msgid ""
 "When enabled, the contactgroup definition will not override the definitions "
 "on template levels, it will be appended instead."
@@ -7617,6 +7646,26 @@ msgstr ""
 
 #: unknown
 msgid ""
+"This option can be used to avoid search performance issues in Resource "
+"status, when dealing with large amounts of data.Limited search: Free text "
+"search will be performed only on the following fields: host name, alias "
+"and address, and service description. Use if you have a large amount of "
+"data.Full search: Free text search will also be performed on the "
+"\"information\" field. This is appropriate only if you have a small "
+"amount of data, as it affects performance."
+msgstr ""
+"Cette option peut être utilisée pour éviter les problèmes de performance "
+"de la recherche dans la page Statut des ressources, lorsque vous "
+"manipulez de grandes quantités de données.Recherche limitée : La "
+"recherche texte libre ne portera que sur les champs suivants : nom, alias "
+"et adresse d'hôte, et description de service. À utiliser si vous disposez "
+"d'une grande quantité de données.Recherche étendue : La recherche texte "
+"libre sera également effectuée dans le champ Informations. Cette option "
+"n'est adaptée que si vous disposez d'une petite quantité de données, car "
+"elle affecte les performances."
+
+#: unknown
+msgid ""
 "This option determines how much debugging information Nagios should write "
 "to the debug_file. By default the verbosity is set to level 1."
 msgstr ""
@@ -8076,17 +8125,3 @@ msgid "snmpttconvertmib binary with complete path."
 msgstr ""
 "Chemin d'accès complet vers le script snmpttconvertmib. Ce dernier permet "
 "de convertir les fichiers MIBs importés dans Centreon."
-
-#: centreon/www/include/Administration/parameters/general/help.php
-msgid ""
-"This option can be used to avoid search performance issues in Resource status, when dealing with large amounts of data."
-"Limited search: Free text search will be performed only on the following fields: host name, alias and address, and service description. Use if you have a large amount of data."
-"Full search: Free text search will also be performed on the \"information\" field. This is appropriate only if you have a small amount of data, as it affects performance."
-msgstr ""
-"Cette option peut être utilisée pour éviter les problèmes de performance de la recherche dans la page Statut des ressources, lorsque vous manipulez de grandes quantités de données."
-"Recherche limitée : La recherche texte libre ne portera que sur les champs suivants : nom, alias et adresse d'hôte, et description de service. À utiliser si vous disposez d'une grande quantité de données."
-"Recherche étendue : La recherche texte libre sera également effectuée dans le champ Informations. Cette option n'est adaptée que si vous disposez d'une petite quantité de données, car elle affecte les performances."
-
-#: centreon/www/include/configuration/configObject/contact/help.php
-msgid "For security reasons, to be able to change this user's password, you (the currently logged-in user) must verify your identity by entering your own password."
-msgstr "Pour des raisons de sécurité, afin de pouvoir changer le mot de passe de cet utilisateur, vous (l'utilisateur actuellement connecté) devez vérifier votre identité en saisissant votre propre mot de passe."

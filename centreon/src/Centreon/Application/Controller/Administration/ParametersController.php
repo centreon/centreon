@@ -34,11 +34,6 @@ use FOS\RestBundle\View\View;
  */
 class ParametersController extends AbstractController
 {
-    /**
-     * @var OptionServiceInterface
-     */
-    private $optionService;
-
     private const DEFAULT_DOWNTIME_DURATION = 'monitoring_dwt_duration';
     private const DEFAULT_DOWNTIME_DURATION_SCALE = 'monitoring_dwt_duration_scale';
     private const DEFAULT_REFRESH_INTERVAL = 'AjaxTimeReloadMonitoring';
@@ -69,14 +64,9 @@ class ParametersController extends AbstractController
         self::RESOURCE_STATUS_SEARCH_MODE => 'is_resource_status_full_search_enabled',
     ];
 
-    /**
-     * Parameters constructor.
-     *
-     * @param OptionServiceInterface $optionService
-     */
-    public function __construct(OptionServiceInterface $optionService)
-    {
-        $this->optionService = $optionService;
+    public function __construct(
+        private OptionServiceInterface $optionService
+    ) {
     }
 
     /**
