@@ -38,10 +38,13 @@ runs:
 
     - uses: jfrog/setup-jfrog-cli@26da2259ee7690e63b5410d7451b2938d08ce1f9 # v4.0.0
       env:
-        JF_URL: https://centreon.jfrog.io
+        JF_URL: https://packages.centreon.com
         JF_ACCESS_TOKEN: ${{ inputs.artifactory_token }}
 
     - name: Publish DEBs
+      env:
+        JF_URL: https://packages.centreon.com
+        JF_ACCESS_TOKEN: ${{ inputs.artifactory_token }}
       run: |
         FILES="*.deb"
 
@@ -95,4 +98,6 @@ runs:
           echo "Uploading $file"
           jf rt upload "$file" "$ROOT_REPO_PATH/pool/${{ inputs.module_name }}/" --deb "${{ inputs.distrib }}/main/$ARCH"
         done
+
+        curl -H "Authorization: Bearer ${{ env.JF_ACCESS_TOKEN }}" -X POST "${{ env.JF_URL }}/artifactory/api/deb/reindex/$ROOT_REPO_PATH?async=1"
       shell: bash
