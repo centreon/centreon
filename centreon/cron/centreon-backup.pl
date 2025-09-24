@@ -231,9 +231,9 @@ sub getbinaries() {
 sub exportBackup($) {
     my $export_type = shift; # 0 : database, 1 : configuration
     if ($scp_enabled == '1' &&
-        (!defined($scp_host) || $scp_host ne '') &&
-        (!defined($scp_directory) || $scp_directory ne '') &&
-        (!defined($scp_user) || $scp_user ne '')
+        (defined($scp_host) && $scp_host ne '') &&
+        (defined($scp_directory) && $scp_directory ne '') &&
+        (defined($scp_user) && $scp_user ne '')
     ) {
 
         # Export database backups
@@ -473,7 +473,7 @@ sub databasesBackup() {
         # Make archives from databases dump
         if ($BACKUP_DATABASE_CENTREON == '1') {
             $file = $TEMP_DB_DIR . "/" . $today . "-centreon.sql.gz";
-            if (gzippedSqlDump($mysql_database_oreon, $file) ne 0) {
+            if (gzippedSqlDump($mysql_database_oreon, $file) != 0) {
                 print STDERR "Unable to dump database: " . $mysql_database_oreon . "\n";
             } else {
                 print "Get mysqldump of \"" . $mysql_database_oreon . "\" database\n";
@@ -489,7 +489,7 @@ sub databasesBackup() {
 
             if ($process_number == 0) {
                 $file = $TEMP_DB_DIR . "/" . $today . "-centreon_storage.sql.gz";
-                if (gzippedSqlDump($mysql_database_ods, $file) ne 0) {
+                if (gzippedSqlDump($mysql_database_ods, $file) != 0) {
                     print STDERR "Unable to dump database: " . $mysql_database_ods . "\n";
                 } else {
                     print "Get mysqldump of \"" . $mysql_database_ods . "\" database\n";
