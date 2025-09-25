@@ -24,7 +24,7 @@ depends:
 
 contents:
   # bin (0755 root:root)
-  - src: "./bin/"
+  - src: "../bin/"
     dst: "/usr/share/centreon-ha/bin/"
     file_info:
       owner: "root"
@@ -32,20 +32,20 @@ contents:
       mode: 0755
 
   # etc files and directories
-  - src: "./etc/centreon-ha/mysql-resources.sh"
+  - src: "../etc/centreon-ha/mysql-resources.sh"
     dst: "/etc/centreon-ha/mysql-resources.sh"
     type: config|noreplace
     file_info:
       owner: "root"
       group: "root"
       mode: 0644
-  - src: "./etc/logrotate.d/centreon-ha"
+  - src: "../etc/logrotate.d/centreon-ha"
     dst: "/etc/logrotate.d/centreon-ha"
     file_info:
       owner: "root"
       group: "root"
       mode: 0644
-  - src: "./etc/sudoers.d/centreon-cluster-db"
+  - src: "../etc/sudoers.d/centreon-cluster-db"
     dst: "/etc/sudoers.d/centreon-cluster-db"
     file_info:
       owner: "root"
@@ -53,7 +53,7 @@ contents:
       mode: 0440
 
   # lib
-  - src: "./lib/"
+  - src: "../lib/"
     dst: "/usr/share/centreon-ha/lib/"
     file_info:
       owner: "root"
@@ -69,13 +69,13 @@ contents:
       mode: 0755
 
   # ocf-scripts (0755 root:root)
-  - src: "./ocf-scripts/mariadb-centreon"
+  - src: "../ocf-scripts/mariadb-centreon"
     dst: "/usr/lib/ocf/resource.d/heartbeat/mariadb-centreon"
     file_info:
       owner: "root"
       group: "root"
       mode: 0755
-  - src: "./ocf-scripts/mariadb-centreon-common.sh"
+  - src: "../ocf-scripts/mariadb-centreon-common.sh"
     dst: "/usr/lib/ocf/lib/heartbeat/mariadb-centreon-common.sh"
     file_info:
       owner: "root"
