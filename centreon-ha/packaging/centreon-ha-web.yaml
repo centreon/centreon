@@ -39,7 +39,6 @@ contents:
       owner: "root"
       group: "root"
       mode: 0644
-      config: true
   - src: "./etc/centreon-gorgone/config.d/cron.d/20-centreon-ha-centreon-autodisco.yaml"
     dst: "/etc/centreon-gorgone/config.d/cron.d/20-centreon-ha-centreon-autodisco.yaml"
     type: config|noreplace
@@ -94,6 +93,9 @@ contents:
       owner: "root"
       group: "root"
       mode: 0644
+
+scripts:
+  - ./scripts/centreon-ha-web-postinst.sh
 
 overrides:
   rpm:

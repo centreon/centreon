@@ -82,6 +82,9 @@ contents:
       group: "root"
       mode: 0755
 
+scripts:
+  - ./scripts/centreon-ha-common-postinst.sh
+
 overrides:
   rpm:
     depends:
