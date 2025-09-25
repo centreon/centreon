@@ -2531,12 +2531,8 @@ msgstr "Commande de rechargement de Centreon Broker"
 msgid ""
 "Centreon Broker's configuration directory '%s' does not exist and could not\n"
 "                                             be created for monitoring "
-"engine '%s'. Please check it's path or create it"
+"engine '%s'. Please check its path or create it"
 msgstr ""
-"Le répertoire '%s' de configuration de Centreon Broker n'existe pas et ne "
-"peut être créé\n"
-"                                             pour le moteur de supervision "
-"'%s'. Merci de vérifier le chemin du répertoire ou de le créer"
 
 #: centreon/www/class/centreon-clapi/centreon.Config.Poller.class.php
 #, php-format
@@ -3660,12 +3656,8 @@ msgstr "Impossible d'établir une connexion avec les serveurs Centreon IMP ("
 #, php-format
 msgid ""
 "Could not find configuration directory '%s' for monitoring engine '%s'.\n"
-"                                 Please check it's path or create it"
+"                                 Please check its path or create it"
 msgstr ""
-"Impossible de trouver le répertoire de configuration '%s' du moteur de "
-"supervision '%s'.\n"
-"                                 Merci de vérifier le chemin du répertoire "
-"ou de le créer"
 
 #: centreon/src/CentreonRemote/Infrastructure/Service/PollerInteractionService.php
 #: centreon/www/include/configuration/configGenerate/xml/moveFiles.php
@@ -20675,6 +20667,19 @@ msgstr "Information sur Centreon Broker"
 msgid "Centreon Broker socket path"
 msgstr "Chemin d'accès au socket Unix de Centreon Broker"
 
+#, php-format
+#: unknown
+msgid ""
+"Centreon Broker's configuration directory '%s' does not exist and could "
+"not\n"
+"                                             be created for monitoring "
+"engine '%s'. Please check it's path or create it"
+msgstr ""
+"Le répertoire '%s' de configuration de Centreon Broker n'existe pas et ne "
+"peut être créé\n"
+"                                             pour le moteur de "
+"supervision '%s'. Merci de vérifier le chemin du répertoire ou de le créer"
+
 #: unknown
 msgid "Centreon DataBase Statistics"
 msgstr "Statistiques sur les bases de données de Centreon"
@@ -20928,6 +20933,17 @@ msgid "Could not find configuration database. Session probably expired."
 msgstr ""
 "Impossible de trouver la base de données de configuration. La session a "
 "probablement expiré."
+
+#, php-format
+#: unknown
+msgid ""
+"Could not find configuration directory '%s' for monitoring engine '%s'.\n"
+"                                 Please check it's path or create it"
+msgstr ""
+"Impossible de trouver le répertoire de configuration '%s' du moteur de "
+"supervision '%s'.\n"
+"                                 Merci de vérifier le chemin du "
+"répertoire ou de le créer"
 
 #: unknown
 msgid "Could not find database user. Session probably expired."
