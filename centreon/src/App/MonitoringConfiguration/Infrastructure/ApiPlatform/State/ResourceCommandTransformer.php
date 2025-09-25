@@ -21,7 +21,7 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Command;
+namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\State;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Command\Command;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Command\CommandResource;

@@ -26,10 +26,12 @@ namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Comman
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\Patch;
 use ApiPlatform\OpenApi\Model;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandTypeEnum;
 use App\MonitoringConfiguration\Domain\Security\CommandPermissionEnum;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Command\FindCommandProvider;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\FindCommandProvider;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\UpdateCommandProcessor;
 
 #[ApiResource(
     shortName: 'Command',
@@ -62,6 +64,32 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Command\FindCom
                 ))
             ',
             securityMessage: 'You are not allowed to access this command',
+        ),
+        new Patch(
+            uriTemplate: '/configuration/commands/{id}',
+            provider: FindCommandProvider::class,
+            processor: UpdateCommandProcessor::class,
+            openapi: new Model\Operation(
+                responses: [
+                    404 => new Model\Response('Command resource not found'),
+                    403 => new Model\Response('You are not allowed to update this command'),
+                ],
+            ),
+            securityPostDenormalize: '
+                (object.type == "' . CommandTypeEnum::Notification->name . '" and
+                    is_granted("' . CommandPermissionEnum::CanReadAndWriteNotifications->value . '")
+                ) or
+                (object.type == "' . CommandTypeEnum::Check->name . '" and
+                    is_granted("' . CommandPermissionEnum::CanReadAndWriteChecks->value . '")
+                ) or
+                (object.type == "' . CommandTypeEnum::Miscellaneous->name . '" and
+                    is_granted("' . CommandPermissionEnum::CanReadAndWriteMiscellaneous->value . '")
+                ) or
+                (object.type == "' . CommandTypeEnum::Discovery->name . '" and
+                    is_granted("' . CommandPermissionEnum::CanReadAndWriteDiscovery->value . '")
+                )
+            ',
+            securityMessage: 'You are not allowed to update this command',
         ),
     ],
 )]

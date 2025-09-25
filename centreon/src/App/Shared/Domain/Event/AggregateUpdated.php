@@ -21,23 +21,21 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Command;
+namespace App\Shared\Domain\Event;
 
-use App\MonitoringConfiguration\Domain\Aggregate\Connector\Connector;
+use App\Shared\Domain\Aggregate\AggregateRoot;
 
-final class ConnectorDto
+abstract readonly class AggregateUpdated implements EventInterface
 {
     public function __construct(
-        public int $id,
-        public ?string $name,
+        public AggregateRoot $aggregate,
+        public int $creatorId,
+        public \DateTimeImmutable $firedAt = new \DateTimeImmutable(),
     ) {
     }
 
-    public static function createFromConnector(Connector $connector): self
+    public function firedAt(): \DateTimeImmutable
     {
-        return new self(
-            id: $connector->id->value,
-            name: $connector->name?->value,
-        );
+        return $this->firedAt;
     }
 }

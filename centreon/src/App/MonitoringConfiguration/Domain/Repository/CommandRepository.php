@@ -33,4 +33,11 @@ interface CommandRepository
      * @throws CommandNotFoundException
      */
     public function getById(CommandId $id): Command;
+
+    /**
+     * @throws CommandNotFoundException
+     */
+    public function update(Command $command): void;
+
+    public function exists(CommandId $id): bool;
 }

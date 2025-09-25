@@ -33,6 +33,7 @@ use App\Shared\Infrastructure\Dbal\DbalRepository;
 use App\Shared\Infrastructure\TransformerInterface;
 use Doctrine\DBAL\Connection;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
+use Webmozart\Assert\Assert;
 
 /**
  * @phpstan-type RowTypeAlias = array{
@@ -76,7 +77,6 @@ final readonly class DbalCommandRepository extends DbalRepository implements Com
             'command_id',
             'command_name',
             'command_line',
-            'command_example',
             'command_type',
             'enable_shell',
             'command_activate',
@@ -97,6 +97,51 @@ final readonly class DbalCommandRepository extends DbalRepository implements Com
         }
 
         return $this->createCommand($row);
+    }
+
+    public function exists(CommandId $id): bool
+    {
+        $qb = $this->connection->createQueryBuilder();
+
+        $qb->select('1')
+            ->from(self::TABLE_NAME)
+            ->where('command_id = :id')
+            ->setParameter('id', $id->value)
+            ->setMaxResults(1);
+
+        return (bool) $qb->executeQuery()->fetchOne();
+    }
+
+    public function update(Command $command): void
+    {
+        $commandId = $command->id();
+        Assert::isInstanceOf($commandId, CommandId::class);
+
+        if (! $this->exists($commandId)) {
+            throw new CommandNotFoundException(['id' => $commandId->value]);
+        }
+
+        $qb = $this->connection->createQueryBuilder();
+
+        $qb->update(self::TABLE_NAME)
+            ->set('command_name', ':name')
+            ->set('command_line', ':line')
+            ->set('command_type', ':type')
+            ->set('enable_shell', ':enable_shell')
+            ->set('command_activate', ':activate')
+            ->set('command_comment', ':comment')
+            ->set('connector_id', ':connector_id')
+            ->where('command_id = :id')
+            ->setParameter('id', $command->id()->value)
+            ->setParameter('name', $command->name->value)
+            ->setParameter('line', $command->commandLine->value)
+            ->setParameter('type', $command->type->value)
+            ->setParameter('enable_shell', $command->isShellEnabled ? 1 : 0)
+            ->setParameter('activate', $command->isActivated ? 1 : 0)
+            ->setParameter('comment', $command->comment->value ?? null)
+            ->setParameter('connector_id', $command->connector instanceof Connector ? $command->connector->id->value : null);
+
+        $qb->executeStatement();
     }
 
     /**

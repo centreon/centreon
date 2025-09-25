@@ -27,7 +27,7 @@ final readonly class Connector
 {
     public function __construct(
         public readonly ConnectorId $id,
-        public readonly ConnectorName $name,
+        public readonly ?ConnectorName $name,
     ) {
     }
 }
