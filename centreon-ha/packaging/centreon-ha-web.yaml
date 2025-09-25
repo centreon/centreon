@@ -95,7 +95,7 @@ contents:
       mode: 0644
 
 scripts:
-  - ./scripts/centreon-ha-web-postinst.sh
+  postinstall: ./scripts/centreon-ha-web-postinst.sh
 
 overrides:
   rpm:

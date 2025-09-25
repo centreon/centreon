@@ -83,7 +83,7 @@ contents:
       mode: 0755
 
 scripts:
-  - ./scripts/centreon-ha-common-postinst.sh
+  postinstall: ./scripts/centreon-ha-common-postinst.sh
 
 overrides:
   rpm:
