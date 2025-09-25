@@ -1121,7 +1121,14 @@ if ($o != MASSIVE_CHANGE) {
         }
     }
 
-    $form->addRule(array('contact_passwd', 'contact_passwd2'), _("Passwords do not match"), 'compare');
+    if (
+        $o !== MASSIVE_CHANGE
+        && $authTypeConnectedUser === CentreonAuth::AUTH_TYPE_LOCAL
+        && $authTypeContact !== CentreonAuth::AUTH_TYPE_LDAP
+    ) {
+        $form->addRule(array('contact_passwd', 'contact_passwd2'), _("Passwords do not match"), 'compare');
+    }
+
     if ($o === ADD_CONTACT || $o === MODIFY_CONTACT) {
         $form->addFormRule('validatePasswordCreation');
         $form->addFormRule('validateAutologin');
