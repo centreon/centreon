@@ -173,8 +173,7 @@ $insertNewCommandsTopologyRights = function (int $aclTopologyId) use ($pearDB, &
     );
 };
 
-$getOrCreateActionGroup = function (int $aclGroupId, array &$actionGroupRelations) use ($pearDB, &$errorMessage): ?array {
-
+$getOrCreateActionGroup = function (int $aclGroupId, array &$actionGroupRelations) use ($pearDB, &$errorMessage): array {
     $actionGroup = null;
     foreach ($actionGroupRelations as $relation) {
         if ($relation['acl_group_id'] === $aclGroupId) {
@@ -183,36 +182,39 @@ $getOrCreateActionGroup = function (int $aclGroupId, array &$actionGroupRelation
         }
     }
 
-    if ($actionGroup === null) {
-        $errorMessage = 'Unable to create a new acl_action';
-        $pearDB->executeStatement(
-            <<<'SQL'
-                INSERT INTO acl_actions (acl_action_name, acl_action_activate)
-                VALUES (CONCAT((SELECT acl_group_name FROM acl_groups WHERE acl_group_id = :acl_group_id), '_actions'), '1')
-                SQL,
-            QueryParameters::create([
-                QueryParameter::int('acl_group_id', $aclGroupId),
-            ])
-        );
-        $actionId = (int) $pearDB->lastInsertId();
+    if ($actionGroup !== null) {
 
-        $errorMessage = 'Unable to link a new acl_action to an acl_group';
-        $pearDB->executeStatement(
-            <<<'SQL'
-                INSERT INTO acl_group_actions_relations (acl_group_id, acl_action_id)
-                VALUES (:acl_group_id, :acl_action_id)
-                SQL,
-            QueryParameters::create([
-                QueryParameter::int('acl_group_id', $aclGroupId),
-                QueryParameter::int('acl_action_id', $actionId),
-            ])
-        );
-        $actionGroup = [
-            'acl_group_id' => $aclGroupId,
-            'acl_action_id' => $actionId,
-        ];
-        $actionGroupRelations[] = $actionGroup;
+        return $actionGroup;
     }
+
+    $errorMessage = 'Unable to create a new acl_action';
+    $pearDB->executeStatement(
+        <<<'SQL'
+            INSERT INTO acl_actions (acl_action_name, acl_action_activate)
+            VALUES (CONCAT((SELECT acl_group_name FROM acl_groups WHERE acl_group_id = :acl_group_id), '_actions'), '1')
+            SQL,
+        QueryParameters::create([
+            QueryParameter::int('acl_group_id', $aclGroupId),
+        ])
+    );
+    $actionId = (int) $pearDB->lastInsertId();
+
+    $errorMessage = 'Unable to link a new acl_action to an acl_group';
+    $pearDB->executeStatement(
+        <<<'SQL'
+            INSERT INTO acl_group_actions_relations (acl_group_id, acl_action_id)
+            VALUES (:acl_group_id, :acl_action_id)
+            SQL,
+        QueryParameters::create([
+            QueryParameter::int('acl_group_id', $aclGroupId),
+            QueryParameter::int('acl_action_id', $actionId),
+        ])
+    );
+    $actionGroup = [
+        'acl_group_id' => $aclGroupId,
+        'acl_action_id' => $actionId,
+    ];
+    $actionGroupRelations[] = $actionGroup;
 
     return $actionGroup;
 };
@@ -226,6 +228,11 @@ $addCommandRightIntoAction = function (string $commandType, int $accessRight, in
         2 => "see_{$commandType}_commands",
         default => null,
     };
+
+    if ($actionName === null) {
+        // Should never occur
+        return;
+    }
 
     $errorMessage = 'Unable to read into table acl_actions_rules';
     $alreadyExist = $pearDB->fetchOne(
