@@ -62,7 +62,7 @@ class ServiceConfigurationService extends AbstractCentreonService implements Ser
         ServiceConfigurationRepositoryInterface $serviceConfigurationRepository,
         ReadAccessGroupRepositoryInterface $accessGroupRepository,
         HostConfigurationServiceInterface $hostConfigurationService,
-        EngineConfigurationServiceInterface $engineConfigurationService
+        EngineConfigurationServiceInterface $engineConfigurationService,
     ) {
         $this->serviceRepository = $serviceConfigurationRepository;
         $this->accessGroupRepository = $accessGroupRepository;

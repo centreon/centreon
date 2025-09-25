@@ -146,7 +146,7 @@ class GroupsMapping implements SecurityAccessInterface
      */
     private function validateGroupsMappingAttributeOrFail(
         array $providerGroupsMapping,
-        array $contactGroupRelations
+        array $contactGroupRelations,
     ): void {
         if (array_is_list($providerGroupsMapping) === false) {
             $errorMessage = 'Invalid authentication conditions format, array of strings expected';

@@ -38,7 +38,7 @@ class HTML_QuickForm_tags extends HTML_QuickForm_select2
         $elementLabel = null,
         $options = null,
         $attributes = null,
-        $sort = null
+        $sort = null,
     ) {
         global $centreon;
 
@@ -63,7 +63,7 @@ class HTML_QuickForm_tags extends HTML_QuickForm_select2
     public function getJsInit()
     {
         $allowClear = 'true';
-        if (false === $this->_allowClear || $this->_flagFrozen) {
+        if ($this->_allowClear === false || $this->_flagFrozen) {
             $allowClear = 'false';
         }
 

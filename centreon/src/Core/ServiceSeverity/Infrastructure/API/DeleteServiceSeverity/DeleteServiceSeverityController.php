@@ -43,7 +43,7 @@ final class DeleteServiceSeverityController extends AbstractController
     public function __invoke(
         int $serviceSeverityId,
         DeleteServiceSeverity $useCase,
-        DefaultPresenter $presenter
+        DefaultPresenter $presenter,
     ): Response {
         $this->denyAccessUnlessGrantedForApiConfiguration();
 

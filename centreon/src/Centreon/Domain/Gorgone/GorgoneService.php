@@ -47,7 +47,7 @@ class GorgoneService implements GorgoneServiceInterface
      */
     public function __construct(
         ResponseRepositoryInterface $responseRepository,
-        CommandRepositoryInterface $commandRepository
+        CommandRepositoryInterface $commandRepository,
     ) {
         $this->commandRepository = $commandRepository;
         Response::setRepository($responseRepository);

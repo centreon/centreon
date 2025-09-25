@@ -591,7 +591,7 @@ class CentreonConfigurationRemote extends CentreonWebServiceAbstract
         string $httpMethod,
         string $httpPort,
         bool $noCheckCertificate,
-        bool $noProxy
+        bool $noProxy,
     ): void {
         $currentDate = date('Y-m-d H:i:s');
 

@@ -35,7 +35,7 @@ class NotifiableService
         private readonly int $id,
         private readonly string $name,
         private readonly ?string $alias,
-        private readonly array $events
+        private readonly array $events,
     ) {
     }
 

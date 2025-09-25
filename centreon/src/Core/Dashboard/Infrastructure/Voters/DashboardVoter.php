@@ -65,7 +65,7 @@ final class DashboardVoter extends Voter
         return match ($attribute) {
             self::DASHBOARD_ACCESS => $this->checkUsersRights($user),
             self::DASHBOARD_ACCESS_EDITOR => $this->checkEditorsRights($user),
-            default => throw new \LogicException('Action on dashboard not handled')
+            default => throw new \LogicException('Action on dashboard not handled'),
         };
     }
 

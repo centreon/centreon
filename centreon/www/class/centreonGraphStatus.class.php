@@ -91,7 +91,7 @@ class CentreonGraphStatus
         $this->setRRDOption('end', $this->endTime);
 
         $path = $this->statusPath . '/' . $this->index . '.rrd';
-        if (false === file_exists($path)) {
+        if (file_exists($path) === false) {
             throw new RuntimeException();
         }
 
@@ -161,16 +161,16 @@ class CentreonGraphStatus
             return false;
         }
 
-        if (false === $sock) {
+        if ($sock === false) {
             return false;
         }
 
-        if (false === fputs($sock, "BATCH\n")) {
+        if (fputs($sock, "BATCH\n") === false) {
             @fclose($sock);
 
             return false;
         }
-        if (false === fgets($sock)) {
+        if (fgets($sock) === false) {
             @fclose($sock);
 
             return false;
@@ -178,18 +178,18 @@ class CentreonGraphStatus
 
         $fullpath = realpath($this->statusPath . $indexData . '.rrd');
         $cmd = 'FLUSH ' . $fullpath;
-        if (false === fputs($sock, $cmd . "\n")) {
+        if (fputs($sock, $cmd . "\n") === false) {
             @fclose($sock);
 
             return false;
         }
 
-        if (false === fputs($sock, ".\n")) {
+        if (fputs($sock, ".\n") === false) {
             @fclose($sock);
 
             return false;
         }
-        if (false === fgets($sock)) {
+        if (fgets($sock) === false) {
             @fclose($sock);
 
             return false;
@@ -219,7 +219,7 @@ class CentreonGraphStatus
         $res = $dbc->query($query);
         $row = $res->fetch();
 
-        if (false == $row) {
+        if ($row == false) {
             throw new OutOfRangeException();
         }
 

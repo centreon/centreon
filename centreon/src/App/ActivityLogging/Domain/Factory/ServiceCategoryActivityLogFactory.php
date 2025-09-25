@@ -30,7 +30,7 @@ use App\ActivityLogging\Domain\Aggregate\Target;
 use App\ActivityLogging\Domain\Aggregate\TargetId;
 use App\ActivityLogging\Domain\Aggregate\TargetName;
 use App\ActivityLogging\Domain\Aggregate\TargetTypeEnum;
-use App\ResourceConfiguration\Domain\Aggregate\ServiceCategory;
+use App\MonitoringConfiguration\Domain\Aggregate\ServiceCategory\ServiceCategory;
 use App\Shared\Domain\Aggregate\AggregateRoot;
 use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 

@@ -37,7 +37,7 @@ class ResourceMetric
         private readonly string $resourceName,
         private readonly string $parentName,
         private readonly int $parentId,
-        private readonly array $metrics
+        private readonly array $metrics,
     ) {
     }
 

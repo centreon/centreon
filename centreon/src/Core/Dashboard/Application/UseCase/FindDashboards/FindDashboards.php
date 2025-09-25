@@ -57,7 +57,7 @@ final class FindDashboards
         private readonly ContactInterface $contact,
         private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
         private readonly ReadUserProfileRepositoryInterface $userProfileReader,
-        private readonly bool $isCloudPlatform
+        private readonly bool $isCloudPlatform,
     ) {
     }
 

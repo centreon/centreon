@@ -46,7 +46,7 @@ class CentreonConfigurationCommand extends CentreonConfigurationObjects
     {
         $queryValues = [];
         // Check for select2 'q' argument
-        if (false === isset($this->arguments['q'])) {
+        if (isset($this->arguments['q']) === false) {
             $queryValues['commandName'] = '%%';
         } else {
             $queryValues['commandName'] = '%' . (string) $this->arguments['q'] . '%';

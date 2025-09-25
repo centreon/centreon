@@ -81,7 +81,7 @@ interface ReadResourceRepositoryInterface
     public function iterateResourcesByAccessGroupIds(
         ResourceFilter $filter,
         array $accessGroupIds,
-        int $maxResults = 0
+        int $maxResults = 0,
     ): \Traversable;
 
     /**
@@ -104,7 +104,7 @@ interface ReadResourceRepositoryInterface
     public function countResourcesByFilterAndAccessGroupIds(
         ResourceFilter $filter,
         bool $allPages,
-        array $accessGroupIds
+        array $accessGroupIds,
     ): int;
 
     /**

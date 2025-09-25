@@ -1,7 +1,7 @@
 parameters:
     paths:
         - ./src/App/ActivityLogging
-        - ./src/App/ResourceConfiguration
+        - ./src/App/MonitoringConfiguration
         - ./src/App/Shared
 
     layers:
@@ -51,19 +51,21 @@ parameters:
         Infrastructure: [ Domain, Application, Vendors, Helpers ]
 
     skip_violations:
-        App\Shared\Infrastructure\Legacy\LegacyKernelWrapper: 
+        App\Shared\Infrastructure\Legacy\LegacyKernelWrapper:
             - App\Kernel
-        App\Shared\Infrastructure\Legacy\LegacyContainer: 
+        App\Shared\Infrastructure\Legacy\LegacyContainer:
             - App\Kernel
-        App\Shared\Infrastructure\Legacy\LegacyContactProviderWrapper: 
+        App\Shared\Infrastructure\Legacy\LegacyContactProviderWrapper:
             - Centreon\Domain\Contact\ContactProvider
-        App\Shared\Infrastructure\Legacy\LegacyTokenApiAuthenticatorWrapper: 
+        App\Shared\Infrastructure\Legacy\LegacyTokenApiAuthenticatorWrapper:
             - Security\TokenAPIAuthenticator
-        App\Shared\Infrastructure\Legacy\LegacyWebSsoAuthenticatorWrapper: 
+        App\Shared\Infrastructure\Legacy\LegacyWebSsoAuthenticatorWrapper:
             - Security\WebSSOAuthenticator
-        App\Shared\Infrastructure\Legacy\LegacySessionApiAuthenticatorWrapper: 
+        App\Shared\Infrastructure\Legacy\LegacySessionApiAuthenticatorWrapper:
             - Security\SessionAPIAuthenticator
-        App\Shared\Infrastructure\Legacy\LegacySecurity: 
+        App\Shared\Infrastructure\Legacy\LegacySecurity:
             - Centreon\Domain\Contact\Contact
-        App\ResourceConfiguration\Infrastructure\Legacy\LegacyServiceCategoryPermissionVoter:
+        App\MonitoringConfiguration\Infrastructure\Legacy\LegacyServiceCategoryPermissionVoter:
+            - Centreon\Domain\Contact\Contact
+        App\MonitoringConfiguration\Infrastructure\Legacy\LegacyGlobalMacroPermissionVoter:
             - Centreon\Domain\Contact\Contact

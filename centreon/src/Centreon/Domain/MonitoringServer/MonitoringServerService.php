@@ -48,7 +48,7 @@ class MonitoringServerService implements MonitoringServerServiceInterface
     public function __construct(
         private readonly MonitoringServerRepositoryInterface $monitoringServerRepository,
         private readonly ReadAccessGroupRepositoryInterface $readAccessGroupsRepository,
-        private readonly ContactInterface $contact
+        private readonly ContactInterface $contact,
     ) {
     }
 

@@ -45,7 +45,7 @@ final class MacroFactory
     {
         $macroName = mb_strtoupper($dto->name);
         $macroValue = $dto->value ?? '';
-        $passwordHasNotChanged = (null === $dto->value) && $dto->isPassword;
+        $passwordHasNotChanged = ($dto->value === null) && $dto->isPassword;
         // Note: do not handle vault storage at the moment
         if ($passwordHasNotChanged) {
             $macroValue = match (true) {

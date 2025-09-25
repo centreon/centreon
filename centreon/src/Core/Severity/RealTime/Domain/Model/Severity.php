@@ -50,7 +50,7 @@ class Severity
         private string $name,
         private int $level,
         private int $type,
-        private Icon $icon
+        private Icon $icon,
     ) {
         Assertion::maxLength($name, self::MAX_NAME_LENGTH, 'Severity::name');
         Assertion::notEmpty($name, 'Severity::name');

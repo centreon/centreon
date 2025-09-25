@@ -952,7 +952,7 @@ function updateRemoteAccessCredentials($db, $form, $centreonEncryption): void
         updateInformations($db, $key, $value);
     }
 
-    if (CentreonAuth::PWS_OCCULTATION !== $passApi) {
+    if ($passApi !== CentreonAuth::PWS_OCCULTATION) {
         try {
             updateInformations(
                 $db,
