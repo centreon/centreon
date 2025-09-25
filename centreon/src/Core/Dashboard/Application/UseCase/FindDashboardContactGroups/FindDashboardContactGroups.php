@@ -48,7 +48,7 @@ final class FindDashboardContactGroups
         private readonly ContactInterface $contact,
         private readonly ReadDashboardShareRepositoryInterface $readDashboardShareRepository,
         private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
-        private readonly bool $isCloudPlatform
+        private readonly bool $isCloudPlatform,
     ) {
     }
 

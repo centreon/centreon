@@ -1,0 +1,24 @@
+get:
+  tags:
+    - Metrics
+  summary: 'Get meta service metric data'
+  description: |
+    Retrieve the data for a specific metric of a meta service
+  parameters:
+    - $ref: 'Schema/MetaServiceId.yaml'
+    - $ref: 'Schema/MetricName.yaml'
+  responses:
+    '200':
+      description: "OK"
+      content:
+        application/json:
+          schema:
+            $ref: 'Schema/Metric.yaml'
+    '400':
+      $ref: '../../Common/Response/BadRequest.yaml'
+    '403':
+      $ref: '../../Common/Response/Forbidden.yaml'
+    '404':
+      $ref: '../../Common/Response/NotFound.yaml'
+    '500':
+      $ref: '../../Common/Response/InternalServerError.yaml'

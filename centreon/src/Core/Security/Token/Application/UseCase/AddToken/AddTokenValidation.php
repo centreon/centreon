@@ -37,7 +37,7 @@ class AddTokenValidation
     public function __construct(
         private readonly ReadTokenRepositoryInterface $readTokenRepository,
         private readonly ReadContactRepositoryInterface $readContactRepository,
-        private readonly ContactInterface $user
+        private readonly ContactInterface $user,
     ) {
     }
 
@@ -71,7 +71,7 @@ class AddTokenValidation
         if (! $this->user->isAdmin() && $this->user->getId() !== $userId && ! $this->user->hasRole(Contact::ROLE_MANAGE_TOKENS)) {
             throw TokenException::notAllowedToCreateTokenForUser($userId);
         }
-        if (false === $this->readContactRepository->exists($userId)) {
+        if ($this->readContactRepository->exists($userId) === false) {
             throw TokenException::invalidUserId($userId);
         }
     }

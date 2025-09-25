@@ -50,7 +50,7 @@ final class FindRealTimeUniqueServiceNames
         private readonly ContactInterface $user,
         private readonly ReadAccessGroupRepositoryInterface $accessGroupRepository,
         private readonly RequestParametersInterface $requestParameters,
-        private readonly ReadRealTimeServiceRepositoryInterface $repository
+        private readonly ReadRealTimeServiceRepositoryInterface $repository,
     ) {
     }
 

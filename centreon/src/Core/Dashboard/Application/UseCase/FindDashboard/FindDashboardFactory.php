@@ -51,7 +51,7 @@ final class FindDashboardFactory
         DashboardSharingRoles $sharingRoles,
         array $contactShares,
         array $contactGroupShares,
-        DashboardSharingRole $defaultRole
+        DashboardSharingRole $defaultRole,
     ): FindDashboardResponse {
         $ownRole = $defaultRole->getTheMostPermissiveOfBoth($sharingRoles->getTheMostPermissiveRole());
         $response = new FindDashboardResponse();

@@ -39,7 +39,7 @@ class NewNotification
     public function __construct(
         protected string $name,
         protected TimePeriod $timePeriod,
-        protected bool $isActivated = true
+        protected bool $isActivated = true,
     ) {
         $shortName = (new \ReflectionClass($this))->getShortName();
 

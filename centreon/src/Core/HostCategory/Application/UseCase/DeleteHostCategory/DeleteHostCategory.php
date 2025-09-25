@@ -44,7 +44,7 @@ final class DeleteHostCategory
         private WriteHostCategoryRepositoryInterface $writeHostCategoryRepository,
         private ReadHostCategoryRepositoryInterface $readHostCategoryRepository,
         private ReadAccessGroupRepositoryInterface $readAccessGroupRepositoryInterface,
-        private ContactInterface $user
+        private ContactInterface $user,
     ) {
     }
 

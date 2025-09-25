@@ -50,7 +50,7 @@ final class FindRealTimeHostCategories
         private readonly ReadRealTimeHostCategoryRepositoryInterface $repository,
         private readonly ReadHostCategoryRepositoryInterface $configurationRepository,
         private readonly RequestParametersInterface $requestParameters,
-        private readonly ReadAccessGroupRepositoryInterface $accessGroupRepository
+        private readonly ReadAccessGroupRepositoryInterface $accessGroupRepository,
     ) {
     }
 

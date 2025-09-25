@@ -269,7 +269,7 @@ if ($form->validate()) {
             $valid = $oImageUploader->update($imgId, $imgName);
         }
         $form->freeze();
-        if (false === $valid) {
+        if ($valid === false) {
             $form->setElementError('filename', 'An image is not uploaded.');
         }
         /**
@@ -291,7 +291,7 @@ if ($form->validate()) {
                 $valid = $oImageUploader->update($imgId, $imgName);
             }
             $form->freeze();
-            if (false === $valid) {
+            if ($valid === false) {
                 $form->setElementError('filename', 'Images already uploaded.');
             }
         }

@@ -45,7 +45,7 @@ final class FindUserPermissionsController extends AbstractController
     public function __invoke(
         StandardPresenter $presenter,
         FindUserPermissions $useCase,
-        ContactInterface $user
+        ContactInterface $user,
     ): Response {
         $response = $useCase($user);
 

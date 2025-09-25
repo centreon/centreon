@@ -77,7 +77,7 @@ class VaultConfiguration
         private string $rootPath,
         private string $encryptedRoleId,
         private string $encryptedSecretId,
-        private string $salt
+        private string $salt,
     ) {
         $this->setName($name);
         $this->setAddress($address);

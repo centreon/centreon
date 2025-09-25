@@ -34,6 +34,6 @@ interface BrokerRepositoryInterface
      */
     public function findByMonitoringServerAndParameterName(
         int $monitoringServerId,
-        string $configKey
+        string $configKey,
     ): array;
 }

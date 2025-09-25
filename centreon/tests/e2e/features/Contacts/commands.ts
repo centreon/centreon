@@ -34,9 +34,6 @@ Cypress.Commands.add('addOrUpdateContact', (body: Contact) => {
   cy.getIframeBody().find('input[id="contact_pager"]').clear().type(body.pager);
   cy.getIframeBody().find('#contact_template_id').select(body.template);
   cy.getIframeBody().contains('label', body.isNotificationsEnabled).click();
-  cy.getIframeBody().find('input.btc.bt_success[name^="submit"]').eq(0).click();
-  cy.wait('@getTimeZone');
-  cy.exportConfig();
 });
 
 Cypress.Commands.add('addOrUpdateContactGroup', (body: ContactGroup) => {
@@ -128,6 +125,15 @@ Cypress.Commands.add(
   }
 );
 
+Cypress.Commands.add('visitContactsPage', (index: number) => {
+  cy.navigateTo({
+    page: 'Contacts / Users',
+    rootItemNumber: index,
+    subMenu: 'Users'
+  });
+  cy.wait('@getTimeZone');
+});
+
 declare global {
   // biome-ignore lint/style/noNamespace: <explanation>
   namespace Cypress {
@@ -139,6 +145,7 @@ declare global {
         jsonName: string,
         login: string
       ) => Cypress.Chainable;
+      visitContactsPage: (index: number) => Cypress.Chainable;
     }
   }
 }

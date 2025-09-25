@@ -52,7 +52,7 @@ final class UpdateServiceSeverity
         private readonly ReadServiceSeverityRepositoryInterface $readServiceSeverityRepository,
         private readonly ReadViewImgRepositoryInterface $readViewImgRepository,
         private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepositoryInterface,
-        private readonly ContactInterface $user
+        private readonly ContactInterface $user,
     ) {
     }
 

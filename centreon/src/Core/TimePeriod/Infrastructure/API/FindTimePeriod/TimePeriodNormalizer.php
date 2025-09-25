@@ -60,7 +60,7 @@ class TimePeriodNormalizer implements NormalizerInterface
     public function normalize(
         mixed $object,
         ?string $format = null,
-        array $context = []
+        array $context = [],
     ): array {
 
         /** @var array<string, bool|float|int|string> $data */

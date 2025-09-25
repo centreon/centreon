@@ -42,7 +42,7 @@ class Message
         protected Channel $channel,
         protected string $subject = '',
         protected string $message = '',
-        protected string $formattedMessage = ''
+        protected string $formattedMessage = '',
     ) {
         $shortName = (new \ReflectionClass($this))->getShortName();
 
