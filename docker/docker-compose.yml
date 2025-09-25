@@ -12,6 +12,7 @@ services:
       - app-status:/var/lib/centreon/status:rw,z
       - app-metrics:/var/lib/centreon/metrics:rw,z
       - app-centcore:/var/lib/centreon/centcore:rw,z
+      - app-centcache:/var/cache/centreon/:rw,z
     networks:
       - app-network
     healthcheck:
@@ -44,6 +45,7 @@ services:
       - 5669:5669
     networks:
       - app-network
+      - main-network
     volumes:
       - app-broker:/etc/centreon-broker:rw,z
       - app-status:/var/lib/centreon/status:rw,z
@@ -75,6 +77,7 @@ services:
       - app-gorgone:/etc/centreon-gorgone:rw,z
       - app-centcore:/var/lib/centreon/centcore:rw,z
       - app-centcmd:/var/lib/centreon-engine/rw:rw,z
+      - app-centcache:/var/cache/centreon/:rw,z
     depends_on:
       php-fpm:
         condition: service_healthy
@@ -102,6 +105,7 @@ volumes:
   app-gorgone:
   app-centcore:
   app-centcmd:
+  app-centcache:
   app-centlog:
   app-db:
   app-metrics:
