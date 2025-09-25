@@ -16,12 +16,6 @@ vendor: "Centreon"
 homepage: "https://github.com/centreon/centreon"
 license: "Apache-2.0"
 
-depends:
-  - perl-common-sense
-  - perl-Linux-Inotify2
-  - rsync
-  - systemd
-
 contents:
   # bin (0755 root:root)
   - src: "../bin/"
