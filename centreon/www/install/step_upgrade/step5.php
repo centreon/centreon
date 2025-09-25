@@ -42,7 +42,7 @@ if ((int) $stat['value'] != 1 && (int) $aVersion[2] === 0) {
 
 $title = _('Upgrade finished');
 
-if (false === is_dir(_CENTREON_VARLIB_ . '/installs')) {
+if (is_dir(_CENTREON_VARLIB_ . '/installs') === false) {
     $contents .= '<br>Warning : The installation directory cannot be moved. Please create the directory '
         . _CENTREON_VARLIB_ . '/installs and give apache user write permissions.';
     $moveable = false;

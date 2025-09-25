@@ -44,7 +44,7 @@ final class EnableDisableHostGroupsController extends AbstractController
         string $action,
         EnableDisableHostGroups $useCase,
         #[MapRequestPayload()] EnableDisableHostGroupsInput $request,
-        StandardPresenter $presenter
+        StandardPresenter $presenter,
     ): Response {
         $response = $useCase(EnableDisableHostGroupsRequestTransformer::transform($request, $action));
 

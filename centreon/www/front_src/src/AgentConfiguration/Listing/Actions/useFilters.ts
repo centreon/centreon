@@ -1,62 +1,110 @@
+import { equals, isNil, map, pick, propEq, reject } from 'ramda';
+
 import { SelectEntry } from '@centreon/ui';
-import { capitalize } from '@mui/material';
-import { useAtomValue, useSetAtom } from 'jotai';
-import { useCallback } from 'react';
-import {
-  changeFilterAtom,
-  deleteFilterEntryAtom,
-  filtersAtom
-} from '../../atoms';
-import { AgentType } from '../../models';
-import { labelCMA } from '../../translatedLabels';
 
-export const agentTypeOptions = [
-  {
-    id: AgentType.Telegraf,
-    name: capitalize(AgentType.Telegraf)
-  },
-  {
-    id: AgentType.CMA,
-    name: labelCMA
-  }
-];
+import { useQueryClient } from '@tanstack/react-query';
+import { useAtom } from 'jotai';
+import { useEffect, useState } from 'react';
+import { filtersAtom } from '../../atoms';
 
-interface UseFiltersProps {
-  agentTypes: Array<SelectEntry>;
-  pollers: Array<SelectEntry>;
-  changeEntries: (field: string) => (_, newEntries: Array<SelectEntry>) => void;
-  deleteEntry: (field: string) => (_, entry: SelectEntry) => void;
-  clearFilters: () => void;
+import { filtersInitialValues } from '../../utils';
+
+type NamedEntity = {
+  id: number;
+  name: string;
+};
+
+interface UseFiltersState {
+  isClearDisabled: boolean;
+  changeName: (event) => void;
+  changeTypes: (_, types: Array<SelectEntry>) => void;
+  changerPollers: (_, values) => void;
+  deletePoller: (_, item) => void;
+  deleteType: (_, item) => void;
+  isOptionEqualToValue: (option, selectedValue) => boolean;
+  reload: () => void;
+  reset: () => void;
+  filters;
 }
 
-export const useFilters = (): UseFiltersProps => {
-  const filters = useAtomValue(filtersAtom);
-  const changeFilter = useSetAtom(changeFilterAtom);
-  const deleteFilter = useSetAtom(deleteFilterEntryAtom);
+export const useFilters = (): UseFiltersState => {
+  const queryClient = useQueryClient();
 
-  const changeEntries = useCallback(
-    (field) => (_, newEntries) => {
-      changeFilter({ field, newEntries });
-    },
-    []
-  );
+  const [isClearClicked, setIsClearClicked] = useState(false);
 
-  const deleteEntry = useCallback(
-    (field) => (_, entry) => {
-      deleteFilter({ field, entryToDelete: entry });
-    },
-    []
-  );
+  const [filters, setFilters] = useAtom(filtersAtom);
 
-  const clearFilters = (): void => {
-    changeFilter({ field: 'agentTypes', newEntries: [] });
-    changeFilter({ field: 'pollers', newEntries: [] });
+  const isClearDisabled = equals(filters, filtersInitialValues);
+
+  const changeName = (event): void => {
+    setFilters({ ...filters, name: event.target.value });
   };
 
+  const changeTypes = (_, types: Array<SelectEntry>): void => {
+    const selectedTypes = map(
+      pick(['id', 'name']),
+      types || []
+    ) as Array<NamedEntity>;
+
+    setFilters({ ...filters, type: selectedTypes });
+  };
+
+  const changerPollers = (_, values): void => {
+    const pollers = map(pick(['id', 'name']), values);
+    setFilters({ ...filters, 'poller.id': pollers });
+  };
+
+  const deletePoller = (_, item): void => {
+    const pollers = reject(
+      ({ name }) => equals(item.name, name),
+      filters['poller.id']
+    );
+
+    setFilters({ ...filters, 'poller.id': pollers });
+  };
+
+  const deleteType = (_, option): void => {
+    const newItems = reject(propEq(option.id, 'id'), filters.type);
+
+    setFilters({
+      ...filters,
+      type: newItems
+    });
+  };
+
+  const isOptionEqualToValue = (option, selectedValue): boolean => {
+    return isNil(option)
+      ? false
+      : equals(option.name.toString(), selectedValue.name.toString());
+  };
+
+  const reload = (): void => {
+    queryClient.invalidateQueries({ queryKey: ['listAgentConfigurations'] });
+  };
+
+  const reset = (): void => {
+    setFilters(filtersInitialValues);
+
+    setIsClearClicked(true);
+  };
+
+  useEffect(() => {
+    if (isClearClicked) {
+      reload();
+      setIsClearClicked(false);
+    }
+  }, [filters, isClearClicked]);
+
   return {
-    ...filters,
-    changeEntries,
-    deleteEntry,
-    clearFilters
+    isClearDisabled,
+    changeName,
+    changeTypes,
+    changerPollers,
+    deletePoller,
+    deleteType,
+    isOptionEqualToValue,
+    reload,
+    reset,
+    filters
   };
 };

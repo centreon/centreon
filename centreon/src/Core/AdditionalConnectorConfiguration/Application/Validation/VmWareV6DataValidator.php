@@ -39,7 +39,7 @@ class VmWareV6DataValidator implements TypeDataValidatorInterface
      */
     public function isValidFor(Type $type): bool
     {
-        return Type::VMWARE_V6 === $type;
+        return $type === Type::VMWARE_V6;
     }
 
     /**
@@ -50,7 +50,7 @@ class VmWareV6DataValidator implements TypeDataValidatorInterface
         /** @var _VmWareV6Parameters $parameters */
         $parameters = $request->parameters;
 
-        if ([] === $parameters['vcenters']) {
+        if ($parameters['vcenters'] === []) {
             throw AccException::arrayCanNotBeEmpty('parameters.vcenters[]');
         }
 

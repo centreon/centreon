@@ -45,7 +45,7 @@ $populateDashboardTables = function (CentreonDb $pearDB): void {
             SELECT 1 FROM `dashboard_widgets` WHERE `name` = 'centreon-widget-statusgrid'
             SQL
     );
-    if (false === (bool) $statement->fetch(PDO::FETCH_COLUMN)) {
+    if ((bool) $statement->fetch(PDO::FETCH_COLUMN) === false) {
         $pearDB->query(
             <<<'SQL'
                 INSERT INTO `dashboard_widgets` (`name`)

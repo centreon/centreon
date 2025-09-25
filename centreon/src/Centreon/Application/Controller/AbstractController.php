@@ -72,7 +72,7 @@ abstract class AbstractController extends AbstractFOSRestController
             $response instanceof NotModifiedResponse => Response::HTTP_NOT_MODIFIED,
             $response instanceof PaymentRequiredResponse => Response::HTTP_PAYMENT_REQUIRED,
             $response instanceof UnauthorizedResponse => Response::HTTP_UNAUTHORIZED,
-            default => Response::HTTP_INTERNAL_SERVER_ERROR
+            default => Response::HTTP_INTERNAL_SERVER_ERROR,
         };
 
         return match($statusCode) {
@@ -80,7 +80,7 @@ abstract class AbstractController extends AbstractFOSRestController
             default => new JsonResponse([
                 'code' => $statusCode,
                 'message' => $response->getMessage(),
-            ], $statusCode)
+            ], $statusCode),
         };
     }
 

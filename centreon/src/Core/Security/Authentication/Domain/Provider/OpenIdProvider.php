@@ -122,7 +122,7 @@ class OpenIdProvider implements OpenIdProviderInterface
         private readonly GroupsMappingSecurityAccess $groupsMapping,
         private readonly AttributePathFetcher $attributePathFetcher,
         private readonly ReadVaultRepositoryInterface $readVaultRepository,
-        private readonly bool $isCloudPlatform
+        private readonly bool $isCloudPlatform,
     ) {
     }
 
@@ -1080,7 +1080,7 @@ class OpenIdProvider implements OpenIdProviderInterface
     private function urlSafeTokenDecode(string $token): string
     {
         $decoded = base64_decode(str_replace(['-', '_'], ['+', '/'], $token), true);
-        if (false === $decoded) {
+        if ($decoded === false) {
             throw new \ValueError('The token cannot be base64 decoded');
         }
 

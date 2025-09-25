@@ -65,7 +65,7 @@ final readonly class FindRule
         private ReadContactGroupRepositoryInterface $contactGroupRepository,
         private DatasetFilterValidator $datasetFilterValidator,
         private bool $isCloudPlatform,
-        \Traversable $repositoryProviders
+        \Traversable $repositoryProviders,
     ) {
         $this->repositoryProviders = iterator_to_array($repositoryProviders);
     }
@@ -106,7 +106,7 @@ final readonly class FindRule
     {
         $rule = $this->repository->findById($ruleId);
 
-        if (null === $rule) {
+        if ($rule === null) {
             return new NotFoundResponse('Resource Access Rule');
         }
 

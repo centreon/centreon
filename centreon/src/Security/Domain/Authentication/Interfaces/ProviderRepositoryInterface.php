@@ -45,6 +45,6 @@ interface ProviderRepositoryInterface
      * @return ProviderConfiguration|null
      */
     public function findProviderConfigurationByConfigurationName(
-        string $providerConfigurationName
+        string $providerConfigurationName,
     ): ?ProviderConfiguration;
 }

@@ -49,7 +49,7 @@ final class AddDashboardPresenter extends DefaultPresenter implements AddDashboa
      */
     public function __construct(
         PresenterFormatterInterface $presenterFormatter,
-        readonly private Router $router
+        readonly private Router $router,
     ) {
         $this->presenterFormatter = $presenterFormatter;
         parent::__construct($presenterFormatter);

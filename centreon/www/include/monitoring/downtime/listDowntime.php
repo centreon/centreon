@@ -216,7 +216,7 @@ $serviceQuery = <<<SQL
         1 AS REALTIME, d.internal_id as internal_downtime_id, d.entry_time, duration,
         d.author as author_name, d.comment_data, d.fixed as is_fixed, d.start_time as scheduled_start_time,
         d.end_time as scheduled_end_time, d.started as was_started, d.host_id, d.service_id, h.name as host_name,
-        s.description as service_description {$extraFields}
+        s.display_name as service_description {$extraFields}
     FROM downtimes d
     INNER JOIN services s
         ON d.host_id = s.host_id

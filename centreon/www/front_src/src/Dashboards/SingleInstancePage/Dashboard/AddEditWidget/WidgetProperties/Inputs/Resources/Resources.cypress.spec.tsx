@@ -28,7 +28,11 @@ import {
   labelYourChangesWillNotBeSavedIfYouSwitchRegexMode
 } from '../../../../translatedLabels';
 import { widgetPropertiesAtom } from '../../../atoms';
-import { WidgetPropertyProps, WidgetResourceType } from '../../../models';
+import {
+  ForceSingleAutocompleteConditions,
+  WidgetPropertyProps,
+  WidgetResourceType
+} from '../../../models';
 
 import Resources from './Resources';
 import { resourceTypeBaseEndpoints, resourceTypeOptions } from './useResources';
@@ -65,6 +69,7 @@ interface InitializeProps
   forcedResourceType?: string;
   defaultResourceTypes?: Array<string>;
   singleMetricSelection?: boolean;
+  forceSingleAutocompleteConditions?: ForceSingleAutocompleteConditions;
 }
 
 const initialize = ({
@@ -78,7 +83,8 @@ const initialize = ({
   properties = widgetDataProperties,
   forcedResourceType,
   defaultResourceTypes,
-  allowRegexOnResourceTypes
+  allowRegexOnResourceTypes,
+  forceSingleAutocompleteConditions
 }: InitializeProps): void => {
   const store = createStore();
   store.set(widgetPropertiesAtom, {
@@ -157,7 +163,9 @@ const initialize = ({
                     resources: []
                   },
               moduleName: 'widget',
-              options: {}
+              options: {
+                property: 'value'
+              }
             }}
             onSubmit={cy.stub()}
           >
@@ -169,8 +177,11 @@ const initialize = ({
               singleResourceType={singleResourceType}
               allowRegexOnResourceTypes={allowRegexOnResourceTypes}
               type=""
-              forcedResourceType={forcedResourceType}
               defaultResourceTypes={defaultResourceTypes}
+              forceSingleAutocompleteConditions={
+                forceSingleAutocompleteConditions
+              }
+              forcedResourceType={forcedResourceType}
             />
           </Formik>
         </Provider>
@@ -193,8 +204,7 @@ describe('Resources', () => {
 
     cy.findAllByTestId(labelSelectAResource).eq(0).click();
     cy.waitForRequest('@getHosts');
-    cy.contains('Host 0').click();
-    cy.findAllByTestId(labelSelectAResource).eq(0).click();
+    cy.findByRole('option', { name: 'Host 0' }).click();
 
     cy.findAllByTestId(labelSelectAResource).eq(1).click();
     cy.waitForRequest('@getServices').then(({ request }) => {
@@ -202,11 +212,14 @@ describe('Resources', () => {
         'page=1&limit=30&search=%7B%22%24and%22%3A%5B%7B%22%24or%22%3A%5B%7B%22host.name%22%3A%7B%22%24in%22%3A%5B%22Host%200%22%5D%7D%7D%5D%7D%5D%7D'
       );
     });
-    cy.contains('Service 0').click();
-    cy.findAllByTestId(labelSelectAResource).eq(1).click();
 
-    cy.contains('Host 0').should('be.visible');
-    cy.contains('Service 0').should('be.visible');
+    cy.findByRole('option', { name: 'Service 0' }).click();
+    cy.findAllByTestId(labelSelectAResource)
+      .eq(0)
+      .should('have.value', 'Host 0');
+    cy.findAllByTestId(labelSelectAResource)
+      .eq(1)
+      .should('have.value', 'Service 0');
 
     cy.makeSnapshot();
   });
@@ -495,7 +508,6 @@ describe('Resources tree', () => {
 
     cy.findAllByTestId(labelSelectAResource).eq(0).click();
     cy.contains('Host 0').click();
-    cy.findAllByTestId(labelSelectAResource).eq(0).click();
     cy.findAllByTestId(labelSelectAResource).eq(1).click();
     cy.contains('Service 0').click();
 
@@ -734,5 +746,39 @@ describe('Resources tree', () => {
     cy.contains('Host 0').should('not.exist');
 
     cy.makeSnapshot();
+  });
+
+  it('displays a resource type autocomplete as single autocomplete when the corresponding property conditions are met', () => {
+    initialize({
+      restrictedResourceTypes: ['host', 'service'],
+      forceSingleAutocompleteConditions: {
+        resourceType: 'host',
+        conditions: [
+          {
+            target: 'options',
+            when: 'options.property',
+            method: 'equals',
+            matches: 'value'
+          }
+        ]
+      }
+    });
+
+    cy.findAllByTestId(labelResourceType).eq(0).parent().click();
+    cy.contains(/^Host$/).click();
+    cy.findByTestId(labelSelectAResource).click();
+    cy.contains('Host 0').click();
+    cy.contains(labelAddFilter).click();
+    cy.findAllByTestId(labelResourceType).eq(1).parent().click();
+    cy.contains(/^Service$/).click();
+    cy.findAllByTestId(labelSelectAResource).eq(1).click();
+    cy.contains('Service 0').click();
+    cy.contains('Service 1').click();
+    cy.findAllByTestId(labelSelectAResource).eq(1).blur();
+
+    cy.findAllByTestId(labelSelectAResource)
+      .eq(0)
+      .should('have.value', 'Host 0');
+    cy.findAllByTestId(labelSelectAResource).eq(1).should('have.value', '');
   });
 });

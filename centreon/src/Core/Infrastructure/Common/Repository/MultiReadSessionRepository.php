@@ -33,7 +33,7 @@ class MultiReadSessionRepository implements ReadSessionRepositoryInterface
      */
     public function __construct(
         private SystemReadSessionRepository $systemRepository,
-        private DbReadSessionRepository $dbReadSessionRepository
+        private DbReadSessionRepository $dbReadSessionRepository,
     ) {
     }
 

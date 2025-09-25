@@ -5,6 +5,7 @@ FROM debian:bookworm AS web_dependencies
 ARG VERSION
 ARG STABILITY
 ARG IS_CLOUD
+ARG APT_AUTH_CONF_FILE="/etc/apt/auth.conf.d/centreon-${VERSION}-internal-${STABILITY}.conf"
 
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -41,11 +42,15 @@ echo "deb https://packages.sury.org/php/ \$VERSION_CODENAME main" | tee /etc/apt
 wget -O- https://packages.sury.org/php/apt.gpg | gpg --dearmor | tee /etc/apt/trusted.gpg.d/php.gpg  > /dev/null 2>&1
 
 if [[ "${IS_CLOUD}" == "true" ]]; then
-  echo "deb https://$(cat /run/secrets/ARTIFACTORY_INTERNAL_REPO_USERNAME):$(cat /run/secrets/ARTIFACTORY_INTERNAL_REPO_PASSWORD)@packages.centreon.com/apt-standard-internal-unstable/ \$VERSION_CODENAME main" | tee -a /etc/apt/sources.list.d/centreon-unstable.list
+  echo "deb https://packages.centreon.com/apt-standard-internal/ \$VERSION_CODENAME-${VERSION}-unstable main" | tee -a /etc/apt/sources.list.d/centreon-unstable.list
+  echo "machine packages.centreon.com" > $APT_AUTH_CONF_FILE
+  echo "login $(cat /run/secrets/ARTIFACTORY_INTERNAL_REPO_USERNAME)" >> $APT_AUTH_CONF_FILE
+  echo "password $(cat /run/secrets/ARTIFACTORY_INTERNAL_REPO_PASSWORD)" >> $APT_AUTH_CONF_FILE
+  chmod 600 $APT_AUTH_CONF_FILE
 else
-  echo "deb https://packages.centreon.com/apt-standard-${VERSION}-stable/ \$VERSION_CODENAME main" | tee -a /etc/apt/sources.list.d/centreon-stable.list
-  echo "deb https://packages.centreon.com/apt-standard-${VERSION}-testing/ \$VERSION_CODENAME main" | tee -a /etc/apt/sources.list.d/centreon-testing.list
-  echo "deb https://packages.centreon.com/apt-standard-${VERSION}-unstable/ \$VERSION_CODENAME main" | tee -a /etc/apt/sources.list.d/centreon-unstable.list
+  echo "deb https://packages.centreon.com/apt-standard/ \$VERSION_CODENAME-${VERSION}-stable main" | tee -a /etc/apt/sources.list.d/centreon-stable.list
+  echo "deb https://packages.centreon.com/apt-standard/ \$VERSION_CODENAME-${VERSION}-testing main" | tee -a /etc/apt/sources.list.d/centreon-testing.list
+  echo "deb https://packages.centreon.com/apt-standard/ \$VERSION_CODENAME-${VERSION}-unstable main" | tee -a /etc/apt/sources.list.d/centreon-unstable.list
 fi
 echo "deb https://packages.centreon.com/apt-plugins-stable/ \$VERSION_CODENAME main" | tee -a /etc/apt/sources.list.d/centreon-plugins-stable.list
 echo "deb https://packages.centreon.com/apt-plugins-testing/ \$VERSION_CODENAME main" | tee -a /etc/apt/sources.list.d/centreon-plugins-testing.list

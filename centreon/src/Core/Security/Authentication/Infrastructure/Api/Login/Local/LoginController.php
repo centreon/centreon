@@ -49,7 +49,7 @@ final class LoginController extends AbstractController
         Request $request,
         Login $useCase,
         LoginPresenter $presenter,
-        RequestStack $requestStack
+        RequestStack $requestStack,
     ): Response {
         /** @var string $content */
         $content = $request->getContent();

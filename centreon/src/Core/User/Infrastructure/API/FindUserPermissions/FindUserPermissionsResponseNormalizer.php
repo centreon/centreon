@@ -47,7 +47,7 @@ final readonly class FindUserPermissionsResponseNormalizer implements Normalizer
     public function normalize(
         mixed $object,
         ?string $format = null,
-        array $context = []
+        array $context = [],
     ): array {
         $data = $this->normalizer->normalize($object, $format, $context);
         $normalizedData = [];

@@ -24,6 +24,8 @@ declare(strict_types=1);
 namespace App;
 
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
+use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\ErrorHandler\Debug;
 use Symfony\Component\HttpKernel\Kernel as BaseKernel;
 
@@ -60,7 +62,7 @@ class Kernel extends BaseKernel
     {
         if (! self::$instance instanceof self) {
             include_once \dirname(__DIR__, 2) . '/config/bootstrap.php';
-            if (isset($_SERVER['APP_DEBUG']) && '1' === $_SERVER['APP_DEBUG']) {
+            if (isset($_SERVER['APP_DEBUG']) && $_SERVER['APP_DEBUG'] === '1') {
                 umask(0000);
                 Debug::enable();
             } else {
@@ -107,5 +109,16 @@ class Kernel extends BaseKernel
     public function getLogDir(): string
     {
         return $this->logDir;
+    }
+
+    protected function build(ContainerBuilder $container): void
+    {
+        $class = 'CentreonAnomalyDetection\DependencyInjection\TagIndicatorPass';
+
+        if (class_exists($class)) {
+            /** @var CompilerPassInterface $compilerPass */
+            $compilerPass = new $class();
+            $container->addCompilerPass($compilerPass);
+        }
     }
 }

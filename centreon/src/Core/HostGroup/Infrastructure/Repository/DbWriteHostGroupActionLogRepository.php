@@ -60,7 +60,7 @@ class DbWriteHostGroupActionLogRepository extends AbstractRepositoryRDB implemen
         private readonly ContactInterface $contact,
         private readonly ReadHostGroupRepositoryInterface $readHostGroupRepository,
         private readonly WriteActionLogRepositoryInterface $writeActionLogRepository,
-        DatabaseConnection $db
+        DatabaseConnection $db,
     ) {
         $this->db = $db;
     }

@@ -60,7 +60,7 @@ final class UpdateVersions
         private readonly ReadUpdateRepositoryInterface $readUpdateRepository,
         private readonly WriteUpdateRepositoryInterface $writeUpdateRepository,
         Container $dependencyInjector,
-        private readonly ContactInterface $user
+        private readonly ContactInterface $user,
     ) {
         /** @var CentreonModuleService $service */
         $service = $dependencyInjector[ServiceProvider::CENTREON_MODULE];
@@ -107,7 +107,7 @@ final class UpdateVersions
         $this->info('Starting centreon-web update process');
         $availableUpdates = $this->getAvailableUpdates($this->getCurrentVersion());
 
-        if ([] !== $availableUpdates) {
+        if ($availableUpdates !== []) {
             $this->info('Available updates found for centreon-web', ['updates' => $availableUpdates]);
             $this->runUpdates($availableUpdates);
         } else {

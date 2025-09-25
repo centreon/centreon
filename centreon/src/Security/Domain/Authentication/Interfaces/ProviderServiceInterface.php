@@ -53,7 +53,7 @@ interface ProviderServiceInterface
      * @return ProviderAuthenticationInterface|null
      */
     public function findProviderByConfigurationName(
-        string $providerAuthenticationName
+        string $providerAuthenticationName,
     ): ?ProviderAuthenticationInterface;
 
     /**
@@ -64,7 +64,7 @@ interface ProviderServiceInterface
      * @return ProviderConfiguration|null
      */
     public function findProviderConfigurationByConfigurationName(
-        string $providerConfigurationName
+        string $providerConfigurationName,
     ): ?ProviderConfiguration;
 
     /**

@@ -1,7 +1,7 @@
 {
   "name": "centreon/centreon",
   "description": "Centreon - IT and Application monitoring software",
-  "version": "25.09",
+  "version": "25.11",
   "type": "project",
   "license": "GPL-2.0-only",
   "require": {
@@ -66,6 +66,7 @@
     "symfony/http-foundation": "7.3.*",
     "symfony/http-kernel": "7.3.*",
     "symfony/lock": "7.3.*",
+    "symfony/messenger": "7.3.*",
     "symfony/mime": "7.3.*",
     "symfony/monolog-bundle": "3.10.*",
     "symfony/property-info": "7.3.*",
@@ -170,6 +171,7 @@
     "symfony:update:test": "composer update symfony/* --with-all-dependencies --no-scripts --dry-run",
     "require:check": "../php-tools/vendor/bin/composer-require-checker check composer.json",
     "symfony:check": "php bin/console lint:yaml config src --parse-tags && php bin/console lint:container",
+    "symfony:new:check": "php bin/console.new lint:yaml config src --parse-tags && php bin/console.new lint:container",
     "rector:legacy": "../php-tools/vendor/bin/rector process --config=rector.legacy.php --dry-run",
     "rector:legacy:fix": "../php-tools/vendor/bin/rector process --config=rector.legacy.php",
     "rector:core": "../php-tools/vendor/bin/rector process --config=rector.core.php --dry-run",
@@ -211,6 +213,8 @@
     ],
     "test": "pest --do-not-cache-result",
     "test:ci": "@test --log-junit ./build/phpunit.xml --coverage-clover ./build/coverage-be.xml",
+    "test:new": "./vendor/bin/phpunit --configuration phpunit.new.xml",
+    "test:new:wip": "@test:new --group wip",
     "rector": [
       "@rector:legacy",
       "@rector:core",
@@ -260,6 +264,7 @@
       "@legacy:check",
       "@core:check",
       "@new:check",
+      "@test:new",
       "@test"
     ]
   },

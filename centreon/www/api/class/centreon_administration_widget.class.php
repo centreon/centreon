@@ -43,7 +43,7 @@ class CentreonAdministrationWidget extends CentreonWebService implements Centreo
         global $centreon;
 
         // Check for select2 'q' argument
-        $q = false === isset($this->arguments['q']) ? '' : $this->arguments['q'];
+        $q = isset($this->arguments['q']) === false ? '' : $this->arguments['q'];
 
         if (isset($this->arguments['page_limit'], $this->arguments['page'])) {
             if (

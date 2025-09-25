@@ -61,7 +61,7 @@ final class UpdateAgentConfiguration
 
     public function __invoke(
         UpdateAgentConfigurationRequest $request,
-        PresenterInterface $presenter
+        PresenterInterface $presenter,
     ): void {
         try {
             if (! $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_POLLERS_AGENT_CONFIGURATIONS_RW)) {
@@ -181,7 +181,7 @@ final class UpdateAgentConfiguration
             $accessGroups = $this->readAccessGroupRepository->findByContact($this->user);
             $validPollerIds = $this->readMonitoringServerRepository->existByAccessGroups($pollerIds, $accessGroups);
 
-            if ([] !== array_diff($pollerIds, $validPollerIds)) {
+            if (array_diff($pollerIds, $validPollerIds) !== []) {
                 return null;
             }
         }

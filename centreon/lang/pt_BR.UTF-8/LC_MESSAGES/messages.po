@@ -820,6 +820,10 @@ msgid "Add a template"
 msgstr "Adicionar um Modelo"
 
 #: centreon/www/install/front_translate.php
+msgid "Add a token"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
 #: centreon/www/install/smarty_translate.php
 msgid "Add a widget"
 msgstr "Adicionar uma ferramenta"
@@ -1029,6 +1033,8 @@ msgstr ""
 
 #: centreon/www/include/configuration/configObject/contact/formContact.php
 #: centreon/www/include/configuration/configObject/host/formHost.php
+#: centreon/www/include/configuration/configServers/formServers.php
+#: centreon/www/include/configuration/configServers/listServers.php
 msgid "Address"
 msgstr "Endereço"
 
@@ -1645,6 +1651,10 @@ msgstr ""
 msgid "Attempt"
 msgstr "Tentativa"
 
+#: centreon/www/install/front_translate.php
+msgid "Au moins un des modes de connexion doit être activé."
+msgstr ""
+
 #: centreon/www/include/Administration/parameters/centstorage/form.php
 msgid "Audit log activation"
 msgstr "Ativação de registros de auditoria"
@@ -2152,6 +2162,10 @@ msgstr "Por Grupo de Serviços"
 msgid "By Status"
 msgstr "Por Estado"
 
+#: centreon/www/install/front_translate.php
+msgid "By agent"
+msgstr ""
+
 #: centreon/www/install/dashboard_widgets.php
 msgid ""
 "By default, the data of Business Views is aggregated monthly over the past "
@@ -2171,11 +2185,15 @@ msgid "By name"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
-msgid "CA Common Name (CN)"
+msgid "By poller"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
-msgid "CA(.crt,.cer)"
+msgid "CA (.crt,.cer)"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "CA Common Name (CN)"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
@@ -2435,12 +2453,8 @@ msgstr ""
 msgid ""
 "Centreon Broker's configuration directory '%s' does not exist and could not\n"
 "                                             be created for monitoring "
-"engine '%s'. Please check it's path or create it"
+"engine '%s'. Please check its path or create it"
 msgstr ""
-"O diretorio de configuração '%s' do Centreon Broker não existe ou não pôde "
-"ser\n"
-"                                             criado pelo o motor de "
-"monitoramento '%s'. Por favor, verifique o caminho"
 
 #: centreon/www/class/centreon-clapi/centreon.Config.Poller.class.php
 #, php-format
@@ -2454,8 +2468,8 @@ msgstr ""
 
 #: centreon/www/install/front_translate.php
 #: centreon/www/install/react_translation.php
-msgid "Centreon Central IP address, as seen by this server"
-msgstr "Endereço IP do Centreon Central, como visto pelo o servidor"
+msgid "Centreon Central address, as seen by this server"
+msgstr "Endereço do Centreon Central, como visto pelo o servidor"
 
 #: centreon/www/include/configuration/configServers/formServers.php
 msgid "Centreon Connector"
@@ -3627,7 +3641,7 @@ msgid "Connection failed, please contact your administrator"
 msgstr "Conexão falhou, por favor entre em contato com o seu administrador"
 
 #: centreon/www/install/front_translate.php
-msgid "Connection initiated by poller"
+msgid "Connection initiated"
 msgstr ""
 
 #: centreon/www/install/centreon_broker_translation.php
@@ -3827,12 +3841,8 @@ msgstr "Não foi possível estabelecer conexão com os servidores IMP Centreon (
 #, php-format
 msgid ""
 "Could not find configuration directory '%s' for monitoring engine '%s'.\n"
-"                                 Please check it's path or create it"
+"                                 Please check its path or create it"
 msgstr ""
-"Não foi possivel encontrar o diretorio de configuração '%s' do motor de "
-"monitoramento '%s'.\n"
-"                                 Por favor, verifique o caminho ou se ele "
-"existe"
 
 #: centreon/src/CentreonRemote/Infrastructure/Service/PollerInteractionService.php
 #: centreon/www/include/configuration/configGenerate/xml/moveFiles.php
@@ -4196,7 +4206,6 @@ msgstr ""
 msgid "Dashboard updated"
 msgstr ""
 
-#: centreon/www/include/home/customViews/index.php
 #: centreon/www/install/front_translate.php
 #: centreon/www/install/menu_translation.php
 msgid "Dashboards"
@@ -4245,6 +4254,22 @@ msgstr "Fontes de dados"
 #: centreon/www/install/smarty_translate.php
 msgid "Data free"
 msgstr "Espaço livre"
+
+#: centreon/www/install/dashboard_widgets.php
+msgid "Data is aggregated daily for graphs presenting hosts."
+msgstr ""
+
+#: centreon/www/install/dashboard_widgets.php
+msgid ""
+"Data is aggregated monthly over the last 12 months for graphs presenting "
+"host categories."
+msgstr ""
+
+#: centreon/www/install/dashboard_widgets.php
+msgid ""
+"Data is aggregated monthly over the last 12 months for graphs presenting "
+"host groups."
+msgstr ""
 
 #: centreon/www/install/smarty_translate.php
 msgid "Data size"
@@ -5052,6 +5077,10 @@ msgid "Display availability and performance as"
 msgstr ""
 
 #: centreon/www/install/dashboard_widgets.php
+msgid "Display availability as"
+msgstr ""
+
+#: centreon/www/install/dashboard_widgets.php
 msgid "Display average as"
 msgstr ""
 
@@ -5141,6 +5170,10 @@ msgid "Display view:"
 msgstr ""
 
 #: centreon/www/install/dashboard_widgets.php
+msgid "Display with this resource type"
+msgstr ""
+
+#: centreon/www/install/dashboard_widgets.php
 msgid "Display with this view"
 msgstr ""
 
@@ -5181,6 +5214,11 @@ msgstr ""
 
 #: centreon/www/install/dashboard_widgets.php
 msgid "Displays metrics for a given time period."
+msgstr ""
+
+#: centreon/www/install/dashboard_widgets.php
+msgid ""
+"Displays the availability history of hosts, host categories or hostgroups."
 msgstr ""
 
 #: centreon/www/install/dashboard_widgets.php
@@ -8431,6 +8469,7 @@ msgstr ""
 #: centreon/www/include/configuration/configObject/host/formHost.php
 #: centreon/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php
 #: centreon/www/include/monitoring/objectDetails/hostDetails.php
+#: centreon/www/install/dashboard_widgets.php
 msgid "Host Categories"
 msgstr "Categorias do Host"
 
@@ -8661,6 +8700,7 @@ msgstr ""
 msgid "Host group (%s) not found"
 msgstr ""
 
+#: centreon/www/install/dashboard_widgets.php
 #: centreon/www/install/front_translate.php
 msgid "Host groups"
 msgstr ""
@@ -8878,6 +8918,10 @@ msgstr "Grupo de Host"
 msgid "Hostgroup Relations"
 msgstr "Relações de Grupo de Hosts"
 
+#: centreon/www/install/dashboard_widgets.php
+msgid "Hostgroup availability history"
+msgstr ""
+
 #: centreon/www/install/smarty_translate.php
 msgid "Hostgroup dependency"
 msgstr "Dependencia de grupo de Hosts"
@@ -8929,6 +8973,7 @@ msgstr "Resumo de Grupo de Hosts"
 #: centreon/www/include/monitoring/status/ServicesServiceGroups/xml/serviceSummaryBySGXML.php
 #: centreon/www/include/options/accessLists/resourcesACL/formResourcesAccess.php
 #: centreon/www/include/reporting/dashboard/csvExport/csv_HostGroupLogs.php
+#: centreon/www/install/dashboard_widgets.php
 #: centreon/www/install/front_translate.php
 #: centreon/www/install/menu_translation.php
 #: centreon/www/widgets/global-health/src/global_health.php
@@ -9057,8 +9102,6 @@ msgstr ""
 msgid "IP"
 msgstr "IP"
 
-#: centreon/www/include/configuration/configServers/formServers.php
-#: centreon/www/include/configuration/configServers/listServers.php
 #: centreon/www/include/monitoring/status/Hosts/hostJS.php
 #: centreon/www/include/options/accessLists/reloadACL/reloadACL.php
 #: centreon/www/include/options/session/connected_user.php
@@ -9110,6 +9153,13 @@ msgstr "Se não encontrado, envio desativado"
 msgid "If no match, submit default status"
 msgstr "Se não encontrado, envia status padrão"
 
+#: centreon/www/install/front_translate.php
+msgid ""
+"If the agent is not allowed to connect to the poller for security reasons "
+"(e.g. when the poller is in a DMZ), you can use a poller-initiated "
+"connection."
+msgstr ""
+
 #: centreon/www/include/configuration/configObject/contact/listContact.php
 msgid ""
 "If the contact is connected, all his instances will be closed. Are you sure "
@@ -9143,6 +9193,12 @@ msgstr ""
 
 #: centreon/www/install/front_translate.php
 msgid "If you leave {{dashboardName}}, your changes will not be saved."
+msgstr ""
+
+#: centreon/www/install/dashboard_widgets.php
+msgid ""
+"If you want to display the graph with host categories and hosts, you must "
+"select only one hostgroup."
 msgstr ""
 
 #: centreon/www/include/Administration/parameters/knowledgeBase/formKnowledgeBase.php
@@ -11751,6 +11807,10 @@ msgstr ""
 msgid "Name is already in use"
 msgstr "Nome já esta em uso"
 
+#: centreon/www/include/configuration/configResources/formResources.php
+msgid "Name must start and end with a '$'"
+msgstr ""
+
 #: centreon/www/install/centreon_broker_translation.php
 msgid "Name of the logger"
 msgstr "Nome do registrador"
@@ -13427,16 +13487,16 @@ msgstr "Exibir Valor Mínimo"
 msgid "Print Total Value"
 msgstr "Exibir o valor total"
 
+#: centreon/www/install/front_translate.php
+msgid "Private key (.key)"
+msgstr ""
+
 #: centreon/www/install/centreon_broker_translation.php
 msgid "Private key file."
 msgstr "Arquivo de chave privada (SSH)"
 
 #: centreon/www/install/centreon_broker_translation.php
 msgid "Private key path"
-msgstr ""
-
-#: centreon/www/install/front_translate.php
-msgid "Private key(.key)"
 msgstr ""
 
 #: centreon/www/install/dashboard_widgets.php
@@ -13543,8 +13603,8 @@ msgid "Public certificate"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
-msgid "Public certificate(.crt,.cer)"
-msgstr "Certificado público"
+msgid "Public certificate (.crt,.cer)"
+msgstr "Certificado público (.crt,.cer)"
 
 #: centreon/www/include/home/customViews/formLoad.php
 msgid "Public views list"
@@ -14982,11 +15042,6 @@ msgstr "Configuração do Servidor"
 msgid "Server Configuration Wizard"
 msgstr "Assistente de Configuração de Servidor"
 
-#: centreon/www/install/front_translate.php
-#: centreon/www/install/react_translation.php
-msgid "Server IP address"
-msgstr "Endereço IP do Servidor"
-
 #: centreon/www/include/configuration/configServers/formServers.php
 msgid "Server Information"
 msgstr "Informações do servidor"
@@ -14997,8 +15052,10 @@ msgid "Server Name"
 msgstr "Nome do Servidor"
 
 #: centreon/www/install/centreon_broker_translation.php
+#: centreon/www/install/front_translate.php
+#: centreon/www/install/react_translation.php
 msgid "Server address"
-msgstr ""
+msgstr "Endereço do Servidor"
 
 #: centreon/www/install/centreon_broker_translation.php
 msgid "Server port"
@@ -16571,18 +16628,6 @@ msgstr ""
 msgid "The '%s' command name already exists"
 msgstr ""
 
-#: centreon/www/include/configuration/configServers/formServers.php
-msgid "The IP address is already registered"
-msgstr ""
-
-#: centreon/www/include/configuration/configServers/formServers.php
-msgid "The IP address is already registered on another poller"
-msgstr ""
-
-#: centreon/www/include/configuration/configServers/formServers.php
-msgid "The IP address is incorrect"
-msgstr ""
-
 #: centreon/src/Centreon/Domain/Service/JsonValidator/Validator.php
 msgid "The JSON cannot be decoded"
 msgstr ""
@@ -16605,6 +16650,18 @@ msgstr ""
 #: centreon/src/Centreon/Domain/PlatformTopology/Model/PlatformRegistered.php
 #, php-format
 msgid "The address '%s' of '%s' is not valid or not resolvable"
+msgstr ""
+
+#: centreon/www/include/configuration/configServers/formServers.php
+msgid "The address is already registered"
+msgstr ""
+
+#: centreon/www/include/configuration/configServers/formServers.php
+msgid "The address is already registered on another poller"
+msgstr ""
+
+#: centreon/www/include/configuration/configServers/formServers.php
+msgid "The address is incorrect"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
@@ -17123,6 +17180,10 @@ msgstr ""
 msgid "There are not enough arguments to build the object %s"
 msgstr ""
 
+#: centreon/www/install/dashboard_widgets.php
+msgid "These time periods are defined in MBI'S ETL options."
+msgstr ""
+
 #: centreon/www/install/front_translate.php
 msgid ""
 "They will be permanently deleted and users will no longer have these "
@@ -17228,6 +17289,12 @@ msgstr ""
 
 #: centreon/www/install/dashboard_widgets.php
 msgid "This is the description of the text widget"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid ""
+"This is the most common case: the agent initiates the connection to the "
+"poller."
 msgstr ""
 
 #: centreon/www/install/dashboard_widgets.php
@@ -18749,6 +18816,10 @@ msgid "Welcome to the agent configuration page"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
+msgid "Welcome to the authentication tokens page"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
 msgid "Welcome to the host groups page"
 msgstr ""
 
@@ -19285,6 +19356,13 @@ msgid "You can choose only one resource for each resource type."
 msgstr ""
 
 #: centreon/www/install/front_translate.php
+msgid ""
+"You can create two types of tokens: API tokens to manipulate Centreon "
+"objects via the API, or CMA tokens to allow the CMA monitoring agent to "
+"authenticate to the corresponding poller."
+msgstr ""
+
+#: centreon/www/install/front_translate.php
 msgid "You can see the full list on"
 msgstr ""
 
@@ -19689,7 +19767,6 @@ msgstr ""
 msgid "[%s]: No authorization code return by external provider"
 msgstr ""
 
-#: centreon/www/include/home/customViews/index.php
 #: centreon/www/include/monitoring/objectDetails/hostDetails.php
 #: centreon/www/include/monitoring/objectDetails/serviceDetails.php
 #: centreon/www/include/monitoring/status/Hosts/host.php
@@ -20702,6 +20779,19 @@ msgstr "Informações sobre o Broker Centreon"
 msgid "Centreon Broker socket path"
 msgstr "Caminho do soquete Centreon Broker Unix"
 
+#, php-format
+#: unknown
+msgid ""
+"Centreon Broker's configuration directory '%s' does not exist and could "
+"not\n"
+"                                             be created for monitoring "
+"engine '%s'. Please check it's path or create it"
+msgstr ""
+"O diretorio de configuração '%s' do Centreon Broker não existe ou não "
+"pôde ser\n"
+"                                             criado pelo o motor de "
+"monitoramento '%s'. Por favor, verifique o caminho"
+
 #: unknown
 msgid "Centreon DataBase Statistics"
 msgstr "Banco de dados de statisticas do Centreon"
@@ -20919,6 +21009,17 @@ msgid "Could not find configuration database. Session probably expired."
 msgstr ""
 "Não foi possivel encontrar a configurações do banco de dados. A sessão "
 "provavelmente expirou."
+
+#, php-format
+#: unknown
+msgid ""
+"Could not find configuration directory '%s' for monitoring engine '%s'.\n"
+"                                 Please check it's path or create it"
+msgstr ""
+"Não foi possivel encontrar o diretorio de configuração '%s' do motor de "
+"monitoramento '%s'.\n"
+"                                 Por favor, verifique o caminho ou se ele "
+"existe"
 
 #: unknown
 msgid "Could not find database user. Session probably expired."

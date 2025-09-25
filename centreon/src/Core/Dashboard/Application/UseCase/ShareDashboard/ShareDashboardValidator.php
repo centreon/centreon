@@ -279,7 +279,7 @@ class ShareDashboardValidator
             $dashboardContactRoles
         );
         $contactIdsDifference = new BasicDifference($contactIds, $dashboardContactRoleIds);
-        if ([] !== $contactIdsDifference->getRemoved()) {
+        if ($contactIdsDifference->getRemoved() !== []) {
             throw DashboardException::theContactsDoesNotHaveDashboardAccessRights($contactIdsDifference->getRemoved());
         }
     }
@@ -292,14 +292,14 @@ class ShareDashboardValidator
      */
     private function validateContactGroupsHaveDashboardACLs(
         array $dashboardContactGroupRoles,
-        array $contactGroupIds
+        array $contactGroupIds,
     ): void {
         $dashboardContactGroupRoleIds = array_map(
             static fn (DashboardContactGroupRole $dashboardContactRole) => $dashboardContactRole->getContactGroupId(),
             $dashboardContactGroupRoles
         );
         $contactGroupIdsDifference = new BasicDifference($contactGroupIds, $dashboardContactGroupRoleIds);
-        if ([] !== $contactGroupIdsDifference->getRemoved()) {
+        if ($contactGroupIdsDifference->getRemoved() !== []) {
             throw DashboardException::theContactGroupsDoesNotHaveDashboardAccessRights(
                 $contactGroupIdsDifference->getRemoved()
             );
@@ -314,7 +314,7 @@ class ShareDashboardValidator
      */
     private function validateContactsHaveSufficientRightForSharingRole(
         array $contactsByIdAndRole,
-        array $dashboardContactRoles
+        array $dashboardContactRoles,
     ): void {
         foreach ($dashboardContactRoles as $dashboardContactRole) {
             if (
@@ -338,7 +338,7 @@ class ShareDashboardValidator
      */
     private function validateContactGroupsHaveSufficientRightForSharingRole(
         array $contactGroups,
-        array $dashboardContactGroupRoles
+        array $dashboardContactGroupRoles,
     ): void {
         $contactGroupByIdAndRole = [];
         foreach ($contactGroups as $contactGroup) {
@@ -368,10 +368,10 @@ class ShareDashboardValidator
      */
     private function validateContactsAreInTheSameContactGroupThanCurrentUser(
         array $requestContactIds,
-        array $contactIdsInUserContactGroups
+        array $contactIdsInUserContactGroups,
     ): void {
         $contactDifference = new BasicDifference($requestContactIds, $contactIdsInUserContactGroups);
-        if ([] !== $contactDifference->getRemoved()) {
+        if ($contactDifference->getRemoved() !== []) {
             throw DashboardException::userAreNotInContactGroups($contactDifference->getRemoved());
         }
     }
@@ -384,10 +384,10 @@ class ShareDashboardValidator
      */
     private function validateContactsAreInTheSameAccessGroupThanCurrentUser(
         array $requestContactIds,
-        array $contactIdsInUserAccessGroups
+        array $contactIdsInUserAccessGroups,
     ): void {
         $contactDifference = new BasicDifference($requestContactIds, $contactIdsInUserAccessGroups);
-        if ([] !== $contactDifference->getRemoved()) {
+        if ($contactDifference->getRemoved() !== []) {
             throw DashboardException::userAreNotInAccessGroups($contactDifference->getRemoved());
         }
     }
@@ -400,10 +400,10 @@ class ShareDashboardValidator
      */
     private function validateContactGroupsAreInCurrentUserContactGroups(
         array $contactGroupIds,
-        array $userContactGroupIds
+        array $userContactGroupIds,
     ): void {
         $contactGroupIdsDifference = new BasicDifference($contactGroupIds, $userContactGroupIds);
-        if ([] !== $contactGroupIdsDifference->getRemoved()) {
+        if ($contactGroupIdsDifference->getRemoved() !== []) {
             throw DashboardException::contactGroupIsNotInUserContactGroups(
                 $contactGroupIdsDifference->getRemoved()
             );
