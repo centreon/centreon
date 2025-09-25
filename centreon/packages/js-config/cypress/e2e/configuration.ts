@@ -81,7 +81,7 @@ export default ({
     },
     screenshotsFolder: `${resultsFolder}/screenshots`,
     video: true,
-    videoCompression: 0,
+    videoCompression: process.env.CI ? 32 : 0,
     videosFolder: `${resultsFolder}/videos`,
     viewportHeight: 1080,
     viewportWidth: 1920
