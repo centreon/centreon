@@ -69,6 +69,7 @@ services:
     restart: always
     networks:
       - app-network
+      - main-network
     volumes:
       - app-etc:/etc/centreon/:rw
       - app-gorgone:/etc/centreon-gorgone:rw,z
@@ -90,6 +91,8 @@ services:
 networks:
   app-network:
     driver: bridge
+  main-network:
+    external: true
 
 volumes:
   app-etc:
