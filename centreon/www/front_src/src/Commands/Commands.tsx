@@ -3,12 +3,15 @@ import { Typography } from '@mui/material';
 import { identity, isNil } from 'ramda';
 
 import { CrudPage, CrudPageRootProps } from '@centreon/ui/components';
+
 import { columns } from './Columns/Columns';
 import Filters from './Filters/Filters';
-
 import Form from './Form/Form';
+
 import { filtersAtom } from './atoms';
 import { Filters as FiltersType } from './models';
+
+import { commandsEndpoint, getCommandEndpoint } from './api/endpoint';
 import {
   labelAddCommand,
   labelCencel,
@@ -59,8 +62,8 @@ const labels = {
 };
 
 const defaultProps: CrudPageRootProps<Item, FiltersType, Item, Item> = {
-  baseEndpoint: '/listing',
-  queryKeyName: 'listing',
+  baseEndpoint: commandsEndpoint,
+  queryKeyName: 'listCommands',
   filtersAtom,
   getSearchParameters,
   labels,
@@ -69,9 +72,9 @@ const defaultProps: CrudPageRootProps<Item, FiltersType, Item, Item> = {
   form: {
     modalSize: 'xlarge',
     getItem: {
-      baseEndpoint: (id) => `/item/${id}`,
+      baseEndpoint: getCommandEndpoint,
       adapter: identity,
-      itemQueryKey: 'item'
+      itemQueryKey: 'getCommand'
     },
     Form,
     labels: {

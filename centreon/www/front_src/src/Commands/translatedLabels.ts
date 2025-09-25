@@ -31,4 +31,10 @@ export const labelGeneralInformation = 'General information';
 export const labelAdditionalInformation = 'Additional information';
 export const labelCommandType = 'Command type';
 export const labelEnableShellSyntax = 'Enable shell syntax';
+export const labelSelectOptimizationConnector =
+  'Select an optimization connector';
 export const labelComments = 'Comments';
+
+export const labelPollerGlobalMacros = 'Poller global macros';
+export const labelInstalledPlugins = 'Installed plugins';
+export const labelStandardMacros = 'Standard macros';

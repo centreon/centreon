@@ -97,7 +97,8 @@ interface StylesProps {
 
 const useStyles = makeStyles<StylesProps>()((theme, { groupDirection }) => ({
   additionalLabel: {
-    marginBottom: theme.spacing(0.5)
+    marginBottom: theme.spacing(0.5),
+    fontWeight: 'bold'
   },
   buttons: {
     columnGap: theme.spacing(2),
@@ -244,7 +245,7 @@ const Inputs = ({
                               classes.additionalLabel,
                               inputProps?.additionalLabelClassName
                             )}
-                            variant="body1"
+                            variant="subtitle1"
                           >
                             {inputProps.additionalLabel}
                           </Typography>
