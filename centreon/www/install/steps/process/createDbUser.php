@@ -78,6 +78,7 @@ $mandatoryPrivileges = [
     'CREATE VIEW',
     'SHOW VIEW',
     'REFERENCES',
+    'TRIGGER',
 ];
 $privilegesQuery = implode(', ', $mandatoryPrivileges);
 $query = 'GRANT ' . $privilegesQuery . " ON `%s`.* TO '" . $parameters['db_user'] . "'@'" . $host . "'";
