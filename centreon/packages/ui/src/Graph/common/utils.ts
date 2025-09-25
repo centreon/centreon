@@ -273,5 +273,11 @@ export const computeGElementMarginLeft = ({
 export const computPixelsToShiftMouse = (xScale): number => {
   const domain = xScale.domain();
 
-  return Math.round(8 / dayjs(domain[1]).diff(domain[0], 'h'));
+  const hoursDiffInGraph = dayjs(domain[1]).diff(domain[0], 'h');
+
+  if (!hoursDiffInGraph) {
+    return 0;
+  }
+
+  return Math.round(8 / hoursDiffInGraph);
 };
