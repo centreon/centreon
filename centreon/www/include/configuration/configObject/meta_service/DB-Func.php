@@ -472,6 +472,7 @@ function multipleMetaServiceInDB($metas = [], $nbrDup = [])
                         }
                         $pearDB->insert($insertMetricQuery, QueryParameters::create($paramsMetric));
                     }
+                    updateAclResourcesMetaRelations($newMetaId);
                 }
             } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
                 CentreonLog::create()->error(
