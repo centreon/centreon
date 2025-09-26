@@ -8,8 +8,8 @@ import { labelPreviewRemainsEmpty } from '../../translatedLabels';
 import { getPublicWidgetEndpoint } from '../../utils';
 
 import Graph from './Graph';
-import { getMetricsEndpoint } from './api/endpoints';
 import { FormThreshold, ValueFormat } from './models';
+import { getMetricsEndpoint } from '../../centreon-widget-graph/src/api/endpoints';
 
 const panelData: Data = {
   metrics: [
