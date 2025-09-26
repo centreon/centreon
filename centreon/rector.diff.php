@@ -82,11 +82,11 @@ function executeRector(string $commandName, array $filesToAnalyze, bool $toFix):
         if ($toFix) {
             $commandName .= ':fix';
         }
-        echo 'Running ' . $commandName . ' sur :' . PHP_EOL . implode(
+        echo 'Running ' . $commandName . ' on :' . PHP_EOL . implode(
             PHP_EOL,
             array_map(fn ($f): string => '- ' . $f, $filesToAnalyze)
         ) . PHP_EOL;
-        $command = 'composer ' . $commandName . ' -- ' . implode(' ', $filesToAnalyze);
+        $command = 'composer ' . $commandName . ' -- --no-progress-bar ' . implode(' ', $filesToAnalyze);
         passthru($command);
     } else {
         echo 'No paths to analyze with ' . $commandName . PHP_EOL;
