@@ -21,7 +21,7 @@
 
 declare(strict_types=1);
 
-$pathsConfig = require_once __DIR__ . '/rector.conf.php';
+$pathsConfig = require_once __DIR__ . '/.php-cs-fixer.conf.php';
 
 $args = $_SERVER['argv'] ?? null;
 
@@ -53,15 +53,31 @@ $pathsNewToAnalyze = [];
 
 foreach ($diffFiles as $file) {
     if (
-        array_filter($pathsConfig['legacy']['paths'], fn ($path): bool => str_starts_with($file, (string) $path)) !== []
+        array_filter(
+            array_merge(
+                $pathsConfig['legacy']['directories'],
+                $pathsConfig['legacy']['files']
+            ),
+            fn ($path): bool => str_starts_with($file, (string) $path)
+        ) !== []
         && array_filter($pathsConfig['legacy']['skip'], fn ($skip): bool => str_starts_with($file, (string) $skip)
         ) === []
     ) {
         $pathsLegacyToAnalyze[] = $file;
-    } elseif (array_filter($pathsConfig['core']['paths'], fn ($path): bool => str_starts_with($file, (string) $path)
+    } elseif (array_filter(
+        array_merge(
+            $pathsConfig['core']['directories'],
+            $pathsConfig['core']['files']
+        ),
+        fn ($path): bool => str_starts_with($file, (string) $path)
     ) !== []) {
         $pathsCoreToAnalyze[] = $file;
-    } elseif (array_filter($pathsConfig['new']['paths'], fn ($path): bool => str_starts_with($file, (string) $path)
+    } elseif (array_filter(
+        array_merge(
+            $pathsConfig['new']['directories'],
+            $pathsConfig['new']['files']
+        ),
+        fn ($path): bool => str_starts_with($file, (string) $path)
     ) !== []) {
         $pathsNewToAnalyze[] = $file;
     } else {
@@ -88,7 +104,10 @@ function executeCsFixer(string $commandName, array $filesToAnalyze, bool $toFix)
             PHP_EOL,
             array_map(fn ($f): string => '- ' . $f, $filesToAnalyze)
         ) . PHP_EOL;
-        $command = 'composer ' . $commandName . ' -- --format=txt --show-progress=none ' . implode(' ', $filesToAnalyze);
+        $command = 'composer ' . $commandName . ' -- --format=txt --show-progress=none ' . implode(
+            ' ',
+            $filesToAnalyze
+        );
         passthru($command);
     } else {
         echo 'No paths to analyze with ' . $commandName . PHP_EOL;
