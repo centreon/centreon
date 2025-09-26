@@ -100,6 +100,7 @@ function executeCsFixer(string $commandName, array $filesToAnalyze, bool $toFix)
         if ($toFix) {
             $commandName .= ':fix';
         }
+        echo '#########################################################' . PHP_EOL;
         echo 'Running ' . $commandName . ' on :' . PHP_EOL . implode(
             PHP_EOL,
             array_map(fn ($f): string => '- ' . $f, $filesToAnalyze)
