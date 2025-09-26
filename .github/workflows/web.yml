@@ -474,9 +474,10 @@ jobs:
           composer rector:diff ${{ steps.changed-php.outputs.all_changed_files }}
 
       - name: 🧹 PHP-CS-Fixer checks
+        if: steps.changed-php.outputs.any_changed == 'true'
         working-directory: centreon
         run: |
-          echo "Run of these PHP-CS-Fixer tests: cs:legacy, cs:core, cs:new" && set -e
+          echo "Run of these PHP-CS-Fixer tests: cs:legacy, cs:core, cs:new on diff" && set -e
           composer cs:diff ${{ steps.changed-php.outputs.all_changed_files }}
 
       - name: 🔍 PHPStan checks
