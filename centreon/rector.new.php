@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 use Rector\Php81\Rector\Property\ReadOnlyPropertyRector;
 
-require_once 'rector.conf.php';
+require_once __DIR__ . '/rector.conf.php';
 
 $rectorConfig = require_once __DIR__ . '/../php-tools/rector/config/base.strict.php';
 

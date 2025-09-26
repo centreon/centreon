@@ -26,7 +26,10 @@ use PhpCsFixer\Finder;
 $config = require_once __DIR__ . '/../php-tools/php-cs-fixer/config/base.strict.php';
 
 $finder = Finder::create()
-    ->in([__DIR__ . '/src/Core', __DIR__ . '/tests/php/Core'])
+    ->in([
+        __DIR__ . '/src/Core',
+        __DIR__ . '/tests/php/Core',
+    ])
     ->append([
         __DIR__ . '/src/Centreon/Infrastructure/DatabaseConnection.php',
     ]);

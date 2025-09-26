@@ -38,7 +38,11 @@ $finder = Finder::create()
         __DIR__ . '/.php-cs-fixer.core.php',
         __DIR__ . '/.php-cs-fixer.legacy.php',
         __DIR__ . '/castor.php',
-        __DIR__ . '/rector.php',
+        __DIR__ . '/rector.conf.php',
+        __DIR__ . '/rector.core.php',
+        __DIR__ . '/rector.diff.php',
+        __DIR__ . '/rector.legacy.php',
+        __DIR__ . '/rector.new.php',
     ]);
 
 $rules = $config->getRules();

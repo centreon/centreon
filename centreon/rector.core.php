@@ -21,7 +21,7 @@
 
 declare(strict_types=1);
 
-require_once 'rector.conf.php';
+require_once __DIR__ . '/rector.conf.php';
 
 $rectorConfig = require_once __DIR__ . '/../php-tools/rector/config/base.unstrict.php';
 
