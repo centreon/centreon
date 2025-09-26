@@ -30,6 +30,6 @@ $pathsConfig = require_once __DIR__ . '/rector.conf.php';
 $args = $_SERVER['argv'] ?? [];
 
 $rectorHandler = new RectorDiffHandler(
-    moduleName: 'centreon-open-tickets', sections: ['legacy.www', 'legacy.src'], pathsConfig: $pathsConfig, args: $args
+    moduleName: 'centreon-open-tickets', sections: ['legacy'], pathsConfig: $pathsConfig, args: $args
 );
 $rectorHandler->handle();
