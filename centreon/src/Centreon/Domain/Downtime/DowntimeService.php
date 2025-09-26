@@ -74,7 +74,7 @@ class DowntimeService extends AbstractCentreonService implements DowntimeService
         ReadAccessGroupRepositoryInterface $accessGroupRepository,
         EngineServiceInterface $engineService,
         DowntimeRepositoryInterface $downtimeRepository,
-        MonitoringRepositoryInterface $monitoringRepository
+        MonitoringRepositoryInterface $monitoringRepository,
     ) {
         $this->accessGroupRepository = $accessGroupRepository;
         $this->engineService = $engineService;

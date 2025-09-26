@@ -33,7 +33,7 @@ final class FindPerformanceMetricsDataRequestDto
     public function __construct(
         public readonly \DateTimeInterface $startDate,
         public readonly \DateTimeInterface $endDate,
-        public readonly array $metricNames = []
+        public readonly array $metricNames = [],
     ) {
     }
 }

@@ -45,7 +45,7 @@ const SSH = 2;
 function getAvailableSuffixIds(
     string $serverName,
     int $numberOf,
-    string $separator = '_'
+    string $separator = '_',
 ): array {
     if ($numberOf < 0) {
         return [];

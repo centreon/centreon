@@ -116,7 +116,7 @@ class DbWriteAccessGroupRepository extends AbstractRepositoryDRB implements Writ
 
     public function addLinksBetweenHostGroupAndResourceIds(int $hostGroupId, array $resourceIds): void
     {
-        if ([] === $resourceIds) {
+        if ($resourceIds === []) {
             return;
         }
 
@@ -147,7 +147,7 @@ class DbWriteAccessGroupRepository extends AbstractRepositoryDRB implements Writ
             $accessGroups
         );
 
-        if ([] === $accessGroupsIds) {
+        if ($accessGroupsIds === []) {
             return;
         }
 
@@ -191,7 +191,7 @@ class DbWriteAccessGroupRepository extends AbstractRepositoryDRB implements Writ
         );
 
         $aclResourceIds = $this->findEnabledAclResourceIdsByAccessGroupIds($accessGroupsIds);
-        if ([] === $aclResourceIds) {
+        if ($aclResourceIds === []) {
             return;
         }
 
@@ -222,7 +222,7 @@ class DbWriteAccessGroupRepository extends AbstractRepositoryDRB implements Writ
             $accessGroups
         );
 
-        if ([] === $accessGroupsIds) {
+        if ($accessGroupsIds === []) {
             return;
         }
 
@@ -269,7 +269,7 @@ class DbWriteAccessGroupRepository extends AbstractRepositoryDRB implements Writ
      */
     private function findEnabledAclResourceIdsByAccessGroupIds(array $accessGroupIds): array
     {
-        if ([] === $accessGroupIds) {
+        if ($accessGroupIds === []) {
             return [];
         }
 

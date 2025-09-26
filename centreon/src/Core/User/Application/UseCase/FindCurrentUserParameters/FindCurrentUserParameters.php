@@ -38,7 +38,7 @@ final class FindCurrentUserParameters
 
     public function __construct(
         private readonly ContactInterface $user,
-        private readonly DashboardRights $rights
+        private readonly DashboardRights $rights,
     ) {
     }
 

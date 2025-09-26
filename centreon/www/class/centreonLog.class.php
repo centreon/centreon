@@ -216,7 +216,7 @@ class CentreonLog
         string $level,
         string $message,
         array $customContext = [],
-        ?Throwable $exception = null
+        ?Throwable $exception = null,
     ): void {
         if (! empty($message)) {
             $jsonContext = $this->serializeContext($customContext, $exception);

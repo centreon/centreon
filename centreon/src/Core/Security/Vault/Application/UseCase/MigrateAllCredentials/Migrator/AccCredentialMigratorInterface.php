@@ -53,6 +53,6 @@ interface AccCredentialMigratorInterface
     public function updateMigratedCredential(
         Acc $acc,
         CredentialDto $credential,
-        string $vaultPath
+        string $vaultPath,
     ): Acc;
 }

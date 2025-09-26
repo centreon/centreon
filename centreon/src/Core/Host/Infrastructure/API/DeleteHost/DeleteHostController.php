@@ -33,7 +33,7 @@ final class DeleteHostController extends AbstractController
     public function __invoke(
         DeleteHost $useCase,
         DefaultPresenter $presenter,
-        int $hostId
+        int $hostId,
     ): Response {
         $this->denyAccessUnlessGrantedForApiConfiguration();
 

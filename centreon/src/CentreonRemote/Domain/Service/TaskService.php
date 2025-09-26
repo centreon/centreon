@@ -47,7 +47,7 @@ class TaskService
      */
     public function __construct(
         CentreonDBManagerService $dbManager,
-        CentcoreCommandService $cmdService
+        CentcoreCommandService $cmdService,
     ) {
         $this->dbManager = $dbManager;
         $this->cmdService = $cmdService;

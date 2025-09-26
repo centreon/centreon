@@ -38,7 +38,7 @@ class MetaServiceConfigurationV2110Factory
      * @return \stdClass
      */
     public static function createOneFromResponse(
-        FindOneMetaServiceConfigurationResponse $response
+        FindOneMetaServiceConfigurationResponse $response,
     ): \stdClass {
         $newMetaServiceConfiguration = self::createEmptyClass();
         $metaServiceConfiguration = $response->getMetaServiceConfiguration();
@@ -62,7 +62,7 @@ class MetaServiceConfigurationV2110Factory
      * @return \stdClass[]
      */
     public static function createAllFromResponse(
-        FindMetaServicesConfigurationsResponse $response
+        FindMetaServicesConfigurationsResponse $response,
     ): array {
         $metaServicesConfigurations = [];
         foreach ($response->getMetaServicesConfigurations() as $metaServiceConfiguration) {

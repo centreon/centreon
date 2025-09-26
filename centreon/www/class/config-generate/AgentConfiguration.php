@@ -66,7 +66,7 @@ class AgentConfiguration extends AbstractObjectJSON
                     $agentConfiguration->getConfiguration()->getData(),
                     $agentConfiguration->getConnectionMode()
                 ),
-                default => throw new Exception('The type of the agent configuration not exists')
+                default => throw new Exception('The type of the agent configuration not exists'),
             };
         }
 
@@ -164,10 +164,10 @@ class AgentConfiguration extends AbstractObjectJSON
                         default => 'full',
                     },
                     'ca_certificate' => $host['poller_ca_certificate'] ?? '',
-                    'ca_name' => $host['poller_ca_name'],
+                    'ca_name' => $host['poller_ca_name'] ?? '',
                     'token' => isset($tokens[$host['token']['name']])
                         ? $tokens[$host['token']['name']]->getToken()
-                        : null,
+                        : '',
                 ],
                 array_filter(
                     $data['hosts'],

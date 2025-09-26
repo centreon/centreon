@@ -42,7 +42,7 @@ abstract class DatabaseRepository
      */
     public function __construct(
         protected ConnectionInterface $connection,
-        protected QueryBuilderInterface $queryBuilder
+        protected QueryBuilderInterface $queryBuilder,
     ) {
     }
 

@@ -365,7 +365,7 @@ class ModuleSource extends SourceAbstract
      */
     private function getSortedDependencies(
         string $moduleId,
-        array $alreadyProcessed = []
+        array $alreadyProcessed = [],
     ) {
         $dependencies = [];
 

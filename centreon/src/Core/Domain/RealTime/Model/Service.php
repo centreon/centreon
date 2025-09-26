@@ -118,7 +118,7 @@ class Service
         private int $id,
         private int $hostId,
         private string $name,
-        private ServiceStatus $status
+        private ServiceStatus $status,
     ) {
         Assertion::maxLength($name, self::MAX_NAME_LENGTH, 'Service::name');
         Assertion::notEmpty($name, 'Service::name');

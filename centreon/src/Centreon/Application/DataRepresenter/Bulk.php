@@ -52,7 +52,7 @@ class Bulk implements JsonSerializable
         ?int $offset = null,
         ?int $limit = null,
         ?string $listingClass = null,
-        ?string $entityClass = null
+        ?string $entityClass = null,
     ) {
         $this->lists = $lists;
         $this->offset = $offset;

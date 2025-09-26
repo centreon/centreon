@@ -89,7 +89,7 @@ class CentreonGraphService extends CentreonGraph
                 $vname[$metric['metric']] = 'vv' . $i;
             } else {
                 $path = $this->dbPath . '/' . $metric['metric_id'] . '.rrd';
-                if (false === file_exists($path)) {
+                if (file_exists($path) === false) {
                     throw new RuntimeException();
                 }
                 $commandLine .= ' DEF:v' . $i . '=' . $path . ':value:AVERAGE';
@@ -164,7 +164,7 @@ class CentreonGraphService extends CentreonGraph
         $descriptorspec = [0 => ['pipe', 'r'], 1 => ['pipe', 'w'], 2 => ['pipe', 'a']];
 
         $process = proc_open($this->generalOpt['rrdtool_path_bin'] . ' - ', $descriptorspec, $pipes, null, null);
-        if (false === is_resource($process)) {
+        if (is_resource($process) === false) {
             throw new RuntimeException();
         }
         fwrite($pipes[0], $commandLine);
@@ -194,7 +194,7 @@ class CentreonGraphService extends CentreonGraph
         $useXmlErrors = libxml_use_internal_errors(true);
         $xml = simplexml_load_string($str);
 
-        if (false === $xml) {
+        if ($xml === false) {
             throw new RuntimeException();
         }
 
@@ -222,7 +222,7 @@ class CentreonGraphService extends CentreonGraph
         $descriptorspec = [0 => ['pipe', 'r'], 1 => ['pipe', 'w'], 2 => ['pipe', 'a']];
 
         $process = proc_open($this->generalOpt['rrdtool_path_bin'] . ' - ', $descriptorspec, $pipes, null, null);
-        if (false === is_resource($process)) {
+        if (is_resource($process) === false) {
             throw new RuntimeException();
         }
         fwrite($pipes[0], $commandLegendLine);
@@ -316,7 +316,7 @@ class CentreonGraphService extends CentreonGraph
         }
 
         $row = $stmt->fetch();
-        if (false == $row) {
+        if ($row == false) {
             throw new OutOfRangeException();
         }
 

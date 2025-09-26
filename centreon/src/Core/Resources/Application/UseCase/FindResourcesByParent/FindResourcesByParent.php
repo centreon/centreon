@@ -60,7 +60,7 @@ final class FindResourcesByParent
         private readonly ContactInterface $contact,
         private readonly RequestParametersInterface $requestParameters,
         private readonly ReadAccessGroupRepositoryInterface $accessGroupRepository,
-        private readonly \Traversable $extraDataProviders
+        private readonly \Traversable $extraDataProviders,
     ) {
     }
 
@@ -70,7 +70,7 @@ final class FindResourcesByParent
      */
     public function __invoke(
         FindResourcesByParentPresenterInterface $presenter,
-        ResourceFilter $filter
+        ResourceFilter $filter,
     ): void {
         try {
             // Save the search and sort provided to be restored later on
