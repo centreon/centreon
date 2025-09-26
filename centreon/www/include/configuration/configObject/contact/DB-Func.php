@@ -21,6 +21,8 @@
 
 use Adaptation\Database\Connection\Collection\QueryParameters;
 use Adaptation\Database\Connection\ValueObject\QueryParameter;
+use Adaptation\Log\LoggerPassword;
+use Core\Common\Domain\Exception\RepositoryException;
 
 if (!isset($centreon)) {
     exit();
@@ -536,8 +538,13 @@ function multipleContactInDB($contacts = array(), $nbrDup = array())
 /**
  * @param null $contact_id
  * @param bool $from_MC
+ * @param bool $isRemote
+ *
+ * @throws InvalidArgumentException
+ * @throws PDOException
+ * @throws RepositoryException
  */
-function updateContactInDB($contact_id = null, $from_MC = false)
+function updateContactInDB($contact_id = null, $from_MC = false): void
 {
     global $form;
 
@@ -671,9 +678,13 @@ function insertContact($ret = array())
 }
 
 /**
- * @param int|null $contactId
+ * @param null $contactId
+ *
+ * @throws InvalidArgumentException
+ * @throws PDOException
+ * @throws RepositoryException
  */
-function updateContact($contactId = null)
+function updateContact($contactId = null): void
 {
     global $form, $pearDB, $centreon, $encryptType, $dependencyInjector;
     if (!$contactId) {
@@ -714,8 +725,27 @@ function updateContact($contactId = null)
         $ret["contact_passwd"] = password_hash($ret["contact_passwd"], \CentreonAuth::PASSWORD_HASH_ALGORITHM);
         $ret["contact_passwd2"] = $ret["contact_passwd"];
 
-        $contact = new \CentreonContact($pearDB);
-        $contact->renewPasswordByContactId($contactId, $ret["contact_passwd"]);
+        try {
+            $contact = new \CentreonContact($pearDB);
+            $contact->renewPasswordByContactId($contactId, $ret['contact_passwd']);
+
+            LoggerPassword::create()->success(
+                initiatorId: (int) $centreon->user->get_id(),
+                targetId: (int) $contactId,
+            );
+        } catch (PDOException $e) {
+            LoggerPassword::create()->warning(
+                reason: 'password update failed',
+                initiatorId: (int) $centreon->user->get_id(),
+                targetId: (int) $contactId,
+                exception: $e,
+            );
+
+            throw new RepositoryException(
+                message: 'Unable to update password for contact id ' . $contactId,
+                previous: $e
+            );
+        }
     }
 
     /* Prepare value for changelog */
@@ -1489,9 +1519,10 @@ function sanitizeFormContactParameters(array $ret): array
  * Validate password creation using defined security policy.
  *
  * @param array $fields
- * @return mixed
+ *
+ * @return array|true
  */
-function validatePasswordCreation(array $fields)
+function validatePasswordCreation(array $fields): bool|array
 {
     global $pearDB;
     $errors = [];
@@ -1505,8 +1536,15 @@ function validatePasswordCreation(array $fields)
     try {
         $contact = new \CentreonContact($pearDB);
         $contact->respectPasswordPolicyOrFail($password, null);
-    } catch (\Throwable $e) {
+    } catch (\Exception $e) {
         $errors['contact_passwd'] = $e->getMessage();
+
+        LoggerPassword::create()->warning(
+            reason: 'new password does not respect the password policy',
+            initiatorId: $fields['contact_id'] ?? 'unknown',
+            targetId: $fields['contact_id'] ?? 'unknown',
+            exception: $e,
+        );
     }
 
     return count($errors) > 0 ? $errors : true;
@@ -1534,21 +1572,45 @@ function validatePasswordModification(array $fields): array|bool
 
     // If the user only provided a confirmation password, he must provide a new password and a current password
     if (empty($newPassword) && ! empty($confirmPassword) && empty($currentPassword)) {
+        LoggerPassword::create()->warning(
+            reason: 'new password or current password not provided',
+            initiatorId: (int) $centreon->user->get_id(),
+            targetId: (int) $contactId,
+        );
+
         return ['contact_passwd2' => _('Please fill in all password fields')];
     }
 
     // If the user only provided his current password, he must provide a new password
     if (empty($newPassword) && ! empty($currentPassword)) {
+        LoggerPassword::create()->warning(
+            reason: 'new password not provided',
+            initiatorId: (int) $centreon->user->get_id(),
+            targetId: (int) $contactId,
+        );
+
         return ['current_password' => _('Please fill in all password fields')];
     }
 
     // If the user wants to change his password, he must provide his current password
     if (! empty($newPassword) && empty($currentPassword)) {
+        LoggerPassword::create()->warning(
+            reason: 'current password not provided',
+            initiatorId: (int) $centreon->user->get_id(),
+            targetId: (int) $contactId,
+        );
+
         return ['current_password' => _('Please fill in all password fields')];
     }
 
     // If the user provided a current password, we check if it matches the one in the database
     if (! empty($currentPassword) && password_verify($currentPassword, $centreon->user->passwd) === false) {
+        LoggerPassword::create()->warning(
+            reason: 'current password wrong',
+            initiatorId: (int) $centreon->user->get_id(),
+            targetId: (int) $contactId,
+        );
+
         return ['current_password' => _('Authentication failed')];
     }
 
@@ -1557,7 +1619,14 @@ function validatePasswordModification(array $fields): array|bool
         $contact->respectPasswordPolicyOrFail($newPassword, $contactId);
 
         return true;
-    } catch (Throwable $e) {
+    } catch (Exception $e) {
+        LoggerPassword::create()->warning(
+            reason: 'new password does not respect the password policy',
+            initiatorId: (int) $centreon->user->get_id(),
+            targetId: (int) $contactId,
+            exception: $e,
+        );
+
         return ['contact_passwd' => $e->getMessage()];
     }
 }
@@ -1592,6 +1661,12 @@ function validateAutologin(array $fields)
                 $errors['contact_autologin_key'] = _(
                     'Your autologin key must be different than your current password'
                 );
+
+                LoggerPassword::create()->warning(
+                    reason: 'autologin key is the same as current password',
+                    initiatorId: (int) $fields['contact_id'],
+                    targetId: (int) $fields['contact_id'],
+                );
             }
         }
         if (
@@ -1601,6 +1676,12 @@ function validateAutologin(array $fields)
             $errorMessage = 'Your password and autologin key should be different';
             $errors['contact_passwd'] = _($errorMessage);
             $errors['contact_autologin_key'] = _($errorMessage);
+
+            LoggerPassword::create()->warning(
+                reason: 'autologin key is the same as new password',
+                initiatorId: (int) $fields['contact_id'],
+                targetId: (int) $fields['contact_id'],
+            );
         }
     }
 
