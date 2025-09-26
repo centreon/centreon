@@ -86,6 +86,8 @@ overrides:
       - perl-Linux-Inotify2
       - rsync
       - systemd
+    recommends:
+      - logrotate
 
   deb:
     depends:
@@ -93,3 +95,5 @@ overrides:
       - liblinux-inotify2-perl
       - rsync
       - systemd
+    recommends:
+      - logrotate
