@@ -51,10 +51,10 @@ final class PhpCsFixerDiffHandler
         $diffFiles = [];
 
         foreach ($this->args as $key => $arg) {
-            if (str_starts_with((string) $arg, $this->moduleName . '/') && str_ends_with((string) $arg, '.php')) {
+            if (str_starts_with($arg, $this->moduleName . '/') && str_ends_with($arg, '.php')) {
                 $diffFiles[] = str_replace($this->moduleName . '/', '', $arg);
             }
-            if (str_starts_with((string) $arg, $this->moduleName . '/')) {
+            if (str_starts_with($arg, $this->moduleName . '/')) {
                 unset($this->args[$key]);
             }
         }
@@ -94,13 +94,14 @@ final class PhpCsFixerDiffHandler
      */
     private function matchesConfig(string $file, array $config): bool
     {
-        return ! empty(array_filter(
+        return array_filter(
             array_merge($config['directories'], $config['files']),
-            fn ($path): bool => str_starts_with($file, (string) $path)
-        )) && empty(array_filter(
-            $config['skip'],
-            fn ($skip): bool => str_starts_with($file, (string) $skip))
-        );
+            fn ($path): bool => str_starts_with($file, $path)
+        ) !== []
+            && array_filter(
+                $config['skip'],
+                fn ($skip): bool => str_starts_with($file, $skip)
+            ) === [];
     }
 
     /**
