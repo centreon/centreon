@@ -21,10 +21,19 @@
 
 declare(strict_types=1);
 
-$rectorConfig = require_once __DIR__ . '/../php-tools/rector/config/base.unstrict.php';
-$pathsConfig = require_once __DIR__ . '/rector.conf.php';
-
-return $rectorConfig
-    ->withCache(__DIR__ . '/var/cache/rector.legacy')
-    ->withPaths($pathsConfig['legacy']['paths'])
-    ->withSkip($pathsConfig['legacy']['skip']);
+return [
+    'legacy' => [
+        'paths' => [
+            // directories
+            'www',
+            // files
+            '.php-cs-fixer.conf.php',
+            '.php-cs-fixer.diff.php',
+            '.php-cs-fixer.legacy.php',
+            'rector.conf.php',
+            'rector.diff.php',
+            'rector.legacy.php',
+        ],
+        'skip' => [],
+    ],
+];

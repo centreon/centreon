@@ -24,7 +24,11 @@ declare(strict_types=1);
 return [
     'legacy' => [
         'files' => [
+            '.php-cs-fixer.conf.php',
+            '.php-cs-fixer.diff.php',
             '.php-cs-fixer.legacy.php',
+            'rector.conf.php',
+            'rector.diff.php',
             'rector.legacy.php',
         ],
         'directories' => [
