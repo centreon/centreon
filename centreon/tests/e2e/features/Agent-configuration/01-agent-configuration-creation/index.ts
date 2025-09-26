@@ -38,6 +38,10 @@ beforeEach(() => {
     method: 'GET',
     url: '/centreon/api/latest/administration/tokens?*'
   }).as('getTokens');
+  cy.intercept({
+    method: 'POST',
+    url: '/centreon/api/latest/administration/tokens'
+  }).as('addToken');
 });
 
 after(() => {
@@ -159,8 +163,7 @@ When('the user fills in the centreon agent parameters', () => {
   // Click to add the first host
   cy.getByLabel({ label: 'Select host', tag: 'input' }).eq(0).click();
   cy.contains('Centreon-Server').click();
-  cy.getByTestId({ testId: 'Select existing CMA token' }).eq(0).dblclick();
-  cy.wait('@getTokens');
+  cy.getByTestId({ testId: 'Select existing CMA token' }).eq(0).click();
   cy.contains('CMA-Token-001').click();
   // Click to add the second host
   cy.getByLabel({ label: 'Select host', tag: 'input' }).eq(1).click();
@@ -317,7 +320,7 @@ Then('the form fields are empty', () => {
 });
 
 When('the user clicks on Save in the cancellation pop-up', () => {
-  cy.getByLabel({ label: 'Save', tag: 'button' }).click();
+  cy.getByTestId({ testId: 'confirm', tag: 'button' }).click();
   cy.wait('@addAgents');
 });
 
