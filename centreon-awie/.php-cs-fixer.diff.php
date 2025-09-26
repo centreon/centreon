@@ -1,0 +1,95 @@
+<?php
+
+/*
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * For more information : contact@centreon.com
+ *
+ */
+
+declare(strict_types=1);
+
+$pathsConfig = require_once __DIR__ . '/.php-cs-fixer.conf.php';
+
+$args = $_SERVER['argv'] ?? null;
+
+$toFix = true;
+if (in_array('--dry-run', $args, true)) {
+    $toFix = false;
+}
+
+$diffFiles = [];
+
+for ($i = 0, $iMax = count($args); $i < $iMax; $i++) {
+    if (str_starts_with((string) $args[$i], 'centreon-awie/') && str_ends_with((string) $args[$i], '.php')) {
+        $diffFiles[] = str_replace('centreon-awie/', '', $args[$i]);
+    }
+    if (str_starts_with((string) $args[$i], 'centreon-awie/')) {
+        unset($args[$i]);
+    }
+}
+
+if ($diffFiles === []) {
+    echo 'No files to analyze' . PHP_EOL;
+
+    exit(0);
+}
+
+$pathsLegacyToAnalyze = [];
+
+foreach ($diffFiles as $file) {
+    if (
+        array_filter(
+            array_merge(
+                $pathsConfig['legacy']['directories'],
+                $pathsConfig['legacy']['files']
+            ),
+            fn ($path): bool => str_starts_with($file, (string) $path)
+        ) !== []
+        && array_filter($pathsConfig['legacy']['skip'], fn ($skip): bool => str_starts_with($file, (string) $skip)
+        ) === []
+    ) {
+        $pathsLegacyToAnalyze[] = $file;
+    } else {
+        echo 'Path not recognized for rector: ' . $file . PHP_EOL;
+    }
+}
+
+executeCsFixer('cs:legacy', $pathsLegacyToAnalyze, $toFix);
+
+/**
+ * @param string $commandName Can be cs:legacy, cs:core or cs:new
+ * @param array $filesToAnalyze Files to analyze
+ * @param bool $toFix To fix the errors or just display them
+ */
+function executeCsFixer(string $commandName, array $filesToAnalyze, bool $toFix): void
+{
+    if ($filesToAnalyze !== []) {
+        if ($toFix) {
+            $commandName .= ':fix';
+        }
+        echo 'Running ' . $commandName . ' on :' . PHP_EOL . implode(
+            PHP_EOL,
+            array_map(fn ($f): string => '- ' . $f, $filesToAnalyze)
+        ) . PHP_EOL;
+        $command = 'composer ' . $commandName . ' -- --format=txt --show-progress=none ' . implode(
+            ' ',
+            $filesToAnalyze
+        );
+        passthru($command);
+    } else {
+        echo 'No paths to analyze with ' . $commandName . PHP_EOL;
+    }
+}
