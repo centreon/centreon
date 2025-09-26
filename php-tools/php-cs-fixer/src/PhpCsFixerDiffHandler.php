@@ -7,7 +7,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -30,8 +30,8 @@ final class PhpCsFixerDiffHandler
         private readonly array $sections,
         private readonly array $pathsConfig,
         private array $args,
-    )
-    {}
+    ) {
+    }
 
     public function handle(): void
     {
@@ -67,7 +67,7 @@ final class PhpCsFixerDiffHandler
 
         foreach ($diffFiles as $file) {
             $matched = false;
-            foreach ($pathsToAnalyze as $section => $_) {
+            foreach (array_keys($pathsToAnalyze) as $section) {
                 if ($this->matchesConfig($file, $this->pathsConfig[$section])) {
                     $pathsToAnalyze[$section][] = $file;
                     $matched = true;
@@ -80,19 +80,19 @@ final class PhpCsFixerDiffHandler
         }
 
         foreach ($pathsToAnalyze as $section => $files) {
-            $this->executeCsFixer("cs:$section", $files, $toFix);
+            $this->executeCsFixer("cs:{$section}", $files, $toFix);
         }
     }
 
     private function matchesConfig(string $file, array $config): bool
     {
         return ! empty(array_filter(
-                array_merge($config['directories'], $config['files']),
-                fn($path) => str_starts_with($file, (string) $path)
-            )) && empty(array_filter(
-                $config['skip'],
-                fn($skip) => str_starts_with($file, (string) $skip))
-            );
+            array_merge($config['directories'], $config['files']),
+            fn ($path): bool => str_starts_with($file, (string) $path)
+        )) && empty(array_filter(
+            $config['skip'],
+            fn ($skip): bool => str_starts_with($file, (string) $skip))
+        );
     }
 
     private function executeCsFixer(string $commandName, array $filesToAnalyze, bool $toFix): void
@@ -105,15 +105,16 @@ final class PhpCsFixerDiffHandler
                 $commandName .= ':fix';
             }
             echo 'Files to analyse:' . PHP_EOL . implode(
-                    PHP_EOL,
-                    array_map(fn($f): string => '- ' . $f, $filesToAnalyze)
-                ) . PHP_EOL;
+                PHP_EOL,
+                array_map(fn ($f): string => '- ' . $f, $filesToAnalyze)
+            ) . PHP_EOL;
             $command = 'composer ' . $commandName . ' -- --format=txt --show-progress=none ' . implode(
-                    ' ',
-                    $filesToAnalyze
-                );
+                ' ',
+                $filesToAnalyze
+            );
             passthru($command, $exitCode);
             echo $exitCode === 0 ? '✔️ No errors!' . PHP_EOL : '❌ Errors found!' . PHP_EOL;
+
             exit($exitCode);
         }
 
