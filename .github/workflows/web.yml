@@ -470,9 +470,7 @@ jobs:
         if: steps.changed-php.outputs.any_changed == 'true'
         working-directory: centreon
         run: |
-          echo "Run of these Rector tests: rector:legacy, rector:core, rector:new" && set -e
-          echo "PHP files changed:"
-          echo "${{ steps.changed-php.outputs.all_changed_files }}"
+          echo "Run of these Rector tests: rector:legacy, rector:core, rector:new on diff" && set -e
           composer rector:diff ${{ steps.changed-php.outputs.all_changed_files }}
 
       - name: 🧹 PHP-CS-Fixer checks
