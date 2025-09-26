@@ -6,8 +6,12 @@ parameters:
     level: max
 
     scanFiles:
+        - .php-cs-fixer.legacy.conf.php
+        - .php-cs-fixer.legacy.diff.php
         - .php-cs-fixer.legacy.www.php
         - .php-cs-fixer.legacy.src.php
+        - rector.conf.php
+        - rector.diff.php
         - rector.legacy.php
 
     paths:

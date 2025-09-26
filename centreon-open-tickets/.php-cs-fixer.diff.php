@@ -33,10 +33,10 @@ if (in_array('--dry-run', $args, true)) {
 $diffFiles = [];
 
 for ($i = 0, $iMax = count($args); $i < $iMax; $i++) {
-    if (str_starts_with((string) $args[$i], 'centreon-dsm/') && str_ends_with((string) $args[$i], '.php')) {
-        $diffFiles[] = str_replace('centreon-dsm/', '', $args[$i]);
+    if (str_starts_with((string) $args[$i], 'centreon-open-tickets/') && str_ends_with((string) $args[$i], '.php')) {
+        $diffFiles[] = str_replace('centreon-open-tickets/', '', $args[$i]);
     }
-    if (str_starts_with((string) $args[$i], 'centreon-dsm/')) {
+    if (str_starts_with((string) $args[$i], 'centreon-open-tickets/')) {
         unset($args[$i]);
     }
 }
@@ -47,27 +47,41 @@ if ($diffFiles === []) {
     exit(0);
 }
 
-$pathsLegacyToAnalyze = [];
+$pathsLegacySrcToAnalyze = [];
+$pathsLegacyWwwToAnalyze = [];
 
 foreach ($diffFiles as $file) {
     if (
         array_filter(
             array_merge(
-                $pathsConfig['legacy']['directories'],
-                $pathsConfig['legacy']['files']
+                $pathsConfig['legacy.src']['directories'],
+                $pathsConfig['legacy.src']['files']
             ),
             fn ($path): bool => str_starts_with($file, (string) $path)
         ) !== []
-        && array_filter($pathsConfig['legacy']['skip'], fn ($skip): bool => str_starts_with($file, (string) $skip)
+        && array_filter($pathsConfig['legacy.src']['skip'], fn ($skip): bool => str_starts_with($file, (string) $skip)
         ) === []
     ) {
-        $pathsLegacyToAnalyze[] = $file;
+        $pathsLegacySrcToAnalyze[] = $file;
+    } elseif (
+        array_filter(
+            array_merge(
+                $pathsConfig['legacy.www']['directories'],
+                $pathsConfig['legacy.www']['files']
+            ),
+            fn ($path): bool => str_starts_with($file, (string) $path)
+        ) !== []
+        && array_filter($pathsConfig['legacy.www']['skip'], fn ($skip): bool => str_starts_with($file, (string) $skip)
+        ) === []
+    ) {
+        $pathsLegacyWwwToAnalyze[] = $file;
     } else {
         echo 'Path not recognized for rector: ' . $file . PHP_EOL;
     }
 }
 
-executeCsFixer('cs:legacy', $pathsLegacyToAnalyze, $toFix);
+executeCsFixer('cs:legacy:src', $pathsLegacySrcToAnalyze, $toFix);
+executeCsFixer('cs:legacy:www', $pathsLegacyWwwToAnalyze, $toFix);
 
 /**
  * @param string $commandName Can be cs:legacy, cs:core or cs:new

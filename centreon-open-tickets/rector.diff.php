@@ -33,10 +33,10 @@ if (in_array('--dry-run', $args, true)) {
 $diffFiles = [];
 
 for ($i = 0, $iMax = count($args); $i < $iMax; $i++) {
-    if (str_starts_with((string) $args[$i], 'centreon-dsm/') && str_ends_with((string) $args[$i], '.php')) {
-        $diffFiles[] = str_replace('centreon-dsm/', '', $args[$i]);
+    if (str_starts_with((string) $args[$i], 'centreon-open-tickets/') && str_ends_with((string) $args[$i], '.php')) {
+        $diffFiles[] = str_replace('centreon-open-tickets/', '', $args[$i]);
     }
-    if (str_starts_with((string) $args[$i], 'centreon-dsm/')) {
+    if (str_starts_with((string) $args[$i], 'centreon-open-tickets/')) {
         unset($args[$i]);
     }
 }
