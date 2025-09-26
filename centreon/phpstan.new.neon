@@ -8,7 +8,9 @@ parameters:
     treatPhpDocTypesAsCertain: false
 
     scanFiles:
+        - .php-cs-fixer.conf.php
         - .php-cs-fixer.core.php
+        - .php-cs-fixer.diff.php
         - .php-cs-fixer.legacy.php
         - .php-cs-fixer.new.php
         - castor.php

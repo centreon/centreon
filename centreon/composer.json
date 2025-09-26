@@ -180,6 +180,8 @@
     "rector:core:fix": "../php-tools/vendor/bin/rector process --config=rector.core.php",
     "rector:new": "../php-tools/vendor/bin/rector process --config=rector.new.php --dry-run",
     "rector:new:fix": "../php-tools/vendor/bin/rector process --config=rector.new.php",
+    "cs:diff": "php .php-cs-fixer.diff.php --dry-run",
+    "cs:diff:fix": "php .php-cs-fixer.diff.php",
     "cs:legacy": "../php-tools/vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.legacy.php --verbose --dry-run --diff",
     "cs:legacy:fix": "../php-tools/vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.legacy.php --verbose --diff",
     "cs:core": "../php-tools/vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.core.php --verbose --dry-run --diff",

@@ -69,16 +69,16 @@ foreach ($diffFiles as $file) {
     }
 }
 
-executeRector('rector:legacy', $pathsLegacyToAnalyze, $toFix);
-executeRector('rector:core', $pathsCoreToAnalyze, $toFix);
-executeRector('rector:new', $pathsNewToAnalyze, $toFix);
+executeCsFixer('cs:legacy', $pathsLegacyToAnalyze, $toFix);
+executeCsFixer('cs:core', $pathsCoreToAnalyze, $toFix);
+executeCsFixer('cs:new', $pathsNewToAnalyze, $toFix);
 
 /**
- * @param string $commandName Can be rector:legacy, rector:core or rector:new
+ * @param string $commandName Can be cs:legacy, cs:core or cs:new
  * @param array $filesToAnalyze Files to analyze
  * @param bool $toFix To fix the errors or just display them
  */
-function executeRector(string $commandName, array $filesToAnalyze, bool $toFix): void
+function executeCsFixer(string $commandName, array $filesToAnalyze, bool $toFix): void
 {
     if ($filesToAnalyze !== []) {
         if ($toFix) {
@@ -88,7 +88,7 @@ function executeRector(string $commandName, array $filesToAnalyze, bool $toFix):
             PHP_EOL,
             array_map(fn ($f): string => '- ' . $f, $filesToAnalyze)
         ) . PHP_EOL;
-        $command = 'composer ' . $commandName . ' -- --no-progress-bar ' . implode(' ', $filesToAnalyze);
+        $command = 'composer ' . $commandName . ' -- --format=txt --show-progress=none ' . implode(' ', $filesToAnalyze);
         passthru($command);
     } else {
         echo 'No paths to analyze with ' . $commandName . PHP_EOL;

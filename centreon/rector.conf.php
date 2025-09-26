@@ -21,54 +21,71 @@
 
 declare(strict_types=1);
 
-$pathsLegacy = [
-    // directories
-    'api/',
-    'config/',
-    'cron/',
-    'lib/',
-    'libinstall/',
-    'packaging/',
-    'src/',
-    'tests/php/',
-    'tools/',
-    'www/',
-    // files
-    'bootstrap.php',
-    'container.php',
-];
+use Rector\Php81\Rector\Property\ReadOnlyPropertyRector;
 
-$skipPathsLegacy = [
-    // directories
-    'www/class/centreon-clapi/',
-    'src/Adaptation',
-    'src/App',
-    'src/Core',
-    'tests/php/Adaptation',
-    'tests/php/App',
-    'tests/php/Core',
-];
-
-$pathsCore = [
-    // directories
-    'src/Core/',
-    'tests/php/Core/',
-];
-
-$pathsNew = [
-    // directories
-    'src/Adaptation/',
-    'src/App/',
-    'tests/php/Adaptation/',
-    'tests/php/App/',
-    // files
-    '.env.local.php',
-    '.php-cs-fixer.core.php',
-    '.php-cs-fixer.legacy.php',
-    '.php-cs-fixer.new.php',
-    'rector.conf.php',
-    'rector.core.php',
-    'rector.diff.php',
-    'rector.legacy.php',
-    'rector.new.php',
+return [
+    'legacy' => [
+        'paths' => [
+            // directories
+            'api/',
+            'config/',
+            'cron/',
+            'lib/',
+            'libinstall/',
+            'packaging/',
+            'src/',
+            'tests/php/',
+            'tools/',
+            'www/',
+            // files
+            'bootstrap.php',
+            'container.php',
+        ],
+        'skip' => [
+            // directories
+            'www/class/centreon-clapi/',
+            'src/Adaptation',
+            'src/App',
+            'src/Core',
+            'tests/php/Adaptation',
+            'tests/php/App',
+            'tests/php/Core',
+        ],
+    ],
+    'core' => [
+        'paths' => [
+            // directories
+            'src/Core/',
+            'tests/php/Core/',
+        ],
+        'skip' => [],
+    ],
+    'new' => [
+        'paths' => [
+            // directories
+            'src/Adaptation/',
+            'src/App/',
+            'tests/php/Adaptation/',
+            'tests/php/App/',
+            // files
+            '.env.local.php',
+            '.php-cs-fixer.conf.php',
+            '.php-cs-fixer.core.php',
+            '.php-cs-fixer.diff.php',
+            '.php-cs-fixer.legacy.php',
+            '.php-cs-fixer.new.php',
+            'rector.conf.php',
+            'rector.core.php',
+            'rector.diff.php',
+            'rector.legacy.php',
+            'rector.new.php',
+        ],
+        'skip' => [
+            // because id are only able to be set by object construction, rector
+            // tries to set it as readonly. But in repositories, we set the id using
+            // reflection (to protect the domain). Therefore the id property cannot be
+            // readonly.
+            ReadOnlyPropertyRector::class => __DIR__ . '/src/App/*/Domain/Aggregate/*',
+        ],
+    ],
 ];
