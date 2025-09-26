@@ -30,6 +30,6 @@ $pathsConfig = require_once __DIR__ . '/.php-cs-fixer.conf.php';
 $args = $_SERVER['argv'] ?? [];
 
 $csFixerHandler = new PhpCsFixerDiffHandler(
-    moduleName: 'centreon-open-tickets', sections: ['legacy.www', 'legacy.src'], pathsConfig: $pathsConfig, args: $args
+    moduleName: 'centreon-open-tickets', sections: ['legacy:www', 'legacy:src'], pathsConfig: $pathsConfig, args: $args
 );
 $csFixerHandler->handle();

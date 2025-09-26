@@ -22,7 +22,7 @@
 declare(strict_types=1);
 
 return [
-    'legacy.www' => [
+    'legacy:www' => [
         'files' => [],
         'directories' => [
             'config',
@@ -32,7 +32,7 @@ return [
         ],
         'skip' => [],
     ],
-    'legacy.src' => [
+    'legacy:src' => [
         'files' => [
             '.php-cs-fixer.conf.php',
             '.php-cs-fixer.diff.php',
