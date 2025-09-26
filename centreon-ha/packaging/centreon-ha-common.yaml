@@ -92,7 +92,4 @@ overrides:
       - libcommon-sense-perl
       - liblinux-inotify2-perl
       - rsync
-      - "centreon-common (>= ${MAJOR_VERSION}~)"
-      - "centreon-common (<< ${NEXT_MAJOR_VERSION}~)"
-      - "centreon-gorgone (>= ${MAJOR_VERSION}~)"
-      - "centreon-gorgone (<< ${NEXT_MAJOR_VERSION}~)"
+      - systemd

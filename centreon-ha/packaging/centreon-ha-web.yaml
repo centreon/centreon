@@ -102,12 +102,14 @@ overrides:
     depends:
       - centreon-gorgone-centreon-config >= ${MAJOR_VERSION}
       - centreon-gorgone-centreon-config < ${NEXT_MAJOR_VERSION}
-      - centreon-common >= ${MAJOR_VERSION}
-      - centreon-common < ${NEXT_MAJOR_VERSION}
+      - centreon-web >= ${MAJOR_VERSION}
+      - centreon-web < ${NEXT_MAJOR_VERSION}
       - centreon-ha-common = ${VERSION}-${RELEASE}${DIST}
       - resource-agents
   deb:
     depends:
+      - "centreon-gorgone-centreon-config (>= ${MAJOR_VERSION}~)"
+      - "centreon-gorgone-centreon-config (<< ${NEXT_MAJOR_VERSION}~)"
       - "centreon-web (>= ${MAJOR_VERSION}~)"
       - "centreon-web (<< ${NEXT_MAJOR_VERSION}~)"
       - "centreon-ha-common (>= ${MAJOR_VERSION}~)"
