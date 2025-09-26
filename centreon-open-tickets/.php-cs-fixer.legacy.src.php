@@ -27,9 +27,9 @@ $config = require_once __DIR__ . '/../php-tools/php-cs-fixer/config/base.strict.
 $pathsConfig = require_once __DIR__ . '/.php-cs-fixer.conf.php';
 
 $finder = Finder::create()
-    ->in($pathsConfig['legacy.src']['directories'])
-    ->append($pathsConfig['legacy.src']['files'])
-    ->notPath($pathsConfig['legacy.src']['skip']);
+    ->in($pathsConfig['legacy:src']['directories'])
+    ->append($pathsConfig['legacy:src']['files'])
+    ->notPath($pathsConfig['legacy:src']['skip']);
 
 return $config
     ->setFinder($finder)
