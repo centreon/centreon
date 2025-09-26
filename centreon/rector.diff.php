@@ -30,6 +30,9 @@ if (in_array('--dry-run', $args, true)) {
     $toFix = false;
 }
 
+echo '################################################' . PHP_EOL;
+echo '=> Preparing files to analyse' . PHP_EOL;
+
 $diffFiles = [];
 
 for ($i = 0, $iMax = count($args); $i < $iMax; $i++) {
@@ -42,7 +45,7 @@ for ($i = 0, $iMax = count($args); $i < $iMax; $i++) {
 }
 
 if ($diffFiles === []) {
-    echo 'No files to analyze' . PHP_EOL;
+    echo 'No files to analyse!' . PHP_EOL;
 
     exit(0);
 }
@@ -65,7 +68,7 @@ foreach ($diffFiles as $file) {
     ) !== []) {
         $pathsNewToAnalyze[] = $file;
     } else {
-        echo 'Path not recognized for rector: ' . $file . PHP_EOL;
+        echo 'File not recognised: ' . $file . PHP_EOL;
     }
 }
 
@@ -80,17 +83,19 @@ executeRector('rector:new', $pathsNewToAnalyze, $toFix);
  */
 function executeRector(string $commandName, array $filesToAnalyze, bool $toFix): void
 {
+    echo '################################################' . PHP_EOL;
+    echo '=> Running ' . $commandName . PHP_EOL;
     if ($filesToAnalyze !== []) {
         if ($toFix) {
             $commandName .= ':fix';
         }
-        echo 'Running ' . $commandName . ' on :' . PHP_EOL . implode(
+        echo 'Files to analyse:' . PHP_EOL . implode(
             PHP_EOL,
             array_map(fn ($f): string => '- ' . $f, $filesToAnalyze)
         ) . PHP_EOL;
         $command = 'composer ' . $commandName . ' -- --no-progress-bar ' . implode(' ', $filesToAnalyze);
         passthru($command);
     } else {
-        echo 'No paths to analyze with ' . $commandName . PHP_EOL;
+        echo 'No files to analyse!' . PHP_EOL;
     }
 }

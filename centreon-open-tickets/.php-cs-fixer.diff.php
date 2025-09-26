@@ -30,6 +30,9 @@ if (in_array('--dry-run', $args, true)) {
     $toFix = false;
 }
 
+echo '################################################' . PHP_EOL;
+echo '=> Preparing files to analyse' . PHP_EOL;
+
 $diffFiles = [];
 
 for ($i = 0, $iMax = count($args); $i < $iMax; $i++) {
@@ -42,7 +45,7 @@ for ($i = 0, $iMax = count($args); $i < $iMax; $i++) {
 }
 
 if ($diffFiles === []) {
-    echo 'No files to analyze' . PHP_EOL;
+    echo 'No files to analyse!' . PHP_EOL;
 
     exit(0);
 }
@@ -76,7 +79,7 @@ foreach ($diffFiles as $file) {
     ) {
         $pathsLegacyWwwToAnalyze[] = $file;
     } else {
-        echo 'Path not recognized for rector: ' . $file . PHP_EOL;
+        echo 'File not recognised: ' . $file . PHP_EOL;
     }
 }
 
@@ -90,20 +93,22 @@ executeCsFixer('cs:legacy:www', $pathsLegacyWwwToAnalyze, $toFix);
  */
 function executeCsFixer(string $commandName, array $filesToAnalyze, bool $toFix): void
 {
+    echo '################################################' . PHP_EOL;
+    echo '=> Running ' . $commandName . PHP_EOL;
     if ($filesToAnalyze !== []) {
         if ($toFix) {
             $commandName .= ':fix';
         }
-        echo 'Running ' . $commandName . ' on :' . PHP_EOL . implode(
-            PHP_EOL,
-            array_map(fn ($f): string => '- ' . $f, $filesToAnalyze)
-        ) . PHP_EOL;
+        echo 'Files to analyse:' . PHP_EOL . implode(
+                PHP_EOL,
+                array_map(fn ($f): string => '- ' . $f, $filesToAnalyze)
+            ) . PHP_EOL;
         $command = 'composer ' . $commandName . ' -- --format=txt --show-progress=none ' . implode(
-            ' ',
-            $filesToAnalyze
-        );
+                ' ',
+                $filesToAnalyze
+            );
         passthru($command);
     } else {
-        echo 'No paths to analyze with ' . $commandName . PHP_EOL;
+        echo 'No files to analyse!' . PHP_EOL;
     }
 }
