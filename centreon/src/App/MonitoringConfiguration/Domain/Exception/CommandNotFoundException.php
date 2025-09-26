@@ -21,19 +21,10 @@
 
 declare(strict_types=1);
 
-namespace Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\State;
+namespace App\MonitoringConfiguration\Domain\Exception;
 
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Command\CommandResource;
-use Tests\App\Shared\ApiTestCase;
+use App\Shared\Domain\Exception\AggregateNotFoundException;
 
-final class FindCommandProviderTest extends ApiTestCase
+final class CommandNotFoundException extends AggregateNotFoundException
 {
-    public function testItFindCommand(): void
-    {
-        $this->login();
-
-        $this->request('GET', '/api/latest/configuration/commands/1');
-        self::assertResponseIsSuccessful();
-        self::assertMatchesResourceItemJsonSchema(CommandResource::class);
-    }
 }

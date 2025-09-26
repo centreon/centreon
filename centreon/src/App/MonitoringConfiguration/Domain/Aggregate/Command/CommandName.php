@@ -21,19 +21,18 @@
 
 declare(strict_types=1);
 
-namespace Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\State;
+namespace App\MonitoringConfiguration\Domain\Aggregate\Command;
 
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Command\CommandResource;
-use Tests\App\Shared\ApiTestCase;
+use Webmozart\Assert\Assert;
 
-final class FindCommandProviderTest extends ApiTestCase
+final readonly class CommandName
 {
-    public function testItFindCommand(): void
-    {
-        $this->login();
+    public const NAME_VALIDATION_REGEX  = '/^[^~!$%^&*"|\'<>?,()=]+$/';
 
-        $this->request('GET', '/api/latest/configuration/commands/1');
-        self::assertResponseIsSuccessful();
-        self::assertMatchesResourceItemJsonSchema(CommandResource::class);
+    public function __construct(
+        public string $value,
+    ) {
+        Assert::lengthBetween($value, 1, 200);
+        Assert::regex($value, self::NAME_VALIDATION_REGEX);
     }
 }

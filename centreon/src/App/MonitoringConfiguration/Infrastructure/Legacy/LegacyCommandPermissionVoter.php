@@ -23,27 +23,34 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Infrastructure\Legacy;
 
-use App\MonitoringConfiguration\Domain\Security\GlobalMacroPermissionEnum;
+use App\MonitoringConfiguration\Domain\Security\CommandPermissionEnum;
 use Centreon\Domain\Contact\Contact;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Vote;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
 /**
- * @extends Voter<value-of<GlobalMacroPermissionEnum>, mixed>
+ * @extends Voter<value-of<CommandPermissionEnum>, mixed>
  */
-final class LegacyGlobalMacroPermissionVoter extends Voter
+final class LegacyCommandPermissionVoter extends Voter
 {
     /**
-     * @var array<value-of<GlobalMacroPermissionEnum>, string>
+     * @var array<value-of<CommandPermissionEnum>, string>
      */
     private const LEGACY_PERMISSION_MAP = [
-        GlobalMacroPermissionEnum::CanRead->value => Contact::ROLE_CONFIGURATION_POLLERS_GLOBAL_MACRO_RW,
+        CommandPermissionEnum::CanReadChecks->value => Contact::ROLE_CONFIGURATION_COMMANDS_CHECKS_R,
+        CommandPermissionEnum::CanReadAndWriteChecks->value => Contact::ROLE_CONFIGURATION_COMMANDS_CHECKS_RW,
+        CommandPermissionEnum::CanReadNotifications->value => Contact::ROLE_CONFIGURATION_COMMANDS_NOTIFICATIONS_R,
+        CommandPermissionEnum::CanReadAndWriteNotifications->value => Contact::ROLE_CONFIGURATION_COMMANDS_NOTIFICATIONS_RW,
+        CommandPermissionEnum::CanReadMiscellaneous->value => Contact::ROLE_CONFIGURATION_COMMANDS_MISCELLANEOUS_R,
+        CommandPermissionEnum::CanReadAndWriteMiscellaneous->value => Contact::ROLE_CONFIGURATION_COMMANDS_MISCELLANEOUS_RW,
+        CommandPermissionEnum::CanReadDiscovery->value => Contact::ROLE_CONFIGURATION_COMMANDS_DISCOVERY_R,
+        CommandPermissionEnum::CanReadAndWriteDiscovery->value => Contact::ROLE_CONFIGURATION_COMMANDS_DISCOVERY_RW,
     ];
 
     protected function supports(string $attribute, mixed $subject): bool
     {
-        return GlobalMacroPermissionEnum::tryFrom($attribute) !== null;
+        return CommandPermissionEnum::tryFrom($attribute) !== null;
     }
 
     protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token, ?Vote $vote = null): bool
@@ -57,7 +64,7 @@ final class LegacyGlobalMacroPermissionVoter extends Voter
         }
 
         if (! $user->hasTopologyRole(self::LEGACY_PERMISSION_MAP[$attribute])) {
-            $vote?->addReason('The user does not have the required topology role: ' . self::LEGACY_PERMISSION_MAP[$attribute]);
+            $vote?->addReason('The user does not have the required topology role.');
 
             return false;
         }

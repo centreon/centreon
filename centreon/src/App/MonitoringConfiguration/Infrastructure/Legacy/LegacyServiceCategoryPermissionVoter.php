@@ -58,7 +58,7 @@ final class LegacyServiceCategoryPermissionVoter extends Voter
         }
 
         if (! $user->hasTopologyRole(self::LEGACY_PERMISSION_MAP[$attribute])) {
-            $vote?->addReason('The user has not the required topology role.');
+            $vote?->addReason('The user does not have the required topology role.');
 
             return false;
         }

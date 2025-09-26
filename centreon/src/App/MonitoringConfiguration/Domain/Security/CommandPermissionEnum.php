@@ -21,19 +21,16 @@
 
 declare(strict_types=1);
 
-namespace Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\State;
+namespace App\MonitoringConfiguration\Domain\Security;
 
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Command\CommandResource;
-use Tests\App\Shared\ApiTestCase;
-
-final class FindCommandProviderTest extends ApiTestCase
+enum CommandPermissionEnum: string
 {
-    public function testItFindCommand(): void
-    {
-        $this->login();
-
-        $this->request('GET', '/api/latest/configuration/commands/1');
-        self::assertResponseIsSuccessful();
-        self::assertMatchesResourceItemJsonSchema(CommandResource::class);
-    }
+    case CanReadChecks = 'can_read_command_checks';
+    case CanReadAndWriteChecks = 'can_read_and_write_command_checks';
+    case CanReadNotifications = 'can_read_command_notifications';
+    case CanReadAndWriteNotifications = 'can_read_and_write_command_notifications';
+    case CanReadMiscellaneous = 'can_read_command_miscellaneous';
+    case CanReadAndWriteMiscellaneous = 'can_read_and_write_command_miscellaneous';
+    case CanReadDiscovery = 'can_read_command_discovery';
+    case CanReadAndWriteDiscovery = 'can_read_and_write_command_discovery';
 }
