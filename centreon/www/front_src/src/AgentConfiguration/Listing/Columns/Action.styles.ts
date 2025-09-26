@@ -8,6 +8,7 @@ export const useStyles = makeStyles()((theme) => ({
     }
   },
   removeIcon: {
-    fontSize: theme.spacing(2.25)
+    fontSize: theme.spacing(2.5),
+    color: theme.palette.error.main
   }
 }));
