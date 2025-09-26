@@ -27,7 +27,7 @@ require_once __DIR__ . '/../php-tools/vendor/autoload.php';
 
 $pathsConfig = require_once __DIR__ . '/rector.conf.php';
 
-$args = isset($_SERVER['argv']) ? $_SERVER['argv'] : null;
+$args = $_SERVER['argv'] ?? null;
 
 $rectorHandler = new RectorDiffHandler(
     moduleName: 'centreon', sections: ['legacy', 'core', 'new'], pathsConfig: $pathsConfig, args: $args
