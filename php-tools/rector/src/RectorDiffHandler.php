@@ -25,6 +25,11 @@ namespace Tools\Rector;
 
 final class RectorDiffHandler
 {
+    /**
+     * @param array<string> $sections
+     * @param array<string, array{paths: array<int, string>, skip: array<int, string>}> $pathsConfig
+     * @param array<int, string> $args
+     */
     public function __construct(
         private readonly string $moduleName,
         private readonly array $sections,
@@ -84,6 +89,9 @@ final class RectorDiffHandler
         }
     }
 
+    /**
+     * @param array{paths: array<int, string>, skip: array<int, string>} $config
+     */
     private function matchesConfig(string $file, array $config): bool
     {
         return ! empty(array_filter(
@@ -95,6 +103,9 @@ final class RectorDiffHandler
         );
     }
 
+    /**
+     * @param array<int,string> $filesToAnalyze
+     */
     private function executeRector(string $commandName, array $filesToAnalyze, bool $toFix): void
     {
         echo '################################################' . PHP_EOL;

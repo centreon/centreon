@@ -25,6 +25,11 @@ namespace Tools\PhpCsFixer;
 
 final class PhpCsFixerDiffHandler
 {
+    /**
+     * @param array<string> $sections
+     * @param array<string, array{files: array<string>, directories: array<string>, skip: array<string>}> $pathsConfig
+     * @param array<int, string> $args
+     */
     public function __construct(
         private readonly string $moduleName,
         private readonly array $sections,
@@ -84,6 +89,9 @@ final class PhpCsFixerDiffHandler
         }
     }
 
+    /**
+     * @param array{files: array<string>, directories: array<string>, skip: array<string>} $config
+     */
     private function matchesConfig(string $file, array $config): bool
     {
         return ! empty(array_filter(
@@ -95,6 +103,9 @@ final class PhpCsFixerDiffHandler
         );
     }
 
+    /**
+     * @param array<int,string> $filesToAnalyze
+     */
     private function executeCsFixer(string $commandName, array $filesToAnalyze, bool $toFix): void
     {
         echo '################################################' . PHP_EOL;

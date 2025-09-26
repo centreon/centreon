@@ -27,7 +27,7 @@ require_once __DIR__ . '/../php-tools/vendor/autoload.php';
 
 $pathsConfig = require_once __DIR__ . '/.php-cs-fixer.conf.php';
 
-$args = $_SERVER['argv'] ?? null;
+$args = $_SERVER['argv'] ?? [];
 
 $csFixerHandler = new PhpCsFixerDiffHandler(
     moduleName: 'centreon-open-tickets', sections: ['legacy.www', 'legacy.src'], pathsConfig: $pathsConfig, args: $args
