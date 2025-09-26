@@ -55,7 +55,7 @@ trait RealTimeResponseTrait
      */
     public function iconToArray(?Icon $icon): array
     {
-        return null === $icon
+        return $icon === null
             ? []
             : [
                 'id' => $icon->getId(),

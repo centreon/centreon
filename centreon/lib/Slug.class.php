@@ -55,7 +55,7 @@ class Slug implements ArrayAccess
     {
         $this->original = $original;
         $this->options = array_merge($this->options, $options);
-        if (null !== $char_map) {
+        if ($char_map !== null) {
             $this->char_map = $char_map;
         }
     }
@@ -103,7 +103,7 @@ class Slug implements ArrayAccess
      */
     public function getSlug()
     {
-        if (null === $this->slug) {
+        if ($this->slug === null) {
             $this->generateSlug();
         }
 

@@ -111,7 +111,7 @@ class NavigationList implements JsonSerializable
     {
         $groups = [];
         foreach ($entities as $entity) {
-            if (null === $entity->getTopologyPage() && $entity->getIsReact() === '0') {
+            if ($entity->getTopologyPage() === null && $entity->getIsReact() === '0') {
                 $groups[$entity->getTopologyParent()][$entity->getTopologyGroup()] = [
                     'name' => $entity->getTopologyName(),
                 ];
@@ -129,7 +129,7 @@ class NavigationList implements JsonSerializable
     private function isFeatureFlagExcluded(Topology $entity): bool
     {
         $flag = (string) $entity->getTopologyFeatureFlag();
-        if ('' === $flag) {
+        if ($flag === '') {
             return false;
         }
 
@@ -207,7 +207,7 @@ class NavigationList implements JsonSerializable
                 // check if topology has group index
                 $topologyGroup = $entity->getTopologyGroup();
                 if (
-                    null !== $topologyGroup
+                    $topologyGroup !== null
                     && isset($groups[$levelTwo][$topologyGroup])
                 ) {
                     if (! isset($tree[$levelOne]['children'][$levelTwo]['groups'][$topologyGroup])) {

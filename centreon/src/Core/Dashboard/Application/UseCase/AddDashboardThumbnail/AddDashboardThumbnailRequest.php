@@ -29,7 +29,7 @@ final readonly class AddDashboardThumbnailRequest
         public int $dashboardId,
         public string $directory,
         public string $filename,
-        public string $content
+        public string $content,
     ) {
     }
 }

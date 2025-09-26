@@ -48,7 +48,7 @@ final class AddServiceSeverityController extends AbstractController
     public function __invoke(
         Request $request,
         AddServiceSeverity $useCase,
-        AddServiceSeverityPresenter $presenter
+        AddServiceSeverityPresenter $presenter,
     ): Response {
         $this->denyAccessUnlessGrantedForApiConfiguration();
 

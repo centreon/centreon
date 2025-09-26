@@ -596,7 +596,7 @@ function linkContactsToAccessGroup(int $accessGroupId, array $contactIds): void
 {
     global $pearDB;
 
-    if ([] === $contactIds) {
+    if ($contactIds === []) {
         return;
     }
 
@@ -631,7 +631,7 @@ function linkContactGroupsToAccessGroup(int $accessGroupId, array $contactGroupI
 {
     global $pearDB;
 
-    if ([] === $contactGroupIds) {
+    if ($contactGroupIds === []) {
         return;
     }
 

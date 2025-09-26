@@ -37,7 +37,7 @@ final class FindRealTimeServiceCategoriesController extends AbstractController
      */
     public function __invoke(
         FindRealTimeServiceCategories $useCase,
-        FindRealTimeServiceCategoriesPresenterInterface $presenter
+        FindRealTimeServiceCategoriesPresenterInterface $presenter,
     ): object {
         /**
          * Access denied if no rights given to the realtime for the current user.

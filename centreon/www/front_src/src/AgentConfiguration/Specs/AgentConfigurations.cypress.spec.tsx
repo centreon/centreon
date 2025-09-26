@@ -37,6 +37,7 @@ import {
   labelRelativePathAreNotAllowed,
   labelRequired,
   labelSave,
+  labelSearch,
   labelSelectExistingCMAToken,
   labelSelectExistingCMATokens,
   labelSelectHost,
@@ -64,7 +65,7 @@ describe('Agent configurations', () => {
 
     cy.waitForRequest('@getAgentConfigurations').then(({ request }) => {
       expect(decodeURIComponent(request.url.search)).equals(
-        '?page=1&limit=10&sort_by={"name":"asc"}&search={"$or":[{"name":{"$rg":""}}]}'
+        '?page=1&limit=10&sort_by={"name":"asc"}&search={"$and":[]}'
       );
     });
 
@@ -88,7 +89,7 @@ describe('Agent configurations', () => {
 
     cy.waitForRequest('@getAgentConfigurations').then(({ request }) => {
       expect(decodeURIComponent(request.url.search)).equals(
-        '?page=1&limit=10&sort_by={"name":"asc"}&search={"$or":[{"name":{"$rg":""}}]}'
+        '?page=1&limit=10&sort_by={"name":"asc"}&search={"$and":[]}'
       );
     });
 
@@ -96,36 +97,58 @@ describe('Agent configurations', () => {
 
     cy.waitForRequest('@getAgentConfigurations').then(({ request }) => {
       expect(decodeURIComponent(request.url.search)).equals(
-        '?page=1&limit=10&sort_by={"name":"desc"}&search={"$or":[{"name":{"$rg":""}}]}'
+        '?page=1&limit=10&sort_by={"name":"desc"}&search={"$and":[]}'
       );
     });
 
     cy.makeSnapshot();
   });
 
-  it('sends a request when the search and filters are updated', () => {
+  it('sends a listing request with the search bar content when after a delay', () => {
     initialize({});
 
+    cy.waitForRequest('@getAgentConfigurations');
+
+    cy.findAllByPlaceholderText(labelSearch).clear().type('My agent');
+
+    cy.wait(500);
+
     cy.waitForRequest('@getAgentConfigurations').then(({ request }) => {
-      expect(decodeURIComponent(request.url.search)).equals(
-        '?page=1&limit=10&sort_by={"name":"asc"}&search={"$or":[{"name":{"$rg":""}}]}'
-      );
+      expect(JSON.parse(request.url.searchParams.get('search'))).to.deep.equal({
+        $and: [{ $or: [{ name: { $rg: 'My agent' } }] }]
+      });
     });
+  });
 
-    cy.findAllByTestId('Search').find('input').type('My agent');
+  it('sends a listing request when the filters are updated and search button clicked', () => {
+    initialize({});
+
+    cy.waitForRequest('@getAgentConfigurations');
+
+    cy.contains('AC 0');
     cy.findByLabelText('Filters').click();
-    cy.findByLabelText(labelAgentType).click({ force: true });
-    cy.get('[data-option-index="1"]').click();
+
     cy.findByLabelText(labelPoller).click({ force: true });
-
     cy.waitForRequest('@getFilterPollers');
-
     cy.contains('poller6').click();
 
+    cy.findByLabelText(labelAgentType).click({ force: true });
+    cy.get('[data-option-index="1"]').click();
+
+    cy.findAllByTestId(labelName).eq(1).clear().type('My agent');
+
+    cy.contains(labelSearch).click();
+
     cy.waitForRequest('@getAgentConfigurations').then(({ request }) => {
-      expect(decodeURIComponent(request.url.search)).equals(
-        '?page=1&limit=10&sort_by={"name":"asc"}&search={"$and":[{"$or":[{"name":{"$rg":"My agent"}}]},{"$and":[{"$or":[{"type":{"$in":["telegraf"]}}]},{"$or":[{"poller.id":{"$in":[6]}}]}]}]}'
-      );
+      expect(JSON.parse(request.url.searchParams.get('search'))).to.deep.equal({
+        $and: [
+          { $or: [{ name: { $rg: 'My agent' } }] },
+          { $or: [{ type: { $in: ['telegraf'] } }] },
+          {
+            $or: [{ 'poller.id': { $in: [6] } }]
+          }
+        ]
+      });
     });
 
     cy.makeSnapshot();
@@ -136,7 +159,7 @@ describe('Agent configurations', () => {
 
     cy.waitForRequest('@getAgentConfigurations').then(({ request }) => {
       expect(decodeURIComponent(request.url.search)).equals(
-        '?page=1&limit=10&sort_by={"name":"asc"}&search={"$or":[{"name":{"$rg":""}}]}'
+        '?page=1&limit=10&sort_by={"name":"asc"}&search={"$and":[]}'
       );
     });
 
@@ -160,7 +183,7 @@ describe('Agent configurations', () => {
 
     cy.waitForRequest('@getAgentConfigurations').then(({ request }) => {
       expect(decodeURIComponent(request.url.search)).equals(
-        '?page=1&limit=10&sort_by={"name":"asc"}&search={"$or":[{"name":{"$rg":""}}]}'
+        '?page=1&limit=10&sort_by={"name":"asc"}&search={"$and":[]}'
       );
     });
 
@@ -179,30 +202,28 @@ describe('Agent configurations', () => {
   it('clears filters when filters are populated and the corresponding button is clicked', () => {
     initialize({});
 
-    cy.waitForRequest('@getAgentConfigurations').then(({ request }) => {
-      expect(decodeURIComponent(request.url.search)).equals(
-        '?page=1&limit=10&sort_by={"name":"asc"}&search={"$or":[{"name":{"$rg":""}}]}'
-      );
-    });
-
-    cy.findAllByTestId('Search').find('input').type('My agent');
+    // cy.waitForRequest('@getAgentConfigurations');
     cy.findByLabelText('Filters').click();
     cy.findByLabelText(labelAgentType).click({ force: true });
     cy.get('[data-option-index="1"]').click();
     cy.findByLabelText(labelPoller).click({ force: true });
 
     cy.waitForRequest('@getFilterPollers');
-
     cy.contains('poller6').click();
-    cy.contains(labelClear).click({ force: true });
-    cy.contains('poller6').should('not.exist');
-    cy.contains('Centreon Monitoring Agent').should('not.exist');
+
+    cy.findAllByTestId(labelName).eq(1).clear().type('My agent');
+
+    cy.contains(labelClear).click();
 
     cy.waitForRequest('@getAgentConfigurations').then(({ request }) => {
-      expect(decodeURIComponent(request.url.search)).equals(
-        '?page=1&limit=10&sort_by={"name":"asc"}&search={"$or":[{"name":{"$rg":"My agent"}}]}'
-      );
+      expect(JSON.parse(request.url.searchParams.get('search'))).to.deep.equal({
+        $and: []
+      });
     });
+
+    cy.findAllByTestId(labelName).eq(1).should('have.value', '');
+    cy.contains('poller6').should('not.exist');
+    cy.contains('Centreon Monitoring Agent').should('not.exist');
 
     cy.makeSnapshot();
   });
@@ -212,7 +233,7 @@ describe('Agent configurations', () => {
 
     cy.waitForRequest('@getAgentConfigurations').then(({ request }) => {
       expect(decodeURIComponent(request.url.search)).equals(
-        '?page=1&limit=10&sort_by={"name":"asc"}&search={"$or":[{"name":{"$rg":""}}]}'
+        '?page=1&limit=10&sort_by={"name":"asc"}&search={"$and":[]}'
       );
     });
 
@@ -237,7 +258,7 @@ describe('Agent configurations', () => {
 
     cy.waitForRequest('@getAgentConfigurations').then(({ request }) => {
       expect(decodeURIComponent(request.url.search)).equals(
-        '?page=1&limit=10&sort_by={"name":"asc"}&search={"$or":[{"name":{"$rg":""}}]}'
+        '?page=1&limit=10&sort_by={"name":"asc"}&search={"$and":[]}'
       );
     });
 
@@ -265,7 +286,7 @@ describe('Agent configurations', () => {
 
     cy.waitForRequest('@getAgentConfigurations').then(({ request }) => {
       expect(decodeURIComponent(request.url.search)).equals(
-        '?page=1&limit=10&sort_by={"name":"asc"}&search={"$or":[{"name":{"$rg":""}}]}'
+        '?page=1&limit=10&sort_by={"name":"asc"}&search={"$and":[]}'
       );
     });
 
@@ -683,7 +704,7 @@ describe('Agent configurations modal', () => {
     cy.findByLabelText(labelSelectHost).click();
     cy.contains('central').click();
     cy.findByLabelText(labelCaCertificate).type('test.crt');
-    cy.findByLabelText(labelCACommonName).type('test.crt');
+    cy.findByLabelText(labelCACommonName).should('not.exist');
 
     cy.findByLabelText(labelSelectExistingCMAToken).click();
     cy.waitForRequest('@getTokens');
@@ -709,7 +730,7 @@ describe('Agent configurations modal', () => {
               id: 1,
               address: '127.0.0.2',
               port: 4317,
-              poller_ca_name: 'test.crt',
+              poller_ca_name: '',
               poller_ca_certificate: 'test.crt',
               token: { name: 'token 1', creator_id: 1 }
             }
@@ -944,5 +965,71 @@ describe('Agent configurations modal', () => {
     });
 
     cy.contains(labelAgentConfigurationUpdated).should('be.visible');
+  });
+
+  it('displays the CA common name field when connection mode is set to insecure', () => {
+    initialize({});
+
+    cy.contains(labelAdd).click();
+    cy.findByLabelText(labelAgentType).click();
+    cy.get('[data-option-index="1"]').click();
+
+    cy.findByLabelText(labelEncryptionLevel).click();
+    cy.contains(labelInsecure).click();
+
+    cy.findByLabelText(labelName).type('My agent');
+    cy.findByLabelText(labelPollers).click();
+    cy.contains('poller1').click();
+    cy.contains(labelConnectionInitiated).click({ force: true });
+    cy.findByLabelText(labelPublicCertificate).type('/test.cer');
+    cy.findAllByLabelText(labelCaCertificate).eq(0).type('test.crt');
+    cy.findAllByLabelText(labelPrivateKey).eq(0).type('private.key');
+    cy.findByLabelText(labelSelectExistingCMATokens).click();
+    cy.waitForRequest('@getTokens');
+    cy.contains('token 1').click();
+
+    cy.contains(labelByPoller).click();
+    cy.contains('Enable').click();
+    cy.findByLabelText(labelSelectHost).click();
+    cy.contains('central').click();
+    cy.findByLabelText(labelCaCertificate).type('test.crt');
+    cy.findByLabelText(labelCACommonName).type('test.crt');
+
+    cy.findByLabelText(labelSelectExistingCMAToken).click();
+    cy.waitForRequest('@getTokens');
+    cy.contains('token 1').click();
+
+    cy.findByTestId('submit').click();
+
+    cy.waitForRequest('@postAgentConfiguration').then(({ request }) => {
+      expect(request.body).deep.equal({
+        name: 'My agent',
+        type: 'centreon-agent',
+        connection_mode: 'insecure',
+        poller_ids: [1],
+        configuration: {
+          tokens: [{ name: 'token 1', creator_id: 1 }],
+          agent_initiated: true,
+          poller_initiated: true,
+          otel_ca_certificate: 'test.crt',
+          otel_public_certificate: '/test.cer',
+          otel_private_key: 'private.key',
+          hosts: [
+            {
+              id: 1,
+              address: '127.0.0.2',
+              port: 4317,
+              poller_ca_name: 'test.crt',
+              poller_ca_certificate: 'test.crt',
+              token: { name: 'token 1', creator_id: 1 }
+            }
+          ]
+        }
+      });
+    });
+
+    cy.contains(labelAgentConfigurationCreated).should('be.visible');
+
+    cy.makeSnapshot();
   });
 });

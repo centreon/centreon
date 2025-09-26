@@ -51,7 +51,7 @@ final class PartialUpdateDashboardPanelsDifference
      */
     public function __construct(
         private readonly array $panelIdsFromRepository,
-        private readonly array $panelsFromRequest
+        private readonly array $panelsFromRequest,
     ) {
         foreach ($this->panelsFromRequest as $dtoPanel) {
             if ($dtoPanel->id && ! \in_array($dtoPanel->id, $this->panelIdsFromRepository, true)) {
@@ -67,7 +67,7 @@ final class PartialUpdateDashboardPanelsDifference
      */
     public function getPanelsToCreate(): array
     {
-        if (null === $this->panelsToCreate) {
+        if ($this->panelsToCreate === null) {
             $this->panelsToCreate = [];
             foreach ($this->panelsFromRequest as $dtoPanel) {
                 if (empty($dtoPanel->id)) {
@@ -86,7 +86,7 @@ final class PartialUpdateDashboardPanelsDifference
      */
     public function getPanelsToUpdate(): array
     {
-        if (null === $this->panelsToUpdate) {
+        if ($this->panelsToUpdate === null) {
             $this->panelsToUpdate = [];
             foreach ($this->panelsFromRequest as $dtoPanel) {
                 if (\in_array($dtoPanel->id, $this->panelIdsFromRepository, true)) {
@@ -103,7 +103,7 @@ final class PartialUpdateDashboardPanelsDifference
      */
     public function getPanelIdsToDelete(): array
     {
-        if (null === $this->panelIdsToDelete) {
+        if ($this->panelIdsToDelete === null) {
             $this->panelIdsToDelete = [];
             $panelDtoIds = array_map(
                 static fn (PanelRequestDto $dtoPanel): ?int => $dtoPanel->id,

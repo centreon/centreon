@@ -40,7 +40,7 @@ final class PartialRuleUpdateController extends AbstractController
         int $ruleId,
         Request $request,
         PartialRuleUpdate $useCase,
-        DefaultPresenter $presenter
+        DefaultPresenter $presenter,
     ): Response {
         $this->denyAccessUnlessGrantedForApiConfiguration();
 

@@ -41,7 +41,7 @@ final readonly class ExceptionLogger
      * @param LoggerInterface $logger
      */
     public function __construct(
-        private LoggerInterface $logger
+        private LoggerInterface $logger,
     ) {
     }
 

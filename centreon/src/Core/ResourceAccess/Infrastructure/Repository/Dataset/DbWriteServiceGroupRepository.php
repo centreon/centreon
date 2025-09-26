@@ -46,7 +46,7 @@ class DbWriteServiceGroupRepository extends AbstractRepositoryRDB implements Wri
      */
     public function isValidFor(string $type): bool
     {
-        return ServiceGroupFilterType::TYPE_NAME === $type;
+        return $type === ServiceGroupFilterType::TYPE_NAME;
     }
 
     /**
@@ -59,7 +59,7 @@ class DbWriteServiceGroupRepository extends AbstractRepositoryRDB implements Wri
             ['rule_id' => $ruleId, 'dataset_id' => $datasetId, 'servicegroup_ids' => $resourceIds]
         );
 
-        if ([] === $resourceIds) {
+        if ($resourceIds === []) {
             return;
         }
 

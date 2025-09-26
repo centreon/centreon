@@ -188,13 +188,13 @@ final class AddCommand
             ],
             $command->getMacros(),
         );
-        $response->connector = null !== $command->getConnector()
+        $response->connector = $command->getConnector() !== null
             ? [
                 'id' => $command->getConnector()->getId(),
                 'name' => (string) $command->getConnector()->getName(),
             ]
             : null;
-        $response->graphTemplate = null !== $command->getGraphTemplate()
+        $response->graphTemplate = $command->getGraphTemplate() !== null
             ? [
                 'id' => $command->getGraphTemplate()->getId(),
                 'name' => (string) $command->getGraphTemplate()->getName(),

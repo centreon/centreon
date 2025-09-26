@@ -137,7 +137,7 @@ class CentreonCriticality
         $sort = 'ASC',
         $offset = null,
         $limit = null,
-        $service = false
+        $service = false,
     ) {
         if ($service === false) {
             $elements = $this->getListForHosts(
@@ -255,7 +255,7 @@ class CentreonCriticality
         $orderBy = 'level',
         $sort = 'ASC',
         $offset = null,
-        $limit = null
+        $limit = null,
     ) {
         $sql = 'SELECT hc_id, hc_name, level, icon_id, hc_comment
                 FROM hostcategories 
@@ -299,7 +299,7 @@ class CentreonCriticality
         $orderBy = 'level',
         $sort = 'ASC',
         $offset = null,
-        $limit = null
+        $limit = null,
     ) {
         $sql = 'SELECT sc_id, sc_name, level, icon_id, sc_description
                 FROM service_categories 

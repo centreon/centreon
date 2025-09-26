@@ -43,7 +43,7 @@ final class DeleteNotificationsController extends AbstractController
     public function __invoke(
         Request $request,
         DeleteNotifications $useCase,
-        DeleteNotificationsPresenter $presenter
+        DeleteNotificationsPresenter $presenter,
     ): Response {
         $this->denyAccessUnlessGrantedForApiConfiguration();
 

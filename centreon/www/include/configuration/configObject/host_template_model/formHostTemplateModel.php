@@ -969,7 +969,7 @@ if ($form->validate() && $from_list_menu === false) {
             $valid = true;
         }
     } elseif ($form->getSubmitValue('submitC')) {
-        if (false !== updateHostInAPI((int) $hostObj->getValue(), $formData)) {
+        if (updateHostInAPI((int) $hostObj->getValue(), $formData) !== false) {
             $o = null;
             $valid = true;
         }

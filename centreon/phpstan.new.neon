@@ -5,6 +5,8 @@ parameters:
 
     level: max
 
+    treatPhpDocTypesAsCertain: false
+
     scanFiles:
         - .php-cs-fixer.core.php
         - .php-cs-fixer.legacy.php
@@ -34,9 +36,8 @@ services:
               - ApiPlatform\Metadata\ApiResource
           classes:
               - ApiPlatform\State\ProcessorInterface
-              - App\Shared\Infrastructure\Doctrine\DoctrineRepository
-              - App\ResourceConfiguration\Infrastructure\Legacy\LegacyServiceCategoryPermissionVoter
-              - App\Shared\Infrastructure\ApiPlatform\Transformer\TransformerInterface
+              - App\MonitoringConfiguration\Infrastructure\Legacy\LegacyServiceCategoryPermissionVoter
+              - App\Shared\Infrastructure\TransformerInterface
       tags: [phpstan.rules.rule]
 
     - class: Tools\PhpStan\CustomRules\MiscRules\MarkedClassesHaveTestRule
@@ -46,7 +47,7 @@ services:
               - App\Shared\Domain\Event\AsEventHandler
           classes:
               - ApiPlatform\State\ProcessorInterface
-              - App\Shared\Infrastructure\Doctrine\DoctrineRepository
+              - App\Shared\Infrastructure\Dbal\DbalRepository
       tags: [phpstan.rules.rule]
 
     - class: Tools\PhpStan\CustomRules\ArchitectureRules\MarkedClassesAreOnlyInvokableRule

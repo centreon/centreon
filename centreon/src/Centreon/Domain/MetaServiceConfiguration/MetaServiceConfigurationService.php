@@ -48,7 +48,7 @@ class MetaServiceConfigurationService implements MetaServiceConfigurationService
      */
     public function __construct(
         MetaServiceConfigurationReadRepositoryInterface $readRepository,
-        ContactInterface $contact
+        ContactInterface $contact,
     ) {
         $this->contact = $contact;
         $this->readRepository = $readRepository;

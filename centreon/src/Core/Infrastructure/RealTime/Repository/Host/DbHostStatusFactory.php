@@ -66,7 +66,7 @@ class DbHostStatusFactory
                 HostStatus::STATUS_CODE_PENDING,
                 $statusType
             ))
-                ->setOrder(HostStatus::STATUS_ORDER_PENDING)
+                ->setOrder(HostStatus::STATUS_ORDER_PENDING),
         };
     }
 }

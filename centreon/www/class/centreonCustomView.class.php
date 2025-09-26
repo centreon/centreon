@@ -512,7 +512,7 @@ class CentreonCustomView
         string $layout,
         ?int $public,
         bool $permission,
-        bool $authorized
+        bool $authorized,
     ): int {
         if (! $authorized || ! $permission) {
             throw new CentreonCustomViewException('You are not allowed to edit the custom view');
@@ -740,7 +740,7 @@ class CentreonCustomView
         array $unlockedUsergroups,
         int $userId,
         bool $permission,
-        bool $authorized
+        bool $authorized,
     ): void {
         if (! $authorized || ! $permission) {
             throw new CentreonCustomViewException('You are not allowed to share the view');
@@ -1030,8 +1030,8 @@ class CentreonCustomView
             $allowedContactIds = '';
             foreach (array_keys($aclListOfContactIds) as $contactId) {
                 // result concatenation
-                if (false !== filter_var($contactId, FILTER_VALIDATE_INT)) {
-                    if ('' !== $allowedContactIds) {
+                if (filter_var($contactId, FILTER_VALIDATE_INT) !== false) {
+                    if ($allowedContactIds !== '') {
                         $allowedContactIds .= ', ';
                     }
                     $allowedContactIds .= $contactId;
@@ -1097,8 +1097,8 @@ class CentreonCustomView
             $allowedGroupIds = '';
             foreach (array_keys($aclListOfGroupIds) as $groupId) {
                 // result's concatenation
-                if (false !== filter_var($groupId, FILTER_VALIDATE_INT)) {
-                    if ('' !== $allowedGroupIds) {
+                if (filter_var($groupId, FILTER_VALIDATE_INT) !== false) {
+                    if ($allowedGroupIds !== '') {
                         $allowedGroupIds .= ', ';
                     }
                     $allowedGroupIds .= $groupId;

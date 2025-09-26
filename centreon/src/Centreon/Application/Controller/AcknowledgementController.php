@@ -105,7 +105,7 @@ class AcknowledgementController extends AbstractController
      */
     public function findAcknowledgementsByHost(
         RequestParametersInterface $requestParameters,
-        int $hostId
+        int $hostId,
     ): View {
         $this->denyAccessUnlessGrantedForApiRealtime();
         $hostsAcknowledgements = $this->acknowledgementService
@@ -161,7 +161,7 @@ class AcknowledgementController extends AbstractController
     public function findAcknowledgementsByService(
         RequestParametersInterface $requestParameters,
         int $hostId,
-        int $serviceId
+        int $serviceId,
     ): View {
         $this->denyAccessUnlessGrantedForApiRealtime();
         $servicesAcknowledgements = $this->acknowledgementService
@@ -189,7 +189,7 @@ class AcknowledgementController extends AbstractController
      */
     public function findAcknowledgementsByMetaService(
         RequestParametersInterface $requestParameters,
-        int $metaId
+        int $metaId,
     ): View {
         $this->denyAccessUnlessGrantedForApiRealtime();
         $metaServicesAcknowledgements = $this->acknowledgementService
@@ -219,7 +219,7 @@ class AcknowledgementController extends AbstractController
     public function addHostAcknowledgements(
         Request $request,
         EntityValidator $entityValidator,
-        SerializerInterface $serializer
+        SerializerInterface $serializer,
     ): View {
         $this->denyAccessUnlessGrantedForApiRealtime();
 
@@ -277,7 +277,7 @@ class AcknowledgementController extends AbstractController
     public function addServiceAcknowledgements(
         Request $request,
         EntityValidator $entityValidator,
-        SerializerInterface $serializer
+        SerializerInterface $serializer,
     ): View {
         $this->denyAccessUnlessGrantedForApiRealtime();
 
@@ -337,7 +337,7 @@ class AcknowledgementController extends AbstractController
         Request $request,
         EntityValidator $entityValidator,
         SerializerInterface $serializer,
-        int $hostId
+        int $hostId,
     ): View {
         $this->denyAccessUnlessGrantedForApiRealtime();
 
@@ -401,7 +401,7 @@ class AcknowledgementController extends AbstractController
         EntityValidator $entityValidator,
         SerializerInterface $serializer,
         int $hostId,
-        int $serviceId
+        int $serviceId,
     ): View {
         $this->denyAccessUnlessGrantedForApiRealtime();
 
@@ -465,7 +465,7 @@ class AcknowledgementController extends AbstractController
         Request $request,
         EntityValidator $entityValidator,
         SerializerInterface $serializer,
-        int $metaId
+        int $metaId,
     ): View {
         $this->denyAccessUnlessGrantedForApiRealtime();
 
@@ -644,14 +644,14 @@ class AcknowledgementController extends AbstractController
         /** @var Contact $user */
         $user = $this->getUser();
 
-        if (false === $user->isAdmin()) {
+        if ($user->isAdmin() === false) {
             $accessGroups = $this->readAccessGroupRepository->findByContact($user);
             $accessGroupIds = array_map(
                 fn ($accessGroup) => $accessGroup->getId(),
                 $accessGroups
             );
 
-            if (false === $this->readAccessGroupRepository->hasAccessToResources($accessGroupIds)) {
+            if ($this->readAccessGroupRepository->hasAccessToResources($accessGroupIds) === false) {
                 return $this->view(null, Response::HTTP_FORBIDDEN);
             }
         }
@@ -684,14 +684,14 @@ class AcknowledgementController extends AbstractController
         /** @var Contact $contact */
         $contact = $this->getUser();
 
-        if (false === $contact->isAdmin()) {
+        if ($contact->isAdmin() === false) {
             $accessGroups = $this->readAccessGroupRepository->findByContact($contact);
             $accessGroupIds = array_map(
                 fn ($accessGroup) => $accessGroup->getId(),
                 $accessGroups
             );
 
-            if (false === $this->readAccessGroupRepository->hasAccessToResources($accessGroupIds)) {
+            if ($this->readAccessGroupRepository->hasAccessToResources($accessGroupIds) === false) {
                 return $this->view(null, Response::HTTP_FORBIDDEN);
             }
         }
@@ -745,14 +745,14 @@ class AcknowledgementController extends AbstractController
         /** @var Contact $contact */
         $contact = $this->getUser();
 
-        if (false === $contact->isAdmin()) {
+        if ($contact->isAdmin() === false) {
             $accessGroups = $this->readAccessGroupRepository->findByContact($contact);
             $accessGroupIds = array_map(
                 fn ($accessGroup) => $accessGroup->getId(),
                 $accessGroups
             );
 
-            if (false === $this->readAccessGroupRepository->hasAccessToResources($accessGroupIds)) {
+            if ($this->readAccessGroupRepository->hasAccessToResources($accessGroupIds) === false) {
                 return $this->view(null, Response::HTTP_FORBIDDEN);
             }
         }

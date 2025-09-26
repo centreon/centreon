@@ -47,7 +47,7 @@ final class FindHostCategory
     public function __construct(
         private ReadHostCategoryRepositoryInterface $readHostCategoryRepository,
         private ReadAccessGroupRepositoryInterface $readAccessGroupRepositoryInterface,
-        private ContactInterface $user
+        private ContactInterface $user,
     ) {
     }
 

@@ -39,7 +39,7 @@ class Notification extends NewNotification
         private readonly int $id,
         string $name,
         TimePeriod $timePeriod,
-        bool $isActivated = true
+        bool $isActivated = true,
     ) {
         Assertion::positiveInt($id, 'Notification::id');
 

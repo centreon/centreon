@@ -103,7 +103,7 @@ abstract class Centreon_ObjectRt
         $order = null,
         $sort = 'ASC',
         $filters = [],
-        $filterType = 'OR'
+        $filterType = 'OR',
     ) {
         if ($filterType != 'OR' && $filterType != 'AND') {
             throw new Exception('Unknown filter type');

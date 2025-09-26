@@ -66,7 +66,7 @@ final class AddDashboardResponse
         public array $refresh = [
             'type' => RefreshType::Global,
             'interval' => null,
-        ]
+        ],
     ) {
     }
 }

@@ -160,7 +160,9 @@ export const useAddUpdateAgentConfiguration =
               : labelAgentConfigurationCreated
           )
         );
-        queryClient.invalidateQueries({ queryKey: ['agent-configurations'] });
+        queryClient.invalidateQueries({
+          queryKey: ['listAgentConfigurations']
+        });
         setOpenFormModal(null);
         setAgentTypeForm(null);
       }
