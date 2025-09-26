@@ -19,7 +19,8 @@
   "autoload": {
     "psr-4": {
       "Tools\\PhpStan\\": "phpstan/src/",
-      "Tools\\PhpCsFixer\\": "php-cs-fixer/src/"
+      "Tools\\PhpCsFixer\\": "php-cs-fixer/src/",
+      "Tools\\Rector\\": "rector/src/"
     }
   },
   "config": {

@@ -21,81 +21,15 @@
 
 declare(strict_types=1);
 
+use Tools\Rector\RectorDiffHandler;
+
+require_once __DIR__ . '/../php-tools/vendor/autoload.php';
+
 $pathsConfig = require_once __DIR__ . '/rector.conf.php';
 
 $args = $_SERVER['argv'] ?? null;
 
-$toFix = true;
-if (in_array('--dry-run', $args, true)) {
-    $toFix = false;
-}
-
-echo '################################################' . PHP_EOL;
-echo '=> Preparing files to analyse' . PHP_EOL;
-
-$diffFiles = [];
-
-for ($i = 0, $iMax = count($args); $i < $iMax; $i++) {
-    if (str_starts_with((string) $args[$i], 'centreon/') && str_ends_with((string) $args[$i], '.php')) {
-        $diffFiles[] = str_replace('centreon/', '', $args[$i]);
-    }
-    if (str_starts_with((string) $args[$i], 'centreon/')) {
-        unset($args[$i]);
-    }
-}
-
-if ($diffFiles === []) {
-    echo 'No files to analyse!' . PHP_EOL;
-
-    exit(0);
-}
-
-$pathsLegacyToAnalyze = [];
-$pathsCoreToAnalyze = [];
-$pathsNewToAnalyze = [];
-
-foreach ($diffFiles as $file) {
-    if (
-        array_filter($pathsConfig['legacy']['paths'], fn ($path): bool => str_starts_with($file, (string) $path)) !== []
-        && array_filter($pathsConfig['legacy']['skip'], fn ($skip): bool => str_starts_with($file, (string) $skip)
-        ) === []
-    ) {
-        $pathsLegacyToAnalyze[] = $file;
-    } elseif (array_filter($pathsConfig['core']['paths'], fn ($path): bool => str_starts_with($file, (string) $path)
-    ) !== []) {
-        $pathsCoreToAnalyze[] = $file;
-    } elseif (array_filter($pathsConfig['new']['paths'], fn ($path): bool => str_starts_with($file, (string) $path)
-    ) !== []) {
-        $pathsNewToAnalyze[] = $file;
-    } else {
-        echo 'File not recognised: ' . $file . PHP_EOL;
-    }
-}
-
-executeRector('rector:legacy', $pathsLegacyToAnalyze, $toFix);
-executeRector('rector:core', $pathsCoreToAnalyze, $toFix);
-executeRector('rector:new', $pathsNewToAnalyze, $toFix);
-
-/**
- * @param string $commandName Can be rector:legacy, rector:core or rector:new
- * @param array $filesToAnalyze Files to analyze
- * @param bool $toFix To fix the errors or just display them
- */
-function executeRector(string $commandName, array $filesToAnalyze, bool $toFix): void
-{
-    echo '################################################' . PHP_EOL;
-    echo '=> Running ' . $commandName . PHP_EOL;
-    if ($filesToAnalyze !== []) {
-        if ($toFix) {
-            $commandName .= ':fix';
-        }
-        echo 'Files to analyse:' . PHP_EOL . implode(
-            PHP_EOL,
-            array_map(fn ($f): string => '- ' . $f, $filesToAnalyze)
-        ) . PHP_EOL;
-        $command = 'composer ' . $commandName . ' -- --no-progress-bar ' . implode(' ', $filesToAnalyze);
-        passthru($command);
-    } else {
-        echo 'No files to analyse!' . PHP_EOL;
-    }
-}
+$rectorHandler = new RectorDiffHandler(
+    moduleName: 'centreon', sections: ['legacy', 'core', 'new'], pathsConfig: $pathsConfig, args: $args
+);
+$rectorHandler->handle();
