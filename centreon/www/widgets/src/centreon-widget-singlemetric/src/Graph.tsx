@@ -18,8 +18,8 @@ import {
 } from '../../utils';
 
 import SingleMetricRenderer from './SingleMetricRenderer';
-import { selectEndpoint } from './api/endpoints';
 import { FormThreshold, SingleMetricGraphType, ValueFormat } from './models';
+import { selectEndpoint } from '../../centreon-widget-graph/src/api/endpoints';
 
 interface Props {
   dashboardId: number | string;
@@ -89,8 +89,8 @@ const Graph = ({
     dashboardId,
     defaultEndpoint: selectEndpoint({
       isMetaServiceSelected,
-      idForService: getServiceId(),
-      hostId,
+      idForService: Number(getServiceId()),
+      hostId: Number(hostId),
       metricName
     }),
     displayType,
