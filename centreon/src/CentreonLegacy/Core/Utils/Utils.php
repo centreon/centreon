@@ -98,6 +98,9 @@ class Utils
                 $str .= $line;
                 if ($pos !== false) {
                     $str = rtrim($this->replaceMacros($str, $customMacros));
+                    if ($delimiter !== ';') {
+                        $str = preg_replace('/' . preg_quote($delimiter, '/') . '$/', '', $str);
+                    }
                     $this->services->get($dbName)->query($str);
                     $str = '';
                 }
