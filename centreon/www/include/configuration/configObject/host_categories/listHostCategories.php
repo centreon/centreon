@@ -173,7 +173,7 @@ try {
                 $countsQuerybuilder->expr()->equal('acl.host_id', 'h.host_id')
             )
             ->andWhere(
-                $countsQuerybuilder->expr()->in('acl.group_id', "({$acl->getAccessGroupsString()})")
+                $countsQuerybuilder->expr()->in('acl.group_id', "{$acl->getAccessGroupsString()}")
             );
         $countsQuerybuilder->andWhere(
             "EXISTS( {$subQuerybuilder->getQuery()} )"
