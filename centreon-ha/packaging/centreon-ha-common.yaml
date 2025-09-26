@@ -96,5 +96,3 @@ overrides:
       - "centreon-common (<< ${NEXT_MAJOR_VERSION}~)"
       - "centreon-gorgone (>= ${MAJOR_VERSION}~)"
       - "centreon-gorgone (<< ${NEXT_MAJOR_VERSION}~)"
-      - ${misc:Depends} # CHANGE ME
-      - ${shlibs:Depends} # CHANGE ME
