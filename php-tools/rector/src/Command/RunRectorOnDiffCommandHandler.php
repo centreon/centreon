@@ -84,9 +84,9 @@ final class RunRectorOnDiffCommandHandler
     private function matchesConfig(string $file, array $config): bool
     {
         return array_filter(
-                $config['paths'],
-                fn ($path): bool => str_starts_with($file, $path)
-            ) !== []
+            $config['paths'],
+            fn ($path): bool => str_starts_with($file, $path)
+        ) !== []
             && array_filter(
                 $config['skip'],
                 fn ($skip): bool => str_starts_with($file, $skip)
@@ -106,13 +106,13 @@ final class RunRectorOnDiffCommandHandler
                 $commandName .= ':fix';
             }
             echo 'Files to analyse:' . PHP_EOL . implode(
-                    PHP_EOL,
-                    array_map(fn ($f): string => '- ' . $f, $filesToAnalyze)
-                ) . PHP_EOL;
+                PHP_EOL,
+                array_map(fn ($f): string => '- ' . $f, $filesToAnalyze)
+            ) . PHP_EOL;
             $command = 'composer ' . $commandName . ' -- --no-progress-bar ' . implode(
-                    ' ',
-                    $filesToAnalyze
-                );
+                ' ',
+                $filesToAnalyze
+            );
             passthru($command, $exitCode);
             echo $exitCode === 0 ? '✔️ No errors!' . PHP_EOL : '❌ Errors found!' . PHP_EOL;
 

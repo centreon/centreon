@@ -7,7 +7,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -26,7 +26,8 @@ namespace Tools\PhpCsFixer\Command;
 use Webmozart\Assert\Assert;
 use Webmozart\Assert\InvalidArgumentException;
 
-final readonly class RunCsFixerOnDiffCommand {
+final readonly class RunCsFixerOnDiffCommand
+{
     /**
      * @param array<string> $sections
      * @param array<string, array{files: array<string>, directories: array<string>, skip: array<string>}> $pathsConfig
@@ -46,7 +47,7 @@ final readonly class RunCsFixerOnDiffCommand {
         Assert::notEmpty($args, 'Arguments must be provided');
         Assert::allString($sections, 'Sections must be strings');
         Assert::allString($args, 'Sections must be strings');
-        Assert::allInArray($sections, array_keys($pathsConfig), "One or more sections are not present in paths configuration");
+        Assert::allInArray($sections, array_keys($pathsConfig), 'One or more sections are not present in paths configuration');
         foreach ($pathsConfig as $config) {
             Assert::keyExists($config, 'files', 'Each config must have the "files" key');
             Assert::keyExists($config, 'directories', 'Each config must have the "directories" key');
