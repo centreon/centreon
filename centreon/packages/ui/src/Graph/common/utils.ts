@@ -25,7 +25,7 @@ import { BarStyle } from '../BarChart/models';
 import { margin } from '../Chart/common';
 import { LineStyle } from '../Chart/models';
 import { Threshold, Thresholds } from './models';
-import { formatMetricValue } from './timeSeries';
+import { formatMetricValue, formatMetricValueWithUnit } from './timeSeries';
 import { Line, TimeValue } from './timeSeries/models';
 
 interface GetColorFromDataAndThresholdsProps {
@@ -234,7 +234,7 @@ export const getFormattedAxisValues = ({
 
   const formattedData = metricIds.map((metricId) =>
     timeSeries.map((data) =>
-      formatMetricValue({
+      formatMetricValueWithUnit({
         value: data[metricId],
         unit: axisUnit,
         base
@@ -246,7 +246,7 @@ export const getFormattedAxisValues = ({
 
   const formattedThresholdValues = equals(thresholdUnit, axisUnit)
     ? threshold.map(({ value }) =>
-        formatMetricValue({
+        formatMetricValueWithUnit({
           value,
           unit: axisUnit,
           base

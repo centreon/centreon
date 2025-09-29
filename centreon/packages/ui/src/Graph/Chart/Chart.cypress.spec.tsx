@@ -532,7 +532,7 @@ describe('Line chart', () => {
 
       checkGraphWidth();
       cy.contains(':00 AM').should('be.visible');
-      cy.get('circle[cx="250.83333333333334"]').should('be.visible');
+      cy.get('circle[cx="248.33333333333334"]').should('be.visible');
       cy.get('circle[cy="251.79089393069725"]').should('be.visible');
 
       cy.makeSnapshot();
@@ -591,7 +591,7 @@ describe('Line chart', () => {
       cy.get('path.visx-area-closed')
         .should('have.attr', 'stroke-dasharray')
         .and('equals', '5 4');
-      cy.get('circle[cx="33.44444444444444"]').should('be.visible');
+      cy.get('circle[cx="33.11111111111111"]').should('be.visible');
 
       cy.makeSnapshot();
     });
