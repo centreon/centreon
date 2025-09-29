@@ -37,6 +37,7 @@ namespace Centreon\Domain\Service;
 use CentreonLegacy\Core\Module\Information;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\HttpFoundation\Request;
 
 /**
  * Class to manage translation of centreon and its extensions
@@ -74,6 +75,65 @@ class I18nService
         $this->initLang();
         $this->finder = $finder;
         $this->filesystem = $filesystem;
+    }
+
+    /**
+     * Retrieves all available locales in format xy_XY
+     * en_US will always be present in the first place
+     * @return array
+     */
+    public static function getAvailableCentreonLanguages(): array
+    {
+        $dirs = (new Finder())
+            ->directories()
+            ->in(__DIR__ . "/../../../../www/locale")
+            ->depth('== 0')
+            ->sortByName();
+        $locales = [];
+        foreach ($dirs as $dir) {
+            if (! preg_match('/^([a-z]{2}_[A-Z]{2})/', $dir->getBasename(), $matches)) {
+                continue;
+            }
+            $locales[] = $matches[1];
+        }
+        $enUSIndex = array_search("en_US", $locales, true);
+        if ($enUSIndex !== false) {
+            array_splice($locales, $enUSIndex, 1);
+        }
+        $locales = array_merge(["en_US"], $locales);
+        return array_values(array_unique($locales));
+    }
+
+    /**
+     * Guesses locale from a provided request or from current HEADERS (create request from globals)
+     * @param Request|null $request
+     * @return string
+     */
+    public static function guessLocaleFromRequest(?Request $request = null): string
+    {
+        if (!isset($request)) {
+            $request = Request::createFromGlobals();
+        }
+
+        $localeMap = [];
+        $locales = self::getAvailableCentreonLanguages();
+        foreach ($locales as $locale) {
+            [$short, $country] = explode("_", $locale);
+            // when short notation already set only overwrite when short = country
+            if (!isset($localeMap[$short]) || strtolower($short) === strtolower($country)) {
+                $localeMap[$short] = $locale;
+            }
+            $localeMap[$locale] = $locale;
+        }
+
+        // getPreferredLanguage will always return a value
+        // if no preferred value can be extracted from the request headers, the first provided locale is returned
+        // e.g., the request accepts es-CO - it will be matched with es
+        // the more specific case pt-BR is also matched, in any other pt case the standard pt (pt_PT) is matched
+        // getPreferredLanguage normalizes the provided locales automatically (_ to -, casing ecc.)
+        $preferredLanguage = $request->getPreferredLanguage(array_keys($localeMap));
+
+        return $localeMap[$preferredLanguage] ?? $localeMap[array_key_first($localeMap)];
     }
 
     /**
@@ -150,7 +210,9 @@ class I18nService
     {
         $data = [];
 
-        $languages = array('fr_FR.UTF-8', 'de_DE.UTF-8', 'es_ES.UTF-8', 'pt-PT.UTF-8', 'pt_BR.UTF-8');
+        $languages = array_map(static function ($i) {
+            return $i . ".UTF-8";
+        }, self::getAvailableCentreonLanguages());
 
         foreach ($languages as $language) {
             $translationPath = __DIR__ . "/../../../../www/locale/{$language}/LC_MESSAGES";
@@ -210,7 +272,9 @@ class I18nService
     {
         $data = [];
 
-        $languages = array('fr_FR.UTF-8', 'de_DE.UTF-8', 'es_ES.UTF-8', 'pt-PT.UTF-8', 'pt_BR.UTF-8');
+        $languages = array_map(static function ($i) {
+            return $i . ".UTF-8";
+        }, self::getAvailableCentreonLanguages());
 
         foreach ($languages as $language) {
             // loop over each installed modules to get translation
