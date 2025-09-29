@@ -21,7 +21,8 @@
 
 declare(strict_types=1);
 
-use Tools\Rector\RectorDiffHandler;
+use Tools\Rector\Command\RunRectorOnDiffCommand;
+use Tools\Rector\Command\RunRectorOnDiffCommandHandler;
 
 require_once __DIR__ . '/../php-tools/vendor/autoload.php';
 
@@ -29,7 +30,11 @@ $pathsConfig = require_once __DIR__ . '/rector.conf.php';
 
 $args = $_SERVER['argv'] ?? [];
 
-$rectorHandler = new RectorDiffHandler(
-    moduleName: 'centreon-open-tickets', sections: ['legacy'], pathsConfig: $pathsConfig, args: $args
+$runCsFixerOnDiffCommand = new RunRectorOnDiffCommand(
+    moduleName: 'centreon-open-tickets',
+    sections: ['legacy'],
+    pathsConfig: $pathsConfig,
+    args: $args
 );
-$rectorHandler->handle();
+$runCsFixerOnDiffCommandHandler = new RunRectorOnDiffCommandHandler();
+$runCsFixerOnDiffCommandHandler->run($runCsFixerOnDiffCommand);

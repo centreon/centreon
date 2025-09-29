@@ -21,27 +21,16 @@
 
 declare(strict_types=1);
 
-namespace Tools\Rector;
+namespace Tools\Rector\Command;
 
-final class RectorDiffHandler
+final class RunRectorOnDiffCommandHandler
 {
-    /**
-     * @param array<string> $sections
-     * @param array<string, array{paths: array<int, string>, skip: array<int, string>}> $pathsConfig
-     * @param array<int, string> $args
-     */
-    public function __construct(
-        private readonly string $moduleName,
-        private readonly array $sections,
-        private readonly array $pathsConfig,
-        private array $args,
-    ) {
-    }
-
-    public function handle(): void
+    public function run(RunRectorOnDiffCommand $command): void
     {
+        $args = $command->args;
+
         $toFix = true;
-        if (in_array('--dry-run', $this->args, true)) {
+        if (in_array('--dry-run', $args, true)) {
             $toFix = false;
         }
 
@@ -50,12 +39,12 @@ final class RectorDiffHandler
 
         $diffFiles = [];
 
-        foreach ($this->args as $key => $arg) {
-            if (str_starts_with($arg, $this->moduleName . '/') && str_ends_with($arg, '.php')) {
-                $diffFiles[] = str_replace($this->moduleName . '/', '', $arg);
+        foreach ($args as $key => $arg) {
+            if (str_starts_with($arg, $command->moduleName . '/') && str_ends_with($arg, '.php')) {
+                $diffFiles[] = str_replace($command->moduleName . '/', '', $arg);
             }
-            if (str_starts_with($arg, $this->moduleName . '/')) {
-                unset($this->args[$key]);
+            if (str_starts_with($arg, $command->moduleName . '/')) {
+                unset($args[$key]);
             }
         }
 
@@ -66,14 +55,14 @@ final class RectorDiffHandler
         }
 
         $pathsToAnalyze = [];
-        foreach ($this->sections as $section) {
+        foreach ($command->sections as $section) {
             $pathsToAnalyze[$section] = [];
         }
 
         foreach ($diffFiles as $file) {
             $matched = false;
             foreach (array_keys($pathsToAnalyze) as $section) {
-                if ($this->matchesConfig($file, $this->pathsConfig[$section])) {
+                if ($this->matchesConfig($file, $command->pathsConfig[$section])) {
                     $pathsToAnalyze[$section][] = $file;
                     $matched = true;
                     break;
@@ -84,8 +73,8 @@ final class RectorDiffHandler
             }
         }
 
-        foreach ($pathsToAnalyze as $type => $files) {
-            $this->executeRector("rector:{$type}", $files, $toFix);
+        foreach ($pathsToAnalyze as $section => $files) {
+            $this->executeRector("rector:{$section}", $files, $toFix);
         }
     }
 
@@ -95,9 +84,9 @@ final class RectorDiffHandler
     private function matchesConfig(string $file, array $config): bool
     {
         return array_filter(
-            $config['paths'],
-            fn ($path): bool => str_starts_with($file, $path)
-        ) !== []
+                $config['paths'],
+                fn ($path): bool => str_starts_with($file, $path)
+            ) !== []
             && array_filter(
                 $config['skip'],
                 fn ($skip): bool => str_starts_with($file, $skip)
@@ -117,13 +106,13 @@ final class RectorDiffHandler
                 $commandName .= ':fix';
             }
             echo 'Files to analyse:' . PHP_EOL . implode(
-                PHP_EOL,
-                array_map(fn ($f): string => '- ' . $f, $filesToAnalyze)
-            ) . PHP_EOL;
+                    PHP_EOL,
+                    array_map(fn ($f): string => '- ' . $f, $filesToAnalyze)
+                ) . PHP_EOL;
             $command = 'composer ' . $commandName . ' -- --no-progress-bar ' . implode(
-                ' ',
-                $filesToAnalyze
-            );
+                    ' ',
+                    $filesToAnalyze
+                );
             passthru($command, $exitCode);
             echo $exitCode === 0 ? '✔️ No errors!' . PHP_EOL : '❌ Errors found!' . PHP_EOL;
 

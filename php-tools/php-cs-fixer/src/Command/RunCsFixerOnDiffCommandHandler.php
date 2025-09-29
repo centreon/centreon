@@ -21,27 +21,16 @@
 
 declare(strict_types=1);
 
-namespace Tools\PhpCsFixer;
+namespace Tools\PhpCsFixer\Command;
 
-final class PhpCsFixerDiffHandler
+final class RunCsFixerOnDiffCommandHandler
 {
-    /**
-     * @param array<string> $sections
-     * @param array<string, array{files: array<string>, directories: array<string>, skip: array<string>}> $pathsConfig
-     * @param array<int, string> $args
-     */
-    public function __construct(
-        private readonly string $moduleName,
-        private readonly array $sections,
-        private readonly array $pathsConfig,
-        private array $args,
-    ) {
-    }
-
-    public function handle(): void
+    public function run(RunCsFixerOnDiffCommand $command): void
     {
+        $args = $command->args;
+
         $toFix = true;
-        if (in_array('--dry-run', $this->args, true)) {
+        if (in_array('--dry-run', $args, true)) {
             $toFix = false;
         }
 
@@ -50,12 +39,12 @@ final class PhpCsFixerDiffHandler
 
         $diffFiles = [];
 
-        foreach ($this->args as $key => $arg) {
-            if (str_starts_with($arg, $this->moduleName . '/') && str_ends_with($arg, '.php')) {
-                $diffFiles[] = str_replace($this->moduleName . '/', '', $arg);
+        foreach ($args as $key => $arg) {
+            if (str_starts_with($arg, $command->moduleName . '/') && str_ends_with($arg, '.php')) {
+                $diffFiles[] = str_replace($command->moduleName . '/', '', $arg);
             }
-            if (str_starts_with($arg, $this->moduleName . '/')) {
-                unset($this->args[$key]);
+            if (str_starts_with($arg, $command->moduleName . '/')) {
+                unset($args[$key]);
             }
         }
 
@@ -66,14 +55,14 @@ final class PhpCsFixerDiffHandler
         }
 
         $pathsToAnalyze = [];
-        foreach ($this->sections as $section) {
+        foreach ($command->sections as $section) {
             $pathsToAnalyze[$section] = [];
         }
 
         foreach ($diffFiles as $file) {
             $matched = false;
             foreach (array_keys($pathsToAnalyze) as $section) {
-                if ($this->matchesConfig($file, $this->pathsConfig[$section])) {
+                if ($this->matchesConfig($file, $command->pathsConfig[$section])) {
                     $pathsToAnalyze[$section][] = $file;
                     $matched = true;
                     break;

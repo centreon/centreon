@@ -21,7 +21,8 @@
 
 declare(strict_types=1);
 
-use Tools\PhpCsFixer\PhpCsFixerDiffHandler;
+use Tools\PhpCsFixer\Command\RunCsFixerOnDiffCommand;
+use Tools\PhpCsFixer\Command\RunCsFixerOnDiffCommandHandler;
 
 require_once __DIR__ . '/../php-tools/vendor/autoload.php';
 
@@ -29,7 +30,11 @@ $pathsConfig = require_once __DIR__ . '/.php-cs-fixer.conf.php';
 
 $args = $_SERVER['argv'] ?? [];
 
-$csFixerHandler = new PhpCsFixerDiffHandler(
-    moduleName: 'centreon-open-tickets', sections: ['legacy:www', 'legacy:src'], pathsConfig: $pathsConfig, args: $args
+$runCsFixerOnDiffCommand = new RunCsFixerOnDiffCommand(
+    moduleName: 'centreon-open-tickets',
+    sections: ['legacy:www', 'legacy:src'],
+    pathsConfig: $pathsConfig,
+    args: $args
 );
-$csFixerHandler->handle();
+$runCsFixerOnDiffCommandHandler = new RunCsFixerOnDiffCommandHandler();
+$runCsFixerOnDiffCommandHandler->run($runCsFixerOnDiffCommand);
