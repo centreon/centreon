@@ -25,7 +25,7 @@ import { BarStyle } from '../BarChart/models';
 import { margin } from '../Chart/common';
 import { LineStyle } from '../Chart/models';
 import { Threshold, Thresholds } from './models';
-import { formatMetricValue, formatMetricValueWithUnit } from './timeSeries';
+import { formatMetricValueWithUnit } from './timeSeries';
 import { Line, TimeValue } from './timeSeries/models';
 
 interface GetColorFromDataAndThresholdsProps {
