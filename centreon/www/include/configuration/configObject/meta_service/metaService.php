@@ -126,6 +126,10 @@ switch ($o) {
                 is_array($select) ? $select : [],
                 is_array($dupNbr) ? $dupNbr : []
             );
+            // Update ACL and meta service string for the next listing
+            $acl = new CentreonACL($centreon->user->get_id(), $centreon->user->admin === '1');
+            $aclDbName = $acl->getNameDBAcl();
+            $metaStr = $acl->getMetaServiceString();
         } else {
             unvalidFormMessage();
         }

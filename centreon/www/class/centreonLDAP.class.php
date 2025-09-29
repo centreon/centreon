@@ -344,7 +344,7 @@ class CentreonLDAP
      * @param string $username The username
      * @return string|bool The dn string or false if not found
      */
-    public function findUserDn($username): ?string
+    public function findUserDn($username): string|false
     {
         if (trim($this->userSearchInfo['filter']) == '') {
             return false;
@@ -371,7 +371,7 @@ class CentreonLDAP
      * @param string $group The group
      * @return string|bool The dn string or false if not found
      */
-    public function findGroupDn($group): ?string
+    public function findGroupDn($group): string|false
     {
         if (trim($this->groupSearchInfo['filter']) == '') {
             return false;
@@ -402,7 +402,7 @@ class CentreonLDAP
         $this->setErrorHandler();
         $filter = preg_replace('/%s/', $pattern, $this->groupSearchInfo['filter']);
         $result = @ldap_search($this->ds, $this->groupSearchInfo['base_search'], $filter);
-        if (false === $result) {
+        if ($result === false) {
             restore_error_handler();
 
             return [];
@@ -455,7 +455,7 @@ class CentreonLDAP
      * @param array $attr The list of attribute
      * @return array|bool The list of information, or false in error
      */
-    public function getEntry($dn, $attr = [])
+    public function getEntry($dn, $attr = []): array|false
     {
         $this->setErrorHandler();
         if (! is_array($attr)) {
@@ -509,7 +509,7 @@ class CentreonLDAP
         $filter = '(&' . preg_replace('/%s/', '*', $this->groupSearchInfo['filter'])
             . '(' . $this->groupSearchInfo['member'] . '=' . $this->replaceFilter($userdn) . '))';
         $result = @ldap_search($this->ds, $this->groupSearchInfo['base_search'], $filter);
-        if (false === $result) {
+        if ($result === false) {
             restore_error_handler();
 
             return [];
@@ -549,7 +549,7 @@ class CentreonLDAP
                 . '(' . $this->userSearchInfo['group'] . '=' . $this->replaceFilter($groupdn) . '))';
             $result = @ldap_search($this->ds, $this->userSearchInfo['base_search'], $filter);
 
-            if (false === $result) {
+            if ($result === false) {
                 restore_error_handler();
 
                 return [];
@@ -567,7 +567,7 @@ class CentreonLDAP
             $filter = preg_replace('/%s/', $this->getCnFromDn($groupdn), $this->groupSearchInfo['filter']);
             $result = @ldap_search($this->ds, $this->groupSearchInfo['base_search'], $filter);
 
-            if (false === $result) {
+            if ($result === false) {
                 restore_error_handler();
 
                 return [];
@@ -1078,7 +1078,7 @@ class CentreonLDAP
      * @param string $dn
      * @return string|bool
      */
-    private function getCnFromDn($dn)
+    private function getCnFromDn($dn): string|false
     {
         if (preg_match('/(?i:(?<=cn=)).*?(?=,[A-Za-z]{0,2}=|$)/', $dn, $dnArray)) {
             return $dnArray !== [] ? $dnArray[0] : false;

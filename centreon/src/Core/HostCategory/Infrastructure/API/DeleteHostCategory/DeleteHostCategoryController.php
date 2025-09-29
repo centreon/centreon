@@ -32,7 +32,7 @@ final class DeleteHostCategoryController extends AbstractController
     public function __invoke(
         int $hostCategoryId,
         DeleteHostCategory $useCase,
-        DefaultPresenter $presenter
+        DefaultPresenter $presenter,
     ): object {
         $this->denyAccessUnlessGrantedForApiConfiguration();
 

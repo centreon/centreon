@@ -266,7 +266,7 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
             $value = $data[$type];
             $statement->bindValue($key, $value, $type);
         }
-        if (false === $statement->execute()) {
+        if ($statement->execute() === false) {
             throw new \Exception(_('Bad SQL request'));
         }
 
@@ -475,7 +475,7 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
         }
 
         // if the filter is for specific host id, remove it from search parameters
-        if (null !== $hostId) {
+        if ($hostId !== null) {
             $shouldJoinHost = true;
             unset($hostConcordanceArray['host.id']);
         }
@@ -549,8 +549,12 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
             }
         }
 
-        $request = 'SELECT SQL_CALC_FOUND_ROWS DISTINCT 1 AS REALTIME, hg.* FROM `:dbstg`.`hostgroups` hg '
-            . $subRequest;
+        $request = <<<'SQL'
+                SELECT SQL_CALC_FOUND_ROWS DISTINCT 1 AS REALTIME, hg.* 
+                FROM `:dbstg`.`hostgroups` hg 
+                    INNER JOIN `:db` . `hostgroup` chg ON chg.hg_id = hg.hostgroup_id 
+            SQL;
+        $request .= $subRequest;
 
         $request = $this->translateDbName($request);
 
@@ -558,7 +562,7 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
         $searchRequest = $this->sqlRequestTranslator->translateSearchParameterToSql();
 
         // if host id is provided, filter results by it
-        if (null !== $hostId) {
+        if ($hostId !== null) {
             $searchByHostIdQuery = ! is_null($searchRequest) ? ' AND h.host_id = :hostId' : ' WHERE h.host_id = :hostId';
         } else {
             $searchByHostIdQuery = '';
@@ -589,7 +593,7 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
             $statement->bindValue($key, $value, $type);
         }
 
-        if (null !== $hostId) {
+        if ($hostId !== null) {
             // bind the host id to search for it if provided
             $statement->bindValue(':hostId', $hostId, \PDO::PARAM_INT);
         }
@@ -1255,7 +1259,7 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
             $value = $data[$type];
             $statement->bindValue($key, $value, $type);
         }
-        if (false === $statement->execute()) {
+        if ($statement->execute() === false) {
             throw new \Exception(_('Bad SQL request'));
         }
 
@@ -1486,9 +1490,13 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
             }
         }
 
-        $request
-            = 'SELECT SQL_CALC_FOUND_ROWS DISTINCT 1 AS REALTIME, sg.*
-            FROM `:dbstg`.`servicegroups` sg ' . $subRequest;
+        $request = <<<'SQL'
+                SELECT SQL_CALC_FOUND_ROWS DISTINCT 1 AS REALTIME, sg.*
+                FROM `:dbstg`.`servicegroups` sg 
+                    INNER JOIN `:db`.`servicegroup` csg
+                        ON csg.sg_id = sg.servicegroup_id
+            SQL;
+        $request .= $subRequest;
         $request = $this->translateDbName($request);
 
         // Search
@@ -1591,7 +1599,7 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
 
         $statement = $this->db->prepare($request);
 
-        if (false === $statement->execute(array_merge([$hostId], $serviceIds))) {
+        if ($statement->execute(array_merge([$hostId], $serviceIds)) === false) {
             throw new \Exception(_('Bad SQL request'));
         }
 
@@ -1931,7 +1939,7 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
         int $hostId,
         ?string $searchRequest = null,
         ?string $sortRequest = null,
-        ?string $paginationRequest = null
+        ?string $paginationRequest = null,
     ): array {
         $services = [];
 
@@ -2008,7 +2016,7 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
             $value = $data[$type];
             $statement->bindValue($key, $value, $type);
         }
-        if (false === $statement->execute()) {
+        if ($statement->execute() === false) {
             throw new \Exception(_('Bad SQL request'));
         }
 

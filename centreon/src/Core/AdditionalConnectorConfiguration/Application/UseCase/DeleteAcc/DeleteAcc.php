@@ -70,7 +70,7 @@ final class DeleteAcc
 
     public function __invoke(
         int $id,
-        PresenterInterface $presenter
+        PresenterInterface $presenter,
     ): void {
         try {
             if (! $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_ACC_RW)) {
@@ -91,7 +91,7 @@ final class DeleteAcc
                 return;
             }
 
-            if (false === $this->user->isAdmin()) {
+            if ($this->user->isAdmin() === false) {
                 $linkedPollerIds = array_map(
                     static fn (Poller $poller): int => $poller->id,
                     $this->readAccRepository->findPollersByAccId($id)

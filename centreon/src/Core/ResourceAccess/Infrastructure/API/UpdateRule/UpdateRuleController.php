@@ -58,12 +58,13 @@ final class UpdateRuleController extends AbstractController
         int $ruleId,
         Request $request,
         UpdateRule $useCase,
-        UpdateRulePresenter $presenter
+        UpdateRulePresenter $presenter,
     ): Response {
         $this->denyAccessUnlessGrantedForApiConfiguration();
 
         /** @var _UpdateRequestData $data */
         $data = $this->validateAndRetrieveDataSent($request, __DIR__ . '/UpdateRuleSchema.json');
+
         $useCase($this->createDtoFromData($ruleId, $data), $presenter);
 
         return $presenter->show();

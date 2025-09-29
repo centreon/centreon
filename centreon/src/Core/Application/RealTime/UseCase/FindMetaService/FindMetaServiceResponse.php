@@ -125,7 +125,7 @@ final class FindMetaServiceResponse
         ServiceStatus $status,
         public string $calculationType,
         array $downtimes,
-        ?Acknowledgement $acknowledgement
+        ?Acknowledgement $acknowledgement,
     ) {
         $this->status = $this->statusToArray($status);
         $this->downtimes = $this->downtimesToArray($downtimes);

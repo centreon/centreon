@@ -1011,6 +1011,7 @@ if ($o !== HOST_MASSIVE_CHANGE) {
     $form->addRule('host_name', _('Unauthorized value'), 'sanitize');
     $form->addRule('host_address', _('Compulsory Address'), 'required');
     $form->addRule('host_address', _('Unauthorized value'), 'sanitize');
+    $form->applyFilter('host_address', 'strip_tags');
     if (! $isCloudPlatform) {
         $form->registerRule('cg_group_exists', 'callback', 'testCg');
         $form->addRule(
@@ -1134,7 +1135,7 @@ if ($form->validate() && $from_list_menu === false) {
             $valid = true;
         }
     } elseif ($form->getSubmitValue('submitC')) {
-        if (false !== updateHostInApi((int) $hostObj->getValue(), $formData)) {
+        if (updateHostInApi((int) $hostObj->getValue(), $formData) !== false) {
             $o = HOST_WATCH;
             $valid = true;
         }

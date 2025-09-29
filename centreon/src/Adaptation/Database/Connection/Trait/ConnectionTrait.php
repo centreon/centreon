@@ -121,7 +121,7 @@ trait ConnectionTrait
     {
         try {
             // Clean up the query string
-            $query = ltrim($query);
+            $query = mb_ltrim($query);
 
             // Check if the query starts with a valid SQL command
             if (preg_match('/^(INSERT INTO|WITH)\b/i', $query) !== 1) {
@@ -238,7 +238,7 @@ trait ConnectionTrait
     {
         try {
             // Clean up the query string
-            $query = ltrim($query);
+            $query = mb_ltrim($query);
 
             // Check if the query starts with a valid SQL command
             if (preg_match('/^(UPDATE|WITH)\b/i', $query) !== 1) {
@@ -266,7 +266,7 @@ trait ConnectionTrait
     {
         try {
             // Clean up the query string
-            $query = ltrim($query);
+            $query = mb_ltrim($query);
 
             // Check if the query starts with a valid SQL command
             if (preg_match('/^(DELETE|WITH)\b/i', $query) !== 1) {
@@ -447,7 +447,7 @@ trait ConnectionTrait
         string $message,
         array $customContext = [],
         string $query = '',
-        ?\Throwable $previous = null
+        ?\Throwable $previous = null,
     ): void;
 
     // ----------------------------------------- PRIVATE METHODS -----------------------------------------
@@ -461,10 +461,10 @@ trait ConnectionTrait
         }
 
         // Clean up the query string
-        $query = ltrim($query);
+        $query = mb_ltrim($query);
 
         // Check if the query starts with a valid SQL command
-        if (preg_match('/^(SELECT|EXPLAIN|SHOW|DESCRIBE|WITH)\b/i', $query) !== 1) {
+        if (preg_match('/^\(*\s*(SELECT|EXPLAIN|SHOW|DESCRIBE|WITH)\b/i', $query) !== 1) {
             throw ConnectionException::selectQueryBadFormat($query);
         }
     }

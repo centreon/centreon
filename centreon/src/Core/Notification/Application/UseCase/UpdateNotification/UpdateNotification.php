@@ -130,7 +130,7 @@ final class UpdateNotification
         array $messages,
         array $users,
         array $contactGroups,
-        array $resources
+        array $resources,
     ): void {
         try {
             $this->dataStorageEngine->startTransaction();
@@ -202,7 +202,7 @@ final class UpdateNotification
      */
     private function deleteResourcesForUserWithACL(
         NotificationResourceRepositoryInterface $repository,
-        int $notificationId
+        int $notificationId,
     ): void {
         $accessGroups = $this->readAccessGroupRepository->findByContact($this->user);
         $existingResources = $repository->findByNotificationIdAndAccessGroups($notificationId, $accessGroups);

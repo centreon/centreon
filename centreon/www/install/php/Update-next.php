@@ -19,6 +19,9 @@
  *
  */
 
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
+
 require_once __DIR__ . '/../../../bootstrap.php';
 
 /**
@@ -28,131 +31,94 @@ require_once __DIR__ . '/../../../bootstrap.php';
 $version = 'xx.xx.x';
 $errorMessage = '';
 
+/** -------------------------------------- AgentConfiguration updates -------------------------------------- */
+
 /**
- * Add column `show_deprecated_custom_views` to contact table.
- * @var CentreonDB $pearDB
+ * Align preexisting Agent Configuration with the new schema:
+ *      - Add is_poller_initiated bool
+ *      - Add is_agent_initiated bool
+ *      - Remove is_reverse bool
  */
-$addDeprecateCustomViewsToContact =  function () use (&$errorMessage, &$pearDB): void {
-    $errorMessage = 'Unable to add column show_deprecated_custom_views to contact table';
-    if (! $pearDB->isColumnExist('contact', 'show_deprecated_custom_views')) {
-        $pearDB->executeStatement(
-            <<<'SQL'
-                ALTER TABLE contact ADD COLUMN show_deprecated_custom_views ENUM('0','1') DEFAULT '0'
-                SQL
-        );
+$alignCMAAgentConfigurationWithNewSchema = function () use ($pearDB, &$errorMessage): void {
+    $errorMessage = 'Unable to align agent configuration with new schema';
+    $agentConfigurations = $pearDB->fetchAllAssociative(
+        <<<'SQL'
+            SELECT * FROM `agent_configuration`
+            WHERE `type` = 'centreon-agent'
+            SQL
+    );
+    if ($agentConfigurations === []) {
+        return;
     }
-};
+    foreach ($agentConfigurations as $agentConfiguration) {
+        $configuration = json_decode(
+            json: $agentConfiguration['configuration'],
+            associative: true,
+            flags: JSON_THROW_ON_ERROR
+        );
+        $configuration['agent_initiated'] = false;
+        $configuration['poller_initiated'] = false;
 
-/**
- * Switch Topology Order between Dashboards and Custom Views.
- */
-$updateDashboardAndCustomViewsTopology = function () use (&$errorMessage, &$pearDB): void {
-    $errorMessage = 'Unable to update topology of Custom Views';
-    $pearDB->update(
-        <<<'SQL'
-            UPDATE topology SET topology_order = 2, is_deprecated ="1" WHERE topology_name = "Custom Views"
-            SQL
-    );
-    $errorMessage = 'Unable to update topology of Dashboards';
-    $pearDB->update(
-        <<<'SQL'
-            UPDATE topology SET topology_order = 1 WHERE topology_name = "Dashboards"
-            SQL
-    );
-};
+        if ($configuration['is_reverse']) {
+            $configuration['poller_initiated'] = true;
+            unset($configuration['is_reverse']);
+        } else {
+            $configuration['agent_initiated'] = true;
+            unset($configuration['is_reverse']);
+        }
 
-/**
- * Set Show Deprecated Custom Views to true by default is there is existing custom views.
- */
-$updateContactsShowDeprecatedCustomViews = function () use (&$errorMessage, &$pearDB): void {
-    $errorMessage = 'Unable to retrieve custom views';
-    $configuredCustomViews = $pearDB->fetchFirstColumn(
-        <<<'SQL'
-            SELECT 1 FROM custom_views LIMIT 1
-            SQL
-    );
-
-    if (true === (bool) $configuredCustomViews) {
         $pearDB->update(
             <<<'SQL'
-                UPDATE contact SET show_deprecated_custom_views = '1'
-                SQL
+                    UPDATE agent_configuration
+                    SET configuration = :configuration
+                    WHERE id = :id
+                SQL,
+            QueryParameters::create([
+                QueryParameter::string(':configuration', json_encode($configuration, JSON_THROW_ON_ERROR)),
+                QueryParameter::int(':id', $agentConfiguration['id']),
+            ])
         );
     }
 };
 
-$updateCfgParameters = function () use ($pearDB, &$errorMessage): void {
-    $errorMessage = 'Unable to update cfg_nagios table';
+$cleanGlobalMacrosName = function () use ($pearDB, &$errorMessage): void {
+    $errorMessage = 'Failed to update cfg_resource table';
+    $invalidMacros = $pearDB->fetchAllAssociative(
+        <<<'SQL'
+            SELECT resource_id, resource_name FROM cfg_resource
+            WHERE resource_name NOT LIKE '\$%' OR resource_name NOT LIKE '%\$'
+            SQL
+    );
 
+    foreach ($invalidMacros as $macro) {
+        $newName = $macro['resource_name'];
+        if (str_starts_with($newName, '$') === false) {
+            $newName = '$' . $newName;
+        }
+        if (str_ends_with($newName, '$') === false) {
+            $newName .= '$';
+        }
+        $pearDB->update(
+            <<<'SQL'
+                UPDATE cfg_resource
+                SET resource_name = :resource_name
+                WHERE resource_id = :id
+                SQL,
+            QueryParameters::create([
+                QueryParameter::string(':resource_name', $newName),
+                QueryParameter::int(':id', (int) $macro['resource_id']),
+            ])
+        );
+    }
+};
+
+$fixTypoInStandardMacroName = function () use ($pearDB, &$errorMessage): void {
+    $errorMessage = 'Failed to fix typo in standard macro name';
     $pearDB->update(
         <<<'SQL'
-                UPDATE cfg_nagios
-                SET enable_flap_detection = '1',
-                    host_down_disable_service_checks = '1'
-                WHERE enable_flap_detection != '1'
-                   OR host_down_disable_service_checks != '1'
+                UPDATE nagios_macro SET macro_name = '$TOTALHOSTSUNREACHABLEUNHANDLED$' WHERE macro_id = 65
             SQL
     );
-};
-
-/** -------------------------------------------- BBDO cfg update -------------------------------------------- */
-$bbdoDefaultUpdate = function () use ($pearDB, &$errorMessage): void {
-    if ($pearDB->isColumnExist('cfg_centreonbroker', 'bbdo_version') !== 1) {
-        $errorMessage = "Unable to update 'bbdo_version' column to 'cfg_centreonbroker' table";
-        $pearDB->executeStatement('ALTER TABLE `cfg_centreonbroker` MODIFY `bbdo_version` VARCHAR(50) DEFAULT "3.1.0"');
-    }
-};
-
-$bbdoCfgUpdate = function () use ($pearDB, &$errorMessage): void {
-    $errorMessage = "Unable to update 'bbdo_version' version in 'cfg_centreonbroker' table";
-    $pearDB->update('UPDATE `cfg_centreonbroker` SET `bbdo_version` = "3.1.0"');
-};
-
-$addResourceStatusSearchModeOption = function () use ($pearDB, &$errorMessage): void {
-    $errorMessage = "Unable to retrieve 'resource_status_search_mode' option from options table";
-    $optionExists = $pearDB->fetchFirstColumn("SELECT 1 FROM options WHERE `key` = 'resource_status_search_mode'");
-
-    $errorMessage = "Unable to insert option 'resource_status_search_mode' option into table options";
-    if (false === (bool) $optionExists) {
-        $pearDB->insert("INSERT INTO `options` (`key`, `value`) VALUES ('resource_status_search_mode', 1)");
-    }
-};
-
-/** ------------------------------------------ Services as contacts ------------------------------------------ */
-$addServiceFlagToContacts = function () use ($pearDB, &$errorMessage): void {
-    $errorMessage = 'Unable to update contact table';
-    if (! $pearDB->isColumnExist('contact', 'is_service_account')) {
-        $pearDB->executeStatement(
-            <<<'SQL'
-                ALTER TABLE `contact`
-                    ADD COLUMN `is_service_account` boolean DEFAULT 0 COMMENT 'Indicates if the contact is a service account (ex: centreon-gorgone)'
-                SQL
-        );
-    }
-};
-
-// @var mixed $pearDB
-$flagContactsAsServiceAccount = function () use ($pearDB, &$errorMessage): void {
-    $errorMessage = 'Unable to update contact table';
-    $pearDB->executeStatement(
-        <<<'SQL'
-            UPDATE `contact`
-            SET `is_service_account` = 1
-            WHERE `contact_name` IN ('centreon-gorgone', 'CBIS', 'centreon-map')
-            SQL
-    );
-};
-
-$alterContactPagerSize = function () use ($pearDB, &$errorMessage): void {
-    $errorMessage = 'Unable to alter contact_pager column size in contact table';
-    if ($pearDB->isColumnExist('contact', 'contact_pager')) {
-        $pearDB->executeStatement(
-            <<<'SQL'
-                ALTER TABLE `contact`
-                    MODIFY COLUMN `contact_pager` VARCHAR(300)
-                SQL
-        );
-    }
 };
 
 try {
@@ -160,19 +126,17 @@ try {
     // TODO add your function calls to update the real time database structure here
 
     // DDL statements for configuration database
-    $alterContactPagerSize();
+    // TODO add your function calls to update the configuration database structure here
 
     // Transactional queries for configuration database
     if (! $pearDB->inTransaction()) {
         $pearDB->beginTransaction();
     }
 
-    $updateDashboardAndCustomViewsTopology();
-    $updateContactsShowDeprecatedCustomViews();
-    $updateCfgParameters();
-    $bbdoCfgUpdate();
-    $addResourceStatusSearchModeOption();
-    $flagContactsAsServiceAccount();
+    // TODO add your function calls to update the configuration database data here
+    $alignCMAAgentConfigurationWithNewSchema();
+    $cleanGlobalMacrosName();
+    $fixTypoInStandardMacroName();
 
     $pearDB->commit();
 

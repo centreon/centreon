@@ -54,7 +54,7 @@ class PlatformTopologyController extends AbstractController
      * @param PlatformTopologyServiceInterface $platformTopologyService
      */
     public function __construct(
-        PlatformTopologyServiceInterface $platformTopologyService
+        PlatformTopologyServiceInterface $platformTopologyService,
     ) {
         $this->platformTopologyService = $platformTopologyService;
     }

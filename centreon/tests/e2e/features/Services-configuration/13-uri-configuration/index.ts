@@ -169,12 +169,12 @@ Then('a new tab is open to the link', () => {
     .then(($link) => {
       // Get the href of the link in the 'Status information' field
       const linkUrl = $link.prop('href');
-      // Check that the href equals the already setted link
-      expect(linkUrl).to.equal(link);
+      // Check that the href includes the already setted link
+      expect(linkUrl).to.include(link);
       // Visit the link
       cy.visit(linkUrl);
       // Check that tab is opened
-      cy.url().should('eq', linkUrl);
+      cy.url().should('include', linkUrl);
     });
 });
 

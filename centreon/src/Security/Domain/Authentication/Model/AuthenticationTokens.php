@@ -58,7 +58,7 @@ class AuthenticationTokens
         int $configurationProviderId,
         string $sessionToken,
         ProviderToken $providerToken,
-        ?ProviderToken $providerRefreshToken
+        ?ProviderToken $providerRefreshToken,
     ) {
         Assertion::minLength($sessionToken, self::SESSION_TOKEN_MIN_LENGTH, 'AuthenticationToken::sessionToken');
         $this->userId = $userId;

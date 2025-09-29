@@ -47,7 +47,7 @@ $dbPassword = getEnvironmentVariable('MYSQL_PASSWORD');
 
 $dbConfigCentreon = null;
 
-if (null !== $dbHost && null !== $dbUser && null !== $dbPassword) {
+if ($dbHost !== null && $dbUser !== null && $dbPassword !== null) {
     $dbConfigCentreon = new ConnectionConfig(
         host: $dbHost,
         user: $dbUser,

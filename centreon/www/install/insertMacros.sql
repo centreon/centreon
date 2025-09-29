@@ -1,6 +1,6 @@
--- 
+--
 -- Contenu de la table `nagios_macro`
--- 
+--
 
 INSERT INTO `nagios_macro` (`macro_id`, `macro_name`) VALUES ( 1, '$HOSTNAME$');
 INSERT INTO `nagios_macro` (`macro_id`, `macro_name`) VALUES ( 2, '$_HOSTSNMPCOMMUNITY$');
@@ -61,7 +61,7 @@ INSERT INTO `nagios_macro` (`macro_id`, `macro_name`) VALUES ( 61, '$TOTALHOSTSU
 INSERT INTO `nagios_macro` (`macro_id`, `macro_name`) VALUES ( 62, '$TOTALHOSTSDOWN$');
 INSERT INTO `nagios_macro` (`macro_id`, `macro_name`) VALUES ( 63, '$TOTALHOSTSUNREACHABLE$');
 INSERT INTO `nagios_macro` (`macro_id`, `macro_name`) VALUES ( 64, '$TOTALHOSTSDOWNUNHANDLED$');
-INSERT INTO `nagios_macro` (`macro_id`, `macro_name`) VALUES ( 65, '$TOTALHOSTSUNREACHABLEUNHANDLED$ 	');
+INSERT INTO `nagios_macro` (`macro_id`, `macro_name`) VALUES ( 65, '$TOTALHOSTSUNREACHABLEUNHANDLED$');
 INSERT INTO `nagios_macro` (`macro_id`, `macro_name`) VALUES ( 66, '$TOTALHOSTPROBLEMS$');
 INSERT INTO `nagios_macro` (`macro_id`, `macro_name`) VALUES ( 67, '$TOTALHOSTPROBLEMSUNHANDLED$');
 INSERT INTO `nagios_macro` (`macro_id`, `macro_name`) VALUES ( 68, '$TOTALSERVICESOK$');

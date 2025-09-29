@@ -43,7 +43,7 @@ const DEFAULT_SCHEME = 'https';
 function authenticateToVault(
     VaultConfiguration $vaultConfiguration,
     Logger $logger,
-    CentreonRestHttp $httpClient
+    CentreonRestHttp $httpClient,
 ): string {
     try {
         $url = $vaultConfiguration->getAddress() . ':' . $vaultConfiguration->getPort() . '/v1/auth/approle/login';
@@ -137,7 +137,7 @@ function duplicateHostSecretsInVault(
     ?string $snmpCommunity,
     array $macroPasswords,
     int $duplicatedHostId,
-    int $newHostId
+    int $newHostId,
 ): void {
     global $pearDB;
 
@@ -203,9 +203,9 @@ function updateOnDemandMacroHostTableWithVaultPath(CentreonDB $pearDB, array $ma
 {
     $statementUpdateMacro = $pearDB->prepare(
         <<<'SQL'
-                UPDATE `on_demand_macro_host` 
-                    SET host_macro_value = :path 
-                WHERE host_macro_id = :macroId 
+                UPDATE `on_demand_macro_host`
+                    SET host_macro_value = :path
+                WHERE host_macro_id = :macroId
                     AND host_macro_name = :name
             SQL
     );
@@ -229,7 +229,7 @@ function updateOnDemandMacroHostTableWithVaultPath(CentreonDB $pearDB, array $ma
 function deleteResourceSecretsInVault(
     WriteVaultRepositoryInterface $writeVaultRepository,
     array $hostIds,
-    array $serviceIds
+    array $serviceIds,
 ): void {
     if ($hostIds !== []) {
         $uuids = retrieveMultipleHostUuidsFromDatabase($hostIds);
@@ -470,7 +470,7 @@ function updateHostSecretsInVaultFromMC(
     ?string $vaultPath,
     int $hostId,
     array $macros,
-    ?string $snmpCommunity
+    ?string $snmpCommunity,
 ): void {
     global $pearDB;
 
@@ -562,7 +562,7 @@ function updateHostSecretsInVault(
     ?string $vaultPath,
     int $hostId,
     array $macros,
-    ?string $snmpCommunity
+    ?string $snmpCommunity,
 ): void {
     global $pearDB;
     $hostSecretsFromVault = [];
@@ -782,9 +782,9 @@ function updateOnDemandMacroServiceTableWithVaultPath(CentreonDB $pearDB, array 
 {
     $statementUpdateMacro = $pearDB->prepare(
         <<<'SQL'
-                UPDATE `on_demand_macro_service` 
-                    SET svc_macro_value = :path 
-                WHERE svc_macro_id = :macroId 
+                UPDATE `on_demand_macro_service`
+                    SET svc_macro_value = :path
+                WHERE svc_macro_id = :macroId
                     AND svc_macro_name = :name
             SQL
     );
@@ -861,7 +861,7 @@ function updateServiceSecretsInVaultFromMC(
     Logger $logger,
     ?string $vaultPath,
     int $serviceId,
-    array $macros
+    array $macros,
 ): void {
     global $pearDB;
 
@@ -1025,7 +1025,12 @@ function prepareServiceUpdatePayload(array $macros, array $serviceSecretsFromVau
 
     // Add macros to payload if they are password type and their values have changed
     foreach ($macros as $macroInfos) {
-        $serviceSecretsFromVault[$macroInfos['macroName']] = $macroInfos['macroValue'];
+        if (
+            $macroInfos['macroPassword'] === '1'
+            && ! str_starts_with($macroInfos['macroValue'], VaultConfiguration::VAULT_PATH_PATTERN)
+        ) {
+            $serviceSecretsFromVault[$macroInfos['macroName']] = $macroInfos['macroValue'];
+        }
     }
 
     $payload['to_insert'] = $serviceSecretsFromVault;
@@ -1048,7 +1053,7 @@ function prepareServiceUpdatePayload(array $macros, array $serviceSecretsFromVau
  */
 function insertServiceSecretsInVault(
     WriteVaultRepositoryInterface $writeVaultRepository,
-    array $macroPasswords
+    array $macroPasswords,
 ): void {
     global $pearDB;
     $payload = [];
@@ -1113,7 +1118,7 @@ function upsertPollerMacroSecretInVault(
     WriteVaultRepositoryInterface $writeVaultRepository,
     string $key,
     string $value,
-    ?string $vaultPath = null
+    ?string $vaultPath = null,
 ): string|null {
     if (! empty($value)) {
 
@@ -1235,7 +1240,7 @@ function findKnowledgeBasePasswordFromVault(
  * @return array<string, string>
  */
 function migrateDatabaseCredentialsToVault(
-    WriteVaultRepositoryInterface $writeVaultRepository
+    WriteVaultRepositoryInterface $writeVaultRepository,
 ): array {
     $credentials = retrieveDatabaseCredentialsFromConfigFile();
     if (str_starts_with($credentials['username'], VaultConfiguration::VAULT_PATH_PATTERN)) {

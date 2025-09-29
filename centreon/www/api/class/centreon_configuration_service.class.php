@@ -161,7 +161,7 @@ class CentreonConfigurationService extends CentreonConfigurationObjects
         $hasGraph = false,
         $aclMetaServices = '',
         $s = 'all',
-        $e = 'enable'
+        $e = 'enable',
     ) {
         $queryValues = [];
         if ($e == 'enable') {

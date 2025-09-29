@@ -1,12 +1,6 @@
 parameters:
 	ignoreErrors:
 		-
-			message: '#^Access to constant LM_FINGERPRINT on an unknown class CentreonLicense\\ServiceProvider\.$#'
-			identifier: class.notFound
-			count: 1
-			path: www/api/class/centreon_ceip.class.php
-
-		-
 			message: '#^Class centreonGraphPoller referenced with incorrect case\: CentreonGraphPoller\.$#'
 			identifier: class.nameCase
 			count: 1
@@ -402,30 +396,6 @@ parameters:
 			identifier: return.missing
 			count: 2
 			path: www/include/options/accessLists/menusACL/DB-Func.php
-
-		-
-			message: '#^Function updateGroups\(\) should return unknown_type but return statement is missing\.$#'
-			identifier: return.missing
-			count: 2
-			path: www/include/options/accessLists/resourcesACL/DB-Func.php
-
-		-
-			message: '#^Function updateHostexcludes\(\) should return unknown_type but return statement is missing\.$#'
-			identifier: return.missing
-			count: 2
-			path: www/include/options/accessLists/resourcesACL/DB-Func.php
-
-		-
-			message: '#^Function updateHosts\(\) should return unknown_type but return statement is missing\.$#'
-			identifier: return.missing
-			count: 2
-			path: www/include/options/accessLists/resourcesACL/DB-Func.php
-
-		-
-			message: '#^Function updatePollers\(\) should return unknown_type but return statement is missing\.$#'
-			identifier: return.missing
-			count: 2
-			path: www/include/options/accessLists/resourcesACL/DB-Func.php
 
 		-
 			message: '#^Undefined variable\: \$acl_res_name$#'

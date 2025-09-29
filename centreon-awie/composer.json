@@ -1,6 +1,6 @@
 {
   "name": "centreon/centreon-awie",
-  "version": "25.09",
+  "version": "25.11",
   "type": "project",
   "license": "Apache-2.0",
   "require": {
@@ -16,7 +16,7 @@
     "centreon/centreon-test-lib": "dev-master",
     "friends-of-behat/mink": "1.11.*",
     "friends-of-behat/mink-extension": "2.7.*",
-    "psr/container": "1.1.*"
+    "psr/container": "2.0.*"
   },
   "repositories": [
     {
@@ -34,9 +34,9 @@
       "*": "dist"
     },
     "allow-plugins": {
-      "symfony/flex": false,
       "pestphp/pest-plugin": true,
-      "symfony/runtime": true
+      "symfony/flex": false,
+      "symfony/runtime": false
     }
   },
   "scripts": {

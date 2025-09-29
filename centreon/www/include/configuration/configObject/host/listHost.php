@@ -356,6 +356,7 @@ for ($i = 0; $host = $dbResult->fetch(); $i++) {
         if (count($tplArr)) {
             $firstTpl = 1;
             foreach ($tplArr as $key => $value) {
+                $value = htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
                 if ($firstTpl) {
                     $tplStr .= "<a href='main.php?p=60103&o=c&host_id={$key}'>{$value}</a>";
                     $firstTpl = 0;
@@ -398,10 +399,10 @@ for ($i = 0; $host = $dbResult->fetch(); $i++) {
             'RowMenu_id' => $host['host_id'],
             'RowMenu_icone' => $host_icone,
             'RowMenu_link' => 'main.php?p=' . $p . '&o=c&host_id=' . $host['host_id'],
-            'RowMenu_desc' => CentreonUtils::escapeSecure($host['host_alias']),
-            'RowMenu_address' => CentreonUtils::escapeSecure($host['host_address']),
+            'RowMenu_desc' => $host['host_alias'],
+            'RowMenu_address' => $host['host_address'],
             'RowMenu_poller' => $tab_relation[$host['host_id']] ?? '',
-            'RowMenu_parent' => CentreonUtils::escapeSecure($tplStr),
+            'RowMenu_parent' => $tplStr,
             'RowMenu_status' => $host['host_activate'] ? _('Enabled') : _('Disabled'),
             'RowMenu_badge' => $host['host_activate'] ? 'service_ok' : 'service_critical',
             'RowMenu_options' => $moptions,

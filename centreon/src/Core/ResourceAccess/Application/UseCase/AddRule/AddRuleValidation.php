@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Core\ResourceAccess\Application\UseCase\AddRule;
 
 use Centreon\Domain\Log\LoggerTrait;
+use Core\Common\Domain\Exception\RepositoryException;
 use Core\Contact\Application\Repository\ReadContactGroupRepositoryInterface;
 use Core\Contact\Application\Repository\ReadContactRepositoryInterface;
 use Core\ResourceAccess\Application\Exception\RuleException;
@@ -48,7 +49,7 @@ class AddRuleValidation
         private readonly ReadResourceAccessRepositoryInterface $repository,
         private readonly ReadContactRepositoryInterface $contactRepository,
         private readonly ReadContactGroupRepositoryInterface $contactGroupRepository,
-        \Traversable $repositoryProviders
+        \Traversable $repositoryProviders,
     ) {
         $this->repositoryProviders = iterator_to_array($repositoryProviders);
     }
@@ -102,6 +103,7 @@ class AddRuleValidation
      * @param int[] $ids
      *
      * @throws RuleException
+     * @throws RepositoryException
      */
     public function assertIdsAreValid(string $type, array $ids): void
     {
@@ -130,11 +132,11 @@ class AddRuleValidation
         array $contactIds,
         array $contactGroupIds,
         bool $applyToAllContacts,
-        bool $applyToAllContactGroups
+        bool $applyToAllContactGroups,
     ): void {
         if (
-            [] === $contactIds
-            && [] === $contactGroupIds
+            $contactIds === []
+            && $contactGroupIds === []
             && $applyToAllContacts === false
             && $applyToAllContactGroups === false
         ) {

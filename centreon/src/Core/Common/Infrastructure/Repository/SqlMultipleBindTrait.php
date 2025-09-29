@@ -25,6 +25,7 @@ namespace Core\Common\Infrastructure\Repository;
 
 use Adaptation\Database\Connection\Enum\QueryParameterTypeEnum;
 use Adaptation\Database\Connection\ValueObject\QueryParameter;
+use Core\Common\Domain\Exception\ValueObjectException;
 
 trait SqlMultipleBindTrait
 {
@@ -57,12 +58,13 @@ trait SqlMultipleBindTrait
      * @param string $prefix Placeholder prefix (no colon)
      * @param QueryParameterTypeEnum $paramType Type of binding (INTEGER|STRING)
      *
+     * @throws ValueObjectException
      * @return array{parameters: QueryParameter[], placeholderList: string}
      */
     protected function createMultipleBindParameters(
         array $values,
         string $prefix,
-        QueryParameterTypeEnum $paramType
+        QueryParameterTypeEnum $paramType,
     ): array {
         $placeholders = [];
         $parameters = [];
@@ -70,17 +72,14 @@ trait SqlMultipleBindTrait
         foreach (array_values($values) as $idx => $val) {
             $name = "{$prefix}_{$idx}";
             $placeholders[] = ':' . $name;
-            switch ($paramType) {
-                case QueryParameterTypeEnum::INTEGER:
-                    $parameters[] = ($val === null)
-                        ? QueryParameter::null($name)
-                        : QueryParameter::int($name, (int) $val);
-                    break;
-                default:
-                    $parameters[] = ($val === null)
-                        ? QueryParameter::null($name)
-                        : QueryParameter::string($name, (string) $val);
-            }
+            $parameters[] = match ($paramType) {
+                QueryParameterTypeEnum::INTEGER => ($val === null)
+                    ? QueryParameter::null($name)
+                    : QueryParameter::int($name, (int) $val),
+                default => ($val === null)
+                    ? QueryParameter::null($name)
+                    : QueryParameter::string($name, (string) $val),
+            };
         }
 
         return [

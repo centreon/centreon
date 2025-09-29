@@ -46,7 +46,7 @@ final readonly class ConnectionConfig
         private string $databaseNameRealTime,
         private int $port = 3306,
         private string $charset = 'utf8mb4',
-        private ConnectionDriverEnum $driver = ConnectionDriverEnum::DRIVER_PDO_MYSQL
+        private ConnectionDriverEnum $driver = ConnectionDriverEnum::DRIVER_PDO_MYSQL,
     ) {
     }
 

@@ -45,7 +45,7 @@ final readonly class CountResourcesRequestTransformer
     public static function transform(
         CountResourcesInput $input,
         ResourceFilter $resourceFilter,
-        ContactInterface $contact
+        ContactInterface $contact,
     ): CountResourcesRequest {
         return new CountResourcesRequest(
             resourceFilter: $resourceFilter,

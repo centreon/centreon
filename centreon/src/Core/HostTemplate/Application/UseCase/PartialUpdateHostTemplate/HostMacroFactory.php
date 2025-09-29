@@ -46,11 +46,11 @@ final class HostMacroFactory
         array $data,
         int $hostTemplateId,
         array $directMacros,
-        array $inheritedMacros
+        array $inheritedMacros,
     ): Macro {
         $macroName = mb_strtoupper($data['name']);
-        $macroValue = $data['value'] ?? '';
-        $passwordHasNotChanged = (null === $data['value']) && $data['is_password'];
+        $macroValue = self::computeValue($data, $inheritedMacros);
+        $passwordHasNotChanged = ($data['value'] === null) && $data['is_password'];
         // Note: do not handle vault storage at the moment
         if ($passwordHasNotChanged) {
             $macroValue = match (true) {
@@ -70,5 +70,22 @@ final class HostMacroFactory
         $macro->setDescription($data['description'] ?? '');
 
         return $macro;
+    }
+
+    /**
+     * Compute macro value based on the data and inherited macros.
+     *
+     * @param array{name:string,value:string|null,is_password:bool,description:string|null} $data
+     * @param array<string,Macro> $inheritedMacros
+     *
+     * @return string
+     */
+    private static function computeValue(array $data, array $inheritedMacros): string
+    {
+        if (array_key_exists($data['name'], $inheritedMacros)) {
+            return $inheritedMacros[$data['name']]->getValue();
+        }
+
+        return $data['value'] ?? '';
     }
 }

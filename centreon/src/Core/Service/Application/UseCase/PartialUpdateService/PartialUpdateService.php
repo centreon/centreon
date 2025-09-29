@@ -181,10 +181,10 @@ final class PartialUpdateService
             $this->updateMacros($request, $service);
 
             $newMonitoringServer = $this->readMonitoringServerRepository->findByHost($service->getHostId());
-            if (null !== $newMonitoringServer) {
+            if ($newMonitoringServer !== null) {
                 $this->writeMonitoringServerRepository->notifyConfigurationChange($newMonitoringServer->getId());
             }
-            if (null !== $previousMonitoringServer) {
+            if ($previousMonitoringServer !== null) {
                 // Host change implies a possible monitoring server change, notify previous monitoring server of configuration changes.
                 $this->writeMonitoringServerRepository->notifyConfigurationChange($previousMonitoringServer->getId());
             }
@@ -605,6 +605,12 @@ final class PartialUpdateService
                 $action === 'INSERT' ? [$macroPrefixName => $macro->getValue()] : [],
                 $action === 'DELETE' ? [$macroPrefixName => $macro->getValue()] : [],
             );
+
+            // No need to update the macro if it is being deleted
+            if ($action === 'DELETE') {
+                return $macro;
+            }
+
             $vaultPath = $vaultPaths[$macroPrefixName];
             $this->uuid ??= $this->getUuidFromPath($vaultPath);
 
@@ -630,7 +636,7 @@ final class PartialUpdateService
     {
         $updatedMacros = [];
         foreach ($macros as $key => $macro) {
-            if (false === $macro->isPassword()) {
+            if ($macro->isPassword() === false) {
                 $updatedMacros[$key] = $macro;
                 continue;
             }

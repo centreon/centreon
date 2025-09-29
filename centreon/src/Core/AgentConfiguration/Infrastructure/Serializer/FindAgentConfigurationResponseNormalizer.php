@@ -46,7 +46,7 @@ class FindAgentConfigurationResponseNormalizer implements NormalizerInterface, N
     public function normalize(
         mixed $object,
         ?string $format = null,
-        array $context = []
+        array $context = [],
     ): array {
         /** @var array<string, bool|float|int|string> $data */
         $data = $this->normalizer->normalize($object->agentConfiguration, $format, $context);

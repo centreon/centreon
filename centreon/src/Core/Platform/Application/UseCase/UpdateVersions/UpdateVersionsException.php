@@ -71,7 +71,7 @@ class UpdateVersionsException extends \Exception
     public static function errorWhenApplyingUpdateToVersion(
         string $version,
         string $technicalMessage,
-        \Throwable $ex
+        \Throwable $ex,
     ): self {
         return new self(
             sprintf(_('An error occurred when applying the update %s (%s)'), $version, $technicalMessage),
@@ -88,7 +88,7 @@ class UpdateVersionsException extends \Exception
      */
     public static function errorWhenApplyingUpdate(
         string $technicalMessage,
-        \Throwable $ex
+        \Throwable $ex,
     ): self {
         return new self(
             sprintf(_('An error occurred when applying the update (%s)'), $technicalMessage),

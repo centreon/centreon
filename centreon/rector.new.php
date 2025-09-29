@@ -21,6 +21,8 @@
 
 declare(strict_types=1);
 
+use Rector\Php81\Rector\Property\ReadOnlyPropertyRector;
+
 $rectorConfig = require_once __DIR__ . '/../php-tools/rector/config/base.strict.php';
 
 return $rectorConfig
@@ -39,4 +41,12 @@ return $rectorConfig
         __DIR__ . '/rector.core.php',
         __DIR__ . '/rector.legacy.php',
         __DIR__ . '/rector.new.php',
-    ]);
+    ])
+    ->withSkip([
+        // because id are only able to be set by object construction, rector
+        // tries to set it as readonly. But in repositories, we set the id using
+        // reflection (to protect the domain). Therefore the id property cannot be
+        // readonly.
+        ReadOnlyPropertyRector::class => __DIR__ . '/src/App/*/Domain/Aggregate/*',
+    ])
+;

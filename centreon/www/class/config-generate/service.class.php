@@ -100,8 +100,14 @@ class Service extends AbstractService
      * @param int $byHg default 0
      * @return string|null service description
      */
-    public function generateFromServiceId(int $hostId, string $hostName, ?int $serviceId, int $byHg = 0): ?string
-    {
+    public function generateFromServiceId(
+        int $hostId,
+        string $hostName,
+        ?int $serviceId,
+        int $byHg = 0,
+        array $serviceMacros = [],
+        array $serviceTemplateMacros = [],
+    ): ?string {
         if (is_null($serviceId)) {
             return null;
         }
@@ -127,7 +133,7 @@ class Service extends AbstractService
         $this->service_cache[$serviceId]['contact_groups'] = '';
 
         $this->getImages($this->service_cache[$serviceId]);
-        $this->getMacros($this->service_cache[$serviceId]);
+        $this->formatMacros($this->service_cache[$serviceId], $serviceMacros);
         $this->service_cache[$serviceId]['macros']['_SERVICE_ID'] = $serviceId;
         // useful for servicegroup on servicetemplate
         $service_template = ServiceTemplate::getInstance($this->dependencyInjector);
@@ -136,7 +142,7 @@ class Service extends AbstractService
         $service_template->current_host_name = $hostName;
         $service_template->current_service_id = $serviceId;
         $service_template->current_service_description = $this->service_cache[$serviceId]['service_description'];
-        $this->getServiceTemplates($this->service_cache[$serviceId]);
+        $this->getServiceTemplates($this->service_cache[$serviceId], $serviceTemplateMacros);
 
         $this->getServiceCommands($this->service_cache[$serviceId]);
         $this->getServicePeriods($this->service_cache[$serviceId]);

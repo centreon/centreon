@@ -40,18 +40,18 @@ if (! CentreonSession::checkSession($sid, $pearDB)) {
     CentreonGraph::displayError();
 }
 
-if (false === isset($_GET['index']) && false === isset($_GET['svcId'])) {
+if (isset($_GET['index']) === false && isset($_GET['svcId']) === false) {
     CentreonGraph::displayError();
 }
 
 if (isset($_GET['index'])) {
-    if (false === is_numeric($_GET['index'])) {
+    if (is_numeric($_GET['index']) === false) {
         CentreonGraph::displayError();
     }
     $index = $_GET['index'];
 } else {
     [$hostId, $svcId] = explode('_', $_GET['svcId']);
-    if (false === is_numeric($hostId) || false === is_numeric($svcId)) {
+    if (is_numeric($hostId) === false || is_numeric($svcId) === false) {
         CentreonGraph::displayError();
     }
     $query = 'SELECT id FROM index_data

@@ -67,7 +67,7 @@ class UtilsTest extends TestCase
     }
 
     /**
-     * @covers Utils::objectIntoArray
+     * @covers \CentreonLegacy\Core\Utils\Utils::objectIntoArray
      */
     public function testObjectIntoArray(): void
     {
@@ -88,7 +88,7 @@ class UtilsTest extends TestCase
     }
 
     /**
-     * @covers Utils::objectIntoArray
+     * @covers \CentreonLegacy\Core\Utils\Utils::objectIntoArray
      */
     public function testObjectIntoArrayWithSkippedKeys(): void
     {
@@ -106,7 +106,7 @@ class UtilsTest extends TestCase
     }
 
     /**
-     * @covers Utils::objectIntoArray
+     * @covers \CentreonLegacy\Core\Utils\Utils::objectIntoArray
      */
     public function testObjectIntoArrayWithEmptyObject(): void
     {

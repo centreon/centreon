@@ -50,7 +50,7 @@ class DatasetFilter
     public function __construct(
         private readonly string $type,
         private readonly array $resourceIds,
-        private readonly DatasetFilterValidator $validator
+        private readonly DatasetFilterValidator $validator,
     ) {
         $shortName = (new \ReflectionClass($this))->getShortName();
         Assertion::notEmptyString($type, "{$shortName}::type");

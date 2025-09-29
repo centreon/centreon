@@ -28,6 +28,8 @@ require_once _CENTREON_PATH_ . 'www/class/centreonContactgroup.class.php';
 require_once _CENTREON_PATH_ . 'www/class/centreonACL.class.php';
 require_once _CENTREON_PATH_ . 'www/include/common/vault-functions.php';
 
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
 use App\Kernel;
 use Centreon\Domain\Log\Logger;
 use Core\ActionLog\Domain\Model\ActionLog;
@@ -250,7 +252,7 @@ function hasNoInfiniteLoop($hostId, $templateId)
             if ($hId == $templateId) {
                 return false;
             }
-            if (false === hasNoInfiniteLoop($hId, $templateId)) {
+            if (hasNoInfiniteLoop($hId, $templateId) === false) {
                 return false;
             }
         }
@@ -2340,6 +2342,7 @@ function createHostTemplateService($hostId = null, $htm_id = null)
     if (
         ! empty($submittedValues['dupSvTplAssoc']['dupSvTplAssoc'])
         || $isCloudPlatform === true
+        && $submittedValues['host_register'] != 0
     ) {
         generateHostServiceMultiTemplate($hostId, $hostId);
     }
@@ -2521,6 +2524,7 @@ function applytpl(array $hostIds)
     foreach ($hostIds as $hostId) {
         $hostObj->deployServices($hostId);
         $centreon->user->access->updateACL(['type' => 'HOST', 'id' => $hostId, 'action' => 'UPDATE']);
+        signalConfigurationChange('host', (int) $hostId);
     }
 }
 
@@ -2812,8 +2816,8 @@ function insertByApi(array $formData, bool $isCloudPlatform, string $basePath, b
     $router = $kernel->getContainer()->get(Router::class);
 
     $payload = $isTemplate
-        ? getPayloadForHostTemplate($isCloudPlatform, $formData)
-        : getPayloadForHost($isCloudPlatform, $formData);
+        ? getPayloadForHostTemplate($isCloudPlatform, $formData, $kernel)
+        : getPayloadForHost($isCloudPlatform, $formData, $kernel);
 
     $url = $router->generate(
         $isTemplate ? 'AddHostTemplate' : 'AddHost',
@@ -2923,8 +2927,8 @@ function updateByApi(array $formData, bool $isCloudPlatform, string $basePath, b
     $router = $kernel->getContainer()->get(Router::class);
 
     $payload = $isTemplate
-        ? getPayloadForHostTemplate($isCloudPlatform, $formData)
-        : getPayloadForHost($isCloudPlatform, $formData);
+        ? getPayloadForHostTemplate($isCloudPlatform, $formData, $kernel)
+        : getPayloadForHost($isCloudPlatform, $formData, $kernel);
     $parameters = [];
     if ($basePath) {
         $parameters = $isTemplate
@@ -2988,7 +2992,7 @@ function callHostApi(string $url, string $httpMethod, array $payload): array
  *
  * @return array<string,mixed>
  */
-function getPayloadForHostTemplate(bool $isCloudPlatform, array $formData): array
+function getPayloadForHostTemplate(bool $isCloudPlatform, array $formData, Kernel $kernel): array
 {
     global $pearDB;
 
@@ -3000,34 +3004,38 @@ function getPayloadForHostTemplate(bool $isCloudPlatform, array $formData): arra
         'note_url' => $formData['ehi_notes_url'] ?: null,
         'note' => $formData['ehi_notes'] ?: null,
         'action_url' => $formData['ehi_action_url'] ?: null,
-        'icon_id' => '' !== $formData['ehi_icon_image']
+        'icon_id' => $formData['ehi_icon_image'] !== ''
             ? (int) $formData['ehi_icon_image']
             : null,
-        'timezone_id' => '' !== $formData['host_location']
+        'timezone_id' => $formData['host_location'] !== ''
             ? (int) $formData['host_location']
             : null,
-        'severity_id' => '' !== $formData['criticality_id']
+        'severity_id' => $formData['criticality_id'] !== ''
             ? (int) $formData['criticality_id']
             : null,
-        'check_timeperiod_id' => '' !== $formData['timeperiod_tp_id']
+        'check_timeperiod_id' => $formData['timeperiod_tp_id'] !== ''
             ? (int) $formData['timeperiod_tp_id']
             : null,
-        'max_check_attempts' => '' !== $formData['host_max_check_attempts']
+        'max_check_attempts' => $formData['host_max_check_attempts'] !== ''
             ? (int) $formData['host_max_check_attempts']
             : null,
-        'normal_check_interval' => '' !== $formData['host_check_interval']
+        'normal_check_interval' => $formData['host_check_interval'] !== ''
             ? (int) $formData['host_check_interval']
             : null,
-        'retry_check_interval' => '' !== $formData['host_retry_check_interval']
+        'retry_check_interval' => $formData['host_retry_check_interval'] !== ''
             ? (int) $formData['host_retry_check_interval']
             : null,
         'templates' => array_map(static fn (string $id): int => (int) $id, $formData['tpSelect'] ?? []),
         'categories' => array_map(static fn (string $id): int => (int) $id, $formData['host_hcs'] ?? []),
         'macros' => array_map(
-            static function (int $key, string $name, string $value) use ($formData): array {
+            static function (int|string $key, string $name, string $value) use ($formData, $kernel): array {
                 return [
                     'name' => $name,
-                    'value' => $value === PASSWORD_REPLACEMENT_VALUE ? null : $value,
+                    'value' => $value === PASSWORD_REPLACEMENT_VALUE ? computeMacroValue(
+                        ['key' => $key, 'value' => $value, 'name' => $name],
+                        $formData['host_id'],
+                        $kernel
+                    ) : $value,
                     'is_password' => (bool) ($formData['macroPassword'][$key] ?? false),
                     'description' => $formData["macroDescription_{$key}"],
                 ];
@@ -3039,10 +3047,10 @@ function getPayloadForHostTemplate(bool $isCloudPlatform, array $formData): arra
         'event_handler_enabled' => isset($formData['host_event_handler_enabled']['host_event_handler_enabled'])
             ? (int) $formData['host_event_handler_enabled']['host_event_handler_enabled']
             : null,
-        'event_handler_command_id' => isset($formData['command_command_id2']) && '' !== $formData['command_command_id2']
+        'event_handler_command_id' => isset($formData['command_command_id2']) && $formData['command_command_id2'] !== ''
             ? (int) $formData['command_command_id2']
             : null,
-        'check_command_id' => '' !== $formData['command_command_id']
+        'check_command_id' => $formData['command_command_id'] !== ''
             ? (int) $formData['command_command_id']
             : null,
         'check_command_args' => array_values(array_filter(
@@ -3073,17 +3081,17 @@ function getPayloadForHostTemplate(bool $isCloudPlatform, array $formData): arra
             'comment' => $formData['host_comment'] ?: null,
             'active_check_enabled' => (int) $formData['host_active_checks_enabled']['host_active_checks_enabled'],
             'passive_check_enabled' => (int) $formData['host_passive_checks_enabled']['host_passive_checks_enabled'],
-            'low_flap_threshold' => '' !== $formData['host_low_flap_threshold']
+            'low_flap_threshold' => $formData['host_low_flap_threshold'] !== ''
                 ? (int) $formData['host_low_flap_threshold']
                 : null,
-            'high_flap_threshold' => '' !== $formData['host_high_flap_threshold']
+            'high_flap_threshold' => $formData['host_high_flap_threshold'] !== ''
                 ? (int) $formData['host_high_flap_threshold']
                 : null,
             'freshness_checked' => (int) $formData['host_check_freshness']['host_check_freshness'],
-            'freshness_threshold' => '' !== $formData['host_freshness_threshold']
+            'freshness_threshold' => $formData['host_freshness_threshold'] !== ''
                 ? (int) $formData['host_freshness_threshold']
                 : null,
-            'acknowledgement_timeout' => '' !== $formData['host_acknowledgement_timeout']
+            'acknowledgement_timeout' => $formData['host_acknowledgement_timeout'] !== ''
                 ? (int) $formData['host_acknowledgement_timeout']
                 : null,
             'flap_detection_enabled' => (int) $formData['host_flap_detection_enabled']['host_flap_detection_enabled'],
@@ -3092,19 +3100,19 @@ function getPayloadForHostTemplate(bool $isCloudPlatform, array $formData): arra
                 static fn (string $elem): bool => $elem !== ''
             )),
             'notification_enabled' => (int) $formData['host_notifications_enabled']['host_notifications_enabled'],
-            'notification_interval' => '' !== $formData['host_notification_interval']
+            'notification_interval' => $formData['host_notification_interval'] !== ''
                  ? (int) $formData['host_notification_interval']
                  : null,
-            'notification_timeperiod_id' => '' !== $formData['timeperiod_tp_id2']
+            'notification_timeperiod_id' => $formData['timeperiod_tp_id2'] !== ''
                 ? (int) $formData['timeperiod_tp_id2']
                 : null,
             'notification_options' => HostEventConverter::toBitFlag(HostEventConverter::fromString(
                 implode(',', array_keys($formData['host_notifOpts'] ?? []))
             )),
-            'first_notification_delay' => '' !== $formData['host_first_notification_delay']
+            'first_notification_delay' => $formData['host_first_notification_delay'] !== ''
                 ? (int) $formData['host_first_notification_delay']
                 : null,
-            'recovery_notification_delay' => '' !== $formData['host_recovery_notification_delay']
+            'recovery_notification_delay' => $formData['host_recovery_notification_delay'] !== ''
                 ? (int) $formData['host_recovery_notification_delay']
                 : null,
             'add_inherited_contact_group' => (bool) ($formData['cg_additive_inheritance'] ?? false),
@@ -3121,7 +3129,7 @@ function getPayloadForHostTemplate(bool $isCloudPlatform, array $formData): arra
  * @param array $formData
  * @return array<string,mixed>
  */
-function getPayloadForHost(bool $isCloudPlatform, array $formData): array
+function getPayloadForHost(bool $isCloudPlatform, array $formData, Kernel $kernel): array
 {
     global $pearDB;
 
@@ -3135,26 +3143,26 @@ function getPayloadForHost(bool $isCloudPlatform, array $formData): array
         'note_url' => $formData['ehi_notes_url'] ?: null,
         'note' => $formData['ehi_notes'] ?: null,
         'action_url' => $formData['ehi_action_url'] ?: null,
-        'icon_id' => '' !== $formData['ehi_icon_image']
+        'icon_id' => $formData['ehi_icon_image'] !== ''
             ? (int) $formData['ehi_icon_image']
             : null,
         'geo_coords' => $formData['geo_coords'] ?: null,
-        'timezone_id' => '' !== $formData['host_location']
+        'timezone_id' => $formData['host_location'] !== ''
             ? (int) $formData['host_location']
             : null,
-        'severity_id' => '' !== $formData['criticality_id']
+        'severity_id' => $formData['criticality_id'] !== ''
             ? (int) $formData['criticality_id']
             : null,
-        'check_timeperiod_id' => '' !== $formData['timeperiod_tp_id']
+        'check_timeperiod_id' => $formData['timeperiod_tp_id'] !== ''
             ? (int) $formData['timeperiod_tp_id']
             : null,
-        'max_check_attempts' => '' !== $formData['host_max_check_attempts']
+        'max_check_attempts' => $formData['host_max_check_attempts'] !== ''
             ? (int) $formData['host_max_check_attempts']
             : null,
-        'normal_check_interval' => '' !== $formData['host_check_interval']
+        'normal_check_interval' => $formData['host_check_interval'] !== ''
             ? (int) $formData['host_check_interval']
             : null,
-        'retry_check_interval' => '' !== $formData['host_retry_check_interval']
+        'retry_check_interval' => $formData['host_retry_check_interval'] !== ''
             ? (int) $formData['host_retry_check_interval']
             : null,
         'is_activated' => (bool) ($formData['host_activate']['host_activate'] ?: false),
@@ -3162,10 +3170,14 @@ function getPayloadForHost(bool $isCloudPlatform, array $formData): array
         'categories' => array_map(static fn (string $id): int => (int) $id, $formData['host_hcs'] ?? []),
         'groups' => array_map(static fn (string $id): int => (int) $id, $formData['host_hgs'] ?? []),
         'macros' => array_map(
-            static function (int|string $key, string $name, string $value) use ($formData): array {
+            static function (int|string $key, string $name, string $value) use ($formData, $kernel): array {
                 return [
                     'name' => $name,
-                    'value' => $value === PASSWORD_REPLACEMENT_VALUE ? null : $value,
+                    'value' => $value === PASSWORD_REPLACEMENT_VALUE ? computeMacroValue(
+                        ['key' => $key, 'value' => $value, 'name' => $name],
+                        $formData['host_id'],
+                        $kernel
+                    ) : $value,
                     'is_password' => (bool) ($formData['macroPassword'][$key] ?? false),
                     'description' => $formData["macroDescription_{$key}"],
                 ];
@@ -3177,10 +3189,10 @@ function getPayloadForHost(bool $isCloudPlatform, array $formData): array
         'event_handler_enabled' => isset($formData['host_event_handler_enabled']['host_event_handler_enabled'])
             ? (int) $formData['host_event_handler_enabled']['host_event_handler_enabled']
             : null,
-        'event_handler_command_id' => isset($formData['command_command_id2']) && '' !== $formData['command_command_id2']
+        'event_handler_command_id' => isset($formData['command_command_id2']) && $formData['command_command_id2'] !== ''
             ? (int) $formData['command_command_id2']
             : null,
-        'check_command_id' => '' !== $formData['command_command_id']
+        'check_command_id' => $formData['command_command_id'] !== ''
             ? (int) $formData['command_command_id']
             : null,
         'check_command_args' => array_values(array_filter(
@@ -3211,17 +3223,17 @@ function getPayloadForHost(bool $isCloudPlatform, array $formData): array
             'comment' => $formData['host_comment'] ?: null,
             'active_check_enabled' => (int) $formData['host_active_checks_enabled']['host_active_checks_enabled'],
             'passive_check_enabled' => (int) $formData['host_passive_checks_enabled']['host_passive_checks_enabled'],
-            'low_flap_threshold' => '' !== $formData['host_low_flap_threshold']
+            'low_flap_threshold' => $formData['host_low_flap_threshold'] !== ''
                 ? (int) $formData['host_low_flap_threshold']
                 : null,
-            'high_flap_threshold' => '' !== $formData['host_high_flap_threshold']
+            'high_flap_threshold' => $formData['host_high_flap_threshold'] !== ''
                 ? (int) $formData['host_high_flap_threshold']
                 : null,
             'freshness_checked' => (int) $formData['host_check_freshness']['host_check_freshness'],
-            'freshness_threshold' => '' !== $formData['host_freshness_threshold']
+            'freshness_threshold' => $formData['host_freshness_threshold'] !== ''
                 ? (int) $formData['host_freshness_threshold']
                 : null,
-            'acknowledgement_timeout' => '' !== $formData['host_acknowledgement_timeout']
+            'acknowledgement_timeout' => $formData['host_acknowledgement_timeout'] !== ''
                 ? (int) $formData['host_acknowledgement_timeout']
                 : null,
             'flap_detection_enabled' => (int) $formData['host_flap_detection_enabled']['host_flap_detection_enabled'],
@@ -3230,19 +3242,19 @@ function getPayloadForHost(bool $isCloudPlatform, array $formData): array
                 static fn (string $elem): bool => $elem !== ''
             )),
             'notification_enabled' => (int) $formData['host_notifications_enabled']['host_notifications_enabled'],
-            'notification_interval' => '' !== $formData['host_notification_interval']
+            'notification_interval' => $formData['host_notification_interval'] !== ''
                 ? (int) $formData['host_notification_interval']
                 : null,
-            'notification_timeperiod_id' => '' !== $formData['timeperiod_tp_id2']
+            'notification_timeperiod_id' => $formData['timeperiod_tp_id2'] !== ''
                 ? (int) $formData['timeperiod_tp_id2']
                 : null,
             'notification_options' => HostEventConverter::toBitFlag(HostEventConverter::fromString(
                 implode(',', array_keys($formData['host_notifOpts'] ?? []))
             )),
-            'first_notification_delay' => '' !== $formData['host_first_notification_delay']
+            'first_notification_delay' => $formData['host_first_notification_delay'] !== ''
                 ? (int) $formData['host_first_notification_delay']
                 : null,
-            'recovery_notification_delay' => '' !== $formData['host_recovery_notification_delay']
+            'recovery_notification_delay' => $formData['host_recovery_notification_delay'] !== ''
                 ? (int) $formData['host_recovery_notification_delay']
                 : null,
             'add_inherited_contact_group' => (bool) ($formData['cg_additive_inheritance'] ?? false),
@@ -3252,4 +3264,44 @@ function getPayloadForHost(bool $isCloudPlatform, array $formData): array
     }
 
     return $payload;
+}
+
+function computeMacroValue(array $macroInformations, int $hostId, Kernel $kernel): string|null
+{
+    global $pearDB;
+    $value = $macroInformations['value'] ?? null;
+    $macroOriginalNameKey = 'macroOriginalName_' . $macroInformations['key'];
+
+    if (! isset($_REQUEST[$macroOriginalNameKey]) || empty($_REQUEST[$macroOriginalNameKey])) {
+        return null;
+    }
+
+    $value = $pearDB->fetchOne(
+        <<<'SQL'
+            SELECT host_macro_value
+            FROM on_demand_macro_host
+            WHERE host_macro_name = :host_macro_name
+            AND host_host_id = :host_host_id
+            SQL,
+        QueryParameters::create(
+            [
+                QueryParameter::string('host_macro_name', '$_HOST' . $_REQUEST[$macroOriginalNameKey] . '$'),
+                QueryParameter::int('host_host_id', $hostId),
+            ]
+        )
+    );
+
+    $readVaultRepository = $kernel->getContainer()->get(ReadVaultRepositoryInterface::class);
+    if (! str_starts_with($value, 'secret::') || ! $readVaultRepository->isVaultConfigured()) {
+        return $value;
+    }
+
+    $vaultedMacros = getHostSecretsFromVault(
+        $readVaultRepository,
+        $hostId,
+        $value,
+        Logger::create()
+    );
+
+    return $vaultedMacros['_HOST' . $_REQUEST[$macroOriginalNameKey]] ?? $value;
 }

@@ -83,3 +83,11 @@ $help['tip_service_category_filter'] = dgettext(
     'help',
     'Will only display services that belong to these service categories. When blank, no filter is applied.'
 );
+
+/**
+ * Shared Service Resouces
+ */
+$help['tip_image_folder'] = dgettext(
+    'help',
+    'Image folders that will be displayed to users. Images that belong to these folders will be visible.'
+);

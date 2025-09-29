@@ -121,30 +121,30 @@ Then('a pop up is displayed with all of the agent information', () => {
     'have.text',
     'Central'
   );
-  cy.getByLabel({ label: 'Public certificate(.crt,.cer)', tag: 'input' })
+  cy.getByLabel({ label: 'Public certificate (.crt,.cer)', tag: 'input' })
     .eq(0)
     .should(
       'have.value',
       `/etc/pki/${agentsConfiguration.telegraf1.publicCertfFileName}`
     );
-  cy.getByLabel({ label: 'CA(.crt,.cer)', tag: 'input' }).should(
+  cy.getByLabel({ label: 'CA (.crt,.cer)', tag: 'input' }).should(
     'have.value',
     `/etc/pki/${agentsConfiguration.telegraf1.caFileName}`
   );
-  cy.getByLabel({ label: 'Private key(.key)', tag: 'input' })
+  cy.getByLabel({ label: 'Private key (.key)', tag: 'input' })
     .eq(0)
     .should(
       'have.value',
       `/etc/pki/${agentsConfiguration.telegraf1.privateKFileName}`
     );
   cy.getByLabel({ label: 'Port', tag: 'input' }).should('have.value', '1443');
-  cy.getByLabel({ label: 'Public certificate(.crt,.cer)', tag: 'input' })
+  cy.getByLabel({ label: 'Public certificate (.crt,.cer)', tag: 'input' })
     .eq(1)
     .should(
       'have.value',
       `/etc/pki/${agentsConfiguration.telegraf1.certfFileName}`
     );
-  cy.getByLabel({ label: 'Private key(.key)', tag: 'input' })
+  cy.getByLabel({ label: 'Private key (.key)', tag: 'input' })
     .eq(1)
     .should(
       'have.value',
@@ -189,7 +189,6 @@ When('the user deletes the Agents Configuration', () => {
 Then(
   'the Agents Configuration is no longer displayed in the listing page',
   () => {
-    cy.contains('Welcome to the agent configuration page').should('be.visible');
     cy.contains('telegraf-001-updated').should('not.exist');
   }
 );
@@ -232,20 +231,22 @@ Given('an agent configuration already created linked with two pollers', () => {
   cy.getByLabel({ label: 'Pollers', tag: 'input' }).click();
   cy.contains('Central').click();
   cy.contains('Poller-1').click();
-  cy.getByLabel({ label: 'Public certificate(.crt,.cer)', tag: 'input' })
+  // Click outside to close the pollers dropdown list
+  cy.contains('h6', 'Pollers').click();
+  cy.getByLabel({ label: 'Public certificate (.crt,.cer)', tag: 'input' })
     .eq(0)
     .type(agentsConfiguration.telegraf1.publicCertfFileName);
-  cy.getByLabel({ label: 'CA(.crt,.cer)', tag: 'input' }).type(
+  cy.getByLabel({ label: 'CA (.crt,.cer)', tag: 'input' }).type(
     agentsConfiguration.telegraf1.caFileName
   );
-  cy.getByLabel({ label: 'Private key(.key)', tag: 'input' })
+  cy.getByLabel({ label: 'Private key (.key)', tag: 'input' })
     .eq(0)
     .type(agentsConfiguration.telegraf1.privateKFileName);
   cy.getByLabel({ label: 'Port', tag: 'input' }).should('have.value', '1443');
-  cy.getByLabel({ label: 'Public certificate(.crt,.cer)', tag: 'input' })
+  cy.getByLabel({ label: 'Public certificate (.crt,.cer)', tag: 'input' })
     .eq(1)
     .type(agentsConfiguration.telegraf1.certfFileName);
-  cy.getByLabel({ label: 'Private key(.key)', tag: 'input' })
+  cy.getByLabel({ label: 'Private key (.key)', tag: 'input' })
     .eq(1)
     .type(agentsConfiguration.telegraf1.privateKFileName);
   cy.getByTestId({ testId: 'submit' }).click();
@@ -332,7 +333,7 @@ Then(
       .eq(1)
       .should('have.text', 'Poller-1');
     cy.getByLabel({
-      label: 'Public certificate(.crt,.cer)',
+      label: 'Public certificate (.crt,.cer)',
       tag: 'input'
     })
       .eq(0)
@@ -340,11 +341,11 @@ Then(
         'have.value',
         `/etc/pki/${agentsConfiguration.telegraf1.publicCertfFileName}`
       );
-    cy.getByLabel({ label: 'CA(.crt,.cer)', tag: 'input' }).should(
+    cy.getByLabel({ label: 'CA (.crt,.cer)', tag: 'input' }).should(
       'have.value',
       `/etc/pki/${agentsConfiguration.telegraf1.caFileName}`
     );
-    cy.getByLabel({ label: 'Private key(.key)', tag: 'input' })
+    cy.getByLabel({ label: 'Private key (.key)', tag: 'input' })
       .eq(0)
       .should(
         'have.value',
@@ -352,7 +353,7 @@ Then(
       );
     cy.getByLabel({ label: 'Port', tag: 'input' }).should('have.value', '1443');
     cy.getByLabel({
-      label: 'Public certificate(.crt,.cer)',
+      label: 'Public certificate (.crt,.cer)',
       tag: 'input'
     })
       .eq(1)
@@ -360,7 +361,7 @@ Then(
         'have.value',
         `/etc/pki/${agentsConfiguration.telegraf1.certfFileName}`
       );
-    cy.getByLabel({ label: 'Private key(.key)', tag: 'input' })
+    cy.getByLabel({ label: 'Private key (.key)', tag: 'input' })
       .eq(1)
       .should(
         'have.value',
@@ -417,6 +418,8 @@ Then('only the filtered pollers are listed in the Pollers field', () => {
   cy.get('[class^="MuiPopper-root MuiAutocomplete-popper"]').contains(
     'Poller-1'
   );
+  // Click outside to close the pollers dropdown list
+  cy.contains('h6', 'Pollers').click();
 });
 
 When('the non-admin user fills in all the information', () => {

@@ -54,7 +54,7 @@ class DbReadPerformanceDataRepository extends AbstractRepositoryDRB implements R
     public function findDataByMetricsAndDates(
         array $metrics,
         DateTimeInterface $startDate,
-        DateTimeInterface $endDate
+        DateTimeInterface $endDate,
     ): iterable {
         $this->db->setAttribute(PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, false);
         $this->db->setAttribute(PDO::ATTR_STRINGIFY_FETCHES, true);

@@ -493,7 +493,7 @@ final class AddService
     {
         $updatedMacros = [];
         foreach ($macros as $key => $macro) {
-            if (false === $macro->isPassword()) {
+            if ($macro->isPassword() === false) {
                 $updatedMacros[$key] = $macro;
                 continue;
             }

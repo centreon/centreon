@@ -5,6 +5,7 @@ import { Schema, array, boolean, mixed, number, object, string } from 'yup';
 import { AgentConfigurationForm, AgentType, ConnectionMode } from '../models';
 import {
   labelAddressInvalid,
+  labelAtLeastOneConnexionMode,
   labelInvalidExtension,
   labelInvalidPath,
   labelPortExpectedAtMost,
@@ -74,10 +75,11 @@ export const useValidationSchema = (): Schema<AgentConfigurationForm> => {
   };
 
   const CMAConfigurationSchema = {
-    isReverse: boolean(),
-    tokens: array().when(['$type', '$connectionMode', 'isReverse'], {
-      is: (type, connectionMode, isReverse) =>
-        !isReverse &&
+    agentInitiated: boolean(),
+    pollerInitiated: boolean(),
+    tokens: array().when(['$type', '$connectionMode', 'agentInitiated'], {
+      is: (type, connectionMode, agentInitiated) =>
+        agentInitiated &&
         equals(type?.id, AgentType.CMA) &&
         (equals(connectionMode?.id, ConnectionMode.secure) ||
           equals(connectionMode?.id, ConnectionMode.insecure)),
@@ -115,7 +117,7 @@ export const useValidationSchema = (): Schema<AgentConfigurationForm> => {
           pollerCaName: string().nullable(),
           token: object().when(['$type', '$connectionMode', '$configuration'], {
             is: (type, connectionMode, configuration) =>
-              configuration?.isReverse &&
+              configuration?.pollerInitiated &&
               equals(type?.id, AgentType.CMA) &&
               (equals(connectionMode?.id, ConnectionMode.secure) ||
                 equals(connectionMode?.id, ConnectionMode.insecure)),
@@ -133,7 +135,7 @@ export const useValidationSchema = (): Schema<AgentConfigurationForm> => {
           })
         })
       )
-      .when('isReverse', {
+      .when('pollerInitiated', {
         is: true,
         // biome-ignore lint/suspicious/noThenProperty: <explanation>
         then: (schema) => schema.min(1),
@@ -160,7 +162,12 @@ export const useValidationSchema = (): Schema<AgentConfigurationForm> => {
       is: (type) => equals(type?.id, AgentType.Telegraf),
       // biome-ignore lint/suspicious/noThenProperty: <explanation>
       then: (schema) => schema.shape(telegrafConfigurationSchema),
-      otherwise: (schema) => schema.shape(CMAConfigurationSchema)
+      otherwise: (schema) =>
+        schema.shape(CMAConfigurationSchema).test({
+          name: 'at-least-one-initiated',
+          message: t(labelAtLeastOneConnexionMode),
+          test: (config) => config?.agentInitiated || config?.pollerInitiated
+        })
     })
   });
 };

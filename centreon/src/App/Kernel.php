@@ -21,27 +21,11 @@
 
 declare(strict_types=1);
 
-/*
- * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * https://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- * For more information : contact@centreon.com
- */
-
 namespace App;
 
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
+use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\ErrorHandler\Debug;
 use Symfony\Component\HttpKernel\Kernel as BaseKernel;
 
@@ -78,7 +62,7 @@ class Kernel extends BaseKernel
     {
         if (! self::$instance instanceof self) {
             include_once \dirname(__DIR__, 2) . '/config/bootstrap.php';
-            if (isset($_SERVER['APP_DEBUG']) && '1' === $_SERVER['APP_DEBUG']) {
+            if (isset($_SERVER['APP_DEBUG']) && $_SERVER['APP_DEBUG'] === '1') {
                 umask(0000);
                 Debug::enable();
             } else {
@@ -125,5 +109,16 @@ class Kernel extends BaseKernel
     public function getLogDir(): string
     {
         return $this->logDir;
+    }
+
+    protected function build(ContainerBuilder $container): void
+    {
+        $class = 'CentreonAnomalyDetection\DependencyInjection\TagIndicatorPass';
+
+        if (class_exists($class)) {
+            /** @var CompilerPassInterface $compilerPass */
+            $compilerPass = new $class();
+            $container->addCompilerPass($compilerPass);
+        }
     }
 }

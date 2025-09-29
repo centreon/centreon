@@ -7,7 +7,7 @@ parameters:
 			path: src/Core/AdditionalConnectorConfiguration/Application/UseCase/UpdateAcc/Validator.php
 
 		-
-			message: '#^Strict comparison using \=\=\= between Core\\AdditionalConnectorConfiguration\\Domain\\Model\\Type\:\:VMWARE_V6 and Core\\AdditionalConnectorConfiguration\\Domain\\Model\\Type will always evaluate to true\.$#'
+			message: '#^Strict comparison using \=\=\= between Core\\AdditionalConnectorConfiguration\\Domain\\Model\\Type and Core\\AdditionalConnectorConfiguration\\Domain\\Model\\Type\:\:VMWARE_V6 will always evaluate to true\.$#'
 			identifier: identical.alwaysTrue
 			count: 1
 			path: src/Core/AdditionalConnectorConfiguration/Application/Validation/VmWareV6DataValidator.php
@@ -171,18 +171,6 @@ parameters:
 			identifier: throws.unusedType
 			count: 1
 			path: src/Core/Common/Infrastructure/Upload/ZipFileIterator.php
-
-		-
-			message: '#^Method Core\\Common\\Infrastructure\\Validator\\Constraints\\WhenPlatform\:\:getTargets\(\) never returns ''class'' so it can be removed from the return type\.$#'
-			identifier: return.unusedType
-			count: 1
-			path: src/Core/Common/Infrastructure/Validator/Constraints/WhenPlatform.php
-
-		-
-			message: '#^Method Core\\Common\\Infrastructure\\Validator\\Constraints\\WhenPlatform\:\:getTargets\(\) never returns ''property'' so it can be removed from the return type\.$#'
-			identifier: return.unusedType
-			count: 1
-			path: src/Core/Common/Infrastructure/Validator/Constraints/WhenPlatform.php
 
 		-
 			message: '#^Parameter \#2 \$values of method Utility\\SqlConcatenator\:\:storeBindValueMultiple\(\) expects list\<int\|string\>, non\-empty\-array\<int\> given\.$#'
@@ -533,12 +521,6 @@ parameters:
 			path: src/Core/Media/Infrastructure/Repository/ApiWriteMediaRepository.php
 
 		-
-			message: '#^Method IteratorAggregate@anonymous/centreon/src/Core/Media/Infrastructure/Repository/DbReadMediaRepository\.php\:199\:\:count\(\) should return int\<0, max\> but returns int\.$#'
-			identifier: return.type
-			count: 1
-			path: src/Core/Media/Infrastructure/Repository/DbReadMediaRepository.php
-
-		-
 			message: '#^Call to function array_key_exists\(\) with ''\$in'' and array\{\$in\: non\-empty\-array\<int\>\} will always evaluate to true\.$#'
 			identifier: function.alreadyNarrowedType
 			count: 6
@@ -645,6 +627,11 @@ parameters:
 			message: '#^\[CENTREON\-RULE\]\: \(RepositoryNameValidationByInterfaceCustomRule\) Repository name should match the implemented Interface name with exception of data storage prefix and ''Interface'' mention\.$#'
 			count: 1
 			path: src/Core/ResourceAccess/Infrastructure/Repository/Dataset/DbWriteHostRepository.php
+
+		-
+			message: '#^\[CENTREON\-RULE\]\: \(RepositoryNameValidationByInterfaceCustomRule\) Repository name should match the implemented Interface name with exception of data storage prefix and ''Interface'' mention\.$#'
+			count: 1
+			path: src/Core/ResourceAccess/Infrastructure/Repository/Dataset/DbWriteImageFolderRepository.php
 
 		-
 			message: '#^\[CENTREON\-RULE\]\: \(RepositoryNameValidationByInterfaceCustomRule\) Repository name should match the implemented Interface name with exception of data storage prefix and ''Interface'' mention\.$#'
@@ -794,7 +781,7 @@ parameters:
 			path: src/Core/Security/User/Infrastructure/Repository/DbReadUserRepository.php
 
 		-
-			message: '#^Strict comparison using \=\=\= between Core\\AdditionalConnectorConfiguration\\Domain\\Model\\Type\:\:VMWARE_V6 and Core\\AdditionalConnectorConfiguration\\Domain\\Model\\Type will always evaluate to true\.$#'
+			message: '#^Strict comparison using \=\=\= between Core\\AdditionalConnectorConfiguration\\Domain\\Model\\Type and Core\\AdditionalConnectorConfiguration\\Domain\\Model\\Type\:\:VMWARE_V6 will always evaluate to true\.$#'
 			identifier: identical.alwaysTrue
 			count: 1
 			path: src/Core/Security/Vault/Application/UseCase/MigrateAllCredentials/Migrator/VmWareV6CredentialMigrator.php
@@ -920,19 +907,19 @@ parameters:
 			path: src/Core/Service/Infrastructure/Repository/ApiReadServiceRepository.php
 
 		-
-			message: '#^Method Centreon\\Infrastructure\\RequestParameters\\Interfaces\\NormalizerInterface@anonymous/centreon/src/Core/Service/Infrastructure/Repository/DbReadRealTimeServiceRepository\.php\:340\:\:normalize\(\) never returns bool so it can be removed from the return type\.$#'
+			message: '#^Method Centreon\\Infrastructure\\RequestParameters\\Interfaces\\NormalizerInterface@anonymous/centreon/src/Core/Service/Infrastructure/Repository/DbReadRealTimeServiceRepository\.php\:416\:\:normalize\(\) never returns bool so it can be removed from the return type\.$#'
 			identifier: return.unusedType
 			count: 1
 			path: src/Core/Service/Infrastructure/Repository/DbReadRealTimeServiceRepository.php
 
 		-
-			message: '#^Method Centreon\\Infrastructure\\RequestParameters\\Interfaces\\NormalizerInterface@anonymous/centreon/src/Core/Service/Infrastructure/Repository/DbReadRealTimeServiceRepository\.php\:340\:\:normalize\(\) never returns null so it can be removed from the return type\.$#'
+			message: '#^Method Centreon\\Infrastructure\\RequestParameters\\Interfaces\\NormalizerInterface@anonymous/centreon/src/Core/Service/Infrastructure/Repository/DbReadRealTimeServiceRepository\.php\:416\:\:normalize\(\) never returns null so it can be removed from the return type\.$#'
 			identifier: return.unusedType
 			count: 1
 			path: src/Core/Service/Infrastructure/Repository/DbReadRealTimeServiceRepository.php
 
 		-
-			message: '#^Method Centreon\\Infrastructure\\RequestParameters\\Interfaces\\NormalizerInterface@anonymous/centreon/src/Core/Service/Infrastructure/Repository/DbReadRealTimeServiceRepository\.php\:340\:\:normalize\(\) never returns string so it can be removed from the return type\.$#'
+			message: '#^Method Centreon\\Infrastructure\\RequestParameters\\Interfaces\\NormalizerInterface@anonymous/centreon/src/Core/Service/Infrastructure/Repository/DbReadRealTimeServiceRepository\.php\:416\:\:normalize\(\) never returns string so it can be removed from the return type\.$#'
 			identifier: return.unusedType
 			count: 1
 			path: src/Core/Service/Infrastructure/Repository/DbReadRealTimeServiceRepository.php

@@ -66,10 +66,11 @@ jobs:
       needs.get-environment.outputs.is_targeting_feature_branch != 'true' &&
       github.event.pull_request.draft != 'true' &&
       needs.get-environment.outputs.skip_workflow == 'false'
-    uses: ./.github/workflows/checkmarx-analysis.yml
+    uses: centreon/security-tools/.github/workflows/checkmarx-analysis.yml@main
     with:
       module_directory: centreon-open-tickets
-      module_name: centreon-open-tickets
+      module_name: centreon-open-tickets-${{ needs.get-environment.outputs.linked_dev_branch }}
+      exclude_list:
     secrets:
       base_uri: ${{ secrets.AST_RND_SCANS_BASE_URI }}
       cx_tenant: ${{ secrets.AST_RND_SCANS_TENANT }}

@@ -33,7 +33,7 @@ class WriteVaultRepository extends AbstractVaultRepository implements WriteVault
     public function __construct(
         private readonly UUIDGeneratorInterface $uuidGenerator,
         protected ReadVaultConfigurationRepositoryInterface $configurationRepository,
-        protected AmpHttpClient $httpClient
+        protected AmpHttpClient $httpClient,
     ) {
         parent::__construct($configurationRepository, $httpClient);
     }
@@ -63,7 +63,7 @@ class WriteVaultRepository extends AbstractVaultRepository implements WriteVault
         }
 
         // Delete unwanted data
-        foreach ($deletes as $deleteKey => $deleteValue) {
+        foreach (array_keys($deletes) as $deleteKey) {
             unset($payload[$deleteKey]);
         }
         // Add new data

@@ -68,6 +68,7 @@ interface WriteResourceAccessRepositoryInterface
      * @param bool $accessAllHosts
      * @param bool $accessAllHostGroups
      * @param bool $accessAllServiceGroups
+     * @param bool $accessAllImageFolders
      *
      * @return int
      */
@@ -75,7 +76,8 @@ interface WriteResourceAccessRepositoryInterface
         string $name,
         bool $accessAllHosts,
         bool $accessAllHostGroups,
-        bool $accessAllServiceGroups
+        bool $accessAllServiceGroups,
+        bool $accessAllImageFolders,
     ): int;
 
     /**

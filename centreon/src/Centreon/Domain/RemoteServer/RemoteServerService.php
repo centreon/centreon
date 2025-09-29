@@ -71,7 +71,7 @@ class RemoteServerService implements RemoteServerServiceInterface
         RemoteServerLocalConfigurationRepositoryInterface $remoteServerRepository,
         PlatformTopologyRegisterRepositoryInterface $platformTopologyRegisterRepository,
         ProxyServiceInterface $proxyService,
-        MonitoringServerServiceInterface $monitoringServerService
+        MonitoringServerServiceInterface $monitoringServerService,
     ) {
         $this->menuRepository = $menuRepository;
         $this->platformTopologyRepository = $platformTopologyRepository;

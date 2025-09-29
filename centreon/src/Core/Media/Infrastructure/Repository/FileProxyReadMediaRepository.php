@@ -76,7 +76,7 @@ class FileProxyReadMediaRepository implements ReadMediaRepositoryInterface
              */
             public function __construct(
                 readonly private string $absoluteMediaPath,
-                readonly private \Traversable&\Countable $medias
+                readonly private \Traversable&\Countable $medias,
             ) {
             }
 
@@ -111,6 +111,14 @@ class FileProxyReadMediaRepository implements ReadMediaRepositoryInterface
     /**
      * @inheritDoc
      */
+    public function findByRequestParametersAndAccessGroups(RequestParametersInterface $requestParameters, array $accessGroups): \Traversable
+    {
+        return $this->createTraversable($this->dbReadMediaRepository->findByRequestParametersAndAccessGroups($requestParameters, $accessGroups));
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function findByRequestParameters(RequestParametersInterface $requestParameters): \Traversable
     {
         return $this->createTraversable($this->dbReadMediaRepository->findByRequestParameters($requestParameters));
@@ -130,7 +138,7 @@ class FileProxyReadMediaRepository implements ReadMediaRepositoryInterface
              */
             public function __construct(
                 readonly private string $absoluteMediaPath,
-                readonly private \Traversable $medias
+                readonly private \Traversable $medias,
             ) {
             }
 
