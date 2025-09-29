@@ -15971,6 +15971,10 @@ msgstr "Le validateur \"%s\" n'a pas été trouvé"
 msgid "The value cannot be null"
 msgstr "La valeur ne peut pas être vide"
 
+#: centreon/www/include/configuration/configObject/host/formHost.php
+msgid "The value contains unauthorized characters"
+msgstr ""
+
 #: centreon/www/install/front_translate.php
 msgid "The widget will be permanently deleted."
 msgstr "Le widget sera définitivement supprimé."

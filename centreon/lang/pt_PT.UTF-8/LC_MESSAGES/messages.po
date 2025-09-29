@@ -16182,6 +16182,10 @@ msgstr ""
 msgid "The value cannot be null"
 msgstr ""
 
+#: centreon/www/include/configuration/configObject/host/formHost.php
+msgid "The value contains unauthorized characters"
+msgstr ""
+
 #: centreon/www/install/front_translate.php
 msgid "The widget will be permanently deleted."
 msgstr ""
