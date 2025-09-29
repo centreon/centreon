@@ -671,8 +671,6 @@ const formatMetricValueWithUnit = ({
     return null;
   }
 
-  const base1024 = getBase1024({ base, unit });
-
   if (isRaw) {
     const unitText = equals('%', unit) ? unit : ` ${unit}`;
 
@@ -685,9 +683,7 @@ const formatMetricValueWithUnit = ({
 
   const formattedMetricValue = formatMetricValue({ base, unit, value });
 
-  return base1024 || !unit || equals(unit, 'ms')
-    ? formattedMetricValue
-    : `${formattedMetricValue} ${unit}`;
+  return formattedMetricValue;
 };
 
 const bisectDate = bisector(identity).center;
