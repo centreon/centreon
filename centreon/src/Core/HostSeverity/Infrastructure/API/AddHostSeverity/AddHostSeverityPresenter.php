@@ -38,7 +38,7 @@ class AddHostSeverityPresenter extends AbstractPresenter
 
     public function __construct(
         PresenterFormatterInterface $presenterFormatter,
-        readonly private Router $router
+        readonly private Router $router,
     ) {
         parent::__construct($presenterFormatter);
     }

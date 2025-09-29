@@ -39,7 +39,7 @@ final class FindHostNotificationPolicyController extends AbstractController
     public function __invoke(
         int $hostId,
         FindHostNotificationPolicy $useCase,
-        FindNotificationPolicyPresenterInterface $presenter
+        FindNotificationPolicyPresenterInterface $presenter,
     ): object {
         /**
          * Access denied if no rights given to the configuration and realtime for the current user.

@@ -35,7 +35,7 @@ $kernel = App\Kernel::createForWeb();
 
 // Test if the call is for authenticate
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action']) && $_GET['action'] == 'authenticate') {
-    if (false === isset($_POST['username']) || false === isset($_POST['password'])) {
+    if (isset($_POST['username']) === false || isset($_POST['password']) === false) {
         CentreonWebService::sendResult('Bad parameters', 400);
     }
 
@@ -79,7 +79,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action']) && $_GET['ac
 }
 
 // Test authentication
-if (false === isset($_SERVER['HTTP_CENTREON_AUTH_TOKEN'])) {
+if (isset($_SERVER['HTTP_CENTREON_AUTH_TOKEN']) === false) {
     CentreonWebService::sendResult('Unauthorized', 403);
 }
 

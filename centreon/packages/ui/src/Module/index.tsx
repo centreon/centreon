@@ -5,6 +5,7 @@ import { StylesProvider, createGenerateClassName } from '@mui/styles';
 
 import { QueryProvider, ThemeProvider } from '..';
 import SnackbarProvider from '../Snackbar/SnackbarProvider';
+import { ThemeOptions } from '@mui/material';
 
 export interface ModuleProps {
   children: React.ReactElement;
@@ -12,6 +13,10 @@ export interface ModuleProps {
   queryClient?: QueryClient;
   seedName: string;
   store: ReturnType<typeof createStore>;
+  overrideTheme?: {
+    light: Partial<ThemeOptions>;
+    dark: Partial<ThemeOptions>;
+  };
 }
 
 const Module = ({
@@ -19,7 +24,8 @@ const Module = ({
   seedName,
   maxSnackbars = 3,
   store,
-  queryClient
+  queryClient,
+  overrideTheme
 }: ModuleProps): JSX.Element => {
   const generateClassName = createGenerateClassName({
     seed: seedName
@@ -29,7 +35,7 @@ const Module = ({
     <QueryProvider queryClient={queryClient}>
       <JotaiProvider store={store}>
         <StylesProvider generateClassName={generateClassName}>
-          <ThemeProvider>
+          <ThemeProvider overrideTheme={overrideTheme}>
             <SnackbarProvider maxSnackbars={maxSnackbars}>
               {children}
             </SnackbarProvider>

@@ -120,7 +120,7 @@ class NewHostTemplate
         protected ?int $iconId = null,
         protected string $iconAlternative = '',
         protected string $comment = '',
-        protected readonly bool $isLocked = false
+        protected readonly bool $isLocked = false,
     ) {
         $shortName = (new \ReflectionClass($this))->getShortName();
 
@@ -160,7 +160,7 @@ class NewHostTemplate
             'iconId' => $iconId,
         ];
         foreach ($foreignKeys as $foreignKeyName => $foreignKeyValue) {
-            if (null !== $foreignKeyValue) {
+            if ($foreignKeyValue !== null) {
                 Assertion::positiveInt($foreignKeyValue, "{$shortName}::{$foreignKeyName}");
             }
         }

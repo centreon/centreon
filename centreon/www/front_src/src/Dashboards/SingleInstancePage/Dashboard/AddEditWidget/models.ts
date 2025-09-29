@@ -120,6 +120,8 @@ export interface Metric extends NamedEntity {
   unit: string;
   warningHighThreshold: number | null;
   warningLowThreshold: number | null;
+  serviceId?: number;
+  serviceName?: string;
 }
 
 export interface FormMetric extends Metric {

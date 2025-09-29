@@ -50,7 +50,7 @@ final class FindAccs
     }
 
     public function __invoke(
-        FindAccsPresenterInterface $presenter
+        FindAccsPresenterInterface $presenter,
     ): void {
         try {
             if (! $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_ACC_RW)) {

@@ -55,7 +55,7 @@ class HostGroupService implements HostGroupServiceInterface
     public function __construct(
         HostGroupReadRepositoryInterface $readRepository,
         HostGroupWriteRepositoryInterface $writeRepository,
-        ContactInterface $contact
+        ContactInterface $contact,
     ) {
         $this->readRepository = $readRepository;
         $this->writeRepository = $writeRepository;

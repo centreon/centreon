@@ -65,7 +65,7 @@ final class FindMetaService
      */
     public function __invoke(
         int $metaId,
-        FindMetaServicePresenterInterface $presenter
+        FindMetaServicePresenterInterface $presenter,
     ): void {
         $this->info(
             'Searching details for Meta Service',
@@ -151,7 +151,7 @@ final class FindMetaService
         MetaService $metaService,
         MetaServiceConfiguration $metaServiceConfiguration,
         array $downtimes,
-        ?Acknowledgement $acknowledgement
+        ?Acknowledgement $acknowledgement,
     ): FindMetaServiceResponse {
         $findMetaServiceResponse = new FindMetaServiceResponse(
             $metaService->getId(),
@@ -197,7 +197,7 @@ final class FindMetaService
      */
     private function handleMetaServiceConfigurationNotFound(
         int $metaId,
-        FindMetaServicePresenterInterface $presenter
+        FindMetaServicePresenterInterface $presenter,
     ): void {
         $this->error(
             'Meta Service configuration not found',
@@ -217,7 +217,7 @@ final class FindMetaService
      */
     private function handleMetaServiceNotFound(
         int $metaId,
-        FindMetaServicePresenterInterface $presenter
+        FindMetaServicePresenterInterface $presenter,
     ): void {
         $this->error(
             'Meta Service not found',

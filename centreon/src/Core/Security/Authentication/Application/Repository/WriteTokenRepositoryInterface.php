@@ -41,7 +41,7 @@ interface WriteTokenRepositoryInterface
         int $providerConfigurationId,
         int $contactId,
         NewProviderToken $providerToken,
-        ?NewProviderToken $providerRefreshToken
+        ?NewProviderToken $providerRefreshToken,
     ): void;
 
     /**

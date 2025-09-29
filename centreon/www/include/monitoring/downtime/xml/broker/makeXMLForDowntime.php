@@ -56,7 +56,7 @@ $hostId = filter_var($_GET['hid'] ?? false, FILTER_VALIDATE_INT);
 $svcId = filter_var($_GET['svc_id'] ?? false, FILTER_VALIDATE_INT);
 
 // check if a mandatory valid hostId is given
-if (false === $hostId) {
+if ($hostId === false) {
     get_error('bad host Id');
 }
 
@@ -76,7 +76,7 @@ $xml->writeElement('comment', _('Comment'));
 $xml->endElement();
 
 // Retrieve info
-if (false === $svcId) {
+if ($svcId === false) {
     $res = $dbb->prepare(
         'SELECT author, actual_start_time , end_time, comment_data, duration, fixed
         FROM downtimes

@@ -185,7 +185,7 @@ final class DeleteHost
     private function retrieveHostUuidFromVault(Host $host): void
     {
         $this->uuid = $this->getUuidFromPath($host->getSnmpCommunity());
-        if (null === $this->uuid) {
+        if ($this->uuid === null) {
             $macros = $this->readHostMacroRepository->findByHostId($host->getId());
             foreach ($macros as $macro) {
                 if (

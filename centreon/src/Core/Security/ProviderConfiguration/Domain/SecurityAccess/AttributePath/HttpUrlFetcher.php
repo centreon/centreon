@@ -40,7 +40,7 @@ class HttpUrlFetcher implements AttributePathFetcherInterface
 
     public function __construct(
         private readonly ReadAttributePathRepositoryInterface $attributePathRepository,
-        private readonly LoginLoggerInterface $loginLogger
+        private readonly LoginLoggerInterface $loginLogger,
     ) {
     }
 

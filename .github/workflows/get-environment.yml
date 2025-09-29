@@ -612,41 +612,37 @@ jobs:
         id: get_os_database_matrix
         with:
           script: |
-            const alma9_mariadb = {
+            const alma9_mariadb_10_11 = {
               "operating_system": "alma9",
               "database": "mariadb:10.11",
               "test_tags": "not @ignore"
             };
-            const alma8_mariadb = {
+            const alma8_mysql_8_0 = {
               "operating_system": "alma8",
-              "database": "mariadb:10.11",
-              "test_tags": "not @ignore and @system"
-            };
-            const bookworm_mysql = {
-              "operating_system": "bookworm",
               "database": "mysql:8.0",
+              "test_tags": "not @ignore"
+            };
+            const bookworm_mysql_8_4 = {
+              "operating_system": "bookworm",
+              "database": "mysql:8.4",
               "test_tags": "not @ignore"
             };
 
             let matrix = {
-              "main": [alma9_mariadb],
-              "operating_systems": [alma9_mariadb],
-              "databases": [alma9_mariadb],
+              "main": [alma9_mariadb_10_11],
+              "operating_systems": [alma9_mariadb_10_11],
+              "databases": [alma9_mariadb_10_11],
             };
 
-            if (${{ contains(github.event.pull_request.labels.*.name, 'database') && 'true' || 'false' }}) {
+            if (
+              '${{ steps.get_nightly_status.outputs.is_nightly }}' == 'true'
+              || ${{ contains(steps.has_skip_label.outputs.labels, 'database') && 'true' || 'false' }}
+              || ${{ contains(steps.has_skip_label.outputs.labels, 'system') && 'true' || 'false' }}
+            ) {
               matrix = {
                 ...matrix,
-                "operating_systems": [alma9_mariadb, bookworm_mysql],
-                "databases": [alma9_mariadb, bookworm_mysql],
-              };
-            }
-
-            if ('${{ steps.get_nightly_status.outputs.is_nightly }}' == 'true' || ${{ contains(github.event.pull_request.labels.*.name, 'system') && 'true' || 'false' }}) {
-              matrix = {
-                ...matrix,
-                "operating_systems": [alma9_mariadb, alma8_mariadb, bookworm_mysql],
-                "databases": [alma9_mariadb, bookworm_mysql],
+                "operating_systems": [alma9_mariadb_10_11, alma8_mysql_8_0, bookworm_mysql_8_4],
+                "databases": [alma9_mariadb_10_11, alma8_mysql_8_0, bookworm_mysql_8_4],
               };
             }
 

@@ -120,7 +120,7 @@ final class DeleteHostTemplate
     private function retrieveHostTemplateUuidFromVault(HostTemplate $hostTemplate): void
     {
         $this->uuid = $this->getUuidFromPath($hostTemplate->getSnmpCommunity());
-        if (null === $this->uuid) {
+        if ($this->uuid === null) {
             $macros = $this->readHostMacroRepository->findByHostId($hostTemplate->getId());
             foreach ($macros as $macro) {
                 if (

@@ -48,7 +48,7 @@ class ObjectConstructor implements ObjectConstructorInterface
         ClassMetadata $metadata,
         $data,
         array $type,
-        DeserializationContext $context
+        DeserializationContext $context,
     ): ?object {
         $className = $metadata->name;
         if (! class_exists($className)) {

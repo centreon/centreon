@@ -30,7 +30,7 @@ final class ContactGroupsResponseDto
     public function __construct(
         public int $id = 0,
         public string $name = '',
-        public DashboardGlobalRole $mostPermissiveRole = DashboardGlobalRole::Viewer
+        public DashboardGlobalRole $mostPermissiveRole = DashboardGlobalRole::Viewer,
     ) {
     }
 }
