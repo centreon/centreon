@@ -33,6 +33,7 @@ const useInitializeTranslation = (): UseInitializeTranslationState => {
     i18next.use(initReactI18next).init({
       fallbackLng: 'en',
       keySeparator: false,
+      returnEmptyString: false,
       lng: locale?.substring(0, 2) || getBrowserLocale(),
       nsSeparator: false,
       resources: pipe(
