@@ -19,7 +19,7 @@ import {
 
 import SingleMetricRenderer from './SingleMetricRenderer';
 import { FormThreshold, SingleMetricGraphType, ValueFormat } from './models';
-import { selectEndpoint } from '../../centreon-widget-graph/src/api/endpoints';
+import { selectEndpoint } from './api/endpoints';
 
 interface Props {
   dashboardId: number | string;

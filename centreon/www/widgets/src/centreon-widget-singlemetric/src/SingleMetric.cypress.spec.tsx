@@ -9,7 +9,7 @@ import { getPublicWidgetEndpoint } from '../../utils';
 
 import Graph from './Graph';
 import { FormThreshold, ValueFormat } from './models';
-import { getMetricsEndpoint } from '../../centreon-widget-graph/src/api/endpoints';
+import { getMetricsEndpoint } from './api/endpoints';
 
 const panelData: Data = {
   metrics: [
