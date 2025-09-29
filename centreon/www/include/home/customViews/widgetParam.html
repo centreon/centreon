@@ -18,6 +18,7 @@
 		</td>
 	</tr>
 		{/if}		
+		{if $elem.ft_typename != 'hidden'}
 		<tr class="{$rowStyle}">
 			<td class="FormRowField">
 				{$form[$paramName].label}
@@ -32,9 +33,15 @@
 				{$form[$paramName].html}	
 			</td>			
 		</tr>		
+		{/if}
 		{/foreach}
 </table>
 <div id="validForm">
+	{foreach item=elem from=$params}
+	{if $elem.ft_typename == 'hidden'}
+	{$form[$paramName].html}
+	{/if}
+	{/foreach}
 	{$form.hidden}
     {if isset($selectedId)}
 	    <input type='hidden' name='selectedId' value='{$selectedId}'/>
