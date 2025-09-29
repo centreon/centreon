@@ -96,9 +96,15 @@ class Router implements RouterInterface, RequestMatcherInterface, WarmableInterf
 
         // Manage URL Generation for HTTPS and Legacy nested route generation calls
         $context = $this->router->getContext();
-        if ($_SERVER['REQUEST_SCHEME'] === 'https') {
+        $forwardedProtoHeader = $_SERVER['HTTP_X_FORWARDED_PROTO'] ?? null;
+        if ($forwardedProtoHeader) {
+            $scheme = strtolower($forwardedProtoHeader) === 'https' ? 'https' : 'http';
+            $context = $this->router->getContext();
+            $context->setScheme($scheme);
+        } elseif ($_SERVER['REQUEST_SCHEME'] === 'https') {
             $context->setScheme($_SERVER['REQUEST_SCHEME']);
         }
+
         if ($_SERVER['SERVER_NAME'] !== 'localhost') {
             $context->setHost($_SERVER['SERVER_NAME']);
         }
