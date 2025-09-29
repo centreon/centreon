@@ -18,8 +18,8 @@ import {
 } from '../../utils';
 
 import SingleMetricRenderer from './SingleMetricRenderer';
-import { FormThreshold, SingleMetricGraphType, ValueFormat } from './models';
 import { selectEndpoint } from './api/endpoints';
+import { FormThreshold, SingleMetricGraphType, ValueFormat } from './models';
 
 interface Props {
   dashboardId: number | string;
