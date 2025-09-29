@@ -20,6 +20,7 @@ import {
 import SingleMetricRenderer from './SingleMetricRenderer';
 import { selectEndpoint } from './api/endpoints';
 import { FormThreshold, SingleMetricGraphType, ValueFormat } from './models';
+import { selectEndpoint } from './api/endpoints';
 
 interface Props {
   dashboardId: number | string;
