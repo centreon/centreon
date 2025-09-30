@@ -98,7 +98,9 @@ class Router implements RouterInterface, RequestMatcherInterface, WarmableInterf
         $context = $this->router->getContext();
         $forwardedProtoHeader = $_SERVER['HTTP_X_FORWARDED_PROTO'] ?? null;
         if ($forwardedProtoHeader) {
-            $scheme = mb_strtolower($forwardedProtoHeader) === 'https' ? 'https' : 'http';
+            // It could be possible that HTTP_X_FORWARDED_PROTO contains multiple comma-separated values e.g "https,http"
+            $proto = mb_strtolower(trim(explode(',', $forwardedProtoHeader)[0]));
+            $scheme = $proto === 'https' ? 'https' : 'http';
             $context = $this->router->getContext();
             $context->setScheme($scheme);
         } elseif ($_SERVER['REQUEST_SCHEME'] === 'https') {
