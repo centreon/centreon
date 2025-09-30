@@ -1041,7 +1041,7 @@ class CentreonLDAP
      * @param int $errline The error line
      * @return bool
      */
-    private function errorLdapHandler($errno, $errstr, $errfile, $errline): bool
+    public function errorLdapHandler($errno, $errstr, $errfile, $errline): bool
     {
         if ($errno === 2 && ldap_errno($this->ds) === 4) {
             /*
