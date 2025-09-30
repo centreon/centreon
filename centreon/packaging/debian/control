@@ -118,6 +118,7 @@ Depends:
     centreon-gorgone (>= ${centreon:majorVersion}~),
     centreon-broker-cbd (<< ${centreon:versionThreshold}~),
     centreon-gorgone (<< ${centreon:versionThreshold}~),
+    libfile-which-perl,
     php8.1-curl,
     php8.1-intl,
     php8.1-xml,
