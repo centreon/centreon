@@ -416,8 +416,6 @@ class DbReadRealTimeServiceRepository extends AbstractRepositoryRDB implements R
             'status',
             new class () implements NormalizerInterface {
                 /**
-                 * @inheritDoc
-                 *
                  * @return int
                  */
                 public function normalize($valueToNormalize): int
