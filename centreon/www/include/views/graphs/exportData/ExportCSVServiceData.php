@@ -32,8 +32,7 @@ $pearDBO = new CentreonDB('centstorage');
 session_start();
 session_write_close();
 
-$session_id = session_id();
-if (isset($session_id)) {
+if (session_status() === PHP_SESSION_ACTIVE && ! empty($session_id = session_id())) {
     $query = <<<'SQL'
             SELECT 1
             FROM session
