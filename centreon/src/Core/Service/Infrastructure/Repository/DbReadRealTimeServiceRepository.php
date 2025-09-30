@@ -417,8 +417,10 @@ class DbReadRealTimeServiceRepository extends AbstractRepositoryRDB implements R
             new class () implements NormalizerInterface {
                 /**
                  * @inheritDoc
+                 *
+                 * @return int
                  */
-                public function normalize($valueToNormalize)
+                public function normalize($valueToNormalize): int
                 {
                     switch (mb_strtoupper((string) $valueToNormalize)) {
                         case 'OK':
