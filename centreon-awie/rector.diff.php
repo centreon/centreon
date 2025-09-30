@@ -30,11 +30,11 @@ $pathsConfig = require_once __DIR__ . '/rector.conf.php';
 
 $args = $_SERVER['argv'] ?? [];
 
-$runCsFixerOnDiffCommand = new RunRectorOnDiffCommand(
+$runRectorOnDiffCommand = new RunRectorOnDiffCommand(
     moduleName: 'centreon-awie',
     sections: ['legacy'],
     pathsConfig: $pathsConfig,
     args: $args
 );
-$runCsFixerOnDiffCommandHandler = new RunRectorOnDiffCommandHandler();
-$runCsFixerOnDiffCommandHandler->run($runCsFixerOnDiffCommand);
+$runRectorOnDiffCommandHandler = new RunRectorOnDiffCommandHandler();
+$runRectorOnDiffCommandHandler->run($runRectorOnDiffCommand);
