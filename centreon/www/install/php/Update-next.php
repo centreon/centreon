@@ -327,7 +327,7 @@ $moveCommandACLTopologyIntoACLActions = function () use ($pearDB, &$errorMessage
 
     $topologyToClean = array_unique($topologyToClean ?? []);
     foreach ($topologyToClean ?? [] as $aclTopologyId) {
-        $addNewCommandTopology($aclTopologyId);
+        $insertNewCommandsTopologyRights($aclTopologyId);
         $deleteCommandsTopologyRights($aclTopologyId);
     }
 };
