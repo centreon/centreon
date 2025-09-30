@@ -41,7 +41,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
         'serviceId' => '\d+',
         'metricName' => '.+',
     ],
-    condition: "request.attributes.get('version') >= 25.07"
+    condition: "request.attributes.get('version') >= 24.10"
 )]
 #[IsGranted(
     ApiRealtimeVoter::ROLE_API_REALTIME,
