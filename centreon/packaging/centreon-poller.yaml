@@ -109,6 +109,7 @@ overrides:
       - centreon-plugin-Network-Cisco-Standard-Snmp
       - centreon-plugin-Operatingsystems-Linux-Snmp
       - centreon-plugin-Operatingsystems-Windows-Snmp
+      - logrotate
     provides:
       - centreon-poller
       - centreon-poller-centreon-engine
@@ -146,6 +147,7 @@ overrides:
       - centreon-plugin-network-cisco-standard-snmp
       - centreon-plugin-operatingsystems-linux-snmp
       - centreon-plugin-operatingsystems-windows-snmp
+      - logrotate
     provides:
       - centreon-poller-centreon-engine
     replaces:
