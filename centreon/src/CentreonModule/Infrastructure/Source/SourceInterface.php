@@ -50,6 +50,6 @@ interface SourceInterface
         Module $entity,
         ?string $search = null,
         ?bool $installed = null,
-        ?bool $updated = null
+        ?bool $updated = null,
     ): bool;
 }

@@ -128,7 +128,7 @@ $updateContactsShowDeprecatedCustomViews = function () use (&$errorMessage, &$pe
             SQL
     );
 
-    if (true === (bool) $configuredCustomViews) {
+    if ((bool) $configuredCustomViews === true) {
         $pearDB->update(
             <<<'SQL'
                 UPDATE contact SET show_deprecated_custom_views = '1'
@@ -169,7 +169,7 @@ $addResourceStatusSearchModeOption = function () use ($pearDB, &$errorMessage): 
     $optionExists = $pearDB->fetchFirstColumn("SELECT 1 FROM options WHERE `key` = 'resource_status_search_mode'");
 
     $errorMessage = "Unable to insert option 'resource_status_search_mode' option into table options";
-    if (false === (bool) $optionExists) {
+    if ((bool) $optionExists === false) {
         $pearDB->insert("INSERT INTO `options` (`key`, `value`) VALUES ('resource_status_search_mode', 1)");
     }
 };
@@ -211,6 +211,7 @@ $alterContactPagerSize = function () use ($pearDB, &$errorMessage): void {
     }
 };
 
+/** ------------------------------------------ ACL Media ------------------------------------------ */
 /**
  * @var CentreonDB $pearDB
  */
@@ -246,6 +247,7 @@ $addAllImageFoldersColumn = function () use ($pearDB, &$errorMessage): void {
     }
 };
 
+/** ------------------------------------------ Agent Configuration ------------------------------------------ */
 /*
  * Generate a token based on the first found admin contact to update old agent_configurations
  *
@@ -303,8 +305,6 @@ $generateToken = function () use ($pearDB): array {
     );
 
     return ['name' => 'cma-default', 'creator_id' => (int) $admin['contact_id']];
-
-    return ['name' => 'cma-default', 'creator_id' => $admin['contact_id']];
 };
 
 /**
@@ -401,6 +401,10 @@ try {
     $addDeprecateCustomViewsToContact();
     $bbdoDefaultUpdate();
     $addServiceFlagToContacts();
+
+    if (! $pearDB->inTransaction()) {
+        $pearDB->beginTransaction();
+    }
 
     if (! $pearDBO->inTransaction()) {
         $pearDBO->beginTransaction();

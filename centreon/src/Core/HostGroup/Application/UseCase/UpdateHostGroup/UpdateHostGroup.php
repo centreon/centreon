@@ -80,7 +80,7 @@ final class UpdateHostGroup
         private readonly WriteHostGroupRepositoryInterface $writeHostGroupRepository,
         private readonly WriteResourceAccessRepositoryInterface $writeResourceAccessRepository,
         private readonly WriteMonitoringServerRepositoryInterface $writeMonitoringServerRepository,
-        private readonly WriteAccessGroupRepositoryInterface $writeAccessGroupRepository
+        private readonly WriteAccessGroupRepositoryInterface $writeAccessGroupRepository,
     ) {
     }
 

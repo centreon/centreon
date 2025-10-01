@@ -287,7 +287,7 @@ class DbReadDashboardRepository extends AbstractRepositoryRDB implements ReadDas
      * @inheritDoc
      */
     public function findByRequestParameter(
-        ?RequestParametersInterface $requestParameters
+        ?RequestParametersInterface $requestParameters,
     ): array {
         return $this->findDashboards(
             $this->getFindDashboardConcatenator(null),
@@ -300,7 +300,7 @@ class DbReadDashboardRepository extends AbstractRepositoryRDB implements ReadDas
      */
     public function findByRequestParameterAndContact(
         ?RequestParametersInterface $requestParameters,
-        ContactInterface $contact
+        ContactInterface $contact,
     ): array {
         return $this->findDashboards(
             $this->getFindDashboardConcatenator($contact->getId()),
@@ -317,7 +317,7 @@ class DbReadDashboardRepository extends AbstractRepositoryRDB implements ReadDas
         foreach ($ids as $key => $id) {
             $bind[':id_' . $key] = $id;
         }
-        if ([] === $bind) {
+        if ($bind === []) {
             return [];
         }
 
@@ -364,7 +364,7 @@ class DbReadDashboardRepository extends AbstractRepositoryRDB implements ReadDas
         foreach ($dashboardIds as $key => $id) {
             $bind[':id_' . $key] = $id;
         }
-        if ([] === $bind) {
+        if ($bind === []) {
             return [];
         }
 
@@ -435,7 +435,7 @@ class DbReadDashboardRepository extends AbstractRepositoryRDB implements ReadDas
      */
     private function findDashboards(
         SqlConcatenator $concatenator,
-        ?RequestParametersInterface $requestParameters
+        ?RequestParametersInterface $requestParameters,
     ): array {
         // If we use RequestParameters
         $sqlTranslator = $requestParameters ? new SqlRequestParametersTranslator($requestParameters) : null;

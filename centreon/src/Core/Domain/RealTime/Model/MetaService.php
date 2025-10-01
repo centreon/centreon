@@ -108,7 +108,7 @@ class MetaService
         private int $serviceId,
         private string $name,
         private string $monitoringServerName,
-        private ServiceStatus $status
+        private ServiceStatus $status,
     ) {
         Assertion::maxLength($name, self::MAX_NAME_LENGTH, 'MetaService::name');
         Assertion::notEmpty($name, 'MetaService::name');

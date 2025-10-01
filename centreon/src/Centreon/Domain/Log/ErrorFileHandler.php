@@ -49,7 +49,7 @@ class ErrorFileHandler extends StreamHandler
         ?int $filePermission = null,
         $level = Logger::EMERGENCY,
         bool $useLocking = false,
-        bool $bubble = true
+        bool $bubble = true,
     ) {
         parent::__construct($stream, $level, $bubble, $filePermission, $useLocking);
         $this->setFormatter($formatter);

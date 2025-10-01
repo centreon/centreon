@@ -37,7 +37,7 @@ final class DeleteVaultConfigurationController extends AbstractController
      */
     public function __invoke(
         DeleteVaultConfiguration $useCase,
-        DefaultPresenter $presenter
+        DefaultPresenter $presenter,
     ): object {
         $this->denyAccessUnlessGrantedForApiConfiguration();
 

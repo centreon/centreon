@@ -49,7 +49,7 @@ class DbDatasetFilterFactory
         $buildDatasetFilterWithHierarchy = function (
             array $data,
             ?int $parentId,
-            ?DatasetFilter $parentDatasetFilter
+            ?DatasetFilter $parentDatasetFilter,
         ) use (&$datasetFilter, &$buildDatasetFilterWithHierarchy, $datasetValidator): void {
             if ($datasetFilter === null) {
                 /** @var non-empty-array<_DatasetFilter> $data */

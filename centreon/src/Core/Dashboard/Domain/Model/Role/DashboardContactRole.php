@@ -35,7 +35,7 @@ class DashboardContactRole
         private readonly int $contactId,
         private readonly string $contactName,
         private readonly string $contactEmail,
-        private readonly array $roles
+        private readonly array $roles,
     ) {
     }
 

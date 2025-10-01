@@ -56,7 +56,7 @@ class FilterService extends AbstractCentreonService implements FilterServiceInte
     public function __construct(
         HostGroupServiceInterface $hostGroupService,
         ServiceGroupServiceInterface $serviceGroupService,
-        FilterRepositoryInterface $filterRepository
+        FilterRepositoryInterface $filterRepository,
     ) {
         $this->hostGroupService = $hostGroupService;
         $this->serviceGroupService = $serviceGroupService;

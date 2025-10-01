@@ -55,7 +55,7 @@ final class PartialUpdateTokenController extends AbstractController
         DefaultPresenter $presenter,
         PartialUpdateToken $useCase,
         string $tokenName,
-        int $userId
+        int $userId,
     ): Response {
         $this->denyAccessUnlessGrantedForApiConfiguration();
 

@@ -1834,7 +1834,7 @@ class CentreonConfigCentreonBroker
         array &$payload,
         string $fieldType,
         string $fieldName,
-        string|array $fieldValue
+        string|array $fieldValue,
     ): void {
         switch ($fieldType) {
             case 'select':

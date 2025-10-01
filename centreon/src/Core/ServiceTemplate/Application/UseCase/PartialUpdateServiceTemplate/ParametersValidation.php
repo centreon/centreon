@@ -71,7 +71,7 @@ class ParametersValidation
     {
         $formattedName = ServiceTemplate::formatName($newName) ?? '';
         if (
-            '' !== $formattedName
+            $formattedName !== ''
             && $currentName !== $formattedName
             && $this->readServiceTemplateRepository->existsByName(
                 new TrimmedString($formattedName)
@@ -262,7 +262,7 @@ class ParametersValidation
     public function assertServiceCategories(
         array $serviceCategoriesIds,
         ContactInterface $contact,
-        array $accessGroups
+        array $accessGroups,
     ): void {
         if ($contact->isAdmin()) {
             $serviceCategoriesIdsFound = $this->readServiceCategoryRepository->findAllExistingIds(
@@ -293,7 +293,7 @@ class ParametersValidation
         array $serviceGroupDtos,
         int $serviceTemplateId,
         ContactInterface $contact,
-        array $accessGroups
+        array $accessGroups,
     ): void {
         if ($serviceGroupDtos === []) {
             return;

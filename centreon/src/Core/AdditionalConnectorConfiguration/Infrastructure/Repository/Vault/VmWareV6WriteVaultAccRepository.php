@@ -61,7 +61,7 @@ class VmWareV6WriteVaultAccRepository implements WriteVaultAccRepositoryInterfac
      */
     public function saveCredentialInVault(AccParametersInterface $parameters): AccParametersInterface
     {
-        if (false === $this->writeVaultRepository->isVaultConfigured()) {
+        if ($this->writeVaultRepository->isVaultConfigured() === false) {
             return $parameters;
         }
 
@@ -91,7 +91,7 @@ class VmWareV6WriteVaultAccRepository implements WriteVaultAccRepositoryInterfac
      */
     public function deleteFromVault(Acc $acc): void
     {
-        if (false === $this->writeVaultRepository->isVaultConfigured()) {
+        if ($this->writeVaultRepository->isVaultConfigured() === false) {
             return;
         }
 
@@ -106,7 +106,7 @@ class VmWareV6WriteVaultAccRepository implements WriteVaultAccRepositoryInterfac
             }
         }
 
-        if (null !== $vaultPath && null !== $uuid = $this->getUuidFromPath($vaultPath)) {
+        if ($vaultPath !== null && null !== $uuid = $this->getUuidFromPath($vaultPath)) {
             $this->writeVaultRepository->delete($uuid);
         }
     }

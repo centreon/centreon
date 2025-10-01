@@ -56,7 +56,7 @@ final class PartialUpdateNotification
         private readonly ContactInterface $contact,
         private readonly ReadNotificationRepositoryInterface $readRepository,
         private readonly WriteNotificationRepositoryInterface $writeRepository,
-        private readonly DataStorageEngineInterface $dataStorageEngine
+        private readonly DataStorageEngineInterface $dataStorageEngine,
     ) {
     }
 
@@ -68,7 +68,7 @@ final class PartialUpdateNotification
     public function __invoke(
         PartialUpdateNotificationRequest $request,
         PartialUpdateNotificationPresenterInterface $presenter,
-        int $notificationId
+        int $notificationId,
     ): void {
         try {
             if ($this->contactCanExecuteUseCase()) {
@@ -106,7 +106,7 @@ final class PartialUpdateNotification
      */
     private function partiallyUpdateNotification(
         PartialUpdateNotificationRequest $request,
-        int $notificationId
+        int $notificationId,
     ): ResponseStatusInterface {
         if (! ($notification = $this->readRepository->findById($notificationId))) {
             $this->error('Notification not found', ['notification_id' => $notificationId]);
@@ -126,7 +126,7 @@ final class PartialUpdateNotification
      */
     private function updatePropertiesInTransaction(
         PartialUpdateNotificationRequest $request,
-        Notification $notification
+        Notification $notification,
     ): void {
         try {
             $this->dataStorageEngine->startTransaction();

@@ -1,11 +1,12 @@
 import { useAtomValue } from 'jotai';
-import { equals } from 'ramda';
+import { equals, mergeDeepRight } from 'ramda';
 import { CSSInterpolation } from 'tss-react';
 
 import {
   ButtonProps,
   InputBaseProps,
   ThemeProvider as MuiThemeProvider,
+  PaletteOptions,
   StyledEngineProvider,
   Theme,
   createTheme
@@ -26,7 +27,7 @@ import { ReactNode, useMemo } from 'react';
 import { getPalette } from './palettes';
 
 declare module '@mui/styles/defaultTheme' {
-  interface DefaultTheme extends Theme { }
+  interface DefaultTheme extends Theme {}
 }
 
 declare module '@mui/material/TextField' {
@@ -198,14 +199,14 @@ export const getTheme = (mode: ThemeMode): ThemeOptions => ({
       styleOverrides: {
         root: ({ theme }) => ({
           '&:hover, &.Mui-selected, &.Mui-selected:hover, &.Mui-selected:focus':
-          {
-            background: equals(theme.palette.mode, ThemeMode.dark)
-              ? theme.palette.primary.dark
-              : theme.palette.primary.light,
-            color: equals(theme.palette.mode, ThemeMode.dark)
-              ? theme.palette.common.white
-              : theme.palette.primary.main
-          },
+            {
+              background: equals(theme.palette.mode, ThemeMode.dark)
+                ? theme.palette.primary.dark
+                : theme.palette.primary.light,
+              color: equals(theme.palette.mode, ThemeMode.dark)
+                ? theme.palette.common.white
+                : theme.palette.primary.main
+            },
           fontSize: theme.typography.body2.fontSize
         })
       }
@@ -222,12 +223,12 @@ export const getTheme = (mode: ThemeMode): ThemeOptions => ({
       styleOverrides: {
         root: ({ theme }) => ({
           [`[role="tooltip"] &, &.MuiMenu-paper, &.${autocompleteClasses.paper}`]:
-          {
-            backgroundColor: theme.palette.background.default,
-            border: 'none',
-            borderRadius: `${theme.shape.borderRadius}px`,
-            boxShadow: theme.shadows[3]
-          }
+            {
+              backgroundColor: theme.palette.background.default,
+              border: 'none',
+              borderRadius: `${theme.shape.borderRadius}px`,
+              boxShadow: theme.shadows[3]
+            }
         })
       }
     },
@@ -257,15 +258,23 @@ export const getTheme = (mode: ThemeMode): ThemeOptions => ({
 
 interface Props {
   children: ReactNode;
+  overrideTheme?: {
+    light: Partial<PaletteOptions>;
+    dark: Partial<PaletteOptions>;
+  };
 }
 
-const ThemeProvider = ({ children }: Props): JSX.Element => {
+const ThemeProvider = ({ children, overrideTheme }: Props): JSX.Element => {
   const { themeMode } = useAtomValue(userAtom);
 
-  const theme = useMemo(
-    () => createTheme(getTheme(themeMode || ThemeMode.light)),
-    [themeMode]
-  );
+  const theme = useMemo(() => {
+    const overrideThemeByMode = overrideTheme?.[themeMode || 'light'];
+    return createTheme(
+      mergeDeepRight(getTheme(themeMode || ThemeMode.light), {
+        palette: overrideThemeByMode || {}
+      })
+    );
+  }, [themeMode, overrideTheme]);
 
   return (
     <StyledEngineProvider injectFirst enableCssLayer>

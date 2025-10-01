@@ -101,7 +101,7 @@ function cleanDuplicateHostMacros(
     CentreonDb $db,
     CentreonLog $centreonLog,
     array $cache,
-    int $srcHostId
+    int $srcHostId,
 ): void {
     global $versionOfTheUpgrade;
 

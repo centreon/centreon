@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
@@ -6,7 +7,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -45,7 +46,7 @@ try {
 
     $pearDB->commit();
 
-} catch (\Throwable $exception) {
+} catch (Throwable $exception) {
     CentreonLog::create()->error(
         logTypeId: CentreonLog::TYPE_UPGRADE,
         message: "UPGRADE - {$version}: " . $errorMessage,
@@ -55,19 +56,19 @@ try {
         if ($pearDB->inTransaction()) {
             $pearDB->rollBack();
         }
-    } catch (\PDOException $rollbackException) {
+    } catch (PDOException $rollbackException) {
         CentreonLog::create()->error(
             logTypeId: CentreonLog::TYPE_UPGRADE,
             message: "UPGRADE - {$version}: error while rolling back the upgrade operation for : {$errorMessage}",
             exception: $rollbackException
         );
 
-        throw new \Exception(
+        throw new Exception(
             "UPGRADE - {$version}: error while rolling back the upgrade operation for : {$errorMessage}",
             (int) $rollbackException->getCode(),
             $rollbackException
         );
     }
 
-    throw new \Exception("UPGRADE - {$version}: " . $errorMessage, (int) $exception->getCode(), $exception);
+    throw new Exception("UPGRADE - {$version}: " . $errorMessage, (int) $exception->getCode(), $exception);
 }

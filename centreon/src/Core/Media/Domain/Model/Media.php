@@ -44,7 +44,7 @@ class Media implements Comparable, Identifiable
         private string $filename,
         private string $directory,
         private ?string $comment,
-        private ?string $data
+        private ?string $data,
     ) {
         Assertion::positiveInt($this->id, 'Media::id');
         $this->filename = trim($this->filename);

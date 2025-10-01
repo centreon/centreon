@@ -54,7 +54,7 @@ class HostCategoryService implements HostCategoryServiceInterface
     public function __construct(
         HostCategoryReadRepositoryInterface $readRepository,
         HostCategoryWriteRepositoryInterface $writeRepository,
-        ContactInterface $contact
+        ContactInterface $contact,
     ) {
         $this->contact = $contact;
         $this->readRepository = $readRepository;

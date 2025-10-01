@@ -92,7 +92,7 @@ final class HttpReadAttributePathRepository implements ReadAttributePathReposito
         string $url,
         string $token,
         Configuration $configuration,
-        string $endpointType
+        string $endpointType,
     ): ResponseInterface {
         $customConfiguration = $configuration->getCustomConfiguration();
         if (! $customConfiguration instanceof OpenIdCustomConfigurationInterface) {

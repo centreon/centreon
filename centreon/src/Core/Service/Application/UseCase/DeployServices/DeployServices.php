@@ -54,7 +54,7 @@ final class DeployServices
         private readonly ReadServiceRepositoryInterface $readServiceRepository,
         private readonly ReadServiceTemplateRepositoryInterface $readServiceTemplateRepository,
         private readonly WriteServiceRepositoryInterface $writeServiceRepository,
-        private readonly WriteRealTimeServiceRepositoryInterface $writeRealTimeServiceRepository
+        private readonly WriteRealTimeServiceRepositoryInterface $writeRealTimeServiceRepository,
     ) {
     }
 
