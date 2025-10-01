@@ -66,6 +66,7 @@ BuildRequires:  systemd
 Requires:       perl-common-sense
 Requires:       perl-Linux-Inotify2
 Requires:       rsync
+Recommends:     logrotate
 
 %description common
 %{COMMIT_HASH}
