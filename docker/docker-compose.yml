@@ -9,10 +9,12 @@ services:
       - app-data:/var/www/html:rw,z
       - app-engine:/etc/centreon-engine:rw,z
       - app-broker:/etc/centreon-broker:rw,z
-      - app-status:/var/lib/centreon/status:rw,z
-      - app-metrics:/var/lib/centreon/metrics:rw,z
-      - app-centcore:/var/lib/centreon/centcore:rw,z
+      # - app-status:/var/lib/centreon/status:rw,z
+      # - app-metrics:/var/lib/centreon/metrics:rw,z
+      # - app-centcore:/var/lib/centreon/centcore:rw,z
+      - app-centvar:/var/lib/centreon/:rw,z
       - app-centcache:/var/cache/centreon/:rw,z
+      - app-cmd:/var/lib/centreon/centcore.cmd:rw
     networks:
       - app-network
     healthcheck:
@@ -48,8 +50,9 @@ services:
       - main-network
     volumes:
       - app-broker:/etc/centreon-broker:rw,z
-      - app-status:/var/lib/centreon/status:rw,z
-      - app-metrics:/var/lib/centreon/metrics:rw,z
+      - app-centvar:/var/lib/centreon/:rw,z
+      # - app-status:/var/lib/centreon/status:rw,z
+      # - app-metrics:/var/lib/centreon/metrics:rw,z
   centengine:
     image: centengine-api:latest
     container_name: centengine
@@ -65,7 +68,7 @@ services:
   gorgone:
     environment:
       - TYPE=central
-    image: gorgone:latest
+    image: gorgone-test:latest
     container_name: gorgone
     hostname: gorgone
     restart: always
@@ -75,9 +78,10 @@ services:
     volumes:
       - app-etc:/etc/centreon/:rw
       - app-gorgone:/etc/centreon-gorgone:rw,z
-      - app-centcore:/var/lib/centreon/centcore:rw,z
+      # - app-centcore:/var/lib/centreon/centcore:rw,z
       - app-centcmd:/var/lib/centreon-engine/rw:rw,z
       - app-centcache:/var/cache/centreon/:rw,z
+      - app-centvar:/var/lib/centreon/:rw,z
     depends_on:
       php-fpm:
         condition: service_healthy
@@ -103,10 +107,11 @@ volumes:
   app-engine:
   app-broker:
   app-gorgone:
-  app-centcore:
+  # app-centcore:
   app-centcmd:
+  app-centvar:
   app-centcache:
   app-centlog:
   app-db:
-  app-metrics:
-  app-status:
+  # app-metrics:
+  # app-status:

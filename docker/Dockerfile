@@ -141,7 +141,7 @@ COPY --from=builder --chmod=775 /etc/centreon-broker/ /etc/centreon-broker/
 COPY --from=builder /usr/share/centreon/lib/centreon-broker/ /usr/share/centreon/lib/centreon-broker/
 
 COPY centreon-broker/entrypoint.sh /entrypoint.sh
-COPY centreon-broker/watchdog.json /etc/centreon-broker/watchdog.json
+# COPY centreon-broker/watchdog.json /etc/centreon-broker/watchdog.json
 
 RUN groupadd -g 900 centreon &&\
     useradd -u 900 -g centreon -m -r -d /var/spool/centreon -c "Centreon" -s /bin/bash centreon &&\
@@ -167,8 +167,8 @@ USER centreon-broker
 # # Set the entrypoint (adjust as needed)
 ENTRYPOINT ["/entrypoint.sh"]
 #CMD ["/usr/sbin/cbwd", "/etc/centreon-broker/watchdog.json"]
+CMD ["uvicorn", "api_control:app", "--host", "0.0.0.0", "--port", "8000"]
 
-# Use the same builder stage from the original Dockerfile
 FROM debian:12-slim AS gorgone
 
 # Install runtime dependencies specific to the new container
@@ -193,6 +193,7 @@ RUN apt update && \
     libdigest-md5-file-perl \
     libschedule-cron-perl \
     librrds-perl \
+    libcrypt-urandom-perl \
     iputils-ping && \
     echo "deb https://packages.centreon.com/apt-plugins-stable/ $(lsb_release -sc) main" | tee /etc/apt/sources.list.d/centreon-plugins.list && \
     wget -O- https://apt-key.centreon.com | gpg --dearmor | tee /etc/apt/trusted.gpg.d/centreon.gpg > /dev/null 2>&1 && \
@@ -219,8 +220,11 @@ RUN groupadd -g 900 centreon &&\
     mkdir -p /etc/centreon/config.d/ && \
     chown centreon. /etc/centreon/config.d/ && \
     chmod 775 /etc/centreon/config.d/ &&\
-    mv /usr/sbin/service /usr/sbin/service.orig && \
-    ln -s /usr/local/bin/service /usr/sbin/service
+    mkdir -p /var/cache/centreon/ && \
+    chown www-data:www-data /var/cache/centreon && \
+    chmod 775 /var/cache/centreon && \
+    mv /usr/bin/systemctl /usr/bin/systemctl.orig && \
+    ln -s /usr/local/bin/systemctl /usr/bin/systemctl
 
 # Copy specific binaries or libraries from the builder stage
 COPY --from=builder --chown=centreon-gorgone:centreon-gorgone --chmod=775 /etc/centreon-gorgone /etc/centreon-gorgone
@@ -230,13 +234,17 @@ COPY --from=builder --chown=centreon-gorgone:centreon-gorgone /var/cache/centreo
 COPY --from=builder --chown=centreon-gorgone:centreon-gorgone /centreon-collect/perl-libs/lib/centreon/ /usr/share/perl5/centreon/
 COPY --from=builder /usr/share/perl5/gorgone /usr/share/perl5/gorgone
 COPY --from=builder /usr/bin/gorgoned /usr/bin/gorgoned
-COPY --chmod=755 centreon-gorgone/service /usr/local/bin/service
+# COPY --chmod=755 centreon-gorgone/service /usr/local/bin/service
 COPY --chown=centreon-gorgone:centreon-gorgone --chmod=775 centreon-gorgone/config/ /etc/centreon-gorgone/config.d/ 
 COPY --chmod=600 centreon-gorgone/centreon /etc/sudoers.d/centreon
+COPY --chmod=755 centreon-gorgone/centenginestats /usr/sbin/centenginestats
+COPY --chmod=755 centreon-gorgone/entrypoint /var/lib/centreon-gorgone/
+COPY --chmod=755 centreon-gorgone/systemctl /usr/local/bin/systemctl
 
 USER centreon-gorgone
 # Set the working directory
 WORKDIR /etc/centreon-gorgone/
 
+ENTRYPOINT [ "/var/lib/centreon-gorgone/container.sh" ]
 # Set a different entrypoint for the new container
 CMD ["/usr/bin/perl", "/usr/bin/gorgoned", "--config=/etc/centreon-gorgone/config.yaml", "--severity=debug"]
