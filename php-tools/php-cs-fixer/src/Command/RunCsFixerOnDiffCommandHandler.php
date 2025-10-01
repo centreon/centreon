@@ -109,10 +109,9 @@ final class RunCsFixerOnDiffCommandHandler
                 PHP_EOL,
                 array_map(fn ($f): string => '- ' . $f, $filesToAnalyze)
             ) . PHP_EOL;
-            $command = 'composer ' . $commandName . ' -- --format=txt --show-progress=none ' . implode(
-                ' ',
-                $filesToAnalyze
-            );
+            $escapedFiles = array_map(fn ($file): string => escapeshellarg($file), $filesToAnalyze);
+            $escapedFilesRaw = implode(' ', $escapedFiles);
+            $command = 'composer ' . escapeshellarg($commandName) . ' -- --format=txt --show-progress=none ' . $escapedFilesRaw;
             passthru($command, $exitCode);
             echo $exitCode === 0 ? '✔️ No errors!' . PHP_EOL : '❌ Errors found!' . PHP_EOL;
 

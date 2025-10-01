@@ -144,14 +144,14 @@ jobs:
         working-directory: centreon-awie
         run: |
           echo "Run of these Rector tests: rector:legacy on diff" && set -e
-          composer rector:diff ${{ steps.changed-php.outputs.all_changed_files }}
+          composer rector:diff "${{ steps.changed-php.outputs.all_changed_files }}"
 
       - name: 🧹 PHP-CS-Fixer checks
         if: steps.changed-php.outputs.any_changed == 'true'
         working-directory: centreon-awie
         run: |
           echo "Run of these PHP-CS-Fixer tests: cs:legacy on diff" && set -e
-          composer cs:diff ${{ steps.changed-php.outputs.all_changed_files }}
+          composer cs:diff "${{ steps.changed-php.outputs.all_changed_files }}"
 
       - name: 🔍 PHPStan checks
         working-directory: centreon-awie

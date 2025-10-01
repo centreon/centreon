@@ -46,7 +46,7 @@ final readonly class RunRectorOnDiffCommand
         Assert::notEmpty($pathsConfig, 'Paths configuration must be provided');
         Assert::notEmpty($args, 'Arguments must be provided');
         Assert::allString($sections, 'Sections must be strings');
-        Assert::allString($args, 'Sections must be strings');
+        Assert::allString($args, 'Arguments must be strings');
         Assert::allInArray($sections, array_keys($pathsConfig), 'One or more sections are not present in paths configuration');
         foreach ($pathsConfig as $config) {
             Assert::keyExists($config, 'paths', 'Each config must have the "paths" key');

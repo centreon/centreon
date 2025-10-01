@@ -107,12 +107,11 @@ final class RunRectorOnDiffCommandHandler
             }
             echo 'Files to analyse:' . PHP_EOL . implode(
                 PHP_EOL,
-                array_map(fn ($f): string => '- ' . $f, $filesToAnalyze)
+                array_map(fn ($file): string => '- ' . $file, $filesToAnalyze)
             ) . PHP_EOL;
-            $command = 'composer ' . $commandName . ' -- --no-progress-bar ' . implode(
-                ' ',
-                $filesToAnalyze
-            );
+            $escapedFiles = array_map(fn ($file): string => escapeshellarg($file), $filesToAnalyze);
+            $escapedFilesRaw = implode(' ', $escapedFiles);
+            $command = 'composer ' . escapeshellarg($commandName) . ' -- --no-progress-bar ' . $escapedFilesRaw;
             passthru($command, $exitCode);
             echo $exitCode === 0 ? '✔️ No errors!' . PHP_EOL : '❌ Errors found!' . PHP_EOL;
 
