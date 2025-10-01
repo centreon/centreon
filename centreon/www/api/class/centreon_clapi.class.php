@@ -87,7 +87,7 @@ class CentreonClapi extends CentreonWebService implements CentreonWebServiceDiIn
 
         CentreonClapi\CentreonUtils::setUserName($username);
 
-        if (false === isset($this->arguments['action'])) {
+        if (isset($this->arguments['action']) === false) {
             throw new RestBadRequestException('Bad parameters');
         }
 

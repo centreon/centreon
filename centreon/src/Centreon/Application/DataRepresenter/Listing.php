@@ -67,7 +67,7 @@ class Listing implements JsonSerializable
         ?int $total = null,
         ?int $offset = null,
         ?int $limit = null,
-        ?string $entityClass = null
+        ?string $entityClass = null,
     ) {
         $this->entities = $entities ?? [];
         $this->total = $total ?: count($this->entities);

@@ -443,13 +443,22 @@ jobs:
         run: cp config/centreon.config.php.template config/centreon.config.php
         working-directory: centreon
 
+      - name: Ensure Symfony cache directories exist and are writable (legacy and new)
+        run: |
+          echo "Ensure Symfony cache directories exist" && set -e
+          sudo mkdir -p /var/cache/centreon/symfony.new
+          sudo mkdir -p /var/cache/centreon/symfony
+          echo "Set permissions on Symfony cache directories with user: '$USER'" && set -e
+          sudo chown -R $USER:$USER /var/cache/centreon/symfony.new
+          sudo chown -R $USER:$USER /var/cache/centreon/symfony
+
       - name: Install dependencies for centreon-web
         run: composer install --optimize-autoloader --prefer-dist --no-interaction --no-progress --quiet --no-scripts
         working-directory: centreon
         shell: bash
 
-      - name: ⚙️ Check Symfony configuration
-        run: composer symfony:check
+      - name: ⚙️ Check Symfony configuration (legacy and new)
+        run: composer symfony:check && composer symfony:new:check
         working-directory: centreon
 
       - name: 🛠️ Rector checks

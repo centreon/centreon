@@ -41,7 +41,7 @@ class DataSource
         private readonly ?int $order,
         private readonly int $tickness,
         private readonly int $colorMode,
-        private readonly string $lineColor
+        private readonly string $lineColor,
     ) {
     }
 

@@ -167,4 +167,9 @@ class AgentConfigurationException extends \Exception
     {
         return new self(sprintf(_('Host ID #%d is invalid'), $hostId));
     }
+
+    public static function atLeastOneConnectionModeIsRequired(): self
+    {
+        return new self('At least one connection mode (agent initiated or poller initiated) must be set to true', self::CODE_CONFLICT);
+    }
 }

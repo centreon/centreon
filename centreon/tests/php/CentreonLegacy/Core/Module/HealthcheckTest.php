@@ -259,7 +259,7 @@ class HealthcheckTest extends TestCase
                     &$customAction,
                     &$warning,
                     &$critical,
-                    &$licenseExpiration
+                    &$licenseExpiration,
                 ) use ($valueException): void {
                     throw new \Exception($valueException);
                 }
@@ -314,7 +314,7 @@ class HealthcheckTest extends TestCase
         $customActionV = null,
         $warningV = false,
         $criticalV = false,
-        $licenseExpirationV = null
+        $licenseExpirationV = null,
     ) {
         $this->service
             ->method('getRequirements')
@@ -325,7 +325,7 @@ class HealthcheckTest extends TestCase
                     &$customAction,
                     &$warning,
                     &$critical,
-                    &$licenseExpiration
+                    &$licenseExpiration,
                 ) use ($messageV, $customActionV, $warningV, $criticalV, $licenseExpirationV): void {
                     $message = $messageV ?: [];
                     $customAction = $customActionV;

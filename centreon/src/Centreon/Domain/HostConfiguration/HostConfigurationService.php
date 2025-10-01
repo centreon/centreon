@@ -88,7 +88,7 @@ class HostConfigurationService implements HostConfigurationServiceInterface
         HostCategoryServiceInterface $hostCategoryService,
         HostGroupServiceInterface $hostGroupService,
         DataStorageEngineInterface $dataStorageEngine,
-        ContactInterface $contact
+        ContactInterface $contact,
     ) {
         $this->hostConfigurationRepository = $hostConfigurationRepository;
         $this->actionLogService = $actionLogService;

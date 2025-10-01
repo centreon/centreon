@@ -114,7 +114,7 @@ class PlatformRegistered implements PlatformInterface
      */
     public function setType(?string $type): PlatformInterface
     {
-        if (null !== $type) {
+        if ($type !== null) {
             $type = strtolower($type);
 
             // Check if the server_type is available
@@ -200,7 +200,7 @@ class PlatformRegistered implements PlatformInterface
      */
     public function setParentAddress(?string $parentAddress): PlatformInterface
     {
-        if (null !== $parentAddress && $this->getType() === static::TYPE_CENTRAL) {
+        if ($parentAddress !== null && $this->getType() === static::TYPE_CENTRAL) {
             throw new \InvalidArgumentException(_('Cannot use parent address on a Central server type'));
         }
         $this->parentAddress = $this->checkIpAddress($parentAddress);
@@ -221,7 +221,7 @@ class PlatformRegistered implements PlatformInterface
      */
     public function setParentId(?int $parentId): PlatformInterface
     {
-        if (null !== $parentId && $this->getType() === static::TYPE_CENTRAL) {
+        if ($parentId !== null && $this->getType() === static::TYPE_CENTRAL) {
             throw new \InvalidArgumentException(_('Cannot set parent id to a central server'));
         }
         $this->parentId = $parentId;

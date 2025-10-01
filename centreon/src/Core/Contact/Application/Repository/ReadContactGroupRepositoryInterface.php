@@ -90,7 +90,7 @@ interface ReadContactGroupRepositoryInterface
     public function findByAccessGroupsAndUserAndRequestParameter(
         array $accessGroups,
         ContactInterface $user,
-        ?RequestParametersInterface $requestParameters = null
+        ?RequestParametersInterface $requestParameters = null,
     ): array;
 
     /**

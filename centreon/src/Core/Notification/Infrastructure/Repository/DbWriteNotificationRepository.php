@@ -239,7 +239,7 @@ class DbWriteNotificationRepository extends AbstractRepositoryRDB implements Wri
      */
     public function deleteContactGroupsByNotificationAndContactGroupIds(
         int $notificationId,
-        array $contactGroupsIds
+        array $contactGroupsIds,
     ): void {
         if ($contactGroupsIds === []) {
             return;

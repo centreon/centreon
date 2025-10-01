@@ -60,7 +60,7 @@ final class UpdateNotificationController extends AbstractController
         int $notificationId,
         Request $request,
         UpdateNotification $useCase,
-        UpdateNotificationPresenter $presenter
+        UpdateNotificationPresenter $presenter,
     ): Response {
         $this->denyAccessUnlessGrantedForApiConfiguration();
 

@@ -3,7 +3,7 @@ import { Button } from '@centreon/ui/components';
 import { Box, CircularProgress } from '@mui/material';
 import { useFormikContext } from 'formik';
 import { useAtom, useSetAtom } from 'jotai';
-import { isEmpty, isNil, isNotEmpty } from 'ramda';
+import { isNotEmpty } from 'ramda';
 import { useCallback, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
@@ -14,7 +14,7 @@ import {
 import { AgentConfigurationForm } from '../models';
 import { labelCancel, labelSave } from '../translatedLabels';
 
-const Buttons = (): JSX.Element => {
+const Buttons = (): React.ReactElement => {
   const { t } = useTranslation();
 
   const [askBeforeCloseForm, setAskBeforeCloseFormModal] = useAtom(
@@ -23,20 +23,12 @@ const Buttons = (): JSX.Element => {
   const setOpenFormModal = useSetAtom(openFormModalAtom);
   const setAgentTypeForm = useSetAtom(agentTypeFormAtom);
 
-  const { isValid, dirty, isSubmitting, submitForm, errors, values } =
+  const { isValid, dirty, isSubmitting, submitForm, errors } =
     useFormikContext<AgentConfigurationForm>();
 
   const isSubmitDisabled = useMemo(
-    () =>
-      !dirty ||
-      (isNotEmpty(errors) &&
-        (isNil(errors.configuration?.hosts) ||
-          isEmpty(errors.configuration?.hosts)))
-        ? true
-        : errors.configuration?.hosts?.some?.(
-            (host) => !isNil(host) && !isEmpty(host)
-          ) || isSubmitting,
-    [dirty, isSubmitting, errors, values]
+    () => !dirty || isSubmitting || isNotEmpty(errors),
+    [dirty, isSubmitting, errors]
   );
 
   const discard = useCallback(() => {

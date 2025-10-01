@@ -52,6 +52,6 @@ interface ReadConnectorRepositoryInterface
      */
     public function findByRequestParametersAndCommandTypes(
         RequestParametersInterface $requestParameters,
-        array $commandTypes
+        array $commandTypes,
     ): array;
 }

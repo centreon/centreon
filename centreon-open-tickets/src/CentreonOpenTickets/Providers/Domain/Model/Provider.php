@@ -42,7 +42,7 @@ class Provider
         private int $id,
         private string $name,
         private ProviderType $type,
-        private bool $isActivated
+        private bool $isActivated,
     ) {
         Assertion::positiveInt($this->id, 'Provider::id');
         Assertion::notEmptyString($this->name, 'Provider::name');

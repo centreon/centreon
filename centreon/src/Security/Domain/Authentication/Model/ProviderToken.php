@@ -49,7 +49,7 @@ class ProviderToken
         ?int $id,
         string $token,
         \DateTime $creationDate,
-        ?\DateTime $expirationDate = null
+        ?\DateTime $expirationDate = null,
     ) {
         $this->id = $id;
         $this->token = $token;

@@ -160,6 +160,6 @@ interface ReadContactRepositoryInterface
     public function findByAccessGroupsAndUserAndRequestParameters(
         array $accessGroups,
         ContactInterface $user,
-        ?RequestParametersInterface $requestParameters = null
+        ?RequestParametersInterface $requestParameters = null,
     ): array;
 }

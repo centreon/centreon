@@ -33,7 +33,7 @@ final class FindResourcesResponse
      */
     public function __construct(
         public array $resources = [],
-        public array $extraData = []
+        public array $extraData = [],
     ) {
     }
 }

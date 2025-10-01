@@ -51,7 +51,7 @@ final class ServiceCategoryProvider implements DatasetProviderInterface
      */
     public function isValidFor(string $type): bool
     {
-        return ServiceCategoryFilterType::TYPE_NAME === $type;
+        return $type === ServiceCategoryFilterType::TYPE_NAME;
     }
 
     /**

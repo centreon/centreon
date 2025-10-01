@@ -37,7 +37,7 @@ final class FindUsersController extends AbstractController
      */
     public function __invoke(
         FindUsers $findUsers,
-        FindUsersPresenterInterface $presenter
+        FindUsersPresenterInterface $presenter,
     ): object {
         $this->denyAccessUnlessGrantedForApiConfiguration();
 

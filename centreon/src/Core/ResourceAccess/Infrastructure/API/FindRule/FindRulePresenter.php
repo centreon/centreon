@@ -40,7 +40,7 @@ final class FindRulePresenter extends AbstractPresenter implements FindRulePrese
      * @param PresenterFormatterInterface $presenterFormatter
      */
     public function __construct(
-        protected PresenterFormatterInterface $presenterFormatter
+        protected PresenterFormatterInterface $presenterFormatter,
     ) {
         parent::__construct($presenterFormatter);
     }

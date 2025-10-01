@@ -312,7 +312,7 @@ final class DbReadAccessGroupRepository extends AbstractRepositoryDRB implements
     public function hasAccessToResources(array $accessGroupIds): bool
     {
         try {
-            if ([] === $accessGroupIds) {
+            if ($accessGroupIds === []) {
                 return false;
             }
 
