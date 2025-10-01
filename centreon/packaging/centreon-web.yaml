@@ -478,6 +478,8 @@ overrides:
       - centreon-widget-servicegroup-monitoring
       - centreon-widget-single-metric
       - centreon-widget-tactical-overview
+    recommends:
+      - logrotate
 
   deb:
     depends:
@@ -565,6 +567,8 @@ overrides:
       - centreon-widget-servicegroup-monitoring
       - centreon-widget-single-metric
       - centreon-widget-tactical-overview
+    recommends:
+      - logrotate
 
 rpm:
   summary: Centreon WebUI
