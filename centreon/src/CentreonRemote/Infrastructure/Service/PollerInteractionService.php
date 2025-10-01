@@ -180,7 +180,9 @@ class PollerInteractionService
 
         foreach ($tabServers as $poller) {
             if (isset($poller['localhost']) && $poller['localhost'] == 1) {
-                shell_exec("sudo {$poller['engine_restart_command']}");
+                if ($poller['engine_restart_command'] != '') {
+                    shell_exec(escapeshellcmd("sudo -n -- {$poller['engine_restart_command']}"));
+                }
             } else {
                 if ($fh = @fopen($centCorePipe, 'a+')) {
                     fwrite($fh, 'RESTART:' . $poller['id'] . "\n");
