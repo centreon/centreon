@@ -92,7 +92,6 @@ apt-get install -y /tmp/packages-centreon/centreon-web*.deb
 mkdir -p /var/cache/centreon/ /etc/centreon/config.d /var/log/centreon/ /var/lib/centreon/centcore
 touch /var/log/php8.2-fpm-centreon-error.log /var/log/centreon/centreon-web.log  
 chown -R centreon:centreon /var/log/centreon/ /var/log/php8.2-fpm-centreon-error.log /var/log/centreon/centreon-web.log /etc/centreon
-chown -R www-data:www-data /var/cache/centreon/
 chmod 775 /etc/centreon/ /etc/centreon/config.d/
 chmod 1230 /var/log/centreon/centreon-web.log
 

@@ -24,6 +24,9 @@ if [ ! -f /etc/centreon/centreon.conf.php ] && [ -d /usr/share/centreon/www/inst
     su www-data -s /bin/bash -c "php partitionTables.php"
 
   mysql -h${MYSQL_HOST} -uroot -p${MYSQL_PWD} -e "UPDATE centreon.cfg_centreonbroker_info SET config_value = '${MYSQL_HOST}' WHERE config_key = 'db_host'"
+  mysql -h${MYSQL_HOST} -uroot -p${MYSQL_PWD} -e "DELETE FROM centreon.cfg_centreonbroker_info WHERE config_group = 'output' AND config_group_id = '1'"
+  mysql -h${MYSQL_HOST} -uroot -p${MYSQL_PWD} -e "UPDATE centreon.cfg_centreonbroker_info SET config_id = '1', config_group_id = 1 WHERE config_id = '2' and config_group = 'output'"
+  mysql -h${MYSQL_HOST} -uroot -p${MYSQL_PWD} -e "DELETE FROM centreon.cfg_centreonbroker WHERE config_name = 'central-rrd-master'"
   mysql -h${MYSQL_HOST} -uroot -p${MYSQL_PWD} -e "CREATE USER IF NOT EXISTS 'centreon'@'%' IDENTIFIED BY 'centreon'"
   mysql -h${MYSQL_HOST} -uroot -p${MYSQL_PWD} -e "UPDATE centreon.options SET \`value\` = 'gorgone' WHERE \`key\` = 'gorgone_api_address'"
   mysql -h${MYSQL_HOST} -uroot -p${MYSQL_PWD} -e "GRANT ALL ON *.* TO 'centreon'@'%'"

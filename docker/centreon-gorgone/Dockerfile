@@ -38,6 +38,7 @@ RUN apt update && \
 COPY --chmod=755 systemctl /usr/local/bin/systemctl
 COPY --chmod=755 entrypoint /var/lib/centreon-gorgone/
 COPY --chmod=600 centreon /etc/sudoers.d/centreon
+COPY --chmod=755 centenginestats /usr/sbin/centenginestats
 COPY packages/ /tmp/packages-centreon
 
 RUN groupadd -g 900 centreon &&\
@@ -54,6 +55,9 @@ RUN groupadd -g 900 centreon &&\
     mv /usr/bin/systemctl /usr/bin/systemctl.orig && \
     ln -s /usr/local/bin/systemctl /usr/bin/systemctl && \
     apt install -y /tmp/packages-centreon/centreon-*.deb && \
+    mkdir -p /var/cache/centreon/ && \
+    chown www-data:www-data /var/cache/centreon && \
+    chmod 775 /var/cache/centreon && \
     apt clean && \
     rm -rf /var/lib/apt/lists/* /tmp/packages-centreon && \
     chown -R centreon-gorgone:centreon-gorgone /var/lib/centreon-gorgone

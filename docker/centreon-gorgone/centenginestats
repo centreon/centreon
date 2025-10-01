@@ -1,0 +1,65 @@
+#!/bin/sh
+echo "Centreon Engine Statistics Utility 24.10.12
+
+Copyright 2003-2008      Ethan Galstad
+Copyright 2011-2013,2016 Centreon
+License: GPLv2
+
+CURRENT STATUS DATA
+------------------------------------------------------
+Status File:                            /var/log/centreon-engine/status.dat
+Status File Age:                        0d 0h 0m 26s
+Status File Version:                    (null)
+
+Program Running Time:                   1d 9h 36m 26s
+Centreon Engine PID:                    2684353
+Used/High/Total Command Buffers:        0 / 8 / 4096
+
+Total Services:                         751
+Services Checked:                       751
+Services Scheduled:                     735
+Services Actively Checked:              737
+Services Passively Checked:             14
+Total Service State Change:             0.000 / 72.630 / 1.581 %
+Active Service Latency:                 0.011 / 6.130 / 0.551 sec
+Active Service Execution Time:          0.000 / 4.815 / 0.398 sec
+Active Service State Change:            0.000 / 72.630 / 1.495 %
+Active Services Last 1/5/15/60 min:     56 / 540 / 696 / 726
+Passive Service Latency:                0.000 / 5.626 / 0.636 sec
+Passive Service State Change:           0.000 / 34.140 / 6.137 %
+Passive Services Last 1/5/15/60 min:    0 / 13 / 13 / 13
+Services Ok/Warn/Unk/Crit:              729 / 8 / 2 / 12
+Services Flapping:                      0
+Services In Downtime:                   0
+
+Total Hosts:                            85
+Hosts Checked:                          83
+Hosts Scheduled:                        82
+Hosts Actively Checked:                 84
+Host Passively Checked:                 1
+Total Host State Change:                0.000 / 0.000 / 0.000 %
+Active Host Latency:                    0.000 / 1.016 / 0.503 sec
+Active Host Execution Time:             0.000 / 0.195 / 0.116 sec
+Active Host State Change:               0.000 / 0.000 / 0.000 %
+Active Hosts Last 1/5/15/60 min:        9 / 71 / 82 / 82
+Passive Host Latency:                   0.000 / 0.000 / 0.000 sec
+Passive Host State Change:              0.000 / 0.000 / 0.000 %
+Passive Hosts Last 1/5/15/60 min:       0 / 1 / 1 / 1
+Hosts Up/Down/Unreach:                  85 / 0 / 0
+Hosts Flapping:                         0
+Hosts In Downtime:                      0
+
+Active Host Checks Last 1/5/15 min:     21 / 105 / 298
+   Scheduled:                           17 / 82 / 243
+   On-demand:                           4 / 23 / 55
+   Parallel:                            20 / 88 / 258
+   Serial:                              0 / 0 / 0
+   Cached:                              1 / 17 / 40
+Passive Host Checks Last 1/5/15 min:    0 / 1 / 1
+Active Service Checks Last 1/5/15 min:  125 / 610 / 1789
+   Scheduled:                           125 / 610 / 1789
+   On-demand:                           0 / 0 / 0
+   Cached:                              0 / 0 / 0
+Passive Service Checks Last 1/5/15 min: 0 / 4 / 4
+
+External Commands Last 1/5/15 min:      0 / 9 / 27"
