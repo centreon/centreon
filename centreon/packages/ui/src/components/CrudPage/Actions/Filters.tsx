@@ -14,10 +14,14 @@ const Filters: React.FC<Props> = ({ label, filters }: Props): JSX.Element => {
   return (
     <PopoverMenu
       title={label}
-      icon={<Tune />}
-      tooltipClassName={classes.tooltipFilters}
+      icon={<Tune fontSize="small" />}
+      popperPlacement="bottom-end"
     >
-      {isValidElement(filters) ? filters : <div />}
+      {isValidElement(filters) ? (
+        <div className={classes.filtersContent}>{filters}</div>
+      ) : (
+        <div />
+      )}
     </PopoverMenu>
   );
 };

@@ -32,18 +32,18 @@ interface Item {
 
 const getSearchParameters = ({ filters }) => ({
   conditions: [
-    {
-      field: 'hasDescription',
-      values: {
-        $in: filters.hasDescription
-      }
-    },
-    {
-      field: 'isEven',
-      values: {
-        $in: filters.isEven
-      }
-    }
+    // {
+    //   field: 'hasDescription',
+    //   values: {
+    //     $in: filters.hasDescription
+    //   }
+    // },
+    // {
+    //   field: 'isEven',
+    //   values: {
+    //     $in: filters.isEven
+    //   }
+    // }
   ]
 });
 

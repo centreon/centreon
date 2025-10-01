@@ -14,7 +14,7 @@ const AddButton = ({ label }: Props): JSX.Element => {
   const add = useCallback(() => setOpenFormModal('add'), []);
 
   return (
-    <Button size="small" icon={<Add />} iconVariant="start" onClick={add}>
+    <Button size="medium" icon={<Add />} iconVariant="start" onClick={add}>
       {label}
     </Button>
   );

@@ -21,10 +21,13 @@ export const useActionsStyles = makeStyles()((theme) => ({
   clearButton: {
     alignSelf: 'flex-start'
   },
-  tooltipFilters: {
-    padding: theme.spacing(2, 3),
+  filtersContent: {
+    background: theme.palette.background.paper,
     display: 'flex',
     flexDirection: 'column',
-    gap: theme.spacing(2)
+    gap: theme.spacing(1.5),
+    marginTop: theme.spacing(1),
+    padding: theme.spacing(2),
+    width: theme.spacing(42)
   }
 }));
