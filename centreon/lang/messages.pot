@@ -3730,8 +3730,6 @@ msgstr ""
 
 #: centreon/src/CentreonRemote/Infrastructure/Service/PollerInteractionService.php
 #: centreon/src/CentreonRemote/Infrastructure/Service/PollerInteractionService.php
-#: centreon/src/CentreonRemote/Infrastructure/Service/PollerInteractionService.php
-#: centreon/www/include/configuration/configGenerate/xml/moveFiles.php
 #: centreon/www/include/configuration/configGenerate/xml/moveFiles.php
 #: centreon/www/include/configuration/configGenerate/xml/restartPollers.php
 #: centreon/www/include/configuration/configGenerate/xml/restartPollers.php
