@@ -593,15 +593,15 @@ const getYScalePerUnit = ({
   return scalePerUnit;
 };
 
-const formatTime = (value: number): string => {
-  return `${numeral(value).format('0.[00]a')} ms`;
+const formatTime = ({ value, unit }): string => {
+  return `${numeral(value).format('0.[00]a')} ${unit}`;
 };
 
 const registerMsUnitToNumeral = (): null => {
   try {
     numeral.register('format', 'milliseconds', {
       format: (value) => {
-        return formatTime(value);
+        return formatTime({ value, unit: 'ms' });
       },
       regexps: {
         format: /(ms)/,
@@ -617,6 +617,27 @@ const registerMsUnitToNumeral = (): null => {
 };
 
 registerMsUnitToNumeral();
+
+const registerSecondsUnitToNumeral = (): null => {
+  try {
+    numeral.register('format', 'seconds', {
+      format: (value) => {
+        return formatTime({ value, unit: 's' });
+      },
+      regexps: {
+        format: /(s)/,
+        unformat: /(s)/
+      },
+      unformat: () => ''
+    });
+
+    return null;
+  } catch (_) {
+    return null;
+  }
+};
+
+registerSecondsUnitToNumeral();
 
 const getBase1024 = ({ unit, base }): boolean => {
   const base2Units = [
@@ -647,6 +668,7 @@ const formatMetricValue = ({
 
   const formatSuffix = cond([
     [equals('ms'), always(' ms')],
+    [equals('s'), always(' s')],
     [T, always(base1024 ? ' ib' : 'a')]
   ])(unit);
 
@@ -671,8 +693,6 @@ const formatMetricValueWithUnit = ({
     return null;
   }
 
-  const base1024 = getBase1024({ base, unit });
-
   if (isRaw) {
     const unitText = equals('%', unit) ? unit : ` ${unit}`;
 
@@ -685,9 +705,7 @@ const formatMetricValueWithUnit = ({
 
   const formattedMetricValue = formatMetricValue({ base, unit, value });
 
-  return base1024 || !unit || equals(unit, 'ms')
-    ? formattedMetricValue
-    : `${formattedMetricValue} ${unit}`;
+  return formattedMetricValue;
 };
 
 const bisectDate = bisector(identity).center;

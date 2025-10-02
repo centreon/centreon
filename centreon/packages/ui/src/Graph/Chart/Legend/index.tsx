@@ -26,6 +26,11 @@ interface Props extends Pick<LegendModel, 'placement' | 'mode'> {
   setLinesGraph: Dispatch<SetStateAction<Array<Line> | null>>;
   shouldDisplayLegendInCompactMode: boolean;
   toggable?: boolean;
+  secondaryClick?: (props: {
+    element: EventTarget | null;
+    metricId: number | string;
+    position: [number, number];
+  }) => void;
 }
 
 const MainLegend = ({
@@ -38,7 +43,8 @@ const MainLegend = ({
   shouldDisplayLegendInCompactMode,
   placement,
   height,
-  mode
+  mode,
+  secondaryClick
 }: Props): JSX.Element => {
   const { classes, cx } = useStyles({
     limitLegendRows: Boolean(limitLegend),
@@ -65,7 +71,24 @@ const MainLegend = ({
       value
     }) || 'N/A';
 
-  const selectMetric = ({ event, metric_id }): void => {
+  const contextMenuClick =
+    (metricId: number) =>
+    (event: MouseEvent): void => {
+      if (!secondaryClick) {
+        return;
+      }
+      event.preventDefault();
+      secondaryClick({
+        element: event.target,
+        metricId,
+        position: [event.pageX, event.pageY]
+      });
+    };
+
+  const selectMetric = ({
+    event,
+    metric_id
+  }: { event: MouseEvent; metric_id: number }): void => {
     if (!toggable) {
       return;
     }
@@ -127,6 +150,7 @@ const MainLegend = ({
               onClick={(event): void => selectMetric({ event, metric_id })}
               onMouseEnter={(): void => highlightLine(metric_id)}
               onMouseLeave={(): void => clearHighlight()}
+              onContextMenu={contextMenuClick(metric_id)}
             >
               <LegendHeader
                 color={markerColor}

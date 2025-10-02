@@ -99,30 +99,6 @@ try {
         // creating the user
         $prepareCreate->execute();
 
-        // checking mysql version before trying to alter the password plugin
-        // As ALTER USER won't work on a mariaDB < 10.2, we need to check it before trying this request
-        $prepareCheckVersion = $link->query("SHOW VARIABLES WHERE Variable_name IN ('version', 'version_comment')");
-        $versionName = '';
-        $versionNumber = '';
-        while ($row = $prepareCheckVersion->fetch()) {
-            if ($row['Variable_name'] === 'version') {
-                $versionNumber = $row['Value'];
-            } elseif ($row['Variable_name'] === 'version_comment') {
-                $versionName = $row['Value'];
-            }
-        }
-        if (str_contains($versionName, 'MySQL') && version_compare($versionNumber, '8.0.0', '>=')) {
-            // Compatibility adaptation for mysql 8 with php7.1 before 7.1.16, or php7.2 before 7.2.4.
-            $prepareAlter = $link->prepare(
-                'ALTER USER :dbUser@:host IDENTIFIED WITH caching_sha2_password BY :dbPass'
-            );
-            foreach ($queryValues as $key => $value) {
-                $prepareAlter->bindValue($key, $value, PDO::PARAM_STR);
-            }
-            // altering the mysql's password plugin using the ALTER USER request
-            $prepareAlter->execute();
-        }
-
         // granting privileges
         $link->exec(sprintf($query, $parameters['db_configuration']));
         $link->exec(sprintf($query, $parameters['db_storage']));

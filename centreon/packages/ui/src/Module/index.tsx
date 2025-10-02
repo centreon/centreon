@@ -3,9 +3,9 @@ import { Provider as JotaiProvider, createStore } from 'jotai';
 
 import { StylesProvider, createGenerateClassName } from '@mui/styles';
 
+import { ThemeOptions } from '@mui/material';
 import { QueryProvider, ThemeProvider } from '..';
 import SnackbarProvider from '../Snackbar/SnackbarProvider';
-import { ThemeOptions } from '@mui/material';
 
 export interface ModuleProps {
   children: React.ReactElement;
