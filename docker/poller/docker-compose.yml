@@ -1,0 +1,51 @@
+services:
+  centengine:
+    image: centengine-api:latest
+    container_name: centpoller
+    hostname: centengine
+    restart: always
+    ports: 
+      - 5556:5556
+    networks:
+      - poller-network
+      - main-network
+    volumes:
+      - poller-engine:/etc/centreon-engine:rw,z
+      - poller-broker:/etc/centreon-broker:rw,z
+      - poller-centcmd:/var/lib/centreon-engine/rw:rw,z
+      - poller-centlog:/var/log/centreon-engine:rw
+  gorgone:
+    environment:
+      - TYPE=poller
+    image: gorgone-test:latest
+    container_name: centpoller-gorgone
+    hostname: centgorgone
+    restart: always
+    networks:
+      - poller-network
+      - main-network
+    volumes:
+      - ./40-gorgoned.yaml:/etc/centreon-gorgone/config.d/40-gorgoned.yaml
+      - poller-etc:/etc/centreon/:rw
+      - poller-engine:/etc/centreon-engine:rw,z
+      - poller-broker:/etc/centreon-broker:rw,z
+      - poller-gorgone:/etc/centreon-gorgone:rw,z
+      - poller-centcore:/var/lib/centreon/centcore:rw,z
+      - poller-centcmd:/var/lib/centreon-engine/rw:rw,z
+      - poller-centcache:/var/cache/centreon/:rw,z
+
+networks:
+  poller-network:
+    driver: bridge
+  main-network:
+    external: true
+
+volumes:
+  poller-etc:
+  poller-engine:
+  poller-broker:
+  poller-gorgone:
+  poller-centcore:
+  poller-centcmd:
+  poller-centlog:
+  poller-centcache:

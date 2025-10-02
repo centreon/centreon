@@ -14,7 +14,6 @@ services:
       # - app-centcore:/var/lib/centreon/centcore:rw,z
       - app-centvar:/var/lib/centreon/:rw,z
       - app-centcache:/var/cache/centreon/:rw,z
-      - app-cmd:/var/lib/centreon/centcore.cmd:rw
     networks:
       - app-network
     healthcheck:

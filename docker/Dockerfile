@@ -88,6 +88,7 @@ RUN groupadd -g 900 centreon &&\
     useradd -u 903 -g centreon-gorgone -m -r -d /var/lib/centreon-gorgone -c "Centreon Gorgone"  -s /bin/bash centreon-gorgone &&\
     usermod -aG centreon-broker centreon-engine  && \
     usermod -aG centreon-engine centreon-broker && \
+    usermod -aG centreon-gorgone centreon-engine && \
     usermod -aG sudo centreon-engine && \
     echo "centreon-engine ALL=(ALL) NOPASSWD: /usr/bin/apt, /usr/bin/apt-get" > /etc/sudoers.d/centreon-engine && \  
     chmod 440 /etc/sudoers.d/centreon-engine && \
@@ -109,7 +110,8 @@ USER centreon-engine
 
 # # Set the entrypoint (adjust as needed)
 ENTRYPOINT ["/entrypoint.sh"]
-#CMD ["/usr/sbin/centengine", "/etc/centreon-engine/centengine.cfg"]
+
+CMD ["uvicorn", "api_control:app", "--host", "0.0.0.0", "--port", "8000"]
 
 FROM debian:12-slim AS broker
 
@@ -217,11 +219,13 @@ RUN groupadd -g 900 centreon &&\
     useradd -u 903 -g centreon-gorgone -m -r -d /var/lib/centreon-gorgone -c "Centreon Gorgone"  -s /bin/bash centreon-gorgone &&\
     usermod -aG centreon centreon-gorgone &&\
     usermod -aG www-data centreon-gorgone &&\
+    usermod -aG centreon-engine centreon-gorgone && \
+    usermod -aG centreon-broker centreon-gorgone && \
     mkdir -p /etc/centreon/config.d/ && \
-    chown centreon. /etc/centreon/config.d/ && \
-    chmod 775 /etc/centreon/config.d/ &&\
+    chown -R centreon: /etc/centreon/ && \
+    chmod -R 775 /etc/centreon/ &&\
     mkdir -p /var/cache/centreon/ && \
-    chown www-data:www-data /var/cache/centreon && \
+    chown centreon:centreon /var/cache/centreon && \
     chmod 775 /var/cache/centreon && \
     mv /usr/bin/systemctl /usr/bin/systemctl.orig && \
     ln -s /usr/local/bin/systemctl /usr/bin/systemctl

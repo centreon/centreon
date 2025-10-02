@@ -1,11 +1,22 @@
 #!/bin/bash
-sudo apt update
-sudo apt install -y centreon-plugin\*
+set -e
 
-python3 -m venv . 
-source bin/activate 
-pip install --upgrade pip 
-pip install fastapi uvicorn 
+(
+  export DEBIAN_FRONTEND=noninteractive
+  sudo apt-get update -qq
+  sudo apt-get install -y centreon-plugin* >/var/log/apt-runtime.log 2>&1 || true
+) &
 
-# Lancer l’API
-uvicorn api_control:app --host 0.0.0.0 --port 8000
+# create / reuse venv directory
+if [ ! -d ./venv ]; then
+  python3 -m venv ./venv
+fi
+# activate venv
+. ./venv/bin/activate
+
+pip install --upgrade pip
+pip install fastapi uvicorn
+
+# execute the container command so signals are forwarded
+exec "$@"
+

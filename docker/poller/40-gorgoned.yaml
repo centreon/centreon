@@ -1,0 +1,17 @@
+name:  gorgoned-Poller
+description: Configuration for poller Poller
+gorgone:
+  gorgonecore:
+    id: 2
+    external_com_type: tcp
+    external_com_path: "*:5556"
+    authorized_clients: 
+      - key: [PLACE HOLDER]
+    privkey: "/var/lib/centreon-gorgone/.keys/rsakey.priv.pem"
+    pubkey: "/var/lib/centreon-gorgone/.keys/rsakey.pub.pem"
+  modules:
+    - name: engine
+      package: gorgone::modules::centreon::engine::hooks
+      enable: true
+      command_file: "/var/lib/centreon-engine/rw/centengine.cmd"
+
