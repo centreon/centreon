@@ -78,7 +78,7 @@ final class UpdateSAMLConfigurationController extends AbstractController
         $updateRequest->remoteLoginUrl = $requestData['remote_login_url'];
         $updateRequest->publicCertificate = $requestData['certificate'];
         $updateRequest->userIdAttribute = $requestData['user_id_attribute'];
-        $updateRequest->requestedAuthnContext = $requestData['requested_authn_context'];
+        $updateRequest->requestedAuthnContextComparison = $requestData['requested_authn_context_comparison'];
         $updateRequest->logoutFrom = $requestData['logout_from'];
         $updateRequest->logoutFromUrl = $requestData['logout_from_url'];
         $updateRequest->isAutoImportEnabled = $requestData['auto_import'];

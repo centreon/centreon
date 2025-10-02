@@ -64,7 +64,7 @@ it('should present a No Content Response when the use case is executed correctly
     $request->logoutFrom = true;
     $request->logoutFromUrl = 'http://127.0.0.1:4000/realms/my-realm/protocol/saml';
     $request->userIdAttribute = 'email';
-    $request->requestedAuthnContext = 'exact';
+    $request->requestedAuthnContextComparison = 'exact';
     $request->isAutoImportEnabled = false;
     $request->contactTemplate = null;
     $request->emailBindAttribute = null;
@@ -103,7 +103,7 @@ it('should present a No Content Response when the use case is executed correctly
         'logout_from' => true,
         'logout_from_url' => 'http://127.0.0.1:4000/realms/my-realm/protocol/saml',
         'user_id_attribute' => 'email',
-        'requested_authn_context' => 'exact',
+        'requested_authn_context_comparison' => 'exact',
         'auto_import' => false,
         'contact_template' => null,
         'fullname_bind_attribute' => null,
@@ -149,7 +149,7 @@ it('should presenet an Error Response when an error occurs during the process', 
     $request->logoutFrom = true;
     $request->logoutFromUrl = 'http://127.0.0.1:4000/realms/my-realm/protocol/saml';
     $request->userIdAttribute = 'email';
-    $request->requestedAuthnContext = 'exact';
+    $request->requestedAuthnContextComparison = 'exact';
     $request->isAutoImportEnabled = false;
     $request->contactTemplate = null;
     $request->emailBindAttribute = null;

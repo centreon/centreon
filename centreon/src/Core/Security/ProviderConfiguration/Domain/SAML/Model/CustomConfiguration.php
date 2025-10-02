@@ -78,8 +78,8 @@ final class CustomConfiguration implements CustomConfigurationInterface, SAMLCus
     /** @var string */
     private string $userIdAttribute = '';
 
-    /** @var RequestedAuthnContextEnum */
-    private RequestedAuthnContextEnum $requestedAuthnContext;
+    /** @var RequestedAuthnContextComparisonEnum */
+    private RequestedAuthnContextComparisonEnum $requestedAuthnContextComparison;
 
     /** @var bool */
     private bool $logoutFrom = true;
@@ -162,19 +162,19 @@ final class CustomConfiguration implements CustomConfigurationInterface, SAMLCus
     }
 
     /**
-     * @return RequestedAuthnContextEnum
+     * @return RequestedAuthnContextComparisonEnum
      */
-    public function getRequestedAuthnContext(): RequestedAuthnContextEnum
+    public function getRequestedAuthnContextComparison(): RequestedAuthnContextComparisonEnum
     {
-        return $this->requestedAuthnContext;
+        return $this->requestedAuthnContextComparison;
     }
 
     /**
-     * @param RequestedAuthnContextEnum $value
+     * @param RequestedAuthnContextComparisonEnum $value
      */
-    public function setRequestedAuthnContext(RequestedAuthnContextEnum $value): void
+    public function setRequestedAuthnContextComparison(RequestedAuthnContextComparisonEnum $value): void
     {
-        $this->requestedAuthnContext = $value;
+        $this->requestedAuthnContextComparison = $value;
     }
 
     /**
@@ -406,7 +406,7 @@ final class CustomConfiguration implements CustomConfigurationInterface, SAMLCus
 
         $this->setLogoutFromUrl($json['logout_from_url']);
         $this->setUserIdAttribute($json['user_id_attribute']);
-        $this->setRequestedAuthnContext(RequestedAuthnContextEnum::fromString($json['requested_authn_context']));
+        $this->setRequestedAuthnContextComparison(RequestedAuthnContextComparisonEnum::fromString($json['requested_authn_context']));
         $this->setAutoImportEnabled($json['auto_import']);
         $this->setUserNameBindAttribute($json['fullname_bind_attribute']);
         $this->setEmailBindAttribute($json['email_bind_attribute']);

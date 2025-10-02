@@ -55,7 +55,7 @@ it('should present a SAML provider configuration', function (): void {
         'logout_from' => true,
         'logout_from_url' => 'http://127.0.0.1:4000/realms/my-realm/protocol/saml',
         'user_id_attribute' => 'email',
-        'requested_authn_context' => 'exact',
+        'requested_authn_context_comparison' => 'exact',
         'auto_import' => false,
         'contact_template' => null,
         'fullname_bind_attribute' => null,
@@ -90,8 +90,8 @@ it('should present a SAML provider configuration', function (): void {
     expect($presenter->response->logoutFrom)->toBe($customConfiguration->getLogoutFrom());
     expect($presenter->response->logoutFromUrl)->toBe($customConfiguration->getLogoutFromUrl());
     expect($presenter->response->userIdAttribute)->toBe($customConfiguration->getUserIdAttribute());
-    expect($presenter->response->requestedAuthnContext)
-        ->toBe($customConfiguration->getRequestedAuthnContext()->toString());
+    expect($presenter->response->requestedAuthnContextComparison)
+        ->toBe($customConfiguration->getRequestedAuthnContextComparison()->toString());
 });
 
 it('should present an ErrorResponse when an error occurs during the process', function (): void {

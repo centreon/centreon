@@ -43,7 +43,7 @@ export interface SAMLConfigurationToAPI {
   logout_from: boolean;
   logout_from_url: string | null;
   remote_login_url: string;
-  requested_authn_context: string;
+  requested_authn_context_comparison: string;
   roles_mapping: SharedRolesMappingToAPI;
   user_id_attribute: string;
 }
