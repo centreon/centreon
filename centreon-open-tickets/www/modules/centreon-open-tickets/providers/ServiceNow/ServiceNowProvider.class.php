@@ -52,6 +52,7 @@ class ServiceNowProvider extends AbstractProvider
     public const ARG_SEVERITY = 9;
 
     protected $proxy_enabled = 1;
+    protected $close_advanced = 1;
 
     /** @var array<int, string> */
     protected $internal_arg_name = [self::ARG_SHORT_DESCRIPTION => 'ShortDescription', self::ARG_COMMENTS => 'Comments', self::ARG_IMPACT => 'Impact', self::ARG_URGENCY => 'Urgency', self::ARG_CATEGORY => 'Category', self::ARG_SEVERITY => 'Severity', self::ARG_SUBCATEGORY => 'Subcategory', self::ARG_ASSIGNED_TO => 'AssignedTo', self::ARG_ASSIGNMENT_GROUP => 'AssignmentGroup'];
@@ -335,6 +336,9 @@ class ServiceNowProvider extends AbstractProvider
             $data = $this->submitted_config;
             $data['ticket_arguments'] = $ticket_arguments;
             $resultInfo = $this->callServiceNow('createTicket', $data);
+            $file = fopen("/var/log/php-fpm/snow.log", "a");
+            fwrite($file, print_r("\n result info \n", true));
+            fwrite($file, print_r($resultInfo, true));
         } catch (Exception $e) {
             $result['ticket_error_message'] = 'Error during create ServiceNow ticket';
         }
@@ -444,8 +448,11 @@ class ServiceNowProvider extends AbstractProvider
      */
     protected function callServiceNow($methodName, $params = [])
     {
-        $accessToken = $this->getCache('accessToken');
-        $refreshToken = $this->getCache('refreshToken');
+        // $accessToken = $this->getCache('accessToken');
+        // $refreshToken = $this->getCache('refreshToken');
+        $accessToken = "<accessToken>";
+        $refreshToken = "<refreshToken>";
+
         if (is_null($refreshToken)) {
             $tokens = self::getAccessToken(
                 ['instance' => $this->getFormValue('instance_name', false), 'client_id' => $this->getFormValue('client_id', false), 'client_secret' => $this->getFormValue('client_secret', false), 'username' => $this->getFormValue('username', false), 'password' => $this->getFormValue('password', false), 'proxy_address' => $this->getFormValue('proxy_address', false), 'proxy_port' => $this->getFormValue('proxy_port', false), 'proxy_username' => $this->getFormValue('proxy_username', false), 'proxy_password' => $this->getFormValue('proxy_password', false)]
@@ -493,6 +500,10 @@ class ServiceNowProvider extends AbstractProvider
             if (! is_null($data)) {
                 curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
             }
+        }
+
+        if ($method === 'PATCH') {
+            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
         }
 
         $returnJson = curl_exec($ch);
@@ -746,8 +757,56 @@ class ServiceNowProvider extends AbstractProvider
         if (isset($params['ticket_arguments'][$this->internal_arg_name[self::ARG_COMMENTS]])) {
             $data['comments'] = $params['ticket_arguments'][$this->internal_arg_name[self::ARG_COMMENTS]];
         }
-        $result = $this->runHttpRequest($uri, $accessToken, 'POST', $data);
+        //$result = $this->runHttpRequest($uri, $accessToken, 'POST', $data);
 
-        return ['sysTicketId' => $result['result']['sys_id'], 'ticketId' => $result['result']['number']];
+        // return ['sysTicketId' => $result['result']['sys_id'], 'ticketId' => $result['result']['number']];
+        return ['sysTicketId' => 'abcdefghijklmnopqrstuvwyz0123456789', 'ticketId' => 'INC007'];
+    }
+
+    public function closeTicket(&$tickets): void
+    {
+        if ($this->doCloseTicket()) {
+            foreach ($tickets as $k => $v) {
+                try {
+                    $this->callServiceNow('closeTicketSnow', ['ticket_id' => $k]);
+                    $tickets[$k]['status'] = 2;
+                } catch (Exception $e) {
+                    $tickets[$k]['status'] = -1;
+                    $tickets[$k]['msg_error'] = $e->getMessage();
+                }
+            }
+        } else {
+            parent::closeTicket($tickets);
+        }
+    }
+
+    
+    protected function closeTicketSnow($ticketInfo, $accessToken) {
+        $file = fopen("/var/log/php-fpm/snow.log", "a");
+        $sysId = $ticketInfo['ticket_id'];
+        $state = 7;
+        $endpoint = '/api/now/v1/table/incident/' . $sysId;
+        $data = [
+            "state" => $state,
+            "close_notes" => "closed by Centreon"
+        ];
+
+        $json = json_encode($data);
+
+        $instance = $this->getFormValue('instance_name', false);
+
+
+        //$this->runHttpRequest($endpoint, $accessToken, 'PATCH', $data);
+        fwrite($file, print_r('\n endpoint\n', true));
+        fwrite($file, print_r('https://' . $instance . '.service-now.com' . $endpoint, true));
+
+        fwrite($file, print_r('\ndata\n', true));
+        fwrite($file, print_r($json, true));
+
+        fwrite($file, print_r('\nhttp method\n', true));
+        fwrite($file, print_r('PATCH', true));
+
+        fwrite($file, print_r('\ncurl\n', true));
+        fwrite($file, print_r('curl -k https://' . $instance . '.service-now.com' . $endpoint . ' -H "content-type: application/json" -H "Authorization: Bearer ' . $accessToken . '" -X PATCH -d \'' . $json . '\'', true));
     }
 }
