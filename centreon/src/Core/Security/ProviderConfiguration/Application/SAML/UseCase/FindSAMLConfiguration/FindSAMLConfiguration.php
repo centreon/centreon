@@ -75,7 +75,7 @@ final class FindSAMLConfiguration
         $response->remoteLoginUrl = $customConfiguration->getRemoteLoginUrl();
         $response->publicCertificate = $customConfiguration->getPublicCertificate();
         $response->userIdAttribute = $customConfiguration->getUserIdAttribute();
-        $response->requestedAuthnContextComparison = $customConfiguration->getRequestedAuthnContextComparison()->toString();
+        $response->requestedAuthnContextComparison = $customConfiguration->getRequestedAuthnContextComparison()->value;
         $response->logoutFrom = $customConfiguration->getLogoutFrom();
         $response->logoutFromUrl = $customConfiguration->getLogoutFromUrl();
         $response->isAutoImportEnabled = $customConfiguration->isAutoImportEnabled();

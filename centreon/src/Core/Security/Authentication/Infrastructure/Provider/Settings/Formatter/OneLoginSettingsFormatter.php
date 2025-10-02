@@ -74,7 +74,7 @@ class OneLoginSettingsFormatter implements SettingsFormatterInterface
             ],
             'security' => [
                 'requestedAuthnContext' => false,
-                'requestedAuthnContextComparison' => $customConfiguration->getRequestedAuthnContextComparison()->toString(),
+                'requestedAuthnContextComparison' => $customConfiguration->getRequestedAuthnContextComparison()->value,
             ],
         ];
     }

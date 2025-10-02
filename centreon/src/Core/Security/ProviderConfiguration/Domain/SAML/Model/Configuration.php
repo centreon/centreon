@@ -29,6 +29,7 @@ use Security\Domain\Authentication\Interfaces\ProviderConfigurationInterface;
 final class Configuration extends \Core\Security\ProviderConfiguration\Domain\Model\Configuration implements ProviderConfigurationInterface
 {
     /**
+     * @throws ConfigurationException
      * @return CustomConfiguration
      */
     public function getCustomConfiguration(): CustomConfiguration
