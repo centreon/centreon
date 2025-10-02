@@ -60,5 +60,4 @@ interface ReadHostMacroRepositoryInterface
      * @return Macro[]
      */
     public function findPasswords(): array;
-
 }

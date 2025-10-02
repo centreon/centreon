@@ -354,7 +354,7 @@ class Host extends AbstractHost
 
         array_walk(
             $existingHostMacros,
-            fn(Macro &$macro, int|string $key, bool $isPollerEncryptionReady) => $macro->setShouldBeEncrypted($isPollerEncryptionReady),
+            fn (Macro &$macro, int|string $key, bool $isPollerEncryptionReady) => $macro->setShouldBeEncrypted($isPollerEncryptionReady),
             $isPollerEncryptionReady
         );
 
@@ -385,12 +385,12 @@ class Host extends AbstractHost
 
         array_walk(
             $serviceMacros,
-            fn(Macro &$macro, int|string $key, bool $isPollerEncryptionReady) => $macro->setShouldBeEncrypted($isPollerEncryptionReady),
+            fn (Macro &$macro, int|string $key, bool $isPollerEncryptionReady) => $macro->setShouldBeEncrypted($isPollerEncryptionReady),
             $isPollerEncryptionReady
         );
         array_walk(
             $serviceTemplateMacros,
-            fn(Macro &$macro, int|string $key, bool $isPollerEncryptionReady) => $macro->setShouldBeEncrypted($isPollerEncryptionReady),
+            fn (Macro &$macro, int|string $key, bool $isPollerEncryptionReady) => $macro->setShouldBeEncrypted($isPollerEncryptionReady),
             $isPollerEncryptionReady
         );
 

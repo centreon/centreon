@@ -162,7 +162,6 @@ class DbReadHostMacroRepository extends DatabaseRepository implements ReadHostMa
         return $macros;
     }
 
-
     /**
      * @param array{
      *    host_host_id:int,
