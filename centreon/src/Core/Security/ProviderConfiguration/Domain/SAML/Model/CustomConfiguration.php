@@ -65,6 +65,8 @@ final class CustomConfiguration implements CustomConfigurationInterface, SAMLCus
 
     private string $userIdAttribute = '';
 
+    private bool $requestedAuthnContext = false;
+
     private RequestedAuthnContextComparisonEnum $requestedAuthnContextComparison;
 
     private bool $logoutFrom = true;
@@ -119,6 +121,16 @@ final class CustomConfiguration implements CustomConfigurationInterface, SAMLCus
     public function setUserIdAttribute(string $value): void
     {
         $this->userIdAttribute = $value;
+    }
+
+    public function isRequestedAuthnContext(): bool
+    {
+        return $this->requestedAuthnContext;
+    }
+
+    public function setRequestedAuthnContext(bool $requestedAuthnContext): void
+    {
+        $this->requestedAuthnContext = $requestedAuthnContext;
     }
 
     public function getRequestedAuthnContextComparison(): RequestedAuthnContextComparisonEnum
@@ -286,7 +298,7 @@ final class CustomConfiguration implements CustomConfigurationInterface, SAMLCus
         $this->setUserIdAttribute($json['user_id_attribute']);
         $this->setRequestedAuthnContextComparison(
             RequestedAuthnContextComparisonEnum::tryFrom($json['requested_authn_context_comparison'])
-            ?? RequestedAuthnContextComparisonEnum::EXACT
+            ?? throw ConfigurationException::invalidRequestedAuthnContextComparison($json['requested_authn_context_comparison'])
         );
         $this->setAutoImportEnabled($json['auto_import']);
         $this->setUserNameBindAttribute($json['fullname_bind_attribute']);

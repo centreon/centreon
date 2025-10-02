@@ -23,6 +23,8 @@ declare(strict_types=1);
 
 namespace Core\Security\ProviderConfiguration\Application\SAML\UseCase\UpdateSAMLConfiguration;
 
+use Core\Security\ProviderConfiguration\Domain\SAML\Model\RequestedAuthnContextComparisonEnum;
+
 /**
  * @phpstan-type _RolesMapping array{
  *     is_enabled: bool,
@@ -33,43 +35,31 @@ namespace Core\Security\ProviderConfiguration\Application\SAML\UseCase\UpdateSAM
  */
 final class UpdateSAMLConfigurationRequest
 {
-    /** @var bool */
     public bool $isActive = false;
 
-    /** @var bool */
     public bool $isForced = false;
 
-    /** @var string */
     public string $remoteLoginUrl = '';
 
-    /** @var string */
     public string $entityIdUrl = '';
 
-    /** @var string */
     public ?string $publicCertificate = '';
 
-    /** @var string */
     public string $userIdAttribute = '';
 
-    /** @var string */
-    public string $requestedAuthnContextComparison = 'exact';
+    public RequestedAuthnContextComparisonEnum $requestedAuthnContextComparison;
 
-    /** @var bool */
     public bool $logoutFrom = true;
 
-    /** @var string|null */
     public ?string $logoutFromUrl = null;
 
-    /** @var bool */
     public bool $isAutoImportEnabled = false;
 
     /** @var array{id: int, name: string}|null */
     public ?array $contactTemplate = null;
 
-    /** @var string|null */
     public ?string $emailBindAttribute = null;
 
-    /** @var string|null */
     public ?string $userNameBindAttribute = null;
 
     /** @var _RolesMapping */
@@ -122,7 +112,7 @@ final class UpdateSAMLConfigurationRequest
             'entity_id_url' => $this->entityIdUrl,
             'remote_login_url' => $this->remoteLoginUrl,
             'user_id_attribute' => $this->userIdAttribute,
-            'requested_authn_context_comparison' => $this->requestedAuthnContextComparison,
+            'requested_authn_context_comparison' => $this->requestedAuthnContextComparison->value,
             'certificate' => $this->publicCertificate,
             'logout_from' => $this->logoutFrom,
             'logout_from_url' => $this->logoutFromUrl,

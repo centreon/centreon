@@ -132,4 +132,20 @@ class ConfigurationException extends \Exception
             $endpoint
         )));
     }
+
+    /**
+     * Exception thrown when the requested_authn_context_comparison is not valid.
+     * Needs to be one of 'exact', 'minimum', 'maximum', 'better'.
+     *
+     * @param mixed $requested_authn_context_comparison
+     *
+     * @return self
+     */
+    public static function invalidRequestedAuthnContextComparison(mixed $requested_authn_context_comparison) {
+        return new self(_(sprintf(
+            "The requested_authn_context_comparison value is not valid: %s given. Needs to be one of 'exact', 'minimum', 'maximum', 'better'",
+            $requested_authn_context_comparison
+        )));
+    }
+
 }

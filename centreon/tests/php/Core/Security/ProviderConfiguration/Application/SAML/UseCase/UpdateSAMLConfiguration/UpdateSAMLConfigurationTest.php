@@ -42,6 +42,7 @@ use Core\Security\ProviderConfiguration\Domain\Model\GroupsMapping;
 use Core\Security\ProviderConfiguration\Domain\Model\Provider;
 use Core\Security\ProviderConfiguration\Domain\SAML\Model\Configuration;
 use Core\Security\ProviderConfiguration\Domain\SAML\Model\CustomConfiguration;
+use Core\Security\ProviderConfiguration\Domain\SAML\Model\RequestedAuthnContextComparisonEnum;
 
 beforeEach(function (): void {
     $this->repository = $this->createMock(WriteSAMLConfigurationRepositoryInterface::class);
@@ -64,7 +65,7 @@ it('should present a No Content Response when the use case is executed correctly
     $request->logoutFrom = true;
     $request->logoutFromUrl = 'http://127.0.0.1:4000/realms/my-realm/protocol/saml';
     $request->userIdAttribute = 'email';
-    $request->requestedAuthnContextComparison = 'exact';
+    $request->requestedAuthnContextComparison = RequestedAuthnContextComparisonEnum::EXACT;
     $request->isAutoImportEnabled = false;
     $request->contactTemplate = null;
     $request->emailBindAttribute = null;
@@ -149,7 +150,7 @@ it('should presenet an Error Response when an error occurs during the process', 
     $request->logoutFrom = true;
     $request->logoutFromUrl = 'http://127.0.0.1:4000/realms/my-realm/protocol/saml';
     $request->userIdAttribute = 'email';
-    $request->requestedAuthnContextComparison = 'exact';
+    $request->requestedAuthnContextComparison = RequestedAuthnContextComparisonEnum::EXACT;
     $request->isAutoImportEnabled = false;
     $request->contactTemplate = null;
     $request->emailBindAttribute = null;

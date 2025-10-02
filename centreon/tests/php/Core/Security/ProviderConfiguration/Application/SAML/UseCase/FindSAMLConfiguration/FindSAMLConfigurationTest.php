@@ -90,7 +90,7 @@ it('should present a SAML provider configuration', function (): void {
     expect($presenter->response->logoutFrom)->toBe($customConfiguration->getLogoutFrom());
     expect($presenter->response->logoutFromUrl)->toBe($customConfiguration->getLogoutFromUrl());
     expect($presenter->response->userIdAttribute)->toBe($customConfiguration->getUserIdAttribute());
-    expect($presenter->response->requestedAuthnContextComparison)
+    expect($presenter->response->requestedAuthnContextComparison->value)
         ->toBe($customConfiguration->getRequestedAuthnContextComparison()->value);
 });
 

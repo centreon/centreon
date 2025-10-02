@@ -25,6 +25,7 @@ namespace Core\Security\ProviderConfiguration\Infrastructure\SAML\Api\UpdateSAML
 
 use Centreon\Application\Controller\AbstractController;
 use Centreon\Domain\Contact\Contact;
+use Core\Security\ProviderConfiguration\Domain\SAML\Model\RequestedAuthnContextComparisonEnum;
 use Core\Security\ProviderConfiguration\Application\SAML\UseCase\UpdateSAMLConfiguration\{
     UpdateSAMLConfiguration,
     UpdateSAMLConfigurationPresenterInterface,
@@ -65,6 +66,7 @@ final class UpdateSAMLConfigurationController extends AbstractController
     /**
      * @param Request $request
      *
+     * @throws \InvalidArgumentException
      * @return UpdateSAMLConfigurationRequest
      */
     private function createUpdateSAMLConfigurationRequest(Request $request): UpdateSAMLConfigurationRequest
@@ -78,7 +80,9 @@ final class UpdateSAMLConfigurationController extends AbstractController
         $updateRequest->remoteLoginUrl = $requestData['remote_login_url'];
         $updateRequest->publicCertificate = $requestData['certificate'];
         $updateRequest->userIdAttribute = $requestData['user_id_attribute'];
-        $updateRequest->requestedAuthnContextComparison = $requestData['requested_authn_context_comparison'];
+        $updateRequest->requestedAuthnContextComparison =
+            RequestedAuthnContextComparisonEnum::tryFrom($requestData['requested_authn_context_comparison'])
+            ?? throw new \InvalidArgumentException('Invalid requested_authn_context_comparison value');
         $updateRequest->logoutFrom = $requestData['logout_from'];
         $updateRequest->logoutFromUrl = $requestData['logout_from_url'];
         $updateRequest->isAutoImportEnabled = $requestData['auto_import'];
