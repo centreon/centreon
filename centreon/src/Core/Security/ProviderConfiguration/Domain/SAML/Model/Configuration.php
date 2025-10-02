@@ -30,7 +30,6 @@ final class Configuration extends \Core\Security\ProviderConfiguration\Domain\Mo
 {
     /**
      * @throws ConfigurationException
-     * @return CustomConfiguration
      */
     public function getCustomConfiguration(): CustomConfiguration
     {
