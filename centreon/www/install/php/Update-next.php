@@ -121,6 +121,7 @@ $fixTypoInStandardMacroName = function () use ($pearDB, &$errorMessage): void {
             SQL
     );
 };
+
 /** -------------------------------------- Command redesign updates-------------------------------------- */
 $addNewCommandPage = function () use ($pearDB, &$errorMessage): void {
     $errorMessage = 'Unable to add new command page topology';
@@ -264,7 +265,7 @@ $addCommandRightIntoAction = function (string $commandType, int $accessRight, in
     );
 };
 
-$moveCommandACLTopologyIntoACLActions = function () use ($pearDB, &$errorMessage, $deleteCommandsTopologyRights, $getOrCreateActionGroup, $addCommandRightIntoAction): void {
+$moveCommandACLTopologyIntoACLActions = function () use ($pearDB, &$errorMessage, $deleteCommandsTopologyRights, $getOrCreateActionGroup, $addCommandRightIntoAction, $insertNewCommandsTopologyRights): void {
     $errorMessage = 'Unable to read acl topology';
     $topologyGroupRelations = $pearDB->fetchAllAssociative(
         <<<'SQL'
