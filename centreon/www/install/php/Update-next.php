@@ -133,11 +133,11 @@ $fixBrokerConfigTypo = function () use ($pearDB, &$errorMessage): void {
 
 /** -------------------------------------- Engine Configuration updates -------------------------------------- */
 $addOpentelemetryLogLevelColumn = function () use ($pearDB, &$errorMessage): void {
-    $errorMessage = 'Failed to add log_level_opentelemetry column to cfg_nagios_logger table';
+    $errorMessage = 'Failed to add log_level_otl column to cfg_nagios_logger table';
     $pearDB->query(
         <<<'SQL'
             ALTER TABLE `cfg_nagios_logger`
-            ADD COLUMN `log_level_opentelemetry` enum('trace', 'debug', 'info', 'warning', 'err', 'critical', 'off') DEFAULT 'err'
+            ADD COLUMN `log_level_otl` enum('trace', 'debug', 'info', 'warning', 'err', 'critical', 'off') DEFAULT 'err'
             SQL
     );
 };

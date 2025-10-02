@@ -640,8 +640,8 @@
         <td class="FormRowValue">{$form.log_level_runtime.html}</td>
       </tr>
         <tr class="list_two logger_v2_option">
-            <td class="FormRowField">{$form.log_level_opentelemetry.label}</td>
-            <td class="FormRowValue">{$form.log_level_opentelemetry.html}</td>
+            <td class="FormRowField">{$form.log_level_otl.label}</td>
+            <td class="FormRowValue">{$form.log_level_otl.html}</td>
         </tr>
 
 			<tr class="list_lvl_1">
