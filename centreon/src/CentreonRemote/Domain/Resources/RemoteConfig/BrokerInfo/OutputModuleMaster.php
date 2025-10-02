@@ -114,7 +114,7 @@ class OutputModuleMaster
                 'grp_level' => '0',
             ],
             [
-                'config_key' => 'negociation',
+                'config_key' => 'negotiation',
                 'config_value' => 'yes',
                 'config_group' => 'output',
                 'config_group_id' => '0',
