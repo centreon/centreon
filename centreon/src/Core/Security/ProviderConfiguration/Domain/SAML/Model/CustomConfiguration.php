@@ -406,7 +406,7 @@ final class CustomConfiguration implements CustomConfigurationInterface, SAMLCus
 
         $this->setLogoutFromUrl($json['logout_from_url']);
         $this->setUserIdAttribute($json['user_id_attribute']);
-        $this->setRequestedAuthnContextComparison(RequestedAuthnContextComparisonEnum::fromString($json['requested_authn_context']));
+        $this->setRequestedAuthnContextComparison(RequestedAuthnContextComparisonEnum::fromString($json['requested_authn_context_comparison']));
         $this->setAutoImportEnabled($json['auto_import']);
         $this->setUserNameBindAttribute($json['fullname_bind_attribute']);
         $this->setEmailBindAttribute($json['email_bind_attribute']);
