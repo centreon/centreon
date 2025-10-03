@@ -293,8 +293,7 @@ jobs:
             const isStableTag = (tag) => {
               if (/^centreon-[a-z0-9-]+-\d{2}\.\d{2}\.\d+$/.test(tag)) {
                 matched = true;
-              }
-              else if (/^release-(cloud|onprem)-\d{8}-\d{2}\.\d{2}$/.test(tag)) {
+              } else if (/^release-(cloud|onprem)-\d{8}-\d{2}\.\d{2}$/.test(tag)) {
                 matched = true;
               }
               console.log(`Checking if tag '${tag}' matches stable tag pattern: ${matched}`);
