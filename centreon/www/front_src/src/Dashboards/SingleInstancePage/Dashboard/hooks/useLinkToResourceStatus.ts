@@ -29,7 +29,9 @@ const useLinkToResourceStatus = (): UseLinkToResourceStatus => {
   const selectedVisualization = useSetAtom(selectedVisualizationAtom);
   const setSelectedColumnIds = useSetAtom(selectedColumnIdsAtom);
 
-  const getLinkToResourceStatusPage = (data, name, options): string => {
+  const getLinkToResourceStatusPage = (data, name, options?): string => {
+    if (data == null) 
+      return '';
     const resourcesInput = Object.entries(data).find(
       ([, value]) =>
         has('resourceType', value?.[0]) && has('resources', value?.[0])
@@ -48,15 +50,19 @@ const useLinkToResourceStatus = (): UseLinkToResourceStatus => {
     const hasOnlyBV = all(equals('business-view'), resourceTypes);
 
     if (hasOnlyBV) {
-      return `/main.php?p=20701&status=all&bv_id=${resources[0].resources[0].id}`;
+      const id = resources?.[0]?.resources?.[0]?.id;
+      if (!id) return '';
+      return `/main.php?p=20701&status=all&bv_id=${id}`;
     }
 
     if (hasOnlyBA) {
-      return `/monitoring/bam/bas/${resources[0].resources[0].id}`;
+      const id = resources?.[0]?.resources?.[0]?.id;
+      if (!id) return '';
+      return `/monitoring/bam/bas/${id}`;
     }
 
-    if (data?.resources && isNil(data?.metrics)) {
-      const { statuses } = options;
+    if (data[resourcesInputKey] && isNil(data?.metrics)) {
+      const statuses = options?.statuses ?? []
 
       const linkToResourceStatus = getUrlForResourcesOnlyWidgets({
         resources: resources,
