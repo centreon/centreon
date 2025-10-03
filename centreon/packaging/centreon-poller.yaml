@@ -112,6 +112,9 @@ overrides:
       - centreon-poller-centreon-engine
     conflicts:
       - centreon-poller-nagios
+    recommends:
+      - logrotate
+
   deb:
     depends:
       - centreon-common (= ${VERSION}-${RELEASE}${DIST})
@@ -147,6 +150,8 @@ overrides:
       - centreon-poller-centreon-engine
     conflicts:
       - centreon-poller-centreon-engine
+    recommends:
+      - logrotate
 
 rpm:
   summary: Rights and file for pollers (including central)

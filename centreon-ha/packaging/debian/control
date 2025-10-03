@@ -24,7 +24,8 @@ Depends:
   centreon-gorgone (>= ${centreon:version}~),
   centreon-common (<< ${centreon:versionThreshold}~),
   centreon-gorgone (<< ${centreon:versionThreshold}~)
-
+Recommends:
+  logrotate
 
 Package: centreon-ha-web
 Architecture: any
