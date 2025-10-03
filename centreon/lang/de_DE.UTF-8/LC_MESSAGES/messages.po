@@ -12154,6 +12154,10 @@ msgid "Opened on"
 msgstr ""
 
 #: centreon/www/include/configuration/configNagios/formNagios.php
+msgid "Opentelemetry"
+msgstr ""
+
+#: centreon/www/include/configuration/configNagios/formNagios.php
 msgid "Optimization"
 msgstr "Optimierung"
 
