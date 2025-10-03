@@ -441,6 +441,7 @@ overrides:
       - perl-DBD-MySQL
       - perl-DBI
       - perl-HTML-Parser
+      - perl(File::Which)
       - perl(Net::SNMP)
       - rrdtool
       - rrdtool-perl
@@ -494,6 +495,8 @@ overrides:
       - centreon-widget-servicegroup-monitoring
       - centreon-widget-single-metric
       - centreon-widget-tactical-overview
+    recommends:
+      - logrotate
 
   deb:
     depends:
@@ -503,6 +506,7 @@ overrides:
       - centreon-poller (= ${VERSION}-${RELEASE}${DIST})
       - "centreon-broker-cbd (>= ${MAJOR_VERSION}~)"
       - "centreon-broker-cbd (<< ${NEXT_MAJOR_VERSION}~)"
+      - libfile-which-perl
       - lsb-release
       - "mariadb-client | mysql-client"
       - cron
@@ -581,6 +585,8 @@ overrides:
       - centreon-widget-servicegroup-monitoring
       - centreon-widget-single-metric
       - centreon-widget-tactical-overview
+    recommends:
+      - logrotate
 
 rpm:
   summary: Centreon WebUI
