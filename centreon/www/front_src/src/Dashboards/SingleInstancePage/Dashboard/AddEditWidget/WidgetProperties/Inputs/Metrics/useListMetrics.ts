@@ -5,8 +5,10 @@ import {
   gt,
   isEmpty,
   length,
+  map,
   pipe,
   pluck,
+  project,
   uniq,
   uniqBy
 } from 'ramda';
@@ -89,9 +91,19 @@ export const useListMetrics = ({
   const hasMultipleUnitsSelected = gt(length(unitsFromSelectedMetrics), 1);
 
   const metrics: Array<Metric> = pipe(
-    pluck('metrics'),
-    flatten,
-    uniqBy(({ name }) => name)
+    project(['metrics', 'id', 'name']),
+    uniqBy(({ name }) => name),
+    map((item) =>
+      map(
+        (metric) => ({
+          ...metric,
+          serviceId: item?.id,
+          serviceName: item?.name
+        }),
+        item?.metrics
+      )
+    ),
+    flatten
   )(servicesMetrics?.result || []);
 
   return {
