@@ -19,7 +19,6 @@
  *
  */
 
-use Core\MonitoringServer\Application\Repository\ReadMonitoringServerRepositoryInterface;
 use Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException;
 use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
 
