@@ -182,9 +182,9 @@ it('should run found updates', function (): void {
         ->with(new NoContentResponse());
 
     $this->engineRepository
-         ->expects($this->once())
-         ->method('engineSecretsHasContent')
-         ->willReturn(true);
+        ->expects($this->once())
+        ->method('engineSecretsHasContent')
+        ->willReturn(true);
 
     ($this->useCase)($this->presenter);
 });
