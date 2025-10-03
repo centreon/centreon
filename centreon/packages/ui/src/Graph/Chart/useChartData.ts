@@ -40,7 +40,7 @@ const useGraphData = ({ data, end, start }: Props): GraphDataResult => {
       return data;
     }
 
-    if (isEmpty(data.metrics) || isEmpty(data.times)) {
+    if (isEmpty(data.metrics)) {
       return undefined;
     }
 

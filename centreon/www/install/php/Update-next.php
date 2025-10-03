@@ -121,6 +121,16 @@ $fixTypoInStandardMacroName = function () use ($pearDB, &$errorMessage): void {
     );
 };
 
+/** -------------------------------------- Broker configuration -------------------------------------- */
+$fixBrokerConfigTypo = function () use ($pearDB, &$errorMessage): void {
+    $errorMessage = 'Failed to fix typo in broker configuration';
+    $pearDB->executeStatement(
+        <<<'SQL'
+            UPDATE cfg_centreonbroker_info SET config_key = 'negotiation' WHERE config_key = 'negociation'
+            SQL
+    );
+};
+
 try {
     // DDL statements for real time database
     // TODO add your function calls to update the real time database structure here
@@ -137,6 +147,7 @@ try {
     $alignCMAAgentConfigurationWithNewSchema();
     $cleanGlobalMacrosName();
     $fixTypoInStandardMacroName();
+    $fixBrokerConfigTypo();
 
     $pearDB->commit();
 
