@@ -5938,9 +5938,18 @@ msgstr ""
 msgid "Error"
 msgstr ""
 
+#: centreon/www/include/configuration/configObject/host/DB-Func.php
+msgid "Error during creation (json encoding). See logs for more detail"
+msgstr ""
+
 #: centreon/src/Centreon/Infrastructure/Engine/EngineRepositoryFile.php
 #, php-format
 msgid "Error during creation of the CentCore command file (%s)"
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/host/DB-Func.php
+msgid ""
+"Error during update. See logs for more detail or contact your administrator."
 msgstr ""
 
 #: centreon/src/Centreon/Domain/PlatformTopology/PlatformTopologyService.php
