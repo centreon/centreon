@@ -21,30 +21,29 @@
 
 declare(strict_types=1);
 
-namespace Core\Application\Common\UseCase;
+namespace Core\Dashboard\Application\UseCase\FindSingleMetric;
 
-final class InvalidArgumentResponse extends AbstractResponse
+final readonly class FindSingleMetricRequest
 {
     /**
-     * InvalidArgumentResponse constructor
-     *
-     * @param string|\Throwable $message Only to have a message
-     * @param array<string,mixed> $context
-     * @param \Throwable|null $exception
+     * @param int $hostId
+     * @param int $serviceId
+     * @param string $metricName
+     * @throws \InvalidArgumentException
      */
     public function __construct(
-        string|\Throwable $message,
-        array $context = [],
-        private readonly ?\Throwable $exception = null,
+        public int $hostId,
+        public int $serviceId,
+        public string $metricName,
     ) {
-        parent::__construct($message, $context);
-    }
-
-    /**
-     * @return null|\Throwable
-     */
-    public function getException(): ?\Throwable
-    {
-        return $this->exception;
+        if ($hostId <= 0) {
+            throw new \InvalidArgumentException("hostId must be greater than 0, {$hostId} given");
+        }
+        if ($serviceId <= 0) {
+            throw new \InvalidArgumentException("serviceId must be greater than 0, {$serviceId} given");
+        }
+        if (trim($metricName) === '') {
+            throw new \InvalidArgumentException('metricName cannot be empty');
+        }
     }
 }
