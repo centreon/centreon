@@ -582,6 +582,14 @@ services:
         class: Core\Macro\Infrastructure\Repository\DbReadServiceMacroRepository
         public: true
 
+    Core\Service\Application\Repository\ReadServiceRepositoryInterface:
+        class: Core\Service\Infrastructure\Repository\DbReadServiceRepository
+        public: true
+
+    Core\Host\Application\Repository\ReadHostRepositoryInterface:
+        class: Core\Host\Infrastructure\Repository\DbReadHostRepository
+        public: true
+
     # Configuration Notifications
     Core\Notification\Infrastructure\Repository\NotificationResourceRepositoryProvider:
         arguments:
