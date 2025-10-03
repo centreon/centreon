@@ -81,6 +81,7 @@ $alignCMAAgentConfigurationWithNewSchema = function () use ($pearDB, &$errorMess
     }
 };
 
+/** -------------------------------------- Global macros -------------------------------------- */
 $cleanGlobalMacrosName = function () use ($pearDB, &$errorMessage): void {
     $errorMessage = 'Failed to update cfg_resource table';
     $invalidMacros = $pearDB->fetchAllAssociative(
@@ -121,6 +122,217 @@ $fixTypoInStandardMacroName = function () use ($pearDB, &$errorMessage): void {
     );
 };
 
+/** -------------------------------------- Command redesign updates-------------------------------------- */
+$addNewCommandPage = function () use ($pearDB, &$errorMessage): void {
+    $errorMessage = 'Unable to add new command page topology';
+    $alreadyExist = $pearDB->fetchOne(
+        <<<'SQL'
+            SELECT 1 FROM topology WHERE topology_page = 60808
+            SQL
+    );
+    if ($alreadyExist) {
+        return;
+    }
+
+    $pearDB->executeStatement(
+        <<<'SQL'
+            INSERT INTO `topology` (`topology_name`, `topology_url`, `readonly`, `is_react`, `topology_parent`, `topology_page`, `topology_order`, `topology_group`)
+            VALUES ( 'Commands', '/configuration/commands', '1', '1', 608, 60808, 1, 1)
+            SQL
+    );
+};
+
+$deleteCommandsTopologyRights = function (int $aclTopologyId) use ($pearDB, &$errorMessage): void {
+    $errorMessage = 'Unable to delete from table acl_topology_relations';
+    $pearDB->executeStatement(
+        <<<'SQL'
+            DELETE acl_topology_relations
+            FROM acl_topology_relations
+            WHERE acl_topology_relations.acl_topo_id = :acl_topo_id
+            AND acl_topology_relations.topology_topology_id IN (
+                SELECT topology_id FROM topology WHERE topology_page IN (60801, 60802, 60803, 60807)
+            )
+            SQL,
+        QueryParameters::create([
+            QueryParameter::int('acl_topo_id', $aclTopologyId),
+        ])
+    );
+};
+
+$insertNewCommandsTopologyRights = function (int $aclTopologyId) use ($pearDB, &$errorMessage): void {
+    $errorMessage = 'Unable to insert into table acl_topology_relations';
+    $pearDB->executeStatement(
+        <<<'SQL'
+            INSERT INTO acl_topology_relations (acl_topo_id, topology_topology_id, access_right)
+            VALUES (:acl_topo_id, :topology_topology_id, :access_right)
+            SQL,
+        QueryParameters::create([
+            QueryParameter::int('acl_topo_id', $aclTopologyId),
+            QueryParameter::int('topology_topology_id', 60808),
+            QueryParameter::int('access_right', 1),
+        ])
+    );
+};
+
+$getOrCreateActionGroup = function (int $aclGroupId, array &$actionGroupRelations) use ($pearDB, &$errorMessage): array {
+    $actionGroup = null;
+    foreach ($actionGroupRelations as $relation) {
+        if ($relation['acl_group_id'] === $aclGroupId) {
+            $actionGroup = $relation;
+            break;
+        }
+    }
+
+    if ($actionGroup !== null) {
+
+        return $actionGroup;
+    }
+
+    $errorMessage = 'Unable to create a new acl_action';
+    $pearDB->executeStatement(
+        <<<'SQL'
+            INSERT INTO acl_actions (acl_action_name, acl_action_activate)
+            VALUES (CONCAT((SELECT acl_group_name FROM acl_groups WHERE acl_group_id = :acl_group_id), '_actions'), '1')
+            SQL,
+        QueryParameters::create([
+            QueryParameter::int('acl_group_id', $aclGroupId),
+        ])
+    );
+    $actionId = (int) $pearDB->lastInsertId();
+
+    $errorMessage = 'Unable to link a new acl_action to an acl_group';
+    $pearDB->executeStatement(
+        <<<'SQL'
+            INSERT INTO acl_group_actions_relations (acl_group_id, acl_action_id)
+            VALUES (:acl_group_id, :acl_action_id)
+            SQL,
+        QueryParameters::create([
+            QueryParameter::int('acl_group_id', $aclGroupId),
+            QueryParameter::int('acl_action_id', $actionId),
+        ])
+    );
+    $actionGroup = [
+        'acl_group_id' => $aclGroupId,
+        'acl_action_id' => $actionId,
+    ];
+    $actionGroupRelations[] = $actionGroup;
+
+    return $actionGroup;
+};
+
+$addCommandRightIntoAction = function (string $commandType, int $accessRight, int $aclActionId) use ($pearDB, &$errorMessage): void {
+    if ($accessRight === 0) {
+        return;
+    }
+    $actionName = match($accessRight) {
+        1 => "manage_{$commandType}_commands",
+        2 => "see_{$commandType}_commands",
+        default => null,
+    };
+
+    if ($actionName === null) {
+        // Should never occur
+        return;
+    }
+
+    $errorMessage = 'Unable to read into table acl_actions_rules';
+    $alreadyExist = $pearDB->fetchOne(
+        <<<'SQL'
+            SELECT 1 FROM acl_actions_rules
+            WHERE acl_action_rule_id = :acl_action_id
+            AND acl_action_name = :action_name
+            SQL,
+        QueryParameters::create([
+            QueryParameter::int('acl_action_id', $aclActionId),
+            QueryParameter::string('action_name', $actionName),
+        ])
+    );
+
+    if ($alreadyExist) {
+        return;
+    }
+
+    $errorMessage = 'Unable to insert into table acl_actions_rules';
+    $pearDB->executeStatement(
+        <<<'SQL'
+            INSERT INTO acl_actions_rules (acl_action_rule_id, acl_action_name)
+            VALUES (:acl_action_id, :action_name)
+            SQL,
+        QueryParameters::create([
+            QueryParameter::int('acl_action_id', $aclActionId),
+            QueryParameter::string('action_name', $actionName),
+        ])
+    );
+};
+
+$moveCommandACLTopologyIntoACLActions = function () use ($pearDB, &$errorMessage, $deleteCommandsTopologyRights, $getOrCreateActionGroup, $addCommandRightIntoAction, $insertNewCommandsTopologyRights): void {
+    $errorMessage = 'Unable to read acl topology';
+    $topologyGroupRelations = $pearDB->fetchAllAssociative(
+        <<<'SQL'
+            SELECT acl_topology.acl_topo_id, group_topo_rel.acl_group_id FROM acl_topology
+            LEFT JOIN acl_group_topology_relations as group_topo_rel
+                ON acl_topology.acl_topo_id = group_topo_rel.acl_topology_id
+            SQL
+    );
+
+    $errorMessage = 'Unable to read acl actions';
+    $actionGroupRelations = $pearDB->fetchAllAssociative(
+        <<<'SQL'
+            SELECT action.acl_action_id, group_action_rel.acl_group_id FROM acl_actions as action
+            LEFT JOIN acl_group_actions_relations as group_action_rel
+                ON action.acl_action_id = group_action_rel.acl_action_id
+            SQL
+    );
+
+    foreach ($topologyGroupRelations as $topoGroup) {
+        $aclGroupId = $topoGroup['acl_group_id'];
+        $aclTopologyId = $topoGroup['acl_topo_id'];
+        $commandAccessRights = $pearDB->fetchAllAssociative(
+            <<<'SQL'
+                SELECT
+                    topology.topology_name,
+                    acl_topo_rel.topology_topology_id as topology_id,
+                    acl_topo_rel.access_right
+                FROM topology
+                INNER JOIN acl_topology_relations as acl_topo_rel
+                    ON topology.topology_id = acl_topo_rel.topology_topology_id
+                    AND acl_topo_rel.acl_topo_id = :acl_topo_id
+                WHERE topology.topology_page IN (60801, 60802, 60803, 60807)
+                SQL,
+            QueryParameters::create([
+                QueryParameter::int('acl_topo_id', $aclTopologyId),
+            ])
+        );
+        if ($commandAccessRights === []) {
+            continue;
+        }
+        if ($topoGroup['acl_group_id'] === null) {
+            $deleteCommandsTopologyRights($aclTopologyId);
+            continue;
+        }
+
+        $actionGroup = $getOrCreateActionGroup($aclGroupId, $actionGroupRelations);
+
+        foreach ($commandAccessRights as $commandRights) {
+            $commandType = match($commandRights['topology_name']) {
+                'Checks' => 'check',
+                'Notifications' => 'notification',
+                'Discovery' => 'discovery',
+                'Miscellaneous' => 'miscellaneous',
+            };
+
+            $addCommandRightIntoAction($commandType, $commandRights['access_right'], $actionGroup['acl_action_id']);
+        }
+        $topologyToClean[] = $aclTopologyId;
+    }
+
+    $topologyToClean = array_unique($topologyToClean ?? []);
+    foreach ($topologyToClean ?? [] as $aclTopologyId) {
+        $insertNewCommandsTopologyRights($aclTopologyId);
+        $deleteCommandsTopologyRights($aclTopologyId);
+    }
+};
+
 try {
     // DDL statements for real time database
     // TODO add your function calls to update the real time database structure here
@@ -137,6 +349,8 @@ try {
     $alignCMAAgentConfigurationWithNewSchema();
     $cleanGlobalMacrosName();
     $fixTypoInStandardMacroName();
+    $addNewCommandPage();
+    $moveCommandACLTopologyIntoACLActions();
 
     $pearDB->commit();
 
