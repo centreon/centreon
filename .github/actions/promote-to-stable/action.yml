@@ -33,14 +33,14 @@ runs:
   using: "composite"
   steps:
     - name: Validate inputs
-      uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+      uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
       with:
         script: |
           if (! ['release', 'hotfix'].includes('${{ inputs.release_type }}')) {
             throw new Error('release_type input must be defined (release or hotfix)');
           }
 
-    - uses: jfrog/setup-jfrog-cli@ff5cb544114ffc152db9cea1cd3d5978d5074946 # v4.5.11
+    - uses: jfrog/setup-jfrog-cli@88e9eba31c07e31beefa4cef5c0e93d1af9535d7 # v4.6.1
       env:
         JF_URL: https://packages.centreon.com
         JF_ACCESS_TOKEN: ${{ inputs.artifactory_token }}
