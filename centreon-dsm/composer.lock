@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "c97d5f98f279fe1abc08da2535daaca7",
+    "content-hash": "635f54f07f754b5c9a65097e9d6e5d13",
     "packages": [],
     "packages-dev": [
         {
@@ -1458,11 +1458,11 @@
         },
         {
             "name": "centreon/centreon",
-            "version": "25.09",
+            "version": "25.10",
             "dist": {
                 "type": "path",
                 "url": "../centreon",
-                "reference": "1c527b96b08644d53db1614c554eb20ddacec2dc"
+                "reference": "84b7df4f6c57ed2a1e29f646e64f8e3440a7718b"
             },
             "require": {
                 "amphp/http-client": "4.6.*",
@@ -1526,6 +1526,7 @@
                 "symfony/http-foundation": "7.3.*",
                 "symfony/http-kernel": "7.3.*",
                 "symfony/lock": "7.3.*",
+                "symfony/messenger": "7.3.*",
                 "symfony/mime": "7.3.*",
                 "symfony/monolog-bundle": "3.10.*",
                 "symfony/property-info": "7.3.*",
@@ -1553,7 +1554,7 @@
             },
             "require-dev": {
                 "behat/mink-selenium2-driver": "1.6.*",
-                "centreon/centreon-test-lib": "dev-master",
+                "centreon/centreon-test-lib": "25.10.x-dev",
                 "dama/doctrine-test-bundle": "8.2.*",
                 "friends-of-behat/mink": "1.11.*",
                 "friends-of-behat/mink-extension": "2.7.*",
@@ -1724,6 +1725,12 @@
                 "test:ci": [
                     "@test --log-junit ./build/phpunit.xml --coverage-clover ./build/coverage-be.xml"
                 ],
+                "test:new": [
+                    "./vendor/bin/phpunit --configuration phpunit.new.xml"
+                ],
+                "test:new:wip": [
+                    "@test:new --group wip"
+                ],
                 "rector": [
                     "@rector:legacy",
                     "@rector:core",
@@ -1773,6 +1780,7 @@
                     "@legacy:check",
                     "@core:check",
                     "@new:check",
+                    "@test:new",
                     "@test"
                 ]
             },
@@ -1786,16 +1794,16 @@
         },
         {
             "name": "centreon/centreon-test-lib",
-            "version": "dev-master",
+            "version": "25.10.x-dev",
             "source": {
                 "type": "git",
                 "url": "https://github.com/centreon/centreon-test-lib.git",
-                "reference": "b6eb799c0c06be38e28d9b6bfd82003c2bc8d8ce"
+                "reference": "abeadc806e379fbdfd9c1acff84461fb1e3b86a4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/centreon/centreon-test-lib/zipball/b6eb799c0c06be38e28d9b6bfd82003c2bc8d8ce",
-                "reference": "b6eb799c0c06be38e28d9b6bfd82003c2bc8d8ce",
+                "url": "https://api.github.com/repos/centreon/centreon-test-lib/zipball/abeadc806e379fbdfd9c1acff84461fb1e3b86a4",
+                "reference": "abeadc806e379fbdfd9c1acff84461fb1e3b86a4",
                 "shasum": ""
             },
             "require": {
@@ -1816,7 +1824,6 @@
                 "behat/mink": "Browser controller/emulator abstraction for PHP",
                 "behat/mink-selenium2-driver": "Mink driver using Selenium"
             },
-            "default-branch": true,
             "type": "library",
             "autoload": {
                 "psr-4": {
@@ -1834,9 +1841,9 @@
             ],
             "support": {
                 "issues": "https://github.com/centreon/centreon-test-lib/issues",
-                "source": "https://github.com/centreon/centreon-test-lib/tree/master"
+                "source": "https://github.com/centreon/centreon-test-lib/tree/25.10.x"
             },
-            "time": "2025-08-25T14:27:53+00:00"
+            "time": "2025-10-03T08:42:07+00:00"
         },
         {
             "name": "composer/pcre",
@@ -7917,6 +7924,99 @@
                 }
             ],
             "time": "2025-04-20T20:19:01+00:00"
+        },
+        {
+            "name": "symfony/messenger",
+            "version": "v7.3.3",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/messenger.git",
+                "reference": "d9e04339404ba2dcd04c24172125516dc0e06c35"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/messenger/zipball/d9e04339404ba2dcd04c24172125516dc0e06c35",
+                "reference": "d9e04339404ba2dcd04c24172125516dc0e06c35",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=8.2",
+                "psr/log": "^1|^2|^3",
+                "symfony/clock": "^6.4|^7.0",
+                "symfony/deprecation-contracts": "^2.5|^3"
+            },
+            "conflict": {
+                "symfony/console": "<7.2",
+                "symfony/event-dispatcher": "<6.4",
+                "symfony/event-dispatcher-contracts": "<2.5",
+                "symfony/framework-bundle": "<6.4",
+                "symfony/http-kernel": "<6.4",
+                "symfony/lock": "<6.4",
+                "symfony/serializer": "<6.4"
+            },
+            "require-dev": {
+                "psr/cache": "^1.0|^2.0|^3.0",
+                "symfony/console": "^7.2",
+                "symfony/dependency-injection": "^6.4|^7.0",
+                "symfony/event-dispatcher": "^6.4|^7.0",
+                "symfony/http-kernel": "^6.4|^7.0",
+                "symfony/lock": "^6.4|^7.0",
+                "symfony/process": "^6.4|^7.0",
+                "symfony/property-access": "^6.4|^7.0",
+                "symfony/rate-limiter": "^6.4|^7.0",
+                "symfony/routing": "^6.4|^7.0",
+                "symfony/serializer": "^6.4|^7.0",
+                "symfony/service-contracts": "^2.5|^3",
+                "symfony/stopwatch": "^6.4|^7.0",
+                "symfony/validator": "^6.4|^7.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Symfony\\Component\\Messenger\\": ""
+                },
+                "exclude-from-classmap": [
+                    "/Tests/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Samuel Roze",
+                    "email": "samuel.roze@gmail.com"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "https://symfony.com/contributors"
+                }
+            ],
+            "description": "Helps applications send and receive messages to/from other applications or via message queues",
+            "homepage": "https://symfony.com",
+            "support": {
+                "source": "https://github.com/symfony/messenger/tree/v7.3.3"
+            },
+            "funding": [
+                {
+                    "url": "https://symfony.com/sponsor",
+                    "type": "custom"
+                },
+                {
+                    "url": "https://github.com/fabpot",
+                    "type": "github"
+                },
+                {
+                    "url": "https://github.com/nicolas-grekas",
+                    "type": "github"
+                },
+                {
+                    "url": "https://tidelift.com/funding/github/packagist/symfony/symfony",
+                    "type": "tidelift"
+                }
+            ],
+            "time": "2025-08-13T11:49:31+00:00"
         },
         {
             "name": "symfony/mime",
