@@ -19,6 +19,4 @@
  *
  */
 
-@unlink(__DIR__ . '/../routes/CentreonOpenTickets.yaml');
-touch(__DIR__ . '/../routes/CentreonOpenTickets.yaml');
-require 'clear_cache.php';
+require __DIR__ . '/clear_cache.php';
