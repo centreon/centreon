@@ -1201,16 +1201,15 @@ jobs:
 
   deliver-rpm:
     runs-on: centreon-common
-    # needs:
-    #   [
-    #     changes,
-    #     get-environment,
-    #     newman-test,
-    #     e2e-test,
-    #     performances-test,
-    #     legacy-e2e-test
-    #   ]
-    needs: [changes, get-environment]
+    needs:
+      [
+        changes,
+        get-environment,
+        newman-test,
+        e2e-test,
+        performances-test,
+        legacy-e2e-test
+      ]
     if: |
       needs.get-environment.outputs.skip_workflow == 'false' &&
       ((needs.get-environment.outputs.delivery_type == 'feature' && contains(github.event.pull_request.labels.*.name, 'delivery-feature')) ||
@@ -1244,16 +1243,15 @@ jobs:
 
   deliver-deb:
     runs-on: centreon-common
-    # needs:
-    #   [
-    #     changes,
-    #     get-environment,
-    #     newman-test,
-    #     e2e-test,
-    #     performances-test,
-    #     legacy-e2e-test
-    #   ]
-    needs: [changes, get-environment]
+    needs:
+      [
+        changes,
+        get-environment,
+        newman-test,
+        e2e-test,
+        performances-test,
+        legacy-e2e-test
+      ]
     if: |
       needs.get-environment.outputs.skip_workflow == 'false' &&
       contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability) &&
