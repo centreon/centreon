@@ -17,10 +17,11 @@ import {
   getResourcesUrlForMetricsWidgets,
   getUrlForResourcesOnlyWidgets
 } from '../utils';
+import { areResourcesFullfilled } from '../Widgets/utils';
 
 interface UseLinkToResourceStatus {
   changeViewMode: (options) => void;
-  getLinkToResourceStatusPage: (data, name) => string;
+  getLinkToResourceStatusPage: (data, name, options) => string;
   getPageType: (data) => string | null;
 }
 
@@ -34,7 +35,8 @@ const useLinkToResourceStatus = (): UseLinkToResourceStatus => {
         has('resourceType', value?.[0]) && has('resources', value?.[0])
     );
     const resourcesInputKey = resourcesInput?.[0];
-    if (!resourcesInputKey || !data?.[resourcesInputKey]) {
+
+    if (!resourcesInputKey || !data?.[resourcesInputKey] || !areResourcesFullfilled(data?.[resourcesInputKey])) {
       return '';
     }
 
