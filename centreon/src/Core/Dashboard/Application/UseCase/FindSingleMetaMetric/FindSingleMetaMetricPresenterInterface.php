@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,24 +21,11 @@
 
 declare(strict_types=1);
 
-namespace Core\Application\Common\UseCase;
+namespace Core\Dashboard\Application\UseCase\FindSingleMetaMetric;
 
-final class NotFoundResponse extends AbstractResponse
+use Core\Application\Common\UseCase\ResponseStatusInterface;
+
+interface FindSingleMetaMetricPresenterInterface
 {
-    /**
-     * @param string|\Throwable $objectNotFound
-     * @param array<string,mixed> $context
-     */
-    public function __construct(
-        string|\Throwable $objectNotFound,
-        array $context = [],
-    )
-    {
-        parent::__construct(
-            \is_string($objectNotFound)
-                ? $objectNotFound . ' not found'
-                : $objectNotFound,
-            $context
-        );
-    }
+    public function presentResponse(FindSingleMetaMetricResponse|ResponseStatusInterface $response): void;
 }

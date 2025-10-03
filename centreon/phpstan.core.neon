@@ -80,6 +80,10 @@ parameters:
                 - src/Core/Media/Application/UseCase/MigrateAllMedias/MigrateAllMedias.php
                 - src/Core/Media/Application/UseCase/UpdateMedia/UpdateMedia.php
                 - src/Core/Dashboard/Application/UseCase/AddDashboardThumbnail/AddDashboardThumbnail.php
+                - src/Core/Dashboard/Infrastructure/API/FindSingleMetric
+                - src/Core/Dashboard/Infrastructure/API/FindSingleMetaMetric
+                - src/Core/Metric/Infrastructure/Repository/DbReadMetricRepository.php
+                - src/Core/Service/Infrastructure/Repository/DbReadRealTimeServiceRepository.php
                 - src/Core/Command/Infrastructure/Command/MigrateAllCommands/MigrateAllCommandsCommand.php
                 - src/Core/Command/Application/UseCase/MigrateAllCommands/MigrateAllCommands.php
                 - src/Core/UserProfile/Infrastructure/Repository/DbWriteUserProfileRepository.php

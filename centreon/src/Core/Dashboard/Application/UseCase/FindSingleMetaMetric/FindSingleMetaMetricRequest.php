@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,24 +21,24 @@
 
 declare(strict_types=1);
 
-namespace Core\Application\Common\UseCase;
+namespace Core\Dashboard\Application\UseCase\FindSingleMetaMetric;
 
-final class NotFoundResponse extends AbstractResponse
+final readonly class FindSingleMetaMetricRequest
 {
     /**
-     * @param string|\Throwable $objectNotFound
-     * @param array<string,mixed> $context
+     * @param int $metaServiceId
+     * @param string $metricName
+     * @throws \InvalidArgumentException
      */
     public function __construct(
-        string|\Throwable $objectNotFound,
-        array $context = [],
-    )
-    {
-        parent::__construct(
-            \is_string($objectNotFound)
-                ? $objectNotFound . ' not found'
-                : $objectNotFound,
-            $context
-        );
+        public int $metaServiceId,
+        public string $metricName,
+    ) {
+        if ($metaServiceId <= 0) {
+            throw new \InvalidArgumentException("metaServiceId must be greater than 0, {$metaServiceId} given");
+        }
+        if (trim($metricName) === '') {
+            throw new \InvalidArgumentException('metricName cannot be empty');
+        }
     }
 }
