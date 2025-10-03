@@ -50,9 +50,9 @@ post:
     '201':
       description: "Created"
       content:
-          application/json:
-            schema:
-              $ref: 'Schema/AddServiceTemplateResponse.yaml'
+        application/json:
+          schema:
+            $ref: 'Schema/AddServiceTemplateResponse.yaml'
     '400':
       $ref: '../../../Common/Response/BadRequest.yaml'
     '403':
