@@ -64,7 +64,7 @@ final class UpdateVersions
         Container $dependencyInjector,
         private readonly ContactInterface $user,
         private readonly InstallationHelper $installationHelper,
-        private readonly EngineRepositoryInterface $engineRepository
+        private readonly EngineRepositoryInterface $engineRepository,
     ) {
         /** @var CentreonModuleService $service */
         $service = $dependencyInjector[ServiceProvider::CENTREON_MODULE];
