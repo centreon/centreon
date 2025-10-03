@@ -19,16 +19,24 @@
  *
  */
 
-$routeFile = 'CentreonOpenTickets.yaml';
-$moduleRoutesPath = __DIR__ . '/../routes/';
+declare(strict_types=1);
 
-@unlink($moduleRoutesPath . $routeFile);
+namespace CentreonOpenTickets\Routing;
 
-if (file_exists($moduleRoutesPath . $routeFile . '.wait')) {
-    copy(
-        $moduleRoutesPath . $routeFile . '.wait',
-        $moduleRoutesPath . $routeFile
-    );
+use Core\Common\Infrastructure\Routing\ModuleRouteLoader;
+
+final readonly class RouteLoader extends ModuleRouteLoader
+{
+    public const MODULE_NAME = 'centreon-open-tickets';
+    public const MODULE_DIRECTORY = 'CentreonOpenTickets';
+
+    protected function getModuleName(): string
+    {
+        return self::MODULE_NAME;
+    }
+
+    protected function getModuleDirectory(): string
+    {
+        return self::MODULE_DIRECTORY;
+    }
 }
-
-require 'clear_cache.php';
