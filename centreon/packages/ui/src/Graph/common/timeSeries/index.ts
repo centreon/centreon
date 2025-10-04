@@ -72,7 +72,7 @@ const toTimeTickValue = (
   const getMetricsForIndex = (): Omit<TimeValue, 'timeTick'> => {
     const addMetricForTimeIndex = (acc, { metric_id, data }): TimeValue => ({
       ...acc,
-      [metric_id]: data[timeIndex] || null
+      [metric_id]: data[timeIndex] === undefined ? null : data[timeIndex]
     });
 
     return reduce(addMetricForTimeIndex, {} as TimeValue, metrics);
