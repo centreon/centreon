@@ -21,28 +21,20 @@
 
 declare(strict_types=1);
 
-use PhpCsFixer\Finder;
-use Tools\PhpCsFixer\PhpCsFixerRuleSet;
+use Tools\PhpCsFixer\Command\RunCsFixerOnDiffCommand;
+use Tools\PhpCsFixer\Command\RunCsFixerOnDiffCommandHandler;
 
-$config = require_once __DIR__ . '/../php-tools/php-cs-fixer/config/base.strict.php';
+require_once __DIR__ . '/../php-tools/vendor/autoload.php';
 
-$finder = Finder::create()
-    ->in([
-        __DIR__ . '/php-cs-fixer/',
-        __DIR__ . '/phpstan/',
-        __DIR__ . '/rector/',
-    ])
-    ->append([
-        __DIR__ . '/.php-cs-fixer.php',
-        __DIR__ . '/rector.php',
-    ]);
+$pathsConfig = require_once __DIR__ . '/.php-cs-fixer.conf.php';
 
-return $config
-    ->setRules(array_merge(
-        PhpCsFixerRuleSet::getRules(),
-        [
-            'psr_autoloading' => false, // This rule is not compatible with php-tools directory architecture
-        ]
-    ))
-    ->setFinder($finder)
-    ->setCacheFile('.php-cs-fixer.cache');
+$args = $_SERVER['argv'] ?? [];
+
+$runCsFixerOnDiffCommand = new RunCsFixerOnDiffCommand(
+    moduleName: 'centreon-awie',
+    sections: ['legacy'],
+    pathsConfig: $pathsConfig,
+    args: $args
+);
+$runCsFixerOnDiffCommandHandler = new RunCsFixerOnDiffCommandHandler();
+$runCsFixerOnDiffCommandHandler->run($runCsFixerOnDiffCommand);
