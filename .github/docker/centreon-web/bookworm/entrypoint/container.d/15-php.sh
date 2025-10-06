@@ -1,7 +1,9 @@
 #!/bin/sh
 
-APP_ENV="${APP_ENV:=-prod}"
+: "${APP_ENV:=prod}"
 : "${APP_SECRET:=}"
+
+export APP_ENV APP_SECRET
 
 # if a .env.local file was mounted (dev), keep it. Otherwise render compiled PHP env file.
 if [ -f /usr/share/centreon/.env.local ]; then
