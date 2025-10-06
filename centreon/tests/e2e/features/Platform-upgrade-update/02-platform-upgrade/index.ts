@@ -153,31 +153,24 @@ Given(
 
       cy.get('@majorVersionFrom')
         .then((majorVersionFrom) => {
-          const imageName = `docker.centreon.com/centreon/centreon-web-dependencies-${Cypress.env(
-            'WEB_IMAGE_OS'
-          )}:${majorVersionFrom}`;
+          const image = `docker.centreon.com/centreon/centreon-web-dependencies-${Cypress.env('WEB_IMAGE_OS')}:${majorVersionFrom}`;
+          cy.log(`Checking if Docker image exists: ${image}`);
 
-          cy.log(`Checking if Docker image exists: ${imageName}`);
+          return cy.task('checkDockerImage', { image, name: 'web' });
+        })
+        .then((result: any) => {
+          if (!result.exists) {
+            cy.log(`⚠️ Image ${result.image} not found, skipping test`);
+            return cy.wrap('skipped');
+          }
 
-          // Utiliser la nouvelle tâche checkDockerImage
-          return cy.task('checkDockerImage', imageName).then((imageExists) => {
-            if (!imageExists) {
-              cy.log(`❌ Image ${imageName} not found, skipping test`);
-              return cy.stopContainer({ name: 'web' }).wrap('skipped');
-            }
+          cy.log(`✅ Image ${result.image} found, starting container...`);
 
-            cy.log(`✅ Image ${imageName} found, starting container`);
-            return cy.startContainer({
-              command: 'tail -f /dev/null',
-              image: imageName,
-              name: 'web',
-              portBindings: [
-                {
-                  destination: 4000,
-                  source: 80
-                }
-              ]
-            });
+          return cy.startContainer({
+            command: 'tail -f /dev/null',
+            image: result.image,
+            name: 'web',
+            portBindings: [{ destination: 4000, source: 80 }]
           });
         })
         .then(() => {
@@ -306,6 +299,5 @@ EOF`,
 );
 
 afterEach(() => {
-  cy.visitEmptyPage()
-    .stopContainer({ name: "web" });
+  cy.visitEmptyPage().stopContainer({ name: 'web' });
 });

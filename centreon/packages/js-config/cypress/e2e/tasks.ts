@@ -54,47 +54,36 @@ export default (on: Cypress.PluginEvents): void => {
   }
 
   on("task", {
-    checkDockerImage: async ({ command, image, name, portBindings = [] }) => {
+    checkDockerImage: async (params: StartContainerProps) => {
+      const { image, name } = params;
       console.log(`🔍 [checkDockerImage] Checking if image exists: ${image}`);
 
+      if (!image) {
+        console.error("❌ [checkDockerImage] No image name provided");
+        return { exists: false, error: "Image name is undefined" };
+      }
+
       try {
-        let container = new GenericContainer(image).withName(name);
-
-        portBindings.forEach(({ source, destination }) => {
-          container = container.withExposedPorts({
-            container: source,
-            host: destination,
-          });
-        });
-
-        if (command) {
-          container = container
-            .withCommand(["bash", "-c", command])
-            .withWaitStrategy(Wait.forSuccessfulCommand("ls"));
-        }
-
-        const startedContainer = await container.start();
-
-        await startedContainer.stop();
-
-        console.log(`✅ [checkDockerImage] Image exists and container started: ${image}`);
+        // Vérifie si l’image est déjà présente localement
+        execSync(`docker image inspect ${image}`, { stdio: "ignore" });
+        console.log(`✅ [checkDockerImage] Image already exists locally: ${image}`);
         return { exists: true, image };
-      } catch (error: unknown) {
-        let msg = "Unknown error";
+      } catch {
+        console.log(`ℹ️ [checkDockerImage] Image not found locally, trying to pull...`);
 
-        if (error instanceof Error) {
-          msg = error.message;
-        } else if (typeof error === "string") {
-          msg = error;
+        try {
+          // Tente de la pull depuis le registre Docker
+          execSync(`docker pull ${image}`, { stdio: "pipe" });
+          console.log(`✅ [checkDockerImage] Image successfully pulled: ${image}`);
+          return { exists: true, image };
+        } catch (err: unknown) {
+          const errorMessage =
+            err instanceof Error ? err.message : JSON.stringify(err);
+          console.warn(`⚠️ [checkDockerImage] Image not found or pull failed: ${errorMessage}`);
+
+          // Pas d’erreur fatale : on retourne exists=false pour skip le test proprement
+          return { exists: false, error: errorMessage, image };
         }
-
-        if (msg.includes("not found") || msg.includes("No such image")) {
-          console.error(`❌ [checkDockerImage] Image not found: ${image}`);
-          return { exists: false, image };
-        }
-
-        console.error(`⚠️ [checkDockerImage] Error while checking image: ${msg}`);
-        return { exists: false, image, error: msg };
       }
     },
     copyFromContainer: async ({ destination, serviceName, source }) => {
