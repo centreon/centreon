@@ -1,6 +1,6 @@
 #!/bin/sh
 
-: "${APP_ENV:=prod}"
+APP_ENV="${APP_ENV:=-prod}"
 : "${APP_SECRET:=}"
 
 # if a .env.local file was mounted (dev), keep it. Otherwise render compiled PHP env file.
