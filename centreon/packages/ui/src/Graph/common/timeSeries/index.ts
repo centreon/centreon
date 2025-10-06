@@ -406,10 +406,10 @@ const getScale = ({
     : getSanitizedValues([
         getMax(graphValues),
         getMax(stackedValues),
-        hasOnlyZeroesHasValue(graphValues) ? 1 : 0,
+        hasOnlyZeroesHasValue(graphValues) ? 1 : null,
         Math.max(...thresholds)
       ]);
-  const maxValue = Math.max(...sanitizedValuesForMaximum);
+  const maxValue = Math.max(...sanitizedValuesForMaximum.filter(identity));
   const maxValueWithMargin = maxValue + Math.abs(maxValue) * 0.05;
 
   const scaleType = getScaleType(scale);
@@ -508,7 +508,7 @@ const getYScaleUnit = ({
         ),
         timeSeries: dataTimeSeries
       })
-    : [0];
+    : [];
 
   return getScale({
     graphValues,
