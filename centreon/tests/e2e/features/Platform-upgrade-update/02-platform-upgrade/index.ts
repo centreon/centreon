@@ -157,37 +157,30 @@ Given(
             'WEB_IMAGE_OS'
           )}:${majorVersionFrom}`;
 
-          cy.log(`Attempting to start container with image: ${imageName}`);
+          cy.log(`Checking if Docker image exists: ${imageName}`);
 
-          return cy.startContainer({
-            command: 'tail -f /dev/null',
-            image: imageName,
-            name: 'web',
-            portBindings: [
-              {
-                destination: 4000,
-                source: 80
-              }
-            ]
-          }).then(() => {
-            cy.log(`Successfully started container with image: ${imageName}`);
-            return 'success';
-          }, (error) => {
-            cy.log(`Failed to start container with image: ${imageName}`);
-            cy.log(`Error: ${error.message}`);
-            // If the image does not exist, skip the test
-            if (error.message.includes('not found') || error.message.includes('artifact')) {
-              cy.log(`Image ${imageName} not found, skipping test`);
-              return 'skipped';
+          // Utiliser la nouvelle tâche checkDockerImage
+          return cy.task('checkDockerImage', imageName).then((imageExists) => {
+            if (!imageExists) {
+              cy.log(`❌ Image ${imageName} not found, skipping test`);
+              return cy.stopContainer({ name: 'web' }).wrap('skipped');
             }
-            throw error;
+
+            cy.log(`✅ Image ${imageName} found, starting container`);
+            return cy.startContainer({
+              command: 'tail -f /dev/null',
+              image: imageName,
+              name: 'web',
+              portBindings: [
+                {
+                  destination: 4000,
+                  source: 80
+                }
+              ]
+            });
           });
         })
-        .then((result) => {
-          // If the container could not be started (image not found), skip
-          if (result === 'skipped') {
-            return cy.wrap('skipped');
-          }
+        .then(() => {
           Cypress.config('baseUrl', 'http://127.0.0.1:4000');
 
           return cy

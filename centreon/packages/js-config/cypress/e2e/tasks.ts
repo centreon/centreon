@@ -54,6 +54,49 @@ export default (on: Cypress.PluginEvents): void => {
   }
 
   on("task", {
+    checkDockerImage: async ({ command, image, name, portBindings = [] }) => {
+      console.log(`🔍 [checkDockerImage] Checking if image exists: ${image}`);
+
+      try {
+        let container = new GenericContainer(image).withName(name);
+
+        portBindings.forEach(({ source, destination }) => {
+          container = container.withExposedPorts({
+            container: source,
+            host: destination,
+          });
+        });
+
+        if (command) {
+          container = container
+            .withCommand(["bash", "-c", command])
+            .withWaitStrategy(Wait.forSuccessfulCommand("ls"));
+        }
+
+        const startedContainer = await container.start();
+
+        await startedContainer.stop();
+
+        console.log(`✅ [checkDockerImage] Image exists and container started: ${image}`);
+        return { exists: true, image };
+      } catch (error: unknown) {
+        let msg = "Unknown error";
+
+        if (error instanceof Error) {
+          msg = error.message;
+        } else if (typeof error === "string") {
+          msg = error;
+        }
+
+        if (msg.includes("not found") || msg.includes("No such image")) {
+          console.error(`❌ [checkDockerImage] Image not found: ${image}`);
+          return { exists: false, image };
+        }
+
+        console.error(`⚠️ [checkDockerImage] Error while checking image: ${msg}`);
+        return { exists: false, image, error: msg };
+      }
+    },
     copyFromContainer: async ({ destination, serviceName, source }) => {
       try {
         const container = getContainer(serviceName);
