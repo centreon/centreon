@@ -1021,7 +1021,7 @@ class CentreonWidget
             if ($nbAffectedRows === 0) {
                 $msgError = 'Access denied to rename widget';
                 CentreonLog::create()->error(
-                    CentreonLog::TYPE_SQL,
+                    CentreonLog::TYPE_BUSINESS_LOG,
                     $msgError,
                     [
                         'widgetId' => $widgetId,
