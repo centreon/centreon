@@ -9,7 +9,7 @@ if [ -f /usr/share/centreon/.env.local ]; then
 else
   echo "Rendering env.local.php from environment"
   envsubst < /usr/share/centreon/www/install/tmp/env.local.php.tpl > /usr/share/centreon/.env.local.php
-  chown centreon:centreon /usr/share/centreon/.env.local.php || true
+  chown www-data:www-data /usr/share/centreon/.env.local.php || true
 fi
 
 exec "$@"
