@@ -76,7 +76,7 @@ final class AddHostTemplateController extends AbstractController
     private function executeUseCaseOnPrem(
         AddHostTemplate $useCase,
         AddHostTemplateOnPremPresenter $presenter,
-        Request $request
+        Request $request,
     ): Response {
         try {
             /**
@@ -189,7 +189,7 @@ final class AddHostTemplateController extends AbstractController
     private function executeUseCaseSaas(
         AddHostTemplate $useCase,
         AddHostTemplateSaasPresenter $presenter,
-        Request $request
+        Request $request,
     ): Response {
         try {
             /**

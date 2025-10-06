@@ -55,6 +55,8 @@ export default (): void => {
     });
     it('executes a listing request with sort parameter when a sortable column is clicked`', () => {
       columnToSort.forEach(({ label, id }) => {
+        cy.waitForRequest('@getConnectors');
+
         const sortBy = id;
 
         cy.contains('VMWare1');

@@ -244,7 +244,7 @@ class CentreonMedia
     {
         $fileName = basename($archiveFile);
         $position = strrpos($fileName, '.');
-        if (false === $position) {
+        if ($position === false) {
             throw new Exception('Missing extension');
         }
         $extension = substr($fileName, ($position + 1));
@@ -280,7 +280,7 @@ class CentreonMedia
         if (strtolower($extension) == 'zip') {
             $archiveObj->extractTo(dirname($archiveFile), $files);
             $archiveObj->close();
-        } elseif (false === $archiveObj->extractTo(dirname($archiveFile), $files)) {
+        } elseif ($archiveObj->extractTo(dirname($archiveFile), $files) === false) {
             throw new Exception('Could not extract files');
         }
 

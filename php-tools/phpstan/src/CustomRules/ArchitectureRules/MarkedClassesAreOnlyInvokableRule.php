@@ -69,7 +69,7 @@ final readonly class MarkedClassesAreOnlyInvokableRule implements Rule
 
         $hasInvokableMethod = (bool) array_filter(
             $node->getMethods(),
-            static fn (ClassMethod $method): bool => $method->isPublic() && '__invoke' !== (string) $method->name,
+            static fn (ClassMethod $method): bool => $method->isPublic() && (string) $method->name !== '__invoke',
         );
 
         if (! $hasInvokableMethod) {
@@ -82,7 +82,7 @@ final readonly class MarkedClassesAreOnlyInvokableRule implements Rule
             array_values(
                 array_filter(
                     $node->getMethods(),
-                    static fn (ClassMethod $method): bool => $method->isPublic() && ('__construct' !== (string) $method->name && '__invoke' !== (string) $method->name),
+                    static fn (ClassMethod $method): bool => $method->isPublic() && ((string) $method->name !== '__construct' && (string) $method->name !== '__invoke'),
                 ),
             ),
         );

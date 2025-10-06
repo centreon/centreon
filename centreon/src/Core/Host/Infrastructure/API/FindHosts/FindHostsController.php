@@ -33,7 +33,7 @@ final class FindHostsController extends AbstractController
         FindHosts $useCase,
         FindHostsOnPremPresenter $onPremPresenter,
         FindHostsSaasPresenter $saasPresenter,
-        bool $isCloudPlatform
+        bool $isCloudPlatform,
     ): Response {
         $this->denyAccessUnlessGrantedForApiConfiguration();
 

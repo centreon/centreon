@@ -23,31 +23,17 @@ declare(strict_types=1);
 
 use PhpCsFixer\Finder;
 
-$config = require_once __DIR__ . '/../php-tools/php-cs-fixer/config/base.strict.php';
+$csFixerConfig = require_once __DIR__ . '/../php-tools/php-cs-fixer/config/base.strict.php';
+$pathsConfig = require_once __DIR__ . '/.php-cs-fixer.conf.php';
 
 $finder = Finder::create()
-    ->in([
-        __DIR__ . '/config.new',
-        __DIR__ . '/src/Adaptation',
-        __DIR__ . '/src/App',
-        __DIR__ . '/tests/php/Adaptation',
-        __DIR__ . '/tests/php/App',
-    ])
-    ->append([
-        __DIR__ . '/.php-cs-fixer.new.php',
-        __DIR__ . '/.php-cs-fixer.core.php',
-        __DIR__ . '/.php-cs-fixer.legacy.php',
-        __DIR__ . '/castor.php',
-        __DIR__ . '/rector.php',
-    ]);
+    ->in($pathsConfig['new']['directories'])
+    ->append($pathsConfig['new']['files'])
+    ->notPath($pathsConfig['new']['skip']);
 
-$rules = $config->getRules();
+$rules = $csFixerConfig->getRules();
 
-$rules['method_argument_space'] = ['on_multiline' => 'ignore'];
-$rules['trailing_comma_in_multiline'] = ['after_heredoc' => true, 'elements' => ['array_destructuring', 'arrays', 'match', 'parameters']];
-$rules['yoda_style'] = ['equal' => false, 'identical' => false, 'less_and_greater' => false];
-
-return $config
+return $csFixerConfig
     ->setRules($rules)
     ->setFinder($finder)
     ->setCacheFile('.php-cs-fixer.new.cache');

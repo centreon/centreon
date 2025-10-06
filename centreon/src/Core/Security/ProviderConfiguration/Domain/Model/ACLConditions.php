@@ -46,7 +46,7 @@ class ACLConditions
         private bool $applyOnlyFirstRole,
         private string $attributePath,
         private ?Endpoint $endpoint,
-        private array $relations = []
+        private array $relations = [],
     ) {
         $this->guard();
     }

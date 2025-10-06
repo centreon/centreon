@@ -45,7 +45,7 @@ final class DeleteContactDashboardShareController extends AbstractController
         int $dashboardId,
         int $contactId,
         DeleteContactDashboardShare $useCase,
-        DeleteContactDashboardSharePresenterInterface $presenter
+        DeleteContactDashboardSharePresenterInterface $presenter,
     ): Response {
         $this->denyAccessUnlessGrantedForApiConfiguration();
 

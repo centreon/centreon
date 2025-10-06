@@ -49,7 +49,7 @@ class UpdateHostGroupValidator
         private readonly ReadHostRepositoryInterface $readHostRepository,
         private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
         private readonly ReadViewImgRepositoryInterface $readViewImgRepository,
-        private readonly ContactInterface $user
+        private readonly ContactInterface $user,
     ) {
     }
 

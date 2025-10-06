@@ -24,14 +24,12 @@ declare(strict_types=1);
 use PhpCsFixer\Finder;
 
 $config = require_once __DIR__ . '/../php-tools/php-cs-fixer/config/base.unstrict.php';
+$pathsConfig = require_once __DIR__ . '/.php-cs-fixer.conf.php';
 
 $finder = Finder::create()
-    ->in([
-        __DIR__ . '/config',
-        __DIR__ . '/packaging',
-        __DIR__ . '/widgets',
-        __DIR__ . '/www',
-    ]);
+    ->in($pathsConfig['legacy:www']['directories'])
+    ->append($pathsConfig['legacy:www']['files'])
+    ->notPath($pathsConfig['legacy:www']['skip']);
 
 return $config
     ->setFinder($finder)

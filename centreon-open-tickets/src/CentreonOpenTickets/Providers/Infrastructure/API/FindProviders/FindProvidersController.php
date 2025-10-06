@@ -29,6 +29,7 @@ use Core\Application\Common\UseCase\ResponseStatusInterface;
 use Core\Infrastructure\Common\Api\StandardPresenter;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[IsGranted(
@@ -44,9 +45,14 @@ final class FindProvidersController extends AbstractController
      *
      * @return Response
      */
+    #[Route(
+        path: '/open-tickets/providers',
+        name: 'FindProviders',
+        methods: 'GET'
+    )]
     public function __invoke(
         FindProviders $useCase,
-        StandardPresenter $presenter
+        StandardPresenter $presenter,
     ): Response {
         $response = $useCase();
 

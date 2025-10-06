@@ -28,7 +28,7 @@ use Webmozart\Assert\Assert;
 final readonly class ImageFolderId
 {
     public function __construct(
-        public int $value
+        public int $value,
     ) {
         Assert::positiveInteger($value);
     }

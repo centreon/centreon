@@ -54,7 +54,7 @@ class MetaServiceMetricService implements MetaServiceMetricServiceInterface
     public function __construct(
         MetaServiceMetricRepositoryInterface $repository,
         MetaServiceConfigurationServiceInterface $metaServiceConfigurationService,
-        ContactInterface $contact
+        ContactInterface $contact,
     ) {
         $this->contact = $contact;
         $this->repository = $repository;

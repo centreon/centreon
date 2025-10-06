@@ -41,7 +41,7 @@ header('Content-type: text/html; charset=utf-8');
 $pearDB = new CentreonDB();
 
 if (isset($_POST['index'])) {
-    if (false === is_numeric($_POST['index'])) {
+    if (is_numeric($_POST['index']) === false) {
         header('HTTP/1.1 406 Not Acceptable');
 
         exit();

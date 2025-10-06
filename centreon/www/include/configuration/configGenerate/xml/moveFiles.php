@@ -28,7 +28,6 @@ use Centreon\Domain\Entity\Task;
 require_once realpath(__DIR__ . '/../../../../../config/centreon.config.php');
 require_once realpath(__DIR__ . '/../../../../../config/bootstrap.php');
 require_once realpath(__DIR__ . '/../../../../../bootstrap.php');
-require_once _CENTREON_PATH_ . '/www/class/centreonSession.class.php';
 require_once _CENTREON_PATH_ . 'www/include/configuration/configGenerate/DB-Func.php';
 require_once _CENTREON_PATH_ . 'www/class/centreonDB.class.php';
 require_once _CENTREON_PATH_ . 'www/class/centreonSession.class.php';
@@ -92,6 +91,7 @@ if (isset($_SERVER['HTTP_X_AUTH_TOKEN'])) {
         'reach_api' => $contact->hasAccessToApiConfiguration(),
         'reach_api_rt' => $contact->hasAccessToApiRealTime(),
         'show_deprecated_pages' => false,
+        'show_deprecated_custom_views' => false,
     ]);
 } else {
     // Check Session
@@ -252,7 +252,7 @@ try {
                         sprintf(
                             _(
                                 "Could not find configuration directory '%s' for monitoring engine '%s'.
-                                 Please check it's path or create it"
+                                 Please check its path or create it"
                             ),
                             $nagiosCfg['cfg_dir'],
                             $host['name']
@@ -289,7 +289,7 @@ try {
                                     sprintf(
                                         _(
                                             "Centreon Broker's configuration directory '%s' does not exist and could not
-                                             be created for monitoring engine '%s'. Please check it's path or create it"
+                                             be created for monitoring engine '%s'. Please check its path or create it"
                                         ),
                                         $centreonBrokerDirCfg,
                                         $host['name']
@@ -321,12 +321,12 @@ try {
                 /**
                  * VMWare configuration
                  */
-                if (count($listVmWareFile) > 1) {
+                if (! is_array($listVmWareFile) || count($listVmWareFile) != 1) {
                     throw new Exception(
                         sprintf(
                             <<<'MSG'
-                                There are more than one VMWare configuration file for monitoring engine '%s'.
-                                Please check it's path or create it
+                                There must be one and only one VMWare configuration file for monitoring engine '%s'.
+                                Please check its path or create it
                                 MSG,
                             $host['name']
                         )
@@ -352,15 +352,6 @@ try {
                 }
                 if (! isset($msg_restart[$host['id']])) {
                     $msg_restart[$host['id']] = '';
-                }
-                if (count($listBrokerFile) > 0) {
-                    passthru(
-                        escapeshellcmd("echo 'SENDCBCFG:{$host['id']}") . ' >> ' . escapeshellcmd($centcore_pipe),
-                        $return
-                    );
-                    if ($return) {
-                        throw new Exception(_('Could not write into centcore.cmd. Please check file permissions.'));
-                    }
                 }
                 $msg_restart[$host['id']] .= _('<br><b>Centreon : </b>All configuration will be send to '
                     . $host['name'] . ' by centcore in several minutes.');

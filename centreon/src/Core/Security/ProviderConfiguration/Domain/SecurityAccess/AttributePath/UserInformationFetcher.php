@@ -41,7 +41,7 @@ class UserInformationFetcher implements AttributePathFetcherInterface
 
     public function __construct(
         private readonly LoginLoggerInterface $loginLogger,
-        private readonly ReadAttributePathRepositoryInterface $attributePathRepository
+        private readonly ReadAttributePathRepositoryInterface $attributePathRepository,
     ) {
     }
 

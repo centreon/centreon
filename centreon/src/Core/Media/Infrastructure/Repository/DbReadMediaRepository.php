@@ -61,7 +61,7 @@ class DbReadMediaRepository extends AbstractRepositoryRDB implements ReadMediaRe
         array $accessGroups,
     ): \Traversable {
         try {
-            if ([] === $accessGroups) {
+            if ($accessGroups === []) {
                 return new \EmptyIterator();
             }
 

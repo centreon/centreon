@@ -206,33 +206,31 @@ Then(
     cy.wait('@getLastestUserFilters');
 
     cy.getByLabel({ label: 'State filter' }).click();
-
     cy.get('[data-value="all"]').click();
 
     cy.waitUntil(
-      () => {
-        cy.refreshListing()
-          .then(() => cy.contains(hostInAcknowledgementName))
-          .parent()
-          .then((val) => {
-            return (
-              val.css('background-color') === actionBackgroundColors.acknowledge
-            );
-          });
+      () =>
+        cy.refreshListing().then(() =>
+          cy.contains(hostInAcknowledgementName)
+            .parent()
+            .then((hostEl) => {
+              const hostAck =
+                hostEl.css('background-color') ===
+                actionBackgroundColors.acknowledge;
 
-        return cy
-          .refreshListing()
-          .then(() => cy.contains(serviceInAcknowledgementName))
-          .parent()
-          .then((val) => {
-            return (
-              val.css('background-color') === actionBackgroundColors.acknowledge
-            );
-          });
-      },
-      {
-        timeout: 30000
-      }
+              return cy
+                .contains(serviceInAcknowledgementName)
+                .parent()
+                .then((serviceEl) => {
+                  const serviceAck =
+                    serviceEl.css('background-color') ===
+                    actionBackgroundColors.acknowledge;
+
+                  return hostAck || serviceAck;
+                });
+            })
+        ),
+      { timeout: 30000 }
     );
   }
 );

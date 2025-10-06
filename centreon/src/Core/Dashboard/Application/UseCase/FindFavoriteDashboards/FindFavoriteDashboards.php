@@ -242,7 +242,7 @@ final class FindFavoriteDashboards
         array $contactShares,
         array $contactGroupShares,
         DashboardSharingRole $defaultRole,
-        array $thumbnails
+        array $thumbnails,
     ): FindFavoriteDashboardsResponse {
 
         $dashboardsResponse = [];

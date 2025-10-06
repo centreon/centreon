@@ -51,7 +51,7 @@ final class FindRealTimeServiceStatusesCount
         private readonly ContactInterface $user,
         private readonly ReadRealTimeServiceRepositoryInterface $repository,
         private readonly ReadAccessGroupRepositoryInterface $accessGroupRepository,
-        private readonly RequestParametersInterface $requestParameters
+        private readonly RequestParametersInterface $requestParameters,
     ) {
     }
 

@@ -93,7 +93,7 @@ final class UpdateAccController extends AbstractController
 
         $schemaFile = match ($data['type']) {
             'vmware_v6' => 'VmWareV6Schema.json',
-            default => throw new InvalidArgumentException(sprintf("Unknow parameter type with value '%s'", $data['type']))
+            default => throw new InvalidArgumentException(sprintf("Unknow parameter type with value '%s'", $data['type'])),
         };
 
         $this->validateDataSent($request, __DIR__ . "/../Schema/{$schemaFile}");

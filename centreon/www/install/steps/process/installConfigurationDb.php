@@ -79,7 +79,7 @@ try {
         // Create table
         $db->exec('use `' . $parameters['db_configuration'] . '`');
         $result = splitQueries('../../createTables.sql', ';', $db, '../../tmp/createTables');
-        if ('0' != $result) {
+        if ($result != '0') {
             $return['msg'] = $result;
             echo json_encode($return);
 
@@ -103,7 +103,7 @@ try {
     // Create table
     $db->exec('use `' . $parameters['db_configuration'] . '`');
     $result = splitQueries('../../createTables.sql', ';', $db, '../../tmp/createTables');
-    if ('0' != $result) {
+    if ($result != '0') {
         $return['msg'] = $result;
         echo json_encode($return);
 

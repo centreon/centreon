@@ -56,7 +56,7 @@ final class CommandTypeConverter
             2 => CommandType::Check,
             3 => CommandType::Miscellaneous,
             4 => CommandType::Discovery,
-            default => throw new \RangeException('Command type must be between 1 and 4')
+            default => throw new \RangeException('Command type must be between 1 and 4'),
         };
     }
 }

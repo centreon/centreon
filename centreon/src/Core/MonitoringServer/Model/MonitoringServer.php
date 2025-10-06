@@ -45,7 +45,7 @@ class MonitoringServer
         private ?string $engineStopCommand = null,
         private ?string $engineRestartCommand = null,
         private ?string $engineReloadCommand = null,
-        private ?string $brokerReloadCommand = null
+        private ?string $brokerReloadCommand = null,
     ) {
         $this->name = trim($name);
         Assertion::notEmpty($this->name);
@@ -92,7 +92,7 @@ class MonitoringServer
         ?string $engineStopCommand,
         ?string $engineReloadCommand,
         ?string $engineRestartCommand,
-        ?string $brokerReloadCommand
+        ?string $brokerReloadCommand,
     ): void {
         Assertion::notEmpty($name);
         Assertion::nullOrRegex($engineStartCommand, self::VALID_COMMAND_START_REGEX);
