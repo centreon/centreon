@@ -19,12 +19,8 @@
  *
  */
 
-use Adaptation\Database\Connection\Collection\QueryParameters;
 use Adaptation\Database\Connection\ConnectionInterface;
 use Adaptation\Database\Connection\Exception\ConnectionException;
-use Adaptation\Database\Connection\ValueObject\QueryParameter;
-
-require_once __DIR__ . '/../../../bootstrap.php';
 
 $version = 'xx.xx.x';
 
@@ -35,21 +31,11 @@ $errorMessage = '';
  * @var ConnectionInterface $pearDBO
  */
 
-/** -------------------------------------- Broker configuration -------------------------------------- */
-$fixBrokerConfigTypo = function () use ($pearDB, &$errorMessage): void {
-    $errorMessage = 'Failed to fix typo in broker configuration';
-    $pearDB->executeStatement(
-        <<<'SQL'
-            UPDATE cfg_centreonbroker_info SET config_key = 'negotiation' WHERE config_key = 'negociation'
-            SQL
-    );
-};
+// TODO add your functions here
 
 try {
-    // DDL statements for real time database
     // TODO add your function calls to update the real time database structure here
 
-    // DDL statements for configuration database
     // TODO add your function calls to update the configuration database structure here
 
     // Transactional queries for configuration database
@@ -57,15 +43,13 @@ try {
         $pearDB->startTransaction();
     }
 
-    // TODO add your function calls to update the configuration database data here
-    $fixBrokerConfigTypo();
+    // TODO add your function calls to update the database data here
 
     $pearDB->commitTransaction();
-
 } catch (Throwable $throwable) {
     CentreonLog::create()->error(
         logTypeId: CentreonLog::TYPE_UPGRADE,
-        message: "UPGRADE - {$version}: " . $errorMessage,
+        message: "UPGRADE Open Tickets - {$version}: " . $errorMessage,
         exception: $throwable
     );
 
@@ -76,18 +60,18 @@ try {
     } catch (ConnectionException $rollbackException) {
         CentreonLog::create()->error(
             logTypeId: CentreonLog::TYPE_UPGRADE,
-            message: "UPGRADE - {$version}: error while rolling back the upgrade operation for : {$errorMessage}",
+            message: "UPGRADE Open Tickets - {$version}: error while rolling back the upgrade operation for : {$errorMessage}",
             exception: $rollbackException
         );
 
         throw new RuntimeException(
-            message: "UPGRADE - {$version}: error while rolling back the upgrade operation for : {$errorMessage}",
+            message: "UPGRADE Open Tickets - {$version}: error while rolling back the upgrade operation for : {$errorMessage}",
             previous: $rollbackException
         );
     }
 
     throw new RuntimeException(
-        message: "UPGRADE - {$version}: " . $errorMessage,
+        message: "UPGRADE Open Tickets -  {$version}: " . $errorMessage,
         previous: $throwable
     );
 }
