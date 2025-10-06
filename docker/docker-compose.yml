@@ -93,6 +93,19 @@ services:
       - app-network
     volumes:
       - app-db:/var/lib/mysql:rw
+  cronbox:
+    container_name: cronbox
+    image: cronbox:latest
+    networks:
+      - app-network
+    volumes:
+      - app-etc:/etc/centreon/:r
+      - app-data:/var/www/html:r
+      - app-centvar:/var/lib/centreon/:rw
+    depends_on:
+      php-fpm:
+        condition: service_healthy
+
 
 networks:
   app-network:

@@ -1,0 +1,31 @@
+############################
+# Cron for CentACL
+* * * * * /usr/bin/php82 -q /var/www/html/centreon/cron/centAcl.php >> /proc/1/fd/1 2>&1
+
+############################
+# Cron for Centreon-Downtime
+*/5 * * * * /usr/bin/php82 -q /var/www/html/centreon/cron/downtimeManager.php >> /proc/1/fd/1 2>&1
+
+############################
+# Cron to build state events
+0 3 * * * /var/www/html/centreon/cron/eventReportBuilder --config=/etc/centreon/conf.pm >> /proc/1/fd/1 2>&1
+
+##########################
+# Cron to build reporting
+0 6 * * * /var/www/html/centreon/cron/dashboardBuilder --config=/etc/centreon/conf.pm >> /proc/1/fd/1 2>&1
+
+##########################
+# Cron for knowledge base
+# */5 * * * * /usr/bin/php82 -q /var/www/html/centreon/cron/centKnowledgeSynchronizer.php >> /proc/1/fd/1 2>&1
+
+##########################
+# Cron for statistics
+# 54 21 * * * /usr/bin/php82 -q /var/www/html/centreon/cron/centreon-send-stats.php >> /proc/1/fd/1 2>&1
+
+##########################
+# Cron for Centreon-Backup
+# 30 3 * * * /usr/www/html/centreon/cron/centreon-backup.pl >> /proc/1/fd/1 2>&1
+
+##########################
+# Cron for Outdated Token removal
+* * * * * /usr/bin/php82 -q /var/www/html/centreon/cron/outdated-token-removal.php >> /proc/1/fd/1 2>&1
