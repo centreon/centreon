@@ -4,6 +4,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    environment:
+      - APP_ENV=dev
     volumes:
       - app-etc:/etc/centreon/:rw
       - app-data:/var/www/html:rw,z

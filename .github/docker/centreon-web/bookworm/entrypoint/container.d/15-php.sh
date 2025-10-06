@@ -11,5 +11,3 @@ else
   envsubst < /usr/share/centreon/www/install/tmp/env.local.php.tpl > /usr/share/centreon/.env.local.php
   chown www-data:www-data /usr/share/centreon/.env.local.php || true
 fi
-
-exec "$@"
