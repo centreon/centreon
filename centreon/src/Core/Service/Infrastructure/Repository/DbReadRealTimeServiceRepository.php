@@ -268,6 +268,7 @@ class DbReadRealTimeServiceRepository extends AbstractRepositoryRDB implements R
             {$search}
             {$typeSearch}
             {$aclSearch}
+                AND services.enabled = 1
             GROUP BY services.name
             {$sort}
             {$limit}
