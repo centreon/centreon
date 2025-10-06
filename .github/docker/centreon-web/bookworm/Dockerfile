@@ -70,11 +70,6 @@ elif [[ "$STABILITY" == "stable" ]]; then
   for i in \$( ls /etc/apt/sources.list.d/centreon*{unstable,testing}* ); do mv \$i \$i.disabled; done
 fi
 
-if [ -n "${TZ}" ] && [ -f "/usr/share/zoneinfo/${TZ}" ]; then
-  ln -sf "/usr/share/zoneinfo/${TZ}" /etc/localtime
-  printf '%s\n' "${TZ}" > /etc/timezone
-fi
-
 groupadd -g 900 centreon
 useradd -u 900 -g centreon -m -r -d /var/spool/centreon -c "Centreon" -s /bin/bash centreon
 groupadd -g 901 centreon-engine
