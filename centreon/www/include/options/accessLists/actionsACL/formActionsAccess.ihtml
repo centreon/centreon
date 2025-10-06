@@ -775,6 +775,63 @@
 				</td>
 				<td class="FormRowValue">{$form.manage_tokens.html}</td>
 			</tr>
+
+			<tr class="list_lvl_1">
+				<td class="ListColLvl1_name" colspan="2">
+					<h4>{$form.header.configuration}</h4>
+				</td>
+			</tr>
+
+			<tr class="list_one">
+				<td class="FormRowField"><img class="helpTooltip" name="tip_see_check_commands">{$form.see_check_commands.label}
+				</td>
+				<td class="FormRowValue">{$form.see_check_commands.html}</td>
+			</tr>
+			<tr class="list_two">
+			<td class="FormRowField"><img class="helpTooltip" name="tip_manage_check_commands">{$form.manage_check_commands.label}
+			</td>
+			<td class="FormRowValue">{$form.manage_check_commands.html}</td>
+			</tr>
+
+			<tr class="list_one">
+				<td class="FormRowField"><img class="helpTooltip"
+						name="tip_see_notification_commands">{$form.see_notification_commands.label}
+				</td>
+				<td class="FormRowValue">{$form.see_notification_commands.html}</td>
+			</tr>
+			<tr class="list_two">
+				<td class="FormRowField"><img class="helpTooltip"
+						name="tip_manage_notification_commands">{$form.manage_notification_commands.label}
+				</td>
+				<td class="FormRowValue">{$form.manage_notification_commands.html}</td>
+			</tr>
+
+			<tr class="list_one">
+				<td class="FormRowField"><img class="helpTooltip"
+						name="tip_see_discovery_commands">{$form.see_discovery_commands.label}
+				</td>
+				<td class="FormRowValue">{$form.see_discovery_commands.html}</td>
+			</tr>
+			<tr class="list_two">
+				<td class="FormRowField"><img class="helpTooltip"
+						name="tip_manage_discovery_commands">{$form.manage_discovery_commands.label}
+				</td>
+				<td class="FormRowValue">{$form.manage_discovery_commands.html}</td>
+			</tr>
+
+			<tr class="list_one">
+				<td class="FormRowField"><img class="helpTooltip"
+						name="tip_see_miscellaneous_commands">{$form.see_miscellaneous_commands.label}
+				</td>
+				<td class="FormRowValue">{$form.see_miscellaneous_commands.html}</td>
+			</tr>
+			<tr class="list_two">
+				<td class="FormRowField"><img class="helpTooltip" name="tip_manage_miscellaneous_commands">{$form.manage_miscellaneous_commands.label}
+				</td>
+				<td class="FormRowValue">{$form.manage_miscellaneous_commands.html}</td>
+			</tr>
+
+
 			<tr class="list_lvl_1">
 				<td class="ListColLvl1_name" colspan="2">
 					<h4>{$form.header.furtherInfos}</h4>
