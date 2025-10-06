@@ -44,6 +44,7 @@ use File::Which qw(which);
 use File::Basename;
 use IO::Dir;
 use IPC::Open3 qw( open3 );
+use User::pwent;
 
 use vars qw($mysql_user $mysql_passwd $mysql_host $mysql_port $mysql_database_oreon $mysql_database_ods $centreon_config);
 use vars qw($BACKUP_ENABLED $BACKUP_DIR $TEMP_DIR);
@@ -827,24 +828,34 @@ sub monitoringengineBackup() {
     ############
     # SSH keys #
     ############
-    my $centreon_home = "/var/spool/centreon";
-    if (-d "$centreon_home/.ssh" ) {
-        system("cp", "-pr", "$centreon_home/.ssh", "$TEMP_CENTRAL_DIR/ssh");
-        if ($? != 0) {
-            print STDERR "Unable to copy SSH keys for Centreon\n";
+    my $centreon_pw = getpwnam('centreon');
+    if ($centreon_pw) {
+        my $centreon_home = $centreon_pw->dir;
+        if (-d "$centreon_home/.ssh" ) {
+            system("cp", "-pr", "$centreon_home/.ssh", "$TEMP_CENTRAL_DIR/ssh");
+            if ($? != 0) {
+                print STDERR "Unable to copy SSH keys for Centreon\n";
+            }
+        } else {
+            print STDERR "No SSH keys for Centreon\n";
         }
     } else {
-        print STDERR "No SSH keys for Centreon\n";
+        print STDERR "No home directory for Centreon\n";
     }
 
-    my $centreonengine_home = "/var/lib/centreon-engine/";
-    if (-d "$centreonengine_home/.ssh") {
-        system("cp", "-pr", "$centreonengine_home/.ssh", "$TEMP_CENTRAL_DIR/ssh-centreon-engine");
-        if ($? != 0) {
-            print STDERR "Unable to copy SSH keys for Centreon Engine\n";
+    my $centreonengine_pw = getpwnam('centreon-engine');
+    if ($centreonengine_pw) {
+        my $centreonengine_home = $centreonengine_pw->dir;
+        if (-d "$centreonengine_home/.ssh") {
+            system("cp", "-pr", "$centreonengine_home/.ssh", "$TEMP_CENTRAL_DIR/ssh-centreon-engine");
+            if ($? != 0) {
+                print STDERR "Unable to copy SSH keys for Centreon Engine\n";
+            }
+        } else {
+            print STDERR "No SSH keys for Centreon Engine\n";
         }
     } else {
-        print STDERR "No SSH keys for Centreon Engine\n";
+        print STDERR "No home directory for Centreon Engine\n";
     }
 
     ##################
