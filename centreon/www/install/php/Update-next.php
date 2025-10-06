@@ -131,6 +131,17 @@ $fixBrokerConfigTypo = function () use ($pearDB, &$errorMessage): void {
     );
 };
 
+/** -------------------------------------- Backup updates -------------------------------------- */
+$setBackupMysqlConfDefaultAsEmpty = function () use ($pearDB, &$errorMessage): void {
+    $errorMessage = 'Unable to reset default of database configuration path in backup configuration';
+    $pearDB->update(
+        <<<'SQL'
+            UPDATE options SET value = ''
+            WHERE options.key = 'backup_mysql_conf' AND options.value = '/etc/my.cnf.d/centreon.cnf'
+            SQL
+    );
+};
+
 try {
     // DDL statements for real time database
     // TODO add your function calls to update the real time database structure here
@@ -148,6 +159,7 @@ try {
     $cleanGlobalMacrosName();
     $fixTypoInStandardMacroName();
     $fixBrokerConfigTypo();
+    $setBackupMysqlConfDefaultAsEmpty();
 
     $pearDB->commit();
 

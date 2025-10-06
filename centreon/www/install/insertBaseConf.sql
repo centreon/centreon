@@ -1443,7 +1443,7 @@ VALUES
 ('backup_backup_directory', '/var/cache/centreon/backup'),
 ('backup_tmp_directory', '/tmp/backup'),
 ('backup_retention', '7'),
-('backup_mysql_conf', '/etc/my.cnf.d/centreon.cnf');
+('backup_mysql_conf', '');
 
 -- Insert Centreon Knowledge base conf
 INSERT INTO `options` (`key`, `value`)
