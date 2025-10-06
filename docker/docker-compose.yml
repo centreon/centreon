@@ -1,5 +1,10 @@
-services:
+x-defaults: &defaults
+  environment:
+    TZ: "America/Toronto"  
+
+services:  
   php-fpm:
+    <<: *defaults
     image: docker.centreon.com/centreon/centreon-web-bookworm:fth-docker-centreon-web
     build:
       context: .
@@ -27,6 +32,7 @@ services:
 
 
   apache:
+    <<: *defaults
     image: httpd:2.4
     restart: always
     depends_on:
@@ -40,6 +46,7 @@ services:
     networks:
       - app-network
   cbd:
+    <<: *defaults
     image: broker-api:latest
     container_name: cbd
     hostname: cbd
@@ -55,6 +62,7 @@ services:
       # - app-status:/var/lib/centreon/status:rw,z
       # - app-metrics:/var/lib/centreon/metrics:rw,z
   centengine:
+    <<: *defaults
     image: centengine-api:latest
     container_name: centengine
     hostname: centengine
@@ -67,6 +75,7 @@ services:
       - app-centcmd:/var/lib/centreon-engine/rw:rw,z
       - app-centlog:/var/log/centreon-engine:rw
   gorgone:
+    <<: *defaults
     environment:
       - TYPE=central
     image: gorgone-test:latest
@@ -88,6 +97,7 @@ services:
         condition: service_healthy
 
   db:
+    <<: *defaults
     image: mariadb:10.11
     environment:
       MARIADB_ROOT_PASSWORD: centreon
@@ -96,6 +106,7 @@ services:
     volumes:
       - app-db:/var/lib/mysql:rw
   cronbox:
+    <<: *defaults
     container_name: cronbox
     image: cronbox:latest
     networks:
