@@ -62,6 +62,11 @@ if (str_contains($_GET['list'], ',')) {
     $exportList[] = $_GET['list'];
 }
 
+// if export list contains a 0, that means all checkboxes a checked.
+if (in_array('0', $exportList, true)) {
+    $exportList = $_SESSION[sprintf('w_hm_%d', $widgetId)];
+}
+
 // Filter out invalid host IDs
 $filteredHostList = array_filter($exportList, static function ($hostId) {
     return (int) $hostId > 0; // Keep only valid positive integers

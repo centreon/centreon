@@ -283,6 +283,27 @@ if ($orderByToAnalyse !== null) {
     }
 }
 
+try {
+    $stmt = $dbb->prepare($query);
+    $stmt->execute();
+    $records = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    $hostIds = array_map(
+        fn (array $record) => $record['host_id'],
+        $records,
+    );
+
+    CentreonSession::writeSessionClose(sprintf('w_hm_%d', $widgetId), $hostIds);
+} catch (PDOException $ex) {
+    CentreonLog::create()->error(
+        logTypeId: CentreonLog::TYPE_SQL,
+        message: 'Error while getting  all hosts information for the host monitoring custom view',
+        exception: $ex,
+    );
+
+    throw $ex;
+}
+
 // concatenate order by + limit + offset  to the query
 $query .= 'ORDER BY ' . $orderBy . ' LIMIT :limit OFFSET :offset';
 
