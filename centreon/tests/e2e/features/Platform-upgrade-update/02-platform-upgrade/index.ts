@@ -161,7 +161,7 @@ Given(
         .then((result: any) => {
           if (!result.exists) {
             cy.log(`⚠️ Image ${result.image} not found, skipping test`);
-            return cy.wrap('skipped');
+            return cy.stopContainer({ name: 'web' }).wrap('skipped');
           }
 
           cy.log(`✅ Image ${result.image} found, starting container...`);
