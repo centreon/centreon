@@ -137,6 +137,7 @@ Given(
             });
           } else {
             majorVersionFrom = previousVersion;
+            cy.wrap(majorVersionFrom).as('majorVersionFrom');
           }
           break;
         }
@@ -144,6 +145,7 @@ Given(
           majorVersionFrom = getCentreonPreviousMajorVersion(
             getCentreonPreviousMajorVersion(major_version)
           );
+          cy.wrap(majorVersionFrom).as('majorVersionFrom');
           break;
         default:
           throw new Error(`${majorVersionFromExpression} not managed.`);
