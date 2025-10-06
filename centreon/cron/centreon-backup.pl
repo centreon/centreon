@@ -325,15 +325,26 @@ sub getApacheDirectory() {
 }
 
 sub getMySQLConfFile() {
+    my @cnf_files = (
+        # EL
+        '/etc/my.cnf.d/centreon.cnf',
+        # Debian
+        '/etc/mysql/conf.d/80-centreon.cnf',
+        '/etc/mysql/mariadb.conf.d/80-centreon.cnf',
+        '/etc/mysql/mysql.conf.d/80-centreon.cnf',
+        # fallback
+        '/etc/my.cnf');
     if (defined($MYSQL_CONF)) {
-        if ( -e $MYSQL_CONF) {
-            return $MYSQL_CONF;
-        } elsif ( -e '/etc/my.cnf' ) {
-            return '/etc/my.cnf';
-        }    
-    } else {
-        print STDERR "Unable to get Mysql configuration\n";
+        unshift @cnf_files, $MYSQL_CONF;
     }
+
+    foreach my $cnf_file (@cnf_files) {
+        if (-e $cnf_file) {
+            return $cnf_file;
+        }
+    }
+
+    print STDERR "Unable to get Mysql configuration\n";
 }
 
 sub getLicFile() {
