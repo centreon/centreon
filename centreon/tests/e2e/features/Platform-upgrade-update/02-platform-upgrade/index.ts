@@ -91,7 +91,7 @@ beforeEach(() => {
 
 Given(
   'a running platform in major {string} with {string} version',
-  (majorVersionFromExpression: string, versionFromExpression: string) => {
+  function (majorVersionFromExpression: string, versionFromExpression: string) {
     if (
       Cypress.env('IS_CLOUD') &&
       !Cypress.env('WEB_IMAGE_OS').includes('alma')
@@ -151,26 +151,24 @@ Given(
           throw new Error(`${majorVersionFromExpression} not managed.`);
       }
 
-      cy.get('@majorVersionFrom')
-        .then((majorVersionFrom) => {
+      cy.get('@majorVersionFrom').then(function (majorVersionFrom) {
           const image = `docker.centreon.com/centreon/centreon-web-dependencies-${Cypress.env('WEB_IMAGE_OS')}:${majorVersionFrom}`;
           cy.log(`Checking if Docker image exists: ${image}`);
 
-          return cy.task('checkDockerImage', { image, name: 'web' });
-        })
-        .then((result: any) => {
-          if (!result.exists) {
-            cy.log(`⚠️ Image ${result.image} not found, skipping test`);
-            return cy.stopContainer({ name: 'web' }).wrap('skipped');
-          }
+          cy.task('checkDockerImage', { image, name: 'web' }).then((result: any) => {
+            if (!result.exists) {
+              cy.log(`⚠️ Image ${result.image} not found, skipping test`);
+              cy.stopContainer({ name: 'web' }).wrap('skipped');
+            }
 
-          cy.log(`✅ Image ${result.image} found, starting container...`);
+            cy.log(`✅ Image ${result.image} found, starting container...`);
 
-          return cy.startContainer({
-            command: 'tail -f /dev/null',
-            image: result.image,
-            name: 'web',
-            portBindings: [{ destination: 4000, source: 80 }]
+            return cy.startContainer({
+              command: 'tail -f /dev/null',
+              image: result.image,
+              name: 'web',
+              portBindings: [{ destination: 4000, source: 80 }]
+            });
           });
         })
         .then(() => {
