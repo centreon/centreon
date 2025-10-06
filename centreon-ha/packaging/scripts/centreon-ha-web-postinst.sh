@@ -4,6 +4,6 @@ if [ "$1" = "configure" ] ; then
 
   # reload systemd services configuration
   systemctl daemon-reload
-  
+
 fi
 exit 0
