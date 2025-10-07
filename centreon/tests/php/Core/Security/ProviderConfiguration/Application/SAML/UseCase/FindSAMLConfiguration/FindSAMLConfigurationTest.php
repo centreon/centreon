@@ -24,7 +24,6 @@ declare(strict_types=1);
 namespace Tests\Core\Security\ProviderConfiguration\Application\SAML\UseCase\FindSAMLConfiguration;
 
 use Core\Application\Common\UseCase\ErrorResponse;
-use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\Security\Authentication\Application\Provider\ProviderAuthenticationFactoryInterface;
 use Core\Security\Authentication\Application\Provider\ProviderAuthenticationInterface;
 use Core\Security\ProviderConfiguration\Application\SAML\UseCase\FindSAMLConfiguration\FindSAMLConfiguration;

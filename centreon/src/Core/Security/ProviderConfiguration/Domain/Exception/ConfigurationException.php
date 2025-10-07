@@ -149,9 +149,8 @@ class ConfigurationException extends \Exception
         )));
     }
 
-    public static function missingRequestedAuthnContextComparison(): self {
+    public static function missingRequestedAuthnContextComparison(): self
+    {
         return new self(_('The requested_authn_context_comparison value is missing but is required when requested_authn_context is set to true'));
     }
-
-
 }

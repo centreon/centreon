@@ -121,7 +121,7 @@ final class UpdateSAMLConfigurationRequest
                 throw new \InvalidArgumentException(
                     'Invalid requested authentication context comparison value, must be one of: ' . implode(
                         ', ',
-                        array_map(fn($e) => $e->value, RequestedAuthnContextComparisonEnum::cases())
+                        array_map(fn ($e) => $e->value, RequestedAuthnContextComparisonEnum::cases())
                     )
                 );
             }

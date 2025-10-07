@@ -73,7 +73,9 @@ final class CustomConfiguration implements CustomConfigurationInterface, SAMLCus
 
     private ?string $logoutFromUrl = null;
 
-    private function __construct() {}
+    private function __construct()
+    {
+    }
 
     /**
      * @param array<string,mixed> $values
@@ -108,6 +110,7 @@ final class CustomConfiguration implements CustomConfigurationInterface, SAMLCus
         $customConfiguration->setAuthenticationConditions($values['authentication_conditions']);
         $customConfiguration->setACLConditions($values['roles_mapping']);
         $customConfiguration->setGroupsMapping($values['groups_mapping']);
+
         return $customConfiguration;
     }
 
@@ -398,5 +401,4 @@ final class CustomConfiguration implements CustomConfigurationInterface, SAMLCus
             }
         }
     }
-
 }

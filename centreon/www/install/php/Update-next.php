@@ -73,7 +73,7 @@ $alignCMAAgentConfigurationWithNewSchema = function () use ($pearDB, &$errorMess
 
     CentreonLog::create()->info(
         logTypeId: CentreonLog::TYPE_UPGRADE,
-        message: "UPGRADE - {$version}: found " . count($agentConfigurations) . " agent configurations, updating..."
+        message: "UPGRADE - {$version}: found " . count($agentConfigurations) . ' agent configurations, updating...'
     );
 
     foreach ($agentConfigurations as $agentConfiguration) {
@@ -137,12 +137,13 @@ $cleanGlobalMacrosName = function () use ($pearDB, &$errorMessage, $version): vo
             logTypeId: CentreonLog::TYPE_UPGRADE,
             message: "UPGRADE - {$version}: no invalid macros found, skipping"
         );
+
         return;
     }
 
     CentreonLog::create()->info(
         logTypeId: CentreonLog::TYPE_UPGRADE,
-        message: "UPGRADE - {$version}: found " . count($invalidMacros) . " invalid macros, updating..."
+        message: "UPGRADE - {$version}: found " . count($invalidMacros) . ' invalid macros, updating...'
     );
 
     foreach ($invalidMacros as $macro) {
@@ -222,6 +223,7 @@ $updateSamlProviderConfiguration = function () use ($pearDB, &$errorMessage, $ve
             logTypeId: CentreonLog::TYPE_UPGRADE,
             message: "UPGRADE - {$version}: no SAML provider configuration found, skipping"
         );
+
         return;
     }
 
@@ -256,10 +258,10 @@ $updateSamlProviderConfiguration = function () use ($pearDB, &$errorMessage, $ve
     );
 
     $query = <<<'SQL'
-                UPDATE `provider_configuration`
-                SET `custom_configuration` = :custom_configuration
-                WHERE `type` = 'saml'
-            SQL;
+            UPDATE `provider_configuration`
+            SET `custom_configuration` = :custom_configuration
+            WHERE `type` = 'saml'
+        SQL;
     $queryParameters = QueryParameters::create(
         [QueryParameter::string('custom_configuration', json_encode($customConfiguration, JSON_THROW_ON_ERROR))]
     );

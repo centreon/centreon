@@ -23,7 +23,6 @@ declare(strict_types=1);
 
 namespace Core\Security\ProviderConfiguration\Application\SAML\UseCase\UpdateSAMLConfiguration;
 
-use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\Repository\Interfaces\DataStorageEngineInterface;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
@@ -206,7 +205,7 @@ final readonly class UpdateSAMLConfiguration
 
         if ($nonExistentAccessGroupsIds !== []) {
             \Centreon\Domain\Log\Logger::create()->error('Access Groups not found', [
-                'access_group_ids' => implode(', ', $nonExistentAccessGroupsIds)
+                'access_group_ids' => implode(', ', $nonExistentAccessGroupsIds),
             ]);
         }
     }
