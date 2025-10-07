@@ -22,4 +22,4 @@
 # # finally exec the requested command as the user
 # exec gosu "$PUID:$PGID" "$@"
 
-gosu www-data "$@"
+# gosu www-data "$@"
