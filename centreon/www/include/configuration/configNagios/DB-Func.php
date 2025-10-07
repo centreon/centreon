@@ -434,6 +434,7 @@ function getLoggerV2Columns(): array
         'log_level_macros',
         'log_level_process',
         'log_level_runtime',
+        'log_level_otl',
     ];
 }
 

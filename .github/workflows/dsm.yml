@@ -93,73 +93,26 @@ jobs:
         working-directory: centreon-dsm
         shell: bash
 
+      - name: Get changed PHP files
+        id: changed-php
+        uses: tj-actions/changed-files@ed68ef82c095e0d48ec87eccea555d944a631a4c # v46.0.5
+        with:
+          files: |
+            **/*.php
+
       - name: 🛠️ Rector checks
+        if: steps.changed-php.outputs.any_changed == 'true'
         working-directory: centreon-dsm
         run: |
-          echo "Run of these Rector tests: rector:legacy" && set -e
-
-          pids=()
-          statuses=()
-
-          run_task() {
-             name=$1
-             shift
-             "$@" -- --no-progress-bar
-             result=$?
-             if [ $result -eq 0 ]; then
-               echo "✅ Rector $name: Success"
-             else
-               echo "❌ Rector $name: Failed"
-             fi
-             return $result
-          }
-
-          # Start tasks in background
-          run_task legacy composer rector:legacy & pids+=($!)
-
-          # Wait for all, and record if any failed
-          exit_code=0
-          for pid in "${pids[@]}"; do
-           if ! wait "$pid"; then
-             exit_code=1
-           fi
-          done
-
-          exit $exit_code
+          echo "Run of these Rector tests: rector:legacy on diff" && set -e
+          PHP_DIFF_FILES="${{ steps.changed-php.outputs.all_changed_files }}" composer rector:diff
 
       - name: 🧹 PHP-CS-Fixer checks
+        if: steps.changed-php.outputs.any_changed == 'true'
         working-directory: centreon-dsm
         run: |
-          echo "Run of these PHP-CS-Fixer tests: cs:legacy" && set -e
-
-          pids=()
-          statuses=()
-
-          run_task() {
-            name=$1
-            shift
-            "$@" -- --format=txt --show-progress=none
-            result=$?
-            if [ $result -eq 0 ]; then
-            echo "✅ PHP-CS-Fixer $name: Success"
-            else
-            echo "❌ PHP-CS-Fixer $name: Failed"
-            fi
-            return $result
-          }
-
-          # Start tasks in background
-          run_task legacy composer cs:legacy & pids+=($!)
-
-          # Wait for all, and record if any failed
-          exit_code=0
-          for pid in "${pids[@]}"; do
-            if ! wait "$pid"; then
-              exit_code=1
-            fi
-          done
-
-          exit $exit_code
+          echo "Run of these PHP-CS-Fixer tests: cs:legacy on diff" && set -e
+          PHP_DIFF_FILES="${{ steps.changed-php.outputs.all_changed_files }}" composer cs:diff
 
       - name: 🔍 PHPStan checks
         working-directory: centreon-dsm

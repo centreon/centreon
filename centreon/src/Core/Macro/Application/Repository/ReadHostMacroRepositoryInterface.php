@@ -60,22 +60,4 @@ interface ReadHostMacroRepositoryInterface
      * @return Macro[]
      */
     public function findPasswords(): array;
-
-    /**
-     * Find macros for hosts only.
-     *
-     * @param int $pollerId
-     *
-     * @return Macro[]
-     */
-    public function findHostsMacrosWithEncryptionReady(int $pollerId): array;
-
-    /**
-     * Find macros for hosts templates only.
-     *
-     * @param int $pollerId
-     *
-     * @return Macro[]
-     */
-    public function findHostTemplatesMacrosWithEncryptionReady(int $pollerId): array;
 }
