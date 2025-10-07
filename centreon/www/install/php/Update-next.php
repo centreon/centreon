@@ -28,7 +28,15 @@ require_once __DIR__ . '/../../../bootstrap.php';
 $version = 'xx.xx.x';
 $errorMessage = '';
 
-// TODO add your functions here
+/** -------------------------------------- Broker configuration -------------------------------------- */
+$fixBrokerConfigTypo = function () use ($pearDB, &$errorMessage): void {
+    $errorMessage = 'Failed to fix typo in broker configuration';
+    $pearDB->executeStatement(
+        <<<'SQL'
+            UPDATE cfg_centreonbroker_info SET config_key = 'negotiation' WHERE config_key = 'negociation'
+            SQL
+    );
+};
 
 try {
     // DDL statements for real time database
@@ -43,9 +51,9 @@ try {
     }
 
     // TODO add your function calls to update the configuration database data here
+    $fixBrokerConfigTypo();
 
     $pearDB->commit();
-
 } catch (\Throwable $exception) {
     CentreonLog::create()->error(
         logTypeId: CentreonLog::TYPE_UPGRADE,
