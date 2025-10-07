@@ -163,8 +163,15 @@ class AgentConfiguration extends AbstractObjectJSON
                         ConnectionModeEnum::NO_TLS => 'no',
                         default => 'full',
                     },
+<<<<<<< HEAD
                     'ca_certificate' => $host['poller_ca_certificate'] ?? '',
                     'ca_name' => $host['poller_ca_name'] ?? '',
+=======
+                    'ca_certificate' => $host['poller_ca_certificate'] !== null
+                        ? $host['poller_ca_certificate']
+                        : '',
+                    'ca_name' => $host['poller_ca_name'],
+>>>>>>> 24.10.x
                     'token' => isset($tokens[$host['token']['name']])
                         ? $tokens[$host['token']['name']]->getToken()
                         : '',
