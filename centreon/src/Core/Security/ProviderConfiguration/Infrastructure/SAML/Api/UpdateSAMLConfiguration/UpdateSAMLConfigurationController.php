@@ -25,6 +25,7 @@ namespace Core\Security\ProviderConfiguration\Infrastructure\SAML\Api\UpdateSAML
 
 use Centreon\Application\Controller\AbstractController;
 use Centreon\Domain\Contact\Contact;
+use Centreon\Domain\Log\Logger;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Common\Infrastructure\ExceptionLogger\ExceptionLogger;
@@ -58,6 +59,11 @@ final class UpdateSAMLConfigurationController extends AbstractController
         }
 
         if (! $contact->hasTopologyRole(Contact::ROLE_ADMINISTRATION_AUTHENTICATION_READ_WRITE)) {
+            Logger::create()->warning(
+                'User does not have the rights to update SAML configuration.',
+                ['user_id' => $contact->getId()]
+            );
+
             return $this->view(null, Response::HTTP_FORBIDDEN);
         }
 
