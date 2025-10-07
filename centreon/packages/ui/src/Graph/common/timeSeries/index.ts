@@ -72,7 +72,7 @@ const toTimeTickValue = (
   const getMetricsForIndex = (): Omit<TimeValue, 'timeTick'> => {
     const addMetricForTimeIndex = (acc, { metric_id, data }): TimeValue => ({
       ...acc,
-      [metric_id]: data[timeIndex]
+      [metric_id]: data[timeIndex] === undefined ? null : data[timeIndex]
     });
 
     return reduce(addMetricForTimeIndex, {} as TimeValue, metrics);
@@ -240,7 +240,10 @@ const getStackedMetricValues = ({
   timeSeries
 }: LinesTimeSeries): Array<number> => {
   const getTimeSeriesValuesForMetric = (metric_id): Array<number> =>
-    map((timeValue) => getValueForMetric(timeValue)(metric_id), timeSeries);
+    map(
+      (timeValue) => getValueForMetric(timeValue)(metric_id) || 0,
+      timeSeries
+    );
 
   const metricsValues = pipe(
     map(prop('metric_id')) as (metric) => Array<number>,

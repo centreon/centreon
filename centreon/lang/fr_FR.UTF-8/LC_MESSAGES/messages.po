@@ -1481,6 +1481,10 @@ msgid "An error occurred when retrieving the current version"
 msgstr ""
 "Une erreur s'est produite lors de la récupération de la version actuelle"
 
+#: centreon/src/Core/Platform/Application/UseCase/UpdateVersions/UpdateVersionsException.php
+msgid "An error occurred when writing engine context configuration"
+msgstr ""
+
 #: centreon/src/Core/Broker/Application/Exception/BrokerException.php
 #, php-format
 msgid "An error occurred while creating the file '%s'"
@@ -11332,6 +11336,10 @@ msgstr "doit être un nombre"
 #: centreon/www/include/Administration/parameters/remote/formRemote.php
 msgid "Must be a number between 1 and 65335 included."
 msgstr "Doit être un nombre compris entre 1 et 65335 inclus"
+
+#: centreon/www/include/configuration/configObject/escalation/formEscalation.php
+msgid "Must be a positive integer or 0"
+msgstr ""
 
 #: centreon/src/Core/Security/ProviderConfiguration/Domain/Exception/ConfigurationException.php
 #, php-format
