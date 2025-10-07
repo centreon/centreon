@@ -180,7 +180,7 @@ $fixTypoInStandardMacroName = function () use ($pearDB, &$errorMessage, $version
         message: "UPGRADE - {$version}: fixing typo in standard macro name..."
     );
 
-    $pearDB->update(
+    $nbUpdate = $pearDB->update(
         <<<'SQL'
                 UPDATE nagios_macro SET macro_name = '$TOTALHOSTSUNREACHABLEUNHANDLED$' WHERE macro_id = 65
             SQL
@@ -188,7 +188,7 @@ $fixTypoInStandardMacroName = function () use ($pearDB, &$errorMessage, $version
 
     CentreonLog::create()->info(
         logTypeId: CentreonLog::TYPE_UPGRADE,
-        message: "UPGRADE - {$version}: typo in standard macro name fixed successfully"
+        message: "UPGRADE - {$version}: {$nbUpdate} typo in standard macro name fixed successfully"
     );
 };
 
@@ -272,26 +272,58 @@ $updateSamlProviderConfiguration = function () use ($pearDB, &$errorMessage, $ve
 };
 
 /** -------------------------------------- Broker configuration -------------------------------------- */
-$fixBrokerConfigTypo = function () use ($pearDB, &$errorMessage): void {
+$fixBrokerConfigTypo = function () use ($pearDB, &$errorMessage, $version): void {
     $errorMessage = 'Failed to fix typo in broker configuration';
-    $pearDB->executeStatement(
+
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: fixing typo in broker configuration..."
+    );
+
+    $nbUpdate = $pearDB->executeStatement(
         <<<'SQL'
             UPDATE cfg_centreonbroker_info SET config_key = 'negotiation' WHERE config_key = 'negociation'
             SQL
     );
+
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: {$nbUpdate} typo in broker configuration fixed successfully"
+    );
 };
 
 /** -------------------------------------- Engine Configuration updates -------------------------------------- */
-$addOpentelemetryLogLevelColumn = function () use ($pearDB, &$errorMessage): void {
+$addOpentelemetryLogLevelColumn = function () use ($pearDB, &$errorMessage, $version): void {
     $errorMessage = 'Failed to add log_level_otl column to cfg_nagios_logger table';
+
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: adding log_level_otl column to cfg_nagios_logger table..."
+    );
+
     if (! $pearDB->isColumnExist('cfg_nagios_logger', 'log_level_otl')) {
-        $pearDB->query(
+        CentreonLog::create()->info(
+            logTypeId: CentreonLog::TYPE_UPGRADE,
+            message: "UPGRADE - {$version}: log_level_otl column does not exist, adding it..."
+        );
+
+        $pearDB->executeStatement(
             <<<'SQL'
                 ALTER TABLE `cfg_nagios_logger`
                 ADD COLUMN `log_level_otl` enum('trace', 'debug', 'info', 'warning', 'err', 'critical', 'off') DEFAULT 'err'
                 SQL
         );
+
+        CentreonLog::create()->info(
+            logTypeId: CentreonLog::TYPE_UPGRADE,
+            message: "UPGRADE - {$version}: log_level_otl column added successfully"
+        );
     }
+
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: log_level_otl column already exists, skipping"
+    );
 };
 
 try {
