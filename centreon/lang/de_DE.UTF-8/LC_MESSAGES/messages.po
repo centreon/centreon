@@ -2488,11 +2488,8 @@ msgstr "Centreon Broker neu Laden Befehl"
 msgid ""
 "Centreon Broker's configuration directory '%s' does not exist and could not\n"
 "                                             be created for monitoring "
-"engine '%s'. Please check it's path or create it"
+"engine '%s'. Please check its path or create it"
 msgstr ""
-"Das Konfigurationsverzeichnis '%s' für die Monitoring Engine '%s' existiert "
-"nicht und konnte nicht erstellt werden. Bitte überprüfen Sie den Pfad oder "
-"erstellen Sie diesen"
 
 #: centreon/www/class/centreon-clapi/centreon.Config.Poller.class.php
 #, php-format
@@ -3601,11 +3598,8 @@ msgstr ""
 #, php-format
 msgid ""
 "Could not find configuration directory '%s' for monitoring engine '%s'.\n"
-"                                 Please check it's path or create it"
+"                                 Please check its path or create it"
 msgstr ""
-"Das Konfigurationsverzeichnis '%s' für die Monitoring Engine '%s' konnte "
-"nicht gefunden werden. Bitte überprüfen Sie den Pfad oder erstellen Sie "
-"diesen"
 
 #: centreon/src/CentreonRemote/Infrastructure/Service/PollerInteractionService.php
 #: centreon/www/include/configuration/configGenerate/xml/moveFiles.php
@@ -20458,6 +20452,18 @@ msgstr "Centcore-Optionen"
 msgid "Centcore properties"
 msgstr "Centcore-Eigenschaften"
 
+#, php-format
+#: unknown
+msgid ""
+"Centreon Broker's configuration directory '%s' does not exist and could "
+"not\n"
+"                                             be created for monitoring "
+"engine '%s'. Please check it's path or create it"
+msgstr ""
+"Das Konfigurationsverzeichnis '%s' für die Monitoring Engine '%s' "
+"existiert nicht und konnte nicht erstellt werden. Bitte überprüfen Sie "
+"den Pfad oder erstellen Sie diesen"
+
 #: unknown
 msgid "Centreon Map"
 msgstr "Centreon Map"
@@ -20497,6 +20503,16 @@ msgstr "Konfigurationsaktionen"
 #: unknown
 msgid "Contact Templates"
 msgstr "Kontakttemplates"
+
+#, php-format
+#: unknown
+msgid ""
+"Could not find configuration directory '%s' for monitoring engine '%s'.\n"
+"                                 Please check it's path or create it"
+msgstr ""
+"Das Konfigurationsverzeichnis '%s' für die Monitoring Engine '%s' konnte "
+"nicht gefunden werden. Bitte überprüfen Sie den Pfad oder erstellen Sie "
+"diesen"
 
 #: unknown
 msgid "Daemon core dumps"
