@@ -1054,10 +1054,7 @@ jobs:
 
       - name: Select openapi file
         run: |
-          if [[ "${{ needs.get-environment.outputs.is_cloud }}" == "true" && -f "centreon/doc/API/centreon-cloud-api.yaml" ]]; then
-            OPENAPI_FILE="centreon/doc/API/centreon-cloud-api.yaml"
-            BASEURL="http://localhost/centreon/api/latest/Cloud"
-          elif [[ -f "centreon/doc/API/centreon-api.yaml" ]]; then
+          if [[ -f "centreon/doc/API/centreon-api.yaml" ]]; then
             OPENAPI_FILE="centreon/doc/API/centreon-api.yaml"
             BASEURL="http://localhost/centreon/api/latest"
           elif [[ -f "centreon/doc/API/centreon-api-v${{ needs.get-environment.outputs.major_version }}.yaml" ]]; then
