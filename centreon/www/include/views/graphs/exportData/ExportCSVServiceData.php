@@ -19,12 +19,8 @@
  *
  */
 
-function get_error($str)
-{
-    echo $str . '<br />';
-
-    exit(0);
-}
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
 
 require_once realpath(__DIR__ . '/../../../../../config/centreon.config.php');
 include_once _CENTREON_PATH_ . 'www/class/centreonDB.class.php';
@@ -36,14 +32,26 @@ $pearDBO = new CentreonDB('centstorage');
 session_start();
 session_write_close();
 
-$sid = session_id();
-if (isset($sid)) {
-    $res = $pearDB->query("SELECT * FROM session WHERE session_id = '" . $sid . "'");
-    if (! $session = $res->fetchRow()) {
-        get_error('bad session id');
+if (! empty($session_id = session_id())) {
+    $query = <<<'SQL'
+            SELECT 1
+            FROM session
+            WHERE session_id = :session_id
+        SQL;
+
+    $queryParameters = QueryParameters::create([
+        QueryParameter::string('session_id', $session_id),
+    ]);
+
+    if (($session = $pearDB->fetchOne($query, $queryParameters)) === false) {
+        echo 'Bad session ID<br/ >';
+
+        exit(0);
     }
 } else {
-    get_error('need session id !');
+    echo 'Session ID is missing<br />';
+
+    exit(0);
 }
 
 $index = filter_var(
