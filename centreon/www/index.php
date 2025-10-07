@@ -54,6 +54,7 @@ if (version_compare(phpversion(), '8.2') < 0) {
 
 if (isset($_GET['autologin']) && $_GET['autologin']) {
     global $pearDB;
+
     $pearDB = new CentreonDB();
 
     $dbResult = $pearDB->query("SELECT `value` FROM `options` WHERE `key` = 'enable_autologin'");
