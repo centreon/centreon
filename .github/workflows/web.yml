@@ -1070,6 +1070,13 @@ jobs:
           echo "OPENAPI_FILE=$OPENAPI_FILE" >> "$GITHUB_ENV"
           echo "BASEURL=$BASEURL" >> "$GITHUB_ENV"
 
+          AUTHENTICATION_TOKEN=$(curl -s $BASEURL/login \
+          -H 'Content-Type: application/json' \
+          -d '{"security": {"credentials": {"login": "admin","password": "Centreon!2021"}}}' \
+          | python3 -c "import sys, json; print(json.load(sys.stdin)['security']['token'])")
+
+          echo "AUTHENTICATION_TOKEN=$AUTHENTICATION_TOKEN" >> "$GITHUB_ENV"
+
       - name: Run Schemathesis tests
         uses: schemathesis/action@1f15936316e0742005bf69657b5909ac68f04cb3 # v2.1.0
         with:
@@ -1078,7 +1085,7 @@ jobs:
           checks: 'status_code_conformance,response_headers_conformance,response_schema_conformance,negative_data_rejection,ignored_auth'
           max-examples: 10
           version: ${{ needs.get-environment.outputs.is_cloud == 'true' && 'latest' || needs.get-environment.outputs.major_version }}
-          args: '--phases=fuzzing --max-failures=1 --mode=positive -H "Authorization: Bearer ${{ env.JWT_TOKEN }}"'
+          args: '--phases=fuzzing --max-failures=1 --mode=positive -H "Authorization: ${{ env.AUTHENTICATION_TOKEN }}'
 
   performances-test:
     runs-on: ubuntu-24.04
