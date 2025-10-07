@@ -1479,6 +1479,10 @@ msgid "An error occurred when retrieving the current version"
 msgstr ""
 "Une erreur s'est produite lors de la récupération de la version actuelle"
 
+#: centreon/src/Core/Platform/Application/UseCase/UpdateVersions/UpdateVersionsException.php
+msgid "An error occurred when writing engine context configuration"
+msgstr ""
+
 #: centreon/src/Core/Broker/Application/Exception/BrokerException.php
 #, php-format
 msgid "An error occurred while creating the file '%s'"
