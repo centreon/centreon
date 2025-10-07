@@ -1481,6 +1481,10 @@ msgid "An error occurred when retrieving the current version"
 msgstr ""
 "Une erreur s'est produite lors de la récupération de la version actuelle"
 
+#: centreon/src/Core/Platform/Application/UseCase/UpdateVersions/UpdateVersionsException.php
+msgid "An error occurred when writing engine context configuration"
+msgstr ""
+
 #: centreon/src/Core/Broker/Application/Exception/BrokerException.php
 #, php-format
 msgid "An error occurred while creating the file '%s'"
@@ -6442,6 +6446,10 @@ msgstr "Erreur lors de l'édition de la criticité du service"
 #: centreon/src/Core/HostGroup/Application/Exceptions/HostGroupException.php
 msgid "Error while enabling/disabling host groups"
 msgstr "Erreur lors de l'activation/désactivation de groupes d'hôtes"
+
+#: centreon/www/include/options/accessLists/menusACL/listsMenusAccess.php
+msgid "Error while fetching ACL topologies"
+msgstr ""
 
 #: centreon/src/Core/Dashboard/Application/Exception/DashboardException.php
 msgid "Error while linking a dashboard to its thumbnail"
