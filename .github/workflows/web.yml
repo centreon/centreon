@@ -62,6 +62,7 @@ jobs:
       has_backend_changes: ${{ steps.filter.outputs.has_backend_changes || 'true' }}
       has_test_changes: ${{ steps.filter.outputs.has_test_changes || 'true' }}
       has_upgrade_changes: ${{ steps.filter.outputs.has_upgrade_changes || 'true' }}
+      has_api_doc_changes: ${{ steps.filter.outputs.has_api_doc_changes || 'true' }}
       trigger_delivery: ${{ steps.changes_trigger_checks.outputs.trigger_delivery }}
       trigger_api_testing: ${{ steps.changes_trigger_checks.outputs.trigger_api_testing }}
     steps:
@@ -107,6 +108,8 @@ jobs:
             has_upgrade_changes:
               - 'centreon/www/install/**'
               - 'centreon/packaging/**'
+            has_api_doc_changes:
+              - 'centreon/doc/API/**'
           token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
       - uses: ./.github/actions/changes-trigger-checks
@@ -1003,13 +1006,14 @@ jobs:
       jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
 
   openapi-validation:
-    needs: [get-environment, dockerize]
+    needs: [get-environment, changes, dockerize]
     if: |
       needs.get-environment.outputs.skip_workflow == 'false' &&
       needs.get-environment.outputs.stability != 'stable' &&
       ! cancelled() &&
       ! contains(needs.*.result, 'failure') &&
       ! contains(needs.*.result, 'cancelled') &&
+      needs.changes.outputs.has_api_doc_changes == 'true' &&
       github.repository == 'centreon/centreon'
     runs-on: centreon-ubuntu-22.04
     steps:
