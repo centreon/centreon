@@ -29,7 +29,6 @@ use Centreon\Domain\Monitoring\ResourceFilter;
 use Core\Resources\Application\UseCase\CountResources\CountResources;
 use Core\Resources\Application\UseCase\CountResources\CountResourcesRequest;
 use Core\Resources\Infrastructure\API\FindResources\FindResourcesRequestValidator as RequestValidator;
-use Symfony\Component\HttpFoundation\Exception\BadRequestException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\MapQueryString;
@@ -57,9 +56,6 @@ final class CountResourcesController extends AbstractController
      * @param Request $request
      * @param CountResourcesInput $input
      *
-     * @throws BadRequestException
-     * @throws \InvalidArgumentException
-     *
      * @return Response
      */
     public function __invoke(
@@ -81,9 +77,6 @@ final class CountResourcesController extends AbstractController
     /**
      * @param Request $request
      * @param CountResourcesInput $input
-     *
-     * @throws \InvalidArgumentException
-     * @throws BadRequestException
      *
      * @return CountResourcesRequest
      */

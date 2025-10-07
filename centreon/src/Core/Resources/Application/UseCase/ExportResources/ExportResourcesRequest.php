@@ -27,10 +27,24 @@ use Centreon\Domain\Monitoring\ResourceFilter;
 use Core\Common\Domain\Collection\StringCollection;
 use Core\Resources\Application\UseCase\ExportResources\Enum\AllowedFormatEnum;
 
+/**
+ * Class
+ *
+ * @class ExportResourcesRequest
+ * @package Core\Resources\Application\UseCase\ExportResources
+ */
 final readonly class ExportResourcesRequest
 {
     /**
-     * @throws \InvalidArgumentException
+     * ExportResourcesRequest constructor
+     *
+     * @param string $exportedFormat
+     * @param ResourceFilter $resourceFilter
+     * @param bool $allPages
+     * @param int $maxResults
+     * @param StringCollection $columns
+     * @param int $contactId
+     * @param bool $isAdmin
      */
     public function __construct(
         public string $exportedFormat,
@@ -45,7 +59,7 @@ final readonly class ExportResourcesRequest
     }
 
     /**
-     * @throws \InvalidArgumentException
+     * @return void
      */
     private function validateRequest(): void
     {
