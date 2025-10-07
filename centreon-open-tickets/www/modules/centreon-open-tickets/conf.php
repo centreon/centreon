@@ -33,7 +33,6 @@ Once done provider configuration, the module allows for an operator to create ti
 Regarding the widget configuration, it is possible to see the created tickets by presenting tickets ID and "
     . 'date of creation of these.
 ';
-
 $module_conf['centreon-open-tickets']['is_removeable'] = '1';
 $module_conf['centreon-open-tickets']['author'] = 'Centreon';
 $module_conf['centreon-open-tickets']['stability'] = 'stable';
