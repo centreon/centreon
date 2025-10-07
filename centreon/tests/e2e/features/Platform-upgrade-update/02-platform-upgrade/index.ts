@@ -158,7 +158,7 @@ Given(
           cy.task('checkDockerImage', { image, name: 'web' }).then((result: any) => {
             if (!result.exists) {
               cy.log(`⚠️ Image ${result.image} not found, skipping test`);
-              cy.stopContainer({ name: 'web' }).wrap('skipped');
+              return cy.stopContainer({ name: 'web' }).wrap('skipped');
             }
 
             cy.log(`✅ Image ${result.image} found, starting container...`);
