@@ -6819,6 +6819,10 @@ msgstr ""
 msgid "Error while enabling/disabling host groups"
 msgstr ""
 
+#: centreon/www/include/options/accessLists/menusACL/listsMenusAccess.php
+msgid "Error while fetching ACL topologies"
+msgstr ""
+
 #: centreon/src/Core/Dashboard/Application/Exception/DashboardException.php
 msgid "Error while linking a dashboard to its thumbnail"
 msgstr ""
