@@ -112,6 +112,8 @@ RUN mv /usr/share/centreon/ /var/www/html/ &&\
 
 WORKDIR /var/www/html
 
+USER www-data
+
 ENV CENTREON_DATASET="1"
 ENV CENTREON_LANG="en_US"
 

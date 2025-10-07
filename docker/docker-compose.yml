@@ -76,8 +76,6 @@ services:
       - app-centlog:/var/log/centreon-engine:rw
   gorgone:
     <<: *defaults
-    environment:
-      - TYPE=central
     image: gorgone-test:latest
     container_name: gorgone
     hostname: gorgone
@@ -97,10 +95,10 @@ services:
         condition: service_healthy
 
   db:
-    <<: *defaults
     image: mariadb:10.11
     environment:
       MARIADB_ROOT_PASSWORD: centreon
+      TZ: "America/Toronto"
     networks:
       - app-network
     volumes:

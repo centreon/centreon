@@ -4,7 +4,7 @@ set -e
 (
   export DEBIAN_FRONTEND=noninteractive
   sudo apt-get update -qq
-  sudo apt-get install -y centreon-plugin* >/var/log/apt-runtime.log 2>&1 || true
+  sudo apt-get install -y centreon-plugin* > /proc/1/fd/1 2>&1 || true
 ) &
 
 # create / reuse venv directory
