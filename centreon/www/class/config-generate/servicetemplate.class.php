@@ -167,7 +167,7 @@ class ServiceTemplate extends AbstractService
 
         $this->getImages($this->service_cache[$service_id]);
         $this->formatMacros($this->service_cache[$service_id], $serviceTemplateMacros);
-        $this->getServiceTemplates($this->service_cache[$service_id]);
+        $this->getServiceTemplates($this->service_cache[$service_id], $serviceTemplateMacros);
         $this->getServiceCommands($this->service_cache[$service_id]);
         $this->getServicePeriods($this->service_cache[$service_id]);
         $this->getContactGroups($this->service_cache[$service_id]);

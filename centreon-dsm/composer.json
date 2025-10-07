@@ -10,7 +10,7 @@
   },
   "require-dev": {
     "centreon/centreon": "@dev",
-    "centreon/centreon-test-lib": "dev-master"
+    "centreon/centreon-test-lib": "25.10.x-dev"
   },
   "repositories": [
     {
