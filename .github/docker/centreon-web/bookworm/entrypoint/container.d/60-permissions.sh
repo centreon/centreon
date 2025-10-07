@@ -5,6 +5,6 @@ chown -R www-data:www-data /var/cache/centreon/
 
 chmod -R 775 /var/lib/centreon/centcore /var/lib/centreon/ /var/cache/centreon/
 
-su - www-data -s /bin/bash -c "php /usr/share/centreon/bin/console cache:clear"
+php /usr/share/centreon/bin/console cache:clear
 # chmod 644 /etc/centreon/config.d/10-database.yaml
 #systemctl start apache2
