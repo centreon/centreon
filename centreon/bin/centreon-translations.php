@@ -119,7 +119,7 @@ function createTranslationFile(
                 } elseif ($id !== null && $translation !== null) {
                     $translation .= $matches[2];
                 }
-            } elseif ($id !== null && $translation !== null) {
+            } elseif (!empty($id) && !empty($translation)) {
                 $englishTranslation[$id] = $id;
                 if (!$isDefaultTranslation) {
                     // Only if the code of language is not 'en'
@@ -133,7 +133,7 @@ function createTranslationFile(
         fclose($fleHandler);
     }
 
-    if ($id !== null && $translation !== null) {
+    if (!empty($id) && !empty($translation)) {
         $englishTranslation[$id] = $id;
         if (!$isDefaultTranslation) {
             $translations[$id] = $translation;

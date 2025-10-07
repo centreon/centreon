@@ -107,7 +107,7 @@ if [ "$PROJECT" = "centreon" ]; then
     $PHP $BASE_DIR/extractTranslationFromDashboardProperties.php $BASE_DIR_PROJECT > $BASE_DIR_PROJECT/www/install/dashboard_widgets.php
 
     echo "List all PHP files excluding help.php files"
-    find $BASE_DIR_PROJECT -name '*.php' | grep -v "help" > $PO_SRC
+    find $BASE_DIR_PROJECT -name '*.php' | grep -v "help" | sort > $PO_SRC
     echo "Generate messages.pot file including all strings to translate"
     POT_FILE_PATH=$(realpath --relative-to="${PWD}" "$BASE_DIR_PROJECT/lang/messages.pot")
     $XGETTEXT --sort-output --from-code=UTF-8 --default-domain=messages -k_ --files-from=$PO_SRC --output=$POT_FILE_PATH > /dev/null 2>&1
@@ -129,13 +129,13 @@ if [ "$PROJECT" = "centreon" ]; then
     sed -i -r 's/^#~ msgid/#: unknown\nmsgid/g' $BASE_DIR_PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/messages.po
     sed -i -r 's/^#~ //g' $BASE_DIR_PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/messages.po
 
-    missing_translation=$(msggrep -v -T -e "." $BASE_DIR_PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/messages.po | grep -c ^msgstr)
+    missing_translation=$(msggrep -v -T -e "." $BASE_DIR_PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/messages.po | grep -c ^msgstr || true)
     if [[ $missing_translation -gt 0 && "$LANG" == "fr_FR" ]]; then
         echo "::warning::$missing_translation strings are not translated in $PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/messages.po"
     fi
 
     echo "List all help.php files"
-    find $BASE_DIR_PROJECT/www -name 'help.php' > $PO_SRC
+    find $BASE_DIR_PROJECT/www -name 'help.php' | sort > $PO_SRC
     echo "Generate help.pot file including all strings to translate"
     POT_FILE_PATH=$(realpath --relative-to="${PWD}" "$BASE_DIR_PROJECT/lang/help.pot")
     $XGETTEXT --sort-output --from-code=UTF-8 --default-domain=messages -k_ --files-from=$PO_SRC --output=$POT_FILE_PATH > /dev/null 2>&1
@@ -151,7 +151,7 @@ if [ "$PROJECT" = "centreon" ]; then
     sed -i -r 's/^#~ msgid/#: unknown\nmsgid/g' $BASE_DIR_PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/help.po
     sed -i -r 's/^#~ //g' $BASE_DIR_PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/help.po
 
-    missing_translation=$(msggrep -v -T -e "." $BASE_DIR_PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/help.po | grep -c ^msgstr)
+    missing_translation=$(msggrep -v -T -e "." $BASE_DIR_PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/help.po | grep -c ^msgstr || true)
     if [[ $missing_translation -gt 0 && "$LANG" == "fr_FR" ]]; then
         echo "::warning::$missing_translation strings are not translated in $PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/help.po"
     fi

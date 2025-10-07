@@ -65,6 +65,7 @@ class AddAgentConfigurationPresenter extends AbstractPresenter implements AddAge
         return match ($connectionMode) {
             ConnectionModeEnum::SECURE => 'secure',
             ConnectionModeEnum::NO_TLS => 'no-tls',
+            ConnectionModeEnum::INSECURE => 'insecure',
         };
     }
 }

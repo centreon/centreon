@@ -15,7 +15,6 @@ import {
 } from '@centreon/ui';
 import { Resource } from '../../../models';
 import { formatBAStatus, formatStatus } from '../../../utils';
-import { getFormattedResources } from '../../../../../front_src/src/Dashboards/SingleInstancePage/Dashboard/utils';
 
 export const resourcesEndpoint = '/monitoring/resources';
 export const hostsEndpoint = '/monitoring/resources/hosts';

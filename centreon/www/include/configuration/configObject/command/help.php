@@ -49,11 +49,10 @@ $help["command_line_help"] = dgettext(
     "to a semicolon and then referencing it here in place of the semicolon. If you want to pass arguments " .
     "to commands during runtime, you can use \$ARGn\$ macros in the command line."
 );
-$help["enable_shell"] = dgettext(
-    "help",
-    "If your command requires shell features like pipes, redirections, globbing etc. check this box. " .
-    "If you are using Monitoring Engine this option cannot be disabled. Note that commands that require shell " .
-    "are slowing down the poller server."
+$help['enable_shell'] = dgettext(
+    'help',
+    'Check this option if your command requires shell features like pipes, redirections, globbing etc. '
+    . 'Note that commands requiring shell are slowing down the poller server.'
 );
 $help["arg_example"] = dgettext(
     "help",

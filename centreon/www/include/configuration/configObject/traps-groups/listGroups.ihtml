@@ -42,12 +42,12 @@
 		{section name=elem loop=$elemArr}
 		<tr class={$elemArr[elem].MenuClass}>
 			<td class="ListColPicker">{$elemArr[elem].RowMenu_select}</td>
-			<td class="ListColLeft"><a href="{$elemArr[elem].RowMenu_link}">{$elemArr[elem].RowMenu_name}</a></td>
+			<td class="ListColLeft"><a href="{$elemArr[elem].RowMenu_link}">{$elemArr[elem].RowMenu_name|escape:"html"}</a></td>
 			<td class="ListColRight" align="right">{if $mode_access == 'w' }{$elemArr[elem].RowMenu_options}{else}&nbsp;{/if}</td>
 		</tr>
-		{/section}	
+		{/section}
 	</table>
-	
+
 	<table class="ToolbarTable table">
 		<tr class="ToolbarTR">
 			{ if $mode_access == 'w' }
@@ -65,6 +65,6 @@
 
 <input type='hidden' name='o' id='o' value='42'>
 
-<input type='hidden' id='limit' name='limit' value='{$limit}'>	
+<input type='hidden' id='limit' name='limit' value='{$limit}'>
 {$form.hidden}
 </form>

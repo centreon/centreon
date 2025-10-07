@@ -58,12 +58,12 @@ Given('an administrator is logged in the platform', () => {
 When(
   'the administrator sets valid settings in the Groups mapping and saves',
   () => {
-    configureOpenIDConnect();
-
     cy.getByLabel({
       label: 'Enable OpenID Connect authentication',
       tag: 'input'
     }).check();
+
+    configureOpenIDConnect();
 
     cy.getByLabel({ label: 'Groups mapping' }).click();
     cy.getByLabel({

@@ -116,9 +116,8 @@ const useStyles = makeStyles<StylesProps>()((theme, { groupDirection }) => ({
   inputs: {
     display: 'flex',
     flexDirection: 'column',
-    marginTop: theme.spacing(1),
-    rowGap: theme.spacing(2),
-    marginBottom: theme.spacing(1)
+    margin: theme.spacing(2, 0),
+    rowGap: theme.spacing(2)
   }
 }));
 

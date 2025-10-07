@@ -933,6 +933,7 @@ $form->addElement('text', 'ehi_notes_url', _('Note URL'), $attrsText);
 $form->addElement('text', 'ehi_action_url', _('Action URL'), $attrsText);
 $form->addElement('text', 'geo_coords', _('Geographic coordinates'), $attrsText);
 $form->addRule('geo_coords', _('geo coords are not valid'), 'validate_geo_coords');
+$form->applyFilter('geo_coords', 'truncateGeoCoords');
 
 if (
     ! $centreon->user->admin
@@ -1028,6 +1029,7 @@ if ($o !== HOST_MASSIVE_CHANGE) {
     $form->addRule('host_name', _('Unauthorized value'), 'sanitize');
     $form->addRule('host_address', _('Compulsory Address'), 'required');
     $form->addRule('host_address', _('Unauthorized value'), 'sanitize');
+    $form->applyFilter('host_address', 'strip_tags');
     if (! $isCloudPlatform) {
         $form->registerRule('cg_group_exists', 'callback', 'testCg');
         $form->addRule(
@@ -1144,7 +1146,7 @@ $valid = false;
 if ($form->validate() && $from_list_menu === false) {
     $hostObj = $form->getElement('host_id');
     if ($form->getSubmitValue('submitA')) {
-        if (null !== $hostId = insertHostInAPI()) {
+        if ($hostId = insertHostInAPI()) {
             $hostObj->setValue($hostId);
             $o = HOST_WATCH;
             $valid = true;
