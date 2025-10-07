@@ -22474,15 +22474,3 @@ msgstr "período de tempo"
 #: unknown
 msgid "topology_name"
 msgstr "Nome da Topologia"
-
-#: unknown
-# msgid "TLS"
-# msgstr ""
-
-#: unknown
-# msgid "No TLS"
-# msgstr ""
-
-#: unknown
-# msgid "Insecure TLS"
-# msgstr ""
