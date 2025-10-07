@@ -28,7 +28,6 @@ $tpl = SmartyBC::createSmartyTemplate($path);
 // Form begin
 $form = new HTML_QuickFormCustom('FormTicketLogs', 'get', '?p=' . $p);
 
-// test
 $periods = ['' => '', '10800' => _('Last 3 Hours'), '21600' => _('Last 6 Hours'), '43200' => _('Last 12 Hours'), '86400' => _('Last 24 Hours'), '172800' => _('Last 2 Days'), '302400' => _('Last 4 Days'), '604800' => _('Last 7 Days'), '1209600' => _('Last 14 Days'), '2419200' => _('Last 28 Days'), '2592000' => _('Last 30 Days'), '2678400' => _('Last 31 Days'), '5184000' => _('Last 2 Months'), '10368000' => _('Last 4 Months'), '15552000' => _('Last 6 Months'), '31104000' => _('Last Year')];
 
 $form->addElement(
