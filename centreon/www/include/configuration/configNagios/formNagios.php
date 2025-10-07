@@ -330,6 +330,7 @@ $form->addElement('select', 'log_level_macros', _('Macros'), $logLevelOptions);
 $form->addElement('select', 'log_level_notifications', _('Notifications'), $logLevelOptions);
 $form->addElement('select', 'log_level_process', _('Process'), $logLevelOptions);
 $form->addElement('select', 'log_level_runtime', _('Runtime'), $logLevelOptions);
+$form->addElement('select', 'log_level_otl', _('Opentelemetry'), $logLevelOptions);
 
 // Debug Configuration (Log V1)
 $form->addElement('text', 'debug_file', _('Debug file (Directory + File)'), $attrsText);

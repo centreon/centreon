@@ -8,6 +8,7 @@ import dataLastWeek from '../mockedData/lastWeek.json';
 import dataPingService from '../mockedData/pingService.json';
 import dataPingServiceMixedStacked from '../mockedData/pingServiceMixedStacked.json';
 import dataPingServiceStacked from '../mockedData/pingServiceStacked.json';
+import dataMissingPoint from '../mockedData/dataWithMissingPoint.json';
 
 import BarChart, { BarChartProps } from './BarChart';
 
@@ -311,5 +312,13 @@ describe('Bar chart', () => {
     cy.contains('06/07/2023').should('be.visible');
     cy.contains('1 s').should('be.visible');
     cy.contains('1%').should('be.visible');
+  });
+
+  it('displays the stacked bar chart correctly when a point is missing compare to the time serie', () => {
+    initialize({ data: dataMissingPoint });
+
+    cy.findByTestId('stacked-bar-2-0-139').should('be.visible');
+
+    cy.makeSnapshot();
   });
 });

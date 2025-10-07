@@ -96,7 +96,6 @@ const SelectField = ({
       fullWidth={fullWidth}
       size="small"
       {...formControlProps}
-      
     >
       {label && <InputLabel>{label}</InputLabel>}
       <Select
