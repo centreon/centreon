@@ -91,14 +91,13 @@ beforeEach(() => {
 
 Given(
   'a running platform in major {string} with {string} version',
-  (majorVersionFromExpression: string, versionFromExpression: string) => {
+  function (majorVersionFromExpression: string, versionFromExpression: string) {
     if (
       Cypress.env('IS_CLOUD') &&
       !Cypress.env('WEB_IMAGE_OS').includes('alma')
     ) {
       cy.log('Cloud platforms are only available on almalinux');
-
-      return cy.wrap('skipped');
+      this.skip(); // <-- skip for cloud non-almalinux
     }
 
     cy.log(`Testing ${Cypress.env('IS_CLOUD') ? 'cloud' : 'onprem'} upgrade`);
@@ -110,10 +109,8 @@ Given(
           const previousVersion =
             getCentreonPreviousMajorVersion(major_version);
           cy.log(`Getting Centreon previous major version: ${previousVersion}`);
-          // Cloud versioning is different from on-prem
           if (Cypress.env('IS_CLOUD')) {
             const versionDir = './././../../www/install/php';
-            // Check if a file with the major version exists
             const versionFilePath = `${versionDir}/Update-${previousVersion}.${minor_version}.php`;
             cy.task('fileExists', versionFilePath).then((exists) => {
               if (exists) {
@@ -124,7 +121,6 @@ Given(
                 cy.log(
                   `The file with version: ${previousVersion} does not exist`
                 );
-                // If the version isn't found, use the closest available one
                 cy.getClosestVersionFile(previousVersion, versionDir).then(
                   (versionFilePath) => {
                     cy.log(`The last cloud version is: ${versionFilePath}`);
@@ -137,6 +133,7 @@ Given(
             });
           } else {
             majorVersionFrom = previousVersion;
+            cy.wrap(majorVersionFrom).as('majorVersionFrom');
           }
           break;
         }
@@ -144,25 +141,33 @@ Given(
           majorVersionFrom = getCentreonPreviousMajorVersion(
             getCentreonPreviousMajorVersion(major_version)
           );
+          cy.wrap(majorVersionFrom).as('majorVersionFrom');
           break;
         default:
           throw new Error(`${majorVersionFromExpression} not managed.`);
       }
 
+      // Verifying Docker image with task
       cy.get('@majorVersionFrom')
         .then((majorVersionFrom) => {
-          cy.startContainer({
-            command: 'tail -f /dev/null',
-            image: `docker.centreon.com/centreon/centreon-web-dependencies-${Cypress.env(
-              'WEB_IMAGE_OS'
-            )}:${majorVersionFrom}`,
-            name: 'web',
-            portBindings: [
-              {
-                destination: 4000,
-                source: 80
-              }
-            ]
+          const imageName = `docker.centreon.com/centreon/centreon-web-dependencies-${Cypress.env('WEB_IMAGE_OS')}:${majorVersionFrom}`;
+
+          cy.task<{ exists: boolean }>('checkDockerImage', {
+            image: imageName,
+            name: 'web'
+          }).then((result) => {
+            if (!result.exists) {
+              cy.log(`❌ Docker image ${imageName} not found, skipping test`);
+              this.skip(); // skip if Docker image not found
+            } else {
+              cy.log(`✅ Docker image ${imageName} found, starting container`);
+              cy.startContainer({
+                command: 'tail -f /dev/null',
+                image: imageName,
+                name: 'web',
+                portBindings: [{ destination: 4000, source: 80 }]
+              });
+            }
           });
         })
         .then(() => {
@@ -196,8 +201,7 @@ Given(
                     cy.log(
                       `Not needed to test ${versionFromExpression} version.`
                     );
-
-                    return cy.stopContainer({ name: 'web' }).wrap('skipped');
+                    this.skip(); // <-- skip if version not needed
                   }
 
                   cy.log(
@@ -244,10 +248,10 @@ Given(
 
                       cy.execInContainer({
                         command: `bash -e <<EOF
-                          echo "deb https://packages.centreon.com/apt-plugins-stable/ ${Cypress.env('WEB_IMAGE_OS')} main" > /etc/apt/sources.list.d/centreon-plugins-stable.list
-                          echo "deb https://packages.centreon.com/apt-plugins-testing/ ${Cypress.env('WEB_IMAGE_OS')} main" > /etc/apt/sources.list.d/centreon-plugins-testing.list
-                          echo "deb https://packages.centreon.com/apt-plugins-unstable/ ${Cypress.env('WEB_IMAGE_OS')} main" > /etc/apt/sources.list.d/centreon-plugins-unstable.list
-                          wget -O- https://packages.centreon.com/api/security/keypair/APT-GPG-KEY/public | gpg --dearmor | tee /etc/apt/trusted.gpg.d/centreon.gpg > /dev/null 2>&1
+                        echo "deb https://packages.centreon.com/apt-plugins-stable/ ${Cypress.env('WEB_IMAGE_OS')} main" > /etc/apt/sources.list.d/centreon-plugins-stable.list
+                        echo "deb https://packages.centreon.com/apt-plugins-testing/ ${Cypress.env('WEB_IMAGE_OS')} main" > /etc/apt/sources.list.d/centreon-plugins-testing.list
+                        echo "deb https://packages.centreon.com/apt-plugins-unstable/ ${Cypress.env('WEB_IMAGE_OS')} main" > /etc/apt/sources.list.d/centreon-plugins-unstable.list
+                        wget -O- https://packages.centreon.com/api/security/keypair/APT-GPG-KEY/public | gpg --dearmor | tee /etc/apt/trusted.gpg.d/centreon.gpg > /dev/null 2>&1
 EOF`,
                         name: 'web'
                       });
@@ -258,8 +262,8 @@ EOF`,
                         return cy.execInContainer(
                           {
                             command: `bash -e <<EOF
-                            echo "deb https://${Cypress.env('INTERNAL_REPO_USERNAME')}:${Cypress.env('INTERNAL_REPO_PASSWORD')}@packages.centreon.com/apt-standard-internal/ ${Cypress.env('WEB_IMAGE_OS')}-${major_version}-unstable main" > /etc/apt/sources.list.d/centreon-unstable.list
-                            apt-get update
+                          echo "deb https://${Cypress.env('INTERNAL_REPO_USERNAME')}:${Cypress.env('INTERNAL_REPO_PASSWORD')}@packages.centreon.com/apt-standard-internal/ ${Cypress.env('WEB_IMAGE_OS')}-${major_version}-unstable main" > /etc/apt/sources.list.d/centreon-unstable.list
+                          apt-get update
 EOF`,
                             name: 'web'
                           },
@@ -269,10 +273,10 @@ EOF`,
 
                       return cy.execInContainer({
                         command: `bash -e <<EOF
-                        echo "deb https://packages.centreon.com/apt-standard/ ${Cypress.env('WEB_IMAGE_OS')}-${major_version}-stable main" > /etc/apt/sources.list.d/centreon-stable.list
-                        echo "deb https://packages.centreon.com/apt-standard/ ${Cypress.env('WEB_IMAGE_OS')}-${major_version}-testing main" > /etc/apt/sources.list.d/centreon-testing.list
-                        echo "deb https://packages.centreon.com/apt-standard/ ${Cypress.env('WEB_IMAGE_OS')}-${major_version}-unstable main" > /etc/apt/sources.list.d/centreon-unstable.list
-                        apt-get update
+                      echo "deb https://packages.centreon.com/apt-standard/ ${Cypress.env('WEB_IMAGE_OS')}-${major_version}-stable main" > /etc/apt/sources.list.d/centreon-stable.list
+                      echo "deb https://packages.centreon.com/apt-standard/ ${Cypress.env('WEB_IMAGE_OS')}-${major_version}-testing main" > /etc/apt/sources.list.d/centreon-testing.list
+                      echo "deb https://packages.centreon.com/apt-standard/ ${Cypress.env('WEB_IMAGE_OS')}-${major_version}-unstable main" > /etc/apt/sources.list.d/centreon-unstable.list
+                      apt-get update
 EOF`,
                         name: 'web'
                       });
@@ -291,6 +295,5 @@ EOF`,
 );
 
 afterEach(() => {
-  cy.visitEmptyPage()
-    .stopContainer({ name: "web" });
+  cy.visitEmptyPage().stopContainer({ name: 'web' });
 });

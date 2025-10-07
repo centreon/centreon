@@ -54,6 +54,35 @@ export default (on: Cypress.PluginEvents): void => {
   }
 
   on("task", {
+    checkDockerImage: async (params: StartContainerProps) => {
+      const { image, name } = params;
+      console.log(`🔍 [checkDockerImage] Checking if image exists: ${image}`);
+
+      if (!image) {
+        console.error("❌ [checkDockerImage] No image name provided");
+        return { exists: false, error: "Image name is undefined" };
+      }
+
+      try {
+        execSync(`docker image inspect ${image}`, { stdio: "ignore" });
+        console.log(`✅ [checkDockerImage] Image already exists locally: ${image}`);
+        return { exists: true, image };
+      } catch {
+        console.log(`ℹ️ [checkDockerImage] Image not found locally, trying to pull...`);
+
+        try {
+          execSync(`docker pull ${image}`, { stdio: "pipe" });
+          console.log(`✅ [checkDockerImage] Image successfully pulled: ${image}`);
+          return { exists: true, image };
+        } catch (err: unknown) {
+          const errorMessage =
+            err instanceof Error ? err.message : JSON.stringify(err);
+          console.warn(`⚠️ [checkDockerImage] Image not found or pull failed: ${errorMessage}`);
+
+          return { exists: false, error: errorMessage, image };
+        }
+      }
+    },
     copyFromContainer: async ({ destination, serviceName, source }) => {
       try {
         const container = getContainer(serviceName);
