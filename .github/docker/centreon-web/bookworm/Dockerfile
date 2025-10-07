@@ -21,6 +21,7 @@ RUN apt-get update && apt-get install -y \
     libonig-dev \
     wget \
     gpg \
+    gosu \
     sudo \
     && docker-php-ext-configure ldap --with-libdir=lib/x86_64-linux-gnu \
     && docker-php-ext-install \
@@ -111,8 +112,6 @@ RUN mv /usr/share/centreon/ /var/www/html/ &&\
     ln -s /usr/local/bin/systemctl /usr/bin/systemctl
 
 WORKDIR /var/www/html
-
-USER www-data
 
 ENV CENTREON_DATASET="1"
 ENV CENTREON_LANG="en_US"

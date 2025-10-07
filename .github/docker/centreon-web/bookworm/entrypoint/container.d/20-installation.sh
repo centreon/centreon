@@ -13,15 +13,15 @@ if [ ! -f /etc/centreon/centreon.conf.php ] && [ -d /usr/share/centreon/www/inst
       "SELECT count(*) from information_schema.tables WHERE \
           table_schema='centreon' and table_name='nagios_server'") -eq 1 ]; then
       echo "Centreon is already installed."
-      php configFileSetup.php
-      php createDbUser.php
+      su www-data -s /bin/bash -c "php configFileSetup.php"
+      su www-data -s /bin/bash -c "php createDbUser.php"
   else
-    php configFileSetup.php
-    php installConfigurationDb.php
-    php installStorageDb.php
-    php createDbUser.php
-    SERVER_ADDR='127.0.0.1' php insertBaseConf.php
-    php partitionTables.php
+    su www-data -s /bin/bash -c "php configFileSetup.php"
+    su www-data -s /bin/bash -c "php installConfigurationDb.php"
+    su www-data -s /bin/bash -c "php installStorageDb.php"
+    su www-data -s /bin/bash -c "php createDbUser.php"
+    su www-data -s /bin/bash -c "SERVER_ADDR='127.0.0.1' php insertBaseConf.php"
+    su www-data -s /bin/bash -c "php partitionTables.php"
 
   mysql -h${MYSQL_HOST} -uroot -p${MYSQL_PWD} -e "UPDATE centreon.cfg_centreonbroker_info SET config_value = '${MYSQL_HOST}' WHERE config_key = 'db_host'"
   mysql -h${MYSQL_HOST} -uroot -p${MYSQL_PWD} -e "DELETE FROM centreon.cfg_centreonbroker_info WHERE config_group = 'output' AND config_group_id = '1'"
@@ -41,8 +41,8 @@ if [ ! -f /etc/centreon/centreon.conf.php ] && [ -d /usr/share/centreon/www/inst
     fi
   fi
 
-  php createEngineContextConfiguration.php
-  php generationCache.php
+  su www-data -s /bin/bash -c "php createEngineContextConfiguration.php"
+  su www-data -s /bin/bash -c "php generationCache.php"
   cd -
 fi
 
@@ -92,4 +92,4 @@ case "$CENTREON_LANG" in
     ;;
 esac
 
-rm -rf /usr/share/centreon/www/install
+su www-data -s /bin/bash -c "rm -rf /usr/share/centreon/www/install"
