@@ -1002,6 +1002,83 @@ jobs:
       jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
       jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
 
+  openapi-validation:
+    needs: [get-environment, dockerize]
+    if: |
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      needs.get-environment.outputs.stability != 'stable' &&
+      ! cancelled() &&
+      ! contains(needs.*.result, 'failure') &&
+      ! contains(needs.*.result, 'cancelled') &&
+      github.repository == 'centreon/centreon-modules'
+    runs-on: centreon-ubuntu-22.04
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Login to Registry
+        uses: docker/login-action@74a5d142397b4f367a81961eba4e8cd7edddf772 # v3.4.0
+        with:
+          registry: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
+          username: ${{ secrets.HARBOR_CENTREON_PULL_USERNAME }}
+          password: ${{ secrets.HARBOR_CENTREON_PULL_TOKEN }}
+
+      - name: Restore docker image from cache
+        id: cache-docker
+        uses: actions/cache/restore@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
+        continue-on-error: true
+        timeout-minutes: 6
+        with:
+          path: ./docker-image
+          key: docker-image-centreon-web-slim-alma9-${{ github.head_ref || github.ref_name }}
+        env:
+          SEGMENT_DOWNLOAD_TIMEOUT_MINS: 5
+
+      - name: Load docker image
+        if: ${{ steps.cache-docker.outputs.cache-hit == 'true' }}
+        run: |
+          docker load --input ./docker-image/centreon-web-slim-alma9.tar
+          docker tag centreon-web-slim-alma9:${{ github.head_ref || github.ref_name }} ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-web-slim-alma9:${{ github.head_ref || github.ref_name }}
+        shell: bash
+
+      - name: Start Centreon web
+        env:
+          WEB_IMAGE: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-map-alma9:${{ github.head_ref || github.ref_name }}
+          MYSQL_IMAGE: ${{ vars.DOCKER_PROXY_REGISTRY_URL }}/bitnamilegacy/mariadb:10.11
+        run: docker compose --profile web -f .github/docker/docker-compose.yml up -d --wait
+        shell: bash
+
+      - name: Select openapi file
+        run: |
+          if [[ "${{ needs.get-environment.outputs.is_cloud }}" == "true" && -f "centreon/doc/API/centreon-cloud-api.yaml" ]]; then
+            OPENAPI_FILE="centreon/doc/API/centreon-cloud-api.yaml"
+            BASEURL="http://localhost/centreon/api/latest/Cloud"
+          elif [[ -f "centreon/doc/API/centreon-api.yaml" ]]; then
+            OPENAPI_FILE="centreon/doc/API/centreon-api.yaml"
+            BASEURL="http://localhost/centreon/api/latest"
+          elif [[ -f "centreon/doc/API/centreon-api-v${{ needs.get-environment.outputs.major_version }}.yaml" ]]; then
+            OPENAPI_FILE="centreon/doc/API/centreon-api-v${{ needs.get-environment.outputs.major_version }}.yaml"
+            BASEURL="http://localhost/centreon/api/${{ needs.get-environment.outputs.major_version }}"
+          else
+            echo "::error::openapi file not found"
+            exit 1
+          fi
+          echo "Schema: $OPENAPI_FILE"
+          echo "Base URL: $BASEURL"
+
+          echo "OPENAPI_FILE=$OPENAPI_FILE" >> "$GITHUB_ENV"
+          echo "BASEURL=$BASEURL" >> "$GITHUB_ENV"
+
+      - name: Run Schemathesis tests
+        uses: schemathesis/action@1f15936316e0742005bf69657b5909ac68f04cb3 # v2.1.0
+        with:
+          schema: ${{ env.OPENAPI_FILE }}
+          base-url: ${{ env.BASEURL }}
+          checks: 'status_code_conformance,response_headers_conformance,response_schema_conformance,negative_data_rejection,ignored_auth'
+          max-examples: 10
+          version: ${{ needs.get-environment.outputs.is_cloud == 'true' && 'latest' || needs.get-environment.outputs.major_version }}
+          args: '--phases=fuzzing --max-failures=1 --mode=positive -H "Authorization: Bearer ${{ env.JWT_TOKEN }}"'
+
   performances-test:
     runs-on: ubuntu-24.04
     needs: [get-environment, dockerize]
