@@ -139,20 +139,10 @@ class PollerInteractionService
 
         foreach ($tabServer as $host) {
             if (in_array($host['id'], $pollerIDs)) {
-                $listBrokerFile = glob($centreonBrokerPath . $host['id'] . '/*.{xml,cfg,sql}', GLOB_BRACE);
-
                 passthru("echo 'SENDCFGFILE:{$host['id']}' >> {$centCorePipe}", $return);
 
                 if ($return) {
                     throw new Exception(_('Could not write into centcore.cmd. Please check file permissions.'));
-                }
-
-                if (count($listBrokerFile) > 0) {
-                    passthru("echo 'SENDCBCFG:" . $host['id'] . "' >> {$centCorePipe}", $return);
-
-                    if ($return) {
-                        throw new Exception(_('Could not write into centcore.cmd. Please check file permissions.'));
-                    }
                 }
             }
         }
@@ -202,8 +192,8 @@ class PollerInteractionService
                 throw new Exception(_('Could not write into centcore.cmd. Please check file permissions.'));
             }
 
-            $restartTimeQuery = "UPDATE `nagios_server` 
-                SET `last_restart` = '" . time() . "' 
+            $restartTimeQuery = "UPDATE `nagios_server`
+                SET `last_restart` = '" . time() . "'
                 WHERE `id` = '{$poller['id']}'";
             $this->db->query($restartTimeQuery);
         }
