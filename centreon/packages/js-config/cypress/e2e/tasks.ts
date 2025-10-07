@@ -64,7 +64,6 @@ export default (on: Cypress.PluginEvents): void => {
       }
 
       try {
-        // Vérifie si l’image est déjà présente localement
         execSync(`docker image inspect ${image}`, { stdio: "ignore" });
         console.log(`✅ [checkDockerImage] Image already exists locally: ${image}`);
         return { exists: true, image };
@@ -72,7 +71,6 @@ export default (on: Cypress.PluginEvents): void => {
         console.log(`ℹ️ [checkDockerImage] Image not found locally, trying to pull...`);
 
         try {
-          // Tente de la pull depuis le registre Docker
           execSync(`docker pull ${image}`, { stdio: "pipe" });
           console.log(`✅ [checkDockerImage] Image successfully pulled: ${image}`);
           return { exists: true, image };
@@ -81,7 +79,6 @@ export default (on: Cypress.PluginEvents): void => {
             err instanceof Error ? err.message : JSON.stringify(err);
           console.warn(`⚠️ [checkDockerImage] Image not found or pull failed: ${errorMessage}`);
 
-          // Pas d’erreur fatale : on retourne exists=false pour skip le test proprement
           return { exists: false, error: errorMessage, image };
         }
       }
