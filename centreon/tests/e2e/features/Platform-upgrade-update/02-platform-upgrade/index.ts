@@ -97,7 +97,7 @@ Given(
       !Cypress.env('WEB_IMAGE_OS').includes('alma')
     ) {
       cy.log('Cloud platforms are only available on almalinux');
-      this.skip(); // <-- skip pour cloud non-almalinux
+      this.skip(); // <-- skip for cloud non-almalinux
     }
 
     cy.log(`Testing ${Cypress.env('IS_CLOUD') ? 'cloud' : 'onprem'} upgrade`);
@@ -147,7 +147,7 @@ Given(
           throw new Error(`${majorVersionFromExpression} not managed.`);
       }
 
-      // Vérification Docker image avec task
+      // Verifying Docker image with task
       cy.get('@majorVersionFrom')
         .then((majorVersionFrom) => {
           const imageName = `docker.centreon.com/centreon/centreon-web-dependencies-${Cypress.env('WEB_IMAGE_OS')}:${majorVersionFrom}`;
@@ -158,7 +158,7 @@ Given(
           }).then((result) => {
             if (!result.exists) {
               cy.log(`❌ Docker image ${imageName} not found, skipping test`);
-              this.skip(); // skip si image Docker non trouvée
+              this.skip(); // skip if Docker image not found
             } else {
               cy.log(`✅ Docker image ${imageName} found, starting container`);
               cy.startContainer({
@@ -201,7 +201,7 @@ Given(
                     cy.log(
                       `Not needed to test ${versionFromExpression} version.`
                     );
-                    this.skip(); // <-- skip si version inutile
+                    this.skip(); // <-- skip if version not needed
                   }
 
                   cy.log(
