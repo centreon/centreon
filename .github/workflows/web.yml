@@ -1047,7 +1047,7 @@ jobs:
 
       - name: Start Centreon web
         env:
-          WEB_IMAGE: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-map-alma9:${{ github.head_ref || github.ref_name }}
+          WEB_IMAGE: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-web-slim-alma9:${{ github.head_ref || github.ref_name }}
           MYSQL_IMAGE: ${{ vars.DOCKER_PROXY_REGISTRY_URL }}/bitnamilegacy/mariadb:10.11
         run: docker compose --profile web -f .github/docker/docker-compose.yml up -d --wait
         shell: bash
