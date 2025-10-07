@@ -73,14 +73,42 @@ final class CustomConfiguration implements CustomConfigurationInterface, SAMLCus
 
     private ?string $logoutFromUrl = null;
 
+    private function __construct() {}
+
     /**
-     * @param array<string,mixed> $json
+     * @param array<string,mixed> $values
      *
      * @throws ConfigurationException|MissingLogoutUrlException
      */
-    public function __construct(array $json)
+    public static function createFromValues(array $values): self
     {
-        $this->create($json);
+        $customConfiguration = new self();
+        if (isset($values['is_active']) && $values['is_active']) {
+            $customConfiguration->validateMandatoryFields($values);
+        }
+        $customConfiguration->setEntityIDUrl($values['entity_id_url']);
+        $customConfiguration->setRemoteLoginUrl($values['remote_login_url']);
+        $customConfiguration->setPublicCertificate($values['certificate']);
+        $customConfiguration->setLogoutFrom($values['logout_from']);
+        if (isset($values['is_forced']) && $values['is_forced'] === true) {
+            $customConfiguration->setLogoutFrom(self::LOGOUT_FROM_CENTREON_AND_IDP);
+        }
+
+        $customConfiguration->setLogoutFromUrl($values['logout_from_url']);
+        $customConfiguration->setUserIdAttribute($values['user_id_attribute']);
+        $customConfiguration->setRequestedAuthnContext($values['requested_authn_context'] ?? false);
+        $customConfiguration->setRequestedAuthnContextComparison(
+            RequestedAuthnContextComparisonEnum::tryFrom($values['requested_authn_context_comparison'])
+            ?? throw ConfigurationException::invalidRequestedAuthnContextComparison($values['requested_authn_context_comparison'])
+        );
+        $customConfiguration->setAutoImportEnabled($values['auto_import']);
+        $customConfiguration->setUserNameBindAttribute($values['fullname_bind_attribute']);
+        $customConfiguration->setEmailBindAttribute($values['email_bind_attribute']);
+        $customConfiguration->setContactTemplate($values['contact_template']);
+        $customConfiguration->setAuthenticationConditions($values['authentication_conditions']);
+        $customConfiguration->setACLConditions($values['roles_mapping']);
+        $customConfiguration->setGroupsMapping($values['groups_mapping']);
+        return $customConfiguration;
     }
 
     public function getRemoteLoginUrl(): string
@@ -123,7 +151,7 @@ final class CustomConfiguration implements CustomConfigurationInterface, SAMLCus
         $this->userIdAttribute = $value;
     }
 
-    public function isRequestedAuthnContext(): bool
+    public function hasRequestedAuthnContext(): bool
     {
         return $this->requestedAuthnContext;
     }
@@ -276,39 +304,6 @@ final class CustomConfiguration implements CustomConfigurationInterface, SAMLCus
         return $this->groupsMapping;
     }
 
-    /**
-     * @param array<string,mixed> $json
-     *
-     * @throws ConfigurationException|MissingLogoutUrlException
-     */
-    public function create(array $json): void
-    {
-        if (isset($json['is_active']) && $json['is_active']) {
-            $this->validateMandatoryFields($json);
-        }
-        $this->setEntityIDUrl($json['entity_id_url']);
-        $this->setRemoteLoginUrl($json['remote_login_url']);
-        $this->setPublicCertificate($json['certificate']);
-        $this->setLogoutFrom($json['logout_from']);
-        if (isset($json['is_forced']) && $json['is_forced'] === true) {
-            $this->setLogoutFrom(self::LOGOUT_FROM_CENTREON_AND_IDP);
-        }
-
-        $this->setLogoutFromUrl($json['logout_from_url']);
-        $this->setUserIdAttribute($json['user_id_attribute']);
-        $this->setRequestedAuthnContextComparison(
-            RequestedAuthnContextComparisonEnum::tryFrom($json['requested_authn_context_comparison'])
-            ?? throw ConfigurationException::invalidRequestedAuthnContextComparison($json['requested_authn_context_comparison'])
-        );
-        $this->setAutoImportEnabled($json['auto_import']);
-        $this->setUserNameBindAttribute($json['fullname_bind_attribute']);
-        $this->setEmailBindAttribute($json['email_bind_attribute']);
-        $this->setContactTemplate($json['contact_template']);
-        $this->setAuthenticationConditions($json['authentication_conditions']);
-        $this->setACLConditions($json['roles_mapping']);
-        $this->setGroupsMapping($json['groups_mapping']);
-    }
-
     private function setACLConditions(ACLConditions $aclConditions): self
     {
         $this->aclConditions = $aclConditions;
@@ -358,6 +353,8 @@ final class CustomConfiguration implements CustomConfigurationInterface, SAMLCus
         ) {
             throw MissingLogoutUrlException::create();
         }
+
+        $this->validateRequestedAuthnContextConfiguration($json);
     }
 
     /**
@@ -384,4 +381,22 @@ final class CustomConfiguration implements CustomConfigurationInterface, SAMLCus
             );
         }
     }
+
+    /**
+     * @throws ConfigurationException
+     */
+    private function validateRequestedAuthnContextConfiguration(array $json): void
+    {
+        if (isset($json['requested_authn_context']) && $json['requested_authn_context'] === true) {
+            if (! isset($json['requested_authn_context_comparison'])) {
+                throw ConfigurationException::missingRequestedAuthnContextComparison();
+            }
+            if (RequestedAuthnContextComparisonEnum::tryFrom($json['requested_authn_context_comparison']) === null) {
+                throw ConfigurationException::invalidRequestedAuthnContextComparison(
+                    $json['requested_authn_context_comparison']
+                );
+            }
+        }
+    }
+
 }

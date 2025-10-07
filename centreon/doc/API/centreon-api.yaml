@@ -5177,7 +5177,6 @@ components:
         - email_bind_attribute
         - fullname_bind_attribute
         - requested_authn_context
-        - requested_authn_context_comparison
         - logout_from
       properties:
         is_active:

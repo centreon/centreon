@@ -25,21 +25,10 @@ namespace Core\Resources\Application\UseCase\CountResources;
 
 use Centreon\Domain\Monitoring\ResourceFilter;
 
-/**
- * Class
- *
- * @class CountResourcesRequest
- * @package Core\Resources\Application\UseCase\CountResources
- */
 final readonly class CountResourcesRequest
 {
     /**
-     * CountResourcesRequest constructor
-     *
-     * @param ResourceFilter $resourceFilter
-     * @param bool $allPages
-     * @param int $contactId
-     * @param bool $isAdmin
+     * @throws \InvalidArgumentException
      */
     public function __construct(
         public ResourceFilter $resourceFilter,
@@ -51,7 +40,7 @@ final readonly class CountResourcesRequest
     }
 
     /**
-     * @return void
+     * @throws \InvalidArgumentException
      */
     private function validateRequest(): void
     {

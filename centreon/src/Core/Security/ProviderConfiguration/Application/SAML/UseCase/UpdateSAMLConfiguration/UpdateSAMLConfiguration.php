@@ -23,8 +23,6 @@ declare(strict_types=1);
 
 namespace Core\Security\ProviderConfiguration\Application\SAML\UseCase\UpdateSAMLConfiguration;
 
-use Assert\AssertionFailedException;
-use Centreon\Domain\Common\Assertion\AssertionException;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\Repository\Interfaces\DataStorageEngineInterface;
 use Core\Application\Common\UseCase\ErrorResponse;
@@ -50,10 +48,8 @@ use Core\Security\ProviderConfiguration\Domain\SAML\Model\CustomConfiguration;
 /**
  * @phpstan-import-type _RolesMapping from UpdateSAMLConfigurationRequest
  */
-final class UpdateSAMLConfiguration
+final readonly class UpdateSAMLConfiguration
 {
-    use LoggerTrait;
-
     /**
      * @param WriteSAMLConfigurationRepositoryInterface $repository
      * @param ReadContactTemplateRepositoryInterface $contactTemplateRepository
@@ -80,8 +76,6 @@ final class UpdateSAMLConfiguration
         UpdateSAMLConfigurationPresenterInterface $presenter,
         UpdateSAMLConfigurationRequest $request,
     ): void {
-
-        $this->info('Updating SAML Provider');
         try {
             $provider = $this->providerAuthenticationFactory->create(Provider::SAML);
             $configuration = $provider->getConfiguration();
@@ -97,24 +91,20 @@ final class UpdateSAMLConfiguration
                 $request->authenticationConditions
             );
             $requestArray['groups_mapping'] = $this->createGroupsMapping($request->groupsMapping);
-            $configuration->setCustomConfiguration(new CustomConfiguration($requestArray));
+            $configuration->setCustomConfiguration(CustomConfiguration::createFromValues($requestArray));
             $this->updateConfiguration($configuration);
-        } catch (AssertionException|AssertionFailedException|ConfigurationException $ex) {
-            $this->error(
-                'Unable to create SAML Provider because one or several parameters are invalid',
-                ['trace' => $ex->getTraceAsString()]
-            );
-            $presenter->setResponseStatus(new ErrorResponse($ex->getMessage()));
-
-            return;
-        } catch (\Throwable $ex) {
-            $this->error('Error during SAML Provider Update', ['trace' => $ex->getTraceAsString()]);
-            $presenter->setResponseStatus(new UpdateSAMLConfigurationErrorResponse($ex->getMessage()));
+            $presenter->presentResponse(new NoContentResponse());
+        } catch (\Throwable $e) {
+            $presenter->presentResponse(new ErrorResponse(
+                message: $e->getMessage(),
+                context: ['provider' => Provider::SAML],
+                exception: $e
+            ));
 
             return;
         }
 
-        $presenter->setResponseStatus(new NoContentResponse());
+        $presenter->presentResponse(new NoContentResponse());
     }
 
     /**
@@ -151,7 +141,6 @@ final class UpdateSAMLConfiguration
      */
     private function createAuthorizationRules(array $authorizationRulesFromRequest): array
     {
-        $this->info('Creating Authorization Rules');
         $accessGroupIds = $this->getAccessGroupIds($authorizationRulesFromRequest);
 
         if ($accessGroupIds === []) {
@@ -216,8 +205,8 @@ final class UpdateSAMLConfiguration
         $nonExistentAccessGroupsIds = array_diff($accessGroupIdsFromRequest, $foundAccessGroupsId);
 
         if ($nonExistentAccessGroupsIds !== []) {
-            $this->error('Access Groups not found', [
-                'access_group_ids' => implode(', ', $nonExistentAccessGroupsIds),
+            \Centreon\Domain\Log\Logger::create()->error('Access Groups not found', [
+                'access_group_ids' => implode(', ', $nonExistentAccessGroupsIds)
             ]);
         }
     }
@@ -275,7 +264,6 @@ final class UpdateSAMLConfiguration
             if (! $isAlreadyInTransaction) {
                 $this->dataStorageEngine->startTransaction();
             }
-            $this->info('Updating SAML Provider');
             $this->repository->updateConfiguration($configuration);
             if (! $isAlreadyInTransaction) {
                 $this->dataStorageEngine->commitTransaction();
@@ -338,7 +326,7 @@ final class UpdateSAMLConfiguration
         $this->logNonExistentContactGroupsIds($contactGroupIds, $foundContactGroups);
         $contactGroupRelations = [];
         foreach ($groupsMappingParameters['relations'] as $contactGroupRelation) {
-            $contactGroup = $this->findContactGroupFromFoundcontactGroups(
+            $contactGroup = $this->findContactGroupFromFoundContactGroups(
                 $contactGroupRelation['contact_group_id'],
                 $foundContactGroups
             );
@@ -388,7 +376,7 @@ final class UpdateSAMLConfiguration
         $nonExistentContactGroupsIds = array_diff($contactGroupIds, $foundContactGroupsId);
 
         if ($nonExistentContactGroupsIds !== []) {
-            $this->error('Contact groups not found', [
+            \Centreon\Domain\Log\Logger::create()->error('Contact groups not found', [
                 'contact_group_ids' => implode(', ', $nonExistentContactGroupsIds),
             ]);
         }
@@ -403,7 +391,7 @@ final class UpdateSAMLConfiguration
      *
      * @return ContactGroup|null
      */
-    private function findContactGroupFromFoundcontactGroups(
+    private function findContactGroupFromFoundContactGroups(
         int $contactGroupIdFromRequest,
         array $foundContactGroups,
     ): ?ContactGroup {

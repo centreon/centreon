@@ -159,6 +159,7 @@ class DbWriteSAMLConfigurationRepository extends AbstractRepositoryDRB implement
             'entity_id_url' => $customConfiguration->getEntityIDUrl(),
             'certificate' => $customConfiguration->getPublicCertificate(),
             'user_id_attribute' => $customConfiguration->getUserIdAttribute(),
+            'requested_authn_context' => $customConfiguration->hasRequestedAuthnContext(),
             'requested_authn_context_comparison' => $customConfiguration->getRequestedAuthnContextComparison()->value,
             'logout_from' => $customConfiguration->getLogoutFrom(),
             'logout_from_url' => $customConfiguration->getLogoutFromUrl(),

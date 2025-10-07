@@ -69,6 +69,8 @@ final class FindSAMLConfigurationResponse
 
     public string $userIdAttribute = '';
 
+    public bool $requestAuthnContext = false;
+
     public RequestedAuthnContextComparisonEnum $requestedAuthnContextComparison;
 
     public bool $logoutFrom = true;

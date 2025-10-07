@@ -25,34 +25,35 @@ namespace Core\Security\ProviderConfiguration\Infrastructure\SAML\Api\FindSAMLCo
 
 use Centreon\Application\Controller\AbstractController;
 use Centreon\Domain\Contact\Contact;
+use Core\Application\Common\UseCase\ErrorResponse;
+use Core\Common\Infrastructure\ExceptionLogger\ExceptionLogger;
 use Core\Security\ProviderConfiguration\Application\SAML\UseCase\FindSAMLConfiguration\{
     FindSAMLConfiguration,
     FindSAMLConfigurationPresenterInterface
 };
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 final class FindSAMLConfigurationController extends AbstractController
 {
-    /**
-     * @param FindSAMLConfiguration $useCase
-     * @param FindSAMLConfigurationPresenterInterface $presenter
-     *
-     * @return object
-     */
     public function __invoke(
         FindSAMLConfiguration $useCase,
-        FindSAMLConfigurationPresenterInterface $presenter,
+        FindSAMLConfigurationPresenter $presenter,
     ): object {
-        $this->denyAccessUnlessGrantedForApiConfiguration();
-        /**
-         * @var Contact $contact
-         */
-        $contact = $this->getUser();
+        try {
+            /** @var Contact $contact */
+            $contact = $this->getUser();
+        } catch (\LogicException $e) {
+            ExceptionLogger::create()->log($e);
+            $presenter->setResponseStatus(
+                new ErrorResponse('User not found when trying to get SAML configuration')
+            );
+            return $presenter->show();
+        }
         if (! $contact->hasTopologyRole(Contact::ROLE_ADMINISTRATION_AUTHENTICATION_READ_WRITE)) {
             return $this->view(null, Response::HTTP_FORBIDDEN);
         }
         $useCase($presenter);
-
         return $presenter->show();
     }
 }

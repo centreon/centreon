@@ -73,7 +73,7 @@ class OneLoginSettingsFormatter implements SettingsFormatterInterface
                 'x509cert' => $customConfiguration->getPublicCertificate(),
             ],
             'security' => [
-                'requestedAuthnContext' => $customConfiguration->isRequestedAuthnContext(),
+                'requestedAuthnContext' => $customConfiguration->hasRequestedAuthnContext(),
                 'requestedAuthnContextComparison' => $customConfiguration->getRequestedAuthnContextComparison()->value,
             ],
         ];
