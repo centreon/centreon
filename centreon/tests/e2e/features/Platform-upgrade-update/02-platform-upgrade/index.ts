@@ -91,7 +91,7 @@ beforeEach(() => {
 
 Given(
   'a running platform in major {string} with {string} version',
-  function (majorVersionFromExpression: string, versionFromExpression: string) {
+  (majorVersionFromExpression: string, versionFromExpression: string) => {
     if (
       Cypress.env('IS_CLOUD') &&
       !Cypress.env('WEB_IMAGE_OS').includes('alma')
@@ -151,27 +151,44 @@ Given(
           throw new Error(`${majorVersionFromExpression} not managed.`);
       }
 
-      cy.get('@majorVersionFrom').then(function (majorVersionFrom) {
-          const image = `docker.centreon.com/centreon/centreon-web-dependencies-${Cypress.env('WEB_IMAGE_OS')}:${majorVersionFrom}`;
-          cy.log(`Checking if Docker image exists: ${image}`);
+      cy.get('@majorVersionFrom')
+        .then((majorVersionFrom) => {
+          const imageName = `docker.centreon.com/centreon/centreon-web-dependencies-${Cypress.env(
+            'WEB_IMAGE_OS'
+          )}:${majorVersionFrom}`;
 
-          cy.task('checkDockerImage', { image, name: 'web' }).then((result: any) => {
-            if (!result.exists) {
-              cy.log(`⚠️ Image ${result.image} not found, skipping test`);
-              return cy.stopContainer({ name: 'web' }).wrap('skipped');
+          cy.log(`Checking if Docker image exists: ${imageName}`);
+
+          return cy.task('checkDockerImage', imageName).then((imageExists) => {
+            if (!imageExists) {
+              cy.log(`❌ Image ${imageName} not found, skipping test`);
+              cy.stopContainer({ name: 'web' });
+              return cy.wrap(null).then(() => {
+                return cy.log('Test skipped due to missing Docker image');
+              });
             }
 
-            cy.log(`✅ Image ${result.image} found, starting container...`);
-
+            cy.log(`✅ Image ${imageName} found, starting container`);
             return cy.startContainer({
               command: 'tail -f /dev/null',
-              image: result.image,
+              image: imageName,
               name: 'web',
-              portBindings: [{ destination: 4000, source: 80 }]
+              portBindings: [
+                {
+                  destination: 4000,
+                  source: 80
+                }
+              ]
             });
           });
         })
-        .then(() => {
+        .then((startContainerResult) => {
+          // If container start failed (Docker image not available), stop here
+          if (!startContainerResult) {
+            cy.log('Stopping test execution due to missing Docker image');
+            return cy.wrap('skipped');
+          }
+
           Cypress.config('baseUrl', 'http://127.0.0.1:4000');
 
           return cy
@@ -297,5 +314,6 @@ EOF`,
 );
 
 afterEach(() => {
-  cy.visitEmptyPage().stopContainer({ name: 'web' });
+  cy.visitEmptyPage()
+    .stopContainer({ name: "web" });
 });
