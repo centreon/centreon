@@ -119,7 +119,7 @@ final class DbReadConfigurationRepository extends AbstractRepositoryDRB implemen
     public function findConfigurations(): array
     {
         $query = <<<'SQL'
-            SELECT COUNT(*) AS count
+            SELECT name
             FROM `:db`.`provider_configuration`
             SQL;
 
