@@ -13475,6 +13475,10 @@ msgid "Password security policy saved"
 msgstr ""
 
 #: centreon/www/include/Administration/myAccount/formMyAccount.php
+#: centreon/www/include/Administration/myAccount/formMyAccount.php
+#: centreon/www/include/Administration/myAccount/formMyAccount.php
+#: centreon/www/include/configuration/configObject/contact/formContact.php
+#: centreon/www/include/configuration/configObject/contact/formContact.php
 #: centreon/www/include/configuration/configObject/contact/formContact.php
 msgid "Passwords do not match"
 msgstr ""
