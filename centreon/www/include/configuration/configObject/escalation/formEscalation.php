@@ -33,7 +33,7 @@ if (($o == 'c' || $o == 'w') && $esc_id) {
     $statement->bindValue(':escId', $esc_id, PDO::PARAM_INT);
     $statement->execute();
     // Set base value
-    $esc = array_map('myEncode', $statement->fetchRow());
+    $esc = array_map('myDecode', $statement->fetchRow());
 
     // Set Host Options
     $esc['escalation_options1'] = explode(',', $esc['escalation_options1']);
@@ -167,6 +167,10 @@ $form->addRule('esc_cgs', _('Required Field'), 'required');
 $form->registerRule('exist', 'callback', 'testExistence');
 $form->addRule('esc_name', _('Name is already in use'), 'exist');
 $form->setRequiredNote("<font style='color: red;'>*</font>&nbsp;" . _('Required fields'));
+$form->registerRule('positiveInteger', 'callback', 'isPositiveInteger');
+$form->addRule('first_notification', _('Must be a positive integer or 0'), 'positiveInteger');
+$form->addRule('last_notification', _('Must be a positive integer or 0'), 'positiveInteger');
+$form->addRule('notification_interval', _('Must be a positive integer or 0'), 'positiveInteger');
 
 // Smarty template initialization
 $tpl = SmartyBC::createSmartyTemplate($path);
