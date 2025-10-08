@@ -38,10 +38,10 @@
 </table>
 <div id="validForm">
 	{foreach item=elem from=$params}
-	{assign var=paramName value="param_`$elem.parameter_id`"}
-	{if $elem.ft_typename == 'hidden'}
-	{$form[$paramName].html}
-	{/if}
+	    {assign var=paramName value="param_`$elem.parameter_id`"}
+	    {if $elem.ft_typename == 'hidden'}
+	        {$form[$paramName].html}
+	    {/if}
 	{/foreach}
 	{$form.hidden}
     {if isset($selectedId)}
