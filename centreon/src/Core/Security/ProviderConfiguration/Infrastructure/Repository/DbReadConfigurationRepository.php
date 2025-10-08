@@ -342,21 +342,9 @@ final class DbReadConfigurationRepository extends AbstractRepositoryDRB implemen
             );
         }
 
-        try {
-            $jsonDecoded['contact_template'] = $jsonDecoded['contact_template_id'] !== null
-                ? $this->readOpenIdConfigurationRepository->getContactTemplate($jsonDecoded['contact_template_id'])
-                : null;
-        } catch (\Throwable $e) {
-            throw new RepositoryException(
-                message: 'Could not fetch contact template from database',
-                context: [
-                    'provider_configuration_id' => $configuration->getId(),
-                    'provider_configuration_type' => $configuration->getType(),
-                    'contact_template_id' => $jsonDecoded['contact_template_id'],
-                ],
-                previous: $e
-            );
-        }
+        $jsonDecoded['contact_template'] = $jsonDecoded['contact_template_id'] !== null
+            ? $this->readOpenIdConfigurationRepository->findOneContactTemplate($jsonDecoded['contact_template_id'])
+            : null;
 
         $jsonDecoded['roles_mapping'] = $this->createAclConditions(
             Provider::OPENID,
@@ -460,29 +448,22 @@ final class DbReadConfigurationRepository extends AbstractRepositoryDRB implemen
      */
     private function createAclConditions(string $providerName, int $configurationId, array $rolesMapping): ACLConditions
     {
-        try {
-            $rules = [];
-            match ($providerName) {
-                Provider::OPENID => $rules = $this->readOpenIdConfigurationRepository->getAuthorizationRulesByConfigurationId(
-                    $configurationId
-                ),
-                Provider::SAML => $rules = $this->readSamlConfigurationRepository->findAuthorizationRulesByConfigurationId(
-                    $configurationId
-                ),
-                default => throw new \InvalidArgumentException(
-                    'ACL Conditions can only be created for OpenID or SAML providers.'
-                ),
-            };
-        } catch (\Throwable $e) {
-            throw new RepositoryException(
-                message: 'Could not fetch authorization rules from database',
+        $rules = [];
+        match ($providerName) {
+            Provider::OPENID => $rules = $this->readOpenIdConfigurationRepository->findAuthorizationRulesByConfigurationId(
+                $configurationId
+            ),
+            Provider::SAML => $rules = $this->readSamlConfigurationRepository->findAuthorizationRulesByConfigurationId(
+                $configurationId
+            ),
+            default => throw new RepositoryException(
+                message: 'ACL Conditions can only be created for OpenID or SAML providers.',
                 context: [
                     'provider_name' => $providerName,
                     'provider_configuration_id' => $configurationId,
-                ],
-                previous: $e
-            );
-        }
+                ]
+            ),
+        };
 
         $endpoint = null;
         if (array_key_exists('endpoint', $rolesMapping)) {
@@ -724,29 +705,22 @@ final class DbReadConfigurationRepository extends AbstractRepositoryDRB implemen
             }
         }
 
-        try {
-            $contactGroupRelations = [];
-            match ($providerName) {
-                Provider::OPENID => $contactGroupRelations = $this->readOpenIdConfigurationRepository->getContactGroupRelationsByConfigurationId(
-                    $configurationId
-                ),
-                Provider::SAML => $contactGroupRelations = $this->readSamlConfigurationRepository->findContactGroupRelationsByConfigurationId(
-                    $configurationId
-                ),
-                default => throw new \InvalidArgumentException(
-                    'Groups Mapping can only be created for OpenID or SAML providers.'
-                ),
-            };
-        } catch (\Throwable $e) {
-            throw new RepositoryException(
-                message: 'Could not fetch contact group relations from database',
+        $contactGroupRelations = [];
+        match ($providerName) {
+            Provider::OPENID => $contactGroupRelations = $this->readOpenIdConfigurationRepository->findContactGroupRelationsByConfigurationId(
+                $configurationId
+            ),
+            Provider::SAML => $contactGroupRelations = $this->readSamlConfigurationRepository->findContactGroupRelationsByConfigurationId(
+                $configurationId
+            ),
+            default => throw new RepositoryException(
+                message: 'Groups Mapping can only be created for OpenID or SAML providers.',
                 context: [
                     'provider_name' => $providerName,
                     'provider_configuration_id' => $configurationId,
-                ],
-                previous: $e
-            );
-        }
+                ]
+            ),
+        };
 
         try {
             return new GroupsMapping(

@@ -36,14 +36,14 @@ use Core\Contact\Domain\Model\ContactTemplate;
 use Core\Contact\Infrastructure\Repository\DbContactGroupFactory;
 use Core\Contact\Infrastructure\Repository\DbContactTemplateFactory;
 use Core\Security\AccessGroup\Infrastructure\Repository\DbAccessGroupFactory;
-use Core\Security\ProviderConfiguration\Application\SAML\Repository\ReadSAMLConfigurationRepositoryInterface as ReadRepositoryInterface;
+use Core\Security\ProviderConfiguration\Application\SAML\Repository\ReadSAMLConfigurationRepositoryInterface;
 use Core\Security\ProviderConfiguration\Domain\Model\AuthorizationRule;
 use Core\Security\ProviderConfiguration\Domain\Model\ContactGroupRelation;
 
 /**
  * @phpstan-import-type _AccessGroupRecord from DbAccessGroupFactory
  */
-class DbReadSAMLConfigurationRepository extends DatabaseRepository implements ReadRepositoryInterface
+class DbReadSAMLConfigurationRepository extends DatabaseRepository implements ReadSAMLConfigurationRepositoryInterface
 {
     /**
      * @inheritDoc
@@ -53,13 +53,13 @@ class DbReadSAMLConfigurationRepository extends DatabaseRepository implements Re
         $query = $this->queryBuilder->select('contact_id', 'contact_name')
             ->from('`:db`.contact')
             ->where('contact_id = :contactTemplateId')
-            ->andWhere('contact_register = :contact_register')
+            ->andWhere('contact_register = :contactRegister')
             ->getQuery();
 
         try {
             $queryParameters = QueryParameters::create([
-                QueryParameter::int('contact_template_id', $contactTemplateId),
-                QueryParameter::int('contact_register', 0),
+                QueryParameter::int('contactTemplateId', $contactTemplateId),
+                QueryParameter::int('contactRegister', 0),
             ]);
 
             $entry = $this->connection->fetchAssociative($this->translateDbName($query), $queryParameters);
@@ -79,14 +79,7 @@ class DbReadSAMLConfigurationRepository extends DatabaseRepository implements Re
      */
     public function findOneContactGroup(int $contactGroupId): ?ContactGroup
     {
-        $query = $this->queryBuilder->select(
-            'cg_id',
-            'cg_name',
-            'cg_alias',
-            'cg_comment',
-            'cg_activate',
-            'cg_type'
-        )
+        $query = $this->queryBuilder->select('cg_id', 'cg_name', 'cg_alias', 'cg_comment', 'cg_activate', 'cg_type')
             ->from('`:db`.contactgroup')
             ->where('cg_id = :contactGroupId')
             ->getQuery();
@@ -162,7 +155,7 @@ class DbReadSAMLConfigurationRepository extends DatabaseRepository implements Re
             } catch (AssertionFailedException $e) {
                 throw new RepositoryException(
                     message: 'Access group record is invalid',
-                    context: ['record' => $entry],
+                    context: ['record' => $entry, 'provider_configuration_id' => $providerConfigurationId],
                     previous: $e
                 );
             }
@@ -216,7 +209,7 @@ class DbReadSAMLConfigurationRepository extends DatabaseRepository implements Re
             } catch (AssertionFailedException $e) {
                 throw new RepositoryException(
                     message: 'Contact group record is invalid',
-                    context: ['record' => $entry],
+                    context: ['record' => $entry, 'provider_configuration_id' => $providerConfigurationId],
                     previous: $e
                 );
             }

@@ -31,7 +31,7 @@ use Core\Common\Domain\Exception\CollectionException;
 use Core\Common\Domain\Exception\RepositoryException;
 use Core\Common\Domain\Exception\ValueObjectException;
 use Core\Common\Infrastructure\Repository\DatabaseRepository;
-use Core\Security\ProviderConfiguration\Application\SAML\Repository\WriteSAMLConfigurationRepositoryInterface as WriteRepositoryInterface;
+use Core\Security\ProviderConfiguration\Application\SAML\Repository\WriteSAMLConfigurationRepositoryInterface;
 use Core\Security\ProviderConfiguration\Domain\Model\ACLConditions;
 use Core\Security\ProviderConfiguration\Domain\Model\AuthenticationConditions;
 use Core\Security\ProviderConfiguration\Domain\Model\Configuration;
@@ -39,7 +39,7 @@ use Core\Security\ProviderConfiguration\Domain\Model\GroupsMapping;
 use Core\Security\ProviderConfiguration\Domain\Model\Provider;
 use Core\Security\ProviderConfiguration\Domain\SAML\Model\CustomConfiguration;
 
-class DbWriteSAMLConfigurationRepository extends DatabaseRepository implements WriteRepositoryInterface
+class DbWriteSAMLConfigurationRepository extends DatabaseRepository implements WriteSAMLConfigurationRepositoryInterface
 {
     /**
      * @inheritDoc
