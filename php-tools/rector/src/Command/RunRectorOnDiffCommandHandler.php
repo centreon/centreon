@@ -73,9 +73,15 @@ final class RunRectorOnDiffCommandHandler
             }
         }
 
+        $hasErrors = false;
         foreach ($pathsToAnalyze as $section => $files) {
-            $this->executeRector("rector:{$section}", $files, $toFix);
+            $exitCode = $this->executeRector("rector:{$section}", $files, $toFix);
+            if (! $hasErrors && $exitCode !== 0) {
+                $hasErrors = true;
+            }
         }
+
+        ($hasErrors) ? exit(1) : exit(0);
     }
 
     /**
@@ -96,7 +102,7 @@ final class RunRectorOnDiffCommandHandler
     /**
      * @param array<int,string> $filesToAnalyze
      */
-    private function executeRector(string $commandName, array $filesToAnalyze, bool $toFix): void
+    private function executeRector(string $commandName, array $filesToAnalyze, bool $toFix): int
     {
         echo '################################################' . PHP_EOL;
         echo '=> Running ' . $commandName . PHP_EOL;
@@ -115,9 +121,11 @@ final class RunRectorOnDiffCommandHandler
             passthru($command, $exitCode);
             echo $exitCode === 0 ? '✔️ No errors!' . PHP_EOL : '❌ Errors found!' . PHP_EOL;
 
-            exit($exitCode);
+            return $exitCode;
         }
 
         echo 'No files to analyse!' . PHP_EOL;
+
+        return 0;
     }
 }
