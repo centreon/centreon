@@ -1,15 +1,16 @@
 import {
-  type MutableRefObject,
   useEffect,
   useMemo,
   useRef,
-  useState
+  useState,
+  JSX,
+  RefObject
 } from 'react';
 
 import { useAtom } from 'jotai';
 import { equals, flatten, isEmpty, isNil, pluck, reject } from 'ramda';
 
-import { ClickAwayListener, Skeleton } from '@mui/material';
+import { ClickAwayListener, Skeleton, Typography } from '@mui/material';
 
 import { useDeepCompare } from '../../utils';
 import BarGroup from '../BarChart/BarGroup';
@@ -48,11 +49,12 @@ import type {
   LineChartProps
 } from './models';
 import { useIntersection } from './useChartIntersection';
+import { labelTooManyMetrics } from './translatedLabels';
 
 interface Props extends LineChartProps {
   graphData: Data;
   graphInterval: GraphInterval;
-  graphRef: MutableRefObject<HTMLDivElement | null>;
+  graphRef: RefObject<HTMLDivElement | null>;
   limitLegend?: false | number;
   shapeLines?: GlobalAreaLines;
   thresholdUnit?: string;
@@ -244,7 +246,9 @@ const Chart = ({
     xScale
   });
 
-  const displayLegend = legend?.display ?? true;
+  const displayLegend = (legend?.display ?? true) && graphData.lines.length <= 20;
+  const displayLines = !isEmpty(linesDisplayedAsLine) && graphData.lines.length <=20;
+  const displayBars = !isEmpty(linesDisplayedAsBar) && graphData.lines.length <= 20;
   const displayTooltip = !isNil(tooltip?.renderComponent);
 
   const showGridLines = useMemo(
@@ -293,6 +297,14 @@ const Chart = ({
             tooltip={tooltip}
           >
             <div className={classes.tooltipChildren}>
+              {graphData.lines.length > 20 && (
+                <Typography
+                  className={classes.tooManyMetricsMessage}
+                  variant='h6'
+                >
+                  {labelTooManyMetrics}
+                </Typography>
+              )}
               <ChartSvgWrapper
                 allUnits={allUnits}
                 axis={axis}
@@ -311,7 +323,7 @@ const Chart = ({
                 hasSecondUnit={hasSecondUnit}
               >
                 <>
-                  {!isEmpty(linesDisplayedAsBar) && (
+                  {displayBars && (
                     <BarGroup
                       barStyle={barStyle}
                       isTooltipHidden={false}
@@ -323,7 +335,7 @@ const Chart = ({
                       yScalesPerUnit={yScalesPerUnit}
                     />
                   )}
-                  {!isEmpty(linesDisplayedAsLine) && (
+                  {displayLines && (
                     <Lines
                       lineStyle={lineStyle}
                       displayAnchor={displayAnchor}
