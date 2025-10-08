@@ -6022,6 +6022,10 @@ msgstr "Erreur lors de la suppression du modèle de service"
 msgid "Error while editing service severity"
 msgstr "Erreur lors de l'édition de la criticité du service"
 
+#: centreon/www/include/options/accessLists/menusACL/listsMenusAccess.php
+msgid "Error while fetching ACL topologies"
+msgstr ""
+
 #: centreon/src/Core/Dashboard/Application/Exception/DashboardException.php
 msgid "Error while linking a dashboard to its thumbnail"
 msgstr "Erreur lors de la liaison d'un tableau de bord à sa vignette"
