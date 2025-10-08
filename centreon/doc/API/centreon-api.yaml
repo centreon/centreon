@@ -211,6 +211,12 @@ paths:
                       type: boolean
                       description: "Provider forced or not"
                       example: false
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
   /authentication/providers/configurations/{provider_configuration_name}:
     post:
       tags:
