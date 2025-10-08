@@ -44,9 +44,11 @@ final class RunCsFixerOnDiffCommandHandler
                 $replacement = preg_replace('/^' . preg_quote($command->moduleName . '/', '/') . '/', '', $arg);
                 if ($replacement === null) {
                     echo '⚠️ Error processing file when removing module name: ' . $arg . PHP_EOL;
+
                     exit(1);
                 }
-                $diffFiles[] = $replacement;            }
+                $diffFiles[] = $replacement;
+            }
             if (str_starts_with($arg, $command->moduleName . '/')) {
                 unset($args[$key]);
             }
