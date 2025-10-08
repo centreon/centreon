@@ -26,6 +26,8 @@
  */
 class ImportExportContext extends CentreonAwieContext
 {
+    public $container;
+
     /**
      * @When I export an object
      */
