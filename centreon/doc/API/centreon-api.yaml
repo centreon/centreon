@@ -13,7 +13,6 @@ info:
     + Added endpoint to count resources
     + Added endpoint to get a single metric value for a host and a service
     + Added endpoint to list media folders
-    + Added Schemathesis validation
     +
     # Updated features
     + Updated endpoint to add an hostgroup
@@ -144,6 +143,8 @@ paths:
         required: true
         schema:
           type: string
+          pattern: "^[a-zA-Z0-9_-]+$"
+          example: "admin"
       requestBody:
         required: true
         content:
