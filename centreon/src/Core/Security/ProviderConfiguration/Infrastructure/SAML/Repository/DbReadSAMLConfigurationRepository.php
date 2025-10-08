@@ -23,8 +23,13 @@ declare(strict_types=1);
 
 namespace Core\Security\ProviderConfiguration\Infrastructure\SAML\Repository;
 
-use Centreon\Infrastructure\DatabaseConnection;
-use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\Exception\ConnectionException;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
+use Core\Common\Domain\Exception\CollectionException;
+use Core\Common\Domain\Exception\RepositoryException;
+use Core\Common\Domain\Exception\ValueObjectException;
+use Core\Common\Infrastructure\Repository\DatabaseRepository;
 use Core\Contact\Domain\Model\ContactGroup;
 use Core\Contact\Domain\Model\ContactTemplate;
 use Core\Contact\Infrastructure\Repository\DbContactGroupFactory;
@@ -33,154 +38,155 @@ use Core\Security\AccessGroup\Infrastructure\Repository\DbAccessGroupFactory;
 use Core\Security\ProviderConfiguration\Application\SAML\Repository\ReadSAMLConfigurationRepositoryInterface as ReadRepositoryInterface;
 use Core\Security\ProviderConfiguration\Domain\Model\AuthorizationRule;
 use Core\Security\ProviderConfiguration\Domain\Model\ContactGroupRelation;
-use Throwable;
 
 /**
  * @phpstan-import-type _AccessGroupRecord from DbAccessGroupFactory
  */
-class DbReadSAMLConfigurationRepository extends AbstractRepositoryDRB implements ReadRepositoryInterface
+class DbReadSAMLConfigurationRepository extends DatabaseRepository implements ReadRepositoryInterface
 {
     /**
-     * @param DatabaseConnection $db
+     * @inheritDoc
      */
-    public function __construct(DatabaseConnection $db)
+    public function findOneContactTemplate(int $contactTemplateId): ?ContactTemplate
     {
-        $this->db = $db;
-    }
+        try {
+            $query = $this->queryBuilder->select('contact_id', 'contact_name')
+                ->from('`:db`.contact')
+                ->where('contact_id = :contactTemplateId')
+                ->andWhere('contact_register = :contact_register')
+                ->getQuery();
 
-    /**
-     * Get Contact Template.
-     *
-     * @param int $contactTemplateId
-     *
-     * @throws Throwable
-     *
-     * @return ContactTemplate|null
-     */
-    public function getContactTemplate(int $contactTemplateId): ?ContactTemplate
-    {
-        $statement = $this->db->prepare(
-            'SELECT
-                contact_id,
-                contact_name
-            FROM contact
-            WHERE
-                contact_id = :contactTemplateId
-                AND contact_register = 0'
-        );
-        $statement->bindValue(':contactTemplateId', $contactTemplateId, \PDO::PARAM_INT);
-        $statement->execute();
+            $queryParameters = QueryParameters::create([
+                QueryParameter::int('contact_template_id', $contactTemplateId),
+                QueryParameter::int('contact_register', 0),
+            ]);
 
-        $contactTemplate = null;
-        if ($statement !== false && $result = $statement->fetch(\PDO::FETCH_ASSOC)) {
-            $contactTemplate = DbContactTemplateFactory::createFromRecord($result);
+            $entry = $this->connection->fetchAssociative($this->translateDbName($query), $queryParameters);
+
+            return $entry !== false ? DbContactTemplateFactory::createFromRecord($entry) : null;
+        } catch (ValueObjectException|CollectionException|ConnectionException $e) {
+            throw new RepositoryException(
+                message: 'Could not fetch contact template from database',
+                context: ['contact_template_id' => $contactTemplateId],
+                previous: $e
+            );
         }
-
-        return $contactTemplate;
     }
 
     /**
-     * Get Contact Group.
-     *
-     * @param int $contactGroupId
-     *
-     * @throws Throwable
-     *
-     * @return ContactGroup|null
+     * @inheritDoc
      */
-    public function getContactGroup(int $contactGroupId): ?ContactGroup
+    public function findOneContactGroup(int $contactGroupId): ?ContactGroup
     {
-        $statement = $this->db->prepare(
-            $this->translateDbName(
-                <<<'SQL'
-                    SELECT cg_id, cg_name, cg_alias, cg_comment, cg_activate, cg_type
-                    FROM `:db`.contactgroup
-                    WHERE cg_id = :contactGroupId
-                    SQL
+        try {
+            $query = $this->queryBuilder->select(
+                'cg_id',
+                'cg_name',
+                'cg_alias',
+                'cg_comment',
+                'cg_activate',
+                'cg_type'
             )
-        );
-        $statement->bindValue(':contactGroupId', $contactGroupId, \PDO::PARAM_INT);
-        $statement->execute();
+                ->from('`:db`.contactgroup')
+                ->where('cg_id = :contactGroupId')
+                ->getQuery();
 
-        $contactGroup = null;
-        if ($statement !== false && $result = $statement->fetch(\PDO::FETCH_ASSOC)) {
-            $contactGroup = DbContactGroupFactory::createFromRecord($result);
+            $queryParameters = QueryParameters::create([
+                QueryParameter::int('contactGroupId', $contactGroupId),
+            ]);
+
+            $entry = $this->connection->fetchAssociative($this->translateDbName($query), $queryParameters);
+
+            return $entry !== false ? DbContactGroupFactory::createFromRecord($entry) : null;
+        } catch (ValueObjectException|CollectionException|ConnectionException $e) {
+            throw new RepositoryException(
+                message: 'Could not fetch contact group from database',
+                context: ['contact_group_id' => $contactGroupId],
+                previous: $e
+            );
         }
-
-        return $contactGroup;
     }
 
     /**
-     * Get Authorization Rules.
-     *
-     * @param int $providerConfigurationId
-     *
-     * @throws Throwable
-     *
-     * @return array<AuthorizationRule>
+     * @inheritDoc
      */
-    public function getAuthorizationRulesByConfigurationId(int $providerConfigurationId): array
+    public function findAuthorizationRulesByConfigurationId(int $providerConfigurationId): array
     {
-        $statement = $this->db->prepare(
-            'SELECT * from security_provider_access_group_relation spagn
-                INNER JOIN acl_groups ON acl_group_id = spagn.access_group_id
+        try {
+            $query = <<<'SQL'
+                SELECT * from `:db`.security_provider_access_group_relation spagn
+                INNER JOIN `:db`.acl_groups
+                    ON acl_group_id = spagn.access_group_id
                 WHERE spagn.provider_configuration_id = :providerConfigurationId
-                ORDER BY spagn.priority asc'
-        );
-        $statement->bindValue(':providerConfigurationId', $providerConfigurationId, \PDO::PARAM_INT);
-        $statement->execute();
+                ORDER BY spagn.priority asc
+                SQL;
 
-        $authorizationRules = [];
-        while ($statement !== false && is_array($result = $statement->fetch(\PDO::FETCH_ASSOC))) {
-            /** @var _AccessGroupRecord $result */
-            $accessGroup = DbAccessGroupFactory::createFromRecord($result);
-            $authorizationRules[] = new AuthorizationRule($result['claim_value'], $accessGroup, $result['priority']);
+            $queryParameters = QueryParameters::create([
+                QueryParameter::int('providerConfigurationId', $providerConfigurationId),
+            ]);
+
+            $entries = $this->connection->fetchAllAssociative($query, $queryParameters);
+
+            $authorizationRules = [];
+            foreach ($entries as $entry) {
+                /** @var _AccessGroupRecord $entry */
+                $accessGroup = DbAccessGroupFactory::createFromRecord($entry);
+                $authorizationRules[] = new AuthorizationRule($entry['claim_value'], $accessGroup, $entry['priority']);
+            }
+
+            return $authorizationRules;
+        } catch (ValueObjectException|CollectionException|ConnectionException $e) {
+            throw new RepositoryException(
+                message: 'Could not fetch authorization rules from database',
+                context: ['provider_configuration_id' => $providerConfigurationId],
+                previous: $e
+            );
         }
-
-        return $authorizationRules;
     }
 
     /**
-     * Get Contact Group relations.
-     *
-     * @param int $providerConfigurationId
-     *
-     * @throws Throwable
-     *
-     * @return ContactGroupRelation[]
+     * @inheritDoc
      */
-    public function getContactGroupRelationsByConfigurationId(int $providerConfigurationId): array
+    public function findContactGroupRelationsByConfigurationId(int $providerConfigurationId): array
     {
-        $statement = $this->db->prepare(
-            $this->translateDbName(
-                <<<'SQL'
-                    SELECT *
-                    FROM `:db`.security_provider_contact_group_relation spcgn
-                    INNER JOIN `:db`.contactgroup
-                        ON cg_id = spcgn.contact_group_id
-                    WHERE spcgn.provider_configuration_id = :providerConfigurationId
-                    SQL
-            )
-        );
-        $statement->bindValue(':providerConfigurationId', $providerConfigurationId, \PDO::PARAM_INT);
-        $statement->execute();
+        try {
+            $query = <<<'SQL'
+                SELECT *
+                FROM `:db`.security_provider_contact_group_relation spcgn
+                INNER JOIN `:db`.contactgroup
+                    ON cg_id = spcgn.contact_group_id
+                WHERE spcgn.provider_configuration_id = :providerConfigurationId
+                SQL;
 
-        $contactGroupRelations = [];
-        while ($statement !== false && is_array($result = $statement->fetch(\PDO::FETCH_ASSOC))) {
-            /** @var array{
-             *     cg_id: int,
-             *     cg_name: string,
-             *     cg_alias: string,
-             *     cg_comment?: string,
-             *     cg_activate: string,
-             *     cg_type: string,
-             *     claim_value: string
-             * } $result
-             */
-            $contactGroup = DbContactGroupFactory::createFromRecord($result);
-            $contactGroupRelations[] = new ContactGroupRelation($result['claim_value'], $contactGroup);
+            $queryParameters = QueryParameters::create([
+                QueryParameter::int('providerConfigurationId', $providerConfigurationId),
+            ]);
+
+            $entries = $this->connection->fetchAllAssociative($this->translateDbName($query), $queryParameters);
+
+            $contactGroupRelations = [];
+            foreach ($entries as $entry) {
+                /** @var array{
+                 *     cg_id: int,
+                 *     cg_name: string,
+                 *     cg_alias: string,
+                 *     cg_comment?: string,
+                 *     cg_activate: string,
+                 *     cg_type: string,
+                 *     claim_value: string
+                 * } $entry
+                 */
+                $contactGroup = DbContactGroupFactory::createFromRecord($entry);
+                $contactGroupRelations[] = new ContactGroupRelation($entry['claim_value'], $contactGroup);
+            }
+
+            return $contactGroupRelations;
+        } catch (ValueObjectException|CollectionException|ConnectionException $e) {
+            throw new RepositoryException(
+                message: 'Could not fetch contact group relations from database',
+                context: ['provider_configuration_id' => $providerConfigurationId],
+                previous: $e
+            );
         }
-
-        return $contactGroupRelations;
     }
 }

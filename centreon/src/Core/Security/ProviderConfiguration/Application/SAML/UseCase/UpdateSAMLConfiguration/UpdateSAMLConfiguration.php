@@ -23,9 +23,11 @@ declare(strict_types=1);
 
 namespace Core\Security\ProviderConfiguration\Application\SAML\UseCase\UpdateSAMLConfiguration;
 
-use Centreon\Domain\Repository\Interfaces\DataStorageEngineInterface;
+use Centreon\Domain\Log\Logger;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
+use Core\Common\Domain\Exception\RepositoryException;
+use Core\Common\Infrastructure\Repository\DatabaseRepositoryManager;
 use Core\Contact\Application\Repository\ReadContactGroupRepositoryInterface;
 use Core\Contact\Application\Repository\ReadContactTemplateRepositoryInterface;
 use Core\Contact\Domain\Model\ContactGroup;
@@ -42,6 +44,7 @@ use Core\Security\ProviderConfiguration\Domain\Model\Configuration;
 use Core\Security\ProviderConfiguration\Domain\Model\ContactGroupRelation;
 use Core\Security\ProviderConfiguration\Domain\Model\GroupsMapping;
 use Core\Security\ProviderConfiguration\Domain\Model\Provider;
+use Core\Security\ProviderConfiguration\Domain\OpenId\Exceptions\ACLConditionsException;
 use Core\Security\ProviderConfiguration\Domain\SAML\Model\CustomConfiguration;
 
 /**
@@ -49,28 +52,16 @@ use Core\Security\ProviderConfiguration\Domain\SAML\Model\CustomConfiguration;
  */
 final readonly class UpdateSAMLConfiguration
 {
-    /**
-     * @param WriteSAMLConfigurationRepositoryInterface $repository
-     * @param ReadContactTemplateRepositoryInterface $contactTemplateRepository
-     * @param ReadContactGroupRepositoryInterface $contactGroupRepository
-     * @param ReadAccessGroupRepositoryInterface $accessGroupRepository
-     * @param DataStorageEngineInterface $dataStorageEngine
-     * @param ProviderAuthenticationFactoryInterface $providerAuthenticationFactory
-     */
     public function __construct(
-        private WriteSAMLConfigurationRepositoryInterface $repository,
+        private WriteSAMLConfigurationRepositoryInterface $writeSAMLConfigurationRepository,
         private ReadContactTemplateRepositoryInterface $contactTemplateRepository,
         private ReadContactGroupRepositoryInterface $contactGroupRepository,
         private ReadAccessGroupRepositoryInterface $accessGroupRepository,
-        private DataStorageEngineInterface $dataStorageEngine,
+        private DatabaseRepositoryManager $databaseRepositoryManager,
         private ProviderAuthenticationFactoryInterface $providerAuthenticationFactory,
     ) {
     }
 
-    /**
-     * @param UpdateSAMLConfigurationPresenterInterface $presenter
-     * @param UpdateSAMLConfigurationRequest $request
-     */
     public function __invoke(
         UpdateSAMLConfigurationPresenterInterface $presenter,
         UpdateSAMLConfigurationRequest $request,
@@ -112,8 +103,6 @@ final readonly class UpdateSAMLConfiguration
      * @param array{id: int, name: string}|null $contactTemplateFromRequest
      *
      * @throws \Throwable|ConfigurationException
-     *
-     * @return ContactTemplate|null
      */
     private function getContactTemplateOrFail(?array $contactTemplateFromRequest): ?ContactTemplate
     {
@@ -134,7 +123,7 @@ final readonly class UpdateSAMLConfiguration
      *
      * @param array<array{claim_value: string, access_group_id: int, priority: int}> $authorizationRulesFromRequest
      *
-     * @throws \Throwable
+     * @throws RepositoryException
      *
      * @return AuthorizationRule[]
      */
@@ -171,9 +160,8 @@ final readonly class UpdateSAMLConfiguration
     /**
      * @param _RolesMapping $rolesMapping
      *
-     * @throws \Throwable
-     *
-     * @return ACLConditions
+     * @throws RepositoryException
+     * @throws ACLConditionsException
      */
     private function createAclConditions(array $rolesMapping): ACLConditions
     {
@@ -204,7 +192,7 @@ final readonly class UpdateSAMLConfiguration
         $nonExistentAccessGroupsIds = array_diff($accessGroupIdsFromRequest, $foundAccessGroupsId);
 
         if ($nonExistentAccessGroupsIds !== []) {
-            \Centreon\Domain\Log\Logger::create()->error('Access Groups not found', [
+            Logger::create()->error('Access Groups not found', [
                 'access_group_ids' => implode(', ', $nonExistentAccessGroupsIds),
             ]);
         }
@@ -214,10 +202,7 @@ final readonly class UpdateSAMLConfiguration
      * Compare the access group id sent in request with Access groups from database
      * Return the access group that have the same id than the access group id from the request.
      *
-     * @param int $accessGroupIdFromRequest Access group id sent in the request
      * @param AccessGroup[] $foundAccessGroups Access groups found in data storage
-     *
-     * @return AccessGroup|null
      */
     private function findAccessGroupFromFoundAccessGroups(
         int $accessGroupIdFromRequest,
@@ -252,24 +237,35 @@ final readonly class UpdateSAMLConfiguration
     /**
      * Update SAML Provider.
      *
-     * @param Configuration $configuration
-     *
-     * @throws \Throwable
+     * @throws RepositoryException
      */
     private function updateConfiguration(Configuration $configuration): void
     {
-        $isAlreadyInTransaction = $this->dataStorageEngine->isAlreadyinTransaction();
+        $isAlreadyInTransaction = $this->databaseRepositoryManager->isTransactionActive();
         try {
             if (! $isAlreadyInTransaction) {
-                $this->dataStorageEngine->startTransaction();
+                $this->databaseRepositoryManager->startTransaction();
             }
-            $this->repository->updateConfiguration($configuration);
+            $this->writeSAMLConfigurationRepository->updateConfiguration($configuration);
+
+            /** @var CustomConfiguration $customConfiguration */
+            $customConfiguration = $configuration->getCustomConfiguration();
+            $authorizationRules = $customConfiguration->getACLConditions()->getRelations();
+
+            $this->writeSAMLConfigurationRepository->deleteAuthorizationRules();
+            $this->writeSAMLConfigurationRepository->insertAuthorizationRules($authorizationRules);
+
+            $contactGroupRelations = $customConfiguration->getGroupsMapping()->getContactGroupRelations();
+
+            $this->writeSAMLConfigurationRepository->deleteContactGroupRelations();
+            $this->writeSAMLConfigurationRepository->insertContactGroupRelations($contactGroupRelations);
+
             if (! $isAlreadyInTransaction) {
-                $this->dataStorageEngine->commitTransaction();
+                $this->databaseRepositoryManager->commitTransaction();
             }
-        } catch (\Throwable $ex) {
+        } catch (RepositoryException $ex) {
             if (! $isAlreadyInTransaction) {
-                $this->dataStorageEngine->rollbackTransaction();
+                $this->databaseRepositoryManager->rollbackTransaction();
 
                 throw $ex;
             }
@@ -288,8 +284,6 @@ final readonly class UpdateSAMLConfiguration
      * } $authenticationConditionsParameters
      *
      * @throws ConfigurationException
-     *
-     * @return AuthenticationConditions
      */
     private function createAuthenticationConditions(array $authenticationConditionsParameters): AuthenticationConditions
     {
@@ -313,10 +307,7 @@ final readonly class UpdateSAMLConfiguration
      *  }>
      * } $groupsMappingParameters
      *
-     * @throws ConfigurationException
      * @throws \Throwable
-     *
-     * @return GroupsMapping
      */
     private function createGroupsMapping(array $groupsMappingParameters): GroupsMapping
     {
@@ -375,7 +366,7 @@ final readonly class UpdateSAMLConfiguration
         $nonExistentContactGroupsIds = array_diff($contactGroupIds, $foundContactGroupsId);
 
         if ($nonExistentContactGroupsIds !== []) {
-            \Centreon\Domain\Log\Logger::create()->error('Contact groups not found', [
+            Logger::create()->error('Contact groups not found', [
                 'contact_group_ids' => implode(', ', $nonExistentContactGroupsIds),
             ]);
         }
@@ -385,10 +376,7 @@ final readonly class UpdateSAMLConfiguration
      * Compare the contact group id sent in request with contact groups from database
      * Return the contact group that have the same id than the contact group id from the request.
      *
-     * @param int $contactGroupIdFromRequest contact group id sent in the request
      * @param ContactGroup[] $foundContactGroups contact groups found in data storage
-     *
-     * @return ContactGroup|null
      */
     private function findContactGroupFromFoundContactGroups(
         int $contactGroupIdFromRequest,

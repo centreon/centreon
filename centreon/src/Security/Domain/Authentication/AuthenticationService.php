@@ -128,10 +128,10 @@ class AuthenticationService implements AuthenticationServiceInterface
     /**
      * @inheritDoc
      */
-    public function updateAuthenticationTokens(AuthenticationTokens $authenticationTokens): void
+    public function updateAuthenticationTokens(AuthenticationTokens $authenticationToken): void
     {
         try {
-            $this->authenticationRepository->updateAuthenticationTokens($authenticationTokens);
+            $this->authenticationRepository->updateAuthenticationTokens($authenticationToken);
         } catch (\Exception $ex) {
             throw AuthenticationException::updateAuthenticationTokens($ex);
         }

@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Core\Security\ProviderConfiguration\Application\SAML\Repository;
 
+use Core\Common\Domain\Exception\RepositoryException;
 use Core\Contact\Domain\Model\ContactGroup;
 use Core\Contact\Domain\Model\ContactTemplate;
 use Core\Security\ProviderConfiguration\Domain\Model\AuthorizationRule;
@@ -31,40 +32,24 @@ use Core\Security\ProviderConfiguration\Domain\Model\ContactGroupRelation;
 interface ReadSAMLConfigurationRepositoryInterface
 {
     /**
-     * @param int $providerConfigurationId
-     *
+     * @throws RepositoryException
      * @return array<AuthorizationRule>
      */
-    public function getAuthorizationRulesByConfigurationId(int $providerConfigurationId): array;
+    public function findAuthorizationRulesByConfigurationId(int $providerConfigurationId): array;
 
     /**
-     * Get Contact Template.
-     *
-     * @param int $contactTemplateId
-     *
-     * @throws \Throwable
-     *
-     * @return ContactTemplate|null
+     * @throws RepositoryException
      */
-    public function getContactTemplate(int $contactTemplateId): ?ContactTemplate;
+    public function findOneContactTemplate(int $contactTemplateId): ?ContactTemplate;
 
     /**
-     * Get Contact Group.
-     *
-     * @param int $contactGroupId
-     *
-     * @throws \Throwable
-     *
-     * @return ContactGroup|null
+     * @throws RepositoryException
      */
-    public function getContactGroup(int $contactGroupId): ?ContactGroup;
+    public function findOneContactGroup(int $contactGroupId): ?ContactGroup;
 
     /**
-     * Get Contact Group Relations by provider configuration id.
-     *
-     * @param int $providerConfigurationId
-     *
+     * @throws RepositoryException
      * @return ContactGroupRelation[]
      */
-    public function getContactGroupRelationsByConfigurationId(int $providerConfigurationId): array;
+    public function findContactGroupRelationsByConfigurationId(int $providerConfigurationId): array;
 }
