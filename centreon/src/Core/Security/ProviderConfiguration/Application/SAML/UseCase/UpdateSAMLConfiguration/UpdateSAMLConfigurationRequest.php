@@ -87,9 +87,10 @@ final class UpdateSAMLConfigurationRequest
         ],
     ) {
         $this->validateRequest($requestedAuthnContextComparison);
+
         $this->requestedAuthnContextComparison = RequestedAuthnContextComparisonEnum::tryFrom(
             $requestedAuthnContextComparison
-        );
+        ) ?? throw new \InvalidArgumentException('Invalid requested authentication context comparison value');
     }
 
     /**

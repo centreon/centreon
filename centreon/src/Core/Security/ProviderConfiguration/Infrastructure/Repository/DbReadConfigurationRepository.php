@@ -461,6 +461,7 @@ final class DbReadConfigurationRepository extends AbstractRepositoryDRB implemen
     private function createAclConditions(string $providerName, int $configurationId, array $rolesMapping): ACLConditions
     {
         try {
+            $rules= [];
             match ($providerName) {
                 Provider::OPENID => $rules = $this->readOpenIdConfigurationRepository->getAuthorizationRulesByConfigurationId(
                     $configurationId
@@ -721,24 +722,31 @@ final class DbReadConfigurationRepository extends AbstractRepositoryDRB implemen
                     previous: $e
                 );
             }
-
         }
 
-        match ($providerName) {
-            Provider::OPENID => $contactGroupRelations = $this->readOpenIdConfigurationRepository->getContactGroupRelationsByConfigurationId(
-                $configurationId
-            ),
-            Provider::SAML => $contactGroupRelations = $this->readSamlConfigurationRepository->findContactGroupRelationsByConfigurationId(
-                $configurationId
-            ),
-            default => throw new RepositoryException(
-                message: 'Groups Mapping can only be created for OpenID or SAML providers, ' . $providerName . ' given.',
+        try {
+            $contactGroupRelations = [];
+            match ($providerName) {
+                Provider::OPENID => $contactGroupRelations = $this->readOpenIdConfigurationRepository->getContactGroupRelationsByConfigurationId(
+                    $configurationId
+                ),
+                Provider::SAML => $contactGroupRelations = $this->readSamlConfigurationRepository->findContactGroupRelationsByConfigurationId(
+                    $configurationId
+                ),
+                default => throw new \InvalidArgumentException(
+                    'Groups Mapping can only be created for OpenID or SAML providers.'
+                )
+            };
+        } catch (\Throwable $e) {
+            throw new RepositoryException(
+                message: 'Could not fetch contact group relations from database',
                 context: [
                     'provider_name' => $providerName,
                     'provider_configuration_id' => $configurationId,
                 ],
-            ),
-        };
+                previous: $e
+            );
+        }
 
         try {
             return new GroupsMapping(

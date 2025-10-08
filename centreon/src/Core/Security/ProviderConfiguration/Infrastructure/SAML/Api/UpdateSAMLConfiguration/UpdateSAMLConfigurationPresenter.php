@@ -27,9 +27,9 @@ use Core\Application\Common\UseCase\AbstractPresenter;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ResponseStatusInterface;
 use Core\Common\Infrastructure\ExceptionLogger\ExceptionLogger;
-use Core\Security\ProviderConfiguration\Application\Local\UseCase\UpdateConfiguration\UpdateConfigurationPresenterInterface;
+use Core\Security\ProviderConfiguration\Application\SAML\UseCase\UpdateSAMLConfiguration\UpdateSAMLConfigurationPresenterInterface;
 
-class UpdateSAMLConfigurationPresenter extends AbstractPresenter implements UpdateConfigurationPresenterInterface
+class UpdateSAMLConfigurationPresenter extends AbstractPresenter implements UpdateSAMLConfigurationPresenterInterface
 {
     public function presentResponse(ResponseStatusInterface $response): void
     {

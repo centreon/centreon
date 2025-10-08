@@ -46,28 +46,38 @@ class DbWriteSAMLConfigurationRepository extends DatabaseRepository implements W
      */
     public function updateConfiguration(Configuration $configuration): void
     {
-        try {
-            $query = $this->queryBuilder->update('`:db`.`provider_configuration`')
-                ->set('`custom_configuration`', ':customConfiguration')
-                ->set('`is_active`', ':isActive')
-                ->set('`is_forced`', ':isForced')
-                ->where('`name` = :name')
-                ->getQuery();
+        $query = $this->queryBuilder->update('`:db`.`provider_configuration`')
+            ->set('`custom_configuration`', ':customConfiguration')
+            ->set('`is_active`', ':isActive')
+            ->set('`is_forced`', ':isForced')
+            ->where('`name` = :name')
+            ->getQuery();
 
+        try {
+            $customConfiguration = json_encode(
+                $this->buildCustomConfigurationFromSAMLConfiguration($configuration),
+                JSON_THROW_ON_ERROR
+            );
+        } catch (\JsonException $e) {
+            throw new RepositoryException(
+                message: 'Could not encode SAML custom configuration to JSON: ' . $e->getMessage(),
+                context: ['configuration' => $configuration],
+                previous: $e
+            );
+        }
+
+        try {
             $queryParameters = QueryParameters::create(
                 [
-                    ':customConfiguration' => json_encode(
-                        $this->buildCustomConfigurationFromSAMLConfiguration($configuration),
-                        JSON_THROW_ON_ERROR
-                    ),
-                    ':name' => Provider::SAML,
-                    ':isActive' => $configuration->isActive() ? '1' : '0',
-                    ':isForced' => $configuration->isForced() ? '1' : '0',
+                    QueryParameter::string('customConfiguration', $customConfiguration),
+                    QueryParameter::bool('isActive', $configuration->isActive()),
+                    QueryParameter::bool('isForced', $configuration->isForced()),
+                    QueryParameter::string('name', Provider::SAML),
                 ]
             );
 
             $this->connection->update($this->translateDbName($query), $queryParameters);
-        } catch (CollectionException|ConnectionException $e) {
+        } catch (ValueObjectException|CollectionException|ConnectionException $e) {
             throw new RepositoryException(
                 message: 'Could not update SAML configuration' . $e->getMessage(),
                 context: ['configuration' => $configuration],
@@ -81,11 +91,12 @@ class DbWriteSAMLConfigurationRepository extends DatabaseRepository implements W
      */
     public function deleteAuthorizationRules(): void
     {
+        $query = $this->queryBuilder->delete('`:db`.`provider_configuration`')
+            ->where('`name` = :name')
+            ->getQuery();
+
         try {
-            $query = $this->queryBuilder->delete('`:db`.`provider_configuration`')
-                ->where('`name` = :name')
-                ->getQuery();
-            $queryParameters = QueryParameters::create([':name' => Provider::SAML]);
+            $queryParameters = QueryParameters::create([QueryParameter::string('name', Provider::SAML)]);
             $providerConfigurationId = $this->connection->fetchOne($this->translateDbName($query), $queryParameters);
 
             $query = $this->queryBuilder->delete('`:db`.`security_provider_access_group_relation`')
@@ -93,7 +104,7 @@ class DbWriteSAMLConfigurationRepository extends DatabaseRepository implements W
                 ->getQuery();
             $queryParameters = QueryParameters::create([':providerConfigurationId' => $providerConfigurationId]);
             $this->connection->delete($this->translateDbName($query), $queryParameters);
-        } catch (CollectionException|ConnectionException $e) {
+        } catch (ValueObjectException|CollectionException|ConnectionException $e) {
             throw new RepositoryException(
                 message: 'Could not delete authorization rules' . $e->getMessage(),
                 previous: $e
@@ -106,12 +117,13 @@ class DbWriteSAMLConfigurationRepository extends DatabaseRepository implements W
      */
     public function insertAuthorizationRules(array $authorizationRules): void
     {
+        $query = $this->queryBuilder->select('id')
+            ->from('`:db`.`provider_configuration`')
+            ->where('`name` = :name')
+            ->getQuery();
+
         try {
-            $query = $this->queryBuilder->select('id')
-                ->from('`:db`.`provider_configuration`')
-                ->where('`name` = :name')
-                ->getQuery();
-            $queryParameters = QueryParameters::create([':name' => Provider::SAML]);
+            $queryParameters = QueryParameters::create([QueryParameter::string('name', Provider::SAML)]);
             $providerConfigurationId = $this->connection->fetchOne($this->translateDbName($query), $queryParameters);
 
             $batchInsertParameters = new BatchInsertParameters();
@@ -146,12 +158,13 @@ class DbWriteSAMLConfigurationRepository extends DatabaseRepository implements W
      */
     public function deleteContactGroupRelations(): void
     {
+        $query = $this->queryBuilder->select('id')
+            ->from('`:db`.`provider_configuration`')
+            ->where('`name` = :name')
+            ->getQuery();
+
         try {
-            $query = $this->queryBuilder->select('id')
-                ->from('`:db`.`provider_configuration`')
-                ->where('`name` = :name')
-                ->getQuery();
-            $queryParameters = QueryParameters::create([':name' => Provider::SAML]);
+            $queryParameters = QueryParameters::create([QueryParameter::string('name', Provider::SAML)]);
             $providerConfigurationId = $this->connection->fetchOne($this->translateDbName($query), $queryParameters);
 
             $query = $this->queryBuilder->delete('`:db`.`security_provider_contact_group_relation`')
@@ -159,7 +172,7 @@ class DbWriteSAMLConfigurationRepository extends DatabaseRepository implements W
                 ->getQuery();
             $queryParameters = QueryParameters::create([':providerConfigurationId' => $providerConfigurationId]);
             $this->connection->delete($this->translateDbName($query), $queryParameters);
-        } catch (CollectionException|ConnectionException $e) {
+        } catch (ValueObjectException|CollectionException|ConnectionException $e) {
             throw new RepositoryException(
                 message: 'Could not delete contact group relations' . $e->getMessage(),
                 previous: $e
@@ -172,12 +185,13 @@ class DbWriteSAMLConfigurationRepository extends DatabaseRepository implements W
      */
     public function insertContactGroupRelations(array $contactGroupRelations): void
     {
+        $query = $this->queryBuilder->select('id')
+            ->from('`:db`.`provider_configuration`')
+            ->where('`name` = :name')
+            ->getQuery();
+
         try {
-            $query = $this->queryBuilder->select('id')
-                ->from('`:db`.`provider_configuration`')
-                ->where('`name` = :name')
-                ->getQuery();
-            $queryParameters = QueryParameters::create([':name' => Provider::SAML]);
+            $queryParameters = QueryParameters::create([QueryParameter::string('name', Provider::SAML)]);
             $providerConfigurationId = $this->connection->fetchOne($this->translateDbName($query), $queryParameters);
 
             $batchInsertParameters = new BatchInsertParameters();

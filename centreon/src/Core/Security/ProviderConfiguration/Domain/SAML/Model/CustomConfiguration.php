@@ -386,6 +386,8 @@ final class CustomConfiguration implements CustomConfigurationInterface, SAMLCus
     }
 
     /**
+     * @param array<string,mixed> $json
+     *
      * @throws ConfigurationException
      */
     private function validateRequestedAuthnContextConfiguration(array $json): void

@@ -47,9 +47,6 @@ use Core\Security\ProviderConfiguration\Domain\Model\Provider;
 use Core\Security\ProviderConfiguration\Domain\OpenId\Exceptions\ACLConditionsException;
 use Core\Security\ProviderConfiguration\Domain\SAML\Model\CustomConfiguration;
 
-/**
- * @phpstan-import-type _RolesMapping from UpdateSAMLConfigurationRequest
- */
 final readonly class UpdateSAMLConfiguration
 {
     public function __construct(
@@ -158,7 +155,12 @@ final readonly class UpdateSAMLConfiguration
     }
 
     /**
-     * @param _RolesMapping $rolesMapping
+     * @param array{
+     *      is_enabled: bool,
+     *      apply_only_first_role: bool,
+     *      attribute_path: string,
+     *      relations: array<array{claim_value: string, access_group_id: int, priority: int}>
+     *  } $rolesMapping
      *
      * @throws RepositoryException
      * @throws ACLConditionsException
