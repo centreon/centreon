@@ -1034,20 +1034,20 @@ jobs:
         timeout-minutes: 6
         with:
           path: ./docker-image
-          key: docker-image-centreon-web-slim-alma9-${{ github.head_ref || github.ref_name }}
+          key: docker-image-centreon-web-slim-alma8-${{ github.head_ref || github.ref_name }}
         env:
           SEGMENT_DOWNLOAD_TIMEOUT_MINS: 5
 
       - name: Load docker image
         if: ${{ steps.cache-docker.outputs.cache-hit == 'true' }}
         run: |
-          docker load --input ./docker-image/centreon-web-slim-alma9.tar
-          docker tag centreon-web-slim-alma9:${{ github.head_ref || github.ref_name }} ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-web-slim-alma9:${{ github.head_ref || github.ref_name }}
+          docker load --input ./docker-image/centreon-web-slim-alma8.tar
+          docker tag centreon-web-slim-alma8:${{ github.head_ref || github.ref_name }} ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-web-slim-alma8:${{ github.head_ref || github.ref_name }}
         shell: bash
 
       - name: Start Centreon web
         env:
-          WEB_IMAGE: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-web-slim-alma9:${{ github.head_ref || github.ref_name }}
+          WEB_IMAGE: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-web-slim-alma8:${{ github.head_ref || github.ref_name }}
           MYSQL_IMAGE: ${{ vars.DOCKER_PROXY_REGISTRY_URL }}/bitnamilegacy/mariadb:10.11
         run: docker compose --profile web -f .github/docker/docker-compose.yml up -d --wait
         shell: bash
