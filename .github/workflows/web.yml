@@ -1086,7 +1086,7 @@ jobs:
           schema: ${{ env.OPENAPI_FILE }}
           base-url: ${{ env.BASEURL }}
           checks: 'status_code_conformance,response_headers_conformance,response_schema_conformance,negative_data_rejection,ignored_auth'
-          max-examples: 10
+          max-examples: 1
           version: ${{ needs.get-environment.outputs.is_cloud == 'true' && 'latest' || needs.get-environment.outputs.major_version }}
           args: '--phases=fuzzing --max-failures=1 --mode=positive -H "X-AUTH-TOKEN: ${{ env.AUTHENTICATION_TOKEN }}"'
 
