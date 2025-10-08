@@ -73,9 +73,15 @@ final class RunCsFixerOnDiffCommandHandler
             }
         }
 
+        $hasErrors = false;
         foreach ($pathsToAnalyze as $section => $files) {
-            $this->executeCsFixer("cs:{$section}", $files, $toFix);
+            $exitCode = $this->executeCsFixer("cs:{$section}", $files, $toFix);
+            if (! $hasErrors && $exitCode !== 0) {
+                $hasErrors = true;
+            }
         }
+
+        ($hasErrors) ? exit(1) : exit(0);
     }
 
     /**
@@ -96,7 +102,7 @@ final class RunCsFixerOnDiffCommandHandler
     /**
      * @param array<int,string> $filesToAnalyze
      */
-    private function executeCsFixer(string $commandName, array $filesToAnalyze, bool $toFix): void
+    private function executeCsFixer(string $commandName, array $filesToAnalyze, bool $toFix): int
     {
         echo '################################################' . PHP_EOL;
         echo '=> Running ' . $commandName . PHP_EOL;
@@ -115,9 +121,11 @@ final class RunCsFixerOnDiffCommandHandler
             passthru($command, $exitCode);
             echo $exitCode === 0 ? '✔️ No errors!' . PHP_EOL : '❌ Errors found!' . PHP_EOL;
 
-            exit($exitCode);
+            return $exitCode;
         }
 
         echo 'No files to analyse!' . PHP_EOL;
+
+        return 0;
     }
 }
