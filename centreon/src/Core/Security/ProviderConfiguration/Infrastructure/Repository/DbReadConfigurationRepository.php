@@ -461,7 +461,7 @@ final class DbReadConfigurationRepository extends AbstractRepositoryDRB implemen
     private function createAclConditions(string $providerName, int $configurationId, array $rolesMapping): ACLConditions
     {
         try {
-            $rules= [];
+            $rules = [];
             match ($providerName) {
                 Provider::OPENID => $rules = $this->readOpenIdConfigurationRepository->getAuthorizationRulesByConfigurationId(
                     $configurationId
@@ -735,7 +735,7 @@ final class DbReadConfigurationRepository extends AbstractRepositoryDRB implemen
                 ),
                 default => throw new \InvalidArgumentException(
                     'Groups Mapping can only be created for OpenID or SAML providers.'
-                )
+                ),
             };
         } catch (\Throwable $e) {
             throw new RepositoryException(

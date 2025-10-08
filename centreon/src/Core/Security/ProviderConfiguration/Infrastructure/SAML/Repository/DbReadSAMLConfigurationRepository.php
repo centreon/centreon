@@ -132,12 +132,12 @@ class DbReadSAMLConfigurationRepository extends DatabaseRepository implements Re
     public function findAuthorizationRulesByConfigurationId(int $providerConfigurationId): array
     {
         $query = <<<'SQL'
-                SELECT * from `:db`.security_provider_access_group_relation spagn
-                INNER JOIN `:db`.acl_groups
-                    ON acl_group_id = spagn.access_group_id
-                WHERE spagn.provider_configuration_id = :providerConfigurationId
-                ORDER BY spagn.priority asc
-                SQL;
+            SELECT * from `:db`.security_provider_access_group_relation spagn
+            INNER JOIN `:db`.acl_groups
+                ON acl_group_id = spagn.access_group_id
+            WHERE spagn.provider_configuration_id = :providerConfigurationId
+            ORDER BY spagn.priority asc
+            SQL;
 
         try {
             $queryParameters = QueryParameters::create([
@@ -177,12 +177,12 @@ class DbReadSAMLConfigurationRepository extends DatabaseRepository implements Re
     public function findContactGroupRelationsByConfigurationId(int $providerConfigurationId): array
     {
         $query = <<<'SQL'
-                SELECT *
-                FROM `:db`.security_provider_contact_group_relation spcgn
-                INNER JOIN `:db`.contactgroup
-                    ON cg_id = spcgn.contact_group_id
-                WHERE spcgn.provider_configuration_id = :providerConfigurationId
-                SQL;
+            SELECT *
+            FROM `:db`.security_provider_contact_group_relation spcgn
+            INNER JOIN `:db`.contactgroup
+                ON cg_id = spcgn.contact_group_id
+            WHERE spcgn.provider_configuration_id = :providerConfigurationId
+            SQL;
 
         try {
             $queryParameters = QueryParameters::create([

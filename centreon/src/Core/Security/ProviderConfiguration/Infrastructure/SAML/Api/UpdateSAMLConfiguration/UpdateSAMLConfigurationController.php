@@ -30,7 +30,6 @@ use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Common\Infrastructure\ExceptionLogger\ExceptionLogger;
 use Core\Security\ProviderConfiguration\Application\SAML\UseCase\UpdateSAMLConfiguration\{UpdateSAMLConfiguration,
-    UpdateSAMLConfigurationPresenterInterface,
     UpdateSAMLConfigurationRequest};
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
