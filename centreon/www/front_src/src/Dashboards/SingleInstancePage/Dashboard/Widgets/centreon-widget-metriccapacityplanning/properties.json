@@ -52,7 +52,7 @@
       "type": "resources",
       "defaultValue": [],
       "required": true,
-      "restrictedResourceTypes": ["host", "meta-service"],
+      "restrictedResourceTypes": ["host"],
       "forcedResourceType": "service",
       "defaultResourceTypes": ["host", "service"]
     },
