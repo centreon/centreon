@@ -38,30 +38,84 @@ if (!isset($centreon)) {
     exit();
 }
 
-include("./include/common/autoNumLimit.php");
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\Exception\ConnectionException;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
+use Core\Common\Domain\Exception\CollectionException;
+use Core\Common\Domain\Exception\ValueObjectException;
 
-$searchStr = "";
-$search = null;
+include './include/common/autoNumLimit.php';
 
-if (isset($_POST['searchACLM'])) {
-    $search = $_POST['searchACLM'];
-    $centreon->historySearch[$url] = $search;
-} elseif (isset($_GET['searchACLM'])) {
-    $search = $_GET['searchACLM'];
+$searchStr = '';
+
+$search = $_POST['searchACLM'] ?? $_GET['searchACLM'] ?? null;
+if (! is_null($search)) {
     $centreon->historySearch[$url] = $search;
 } elseif (isset($centreon->historySearch[$url])) {
     $search = $centreon->historySearch[$url];
 }
 
-if ($search) {
-    $searchStr .= " WHERE (acl_topo_name LIKE '%" . htmlentities($search, ENT_QUOTES, "UTF-8") .
-        "%' OR acl_topo_alias LIKE '" . htmlentities($search, ENT_QUOTES, "UTF-8") . "')";
+if (! is_null($search)) {
+    $search = HtmlSanitizer::createFromString($search)
+        ->removeTags()
+        ->sanitize()
+        ->getString();
 }
 
-$rq = "SELECT SQL_CALC_FOUND_ROWS acl_topo_id, acl_topo_name, acl_topo_alias, acl_topo_activate " .
-    "FROM acl_topology $searchStr ORDER BY acl_topo_name LIMIT " . $num * $limit . ", " . $limit;
-$dbResult = $pearDB->query($rq);
-$rows = $pearDB->query("SELECT FOUND_ROWS()")->fetchColumn();
+$rows = 0;
+$dataRows = [];
+
+try {
+    $offset = (int) ($num * $limit);
+    $max = (int) $limit;
+
+    $paramsList = [];
+
+    // ---------- COUNT query ----------
+    $countSql = <<<'SQL'
+            SELECT COUNT(*) AS total
+            FROM acl_topology
+        SQL;
+
+    if ($search !== null && $search !== '') {
+        $countSql .= ' WHERE (acl_topo_name LIKE :searchLike OR acl_topo_alias = :searchAlias)';
+        $paramsList[] = QueryParameter::string('searchLike', '%' . $search . '%');
+        $paramsList[] = QueryParameter::string('searchAlias', $search);
+    }
+
+    $countParams = QueryParameters::create($paramsList);
+    $rows = (int) $pearDB->fetchOne($countSql, $countParams);
+
+    // ---------- DATA query ----------
+    $listSql = <<<'SQL'
+            SELECT acl_topo_id, acl_topo_name, acl_topo_alias, acl_topo_activate
+            FROM acl_topology
+        SQL;
+
+    if ($search !== null && $search !== '') {
+        $listSql .= ' WHERE (acl_topo_name LIKE :searchLike OR acl_topo_alias = :searchAlias)';
+    }
+
+    $listSql .= " ORDER BY acl_topo_name ASC LIMIT {$offset}, {$max}";
+
+    $dataParams = QueryParameters::create($paramsList);
+    $dataRows = $pearDB->fetchAllAssociative($listSql, $dataParams);
+} catch (CollectionException|ValueObjectException|ConnectionException $exception) {
+    CentreonLog::create()->error(
+        CentreonLog::TYPE_SQL,
+        'Error while listing ACL topologies: ' . $exception->getMessage(),
+        [
+            'search' => $search ?? null,
+            'limit' => $limit ?? null,
+            'num' => $num ?? null,
+        ],
+        $exception
+    );
+    $msg = new CentreonMsg();
+    $msg->setImage('./img/icons/warning.png');
+    $msg->setTextStyle('bold');
+    $msg->setText(_('Error while fetching ACL topologies'));
+}
 
 include("./include/common/checkPagination.php");
 
@@ -94,41 +148,33 @@ $style = "one";
 $elemArr = array();
 $centreonToken = createCSRFToken();
 
-for ($i = 0; $topo = $dbResult->fetchRow(); $i++) {
-    $selectedElements = $form->addElement('checkbox', "select[" . $topo['acl_topo_id'] . "]");
-    if ($topo["acl_topo_activate"]) {
-        $moptions = "<a href='main.php?p=" . $p . "&acl_topo_id=" . $topo['acl_topo_id'] . "&o=u&limit=" . $limit .
-            "&num=" . $num . "&search=" . $search . "&centreon_token=" . $centreonToken .
-            "'><img src='img/icons/disabled.png' class='ico-14 margin_right' " .
-            "border='0' alt='" . _("Disabled") . "'></a>&nbsp;&nbsp;";
+$i = 0;
+foreach ($dataRows as $topo) {
+    $selectedElements = $form->addElement('checkbox', 'select[' . $topo['acl_topo_id'] . ']');
+    if ($topo['acl_topo_activate']) {
+        $moptions = "<a href='main.php?p=" . $p . '&acl_topo_id=' . $topo['acl_topo_id'] . '&o=u&limit=' . $limit
+            . '&num=' . $num . '&search=' . $search . '&centreon_token=' . $centreonToken
+            . "'><img src='img/icons/disabled.png' class='ico-14 margin_right' "
+            . "border='0' alt='" . _('Disabled') . "'></a>&nbsp;&nbsp;";
     } else {
         $moptions = "<a href='main.php?p=" . $p . "&acl_topo_id=" . $topo['acl_topo_id'] . "&o=s&limit=" . $limit .
             "&num=" . $num . "&search=" . $search . "&centreon_token=" . $centreonToken .
             "'><img src='img/icons/enabled.png' class='ico-14 margin_right' " .
             "border='0' alt='" . _("Enabled") . "'></a>&nbsp;&nbsp;";
     }
-    $moptions .= "&nbsp;";
-    $moptions .= "<input onKeypress=\"if(event.keyCode > 31 && (event.keyCode < 45 || event.keyCode > 57)) " .
-        "event.returnValue = false; if(event.which > 31 && (event.which < 45 || event.which > 57)) " .
-        "return false;\" maxlength=\"3\" size=\"3\" value='1' style=\"margin-bottom:0px;\" name='dupNbr[" .
-        $topo['acl_topo_id'] . "]' />";
-    /* Contacts */
-    $elemArr[$i] = array(
-        "MenuClass" => "list_" . $style,
-        "RowMenu_select" => $selectedElements->toHtml(),
-        "RowMenu_name" => CentreonUtils::escapeSecure(
-            $topo["acl_topo_name"],
-            CentreonUtils::ESCAPE_ALL_EXCEPT_LINK
-        ),
-        "RowMenu_link" => "main.php?p=" . $p . "&o=c&acl_topo_id=" . $topo['acl_topo_id'],
-        "RowMenu_alias" => CentreonUtils::escapeSecure(
-            $topo["acl_topo_alias"],
-            CentreonUtils::ESCAPE_ALL_EXCEPT_LINK
-        ),
-        "RowMenu_status" => $topo["acl_topo_activate"] ? _("Enabled") : _("Disabled"),
-        "RowMenu_badge" => $topo["acl_topo_activate"] ? "service_ok" : "service_critical",
-        "RowMenu_options" => $moptions
-    );
+    $moptions .= '&nbsp;';
+    $moptions .= '<input onKeypress="if(event.keyCode > 31 && (event.keyCode < 45 || event.keyCode > 57)) '
+        . 'event.returnValue = false; if(event.which > 31 && (event.which < 45 || event.which > 57)) '
+        . "return false;\" maxlength=\"3\" size=\"3\" value='1' style=\"margin-bottom:0px;\" name='dupNbr["
+        . $topo['acl_topo_id'] . "]' />";
+    // Contacts
+    $elemArr[$i++] = ['MenuClass' => 'list_' . $style, 'RowMenu_select' => $selectedElements->toHtml(), 'RowMenu_name' => CentreonUtils::escapeSecure(
+        $topo['acl_topo_name'],
+        CentreonUtils::ESCAPE_ALL_EXCEPT_LINK
+    ), 'RowMenu_link' => 'main.php?p=' . $p . '&o=c&acl_topo_id=' . $topo['acl_topo_id'], 'RowMenu_alias' => CentreonUtils::escapeSecure(
+        $topo['acl_topo_alias'],
+        CentreonUtils::ESCAPE_ALL_EXCEPT_LINK
+    ), 'RowMenu_status' => $topo['acl_topo_activate'] ? _('Enabled') : _('Disabled'), 'RowMenu_badge' => $topo['acl_topo_activate'] ? 'service_ok' : 'service_critical', 'RowMenu_options' => $moptions];
 
     $style != "two" ? $style = "two" : $style = "one";
 }
