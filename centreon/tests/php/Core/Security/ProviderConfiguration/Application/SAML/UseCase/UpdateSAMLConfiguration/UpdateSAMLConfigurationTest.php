@@ -23,9 +23,10 @@ declare(strict_types=1);
 
 namespace Tests\Core\Security\ProviderConfiguration\Application\SAML\UseCase\UpdateSAMLConfiguration;
 
-use Centreon\Domain\Repository\Interfaces\DataStorageEngineInterface;
+use Adaptation\Database\Connection\ConnectionInterface;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
+use Core\Common\Infrastructure\Repository\DatabaseRepositoryManager;
 use Core\Contact\Application\Repository\ReadContactGroupRepositoryInterface;
 use Core\Contact\Application\Repository\ReadContactTemplateRepositoryInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
@@ -41,13 +42,24 @@ use Core\Security\ProviderConfiguration\Domain\Model\GroupsMapping;
 use Core\Security\ProviderConfiguration\Domain\Model\Provider;
 use Core\Security\ProviderConfiguration\Domain\SAML\Model\Configuration;
 use Core\Security\ProviderConfiguration\Domain\SAML\Model\CustomConfiguration;
+use Mockery;
 
 beforeEach(function (): void {
     $this->writeSAMLConfigurationRepository = $this->createMock(WriteSAMLConfigurationRepositoryInterface::class);
     $this->readContactTemplateRepository = $this->createMock(ReadContactTemplateRepositoryInterface::class);
     $this->readContactGroupRepository = $this->createMock(ReadContactGroupRepositoryInterface::class);
     $this->readAccessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class);
-    $this->dataStorageEngine = $this->createMock(DataStorageEngineInterface::class);
+    $connection = Mockery::mock(ConnectionInterface::class);
+    $connection
+        ->shouldReceive('isTransactionActive')
+        ->andReturn(false);
+    $connection
+        ->shouldReceive('startTransaction')
+        ->andReturnNull();
+    $connection
+        ->shouldReceive('commitTransaction')
+        ->andReturnTrue();
+    $this->databaseRepositoryManager = new DatabaseRepositoryManager($connection);
     $this->providerFactory = $this->createMock(ProviderAuthenticationFactoryInterface::class);
     $this->provider = $this->createMock(ProviderAuthenticationInterface::class);
     $this->presenter = new UpdateSAMLConfigurationPresenterStub();
@@ -65,18 +77,18 @@ it('should present a No Content Response when the use case is executed correctly
         logoutFrom: true,
         logoutFromUrl: 'http://127.0.0.1:4000/realms/my-realm/protocol/saml',
         isAutoImportEnabled: false,
+        rolesMapping: [
+            'is_enabled' => false,
+            'apply_only_first_role' => false,
+            'attribute_path' => '',
+            'relations' => [],
+        ],
         authenticationConditions: [
             'is_enabled' => false,
             'attribute_path' => '',
             'authorized_values' => [],
             'trusted_client_addresses' => [],
             'blacklist_client_addresses' => [],
-        ],
-        rolesMapping: [
-            'is_enabled' => false,
-            'apply_only_first_role' => false,
-            'attribute_path' => '',
-            'relations' => [],
         ],
         groupsMapping: [
             'is_enabled' => false,
@@ -127,7 +139,7 @@ it('should present a No Content Response when the use case is executed correctly
         $this->readContactTemplateRepository,
         $this->readContactGroupRepository,
         $this->readAccessGroupRepository,
-        $this->dataStorageEngine,
+        $this->databaseRepositoryManager,
         $this->providerFactory
     );
 
@@ -149,18 +161,18 @@ it('should present an Error Response when an error occurs during the process', f
         logoutFrom: true,
         logoutFromUrl: 'http://127.0.0.1:4000/realms/my-realm/protocol/saml',
         isAutoImportEnabled: false,
+        rolesMapping: [
+            'is_enabled' => false,
+            'apply_only_first_role' => false,
+            'attribute_path' => '',
+            'relations' => [],
+        ],
         authenticationConditions: [
             'is_enabled' => false,
             'attribute_path' => '',
             'authorized_values' => [],
             'trusted_client_addresses' => [],
             'blacklist_client_addresses' => [],
-        ],
-        rolesMapping: [
-            'is_enabled' => false,
-            'apply_only_first_role' => false,
-            'attribute_path' => '',
-            'relations' => [],
         ],
         groupsMapping: [
             'is_enabled' => false,
@@ -180,7 +192,7 @@ it('should present an Error Response when an error occurs during the process', f
         $this->readContactTemplateRepository,
         $this->readContactGroupRepository,
         $this->readAccessGroupRepository,
-        $this->dataStorageEngine,
+        $this->databaseRepositoryManager,
         $this->providerFactory
     );
 
