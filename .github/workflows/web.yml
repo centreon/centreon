@@ -1070,10 +1070,13 @@ jobs:
           echo "OPENAPI_FILE=$OPENAPI_FILE" >> "$GITHUB_ENV"
           echo "BASEURL=$BASEURL" >> "$GITHUB_ENV"
 
-          AUTHENTICATION_TOKEN=$(curl -s $BASEURL/login \
+          RESPONSE=$(curl -s "$BASEURL/login" \
           -H 'Content-Type: application/json' \
-          -d '{"security": {"credentials": {"login": "admin","password": "Centreon!2021"}}}' \
-          | python3 -c "import sys, json; print(json.load(sys.stdin)['security']['token'])")
+          -d '{"security": {"credentials": {"login": "admin","password": "Centreon!2021"}}}')
+
+          echo "[DEBUG] RESPONSE = $RESPONSE"
+
+          AUTHENTICATION_TOKEN=$(echo $RESPONSE | python3 -c "import sys, json; print(json.load(sys.stdin)['security']['token'])")
 
           echo "AUTHENTICATION_TOKEN=$AUTHENTICATION_TOKEN" >> "$GITHUB_ENV"
 
