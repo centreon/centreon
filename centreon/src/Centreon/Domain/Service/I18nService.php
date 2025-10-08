@@ -224,7 +224,7 @@ class I18nService
                         ->in($translationPath);
 
                     foreach ($files as $file) {
-                        $data += array_replace_recursive(
+                        $data = array_replace_recursive(
                             $data,
                             unserialize($file->getContents())
                         );
