@@ -1088,7 +1088,7 @@ jobs:
           checks: 'status_code_conformance,response_headers_conformance,response_schema_conformance,negative_data_rejection,ignored_auth'
           max-examples: 10
           version: ${{ needs.get-environment.outputs.is_cloud == 'true' && 'latest' || needs.get-environment.outputs.major_version }}
-          args: '--phases=fuzzing --max-failures=1 --mode=positive -H "Authorization: ${{ env.AUTHENTICATION_TOKEN }}'
+          args: '--phases=fuzzing --max-failures=1 --mode=positive -H "Authorization: ${{ env.AUTHENTICATION_TOKEN }}"'
 
   performances-test:
     runs-on: ubuntu-24.04
