@@ -43,7 +43,7 @@ const adaptAgentConfigurationToForm = (
                 ...host.token
               }
         }),
-        agentConfiguration.configuration?.hosts
+        agentConfiguration.configuration?.hosts || []
       )
     })
   }
