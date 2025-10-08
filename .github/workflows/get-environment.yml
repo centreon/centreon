@@ -665,12 +665,15 @@ jobs:
 
             const configs = [alma9_mariadb_10_11, alma8_mysql_8_0, bookworm_mysql_8_4];
 
+            const cloud = alma8_mysql_8_0;
+
             let main = alma9_mariadb_10_11;
             if ('${{ steps.detect_cloud_version.outputs.isCloud }}' == 'true') {
-              main = alma8_mysql_8_0;
+              main = cloud;
             }
 
             let matrix = {
+              "cloud": [cloud],
               "main": [main],
               "operating_systems": [main],
               "databases": [main],
@@ -680,6 +683,7 @@ jobs:
               const dailyConfig = getDailyConfig(configs);
 
               matrix = {
+                "cloud": [cloud],
                 "main": [dailyConfig],
                 "operating_systems": [dailyConfig],
                 "databases": [dailyConfig],
