@@ -176,6 +176,7 @@ paths:
       tags:
         - Authentication
       summary: "Providers Configurations"
+      security: []
       description: "Endpoint to list active existing providers configuration"
       responses:
         '200':
