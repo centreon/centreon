@@ -136,6 +136,8 @@ paths:
       tags:
         - Authentication
       summary: "Update user password"
+      security:
+        - Token: []
       parameters:
       - name: alias
         in: path
