@@ -69,7 +69,7 @@ it('returns error when there is an issue during configurations search', function
     $this->presenter
         ->expects($this->once())
         ->method('setResponseStatus')
-        ->with(new ErrorResponse($errorMessage));
+        ->with(new ErrorResponse($errorMessage, [], new \Exception($errorMessage)));
 
     ($this->useCase)($this->presenter);
 });
