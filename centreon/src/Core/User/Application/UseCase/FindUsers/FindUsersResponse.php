@@ -25,6 +25,6 @@ namespace Core\User\Application\UseCase\FindUsers;
 
 final class FindUsersResponse
 {
-    /** @var TinyUserDto|UserDto[] */
+    /** @var TinyUserDto[]|UserDto[] */
     public array $users = [];
 }
