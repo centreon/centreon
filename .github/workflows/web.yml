@@ -1056,10 +1056,10 @@ jobs:
         run: |
           if [[ -f "centreon/doc/API/centreon-api.yaml" ]]; then
             OPENAPI_FILE="centreon/doc/API/centreon-api.yaml"
-            BASEURL="http://localhost/centreon/api/latest"
+            BASEURL="http://localhost:4000/centreon/api/latest"
           elif [[ -f "centreon/doc/API/centreon-api-v${{ needs.get-environment.outputs.major_version }}.yaml" ]]; then
             OPENAPI_FILE="centreon/doc/API/centreon-api-v${{ needs.get-environment.outputs.major_version }}.yaml"
-            BASEURL="http://localhost/centreon/api/${{ needs.get-environment.outputs.major_version }}"
+            BASEURL="http://localhost:4000/centreon/api/${{ needs.get-environment.outputs.major_version }}"
           else
             echo "::error::openapi file not found"
             exit 1
