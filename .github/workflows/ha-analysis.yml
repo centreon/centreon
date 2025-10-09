@@ -71,6 +71,7 @@ jobs:
       module_directory: centreon-ha
       module_name: centreon-ha-${{ needs.get-environment.outputs.linked_dev_branch }}
       exclude_list:
+      project_tag: ${{ needs.get-environment.outputs.linked_dev_branch }}
     secrets:
       base_uri: ${{ secrets.AST_RND_SCANS_BASE_URI }}
       cx_tenant: ${{ secrets.AST_RND_SCANS_TENANT }}
