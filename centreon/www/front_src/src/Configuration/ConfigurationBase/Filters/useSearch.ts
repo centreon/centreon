@@ -1,7 +1,7 @@
 import debounce from '@mui/utils/debounce';
 import { useAtom, useAtomValue } from 'jotai';
 import { equals, pluck } from 'ramda';
-import { configurationAtom, filtersAtom } from '../atoms';
+import { configurationAtom } from '../atoms';
 
 import { useQueryClient } from '@tanstack/react-query';
 import { useRef } from 'react';
@@ -12,7 +12,7 @@ interface UseSearch {
   areAdvancedFiltersVisible: boolean;
 }
 
-const useSearch = (): UseSearch => {
+const useSearch = ({ filtersAtom }): UseSearch => {
   const queryClient = useQueryClient();
 
   const [filters, setFilters] = useAtom(filtersAtom);

@@ -17,11 +17,14 @@ import {
   labelStatus
 } from '../../../../translatedLabels';
 
-const Status = (): JSX.Element => {
+const Status = ({ filters, setFilters }): JSX.Element => {
   const { t } = useTranslation();
   const { classes } = useFilterStyles();
 
-  const { valueEnable, valueDisable, change } = useStatus();
+  const { valueEnable, valueDisable, change } = useStatus({
+    filters,
+    setFilters
+  });
 
   return (
     <div className={classes.statusFilter}>

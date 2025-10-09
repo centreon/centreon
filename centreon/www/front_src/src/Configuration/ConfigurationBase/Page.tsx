@@ -18,11 +18,17 @@ import { isWelcomePageDisplayedAtom, modalStateAtom } from './atoms';
 
 import { LoadingSkeleton } from '@centreon/ui';
 
-const WelcomePage = ({ labels, dataTestId, onCreate }) => {
-  const { isLoading, data } = useLoadData();
+const WelcomePage = ({
+  labels,
+  dataTestId,
+  onCreate,
+  filtersAtom,
+  filtersAtomKey
+}) => {
+  const { isLoading, data } = useLoadData({ filtersAtom, filtersAtomKey });
 
   const setIsWelcomePageDisplayed = useSetAtom(isWelcomePageDisplayedAtom);
-  const { isClear } = useCoutChangedFilters();
+  const { isClear } = useCoutChangedFilters({ filtersAtom });
 
   useLayoutEffect(() => {
     if (!isLoading && (!isClear || (isClear && isNotEmpty(data?.result)))) {
@@ -50,7 +56,9 @@ const Page = ({
   form,
   actions,
   labels,
-  selectedColumnIdsAtom
+  selectedColumnIdsAtom,
+  filtersAtom,
+  filtersAtomKey
 }: Pick<
   ConfigurationBase,
   | 'columns'
@@ -59,6 +67,8 @@ const Page = ({
   | 'actions'
   | 'labels'
   | 'selectedColumnIdsAtom'
+  | 'filtersAtom'
+  | 'filtersAtomKey'
 >): JSX.Element => {
   const [, setSearchParams] = useSearchParams();
 
@@ -67,7 +77,7 @@ const Page = ({
     isWelcomePageDisplayedAtom
   );
 
-  const { isLoading, data } = useLoadData();
+  const { isLoading, data } = useLoadData({ filtersAtom, filtersAtomKey });
 
   const openCreatetModal = (): void => {
     setSearchParams({ mode: 'add' });
@@ -96,6 +106,8 @@ const Page = ({
               dataTestId={`create-${resourceType}`}
               labels={labels.welcomePage}
               onCreate={openCreatetModal}
+              filtersAtom={filtersAtom}
+              filtersAtomKey={filtersAtomKey}
             />
           ) : (
             <Listing
@@ -105,6 +117,8 @@ const Page = ({
               actions={actions}
               isLoading={isLoading}
               data={data}
+              filtersAtomKey={filtersAtomKey}
+              filtersAtom={filtersAtom}
             />
           )}
         </DataTable>

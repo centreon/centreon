@@ -7,12 +7,18 @@ import useMultiConnectedAutocomplete from './useMultiConnectedAutocomplete';
 const MultiConnectedAutocomplete = ({
   name,
   label,
-  getEndpoint
+  getEndpoint,
+  setFilters,
+  filters
 }): JSX.Element => {
   const { t } = useTranslation();
 
   const { isOptionEqualToValue, deleteItem, change, value } =
-    useMultiConnectedAutocomplete({ name });
+    useMultiConnectedAutocomplete({
+      name,
+      setFilters,
+      filters
+    });
 
   return (
     <MultiConnectedAutocompleteField

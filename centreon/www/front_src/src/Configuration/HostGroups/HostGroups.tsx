@@ -8,13 +8,14 @@ import { defaultValues, useFormInputs, useValidationSchema } from './Form';
 import {
   columnsAtomKey,
   defaultSelectedColumnIds,
+  filtersAtomKey,
   filtersInitialValues
 } from './utils';
 
 import { useTranslation } from 'react-i18next';
 import { ResourceType } from '../models';
 
-import { selectedColumnIdsAtom } from './atoms';
+import { filtersAtom, selectedColumnIdsAtom } from './atoms';
 import useHostGroups from './useHostGroups';
 
 import {
@@ -37,6 +38,8 @@ const HostGroups = () => {
 
   return (
     <ConfigurationBase
+      filtersAtomKey={filtersAtomKey}
+      filtersAtom={filtersAtom}
       columnsAtomKey={columnsAtomKey}
       selectedColumnIdsAtom={selectedColumnIdsAtom}
       columns={columns}

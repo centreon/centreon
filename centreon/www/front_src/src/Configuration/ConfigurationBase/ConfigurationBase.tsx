@@ -2,10 +2,9 @@ import { useAtom, useSetAtom } from 'jotai';
 import { isEmpty, isNil, not } from 'ramda';
 import { JSX, useEffect, useMemo } from 'react';
 import { ConfigurationBase } from '../models';
-import { configurationAtom, filtersAtom } from './atoms';
+import { configurationAtom } from './atoms';
 
 import Page from './Page';
-import { filtersAtomKey } from './constants';
 
 const Base = ({
   columns,
@@ -18,7 +17,9 @@ const Base = ({
   actions,
   labels,
   selectedColumnIdsAtom,
-  columnsAtomKey
+  columnsAtomKey,
+  filtersAtom,
+  filtersAtomKey
 }: ConfigurationBase): JSX.Element => {
   const [configuration, setConfiguration] = useAtom(configurationAtom);
   const [filters, setFilters] = useAtom(filtersAtom);
@@ -73,6 +74,8 @@ const Base = ({
       actions={actions}
       labels={labels}
       selectedColumnIdsAtom={selectedColumnIdsAtom}
+      filtersAtom={filtersAtom}
+      filtersAtomKey={filtersAtomKey}
     />
   );
 };

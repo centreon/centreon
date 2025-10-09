@@ -6,14 +6,14 @@ import { limitAtom, pageAtom, sortFieldAtom, sortOrderAtom } from './atoms';
 
 import { useMemo } from 'react';
 import { FieldType } from '../../models';
-import { configurationAtom, filtersAtom } from '../atoms';
+import { configurationAtom } from '../atoms';
 
 interface LoadDataState {
   data?;
   isLoading: boolean;
 }
 
-const useLoadData = (): LoadDataState => {
+const useLoadData = ({ filtersAtom, filtersAtomKey }): LoadDataState => {
   const sortOrder = useAtomValue(sortOrderAtom);
   const sortField = useAtomValue(sortFieldAtom);
   const page = useAtomValue(pageAtom);
@@ -68,7 +68,8 @@ const useLoadData = (): LoadDataState => {
     sortOrder,
     page,
     limit,
-    searchConditions
+    searchConditions,
+    filtersAtomKey
   });
 
   return { data, isLoading };

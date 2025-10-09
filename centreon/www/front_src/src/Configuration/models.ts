@@ -63,7 +63,9 @@ export interface ConfigurationBase {
     };
   };
   columnsAtomKey: string;
+  filtersAtomKey: string;
   selectedColumnIdsAtom;
+  filtersAtom;
 }
 
 export enum FieldType {

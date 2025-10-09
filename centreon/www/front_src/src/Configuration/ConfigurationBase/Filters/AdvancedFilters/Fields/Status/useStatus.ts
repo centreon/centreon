@@ -1,7 +1,4 @@
-import { useAtom } from 'jotai';
 import { ChangeEvent } from 'react';
-
-import { filtersAtom } from '../../../../atoms';
 
 interface UseStatus {
   change: (name: string) => (event: ChangeEvent<HTMLInputElement>) => void;
@@ -9,9 +6,7 @@ interface UseStatus {
   valueDisable: boolean;
 }
 
-const useStatus = (): UseStatus => {
-  const [filters, setFilters] = useAtom(filtersAtom);
-
+const useStatus = ({ filters, setFilters }): UseStatus => {
   const change =
     (name: string) =>
     (event: ChangeEvent<HTMLInputElement>): void => {

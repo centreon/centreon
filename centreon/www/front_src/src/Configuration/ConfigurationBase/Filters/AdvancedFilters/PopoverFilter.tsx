@@ -9,11 +9,25 @@ import { useFilterStyles } from '../Filters.styles';
 import Filters from './Filters';
 import useCoutChangedFilters from './useCoutChangedFilters';
 
-const PopoverFilter = (): JSX.Element => {
+interface Props {
+  filtersAtom;
+  filtersAtomKey: string;
+  areAdvancedFiltersVisible: boolean;
+}
+
+const PopoverFilter = ({
+  filtersAtom,
+  filtersAtomKey,
+  areAdvancedFiltersVisible
+}: Props): JSX.Element => {
   const { t } = useTranslation();
   const { classes } = useFilterStyles();
 
-  const { changedFiltersCount } = useCoutChangedFilters();
+  const { changedFiltersCount } = useCoutChangedFilters({ filtersAtom });
+
+  if (!areAdvancedFiltersVisible) {
+    return <div />;
+  }
 
   return (
     <Suspense
@@ -30,7 +44,12 @@ const PopoverFilter = (): JSX.Element => {
           popperPlacement="bottom-end"
           title={t(labelFilters)}
         >
-          {(): JSX.Element => <Filters />}
+          {(): JSX.Element => (
+            <Filters
+              filtersAtom={filtersAtom}
+              filtersAtomKey={filtersAtomKey}
+            />
+          )}
         </PopoverMenu>
       </Badge>
     </Suspense>

@@ -7,11 +7,15 @@ import MassiveActions from './MassiveActions/MassiveActions';
 interface Props {
   hasWriteAccess: boolean;
   hasMassiveActions: boolean;
+  filtersAtomKey: string;
+  filtersAtom;
 }
 
 const ActionsBar = ({
   hasWriteAccess,
-  hasMassiveActions
+  hasMassiveActions,
+  filtersAtom,
+  filtersAtomKey
 }: Props): JSX.Element => {
   const { classes } = useActionsStyles({ hasWriteAccess });
 
@@ -24,7 +28,7 @@ const ActionsBar = ({
         </div>
       )}
       <div className={classes.searchBar}>
-        <Filters />
+        <Filters filtersAtom={filtersAtom} filtersAtomKey={filtersAtomKey} />
       </div>
     </div>
   );

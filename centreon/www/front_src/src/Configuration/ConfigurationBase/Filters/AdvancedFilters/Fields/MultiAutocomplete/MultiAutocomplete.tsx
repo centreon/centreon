@@ -9,11 +9,24 @@ interface Props {
   label: string;
   name: string;
   options: Array<NamedEntity>;
+  filters;
+  setFilters;
 }
 
-const MultiAutocomplete = ({ label, name, options }: Props): JSX.Element => {
+const MultiAutocomplete = ({
+  label,
+  name,
+  options,
+  filters,
+  setFilters
+}: Props): JSX.Element => {
   const { t } = useTranslation();
-  const { value, change, deleteItem } = useMultiAutocomplete({ name });
+
+  const { value, change, deleteItem } = useMultiAutocomplete({
+    name,
+    filters,
+    setFilters
+  });
 
   return (
     <MultiAutocompleteField

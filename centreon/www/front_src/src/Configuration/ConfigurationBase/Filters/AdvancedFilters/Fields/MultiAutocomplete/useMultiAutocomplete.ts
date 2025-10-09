@@ -2,12 +2,8 @@ import { map, pick, propEq, reject } from 'ramda';
 import { useMemo } from 'react';
 
 import { SelectEntry } from '@centreon/ui';
-import { useAtom } from 'jotai';
-import { filtersAtom } from '../../../../atoms';
 
-const useMultiAutocomplete = ({ name }) => {
-  const [filters, setFilters] = useAtom(filtersAtom);
-
+const useMultiAutocomplete = ({ name, filters, setFilters }) => {
   const change = (_, items: Array<SelectEntry>): void => {
     const selectedItems = map(pick(['id', 'name']), items || []);
 

@@ -13,6 +13,8 @@ interface Props {
   hasWriteAccess: boolean;
   actions?: Actions;
   isLoading: boolean;
+  filtersAtomKey: string;
+  filtersAtom;
   data;
   selectedColumnIdsAtom;
 }
@@ -23,7 +25,9 @@ const Listing = ({
   actions,
   isLoading,
   data,
-  selectedColumnIdsAtom
+  selectedColumnIdsAtom,
+  filtersAtom,
+  filtersAtomKey
 }: Props): JSX.Element => {
   const [selectedRows, setSelectedRows] = useAtom(selectedRowsAtom);
 
@@ -50,6 +54,8 @@ const Listing = ({
         <ActionsBar
           hasWriteAccess={hasWriteAccess}
           hasMassiveActions={!!actions?.massive}
+          filtersAtom={filtersAtom}
+          filtersAtomKey={filtersAtomKey}
         />
       }
       columnConfiguration={{

@@ -9,10 +9,11 @@ import { defaultValues, useFormInputs, useValidationSchema } from './Form';
 import {
   columnsAtomKey,
   defaultSelectedColumnIds,
+  filtersAtomKey,
   filtersInitialValues
 } from './utils';
 
-import { selectedColumnIdsAtom } from './atoms';
+import { filtersAtom, selectedColumnIdsAtom } from './atoms';
 
 import {
   labelAddAdditionalConfigurations,
@@ -33,6 +34,8 @@ const AdditionnalConnectors = () => {
   return (
     <ConfigurationBase
       columnsAtomKey={columnsAtomKey}
+      filtersAtomKey={filtersAtomKey}
+      filtersAtom={filtersAtom}
       selectedColumnIdsAtom={selectedColumnIdsAtom}
       columns={columns}
       resourceType={ResourceType.AdditionalConfigurations}
