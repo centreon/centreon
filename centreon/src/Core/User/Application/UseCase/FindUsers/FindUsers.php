@@ -71,10 +71,10 @@ final class FindUsers
                     && ! $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_CONTACTS_READ_WRITE)
                     && ! ($this->isCloudPlatform && in_array('customer_editor_acl', $accessGroupNames, true))
                 ) {
-                    $this->error(
-                        "User doesn't have sufficient rights to see users/contacts",
-                        ['user_id' => $this->user->getId()]
-                    );
+                    $this->error("User doesn't have sufficient rights to list users/contacts", [
+                        'status' => 'failure',
+                        'initiator_user' => $this->user->getalias()
+                    ]);
                     $presenter->presentResponse(
                         new ForbiddenResponse(UserException::accessNotAllowed())
                     );
@@ -96,15 +96,25 @@ final class FindUsers
                 );
             }
 
+            $this->info('Users listing succeeded', [
+                'status' => 'success',
+                'initiator_user' => $this->user->getAlias(),
+            ]);
             $presenter->presentResponse($this->createResponse($users, $hasAccessToAllUsers));
         } catch (RequestParametersTranslatorException $ex) {
             $presenter->presentResponse(new ErrorResponse($ex->getMessage()));
-            $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
+            $this->error("User listing failed : " . $ex->getMessage(), [
+                'status' => 'failure',
+                'initiator_user' => $this->user->getalias()
+            ]);
         } catch (\Throwable $ex) {
             $presenter->presentResponse(
                 new ErrorResponse(UserException::errorWhileSearching($ex))
             );
-            $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
+            $this->error("User listing failed : " . $ex->getMessage(), [
+                'status' => 'failure',
+                'initiator_user' => $this->user->getalias()
+            ]);
         }
     }
 
