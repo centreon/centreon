@@ -7,4 +7,4 @@ export const labelDowntime = 'Downtime';
 export const labelMin = 'Min';
 export const labelMax = 'Max';
 export const labelAvg = 'Avg';
-export const labelTooManyMetrics = 'Too many metrics (> 20)';
+export const labelWarningTooManyGraphs = 'Too many graphs (> 20)';

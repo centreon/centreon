@@ -1,11 +1,11 @@
 import { makeStyles } from 'tss-react/mui';
 
-export const useChartStyles = makeStyles()({
+export const useChartStyles = makeStyles()((theme) => ({
   baseWrapper: {
     position: 'relative'
   },
-  tooManyMetricsMessage: {
-    color: 'grey',
+  tooManyGraphsMessage: {
+    color: theme.palette.grey[600],
     left: '50%',
     position: 'absolute',
     top: '50%',
@@ -18,4 +18,4 @@ export const useChartStyles = makeStyles()({
     width: '100%',
     overflow: 'hidden'
   }
-});
+}));

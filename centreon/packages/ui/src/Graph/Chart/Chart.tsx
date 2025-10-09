@@ -49,7 +49,7 @@ import type {
   LineChartProps
 } from './models';
 import { useIntersection } from './useChartIntersection';
-import { labelTooManyMetrics } from './translatedLabels';
+import { labelWarningTooManyGraphs } from './translatedLabels';
 
 interface Props extends LineChartProps {
   graphData: Data;
@@ -299,10 +299,10 @@ const Chart = ({
             <div className={classes.tooltipChildren}>
               {graphData.lines.length > 20 && (
                 <Typography
-                  className={classes.tooManyMetricsMessage}
+                  className={classes.tooManyGraphsMessage}
                   variant='h6'
                 >
-                  {labelTooManyMetrics}
+                  {labelWarningTooManyGraphs}
                 </Typography>
               )}
               <ChartSvgWrapper
