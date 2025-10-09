@@ -8,6 +8,7 @@ export const useChartStyles = makeStyles()((theme) => ({
     color: theme.palette.grey[600],
     left: '50%',
     position: 'absolute',
+    textAlign: 'center',
     top: '50%',
     transform: 'translate(-50%, -50%)',
     zIndex: 2,

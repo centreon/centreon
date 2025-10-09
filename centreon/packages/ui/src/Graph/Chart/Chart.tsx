@@ -50,6 +50,7 @@ import type {
 } from './models';
 import { useIntersection } from './useChartIntersection';
 import { labelWarningTooManyGraphs } from './translatedLabels';
+import { MAX_ELEMENTS_TO_DISPLAY } from './constants';
 
 interface Props extends LineChartProps {
   graphData: Data;
@@ -246,9 +247,12 @@ const Chart = ({
     xScale
   });
 
-  const displayLegend = (legend?.display ?? true) && graphData.lines.length <= 20;
-  const displayLines = !isEmpty(linesDisplayedAsLine) && graphData.lines.length <=20;
-  const displayBars = !isEmpty(linesDisplayedAsBar) && graphData.lines.length <= 20;
+  const displayLegend = (legend?.display ?? true)
+    && graphData.lines.length <= MAX_ELEMENTS_TO_DISPLAY;
+  const displayLines = !isEmpty(linesDisplayedAsLine)
+    && graphData.lines.length <= MAX_ELEMENTS_TO_DISPLAY;
+  const displayBars = !isEmpty(linesDisplayedAsBar) 
+    && graphData.lines.length <= MAX_ELEMENTS_TO_DISPLAY;
   const displayTooltip = !isNil(tooltip?.renderComponent);
 
   const showGridLines = useMemo(
@@ -297,12 +301,11 @@ const Chart = ({
             tooltip={tooltip}
           >
             <div className={classes.tooltipChildren}>
-              {graphData.lines.length > 20 && (
+              {graphData.lines.length > MAX_ELEMENTS_TO_DISPLAY && (
                 <Typography
                   className={classes.tooManyGraphsMessage}
-                  variant='h6'
                 >
-                  {labelWarningTooManyGraphs}
+                  {labelWarningTooManyGraphs(MAX_ELEMENTS_TO_DISPLAY)}
                 </Typography>
               )}
               <ChartSvgWrapper
