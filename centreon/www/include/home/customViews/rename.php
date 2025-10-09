@@ -59,7 +59,10 @@ if (preg_match('/^title_(\d+)$/', $_POST['elementId'], $matches)) {
     $widgetId = $matches[1];
 }
 
-$newName = isset($_POST['newName']) ? HtmlAnalyzer::sanitizeAndRemoveTags($_POST['newName']) : null;
+$newName = isset($_POST['newName'])
+    ? HtmlSanitizer::createFromString($_POST['newName'])
+        ->sanitize()->getString()
+        : null;
 if ($newName === null) {
     echo 'missing newName argument';
 
@@ -75,7 +78,7 @@ if (CentreonSession::checkSession(session_id(), $db) === false) {
 
 $widgetObj = new CentreonWidget($centreon, $db);
 try {
-    echo $widgetObj->rename($widgetId, htmlspecialchars($newName, ENT_QUOTES, 'UTF-8'));
+    echo $widgetObj->rename($widgetId, $newName);
 } catch (CentreonWidgetException $e) {
     echo $e->getMessage();
 }

@@ -1444,6 +1444,10 @@ msgstr ""
 msgid "An error occurred when retrieving the current version"
 msgstr ""
 
+#: centreon/src/Core/Platform/Application/UseCase/UpdateVersions/UpdateVersionsException.php
+msgid "An error occurred when writing engine context configuration"
+msgstr ""
+
 #: centreon/src/Core/Broker/Application/Exception/BrokerException.php
 #, php-format
 msgid "An error occurred while creating the file '%s'"
@@ -2452,11 +2456,8 @@ msgstr ""
 msgid ""
 "Centreon Broker's configuration directory '%s' does not exist and could not\n"
 "                                             be created for monitoring "
-"engine '%s'. Please check it's path or create it"
+"engine '%s'. Please check its path or create it"
 msgstr ""
-"El directorio de configuración de Centreon Broker '%s' no existe y no pudo\n"
-"                                              ser creado para monitorear el "
-"motor '%s'. Por favor, compruebe su camino o créelo"
 
 #: centreon/www/class/centreon-clapi/centreon.Config.Poller.class.php
 #, php-format
@@ -3855,11 +3856,8 @@ msgstr ""
 #, php-format
 msgid ""
 "Could not find configuration directory '%s' for monitoring engine '%s'.\n"
-"                                 Please check it's path or create it"
+"                                 Please check its path or create it"
 msgstr ""
-"No se pudo encontrar el directorio de configuración '%s' para el motor de "
-"supervisión '%s'.\n"
-"                                  Por favor, compruebe su camino o créelo"
 
 #: centreon/src/CentreonRemote/Infrastructure/Service/PollerInteractionService.php
 #: centreon/www/include/configuration/configGenerate/xml/moveFiles.php
@@ -6614,6 +6612,10 @@ msgstr ""
 
 #: centreon/src/Core/HostGroup/Application/Exceptions/HostGroupException.php
 msgid "Error while enabling/disabling host groups"
+msgstr ""
+
+#: centreon/www/include/options/accessLists/menusACL/listsMenusAccess.php
+msgid "Error while fetching ACL topologies"
 msgstr ""
 
 #: centreon/src/Core/Dashboard/Application/Exception/DashboardException.php
@@ -22356,6 +22358,19 @@ msgstr "Información sobre Centreon Broker"
 msgid "Centreon Broker socket path"
 msgstr "Ruta de socket Unix de Centreon Broker"
 
+#, php-format
+#: unknown
+msgid ""
+"Centreon Broker's configuration directory '%s' does not exist and could "
+"not\n"
+"                                             be created for monitoring "
+"engine '%s'. Please check it's path or create it"
+msgstr ""
+"El directorio de configuración de Centreon Broker '%s' no existe y no "
+"pudo\n"
+"                                              ser creado para monitorear "
+"el motor '%s'. Por favor, compruebe su camino o créelo"
+
 #: unknown
 msgid "Centreon DataBase Statistics"
 msgstr "Base de Datos Centreon Estadísticas"
@@ -22566,6 +22581,16 @@ msgid "Could not find configuration database. Session probably expired."
 msgstr ""
 "No se pudo encontrar la base de datos de configuración. \n"
 "La sesión probablemente ha expirado"
+
+#, php-format
+#: unknown
+msgid ""
+"Could not find configuration directory '%s' for monitoring engine '%s'.\n"
+"                                 Please check it's path or create it"
+msgstr ""
+"No se pudo encontrar el directorio de configuración '%s' para el motor de "
+"supervisión '%s'.\n"
+"                                  Por favor, compruebe su camino o créelo"
 
 #: unknown
 msgid "Could not find database user. Session probably expired."
