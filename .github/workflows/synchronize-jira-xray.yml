@@ -37,7 +37,7 @@ jobs:
         run: |
           pnpm install axios@1.5.1
           pnpm install form-data@4.0.0
-          pnpm install @actions/core
+          pnpm install @actions/core@1.11.1
 
       - name: Get the latest commit hash
         run: |
