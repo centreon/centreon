@@ -1,8 +1,4 @@
-import { atomWithReset } from 'jotai/utils';
-
 import { atomWithStorage } from 'jotai/utils';
 import { columnsAtomKey } from './utils';
-
-export const tooltipPageAtom = atomWithReset(1);
 
 export const selectedColumnIdsAtom = atomWithStorage(columnsAtomKey, []);

@@ -5,11 +5,16 @@ import ConfigurationBase from '../ConfigurationBase';
 import useColumns from './Columns/useColumns';
 
 import { defaultValues, useFormInputs, useValidationSchema } from './Form';
-import { defaultSelectedColumnIds, filtersInitialValues } from './utils';
+import {
+  columnsAtomKey,
+  defaultSelectedColumnIds,
+  filtersInitialValues
+} from './utils';
 
 import { useTranslation } from 'react-i18next';
 import { ResourceType } from '../models';
 
+import { selectedColumnIdsAtom } from './atoms';
 import useHostGroups from './useHostGroups';
 
 import {
@@ -32,6 +37,8 @@ const HostGroups = () => {
 
   return (
     <ConfigurationBase
+      columnsAtomKey={columnsAtomKey}
+      selectedColumnIdsAtom={selectedColumnIdsAtom}
       columns={columns}
       resourceType={ResourceType.HostGroup}
       form={{ inputs, groups, validationSchema, defaultValues }}

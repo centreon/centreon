@@ -36,7 +36,14 @@ const useGetAll = ({
           sort
         }
       }),
-    getQueryKey: () => ['listResources', sortField, sortOrder, limit, page],
+    getQueryKey: () => [
+      'listResources',
+      sortField,
+      sortOrder,
+      limit,
+      page,
+      configuration?.resourceType
+    ],
     queryOptions: {
       refetchOnMount: false,
       staleTime: 0,

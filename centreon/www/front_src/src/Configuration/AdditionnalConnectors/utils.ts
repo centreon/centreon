@@ -46,3 +46,6 @@ export const filtersInitialValues = {
   'poller.id': [],
   type: []
 };
+
+export const filtersAtomKey = 'filters_acc';
+export const columnsAtomKey = 'columns_acc';

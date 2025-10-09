@@ -5,11 +5,7 @@ import { useSnackbar } from '@centreon/ui';
 
 import { useSearchParams } from 'react-router';
 
-import {
-  configurationAtom,
-  modalStateAtom,
-  selectedColumnIdsAtom
-} from '../atoms';
+import { configurationAtom, modalStateAtom } from '../atoms';
 import { limitAtom, pageAtom, sortFieldAtom, sortOrderAtom } from './atoms';
 
 import { labelSelectAtLeastOneColumn } from '../translatedLabels';
@@ -28,7 +24,7 @@ interface UseListing {
   disableRowCondition: (row) => boolean;
 }
 
-const useListing = (): UseListing => {
+const useListing = ({ selectedColumnIdsAtom }): UseListing => {
   const { t } = useTranslation();
   const { showWarningMessage } = useSnackbar();
 

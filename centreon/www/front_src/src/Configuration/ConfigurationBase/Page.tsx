@@ -49,10 +49,16 @@ const Page = ({
   resourceType,
   form,
   actions,
-  labels
+  labels,
+  selectedColumnIdsAtom
 }: Pick<
   ConfigurationBase,
-  'columns' | 'form' | 'resourceType' | 'actions' | 'labels'
+  | 'columns'
+  | 'form'
+  | 'resourceType'
+  | 'actions'
+  | 'labels'
+  | 'selectedColumnIdsAtom'
 >): JSX.Element => {
   const [, setSearchParams] = useSearchParams();
 
@@ -93,6 +99,7 @@ const Page = ({
             />
           ) : (
             <Listing
+              selectedColumnIdsAtom={selectedColumnIdsAtom}
               columns={columns}
               hasWriteAccess={!!actions?.edit}
               actions={actions}

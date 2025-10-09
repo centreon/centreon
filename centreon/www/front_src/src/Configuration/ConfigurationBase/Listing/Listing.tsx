@@ -7,12 +7,14 @@ import ActionsBar from './ActionsBar';
 import useColumns from './Columns/useColumns';
 import { selectedRowsAtom } from './atoms';
 import useListing from './useListing';
+
 interface Props {
   columns: Array<Column>;
   hasWriteAccess: boolean;
   actions?: Actions;
   isLoading: boolean;
   data;
+  selectedColumnIdsAtom;
 }
 
 const Listing = ({
@@ -20,7 +22,8 @@ const Listing = ({
   hasWriteAccess,
   actions,
   isLoading,
-  data
+  data,
+  selectedColumnIdsAtom
 }: Props): JSX.Element => {
   const [selectedRows, setSelectedRows] = useAtom(selectedRowsAtom);
 
@@ -38,7 +41,7 @@ const Listing = ({
     selectedColumnIds,
     openEditModal,
     disableRowCondition
-  } = useListing();
+  } = useListing({ selectedColumnIdsAtom });
 
   return (
     <MemoizedListing
