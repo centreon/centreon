@@ -158,7 +158,7 @@ $bbdoDefaultUpdate = function () use ($pearDB, &$errorMessage): void {
 
 $bbdoCfgUpdate = function () use ($pearDB, &$errorMessage): void {
     $errorMessage = "Unable to update 'bbdo_version' version in 'cfg_centreonbroker' table";
-    $pearDB->update('UPDATE `cfg_centreonbroker` SET `bbdo_version` = "3.0.1"');
+    $pearDB->executeStatement('UPDATE `cfg_centreonbroker` SET `bbdo_version` = "3.0.1"');
 };
 
 try {
