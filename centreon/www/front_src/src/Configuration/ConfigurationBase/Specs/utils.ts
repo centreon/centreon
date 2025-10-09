@@ -92,6 +92,9 @@ export const filtersInitialValues = {
   disabled: false
 };
 
+export const columnsAtomKey = 'columns_configuration';
+export const filtersAtomKey = 'filters_configuration';
+
 export const groups = [
   {
     name: 'General informations',

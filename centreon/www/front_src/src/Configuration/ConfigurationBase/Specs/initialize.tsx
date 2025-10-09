@@ -5,12 +5,15 @@ import { Method, SnackbarProvider, TestQueryProvider } from '@centreon/ui';
 import { capitalize } from '@mui/material';
 
 import i18next from 'i18next';
+import { atomWithStorage } from 'jotai/utils';
 import { initReactI18next } from 'react-i18next';
 import { BrowserRouter as Router } from 'react-router';
 import ConfigurationBase from '..';
 import { FilterConfiguration, ResourceType } from '../../models';
 import {
   columns,
+  columnsAtomKey,
+  filtersAtomKey,
   filtersConfiguration,
   filtersInitialValues,
   getEndpoints,
@@ -115,6 +118,9 @@ const initialize = ({
     resources: {}
   });
 
+  const selectedColumnIdsAtom = atomWithStorage(columnsAtomKey, []);
+  const filtersAtom = atomWithStorage(filtersAtomKey, filtersInitialValues);
+
   const store = createStore();
 
   cy.mount({
@@ -125,6 +131,10 @@ const initialize = ({
             <Provider store={store}>
               <div style={{ height: '100vh' }}>
                 <ConfigurationBase
+                  selectedColumnIdsAtom={selectedColumnIdsAtom}
+                  filtersAtom={filtersAtom}
+                  filtersAtomKey={filtersAtomKey}
+                  columnsAtomKey={columnsAtomKey}
                   resourceType={resourceType}
                   columns={columns}
                   form={{
