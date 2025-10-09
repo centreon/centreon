@@ -73,7 +73,7 @@ final class FindUsers
                 ) {
                     $this->error("User doesn't have sufficient rights to list users/contacts", [
                         'status' => 'failure',
-                        'initiator_user' => $this->user->getalias()
+                        'initiator_user' => $this->user->getAlias(),
                     ]);
                     $presenter->presentResponse(
                         new ForbiddenResponse(UserException::accessNotAllowed())
@@ -105,7 +105,7 @@ final class FindUsers
             $presenter->presentResponse(new ErrorResponse($ex->getMessage()));
             $this->error("User listing failed : " . $ex->getMessage(), [
                 'status' => 'failure',
-                'initiator_user' => $this->user->getalias()
+                'initiator_user' => $this->user->getAlias(),
             ]);
         } catch (\Throwable $ex) {
             $presenter->presentResponse(
@@ -113,7 +113,7 @@ final class FindUsers
             );
             $this->error("User listing failed : " . $ex->getMessage(), [
                 'status' => 'failure',
-                'initiator_user' => $this->user->getalias()
+                'initiator_user' => $this->user->getAlias(),
             ]);
         }
     }
