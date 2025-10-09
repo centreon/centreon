@@ -91,7 +91,8 @@ $mandatoryPrivileges = [
     'EVENT',
     'CREATE VIEW',
     'SHOW VIEW',
-    'REFERENCES'
+    'REFERENCES',
+    'TRIGGER',
 ];
 $privilegesQuery = implode(', ', $mandatoryPrivileges);
 $query = "GRANT " . $privilegesQuery . " ON `%s`.* TO '" . $parameters['db_user'] . "'@'" . $host . "'";
