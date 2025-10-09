@@ -573,7 +573,6 @@ msgstr "Fim atual"
 #: centreon/www/include/options/accessLists/actionsACL/listsActionsAccess.php
 #: centreon/www/include/options/accessLists/groupsACL/formGroupConfig.php
 #: centreon/www/include/options/accessLists/groupsACL/listGroupConfig.php
-#: centreon/www/include/options/accessLists/menusACL/listsMenusAccess.php
 #: centreon/www/include/options/accessLists/resourcesACL/formResourcesAccess.php
 #: centreon/www/include/options/accessLists/resourcesACL/listsResourcesAccess.php
 #: centreon/www/include/options/media/images/listImg.php
@@ -3940,7 +3939,6 @@ msgstr "Defina seu endpoint"
 #: centreon/www/include/monitoring/recurrentDowntime/listDowntime.php
 #: centreon/www/include/options/accessLists/actionsACL/listsActionsAccess.php
 #: centreon/www/include/options/accessLists/groupsACL/listGroupConfig.php
-#: centreon/www/include/options/accessLists/menusACL/listsMenusAccess.php
 #: centreon/www/include/options/accessLists/resourcesACL/formResourcesAccess.php
 #: centreon/www/include/options/accessLists/resourcesACL/listsResourcesAccess.php
 #: centreon/www/include/options/media/images/listImg.php
@@ -4124,7 +4122,6 @@ msgstr "Descreva as macros"
 #: centreon/www/include/options/accessLists/actionsACL/formActionsAccess.php
 #: centreon/www/include/options/accessLists/actionsACL/listsActionsAccess.php
 #: centreon/www/include/options/accessLists/groupsACL/listGroupConfig.php
-#: centreon/www/include/options/accessLists/menusACL/listsMenusAccess.php
 #: centreon/www/include/options/accessLists/resourcesACL/formResourcesAccess.php
 #: centreon/www/include/options/accessLists/resourcesACL/listsResourcesAccess.php
 #: centreon/www/include/views/graphTemplates/listGraphTemplates.php
@@ -4201,7 +4198,6 @@ msgstr "Diretorio de banco de dados leve para traps SNMP"
 #: centreon/www/include/monitoring/recurrentDowntime/listDowntime.php
 #: centreon/www/include/options/accessLists/actionsACL/listsActionsAccess.php
 #: centreon/www/include/options/accessLists/groupsACL/listGroupConfig.php
-#: centreon/www/include/options/accessLists/menusACL/listsMenusAccess.php
 #: centreon/www/include/options/accessLists/resourcesACL/listsResourcesAccess.php
 msgid "Disable"
 msgstr "Desativar"
@@ -4306,7 +4302,6 @@ msgstr ""
 #: centreon/www/include/options/accessLists/actionsACL/listsActionsAccess.php
 #: centreon/www/include/options/accessLists/groupsACL/formGroupConfig.php
 #: centreon/www/include/options/accessLists/groupsACL/listGroupConfig.php
-#: centreon/www/include/options/accessLists/menusACL/listsMenusAccess.php
 #: centreon/www/include/options/accessLists/resourcesACL/formResourcesAccess.php
 #: centreon/www/include/options/accessLists/resourcesACL/listsResourcesAccess.php
 #: centreon/www/include/views/virtualMetrics/listVirtualMetrics.php
@@ -4532,7 +4527,6 @@ msgstr ""
 #: centreon/www/include/monitoring/recurrentDowntime/listDowntime.php
 #: centreon/www/include/options/accessLists/actionsACL/listsActionsAccess.php
 #: centreon/www/include/options/accessLists/groupsACL/listGroupConfig.php
-#: centreon/www/include/options/accessLists/menusACL/listsMenusAccess.php
 #: centreon/www/include/options/accessLists/resourcesACL/listsResourcesAccess.php
 #: centreon/www/include/options/media/images/listImg.php
 #: centreon/www/include/views/componentTemplates/listComponentTemplates.php
@@ -4569,7 +4563,6 @@ msgstr "Você confirma esta remoção ?"
 #: centreon/www/include/monitoring/recurrentDowntime/listDowntime.php
 #: centreon/www/include/options/accessLists/actionsACL/listsActionsAccess.php
 #: centreon/www/include/options/accessLists/groupsACL/listGroupConfig.php
-#: centreon/www/include/options/accessLists/menusACL/listsMenusAccess.php
 #: centreon/www/include/options/accessLists/resourcesACL/listsResourcesAccess.php
 #: centreon/www/include/views/componentTemplates/listComponentTemplates.php
 #: centreon/www/include/views/graphTemplates/listGraphTemplates.php
@@ -4740,7 +4733,6 @@ msgstr "Dump"
 #: centreon/www/include/monitoring/recurrentDowntime/listDowntime.php
 #: centreon/www/include/options/accessLists/actionsACL/listsActionsAccess.php
 #: centreon/www/include/options/accessLists/groupsACL/listGroupConfig.php
-#: centreon/www/include/options/accessLists/menusACL/listsMenusAccess.php
 #: centreon/www/include/options/accessLists/resourcesACL/listsResourcesAccess.php
 #: centreon/www/include/views/componentTemplates/listComponentTemplates.php
 #: centreon/www/include/views/graphTemplates/listGraphTemplates.php
@@ -4887,7 +4879,6 @@ msgstr "Diretorio vazio"
 #: centreon/www/include/monitoring/recurrentDowntime/listDowntime.php
 #: centreon/www/include/options/accessLists/actionsACL/listsActionsAccess.php
 #: centreon/www/include/options/accessLists/groupsACL/listGroupConfig.php
-#: centreon/www/include/options/accessLists/menusACL/listsMenusAccess.php
 #: centreon/www/include/options/accessLists/resourcesACL/listsResourcesAccess.php
 msgid "Enable"
 msgstr "Ativar"
@@ -5171,7 +5162,6 @@ msgstr ""
 #: centreon/www/include/options/accessLists/actionsACL/listsActionsAccess.php
 #: centreon/www/include/options/accessLists/groupsACL/formGroupConfig.php
 #: centreon/www/include/options/accessLists/groupsACL/listGroupConfig.php
-#: centreon/www/include/options/accessLists/menusACL/listsMenusAccess.php
 #: centreon/www/include/options/accessLists/resourcesACL/formResourcesAccess.php
 #: centreon/www/include/options/accessLists/resourcesACL/listsResourcesAccess.php
 #: centreon/www/include/views/virtualMetrics/listVirtualMetrics.php
@@ -10231,7 +10221,6 @@ msgstr "Mais ações"
 #: centreon/www/include/monitoring/status/ServicesServiceGroups/serviceSummaryBySG.php
 #: centreon/www/include/options/accessLists/actionsACL/listsActionsAccess.php
 #: centreon/www/include/options/accessLists/groupsACL/listGroupConfig.php
-#: centreon/www/include/options/accessLists/menusACL/listsMenusAccess.php
 #: centreon/www/include/options/accessLists/resourcesACL/listsResourcesAccess.php
 #: centreon/www/include/views/componentTemplates/listComponentTemplates.php
 #: centreon/www/include/views/graphTemplates/listGraphTemplates.php
@@ -10358,7 +10347,6 @@ msgstr "N/D"
 #: centreon/www/include/monitoring/recurrentDowntime/listDowntime.php
 #: centreon/www/include/options/accessLists/actionsACL/listsActionsAccess.php
 #: centreon/www/include/options/accessLists/groupsACL/listGroupConfig.php
-#: centreon/www/include/options/accessLists/menusACL/listsMenusAccess.php
 #: centreon/www/include/options/accessLists/resourcesACL/listsResourcesAccess.php
 #: centreon/www/include/options/media/images/listImg.php
 #: centreon/www/include/views/componentTemplates/listComponentTemplates.php
@@ -11183,7 +11171,6 @@ msgstr "Otimização"
 #: centreon/www/include/monitoring/recurrentDowntime/listDowntime.php
 #: centreon/www/include/options/accessLists/actionsACL/listsActionsAccess.php
 #: centreon/www/include/options/accessLists/groupsACL/listGroupConfig.php
-#: centreon/www/include/options/accessLists/menusACL/listsMenusAccess.php
 #: centreon/www/include/options/accessLists/resourcesACL/listsResourcesAccess.php
 #: centreon/www/include/views/componentTemplates/listComponentTemplates.php
 #: centreon/www/include/views/graphTemplates/listGraphTemplates.php
@@ -14310,7 +14297,6 @@ msgstr "Estatísticas"
 #: centreon/www/include/options/accessLists/actionsACL/listsActionsAccess.php
 #: centreon/www/include/options/accessLists/groupsACL/formGroupConfig.php
 #: centreon/www/include/options/accessLists/groupsACL/listGroupConfig.php
-#: centreon/www/include/options/accessLists/menusACL/listsMenusAccess.php
 #: centreon/www/include/options/accessLists/resourcesACL/formResourcesAccess.php
 #: centreon/www/include/options/accessLists/resourcesACL/listsResourcesAccess.php
 #: centreon/www/include/reporting/dashboard/csvExport/csv_HostGroupLogs.php
