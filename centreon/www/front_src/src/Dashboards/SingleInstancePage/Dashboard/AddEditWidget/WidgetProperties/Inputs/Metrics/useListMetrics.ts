@@ -8,8 +8,8 @@ import {
   map,
   pipe,
   pluck,
-  type,
   project,
+  type,
   uniq,
   uniqBy
 } from 'ramda';

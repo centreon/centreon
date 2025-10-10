@@ -10,8 +10,8 @@ import {
   labelAllBusinessViews,
   labelAllHostGroups,
   labelAllHosts,
-  labelAllServiceGroups,
-  labelAllImageFolders
+  labelAllImageFolders,
+  labelAllServiceGroups
 } from '../../../translatedLabels';
 
 interface UseAllOfResourceTypeCheckboxState {
