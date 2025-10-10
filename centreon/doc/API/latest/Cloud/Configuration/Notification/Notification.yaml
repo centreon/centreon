@@ -10,7 +10,11 @@ get:
     - $ref: 'QueryParameter/NotificationId.yaml'
   responses:
     '200':
-      $ref: 'Schema/Notification.Details.yaml'
+      description: "OK"
+      content:
+        application/json:
+          schema:
+            $ref: 'Schema/Notification.Details.yaml'
     '403':
       $ref: '../../../Common/Response/Forbidden.yaml'
     '404':
