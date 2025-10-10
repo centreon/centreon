@@ -460,7 +460,7 @@ jobs:
       fail-fast: false
       matrix:
         operating_system: [alma9]
-        database: [mariadb-10.11]
+        database: ["mariadb:10.11"]
         test_tags: ["not @ignore"]
     name: e2e-test-${{ matrix.operating_system }}-${{ matrix.database }}
 
