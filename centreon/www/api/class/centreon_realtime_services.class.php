@@ -564,6 +564,35 @@ class CentreonRealtimeServices extends CentreonRealtimeBase
             }
         }
 
+        $sortColumns = [
+            'criticality_id' => ['criticality', 'h.name', 's.description'],
+            'service_id' => ['s.service_id'],
+            'host_name' => ['h.name', 's.description'],
+            'service_description' => ['s.description', 'h.name'],
+            'current_state' => ['s.state', 'h.name', 's.description'],
+            'last_state_change' => ['s.last_state_change', 'h.name', 's.description'],
+            'last_hard_state_change' => ['s.last_hard_state_change', 'h.name', 's.description'],
+            'last_check' => ['s.last_check', 'h.name', 's.description'],
+            'current_attempt' => ['s.check_attempt', 'h.name', 's.description'],
+            'output' => ['s.output', 'h.name', 's.description'],
+            'default' => ['s.description', 'h.name'],
+        ];
+        $sortType = $this->sortType ?? 'default';
+        $columnsToAdd = $sortColumns[$sortType] ?? $sortColumns['default'];
+        foreach ($columnsToAdd as $col) {
+            // If column isn't already in the SELECT, add it
+            $alreadyPresent = false;
+            foreach ($fields as $key => $alias) {
+                if (str_contains($key, $col)) {
+                    $alreadyPresent = true;
+                    break;
+                }
+            }
+            if (! $alreadyPresent) {
+                $fields[$col] = $col;
+            }
+        }
+
         // Build Field List
         $this->fieldList = '';
         foreach ($fields as $key => $value) {
