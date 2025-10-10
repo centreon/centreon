@@ -1167,7 +1167,6 @@ msgid "Agent type"
 msgstr "Type d'agent"
 
 #: centreon/www/install/dashboard_widgets.php
-#, fuzzy
 msgid "Aggregation frequency"
 msgstr "Fréquence d'agrégation"
 
@@ -1447,7 +1446,6 @@ msgstr ""
 "détaillées du module \"%s\""
 
 #: centreon/www/include/options/accessLists/reloadACL/reloadACL.php
-#, fuzzy
 msgid "An error occurred"
 msgstr "Une erreur est survenue"
 
@@ -1484,7 +1482,6 @@ msgstr ""
 "Une erreur s'est produite lors de la récupération de la version actuelle"
 
 #: centreon/src/Core/Platform/Application/UseCase/UpdateVersions/UpdateVersionsException.php
-#, fuzzy
 msgid "An error occurred when writing engine context configuration"
 msgstr ""
 "Une erreur s'est produite lors de l'écriture de la configuration du contexte "
@@ -1713,7 +1710,6 @@ msgid "Attempt"
 msgstr "Tentative"
 
 #: centreon/www/install/front_translate.php
-#, fuzzy
 msgid "At least one connection mode must be enabled."
 msgstr "Au moins un des modes de connexion doit être activé."
 
@@ -2156,7 +2152,6 @@ msgid "Business Activity status timeline"
 msgstr "Historique du statut d’une Activité Métier"
 
 #: centreon/www/install/front_translate.php
-#, fuzzy
 msgid "Business View"
 msgstr "Vue métier"
 
@@ -2538,7 +2533,7 @@ msgid "Centreon Broker reload command"
 msgstr "Commande de rechargement de Centreon Broker"
 
 #: centreon/www/include/configuration/configGenerate/xml/moveFiles.php
-#, fuzzy, php-format
+#, php-format
 msgid ""
 "Centreon Broker's configuration directory '%s' does not exist and could not\n"
 "                                             be created for monitoring "
@@ -3667,7 +3662,7 @@ msgid "Could not establish connection to Centreon IMP servers ("
 msgstr "Impossible d'établir une connexion avec les serveurs Centreon IMP ("
 
 #: centreon/www/include/configuration/configGenerate/xml/moveFiles.php
-#, fuzzy, php-format
+#, php-format
 msgid ""
 "Could not find configuration directory '%s' for monitoring engine '%s'.\n"
 "                                 Please check its path or create it"
@@ -4596,7 +4591,6 @@ msgid "Description"
 msgstr "Description"
 
 #: centreon/www/include/options/media/images/formDirectory.php
-#, fuzzy
 msgid "Destination Directory"
 msgstr "Répertoire de destination"
 
@@ -4918,7 +4912,6 @@ msgid "Display availability and performance as"
 msgstr "Afficher la disponibilité et la performance sous forme de"
 
 #: centreon/www/install/dashboard_widgets.php
-#, fuzzy
 msgid "Display availability as"
 msgstr "Afficher la disponibilité sous forme de"
 
@@ -5048,7 +5041,6 @@ msgstr ""
 "période donnée."
 
 #: centreon/www/install/dashboard_widgets.php
-#, fuzzy
 msgid "Displays availability, performance and alerts for a Business Activity"
 msgstr ""
 "Affiche la disponibilité, les performances et les alertes d'une Activité "
@@ -5975,7 +5967,6 @@ msgid "Engine configuration"
 msgstr "Configuration du moteur de collecte"
 
 #: centreon/www/install/front_translate.php
-#, fuzzy
 msgid "Enter Regex"
 msgstr "Entrer une expression régulière"
 
@@ -5999,7 +5990,6 @@ msgid "Error"
 msgstr "Erreur"
 
 #: centreon/www/include/configuration/configObject/host/DB-Func.php
-#, fuzzy
 msgid "Error during creation (json encoding). See logs for more detail"
 msgstr ""
 "Erreur lors de la création (encodage json). Consultez les journaux pour plus "
@@ -6011,7 +6001,6 @@ msgid "Error during creation of the CentCore command file (%s)"
 msgstr "Erreur lors de la création du fichier de commande Centcore (%s)"
 
 #: centreon/www/include/configuration/configObject/host/DB-Func.php
-#, fuzzy
 msgid ""
 "Error during update. See logs for more detail or contact your administrator."
 msgstr ""
@@ -6473,7 +6462,6 @@ msgid "Error while enabling/disabling host groups"
 msgstr "Erreur lors de l'activation/désactivation de groupes d'hôtes"
 
 #: centreon/www/include/options/accessLists/menusACL/listsMenusAccess.php
-#, fuzzy
 msgid "Error while fetching ACL topologies"
 msgstr "Erreur lors de la récupération des topologies ACL"
 
@@ -7050,7 +7038,6 @@ msgid "Execution was too long and reached timeout"
 msgstr "L'exécution a été trop longue et a atteint le délai d'attente"
 
 #: centreon/www/include/options/media/images/formImg.php
-#, fuzzy
 msgid "Existing directory"
 msgstr "Répertoire existant"
 
@@ -8523,7 +8510,6 @@ msgid "Host is currently on downtime"
 msgstr "L'hôte est actuellement en période d'arrêt"
 
 #: centreon/www/widgets/host-monitoring/src/index.php
-#, fuzzy
 msgid "Host is flapping"
 msgstr "L'hôte est en bagotement"
 
@@ -10497,7 +10483,6 @@ msgid "Max file size in bytes"
 msgstr "Taille maximale en octets (Bytes)"
 
 #: centreon/www/install/front_translate.php
-#, fuzzy
 msgid "Max value"
 msgstr "Valeur max"
 
@@ -10751,7 +10736,6 @@ msgid "Min"
 msgstr "Minimum"
 
 #: centreon/www/install/front_translate.php
-#, fuzzy
 msgid "Min value"
 msgstr "Valeur min"
 
@@ -11372,7 +11356,6 @@ msgid "Must be a number between 1 and 65335 included."
 msgstr "Doit être un nombre compris entre 1 et 65335 inclus"
 
 #: centreon/www/include/configuration/configObject/escalation/formEscalation.php
-#, fuzzy
 msgid "Must be a positive integer or 0"
 msgstr "Doit être un entier positif ou 0"
 
@@ -11506,7 +11489,6 @@ msgid "Name is already in use"
 msgstr "Le nom est déjà utilisé"
 
 #: centreon/www/include/configuration/configResources/formResources.php
-#, fuzzy
 msgid "Name must start and end with a '$'"
 msgstr "Le nom doit commencer et se terminer par un '$'"
 
@@ -12348,7 +12330,6 @@ msgid "Opened on"
 msgstr "Ouvert le"
 
 #: centreon/www/include/configuration/configNagios/formNagios.php
-#, fuzzy
 msgid "Opentelemetry"
 msgstr "OpenTelemetry"
 
@@ -12927,7 +12908,6 @@ msgstr ""
 "autorisés dans votre configuration Apache."
 
 #: centreon/www/widgets/graph-monitoring/index.php
-#, fuzzy
 msgid "Please select a graph period"
 msgstr "Veuillez sélectionner une période pour le graphique"
 
@@ -12940,7 +12920,6 @@ msgid "Please select a resource"
 msgstr "Veuillez sélectionner une ressource"
 
 #: centreon/www/widgets/graph-monitoring/index.php
-#, fuzzy
 msgid "Please select a resource first"
 msgstr "Veuillez d'abord sélectionner une ressource"
 
@@ -13319,7 +13298,6 @@ msgid "Public"
 msgstr "Public"
 
 #: centreon/www/install/centreon_broker_translation.php
-#, fuzzy
 msgid "Public certificate"
 msgstr "Certificat public"
 
@@ -14564,7 +14542,6 @@ msgid "See Documentation"
 msgstr "Voir la documentation"
 
 #: centreon/www/widgets/host-monitoring/src/index.php
-#, fuzzy
 msgid "See Graphs of this host"
 msgstr "Voir les graphiques pour cet hôte"
 
@@ -16418,7 +16395,6 @@ msgid "The class %s does not exist"
 msgstr "La classe %s n'existe pas"
 
 #: centreon/www/include/configuration/configServers/formServers.php
-#, fuzzy
 msgid "The command format is invalid"
 msgstr "Le format de la commande est invalide"
 
@@ -16602,7 +16578,6 @@ msgstr ""
 "configuration."
 
 #: centreon/www/install/front_translate.php
-#, fuzzy
 msgid "The min value must be lower than the max value."
 msgstr "La valeur min doit être inférieure à la valeur max."
 
@@ -16696,7 +16671,6 @@ msgid "The path does not exist"
 msgstr "Ce chemin n'existe pas"
 
 #: centreon/www/include/configuration/configServers/formServers.php
-#, fuzzy
 msgid "The path format is invalid"
 msgstr "Le format du chemin est invalide"
 
@@ -16798,7 +16772,6 @@ msgid "The resource access rule was successfully updated"
 msgstr "La règle d'accès aux ressources a été modifiée avec succès"
 
 #: centreon/www/include/configuration/configServers/formServers.php
-#, fuzzy
 msgid "The script path is invalid"
 msgstr "Le chemin du script est invalide"
 
@@ -19359,7 +19332,6 @@ msgid "You must provide at least one %s"
 msgstr "Vous devez ajouter au moins un %s"
 
 #: centreon/src/Core/Resources/Infrastructure/Repository/DbReadResourceRepository.php
-#, fuzzy
 msgid "You must provide at least one ACL provider"
 msgstr "Vous devez fournir au moins un fournisseur ACL"
 
@@ -19741,7 +19713,6 @@ msgid "available"
 msgstr "disponible"
 
 #: centreon/www/install/dashboard_widgets.php
-#, fuzzy
 msgid "boundaries"
 msgstr "limites"
 
@@ -20116,7 +20087,6 @@ msgid "vCenter/ESX"
 msgstr "vCenter/ESX"
 
 #: centreon/www/install/dashboard_widgets.php
-#, fuzzy
 msgid "warningtext"
 msgstr "texte d'avertissement"
 
