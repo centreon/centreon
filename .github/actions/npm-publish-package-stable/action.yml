@@ -33,7 +33,7 @@ runs:
         version: 7
 
     - name: Install action dependencies
-      run: pnpm install
+      run: pnpm install --frozen-lockfile
       working-directory: ./.github/actions/get-latest-npm-branch-version
       shell: bash
 
