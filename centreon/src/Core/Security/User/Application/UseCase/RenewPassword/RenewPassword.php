@@ -29,6 +29,7 @@ use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Application\Common\UseCase\UnauthorizedResponse;
+use Core\Common\Infrastructure\ExceptionLogger\ExceptionLogger;
 use Core\Security\ProviderConfiguration\Application\Repository\ReadConfigurationRepositoryInterface;
 use Core\Security\ProviderConfiguration\Domain\Local\Model\Configuration;
 use Core\Security\ProviderConfiguration\Domain\Model\Provider;
@@ -91,13 +92,13 @@ class RenewPassword
                 $user,
                 $providerConfiguration->getCustomConfiguration()->getSecurityPolicy()
             );
-        } catch (UserPasswordException|ConfigurationException $ex) {
-            $this->error('Unable to update password', ['trace' => (string) $ex]);
-            $presenter->setResponseStatus(new InvalidArgumentResponse($ex->getMessage()));
+        } catch (UserPasswordException|ConfigurationException $e) {
+            ExceptionLogger::create()->log($e);
+            $presenter->setResponseStatus(new InvalidArgumentResponse($e->getMessage()));
 
             return;
-        } catch (\Throwable $ex) {
-            $this->error('An error occured while updating password', ['trace' => (string) $ex]);
+        } catch (\Throwable $e) {
+            ExceptionLogger::create()->log($e);
             $presenter->setResponseStatus(new ErrorResponse('An error occured while updating password'));
 
             return;

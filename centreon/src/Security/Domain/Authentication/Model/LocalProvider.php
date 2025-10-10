@@ -29,6 +29,7 @@ use Centreon\Domain\Contact\Interfaces\ContactServiceInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\Option\Interfaces\OptionServiceInterface;
 use CentreonAuth;
+use Core\Common\Domain\Exception\RepositoryException;
 use Core\Security\Authentication\Domain\Exception\AuthenticationException;
 use Core\Security\Authentication\Domain\Exception\PasswordExpiredException;
 use Core\Security\Authentication\Domain\Model\AuthenticationTokens;
@@ -136,12 +137,21 @@ class LocalProvider implements LocalProviderInterface
                 throw new Exception('user not found');
             }
 
-            $providerConfiguration = $this->readConfigurationRepository->getConfigurationByType(Provider::LOCAL);
+            try {
+                $providerConfiguration = $this->readConfigurationRepository->getConfigurationByType(Provider::LOCAL);
+            } catch (RepositoryException $e) {
+                throw AuthenticationException::notAuthenticated($e);
+            }
+
             /** @var CustomConfiguration $customConfiguration */
             $customConfiguration = $providerConfiguration->getCustomConfiguration();
             $securityPolicy = $customConfiguration->getSecurityPolicy();
 
-            $this->respectLocalSecurityPolicyOrFail($user, $securityPolicy, $doesPasswordMatch);
+            try {
+                $this->respectLocalSecurityPolicyOrFail($user, $securityPolicy, $doesPasswordMatch);
+            } catch (AuthenticationException|PasswordExpiredException $e) {
+                throw AuthenticationException::notAuthenticated($e);
+            }
         }
 
         if (! $doesPasswordMatch) {
@@ -264,6 +274,9 @@ class LocalProvider implements LocalProviderInterface
      * @param User $user
      * @param SecurityPolicy $securityPolicy
      * @param bool $doesPasswordMatch
+     *
+     * @throws AuthenticationException
+     * @throws PasswordExpiredException
      */
     private function respectLocalSecurityPolicyOrFail(
         User $user,
