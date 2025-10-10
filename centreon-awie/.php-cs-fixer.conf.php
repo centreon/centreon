@@ -21,28 +21,20 @@
 
 declare(strict_types=1);
 
-use PhpCsFixer\Finder;
-use Tools\PhpCsFixer\PhpCsFixerRuleSet;
-
-$config = require_once __DIR__ . '/../php-tools/php-cs-fixer/config/base.strict.php';
-
-$finder = Finder::create()
-    ->in([
-        __DIR__ . '/php-cs-fixer/',
-        __DIR__ . '/phpstan/',
-        __DIR__ . '/rector/',
-    ])
-    ->append([
-        __DIR__ . '/.php-cs-fixer.php',
-        __DIR__ . '/rector.php',
-    ]);
-
-return $config
-    ->setRules(array_merge(
-        PhpCsFixerRuleSet::getRules(),
-        [
-            'psr_autoloading' => false, // This rule is not compatible with php-tools directory architecture
-        ]
-    ))
-    ->setFinder($finder)
-    ->setCacheFile('.php-cs-fixer.cache');
+return [
+    'legacy' => [
+        'files' => [
+            '.php-cs-fixer.conf.php',
+            '.php-cs-fixer.diff.php',
+            '.php-cs-fixer.legacy.php',
+            'rector.conf.php',
+            'rector.diff.php',
+            'rector.legacy.php',
+        ],
+        'directories' => [
+            'features',
+            'www',
+        ],
+        'skip' => [],
+    ],
+];

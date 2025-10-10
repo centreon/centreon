@@ -5,12 +5,18 @@ parameters:
 
     level: max
 
+    treatPhpDocTypesAsCertain: false
+
     scanFiles:
+        - .php-cs-fixer.conf.php
         - .php-cs-fixer.core.php
+        - .php-cs-fixer.diff.php
         - .php-cs-fixer.legacy.php
         - .php-cs-fixer.new.php
         - castor.php
+        - rector.conf.php
         - rector.core.php
+        - rector.diff.php
         - rector.legacy.php
         - rector.new.php
 
@@ -18,3 +24,37 @@ parameters:
         - config.new
         - src/Adaptation
         - src/App
+
+rules:
+    - Tools\PhpStan\CustomRules\ArchitectureRules\EnumAreSuffixedRule
+    - Tools\PhpStan\CustomRules\MiscRules\CommandHandlerCannotUseCommandBus
+
+services:
+    - class: Tools\PhpStan\CustomRules\ArchitectureRules\MarkedClassesAreFinalRule
+      arguments:
+          attributes:
+              - App\Shared\Application\Command\AsCommandHandler
+              - App\Shared\Domain\Event\AsEventHandler
+              - ApiPlatform\Metadata\ApiResource
+          classes:
+              - ApiPlatform\State\ProcessorInterface
+              - App\MonitoringConfiguration\Infrastructure\Legacy\LegacyServiceCategoryPermissionVoter
+              - App\Shared\Infrastructure\TransformerInterface
+      tags: [phpstan.rules.rule]
+
+    - class: Tools\PhpStan\CustomRules\MiscRules\MarkedClassesHaveTestRule
+      arguments:
+          attributes:
+              - App\Shared\Application\Command\AsCommandHandler
+              - App\Shared\Domain\Event\AsEventHandler
+          classes:
+              - ApiPlatform\State\ProcessorInterface
+              - App\Shared\Infrastructure\Dbal\DbalRepository
+      tags: [phpstan.rules.rule]
+
+    - class: Tools\PhpStan\CustomRules\ArchitectureRules\MarkedClassesAreOnlyInvokableRule
+      arguments:
+          attributes:
+              - App\Shared\Application\Command\AsCommandHandler
+              - App\Shared\Domain\Event\AsEventHandler
+      tags: [phpstan.rules.rule]

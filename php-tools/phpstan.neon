@@ -1,6 +1,7 @@
 parameters:
 
     level: max
+    treatPhpDocTypesAsCertain: false
 
     scanFiles:
         - .php-cs-fixer.php
@@ -9,6 +10,10 @@ parameters:
     paths:
         - phpstan
         - php-cs-fixer
+        - rector
+
+    scanDirectories:
+        - ../centreon/src/App/Shared/
 
     ignoreErrors:
         # To fix the following errors, you need to update the custom rules:
