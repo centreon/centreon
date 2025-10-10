@@ -16,15 +16,15 @@ on:
   schedule:
     - cron: "0 3 * * 1-5"
   pull_request:
-    paths:
-      - ".version"
-      - ".version.centreon-web"
-      - "centreon/**"
-      - "!centreon/cypress/**"
-      - "!centreon/features/**"
-      - "!centreon/lighthouse/**"
-      - "!centreon/tests/**"
-      - "!centreon/packages/**"
+    # paths:
+    #   - ".version"
+    #   - ".version.centreon-web"
+    #   - "centreon/**"
+    #   - "!centreon/cypress/**"
+    #   - "!centreon/features/**"
+    #   - "!centreon/lighthouse/**"
+    #   - "!centreon/tests/**"
+    #   - "!centreon/packages/**"
   push:
     branches:
       - develop
@@ -118,7 +118,7 @@ jobs:
           has_test_changes: ${{ steps.filter.outputs.has_test_changes || 'true' }}
 
   dispatch-to-maintained-branches:
-    if: ${{ github.run_attempt == 1 && github.event_name == 'schedule' && github.ref_name == 'develop' && github.repository == 'centreon/centreon' }}
+    # if: ${{ github.run_attempt == 1 && github.event_name == 'schedule' && github.ref_name == 'develop' && github.repository == 'centreon/centreon' }}
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout sources
@@ -127,8 +127,10 @@ jobs:
       - name: Run nightly on a different maintenance branch depending on the day
         run: |
           NIGHTLY_TARGETS=("dev-22.10.x" "dev-23.10.x" "dev-24.04.x" "dev-24.10.x" "dev-25.10.x")
-          echo "[INFO] - Dispatching nightly run to ${NIGHTLY_TARGETS[$(( $(date +%u) - 1 ))]} branch."
-          gh workflow run web.yml -r "${NIGHTLY_TARGETS[$(( $(date +%u) - 1 ))]}" -f nightly_manual_trigger=true
+          for NIGHTLY_TARGET in "${NIGHTLY_TARGETS[@]}"; do
+            echo "[INFO] - Dispatching nightly run to ${NIGHTLY_TARGET} branch."
+            gh workflow run web.yml -r "${NIGHTLY_TARGET}" -f nightly_manual_trigger=true
+          done
         shell: bash
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
