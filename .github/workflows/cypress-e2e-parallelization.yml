@@ -180,7 +180,7 @@ jobs:
       - name: Cypress end-to-end testing
         uses: cypress-io/github-action@b8ba51a856ba5f4c15cf39007636d4ab04f23e3c # v6.10.2
         with:
-          command: pnpm run cypress:run --browser electron --spec features/**/${{ inputs.feature_file_path }}
+          command: pnpm run cypress:run --browser electron --spec features/**/${{ matrix.feature }}
           install: false
           working-directory: ${{ inputs.module_name }}/tests/e2e
         env:
