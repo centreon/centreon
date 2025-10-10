@@ -291,6 +291,7 @@ class Centreon_OpenTickets_Rule
 
     public function save($rule_id, $datas): void
     {
+        // TODO: re-écrire cette merde avec les méthodes de la ConnectionInterface
         $this->_db->beginTransaction();
 
         $nrule_id = $rule_id;
@@ -300,9 +301,10 @@ class Centreon_OpenTickets_Rule
         );
         if (! ($row = $dbResult->fetch())) {
             $this->_db->query(
-                "INSERT INTO mod_open_tickets_rule (`alias`, `provider_id`, `activate`) VALUES (
+                "INSERT INTO mod_open_tickets_rule (`alias`, `provider_id`, `provider_name`, `activate`) VALUES (
                     '" . $this->_db->escape($datas['rule_alias']) . "',
                     '" . $this->_db->escape($datas['provider_id']) . "', 
+                    '" . $this->_db->escape($datas['provider_name']) . "', 
                     '1'
                 )"
             );
@@ -311,7 +313,8 @@ class Centreon_OpenTickets_Rule
             $this->_db->query(
                 "UPDATE mod_open_tickets_rule SET 
                     `alias` = '" . $this->_db->escape($datas['rule_alias']) . "',
-                    `provider_id` = '" . $datas['provider_id'] . "'
+                    `provider_id` = '" . $datas['provider_id'] . "',
+                    `provider_name` = '" . $datas['provider_name'] . "'
                 WHERE rule_id = '" . $this->_db->escape($rule_id) . "'"
             );
             $this->_db->query(
@@ -743,7 +746,8 @@ class Centreon_OpenTickets_Rule
             $centreon_open_tickets_path,
             $rule_id,
             null,
-            $provider_id
+            $provider_id,
+            $provider_name
         );
         $this->_provider->setWidgetId($widget_id);
         $this->_provider->setUniqId($uniq_id);

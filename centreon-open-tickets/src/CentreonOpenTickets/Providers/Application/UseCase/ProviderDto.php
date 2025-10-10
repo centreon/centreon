@@ -23,20 +23,20 @@ declare(strict_types=1);
 
 namespace CentreonOpenTickets\Providers\Application\UseCase;
 
-use CentreonOpenTickets\Providers\Domain\Model\ProviderType;
-
 final class ProviderDto
 {
     /**
      * @param int $id
      * @param string $name
-     * @param ProviderType $type
+     * @param int $typeId
+     * @param string $typeName
      * @param bool $isActivated
      */
     public function __construct(
         public readonly int $id,
         public readonly string $name,
-        public readonly ProviderType $type,
+        public readonly int $typeId,
+        public readonly string $typeName,
         public readonly bool $isActivated = false,
     ) {
     }

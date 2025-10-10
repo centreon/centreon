@@ -27,25 +27,36 @@ $version = 'xx.xx.x';
 $errorMessage = '';
 
 /**
- * @var ConnectionInterface $pearDB
+ * @var ConnectionInterface|CentreonDB $pearDB
  * @var ConnectionInterface $pearDBO
  */
 
-// TODO add your functions here
+$addProviderNameColumn = function () use ($pearDB, $errorMessage): void {
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: 'Adding `provider_name` column to configuration table mod_open_tickets_rule'
+    );
 
-try {
-    // TODO add your function calls to update the real time database structure here
+    $errorMessage = 'Failed to add `provider_name` column to mod_open_tickets_rule table';
 
-    // TODO add your function calls to update the configuration database structure here
+    if ($pearDB->isColumnExist('mod_open_tickets_rule', 'provider_name')) {
+        CentreonLog::create()->info(
+            logTypeId: CentreonLog::TYPE_UPGRADE,
+            message: 'Nothing to do, column provider_name already defined in mod_open_tickets_rule table'
+        );
 
-    // Transactional queries for configuration database
-    if (! $pearDB->isTransactionActive()) {
-        $pearDB->startTransaction();
+        return;
     }
 
-    // TODO add your function calls to update the database data here
+    $pearDB->executeStatement(
+        query: <<<SQL
+            ALTER TABLE `mod_open_tickets_rule` ADD COLUMN `provider_name` VARCHAR(255) NOT NULL AFTER `provider_id`
+        SQL
+    );
+};
 
-    $pearDB->commitTransaction();
+try {
+    $addProviderNameColumn();
 } catch (Throwable $throwable) {
     CentreonLog::create()->error(
         logTypeId: CentreonLog::TYPE_UPGRADE,

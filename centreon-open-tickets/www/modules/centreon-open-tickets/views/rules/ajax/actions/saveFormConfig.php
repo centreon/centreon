@@ -21,6 +21,8 @@
 
 $resultat = ['code' => 0, 'msg' => 'ok'];
 
+CentreonLog::create()->error(CentreonLog::TYPE_BUSINESS_LOG, 'get_information', ['data' => $get_information]);
+
 // Load provider class
 if (is_null($get_information['provider_id']) || is_null($get_information['form'])) {
     $resultat['code'] = 1;
@@ -67,7 +69,8 @@ $centreon_provider = new $classname(
     $centreon_open_tickets_path,
     $get_information['rule_id'],
     $get_information['form'],
-    $get_information['provider_id']
+    $get_information['provider_id'],
+    $provider_name
 );
 
 try {

@@ -23,10 +23,12 @@ declare(strict_types=1);
 
 namespace CentreonOpenTickets\Resources\Infrastructure\Repository;
 
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\Enum\QueryParameterTypeEnum;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
 use Centreon\Domain\Monitoring\Resource;
 use Centreon\Domain\Monitoring\ResourceFilter;
-use Centreon\Infrastructure\DatabaseConnection;
-use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
+use Core\Common\Infrastructure\Repository\DatabaseRepository;
 use Core\Common\Infrastructure\Repository\SqlMultipleBindTrait;
 use Core\Resources\Infrastructure\Repository\ExtraDataProviders\ExtraDataProviderInterface;
 
@@ -38,18 +40,10 @@ use Core\Resources\Infrastructure\Repository\ExtraDataProviders\ExtraDataProvide
  *  timestamp: int
  * }
  */
-final class OpenTicketExtraDataProvider extends AbstractRepositoryRDB implements ExtraDataProviderInterface
+final class OpenTicketExtraDataProvider extends DatabaseRepository implements ExtraDataProviderInterface
 {
     use SqlMultipleBindTrait;
     private const DATA_PROVIDER_SOURCE_NAME = 'open_tickets';
-
-    /**
-     * @param DatabaseConnection $db
-     */
-    public function __construct(DatabaseConnection $db)
-    {
-        $this->db = $db;
-    }
 
     /**
      * @inheritDoc
@@ -180,8 +174,8 @@ final class OpenTicketExtraDataProvider extends AbstractRepositoryRDB implements
     }
 
     /**
-     * @param resource[] $resources
-     * @return resource[]
+     * @param Resource[] $resources
+     * @return Resource[]
      */
     private function getServiceResources(array $resources): array
     {
@@ -192,8 +186,8 @@ final class OpenTicketExtraDataProvider extends AbstractRepositoryRDB implements
     }
 
     /**
-     * @param resource[] $resources
-     * @return resource[]
+     * @param Resource[] $resources
+     * @return Resource[]
      */
     private function getHostResources(array $resources): array
     {
@@ -218,7 +212,11 @@ final class OpenTicketExtraDataProvider extends AbstractRepositoryRDB implements
             return [];
         }
 
-        [$bindValues, $bindQuery] = $this->createMultipleBindQuery(array_values($resources), ':resource_id');
+        ['parameters' => $resourceQueryParameters, 'placeholderList' => $bindQuery] = $this->createMultipleBindParameters(
+            array_values($resources),
+            'resource_id',
+            QueryParameterTypeEnum::INTEGER,
+        );
 
         $request = <<<SQL
                 SELECT
@@ -244,19 +242,13 @@ final class OpenTicketExtraDataProvider extends AbstractRepositoryRDB implements
                     AND tickets.timestamp IS NOT NULL;
             SQL;
 
-        $statement = $this->db->prepare($this->translateDbName($request));
-        $statement->bindValue(':macroName', $macroName, \PDO::PARAM_STR);
-
-        foreach ($bindValues as $key => $value) {
-            $statement->bindValue($key, $value, \PDO::PARAM_INT);
-        }
-
-        $statement->setFetchMode(\PDO::FETCH_ASSOC);
-        $statement->execute();
+        $queryParameters = [
+            ...$resourceQueryParameters,
+            QueryParameter::string('macroName', $macroName)
+        ];
 
         $tickets = [];
-
-        while (($record = $statement->fetch(\PDO::FETCH_ASSOC)) !== false) {
+        foreach ($this->connection->iterateAssociative($this->translateDbName($request), QueryParameters::create($queryParameters)) as $record) {
             /**
              * @var _TicketData $record
              */
@@ -285,7 +277,11 @@ final class OpenTicketExtraDataProvider extends AbstractRepositoryRDB implements
             return [];
         }
 
-        [$bindValues, $bindQuery] = $this->createMultipleBindQuery(array_values($parentResources), ':resource_id');
+        ['parameters' => $resourceQueryParameters, 'placeholderList' => $bindQuery] = $this->createMultipleBindParameters(
+            array_values($parentResources),
+            'resource_id',
+            QueryParameterTypeEnum::INTEGER,
+        );
 
         $request = <<<SQL
                 SELECT
@@ -310,18 +306,13 @@ final class OpenTicketExtraDataProvider extends AbstractRepositoryRDB implements
                     AND tickets.timestamp IS NOT NULL;
             SQL;
 
-        $statement = $this->db->prepare($this->translateDbName($request));
-        $statement->bindValue(':macroName', $macroName, \PDO::PARAM_STR);
-
-        foreach ($bindValues as $key => $value) {
-            $statement->bindValue($key, $value, \PDO::PARAM_INT);
-        }
-
-        $statement->setFetchMode(\PDO::FETCH_ASSOC);
-        $statement->execute();
+        $queryParameters = [
+            ...$resourceQueryParameters,
+            QueryParameter::string('macroName', $macroName)
+        ];
 
         $tickets = [];
-        while (($record = $statement->fetch(\PDO::FETCH_ASSOC)) !== false) {
+        foreach ($this->connection->iterateAssociative($this->translateDbName($request), QueryParameters::create($queryParameters)) as $record) {
             /**
              * @var _TicketData $record
              */
@@ -344,18 +335,22 @@ final class OpenTicketExtraDataProvider extends AbstractRepositoryRDB implements
      */
     private function getMacroNameFromRuleId(int $ruleId): ?string
     {
-        $request = <<<'SQL'
-                SELECT `value` FROM `:db`.mod_open_tickets_form_value WHERE rule_id = :ruleId AND uniq_id = 'macro_ticket_id';
+        $query = <<<'SQL'
+            SELECT
+                `value`
+            FROM `:db`.mod_open_tickets_form_value
+            WHERE rule_id = :ruleId
+                AND uniq_id = 'macro_ticket_id';
             SQL;
 
-        $statement = $this->db->prepare($this->translateDbName($request));
-        $statement->bindValue(':ruleId', $ruleId, \PDO::PARAM_INT);
-        $statement->setFetchMode(\PDO::FETCH_ASSOC);
-        $statement->execute();
 
-        /** @var string|null|false $result */
-        $result = $statement->fetchColumn();
+        $queryParameters = QueryParameters::create([
+            QueryParameter::int('ruleId', $ruleId)
+        ]);
 
-        return $result !== false ? $result : null;
+        return $this->connection->fetchOne(
+            $this->translateDbName($query),
+            $queryParameters,
+        );
     }
 }

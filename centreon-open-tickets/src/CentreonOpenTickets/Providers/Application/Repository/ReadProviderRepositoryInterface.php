@@ -30,11 +30,11 @@ use CentreonOpenTickets\Providers\Domain\Model\Provider;
 interface ReadProviderRepositoryInterface
 {
     /**
-     * @param RequestParametersInterface|null $requestParameters
+     * @param RequestParametersInterface $requestParameters
      *
      * @throws RepositoryException
      *
      * @return Provider[]
      */
-    public function findAll(?RequestParametersInterface $requestParameters): array;
+    public function findAll(RequestParametersInterface $requestParameters): array;
 }
