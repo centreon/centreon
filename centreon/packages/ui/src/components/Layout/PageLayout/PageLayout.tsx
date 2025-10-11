@@ -5,16 +5,22 @@ import { useStyles } from './PageLayout.styles';
 type PageLayoutProps = {
   children: Array<ReactNode> | ReactNode;
   variant?: 'default' | 'fixed-header';
+  className?: string;
 };
 
 export const PageLayout = ({
   children,
-  variant = 'default'
+  variant = 'default',
+  className
 }: PageLayoutProps): ReactElement => {
-  const { classes } = useStyles();
+  const { classes, cx } = useStyles();
 
   return (
-    <section className={classes.pageLayout} data-variant={variant} id="page">
+    <section
+      className={cx(classes.pageLayout, className)}
+      data-variant={variant}
+      id="page"
+    >
       {children}
     </section>
   );
