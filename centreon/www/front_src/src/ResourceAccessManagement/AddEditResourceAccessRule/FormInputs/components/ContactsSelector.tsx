@@ -37,12 +37,13 @@ const ContactsSelector = (): React.JSX.Element => {
         className={classes.selector}
         dataTestId={labelContacts}
         disabled={checked}
-        field="name"
+        field="alias"
         getEndpoint={getEndpoint()}
         label={checked ? t(labelAllContactsSelected) : t(labelContacts)}
         limitTags={5}
         value={contacts}
         onChange={onMultiSelectChange()}
+        getRenderedOptionText={(option): string => option.alias?.toString()}
       />
       <FormControlLabel
         className={classes.label}
