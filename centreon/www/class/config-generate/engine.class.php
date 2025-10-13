@@ -19,7 +19,6 @@
  *
  */
 
-use Core\MonitoringServer\Application\Repository\ReadMonitoringServerRepositoryInterface;
 use Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException;
 use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
 
@@ -197,7 +196,6 @@ class Engine extends AbstractObject
         'log_level_process',
         'log_level_runtime',
         'broker_module_cfg_file',
-        'credentials_encryption',
     ];
 
     /** @var string[] */
@@ -425,13 +423,6 @@ class Engine extends AbstractObject
                 : '0';
     }
 
-    private function setEncryptionReady(int $pollerId): void
-    {
-        $readMonitoringServerRepository = $this->kernel->getContainer()->get(ReadMonitoringServerRepositoryInterface::class);
-        $this->engine['credentials_encryption'] = $readMonitoringServerRepository->isEncryptionReady($pollerId);
-
-    }
-
     /**
      * @param $poller_id
      *
@@ -467,7 +458,6 @@ class Engine extends AbstractObject
         $this->setLoggerCfg();
         $this->getBrokerModules();
         $this->getIntervalLength();
-        $this->setEncryptionReady((int) $poller_id);
         $object = $this->engine;
 
         $timezoneInstance = Timezone::getInstance($this->dependencyInjector);
