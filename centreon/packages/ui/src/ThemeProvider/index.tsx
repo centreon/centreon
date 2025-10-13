@@ -26,7 +26,7 @@ import { ReactNode, useMemo } from 'react';
 import { getPalette } from './palettes';
 
 declare module '@mui/styles/defaultTheme' {
-  interface DefaultTheme extends Theme {}
+  interface DefaultTheme extends Theme { }
 }
 
 declare module '@mui/material/TextField' {
@@ -147,46 +147,6 @@ export const getTheme = (mode: ThemeMode): ThemeOptions => ({
     },
     MuiCssBaseline: {
       styleOverrides: (theme) => `
-        ::-webkit-scrollbar {
-          height: ${theme.spacing(1)};
-          width: ${theme.spacing(1)};
-          background-color: transparent;
-        }
-        ::-webkit-scrollbar-thumb {
-          background-color: ${
-            equals(mode, 'dark')
-              ? theme.palette.divider
-              : theme.palette.text.disabled
-          };
-          border-radius: ${theme.spacing(0.5)};
-        }
-        ::-webkit-scrollbar-thumb:hover {
-          background-color: ${theme.palette.primary.main};
-        }
-        * {
-          scrollbar-color: ${
-            equals(mode, 'dark')
-              ? theme.palette.divider
-              : theme.palette.text.disabled
-          } ${theme.palette.background.default};
-          scrollbar-width: thin;
-        }
-        html {
-          margin: 0;
-          padding: 0;
-          width: 100%;
-          height: 100%;
-          text-rendering: optimizeLegibility;
-        }
-        body {
-          background-color: ${theme.palette.background.paper};
-          height: 100%;
-          padding: 0;
-          width: 100%;
-        }
-        #root {
-          background-color: ${theme.palette.background.paper};
-        }
         @font-face {
           font-family: 'Roboto';
           font-style: normal;
@@ -210,6 +170,9 @@ export const getTheme = (mode: ThemeMode): ThemeOptions => ({
           font-style: normal;
           font-weight: 700;
           src: local('Roboto'), local('Roboto-Bold'), url(${RobotoBoldWoff2}) format('woff2');
+        }
+        body {
+          background-color: ${theme.palette.background.paper};
         }
       `
     },
@@ -235,14 +198,14 @@ export const getTheme = (mode: ThemeMode): ThemeOptions => ({
       styleOverrides: {
         root: ({ theme }) => ({
           '&:hover, &.Mui-selected, &.Mui-selected:hover, &.Mui-selected:focus':
-            {
-              background: equals(theme.palette.mode, ThemeMode.dark)
-                ? theme.palette.primary.dark
-                : theme.palette.primary.light,
-              color: equals(theme.palette.mode, ThemeMode.dark)
-                ? theme.palette.common.white
-                : theme.palette.primary.main
-            },
+          {
+            background: equals(theme.palette.mode, ThemeMode.dark)
+              ? theme.palette.primary.dark
+              : theme.palette.primary.light,
+            color: equals(theme.palette.mode, ThemeMode.dark)
+              ? theme.palette.common.white
+              : theme.palette.primary.main
+          },
           fontSize: theme.typography.body2.fontSize
         })
       }
@@ -259,12 +222,12 @@ export const getTheme = (mode: ThemeMode): ThemeOptions => ({
       styleOverrides: {
         root: ({ theme }) => ({
           [`[role="tooltip"] &, &.MuiMenu-paper, &.${autocompleteClasses.paper}`]:
-            {
-              backgroundColor: theme.palette.background.default,
-              border: 'none',
-              borderRadius: `${theme.shape.borderRadius}px`,
-              boxShadow: theme.shadows[3]
-            }
+          {
+            backgroundColor: theme.palette.background.default,
+            border: 'none',
+            borderRadius: `${theme.shape.borderRadius}px`,
+            boxShadow: theme.shadows[3]
+          }
         })
       }
     },
