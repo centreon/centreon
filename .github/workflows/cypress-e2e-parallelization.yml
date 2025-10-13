@@ -84,10 +84,6 @@ jobs:
     runs-on: ubuntu-24.04
     outputs:
       features: ${{ steps.list-features.outputs.features }}
-    defaults:
-      run:
-        shell: bash
-        working-directory: centreon/tests/e2e
 
     steps:
       - name: Checkout sources
