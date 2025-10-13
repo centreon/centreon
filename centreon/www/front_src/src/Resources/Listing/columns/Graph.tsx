@@ -1,11 +1,11 @@
 import dayjs from 'dayjs';
-import { Suspense, useState } from 'react';
+import { JSX, Suspense, useState } from 'react';
 
 import { path, isNil, not } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
 
 import IconGraph from '@mui/icons-material/BarChart';
-import { Paper } from '@mui/material';
+import { Paper, Typography } from '@mui/material';
 
 import type { ComponentColumnProps, LineChartData } from '@centreon/ui';
 import {
@@ -19,10 +19,14 @@ import { lastDayPeriod } from '@centreon/ui';
 import FederatedComponent from '../../../components/FederatedComponents';
 import type { ResourceDetails } from '../../Details/models';
 import type { Resource } from '../../models';
-import { labelGraph, labelServiceGraphs } from '../../translatedLabels';
+import { labelGraph, labelServiceGraphs, labelTooManyGraphsToDisplay } from '../../translatedLabels';
 
 import HoverChip from './HoverChip';
 import IconColumn from './IconColumn';
+import { NUMBER_GRAPH_CAP } from '../../constants';
+import { Box } from '@mui/system';
+import Header from 'packages/ui/src/Graph/common/BaseChart/Header';
+import { useGraphStyles } from './Graph.styles';
 
 const useStyles = makeStyles()((theme) => ({
   button: {
@@ -42,6 +46,8 @@ interface GraphProps {
 }
 
 const Graph = ({ row, endpoint }: GraphProps): JSX.Element => {
+  const { classes } = useGraphStyles();
+
   const [areaThresholdLines, setAreaThresholdLines] = useState();
 
   const start = lastDayPeriod.getStart().toISOString();
@@ -64,32 +70,51 @@ const Graph = ({ row, endpoint }: GraphProps): JSX.Element => {
 
   const rest = areaThresholdLines ? { shapeLines: areaThresholdLines } : {};
 
+  const displayMetricsGraphCapMessage =
+    !isNil(data?.metrics.length) && data?.metrics.length > NUMBER_GRAPH_CAP;
+
   return (
     <Suspense fallback={<LoadingSkeleton height="100%" />}>
-      <FederatedComponent
-        path="/anomaly-detection/enableThresholdLines"
-        styleMenuSkeleton={{ height: 0, width: 0 }}
-        type={row?.type}
-        getShapeLines={getShapeLines}
-      />
-      <LineChart
-        loading={isFetching || isLoading || !data}
-        data={data}
-        end={end}
-        height={200}
-        legend={{ mode: 'grid', placement: 'bottom' }}
-        lineStyle={{ lineWidth: 1 }}
-        start={start}
-        tooltip={{ mode: 'hidden' }}
-        displayAnchor={{
-          displayGuidingLines: false,
-          displayTooltipsGuidingLines: false
-        }}
-        timeShiftZones={{
-          enable: false
-        }}
-        {...rest}
-      />
+      {displayMetricsGraphCapMessage ? (
+        <Box height={200}>
+          <Header
+            title={data?.global.title}
+            header={{
+              displayTitle: true
+            }}
+          />
+          <Box className={classes.graphsCapMessage}>
+            <Typography variant='h6'>{labelTooManyGraphsToDisplay}</Typography>
+          </Box>
+        </Box>
+      ) : (
+        <>
+          <FederatedComponent
+            path="/anomaly-detection/enableThresholdLines"
+            styleMenuSkeleton={{ height: 0, width: 0 }}
+            type={row?.type}
+            getShapeLines={getShapeLines}
+          />
+          <LineChart
+            loading={isFetching || isLoading || !data}
+            data={data}
+            end={end}
+            height={200}
+            legend={{ mode: 'grid', placement: 'bottom' }}
+            lineStyle={{ lineWidth: 1 }}
+            start={start}
+            tooltip={{ mode: 'hidden' }}
+            displayAnchor={{
+              displayGuidingLines: false,
+              displayTooltipsGuidingLines: false
+            }}
+            timeShiftZones={{
+              enable: false
+            }}
+            {...rest}
+          />
+        </>
+      )}
     </Suspense>
   );
 };

@@ -6,7 +6,7 @@ import {
   type TooltipData,
   useFetchQuery
 } from '@centreon/ui';
-import { path } from 'ramda';
+import { isNil, path } from 'ramda';
 import { type MutableRefObject, useState } from 'react';
 import FederatedComponent from '../../../../components/FederatedComponents';
 import MemoizedGraphActions from '../../../Graph/Performance/GraphActions';
@@ -15,6 +15,10 @@ import type { ResourceDetails } from '../../models';
 import Comment from './Comment';
 import { useChartGraphStyles } from './chartGraph.styles';
 import useRetrieveTimeLine from './useRetrieveTimeLine';
+import { Box, Typography } from '@mui/material';
+import Header from 'packages/ui/src/Graph/common/BaseChart/Header';
+import { NUMBER_GRAPH_CAP } from '../../../constants';
+import { labelTooManyGraphsToDisplay } from '../../../translatedLabels';
 
 interface Props {
   graphTimeParameters?: Parameters;
@@ -86,42 +90,62 @@ const ChartGraph = ({
 
   const rest = areaThresholdLines ? { shapeLines: areaThresholdLines } : {};
 
+  const displayMetricsGraphCapMessage =
+    !isNil(data?.metrics.length) && data?.metrics.length > NUMBER_GRAPH_CAP;
+
   return (
     <>
-      <FederatedComponent
-        path="/anomaly-detection/enableThresholdLines"
-        styleMenuSkeleton={{ height: 0, width: 0 }}
-        type={resource?.type}
-        getShapeLines={getShapeLines}
-      />
-      <LineChart
-        loading={isFetching || isLoading || !data}
-        annotationEvent={{ data: timeLineData }}
-        containerStyle={classes.container}
-        getRef={getRef}
-        data={data}
-        end={graphTimeParameters?.end}
-        height={280}
-        legend={{ mode: 'grid', placement: 'bottom' }}
-        lineStyle={{ lineWidth: 1 }}
-        header={{ extraComponent: graphActions }}
-        tooltip={{
-          renderComponent: ({
-            data,
-            hideTooltip
-          }: TooltipData): JSX.Element => (
-            <Comment
-              commentDate={data}
-              hideAddCommentTooltip={hideTooltip}
-              resource={resource}
-            />
-          )
-        }}
-        start={graphTimeParameters?.start}
-        timeShiftZones={{ enable: true, getInterval }}
-        zoomPreview={{ enable: true, getInterval }}
-        {...rest}
-      />
+      {displayMetricsGraphCapMessage ? (
+        <Box className={classes.container} height={280}>
+          <Header
+            title={data?.global.title}
+            header={{
+              displayTitle: true,
+              extraComponent: graphActions
+            }}
+          />
+          <Box className={classes.graphsCapMessage}>
+            <Typography variant='h6'>{labelTooManyGraphsToDisplay}</Typography>
+          </Box>
+        </Box>
+      ) : (
+        <>
+          <FederatedComponent
+            path="/anomaly-detection/enableThresholdLines"
+            styleMenuSkeleton={{ height: 0, width: 0 }}
+            type={resource?.type}
+            getShapeLines={getShapeLines}
+          />
+          <LineChart
+            loading={isFetching || isLoading || !data}
+            annotationEvent={{ data: timeLineData }}
+            containerStyle={classes.container}
+            getRef={getRef}
+            data={data}
+            end={graphTimeParameters?.end}
+            height={280}
+            legend={{ mode: 'grid', placement: 'bottom' }}
+            lineStyle={{ lineWidth: 1 }}
+            header={{ extraComponent: graphActions }}
+            tooltip={{
+              renderComponent: ({
+                data,
+                hideTooltip
+              }: TooltipData): JSX.Element => (
+                <Comment
+                  commentDate={data}
+                  hideAddCommentTooltip={hideTooltip}
+                  resource={resource}
+                />
+              )
+            }}
+            start={graphTimeParameters?.start}
+            timeShiftZones={{ enable: true, getInterval }}
+            zoomPreview={{ enable: true, getInterval }}
+            {...rest}
+          />
+        </>
+      )}
     </>
   );
 };
