@@ -14,7 +14,26 @@ try {
   const tag = gitBranchName === 'develop' ? 'latest' : gitBranchName;
 
   getPackageInformations().then((package) => {
-    core.setOutput("package_version", '25.10.9')
+    const latestPackageVersion = package['dist-tags'][tag];
+
+    if (latestPackageVersion && tag === 'latest') {
+      const year = new Date().getFullYear() - 2000;
+      const month = new Date().getMonth() + 1;
+      const firstMonthVersion = `${year}.${month}.0`;
+
+      if (compareVersions(latestPackageVersion, firstMonthVersion) === -1) {
+        core.setOutput("package_version", firstMonthVersion);
+        core.setOutput("skip-bump-version", 1);
+        return;
+      }
+    }
+
+    if (latestPackageVersion && compareVersions(latestPackageVersion, core.getInput('current_package_version')) === -1) {
+      core.setOutput("package_version", core.getInput('current_package_version'));
+      return;
+    }
+
+    core.setOutput("package_version", latestPackageVersion || '')
   });
 } catch (error) {
   core.setFailed(error.message);
