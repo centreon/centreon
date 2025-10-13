@@ -1168,7 +1168,7 @@ msgstr "Type d'agent"
 
 #: centreon/www/install/dashboard_widgets.php
 msgid "Aggregation frequency"
-msgstr ""
+msgstr "Fréquence d'agrégation"
 
 #: centreon/www/include/reporting/dashboard/csvExport/csv_HostGroupLogs.php
 #: centreon/www/include/reporting/dashboard/csvExport/csv_HostLogs.php
@@ -1447,7 +1447,7 @@ msgstr ""
 
 #: centreon/www/include/options/accessLists/reloadACL/reloadACL.php
 msgid "An error occurred"
-msgstr ""
+msgstr "Une erreur est survenue"
 
 #: centreon/www/install/front_translate.php
 msgid "An error occurred during authentication"
@@ -1484,6 +1484,8 @@ msgstr ""
 #: centreon/src/Core/Platform/Application/UseCase/UpdateVersions/UpdateVersionsException.php
 msgid "An error occurred when writing engine context configuration"
 msgstr ""
+"Une erreur s'est produite lors de l'écriture de la configuration du contexte "
+"moteur"
 
 #: centreon/src/Core/Broker/Application/Exception/BrokerException.php
 #, php-format
@@ -1648,6 +1650,10 @@ msgstr "Au moins une relation d'autorisation est requise"
 msgid "At least one column must be selected"
 msgstr "Au moins une colonne doit être sélectionnée"
 
+#: centreon/www/install/front_translate.php
+msgid "At least one connection mode must be enabled."
+msgstr "Au moins un des modes de connexion doit être activé."
+
 #: centreon/src/Core/ResourceAccess/Application/Exception/RuleException.php
 msgid "At least one contact or contactgroup should be linked to the rule"
 msgstr "Au moins un contact ou un groupe de contacts doit être lié à la règle."
@@ -1706,10 +1712,6 @@ msgstr "Lier à un Remote Server principal"
 #: centreon/www/include/Administration/parameters/general/form.php
 msgid "Attempt"
 msgstr "Tentative"
-
-#: centreon/www/install/front_translate.php
-msgid "Au moins un des modes de connexion doit être activé."
-msgstr ""
 
 #: centreon/www/include/Administration/parameters/centstorage/form.php
 msgid "Audit log activation"
@@ -2151,15 +2153,15 @@ msgstr "Historique du statut d’une Activité Métier"
 
 #: centreon/www/install/front_translate.php
 msgid "Business View"
-msgstr ""
+msgstr "Vue métier"
 
 #: centreon/www/install/front_translate.php
 msgid "Business Views"
-msgstr "Vues métiers"
+msgstr "Vues métier"
 
 #: centreon/www/install/front_translate.php
 msgid "Business Views events"
-msgstr "Événements des Vues Métier"
+msgstr "Évènements des Vues Métier"
 
 #: centreon/www/install/front_translate.php
 msgid "Business view"
@@ -2537,6 +2539,9 @@ msgid ""
 "                                             be created for monitoring "
 "engine '%s'. Please check its path or create it"
 msgstr ""
+"Le répertoire '%s' de configuration de Centreon Broker n'existe pas et ne "
+"peut être créé pour le moteur de supervision '%s'. Merci de vérifier le "
+"chemin du répertoire ou de le créer"
 
 #: centreon/www/class/centreon-clapi/centreon.Config.Poller.class.php
 #, php-format
@@ -3662,6 +3667,9 @@ msgid ""
 "Could not find configuration directory '%s' for monitoring engine '%s'.\n"
 "                                 Please check its path or create it"
 msgstr ""
+"Impossible de trouver le répertoire de configuration '%s' pour le moteur de "
+"supervision '%s'.\n"
+"Veuillez vérifier son chemin ou le créer"
 
 #: centreon/src/CentreonRemote/Infrastructure/Service/PollerInteractionService.php
 #: centreon/www/include/configuration/configGenerate/xml/moveFiles.php
@@ -4584,7 +4592,7 @@ msgstr "Description"
 
 #: centreon/www/include/options/media/images/formDirectory.php
 msgid "Destination Directory"
-msgstr ""
+msgstr "Répertoire de destination"
 
 #: centreon/www/include/options/media/images/formDirectory.php
 msgid "Destination directory"
@@ -4905,7 +4913,7 @@ msgstr "Afficher la disponibilité et la performance sous forme de"
 
 #: centreon/www/install/dashboard_widgets.php
 msgid "Display availability as"
-msgstr ""
+msgstr "Afficher la disponibilité sous forme de"
 
 #: centreon/www/install/dashboard_widgets.php
 msgid "Display average as"
@@ -5035,6 +5043,8 @@ msgstr ""
 #: centreon/www/install/dashboard_widgets.php
 msgid "Displays availability, performance and alerts for a Business Activity"
 msgstr ""
+"Affiche la disponibilité, les performances et les alertes d'une Activité "
+"Métier"
 
 #: centreon/www/install/dashboard_widgets.php
 msgid "Displays data on resource status and events, centralized in a table."
@@ -5958,7 +5968,7 @@ msgstr "Configuration du moteur de collecte"
 
 #: centreon/www/install/front_translate.php
 msgid "Enter Regex"
-msgstr ""
+msgstr "Entrer une expression régulière"
 
 #: centreon/www/install/front_translate.php
 msgid "Enter regex mode"
@@ -5982,6 +5992,8 @@ msgstr "Erreur"
 #: centreon/www/include/configuration/configObject/host/DB-Func.php
 msgid "Error during creation (json encoding). See logs for more detail"
 msgstr ""
+"Erreur lors de la création (encodage json). Consultez les journaux pour plus "
+"de détails"
 
 #: centreon/src/Centreon/Infrastructure/Engine/EngineRepositoryFile.php
 #, php-format
@@ -5992,6 +6004,8 @@ msgstr "Erreur lors de la création du fichier de commande Centcore (%s)"
 msgid ""
 "Error during update. See logs for more detail or contact your administrator."
 msgstr ""
+"Erreur lors de la mise à jour. Consultez les journaux pour plus de détails "
+"ou contactez votre administrateur."
 
 #: centreon/src/Centreon/Domain/PlatformTopology/PlatformTopologyService.php
 #: centreon/src/Centreon/Infrastructure/PlatformTopology/Repository/Exception/PlatformTopologyRepositoryException.php
@@ -6449,7 +6463,7 @@ msgstr "Erreur lors de l'activation/désactivation de groupes d'hôtes"
 
 #: centreon/www/include/options/accessLists/menusACL/listsMenusAccess.php
 msgid "Error while fetching ACL topologies"
-msgstr ""
+msgstr "Erreur lors de la récupération des topologies ACL"
 
 #: centreon/src/Core/Dashboard/Application/Exception/DashboardException.php
 msgid "Error while linking a dashboard to its thumbnail"
@@ -7025,7 +7039,7 @@ msgstr "L'exécution a été trop longue et a atteint le délai d'attente"
 
 #: centreon/www/include/options/media/images/formImg.php
 msgid "Existing directory"
-msgstr ""
+msgstr "Répertoire existant"
 
 #: centreon/www/include/options/media/images/formImg.php
 msgid "Existing or new directory"
@@ -8497,7 +8511,7 @@ msgstr "L'hôte est actuellement en période d'arrêt"
 
 #: centreon/www/widgets/host-monitoring/src/index.php
 msgid "Host is flapping"
-msgstr ""
+msgstr "L'hôte est en bagotement"
 
 #: centreon/www/include/configuration/configObject/command/listCommand.php
 msgid "Host links (host template links)"
@@ -10470,7 +10484,7 @@ msgstr "Taille maximale en octets (Bytes)"
 
 #: centreon/www/install/front_translate.php
 msgid "Max value"
-msgstr ""
+msgstr "Valeur max"
 
 #: centreon/src/Centreon/Infrastructure/Service/CentreonPaginationService.php
 #, php-format
@@ -10723,7 +10737,7 @@ msgstr "Minimum"
 
 #: centreon/www/install/front_translate.php
 msgid "Min value"
-msgstr ""
+msgstr "Valeur min"
 
 #: centreon/www/install/front_translate.php
 msgid "Mini Centreon Logo"
@@ -11476,7 +11490,7 @@ msgstr "Le nom est déjà utilisé"
 
 #: centreon/www/include/configuration/configResources/formResources.php
 msgid "Name must start and end with a '$'"
-msgstr ""
+msgstr "Le nom doit commencer et se terminer par un '$'"
 
 #: centreon/www/install/centreon_broker_translation.php
 msgid "Name of the logger"
@@ -12317,7 +12331,7 @@ msgstr "Ouvert le"
 
 #: centreon/www/include/configuration/configNagios/formNagios.php
 msgid "Opentelemetry"
-msgstr ""
+msgstr "OpenTelemetry"
 
 #: centreon/www/include/configuration/configNagios/formNagios.php
 msgid "Optimization"
@@ -12895,7 +12909,7 @@ msgstr ""
 
 #: centreon/www/widgets/graph-monitoring/index.php
 msgid "Please select a graph period"
-msgstr ""
+msgstr "Veuillez sélectionner une période pour le graphique"
 
 #: centreon/www/install/front_translate.php
 msgid "Please select a metric"
@@ -12907,7 +12921,7 @@ msgstr "Veuillez sélectionner une ressource"
 
 #: centreon/www/widgets/graph-monitoring/index.php
 msgid "Please select a resource first"
-msgstr ""
+msgstr "Veuillez d'abord sélectionner une ressource"
 
 #: centreon/www/include/configuration/configObject/contact/displayNotification.php
 #: centreon/www/include/configuration/configObject/contactgroup/displayNotification.php
@@ -13285,7 +13299,7 @@ msgstr "Public"
 
 #: centreon/www/install/centreon_broker_translation.php
 msgid "Public certificate"
-msgstr ""
+msgstr "Certificat public"
 
 #: centreon/www/install/front_translate.php
 msgid "Public certificate (.crt,.cer)"
@@ -14529,7 +14543,7 @@ msgstr "Voir la documentation"
 
 #: centreon/www/widgets/host-monitoring/src/index.php
 msgid "See Graphs of this host"
-msgstr ""
+msgstr "Voir les graphiques pour cet hôte"
 
 #: centreon/www/install/front_translate.php
 msgid "See more information in the geoview"
@@ -16382,7 +16396,7 @@ msgstr "La classe %s n'existe pas"
 
 #: centreon/www/include/configuration/configServers/formServers.php
 msgid "The command format is invalid"
-msgstr ""
+msgstr "Le format de la commande est invalide"
 
 #: centreon/src/Centreon/Domain/Engine/EngineService.php
 msgid "The contact alias is empty"
@@ -16565,7 +16579,7 @@ msgstr ""
 
 #: centreon/www/install/front_translate.php
 msgid "The min value must be lower than the max value."
-msgstr ""
+msgstr "La valeur min doit être inférieure à la valeur max."
 
 #: centreon/www/include/Administration/parameters/general/form.php
 msgid "The minimum allowed value is 10"
@@ -16658,7 +16672,7 @@ msgstr "Ce chemin n'existe pas"
 
 #: centreon/www/include/configuration/configServers/formServers.php
 msgid "The path format is invalid"
-msgstr ""
+msgstr "Le format du chemin est invalide"
 
 #: centreon/src/Centreon/Domain/PlatformTopology/Exception/PlatformTopologyException.php
 #, php-format
@@ -16759,7 +16773,7 @@ msgstr "La règle d'accès aux ressources a été modifiée avec succès"
 
 #: centreon/www/include/configuration/configServers/formServers.php
 msgid "The script path is invalid"
-msgstr ""
+msgstr "Le chemin du script est invalide"
 
 #: centreon/www/include/configuration/configObject/service/DB-Func.php
 msgid ""
@@ -19319,7 +19333,7 @@ msgstr "Vous devez ajouter au moins un %s"
 
 #: centreon/src/Core/Resources/Infrastructure/Repository/DbReadResourceRepository.php
 msgid "You must provide at least one ACL provider"
-msgstr ""
+msgstr "Vous devez fournir au moins un fournisseur ACL"
 
 #: centreon/www/include/configuration/configGenerate/formGenerateFiles.php
 msgid "You need to select a least one polling instance."
@@ -19700,7 +19714,7 @@ msgstr "disponible"
 
 #: centreon/www/install/dashboard_widgets.php
 msgid "boundaries"
-msgstr ""
+msgstr "limites"
 
 #: centreon/www/install/front_translate.php
 msgid "business activity"
@@ -20074,7 +20088,7 @@ msgstr "vCenter/ESX"
 
 #: centreon/www/install/dashboard_widgets.php
 msgid "warningtext"
-msgstr ""
+msgstr "texte d'avertissement"
 
 #: centreon/www/install/front_translate.php
 msgid "will display all resources with host having alias containing"
