@@ -58,10 +58,10 @@ final class FindUsers
     public function __invoke(FindUsersPresenterInterface $presenter): void
     {
         try {
-            if ($hasAccessToAllUsers = $this->hasAccessToAllUsers()) {
+            $hasAccessToAllUsers = $this->hasAccessToAllUsers();
+            if ($hasAccessToAllUsers) {
                 $users = $this->readUserRepository->findAllByRequestParameters($this->requestParameters);
             } else {
-                $this->accessGroups = $this->readAccessGroupRepository->findByContact($this->user);
                 $accessGroupNames = array_map(
                     fn (AccessGroup $accessGroup): string => $accessGroup->getName(),
                     $this->accessGroups,
