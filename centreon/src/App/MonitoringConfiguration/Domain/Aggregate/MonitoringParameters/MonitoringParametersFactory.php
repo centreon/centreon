@@ -62,30 +62,14 @@ final readonly class MonitoringParametersFactory
                     )
                 )
             ),
-            monitoringDefaultAcknowledgementSticky: isset($optionsByName['monitoring_ack_sticky'])
-                ? (bool) $optionsByName['monitoring_ack_sticky']->value->value
-                : false,
-            monitoringDefaultAcknowledgementPersistent: isset($optionsByName['monitoring_ack_persistent'])
-                ? (bool) $optionsByName['monitoring_ack_persistent']->value->value
-                : false,
-            monitoringDefaultAcknowledgementNotify: isset($optionsByName['monitoring_ack_notify'])
-                ? (bool) $optionsByName['monitoring_ack_notify']->value->value
-                : false,
-            monitoringDefaultAcknowledgementWithServices: isset($optionsByName['monitoring_ack_svc'])
-                ? (bool) $optionsByName['monitoring_ack_svc']->value->value
-                : false,
-            monitoringDefaultAcknowledgementForceActiveChecks: isset($optionsByName['monitoring_ack_active_checks'])
-                ? (bool) $optionsByName['monitoring_ack_active_checks']->value->value
-                : false,
-            monitoringDefaultDowntimeFixed: isset($optionsByName['monitoring_dwt_fixed'])
-                ? (bool) $optionsByName['monitoring_dwt_fixed']->value->value
-                : false,
-            monitoringDefaultDowntimeWithServices: isset($optionsByName['monitoring_dwt_svc'])
-                ? (bool) $optionsByName['monitoring_dwt_svc']->value->value
-                : false,
-            isResourceStatusFullSearchEnabled: isset($optionsByName['resource_status_search_mode'])
-                ? (bool) $optionsByName['resource_status_search_mode']->value->value
-                : false,
+            monitoringDefaultAcknowledgementSticky: isset($optionsByName['monitoring_ack_sticky']) && (bool) $optionsByName['monitoring_ack_sticky']->value->value,
+            monitoringDefaultAcknowledgementPersistent: isset($optionsByName['monitoring_ack_persistent']) && (bool) $optionsByName['monitoring_ack_persistent']->value->value,
+            monitoringDefaultAcknowledgementNotify: isset($optionsByName['monitoring_ack_notify']) && (bool) $optionsByName['monitoring_ack_notify']->value->value,
+            monitoringDefaultAcknowledgementWithServices: isset($optionsByName['monitoring_ack_svc']) && (bool) $optionsByName['monitoring_ack_svc']->value->value,
+            monitoringDefaultAcknowledgementForceActiveChecks: isset($optionsByName['monitoring_ack_active_checks']) && (bool) $optionsByName['monitoring_ack_active_checks']->value->value,
+            monitoringDefaultDowntimeFixed: isset($optionsByName['monitoring_dwt_fixed']) && (bool) $optionsByName['monitoring_dwt_fixed']->value->value,
+            monitoringDefaultDowntimeWithServices: isset($optionsByName['monitoring_dwt_svc']) && (bool) $optionsByName['monitoring_dwt_svc']->value->value,
+            isResourceStatusFullSearchEnabled: isset($optionsByName['resource_status_search_mode']) && (bool) $optionsByName['resource_status_search_mode']->value->value,
         );
     }
 

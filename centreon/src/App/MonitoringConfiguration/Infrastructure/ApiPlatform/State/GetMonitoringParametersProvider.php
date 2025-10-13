@@ -47,9 +47,6 @@ final readonly class GetMonitoringParametersProvider implements ProviderInterfac
     ) {
     }
 
-    /**
-     * @return MonitoringParametersResource
-     */
     public function provide(Operation $operation, array $uriVariables = [], array $context = []): MonitoringParametersResource
     {
         $monitoringParametersOptions = $this->repository->findMonitoringParameters();
