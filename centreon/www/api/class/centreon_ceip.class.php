@@ -92,7 +92,6 @@ class CentreonCeip extends CentreonWebService
             ? [
                 'visitor' => $this->getVisitorInformation(),
                 'account' => $this->getAccountInformation(),
-                'agent' => $this->getAgentInformation(),
                 'excludeAllText' => true,
                 'ceip' => true,
             ]
@@ -373,73 +372,6 @@ class CentreonCeip extends CentreonWebService
         $sql = "SELECT `value` FROM `options` WHERE `key` = 'send_statistics' LIMIT 1";
 
         return $this->sqlFetchValue($sql) === '1';
-    }
-
-    /**
-     * Fetch CEIP Agent info.
-     *
-     * @throws PDOException
-     * @return array{
-     *   id: int,
-     *   enabled: bool,
-     *   infos: array{
-     *       agentMajor: string,
-     *       agentMinor: string,
-     *       agentPatch: int|null,
-     *       reverse: bool,
-     *       os: string,
-     *       osVersion: string,
-     *       nbAgent: int|null
-     *   }
-     * }
-     */
-    private function getAgentInformation(): array
-    {
-        $agents = [];
-        try {
-            $pearDBO = new CentreonDB(CentreonDB::LABEL_DB_REALTIME);
-            $query = <<<'SQL'
-                    SELECT `poller_id`, `enabled`, `infos`
-                    FROM `agent_information`
-                SQL;
-            $statement = $pearDBO->executeQuery($query);
-
-            while (is_array($row = $pearDBO->fetch($statement))) {
-                /** @var array{poller_id:int,enabled:int,infos:string} $row */
-                $decodedInfos = json_decode($row['infos'], true);
-                if (! is_array($decodedInfos)) {
-                    $this->logger->warning(
-                        "Invalid JSON format in agent_information table for poller_id {$row['poller_id']}",
-                        ['context' => $row]
-                    );
-
-                    continue;
-                }
-
-                $agents[] = [
-                    'id' => $row['poller_id'],
-                    'enabled' => (bool) $row['enabled'],
-                    'infos' => array_map(function ($info) {
-                        return [
-                            'agentMajor' => $info['agent_major'] ?? '',
-                            'agentMinor' => $info['agent_minor'] ?? '',
-                            'agentPatch' => $info['agent_patch'] ?? null,
-                            'reverse' => $info['reverse'],
-                            'os' => $info['os'] ?? '',
-                            'osVersion' => $info['os_version'] ?? '',
-                            'nbAgent' => $info['nb_agent'] ?? null,
-                        ];
-                    }, $decodedInfos),
-                ];
-            }
-        } catch (Throwable $exception) {
-            $this->logger->error(
-                context: ['context' => $exception],
-                message: $exception->getMessage(),
-            );
-        }
-
-        return $agents;
     }
 
     /**

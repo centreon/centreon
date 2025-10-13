@@ -88,4 +88,4 @@ export const labelByPollerTooltip =
   'If the agent is not allowed to connect to the poller for security reasons (e.g. when the poller is in a DMZ), you can use a poller-initiated connection.';
 
 export const labelAtLeastOneConnexionMode =
-  'Au moins un des modes de connexion doit être activé.';
+  'At least one connection mode must be enabled.';

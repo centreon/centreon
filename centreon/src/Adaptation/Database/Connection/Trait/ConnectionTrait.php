@@ -464,7 +464,7 @@ trait ConnectionTrait
         $query = mb_ltrim($query);
 
         // Check if the query starts with a valid SQL command
-        if (preg_match('/^(SELECT|EXPLAIN|SHOW|DESCRIBE|WITH)\b/i', $query) !== 1) {
+        if (preg_match('/^\(*\s*(SELECT|EXPLAIN|SHOW|DESCRIBE|WITH)\b/i', $query) !== 1) {
             throw ConnectionException::selectQueryBadFormat($query);
         }
     }

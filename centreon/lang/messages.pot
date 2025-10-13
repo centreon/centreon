@@ -1675,6 +1675,10 @@ msgstr ""
 msgid "At least one column must be selected"
 msgstr ""
 
+#: centreon/www/install/front_translate.php
+msgid "At least one connection mode must be enabled."
+msgstr ""
+
 #: centreon/src/Core/ResourceAccess/Application/Exception/RuleException.php
 msgid "At least one contact or contactgroup should be linked to the rule"
 msgstr ""
@@ -1728,10 +1732,6 @@ msgstr ""
 
 #: centreon/www/include/Administration/parameters/general/form.php
 msgid "Attempt"
-msgstr ""
-
-#: centreon/www/install/front_translate.php
-msgid "Au moins un des modes de connexion doit être activé."
 msgstr ""
 
 #: centreon/www/include/Administration/parameters/centstorage/form.php
@@ -11998,6 +11998,12 @@ msgstr ""
 
 #: centreon/www/include/Administration/parameters/remote/formRemote.php
 msgid "Must be a number between 1 and 65335 included."
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/escalation/formEscalation.php
+#: centreon/www/include/configuration/configObject/escalation/formEscalation.php
+#: centreon/www/include/configuration/configObject/escalation/formEscalation.php
+msgid "Must be a positive integer or 0"
 msgstr ""
 
 #: centreon/src/Core/Security/ProviderConfiguration/Domain/Exception/ConfigurationException.php
