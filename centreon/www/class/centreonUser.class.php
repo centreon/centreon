@@ -117,7 +117,6 @@ class CentreonUser
         $this->default_page = $user['default_page'] ?? CentreonAuth::DEFAULT_PAGE;
         $this->gmt = $user['contact_location'] ?? null;
         $this->showDeprecatedPages = (bool) ($user['show_deprecated_pages'] ?? false);
-        $this->showDeprecatedCustomViews = (bool) ($user['show_deprecated_custom_views'] ?? false);
         $this->theme = $user['contact_theme'] ?? 'light';
         // Initiate ACL
         $this->access = new CentreonACL($this->user_id, $this->admin);
