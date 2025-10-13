@@ -93,12 +93,12 @@ it(
             ->willReturn(false);
 
         $this->readAccessGroupRepository
-            ->expects($this->exactly(2))
+            ->expects($this->once())
             ->method('findByContact')
             ->willReturn([]);
 
         $this->user
-            ->expects($this->exactly(3))
+            ->expects($this->exactly(2))
             ->method('hasTopologyRole')
             ->willReturn(false);
 
@@ -169,12 +169,12 @@ it(
             ->willReturn(false);
 
         $this->readAccessGroupRepository
-            ->expects($this->exactly(2))
+            ->expects($this->once())
             ->method('findByContact')
             ->willReturn([]);
 
         $this->user
-            ->expects($this->exactly(2))
+            ->expects($this->exactly(1))
             ->method('hasTopologyRole')
             ->willReturnMap(
                 [
@@ -193,6 +193,6 @@ it(
         $response = $this->presenter->data;
         expect($response)->toBeInstanceOf(FindUsersResponse::class)
             ->and($response->users[0]->id)->toBe($this->contact->getId())
-            ->and($response->users[0]->name)->toBe($this->contact->getName());
+            ->and($response->users[0]->alias)->toBe($this->contact->getAlias());
     }
 );
