@@ -181,7 +181,7 @@ class DbReadNotificationRepository extends AbstractRepositoryRDB implements Read
              * @var array{
              *     contact_id: int,
              *     contact_name: string,
-             *     contact_email: string
+             *     contact_email: string,
              *     contact_alias: string
              * } $result
              */
@@ -269,7 +269,7 @@ class DbReadNotificationRepository extends AbstractRepositoryRDB implements Read
              * @var array{
              *     contact_id: int,
              *     contact_name: string,
-             *     contact_email: string
+             *     contact_email: string,
              *     contact_alias: string
              * } $result
              */
@@ -319,7 +319,7 @@ class DbReadNotificationRepository extends AbstractRepositoryRDB implements Read
              * @var array{
              *     contact_id: int,
              *     contact_name: string,
-             *     contact_email: string
+             *     contact_email: string,
              *     contact_alias: string
              * } $result
              */
