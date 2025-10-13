@@ -93,7 +93,7 @@ it(
             ->willReturn(false);
 
         $this->readAccessGroupRepository
-            ->expects($this->exactly(2))
+            ->expects($this->once())
             ->method('findByContact')
             ->willReturn([]);
 
@@ -169,7 +169,7 @@ it(
             ->willReturn(false);
 
         $this->readAccessGroupRepository
-            ->expects($this->exactly(2))
+            ->expects($this->once())
             ->method('findByContact')
             ->willReturn([]);
 
