@@ -1,6 +1,8 @@
 import { Column, Group, InputProps } from '@centreon/ui';
 import { ObjectSchema } from 'yup';
 
+import type { PrimitiveAtom } from 'jotai';
+
 export type NamedEntity = {
   id: number;
   name: string;
@@ -43,13 +45,13 @@ export interface Actions {
   viewDetails?: boolean;
 }
 
-export interface ConfigurationBase {
+export interface ConfigurationBase<TFilters> {
   resourceType: ResourceType;
   columns: Array<Column>;
   form: Form;
   api: APIType;
   filtersConfiguration: Array<FilterConfiguration>;
-  filtersInitialValues: Filters;
+  filtersInitialValues: TFilters;
   defaultSelectedColumnIds: Array<string>;
   actions?: Actions;
   labels: {
@@ -64,8 +66,8 @@ export interface ConfigurationBase {
   };
   columnsAtomKey: string;
   filtersAtomKey: string;
-  selectedColumnIdsAtom;
-  filtersAtom;
+  selectedColumnIdsAtom: PrimitiveAtom<Array<string>>;
+  filtersAtom: PrimitiveAtom<TFilters>;
 }
 
 export enum FieldType {

@@ -6,7 +6,7 @@ import { configurationAtom } from './atoms';
 
 import Page from './Page';
 
-const Base = ({
+const Base = <TFilters,>({
   columns,
   resourceType,
   form,
@@ -20,7 +20,7 @@ const Base = ({
   columnsAtomKey,
   filtersAtom,
   filtersAtomKey
-}: ConfigurationBase): JSX.Element => {
+}: ConfigurationBase<TFilters>): JSX.Element => {
   const [configuration, setConfiguration] = useAtom(configurationAtom);
   const [filters, setFilters] = useAtom(filtersAtom);
   const setSelectedColumnIds = useSetAtom(selectedColumnIdsAtom);
@@ -67,7 +67,7 @@ const Base = ({
   }
 
   return (
-    <Page
+    <Page<TFilters>
       columns={columns}
       resourceType={resourceType}
       form={form}

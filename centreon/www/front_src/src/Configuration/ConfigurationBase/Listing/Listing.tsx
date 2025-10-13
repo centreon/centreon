@@ -1,4 +1,5 @@
 import { Column, MemoizedListing } from '@centreon/ui';
+import type { PrimitiveAtom } from 'jotai';
 
 import { useAtom } from 'jotai';
 import { JSX } from 'react';
@@ -8,18 +9,18 @@ import useColumns from './Columns/useColumns';
 import { selectedRowsAtom } from './atoms';
 import useListing from './useListing';
 
-interface Props {
+interface Props<TFilters> {
   columns: Array<Column>;
   hasWriteAccess: boolean;
   actions?: Actions;
   isLoading: boolean;
   filtersAtomKey: string;
-  filtersAtom;
+  filtersAtom: PrimitiveAtom<TFilters>;
   data;
-  selectedColumnIdsAtom;
+  selectedColumnIdsAtom: PrimitiveAtom<Array<string>>;
 }
 
-const Listing = ({
+const Listing = <TFilters,>({
   columns,
   hasWriteAccess,
   actions,
@@ -28,7 +29,7 @@ const Listing = ({
   selectedColumnIdsAtom,
   filtersAtom,
   filtersAtomKey
-}: Props): JSX.Element => {
+}: Props<TFilters>): JSX.Element => {
   const [selectedRows, setSelectedRows] = useAtom(selectedRowsAtom);
 
   const { staticColumns } = useColumns();

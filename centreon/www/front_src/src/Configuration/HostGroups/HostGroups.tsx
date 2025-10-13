@@ -18,6 +18,7 @@ import { ResourceType } from '../models';
 import { filtersAtom, selectedColumnIdsAtom } from './atoms';
 import useHostGroups from './useHostGroups';
 
+import { Filters } from './models';
 import {
   labelAddHostGroup,
   labelHostGroups,
@@ -37,7 +38,7 @@ const HostGroups = () => {
   const { api, filtersConfiguration } = useHostGroups();
 
   return (
-    <ConfigurationBase
+    <ConfigurationBase<Filters>
       filtersAtomKey={filtersAtomKey}
       filtersAtom={filtersAtom}
       columnsAtomKey={columnsAtomKey}

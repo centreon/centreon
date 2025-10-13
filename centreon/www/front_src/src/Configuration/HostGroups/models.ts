@@ -32,3 +32,10 @@ export interface HostGroupItem extends NamedEntity {
   resourceAccessRules?: Array<NamedEntity>;
   icon?: null | (NamedEntity & { url: string });
 }
+
+export type Filters = {
+  name: string;
+  alias: string;
+  enabeld?: boolean;
+  disabled?: boolean;
+};

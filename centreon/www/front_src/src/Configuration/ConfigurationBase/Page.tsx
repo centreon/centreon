@@ -50,7 +50,7 @@ const WelcomePage = ({
   );
 };
 
-const Page = ({
+const Page = <TFilters,>({
   columns,
   resourceType,
   form,
@@ -60,7 +60,7 @@ const Page = ({
   filtersAtom,
   filtersAtomKey
 }: Pick<
-  ConfigurationBase,
+  ConfigurationBase<TFilters>,
   | 'columns'
   | 'form'
   | 'resourceType'
@@ -110,7 +110,7 @@ const Page = ({
               filtersAtomKey={filtersAtomKey}
             />
           ) : (
-            <Listing
+            <Listing<TFilters>
               selectedColumnIdsAtom={selectedColumnIdsAtom}
               columns={columns}
               hasWriteAccess={!!actions?.edit}

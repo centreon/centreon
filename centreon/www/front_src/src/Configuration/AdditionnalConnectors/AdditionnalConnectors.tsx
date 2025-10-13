@@ -14,6 +14,7 @@ import {
 } from './utils';
 
 import { filtersAtom, selectedColumnIdsAtom } from './atoms';
+import { Filters } from './models';
 
 import {
   labelAddAdditionalConfigurations,
@@ -32,7 +33,7 @@ const AdditionnalConnectors = () => {
   const { api, filtersConfiguration } = useAdditionnalConnectors();
 
   return (
-    <ConfigurationBase
+    <ConfigurationBase<Filters>
       columnsAtomKey={columnsAtomKey}
       filtersAtomKey={filtersAtomKey}
       filtersAtom={filtersAtom}
