@@ -371,7 +371,7 @@ class DbReadMetricRepository extends AbstractRepositoryDRB implements ReadMetric
         if ([] !== $accessGroupIds) {
             $accessGroupIdsQuery = \implode(',', $accessGroupIds);
             $query .= <<<SQL
-                    INNER JOIN `:dbstg`.`centreon_acl` acl ON acl.`service_id` = `:dbstg`.index_data.`service_id`
+                    INNER JOIN `:dbstg`.`centreon_acl` acl ON acl.`service_id` = id.`service_id`
                     AND acl.`group_id` IN ({$accessGroupIdsQuery})
                 SQL;
         }
