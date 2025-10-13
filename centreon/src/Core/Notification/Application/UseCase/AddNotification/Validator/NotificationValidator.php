@@ -27,6 +27,7 @@ use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Contact\Application\Repository\ReadContactGroupRepositoryInterface;
 use Core\Contact\Application\Repository\ReadContactRepositoryInterface;
+use Core\Contact\Domain\AdminResolver;
 use Core\Contact\Domain\Model\BasicContact;
 use Core\Contact\Domain\Model\ContactGroup;
 use Core\Notification\Application\Exception\NotificationException;
@@ -45,6 +46,7 @@ class NotificationValidator
         private readonly ReadContactGroupRepositoryInterface $contactGroupRepository,
         private readonly ReadAccessGroupRepositoryInterface $accessGroupRepository,
         private readonly ReadTimePeriodRepositoryInterface $readTimePeriodRepository,
+        private readonly AdminResolver $adminResolver,
     ) {
     }
 
@@ -102,7 +104,7 @@ class NotificationValidator
     {
         $contactIdsToValidate = array_unique($contactIdsToValidate);
 
-        if ($this->currentContact->isAdmin()) {
+        if ($this->adminResolver->isAdmin($this->currentContact)) {
             $existingContactIds = $this->contactRepository->retrieveExistingContactIds($contactIdsToValidate);
         } else {
             $accessGroups = $this->accessGroupRepository->findByContact($this->currentContact);
@@ -137,7 +139,7 @@ class NotificationValidator
     {
         $contactGroupIds = array_unique($contactGroupIds);
 
-        if ($this->currentContact->isAdmin()) {
+        if ($this->adminResolver->isAdmin($this->currentContact)) {
             $contactGroups = $this->contactGroupRepository->findByIds($contactGroupIds);
         } else {
             $accessGroups = $this->accessGroupRepository->findByContact($this->currentContact);

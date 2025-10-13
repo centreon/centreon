@@ -30,6 +30,7 @@ use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Centreon\Infrastructure\RequestParameters\RequestParametersTranslatorException;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
+use Core\Contact\Domain\AdminResolver;
 use Core\Notification\Application\Exception\NotificationException;
 use Core\Notification\Application\Repository\NotificationResourceRepositoryInterface;
 use Core\Notification\Application\Repository\NotificationResourceRepositoryProviderInterface;
@@ -48,6 +49,7 @@ final class FindNotifications
         private readonly NotificationResourceRepositoryProviderInterface $repositoryProvider,
         private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
         private readonly RequestParametersInterface $requestParameters,
+        private readonly AdminResolver $adminResolver,
     ) {
     }
 
@@ -115,7 +117,7 @@ final class FindNotifications
             'Retrieving user counts for notifications',
             ['notification' => implode(', ', $notificationsIds)]
         );
-        if ($this->user->isAdmin()) {
+        if ($this->adminResolver->isAdmin($this->user)) {
             $numberOfUsers = $this->notificationRepository->countContactsByNotificationIds($notificationsIds);
         } else {
             $accessGroups = $this->readAccessGroupRepository->findByContact($this->user);
@@ -133,7 +135,7 @@ final class FindNotifications
             'Retrieving resource counts for notifications',
             ['notification' => implode(', ', $notificationsIds)]
         );
-        if ($this->user->isAdmin()) {
+        if ($this->adminResolver->isAdmin($this->user)) {
             $numberOfResources = $this->countResourcesForAdmin($repositories, $notificationsIds);
         } else {
             $numberOfResources = $this->countResourcesWithACL($repositories, $notificationsIds);

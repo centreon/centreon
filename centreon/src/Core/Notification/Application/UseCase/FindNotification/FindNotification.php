@@ -31,6 +31,7 @@ use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
+use Core\Contact\Domain\AdminResolver;
 use Core\Contact\Domain\Model\ContactGroup;
 use Core\Notification\Application\Exception\NotificationException;
 use Core\Notification\Application\Repository\NotificationResourceRepositoryProviderInterface;
@@ -45,17 +46,12 @@ final class FindNotification
 {
     use LoggerTrait;
 
-    /**
-     * @param ReadNotificationRepositoryInterface $notificationRepository
-     * @param ContactInterface $user
-     * @param NotificationResourceRepositoryProviderInterface $resourceRepositoryProvider
-     * @param ReadAccessGroupRepositoryInterface $readAccessGroupRepository
-     */
     public function __construct(
         private readonly ReadNotificationRepositoryInterface $notificationRepository,
         private readonly ContactInterface $user,
         private readonly NotificationResourceRepositoryProviderInterface $resourceRepositoryProvider,
         private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
+        private readonly AdminResolver $adminResolver,
     ) {
     }
 
@@ -126,7 +122,7 @@ final class FindNotification
      */
     private function findNotificationUsers(int $notificationId): array
     {
-        if ($this->user->isAdmin()) {
+        if ($this->adminResolver->isAdmin($this->user)) {
             $notifiedUsers = array_values($this->notificationRepository->findUsersByNotificationId($notificationId));
         } else {
             $accessGroups = $this->readAccessGroupRepository->findByContact($this->user);
@@ -151,7 +147,7 @@ final class FindNotification
     {
         $resources = [];
         foreach ($this->resourceRepositoryProvider->getRepositories() as $repository) {
-            if ($this->user->isAdmin()) {
+            if ($this->adminResolver->isAdmin($this->user)) {
                 $resource = $repository->findByNotificationId($notificationId);
             } else {
                 $accessGroups = $this->readAccessGroupRepository->findByContact($this->user);
@@ -177,7 +173,7 @@ final class FindNotification
      */
     private function findContactGroupsByNotificationId(int $notificationId): array
     {
-        if ($this->user->isAdmin()) {
+        if ($this->adminResolver->isAdmin($this->user)) {
             return $this->notificationRepository->findContactGroupsByNotificationId($notificationId);
         }
         $accessGroups = $this->readAccessGroupRepository->findByContact($this->user);
