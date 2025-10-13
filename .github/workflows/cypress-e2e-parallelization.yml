@@ -228,7 +228,8 @@ jobs:
         if: ${{ always() }}
         run: |
           feature_name=$(basename "${{ matrix.feature }}" | sed 's|\(.*\)\..*|\1|')
-          report_path="${{ inputs.module_name }}/tests/e2e/results/reports/${feature_name}-report.json"
+          ls
+          report_path="results/reports/${feature_name}-report.json"
 
           if [ -f "$report_path" ]; then
             jq 'if length > 0 then .[0] |= (.tags |= map(if .name | startswith("@REQ_MON-") then .name |= "@${{ steps.get-test-execution-key.outputs.test_execution_key }}" else . end)) | (.[] |= (if has("elements") then .elements[].tags |= map(if .name | startswith("@REQ_MON-") then .name |= "@${{ steps.get-test-execution-key.outputs.test_execution_key }}" else . end) else . end)) else . end' "$report_path" > "$report_path_updated"
