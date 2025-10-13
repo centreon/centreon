@@ -182,6 +182,7 @@ class DbReadNotificationRepository extends AbstractRepositoryRDB implements Read
              *     contact_id: int,
              *     contact_name: string,
              *     contact_email: string
+             *     contact_alias: string
              * } $result
              */
             $users[] = new Contact(
@@ -269,6 +270,7 @@ class DbReadNotificationRepository extends AbstractRepositoryRDB implements Read
              *     contact_id: int,
              *     contact_name: string,
              *     contact_email: string
+             *     contact_alias: string
              * } $result
              */
             $users[] = new Contact(
@@ -318,6 +320,7 @@ class DbReadNotificationRepository extends AbstractRepositoryRDB implements Read
              *     contact_id: int,
              *     contact_name: string,
              *     contact_email: string
+             *     contact_alias: string
              * } $result
              */
             $users[$result['contact_id']] = new Contact(
