@@ -103,7 +103,7 @@ final class FindUsers
             $presenter->presentResponse($this->createResponse($users, $hasAccessToAllUsers));
         } catch (RequestParametersTranslatorException $ex) {
             $presenter->presentResponse(new ErrorResponse($ex->getMessage()));
-            $this->error("User listing failed : " . $ex->getMessage(), [
+            $this->error('User listing failed : ' . $ex->getMessage(), [
                 'status' => 'failure',
                 'initiator_user' => $this->user->getAlias(),
             ]);
@@ -111,7 +111,7 @@ final class FindUsers
             $presenter->presentResponse(
                 new ErrorResponse(UserException::errorWhileSearching($ex))
             );
-            $this->error("User listing failed : " . $ex->getMessage(), [
+            $this->error('User listing failed : ' . $ex->getMessage(), [
                 'status' => 'failure',
                 'initiator_user' => $this->user->getAlias(),
             ]);
