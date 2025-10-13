@@ -36,13 +36,31 @@ $errorMessage = '';
  */
 
 /** -------------------------------------- Broker configuration -------------------------------------- */
-$fixBrokerConfigTypo = function () use ($pearDB, &$errorMessage): void {
+$fixBrokerConfigTypo = function () use ($pearDB, &$errorMessage, $version): void {
     $errorMessage = 'Failed to fix typo in broker configuration';
-    $pearDB->executeStatement(
+
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: Fixing typo in broker configuration"
+    );
+
+    $countUpdate = $pearDB->executeStatement(
         <<<'SQL'
             UPDATE cfg_centreonbroker_info SET config_key = 'negotiation' WHERE config_key = 'negociation'
             SQL
     );
+
+    if ($countUpdate > 0) {
+        CentreonLog::create()->info(
+            logTypeId: CentreonLog::TYPE_UPGRADE,
+            message: "UPGRADE - {$version}: Typo in broker configuration fixed ({$countUpdate} rows updated)"
+        );
+    } else {
+        CentreonLog::create()->info(
+            logTypeId: CentreonLog::TYPE_UPGRADE,
+            message: "UPGRADE - {$version}: No typo to fix found in broker configuration"
+        );
+    }
 };
 
 try {
