@@ -25060,3 +25060,6 @@ msgstr "periodo de tiempo"
 #: unknown
 msgid "topology_name"
 msgstr "Nombre de la topología."
+
+# msgid "Too many elements to be displayed (>20)"
+# msgstr ""
