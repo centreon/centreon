@@ -23,9 +23,9 @@ import { labelGraph, labelServiceGraphs, labelTooManyGraphsToDisplay } from '../
 
 import HoverChip from './HoverChip';
 import IconColumn from './IconColumn';
-import { NUMBER_GRAPH_CAP } from '../../constants';
+import { graphsCapNumber } from '../../constants';
 import { Box } from '@mui/system';
-import Header from 'packages/ui/src/Graph/common/BaseChart/Header';
+import { Header } from '@centreon/ui';
 import { useGraphStyles } from './Graph.styles';
 
 const useStyles = makeStyles()((theme) => ({
@@ -71,7 +71,7 @@ const Graph = ({ row, endpoint }: GraphProps): JSX.Element => {
   const rest = areaThresholdLines ? { shapeLines: areaThresholdLines } : {};
 
   const displayMetricsGraphCapMessage =
-    !isNil(data?.metrics.length) && data?.metrics.length > NUMBER_GRAPH_CAP;
+    !isNil(data?.metrics.length) && data?.metrics.length > graphsCapNumber;
 
   return (
     <Suspense fallback={<LoadingSkeleton height="100%" />}>

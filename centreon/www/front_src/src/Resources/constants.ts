@@ -1,1 +1,1 @@
-export const NUMBER_GRAPH_CAP = 20;
+export const graphsCapNumber = 20;

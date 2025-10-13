@@ -16,8 +16,8 @@ import Comment from './Comment';
 import { useChartGraphStyles } from './chartGraph.styles';
 import useRetrieveTimeLine from './useRetrieveTimeLine';
 import { Box, Typography } from '@mui/material';
-import Header from 'packages/ui/src/Graph/common/BaseChart/Header';
-import { NUMBER_GRAPH_CAP } from '../../../constants';
+import { Header } from '@centreon/ui';
+import { graphsCapNumber } from '../../../constants';
 import { labelTooManyGraphsToDisplay } from '../../../translatedLabels';
 
 interface Props {
@@ -91,7 +91,7 @@ const ChartGraph = ({
   const rest = areaThresholdLines ? { shapeLines: areaThresholdLines } : {};
 
   const displayMetricsGraphCapMessage =
-    !isNil(data?.metrics.length) && data?.metrics.length > NUMBER_GRAPH_CAP;
+    !isNil(data?.metrics.length) && data?.metrics.length > graphsCapNumber;
 
   return (
     <>
