@@ -224,16 +224,19 @@ jobs:
           CYPRESS_INTERNAL_REPO_USERNAME: ${{ secrets.artifactory_internal_repo_username }}
           CYPRESS_INTERNAL_REPO_PASSWORD: ${{ secrets.artifactory_internal_repo_password }}
 
+      - name: Ensure logs directory exists
+        run: mkdir -p ${{ inputs.module_name }}/tests/e2e/results/cucumber-logs/
+        shell: bash
+
       - name: Rename JSON report
         if: ${{ always() }}
         run: |
           feature_name=$(basename "${{ matrix.feature }}" | sed 's|\(.*\)\..*|\1|')
           ls
           report_path="results/reports/${feature_name}-report.json"
-
+          report_path_updated="results/cucumber-logs/${feature_name}-report.json"
           echo "report path: $report_path"
 
-          ls results/reports
           if [ -f "$report_path" ]; then
             jq 'if length > 0 then .[0] |= (.tags |= map(if .name | startswith("@REQ_MON-") then .name |= "@${{ steps.get-test-execution-key.outputs.test_execution_key }}" else . end)) | (.[] |= (if has("elements") then .elements[].tags |= map(if .name | startswith("@REQ_MON-") then .name |= "@${{ steps.get-test-execution-key.outputs.test_execution_key }}" else . end) else . end)) else . end' "$report_path" > "$report_path_updated"
             echo "::group::${feature_name}-report.json"
@@ -244,6 +247,15 @@ jobs:
             exit 1
           fi
         shell: bash
+
+      - name: Replace / with - in the feature path
+        id: feature-path
+        if: ${{ ! cancelled() }}
+        run: |
+          feature_name="${{ matrix.feature }}"
+          feature_name_with_dash="${feature_name//\//-}"
+          echo "Modified Feature Name: $feature_name_with_dash"
+          echo "feature_name_with_dash=$feature_name_with_dash" >> $GITHUB_OUTPUT
 
       - name: Upload test results
         if: failure()
