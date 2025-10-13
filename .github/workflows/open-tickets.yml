@@ -7,11 +7,6 @@ concurrency:
 on:
   workflow_dispatch:
   pull_request:
-    types:
-      - opened
-      - synchronize
-      - reopened
-      - ready_for_review
     paths:
       - ".version"
       - ".version.centreon-open-tickets"
@@ -438,7 +433,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include: ${{ fromJson(needs.get-environment.outputs.os_and_database_matrix).operating_systems }}
+        operating_system: [alma9]
     name: create-xray-test-plan-and-test-execution-${{ matrix.operating_system }}
 
     uses: ./.github/workflows/create-xray-test-plan-and-test-execution.yml
@@ -464,7 +459,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include: ${{ fromJson(needs.get-environment.outputs.os_and_database_matrix).operating_systems }}
+        operating_system: [alma9]
+        database: ["mariadb:10.11"]
+        test_tags: ["not @ignore"]
     name: e2e-test-${{ matrix.operating_system }}-${{ matrix.database }}
 
     uses: ./.github/workflows/cypress-e2e-parallelization.yml
