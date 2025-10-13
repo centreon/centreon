@@ -53,10 +53,11 @@ export default ({
         installLogsPrinter(on, {
           commandTrimLength: 5000,
           defaultTrimLength: 5000,
-          printLogsToConsole: "always", // ensures they appear in CI
-          collectTypes: ["cy:log"], // only cy.log() messages
-          filterLog: (entry) => {
-            return entry.message?.includes("VERSION:"); // only your version logs
+        });
+        on("task", {
+          logVersion(message) {
+            console.log(`[VERSION LOG]: ${message}`);
+            return null;
           },
         });
         await esbuildPreprocessor(on, config);
