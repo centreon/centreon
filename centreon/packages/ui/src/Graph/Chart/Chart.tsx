@@ -1,16 +1,15 @@
 import {
+    MutableRefObject,
   useEffect,
   useMemo,
   useRef,
-  useState,
-  JSX,
-  RefObject
+  useState
 } from 'react';
 
 import { useAtom } from 'jotai';
 import { equals, flatten, isEmpty, isNil, pluck, reject } from 'ramda';
 
-import { ClickAwayListener, Skeleton, Typography } from '@mui/material';
+import { ClickAwayListener, Skeleton } from '@mui/material';
 
 import { useDeepCompare } from '../../utils';
 import BarGroup from '../BarChart/BarGroup';
@@ -49,13 +48,11 @@ import type {
   LineChartProps
 } from './models';
 import { useIntersection } from './useChartIntersection';
-import { labelWarningTooManyGraphs } from './translatedLabels';
-import { MAX_ELEMENTS_TO_DISPLAY } from './constants';
 
 interface Props extends LineChartProps {
   graphData: Data;
   graphInterval: GraphInterval;
-  graphRef: RefObject<HTMLDivElement | null>;
+  graphRef: MutableRefObject<HTMLDivElement | null>;
   limitLegend?: false | number;
   shapeLines?: GlobalAreaLines;
   thresholdUnit?: string;
@@ -247,12 +244,6 @@ const Chart = ({
     xScale
   });
 
-  const displayLegend = (legend?.display ?? true)
-    && graphData.lines.length <= MAX_ELEMENTS_TO_DISPLAY;
-  const displayLines = !isEmpty(linesDisplayedAsLine)
-    && graphData.lines.length <= MAX_ELEMENTS_TO_DISPLAY;
-  const displayBars = !isEmpty(linesDisplayedAsBar) 
-    && graphData.lines.length <= MAX_ELEMENTS_TO_DISPLAY;
   const displayTooltip = !isNil(tooltip?.renderComponent);
 
   const showGridLines = useMemo(
@@ -301,13 +292,6 @@ const Chart = ({
             tooltip={tooltip}
           >
             <div className={classes.tooltipChildren}>
-              {graphData.lines.length > MAX_ELEMENTS_TO_DISPLAY && (
-                <Typography
-                  className={classes.tooManyGraphsMessage}
-                >
-                  {labelWarningTooManyGraphs(MAX_ELEMENTS_TO_DISPLAY)}
-                </Typography>
-              )}
               <ChartSvgWrapper
                 allUnits={allUnits}
                 axis={axis}
@@ -326,7 +310,7 @@ const Chart = ({
                 hasSecondUnit={hasSecondUnit}
               >
                 <>
-                  {displayBars && (
+                  {!isEmpty(linesDisplayedAsBar) && (
                     <BarGroup
                       barStyle={barStyle}
                       isTooltipHidden={false}
@@ -338,7 +322,7 @@ const Chart = ({
                       yScalesPerUnit={yScalesPerUnit}
                     />
                   )}
-                  {displayLines && (
+                  {!isEmpty(linesDisplayedAsLine) && (
                     <Lines
                       lineStyle={lineStyle}
                       displayAnchor={displayAnchor}

@@ -1,4 +1,4 @@
-import { Dispatch, JSX, MutableRefObject, RefObject, SetStateAction, useMemo } from 'react';
+import { Dispatch, MutableRefObject, SetStateAction, useMemo } from 'react';
 
 import { equals, gt, isNil, lte, reduce } from 'ramda';
 
@@ -26,8 +26,8 @@ interface Props {
     displayLegend: boolean;
     legendHeight?: number;
   };
-  titleRef: RefObject<HTMLDivElement | null>;
-  legendRef: RefObject<HTMLDivElement | null>;
+  titleRef: MutableRefObject<HTMLDivElement | null>;
+  legendRef: MutableRefObject<HTMLDivElement | null>;
   limitLegend?: number | false;
   lines: Array<Line>;
   setLines:

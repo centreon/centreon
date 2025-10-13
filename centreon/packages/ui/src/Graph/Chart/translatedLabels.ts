@@ -7,5 +7,3 @@ export const labelDowntime = 'Downtime';
 export const labelMin = 'Min';
 export const labelMax = 'Max';
 export const labelAvg = 'Avg';
-export const labelWarningTooManyGraphs =
-  (limit: number): string => `Too many elements to be displayed (>${limit})`;
