@@ -1,7 +1,7 @@
-import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
+import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
 import data from '../../../fixtures/snmp-traps/snmp-trap.json';
-import { CreateOrUpdateTrapGroup } from '../common';
+import { createOrUpdateTrapGroup } from '../common';
 
 const checkFirstTrapGroupFromListing = () => {
   cy.waitForElementInIframe('#main-content', 'a[href*="id=1"]');
@@ -43,7 +43,7 @@ Given('a trap group is configured', () => {
   });
   cy.wait('@getTimeZone');
   cy.getIframeBody().contains('a', 'Add').click();
-  CreateOrUpdateTrapGroup(data.snmpGroup1);
+  createOrUpdateTrapGroup(data.snmpGroup1);
   cy.wait('@getTimeZone');
   cy.exportConfig();
 });
@@ -51,7 +51,7 @@ Given('a trap group is configured', () => {
 When('the user changes the properties of a trap group', () => {
   cy.waitForElementInIframe('#main-content', 'a[href*="id=1"]');
   cy.getIframeBody().contains(data.snmpGroup1.name).click();
-  CreateOrUpdateTrapGroup(data.snmpGroup2);
+  createOrUpdateTrapGroup(data.snmpGroup2);
   cy.wait('@getTimeZone');
   cy.exportConfig();
 });
@@ -68,7 +68,7 @@ Then('the properties are updated', () => {
     .find('option:selected')
     .then(($selectedOptions) => {
       const selectedTexts = Array.from($selectedOptions).map(
-        (option) => option.text
+        (option) => option.textContent
       );
       expect(selectedTexts).to.include.members([
         data.snmpGroup2.traps[0],
@@ -96,7 +96,7 @@ Then('the a new trap group is created with identical properties', () => {
     .find('option:selected')
     .then(($selectedOptions) => {
       const selectedTexts = Array.from($selectedOptions).map(
-        (option) => option.text
+        (option) => option.textContent
       );
       expect(selectedTexts).to.include.members([
         data.snmpGroup1.traps[0],

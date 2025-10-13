@@ -1,4 +1,3 @@
-/* eslint-disable cypress/unsafe-to-chain-command */
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
 import {
@@ -70,7 +69,7 @@ before(() => {
   }).as('listAllDashboards');
   cy.intercept({
     method: 'POST',
-    url: `/centreon/api/latest/configuration/dashboards/*/access_rights/contacts`
+    url: '/centreon/api/latest/configuration/dashboards/*/access_rights/contacts'
   }).as('addContactToDashboardShareList');
   cy.intercept({
     method: 'GET',
@@ -180,11 +179,11 @@ beforeEach(() => {
   }).as('listAllDashboards');
   cy.intercept({
     method: 'POST',
-    url: `/centreon/api/latest/configuration/dashboards/*/access_rights/contacts`
+    url: '/centreon/api/latest/configuration/dashboards/*/access_rights/contacts'
   }).as('addContactToDashboardShareList');
   cy.intercept({
     method: 'PATCH',
-    url: `/centreon/api/latest/configuration/dashboards/*`
+    url: '/centreon/api/latest/configuration/dashboards/*'
   }).as('updateDashboard');
   cy.intercept({
     method: 'GET',

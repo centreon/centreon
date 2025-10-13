@@ -15,7 +15,7 @@ before(() => {
       !Cypress.env('INTERNAL_REPO_PASSWORD'))
   ) {
     throw new Error(
-      `Missing environment variables: INTERNAL_REPO_USERNAME and/or INTERNAL_REPO_PASSWORD required for cloud repository configuration.`
+      'Missing environment variables: INTERNAL_REPO_USERNAME and/or INTERNAL_REPO_PASSWORD required for cloud repository configuration.'
     );
   }
 
@@ -28,9 +28,11 @@ before(() => {
 
 beforeEach(() => {
   // clear network cache to avoid chunk loading issues
-  cy.wrap(Cypress.automation('remote:debugger:protocol', {
-    command: 'Network.clearBrowserCache',
-  }));
+  cy.wrap(
+    Cypress.automation('remote:debugger:protocol', {
+      command: 'Network.clearBrowserCache'
+    })
+  );
 
   cy.intercept({
     method: 'GET',
@@ -89,7 +91,7 @@ beforeEach(() => {
 
 Given(
   'a running platform in major {string} with {string} version',
-  (major_version_from_expression: string, version_from_expression: string) => {
+  (majorVersionFromExpression: string, versionFromExpression: string) => {
     if (
       Cypress.env('IS_CLOUD') &&
       !Cypress.env('WEB_IMAGE_OS').includes('alma')
@@ -102,25 +104,25 @@ Given(
     cy.log(`Testing ${Cypress.env('IS_CLOUD') ? 'cloud' : 'onprem'} upgrade`);
 
     return cy.getWebVersion().then(({ major_version }) => {
-      let major_version_from = '0';
-      switch (major_version_from_expression) {
+      let majorVersionFrom = '0';
+      switch (majorVersionFromExpression) {
         case 'n - 1':
-          major_version_from = getCentreonPreviousMajorVersion(major_version);
+          majorVersionFrom = getCentreonPreviousMajorVersion(major_version);
           break;
         case 'n - 2':
-          major_version_from = getCentreonPreviousMajorVersion(
+          majorVersionFrom = getCentreonPreviousMajorVersion(
             getCentreonPreviousMajorVersion(major_version)
           );
           break;
         default:
-          throw new Error(`${major_version_from_expression} not managed.`);
+          throw new Error(`${majorVersionFromExpression} not managed.`);
       }
 
       cy.startContainer({
         command: 'tail -f /dev/null',
         image: `docker.centreon.com/centreon/centreon-web-dependencies-${Cypress.env(
           'WEB_IMAGE_OS'
-        )}:${major_version_from}`,
+        )}:${majorVersionFrom}`,
         name: 'web',
         portBindings: [
           {
@@ -138,39 +140,39 @@ Given(
           })
           .visit('/waiting-page')
           .then(() => {
-            return getCentreonStableMinorVersions(major_version_from).then(
-              (stable_minor_versions) => {
-                let minor_version_index = 0;
-                switch (version_from_expression) {
+            return getCentreonStableMinorVersions(majorVersionFrom).then(
+              (stableMinorVersions) => {
+                let minorVersionIndex = 0;
+                switch (versionFromExpression) {
                   case 'last stable':
-                    minor_version_index = stable_minor_versions.length - 1;
+                    minorVersionIndex = stableMinorVersions.length - 1;
                     break;
                   case 'last stable - 1':
-                    minor_version_index = stable_minor_versions.length - 2;
+                    minorVersionIndex = stableMinorVersions.length - 2;
                     break;
                   default:
-                    throw new Error(`${version_from_expression} not managed.`);
+                    throw new Error(`${versionFromExpression} not managed.`);
                 }
                 if (
-                  minor_version_index < 0 ||
-                  (major_version_from === major_version &&
-                    minor_version_index === 0)
+                  minorVersionIndex < 0 ||
+                  (majorVersionFrom === major_version &&
+                    minorVersionIndex === 0)
                 ) {
                   cy.log(
-                    `Not needed to test ${version_from_expression} version.`
+                    `Not needed to test ${versionFromExpression} version.`
                   );
 
                   return cy.stopContainer({ name: 'web' }).wrap('skipped');
                 }
 
                 cy.log(
-                  `${version_from_expression} version is ${stable_minor_versions[minor_version_index]}`
+                  `${versionFromExpression} version is ${stableMinorVersions[minorVersionIndex]}`
                 );
-                const installed_version = `${major_version_from}.${stable_minor_versions[minor_version_index]}`;
-                Cypress.env('installed_version', installed_version);
-                cy.log('installed_version', installed_version);
+                const installedVersion = `${majorVersionFrom}.${stableMinorVersions[minorVersionIndex]}`;
+                Cypress.env('installed_version', installedVersion);
+                cy.log('installed_version', installedVersion);
 
-                return installCentreon(installed_version)
+                return installCentreon(installedVersion)
                   .then(() => {
                     if (Cypress.env('WEB_IMAGE_OS').includes('alma')) {
                       const distrib =
@@ -217,7 +219,7 @@ EOF`,
                   })
                   .then(() => {
                     return checkPlatformVersion(
-                      `${major_version_from}.${stable_minor_versions[minor_version_index]}`
+                      `${majorVersionFrom}.${stableMinorVersions[minorVersionIndex]}`
                     ).then(() => cy.visit('/'));
                   });
               }
@@ -229,8 +231,7 @@ EOF`,
 );
 
 afterEach(() => {
-  cy
-    .visitEmptyPage()
+  cy.visitEmptyPage()
     .copyWebContainerLogs({ name: 'web' })
     .stopContainer({ name: 'web' });
 });

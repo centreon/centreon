@@ -1,8 +1,8 @@
-import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
+import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
-import dashboardAdministratorUser from '../../../fixtures/users/user-dashboard-administrator.json';
 import dashboards from '../../../fixtures/dashboards/creation/dashboards.json';
 import clockTimerWidget from '../../../fixtures/dashboards/creation/widgets/dashboardWithclockTimerWidget.json';
+import dashboardAdministratorUser from '../../../fixtures/users/user-dashboard-administrator.json';
 
 before(() => {
   cy.intercept({
@@ -32,11 +32,11 @@ beforeEach(() => {
   }).as('listAllDashboards');
   cy.intercept({
     method: 'PATCH',
-    url: `/centreon/api/latest/configuration/dashboards/*`
+    url: '/centreon/api/latest/configuration/dashboards/*'
   }).as('updateDashboard');
   cy.intercept({
     method: 'GET',
-    url: `/centreon/api/latest/configuration/dashboards/*`
+    url: '/centreon/api/latest/configuration/dashboards/*'
   }).as('getDashboard');
   cy.intercept({
     method: 'GET',
@@ -102,24 +102,26 @@ Then(
     cy.get('div[class$="clockInformation"]').should('exist');
     cy.get('div[class$="clockLabel"]').should('exist');
   }
-)
+);
 
 When('the user saves the Clock timer widget', () => {
   cy.getByTestId({ testId: 'confirm' }).click({ force: true });
-  cy.waitUntil(() =>
-    cy.get('body').then($body => {
-      const element = $body.find('div[class^="MuiAlert-message"]');
-      return element.length > 0 && element.is(':visible');
-    })
-    , {
+  cy.waitUntil(
+    () =>
+      cy.get('body').then(($body) => {
+        const element = $body.find('div[class^="MuiAlert-message"]');
+        return element.length > 0 && element.is(':visible');
+      }),
+    {
       errorMsg: 'The element is not visible',
       timeout: 50000,
       interval: 2000
-    }).then((isVisible) => {
-      if (!isVisible) {
-        throw new Error('The element is not visible');
-      }
-    });
+    }
+  ).then((isVisible) => {
+    if (!isVisible) {
+      throw new Error('The element is not visible');
+    }
+  });
 });
 
 Then("the Clock timer widget is added in the dashboard's layout", () => {
@@ -143,7 +145,8 @@ When(
   () => {
     cy.getByTestId({ testId: 'Select time format' }).click();
     cy.contains('French (France) (fr-FR)').click();
-});
+  }
+);
 
 Then(
   'the time format in the widget should be updated to reflect the new format',
@@ -174,7 +177,8 @@ When(
   () => {
     cy.getByTestId({ testId: 'Select time zone' }).click();
     cy.contains('Europe/Monaco').click();
-});
+  }
+);
 
 Then('the timezone should be updated in the widget', () => {
   cy.get('p[class$="timezone"]')
@@ -189,44 +193,41 @@ Then('the timezone should be updated in the widget', () => {
 When(
   'the dashboard administrator changes the display setting of the Clock Timer widget from "Clock" to "Timer"',
   () => {
-    cy.getByLabel({ label: 'Timer' }).click()
-    cy.get('div[class$="clockLabel"] p').eq(2)
-    .invoke('text').then((clockText) => {
-      console.log(clockText)
-      expect(clockText.trim()).to.equal("00:00:00");
-   });
+    cy.getByLabel({ label: 'Timer' }).click();
+    cy.get('div[class$="clockLabel"] p')
+      .eq(2)
+      .invoke('text')
+      .then((clockText) => {
+        expect(clockText.trim()).to.equal('00:00:00');
+      });
+  }
+);
+
+Then('the countdown input should be displayed', () => {
+  cy.getByLabel({ label: 'Timer' }).should('be.visible');
 });
 
-Then(
-  'the countdown input should be displayed',
-  () => {
-    cy.getByLabel({ label: 'Timer' }).should('be.visible')
+When('the dashboard administrator updates the countdown input', () => {
+  cy.getByLabel({ label: 'Timer' }).click();
+  cy.getByTestId({ testId: 'CalendarIcon' }).click();
+  cy.getByLabel({ label: '11 hours' }).click({ force: true });
+  cy.getByLabel({ label: '55 minutes' }).click({ force: true });
+  cy.contains('OK').click({ force: true });
 });
 
-When(
-  'the dashboard administrator updates the countdown input',
-  () => {
-    cy.getByLabel({ label: 'Timer' }).click()
-    cy.getByTestId({ testId: 'CalendarIcon' }).click();
-    cy.getByLabel({ label: '11 hours' }).click({force:true})
-    cy.getByLabel({ label: '55 minutes' }).click({force:true})
-    cy.contains('OK').click({force:true})
-});
-
-Then(
-  'the widget should display the "Timer" format',
-  () => {
-    const today = new Date();
-    const month = String(today.getMonth() + 1).padStart(2, '0');
-    const day = String(today.getDate()).padStart(2, '0');
-    const year = today.getFullYear();
-    const formattedDate = `${month}/${day}/${year}`;
-    console.log(formattedDate);
-    cy.get('p[class$="date"]').eq(1)
+Then('the widget should display the "Timer" format', () => {
+  const today = new Date();
+  const month = String(today.getMonth() + 1).padStart(2, '0');
+  const day = String(today.getDate()).padStart(2, '0');
+  const year = today.getFullYear();
+  const formattedDate = `${month}/${day}/${year}`;
+  cy.get('p[class$="date"]')
+    .eq(1)
     .invoke('text')
     .then((dateText) => {
-      console.log('Text inside date element:', dateText);
-      expect(dateText.trim()).to.match(new RegExp(`Ends at: ${formattedDate} 11:55 (AM|PM)`));
+      expect(dateText.trim()).to.match(
+        new RegExp(`Ends at: ${formattedDate} 11:55 (AM|PM)`)
+      );
     });
 });
 
@@ -234,20 +235,17 @@ When(
   'the dashboard administrator user duplicates the Clock timer widget',
   () => {
     cy.editDashboard(dashboards.default.name);
-    cy.get('p[class$="timezone"]').should('be.visible')
-    cy.get('div[class$="clockLabel"] p').should('be.visible')
+    cy.get('p[class$="timezone"]').should('be.visible');
+    cy.get('div[class$="clockLabel"] p').should('be.visible');
     cy.getByTestId({ testId: 'MoreHorizIcon' }).click();
     cy.getByTestId({ testId: 'ContentCopyIcon' }).click({ force: true });
   }
 );
 
-Then(
-  'a second Clock timer widget is displayed on the dashboard',
-  () => {
-    cy.get('p[class$="date"]').eq(1).should('be.visible')
-    cy.get('div[class$="clockLabel"] p').eq(1).should('be.visible')
-  }
-);
+Then('a second Clock timer widget is displayed on the dashboard', () => {
+  cy.get('p[class$="date"]').eq(1).should('be.visible');
+  cy.get('div[class$="clockLabel"] p').eq(1).should('be.visible');
+});
 
 When(
   'the dashboard administrator updates the background color of the Clock Timer widget',
@@ -260,7 +258,8 @@ When(
 Then(
   'the background color of the Clock Timer widget should reflect the updated color',
   () => {
-    cy.get('div[class$="background"]').eq(1)
-    .should('have.css', 'background-color', 'rgb(7, 96, 89)');
+    cy.get('div[class$="background"]')
+      .eq(1)
+      .should('have.css', 'background-color', 'rgb(7, 96, 89)');
   }
 );

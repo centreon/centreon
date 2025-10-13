@@ -1,4 +1,3 @@
-/* eslint-disable cypress/unsafe-to-chain-command */
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
 import severities from '../../../fixtures/host-categories/severity.json';
@@ -25,7 +24,7 @@ Given('a user is logged in a Centreon server via APIv2', () => {
 });
 
 When('an apiV2 call is made to "Add" a host severity', () => {
-  cy.addSubjectViaAPIv2(
+  cy.addSubjectViaApiV2(
     severities.default,
     '/centreon/api/latest/configuration/hosts/severities'
   );
@@ -106,14 +105,14 @@ Then(
 );
 
 Given('a host severity is configured via APIv2', () => {
-  cy.addSubjectViaAPIv2(
+  cy.addSubjectViaApiV2(
     severities.default,
     '/centreon/api/latest/configuration/hosts/severities'
   );
 });
 
 When('an apiV2 call is made to "Delete" the configured host severity', () => {
-  cy.deleteSubjectViaAPIv2(
+  cy.deleteSubjectViaApiV2(
     '/centreon/api/latest/configuration/hosts/severities/1'
   );
 });
@@ -145,7 +144,7 @@ Then(
 When(
   'an apiV2 call is made to "Update" the parameters of the configured host severity',
   () => {
-    cy.updateSubjectViaAPIv2(
+    cy.updateSubjectViaApiV2(
       severities.changed_severity,
       '/centreon/api/latest/configuration/hosts/severities/1'
     );
@@ -208,14 +207,14 @@ Then(
 );
 
 Given('an enabled host severity is configured via APIv2', () => {
-  cy.addSubjectViaAPIv2(
+  cy.addSubjectViaApiV2(
     severities.default,
     '/centreon/api/latest/configuration/hosts/severities'
   );
 });
 
 When('an apiV2 call is made to "Disable" the configured host severity', () => {
-  cy.updateSubjectViaAPIv2(
+  cy.updateSubjectViaApiV2(
     severities.disabled_severity,
     '/centreon/api/latest/configuration/hosts/severities/1'
   );
@@ -246,14 +245,14 @@ Then(
 );
 
 Given('a disabled host severity is configured via APIv2', () => {
-  cy.addSubjectViaAPIv2(
+  cy.addSubjectViaApiV2(
     severities.disabled_severity,
     '/centreon/api/latest/configuration/hosts/severities'
   );
 });
 
 When('an apiV2 call is made to "Enable" the configured host severity', () => {
-  cy.updateSubjectViaAPIv2(
+  cy.updateSubjectViaApiV2(
     severities.enabled_severity,
     '/centreon/api/latest/configuration/hosts/severities/1'
   );

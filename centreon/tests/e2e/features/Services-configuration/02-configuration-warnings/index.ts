@@ -1,5 +1,4 @@
-/* eslint-disable newline-before-return */
-import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
+import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
 import data from '../../../fixtures/notifications/data-for-notification.json';
 

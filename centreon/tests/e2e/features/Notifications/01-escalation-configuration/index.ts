@@ -1,10 +1,8 @@
-/* eslint-disable no-script-url */
-/* eslint-disable cypress/unsafe-to-chain-command */
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
+import data from '../../../fixtures/notifications/escalation.json';
 import metaServices from '../../../fixtures/services/meta_service.json';
 import servicesData from '../../../fixtures/services/service.json';
-import data from '../../../fixtures/notifications/escalation.json';
 
 const services = {
   serviceCritical: {
@@ -141,7 +139,10 @@ When('the user duplicates the configured escalation', () => {
 });
 
 Then('a new escalation is created with identical properties', () => {
-  cy.checkValuesOfEscalation(`${data.escalation1.name}_1`, data.escalation1);
+  return cy.checkValuesOfEscalation(
+    `${data.escalation1.name}_1`,
+    data.escalation1
+  );
 });
 
 When('the user deletes the configured escalation', () => {

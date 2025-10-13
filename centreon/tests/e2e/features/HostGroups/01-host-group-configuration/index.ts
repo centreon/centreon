@@ -1,4 +1,3 @@
-/* eslint-disable cypress/unsafe-to-chain-command */
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 import { checkHostsAreMonitored, checkServicesAreMonitored } from 'e2e/commons';
 
@@ -168,7 +167,7 @@ When('the user changes some properties of the configured host group', () => {
   cy.getIframeBody()
     .find('input[name="hg_rrd_retention"]')
     .clear()
-    .type(hostGroups.forTest.rrd);
+    .type(String(hostGroups.forTest.rrd));
   cy.getIframeBody()
     .find('textarea[name="hg_comment"]')
     .clear()
@@ -244,7 +243,7 @@ Then('a new host group is created with identical properties', () => {
     .find('option')
     .then((options) => {
       expect(options.length).to.eq(2);
-      const host2Option = options.filter((index, option) => {
+      const host2Option = options.filter((_index, option) => {
         return Cypress.$(option).text() === services.serviceOk.host;
       });
       expect(host2Option.length).to.eq(1);

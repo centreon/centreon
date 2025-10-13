@@ -101,9 +101,7 @@ Then(
   'a pop up is displayed with all of the additional connector informations',
   () => {
     cy.wait('@getConnectorDetail');
-    cy.contains('Update additional configuration').should(
-      'be.visible'
-    );
+    cy.contains('Update additional configuration').should('be.visible');
     cy.getByLabel({ label: 'Name', tag: 'input' }).should(
       'have.value',
       'Connector-001'

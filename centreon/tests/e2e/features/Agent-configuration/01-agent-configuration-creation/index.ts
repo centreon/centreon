@@ -1,4 +1,3 @@
-/* eslint-disable cypress/unsafe-to-chain-command */
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
 import agentsConfiguration from '../../../fixtures/agents-configuration/agent-config.json';
@@ -46,7 +45,7 @@ after(() => {
 });
 
 Given('a CMA Token is configured', () => {
-  cy.addCMAToken();
+  cy.addCmaToken();
 });
 
 Given('a non-admin user is in the Agents Configuration page', () => {
@@ -70,7 +69,7 @@ Then('a pop-up menu with the form is displayed', () => {
 When('the user fills in all the information', () => {
   cy.getByLabel({ label: 'Agent type', tag: 'input' }).click();
   cy.get('*[role="listbox"]').contains('Telegraf').click();
-  cy.FillTelegrafMandatoryFields(agentsConfiguration.telegraf1);
+  cy.fillTelegrafMandatoryFields(agentsConfiguration.telegraf1);
 });
 
 When('the user clicks on Create', () => {
@@ -119,7 +118,7 @@ Then('the group of parameters for the host disappears', () => {
 });
 
 When('the user fills in the mandatory information', () => {
-  cy.FillCMAMandatoryFields(agentsConfiguration.CMA1);
+  cy.fillCmaMandatoryFields(agentsConfiguration.CMA1);
 });
 
 Then('the second agent is displayed in the Agents Configuration page', () => {
@@ -320,16 +319,13 @@ Then('the agent has been created', () => {
   cy.get('*[role="rowgroup"]').should('contain', 'Telegraf');
 });
 
-When(
-  'the user fills in the {string} mandatory fields',
-  (agent_type: string) => {
-    if (agent_type.includes('Agent')) {
-      cy.FillCMAMandatoryFields(agentsConfiguration.CMA1);
-    } else {
-      cy.FillTelegrafMandatoryFields(agentsConfiguration.telegraf1);
-    }
+When('the user fills in the {string} mandatory fields', (agentType: string) => {
+  if (agentType.includes('Agent')) {
+    cy.fillCmaMandatoryFields(agentsConfiguration.CMA1);
+  } else {
+    cy.fillTelegrafMandatoryFields(agentsConfiguration.telegraf1);
   }
-);
+});
 
 When('the user selects the {string} type', (agentType: string) => {
   cy.getByLabel({ label: 'Agent type', tag: 'input' }).click();
@@ -337,7 +333,7 @@ When('the user selects the {string} type', (agentType: string) => {
 });
 
 When('the user fills all the Telegraf mandatory fields', () => {
-  cy.FillTelegrafMandatoryFields(agentsConfiguration.telegraf1);
+  cy.fillTelegrafMandatoryFields(agentsConfiguration.telegraf1);
 });
 
 When('the user {string} the form', (action: string) => {
@@ -368,9 +364,9 @@ When(
   "the user doesn't fill some {string} mandatory fields",
   (agentType: string) => {
     if (agentType.includes('Agent')) {
-      cy.FillOnlySomeCMAMandatoryFields(agentsConfiguration.CMA1);
+      cy.fillOnlySomeCmaMandatoryFields(agentsConfiguration.CMA1);
     } else {
-      cy.FillOnlySomeTelegrafMandatoryFields(agentsConfiguration.telegraf1);
+      cy.fillOnlySomeTelegrafMandatoryFields(agentsConfiguration.telegraf1);
     }
   }
 );

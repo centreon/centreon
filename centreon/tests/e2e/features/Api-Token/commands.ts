@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-namespace */
-
 Cypress.Commands.add('visitApiTokens', () => {
   cy.intercept({
     method: 'GET',
@@ -24,6 +22,7 @@ Cypress.Commands.add('visitApiTokens', () => {
 });
 
 declare global {
+  // biome-ignore lint/style/noNamespace: <explanation>
   namespace Cypress {
     interface Chainable {
       visitApiTokens: () => Cypress.Chainable;

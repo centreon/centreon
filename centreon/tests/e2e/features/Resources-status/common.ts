@@ -1,18 +1,19 @@
 import {
+  SubmitResult,
   apiBase,
   applyConfigurationViaClapi,
-  getStatusNumberFromString,
-  checkThatConfigurationIsExported,
   checkServicesAreMonitored,
-  submitResultsViaClapi,
-  versionApi,
+  checkThatConfigurationIsExported,
+  getStatusNumberFromString,
   insertFixture,
-  SubmitResult,
-  updateFixturesResult
+  submitResultsViaClapi,
+  updateFixturesResult,
+  versionApi
 } from '../../commons';
 
 interface Criteria {
   name: string;
+  // biome-ignore lint/style/useNamingConvention: <explanation>
   object_type: string | null;
   type: string;
   value: Array<{ id: string; name: string }>;
@@ -91,7 +92,7 @@ const initializeAckResources = (): Cypress.Chainable => {
 
 const insertAckResourceFixtures = (): Cypress.Chainable => {
   const dateBeforeLogin = new Date();
-  let results;
+  let results: SubmitResult[];
   updateFixturesResult().then((submitResult) => {
     results = submitResult;
   });
@@ -169,14 +170,15 @@ const tearDownAckResource = (): Cypress.Chainable => {
 const checkIfUserNotificationsAreEnabled = (): void => {
   cy.log('Checking is user notifications are enabled.');
 
-  const query = `SELECT contact_enable_notifications FROM contact WHERE contact_id = 1`;
+  const query =
+    'SELECT contact_enable_notifications FROM contact WHERE contact_id = 1';
 
   cy.requestOnDatabase({ database: 'centreon', query }).then(([rows]) => {
     if (rows.length && rows[0].contact_enable_notifications === '1') {
       return null;
     }
 
-    throw new Error(`User notifications are disabled.`);
+    throw new Error('User notifications are disabled.');
   });
 };
 
@@ -214,7 +216,7 @@ const checkIfNotificationsAreNotBeingSent = (): void => {
       return null;
     }
 
-    throw new Error(`Notifications are being sent to contacts.`);
+    throw new Error('Notifications are being sent to contacts.');
   });
 };
 

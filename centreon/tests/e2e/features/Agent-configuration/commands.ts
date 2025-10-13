@@ -1,4 +1,4 @@
-Cypress.Commands.add('FillCMAMandatoryFields', (body: Cma) => {
+Cypress.Commands.add('fillCmaMandatoryFields', (body: Cma) => {
   cy.getByLabel({ label: 'Name', tag: 'input' }).type(body.name);
   cy.getByLabel({ label: 'Pollers', tag: 'input' }).click();
   cy.contains(body.pollerName).click();
@@ -16,7 +16,7 @@ Cypress.Commands.add('FillCMAMandatoryFields', (body: Cma) => {
   cy.contains('CMA-Token-001').click();
 });
 
-Cypress.Commands.add('FillTelegrafMandatoryFields', (body: Telegraf) => {
+Cypress.Commands.add('fillTelegrafMandatoryFields', (body: Telegraf) => {
   cy.getByLabel({ label: 'Name', tag: 'input' }).type(body.name);
   cy.getByLabel({ label: 'Pollers', tag: 'input' }).click();
   cy.contains(body.pollerName).click();
@@ -36,7 +36,7 @@ Cypress.Commands.add('FillTelegrafMandatoryFields', (body: Telegraf) => {
     .type(body.privateKFileName);
 });
 
-Cypress.Commands.add('FillOnlySomeCMAMandatoryFields', (body: Cma) => {
+Cypress.Commands.add('fillOnlySomeCmaMandatoryFields', (body: Cma) => {
   cy.getByLabel({ label: 'Public certificate(.crt,.cer)', tag: 'input' }).type(
     body.publicCertfFileName
   );
@@ -46,7 +46,7 @@ Cypress.Commands.add('FillOnlySomeCMAMandatoryFields', (body: Cma) => {
 });
 
 Cypress.Commands.add(
-  'FillOnlySomeTelegrafMandatoryFields',
+  'fillOnlySomeTelegrafMandatoryFields',
   (body: Telegraf) => {
     cy.getByLabel({ label: 'Name', tag: 'input' }).type(body.name);
     cy.getByLabel({ label: 'Public certificate(.crt,.cer)', tag: 'input' })
@@ -112,7 +112,7 @@ Cypress.Commands.add('updateTelegrafAgent', (body: Telegraf) => {
     .type(body.privateKFileName);
 });
 
-Cypress.Commands.add('addCMAToken', () => {
+Cypress.Commands.add('addCmaToken', () => {
   cy.loginByTypeOfUser({
     jsonName: 'user-non-admin-for-AC',
     loginViaApi: false
@@ -137,6 +137,7 @@ interface Telegraf {
   pollerName: string;
   publicCertfFileName: string;
   caFileName: string;
+  // biome-ignore lint/style/useNamingConvention: <explanation>
   privateKFileName: string;
   certfFileName: string;
 }
@@ -146,21 +147,23 @@ interface Cma {
   pollerName: string;
   publicCertfFileName: string;
   caFileName: string;
+  // biome-ignore lint/style/useNamingConvention: <explanation>
   privateKFileName: string;
 }
 
 declare global {
+  // biome-ignore lint/style/noNamespace: <explanation>
   namespace Cypress {
     interface Chainable {
-      FillCMAMandatoryFields: (body: Cma) => Cypress.Chainable;
-      FillTelegrafMandatoryFields: (body: Telegraf) => Cypress.Chainable;
-      FillOnlySomeCMAMandatoryFields: (body: Cma) => Cypress.Chainable;
-      FillOnlySomeTelegrafMandatoryFields: (
+      fillCmaMandatoryFields: (body: Cma) => Cypress.Chainable;
+      fillTelegrafMandatoryFields: (body: Telegraf) => Cypress.Chainable;
+      fillOnlySomeCmaMandatoryFields: (body: Cma) => Cypress.Chainable;
+      fillOnlySomeTelegrafMandatoryFields: (
         body: Telegraf
       ) => Cypress.Chainable;
       addTelegrafAgent: (body: Telegraf) => Cypress.Chainable;
       updateTelegrafAgent: (body: Telegraf) => Cypress.Chainable;
-      addCMAToken: () => Cypress.Chainable;
+      addCmaToken: () => Cypress.Chainable;
     }
   }
 }

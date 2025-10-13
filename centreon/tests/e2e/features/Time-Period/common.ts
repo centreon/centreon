@@ -43,6 +43,8 @@ const setTimePeriod = (): Cypress.Chainable => {
       .find(`input#exceptionTimerange_${index}`)
       .type(exception.timeRange);
   });
+
+  return cy.getIframeBody(); // Return a Cypress.Chainable object
 };
 
 const navigateToTimePeriodsAndInitiateAddition = () => {

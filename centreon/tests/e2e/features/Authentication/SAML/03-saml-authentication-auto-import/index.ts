@@ -1,12 +1,15 @@
-/* eslint-disable cypress/unsafe-to-chain-command */
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
-import { configureSAML, navigateToSAMLConfigPage, saveSamlFormIfEnabled } from '../common';
 import {
   configureACLGroups,
   configureProviderAcls,
   getUserContactId
 } from '../../../../commons';
+import {
+  configureSaml,
+  navigateToSamlConfigPage,
+  saveSamlFormIfEnabled
+} from '../common';
 
 before(() => {
   cy.startContainers({ profiles: ['saml'] }).then(() => {
@@ -54,14 +57,14 @@ Given('an administrator is logged on the platform', () => {
 });
 
 When('the administrator activates the auto-import option for SAML', () => {
-  navigateToSAMLConfigPage();
+  navigateToSamlConfigPage();
 
   cy.getByLabel({
     label: 'Enable SAMLv2 authentication',
     tag: 'input'
   }).check();
 
-  configureSAML();
+  configureSaml();
 
   cy.getByLabel({ label: 'Auto import users' }).click();
 
@@ -127,11 +130,12 @@ Then(
       url: '/centreon/api/latest/authentication/logout'
     }).as('logout');
 
-    cy.getByTestId({testId: 'LogoutIcon' }).click();
-    cy.waitUntil(() =>
-      cy.wait('@logout').then((interception) => {
-        return interception?.response?.statusCode === 302;
-      }),
+    cy.getByTestId({ testId: 'LogoutIcon' }).click();
+    cy.waitUntil(
+      () =>
+        cy.wait('@logout').then((interception) => {
+          return interception?.response?.statusCode === 302;
+        }),
       {
         errorMsg: 'Logout did not complete successfully',
         timeout: 30000,

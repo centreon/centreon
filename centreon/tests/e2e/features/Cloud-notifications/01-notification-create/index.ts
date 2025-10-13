@@ -6,15 +6,15 @@ import {
   checkHostsAreMonitored,
   checkServicesAreMonitored
 } from '../../../commons';
+import data from '../../../fixtures/notifications/data-for-notification.json';
 import {
   enableNotificationFeature,
+  initializeDataFiles,
   notificationSentCheck,
   notificationSentCount,
   setBrokerNotificationsOutput,
-  waitUntilLogFileChange,
-  initializeDataFiles
+  waitUntilLogFileChange
 } from '../common';
-import data from '../../../fixtures/notifications/data-for-notification.json';
 
 let globalResourceType = '';
 let globalContactSettings = '';
@@ -67,16 +67,16 @@ Given(
     globalResourceType = resourceType;
     globalContactSettings = contactSettings;
 
-    if (contactSettings === "two contacts") {
+    if (contactSettings === 'two contacts') {
       cy.addContact({
         email: data.contacts.contact1.email,
         name: data.contacts.contact1.name,
-        password: data.contacts.contact1.password,
+        password: data.contacts.contact1.password
       });
       cy.addContact({
         email: data.contacts.contact2.email,
         name: data.contacts.contact2.name,
-        password: data.contacts.contact2.password,
+        password: data.contacts.contact2.password
       });
     } else {
       throw new Error(`${contactSettings} not managed`);
@@ -142,25 +142,24 @@ When('the user defines a name for the rule', () => {
   cy.contains('Add').click();
   const notificationName = globalResourceType
     ? `Notification for ${globalResourceType} and ${globalContactSettings}`
-    : `Notification for 1000 services`;
+    : 'Notification for 1000 services';
   cy.get('#Notificationname').type(notificationName);
 });
 
 When(
   'the user selects a {string} with associated events on which to notify',
   (resourceType: string) => {
-     if (resourceType === "host group and services for these hosts"){
-       cy.get('#Searchhostgroups').click();
-        cy.contains(data.hostGroups.hostGroup1.name).click();
-        cy.get('#Searchhostgroups').blur();
-        cy.contains('Include services for these hosts').click();
-        cy.get('[data-testid="Extra events services"] >').each(($el) => {
-          cy.wrap($el).click();
-             });
-     } else {
+    if (resourceType === 'host group and services for these hosts') {
+      cy.get('#Searchhostgroups').click();
+      cy.contains(data.hostGroups.hostGroup1.name).click();
+      cy.get('#Searchhostgroups').blur();
+      cy.contains('Include services for these hosts').click();
+      cy.get('[data-testid="Extra events services"] >').each(($el) => {
+        cy.wrap($el).click();
+      });
+    } else {
       throw new Error(`${resourceType} not managed`);
     }
-
   }
 );
 
@@ -171,9 +170,9 @@ When('the user defines a time period', () => {
 });
 
 When('the user selects the {string}', (contactSettings: string) => {
-  if (contactSettings === "two contacts") {
-    cy.get("#Searchcontacts").click();
-    cy.wait("@getUsers");
+  if (contactSettings === 'two contacts') {
+    cy.get('#Searchcontacts').click();
+    cy.wait('@getUsers');
     cy.contains(data.contacts.contact1.name).click();
     cy.contains(data.contacts.contact2.name).click();
   } else {
@@ -184,14 +183,14 @@ When('the user selects the {string}', (contactSettings: string) => {
 When('the user defines a mail subject', () => {
   const subject = globalResourceType
     ? `{selectAll}{backspace}Subject notification for ${globalResourceType} and ${globalContactSettings}`
-    : `{selectAll}{backspace}Subject notification for 1000 services`;
+    : '{selectAll}{backspace}Subject notification for 1000 services';
   cy.getByLabel({ label: 'Subject' }).type(subject);
 });
 
 When('the user defines a mail body', () => {
   const body = globalResourceType
     ? `{selectAll}{backspace}Body notification for ${globalResourceType} and ${globalContactSettings}`
-    : `{selectAll}{backspace}Body notification for 1000 services`;
+    : '{selectAll}{backspace}Body notification for 1000 services';
   cy.getByLabel({ label: 'EmailBody' }).type(body);
 });
 
@@ -211,7 +210,7 @@ Then(
 
     const notificationName = globalResourceType
       ? `Notification for ${globalResourceType} and ${globalContactSettings}`
-      : `Notification for 1000 services`;
+      : 'Notification for 1000 services';
     cy.contains(notificationName).should('exist');
   }
 );
@@ -219,45 +218,44 @@ Then(
 When(
   'changes occur in the configured statuses for the selected {string}',
   (resourceType) => {
-    if (resourceType === "host group and services for these hosts") {
+    if (resourceType === 'host group and services for these hosts') {
       cy.submitResults([
         {
           host: data.hosts.host1.name,
-          output: "submit_status_2",
+          output: 'submit_status_2',
           service: data.services.service1.name,
-          status: "critical",
-        },
+          status: 'critical'
+        }
       ]);
 
       checkServicesAreMonitored([
         {
           name: data.services.service1.name,
-          status: "critical",
-        },
+          status: 'critical'
+        }
       ]);
     } else {
       throw new Error(`${resourceType} not managed`);
     }
-
   }
 );
 
 When('the hard state has been reached', () => {
-  if (globalResourceType === "host group and services for these hosts") {
+  if (globalResourceType === 'host group and services for these hosts') {
     checkServicesAreMonitored([
       {
         name: data.services.service1.name,
-        status: "critical",
-        statusType: "hard",
-      },
+        status: 'critical',
+        statusType: 'hard'
+      }
     ]);
   } else {
     checkServicesAreMonitored(
       Array.from({ length: 1000 }, (_, i) => ({
         name: `service_${i + 1}`,
-        status: "ok",
-        statusType: "hard",
-      })),
+        status: 'ok',
+        statusType: 'hard'
+      }))
     );
   }
 });
@@ -269,16 +267,16 @@ When('the notification refresh_delay has been reached', () => {
 Then(
   'an email is sent to the configured {string} with the configured format',
   (contactSettings) => {
-    if (contactSettings === "two contacts") {
+    if (contactSettings === 'two contacts') {
       if (globalResourceType) {
         notificationSentCheck({
-          logs: `<<${data.hosts.host1.name}/${data.services.service1.name}`,
+          logs: `<<${data.hosts.host1.name}/${data.services.service1.name}`
         });
       } else {
         notificationSentCount(1000);
       }
       notificationSentCheck({
-        logs: `[{"email_address":"${data.contacts.contact1.email}","full_name":"${data.contacts.contact1.name}"},{"email_address":"${data.contacts.contact2.email}","full_name":"${data.contacts.contact2.name}"}]`,
+        logs: `[{"email_address":"${data.contacts.contact1.email}","full_name":"${data.contacts.contact1.name}"},{"email_address":"${data.contacts.contact2.email}","full_name":"${data.contacts.contact2.name}"}]`
       });
     } else {
       throw new Error(`${contactSettings} not managed`);
@@ -289,16 +287,16 @@ Then(
 Given(
   'a minimum of 1000 services linked to a host group and {string}',
   (contactSettings) => {
-    if (contactSettings === "two contacts") {
+    if (contactSettings === 'two contacts') {
       cy.addContact({
         email: data.contacts.contact1.email,
         name: data.contacts.contact1.name,
-        password: data.contacts.contact1.password,
+        password: data.contacts.contact1.password
       });
       cy.addContact({
         email: data.contacts.contact2.email,
         name: data.contacts.contact2.name,
-        password: data.contacts.contact2.password,
+        password: data.contacts.contact2.password
       });
     } else {
       throw new Error(`${contactSettings} not managed`);
@@ -331,7 +329,7 @@ Given(
       type: CopyToContainerContentType.File
     });
 
-    const query_centreon_storage_service = `LOAD DATA INFILE '/tmp/centreon_storage_services.txt'
+    const queryCentreonStorageService = `LOAD DATA INFILE '/tmp/centreon_storage_services.txt'
     INTO TABLE services
     FIELDS TERMINATED BY '\t'
     LINES TERMINATED BY '\n'
@@ -339,7 +337,7 @@ Given(
     `;
     cy.requestOnDatabase({
       database: 'centreon_storage',
-      query: query_centreon_storage_service
+      query: queryCentreonStorageService
     });
 
     cy.copyToContainer({
@@ -349,14 +347,14 @@ Given(
       type: CopyToContainerContentType.File
     });
 
-    const query_centreon_service = `LOAD DATA INFILE '/tmp/centreon_services.txt'
+    const queryCentreonService = `LOAD DATA INFILE '/tmp/centreon_services.txt'
     INTO TABLE service
     FIELDS TERMINATED BY '\t'
     LINES TERMINATED BY '\n'
     (service_id, service_template_model_stm_id, service_description, service_is_volatile, service_max_check_attempts, service_active_checks_enabled, service_passive_checks_enabled, service_parallelize_check, service_obsess_over_service, service_check_freshness, service_event_handler_enabled, service_flap_detection_enabled, service_process_perf_data, service_retain_status_information, service_retain_nonstatus_information, service_notifications_enabled, contact_additive_inheritance, cg_additive_inheritance, service_inherit_contacts_from_host, service_use_only_contacts_from_host, service_locked, service_register, service_activate)`;
     cy.requestOnDatabase({
       database: 'centreon',
-      query: query_centreon_service
+      query: queryCentreonService
     });
 
     cy.copyToContainer({
@@ -366,14 +364,14 @@ Given(
       type: CopyToContainerContentType.File
     });
 
-    const query_host_service_relation = `LOAD DATA INFILE '/tmp/host_service_relation.txt'
+    const queryHostServiceRelation = `LOAD DATA INFILE '/tmp/host_service_relation.txt'
     INTO TABLE host_service_relation
     FIELDS TERMINATED BY '\t'
     LINES TERMINATED BY '\n'
     (host_host_id,service_service_id)`;
     cy.requestOnDatabase({
       database: 'centreon',
-      query: query_host_service_relation
+      query: queryHostServiceRelation
     });
 
     cy.applyPollerConfiguration();

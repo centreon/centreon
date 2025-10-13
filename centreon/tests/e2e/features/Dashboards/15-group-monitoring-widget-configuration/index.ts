@@ -1,13 +1,13 @@
-import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
+import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
 import {
   checkHostsAreMonitored,
   checkServicesAreMonitored
 } from '../../../commons';
-import dashboardAdministratorUser from '../../../fixtures/users/user-dashboard-administrator.json';
 import dashboards from '../../../fixtures/dashboards/creation/dashboards.json';
-import genericTextWidgets from '../../../fixtures/dashboards/creation/widgets/genericText.json';
 import groupMonitoringwidget from '../../../fixtures/dashboards/creation/widgets/dashboardWithGroupMonitoringWidget.json';
+import genericTextWidgets from '../../../fixtures/dashboards/creation/widgets/genericText.json';
+import dashboardAdministratorUser from '../../../fixtures/users/user-dashboard-administrator.json';
 
 const hostGroupName = 'Linux-Servers';
 
@@ -155,11 +155,11 @@ beforeEach(() => {
   }).as('listAllDashboards');
   cy.intercept({
     method: 'POST',
-    url: `/centreon/api/latest/configuration/dashboards/*/access_rights/contacts`
+    url: '/centreon/api/latest/configuration/dashboards/*/access_rights/contacts'
   }).as('addContactToDashboardShareList');
   cy.intercept({
     method: 'PATCH',
-    url: `/centreon/api/latest/configuration/dashboards/*`
+    url: '/centreon/api/latest/configuration/dashboards/*'
   }).as('updateDashboard');
   cy.intercept({
     method: 'GET',
@@ -433,7 +433,7 @@ When('the dashboard administrator clicks on a random resource', () => {
   cy.contains('a', 'Linux-Servers')
     .should('have.attr', 'href')
     .then((href) => {
-      cy.visit(href);
+      cy.visit(href as unknown as string);
     });
 });
 

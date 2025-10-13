@@ -1,15 +1,14 @@
-/* eslint-disable cypress/unsafe-to-chain-command */
-import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
+import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
 import {
   checkHostsAreMonitored,
-  checkServicesAreMonitored,
-  checkMetricsAreMonitored
+  checkMetricsAreMonitored,
+  checkServicesAreMonitored
 } from '../../../commons';
-import dashboardAdministratorUser from '../../../fixtures/users/user-dashboard-administrator.json';
 import dashboards from '../../../fixtures/dashboards/creation/dashboards.json';
 import resourceTable from '../../../fixtures/dashboards/creation/widgets/dashboardWithResourceTableWidget.json';
 import genericTextWidgets from '../../../fixtures/dashboards/creation/widgets/genericText.json';
+import dashboardAdministratorUser from '../../../fixtures/users/user-dashboard-administrator.json';
 
 const services = {
   serviceCritical: {
@@ -168,11 +167,11 @@ beforeEach(() => {
   }).as('listAllDashboards');
   cy.intercept({
     method: 'POST',
-    url: `/centreon/api/latest/configuration/dashboards/*/access_rights/contacts`
+    url: '/centreon/api/latest/configuration/dashboards/*/access_rights/contacts'
   }).as('addContactToDashboardShareList');
   cy.intercept({
     method: 'PATCH',
-    url: `/centreon/api/latest/configuration/dashboards/*`
+    url: '/centreon/api/latest/configuration/dashboards/*'
   }).as('updateDashboard');
   cy.intercept({
     method: 'GET',
@@ -241,7 +240,7 @@ Then('only the hosts must be displayed', () => {
     () =>
       cy
         .get(
-          `.MuiTable-root .MuiTableRow-root:nth-child(1) .MuiTableCell-root:nth-child(2)`
+          '.MuiTable-root .MuiTableRow-root:nth-child(1) .MuiTableCell-root:nth-child(2)'
         )
         .should('be.visible')
         .invoke('text')
@@ -269,7 +268,7 @@ Then('only the services must be displayed', () => {
     () =>
       cy
         .get(
-          `.MuiTable-root .MuiTableRow-root:nth-child(1) .MuiTableCell-root:nth-child(2)`
+          '.MuiTable-root .MuiTableRow-root:nth-child(1) .MuiTableCell-root:nth-child(2)'
         )
         .should('be.visible')
         .invoke('text')
@@ -314,7 +313,7 @@ Then(
       () =>
         cy
           .get(
-            `.MuiTable-root .MuiTableRow-root:nth-child(1) .MuiTableCell-root:nth-child(2)`
+            '.MuiTable-root .MuiTableRow-root:nth-child(1) .MuiTableCell-root:nth-child(2)'
           )
           .should('be.visible')
           .invoke('text')
@@ -361,7 +360,7 @@ Then(
       () =>
         cy
           .get(
-            `.MuiTable-root .MuiTableRow-root:nth-child(1) .MuiTableCell-root:nth-child(2)`
+            '.MuiTable-root .MuiTableRow-root:nth-child(1) .MuiTableCell-root:nth-child(2)'
           )
           .should('be.visible')
           .invoke('text')
@@ -404,7 +403,7 @@ Then('only the contents of the other widget are displayed', () => {
     () =>
       cy
         .get(
-          `.MuiTable-root .MuiTableRow-root:nth-child(1) .MuiTableCell-root:nth-child(2)`
+          '.MuiTable-root .MuiTableRow-root:nth-child(1) .MuiTableCell-root:nth-child(2)'
         )
         .should('exist')
         .invoke('text')
@@ -446,7 +445,7 @@ Then(
       () =>
         cy
           .get(
-            `.MuiTable-root:eq(1) .MuiTableRow-root:nth-child(1) .MuiTableCell-root:nth-child(2)`
+            '.MuiTable-root:eq(1) .MuiTableRow-root:nth-child(1) .MuiTableCell-root:nth-child(2)'
           )
           .should('exist')
           .invoke('text')
@@ -534,7 +533,7 @@ Then("the resource table widget is added to the dashboard's layout", () => {
     () =>
       cy
         .get(
-          `.MuiTable-root .MuiTableRow-root:nth-child(1) .MuiTableCell-root:nth-child(2)`
+          '.MuiTable-root .MuiTableRow-root:nth-child(1) .MuiTableCell-root:nth-child(2)'
         )
         .should('be.visible')
         .invoke('text')

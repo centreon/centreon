@@ -1,11 +1,8 @@
-/* eslint-disable no-nested-ternary */
-/* eslint-disable no-script-url */
-/* eslint-disable cypress/unsafe-to-chain-command */
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
-import data from '../../../fixtures/snmp-traps/vendor.json';
 import traps from '../../../fixtures/snmp-traps/snmp-trap.json';
-import { AddOrUpdateVendor, CheckVendorFieldsValues } from '../common';
+import data from '../../../fixtures/snmp-traps/vendor.json';
+import { addOrUpdateVendor, checkVendorFieldsValues } from '../common';
 
 const services = {
   serviceOk: { host: 'host2', name: 'service_test_ok', template: 'Ping-LAN' }
@@ -65,7 +62,7 @@ When('the user goes to "Configuration > SNMP Traps > Manufacturer"', () => {
 When('the user adds a new vendor', () => {
   cy.getIframeBody().contains('a', 'Add').click();
   cy.wait('@getTimeZone');
-  AddOrUpdateVendor(data.default);
+  addOrUpdateVendor(data.default);
 });
 
 Then('the vendor configuration is added to the listing page', () => {
@@ -97,7 +94,7 @@ Given('a vendor {string} is configured', (step) => {
 When('the user changes the properties of the vendor', () => {
   cy.getIframeBody().contains(data.default.name).click();
   cy.wait('@getTimeZone');
-  AddOrUpdateVendor(data.vendor);
+  addOrUpdateVendor(data.vendor);
 });
 
 Then('the properties are updated', () => {
@@ -107,7 +104,7 @@ Then('the properties are updated', () => {
   );
   cy.getIframeBody().contains(`${data.vendor.name}`).click();
   cy.wait('@getTimeZone');
-  CheckVendorFieldsValues(data.vendor.name, data.vendor);
+  checkVendorFieldsValues(data.vendor.name, data.vendor);
 });
 
 When('the user duplicates the vendor', () => {

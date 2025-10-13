@@ -1,5 +1,3 @@
-/* eslint-disable prettier/prettier */
-/* eslint-disable cypress/unsafe-to-chain-command */
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
 import categories from '../../../fixtures/services/category.json';
@@ -26,7 +24,7 @@ Given('a user is logged in a Centreon server via APIv2', () => {
 });
 
 When('an apiV2 call is made to "Add" a service category', () => {
-  cy.addSubjectViaAPIv2(
+  cy.addSubjectViaApiV2(
     categories.default,
     '/centreon/api/latest/configuration/services/categories'
   );
@@ -96,7 +94,7 @@ Then(
 );
 
 Given('a service category is configured via APIv2', () => {
-  cy.addSubjectViaAPIv2(
+  cy.addSubjectViaApiV2(
     categories.default,
     '/centreon/api/latest/configuration/services/categories'
   );
@@ -105,7 +103,7 @@ Given('a service category is configured via APIv2', () => {
 When(
   'an apiV2 call is made to "Delete" the configured service category',
   () => {
-    cy.deleteSubjectViaAPIv2(
+    cy.deleteSubjectViaApiV2(
       '/centreon/api/latest/configuration/services/categories/5'
     );
   }
@@ -135,25 +133,35 @@ Then(
   }
 );
 
-When('the user changes some properties of the configured service category from UI', () => {
-  cy.navigateTo({
-    page: 'Categories',
-    rootItemNumber: 3,
-    subMenu: 'Services'
-  });
-  cy.wait('@getTimeZone');
-  cy.waitForElementInIframe(
-    '#main-content',
-    `a:contains("${categories.default.name}")`
-  );
-  cy.getIframeBody()
-    .contains('a', categories.default.name)
-    .click();
-  cy.getIframeBody().waitForElementInIframe('#main-content', 'input[name="sc_name"]');
-  cy.getIframeBody().find('input[name="sc_name"]').clear().type(categories['service-category-changed'].name);
-  cy.getIframeBody().find('input.btc.bt_success[name^="submit"]').eq(0).click();
-  cy.wait('@getTimeZone');
-});
+When(
+  'the user changes some properties of the configured service category from UI',
+  () => {
+    cy.navigateTo({
+      page: 'Categories',
+      rootItemNumber: 3,
+      subMenu: 'Services'
+    });
+    cy.wait('@getTimeZone');
+    cy.waitForElementInIframe(
+      '#main-content',
+      `a:contains("${categories.default.name}")`
+    );
+    cy.getIframeBody().contains('a', categories.default.name).click();
+    cy.getIframeBody().waitForElementInIframe(
+      '#main-content',
+      'input[name="sc_name"]'
+    );
+    cy.getIframeBody()
+      .find('input[name="sc_name"]')
+      .clear()
+      .type(categories['service-category-changed'].name);
+    cy.getIframeBody()
+      .find('input.btc.bt_success[name^="submit"]')
+      .eq(0)
+      .click();
+    cy.wait('@getTimeZone');
+  }
+);
 
 Then(
   'a new "CHANGED" line of log is getting added to the page Administration > Logs',
@@ -182,7 +190,9 @@ Then(
 Then(
   'the informations of the log are the same as the changed properties',
   () => {
-    cy.getIframeBody().contains(categories['service-category-changed'].name).click();
+    cy.getIframeBody()
+      .contains(categories['service-category-changed'].name)
+      .click();
     cy.waitForElementInIframe(
       '#main-content',
       'a[href="./main.php?p=508"].btc.bt_success'
@@ -204,29 +214,26 @@ Then(
 );
 
 Given('an enabled service category is configured via APIv2', () => {
-  cy.addSubjectViaAPIv2(
+  cy.addSubjectViaApiV2(
     categories.default,
     '/centreon/api/latest/configuration/services/categories'
   );
 });
 
-When(
-  'the user disables the configured service category from UI',
-  () => {
-    cy.navigateTo({
-        page: 'Categories',
-        rootItemNumber: 3,
-        subMenu: 'Services'
-      });
-      cy.wait('@getTimeZone');
-      cy.waitForElementInIframe(
-        '#main-content',
-        `a:contains("${categories.default.name}")`
-      );
-      cy.getIframeBody().find('img[alt="Disabled"]').eq(1).click();
-      cy.wait('@getTimeZone');
-  }
-);
+When('the user disables the configured service category from UI', () => {
+  cy.navigateTo({
+    page: 'Categories',
+    rootItemNumber: 3,
+    subMenu: 'Services'
+  });
+  cy.wait('@getTimeZone');
+  cy.waitForElementInIframe(
+    '#main-content',
+    `a:contains("${categories.default.name}")`
+  );
+  cy.getIframeBody().find('img[alt="Disabled"]').eq(1).click();
+  cy.wait('@getTimeZone');
+});
 
 Then(
   'a new "DISABLED" line of log is getting added to the page Administration > Logs',
@@ -253,29 +260,26 @@ Then(
 );
 
 Given('a disabled service category is configured via APIv2', () => {
-  cy.addSubjectViaAPIv2(
+  cy.addSubjectViaApiV2(
     categories['service-category-changed'],
     '/centreon/api/latest/configuration/services/categories'
   );
 });
 
-When(
-  'the user enables the configured service category from UI',
-  () => {
-    cy.navigateTo({
-        page: 'Categories',
-        rootItemNumber: 3,
-        subMenu: 'Services'
-      });
-      cy.wait('@getTimeZone');
-      cy.waitForElementInIframe(
-        '#main-content',
-        `a:contains("${categories.default.name}")`
-      );
-      cy.getIframeBody().find('img[alt="Enabled"]').eq(2).click();
-      cy.wait('@getTimeZone');
-  }
-);
+When('the user enables the configured service category from UI', () => {
+  cy.navigateTo({
+    page: 'Categories',
+    rootItemNumber: 3,
+    subMenu: 'Services'
+  });
+  cy.wait('@getTimeZone');
+  cy.waitForElementInIframe(
+    '#main-content',
+    `a:contains("${categories.default.name}")`
+  );
+  cy.getIframeBody().find('img[alt="Enabled"]').eq(2).click();
+  cy.wait('@getTimeZone');
+});
 
 Then(
   'a new "ENABLED" line of log is getting added to the page Administration > Logs',
