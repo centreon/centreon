@@ -39,6 +39,11 @@ use Core\Resources\Infrastructure\Repository\ExtraDataProviders\ExtraDataProvide
  *  subject:string,
  *  timestamp: int
  * }
+ * @phpstan-type _RuleDetails array{
+ *  macro_ticket_id: ?string,
+ *  url: ?string,
+ *  ...
+ * }
  */
 final class OpenTicketExtraDataProvider extends DatabaseRepository implements ExtraDataProviderInterface
 {
@@ -72,7 +77,8 @@ final class OpenTicketExtraDataProvider extends DatabaseRepository implements Ex
             return '';
         }
 
-        $macroName = $this->getMacroNameFromRuleId($filter->getRuleId());
+        $ruleDetails = $this->getRuleDetails($filter->getRuleId());
+        $macroName = $ruleDetails['macro_ticket_id'];
 
         if ($macroName === null) {
             throw new \Exception('Macro name used for rule not found');
@@ -131,7 +137,9 @@ final class OpenTicketExtraDataProvider extends DatabaseRepository implements Ex
             return $data;
         }
 
-        $macroName = $this->getMacroNameFromRuleId($filter->getRuleId());
+        $ruleDetails = $this->getRuleDetails($filter->getRuleId());
+
+        $macroName = $ruleDetails['macro_ticket_id'];
 
         if ($macroName === null) {
             throw new \Exception('Macro name used for rule not found');
@@ -169,13 +177,51 @@ final class OpenTicketExtraDataProvider extends DatabaseRepository implements Ex
         }
 
         // avoid key re-indexing. index = resource_id
-        return $this->getResourceTickets($resourceIds, $macroName)
+        $tickets = $this->getResourceTickets($resourceIds, $macroName)
             + $this->getParentResourceTickets($parentResourceIds, $macroName);
+
+        // for each tickets found lets rebuild the link to it using the information from rule details
+        // if the url has been provided and not empty
+        return $ruleDetails['url'] !== null
+            ? array_map(
+                function ($ticket) use ($ruleDetails) {
+                    $ticket['link'] = $this->generateLinkForTicket($ticket['id'], $ruleDetails);
+
+                    return $ticket;
+                },
+                $tickets
+            )
+            : $tickets;
     }
 
     /**
-     * @param Resource[] $resources
-     * @return Resource[]
+     * @param int $ticketId
+     * @param _RuleDetails $data
+     * @return string
+     */
+    private function generateLinkForTicket(int $ticketId, array $data): string
+    {
+        $url = $data['url'] ?? '';
+
+        if ($url === '') {
+            return $url;
+        }
+
+        foreach ($data as $key => $value) {
+            if ($value !== null) {
+                $pattern = '/\{\$' . preg_quote($key, '/') . '\}/';
+                /** @var non-empty-string $url */
+                $url = preg_replace($pattern, (string) $value, $url);
+            }
+        }
+
+        /** @var non-empty-string $url */
+        return preg_replace('/\{\$ticket_id\}/', (string) $ticketId, $url) ?? $url;
+    }
+
+    /**
+     * @param resource[] $resources
+     * @return resource[]
      */
     private function getServiceResources(array $resources): array
     {
@@ -186,8 +232,8 @@ final class OpenTicketExtraDataProvider extends DatabaseRepository implements Ex
     }
 
     /**
-     * @param Resource[] $resources
-     * @return Resource[]
+     * @param resource[] $resources
+     * @return resource[]
      */
     private function getHostResources(array $resources): array
     {
@@ -244,7 +290,7 @@ final class OpenTicketExtraDataProvider extends DatabaseRepository implements Ex
 
         $queryParameters = [
             ...$resourceQueryParameters,
-            QueryParameter::string('macroName', $macroName)
+            QueryParameter::string('macroName', $macroName),
         ];
 
         $tickets = [];
@@ -308,7 +354,7 @@ final class OpenTicketExtraDataProvider extends DatabaseRepository implements Ex
 
         $queryParameters = [
             ...$resourceQueryParameters,
-            QueryParameter::string('macroName', $macroName)
+            QueryParameter::string('macroName', $macroName),
         ];
 
         $tickets = [];
@@ -331,26 +377,29 @@ final class OpenTicketExtraDataProvider extends DatabaseRepository implements Ex
      *
      * @param int $ruleId
      *
-     * @return string
+     * @return _RuleDetails
      */
-    private function getMacroNameFromRuleId(int $ruleId): ?string
+    private function getRuleDetails(int $ruleId): array
     {
         $query = <<<'SQL'
             SELECT
+                `uniq_id`,
                 `value`
             FROM `:db`.mod_open_tickets_form_value
             WHERE rule_id = :ruleId
-                AND uniq_id = 'macro_ticket_id';
             SQL;
 
-
         $queryParameters = QueryParameters::create([
-            QueryParameter::int('ruleId', $ruleId)
+            QueryParameter::int('ruleId', $ruleId),
         ]);
 
-        return $this->connection->fetchOne(
-            $this->translateDbName($query),
-            $queryParameters,
-        );
+        $ruleDetails = [];
+
+        foreach ($this->connection->iterateAssociativeIndexed($this->translateDbName($query), $queryParameters) as $key => $data) {
+            $ruleDetails[$key] = $data['value'];
+        }
+
+        /** @var array{macro_ticket_id: ?string, url: ?string, ...} $ruleDetails */
+        return $ruleDetails;
     }
 }

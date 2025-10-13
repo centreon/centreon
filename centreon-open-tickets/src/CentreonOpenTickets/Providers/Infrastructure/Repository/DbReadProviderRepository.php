@@ -88,7 +88,7 @@ class DbReadProviderRepository extends DatabaseRepository implements ReadProvide
             }
 
             // get total without pagination
-            $queryTotal = $this->translateDbName('SELECT FOUND_ROWS() FROM `:db`.mod_open_tickets_rule');
+            $queryTotal = $this->translateDbName('SELECT FOUND_ROWS()');
             /** @var int|false $total */
             $total = $this->connection->fetchOne($queryTotal);
 

@@ -21,8 +21,6 @@
 
 $resultat = ['code' => 0, 'msg' => 'ok'];
 
-CentreonLog::create()->error(CentreonLog::TYPE_BUSINESS_LOG, 'get_information', ['data' => $get_information]);
-
 // Load provider class
 if (is_null($get_information['provider_id']) || is_null($get_information['form'])) {
     $resultat['code'] = 1;

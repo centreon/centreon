@@ -19,6 +19,13 @@
  *
  */
 
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\Exception\ConnectionException;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
+use Core\Common\Domain\Exception\CollectionException;
+use Core\Common\Domain\Exception\RepositoryException;
+use Core\Common\Domain\Exception\ValueObjectException;
+
 class Centreon_OpenTickets_Rule
 {
     /** @var CentreonDB */
@@ -291,69 +298,142 @@ class Centreon_OpenTickets_Rule
 
     public function save($rule_id, $datas): void
     {
-        // TODO: re-écrire cette merde avec les méthodes de la ConnectionInterface
-        $this->_db->beginTransaction();
+        $isTransactionActive = $this->_db->isTransactionActive();
 
-        $nrule_id = $rule_id;
-        $dbResult = $this->_db->query(
-            "SELECT * FROM mod_open_tickets_rule WHERE rule_id = '"
-            . $this->_db->escape($rule_id) . "' LIMIT 1"
-        );
-        if (! ($row = $dbResult->fetch())) {
-            $this->_db->query(
-                "INSERT INTO mod_open_tickets_rule (`alias`, `provider_id`, `provider_name`, `activate`) VALUES (
-                    '" . $this->_db->escape($datas['rule_alias']) . "',
-                    '" . $this->_db->escape($datas['provider_id']) . "', 
-                    '" . $this->_db->escape($datas['provider_name']) . "', 
-                    '1'
-                )"
-            );
-            $nrule_id = $this->_db->lastinsertId('mod_open_tickets_rule');
-        } else {
-            $this->_db->query(
-                "UPDATE mod_open_tickets_rule SET 
-                    `alias` = '" . $this->_db->escape($datas['rule_alias']) . "',
-                    `provider_id` = '" . $datas['provider_id'] . "',
-                    `provider_name` = '" . $datas['provider_name'] . "'
-                WHERE rule_id = '" . $this->_db->escape($rule_id) . "'"
-            );
-            $this->_db->query(
-                "DELETE FROM mod_open_tickets_form_clone WHERE rule_id = '" . $this->_db->escape($rule_id) . "'"
-            );
-            $this->_db->query(
-                "DELETE FROM mod_open_tickets_form_value WHERE rule_id = '" . $this->_db->escape($rule_id) . "'"
-            );
-        }
+        try {
+            if (! $isTransactionActive) {
+                $this->_db->startTransaction();
+            }
 
-        foreach ($datas['simple'] as $uniq_id => $value) {
-            $this->_db->query(
-                "INSERT INTO mod_open_tickets_form_value (`uniq_id`, `value`, `rule_id`) VALUES (
-                    '" . $this->_db->escape($uniq_id) . "',
-                    '" . $this->_db->escape($value) . "',
-                    '" . $this->_db->escape($nrule_id) . "'
-                )"
-            );
-        }
+            $ruleId = (int) $rule_id;
 
-        foreach ($datas['clones'] as $uniq_id => $orders) {
-            foreach ($orders as $order => $values) {
-                foreach ($values as $key => $value) {
-                    $this->_db->query(
-                        "INSERT INTO mod_open_tickets_form_clone (
-                            `uniq_id`, `label`, `value`, `rule_id`, `order`
-                        ) VALUES (
-                            '" . $this->_db->escape($uniq_id) . "',
-                            '" . $this->_db->escape($key) . "',
-                            '" . $this->_db->escape($value) . "',
-                            '" . $this->_db->escape($nrule_id) . "',
-                            '" . $this->_db->escape($order) . "'
-                        )"
+            $ruleExists = (bool) $this->_db->fetchOne(
+                query: <<<'SQL'
+                        SELECT 1 FROM mod_open_tickets_rule WHERE rule_id = :ruleId
+                    SQL,
+                queryParameters: QueryParameters::create([QueryParameter::int('ruleId', $ruleId)])
+            );
+
+            // Rule does not exist
+            if (! $ruleExists) {
+                $this->_db->insert(
+                    query: <<<'SQL'
+                            INSERT INTO mod_open_tickets_rule (`alias`, `provider_id`, `provider_name`, `activate`)
+                            VALUES (:ruleAlias, :providerId, :providerName, 1)
+                        SQL,
+                    queryParameters: QueryParameters::create([
+                        QueryParameter::string('ruleAlias', $datas['rule_alias']),
+                        QueryParameter::int('providerId', $datas['provider_id']),
+                        QueryParameter::string('providerName', $datas['provider_name']),
+                    ])
+                );
+
+                $ruleId = $this->_db->lastInsertId();
+            } else {
+                $this->_db->update(
+                    query: <<<'SQL'
+                            UPDATE mod_open_tickets_rule
+                            SET
+                                `alias` = :ruleAlias,
+                                `provider_id` = :providerId,
+                                `provider_name` = :providerName
+                            WHERE
+                                rule_id = :ruleId
+                        SQL,
+                    queryParameters: QueryParameters::create([
+                        QueryParameter::string('ruleAlias', $datas['rule_alias']),
+                        QueryParameter::int('providerId', $datas['provider_id']),
+                        QueryParameter::string('providerName', $datas['provider_name']),
+                        QueryParameter::int('ruleId', $ruleId),
+                    ])
+                );
+
+                $this->_db->delete(
+                    query: <<<'SQL'
+                            DELETE FROM mod_open_tickets_form_clone WHERE rule_id = :ruleId
+                        SQL,
+                    queryParameters: QueryParameters::create([QueryParameter::int('ruleId', $ruleId)])
+                );
+
+                $this->_db->delete(
+                    query: <<<'SQL'
+                            DELETE FROM mod_open_tickets_form_value WHERE rule_id = :ruleId
+                        SQL,
+                    queryParameters: QueryParameters::create([QueryParameter::int('ruleId', $ruleId)])
+                );
+            }
+
+            foreach ($datas['simple'] as $uniq_id => $value) {
+                $this->_db->insert(
+                    query: <<<'SQL'
+                            INSERT INTO mod_open_tickets_form_value (`uniq_id`, `value`, `rule_id`) VALUES (:uniqId, :value, :ruleId)
+                        SQL,
+                    queryParameters: QueryParameters::create([
+                        QueryParameter::string('uniqId', $uniq_id),
+                        QueryParameter::string('value', $value),
+                        QueryParameter::int('ruleId', $ruleId),
+                    ])
+                );
+            }
+
+            foreach ($datas['clones'] as $uniq_id => $orders) {
+                foreach ($orders as $order => $values) {
+                    foreach ($values as $key => $value) {
+                        $this->_db->insert(
+                            query: <<<'SQL'
+                                INSERT INTO mod_open_tickets_form_clone (`uniq_id`, `label`, `value`, `rule_id`, `order`)
+                                VALUES (:uniqId, :label, :value, :ruleId, :order)
+                                SQL,
+                            queryParameters: QueryParameters::create([
+                                QueryParameter::string('uniqId', $uniq_id),
+                                QueryParameter::string('label', $key),
+                                QueryParameter::string('value', $value),
+                                QueryParameter::int('ruleId', $ruleId),
+                                QueryParameter::int('order', $order),
+                            ])
+                        );
+                    }
+                }
+            }
+
+            if (! $isTransactionActive) {
+                $this->_db->commitTransaction();
+            }
+        } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
+            CentreonLog::create()->error(
+                CentreonLog::TYPE_SQL,
+                'An error occured while saving - updating open ticket rule',
+                [
+                    'rule_id' => $ruleId,
+                ]
+            );
+
+            if (! $isTransactionActive) {
+                try {
+                    $this->_db->rollBackTransaction();
+                } catch (ConnectionException $rollbackException) {
+                    CentreonLog::create()->error(
+                        CentreonLog::TYPE_SQL,
+                        "Rollback failed for open ticket rule save - update: {$rollbackException->getMessage()}",
+                        [
+                            'rule_id' => $ruleId,
+                        ]
+                    );
+
+                    throw new RepositoryException(
+                        "Rollback failed for open ticket rule save - update: {$rollbackException->getMessage()}",
+                        ['rule_id' => $ruleId],
+                        $rollbackException
                     );
                 }
             }
-        }
 
-        $this->_db->commit();
+            throw new RepositoryException(
+                "Open Ticket rule save - update failed : {$exception->getMessage()}",
+                ['rule_id' => $ruleId],
+                $exception
+            );
+        }
     }
 
     /**
