@@ -19080,10 +19080,6 @@ msgid "%s patch is installed."
 msgstr "le correctif %s a été installé."
 
 #: unknown
-msgid "'{{total}} element(s) found"
-msgstr "'{{total}} élément(s) trouvé(s)"
-
-#: unknown
 msgid "* Cross-Site Request Forgery : unauthorized commands are transmitted"
 msgstr ""
 "* Cross-Site Request Forgery : des requêtes non autorisées ont été "
@@ -19100,14 +19096,6 @@ msgstr "Coordonnées 2D"
 #: unknown
 msgid "3d Coords"
 msgstr "Coordonnées 3D"
-
-#: unknown
-msgid ""
-"<b><i>Help :</i></b> Select image folders that can be seen by associated "
-"users."
-msgstr ""
-"<b><i>Aide :</i></b> Sélectionner les dossiers d'images qui peuvent être "
-"vus par les utilisateurs associés."
 
 #: unknown
 msgid "<br><b>Centreon : </b>A force-reload signal has been sent to "
@@ -19212,10 +19200,6 @@ msgid "Add a host downtime"
 msgstr "Planifier pour un hôte"
 
 #: unknown
-msgid "Add a host group"
-msgstr "Ajouter un groupe d'hôtes"
-
-#: unknown
 msgid "Add a service downtime"
 msgstr "Planifier pour service"
 
@@ -19226,10 +19210,6 @@ msgstr "Ajouter des configurations additionnelles"
 #: unknown
 msgid "Add an additional configuration"
 msgstr "Ajouter une configuration additionnelle"
-
-#: unknown
-msgid "Add host"
-msgstr "Ajouter un hôte"
 
 #: unknown
 msgid "Add host group"
@@ -19264,10 +19244,6 @@ msgid "Additional daemon"
 msgstr "Démon supplémentaire"
 
 #: unknown
-msgid "Additional information"
-msgstr "Informations supplémentaires"
-
-#: unknown
 msgid "Additional properties are not allowed"
 msgstr "Les propriétés additionnelles ne sont pas autorisées"
 
@@ -19288,10 +19264,6 @@ msgid "Agent types"
 msgstr "Types d'agent"
 
 #: unknown
-msgid "Aggregation frequency"
-msgstr "Fréquence d'agrégation"
-
-#: unknown
 msgid "Aggressive Host Checks"
 msgstr "Contrôle agressif des hôtes"
 
@@ -19302,14 +19274,6 @@ msgstr "Tous les graphiques"
 #: unknown
 msgid "All Logs"
 msgstr "Tous les logs"
-
-#: unknown
-msgid "All image folders"
-msgstr "Tous les dossiers d'images"
-
-#: unknown
-msgid "All image folders selected"
-msgstr "Tous les dossiers d'images sont sélectionnés"
 
 #: unknown
 msgid "Allow self signed certificate."
@@ -19375,12 +19339,6 @@ msgid "An error occured while your platform update"
 msgstr "Une erreur est survenue lors de la mise à jour de la platforme"
 
 #: unknown
-msgid "An error occurred when writing engine context configuration"
-msgstr ""
-"Une erreur s'est produite lors de l'écriture de la configuration du "
-"contexte moteur"
-
-#: unknown
 msgid "An error occurred while filtering columns"
 msgstr "Une erreur est survenue lors du filtrage des colonnes"
 
@@ -19403,10 +19361,6 @@ msgstr "Ajout"
 #: unknown
 msgid "Apply configuration"
 msgstr "Appliquer la configuration"
-
-#: unknown
-msgid "Apply resource access rules to the host group"
-msgstr "Appliquer des règle d'accès aux ressources au groupe d'hôtes"
 
 #: unknown
 msgid "Archive logs of monitoring engine"
@@ -19445,10 +19399,6 @@ msgstr "Couleur de la flèche des axes"
 #: unknown
 msgid "As displayed"
 msgstr "Image affichée"
-
-#: unknown
-msgid "At least one connection mode must be enabled."
-msgstr "Au moins un des modes de connexion doit être activé."
 
 #: unknown
 msgid "Authorization Endpoint"
@@ -19595,24 +19545,12 @@ msgid "Business Activity Diagram"
 msgstr "Diagramme d'activité métier"
 
 #: unknown
-msgid "Business Activity availability"
-msgstr "Disponibilité d'une Activité Métier"
-
-#: unknown
-msgid "Business Activity availability history"
-msgstr "Historique de la disponibilité d’une Activité Métier"
-
-#: unknown
 msgid "Business Activity status timeline"
 msgstr "Historique du statut d’une Activité Métier"
 
 #: unknown
 msgid "Business Intelligence"
 msgstr "Business Intelligence"
-
-#: unknown
-msgid "Business View"
-msgstr "Vue métier"
 
 #: unknown
 msgid "Button 1"
@@ -19631,24 +19569,8 @@ msgid "Button 4"
 msgstr "Bouton 4"
 
 #: unknown
-msgid "By agent"
-msgstr "Par l’agent"
-
-#: unknown
-msgid ""
-"By default, the data of Business Views is aggregated monthly over the "
-"past 12 months (if available)."
-msgstr ""
-"Par défaut, les données des vues métier sont agrégées mensuellement sur "
-"les 12 derniers mois (si disponibles)."
-
-#: unknown
 msgid "By name"
 msgstr "Par nom"
-
-#: unknown
-msgid "By poller"
-msgstr "Par le collecteur"
 
 #: unknown
 msgid ""
@@ -19808,18 +19730,6 @@ msgstr "Information sur Centreon Broker"
 #: unknown
 msgid "Centreon Broker socket path"
 msgstr "Chemin d'accès au socket Unix de Centreon Broker"
-
-#, php-format
-#: unknown
-msgid ""
-"Centreon Broker's configuration directory '%s' does not exist and could "
-"not\n"
-"                                             be created for monitoring "
-"engine '%s'. Please check its path or create it"
-msgstr ""
-"Le répertoire '%s' de configuration de Centreon Broker n'existe pas et ne "
-"peut être créé pour le moteur de supervision '%s'. Merci de vérifier le "
-"chemin du répertoire ou de le créer"
 
 #: unknown
 msgid "Centreon DataBase Statistics"
@@ -20034,10 +19944,6 @@ msgid "Connection Error to NDO DataBase ! \n"
 msgstr "Erreur de connexion à la base de données NDO ! \n"
 
 #: unknown
-msgid "Connection initiated"
-msgstr "Connexion initiée"
-
-#: unknown
 msgid ""
 "Connection to Wiki database failed, please contact your administrator or "
 "read the Centreon online documentation to configure wiki access"
@@ -20090,16 +19996,6 @@ msgid "Could not find configuration database. Session probably expired."
 msgstr ""
 "Impossible de trouver la base de données de configuration. La session a "
 "probablement expiré."
-
-#, php-format
-#: unknown
-msgid ""
-"Could not find configuration directory '%s' for monitoring engine '%s'.\n"
-"                                 Please check its path or create it"
-msgstr ""
-"Impossible de trouver le répertoire de configuration '%s' pour le moteur "
-"de supervision '%s'.\n"
-"Veuillez vérifier son chemin ou le créer"
 
 #: unknown
 msgid "Could not find database user. Session probably expired."
@@ -20164,10 +20060,6 @@ msgid "Curve type"
 msgstr "Type de courbe"
 
 #: unknown
-msgid "Custom boundaries apply to the percentage."
-msgstr "Les limitations personnalisées s'appliquent au pourcentage."
-
-#: unknown
 msgid "Daemon core dumps"
 msgstr ""
 "Activer la possibilité de réaliser un 'core dump' (non compatible avec "
@@ -20192,28 +20084,6 @@ msgstr "Choix de la source de données"
 #: unknown
 msgid "Data Source List"
 msgstr "List des sources de données"
-
-#: unknown
-msgid "Data is aggregated daily for graphs presenting hosts."
-msgstr ""
-"Les données sont agrégées quotidiennement pour les graphes présentant des "
-"hôtes."
-
-#: unknown
-msgid ""
-"Data is aggregated monthly over the last 12 months for graphs presenting "
-"host categories."
-msgstr ""
-"Les données sont agrégées mensuellement sur les 12 derniers mois pour les "
-"graphes présentant des catégories d'hôtes."
-
-#: unknown
-msgid ""
-"Data is aggregated monthly over the last 12 months for graphs presenting "
-"host groups."
-msgstr ""
-"Les données sont agrégées mensuellement sur les 12 derniers mois pour les "
-"graphes présentant des groupes d'hôtes."
 
 #: unknown
 msgid "Data recovery KO"
@@ -20268,20 +20138,8 @@ msgid "Delete all configuration for the chosen type of files"
 msgstr "Supprimer toute la configuration des types de fichiers choisis"
 
 #: unknown
-msgid "Delete host group"
-msgstr "Supprimer le groupe d'hôtes"
-
-#: unknown
-msgid "Delete host groups"
-msgstr "Supprimer les groupes d'hôtes"
-
-#: unknown
 msgid "Dependencies Management"
 msgstr "Gestion des dépendances"
-
-#: unknown
-msgid "Destination Directory"
-msgstr "Répertoire de destination"
 
 #: unknown
 msgid ""
@@ -20344,14 +20202,6 @@ msgid "Display Template"
 msgstr "Utiliser le modèle"
 
 #: unknown
-msgid "Display availability and performance as"
-msgstr "Afficher la disponibilité et la performance sous forme de"
-
-#: unknown
-msgid "Display availability as"
-msgstr "Afficher la disponibilité sous forme de"
-
-#: unknown
 msgid "Display average as"
 msgstr "Afficher la moyenne sous forme de"
 
@@ -20396,10 +20246,6 @@ msgid "Display type"
 msgstr "Type d'affichage"
 
 #: unknown
-msgid "Display with this resource type"
-msgstr "Afficher les ressources avec ce type"
-
-#: unknown
 msgid "Display with this view"
 msgstr "Afficher avec cette vue"
 
@@ -20432,13 +20278,6 @@ msgstr ""
 "période donnée."
 
 #: unknown
-msgid ""
-"Displays availability, performance and alerts for a Business Activity"
-msgstr ""
-"Affiche la disponibilité, les performances et les alertes d'une Activité "
-"Métier"
-
-#: unknown
 msgid "Displays data on resource status and events, centralized in a table."
 msgstr ""
 "Affiche des données sur le statut des ressources et les événements, "
@@ -20455,21 +20294,6 @@ msgstr ""
 #: unknown
 msgid "Displays metrics for a given time period."
 msgstr "Affiche les métriques pour une période donnée."
-
-#: unknown
-msgid ""
-"Displays the availability history of a Business Activity or a Business "
-"View for a given period."
-msgstr ""
-"Affiche l’historique de la disponibilité d'une activité métier ou vue "
-"métier pour une période donnée."
-
-#: unknown
-msgid ""
-"Displays the availability history of hosts, host categories or hostgroups."
-msgstr ""
-"Affiche l’historique de la disponibilité d’hôtes, catégories d’hôtes ou "
-"groupes d’hôtes."
 
 #: unknown
 msgid ""
@@ -20536,14 +20360,6 @@ msgid "Do you want to delete this widget?"
 msgstr "Voulez-vous supprimer ce widget ?"
 
 #: unknown
-msgid "Do you want to switch to classic mode?"
-msgstr "Voulez-vous passer en mode classique ?"
-
-#: unknown
-msgid "Do you want to switch to regex mode?"
-msgstr "Voulez-vous passer en mode regex ?"
-
-#: unknown
 msgid "Donate"
 msgstr "Donation"
 
@@ -20578,18 +20394,6 @@ msgstr "Copier dans le fichier"
 #: unknown
 msgid "Drop possibility after parsing performance data"
 msgstr "Actions après traitement des données de performances"
-
-#: unknown
-msgid "Duplicate host group"
-msgstr "Dupliquer le groupe d'hôtes"
-
-#: unknown
-msgid "Duplicate host groups"
-msgstr "Dupliquer les groupes d'hôtes"
-
-#: unknown
-msgid "Duplications"
-msgstr "Duplications"
 
 #: unknown
 msgid "ERROR"
@@ -20667,10 +20471,6 @@ msgid "Enabled HostGroups"
 msgstr "Activer le groupe d'hôtes"
 
 #: unknown
-msgid "Enabled hosts"
-msgstr "Hôtes activés"
-
-#: unknown
 msgid "End Hour"
 msgstr "Heure de fin"
 
@@ -20685,18 +20485,6 @@ msgstr "La date de fin doit être supérieure à la date de début"
 #: unknown
 msgid "End date must be greater than start date."
 msgstr "La date de fin doit être supérieure à la date de début."
-
-#: unknown
-msgid "Enter Regex"
-msgstr "Entrer une expression régulière"
-
-#: unknown
-msgid "Enter regex"
-msgstr "Saisir une regex"
-
-#: unknown
-msgid "Enter regex mode"
-msgstr "Activer le mode regex"
 
 #: unknown
 msgid "Entries are registered"
@@ -20791,14 +20579,6 @@ msgstr "Erreur lors de la suppression d'une liste de diffusion"
 #: unknown
 msgid "Error while deleting the dashboard share"
 msgstr "Erreur durant la suppression d'un partage de tableau de bord"
-
-#: unknown
-msgid "Error while duplicating a host group"
-msgstr "Erreur durant la duplication d'un groupe d'hôtes"
-
-#: unknown
-msgid "Error while enabling/disabling host groups"
-msgstr "Erreur lors de l'activation/désactivation de groupes d'hôtes"
 
 #: unknown
 msgid "Error while getting the local requester."
@@ -20908,16 +20688,8 @@ msgid "Execution start"
 msgstr "Début de l'exécution"
 
 #: unknown
-msgid "Existing directory"
-msgstr "Répertoire existant"
-
-#: unknown
 msgid "Existing or new directory"
 msgstr "Nouveau dossier ou dossier existant"
-
-#: unknown
-msgid "Exit regex mode"
-msgstr "Désactiver le mode regex"
 
 #: unknown
 msgid "Export XML"
@@ -20944,10 +20716,6 @@ msgid "Failed to copy the link."
 msgstr "Échec de la copie du lien."
 
 #: unknown
-msgid "Failed to delete"
-msgstr "Échec de la suppression"
-
-#: unknown
 msgid "Failed to delete notifications"
 msgstr "Échec de la suppression des notifications"
 
@@ -20964,24 +20732,12 @@ msgid "Failed to delete the host group"
 msgstr "Échec de la suppression du groupe d'hôtes"
 
 #: unknown
-msgid "Failed to disable"
-msgstr "Échec de la désactivation"
-
-#: unknown
 msgid "Failed to disable the host group"
 msgstr "Échec de la désactivation du groupe d'hôtes"
 
 #: unknown
-msgid "Failed to duplicate"
-msgstr "Échec de la duplication"
-
-#: unknown
 msgid "Failed to duplicate the host group"
 msgstr "Échec de la duplication du groupe d'hôtes"
-
-#: unknown
-msgid "Failed to enable"
-msgstr "Échec de l'activation"
 
 #: unknown
 msgid "Failed to enable the host group"
@@ -21116,10 +20872,6 @@ msgid "Force Reload"
 msgstr "Forcer le rechargement"
 
 #: unknown
-msgid "Forecast based on past X days"
-msgstr "Prévision basée sur les X derniers jours"
-
-#: unknown
 msgid "Forum"
 msgstr "Forum"
 
@@ -21174,10 +20926,6 @@ msgstr "Texte d'exemple"
 #: unknown
 msgid "Generic widgets"
 msgstr "Widgets génériques"
-
-#: unknown
-msgid "Geographic coordinates for MAP"
-msgstr "Coordonnées géographiques pour MAP"
 
 #: unknown
 msgid "Geolocation"
@@ -21361,52 +21109,8 @@ msgid "Host comments"
 msgstr "Commentaires associés à l'hôte"
 
 #: unknown
-msgid "Host configurations"
-msgstr "Configurations d'hôte"
-
-#: unknown
-msgid "Host group created"
-msgstr "Groupe d'hôtes créé"
-
-#: unknown
-msgid "Host group deleted"
-msgstr "Groupe d'hôtes supprimé"
-
-#: unknown
-msgid "Host group disabled"
-msgstr "Groupe d'hôtes désactivé"
-
-#: unknown
-msgid "Host group duplicated"
-msgstr "Groupe d'hôtes dupliqué"
-
-#: unknown
-msgid "Host group enabled"
-msgstr "Groupe d'hôtes activé"
-
-#: unknown
 msgid "Host group not found"
 msgstr "Groupe d'hôtes non trouvé"
-
-#: unknown
-msgid "Host group updated"
-msgstr "Groupe d'hôtes mis à jour"
-
-#: unknown
-msgid "Host groups deleted"
-msgstr "Groupes d'hôtes supprimés"
-
-#: unknown
-msgid "Host groups disabled"
-msgstr "Groupes d'hôtes désactivés"
-
-#: unknown
-msgid "Host groups duplicated"
-msgstr "Groupes d'hôtes dupliqués"
-
-#: unknown
-msgid "Host groups enabled"
-msgstr "Groupes d'hôtes activés"
 
 #: unknown
 msgid "Host of downtime not found"
@@ -21419,10 +21123,6 @@ msgstr "L'hôte ou l'id de l'hôte ne peuvent pas être null"
 #: unknown
 msgid "Host severities"
 msgstr "Sévérités des hôtes"
-
-#: unknown
-msgid "Hostgroup availability history"
-msgstr "Historique de la disponibilité des groupes d’hôtes"
 
 #: unknown
 msgid "Hostgroups Escalation"
@@ -21470,36 +21170,14 @@ msgstr "Très grande"
 
 #: unknown
 msgid ""
-"If the agent is not allowed to connect to the poller for security reasons "
-"(e.g. when the poller is in a DMZ), you can use a poller-initiated "
-"connection."
-msgstr ""
-"Si l’agent n’est pas autorisé à se connecter au collecteur pour des "
-"raisons de sécurité (par exemple si le collecteur est en DMZ), vous "
-"pouvez utiliser une connexion initiée par le collecteur."
-
-#: unknown
-msgid ""
 "If ticket management is enabled, only the “by service” view is available."
 msgstr ""
 "Si la gestion des tickets est activée, seule la vue par service est "
 "disponible."
 
 #: unknown
-msgid ""
-"If you want to display the graph with host categories and hosts, you must "
-"select only one hostgroup."
-msgstr ""
-"Si vous souhaitez afficher le graphe avec les catégories d'hôtes et les "
-"hôtes, vous ne devez sélectionner qu'un seul groupe d'hôtes."
-
-#: unknown
 msgid "Image Name"
 msgstr "Nom de l'image"
-
-#: unknown
-msgid "Image folders"
-msgstr "Dossiers d'images"
 
 #: unknown
 msgid "Image or archive"
@@ -21606,10 +21284,6 @@ msgid "Include Timeperiods"
 msgstr "Inclure les périodes"
 
 #: unknown
-msgid "Include all image folders"
-msgstr "Inclure tous les dossiers d'images"
-
-#: unknown
 msgid "Include comments"
 msgstr "Inclure les commentaires"
 
@@ -21696,10 +21370,6 @@ msgstr "URL d'endpoint spécifiée invalide"
 #: unknown
 msgid "Invalid endpoint type specified"
 msgstr "Type d'endpoint spécifié invalide"
-
-#: unknown
-msgid "Invalid geo-coordinate format"
-msgstr "Format de coordonnées géographiques invalide"
 
 #: unknown
 msgid "Invalid property type %s for %s, type %s expected"
@@ -21929,10 +21599,6 @@ msgid "Low Flap threshold"
 msgstr "Seuil bas de détection de bagotage des statuts"
 
 #: unknown
-msgid "MBI Reporting widgets"
-msgstr "Widgets de reporting MBI"
-
-#: unknown
 msgid "MBI reporting widgets"
 msgstr "Widgets de rapports MBI"
 
@@ -21963,10 +21629,6 @@ msgstr "Remplissage manuel OK"
 #: unknown
 msgid "Map"
 msgstr "Map"
-
-#: unknown
-msgid "Max value"
-msgstr "Valeur max"
 
 #: unknown
 msgid "Maximum Check Result Reaper Time"
@@ -22005,10 +21667,6 @@ msgid "Metrics graph"
 msgstr "Graphe de métriques"
 
 #: unknown
-msgid "Min value"
-msgstr "Valeur min"
-
-#: unknown
 msgid "Missing auto import mandatory parameters: %s"
 msgstr ""
 "Paramètres obligatoires manquants pour l'importation automatique : %s"
@@ -22024,10 +21682,6 @@ msgstr "Minutes"
 #: unknown
 msgid "Modify Image"
 msgstr "Modifier l'image"
-
-#: unknown
-msgid "Modify a host group"
-msgstr "Modifier un groupe d'hôtes"
 
 #: unknown
 msgid "Modify an additional configuration"
@@ -22102,16 +21756,8 @@ msgid "More Actions"
 msgstr "Plus d'actions"
 
 #: unknown
-msgid "Must be a positive integer or 0"
-msgstr "Doit être un entier positif ou 0"
-
-#: unknown
 msgid "NA"
 msgstr "NA"
-
-#: unknown
-msgid "Name must start and end with a '$'"
-msgstr "Le nom doit commencer et se terminer par un '$'"
 
 #: unknown
 msgid "New Color"
@@ -22142,29 +21788,12 @@ msgid "No data available"
 msgstr "Aucune donnée disponible"
 
 #: unknown
-msgid ""
-"No data is displayed because the selected resources have not been "
-"configured in any MBI report or do not contain enough data."
-msgstr ""
-"Aucune donnée n'est affichée car les ressources sélectionnées n'ont été "
-"configurées dans aucun rapport MBI ou ne contiennent pas suffisamment de "
-"données."
-
-#: unknown
 msgid "No downtime scheduled for hosts"
 msgstr "Aucune plage de maintenance planifiée pour les hôtes"
 
 #: unknown
 msgid "No downtime scheduled for services"
 msgstr "Aucune plage de maintenance planifiée pour les services"
-
-#: unknown
-msgid "No hosts in this group are currently disabled."
-msgstr "Aucun hôte désactivé dans ce groupe actuellement."
-
-#: unknown
-msgid "No hosts in this group are currently enabled."
-msgstr "Aucun hôte activé dans ce groupe actuellement."
 
 #: unknown
 msgid "No provider presenters could be found"
@@ -22189,10 +21818,6 @@ msgstr "Aucun problème de service non acquitté"
 #: unknown
 msgid "No {{resourcesType}} found with this status"
 msgstr "Aucun {{resourcesType}} trouvé avec ce statut"
-
-#: unknown
-msgid "Non-workhours"
-msgstr "Hors heures de travail"
 
 #: unknown
 msgid "Normal"
@@ -22241,10 +21866,6 @@ msgstr "OK : tous les collecteurs sont en cours d'exécution"
 #: unknown
 msgid "Object Cache File"
 msgstr "Fichier de cache des objets"
-
-#: unknown
-msgid "Objets"
-msgstr "Objets"
 
 #: unknown
 msgid "Obsess Over Hosts Option"
@@ -22311,10 +21932,6 @@ msgstr "Ouvrir les liens dans un nouvel onglet"
 #: unknown
 msgid "Open ticket"
 msgstr "Ouvrir un ticket"
-
-#: unknown
-msgid "Opentelemetry"
-msgstr "OpenTelemetry"
 
 #: unknown
 msgid "Optimize"
@@ -22473,11 +22090,6 @@ msgstr ""
 msgid "Please enter a name for the resource access rule to duplicate"
 msgstr ""
 "Veuillez saisir un nom pour la règle d'accès aux ressources à dupliquer"
-
-#: unknown
-msgid "Please note that data aggregation may take several days."
-msgstr ""
-"Veuillez noter que l'agrégation des données peut prendre plusieurs jours."
 
 #: unknown
 msgid ""
@@ -22657,10 +22269,6 @@ msgid "Real name"
 msgstr "Nom réel"
 
 #: unknown
-msgid "Real time widgets"
-msgstr "Widgets temps réel"
-
-#: unknown
 msgid "Redirect Url"
 msgstr "Adresse de redirection vers Centreon"
 
@@ -22709,10 +22317,6 @@ msgstr "Modèles de rapport"
 #: unknown
 msgid "Report view"
 msgstr "Visualisation des rapports"
-
-#: unknown
-msgid "Reporting period"
-msgstr "Période du rapport"
 
 #: unknown
 msgid "Reporting retention duration (dashboard)"
@@ -22992,10 +22596,6 @@ msgid "Select host severities"
 msgstr "Sélectionner les sévérités des hôtes"
 
 #: unknown
-msgid "Select hosts"
-msgstr "Sélectionner des hôtes"
-
-#: unknown
 msgid "Select rule (ticket provider)"
 msgstr "Sélectionner la règle (fournisseur de tickets)"
 
@@ -23123,10 +22723,6 @@ msgstr "Configuration"
 #: unknown
 msgid "Severity level"
 msgstr "Niveau de criticité"
-
-#: unknown
-msgid "Shared image folders"
-msgstr "Dossiers d'images partagés"
 
 #: unknown
 msgid "Shared views list"
@@ -23513,10 +23109,6 @@ msgstr ""
 "p=60901\">ici</a>."
 
 #: unknown
-msgid "The min value must be lower than the max value."
-msgstr "La valeur min doit être inférieure à la valeur max."
-
-#: unknown
 msgid "The order in which dashboards are displayed must be unique."
 msgstr "L'ordre de diffusion des tableaux de bord doit être unique."
 
@@ -23581,10 +23173,6 @@ msgstr ""
 "sans résoudre les erreurs ?"
 
 #: unknown
-msgid "These time periods are defined in MBI'S ETL options."
-msgstr "Ces périodes temporelles sont définies dans les options ETL de MBI."
-
-#: unknown
 msgid "This field is required"
 msgstr "Ce champ est obligatoire"
 
@@ -23601,33 +23189,12 @@ msgid "This is the description of the text widget"
 msgstr "Description du widget texte"
 
 #: unknown
-msgid ""
-"This is the most common case: the agent initiates the connection to the "
-"poller."
-msgstr ""
-"Il s’agit du cas le plus courant : l’agent initie la connexion vers le "
-"collecteur."
-
-#: unknown
 msgid "This month"
 msgstr "Ce mois"
 
 #: unknown
-msgid "This year"
-msgstr "Cette année"
-
-#: unknown
 msgid "Threshold"
 msgstr "Seuil"
-
-#: unknown
-msgid ""
-"Thresholds can be hidden if the custom min and max values of the Y axis "
-"are below/above the thresholds."
-msgstr ""
-"Les seuils peuvent être masqués si les valeurs minimales et maximales "
-"personnalisées de l'axe Y sont respectivement inférieures et supérieures "
-"aux seuils."
 
 #: unknown
 msgid "Ticket management"
@@ -23879,10 +23446,6 @@ msgid "Use a vault to store sensitive data"
 msgstr "Utiliser un coffre fort pour stocker les données sensibles"
 
 #: unknown
-msgid "Use deprecated custom views"
-msgstr "Utiliser les vues personalisées dépréciées"
-
-#: unknown
 msgid "Use embedded Perl implicitly"
 msgstr "Utilisation implicite de l'interpréteur Perl intégré"
 
@@ -23978,10 +23541,6 @@ msgstr "Voir l'image"
 #: unknown
 msgid "View a Meta Service indicator"
 msgstr "Visualiser un indicateur de Méta-Service"
-
-#: unknown
-msgid "View a host group"
-msgstr "Voir un groupe d'hôtes"
 
 #: unknown
 msgid "View command definition"
@@ -24108,10 +23667,6 @@ msgid "WizardAjax"
 msgstr "Assistant de configuration"
 
 #: unknown
-msgid "Workhours"
-msgstr "Heures de travail"
-
-#: unknown
 msgid "Would you like to install this widget?"
 msgstr "Souhaitez-vous installer ce widget ?"
 
@@ -24130,10 +23685,6 @@ msgstr "Ecrite l'identifiant du processus"
 #: unknown
 msgid "Write timestamp"
 msgstr "Ecrire l'horodatage (timestamp)"
-
-#: unknown
-msgid "Y-axis boundaries"
-msgstr "Limitations de l'axe Y"
 
 #: unknown
 msgid "Y-axis label rotation"
@@ -24322,18 +23873,6 @@ msgid "You must specify a username"
 msgstr "Vou devez spécifier un nom d'utilisateur"
 
 #: unknown
-msgid "Your changes will not be saved if you leave classic mode."
-msgstr ""
-"Vos modifications ne seront pas enregistrées si vous quittez le mode "
-"classique."
-
-#: unknown
-msgid "Your changes will not be saved if you leave regex mode."
-msgstr ""
-"Vos modifications ne seront pas enregistrées si vous quittez le mode "
-"regex."
-
-#: unknown
 msgid "Your session is expired."
 msgstr "Votre session a expiré"
 
@@ -24344,10 +23883,6 @@ msgstr "Centré sur zéro"
 #: unknown
 msgid "areaOpacity"
 msgstr "areaOpacity"
-
-#: unknown
-msgid "boundaries"
-msgstr "limites"
 
 #: unknown
 msgid "cgi"
@@ -24580,10 +24115,6 @@ msgstr "vCenter/ESX"
 #: unknown
 msgid "warning"
 msgstr "alerte"
-
-#: unknown
-msgid "warningtext"
-msgstr "texte d'avertissement"
 
 #: unknown
 msgid "will display resources with host name starting by'"
