@@ -1648,6 +1648,10 @@ msgstr "Au moins une relation d'autorisation est requise"
 msgid "At least one column must be selected"
 msgstr "Au moins une colonne doit être sélectionnée"
 
+#: centreon/www/install/front_translate.php
+msgid "At least one connection mode must be enabled."
+msgstr "Au moins un des modes de connexion doit être activé."
+
 #: centreon/src/Core/ResourceAccess/Application/Exception/RuleException.php
 msgid "At least one contact or contactgroup should be linked to the rule"
 msgstr "Au moins un contact ou un groupe de contacts doit être lié à la règle."
@@ -1706,10 +1710,6 @@ msgstr "Lier à un Remote Server principal"
 #: centreon/www/include/Administration/parameters/general/form.php
 msgid "Attempt"
 msgstr "Tentative"
-
-#: centreon/www/install/front_translate.php
-msgid "At least one connection mode must be enabled."
-msgstr "Au moins un des modes de connexion doit être activé."
 
 #: centreon/www/include/Administration/parameters/centstorage/form.php
 msgid "Audit log activation"
