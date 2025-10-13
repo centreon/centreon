@@ -110,6 +110,10 @@ Given(
           const previousVersion =
             getCentreonPreviousMajorVersion(major_version);
           cy.log(`Getting Centreon previous major version: ${previousVersion}`);
+          cy.task(
+            "logVersion",
+            `Previous Major version value is ${previousVersion}`,
+          );
           // Cloud versioning is different from on-prem
           if (Cypress.env('IS_CLOUD')) {
             const versionDir = './././../../www/install/php';
