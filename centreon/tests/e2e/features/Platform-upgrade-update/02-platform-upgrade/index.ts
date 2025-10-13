@@ -110,10 +110,6 @@ Given(
           const previousVersion =
             getCentreonPreviousMajorVersion(major_version);
           cy.log(`Getting Centreon previous major version: ${previousVersion}`);
-          cy.task(
-            "logVersion",
-            `VERSION: previous major version value is ${previousVersion}`,
-          );
           // Cloud versioning is different from on-prem
           if (Cypress.env('IS_CLOUD')) {
             const versionDir = './././../../www/install/php';
@@ -126,7 +122,7 @@ Given(
                 majorVersionFrom = previousVersion;
                 cy.task(
                   "logVersion",
-                  `VERSION: Found version value is ${previousVersion}`,
+                  `Found version value is ${previousVersion}`,
                 );
               } else {
                 cy.log(
@@ -141,7 +137,7 @@ Given(
                     cy.wrap(newVersion).as('majorVersionFrom');
                     cy.task(
                       "logVersion",
-                      `VERSION: Closest version found value is ${newVersion}`,
+                      `Closest version found value is ${newVersion}`,
                     );
                   }
                 );
@@ -151,7 +147,7 @@ Given(
             majorVersionFrom = previousVersion;
             cy.task(
               "logVersion",
-              `VERSION: Found version value is ${previousVersion}`,
+              `Found version value is ${previousVersion}`,
             );
           }
           break;
@@ -224,7 +220,7 @@ Given(
                   cy.log('installed_version', installedVersion);
                   cy.task(
                     "logVersion",
-                    `VERSION: Installed version value is ${installedVersion}`,
+                    `Installed version value is ${installedVersion}`,
                   );
                   return installCentreon(installedVersion)
                     .then(() => {

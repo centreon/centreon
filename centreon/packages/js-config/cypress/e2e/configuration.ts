@@ -56,7 +56,7 @@ export default ({
         });
         on("task", {
           logVersion(message) {
-            console.log(`[VERSION LOG]: ${message}`);
+            console.log(`[LOG]: ${message}`);
             return null;
           },
         });
