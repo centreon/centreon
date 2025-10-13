@@ -102,7 +102,7 @@ class DbReadRealTimeServiceCategoryRepository extends AbstractRepositoryRDB impl
                         ON rtags_host_groups.tag_id = host_groups.tag_id
                         AND host_groups.`type` = 1
                     LEFT JOIN `:dbstg`.resources_tags rtags_host_categories
-                        ON rtags_host_categories.resource_id = resources.resource_id
+                        ON rtags_host_categories.resource_id = parent_resource.resource_id
                     LEFT JOIN `:dbstg`.tags AS host_categories
                         ON rtags_host_categories.tag_id = host_categories.tag_id
                         AND host_categories.`type` = 3
