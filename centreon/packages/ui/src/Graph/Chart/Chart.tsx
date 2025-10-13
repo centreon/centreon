@@ -1,5 +1,5 @@
 import {
-    MutableRefObject,
+  type MutableRefObject,
   useEffect,
   useMemo,
   useRef,
@@ -244,6 +244,7 @@ const Chart = ({
     xScale
   });
 
+  const displayLegend = legend?.display ?? true;
   const displayTooltip = !isNil(tooltip?.renderComponent);
 
   const showGridLines = useMemo(
