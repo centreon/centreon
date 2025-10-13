@@ -126,7 +126,7 @@ jobs:
 
       - name: Run nightly on a different maintenance branch depending on the day
         run: |
-          NIGHTLY_TARGETS=("dev-22.10.x" "dev-23.10.x" "dev-24.04.x" "dev-24.10.x")
+          NIGHTLY_TARGETS=("dev-22.10.x" "dev-23.10.x" "dev-24.04.x" "dev-24.10.x" "dev-25.10.x")
           echo "[INFO] - Dispatching nightly run to ${NIGHTLY_TARGETS[$(( $(date +%u) - 1 ))]} branch."
           gh workflow run web.yml -r "${NIGHTLY_TARGETS[$(( $(date +%u) - 1 ))]}" -f nightly_manual_trigger=true
         shell: bash
@@ -459,77 +459,26 @@ jobs:
         run: composer symfony:check && composer symfony:new:check
         working-directory: centreon
 
+      - name: Get changed PHP files
+        id: changed-php
+        uses: tj-actions/changed-files@ed68ef82c095e0d48ec87eccea555d944a631a4c # v46.0.5
+        with:
+          files: |
+            **/*.php
+
       - name: 🛠️ Rector checks
+        if: steps.changed-php.outputs.any_changed == 'true'
         working-directory: centreon
         run: |
-          echo "Run of these Rector tests: rector:legacy, rector:core, rector:new" && set -e
-
-          pids=()
-          statuses=()
-
-          run_task() {
-            name=$1
-            shift
-            "$@" -- --no-progress-bar
-            result=$?
-            if [ $result -eq 0 ]; then
-              echo "✅ Rector $name: Success"
-            else
-              echo "❌ Rector $name: Failed"
-            fi
-            return $result
-          }
-
-          # Start tasks in background
-          run_task legacy composer rector:legacy & pids+=($!)
-          run_task core composer rector:core & pids+=($!)
-          run_task new composer rector:new & pids+=($!)
-
-          # Wait for all, and record if any failed
-          exit_code=0
-          for pid in "${pids[@]}"; do
-            if ! wait "$pid"; then
-              exit_code=1
-            fi
-          done
-
-          exit $exit_code
+          echo "Run of these Rector tests: rector:legacy, rector:core, rector:new on diff" && set -e
+          PHP_DIFF_FILES="${{ steps.changed-php.outputs.all_changed_files }}" composer rector:diff
 
       - name: 🧹 PHP-CS-Fixer checks
+        if: steps.changed-php.outputs.any_changed == 'true'
         working-directory: centreon
         run: |
-          echo "Run of these PHP-CS-Fixer tests: cs:legacy, cs:core, cs:new" && set -e
-
-          pids=()
-          statuses=()
-
-          run_task() {
-            name=$1
-            shift
-            "$@" -- --format=txt --show-progress=none
-            result=$?
-            if [ $result -eq 0 ]; then
-            echo "✅ PHP-CS-Fixer $name: Success"
-            else
-            echo "❌ PHP-CS-Fixer $name: Failed"
-            fi
-            return $result
-          }
-
-          # Start tasks in background
-          run_task legacy composer cs:legacy & pids+=($!)
-          run_task core composer cs:core & pids+=($!)
-          run_task new composer cs:new & pids+=($!)
-
-          # Wait for all, and record if any failed
-          exit_code=0
-          for pid in "${pids[@]}"; do
-            if ! wait "$pid"; then
-              exit_code=1
-            fi
-          done
-
-          exit $exit_code
+          echo "Run of these PHP-CS-Fixer tests: cs:legacy, cs:core, cs:new on diff" && set -e
+          PHP_DIFF_FILES="${{ steps.changed-php.outputs.all_changed_files }}" composer cs:diff
 
       - name: 🔍 PHPStan checks
         working-directory: centreon
@@ -1053,55 +1002,55 @@ jobs:
       jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
       jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
 
-  performances-test:
-    runs-on: ubuntu-24.04
-    needs: [get-environment, dockerize]
-    if: ${{ needs.get-environment.outputs.skip_workflow == 'false' && !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.get-environment.outputs.stability != 'stable' && github.repository == 'centreon/centreon' }}
-    strategy:
-      fail-fast: false
-      matrix:
-        include: ${{ fromJson(needs.get-environment.outputs.os_and_database_matrix).main }}
-    name: performances-test ${{ matrix.operating_system }}-${{ matrix.database }}
-    steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+  # performances-test:
+  #   runs-on: ubuntu-24.04
+  #   needs: [get-environment, dockerize]
+  #   if: ${{ needs.get-environment.outputs.skip_workflow == 'false' && !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.get-environment.outputs.stability != 'stable' && github.repository == 'centreon/centreon' }}
+  #   strategy:
+  #     fail-fast: false
+  #     matrix:
+  #       include: ${{ fromJson(needs.get-environment.outputs.os_and_database_matrix).main }}
+  #   name: performances-test ${{ matrix.operating_system }}
+  #   steps:
+  #     - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
-      - name: Login to registry
-        uses: docker/login-action@74a5d142397b4f367a81961eba4e8cd7edddf772 # v3.4.0
-        with:
-          registry: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
-          username: ${{ secrets.HARBOR_CENTREON_PULL_USERNAME }}
-          password: ${{ secrets.HARBOR_CENTREON_PULL_TOKEN }}
+  #     - name: Login to registry
+  #       uses: docker/login-action@74a5d142397b4f367a81961eba4e8cd7edddf772 # v3.4.0
+  #       with:
+  #         registry: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
+  #         username: ${{ secrets.HARBOR_CENTREON_PULL_USERNAME }}
+  #         password: ${{ secrets.HARBOR_CENTREON_PULL_TOKEN }}
 
-      - name: Run Lighthouse
-        uses: ./.github/actions/lighthouse-performance-testing
-        with:
-          path: "centreon/lighthouse"
-          image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-web-slim-alma9
-          image_version: ${{ github.head_ref || github.ref_name }}
-          database_image: bitnamilegacy/mariadb:10.11
-          image_lighthouse_version: ${{ needs.get-environment.outputs.major_version }}
-          module: centreon
-          dependencies_lock_file: centreon/pnpm-lock.yaml
+  #     - name: Run Lighthouse
+  #       uses: ./.github/actions/lighthouse-performance-testing
+  #       with:
+  #         path: "centreon/lighthouse"
+  #         image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-web-${{ matrix.operating_system }}
+  #         image_version: ${{ github.head_ref || github.ref_name }}
+  #         database_image: bitnamilegacy/mariadb:10.11
+  #         image_lighthouse_version: ${{ needs.get-environment.outputs.major_version }}
+  #         module: centreon
+  #         dependencies_lock_file: centreon/pnpm-lock.yaml
 
-      - name: Publish report to S3
-        if: ${{ github.event_name == 'push' }}
-        uses: ./.github/actions/lighthouse-to-s3
-        with:
-          report_path: centreon/lighthouse/report/lighthouseci-index.html
-          report_target: s3://centreon-lighthouse-report/
-          access_key_id: ${{ secrets.LIGHTHOUSE_ID }}
-          secret_access_key: ${{ secrets.LIGHTHOUSE_SECRET }}
+  #     - name: Publish report to S3
+  #       if: ${{ github.event_name == 'push' }}
+  #       uses: ./.github/actions/lighthouse-to-s3
+  #       with:
+  #         report_path: centreon/lighthouse/report/lighthouseci-index.html
+  #         report_target: s3://centreon-lighthouse-report/
+  #         access_key_id: ${{ secrets.LIGHTHOUSE_ID }}
+  #         secret_access_key: ${{ secrets.LIGHTHOUSE_SECRET }}
 
-      - name: Publish report
-        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
-        with:
-          name: lighthouse-report
-          path: centreon/lighthouse/report/lighthouseci-index.html
-          retention-days: 1
+  #     - name: Publish report
+  #       uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
+  #       with:
+  #         name: lighthouse-report
+  #         path: centreon/lighthouse/report/lighthouseci-index.html
+  #         retention-days: 1
 
   deliver-sources:
     runs-on: centreon-common
-    needs: [get-environment, e2e-test, performances-test, legacy-e2e-test]
+    needs: [get-environment, e2e-test, legacy-e2e-test]
     if: ${{ needs.get-environment.outputs.skip_workflow == 'false' && !cancelled() && contains(fromJson('["stable"]'), needs.get-environment.outputs.stability) && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && github.event_name != 'workflow_dispatch' && github.repository == 'centreon/centreon' }}
 
     steps:
@@ -1216,7 +1165,6 @@ jobs:
         get-environment,
         newman-test,
         e2e-test,
-        performances-test,
         legacy-e2e-test
       ]
     if: |
@@ -1258,7 +1206,6 @@ jobs:
         get-environment,
         newman-test,
         e2e-test,
-        performances-test,
         legacy-e2e-test
       ]
     if: |

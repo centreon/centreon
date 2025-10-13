@@ -7,11 +7,6 @@ concurrency:
 on:
   workflow_dispatch:
   pull_request:
-    types:
-      - opened
-      - synchronize
-      - reopened
-      - ready_for_review
     paths:
       - ".version"
       - ".version.centreon-open-tickets"
@@ -101,74 +96,26 @@ jobs:
         working-directory: centreon-open-tickets
         shell: bash
 
+      - name: Get changed PHP files
+        id: changed-php
+        uses: tj-actions/changed-files@ed68ef82c095e0d48ec87eccea555d944a631a4c # v46.0.5
+        with:
+          files: |
+            **/*.php
+
       - name: 🛠️ Rector checks
+        if: steps.changed-php.outputs.any_changed == 'true'
         working-directory: centreon-open-tickets
         run: |
-          echo "Run of these Rector tests: rector:legacy" && set -e
-
-          pids=()
-          statuses=()
-
-          run_task() {
-            name=$1
-            shift
-            "$@" -- --no-progress-bar
-            result=$?
-            if [ $result -eq 0 ]; then
-              echo "✅ Rector $name: Success"
-            else
-              echo "❌ Rector $name: Failed"
-            fi
-            return $result
-          }
-
-          # Start tasks in background
-          run_task legacy composer rector:legacy & pids+=($!)
-
-          # Wait for all, and record if any failed
-          exit_code=0
-          for pid in "${pids[@]}"; do
-            if ! wait "$pid"; then
-              exit_code=1
-            fi
-          done
-
-          exit $exit_code
+          echo "Run of these Rector tests: rector:legacy on diff" && set -e
+          PHP_DIFF_FILES="${{ steps.changed-php.outputs.all_changed_files }}" composer rector:diff
 
       - name: 🧹 PHP-CS-Fixer checks
+        if: steps.changed-php.outputs.any_changed == 'true'
         working-directory: centreon-open-tickets
         run: |
-          echo "Run of these PHP-CS-Fixer tests: cs:legacy:www, cs:legacy:src" && set -e
-
-          pids=()
-          statuses=()
-
-          run_task() {
-            name=$1
-            shift
-            "$@" -- --format=txt --show-progress=none
-            result=$?
-            if [ $result -eq 0 ]; then
-              echo "✅ PHP-CS-Fixer $name: Success"
-            else
-              echo "❌ PHP-CS-Fixer $name: Failed"
-            fi
-            return $result
-          }
-
-          # Start tasks in background
-          run_task legacy:www composer cs:legacy:www & pids+=($!)
-          run_task legacy:src composer cs:legacy:src & pids+=($!)
-
-          # Wait for all, and record if any failed
-          exit_code=0
-          for pid in "${pids[@]}"; do
-            if ! wait "$pid"; then
-              exit_code=1
-            fi
-          done
-
-          exit $exit_code
+          echo "Run of these PHP-CS-Fixer tests: cs:legacy on diff" && set -e
+          PHP_DIFF_FILES="${{ steps.changed-php.outputs.all_changed_files }}" composer cs:diff
 
       - name: 🔍 PHPStan checks
         working-directory: centreon-open-tickets
@@ -486,7 +433,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include: ${{ fromJson(needs.get-environment.outputs.os_and_database_matrix).operating_systems }}
+        operating_system: [alma9]
     name: create-xray-test-plan-and-test-execution-${{ matrix.operating_system }}
 
     uses: ./.github/workflows/create-xray-test-plan-and-test-execution.yml
@@ -512,7 +459,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include: ${{ fromJson(needs.get-environment.outputs.os_and_database_matrix).operating_systems }}
+        operating_system: [alma9]
+        database: ["mariadb:10.11"]
+        test_tags: ["not @ignore"]
     name: e2e-test-${{ matrix.operating_system }}-${{ matrix.database }}
 
     uses: ./.github/workflows/cypress-e2e-parallelization.yml

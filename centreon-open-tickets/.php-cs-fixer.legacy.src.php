@@ -24,17 +24,12 @@ declare(strict_types=1);
 use PhpCsFixer\Finder;
 
 $config = require_once __DIR__ . '/../php-tools/php-cs-fixer/config/base.strict.php';
+$pathsConfig = require_once __DIR__ . '/.php-cs-fixer.conf.php';
 
 $finder = Finder::create()
-    ->in([
-        __DIR__ . '/src/CentreonOpenTickets',
-        __DIR__ . '/tests/php/CentreonOpenTickets',
-    ])
-    ->append([
-        __DIR__ . '/.php-cs-fixer.legacy.src.php',
-        __DIR__ . '/.php-cs-fixer.legacy.www.php',
-        __DIR__ . '/rector.legacy.php',
-    ]);
+    ->in($pathsConfig['legacy:src']['directories'])
+    ->append($pathsConfig['legacy:src']['files'])
+    ->notPath($pathsConfig['legacy:src']['skip']);
 
 return $config
     ->setFinder($finder)
