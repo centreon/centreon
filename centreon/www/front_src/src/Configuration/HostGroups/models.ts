@@ -36,6 +36,6 @@ export interface HostGroupItem extends NamedEntity {
 export type Filters = {
   name: string;
   alias: string;
-  enabeld?: boolean;
+  enabled?: boolean;
   disabled?: boolean;
 };
