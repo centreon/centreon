@@ -64,7 +64,7 @@ class CentreonConfigurationHost extends CentreonConfigurationObjects
         $query = '';
 
         // Check for select2 'q' argument
-        $queryValues['hostName'] = false === isset($this->arguments['q']) ? '%%' : '%' . (string) $this->arguments['q'] . '%';
+        $queryValues['hostName'] = isset($this->arguments['q']) === false ? '%%' : '%' . (string) $this->arguments['q'] . '%';
         $query .= 'SELECT SQL_CALC_FOUND_ROWS DISTINCT host_name, host_id, host_activate '
             . 'FROM ( '
             . '( SELECT DISTINCT h.host_name, h.host_id, h.host_activate '
@@ -161,7 +161,7 @@ class CentreonConfigurationHost extends CentreonConfigurationObjects
     public function getServices()
     {
         // Check for id
-        if (false === isset($this->arguments['id'])) {
+        if (isset($this->arguments['id']) === false) {
             throw new RestBadRequestException('Missing host id');
         }
         $id = $this->arguments['id'];

@@ -39,7 +39,7 @@ final class FindTimePeriodsController extends AbstractController
      */
     public function __invoke(
         FindTimePeriods $useCase,
-        FindTimePeriodsPresenter $presenter
+        FindTimePeriodsPresenter $presenter,
     ): object {
         $this->denyAccessUnlessGrantedForApiConfiguration();
         $useCase($presenter);

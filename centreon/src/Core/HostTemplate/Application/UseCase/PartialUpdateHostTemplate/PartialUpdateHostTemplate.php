@@ -101,7 +101,7 @@ final class PartialUpdateHostTemplate
     public function __invoke(
         PartialUpdateHostTemplateRequest $request,
         PresenterInterface $presenter,
-        int $hostTemplateId
+        int $hostTemplateId,
     ): void {
         try {
             if (! $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_HOSTS_TEMPLATES_READ_WRITE)) {
@@ -174,7 +174,7 @@ final class PartialUpdateHostTemplate
      */
     private function updatePropertiesInTransaction(
         PartialUpdateHostTemplateRequest $request,
-        HostTemplate $hostTemplate
+        HostTemplate $hostTemplate,
     ): void {
         try {
             $this->dataStorageEngine->startTransaction();
@@ -575,7 +575,7 @@ final class PartialUpdateHostTemplate
     private function retrieveHostUuidFromVault(HostTemplate $hostTemplate): void
     {
         $this->uuid = $this->getUuidFromPath($hostTemplate->getSnmpCommunity());
-        if (null === $this->uuid) {
+        if ($this->uuid === null) {
             $macros = $this->readHostMacroRepository->findByHostId($hostTemplate->getId());
             foreach ($macros as $macro) {
                 if (
@@ -639,7 +639,7 @@ final class PartialUpdateHostTemplate
     {
         $updatedMacros = [];
         foreach ($macros as $key => $macro) {
-            if (false === $macro->isPassword()) {
+            if ($macro->isPassword() === false) {
                 $updatedMacros[$key] = $macro;
                 continue;
             }

@@ -176,7 +176,7 @@ try {
         $servicegroups = [],
         $types = [],
         $statuses = [],
-        $search = ''
+        $search = '',
     ) use ($resourceController) {
         return $resourceController->buildListingUri(
             [

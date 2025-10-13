@@ -52,7 +52,7 @@ class Local implements ProviderAuthenticationInterface
     public function __construct(
         readonly private LocalProviderInterface $provider,
         readonly private RequestStack $requestStack,
-        readonly private ContactServiceInterface $contactService
+        readonly private ContactServiceInterface $contactService,
     ) {
     }
 

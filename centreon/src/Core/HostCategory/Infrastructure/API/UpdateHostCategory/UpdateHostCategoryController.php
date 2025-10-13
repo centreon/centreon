@@ -48,7 +48,7 @@ final class UpdateHostCategoryController extends AbstractController
         int $hostCategoryId,
         Request $request,
         UpdateHostCategory $useCase,
-        DefaultPresenter $presenter
+        DefaultPresenter $presenter,
     ): object {
         $this->denyAccessUnlessGrantedForApiConfiguration();
 

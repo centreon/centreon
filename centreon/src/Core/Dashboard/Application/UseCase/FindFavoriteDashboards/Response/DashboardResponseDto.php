@@ -64,7 +64,7 @@ final class DashboardResponseDto
         public DashboardSharingRole $ownRole = DashboardSharingRole::Viewer,
         public array $shares = ['contacts' => [], 'contact_groups' => []],
         public ?ThumbnailResponseDto $thumbnail = null,
-        public bool $isFavorite = false
+        public bool $isFavorite = false,
     ) {
     }
 }

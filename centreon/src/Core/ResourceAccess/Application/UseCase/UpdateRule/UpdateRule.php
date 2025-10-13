@@ -66,7 +66,7 @@ final readonly class UpdateRule
         private UpdateRuleValidation $validator,
         private DatasetFilterValidator $datasetValidator,
         private RepositoryManagerInterface $repositoryManager,
-        private bool $isCloudPlatform
+        private bool $isCloudPlatform,
     ) {
     }
 
@@ -195,7 +195,7 @@ final readonly class UpdateRule
 
         $validateAndBuildDatasetFilter = function (
             array $data,
-            ?DatasetFilter $parentDatasetFilter
+            ?DatasetFilter $parentDatasetFilter,
         ) use (&$validateAndBuildDatasetFilter, &$datasetFilter): void {
             /**
              * In any case we want to make sure that
@@ -267,7 +267,7 @@ final readonly class UpdateRule
         $saveDatasetFiltersHierarchy = function (
             int $ruleId,
             int $datasetId,
-            DatasetFilter $filter
+            DatasetFilter $filter,
         ) use (&$parentFilterId, &$saveDatasetFiltersHierarchy): void {
             // First iteration we save the root filter
             $parentFilterId = $this->writeRepository->addDatasetFilter($ruleId, $datasetId, $filter, $parentFilterId);
@@ -336,7 +336,7 @@ final readonly class UpdateRule
                 // Extract from the DatasetFilter the final filter level and its parent.
                 [
                     'parent' => $parentApplicableFilter,
-                    'last' => $applicableFilter
+                    'last' => $applicableFilter,
                 ] = DatasetFilter::findApplicableFilters($datasetFilter);
 
                 /* Specific behaviour when the last level of filtering is of type

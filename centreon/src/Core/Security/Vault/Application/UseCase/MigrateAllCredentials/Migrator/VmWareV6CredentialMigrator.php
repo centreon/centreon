@@ -45,7 +45,7 @@ class VmWareV6CredentialMigrator implements AccCredentialMigratorInterface
      */
     public function isValidFor(Type $type): bool
     {
-        return Type::VMWARE_V6 === $type;
+        return $type === Type::VMWARE_V6;
     }
 
     /**
@@ -86,7 +86,7 @@ class VmWareV6CredentialMigrator implements AccCredentialMigratorInterface
     public function updateMigratedCredential(
         Acc $acc,
         CredentialDto $credential,
-        string $vaultPath
+        string $vaultPath,
     ): Acc {
         /** @var _VmWareV6Parameters $parameters */
         $parameters = $acc->getParameters()->getData();

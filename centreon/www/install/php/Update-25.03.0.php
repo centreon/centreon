@@ -125,7 +125,7 @@ $insertAccConnectors = function (CentreonDB $pearDB) use (&$errorMessage): void 
             SQL
     );
 
-    if (false === (bool) $statement->fetch(PDO::FETCH_COLUMN)) {
+    if ((bool) $statement->fetch(PDO::FETCH_COLUMN) === false) {
         $errorMessage = 'Unable to add data to connector table';
         $pearDB->executeQuery(
             <<<'SQL'

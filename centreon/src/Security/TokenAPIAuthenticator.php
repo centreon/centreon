@@ -121,7 +121,7 @@ class TokenAPIAuthenticator extends AbstractAuthenticator implements Authenticat
     public function authenticate(Request $request): SelfValidatingPassport
     {
         $apiToken = $request->headers->get('X-AUTH-TOKEN');
-        if (null === $apiToken) {
+        if ($apiToken === null) {
             // The token header was empty, authentication fails with HTTP Status
             // Code 401 "Unauthorized"
             throw new TokenNotFoundException('API token not provided');

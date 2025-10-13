@@ -67,7 +67,7 @@ class MonitoringServerConfigurationRepositoryApi implements MonitoringServerConf
     public function __construct(
         AuthenticationTokenServiceInterface $authenticationTokenService,
         ContactInterface $contact,
-        HttpClientInterface $httpClient
+        HttpClientInterface $httpClient,
     ) {
         $this->contact = $contact;
         $this->authenticationTokenService = $authenticationTokenService;

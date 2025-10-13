@@ -201,7 +201,7 @@ trait LoggerTrait
         string $level,
         string $message,
         array $context = [],
-        ?callable $callable = null
+        ?callable $callable = null,
     ): void {
         if ($this->canBeLogged()) {
             if ($callable !== null) {

@@ -34,7 +34,7 @@ class HostStatusesCount
         private readonly int $totalUp,
         private readonly int $totalDown,
         private readonly int $totalUnreachable,
-        private readonly int $totalPending
+        private readonly int $totalPending,
     ) {
     }
 

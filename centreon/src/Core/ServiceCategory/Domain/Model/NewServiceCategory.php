@@ -40,7 +40,7 @@ class NewServiceCategory
      */
     public function __construct(
         protected string $name,
-        protected string $alias
+        protected string $alias,
     ) {
         $this->name = trim($name);
         $this->alias = trim($alias);

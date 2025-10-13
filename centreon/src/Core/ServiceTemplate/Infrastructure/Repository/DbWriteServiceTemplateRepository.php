@@ -307,7 +307,7 @@ class DbWriteServiceTemplateRepository extends AbstractRepositoryRDB implements 
      */
     public function linkToHosts(int $serviceTemplateId, array $hostTemplateIds): void
     {
-        if ([] === $hostTemplateIds) {
+        if ($hostTemplateIds === []) {
             return;
         }
 

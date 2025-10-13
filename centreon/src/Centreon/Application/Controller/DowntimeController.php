@@ -65,7 +65,7 @@ class DowntimeController extends AbstractController
      */
     public function __construct(
         DowntimeServiceInterface $downtimeService,
-        MonitoringServiceInterface $monitoringService
+        MonitoringServiceInterface $monitoringService,
     ) {
         $this->downtimeService = $downtimeService;
         $this->monitoringService = $monitoringService;
@@ -258,7 +258,7 @@ class DowntimeController extends AbstractController
         Request $request,
         SerializerInterface $serializer,
         int $hostId,
-        int $serviceId
+        int $serviceId,
     ): View {
         $this->denyAccessUnlessGrantedForApiRealtime();
 
@@ -438,7 +438,7 @@ class DowntimeController extends AbstractController
     public function findDowntimesByService(
         RequestParametersInterface $requestParameters,
         int $hostId,
-        int $serviceId
+        int $serviceId,
     ): View {
         $this->denyAccessUnlessGrantedForApiRealtime();
         /**

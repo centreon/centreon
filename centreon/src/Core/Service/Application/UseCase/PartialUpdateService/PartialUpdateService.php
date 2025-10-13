@@ -181,10 +181,10 @@ final class PartialUpdateService
             $this->updateMacros($request, $service);
 
             $newMonitoringServer = $this->readMonitoringServerRepository->findByHost($service->getHostId());
-            if (null !== $newMonitoringServer) {
+            if ($newMonitoringServer !== null) {
                 $this->writeMonitoringServerRepository->notifyConfigurationChange($newMonitoringServer->getId());
             }
-            if (null !== $previousMonitoringServer) {
+            if ($previousMonitoringServer !== null) {
                 // Host change implies a possible monitoring server change, notify previous monitoring server of configuration changes.
                 $this->writeMonitoringServerRepository->notifyConfigurationChange($previousMonitoringServer->getId());
             }
@@ -636,7 +636,7 @@ final class PartialUpdateService
     {
         $updatedMacros = [];
         foreach ($macros as $key => $macro) {
-            if (false === $macro->isPassword()) {
+            if ($macro->isPassword() === false) {
                 $updatedMacros[$key] = $macro;
                 continue;
             }

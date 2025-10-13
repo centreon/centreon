@@ -55,7 +55,7 @@ final class ExportResourcesController extends AbstractController
     public function __construct(
         private readonly ContactInterface $contact,
         private readonly RequestValidator $validator,
-        private readonly ExceptionLogger $exceptionLogger
+        private readonly ExceptionLogger $exceptionLogger,
     ) {
     }
 
@@ -71,7 +71,7 @@ final class ExportResourcesController extends AbstractController
         ExportResources $useCase,
         ExportResourcesPresenterCsv $presenter,
         Request $request,
-        #[MapQueryString(validationFailedStatusCode: Response::HTTP_UNPROCESSABLE_ENTITY)] ExportResourcesInput $input
+        #[MapQueryString(validationFailedStatusCode: Response::HTTP_UNPROCESSABLE_ENTITY)] ExportResourcesInput $input,
     ): Response {
         try {
             $useCaseRequest = $this->createExportRequest($request, $input);

@@ -40,7 +40,7 @@ trait RepositoryTrait
      */
     public function emptyStringAsNull(string $string): ?string
     {
-        return '' === $string ? null : $string;
+        return $string === '' ? null : $string;
     }
 
     /**

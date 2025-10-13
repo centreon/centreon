@@ -37,7 +37,7 @@ class PerformanceMetricsData
     public function __construct(
         private readonly int $base,
         private readonly array $metricsInformation,
-        private readonly array $times
+        private readonly array $times,
     ) {
     }
 

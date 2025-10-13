@@ -45,7 +45,7 @@ final class AddHostCategoryController extends AbstractController
     public function __invoke(
         Request $request,
         AddHostCategory $useCase,
-        AddHostCategoryPresenter $presenter
+        AddHostCategoryPresenter $presenter,
     ): object {
         $this->denyAccessUnlessGrantedForApiConfiguration();
 

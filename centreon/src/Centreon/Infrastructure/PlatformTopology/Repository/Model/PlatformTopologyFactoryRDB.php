@@ -38,7 +38,7 @@ class PlatformTopologyFactoryRDB
      */
     public static function create(array $platformData): PlatformInterface
     {
-        if ('1' === $platformData['pending']) {
+        if ($platformData['pending'] === '1') {
             return self::createPlatformPending($platformData);
         }
 
@@ -59,39 +59,39 @@ class PlatformTopologyFactoryRDB
             switch ($key) {
                 case 'id':
                     $value = (int) $value;
-                    if (null !== $value && $value > 0) {
+                    if ($value !== null && $value > 0) {
                         $platformReturned->setId($value);
                     }
                     break;
                 case 'name':
-                    if (null !== $value && is_string($value)) {
+                    if ($value !== null && is_string($value)) {
                         $platformReturned->setName($value);
                     }
                     break;
                 case 'hostname':
-                    if (null !== $value && is_string($value)) {
+                    if ($value !== null && is_string($value)) {
                         $platformReturned->setHostname($value);
                     }
                     break;
                 case 'type':
-                    if (null !== $value && is_string($value)) {
+                    if ($value !== null && is_string($value)) {
                         $platformReturned->setType($value);
                     }
                     break;
                 case 'address':
-                    if (null !== $value && is_string($value)) {
+                    if ($value !== null && is_string($value)) {
                         $platformReturned->setAddress($value);
                     }
                     break;
                 case 'parent_id':
                     $value = (int) $value;
-                    if (null !== $value && $value > 0) {
+                    if ($value !== null && $value > 0) {
                         $platformReturned->setParentId($value);
                     }
                     break;
                 case 'server_id':
                     $value = (int) $value;
-                    if (null !== $value && $value > 0) {
+                    if ($value !== null && $value > 0) {
                         $platformReturned->setServerId($value);
                     }
                     break;
@@ -115,39 +115,39 @@ class PlatformTopologyFactoryRDB
             switch ($key) {
                 case 'id':
                     $value = (int) $value;
-                    if (null !== $value && $value > 0) {
+                    if ($value !== null && $value > 0) {
                         $platformReturned->setId($value);
                     }
                     break;
                 case 'name':
-                    if (null !== $value && is_string($value)) {
+                    if ($value !== null && is_string($value)) {
                         $platformReturned->setName($value);
                     }
                     break;
                 case 'hostname':
-                    if (null !== $value && is_string($value)) {
+                    if ($value !== null && is_string($value)) {
                         $platformReturned->setHostname($value);
                     }
                     break;
                 case 'type':
-                    if (null !== $value && is_string($value)) {
+                    if ($value !== null && is_string($value)) {
                         $platformReturned->setType($value);
                     }
                     break;
                 case 'address':
-                    if (null !== $value && is_string($value)) {
+                    if ($value !== null && is_string($value)) {
                         $platformReturned->setAddress($value);
                     }
                     break;
                 case 'parent_id':
                     $value = (int) $value;
-                    if (null !== $value && $value > 0) {
+                    if ($value !== null && $value > 0) {
                         $platformReturned->setParentId($value);
                     }
                     break;
                 case 'server_id':
                     $value = (int) $value;
-                    if (null !== $value && $value > 0) {
+                    if ($value !== null && $value > 0) {
                         $platformReturned->setServerId($value);
                     }
                     break;

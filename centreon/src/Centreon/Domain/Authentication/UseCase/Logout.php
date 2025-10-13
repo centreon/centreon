@@ -35,7 +35,7 @@ class Logout
     private $authenticationRepository;
 
     public function __construct(
-        AuthenticationRepositoryInterface $authenticationRepository
+        AuthenticationRepositoryInterface $authenticationRepository,
     ) {
         $this->authenticationRepository = $authenticationRepository;
     }

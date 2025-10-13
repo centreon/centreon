@@ -42,7 +42,7 @@ final class AddHostGroupRequest
         public string $comment = '',
         public ?int $iconId = null,
         public array $hosts = [],
-        public array $resourceAccessRules = []
+        public array $resourceAccessRules = [],
     ) {
     }
 }

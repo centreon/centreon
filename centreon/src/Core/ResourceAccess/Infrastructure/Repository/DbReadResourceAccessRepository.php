@@ -66,7 +66,7 @@ final class DbReadResourceAccessRepository extends AbstractRepositoryRDB impleme
      */
     public function __construct(
         DatabaseConnection $db,
-        private readonly DatasetFilterValidator $datasetValidator
+        private readonly DatasetFilterValidator $datasetValidator,
     ) {
         $this->db = $db;
     }

@@ -72,7 +72,7 @@ class DowntimeRepositoryRDB extends AbstractRepositoryDRB implements DowntimeRep
 
     public function __construct(
         DatabaseConnection $db,
-        SqlRequestParametersTranslator $sqlRequestTranslator
+        SqlRequestParametersTranslator $sqlRequestTranslator,
     ) {
         $this->db = $db;
         $this->sqlRequestTranslator = $sqlRequestTranslator;

@@ -28,7 +28,7 @@ final class EngineSecretsBadFormatException extends \InvalidArgumentException
     public function __construct(
         string $message = 'Engine secrets are not well formated.',
         int $code = 0,
-        \Throwable|null $previous = null
+        \Throwable|null $previous = null,
     ) {
         parent::__construct($message, $code, $previous);
     }

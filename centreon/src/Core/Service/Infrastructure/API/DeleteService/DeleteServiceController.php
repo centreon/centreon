@@ -43,7 +43,7 @@ final class DeleteServiceController extends AbstractController
     public function __invoke(
         DeleteService $useCase,
         DefaultPresenter $presenter,
-        int $serviceId
+        int $serviceId,
     ): Response {
         $this->denyAccessUnlessGrantedForApiConfiguration();
 

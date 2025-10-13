@@ -78,7 +78,7 @@ class DbReadConnectorRepository extends AbstractRepositoryRDB implements ReadCon
      */
     public function findByRequestParametersAndCommandTypes(
         RequestParametersInterface $requestParameters,
-        array $commandTypes
+        array $commandTypes,
     ): array {
         $sqlTranslator = new SqlRequestParametersTranslator($requestParameters);
         $sqlTranslator->getRequestParameters()->setConcordanceStrictMode(RequestParameters::CONCORDANCE_MODE_STRICT);

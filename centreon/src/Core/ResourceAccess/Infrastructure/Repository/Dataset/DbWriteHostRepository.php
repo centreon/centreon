@@ -46,7 +46,7 @@ class DbWriteHostRepository extends AbstractRepositoryRDB implements WriteDatase
      */
     public function isValidFor(string $type): bool
     {
-        return HostFilterType::TYPE_NAME === $type;
+        return $type === HostFilterType::TYPE_NAME;
     }
 
     /**
@@ -59,7 +59,7 @@ class DbWriteHostRepository extends AbstractRepositoryRDB implements WriteDatase
             ['rule_id' => $ruleId, 'dataset_id' => $datasetId, 'host_ids' => $resourceIds]
         );
 
-        if ([] === $resourceIds) {
+        if ($resourceIds === []) {
             return;
         }
 

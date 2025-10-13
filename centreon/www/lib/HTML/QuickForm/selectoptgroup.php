@@ -88,7 +88,7 @@ class HTML_QuickForm_selectoptgroup extends HTML_QuickForm_select
         $elementLabel = null,
         $options = null,
         $attributes = null,
-        $sort = null
+        $sort = null,
     ) {
         global $centreon;
         $this->realOptionsArray = $options;
@@ -222,7 +222,7 @@ class HTML_QuickForm_selectoptgroup extends HTML_QuickForm_select
         $allowClear = 'true';
         $additionnalJs = '';
 
-        if (false === $this->_allowClear || $this->_flagFrozen) {
+        if ($this->_allowClear === false || $this->_flagFrozen) {
             $allowClear = 'false';
         }
 
@@ -350,20 +350,20 @@ class HTML_QuickForm_selectoptgroup extends HTML_QuickForm_select
      */
     public function onQuickFormEvent($event, $arg, &$caller)
     {
-        if ('updateValue' == $event) {
+        if ($event == 'updateValue') {
             $value = $this->_findValue($caller->_constantValues);
 
-            if (null === $value) {
+            if ($value === null) {
                 $value = is_null($this->_defaultDataset) ? $this->_findValue($caller->_submitValues) : $this->_defaultDataset;
 
                 // Fix for bug #4465 & #5269
                 // XXX: should we push this to element::onQuickFormEvent()?
-                if (null === $value && (! $caller->isSubmitted() || ! $this->getMultiple())) {
+                if ($value === null && (! $caller->isSubmitted() || ! $this->getMultiple())) {
                     $value = $this->_findValue($caller->_defaultValues);
                 }
             }
 
-            if (null !== $value) {
+            if ($value !== null) {
                 if (! is_array($value)) {
                     $value = [$value];
                 }

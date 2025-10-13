@@ -52,7 +52,7 @@ final class PartialUpdateNotificationController extends AbstractController
         Request $request,
         PartialUpdateNotification $useCase,
         PartialUpdateNotificationPresenter $presenter,
-        int $notificationId
+        int $notificationId,
     ): Response {
         $this->denyAccessUnlessGrantedForApiConfiguration();
 

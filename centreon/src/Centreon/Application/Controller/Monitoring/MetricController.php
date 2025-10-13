@@ -54,7 +54,7 @@ class MetricController extends AbstractController
      */
     public function __construct(
         MetricServiceInterface $metricService,
-        MonitoringServiceInterface $monitoringService
+        MonitoringServiceInterface $monitoringService,
     ) {
         $this->metricService = $metricService;
         $this->monitoringService = $monitoringService;
@@ -74,7 +74,7 @@ class MetricController extends AbstractController
         int $hostId,
         int $serviceId,
         \DateTime $start,
-        \DateTime $end
+        \DateTime $end,
     ): View {
         $this->denyAccessUnlessGrantedForApiRealtime();
 
@@ -106,7 +106,7 @@ class MetricController extends AbstractController
         int $hostId,
         int $serviceId,
         \DateTime $start,
-        \DateTime $end
+        \DateTime $end,
     ): View {
         $this->denyAccessUnlessGrantedForApiRealtime();
 
@@ -135,7 +135,7 @@ class MetricController extends AbstractController
     public function getServicePerformanceMetrics(
         RequestParametersInterface $requestParameters,
         int $hostId,
-        int $serviceId
+        int $serviceId,
     ): View {
         $this->denyAccessUnlessGrantedForApiRealtime();
 
@@ -168,7 +168,7 @@ class MetricController extends AbstractController
     public function getServiceStatusMetrics(
         RequestParametersInterface $requestParameters,
         int $hostId,
-        int $serviceId
+        int $serviceId,
     ): View {
         $this->denyAccessUnlessGrantedForApiRealtime();
 
@@ -197,7 +197,7 @@ class MetricController extends AbstractController
      */
     public function getMetaServicePerformanceMetrics(
         RequestParametersInterface $requestParameters,
-        int $metaId
+        int $metaId,
     ): View {
         $this->denyAccessUnlessGrantedForApiRealtime();
 
@@ -235,7 +235,7 @@ class MetricController extends AbstractController
      */
     public function getMetaServiceStatusMetrics(
         RequestParametersInterface $requestParameters,
-        int $metaId
+        int $metaId,
     ): View {
         $this->denyAccessUnlessGrantedForApiRealtime();
 
@@ -349,7 +349,7 @@ class MetricController extends AbstractController
         $end = $requestParameters->getExtraParameter('end') ?: 'now';
 
         foreach (['start' => $start, 'end' => $end] as $param => $value) {
-            if (false === strtotime($value)) {
+            if (strtotime($value) === false) {
                 throw new NotFoundHttpException(sprintf('Invalid date given for parameter "%s".', $param));
             }
         }

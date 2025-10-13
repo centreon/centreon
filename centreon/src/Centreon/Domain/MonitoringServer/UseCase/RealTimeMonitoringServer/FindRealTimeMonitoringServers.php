@@ -47,7 +47,7 @@ class FindRealTimeMonitoringServers
      */
     public function __construct(
         readonly private RealTimeMonitoringServerRepositoryRDB $realTimeMonitoringServerRepository,
-        readonly private ContactInterface $contact
+        readonly private ContactInterface $contact,
     ) {
     }
 

@@ -57,7 +57,7 @@ class NewDashboardPanel
      */
     public function __construct(
         string $name,
-        string $widgetType
+        string $widgetType,
     ) {
         $this->setName($name);
         $this->setWidgetType($widgetType);

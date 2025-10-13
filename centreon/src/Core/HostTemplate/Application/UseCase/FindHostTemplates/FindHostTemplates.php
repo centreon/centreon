@@ -44,7 +44,7 @@ final class FindHostTemplates
         private readonly ReadHostTemplateRepositoryInterface $readHostTemplateRepository,
         private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
         private readonly RequestParametersInterface $requestParameters,
-        private readonly ContactInterface $user
+        private readonly ContactInterface $user,
     ) {
     }
 

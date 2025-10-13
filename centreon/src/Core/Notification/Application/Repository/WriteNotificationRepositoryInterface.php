@@ -118,7 +118,7 @@ interface WriteNotificationRepositoryInterface
      */
     public function deleteContactGroupsByNotificationAndContactGroupIds(
         int $notificationId,
-        array $contactGroupsIds
+        array $contactGroupsIds,
     ): void;
 
     /**

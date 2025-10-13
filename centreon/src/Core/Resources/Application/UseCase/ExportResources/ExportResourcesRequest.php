@@ -53,7 +53,7 @@ final readonly class ExportResourcesRequest
         public int $maxResults,
         public StringCollection $columns,
         public int $contactId,
-        public bool $isAdmin
+        public bool $isAdmin,
     ) {
         $this->validateRequest();
     }

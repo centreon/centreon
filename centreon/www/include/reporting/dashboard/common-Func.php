@@ -42,7 +42,7 @@ function getPeriodToReport(?string $alternate = null): array
         $period_choice = HtmlAnalyzer::sanitizeAndRemoveTags($_POST['period_choice']);
     }
 
-    if (null != $alternate) {
+    if ($alternate != null) {
         if (isset($_POST['alternativeDateStartDate'])) {
             $start_date = HtmlAnalyzer::sanitizeAndRemoveTags($_POST['alternativeDateStartDate']);
         }

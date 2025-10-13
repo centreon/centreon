@@ -222,8 +222,8 @@ class PlatformInformation
      */
     public function setApiScheme(?string $schema): self
     {
-        if (null !== $schema) {
-            $schema = ('https' === trim($schema, '/') ? 'https' : 'http');
+        if ($schema !== null) {
+            $schema = (trim($schema, '/') === 'https' ? 'https' : 'http');
         }
         $this->apiScheme = $schema;
 
@@ -302,7 +302,7 @@ class PlatformInformation
      */
     private function checkPortConsistency(int $port): int
     {
-        if (1 > $port || $port > 65535) {
+        if ($port < 1 || $port > 65535) {
             throw PlatformInformationException::inconsistentDataException();
         }
 

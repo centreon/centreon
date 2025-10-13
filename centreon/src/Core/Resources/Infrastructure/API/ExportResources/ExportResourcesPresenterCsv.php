@@ -57,7 +57,7 @@ final class ExportResourcesPresenterCsv extends AbstractPresenter implements Exp
      */
     public function __construct(
         PresenterFormatterInterface $presenterFormatter,
-        private readonly ExceptionLogger $exceptionLogger
+        private readonly ExceptionLogger $exceptionLogger,
     ) {
         parent::__construct($presenterFormatter);
     }
@@ -214,7 +214,7 @@ final class ExportResourcesPresenterCsv extends AbstractPresenter implements Exp
      */
     private function sortHeaderByFilteredColumns(
         StringCollection $csvHeader,
-        StringCollection $filteredColumns
+        StringCollection $filteredColumns,
     ): StringCollection {
         $csvHeader->sortByKeys(function ($keyA, $keyB) use ($filteredColumns) {
             // if the key is a resource or parent_resource, we keep all columns starting with this key

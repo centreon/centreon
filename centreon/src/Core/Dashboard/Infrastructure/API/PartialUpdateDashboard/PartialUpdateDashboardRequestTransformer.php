@@ -47,7 +47,7 @@ abstract readonly class PartialUpdateDashboardRequestTransformer
      * @return PartialUpdateDashboardRequest
      */
     public static function transform(
-        PartialUpdateDashboardInput $dashboardInputValidator
+        PartialUpdateDashboardInput $dashboardInputValidator,
     ): PartialUpdateDashboardRequest {
         $name = empty($dashboardInputValidator->name) ? new NoValue() : $dashboardInputValidator->name;
         $description = $dashboardInputValidator->description ?? new NoValue(
@@ -68,7 +68,7 @@ abstract readonly class PartialUpdateDashboardRequestTransformer
      * @return ThumbnailRequestDto|NoValue
      */
     private static function createThumbnailDto(
-        PartialUpdateDashboardInput $dashboardInputValidator
+        PartialUpdateDashboardInput $dashboardInputValidator,
     ): ThumbnailRequestDto|NoValue {
         if ($dashboardInputValidator->thumbnail === null) {
             return new NoValue();
@@ -89,7 +89,7 @@ abstract readonly class PartialUpdateDashboardRequestTransformer
      * @return RefreshRequestDto|NoValue
      */
     private static function createRefreshDto(
-        PartialUpdateDashboardInput $dashboardInputValidator
+        PartialUpdateDashboardInput $dashboardInputValidator,
     ): RefreshRequestDto|NoValue {
         if ($dashboardInputValidator->refresh === null) {
             return new NoValue();
@@ -111,7 +111,7 @@ abstract readonly class PartialUpdateDashboardRequestTransformer
      * @return PanelRequestDto[]|NoValue
      */
     private static function createPanelDto(
-        PartialUpdateDashboardInput $dashboardInputValidator
+        PartialUpdateDashboardInput $dashboardInputValidator,
     ): array|NoValue {
         if ($dashboardInputValidator->panels === null) {
             return new NoValue();

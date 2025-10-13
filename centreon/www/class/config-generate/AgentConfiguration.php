@@ -66,7 +66,7 @@ class AgentConfiguration extends AbstractObjectJSON
                     $agentConfiguration->getConfiguration()->getData(),
                     $agentConfiguration->getConnectionMode()
                 ),
-                default => throw new Exception('The type of the agent configuration not exists')
+                default => throw new Exception('The type of the agent configuration not exists'),
             };
         }
 

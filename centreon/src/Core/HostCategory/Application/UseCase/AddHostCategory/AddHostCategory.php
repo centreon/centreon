@@ -47,7 +47,7 @@ final class AddHostCategory
     public function __construct(
         private WriteHostCategoryRepositoryInterface $writeHostCategoryRepository,
         private ReadHostCategoryRepositoryInterface $readHostCategoryRepository,
-        private ContactInterface $user
+        private ContactInterface $user,
     ) {
     }
 

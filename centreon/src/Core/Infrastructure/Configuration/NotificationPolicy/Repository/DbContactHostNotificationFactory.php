@@ -74,7 +74,7 @@ class DbContactHostNotificationFactory
             'r' => HostNotification::EVENT_HOST_RECOVERY,
             'f' => HostNotification::EVENT_HOST_FLAPPING,
             's' => HostNotification::EVENT_HOST_SCHEDULED_DOWNTIME,
-            default => null
+            default => null,
         };
     }
 }

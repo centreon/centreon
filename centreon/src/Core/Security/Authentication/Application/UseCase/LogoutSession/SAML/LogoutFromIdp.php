@@ -39,7 +39,7 @@ class LogoutFromIdp
      */
     public function __construct(
         private readonly WriteSessionRepositoryInterface $writeSessionRepository,
-        private readonly ProviderAuthenticationFactoryInterface $providerFactory
+        private readonly ProviderAuthenticationFactoryInterface $providerFactory,
     ) {
     }
 

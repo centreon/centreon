@@ -33,7 +33,7 @@ final class AddDashboardToFavoritesInput
     public function __construct(
         #[Assert\NotNull]
         #[Assert\Type('integer')]
-        public readonly mixed $dashboardId
+        public readonly mixed $dashboardId,
     ) {
     }
 }

@@ -64,7 +64,7 @@ class AddServiceGroupPresenter extends AbstractPresenter
      */
     private function presentCreatedPayload(
         CreatedResponse $createdResponse,
-        AddServiceGroupResponse $addServiceGroupResponse
+        AddServiceGroupResponse $addServiceGroupResponse,
     ): CreatedResponse {
         return $createdResponse->withPayload(
             [

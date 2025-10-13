@@ -42,7 +42,7 @@ final class HostGroupService extends AbstractCentreonService implements HostGrou
      */
     public function __construct(
         HostGroupRepositoryInterface $hostGroupRepository,
-        ReadAccessGroupRepositoryInterface $accessGroupRepository
+        ReadAccessGroupRepositoryInterface $accessGroupRepository,
     ) {
         $this->hostGroupRepository = $hostGroupRepository;
         $this->accessGroupRepository = $accessGroupRepository;

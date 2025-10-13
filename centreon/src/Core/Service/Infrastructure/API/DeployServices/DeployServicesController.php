@@ -44,7 +44,7 @@ final class DeployServicesController extends AbstractController
         DeployServicesOnPremPresenter $onPremPresenter,
         DeployServicesSaasPresenter $saasPresenter,
         bool $isCloudPlatform,
-        int $hostId
+        int $hostId,
     ): Response {
         $this->denyAccessUnlessGrantedForApiConfiguration();
 

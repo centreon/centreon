@@ -66,7 +66,7 @@ class NewVaultConfiguration
         protected string $rootPath,
         private string $roleId,
         private string $secretId,
-        protected string $name = self::DEFAULT_NAME
+        protected string $name = self::DEFAULT_NAME,
     ) {
         Assertion::minLength($name, self::MIN_LENGTH, 'NewVaultConfiguration::name');
         Assertion::maxLength($name, self::NAME_MAX_LENGTH, 'NewVaultConfiguration::name');

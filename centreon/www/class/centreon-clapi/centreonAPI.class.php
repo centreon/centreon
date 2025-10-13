@@ -136,7 +136,7 @@ class CentreonAPI
         $action,
         $centreon_path,
         $options,
-        Container $dependencyInjector
+        Container $dependencyInjector,
     ) {
         $this->dependencyInjector = $dependencyInjector;
         if (isset($user)) {
@@ -400,7 +400,7 @@ class CentreonAPI
         $action = null,
         $centreon_path = null,
         $options = null,
-        $dependencyInjector = null
+        $dependencyInjector = null,
     ) {
         if (is_null(self::$instance)) {
             if (is_null($dependencyInjector)) {
@@ -1360,7 +1360,7 @@ class CentreonAPI
     private function exitOnInvalidCredentials(
         int $contactLoginAttempts,
         int $securityPolicyAttempts,
-        int $blockingDuration
+        int $blockingDuration,
     ): void {
         $CentreonLog = new CentreonLog();
         $loginAttempts = $this->incrementLoginAttempts($contactLoginAttempts);

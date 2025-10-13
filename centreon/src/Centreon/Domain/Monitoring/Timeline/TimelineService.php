@@ -49,7 +49,7 @@ class TimelineService extends AbstractCentreonService implements TimelineService
      */
     public function __construct(
         TimelineRepositoryInterface $timelineRepository,
-        ReadAccessGroupRepositoryInterface $accessGroupRepository
+        ReadAccessGroupRepositoryInterface $accessGroupRepository,
     ) {
         $this->timelineRepository = $timelineRepository;
         $this->accessGroupRepository = $accessGroupRepository;

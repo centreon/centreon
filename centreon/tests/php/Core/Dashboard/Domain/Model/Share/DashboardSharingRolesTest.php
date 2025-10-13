@@ -84,7 +84,7 @@ it(
     function (
         ?string $expected,
         ?string $contactRole,
-        array $contactGroupRoles
+        array $contactGroupRoles,
     ): void {
         $toEnum = static fn (?string $string): ?DashboardSharingRole => $string
             ? DashboardSharingRoleConverter::fromString($string)

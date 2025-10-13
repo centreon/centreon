@@ -432,7 +432,7 @@ function testContentLogWithoutContext(
     string $logfile,
     string $date,
     string $message,
-    int $line
+    int $line,
 ): void {
     expect(file_exists($logfile))->toBeTrue();
     $contentLog = file_get_contents($logfile);

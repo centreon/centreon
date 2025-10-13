@@ -614,7 +614,7 @@ class DbReadHostCategoryRepository extends AbstractRepositoryRDB implements Read
      */
     private function retrieveHostCategories(
         SqlConcatenator $concatenator,
-        ?RequestParametersInterface $requestParameters
+        ?RequestParametersInterface $requestParameters,
     ): array {
         // Exclude severities from the results
         $concatenator->appendWhere('hc.level IS NULL');

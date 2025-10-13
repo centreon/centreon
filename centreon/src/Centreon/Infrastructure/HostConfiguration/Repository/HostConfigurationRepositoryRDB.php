@@ -504,7 +504,7 @@ class HostConfigurationRepositoryRDB extends AbstractRepositoryDRB implements Ho
                 $hostTemplateIds ??= empty($record['templates']) ? null : explode(',', $record['templates']);
 
                 // Skip already added macro (check by their name).
-                if (null === $record['name'] || isset($alreadyAdded[$record['name']])) {
+                if ($record['name'] === null || isset($alreadyAdded[$record['name']])) {
                     continue;
                 }
                 $alreadyAdded[$record['name']] = 1;

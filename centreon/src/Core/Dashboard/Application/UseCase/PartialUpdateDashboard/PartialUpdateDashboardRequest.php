@@ -42,7 +42,7 @@ final class PartialUpdateDashboardRequest
         public NoValue|string $description = new NoValue(),
         public NoValue|array $panels = new NoValue(),
         public NoValue|RefreshRequestDto $refresh = new NoValue(),
-        public NoValue|ThumbnailRequestDto $thumbnail = new NoValue()
+        public NoValue|ThumbnailRequestDto $thumbnail = new NoValue(),
     ) {
     }
 }

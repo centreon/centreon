@@ -42,7 +42,7 @@ final class FindHostSeverityController extends AbstractController
     public function __invoke(
         int $hostSeverityId,
         FindHostSeverity $useCase,
-        FindHostSeverityPresenter $presenter
+        FindHostSeverityPresenter $presenter,
     ): Response {
         $this->denyAccessUnlessGrantedForApiConfiguration();
 

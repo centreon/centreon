@@ -152,7 +152,7 @@ class Validator implements JsonValidatorInterface
      */
     private function populateComponentsToDefinitions(
         array $definitionsToPopulate,
-        array $versionedDefinitions
+        array $versionedDefinitions,
     ): array {
         if (array_key_exists(self::COMPONENTS_REFERENCE, $versionedDefinitions)) {
             $definitionsToPopulate[self::COMPONENTS_REFERENCE] = $versionedDefinitions[self::COMPONENTS_REFERENCE];

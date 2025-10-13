@@ -54,7 +54,7 @@ final class DeleteRule
         private readonly WriteResourceAccessRepositoryInterface $writeRepository,
         private readonly ContactInterface $user,
         private readonly ReadAccessGroupRepositoryInterface $accessGroupRepository,
-        private readonly bool $isCloudPlatform
+        private readonly bool $isCloudPlatform,
     ) {
     }
 

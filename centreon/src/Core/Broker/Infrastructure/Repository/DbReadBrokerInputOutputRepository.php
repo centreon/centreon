@@ -327,7 +327,7 @@ class DbReadBrokerInputOutputRepository extends AbstractRepositoryRDB implements
             }
         }
 
-        if (false === $withPasswords) {
+        if ($withPasswords === false) {
             // removing password values
             foreach (array_keys($groupedFields) as $groupedFieldName) {
                 $parameters[$groupedFieldName] = array_map(
