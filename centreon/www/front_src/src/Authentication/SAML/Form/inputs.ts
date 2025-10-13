@@ -43,6 +43,7 @@ import {
   labelCertificate,
   labelDefineRelationBetweenRolesAndAclAccessGroups,
   labelEmailAttribute,
+  labelEnableRequestedAuthnContext,
   labelEnableSAMLAuthentication,
   labelEntityIdURL,
   labelFullNameAttribute,
@@ -271,12 +272,19 @@ export const inputs: Array<InputProps> = [
     custom: {
       Component: RequestedAuthnContextField
     },
-    dataTestId: 'saml_requestedAuthnContext',
-    fieldName: 'requestedAuthnContext',
+    dataTestId: 'saml_requestedAuthnContextComparison',
+    fieldName: 'requestedAuthnContextComparison',
     group: labelIdentityProvider,
     label: labelRequestedAuthnContext,
     required: true,
     type: InputType.Custom
+  },
+  {
+    type: InputType.Switch,
+    dataTestId: 'saml_requestAuthnContext',
+    fieldName: 'requestAuthnContext',
+    group: labelIdentityProvider,
+    label: labelEnableRequestedAuthnContext
   },
   {
     dataTestId: 'saml_logoutFrom',
