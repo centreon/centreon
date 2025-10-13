@@ -11355,6 +11355,10 @@ msgstr "doit être un nombre"
 msgid "Must be a number between 1 and 65335 included."
 msgstr "Doit être un nombre compris entre 1 et 65335 inclus"
 
+#: centreon/www/include/configuration/configObject/escalation/formEscalation.php
+msgid "Must be a positive integer or 0"
+msgstr ""
+
 #: centreon/src/Core/Security/ProviderConfiguration/Domain/Exception/ConfigurationException.php
 #, php-format
 msgid "Must not Happen, got unexpected CustomConfiguration type %s"
