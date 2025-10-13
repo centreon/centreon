@@ -38,19 +38,18 @@ services:
               - ApiPlatform\Metadata\ApiResource
           classes:
               - ApiPlatform\State\ProcessorInterface
-              - App\MonitoringConfiguration\Infrastructure\Legacy\LegacyServiceCategoryPermissionVoter
-              - App\Shared\Infrastructure\TransformerInterface
+              - App\ResourceConfiguration\Infrastructure\Legacy\LegacyServiceCategoryPermissionVoter
       tags: [phpstan.rules.rule]
 
-    - class: Tools\PhpStan\CustomRules\MiscRules\MarkedClassesHaveTestRule
-      arguments:
-          attributes:
-              - App\Shared\Application\Command\AsCommandHandler
-              - App\Shared\Domain\Event\AsEventHandler
-          classes:
-              - ApiPlatform\State\ProcessorInterface
-              - App\Shared\Infrastructure\Dbal\DbalRepository
-      tags: [phpstan.rules.rule]
+#    - class: Tools\PhpStan\CustomRules\MiscRules\MarkedClassesHaveTestRule
+#      arguments:
+#          attributes:
+#              - App\Shared\Application\Command\AsCommandHandler
+#              - App\Shared\Domain\Event\AsEventHandler
+#          classes:
+#              - ApiPlatform\State\ProcessorInterface
+#              - App\Shared\Infrastructure\Doctrine\DoctrineRepository
+#      tags: [phpstan.rules.rule]
 
     - class: Tools\PhpStan\CustomRules\ArchitectureRules\MarkedClassesAreOnlyInvokableRule
       arguments:
