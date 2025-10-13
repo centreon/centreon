@@ -100,7 +100,6 @@ final class MonitoringParametersResource
             openapiContext: ['example' => '$USER1$']
         )]
         public ?bool $isResourceStatusFullSearchEnabled = null,
-
     ) {
     }
 }
