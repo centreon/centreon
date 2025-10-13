@@ -122,7 +122,7 @@ Given(
                 majorVersionFrom = previousVersion;
                 cy.task(
                   "logVersion",
-                  `Found version value is ${previousVersion}`,
+                  `Found version value is ${previousVersion}.${minor_version}`,
                 );
               } else {
                 cy.log(
@@ -137,7 +137,7 @@ Given(
                     cy.wrap(newVersion).as('majorVersionFrom');
                     cy.task(
                       "logVersion",
-                      `Closest version found value is ${newVersion}`,
+                      `Closest version found value is ${newVersion}.${minor_version}`,
                     );
                   }
                 );
@@ -147,7 +147,7 @@ Given(
             majorVersionFrom = previousVersion;
             cy.task(
               "logVersion",
-              `Found version value is ${previousVersion}`,
+              `Found version value is ${previousVersion}.${minor_version}`,
             );
           }
           break;
