@@ -22,7 +22,7 @@ export const labelLogoutUrl = 'Logout URL';
 export const labelCentreonUIOnly = 'Centreon UI only';
 export const labelBothIdentityProviderAndCentreonUI =
   'Both identity provider and Centreon UI';
-export const labelRequestedAuthnContext = 'Comparison rule for the requested authentication context';
+export const labelRequestedAuthnContextComparison = 'Comparison rule for the requested authentication context';
 export const labelEnableRequestedAuthnContext = 'Enable requested authentication context';
 export const labelMinimum = 'Minimum';
 export const labelExact = 'Exact';

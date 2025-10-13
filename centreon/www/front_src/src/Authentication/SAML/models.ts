@@ -44,13 +44,13 @@ export interface SAMLConfigurationToAPI {
   logout_from: boolean;
   logout_from_url: string | null;
   remote_login_url: string;
-  requested_authn_context_comparison: string;
+  requested_authn_context_comparison?: string;
   request_authn_context: boolean;
   roles_mapping: SharedRolesMappingToAPI;
   user_id_attribute: string;
 }
 
-export enum RequestedAuthnContextValue {
+export enum RequestedAuthnContextComparisonValue {
   Minimum = 'minimum',
   Exact = 'exact',
   Better = 'better',

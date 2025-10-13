@@ -5,55 +5,53 @@ import { useTranslation } from 'react-i18next';
 
 import { SelectEntry, SelectField } from '@centreon/ui';
 
-import { RequestedAuthnContextValue, SAMLConfiguration } from '../models';
+import { RequestedAuthnContextComparisonValue, SAMLConfiguration } from '../models';
 import {
   labelBetter,
   labelExact,
   labelMaximum,
   labelMinimum,
-  labelRequestedAuthnContext
+  labelRequestedAuthnContextComparison
 } from '../translatedLabels';
 
-const RequestedAuthnContextField = (): React.JSX.Element => {
+const RequestedAuthnContextComparisonField = (): React.JSX.Element => {
   const { t } = useTranslation();
   const { values, setFieldValue, errors, touched } =
     useFormikContext<SAMLConfiguration>();
 
   const changeValue = (event): void => {
-    setFieldValue('requestedAuthnContext', event.target.value);
+    setFieldValue('requestedAuthnContextComparison', event.target.value);
   };
 
   const options: Array<SelectEntry> = [
-    { id: RequestedAuthnContextValue.Minimum, name: t(labelMinimum) },
-    { id: RequestedAuthnContextValue.Exact, name: t(labelExact) },
-    { id: RequestedAuthnContextValue.Better, name: t(labelBetter) },
-    { id: RequestedAuthnContextValue.Maximum, name: t(labelMaximum) }
+    { id: RequestedAuthnContextComparisonValue.Minimum, name: t(labelMinimum) },
+    { id: RequestedAuthnContextComparisonValue.Exact, name: t(labelExact) },
+    { id: RequestedAuthnContextComparisonValue.Better, name: t(labelBetter) },
+    { id: RequestedAuthnContextComparisonValue.Maximum, name: t(labelMaximum) }
   ];
 
   const selectedOption = find((option: SelectEntry) =>
-    equals(option.id, values.requestedAuthnContext)
+    equals(option.id, values.requestedAuthnContextComparison)
   )(options);
 
-  const error = touched?.requestedAuthnContext
-    ? errors?.requestedAuthnContext
+  const error = touched?.requestedAuthnContextComparison
+    ? errors?.requestedAuthnContextComparison
     : undefined;
 
   return (
     <SelectField
       fullWidth
       required
-      aria-label={labelRequestedAuthnContext}
-      dataTestId={labelRequestedAuthnContext}
+      aria-label={labelRequestedAuthnContextComparison}
+      dataTestId={labelRequestedAuthnContextComparison}
       error={error as string}
-      label={labelRequestedAuthnContext}
-      name="requestedAuthnContext"
+      label={labelRequestedAuthnContextComparison}
+      name="requestedAuthnContextComparison"
       options={options}
-      selectedOptionId={
-        selectedOption?.id || RequestedAuthnContextValue.Minimum
-      }
+      selectedOptionId={selectedOption?.id || RequestedAuthnContextComparisonValue.Minimum}
       onChange={changeValue}
     />
   );
 };
 
-export default RequestedAuthnContextField;
+export default RequestedAuthnContextComparisonField;

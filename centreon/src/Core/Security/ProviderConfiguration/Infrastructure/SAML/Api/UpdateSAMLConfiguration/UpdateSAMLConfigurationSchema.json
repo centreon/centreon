@@ -18,8 +18,7 @@
     "authentication_conditions",
     "groups_mapping",
     "roles_mapping",
-    "requested_authn_context_comparison",
-    "request_authn_context"
+    "requested_authn_context"
   ],
   "properties": {
     "is_active": {

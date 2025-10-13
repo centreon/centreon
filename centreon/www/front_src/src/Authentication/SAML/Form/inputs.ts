@@ -50,12 +50,11 @@ import {
   labelLogoutFrom,
   labelLogoutUrl,
   labelRemoteLoginUrl,
-  labelRequestedAuthnContext,
+  labelRequestedAuthnContextComparison,
   labelSAMLOnly,
   labelUserIdAttribute
 } from '../translatedLabels';
-
-import RequestedAuthnContextField from './RequestedAuthnContextField';
+import RequestedAuthnContextComparisonField from './RequestedAuthnContextField';
 
 const isAutoImportDisabled = (values: FormikValues): boolean =>
   not(prop('autoImport', values));
@@ -270,12 +269,12 @@ export const inputs: Array<InputProps> = [
   },
   {
     custom: {
-      Component: RequestedAuthnContextField
+      Component: RequestedAuthnContextComparisonField
     },
     dataTestId: 'saml_requestedAuthnContextComparison',
     fieldName: 'requestedAuthnContextComparison',
     group: labelIdentityProvider,
-    label: labelRequestedAuthnContext,
+    label: labelRequestedAuthnContextComparison,
     required: true,
     type: InputType.Custom
   },
