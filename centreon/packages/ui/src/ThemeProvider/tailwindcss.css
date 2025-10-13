@@ -1,10 +1,13 @@
 @import "tailwindcss";
+@import "./base.css"; /* Base styles: scrollbar, html, body, #root */
 
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
+  /* Typography */
   --font-body: Roboto, Arial, serif;
 
+  /* Spacing system */
   --spacing: 4px;
 
   --spacing-0: calc(var(--spacing) * 0);
@@ -19,6 +22,11 @@
   --spacing-9: calc(var(--spacing) * 9);
   --spacing-10: calc(var(--spacing) * 10);
 
+  /* =============
+     COLOR SYSTEM
+     ============= */
+  
+  /* Action colors */
   --color-action-acknowledged: #745f35;
   --color-action-acknowledged-background: #dfd2b9;
   --color-action-in-flapping: #064a3f;
@@ -35,6 +43,8 @@
   --color-action-in-downtime-background: #e5d8f3;
   --color-action-selected: rgba(102, 102, 102, 0.3);
   --color-action-selected-opacity: 0.3;
+  
+  /* Background colors */
   --color-background-default: #f4f4f4;
   --color-background-listing-header: #666666;
   --color-background-panel: #ededed;
@@ -42,13 +52,19 @@
   --color-background-paper: #ffffff;
   --color-background-tooltip: #434e58;
   --color-background-widget: #f8f8f8;
+  
+  /* Chip colors */
   --color-chip-error: #ff6666;
   --color-chip-info: #1588d1;
   --color-chip-neutral: #6da4e4;
   --color-chip-success: #88b922;
   --color-chip-warning: #fd9b27;
+  
+  /* Utility colors */
   --color-divider: #e3e3e3;
   --color-error-main: #ff4a4a;
+  
+  /* Header colors */
   --color-header-page-action-background-active: #1975d10f;
   --color-header-page-action-background-default: #ffffff00;
   --color-header-page-action-color-active: #1976d2;
@@ -74,13 +90,19 @@
   --color-header-menu-item-color-active: #3e85d5;
   --color-header-menu-item-color-default: #1b2127;
   --color-header-menu-item-color-hover: #101418;
+  
+  /* State colors */
   --color-pending-main: #1ebeb3;
+  
+  /* Primary & Secondary colors */
   --color-primary-main: #2e68aa;
   --color-primary-light: #cde7fc;
   --color-primary-dark: #255891;
   --color-secondary-main: #c772d6;
   --color-secondary-light: #e5a5f0;
   --color-secondary-dark: #ac28c1;
+  
+  /* Status colors */
   --color-status-background-error: #ff6666;
   --color-status-background-none: --alpha(#2e68aa / 10%);
   --color-status-background-pending: #1ebeb3;
@@ -88,12 +110,16 @@
   --color-stauts-background-unknown: #e3e3e3;
   --color-status-background-warning: #fd9b27;
   --color-success-main: #88b922;
+  
+  /* Text colors */
   --color-text-disabled: #999999;
   --color-text-primary: #000000;
   --color-text-secondary: #666666;
   --color-warning-main: #fd9b27;
   --color-warning-light: #fcc481;
   --color-warning-dark: #fc7e00;
+  
+  /* Base colors */
   --color-white: #ffffff;
   --color-black: #000000;
 }
