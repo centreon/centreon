@@ -2455,12 +2455,8 @@ msgstr ""
 msgid ""
 "Centreon Broker's configuration directory '%s' does not exist and could not\n"
 "                                             be created for monitoring "
-"engine '%s'. Please check it's path or create it"
+"engine '%s'. Please check its path or create it"
 msgstr ""
-"O diretorio de configuração '%s' do Centreon Broker não existe ou não pôde "
-"ser\n"
-"                                             criado pelo o motor de "
-"monitoramento '%s'. Por favor, verifique o caminho"
 
 #: centreon/www/class/centreon-clapi/centreon.Config.Poller.class.php
 #, php-format
@@ -3836,12 +3832,8 @@ msgstr "Não foi possível estabelecer conexão com os servidores IMP Centreon (
 #, php-format
 msgid ""
 "Could not find configuration directory '%s' for monitoring engine '%s'.\n"
-"                                 Please check it's path or create it"
+"                                 Please check its path or create it"
 msgstr ""
-"Não foi possivel encontrar o diretorio de configuração '%s' do motor de "
-"monitoramento '%s'.\n"
-"                                 Por favor, verifique o caminho ou se ele "
-"existe"
 
 #: centreon/src/CentreonRemote/Infrastructure/Service/PollerInteractionService.php
 #: centreon/www/include/configuration/configGenerate/xml/moveFiles.php
@@ -6589,6 +6581,10 @@ msgstr ""
 
 #: centreon/src/Core/HostGroup/Application/Exceptions/HostGroupException.php
 msgid "Error while enabling/disabling host groups"
+msgstr ""
+
+#: centreon/www/include/options/accessLists/menusACL/listsMenusAccess.php
+msgid "Error while fetching ACL topologies"
 msgstr ""
 
 #: centreon/src/Core/Dashboard/Application/Exception/DashboardException.php
@@ -20662,6 +20658,19 @@ msgstr "Informações sobre o Broker Centreon"
 msgid "Centreon Broker socket path"
 msgstr "Caminho do soquete Centreon Broker Unix"
 
+#, php-format
+#: unknown
+msgid ""
+"Centreon Broker's configuration directory '%s' does not exist and could "
+"not\n"
+"                                             be created for monitoring "
+"engine '%s'. Please check it's path or create it"
+msgstr ""
+"O diretorio de configuração '%s' do Centreon Broker não existe ou não "
+"pôde ser\n"
+"                                             criado pelo o motor de "
+"monitoramento '%s'. Por favor, verifique o caminho"
+
 #: unknown
 msgid "Centreon DataBase Statistics"
 msgstr "Banco de dados de statisticas do Centreon"
@@ -20879,6 +20888,17 @@ msgid "Could not find configuration database. Session probably expired."
 msgstr ""
 "Não foi possivel encontrar a configurações do banco de dados. A sessão "
 "provavelmente expirou."
+
+#, php-format
+#: unknown
+msgid ""
+"Could not find configuration directory '%s' for monitoring engine '%s'.\n"
+"                                 Please check it's path or create it"
+msgstr ""
+"Não foi possivel encontrar o diretorio de configuração '%s' do motor de "
+"monitoramento '%s'.\n"
+"                                 Por favor, verifique o caminho ou se ele "
+"existe"
 
 #: unknown
 msgid "Could not find database user. Session probably expired."

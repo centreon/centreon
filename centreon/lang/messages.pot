@@ -2573,7 +2573,7 @@ msgstr ""
 msgid ""
 "Centreon Broker's configuration directory '%s' does not exist and could not\n"
 "                                             be created for monitoring "
-"engine '%s'. Please check it's path or create it"
+"engine '%s'. Please check its path or create it"
 msgstr ""
 
 #: centreon/www/class/centreon-clapi/centreon.Config.Poller.class.php
@@ -3726,7 +3726,7 @@ msgstr ""
 #, php-format
 msgid ""
 "Could not find configuration directory '%s' for monitoring engine '%s'.\n"
-"                                 Please check it's path or create it"
+"                                 Please check its path or create it"
 msgstr ""
 
 #: centreon/src/CentreonRemote/Infrastructure/Service/PollerInteractionService.php
@@ -6816,6 +6816,10 @@ msgstr ""
 
 #: centreon/src/Core/HostGroup/Application/Exceptions/HostGroupException.php
 msgid "Error while enabling/disabling host groups"
+msgstr ""
+
+#: centreon/www/include/options/accessLists/menusACL/listsMenusAccess.php
+msgid "Error while fetching ACL topologies"
 msgstr ""
 
 #: centreon/src/Core/Dashboard/Application/Exception/DashboardException.php
@@ -13475,6 +13479,10 @@ msgid "Password security policy saved"
 msgstr ""
 
 #: centreon/www/include/Administration/myAccount/formMyAccount.php
+#: centreon/www/include/Administration/myAccount/formMyAccount.php
+#: centreon/www/include/Administration/myAccount/formMyAccount.php
+#: centreon/www/include/configuration/configObject/contact/formContact.php
+#: centreon/www/include/configuration/configObject/contact/formContact.php
 #: centreon/www/include/configuration/configObject/contact/formContact.php
 msgid "Passwords do not match"
 msgstr ""

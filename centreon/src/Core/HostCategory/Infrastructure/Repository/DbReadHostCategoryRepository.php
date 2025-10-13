@@ -130,7 +130,7 @@ class DbReadHostCategoryRepository extends AbstractRepositoryRDB implements Read
         // Update the SQL string builder with the RequestParameters through SqlRequestParametersTranslator
         $searchRequest = $sqlTranslator?->translateSearchParameterToSql();
 
-        if ($searchRequest !== null) {
+        if ($searchRequest !== null && str_contains($searchRequest, 'hg.')) {
             $request .= <<<'SQL'
 
                     INNER JOIN `:db`.hostcategories_relation hcr
@@ -217,7 +217,7 @@ class DbReadHostCategoryRepository extends AbstractRepositoryRDB implements Read
         // Update the SQL string builder with the RequestParameters through SqlRequestParametersTranslator
         $searchRequest = $sqlTranslator?->translateSearchParameterToSql();
 
-        if ($searchRequest !== null) {
+        if ($searchRequest !== null && str_contains($searchRequest, 'hg.')) {
             $request .= <<<'SQL'
                     INNER JOIN `:db`.hostcategories_relation hcr
                         ON hc.hc_id = hcr.hostcategories_hc_id
