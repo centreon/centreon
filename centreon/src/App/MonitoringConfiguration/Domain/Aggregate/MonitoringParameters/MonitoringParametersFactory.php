@@ -39,38 +39,53 @@ final readonly class MonitoringParametersFactory
 
         return new MonitoringParameters(
             monitoringDefaultRefreshInterval: new MonitoringDefaultRefreshInterval(
-                (int) ($optionsByName['AjaxTimeReloadMonitoring']->value->value ?? 60)
+                isset($optionsByName['AjaxTimeReloadMonitoring'])
+                    ? (int) $optionsByName['AjaxTimeReloadMonitoring']->value->value
+                    : 15
             ),
             statisticsDefaultRefreshInterval: new StatisticsDefaultRefreshInterval(
-                (int) ($optionsByName['AjaxTimeReloadStatistic']->value->value ?? 300)
+                isset($optionsByName['AjaxTimeReloadStatistic'])
+                    ? (int) $optionsByName['AjaxTimeReloadStatistic']->value->value
+                    : 15
             ),
             monitoringDefaultDowntimeDuration: new MonitoringDefaultDowntimeDuration(
                 self::convertDowntimeDurationToSeconds(
                     new MonitoringDefaultDowntimeDuration(
-                        (int) ($optionsByName['monitoring_dwt_duration']->value->value ?? 60)
+                        isset($optionsByName['monitoring_dwt_duration'])
+                            ? (int) $optionsByName['monitoring_dwt_duration']->value->value
+                            : 3600
                     ),
                     new MonitoringDefaultDowntimeScale(
-                        $optionsByName['monitoring_dwt_duration_scale']->value->value
-                        ?? MonitoringDefaultDowntimeScale::DEFAULT_DOWNTIME_SCALE_MINUTE
+                        isset($optionsByName['monitoring_dwt_duration_scale'])
+                            ? $optionsByName['monitoring_dwt_duration_scale']->value->value
+                            : MonitoringDefaultDowntimeScale::DEFAULT_DOWNTIME_SCALE_MINUTE
                     )
                 )
             ),
-            monitoringDefaultAcknowledgementSticky:
-                (bool) $optionsByName['monitoring_ack_sticky']->value->value ?? false,
-            monitoringDefaultAcknowledgementPersistent:
-                (bool) $optionsByName['monitoring_ack_persistent']->value->value ?? false,
-            monitoringDefaultAcknowledgementNotify:
-                (bool) $optionsByName['monitoring_ack_notify']->value->value ?? false,
-            monitoringDefaultAcknowledgementWithServices:
-                (bool) $optionsByName['monitoring_ack_svc']->value->value ?? false,
-            monitoringDefaultAcknowledgementForceActiveChecks:
-                (bool) $optionsByName['monitoring_ack_active_checks']->value->value ?? false,
-            monitoringDefaultDowntimeFixed:
-                (bool) $optionsByName['monitoring_dwt_fixed']->value->value ?? false,
-            monitoringDefaultDowntimeWithServices:
-                (bool) $optionsByName['monitoring_dwt_svc']->value->value ?? false,
-            isResourceStatusFullSearchEnabled:
-                (bool) $optionsByName['resource_status_search_mode']->value->value ?? false,
+            monitoringDefaultAcknowledgementSticky: isset($optionsByName['monitoring_ack_sticky'])
+                ? (bool) $optionsByName['monitoring_ack_sticky']->value->value
+                : false,
+            monitoringDefaultAcknowledgementPersistent: isset($optionsByName['monitoring_ack_persistent'])
+                ? (bool) $optionsByName['monitoring_ack_persistent']->value->value
+                : false,
+            monitoringDefaultAcknowledgementNotify: isset($optionsByName['monitoring_ack_notify'])
+                ? (bool) $optionsByName['monitoring_ack_notify']->value->value
+                : false,
+            monitoringDefaultAcknowledgementWithServices: isset($optionsByName['monitoring_ack_svc'])
+                ? (bool) $optionsByName['monitoring_ack_svc']->value->value
+                : false,
+            monitoringDefaultAcknowledgementForceActiveChecks: isset($optionsByName['monitoring_ack_active_checks'])
+                ? (bool) $optionsByName['monitoring_ack_active_checks']->value->value
+                : false,
+            monitoringDefaultDowntimeFixed: isset($optionsByName['monitoring_dwt_fixed'])
+                ? (bool) $optionsByName['monitoring_dwt_fixed']->value->value
+                : false,
+            monitoringDefaultDowntimeWithServices: isset($optionsByName['monitoring_dwt_svc'])
+                ? (bool) $optionsByName['monitoring_dwt_svc']->value->value
+                : false,
+            isResourceStatusFullSearchEnabled: isset($optionsByName['resource_status_search_mode'])
+                ? (bool) $optionsByName['resource_status_search_mode']->value->value
+                : false,
         );
     }
 
@@ -78,7 +93,7 @@ final readonly class MonitoringParametersFactory
         MonitoringDefaultDowntimeDuration $duration,
         MonitoringDefaultDowntimeScale $scale,
     ): int {
-        return match ($scale) {
+        return match ($scale->value) {
             MonitoringDefaultDowntimeScale::DEFAULT_DOWNTIME_SCALE_MINUTE => $duration->value * 60,
             MonitoringDefaultDowntimeScale::DEFAULT_DOWNTIME_SCALE_HOUR => $duration->value * 3600,
             MonitoringDefaultDowntimeScale::DEFAULT_DOWNTIME_SCALE_DAY => $duration->value * 86400,

@@ -25,9 +25,9 @@ namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\State;
 
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProviderInterface;
+use App\MonitoringConfiguration\Domain\Aggregate\MonitoringParameters\MonitoringParameters;
 use App\MonitoringConfiguration\Domain\Aggregate\MonitoringParameters\MonitoringParametersFactory;
 use App\MonitoringConfiguration\Domain\Repository\OptionRepository;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\GlobalMacroResource;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\MonitoringParametersResource;
 use App\Shared\Infrastructure\TransformerInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
@@ -48,7 +48,7 @@ final readonly class GetMonitoringParametersProvider implements ProviderInterfac
     }
 
     /**
-     * @return iterable<GlobalMacroResource>
+     * @return MonitoringParametersResource
      */
     public function provide(Operation $operation, array $uriVariables = [], array $context = []): MonitoringParametersResource
     {

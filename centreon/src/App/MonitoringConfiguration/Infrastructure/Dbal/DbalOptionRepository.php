@@ -92,8 +92,9 @@ final readonly class DbalOptionRepository extends DbalRepository implements Opti
                 "'resource_status_search_mode'",
             ]));
         $rows = $qb->executeQuery()->fetchAllAssociative();
+        $options = [];
         foreach ($rows as $row) {
-            /** @var Option $option */
+            /** @var RowTypeAlias $row */
             $option = $this->transformer->transform($row);
             $options[] = $option;
         }
