@@ -75,7 +75,7 @@ final class RunCsFixerOnDiffCommandHandler
                 }
             }
             if (! $matched) {
-                echo '⚠️ File not recognised: ' . $file . PHP_EOL;
+                echo '⚠️ File not recognised or skipped: ' . $file . PHP_EOL;
             }
         }
 
