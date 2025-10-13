@@ -148,6 +148,20 @@ $addOpentelemetryLogLevelColumn = function () use ($pearDB, &$errorMessage): voi
     }
 };
 
+$updateStatisticsAndMonitoringInterval = function () use ($pearDB, &$errorMessage): void {
+    $errorMessage = 'Failed to update statistics and monitoring interval';
+    $pearDB->update(
+        <<<'SQL'
+            UPDATE options SET `value` = 3600 WHERE `key` = 'AjaxTimeReloadMonitoring' AND `value` > 3600
+            SQL
+    );
+    $pearDB->update(
+        <<<'SQL'
+            UPDATE options SET `value` = 3600 WHERE `key` = 'AjaxTimeReloadStatistic' AND `value` > 3600
+            SQL
+    );
+};
+
 try {
     // DDL statements for real time database
     // TODO add your function calls to update the real time database structure here
@@ -165,6 +179,7 @@ try {
     $cleanGlobalMacrosName();
     $fixTypoInStandardMacroName();
     $fixBrokerConfigTypo();
+    $updateStatisticsAndMonitoringInterval();
 
     $pearDB->commitTransaction();
 

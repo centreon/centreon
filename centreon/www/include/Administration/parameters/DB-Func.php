@@ -114,6 +114,11 @@ function is_greater_than($value, $minValue)
     return is_numeric($value) && $value >= $minValue;
 }
 
+function isLessThanEqual($value, $maxValue)
+{
+    return is_numeric($value) && $value <= $maxValue;
+}
+
 /**
  * rule to check the session duration value chosen by the user
  * @param int $value

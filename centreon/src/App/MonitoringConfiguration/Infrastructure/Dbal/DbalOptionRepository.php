@@ -27,6 +27,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Option\Option;
 use App\MonitoringConfiguration\Domain\Aggregate\Option\OptionName;
 use App\MonitoringConfiguration\Domain\Exception\OptionDoesNotExistException;
 use App\MonitoringConfiguration\Domain\Repository\OptionRepository;
+use App\Shared\Domain\Collection;
 use App\Shared\Infrastructure\Dbal\DbalRepository;
 use App\Shared\Infrastructure\TransformerInterface;
 use Doctrine\DBAL\Connection;
@@ -69,5 +70,34 @@ final readonly class DbalOptionRepository extends DbalRepository implements Opti
         }
 
         return $this->transformer->transform($row);
+    }
+
+    public function findMonitoringParameters(): Collection
+    {
+        $qb = $this->connection->createQueryBuilder();
+        $qb->select('`key` AS option_name', '`value` AS option_value')
+            ->from(self::TABLE_NAME)
+            ->where($qb->expr()->in('`key`', [
+                "'monitoring_dwt_duration'",
+                "'monitoring_dwt_duration_scale'",
+                "'AjaxTimeReloadMonitoring'",
+                "'AjaxTimeReloadStatistic'",
+                "'monitoring_ack_sticky'",
+                "'monitoring_ack_persistent'",
+                "'monitoring_ack_notify'",
+                "'monitoring_ack_svc'",
+                "'monitoring_ack_active_checks'",
+                "'monitoring_dwt_fixed'",
+                "'monitoring_dwt_svc'",
+                "'resource_status_search_mode'",
+            ]));
+        $rows = $qb->executeQuery()->fetchAllAssociative();
+        foreach ($rows as $row) {
+            /** @var Option $option */
+            $option = $this->transformer->transform($row);
+            $options[] = $option;
+        }
+
+        return new Collection($options, Option::class);
     }
 }

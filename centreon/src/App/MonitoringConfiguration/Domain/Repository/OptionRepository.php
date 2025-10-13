@@ -26,6 +26,7 @@ namespace App\MonitoringConfiguration\Domain\Repository;
 use App\MonitoringConfiguration\Domain\Aggregate\Option\Option;
 use App\MonitoringConfiguration\Domain\Aggregate\Option\OptionName;
 use App\MonitoringConfiguration\Domain\Exception\OptionDoesNotExistException;
+use App\Shared\Domain\Collection;
 
 interface OptionRepository
 {
@@ -33,4 +34,9 @@ interface OptionRepository
      * @throws OptionDoesNotExistException
      */
     public function getByName(OptionName $name): Option;
+
+    /**
+     * @return Collection<Option>
+     */
+    public function findMonitoringParameters(): Collection;
 }
