@@ -227,7 +227,7 @@ jobs:
       - name: Rename JSON report
         if: ${{ always() }}
         run: |
-          echo $(basename "${{ matrix.feature }}" | sed 's|\(.*\)\..*|\1|')
+          feature_name=$(basename "${{ matrix.feature }}" | sed 's|\(.*\)\..*|\1|')
           report_path="${{ inputs.module_name }}/tests/e2e/results/reports/${feature_name}-report.json"
 
           if [ -f "$report_path" ]; then
