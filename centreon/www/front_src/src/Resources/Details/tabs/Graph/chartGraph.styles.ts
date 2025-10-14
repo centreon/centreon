@@ -31,13 +31,5 @@ export const useChartGraphStyles = makeStyles()((theme) => ({
     display: 'grid',
     gridTemplateRows: '1fr',
     padding: theme.spacing(2, 1, 1)
-  },
-  graphsCapMessage: {
-    alignItems: 'center',
-    color: theme.palette.grey[600],
-    display: 'flex',
-    flexGrow: 1,
-    height: '100%',
-    justifyContent: 'center'
   }
 }));
