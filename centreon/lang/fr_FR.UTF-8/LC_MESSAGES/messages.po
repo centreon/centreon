@@ -21145,10 +21145,6 @@ msgid "Distant Poller"
 msgstr "Collecteur distant"
 
 #: unknown
-msgid "Do you confirm the cancellation?"
-msgstr "Confirmez-vous l'annulation ?"
-
-#: unknown
 msgid "Do you really wish to remove this entry?"
 msgstr "Voulez-vous réellement supprimer cette entrée ?"
 
