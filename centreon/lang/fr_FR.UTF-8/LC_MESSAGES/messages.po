@@ -13512,7 +13512,7 @@ msgstr "Ordinaire"
 
 #: centreon/www/include/configuration/configNagios/formNagios.php
 msgid "Regular Expression Matching Option"
-msgstr "Activation de la gestion des expressions rationnelles"
+msgstr "Activation de la gestion des expressions régulières"
 
 #: centreon/www/include/configuration/configObject/host_categories/formHostCategories.php
 msgid "Relation"
@@ -17480,7 +17480,7 @@ msgstr "Tentatives"
 
 #: centreon/www/include/configuration/configNagios/formNagios.php
 msgid "True Regular Expression Matching Option"
-msgstr "Activation de la gestion systématique des expressions rationnelles"
+msgstr "Activation de la gestion systématique des expressions régulières"
 
 #: centreon/www/install/centreon_broker_translation.php
 msgid "Trusted CA"
