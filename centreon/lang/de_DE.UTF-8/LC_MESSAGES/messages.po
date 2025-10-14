@@ -2742,10 +2742,6 @@ msgid "Check command sent! Please refresh the listing to update the data."
 msgstr ""
 
 #: centreon/www/install/front_translate.php
-msgid "Check command sent!"
-msgstr ""
-
-#: centreon/www/install/front_translate.php
 msgid "Check duration"
 msgstr ""
 
@@ -7498,10 +7494,6 @@ msgstr ""
 #: centreon/www/install/front_translate.php
 msgid ""
 "Forced check command sent! Please refresh the listing to update the data."
-msgstr ""
-
-#: centreon/www/install/front_translate.php
-msgid "Forced check command sent!"
 msgstr ""
 
 #: centreon/www/install/dashboard_widgets.php
@@ -15448,9 +15440,6 @@ msgid ""
 msgstr "Ihre Befehlszeile enthält kein $_SERVICE$- oder $_HOST$-Makro."
 
 #: centreon/www/install/dashboard_widgets.php
-msgid "Sort by"
-msgstr ""
-
 #: centreon/www/include/Administration/parameters/general/form.php
 msgid "Sort by"
 msgstr "Sortieren nach"

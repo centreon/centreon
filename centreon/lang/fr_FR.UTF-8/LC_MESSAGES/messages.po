@@ -2802,10 +2802,6 @@ msgstr ""
 "jour les données."
 
 #: centreon/www/install/front_translate.php
-msgid "Check command sent!"
-msgstr "Commande de vérification envoyée !"
-
-#: centreon/www/install/front_translate.php
 msgid "Check duration"
 msgstr "Temps d'exécution"
 
@@ -7629,10 +7625,6 @@ msgid ""
 msgstr ""
 "Commande de vérification forcée envoyée ! Veuillez actualiser le tableau "
 "pour mettre à jour les données."
-
-#: centreon/www/install/front_translate.php
-msgid "Forced check command sent!"
-msgstr "Commande de vérification forcée envoyée !"
 
 #: centreon/www/install/dashboard_widgets.php
 msgid "Forecast based on past X days"
@@ -15628,9 +15620,6 @@ msgstr ""
 "$_HOST$."
 
 #: centreon/www/install/dashboard_widgets.php
-msgid "Sort by"
-msgstr "Trier par"
-
 #: centreon/www/include/Administration/parameters/general/form.php
 msgid "Sort by"
 msgstr "Trier par"
