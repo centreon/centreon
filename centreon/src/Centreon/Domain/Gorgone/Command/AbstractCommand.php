@@ -33,7 +33,7 @@ abstract class AbstractCommand
     /** @var int Poller id */
     private $monitoringInstanceId;
 
-    /** @var string|null Body of the request that will be send in case of request of type POST, PUT or PATCH */
+    /** @var string|null Body of the request that will be sent in case of request of type POST, PUT or PATCH */
     private $bodyRequest;
 
     /**

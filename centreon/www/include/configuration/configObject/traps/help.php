@@ -72,7 +72,7 @@ $help['command_args'] = dgettext(
 );
 $help['comments'] = dgettext(
     'help',
-    'Comment to describe per example the situation in which this trap will be send. Additionally '
+    'Comment to describe per example the situation in which this trap will be sent. Additionally '
     . 'the format and the parameters of the trap can be described.'
 );
 $help['traps_routing_mode'] = dgettext('help', 'Enable/Disable routing definition');

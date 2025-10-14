@@ -181,7 +181,7 @@ msgid "<br><b>Centreon: </b>A restart signal has been sent to "
 msgstr "<br><b>Centreon : </b>Um sinal de reinicio foi enviado para "
 
 #: centreon/www/include/configuration/configGenerate/xml/moveFiles.php
-msgid "<br><b>Centreon: </b>All configuration will be send to "
+msgid "<br><b>Centreon: </b>All configuration will be sent to "
 msgstr "<br><b>Centreon : </b>Toda a configuração foi enviada para "
 
 #: centreon/www/include/views/virtualMetrics/formVirtualMetrics.php
@@ -12464,7 +12464,7 @@ msgid "OK: All configuration files copied with success."
 msgstr "OK: Todos os arquivos de configuração foram copiados com sucesso."
 
 #: centreon/www/class/centreon-clapi/centreon.Config.Poller.class.php
-msgid "OK: All configuration will be send to '"
+msgid "OK: All configuration will be sent to '"
 msgstr "OK: Toda a configuração será enviada para '"
 
 #: centreon/www/install/front_translate.php
