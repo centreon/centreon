@@ -3734,7 +3734,7 @@ msgid "Creator"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
-msgid "Criterias"
+msgid "Criteria"
 msgstr ""
 
 #: centreon/www/include/Administration/performance/viewMetrics.php
@@ -14438,7 +14438,7 @@ msgid "Select columns"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
-msgid "Select criterias"
+msgid "Select criteria"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
@@ -15310,7 +15310,7 @@ msgid "Show axis borders"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
-msgid "Show criterias filters"
+msgid "Show criteria filters"
 msgstr ""
 
 #: centreon/www/install/dashboard_widgets.php

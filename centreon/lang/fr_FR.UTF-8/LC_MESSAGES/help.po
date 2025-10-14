@@ -601,7 +601,7 @@ msgstr "Commentaire concernant cette catégorie."
 
 #: centreon/www/include/configuration/configObject/traps/help.php
 msgid ""
-"Comment to describe per example the situation in which this trap will be "
+"Comment to describe, for example, the situation in which this trap will be "
 "sent. Additionally the format and the parameters of the trap can be "
 "described."
 msgstr ""
@@ -2551,15 +2551,15 @@ msgstr ""
 "renseignée)."
 
 #: centreon/www/include/views/componentTemplates/help.php
-msgid "Print total value."
-msgstr "Afficher la valeur totale."
+msgid "Prints total value."
+msgstr "Affiche la valeur totale."
 
 #: centreon/www/include/views/componentTemplates/help.php
 msgid "Prints average value."
 msgstr "Affiche la valeur moyenne."
 
 #: centreon/www/include/views/componentTemplates/help.php
-msgid "Prints last Value."
+msgid "Prints last value."
 msgstr "Affiche la dernière valeur."
 
 #: centreon/www/include/views/componentTemplates/help.php

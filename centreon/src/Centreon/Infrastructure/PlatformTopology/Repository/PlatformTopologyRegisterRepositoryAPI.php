@@ -167,7 +167,7 @@ class PlatformTopologyRegisterRepositoryAPI implements PlatformTopologyRegisterR
                 $returnedMessage = json_decode($getResponse->getContent(false), true);
 
                 if (! empty($returnedMessage)) {
-                    $errorMessage .= '  /  ' . _("Central's response => Code : ")
+                    $errorMessage .= '  /  ' . _("Central's response => Code: ")
                         . implode(', ', $returnedMessage);
                 }
 
@@ -215,7 +215,7 @@ class PlatformTopologyRegisterRepositoryAPI implements PlatformTopologyRegisterR
                 $returnedMessage = json_decode($deleteResponse->getContent(false), true);
 
                 if (! empty($returnedMessage)) {
-                    $errorMessage .= '  /  ' . _("Central's response => Code : ")
+                    $errorMessage .= '  /  ' . _("Central's response => Code: ")
                         . implode(', ', $returnedMessage);
                 }
 

@@ -2866,7 +2866,7 @@ msgstr "Limpar os argumentos"
 #  msgstr ""
 #  msgid "Clear"
 #  msgstr ""
-#  msgid "Criterias"
+#  msgid "Criteria"
 #  msgstr ""
 #  msgid "Copy"
 #  msgstr ""
@@ -2884,7 +2884,7 @@ msgstr "Limpar os argumentos"
 #  msgstr ""
 #  msgid "This resource is flapping"
 #  msgstr ""
-#  msgid "Show criterias filters"
+#  msgid "Show criteria filters"
 #  msgstr ""
 #  msgid "Start date"
 #  msgstr ""
@@ -3074,7 +3074,7 @@ msgstr "Limpar os argumentos"
 #  msgstr ""
 #  msgid "Switch to list mode"
 #  msgstr ""
-#  msgid "Select criterias"
+#  msgid "Select criteria"
 #  msgstr ""
 #  msgid "Monitoring server"
 #  msgstr ""
@@ -3970,7 +3970,7 @@ msgid "Creator"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
-msgid "Criterias"
+msgid "Criteria"
 msgstr ""
 
 #: centreon/www/include/Administration/performance/viewMetrics.php
@@ -14795,7 +14795,7 @@ msgid "Select columns"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
-msgid "Select criterias"
+msgid "Select criteria"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
@@ -15672,7 +15672,7 @@ msgid "Show axis borders"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
-msgid "Show criterias filters"
+msgid "Show criteria filters"
 msgstr ""
 
 #: centreon/www/install/dashboard_widgets.php

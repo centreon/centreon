@@ -170,7 +170,7 @@ $form->addElement(
     'select',
     'o2',
     null,
-    [null => _('More actions'), 'm' => _('Duplicate'), 'd' => _('Delete'), 'ms' => _('Enable'), 'mu' => _('Disable')],
+    [null => _('More actions...'), 'm' => _('Duplicate'), 'd' => _('Delete'), 'ms' => _('Enable'), 'mu' => _('Disable')],
     $attrs2
 );
 $form->setDefaults(['o2' => null]);

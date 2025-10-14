@@ -2470,7 +2470,7 @@ msgid ""
 "Central's path is missing on: '%s'@'%s'. Please check the Remote Access form"
 msgstr ""
 "Le chemin d'accès au serveur central est manquant sur : '%s'@“%s”. Veuillez "
-"vérifier le formulaire 'Accès à distance'"
+"vérifier le formulaire 'Accès du Remote'"
 
 #: centreon/src/Centreon/Domain/PlatformTopology/Exception/PlatformTopologyException.php
 #, php-format
@@ -3803,7 +3803,7 @@ msgid "Creator"
 msgstr "Créateur"
 
 #: centreon/www/install/front_translate.php
-msgid "Criterias"
+msgid "Criteria"
 msgstr "Critères"
 
 #: centreon/www/include/Administration/performance/viewMetrics.php
@@ -14615,7 +14615,7 @@ msgid "Select columns"
 msgstr "Sélectionner les colonnes"
 
 #: centreon/www/install/front_translate.php
-msgid "Select criterias"
+msgid "Select criteria"
 msgstr "Sélectionner les critères"
 
 #: centreon/www/install/front_translate.php
@@ -15489,7 +15489,7 @@ msgid "Show axis borders"
 msgstr "Afficher les bordures de l'axe"
 
 #: centreon/www/install/front_translate.php
-msgid "Show criterias filters"
+msgid "Show criteria filters"
 msgstr "Montrer les critères de filtre"
 
 #: centreon/www/install/dashboard_widgets.php
@@ -20655,7 +20655,7 @@ msgid ""
 "form."
 msgstr ""
 "Le chemin vers le central de la plateforme '%s'@'%s est manquant. "
-"Veuillez vérifier le formulaire 'Accès au serveur distant'."
+"Veuillez vérifier le formulaire 'Accès du Remote'."
 
 #: unknown
 msgid "Centreon Broker information"
@@ -22257,7 +22257,7 @@ msgstr "Valeur de la déclaration de connexion"
 
 #: unknown
 msgid "Login:"
-msgstr "Pseudo :"
+msgstr "Identifiant :"
 
 #: unknown
 msgid "Logos"

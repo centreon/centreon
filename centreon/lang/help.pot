@@ -478,7 +478,7 @@ msgstr ""
 
 #: centreon/www/include/configuration/configObject/traps/help.php
 msgid ""
-"Comment to describe per example the situation in which this trap will be "
+"Comment to describe, for example, the situation in which this trap will be "
 "sent. Additionally the format and the parameters of the trap can be "
 "described."
 msgstr ""
