@@ -2767,10 +2767,9 @@ msgstr ""
 "sauvegardes"
 
 #: centreon/www/include/configuration/configObject/hostgroup/help.php
-#, fuzzy
 msgid "Resource access rule to which the host group should be linked"
 msgstr ""
-"Règle d'accès aux ressources à laquelle le groupe de services doit être lié."
+"Règle d'accès aux ressources à laquelle le groupe d'hôtes doit être lié."
 
 #: centreon/www/include/configuration/configObject/servicegroup/help.php
 msgid "Resource access rule to which the service group should be linked"
@@ -3891,7 +3890,6 @@ msgstr ""
 "visualisez ces informations concernant le service groupe en question)."
 
 #: centreon/www/include/configuration/configObject/hostgroup/help.php
-#, fuzzy
 msgid ""
 "This directive is used to define is a longer name or description used to "
 "identify the host group.It is provided in order to allow you to more easily "
@@ -3899,7 +3897,7 @@ msgid ""
 msgstr ""
 "Cette directive est utilisée pour définir un nom long ou une description "
 "identifiant le groupe d'hôtes. Il est prévu pour vous permettre d'identifier "
-"plus facilement un groupe d'hôte en particulier."
+"plus facilement un groupe d'hôtes en particulier."
 
 #: centreon/www/include/configuration/configObject/host_dependency/help.php
 #: centreon/www/include/configuration/configObject/service_dependency/help.php

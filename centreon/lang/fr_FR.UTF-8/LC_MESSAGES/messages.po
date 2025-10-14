@@ -1369,11 +1369,10 @@ msgstr ""
 "collecteur '%s'"
 
 #: centreon/src/Core/AgentConfiguration/Application/Exception/AgentConfigurationException.php
-#, fuzzy, php-format
+#, php-format
 msgid "An agent configuration is already associated with poller ID(s) '%s'"
 msgstr ""
-"Une configuration collecteur/agent est déjà associée au(x) ID(s) de "
-"collecteur(s) '%s'"
+"Une configuration d'agent est déjà associée au(x) ID(s) de collecteur(s) '%s'"
 
 #: centreon/www/install/front_translate.php
 msgid ""
@@ -2090,7 +2089,6 @@ msgid "CA Common Name (CN)"
 msgstr "Nom commun CA (CN)"
 
 #: centreon/www/install/front_translate.php
-#, fuzzy
 msgid "CA(.crt,.cer)"
 msgstr "CA (.crt,.cer)"
 
@@ -2525,11 +2523,9 @@ msgstr ""
 "immédiatement"
 
 #: centreon/src/Core/AgentConfiguration/Application/Exception/AgentConfigurationException.php
-#, fuzzy
 msgid "Changing the type of an existing agent configuration is not allowed"
 msgstr ""
-"Changer le type d'une configuration collecteur/agent existante n'est pas "
-"autorisé"
+"Changer le type d'une configuration d'agent existante n'est pas autorisé"
 
 #: centreon/src/Core/AdditionalConnectorConfiguration/Application/Exception/AccException.php
 msgid ""
@@ -5912,16 +5908,15 @@ msgstr "Erreur durant l'ajout d'un groupe de services"
 
 #: centreon/src/Core/Security/Token/Application/Exception/TokenException.php
 msgid "Error while adding a token"
-msgstr "Erreur lors de l'ajout d'un token"
+msgstr "Erreur lors de l'ajout d'un jeton"
 
 #: centreon/src/Core/AdditionalConnectorConfiguration/Application/Exception/AccException.php
 msgid "Error while adding an additional configuration"
 msgstr "Erreur lors de l'ajout d'une configuration additionnelle"
 
 #: centreon/src/Core/AgentConfiguration/Application/Exception/AgentConfigurationException.php
-#, fuzzy
 msgid "Error while adding an agent configuration"
-msgstr "Erreur lors de l'ajout de la configuration collecteur/agent"
+msgstr "Erreur lors de l'ajout de la configuration d'agent"
 
 #: centreon/src/Centreon/Domain/Authentication/Exception/AuthenticationException.php
 msgid "Error while adding authentication token"
@@ -5977,16 +5972,15 @@ msgstr "Erreur durant la suppression d'un groupe de services"
 
 #: centreon/src/Core/Security/Token/Application/Exception/TokenException.php
 msgid "Error while deleting a token"
-msgstr "Erreur lors de la suppression d'un token"
+msgstr "Erreur lors de la suppression d'un jeton"
 
 #: centreon/src/Core/AdditionalConnectorConfiguration/Application/Exception/AccException.php
 msgid "Error while deleting an additional configuration"
 msgstr "Erreur lors de la suppression d'une configuration additionnelle"
 
 #: centreon/src/Core/AgentConfiguration/Application/Exception/AgentConfigurationException.php
-#, fuzzy
 msgid "Error while deleting an agent configuration"
-msgstr "Erreur lors de la suppression de la configuration collecteur/agent"
+msgstr "Erreur lors de la suppression de la configuration d'agent"
 
 #: centreon/src/Centreon/Domain/Authentication/Exception/AuthenticationException.php
 msgid "Error while deleting expired token"
@@ -6129,16 +6123,15 @@ msgstr "Erreur lors de la récupération d'un modèle de service"
 
 #: centreon/src/Core/Security/Token/Application/Exception/TokenException.php
 msgid "Error while retrieving a token"
-msgstr "Erreur lors de la récupération du token"
+msgstr "Erreur lors de la récupération du jeton"
 
 #: centreon/src/Core/AdditionalConnectorConfiguration/Application/Exception/AccException.php
 msgid "Error while retrieving an additional configuration"
 msgstr "Erreur durant la récupération d'une configuration additionnelle"
 
 #: centreon/src/Core/AgentConfiguration/Application/Exception/AgentConfigurationException.php
-#, fuzzy
 msgid "Error while retrieving an agent configuration"
-msgstr "Erreur durant la récupération d'une configuration collecteur/agent"
+msgstr "Erreur durant la récupération d'une configuration d'agent"
 
 #: centreon/src/Core/Dashboard/Application/Exception/DashboardException.php
 msgid ""
@@ -6166,10 +6159,8 @@ msgid "Error while retrieving host statuses distribution"
 msgstr "Erreur lors de la récupération du statut des hôtes"
 
 #: centreon/src/Core/AgentConfiguration/Application/Exception/AgentConfigurationException.php
-#, fuzzy
 msgid "Error while retrieving multiple agent configurations"
-msgstr ""
-"Erreur durant la récupération de multiples configurations collecteur/agent"
+msgstr "Erreur durant la récupération de plusieurs configurations d'agent"
 
 #: centreon/src/Core/Dashboard/Application/Exception/DashboardException.php
 msgid "Error while retrieving newly created dashboard"
@@ -6409,9 +6400,8 @@ msgid "Error while updating an additional configuration"
 msgstr "Erreur lors de la mise à jour d'une configuration additionnelle"
 
 #: centreon/src/Core/AgentConfiguration/Application/Exception/AgentConfigurationException.php
-#, fuzzy
 msgid "Error while updating an agent configuration"
-msgstr "Erreur lors de la mise à jour de la configuration collecteur/agent"
+msgstr "Erreur lors de la mise à jour de la configuration d'agent"
 
 #: centreon/src/Centreon/Domain/Authentication/Exception/AuthenticationException.php
 msgid "Error while updating authentication tokens"
@@ -10828,9 +10818,8 @@ msgid "Name of the logger"
 msgstr "Nom du journal d'évènements"
 
 #: centreon/www/install/front_translate.php
-#, fuzzy
 msgid "Need help using the search bar ?"
-msgstr "Besoin d'aide pour utiliser la barre de recherche?"
+msgstr "Besoin d'aide pour utiliser la barre de recherche ?"
 
 #: centreon/www/include/monitoring/downtime/listDowntime.php
 msgid "Never Started"
@@ -11031,7 +11020,7 @@ msgstr "Aucune plateforme parente n'a été trouvée pour : '%s'@'%s'"
 
 #: centreon/www/include/configuration/configGenerate/formGenerateFiles.php
 msgid "No poller selected"
-msgstr "Pas de satellite sélectionné"
+msgstr "Pas de collecteur sélectionné"
 
 #: centreon/src/Core/Security/Authentication/Domain/Exception/SSOAuthenticationException.php
 msgid "No refresh token has been found"
@@ -12313,11 +12302,10 @@ msgid "Poller Filter"
 msgstr "Filtrer par collecteur"
 
 #: centreon/src/Core/AgentConfiguration/Application/Exception/AgentConfigurationException.php
-#, fuzzy, php-format
+#, php-format
 msgid "Poller ID #%d is the only one linked to agent configuration ID #%d"
 msgstr ""
-"L'ID de collecteur #%d est le seul lié à l'ID de configuration collecteur/"
-"agent #%d"
+"L'ID de collecteur #%d est le seul lié à l'ID de configuration d'agent #%d"
 
 #: centreon/www/include/configuration/configServers/formServers.php
 #: centreon/www/install/smarty_translate.php
@@ -12478,7 +12466,6 @@ msgid "Private key path"
 msgstr "Chemin de la clé privée"
 
 #: centreon/www/install/front_translate.php
-#, fuzzy
 msgid "Private key(.key)"
 msgstr "Clé privée (.key)"
 
@@ -12577,7 +12564,6 @@ msgid "Public certificate"
 msgstr "Certificat public"
 
 #: centreon/www/install/front_translate.php
-#, fuzzy
 msgid "Public certificate(.crt,.cer)"
 msgstr "Certificat public (.crt,cer)"
 
@@ -13134,9 +13120,8 @@ msgid "Resource"
 msgstr "Ressource"
 
 #: centreon/www/include/configuration/configObject/hostgroup/formHostGroup.php
-#, fuzzy
 msgid "Resource Access"
-msgstr "Gestion des accès aux ressources"
+msgstr "Accès aux ressources"
 
 #: centreon/www/include/configuration/configObject/servicegroup/formServiceGroup.php
 #: centreon/www/install/menu_translation.php
@@ -15486,9 +15471,9 @@ msgid "The address is invalid"
 msgstr "L'addresse est invalide"
 
 #: centreon/src/Core/AgentConfiguration/Application/Exception/AgentConfigurationException.php
-#, fuzzy, php-format
+#, php-format
 msgid "The agent configuration name '%s' already exists"
-msgstr "La configuration collecteur/agent '%s' existe déjà"
+msgstr "La configuration d'agent '%s' existe déjà"
 
 #: centreon/src/Core/Service/Application/Exception/ServiceException.php
 msgid "The check command cannot be null if the service template is null"
@@ -15969,7 +15954,7 @@ msgstr "Le jeton ne peut pas être vide"
 #: centreon/src/Core/Security/Token/Application/Exception/TokenException.php
 #, php-format
 msgid "The token name '%s' already exists"
-msgstr "Le nom de token '%s' existe déjà"
+msgstr "Le nom du jeton '%s' existe déjà"
 
 #: centreon/www/api/class/centreon_configuration_broker.class.php
 #: centreon/www/class/centreonConfigCentreonBroker.php
@@ -16008,9 +15993,8 @@ msgid "The value cannot be null"
 msgstr "La valeur ne peut pas être vide"
 
 #: centreon/www/include/configuration/configObject/host/formHost.php
-#, fuzzy
 msgid "The value contains unauthorized characters"
-msgstr "[%s] La valeur contient des caractères non autorisés : %s"
+msgstr "La valeur contient des caractères non autorisés"
 
 #: centreon/www/install/front_translate.php
 msgid "The widget will be permanently deleted."
@@ -16949,9 +16933,8 @@ msgstr ""
 "d'entrée de jeton"
 
 #: centreon/www/include/Administration/myAccount/formMyAccount.php
-#, fuzzy
 msgid "Use deprecated pages"
-msgstr "Utiliser les pages dépréciées de supervision"
+msgstr "Utiliser les pages dépréciées"
 
 #: centreon/www/include/Administration/parameters/ldap/form.php
 msgid "Use service DNS"
@@ -17025,7 +17008,7 @@ msgstr "Point d'entrée d'information utilisateur"
 
 #: centreon/src/Centreon/Domain/Authentication/Exception/AuthenticationException.php
 msgid "User is not allowed to reach web application"
-msgstr "L'utilisateur n'a pas a permission de joindre l'application web"
+msgstr "L'utilisateur n'a pas la permission de joindre l'application web"
 
 #: centreon/www/include/Administration/parameters/ldap/form.php
 msgid "User lastname attribute"
@@ -17836,10 +17819,8 @@ msgstr ""
 "Vous n'avez pas la permission d'accéder aux configurations additionnelles"
 
 #: centreon/src/Core/AgentConfiguration/Application/Exception/AgentConfigurationException.php
-#, fuzzy
 msgid "You are not allowed to access agent configurations"
-msgstr ""
-"Vous n'avez pas la permission d'accéder aux configurations collecteur/agent"
+msgstr "Vous n'avez pas la permission d'accéder aux configurations d'agent"
 
 #: centreon/src/Core/Command/Application/Exception/CommandException.php
 msgid "You are not allowed to access commands"
@@ -17999,7 +17980,7 @@ msgstr "Vous n'avez pas la permission d'ajouter des médias"
 
 #: centreon/src/Core/Security/Token/Application/Exception/TokenException.php
 msgid "You are not allowed to add tokens"
-msgstr "Vous n'avez pas la permission d'ajouter des tokens"
+msgstr "Vous n'avez pas la permission d'ajouter des jetons"
 
 #: centreon/src/Core/Security/Token/Application/Exception/TokenException.php
 #, php-format
@@ -18062,13 +18043,13 @@ msgstr "Vous n'avez pas la permission de supprimer des sévérités de services"
 
 #: centreon/src/Core/Security/Token/Application/Exception/TokenException.php
 msgid "You are not allowed to delete tokens"
-msgstr "Vous n'avez pas la permission de supprimer des tokens"
+msgstr "Vous n'avez pas la permission de supprimer des jetons"
 
 #: centreon/src/Core/Security/Token/Application/Exception/TokenException.php
 #, php-format
 msgid "You are not allowed to delete tokens linked to user ID %d"
 msgstr ""
-"Vous n'avez pas la permission de supprimer des tokens liés à l'ID "
+"Vous n'avez pas la permission de supprimer des jetons liés à l'ID "
 "d'utilisateur %d"
 
 #: centreon/www/include/options/session/connected_user.php
@@ -19592,10 +19573,9 @@ msgstr ""
 msgid "C"
 msgstr "C"
 
-#, fuzzy
 #: unknown
 msgid "CA"
-msgstr "C"
+msgstr "CA"
 
 #: unknown
 msgid "CRITICAL Alerts"
@@ -19989,7 +19969,7 @@ msgstr "Corrélation passive"
 #: unknown
 msgid "Could not find CENTREON_ETC. Session probably expired."
 msgstr ""
-"Variable CENTREON_ETC non trouvée. La session a probablement expirée."
+"Variable CENTREON_ETC non trouvée. La session a probablement expiré."
 
 #: unknown
 msgid "Could not find configuration database. Session probably expired."
@@ -20010,8 +19990,7 @@ msgstr "Ne peut pas trouver la macro "
 #: unknown
 msgid "Could not find storage database. Session probably expired."
 msgstr ""
-"Base de données de stockage non trouvée. La session a probablement "
-"expirée."
+"Base de données de stockage non trouvée. La session a probablement expiré."
 
 #: unknown
 msgid "Could not find utils database. Session probably expired."
@@ -20311,12 +20290,10 @@ msgstr ""
 "Affiche la répartition des statuts actuels pour les groupes de ressources "
 "sélectionnés, sous forme de tableau."
 
-#, fuzzy
 #: unknown
 msgid "Displays the future evolution of a metric, based on its history."
 msgstr ""
-"Affiche l'évolution future d'une métrique sous forme de courbe de "
-"tendance, calculée à partir de ses données moyennes récentes."
+"Affiche l'évolution future d'une métrique, sur la base de son historique."
 
 #: unknown
 msgid "Displays the time according to the selected time zone, or a timer."
@@ -20500,7 +20477,7 @@ msgstr "Erreur lors de l'expiration de la session"
 
 #: unknown
 msgid "Error during token creation"
-msgstr "Erreur lors de la création du token"
+msgstr "Erreur lors de la création du jeton"
 
 #: unknown
 msgid "Error from Central's register API : "
@@ -20524,7 +20501,7 @@ msgstr "Erreur lors de la supression d'un serveur de supervision"
 
 #: unknown
 msgid "Error when deleting tokens for one contact"
-msgstr "Erreur lors de la suppression des tokens pour un contact"
+msgstr "Erreur lors de la suppression des jetons pour un contact"
 
 #: unknown
 msgid "Error when installing patch : %s."
@@ -20532,7 +20509,7 @@ msgstr "Erreur lors de l'installation du correctif : %s."
 
 #: unknown
 msgid "Error when recovering the number of tokens"
-msgstr "Erreur lors de la récupération du nombre de token"
+msgstr "Erreur lors de la récupération du nombre de jetons"
 
 #: unknown
 msgid "Error when searching for a resource of monitoring server"
@@ -20955,10 +20932,9 @@ msgstr "Paramètres de graphe"
 msgid "Graph style"
 msgstr "Style de graphe"
 
-#, fuzzy
 #: unknown
 msgid "Graph style for average"
-msgstr "Style des données de moyenne"
+msgstr "Style du graphique de moyenne"
 
 #: unknown
 msgid "Graph type"
@@ -21777,7 +21753,7 @@ msgstr "Aucune configuration LDAP active !"
 
 #: unknown
 msgid "No active poller is defined in Centreon."
-msgstr "Aucun satellite actif est défini dans Centreon."
+msgstr "Aucun collecteur actif est défini dans Centreon."
 
 #: unknown
 msgid "No command selected"
@@ -22163,10 +22139,9 @@ msgstr "Fichier de pre-cache des objets"
 msgid "Prefix"
 msgstr "Préfixe des tables"
 
-#, fuzzy
 #: unknown
 msgid "Private key"
-msgstr "Clé privée SSH"
+msgstr "Clé privée"
 
 #: unknown
 msgid "Private key file. "
@@ -23230,20 +23205,19 @@ msgstr "Point de terminaison de jeton"
 
 #: unknown
 msgid "Token can not empty, null or not defined"
-msgstr "Le token ne peut être ni null, ni vide ou non défini"
+msgstr "Le jeton ne peut être ni null, ni vide ni non défini"
 
-#, fuzzy
 #: unknown
 msgid "Token copied to the clipboard"
-msgstr "Lien vers la ressource copiée dans le presse-papier"
+msgstr "Jeton copié dans le presse-papiers"
 
 #: unknown
 msgid "Token expired."
-msgstr "Token expiré."
+msgstr "Jeton expiré."
 
 #: unknown
 msgid "Token not found"
-msgstr "Token non trouvé"
+msgstr "Jeton non trouvé"
 
 #: unknown
 msgid "Tooltips"
@@ -23777,7 +23751,7 @@ msgstr ""
 #: unknown
 msgid "You are not allowed to add tokens linked to user with ID %d"
 msgstr ""
-"Vous n'avez pas la permission de créer des tokens liés à l'ID "
+"Vous n'avez pas la permission de créer des jetons liés à l'ID "
 "d'utilisateur %d"
 
 #: unknown
