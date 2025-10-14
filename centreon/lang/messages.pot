@@ -13182,11 +13182,11 @@ msgid "Order"
 msgstr ""
 
 #: centreon/www/include/Administration/parameters/general/form.php
-msgid "Order sort"
+msgid "Sort order"
 msgstr ""
 
 #: centreon/www/include/Administration/parameters/general/form.php
-msgid "Order sort problems"
+msgid "Problems sort order"
 msgstr ""
 
 #: centreon/www/install/front_translate.php

@@ -12393,11 +12393,11 @@ msgid "Order"
 msgstr "Ordre"
 
 #: centreon/www/include/Administration/parameters/general/form.php
-msgid "Order sort"
+msgid "Sort order"
 msgstr "Ordre de tri"
 
 #: centreon/www/include/Administration/parameters/general/form.php
-msgid "Order sort problems"
+msgid "Problems sort order"
 msgstr "Ordre de tri des problèmes"
 
 #: centreon/www/install/front_translate.php
