@@ -1376,7 +1376,7 @@ msgid ""
 "synchronization at the next login of this Contact?"
 msgstr ""
 "Toutes les sessions de ce contact seront supprimées. Êtes-vous sûr de "
-"vouloir que ce contact exécute unesynchronisation lors de sa prochaine "
+"vouloir que ce contact exécute une synchronisation lors de sa prochaine "
 "connexion ?"
 
 #: centreon/www/include/Administration/parameters/gorgone/gorgone.php
@@ -18918,7 +18918,7 @@ msgstr "Vous n'avez pas la permission d'accéder à cet hôte"
 
 #: centreon/www/include/configuration/configObject/host_categories/formHostCategories.php
 msgid "You are not allowed to access this host category"
-msgstr "Vous n'avez pas la permission d'accéder à cette catégorie jeton'hôte"
+msgstr "Vous n'avez pas la permission d'accéder à cette catégorie d'hôte"
 
 #: centreon/www/include/configuration/configObject/meta_service/metaService.php
 msgid "You are not allowed to access this meta service"
