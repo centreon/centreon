@@ -199,7 +199,7 @@ class PlatformTopologyServiceTest extends TestCase
         );
 
         $this->expectException(PlatformTopologyException::class);
-        $this->expectExceptionMessage("A platform using the name : 'poller1' or address : '1.1.1.2' already exists");
+        $this->expectExceptionMessage("A platform using the name: 'poller1' or address: '1.1.1.2' already exists");
         $platformTopologyService->addPendingPlatformToTopology($this->platform);
     }
 
@@ -252,7 +252,7 @@ class PlatformTopologyServiceTest extends TestCase
         );
 
         $this->expectException(EntityNotFoundException::class);
-        $this->expectExceptionMessage("No parent platform was found for : 'poller1'@'1.1.1.2'");
+        $this->expectExceptionMessage("No parent platform was found for: 'poller1'@'1.1.1.2'");
         $platformTopologyService->addPendingPlatformToTopology($this->platform);
     }
 
