@@ -2,11 +2,11 @@
 
 rm -f /tmp/docker.ready
 
-mkdir -p /etc/centreon/config.d /var/cache/centreon/
-chown -R centreon:centreon /etc/centreon
+mkdir -p /etc/centreon/config.d /var/cache/centreon/ /var/lib/centreon/centcore
+chown -R centreon:centreon /etc/centreon /var/lib/centreon/centcore
 chown -R www-data:www-data /var/cache/centreon/
 
-chmod 775 /etc/centreon/ /etc/centreon/config.d/
+chmod 775 /etc/centreon/ /etc/centreon/config.d/ /var/lib/centreon/centcore
 
 
 if [ "$(id -u)" = 0 ]; then
