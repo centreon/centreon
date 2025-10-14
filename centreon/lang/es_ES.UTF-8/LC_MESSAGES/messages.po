@@ -10033,7 +10033,7 @@ msgstr "Anfitriones: Programe un chequeo inmediato (Forzado)"
 #: centreon/www/include/monitoring/status/Hosts/host.php
 #: centreon/www/include/monitoring/status/Services/service.php
 msgid "Hosts: Set Downtime"
-msgstr "Anfitriones: Añadir un tiempo de parada"
+msgstr "Anfitriones: Añadir un tiempo de inactividad"
 
 #: centreon/www/include/options/accessLists/actionsACL/formActionsAccess.php
 msgid "Hosts Actions Access"
@@ -22735,10 +22735,6 @@ msgid "Do you confirm the cancelation?"
 msgstr "¿Confirma usted la cancelación?"
 
 #: unknown
-msgid "Do you confirm the deletion?"
-msgstr "¿Confirma usted la eliminación?"
-
-#: unknown
 msgid "Do you really wish to remove this entry?"
 msgstr "¿Estás seguro de que quieres eliminar esta entrada?"
 
@@ -23179,10 +23175,6 @@ msgstr "anfitriones"
 #: unknown
 msgid "Hosts status colors"
 msgstr "Colores para el estado de los hosts."
-
-#: unknown
-msgid "Hosts: Set Downtime"
-msgstr "Anfitriones: planea un tiempo fuera"
 
 #: unknown
 msgid "Hourly"
@@ -24247,10 +24239,6 @@ msgstr "Escaladas diciembre services"
 #: unknown
 msgid "Services status colors"
 msgstr "Colores para estado de servicios."
-
-#: unknown
-msgid "Services: Set Downtime"
-msgstr "Servicios: Planifica un tiempo fuera"
 
 #: unknown
 msgid "Setup"
