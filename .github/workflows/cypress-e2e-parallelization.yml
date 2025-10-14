@@ -236,6 +236,7 @@ jobs:
           report_path="results/reports/${feature_name}-report.json"
           report_path_updated="results/cucumber-logs/${feature_name}-report.json"
           echo "report path: $report_path"
+          cat $report_path
 
           if [ -f "$report_path" ]; then
             jq 'if length > 0 then .[0] |= (.tags |= map(if .name | startswith("@REQ_MON-") then .name |= "@${{ env.test_execution_key }}" else . end)) | (.[] |= (if has("elements") then .elements[].tags |= map(if .name | startswith("@REQ_MON-") then .name |= "@${{ env.test_execution_key }}" else . end) else . end)) else . end' "$report_path" > "$report_path_updated"
