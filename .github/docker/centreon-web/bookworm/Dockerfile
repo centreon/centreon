@@ -23,6 +23,7 @@ RUN apt-get update && apt-get install -y \
     gpg \
     gosu \
     sudo \
+    rsync \
     && docker-php-ext-configure ldap --with-libdir=lib/x86_64-linux-gnu \
     && docker-php-ext-install \
         pdo_mysql \
@@ -89,14 +90,6 @@ usermod -aG www-data centreon-broker
 apt-get update
 apt-get install -y /tmp/packages-centreon/centreon-web*.deb
 
-
-mkdir -p /var/cache/centreon/ /etc/centreon/config.d /var/log/centreon/ /var/lib/centreon/centcore
-touch /var/log/php8.2-fpm-centreon-error.log /var/log/centreon/centreon-web.log  
-chown -R centreon:centreon /var/log/centreon/ /var/log/php8.2-fpm-centreon-error.log /var/log/centreon/centreon-web.log /etc/centreon
-chmod 775 /etc/centreon/ /etc/centreon/config.d/
-chmod 1230 /var/log/centreon/centreon-web.log
-
-
 EOF
 
 COPY --chmod=755 ./.github/docker/centreon-web/bookworm/entrypoint /usr/share/centreon
@@ -105,10 +98,7 @@ COPY --chmod=600 ./centreon/packaging/src/sudoersCentreon /etc/sudoers.d/centreo
 COPY --chmod=755 ./.github/docker/centreon-web/init/systemctl /usr/local/bin/systemctl 
 
 COPY ./.github/docker/centreon-web/sql/* /usr/local/src/sql/data/
-RUN mv /usr/share/centreon/ /var/www/html/ &&\
-    chown -R www-data:www-data /var/www/html/centreon &&\
-    sed -i 's/User_Alias *CENTREON=%@CENTREON_GROUP@/User_Alias      CENTREON=%centreon/' /etc/sudoers.d/centreon &&\
-    ln -s /var/www/html/centreon/ /usr/share/centreon &&\
+RUN sed -i 's/User_Alias *CENTREON=%@CENTREON_GROUP@/User_Alias      CENTREON=%centreon/' /etc/sudoers.d/centreon &&\
     ln -s /usr/local/bin/systemctl /usr/bin/systemctl
 
 WORKDIR /var/www/html
