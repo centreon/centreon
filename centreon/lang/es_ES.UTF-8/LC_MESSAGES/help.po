@@ -2487,10 +2487,6 @@ msgstr ""
 "remota)."
 
 #: centreon/www/include/views/componentTemplates/help.php
-msgid "Prints total value."
-msgstr "Muestra el valor total."
-
-#: centreon/www/include/views/componentTemplates/help.php
 msgid "Prints average value."
 msgstr "Muestra el valor medio."
 
@@ -2505,6 +2501,10 @@ msgstr "Muestra el valor máximo."
 #: centreon/www/include/views/componentTemplates/help.php
 msgid "Prints minimum value."
 msgstr "Muestra el valor mínimo."
+
+#: centreon/www/include/views/componentTemplates/help.php
+msgid "Prints total value."
+msgstr "Muestra el valor total."
 
 #: centreon/www/include/configuration/configCentreonBroker/help.php
 msgid "Private key file path when TLS encryption is used."

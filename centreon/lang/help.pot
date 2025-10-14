@@ -1970,15 +1970,11 @@ msgid "Port to listen on (empty host) or to connect to (with host filled)."
 msgstr ""
 
 #: centreon/www/include/views/componentTemplates/help.php
-msgid "Print total value."
-msgstr ""
-
-#: centreon/www/include/views/componentTemplates/help.php
 msgid "Prints average value."
 msgstr ""
 
 #: centreon/www/include/views/componentTemplates/help.php
-msgid "Prints last Value."
+msgid "Prints last value."
 msgstr ""
 
 #: centreon/www/include/views/componentTemplates/help.php
@@ -1987,6 +1983,10 @@ msgstr ""
 
 #: centreon/www/include/views/componentTemplates/help.php
 msgid "Prints minimum value."
+msgstr ""
+
+#: centreon/www/include/views/componentTemplates/help.php
+msgid "Prints total value."
 msgstr ""
 
 #: centreon/www/include/configuration/configCentreonBroker/help.php

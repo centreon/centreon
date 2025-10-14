@@ -789,8 +789,9 @@ msgstr ""
 "Définir une image qui devrait être associée à cet hôte dans le CGI statusmap "
 "dans le moteur de supervision. Vous pouvez choisir une image JPEG, PNG ou "
 "GIF. Le format d'image GD2 est préférable, car les autres formats d'image "
-"doivent être convertis au préalable lors de la génération de l'image statusmap. "
-"L'image aura une meilleure résolution si sa taille est de 40x40 pixels."
+"doivent être convertis au préalable lors de la génération de l'image "
+"statusmap. L'image aura une meilleure résolution si sa taille est de 40x40 "
+"pixels."
 
 #: centreon/www/include/configuration/configObject/host/help.php
 msgid ""
@@ -877,8 +878,8 @@ msgid ""
 "must be located in the PATH of the centreontrapd user."
 msgstr ""
 "Définir la commande exécutée par le gestionnaire d'évènements du processus "
-"centreontrapd. Cette commande doit être un binaire disponible dans le "
-"PATH de l'utilisateur centreontrapd."
+"centreontrapd. Cette commande doit être un binaire disponible dans le PATH "
+"de l'utilisateur centreontrapd."
 
 #: centreon/www/include/configuration/configObject/host/help.php
 msgid ""
@@ -989,9 +990,9 @@ msgid ""
 "image will be displayed in the various places. The image will look best if "
 "it is 40x40 pixels in size."
 msgstr ""
-"Définir l'image qui devrait être associée au service. L'image sera "
-"affichée à différents endroits. L'image aura un meilleur rendu si sa taille "
-"est de 40x40 pixels."
+"Définir l'image qui devrait être associée au service. L'image sera affichée "
+"à différents endroits. L'image aura un meilleur rendu si sa taille est de "
+"40x40 pixels."
 
 #: centreon/www/include/configuration/configObject/host/help.php
 msgid ""
@@ -1959,9 +1960,9 @@ msgid ""
 "on the metric chart.<br><b>Warning</b>: This option can slow down the "
 "display of the chart."
 msgstr ""
-"Si cette option est activée, les plages de maintenance et les "
-"acquittements seront visibles sur les graphiques.<br><b>Attention</b> : "
-"Cette option peut ralentir le chargement des graphiques."
+"Si cette option est activée, les plages de maintenance et les acquittements "
+"seront visibles sur les graphiques.<br><b>Attention</b> : Cette option peut "
+"ralentir le chargement des graphiques."
 
 #: centreon/www/include/Administration/parameters/general/help.php
 msgid ""
@@ -2551,10 +2552,6 @@ msgstr ""
 "renseignée)."
 
 #: centreon/www/include/views/componentTemplates/help.php
-msgid "Prints total value."
-msgstr "Affiche la valeur totale."
-
-#: centreon/www/include/views/componentTemplates/help.php
 msgid "Prints average value."
 msgstr "Affiche la valeur moyenne."
 
@@ -2569,6 +2566,10 @@ msgstr "Affiche la valeur maximale."
 #: centreon/www/include/views/componentTemplates/help.php
 msgid "Prints minimum value."
 msgstr "Affiche la valeur minimale."
+
+#: centreon/www/include/views/componentTemplates/help.php
+msgid "Prints total value."
+msgstr "Affiche la valeur totale."
 
 #: centreon/www/include/configuration/configCentreonBroker/help.php
 msgid "Private key file path when TLS encryption is used."
@@ -3615,8 +3616,8 @@ msgid ""
 "The pattern to search for in the username. If i want to remove the domain of "
 "the email: /@.*/"
 msgstr ""
-"Expression régulière (pattern) de recherche pour l'utilisateur. Par "
-"exemple pour sélectionner supprimer le domaine d'une adresse mail : /@.*/"
+"Expression régulière (pattern) de recherche pour l'utilisateur. Par exemple "
+"pour sélectionner supprimer le domaine d'une adresse mail : /@.*/"
 
 #: centreon/www/include/options/accessLists/actionsACL/help.php
 msgid ""
@@ -6462,8 +6463,8 @@ msgid ""
 "image will be used as the texture map for the specified host in the 3D "
 "statuswrl CGI in monitoring engine."
 msgstr ""
-"Définir l'image VRML qui devrait être associée à cet hôte. Cette image sera "
-"utilisée comme logo pour l'hôte spécifié dans le CGI statuswrl 3D du "
+"Définir l'image VRML qui devrait être associée à cet hôte. Cette image "
+"sera utilisée comme logo pour l'hôte spécifié dans le CGI statuswrl 3D du "
 "moteur de supervision."
 
 #: unknown
@@ -6512,9 +6513,9 @@ msgid ""
 "This image will be displayed in the various places. The image will look "
 "best if it is 40x40 pixels in size."
 msgstr ""
-"Définir l'image qui devrait être associée au groupe d'hôtes. "
-"Cette image sera affichée à différents endroits. L'image aura un meilleur "
-"rendu si elle fait une taille de 40x40 pixels."
+"Définir l'image qui devrait être associée au groupe d'hôtes. Cette image "
+"sera affichée à différents endroits. L'image aura un meilleur rendu si "
+"elle fait une taille de 40x40 pixels."
 
 #: unknown
 msgid ""

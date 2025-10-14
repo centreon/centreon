@@ -2478,16 +2478,12 @@ msgstr ""
 "eine Verbindung aufgebaut werden soll (Mit Angabe eines Hosts)."
 
 #: centreon/www/include/views/componentTemplates/help.php
-msgid "Prints total value."
-msgstr "Gibt den insgesamten Wert aus."
-
-#: centreon/www/include/views/componentTemplates/help.php
 msgid "Prints average value."
 msgstr "Gibt den durchschnittlichen Wert aus."
 
 #: centreon/www/include/views/componentTemplates/help.php
-msgid "Prints last balue."
-msgstr "Gibt den letzten Wert aus."
+msgid "Prints last value."
+msgstr ""
 
 #: centreon/www/include/views/componentTemplates/help.php
 msgid "Prints maximum value."
@@ -2496,6 +2492,10 @@ msgstr "Gibt den maximalen Wert aus."
 #: centreon/www/include/views/componentTemplates/help.php
 msgid "Prints minimum value."
 msgstr "Gibt den minimalen Wert aus."
+
+#: centreon/www/include/views/componentTemplates/help.php
+msgid "Prints total value."
+msgstr "Gibt den insgesamten Wert aus."
 
 #: centreon/www/include/configuration/configCentreonBroker/help.php
 msgid "Private key file path when TLS encryption is used."
@@ -6218,6 +6218,10 @@ msgstr ""
 "Es ist jedoch sicherer, diesen auf 'Standard' ('Ja') zu belassen, da "
 "durch einige native Plugins ansonsten ein Absturz der "
 "Überwachungsaktivität ausgelöst werden könnte."
+
+#: unknown
+msgid "Prints last balue."
+msgstr "Gibt den letzten Wert aus."
 
 #: unknown
 msgid ""

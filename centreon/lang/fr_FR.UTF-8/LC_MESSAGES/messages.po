@@ -2491,10 +2491,6 @@ msgstr ""
 "vérifier le formulaire 'Accès au serveur distant'"
 
 #: centreon/src/Centreon/Infrastructure/PlatformTopology/Repository/PlatformTopologyRegisterRepositoryAPI.php
-msgid "Central's response => Code : "
-msgstr ""
-
-#: centreon/src/Centreon/Infrastructure/PlatformTopology/Repository/PlatformTopologyRegisterRepositoryAPI.php
 msgid "Central's response => Code: "
 msgstr "Réponse du serveur central => Code : "
 
@@ -11245,7 +11241,6 @@ msgstr "Mois"
 msgid "More"
 msgstr "Étendre"
 
-#: centreon/www/include/configuration/configObject/service_categories/listServiceCategories.php
 #: centreon/www/include/configuration/configResources/listResources.php
 #: centreon/www/include/options/media/images/listImg.php
 #: centreon/www/install/front_translate.php
