@@ -161,7 +161,7 @@ msgid ""
 "<b><i>Help:</i></b> Select meta services that can be seen by associated "
 "users."
 msgstr ""
-"<b><i>Aide :</i></b> Sélectionner les meta-services qui peuvent êtres vus "
+"<b><i>Aide :</i></b> Sélectionner les meta-services qui peuvent être vus "
 "par les utilisateurs associés."
 
 #: centreon/www/include/options/accessLists/resourcesACL/formResourcesAccess.php
@@ -2554,8 +2554,8 @@ msgid ""
 "be created for monitoring engine '%s'. Please check it's path or create it"
 msgstr ""
 "Le répertoire '%s' de configuration de Centreon Broker n'existe pas et ne "
-"peut être créé pour le moteur de supervision '%s'. Merci de le chemin du "
-"répertoire ou de le créer"
+"peut être créé pour le moteur de supervision '%s'. Merci de vérifier le "
+"chemin du répertoire ou de le créer"
 
 #: centreon/www/install/front_translate.php
 #: centreon/www/install/react_translation.php
@@ -3698,8 +3698,8 @@ msgid ""
 "engine '%s'. Please add writing permissions for the webserver's user"
 msgstr ""
 "Le fichier '%s' de configuration de Centreon Broker n'est pas accessible en "
-"écriture pour le moteur de supervision '%s'. Merci de le chemin du "
-"répertoire ou de le créer"
+"écriture pour le moteur de supervision '%s'. Merci d'ajouter les permissions "
+"d'écriture pour l'utilisateur du serveur web"
 
 #: centreon/www/include/configuration/configGenerate/xml/moveFiles.php
 #, php-format
@@ -7301,7 +7301,7 @@ msgstr "Impossible d'exécuter la commande"
 
 #: centreon/www/install/front_translate.php
 msgid "Failed to export and reload the configuration"
-msgstr "L'export et le rechargement de la configuration a echoué"
+msgstr "L'export et le rechargement de la configuration a échoué"
 
 #: centreon/src/Centreon/Infrastructure/PlatformTopology/Repository/Exception/PlatformTopologyRepositoryException.php
 #, php-format
@@ -8166,7 +8166,7 @@ msgstr "Seuil haut de détection de bagotage des statuts"
 
 #: centreon/www/include/configuration/configNagios/formNagios.php
 msgid "High Host Flap Threshold"
-msgstr "Seuil haut dedétection de bagotage des statuts d'hôte"
+msgstr "Seuil haut de détection de bagotage des statuts d'hôte"
 
 #: centreon/www/include/configuration/configNagios/formNagios.php
 msgid "High Service Flap Threshold"
@@ -9013,7 +9013,7 @@ msgstr "Ignorer le certificat SSL"
 
 #: centreon/www/include/configuration/configNagios/formNagios.php
 msgid "Illegal Macro Output Characters"
-msgstr "Charactères illégaux dans la valeur des macros"
+msgstr "Caractères illégaux dans la valeur des macros"
 
 #: centreon/www/include/configuration/configNagios/formNagios.php
 msgid "Illegal Object Name Characters"
@@ -9432,7 +9432,7 @@ msgstr "L'adresse IP ne peut pas être vide"
 
 #: centreon/www/include/monitoring/objectDetails/hostDetails.php
 msgid "Is This Host Flapping?"
-msgstr "Est-ce que le statut de hôte bagote ?"
+msgstr "Est-ce que le statut de l'hôte bagote ?"
 
 #: centreon/www/include/monitoring/objectDetails/serviceDetails.php
 msgid "Is This Service Flapping?"
@@ -16655,8 +16655,8 @@ msgid ""
 "The password cannot be decrypted. Please re-enter the account password and "
 "submit the form"
 msgstr ""
-"Le mot de passe ne peut pas être déchiffré. Merci de vérifier ce champs et "
-"de soumettre le formuaire"
+"Le mot de passe ne peut pas être déchiffré. Veuillez vérifier ce champ et "
+"soumettre le formulaire"
 
 #: centreon/src/Centreon/Infrastructure/Event/FileLoader.php
 msgid "The path does not exist"
@@ -24224,8 +24224,8 @@ msgstr "Vous ne faites pas partie du groupe de contacts suivant : [%s]"
 #: unknown
 msgid "You can see the full list by visiting the Centreon's Github"
 msgstr ""
-"Vous pouvez visualiser la liste complète à partir de du projet "
-"Centreonsur Github"
+"Vous pouvez visualiser la liste complète à partir du projet Centreon sur "
+"Github"
 
 #: unknown
 msgid "You can see the full list on the"
@@ -24374,7 +24374,7 @@ msgstr "en secondes - Doit être supérieur à 10"
 
 #: unknown
 msgid "in seconds - Must be higher than 2"
-msgstr "en secondes - Doit etre supérieur à 2"
+msgstr "en secondes - Doit être supérieur à 2"
 
 #: unknown
 msgid "it's required"
