@@ -23097,7 +23097,7 @@ msgstr "Adresses des clients sur liste noire"
 
 #: unknown
 msgid "SSO login header"
-msgstr "Entête HTTP SSO"
+msgstr "En-tête HTTP SSO"
 
 #: unknown
 msgid "SSO mode"
