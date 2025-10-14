@@ -82,10 +82,11 @@ const adaptCMAConfigurationToAPI = (
     poller_ids: pluck('id', agentConfiguration.pollers) as Array<number>,
     type: (agentConfiguration.type as SelectEntry).id,
     configuration: {
-      is_reverse: configuration.isReverse,
+      agent_initiated: configuration.agentInitiated,
+      poller_initiated: configuration.pollerInitiated,
       tokens:
         equals(agentConfiguration?.connectionMode?.id, 'no-tls') ||
-        configuration.isReverse
+        !configuration.agentInitiated
           ? []
           : map(
               ({ name, creatorId }) => ({ name, creator_id: creatorId }),
@@ -110,7 +111,7 @@ const adaptCMAConfigurationToAPI = (
         ),
         token:
           equals(agentConfiguration?.connectionMode?.id, 'no-tls') ||
-          !configuration.isReverse
+          !configuration.pollerInitiated
             ? null
             : {
                 name: host?.token?.name,
@@ -159,7 +160,9 @@ export const useAddUpdateAgentConfiguration =
               : labelAgentConfigurationCreated
           )
         );
-        queryClient.invalidateQueries({ queryKey: ['agent-configurations'] });
+        queryClient.invalidateQueries({
+          queryKey: ['listAgentConfigurations']
+        });
         setOpenFormModal(null);
         setAgentTypeForm(null);
       }

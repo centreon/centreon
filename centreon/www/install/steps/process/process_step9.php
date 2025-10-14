@@ -26,6 +26,7 @@ require_once __DIR__ . '/../../../include/common/vault-functions.php';
 use App\Kernel;
 use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
 use Core\Common\Infrastructure\FeatureFlags;
+use Core\Installation\Infrastructure\InstallationHelper;
 use Symfony\Component\Dotenv\Dotenv;
 
 $step = new CentreonLegacy\Core\Install\Step\Step9($dependencyInjector);
@@ -53,8 +54,8 @@ try {
     $featuresFileContent = file_get_contents(__DIR__ . '/../../../../config/features.json');
     $featureFlagManager = new FeatureFlags($isCloudPlatform, $featuresFileContent);
     $isVaultFeatureEnable = $featureFlagManager->isEnabled('vault');
+    $kernel = Kernel::createForWeb();
     if ($isVaultFeatureEnable && file_exists(_CENTREON_VARLIB_ . '/vault/vault.json')) {
-        $kernel = Kernel::createForWeb();
         $writeVaultRepository = $kernel->getContainer()->get(WriteVaultRepositoryInterface::class);
         $writeVaultRepository->setCustomPath('database');
         $databaseVaultPaths = migrateDatabaseCredentialsToVault($writeVaultRepository);
@@ -69,6 +70,9 @@ try {
         }
     }
 
+    /** @var InstallationHelper $installationHelper */
+    $installationHelper = $kernel->getContainer()->get(InstallationHelper::class);
+    $installationHelper->writeEngineContextFile();
     $backupDir = _CENTREON_VARLIB_ . '/installs/'
         . '/install-' . $version . '-' . date('Ymd_His');
     $installDir = realpath(__DIR__ . '/../..');

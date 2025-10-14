@@ -44,7 +44,7 @@ abstract class Status
     public function __construct(
         private string $name,
         private int $code,
-        private int $type
+        private int $type,
     ) {
     }
 

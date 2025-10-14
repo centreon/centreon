@@ -48,7 +48,7 @@ final class PatchUser
         private ReadUserRepositoryInterface $readUserRepository,
         private WriteUserRepositoryInterface $writeUserRepository,
         private ReadSessionRepositoryInterface $readSessionRepository,
-        private WriteSessionRepositoryInterface $writeSessionRepository
+        private WriteSessionRepositoryInterface $writeSessionRepository,
     ) {
     }
 

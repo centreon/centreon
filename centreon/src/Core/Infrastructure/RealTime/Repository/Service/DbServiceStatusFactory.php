@@ -72,7 +72,7 @@ class DbServiceStatusFactory
                 ServiceStatus::STATUS_CODE_PENDING,
                 $statusType
             ))
-                ->setOrder(ServiceStatus::STATUS_ORDER_PENDING)
+                ->setOrder(ServiceStatus::STATUS_ORDER_PENDING),
         };
     }
 }

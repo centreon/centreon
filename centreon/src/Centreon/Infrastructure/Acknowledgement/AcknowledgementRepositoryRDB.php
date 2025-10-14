@@ -75,7 +75,7 @@ final class AcknowledgementRepositoryRDB extends AbstractRepositoryDRB implement
      */
     public function __construct(
         DatabaseConnection $db,
-        SqlRequestParametersTranslator $sqlRequestTranslator
+        SqlRequestParametersTranslator $sqlRequestTranslator,
     ) {
         $this->db = $db;
         $this->sqlRequestTranslator = $sqlRequestTranslator;

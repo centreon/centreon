@@ -545,7 +545,7 @@ function getContactsNotLinkedToAclGroup(int $aclGroupId): array
                 contact_id
             FROM contact
             WHERE
-                contact_name != 'centreon-gorgone'
+                is_service_account = '0'
                 AND contact_register = '1'
                 AND contact_activate = '1'
                 AND contact_admin = '0'
@@ -596,7 +596,7 @@ function linkContactsToAccessGroup(int $accessGroupId, array $contactIds): void
 {
     global $pearDB;
 
-    if ([] === $contactIds) {
+    if ($contactIds === []) {
         return;
     }
 
@@ -631,7 +631,7 @@ function linkContactGroupsToAccessGroup(int $accessGroupId, array $contactGroupI
 {
     global $pearDB;
 
-    if ([] === $contactGroupIds) {
+    if ($contactGroupIds === []) {
         return;
     }
 

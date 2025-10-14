@@ -30,7 +30,7 @@ use Core\ResourceAccess\Domain\Model\DatasetFilter\ResourceNamesById;
 final class ImageFolderProvider implements DatasetProviderInterface
 {
     public function __construct(
-        private readonly ReadImageFolderRepositoryInterface $repository
+        private readonly ReadImageFolderRepositoryInterface $repository,
     ) {
     }
 
@@ -39,7 +39,7 @@ final class ImageFolderProvider implements DatasetProviderInterface
      */
     public function isValidFor(string $type): bool
     {
-        return ImageFolderFilterType::TYPE_NAME === $type;
+        return $type === ImageFolderFilterType::TYPE_NAME;
     }
 
     /**

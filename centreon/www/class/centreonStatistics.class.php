@@ -300,18 +300,7 @@ class CentreonStatistics
      */
     public function getApiTokensInfo()
     {
-        $data = [];
-
-        $statementNbTokens = $this->dbConfig->query(
-            <<<'SQL'
-                SELECT count(token_type)
-                FROM security_authentication_tokens
-                WHERE token_type ='manual'
-                SQL
-        );
-        $data['total'] = $statementNbTokens->fetch(PDO::FETCH_COLUMN) ?: 0;
-
-        $statementNbTokens = $this->dbConfig->query(
+        $statementManagerCount = $this->dbConfig->fetchOne(
             <<<'SQL'
                 SELECT count(contact_id)
                 FROM contact
@@ -321,8 +310,7 @@ class CentreonStatistics
                         FROM contact
                         WHERE
                             contact_admin = '1'
-                            AND contact_name != 'centreon-gorgone'
-
+                            AND is_service_account = '0'
                     )
                     OR contact_id IN (
                         SELECT contact_id
@@ -337,9 +325,29 @@ class CentreonStatistics
                     )
                 SQL
         );
-        $data['managers'] = $statementNbTokens->fetch(PDO::FETCH_COLUMN) ?: 0;
 
-        return $data;
+        $statementTokenInfos = $this->dbConfig->fetchAllAssociative(
+            <<<'SQL'
+                SELECT
+                    security_authentication_tokens.token_name as name,
+                    security_authentication_tokens.user_id,
+                    DATEDIFF(
+                        FROM_UNIXTIME(security_token.expiration_date),
+                        FROM_UNIXTIME(security_token.creation_date)
+                    ) as lifespan
+                FROM security_authentication_tokens
+                JOIN security_token
+                    ON security_token.token = security_authentication_tokens.token
+                WHERE
+                    security_authentication_tokens.token_type ='manual'
+                    AND security_authentication_tokens.is_revoked = 0
+                SQL
+        );
+
+        return [
+            'managers' => $statementManagerCount ?: 0,
+            'tokens' => $statementTokenInfos,
+        ];
     }
 
     /**
@@ -409,37 +417,67 @@ class CentreonStatistics
      */
     public function getAgentConfigurationData(): array
     {
-        $data = ['total' => 0];
+        $data = [];
 
-        $statement = $this->dbConfig->executeQuery(
+        $totalAC = $this->dbConfig->fetchOne(
             <<<'SQL'
                 SELECT count(id)
                 FROM agent_configuration ac
                 SQL
         );
+        $data['total'] = $totalAC ?: 0;
 
-        $total =  $this->dbConfig->fetchColumn($statement);
-
-        if ($total === false) {
-            return $data;
-        }
-
-        $data['total'] = $total;
-
-        $statement = $this->dbConfig->executeQuery(
+        $configSums = $this->dbConfig->fetchAllAssociative(
             <<<'SQL'
-                SELECT type, count(id) as nb_ac_per_type, count(rel.poller_id) as nb_poller_per_type
+                SELECT
+                    ac.type,
+                    count(DISTINCT ac.id) as nb_ac_per_type,
+                    count(rel.poller_id) as nb_poller_per_type
                 FROM agent_configuration ac
                 JOIN ac_poller_relation rel
                     ON ac.id = rel.ac_id
-                GROUP BY type
+                GROUP BY ac.type
                 SQL
         );
+        foreach ($configSums as $configSum) {
+            $data[$configSum['type']]['configuration'] = $configSum['nb_ac_per_type'];
+            $data[$configSum['type']]['pollers'] = $configSum['nb_poller_per_type'];
+        }
 
-        $results = $this->dbConfig->fetchAll($statement);
-        foreach ($results as $row) {
-            $data[$row['type']]['configuration'] = $row['nb_ac_per_type'];
-            $data[$row['type']]['pollers'] = $row['nb_poller_per_type'];
+        $pearDBO = new CentreonDB(CentreonDB::LABEL_DB_REALTIME);
+        $query = <<<'SQL'
+            SELECT `poller_id`, `enabled`, `infos`
+                FROM `agent_information`
+            SQL;
+        $statement = $pearDBO->executeQuery($query);
+
+        while (is_array($row = $pearDBO->fetch($statement))) {
+            /** @var array{poller_id:int,enabled:int,infos:string} $row */
+            $decodedInfos = json_decode($row['infos'], true);
+            if (! is_array($decodedInfos)) {
+                $this->logger->warning(
+                    "Invalid JSON format in agent_information table for poller_id {$row['poller_id']}",
+                    ['context' => $row]
+                );
+
+                continue;
+            }
+
+            $data['agents'][] = [
+                'id' => $row['poller_id'],
+                'enabled' => (bool) $row['enabled'],
+                'infos' => array_map(function ($info) {
+                    return [
+                        'agentMajor' => $info['agent_major'] ?? '',
+                        'agentMinor' => $info['agent_minor'] ?? '',
+                        'agentPatch' => $info['agent_patch'] ?? null,
+                        'reverse' => $info['reverse'] ?? false,
+                        'os' => $info['os'] ?? '',
+                        'osVersion' => $info['os_version'] ?? '',
+                        'nbAgent' => $info['nb_agent'] ?? null,
+                    ];
+                }, $decodedInfos),
+            ];
         }
 
         return $data;
@@ -484,7 +522,7 @@ class CentreonStatistics
         $data['avg_contact_notification'] = $avgGetValue('notification_user_relation');
         $data['avg_cg_notification'] = $avgGetValue('notification_contactgroup_relation');
 
-        return array_filter($data, static fn (mixed $value): bool => null !== $value);
+        return array_filter($data, static fn (mixed $value): bool => $value !== null);
     }
 
     /**

@@ -61,7 +61,7 @@ class NotificationValidator
     public function validateUsersAndContactGroups(
         array $userIds,
         array $contactGroupsIds,
-        ContactInterface $currentContact
+        ContactInterface $currentContact,
     ): void {
         if ($userIds === [] && $contactGroupsIds === []) {
             throw NotificationException::emptyArrayNotAllowed('users, contact groups');
@@ -84,7 +84,7 @@ class NotificationValidator
      */
     public function validateTimePeriod(int $timePeriodId): void
     {
-        if (false === $this->readTimePeriodRepository->exists($timePeriodId)) {
+        if ($this->readTimePeriodRepository->exists($timePeriodId) === false) {
             $this->error('Time period does not exist', ['timePeriodId' => $timePeriodId]);
 
             throw NotificationException::invalidId('timeperiodId');
@@ -116,7 +116,7 @@ class NotificationValidator
         $contactDifference = new BasicDifference($contactIdsToValidate, $existingContactIds);
         $missingContact = $contactDifference->getRemoved();
 
-        if ([] !== $missingContact) {
+        if ($missingContact !== []) {
             $this->error(
                 'Invalid ID(s) provided',
                 ['propertyName' => 'users', 'propertyValues' => array_values($missingContact)]
@@ -150,7 +150,7 @@ class NotificationValidator
         $difference = new BasicDifference($contactGroupIds, $existingContactGroupIds);
         $missingContactGroups = $difference->getRemoved();
 
-        if ([] !== $missingContactGroups) {
+        if ($missingContactGroups !== []) {
             $this->error(
                 'Invalid ID(s) provided',
                 ['propertyName' => 'contactgroups', 'propertyValues' => array_values($missingContactGroups)]

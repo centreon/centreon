@@ -49,7 +49,7 @@ class DbRuleFactory
         array $linkedContactIds,
         array $linkedContactGroupIds,
         array $datasetFiltersRecord,
-        DatasetFilterValidator $datasetValidator
+        DatasetFilterValidator $datasetValidator,
     ): Rule {
         $datasets = [];
 

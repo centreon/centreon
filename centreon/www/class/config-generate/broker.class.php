@@ -21,6 +21,7 @@
 
 use App\Kernel;
 use Core\Common\Application\UseCase\VaultTrait;
+use Core\MonitoringServer\Application\Repository\ReadMonitoringServerRepositoryInterface;
 use Pimple\Container;
 use Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException;
 use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
@@ -118,6 +119,8 @@ class Broker extends AbstractObjectJSON
     /** @var object|null */
     protected $readVaultConfigurationRepository = null;
 
+    private ReadMonitoringServerRepositoryInterface $readMonitoringServerRepository;
+
     /**
      * Broker constructor
      *
@@ -136,10 +139,9 @@ class Broker extends AbstractObjectJSON
         $this->readVaultConfigurationRepository = $kernel->getContainer()->get(
             Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface::class
         );
-
-        if (! $this->isVaultEnabled) {
-            $this->getVaultConfigurationStatus();
-        }
+        $this->readMonitoringServerRepository = $kernel->getContainer()->get(
+            ReadMonitoringServerRepositoryInterface::class
+        );
     }
 
     /**
@@ -205,12 +207,13 @@ class Broker extends AbstractObjectJSON
     /**
      * @param $poller_id
      * @param $localhost
+     * @param mixed $pollerId
      *
      * @throws PDOException
      * @throws RuntimeException
      * @return void
      */
-    private function generate($poller_id, $localhost): void
+    private function generate($pollerId, $localhost): void
     {
         $this->getExternalValues();
 
@@ -222,10 +225,10 @@ class Broker extends AbstractObjectJSON
             AND config_activate = '1'
             ");
         }
-        $this->stmt_broker->bindParam(':poller_id', $poller_id, PDO::PARAM_INT);
+        $this->stmt_broker->bindParam(':poller_id', $pollerId, PDO::PARAM_INT);
         $this->stmt_broker->execute();
 
-        $this->getEngineParameters($poller_id);
+        $this->getEngineParameters($pollerId);
 
         if (is_null($this->stmt_broker_parameters)) {
             $this->stmt_broker_parameters = $this->backend_instance->db->prepare("SELECT
@@ -447,6 +450,32 @@ class Broker extends AbstractObjectJSON
                 }
             }
 
+            $shouldBeEncrypted = $this->readMonitoringServerRepository->isEncryptionReady($pollerId);
+            foreach ($object['output'] as &$output) {
+                if (
+                    ($output['type'] === 'sql' || $output['type'] === 'storage')
+                    && array_key_exists('db_password', $output)
+                ) {
+                    $output['db_password'] = $shouldBeEncrypted
+                        ? 'encrypt::' . $this->engineContextEncryption->crypt($output['db_password'])
+                        : $output['db_password'];
+                }
+                if (! isset($output['lua_parameter']) || ! is_array($output['lua_parameter'])) {
+                    continue;
+                }
+
+                foreach ($output['lua_parameter'] as &$luaParameter) {
+                    if (
+                        isset($luaParameter['type'], $luaParameter['value'])
+                        && $luaParameter['type'] === 'password'
+                        && is_string($luaParameter['value'])
+                    ) {
+                        $luaParameter['value'] = $shouldBeEncrypted
+                        ? 'encrypt::' . $this->engineContextEncryption->crypt($luaParameter['value'])
+                        : $luaParameter['value'];
+                    }
+                }
+            }
             // Generate file
             $this->generateFile($object);
             $this->writeFile($this->backend_instance->getPath());
@@ -805,7 +834,7 @@ class Broker extends AbstractObjectJSON
         array &$output,
         string $outputKey,
         string $outputValue,
-        array &$outputReference
+        array &$outputReference,
     ): void {
         $vaultData = $this->readVaultRepository->findFromPath($outputValue);
         $vaultKey = $output['name'] . '_' . $outputKey;
@@ -827,7 +856,7 @@ class Broker extends AbstractObjectJSON
         array &$output,
         string $outputKey,
         array $luaParameters,
-        array &$outputReference
+        array &$outputReference,
     ): void {
         foreach ($luaParameters as $parameterIndex => $luaParameter) {
             if ($luaParameter['type'] === 'password'

@@ -160,7 +160,7 @@ class DbReadDashboardPanelRepository extends AbstractRepositoryDRB implements Re
      */
     private function jsonDecodeWidgetSettings(string $settings): array
     {
-        if ('' === $settings) {
+        if ($settings === '') {
             return [];
         }
 

@@ -63,7 +63,7 @@ final readonly class AddRule
         private AddRuleValidation $validator,
         private ReadAccessGroupRepositoryInterface $accessGroupRepository,
         private DatasetFilterValidator $datasetValidator,
-        private bool $isCloudPlatform
+        private bool $isCloudPlatform,
     ) {
     }
 
@@ -73,7 +73,7 @@ final readonly class AddRule
      */
     public function __invoke(
         AddRuleRequest $request,
-        AddRulePresenterInterface $presenter
+        AddRulePresenterInterface $presenter,
     ): void {
         try {
             if (! $this->isAuthorized()) {
@@ -285,7 +285,7 @@ final readonly class AddRule
                 // Extract from the DatasetFilter the final filter level and its parent.
                 [
                     'parent' => $parentApplicableFilter,
-                    'last' => $applicableFilter
+                    'last' => $applicableFilter,
                 ] = DatasetFilter::findApplicableFilters($datasetFilter);
 
                 /* Specific behaviour when the last level of filtering is of type
@@ -408,7 +408,7 @@ final readonly class AddRule
 
         $validateAndBuildDatasetFilter = function (
             array $data,
-            ?DatasetFilter $parentDatasetFilter
+            ?DatasetFilter $parentDatasetFilter,
         ) use (&$validateAndBuildDatasetFilter, &$datasetFilter): void {
             /**
              * In any case we want to make sure that

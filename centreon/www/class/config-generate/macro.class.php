@@ -56,6 +56,9 @@ class Macro extends AbstractObject
 
     private $macroHostCache = [];
 
+    /** @var array<int, bool> */
+    private $pollersEncryptionReadyStatusByHosts = [];
+
     /**
      * Macro constructor
      *
@@ -70,135 +73,19 @@ class Macro extends AbstractObject
     {
         parent::__construct($dependencyInjector);
 
-        if (! $this->isVaultEnabled) {
-            $this->getVaultConfigurationStatus();
-        }
-
-        $this->buildCache();
+        $this->setPollersEncryptionReadyStatusByHosts();
     }
 
-    /**
-     * @param $service_id
-     *
-     * @return array|mixed|null
-     */
-    public function getServiceMacroByServiceId($service_id)
+    private function setPollersEncryptionReadyStatusByHosts(): void
     {
-        // Get from the cache
-        if (isset($this->macro_service_cache[$service_id])) {
-            return $this->macro_service_cache[$service_id];
-        }
-        if ($this->done_cache == 1) {
-            return null;
-        }
-    }
-
-    /**
-     * @param $hostId
-     *
-     * @return array|mixed|null
-     */
-    public function getHostMacroByHostId($hostId)
-    {
-        // Get from the cache
-        if (isset($this->macroHostCache[$hostId])) {
-            return $this->macroHostCache[$hostId];
-        }
-        if ($this->done_cache == 1) {
-            return null;
-        }
-    }
-
-    /**
-     * @throws PDOException
-     * @return void
-     */
-    private function cacheMacroService(): void
-    {
-        $stmt = $this->backend_instance->db->prepare('SELECT
-              svc_svc_id, svc_macro_name, svc_macro_value, is_password
-            FROM on_demand_macro_service
-        ');
-        $stmt->execute();
-        while (($macro = $stmt->fetch(PDO::FETCH_ASSOC))) {
-            if (! isset($this->macro_service_cache[$macro['svc_svc_id']])) {
-                $this->macro_service_cache[$macro['svc_svc_id']] = [];
-            }
-
-            $serviceMacroName = preg_replace(
-                '/\$_SERVICE(.*)\$/',
-                '_$1',
-                $macro['svc_macro_name']
-            );
-            $this->macro_service_cache[$macro['svc_svc_id']][$serviceMacroName] = $macro['svc_macro_value'];
-        }
-
-        if ($this->isVaultEnabled && $this->readVaultRepository !== null) {
-            $vaultPathByServices = $this->getVaultPathByResources($this->macro_service_cache);
-            $vaultData = $this->readVaultRepository->findFromPaths($vaultPathByServices);
-            foreach ($vaultData as $serviceId => $macros) {
-                foreach ($macros as $macroName => $macroValue) {
-                    $serviceMacroName = preg_replace(
-                        '/\_SERVICE(.*)$/',
-                        '_$1',
-                        $macroName
-                    );
-                    $this->macro_service_cache[$serviceId][$serviceMacroName] = $macroValue;
-                }
-            }
-        }
-    }
-
-    private function cacheMacroHost(): void
-    {
-        $stmt = $this->backend_instance->db->executeQuery(
+        $result = $this->backend_instance->db->fetchAllAssociativeIndexed(
             <<<'SQL'
-                SELECT
-                host_host_id, host_macro_name, host_macro_value, is_password
-                FROM on_demand_macro_host;
+                SELECT nsr.host_host_id, ns.is_encryption_ready FROM ns_host_relation nsr
+                    INNER JOIN nagios_server ns ON ns.id = nsr.nagios_server_id
                 SQL
         );
-
-        while (($macro = $stmt->fetch(PDO::FETCH_ASSOC))) {
-            if (! isset($this->macroHostCache[$macro['host_host_id']])) {
-                $this->macroHostCache[$macro['host_host_id']] = [];
-            }
-
-            $hostMacroName = preg_replace(
-                '/\$_HOST(.*)\$/',
-                '_$1',
-                $macro['host_macro_name']
-            );
-            $this->macroHostCache[$macro['host_host_id']][$hostMacroName] = $macro['host_macro_value'];
-        }
-
-        $stmt = $this->backend_instance->db->executeQuery(
-            <<<'SQL'
-                SELECT
-                host_id, host_snmp_community
-                FROM host
-                WHERE host_snmp_community IS NOT NULL
-                OR host_snmp_community != '';
-                SQL
-        );
-
-        while (($hostSnmpCommunity = $stmt->fetch(PDO::FETCH_ASSOC))) {
-            $this->macroHostCache[$hostSnmpCommunity['host_id']]['_SNMPCOMMUNITY'] = $hostSnmpCommunity['host_snmp_community'];
-        }
-
-        if ($this->isVaultEnabled && $this->readVaultRepository !== null) {
-            $vaultPathByHosts = $this->getVaultPathByResources($this->macroHostCache);
-            $vaultData = $this->readVaultRepository->findFromPaths($vaultPathByHosts);
-            foreach ($vaultData as $hostId => $macros) {
-                foreach ($macros as $macroName => $macroValue) {
-                    $hostMacroName = preg_replace(
-                        '/\_HOST(.*)$/',
-                        '_$1',
-                        $macroName
-                    );
-                    $this->macroHostCache[$hostId][$hostMacroName] = $macroValue;
-                }
-            }
+        foreach ($result as $hostId => $value) {
+            $this->pollersEncryptionReadyStatusByHosts[$hostId] = (bool) $value['is_encryption_ready'];
         }
     }
 
@@ -222,20 +109,5 @@ class Macro extends AbstractObject
         }
 
         return $vaultPathByResources;
-    }
-
-    /**
-     * @throws PDOException
-     * @return int|void
-     */
-    private function buildCache()
-    {
-        if ($this->done_cache == 1) {
-            return 0;
-        }
-
-        $this->cacheMacroService();
-        $this->cacheMacroHost();
-        $this->done_cache = 1;
     }
 }

@@ -42,7 +42,7 @@ class TinyRule
         private readonly int $id,
         private readonly string $name,
         private readonly ?string $description = null,
-        private readonly bool $isEnabled = true
+        private readonly bool $isEnabled = true,
     ) {
         $shortName = (new \ReflectionClass($this))->getShortName();
 

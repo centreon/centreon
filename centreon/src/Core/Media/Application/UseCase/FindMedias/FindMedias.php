@@ -23,11 +23,9 @@ declare(strict_types=1);
 
 namespace Core\Media\Application\UseCase\FindMedias;
 
-use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Application\Common\UseCase\ErrorResponse;
-use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Common\Domain\Exception\RepositoryException;
 use Core\Media\Application\Exception\MediaException;
 use Core\Media\Application\Repository\ReadImageFolderRepositoryInterface;
@@ -52,19 +50,6 @@ final readonly class FindMedias
     public function __invoke(FindMediasPresenterInterface $presenter): void
     {
         try {
-            if (! $this->canAccessToListing()) {
-                $presenter->presentResponse(
-                    new ForbiddenResponse(
-                        message: MediaException::listingNotAllowed(),
-                        context: [
-                            'user_id' => $this->user->getId(),
-                            'request_parameters' => $this->requestParameters->toArray(),
-                        ]
-                    )
-                );
-
-                return;
-            }
             $medias = $this->user->isAdmin() ? $this->findAsAdmin() : $this->findAsUser();
             $presenter->presentResponse($this->createResponse($medias));
         } catch (\Exception $ex) {
@@ -105,11 +90,6 @@ final readonly class FindMedias
         }
 
         return $this->mediaReader->findByRequestParametersAndAccessGroups($this->requestParameters, $accessGroups);
-    }
-
-    private function canAccessToListing(): bool
-    {
-        return $this->user->hasTopologyRole(Contact::ROLE_ADMINISTRATION_PARAMETERS_IMAGES_RW);
     }
 
     /**

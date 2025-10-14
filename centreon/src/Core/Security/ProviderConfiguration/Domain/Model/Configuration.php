@@ -43,7 +43,7 @@ class Configuration
         private string $name,
         private string $jsonCustomConfiguration,
         private bool $isActive,
-        private bool $isForced
+        private bool $isForced,
     ) {
     }
 

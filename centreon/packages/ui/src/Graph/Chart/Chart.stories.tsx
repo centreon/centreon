@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 
 import { Meta, StoryObj } from '@storybook/react';
 
-import { Button } from '@mui/material';
+import { Button, Menu } from '@mui/material';
 import ButtonGroup from '@mui/material/ButtonGroup';
 import Switch from '@mui/material/Switch';
 import Tooltip from '@mui/material/Tooltip';
@@ -755,6 +755,39 @@ export const linesAndBarsMinMaxForUnit: Story = {
     <WrapperChart
       {...args}
       data={dataPingServiceLinesBarsMixed as unknown as LineChartData}
+    />
+  )
+};
+
+const LegendSecondaryClick = (args) => {
+  const [anchor, setAnchor] = useState<EventTarget | null>(null);
+
+  return (
+    <>
+      <WrapperChart
+        {...args}
+        legend={{
+          secondaryClick: ({ element }) => setAnchor(element)
+        }}
+      />
+      <Menu
+        anchorEl={anchor}
+        open={Boolean(anchor)}
+        onClose={() => setAnchor(null)}
+      >
+        menu
+      </Menu>
+    </>
+  );
+};
+
+export const withLegendSecondaryClick: Story = {
+  argTypes,
+  args: argumentsData,
+  render: (args) => (
+    <LegendSecondaryClick
+      {...args}
+      data={dataPingService as unknown as LineChartData}
     />
   )
 };

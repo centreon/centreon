@@ -34,7 +34,7 @@ class SessionRepository extends AbstractRepositoryDRB implements SessionReposito
      * @param DatabaseConnection $db
      */
     public function __construct(
-        DatabaseConnection $db
+        DatabaseConnection $db,
     ) {
         $this->db = $db;
     }

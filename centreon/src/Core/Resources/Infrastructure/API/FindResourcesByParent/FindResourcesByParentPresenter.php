@@ -54,7 +54,7 @@ class FindResourcesByParentPresenter extends AbstractPresenter implements FindRe
         private readonly HypermediaCreator $hypermediaCreator,
         protected RequestParametersInterface $requestParameters,
         PresenterFormatterInterface $presenterFormatter,
-        private readonly \Traversable $extraDataNormalizers
+        private readonly \Traversable $extraDataNormalizers,
     ) {
         parent::__construct($presenterFormatter);
     }

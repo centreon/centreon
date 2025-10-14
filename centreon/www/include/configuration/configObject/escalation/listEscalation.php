@@ -206,7 +206,7 @@ $form->addElement('submit', 'Search', _('Search'), $attrBtnSuccess);
 // Fill a tab with a multidimensional Array we put in $tpl
 $elemArr = [];
 for ($i = 0; $esc = $statement->fetch(); $i++) {
-    $esc = array_map('myEncode', $esc);
+    $esc = array_map('myDecode', $esc);
     $moptions = '';
     $selectedElements = $form->addElement('checkbox', 'select[' . $esc['esc_id'] . ']');
     $moptions
@@ -218,6 +218,7 @@ for ($i = 0; $esc = $statement->fetch(); $i++) {
     $elemArr[$i] = ['MenuClass' => 'list_' . $style, 'RowMenu_select' => $selectedElements->toHtml(), 'RowMenu_name' => CentreonUtils::escapeSecure($esc['esc_name']), 'RowMenu_alias' => CentreonUtils::escapeSecure($esc['esc_alias']), 'RowMenu_link' => 'main.php?p=' . $p . '&o=c&esc_id=' . $esc['esc_id'], 'RowMenu_options' => $moptions];
     $style = $style != 'two' ? 'two' : 'one';
 }
+
 $tpl->assign('elemArr', $elemArr);
 
 // Different messages we put in the template

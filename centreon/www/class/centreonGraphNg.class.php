@@ -870,18 +870,18 @@ class CentreonGraphNg
             return false;
         }
 
-        if (false === $sock) {
+        if ($sock === false) {
             $this->log('socket connection: ' . $errstr);
 
             return false;
         }
 
-        if (false === fputs($sock, "BATCH\n")) {
+        if (fputs($sock, "BATCH\n") === false) {
             fclose($sock);
 
             return false;
         }
-        if (false === fgets($sock)) {
+        if (fgets($sock) === false) {
             fclose($sock);
 
             return false;
@@ -890,19 +890,19 @@ class CentreonGraphNg
         foreach ($metricsId as $metricId) {
             $fullpath = realpath($this->dbPath . $metricId . '.rrd');
             $cmd = 'FLUSH ' . $fullpath;
-            if (false === fputs($sock, $cmd . "\n")) {
+            if (fputs($sock, $cmd . "\n") === false) {
                 fclose($sock);
 
                 return false;
             }
         }
 
-        if (false === fputs($sock, ".\n")) {
+        if (fputs($sock, ".\n") === false) {
             fclose($sock);
 
             return false;
         }
-        if (false === fgets($sock)) {
+        if (fgets($sock) === false) {
             fclose($sock);
 
             return false;

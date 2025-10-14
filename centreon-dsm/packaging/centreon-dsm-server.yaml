@@ -40,6 +40,12 @@ contents:
       owner: "@APACHE_USER@"
       group: "@APACHE_GROUP@"
 
+  - src: "../www/modules/centreon-dsm/sql"
+    dst: "/usr/share/centreon/www/modules/centreon-dsm/sql"
+    file_info:
+      owner: "@APACHE_USER@"
+      group: "@APACHE_GROUP@"
+
   - src: "../www/modules/centreon-dsm/statistics"
     dst: "/usr/share/centreon/www/modules/centreon-dsm/statistics"
     file_info:

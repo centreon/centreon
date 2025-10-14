@@ -408,6 +408,7 @@ CREATE TABLE `instances` (
   `version` varchar(16) DEFAULT NULL,
   `deleted` boolean NOT NULL default false,
   `outdated` boolean NOT NULL default false,
+  `is_encryption_ready` enum('0', '1') NOT NULL DEFAULT '0',
   PRIMARY KEY (`instance_id`),
   KEY `instances_name_idx` (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

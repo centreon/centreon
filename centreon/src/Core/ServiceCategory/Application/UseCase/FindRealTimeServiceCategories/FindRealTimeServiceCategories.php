@@ -43,7 +43,7 @@ final class FindRealTimeServiceCategories
         private readonly ReadRealTimeServiceCategoryRepositoryInterface $repository,
         private readonly ReadServiceCategoryRepositoryInterface $configurationRepository,
         private readonly RequestParametersInterface $requestParameters,
-        private readonly ReadAccessGroupRepositoryInterface $accessGroupRepository
+        private readonly ReadAccessGroupRepositoryInterface $accessGroupRepository,
     ) {
     }
 

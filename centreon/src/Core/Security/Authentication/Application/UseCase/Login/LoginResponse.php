@@ -36,7 +36,7 @@ final readonly class LoginResponse implements ResponseStatusInterface
     public function __construct(
         private string $redirectUri,
         private bool $redirectIsReact,
-        private ?Exception $exception = null
+        private ?Exception $exception = null,
     ) {
     }
 

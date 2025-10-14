@@ -79,15 +79,17 @@ export const initilize = (): void => {
 
   cy.mount({
     Component: (
-      <Router>
-        <SnackbarProvider>
-          <TestQueryProvider>
-            <Provider store={store}>
-              <Page />
-            </Provider>
-          </TestQueryProvider>
-        </SnackbarProvider>
-      </Router>
+      <div style={{ height: '90vh' }}>
+        <Router>
+          <SnackbarProvider>
+            <TestQueryProvider>
+              <Provider store={store}>
+                <Page />
+              </Provider>
+            </TestQueryProvider>
+          </SnackbarProvider>
+        </Router>
+      </div>
     )
   });
 };

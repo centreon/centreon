@@ -43,7 +43,7 @@ class FindHostPresenter extends AbstractPresenter implements FindHostPresenterIn
      */
     public function __construct(
         private HypermediaCreator $hypermediaCreator,
-        protected PresenterFormatterInterface $presenterFormatter
+        protected PresenterFormatterInterface $presenterFormatter,
     ) {
         parent::__construct($presenterFormatter);
     }

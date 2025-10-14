@@ -49,7 +49,7 @@ final readonly class ExportResourcesRequestTransformer
     public static function transform(
         ExportResourcesInput $input,
         ResourceFilter $resourceFilter,
-        ContactInterface $contact
+        ContactInterface $contact,
     ): ExportResourcesRequest {
         $allPages = filter_var($input->allPages, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
         if ($allPages === null) {

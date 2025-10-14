@@ -676,7 +676,7 @@ class CentreonACL
         $rows,
         $originTable = 'centreon_acl',
         $force = false,
-        $fields = []
+        $fields = [],
     ) {
         if (! empty($this->tempTableArray[$tmpTableName]) && ! $force) {
             return $this->tempTableArray[$tmpTableName];
@@ -2385,7 +2385,7 @@ class CentreonACL
         $statement->execute();
 
         while (false !== ($hasAccessToAll = $statement->fetchColumn())) {
-            if (true === (bool) $hasAccessToAll) {
+            if ((bool) $hasAccessToAll === true) {
                 return true;
             }
         }
@@ -2402,13 +2402,16 @@ class CentreonACL
     private function hasAccessToAllImageFolders(): bool
     {
         $accessGroups = $this->getAccessGroups();
-        if ($accessGroups === []) {
+        $aclResources = $this->getResourceGroups();
+
+        // Users not linked to an ACL group or ACL resource will not be able to see images.
+        if ($accessGroups === [] || $aclResources === []) {
             return false;
         }
 
         [
             'parameters' => $bindQueryParameters,
-            'placeholderList' => $bindQuery
+            'placeholderList' => $bindQuery,
         ] = createMultipleBindParameters(
             values: array_keys($accessGroups),
             prefix: 'access_group_id_',
@@ -2429,8 +2432,8 @@ class CentreonACL
 
             $db = CentreonDBInstance::getDbCentreonInstance();
 
-            while (false !== ($hasAccessToAll = $db->fetchOne($query, QueryParameters::create($bindQueryParameters)))) {
-                if (true === (bool) $hasAccessToAll) {
+            while (false !== ($hasAccessToAll = $db->fetchFirstColumn($query, QueryParameters::create($bindQueryParameters)))) {
+                if ((bool) $hasAccessToAll === true) {
                     return true;
                 }
             }
@@ -2481,7 +2484,7 @@ class CentreonACL
         $statement->execute();
 
         while (false !== ($hasAccessToAll = $statement->fetchColumn())) {
-            if (true === (bool) $hasAccessToAll) {
+            if ((bool) $hasAccessToAll === true) {
                 return true;
             }
         }

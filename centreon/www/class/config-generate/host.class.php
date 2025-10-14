@@ -19,6 +19,15 @@
  *
  */
 
+use Core\Host\Application\InheritanceManager;
+use Core\Host\Application\Repository\ReadHostRepositoryInterface;
+use Core\Macro\Application\Repository\ReadHostMacroRepositoryInterface;
+use Core\Macro\Application\Repository\ReadServiceMacroRepositoryInterface;
+use Core\Macro\Domain\Model\Macro;
+use Core\MonitoringServer\Application\Repository\ReadMonitoringServerRepositoryInterface;
+use Core\Service\Application\Repository\ReadServiceRepositoryInterface;
+use Core\Service\Domain\Model\ServiceInheritance;
+
 require_once __DIR__ . '/abstract/host.class.php';
 require_once __DIR__ . '/abstract/service.class.php';
 
@@ -45,16 +54,16 @@ class Host extends AbstractHost
     /** @var string */
     protected string $object_name = 'host';
 
-    /** @var null */
+    /** @var null|PDOStatement */
     protected $stmt_hg = null;
 
-    /** @var null */
+    /** @var null|PDOStatement */
     protected $stmt_parent = null;
 
-    /** @var null */
+    /** @var null|PDOStatement */
     protected $stmt_service = null;
 
-    /** @var null */
+    /** @var null|PDOStatement */
     protected $stmt_service_sg = null;
 
     /** @var array */
@@ -87,6 +96,7 @@ class Host extends AbstractHost
     /**
      * @param $host
      * @param $generateConfigurationFile
+     * @param Macro[] $hostTemplateMacros
      *
      * @throws LogicException
      * @throws PDOException
@@ -94,14 +104,11 @@ class Host extends AbstractHost
      * @throws Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException
      * @return void
      */
-    public function processingFromHost(&$host, $generateConfigurationFile = true): void
+    public function processingFromHost(&$host, $generateConfigurationFile = true, array $hostTemplateMacros = []): void
     {
         $this->getImages($host);
-        $this->getMacros($host);
-        $host['macros']['_HOST_ID'] = $host['host_id'];
-
         $this->getHostTimezone($host);
-        $this->getHostTemplates($host, $generateConfigurationFile);
+        $this->getHostTemplates($host, $generateConfigurationFile, $hostTemplateMacros);
         $this->getHostCommands($host);
         $this->getHostPeriods($host);
         $this->getContactGroups($host);
@@ -122,6 +129,7 @@ class Host extends AbstractHost
 
     /**
      * @param $host
+     * @param mixed $serviceTemplateMacros
      *
      * @throws LogicException
      * @throws PDOException
@@ -129,19 +137,18 @@ class Host extends AbstractHost
      * @throws Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException
      * @return void
      */
-    public function generateFromHostId(&$host): void
+    public function generateFromHostId(&$host, array $hostMacros, array $hostTemplateMacros, array $serviceMacros, $serviceTemplateMacros): void
     {
-        $this->processingFromHost($host);
-
-        $this->getServices($host);
+        $this->processingFromHost($host, hostTemplateMacros: $hostTemplateMacros);
+        $this->formatMacros($host, $hostMacros);
+        $this->getServices($host, $serviceMacros, $serviceTemplateMacros);
         $this->getServicesByHg($host);
-
         $this->generateObjectInFile($host, $host['host_id']);
         $this->addGeneratedHost($host['host_id']);
     }
 
     /**
-     * @param $poller_id
+     * @param $pollerId
      * @param $localhost
      *
      * @throws LogicException
@@ -150,18 +157,25 @@ class Host extends AbstractHost
      * @throws Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException
      * @return void
      */
-    public function generateFromPollerId($poller_id, $localhost = 0): void
+    public function generateFromPollerId($pollerId, $localhost = 0): void
     {
         if (is_null($this->hosts)) {
-            $this->getHosts($poller_id);
+            $this->getHosts($pollerId);
         }
 
-        Service::getInstance($this->dependencyInjector)->set_poller($poller_id);
+        Service::getInstance($this->dependencyInjector)->set_poller($pollerId);
+
+        /** @var ReadMonitoringServerRepositoryInterface $readMonitoringServerRepository */
+        $readMonitoringServerRepository = $this->kernel->getContainer()->get(ReadMonitoringServerRepositoryInterface::class);
+
+        $isPollerEncryptionReady = $readMonitoringServerRepository->isEncryptionReady($pollerId);
 
         foreach ($this->hosts as $host_id => &$host) {
             $this->hosts_by_name[$host['host_name']] = $host_id;
             $host['host_id'] = $host_id;
-            $this->generateFromHostId($host);
+            [$hostMacros, $hostTemplateMacros] = $this->findHostRelatedMacros($host_id, $isPollerEncryptionReady);
+            [$serviceMacros, $serviceTemplateMacros] = $this->findServiceRelatedMacros($host_id, $isPollerEncryptionReady);
+            $this->generateFromHostId($host, $hostMacros, $hostTemplateMacros, $serviceMacros, $serviceTemplateMacros);
         }
 
         if ($localhost == 1) {
@@ -327,6 +341,83 @@ class Host extends AbstractHost
         $this->hosts[$host_id_arg]['severity_id_for_services'] = $severity_instance->getHostSeverityById($severity_id);
     }
 
+    private function findHostRelatedMacros(int $hostId, bool $isPollerEncryptionReady): array
+    {
+        /** @var ReadHostRepositoryInterface $readHostRepository */
+        $readHostRepository = $this->kernel->getContainer()->get(ReadHostRepositoryInterface::class);
+        /** @var ReadHostMacroRepositoryInterface $readHostMacroRepository */
+        $readHostMacroRepository = $this->kernel->getContainer()->get(ReadHostMacroRepositoryInterface::class);
+
+        $templateParents = $readHostRepository->findParents($hostId);
+        $inheritanceLine = InheritanceManager::findInheritanceLine($hostId, $templateParents);
+        $existingHostMacros = $readHostMacroRepository->findByHostIds(array_merge([$hostId], $inheritanceLine));
+
+        array_walk(
+            $existingHostMacros,
+            fn (Macro &$macro, int|string $key, bool $isPollerEncryptionReady) => $macro->setShouldBeEncrypted($isPollerEncryptionReady),
+            $isPollerEncryptionReady
+        );
+
+        return  Macro::resolveInheritance($existingHostMacros, $inheritanceLine, $hostId);
+    }
+
+    private function findServiceRelatedMacros(int $hostId, bool $isPollerEncryptionReady): array
+    {
+        /** @var ReadServiceRepositoryInterface $readServiceRepository */
+        $readServiceRepository = $this->kernel->getContainer()->get(ReadServiceRepositoryInterface::class);
+        /** @var ReadServiceMacroRepositoryInterface $readServiceMacroRepository */
+        $readServiceMacroRepository = $this->kernel->getContainer()->get(ReadServiceMacroRepositoryInterface::class);
+
+        $services = $readServiceRepository->findServiceIdsLinkedToHostId($hostId);
+        $serviceMacros = [];
+        $serviceTemplateMacros = [];
+        foreach ($services as $serviceId) {
+            $serviceTemplateInheritances = $readServiceRepository->findParents($serviceId);
+            $inheritanceLine = ServiceInheritance::createInheritanceLine(
+                $serviceId,
+                $serviceTemplateInheritances
+            );
+            $existingMacros = $readServiceMacroRepository->findByServiceIds($serviceId, ...$inheritanceLine);
+            [$directMacros, $indirectMacros] = Macro::resolveInheritance($existingMacros, $inheritanceLine, $serviceId);
+            $serviceMacros = array_merge($serviceMacros, array_values($directMacros));
+            $serviceTemplateMacros = array_merge($serviceTemplateMacros, array_values($indirectMacros));
+        }
+
+        array_walk(
+            $serviceMacros,
+            fn (Macro &$macro, int|string $key, bool $isPollerEncryptionReady) => $macro->setShouldBeEncrypted($isPollerEncryptionReady),
+            $isPollerEncryptionReady
+        );
+        array_walk(
+            $serviceTemplateMacros,
+            fn (Macro &$macro, int|string $key, bool $isPollerEncryptionReady) => $macro->setShouldBeEncrypted($isPollerEncryptionReady),
+            $isPollerEncryptionReady
+        );
+
+        return [$serviceMacros, $serviceTemplateMacros];
+    }
+
+    /**
+     * @param $poller_id
+     *
+     * @throws PDOException
+     * @return void
+     */
+    private function getHosts($poller_id): void
+    {
+        // We use host_register = 1 because we don't want _Module_* hosts
+        $stmt = $this->backend_instance->db->prepare("SELECT
+              {$this->attributes_select}
+            FROM ns_host_relation, host
+                LEFT JOIN extended_host_information ON extended_host_information.host_host_id = host.host_id
+            WHERE ns_host_relation.nagios_server_id = :server_id
+                AND ns_host_relation.host_host_id = host.host_id
+                AND host.host_activate = '1' AND host.host_register = '1'");
+        $stmt->bindParam(':server_id', $poller_id, PDO::PARAM_INT);
+        $stmt->execute();
+        $this->hosts = $stmt->fetchAll(PDO::FETCH_GROUP | PDO::FETCH_UNIQUE | PDO::FETCH_ASSOC);
+    }
+
     /**
      * @param $host
      *
@@ -386,11 +477,12 @@ class Host extends AbstractHost
 
     /**
      * @param $host
+     * @param Macro[] $serviceMacros
      *
      * @throws PDOException
      * @return void
      */
-    private function getServices(&$host): void
+    private function getServices(&$host, array $serviceMacros, array $serviceTemplateMacros): void
     {
         if (is_null($this->stmt_service)) {
             $this->stmt_service = $this->backend_instance->db->prepare('SELECT
@@ -405,7 +497,13 @@ class Host extends AbstractHost
 
         $service = Service::getInstance($this->dependencyInjector);
         foreach ($host['services_cache'] as $service_id) {
-            $service->generateFromServiceId($host['host_id'], $host['host_name'], $service_id);
+            $service->generateFromServiceId(
+                $host['host_id'],
+                $host['host_name'],
+                $service_id,
+                serviceMacros: $serviceMacros,
+                serviceTemplateMacros: $serviceTemplateMacros
+            );
         }
     }
 
@@ -691,26 +789,5 @@ class Host extends AbstractHost
         }
 
         return $results;
-    }
-
-    /**
-     * @param $poller_id
-     *
-     * @throws PDOException
-     * @return void
-     */
-    private function getHosts($poller_id): void
-    {
-        // We use host_register = 1 because we don't want _Module_* hosts
-        $stmt = $this->backend_instance->db->prepare("SELECT
-              {$this->attributes_select}
-            FROM ns_host_relation, host
-                LEFT JOIN extended_host_information ON extended_host_information.host_host_id = host.host_id
-            WHERE ns_host_relation.nagios_server_id = :server_id
-                AND ns_host_relation.host_host_id = host.host_id
-                AND host.host_activate = '1' AND host.host_register = '1'");
-        $stmt->bindParam(':server_id', $poller_id, PDO::PARAM_INT);
-        $stmt->execute();
-        $this->hosts = $stmt->fetchAll(PDO::FETCH_GROUP | PDO::FETCH_UNIQUE | PDO::FETCH_ASSOC);
     }
 }

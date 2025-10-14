@@ -48,7 +48,7 @@ class AuthenticateApi
      */
     public function __construct(
         private readonly WriteTokenRepositoryInterface $writeTokenRepository,
-        private readonly ProviderAuthenticationFactoryInterface $providerFactory
+        private readonly ProviderAuthenticationFactoryInterface $providerFactory,
     ) {
     }
 
@@ -106,7 +106,7 @@ class AuthenticateApi
      */
     private function authenticateOrFail(
         ProviderAuthenticationInterface $localProvider,
-        AuthenticateApiRequest $request
+        AuthenticateApiRequest $request,
     ): void {
         /**
          * Authenticate with the legacy mechanism encapsulated into the Local Provider.
@@ -160,7 +160,7 @@ class AuthenticateApi
         Configuration $providerConfiguration,
         ContactInterface $contact,
         NewProviderToken $providerToken,
-        ?NewProviderToken $providerRefreshToken
+        ?NewProviderToken $providerRefreshToken,
     ): void {
         $this->debug(
             '[AUTHENTICATE API] Creating authentication tokens for user',

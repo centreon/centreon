@@ -1,0 +1,8 @@
+in: path
+name: metaServiceId
+required: true
+description: "ID of the meta service"
+schema:
+  type: integer
+  minimum: 1
+  example: 1

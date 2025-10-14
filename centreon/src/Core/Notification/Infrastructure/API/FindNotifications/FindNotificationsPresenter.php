@@ -35,7 +35,7 @@ class FindNotificationsPresenter extends AbstractPresenter implements FindNotifi
 {
     public function __construct(
         private readonly RequestParametersInterface $requestParameters,
-        protected PresenterFormatterInterface $presenterFormatter
+        protected PresenterFormatterInterface $presenterFormatter,
     ) {
         parent::__construct($presenterFormatter);
     }

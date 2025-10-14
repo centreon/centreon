@@ -55,7 +55,7 @@ class MonitoringResourceController extends AbstractController
      * @param \Traversable<HypermediaProviderInterface> $hyperMediaProviders
      */
     public function __construct(
-        \Traversable $hyperMediaProviders
+        \Traversable $hyperMediaProviders,
     ) {
         $this->hasProviders($hyperMediaProviders);
         $this->hyperMediaProviders = iterator_to_array($hyperMediaProviders);

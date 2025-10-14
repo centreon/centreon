@@ -33,7 +33,7 @@ use Core\Security\ProviderConfiguration\Domain\SAML\Model\CustomConfiguration;
 readonly class LogoutFromIdp
 {
     public function __construct(
-        private ProviderAuthenticationFactoryInterface $providerFactory
+        private ProviderAuthenticationFactoryInterface $providerFactory,
     ) {
     }
 

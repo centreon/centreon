@@ -62,7 +62,7 @@ final class PartialRuleUpdate
         private readonly ReadResourceAccessRepositoryInterface $readRepository,
         private readonly WriteResourceAccessRepositoryInterface $writeRepository,
         private readonly UpdateRuleValidation $validator,
-        private readonly bool $isCloudPlatform
+        private readonly bool $isCloudPlatform,
     ) {
     }
 
@@ -72,7 +72,7 @@ final class PartialRuleUpdate
      */
     public function __invoke(
         PartialRuleUpdateRequest $request,
-        PresenterInterface $presenter
+        PresenterInterface $presenter,
     ): void {
         try {
             $this->info('Start resource access rule update process');

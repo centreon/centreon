@@ -72,7 +72,7 @@ final class AddNotification
      */
     public function __invoke(
         AddNotificationRequest $request,
-        PresenterInterface $presenter
+        PresenterInterface $presenter,
     ): void {
         try {
             $this->info('Add notification', ['request' => $request]);

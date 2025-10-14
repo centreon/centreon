@@ -87,6 +87,7 @@ if (isset($_SERVER['HTTP_X_AUTH_TOKEN'])) {
         'reach_api' => $contact->hasAccessToApiConfiguration(),
         'reach_api_rt' => $contact->hasAccessToApiRealTime(),
         'show_deprecated_pages' => false,
+        'show_deprecated_custom_views' => false,
     ]);
 } else {
     // Check Session

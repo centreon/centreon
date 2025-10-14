@@ -169,7 +169,7 @@ if (strcmp($serverType, 'remote') == 0) {
 // Poller Configuration basic information
 $form->addElement('header', 'information', _('Satellite configuration'));
 $form->addElement('text', 'name', _('Poller Name'), $attrsText);
-$form->addElement('text', 'ns_ip_address', _('IP Address'), $attrsText);
+$form->addElement('text', 'ns_ip_address', _('Address'), $attrsText);
 $form->addElement('text', 'engine_start_command', _('Monitoring Engine start command'), $attrsText2);
 $form->addElement('text', 'engine_stop_command', _('Monitoring Engine stop command'), $attrsText2);
 $form->addElement('text', 'engine_restart_command', _('Monitoring Engine restart command'), $attrsText2);
@@ -316,7 +316,7 @@ if ($serverType === 'poller') {
         'testAdditionalRemoteServer'
     );
 }
-$form->addRule('ns_ip_address', _('The IP address is incorrect'), 'isValidIpAddress');
+$form->addRule('ns_ip_address', _('The address is incorrect'), 'isValidIpAddress');
 
 $form->registerRule('isValidStartCommandSyntax', 'callback', 'isValidStartCommandSyntax');
 $form->registerRule('isValidStopCommandSyntax', 'callback', 'isValidStopCommandSyntax');
@@ -364,7 +364,7 @@ if ($o == SERVER_WATCH) {
     $form->registerRule('ipCanBeUpdated', 'callback', 'ipCanBeUpdated');
     $form->addRule(
         ['ns_ip_address', 'id'],
-        _('The IP address is already registered on another poller'),
+        _('The address is already registered on another poller'),
         'ipCanBeUpdated'
     );
     $form->setDefaults($nagios);
@@ -373,7 +373,7 @@ if ($o == SERVER_WATCH) {
     $subA = $form->addElement('submit', 'submitA', _('Save'), ['class' => 'btc bt_success']);
     $res = $form->addElement('reset', 'reset', _('Reset'), ['class' => 'btc bt_default']);
     $form->registerRule('ipCanBeRegistered', 'callback', 'ipCanBeRegistered');
-    $form->addRule('ns_ip_address', _('The IP address is already registered'), 'ipCanBeRegistered');
+    $form->addRule('ns_ip_address', _('The address is already registered'), 'ipCanBeRegistered');
 }
 
 $valid = false;

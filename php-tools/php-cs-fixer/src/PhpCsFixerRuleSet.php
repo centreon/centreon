@@ -82,6 +82,7 @@ class PhpCsFixerRuleSet
             'lambda_not_used_import' => true,
             'list_syntax' => true,
             'native_function_invocation' => false,
+            'method_argument_space' => ['on_multiline' => 'ignore'],
             'method_chaining_indentation' => true,
             'multiline_whitespace_before_semicolons' => true,
             'no_alias_language_construct_call' => true,
@@ -164,12 +165,15 @@ class PhpCsFixerRuleSet
             'standardize_not_equals' => true,
             'switch_continue_to_break' => true,
             'ternary_to_null_coalescing' => true,
-            'trailing_comma_in_multiline' => true,
+            'trailing_comma_in_multiline' => [
+                'after_heredoc' => true,
+                'elements' => ['array_destructuring', 'arrays', 'match', 'parameters'],
+            ],
             'trim_array_spaces' => true,
             'type_declaration_spaces' => true,
             'types_spaces' => true,
             'whitespace_after_comma_in_array' => true,
-            'yoda_style' => false,
+            'yoda_style' => ['equal' => false, 'identical' => false, 'less_and_greater' => false],
             'ordered_class_elements' => true,
         ];
     }

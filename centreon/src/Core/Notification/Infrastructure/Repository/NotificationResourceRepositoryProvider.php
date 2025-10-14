@@ -38,7 +38,7 @@ class NotificationResourceRepositoryProvider implements NotificationResourceRepo
      * @throws \InvalidArgumentException
      */
     public function __construct(
-        iterable $repositories
+        iterable $repositories,
     ) {
         $reposAsArray = is_array($repositories) ? $repositories : iterator_to_array($repositories);
         if ($reposAsArray === []) {

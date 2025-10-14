@@ -312,7 +312,7 @@ class DbWriteTokenRepository extends DatabaseRepository implements WriteTokenRep
      */
     private function insertSecurityAuthenticationToken(
         NewApiToken $token,
-        int $securityTokenId
+        int $securityTokenId,
     ): void {
         $this->connection->insert(
             $this->queryBuilder->insert('security_authentication_tokens')

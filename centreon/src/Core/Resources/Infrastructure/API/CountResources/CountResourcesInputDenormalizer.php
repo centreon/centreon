@@ -52,7 +52,7 @@ class CountResourcesInputDenormalizer implements DenormalizerInterface, Denormal
         mixed $data,
         string $type,
         ?string $format = null,
-        array $context = []
+        array $context = [],
     ): CountResourcesInput {
         $context[self::ALREADY_CALL] = true;
 

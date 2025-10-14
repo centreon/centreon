@@ -21,8 +21,8 @@
 
 declare(strict_types=1);
 
-use Tools\PhpCsFixer\PhpCsFixerRuleSet;
 use PhpCsFixer\Config;
+use Tools\PhpCsFixer\PhpCsFixerRuleSet;
 
 return (new Config())
     // @see https://github.com/PHP-CS-Fixer/PHP-CS-Fixer/pull/7777

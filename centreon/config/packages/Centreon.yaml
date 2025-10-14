@@ -122,7 +122,18 @@ services:
             -   method: setFirstKey
                 arguments: ['%env(APP_SECRET)%']
         public: true
+        shared: false
 
+    Core\Installation\Infrastructure\InstallationHelper:
+        public: true
+        arguments:
+          $appSecret: '%env(APP_SECRET)%'
+
+    Core\Engine\Application\Repository\EngineRepositoryInterface:
+        class: Core\Engine\Infrastructure\Repository\FsEngineRepository
+        arguments:
+            $engineContextPath: '%engine_context_path%'
+        public: true
 
     Core\Common\Application\Repository\WriteVaultRepositoryInterface:
         class: Core\Common\Infrastructure\Repository\WriteVaultRepository
@@ -553,6 +564,30 @@ services:
 
     CentreonNotification\Domain\Repository\DependencyRepository:
         class: CentreonNotification\Domain\Repository\DependencyRepository
+        public: true
+
+    Core\MonitoringServer\Application\Repository\ReadMonitoringServerRepositoryInterface:
+        class: Core\MonitoringServer\Infrastructure\Repository\DbReadMonitoringServerRepository
+        public: true
+
+    Core\MonitoringServer\Application\Repository\WriteMonitoringServerRepositoryInterface:
+        class: Core\MonitoringServer\Infrastructure\Repository\DbWriteMonitoringServerRepository
+        public: true
+
+    Core\Macro\Application\Repository\ReadHostMacroRepositoryInterface:
+        class: Core\Macro\Infrastructure\Repository\DbReadHostMacroRepository
+        public: true
+
+    Core\Macro\Application\Repository\ReadServiceMacroRepositoryInterface:
+        class: Core\Macro\Infrastructure\Repository\DbReadServiceMacroRepository
+        public: true
+
+    Core\Service\Application\Repository\ReadServiceRepositoryInterface:
+        class: Core\Service\Infrastructure\Repository\DbReadServiceRepository
+        public: true
+
+    Core\Host\Application\Repository\ReadHostRepositoryInterface:
+        class: Core\Host\Infrastructure\Repository\DbReadHostRepository
         public: true
 
     # Configuration Notifications

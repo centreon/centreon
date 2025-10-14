@@ -40,6 +40,8 @@ class Macro
 
     private int $order = 0;
 
+    private bool $shouldBeEncrypted = false;
+
     /**
      * @param int $ownerId
      * @param string $name
@@ -78,6 +80,8 @@ class Macro
 
     public function setValue(string $value): self
     {
+        Assertion::maxLength($this->name, self::MAX_NAME_LENGTH, "{$this->shortName}::name");
+        Assertion::maxLength($this->value, self::MAX_VALUE_LENGTH, "{$this->shortName}::value");
         $this->value = $value;
 
         return $this;
@@ -165,5 +169,17 @@ class Macro
         }
 
         return [$directMacros, $inheritedMacros];
+    }
+
+    public function setShouldBeEncrypted(bool $shouldBeEncrypted): self
+    {
+        $this->shouldBeEncrypted = $shouldBeEncrypted;
+
+        return $this;
+    }
+
+    public function shouldBeEncrypted(): bool
+    {
+        return $this->shouldBeEncrypted;
     }
 }

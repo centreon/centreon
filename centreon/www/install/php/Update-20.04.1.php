@@ -105,7 +105,7 @@ try {
 
     // database configuration file
     $fileTpl = __DIR__ . '/../var/databaseTemplate.yaml';
-    if (! file_exists($fileTpl) || 0 === filesize($fileTpl)) {
+    if (! file_exists($fileTpl) || filesize($fileTpl) === 0) {
         $errorMessage = 'Database configuration template is empty or missing';
 
         throw new InvalidArgumentException($errorMessage);
@@ -115,7 +115,7 @@ try {
     $destinationFile = returnFinalFileName(_CENTREON_ETC_ . '/config.d/10-database.yaml');
     file_put_contents($destinationFile, $content);
 
-    if (! file_exists($destinationFile) || 0 === filesize($destinationFile)) {
+    if (! file_exists($destinationFile) || filesize($destinationFile) === 0) {
         $errorMessage = 'Database configuration file is not created properly';
 
         throw new InvalidArgumentException($errorMessage);
@@ -123,7 +123,7 @@ try {
 
     // gorgone configuration file for centreon. Created in the centreon-gorgone folder
     $fileTpl = __DIR__ . '/../var/gorgone/gorgoneCentralTemplate.yaml';
-    if (! file_exists($fileTpl) || 0 === filesize($fileTpl)) {
+    if (! file_exists($fileTpl) || filesize($fileTpl) === 0) {
         $errorMessage = 'Gorgone configuration template is empty or missing';
 
         throw new InvalidArgumentException($errorMessage);
@@ -142,7 +142,7 @@ try {
     }
     file_put_contents($destinationFile, $content);
 
-    if (! file_exists($destinationFile) || 0 === filesize($destinationFile)) {
+    if (! file_exists($destinationFile) || filesize($destinationFile) === 0) {
         $errorMessage = 'Gorgone configuration file is not created properly';
 
         throw new InvalidArgumentException($errorMessage);

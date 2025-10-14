@@ -45,7 +45,7 @@ const SSH = 2;
 function getAvailableSuffixIds(
     string $serverName,
     int $numberOf,
-    string $separator = '_'
+    string $separator = '_',
 ): array {
     if ($numberOf < 0) {
         return [];
@@ -1000,7 +1000,7 @@ function updateServer(int $id, array $data): void
     $stmt->execute();
 
     // if the poller is activated, always keep cfg file activated
-    if (isset($data['ns_activate']['ns_activate']) && $data['ns_activate']['ns_activate'] === 1) {
+    if (isset($data['ns_activate']['ns_activate']) && $data['ns_activate']['ns_activate'] === '1') {
         enableServerInDB($id);
     }
 

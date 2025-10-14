@@ -38,7 +38,7 @@ final class FindRealTimeUniqueServiceNamesPresenter extends AbstractPresenter im
      */
     public function __construct(
         private readonly RequestParametersInterface $requestParameters,
-        protected PresenterFormatterInterface $presenterFormatter
+        protected PresenterFormatterInterface $presenterFormatter,
     ) {
         parent::__construct($presenterFormatter);
     }

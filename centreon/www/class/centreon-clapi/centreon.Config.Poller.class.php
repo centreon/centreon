@@ -495,6 +495,9 @@ class CentreonConfigPoller
             // Change files owner
             if ($apacheUser != '') {
                 foreach (glob($Nagioscfg['cfg_dir'] . '/*.{json,cfg}', GLOB_BRACE) as $file) {
+                    if ($file === $Nagioscfg['cfg_dir'] . '/engine-context.json') {
+                        continue;
+                    }
                     // handle path traversal vulnerability
                     if (str_contains($file, '..')) {
                         throw new Exception('Path traversal found');

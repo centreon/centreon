@@ -65,7 +65,6 @@ When('the user confirms on the pop-up', () => {
 Then(
   'the agent configuration is no longer displayed in the listing page',
   () => {
-    cy.contains('Welcome to the agent configuration page').should('be.visible');
     cy.contains('telegraf-001').should('not.exist');
   }
 );

@@ -55,7 +55,7 @@ final class FindDashboardsFactory
         array $contactGroupShares,
         DashboardSharingRole $defaultRole,
         array $thumbnails,
-        array $favoriteDashboards
+        array $favoriteDashboards,
     ): FindDashboardsResponse {
         $response = new FindDashboardsResponse();
 

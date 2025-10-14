@@ -58,7 +58,7 @@ class DbWriteHostSeverityActionLogRepository extends AbstractRepositoryRDB imple
         private readonly ReadHostSeverityRepositoryInterface $readHostSeverityRepository,
         private readonly WriteActionLogRepositoryInterface $writeActionLogRepository,
         private readonly ContactInterface $contact,
-        DatabaseConnection $db
+        DatabaseConnection $db,
     ) {
         $this->db = $db;
     }
@@ -225,7 +225,7 @@ class DbWriteHostSeverityActionLogRepository extends AbstractRepositoryRDB imple
      */
     private function getHostSeverityDiff(
         NewHostSeverity $initialSeverity,
-        NewHostSeverity $updatedHostSeverity
+        NewHostSeverity $updatedHostSeverity,
     ): array {
         $diff = [];
         $reflection = new \ReflectionClass($initialSeverity);

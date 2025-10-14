@@ -57,7 +57,7 @@ final class MediaVoters extends Voter
 
         return match ($attribute) {
             self::CREATE_MEDIA, self::UPDATE_MEDIA => $user->hasTopologyRole(Contact::ROLE_ADMINISTRATION_PARAMETERS_IMAGES_RW),
-            default => throw new \LogicException('Action on media not handled')
+            default => throw new \LogicException('Action on media not handled'),
         };
     }
 }

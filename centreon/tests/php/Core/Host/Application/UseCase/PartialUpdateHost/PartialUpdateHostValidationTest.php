@@ -96,6 +96,20 @@ it('throws an exception when name is invalid', function (): void {
     HostException::nameIsInvalid()->getMessage()
 );
 
+it('throws an exception when name contains invalid characters', function (): void {
+    $host = new Host(
+        id: 1,
+        monitoringServerId: 2,
+        name: 'host name',
+        address: '127.0.0.1'
+    );
+
+    $this->validation->assertIsValidName('hôst~3!', $host);
+})->throws(
+    \InvalidArgumentException::class,
+    '[Host::name] The value contains unauthorized characters: ~!'
+);
+
 it('does not throw an exception when name is identical to given host', function (): void {
     $host = new Host(
         id: 1,

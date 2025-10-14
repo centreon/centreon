@@ -165,7 +165,7 @@ class CentreonXMLBGRequest
         $headerType,
         $debug,
         $compress = null,
-        $fullVersion = 1
+        $fullVersion = 1,
     ) {
         if (! isset($debug)) {
             $this->debug = 0;

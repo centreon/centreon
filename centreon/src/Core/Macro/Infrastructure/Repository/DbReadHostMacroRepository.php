@@ -23,24 +23,19 @@ declare(strict_types=1);
 
 namespace Core\Macro\Infrastructure\Repository;
 
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
 use Assert\AssertionFailedException;
 use Centreon\Domain\Log\LoggerTrait;
-use Centreon\Infrastructure\DatabaseConnection;
-use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
+use Core\Common\Infrastructure\Repository\DatabaseRepository;
+use Core\Common\Infrastructure\Repository\SqlMultipleBindTrait;
 use Core\Macro\Application\Repository\ReadHostMacroRepositoryInterface;
 use Core\Macro\Domain\Model\Macro;
 
-class DbReadHostMacroRepository extends AbstractRepositoryRDB implements ReadHostMacroRepositoryInterface
+class DbReadHostMacroRepository extends DatabaseRepository implements ReadHostMacroRepositoryInterface
 {
     use LoggerTrait;
-
-    /**
-     * @param DatabaseConnection $db
-     */
-    public function __construct(DatabaseConnection $db)
-    {
-        $this->db = $db;
-    }
+    use SqlMultipleBindTrait;
 
     /**
      * @inheritDoc
@@ -50,37 +45,34 @@ class DbReadHostMacroRepository extends AbstractRepositoryRDB implements ReadHos
         $this->info('Get host macros', ['host_ids' => $hostIds]);
 
         if ($hostIds === []) {
-
             return [];
         }
 
-        $bindValues = [];
-        foreach ($hostIds as $index => $hostId) {
-            $bindValues[':host_id' . $index] = $hostId;
+        [$bindValues, $hostIdsAsString] = $this->createMultipleBindQuery($hostIds, ':hostId_');
+        $queryParams = QueryParameters::create([]);
+        foreach ($bindValues as $key => $value) {
+            /** @var int $value */
+            $queryParams->add($key, QueryParameter::int($key, $value));
         }
-        $hostIdsAsString = implode(',', array_keys($bindValues));
-
-        $statement = $this->db->prepare($this->translateDbName(
-            <<<SQL
-                SELECT
-                    m.host_macro_name,
-                    m.host_macro_value,
-                    m.is_password,
-                    m.host_host_id,
-                    m.description,
-                    m.macro_order
-                FROM `:db`.on_demand_macro_host m
-                WHERE m.host_host_id IN ({$hostIdsAsString})
-                SQL
-        ));
-        foreach ($bindValues as $token => $hostId) {
-            $statement->bindValue($token, $hostId, \PDO::PARAM_INT);
-        }
-        $statement->execute();
+        $results = $this->connection->fetchAllAssociative(
+            $this->translateDbName(
+                <<<SQL
+                    SELECT
+                        m.host_macro_name,
+                        m.host_macro_value,
+                        m.is_password,
+                        m.host_host_id,
+                        m.description,
+                        m.macro_order
+                    FROM `:db`.on_demand_macro_host m
+                    WHERE m.host_host_id IN ({$hostIdsAsString})
+                    SQL
+            ),
+            $queryParams
+        );
 
         $macros = [];
-        foreach ($statement->fetchAll(\PDO::FETCH_ASSOC) as $result) {
-
+        foreach ($results as $result) {
             /** @var array{
              *    host_host_id:int,
              *    host_macro_name:string,
@@ -102,25 +94,25 @@ class DbReadHostMacroRepository extends AbstractRepositoryRDB implements ReadHos
     {
         $this->info('Get host macros for a host/host template', ['host_id' => $hostId]);
 
-        $statement = $this->db->prepare($this->translateDbName(
-            <<<'SQL'
-                SELECT
-                    m.host_macro_name,
-                    m.host_macro_value,
-                    m.is_password,
-                    m.host_host_id,
-                    m.description,
-                    m.macro_order
-                FROM `:db`.on_demand_macro_host m
-                WHERE m.host_host_id = :host_id
-                SQL
-        ));
-        $statement->bindValue(':host_id', $hostId, \PDO::PARAM_INT);
-        $statement->execute();
+        $results = $this->connection->fetchAllAssociative(
+            $this->translateDbName(
+                <<<'SQL'
+                    SELECT
+                        m.host_macro_name,
+                        m.host_macro_value,
+                        m.is_password,
+                        m.host_host_id,
+                        m.description,
+                        m.macro_order
+                    FROM `:db`.on_demand_macro_host m
+                    WHERE m.host_host_id = :host_id
+                    SQL
+            ),
+            QueryParameters::create([QueryParameter::int('host_id', $hostId)])
+        );
 
         $macros = [];
-        foreach ($statement->fetchAll(\PDO::FETCH_ASSOC) as $result) {
-
+        foreach ($results as $result) {
             /** @var array{
              *    host_host_id:int,
              *    host_macro_name:string,
@@ -140,7 +132,7 @@ class DbReadHostMacroRepository extends AbstractRepositoryRDB implements ReadHos
      */
     public function findPasswords(): array
     {
-        $statement = $this->db->prepare($this->translateDbName(
+        $results = $this->connection->fetchAllAssociative($this->translateDbName(
             <<<'SQL'
                 SELECT
                     m.host_macro_name,
@@ -153,11 +145,9 @@ class DbReadHostMacroRepository extends AbstractRepositoryRDB implements ReadHos
                 WHERE m.is_password = 1
                 SQL
         ));
-        $statement->execute();
 
         $macros = [];
-        foreach ($statement->fetchAll(\PDO::FETCH_ASSOC) as $result) {
-
+        foreach ($results as $result) {
             /** @var array{
              *    host_host_id:int,
              *    host_macro_name:string,
@@ -179,7 +169,8 @@ class DbReadHostMacroRepository extends AbstractRepositoryRDB implements ReadHos
      *    host_macro_value:string,
      *    is_password:int|null,
      *    description:string|null,
-     *    macro_order:int|null
+     *    macro_order:int,
+     *    is_encryption_ready?:string
      * } $data
      *
      * @throws AssertionFailedException
@@ -197,9 +188,12 @@ class DbReadHostMacroRepository extends AbstractRepositoryRDB implements ReadHos
             $macroName,
             $data['host_macro_value'],
         );
+        $shouldBeEncrypted = array_key_exists('is_encryption_ready', $data)
+            && (bool) $data['is_encryption_ready'];
         $macro->setIsPassword((bool) $data['is_password']);
         $macro->setDescription($data['description'] ?? '');
-        $macro->setOrder($data['macro_order'] ?? 0);
+        $macro->setOrder($data['macro_order']);
+        $macro->setShouldBeEncrypted($shouldBeEncrypted);
 
         return $macro;
     }

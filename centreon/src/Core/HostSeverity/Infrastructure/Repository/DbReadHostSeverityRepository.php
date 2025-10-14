@@ -256,7 +256,7 @@ class DbReadHostSeverityRepository extends AbstractRepositoryRDB implements Read
      */
     private function retrieveHostSeverities(
         SqlConcatenator $concatenator,
-        ?RequestParametersInterface $requestParameters
+        ?RequestParametersInterface $requestParameters,
     ): array {
         // Exclude severities from the results
         $concatenator->appendWhere('hc.level IS NOT NULL');

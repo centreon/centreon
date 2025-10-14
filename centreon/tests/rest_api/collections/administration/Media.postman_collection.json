@@ -1,10 +1,9 @@
 {
 	"info": {
-		"_postman_id": "a5e40c01-388c-4770-814a-6fe07277e828",
+		"_postman_id": "fffb8ab1-f939-4948-ab6b-6c5e185e2577",
 		"name": "Media",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "28117716",
-		"_collection_link": "https://centreon-api-testing.postman.co/workspace/develop-OSS~7c78046c-a719-4dae-bbf9-70e6e2c5b9bd/collection/28117716-a5e40c01-388c-4770-814a-6fe07277e828?action=share&source=collection_link&creator=28117716"
+		"_exporter_id": "29556865"
 	},
 	"item": [
 		{
@@ -2832,90 +2831,6 @@
 					"response": []
 				},
 				{
-					"name": "List medias",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"/*\r",
-									"/  Check code status\r",
-									"*/\r",
-									"const responseJson = pm.response.json();\r",
-									"pm.test(\"The media has not been listed, because the user does not have the correct rights.\", function () {\r",
-									"    pm.response.to.have.status(403);\r",
-									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to list media\");\r",
-									"});\r",
-									"\r",
-									"pm.test(\"Schema validation test for the media listing response\", function () {\r",
-									"    const schema = {\r",
-									"        \"type\": 'object',\r",
-									"        \"properties\": {\r",
-									"            \"code\": { \"type\": 'integer' },\r",
-									"            \"message\": { \"type\": 'string' }\r",
-									"        },\r",
-									"        \"required\": ['code', 'message']\r",
-									"    };\r",
-									"\r",
-									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
-									"});\r",
-									""
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						}
-					],
-					"protocolProfileBehavior": {
-						"disableBodyPruning": true
-					},
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "centreon-auth-token",
-								"value": "{{token}}",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "formdata",
-							"formdata": []
-						},
-						"url": {
-							"raw": "{{baseUrl}}/configuration/medias?sort_by={\"id\":\"DESC\"}&limit=3",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"configuration",
-								"medias"
-							],
-							"query": [
-								{
-									"key": "sort_by",
-									"value": "{\"id\":\"DESC\"}"
-								},
-								{
-									"key": "limit",
-									"value": "3"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
 					"name": "Logout from Read Only user",
 					"event": [
 						{
@@ -3124,90 +3039,6 @@
 							"path": [
 								"configuration",
 								"medias"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "List medias",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"/*\r",
-									"/  Check code status\r",
-									"*/\r",
-									"const responseJson = pm.response.json();\r",
-									"pm.test(\"The media has not been listed, because the user does not have the correct rights.\", function () {\r",
-									"    pm.response.to.have.status(403);\r",
-									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to list media\");\r",
-									"});\r",
-									"\r",
-									"pm.test(\"Schema validation test for the media listing response\", function () {\r",
-									"    const schema = {\r",
-									"        \"type\": 'object',\r",
-									"        \"properties\": {\r",
-									"            \"code\": { \"type\": 'integer' },\r",
-									"            \"message\": { \"type\": 'string' }\r",
-									"        },\r",
-									"        \"required\": ['code', 'message']\r",
-									"    };\r",
-									"\r",
-									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
-									"});\r",
-									""
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						}
-					],
-					"protocolProfileBehavior": {
-						"disableBodyPruning": true
-					},
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "centreon-auth-token",
-								"value": "{{token}}",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "formdata",
-							"formdata": []
-						},
-						"url": {
-							"raw": "{{baseUrl}}/configuration/medias?sort_by={\"id\":\"DESC\"}&limit=3",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"configuration",
-								"medias"
-							],
-							"query": [
-								{
-									"key": "sort_by",
-									"value": "{\"id\":\"DESC\"}"
-								},
-								{
-									"key": "limit",
-									"value": "3"
-								}
 							]
 						}
 					},

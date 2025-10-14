@@ -49,7 +49,6 @@ class TinyHost implements Comparable, Identifiable
         Assertion::notEmptyString($this->name, 'Host::name');
         if ($this->alias !== null) {
             $this->alias = trim($this->alias);
-            Assertion::notEmptyString($this->alias, 'Host::alias');
         }
         Assertion::positiveInt($this->id, 'Host::monitoringServerId');
     }

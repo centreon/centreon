@@ -115,7 +115,7 @@ class HostTemplate extends NewHostTemplate
         ?int $iconId = null,
         string $iconAlternative = '',
         string $comment = '',
-        bool $isLocked = false
+        bool $isLocked = false,
     ) {
         $this->shortName = (new \ReflectionClass($this))->getShortName();
 

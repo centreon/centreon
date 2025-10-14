@@ -20,6 +20,7 @@
  */
 
 use Core\Common\Application\UseCase\VaultTrait;
+use Core\MonitoringServer\Application\Repository\ReadMonitoringServerRepositoryInterface;
 use Pimple\Container;
 
 /**
@@ -59,10 +60,6 @@ class Resource extends AbstractObject
     public function __construct(Container $dependencyInjector)
     {
         parent::__construct($dependencyInjector);
-
-        if (! $this->isVaultEnabled) {
-            $this->getVaultConfigurationStatus();
-        }
     }
 
     /**
@@ -78,17 +75,32 @@ class Resource extends AbstractObject
         }
 
         if (is_null($this->stmt)) {
-            $query = 'SELECT resource_name, resource_line FROM cfg_resource_instance_relations, cfg_resource '
-                . 'WHERE instance_id = :poller_id AND cfg_resource_instance_relations.resource_id = '
-                . "cfg_resource.resource_id AND cfg_resource.resource_activate = '1'";
-            $this->stmt = $this->backend_instance->db->prepare($query);
+            $this->stmt = $this->backend_instance->db->prepare(
+                <<<'SQL'
+                    SELECT cr.resource_name, cr.resource_line, cr.is_password, ns.is_encryption_ready
+                    FROM cfg_resource_instance_relations cfgri
+                    INNER JOIN cfg_resource cr
+                        ON cr.resource_id = cfgri.resource_id
+                    INNER JOIN nagios_server ns
+                        ON ns.id = cfgri.instance_id
+                    WHERE cfgri.instance_id = :poller_id
+                        AND cfgri.resource_id = cr.resource_id
+                        AND cr.resource_activate = '1';
+                    SQL
+            );
         }
         $this->stmt->bindParam(':poller_id', $poller_id, PDO::PARAM_INT);
         $this->stmt->execute();
 
         $object = ['resources' => []];
         $vaultPaths = [];
-        foreach ($this->stmt->fetchAll(PDO::FETCH_ASSOC) as $value) {
+        $isPassword = [];
+
+        $results = $this->stmt->fetchAll(PDO::FETCH_ASSOC);
+        foreach ($results as $value) {
+            if ((bool) $value['is_password'] === true) {
+                $isPassword[$value['resource_name']] = true;
+            }
             $object['resources'][$value['resource_name']] = $value['resource_line'];
             if ($this->isAVaultPath($value['resource_line'])) {
                 $vaultPaths[] = $value['resource_line'];
@@ -105,6 +117,15 @@ class Resource extends AbstractObject
             }
         }
 
+        $readMonitoringServerRepository = $this->kernel->getContainer()->get(ReadMonitoringServerRepositoryInterface::class);
+        $shouldBeEncrypted = $readMonitoringServerRepository->isEncryptionReady($poller_id);
+        foreach ($object['resources'] as $macroKey => &$macroValue) {
+            if (isset($isPassword[$macroKey])) {
+                $macroValue =  $shouldBeEncrypted
+                ? 'encrypt::' . $this->engineContextEncryption->crypt($macroValue)
+                : $macroValue;
+            }
+        }
         $this->generateFile($object);
     }
 }

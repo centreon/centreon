@@ -45,7 +45,7 @@ final class PartialUpdateOpenIdConfigurationController extends AbstractControlle
     public function __invoke(
         PartialUpdateOpenIdConfiguration $useCase,
         Request $request,
-        PartialUpdateOpenIdConfigurationPresenterInterface $presenter
+        PartialUpdateOpenIdConfigurationPresenterInterface $presenter,
     ): object {
         $this->denyAccessUnlessGrantedForApiConfiguration();
         /**

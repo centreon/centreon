@@ -49,7 +49,7 @@ interface ReadDashboardShareRepositoryInterface
      */
     public function findDashboardContactSharesByRequestParameter(
         Dashboard $dashboard,
-        RequestParametersInterface $requestParameters
+        RequestParametersInterface $requestParameters,
     ): array;
 
     /**
@@ -64,7 +64,7 @@ interface ReadDashboardShareRepositoryInterface
      */
     public function findDashboardContactGroupSharesByRequestParameter(
         Dashboard $dashboard,
-        RequestParametersInterface $requestParameters
+        RequestParametersInterface $requestParameters,
     ): array;
 
     /**
@@ -173,7 +173,7 @@ interface ReadDashboardShareRepositoryInterface
      */
     public function findContactsWithAccessRightByACLGroupsAndRequestParameters(
         RequestParametersInterface $requestParameters,
-        array $aclGroupIds
+        array $aclGroupIds,
     ): array;
 
     /**
@@ -185,7 +185,7 @@ interface ReadDashboardShareRepositoryInterface
      */
     public function findContactsWithAccessRightsByContactGroupsAndRequestParameters(
         array $contactGroups,
-        RequestParametersInterface $requestParameters
+        RequestParametersInterface $requestParameters,
     ): array;
 
     /**
@@ -198,7 +198,7 @@ interface ReadDashboardShareRepositoryInterface
      * @return DashboardContactGroupRole[]
      */
     public function findContactGroupsWithAccessRightByRequestParameters(
-        RequestParametersInterface $requestParameters
+        RequestParametersInterface $requestParameters,
     ): array;
 
     /**
@@ -211,7 +211,7 @@ interface ReadDashboardShareRepositoryInterface
      * @return DashboardContactGroupRole[]
      */
     public function findContactGroupsByRequestParameters(
-        RequestParametersInterface $requestParameters
+        RequestParametersInterface $requestParameters,
     ): array;
 
     /**
@@ -237,7 +237,7 @@ interface ReadDashboardShareRepositoryInterface
      */
     public function findContactGroupsWithAccessRightByUserAndRequestParameters(
         RequestParametersInterface $requestParameters,
-        int $contactId
+        int $contactId,
     ): array;
 
     /**
@@ -252,7 +252,7 @@ interface ReadDashboardShareRepositoryInterface
      */
     public function findContactGroupsByUserAndRequestParameters(
         RequestParametersInterface $requestParameters,
-        int $contactId
+        int $contactId,
     ): array;
 
     /**

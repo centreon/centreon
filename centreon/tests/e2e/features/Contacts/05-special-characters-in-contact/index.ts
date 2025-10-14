@@ -41,6 +41,12 @@ When(
     });
     cy.getIframeBody().contains('user-with-access-to-allmodules').click();
     cy.addOrUpdateContact(contacts.contactWithSpecialAlias);
+    cy.getIframeBody()
+      .find('input.btc.bt_success[name^="submit"]')
+      .eq(0)
+      .click();
+    cy.wait('@getTimeZone');
+    cy.exportConfig();
   }
 );
 
@@ -66,6 +72,9 @@ Given('the contact alias contains an accent', () => {
   });
   cy.getIframeBody().contains('user-with-access-to-allmodules').click();
   cy.addOrUpdateContact(contacts.contactWithSpecialAlias);
+  cy.getIframeBody().find('input.btc.bt_success[name^="submit"]').eq(0).click();
+  cy.wait('@getTimeZone');
+  cy.exportConfig();
   cy.logout();
 });
 

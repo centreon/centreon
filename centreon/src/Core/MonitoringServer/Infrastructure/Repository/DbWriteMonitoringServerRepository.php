@@ -116,4 +116,17 @@ class DbWriteMonitoringServerRepository extends AbstractRepositoryRDB implements
         $statement->bindValue(':monitoringServerId', $monitoringServer->getId(), \PDO::PARAM_INT);
         $statement->execute();
     }
+
+    public function updateAllEncryptionReadyFromRealtime(): void
+    {
+        $statement = $this->db->prepare($this->translateDbName(
+            <<<'SQL'
+                UPDATE `:db`.nagios_server ns
+                    INNER JOIN `:dbstg`.instances i
+                    ON ns.id = i.instance_id
+                SET ns.is_encryption_ready = i.is_encryption_ready
+                SQL
+        ));
+        $statement->execute();
+    }
 }

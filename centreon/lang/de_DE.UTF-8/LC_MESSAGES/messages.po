@@ -824,6 +824,10 @@ msgid "Add a template"
 msgstr "Template hinzufügen"
 
 #: centreon/www/install/front_translate.php
+msgid "Add a token"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
 #: centreon/www/install/smarty_translate.php
 msgid "Add a widget"
 msgstr "Widget hinzufügen"
@@ -1033,6 +1037,8 @@ msgstr ""
 
 #: centreon/www/include/configuration/configObject/contact/formContact.php
 #: centreon/www/include/configuration/configObject/host/formHost.php
+#: centreon/www/include/configuration/configServers/formServers.php
+#: centreon/www/include/configuration/configServers/listServers.php
 msgid "Address"
 msgstr "Adresse"
 
@@ -1448,6 +1454,10 @@ msgstr ""
 msgid "An error occurred when retrieving the current version"
 msgstr ""
 
+#: centreon/src/Core/Platform/Application/UseCase/UpdateVersions/UpdateVersionsException.php
+msgid "An error occurred when writing engine context configuration"
+msgstr ""
+
 #: centreon/src/Core/Broker/Application/Exception/BrokerException.php
 #, php-format
 msgid "An error occurred while creating the file '%s'"
@@ -1601,6 +1611,10 @@ msgstr ""
 
 #: centreon/www/install/front_translate.php
 msgid "At least one column must be selected"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "At least one connection mode must be enabled."
 msgstr ""
 
 #: centreon/src/Core/ResourceAccess/Application/Exception/RuleException.php
@@ -2170,6 +2184,10 @@ msgstr "Nach Servicegruppe"
 msgid "By Status"
 msgstr "Nach Status"
 
+#: centreon/www/install/front_translate.php
+msgid "By agent"
+msgstr ""
+
 #: centreon/www/install/dashboard_widgets.php
 msgid ""
 "By default, the data of Business Views is aggregated monthly over the past "
@@ -2189,11 +2207,15 @@ msgid "By name"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
-msgid "CA Common Name (CN)"
+msgid "By poller"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
-msgid "CA(.crt,.cer)"
+msgid "CA (.crt,.cer)"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "CA Common Name (CN)"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
@@ -2468,11 +2490,8 @@ msgstr "Centreon Broker neu Laden Befehl"
 msgid ""
 "Centreon Broker's configuration directory '%s' does not exist and could not\n"
 "                                             be created for monitoring "
-"engine '%s'. Please check it's path or create it"
+"engine '%s'. Please check its path or create it"
 msgstr ""
-"Das Konfigurationsverzeichnis '%s' für die Monitoring Engine '%s' existiert "
-"nicht und konnte nicht erstellt werden. Bitte überprüfen Sie den Pfad oder "
-"erstellen Sie diesen"
 
 #: centreon/www/class/centreon-clapi/centreon.Config.Poller.class.php
 #, php-format
@@ -2486,7 +2505,7 @@ msgstr ""
 
 #: centreon/www/install/front_translate.php
 #: centreon/www/install/react_translation.php
-msgid "Centreon Central IP address, as seen by this server"
+msgid "Centreon Central address, as seen by this server"
 msgstr "IP des zentralen Centreon Servers, aus der Sicht dieses Servers"
 
 #: centreon/www/include/configuration/configServers/formServers.php
@@ -3380,7 +3399,7 @@ msgid "Connection failed, please contact your administrator"
 msgstr "Verbindung fehlgeschlagen, bitte kontaktieren Sie Ihren Administrator"
 
 #: centreon/www/install/front_translate.php
-msgid "Connection initiated by poller"
+msgid "Connection initiated"
 msgstr ""
 
 #: centreon/www/install/centreon_broker_translation.php
@@ -3581,11 +3600,8 @@ msgstr ""
 #, php-format
 msgid ""
 "Could not find configuration directory '%s' for monitoring engine '%s'.\n"
-"                                 Please check it's path or create it"
+"                                 Please check its path or create it"
 msgstr ""
-"Das Konfigurationsverzeichnis '%s' für die Monitoring Engine '%s' konnte "
-"nicht gefunden werden. Bitte überprüfen Sie den Pfad oder erstellen Sie "
-"diesen"
 
 #: centreon/src/CentreonRemote/Infrastructure/Service/PollerInteractionService.php
 #: centreon/www/include/configuration/configGenerate/xml/moveFiles.php
@@ -3949,7 +3965,6 @@ msgstr ""
 msgid "Dashboard updated"
 msgstr ""
 
-#: centreon/www/include/home/customViews/index.php
 #: centreon/www/install/front_translate.php
 #: centreon/www/install/menu_translation.php
 msgid "Dashboards"
@@ -6337,6 +6352,10 @@ msgstr ""
 
 #: centreon/src/Core/HostGroup/Application/Exceptions/HostGroupException.php
 msgid "Error while enabling/disabling host groups"
+msgstr ""
+
+#: centreon/www/include/options/accessLists/menusACL/listsMenusAccess.php
+msgid "Error while fetching ACL topologies"
 msgstr ""
 
 #: centreon/src/Core/Dashboard/Application/Exception/DashboardException.php
@@ -8737,8 +8756,6 @@ msgstr ""
 msgid "IP"
 msgstr "IP"
 
-#: centreon/www/include/configuration/configServers/formServers.php
-#: centreon/www/include/configuration/configServers/listServers.php
 #: centreon/www/include/monitoring/status/Hosts/hostJS.php
 #: centreon/www/include/options/accessLists/reloadACL/reloadACL.php
 #: centreon/www/include/options/session/connected_user.php
@@ -8789,6 +8806,13 @@ msgstr "Wenn kein Treffer gefunden wird, keinen Status einreichen"
 #: centreon/www/include/configuration/configObject/traps/formTraps.php
 msgid "If no match, submit default status"
 msgstr "Wenn kein Treffer gefunden wird, Standardstatus einreichen"
+
+#: centreon/www/install/front_translate.php
+msgid ""
+"If the agent is not allowed to connect to the poller for security reasons "
+"(e.g. when the poller is in a DMZ), you can use a poller-initiated "
+"connection."
+msgstr ""
 
 #: centreon/www/include/configuration/configObject/contact/listContact.php
 msgid ""
@@ -11171,6 +11195,10 @@ msgstr "Muss eine Zahl sein"
 msgid "Must be a number between 1 and 65335 included."
 msgstr "Muss eine Zahl zwischen 1 und 65335 inklusive sein."
 
+#: centreon/www/include/configuration/configObject/escalation/formEscalation.php
+msgid "Must be a positive integer or 0"
+msgstr ""
+
 #: centreon/src/Core/Security/ProviderConfiguration/Domain/Exception/ConfigurationException.php
 #, php-format
 msgid "Must not Happen, got unexpected CustomConfiguration type %s"
@@ -11299,6 +11327,10 @@ msgstr ""
 #: centreon/www/include/views/graphTemplates/formGraphTemplate.php
 msgid "Name is already in use"
 msgstr "Name wird bereits verwendet"
+
+#: centreon/www/include/configuration/configResources/formResources.php
+msgid "Name must start and end with a '$'"
+msgstr ""
 
 #: centreon/www/install/centreon_broker_translation.php
 msgid "Name of the logger"
@@ -12131,6 +12163,10 @@ msgstr "OpenLDAP:"
 
 #: centreon/www/install/front_translate.php
 msgid "Opened on"
+msgstr ""
+
+#: centreon/www/include/configuration/configNagios/formNagios.php
+msgid "Opentelemetry"
 msgstr ""
 
 #: centreon/www/include/configuration/configNagios/formNagios.php
@@ -12982,16 +13018,16 @@ msgstr "Minimalen Wert ausgeben"
 msgid "Print Total Value"
 msgstr "Insgesamten Wert ausgeben"
 
+#: centreon/www/install/front_translate.php
+msgid "Private key (.key)"
+msgstr ""
+
 #: centreon/www/install/centreon_broker_translation.php
 msgid "Private key file."
 msgstr "Private-Key Datei."
 
 #: centreon/www/install/centreon_broker_translation.php
 msgid "Private key path"
-msgstr ""
-
-#: centreon/www/install/front_translate.php
-msgid "Private key(.key)"
 msgstr ""
 
 #: centreon/www/install/dashboard_widgets.php
@@ -13098,7 +13134,7 @@ msgid "Public certificate"
 msgstr "Öffentliches Zertifikat"
 
 #: centreon/www/install/front_translate.php
-msgid "Public certificate(.crt,.cer)"
+msgid "Public certificate (.crt,.cer)"
 msgstr ""
 
 #: centreon/www/include/home/customViews/formLoad.php
@@ -14537,11 +14573,6 @@ msgstr "Serverkonfiguration"
 msgid "Server Configuration Wizard"
 msgstr "Server Konfigurationsassistent"
 
-#: centreon/www/install/front_translate.php
-#: centreon/www/install/react_translation.php
-msgid "Server IP address"
-msgstr "Server IP-Adresse"
-
 #: centreon/www/include/configuration/configServers/formServers.php
 msgid "Server Information"
 msgstr "Serverinformationen"
@@ -14552,8 +14583,10 @@ msgid "Server Name"
 msgstr "Servername"
 
 #: centreon/www/install/centreon_broker_translation.php
+#: centreon/www/install/front_translate.php
+#: centreon/www/install/react_translation.php
 msgid "Server address"
-msgstr ""
+msgstr "Server adresse"
 
 #: centreon/www/install/centreon_broker_translation.php
 msgid "Server port"
@@ -16121,18 +16154,6 @@ msgstr ""
 msgid "The '%s' command name already exists"
 msgstr ""
 
-#: centreon/www/include/configuration/configServers/formServers.php
-msgid "The IP address is already registered"
-msgstr "Die IP-Adresse ist bereits registriert"
-
-#: centreon/www/include/configuration/configServers/formServers.php
-msgid "The IP address is already registered on another poller"
-msgstr "Die IP-Adresse ist bereits auf einem anderen Poller registriert"
-
-#: centreon/www/include/configuration/configServers/formServers.php
-msgid "The IP address is incorrect"
-msgstr "Die IP-Adresse ist falsch"
-
 #: centreon/src/Centreon/Domain/Service/JsonValidator/Validator.php
 msgid "The JSON cannot be decoded"
 msgstr "Das JSON konnte nicht decodiert werden"
@@ -16157,6 +16178,18 @@ msgstr ""
 msgid "The address '%s' of '%s' is not valid or not resolvable"
 msgstr ""
 "Die Adresse '%s' von '%s' ist ungültig bzw. kann nicht aufgelöst werden"
+
+#: centreon/www/include/configuration/configServers/formServers.php
+msgid "The address is already registered"
+msgstr "Die Adresse ist bereits registriert"
+
+#: centreon/www/include/configuration/configServers/formServers.php
+msgid "The address is already registered on another poller"
+msgstr "Die Adresse ist bereits auf einem anderen Poller registriert"
+
+#: centreon/www/include/configuration/configServers/formServers.php
+msgid "The address is incorrect"
+msgstr "Die Adresse ist falsch"
 
 #: centreon/www/install/front_translate.php
 msgid "The address is invalid"
@@ -16807,6 +16840,12 @@ msgstr ""
 
 #: centreon/www/install/dashboard_widgets.php
 msgid "This is the description of the text widget"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid ""
+"This is the most common case: the agent initiates the connection to the "
+"poller."
 msgstr ""
 
 #: centreon/www/install/dashboard_widgets.php
@@ -18342,6 +18381,10 @@ msgid "Welcome to the agent configuration page"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
+msgid "Welcome to the authentication tokens page"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
 msgid "Welcome to the host groups page"
 msgstr ""
 
@@ -18882,6 +18925,13 @@ msgid "You can choose only one resource for each resource type."
 msgstr ""
 
 #: centreon/www/install/front_translate.php
+msgid ""
+"You can create two types of tokens: API tokens to manipulate Centreon "
+"objects via the API, or CMA tokens to allow the CMA monitoring agent to "
+"authenticate to the corresponding poller."
+msgstr ""
+
+#: centreon/www/install/front_translate.php
 msgid "You can see the full list on"
 msgstr ""
 
@@ -19302,7 +19352,6 @@ msgstr ""
 msgid "[%s]: No authorization code return by external provider"
 msgstr "[%s]: Keine Autorisierungscode-Rückgabe durch externen Anbieter"
 
-#: centreon/www/include/home/customViews/index.php
 #: centreon/www/include/monitoring/objectDetails/hostDetails.php
 #: centreon/www/include/monitoring/objectDetails/serviceDetails.php
 #: centreon/www/include/monitoring/status/Hosts/host.php
@@ -20416,6 +20465,18 @@ msgstr "Centcore-Optionen"
 msgid "Centcore properties"
 msgstr "Centcore-Eigenschaften"
 
+#, php-format
+#: unknown
+msgid ""
+"Centreon Broker's configuration directory '%s' does not exist and could "
+"not\n"
+"                                             be created for monitoring "
+"engine '%s'. Please check it's path or create it"
+msgstr ""
+"Das Konfigurationsverzeichnis '%s' für die Monitoring Engine '%s' "
+"existiert nicht und konnte nicht erstellt werden. Bitte überprüfen Sie "
+"den Pfad oder erstellen Sie diesen"
+
 #: unknown
 msgid "Centreon Map"
 msgstr "Centreon Map"
@@ -20455,6 +20516,16 @@ msgstr "Konfigurationsaktionen"
 #: unknown
 msgid "Contact Templates"
 msgstr "Kontakttemplates"
+
+#, php-format
+#: unknown
+msgid ""
+"Could not find configuration directory '%s' for monitoring engine '%s'.\n"
+"                                 Please check it's path or create it"
+msgstr ""
+"Das Konfigurationsverzeichnis '%s' für die Monitoring Engine '%s' konnte "
+"nicht gefunden werden. Bitte überprüfen Sie den Pfad oder erstellen Sie "
+"diesen"
 
 #: unknown
 msgid "Daemon core dumps"

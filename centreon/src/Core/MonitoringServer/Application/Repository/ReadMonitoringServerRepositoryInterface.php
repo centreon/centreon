@@ -121,4 +121,13 @@ interface ReadMonitoringServerRepositoryInterface
      * @return MonitoringServer
      */
     public function get(int $monitoringServerId): MonitoringServer;
+
+    /**
+     * Check if the monitoring server is ready for encryption.
+     *
+     * @param int $monitoringServerId
+     *
+     * @return bool
+     */
+    public function isEncryptionReady(int $monitoringServerId): bool;
 }

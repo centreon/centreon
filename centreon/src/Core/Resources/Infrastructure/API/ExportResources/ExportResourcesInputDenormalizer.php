@@ -52,7 +52,7 @@ class ExportResourcesInputDenormalizer implements DenormalizerInterface, Denorma
         mixed $data,
         string $type,
         ?string $format = null,
-        array $context = []
+        array $context = [],
     ): ExportResourcesInput {
         $context[self::ALREADY_CALL] = true;
         if (isset($data['all_pages']) && $data['all_pages'] !== '') {

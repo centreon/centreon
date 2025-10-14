@@ -472,6 +472,7 @@ function multipleMetaServiceInDB($metas = [], $nbrDup = [])
                         }
                         $pearDB->insert($insertMetricQuery, QueryParameters::create($paramsMetric));
                     }
+                    updateAclResourcesMetaRelations($newMetaId);
                 }
             } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
                 CentreonLog::create()->error(
@@ -496,12 +497,18 @@ function multipleMetaServiceInDB($metas = [], $nbrDup = [])
  */
 function updateMetaServiceInDB($metaId = null)
 {
+    global $isCloudPlatform;
+
     if (! $metaId) {
         return;
     }
     updateMetaService($metaId);
-    updateMetaServiceContact($metaId);
-    updateMetaServiceContactGroup($metaId);
+
+    if (! $isCloudPlatform) {
+        updateMetaServiceContact($metaId);
+        updateMetaServiceContactGroup($metaId);
+    }
+    updateAclResourcesMetaRelations($metaId);
 }
 
 /**
@@ -511,9 +518,15 @@ function updateMetaServiceInDB($metaId = null)
  */
 function insertMetaServiceInDB()
 {
+    global $isCloudPlatform;
+
     $metaId = insertMetaService();
-    updateMetaServiceContact($metaId);
-    updateMetaServiceContactGroup($metaId);
+
+    if (! $isCloudPlatform) {
+        updateMetaServiceContact($metaId);
+        updateMetaServiceContactGroup($metaId);
+    }
+    updateAclResourcesMetaRelations($metaId);
 
     return $metaId;
 }
@@ -777,6 +790,7 @@ function updateMetaService($metaId = null)
         ->set('meta_activate', ':meta_activate')
         ->where('meta_id = :meta_id');
     $query = $qb->getQuery();
+    $params = [];
     try {
         $params = [
             QueryParameter::string('meta_name', getParamValue($ret, 'meta_name', sanitize: true)),
@@ -867,49 +881,8 @@ function updateMetaServiceContact($metaId)
         }
         $valuesString = implode(',', $values);
         $queryAddRelation = "INSERT INTO meta_contact (meta_id, contact_id) VALUES {$valuesString}";
-        $isTransactionActive = $pearDB->isTransactionActive();
-        if (! $isTransactionActive) {
-            $pearDB->beginTransaction();
-        }
-
         if ($values !== []) {
             $pearDB->insert($queryAddRelation, QueryParameters::create(array_values($params)));
-        }
-
-        if ($centreon->user->admin !== '1') {
-            // get ACL resources IDs for the current user
-            $acl = new CentreonACL($centreon->user->user_id, $centreon->user->admin);
-            $selectAclQuery = "SELECT DISTINCT ar.acl_res_id
-                    FROM acl_res_group_relations argr
-                    INNER JOIN acl_resources ar on ar.acl_res_id = argr.acl_res_id and ar.acl_res_activate = '1'
-                    WHERE acl_group_id IN ({$acl->getAccessGroupsString('ID')})";
-            $aclResIds = $pearDB->fetchAllAssociative($selectAclQuery);
-            if ($aclResIds !== []) {
-                $aclResIdsImploded = implode(',', array_map(fn ($row) => $row['acl_res_id'], $aclResIds));
-
-                // clean old relations
-                $queryClean = "DELETE FROM acl_resources_meta_relations WHERE meta_id = :metaId AND acl_res_id IN ({$aclResIdsImploded})";
-                $pearDB->delete($queryClean, QueryParameters::create([
-                    QueryParameter::int('metaId', (int) $metaId),
-                ]));
-
-                // insert new relations
-                $paramsAcl = [QueryParameter::int('metaId', (int) $metaId)];
-                $values = [];
-                foreach ($aclResIds as $aclResId) {
-                    $values[] = " (:acl_res_id_{$aclResId['acl_res_id']}, :metaId)";
-                    $paramsAcl[] = QueryParameter::int("acl_res_id_{$aclResId['acl_res_id']}", (int) $aclResId['acl_res_id']);
-                }
-                // update acl_resources_meta_relations
-                if ($values !== []) {
-                    $valuesString = implode(',', $values);
-                    $queryAcl = "INSERT INTO acl_resources_meta_relations (acl_res_id, meta_id) VALUES {$valuesString}";
-                    $pearDB->insert($queryAcl, QueryParameters::create($paramsAcl));
-                }
-            }
-        }
-        if (! $isTransactionActive) {
-            $pearDB->commitTransaction();
         }
     } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
         CentreonLog::create()->error(
@@ -920,20 +893,6 @@ function updateMetaServiceContact($metaId)
             ],
             $exception
         );
-        if (! $isTransactionActive) {
-            try {
-                $pearDB->rollBackTransaction();
-            } catch (ConnectionException $rollbackException) {
-                CentreonLog::create()->error(
-                    CentreonLog::TYPE_SQL,
-                    "Rollback failed for updating meta service contact: {$rollbackException->getMessage()}",
-                    [
-                        'metaId' => $metaId,
-                        'exception' => $rollbackException->getContext(),
-                    ]
-                );
-            }
-        }
     }
 }
 
@@ -1003,6 +962,56 @@ function updateMetaServiceContactGroup($metaId = null)
                 $exception
             );
         }
+    }
+}
+
+function updateAclResourcesMetaRelations(int $metaId): void
+{
+    global $pearDB, $centreon;
+    if ($metaId <= 0 || $centreon->user->admin === '1') {
+        return;
+    }
+
+    // get ACL resources IDs for the current user
+    $acl = new CentreonACL($centreon->user->user_id, $centreon->user->admin);
+    $selectAclQuery = "SELECT DISTINCT ar.acl_res_id
+            FROM acl_res_group_relations argr
+            INNER JOIN acl_resources ar on ar.acl_res_id = argr.acl_res_id and ar.acl_res_activate = '1'
+            WHERE acl_group_id IN ({$acl->getAccessGroupsString('ID')})";
+    try {
+        $aclResIds = $pearDB->fetchAllAssociative($selectAclQuery);
+        if ($aclResIds !== []) {
+            $aclResIdsImploded = implode(',', array_map(fn ($row) => $row['acl_res_id'], $aclResIds));
+
+            // clean old relations
+            $queryClean = "DELETE FROM acl_resources_meta_relations WHERE meta_id = :metaId AND acl_res_id IN ({$aclResIdsImploded})";
+            $pearDB->delete($queryClean, QueryParameters::create([
+                QueryParameter::int('metaId', (int) $metaId),
+            ]));
+
+            // insert new relations
+            $paramsAcl = [QueryParameter::int('metaId', (int) $metaId)];
+            $values = [];
+            foreach ($aclResIds as $aclResId) {
+                $values[] = " (:acl_res_id_{$aclResId['acl_res_id']}, :metaId)";
+                $paramsAcl[] = QueryParameter::int("acl_res_id_{$aclResId['acl_res_id']}", (int) $aclResId['acl_res_id']);
+            }
+            // update acl_resources_meta_relations
+            if ($values !== []) {
+                $valuesString = implode(',', $values);
+                $queryAcl = "INSERT INTO acl_resources_meta_relations (acl_res_id, meta_id) VALUES {$valuesString}";
+                $pearDB->insert($queryAcl, QueryParameters::create($paramsAcl));
+            }
+        }
+    } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
+        CentreonLog::create()->error(
+            CentreonLog::TYPE_SQL,
+            'Error updating acl_resources_meta_relations',
+            [
+                'metaId' => $metaId,
+            ],
+            $exception
+        );
     }
 }
 
@@ -1138,7 +1147,7 @@ function getParamValue(
     string|null $key = null,
     string|int|null $subKey = null,
     bool $sanitize = false,
-    mixed $default = null
+    mixed $default = null,
 ): mixed {
     // If not an array, return directly (optionally sanitize)
     if (! is_array($params) || $key === null) {
@@ -1146,12 +1155,12 @@ function getParamValue(
     }
 
     // Handle nested parameter (with subkey)
-    if ($subKey !== null && ! empty($params[$key][$subKey])) {
+    if ($subKey !== null && (! empty($params[$key][$subKey]) || $params[$key][$subKey] == 0)) {
         return $sanitize ? sanitize($params[$key][$subKey]) : $params[$key][$subKey];
     }
 
     // Handle first-level parameter
-    if (! empty($params[$key])) {
+    if (! empty($params[$key]) || $params[$key] == 0) {
         return $sanitize ? sanitize($params[$key]) : $params[$key];
     }
 

@@ -70,7 +70,7 @@ class RtValidator
     public function isServiceNameValid(string $host, string $service): bool
     {
         $hostIdAndServiceId = $this->serviceObject->getHostAndServiceId($host, $service);
-        if ([] === $hostIdAndServiceId) {
+        if ($hostIdAndServiceId === []) {
             return false;
         }
 

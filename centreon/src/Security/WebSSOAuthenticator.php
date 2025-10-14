@@ -87,7 +87,7 @@ class WebSSOAuthenticator extends AbstractAuthenticator
         private readonly ProviderAuthenticationFactoryInterface $providerFactory,
         private readonly ContactRepositoryInterface $contactRepository,
         private readonly MenuServiceInterface $menuService,
-        private readonly PlatformRepositoryInterface $platformRepository
+        private readonly PlatformRepositoryInterface $platformRepository,
     ) {
         /** @var string $webVersion */
         $webVersion = $this->platformRepository->getWebVersion();
@@ -312,7 +312,7 @@ class WebSSOAuthenticator extends AbstractAuthenticator
 
         // @todo: why are we not using findUserOrFail()?
         $authenticatedUser = $provider->getAuthenticatedUser();
-        if (null === $authenticatedUser) {
+        if ($authenticatedUser === null) {
             throw CentreonAuthenticationException::notAuthenticated();
         }
 
@@ -340,7 +340,7 @@ class WebSSOAuthenticator extends AbstractAuthenticator
         string $sessionId,
         int $webSSOConfigurationId,
         ContactInterface $user,
-        string $clientIp
+        string $clientIp,
     ): void {
         try {
             $this->info('creating token');
@@ -385,7 +385,7 @@ class WebSSOAuthenticator extends AbstractAuthenticator
         ContactInterface $contact,
         NewProviderToken $providerToken,
         ?NewProviderToken $providerRefreshToken,
-        ?string $clientIp
+        ?string $clientIp,
     ): void {
         $isAlreadyInTransaction = $this->dataStorageEngine->isAlreadyinTransaction();
 
@@ -429,10 +429,10 @@ class WebSSOAuthenticator extends AbstractAuthenticator
      */
     private function getRedirectionUri(
         ?ContactInterface $authenticatedUser,
-        ?string $refererQueryParameters
+        ?string $refererQueryParameters,
     ): string {
         $redirectionUri = '/monitoring/resources';
-        if (null === $authenticatedUser) {
+        if ($authenticatedUser === null) {
             // The previous version assummed that if no conditions were met, just send this var as-is
             return $redirectionUri;
         }

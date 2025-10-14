@@ -71,7 +71,7 @@ class UpdateVersionsException extends \Exception
     public static function errorWhenApplyingUpdateToVersion(
         string $version,
         string $technicalMessage,
-        \Throwable $ex
+        \Throwable $ex,
     ): self {
         return new self(
             sprintf(_('An error occurred when applying the update %s (%s)'), $version, $technicalMessage),
@@ -88,7 +88,7 @@ class UpdateVersionsException extends \Exception
      */
     public static function errorWhenApplyingUpdate(
         string $technicalMessage,
-        \Throwable $ex
+        \Throwable $ex,
     ): self {
         return new self(
             sprintf(_('An error occurred when applying the update (%s)'), $technicalMessage),
@@ -105,5 +105,10 @@ class UpdateVersionsException extends \Exception
     public static function errorWhenApplyingPostUpdate(\Throwable $ex): self
     {
         return new self(_('An error occurred when applying post update actions'), 0, $ex);
+    }
+
+    public static function errorWhenWritingEngineContextConfiguration(\Throwable $ex): self
+    {
+        return new self(_('An error occurred when writing engine context configuration'), 0, $ex);
     }
 }

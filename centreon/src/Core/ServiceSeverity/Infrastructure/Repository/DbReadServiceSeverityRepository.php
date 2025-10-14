@@ -259,7 +259,7 @@ class DbReadServiceSeverityRepository extends AbstractRepositoryRDB implements R
      */
     private function retrieveServiceSeverities(
         SqlConcatenator $concatenator,
-        RequestParametersInterface $requestParameters
+        RequestParametersInterface $requestParameters,
     ): array {
         // Exclude severities from the results
         $concatenator->appendWhere('sc.level IS NOT NULL');

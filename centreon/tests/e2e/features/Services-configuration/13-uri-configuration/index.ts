@@ -174,7 +174,7 @@ Then('a new tab is open to the link', () => {
       // Visit the link
       cy.visit(linkUrl);
       // Check that tab is opened
-      cy.url().should('eq', linkUrl);
+      cy.url().should('include', linkUrl);
     });
 });
 

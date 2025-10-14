@@ -47,7 +47,7 @@ class DbWriteConfigurationRepository extends AbstractRepositoryDRB implements Wr
      */
     public function updateConfiguration(
         Configuration $configuration,
-        array $excludedUserIds
+        array $excludedUserIds,
     ): void {
         $beginInTransaction = $this->db->inTransaction();
 

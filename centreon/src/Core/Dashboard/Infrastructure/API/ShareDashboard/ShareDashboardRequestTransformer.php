@@ -32,7 +32,7 @@ abstract readonly class ShareDashboardRequestTransformer
      * @return ShareDashboardRequest
      */
     public static function transform(
-        ShareDashboardInput $input
+        ShareDashboardInput $input,
     ): ShareDashboardRequest {
         $request = new ShareDashboardRequest();
         $request->contacts = $input->contacts;

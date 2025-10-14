@@ -60,11 +60,11 @@ class NewRule
         Assertion::notEmptyString($this->name, "{$shortName}::name");
         Assertion::maxLength($this->name, self::MAX_NAME_LENGTH, "{$shortName}::name");
 
-        if ([] !== $linkedContactIds) {
+        if ($linkedContactIds !== []) {
             Assertion::arrayOfTypeOrNull('int', $this->linkedContactIds, "{$shortName}::linkedContactIds");
         }
 
-        if ([] !== $linkedContactGroupIds) {
+        if ($linkedContactGroupIds !== []) {
             Assertion::arrayOfTypeOrNull('int', $this->linkedContactGroupIds, "{$shortName}::linkedContactGroupIds");
         }
 

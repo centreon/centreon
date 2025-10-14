@@ -89,11 +89,8 @@ Then('no certificate fields are shown', () => {
 });
 
 When('the user enables connection initiated by the poller', () => {
-  cy.getByLabel({
-    label: 'Connection initiated by poller',
-    tag: 'input'
-  }).click();
-  cy.get('[class*="Mui-checked Mui-checked"]').should('exist');
+  cy.contains('div', 'By poller').click();
+  cy.get('input[type="checkbox"]').click();
 });
 
 Then(
@@ -111,6 +108,8 @@ When('the user fills in the mandatory fields', () => {
   cy.getByLabel({ label: 'Pollers', tag: 'input' }).click();
   cy.contains('Poller-1').click();
   cy.contains('Poller-2').click();
+  // Click outside to close the pollers dropdown list
+  cy.contains('h6', 'Pollers').click();
   cy.getByLabel({ label: 'Select host', tag: 'input' }).eq(0).click();
   cy.contains('Centreon-Server').click();
   cy.getByLabel({ label: 'DNS/IP', tag: 'input' })
@@ -147,6 +146,8 @@ When('the user fills in the mandatory Telegraf fields', () => {
   );
   cy.getByLabel({ label: 'Pollers', tag: 'input' }).click();
   cy.contains('Central').click();
+  // Click outside to close the pollers dropdown list
+  cy.contains('h6', 'Pollers').click();
   cy.getByLabel({ label: 'Port', tag: 'input' }).clear().type('1447');
 });
 
@@ -163,6 +164,7 @@ When('the user clicks on the first configured CMA agent', () => {
 });
 
 Then('a pop-up with the agent details is displayed', () => {
+  cy.contains('div', 'By poller').click();
   cy.get('*[role="dialog"]').should('be.visible');
   cy.get('*[role="dialog"]').contains('Update agent configuration');
   cy.get('#Name').should('contain.value', agentsConfiguration.CMA1.name);

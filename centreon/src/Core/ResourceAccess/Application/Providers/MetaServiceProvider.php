@@ -51,7 +51,7 @@ final class MetaServiceProvider implements DatasetProviderInterface
      */
     public function isValidFor(string $type): bool
     {
-        return MetaServiceFilterType::TYPE_NAME === $type;
+        return $type === MetaServiceFilterType::TYPE_NAME;
     }
 
     /**

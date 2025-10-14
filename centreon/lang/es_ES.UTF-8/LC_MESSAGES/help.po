@@ -59,6 +59,10 @@ msgstr "Valor absoluto para el nivel de advertencia (umbral bajo)."
 msgid "Additional Remote Server to which this server will be attached"
 msgstr ""
 
+#: centreon/www/include/configuration/configServers/help.php
+msgid "Address of the poller"
+msgstr "Dirección del colector"
+
 #: centreon/www/include/configuration/configObject/contact/help.php
 msgid ""
 "Addresses 1-6 are optional and used to define additional \"addresses\" for "
@@ -1840,10 +1844,6 @@ msgid ""
 "IP Address or hostname to communicate with Gorgone API. Should remain "
 "default value (Default: \"127.0.0.1\")."
 msgstr ""
-
-#: centreon/www/include/configuration/configServers/help.php
-msgid "IP address of the poller"
-msgstr "Dirección IP del colector"
 
 #: centreon/www/include/configuration/configCentreonBroker/help.php
 msgid "IP address or hostname of the database server."

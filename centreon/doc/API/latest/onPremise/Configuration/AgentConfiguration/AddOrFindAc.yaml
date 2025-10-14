@@ -1,6 +1,6 @@
 post:
   tags:
-    - Poller/agent configuration
+    - Agent configuration
   summary: "Add a poller/agent configuration"
   description: "Add a poller/agent configuration"
   requestBody:
@@ -28,7 +28,7 @@ post:
       $ref: '../../Common/Response/InternalServerError.yaml'
 get:
   tags:
-    - Poller/agent configuration
+    - Agent configuration
   summary: "Get all poller/agent configurations"
   description: "Get all poller/agent configurations"
   responses:

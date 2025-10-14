@@ -34,7 +34,7 @@ final class UserProfile
      */
     public function __construct(
         private readonly int $id,
-        private readonly int $userId
+        private readonly int $userId,
     ) {
     }
 

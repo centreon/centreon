@@ -25,4 +25,26 @@ namespace Core\Application\Common\UseCase;
 
 final class InvalidArgumentResponse extends AbstractResponse
 {
+    /**
+     * InvalidArgumentResponse constructor
+     *
+     * @param string|\Throwable $message Only to have a message
+     * @param array<string,mixed> $context
+     * @param \Throwable|null $exception
+     */
+    public function __construct(
+        string|\Throwable $message,
+        array $context = [],
+        private readonly ?\Throwable $exception = null,
+    ) {
+        parent::__construct($message, $context);
+    }
+
+    /**
+     * @return null|\Throwable
+     */
+    public function getException(): ?\Throwable
+    {
+        return $this->exception;
+    }
 }

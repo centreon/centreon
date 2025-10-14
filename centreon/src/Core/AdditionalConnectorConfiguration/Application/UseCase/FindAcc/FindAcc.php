@@ -52,7 +52,7 @@ final class FindAcc
 
     public function __invoke(
         int $id,
-        FindAccPresenterInterface $presenter
+        FindAccPresenterInterface $presenter,
     ): void {
         try {
             if (! $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_ACC_RW)) {
@@ -85,7 +85,7 @@ final class FindAcc
                 $accessGroups = $this->readAccessGroupRepository->findByContact($this->user);
                 $validPollerIds = $this->readMonitoringServerRepository->existByAccessGroups($pollerIds, $accessGroups);
 
-                if ([] !== array_diff($pollerIds, $validPollerIds)) {
+                if (array_diff($pollerIds, $validPollerIds) !== []) {
                     $presenter->presentResponse(
                         new NotFoundResponse('Additional Connector')
                     );

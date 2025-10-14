@@ -72,8 +72,7 @@ const useStyles = makeStyles<{
       opacity: 0.6
     },
     top: theme.spacing(1)
-  },
-  
+  }
 }));
 
 export { useStyles };

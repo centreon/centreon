@@ -48,7 +48,7 @@ class FindMetaServiceMetrics
      */
     public function __construct(
         MetaServiceMetricServiceInterface $metaServiceMetricServiceInterface,
-        ContactInterface $contact
+        ContactInterface $contact,
     ) {
         $this->metaServiceMetricServiceInterface = $metaServiceMetricServiceInterface;
         $this->contact = $contact;

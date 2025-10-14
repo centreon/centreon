@@ -33,7 +33,7 @@ final class DeleteRuleController extends AbstractController
     public function __invoke(
         int $ruleId,
         DeleteRule $useCase,
-        DefaultPresenter $presenter
+        DefaultPresenter $presenter,
     ): Response {
         $this->denyAccessUnlessGrantedForApiConfiguration();
 

@@ -28,6 +28,7 @@ if (! isset($centreon)) {
 require_once _CENTREON_PATH_ . 'www/include/common/vault-functions.php';
 
 use App\Kernel;
+use App\MonitoringConfiguration\Domain\Aggregate\GlobalMacro\GlobalMacroName;
 use Centreon\Domain\Log\Logger;
 use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
 use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
@@ -564,4 +565,9 @@ function deleteFromVault(array $data): void
             }
         }
     }
+}
+
+function validateName(string $name): bool
+{
+    return (bool) preg_match(GlobalMacroName::NAMING_VALIDATION_REGEX, $name);
 }

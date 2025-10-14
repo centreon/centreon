@@ -42,7 +42,7 @@ class Proxy implements \Stringable
         private string $url,
         readonly private ?int $port = null,
         private ?string $login = null,
-        private ?string $password = null
+        private ?string $password = null,
     ) {
         $this->url = trim($this->url);
         Assertion::notEmptyString($this->url, 'Proxy:url');

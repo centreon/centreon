@@ -49,7 +49,7 @@ final class FindAgentConfigurations
         private readonly ContactInterface $user,
         private readonly ReadAgentConfigurationRepositoryInterface $readRepository,
         private readonly RequestParametersInterface $requestParameters,
-        private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository
+        private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
     ) {
     }
 
