@@ -370,11 +370,11 @@ if ($valid) {
     $tpl->assign('tabTitle_2', _('Relations'));
     $tpl->assign('tabTitle_3', _('Advanced'));
     $tpl->assign('subtitle0', _('Main information'));
-    $tpl->assign('subtitle0', _('Convert Trap information'));
-    $tpl->assign('subtitle1', _('Action 1 : Submit result to Monitoring Engine'));
-    $tpl->assign('subtitle2', _('Action 2 : Force rescheduling of service check'));
-    $tpl->assign('subtitle3', _('Action 3 : Execute a Command'));
-    $tpl->assign('subtitle4', _('Trap description'));
+    $tpl->assign('subtitle1', _('Convert Trap information'));
+    $tpl->assign('subtitle2', _('Action 1 : Submit result to Monitoring Engine'));
+    $tpl->assign('subtitle3', _('Action 2 : Force rescheduling of service check'));
+    $tpl->assign('subtitle4', _('Action 3 : Execute a Command'));
+    $tpl->assign('subtitle5', _('Trap description'));
     $tpl->assign('routingDefTxt', _('Route parameters'));
     $tpl->assign('resourceTxt', _('Resources'));
     $tpl->assign('preexecTxt', _('Pre execution commands'));
