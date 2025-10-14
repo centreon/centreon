@@ -1,0 +1,99 @@
+name: "centreon-ha-common"
+arch: "${ARCH}"
+platform: "linux"
+version_schema: "none"
+version: "${VERSION}"
+release: "${RELEASE}${DIST}"
+section: "default"
+priority: "optional"
+maintainer: "Centreon <contact@centreon.com>"
+description: |
+  Centreon High Availability common files for database and central nodes
+  This package provides the scripts and config files necessary
+  for database and central nodes in a Centreon-HA cluster
+  Commit: @COMMIT_HASH@
+vendor: "Centreon"
+homepage: "https://github.com/centreon/centreon"
+license: "Apache-2.0"
+
+contents:
+  # bin (0755 root:root)
+  - src: "../bin/"
+    dst: "/usr/share/centreon-ha/bin/"
+    file_info:
+      owner: "root"
+      group: "root"
+      mode: 0755
+
+  # etc files and directories
+  - src: "../etc/centreon-ha/mysql-resources.sh"
+    dst: "/etc/centreon-ha/mysql-resources.sh"
+    type: config|noreplace
+    file_info:
+      owner: "root"
+      group: "root"
+      mode: 0644
+  - src: "../etc/logrotate.d/centreon-ha"
+    dst: "/etc/logrotate.d/centreon-ha"
+    file_info:
+      owner: "root"
+      group: "root"
+      mode: 0644
+  - src: "../etc/sudoers.d/centreon-cluster-db"
+    dst: "/etc/sudoers.d/centreon-cluster-db"
+    file_info:
+      owner: "root"
+      group: "root"
+      mode: 0440
+
+  # lib
+  - src: "../lib/"
+    dst: "/usr/share/centreon-ha/lib/"
+    file_info:
+      owner: "root"
+      group: "root"
+      mode: 0644
+
+  # log (0755 centreon:centreon)
+  - dst: "/var/log/centreon-ha/"
+    type: dir
+    file_info:
+      owner: "centreon"
+      group: "centreon"
+      mode: 0755
+
+  # ocf-scripts (0755 root:root)
+  - src: "../ocf-scripts/mariadb-centreon"
+    dst: "/usr/lib/ocf/resource.d/heartbeat/mariadb-centreon"
+    file_info:
+      owner: "root"
+      group: "root"
+      mode: 0755
+  - src: "../ocf-scripts/mariadb-centreon-common.sh"
+    dst: "/usr/lib/ocf/lib/heartbeat/mariadb-centreon-common.sh"
+    file_info:
+      owner: "root"
+      group: "root"
+      mode: 0755
+
+scripts:
+  postinstall: ./scripts/centreon-ha-common-postinst.sh
+
+overrides:
+  rpm:
+    depends:
+      - perl-common-sense
+      - perl-Linux-Inotify2
+      - rsync
+      - systemd
+    recommends:
+      - logrotate
+
+  deb:
+    depends:
+      - libcommon-sense-perl
+      - liblinux-inotify2-perl
+      - rsync
+      - systemd
+    recommends:
+      - logrotate
