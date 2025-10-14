@@ -36,7 +36,7 @@ beforeEach(() => {
   cy.intercept({
     method: 'GET',
     url: '/centreon/include/common/webServices/rest/internal.php?object=centreon_administration_aclgroup*'
-  }).as('getACLGroups');
+  }).as('getAclGroups');
 });
 
 afterEach(() => {
