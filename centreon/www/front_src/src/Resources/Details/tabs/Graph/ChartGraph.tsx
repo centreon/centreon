@@ -1,4 +1,9 @@
+import { path } from 'ramda';
+import { useState, JSX, RefObject } from 'react';
+
+import { Box, Typography } from '@mui/material';
 import {
+  Header,
   type Interval,
   LineChart,
   type LineChartData,
@@ -6,19 +11,17 @@ import {
   type TooltipData,
   useFetchQuery
 } from '@centreon/ui';
-import { isNil, path } from 'ramda';
-import { type MutableRefObject, useState } from 'react';
+
 import FederatedComponent from '../../../../components/FederatedComponents';
 import MemoizedGraphActions from '../../../Graph/Performance/GraphActions';
 import type { Resource } from '../../../models';
 import type { ResourceDetails } from '../../models';
+import { graphsCapNumber } from '../../../constants';
+import { labelTooManyGraphsToDisplay } from '../../../translatedLabels';
+
 import Comment from './Comment';
 import { useChartGraphStyles } from './chartGraph.styles';
 import useRetrieveTimeLine from './useRetrieveTimeLine';
-import { Box, Typography } from '@mui/material';
-import { Header } from '@centreon/ui';
-import { graphsCapNumber } from '../../../constants';
-import { labelTooManyGraphsToDisplay } from '../../../translatedLabels';
 
 interface Props {
   graphTimeParameters?: Parameters;
@@ -33,7 +36,7 @@ const ChartGraph = ({
 }: Props) => {
   const { classes } = useChartGraphStyles();
 
-  const [graphRef, setGraphRef] = useState<MutableRefObject<HTMLDivElement>>();
+  const [graphRef, setGraphRef] = useState<RefObject<HTMLDivElement>>();
   const [areaThresholdLines, setAreaThresholdLines] = useState();
 
   const graphEndpoint = path<string>(
@@ -70,7 +73,7 @@ const ChartGraph = ({
     updatedGraphInterval(interval);
   };
 
-  const getRef = (ref: MutableRefObject<HTMLDivElement>) => {
+  const getRef = (ref: RefObject<HTMLDivElement>) => {
     setGraphRef(ref);
   };
 
@@ -90,8 +93,8 @@ const ChartGraph = ({
 
   const rest = areaThresholdLines ? { shapeLines: areaThresholdLines } : {};
 
-  const displayMetricsGraphCapMessage =
-    !isNil(data?.metrics.length) && data?.metrics.length > graphsCapNumber;
+  const metricsCount = data?.metrics?.length ?? 0;
+  const displayMetricsGraphCapMessage = metricsCount > graphsCapNumber;
 
   return (
     <>
@@ -105,7 +108,9 @@ const ChartGraph = ({
             }}
           />
           <Box className={classes.graphsCapMessage}>
-            <Typography variant='h6'>{labelTooManyGraphsToDisplay}</Typography>
+            <Typography variant='h6'>
+              {labelTooManyGraphsToDisplay(graphsCapNumber)}
+            </Typography>
           </Box>
         </Box>
       ) : (

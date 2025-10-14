@@ -332,5 +332,5 @@ export const labelExtended = 'Extended';
 export const labelFreeTextSearchBehavior =
   'Free text search behavior can be configured in the Administration > Parameters > Centreon UI page.';
 
-export const labelTooManyGraphsToDisplay =
-  'Too many elements to be displayed (>20)';
+export const labelTooManyGraphsToDisplay = (cap: number): string =>
+  `Too many elements to be displayed (>${cap})`;

@@ -1,31 +1,34 @@
 import dayjs from 'dayjs';
 import { JSX, Suspense, useState } from 'react';
-
 import { path, isNil, not } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
 
 import IconGraph from '@mui/icons-material/BarChart';
-import { Paper, Typography } from '@mui/material';
+import { Box, Paper, Typography } from '@mui/material';
 
-import type { ComponentColumnProps, LineChartData } from '@centreon/ui';
 import {
+  type ComponentColumnProps,
+  Header,
   IconButton,
   LineChart,
+  type LineChartData,
   LoadingSkeleton,
+  lastDayPeriod,
   useFetchQuery
 } from '@centreon/ui';
 
-import { lastDayPeriod } from '@centreon/ui';
 import FederatedComponent from '../../../components/FederatedComponents';
 import type { ResourceDetails } from '../../Details/models';
 import type { Resource } from '../../models';
-import { labelGraph, labelServiceGraphs, labelTooManyGraphsToDisplay } from '../../translatedLabels';
+import {
+  labelGraph,
+  labelServiceGraphs,
+  labelTooManyGraphsToDisplay
+} from '../../translatedLabels';
+import { graphsCapNumber } from '../../constants';
 
 import HoverChip from './HoverChip';
 import IconColumn from './IconColumn';
-import { graphsCapNumber } from '../../constants';
-import { Box } from '@mui/system';
-import { Header } from '@centreon/ui';
 import { useGraphStyles } from './Graph.styles';
 
 const useStyles = makeStyles()((theme) => ({
@@ -70,8 +73,8 @@ const Graph = ({ row, endpoint }: GraphProps): JSX.Element => {
 
   const rest = areaThresholdLines ? { shapeLines: areaThresholdLines } : {};
 
-  const displayMetricsGraphCapMessage =
-    !isNil(data?.metrics.length) && data?.metrics.length > graphsCapNumber;
+  const metricsCount = data?.metrics.length ?? 0;
+  const displayMetricsGraphCapMessage = metricsCount > graphsCapNumber;
 
   return (
     <Suspense fallback={<LoadingSkeleton height="100%" />}>
@@ -84,7 +87,9 @@ const Graph = ({ row, endpoint }: GraphProps): JSX.Element => {
             }}
           />
           <Box className={classes.graphsCapMessage}>
-            <Typography variant='h6'>{labelTooManyGraphsToDisplay}</Typography>
+            <Typography variant='h6'>
+              {labelTooManyGraphsToDisplay(graphsCapNumber)}
+            </Typography>
           </Box>
         </Box>
       ) : (
