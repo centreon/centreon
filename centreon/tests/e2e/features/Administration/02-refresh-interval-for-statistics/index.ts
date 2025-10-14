@@ -81,7 +81,7 @@ Then(
   () => {
     cy.request({
       method: 'GET',
-      url: 'centreon/api/latest/administration/parameters'
+      url: 'centreon/api/latest/monitoring/parameters'
     }).then((response) => {
       expect(response.status).to.eq(200);
       expect(response.body.statistics_default_refresh_interval).to.eq(
