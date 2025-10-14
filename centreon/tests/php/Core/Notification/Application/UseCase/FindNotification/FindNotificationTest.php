@@ -170,6 +170,12 @@ it('should get the resources with ACL calculation when the user is not admin', f
         ->expects($this->once())
         ->method('findByNotificationIdAndAccessGroups');
 
+    $this->adminResolver
+        ->expects($this->any())
+        ->method('isAdmin')
+        ->with($contact)
+        ->willReturn(false);
+
     (new FindNotification(
         $this->notificationRepository,
         $contact,

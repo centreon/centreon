@@ -83,12 +83,12 @@ final class FindNotification
                 ]);
                 $presenter->presentResponse(new NotFoundResponse(_('Notification')));
             } else {
-                $this->info('Get all notification messages for notification with ID #' . $notificationId);
                 $notificationMessages = $this->notificationRepository->findMessagesByNotificationId($notificationId);
-                $this->info('Get all notification users for notification with ID #' . $notificationId);
-                $notifiedUsers = $this->findNotificationUsers($notificationId);
-                $notifiedContactGroups = $this->findContactGroupsByNotificationId($notificationId);
-                $notificationResources = $this->findResourcesByNotificationId($notificationId);
+
+                $isAdmin = $this->adminResolver->isAdmin($this->user);
+                $notifiedUsers = $this->findNotificationUsers($notificationId, $isAdmin);
+                $notifiedContactGroups = $this->findContactGroupsByNotificationId($notificationId, $isAdmin);
+                $notificationResources = $this->findResourcesByNotificationId($notificationId, $isAdmin);
 
                 $presenter->presentResponse($this->createResponse(
                     $notification,
@@ -114,15 +114,11 @@ final class FindNotification
     }
 
     /**
-     * @param int $notificationId
-     *
-     * @throws \Throwable
-     *
      * @return NotificationContact[]
      */
-    private function findNotificationUsers(int $notificationId): array
+    private function findNotificationUsers(int $notificationId, bool $isAdmin): array
     {
-        if ($this->adminResolver->isAdmin($this->user)) {
+        if ($isAdmin === true) {
             $notifiedUsers = array_values($this->notificationRepository->findUsersByNotificationId($notificationId));
         } else {
             $accessGroups = $this->readAccessGroupRepository->findByContact($this->user);
@@ -137,17 +133,13 @@ final class FindNotification
     }
 
     /**
-     * @param int $notificationId
-     *
-     * @throws \Throwable
-     *
      * @return NotificationResource[]
      */
-    private function findResourcesByNotificationId(int $notificationId): array
+    private function findResourcesByNotificationId(int $notificationId, bool $isAdmin): array
     {
         $resources = [];
         foreach ($this->resourceRepositoryProvider->getRepositories() as $repository) {
-            if ($this->adminResolver->isAdmin($this->user)) {
+            if ($isAdmin === true) {
                 $resource = $repository->findByNotificationId($notificationId);
             } else {
                 $accessGroups = $this->readAccessGroupRepository->findByContact($this->user);
@@ -163,17 +155,11 @@ final class FindNotification
     }
 
     /**
-     * Retrieve notification contact groups based on ACL.
-     *
-     * @param int $notificationId
-     *
-     * @throws \Throwable
-     *
      * @return ContactGroup[]
      */
-    private function findContactGroupsByNotificationId(int $notificationId): array
+    private function findContactGroupsByNotificationId(int $notificationId, bool $isAdmin): array
     {
-        if ($this->adminResolver->isAdmin($this->user)) {
+        if ($isAdmin === true) {
             return $this->notificationRepository->findContactGroupsByNotificationId($notificationId);
         }
         $accessGroups = $this->readAccessGroupRepository->findByContact($this->user);

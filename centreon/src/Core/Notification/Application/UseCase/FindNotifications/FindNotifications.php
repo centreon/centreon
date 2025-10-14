@@ -117,7 +117,10 @@ final class FindNotifications
             'Retrieving user counts for notifications',
             ['notification' => implode(', ', $notificationsIds)]
         );
-        if ($this->adminResolver->isAdmin($this->user)) {
+
+        $isAdmin = $this->adminResolver->isAdmin($this->user);
+
+        if ($isAdmin === true) {
             $numberOfUsers = $this->notificationRepository->countContactsByNotificationIds($notificationsIds);
         } else {
             $accessGroups = $this->readAccessGroupRepository->findByContact($this->user);
@@ -135,11 +138,10 @@ final class FindNotifications
             'Retrieving resource counts for notifications',
             ['notification' => implode(', ', $notificationsIds)]
         );
-        if ($this->adminResolver->isAdmin($this->user)) {
-            $numberOfResources = $this->countResourcesForAdmin($repositories, $notificationsIds);
-        } else {
-            $numberOfResources = $this->countResourcesWithACL($repositories, $notificationsIds);
-        }
+        $numberOfResources = $isAdmin === true
+            ? $this->countResourcesForAdmin($repositories, $notificationsIds)
+            : $this->countResourcesWithACL($repositories, $notificationsIds);
+
         $this->debug(sprintf('Found %d resources for notifications', count($numberOfResources)));
 
         return new NotificationCounts($numberOfUsers, $numberOfResources);
