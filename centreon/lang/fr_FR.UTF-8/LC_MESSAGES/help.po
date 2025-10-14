@@ -4106,9 +4106,9 @@ msgid ""
 msgstr ""
 "Cette variable est utilisée pour identifier le(s) nom(s) court(s) de "
 "groupe(s) d'hôtes sur lequel tourne le service dont on dépend (aussi appelé "
-"service maître) avec lequel il est associé. Plusieurs groupes d'hôtes peuvent "
-"être séparés par des virgules. La variable hostgroup_name peut être utilisé "
-"à la place ou en conjonction avec la variable host_name."
+"service maître) avec lequel il est associé. Plusieurs groupes d'hôtes "
+"peuvent être séparés par des virgules. La variable hostgroup_name peut être "
+"utilisé à la place ou en conjonction avec la variable host_name."
 
 #: centreon/www/include/configuration/configNagios/help.php
 msgid ""
@@ -4208,8 +4208,8 @@ msgstr ""
 "Cette variable est utilisée pour identifier le(s) nom(s) court(s) de "
 "groupe(s) d'hôtes sur lesquels tourne le service dépendant avec lesquels il "
 "est associé. Plusieurs groupes d'hôtes peuvent être séparés par des "
-"virgules. La variable dependent_hostgroup peut être utilisé à la place ou "
-"en conjonction avec la variable dependent_host."
+"virgules. La variable dependent_hostgroup peut être utilisé à la place ou en "
+"conjonction avec la variable dependent_host."
 
 #: centreon/www/include/configuration/configObject/host_dependency/help.php
 #: centreon/www/include/configuration/configObject/service_dependency/help.php

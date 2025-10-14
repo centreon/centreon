@@ -161,8 +161,8 @@ msgid ""
 "<b><i>Help:</i></b> Select meta services that can be seen by associated "
 "users."
 msgstr ""
-"<b><i>Aide :</i></b> Sélectionner les meta-services qui peuvent être vus "
-"par les utilisateurs associés."
+"<b><i>Aide :</i></b> Sélectionner les meta-services qui peuvent être vus par "
+"les utilisateurs associés."
 
 #: centreon/www/include/options/accessLists/resourcesACL/formResourcesAccess.php
 msgid ""
