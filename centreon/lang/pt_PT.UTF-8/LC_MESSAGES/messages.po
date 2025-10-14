@@ -2301,11 +2301,6 @@ msgstr "Cancelado"
 
 #: centreon/src/Centreon/Application/Controller/MonitoringResourceController.php
 #, php-format
-msgid "Cannot build uri to unknown tab : %s"
-msgstr ""
-
-#: centreon/src/Centreon/Application/Controller/MonitoringResourceController.php
-#, php-format
 msgid "Cannot build uri to unknown tab: %s"
 msgstr ""
 
@@ -12587,14 +12582,6 @@ msgstr "Opções"
 msgid "Order"
 msgstr "Ordem"
 
-#: centreon/www/include/Administration/parameters/general/form.php
-msgid "Sort order"
-msgstr "Ordenação"
-
-#: centreon/www/include/Administration/parameters/general/form.php
-msgid "Problems sort order"
-msgstr "Ordernar por problemas"
-
 #: centreon/www/install/front_translate.php
 msgid "Ordered List"
 msgstr ""
@@ -13410,6 +13397,10 @@ msgstr "O Problema foi colocado em conhecimento"
 #: centreon/www/include/monitoring/status/ServicesServiceGroups/serviceSummaryBySG.php
 msgid "Problems"
 msgstr "Problemas"
+
+#: centreon/www/include/Administration/parameters/general/form.php
+msgid "Problems sort order"
+msgstr "Ordernar por problemas"
 
 #: centreon/www/include/configuration/configNagios/formNagios.php
 msgid "Process"
@@ -15858,6 +15849,10 @@ msgstr "Ordenar por severidade"
 #: centreon/www/include/monitoring/status/Services/serviceJS.php
 msgid "Sort by status"
 msgstr "Ordenar por estado"
+
+#: centreon/www/include/Administration/parameters/general/form.php
+msgid "Sort order"
+msgstr "Ordenação"
 
 #: centreon/www/include/Administration/parameters/general/form.php
 msgid "Sort problems by"

@@ -1903,19 +1903,19 @@ msgstr ""
 
 #: centreon/www/include/Administration/parameters/general/help.php
 msgid ""
-"If this option is enabled, the comments will be displayed on the status "
-"chart.<br><b>Warning</b>: This option can slow down the display of the chart."
-msgstr ""
-
-#: centreon/www/include/Administration/parameters/general/help.php
-msgid ""
-"If this option is enabled, downtimes and acknowledgments will be "
-"displayed on the metric chart.<br><b>Warning</b>: This option can slow down the "
+"If this option is enabled, downtimes and acknowledgments will be displayed "
+"on the metric chart.<br><b>Warning</b>: This option can slow down the "
 "display of the chart."
 msgstr ""
 "Wenn diese Option aktiviert ist, werden Ausfallszeiten und Inkenntnisnahmen "
 "auf Metrikdiagrammen angezeigt.<br><b>Achtung</b>: Diese Option kann dazu "
 "führen, dass die Anzeige von Diagrammen mehr Zeit in Anspruch nimmt."
+
+#: centreon/www/include/Administration/parameters/general/help.php
+msgid ""
+"If this option is enabled, the comments will be displayed on the status "
+"chart.<br><b>Warning</b>: This option can slow down the display of the chart."
+msgstr ""
 
 #: centreon/www/include/configuration/configObject/service/help.php
 msgid ""

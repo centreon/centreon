@@ -383,9 +383,9 @@ msgid ""
 "Backup type for centreon_storage database: mysqldump or LVM snapshot "
 "(requires available space on the MySQL LVM volume)"
 msgstr ""
-"Méthode de sauvegarde pour la base de données 'centreon_storage' : "
-"mysqldump ou LVM snapshot (de l'espace non alloué doit être disponible sur "
-"le LVM hébergeant la base de données)"
+"Méthode de sauvegarde pour la base de données 'centreon_storage' : mysqldump "
+"ou LVM snapshot (de l'espace non alloué doit être disponible sur le LVM "
+"hébergeant la base de données)"
 
 #: centreon/www/include/views/graphTemplates/help.php
 msgid "Base value."
@@ -543,16 +543,16 @@ msgid ""
 "Choose whether or not a special command should be run by centreontrapd when "
 "this trap was received."
 msgstr ""
-"Choisir si une commande spéciale doit être exécutée par le "
-"processus centreontrapd quand un trap SNMP est reçu, ou non."
+"Choisir si une commande spéciale doit être exécutée par le processus "
+"centreontrapd quand un trap SNMP est reçu, ou non."
 
 #: centreon/www/include/configuration/configObject/traps/help.php
 msgid ""
 "Choose whether or not the associated service should be actively rechecked "
 "after submission of this trap."
 msgstr ""
-"Choisir s'il est nécessaire ou pas de contrôler le service de manière "
-"active après réception d'un trap SNMP."
+"Choisir s'il est nécessaire ou pas de contrôler le service de manière active "
+"après réception d'un trap SNMP."
 
 #: centreon/www/include/configuration/configObject/host/help.php
 #: centreon/www/include/configuration/configObject/service/help.php
@@ -757,8 +757,8 @@ msgid ""
 "Define a short name for the service group here. The short name will be used "
 "to display the service group in monitoring, views and reporting."
 msgstr ""
-"Définir un nom court pour le groupe de services. Ce nom sera utilisé "
-"pour afficher le groupe de services dans supervision, vues et rapports."
+"Définir un nom court pour le groupe de services. Ce nom sera utilisé pour "
+"afficher le groupe de services dans supervision, vues et rapports."
 
 #: centreon/www/include/configuration/configObject/host_categories/help.php
 #: centreon/www/include/configuration/configObject/service_categories/help.php
@@ -1955,22 +1955,22 @@ msgstr ""
 
 #: centreon/www/include/Administration/parameters/general/help.php
 msgid ""
+"If this option is enabled, downtimes and acknowledgments will be displayed "
+"on the metric chart.<br><b>Warning</b>: This option can slow down the "
+"display of the chart."
+msgstr ""
+"Si cette option est activée, les périodes de plage de maintenance et "
+"d'acquittements seront visibles sur les graphiques.<br><b>Attention</b> : "
+"Cette option peut ralentir le chargement des graphiques."
+
+#: centreon/www/include/Administration/parameters/general/help.php
+msgid ""
 "If this option is enabled, the comments will be displayed on the status "
 "chart.<br><b>Warning</b>: This option can slow down the display of the chart."
 msgstr ""
 "Si cette option est activée, les commentaires seront affichés sur les "
 "graphiques de statut.<br><b>Attention</b> : Cette option peut ralentir le "
 "chargement des graphiques."
-
-#: centreon/www/include/Administration/parameters/general/help.php
-msgid ""
-"If this option is enabled, downtimes and acknowledgments will be "
-"displayed on the metric chart.<br><b>Warning</b>: This option can slow down the "
-"display of the chart."
-msgstr ""
-"Si cette option est activée, les périodes de plage de maintenance et "
-"d'acquittements seront visibles sur les graphiques.<br><b>Attention</b> : "
-"Cette option peut ralentir le chargement des graphiques."
 
 #: centreon/www/include/configuration/configObject/service/help.php
 msgid ""

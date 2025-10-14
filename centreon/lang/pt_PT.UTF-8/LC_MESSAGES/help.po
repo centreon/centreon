@@ -1887,19 +1887,19 @@ msgstr ""
 
 #: centreon/www/include/Administration/parameters/general/help.php
 msgid ""
-"If this option is enabled, the comments will be displayed on the status "
-"chart.<br><b>Warning</b>: This option can slow down the display of the chart."
-msgstr ""
-
-#: centreon/www/include/Administration/parameters/general/help.php
-msgid ""
-"If this option is enabled, downtimes and acknowledgments will be "
-"displayed on the metric chart.<br><b>Warning</b>: This option can slow down the "
+"If this option is enabled, downtimes and acknowledgments will be displayed "
+"on the metric chart.<br><b>Warning</b>: This option can slow down the "
 "display of the chart."
 msgstr ""
 "Se esta opção estiver habilitada, os períodos de tempo de parada e de "
-"reconhecimento estarão visíveis nos gráficos.<br><b>Aviso</b>: Esta "
-"opção pode retardar o carregamento de gráficos."
+"reconhecimento estarão visíveis nos gráficos.<br><b>Aviso</b>: Esta opção "
+"pode retardar o carregamento de gráficos."
+
+#: centreon/www/include/Administration/parameters/general/help.php
+msgid ""
+"If this option is enabled, the comments will be displayed on the status "
+"chart.<br><b>Warning</b>: This option can slow down the display of the chart."
+msgstr ""
 
 #: centreon/www/include/configuration/configObject/service/help.php
 msgid ""
@@ -5031,8 +5031,8 @@ msgstr ""
 "tentará manter o tempo entre verificações consecutivas consistentes, em "
 "detrimento da realização das verificações de acordo com um cronograma "
 "apertado. \n"
-"<br><b>Aviso:</b> esse recurso é experimental e pode ser removido em "
-"versões futuras. \n"
+"<br><b>Aviso:</b> esse recurso é experimental e pode ser removido em versões "
+"futuras. \n"
 "Ativar esta opção pode degradar o desempenho - em vez de aumentá-lo - é mal "
 "utilizado!"
 

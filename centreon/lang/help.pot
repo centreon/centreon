@@ -307,8 +307,8 @@ msgstr ""
 
 #: centreon/www/include/Administration/parameters/backup/help.php
 msgid ""
-"Backup type for centreon_storage database: mysqldump or LVM snapshot (need "
-"available space on MySQL LVM)"
+"Backup type for centreon_storage database: mysqldump or LVM snapshot "
+"(requires available space on the MySQL LVM volume)"
 msgstr ""
 
 #: centreon/www/include/views/graphTemplates/help.php
@@ -479,7 +479,7 @@ msgstr ""
 #: centreon/www/include/configuration/configObject/traps/help.php
 msgid ""
 "Comment to describe per example the situation in which this trap will be "
-"send. Additionally the format and the parameters of the trap can be "
+"sent. Additionally the format and the parameters of the trap can be "
 "described."
 msgstr ""
 
@@ -1500,15 +1500,15 @@ msgstr ""
 
 #: centreon/www/include/Administration/parameters/general/help.php
 msgid ""
-"If this option is enabled, the comments will be displayed on the status "
-"chart.<br><b>Warning</b>: This option can slow down the display of the chart."
+"If this option is enabled, downtimes and acknowledgments will be displayed "
+"on the metric chart.<br><b>Warning</b>: This option can slow down the "
+"display of the chart."
 msgstr ""
 
 #: centreon/www/include/Administration/parameters/general/help.php
 msgid ""
-"If this option is enabled, the downtimes and acknowledgments will be "
-"displayed on metric chart.<br><b>Warning</b>: This option can slow down the "
-"display of chart."
+"If this option is enabled, the comments will be displayed on the status "
+"chart.<br><b>Warning</b>: This option can slow down the display of the chart."
 msgstr ""
 
 #: centreon/www/include/configuration/configObject/service/help.php
