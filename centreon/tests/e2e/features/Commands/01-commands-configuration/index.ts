@@ -9,7 +9,7 @@ const commandTypeMap = {
   notification: { data: data.notification, type: 1 }
 };
 
-const hostId = 0;
+let hostId = 0;
 
 before(() => {
   cy.startContainers();
@@ -229,6 +229,7 @@ Then('the user can configure those arguments on the service form', () => {
 Given('a host being configured', () => {
   cy.addNewHostAndReturnId().then((returnedHostId) => {
     cy.log(`Host ID is: ${returnedHostId}`);
+    hostId = returnedHostId;
   });
 });
 
