@@ -132,7 +132,7 @@ foreach (['o1', 'o2'] as $option) {
         'select',
         'o1',
         null,
-        [null => _('More actions...'), '3' => _('Verification Check'), '4' => _('Verification Check (Forced)'), '70' => _('Services : Acknowledge'), '71' => _('Services : Disacknowledge'), '80' => _('Services : Enable Notification'), '81' => _('Services : Disable Notification'), '90' => _('Services : Enable Check'), '91' => _('Services : Disable Check'), '72' => _('Hosts : Acknowledge'), '73' => _('Hosts : Disacknowledge'), '82' => _('Hosts : Enable Notification'), '83' => _('Hosts : Disable Notification'), '92' => _('Hosts : Enable Check'), '93' => _('Hosts : Disable Check')],
+        [null => _('More actions...'), '3' => _('Verification Check'), '4' => _('Verification Check (Forced)'), '70' => _('Services: Acknowledge'), '71' => _('Services: Disacknowledge'), '80' => _('Services: Enable Notification'), '81' => _('Services: Disable Notification'), '90' => _('Services: Enable Check'), '91' => _('Services: Disable Check'), '72' => _('Hosts: Acknowledge'), '73' => _('Hosts: Disacknowledge'), '82' => _('Hosts: Enable Notification'), '83' => _('Hosts: Disable Notification'), '92' => _('Hosts: Enable Check'), '93' => _('Hosts: Disable Check')],
         $attrs
     );
     $form->setDefaults([$option => null]);

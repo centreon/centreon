@@ -86,7 +86,7 @@ class MonitoringResourceController extends AbstractController
     public function buildHostUri(int $hostId, string $tab = self::TAB_DETAILS_NAME): string
     {
         if (! in_array($tab, self::ALLOWED_TABS)) {
-            throw new ResourceException(sprintf(_('Cannot build uri to unknown tab : %s'), $tab));
+            throw new ResourceException(sprintf(_('Cannot build uri to unknown tab: %s'), $tab));
         }
 
         $parameters = ['hostId' => $hostId];

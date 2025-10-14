@@ -353,7 +353,7 @@ try {
                 if (! isset($msg_restart[$host['id']])) {
                     $msg_restart[$host['id']] = '';
                 }
-                $msg_restart[$host['id']] .= _('<br><b>Centreon : </b>All configuration will be send to '
+                $msg_restart[$host['id']] .= _('<br><b>Centreon: </b>All configuration will be send to '
                     . $host['name'] . ' by centcore in several minutes.');
             }
         }

@@ -38,7 +38,7 @@ class PlatformTopologyRepositoryException extends RepositoryException implements
     {
         return new self(
             sprintf(
-                _("Failed to get the auth token from Central : '%s''"),
+                _("Failed to get the auth token from Central: '%s'"),
                 $centralServerAddress
             )
         );

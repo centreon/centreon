@@ -152,14 +152,14 @@ $form->addElement(
     ['id' => 'typeDisplay2', 'onChange' => 'displayingLevel2(this.value);']
 );
 
-$form->addElement('select', 'o1', null, [null => _('More actions...'), '3' => _('Verification Check'), '4' => _('Verification Check (Forced)'), '70' => _('Services : Acknowledge'), '71' => _('Services : Disacknowledge'), '80' => _('Services : Enable Notification'), '81' => _('Services : Disable Notification'), '90' => _('Services : Enable Check'), '91' => _('Services : Disable Check'), '72' => _('Hosts : Acknowledge'), '73' => _('Hosts : Disacknowledge'), '82' => _('Hosts : Enable Notification'), '83' => _('Hosts : Disable Notification'), '92' => _('Hosts : Enable Check'), '93' => _('Hosts : Disable Check')], $attrs);
+$form->addElement('select', 'o1', null, [null => _('More actions...'), '3' => _('Verification Check'), '4' => _('Verification Check (Forced)'), '70' => _('Services: Acknowledge'), '71' => _('Services: Disacknowledge'), '80' => _('Services: Enable Notification'), '81' => _('Services: Disable Notification'), '90' => _('Services: Enable Check'), '91' => _('Services: Disable Check'), '72' => _('Hosts: Acknowledge'), '73' => _('Hosts: Disacknowledge'), '82' => _('Hosts: Enable Notification'), '83' => _('Hosts: Disable Notification'), '92' => _('Hosts: Enable Check'), '93' => _('Hosts: Disable Check')], $attrs);
 
 $form->setDefaults(['o1' => null]);
 $o1 = $form->getElement('o1');
 $o1->setValue(null);
 
 $attrs = ['onchange' => "javascript: setO(this.form.elements['o2'].value); submit();"];
-$form->addElement('select', 'o2', null, [null => _('More actions...'), '3' => _('Verification Check'), '4' => _('Verification Check (Forced)'), '70' => _('Services : Acknowledge'), '71' => _('Services : Disacknowledge'), '80' => _('Services : Enable Notification'), '81' => _('Services : Disable Notification'), '90' => _('Services : Enable Check'), '91' => _('Services : Disable Check'), '72' => _('Hosts : Acknowledge'), '73' => _('Hosts : Disacknowledge'), '82' => _('Hosts : Enable Notification'), '83' => _('Hosts : Disable Notification'), '92' => _('Hosts : Enable Check'), '93' => _('Hosts : Disable Check')], $attrs);
+$form->addElement('select', 'o2', null, [null => _('More actions...'), '3' => _('Verification Check'), '4' => _('Verification Check (Forced)'), '70' => _('Services: Acknowledge'), '71' => _('Services: Disacknowledge'), '80' => _('Services: Enable Notification'), '81' => _('Services: Disable Notification'), '90' => _('Services: Enable Check'), '91' => _('Services: Disable Check'), '72' => _('Hosts: Acknowledge'), '73' => _('Hosts: Disacknowledge'), '82' => _('Hosts: Enable Notification'), '83' => _('Hosts: Disable Notification'), '92' => _('Hosts: Enable Check'), '93' => _('Hosts: Disable Check')], $attrs);
 
 $form->setDefaults(['o2' => null]);
 $o2 = $form->getElement('o2');

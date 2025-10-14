@@ -357,7 +357,7 @@ msgstr "Duração de retenção dos backups antes da exclusão (expressa em dias
 
 #: centreon/www/include/Administration/parameters/backup/help.php
 msgid ""
-"Backup type for centreon_storage database : mysqldump or LVM snapshot (need "
+"Backup type for centreon_storage database: mysqldump or LVM snapshot (need "
 "available space on MySQL LVM)"
 msgstr ""
 "Método de backup para o banco de dados `centreon_storage ': mysqldump ou "
@@ -1906,8 +1906,8 @@ msgstr ""
 
 #: centreon/www/include/Administration/parameters/general/help.php
 msgid ""
-"If this option is enable, the downtimes and acknowledgments will be "
-"displayed on metric chart.<br><b>Warning</b> : This option can slow down the "
+"If this option is enabled, the downtimes and acknowledgments will be "
+"displayed on metric chart.<br><b>Warning</b>: This option can slow down the "
 "display of chart."
 msgstr ""
 "Se esta opção estiver habilitada, os períodos de tempo de parada e de "
@@ -1917,7 +1917,7 @@ msgstr ""
 #: centreon/www/include/Administration/parameters/general/help.php
 msgid ""
 "If this option is enabled, the comments will be displayed on the status "
-"chart.<br><b>Warning</b> : This option can slow down the display of the "
+"chart.<br><b>Warning</b>: This option can slow down the display of the "
 "chart."
 msgstr ""
 
@@ -5872,7 +5872,7 @@ msgstr ""
 
 #: centreon/www/include/views/componentTemplates/help.php
 msgid ""
-"When filling property is enable, the area color displayed in Centreon is the "
+"When filling property is enabled, the area color displayed in Centreon is the "
 "curve line color with transparency.For exported graphs, the area color is "
 "defined with those fields."
 msgstr ""
@@ -6629,8 +6629,8 @@ msgstr ""
 
 #: unknown
 msgid ""
-"If this option is enable, the comments will be displayed on status chart."
-"<br><b>Warning</b> : This option can slow down the display of chart."
+"If this option is enabled, the comments will be displayed on status chart."
+"<br><b>Warning</b>: This option can slow down the display of chart."
 msgstr ""
 "Se esta opção estiver habilitada, os períodos de tempo de paradas e "
 "confirmações serão visíveis nos gráficos que representam o estado do "

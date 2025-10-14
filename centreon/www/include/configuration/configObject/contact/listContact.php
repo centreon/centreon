@@ -288,7 +288,7 @@ if ($row['count_ldap'] > 0) {
     function submitSync(p, contactId) {
         // msg = localized message to be displayed in the confirmation popup
         let msg = "<?= _('If the contact is connected, all his instances will be closed. Are you sure you want to '
-            . 'request a data synchronization at the next login of this Contact ?'); ?>";
+            . 'request a data synchronization at the next login of this Contact?'); ?>";
         if (confirm(msg)) {
             $.ajax({
                 url: './api/internal.php?object=centreon_ldap_synchro&action=requestLdapSynchro',
@@ -322,7 +322,7 @@ foreach (['o1', 'o2'] as $option) {
         . $option . "'].selectedIndex == 4 || this.form.elements['" . $option . "'].selectedIndex == 5){"
             . "   setO(this.form.elements['" . $option . "'].value); submit();} "
         . "else if (this.form.elements['" . $option . "'].selectedIndex == 6 && confirm('"
-        . _('The chosen contact(s) will be disconnected. Do you confirm the LDAP synchronization request ?')
+        . _('The chosen contact(s) will be disconnected. Do you confirm the LDAP synchronization request?')
             . "')) {"
             . "   setO(this.form.elements['" . $option . "'].value); submit();} "
         . "else if (this.form.elements['" . $option . "'].selectedIndex == 7 && confirm('"

@@ -357,7 +357,7 @@ foreach (['o1', 'o2'] as $option) {
         . _('Do you confirm the deletion ?') . "')) {"
         . " 	setO(this.form.elements['" . $option . "'].value); submit();} "
         . "else if (this.form.elements['" . $option . "'].selectedIndex == 6 && confirm('"
-        . _('Are you sure you want to detach the service ?') . "')) {"
+        . _('Are you sure you want to detach the service?') . "')) {"
         . " 	setO(this.form.elements['" . $option . "'].value); submit();} "
         . "else if (this.form.elements['" . $option . "'].selectedIndex == 3 || this.form.elements['"
         . $option . "'].selectedIndex == 4 ||this.form.elements['" . $option . "'].selectedIndex == 5){"

@@ -110,7 +110,7 @@ class PlatformTopologyRegisterRepositoryAPI implements PlatformTopologyRegisterR
                 $returnedMessage = json_decode($registerResponse->getContent(false), true);
 
                 if (! empty($returnedMessage)) {
-                    $errorMessage .= '  /  ' . _("Central's response => Code : ")
+                    $errorMessage .= '  /  ' . _("Central's response => Code: ")
                         . implode(', ', $returnedMessage);
                 }
 

@@ -100,7 +100,7 @@ $tpl->assign('mode_access', $lvl_access);
 $tpl->assign('headerMenu_name', _('Name'));
 $tpl->assign('headerMenu_ip_address', _('Address'));
 $tpl->assign('headerMenu_type', _('Server type'));
-$tpl->assign('headerMenu_is_running', _('Is running ?'));
+$tpl->assign('headerMenu_is_running', _('Is running?'));
 $tpl->assign('headerMenu_hasChanged', _('Conf Changed'));
 $tpl->assign('headerMenu_pid', _('PID'));
 $tpl->assign('headerMenu_version', _('Version'));
@@ -296,7 +296,7 @@ if (! $isRemote) {
             . " if (!bChecked) { alert('" . _('Please select one or more items') . "'); return false;} "
             . " if (confirm('"
             . _('You are about to delete one or more pollers.\\nThis action is IRREVERSIBLE.\\n'
-            . 'Do you confirm the deletion ?')
+            . 'Do you confirm the deletion?')
             . "')) { setO('d'); submit();} "]
     );
 
