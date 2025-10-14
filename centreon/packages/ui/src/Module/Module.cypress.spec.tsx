@@ -113,7 +113,7 @@ describe('Invalid license module', () => {
     cy.contains('Oops').should('be.visible');
     cy.contains('License invalid or expired').should('be.visible');
     cy.contains('Please contact your administrator.').should('be.visible');
-    cy.get('img[alt="License invalid or expired !"]').should('be.visible');
+    cy.get('img[alt="License invalid or expired!"]').should('be.visible');
     cy.get('img[alt="Centreon Logo"]').should('be.visible');
 
     cy.makeSnapshot();
