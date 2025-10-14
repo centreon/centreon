@@ -1903,6 +1903,12 @@ msgstr ""
 
 #: centreon/www/include/Administration/parameters/general/help.php
 msgid ""
+"If this option is enabled, the comments will be displayed on the status "
+"chart.<br><b>Warning</b>: This option can slow down the display of the chart."
+msgstr ""
+
+#: centreon/www/include/Administration/parameters/general/help.php
+msgid ""
 "If this option is enabled, the downtimes and acknowledgments will be "
 "displayed on metric chart.<br><b>Warning</b>: This option can slow down the "
 "display of chart."
@@ -1910,13 +1916,6 @@ msgstr ""
 "Wenn diese Option aktiviert ist, werden Ausfallszeiten und Inkenntnisnahmen "
 "auf Metrikdiagrammen angezeigt.<br><b>Achtung</b>: Diese Option kann dazu "
 "führen, dass die Anzeige von Diagrammen mehr Zeit in Anspruch nimmt."
-
-#: centreon/www/include/Administration/parameters/general/help.php
-msgid ""
-"If this option is enabled, the comments will be displayed on the status "
-"chart.<br><b>Warning</b>: This option can slow down the display of the "
-"chart."
-msgstr ""
 
 #: centreon/www/include/configuration/configObject/service/help.php
 msgid ""
@@ -5819,9 +5818,9 @@ msgstr ""
 
 #: centreon/www/include/views/componentTemplates/help.php
 msgid ""
-"When filling property is enabled, the area color displayed in Centreon is the "
-"curve line color with transparency.For exported graphs, the area color is "
-"defined with those fields."
+"When filling property is enabled, the area color displayed in Centreon is "
+"the curve line color with transparency.For exported graphs, the area color "
+"is defined with those fields."
 msgstr ""
 "Wenn die Füllen-Option aktiviert ist, ist die in Centreon angezeigte "
 "Flächenfarbe  die Kurvenlinienfarbe mit Transparenz. Für exportierte Graphen "

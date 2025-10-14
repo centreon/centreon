@@ -2319,6 +2319,11 @@ msgstr "Abgebrochen"
 
 #: centreon/src/Centreon/Application/Controller/MonitoringResourceController.php
 #, php-format
+msgid "Cannot build uri to unknown tab : %s"
+msgstr ""
+
+#: centreon/src/Centreon/Application/Controller/MonitoringResourceController.php
+#, php-format
 msgid "Cannot build uri to unknown tab: %s"
 msgstr "Die URI zum unbekannten Tab %s kann nicht erstellt werden"
 
@@ -2442,6 +2447,10 @@ msgid ""
 msgstr ""
 "Auf '%s'@'%s' fehlt das Protokollschema des zentralen Servers. Bitte "
 "überprüfen Sie das 'Fernzugriff'-Formular"
+
+#: centreon/src/Centreon/Infrastructure/PlatformTopology/Repository/PlatformTopologyRegisterRepositoryAPI.php
+msgid "Central's response => Code : "
+msgstr ""
 
 #: centreon/src/Centreon/Infrastructure/PlatformTopology/Repository/PlatformTopologyRegisterRepositoryAPI.php
 msgid "Central's response => Code: "
@@ -7176,10 +7185,8 @@ msgstr ""
 
 #: centreon/src/Centreon/Infrastructure/PlatformTopology/Repository/Exception/PlatformTopologyRepositoryException.php
 #, php-format
-msgid "Failed to get the auth token from Central: '%s''"
+msgid "Failed to get the auth token from Central: '%s'"
 msgstr ""
-"Fehler bei der Ermittlung des Authentifizierungstokens vom zentralen Server: "
-"'%s\""
 
 #: centreon/www/install/front_translate.php
 msgid "Failed to save OpenID Connect configuration"
@@ -8625,6 +8632,35 @@ msgstr "Hostgruppen Zusammenfassung"
 msgid "Hosts"
 msgstr "Hosts"
 
+#: centreon/www/include/options/accessLists/actionsACL/formActionsAccess.php
+msgid "Hosts Actions Access"
+msgstr "Zugriff auf Hostaktionen"
+
+#: centreon/www/class/centreonGraphPoller.class.php
+#: centreon/www/include/Administration/corePerformance/nagiosStats.php
+msgid "Hosts Actively Checked"
+msgstr "Aktiv überprüfte Hosts"
+
+#: centreon/www/include/configuration/configObject/escalation/formEscalation.php
+msgid "Hosts Escalation Options"
+msgstr "Eskalationsoptionen für Hosts"
+
+#: centreon/www/include/monitoring/status/HostGroups/hostGroupJS.php
+msgid "Hosts Status"
+msgstr "Hostsstatus"
+
+#: centreon/www/include/configuration/configKnowledge/display-hostTemplates.php
+msgid "Hosts Templates"
+msgstr "Hosttemplates"
+
+#: centreon/www/include/reporting/dashboard/viewHostGroupLog.php
+msgid "Hosts group state"
+msgstr "Hostgruppenzustand"
+
+#: centreon/www/install/front_translate.php
+msgid "Hosts will not be affected because you don't have sufficient permission"
+msgstr ""
+
 #: centreon/www/include/monitoring/status/Hosts/host.php
 #: centreon/www/include/monitoring/status/Services/service.php
 #: centreon/www/include/monitoring/status/Services/serviceGrid.php
@@ -8687,35 +8723,6 @@ msgstr "Hosts: Sofortige Überprüfung ansetzen (erzwungen)"
 #: centreon/www/include/monitoring/status/Services/service.php
 msgid "Hosts: Set Downtime"
 msgstr "Hosts: Ausfallszeit ansetzen"
-
-#: centreon/www/include/options/accessLists/actionsACL/formActionsAccess.php
-msgid "Hosts Actions Access"
-msgstr "Zugriff auf Hostaktionen"
-
-#: centreon/www/class/centreonGraphPoller.class.php
-#: centreon/www/include/Administration/corePerformance/nagiosStats.php
-msgid "Hosts Actively Checked"
-msgstr "Aktiv überprüfte Hosts"
-
-#: centreon/www/include/configuration/configObject/escalation/formEscalation.php
-msgid "Hosts Escalation Options"
-msgstr "Eskalationsoptionen für Hosts"
-
-#: centreon/www/include/monitoring/status/HostGroups/hostGroupJS.php
-msgid "Hosts Status"
-msgstr "Hostsstatus"
-
-#: centreon/www/include/configuration/configKnowledge/display-hostTemplates.php
-msgid "Hosts Templates"
-msgstr "Hosttemplates"
-
-#: centreon/www/include/reporting/dashboard/viewHostGroupLog.php
-msgid "Hosts group state"
-msgstr "Hostgruppenzustand"
-
-#: centreon/www/install/front_translate.php
-msgid "Hosts will not be affected because you don't have sufficient permission"
-msgstr ""
 
 #: centreon/www/install/front_translate.php
 msgid "Hour"
@@ -8809,8 +8816,7 @@ msgstr ""
 #: centreon/www/include/configuration/configObject/contact/listContact.php
 msgid ""
 "If the contact is connected, all his instances will be closed. Are you sure "
-"you want to request a data synchronization at the next login of this "
-"Contact?"
+"you want to request a data synchronization at the next login of this Contact?"
 msgstr ""
 "Wenn der Kontakt verbunden ist, werden alle seine Verbindungsinstanzen "
 "geschlossen. Sind Sie sich sicher, dass Sie beim nächsten Login des Kontakts "
@@ -10093,8 +10099,8 @@ msgid "Lost in space?"
 msgstr ""
 
 #: centreon/www/include/configuration/configObject/contact/ldapImportContact.php
-msgid "Lotus Domino :"
-msgstr "Lotus Domino:"
+msgid "Lotus Domino:"
+msgstr ""
 
 #: centreon/www/include/configuration/configObject/host/formHost.php
 #: centreon/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php
@@ -10772,10 +10778,6 @@ msgstr "Bild bearbeiten"
 msgid "Modify Vendor"
 msgstr "Hersteller bearbeiten"
 
-#: centreon/www/include/configuration/configObject/host_categories/formHostCategories.php
-msgid "Modify a host category"
-msgstr "Hostkategorie bearbeiten"
-
 #: centreon/www/include/configuration/configCentreonBroker/formCentreonBroker.php
 msgid "Modify a Centreon-Broker Configuration"
 msgstr "Centreon-Broker Konfiguration bearbeiten"
@@ -10880,6 +10882,10 @@ msgstr "Virtuelle Metrik bearbeiten"
 #: centreon/www/include/monitoring/recurrentDowntime/formDowntime.php
 msgid "Modify a downtime"
 msgstr "Ausfallszeit bearbeiten"
+
+#: centreon/www/include/configuration/configObject/host_categories/formHostCategories.php
+msgid "Modify a host category"
+msgstr "Hostkategorie bearbeiten"
 
 #: centreon/www/include/configuration/configServers/formServers.php
 msgid "Modify a poller Configuration"
@@ -12644,15 +12650,6 @@ msgstr "Persistent"
 msgid "Pie chart"
 msgstr ""
 
-#: centreon/src/Centreon/Domain/PlatformTopology/Exception/PlatformTopologyException.php
-#, php-format
-msgid ""
-"Platform: '%s'@'%s' mandatory data are missing. Please check the Remote "
-"Access form"
-msgstr ""
-"Plattform: '%s'@'%s' erforderliche Daten fehlen. Bitte überprüfen Sie das "
-"'Fernzugriff'-Formular"
-
 #: centreon/www/install/menu_translation.php
 msgid "Platform Status"
 msgstr ""
@@ -12664,6 +12661,15 @@ msgstr "Plattformname darf nicht leer sein"
 #: centreon/src/Centreon/Domain/PlatformTopology/PlatformTopologyService.php
 msgid "Platform not found"
 msgstr "Plattform konnte nicht gefunden werden"
+
+#: centreon/src/Centreon/Domain/PlatformTopology/Exception/PlatformTopologyException.php
+#, php-format
+msgid ""
+"Platform: '%s'@'%s' mandatory data are missing. Please check the Remote "
+"Access form"
+msgstr ""
+"Plattform: '%s'@'%s' erforderliche Daten fehlen. Bitte überprüfen Sie das "
+"'Fernzugriff'-Formular"
 
 #: centreon/www/install/step_upgrade/step4.php
 #, php-format
@@ -14981,60 +14987,6 @@ msgstr "Servicegruppen / Hosts"
 msgid "Services"
 msgstr "Services"
 
-#: centreon/www/include/monitoring/status/Services/service.php
-#: centreon/www/include/monitoring/status/Services/serviceGrid.php
-#: centreon/www/include/monitoring/status/Services/serviceSummary.php
-#: centreon/www/include/monitoring/status/ServicesServiceGroups/serviceSummaryBySG.php
-msgid "Services: Acknowledge"
-msgstr "Services: Zur Kenntnis nehmen"
-
-#: centreon/www/include/monitoring/status/Services/service.php
-#: centreon/www/include/monitoring/status/Services/serviceGrid.php
-#: centreon/www/include/monitoring/status/Services/serviceSummary.php
-#: centreon/www/include/monitoring/status/ServicesServiceGroups/serviceSummaryBySG.php
-msgid "Services: Disable Check"
-msgstr "Services: Überprüfung deaktivieren"
-
-#: centreon/www/include/monitoring/status/Services/service.php
-#: centreon/www/include/monitoring/status/Services/serviceGrid.php
-#: centreon/www/include/monitoring/status/Services/serviceSummary.php
-#: centreon/www/include/monitoring/status/ServicesServiceGroups/serviceSummaryBySG.php
-msgid "Services: Disable Notification"
-msgstr "Services: Benachrichtigungen deaktivieren"
-
-#: centreon/www/include/monitoring/status/Services/service.php
-#: centreon/www/include/monitoring/status/Services/serviceGrid.php
-#: centreon/www/include/monitoring/status/Services/serviceSummary.php
-#: centreon/www/include/monitoring/status/ServicesServiceGroups/serviceSummaryBySG.php
-msgid "Services: Disacknowledge"
-msgstr "Services: Inkenntnisnahme entfernen"
-
-#: centreon/www/include/monitoring/status/Services/service.php
-#: centreon/www/include/monitoring/status/Services/serviceGrid.php
-#: centreon/www/include/monitoring/status/Services/serviceSummary.php
-#: centreon/www/include/monitoring/status/ServicesServiceGroups/serviceSummaryBySG.php
-msgid "Services: Enable Check"
-msgstr "Services: Überprüfung aktivieren"
-
-#: centreon/www/include/monitoring/status/Services/service.php
-#: centreon/www/include/monitoring/status/Services/serviceGrid.php
-#: centreon/www/include/monitoring/status/Services/serviceSummary.php
-#: centreon/www/include/monitoring/status/ServicesServiceGroups/serviceSummaryBySG.php
-msgid "Services: Enable Notification"
-msgstr "Services: Benachrichtigungen aktivieren"
-
-#: centreon/www/include/monitoring/status/Services/service.php
-msgid "Services: Schedule immediate check"
-msgstr "Services: Sofortige Überprüfung ansetzen"
-
-#: centreon/www/include/monitoring/status/Services/service.php
-msgid "Services: Schedule immediate check (Forced)"
-msgstr "Services: Sofortige Überprüfung ansetzen (erzwungen)"
-
-#: centreon/www/include/monitoring/status/Services/service.php
-msgid "Services: Set Downtime"
-msgstr "Services: Ausfallszeit ansetzen"
-
 #: centreon/www/include/options/accessLists/actionsACL/formActionsAccess.php
 msgid "Services Actions Access"
 msgstr "Zugriff auf Serviceaktionen"
@@ -15113,6 +15065,60 @@ msgstr "Serviceinformationen"
 msgid ""
 "Services will not be affected because you don't have sufficient permission"
 msgstr ""
+
+#: centreon/www/include/monitoring/status/Services/service.php
+#: centreon/www/include/monitoring/status/Services/serviceGrid.php
+#: centreon/www/include/monitoring/status/Services/serviceSummary.php
+#: centreon/www/include/monitoring/status/ServicesServiceGroups/serviceSummaryBySG.php
+msgid "Services: Acknowledge"
+msgstr "Services: Zur Kenntnis nehmen"
+
+#: centreon/www/include/monitoring/status/Services/service.php
+#: centreon/www/include/monitoring/status/Services/serviceGrid.php
+#: centreon/www/include/monitoring/status/Services/serviceSummary.php
+#: centreon/www/include/monitoring/status/ServicesServiceGroups/serviceSummaryBySG.php
+msgid "Services: Disable Check"
+msgstr "Services: Überprüfung deaktivieren"
+
+#: centreon/www/include/monitoring/status/Services/service.php
+#: centreon/www/include/monitoring/status/Services/serviceGrid.php
+#: centreon/www/include/monitoring/status/Services/serviceSummary.php
+#: centreon/www/include/monitoring/status/ServicesServiceGroups/serviceSummaryBySG.php
+msgid "Services: Disable Notification"
+msgstr "Services: Benachrichtigungen deaktivieren"
+
+#: centreon/www/include/monitoring/status/Services/service.php
+#: centreon/www/include/monitoring/status/Services/serviceGrid.php
+#: centreon/www/include/monitoring/status/Services/serviceSummary.php
+#: centreon/www/include/monitoring/status/ServicesServiceGroups/serviceSummaryBySG.php
+msgid "Services: Disacknowledge"
+msgstr "Services: Inkenntnisnahme entfernen"
+
+#: centreon/www/include/monitoring/status/Services/service.php
+#: centreon/www/include/monitoring/status/Services/serviceGrid.php
+#: centreon/www/include/monitoring/status/Services/serviceSummary.php
+#: centreon/www/include/monitoring/status/ServicesServiceGroups/serviceSummaryBySG.php
+msgid "Services: Enable Check"
+msgstr "Services: Überprüfung aktivieren"
+
+#: centreon/www/include/monitoring/status/Services/service.php
+#: centreon/www/include/monitoring/status/Services/serviceGrid.php
+#: centreon/www/include/monitoring/status/Services/serviceSummary.php
+#: centreon/www/include/monitoring/status/ServicesServiceGroups/serviceSummaryBySG.php
+msgid "Services: Enable Notification"
+msgstr "Services: Benachrichtigungen aktivieren"
+
+#: centreon/www/include/monitoring/status/Services/service.php
+msgid "Services: Schedule immediate check"
+msgstr "Services: Sofortige Überprüfung ansetzen"
+
+#: centreon/www/include/monitoring/status/Services/service.php
+msgid "Services: Schedule immediate check (Forced)"
+msgstr "Services: Sofortige Überprüfung ansetzen (erzwungen)"
+
+#: centreon/www/include/monitoring/status/Services/service.php
+msgid "Services: Set Downtime"
+msgstr "Services: Ausfallszeit ansetzen"
 
 #: centreon/www/api/class/centreon_keepalive.class.php
 msgid "Session is expired"
@@ -15439,8 +15445,8 @@ msgid ""
 "macro."
 msgstr "Ihre Befehlszeile enthält kein $_SERVICE$- oder $_HOST$-Makro."
 
-#: centreon/www/install/dashboard_widgets.php
 #: centreon/www/include/Administration/parameters/general/form.php
+#: centreon/www/install/dashboard_widgets.php
 msgid "Sort by"
 msgstr "Sortieren nach"
 
@@ -17968,10 +17974,6 @@ msgstr "Ressource anzeigen"
 msgid "View Vendor"
 msgstr "Hersteller anzeigen"
 
-#: centreon/www/include/configuration/configObject/host_categories/formHostCategories.php
-msgid "View a host category"
-msgstr "Hostkategorie anzeigen"
-
 #: centreon/www/include/configuration/configCentreonBroker/formCentreonBroker.php
 msgid "View a Centreon-Broker Configuration"
 msgstr "Centreon-Broker Konfiguration anzeigen"
@@ -18068,6 +18070,10 @@ msgstr "Virtuelle Metrik anzeigen"
 #: centreon/www/include/monitoring/recurrentDowntime/formDowntime.php
 msgid "View a downtime"
 msgstr "Ausfallszeit anzeigen"
+
+#: centreon/www/include/configuration/configObject/host_categories/formHostCategories.php
+msgid "View a host category"
+msgstr "Hostkategorie anzeigen"
 
 #: centreon/www/include/configuration/configServers/formServers.php
 msgid "View a poller Configuration"
@@ -20579,6 +20585,13 @@ msgstr "XML exportieren"
 msgid "Extended Information"
 msgstr "Erweiterte Informationen"
 
+#, php-format
+#: unknown
+msgid "Failed to get the auth token from Central: '%s''"
+msgstr ""
+"Fehler bei der Ermittlung des Authentifizierungstokens vom zentralen "
+"Server: '%s\""
+
 #: unknown
 msgid "Finish"
 msgstr "Abschließen"
@@ -20702,6 +20715,10 @@ msgstr "Protokollrotationsmethode"
 #: unknown
 msgid "Login claim value"
 msgstr "Login Claim Wert"
+
+#: unknown
+msgid "Lotus Domino :"
+msgstr "Lotus Domino:"
 
 #: unknown
 msgid "Management"

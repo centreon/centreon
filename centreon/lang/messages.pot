@@ -148,44 +148,44 @@ msgstr ""
 
 #: centreon/www/include/options/accessLists/resourcesACL/formResourcesAccess.php
 msgid ""
-"<b><i>Help :</i></b> Select hosts and hostgroups that can be seen by "
+"<b><i>Help:</i></b> Select hosts and hostgroups that can be seen by "
 "associated users. You also have the possibility to exclude host(s) from "
 "selected hostgroup(s)."
 msgstr ""
 
 #: centreon/www/include/options/accessLists/resourcesACL/formResourcesAccess.php
 msgid ""
-"<b><i>Help :</i></b> Select image folders that can be seen by associated "
+"<b><i>Help:</i></b> Select image folders that can be seen by associated "
 "users."
 msgstr ""
 
 #: centreon/www/include/options/accessLists/resourcesACL/formResourcesAccess.php
 msgid ""
-"<b><i>Help :</i></b> Select meta services that can be seen by associated "
+"<b><i>Help:</i></b> Select meta services that can be seen by associated "
 "users."
 msgstr ""
 
 #: centreon/www/include/options/accessLists/resourcesACL/formResourcesAccess.php
 msgid ""
-"<b><i>Help :</i></b> Select services that can be seen by associated users."
+"<b><i>Help:</i></b> Select services that can be seen by associated users."
 msgstr ""
 
 #: centreon/www/include/options/accessLists/resourcesACL/formResourcesAccess.php
 msgid ""
-"<b><i>Help :</i></b> Select the filter(s) you want to apply to the resource "
+"<b><i>Help:</i></b> Select the filter(s) you want to apply to the resource "
 "definition for a more restrictive view."
 msgstr ""
 
 #: centreon/www/include/configuration/configGenerate/xml/restartPollers.php
-msgid "<br><b>Centreon : </b>A reload signal has been sent to "
+msgid "<br><b>Centreon: </b>A reload signal has been sent to "
 msgstr ""
 
 #: centreon/www/include/configuration/configGenerate/xml/restartPollers.php
-msgid "<br><b>Centreon : </b>A restart signal has been sent to "
+msgid "<br><b>Centreon: </b>A restart signal has been sent to "
 msgstr ""
 
 #: centreon/www/include/configuration/configGenerate/xml/moveFiles.php
-msgid "<br><b>Centreon : </b>All configuration will be send to "
+msgid "<br><b>Centreon: </b>All configuration will be send to "
 msgstr ""
 
 #: centreon/www/include/views/virtualMetrics/formVirtualMetrics.php
@@ -217,7 +217,7 @@ msgstr ""
 
 #: centreon/src/Centreon/Domain/PlatformTopology/Exception/PlatformTopologyException.php
 #, php-format
-msgid "A platform using the name : '%s' or address : '%s' already exists"
+msgid "A platform using the name: '%s' or address: '%s' already exists"
 msgstr ""
 
 #: centreon/src/Core/AgentConfiguration/Application/Exception/AgentConfigurationException.php
@@ -474,15 +474,15 @@ msgid "Action"
 msgstr ""
 
 #: centreon/www/include/configuration/configObject/traps/formTraps.php
-msgid "Action 1 : Submit result to Monitoring Engine"
+msgid "Action 1: Submit result to Monitoring Engine"
 msgstr ""
 
 #: centreon/www/include/configuration/configObject/traps/formTraps.php
-msgid "Action 2 : Force rescheduling of service check"
+msgid "Action 2: Force rescheduling of service check"
 msgstr ""
 
 #: centreon/www/include/configuration/configObject/traps/formTraps.php
-msgid "Action 3 : Execute a Command"
+msgid "Action 3: Execute a Command"
 msgstr ""
 
 #: centreon/www/include/options/accessLists/actionsACL/formActionsAccess.php
@@ -579,7 +579,7 @@ msgid "Active Directory"
 msgstr ""
 
 #: centreon/www/include/configuration/configObject/contact/ldapImportContact.php
-msgid "Active Directory :"
+msgid "Active Directory:"
 msgstr ""
 
 #: centreon/www/include/reporting/dashboard/initReport.php
@@ -1421,7 +1421,7 @@ msgstr ""
 #: centreon/www/include/options/session/connected_user.php
 msgid ""
 "All this contact sessions will be closed. Are you sure you want to request a "
-"synchronization at the next login of this Contact ?"
+"synchronization at the next login of this Contact?"
 msgstr ""
 
 #: centreon/www/include/Administration/parameters/gorgone/gorgone.php
@@ -1616,7 +1616,7 @@ msgstr ""
 #: centreon/www/include/configuration/configObject/service/listServiceByHostGroup.php
 #: centreon/www/include/configuration/configObject/service/listServiceByHostGroup.php
 #: centreon/www/include/configuration/configObject/service/listServiceByHostGroup.php
-msgid "Are you sure you want to detach the service ?"
+msgid "Are you sure you want to detach the service?"
 msgstr ""
 
 #: centreon/www/install/dashboard_widgets.php
@@ -2027,7 +2027,7 @@ msgid "Bad ldap filter: missing %s pattern. Check user or group filter"
 msgstr ""
 
 #: centreon/www/include/options/media/images/syncDir.php
-msgid "Bad picture alias detected :"
+msgid "Bad picture alias detected:"
 msgstr ""
 
 #: centreon/src/Centreon/Infrastructure/RequestParameters/SqlRequestParametersTranslator.php
@@ -2416,9 +2416,13 @@ msgid "Cancelled"
 msgstr ""
 
 #: centreon/src/Centreon/Application/Controller/MonitoringResourceController.php
-#: centreon/src/Centreon/Application/Controller/MonitoringResourceController.php
 #, php-format
 msgid "Cannot build uri to unknown tab : %s"
+msgstr ""
+
+#: centreon/src/Centreon/Application/Controller/MonitoringResourceController.php
+#, php-format
+msgid "Cannot build uri to unknown tab: %s"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
@@ -2443,7 +2447,7 @@ msgstr ""
 
 #: centreon/src/Centreon/Domain/PlatformTopology/Exception/PlatformTopologyException.php
 #, php-format
-msgid "Cannot register the '%s' platform : '%s'@'%s' behind a '%s' platform"
+msgid "Cannot register the '%s' platform: '%s'@'%s' behind a '%s' platform"
 msgstr ""
 
 #: centreon/src/Core/Platform/Application/UseCase/UpdateVersions/UpdateVersionsException.php
@@ -2529,8 +2533,11 @@ msgstr ""
 
 #: centreon/src/Centreon/Infrastructure/PlatformTopology/Repository/PlatformTopologyRegisterRepositoryAPI.php
 #: centreon/src/Centreon/Infrastructure/PlatformTopology/Repository/PlatformTopologyRegisterRepositoryAPI.php
-#: centreon/src/Centreon/Infrastructure/PlatformTopology/Repository/PlatformTopologyRegisterRepositoryAPI.php
 msgid "Central's response => Code : "
+msgstr ""
+
+#: centreon/src/Centreon/Infrastructure/PlatformTopology/Repository/PlatformTopologyRegisterRepositoryAPI.php
+msgid "Central's response => Code: "
 msgstr ""
 
 #: centreon/www/include/configuration/configObject/contact/formContact.php
@@ -2823,15 +2830,12 @@ msgid "Check command of service id %d not found"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
-msgid "Check command sent !"
-msgstr ""
-
-#: centreon/www/install/front_translate.php
-msgid "Check command sent ! Please refresh the listing to update the data."
-msgstr ""
-
 #: centreon/www/install/front_translate.php
 msgid "Check command sent!"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Check command sent! Please refresh the listing to update the data."
 msgstr ""
 
 #: centreon/www/install/front_translate.php
@@ -3691,7 +3695,7 @@ msgid "Convert Trap information"
 msgstr ""
 
 #: centreon/www/include/options/media/images/syncDir.php
-msgid "Convert gd2 -> png :"
+msgid "Convert gd2 -> png:"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
@@ -5299,7 +5303,7 @@ msgid "Dissociate"
 msgstr ""
 
 #: centreon/www/install/smarty_translate.php
-msgid "Dissociate this view ?"
+msgid "Dissociate this view?"
 msgstr ""
 
 #: centreon/www/include/configuration/configServers/formServers.php
@@ -5318,7 +5322,7 @@ msgid "Do not use proxy defined in global configuration"
 msgstr ""
 
 #: centreon/www/include/monitoring/downtime/listDowntime.php
-msgid "Do you confirm the cancellation ?"
+msgid "Do you confirm the cancellation?"
 msgstr ""
 
 #: centreon/www/include/Administration/performance/viewMetrics.php
@@ -5326,7 +5330,7 @@ msgstr ""
 #: centreon/www/include/Administration/performance/viewMetrics.php
 #: centreon/www/include/Administration/performance/viewMetrics.php
 msgid ""
-"Do you confirm the change of the RRD data source type ? If yes, you must "
+"Do you confirm the change of the RRD data source type? If yes, you must "
 "rebuild the RRD Database"
 msgstr ""
 
@@ -6464,7 +6468,7 @@ msgstr ""
 
 #: centreon/src/Centreon/Domain/PlatformTopology/Exception/PlatformTopologyException.php
 #, php-format
-msgid "Error when adding in topology the platform : '%s'@'%s'"
+msgid "Error when adding in topology the platform: '%s'@'%s'"
 msgstr ""
 
 #: centreon/src/Centreon/Domain/ServiceConfiguration/ServiceConfigurationService.php
@@ -7310,7 +7314,7 @@ msgid "Everything is OK"
 msgstr ""
 
 #: centreon/www/install/step_upgrade/step3.php
-msgid "Everything is ready !"
+msgid "Everything is ready!"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
@@ -7658,7 +7662,7 @@ msgstr ""
 
 #: centreon/src/Centreon/Infrastructure/PlatformTopology/Repository/Exception/PlatformTopologyRepositoryException.php
 #, php-format
-msgid "Failed to get the auth token from Central : '%s''"
+msgid "Failed to get the auth token from Central: '%s'"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
@@ -8026,16 +8030,13 @@ msgid "Forced check"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
-msgid "Forced check command sent !"
+#: centreon/www/install/front_translate.php
+msgid "Forced check command sent!"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
 msgid ""
-"Forced check command sent ! Please refresh the listing to update the data."
-msgstr ""
-
-#: centreon/www/install/front_translate.php
-msgid "Forced check command sent!"
+"Forced check command sent! Please refresh the listing to update the data."
 msgstr ""
 
 #: centreon/www/install/dashboard_widgets.php
@@ -9239,93 +9240,6 @@ msgstr ""
 msgid "Hosts"
 msgstr ""
 
-#: centreon/www/include/monitoring/status/Hosts/host.php
-#: centreon/www/include/monitoring/status/Hosts/host.php
-#: centreon/www/include/monitoring/status/Services/service.php
-#: centreon/www/include/monitoring/status/Services/service.php
-#: centreon/www/include/monitoring/status/Services/serviceGrid.php
-#: centreon/www/include/monitoring/status/Services/serviceSummary.php
-#: centreon/www/include/monitoring/status/ServicesServiceGroups/serviceSummaryBySG.php
-#: centreon/www/include/monitoring/status/ServicesServiceGroups/serviceSummaryBySG.php
-msgid "Hosts : Acknowledge"
-msgstr ""
-
-#: centreon/www/include/monitoring/status/Hosts/host.php
-#: centreon/www/include/monitoring/status/Hosts/host.php
-#: centreon/www/include/monitoring/status/Services/service.php
-#: centreon/www/include/monitoring/status/Services/service.php
-#: centreon/www/include/monitoring/status/Services/serviceGrid.php
-#: centreon/www/include/monitoring/status/Services/serviceSummary.php
-#: centreon/www/include/monitoring/status/ServicesServiceGroups/serviceSummaryBySG.php
-#: centreon/www/include/monitoring/status/ServicesServiceGroups/serviceSummaryBySG.php
-msgid "Hosts : Disable Check"
-msgstr ""
-
-#: centreon/www/include/monitoring/status/Hosts/host.php
-#: centreon/www/include/monitoring/status/Hosts/host.php
-#: centreon/www/include/monitoring/status/Services/service.php
-#: centreon/www/include/monitoring/status/Services/service.php
-#: centreon/www/include/monitoring/status/Services/serviceGrid.php
-#: centreon/www/include/monitoring/status/Services/serviceSummary.php
-#: centreon/www/include/monitoring/status/ServicesServiceGroups/serviceSummaryBySG.php
-#: centreon/www/include/monitoring/status/ServicesServiceGroups/serviceSummaryBySG.php
-msgid "Hosts : Disable Notification"
-msgstr ""
-
-#: centreon/www/include/monitoring/status/Hosts/host.php
-#: centreon/www/include/monitoring/status/Hosts/host.php
-#: centreon/www/include/monitoring/status/Services/service.php
-#: centreon/www/include/monitoring/status/Services/service.php
-#: centreon/www/include/monitoring/status/Services/serviceGrid.php
-#: centreon/www/include/monitoring/status/Services/serviceSummary.php
-#: centreon/www/include/monitoring/status/ServicesServiceGroups/serviceSummaryBySG.php
-#: centreon/www/include/monitoring/status/ServicesServiceGroups/serviceSummaryBySG.php
-msgid "Hosts : Disacknowledge"
-msgstr ""
-
-#: centreon/www/include/monitoring/status/Hosts/host.php
-#: centreon/www/include/monitoring/status/Hosts/host.php
-#: centreon/www/include/monitoring/status/Services/service.php
-#: centreon/www/include/monitoring/status/Services/service.php
-#: centreon/www/include/monitoring/status/Services/serviceGrid.php
-#: centreon/www/include/monitoring/status/Services/serviceSummary.php
-#: centreon/www/include/monitoring/status/ServicesServiceGroups/serviceSummaryBySG.php
-#: centreon/www/include/monitoring/status/ServicesServiceGroups/serviceSummaryBySG.php
-msgid "Hosts : Enable Check"
-msgstr ""
-
-#: centreon/www/include/monitoring/status/Hosts/host.php
-#: centreon/www/include/monitoring/status/Hosts/host.php
-#: centreon/www/include/monitoring/status/Services/service.php
-#: centreon/www/include/monitoring/status/Services/service.php
-#: centreon/www/include/monitoring/status/Services/serviceGrid.php
-#: centreon/www/include/monitoring/status/Services/serviceSummary.php
-#: centreon/www/include/monitoring/status/ServicesServiceGroups/serviceSummaryBySG.php
-#: centreon/www/include/monitoring/status/ServicesServiceGroups/serviceSummaryBySG.php
-msgid "Hosts : Enable Notification"
-msgstr ""
-
-#: centreon/www/include/monitoring/status/Hosts/host.php
-#: centreon/www/include/monitoring/status/Hosts/host.php
-#: centreon/www/include/monitoring/status/Services/service.php
-#: centreon/www/include/monitoring/status/Services/service.php
-msgid "Hosts : Schedule immediate check"
-msgstr ""
-
-#: centreon/www/include/monitoring/status/Hosts/host.php
-#: centreon/www/include/monitoring/status/Hosts/host.php
-#: centreon/www/include/monitoring/status/Services/service.php
-#: centreon/www/include/monitoring/status/Services/service.php
-msgid "Hosts : Schedule immediate check (Forced)"
-msgstr ""
-
-#: centreon/www/include/monitoring/status/Hosts/host.php
-#: centreon/www/include/monitoring/status/Hosts/host.php
-#: centreon/www/include/monitoring/status/Services/service.php
-#: centreon/www/include/monitoring/status/Services/service.php
-msgid "Hosts : Set Downtime"
-msgstr ""
-
 #: centreon/www/include/options/accessLists/actionsACL/formActionsAccess.php
 msgid "Hosts Actions Access"
 msgstr ""
@@ -9354,6 +9268,93 @@ msgstr ""
 #: centreon/www/install/front_translate.php
 #: centreon/www/install/front_translate.php
 msgid "Hosts will not be affected because you don't have sufficient permission"
+msgstr ""
+
+#: centreon/www/include/monitoring/status/Hosts/host.php
+#: centreon/www/include/monitoring/status/Hosts/host.php
+#: centreon/www/include/monitoring/status/Services/service.php
+#: centreon/www/include/monitoring/status/Services/service.php
+#: centreon/www/include/monitoring/status/Services/serviceGrid.php
+#: centreon/www/include/monitoring/status/Services/serviceSummary.php
+#: centreon/www/include/monitoring/status/ServicesServiceGroups/serviceSummaryBySG.php
+#: centreon/www/include/monitoring/status/ServicesServiceGroups/serviceSummaryBySG.php
+msgid "Hosts: Acknowledge"
+msgstr ""
+
+#: centreon/www/include/monitoring/status/Hosts/host.php
+#: centreon/www/include/monitoring/status/Hosts/host.php
+#: centreon/www/include/monitoring/status/Services/service.php
+#: centreon/www/include/monitoring/status/Services/service.php
+#: centreon/www/include/monitoring/status/Services/serviceGrid.php
+#: centreon/www/include/monitoring/status/Services/serviceSummary.php
+#: centreon/www/include/monitoring/status/ServicesServiceGroups/serviceSummaryBySG.php
+#: centreon/www/include/monitoring/status/ServicesServiceGroups/serviceSummaryBySG.php
+msgid "Hosts: Disable Check"
+msgstr ""
+
+#: centreon/www/include/monitoring/status/Hosts/host.php
+#: centreon/www/include/monitoring/status/Hosts/host.php
+#: centreon/www/include/monitoring/status/Services/service.php
+#: centreon/www/include/monitoring/status/Services/service.php
+#: centreon/www/include/monitoring/status/Services/serviceGrid.php
+#: centreon/www/include/monitoring/status/Services/serviceSummary.php
+#: centreon/www/include/monitoring/status/ServicesServiceGroups/serviceSummaryBySG.php
+#: centreon/www/include/monitoring/status/ServicesServiceGroups/serviceSummaryBySG.php
+msgid "Hosts: Disable Notification"
+msgstr ""
+
+#: centreon/www/include/monitoring/status/Hosts/host.php
+#: centreon/www/include/monitoring/status/Hosts/host.php
+#: centreon/www/include/monitoring/status/Services/service.php
+#: centreon/www/include/monitoring/status/Services/service.php
+#: centreon/www/include/monitoring/status/Services/serviceGrid.php
+#: centreon/www/include/monitoring/status/Services/serviceSummary.php
+#: centreon/www/include/monitoring/status/ServicesServiceGroups/serviceSummaryBySG.php
+#: centreon/www/include/monitoring/status/ServicesServiceGroups/serviceSummaryBySG.php
+msgid "Hosts: Disacknowledge"
+msgstr ""
+
+#: centreon/www/include/monitoring/status/Hosts/host.php
+#: centreon/www/include/monitoring/status/Hosts/host.php
+#: centreon/www/include/monitoring/status/Services/service.php
+#: centreon/www/include/monitoring/status/Services/service.php
+#: centreon/www/include/monitoring/status/Services/serviceGrid.php
+#: centreon/www/include/monitoring/status/Services/serviceSummary.php
+#: centreon/www/include/monitoring/status/ServicesServiceGroups/serviceSummaryBySG.php
+#: centreon/www/include/monitoring/status/ServicesServiceGroups/serviceSummaryBySG.php
+msgid "Hosts: Enable Check"
+msgstr ""
+
+#: centreon/www/include/monitoring/status/Hosts/host.php
+#: centreon/www/include/monitoring/status/Hosts/host.php
+#: centreon/www/include/monitoring/status/Services/service.php
+#: centreon/www/include/monitoring/status/Services/service.php
+#: centreon/www/include/monitoring/status/Services/serviceGrid.php
+#: centreon/www/include/monitoring/status/Services/serviceSummary.php
+#: centreon/www/include/monitoring/status/ServicesServiceGroups/serviceSummaryBySG.php
+#: centreon/www/include/monitoring/status/ServicesServiceGroups/serviceSummaryBySG.php
+msgid "Hosts: Enable Notification"
+msgstr ""
+
+#: centreon/www/include/monitoring/status/Hosts/host.php
+#: centreon/www/include/monitoring/status/Hosts/host.php
+#: centreon/www/include/monitoring/status/Services/service.php
+#: centreon/www/include/monitoring/status/Services/service.php
+msgid "Hosts: Schedule immediate check"
+msgstr ""
+
+#: centreon/www/include/monitoring/status/Hosts/host.php
+#: centreon/www/include/monitoring/status/Hosts/host.php
+#: centreon/www/include/monitoring/status/Services/service.php
+#: centreon/www/include/monitoring/status/Services/service.php
+msgid "Hosts: Schedule immediate check (Forced)"
+msgstr ""
+
+#: centreon/www/include/monitoring/status/Hosts/host.php
+#: centreon/www/include/monitoring/status/Hosts/host.php
+#: centreon/www/include/monitoring/status/Services/service.php
+#: centreon/www/include/monitoring/status/Services/service.php
+msgid "Hosts: Set Downtime"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
@@ -9451,8 +9452,7 @@ msgstr ""
 #: centreon/www/include/configuration/configObject/contact/listContact.php
 msgid ""
 "If the contact is connected, all his instances will be closed. Are you sure "
-"you want to request a data synchronization at the next login of this "
-"Contact ?"
+"you want to request a data synchronization at the next login of this Contact?"
 msgstr ""
 
 #: centreon/www/install/dashboard_widgets.php
@@ -9976,11 +9976,11 @@ msgid "Is Volatile"
 msgstr ""
 
 #: centreon/www/include/configuration/configServers/formServers.php
-msgid "Is default poller ?"
+msgid "Is default poller?"
 msgstr ""
 
 #: centreon/www/include/configuration/configServers/listServers.php
-msgid "Is running ?"
+msgid "Is running?"
 msgstr ""
 
 #: centreon/www/include/configuration/configObject/service_template_model/formServiceTemplateModel.php
@@ -10458,7 +10458,7 @@ msgid "License expired"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
-msgid "License invalid or expired !"
+msgid "License invalid or expired!"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
@@ -10656,7 +10656,7 @@ msgid "Local provider configuration not found"
 msgstr ""
 
 #: centreon/www/include/configuration/configServers/formServers.php
-msgid "Localhost ?"
+msgid "Localhost?"
 msgstr ""
 
 #: centreon/www/include/Administration/performance/viewData.php
@@ -10796,7 +10796,7 @@ msgid "Lost in space?"
 msgstr ""
 
 #: centreon/www/include/configuration/configObject/contact/ldapImportContact.php
-msgid "Lotus Domino :"
+msgid "Lotus Domino:"
 msgstr ""
 
 #: centreon/www/include/configuration/configObject/host/formHost.php
@@ -11395,7 +11395,7 @@ msgstr ""
 
 #: centreon/src/Centreon/Domain/PlatformTopology/PlatformTopologyService.php
 #, php-format
-msgid "Missing mandatory parent address, to link the platform : '%s'@'%s'"
+msgid "Missing mandatory parent address, to link the platform: '%s'@'%s'"
 msgstr ""
 
 #: centreon/src/Centreon/Domain/PlatformTopology/PlatformTopologyService.php
@@ -11543,10 +11543,6 @@ msgstr ""
 msgid "Modify Vendor"
 msgstr ""
 
-#: centreon/www/include/configuration/configObject/host_categories/formHostCategories.php
-msgid "Modify a  host category"
-msgstr ""
-
 #: centreon/www/include/configuration/configCentreonBroker/formCentreonBroker.php
 msgid "Modify a Centreon-Broker Configuration"
 msgstr ""
@@ -11650,6 +11646,10 @@ msgstr ""
 
 #: centreon/www/include/monitoring/recurrentDowntime/formDowntime.php
 msgid "Modify a downtime"
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/host_categories/formHostCategories.php
+msgid "Modify a host category"
 msgstr ""
 
 #: centreon/www/include/configuration/configServers/formServers.php
@@ -12179,7 +12179,7 @@ msgid "Never expire"
 msgstr ""
 
 #: centreon/www/include/options/media/images/syncDir.php
-msgid "New directory added :"
+msgid "New directory added:"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
@@ -12187,7 +12187,7 @@ msgid "New filter"
 msgstr ""
 
 #: centreon/www/include/options/media/images/syncDir.php
-msgid "New images added :"
+msgid "New images added:"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
@@ -12465,7 +12465,7 @@ msgstr ""
 
 #: centreon/src/Centreon/Domain/PlatformTopology/PlatformTopologyService.php
 #, php-format
-msgid "No parent platform was found for : '%s'@'%s'"
+msgid "No parent platform was found for: '%s'@'%s'"
 msgstr ""
 
 #: centreon/www/include/configuration/configGenerate/formGenerateFiles.php
@@ -12977,11 +12977,11 @@ msgid "Object name"
 msgstr ""
 
 #: centreon/www/include/Administration/configChangelog/viewLogs.php
-msgid "Object name : "
+msgid "Object name:"
 msgstr ""
 
 #: centreon/www/include/Administration/configChangelog/viewLogs.php
-msgid "Object type : "
+msgid "Object type:"
 msgstr ""
 
 #: centreon/www/install/smarty_translate.php
@@ -13076,7 +13076,7 @@ msgid "Oops"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
-msgid "Oops !"
+msgid "Oops!"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
@@ -13111,7 +13111,7 @@ msgid "OpenID Connect only"
 msgstr ""
 
 #: centreon/www/include/configuration/configObject/contact/ldapImportContact.php
-msgid "OpenLDAP :"
+msgid "OpenLDAP:"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
@@ -13182,7 +13182,7 @@ msgid "Order"
 msgstr ""
 
 #: centreon/www/include/Administration/parameters/general/form.php
-msgid "Order sort "
+msgid "Order sort"
 msgstr ""
 
 #: centreon/www/include/Administration/parameters/general/form.php
@@ -13635,13 +13635,6 @@ msgstr ""
 msgid "Pie chart"
 msgstr ""
 
-#: centreon/src/Centreon/Domain/PlatformTopology/Exception/PlatformTopologyException.php
-#, php-format
-msgid ""
-"Platform : '%s'@'%s' mandatory data are missing. Please check the Remote "
-"Access form"
-msgstr ""
-
 #: centreon/www/install/menu_translation.php
 msgid "Platform Status"
 msgstr ""
@@ -13652,6 +13645,13 @@ msgstr ""
 
 #: centreon/src/Centreon/Domain/PlatformTopology/PlatformTopologyService.php
 msgid "Platform not found"
+msgstr ""
+
+#: centreon/src/Centreon/Domain/PlatformTopology/Exception/PlatformTopologyException.php
+#, php-format
+msgid ""
+"Platform: '%s'@'%s' mandatory data are missing. Please check the Remote "
+"Access form"
 msgstr ""
 
 #: centreon/www/install/step_upgrade/step4.php
@@ -15240,7 +15240,7 @@ msgstr ""
 
 #: centreon/src/Centreon/Domain/PlatformTopology/Exception/PlatformTopologyException.php
 #, php-format
-msgid "Same address and parent_address for platform : '%s'@'%s'"
+msgid "Same address and parent_address for platform: '%s'@'%s'"
 msgstr ""
 
 #: centreon/www/include/configuration/configServers/formServers.php
@@ -16306,75 +16306,6 @@ msgstr ""
 msgid "Services"
 msgstr ""
 
-#: centreon/www/include/monitoring/status/Services/service.php
-#: centreon/www/include/monitoring/status/Services/service.php
-#: centreon/www/include/monitoring/status/Services/serviceGrid.php
-#: centreon/www/include/monitoring/status/Services/serviceSummary.php
-#: centreon/www/include/monitoring/status/ServicesServiceGroups/serviceSummaryBySG.php
-#: centreon/www/include/monitoring/status/ServicesServiceGroups/serviceSummaryBySG.php
-msgid "Services : Acknowledge"
-msgstr ""
-
-#: centreon/www/include/monitoring/status/Services/service.php
-#: centreon/www/include/monitoring/status/Services/service.php
-#: centreon/www/include/monitoring/status/Services/serviceGrid.php
-#: centreon/www/include/monitoring/status/Services/serviceSummary.php
-#: centreon/www/include/monitoring/status/ServicesServiceGroups/serviceSummaryBySG.php
-#: centreon/www/include/monitoring/status/ServicesServiceGroups/serviceSummaryBySG.php
-msgid "Services : Disable Check"
-msgstr ""
-
-#: centreon/www/include/monitoring/status/Services/service.php
-#: centreon/www/include/monitoring/status/Services/service.php
-#: centreon/www/include/monitoring/status/Services/serviceGrid.php
-#: centreon/www/include/monitoring/status/Services/serviceSummary.php
-#: centreon/www/include/monitoring/status/ServicesServiceGroups/serviceSummaryBySG.php
-#: centreon/www/include/monitoring/status/ServicesServiceGroups/serviceSummaryBySG.php
-msgid "Services : Disable Notification"
-msgstr ""
-
-#: centreon/www/include/monitoring/status/Services/service.php
-#: centreon/www/include/monitoring/status/Services/service.php
-#: centreon/www/include/monitoring/status/Services/serviceGrid.php
-#: centreon/www/include/monitoring/status/Services/serviceSummary.php
-#: centreon/www/include/monitoring/status/ServicesServiceGroups/serviceSummaryBySG.php
-#: centreon/www/include/monitoring/status/ServicesServiceGroups/serviceSummaryBySG.php
-msgid "Services : Disacknowledge"
-msgstr ""
-
-#: centreon/www/include/monitoring/status/Services/service.php
-#: centreon/www/include/monitoring/status/Services/service.php
-#: centreon/www/include/monitoring/status/Services/serviceGrid.php
-#: centreon/www/include/monitoring/status/Services/serviceSummary.php
-#: centreon/www/include/monitoring/status/ServicesServiceGroups/serviceSummaryBySG.php
-#: centreon/www/include/monitoring/status/ServicesServiceGroups/serviceSummaryBySG.php
-msgid "Services : Enable Check"
-msgstr ""
-
-#: centreon/www/include/monitoring/status/Services/service.php
-#: centreon/www/include/monitoring/status/Services/service.php
-#: centreon/www/include/monitoring/status/Services/serviceGrid.php
-#: centreon/www/include/monitoring/status/Services/serviceSummary.php
-#: centreon/www/include/monitoring/status/ServicesServiceGroups/serviceSummaryBySG.php
-#: centreon/www/include/monitoring/status/ServicesServiceGroups/serviceSummaryBySG.php
-msgid "Services : Enable Notification"
-msgstr ""
-
-#: centreon/www/include/monitoring/status/Services/service.php
-#: centreon/www/include/monitoring/status/Services/service.php
-msgid "Services : Schedule immediate check"
-msgstr ""
-
-#: centreon/www/include/monitoring/status/Services/service.php
-#: centreon/www/include/monitoring/status/Services/service.php
-msgid "Services : Schedule immediate check (Forced)"
-msgstr ""
-
-#: centreon/www/include/monitoring/status/Services/service.php
-#: centreon/www/include/monitoring/status/Services/service.php
-msgid "Services : Set Downtime"
-msgstr ""
-
 #: centreon/www/include/options/accessLists/actionsACL/formActionsAccess.php
 msgid "Services Actions Access"
 msgstr ""
@@ -16453,6 +16384,75 @@ msgstr ""
 #: centreon/www/install/front_translate.php
 msgid ""
 "Services will not be affected because you don't have sufficient permission"
+msgstr ""
+
+#: centreon/www/include/monitoring/status/Services/service.php
+#: centreon/www/include/monitoring/status/Services/service.php
+#: centreon/www/include/monitoring/status/Services/serviceGrid.php
+#: centreon/www/include/monitoring/status/Services/serviceSummary.php
+#: centreon/www/include/monitoring/status/ServicesServiceGroups/serviceSummaryBySG.php
+#: centreon/www/include/monitoring/status/ServicesServiceGroups/serviceSummaryBySG.php
+msgid "Services: Acknowledge"
+msgstr ""
+
+#: centreon/www/include/monitoring/status/Services/service.php
+#: centreon/www/include/monitoring/status/Services/service.php
+#: centreon/www/include/monitoring/status/Services/serviceGrid.php
+#: centreon/www/include/monitoring/status/Services/serviceSummary.php
+#: centreon/www/include/monitoring/status/ServicesServiceGroups/serviceSummaryBySG.php
+#: centreon/www/include/monitoring/status/ServicesServiceGroups/serviceSummaryBySG.php
+msgid "Services: Disable Check"
+msgstr ""
+
+#: centreon/www/include/monitoring/status/Services/service.php
+#: centreon/www/include/monitoring/status/Services/service.php
+#: centreon/www/include/monitoring/status/Services/serviceGrid.php
+#: centreon/www/include/monitoring/status/Services/serviceSummary.php
+#: centreon/www/include/monitoring/status/ServicesServiceGroups/serviceSummaryBySG.php
+#: centreon/www/include/monitoring/status/ServicesServiceGroups/serviceSummaryBySG.php
+msgid "Services: Disable Notification"
+msgstr ""
+
+#: centreon/www/include/monitoring/status/Services/service.php
+#: centreon/www/include/monitoring/status/Services/service.php
+#: centreon/www/include/monitoring/status/Services/serviceGrid.php
+#: centreon/www/include/monitoring/status/Services/serviceSummary.php
+#: centreon/www/include/monitoring/status/ServicesServiceGroups/serviceSummaryBySG.php
+#: centreon/www/include/monitoring/status/ServicesServiceGroups/serviceSummaryBySG.php
+msgid "Services: Disacknowledge"
+msgstr ""
+
+#: centreon/www/include/monitoring/status/Services/service.php
+#: centreon/www/include/monitoring/status/Services/service.php
+#: centreon/www/include/monitoring/status/Services/serviceGrid.php
+#: centreon/www/include/monitoring/status/Services/serviceSummary.php
+#: centreon/www/include/monitoring/status/ServicesServiceGroups/serviceSummaryBySG.php
+#: centreon/www/include/monitoring/status/ServicesServiceGroups/serviceSummaryBySG.php
+msgid "Services: Enable Check"
+msgstr ""
+
+#: centreon/www/include/monitoring/status/Services/service.php
+#: centreon/www/include/monitoring/status/Services/service.php
+#: centreon/www/include/monitoring/status/Services/serviceGrid.php
+#: centreon/www/include/monitoring/status/Services/serviceSummary.php
+#: centreon/www/include/monitoring/status/ServicesServiceGroups/serviceSummaryBySG.php
+#: centreon/www/include/monitoring/status/ServicesServiceGroups/serviceSummaryBySG.php
+msgid "Services: Enable Notification"
+msgstr ""
+
+#: centreon/www/include/monitoring/status/Services/service.php
+#: centreon/www/include/monitoring/status/Services/service.php
+msgid "Services: Schedule immediate check"
+msgstr ""
+
+#: centreon/www/include/monitoring/status/Services/service.php
+#: centreon/www/include/monitoring/status/Services/service.php
+msgid "Services: Schedule immediate check (Forced)"
+msgstr ""
+
+#: centreon/www/include/monitoring/status/Services/service.php
+#: centreon/www/include/monitoring/status/Services/service.php
+msgid "Services: Set Downtime"
 msgstr ""
 
 #: centreon/www/api/class/centreon_keepalive.class.php
@@ -16787,12 +16787,9 @@ msgid ""
 "macro."
 msgstr ""
 
+#: centreon/www/include/Administration/parameters/general/form.php
 #: centreon/www/install/dashboard_widgets.php
 msgid "Sort by"
-msgstr ""
-
-#: centreon/www/include/Administration/parameters/general/form.php
-msgid "Sort by  "
 msgstr ""
 
 #: centreon/www/include/monitoring/status/Services/serviceGridJS.php
@@ -17577,7 +17574,7 @@ msgstr ""
 #: centreon/www/include/configuration/configObject/contact/listContact.php
 msgid ""
 "The chosen contact(s) will be disconnected. Do you confirm the LDAP "
-"synchronization request ?"
+"synchronization request?"
 msgstr ""
 
 #: centreon/src/Centreon/Domain/Entity/EntityCreator.php
@@ -17977,7 +17974,7 @@ msgstr ""
 #: centreon/src/Centreon/Domain/PlatformTopology/Exception/PlatformTopologyException.php
 #, php-format
 msgid ""
-"The server type '%s' : '%s'@'%s' does not match the one configured in "
+"The server type '%s': '%s'@'%s' does not match the one configured in "
 "Centreon or is disabled"
 msgstr ""
 
@@ -19447,10 +19444,6 @@ msgstr ""
 msgid "View Vendor"
 msgstr ""
 
-#: centreon/www/include/configuration/configObject/host_categories/formHostCategories.php
-msgid "View a  host category"
-msgstr ""
-
 #: centreon/www/include/configuration/configCentreonBroker/formCentreonBroker.php
 msgid "View a Centreon-Broker Configuration"
 msgstr ""
@@ -19546,6 +19539,10 @@ msgstr ""
 
 #: centreon/www/include/monitoring/recurrentDowntime/formDowntime.php
 msgid "View a downtime"
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/host_categories/formHostCategories.php
+msgid "View a host category"
 msgstr ""
 
 #: centreon/www/include/configuration/configServers/formServers.php
@@ -20104,13 +20101,13 @@ msgstr ""
 #: centreon/www/include/configuration/configServers/listServers.php
 msgid ""
 "You are about to delete one or more pollers.\\nThis action is IRREVERSIBLE."
-"\\nDo you confirm the deletion ?"
+"\\nDo you confirm the deletion?"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
 msgid ""
 "You are about to delete the <strong>{{tokenName}}</strong> token. This "
-"action cannot be undone. Do you want to delete this token anyway ? You must "
+"action cannot be undone. Do you want to delete this token anyway? You must "
 "export the configuration for the change to be taken into account."
 msgstr ""
 
@@ -20118,7 +20115,7 @@ msgstr ""
 msgid ""
 "You are about to disable the <strong>{{tokenName}}</strong> token. If you "
 "disable it, all requests made with this token will be rejected. Do you want "
-"to disable it ? You must export the configuration for the change to be taken "
+"to disable it? You must export the configuration for the change to be taken "
 "into account."
 msgstr ""
 

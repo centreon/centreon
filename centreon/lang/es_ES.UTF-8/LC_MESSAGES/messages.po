@@ -2302,6 +2302,11 @@ msgstr "cancelado"
 
 #: centreon/src/Centreon/Application/Controller/MonitoringResourceController.php
 #, php-format
+msgid "Cannot build uri to unknown tab : %s"
+msgstr ""
+
+#: centreon/src/Centreon/Application/Controller/MonitoringResourceController.php
+#, php-format
 msgid "Cannot build uri to unknown tab: %s"
 msgstr ""
 
@@ -2409,6 +2414,10 @@ msgstr ""
 msgid ""
 "Central's protocol scheme is missing on: '%s'@'%s'. Please check the Remote "
 "Access form"
+msgstr ""
+
+#: centreon/src/Centreon/Infrastructure/PlatformTopology/Repository/PlatformTopologyRegisterRepositoryAPI.php
+msgid "Central's response => Code : "
 msgstr ""
 
 #: centreon/src/Centreon/Infrastructure/PlatformTopology/Repository/PlatformTopologyRegisterRepositoryAPI.php
@@ -9972,6 +9981,35 @@ msgstr "Resumen de estados por grupos de invitados"
 msgid "Hosts"
 msgstr "anfitriones"
 
+#: centreon/www/include/options/accessLists/actionsACL/formActionsAccess.php
+msgid "Hosts Actions Access"
+msgstr "Acceso a acciones en hosts."
+
+#: centreon/www/class/centreonGraphPoller.class.php
+#: centreon/www/include/Administration/corePerformance/nagiosStats.php
+msgid "Hosts Actively Checked"
+msgstr "Actualmente verificados hosts"
+
+#: centreon/www/include/configuration/configObject/escalation/formEscalation.php
+msgid "Hosts Escalation Options"
+msgstr "Opciones de escalada de invitados"
+
+#: centreon/www/include/monitoring/status/HostGroups/hostGroupJS.php
+msgid "Hosts Status"
+msgstr "Estado de acogida"
+
+#: centreon/www/include/configuration/configKnowledge/display-hostTemplates.php
+msgid "Hosts Templates"
+msgstr "Modelos de hosts"
+
+#: centreon/www/include/reporting/dashboard/viewHostGroupLog.php
+msgid "Hosts group state"
+msgstr "Estado del grupo de invitados"
+
+#: centreon/www/install/front_translate.php
+msgid "Hosts will not be affected because you don't have sufficient permission"
+msgstr ""
+
 #: centreon/www/include/monitoring/status/Hosts/host.php
 #: centreon/www/include/monitoring/status/Services/service.php
 #: centreon/www/include/monitoring/status/Services/serviceGrid.php
@@ -10034,35 +10072,6 @@ msgstr "Anfitriones: Programe un chequeo inmediato (Forzado)"
 #: centreon/www/include/monitoring/status/Services/service.php
 msgid "Hosts: Set Downtime"
 msgstr "Anfitriones: Añadir un tiempo de inactividad"
-
-#: centreon/www/include/options/accessLists/actionsACL/formActionsAccess.php
-msgid "Hosts Actions Access"
-msgstr "Acceso a acciones en hosts."
-
-#: centreon/www/class/centreonGraphPoller.class.php
-#: centreon/www/include/Administration/corePerformance/nagiosStats.php
-msgid "Hosts Actively Checked"
-msgstr "Actualmente verificados hosts"
-
-#: centreon/www/include/configuration/configObject/escalation/formEscalation.php
-msgid "Hosts Escalation Options"
-msgstr "Opciones de escalada de invitados"
-
-#: centreon/www/include/monitoring/status/HostGroups/hostGroupJS.php
-msgid "Hosts Status"
-msgstr "Estado de acogida"
-
-#: centreon/www/include/configuration/configKnowledge/display-hostTemplates.php
-msgid "Hosts Templates"
-msgstr "Modelos de hosts"
-
-#: centreon/www/include/reporting/dashboard/viewHostGroupLog.php
-msgid "Hosts group state"
-msgstr "Estado del grupo de invitados"
-
-#: centreon/www/install/front_translate.php
-msgid "Hosts will not be affected because you don't have sufficient permission"
-msgstr ""
 
 #: centreon/www/install/front_translate.php
 msgid "Hour"
@@ -10155,8 +10164,7 @@ msgstr ""
 #: centreon/www/include/configuration/configObject/contact/listContact.php
 msgid ""
 "If the contact is connected, all his instances will be closed. Are you sure "
-"you want to request a data synchronization at the next login of this "
-"Contact?"
+"you want to request a data synchronization at the next login of this Contact?"
 msgstr ""
 
 #: centreon/www/install/dashboard_widgets.php
@@ -11581,8 +11589,8 @@ msgid "Lost in space?"
 msgstr ""
 
 #: centreon/www/include/configuration/configObject/contact/ldapImportContact.php
-msgid "Lotus Domino :"
-msgstr "Lotus Domino:"
+msgid "Lotus Domino:"
+msgstr ""
 
 #: centreon/www/include/configuration/configObject/host/formHost.php
 #: centreon/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php
@@ -12256,10 +12264,6 @@ msgstr "Edita la imagen"
 msgid "Modify Vendor"
 msgstr "Editar un constructor"
 
-#: centreon/www/include/configuration/configObject/host_categories/formHostCategories.php
-msgid "Modify a host category"
-msgstr "Editar una categoría de host"
-
 #: centreon/www/include/configuration/configCentreonBroker/formCentreonBroker.php
 msgid "Modify a Centreon-Broker Configuration"
 msgstr "Modificar una configuración de Centreon-Broker"
@@ -12364,6 +12368,10 @@ msgstr "Modificar una métrica virtual"
 #: centreon/www/include/monitoring/recurrentDowntime/formDowntime.php
 msgid "Modify a downtime"
 msgstr "Cambiar un tiempo de parada"
+
+#: centreon/www/include/configuration/configObject/host_categories/formHostCategories.php
+msgid "Modify a host category"
+msgstr "Editar una categoría de host"
 
 #: centreon/www/include/configuration/configServers/formServers.php
 msgid "Modify a poller Configuration"
@@ -14125,13 +14133,6 @@ msgstr "Reconocimiento persistente si el programador se reinicia."
 msgid "Pie chart"
 msgstr ""
 
-#: centreon/src/Centreon/Domain/PlatformTopology/Exception/PlatformTopologyException.php
-#, php-format
-msgid ""
-"Platform: '%s'@'%s' mandatory data are missing. Please check the Remote "
-"Access form"
-msgstr ""
-
 #: centreon/www/install/menu_translation.php
 msgid "Platform Status"
 msgstr "Estado de la plataforma"
@@ -14142,6 +14143,13 @@ msgstr ""
 
 #: centreon/src/Centreon/Domain/PlatformTopology/PlatformTopologyService.php
 msgid "Platform not found"
+msgstr ""
+
+#: centreon/src/Centreon/Domain/PlatformTopology/Exception/PlatformTopologyException.php
+#, php-format
+msgid ""
+"Platform: '%s'@'%s' mandatory data are missing. Please check the Remote "
+"Access form"
 msgstr ""
 
 #: centreon/www/install/step_upgrade/step4.php
@@ -16457,60 +16465,6 @@ msgstr "Grupos de servicio / anfitriones"
 msgid "Services"
 msgstr "Servicios"
 
-#: centreon/www/include/monitoring/status/Services/service.php
-#: centreon/www/include/monitoring/status/Services/serviceGrid.php
-#: centreon/www/include/monitoring/status/Services/serviceSummary.php
-#: centreon/www/include/monitoring/status/ServicesServiceGroups/serviceSummaryBySG.php
-msgid "Services: Acknowledge"
-msgstr "Servicios: Acquitter"
-
-#: centreon/www/include/monitoring/status/Services/service.php
-#: centreon/www/include/monitoring/status/Services/serviceGrid.php
-#: centreon/www/include/monitoring/status/Services/serviceSummary.php
-#: centreon/www/include/monitoring/status/ServicesServiceGroups/serviceSummaryBySG.php
-msgid "Services: Disable Check"
-msgstr "Servicios: Deshabilitar la verificación"
-
-#: centreon/www/include/monitoring/status/Services/service.php
-#: centreon/www/include/monitoring/status/Services/serviceGrid.php
-#: centreon/www/include/monitoring/status/Services/serviceSummary.php
-#: centreon/www/include/monitoring/status/ServicesServiceGroups/serviceSummaryBySG.php
-msgid "Services: Disable Notification"
-msgstr "Servicios: Deshabilitar notificación"
-
-#: centreon/www/include/monitoring/status/Services/service.php
-#: centreon/www/include/monitoring/status/Services/serviceGrid.php
-#: centreon/www/include/monitoring/status/Services/serviceSummary.php
-#: centreon/www/include/monitoring/status/ServicesServiceGroups/serviceSummaryBySG.php
-msgid "Services: Disacknowledge"
-msgstr "Servicios: Dé-acquitter"
-
-#: centreon/www/include/monitoring/status/Services/service.php
-#: centreon/www/include/monitoring/status/Services/serviceGrid.php
-#: centreon/www/include/monitoring/status/Services/serviceSummary.php
-#: centreon/www/include/monitoring/status/ServicesServiceGroups/serviceSummaryBySG.php
-msgid "Services: Enable Check"
-msgstr "Servicios: Habilitar verificación"
-
-#: centreon/www/include/monitoring/status/Services/service.php
-#: centreon/www/include/monitoring/status/Services/serviceGrid.php
-#: centreon/www/include/monitoring/status/Services/serviceSummary.php
-#: centreon/www/include/monitoring/status/ServicesServiceGroups/serviceSummaryBySG.php
-msgid "Services: Enable Notification"
-msgstr "Servicios: Habilitar notificación"
-
-#: centreon/www/include/monitoring/status/Services/service.php
-msgid "Services: Schedule immediate check"
-msgstr "Servicios: Planifica un cheque inmediato."
-
-#: centreon/www/include/monitoring/status/Services/service.php
-msgid "Services: Schedule immediate check (Forced)"
-msgstr "Servicios: Planificar un cheque inmediato (Forzado)"
-
-#: centreon/www/include/monitoring/status/Services/service.php
-msgid "Services: Set Downtime"
-msgstr "Servicios: Añadir un tiempo de inactividad"
-
 #: centreon/www/include/options/accessLists/actionsACL/formActionsAccess.php
 msgid "Services Actions Access"
 msgstr "Acceso a acciones sobre servicios."
@@ -16589,6 +16543,60 @@ msgstr "Información sobre servicios"
 msgid ""
 "Services will not be affected because you don't have sufficient permission"
 msgstr ""
+
+#: centreon/www/include/monitoring/status/Services/service.php
+#: centreon/www/include/monitoring/status/Services/serviceGrid.php
+#: centreon/www/include/monitoring/status/Services/serviceSummary.php
+#: centreon/www/include/monitoring/status/ServicesServiceGroups/serviceSummaryBySG.php
+msgid "Services: Acknowledge"
+msgstr "Servicios: Acquitter"
+
+#: centreon/www/include/monitoring/status/Services/service.php
+#: centreon/www/include/monitoring/status/Services/serviceGrid.php
+#: centreon/www/include/monitoring/status/Services/serviceSummary.php
+#: centreon/www/include/monitoring/status/ServicesServiceGroups/serviceSummaryBySG.php
+msgid "Services: Disable Check"
+msgstr "Servicios: Deshabilitar la verificación"
+
+#: centreon/www/include/monitoring/status/Services/service.php
+#: centreon/www/include/monitoring/status/Services/serviceGrid.php
+#: centreon/www/include/monitoring/status/Services/serviceSummary.php
+#: centreon/www/include/monitoring/status/ServicesServiceGroups/serviceSummaryBySG.php
+msgid "Services: Disable Notification"
+msgstr "Servicios: Deshabilitar notificación"
+
+#: centreon/www/include/monitoring/status/Services/service.php
+#: centreon/www/include/monitoring/status/Services/serviceGrid.php
+#: centreon/www/include/monitoring/status/Services/serviceSummary.php
+#: centreon/www/include/monitoring/status/ServicesServiceGroups/serviceSummaryBySG.php
+msgid "Services: Disacknowledge"
+msgstr "Servicios: Dé-acquitter"
+
+#: centreon/www/include/monitoring/status/Services/service.php
+#: centreon/www/include/monitoring/status/Services/serviceGrid.php
+#: centreon/www/include/monitoring/status/Services/serviceSummary.php
+#: centreon/www/include/monitoring/status/ServicesServiceGroups/serviceSummaryBySG.php
+msgid "Services: Enable Check"
+msgstr "Servicios: Habilitar verificación"
+
+#: centreon/www/include/monitoring/status/Services/service.php
+#: centreon/www/include/monitoring/status/Services/serviceGrid.php
+#: centreon/www/include/monitoring/status/Services/serviceSummary.php
+#: centreon/www/include/monitoring/status/ServicesServiceGroups/serviceSummaryBySG.php
+msgid "Services: Enable Notification"
+msgstr "Servicios: Habilitar notificación"
+
+#: centreon/www/include/monitoring/status/Services/service.php
+msgid "Services: Schedule immediate check"
+msgstr "Servicios: Planifica un cheque inmediato."
+
+#: centreon/www/include/monitoring/status/Services/service.php
+msgid "Services: Schedule immediate check (Forced)"
+msgstr "Servicios: Planificar un cheque inmediato (Forzado)"
+
+#: centreon/www/include/monitoring/status/Services/service.php
+msgid "Services: Set Downtime"
+msgstr "Servicios: Añadir un tiempo de inactividad"
 
 #: centreon/www/api/class/centreon_keepalive.class.php
 msgid "Session is expired"
@@ -16916,8 +16924,8 @@ msgid ""
 msgstr ""
 "Lo sentimos, su línea de comando no contiene una macro $_SERVICE$ o $_HOST$."
 
-#: centreon/www/install/dashboard_widgets.php
 #: centreon/www/include/Administration/parameters/general/form.php
+#: centreon/www/install/dashboard_widgets.php
 msgid "Sort by"
 msgstr "ordenar por"
 
@@ -19475,10 +19483,6 @@ msgstr "Ver un recurso"
 msgid "View Vendor"
 msgstr "Visualizar un constructor"
 
-#: centreon/www/include/configuration/configObject/host_categories/formHostCategories.php
-msgid "View a host category"
-msgstr "Ver una categoría de host"
-
 #: centreon/www/include/configuration/configCentreonBroker/formCentreonBroker.php
 msgid "View a Centreon-Broker Configuration"
 msgstr "Ver una configuración de Centreon-Broker"
@@ -19575,6 +19579,10 @@ msgstr "Ver una métrica virtual"
 #: centreon/www/include/monitoring/recurrentDowntime/formDowntime.php
 msgid "View a downtime"
 msgstr "Visualizar un tiempo de inactividad"
+
+#: centreon/www/include/configuration/configObject/host_categories/formHostCategories.php
+msgid "View a host category"
+msgstr "Ver una categoría de host"
 
 #: centreon/www/include/configuration/configServers/formServers.php
 msgid "View a poller Configuration"
@@ -23430,6 +23438,10 @@ msgstr "Propiedades de los registros de Nagios."
 #: unknown
 msgid "Logs retention duration"
 msgstr "Tiempo de retención de registro"
+
+#: unknown
+msgid "Lotus Domino :"
+msgstr "Lotus Domino:"
 
 #: unknown
 msgid "Low Flap threshold"

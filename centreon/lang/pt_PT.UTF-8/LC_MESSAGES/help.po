@@ -1887,19 +1887,15 @@ msgstr ""
 
 #: centreon/www/include/Administration/parameters/general/help.php
 msgid ""
-"If this option is enable, the downtimes and acknowledgments will be "
-"displayed on metric chart.<br><b>Warning</b>: This option can slow down the "
-"display of chart."
+"If this option is enabled, the comments will be displayed on the status "
+"chart.<br><b>Warning</b>: This option can slow down the display of the chart."
 msgstr ""
-"Se esta opção estiver habilitada, os períodos de tempo de parada e de "
-"reconhecimento estarão visíveis nos gráficos. <br> <b> Aviso </ b>: Esta "
-"opção pode retardar o carregamento de gráficos."
 
 #: centreon/www/include/Administration/parameters/general/help.php
 msgid ""
-"If this option is enabled, the comments will be displayed on the status "
-"chart.<br><b>Warning</b>: This option can slow down the display of the "
-"chart."
+"If this option is enabled, the downtimes and acknowledgments will be "
+"displayed on metric chart.<br><b>Warning</b>: This option can slow down the "
+"display of chart."
 msgstr ""
 
 #: centreon/www/include/configuration/configObject/service/help.php
@@ -5860,9 +5856,9 @@ msgstr ""
 
 #: centreon/www/include/views/componentTemplates/help.php
 msgid ""
-"When filling property is enable, the area color displayed in Centreon is the "
-"curve line color with transparency.For exported graphs, the area color is "
-"defined with those fields."
+"When filling property is enabled, the area color displayed in Centreon is "
+"the curve line color with transparency.For exported graphs, the area color "
+"is defined with those fields."
 msgstr ""
 
 #: centreon/www/include/configuration/configObject/service/help.php
@@ -6598,6 +6594,16 @@ msgstr ""
 "confirmações serão visíveis nos gráficos que representam o estado do "
 "serviço. <br> <b> Aviso </ b>: Esta opção pode retardar o carregamento "
 "dos gráficos."
+
+#: unknown
+msgid ""
+"If this option is enable, the downtimes and acknowledgments will be "
+"displayed on metric chart.<br><b>Warning</b>: This option can slow down "
+"the display of chart."
+msgstr ""
+"Se esta opção estiver habilitada, os períodos de tempo de parada e de "
+"reconhecimento estarão visíveis nos gráficos. <br> <b> Aviso </ b>: Esta "
+"opção pode retardar o carregamento de gráficos."
 
 #: unknown
 msgid ""
