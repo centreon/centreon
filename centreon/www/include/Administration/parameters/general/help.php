@@ -244,8 +244,8 @@ $help['tip_proxy_password'] = dgettext(
 // Chart options
 $help['tip_display_downtime_chart'] = dgettext(
     'help',
-    'If this option is enabled, the downtimes and acknowledgments will be displayed on metric chart.<br>'
-    . '<b>Warning</b>: This option can slow down the display of chart.'
+    'If this option is enabled, downtimes and acknowledgments will be displayed on the metric chart.<br>'
+    . '<b>Warning</b>: This option can slow down the display of the chart.'
 );
 $help['tip_display_comment_chart'] = dgettext(
     'help',

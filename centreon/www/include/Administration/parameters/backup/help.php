@@ -42,7 +42,7 @@ $help['tip_backup_database_centreon_storage'] = dgettext(
 );
 $help['tip_backup_database_type'] = dgettext(
     'help',
-    'Backup type for centreon_storage database: mysqldump or LVM snapshot (need available space on MySQL LVM)'
+    'Backup type for centreon_storage database: mysqldump or LVM snapshot (requires available space on the MySQL LVM volume)'
 );
 $help['tip_backup_database_full'] = dgettext(
     'help',
