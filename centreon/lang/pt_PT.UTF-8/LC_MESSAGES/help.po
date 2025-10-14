@@ -1892,7 +1892,8 @@ msgid ""
 msgstr ""
 
 #: centreon/www/include/Administration/parameters/general/help.php
-"If this option is enable, downtimes and acknowledgments will be "
+msgid ""
+"If this option is enabled, downtimes and acknowledgments will be "
 "displayed on the metric chart.<br><b>Warning</b>: This option can slow down the "
 "display of the chart."
 msgstr ""
