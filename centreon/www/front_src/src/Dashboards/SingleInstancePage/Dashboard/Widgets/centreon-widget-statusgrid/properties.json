@@ -67,6 +67,29 @@
       ],
       "defaultValue": ["warning", "problem"]
     },
+    "states": {
+      "type": "checkbox",
+      "label": "Display resources with this state",
+      "options": [
+        {
+          "id": "unhandled_problems",
+          "name": "Unhandled"
+        },
+        {
+          "id": "acknowledged",
+          "name": "Acknowledged"
+        },
+        {
+          "id": "in_downtime",
+          "name": "In downtime"
+        },
+        {
+          "id": "in_flapping",
+          "name": "Flapping"
+        }
+      ],
+      "defaultValue": ["unhandled_problems"]
+    },
     "sortBy": {
       "type": "radio",
       "label": "Sort by",

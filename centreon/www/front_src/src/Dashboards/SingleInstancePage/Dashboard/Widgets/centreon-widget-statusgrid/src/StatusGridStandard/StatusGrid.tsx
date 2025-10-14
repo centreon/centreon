@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { JSX, useMemo } from 'react';
 
 import { useAtomValue } from 'jotai';
 import { equals, gt, isNil, last, pipe, pluck, reject } from 'ramda';
@@ -59,6 +59,7 @@ const StatusGrid = ({
     refreshInterval,
     resourceType,
     sortBy,
+    states,
     statuses,
     tiles,
     refreshIntervalCustom
@@ -125,7 +126,7 @@ const StatusGrid = ({
                 limit: tiles,
                 resources,
                 sortBy,
-                states: [],
+                states,
                 statuses: statusesToUse,
                 type: resourceType
               }),
