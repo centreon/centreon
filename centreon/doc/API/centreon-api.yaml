@@ -4408,10 +4408,10 @@ paths:
     $ref: "./latest/onPremise/Administration/Token/GetAndDeleteToken.yaml"
   /administration/tokens/{token_name}/users/{user_id}:
     $ref: "./latest/onPremise/Administration/Token/GetAndPartialUpdateAndDeleteTokenByUser.yaml"
-  /administration/parameters:
+  /monitoring/parameters:
     post:
       tags:
-        - Administration
+        - Monitoring
       summary: "Administration parameters"
       responses:
         '200':
