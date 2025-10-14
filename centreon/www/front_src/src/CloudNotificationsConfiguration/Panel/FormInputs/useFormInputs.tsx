@@ -309,7 +309,10 @@ const useFormInputs = ({
           {
             connectedAutocomplete: {
               additionalConditionParameters: [],
-              endpoint: usersEndpoint
+              endpoint: usersEndpoint,
+              getRenderedOptionText: (option): string =>
+                option.alias?.toString(),
+              filterKey: 'alias'
             },
             dataTestId: 'Search contacts',
             fieldName: 'users',
