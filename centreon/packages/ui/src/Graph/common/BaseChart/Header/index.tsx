@@ -4,13 +4,14 @@ import { useMemoComponent } from '@centreon/ui';
 
 import { LineChartHeader } from './models';
 import { ussHeaderChartStyles } from './useHeaderStyles';
+import { JSX } from 'react';
 
 interface Props {
   header?: LineChartHeader;
   title: string;
 }
 
-const Header = ({ title, header }: Props): JSX.Element => {
+export const Header = ({ title, header }: Props): JSX.Element => {
   const { classes } = ussHeaderChartStyles();
 
   const displayTitle = header?.displayTitle ?? true;
