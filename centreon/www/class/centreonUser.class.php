@@ -113,14 +113,12 @@ class CentreonUser
         $this->lang = $user["contact_lang"] ?? null;
         $this->passwd = $user["contact_passwd"] ?? null;
         $this->token = $user['contact_autologin_key'] ?? null;
-        $this->admin = $user["contact_admin"] ?? null;
-        $this->default_page = $user["default_page"] ?? CentreonAuth::DEFAULT_PAGE;
-        $this->gmt = $user["contact_location"] ?? null;
-        $this->showDeprecatedPages = (bool) $user["show_deprecated_pages"];
-        $this->theme = $user["contact_theme"] ?? 'light';
-        /*
-         * Initiate ACL
-         */
+        $this->admin = $user['contact_admin'] ?? null;
+        $this->default_page = $user['default_page'] ?? CentreonAuth::DEFAULT_PAGE;
+        $this->gmt = $user['contact_location'] ?? null;
+        $this->showDeprecatedPages = (bool) ($user['show_deprecated_pages'] ?? false);
+        $this->theme = $user['contact_theme'] ?? 'light';
+        // Initiate ACL
         $this->access = new CentreonACL($this->user_id, $this->admin);
         $this->lcaTopo = $this->access->topology;
         $this->lcaTStr = $this->access->topologyStr;
