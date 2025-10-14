@@ -22731,7 +22731,7 @@ msgid "Do you confirm  the duplication ?"
 msgstr "¿Confirma usted la duplicación?"
 
 #: unknown
-msgid "Do you confirm the cancelation?"
+msgid "Do you confirm the cancellation?"
 msgstr "¿Confirma usted la cancelación?"
 
 #: unknown

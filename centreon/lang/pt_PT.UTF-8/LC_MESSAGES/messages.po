@@ -21040,7 +21040,7 @@ msgid "Do you confirm  the duplication ?"
 msgstr "Confirma a duplicação ?"
 
 #: unknown
-msgid "Do you confirm the cancelation?"
+msgid "Do you confirm the cancellation?"
 msgstr "Você confirma o cancelamento?"
 
 #: unknown
