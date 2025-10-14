@@ -26,17 +26,27 @@
       ]
     },
     {
-      "type": "paragraph",
-      "content": [
+      "type":"bulletList",
+      "content":[
         {
-          "type": "text",
-          "text": "Link to the failed nightly on @DATE@",
-          "marks": [
+          "type":"listItem",
+          "content":[
             {
-              "type": "link",
-              "attrs": {
-                "href": "@GITHUB_SERVER_URL@/@GITHUB_REPOSITORY@/actions/runs/@GITHUB_RUN_ID@/attempts/@GITHUB_RUN_ATTEMPT@"
-              }
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "Link to the failed nightly on @DATE@",
+                  "marks": [
+                    {
+                      "type": "link",
+                      "attrs": {
+                        "href": "@GITHUB_SERVER_URL@/@GITHUB_REPOSITORY@/actions/runs/@GITHUB_RUN_ID@/attempts/@GITHUB_RUN_ATTEMPT@"
+                      }
+                    }
+                  ]
+                }
+              ]
             }
           ]
         }
