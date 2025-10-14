@@ -8822,7 +8822,7 @@ msgstr "Hôtes : Planifier un contrôle immédiat (Forcé)"
 #: centreon/www/include/monitoring/status/Hosts/host.php
 #: centreon/www/include/monitoring/status/Services/service.php
 msgid "Hosts: Set Downtime"
-msgstr "Hôtes : Ajouter une plage de maintenance"
+msgstr "Hôtes : Définir une plage de maintenance"
 
 #: centreon/www/include/options/accessLists/actionsACL/formActionsAccess.php
 msgid "Hosts Actions Access"
@@ -15208,7 +15208,7 @@ msgstr "Services : Planifier un contrôle immédiat (Forcé)"
 
 #: centreon/www/include/monitoring/status/Services/service.php
 msgid "Services: Set Downtime"
-msgstr "Services : Ajouter une plage de maintenance"
+msgstr "Services : Définir une plage de maintenance"
 
 #: centreon/www/include/options/accessLists/actionsACL/formActionsAccess.php
 msgid "Services Actions Access"
@@ -15340,33 +15340,33 @@ msgstr "Configurer par défaut"
 #: centreon/www/include/monitoring/external_cmd/popup/massive_downtime.php
 #: centreon/www/install/front_translate.php
 msgid "Set downtime"
-msgstr "Planifier une maintenance"
+msgstr "Définir une plage de maintenance"
 
 #: centreon/www/include/monitoring/downtime/AddDowntime.php
 msgid "Set downtime for hosts services"
-msgstr "Configurer une plage de maintenance pour les services des hôtes"
+msgstr "Définir une plage de maintenance pour les services des hôtes"
 
 #: centreon/www/install/front_translate.php
 msgid "Set downtime on"
-msgstr "Programmer une plage de maintenance sur"
+msgstr "Définir une plage de maintenance pour"
 
 #: centreon/www/install/front_translate.php
 msgid "Set downtime on services attached to host"
-msgstr "Programmer une plage de maintenance sur les services attachés à l'hôte"
+msgstr "Définir une plage de maintenance pour les services attachés à l'hôte"
 
 #: centreon/www/widgets/host-monitoring/src/action.php
 #: centreon/www/widgets/service-monitoring/src/action.php
 msgid "Set downtime on services of hosts"
-msgstr "Définir une plage de maintenance sur les services de ces hôtes"
+msgstr "Définir une plage de maintenance pour les services de ces hôtes"
 
 #: centreon/www/include/monitoring/external_cmd/popup/massive_downtime.php
 msgid "Set downtimes"
-msgstr "Configurer des plages de maintenance"
+msgstr "Définir des plages de maintenance"
 
 #: centreon/www/include/Administration/parameters/engine/form.php
 #: centreon/www/include/monitoring/external_cmd/popup/massive_downtime.php
 msgid "Set downtimes on services attached to hosts"
-msgstr "Fixer des plages de maintenance aux services attachés aux hôtes"
+msgstr "Définir des plages de maintenance sur les services attachés aux hôtes"
 
 #: centreon/src/CentreonLegacy/Core/Install/Step/Step2.php
 #: centreon/www/install/step_upgrade/step2.php
@@ -21145,16 +21145,8 @@ msgid "Distant Poller"
 msgstr "Collecteur distant"
 
 #: unknown
-msgid "Do you confirm the duplication?"
-msgstr "Confirmez-vous la duplication ?"
-
-#: unknown
 msgid "Do you confirm the cancelation?"
 msgstr "Confirmez-vous l'annulation ?"
-
-#: unknown
-msgid "Do you confirm the deletion?"
-msgstr "Confirmez-vous la suppression ?"
 
 #: unknown
 msgid "Do you really wish to remove this entry?"
@@ -21897,10 +21889,6 @@ msgstr "Hôtes"
 #: unknown
 msgid "Hosts status colors"
 msgstr "Couleurs pour le statut des hôtes"
-
-#: unknown
-msgid "Hosts: Set Downtime"
-msgstr "Hôtes : Planifier une plage de maintenance"
 
 #: unknown
 msgid "Hourly"
@@ -23293,10 +23281,6 @@ msgstr "Escalades des services"
 #: unknown
 msgid "Services status colors"
 msgstr "Couleurs pour le statut des services"
-
-#: unknown
-msgid "Services: Set Downtime"
-msgstr "Services : Planifier une plage de maintenance"
 
 #: unknown
 msgid "Setup"
