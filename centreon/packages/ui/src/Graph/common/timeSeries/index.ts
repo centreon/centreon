@@ -32,7 +32,8 @@ import {
   reject,
   sortBy,
   split,
-  uniq
+  uniq,
+  pluck
 } from 'ramda';
 
 import { margin } from '../../Chart/common';
@@ -757,6 +758,86 @@ export const formatMetricName = ({
     : legendName;
 
   return metricName;
+};
+
+export const getStackedLinesTimeSeriesPerStackAndUnit = ({
+  stackedLines,
+  timeSeries
+}: { stackedLines: Array<Line>; timeSeries: Array<TimeValue> }): {
+  stackedLinesTimeSeriesPerStackKeyAndUnit: Record<
+    string,
+    { lines: Array<Line>; timeSeries: Array<TimeValue> }
+  >;
+  stackedKeys: Record<string, null>;
+} => {
+  const stackedKeys = stackedLines.reduce(
+    (acc, { unit, stackKey }) => ({
+      ...acc,
+      [`stacked-${unit || ''}-${stackKey ? stackKey : ''}`]: null
+    }),
+    {}
+  );
+  const stackedKeysWithOnlyStackKey = Object.keys(stackedKeys).filter(
+    (stackKey: string) => stackKey.split('-')[2]
+  );
+  const stackedKeysWithOnlyUnit = Object.keys(stackedKeys).filter(
+    (stackKey: string) => !stackKey.split('-')[2]
+  );
+
+  const stackedLinesTimeSeriesPerStackKey = stackedKeysWithOnlyStackKey.reduce(
+    (acc, stackedKey: string) => {
+      const [_, stackUnit, stackKey] = stackedKey.split('-');
+      const relatedLines = stackedLines.filter(({ unit, stackKey: key }) => {
+        return stackUnit === (unit || '') && stackKey === key;
+      });
+
+      return {
+        ...acc,
+        [stackedKey]: {
+          lines: relatedLines,
+          timeSeries: getTimeSeriesForLines({
+            lines: relatedLines,
+            timeSeries
+          })
+        }
+      };
+    },
+    {}
+  );
+  const affectedLinesPerStackKey = flatten(
+    pluck('lines', Object.values(stackedLinesTimeSeriesPerStackKey))
+  );
+  const stackedLinesTimeSeriesPerUnit = stackedKeysWithOnlyUnit.reduce(
+    (acc, stackedKey: string) => {
+      const [_, stackUnit] = stackedKey.split('-');
+      const relatedLines = stackedLines.filter(
+        (line) =>
+          !affectedLinesPerStackKey.some(
+            (affectedLine) => line.metric_id === affectedLine.metric_id
+          ) && stackUnit === (line.unit || '')
+      );
+
+      return {
+        ...acc,
+        [stackedKey]: {
+          lines: relatedLines,
+          timeSeries: getTimeSeriesForLines({
+            lines: relatedLines,
+            timeSeries
+          })
+        }
+      };
+    },
+    {}
+  );
+
+  return {
+    stackedLinesTimeSeriesPerStackKeyAndUnit: {
+      ...stackedLinesTimeSeriesPerStackKey,
+      ...stackedLinesTimeSeriesPerUnit
+    },
+    stackedKeys
+  };
 };
 
 export {

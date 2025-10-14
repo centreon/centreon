@@ -16,6 +16,7 @@ import { memo, useMemo } from 'react';
 import { useDeepMemo } from '../../utils';
 import {
   getSortedStackedLines,
+  getStackedLinesTimeSeriesPerStackAndUnit,
   getTime,
   getTimeSeriesForLines,
   getUnits
@@ -64,77 +65,16 @@ const BarGroup = ({
 
   const stackedLines = getSortedStackedLines(lines);
   const notStackedLines = difference(lines, stackedLines);
-
-  const stackedKeys = stackedLines.reduce(
-    (acc, { unit, stackKey }) => ({
-      ...acc,
-      [`stacked-${unit}-${stackKey ? stackKey : ''}`]: null
-    }),
-    {}
-  );
-  const stackedKeysWithOnlyStackKey = Object.keys(stackedKeys).filter(
-    (stackKey: string) => stackKey.split('-')[2]
-  );
-  const stackedKeysWithOnlyUnit = Object.keys(stackedKeys).filter(
-    (stackKey: string) => !stackKey.split('-')[2]
-  );
-
-  const stackedLinesTimeSeriesPerStackKey = stackedKeysWithOnlyStackKey.reduce(
-    (acc, stackedKey: string) => {
-      const [_, stackUnit, stackKey] = stackedKey.split('-');
-      const relatedLines = stackedLines.filter(({ unit, stackKey: key }) => {
-        return stackUnit === unit && stackKey === key;
-      });
-
-      return {
-        ...acc,
-        [stackedKey]: {
-          lines: relatedLines,
-          timeSeries: getTimeSeriesForLines({
-            lines: relatedLines,
-            timeSeries
-          })
-        }
-      };
-    },
-    {}
-  );
-  const affectedLinesPerStackKey = flatten(
-    pluck('lines', Object.values(stackedLinesTimeSeriesPerStackKey))
-  );
-  const stackedLinesTimeSeriesPerUnit = stackedKeysWithOnlyUnit.reduce(
-    (acc, stackedKey: string) => {
-      const [_, stackUnit] = stackedKey.split('-');
-      const relatedLines = stackedLines.filter(
-        (line) =>
-          !affectedLinesPerStackKey.some(
-            (affectedLine) => line.metric_id === affectedLine.metric_id
-          ) && stackUnit === line.unit
-      );
-
-      return {
-        ...acc,
-        [stackedKey]: {
-          lines: relatedLines,
-          timeSeries: getTimeSeriesForLines({
-            lines: relatedLines,
-            timeSeries
-          })
-        }
-      };
-    },
-    {}
-  );
-
-  const stackedLinesTimeSeriesPerStackKeyAndUnit = {
-    ...stackedLinesTimeSeriesPerStackKey,
-    ...stackedLinesTimeSeriesPerUnit
-  };
-
   const notStackedTimeSeries = getTimeSeriesForLines({
     lines: notStackedLines,
     timeSeries
   });
+
+  const { stackedLinesTimeSeriesPerStackKeyAndUnit, stackedKeys } = useMemo(
+    () =>
+      getStackedLinesTimeSeriesPerStackAndUnit({ stackedLines, timeSeries }),
+    [stackedLines, timeSeries]
+  );
 
   const normalizedTimeSeries = notStackedTimeSeries.map((timeSerie) => ({
     ...timeSerie,
