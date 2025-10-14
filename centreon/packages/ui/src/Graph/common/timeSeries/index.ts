@@ -139,6 +139,7 @@ const toLine = ({
     equals(ds_data.ds_stack, '1') || equals(ds_data.ds_stack, true)
       ? Number.parseInt(ds_data.ds_order || '0', 10)
       : null,
+  stackKey: ds_data.ds_stack_key || null,
   transparency: ds_data.ds_transparency,
   unit
 });

@@ -1,7 +1,16 @@
 import { scaleBand, scaleOrdinal } from '@visx/scale';
 import { BarGroupHorizontal, BarGroup as VisxBarGroup } from '@visx/shape';
 import { ScaleLinear } from 'd3-scale';
-import { difference, equals, keys, omit, pick, pluck, uniq } from 'ramda';
+import {
+  difference,
+  equals,
+  flatten,
+  keys,
+  omit,
+  pick,
+  pluck,
+  uniq
+} from 'ramda';
 import { memo, useMemo } from 'react';
 
 import { useDeepMemo } from '../../utils';
@@ -54,25 +63,32 @@ const BarGroup = ({
   );
 
   const stackedLines = getSortedStackedLines(lines);
-  const stackedUnits = uniq(pluck('unit', stackedLines));
   const notStackedLines = difference(lines, stackedLines);
 
-  const stackedKeys = stackedUnits.reduce(
-    (acc, unit) => ({
+  const stackedKeys = stackedLines.reduce(
+    (acc, { unit, stackKey }) => ({
       ...acc,
-      [`stacked-${unit}`]: null
+      [`stacked-${unit}-${stackKey ? stackKey : ''}`]: null
     }),
     {}
   );
-  const stackedLinesTimeSeriesPerUnit = stackedUnits.reduce(
-    (acc, stackedUnit) => {
-      const relatedLines = stackedLines.filter(({ unit }) =>
-        equals(unit, stackedUnit)
-      );
+  const stackedKeysWithOnlyStackKey = Object.keys(stackedKeys).filter(
+    (stackKey: string) => stackKey.split('-')[2]
+  );
+  const stackedKeysWithOnlyUnit = Object.keys(stackedKeys).filter(
+    (stackKey: string) => !stackKey.split('-')[2]
+  );
+
+  const stackedLinesTimeSeriesPerStackKey = stackedKeysWithOnlyStackKey.reduce(
+    (acc, stackedKey: string) => {
+      const [_, stackUnit, stackKey] = stackedKey.split('-');
+      const relatedLines = stackedLines.filter(({ unit, stackKey: key }) => {
+        return stackUnit === unit && stackKey === key;
+      });
 
       return {
         ...acc,
-        [stackedUnit]: {
+        [stackedKey]: {
           lines: relatedLines,
           timeSeries: getTimeSeriesForLines({
             lines: relatedLines,
@@ -83,6 +99,37 @@ const BarGroup = ({
     },
     {}
   );
+  const affectedLinesPerStackKey = flatten(
+    pluck('lines', Object.values(stackedLinesTimeSeriesPerStackKey))
+  );
+  const stackedLinesTimeSeriesPerUnit = stackedKeysWithOnlyUnit.reduce(
+    (acc, stackedKey: string) => {
+      const [_, stackUnit] = stackedKey.split('-');
+      const relatedLines = stackedLines.filter(
+        (line) =>
+          !affectedLinesPerStackKey.some(
+            (affectedLine) => line.metric_id === affectedLine.metric_id
+          ) && stackUnit === line.unit
+      );
+
+      return {
+        ...acc,
+        [stackedKey]: {
+          lines: relatedLines,
+          timeSeries: getTimeSeriesForLines({
+            lines: relatedLines,
+            timeSeries
+          })
+        }
+      };
+    },
+    {}
+  );
+
+  const stackedLinesTimeSeriesPerStackKeyAndUnit = {
+    ...stackedLinesTimeSeriesPerStackKey,
+    ...stackedLinesTimeSeriesPerUnit
+  };
 
   const notStackedTimeSeries = getTimeSeriesForLines({
     lines: notStackedLines,
@@ -97,6 +144,16 @@ const BarGroup = ({
   const lineKeys = useDeepMemo({
     deps: [normalizedTimeSeries],
     variable: keys(omit(['timeTick'], normalizedTimeSeries[0]))
+  });
+  const sortedLineKeys = lineKeys.sort((lineKeyA: string, lineKeyB: string) => {
+    if (lineKeyA.startsWith('stacked-') && !lineKeyB.startsWith('stacked-')) {
+      return true;
+    }
+
+    const lineKeysA = lineKeyA.split('-');
+    const lineKeysB = lineKeyB.split('-');
+
+    return lineKeysA[2] === '' && lineKeysB[2] !== '';
   });
   const colors = useDeepMemo({
     deps: [lineKeys, lines],
@@ -154,7 +211,7 @@ const BarGroup = ({
       color={colorScale}
       data={normalizedTimeSeries}
       height={size}
-      keys={lineKeys}
+      keys={sortedLineKeys}
       {...barComponentBaseProps}
     >
       {(barGroups) =>
@@ -164,7 +221,9 @@ const BarGroup = ({
               key={`bar-group-${barGroup.index}-${barGroup.x0}`}
               barGroup={barGroup}
               barStyle={barStyle}
-              stackedLinesTimeSeriesPerUnit={stackedLinesTimeSeriesPerUnit}
+              stackedLinesTimeSeriesPerUnit={
+                stackedLinesTimeSeriesPerStackKeyAndUnit
+              }
               notStackedTimeSeries={notStackedTimeSeries}
               notStackedLines={notStackedLines}
               isTooltipHidden={isTooltipHidden}
