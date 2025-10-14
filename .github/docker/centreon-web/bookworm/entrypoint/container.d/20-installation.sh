@@ -92,4 +92,4 @@ case "$CENTREON_LANG" in
     ;;
 esac
 
-su www-data -s /bin/bash -c "rm -rf /usr/share/centreon/www/install"
+su www-data -s /bin/bash -c "rm -rf /var/www/html/centreon/www/install/"

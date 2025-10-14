@@ -89,6 +89,8 @@ usermod -aG www-data centreon-broker
 
 apt-get update
 apt-get install -y /tmp/packages-centreon/centreon-web*.deb
+apt-get clean
+rm -rf /var/lib/apt/lists/*
 
 EOF
 
