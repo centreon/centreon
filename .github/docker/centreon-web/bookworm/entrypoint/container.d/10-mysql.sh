@@ -1,8 +1,8 @@
 #!/bin/sh
 
 # Wait for the database to be up and running.
-export MYSQL_HOST="db"
-export MYSQL_ROOT_PASSWORD="centreon"
+: "${MYSQL_HOST:=db}"
+: "${MYSQL_ROOT_PASSWORD:=centreon}"
 
 while true ; do
   timeout 20 mysql -h${MYSQL_HOST} -uroot -p"${MYSQL_ROOT_PASSWORD}" -e 'SELECT User FROM user' mysql

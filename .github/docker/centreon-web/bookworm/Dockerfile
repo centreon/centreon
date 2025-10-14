@@ -39,6 +39,21 @@ RUN apt-get update && apt-get install -y \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
+RUN groupadd -g 900 centreon &&\
+    useradd -u 900 -g centreon -m -r -d /var/spool/centreon -c "Centreon" -s /bin/bash centreon &&\
+    groupadd -g 901 centreon-engine &&\
+    useradd -u 901 -g centreon-engine -m -r -d /var/lib/centreon-engine -c "Centreon Engine" -s /bin/bash centreon-engine &&\
+    groupadd -g 902 centreon-broker &&\
+    useradd -u 902 -g centreon-broker -m -r -d /var/lib/centreon-broker -c "Centreon Broker"  -s /bin/bash centreon-broker &&\
+    groupadd -g 903 centreon-gorgone &&\
+    useradd -u 903 -g centreon-gorgone -m -r -d /var/lib/centreon-gorgone -c "Centreon Gorgone"  -s /bin/bash centreon-gorgone &&\
+    usermod -aG centreon www-data && \
+    usermod -aG centreon-engine www-data && \
+    usermod -aG centreon-broker www-data && \
+    usermod -aG www-data centreon && \
+    usermod -aG www-data centreon-engine && \
+    usermod -aG www-data centreon-broker
+
 RUN --mount=type=secret,id=ARTIFACTORY_INTERNAL_REPO_USERNAME \
     --mount=type=secret,id=ARTIFACTORY_INTERNAL_REPO_PASSWORD \
     --mount=type=bind,src=packages-centreon,dst=/tmp/packages-centreon bash -e <<EOF
@@ -72,21 +87,6 @@ elif [[ "$STABILITY" == "stable" ]]; then
   for i in \$( ls /etc/apt/sources.list.d/centreon*{unstable,testing}* ); do mv \$i \$i.disabled; done
 fi
 
-groupadd -g 900 centreon
-useradd -u 900 -g centreon -m -r -d /var/spool/centreon -c "Centreon" -s /bin/bash centreon
-groupadd -g 901 centreon-engine
-useradd -u 901 -g centreon-engine -m -r -d /var/lib/centreon-engine -c "Centreon Engine" -s /bin/bash centreon-engine
-groupadd -g 902 centreon-broker
-useradd -u 902 -g centreon-broker -m -r -d /var/lib/centreon-broker -c "Centreon Broker"  -s /bin/bash centreon-broker
-groupadd -g 903 centreon-gorgone
-useradd -u 903 -g centreon-gorgone -m -r -d /var/lib/centreon-gorgone -c "Centreon Gorgone"  -s /bin/bash centreon-gorgone
-usermod -aG centreon www-data
-usermod -aG centreon-engine www-data
-usermod -aG centreon-broker www-data
-usermod -aG www-data centreon
-usermod -aG www-data centreon-engine
-usermod -aG www-data centreon-broker
-
 apt-get update
 apt-get install -y /tmp/packages-centreon/centreon-web*.deb
 apt-get clean
@@ -98,8 +98,8 @@ COPY --chmod=755 ./.github/docker/centreon-web/bookworm/entrypoint /usr/share/ce
 COPY --chown=www-data:www-data ./.github/docker/centreon-web/bookworm/configuration /usr/share/centreon/www/install/tmp
 COPY --chmod=600 ./centreon/packaging/src/sudoersCentreon /etc/sudoers.d/centreon
 COPY --chmod=755 ./.github/docker/centreon-web/init/systemctl /usr/local/bin/systemctl 
-
 COPY ./.github/docker/centreon-web/sql/* /usr/local/src/sql/data/
+
 RUN sed -i 's/User_Alias *CENTREON=%@CENTREON_GROUP@/User_Alias      CENTREON=%centreon/' /etc/sudoers.d/centreon &&\
     ln -s /usr/local/bin/systemctl /usr/bin/systemctl
 
