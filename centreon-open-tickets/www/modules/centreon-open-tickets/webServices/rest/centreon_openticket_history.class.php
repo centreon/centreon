@@ -115,13 +115,13 @@ class CentreonOpenticketHistory extends CentreonWebService
                 . $this->pearDBMonitoring->quote($this->arguments['ticket_id'])
             . ')'
         );
-        if (true === PEAR::isError($res)) {
+        if (PEAR::isError($res) === true) {
             return ['code' => 1, 'message' => 'cannot insert in database'];
         }
 
         // Get Autoincrement
         $res = $this->pearDBMonitoring->query('SELECT LAST_INSERT_ID() AS last_id');
-        if (true === PEAR::isError($res) || ! ($row = $res->fetch())) {
+        if (PEAR::isError($res) === true || ! ($row = $res->fetch())) {
             return ['code' => 1, 'message' => 'database issue'];
         }
         $auto_ticket = $row['last_id'];
@@ -133,7 +133,7 @@ class CentreonOpenticketHistory extends CentreonWebService
                 . $this->pearDBMonitoring->quote($this->arguments['subject'])
             . ')'
         );
-        if (true === PEAR::isError($res)) {
+        if (PEAR::isError($res) === true) {
             return ['code' => 1, 'message' => 'cannot insert in database'];
         }
 
@@ -153,7 +153,7 @@ class CentreonOpenticketHistory extends CentreonWebService
                     . $values
                 . ')'
             );
-            if (true === PEAR::isError($res)) {
+            if (PEAR::isError($res) === true) {
                 return ['code' => 1, 'message' => 'cannot insert in database'];
             }
         }

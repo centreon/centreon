@@ -53,7 +53,7 @@ interface MetaServiceMetricRepositoryInterface
     public function findByContactAndSqlRegexp(
         string $metricName,
         string $regexpString,
-        ContactInterface $contact
+        ContactInterface $contact,
     ): ?array;
 
     /**

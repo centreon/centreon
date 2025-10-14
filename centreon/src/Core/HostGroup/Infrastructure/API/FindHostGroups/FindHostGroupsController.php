@@ -42,7 +42,7 @@ final class FindHostGroupsController extends AbstractController
 {
     public function __invoke(
         FindHostGroups $useCase,
-        StandardPresenter $presenter
+        StandardPresenter $presenter,
     ): Response {
         $response = $useCase();
 

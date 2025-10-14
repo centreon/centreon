@@ -42,7 +42,7 @@ final class DeleteDashboardFromFavoritesController extends AbstractController
      */
     public function __invoke(
         int $dashboardId,
-        DeleteDashboardFromFavorites $useCase
+        DeleteDashboardFromFavorites $useCase,
     ): Response {
         return $this->createResponse($useCase($dashboardId));
     }

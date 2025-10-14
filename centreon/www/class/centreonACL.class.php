@@ -676,7 +676,7 @@ class CentreonACL
         $rows,
         $originTable = 'centreon_acl',
         $force = false,
-        $fields = []
+        $fields = [],
     ) {
         if (! empty($this->tempTableArray[$tmpTableName]) && ! $force) {
             return $this->tempTableArray[$tmpTableName];
@@ -2385,7 +2385,7 @@ class CentreonACL
         $statement->execute();
 
         while (false !== ($hasAccessToAll = $statement->fetchColumn())) {
-            if (true === (bool) $hasAccessToAll) {
+            if ((bool) $hasAccessToAll === true) {
                 return true;
             }
         }
@@ -2411,7 +2411,7 @@ class CentreonACL
 
         [
             'parameters' => $bindQueryParameters,
-            'placeholderList' => $bindQuery
+            'placeholderList' => $bindQuery,
         ] = createMultipleBindParameters(
             values: array_keys($accessGroups),
             prefix: 'access_group_id_',
@@ -2433,7 +2433,7 @@ class CentreonACL
             $db = CentreonDBInstance::getDbCentreonInstance();
 
             while (false !== ($hasAccessToAll = $db->fetchFirstColumn($query, QueryParameters::create($bindQueryParameters)))) {
-                if (true === (bool) $hasAccessToAll) {
+                if ((bool) $hasAccessToAll === true) {
                     return true;
                 }
             }
@@ -2484,7 +2484,7 @@ class CentreonACL
         $statement->execute();
 
         while (false !== ($hasAccessToAll = $statement->fetchColumn())) {
-            if (true === (bool) $hasAccessToAll) {
+            if ((bool) $hasAccessToAll === true) {
                 return true;
             }
         }

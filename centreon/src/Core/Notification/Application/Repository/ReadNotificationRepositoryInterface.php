@@ -102,7 +102,7 @@ interface ReadNotificationRepositoryInterface
     public function findUsersByNotificationIdUserAndAccessGroups(
         int $notificationId,
         ContactInterface $user,
-        array $accessGroups
+        array $accessGroups,
     ): array;
 
     /**
@@ -152,7 +152,7 @@ interface ReadNotificationRepositoryInterface
     public function countContactsByNotificationIdsAndAccessGroup(
         array $notificationIds,
         ContactInterface $user,
-        array $accessGroups
+        array $accessGroups,
     ): array;
 
     /**
@@ -169,7 +169,7 @@ interface ReadNotificationRepositoryInterface
     public function findContactGroupsByNotificationIdAndAccessGroups(
         int $notificationId,
         ContactInterface $user,
-        array $accessGroups
+        array $accessGroups,
     ): array;
 
     /**

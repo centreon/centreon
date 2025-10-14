@@ -1135,7 +1135,7 @@ if ($form->validate() && $from_list_menu === false) {
             $valid = true;
         }
     } elseif ($form->getSubmitValue('submitC')) {
-        if (false !== updateHostInApi((int) $hostObj->getValue(), $formData)) {
+        if (updateHostInApi((int) $hostObj->getValue(), $formData) !== false) {
             $o = HOST_WATCH;
             $valid = true;
         }

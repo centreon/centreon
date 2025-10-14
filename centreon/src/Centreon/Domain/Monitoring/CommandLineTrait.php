@@ -42,7 +42,7 @@ trait CommandLineTrait
         string $configurationCommand,
         string $monitoringCommand,
         array $macros,
-        string $replacementValue
+        string $replacementValue,
     ): string {
         // if the command line contains $$ after a macro (so $$$), delete one of them to match with
         // the command executed by centreon-engine

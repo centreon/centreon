@@ -502,7 +502,7 @@ function updateServiceGroupInDB(
     bool $isCloudPlatform = false,
     $serviceGroupId = null,
     $submittedValues = [],
-    $increment = false
+    $increment = false,
 ) {
     global $centreon, $form;
 

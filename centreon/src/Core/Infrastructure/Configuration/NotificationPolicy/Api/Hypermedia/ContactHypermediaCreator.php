@@ -36,7 +36,7 @@ class ContactHypermediaCreator
      * @param ContactInterface $contact
      */
     public function __construct(
-        private ContactInterface $contact
+        private ContactInterface $contact,
     ) {
     }
 

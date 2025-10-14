@@ -48,7 +48,7 @@ final class FindAgentConfigurationController extends AbstractController
     public function __invoke(
         int $id,
         FindAgentConfiguration $useCase,
-        StandardPresenter $presenter
+        StandardPresenter $presenter,
     ): Response {
         $response = $useCase($id);
 

@@ -46,7 +46,7 @@ class ErrorResponse extends AbstractResponse
     public function __construct(
         string|\Throwable $message,
         array $context = [],
-        private readonly ?\Throwable $exception = null
+        private readonly ?\Throwable $exception = null,
     ) {
         parent::__construct($message, $context);
     }

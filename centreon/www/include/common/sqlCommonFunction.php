@@ -59,7 +59,7 @@ function createMultipleBindQuery(array $list, string $prefix, ?int $bindType = n
 function createMultipleBindParameters(
     array $values,
     string $prefix,
-    QueryParameterTypeEnum $paramType
+    QueryParameterTypeEnum $paramType,
 ): array {
     return (new class () {
         use SqlMultipleBindTrait {

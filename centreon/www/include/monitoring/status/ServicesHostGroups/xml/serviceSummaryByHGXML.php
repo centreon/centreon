@@ -127,7 +127,7 @@ if ($hostgroup != '') {
 }
 
 $rq1 .= ' AND h.enabled = 1 ORDER BY :sort_type, host_name ';
-('ASC' != $order) ? $rq1 .= 'DESC' : $rq1 .= 'ASC';
+($order != 'ASC') ? $rq1 .= 'DESC' : $rq1 .= 'ASC';
 $rq1 .= ' LIMIT :numLimit, :limit';
 $queryValues['sort_type'] = [
     PDO::PARAM_STR => $sort_type,

@@ -50,7 +50,7 @@ class DbReadEscalationRepository extends AbstractRepositoryRDB implements ReadEs
      */
     public function findByIds(array $escalationIds): array
     {
-        if ([] === $escalationIds) {
+        if ($escalationIds === []) {
             return $escalationIds;
         }
 

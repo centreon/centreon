@@ -205,7 +205,7 @@ final class FindNotification
         array $notificationMessages,
         array $notifiedUsers,
         array $notifiedContactGroups,
-        array $notificationResources
+        array $notificationResources,
     ): FindNotificationResponse {
         $response = new FindNotificationResponse();
 

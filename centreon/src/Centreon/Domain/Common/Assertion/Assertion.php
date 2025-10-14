@@ -136,7 +136,7 @@ class Assertion
     public static function maxDate(
         \DateTimeInterface $value,
         \DateTimeInterface $maxDate,
-        ?string $propertyPath = null
+        ?string $propertyPath = null,
     ): void {
         if ($value->getTimestamp() > $maxDate->getTimestamp()) {
             throw AssertionException::maxDate($value, $maxDate, $propertyPath);
@@ -155,7 +155,7 @@ class Assertion
     public static function minDate(
         \DateTimeInterface $value,
         \DateTimeInterface $minDate,
-        ?string $propertyPath = null
+        ?string $propertyPath = null,
     ): void {
         if ($value->getTimestamp() < $minDate->getTimestamp()) {
             throw AssertionException::minDate($value, $minDate, $propertyPath);
@@ -226,7 +226,7 @@ class Assertion
      */
     public static function notNull(mixed $value, ?string $propertyPath = null): void
     {
-        if (null === $value) {
+        if ($value === null) {
             throw AssertionException::notNull($propertyPath);
         }
     }
@@ -261,7 +261,7 @@ class Assertion
         int|float $value,
         int|float $minValue,
         int|float $maxValue,
-        ?string $propertyPath = null
+        ?string $propertyPath = null,
     ): void {
         if ($value < $minValue || $value > $maxValue) {
             throw AssertionException::range($value, $minValue, $maxValue, $propertyPath);
@@ -295,8 +295,8 @@ class Assertion
     public static function ipOrDomain(string $value, ?string $propertyPath = null): void
     {
         if (
-            false === filter_var($value, FILTER_VALIDATE_IP)
-            && false === filter_var($value, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME)
+            filter_var($value, FILTER_VALIDATE_IP) === false
+            && filter_var($value, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME) === false
         ) {
             throw AssertionException::ipOrDomain($value, $propertyPath);
         }
@@ -312,7 +312,7 @@ class Assertion
      */
     public static function ipAddress(mixed $value, ?string $propertyPath = null): void
     {
-        if (! \is_string($value) || false === filter_var($value, FILTER_VALIDATE_IP)) {
+        if (! \is_string($value) || filter_var($value, FILTER_VALIDATE_IP) === false) {
             throw AssertionException::ipAddressNotValid(self::stringify($value), $propertyPath);
         }
     }
@@ -329,9 +329,9 @@ class Assertion
     {
         if (! \is_string($value)
             || (
-                false === filter_var($value, FILTER_VALIDATE_IP)
-                && false === filter_var($value, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME)
-                && false === filter_var($value, FILTER_VALIDATE_URL)
+                filter_var($value, FILTER_VALIDATE_IP) === false
+                && filter_var($value, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME) === false
+                && filter_var($value, FILTER_VALIDATE_URL) === false
             )
         ) {
             throw AssertionException::urlOrIpOrDomain(self::stringify($value), $propertyPath);
@@ -386,7 +386,7 @@ class Assertion
     {
         try {
             $json = json_encode($value, JSON_THROW_ON_ERROR | JSON_PRESERVE_ZERO_FRACTION);
-            if (null !== $maxLength) {
+            if ($maxLength !== null) {
                 $length = \mb_strlen($json, 'utf8');
                 if ($length > $maxLength) {
                     throw AssertionException::maxLength('<JSON>', $length, $maxLength, $propertyPath);
@@ -407,7 +407,7 @@ class Assertion
     public static function unauthorizedCharacters(
         string $value,
         string $unauthorizedCharacters,
-        ?string $propertyPath = null
+        ?string $propertyPath = null,
     ): void {
         if ($unauthorizedCharacters !== '' && $value !== '') {
             $unauthorizedCharactersFound = array_unique(
@@ -480,7 +480,7 @@ class Assertion
             $result = \get_debug_type($value);
         } elseif (\is_resource($value)) {
             $result = \get_resource_type($value);
-        } elseif (null === $value) {
+        } elseif ($value === null) {
             $result = '<NULL>';
         }
 

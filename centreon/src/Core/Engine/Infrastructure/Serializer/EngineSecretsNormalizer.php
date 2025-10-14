@@ -47,7 +47,7 @@ class EngineSecretsNormalizer implements NormalizerInterface
     public function normalize(
         mixed $object,
         ?string $format = null,
-        array $context = []
+        array $context = [],
     ): array {
         /** @var array{app_secret: array{key: string}, salt: array{key: string}} $data */
         $data = $this->normalizer->normalize($object, $format, $context);

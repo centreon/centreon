@@ -46,7 +46,7 @@ class DbWriteServiceCategoryRepository extends AbstractRepositoryRDB implements 
      */
     public function isValidFor(string $type): bool
     {
-        return ServiceCategoryFilterType::TYPE_NAME === $type;
+        return $type === ServiceCategoryFilterType::TYPE_NAME;
     }
 
     /**
@@ -59,7 +59,7 @@ class DbWriteServiceCategoryRepository extends AbstractRepositoryRDB implements 
             ['rule_id' => $ruleId, 'dataset_id' => $datasetId, 'service_category_ids' => $resourceIds]
         );
 
-        if ([] === $resourceIds) {
+        if ($resourceIds === []) {
             return;
         }
 

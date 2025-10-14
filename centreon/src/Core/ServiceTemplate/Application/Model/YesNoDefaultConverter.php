@@ -41,7 +41,7 @@ class YesNoDefaultConverter
             0 => YesNoDefault::No,
             1 => YesNoDefault::Yes,
             2 => YesNoDefault::Default,
-            default => throw AssertionException::range($yesNoDefault, 0, 2)
+            default => throw AssertionException::range($yesNoDefault, 0, 2),
         };
     }
 }

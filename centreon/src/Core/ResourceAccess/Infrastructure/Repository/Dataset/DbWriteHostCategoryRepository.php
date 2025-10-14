@@ -43,7 +43,7 @@ class DbWriteHostCategoryRepository extends AbstractRepositoryRDB implements Wri
      */
     public function isValidFor(string $type): bool
     {
-        return HostCategoryFilterType::TYPE_NAME === $type;
+        return $type === HostCategoryFilterType::TYPE_NAME;
     }
 
     /**
@@ -51,7 +51,7 @@ class DbWriteHostCategoryRepository extends AbstractRepositoryRDB implements Wri
      */
     public function linkResourcesToDataset(int $ruleId, int $datasetId, array $resourceIds): void
     {
-        if ([] === $resourceIds) {
+        if ($resourceIds === []) {
             return;
         }
 

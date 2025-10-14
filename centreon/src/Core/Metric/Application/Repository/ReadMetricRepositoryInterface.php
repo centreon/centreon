@@ -47,7 +47,7 @@ interface ReadMetricRepositoryInterface
      */
     public function findServicesByMetricNamesAndRequestParameters(
         array $metricNames,
-        RequestParametersInterface $requestParameters
+        RequestParametersInterface $requestParameters,
     ): array;
 
     /**
@@ -62,7 +62,7 @@ interface ReadMetricRepositoryInterface
     public function findServicesByMetricNamesAndAccessGroupsAndRequestParameters(
         array $metricNames,
         array $accessGroups,
-        RequestParametersInterface $requestParameters
+        RequestParametersInterface $requestParameters,
     ): array;
 
     /**
@@ -79,7 +79,7 @@ interface ReadMetricRepositoryInterface
     public function findByHostIdAndServiceId(
         int $hostId,
         int $serviceId,
-        RequestParametersInterface $requestParameters
+        RequestParametersInterface $requestParameters,
     ): array;
 
     /**
@@ -98,6 +98,6 @@ interface ReadMetricRepositoryInterface
         int $hostId,
         int $serviceId,
         array $accessGroups,
-        RequestParametersInterface $requestParameters
+        RequestParametersInterface $requestParameters,
     ): array;
 }

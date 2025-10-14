@@ -76,7 +76,7 @@ class EngineService extends AbstractCentreonService implements
     public function __construct(
         EngineRepositoryInterface $engineRepository,
         EngineConfigurationRepositoryInterface $engineConfigurationRepository,
-        EntityValidator $validator
+        EntityValidator $validator,
     ) {
         $this->engineRepository = $engineRepository;
         $this->validator = $validator;

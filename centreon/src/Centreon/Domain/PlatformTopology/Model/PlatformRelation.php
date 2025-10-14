@@ -107,7 +107,7 @@ class PlatformRelation
     public function setRelation(?string $relation): self
     {
         // Set relation to normal if invalid relation type is given to be able to compute the relation
-        if (null !== $relation && ! in_array($relation, self::AVAILABLE_RELATIONS)) {
+        if ($relation !== null && ! in_array($relation, self::AVAILABLE_RELATIONS)) {
             $this->relation = self::NORMAL_RELATION;
         } else {
             $this->relation = $relation;

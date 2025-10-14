@@ -39,7 +39,7 @@ abstract class AbstractHypermediaProvider
      */
     public function __construct(
         protected ContactInterface $contact,
-        protected UriGenerator $uriGenerator
+        protected UriGenerator $uriGenerator,
     ) {
     }
 

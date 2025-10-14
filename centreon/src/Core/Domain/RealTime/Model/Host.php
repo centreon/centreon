@@ -130,7 +130,7 @@ class Host
         private string $name,
         private string $address,
         private string $monitoringServerName,
-        private HostStatus $status
+        private HostStatus $status,
     ) {
         Assertion::maxLength($name, self::MAX_NAME_LENGTH, 'Host::name');
         Assertion::notEmpty($name, 'Host::name');

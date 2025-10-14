@@ -42,7 +42,7 @@ final class DbWriteImageFolderRepository extends DatabaseRepository implements W
     public function linkResourcesToDataset(int $ruleId, int $datasetId, array $resourceIds): void
     {
         try {
-            if ([] === $resourceIds) {
+            if ($resourceIds === []) {
                 return;
             }
 
@@ -80,7 +80,7 @@ final class DbWriteImageFolderRepository extends DatabaseRepository implements W
      */
     public function isValidFor(string $type): bool
     {
-        return ImageFolderFilterType::TYPE_NAME === $type;
+        return $type === ImageFolderFilterType::TYPE_NAME;
     }
 
     /**

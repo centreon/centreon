@@ -39,7 +39,7 @@ class PlatformInformationService implements PlatformInformationServiceInterface
     private $platformInformationRepository;
 
     public function __construct(
-        PlatformInformationReadRepositoryInterface $platformInformationRepository
+        PlatformInformationReadRepositoryInterface $platformInformationRepository,
     ) {
         $this->platformInformationRepository = $platformInformationRepository;
     }

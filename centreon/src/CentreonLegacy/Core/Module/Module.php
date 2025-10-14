@@ -57,7 +57,7 @@ class Module
         ?Information $informationObj = null,
         $moduleName = '',
         ?Utils $utils = null,
-        $moduleId = null
+        $moduleId = null,
     ) {
         $this->moduleId = $moduleId;
         $this->services = $services;

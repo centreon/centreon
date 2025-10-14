@@ -1147,7 +1147,7 @@ function getParamValue(
     string|null $key = null,
     string|int|null $subKey = null,
     bool $sanitize = false,
-    mixed $default = null
+    mixed $default = null,
 ): mixed {
     // If not an array, return directly (optionally sanitize)
     if (! is_array($params) || $key === null) {

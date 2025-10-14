@@ -97,7 +97,7 @@ final class PartialUpdateServiceTemplate
 
     public function __invoke(
         PartialUpdateServiceTemplateRequest $request,
-        PresenterInterface $presenter
+        PresenterInterface $presenter,
     ): void {
         try {
             $this->info('Update the service template', ['request' => $request]);
@@ -274,7 +274,7 @@ final class PartialUpdateServiceTemplate
      */
     private function updatePropertiesInTransaction(
         PartialUpdateServiceTemplateRequest $request,
-        ServiceTemplate $serviceTemplate
+        ServiceTemplate $serviceTemplate,
     ): void {
         $this->debug('Start transaction');
         $this->storageEngine->startTransaction();
@@ -419,7 +419,7 @@ final class PartialUpdateServiceTemplate
      */
     private function updateServiceTemplate(
         ServiceTemplate $serviceTemplate,
-        PartialUpdateServiceTemplateRequest $request
+        PartialUpdateServiceTemplateRequest $request,
     ): void {
         $inheritanceMode = $this->optionService->findSelectedOptions(['inheritance_mode']);
         $inheritanceMode = isset($inheritanceMode[0])
@@ -670,7 +670,7 @@ final class PartialUpdateServiceTemplate
     {
         $updatedMacros = [];
         foreach ($macros as $key => $macro) {
-            if (false === $macro->isPassword()) {
+            if ($macro->isPassword() === false) {
                 $updatedMacros[$key] = $macro;
                 continue;
             }

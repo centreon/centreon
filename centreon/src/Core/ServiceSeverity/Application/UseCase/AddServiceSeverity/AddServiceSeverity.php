@@ -50,7 +50,7 @@ final class AddServiceSeverity
         private readonly WriteServiceSeverityRepositoryInterface $writeServiceSeverityRepository,
         private readonly ReadServiceSeverityRepositoryInterface $readServiceSeverityRepository,
         private readonly ReadViewImgRepositoryInterface $readViewImgRepository,
-        private readonly ContactInterface $user
+        private readonly ContactInterface $user,
     ) {
     }
 
@@ -78,7 +78,7 @@ final class AddServiceSeverity
                     new ConflictResponse(ServiceSeverityException::serviceNameAlreadyExists())
                 );
             } elseif (
-                0 === $request->iconId
+                $request->iconId === 0
                 || ! $this->readViewImgRepository->existsOne($request->iconId)
             ) {
                 $this->error(

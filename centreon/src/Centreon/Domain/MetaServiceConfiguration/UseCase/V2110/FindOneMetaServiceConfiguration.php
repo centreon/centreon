@@ -54,7 +54,7 @@ class FindOneMetaServiceConfiguration
      */
     public function __construct(
         MetaServiceConfigurationServiceInterface $metaServiceConfigurationService,
-        ContactInterface $contact
+        ContactInterface $contact,
     ) {
         $this->metaServiceConfigurationService = $metaServiceConfigurationService;
         $this->contact = $contact;

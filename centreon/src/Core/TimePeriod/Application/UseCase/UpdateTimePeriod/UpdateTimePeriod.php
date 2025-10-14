@@ -50,7 +50,7 @@ final class UpdateTimePeriod
     public function __construct(
         readonly ReadTimePeriodRepositoryInterface $readTimePeriodRepository,
         readonly WriteTimePeriodRepositoryInterface $writeTimePeriodRepository,
-        readonly ContactInterface $user
+        readonly ContactInterface $user,
     ) {
     }
 

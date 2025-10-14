@@ -107,7 +107,7 @@ class ActionLog
         private readonly string $objectName,
         private readonly string $actionType,
         private readonly int $contactId,
-        ?\DateTime $creationDate = null
+        ?\DateTime $creationDate = null,
     ) {
         if ($creationDate === null) {
             $this->creationDate = new \DateTime();

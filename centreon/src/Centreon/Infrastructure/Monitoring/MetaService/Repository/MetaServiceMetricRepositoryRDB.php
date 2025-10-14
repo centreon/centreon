@@ -77,7 +77,7 @@ class MetaServiceMetricRepositoryRDB extends AbstractRepositoryDRB implements
     public function findByContactAndSqlRegexp(
         string $metricName,
         string $regexpString,
-        ContactInterface $contact
+        ContactInterface $contact,
     ): ?array {
         return $this->findMetricsBySqlRegexpRequest($metricName, $regexpString, $contact->getId());
     }

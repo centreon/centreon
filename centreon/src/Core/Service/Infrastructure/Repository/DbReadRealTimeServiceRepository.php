@@ -86,7 +86,7 @@ class DbReadRealTimeServiceRepository extends AbstractRepositoryRDB implements R
      */
     public function findStatusesByRequestParametersAndAccessGroupIds(
         RequestParametersInterface $requestParameters,
-        array $accessGroupIds
+        array $accessGroupIds,
     ): ServiceStatusesCount {
         if ($accessGroupIds === []) {
             $this->createServiceStatusesCountFromRecord([]);
@@ -163,7 +163,7 @@ class DbReadRealTimeServiceRepository extends AbstractRepositoryRDB implements R
      */
     public function findUniqueServiceNamesByRequestParametersAndAccessGroupIds(
         RequestParametersInterface $requestParameters,
-        array $accessGroupIds
+        array $accessGroupIds,
     ): array {
         if ($accessGroupIds === []) {
             return [];
@@ -212,7 +212,7 @@ class DbReadRealTimeServiceRepository extends AbstractRepositoryRDB implements R
         SqlRequestParametersTranslator $sqlTranslator,
         bool $calculateNumberOfRows,
         array $accessGroupIds = [],
-        string $aclBindQuery = ''
+        string $aclBindQuery = '',
     ): string {
         $search = $sqlTranslator->translateSearchParameterToSql();
         $typeSearch = $search !== null ? ' AND services.type = 0 ' : ' WHERE services.type = 0 ';
@@ -318,7 +318,7 @@ class DbReadRealTimeServiceRepository extends AbstractRepositoryRDB implements R
      * @return SqlRequestParametersTranslator
      */
     private function prepareSqlRequestParametersTranslator(
-        RequestParametersInterface $requestParameters
+        RequestParametersInterface $requestParameters,
     ): SqlRequestParametersTranslator {
         $sqlTranslator = new SqlRequestParametersTranslator($requestParameters);
         $sqlTranslator->setConcordanceArray([
@@ -342,7 +342,7 @@ class DbReadRealTimeServiceRepository extends AbstractRepositoryRDB implements R
                 /**
                  * @inheritDoc
                  */
-                public function normalize($valueToNormalize)
+                public function normalize($valueToNormalize): int
                 {
                     switch (mb_strtoupper((string) $valueToNormalize)) {
                         case 'OK':

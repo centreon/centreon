@@ -37,7 +37,7 @@ class FindPerformanceMetricsPresenter extends AbstractPresenter implements FindP
 {
     public function __construct(
         private RequestParametersInterface $requestParameters,
-        protected PresenterFormatterInterface $presenterFormatter
+        protected PresenterFormatterInterface $presenterFormatter,
     ) {
         parent::__construct($presenterFormatter);
     }

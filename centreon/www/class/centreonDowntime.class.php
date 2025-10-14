@@ -111,7 +111,7 @@ class CentreonDowntime
     public function setSearch(string $search = ''): void
     {
         $this->safeSearch = '';
-        if ('' !== $search) {
+        if ($search !== '') {
             $this->safeSearch = htmlentities($search, ENT_QUOTES, 'UTF-8');
             $this->search = 'dt_name LIKE :search';
         }
@@ -696,7 +696,7 @@ class CentreonDowntime
      */
     public function duplicate($ids, $nb): void
     {
-        $ids = false === is_array($ids) ? [$ids] : array_keys($ids);
+        $ids = is_array($ids) === false ? [$ids] : array_keys($ids);
         foreach ($ids as $id) {
             if (isset($nb[$id])) {
                 $query = 'SELECT dt_id, dt_name, dt_description, dt_activate FROM downtime WHERE dt_id = :id';
@@ -913,7 +913,7 @@ class CentreonDowntime
             self::TYPE_SERVICE_GROUP => $this->db->prepare(
                 'INSERT INTO downtime_servicegroup_relation (dt_id, sg_sg_id) VALUES (:id, :obj_id)'
             ),
-            default => null
+            default => null,
         };
 
         if ($statement === null) {

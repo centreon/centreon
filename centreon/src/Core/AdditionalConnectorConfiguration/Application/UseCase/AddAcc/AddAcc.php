@@ -74,7 +74,7 @@ final class AddAcc
 
     public function __invoke(
         AddAccRequest $request,
-        AddAccPresenterInterface $presenter
+        AddAccPresenterInterface $presenter,
     ): void {
         try {
             if (! $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_ACC_RW)) {

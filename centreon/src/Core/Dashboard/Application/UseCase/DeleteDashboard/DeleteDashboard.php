@@ -53,7 +53,7 @@ final class DeleteDashboard
         private readonly ContactInterface $contact,
         private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
         private readonly WriteMediaRepositoryInterface $mediaRepository,
-        private readonly bool $isCloudPlatform
+        private readonly bool $isCloudPlatform,
     ) {
     }
 
@@ -113,7 +113,7 @@ final class DeleteDashboard
     private function deleteDashboardAsContact(int $dashboardId): ResponseStatusInterface
     {
         $dashboard = $this->readDashboardRepository->findOneByContact($dashboardId, $this->contact);
-        if (null === $dashboard) {
+        if ($dashboard === null) {
             $this->warning('Dashboard (%s) not found', ['id' => $dashboardId]);
 
             return new NotFoundResponse('Dashboard');

@@ -77,7 +77,7 @@ interface WriteResourceAccessRepositoryInterface
         bool $accessAllHosts,
         bool $accessAllHostGroups,
         bool $accessAllServiceGroups,
-        bool $accessAllImageFolders
+        bool $accessAllImageFolders,
     ): int;
 
     /**

@@ -43,7 +43,7 @@ final class RenewPasswordController extends AbstractController
         RenewPassword $useCase,
         Request $request,
         RenewPasswordPresenterInterface $presenter,
-        string $alias
+        string $alias,
     ): object {
         $this->validateDataSent($request, __DIR__ . '/RenewPasswordSchema.json');
         $renewPasswordRequest = $this->createRenewPasswordRequest($request, $alias);

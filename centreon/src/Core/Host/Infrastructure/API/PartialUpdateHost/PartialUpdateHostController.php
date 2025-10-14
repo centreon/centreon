@@ -55,7 +55,7 @@ final class PartialUpdateHostController extends AbstractController
         PartialUpdateHost $useCase,
         DefaultPresenter $presenter,
         bool $isCloudPlatform,
-        int $hostId
+        int $hostId,
     ): Response {
         $this->denyAccessUnlessGrantedForApiConfiguration();
 

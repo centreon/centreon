@@ -45,7 +45,7 @@ final class UpdateSAMLConfigurationController extends AbstractController
     public function __invoke(
         UpdateSAMLConfiguration $useCase,
         Request $request,
-        UpdateSAMLConfigurationPresenterInterface $presenter
+        UpdateSAMLConfigurationPresenterInterface $presenter,
     ): object {
         $this->denyAccessUnlessGrantedForApiConfiguration();
         /**

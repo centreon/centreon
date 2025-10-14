@@ -33,7 +33,7 @@ class Refresh
      */
     public function __construct(
         private readonly RefreshType $refreshType,
-        private readonly ?int $refreshInterval
+        private readonly ?int $refreshInterval,
     ) {
     }
 

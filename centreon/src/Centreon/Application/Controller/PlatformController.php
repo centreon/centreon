@@ -80,7 +80,7 @@ class PlatformController extends AbstractController
      */
     public function updatePlatform(
         Request $request,
-        UpdatePartiallyPlatformInformation $updatePartiallyPlatformInformation
+        UpdatePartiallyPlatformInformation $updatePartiallyPlatformInformation,
     ): View {
         $this->denyAccessUnlessGrantedForApiConfiguration();
 

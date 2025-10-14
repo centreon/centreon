@@ -43,7 +43,7 @@ class AbsolutePathErrorFormatter implements ErrorFormatter
      */
     public function formatErrors(
         AnalysisResult $analysisResult,
-        Output $output
+        Output $output,
     ): int {
         $output->writeRaw('<?xml version="1.0" encoding="UTF-8"?>');
         $output->writeLineFormatted('');

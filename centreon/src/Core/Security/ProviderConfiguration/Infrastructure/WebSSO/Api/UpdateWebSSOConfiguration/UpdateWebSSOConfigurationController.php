@@ -48,7 +48,7 @@ final class UpdateWebSSOConfigurationController extends AbstractController
     public function __invoke(
         UpdateWebSSOConfiguration $useCase,
         Request $request,
-        UpdateWebSSOConfigurationPresenterInterface $presenter
+        UpdateWebSSOConfigurationPresenterInterface $presenter,
     ): object {
         $this->denyAccessUnlessGrantedForApiConfiguration();
         /**

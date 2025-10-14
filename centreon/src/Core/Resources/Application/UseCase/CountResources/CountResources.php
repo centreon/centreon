@@ -44,7 +44,7 @@ final readonly class CountResources
      */
     public function __construct(
         private ReadResourceRepositoryInterface $readResourceRepository,
-        private ReadAccessGroupRepositoryInterface $accessGroupRepository
+        private ReadAccessGroupRepositoryInterface $accessGroupRepository,
     ) {
     }
 
@@ -56,7 +56,7 @@ final readonly class CountResources
      */
     public function __invoke(
         CountResourcesRequest $request,
-        CountResourcesPresenterInterface $presenter
+        CountResourcesPresenterInterface $presenter,
     ): void {
         $response = new CountResourcesResponse();
 

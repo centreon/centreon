@@ -48,7 +48,7 @@ final class AddHostSeverityController extends AbstractController
     public function __invoke(
         Request $request,
         AddHostSeverity $useCase,
-        AddHostSeverityPresenter $presenter
+        AddHostSeverityPresenter $presenter,
     ): Response {
         $this->denyAccessUnlessGrantedForApiConfiguration();
 

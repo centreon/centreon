@@ -83,7 +83,7 @@ class NotificationServiceEventConverter
                 self::CASE_WARNING_AS_STR => ServiceEvent::Warning,
                 self::CASE_CRITICAL_AS_STR => ServiceEvent::Critical,
                 self::CASE_UNKNOWN_AS_STR => ServiceEvent::Unknown,
-                default => throw new \LogicException('Should never occur, only for phpstan')
+                default => throw new \LogicException('Should never occur, only for phpstan'),
             };
         }
 

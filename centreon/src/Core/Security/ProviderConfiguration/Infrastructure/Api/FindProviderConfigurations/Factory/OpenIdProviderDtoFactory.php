@@ -39,7 +39,7 @@ class OpenIdProviderDtoFactory implements ProviderConfigurationDtoFactoryInterfa
     public function __construct(
         private readonly UrlGeneratorInterface $urlGenerator,
         private readonly ReadVaultConfigurationRepositoryInterface $readVaultConfigurationRepository,
-        private readonly ReadVaultRepositoryInterface $readVaultRepository
+        private readonly ReadVaultRepositoryInterface $readVaultRepository,
     ) {
 
     }

@@ -52,7 +52,7 @@ class ReloadAllConfigurations
         private readonly MonitoringServerRepositoryInterface $monitoringServerRepository,
         private readonly MonitoringServerConfigurationRepositoryInterface $configurationRepository,
         private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepositoryInterface,
-        private readonly ContactInterface $contact
+        private readonly ContactInterface $contact,
     ) {
     }
 

@@ -78,7 +78,7 @@ trait DashboardValidationTrait
      */
     private function ensureNullablePositiveInt(?int $value, string $propertyName): void
     {
-        if (null !== $value) {
+        if ($value !== null) {
             $this->ensurePositiveInt($value, $propertyName);
         }
     }

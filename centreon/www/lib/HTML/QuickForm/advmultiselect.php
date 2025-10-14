@@ -234,7 +234,7 @@ class HTML_QuickForm_advmultiselect extends HTML_QuickForm_select
         $elementLabel = null,
         $options = null,
         $attributes = null,
-        $sort = null
+        $sort = null,
     ) {
 
         $opts    = $options;
@@ -1000,7 +1000,7 @@ class HTML_QuickForm_advmultiselect extends HTML_QuickForm_select
         $param1 = null,
         $param2 = null,
         $param3 = null,
-        $param4 = null
+        $param4 = null,
     ) {
 
         if (is_array($options)) {

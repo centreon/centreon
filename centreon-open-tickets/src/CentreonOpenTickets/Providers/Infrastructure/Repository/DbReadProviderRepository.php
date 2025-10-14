@@ -156,7 +156,7 @@ class DbReadProviderRepository extends AbstractRepositoryRDB implements ReadProv
             12 => ProviderType::RequestTracker2,
             13 => ProviderType::Itop,
             14 => ProviderType::EasyVistaRest,
-            default => null
+            default => null,
         };
     }
 }

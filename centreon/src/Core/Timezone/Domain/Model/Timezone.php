@@ -41,7 +41,7 @@ class Timezone
         private readonly string $name,
         private readonly string $offset,
         private readonly string $daylightSavingTimeOffset,
-        private readonly string $description = ''
+        private readonly string $description = '',
     ) {
         $shortName = (new \ReflectionClass($this))->getShortName();
 

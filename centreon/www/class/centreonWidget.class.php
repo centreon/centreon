@@ -242,7 +242,7 @@ class CentreonWidget
         int $widgetModelId,
         string $widgetTitle,
         bool $permission,
-        bool $authorized
+        bool $authorized,
     ): void {
         if (! $authorized || ! $permission) {
             throw new CentreonWidgetException('You are not allowed to add a widget.');
@@ -291,7 +291,7 @@ class CentreonWidget
 
         while ($position = $stmt->fetch()) {
             [$col, $row] = explode('_', $position['widget_order']);
-            if (false == isset($matrix[$row])) {
+            if (isset($matrix[$row]) == false) {
                 $matrix[$row] = [];
             }
             $matrix[$row][] = $col;

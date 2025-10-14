@@ -152,7 +152,7 @@ if (
     $attrPoller = ['datasourceOrigin' => 'ajax', 'allowClear' => false, 'availableDatasetRoute' => './api/internal.php?object=centreon_configuration_poller&action=list', 'multiple' => true, 'linkedObject' => 'centreonInstance'];
 
     // Host Parents
-    if (0 !== $resourceId) {
+    if ($resourceId !== 0) {
         $attrPoller1 = array_merge(
             $attrPoller,
             ['defaultDatasetRoute' => './api/internal.php?object=centreon_configuration_poller'

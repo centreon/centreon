@@ -44,7 +44,7 @@ class MetaServiceController extends AbstractController
     public function findMetaServiceMetrics(
         RequestParametersInterface $requestParameters,
         FindMetaServiceMetrics $findMetaServiceMetrics,
-        int $metaId
+        int $metaId,
     ): View {
         $this->denyAccessUnlessGrantedForApiRealtime();
         $response = $findMetaServiceMetrics->execute($metaId);
