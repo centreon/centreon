@@ -3708,8 +3708,8 @@ msgid ""
 "executed after every check of this service."
 msgstr ""
 "Cette directive détermine si oui ou non les vérifications pour le service "
-"seront plus « insistante ». Lorsqu'elle est activée la commande sera exécutée "
-"après chaque vérification de ce service."
+"seront plus « insistante ». Lorsqu'elle est activée la commande sera "
+"exécutée après chaque vérification de ce service."
 
 #: centreon/www/include/configuration/configObject/host/help.php
 msgid ""
