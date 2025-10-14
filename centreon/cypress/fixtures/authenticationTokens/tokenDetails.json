@@ -3,8 +3,7 @@
     "type": "api",
     "user": {
         "id": 4,
-        "name": "centreon-gorgone",
-        "alias": "centreon-gorgone"
+        "name": "centreon-gorgone"
     },
     "creator": {
         "id": 1,
