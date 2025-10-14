@@ -24580,5 +24580,5 @@ msgstr "alerte"
 msgid "will display resources with host name starting by'"
 msgstr "affichera les ressources avec un nom d'hôte commençant par"
 
-msgid "Too many elements to be displayed (>20)"
-msgstr "Trop d'éléments à afficher (>20)" 
+msgid "Too many elements to be displayed"
+msgstr "Trop d'éléments à afficher" 

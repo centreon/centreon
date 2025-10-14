@@ -23527,5 +23527,5 @@ msgstr "período de tempo"
 msgid "topology_name"
 msgstr "Nome da Topologia"
 
-# msgid "Too many elements to be displayed (>20)"
+# msgid "Too many elements to be displayed"
 # msgstr ""

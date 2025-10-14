@@ -21197,5 +21197,5 @@ msgstr "Standard"
 msgid "it's required"
 msgstr "es ist erforderlich"
 
-# msgid "Too many elements to be displayed (>20)"
+# msgid "Too many elements to be displayed"
 # msgstr ""
