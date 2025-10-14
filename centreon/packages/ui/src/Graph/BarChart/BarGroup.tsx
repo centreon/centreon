@@ -221,7 +221,7 @@ const BarGroup = ({
               key={`bar-group-${barGroup.index}-${barGroup.x0}`}
               barGroup={barGroup}
               barStyle={barStyle}
-              stackedLinesTimeSeriesPerUnit={
+              stackedLinesTimeSeriesPerStackKeyAndUnit={
                 stackedLinesTimeSeriesPerStackKeyAndUnit
               }
               notStackedTimeSeries={notStackedTimeSeries}

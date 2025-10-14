@@ -12,7 +12,7 @@ interface Props {
   isTooltipHidden: boolean;
   barStyle: BarStyle;
   yScalesPerUnit: Record<string, ScaleLinear<number, number>>;
-  stackedLinesTimeSeriesPerUnit: Record<
+  stackedLinesTimeSeriesPerStackKeyAndUnit: Record<
     string,
     { lines: Array<Line>; timeSeries: Array<TimeValue> }
   >;
@@ -25,7 +25,7 @@ interface Props {
 
 const MemoizedGroup = ({
   barGroup,
-  stackedLinesTimeSeriesPerUnit,
+  stackedLinesTimeSeriesPerStackKeyAndUnit,
   notStackedLines,
   notStackedTimeSeries,
   isHorizontal,
@@ -38,7 +38,7 @@ const MemoizedGroup = ({
   const hasEmptyValues = barGroup.bars.every(({ key, value }) => {
     if (key.startsWith('stacked-')) {
       const timeValueBar =
-        stackedLinesTimeSeriesPerUnit[key].timeSeries[barIndex];
+        stackedLinesTimeSeriesPerStackKeyAndUnit[key].timeSeries[barIndex];
 
       return Object.values(omit(['timeTick'], timeValueBar)).every(
         (value) => !value
@@ -57,12 +57,12 @@ const MemoizedGroup = ({
       {barGroup.bars.map((bar) => {
         const isStackedBar = bar.key.startsWith('stacked-');
         const linesBar = isStackedBar
-          ? stackedLinesTimeSeriesPerUnit[bar.key].lines
+          ? stackedLinesTimeSeriesPerStackKeyAndUnit[bar.key].lines
           : (notStackedLines.find(({ metric_id }) =>
               equals(metric_id, Number(bar.key))
             ) as Line);
         const timeSeriesBar = isStackedBar
-          ? stackedLinesTimeSeriesPerUnit[bar.key].timeSeries
+          ? stackedLinesTimeSeriesPerStackKeyAndUnit[bar.key].timeSeries
           : notStackedTimeSeries.map((timeSerie) => ({
               timeTick: timeSerie.timeTick,
               [bar.key]: timeSerie[Number(bar.key)]
@@ -107,8 +107,8 @@ export default memo(
   (prevProps, nextProps) =>
     equals(prevProps.barGroup, nextProps.barGroup) &&
     equals(
-      prevProps.stackedLinesTimeSeriesPerUnit,
-      nextProps.stackedLinesTimeSeriesPerUnit
+      prevProps.stackedLinesTimeSeriesPerStackKeyAndUnit,
+      nextProps.stackedLinesTimeSeriesPerStackKeyAndUnit
     ) &&
     equals(prevProps.notStackedLines, nextProps.notStackedLines) &&
     equals(prevProps.notStackedTimeSeries, nextProps.notStackedTimeSeries) &&
