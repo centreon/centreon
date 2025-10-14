@@ -193,7 +193,7 @@ $tpl->assign('Available', _('Available'));
 // Different messages we put in the template
 $tpl->assign(
     'msg',
-    ['addL' => 'main.php?p=' . $p . '&o=a', 'addT' => _('Add'), 'delConfirm' => _('Do you confirm the deletion ?')]
+    ['addL' => 'main.php?p=' . $p . '&o=a', 'addT' => _('Add'), 'delConfirm' => _('Do you confirm the deletion?')]
 );
 
 ?>
@@ -213,7 +213,7 @@ $tpl->assign(
 
         function submitO(_i) {
             if (document.forms['form'].elements[_i].selectedIndex == 1 &&
-                confirm('<?php echo _('Do you confirm the deletion ?'); ?>')
+                confirm('<?php echo _('Do you confirm the deletion?'); ?>')
             ) {
                 setO(document.forms['form'].elements[_i].value);
                 document.forms['form'].submit();

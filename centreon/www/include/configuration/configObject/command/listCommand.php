@@ -102,11 +102,11 @@ $tpl->assign('mode_access', $lvl_access);
 
 // Main buttons
 $duplicateBtn = "<button id='duplicate_cmd' style='cursor: pointer; background-color: transparent; border: 0; height: 22px; width: 22px;' "
-. "onclick=\"javascript:if (confirm('" . _('Do you confirm the duplication ?') . "')) {setO('m'); submit();}\">"
+. "onclick=\"javascript:if (confirm('" . _('Do you confirm the duplication?') . "')) {setO('m'); submit();}\">"
 . "<img src='img/icons/content_copy.png' " . "class='ico-22 margin_right' alt='" . _('Duplicate') . "'></button>";
 
 $deleteBtn = "<button id='delete_cmd' style='cursor: pointer; background-color: transparent; border: 0; height: 22px; width: 22px;' "
-    . "onclick=\"javascript: if (confirm('" . _('Do you confirm the deletion ?') . "')) {setO('d'); submit();}\">"
+    . "onclick=\"javascript: if (confirm('" . _('Do you confirm the deletion?') . "')) {setO('d'); submit();}\">"
     . "<img src='img/icons/delete_new.png' " . "class='ico-22 margin_right' alt='" . _('Delete') . "'></button>";
 
 $disableBtn = "<button id='disable_cmd' style='cursor: pointer; background-color: transparent; border: 0; height: 22px; width: 22px;' "

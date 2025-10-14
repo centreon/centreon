@@ -5426,7 +5426,7 @@ msgstr ""
 #: centreon/www/include/views/virtualMetrics/listVirtualMetrics.php
 #: centreon/www/include/views/virtualMetrics/listVirtualMetrics.php
 #: centreon/www/include/views/virtualMetrics/listVirtualMetrics.php
-msgid "Do you confirm the deletion ?"
+msgid "Do you confirm the deletion?"
 msgstr ""
 
 #: centreon/www/include/configuration/configCentreonBroker/listCentreonBroker.php
@@ -5484,7 +5484,7 @@ msgstr ""
 #: centreon/www/include/views/graphTemplates/listGraphTemplates.php
 #: centreon/www/include/views/virtualMetrics/listVirtualMetrics.php
 #: centreon/www/include/views/virtualMetrics/listVirtualMetrics.php
-msgid "Do you confirm the duplication ?"
+msgid "Do you confirm the duplication?"
 msgstr ""
 
 #: centreon/www/include/configuration/configObject/timeperiod/timeperiod_JS.php

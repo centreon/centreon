@@ -286,7 +286,7 @@ if (! $isRemote) {
         ['text' => _('Duplicate'), 'class' => 'btc bt-poller-action bt_success', 'name' => 'duplicate_action', 'icon' => returnSvg('www/img/icons/duplicate.svg', 'var(--button-icons-fill-color)', 16, 14), 'onClickAction' => 'javascript: '
             . ' var bChecked = isChecked(); '
             . " if (!bChecked) { alert('" . _('Please select one or more items') . "'); return false;} "
-            . " if (confirm('" . _('Do you confirm the duplication ?') . "')) { setO('m'); submit();} "]
+            . " if (confirm('" . _('Do you confirm the duplication?') . "')) { setO('m'); submit();} "]
     );
 
     $tpl->assign(

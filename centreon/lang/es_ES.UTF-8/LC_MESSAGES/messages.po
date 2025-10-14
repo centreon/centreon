@@ -5350,7 +5350,7 @@ msgstr ""
 #: centreon/www/include/views/componentTemplates/listComponentTemplates.php
 #: centreon/www/include/views/graphTemplates/listGraphTemplates.php
 #: centreon/www/include/views/virtualMetrics/listVirtualMetrics.php
-msgid "Do you confirm the deletion ?"
+msgid "Do you confirm the deletion?"
 msgstr "¿Confirma usted esta eliminación?"
 
 #: centreon/www/include/configuration/configCentreonBroker/listCentreonBroker.php
@@ -5389,7 +5389,7 @@ msgstr "¿Confirma usted esta eliminación?"
 #: centreon/www/include/views/componentTemplates/listComponentTemplates.php
 #: centreon/www/include/views/graphTemplates/listGraphTemplates.php
 #: centreon/www/include/views/virtualMetrics/listVirtualMetrics.php
-msgid "Do you confirm the duplication ?"
+msgid "Do you confirm the duplication?"
 msgstr "¿Confirma usted la duplicación?"
 
 #: centreon/www/include/configuration/configObject/timeperiod/timeperiod_JS.php

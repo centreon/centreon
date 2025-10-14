@@ -251,7 +251,7 @@ $tpl->assign(
     [
         'addL' => "main.php?p={$p}&o=a",
         'addT' => _('Add'),
-        'delConfirm' => _('Do you confirm the deletion ?'),
+        'delConfirm' => _('Do you confirm the deletion?'),
     ]
 );
 
@@ -267,9 +267,9 @@ foreach (['o1', 'o2'] as $option) {
         . "if(this.form.elements['{$option}'].selectedIndex!=0&&!bChecked){alert('"
         . _('Please select one or more items') . "');return false;}"
         . "if(this.form.elements['{$option}'].selectedIndex==1&&confirm('"
-        . _('Do you confirm the duplication ?') . "')){setO(this.value);submit();}"
+        . _('Do you confirm the duplication?') . "')){setO(this.value);submit();}"
         . "else if(this.form.elements['{$option}'].selectedIndex==2&&confirm('"
-        . _('Do you confirm the deletion ?') . "')){setO(this.value);submit();}"
+        . _('Do you confirm the deletion?') . "')){setO(this.value);submit();}"
         . "else if(this.form.elements['{$option}'].selectedIndex==3){setO(this.value);submit();}"
         . "else if(this.form.elements['{$option}'].selectedIndex==4){setO(this.value);submit();}"
         . "this.form.elements['{$option}'].selectedIndex=0",

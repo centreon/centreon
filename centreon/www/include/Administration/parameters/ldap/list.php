@@ -63,7 +63,7 @@ $form->addElement('submit', 'Search', _('Search'), $attrBtnSuccess);
 $tpl->assign('list', $list);
 $tpl->assign(
     'msg',
-    ['addL' => 'main.php?p=' . $p . '&o=ldap&new=1', 'addT' => _('Add'), 'delConfirm' => _('Do you confirm the deletion ?')]
+    ['addL' => 'main.php?p=' . $p . '&o=ldap&new=1', 'addT' => _('Add'), 'delConfirm' => _('Do you confirm the deletion?')]
 );
 
 $form->addElement(

@@ -149,7 +149,7 @@ $form = new HTML_QuickFormCustom('form', 'POST', '?p=' . $p);
 ?>
     <script type="text/javascript">
         var confirm_messages = [
-            '<?php echo _('Do you confirm the deletion ?'); ?>',
+            '<?php echo _('Do you confirm the deletion?'); ?>',
             '<?php echo _('Do you confirm the change of the RRD data source type? '
                 . 'If yes, you must rebuild the RRD Database'); ?>',
             '<?php echo _('Do you confirm the change of the RRD data source type? '

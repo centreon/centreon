@@ -108,7 +108,7 @@ $tpl->assign('elemArr', $elemArr);
 // Different messages we put in the template
 $tpl->assign(
     'msg',
-    ['addL' => 'main.php?p=' . $p . '&o=a', 'addT' => _('Add'), 'delConfirm' => _('Do you confirm the deletion ?')]
+    ['addL' => 'main.php?p=' . $p . '&o=a', 'addT' => _('Add'), 'delConfirm' => _('Do you confirm the deletion?')]
 );
 
 // Toolbar select
@@ -121,10 +121,10 @@ $tpl->assign(
 <?php
 $attrs1 = ['onchange' => 'javascript: '
     . "if (this.form.elements['o1'].selectedIndex === 1 && confirm('"
-    . _('Do you confirm the duplication ?') . "')) {"
+    . _('Do you confirm the duplication?') . "')) {"
     . " 	setO(this.form.elements['o1'].value); submit();} "
     . "else if (this.form.elements['o1'].selectedIndex === 2 && confirm('"
-    . _('Do you confirm the deletion ?') . "')) {"
+    . _('Do you confirm the deletion?') . "')) {"
     . " 	setO(this.form.elements['o1'].value); submit();} "
     . "this.form.elements['o1'].selectedIndex = 0;"
     . ''];
@@ -140,10 +140,10 @@ $o1->setValue(null);
 
 $attrs = ['onchange' => 'javascript: '
     . "if (this.form.elements['o2'].selectedIndex === 1 && confirm('"
-    . _('Do you confirm the duplication ?') . "')) {"
+    . _('Do you confirm the duplication?') . "')) {"
     . " 	setO(this.form.elements['o2'].value); submit();} "
     . "else if (this.form.elements['o2'].selectedIndex === 2 && confirm('"
-    . _('Do you confirm the deletion ?') . "')) {"
+    . _('Do you confirm the deletion?') . "')) {"
     . " 	setO(this.form.elements['o2'].value); submit();} "
     . "this.form.elements['o2'].selectedIndex = 0;"
     . ''];

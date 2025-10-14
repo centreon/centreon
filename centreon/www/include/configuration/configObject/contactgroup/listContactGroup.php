@@ -116,7 +116,7 @@ $tpl->assign('elemArr', $elemArr);
 // Different messages we put in the template
 $tpl->assign(
     'msg',
-    ['addL' => 'main.php?p=' . $p . '&o=a', 'addT' => _('Add'), 'delConfirm' => _('Do you confirm the deletion ?'), 'view_notif' => _('View contact group notifications')]
+    ['addL' => 'main.php?p=' . $p . '&o=a', 'addT' => _('Add'), 'delConfirm' => _('Do you confirm the deletion?'), 'view_notif' => _('View contact group notifications')]
 );
 
 foreach (['o1', 'o2'] as $option) {
@@ -125,10 +125,10 @@ foreach (['o1', 'o2'] as $option) {
         . " if (this.form.elements['" . $option . "'].selectedIndex != 0 && !bChecked) {"
         . " alert('" . _('Please select one or more items') . "'); return false;} "
         . "if (this.form.elements['" . $option . "'].selectedIndex == 1 && confirm('"
-        . _('Do you confirm the duplication ?') . "')) {"
+        . _('Do you confirm the duplication?') . "')) {"
         . " 	setO(this.form.elements['" . $option . "'].value); submit();} "
         . "else if (this.form.elements['" . $option . "'].selectedIndex == 2 && confirm('"
-        . _('Do you confirm the deletion ?') . "')) {"
+        . _('Do you confirm the deletion?') . "')) {"
         . " 	setO(this.form.elements['" . $option . "'].value); submit();} "
         . "else if (this.form.elements['" . $option . "'].selectedIndex == 3) {"
         . " 	setO(this.form.elements['" . $option . "'].value); submit();} "
