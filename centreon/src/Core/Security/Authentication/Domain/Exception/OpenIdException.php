@@ -30,7 +30,7 @@ class OpenIdException extends BusinessLogicException
     public function __construct(
         string $message,
         array $context = [],
-        ?\Throwable $previous = null
+        ?\Throwable $previous = null,
     ) {
         parent::__construct($message, self::ERROR_CODE_INTERNAL, $context, $previous);
     }
