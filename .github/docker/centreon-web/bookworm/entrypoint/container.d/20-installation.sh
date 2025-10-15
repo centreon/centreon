@@ -40,6 +40,7 @@ if [ ! -f /etc/centreon/centreon.conf.php ]; then
   su www-data -s /bin/bash -c "SERVER_ADDR='127.0.0.1' php insertBaseConf.php"
   su www-data -s /bin/bash -c "php partitionTables.php"
 
+  mysql -h${DB_HOST} -u${DB_ROOT_USER} -p${DB_ROOT_PASSWORD} -e "UPDATE mysql.user SET Host='%' WHERE User='centreon'; FLUSH PRIVILEGES;"
   mysql -h${DB_HOST} -ucentreon -p${CENTREONDB_PWD} centreon < $INSTALL_DIR/tmp/container.sql
   # Database tweaks
   # mysql -h${DB_HOST} -ucentreon -p${CENTREONDB_PWD} -e "UPDATE centreon.cfg_centreonbroker_info SET config_value = '${DB_HOST}' WHERE config_key = 'db_host'"
