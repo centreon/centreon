@@ -33,7 +33,7 @@ final readonly class InstallationHelper
     public function __construct(
         private EngineRepositoryInterface $engineRepository,
         private EncryptionInterface $encryption,
-        private string $appSecret
+        private string $appSecret,
     ) {
     }
 

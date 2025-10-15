@@ -41,7 +41,7 @@ final class FindSAMLConfigurationController extends AbstractController
      */
     public function __invoke(
         FindSAMLConfiguration $useCase,
-        FindSAMLConfigurationPresenterInterface $presenter
+        FindSAMLConfigurationPresenterInterface $presenter,
     ): object {
         $this->denyAccessUnlessGrantedForApiConfiguration();
         /**

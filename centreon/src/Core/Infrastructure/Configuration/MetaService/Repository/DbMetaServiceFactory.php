@@ -79,7 +79,7 @@ class DbMetaServiceFactory
             'MIN' => MetaService::CALCULTATION_TYPE_MINIMUM,
             'MAX' => MetaService::CALCULTATION_TYPE_MAXIMUM,
             'SOM' => MetaService::CALCULTATION_TYPE_SUM,
-            default => MetaService::CALCULTATION_TYPE_AVERAGE
+            default => MetaService::CALCULTATION_TYPE_AVERAGE,
         };
     }
 
@@ -97,7 +97,7 @@ class DbMetaServiceFactory
             1 => MetaService::DATA_SOURCE_COUNTER,
             2 => MetaService::DATA_SOURCE_DERIVE,
             3 => MetaService::DATA_SOURCE_ABSOLUTE,
-            default => MetaService::DATA_SOURCE_GAUGE
+            default => MetaService::DATA_SOURCE_GAUGE,
         };
     }
 }

@@ -88,7 +88,7 @@ class TimeperiodRepository extends AbstractRepositoryRDB implements PaginationRe
             if (
                 array_key_exists('ids', $filters)
                 && is_array($filters['ids'])
-                && [] !== $filters['ids']
+                && $filters['ids'] !== []
             ) {
                 $idsListKey = [];
                 foreach ($filters['ids'] as $x => $id) {

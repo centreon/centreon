@@ -11357,7 +11357,7 @@ msgstr "Doit être un nombre compris entre 1 et 65335 inclus"
 
 #: centreon/www/include/configuration/configObject/escalation/formEscalation.php
 msgid "Must be a positive integer or 0"
-msgstr ""
+msgstr "Doit être un entier positif ou 0"
 
 #: centreon/src/Core/Security/ProviderConfiguration/Domain/Exception/ConfigurationException.php
 #, php-format

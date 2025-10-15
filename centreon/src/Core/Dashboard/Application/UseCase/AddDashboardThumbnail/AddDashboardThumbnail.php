@@ -52,7 +52,7 @@ final class AddDashboardThumbnail
         private readonly WriteMediaRepositoryInterface $writeMediaRepository,
         private readonly ReadDashboardRepositoryInterface $readDashboardRepository,
         private readonly DataStorageEngineInterface $dataStorageEngine,
-        private readonly ContactInterface $user
+        private readonly ContactInterface $user,
     ) {
     }
 

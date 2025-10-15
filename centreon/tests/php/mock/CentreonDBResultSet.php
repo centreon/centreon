@@ -96,7 +96,7 @@ class CentreonDBResultSet extends CentreonDBStatement
     public function fetch(
         int $mode = \PDO::FETCH_DEFAULT,
         int $cursorOrientation = \PDO::FETCH_ORI_NEXT,
-        int $cursorOffset = 0
+        int $cursorOffset = 0,
     ): array|false {
         return $this->fetchRow();
     }

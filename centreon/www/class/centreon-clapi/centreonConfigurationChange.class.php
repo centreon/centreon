@@ -46,7 +46,7 @@ class CentreonConfigurationChange
      * @param CentreonDB $db
      */
     public function __construct(
-        private CentreonDB $db
+        private CentreonDB $db,
     ) {
     }
 
@@ -60,7 +60,7 @@ class CentreonConfigurationChange
      */
     public function findHostsForConfigChangeFlagFromHostGroupIds(
         array $hostgroupIds,
-        bool $shouldHostgroupBeEnabled = true
+        bool $shouldHostgroupBeEnabled = true,
     ): array {
         if ($hostgroupIds === []) {
             return [];
@@ -102,7 +102,7 @@ class CentreonConfigurationChange
      */
     public function findHostsForConfigChangeFlagFromServiceIds(
         array $serviceIds,
-        bool $shoudlServiceBeEnabled = true
+        bool $shoudlServiceBeEnabled = true,
     ): array {
         if ($serviceIds === []) {
             return [];
@@ -144,7 +144,7 @@ class CentreonConfigurationChange
      */
     public function findHostsForConfigChangeFlagFromServiceGroupId(
         int $servicegroupId,
-        bool $shouldServicegroupBeEnabled = true
+        bool $shouldServicegroupBeEnabled = true,
     ): array {
         $query = "SELECT sgr.*, service.service_register
             FROM servicegroup_relation sgr
@@ -230,7 +230,7 @@ class CentreonConfigurationChange
         string $resourceType,
         int $resourceId,
         array $previousPollers = [],
-        bool $shouldResourceBeEnabled = true
+        bool $shouldResourceBeEnabled = true,
     ): void {
         $hostIds = [];
         switch ($resourceType) {

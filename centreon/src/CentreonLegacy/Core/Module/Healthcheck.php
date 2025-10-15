@@ -216,7 +216,7 @@ class Healthcheck
         &$customAction,
         &$warning,
         &$critical,
-        &$licenseExpiration
+        &$licenseExpiration,
     ) {
         global $centreon_path;
         require_once $checklistDir . 'requirements.php';

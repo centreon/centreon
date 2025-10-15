@@ -35,7 +35,7 @@ final class CreatedResponse implements ResponseStatusInterface
      */
     public function __construct(
         readonly private mixed $resourceId,
-        private mixed $payload
+        private mixed $payload,
     ) {
     }
 
@@ -45,7 +45,7 @@ final class CreatedResponse implements ResponseStatusInterface
     public function getResourceId(): mixed
     {
         return match (true) {
-            null === $this->resourceId,
+            $this->resourceId === null,
             is_int($this->resourceId) => $this->resourceId,
             default => (string) $this->resourceId,
         };

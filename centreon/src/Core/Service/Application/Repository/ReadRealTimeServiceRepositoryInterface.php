@@ -44,7 +44,7 @@ interface ReadRealTimeServiceRepositoryInterface
      */
     public function findUniqueServiceNamesByRequestParametersAndAccessGroupIds(
         RequestParametersInterface $requestParameters,
-        array $accessGroupIds
+        array $accessGroupIds,
     ): array;
 
     /**
@@ -62,7 +62,7 @@ interface ReadRealTimeServiceRepositoryInterface
      */
     public function findStatusesByRequestParametersAndAccessGroupIds(
         RequestParametersInterface $requestParameters,
-        array $accessGroupIds
+        array $accessGroupIds,
     ): ServiceStatusesCount;
 
     /**

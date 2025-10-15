@@ -41,7 +41,7 @@ class NotificationResourceFactory
     public function __construct(
         private NotificationResourceRepositoryProviderInterface $repositoryProvider,
         private ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
-        private ContactInterface $user
+        private ContactInterface $user,
     ) {
     }
 
@@ -75,7 +75,7 @@ class NotificationResourceFactory
 
         $difference = new BasicDifference($resourceIds, $existingResources);
         $missingResources = $difference->getRemoved();
-        if ([] !== $missingResources) {
+        if ($missingResources !== []) {
             $this->error(
                 'Invalid ID(s) provided',
                 ['propertyName' => 'resources', 'propertyValues' => array_values($missingResources)]

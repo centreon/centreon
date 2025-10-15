@@ -46,7 +46,7 @@ final class FindNotifiableRuleController extends AbstractController
     public function __invoke(
         int $notificationId,
         FindNotifiableRule $useCase,
-        FindNotifiableRulePresenterInterface $presenter
+        FindNotifiableRulePresenterInterface $presenter,
     ): Response {
         $this->denyAccessUnlessGrantedForApiConfiguration();
 

@@ -99,7 +99,7 @@ interface ReadCommandRepositoryInterface
      */
     public function findByRequestParameterAndTypes(
         RequestParametersInterface $requestParameters,
-        array $commandTypes
+        array $commandTypes,
     ): array;
 
     /**

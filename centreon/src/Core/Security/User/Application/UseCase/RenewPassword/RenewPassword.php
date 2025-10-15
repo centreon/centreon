@@ -50,7 +50,7 @@ class RenewPassword
     public function __construct(
         private ReadUserRepositoryInterface $readRepository,
         private WriteUserRepositoryInterface $writeRepository,
-        private ReadConfigurationRepositoryInterface $readConfigurationRepository
+        private ReadConfigurationRepositoryInterface $readConfigurationRepository,
     ) {
     }
 
@@ -60,7 +60,7 @@ class RenewPassword
      */
     public function __invoke(
         RenewPasswordPresenterInterface $presenter,
-        RenewPasswordRequest $renewPasswordRequest
+        RenewPasswordRequest $renewPasswordRequest,
     ): void {
         $this->info('Processing password renewal...');
         // Get User informations

@@ -112,7 +112,7 @@ try {
     if ($o == IMAGE_MOVE && $selected !== []) {
         [
             'parameters' => $bindImageParameters,
-            'placeholderList' => $bindQuery
+            'placeholderList' => $bindQuery,
         ] = createMultipleBindParameters($selected, 'imageId', QueryParameterTypeEnum::INTEGER);
 
         $request .= <<<SQL

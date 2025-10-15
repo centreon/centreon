@@ -195,7 +195,7 @@ class UpdatePartiallyPlatformInformation
      */
     private function updateRemoteOrCentralType(
         PlatformInformation $platformInformationToUpdate,
-        PlatformInformation $currentPlatformInformation
+        PlatformInformation $currentPlatformInformation,
     ): void {
         if ($platformInformationToUpdate->isRemote()) {
             $this->convertCentralToRemote($platformInformationToUpdate, $currentPlatformInformation);
@@ -218,7 +218,7 @@ class UpdatePartiallyPlatformInformation
      */
     private function convertCentralToRemote(
         PlatformInformation $platformInformationToUpdate,
-        PlatformInformation $currentPlatformInformation
+        PlatformInformation $currentPlatformInformation,
     ): void {
         /**
          * If some parameters required fort registering the Remote Server are missing,
@@ -243,7 +243,7 @@ class UpdatePartiallyPlatformInformation
      */
     private function validateCentralServerAddressOrFail(
         string $centralServerAddress,
-        ?string $proxyAddress = null
+        ?string $proxyAddress = null,
     ): void {
         $platforms = $this->platformTopologyService->getPlatformTopology();
         foreach ($platforms as $platform) {
@@ -278,7 +278,7 @@ class UpdatePartiallyPlatformInformation
      */
     private function populateMissingInformationValues(
         PlatformInformation $platformInformationToUpdate,
-        PlatformInformation $currentPlatformInformation
+        PlatformInformation $currentPlatformInformation,
     ): PlatformInformation {
         if ($platformInformationToUpdate->getCentralServerAddress() !== null) {
             $this->validateCentralServerAddressOrFail($platformInformationToUpdate->getCentralServerAddress());

@@ -176,7 +176,7 @@ function checkPicture(
     string $imagePath,
     string $directoryPath,
     int $directoryId,
-    CentreonDB $pearDB
+    CentreonDB $pearDB,
 ): void {
     global $regCounter, $gdCounter;
 

@@ -60,7 +60,7 @@ final class AddAgentConfiguration
 
     public function __invoke(
         AddAgentConfigurationRequest $request,
-        AddAgentConfigurationPresenterInterface $presenter
+        AddAgentConfigurationPresenterInterface $presenter,
     ): void {
         try {
             if (! $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_POLLERS_AGENT_CONFIGURATIONS_RW)) {
@@ -171,7 +171,7 @@ final class AddAgentConfiguration
         NewAgentConfiguration $agentConfiguration,
         array $pollers,
         ?string $module,
-        array $needBrokerDirectives
+        array $needBrokerDirectives,
     ): int {
         try {
             $this->repositoryManager->startTransaction();

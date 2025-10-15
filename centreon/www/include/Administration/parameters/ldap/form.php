@@ -313,8 +313,8 @@ if ($form->validate()) {
 
     // Check if sanitized name and description are not empty
     if (
-        '' === $values['ar_name']
-        || '' === $values['ar_description']
+        $values['ar_name'] === ''
+        || $values['ar_description'] === ''
     ) {
         $validNameOrDescription = false;
     } else {
@@ -382,12 +382,12 @@ if ($form->validate()) {
 
 if (! $form->validate() && isset($_POST['gopt_id'])) {
     echo "<div class='msg' align='center'>" . _('Impossible to validate, one or more field is incorrect') . '</div>';
-} elseif (false === $filterValid) {
+} elseif ($filterValid === false) {
     echo "<div class='msg' align='center'>"
         . _('Bad ldap filter: missing %s pattern. Check user or group filter') . '</div>';
-} elseif (false === $allHostsOk) {
+} elseif ($allHostsOk === false) {
     echo "<div class='msg' align='center'>" . _('Invalid LDAP Host parameters') . '</div>';
-} elseif (false === $validNameOrDescription) {
+} elseif ($validNameOrDescription === false) {
     echo "<div class='msg' align='center'>" . _('Invalid name or description') . '</div>';
 }
 

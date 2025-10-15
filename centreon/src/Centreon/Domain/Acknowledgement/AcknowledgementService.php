@@ -74,7 +74,7 @@ class AcknowledgementService extends AbstractCentreonService implements Acknowle
         ReadAccessGroupRepositoryInterface $accessGroupRepository,
         MonitoringRepositoryInterface $monitoringRepository,
         EngineServiceInterface $engineService,
-        EntityValidator $validator
+        EntityValidator $validator,
     ) {
         $this->accessGroupRepository = $accessGroupRepository;
         $this->acknowledgementRepository = $acknowledgementRepository;

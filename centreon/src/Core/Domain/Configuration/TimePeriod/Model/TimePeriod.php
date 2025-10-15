@@ -38,7 +38,7 @@ class TimePeriod
     public function __construct(
         private int $id,
         private string $name,
-        private string $alias
+        private string $alias,
     ) {
         Assertion::maxLength($name, self::MAX_NAME_LENGTH, 'TimePeriod::name');
         Assertion::notEmpty($name, 'TimePeriod::name');

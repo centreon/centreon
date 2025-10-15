@@ -49,6 +49,6 @@ interface ReadServicegroupRepositoryInterface
     public function findAllByHostIdAndServiceIdAndAccessGroupIds(
         int $hostId,
         int $serviceId,
-        array $accessGroupIds
+        array $accessGroupIds,
     ): array;
 }

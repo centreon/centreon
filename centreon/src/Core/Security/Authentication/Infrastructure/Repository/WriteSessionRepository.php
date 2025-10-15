@@ -47,7 +47,7 @@ class WriteSessionRepository implements WriteSessionRepositoryInterface
     public function __construct(
         private readonly RequestStack $requestStack,
         private readonly WriteSessionTokenRepositoryInterface $writeSessionTokenRepository,
-        private readonly ProviderAuthenticationFactoryInterface $providerFactory
+        private readonly ProviderAuthenticationFactoryInterface $providerFactory,
     ) {
     }
 

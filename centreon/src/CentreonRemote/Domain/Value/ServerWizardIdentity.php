@@ -60,7 +60,7 @@ class ServerWizardIdentity
     public function checkBamOnRemoteServer(
         string $centreonUrl,
         bool $noCheckCertificate = false,
-        bool $noProxy = false
+        bool $noProxy = false,
     ): bool {
         $centreonUrl .= '/api/external.php?object=centreon_modules_webservice&action=getBamModuleInfo';
 

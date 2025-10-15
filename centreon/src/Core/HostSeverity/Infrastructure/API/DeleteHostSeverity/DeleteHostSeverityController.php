@@ -43,7 +43,7 @@ final class DeleteHostSeverityController extends AbstractController
     public function __invoke(
         int $hostSeverityId,
         DeleteHostSeverity $useCase,
-        DefaultPresenter $presenter
+        DefaultPresenter $presenter,
     ): Response {
         $this->denyAccessUnlessGrantedForApiConfiguration();
 

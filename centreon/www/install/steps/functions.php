@@ -144,7 +144,7 @@ function splitQueries($file, $delimiter = ';', $connector = null, $tmpFile = '',
             while (feof($file) === false) {
                 $line++;
                 $currentLine = fgets($file);
-                if (false == isSqlComment($currentLine)) {
+                if (isSqlComment($currentLine) == false) {
                     $query[] = $currentLine;
                 }
                 if (preg_match('~' . preg_quote($delimiter, '~') . '\s*$~iS', end($query)) === 1) {

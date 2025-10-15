@@ -36,7 +36,7 @@ final readonly class FindImageFolders
         private ContactInterface $user,
         private RequestParametersInterface $requestParameters,
         private ReadAccessGroupRepositoryInterface $accessGroupReader,
-        private ReadImageFolderRepositoryInterface $imageFolderReader
+        private ReadImageFolderRepositoryInterface $imageFolderReader,
     ) {
     }
 

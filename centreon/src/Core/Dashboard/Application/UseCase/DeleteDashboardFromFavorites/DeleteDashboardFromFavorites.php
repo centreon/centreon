@@ -49,7 +49,7 @@ final class DeleteDashboardFromFavorites
         private readonly WriteUserProfileRepositoryInterface $userProfileWriter,
         private readonly ReadUserProfileRepositoryInterface $userProfileReader,
         private readonly ReadDashboardRepositoryInterface $dashboardReader,
-        private readonly ContactInterface $user
+        private readonly ContactInterface $user,
     ) {
     }
 
@@ -88,7 +88,7 @@ final class DeleteDashboardFromFavorites
         } catch (DashboardException $exception) {
             $response = match ($exception->getCode()) {
                 DashboardException::CODE_NOT_FOUND => new NotFoundResponse('Dashboard'),
-                default => new ErrorResponse($exception)
+                default => new ErrorResponse($exception),
             };
 
             $this->error(

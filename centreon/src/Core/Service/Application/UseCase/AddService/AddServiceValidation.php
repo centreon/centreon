@@ -109,7 +109,7 @@ class AddServiceValidation
         $hostIdFound = $this->user->isAdmin()
                 ? $this->readHostRepository->exists($hostId)
                 : $this->readHostRepository->existsByAccessGroups($hostId, $this->accessGroups);
-        if (false === $hostIdFound) {
+        if ($hostIdFound === false) {
             throw ServiceException::idDoesNotExist('host_id', $hostId);
         }
     }

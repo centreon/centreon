@@ -37,7 +37,7 @@ final class FindInstallationStatusController extends AbstractController
      */
     public function __invoke(
         FindInstallationStatus $useCase,
-        FindInstallationStatusPresenterInterface $presenter
+        FindInstallationStatusPresenterInterface $presenter,
     ): object {
         $useCase($presenter);
 

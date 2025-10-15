@@ -1176,7 +1176,7 @@ class CentreonGraph
             if ($this->RRDoptions['end'] - $this->RRDoptions['start'] > 2160000
                 && $this->RRDoptions['end'] - $this->RRDoptions['start'] < 12960000
             ) {
-                if ($this->RRDoptions['end'] - $this->RRDoptions['start'] < 10368000 - (86400 * 7)) {
+                if (10368000 - (86400 * 7) > $this->RRDoptions['end'] - $this->RRDoptions['start']) {
                     $this->setRRDOption('x-grid', 'DAY:1:DAY:7:DAY:7:0:%d/%m');
                 } else {
                     $this->setRRDOption('x-grid', 'DAY:7:DAY:7:DAY:14:0:%d/%m');
@@ -1462,17 +1462,17 @@ class CentreonGraph
             return false;
         }
 
-        if (false === $sock) {
+        if ($sock === false) {
             // @todo log the error
             return false;
         }
         // Run batch mode
-        if (false === fputs($sock, "BATCH\n")) {
+        if (fputs($sock, "BATCH\n") === false) {
             @fclose($sock);
 
             return false;
         }
-        if (false === fgets($sock)) {
+        if (fgets($sock) === false) {
             @fclose($sock);
 
             return false;
@@ -1481,19 +1481,19 @@ class CentreonGraph
         foreach ($metricsId as $metricId) {
             $fullpath = realpath($this->dbPath . $metricId . '.rrd');
             $cmd = 'FLUSH ' . $fullpath;
-            if (false === fputs($sock, $cmd . "\n")) {
+            if (fputs($sock, $cmd . "\n") === false) {
                 @fclose($sock);
 
                 return false;
             }
         }
         // Execute commands
-        if (false === fputs($sock, ".\n")) {
+        if (fputs($sock, ".\n") === false) {
             @fclose($sock);
 
             return false;
         }
-        if (false === fgets($sock)) {
+        if (fgets($sock) === false) {
             @fclose($sock);
 
             return false;

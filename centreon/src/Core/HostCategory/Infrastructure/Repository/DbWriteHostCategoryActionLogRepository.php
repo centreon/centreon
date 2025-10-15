@@ -50,7 +50,7 @@ class DbWriteHostCategoryActionLogRepository extends AbstractRepositoryRDB imple
         private readonly WriteActionLogRepositoryInterface $writeActionLogRepository,
         private readonly ReadHostCategoryRepositoryInterface $readHostCategoryRepository,
         private readonly ContactInterface $user,
-        DatabaseConnection $db
+        DatabaseConnection $db,
     ) {
         $this->db = $db;
     }
@@ -218,7 +218,7 @@ class DbWriteHostCategoryActionLogRepository extends AbstractRepositoryRDB imple
      */
     private function getHostCategoryDiff(
         HostCategory $initialHostCategory,
-        HostCategory $updatedHostCategory
+        HostCategory $updatedHostCategory,
     ): array {
         $diff = [];
         $reflection = new \ReflectionClass($initialHostCategory);

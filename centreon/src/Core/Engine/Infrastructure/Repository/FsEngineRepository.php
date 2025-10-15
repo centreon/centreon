@@ -40,7 +40,7 @@ final readonly class FsEngineRepository implements EngineRepositoryInterface
 
     public function __construct(
         private string $engineContextPath,
-        private SerializerInterface $serializer
+        private SerializerInterface $serializer,
     ) {
         $this->filesystem = new Filesystem();
     }

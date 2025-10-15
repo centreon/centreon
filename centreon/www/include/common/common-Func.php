@@ -1588,7 +1588,7 @@ function isCloudPlatform(): bool
  */
 function is_enabled_feature_flag(?string $feature): bool
 {
-    return null === $feature || '' === $feature
+    return $feature === null || $feature === ''
         || in_array($feature, get_enabled_feature_flags(), true);
 }
 
@@ -1949,7 +1949,7 @@ function findServicesForConfigChangeFlagFromServiceTemplateIds(array $serviceTem
  */
 function findHostsForConfigChangeFlagFromServiceGroupId(
     int $servicegroupId,
-    bool $shouldServicegroupBeEnabled = true
+    bool $shouldServicegroupBeEnabled = true,
 ): array {
     global $pearDB;
 
@@ -2084,7 +2084,7 @@ function signalConfigurationChange(
     string $resourceType,
     int $resourceId,
     array $previousPollers = [],
-    bool $shouldResourceBeEnabled = true
+    bool $shouldResourceBeEnabled = true,
 ): void {
     $hostIds = [];
     switch ($resourceType) {

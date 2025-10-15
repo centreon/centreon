@@ -167,7 +167,7 @@ class NewHost
             'monitoringServerId' => $monitoringServerId,
         ];
         foreach ($foreignKeys as $foreignKeyName => $foreignKeyValue) {
-            if (null !== $foreignKeyValue) {
+            if ($foreignKeyValue !== null) {
                 Assertion::positiveInt($foreignKeyValue, "{$shortName}::{$foreignKeyName}");
             }
         }

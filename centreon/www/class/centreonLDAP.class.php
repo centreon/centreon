@@ -402,7 +402,7 @@ class CentreonLDAP
         $this->setErrorHandler();
         $filter = preg_replace('/%s/', $pattern, $this->groupSearchInfo['filter']);
         $result = @ldap_search($this->ds, $this->groupSearchInfo['base_search'], $filter);
-        if (false === $result) {
+        if ($result === false) {
             restore_error_handler();
 
             return [];
@@ -509,7 +509,7 @@ class CentreonLDAP
         $filter = '(&' . preg_replace('/%s/', '*', $this->groupSearchInfo['filter'])
             . '(' . $this->groupSearchInfo['member'] . '=' . $this->replaceFilter($userdn) . '))';
         $result = @ldap_search($this->ds, $this->groupSearchInfo['base_search'], $filter);
-        if (false === $result) {
+        if ($result === false) {
             restore_error_handler();
 
             return [];
@@ -549,7 +549,7 @@ class CentreonLDAP
                 . '(' . $this->userSearchInfo['group'] . '=' . $this->replaceFilter($groupdn) . '))';
             $result = @ldap_search($this->ds, $this->userSearchInfo['base_search'], $filter);
 
-            if (false === $result) {
+            if ($result === false) {
                 restore_error_handler();
 
                 return [];
@@ -567,7 +567,7 @@ class CentreonLDAP
             $filter = preg_replace('/%s/', $this->getCnFromDn($groupdn), $this->groupSearchInfo['filter']);
             $result = @ldap_search($this->ds, $this->groupSearchInfo['base_search'], $filter);
 
-            if (false === $result) {
+            if ($result === false) {
                 restore_error_handler();
 
                 return [];

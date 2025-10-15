@@ -422,7 +422,7 @@ class CentreonACLMenu extends CentreonObject
     protected function processChildrenOf(
         $action = 'grant',
         $aclMenuId = null,
-        $parentTopologyId = null
+        $parentTopologyId = null,
     ) {
         $sql = 'SELECT topology_id, topology_page FROM topology WHERE topology_parent = ?';
         $res = $this->db->query($sql, [$parentTopologyId]);

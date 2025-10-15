@@ -49,7 +49,7 @@ final class FindHostSeverities
         private ReadHostSeverityRepositoryInterface $readHostSeverityRepository,
         private ReadAccessGroupRepositoryInterface $readAccessGroupRepositoryInterface,
         private RequestParametersInterface $requestParameters,
-        private ContactInterface $user
+        private ContactInterface $user,
     ) {
     }
 

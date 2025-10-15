@@ -29,7 +29,7 @@ final class FindAccsResponse
      * @param AccDto[] $accs
      */
     public function __construct(
-        public array $accs
+        public array $accs,
     ) {
     }
 }

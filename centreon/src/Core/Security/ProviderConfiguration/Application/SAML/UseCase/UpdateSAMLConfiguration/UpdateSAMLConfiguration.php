@@ -68,7 +68,7 @@ final class UpdateSAMLConfiguration
         private ReadContactGroupRepositoryInterface $contactGroupRepository,
         private ReadAccessGroupRepositoryInterface $accessGroupRepository,
         private DataStorageEngineInterface $dataStorageEngine,
-        private ProviderAuthenticationFactoryInterface $providerAuthenticationFactory
+        private ProviderAuthenticationFactoryInterface $providerAuthenticationFactory,
     ) {
     }
 
@@ -78,7 +78,7 @@ final class UpdateSAMLConfiguration
      */
     public function __invoke(
         UpdateSAMLConfigurationPresenterInterface $presenter,
-        UpdateSAMLConfigurationRequest $request
+        UpdateSAMLConfigurationRequest $request,
     ): void {
 
         $this->info('Updating SAML Provider');
@@ -233,7 +233,7 @@ final class UpdateSAMLConfiguration
      */
     private function findAccessGroupFromFoundAccessGroups(
         int $accessGroupIdFromRequest,
-        array $foundAccessGroups
+        array $foundAccessGroups,
     ): ?AccessGroup {
         foreach ($foundAccessGroups as $foundAccessGroup) {
             if ($accessGroupIdFromRequest === $foundAccessGroup->getId()) {
@@ -405,7 +405,7 @@ final class UpdateSAMLConfiguration
      */
     private function findContactGroupFromFoundcontactGroups(
         int $contactGroupIdFromRequest,
-        array $foundContactGroups
+        array $foundContactGroups,
     ): ?ContactGroup {
         foreach ($foundContactGroups as $foundContactGroup) {
             if ($contactGroupIdFromRequest === $foundContactGroup->getId()) {

@@ -38,7 +38,7 @@ class NewProviderToken
     public function __construct(
         private string $token,
         private DateTimeImmutable $creationDate,
-        private ?DateTimeImmutable $expirationDate = null
+        private ?DateTimeImmutable $expirationDate = null,
     ) {
     }
 

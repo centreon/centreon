@@ -43,7 +43,7 @@ final class UpdateVaultConfigurationController extends AbstractController
     public function __invoke(
         UpdateVaultConfiguration $useCase,
         DefaultPresenter $presenter,
-        Request $request
+        Request $request,
     ): object {
         $this->denyAccessUnlessGrantedForApiConfiguration();
 
@@ -82,7 +82,7 @@ final class UpdateVaultConfigurationController extends AbstractController
      * @return UpdateVaultConfigurationRequest
      */
     private function createDtoRequest(
-        array $decodedRequest
+        array $decodedRequest,
     ): UpdateVaultConfigurationRequest {
         $updateVaultConfigurationRequest = new UpdateVaultConfigurationRequest();
         $updateVaultConfigurationRequest->address = $decodedRequest['address'];

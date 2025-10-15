@@ -54,7 +54,7 @@ class Widget
         ContainerInterface $services,
         ?Information $informationObj = null,
         $widgetName = '',
-        ?Utils $utils = null
+        ?Utils $utils = null,
     ) {
         $this->services = $services;
         $this->informationObj = $informationObj ?? $services->get(ServiceProvider::CENTREON_LEGACY_WIDGET_INFORMATION);

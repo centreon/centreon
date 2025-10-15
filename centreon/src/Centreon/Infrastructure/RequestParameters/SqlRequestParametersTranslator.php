@@ -510,7 +510,7 @@ class SqlRequestParametersTranslator
         return match ($aggregateOperator) {
             RequestParameters::AGGREGATE_OPERATOR_AND => 'AND',
             RequestParameters::AGGREGATE_OPERATOR_OR => 'OR',
-            default => throw new RequestParametersTranslatorException(_('Bad search operator'))
+            default => throw new RequestParametersTranslatorException(_('Bad search operator')),
         };
     }
 

@@ -40,7 +40,7 @@ final class FindServiceGroupsController extends AbstractController
      */
     public function __invoke(
         FindServiceGroups $useCase,
-        FindServiceGroupsPresenter $presenter
+        FindServiceGroupsPresenter $presenter,
     ): Response {
         $this->denyAccessUnlessGrantedForAPIConfiguration();
 

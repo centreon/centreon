@@ -41,7 +41,7 @@ interface PlatformTopologyRegisterRepositoryInterface
     public function registerPlatformToParent(
         PlatformInterface $platform,
         PlatformInformation $platformInformation,
-        ?Proxy $proxy = null
+        ?Proxy $proxy = null,
     ): void;
 
     /**
@@ -56,6 +56,6 @@ interface PlatformTopologyRegisterRepositoryInterface
     public function deletePlatformToParent(
         PlatformInterface $platform,
         PlatformInformation $platformInformation,
-        ?Proxy $proxy = null
+        ?Proxy $proxy = null,
     ): void;
 }

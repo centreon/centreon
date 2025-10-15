@@ -46,7 +46,7 @@ class DbWriteHostGroupRepository extends AbstractRepositoryRDB implements WriteD
      */
     public function isValidFor(string $type): bool
     {
-        return HostGroupFilterType::TYPE_NAME === $type;
+        return $type === HostGroupFilterType::TYPE_NAME;
     }
 
     /**
@@ -59,7 +59,7 @@ class DbWriteHostGroupRepository extends AbstractRepositoryRDB implements WriteD
             ['rule_id' => $ruleId, 'dataset_id' => $datasetId, 'hostgroup_ids' => $resourceIds]
         );
 
-        if ([] === $resourceIds) {
+        if ($resourceIds === []) {
             return;
         }
 

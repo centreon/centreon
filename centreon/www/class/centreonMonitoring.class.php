@@ -93,7 +93,7 @@ class CentreonMonitoring
         string $hostName,
         CentreonXMLBGRequest $centreonXMLBGRequest,
         string $o,
-        int $serviceStatus
+        int $serviceStatus,
     ): int {
         $toBind = [':service_status' => $serviceStatus, ':host_name' => $hostName];
         if ($centreonXMLBGRequest->is_admin) {

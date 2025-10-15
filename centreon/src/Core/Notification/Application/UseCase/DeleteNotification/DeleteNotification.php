@@ -46,7 +46,7 @@ final class DeleteNotification
      */
     public function __construct(
         private readonly ContactInterface $contact,
-        private readonly WriteNotificationRepositoryInterface $writeRepository
+        private readonly WriteNotificationRepositoryInterface $writeRepository,
     ) {
     }
 

@@ -64,7 +64,7 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
      */
     public function __construct(
         DatabaseConnection $db,
-        private array $subRequestsInformation = []
+        private array $subRequestsInformation = [],
     ) {
         $this->db = $db;
         $this->queryParameters = new QueryParameters();
@@ -104,7 +104,7 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
      */
     public function findByRequestParametersAndAccessGroups(
         RequestParametersInterface $requestParameters,
-        array $accessGroups
+        array $accessGroups,
     ): array {
         try {
             $request = $this->buildQuery($requestParameters, $accessGroups);
@@ -134,7 +134,7 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
      */
     public function findByRequestParametersAndMetricName(
         RequestParametersInterface $requestParameters,
-        string $metricName
+        string $metricName,
     ): array {
         try {
             $request = $this->buildQuery($requestParameters, [], true);
@@ -166,7 +166,7 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
     public function findByRequestParametersAndAccessGroupsAndMetricName(
         RequestParametersInterface $requestParameters,
         array $accessGroups,
-        string $metricName
+        string $metricName,
     ): array {
         try {
             $request = $this->buildQuery($requestParameters, $accessGroups, true);
@@ -540,7 +540,7 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
     private function buildQuery(
         RequestParametersInterface $requestParameters,
         array $accessGroups = [],
-        bool $hasMetricName = false
+        bool $hasMetricName = false,
     ): string {
         $this->sqlRequestParametersTranslator = new SqlRequestParametersTranslator($requestParameters);
         $this->sqlRequestParametersTranslator->setConcordanceArray(
@@ -562,7 +562,7 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
             $accessGroups
         );
 
-        if ([] !== $accessGroups) {
+        if ($accessGroups !== []) {
             $request .= ' INNER JOIN `:dbstg`.`centreon_acl` acl
                 ON acl.service_id = r.id
                 AND r.type = 0
@@ -662,7 +662,7 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
      */
     private function buildResourceMetrics(
         RequestParametersInterface $requestParameters,
-        \PDOStatement $statement
+        \PDOStatement $statement,
     ): array {
         $foundRecords = $this->db->query('SELECT FOUND_ROWS()');
         $resourceMetrics = [];

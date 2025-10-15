@@ -33,7 +33,7 @@ final class IconResponseDto
     public function __construct(
         public ?int $id = null,
         public ?string $name = null,
-        public ?string $url = null
+        public ?string $url = null,
     ) {
     }
 }

@@ -48,7 +48,7 @@ final class BoolToEnumNormalizer implements NormalizerInterface
             true, 1, '1', 'true', 'TRUE', $this->trueEnum => $this->trueEnum,
             false, 0, '0', 'false', 'FALSE', $this->falseEnum => $this->falseEnum,
             null => $this->nullable ? null : throw $this->newTypeError($valueToNormalize),
-            default => throw $this->newTypeError($valueToNormalize)
+            default => throw $this->newTypeError($valueToNormalize),
         };
     }
 

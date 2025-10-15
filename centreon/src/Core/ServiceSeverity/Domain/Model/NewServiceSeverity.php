@@ -51,7 +51,7 @@ class NewServiceSeverity
         protected string $name,
         protected string $alias,
         protected int $level,
-        protected int $iconId
+        protected int $iconId,
     ) {
         $this->name = trim($name);
         $this->alias = trim($alias);

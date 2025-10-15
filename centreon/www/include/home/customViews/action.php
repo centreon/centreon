@@ -285,7 +285,7 @@ try {
             break;
         case 'get_share_info':
             $viewId = isset($_POST['viewId']) ? filter_var($_POST['viewId'], FILTER_VALIDATE_INT) : false;
-            if (false !== $viewId) {
+            if ($viewId !== false) {
                 $viewers = $viewObj->getUsersFromViewId($viewId);
                 $viewerGroups = $viewObj->getUsergroupsFromViewId($viewId);
                 $xml->startElement('contacts');

@@ -48,7 +48,7 @@ final class DeleteNotifications
      */
     public function __construct(
         private readonly ContactInterface $contact,
-        private readonly WriteNotificationRepositoryInterface $writeRepository
+        private readonly WriteNotificationRepositoryInterface $writeRepository,
     ) {
     }
 
@@ -58,7 +58,7 @@ final class DeleteNotifications
      */
     public function __invoke(
         DeleteNotificationsRequest $request,
-        DeleteNotificationsPresenterInterface $presenter
+        DeleteNotificationsPresenterInterface $presenter,
     ): void {
         try {
             if ($this->contactCanExecuteUseCase()) {
@@ -130,7 +130,7 @@ final class DeleteNotifications
      */
     private function createStatusResponseDto(
         ResponseStatusInterface $statusResponse,
-        int $notificationId
+        int $notificationId,
     ): DeleteNotificationsStatusResponse {
         $responseStatusDto = new DeleteNotificationsStatusResponse();
         $responseStatusDto->id = $notificationId;

@@ -61,7 +61,7 @@ class CheckService extends AbstractCentreonService implements CheckServiceInterf
         ReadAccessGroupRepositoryInterface $accessGroupRepository,
         MonitoringRepositoryInterface $monitoringRepository,
         EngineServiceInterface $engineService,
-        EntityValidator $validator
+        EntityValidator $validator,
     ) {
         $this->accessGroupRepository = $accessGroupRepository;
         $this->monitoringRepository = $monitoringRepository;

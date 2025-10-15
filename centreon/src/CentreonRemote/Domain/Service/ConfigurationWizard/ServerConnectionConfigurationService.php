@@ -57,7 +57,7 @@ abstract class ServerConnectionConfigurationService
     protected int|null $brokerID = null;
 
     public function __construct(
-        protected CentreonDBAdapter $dbAdapter
+        protected CentreonDBAdapter $dbAdapter,
     ) {
     }
 

@@ -52,7 +52,7 @@ final class AddDashboardController extends AbstractController
     public function __invoke(
         Request $request,
         AddDashboard $useCase,
-        AddDashboardPresenter $presenter
+        AddDashboardPresenter $presenter,
     ): Response {
         $this->denyAccessUnlessGrantedForApiConfiguration();
 

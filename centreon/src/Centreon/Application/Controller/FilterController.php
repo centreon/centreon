@@ -115,7 +115,7 @@ class FilterController extends AbstractController
     public function updateFilter(
         Request $request,
         string $pageName,
-        int $filterId
+        int $filterId,
     ): View {
         $this->denyAccessUnlessGrantedForApiConfiguration();
 

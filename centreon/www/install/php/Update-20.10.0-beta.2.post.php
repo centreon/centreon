@@ -39,7 +39,7 @@ try {
         SELECT `value` FROM `informations`
         WHERE `key` = 'isRemote'
     ");
-    if ('yes' === $serverType->fetch()['value']) {
+    if ($serverType->fetch()['value'] === 'yes') {
         $type = 'remote';
     }
     // Check if the server is enabled

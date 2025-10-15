@@ -84,7 +84,7 @@ try {
         '../../tmp/createTablesCentstorage',
         $macros
     );
-    if ('0' != $result) {
+    if ($result != '0') {
         $return['msg'] = $result;
         echo json_encode($return);
 
@@ -97,7 +97,7 @@ try {
         '../../tmp/installBroker',
         $macros
     );
-    if ('0' != $result) {
+    if ($result != '0') {
         $return['msg'] = $result;
         echo json_encode($return);
 

@@ -41,7 +41,7 @@ final class ShareDashboardController extends AbstractController
         int $dashboardId,
         ShareDashboard $useCase,
         Request $request,
-        #[MapRequestPayload] ShareDashboardInput $mappedRequest
+        #[MapRequestPayload] ShareDashboardInput $mappedRequest,
     ): Response {
         $request = ShareDashboardRequestTransformer::transform($mappedRequest);
         $request->dashboardId = $dashboardId;

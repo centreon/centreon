@@ -77,7 +77,7 @@ interface ReadServiceCategoryRepositoryInterface
      */
     public function findByRequestParameterAndAccessGroups(
         array $accessGroups,
-        RequestParametersInterface $requestParameters
+        RequestParametersInterface $requestParameters,
     ): array;
 
     /**

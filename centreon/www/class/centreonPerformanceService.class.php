@@ -57,7 +57,7 @@ class CentreonPerformanceService
         $additionnalTables = '';
         $additionnalCondition = '';
 
-        $serviceDescription = false === isset($filters['service']) ? '' : $filters['service'];
+        $serviceDescription = isset($filters['service']) === false ? '' : $filters['service'];
 
         if (isset($filters['page_limit'], $filters['page'])) {
             $limit = ($filters['page'] - 1) * $filters['page_limit'];
