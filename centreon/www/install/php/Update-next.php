@@ -29,25 +29,13 @@ $version = 'xx.xx.x';
 $errorMessage = '';
 
 // TODO add your functions here
-/** -------------------------------------------- BBDO cfg update -------------------------------------------- */
-$bbdoDefaultUpdate = function () use ($pearDB, &$errorMessage): void {
-    if ($pearDB->isColumnExist('cfg_centreonbroker', 'bbdo_version')) {
-        $errorMessage = "Unable to update 'bbdo_version' column to 'cfg_centreonbroker' table";
-        $pearDB->executeQuery('ALTER TABLE `cfg_centreonbroker` MODIFY `bbdo_version` VARCHAR(50) DEFAULT "3.0.1"');
-    }
-};
-
-$bbdoCfgUpdate = function () use ($pearDB, &$errorMessage): void {
-    $errorMessage = "Unable to update 'bbdo_version' version in 'cfg_centreonbroker' table";
-    $pearDB->executeStatement('UPDATE `cfg_centreonbroker` SET `bbdo_version` = "3.0.1"');
-};
 
 try {
     // DDL statements for real time database
     // TODO add your function calls to update the real time database structure here
 
     // DDL statements for configuration database
-    $bbdoDefaultUpdate();
+    // TODO add your function calls to update the configuration database structure here
 
     // Transactional queries for configuration database
     if (! $pearDB->inTransaction()) {
@@ -55,7 +43,6 @@ try {
     }
 
     // TODO add your function calls to update the configuration database data here
-    $bbdoCfgUpdate();
 
     $pearDB->commit();
 } catch (Throwable $exception) {
