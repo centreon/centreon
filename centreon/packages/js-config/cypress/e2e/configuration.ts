@@ -54,7 +54,7 @@ export default ({
           commandTrimLength: 5000,
           defaultTrimLength: 5000,
         });
-        on("task", {
+        on('task', {
           logVersion(message) {
             console.log(`[LOG]: ${message}`);
             return null;

@@ -5,7 +5,7 @@ import {
   getCentreonPreviousMajorVersion,
   getCentreonStableMinorVersions,
   installCentreon,
-  localPackageDirectory
+  localPackageDirectory,
 } from '../common';
 
 before(() => {
@@ -15,7 +15,7 @@ before(() => {
       !Cypress.env('INTERNAL_REPO_PASSWORD'))
   ) {
     throw new Error(
-      'Missing environment variables: INTERNAL_REPO_USERNAME and/or INTERNAL_REPO_PASSWORD required for cloud repository configuration.'
+      'Missing environment variables: INTERNAL_REPO_USERNAME and/or INTERNAL_REPO_PASSWORD required for cloud repository configuration.',
     );
   }
 
@@ -30,62 +30,62 @@ beforeEach(() => {
   // clear network cache to avoid chunk loading issues
   cy.wrap(
     Cypress.automation('remote:debugger:protocol', {
-      command: 'Network.clearBrowserCache'
-    })
+      command: 'Network.clearBrowserCache',
+    }),
   );
 
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
+    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList',
   }).as('getNavigationList');
 
   cy.intercept({
     method: 'GET',
-    url: '/centreon/include/common/userTimezone.php'
+    url: '/centreon/include/common/userTimezone.php',
   }).as('getTimeZone');
 
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/users/filters/events-view?page=1&limit=100'
+    url: '/centreon/api/latest/users/filters/events-view?page=1&limit=100',
   }).as('getLastestUserFilters');
 
   cy.intercept({
     method: 'GET',
-    url: '/centreon/install/step_upgrade/step1.php'
+    url: '/centreon/install/step_upgrade/step1.php',
   }).as('getStep1');
 
   cy.intercept({
     method: 'GET',
-    url: '/centreon/install/step_upgrade/step2.php'
+    url: '/centreon/install/step_upgrade/step2.php',
   }).as('getStep2');
 
   cy.intercept({
     method: 'GET',
-    url: '/centreon/install/step_upgrade/step3.php'
+    url: '/centreon/install/step_upgrade/step3.php',
   }).as('getStep3');
 
   cy.intercept({
     method: 'GET',
-    url: '/centreon/install/step_upgrade/step4.php'
+    url: '/centreon/install/step_upgrade/step4.php',
   }).as('getStep4');
 
   cy.intercept({
     method: 'GET',
-    url: '/centreon/install/step_upgrade/step5.php'
+    url: '/centreon/install/step_upgrade/step5.php',
   }).as('getStep5');
 
   cy.intercept({
     method: 'POST',
-    url: '/centreon/install/steps/process/generationCache.php'
+    url: '/centreon/install/steps/process/generationCache.php',
   }).as('generatingCache');
 
   cy.intercept('/centreon/api/latest/monitoring/resources*').as(
-    'monitoringEndpoint'
+    'monitoringEndpoint',
   );
 
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/configuration/monitoring-servers/generate-and-reload'
+    url: '/centreon/api/latest/configuration/monitoring-servers/generate-and-reload',
   }).as('generateAndReloadPollers');
 });
 
@@ -103,63 +103,24 @@ Given(
 
     cy.log(`Testing ${Cypress.env('IS_CLOUD') ? 'cloud' : 'onprem'} upgrade`);
 
-    return cy.getWebVersion().then(({ major_version, minor_version }) => {
-      cy.task("logVersion", `Current Major version value is ${major_version}`);
+    return cy.getWebVersion().then(({ major_version }) => {
+      cy.task('logVersion', `Current Major version value is ${major_version}`);
       let majorVersionFrom = '0';
       switch (majorVersionFromExpression) {
-        case 'n - 1': {
-          const previousVersion =
-            getCentreonPreviousMajorVersion(major_version);
-          cy.log(`Getting Centreon previous major version: ${previousVersion}`);
+        case 'n - 1':
+          majorVersionFrom = getCentreonPreviousMajorVersion(major_version);
           cy.task(
-            "logVersion",
-            `Previous Major version value is ${previousVersion}`,
+            'logVersion',
+            `Previous Major version value is ${majorVersionFrom}`,
           );
-          // Cloud versioning is different from on-prem
-          if (Cypress.env('IS_CLOUD')) {
-            const versionDir = './././../../www/install/php';
-            // Check if a file with the major version exists
-            const versionFilePath = `${versionDir}/Update-${previousVersion}.${minor_version}.php`;
-            cy.task('fileExists', versionFilePath).then((exists) => {
-              if (exists) {
-                cy.log(`The file with version: ${previousVersion} exist`);
-                cy.wrap(previousVersion).as('majorVersionFrom');
-                majorVersionFrom = previousVersion;
-                cy.task(
-                  "logVersion",
-                  `Found version value is ${previousVersion}`,
-                );
-              } else {
-                cy.log(
-                  `The file with version: ${previousVersion} does not exist`
-                );
-                // If the version isn't found, use the closest available one
-                cy.getClosestVersionFile(previousVersion, versionDir).then(
-                  (versionFilePath) => {
-                    cy.log(`The last cloud version is: ${versionFilePath}`);
-                    const newVersion = versionFilePath;
-                    majorVersionFrom = versionFilePath;
-                    cy.wrap(newVersion).as('majorVersionFrom');
-                    cy.task(
-                      "logVersion",
-                      `Closest version found value is ${newVersion}`,
-                    );
-                  }
-                );
-              }
-            });
-          } else {
-            majorVersionFrom = previousVersion;
-            cy.wrap(previousVersion).as("majorVersionFrom");
-            cy.task(
-              "logVersion",
-              `Found version value is ${previousVersion}`,
-            );
-          }
           break;
         case 'n - 2':
           majorVersionFrom = getCentreonPreviousMajorVersion(
-            getCentreonPreviousMajorVersion(major_version)
+            getCentreonPreviousMajorVersion(major_version),
+          );
+          cy.task(
+            'logVersion',
+            `Previous Major version value is ${majorVersionFrom}`,
           );
           break;
         default:
@@ -169,22 +130,22 @@ Given(
       cy.startContainer({
         command: 'tail -f /dev/null',
         image: `docker.centreon.com/centreon/centreon-web-dependencies-${Cypress.env(
-          'WEB_IMAGE_OS'
+          'WEB_IMAGE_OS',
         )}:${majorVersionFrom}`,
         name: 'web',
         portBindings: [
           {
             destination: 4000,
-            source: 80
-          }
-        ]
+            source: 80,
+          },
+        ],
       }).then(() => {
         Cypress.config('baseUrl', 'http://127.0.0.1:4000');
 
         return cy
           .intercept('/waiting-page', {
             headers: { 'content-type': 'text/html' },
-            statusCode: 200
+            statusCode: 200,
           })
           .visit('/waiting-page')
           .then(() => {
@@ -207,29 +168,27 @@ Given(
                     minorVersionIndex === 0)
                 ) {
                   cy.log(
-                    `Not needed to test ${versionFromExpression} version.`
+                    `Not needed to test ${versionFromExpression} version.`,
                   );
 
                   return cy.stopContainer({ name: 'web' }).wrap('skipped');
                 }
 
-                  cy.log(
-                    `${versionFromExpression} version is ${stableMinorVersions[minorVersionIndex]}`
-                  );
-                  const installedVersion = `${majorVersionFrom}.${stableMinorVersions[minorVersionIndex]}`;
-                  Cypress.env('installed_version', installedVersion);
-                  cy.log('installed_version', installedVersion);
-                  cy.task(
-                    "logVersion",
-                    `Installed version value is ${installedVersion}`,
-                  );
-                  return installCentreon(installedVersion)
-                    .then(() => {
-                      if (Cypress.env('WEB_IMAGE_OS').includes('alma')) {
-                        const distrib =
-                          Cypress.env('WEB_IMAGE_OS') === 'alma9'
-                            ? 'el9'
-                            : 'el8';
+                cy.log(
+                  `${versionFromExpression} version is ${stableMinorVersions[minorVersionIndex]}`,
+                );
+                const installedVersion = `${majorVersionFrom}.${stableMinorVersions[minorVersionIndex]}`;
+                Cypress.env('installed_version', installedVersion);
+                cy.log('installed_version', installedVersion);
+                cy.task(
+                  'logVersion',
+                  `Installed version value is ${installedVersion}`,
+                );
+                return installCentreon(installedVersion)
+                  .then(() => {
+                    if (Cypress.env('WEB_IMAGE_OS').includes('alma')) {
+                      const distrib =
+                        Cypress.env('WEB_IMAGE_OS') === 'alma9' ? 'el9' : 'el8';
 
                       if (Cypress.env('IS_CLOUD')) {
                         cy.log('Configuring cloud internal repository...');
@@ -239,20 +198,20 @@ Given(
                             command: [
                               `dnf config-manager --add-repo https://${Cypress.env('INTERNAL_REPO_USERNAME')}:${Cypress.env('INTERNAL_REPO_PASSWORD')}@packages.centreon.com/rpm-standard-internal/${major_version}/${distrib}/centreon-${major_version}-internal.repo`,
                               `sed -i "s#packages.centreon.com/rpm-standard-internal#${Cypress.env('INTERNAL_REPO_USERNAME')}:${Cypress.env('INTERNAL_REPO_PASSWORD')}@packages.centreon.com/rpm-standard-internal#" /etc/yum.repos.d/centreon-${major_version}-internal.repo`,
-                              `dnf config-manager --set-enabled 'centreon*'`
+                              `dnf config-manager --set-enabled 'centreon*'`,
                             ],
-                            name: 'web'
+                            name: 'web',
                           },
-                          { log: false }
+                          { log: false },
                         );
                       }
 
                       return cy.execInContainer({
                         command: [
                           `dnf config-manager --add-repo https://packages.centreon.com/rpm-standard/${major_version}/${distrib}/centreon-${major_version}.repo`,
-                          `dnf config-manager --set-enabled 'centreon*'`
+                          `dnf config-manager --set-enabled 'centreon*'`,
                         ],
-                        name: 'web'
+                        name: 'web',
                       });
                     }
 
@@ -267,20 +226,20 @@ Given(
                         wget -O- https://packages.centreon.com/api/security/keypair/APT-GPG-KEY/public | gpg --dearmor | tee /etc/apt/trusted.gpg.d/centreon.gpg > /dev/null 2>&1
                         apt-get update
 EOF`,
-                      name: 'web'
+                      name: 'web',
                     });
                   })
                   .then(() => {
                     return checkPlatformVersion(
-                      `${majorVersionFrom}.${stableMinorVersions[minorVersionIndex]}`
+                      `${majorVersionFrom}.${stableMinorVersions[minorVersionIndex]}`,
                     ).then(() => cy.visit('/'));
                   });
-              }
+              },
             );
           });
       });
     });
-  }
+  },
 );
 
 afterEach(() => {
