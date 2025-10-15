@@ -27,7 +27,8 @@ const useStackedLines = ({ lines, timeSeries }): StackedLinesState => {
       invertedStackedLinesTimeSeriesPerStackKeyAndUnit
   } = getStackedLinesTimeSeriesPerStackAndUnit({
     stackedLines: invertedStackedLines,
-    timeSeries
+    timeSeries,
+    invert: true
   });
 
   return {

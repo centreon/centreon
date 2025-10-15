@@ -102,7 +102,7 @@ const Lines = ({
         <>
           {Object.entries(stackedLinesData).map(
             ([stackedKey, { lines, timeSeries: stackedTimeSeries }]) => {
-              const [_, unit] = stackedKey.split('-');
+              const [, unit] = stackedKey.split('-');
               return (
                 <StackedLines
                   lineStyle={lineStyle}
@@ -117,7 +117,7 @@ const Lines = ({
           )}
           {Object.entries(invertedStackedLinesData).map(
             ([stackedKey, { lines, timeSeries: stackedTimeSeries }]) => {
-              const [_, unit] = stackedKey.split('-');
+              const [, unit] = stackedKey.split('-');
               return (
                 <StackedLines
                   lineStyle={lineStyle}

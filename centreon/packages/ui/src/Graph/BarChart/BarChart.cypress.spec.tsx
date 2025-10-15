@@ -4,11 +4,11 @@ import { useAtomValue } from 'jotai';
 
 import { userAtom } from '@centreon/ui-context';
 
+import dataMissingPoint from '../mockedData/dataWithMissingPoint.json';
 import dataLastWeek from '../mockedData/lastWeek.json';
 import dataPingService from '../mockedData/pingService.json';
 import dataPingServiceMixedStacked from '../mockedData/pingServiceMixedStacked.json';
 import dataPingServiceStacked from '../mockedData/pingServiceStacked.json';
-import dataMissingPoint from '../mockedData/dataWithMissingPoint.json';
 import dataPingServiceLinesStackKeys from '../mockedData/pingServiceWithStackedKeys.json';
 
 import BarChart, { BarChartProps } from './BarChart';

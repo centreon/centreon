@@ -1,16 +1,7 @@
 import { scaleBand, scaleOrdinal } from '@visx/scale';
 import { BarGroupHorizontal, BarGroup as VisxBarGroup } from '@visx/shape';
 import { ScaleLinear } from 'd3-scale';
-import {
-  difference,
-  equals,
-  flatten,
-  keys,
-  omit,
-  pick,
-  pluck,
-  uniq
-} from 'ramda';
+import { difference, equals, keys, omit, pick } from 'ramda';
 import { memo, useMemo } from 'react';
 
 import { useDeepMemo } from '../../utils';

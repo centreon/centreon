@@ -26,14 +26,14 @@ import {
   map,
   negate,
   pipe,
+  pluck,
   prop,
   propEq,
   reduce,
   reject,
   sortBy,
   split,
-  uniq,
-  pluck
+  uniq
 } from 'ramda';
 
 import { margin } from '../../Chart/common';
@@ -762,8 +762,13 @@ export const formatMetricName = ({
 
 export const getStackedLinesTimeSeriesPerStackAndUnit = ({
   stackedLines,
-  timeSeries
-}: { stackedLines: Array<Line>; timeSeries: Array<TimeValue> }): {
+  timeSeries,
+  invert
+}: {
+  stackedLines: Array<Line>;
+  timeSeries: Array<TimeValue>;
+  invert?: boolean;
+}): {
   stackedLinesTimeSeriesPerStackKeyAndUnit: Record<
     string,
     { lines: Array<Line>; timeSeries: Array<TimeValue> }
@@ -786,7 +791,7 @@ export const getStackedLinesTimeSeriesPerStackAndUnit = ({
 
   const stackedLinesTimeSeriesPerStackKey = stackedKeysWithOnlyStackKey.reduce(
     (acc, stackedKey: string) => {
-      const [_, stackUnit, stackKey] = stackedKey.split('-');
+      const [, stackUnit, stackKey] = stackedKey.split('-');
       const relatedLines = stackedLines.filter(({ unit, stackKey: key }) => {
         return stackUnit === (unit || '') && stackKey === key;
       });
@@ -796,6 +801,7 @@ export const getStackedLinesTimeSeriesPerStackAndUnit = ({
         [stackedKey]: {
           lines: relatedLines,
           timeSeries: getTimeSeriesForLines({
+            invert,
             lines: relatedLines,
             timeSeries
           })
@@ -809,7 +815,7 @@ export const getStackedLinesTimeSeriesPerStackAndUnit = ({
   );
   const stackedLinesTimeSeriesPerUnit = stackedKeysWithOnlyUnit.reduce(
     (acc, stackedKey: string) => {
-      const [_, stackUnit] = stackedKey.split('-');
+      const [, stackUnit] = stackedKey.split('-');
       const relatedLines = stackedLines.filter(
         (line) =>
           !affectedLinesPerStackKey.some(
@@ -823,7 +829,8 @@ export const getStackedLinesTimeSeriesPerStackAndUnit = ({
           lines: relatedLines,
           timeSeries: getTimeSeriesForLines({
             lines: relatedLines,
-            timeSeries
+            timeSeries,
+            invert
           })
         }
       };
