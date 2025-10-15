@@ -41,6 +41,7 @@ runs:
       with:
         script: |
           const fs = require('fs');
+          const { execSync } = require('child_process');
           const dayjs = require('dayjs');
           const month = dayjs().format('YYYY-MM');
           const path = './epic-payload.json';
