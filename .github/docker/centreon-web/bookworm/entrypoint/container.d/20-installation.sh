@@ -37,6 +37,7 @@ if [ ! -f /etc/centreon/centreon.conf.php ]; then
 
   # Database tweaks
   mysql -h${MYSQL_HOST} -uroot -p${MYSQL_PWD} -e "UPDATE centreon.cfg_centreonbroker_info SET config_value = '${MYSQL_HOST}' WHERE config_key = 'db_host'"
+  mysql -h${MYSQL_HOST} -uroot -p${MYSQL_PWD} -e "UPDATE \`centreon.cfg_centreonbroker_info\` SET \`config_value\`='cbd' WHERE \`config_id\` IN (select \`config_id\` FROM \`cfg_centreonbroker_info\` WHERE \`config_value\` = 'central-module-master-output') AND \`config_key\` = 'host'"
   mysql -h${MYSQL_HOST} -uroot -p${MYSQL_PWD} -e "DELETE FROM centreon.cfg_centreonbroker_info WHERE config_group = 'output' AND config_group_id = '1'"
   mysql -h${MYSQL_HOST} -uroot -p${MYSQL_PWD} -e "UPDATE centreon.cfg_centreonbroker_info SET config_id = '1', config_group_id = 1 WHERE config_id = '2' and config_group = 'output'"
   mysql -h${MYSQL_HOST} -uroot -p${MYSQL_PWD} -e "DELETE FROM centreon.cfg_centreonbroker WHERE config_name = 'central-rrd-master'"
@@ -50,7 +51,7 @@ if [ ! -f /etc/centreon/centreon.conf.php ]; then
     DATA_DUMP_DIR="/usr/local/src/sql/data"
     for file in "$DATA_DUMP_DIR"/*; do
       echo "Importing $file ..."
-      mysql -h${MYSQL_HOST} -uroot centreon < "$file"
+      mysql -h${MYSQL_HOST} -uroot -p${MYSQL_PWD} centreon < "$file"
     done
   fi
 
@@ -101,7 +102,7 @@ chmod +x /usr/sbin/centengine
 setAdminLanguage() {
   [ -z "$1" ] && return
   echo "Setting admin language to $1"
-  mysql -h${MYSQL_HOST} -uroot centreon -e "UPDATE contact SET contact_lang = '$1.UTF-8' WHERE contact_alias = 'admin'"
+  mysql -h${MYSQL_HOST} -uroot -p${MYSQL_PWD} centreon -e "UPDATE contact SET contact_lang = '$1.UTF-8' WHERE contact_alias = 'admin'"
 }
 
 case "$CENTREON_LANG" in
