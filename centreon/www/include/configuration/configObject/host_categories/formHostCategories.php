@@ -140,10 +140,6 @@ $form->addElement('select2', 'hc_hosts', _('Linked Hosts'), [], array_merge($att
 $defTpls = './include/common/webServices/rest/internal.php?object=centreon_configuration_hosttemplate'
          . "&action=defaultValues&target=hostcategories&field=hc_hostsTemplate&id={$hc_id}";
 $ams1 = $form->addElement('select2', 'hc_hostsTemplate', _('Linked Host Template'), [], array_merge($attrHosttemplates, ['defaultDatasetRoute' => $defTpls]));
-if (! $oreon->user->admin) {
-    $ams1->setPersistantFreeze(true);
-    $ams1->freeze();
-}
 
 // Further informations
 $form->addElement('header', 'furtherInfos', _('Additional Information'));

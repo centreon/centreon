@@ -633,21 +633,71 @@ jobs:
               "test_tags": "not @ignore"
             };
 
-            let matrix = {
-              "main": [alma9_mariadb_10_11],
-              "operating_systems": [alma9_mariadb_10_11],
-              "databases": [alma9_mariadb_10_11],
+            const getDailyConfig = (configs) => {
+              const today = new Date();
+              const dayOfWeek = today.getDay(); // 0=sunday, 1=monday, ..., 6=saturday
+
+              // If it's weekend, use the default configuration
+              if (dayOfWeek === 0 || dayOfWeek === 6) {
+                return configs[0];
+              }
+
+              // Reference date: January 1, 2025
+              const referenceDate = new Date('2025-01-01');
+
+              // Calculate the number of working days since January 1
+              let workingDays = 0;
+              const currentDate = new Date(referenceDate);
+
+              while (currentDate < today) {
+                const dayOfWeek = currentDate.getDay();
+                if (dayOfWeek >= 1 && dayOfWeek <= 5) { // Monday to Friday
+                  workingDays++;
+                }
+                currentDate.setDate(currentDate.getDate() + 1);
+              }
+
+              // Alternating balanced on 3 configurations
+              const configIndex = workingDays % configs.length;
+
+              return configs[configIndex];
             };
 
+            const configs = [alma9_mariadb_10_11, alma8_mysql_8_0, bookworm_mysql_8_4];
+
+            const cloud = alma8_mysql_8_0;
+
+            let main = alma9_mariadb_10_11;
+            if ('${{ steps.detect_cloud_version.outputs.isCloud }}' == 'true') {
+              main = cloud;
+            }
+
+            let matrix = {
+              "cloud": [cloud],
+              "main": [main],
+              "operating_systems": [main],
+              "databases": [main],
+            };
+
+            if ('${{ steps.get_nightly_status.outputs.is_nightly }}' == 'true') {
+              const dailyConfig = getDailyConfig(configs);
+
+              matrix = {
+                "cloud": [cloud],
+                "main": [dailyConfig],
+                "operating_systems": [dailyConfig],
+                "databases": [dailyConfig],
+              };
+            }
+
             if (
-              '${{ steps.get_nightly_status.outputs.is_nightly }}' == 'true'
-              || ${{ contains(steps.has_skip_label.outputs.labels, 'database') && 'true' || 'false' }}
+              ${{ contains(steps.has_skip_label.outputs.labels, 'database') && 'true' || 'false' }}
               || ${{ contains(steps.has_skip_label.outputs.labels, 'system') && 'true' || 'false' }}
             ) {
               matrix = {
                 ...matrix,
-                "operating_systems": [alma9_mariadb_10_11, alma8_mysql_8_0, bookworm_mysql_8_4],
-                "databases": [alma9_mariadb_10_11, alma8_mysql_8_0, bookworm_mysql_8_4],
+                "operating_systems": configs,
+                "databases": configs,
               };
             }
 

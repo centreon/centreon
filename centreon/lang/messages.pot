@@ -1509,6 +1509,10 @@ msgstr ""
 msgid "An error occurred when retrieving the current version"
 msgstr ""
 
+#: centreon/src/Core/Platform/Application/UseCase/UpdateVersions/UpdateVersionsException.php
+msgid "An error occurred when writing engine context configuration"
+msgstr ""
+
 #: centreon/src/Core/Broker/Application/Exception/BrokerException.php
 #, php-format
 msgid "An error occurred while creating the file '%s'"
@@ -1674,6 +1678,10 @@ msgstr ""
 msgid "At least one column must be selected"
 msgstr ""
 
+#: centreon/www/install/front_translate.php
+msgid "At least one connection mode must be enabled."
+msgstr ""
+
 #: centreon/src/Core/ResourceAccess/Application/Exception/RuleException.php
 msgid "At least one contact or contactgroup should be linked to the rule"
 msgstr ""
@@ -1727,10 +1735,6 @@ msgstr ""
 
 #: centreon/www/include/Administration/parameters/general/form.php
 msgid "Attempt"
-msgstr ""
-
-#: centreon/www/install/front_translate.php
-msgid "Au moins un des modes de connexion doit être activé."
 msgstr ""
 
 #: centreon/www/include/Administration/parameters/centstorage/form.php
@@ -6813,6 +6817,10 @@ msgstr ""
 
 #: centreon/src/Core/HostGroup/Application/Exceptions/HostGroupException.php
 msgid "Error while enabling/disabling host groups"
+msgstr ""
+
+#: centreon/www/include/options/accessLists/menusACL/listsMenusAccess.php
+msgid "Error while fetching ACL topologies"
 msgstr ""
 
 #: centreon/src/Core/Dashboard/Application/Exception/DashboardException.php
@@ -11991,6 +11999,12 @@ msgstr ""
 msgid "Must be a number between 1 and 65335 included."
 msgstr ""
 
+#: centreon/www/include/configuration/configObject/escalation/formEscalation.php
+#: centreon/www/include/configuration/configObject/escalation/formEscalation.php
+#: centreon/www/include/configuration/configObject/escalation/formEscalation.php
+msgid "Must be a positive integer or 0"
+msgstr ""
+
 #: centreon/src/Core/Security/ProviderConfiguration/Domain/Exception/ConfigurationException.php
 #, php-format
 msgid "Must not Happen, got unexpected CustomConfiguration type %s"
@@ -13102,6 +13116,10 @@ msgstr ""
 
 #: centreon/www/install/front_translate.php
 msgid "Opened on"
+msgstr ""
+
+#: centreon/www/include/configuration/configNagios/formNagios.php
+msgid "Opentelemetry"
 msgstr ""
 
 #: centreon/www/include/configuration/configNagios/formNagios.php
