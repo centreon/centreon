@@ -91,15 +91,14 @@ runs:
             const nightly_epic_id = JSON.parse(response).id;
             const nightly_epic_key = JSON.parse(response).key;
             console.log(`An epic for the current month and project (ID ${nightly_epic_id}, key ${nightly_epic_key}) has been created.`);
-            core.setOutput('nightly_epic_id', nightly_epic_id);
-            core.setOutput('nightly_epic_key', nightly_epic_key);
           } else {
             const nightly_epic_id = response.issues[0].id;
             const nightly_epic_key = response.issues[0].key;
             console.log(`An epic for the current month and project (ID ${nightly_epic_id}, key ${nightly_epic_key}) has already been found.`);
-            core.setOutput('nightly_epic_id', nightly_epic_id);
-            core.setOutput('nightly_epic_key', nightly_epic_key);
           }
+          
+          core.setOutput('nightly_epic_id', nightly_epic_id);
+          core.setOutput('nightly_epic_key', nightly_epic_key);
 
     - name: Get ticket elements from context and create the incident ticket
       uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
