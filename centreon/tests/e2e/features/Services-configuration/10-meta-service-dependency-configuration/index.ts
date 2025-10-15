@@ -1,5 +1,3 @@
-/* eslint-disable no-script-url */
-/* eslint-disable cypress/unsafe-to-chain-command */
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
 import data from '../../../fixtures/services/meta_service.json';
@@ -52,7 +50,7 @@ Given('a meta service dependency is configured', () => {
   });
   cy.getIframeBody().contains('a', 'Add').click();
   cy.wait('@getTimeZone');
-  cy.addMSDependency(data.defaultMetaServiceDep);
+  cy.addMsDependency(data.defaultMetaServiceDep);
 });
 
 When(
@@ -63,7 +61,7 @@ When(
       `a:contains("${data.defaultMetaServiceDep.name}")`
     );
     cy.getIframeBody().contains(data.defaultMetaServiceDep.name).click();
-    cy.updateMSDependency(data.MetaServiceDep1);
+    cy.updateMsDependency(data.MetaServiceDep1);
   }
 );
 
@@ -127,7 +125,7 @@ Then(
       .should('have.length', 2)
       .then((options) => {
         const selectedTexts = Array.from(options).map((option) =>
-          option.text.trim()
+          (option.textContent ?? '').trim()
         );
         expect(selectedTexts).to.include.members([
           data.metaService1.name,

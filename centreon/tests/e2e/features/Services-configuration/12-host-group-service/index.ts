@@ -1,10 +1,8 @@
-/* eslint-disable no-script-url */
-/* eslint-disable cypress/unsafe-to-chain-command */
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
 import serviceCategories from '../../../fixtures/services/category.json';
-import servicesData from '../../../fixtures/services/service.json';
 import data from '../../../fixtures/services/host_group.json';
+import servicesData from '../../../fixtures/services/service.json';
 
 import htmldata from './data.json';
 
@@ -93,7 +91,7 @@ Given('some service groups are configured', () => {
 });
 
 Given('some service categories are configured', () => {
-  cy.addSubjectViaAPIv2(
+  cy.addSubjectViaApiV2(
     serviceCategories.default,
     '/centreon/api/latest/configuration/services/categories'
   );
@@ -118,7 +116,10 @@ When('the user Add a new host group service', () => {
   cy.createOrUpdateHostGroupService(
     data.default,
     false,
-    htmldata.dataForCreation
+    htmldata.dataForCreation.map((elt) => ({
+      ...elt,
+      valueOrIndex: String(elt.valueOrIndex)
+    }))
   );
 });
 

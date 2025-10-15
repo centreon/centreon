@@ -1,13 +1,13 @@
-import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
+import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
 import {
   checkMetricsAreMonitored,
   checkServicesAreMonitored
 } from '../../../commons';
 import dashboards from '../../../fixtures/dashboards/creation/dashboards.json';
-import dashboardAdministratorUser from '../../../fixtures/users/user-dashboard-administrator.json';
 import topBottomWidget from '../../../fixtures/dashboards/creation/widgets/dashboardWithTopBottomWidget.json';
 import genericTextWidgets from '../../../fixtures/dashboards/creation/widgets/genericText.json';
+import dashboardAdministratorUser from '../../../fixtures/users/user-dashboard-administrator.json';
 
 const hostName = 'Centreon-Server';
 const hostGroupName = 'Linux-Servers';
@@ -37,7 +37,7 @@ before(() => {
   }).as('dashboardMetricsTop');
   cy.intercept({
     method: 'POST',
-    url: `/centreon/api/latest/configuration/dashboards/*/access_rights/contacts`
+    url: '/centreon/api/latest/configuration/dashboards/*/access_rights/contacts'
   }).as('addContactToDashboardShareList');
 
   cy.loginAsAdminViaApiV2()
@@ -70,7 +70,7 @@ beforeEach(() => {
   }).as('listAllDashboards');
   cy.intercept({
     method: 'POST',
-    url: `/centreon/api/latest/configuration/dashboards/*/access_rights/contacts`
+    url: '/centreon/api/latest/configuration/dashboards/*/access_rights/contacts'
   }).as('addContactToDashboardShareList');
   cy.intercept({
     method: 'GET',
@@ -82,7 +82,7 @@ beforeEach(() => {
   }).as('dashboardMetricsTop');
   cy.intercept({
     method: 'PATCH',
-    url: `/centreon/api/latest/configuration/dashboards/*`
+    url: '/centreon/api/latest/configuration/dashboards/*'
   }).as('updateDashboard');
   cy.loginByTypeOfUser({
     jsonName: dashboardAdministratorUser.login,
@@ -413,7 +413,11 @@ When('the dashboard administrator clicks on a random resource', () => {
     .invoke('attr', 'href')
     .then((href) => {
       expect(href).to.exist;
-      cy.visit(href);
+      if (typeof href === 'string') {
+        cy.visit(href);
+      } else {
+        throw new Error('Resource link href is undefined');
+      }
     });
 });
 

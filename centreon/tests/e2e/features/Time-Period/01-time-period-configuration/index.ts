@@ -1,8 +1,8 @@
-import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
+import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
 import {
-  setTimePeriod,
   navigateToTimePeriodsAndInitiateAddition,
+  setTimePeriod,
   submitForm
 } from '../common';
 

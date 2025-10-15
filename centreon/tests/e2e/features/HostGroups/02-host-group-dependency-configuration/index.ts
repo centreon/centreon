@@ -1,9 +1,7 @@
-/* eslint-disable no-script-url */
-/* eslint-disable cypress/unsafe-to-chain-command */
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
-import grps from '../../../fixtures/notifications/data-for-notification.json';
 import data from '../../../fixtures/hostGroups/dependency.json';
+import grps from '../../../fixtures/notifications/data-for-notification.json';
 
 beforeEach(() => {
   cy.startContainers();
@@ -79,7 +77,7 @@ Then('the properties are updated', () => {
     .should('have.length', 2)
     .then((options) => {
       const selectedTexts = Array.from(options).map((option) =>
-        option.text.trim()
+        (option.textContent ?? '').trim()
       );
       expect(selectedTexts).to.include.members([
         data.HostGrpDependency1.hostGrpsNames[0],

@@ -1,7 +1,3 @@
-/* eslint-disable @typescript-eslint/method-signature-style */
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable newline-before-return */
-/* eslint-disable @typescript-eslint/no-namespace */
 import metrics from '../../fixtures/dashboards/creation/widgets/metrics.json';
 
 Cypress.Commands.add('enableDashboardFeature', () => {
@@ -157,7 +153,7 @@ Cypress.Commands.add('waitUntilPingExists', () => {
       cy.getByTestId({ testId: 'Select resource' }).eq(1).realClick();
 
       return cy.wait('@servicesRequest').then((interception) => {
-        if (interception && interception.response) {
+        if (interception?.response) {
           cy.log('Response Body:', interception.response.body);
           const responseBody = interception.response.body;
           if (
@@ -237,7 +233,7 @@ Cypress.Commands.add(
         method: 'POST',
         url: `/centreon/api/latest/configuration/dashboards/${dashboardId}`
       }).then((patchResponse) => {
-        console.log('Widget added successfully:', patchResponse);
+        cy.log('Widget added successfully:', patchResponse);
       });
     });
   }
@@ -297,8 +293,6 @@ Cypress.Commands.add(
         dataToLog[key] = value;
       });
 
-      console.log('FormData before POST:', JSON.stringify(dataToLog, null, 2));
-
       cy.request({
         body: formData,
         headers: {
@@ -307,7 +301,7 @@ Cypress.Commands.add(
         method: 'POST',
         url: `/centreon/api/latest/configuration/dashboards/${dashboardId}`
       }).then((patchResponse) => {
-        console.log('Widget added successfully:', patchResponse);
+        cy.log('Widget added successfully:', patchResponse);
       });
     });
   }
@@ -369,15 +363,15 @@ Cypress.Commands.add(
           .then(($aTags) => {
             $aTags.each((i, aTag) => {
               cy.wrap(aTag)
-                .find("div")
-                .invoke("attr", "style")
+                .find('div')
+                .invoke('attr', 'style')
                 .then((style) => {
                   expect(style).to.contain(expectedColors[i]);
                 });
 
               cy.wrap(aTag)
-                .next("p")
-                .invoke("text")
+                .next('p')
+                .invoke('text')
                 .then((text) => {
                   const possibleValues = [expectedValues[i]];
 
@@ -385,7 +379,9 @@ Cypress.Commands.add(
                     possibleValues.push(alternativeValues[i]);
                   }
 
-                  expect(text.trim()).to.match(new RegExp(possibleValues.join("|")));
+                  expect(text.trim()).to.match(
+                    new RegExp(possibleValues.join('|'))
+                  );
                 });
             });
           });
@@ -403,11 +399,13 @@ Cypress.Commands.add('addNewHostAndReturnId', (hostData = {}) => {
     macros: [
       {
         description: 'Some text to describe the macro',
+        // biome-ignore lint/style/useNamingConvention: <explanation>
         is_password: false,
         name: 'MacroName',
         value: 'macroValue'
       }
     ],
+    // biome-ignore lint/style/useNamingConvention: <explanation>
     monitoring_server_id: 1,
     name: 'generic-active-host',
     templates: [2]
@@ -444,6 +442,7 @@ Cypress.Commands.add('getServiceIdByName', (serviceName) => {
 
 Cypress.Commands.add('patchServiceWithHost', (hostId, serviceId) => {
   const patchData = {
+    // biome-ignore lint/style/useNamingConvention: <explanation>
     host_id: hostId
   };
   cy.request({
@@ -484,54 +483,91 @@ interface Dashboard {
 }
 
 interface HostDataType {
+  // biome-ignore lint/style/useNamingConvention: <explanation>
   acknowledgement_timeout: number;
+  // biome-ignore lint/style/useNamingConvention: <explanation>
   action_url: string;
+  // biome-ignore lint/style/useNamingConvention: <explanation>
   active_check_enabled: number;
+  // biome-ignore lint/style/useNamingConvention: <explanation>
   add_inherited_contact: boolean;
+  // biome-ignore lint/style/useNamingConvention: <explanation>
   add_inherited_contact_group: boolean;
   address: string;
   alias: string;
   categories: Array<number>;
+  // biome-ignore lint/style/useNamingConvention: <explanation>
   check_command_args: Array<string>;
+  // biome-ignore lint/style/useNamingConvention: <explanation>
   check_command_id: number;
+  // biome-ignore lint/style/useNamingConvention: <explanation>
   check_timeperiod_id: number;
   comment: string;
+  // biome-ignore lint/style/useNamingConvention: <explanation>
   event_handler_command_args: Array<string>;
+  // biome-ignore lint/style/useNamingConvention: <explanation>
   event_handler_command_id: number;
+  // biome-ignore lint/style/useNamingConvention: <explanation>
   event_handler_enabled: number;
+  // biome-ignore lint/style/useNamingConvention: <explanation>
   first_notification_delay: number;
+  // biome-ignore lint/style/useNamingConvention: <explanation>
   flap_detection_enabled: number;
+  // biome-ignore lint/style/useNamingConvention: <explanation>
   freshness_checked: number;
+  // biome-ignore lint/style/useNamingConvention: <explanation>
   freshness_threshold: number;
+  // biome-ignore lint/style/useNamingConvention: <explanation>
   geo_coords: string;
   groups: Array<number>;
+  // biome-ignore lint/style/useNamingConvention: <explanation>
   high_flap_threshold: number;
+  // biome-ignore lint/style/useNamingConvention: <explanation>
   icon_alternative: string;
+  // biome-ignore lint/style/useNamingConvention: <explanation>
   icon_id: number;
+  // biome-ignore lint/style/useNamingConvention: <explanation>
   is_activated: boolean;
+  // biome-ignore lint/style/useNamingConvention: <explanation>
   low_flap_threshold: number;
   macros: Array<object>;
+  // biome-ignore lint/style/useNamingConvention: <explanation>
   max_check_attempts: number;
+  // biome-ignore lint/style/useNamingConvention: <explanation>
   monitoring_server_id: number;
   name: string;
+  // biome-ignore lint/style/useNamingConvention: <explanation>
   normal_check_interval: number;
   note: string;
+  // biome-ignore lint/style/useNamingConvention: <explanation>
   note_url: string;
+  // biome-ignore lint/style/useNamingConvention: <explanation>
   notification_enabled: number;
+  // biome-ignore lint/style/useNamingConvention: <explanation>
   notification_interval: number;
+  // biome-ignore lint/style/useNamingConvention: <explanation>
   notification_options: number;
+  // biome-ignore lint/style/useNamingConvention: <explanation>
   notification_timeperiod_id: number;
+  // biome-ignore lint/style/useNamingConvention: <explanation>
   passive_check_enabled: number;
+  // biome-ignore lint/style/useNamingConvention: <explanation>
   recovery_notification_delay: number;
+  // biome-ignore lint/style/useNamingConvention: <explanation>
   retry_check_interval: number;
+  // biome-ignore lint/style/useNamingConvention: <explanation>
   severity_id: number;
+  // biome-ignore lint/style/useNamingConvention: <explanation>
   snmp_community: string;
+  // biome-ignore lint/style/useNamingConvention: <explanation>
   snmp_version: string;
   templates: Array<number>;
+  // biome-ignore lint/style/useNamingConvention: <explanation>
   timezone_id: number;
 }
 
 declare global {
+  // biome-ignore lint/style/noNamespace: <explanation>
   namespace Cypress {
     interface Chainable {
       addNewHostAndReturnId: (
@@ -545,16 +581,20 @@ declare global {
       getServiceIdByName: (serviceName: string) => Cypress.Chainable;
       insertDashboardWithDoubleWidget: (
         dashboard: Dashboard,
+        // biome-ignore lint/suspicious/noExplicitAny: <explanation>
         patchBody1: Record<string, any>,
+        // biome-ignore lint/suspicious/noExplicitAny: <explanation>
         patchBody2: Record<string, any>,
         widgetName: string,
         widgetType: string
       ) => Cypress.Chainable;
       insertDashboardWithWidget: (
         dashboard: Dashboard,
+        // biome-ignore lint/suspicious/noExplicitAny: <explanation>
         patchBody: Record<string, any>,
         widgetName: string,
         widgetType: string
+        // biome-ignore lint/suspicious/noExplicitAny: <explanation>
       ) => Chainable<any>;
       patchServiceWithHost: (
         hostId: string,
@@ -584,5 +624,3 @@ declare global {
     }
   }
 }
-
-export {};

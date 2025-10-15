@@ -1,10 +1,9 @@
-/* eslint-disable cypress/no-unnecessary-waiting */
-
 import { ActionClapi } from '../../../commons';
 
 interface OidcConfigValues {
   authEndpoint: string;
   baseUrl: string;
+  // biome-ignore lint/style/useNamingConvention: <explanation>
   clientID: string;
   clientSecret: string;
   introspectionTokenEndpoint: string;
@@ -19,6 +18,7 @@ const getOidcConfigValues = ({
 }): OidcConfigValues => ({
   authEndpoint: '/auth',
   baseUrl: `http://${providerAddress}:${providerPort}/realms/Centreon_SSO/protocol/openid-connect`,
+  // biome-ignore lint/style/useNamingConvention: <explanation>
   clientID: 'centreon-oidc-frontend',
   clientSecret: 'IKbUBottl5eoyhf0I5Io2nuDsTA85D50',
   introspectionTokenEndpoint: '/token/introspect',
@@ -27,7 +27,7 @@ const getOidcConfigValues = ({
   tokenEndpoint: '/token'
 });
 
-const initializeOIDCUserAndGetLoginPage = (): Cypress.Chainable => {
+const initializeOidcUserAndGetLoginPage = (): Cypress.Chainable => {
   return cy
     .fixture('resources/clapi/contact-OIDC/OIDC-authentication-user.json')
     .then((fixture: Array<ActionClapi>) => {
@@ -49,7 +49,7 @@ const removeContact = (): Cypress.Chainable => {
   });
 };
 
-const configureOpenIDConnect = (): Cypress.Chainable => {
+const configureOpenIdConnect = (): Cypress.Chainable => {
   cy.contains('Enable OpenID Connect authentication').should('be.visible');
 
   return cy.getContainerIpAddress('openid').then((containerIpAddress) => {
@@ -99,21 +99,21 @@ const configureOpenIDConnect = (): Cypress.Chainable => {
 
 const saveOpenIdFormIfEnabled = () => {
   return cy.getByLabel({ label: 'save button', tag: 'button' }).then(($btn) => {
-    if ($btn.is(":disabled")) {
+    if ($btn.is(':disabled')) {
       return;
-    } else {
-      cy.wrap($btn).click();
-
-      return cy.wait('@updateOIDCProvider')
-        .its('response.statusCode')
-        .should('eq', 204);
     }
+    cy.wrap($btn).click();
+
+    return cy
+      .wait('@updateOIDCProvider')
+      .its('response.statusCode')
+      .should('eq', 204);
   });
 };
 
 export {
   removeContact,
-  initializeOIDCUserAndGetLoginPage,
-  configureOpenIDConnect,
+  initializeOidcUserAndGetLoginPage,
+  configureOpenIdConnect,
   saveOpenIdFormIfEnabled
 };

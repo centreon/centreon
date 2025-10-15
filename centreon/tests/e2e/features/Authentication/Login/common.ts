@@ -9,7 +9,7 @@ interface DataToUseForCheckForm {
 const millisecondsValueForSixMonth = 15901200;
 const millisecondsValueForFourHour = 14400;
 
-const initializeConfigACLAndGetLoginPage = (): Cypress.Chainable => {
+const initializeConfigAclAndGetLoginPage = (): Cypress.Chainable => {
   return cy
     .executeCommandsViaClapi(
       'resources/clapi/config-ACL/local-authentication-acl-user.json'
@@ -122,7 +122,7 @@ const checkDefaultsValueForm: Array<DataToUseForCheckForm> = [
 export {
   millisecondsValueForSixMonth,
   millisecondsValueForFourHour,
-  initializeConfigACLAndGetLoginPage,
+  initializeConfigAclAndGetLoginPage,
   checkDefaultsValueForm,
-  DataToUseForCheckForm
+  type DataToUseForCheckForm
 };

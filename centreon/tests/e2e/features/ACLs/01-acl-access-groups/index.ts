@@ -1,20 +1,20 @@
-import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
+import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
 import data from '../../../fixtures/acls/acl-data.json';
 
-const originalACLGroup = {
+const originalAclGroup = {
   alias: 'ACL group',
   linkedContactGroups: data.contactGroups.contactGroup1.name,
   name: 'ACL_group'
 };
 
-const modifiedACLGroup = {
+const modifiedAclGroup = {
   alias: 'ACL group modified',
   name: 'ACL_group_modified'
 };
 
-const duplicatedACLGroup = {
-  name: `${originalACLGroup.name}_1`
+const duplicatedAclGroup = {
+  name: `${originalAclGroup.name}_1`
 };
 
 beforeEach(() => {
@@ -76,27 +76,29 @@ When('the access group is saved with its properties', () => {
   cy.wait('@getTimeZone');
   cy.getIframeBody()
     .find('input[name="acl_group_name"]')
-    .type(originalACLGroup.name);
+    .type(originalAclGroup.name);
   cy.getIframeBody()
     .find('input[name="acl_group_alias"]')
-    .type(originalACLGroup.alias);
+    .type(originalAclGroup.alias);
   cy.getIframeBody()
     .find('select[name="cg_contactGroups-f[]"]')
-    .select(originalACLGroup.linkedContactGroups);
+    .select(originalAclGroup.linkedContactGroups);
 
   cy.getIframeBody().find('input[name="add"]').eq(1).click();
 
   cy.getIframeBody()
     .find('select[name="cg_contactGroups-t[]"]')
-    .should('contain', originalACLGroup.linkedContactGroups);
+    .should('contain', originalAclGroup.linkedContactGroups);
 
   cy.getIframeBody().find('input[name="submitA"]').eq(0).click();
 });
 
 When('a menu access is linked with this group', () => {
   cy.addACLMenu({ name: data.ACLMenu.name, rule: ['Home'] });
-  cy.addACLMenuToACLGroup({
-    ACLGroupName: originalACLGroup.name,
+  cy.addAclMenuToAclGroup({
+    // biome-ignore lint/style/useNamingConvention: <explanation>
+    ACLGroupName: originalAclGroup.name,
+    // biome-ignore lint/style/useNamingConvention: <explanation>
     ACLMenuName: data.ACLMenu.name
   });
 });
@@ -168,11 +170,11 @@ Then(
 
     cy.wait(['@getTimeZone', '@pendoRequest']).then(() => {
       cy.executeActionOnIframe(
-        originalACLGroup.name,
+        originalAclGroup.name,
         ($body) => {
           cy.wrap($body)
             .find('select[name="cg_acl_groups[]"]')
-            .contains(originalACLGroup.name);
+            .contains(originalAclGroup.name);
         },
         3,
         3000
@@ -182,7 +184,7 @@ Then(
 );
 
 Given('one existing ACL access group', () => {
-  cy.addACLGroup({ name: originalACLGroup.name });
+  cy.addACLGroup({ name: originalAclGroup.name });
 });
 
 When('I modify its properties', () => {
@@ -193,16 +195,16 @@ When('I modify its properties', () => {
   });
   cy.wait('@getTimeZone');
 
-  cy.getIframeBody().contains(originalACLGroup.name).click();
+  cy.getIframeBody().contains(originalAclGroup.name).click();
 
   cy.wait('@getTimeZone');
 
   cy.getIframeBody()
     .find('input[name="acl_group_name"]')
-    .type(modifiedACLGroup.name);
+    .type(modifiedAclGroup.name);
   cy.getIframeBody()
     .find('input[name="acl_group_alias"]')
-    .type(modifiedACLGroup.alias);
+    .type(modifiedAclGroup.alias);
 
   cy.getIframeBody().find('input[name="submitC"]').eq(1).click();
 });
@@ -210,8 +212,8 @@ When('I modify its properties', () => {
 Then('all modified properties are updated', () => {
   cy.wait('@getTimeZone');
 
-  cy.getIframeBody().should('contain', modifiedACLGroup.name);
-  cy.getIframeBody().should('contain', modifiedACLGroup.alias);
+  cy.getIframeBody().should('contain', modifiedAclGroup.name);
+  cy.getIframeBody().should('contain', modifiedAclGroup.alias);
 });
 
 When('I duplicate the access group', () => {
@@ -223,7 +225,7 @@ When('I duplicate the access group', () => {
   cy.wait('@getTimeZone');
 
   cy.getIframeBody()
-    .contains('tr', originalACLGroup.name)
+    .contains('tr', originalAclGroup.name)
     .within(() => {
       cy.get('td.ListColPicker').click();
     });
@@ -246,29 +248,29 @@ When('I duplicate the access group', () => {
 Then('a new access group with identical properties is created', () => {
   cy.wait('@getTimeZone');
 
-  const originalACLGroupValues: Array<string> = [];
+  const originalAclGroupValues: Array<string> = [];
   cy.getIframeBody()
-    .contains('tr', originalACLGroup.name)
+    .contains('tr', originalAclGroup.name)
     .within(() => {
       cy.get('td').each((td, index) => {
         if (index >= 2 && index <= 5)
-          originalACLGroupValues.push(td.text().trim());
+          originalAclGroupValues.push(td.text().trim());
       });
     });
 
-  const duplicatedACLGroupValues: Array<string> = [];
+  const duplicatedAclGroupValues: Array<string> = [];
   cy.getIframeBody()
-    .contains('tr', duplicatedACLGroup.name)
+    .contains('tr', duplicatedAclGroup.name)
     .within(() => {
       cy.get('td').each((td, index) => {
         if (index >= 2 && index <= 5)
-          duplicatedACLGroupValues.push(td.text().trim());
+          duplicatedAclGroupValues.push(td.text().trim());
       });
     });
 
-  cy.wrap(duplicatedACLGroupValues).then((duplicatedValues) => {
-    for (let i = 0; i < originalACLGroupValues.length; i += 1) {
-      expect(duplicatedValues[i]).to.equal(originalACLGroupValues[i]);
+  cy.wrap(duplicatedAclGroupValues).then((duplicatedValues) => {
+    for (let i = 0; i < originalAclGroupValues.length; i += 1) {
+      expect(duplicatedValues[i]).to.equal(originalAclGroupValues[i]);
     }
   });
 });
@@ -282,7 +284,7 @@ When('I delete the access group', () => {
   cy.wait('@getTimeZone');
 
   cy.getIframeBody()
-    .contains('tr', originalACLGroup.name)
+    .contains('tr', originalAclGroup.name)
     .within(() => {
       cy.get('td.ListColPicker').click();
     });
@@ -305,11 +307,11 @@ When('I delete the access group', () => {
 Then('it does not exist anymore', () => {
   cy.wait('@getTimeZone');
 
-  cy.getIframeBody().should('not.contain', originalACLGroup.name);
+  cy.getIframeBody().should('not.contain', originalAclGroup.name);
 });
 
 Given('one existing enabled ACL access group', () => {
-  cy.addACLGroup({ name: originalACLGroup.name });
+  cy.addACLGroup({ name: originalAclGroup.name });
 });
 
 When('I disable it', () => {
@@ -320,7 +322,7 @@ When('I disable it', () => {
   });
   cy.wait('@getTimeZone');
 
-  cy.getIframeBody().contains(originalACLGroup.name).click();
+  cy.getIframeBody().contains(originalAclGroup.name).click();
 
   cy.wait('@getTimeZone');
 
@@ -336,6 +338,6 @@ Then('its status is modified', () => {
   cy.wait('@getTimeZone');
 
   cy.getIframeBody()
-    .contains('tr', originalACLGroup.name)
+    .contains('tr', originalAclGroup.name)
     .should('contain', 'Disabled');
 });

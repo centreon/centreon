@@ -1,4 +1,4 @@
-import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
+import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
 import dashboards from '../../../fixtures/dashboards/check-permissions/dashboards.json';
 import dashboardAdministratorUser from '../../../fixtures/users/user-dashboard-administrator.json';
@@ -21,7 +21,7 @@ beforeEach(() => {
   }).as('listAllDashboards');
   cy.intercept({
     method: 'PUT',
-    url: `/centreon/api/latest/configuration/dashboards/*/shares`
+    url: '/centreon/api/latest/configuration/dashboards/*/shares'
   }).as('updateShares');
   cy.intercept({
     method: 'GET',

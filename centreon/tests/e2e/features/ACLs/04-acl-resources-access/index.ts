@@ -1,20 +1,20 @@
-import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
+import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
 import data from '../../../fixtures/acls/acl-data.json';
 
-const ACLResource = {
+const aclResource = {
   ...data.ACLResource,
-  ACLGroups: [data.ACLGroups.ACLGroup1.name, data.ACLGroups.ACLGroup2.name]
+  aclGroups: [data.ACLGroups.ACLGroup1.name, data.ACLGroups.ACLGroup2.name]
 };
 
-const duplicatedACLResource = {
-  name: `${ACLResource.name}_1`
+const duplicatedAclResource = {
+  name: `${aclResource.name}_1`
 };
 
-const modifedACLResource = {
-  comment: `${ACLResource.comment}_modified`,
-  description: `${ACLResource.description}_modified`,
-  name: `${ACLResource.name}_modified`
+const modifedAclResource = {
+  comment: `${aclResource.comment}_modified`,
+  description: `${aclResource.description}_modified`,
+  name: `${aclResource.name}_modified`
 };
 
 beforeEach(() => {
@@ -69,19 +69,19 @@ When('I add a new Resources access linked with two groups', () => {
   cy.getIframeBody().contains('a', 'Add').click();
   cy.wait('@getTimeZone');
 
-  cy.getIframeBody().find('input[name="acl_res_name"]').type(ACLResource.name);
+  cy.getIframeBody().find('input[name="acl_res_name"]').type(aclResource.name);
   cy.getIframeBody()
     .find('input[name="acl_res_alias"]')
-    .type(ACLResource.description);
+    .type(aclResource.description);
 
-  ACLResource.ACLGroups.forEach((ACLGroup) => {
-    cy.getIframeBody().find('select[name="acl_groups-f[]"]').select(ACLGroup);
+  aclResource.aclGroups.forEach((aclGroup) => {
+    cy.getIframeBody().find('select[name="acl_groups-f[]"]').select(aclGroup);
     cy.getIframeBody().find('input[name="add"]').eq(0).click();
   });
 
   cy.getIframeBody()
     .find('textarea[name="acl_res_comment"]')
-    .type(ACLResource.comment);
+    .type(aclResource.comment);
 
   cy.getIframeBody().find('input[name="submitA"]').eq(0).click();
 });
@@ -89,31 +89,31 @@ When('I add a new Resources access linked with two groups', () => {
 Then('the Resources access is saved with its properties', () => {
   cy.wait('@getTimeZone');
 
-  cy.getIframeBody().contains('td.ListColLeft > a', ACLResource.name).click();
+  cy.getIframeBody().contains('td.ListColLeft > a', aclResource.name).click();
   cy.wait('@getTimeZone');
 
   cy.getIframeBody()
     .find('input[name="acl_res_name"]')
-    .should('have.value', ACLResource.name);
+    .should('have.value', aclResource.name);
   cy.getIframeBody()
     .find('input[name="acl_res_alias"]')
-    .should('have.value', ACLResource.description);
+    .should('have.value', aclResource.description);
 
-  ACLResource.ACLGroups.forEach((ACLGroup) => {
+  aclResource.aclGroups.forEach((aclGroup) => {
     cy.getIframeBody()
       .find('select[name="acl_groups-t[]"]')
-      .should('contain', ACLGroup);
+      .should('contain', aclGroup);
   });
 
   cy.getIframeBody()
     .find('textarea[name="acl_res_comment"]')
-    .should('have.value', ACLResource.comment);
+    .should('have.value', aclResource.comment);
 });
 
 Then(
   'only chosen linked access groups display the new Resources access in Authorized information tab',
   () => {
-    Object.entries(data.ACLGroups).forEach((ACLGroup) => {
+    Object.entries(data.ACLGroups).forEach((aclGroup) => {
       cy.navigateTo({
         page: 'Access Groups',
         rootItemNumber: 4,
@@ -122,7 +122,7 @@ Then(
       cy.wait('@getTimeZone');
 
       cy.getIframeBody()
-        .contains('td.ListColLeft > a', ACLGroup[1].name)
+        .contains('td.ListColLeft > a', aclGroup[1].name)
         .click();
 
       cy.wait('@getTimeZone').then(() => {
@@ -139,22 +139,22 @@ Then(
       cy.getIframeBody()
         .find('select[name="resourceAccess-t[]"]')
         .should(
-          ACLResource.ACLGroups.includes(ACLGroup[1].name)
+          aclResource.aclGroups.includes(aclGroup[1].name)
             ? 'contain'
             : 'not.contain',
-          ACLResource.name
+          aclResource.name
         );
     });
   }
 );
 
 Given('one existing Resources access linked with two access groups', () => {
-  cy.addACLResource({ name: ACLResource.name });
+  cy.addACLResource({ name: aclResource.name });
 
-  ACLResource.ACLGroups.forEach((ACLGroup) => {
-    cy.addACLResourceToACLGroup({
-      ACLGroupName: ACLGroup,
-      ACLResourceName: ACLResource.name
+  aclResource.aclGroups.forEach((aclGroup) => {
+    cy.addAclResourceToAclGroup({
+      aclGroupName: aclGroup,
+      aclResourceName: aclResource.name
     });
   });
 });
@@ -167,12 +167,12 @@ When('I remove one access group', () => {
   });
   cy.wait('@getTimeZone');
 
-  cy.getIframeBody().contains('td.ListColLeft > a', ACLResource.name).click();
+  cy.getIframeBody().contains('td.ListColLeft > a', aclResource.name).click();
   cy.wait('@getTimeZone');
 
   cy.getIframeBody()
     .find('select[name="acl_groups-t[]"]')
-    .select(ACLResource.ACLGroups[1]);
+    .select(aclResource.aclGroups[1]);
   cy.getIframeBody().find('input[name="remove"]').eq(0).click();
 
   cy.getIframeBody().find('input[name="submitC"]').eq(0).click();
@@ -187,10 +187,10 @@ Then('link between access group and Resources access must be broken', () => {
 
   cy.wait('@getTimeZone').then(() => {
     cy.executeActionOnIframe(
-      ACLResource.ACLGroups[1],
+      aclResource.aclGroups[1],
       ($body) => {
         cy.wrap($body)
-          .contains('td.ListColLeft > a', ACLResource.ACLGroups[1])
+          .contains('td.ListColLeft > a', aclResource.aclGroups[1])
           .click();
       },
       3,
@@ -211,16 +211,16 @@ Then('link between access group and Resources access must be broken', () => {
 
   cy.getIframeBody()
     .find('select[name="resourceAccess-t[]"]')
-    .should('not.contain', ACLResource.name);
+    .should('not.contain', aclResource.name);
 });
 
 Given('one existing Resources access', () => {
-  cy.addACLResource({ alias: ACLResource.description, name: ACLResource.name });
+  cy.addACLResource({ alias: aclResource.description, name: aclResource.name });
 
-  ACLResource.ACLGroups.forEach((ACLGroup) => {
-    cy.addACLResourceToACLGroup({
-      ACLGroupName: ACLGroup,
-      ACLResourceName: ACLResource.name
+  aclResource.aclGroups.forEach((aclGroup) => {
+    cy.addAclResourceToAclGroup({
+      aclGroupName: aclGroup,
+      aclResourceName: aclResource.name
     });
   });
 });
@@ -234,7 +234,7 @@ When('I duplicate the Resources access', () => {
   cy.wait('@getTimeZone');
 
   cy.getIframeBody()
-    .contains('tr', ACLResource.name)
+    .contains('tr', aclResource.name)
     .within(() => {
       cy.get('input[type="checkbox"][name^="select"]').parent().click();
     });
@@ -260,21 +260,21 @@ Then(
     cy.wait('@getTimeZone');
 
     cy.getIframeBody()
-      .contains('td.ListColLeft > a', duplicatedACLResource.name)
+      .contains('td.ListColLeft > a', duplicatedAclResource.name)
       .click();
     cy.wait('@getTimeZone');
 
     cy.getIframeBody()
       .find('input[name="acl_res_name"]')
-      .should('not.have.value', ACLResource.name);
+      .should('not.have.value', aclResource.name);
     cy.getIframeBody()
       .find('input[name="acl_res_alias"]')
-      .should('have.value', ACLResource.description);
+      .should('have.value', aclResource.description);
 
-    ACLResource.ACLGroups.forEach((ACLGroup) => {
+    aclResource.aclGroups.forEach((aclGroup) => {
       cy.getIframeBody()
         .find('select[name="acl_groups-t[]"]')
-        .should('contain', ACLGroup);
+        .should('contain', aclGroup);
     });
 
     cy.getIframeBody()
@@ -284,7 +284,7 @@ Then(
 );
 
 Given('one existing enabled Resources access record', () => {
-  cy.addACLResource({ alias: ACLResource.description, name: ACLResource.name });
+  cy.addACLResource({ alias: aclResource.description, name: aclResource.name });
 });
 
 When(
@@ -297,19 +297,19 @@ When(
     });
     cy.wait('@getTimeZone');
 
-    cy.getIframeBody().contains('td.ListColLeft > a', ACLResource.name).click();
+    cy.getIframeBody().contains('td.ListColLeft > a', aclResource.name).click();
     cy.wait('@getTimeZone');
 
     cy.getIframeBody()
       .find('input[name="acl_res_name"]')
-      .type(`{selectAll}{backspace}${modifedACLResource.name}`);
+      .type(`{selectAll}{backspace}${modifedAclResource.name}`);
     cy.getIframeBody()
       .find('input[name="acl_res_alias"]')
-      .type(`{selectAll}{backspace}${modifedACLResource.description}`);
+      .type(`{selectAll}{backspace}${modifedAclResource.description}`);
 
     cy.getIframeBody()
       .find('textarea[name="acl_res_comment"]')
-      .type(`{selectAll}{backspace}${modifedACLResource.comment}`);
+      .type(`{selectAll}{backspace}${modifedAclResource.comment}`);
 
     cy.getIframeBody()
       .find('input[name="acl_res_activate[acl_res_activate]"][value="0"]')
@@ -324,20 +324,20 @@ Then('the modifications are saved', () => {
   cy.wait('@getTimeZone');
 
   cy.getIframeBody()
-    .contains('td.ListColLeft > a', modifedACLResource.name)
+    .contains('td.ListColLeft > a', modifedAclResource.name)
     .click();
   cy.wait('@getTimeZone');
 
   cy.getIframeBody()
     .find('input[name="acl_res_name"]')
-    .should('have.value', modifedACLResource.name);
+    .should('have.value', modifedAclResource.name);
   cy.getIframeBody()
     .find('input[name="acl_res_alias"]')
-    .should('have.value', modifedACLResource.description);
+    .should('have.value', modifedAclResource.description);
 
   cy.getIframeBody()
     .find('textarea[name="acl_res_comment"]')
-    .should('have.value', modifedACLResource.comment);
+    .should('have.value', modifedAclResource.comment);
 
   cy.getIframeBody()
     .find('input[name="acl_res_activate[acl_res_activate]"][value="0"]')
@@ -353,7 +353,7 @@ When('I delete the Resources access', () => {
   cy.wait('@getTimeZone');
 
   cy.getIframeBody()
-    .contains('tr', ACLResource.name)
+    .contains('tr', aclResource.name)
     .within(() => {
       cy.get('input[type="checkbox"][name^="select"]').parent().click();
     });
@@ -378,6 +378,6 @@ Then(
   () => {
     cy.wait('@getTimeZone');
 
-    cy.getIframeBody().should('not.contain', ACLResource.name);
+    cy.getIframeBody().should('not.contain', aclResource.name);
   }
 );

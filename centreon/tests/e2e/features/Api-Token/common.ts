@@ -1,4 +1,5 @@
 interface Contact {
+  // biome-ignore lint/style/useNamingConvention: <explanation>
   GUIAccess?: boolean;
   admin?: boolean;
   alias?: string | null;
@@ -33,7 +34,7 @@ const columnsFromLabels = [
   'User',
   'Creator',
   'Creation date',
-  'Expiration date',
+  'Expiration date'
 ];
 
-export { Contact, durationMap, Token, columns, columnsFromLabels };
+export { type Contact, durationMap, type Token, columns, columnsFromLabels };

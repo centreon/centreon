@@ -1,6 +1,4 @@
-/* eslint-disable no-script-url */
-/* eslint-disable cypress/unsafe-to-chain-command */
-import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
+import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
 import data from '../../../fixtures/services/meta_service.json';
 
@@ -216,7 +214,7 @@ Then('the properties are updated', () => {
   cy.getIframeBody()
     .find('input[name*="notifications_enabled"][value="2"]')
     .should('be.checked');
-  cy.getIframeBody().find(`li[title=Guest]`).contains('Guest').should('exist');
+  cy.getIframeBody().find('li[title=Guest]').contains('Guest').should('exist');
   cy.getIframeBody()
     .find('li[title="Supervisors"]')
     .contains('Supervisors')

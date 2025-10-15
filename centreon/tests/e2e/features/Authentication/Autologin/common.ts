@@ -1,6 +1,6 @@
 import { applyConfigurationViaClapi } from '../../../commons';
 
-const initializeConfigACLAndGetLoginPage = (): Cypress.Chainable => {
+const initializeConfigAclAndGetLoginPage = (): Cypress.Chainable => {
   return cy
     .executeCommandsViaClapi(
       'resources/clapi/config-ACL/autologin-configuration-acl-user.json'
@@ -21,4 +21,4 @@ const removeContact = (): Cypress.Chainable => {
   });
 };
 
-export { removeContact, initializeConfigACLAndGetLoginPage };
+export { removeContact, initializeConfigAclAndGetLoginPage };

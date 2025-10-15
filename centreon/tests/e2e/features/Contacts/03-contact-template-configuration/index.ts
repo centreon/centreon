@@ -1,4 +1,3 @@
-/* eslint-disable cypress/unsafe-to-chain-command */
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
 import contactTemplates from '../../../fixtures/users/contact.json';
@@ -103,7 +102,7 @@ Then('the properties are updated', () => {
     .find('option:selected')
     .then(($selectedOptions) => {
       const selectedTexts = Array.from($selectedOptions).map(
-        (option) => option.text
+        (option) => option.textContent
       );
       expect(selectedTexts).to.include.members([
         contactTemplates.defaultTemplate.NotCommands,
@@ -123,7 +122,7 @@ Then('the properties are updated', () => {
     .find('option:selected')
     .then(($selectedOptions) => {
       const selectedTexts = Array.from($selectedOptions).map(
-        (option) => option.text
+        (option) => option.textContent
       );
       expect(selectedTexts).to.include.members([
         contactTemplates.defaultTemplate.NotCommands,
@@ -170,7 +169,7 @@ Then('a new contact template is created with identical properties', () => {
     .find('option:selected')
     .then(($selectedOptions) => {
       const selectedTexts = Array.from($selectedOptions).map(
-        (option) => option.text
+        (option) => option.textContent
       );
       expect(selectedTexts).to.include.members([
         contactTemplates.defaultTemplate.NotCommands
@@ -185,7 +184,7 @@ Then('a new contact template is created with identical properties', () => {
     .find('option:selected')
     .then(($selectedOptions) => {
       const selectedTexts = Array.from($selectedOptions).map(
-        (option) => option.text
+        (option) => option.textContent
       );
       expect(selectedTexts).to.include.members([
         contactTemplates.defaultTemplate.NotCommands

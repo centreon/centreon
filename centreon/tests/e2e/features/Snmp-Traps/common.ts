@@ -1,6 +1,4 @@
-/* eslint-disable cypress/unsafe-to-chain-command */
-/* eslint-disable prefer-arrow-functions/prefer-arrow-functions */
-const TrapsSNMPConfiguration = ({
+const trapsSnmpConfiguration = ({
   name,
   oid,
   vendor,
@@ -22,9 +20,10 @@ const TrapsSNMPConfiguration = ({
   cy.getIframeBody().find('input#rule_0').clear().type(string);
   cy.getIframeBody().find('input#regexp_0').clear().type(regexp);
   cy.getIframeBody().find('select#rulestatus_0').select(severity);
+  return cy.getIframeBody();
 };
 
-const UpdateTrapsSNMPConfiguration = ({
+const updateTrapsSnmpConfiguration = ({
   name,
   oid,
   vendor,
@@ -128,6 +127,7 @@ const UpdateTrapsSNMPConfiguration = ({
   cy.getIframeBody()
     .find('textarea[name="traps_customcode"]')
     .type(custom_code);
+  return cy.getIframeBody();
 };
 
 function submitForm() {
@@ -138,8 +138,8 @@ function submitForm() {
     .click();
 }
 
-const CreateOrUpdateTrapGroup = (body: TrapGroup): Cypress.Chainable => {
-  cy.waitForElementInIframe("#main-content", 'input[name="name"]');
+const createOrUpdateTrapGroup = (body: TrapGroup): Cypress.Chainable => {
+  cy.waitForElementInIframe('#main-content', 'input[name="name"]');
   cy.getIframeBody().find('input[name="name"]').clear().type(body.name);
   cy.getIframeBody().find('span[class="clearAllSelect2"]').click();
   cy.getIframeBody().find('input[class="select2-search__field"]').click();
@@ -147,41 +147,57 @@ const CreateOrUpdateTrapGroup = (body: TrapGroup): Cypress.Chainable => {
   cy.getIframeBody().find(`div[title="${body.traps[0]}"]`).click();
   cy.getIframeBody().find('input[class="select2-search__field"]').click();
   cy.getIframeBody().find(`div[title="${body.traps[1]}"]`).click();
-  cy.getIframeBody().find('input.btc.bt_success[name^="submit"]').eq(1).click();
+  return cy
+    .getIframeBody()
+    .find('input.btc.bt_success[name^="submit"]')
+    .eq(1)
+    .click();
 };
 
-const AddOrUpdateVendor = (body: Vendor): Cypress.Chainable => {
-  cy.waitForElementInIframe("#main-content", 'input[name="name"]');
+const addOrUpdateVendor = (body: Vendor): Cypress.Chainable => {
+  cy.waitForElementInIframe('#main-content', 'input[name="name"]');
   cy.getIframeBody().find('input[name="name"]').clear().type(body.name);
   cy.getIframeBody().find('input[name="alias"]').clear().type(body.alias);
-  cy.getIframeBody().find('textarea[name="description"]').clear().type(body.description);
+  cy.getIframeBody()
+    .find('textarea[name="description"]')
+    .clear()
+    .type(body.description);
   cy.getIframeBody().find('input.btc.bt_success[name^="submit"]').eq(0).click();
   cy.exportConfig();
-  cy.wait('@getTimeZone');
+  return cy.wait('@getTimeZone');
 };
 
-const CheckVendorFieldsValues = (name: string, body: Vendor): Cypress.Chainable => {
+const checkVendorFieldsValues = (
+  name: string,
+  body: Vendor
+): Cypress.Chainable => {
   cy.waitForElementInIframe('#main-content', 'input[name="name"]');
-  cy.getIframeBody()
-    .find('input[name="name"]')
-    .should('have.value', `${name}`);
+  cy.getIframeBody().find('input[name="name"]').should('have.value', `${name}`);
   cy.getIframeBody()
     .find('input[name="alias"]')
     .should('have.value', `${body.alias}`);
-  cy.getIframeBody()
+  return cy
+    .getIframeBody()
     .find('textarea[name="description"]')
     .should('have.value', `${body.description}`);
 };
 
 interface TrapGroup {
-  name: string,
-  traps: string[]
+  name: string;
+  traps: string[];
 }
 
 interface Vendor {
-  name: string,
-  alias: string,
-  description: string
+  name: string;
+  alias: string;
+  description: string;
 }
 
-export { submitForm, TrapsSNMPConfiguration, UpdateTrapsSNMPConfiguration, CreateOrUpdateTrapGroup, AddOrUpdateVendor, CheckVendorFieldsValues };
+export {
+  submitForm,
+  trapsSnmpConfiguration,
+  updateTrapsSnmpConfiguration,
+  createOrUpdateTrapGroup,
+  addOrUpdateVendor,
+  checkVendorFieldsValues
+};

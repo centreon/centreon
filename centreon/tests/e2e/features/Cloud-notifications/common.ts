@@ -77,9 +77,9 @@ const setBrokerNotificationsOutput = ({
     bodyContent: addOutputBody
   });
 
-  let brokerIOID = '';
+  let brokerIoid = '';
 
-  const getBrokerIOIdByNameBody = {
+  const getBrokerIoIdByNameBody = {
     action: 'LISTOUTPUT',
     object: 'CENTBROKERCFG',
     values: `${configName}`
@@ -87,20 +87,20 @@ const setBrokerNotificationsOutput = ({
 
   return cy
     .executeActionViaClapi({
-      bodyContent: getBrokerIOIdByNameBody
+      bodyContent: getBrokerIoIdByNameBody
     })
     .then((response) => {
-      const listBrokersIO = response.body.result;
-      const brokerIO = listBrokersIO.find(
-        (currentBrokerIO) => currentBrokerIO.name === name
+      const listBrokersIo = response.body.result;
+      const brokerIo = listBrokersIo.find(
+        (currentBrokerIo) => currentBrokerIo.name === name
       );
-      if (brokerIO) {
-        brokerIOID = brokerIO.id;
+      if (brokerIo) {
+        brokerIoid = brokerIo.id;
 
         const setOutputPathBody = {
           action: 'SETOUTPUT',
           object: 'CENTBROKERCFG',
-          values: `${configName};${brokerIOID};path;/usr/share/centreon-broker/lua/centreon-cloud-notifications.lua`
+          values: `${configName};${brokerIoid};path;/usr/share/centreon-broker/lua/centreon-cloud-notifications.lua`
         };
         cy.executeActionViaClapi({
           bodyContent: setOutputPathBody
@@ -109,7 +109,7 @@ const setBrokerNotificationsOutput = ({
         const setOutputCategoryBody = {
           action: 'SETOUTPUT',
           object: 'CENTBROKERCFG',
-          values: `${configName};${brokerIOID};category;neb`
+          values: `${configName};${brokerIoid};category;neb`
         };
         cy.executeActionViaClapi({
           bodyContent: setOutputCategoryBody
@@ -134,7 +134,7 @@ const notificationSentCheck = ({
   contain?: boolean;
   logs: string | Array<string>;
 }): Cypress.Chainable => {
-  cy.log(`checking logs`);
+  cy.log('checking logs');
 
   const command =
     typeof logs === 'string' || logs instanceof String
@@ -164,7 +164,7 @@ const notificationSentCheck = ({
 };
 
 const notificationSentCount = (count: number): void => {
-  cy.log(`checking notification logs count`);
+  cy.log('checking notification logs count');
 
   let errorMessage = 'Notification count not found';
 
@@ -378,7 +378,10 @@ const initializeDataFiles = (): void => {
   cy.log('Values generated and stored in host_service_relation.txt.');
 
   const data = {
-    check: { is_forced: true },
+    check: {
+      // biome-ignore lint/style/useNamingConvention: <explanation>
+      is_forced: true
+    },
     resources
   };
   cy.writeFile(

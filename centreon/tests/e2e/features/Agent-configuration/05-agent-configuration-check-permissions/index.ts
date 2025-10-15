@@ -249,7 +249,7 @@ Given('the user has a filter on one of the pollers', () => {
     bodyContent: {
       action: 'addfilter_instance',
       object: 'ACLRESOURCE',
-      values: `All Resources;Poller-1`
+      values: 'All Resources;Poller-1'
     }
   });
   cy.setUserTokenApiV1().executeActionViaClapi({
@@ -281,7 +281,7 @@ When(
       bodyContent: {
         action: 'addfilter_instance',
         object: 'ACLRESOURCE',
-        values: `All Resources;Central`
+        values: 'All Resources;Central'
       }
     });
     cy.setUserTokenApiV1().executeActionViaClapi({

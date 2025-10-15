@@ -1,15 +1,14 @@
-/* eslint-disable @typescript-eslint/no-unused-expressions */
-import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
+import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
 import {
   checkHostsAreMonitored,
   checkServicesAreMonitored
 } from '../../../commons';
-import dashboardAdministratorUser from '../../../fixtures/users/user-dashboard-administrator.json';
 import dashboards from '../../../fixtures/dashboards/creation/dashboards.json';
 import genericTextWidgets from '../../../fixtures/dashboards/creation/widgets/genericText.json';
 import statusGridWidget from '../../../fixtures/dashboards/creation/widgets/status-grid-widget.json';
 import statusGridWidgetWithNewAddedHost from '../../../fixtures/dashboards/creation/widgets/statusGridWidgetWithNewAddedHost.json';
+import dashboardAdministratorUser from '../../../fixtures/users/user-dashboard-administrator.json';
 
 const services = {
   serviceCritical: {
@@ -160,11 +159,11 @@ beforeEach(() => {
   }).as('listAllDashboards');
   cy.intercept({
     method: 'POST',
-    url: `/centreon/api/latest/configuration/dashboards/*/access_rights/contacts`
+    url: '/centreon/api/latest/configuration/dashboards/*/access_rights/contacts'
   }).as('addContactToDashboardShareList');
   cy.intercept({
     method: 'PATCH',
-    url: `/centreon/api/latest/configuration/dashboards/*`
+    url: '/centreon/api/latest/configuration/dashboards/*'
   }).as('updateDashboard');
   cy.intercept({
     method: 'GET',
@@ -475,7 +474,7 @@ Given('a new host is successfully added and configured', () => {
         .getByLabel({ label: 'Up status hosts', tag: 'a' })
         .invoke('text')
         .then((text) => {
-          if (text != '4') {
+          if (text !== '4') {
             cy.exportConfig();
           }
 

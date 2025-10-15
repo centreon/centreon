@@ -9,7 +9,7 @@ const commandTypeMap = {
   notification: { data: data.notification, type: 1 }
 };
 
-let hostID = 0;
+let hostId = 0;
 
 before(() => {
   cy.startContainers();
@@ -227,9 +227,9 @@ Then('the user can configure those arguments on the service form', () => {
 });
 
 Given('a host being configured', () => {
-  cy.addNewHostAndReturnId().then((hostId) => {
-    cy.log(`Host ID is: ${hostId}`);
-    hostID = hostId;
+  cy.addNewHostAndReturnId().then((returnedHostId) => {
+    cy.log(`Host ID is: ${returnedHostId}`);
+    hostId = returnedHostId;
   });
 });
 
@@ -244,7 +244,7 @@ When('the user selects a check command on the host form', () => {
     'a:contains("generic-active-host")'
   );
   // visit the host listing page
-  cy.visit(`/centreon/main.php?p=60101&o=c&host_id=${hostID}`);
+  cy.visit(`/centreon/main.php?p=60101&o=c&host_id=${hostId}`);
   cy.waitForElementInIframe('#main-content', '#command_command_id');
   cy.getIframeBody().find('span[title="Check Command"]').click();
   cy.getIframeBody().find('div[title="check_centreon_dummy"]').click();

@@ -1,8 +1,8 @@
-import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
+import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
 import data from '../../../fixtures/acls/acl-data.json';
 
-const duplicatedACLMenu = {
+const duplicatedAclMenu = {
   name: `${data.ACLMenu.name}_1`
 };
 
@@ -74,7 +74,7 @@ Then('the menu access is saved with its properties', () => {
 Then(
   'only chosen linked access groups display the new menu access in Authorized information tab',
   () => {
-    Object.entries(data.ACLGroups).forEach((ACLGroup) => {
+    Object.entries(data.ACLGroups).forEach((aclGroup) => {
       cy.navigateTo({
         page: 'Access Groups',
         rootItemNumber: 4,
@@ -83,7 +83,7 @@ Then(
       cy.wait('@getTimeZone');
 
       cy.getIframeBody()
-        .contains('td.ListColLeft > a', ACLGroup[1].name)
+        .contains('td.ListColLeft > a', aclGroup[1].name)
         .click();
 
       cy.wait('@getTimeZone');
@@ -92,7 +92,7 @@ Then(
       cy.getIframeBody()
         .find('select[name="menuAccess-t[]"]')
         .should(
-          ACLGroup[1].name !== data.ACLGroups.ACLGroup3.name
+          aclGroup[1].name !== data.ACLGroups.ACLGroup3.name
             ? 'contain'
             : 'not.contain',
           data.ACLMenu.name
@@ -103,12 +103,16 @@ Then(
 
 Given('one existing ACL Menu access linked with two access groups', () => {
   cy.addACLMenu({ name: data.ACLMenu.name, rule: ['Home'] });
-  cy.addACLMenuToACLGroup({
+  cy.addAclMenuToAclGroup({
+    // biome-ignore lint/style/useNamingConvention: <explanation>
     ACLGroupName: data.ACLGroups.ACLGroup1.name,
+    // biome-ignore lint/style/useNamingConvention: <explanation>
     ACLMenuName: data.ACLMenu.name
   });
-  cy.addACLMenuToACLGroup({
+  cy.addAclMenuToAclGroup({
+    // biome-ignore lint/style/useNamingConvention: <explanation>
     ACLGroupName: data.ACLGroups.ACLGroup2.name,
+    // biome-ignore lint/style/useNamingConvention: <explanation>
     ACLMenuName: data.ACLMenu.name
   });
 });
@@ -170,8 +174,10 @@ Then('link between access group and Menu access must be broken', () => {
 
 Given('one existing Menu access', () => {
   cy.addACLMenu({ name: data.ACLMenu.name, rule: ['Home'] });
-  cy.addACLMenuToACLGroup({
+  cy.addAclMenuToAclGroup({
+    // biome-ignore lint/style/useNamingConvention: <explanation>
     ACLGroupName: data.ACLGroups.ACLGroup1.name,
+    // biome-ignore lint/style/useNamingConvention: <explanation>
     ACLMenuName: data.ACLMenu.name
   });
 });
@@ -210,30 +216,30 @@ Then(
   () => {
     cy.wait('@getTimeZone');
 
-    const originalACLMenuValues: Array<string> = [];
+    const originalAclMenuValues: Array<string> = [];
     cy.getIframeBody()
       .contains('tr', data.ACLMenu.name)
       .within(() => {
         cy.get('td').each((td, index) => {
           if (index >= 1 && index <= 5)
-            originalACLMenuValues.push(td.text().trim());
+            originalAclMenuValues.push(td.text().trim());
         });
       });
 
-    const duplicatedACLMenuValues: Array<string> = [];
+    const duplicatedAclMenuValues: Array<string> = [];
     cy.getIframeBody()
-      .contains('tr', duplicatedACLMenu.name)
+      .contains('tr', duplicatedAclMenu.name)
       .within(() => {
         cy.get('td').each((td, index) => {
           if (index >= 1 && index <= 5)
-            duplicatedACLMenuValues.push(td.text().trim());
+            duplicatedAclMenuValues.push(td.text().trim());
         });
       });
 
-    cy.wrap(duplicatedACLMenuValues).then((duplicatedValues) => {
-      expect(duplicatedValues[0]).to.not.equal(originalACLMenuValues[0]);
-      for (let i = 1; i < originalACLMenuValues.length; i += 1) {
-        expect(duplicatedValues[i]).to.equal(originalACLMenuValues[i]);
+    cy.wrap(duplicatedAclMenuValues).then((duplicatedValues) => {
+      expect(duplicatedValues[0]).to.not.equal(originalAclMenuValues[0]);
+      for (let i = 1; i < originalAclMenuValues.length; i += 1) {
+        expect(duplicatedValues[i]).to.equal(originalAclMenuValues[i]);
       }
     });
   }
@@ -241,8 +247,10 @@ Then(
 
 Given('one existing enabled Menu access', () => {
   cy.addACLMenu({ name: data.ACLMenu.name, rule: ['Home'] });
-  cy.addACLMenuToACLGroup({
+  cy.addAclMenuToAclGroup({
+    // biome-ignore lint/style/useNamingConvention: <explanation>
     ACLGroupName: data.ACLGroups.ACLGroup1.name,
+    // biome-ignore lint/style/useNamingConvention: <explanation>
     ACLMenuName: data.ACLMenu.name
   });
 });

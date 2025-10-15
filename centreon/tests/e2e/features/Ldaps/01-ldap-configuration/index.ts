@@ -1,4 +1,3 @@
-/* eslint-disable cypress/unsafe-to-chain-command */
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
 import ldaps from '../../../fixtures/ldaps/ldap.json';
@@ -83,7 +82,7 @@ Then('all changes are saved', () => {
   cy.getIframeBody()
     .find('textarea[name="ar_description"]')
     .should('have.value', ldaps.ldap1.desc);
-  cy.fixture(`../fixtures/users/user-with-access-to-allmodules.json`).then(
+  cy.fixture('../fixtures/users/user-with-access-to-allmodules.json').then(
     (user) => {
       cy.getIframeBody()
         .find('input[name="bind_dn"]')

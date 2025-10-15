@@ -1,6 +1,7 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
 import {
+  SubmitResult,
   checkHostsAreMonitored,
   checkServicesAreMonitored
 } from '../../../commons';
@@ -283,7 +284,7 @@ Given('criteria is {string}', (criteria: string) => {
 
 Given(
   'a resource of host is selected with {string}',
-  (initial_status: string) => {
+  (initialStatus: string) => {
     checkHostsAreMonitored([
       {
         name: hostChildInAcknowledgementName
@@ -292,8 +293,8 @@ Given(
 
     const hostStatus = {
       host: hostChildInAcknowledgementName,
-      output: `submit_${hostChildInAcknowledgementName}_${initial_status}`,
-      status: initial_status
+      output: `submit_${hostChildInAcknowledgementName}_${initialStatus}`,
+      status: initialStatus
     };
 
     submitCustomResultsViaClapi(hostStatus);
@@ -317,12 +318,12 @@ Given(
 
 Given(
   'a resource of service is selected with {string}',
-  (initial_status: string) => {
+  (initialStatus: string) => {
     const serviceStatus = {
       host: hostInAcknowledgementName,
-      output: `submit_${serviceInAcknowledgementName}_${initial_status}`,
+      output: `submit_${serviceInAcknowledgementName}_${initialStatus}`,
       service: serviceInAcknowledgementName,
-      status: initial_status
+      status: initialStatus
     };
 
     checkServicesAreMonitored([{ name: serviceInAcknowledgementName }]);
@@ -390,17 +391,17 @@ When('the {string} resource is marked as acknowledged', (resource: string) => {
 
 When(
   'the {string} status changes to {string}',
-  (resource: string, changed_status: string) => {
+  (resource: string, changedStatus: string) => {
     clearCentengineLogs();
-    let status;
+    let status: SubmitResult;
 
     switch (resource) {
       case 'service':
         status = {
           host: hostInAcknowledgementName,
-          output: `submit_${serviceInAcknowledgementName}_${changed_status}`,
+          output: `submit_${serviceInAcknowledgementName}_${changedStatus}`,
           service: serviceInAcknowledgementName,
-          status: changed_status
+          status: changedStatus
         };
 
         checkServicesAreMonitored([{ name: serviceInAcknowledgementName }]);
@@ -410,15 +411,15 @@ When(
         checkServicesAreMonitored([
           {
             name: serviceInAcknowledgementName,
-            status: changed_status
+            status: changedStatus
           }
         ]);
         break;
       default:
         status = {
           host: hostChildInAcknowledgementName,
-          output: `submit_${hostChildInAcknowledgementName}_${changed_status}`,
-          status: changed_status
+          output: `submit_${hostChildInAcknowledgementName}_${changedStatus}`,
+          status: changedStatus
         };
 
         checkHostsAreMonitored([
@@ -456,7 +457,9 @@ Given(
 
     cy.getByLabel({ label: 'Acknowledge' }).last().click();
 
-    cy.getByTestId({tag:'button', testId:'Confirm'}).contains('Acknowledge').click();
+    cy.getByTestId({ tag: 'button', testId: 'Confirm' })
+      .contains('Acknowledge')
+      .click();
 
     cy.wait('@postAcknowledgments').then(() => {
       cy.contains('Acknowledge command sent').should('have.length', 1);
