@@ -23,33 +23,39 @@ declare(strict_types=1);
 
 namespace Core\Security\Authentication\Application\UseCase\LogoutSession\SAML;
 
-use Centreon\Domain\Log\LoggerTrait;
 use Core\Security\Authentication\Application\Provider\ProviderAuthenticationFactoryInterface;
-use Core\Security\Authentication\Application\Repository\WriteSessionRepositoryInterface;
+use Core\Security\Authentication\Domain\Exception\ProviderException;
+use Core\Security\Authentication\Domain\Exception\SamlException;
 use Core\Security\Authentication\Infrastructure\Provider\SAML;
 use Core\Security\ProviderConfiguration\Domain\Model\Provider;
+use Core\Security\ProviderConfiguration\Domain\SAML\Model\CustomConfiguration;
 
-class LogoutFromIdp
+readonly class LogoutFromIdp
 {
-    use LoggerTrait;
-
-    /**
-     * @param WriteSessionRepositoryInterface $writeSessionRepository
-     * @param ProviderAuthenticationFactoryInterface $providerFactory
-     */
     public function __construct(
-        private readonly WriteSessionRepositoryInterface $writeSessionRepository,
-        private readonly ProviderAuthenticationFactoryInterface $providerFactory
+        private ProviderAuthenticationFactoryInterface $providerFactory
     ) {
     }
 
+    /**
+     * @throws SamlException
+     * @throws ProviderException
+     */
     public function __invoke(): void
     {
         session_start();
-        $this->info('SAML SLS invoked');
+
         /** @var SAML $provider */
         $provider = $this->providerFactory->create(Provider::SAML);
-        $this->writeSessionRepository->invalidate();
-        $provider->handleCallbackLogoutResponse();
+        $configuration = $provider->getConfiguration();
+        /** @var CustomConfiguration $customConfiguration */
+        $customConfiguration = $configuration->getCustomConfiguration();
+        if (
+            $configuration->isActive()
+            && $customConfiguration->getLogoutFrom() === CustomConfiguration::LOGOUT_FROM_CENTREON_AND_IDP
+        ) {
+            $provider->logout();
+            $provider->handleCallbackLogoutResponse();
+        }
     }
 }

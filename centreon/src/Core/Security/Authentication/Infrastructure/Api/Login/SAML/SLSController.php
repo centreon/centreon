@@ -25,9 +25,11 @@ namespace Core\Security\Authentication\Infrastructure\Api\Login\SAML;
 
 use Centreon\Application\Controller\AbstractController;
 use Centreon\Domain\Log\LoggerTrait;
+use Core\Common\Infrastructure\ExceptionLogger\ExceptionLogger;
 use Core\Infrastructure\Common\Api\HttpUrlTrait;
 use Core\Security\Authentication\Application\UseCase\LogoutSession\SAML\LogoutFromIdp;
-use OneLogin\Saml2\Error;
+use Core\Security\Authentication\Domain\Exception\ProviderException;
+use Core\Security\Authentication\Domain\Exception\SamlException;
 
 final class SLSController extends AbstractController
 {
@@ -36,12 +38,19 @@ final class SLSController extends AbstractController
 
     /**
      * @param LogoutFromIdp $usecase
-     *
-     * @throws Error
+     * @throws ProviderException
+     * @throws SamlException
      */
     public function __invoke(LogoutFromIdp $usecase): void
     {
         $this->info('SAML SLS invoked');
-        $usecase();
+        try {
+            $usecase();
+        } catch (ProviderException|SamlException $e) {
+            ExceptionLogger::create()->log($e);
+
+            // TODO: improve error handling to have a response and not an exception
+            throw $e;
+        }
     }
 }

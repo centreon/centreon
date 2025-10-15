@@ -25,17 +25,11 @@ namespace Core\Security\Authentication\Domain\Exception;
 
 class AuthenticationException extends \Exception
 {
-    /**
-     * @return self
-     */
-    public static function notAuthenticated(): self
+    public static function notAuthenticated(?\Throwable $previous = null): self
     {
-        return new self(_('Authentication failed'));
+        return new self(_('Authentication failed'), previous: $previous);
     }
 
-    /**
-     * @return self
-     */
     public static function userBlocked(): self
     {
         return new self(_('Authentication failed'));

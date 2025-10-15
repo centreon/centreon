@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,10 +23,15 @@ declare(strict_types=1);
 
 namespace Core\Security\Authentication\Domain\Exception;
 
-class ProviderException extends \Exception
+use Core\Common\Domain\Exception\BusinessLogicException;
+
+class OpenIdException extends BusinessLogicException
 {
-    public static function unexpectedProvider(string $class): self
-    {
-        return new self(sprintf(_('Must not Happen, got unexpected Provider type %s'), $class));
+    public function __construct(
+        string $message,
+        array $context = [],
+        ?\Throwable $previous = null
+    ) {
+        parent::__construct($message, self::ERROR_CODE_INTERNAL, $context, $previous);
     }
 }

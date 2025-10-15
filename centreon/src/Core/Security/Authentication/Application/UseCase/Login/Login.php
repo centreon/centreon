@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,6 +33,9 @@ use Core\Application\Common\UseCase\ErrorAuthenticationConditionsResponse;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\PresenterInterface;
 use Core\Application\Common\UseCase\UnauthorizedResponse;
+use Core\Common\Domain\Exception\ExceptionFormatter;
+use Core\Common\Domain\Exception\RepositoryException;
+use Core\Common\Infrastructure\ExceptionLogger\ExceptionLogger;
 use Core\Security\Authentication\Application\Provider\ProviderAuthenticationFactoryInterface;
 use Core\Security\Authentication\Application\Provider\ProviderAuthenticationInterface;
 use Core\Security\Authentication\Application\Repository\ReadTokenRepositoryInterface;
@@ -42,10 +45,15 @@ use Core\Security\Authentication\Application\Repository\WriteTokenRepositoryInte
 use Core\Security\Authentication\Domain\Exception\AclConditionsException;
 use Core\Security\Authentication\Domain\Exception\AuthenticationConditionsException;
 use Core\Security\Authentication\Domain\Exception\AuthenticationException;
+use Core\Security\Authentication\Domain\Exception\OpenIdException;
 use Core\Security\Authentication\Domain\Exception\PasswordExpiredException;
+use Core\Security\Authentication\Domain\Exception\SamlException;
 use Core\Security\Authentication\Domain\Model\NewProviderToken;
 use Core\Security\Authentication\Infrastructure\Provider\AclUpdaterInterface;
+use Core\Security\Authentication\Infrastructure\Provider\OpenId;
+use Core\Security\Authentication\Infrastructure\Provider\SAML;
 use Core\Security\ProviderConfiguration\Domain\Model\Provider;
+use Core\Security\ProviderConfiguration\Domain\SAML\Model\CustomConfiguration as SamlCustomConfiguration;
 use Security\Domain\Authentication\Model\Session;
 use Security\Encryption;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -54,41 +62,23 @@ final class Login
 {
     use LoggerTrait;
 
-    /** @var ProviderAuthenticationInterface */
     private ProviderAuthenticationInterface $provider;
 
-    /**
-     * @param ProviderAuthenticationFactoryInterface $providerFactory
-     * @param RequestStack $requestStack
-     * @param DataStorageEngineInterface $dataStorageEngine
-     * @param WriteSessionRepositoryInterface $sessionRepository
-     * @param ReadTokenRepositoryInterface $readTokenRepository
-     * @param WriteTokenRepositoryInterface $writeTokenRepository
-     * @param WriteSessionTokenRepositoryInterface $writeSessionTokenRepository
-     * @param AclUpdaterInterface $aclUpdater
-     * @param MenuServiceInterface $menuService
-     * @param string $defaultRedirectUri
-     * @param ThirdPartyLoginForm $thirdPartyLoginForm
-     */
     public function __construct(
-        private ProviderAuthenticationFactoryInterface $providerFactory,
-        private RequestStack $requestStack,
-        private DataStorageEngineInterface $dataStorageEngine,
-        private WriteSessionRepositoryInterface $sessionRepository,
-        private ReadTokenRepositoryInterface $readTokenRepository,
-        private WriteTokenRepositoryInterface $writeTokenRepository,
-        private WriteSessionTokenRepositoryInterface $writeSessionTokenRepository,
-        private AclUpdaterInterface $aclUpdater,
-        private MenuServiceInterface $menuService,
-        private string $defaultRedirectUri,
+        private readonly ProviderAuthenticationFactoryInterface $providerFactory,
+        private readonly RequestStack $requestStack,
+        private readonly DataStorageEngineInterface $dataStorageEngine,
+        private readonly WriteSessionRepositoryInterface $writeSessionRepository,
+        private readonly ReadTokenRepositoryInterface $readTokenRepository,
+        private readonly WriteTokenRepositoryInterface $writeTokenRepository,
+        private readonly WriteSessionTokenRepositoryInterface $writeSessionTokenRepository,
+        private readonly AclUpdaterInterface $aclUpdater,
+        private readonly MenuServiceInterface $menuService,
+        private readonly string $defaultRedirectUri,
         private readonly ThirdPartyLoginForm $thirdPartyLoginForm,
     ) {
     }
 
-    /**
-     * @param LoginRequest $loginRequest
-     * @param PresenterInterface $presenter
-     */
     public function __invoke(LoginRequest $loginRequest, PresenterInterface $presenter): void
     {
         try {
@@ -107,8 +97,7 @@ final class Login
 
             $this->updateACL($user);
 
-            $token = null;
-            if ($this->sessionRepository->start($this->provider->getLegacySession())) {
+            if ($this->writeSessionRepository->start($this->provider->getLegacySession())) {
                 if ($this->readTokenRepository->hasAuthenticationTokensByToken($this->requestStack->getSession()->getId()) === false) {
                     if ($loginRequest->providerName === Provider::SAML && $this->thirdPartyLoginForm->isActive()) {
                         // We create an API token in addition of the session token.
@@ -133,6 +122,18 @@ final class Login
                     );
                 }
 
+            } else {
+                // If we fail to create the session, we need to log out from the IDP if needed
+                // For SAML
+                if ($loginRequest->providerName === Provider::SAML) {
+                    $this->samlLogoutAfterLoginFailure();
+                }
+                // For OpenID
+                if ($loginRequest->providerName === Provider::OPENID) {
+                    $idToken = $this->requestStack->getSession()->get('openid_id_token') ?? '';
+                    $isLogin = $this->requestStack->getSession()->get('isLogin') ?? false;
+                    $this->openIdLogoutAfterLoginFailure($idToken, $isLogin);
+                }
             }
 
             $redirectionInfo = $this->getRedirectionInfo($user, $loginRequest->refererQueryParameters);
@@ -143,27 +144,38 @@ final class Login
                 )
             );
         } catch (PasswordExpiredException $exception) {
-            $this->info('The password expired', ['trace' => (string) $exception]);
-            $response = new PasswordExpiredResponse($exception->getMessage());
+            $this->info('The password expired', ['exception' => ExceptionFormatter::format($exception)]); $response = new PasswordExpiredResponse($exception->getMessage());
             $response->setBody(['password_is_expired' => true]);
             $presenter->setResponseStatus($response);
 
             return;
         } catch (AuthenticationException $exception) {
-            $this->error('An error occurred during authentication', ['trace' => (string) $exception]);
+            $this->error(
+                message: 'An error occurred during authentication',
+                context: ['exception' => ExceptionFormatter::format($exception)]
+            );
             $presenter->setResponseStatus(new UnauthorizedResponse($exception->getMessage()));
 
             return;
         } catch (AclConditionsException $exception) {
-            $this->error('An error occured while matching your ACL conditions', ['trace' => (string) $exception]);
+            $this->error(
+                message: 'An error occured while matching your ACL conditions',
+                context: ['exception' => ExceptionFormatter::format($exception)]
+            );
             $presenter->setResponseStatus(new ErrorAclConditionsResponse($exception->getMessage()));
-        } catch (AuthenticationConditionsException $ex) {
-            $this->error('An error occured while matching your authentication conditions', ['trace' => (string) $ex]);
-            $presenter->setResponseStatus(new ErrorAuthenticationConditionsResponse($ex->getMessage()));
+        } catch (AuthenticationConditionsException $exception) {
+            $this->error(
+                message: 'An error occured while matching your authentication conditions',
+                context: ['exception' => ExceptionFormatter::format($exception)]
+            );
+            $presenter->setResponseStatus(new ErrorAuthenticationConditionsResponse($exception->getMessage()));
 
             return;
-        } catch (\Throwable $ex) {
-            $this->error('An error occurred during authentication', ['trace' => (string) $ex]);
+        } catch (\Throwable $exception) {
+            $this->error(
+                message: 'An error occurred during authentication',
+                context: ['exception' => ExceptionFormatter::format($exception)]
+            );
             $presenter->setResponseStatus(new ErrorResponse('An error occurred during authentication'));
 
             return;
@@ -179,7 +191,7 @@ final class Login
      * @param NewProviderToken|null $providerRefreshToken
      * @param string|null $clientIp
      *
-     * @throws AuthenticationException
+     * @throws AuthenticationException|RepositoryException
      */
     private function createAuthenticationTokens(
         string $sessionToken,
@@ -192,7 +204,11 @@ final class Login
         $isAlreadyInTransaction = $this->dataStorageEngine->isAlreadyinTransaction();
 
         if (! $isAlreadyInTransaction) {
-            $this->dataStorageEngine->startTransaction();
+            try {
+                $this->dataStorageEngine->startTransaction();
+            } catch (\Exception $e) {
+                throw new RepositoryException('Could not start transaction', previous: $e);
+            }
         }
 
         try {
@@ -210,7 +226,11 @@ final class Login
             }
         } catch (\Exception) {
             if (! $isAlreadyInTransaction) {
-                $this->dataStorageEngine->rollbackTransaction();
+                try {
+                    $this->dataStorageEngine->rollbackTransaction();
+                } catch (\Exception $e) {
+                    throw new RepositoryException('Could not rollback transaction', previous: $e);
+                }
             }
 
             throw AuthenticationException::notAuthenticated();
@@ -304,5 +324,64 @@ final class Login
     private function updateACL(ContactInterface $user): void
     {
         $this->aclUpdater->updateForProviderAndUser($this->provider, $user);
+    }
+
+    private function openIdLogoutAfterLoginFailure(string $idToken, bool $isLogin): void
+    {
+        /** @var OpenId $provider */
+        $provider = $this->provider;
+        $configuration = $provider->getConfiguration();
+        if ($configuration->isActive()) {
+            try {
+                $provider->logout($idToken, $isLogin);
+            } catch (OpenIdException $e) {
+                ExceptionLogger::create()->log(
+                    throwable: $e,
+                    context: [
+                        'user_id' => $this->provider->getAuthenticatedUser()?->getId() ?? 'unknown',
+                        'provider' => Provider::OPENID,
+                        'action' => 'OpenID logout failed after centreon login failure',
+                    ]
+                );
+            }
+        }
+        try {
+            $this->writeSessionRepository->invalidate();
+        } catch (RepositoryException $e) {
+            ExceptionLogger::create()->log(
+                throwable: $e,
+                context: [
+                    'user_id' => $provider->getAuthenticatedUser()?->getId() ?? 'unknown',
+                    'provider' => Provider::OPENID,
+                    'action' => 'Invalidate session failed after OpenID logout',
+                ]
+            );
+        }
+    }
+
+    private function samlLogoutAfterLoginFailure(): void
+    {
+        /** @var SAML $provider */
+        $provider = $this->provider;
+        $configuration = $provider->getConfiguration();
+        /** @var SamlCustomConfiguration $customConfiguration */
+        $customConfiguration = $configuration->getCustomConfiguration();
+        if (
+            $configuration->isActive()
+            && $customConfiguration->getLogoutFrom() === SamlCustomConfiguration::LOGOUT_FROM_CENTREON_AND_IDP
+        ) {
+            try {
+                $provider->logout(); // The redirection is done here by the IDP
+            } catch (SamlException $e) {
+                ExceptionLogger::create()->log(
+                    throwable: $e,
+                    context: [
+                        'user_id' => $provider->getAuthenticatedUser()?->getId() ?? 'unknown',
+                        'provider' => Provider::SAML,
+                        'action' => 'SAML logout failed after centreon login failure',
+                    ]
+                );
+            }
+        }
     }
 }

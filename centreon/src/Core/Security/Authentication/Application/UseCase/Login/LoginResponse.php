@@ -26,7 +26,7 @@ namespace Core\Security\Authentication\Application\UseCase\Login;
 use Core\Application\Common\UseCase\ResponseStatusInterface;
 use Exception;
 
-final class LoginResponse implements ResponseStatusInterface
+final readonly class LoginResponse implements ResponseStatusInterface
 {
     /**
      * @param string $redirectUri
@@ -34,9 +34,9 @@ final class LoginResponse implements ResponseStatusInterface
      * @param Exception|null $exception
      */
     public function __construct(
-        private readonly string $redirectUri,
-        private readonly bool $redirectIsReact,
-        private readonly ?Exception $exception = null
+        private string $redirectUri,
+        private bool $redirectIsReact,
+        private ?Exception $exception = null,
     ) {
     }
 
