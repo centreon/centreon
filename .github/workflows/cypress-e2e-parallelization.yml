@@ -114,7 +114,7 @@ jobs:
     defaults:
       run:
         shell: bash
-        working-directory: centreon/tests/e2e
+        working-directory: ${{ inputs.module_name }}/tests/e2e
     name: ${{ matrix.feature }}
 
     env:
@@ -210,7 +210,7 @@ jobs:
         with:
           command: pnpm run cypress:run --browser electron --spec features/**/${{ matrix.feature }} --env tags="${{ inputs.test_tags }}"
           install: false
-          working-directory: centreon/tests/e2e
+          working-directory: ${{ inputs.module_name }}/tests/e2e
         env:
           CYPRESS_VERIFY_TIMEOUT: "60000"
           CYPRESS_DATABASE_IMAGE: ${{ inputs.database_image }}
