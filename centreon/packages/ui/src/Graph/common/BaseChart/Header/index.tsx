@@ -11,7 +11,7 @@ interface Props {
   title: string;
 }
 
-export const Header = ({ title, header }: Props): JSX.Element => {
+const Header = ({ title, header }: Props): JSX.Element => {
   const { classes } = ussHeaderChartStyles();
 
   const displayTitle = header?.displayTitle ?? true;
