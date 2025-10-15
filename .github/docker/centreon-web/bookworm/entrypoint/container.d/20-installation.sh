@@ -7,7 +7,7 @@
 : "${DB_ROOT_PASSWORD:=centreon}"
 : "${CENTREONDB_PWD:=centreon}"
 
-
+export DB_HOST DB_PORT DB_ROOT_USER DB_ROOT_PASSWORD CENTREONDB_PWD
 
 INSTALL_DIR="/usr/share/centreon/www/install"
 PROCESS_DIR="$INSTALL_DIR/steps/process"
@@ -67,7 +67,7 @@ if [ ! -f /etc/centreon/centreon.conf.php ]; then
 
 else
   echo "Existing Centreon installation detected"
-
+  cd "$PROCESS_DIR"
   # --------------------------
   # Get current and next version
   # --------------------------
@@ -77,7 +77,6 @@ else
 
   echo "Current version: $current"
   echo "Next version:    $next"
-
   # --------------------------
   # Upgrade if needed
   # --------------------------
@@ -88,6 +87,7 @@ else
   else
     echo "Centreon is up-to-date — no upgrade required"
   fi
+  cd -
 fi
 
 # --------------------------
