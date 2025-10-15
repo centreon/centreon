@@ -96,6 +96,7 @@ EOF
 
 COPY --chmod=755 ./.github/docker/centreon-web/bookworm/entrypoint /usr/share/centreon
 COPY --chown=www-data:www-data ./.github/docker/centreon-web/bookworm/configuration /usr/share/centreon/www/install/tmp
+COPY --chown=www-data:www-data ./.github/docker/centreon-web/scripts/ /usr/share/centreon/www/install
 COPY --chmod=600 ./centreon/packaging/src/sudoersCentreon /etc/sudoers.d/centreon
 COPY --chmod=755 ./.github/docker/centreon-web/init/systemctl /usr/local/bin/systemctl 
 COPY ./.github/docker/centreon-web/sql/* /usr/local/src/sql/data/
