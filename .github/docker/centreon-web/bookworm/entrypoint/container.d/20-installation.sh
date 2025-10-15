@@ -40,16 +40,8 @@ if [ ! -f /etc/centreon/centreon.conf.php ]; then
   su www-data -s /bin/bash -c "SERVER_ADDR='127.0.0.1' php insertBaseConf.php"
   su www-data -s /bin/bash -c "php partitionTables.php"
 
-  mysql -h${DB_HOST} -u${DB_ROOT_USER} -p${DB_ROOT_PASSWORD} -e "UPDATE mysql.user SET Host='%' WHERE User='centreon'; FLUSH PRIVILEGES;"
+  mysql -h${DB_HOST} -u${DB_ROOT_USER} -p${DB_ROOT_PASSWORD} -e "CREATE USER IF NOT EXISTS 'centreon'@'%' IDENTIFIED BY '${CENTREONDB_PWD}'; GRANT ALL ON centreon.* TO 'centreon'@'%'; GRANT ALL ON centreon_storage.* TO 'centreon'@'%';FLUSH PRIVILEGES;"
   mysql -h${DB_HOST} -ucentreon -p${CENTREONDB_PWD} centreon < $INSTALL_DIR/tmp/container.sql
-  # Database tweaks
-  # mysql -h${DB_HOST} -ucentreon -p${CENTREONDB_PWD} -e "UPDATE centreon.cfg_centreonbroker_info SET config_value = '${DB_HOST}' WHERE config_key = 'db_host'"
-  # mysql -h${DB_HOST} -ucentreon -p${CENTREONDB_PWD} -e "DELETE FROM centreon.cfg_centreonbroker_info WHERE config_group = 'output' AND config_group_id = '1'"
-  # mysql -h${DB_HOST} -ucentreon -p${CENTREONDB_PWD} -e "UPDATE centreon.cfg_centreonbroker_info SET config_id = '1', config_group_id = 1 WHERE config_id = '2' and config_group = 'output'"
-  # mysql -h${DB_HOST} -ucentreon -p${CENTREONDB_PWD} -e "DELETE FROM centreon.cfg_centreonbroker WHERE config_name = 'central-rrd-master'"
-  # mysql -h${DB_HOST} -ucentreon -p${CENTREONDB_PWD} -e "CREATE USER IF NOT EXISTS 'centreon'@'%' IDENTIFIED BY 'centreon'"
-  # mysql -h${DB_HOST} -ucentreon -p${CENTREONDB_PWD} -e "UPDATE centreon.options SET \`value\` = 'gorgone' WHERE \`key\` = 'gorgone_api_address'"
-  # mysql -h${DB_HOST} -ucentreon -p${CENTREONDB_PWD} -e "GRANT ALL ON *.* TO 'centreon'@'%'"
 
   # Optional dataset import
   if [ "$CENTREON_DATASET" = "1" ]; then
