@@ -103,11 +103,59 @@ Given(
 
     cy.log(`Testing ${Cypress.env('IS_CLOUD') ? 'cloud' : 'onprem'} upgrade`);
 
-    return cy.getWebVersion().then(({ major_version }) => {
+    return cy.getWebVersion().then(({ major_version, minor_version }) => {
+      cy.task("logVersion", `Current Major version value is ${major_version}`);
       let majorVersionFrom = '0';
       switch (majorVersionFromExpression) {
-        case 'n - 1':
-          majorVersionFrom = getCentreonPreviousMajorVersion(major_version);
+        case 'n - 1': {
+          const previousVersion =
+            getCentreonPreviousMajorVersion(major_version);
+          cy.log(`Getting Centreon previous major version: ${previousVersion}`);
+          cy.task(
+            "logVersion",
+            `Previous Major version value is ${previousVersion}`,
+          );
+          // Cloud versioning is different from on-prem
+          if (Cypress.env('IS_CLOUD')) {
+            const versionDir = './././../../www/install/php';
+            // Check if a file with the major version exists
+            const versionFilePath = `${versionDir}/Update-${previousVersion}.${minor_version}.php`;
+            cy.task('fileExists', versionFilePath).then((exists) => {
+              if (exists) {
+                cy.log(`The file with version: ${previousVersion} exist`);
+                cy.wrap(previousVersion).as('majorVersionFrom');
+                majorVersionFrom = previousVersion;
+                cy.task(
+                  "logVersion",
+                  `Found version value is ${previousVersion}`,
+                );
+              } else {
+                cy.log(
+                  `The file with version: ${previousVersion} does not exist`
+                );
+                // If the version isn't found, use the closest available one
+                cy.getClosestVersionFile(previousVersion, versionDir).then(
+                  (versionFilePath) => {
+                    cy.log(`The last cloud version is: ${versionFilePath}`);
+                    const newVersion = versionFilePath;
+                    majorVersionFrom = versionFilePath;
+                    cy.wrap(newVersion).as('majorVersionFrom');
+                    cy.task(
+                      "logVersion",
+                      `Closest version found value is ${newVersion}`,
+                    );
+                  }
+                );
+              }
+            });
+          } else {
+            majorVersionFrom = previousVersion;
+            cy.wrap(previousVersion).as("majorVersionFrom");
+            cy.task(
+              "logVersion",
+              `Found version value is ${previousVersion}`,
+            );
+          }
           break;
         case 'n - 2':
           majorVersionFrom = getCentreonPreviousMajorVersion(
@@ -165,18 +213,23 @@ Given(
                   return cy.stopContainer({ name: 'web' }).wrap('skipped');
                 }
 
-                cy.log(
-                  `${versionFromExpression} version is ${stableMinorVersions[minorVersionIndex]}`
-                );
-                const installedVersion = `${majorVersionFrom}.${stableMinorVersions[minorVersionIndex]}`;
-                Cypress.env('installed_version', installedVersion);
-                cy.log('installed_version', installedVersion);
-
-                return installCentreon(installedVersion)
-                  .then(() => {
-                    if (Cypress.env('WEB_IMAGE_OS').includes('alma')) {
-                      const distrib =
-                        Cypress.env('WEB_IMAGE_OS') === 'alma9' ? 'el9' : 'el8';
+                  cy.log(
+                    `${versionFromExpression} version is ${stableMinorVersions[minorVersionIndex]}`
+                  );
+                  const installedVersion = `${majorVersionFrom}.${stableMinorVersions[minorVersionIndex]}`;
+                  Cypress.env('installed_version', installedVersion);
+                  cy.log('installed_version', installedVersion);
+                  cy.task(
+                    "logVersion",
+                    `Installed version value is ${installedVersion}`,
+                  );
+                  return installCentreon(installedVersion)
+                    .then(() => {
+                      if (Cypress.env('WEB_IMAGE_OS').includes('alma')) {
+                        const distrib =
+                          Cypress.env('WEB_IMAGE_OS') === 'alma9'
+                            ? 'el9'
+                            : 'el8';
 
                       if (Cypress.env('IS_CLOUD')) {
                         cy.log('Configuring cloud internal repository...');
