@@ -32,12 +32,12 @@ runs:
       run: npm install dayjs@1.11.18
       shell: bash
 
-    - name: Create nightly epic if it does not exist already
+    - if: inputs.ticket_reason_for_creation == 'Nightly'
+      name: Create nightly epic if it does not exist already
       uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
       env:
         GH_TOKEN: ${{ github.token }}
       id: get_nightly_epic
-      if: inputs.ticket_reason_for_creation == "Nightly"
       with:
         script: |
           const fs = require('fs');
