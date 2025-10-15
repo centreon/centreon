@@ -150,6 +150,7 @@ Given(
             });
           } else {
             majorVersionFrom = previousVersion;
+            cy.wrap(previousVersion).as("majorVersionFrom");
             cy.task(
               "logVersion",
               `Found version value is ${previousVersion}`,
