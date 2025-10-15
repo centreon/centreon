@@ -305,6 +305,6 @@ runs:
                 { encoding: 'utf8' }
               )
 
-              console.log(`Response on ticket status change: ${response}`);
+              console.log(`Response on ticket description change: ${response}`);
             }
           }
