@@ -228,27 +228,6 @@ jobs:
         run: mkdir -p ${{ inputs.module_name }}/tests/e2e/results/cucumber-logs/
         shell: bash
 
-      # - name: Rename JSON report
-      #   if: ${{ always() }}
-      #   run: |
-      #     feature_name=$(basename "${{ matrix.feature }}" | sed 's|\(.*\)\..*|\1|')
-      #     ls
-      #     report_path="results/reports/${feature_name}-report.json"
-      #     report_path_updated="results/cucumber-logs/${feature_name}-report.json"
-      #     echo "report path: $report_path"
-      #     cat $report_path
-
-      #     if [ -f "$report_path" ]; then
-      #       jq '(.results[].suites[]?.tests[]?.tags |= map(if .name | startswith("@REQ_MON-") then .name |= "@${{ env.test_execution_key }}" else . end))' "$report_path" > "$report_path_updated"
-      #       echo "::group::${feature_name}-report.json"
-      #       cat "$report_path"
-      #       echo "::endgroup::"
-      #     else
-      #       echo "Report file not found: $report_path"
-      #       exit 1
-      #     fi
-      #   shell: bash
-
       - name: Replace / with - in the feature path
         id: feature-path
         if: ${{ ! cancelled() }}
