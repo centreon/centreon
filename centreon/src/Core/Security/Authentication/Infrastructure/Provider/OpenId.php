@@ -57,8 +57,8 @@ class OpenId implements ProviderAuthenticationInterface
      * @param OpenIdProvider $provider
      */
     public function __construct(
-        private readonly Container $dependencyInjector,
-        private readonly OpenIdProviderInterface $provider
+        private Container $dependencyInjector,
+        private OpenIdProviderInterface $provider
     ) {
     }
 

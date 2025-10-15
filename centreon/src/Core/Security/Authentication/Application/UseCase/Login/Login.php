@@ -45,12 +45,10 @@ use Core\Security\Authentication\Application\Repository\WriteTokenRepositoryInte
 use Core\Security\Authentication\Domain\Exception\AclConditionsException;
 use Core\Security\Authentication\Domain\Exception\AuthenticationConditionsException;
 use Core\Security\Authentication\Domain\Exception\AuthenticationException;
-use Core\Security\Authentication\Domain\Exception\OpenIdException;
 use Core\Security\Authentication\Domain\Exception\PasswordExpiredException;
 use Core\Security\Authentication\Domain\Exception\SamlException;
 use Core\Security\Authentication\Domain\Model\NewProviderToken;
 use Core\Security\Authentication\Infrastructure\Provider\AclUpdaterInterface;
-use Core\Security\Authentication\Infrastructure\Provider\OpenId;
 use Core\Security\Authentication\Infrastructure\Provider\SAML;
 use Core\Security\ProviderConfiguration\Domain\Model\Provider;
 use Core\Security\ProviderConfiguration\Domain\SAML\Model\CustomConfiguration as SamlCustomConfiguration;
@@ -127,12 +125,6 @@ final class Login
                 // For SAML
                 if ($loginRequest->providerName === Provider::SAML) {
                     $this->samlLogoutAfterLoginFailure();
-                }
-                // For OpenID
-                if ($loginRequest->providerName === Provider::OPENID) {
-                    $idToken = $this->requestStack->getSession()->get('openid_id_token') ?? '';
-                    $isLogin = $this->requestStack->getSession()->get('isLogin') ?? false;
-                    $this->openIdLogoutAfterLoginFailure($idToken, $isLogin);
                 }
             }
 
@@ -324,39 +316,6 @@ final class Login
     private function updateACL(ContactInterface $user): void
     {
         $this->aclUpdater->updateForProviderAndUser($this->provider, $user);
-    }
-
-    private function openIdLogoutAfterLoginFailure(string $idToken, bool $isLogin): void
-    {
-        /** @var OpenId $provider */
-        $provider = $this->provider;
-        $configuration = $provider->getConfiguration();
-        if ($configuration->isActive()) {
-            try {
-                $provider->logout($idToken, $isLogin);
-            } catch (OpenIdException $e) {
-                ExceptionLogger::create()->log(
-                    throwable: $e,
-                    context: [
-                        'user_id' => $this->provider->getAuthenticatedUser()?->getId() ?? 'unknown',
-                        'provider' => Provider::OPENID,
-                        'action' => 'OpenID logout failed after centreon login failure',
-                    ]
-                );
-            }
-        }
-        try {
-            $this->writeSessionRepository->invalidate();
-        } catch (RepositoryException $e) {
-            ExceptionLogger::create()->log(
-                throwable: $e,
-                context: [
-                    'user_id' => $provider->getAuthenticatedUser()?->getId() ?? 'unknown',
-                    'provider' => Provider::OPENID,
-                    'action' => 'Invalidate session failed after OpenID logout',
-                ]
-            );
-        }
     }
 
     private function samlLogoutAfterLoginFailure(): void

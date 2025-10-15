@@ -28,7 +28,8 @@ use Core\Application\Common\UseCase\UnauthorizedResponse;
 
 final class PasswordExpiredResponse extends UnauthorizedResponse implements BodyResponseInterface
 {
-    private mixed $body;
+    /** @var mixed */
+    private $body;
 
     /**
      * @inheritDoc

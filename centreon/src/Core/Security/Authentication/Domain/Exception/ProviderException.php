@@ -25,6 +25,13 @@ namespace Core\Security\Authentication\Domain\Exception;
 
 class ProviderException extends \Exception
 {
+    /**
+     * Exception thrown when a Provider class was unexpected.
+     *
+     * @param class-string $class
+     *
+     * @return self
+     */
     public static function unexpectedProvider(string $class): self
     {
         return new self(sprintf(_('Must not Happen, got unexpected Provider type %s'), $class));
