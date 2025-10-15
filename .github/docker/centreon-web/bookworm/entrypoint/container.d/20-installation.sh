@@ -2,7 +2,8 @@
 
 # Avoid to display mysql warning: Using a password on the command line interface can be insecure.
 : "${MYSQL_HOST:=db}"
-: "${MYSQL_ROOT_PASSWORD:=centreon}"
+: "${MYSQL_PWD:=centreon}"
+
 
 INSTALL_DIR="/usr/share/centreon/www/install"
 PROCESS_DIR="$INSTALL_DIR/steps/process"
