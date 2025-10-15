@@ -21,30 +21,11 @@
 
 declare(strict_types=1);
 
-namespace Core\Application\Common\UseCase;
+namespace Core\Dashboard\Application\UseCase\FindSingleMetric;
 
-final class InvalidArgumentResponse extends AbstractResponse
+use Core\Application\Common\UseCase\ResponseStatusInterface;
+
+interface FindSingleMetricPresenterInterface
 {
-    /**
-     * InvalidArgumentResponse constructor
-     *
-     * @param string|\Throwable $message Only to have a message
-     * @param array<string,mixed> $context
-     * @param \Throwable|null $exception
-     */
-    public function __construct(
-        string|\Throwable $message,
-        array $context = [],
-        private readonly ?\Throwable $exception = null,
-    ) {
-        parent::__construct($message, $context);
-    }
-
-    /**
-     * @return null|\Throwable
-     */
-    public function getException(): ?\Throwable
-    {
-        return $this->exception;
-    }
+    public function presentResponse(FindSingleMetricResponse|ResponseStatusInterface $response): void;
 }

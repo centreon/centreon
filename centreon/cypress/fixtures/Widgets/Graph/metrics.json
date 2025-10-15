@@ -1,0 +1,14 @@
+{
+  "metrics": [
+    {
+    "metric_id": 1,
+    "name": "Ping_1",
+    "unit": "%",
+    "current_value": 34,
+       "warning_high_threshold": 70,
+      "warning_low_threshold": 65,
+      "critical_high_threshold": 90,
+      "critical_low_threshold": 85
+    }
+  ]
+}

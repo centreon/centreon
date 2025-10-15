@@ -1,5 +1,5 @@
 import { useAtomValue } from 'jotai';
-import { equals, isNil } from 'ramda';
+import { equals, isNil, last } from 'ramda';
 
 import {
   ContentWithCircularLoading,
@@ -18,7 +18,7 @@ import {
 } from '../../utils';
 
 import SingleMetricRenderer from './SingleMetricRenderer';
-import { graphEndpoint } from './api/endpoints';
+import { selectEndpoint } from './api/endpoints';
 import { FormThreshold, SingleMetricGraphType, ValueFormat } from './models';
 
 interface Props {
@@ -66,9 +66,34 @@ const Graph = ({
   const metricId = metrics[0]?.id;
   const metricName = metrics[0]?.name;
 
+  const getServiceId = () => {
+    const service = last(
+      resources.find(({ resourceType }) => equals(resourceType, 'service'))
+        ?.resources || []
+    );
+
+    if (isMetaServiceSelected) {
+      return resources[0]?.resources[0]?.id;
+    }
+
+    return metrics.find(({ serviceName }) => equals(serviceName, service?.name))
+      ?.serviceId;
+  };
+
+  const hostId = last(
+    resources.find(({ resourceType }) => !equals(resourceType, 'service'))
+      ?.resources || []
+  )?.id;
+
   const baseEndpoint = getWidgetEndpoint({
     dashboardId,
-    defaultEndpoint: graphEndpoint,
+    defaultEndpoint: selectEndpoint({
+      isMetaServiceSelected,
+      idForService: Number(getServiceId()),
+      hostId: Number(hostId),
+      metricName
+    }),
+    displayType,
     isOnPublicPage,
     playlistHash,
     widgetId: id
@@ -77,18 +102,29 @@ const Graph = ({
   const { graphData, isGraphLoading, isMetricsEmpty } = useGraphQuery({
     baseEndpoint,
     bypassMetricsExclusion: true,
-    bypassQueryParams: isOnPublicPage,
+    bypassQueryParams: true,
     metrics,
     prefix: widgetPrefixQuery,
     refreshCount,
     refreshInterval: refreshIntervalToUse,
-    resources
+    resources,
+    isEnabled: Boolean(hostId && (getServiceId() || isMetaServiceSelected))
   });
 
   const displayAsRaw = equals('raw')(valueFormat);
 
+  const formattedGraphData = graphData
+    ? {
+        ...graphData,
+        metrics: graphData?.metrics?.map((metric) => ({
+          ...metric,
+          data: [metric?.current_value]
+        }))
+      }
+    : undefined;
+
   const formattedThresholds = useThresholds({
-    data: graphData,
+    data: formattedGraphData,
     displayAsRaw,
     metricName,
     thresholds: threshold,
@@ -105,16 +141,16 @@ const Graph = ({
     return <NoResources />;
   }
 
-  const filteredGraphData = graphData
+  const filteredGraphData = formattedGraphData
     ? {
-        ...graphData,
+        ...formattedGraphData,
         metrics: isMetaServiceSelected
-          ? graphData.metrics
-          : graphData.metrics.filter((metric) =>
+          ? formattedGraphData.metrics
+          : formattedGraphData.metrics.filter((metric) =>
               equals(metricId, metric.metric_id)
             )
       }
-    : graphData;
+    : formattedGraphData;
 
   const props = {
     baseColor: threshold.baseColor,

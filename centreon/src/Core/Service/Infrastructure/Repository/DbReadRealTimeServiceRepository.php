@@ -23,11 +23,17 @@ declare(strict_types=1);
 
 namespace Core\Service\Infrastructure\Repository;
 
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\Exception\ConnectionException;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\RequestParameters\Interfaces\NormalizerInterface;
 use Centreon\Infrastructure\RequestParameters\RequestParametersTranslatorException;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
+use Core\Common\Domain\Exception\CollectionException;
+use Core\Common\Domain\Exception\RepositoryException;
+use Core\Common\Domain\Exception\ValueObjectException;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 use Core\Common\Infrastructure\Repository\SqlMultipleBindTrait;
 use Core\Service\Application\Repository\ReadRealTimeServiceRepositoryInterface;
@@ -198,6 +204,76 @@ class DbReadRealTimeServiceRepository extends AbstractRepositoryRDB implements R
         $countSqlTranslator->setNumberOfRows($numberOfRows);
 
         return $serviceNames;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function exists(int $serviceId, int $hostId): bool
+    {
+        $query = <<<'SQL'
+                SELECT 1
+                FROM `:dbstg`.services
+                WHERE service_id = :serviceId
+                    AND host_id = :hostId
+            SQL;
+
+        try {
+            $raw = $this->db->fetchOne(
+                $this->translateDbName($query),
+                QueryParameters::create([
+                    QueryParameter::int('serviceId', $serviceId),
+                    QueryParameter::int('hostId', $hostId),
+                ])
+            );
+
+            return (bool) $raw;
+        } catch (ValueObjectException|CollectionException|ConnectionException $e) {
+            throw new RepositoryException(
+                sprintf(
+                    'Error checking existence of service %d on host %d',
+                    $serviceId,
+                    $hostId
+                ),
+                [
+                    'serviceId' => $serviceId,
+                    'hostId' => $hostId,
+                ],
+                $e
+            );
+        }
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function existsByDescription(int $metaServiceId): array|false
+    {
+        $query = <<<'SQL'
+                SELECT service_id, host_id
+                FROM `:dbstg`.services s
+                WHERE s.description = :metaId
+            SQL;
+
+        try {
+            return $this->db->fetchAssociative(
+                $this->translateDbName($query),
+                QueryParameters::create([
+                    QueryParameter::string('metaId', "meta_{$metaServiceId}"),
+                ])
+            );
+        } catch (ValueObjectException|CollectionException|ConnectionException $e) {
+            throw new RepositoryException(
+                sprintf(
+                    'Error checking existence of meta service as service with description: meta_%d',
+                    $metaServiceId
+                ),
+                [
+                    'metaServiceId' => $metaServiceId,
+                ],
+                $e
+            );
+        }
     }
 
     /**

@@ -21,30 +21,24 @@
 
 declare(strict_types=1);
 
-namespace Core\Application\Common\UseCase;
+namespace Core\Dashboard\Application\UseCase\FindSingleMetaMetric;
 
-final class InvalidArgumentResponse extends AbstractResponse
+final readonly class FindSingleMetaMetricRequest
 {
     /**
-     * InvalidArgumentResponse constructor
-     *
-     * @param string|\Throwable $message Only to have a message
-     * @param array<string,mixed> $context
-     * @param \Throwable|null $exception
+     * @param int $metaServiceId
+     * @param string $metricName
+     * @throws \InvalidArgumentException
      */
     public function __construct(
-        string|\Throwable $message,
-        array $context = [],
-        private readonly ?\Throwable $exception = null,
+        public int $metaServiceId,
+        public string $metricName,
     ) {
-        parent::__construct($message, $context);
-    }
-
-    /**
-     * @return null|\Throwable
-     */
-    public function getException(): ?\Throwable
-    {
-        return $this->exception;
+        if ($metaServiceId <= 0) {
+            throw new \InvalidArgumentException("metaServiceId must be greater than 0, {$metaServiceId} given");
+        }
+        if (trim($metricName) === '') {
+            throw new \InvalidArgumentException('metricName cannot be empty');
+        }
     }
 }
