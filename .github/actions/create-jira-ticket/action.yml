@@ -269,7 +269,7 @@ runs:
               // )
 
               // console.log(`Response on ticket status change: ${response}`);
-              }
+              // }
             } else {
               const ticket_key = response.issues[0].key;
               console.log(`A ticket (ID ${ticket_key}) has already been found. Adding new entry in the description...`);
