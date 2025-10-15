@@ -109,7 +109,7 @@ const Lines = ({
                   key={`stacked-${unit}`}
                   lines={lines}
                   timeSeries={stackedTimeSeries}
-                  yScale={yScalesPerUnit[unit]}
+                  yScale={yScalesPerUnit[unit || undefined]}
                   {...commonStackedLinesProps}
                 />
               );
@@ -128,7 +128,7 @@ const Lines = ({
                     invert: '1',
                     scale,
                     scaleLogarithmicBase,
-                    unit,
+                    unit: unit || undefined,
                     yScalesPerUnit
                   })}
                   {...commonStackedLinesProps}
