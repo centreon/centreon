@@ -1,12 +1,12 @@
-import { Given } from '@badeball/cypress-cucumber-preprocessor';
+import { Given } from '@badeball/cypress-cucumber-preprocessor'
 
 import {
   checkPlatformVersion,
   getCentreonPreviousMajorVersion,
   getCentreonStableMinorVersions,
   installCentreon,
-  localPackageDirectory,
-} from '../common';
+  localPackageDirectory
+} from '../common'
 
 before(() => {
   if (
@@ -15,79 +15,79 @@ before(() => {
       !Cypress.env('INTERNAL_REPO_PASSWORD'))
   ) {
     throw new Error(
-      'Missing environment variables: INTERNAL_REPO_USERNAME and/or INTERNAL_REPO_PASSWORD required for cloud repository configuration.',
-    );
+      'Missing environment variables: INTERNAL_REPO_USERNAME and/or INTERNAL_REPO_PASSWORD required for cloud repository configuration.'
+    )
   }
 
   if (Cypress.env('WEB_IMAGE_OS').includes('alma')) {
-    cy.exec(`ls ${localPackageDirectory}/centreon-web-*.rpm`);
+    cy.exec(`ls ${localPackageDirectory}/centreon-web-*.rpm`)
   } else {
-    cy.exec(`ls ${localPackageDirectory}/centreon-web_*.deb`);
+    cy.exec(`ls ${localPackageDirectory}/centreon-web_*.deb`)
   }
-});
+})
 
 beforeEach(() => {
   // clear network cache to avoid chunk loading issues
   cy.wrap(
     Cypress.automation('remote:debugger:protocol', {
-      command: 'Network.clearBrowserCache',
-    }),
-  );
+      command: 'Network.clearBrowserCache'
+    })
+  )
 
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList',
-  }).as('getNavigationList');
+    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
+  }).as('getNavigationList')
 
   cy.intercept({
     method: 'GET',
-    url: '/centreon/include/common/userTimezone.php',
-  }).as('getTimeZone');
+    url: '/centreon/include/common/userTimezone.php'
+  }).as('getTimeZone')
 
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/users/filters/events-view?page=1&limit=100',
-  }).as('getLastestUserFilters');
+    url: '/centreon/api/latest/users/filters/events-view?page=1&limit=100'
+  }).as('getLastestUserFilters')
 
   cy.intercept({
     method: 'GET',
-    url: '/centreon/install/step_upgrade/step1.php',
-  }).as('getStep1');
+    url: '/centreon/install/step_upgrade/step1.php'
+  }).as('getStep1')
 
   cy.intercept({
     method: 'GET',
-    url: '/centreon/install/step_upgrade/step2.php',
-  }).as('getStep2');
+    url: '/centreon/install/step_upgrade/step2.php'
+  }).as('getStep2')
 
   cy.intercept({
     method: 'GET',
-    url: '/centreon/install/step_upgrade/step3.php',
-  }).as('getStep3');
+    url: '/centreon/install/step_upgrade/step3.php'
+  }).as('getStep3')
 
   cy.intercept({
     method: 'GET',
-    url: '/centreon/install/step_upgrade/step4.php',
-  }).as('getStep4');
+    url: '/centreon/install/step_upgrade/step4.php'
+  }).as('getStep4')
 
   cy.intercept({
     method: 'GET',
-    url: '/centreon/install/step_upgrade/step5.php',
-  }).as('getStep5');
+    url: '/centreon/install/step_upgrade/step5.php'
+  }).as('getStep5')
 
   cy.intercept({
     method: 'POST',
-    url: '/centreon/install/steps/process/generationCache.php',
-  }).as('generatingCache');
+    url: '/centreon/install/steps/process/generationCache.php'
+  }).as('generatingCache')
 
   cy.intercept('/centreon/api/latest/monitoring/resources*').as(
-    'monitoringEndpoint',
-  );
+    'monitoringEndpoint'
+  )
 
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/configuration/monitoring-servers/generate-and-reload',
-  }).as('generateAndReloadPollers');
-});
+    url: '/centreon/api/latest/configuration/monitoring-servers/generate-and-reload'
+  }).as('generateAndReloadPollers')
+})
 
 Given(
   'a running platform in major {string} with {string} version',
@@ -96,71 +96,71 @@ Given(
       Cypress.env('IS_CLOUD') &&
       !Cypress.env('WEB_IMAGE_OS').includes('alma')
     ) {
-      cy.log('Cloud platforms are only available on almalinux');
+      cy.log('Cloud platforms are only available on almalinux')
 
-      return cy.wrap('skipped');
+      return cy.wrap('skipped')
     }
 
-    cy.log(`Testing ${Cypress.env('IS_CLOUD') ? 'cloud' : 'onprem'} upgrade`);
+    cy.log(`Testing ${Cypress.env('IS_CLOUD') ? 'cloud' : 'onprem'} upgrade`)
 
     return cy.getWebVersion().then(({ major_version }) => {
-      cy.task('logVersion', `Current Major version value is ${major_version}`);
-      let majorVersionFrom = '0';
+      cy.task('logVersion', `Current Major version value is ${major_version}`)
+      let majorVersionFrom = '0'
       switch (majorVersionFromExpression) {
         case 'n - 1':
-          majorVersionFrom = getCentreonPreviousMajorVersion(major_version);
+          majorVersionFrom = getCentreonPreviousMajorVersion(major_version)
           cy.task(
             'logVersion',
-            `Previous Major version value is ${majorVersionFrom}`,
-          );
-          break;
+            `Previous Major version value is ${majorVersionFrom}`
+          )
+          break
         case 'n - 2':
           majorVersionFrom = getCentreonPreviousMajorVersion(
-            getCentreonPreviousMajorVersion(major_version),
-          );
+            getCentreonPreviousMajorVersion(major_version)
+          )
           cy.task(
             'logVersion',
-            `Previous Major version value is ${majorVersionFrom}`,
-          );
-          break;
+            `Previous Major version value is ${majorVersionFrom}`
+          )
+          break
         default:
-          throw new Error(`${majorVersionFromExpression} not managed.`);
+          throw new Error(`${majorVersionFromExpression} not managed.`)
       }
 
       cy.startContainer({
         command: 'tail -f /dev/null',
         image: `docker.centreon.com/centreon/centreon-web-dependencies-${Cypress.env(
-          'WEB_IMAGE_OS',
+          'WEB_IMAGE_OS'
         )}:${majorVersionFrom}`,
         name: 'web',
         portBindings: [
           {
             destination: 4000,
-            source: 80,
-          },
-        ],
+            source: 80
+          }
+        ]
       }).then(() => {
-        Cypress.config('baseUrl', 'http://127.0.0.1:4000');
+        Cypress.config('baseUrl', 'http://127.0.0.1:4000')
 
         return cy
           .intercept('/waiting-page', {
             headers: { 'content-type': 'text/html' },
-            statusCode: 200,
+            statusCode: 200
           })
           .visit('/waiting-page')
           .then(() => {
             return getCentreonStableMinorVersions(majorVersionFrom).then(
               (stableMinorVersions) => {
-                let minorVersionIndex = 0;
+                let minorVersionIndex = 0
                 switch (versionFromExpression) {
                   case 'last stable':
-                    minorVersionIndex = stableMinorVersions.length - 1;
-                    break;
+                    minorVersionIndex = stableMinorVersions.length - 1
+                    break
                   case 'last stable - 1':
-                    minorVersionIndex = stableMinorVersions.length - 2;
-                    break;
+                    minorVersionIndex = stableMinorVersions.length - 2
+                    break
                   default:
-                    throw new Error(`${versionFromExpression} not managed.`);
+                    throw new Error(`${versionFromExpression} not managed.`)
                 }
                 if (
                   minorVersionIndex < 0 ||
@@ -168,51 +168,51 @@ Given(
                     minorVersionIndex === 0)
                 ) {
                   cy.log(
-                    `Not needed to test ${versionFromExpression} version.`,
-                  );
+                    `Not needed to test ${versionFromExpression} version.`
+                  )
 
-                  return cy.stopContainer({ name: 'web' }).wrap('skipped');
+                  return cy.stopContainer({ name: 'web' }).wrap('skipped')
                 }
 
                 cy.log(
-                  `${versionFromExpression} version is ${stableMinorVersions[minorVersionIndex]}`,
-                );
-                const installedVersion = `${majorVersionFrom}.${stableMinorVersions[minorVersionIndex]}`;
-                Cypress.env('installed_version', installedVersion);
-                cy.log('installed_version', installedVersion);
+                  `${versionFromExpression} version is ${stableMinorVersions[minorVersionIndex]}`
+                )
+                const installedVersion = `${majorVersionFrom}.${stableMinorVersions[minorVersionIndex]}`
+                Cypress.env('installed_version', installedVersion)
+                cy.log('installed_version', installedVersion)
                 cy.task(
                   'logVersion',
-                  `Installed version value is ${installedVersion}`,
-                );
+                  `Installed version value is ${installedVersion}`
+                )
                 return installCentreon(installedVersion)
                   .then(() => {
                     if (Cypress.env('WEB_IMAGE_OS').includes('alma')) {
                       const distrib =
-                        Cypress.env('WEB_IMAGE_OS') === 'alma9' ? 'el9' : 'el8';
+                        Cypress.env('WEB_IMAGE_OS') === 'alma9' ? 'el9' : 'el8'
 
                       if (Cypress.env('IS_CLOUD')) {
-                        cy.log('Configuring cloud internal repository...');
+                        cy.log('Configuring cloud internal repository...')
 
                         return cy.execInContainer(
                           {
                             command: [
                               `dnf config-manager --add-repo https://${Cypress.env('INTERNAL_REPO_USERNAME')}:${Cypress.env('INTERNAL_REPO_PASSWORD')}@packages.centreon.com/rpm-standard-internal/${major_version}/${distrib}/centreon-${major_version}-internal.repo`,
                               `sed -i "s#packages.centreon.com/rpm-standard-internal#${Cypress.env('INTERNAL_REPO_USERNAME')}:${Cypress.env('INTERNAL_REPO_PASSWORD')}@packages.centreon.com/rpm-standard-internal#" /etc/yum.repos.d/centreon-${major_version}-internal.repo`,
-                              `dnf config-manager --set-enabled 'centreon*'`,
+                              `dnf config-manager --set-enabled 'centreon*'`
                             ],
-                            name: 'web',
+                            name: 'web'
                           },
-                          { log: false },
-                        );
+                          { log: false }
+                        )
                       }
 
                       return cy.execInContainer({
                         command: [
                           `dnf config-manager --add-repo https://packages.centreon.com/rpm-standard/${major_version}/${distrib}/centreon-${major_version}.repo`,
-                          `dnf config-manager --set-enabled 'centreon*'`,
+                          `dnf config-manager --set-enabled 'centreon*'`
                         ],
-                        name: 'web',
-                      });
+                        name: 'web'
+                      })
                     }
 
                     return cy.execInContainer({
@@ -226,24 +226,24 @@ Given(
                         wget -O- https://packages.centreon.com/api/security/keypair/APT-GPG-KEY/public | gpg --dearmor | tee /etc/apt/trusted.gpg.d/centreon.gpg > /dev/null 2>&1
                         apt-get update
 EOF`,
-                      name: 'web',
-                    });
+                      name: 'web'
+                    })
                   })
                   .then(() => {
                     return checkPlatformVersion(
-                      `${majorVersionFrom}.${stableMinorVersions[minorVersionIndex]}`,
-                    ).then(() => cy.visit('/'));
-                  });
-              },
-            );
-          });
-      });
-    });
-  },
-);
+                      `${majorVersionFrom}.${stableMinorVersions[minorVersionIndex]}`
+                    ).then(() => cy.visit('/'))
+                  })
+              }
+            )
+          })
+      })
+    })
+  }
+)
 
 afterEach(() => {
   cy.visitEmptyPage()
     .copyWebContainerLogs({ name: 'web' })
-    .stopContainer({ name: 'web' });
-});
+    .stopContainer({ name: 'web' })
+})
