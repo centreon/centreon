@@ -170,7 +170,7 @@ $setBackupMysqlConfDefaultAsEmpty = function () use ($pearDB, &$errorMessage): v
             WHERE options.key = 'backup_mysql_conf' AND options.value = '/etc/my.cnf.d/centreon.cnf'
             SQL
     );
-}
+};
 
 try {
     // DDL statements for real time database
@@ -185,7 +185,6 @@ try {
         $pearDB->startTransaction();
     }
 
-    // TODO add your function calls to update the configuration database data here
     $alignCMAAgentConfigurationWithNewSchema();
     $cleanGlobalMacrosName();
     $fixTypoInStandardMacroName();
