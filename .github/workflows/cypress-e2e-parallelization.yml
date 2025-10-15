@@ -129,35 +129,6 @@ jobs:
           key: ${{ inputs.package_cache_key }}
           fail-on-cache-miss: true
 
-      - uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # v4.1.0
-        with:
-          version: 10
-          run_install: false
-
-      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
-        with:
-          node-version: 20
-          cache: pnpm
-          cache-dependency-path: ${{ inputs.dependencies_lock_file }}
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-        working-directory: ${{ inputs.module_name }}/tests/e2e
-        shell: bash
-        env:
-          CYPRESS_INSTALL_BINARY: "0"
-          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: "1"
-          PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: "true"
-
-      - name: Install Cypress binary
-        uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
-        with:
-          timeout_seconds: 120
-          max_attempts: 10
-          retry_wait_seconds: 30
-          retry_on: error
-          command: cd ${{ inputs.module_name }}/tests/e2e && pnpm cypress install --force
-
       - name: Move packages
         if: "${{ inputs.package_cache_key != '' && inputs.package_directory != '' && contains(matrix.feature, 'platform-') }}"
         run: |
@@ -190,61 +161,33 @@ jobs:
           docker tag ${{ env.SLIM_IMAGE_NAME }}:${{ env.IMAGE_TAG }} ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.SLIM_IMAGE_NAME }}:${{ env.IMAGE_TAG }}
         shell: bash
 
-      - name: Get test execution Key
+      - name: Test Execution Key
         id: get-test-execution-key
         run: |
           test_execution_key=$(echo '${{ inputs.xray_keys_and_ids }}' | jq -r '.test_execution_key_'${{ inputs.os }})
-          echo "The Test Execution KEY: $test_execution_key"
+          echo "The Test Execution KEY : $test_execution_key"
           echo "test_execution_key=$test_execution_key" >> $GITHUB_OUTPUT
         shell: bash
 
-      - name: Add sso-proxy to /etc/hosts
-        run: echo "127.0.0.1 sso-proxy" | sudo tee -a /etc/hosts
-        shell: bash
-
-      - name: Cypress end-to-end testing
-        uses: cypress-io/github-action@b8ba51a856ba5f4c15cf39007636d4ab04f23e3c # v6.10.2
+      - name: Cypress e2e testing
+        uses: ./.github/actions/cypress-e2e-testing
         with:
-          command: pnpm run cypress:run --browser electron --spec features/**/${{ matrix.feature }} --env tags="${{ inputs.test_tags }}"
-          install: false
-          working-directory: ${{ inputs.module_name }}/tests/e2e
-        env:
-          CYPRESS_VERIFY_TIMEOUT: "60000"
-          CYPRESS_DATABASE_IMAGE: ${{ inputs.database_image }}
-          CYPRESS_WEB_IMAGE_OS: ${{ inputs.os }}
-          CYPRESS_WEB_IMAGE_VERSION: ${{ env.IMAGE_TAG }}
-          CYPRESS_OPENID_IMAGE_VERSION: ${{ inputs.major_version }}
-          CYPRESS_SAML_IMAGE_VERSION: ${{ inputs.major_version }}
-          CYPRESS_STABILITY: ${{ inputs.stability }}
-          CYPRESS_TARGET_STABILITY: ${{ inputs.target_stability }}
-          CYPRESS_IS_CLOUD: ${{ inputs.is_cloud }}
-          CYPRESS_INTERNAL_REPO_USERNAME: ${{ secrets.artifactory_internal_repo_username }}
-          CYPRESS_INTERNAL_REPO_PASSWORD: ${{ secrets.artifactory_internal_repo_password }}
-
-      - name: Ensure logs directory exists
-        run: mkdir -p ${{ inputs.module_name }}/tests/e2e/results/cucumber-logs/
-        shell: bash
-
-      - name: Rename JSON report
-        if: ${{ always() }}
-        run: |
-          feature_name=$(basename "${{ matrix.feature }}")
-          report_path="${{ inputs.module_name }}/tests/e2e/results/cucumber-logs/report.json"
-          report_path_updated="${{ inputs.module_name }}/tests/e2e/results/cucumber-logs/${feature_name}-report.json"
-
-          if [ -f "$report_path" ]; then
-            jq 'if length > 0 then .[0] |= (.tags |= map(if .name | startswith("@REQ_MON-") then .name |= "@${{ steps.get-test-execution-key.outputs.test_execution_key }}" else . end)) | (.[] |= (if has("elements") then .elements[].tags |= map(if .name | startswith("@REQ_MON-") then .name |= "@${{ steps.get-test-execution-key.outputs.test_execution_key }}" else . end) else . end)) else . end' "$report_path" > "$report_path_updated"
-            rm "$report_path"
-
-            # Show the content of the modified file
-            echo "::group::${feature_name}-report.json"
-            cat "$report_path_updated"
-            echo "::endgroup::"
-          else
-            echo "Report file not found: $report_path"
-            exit 1
-          fi
-        shell: bash
+          name: ${{ inputs.name }}
+          database_image: ${{ inputs.database_image }}
+          web_image_os: ${{ inputs.os }}
+          web_image_version: ${{ env.IMAGE_TAG }}
+          openid_image_version: ${{ inputs.major_version }}
+          saml_image_version: ${{ inputs.major_version }}
+          module: ${{ inputs.module_name }}
+          feature_file_path: ${{ matrix.feature }}
+          test_tags: ${{ inputs.test_tags }}
+          dependencies_lock_file: ${{ inputs.dependencies_lock_file }}
+          test_execution_key: ${{ steps.get-test-execution-key.outputs.test_execution_key }}
+          stability: ${{ inputs.stability }}
+          target_stability: ${{ inputs.target_stability }}
+          is_cloud: ${{ inputs.is_cloud }}
+          artifactory_internal_repo_username: ${{ secrets.artifactory_internal_repo_username }}
+          artifactory_internal_repo_password: ${{ secrets.artifactory_internal_repo_password }}
 
       - name: Replace / with - in the feature path
         id: feature-path
@@ -322,7 +265,7 @@ jobs:
         run: |
           test_execution_key=$(echo '${{ inputs.xray_keys_and_ids }}' | jq -r '.test_execution_key_'${{ inputs.os }})
           test_plan_key=$(echo '${{ inputs.xray_keys_and_ids }}' | jq -r '.test_plan_key_'${{ inputs.os }})
-          echo "The Test Execution KEY: $test_execution_key"
+          echo "The Test Execution KEY : $test_execution_key"
           echo "The Test Plan KEY: $test_plan_key"
 
       - name: Import results to xray
