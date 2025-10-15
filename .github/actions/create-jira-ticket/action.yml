@@ -115,7 +115,7 @@ runs:
           dayjs.extend(isoWeek);
 
           const nightly_epic_id = ${{ steps.get_nightly_epic.outputs.nightly_epic_id }}
-          const nightly_epic_key = ${{ steps.get_nightly_epic.outputs.nightly_epic_key }}
+          const nightly_epic_key = "${{ steps.get_nightly_epic.outputs.nightly_epic_key }}"
           const JSON_TEMPLATE_FILE = "./.github/actions/create-jira-ticket/nightly-ticket-template.json";
           const date = dayjs().format('YYYY-MM-DD');
           const path = './ticket-payload.json';
