@@ -139,6 +139,7 @@ const StatusGrid = ({
       'statusgrid',
       resourceType,
       JSON.stringify(statuses),
+      JSON.stringify(states),
       sortBy,
       tiles,
       JSON.stringify(resources),
