@@ -76,6 +76,8 @@ class ParametersController extends AbstractController
      */
     public function getParameters(): View
     {
+        $this->denyAccessUnlessGrantedForApiConfiguration();
+        $this->denyAccessUnlessGrantedForApiRealtime();
         $parameters = [];
         $downtimeDuration = '';
         $downtimeScale = '';
