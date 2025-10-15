@@ -6,7 +6,7 @@ export { default as BarChart } from './BarChart/BarChart';
 export { Gauge } from './Gauge';
 export { SingleBar } from './SingleBar';
 export { Text as GraphText } from './Text';
-export { Header } from './common/BaseChart/Header';
+export { default as Header } from './common/BaseChart/Header';
 
 export { HeatMap } from './HeatMap';
 export { BarStack } from './BarStack';
