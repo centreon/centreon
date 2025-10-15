@@ -128,7 +128,12 @@ it('should get the resources with ACL calculation when the user is not admin', f
         'Message content',
         '<p>Message content</p>'
     );
-    $notificationUser = new NotificationContact(3, 'test-user', 'email-user');
+    $notificationUser = new NotificationContact(
+        3,
+        'test-user',
+        'email-user',
+        'test-alias',
+    );
 
     $this->notificationRepository
         ->expects($this->once())
@@ -190,7 +195,12 @@ it('should present a FindNotificationResponse when everything is OK', function (
         'Message content',
         '<p>Message content</p>'
     );
-    $notificationUser = new NotificationContact(3, 'test-user', 'email-user');
+    $notificationUser = new NotificationContact(
+        3,
+        'test-user',
+        'email-user',
+        'test-alias'
+    );
     $notificationResource = new NotificationResource(
         NotificationResource::TYPE_HOST_GROUP,
         HostEvent::class,
@@ -250,7 +260,7 @@ it('should present a FindNotificationResponse when everything is OK', function (
         ->and($this->presenter->response->messages[0]['message'])->toBe('Message content')
         ->and($this->presenter->response->users)->toBeArray()
         ->and($this->presenter->response->users[0]['id'])->toBe(3)
-        ->and($this->presenter->response->users[0]['name'])->toBe('test-user')
+        ->and($this->presenter->response->users[0]['alias'])->toBe('test-alias')
         ->and($this->presenter->response->contactGroups[0]['id'])->toBe(1)
         ->and($this->presenter->response->contactGroups[0]['name'])->toBe('contactgroup_1')
         ->and($this->presenter->response->contactGroups[1]['id'])->toBe(2)

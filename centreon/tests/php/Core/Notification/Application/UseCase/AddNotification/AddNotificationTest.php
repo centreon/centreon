@@ -118,7 +118,12 @@ beforeEach(function (): void {
         ),
     ];
     $this->users = array_map(
-        (fn ($userId) => new Contact($userId, "user_name_{$userId}", "email_{$userId}@centreon.com")),
+        (fn ($userId) => new Contact(
+            $userId,
+            "user_name_{$userId}",
+            "email_{$userId}@centreon.com",
+            "alias_{$userId}"
+        )),
         $this->request->users
     );
 
