@@ -104,6 +104,7 @@ Given(
     cy.log(`Testing ${Cypress.env('IS_CLOUD') ? 'cloud' : 'onprem'} upgrade`);
 
     return cy.getWebVersion().then(({ major_version, minor_version }) => {
+      cy.task("logVersion", `Current Major version value is ${major_version}`);
       let majorVersionFrom = '0';
       switch (majorVersionFromExpression) {
         case 'n - 1': {
