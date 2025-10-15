@@ -44,6 +44,17 @@ interface ReadContactRepositoryInterface
     public function findNamesByIds(int ...$ids): array;
 
     /**
+     * Find contact alias by IDs.
+     *
+     * @param int ...$ids
+     *
+     * @throws RepositoryException
+     *
+     * @return array<int, array{id: int, alias: string}>
+     */
+    public function findAliasesByIds(int ...$ids): array;
+
+    /**
      * Check user existence by its id.
      *
      * @param int $userId
