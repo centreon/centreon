@@ -49,7 +49,7 @@ export const PageQuickAccess = ({
           </Menu.Item>
         ))}
         <Menu.Divider key="divider" />
-        <div className="px-8 pb-8">
+        <div className="px-2 pb-2">
           <Button
             icon={<ArrowBackIcon />}
             iconVariant="start"
