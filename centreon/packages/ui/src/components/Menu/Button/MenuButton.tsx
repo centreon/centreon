@@ -33,8 +33,6 @@ const MenuButton = ({
   className,
   ...attr
 }: MenuButtonProps): ReactElement => {
-  const { cx, classes } = useStyles();
-
   const { isMenuOpen, setIsMenuOpen, setAnchorEl, onOpen } = useMenu();
 
   const onToggle = useCallback(
@@ -52,14 +50,18 @@ const MenuButton = ({
     <Button
       {...attr}
       aria-label={ariaLabel}
-      className={cx(classes.menuButton, className)}
+      className={`${isMenuOpen ? 'bg-primary-main/8' : 'text-text-secondary'} ${className}`}
       data-is-active={isMenuOpen}
       size={size}
       variant={variant}
       onClick={onToggle}
     >
       {children || <MenuIcon />}
-      {hasArrow && <ArrowDropDownIcon className={classes.buttonIcon} />}
+      {hasArrow && (
+        <ArrowDropDownIcon
+          className={`transform-gpu transition-[rotate] ${isMenuOpen ? 'rotate-180' : 'rotate-0'}`}
+        />
+      )}
     </Button>
   );
 };
