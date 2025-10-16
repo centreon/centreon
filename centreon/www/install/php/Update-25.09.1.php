@@ -41,11 +41,70 @@ $bbdoCfgUpdate = function () use ($pearDB, &$errorMessage): void {
     $pearDB->executeStatement('UPDATE `cfg_centreonbroker` SET `bbdo_version` = "3.0.1"');
 };
 
+/** -------------------------------------------- Password encryption -------------------------------------------- */
+$addIsEncryptionReadyAsBooleanColumn = function () use ($pearDB, $pearDBO, &$errorMessage): void {
+    if (
+        $pearDB->isColumnExist('nagios_server', 'is_encryption_ready')
+        && $pearDB->isColumnExist('nagios_server', 'is_encryption_ready_old') !== 1
+    ) {
+        $errorMessage = "Unable to update 'is_encryption_ready_old' column in 'nagios_server' table";
+        $pearDB->executeQuery('ALTER TABLE `nagios_server` RENAME COLUMN `is_encryption_ready` TO `is_encryption_ready_old`');
+    }
+    if ($pearDB->isColumnExist('nagios_server', 'is_encryption_ready') !== 1) {
+        $pearDB->executeQuery('ALTER TABLE `nagios_server` ADD COLUMN `is_encryption_ready` BOOLEAN NOT NULL DEFAULT 1');
+    }
+    if ($pearDB->isColumnExist('nagios_server', 'is_encryption_ready_old')) {
+        $errorMessage = "Unable to update 'is_encryption_ready' values in 'nagios_server' table";
+        if (! $pearDB->isTransactionActive()) {
+            $pearDB->startTransaction();
+        }
+        $pearDB->executeStatement(
+            <<<'SQL'
+                UPDATE nagios_server ns
+                SET ns.is_encryption_ready = 0
+                WHERE ns.is_encryption_ready_old = '0'
+                SQL
+        );
+        $pearDB->commitTransaction();
+
+        $pearDB->executeQuery('ALTER TABLE `nagios_server` DROP COLUMN `is_encryption_ready_old`');
+    }
+
+    if (
+        $pearDBO->isColumnExist('instances', 'is_encryption_ready')
+        && $pearDBO->isColumnExist('instances', 'is_encryption_ready_old') !== 1
+    ) {
+        $errorMessage = "Unable to update 'is_encryption_ready_old' column in 'instances' table";
+        $pearDBO->executeQuery('ALTER TABLE `instances` RENAME COLUMN `is_encryption_ready` TO `is_encryption_ready_old`');
+    }
+    if ($pearDBO->isColumnExist('instances', 'is_encryption_ready') !== 1) {
+        $errorMessage = "Unable to update 'is_encryption_ready' column in 'instances' table";
+        $pearDBO->executeQuery('ALTER TABLE `instances` ADD COLUMN `is_encryption_ready` BOOLEAN NOT NULL DEFAULT 0');
+    }
+    if ($pearDBO->isColumnExist('instances', 'is_encryption_ready_old')) {
+        $errorMessage = "Unable to update 'is_encryption_ready' values in 'instances' table";
+        if (! $pearDBO->isTransactionActive()) {
+            $pearDBO->startTransaction();
+        }
+        $pearDBO->executeStatement(
+            <<<'SQL'
+                UPDATE instances ins
+                SET ins.is_encryption_ready = 1
+                WHERE ins.is_encryption_ready_old = '1'
+                SQL
+        );
+        $pearDBO->commitTransaction();
+
+        $pearDBO->executeQuery('ALTER TABLE `instances` DROP COLUMN `is_encryption_ready_old`');
+    }
+};
+
 try {
     // DDL statements for real time database
 
     // DDL statements for configuration database
     $bbdoDefaultUpdate();
+    $addIsEncryptionReadyAsBooleanColumn();
 
     // Transactional queries for configuration database
     if (! $pearDB->inTransaction()) {
