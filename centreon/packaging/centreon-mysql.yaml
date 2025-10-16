@@ -15,14 +15,14 @@ homepage: "https://www.centreon.com"
 license: "Apache-2.0"
 
 contents:
-  - src: "./src/centreon-database.cnf"
+  - src: "./src/centreon-mysql.cnf"
     dst: "/etc/my.cnf.d/centreon.cnf"
     type: config|noreplace
     file_info:
       mode: 0644
     packager: rpm
-  - src: "./src/centreon-database.cnf"
-    dst: "/etc/mysql/mysql.conf.d/80-centreon.cnf"
+  - src: "./src/centreon-mysql.cnf"
+    dst: "/etc/mysql/conf.d/80-centreon.cnf"
     type: config|noreplace
     file_info:
       mode: 0644
