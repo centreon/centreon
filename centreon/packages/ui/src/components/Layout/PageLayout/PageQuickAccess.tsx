@@ -15,7 +15,7 @@ type Props = {
   elements: Array<NamedEntity>;
   goBack: () => void;
   isActive: (id: number | string) => boolean;
-  isDisabled: (id: number | string) => boolean;
+  isDisabled?: (id: number | string) => boolean;
   labels: {
     create: string;
     goBack: string;
@@ -43,7 +43,7 @@ export const PageQuickAccess = ({
             key={`${element.id}`}
             onClick={navigateToElement(element.id)}
             isActive={isActive(element.id)}
-            isDisabled={isDisabled(element.id)}
+            isDisabled={isDisabled?.(element.id)}
           >
             {element.name}
           </Menu.Item>
