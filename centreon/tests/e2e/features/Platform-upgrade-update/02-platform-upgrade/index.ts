@@ -104,14 +104,23 @@ Given(
     cy.log(`Testing ${Cypress.env('IS_CLOUD') ? 'cloud' : 'onprem'} upgrade`);
 
     return cy.getWebVersion().then(({ major_version }) => {
+      cy.task('logVersion', `Current Major version value is ${major_version}`);
       let majorVersionFrom = '0';
       switch (majorVersionFromExpression) {
         case 'n - 1':
           majorVersionFrom = getCentreonPreviousMajorVersion(major_version);
+          cy.task(
+            'logVersion',
+            `Previous Major version value is ${majorVersionFrom}`
+          );
           break;
         case 'n - 2':
           majorVersionFrom = getCentreonPreviousMajorVersion(
             getCentreonPreviousMajorVersion(major_version)
+          );
+          cy.task(
+            'logVersion',
+            `Previous Major version value is ${majorVersionFrom}`
           );
           break;
         default:
@@ -171,7 +180,10 @@ Given(
                 const installedVersion = `${majorVersionFrom}.${stableMinorVersions[minorVersionIndex]}`;
                 Cypress.env('installed_version', installedVersion);
                 cy.log('installed_version', installedVersion);
-
+                cy.task(
+                  'logVersion',
+                  `Installed version value is ${installedVersion}`
+                );
                 return installCentreon(installedVersion)
                   .then(() => {
                     if (Cypress.env('WEB_IMAGE_OS').includes('alma')) {
