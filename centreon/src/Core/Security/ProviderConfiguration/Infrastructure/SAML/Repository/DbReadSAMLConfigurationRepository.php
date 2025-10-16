@@ -26,6 +26,7 @@ namespace Core\Security\ProviderConfiguration\Infrastructure\SAML\Repository;
 use Adaptation\Database\Connection\Collection\QueryParameters;
 use Adaptation\Database\Connection\Exception\ConnectionException;
 use Adaptation\Database\Connection\ValueObject\QueryParameter;
+use Adaptation\Database\QueryBuilder\Exception\QueryBuilderException;
 use Assert\AssertionFailedException;
 use Core\Common\Domain\Exception\CollectionException;
 use Core\Common\Domain\Exception\RepositoryException;
@@ -50,22 +51,23 @@ class DbReadSAMLConfigurationRepository extends DatabaseRepository implements Re
      */
     public function findOneContactTemplate(int $contactTemplateId): ?ContactTemplate
     {
-        $query = $this->queryBuilder->select('contact_id', 'contact_name')
-            ->from('`:db`.contact')
-            ->where('contact_id = :contactTemplateId')
-            ->andWhere('contact_register = :contactRegister')
-            ->getQuery();
-
         try {
+            $query = $this->connection->createQueryBuilder()
+                ->select('contact_id', 'contact_name')
+                ->from('`:db`.contact')
+                ->where('contact_id = :contactTemplateId')
+                ->andWhere('contact_register = :contactRegister')
+                ->getQuery();
+
             $queryParameters = QueryParameters::create([
                 QueryParameter::int('contactTemplateId', $contactTemplateId),
                 QueryParameter::int('contactRegister', 0),
             ]);
 
             $entry = $this->connection->fetchAssociative($this->translateDbName($query), $queryParameters);
-        } catch (ValueObjectException|CollectionException|ConnectionException $e) {
+        } catch (QueryBuilderException|ValueObjectException|CollectionException|ConnectionException $e) {
             throw new RepositoryException(
-                message: 'Could not fetch contact template from database',
+                message: 'Could not fetch contact template from database for SAML configuration',
                 context: ['contact_template_id' => $contactTemplateId],
                 previous: $e
             );
@@ -79,20 +81,21 @@ class DbReadSAMLConfigurationRepository extends DatabaseRepository implements Re
      */
     public function findOneContactGroup(int $contactGroupId): ?ContactGroup
     {
-        $query = $this->queryBuilder->select('cg_id', 'cg_name', 'cg_alias', 'cg_comment', 'cg_activate', 'cg_type')
-            ->from('`:db`.contactgroup')
-            ->where('cg_id = :contactGroupId')
-            ->getQuery();
-
         try {
+            $query = $this->connection->createQueryBuilder()
+                ->select('cg_id', 'cg_name', 'cg_alias', 'cg_comment', 'cg_activate', 'cg_type')
+                ->from('`:db`.contactgroup')
+                ->where('cg_id = :contactGroupId')
+                ->getQuery();
+
             $queryParameters = QueryParameters::create([
                 QueryParameter::int('contactGroupId', $contactGroupId),
             ]);
 
             $entry = $this->connection->fetchAssociative($this->translateDbName($query), $queryParameters);
-        } catch (ValueObjectException|CollectionException|ConnectionException $e) {
+        } catch (QueryBuilderException|ValueObjectException|CollectionException|ConnectionException $e) {
             throw new RepositoryException(
-                message: 'Could not fetch contact group from database',
+                message: 'Could not fetch contact group from database for SAML configuration',
                 context: ['contact_group_id' => $contactGroupId],
                 previous: $e
             );
@@ -112,7 +115,7 @@ class DbReadSAMLConfigurationRepository extends DatabaseRepository implements Re
             return $entry !== false ? DbContactGroupFactory::createFromRecord($entry) : null;
         } catch (AssertionFailedException $e) {
             throw new RepositoryException(
-                message: 'Contact group record is invalid',
+                message: 'Contact group record is invalid for SAML configuration',
                 context: ['contact_group_id' => $contactGroupId, 'record' => $entry],
                 previous: $e
             );
@@ -126,8 +129,8 @@ class DbReadSAMLConfigurationRepository extends DatabaseRepository implements Re
     {
         $query = <<<'SQL'
             SELECT * from `:db`.security_provider_access_group_relation spagn
-            INNER JOIN `:db`.acl_groups
-                ON acl_group_id = spagn.access_group_id
+            INNER JOIN `:db`.acl_groups ag
+                ON ag.acl_group_id = spagn.access_group_id
             WHERE spagn.provider_configuration_id = :providerConfigurationId
             ORDER BY spagn.priority asc
             SQL;
@@ -137,10 +140,10 @@ class DbReadSAMLConfigurationRepository extends DatabaseRepository implements Re
                 QueryParameter::int('providerConfigurationId', $providerConfigurationId),
             ]);
 
-            $entries = $this->connection->fetchAllAssociative($query, $queryParameters);
+            $entries = $this->connection->fetchAllAssociative($this->translateDbName($query), $queryParameters);
         } catch (ValueObjectException|CollectionException|ConnectionException $e) {
             throw new RepositoryException(
-                message: 'Could not fetch authorization rules from database',
+                message: 'Could not fetch authorization rules from database for SAML configuration',
                 context: ['provider_configuration_id' => $providerConfigurationId],
                 previous: $e
             );
@@ -154,7 +157,7 @@ class DbReadSAMLConfigurationRepository extends DatabaseRepository implements Re
                 $authorizationRules[] = new AuthorizationRule($entry['claim_value'], $accessGroup, $entry['priority']);
             } catch (AssertionFailedException $e) {
                 throw new RepositoryException(
-                    message: 'Access group record is invalid',
+                    message: 'Access group record is invalid for SAML configuration',
                     context: ['record' => $entry, 'provider_configuration_id' => $providerConfigurationId],
                     previous: $e
                 );
@@ -185,7 +188,7 @@ class DbReadSAMLConfigurationRepository extends DatabaseRepository implements Re
             $entries = $this->connection->fetchAllAssociative($this->translateDbName($query), $queryParameters);
         } catch (ValueObjectException|CollectionException|ConnectionException $e) {
             throw new RepositoryException(
-                message: 'Could not fetch contact group relations from database',
+                message: 'Could not fetch contact group relations from database for SAML configuration',
                 context: ['provider_configuration_id' => $providerConfigurationId],
                 previous: $e
             );
@@ -208,7 +211,7 @@ class DbReadSAMLConfigurationRepository extends DatabaseRepository implements Re
                 $contactGroupRelations[] = new ContactGroupRelation($entry['claim_value'], $contactGroup);
             } catch (AssertionFailedException $e) {
                 throw new RepositoryException(
-                    message: 'Contact group record is invalid',
+                    message: 'Contact group record is invalid for SAML configuration',
                     context: ['record' => $entry, 'provider_configuration_id' => $providerConfigurationId],
                     previous: $e
                 );

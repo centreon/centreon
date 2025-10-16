@@ -255,12 +255,16 @@ final readonly class UpdateSAMLConfiguration
             $authorizationRules = $customConfiguration->getACLConditions()->getRelations();
 
             $this->writeSAMLConfigurationRepository->deleteAuthorizationRules();
-            $this->writeSAMLConfigurationRepository->insertAuthorizationRules($authorizationRules);
+            if ($authorizationRules !== []) {
+                $this->writeSAMLConfigurationRepository->insertAuthorizationRules($authorizationRules);
+            }
 
             $contactGroupRelations = $customConfiguration->getGroupsMapping()->getContactGroupRelations();
 
             $this->writeSAMLConfigurationRepository->deleteContactGroupRelations();
-            $this->writeSAMLConfigurationRepository->insertContactGroupRelations($contactGroupRelations);
+            if ($contactGroupRelations !== []) {
+                $this->writeSAMLConfigurationRepository->insertContactGroupRelations($contactGroupRelations);
+            }
 
             if (! $isAlreadyInTransaction) {
                 $this->databaseRepositoryManager->commitTransaction();
