@@ -155,9 +155,7 @@ final class DbReadConfigurationRepository extends AbstractRepositoryDRB implemen
                 AND c.`contact_register` = :contactRegister
                 SQL;
 
-            $queryParameters = QueryParameters::create([
-                QueryParameter::int('contactRegister', 1),
-            ]);
+            $queryParameters = QueryParameters::create([QueryParameter::int('contactRegister', 1)]);
 
             return $this->db->fetchAllAssociative($this->translateDbName($query), $queryParameters);
         } catch (ConnectionException|ValueObjectException|CollectionException $e) {
@@ -523,10 +521,7 @@ final class DbReadConfigurationRepository extends AbstractRepositoryDRB implemen
             SQL;
 
         try {
-            $queryParameters = QueryParameters::create([
-                QueryParameter::string('providerName', $providerName),
-            ]);
-
+            $queryParameters = QueryParameters::create([QueryParameter::string('providerName', $providerName)]);
             $entry = $this->db->fetchAssociative($this->translateDbName($query), $queryParameters);
         } catch (ValueObjectException|CollectionException|ConnectionException $e) {
             throw new RepositoryException(
@@ -565,10 +560,7 @@ final class DbReadConfigurationRepository extends AbstractRepositoryDRB implemen
             SQL;
 
         try {
-            $queryParameters = QueryParameters::create([
-                QueryParameter::int('id', $id),
-            ]);
-
+            $queryParameters = QueryParameters::create([QueryParameter::int('id', $id)]);
             $entry = $this->db->fetchAssociative($this->translateDbName($query), $queryParameters);
         } catch (ValueObjectException|CollectionException|ConnectionException $e) {
             throw new RepositoryException(

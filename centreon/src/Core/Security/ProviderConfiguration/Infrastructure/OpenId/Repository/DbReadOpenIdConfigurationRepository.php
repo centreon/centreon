@@ -26,6 +26,7 @@ namespace Core\Security\ProviderConfiguration\Infrastructure\OpenId\Repository;
 use Adaptation\Database\Connection\Collection\QueryParameters;
 use Adaptation\Database\Connection\Exception\ConnectionException;
 use Adaptation\Database\Connection\ValueObject\QueryParameter;
+use Adaptation\Database\QueryBuilder\Exception\QueryBuilderException;
 use Assert\AssertionFailedException;
 use Core\Common\Domain\Exception\CollectionException;
 use Core\Common\Domain\Exception\RepositoryException;
@@ -50,22 +51,23 @@ class DbReadOpenIdConfigurationRepository extends DatabaseRepository implements 
      */
     public function findOneContactTemplate(int $contactTemplateId): ?ContactTemplate
     {
-        $query = $this->queryBuilder->select('contact_id', 'contact_name')
-            ->from('`:db`.contact')
-            ->where('contact_id = :contactTemplateId')
-            ->andWhere('contact_register = :contactRegister')
-            ->getQuery();
-
         try {
+            $query = $this->connection->createQueryBuilder()
+                ->select('contact_id', 'contact_name')
+                ->from('`:db`.contact')
+                ->where('contact_id = :contactTemplateId')
+                ->andWhere('contact_register = :contactRegister')
+                ->getQuery();
+
             $queryParameters = QueryParameters::create([
-                QueryParameter::int(':contactTemplateId', $contactTemplateId),
-                QueryParameter::int(':contactRegister', 0),
+                QueryParameter::int('contactTemplateId', $contactTemplateId),
+                QueryParameter::int('contactRegister', 0),
             ]);
 
             $entry = $this->connection->fetchAssociative($this->translateDbName($query), $queryParameters);
-        } catch (ValueObjectException|CollectionException|ConnectionException $e) {
+        } catch (QueryBuilderException|ValueObjectException|CollectionException|ConnectionException $e) {
             throw new RepositoryException(
-                message: 'Could not fetch contact template from database',
+                message: 'Could not fetch contact template from database for OpenID configuration',
                 context: ['contactTemplateId' => $contactTemplateId],
                 previous: $e
             );
@@ -79,20 +81,19 @@ class DbReadOpenIdConfigurationRepository extends DatabaseRepository implements 
      */
     public function findOneContactGroup(int $contactGroupId): ?ContactGroup
     {
-        $query = $this->queryBuilder->select('cg_id', 'cg_name', 'cg_alias', 'cg_comment', 'cg_activate', 'cg_type')
-            ->from('`:db`.contactgroup')
-            ->where('cg_id = :contactGroupId')
-            ->getQuery();
 
         try {
-            $queryParameters = QueryParameters::create([
-                QueryParameter::int(':contactGroupId', $contactGroupId),
-            ]);
+            $query = $this->connection->createQueryBuilder()
+                ->select('cg_id', 'cg_name', 'cg_alias', 'cg_comment', 'cg_activate', 'cg_type')
+                ->from('`:db`.contactgroup')
+                ->where('cg_id = :contactGroupId')
+                ->getQuery();
 
+            $queryParameters = QueryParameters::create([QueryParameter::int('contactGroupId', $contactGroupId)]);
             $entry = $this->connection->fetchAssociative($this->translateDbName($query), $queryParameters);
-        } catch (ValueObjectException|CollectionException|ConnectionException $e) {
+        } catch (QueryBuilderException|ValueObjectException|CollectionException|ConnectionException $e) {
             throw new RepositoryException(
-                message: 'Could not fetch contact group from database',
+                message: 'Could not fetch contact group from database for OpenID configuration',
                 context: ['contactGroupId' => $contactGroupId],
                 previous: $e
             );
@@ -111,7 +112,7 @@ class DbReadOpenIdConfigurationRepository extends DatabaseRepository implements 
             return $entry !== false ? DbContactGroupFactory::createFromRecord($entry) : null;
         } catch (AssertionFailedException $e) {
             throw new RepositoryException(
-                message: 'Contact group record is invalid',
+                message: 'Contact group record is invalid for OpenID configuration',
                 context: ['contact_group_id' => $contactGroupId, 'record' => $entry],
                 previous: $e
             );
@@ -131,14 +132,11 @@ class DbReadOpenIdConfigurationRepository extends DatabaseRepository implements 
             SQL;
 
         try {
-            $queryParameters = QueryParameters::create([
-                QueryParameter::int(':providerConfigurationId', $providerConfigurationId),
-            ]);
-
+            $queryParameters = QueryParameters::create([QueryParameter::int('providerConfigurationId', $providerConfigurationId)]);
             $entries = $this->connection->fetchAllAssociative($this->translateDbName($query), $queryParameters);
         } catch (ValueObjectException|CollectionException|ConnectionException $e) {
             throw new RepositoryException(
-                message: 'Could not fetch authorization rules from database',
+                message: 'Could not fetch authorization rules from database for OpenID configuration: ' . $e->getMessage(),
                 context: ['providerConfigurationId' => $providerConfigurationId],
                 previous: $e
             );
@@ -152,7 +150,7 @@ class DbReadOpenIdConfigurationRepository extends DatabaseRepository implements 
                 $authorizationRules[] = new AuthorizationRule($entry['claim_value'], $accessGroup, $entry['priority']);
             } catch (AssertionFailedException $e) {
                 throw new RepositoryException(
-                    message: 'Access group record is invalid',
+                    message: 'Access group record is invalid for OpenID configuration',
                     context: ['record' => $entry, 'provider_configuration_id' => $providerConfigurationId],
                     previous: $e
                 );
@@ -176,14 +174,11 @@ class DbReadOpenIdConfigurationRepository extends DatabaseRepository implements 
             SQL;
 
         try {
-            $queryParameters = QueryParameters::create([
-                QueryParameter::int(':providerConfigurationId', $providerConfigurationId),
-            ]);
-
+            $queryParameters = QueryParameters::create([QueryParameter::int('providerConfigurationId', $providerConfigurationId)]);
             $entries = $this->connection->fetchAllAssociative($this->translateDbName($query), $queryParameters);
         } catch (ValueObjectException|CollectionException|ConnectionException $e) {
             throw new RepositoryException(
-                message: 'Could not fetch contact group relations from database',
+                message: 'Could not fetch contact group relations from database for OpenID configuration',
                 context: ['providerConfigurationId' => $providerConfigurationId],
                 previous: $e
             );
@@ -206,7 +201,7 @@ class DbReadOpenIdConfigurationRepository extends DatabaseRepository implements 
                 $contactGroupRelations[] = new ContactGroupRelation($entry['claim_value'], $contactGroup);
             } catch (AssertionFailedException $e) {
                 throw new RepositoryException(
-                    message: 'Contact group record is invalid',
+                    message: 'Contact group record is invalid for OpenID configuration',
                     context: ['record' => $entry, 'provider_configuration_id' => $providerConfigurationId],
                     previous: $e
                 );
