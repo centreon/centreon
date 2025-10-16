@@ -111,7 +111,7 @@ Given(
           majorVersionFrom = getCentreonPreviousMajorVersion(major_version);
           cy.task(
             'logVersion',
-            `Previous Major version value is ${majorVersionFrom}`,
+            `Previous Major version value is ${majorVersionFrom}`
           );
           break;
         case 'n - 2':
@@ -120,7 +120,7 @@ Given(
           );
           cy.task(
             'logVersion',
-            `Previous Major version value is ${majorVersionFrom}`,
+            `Previous Major version value is ${majorVersionFrom}`
           );
           break;
         default:
@@ -183,7 +183,7 @@ Given(
                 cy.task(
                   'logVersion',
                   `Installed version value is ${installedVersion}`
-                )
+                );
                 return installCentreon(installedVersion)
                   .then(() => {
                     if (Cypress.env('WEB_IMAGE_OS').includes('alma')) {
