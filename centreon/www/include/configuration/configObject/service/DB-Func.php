@@ -36,12 +36,12 @@ use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryI
 use Core\Security\Vault\Domain\Model\VaultConfiguration;
 use Core\ServiceTemplate\Application\Repository\ReadServiceTemplateRepositoryInterface;
 use Core\ServiceTemplate\Domain\Model\ServiceTemplateInheritance;
-use Symfony\Component\HttpClient\CurlHttpClient;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Utility\Interfaces\UUIDGeneratorInterface;
 
 require_once _CENTREON_PATH_ . 'www/include/common/vault-functions.php';
@@ -4011,7 +4011,7 @@ function insertServiceTemplateByApi(
         UrlGeneratorInterface::ABSOLUTE_URL
     );
 
-    $response = callApi($url, 'POST', $payload);
+    $response = callApi($url, 'POST', $payload, $kernel);
     if ($response['status_code'] !== 201) {
         throw new Exception($response['message'] ?? 'Unexpected return code by API');
     }
@@ -4245,7 +4245,7 @@ function deleteServiceByApi(array $services = []): void
             ['base_uri' => $basePath, 'serviceId' => $serviceId],
             UrlGeneratorInterface::ABSOLUTE_URL
         );
-        $response = callApi($url, 'DELETE', []);
+        $response = callApi($url, 'DELETE', [], $kernel);
         if ($response['status_code'] !== 204) {
             $servicesWithError[] = [
                 'service_id' => $serviceId,
@@ -4289,7 +4289,7 @@ function deleteServiceTemplateByApi(array $serviceTemplates = []): void
             ['base_uri' => $basePath, 'serviceTemplateId' => $serviceTemplateId],
             UrlGeneratorInterface::ABSOLUTE_URL
         );
-        $response = callApi($url, 'DELETE', []);
+        $response = callApi($url, 'DELETE', [], $kernel);
         if ($response['status_code'] !== 204) {
             $serviceTemplatesWithError[] = [
                 'service_template_id' => $serviceTemplateId,
@@ -4313,6 +4313,7 @@ function deleteServiceTemplateByApi(array $serviceTemplates = []): void
  * @param string $url
  * @param string $httpMethod
  * @param array<string, mixed> $payload
+ * @param Kernel $kernel
  *
  * @throws TransportExceptionInterface
  * @throws RedirectionExceptionInterface
@@ -4321,9 +4322,10 @@ function deleteServiceTemplateByApi(array $serviceTemplates = []): void
  *
  * @return array{status_code: int, content: null|array} return the status code of the request and its content
  */
-function callApi(string $url, string $httpMethod, array $payload): array
+function callApi(string $url, string $httpMethod, array $payload, Kernel $kernel): array
 {
-    $client = new CurlHttpClient();
+    /** @var HttpClientInterface  */
+    $client = $kernel->getContainer()->get(HttpClientInterface::class);
     $response = $client->request(
         $httpMethod,
         $url,

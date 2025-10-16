@@ -40,8 +40,8 @@ use Core\Host\Application\Converter\HostEventConverter;
 use Core\Infrastructure\Common\Api\Router;
 use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface;
 use Core\Security\Vault\Domain\Model\VaultConfiguration;
-use Symfony\Component\HttpClient\CurlHttpClient;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 /**
  * Quickform rule that checks whether or not monitoring server can be set
@@ -2703,7 +2703,7 @@ function deleteHostByApi(string $basePath, array $hosts, bool $isTemplate = fals
             UrlGeneratorInterface::ABSOLUTE_URL,
         );
 
-        $response = callHostApi($url, 'DELETE', []);
+        $response = callHostApi($url, 'DELETE', [], $kernel);
         if ($response['status_code'] !== 204) {
             $message = $response['content']['message'] ?? 'Unknown error';
 
@@ -2825,7 +2825,7 @@ function insertByApi(array $formData, bool $isCloudPlatform, string $basePath, b
         UrlGeneratorInterface::ABSOLUTE_URL,
     );
 
-    $response = callHostApi($url, 'POST', $payload);
+    $response = callHostApi($url, 'POST', $payload, $kernel);
 
     return $response['content']['id'] ?? null;
 }
@@ -2942,7 +2942,7 @@ function updateByApi(array $formData, bool $isCloudPlatform, string $basePath, b
         UrlGeneratorInterface::ABSOLUTE_URL,
     );
 
-    callHostApi($url, 'PATCH', $payload);
+    callHostApi($url, 'PATCH', $payload, $kernel);
 }
 
 /**
@@ -2952,15 +2952,18 @@ function updateByApi(array $formData, bool $isCloudPlatform, string $basePath, b
  * @param string $url
  * @param string $httpMethod
  * @param array<string,mixed> $payload
+ * @param Kernel $kernel
  *
  * @throws JsonException
  * @throws Exception
  *
  * @return array<string,mixed>
  */
-function callHostApi(string $url, string $httpMethod, array $payload): array
+function callHostApi(string $url, string $httpMethod, array $payload, Kernel $kernel): array
 {
-    $client = new CurlHttpClient();
+    /** @var HttpClientInterface  */
+    $client = $kernel->getContainer()->get(HttpClientInterface::class);
+
     $response = $client->request(
         $httpMethod,
         $url,
