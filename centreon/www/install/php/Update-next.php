@@ -329,16 +329,49 @@ $addOpentelemetryLogLevelColumn = function () use ($pearDB, &$errorMessage, $ver
 };
 
 /** -------------------------------------------- BBDO cfg update -------------------------------------------- */
-$bbdoDefaultUpdate = function () use ($pearDB, &$errorMessage): void {
+$bbdoDefaultUpdate = function () use ($pearDB, &$errorMessage, $version): void {
+    $errorMessage = "Unable to update 'bbdo_version' column to 'cfg_centreonbroker' table";
+
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: checking 'bbdo_version' column in 'cfg_centreonbroker' table"
+    );
+
     if ($pearDB->isColumnExist('cfg_centreonbroker', 'bbdo_version')) {
-        $errorMessage = "Unable to update 'bbdo_version' column to 'cfg_centreonbroker' table";
-        $pearDB->executeQuery('ALTER TABLE `cfg_centreonbroker` MODIFY `bbdo_version` VARCHAR(50) DEFAULT "3.0.1"');
+
+        CentreonLog::create()->info(
+            logTypeId: CentreonLog::TYPE_UPGRADE,
+            message: "UPGRADE - {$version}: updating 'bbdo_version' column to 'cfg_centreonbroker' table"
+        );
+
+        $pearDB->executeStatement('ALTER TABLE `cfg_centreonbroker` MODIFY `bbdo_version` VARCHAR(50) DEFAULT "3.0.1"');
+
+        CentreonLog::create()->info(
+            logTypeId: CentreonLog::TYPE_UPGRADE,
+            message: "UPGRADE - {$version}: 'bbdo_version' column to 'cfg_centreonbroker' table updated successfully"
+        );
+    } else {
+        CentreonLog::create()->info(
+            logTypeId: CentreonLog::TYPE_UPGRADE,
+            message: "UPGRADE - {$version}: 'bbdo_version' column doesn't exist in 'cfg_centreonbroker' table, skipping"
+        );
     }
 };
 
-$bbdoCfgUpdate = function () use ($pearDB, &$errorMessage): void {
+$bbdoCfgUpdate = function () use ($pearDB, &$errorMessage, $version): void {
     $errorMessage = "Unable to update 'bbdo_version' version in 'cfg_centreonbroker' table";
+
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: updating 'bbdo_version' version in 'cfg_centreonbroker' table"
+    );
+
     $pearDB->executeStatement('UPDATE `cfg_centreonbroker` SET `bbdo_version` = "3.0.1"');
+
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: 'bbdo_version' version in 'cfg_centreonbroker' table updated successfully"
+    );
 };
 
 try {
@@ -359,8 +392,6 @@ try {
     $cleanGlobalMacrosName();
     $fixTypoInStandardMacroName();
     $fixBrokerConfigTypo();
-    $bbdoCfgUpdate();
-    $updateSamlProviderConfiguration();
 
     $pearDB->commitTransaction();
 
