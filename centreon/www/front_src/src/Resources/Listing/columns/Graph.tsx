@@ -24,7 +24,6 @@ import { graphsCapNumber } from '../../constants';
 
 import HoverChip from './HoverChip';
 import IconColumn from './IconColumn';
-import { useGraphStyles } from './Graph.styles';
 import TooManyElementsCard from '../../TooManyElementsCard';
 
 const useStyles = makeStyles()((theme) => ({
@@ -73,7 +72,7 @@ const Graph = ({ row, endpoint }: GraphProps): JSX.Element => {
     ? (
       <TooManyElementsCard
         listing={true}
-        title={data?.global.title}
+        title={data?.global.title ?? ''}
       />
     ) : (
       <>
