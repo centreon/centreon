@@ -128,6 +128,7 @@ const ConnectionInitiated = (): JSX.Element => {
               color="success"
               checked={values.configuration.agentInitiated}
               onChange={handleChange('agentInitiated')}
+              data-testid="enable_agent"
             />
           }
           label={t(labelEnable)}
@@ -152,6 +153,7 @@ const ConnectionInitiated = (): JSX.Element => {
               color="success"
               checked={values.configuration.pollerInitiated}
               onChange={handleChange('pollerInitiated')}
+              data-testid="enable_poller"
             />
           }
           label={t(labelEnable)}
