@@ -129,7 +129,7 @@ jobs:
         if: "${{ inputs.package_cache_key != '' && inputs.package_directory != '' && contains(matrix.feature, 'platform-') }}"
         uses: actions/cache/restore@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
         with:
-          path: ./*.${{ contains(inputs.os, 'alma') && 'rpm' || 'deb' }}
+          path: ${{ inputs.module_name }}/tests/e2e/*.${{ contains(inputs.os, 'alma') && 'rpm' || 'deb' }}
           key: ${{ inputs.package_cache_key }}
           fail-on-cache-miss: true
 
@@ -165,11 +165,7 @@ jobs:
         if: "${{ inputs.package_cache_key != '' && inputs.package_directory != '' && contains(matrix.feature, 'platform-') }}"
         run: |
           mkdir -p ${{ inputs.package_directory }}
-          echo "ls current directory"
-          ls
-          echo "ls directory from ../../.."
-          ls ../../..
-          mv ../../../*.${{ contains(inputs.os, 'alma') && 'rpm' || 'deb' }} ${{ inputs.package_directory }}
+          mv *.${{ contains(inputs.os, 'alma') && 'rpm' || 'deb' }} ${{ inputs.package_directory }}
         shell: bash
 
       - name: Login to Registry
