@@ -60,10 +60,6 @@ export default (on: Cypress.PluginEvents): void => {
   }
 
   on('task', {
-    logVersion(message) {
-      console.log(`[LOG]: ${message}`);
-      return null;
-    },
     copyFromContainer: async ({ destination, serviceName, source }) => {
       try {
         const container = getContainer(serviceName);
