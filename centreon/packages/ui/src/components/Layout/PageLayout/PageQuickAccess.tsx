@@ -49,28 +49,26 @@ export const PageQuickAccess = ({
           </Menu.Item>
         ))}
         <Menu.Divider key="divider" />
-        <Menu.Item key="create">
-          <>
+        <div className="my-2">
+          <Button
+            icon={<ArrowBackIcon />}
+            iconVariant="start"
+            variant="ghost"
+            onClick={goBack}
+          >
+            {t(labels.goBack)}
+          </Button>
+          {create && (
             <Button
-              icon={<ArrowBackIcon />}
+              icon={<AddIcon />}
               iconVariant="start"
-              variant="ghost"
-              onClick={goBack}
+              variant="secondary"
+              onClick={create}
             >
-              {t(labels.goBack)}
+              {t(labels.create)}
             </Button>
-            {create && (
-              <Button
-                icon={<AddIcon />}
-                iconVariant="start"
-                variant="secondary"
-                onClick={create}
-              >
-                {t(labels.create)}
-              </Button>
-            )}
-          </>
-        </Menu.Item>
+          )}
+        </div>
       </Menu.Items>
     </Menu>
   );

@@ -50,7 +50,7 @@ const MenuButton = ({
     <Button
       {...attr}
       aria-label={ariaLabel}
-      className={`${isMenuOpen && 'bg-primary-main/8'} ${isMenuOpen ? 'text-text-primary-main' : 'text-text-secondary'} ${className}`}
+      className={`${isMenuOpen ? 'bg-primary-main/8 text-text-primary-main' : 'text-text-secondary'} ${className}`}
       data-is-active={isMenuOpen}
       size={size}
       variant={variant}
