@@ -82,7 +82,6 @@ class DbReadOpenIdConfigurationRepository extends DatabaseRepository implements 
     public function findOneContactGroup(int $contactGroupId): ?ContactGroup
     {
 
-
         try {
             $query = $this->connection->createQueryBuilder()
                 ->select('cg_id', 'cg_name', 'cg_alias', 'cg_comment', 'cg_activate', 'cg_type')

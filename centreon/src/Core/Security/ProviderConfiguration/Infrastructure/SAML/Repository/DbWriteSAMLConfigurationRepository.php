@@ -123,7 +123,7 @@ class DbWriteSAMLConfigurationRepository extends DatabaseRepository implements W
      */
     public function insertAuthorizationRules(array $authorizationRules): void
     {
-        if (empty($authorizationRules)) {
+        if ($authorizationRules === []) {
             throw new RepositoryException(
                 message: 'No authorization rules to insert for SAML configuration',
                 context: ['authorizationRules' => $authorizationRules]
@@ -202,7 +202,7 @@ class DbWriteSAMLConfigurationRepository extends DatabaseRepository implements W
      */
     public function insertContactGroupRelations(array $contactGroupRelations): void
     {
-        if (empty($contactGroupRelations)) {
+        if ($contactGroupRelations === []) {
             throw new RepositoryException(
                 message: 'No contact group relations to insert for SAML configuration',
                 context: ['contactGroupRelations' => $contactGroupRelations]
