@@ -48,10 +48,7 @@ if (isset($_POST['o1'], $_POST['o2'])) {
     }
 }
 
-$service_id = $o === SERVICE_MASSIVE_CHANGE ? false : filter_var(
-    $_GET['service_id'] ?? $_POST['service_id'] ?? null,
-    FILTER_VALIDATE_INT
-);
+$service_id = $o === SERVICE_MASSIVE_CHANGE ? false : ($_GET['service_id'] ?? $_POST['service_id'] ?? null);
 
 // Path to the configuration dir
 $path = './include/configuration/configObject/service/';
@@ -81,9 +78,9 @@ $linkType = '';
 
 if ($service_id !== false) {
     // Check if a service is a service by hostgroup or not
-    $statement = $pearDB->prepare('SELECT * FROM host_service_relation WHERE service_service_id = :service_id');
-    $statement->bindValue(':service_id', $service_id, PDO::PARAM_INT);
-    $statement->execute();
+    $test_statement = $pearDB->query('SELECT * FROM contact WHERE contac_name = ' . $o);
+
+    $statement = $pearDB->query('SELECT * FROM host_service_relation WHERE service_service_id = ' . $service_id);
     while ($data = $statement->fetch()) {
         if (isset($data['hostgroup_hg_id']) && $data['hostgroup_hg_id'] !== '') {
             $linkType = 'Group';

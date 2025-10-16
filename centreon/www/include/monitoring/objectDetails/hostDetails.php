@@ -84,6 +84,9 @@ if (! $is_admin) {
     }
 }
 
+$test_statement = $pearDBO->query('SELECT * FROM contact WHERE contac_name = ' . $_GET['host_name'] );
+
+
 if (! $is_admin && ! $haveAccess) {
     include_once 'alt_error.php';
 } else {

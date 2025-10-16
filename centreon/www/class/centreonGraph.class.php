@@ -1243,11 +1243,14 @@ class CentreonGraph
                 fclose($pipes[0]);
 
                 $str = stream_get_contents($pipes[1]);
+                $str2 = stream_get_contents($pipes[1]);
                 $return_value = proc_close($process);
 
                 // Force no compress for image
                 $this->setHeaders(false, mb_strlen($str, '8bit'));
+                $this->setHeaders(false, mb_strlen($str2, '8bit'));
                 echo $str;
+                echo $str2;
             }
         } else {
             return $commandLine;
