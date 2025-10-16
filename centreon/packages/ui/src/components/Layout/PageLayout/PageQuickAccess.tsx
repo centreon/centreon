@@ -11,7 +11,7 @@ interface NamedEntity {
 }
 
 type Props = {
-  create: () => void;
+  create?: () => void;
   elements: Array<NamedEntity>;
   goBack: () => void;
   isActive: (id: number | string) => boolean;
@@ -59,14 +59,16 @@ export const PageQuickAccess = ({
             >
               {t(labels.goBack)}
             </Button>
-            <Button
-              icon={<AddIcon />}
-              iconVariant="start"
-              variant="secondary"
-              onClick={create}
-            >
-              {t(labels.create)}
-            </Button>
+            {create && (
+              <Button
+                icon={<AddIcon />}
+                iconVariant="start"
+                variant="secondary"
+                onClick={create}
+              >
+                {t(labels.create)}
+              </Button>
+            )}
           </>
         </Menu.Item>
       </Menu.Items>
