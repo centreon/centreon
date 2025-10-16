@@ -165,6 +165,10 @@ jobs:
         if: "${{ inputs.package_cache_key != '' && inputs.package_directory != '' && contains(matrix.feature, 'platform-') }}"
         run: |
           mkdir -p ${{ inputs.package_directory }}
+          echo "ls current directory"
+          ls
+          echo "ls directory from ../../.."
+          ls ../../..
           mv ../../../*.${{ contains(inputs.os, 'alma') && 'rpm' || 'deb' }} ${{ inputs.package_directory }}
         shell: bash
 
