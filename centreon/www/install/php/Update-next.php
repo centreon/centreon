@@ -328,11 +328,25 @@ $addOpentelemetryLogLevelColumn = function () use ($pearDB, &$errorMessage, $ver
     );
 };
 
+/** -------------------------------------------- BBDO cfg update -------------------------------------------- */
+$bbdoDefaultUpdate = function () use ($pearDB, &$errorMessage): void {
+    if ($pearDB->isColumnExist('cfg_centreonbroker', 'bbdo_version')) {
+        $errorMessage = "Unable to update 'bbdo_version' column to 'cfg_centreonbroker' table";
+        $pearDB->executeQuery('ALTER TABLE `cfg_centreonbroker` MODIFY `bbdo_version` VARCHAR(50) DEFAULT "3.0.1"');
+    }
+};
+
+$bbdoCfgUpdate = function () use ($pearDB, &$errorMessage): void {
+    $errorMessage = "Unable to update 'bbdo_version' version in 'cfg_centreonbroker' table";
+    $pearDB->executeStatement('UPDATE `cfg_centreonbroker` SET `bbdo_version` = "3.0.1"');
+};
+
 try {
     // DDL statements for real time database
     // TODO add your function calls to update the real time database structure here
 
     // DDL statements for configuration database
+    $bbdoDefaultUpdate();
     $addOpentelemetryLogLevelColumn();
 
     // Transactional queries for configuration database
@@ -345,6 +359,7 @@ try {
     $cleanGlobalMacrosName();
     $fixTypoInStandardMacroName();
     $fixBrokerConfigTypo();
+    $bbdoCfgUpdate();
     $updateSamlProviderConfiguration();
 
     $pearDB->commitTransaction();
