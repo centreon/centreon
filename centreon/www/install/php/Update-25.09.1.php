@@ -18,3 +18,66 @@
  * For more information : contact@centreon.com
  *
  */
+
+require_once __DIR__ . '/../../../bootstrap.php';
+
+/**
+ * This file contains changes to be included in the next version.
+ * The actual version number should be added in the variable $version.
+ */
+$version = '25.09.1';
+$errorMessage = '';
+
+/** -------------------------------------------- BBDO cfg update -------------------------------------------- */
+$bbdoDefaultUpdate = function () use ($pearDB, &$errorMessage): void {
+    if ($pearDB->isColumnExist('cfg_centreonbroker', 'bbdo_version')) {
+        $errorMessage = "Unable to update 'bbdo_version' column to 'cfg_centreonbroker' table";
+        $pearDB->executeQuery('ALTER TABLE `cfg_centreonbroker` MODIFY `bbdo_version` VARCHAR(50) DEFAULT "3.0.1"');
+    }
+};
+
+$bbdoCfgUpdate = function () use ($pearDB, &$errorMessage): void {
+    $errorMessage = "Unable to update 'bbdo_version' version in 'cfg_centreonbroker' table";
+    $pearDB->executeStatement('UPDATE `cfg_centreonbroker` SET `bbdo_version` = "3.0.1"');
+};
+
+try {
+    // DDL statements for real time database
+
+    // DDL statements for configuration database
+    $bbdoDefaultUpdate();
+
+    // Transactional queries for configuration database
+    if (! $pearDB->inTransaction()) {
+        $pearDB->beginTransaction();
+    }
+
+    $bbdoCfgUpdate();
+
+    $pearDB->commit();
+} catch (Throwable $exception) {
+    CentreonLog::create()->error(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: " . $errorMessage,
+        exception: $exception
+    );
+    try {
+        if ($pearDB->inTransaction()) {
+            $pearDB->rollBack();
+        }
+    } catch (PDOException $rollbackException) {
+        CentreonLog::create()->error(
+            logTypeId: CentreonLog::TYPE_UPGRADE,
+            message: "UPGRADE - {$version}: error while rolling back the upgrade operation for : {$errorMessage}",
+            exception: $rollbackException
+        );
+
+        throw new Exception(
+            "UPGRADE - {$version}: error while rolling back the upgrade operation for : {$errorMessage}",
+            (int) $rollbackException->getCode(),
+            $rollbackException
+        );
+    }
+
+    throw new Exception("UPGRADE - {$version}: " . $errorMessage, (int) $exception->getCode(), $exception);
+}
