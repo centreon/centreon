@@ -24,32 +24,28 @@ const adaptAgentConfigurationToForm = (
   ),
   configuration: {
     ...agentConfiguration.configuration,
-    ...(equals(AgentType.CMA, agentConfiguration.type) &&
-      (!agentConfiguration.configuration.isReverse
-        ? {
-            tokens: map(
-              ({ name, creatorId }) => ({
-                id: `${name}_${creatorId}`,
-                name,
-                creatorId
-              }),
-              agentConfiguration.configuration?.tokens || []
-            )
-          }
-        : {
-            hosts: map(
-              (host) => ({
-                ...host,
-                token: or(isNil(host.token), isEmpty(host.token))
-                  ? null
-                  : {
-                      id: `${host.token?.name}_${host.token?.creatorId}`,
-                      ...host.token
-                    }
-              }),
-              agentConfiguration.configuration?.hosts
-            )
-          }))
+    ...(equals(AgentType.CMA, agentConfiguration.type) && {
+      tokens: map(
+        ({ name, creatorId }) => ({
+          id: `${name}_${creatorId}`,
+          name,
+          creatorId
+        }),
+        agentConfiguration.configuration?.tokens || []
+      ),
+      hosts: map(
+        (host) => ({
+          ...host,
+          token: or(isNil(host.token), isEmpty(host.token))
+            ? null
+            : {
+                id: `${host.token?.name}_${host.token?.creatorId}`,
+                ...host.token
+              }
+        }),
+        agentConfiguration.configuration?.hosts || []
+      )
+    })
   }
 });
 
