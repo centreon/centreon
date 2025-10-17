@@ -1,5 +1,5 @@
 import { path } from 'ramda';
-import { useState, JSX, RefObject } from 'react';
+import { useState, ReactElement, RefObject } from 'react';
 
 import {
   type Interval,
@@ -92,9 +92,7 @@ const ChartGraph = ({
   const rest = areaThresholdLines ? { shapeLines: areaThresholdLines } : {};
 
   const metricsCount = data?.metrics?.length ?? 0;
-  const displayMetricsGraphCapMessage = metricsCount > graphsCapNumber;
-
-  if (displayMetricsGraphCapMessage) {
+  if (metricsCount > graphsCapNumber) {
     return (
       <TooManyElementsCard
         actions={graphActions}
@@ -127,7 +125,7 @@ const ChartGraph = ({
           renderComponent: ({
             data,
             hideTooltip
-          }: TooltipData): JSX.Element => (
+          }: TooltipData): ReactElement => (
             <Comment
               commentDate={data}
               hideAddCommentTooltip={hideTooltip}

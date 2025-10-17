@@ -67,46 +67,42 @@ const Graph = ({ row, endpoint }: GraphProps): ReactElement => {
   const rest = areaThresholdLines ? { shapeLines: areaThresholdLines } : {};
 
   const metricsCount = data?.metrics.length ?? 0;
-  const displayMetricsGraphCapMessage = metricsCount > graphsCapNumber;
-  const graphComponent = displayMetricsGraphCapMessage
-    ? (
+  if (metricsCount > graphsCapNumber) {
+    return (
       <TooManyElementsCard
         listing={true}
         title={data?.global.title ?? ''}
       />
-    ) : (
-      <>
-        <FederatedComponent
-          path="/anomaly-detection/enableThresholdLines"
-          styleMenuSkeleton={{ height: 0, width: 0 }}
-          type={row?.type}
-          getShapeLines={getShapeLines}
-        />
-        <LineChart
-          loading={isFetching || isLoading || !data}
-          data={data}
-          end={end}
-          height={200}
-          legend={{ mode: 'grid', placement: 'bottom' }}
-          lineStyle={{ lineWidth: 1 }}
-          start={start}
-          tooltip={{ mode: 'hidden' }}
-          displayAnchor={{
-            displayGuidingLines: false,
-            displayTooltipsGuidingLines: false
-          }}
-          timeShiftZones={{
-            enable: false
-          }}
-          {...rest}
-        />
-      </>
     );
+  }
 
   return (
-    <Suspense fallback={<LoadingSkeleton height="100%" />}>
-      {graphComponent}
-    </Suspense>
+    <>
+      <FederatedComponent
+        path="/anomaly-detection/enableThresholdLines"
+        styleMenuSkeleton={{ height: 0, width: 0 }}
+        type={row?.type}
+        getShapeLines={getShapeLines}
+      />
+      <LineChart
+        loading={isFetching || isLoading || !data}
+        data={data}
+        end={end}
+        height={200}
+        legend={{ mode: 'grid', placement: 'bottom' }}
+        lineStyle={{ lineWidth: 1 }}
+        start={start}
+        tooltip={{ mode: 'hidden' }}
+        displayAnchor={{
+          displayGuidingLines: false,
+          displayTooltipsGuidingLines: false
+        }}
+        timeShiftZones={{
+          enable: false
+        }}
+        {...rest}
+      />
+    </>
   );
 };
 
