@@ -160,7 +160,7 @@ final class DbReadConfigurationRepository extends AbstractRepositoryDRB implemen
             return $this->db->fetchAllAssociative($this->translateDbName($query), $queryParameters);
         } catch (ConnectionException|ValueObjectException|CollectionException $e) {
             throw new RepositoryException(
-                message: 'Could not fetch excluded users from database',
+                message: 'Could not fetch excluded users from database for local provider configuration',
                 previous: $e
             );
         }
@@ -199,7 +199,7 @@ final class DbReadConfigurationRepository extends AbstractRepositoryDRB implemen
             $this->validateJsonRecord($json, $jsonSchemaValidatorFile);
         } catch (LegacyRepositoryException|InvalidArgumentException $e) {
             throw new RepositoryException(
-                message: 'Could not validate json record',
+                message: 'Could not validate json record for SAML provider configuration : ' . $e->getMessage(),
                 context: [
                     'provider_configuration_id' => $configuration->getId(),
                     'provider_configuration_type' => $configuration->getType(),
@@ -212,7 +212,7 @@ final class DbReadConfigurationRepository extends AbstractRepositoryDRB implemen
             $jsonDecoded = json_decode($json, true, flags: JSON_THROW_ON_ERROR);
         } catch (\JsonException $e) {
             throw new RepositoryException(
-                message: 'Could not decode SAML provider configuration from json',
+                message: 'Could not decode SAML provider configuration from json: ' . $e->getMessage(),
                 context: [
                     'provider_configuration_id' => $configuration->getId(),
                     'provider_configuration_type' => $configuration->getType(),
@@ -247,7 +247,7 @@ final class DbReadConfigurationRepository extends AbstractRepositoryDRB implemen
             return SAMLCustomConfiguration::createFromValues($jsonDecoded);
         } catch (ConfigurationException|MissingLogoutUrlException $e) {
             throw new RepositoryException(
-                message: 'Could not create SAML custom configuration from json record',
+                message: 'Could not create SAML custom configuration from json record: ' . $e->getMessage(),
                 context: [
                     'provider_configuration_id' => $configuration->getId(),
                     'provider_configuration_type' => $configuration->getType(),
@@ -269,7 +269,7 @@ final class DbReadConfigurationRepository extends AbstractRepositoryDRB implemen
             $this->validateJsonRecord($json, $jsonSchemaValidatorFile);
         } catch (LegacyRepositoryException|InvalidArgumentException $e) {
             throw new RepositoryException(
-                message: 'Could not validate json record',
+                message: 'Could not validate json record for WebSSO provider configuration: ' . $e->getMessage(),
                 context: [
                     'provider_configuration_id' => $configuration->getId(),
                     'provider_configuration_type' => $configuration->getType(),
@@ -282,7 +282,7 @@ final class DbReadConfigurationRepository extends AbstractRepositoryDRB implemen
             $json = json_decode($json, true, flags: JSON_THROW_ON_ERROR);
         } catch (\JsonException $e) {
             throw new RepositoryException(
-                message: 'Could not decode WebSSO provider configuration from json',
+                message: 'Could not decode WebSSO provider configuration from json: ' . $e->getMessage(),
                 context: [
                     'provider_configuration_id' => $configuration->getId(),
                     'provider_configuration_type' => $configuration->getType(),
@@ -311,7 +311,7 @@ final class DbReadConfigurationRepository extends AbstractRepositoryDRB implemen
             $this->validateJsonRecord($json, $jsonSchemaValidatorFile);
         } catch (LegacyRepositoryException|InvalidArgumentException $e) {
             throw new RepositoryException(
-                message: 'Could not validate json record',
+                message: 'Could not validate json record for OpenID provider configuration: ' . $e->getMessage(),
                 context: [
                     'provider_configuration_id' => $configuration->getId(),
                     'provider_configuration_type' => $configuration->getType(),
@@ -331,7 +331,7 @@ final class DbReadConfigurationRepository extends AbstractRepositoryDRB implemen
             $jsonDecoded = json_decode($json, true, flags: JSON_THROW_ON_ERROR);
         } catch (\JsonException $e) {
             throw new RepositoryException(
-                message: 'Could not decode OpenID provider configuration from json',
+                message: 'Could not decode OpenID provider configuration from json record: ' . $e->getMessage(),
                 context: [
                     'provider_configuration_id' => $configuration->getId(),
                     'provider_configuration_type' => $configuration->getType(),
@@ -364,7 +364,7 @@ final class DbReadConfigurationRepository extends AbstractRepositoryDRB implemen
             return new OpenIdCustomConfiguration($jsonDecoded);
         } catch (ConfigurationException $e) {
             throw new RepositoryException(
-                message: 'Could not create OpenID custom configuration from json record',
+                message: 'Could not create OpenID custom configuration from json record: ' . $e->getMessage(),
                 context: [
                     'provider_configuration_id' => $configuration->getId(),
                     'provider_configuration_type' => $configuration->getType(),
@@ -384,7 +384,7 @@ final class DbReadConfigurationRepository extends AbstractRepositoryDRB implemen
             $this->validateJsonRecord($configuration->getJsonCustomConfiguration(), $jsonSchemaValidatorFile);
         } catch (LegacyRepositoryException|InvalidArgumentException $e) {
             throw new RepositoryException(
-                message: 'Could not validate json record',
+                message: 'Could not validate json record for Local provider configuration: ' . $e->getMessage(),
                 context: [
                     'provider_configuration_id' => $configuration->getId(),
                     'provider_configuration_type' => $configuration->getType(),
@@ -402,7 +402,7 @@ final class DbReadConfigurationRepository extends AbstractRepositoryDRB implemen
             $json = json_decode($configuration->getJsonCustomConfiguration(), true, flags: JSON_THROW_ON_ERROR);
         } catch (\JsonException $e) {
             throw new RepositoryException(
-                message: 'Could not decode Local provider configuration from json',
+                message: 'Could not decode Local provider configuration from json: ' . $e->getMessage(),
                 context: [
                     'provider_configuration_id' => $configuration->getId(),
                     'provider_configuration_type' => $configuration->getType(),
@@ -427,7 +427,7 @@ final class DbReadConfigurationRepository extends AbstractRepositoryDRB implemen
             );
         } catch (AssertionException $e) {
             throw new RepositoryException(
-                message: 'Could not create security policy from json record',
+                message: 'Could not create security policy from json record for Local provider configuration',
                 context: [
                     'provider_configuration_id' => $configuration->getId(),
                     'provider_configuration_type' => $configuration->getType(),
@@ -472,7 +472,7 @@ final class DbReadConfigurationRepository extends AbstractRepositoryDRB implemen
                 );
             } catch (InvalidEndpointException $e) {
                 throw new RepositoryException(
-                    message: 'Could not create endpoint for ACL conditions from roles mapping',
+                    message: "Could not create endpoint for ACL conditions from roles mapping record for {$providerName} provider",
                     context: [
                         'provider_name' => $providerName,
                         'provider_configuration_id' => $configurationId,
@@ -494,7 +494,7 @@ final class DbReadConfigurationRepository extends AbstractRepositoryDRB implemen
             );
         } catch (ACLConditionsException $e) {
             throw new RepositoryException(
-                message: 'Could not create ACL conditions',
+                message: "Could not create ACL conditions for {$providerName} provider",
                 context: [
                     'provider_name' => $providerName,
                     'provider_configuration_id' => $configurationId,
@@ -525,7 +525,7 @@ final class DbReadConfigurationRepository extends AbstractRepositoryDRB implemen
             $entry = $this->db->fetchAssociative($this->translateDbName($query), $queryParameters);
         } catch (ValueObjectException|CollectionException|ConnectionException $e) {
             throw new RepositoryException(
-                message: 'Could not fetch provider configuration from database',
+                message: "Could not fetch provider configuration from database for {$providerName} provider",
                 context: ['provider_name' => $providerName],
                 previous: $e
             );
