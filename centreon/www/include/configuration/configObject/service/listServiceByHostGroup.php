@@ -92,6 +92,7 @@ if (!$centreon->user->admin) {
     $distinct = " DISTINCT ";
 }
 
+
 /*
  * Due to Description maybe in the Template definition, we have to search if the description
  * could match for each service with a Template.
