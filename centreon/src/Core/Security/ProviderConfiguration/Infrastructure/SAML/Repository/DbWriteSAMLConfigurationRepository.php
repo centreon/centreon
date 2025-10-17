@@ -125,7 +125,7 @@ class DbWriteSAMLConfigurationRepository extends DatabaseRepository implements W
     {
         if ($authorizationRules === []) {
             throw new RepositoryException(
-                message: 'No authorization rules to insert for SAML configuration',
+                message: 'No authorization rules to insert for SAML configuration.',
                 context: ['authorizationRules' => $authorizationRules]
             );
         }
@@ -191,7 +191,7 @@ class DbWriteSAMLConfigurationRepository extends DatabaseRepository implements W
             $this->connection->delete($this->translateDbName($query), $queryParameters);
         } catch (QueryBuilderException|ValueObjectException|CollectionException|ConnectionException $e) {
             throw new RepositoryException(
-                message: 'Could not delete contact group relations' . $e->getMessage(),
+                message: 'Could not delete contact group relations:' . $e->getMessage(),
                 previous: $e
             );
         }
@@ -204,7 +204,7 @@ class DbWriteSAMLConfigurationRepository extends DatabaseRepository implements W
     {
         if ($contactGroupRelations === []) {
             throw new RepositoryException(
-                message: 'No contact group relations to insert for SAML configuration',
+                message: 'No contact group relations to insert for SAML configuration.',
                 context: ['contactGroupRelations' => $contactGroupRelations]
             );
         }
