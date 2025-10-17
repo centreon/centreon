@@ -1,6 +1,6 @@
 x-defaults: &defaults
   environment:
-    TZ: "America/Toronto"  
+    TZ: "America/Toronto"
 
 services:  
   php-fpm:
@@ -63,7 +63,8 @@ services:
       # - app-metrics:/var/lib/centreon/metrics:rw,z
   centengine:
     <<: *defaults
-    image: centengine-api:latest
+    # image: centengine-api:latest
+    image: docker.centreon.com/centreon/centreon-poller-bookworm:fth-docker-collect
     container_name: centengine
     hostname: centengine
     restart: always
