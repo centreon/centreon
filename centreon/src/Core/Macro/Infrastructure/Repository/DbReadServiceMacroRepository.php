@@ -39,7 +39,7 @@ use Core\Macro\Domain\Model\Macro;
  *    is_password:int|null,
  *    description:string|null,
  *    macro_order:int,
- *    is_encryption_ready?:string
+ *    is_encryption_ready?:int
  * }
  */
 class DbReadServiceMacroRepository extends DatabaseRepository implements ReadServiceMacroRepositoryInterface
@@ -155,7 +155,7 @@ class DbReadServiceMacroRepository extends DatabaseRepository implements ReadSer
              *    is_password:int|null,
              *    description:string|null,
              *    macro_order:int,
-             *    is_encryption_ready:string
+             *    is_encryption_ready:int
              * } $result */
             $macros[] = $this->createMacro($result);
         }
@@ -203,7 +203,7 @@ class DbReadServiceMacroRepository extends DatabaseRepository implements ReadSer
              *    is_password:int|null,
              *    description:string|null,
              *    macro_order:int,
-             *    is_encryption_ready:string
+             *    is_encryption_ready:int
              * } $result */
             $macros[] = $this->createMacro($result);
         }
