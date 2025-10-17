@@ -67,7 +67,7 @@ class DbReadOpenIdConfigurationRepository extends DatabaseRepository implements 
             $entry = $this->connection->fetchAssociative($this->translateDbName($query), $queryParameters);
         } catch (QueryBuilderException|ValueObjectException|CollectionException|ConnectionException $e) {
             throw new RepositoryException(
-                message: 'Could not fetch contact template from database for OpenID configuration',
+                message: 'Could not fetch contact template from database for OpenID configuration: ' . $e->getMessage(),
                 context: ['contactTemplateId' => $contactTemplateId],
                 previous: $e
             );
@@ -93,7 +93,7 @@ class DbReadOpenIdConfigurationRepository extends DatabaseRepository implements 
             $entry = $this->connection->fetchAssociative($this->translateDbName($query), $queryParameters);
         } catch (QueryBuilderException|ValueObjectException|CollectionException|ConnectionException $e) {
             throw new RepositoryException(
-                message: 'Could not fetch contact group from database for OpenID configuration',
+                message: 'Could not fetch contact group from database for OpenID configuration: ' . $e->getMessage(),
                 context: ['contactGroupId' => $contactGroupId],
                 previous: $e
             );
@@ -112,7 +112,7 @@ class DbReadOpenIdConfigurationRepository extends DatabaseRepository implements 
             return $entry !== false ? DbContactGroupFactory::createFromRecord($entry) : null;
         } catch (AssertionFailedException $e) {
             throw new RepositoryException(
-                message: 'Contact group record is invalid for OpenID configuration',
+                message: 'Contact group record is invalid for OpenID configuration: ' . $e->getMessage(),
                 context: ['contact_group_id' => $contactGroupId, 'record' => $entry],
                 previous: $e
             );
@@ -150,7 +150,7 @@ class DbReadOpenIdConfigurationRepository extends DatabaseRepository implements 
                 $authorizationRules[] = new AuthorizationRule($entry['claim_value'], $accessGroup, $entry['priority']);
             } catch (AssertionFailedException $e) {
                 throw new RepositoryException(
-                    message: 'Access group record is invalid for OpenID configuration',
+                    message: 'Access group record is invalid for OpenID configuration: ' . $e->getMessage(),
                     context: ['record' => $entry, 'provider_configuration_id' => $providerConfigurationId],
                     previous: $e
                 );
@@ -178,7 +178,7 @@ class DbReadOpenIdConfigurationRepository extends DatabaseRepository implements 
             $entries = $this->connection->fetchAllAssociative($this->translateDbName($query), $queryParameters);
         } catch (ValueObjectException|CollectionException|ConnectionException $e) {
             throw new RepositoryException(
-                message: 'Could not fetch contact group relations from database for OpenID configuration',
+                message: 'Could not fetch contact group relations from database for OpenID configuration: ' . $e->getMessage(),
                 context: ['providerConfigurationId' => $providerConfigurationId],
                 previous: $e
             );
@@ -201,7 +201,7 @@ class DbReadOpenIdConfigurationRepository extends DatabaseRepository implements 
                 $contactGroupRelations[] = new ContactGroupRelation($entry['claim_value'], $contactGroup);
             } catch (AssertionFailedException $e) {
                 throw new RepositoryException(
-                    message: 'Contact group record is invalid for OpenID configuration',
+                    message: 'Contact group record is invalid for OpenID configuration: ' . $e->getMessage(),
                     context: ['record' => $entry, 'provider_configuration_id' => $providerConfigurationId],
                     previous: $e
                 );

@@ -127,7 +127,7 @@ final class DbReadConfigurationRepository extends AbstractRepositoryDRB implemen
             $entries = $this->db->fetchAllAssociative($this->translateDbName($query));
         } catch (ConnectionException $e) {
             throw new RepositoryException(
-                message: 'Could not fetch provider configurations count from database',
+                message: 'Could not fetch provider configurations count from database: ' . $e->getMessage(),
                 previous: $e
             );
         }
@@ -160,7 +160,7 @@ final class DbReadConfigurationRepository extends AbstractRepositoryDRB implemen
             return $this->db->fetchAllAssociative($this->translateDbName($query), $queryParameters);
         } catch (ConnectionException|ValueObjectException|CollectionException $e) {
             throw new RepositoryException(
-                message: 'Could not fetch excluded users from database for local provider configuration',
+                message: 'Could not fetch excluded users from database for local provider configuration: ' . $e->getMessage(),
                 previous: $e
             );
         }
@@ -199,7 +199,7 @@ final class DbReadConfigurationRepository extends AbstractRepositoryDRB implemen
             $this->validateJsonRecord($json, $jsonSchemaValidatorFile);
         } catch (LegacyRepositoryException|InvalidArgumentException $e) {
             throw new RepositoryException(
-                message: 'Could not validate json record for SAML provider configuration : ' . $e->getMessage(),
+                message: 'Could not validate json record for SAML provider configuration: ' . $e->getMessage(),
                 context: [
                     'provider_configuration_id' => $configuration->getId(),
                     'provider_configuration_type' => $configuration->getType(),
@@ -427,7 +427,7 @@ final class DbReadConfigurationRepository extends AbstractRepositoryDRB implemen
             );
         } catch (AssertionException $e) {
             throw new RepositoryException(
-                message: 'Could not create security policy from json record for Local provider configuration',
+                message: 'Could not create security policy from json record for Local provider configuration: ' . $e->getMessage(),
                 context: [
                     'provider_configuration_id' => $configuration->getId(),
                     'provider_configuration_type' => $configuration->getType(),
@@ -472,7 +472,7 @@ final class DbReadConfigurationRepository extends AbstractRepositoryDRB implemen
                 );
             } catch (InvalidEndpointException $e) {
                 throw new RepositoryException(
-                    message: "Could not create endpoint for ACL conditions from roles mapping record for {$providerName} provider",
+                    message: "Could not create endpoint for ACL conditions from roles mapping record for {$providerName} provider: " . $e->getMessage(),
                     context: [
                         'provider_name' => $providerName,
                         'provider_configuration_id' => $configurationId,
@@ -494,7 +494,7 @@ final class DbReadConfigurationRepository extends AbstractRepositoryDRB implemen
             );
         } catch (ACLConditionsException $e) {
             throw new RepositoryException(
-                message: "Could not create ACL conditions for {$providerName} provider",
+                message: "Could not create ACL conditions for {$providerName} provider: " . $e->getMessage(),
                 context: [
                     'provider_name' => $providerName,
                     'provider_configuration_id' => $configurationId,
@@ -525,7 +525,7 @@ final class DbReadConfigurationRepository extends AbstractRepositoryDRB implemen
             $entry = $this->db->fetchAssociative($this->translateDbName($query), $queryParameters);
         } catch (ValueObjectException|CollectionException|ConnectionException $e) {
             throw new RepositoryException(
-                message: "Could not fetch provider configuration from database for {$providerName} provider",
+                message: "Could not fetch provider configuration from database for {$providerName} provider: " . $e->getMessage(),
                 context: ['provider_name' => $providerName],
                 previous: $e
             );
@@ -564,7 +564,7 @@ final class DbReadConfigurationRepository extends AbstractRepositoryDRB implemen
             $entry = $this->db->fetchAssociative($this->translateDbName($query), $queryParameters);
         } catch (ValueObjectException|CollectionException|ConnectionException $e) {
             throw new RepositoryException(
-                message: 'Could not fetch provider configuration from database',
+                message: 'Could not fetch provider configuration from database: ' . $e->getMessage(),
                 context: ['id_provider_configuration' => $id],
                 previous: $e
             );
@@ -604,7 +604,7 @@ final class DbReadConfigurationRepository extends AbstractRepositoryDRB implemen
                 );
             } catch (InvalidEndpointException $e) {
                 throw new RepositoryException(
-                    message: 'Could not create endpoint for authentication conditions from authentication conditions record',
+                    message: 'Could not create endpoint for authentication conditions from authentication conditions record: ' . $e->getMessage(),
                     context: [
                         'endpoint_type' => $authenticationConditionsRecord['endpoint']['type'],
                         'custom_endpoint' => $authenticationConditionsRecord['endpoint']['custom_endpoint'],
@@ -623,7 +623,7 @@ final class DbReadConfigurationRepository extends AbstractRepositoryDRB implemen
             );
         } catch (ConfigurationException $e) {
             throw new RepositoryException(
-                message: 'Could not create authentication conditions',
+                message: 'Could not create authentication conditions: ' . $e->getMessage(),
                 context: [
                     'is_enabled' => $authenticationConditionsRecord['is_enabled'],
                     'attribute_path' => $authenticationConditionsRecord['attribute_path'],
@@ -641,7 +641,7 @@ final class DbReadConfigurationRepository extends AbstractRepositoryDRB implemen
                 );
             } catch (AssertionFailedException $e) {
                 throw new RepositoryException(
-                    message: 'Could not set trusted client addresses for authentication conditions',
+                    message: 'Could not set trusted client addresses for authentication conditions: ' . $e->getMessage(),
                     context: ['trusted_client_addresses' => $authenticationConditionsRecord['trusted_client_addresses']],
                     previous: $e
                 );
@@ -655,7 +655,7 @@ final class DbReadConfigurationRepository extends AbstractRepositoryDRB implemen
                 );
             } catch (AssertionFailedException $e) {
                 throw new RepositoryException(
-                    message: 'Could not set blacklist client addresses for authentication conditions',
+                    message: 'Could not set blacklist client addresses for authentication conditions: ' . $e->getMessage(),
                     context: ['blacklist_client_addresses' => $authenticationConditionsRecord['blacklist_client_addresses']],
                     previous: $e
                 );
@@ -685,7 +685,7 @@ final class DbReadConfigurationRepository extends AbstractRepositoryDRB implemen
                 );
             } catch (InvalidEndpointException $e) {
                 throw new RepositoryException(
-                    message: 'Could not create endpoint for groups mapping from groups mapping record',
+                    message: 'Could not create endpoint for groups mapping from groups mapping record: ' . $e->getMessage(),
                     context: [
                         'provider_name' => $providerName,
                         'provider_configuration_id' => $configurationId,
@@ -723,7 +723,7 @@ final class DbReadConfigurationRepository extends AbstractRepositoryDRB implemen
             );
         } catch (ConfigurationException $e) {
             throw new RepositoryException(
-                message: 'Could not create groups mapping',
+                message: 'Could not create groups mapping: ' . $e->getMessage(),
                 context: [
                     'provider_name' => $providerName,
                     'provider_configuration_id' => $configurationId,
