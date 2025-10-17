@@ -69,15 +69,17 @@ const Graph = ({ row, endpoint }: GraphProps): ReactElement => {
   const metricsCount = data?.metrics.length ?? 0;
   if (metricsCount > graphsCapNumber) {
     return (
-      <TooManyElementsCard
-        listing={true}
-        title={data?.global.title ?? ''}
-      />
+      <Suspense fallback={<LoadingSkeleton height="100%" />}>
+        <TooManyElementsCard
+          listing={true}
+          title={data?.global.title ?? ''}
+        />
+      </Suspense>
     );
   }
 
   return (
-    <>
+    <Suspense fallback={<LoadingSkeleton height="100%" />}>
       <FederatedComponent
         path="/anomaly-detection/enableThresholdLines"
         styleMenuSkeleton={{ height: 0, width: 0 }}
@@ -102,7 +104,7 @@ const Graph = ({ row, endpoint }: GraphProps): ReactElement => {
         }}
         {...rest}
       />
-    </>
+    </Suspense>
   );
 };
 
