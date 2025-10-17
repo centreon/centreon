@@ -1,5 +1,5 @@
 import dayjs from 'dayjs';
-import { JSX, Suspense, useState } from 'react';
+import { ReactElement, Suspense, useState } from 'react';
 import { path, isNil, not } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
 
@@ -43,7 +43,7 @@ interface GraphProps {
   row: Resource | ResourceDetails;
 }
 
-const Graph = ({ row, endpoint }: GraphProps): JSX.Element => {
+const Graph = ({ row, endpoint }: GraphProps): ReactElement => {
   const [areaThresholdLines, setAreaThresholdLines] = useState();
 
   const start = lastDayPeriod.getStart().toISOString();
@@ -112,7 +112,7 @@ const Graph = ({ row, endpoint }: GraphProps): JSX.Element => {
 
 const renderChip =
   ({ onClick, label, className }) =>
-  (): JSX.Element => (
+  (): ReactElement => (
     <IconButton
       ariaLabel={label}
       className={className}
@@ -130,11 +130,11 @@ interface Props {
 
 const GraphColumn = ({
   onClick
-}: Props): ((props: ComponentColumnProps) => JSX.Element | null) => {
+}: Props): ((props: ComponentColumnProps) => ReactElement | null) => {
   const GraphHoverChip = ({
     row,
     isHovered
-  }: ComponentColumnProps): JSX.Element | null => {
+  }: ComponentColumnProps): ReactElement | null => {
     const { classes } = useStyles();
 
     const { type } = row;
@@ -163,7 +163,7 @@ const GraphColumn = ({
           isHovered={isHovered}
           label={label}
         >
-          {({ isChipHovered }): JSX.Element => {
+          {({ isChipHovered }): ReactElement => {
             if (isHost || not(isChipHovered) || not(isHovered)) {
               return <div />;
             }

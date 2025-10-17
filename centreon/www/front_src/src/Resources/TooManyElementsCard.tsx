@@ -1,4 +1,4 @@
-import { JSX } from 'react';
+import { ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { Box, Typography } from '@mui/material';
@@ -8,12 +8,16 @@ import { labelTooManyGraphsToDisplay } from './translatedLabels';
 import { graphsCapNumber } from './constants';
 
 interface Props {
-  actions?: JSX.Element,
+  actions?: ReactElement,
   listing: boolean,
   title: string
 };
 
-const TooManyElementsCard = ({actions, listing, title}: Props): JSX.Element => {
+const TooManyElementsCard = ({
+  actions,
+  listing,
+  title
+}: Props): ReactElement => {
   const { t } = useTranslation();
 
   const outerHeight = listing ? 200 : 280;

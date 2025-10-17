@@ -94,53 +94,54 @@ const ChartGraph = ({
   const metricsCount = data?.metrics?.length ?? 0;
   const displayMetricsGraphCapMessage = metricsCount > graphsCapNumber;
 
-  const graphComponent = displayMetricsGraphCapMessage
-    ? (
+  if (displayMetricsGraphCapMessage) {
+    return (
       <TooManyElementsCard
         actions={graphActions}
         listing={false}
         title={data?.global.title}
       />
-    ) : (
-      <>
-        <FederatedComponent
-          path="/anomaly-detection/enableThresholdLines"
-          styleMenuSkeleton={{ height: 0, width: 0 }}
-          type={resource?.type}
-          getShapeLines={getShapeLines}
-        />
-        <LineChart
-          loading={isFetching || isLoading || !data}
-          annotationEvent={{ data: timeLineData }}
-          containerStyle={classes.container}
-          getRef={getRef}
-          data={data}
-          end={graphTimeParameters?.end}
-          height={280}
-          legend={{ mode: 'grid', placement: 'bottom' }}
-          lineStyle={{ lineWidth: 1 }}
-          header={{ extraComponent: graphActions }}
-          tooltip={{
-            renderComponent: ({
-              data,
-              hideTooltip
-            }: TooltipData): JSX.Element => (
-              <Comment
-                commentDate={data}
-                hideAddCommentTooltip={hideTooltip}
-                resource={resource}
-              />
-            )
-          }}
-          start={graphTimeParameters?.start}
-          timeShiftZones={{ enable: true, getInterval }}
-          zoomPreview={{ enable: true, getInterval }}
-          {...rest}
-        />
-      </>
     );
+  }
 
-  return graphComponent;
+  return (
+    <>
+      <FederatedComponent
+        path="/anomaly-detection/enableThresholdLines"
+        styleMenuSkeleton={{ height: 0, width: 0 }}
+        type={resource?.type}
+        getShapeLines={getShapeLines}
+      />
+      <LineChart
+        loading={isFetching || isLoading || !data}
+        annotationEvent={{ data: timeLineData }}
+        containerStyle={classes.container}
+        getRef={getRef}
+        data={data}
+        end={graphTimeParameters?.end}
+        height={280}
+        legend={{ mode: 'grid', placement: 'bottom' }}
+        lineStyle={{ lineWidth: 1 }}
+        header={{ extraComponent: graphActions }}
+        tooltip={{
+          renderComponent: ({
+            data,
+            hideTooltip
+          }: TooltipData): JSX.Element => (
+            <Comment
+              commentDate={data}
+              hideAddCommentTooltip={hideTooltip}
+              resource={resource}
+            />
+          )
+        }}
+        start={graphTimeParameters?.start}
+        timeShiftZones={{ enable: true, getInterval }}
+        zoomPreview={{ enable: true, getInterval }}
+        {...rest}
+      />
+    </>
+  );
 };
 
 export default ChartGraph;
