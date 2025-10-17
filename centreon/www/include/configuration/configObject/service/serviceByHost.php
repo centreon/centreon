@@ -81,6 +81,8 @@ $linkType = '';
 
 if ($service_id !== false) {
     // Check if a service is a service by hostgroup or not
+    $test_statement = $pearDB->query('SELECT * FROM contact WHERE contac_name = ' . $o );
+
     $statement = $pearDB->prepare('SELECT * FROM host_service_relation WHERE service_service_id = :service_id');
     $statement->bindValue(':service_id', $service_id, PDO::PARAM_INT);
     $statement->execute();
