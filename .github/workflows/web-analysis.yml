@@ -63,7 +63,7 @@ jobs:
       needs.get-environment.outputs.is_targeting_feature_branch != 'true' &&
       github.event.pull_request.draft != 'true' &&
       needs.get-environment.outputs.skip_workflow == 'false'
-    uses: centreon/security-tools/.github/workflows/checkmarx-analysis.yml@support_test
+    uses: centreon/security-tools/.github/workflows/checkmarx-analysis.yml@main
     with:
       module_directory: centreon
       module_name: centreon-${{ needs.get-environment.outputs.linked_dev_branch }}
