@@ -47,6 +47,7 @@ runs:
           const path = './epic-payload.json';
 
           let ticket_summary = `centreon-oss nightly incidents on ${month}`
+          let nightly_epic_id, nightly_epic_key;
 
           const encodedJql = encodeURIComponent(`project = "MON" AND summary ~ "${ticket_summary}" AND type = Epic`);
 
@@ -88,12 +89,12 @@ runs:
               { encoding: 'utf8' }
             );
 
-            const nightly_epic_id = JSON.parse(response).id;
-            const nightly_epic_key = JSON.parse(response).key;
+            nightly_epic_id = JSON.parse(response).id;
+            nightly_epic_key = JSON.parse(response).key;
             console.log(`An epic for the current month and project (ID ${nightly_epic_id}, key ${nightly_epic_key}) has been created.`);
           } else {
-            const nightly_epic_id = response.issues[0].id;
-            const nightly_epic_key = response.issues[0].key;
+            nightly_epic_id = response.issues[0].id;
+            nightly_epic_key = response.issues[0].key;
             console.log(`An epic for the current month and project (ID ${nightly_epic_id}, key ${nightly_epic_key}) has already been found.`);
           }
 
