@@ -1,10 +1,10 @@
-import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
+import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
 import data from '../../../fixtures/snmp-traps/snmp-trap.json';
 import {
-  TrapsSNMPConfiguration,
   submitForm,
-  UpdateTrapsSNMPConfiguration
+  trapsSnmpConfiguration,
+  updateTrapsSnmpConfiguration
 } from '../common';
 
 beforeEach(() => {
@@ -34,7 +34,7 @@ When(
     });
     cy.waitForElementInIframe('#main-content', 'input[name="searchT"]');
     cy.getIframeBody().find('a.bt_success').contains('Add').click();
-    TrapsSNMPConfiguration({
+    trapsSnmpConfiguration({
       name: data.snmp1.name,
       vendor: data.snmp1.vendor,
       oid: data.snmp1.oid,
@@ -109,7 +109,7 @@ When(
     });
     cy.waitForElementInIframe('#main-content', 'input[name="searchT"]');
     cy.getIframeBody().find('a.bt_success').contains('Add').click();
-    TrapsSNMPConfiguration({
+    trapsSnmpConfiguration({
       name: data.snmp1.name,
       vendor: data.snmp1.vendor,
       oid: data.snmp1.oid,
@@ -121,7 +121,7 @@ When(
     submitForm();
     cy.waitForElementInIframe('#main-content', 'input[name="searchT"]');
     cy.getIframeBody().contains(data.snmp1.name).click();
-    UpdateTrapsSNMPConfiguration({
+    updateTrapsSnmpConfiguration({
       name: data.snmp2.name,
       vendor: data.snmp2.vendor,
       oid: data.snmp2.oid,
@@ -132,15 +132,22 @@ When(
       string: data.snmp2.rule.string,
       regexp: data.snmp2.rule.regexp,
       severity: data.snmp2.rule.status,
+      // biome-ignore lint/style/useNamingConvention: <explanation>
       special_command: data.snmp2.special_command,
       comments: data.snmp2.comments,
       serviceName: data.snmp2.serviceName,
+      // biome-ignore lint/style/useNamingConvention: <explanation>
       service_templates: data.snmp2.service_templates,
+      // biome-ignore lint/style/useNamingConvention: <explanation>
       routing_definition: data.snmp2.routing_definition,
+      // biome-ignore lint/style/useNamingConvention: <explanation>
       filter_services: data.snmp2.filter_services,
       timeout: data.snmp2.timeout,
+      // biome-ignore lint/style/useNamingConvention: <explanation>
       execution_interval: data.snmp2.execution_interval,
+      // biome-ignore lint/style/useNamingConvention: <explanation>
       output_transform: data.snmp2.output_transform,
+      // biome-ignore lint/style/useNamingConvention: <explanation>
       custom_code: data.snmp2.custom_code
     });
     cy.getIframeBody()
@@ -245,7 +252,7 @@ When('the user has duplicated one existing SNMP trap definition', () => {
   });
   cy.waitForElementInIframe('#main-content', 'input[name="searchT"]');
   cy.getIframeBody().find('a.bt_success').contains('Add').click();
-  TrapsSNMPConfiguration({
+  trapsSnmpConfiguration({
     name: data.snmp1.name,
     vendor: data.snmp1.vendor,
     oid: data.snmp1.oid,
@@ -301,7 +308,7 @@ When('the user has deleted one existing SNMP trap definition', () => {
   });
   cy.waitForElementInIframe('#main-content', 'input[name="searchT"]');
   cy.getIframeBody().find('a.bt_success').contains('Add').click();
-  TrapsSNMPConfiguration({
+  trapsSnmpConfiguration({
     name: data.snmp1.name,
     vendor: data.snmp1.vendor,
     oid: data.snmp1.oid,

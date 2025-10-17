@@ -40,6 +40,7 @@ When('I click on the "Add" button', () => {
   cy.getByLabel({ label: 'create' }).click();
 });
 
+// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 When('I fill in the following required fields', (dataTable: any) => {
   dataTable.hashes().forEach((element) => {
     const field = element.Field;
@@ -72,11 +73,16 @@ When('I click on the "Generate token" button', () => {
   cy.getByTestId({ testId: 'submit' }).click();
 });
 
-Then('a new basic Authentication token with hidden display is generated', () => {
-  cy.wait('@getTokens');
-  cy.getByTestId({ testId: 'tokenInput' }).as('generatedToken').should('exist');
-  cy.get('@generatedToken').should('have.attr', 'type', 'password');
-});
+Then(
+  'a new basic Authentication token with hidden display is generated',
+  () => {
+    cy.wait('@getTokens');
+    cy.getByTestId({ testId: 'tokenInput' })
+      .as('generatedToken')
+      .should('exist');
+    cy.get('@generatedToken').should('have.attr', 'type', 'password');
+  }
+);
 
 Given('a basic Authentication token is generated', () => {
   cy.getByLabel({ label: 'create' }).click();

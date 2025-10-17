@@ -1,4 +1,3 @@
-/* eslint-disable cypress/unsafe-to-chain-command */
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
 import severities from '../../../fixtures/services/severity.json';
@@ -25,7 +24,7 @@ Given('a user is logged in a Centreon server via APIv2', () => {
 });
 
 When('an apiV2 call is made to "Add" a service severity', () => {
-  cy.addSubjectViaAPIv2(
+  cy.addSubjectViaApiV2(
     severities.enabled_severity,
     'centreon/api/latest/configuration/services/severities'
   );
@@ -115,7 +114,7 @@ Then(
 );
 
 Given('a service severity is configured via APIv2', () => {
-  cy.addSubjectViaAPIv2(
+  cy.addSubjectViaApiV2(
     severities.enabled_severity,
     '/centreon/api/latest/configuration/services/severities'
   );
@@ -124,7 +123,7 @@ Given('a service severity is configured via APIv2', () => {
 When(
   'an apiV2 call is made to "Delete" the configured service severity',
   () => {
-    cy.deleteSubjectViaAPIv2(
+    cy.deleteSubjectViaApiV2(
       '/centreon/api/latest/configuration/services/severities/5'
     );
   }
@@ -157,7 +156,7 @@ Then(
 When(
   'an apiV2 call is made to "Update" the parameters of the configured severity',
   () => {
-    cy.updateSubjectViaAPIv2(
+    cy.updateSubjectViaApiV2(
       severities.changed_severity,
       '/centreon/api/latest/configuration/services/severities/5'
     );
@@ -227,7 +226,7 @@ Then(
 );
 
 Given('an enabled service severity is configured via APIv2', () => {
-  cy.addSubjectViaAPIv2(
+  cy.addSubjectViaApiV2(
     severities.enabled_severity,
     '/centreon/api/latest/configuration/services/severities'
   );
@@ -236,7 +235,7 @@ Given('an enabled service severity is configured via APIv2', () => {
 When(
   'an apiV2 call is made to "Disable" the configured service severity',
   () => {
-    cy.updateSubjectViaAPIv2(
+    cy.updateSubjectViaApiV2(
       severities.disabled_severity,
       '/centreon/api/latest/configuration/services/severities/5'
     );
@@ -268,7 +267,7 @@ Then(
 );
 
 Given('a disabled service severity is configured via APIv2', () => {
-  cy.addSubjectViaAPIv2(
+  cy.addSubjectViaApiV2(
     severities.disabled_severity,
     '/centreon/api/latest/configuration/services/severities'
   );
@@ -277,7 +276,7 @@ Given('a disabled service severity is configured via APIv2', () => {
 When(
   'an apiV2 call is made to "Enable" the configured service severity',
   () => {
-    cy.updateSubjectViaAPIv2(
+    cy.updateSubjectViaApiV2(
       severities.enabled_severity,
       '/centreon/api/latest/configuration/services/severities/5'
     );

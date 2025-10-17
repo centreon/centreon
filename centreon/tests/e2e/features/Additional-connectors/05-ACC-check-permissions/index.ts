@@ -1,4 +1,3 @@
-/* eslint-disable cypress/unsafe-to-chain-command */
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
 before(() => {
@@ -120,9 +119,7 @@ Then(
   'a pop up is displayed with all of the additional connector information',
   () => {
     cy.wait('@getConnectorDetail');
-    cy.contains('Update additional configuration').should(
-      'be.visible'
-    );
+    cy.contains('Update additional configuration').should('be.visible');
     cy.getByLabel({ label: 'Name', tag: 'input' }).should(
       'have.value',
       'Connector-001'
@@ -261,7 +258,7 @@ Given('the user has a filter on one of the pollers', () => {
     bodyContent: {
       action: 'addfilter_instance',
       object: 'ACLRESOURCE',
-      values: `All Resources;Poller-1`
+      values: 'All Resources;Poller-1'
     }
   });
   cy.setUserTokenApiV1().executeActionViaClapi({
@@ -292,7 +289,7 @@ When(
       bodyContent: {
         action: 'addfilter_instance',
         object: 'ACLRESOURCE',
-        values: `All Resources;Poller-2`
+        values: 'All Resources;Poller-2'
       }
     });
     cy.setUserTokenApiV1().executeActionViaClapi({
@@ -315,9 +312,7 @@ When(
   'a pop up is displayed with all of the additional connector information with the 2 pollers',
   () => {
     cy.wait('@getConnectorDetail');
-    cy.contains('Update additional configuration').should(
-      'be.visible'
-    );
+    cy.contains('Update additional configuration').should('be.visible');
     cy.getByLabel({ label: 'Name', tag: 'input' }).should(
       'have.value',
       'Connector-001'

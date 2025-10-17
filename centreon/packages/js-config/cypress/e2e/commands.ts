@@ -300,7 +300,11 @@ Cypress.Commands.add('logoutViaAPI', (): Cypress.Chainable => {
       failOnStatusCode: false,
     })
     .then((response) => {
-      cy.log(`Logout response: ${response.status}`);
+      if (response.status !== 200 && response.status !== 302) {
+        cy.log(`Logout failed with status: ${response.status}`);
+        throw new Error(`Logout API returned unexpected status: ${response.status}`);
+      }
+      cy.log(`Logout successful with status: ${response.status}`);
     })
     .visit('/')
     .getByLabel({ label: 'Alias', tag: 'input' });

@@ -38,6 +38,8 @@ use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 final class ContactRepositoryRDB implements ContactRepositoryInterface
 {
     use SqlMultipleBindTrait;
+    private const MENU_ACCESS_NO_ACCESS = 0;
+    private const MENU_ACCESS_READ_WRITE_ACCESS = 1;
 
     /**
      * @var DatabaseConnection
@@ -279,12 +281,27 @@ final class ContactRepositoryRDB implements ContactRepositoryInterface
         $topologies = [];
         $rightsCounter = 0;
         while ($row = $prepare->fetch(\PDO::FETCH_ASSOC)) {
-            $topologies[$row['topology_page']] = [
-                'name' => $row['topology_name'],
-                'right' => (int) $row['access_right']
-            ];
-            if ($row['access_right'] !== null) {
-                $rightsCounter++;
+            $topologyAccess = (int) $row['access_right'];
+            $topologyPage = $row['topology_page'];
+            $topologyName = $row['topology_name'];
+
+            // No point in adding topology if no access.
+            if ($topologyAccess > self::MENU_ACCESS_NO_ACCESS) {
+                // If topology_page already registered only update the rights when needed (ie: giving more access though menu access)
+                if (isset($topologies[$topologyPage])) {
+                    if (
+                        $topologyAccess === self::MENU_ACCESS_READ_WRITE_ACCESS
+                        && $topologies[$topologyPage]['right'] !== self::MENU_ACCESS_READ_WRITE_ACCESS
+                    ) {
+                        $topologies[$topologyPage]['right'] = self::MENU_ACCESS_READ_WRITE_ACCESS;
+                    }
+                } else {
+                    $topologies[$topologyPage] = [
+                        'name' => $topologyName,
+                        'right' => $topologyAccess,
+                    ];
+                    $rightsCounter++; // increment when a new topology is added
+                }
             }
         }
 
@@ -292,9 +309,6 @@ final class ContactRepositoryRDB implements ContactRepositoryInterface
         if ($rightsCounter > 0) {
             foreach ($topologies as $topologyPage => $details) {
                 $originalTopologyPage = $topologyPage;
-                if ($details['right'] === 0) {
-                    continue;
-                }
                 $ruleName = null;
                 $lvl2Name = null;
                 $lvl3Name = null;

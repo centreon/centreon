@@ -111,7 +111,7 @@ Then(
 
 Then('after the scheduled cron job has run', () => {
   cy.execInContainer({
-    command: `/usr/share/centreon/cron/centreon-backup.pl`,
+    command: '/usr/share/centreon/cron/centreon-backup.pl',
     name: 'web'
   });
 });

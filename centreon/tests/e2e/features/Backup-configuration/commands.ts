@@ -85,6 +85,7 @@ Cypress.Commands.add('exportConfig', () => {
 });
 
 declare global {
+  // biome-ignore lint/style/noNamespace: <explanation>
   namespace Cypress {
     interface Chainable {
       enterIframe: (iframeSelector: string) => Cypress.Chainable;

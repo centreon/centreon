@@ -1,11 +1,11 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
-import { configureOpenIDConnect } from '../common';
 import {
   configureACLGroups,
   configureProviderAcls,
   getUserContactId
 } from '../../../../commons';
+import { configureOpenIdConnect } from '../common';
 
 before(() => {
   cy.startContainers({ profiles: ['openid'] }).then(() => {
@@ -67,7 +67,7 @@ When(
       tag: 'input'
     }).check();
 
-    configureOpenIDConnect();
+    configureOpenIdConnect();
 
     // Auto import users section
     cy.getByLabel({ label: 'Auto import users' }).click();
@@ -119,7 +119,7 @@ Then(
     cy.wait('@getUserInformation').its('response.statusCode').should('eq', 200);
     cy.url().should('include', '/monitoring/resources');
 
-    cy.logoutViaAPI();
+    cy.logout();
     cy.getByLabel({ label: 'Alias', tag: 'input' }).should('exist');
 
     cy.loginByTypeOfUser({ jsonName: 'admin' })

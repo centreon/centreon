@@ -6,11 +6,11 @@ import {
   checkServicesAreMonitored
 } from '../../../commons';
 import dashboards from '../../../fixtures/dashboards/creation/dashboards.json';
-import dashboardAdministratorUser from '../../../fixtures/users/user-dashboard-administrator.json';
 import genericTextWidgets from '../../../fixtures/dashboards/creation/widgets/genericText.json';
 import metrics from '../../../fixtures/dashboards/creation/widgets/metrics.json';
 import singleMetricPayload from '../../../fixtures/dashboards/creation/widgets/singleMetricPayloadPl.json';
 import singleMetricPayloadRta from '../../../fixtures/dashboards/creation/widgets/singleMetricPayloadRta.json';
+import dashboardAdministratorUser from '../../../fixtures/users/user-dashboard-administrator.json';
 
 before(() => {
   cy.startContainers();
@@ -202,7 +202,7 @@ Then(
     cy.get('[class*="MuiTypography-h2"]')
       .invoke('text')
       .then((text) => {
-        if (parseFloat(text) !== 0) {
+        if (Number.parseFloat(text) !== 0) {
           expect(text).to.match(/\d+\.\d{2,}/);
         }
       });

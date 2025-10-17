@@ -1,16 +1,16 @@
-import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
+import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
+import { configureProviderAcls } from '../../../../commons';
 import {
-  configureOpenIDConnect,
-  initializeOIDCUserAndGetLoginPage,
+  configureOpenIdConnect,
+  initializeOidcUserAndGetLoginPage,
   saveOpenIdFormIfEnabled
 } from '../common';
-import { configureProviderAcls } from '../../../../commons';
 
 before(() => {
   cy.startContainers({ profiles: ['openid'] }).then(() => {
     configureProviderAcls();
-    initializeOIDCUserAndGetLoginPage();
+    initializeOidcUserAndGetLoginPage();
   });
 });
 
@@ -53,7 +53,7 @@ When(
 
     cy.wait('@getOIDCProvider');
 
-    configureOpenIDConnect();
+    configureOpenIdConnect();
   }
 );
 
@@ -125,8 +125,9 @@ When(
       .getByLabel({
         label: 'Enable OpenID Connect authentication',
         tag: 'input'
-      }).then(($input) => {
-        if ($input.is(":checked")) {
+      })
+      .then(($input) => {
+        if ($input.is(':checked')) {
           return;
         }
 

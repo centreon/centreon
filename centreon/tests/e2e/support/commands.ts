@@ -2,6 +2,7 @@
 
 import 'cypress-wait-until';
 import '@centreon/js-config/cypress/e2e/commands';
+import '../../../packages/js-config/cypress/e2e/commands'
 import { refreshButton } from '../features/Resources-status/common';
 import '../features/ACLs/commands';
 import '../features/Api-Token/commands';

@@ -1,14 +1,14 @@
-import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
+import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
 import {
   checkHostsAreMonitored,
-  checkServicesAreMonitored,
-  checkMetricsAreMonitored
+  checkMetricsAreMonitored,
+  checkServicesAreMonitored
 } from '../../../commons';
-import dashboardAdministratorUser from '../../../fixtures/users/user-dashboard-administrator.json';
 import dashboards from '../../../fixtures/dashboards/creation/dashboards.json';
-import genericTextWidgets from '../../../fixtures/dashboards/creation/widgets/genericText.json';
 import statuschartWidget from '../../../fixtures/dashboards/creation/widgets/dashboardWithStatusChartWidget.json';
+import genericTextWidgets from '../../../fixtures/dashboards/creation/widgets/genericText.json';
+import dashboardAdministratorUser from '../../../fixtures/users/user-dashboard-administrator.json';
 
 const greenCssBackground = 'background: rgb(136, 185, 34)';
 const orangeCssBackground = 'background: rgb(253, 155, 39)';
@@ -179,23 +179,23 @@ beforeEach(() => {
   }).as('listAllDashboards');
   cy.intercept({
     method: 'POST',
-    url: `/centreon/api/latest/configuration/dashboards/*/access_rights/contacts`
+    url: '/centreon/api/latest/configuration/dashboards/*/access_rights/contacts'
   }).as('addContactToDashboardShareList');
   cy.intercept({
     method: 'PATCH',
-    url: `/centreon/api/latest/configuration/dashboards/*`
+    url: '/centreon/api/latest/configuration/dashboards/*'
   }).as('updateDashboard');
   cy.intercept({
     method: 'GET',
-    url: `/centreon/api/latest/configuration/dashboards/*`
+    url: '/centreon/api/latest/configuration/dashboards/*'
   }).as('getDashboard');
   cy.intercept({
     method: 'GET',
-    url: `centreon/api/latest/monitoring/services/status**`
+    url: '/centreon/api/latest/monitoring/services/status**'
   }).as('getServiceStatus');
   cy.intercept({
     method: 'GET',
-    url: `centreon/api/latest/monitoring/hosts/status**`
+    url: '/centreon/api/latest/monitoring/hosts/status**'
   }).as('getHostStatus');
   cy.intercept({
     method: 'GET',
@@ -292,7 +292,7 @@ Then(
         blueCssBackground
       ],
       ['100.0%', '0.0%', '0.0%', '0.0%'],
-      ["66.7%", "33.3%", "0.0%", "0.0%"]
+      ['66.7%', '33.3%', '0.0%', '0.0%']
     );
     cy.verifyLegendItemStyle(
       1,
@@ -331,7 +331,7 @@ Then("the Status Chart widget is added in the dashboard's layout", () => {
       blueCssBackground
     ],
     ['100.0%', '0.0%', '0.0%', '0.0%'],
-    ["66.7%", "33.3%", "0.0%", "0.0%"]
+    ['66.7%', '33.3%', '0.0%', '0.0%']
   );
   cy.verifyLegendItemStyle(
     1,
@@ -411,7 +411,7 @@ Then('only the contents of the other widget are displayed', () => {
       blueCssBackground
     ],
     ['100.0%', '0', '0', '0'],
-    ["66.7%", "33.3%", "0.0%", "0.0%"]
+    ['66.7%', '33.3%', '0.0%', '0.0%']
   );
   cy.verifyLegendItemStyle(
     1,
@@ -525,7 +525,7 @@ Then(
   'the user should be redirected to the resource status screen and all the resources must be displayed',
   () => {
     cy.waitForElementToBeVisible('p:contains("host3"), p:contains("host2")');
-    cy.get('body').then($body => {
+    cy.get('body').then(($body) => {
       if ($body.find(':contains("host2")').length) {
         cy.contains('host2').should('exist');
       } else {

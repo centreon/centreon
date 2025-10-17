@@ -1,4 +1,3 @@
-/* eslint-disable cypress/unsafe-to-chain-command */
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
 import groups from '../../../fixtures/users/contact.json';
@@ -37,7 +36,7 @@ beforeEach(() => {
   cy.intercept({
     method: 'GET',
     url: '/centreon/include/common/webServices/rest/internal.php?object=centreon_administration_aclgroup*'
-  }).as('getACLGroups');
+  }).as('getAclGroups');
 });
 
 afterEach(() => {
@@ -83,7 +82,7 @@ Then('the properties are updated', () => {
     .find('option:selected')
     .then(($selectedOptions) => {
       const selectedTexts = Array.from($selectedOptions).map(
-        (option) => option.text
+        (option) => option.textContent
       );
       expect(selectedTexts).to.include.members([
         groups.defaultGroup.linkedContact,
@@ -95,7 +94,7 @@ Then('the properties are updated', () => {
     .find('option:selected')
     .then(($selectedOptions) => {
       const selectedTexts = Array.from($selectedOptions).map(
-        (option) => option.text
+        (option) => option.textContent
       );
       expect(selectedTexts).to.include.members(['ALL']);
     });
@@ -128,7 +127,7 @@ Then('a new contact group is created with identical properties', () => {
     .find('option:selected')
     .then(($selectedOptions) => {
       const selectedTexts = Array.from($selectedOptions).map(
-        (option) => option.text
+        (option) => option.textContent
       );
       expect(selectedTexts).to.include.members([
         groups.defaultGroup.linkedContact
@@ -139,7 +138,7 @@ Then('a new contact group is created with identical properties', () => {
     .find('option:selected')
     .then(($selectedOptions) => {
       const selectedTexts = Array.from($selectedOptions).map(
-        (option) => option.text
+        (option) => option.textContent
       );
       expect(selectedTexts).to.include.members(['ALL']);
     });
