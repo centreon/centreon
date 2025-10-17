@@ -1,4 +1,4 @@
-import { JSX, useMemo } from 'react';
+import { ReactElement, useMemo } from 'react';
 
 import { useAtomValue } from 'jotai';
 import { equals, gt, isNil, last, pipe, pluck, reject } from 'ramda';
@@ -51,7 +51,7 @@ const StatusGrid = ({
   dashboardId,
   playlistHash,
   widgetPrefixQuery
-}: Omit<StatusGridProps, 'store' | 'queryClient'>): JSX.Element => {
+}: Omit<StatusGridProps, 'store' | 'queryClient'>): ReactElement => {
   const theme = useTheme();
   const { t } = useTranslation();
 
