@@ -1,20 +1,29 @@
-import { JSX } from 'react';
+import { Dispatch, JSX } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { MultiConnectedAutocompleteField } from '@centreon/ui';
+import { SetStateAction } from 'jotai';
 import useMultiConnectedAutocomplete from './useMultiConnectedAutocomplete';
 
-const MultiConnectedAutocomplete = ({
+interface Props<TFilters> {
+  label: string;
+  name: string;
+  getEndpoint: () => string;
+  filters: TFilters;
+  setFilters: Dispatch<SetStateAction<TFilters>>;
+}
+
+const MultiConnectedAutocomplete = <TFilters,>({
   name,
   label,
   getEndpoint,
   setFilters,
   filters
-}): JSX.Element => {
+}: Props<TFilters>): JSX.Element => {
   const { t } = useTranslation();
 
   const { isOptionEqualToValue, deleteItem, change, value } =
-    useMultiConnectedAutocomplete({
+    useMultiConnectedAutocomplete<TFilters>({
       name,
       setFilters,
       filters

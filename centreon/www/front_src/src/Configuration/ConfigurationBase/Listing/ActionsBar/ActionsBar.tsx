@@ -1,22 +1,23 @@
+import { PrimitiveAtom } from 'jotai';
 import { JSX } from 'react';
 import Filters from '../../Filters';
 import { useActionsStyles } from './Actions.styles';
 import AddHostGroups from './AddAction';
 import MassiveActions from './MassiveActions/MassiveActions';
 
-interface Props {
+interface Props<TFilters> {
   hasWriteAccess: boolean;
   hasMassiveActions: boolean;
   filtersAtomKey: string;
-  filtersAtom;
+  filtersAtom: PrimitiveAtom<TFilters>;
 }
 
-const ActionsBar = ({
+const ActionsBar = <TFilters,>({
   hasWriteAccess,
   hasMassiveActions,
   filtersAtom,
   filtersAtomKey
-}: Props): JSX.Element => {
+}: Props<TFilters>): JSX.Element => {
   const { classes } = useActionsStyles({ hasWriteAccess });
 
   return (
@@ -28,7 +29,10 @@ const ActionsBar = ({
         </div>
       )}
       <div className={classes.searchBar}>
-        <Filters filtersAtom={filtersAtom} filtersAtomKey={filtersAtomKey} />
+        <Filters<TFilters>
+          filtersAtom={filtersAtom}
+          filtersAtomKey={filtersAtomKey}
+        />
       </div>
     </div>
   );

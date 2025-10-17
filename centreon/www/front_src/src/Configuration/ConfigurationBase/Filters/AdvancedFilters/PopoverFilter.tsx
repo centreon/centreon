@@ -1,3 +1,4 @@
+import { PrimitiveAtom } from 'jotai';
 import { JSX, Suspense } from 'react';
 
 import { LoadingSkeleton, PopoverMenu } from '@centreon/ui';
@@ -9,17 +10,17 @@ import { useFilterStyles } from '../Filters.styles';
 import Filters from './Filters';
 import useCoutChangedFilters from './useCoutChangedFilters';
 
-interface Props {
-  filtersAtom;
+interface Props<TFilters> {
+  filtersAtom: PrimitiveAtom<TFilters>;
   filtersAtomKey: string;
   areAdvancedFiltersVisible: boolean;
 }
 
-const PopoverFilter = ({
+const PopoverFilter = <TFilters,>({
   filtersAtom,
   filtersAtomKey,
   areAdvancedFiltersVisible
-}: Props): JSX.Element => {
+}: Props<TFilters>): JSX.Element => {
   const { t } = useTranslation();
   const { classes } = useFilterStyles();
 
@@ -45,7 +46,7 @@ const PopoverFilter = ({
           title={t(labelFilters)}
         >
           {(): JSX.Element => (
-            <Filters
+            <Filters<TFilters>
               filtersAtom={filtersAtom}
               filtersAtomKey={filtersAtomKey}
             />

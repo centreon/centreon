@@ -1,3 +1,4 @@
+import { PrimitiveAtom } from 'jotai';
 import { ReactElement, useMemo } from 'react';
 
 import { useTranslation } from 'react-i18next';
@@ -10,17 +11,25 @@ import useSearch from './useSearch';
 
 import AdvancedFilters from './AdvancedFilters';
 
-const Filters = ({ filtersAtom, filtersAtomKey }): ReactElement => {
+interface Props<TFilters> {
+  filtersAtom: PrimitiveAtom<TFilters>;
+  filtersAtomKey: string;
+}
+
+const Filters = <TFilters,>({
+  filtersAtom,
+  filtersAtomKey
+}: Props<TFilters>): ReactElement => {
   const { classes } = useFilterStyles();
   const { t } = useTranslation();
 
-  const { filters, onChange, areAdvancedFiltersVisible } = useSearch({
+  const { filters, onChange, areAdvancedFiltersVisible } = useSearch<TFilters>({
     filtersAtom
   });
 
   const EndAdornment = useMemo(
     () => () => (
-      <AdvancedFilters
+      <AdvancedFilters<TFilters>
         filtersAtomKey={filtersAtomKey}
         filtersAtom={filtersAtom}
         areAdvancedFiltersVisible={areAdvancedFiltersVisible}

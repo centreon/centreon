@@ -1,9 +1,20 @@
 import { map, pick, propEq, reject } from 'ramda';
-import { useMemo } from 'react';
+import { Dispatch, useMemo } from 'react';
 
 import { SelectEntry } from '@centreon/ui';
+import { SetStateAction } from 'jotai';
 
-const useMultiAutocomplete = ({ name, filters, setFilters }) => {
+interface Props<TFilters> {
+  name: string;
+  filters: TFilters;
+  setFilters: Dispatch<SetStateAction<TFilters>>;
+}
+
+const useMultiAutocomplete = <TFilters>({
+  name,
+  filters,
+  setFilters
+}: Props<TFilters>) => {
   const change = (_, items: Array<SelectEntry>): void => {
     const selectedItems = map(pick(['id', 'name']), items || []);
 

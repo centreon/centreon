@@ -1,4 +1,5 @@
-import { ChangeEvent } from 'react';
+import { SetStateAction } from 'jotai';
+import { ChangeEvent, Dispatch } from 'react';
 
 interface UseStatus {
   change: (name: string) => (event: ChangeEvent<HTMLInputElement>) => void;
@@ -6,7 +7,14 @@ interface UseStatus {
   valueDisable: boolean;
 }
 
-const useStatus = ({ filters, setFilters }): UseStatus => {
+interface Props<TFilters> {
+  filters: TFilters;
+  setFilters: Dispatch<SetStateAction<TFilters>>;
+}
+const useStatus = <TFilters>({
+  filters,
+  setFilters
+}: Props<TFilters>): UseStatus => {
   const change =
     (name: string) =>
     (event: ChangeEvent<HTMLInputElement>): void => {

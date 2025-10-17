@@ -52,7 +52,7 @@ const Listing = <TFilters,>({
     <MemoizedListing
       checkable={hasWriteAccess && !!actions?.massive}
       actions={
-        <ActionsBar
+        <ActionsBar<TFilters>
           hasWriteAccess={hasWriteAccess}
           hasMassiveActions={!!actions?.massive}
           filtersAtom={filtersAtom}

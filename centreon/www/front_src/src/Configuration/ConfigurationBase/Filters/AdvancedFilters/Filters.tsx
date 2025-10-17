@@ -1,5 +1,5 @@
 import { Button } from '@centreon/ui/components';
-import { useAtom } from 'jotai';
+import { PrimitiveAtom, useAtom } from 'jotai';
 import { equals } from 'ramda';
 import { JSX } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -18,7 +18,15 @@ import useFilters from './useFilters';
 
 import { labelClear, labelSearch } from '../../translatedLabels';
 
-const Filters = ({ filtersAtom, filtersAtomKey }): JSX.Element => {
+interface Props<TFilters> {
+  filtersAtom: PrimitiveAtom<TFilters>;
+  filtersAtomKey: string;
+}
+
+const Filters = <TFilters,>({
+  filtersAtom,
+  filtersAtomKey
+}: Props<TFilters>): JSX.Element => {
   const { t } = useTranslation();
   const { classes } = useFilterStyles();
 
@@ -36,7 +44,7 @@ const Filters = ({ filtersAtom, filtersAtomKey }): JSX.Element => {
       {filtersConfiguration?.map((filter) => {
         if (equals(filter.fieldType, FieldType.Status))
           return (
-            <Status
+            <Status<TFilters>
               key={filter.name}
               setFilters={setFilters}
               filters={filters}
@@ -44,7 +52,7 @@ const Filters = ({ filtersAtom, filtersAtomKey }): JSX.Element => {
           );
         if (equals(filter.fieldType, FieldType.MultiAutocomplete))
           return (
-            <MultiAutocomplete
+            <MultiAutocomplete<TFilters>
               label={filter.name}
               name={filter.fieldName}
               options={filter.options}
@@ -56,7 +64,7 @@ const Filters = ({ filtersAtom, filtersAtomKey }): JSX.Element => {
 
         if (equals(filter.fieldType, FieldType.MultiConnectedAutocomplete))
           return (
-            <MultiConnectedAutocomplete
+            <MultiConnectedAutocomplete<TFilters>
               label={filter.name}
               name={filter.fieldName}
               getEndpoint={filter.getEndpoint}
@@ -67,7 +75,7 @@ const Filters = ({ filtersAtom, filtersAtomKey }): JSX.Element => {
           );
 
         return (
-          <Text
+          <Text<TFilters>
             label={filter.name}
             name={filter.fieldName}
             key={filter.name}
