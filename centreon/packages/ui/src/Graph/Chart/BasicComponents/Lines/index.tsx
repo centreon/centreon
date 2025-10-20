@@ -101,34 +101,40 @@ const Lines = ({
       {(areaStackedLines?.display ?? true) && (
         <>
           {Object.entries(stackedLinesData).map(
-            ([unit, { lines, timeSeries: stackedTimeSeries }]) => (
-              <StackedLines
-                lineStyle={lineStyle}
-                key={`stacked-${unit}`}
-                lines={lines}
-                timeSeries={stackedTimeSeries}
-                yScale={yScalesPerUnit[unit]}
-                {...commonStackedLinesProps}
-              />
-            )
+            ([stackedKey, { lines, timeSeries: stackedTimeSeries }]) => {
+              const [, unit] = stackedKey.split('-');
+              return (
+                <StackedLines
+                  lineStyle={lineStyle}
+                  key={`stacked-${unit}`}
+                  lines={lines}
+                  timeSeries={stackedTimeSeries}
+                  yScale={yScalesPerUnit[unit || undefined]}
+                  {...commonStackedLinesProps}
+                />
+              );
+            }
           )}
           {Object.entries(invertedStackedLinesData).map(
-            ([unit, { lines, timeSeries: stackedTimeSeries }]) => (
-              <StackedLines
-                lineStyle={lineStyle}
-                key={`invert-stacked-${unit}`}
-                lines={lines}
-                timeSeries={stackedTimeSeries}
-                yScale={getYScale({
-                  invert: '1',
-                  scale,
-                  scaleLogarithmicBase,
-                  unit,
-                  yScalesPerUnit
-                })}
-                {...commonStackedLinesProps}
-              />
-            )
+            ([stackedKey, { lines, timeSeries: stackedTimeSeries }]) => {
+              const [, unit] = stackedKey.split('-');
+              return (
+                <StackedLines
+                  lineStyle={lineStyle}
+                  key={`invert-stacked-${unit}`}
+                  lines={lines}
+                  timeSeries={stackedTimeSeries}
+                  yScale={getYScale({
+                    invert: '1',
+                    scale,
+                    scaleLogarithmicBase,
+                    unit: unit || undefined,
+                    yScalesPerUnit
+                  })}
+                  {...commonStackedLinesProps}
+                />
+              );
+            }
           )}
         </>
       )}

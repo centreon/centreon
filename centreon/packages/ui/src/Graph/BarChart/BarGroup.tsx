@@ -1,12 +1,13 @@
 import { scaleBand, scaleOrdinal } from '@visx/scale';
 import { BarGroupHorizontal, BarGroup as VisxBarGroup } from '@visx/shape';
 import { ScaleLinear } from 'd3-scale';
-import { difference, equals, keys, omit, pick, pluck, uniq } from 'ramda';
+import { difference, equals, keys, omit, pick } from 'ramda';
 import { memo, useMemo } from 'react';
 
 import { useDeepMemo } from '../../utils';
 import {
   getSortedStackedLines,
+  getStackedLinesTimeSeriesPerStackAndUnit,
   getTime,
   getTimeSeriesForLines,
   getUnits
@@ -54,40 +55,17 @@ const BarGroup = ({
   );
 
   const stackedLines = getSortedStackedLines(lines);
-  const stackedUnits = uniq(pluck('unit', stackedLines));
   const notStackedLines = difference(lines, stackedLines);
-
-  const stackedKeys = stackedUnits.reduce(
-    (acc, unit) => ({
-      ...acc,
-      [`stacked-${unit}`]: null
-    }),
-    {}
-  );
-  const stackedLinesTimeSeriesPerUnit = stackedUnits.reduce(
-    (acc, stackedUnit) => {
-      const relatedLines = stackedLines.filter(({ unit }) =>
-        equals(unit, stackedUnit)
-      );
-
-      return {
-        ...acc,
-        [stackedUnit]: {
-          lines: relatedLines,
-          timeSeries: getTimeSeriesForLines({
-            lines: relatedLines,
-            timeSeries
-          })
-        }
-      };
-    },
-    {}
-  );
-
   const notStackedTimeSeries = getTimeSeriesForLines({
     lines: notStackedLines,
     timeSeries
   });
+
+  const { stackedLinesTimeSeriesPerStackKeyAndUnit, stackedKeys } = useMemo(
+    () =>
+      getStackedLinesTimeSeriesPerStackAndUnit({ stackedLines, timeSeries }),
+    [stackedLines, timeSeries]
+  );
 
   const normalizedTimeSeries = notStackedTimeSeries.map((timeSerie) => ({
     ...timeSerie,
@@ -97,6 +75,16 @@ const BarGroup = ({
   const lineKeys = useDeepMemo({
     deps: [normalizedTimeSeries],
     variable: keys(omit(['timeTick'], normalizedTimeSeries[0]))
+  });
+  const sortedLineKeys = lineKeys.sort((lineKeyA: string, lineKeyB: string) => {
+    if (lineKeyA.startsWith('stacked-') && !lineKeyB.startsWith('stacked-')) {
+      return true;
+    }
+
+    const lineKeysA = lineKeyA.split('-');
+    const lineKeysB = lineKeyB.split('-');
+
+    return lineKeysA[2] === '' && lineKeysB[2] !== '';
   });
   const colors = useDeepMemo({
     deps: [lineKeys, lines],
@@ -154,7 +142,7 @@ const BarGroup = ({
       color={colorScale}
       data={normalizedTimeSeries}
       height={size}
-      keys={lineKeys}
+      keys={sortedLineKeys}
       {...barComponentBaseProps}
     >
       {(barGroups) =>
@@ -164,7 +152,9 @@ const BarGroup = ({
               key={`bar-group-${barGroup.index}-${barGroup.x0}`}
               barGroup={barGroup}
               barStyle={barStyle}
-              stackedLinesTimeSeriesPerUnit={stackedLinesTimeSeriesPerUnit}
+              stackedLinesTimeSeriesPerStackKeyAndUnit={
+                stackedLinesTimeSeriesPerStackKeyAndUnit
+              }
               notStackedTimeSeries={notStackedTimeSeries}
               notStackedLines={notStackedLines}
               isTooltipHidden={isTooltipHidden}
