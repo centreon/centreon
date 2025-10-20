@@ -28,6 +28,7 @@ const ContactsSelector = (): React.JSX.Element => {
   return (
     <div className={classes.container}>
       <MultiConnectedAutocompleteField
+        optionProperty="alias"
         allowUniqOption
         chipProps={{
           color: 'primary',

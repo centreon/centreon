@@ -1,6 +1,7 @@
 import { JsonDecoder } from 'ts.data.json';
 
 import {
+  Contact,
   DatasetFilter,
   GetResourceAccessRule,
   NamedEntity,
@@ -41,10 +42,10 @@ const contactGroups = JsonDecoder.object<NamedEntity>(
   'Contact group'
 );
 
-const contacts = JsonDecoder.object<NamedEntity>(
+const contacts = JsonDecoder.object<Contact>(
   {
     id: JsonDecoder.number,
-    name: JsonDecoder.string
+    alias: JsonDecoder.string
   },
   'Contact'
 );
