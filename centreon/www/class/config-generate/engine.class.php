@@ -359,7 +359,11 @@ class Engine extends AbstractObject
         $pollerStmt->execute();
         $pollerVersion = $pollerStmt->fetchColumn();
 
-        if ($pollerVersion === false || version_compare($pollerVersion, '25.05.0', '<')) {
+        if ($pollerVersion === false) {
+            // Unknown version, both broker_module and broker_module_cfg_file configurations are needed
+            $this->engine['broker_module'][] = '/usr/lib64/nagios/cbmod.so ' . $this->engine['broker_module_cfg_file'];
+        } elseif (version_compare($pollerVersion, '25.05.0', '<')) {
+            // Version is less than 25.05.0, add the legacy broker module and remove the cfg file reference
             $this->engine['broker_module'][] = '/usr/lib64/nagios/cbmod.so ' . $this->engine['broker_module_cfg_file'];
             unset($this->engine['broker_module_cfg_file']);
         }
