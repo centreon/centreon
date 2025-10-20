@@ -42,6 +42,7 @@ use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryI
 use Core\Security\Vault\Domain\Model\VaultConfiguration;
 use Symfony\Component\HttpClient\CurlHttpClient;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Utility\Difference\BasicDifference;
 
 /**
  * Quickform rule that checks whether or not monitoring server can be set
@@ -3304,4 +3305,35 @@ function computeMacroValue(array $macroInformations, int $hostId, Kernel $kernel
     );
 
     return $vaultedMacros['_HOST' . $_REQUEST[$macroOriginalNameKey]] ?? $value;
+}
+
+function validateParentChildAreNotCircular(array $fields): array|true
+{
+    global $pearDB;
+
+    $diff = new BasicDifference($fields['host_parents'] ?? [], $fields['host_childs'] ?? []);
+    if (empty($diff->getCommon())) {
+        return true;
+    }
+    $hostIds = [];
+    foreach ($diff->getCommon() as $hostId) {
+        $hostIds[':host' . $hostId] = $hostId;
+    }
+    $hostIdsAsString = implode(',', array_keys($hostIds));
+    $statement = $pearDB->prepare(
+        <<<SQL
+            SELECT host_name
+            FROM host
+            WHERE host_id IN ($hostIdsAsString)
+            SQL,
+    );
+    foreach ($hostIds as $param => $id) {
+        $statement->bindValue($param, $id, PDO::PARAM_INT);
+    }
+    $statement->execute();
+    $hostNames = $statement->fetchAll(PDO::FETCH_COLUMN);
+
+    return [
+        'host_parents' => sprintf('Circular reference detected with host children : %s', implode(', ', $hostNames))
+    ];
 }
