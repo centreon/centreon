@@ -48,7 +48,7 @@ final class AddNotificationController extends AbstractController
     public function __invoke(
         Request $request,
         AddNotification $useCase,
-        AddNotificationPresenter $presenter
+        AddNotificationPresenter $presenter,
     ): Response {
         $this->denyAccessUnlessGrantedForApiConfiguration();
 

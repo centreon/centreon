@@ -56,7 +56,7 @@ class DbWriteHostTemplateActionLogRepository extends AbstractRepositoryRDB imple
         private readonly ContactInterface $contact,
         private readonly ReadHostTemplateRepositoryInterface $readHostTemplateRepository,
         private readonly WriteActionLogRepositoryInterface $writeActionLogRepository,
-        DatabaseConnection $db
+        DatabaseConnection $db,
     ) {
         $this->db = $db;
     }

@@ -48,7 +48,7 @@ final class UpdateHostCategory
         private readonly WriteHostCategoryRepositoryInterface $writeHostCategoryRepository,
         private readonly ReadHostCategoryRepositoryInterface $readHostCategoryRepository,
         private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepositoryInterface,
-        private readonly ContactInterface $user
+        private readonly ContactInterface $user,
     ) {
     }
 

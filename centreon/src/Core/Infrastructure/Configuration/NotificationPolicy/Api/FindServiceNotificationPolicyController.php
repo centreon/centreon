@@ -41,7 +41,7 @@ final class FindServiceNotificationPolicyController extends AbstractController
         int $hostId,
         int $serviceId,
         FindServiceNotificationPolicy $useCase,
-        FindNotificationPolicyPresenterInterface $presenter
+        FindNotificationPolicyPresenterInterface $presenter,
     ): object {
         /**
          * Access denied if no rights given to the configuration and realtime for the current user.

@@ -37,7 +37,7 @@ final class SeverityResponseDto
         public string $name = '',
         public int $level = 0,
         public int $type = 0,
-        public IconResponseDto $icon = new IconResponseDto()
+        public IconResponseDto $icon = new IconResponseDto(),
     ) {
     }
 }

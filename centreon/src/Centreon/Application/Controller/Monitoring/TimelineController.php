@@ -72,7 +72,7 @@ class TimelineController extends AbstractController
      */
     public function getHostTimeline(
         int $hostId,
-        RequestParametersInterface $requestParameters
+        RequestParametersInterface $requestParameters,
     ): View {
         $this->denyAccessUnlessGrantedForApiRealtime();
 
@@ -113,7 +113,7 @@ class TimelineController extends AbstractController
     public function getServiceTimeline(
         int $hostId,
         int $serviceId,
-        RequestParametersInterface $requestParameters
+        RequestParametersInterface $requestParameters,
     ): View {
         $this->denyAccessUnlessGrantedForApiRealtime();
         if (! $this->user->hasTopologyRole(Contact::ROLE_MONITORING_RESOURCES_STATUS_RW)) {
@@ -148,7 +148,7 @@ class TimelineController extends AbstractController
      */
     public function downloadHostTimeline(
         int $hostId,
-        RequestParametersInterface $requestParameters
+        RequestParametersInterface $requestParameters,
     ): StreamedResponse {
         $this->denyAccessUnlessGrantedForApiRealtime();
         if (! $this->user->hasTopologyRole(Contact::ROLE_MONITORING_RESOURCES_STATUS_RW)) {
@@ -175,7 +175,7 @@ class TimelineController extends AbstractController
     public function downloadServiceTimeline(
         int $hostId,
         int $serviceId,
-        RequestParametersInterface $requestParameters
+        RequestParametersInterface $requestParameters,
     ): StreamedResponse {
         $this->denyAccessUnlessGrantedForApiRealtime();
         if (! $this->user->hasTopologyRole(Contact::ROLE_MONITORING_RESOURCES_STATUS_RW)) {
@@ -225,7 +225,7 @@ class TimelineController extends AbstractController
      */
     public function downloadMetaserviceTimeline(
         int $metaId,
-        RequestParametersInterface $requestParameters
+        RequestParametersInterface $requestParameters,
     ): StreamedResponse {
         $this->denyAccessUnlessGrantedForApiRealtime();
         $this->addDownloadParametersInRequestParameters($requestParameters);

@@ -204,7 +204,7 @@ final class FindNotifications
     private function createResponse(
         array $notifications,
         NotificationCounts $notificationCounts,
-        array $notificationChannelByNotifications
+        array $notificationChannelByNotifications,
     ): FindNotificationsResponse {
         $response = new FindNotificationsResponse();
 

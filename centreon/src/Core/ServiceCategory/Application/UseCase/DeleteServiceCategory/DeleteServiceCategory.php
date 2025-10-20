@@ -44,7 +44,7 @@ final class DeleteServiceCategory
         private readonly WriteServiceCategoryRepositoryInterface $writeServiceCategoryRepository,
         private readonly ReadServiceCategoryRepositoryInterface $readServiceCategoryRepository,
         private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepositoryInterface,
-        private readonly ContactInterface $user
+        private readonly ContactInterface $user,
     ) {
     }
 

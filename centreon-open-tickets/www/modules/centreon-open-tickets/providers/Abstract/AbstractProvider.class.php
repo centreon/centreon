@@ -110,7 +110,7 @@ abstract class AbstractProvider
         $centreon_open_tickets_path,
         $rule_id,
         $submitted_config,
-        $provider_id
+        $provider_id,
     ) {
         $this->rule = $rule;
         $this->centreon_path = $centreon_path;

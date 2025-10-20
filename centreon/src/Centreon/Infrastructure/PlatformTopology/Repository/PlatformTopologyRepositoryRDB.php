@@ -201,7 +201,7 @@ class PlatformTopologyRepositoryRDB extends AbstractRepositoryDRB implements Pla
      */
     public function getPlatformTopologyByAccessGroupIds(array $accessGroupIds): array
     {
-        if ([] === $accessGroupIds) {
+        if ($accessGroupIds === []) {
 
             return [];
         }
@@ -377,7 +377,7 @@ class PlatformTopologyRepositoryRDB extends AbstractRepositoryDRB implements Pla
      */
     public function hasRestrictedAccessToPlatforms(array $accessGroupIds): bool
     {
-        if ([] === $accessGroupIds) {
+        if ($accessGroupIds === []) {
 
             return false;
         }
@@ -408,7 +408,7 @@ class PlatformTopologyRepositoryRDB extends AbstractRepositoryDRB implements Pla
      */
     public function hasAccessToPlatform(array $accessGroupIds, int $platformId): bool
     {
-        if ([] === $accessGroupIds) {
+        if ($accessGroupIds === []) {
 
             return false;
         }

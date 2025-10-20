@@ -75,16 +75,16 @@ class PlatformInformationRepositoryRDB extends AbstractRepositoryDRB implements 
         if ($statement->execute()) {
             while ($row = $statement->fetch(\PDO::FETCH_ASSOC)) {
                 // Renaming one key to be more explicit
-                if ('authorizedMaster' === $row['key']) {
+                if ($row['key'] === 'authorizedMaster') {
                     $row['key'] = 'centralServerAddress';
                 }
 
                 // Renaming informations.apiCredentials to PlatformInformation encryptedApiCredentials property.
-                if ('apiCredentials' === $row['key']) {
+                if ($row['key'] === 'apiCredentials') {
                     $row['key'] = 'encryptedApiCredentials';
                 }
 
-                if ('isRemote' === $row['key'] || 'apiPeerValidation' === $row['key']) {
+                if ($row['key'] === 'isRemote' || $row['key'] === 'apiPeerValidation') {
                     $row['value'] = $row['value'] === 'yes';
                 }
 
@@ -177,7 +177,7 @@ class PlatformInformationRepositoryRDB extends AbstractRepositoryDRB implements 
     private function prepareInsertQueryString(
         PlatformInformation $platformInformation,
         string &$insertQuery,
-        array &$queryParameters
+        array &$queryParameters,
     ): void {
         $queryValues = [];
         if ($platformInformation->getCentralServerAddress() !== null) {

@@ -112,10 +112,10 @@ $servicePreferences = '';
 
 if ($acl === 0) {
     $servicePreferences = '';
-} elseif (false === isset($preferences['service']) || trim($preferences['service']) === '') {
+} elseif (isset($preferences['service']) === false || trim($preferences['service']) === '') {
     $servicePreferences = "<div class='update' style='text-align:center;margin-left: auto;margin-right: "
         . "auto;width:350px;'>" . _('Please select a resource first') . '</div>';
-} elseif (false === isset($preferences['graph_period']) || trim($preferences['graph_period']) === '') {
+} elseif (isset($preferences['graph_period']) === false || trim($preferences['graph_period']) === '') {
     $servicePreferences = "<div class='update' style='text-align:center;margin-left: auto;margin-right: "
         . "auto;width:350px;'>" . _('Please select a graph period') . '</div>';
 }

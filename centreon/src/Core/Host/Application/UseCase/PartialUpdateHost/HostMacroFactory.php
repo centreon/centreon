@@ -50,7 +50,7 @@ final class HostMacroFactory
     ): Macro {
         $macroName = mb_strtoupper($data['name']);
         $macroValue = self::computeValue($data, $inheritedMacros);
-        $passwordHasNotChanged = (null === $data['value']) && $data['is_password'];
+        $passwordHasNotChanged = ($data['value'] === null) && $data['is_password'];
         // Note: do not handle vault storage at the moment
         if ($passwordHasNotChanged) {
             $macroValue = match (true) {

@@ -43,7 +43,7 @@ class ProviderAuthenticationFactory implements ProviderAuthenticationFactoryInte
         private readonly OpenId $openId,
         private readonly WebSSO $webSSO,
         private readonly SAML $saml,
-        private ReadConfigurationRepositoryInterface $readConfigurationRepository
+        private ReadConfigurationRepositoryInterface $readConfigurationRepository,
     ) {
     }
 
@@ -61,7 +61,7 @@ class ProviderAuthenticationFactory implements ProviderAuthenticationFactoryInte
             Provider::OPENID => $this->openId,
             Provider::WEB_SSO => $this->webSSO,
             Provider::SAML => $this->saml,
-            default => throw ProviderException::providerConfigurationNotFound($providerType)
+            default => throw ProviderException::providerConfigurationNotFound($providerType),
         };
 
         $provider->setConfiguration($this->readConfigurationRepository->getConfigurationByType($providerType));

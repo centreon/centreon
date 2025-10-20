@@ -484,7 +484,7 @@ final class CustomConfiguration implements CustomConfigurationInterface, SAMLCus
     private function validateParametersForAutoImport(
         ?ContactTemplate $contactTemplate,
         ?string $emailBindAttribute,
-        ?string $userNameBindAttribute
+        ?string $userNameBindAttribute,
     ): void {
         $missingMandatoryParameters = [];
         if ($contactTemplate === null) {

@@ -18,3 +18,74 @@
  * For more information : contact@centreon.com
  *
  */
+
+use Adaptation\Database\Connection\ConnectionInterface;
+use Adaptation\Database\Connection\Exception\ConnectionException;
+
+require_once __DIR__ . '/../../../bootstrap.php';
+
+$version = 'xx.xx.x';
+
+$errorMessage = '';
+
+/**
+ * @var ConnectionInterface $pearDB
+ * @var ConnectionInterface $pearDBO
+ */
+
+/** -------------------------------------------- BBDO cfg update -------------------------------------------- */
+$bbdoDefaultUpdate = function () use ($pearDB, &$errorMessage): void {
+    if ($pearDB->isColumnExist('cfg_centreonbroker', 'bbdo_version')) {
+        $errorMessage = "Unable to update 'bbdo_version' column to 'cfg_centreonbroker' table";
+        $pearDB->executeQuery('ALTER TABLE `cfg_centreonbroker` MODIFY `bbdo_version` VARCHAR(50) DEFAULT "3.0.1"');
+    }
+};
+
+$bbdoCfgUpdate = function () use ($pearDB, &$errorMessage): void {
+    $errorMessage = "Unable to update 'bbdo_version' version in 'cfg_centreonbroker' table";
+    $pearDB->executeStatement('UPDATE `cfg_centreonbroker` SET `bbdo_version` = "3.0.1"');
+};
+
+try {
+    // DDL statements for real time database
+
+    // DDL statements for configuration database
+    $bbdoDefaultUpdate();
+
+    // Transactional queries for configuration database
+    if (! $pearDB->isTransactionActive()) {
+        $pearDB->startTransaction();
+    }
+
+    $bbdoCfgUpdate();
+
+    $pearDB->commitTransaction();
+} catch (Throwable $throwable) {
+    CentreonLog::create()->error(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: " . $errorMessage,
+        exception: $throwable
+    );
+
+    try {
+        if ($pearDB->isTransactionActive()) {
+            $pearDB->rollBackTransaction();
+        }
+    } catch (ConnectionException $rollbackException) {
+        CentreonLog::create()->error(
+            logTypeId: CentreonLog::TYPE_UPGRADE,
+            message: "UPGRADE - {$version}: error while rolling back the upgrade operation for : {$errorMessage}",
+            exception: $rollbackException
+        );
+
+        throw new RuntimeException(
+            message: "UPGRADE - {$version}: error while rolling back the upgrade operation for : {$errorMessage}",
+            previous: $rollbackException
+        );
+    }
+
+    throw new RuntimeException(
+        message: "UPGRADE - {$version}: " . $errorMessage,
+        previous: $throwable
+    );
+}

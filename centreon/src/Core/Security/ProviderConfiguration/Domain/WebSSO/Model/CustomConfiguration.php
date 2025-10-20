@@ -41,7 +41,7 @@ final class CustomConfiguration implements CustomConfigurationInterface, Provide
         private array $blacklistClientAddresses = [],
         private ?string $loginHeaderAttribute = null,
         private ?string $patternMatchingLogin = null,
-        private ?string $patternReplaceLogin = null
+        private ?string $patternReplaceLogin = null,
     ) {
         $this->guard();
     }

@@ -32,7 +32,7 @@ final class DeleteServiceCategoryController extends AbstractController
     public function __invoke(
         int $serviceCategoryId,
         DeleteServiceCategory $useCase,
-        DefaultPresenter $presenter
+        DefaultPresenter $presenter,
     ): object {
         $this->denyAccessUnlessGrantedForApiConfiguration();
 

@@ -308,7 +308,7 @@ function testServiceExistence($name = null, $hPars = [], $hgPars = [], $returnId
         $service = $statement->fetch(PDO::FETCH_ASSOC);
         // Duplicate entry
         if ($statement->rowCount() >= 1 && $service['service_id'] != $id) {
-            return (false == $returnId) ? false : $service['service_id'];
+            return ($returnId == false) ? false : $service['service_id'];
         }
     }
 
@@ -329,11 +329,11 @@ function testServiceExistence($name = null, $hPars = [], $hgPars = [], $returnId
         $service = $statement->fetch(PDO::FETCH_ASSOC);
         // Duplicate entry
         if ($statement->rowCount() >= 1 && $service['service_id'] != $id) {
-            return (false == $returnId) ? false : $service['service_id'];
+            return ($returnId == false) ? false : $service['service_id'];
         }
     }
 
-    return (false == $returnId) ? true : 0;
+    return ($returnId == false) ? true : 0;
 }
 
 /**
@@ -630,7 +630,7 @@ function multipleServiceInDB(
     $hostgroup = null,
     $hPars = [],
     $hgPars = [],
-    $params = []
+    $params = [],
 ) {
     global $pearDB, $centreon;
 
@@ -3994,7 +3994,7 @@ function insertServiceTemplateForOnPremise(array $submittedValues = []): int
 function insertServiceTemplateByApi(
     array $submittedValues = [],
     bool $isCloudPlatform = false,
-    string $basePath
+    string $basePath,
 ): int {
     $kernel = Kernel::createForWeb();
     $router = $kernel->getContainer()->get(Router::class) ?? throw new LogicException('Router not found');
@@ -4036,7 +4036,7 @@ function insertServiceTemplateByApi(
  */
 function getServiceTemplatePayload(
     array $submittedValues,
-    bool $isCloudPlatform = false
+    bool $isCloudPlatform = false,
 ): array {
     global $form, $pearDB;
 

@@ -32,7 +32,7 @@ final readonly class CentreonInstallationVerifier implements InstallationVerifie
         #[Autowire(param: 'centreon_etc_path')]
         private string $etcDirectory,
         #[Autowire(param: 'centreon_install_path')]
-        private string $installDirectory
+        private string $installDirectory,
     ) {
     }
 

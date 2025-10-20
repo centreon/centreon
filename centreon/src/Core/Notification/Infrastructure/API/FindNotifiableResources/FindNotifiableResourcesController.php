@@ -46,7 +46,7 @@ final class FindNotifiableResourcesController extends AbstractController
     public function __invoke(
         Request $request,
         FindNotifiableResources $useCase,
-        FindNotifiableResourcesPresenter $presenter
+        FindNotifiableResourcesPresenter $presenter,
     ): Response {
 
         $this->denyAccessUnlessGrantedForApiConfiguration();

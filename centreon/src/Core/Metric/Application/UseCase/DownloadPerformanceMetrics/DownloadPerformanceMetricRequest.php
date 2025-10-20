@@ -37,7 +37,7 @@ final class DownloadPerformanceMetricRequest
         public int $hostId,
         public int $serviceId,
         public DateTimeInterface $startDate,
-        public DateTimeInterface $endDate
+        public DateTimeInterface $endDate,
     ) {
     }
 }

@@ -31,7 +31,7 @@ class ProviderToken extends NewProviderToken
         private int $id,
         private string $token,
         private DateTimeImmutable $creationDate,
-        private ?DateTimeImmutable $expirationDate = null
+        private ?DateTimeImmutable $expirationDate = null,
     ) {
         parent::__construct($this->token, $this->creationDate, $this->expirationDate);
     }

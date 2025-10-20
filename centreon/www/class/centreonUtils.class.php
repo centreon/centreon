@@ -311,7 +311,7 @@ class CentreonUtils
      */
     public static function escapeSecure(
         $stringToEscape,
-        $escapeMethod = self::ESCAPE_LEGACY_METHOD
+        $escapeMethod = self::ESCAPE_LEGACY_METHOD,
     ) {
         switch ($escapeMethod) {
             case self::ESCAPE_LEGACY_METHOD:
@@ -377,7 +377,7 @@ class CentreonUtils
      */
     public static function escapeAllExceptSelectedTags(
         $stringToEscape,
-        $tagsNotToEscape = []
+        $tagsNotToEscape = [],
     ) {
         if (! is_array($tagsNotToEscape)) {
             // Do nothing if the tag list is empty

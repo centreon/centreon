@@ -149,7 +149,7 @@ class CentreonWebService
         global $pearDB;
 
         // Test if route is defined
-        if (false === isset($_GET['object']) || false === isset($_GET['action'])) {
+        if (isset($_GET['object']) === false || isset($_GET['action']) === false) {
             static::sendResult('Bad parameters', 400);
         }
 
@@ -213,7 +213,7 @@ class CentreonWebService
             $wsObj->finalConstruct($dependencyInjector);
         }
 
-        if (false === method_exists($wsObj, $action)) {
+        if (method_exists($wsObj, $action) === false) {
             static::sendResult('Method not found', 404);
         }
 

@@ -51,7 +51,7 @@ final class FindRealTimeHostStatusesCount
         private readonly ContactInterface $user,
         private readonly ReadRealTimeHostRepositoryInterface $repository,
         private readonly ReadAccessGroupRepositoryInterface $accessGroupRepository,
-        private readonly RequestParametersInterface $requestParameters
+        private readonly RequestParametersInterface $requestParameters,
     ) {
     }
 

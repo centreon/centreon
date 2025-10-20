@@ -65,7 +65,7 @@ final class FindHosts
         private readonly ReadHostCategoryRepositoryInterface $categoryRepository,
         private readonly ReadHostTemplateRepositoryInterface $hostTemplateRepository,
         private readonly ReadHostGroupRepositoryInterface $groupRepository,
-        private readonly bool $isCloudPlatform
+        private readonly bool $isCloudPlatform,
     ) {
     }
 

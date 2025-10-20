@@ -269,7 +269,7 @@ final class DbWriteResourceAccessRepository extends AbstractRepositoryRDB implem
      */
     public function linkContactsToRule(int $ruleId, array $contactIds): void
     {
-        if ([] === $contactIds) {
+        if ($contactIds === []) {
             return;
         }
 
@@ -335,7 +335,7 @@ final class DbWriteResourceAccessRepository extends AbstractRepositoryRDB implem
      */
     public function linkContactGroupsToRule(int $ruleId, array $contactGroupIds): void
     {
-        if ([] === $contactGroupIds) {
+        if ($contactGroupIds === []) {
             return;
         }
 
@@ -372,7 +372,7 @@ final class DbWriteResourceAccessRepository extends AbstractRepositoryRDB implem
      */
     public function updateDatasetResources(int $datasetId, array $resourceIds): void
     {
-        if ([] === $resourceIds) {
+        if ($resourceIds === []) {
             return;
         }
 

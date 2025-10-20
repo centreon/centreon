@@ -49,7 +49,7 @@ class DbReadMetaServiceRepository extends AbstractRepositoryDRB implements ReadM
 
         $fields = '';
         foreach ($ids as $index => $id) {
-            $fields .= ('' === $fields ? '' : ', ') . ':id_' . $index;
+            $fields .= ($fields === '' ? '' : ', ') . ':id_' . $index;
         }
 
         $request = <<<SQL

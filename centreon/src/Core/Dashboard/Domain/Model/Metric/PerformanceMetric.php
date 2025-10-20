@@ -35,7 +35,7 @@ class PerformanceMetric
         private ?float $criticalLowThreshold,
         private ?float $currentValue,
         private ?float $minimumValue,
-        private ?float $maximumValue
+        private ?float $maximumValue,
     ) {
     }
 

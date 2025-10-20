@@ -160,7 +160,7 @@ class ApiReadHostRepository implements ReadHostRepositoryInterface
      */
     public function findByRequestParametersAndAccessGroups(
         RequestParametersInterface $requestParameters,
-        array $accessGroups
+        array $accessGroups,
     ): array {
         throw RepositoryException::notYetImplemented();
     }

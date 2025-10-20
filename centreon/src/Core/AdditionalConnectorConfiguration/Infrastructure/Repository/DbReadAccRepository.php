@@ -58,7 +58,7 @@ class DbReadAccRepository extends AbstractRepositoryRDB implements ReadAccReposi
 
     public function __construct(
         private readonly EncryptionInterface $encryption,
-        DatabaseConnection $db
+        DatabaseConnection $db,
     ) {
         $this->db = $db;
     }
@@ -262,7 +262,7 @@ class DbReadAccRepository extends AbstractRepositoryRDB implements ReadAccReposi
      */
     public function findByRequestParametersAndAccessGroups(
         RequestParametersInterface $requestParameters,
-        array $accessGroups
+        array $accessGroups,
     ): array {
         if ($accessGroups === []) {
             return [];

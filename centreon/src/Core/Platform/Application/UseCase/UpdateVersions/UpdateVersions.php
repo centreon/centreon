@@ -112,7 +112,7 @@ final class UpdateVersions
         $this->info('Starting centreon-web update process');
         $availableUpdates = $this->getAvailableUpdates($this->getCurrentVersion());
 
-        if ([] !== $availableUpdates) {
+        if ($availableUpdates !== []) {
             $this->info('Available updates found for centreon-web', ['updates' => $availableUpdates]);
             $this->runUpdates($availableUpdates);
         } else {

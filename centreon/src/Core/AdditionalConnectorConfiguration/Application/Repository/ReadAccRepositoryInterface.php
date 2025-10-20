@@ -108,7 +108,7 @@ interface ReadAccRepositoryInterface
      */
     public function findByRequestParametersAndAccessGroups(
         RequestParametersInterface $requestParameters,
-        array $accessGroups
+        array $accessGroups,
     ): array;
 
     /**

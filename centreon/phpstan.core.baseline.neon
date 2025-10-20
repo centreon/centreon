@@ -7,7 +7,7 @@ parameters:
 			path: src/Core/AdditionalConnectorConfiguration/Application/UseCase/UpdateAcc/Validator.php
 
 		-
-			message: '#^Strict comparison using \=\=\= between Core\\AdditionalConnectorConfiguration\\Domain\\Model\\Type\:\:VMWARE_V6 and Core\\AdditionalConnectorConfiguration\\Domain\\Model\\Type will always evaluate to true\.$#'
+			message: '#^Strict comparison using \=\=\= between Core\\AdditionalConnectorConfiguration\\Domain\\Model\\Type and Core\\AdditionalConnectorConfiguration\\Domain\\Model\\Type\:\:VMWARE_V6 will always evaluate to true\.$#'
 			identifier: identical.alwaysTrue
 			count: 1
 			path: src/Core/AdditionalConnectorConfiguration/Application/Validation/VmWareV6DataValidator.php
@@ -76,11 +76,6 @@ parameters:
 			message: '#^\[CENTREON\-RULE\]\: \(RepositoryNameValidationByInterfaceCustomRule\) Repository name should match the implemented Interface name with exception of data storage prefix and ''Interface'' mention\.$#'
 			count: 1
 			path: src/Core/Broker/Infrastructure/Repository/FileBrokerRepository.php
-
-		-
-			message: '#^\[CENTREON\-RULE\]\: \(RepositoryNameValidationByInterfaceCustomRule\) Repository name should match the implemented Interface name with exception of data storage prefix and ''Interface'' mention\.$#'
-			count: 1
-			path: src/Core/ResourceAccess/Infrastructure/Repository/Dataset/DbWriteImageFolderRepository.php
 
 		-
 			message: '#^Method Core\\Common\\Infrastructure\\Repository\\AbstractRepositoryRDB@anonymous/centreon/src/Core/Command/Infrastructure/Repository/DbReadCommandRepository\.php\:307\:\:count\(\) should return int\<0, max\> but returns int\.$#'
@@ -636,6 +631,11 @@ parameters:
 		-
 			message: '#^\[CENTREON\-RULE\]\: \(RepositoryNameValidationByInterfaceCustomRule\) Repository name should match the implemented Interface name with exception of data storage prefix and ''Interface'' mention\.$#'
 			count: 1
+			path: src/Core/ResourceAccess/Infrastructure/Repository/Dataset/DbWriteImageFolderRepository.php
+
+		-
+			message: '#^\[CENTREON\-RULE\]\: \(RepositoryNameValidationByInterfaceCustomRule\) Repository name should match the implemented Interface name with exception of data storage prefix and ''Interface'' mention\.$#'
+			count: 1
 			path: src/Core/ResourceAccess/Infrastructure/Repository/Dataset/DbWriteMetaServiceRepository.php
 
 		-
@@ -781,7 +781,7 @@ parameters:
 			path: src/Core/Security/User/Infrastructure/Repository/DbReadUserRepository.php
 
 		-
-			message: '#^Strict comparison using \=\=\= between Core\\AdditionalConnectorConfiguration\\Domain\\Model\\Type\:\:VMWARE_V6 and Core\\AdditionalConnectorConfiguration\\Domain\\Model\\Type will always evaluate to true\.$#'
+			message: '#^Strict comparison using \=\=\= between Core\\AdditionalConnectorConfiguration\\Domain\\Model\\Type and Core\\AdditionalConnectorConfiguration\\Domain\\Model\\Type\:\:VMWARE_V6 will always evaluate to true\.$#'
 			identifier: identical.alwaysTrue
 			count: 1
 			path: src/Core/Security/Vault/Application/UseCase/MigrateAllCredentials/Migrator/VmWareV6CredentialMigrator.php
@@ -905,24 +905,6 @@ parameters:
 			identifier: instanceof.alwaysTrue
 			count: 1
 			path: src/Core/Service/Infrastructure/Repository/ApiReadServiceRepository.php
-
-		-
-			message: '#^Method Centreon\\Infrastructure\\RequestParameters\\Interfaces\\NormalizerInterface@anonymous/centreon/src/Core/Service/Infrastructure/Repository/DbReadRealTimeServiceRepository\.php\:341\:\:normalize\(\) never returns bool so it can be removed from the return type\.$#'
-			identifier: return.unusedType
-			count: 1
-			path: src/Core/Service/Infrastructure/Repository/DbReadRealTimeServiceRepository.php
-
-		-
-			message: '#^Method Centreon\\Infrastructure\\RequestParameters\\Interfaces\\NormalizerInterface@anonymous/centreon/src/Core/Service/Infrastructure/Repository/DbReadRealTimeServiceRepository\.php\:341\:\:normalize\(\) never returns null so it can be removed from the return type\.$#'
-			identifier: return.unusedType
-			count: 1
-			path: src/Core/Service/Infrastructure/Repository/DbReadRealTimeServiceRepository.php
-
-		-
-			message: '#^Method Centreon\\Infrastructure\\RequestParameters\\Interfaces\\NormalizerInterface@anonymous/centreon/src/Core/Service/Infrastructure/Repository/DbReadRealTimeServiceRepository\.php\:341\:\:normalize\(\) never returns string so it can be removed from the return type\.$#'
-			identifier: return.unusedType
-			count: 1
-			path: src/Core/Service/Infrastructure/Repository/DbReadRealTimeServiceRepository.php
 
 		-
 			message: '#^Parameter \#2 \$servicesName of class Core\\Service\\Domain\\Model\\ServiceNamesByHost constructor expects list\<string\>, array\<string\> given\.$#'

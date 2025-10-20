@@ -313,7 +313,7 @@ if ($form->validate()) {
         if ($values['o'] == 'a') {
             $activate = $values['downtime_activate']['downtime_activate'];
             $id = $downtime->add($values['downtime_name'], $values['downtime_description'], $activate);
-            if (false !== $id) {
+            if ($id !== false) {
                 foreach ($values['periods'] as $periods) {
                     $downtime->addPeriod($id, $periods);
                 }

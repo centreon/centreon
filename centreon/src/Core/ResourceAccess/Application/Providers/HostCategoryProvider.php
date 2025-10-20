@@ -56,7 +56,7 @@ final class HostCategoryProvider implements DatasetProviderInterface
      */
     public function isValidFor(string $type): bool
     {
-        return HostCategoryFilterType::TYPE_NAME === $type;
+        return $type === HostCategoryFilterType::TYPE_NAME;
     }
 
     /**

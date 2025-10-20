@@ -45,7 +45,7 @@ class DbWriteTimePeriodActionLogRepository extends AbstractRepositoryRDB impleme
         private readonly ReadTimePeriodRepositoryInterface $readTimePeriodRepository,
         private readonly ContactInterface $contact,
         private readonly WriteActionLogRepositoryInterface $writeActionLogRepository,
-        DatabaseConnection $db
+        DatabaseConnection $db,
     ) {
         $this->db = $db;
     }
@@ -177,7 +177,7 @@ class DbWriteTimePeriodActionLogRepository extends AbstractRepositoryRDB impleme
                             5 => 'friday',
                             6 => 'saturday',
                             7 => 'sunday',
-                            default => throw new RepositoryException('Should never happen')
+                            default => throw new RepositoryException('Should never happen'),
                         };
                         $days[$dayAsString] = $day->getTimeRange()->__toString();
                     }

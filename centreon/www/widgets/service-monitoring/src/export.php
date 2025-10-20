@@ -79,13 +79,13 @@ $firstResult = true;
 foreach ($exportList as $key => $Id) {
     if (
         ! isset($exportList[$key][1])
-        || 0 === (int) $exportList[$key][0]
-        || 0 === (int) $exportList[$key][1]
+        || (int) $exportList[$key][0] === 0
+        || (int) $exportList[$key][1] === 0
     ) {
         // skip missing serviceId in combinations or non consistent data
         continue;
     }
-    if (false === $firstResult) {
+    if ($firstResult === false) {
         $hostQuery .= ', ';
         $serviceQuery .= ', ';
     }
@@ -162,7 +162,7 @@ $query .= " WHERE s.host_id = h.host_id
     AND s.enabled = 1
     AND h.enabled = 1 ";
 
-if (false === $firstResult) {
+if ($firstResult === false) {
     $query .= " AND h.host_id IN ({$hostQuery}) AND s.service_id IN ({$serviceQuery}) ";
 }
 

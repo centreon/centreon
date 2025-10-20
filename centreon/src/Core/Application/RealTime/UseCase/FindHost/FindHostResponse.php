@@ -151,7 +151,7 @@ final class FindHostResponse
         array $downtimes,
         ?Acknowledgement $acknowledgement,
         array $categories,
-        ?Severity $severity
+        ?Severity $severity,
     ) {
         $this->icon = $this->iconToArray($icon);
         $this->status = $this->statusToArray($status);
@@ -159,7 +159,7 @@ final class FindHostResponse
         $this->downtimes = $this->downtimesToArray($downtimes);
         $this->acknowledgement = $this->acknowledgementToArray($acknowledgement);
         $this->categories = $this->tagsToArray($categories);
-        $this->severity = null === $severity ? $severity : $this->severityToArray($severity);
+        $this->severity = $severity === null ? $severity : $this->severityToArray($severity);
     }
 
     /**

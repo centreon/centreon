@@ -48,7 +48,7 @@ final class AddServiceGroupController extends AbstractController
     public function __invoke(
         Request $request,
         AddServiceGroup $useCase,
-        AddServiceGroupPresenter $presenter
+        AddServiceGroupPresenter $presenter,
     ): Response {
         $this->denyAccessUnlessGrantedForAPIConfiguration();
 

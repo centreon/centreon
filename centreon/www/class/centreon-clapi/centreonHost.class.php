@@ -1416,7 +1416,7 @@ class CentreonHost extends CentreonObject
         $alreadyProcessed = [],
         $depth = -1,
         $allFields = false,
-        $fields = []
+        $fields = [],
     ) {
         $templates = [];
 

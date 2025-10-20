@@ -58,7 +58,7 @@ class User extends NewUser
         protected bool $isAdmin,
         protected string $theme,
         protected string $userInterfaceDensity,
-        protected bool $canReachFrontend
+        protected bool $canReachFrontend,
     ) {
         parent::__construct($alias, $name, $email);
         $this->setTheme($theme);

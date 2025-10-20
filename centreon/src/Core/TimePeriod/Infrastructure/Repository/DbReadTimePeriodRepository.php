@@ -109,7 +109,7 @@ class DbReadTimePeriodRepository extends AbstractRepositoryRDB implements ReadTi
      */
     public function findByIds(array $timePeriodIds): array
     {
-        if ([] === $timePeriodIds) {
+        if ($timePeriodIds === []) {
 
             return $timePeriodIds;
         }

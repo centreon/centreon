@@ -36,7 +36,7 @@ function sanitize_input_array(array $inputArray): array
     foreach ($inputArray as $key => $value) {
         $key = filter_var($key, FILTER_VALIDATE_INT);
         $value = filter_var($value, FILTER_VALIDATE_INT);
-        if (false !== $key && false !== $value) {
+        if ($key !== false && $value !== false) {
             $sanitizedArray[$key] = $value;
         }
     }

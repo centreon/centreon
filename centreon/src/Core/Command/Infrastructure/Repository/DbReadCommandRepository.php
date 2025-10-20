@@ -240,11 +240,11 @@ class DbReadCommandRepository extends AbstractRepositoryRDB implements ReadComma
      */
     public function findByRequestParameterAndTypes(
         RequestParametersInterface $requestParameters,
-        array $commandTypes
+        array $commandTypes,
     ): array {
         $commands = [];
 
-        if ([] === $commandTypes) {
+        if ($commandTypes === []) {
             return $commands;
         }
 
@@ -346,7 +346,7 @@ class DbReadCommandRepository extends AbstractRepositoryRDB implements ReadComma
                 callable $createCommand,
                 callable $findArguments,
                 callable $findMacros,
-                readonly private LoggerInterface $logger
+                readonly private LoggerInterface $logger,
             ) {
                 $this->db = $db;
                 $this->createCommand = $createCommand;

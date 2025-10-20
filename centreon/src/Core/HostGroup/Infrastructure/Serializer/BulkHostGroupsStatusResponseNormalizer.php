@@ -41,7 +41,7 @@ class BulkHostGroupsStatusResponseNormalizer implements NormalizerInterface
      * @param Router $router
      */
     public function __construct(
-        private readonly Router $router
+        private readonly Router $router,
     ) {
     }
 
@@ -57,7 +57,7 @@ class BulkHostGroupsStatusResponseNormalizer implements NormalizerInterface
     public function normalize(
         mixed $object,
         ?string $format = null,
-        array $context = []
+        array $context = [],
     ): array {
         return [
             'href' => $this->router->generate(self::HOSTGROUP_ROUTE_NAME, ['hostGroupId' => $object->id]),
@@ -103,7 +103,7 @@ class BulkHostGroupsStatusResponseNormalizer implements NormalizerInterface
         return match ($code) {
             ResponseCodeEnum::OK => Response::HTTP_NO_CONTENT,
             ResponseCodeEnum::NotFound => Response::HTTP_NOT_FOUND,
-            ResponseCodeEnum::Error => Response::HTTP_INTERNAL_SERVER_ERROR
+            ResponseCodeEnum::Error => Response::HTTP_INTERNAL_SERVER_ERROR,
         };
     }
 }

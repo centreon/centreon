@@ -52,7 +52,7 @@ final class DeleteServices
         private readonly ReadServiceRepositoryInterface $readServiceRepository,
         private readonly WriteMonitoringServerRepositoryInterface $writeMonitoringServerRepository,
         private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
-        private readonly DataStorageEngineInterface $storageEngine
+        private readonly DataStorageEngineInterface $storageEngine,
     ) {
     }
 

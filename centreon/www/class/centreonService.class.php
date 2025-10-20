@@ -464,9 +464,9 @@ class CentreonService
         $macroDescription = [],
         $isMassiveChange = false,
         $cmdId = false,
-        $macroFrom = false
+        $macroFrom = false,
     ): void {
-        if (false === $isMassiveChange) {
+        if ($isMassiveChange === false) {
             $this->db->query('DELETE FROM on_demand_macro_service
 							WHERE svc_svc_id = ' . $this->db->escape($serviceId));
         } else {
@@ -733,7 +733,7 @@ class CentreonService
         &$macroValue,
         $cmdId = false,
         $isMassiveChange = false,
-        $macroFrom = false
+        $macroFrom = false,
     ): void {
         $aListTemplate = getListTemplates($pearDB, $serviceId);
 

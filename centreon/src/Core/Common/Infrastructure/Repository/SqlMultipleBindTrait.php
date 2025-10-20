@@ -64,7 +64,7 @@ trait SqlMultipleBindTrait
     protected function createMultipleBindParameters(
         array $values,
         string $prefix,
-        QueryParameterTypeEnum $paramType
+        QueryParameterTypeEnum $paramType,
     ): array {
         $placeholders = [];
         $parameters = [];

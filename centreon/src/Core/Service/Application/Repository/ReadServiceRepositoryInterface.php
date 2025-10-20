@@ -166,7 +166,7 @@ interface ReadServiceRepositoryInterface
      */
     public function findByRequestParameterAndAccessGroup(
         RequestParametersInterface $requestParameters,
-        array $accessGroups
+        array $accessGroups,
     ): array;
 
     /**

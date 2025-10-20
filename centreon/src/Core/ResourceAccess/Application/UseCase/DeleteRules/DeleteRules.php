@@ -58,7 +58,7 @@ final class DeleteRules
         private readonly ContactInterface $user,
         private readonly ReadAccessGroupRepositoryInterface $accessGroupRepository,
         private readonly DataStorageEngineInterface $dataStorageEngine,
-        private readonly bool $isCloudPlatform
+        private readonly bool $isCloudPlatform,
     ) {
     }
 
@@ -162,7 +162,7 @@ final class DeleteRules
      */
     private function createResponseStatusDto(
         int $ruleId,
-        ResponseStatusInterface $statusResponse
+        ResponseStatusInterface $statusResponse,
     ): DeleteRulesStatusResponse {
         $dto = new DeleteRulesStatusResponse();
         $dto->id = $ruleId;

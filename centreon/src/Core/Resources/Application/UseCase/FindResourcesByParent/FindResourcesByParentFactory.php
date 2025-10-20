@@ -45,7 +45,7 @@ final class FindResourcesByParentFactory
     {
         $resources = [];
         foreach ($parents as $parent) {
-            $found = null === $parent->id ? [] : self::findChildrenAmongResponse($parent->id, $children);
+            $found = $parent->id === null ? [] : self::findChildrenAmongResponse($parent->id, $children);
             $resources[] = new ResourcesByParentResponseDto(
                 $parent,
                 array_values($found),

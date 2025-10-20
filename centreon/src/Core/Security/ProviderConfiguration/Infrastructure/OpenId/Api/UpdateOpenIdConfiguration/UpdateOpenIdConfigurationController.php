@@ -45,7 +45,7 @@ final class UpdateOpenIdConfigurationController extends AbstractController
     public function __invoke(
         UpdateOpenIdConfiguration $useCase,
         Request $request,
-        UpdateOpenIdConfigurationPresenterInterface $presenter
+        UpdateOpenIdConfigurationPresenterInterface $presenter,
     ): object {
         $this->denyAccessUnlessGrantedForApiConfiguration();
         /**

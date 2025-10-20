@@ -368,7 +368,7 @@ class MonitoringServerRepositoryRDB extends AbstractRepositoryDRB implements Mon
         ?string $searchRequest,
         ?string $sortRequest,
         ?string $paginationRequest,
-        array $accessGroups = []
+        array $accessGroups = [],
     ): array {
         $aclMonitoringServersRequest = '';
         $searchRequest ??= '';

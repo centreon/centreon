@@ -20,7 +20,7 @@ if [ ! -z ${OPENID_HOST} ] && getent hosts ${OPENID_HOST}; then
   OPENID_BASE_URL="http://${OPENID_IP_ADDRESS}:8080"
 
   curl -X PATCH \
-      --fail-with-body \
+      --fail \
       -H "Content-Type: application/json" \
       -H "X-AUTH-TOKEN: $TOKEN" \
       -L "http://localhost:80/centreon/api/latest/administration/authentication/providers/openid" \
@@ -61,7 +61,7 @@ if [ ! -z ${SAML_HOST} ] && getent hosts ${SAML_HOST}; then
   SAML_BASE_URL="http://localhost:8080"
 
   curl -X PUT \
-      --fail-with-body \
+      --fail \
       -H "Content-Type: application/json" \
       -H "X-AUTH-TOKEN: $TOKEN" \
       -L "http://localhost:80/centreon/api/latest/administration/authentication/providers/saml" \

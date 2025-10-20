@@ -38,7 +38,7 @@ final class FindHostCategoryController extends AbstractController
     public function __invoke(
         int $hostCategoryId,
         FindHostCategory $useCase,
-        FindHostCategoryPresenter $presenter
+        FindHostCategoryPresenter $presenter,
     ): object {
         $this->denyAccessUnlessGrantedForApiConfiguration();
 

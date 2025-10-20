@@ -49,7 +49,7 @@ final class FindServiceSeverities
         private ReadServiceSeverityRepositoryInterface $readServiceSeverityRepository,
         private ReadAccessGroupRepositoryInterface $readAccessGroupRepositoryInterface,
         private RequestParametersInterface $requestParameters,
-        private ContactInterface $user
+        private ContactInterface $user,
     ) {
     }
 

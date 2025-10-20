@@ -50,7 +50,7 @@ final class FindServices
         private readonly ReadServiceCategoryRepositoryInterface $readServiceCategoryRepository,
         private readonly ReadServiceGroupRepositoryInterface $readServiceGroupRepository,
         private readonly RequestParametersInterface $requestParameters,
-        private readonly ContactInterface $user
+        private readonly ContactInterface $user,
     ) {
     }
 

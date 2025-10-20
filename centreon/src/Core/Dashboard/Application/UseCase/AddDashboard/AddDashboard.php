@@ -61,13 +61,13 @@ final class AddDashboard
         private readonly WriteDashboardPanelRepositoryInterface $writeDashboardPanelRepository,
         private readonly ReadDashboardPanelRepositoryInterface $readDashboardPanelRepository,
         private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
-        private readonly bool $isCloudPlatform
+        private readonly bool $isCloudPlatform,
     ) {
     }
 
     public function __invoke(
         AddDashboardRequest $request,
-        AddDashboardPresenterInterface $presenter
+        AddDashboardPresenterInterface $presenter,
     ): void {
         try {
             if (! $this->isAuthorized()) {

@@ -47,7 +47,7 @@ class UpdateWebSSOConfiguration
      */
     public function __invoke(
         UpdateWebSSOConfigurationPresenterInterface $presenter,
-        UpdateWebSSOConfigurationRequest $request
+        UpdateWebSSOConfigurationRequest $request,
     ): void {
         $this->info('Updating WebSSO Provider ...');
         try {

@@ -45,7 +45,7 @@ final class AccDto
         public ?array $createdBy = null,
         public ?array $updatedBy = null,
         public \DateTimeImmutable $createdAt = new \DateTimeImmutable(),
-        public \DateTimeImmutable $updatedAt = new \DateTimeImmutable()
+        public \DateTimeImmutable $updatedAt = new \DateTimeImmutable(),
     ) {
     }
 }

@@ -46,7 +46,7 @@ class DbWriteMetaServiceRepository extends AbstractRepositoryRDB implements Writ
      */
     public function isValidFor(string $type): bool
     {
-        return MetaServiceFilterType::TYPE_NAME === $type;
+        return $type === MetaServiceFilterType::TYPE_NAME;
     }
 
     /**
@@ -59,7 +59,7 @@ class DbWriteMetaServiceRepository extends AbstractRepositoryRDB implements Writ
             ['rule_id' => $ruleId, 'dataset_id' => $datasetId, 'meta_service_ids' => $resourceIds]
         );
 
-        if ([] === $resourceIds) {
+        if ($resourceIds === []) {
             return;
         }
 

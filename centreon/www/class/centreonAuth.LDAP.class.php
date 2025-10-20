@@ -149,7 +149,7 @@ class CentreonAuthLDAP
                 if ($this->debug) {
                     $this->CentreonLog->insertLog(3, 'LDAP AUTH : Success');
                 }
-                if (false == $this->updateUserDn()) {
+                if ($this->updateUserDn() == false) {
                     return CentreonAuth::PASSWORD_INVALID;
                 }
 
@@ -185,7 +185,7 @@ class CentreonAuthLDAP
 
         if ($this->ldap->rebind()) {
             $userDn = $this->ldap->findUserDn($contactAlias);
-            if (false === $userDn) {
+            if ($userDn === false) {
                 $this->CentreonLog->insertLog(3, 'LDAP AUTH - Error : No DN for user ' . $contactAlias);
 
                 return false;

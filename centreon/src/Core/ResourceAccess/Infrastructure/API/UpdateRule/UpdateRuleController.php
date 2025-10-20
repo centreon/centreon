@@ -58,7 +58,7 @@ final class UpdateRuleController extends AbstractController
         int $ruleId,
         Request $request,
         UpdateRule $useCase,
-        UpdateRulePresenter $presenter
+        UpdateRulePresenter $presenter,
     ): Response {
         $this->denyAccessUnlessGrantedForApiConfiguration();
 

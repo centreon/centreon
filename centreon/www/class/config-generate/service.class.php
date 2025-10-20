@@ -106,7 +106,7 @@ class Service extends AbstractService
         ?int $serviceId,
         int $byHg = 0,
         array $serviceMacros = [],
-        array $serviceTemplateMacros = []
+        array $serviceTemplateMacros = [],
     ): ?string {
         if (is_null($serviceId)) {
             return null;

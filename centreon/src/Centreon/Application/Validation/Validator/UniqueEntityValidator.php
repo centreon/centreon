@@ -59,7 +59,7 @@ class UniqueEntityValidator extends ConstraintValidator implements CentreonValid
             throw new UnexpectedTypeException($constraint->fields, 'array');
         }
 
-        if (null !== $constraint->errorPath && ! is_string($constraint->errorPath)) {
+        if ($constraint->errorPath !== null && ! is_string($constraint->errorPath)) {
             throw new UnexpectedTypeException($constraint->errorPath, 'string or null');
         }
 
@@ -68,10 +68,10 @@ class UniqueEntityValidator extends ConstraintValidator implements CentreonValid
         $methodRepository = $constraint->repositoryMethod;
         $methodIdGetter = $constraint->entityIdentificatorMethod;
 
-        if ([] === $fields) {
+        if ($fields === []) {
             throw new ConstraintDefinitionException('At least one field has to be specified.');
         }
-        if (null === $entity) {
+        if ($entity === null) {
             return null;
         }
 

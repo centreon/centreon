@@ -65,7 +65,7 @@ class SubmitResultController extends AbstractController
      * @return View
      */
     public function submitResultResources(
-        Request $request
+        Request $request,
     ): View {
         $this->denyAccessUnlessGrantedForApiRealtime();
         /**
@@ -120,7 +120,7 @@ class SubmitResultController extends AbstractController
      */
     public function submitResultHost(
         Request $request,
-        int $hostId
+        int $hostId,
     ): View {
         $this->denyAccessUnlessGrantedForApiRealtime();
 
@@ -165,7 +165,7 @@ class SubmitResultController extends AbstractController
     public function submitResultService(
         Request $request,
         int $hostId,
-        int $serviceId
+        int $serviceId,
     ): View {
         $this->denyAccessUnlessGrantedForApiRealtime();
 

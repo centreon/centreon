@@ -81,7 +81,7 @@ final class AddAgentConfigurationController extends AbstractController
         $schemaFile = match ($data['type']) {
             'telegraf' => 'TelegrafConfigurationSchema.json',
             'centreon-agent' => 'CmaConfigurationSchema.json',
-            default => throw new \InvalidArgumentException(sprintf("Unknown parameter type with value '%s'", $data['type']))
+            default => throw new \InvalidArgumentException(sprintf("Unknown parameter type with value '%s'", $data['type'])),
         };
 
         $this->validateDataSent($request, __DIR__ . "/../Schema/{$schemaFile}");

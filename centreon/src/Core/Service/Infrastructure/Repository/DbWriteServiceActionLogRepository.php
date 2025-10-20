@@ -56,7 +56,7 @@ class DbWriteServiceActionLogRepository extends AbstractRepositoryRDB implements
         private readonly ContactInterface $contact,
         private readonly ReadServiceRepositoryInterface $readServiceRepository,
         private readonly WriteActionLogRepositoryInterface $writeActionLogRepository,
-        DatabaseConnection $db
+        DatabaseConnection $db,
     ) {
         $this->db = $db;
     }

@@ -51,7 +51,7 @@ class ServiceSeverity
         private string $name,
         private string $alias,
         private int $level,
-        private int $iconId
+        private int $iconId,
     ) {
         $this->shortName = (new \ReflectionClass($this))->getShortName();
 

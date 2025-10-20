@@ -33,7 +33,7 @@ class PerformanceMetric
      */
     public function __construct(
         private DateTimeInterface $dateValue,
-        private array $metricValues = []
+        private array $metricValues = [],
     ) {
     }
 

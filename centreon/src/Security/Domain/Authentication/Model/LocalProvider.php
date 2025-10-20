@@ -83,7 +83,7 @@ class LocalProvider implements LocalProviderInterface
         private ReadUserRepositoryInterface $readUserRepository,
         private WriteUserRepositoryInterface $writeUserRepository,
         private ReadConfigurationRepositoryInterface $readConfigurationRepository,
-        private readonly LoginLoggerInterface $loginLogger
+        private readonly LoginLoggerInterface $loginLogger,
     ) {
     }
 

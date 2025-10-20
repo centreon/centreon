@@ -44,7 +44,7 @@ final class GetEngineSecretsController extends AbstractController
 {
     public function __construct(
         private readonly SerializerInterface $serializer,
-        private readonly EngineRepositoryInterface $engineRepository
+        private readonly EngineRepositoryInterface $engineRepository,
     ) {
     }
 

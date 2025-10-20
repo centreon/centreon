@@ -57,7 +57,7 @@ class GroupsMapping
         private bool $isEnabled,
         private string $attributePath,
         private ?Endpoint $endpoint,
-        private array $contactGroupRelations
+        private array $contactGroupRelations,
     ) {
         $this->validateMandatoryParametersForEnabledGroupsMapping($isEnabled, $attributePath);
     }

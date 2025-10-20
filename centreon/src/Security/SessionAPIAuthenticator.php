@@ -100,7 +100,7 @@ class SessionAPIAuthenticator extends AbstractAuthenticator
          * @var string|null $sessionId
          */
         $sessionId = $request->getSession()->getId();
-        if (null === $sessionId) {
+        if ($sessionId === null) {
             // The token header was empty, authentication fails with HTTP Status
             // Code 401 "Unauthorized"
             throw new SessionUnavailableException('Session id not provided');
