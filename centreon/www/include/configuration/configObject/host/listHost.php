@@ -154,6 +154,7 @@ $tab_relation = [];
 $tab_relation_id = [];
 $dbResult = $pearDB->query(
     'SELECT nhr.host_host_id, nhr.nagios_server_id FROM ns_host_relation nhr'
+    . ($aclPollerString != "''" ? ' '. $acl->queryBuilder('WHERE', 'nhr.nagios_server_id', $aclPollerString) : '')
 );
 while ($relation = $dbResult->fetch()) {
     $tab_relation[$relation['host_host_id']] = $nagios_server[$relation['nagios_server_id']];
