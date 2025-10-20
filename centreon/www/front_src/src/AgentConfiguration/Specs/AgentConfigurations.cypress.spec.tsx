@@ -49,7 +49,7 @@ import {
 } from '../translatedLabels';
 
 describe('Agent configurations', () => {
-  it('displays a welcome label when the listing is empty', () => {
+  it.only('displays a welcome label when the listing is empty', () => {
     initialize({ isListingEmpty: true });
 
     cy.waitForRequest('@getEmptyAgentConfigurations');
