@@ -37,13 +37,12 @@ class File
 
     public function __construct(array $data)
     {
-        foreach ($data as $prop => $value) {
-            $this->{$prop} = $value;
-        }
-
-        if ($this->name) {
-            $this->extension = pathinfo($this->name, PATHINFO_EXTENSION);
-        }
+        $this->name = $data['name'] ?? '';
+        $this->type = $data['type'] ?? '';
+        $this->tmp_name = $data['tmp_name'] ?? '';
+        $this->error = $data['error'] ?? 0;
+        $this->size = $data['size'] ?? 0;
+        $this->extension = $this->name ? pathinfo($this->name, PATHINFO_EXTENSION) : '';
     }
 
     public function getName(): string
@@ -66,12 +65,12 @@ class File
         return $this->tmp_name;
     }
 
-    public function getError(): string
+    public function getError(): int
     {
         return $this->error;
     }
 
-    public function getSize(): string
+    public function getSize(): int
     {
         return $this->size;
     }
