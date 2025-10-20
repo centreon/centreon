@@ -96,6 +96,7 @@ jobs:
     if: |
       needs.get-environment.outputs.skip_workflow == 'false' &&
       needs.get-environment.outputs.stability == 'stable' &&
+      contains(fromJson('["stable"]'), needs.get-environment.outputs.stability) &&
       github.event_name != 'workflow_dispatch' &&
       ! cancelled() &&
       ! contains(needs.*.result, 'failure') &&
@@ -120,7 +121,7 @@ jobs:
     needs: [get-environment, package]
     if: |
       needs.get-environment.outputs.skip_workflow == 'false' &&
-      contains(fromJson('["unstable"]'), needs.get-environment.outputs.stability) &&
+      contains(fromJson('["unstable","testing"]'), needs.get-environment.outputs.stability) &&
       github.repository == 'centreon/centreon'
     runs-on: centreon-common
 
@@ -151,7 +152,7 @@ jobs:
     if: |
       needs.get-environment.outputs.skip_workflow == 'false' &&
       needs.get-environment.outputs.is_cloud == 'false' &&
-      contains(fromJson('["unstable"]'), needs.get-environment.outputs.stability) &&
+      contains(fromJson('["unstable","testing"]'), needs.get-environment.outputs.stability) &&
       github.repository == 'centreon/centreon'
     runs-on: centreon-common
 
