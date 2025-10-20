@@ -23978,10 +23978,6 @@ msgid "platform not found"
 msgstr "plateforme non trouvée"
 
 #: unknown
-msgid "poller"
-msgstr "collecteur"
-
-#: unknown
 msgid "px"
 msgstr "px"
 
