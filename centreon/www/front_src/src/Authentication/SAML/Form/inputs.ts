@@ -270,7 +270,7 @@ export const inputs: Array<InputProps> = [
   {
     type: InputType.Switch,
     dataTestId: 'saml_requestAuthnContext',
-    fieldName: 'requestAuthnContext',
+    fieldName: 'requestedAuthnContext',
     group: labelIdentityProvider,
     label: labelEnableRequestedAuthnContext
   },
@@ -281,7 +281,7 @@ export const inputs: Array<InputProps> = [
     dataTestId: 'saml_requestedAuthnContextComparison',
     fieldName: 'requestedAuthnContextComparison',
     group: labelIdentityProvider,
-    hideInput: (values: FormikValues): boolean => !values.requestAuthnContext,
+    hideInput: (values: FormikValues): boolean => !values.requestedAuthnContext,
     label: labelRequestedAuthnContextComparison,
     required: true,
     type: InputType.Custom
