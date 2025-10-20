@@ -111,6 +111,10 @@ jobs:
       fail-fast: false
       matrix:
         feature: ${{ fromJson(needs.cypress-e2e-test-list.outputs.features) }}
+    defaults:
+      run:
+        shell: bash
+        working-directory: ${{ inputs.module_name }}/tests/e2e
     name: ${{ matrix.feature }}
 
     env:
@@ -142,7 +146,6 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
-        working-directory: ${{ inputs.module_name }}/tests/e2e
         shell: bash
         env:
           CYPRESS_INSTALL_BINARY: "0"
@@ -162,7 +165,7 @@ jobs:
         if: "${{ inputs.package_cache_key != '' && inputs.package_directory != '' && contains(matrix.feature, 'platform-') }}"
         run: |
           mkdir -p ${{ inputs.package_directory }}
-          mv ./*.${{ contains(inputs.os, 'alma') && 'rpm' || 'deb' }} ${{ inputs.package_directory }}
+          mv ../../../*.${{ contains(inputs.os, 'alma') && 'rpm' || 'deb' }} ${{ inputs.package_directory }}
         shell: bash
 
       - name: Login to Registry
@@ -186,7 +189,7 @@ jobs:
       - name: Load standard slim image
         if: ${{ steps.cache-docker-slim.outputs.cache-hit == 'true' }}
         run: |
-          docker load --input ./docker-image/${{ env.SLIM_IMAGE_NAME }}.tar
+          docker load --input ../../../docker-image/${{ env.SLIM_IMAGE_NAME }}.tar
           docker tag ${{ env.SLIM_IMAGE_NAME }}:${{ env.IMAGE_TAG }} ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.SLIM_IMAGE_NAME }}:${{ env.IMAGE_TAG }}
         shell: bash
 
@@ -195,7 +198,7 @@ jobs:
         run: |
           test_execution_key=$(echo '${{ inputs.xray_keys_and_ids }}' | jq -r '.test_execution_key_'${{ inputs.os }})
           echo "The Test Execution KEY: $test_execution_key"
-          echo "test_execution_key=$test_execution_key" >> $GITHUB_OUTPUT
+          echo "test_execution_key=$test_execution_key" >> $GITHUB_ENV
         shell: bash
 
       - name: Add sso-proxy to /etc/hosts
@@ -223,27 +226,6 @@ jobs:
 
       - name: Ensure logs directory exists
         run: mkdir -p ${{ inputs.module_name }}/tests/e2e/results/cucumber-logs/
-        shell: bash
-
-      - name: Rename JSON report
-        if: ${{ always() }}
-        run: |
-          feature_name=$(basename "${{ matrix.feature }}")
-          report_path="${{ inputs.module_name }}/tests/e2e/results/cucumber-logs/report.json"
-          report_path_updated="${{ inputs.module_name }}/tests/e2e/results/cucumber-logs/${feature_name}-report.json"
-
-          if [ -f "$report_path" ]; then
-            jq 'if length > 0 then .[0] |= (.tags |= map(if .name | startswith("@REQ_MON-") then .name |= "@${{ steps.get-test-execution-key.outputs.test_execution_key }}" else . end)) | (.[] |= (if has("elements") then .elements[].tags |= map(if .name | startswith("@REQ_MON-") then .name |= "@${{ steps.get-test-execution-key.outputs.test_execution_key }}" else . end) else . end)) else . end' "$report_path" > "$report_path_updated"
-            rm "$report_path"
-
-            # Show the content of the modified file
-            echo "::group::${feature_name}-report.json"
-            cat "$report_path_updated"
-            echo "::endgroup::"
-          else
-            echo "Report file not found: $report_path"
-            exit 1
-          fi
         shell: bash
 
       - name: Replace / with - in the feature path
