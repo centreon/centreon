@@ -70,7 +70,8 @@ const useFormInputs = (): FormInputsState => {
         additionalConditionParameters: [userSearchConditions],
         endpoint: listUsers,
         getRenderedOptionText: (option): string => option.alias?.toString(),
-        filterKey: 'alias'
+        filterKey: 'alias',
+        getOptionLabel: (option): string => option?.alias
       },
       fieldName: 'user',
       hideInput: (values) => equals(values?.type?.id, TokenType.CMA),

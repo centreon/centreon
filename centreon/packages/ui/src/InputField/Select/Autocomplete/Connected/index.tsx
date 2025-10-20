@@ -65,13 +65,14 @@ const ConnectedAutocompleteField = (
     open,
     exclusionOptionProperty = 'id',
     searchConditions = [],
-    getRenderedOptionText = (option): string => option.name?.toString(),
+    getRenderedOptionText = (option): string => option?.name?.toString(),
     getRequestHeaders,
     displayOptionThumbnail,
     queryKey,
     allowUniqOption,
     baseEndpoint,
     changeIdValue,
+    getOptionLabel = (option) => option?.name,
     ...props
   }: ConnectedAutoCompleteFieldProps<TData> &
     Omit<AutocompleteFieldProps, 'options'>): JSX.Element => {

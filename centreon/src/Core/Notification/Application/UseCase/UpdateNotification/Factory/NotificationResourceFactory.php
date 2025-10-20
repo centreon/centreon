@@ -25,6 +25,7 @@ namespace Core\Notification\Application\UseCase\UpdateNotification\Factory;
 
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
+use Core\Contact\Domain\AdminResolver;
 use Core\Notification\Application\Converter\NotificationServiceEventConverter;
 use Core\Notification\Application\Exception\NotificationException;
 use Core\Notification\Application\Repository\NotificationResourceRepositoryInterface;
@@ -42,6 +43,7 @@ class NotificationResourceFactory
         private NotificationResourceRepositoryProviderInterface $repositoryProvider,
         private ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
         private ContactInterface $user,
+        private AdminResolver $adminResolver,
     ) {
     }
 
@@ -64,7 +66,7 @@ class NotificationResourceFactory
     {
         $resourceIds = array_unique($resource['ids']);
 
-        if ($this->user->isAdmin()) {
+        if ($this->adminResolver->isAdmin($this->user)) {
             // Assert IDs validity without ACLs
             $existingResources = $repository->exist($resourceIds);
         } else {

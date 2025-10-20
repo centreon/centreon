@@ -20,18 +20,22 @@
  */
 
 use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\ConnectionInterface;
+use Adaptation\Database\Connection\Exception\ConnectionException;
 use Adaptation\Database\Connection\ValueObject\QueryParameter;
 
 require_once __DIR__ . '/../../../bootstrap.php';
 
-/**
- * This file contains changes to be included in the next version.
- * The actual version number should be added in the variable $version.
- */
 $version = 'xx.xx.x';
+
 $errorMessage = '';
 
-/** -------------------------------------- AgentConfiguration updates -------------------------------------- */
+/**
+ * @var ConnectionInterface $pearDB
+ * @var ConnectionInterface $pearDBO
+ */
+
+// -------------------------------------- AgentConfiguration updates --------------------------------------
 
 /**
  * Align preexisting Agent Configuration with the new schema:
@@ -135,7 +139,7 @@ $fixBrokerConfigTypo = function () use ($pearDB, &$errorMessage): void {
 $addOpentelemetryLogLevelColumn = function () use ($pearDB, &$errorMessage): void {
     $errorMessage = 'Failed to add log_level_otl column to cfg_nagios_logger table';
     if (! $pearDB->isColumnExist('cfg_nagios_logger', 'log_level_otl')) {
-        $pearDB->query(
+        $pearDB->executeStatement(
             <<<'SQL'
                 ALTER TABLE `cfg_nagios_logger`
                 ADD COLUMN `log_level_otl` enum('trace', 'debug', 'info', 'warning', 'err', 'critical', 'off') DEFAULT 'err'
@@ -144,16 +148,110 @@ $addOpentelemetryLogLevelColumn = function () use ($pearDB, &$errorMessage): voi
     }
 };
 
+/** -------------------------------------------- BBDO cfg update -------------------------------------------- */
+$bbdoDefaultUpdate = function () use ($pearDB, &$errorMessage): void {
+    if ($pearDB->isColumnExist('cfg_centreonbroker', 'bbdo_version')) {
+        $errorMessage = "Unable to update 'bbdo_version' column to 'cfg_centreonbroker' table";
+        $pearDB->executeStatement('ALTER TABLE `cfg_centreonbroker` MODIFY `bbdo_version` VARCHAR(50) DEFAULT "3.0.1"');
+    }
+};
+
+$bbdoCfgUpdate = function () use ($pearDB, &$errorMessage): void {
+    $errorMessage = "Unable to update 'bbdo_version' version in 'cfg_centreonbroker' table";
+    $pearDB->executeStatement('UPDATE `cfg_centreonbroker` SET `bbdo_version` = "3.0.1"');
+};
+
+/** -------------------------------------------- Password encryption -------------------------------------------- */
+$addIsEncryptionReadyAsBooleanColumn = function () use ($pearDB, $pearDBO, &$errorMessage, $version): void {
+    $errorMessage = "Unable to update 'is_encryption_ready' column to boolean type";
+    if (
+        $pearDB->isColumnExist('nagios_server', 'is_encryption_ready')
+        && $pearDB->isColumnExist('nagios_server', 'is_encryption_ready_old') !== 1
+    ) {
+        CentreonLog::create()->info(
+            logTypeId: CentreonLog::TYPE_UPGRADE,
+            message: "UPGRADE - {$version}: Renaming column 'is_encryption_ready' on 'nagios_server' table",
+        );
+        $pearDB->executeStatement('ALTER TABLE `nagios_server` RENAME COLUMN `is_encryption_ready` TO `is_encryption_ready_old`');
+    }
+    if ($pearDB->isColumnExist('nagios_server', 'is_encryption_ready') !== 1) {
+        CentreonLog::create()->info(
+            logTypeId: CentreonLog::TYPE_UPGRADE,
+            message: "UPGRADE - {$version}: Adding column 'is_encryption_ready' of type boolean on 'nagios_server' table",
+        );
+        $pearDB->executeStatement('ALTER TABLE `nagios_server` ADD COLUMN `is_encryption_ready` BOOLEAN NOT NULL DEFAULT 1');
+    }
+    if ($pearDB->isColumnExist('nagios_server', 'is_encryption_ready_old')) {
+        CentreonLog::create()->info(
+            logTypeId: CentreonLog::TYPE_UPGRADE,
+            message: "UPGRADE - {$version}: Moving 'is_encryption_ready' value of existing pollers on 'nagios_server' table",
+        );
+
+        $pearDB->executeStatement(
+            <<<'SQL'
+                UPDATE nagios_server ns
+                SET ns.is_encryption_ready = 0
+                WHERE ns.is_encryption_ready_old = '0'
+                SQL
+        );
+
+        CentreonLog::create()->info(
+            logTypeId: CentreonLog::TYPE_UPGRADE,
+            message: "UPGRADE - {$version}: Dropping column 'is_encryption_ready_old' on 'nagios_server' table",
+        );
+        $pearDB->executeStatement('ALTER TABLE `nagios_server` DROP COLUMN `is_encryption_ready_old`');
+    }
+
+    if (
+        $pearDBO->isColumnExist('instances', 'is_encryption_ready')
+        && $pearDBO->isColumnExist('instances', 'is_encryption_ready_old') !== 1
+    ) {
+        CentreonLog::create()->info(
+            logTypeId: CentreonLog::TYPE_UPGRADE,
+            message: "UPGRADE - {$version}: Moving 'is_encryption_ready' value of existing pollers on 'instances' table",
+        );
+        $pearDBO->executeStatement('ALTER TABLE `instances` RENAME COLUMN `is_encryption_ready` TO `is_encryption_ready_old`');
+    }
+    if ($pearDBO->isColumnExist('instances', 'is_encryption_ready') !== 1) {
+        CentreonLog::create()->info(
+            logTypeId: CentreonLog::TYPE_UPGRADE,
+            message: "UPGRADE - {$version}: Adding column 'is_encryption_ready' of type boolean on 'instances' table",
+        );
+        $pearDBO->executeStatement('ALTER TABLE `instances` ADD COLUMN `is_encryption_ready` BOOLEAN NOT NULL DEFAULT 0');
+    }
+    if ($pearDBO->isColumnExist('instances', 'is_encryption_ready_old')) {
+        CentreonLog::create()->info(
+            logTypeId: CentreonLog::TYPE_UPGRADE,
+            message: "UPGRADE - {$version}: Moving 'is_encryption_ready' value of existing pollers on 'instances' table",
+        );
+        $pearDBO->executeStatement(
+            <<<'SQL'
+                UPDATE instances ins
+                SET ins.is_encryption_ready = 1
+                WHERE ins.is_encryption_ready_old = '1'
+                SQL
+        );
+
+        CentreonLog::create()->info(
+            logTypeId: CentreonLog::TYPE_UPGRADE,
+            message: "UPGRADE - {$version}: Dropping column 'is_encryption_ready_old' on 'instances' table",
+        );
+        $pearDBO->executeStatement('ALTER TABLE `instances` DROP COLUMN `is_encryption_ready_old`');
+    }
+};
+
 try {
     // DDL statements for real time database
     // TODO add your function calls to update the real time database structure here
 
     // DDL statements for configuration database
+    $bbdoDefaultUpdate();
     $addOpentelemetryLogLevelColumn();
+    $addIsEncryptionReadyAsBooleanColumn();
 
     // Transactional queries for configuration database
-    if (! $pearDB->inTransaction()) {
-        $pearDB->beginTransaction();
+    if (! $pearDB->isTransactionActive()) {
+        $pearDB->startTransaction();
     }
 
     // TODO add your function calls to update the configuration database data here
@@ -161,32 +259,36 @@ try {
     $cleanGlobalMacrosName();
     $fixTypoInStandardMacroName();
     $fixBrokerConfigTypo();
+    $bbdoCfgUpdate();
 
-    $pearDB->commit();
+    $pearDB->commitTransaction();
 
-} catch (Throwable $exception) {
+} catch (Throwable $throwable) {
     CentreonLog::create()->error(
         logTypeId: CentreonLog::TYPE_UPGRADE,
         message: "UPGRADE - {$version}: " . $errorMessage,
-        exception: $exception
+        exception: $throwable
     );
+
     try {
-        if ($pearDB->inTransaction()) {
-            $pearDB->rollBack();
+        if ($pearDB->isTransactionActive()) {
+            $pearDB->rollBackTransaction();
         }
-    } catch (PDOException $rollbackException) {
+    } catch (ConnectionException $rollbackException) {
         CentreonLog::create()->error(
             logTypeId: CentreonLog::TYPE_UPGRADE,
             message: "UPGRADE - {$version}: error while rolling back the upgrade operation for : {$errorMessage}",
             exception: $rollbackException
         );
 
-        throw new Exception(
-            "UPGRADE - {$version}: error while rolling back the upgrade operation for : {$errorMessage}",
-            (int) $rollbackException->getCode(),
-            $rollbackException
+        throw new RuntimeException(
+            message: "UPGRADE - {$version}: error while rolling back the upgrade operation for : {$errorMessage}",
+            previous: $rollbackException
         );
     }
 
-    throw new Exception("UPGRADE - {$version}: " . $errorMessage, (int) $exception->getCode(), $exception);
+    throw new RuntimeException(
+        message: "UPGRADE - {$version}: " . $errorMessage,
+        previous: $throwable
+    );
 }
