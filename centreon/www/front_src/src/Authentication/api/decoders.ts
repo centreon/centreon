@@ -9,7 +9,10 @@ import {
   OpenidConfiguration,
   RolesMapping
 } from '../Openid/models';
-import { RequestedAuthnContextComparisonValue, SAMLConfiguration } from '../SAML/models';
+import {
+  RequestedAuthnContextComparisonValue,
+  SAMLConfiguration
+} from '../SAML/models';
 import { WebSSOConfiguration } from '../WebSSO/models';
 import {
   contactTemplateDecoder,
@@ -283,10 +286,12 @@ export const SAMLConfigurationDecoder = JsonDecoder.object<SAMLConfiguration>(
     logoutFromUrl: JsonDecoder.nullable(JsonDecoder.string),
     remoteLoginUrl: JsonDecoder.string,
     requestedAuthnContext: JsonDecoder.boolean,
-    requestedAuthnContextComparison: JsonDecoder.nullable(JsonDecoder.enumeration<RequestedAuthnContextComparisonValue>(
-      RequestedAuthnContextComparisonValue,
-      'Requested authentication context comparison'
-    )),
+    requestedAuthnContextComparison: JsonDecoder.nullable(
+      JsonDecoder.enumeration<RequestedAuthnContextComparisonValue>(
+        RequestedAuthnContextComparisonValue,
+        'Requested authentication context comparison'
+      )
+    ),
     rolesMapping: SAMLRolesMapping,
     userIdAttribute: JsonDecoder.string
   },

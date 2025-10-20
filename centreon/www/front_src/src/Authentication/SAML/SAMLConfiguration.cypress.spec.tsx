@@ -41,7 +41,6 @@ import {
   labelCertificate,
   labelDefineSAMLConfiguration,
   labelEmailAttribute,
-  labelEnableRequestedAuthnContext,
   labelEnableSAMLAuthentication,
   labelEntityIdURL,
   labelFullNameAttribute,

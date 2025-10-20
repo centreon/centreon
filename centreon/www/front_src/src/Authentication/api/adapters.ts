@@ -15,7 +15,7 @@ import {
   RolesMappingToApi
 } from '../Openid/models';
 import {
-  RequestedAuthnContextValue,
+  RequestedAuthnContextComparisonValue,
   SAMLConfiguration,
   SAMLConfigurationToAPI
 } from '../SAML/models';
@@ -290,7 +290,7 @@ export const adaptSAMLConfigurationToAPI = ({
   remote_login_url: remoteLoginUrl,
   roles_mapping: adaptSAMLRolesMapping(rolesMapping),
   requested_authn_context_comparison:
-    requestedAuthnContextComparison || RequestedAuthnContextValue.Minimum,
+    requestedAuthnContextComparison || RequestedAuthnContextComparisonValue.Minimum,
   requested_authn_context: requestedAuthnContext,
   user_id_attribute: userIdAttribute
 });

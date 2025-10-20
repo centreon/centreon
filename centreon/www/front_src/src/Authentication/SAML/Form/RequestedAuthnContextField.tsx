@@ -5,7 +5,10 @@ import { useTranslation } from 'react-i18next';
 
 import { SelectEntry, SelectField } from '@centreon/ui';
 
-import { RequestedAuthnContextComparisonValue, SAMLConfiguration } from '../models';
+import {
+  RequestedAuthnContextComparisonValue,
+  SAMLConfiguration
+} from '../models';
 import {
   labelBetter,
   labelExact,
@@ -48,7 +51,9 @@ const RequestedAuthnContextComparisonField = (): React.JSX.Element => {
       label={labelRequestedAuthnContextComparison}
       name="requestedAuthnContextComparison"
       options={options}
-      selectedOptionId={selectedOption?.id || RequestedAuthnContextComparisonValue.Minimum}
+      selectedOptionId={
+        selectedOption?.id || RequestedAuthnContextComparisonValue.Minimum
+      }
       onChange={changeValue}
     />
   );
