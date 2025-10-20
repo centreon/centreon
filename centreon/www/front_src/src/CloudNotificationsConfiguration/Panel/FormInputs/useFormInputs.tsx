@@ -246,8 +246,7 @@ const useFormInputs = ({
       additionalLabelClassName: classes.additionalLabel,
       connectedAutocomplete: {
         additionalConditionParameters: [],
-        endpoint: availableTimePeriodsEndpoint,
-        getOptionLabel: (option) => option.name
+        endpoint: availableTimePeriodsEndpoint
       },
       dataTestId: t(labelTimePeriod),
       fieldName: 'timeperiod',
