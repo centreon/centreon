@@ -268,6 +268,13 @@ export const inputs: Array<InputProps> = [
     type: InputType.Text
   },
   {
+    type: InputType.Switch,
+    dataTestId: 'saml_requestAuthnContext',
+    fieldName: 'requestAuthnContext',
+    group: labelIdentityProvider,
+    label: labelEnableRequestedAuthnContext
+  },
+  {
     custom: {
       Component: RequestedAuthnContextComparisonField
     },
@@ -278,13 +285,6 @@ export const inputs: Array<InputProps> = [
     label: labelRequestedAuthnContextComparison,
     required: true,
     type: InputType.Custom
-  },
-  {
-    type: InputType.Switch,
-    dataTestId: 'saml_requestAuthnContext',
-    fieldName: 'requestAuthnContext',
-    group: labelIdentityProvider,
-    label: labelEnableRequestedAuthnContext
   },
   {
     dataTestId: 'saml_logoutFrom',
