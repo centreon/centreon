@@ -1223,7 +1223,7 @@ if ($valid) {
     ) {
         LoggerPassword::create()->warning(
             reason: 'password confirmation does not match',
-            initiatorId: $centreon->user->get_id(),
+            initiatorId: (int) ($centreon->user->get_id() ?? -1),
             targetId: (int) ($contactId ?? -1),
         );
     }
