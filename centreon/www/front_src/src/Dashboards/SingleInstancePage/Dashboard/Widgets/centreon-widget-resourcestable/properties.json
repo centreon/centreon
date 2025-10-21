@@ -111,6 +111,10 @@
         {
           "id": "displayResources",
           "name": "Display resources"
+        },
+        {
+          "id": "displayTicketCreationButtons",
+          "name": "Display tiket creation buttons"
         }
       ],
       "elements": {
@@ -177,6 +181,27 @@
             "when": "options.isOpenTicketEnabled",
             "method": "equals",
             "matches": false
+          }
+        },
+        "enableHostTicketCreation": {
+          "type": "switch",
+          "label": "Enable ticket creation for hosts",
+          "secondaryLabel": "Display ticket creation buttons",
+          "defaultValue": true,
+          "hiddenCondition": {
+            "target": "options",
+            "when": "options.provider",
+            "method": "isNil"
+          }
+        },
+        "enableServiceTicketCreation": {
+          "type": "switch",
+          "label": "Enable ticket creation for services",
+          "defaultValue": true,
+          "hiddenCondition": {
+            "target": "options",
+            "when": "options.provider",
+            "method": "isNil"
           }
         }
       }
