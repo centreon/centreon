@@ -226,7 +226,7 @@ class Centreon_Object_Contact extends Centreon_Object
             } catch (PDOException $e) {
                 LoggerPassword::create()->warning(
                     reason: 'password update failed',
-                    initiatorId: 'unknown', // FIXME How to get initiator id here?
+                    initiatorId: -1, // FIXME How to get initiator id here?
                     targetId: (int) $contactId,
                     exception: $e
                 );

@@ -187,14 +187,14 @@ function updateContact($contactId = null): void
             $centreon->user->setPasswd($hashedPassword);
 
             LoggerPassword::create()->success(
-                initiatorId: (int) $centreon->user->get_id(),
-                targetId: (int) $centreon->user->get_id(),
+                initiatorId: (int) ($centreon->user->get_id() ?? -1),
+                targetId: (int) ($centreon->user->get_id() ?? -1),
             );
         } catch (PDOException $e) {
             LoggerPassword::create()->warning(
                 reason: 'password update failed',
-                initiatorId: (int) $centreon->user->get_id(),
-                targetId: (int) $centreon->user->get_id(),
+                initiatorId: (int) ($centreon->user->get_id() ?? -1),
+                targetId: (int) ($centreon->user->get_id() ?? -1),
                 exception: $e
             );
 
@@ -235,8 +235,8 @@ function validatePasswordModification(array $fields): array|true
     if (empty($newPassword) && ! empty($confirmPassword) && empty($currentPassword)) {
         LoggerPassword::create()->warning(
             reason: 'new password or current password not provided',
-            initiatorId: (int) $centreon->user->get_id(),
-            targetId: (int) $centreon->user->get_id(),
+            initiatorId: (int) ($centreon->user->get_id() ?? -1),
+            targetId: (int) ($centreon->user->get_id() ?? -1),
         );
 
         return ['contact_passwd2' => _('Please fill in all password fields')];
@@ -246,8 +246,8 @@ function validatePasswordModification(array $fields): array|true
     if (empty($newPassword) && ! empty($currentPassword)) {
         LoggerPassword::create()->warning(
             reason: 'new password not provided',
-            initiatorId: (int) $centreon->user->get_id(),
-            targetId: (int) $centreon->user->get_id(),
+            initiatorId: (int) ($centreon->user->get_id() ?? -1),
+            targetId: (int) ($centreon->user->get_id() ?? -1),
         );
 
         return ['current_password' => _('Please fill in all password fields')];
@@ -257,8 +257,8 @@ function validatePasswordModification(array $fields): array|true
     if (! empty($newPassword) && empty($currentPassword)) {
         LoggerPassword::create()->warning(
             reason: 'current password not provided',
-            initiatorId: (int) $centreon->user->get_id(),
-            targetId: (int) $centreon->user->get_id(),
+            initiatorId: (int) ($centreon->user->get_id() ?? -1),
+            targetId: (int) ($centreon->user->get_id() ?? -1),
         );
 
         return ['current_password' => _('Please fill in all password fields')];
@@ -268,8 +268,8 @@ function validatePasswordModification(array $fields): array|true
     if (! empty($currentPassword) && password_verify($currentPassword, $centreon->user->passwd) === false) {
         LoggerPassword::create()->warning(
             reason: 'current password wrong',
-            initiatorId: (int) $centreon->user->get_id(),
-            targetId: (int) $centreon->user->get_id(),
+            initiatorId: (int) ($centreon->user->get_id() ?? -1),
+            targetId: (int) ($centreon->user->get_id() ?? -1),
         );
 
         return ['current_password' => _('Authentication failed')];
@@ -283,8 +283,8 @@ function validatePasswordModification(array $fields): array|true
     } catch (Exception $e) {
         LoggerPassword::create()->warning(
             reason: 'new password does not respect password policy',
-            initiatorId: (int) $centreon->user->get_id(),
-            targetId: (int) $centreon->user->get_id(),
+            initiatorId: (int) ($centreon->user->get_id() ?? -1),
+            targetId: (int) ($centreon->user->get_id() ?? -1),
             exception: $e,
         );
 
@@ -324,8 +324,8 @@ function checkAutologinValue(array $fields)
 
             LoggerPassword::create()->warning(
                 reason: 'new password and autologin key are the same',
-                initiatorId: (int) $centreon->user->get_id(),
-                targetId: (int) $centreon->user->get_id(),
+                initiatorId: (int) ($centreon->user->get_id() ?? -1),
+                targetId: (int) ($centreon->user->get_id() ?? -1),
             );
         }
     }
