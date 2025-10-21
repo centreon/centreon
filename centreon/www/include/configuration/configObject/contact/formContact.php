@@ -1179,10 +1179,7 @@ if ($form->validate() && $from_list_menu == false) {
             ]
         );
     } elseif ($form->getSubmitValue('submitC')) {
-        updateContactInDB(
-            contact_id:$cctObj->getValue(),
-            isRemote: $isRemote
-        );
+        updateContactInDB(contact_id: $cctObj->getValue(), isRemote: $isRemote);
 
         $eventDispatcher->notify(
             'contact.form',
@@ -1196,7 +1193,7 @@ if ($form->validate() && $from_list_menu == false) {
         $select = explode(',', $select);
         foreach ($select as $key => $selectedContactId) {
             if ($selectedContactId) {
-                updateContactInDB($selectedContactId, true, $isRemote);
+                updateContactInDB(contact_id: $selectedContactId, from_MC: true, isRemote: $isRemote);
 
                 $eventDispatcher->notify(
                     'contact.form',
