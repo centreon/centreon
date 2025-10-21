@@ -446,27 +446,29 @@ if (
 
     // Autologin Management
 
-    $form->addElement(
-        'text',
-        'contact_autologin_key',
-        _('Autologin Key'),
-        [
-            'size' => '90',
-            'id' => 'aKey',
-            'data-testid' => 'aKey',
-        ]
-    );
+    if ($o === ADD_CONTACT || $o === MODIFY_CONTACT) {
+        $form->addElement(
+            'text',
+            'contact_autologin_key',
+            _('Autologin Key'),
+            [
+                'size' => '90',
+                'id' => 'aKey',
+                'data-testid' => 'aKey',
+            ]
+        );
 
-    $form->addElement(
-        'button',
-        'contact_gen_akey',
-        _('Generate'),
-        [
-            'onclick' => "generatePassword('aKey', '{$encodedPasswordPolicy}');",
-            'id' => 'generateAutologinKeyButton',
-            'data-testid' => 'generateAutologinKeyButton',
-        ]
-    );
+        $form->addElement(
+            'button',
+            'contact_gen_akey',
+            _('Generate'),
+            [
+                'onclick' => "generatePassword('aKey', '{$encodedPasswordPolicy}');",
+                'id' => 'generateAutologinKeyButton',
+                'data-testid' => 'generateAutologinKeyButton',
+            ]
+        );
+    }
 }
 
 // ------------------------ Topoogy ----------------------------
