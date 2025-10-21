@@ -65,11 +65,19 @@ class DbReadUserRepository extends DatabaseRepository implements ReadUserReposit
             if ($entry === false) {
                 return null;
             }
-
-            return DbUserFactory::createFromRecord($entry);
         } catch (QueryBuilderException|ValueObjectException|CollectionException|ConnectionException $e) {
             throw new RepositoryException(
                 message: 'Could not fetch user from database: ' . $e->getMessage(),
+                context: ['alias' => $alias],
+                previous: $e
+            );
+        }
+
+        try {
+            return (new DbUserTransformer())->transform($entry);
+        } catch (\InvalidArgumentException $e) {
+            throw new RepositoryException(
+                message: 'Could not transform database record to User',
                 context: ['alias' => $alias],
                 previous: $e
             );

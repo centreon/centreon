@@ -23,39 +23,43 @@ declare(strict_types=1);
 
 namespace Core\Security\User\Infrastructure\Repository;
 
-use Core\Infrastructure\Common\Repository\DbFactoryUtilitiesTrait;
+use App\Shared\Infrastructure\TransformerInterface;
 use Core\Security\User\Domain\Model\User;
 use Core\Security\User\Domain\Model\UserPassword;
 
-class DbUserFactory
+/**
+ * @implements TransformerInterface<array<string, mixed>, User>
+ */
+class DbUserTransformer implements TransformerInterface
 {
-    use DbFactoryUtilitiesTrait;
-
     /**
-     * @param array<string, mixed> $recordData
+     * @param array<string, mixed> $from
      *
-     * @return User|null
+     * @throws \InvalidArgumentException
+     * @return User
      */
-    public static function createFromRecord(array $recordData): ?User
+    public function transform(mixed $from): User
     {
-        if ($recordData === []) {
-            return null;
+        if ($from === []) {
+            throw new \InvalidArgumentException('Cannot transform empty record to User');
         }
 
         $userInfos = [
             'passwords' => [],
         ];
-        foreach ($recordData as $record) {
-            $userInfos['contact_id'] = (int) $record['contact_id'];
-            $userInfos['contact_alias'] = $record['contact_alias'];
-            $userInfos['login_attempts'] = self::getIntOrNull($record['login_attempts']);
-            $userInfos['blocking_time'] = self::createDateTimeImmutableFromTimestamp($record['blocking_time']);
-            $userInfos['passwords'][] = new UserPassword(
-                (int) $record['contact_id'],
-                $record['password'],
-                (new \DateTimeImmutable())->setTimestamp((int) $record['creation_date']),
-            );
-        }
+        $userInfos['contact_id'] = (int) $from['contact_id'];
+        $userInfos['contact_alias'] = $from['contact_alias'];
+        $userInfos['login_attempts'] = isset($from['login_attempts'])
+            ? (int) $from['login_attempts']
+            : null;
+        $userInfos['blocking_time'] = isset($from['blocking_time'])
+            ? (new \DateTimeImmutable())->setTimestamp((int) $from['blocking_time'])
+            : null;
+        $userInfos['passwords'][] = new UserPassword(
+            (int) $from['contact_id'],
+            $from['password'],
+            (new \DateTimeImmutable())->setTimestamp((int) $from['creation_date']),
+        );
 
         return new User(
             $userInfos['contact_id'],
