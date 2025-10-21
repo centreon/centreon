@@ -36,8 +36,6 @@ $module_conf['centreon-awie']['is_removeable'] = '1';
 $module_conf['centreon-awie']['author'] = 'Centreon';
 $module_conf['centreon-awie']['stability'] = 'stable';
 $module_conf['centreon-awie']['last_update'] = '2025-10-01';
-$module_conf['centreon-awie']['release_note']
-    = 'https://docs.centreon.com/23.10/en/releases/centreon-os-extensions.html';
 $module_conf['centreon-awie']['images'] = [
     'images/image1.png',
 ];
