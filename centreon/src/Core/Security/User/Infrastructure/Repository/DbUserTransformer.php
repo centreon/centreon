@@ -40,7 +40,7 @@ class DbUserTransformer implements TransformerInterface
      */
     public function transform(mixed $from): User
     {
-        if ($from === []) {
+        if (! is_array($from) || $from === []) {
             throw new \InvalidArgumentException('Cannot transform empty record to User');
         }
 

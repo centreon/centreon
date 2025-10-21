@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Core\Security\User\Application\UseCase\RenewPassword;
 
+use Assert\AssertionFailedException;
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
@@ -50,9 +51,9 @@ class RenewPassword
      * @param ReadConfigurationRepositoryInterface $readConfigurationRepository
      */
     public function __construct(
-        private ReadUserRepositoryInterface $readRepository,
-        private WriteUserRepositoryInterface $writeRepository,
-        private ReadConfigurationRepositoryInterface $readConfigurationRepository,
+        private readonly ReadUserRepositoryInterface $readRepository,
+        private readonly WriteUserRepositoryInterface $writeRepository,
+        private readonly ReadConfigurationRepositoryInterface $readConfigurationRepository,
     ) {
     }
 
@@ -101,7 +102,7 @@ class RenewPassword
                 $user,
                 $providerConfiguration->getCustomConfiguration()->getSecurityPolicy()
             );
-        } catch (UserPasswordException|ConfigurationException $e) {
+        } catch (UserPasswordException|ConfigurationException|AssertionFailedException $e) {
             ExceptionLogger::create()->log($e);
             $presenter->setResponseStatus(new InvalidArgumentResponse($e->getMessage()));
 
