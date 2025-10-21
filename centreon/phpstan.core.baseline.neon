@@ -775,12 +775,6 @@ parameters:
 			path: src/Core/Security/User/Domain/Model/UserPasswordFactory.php
 
 		-
-			message: '#^Strict comparison using \!\=\= between array and false will always evaluate to true\.$#'
-			identifier: notIdentical.alwaysTrue
-			count: 1
-			path: src/Core/Security/User/Infrastructure/Repository/DbReadUserRepository.php
-
-		-
 			message: '#^Strict comparison using \=\=\= between Core\\AdditionalConnectorConfiguration\\Domain\\Model\\Type and Core\\AdditionalConnectorConfiguration\\Domain\\Model\\Type\:\:VMWARE_V6 will always evaluate to true\.$#'
 			identifier: identical.alwaysTrue
 			count: 1

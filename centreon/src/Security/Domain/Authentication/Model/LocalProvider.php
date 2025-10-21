@@ -46,7 +46,6 @@ use Core\Security\User\Domain\Model\User;
 use DateInterval;
 use DateTime;
 use DateTimeImmutable;
-use Exception;
 use Pimple\Container;
 use Security\Domain\Authentication\Interfaces\LocalProviderInterface;
 
@@ -132,9 +131,11 @@ class LocalProvider implements LocalProviderInterface
         $doesPasswordMatch = $auth->passwdOk === 1;
 
         if ($auth->userInfos['contact_auth_type'] === CentreonAuth::AUTH_TYPE_LOCAL) {
-            $user = $this->readUserRepository->findUserByAlias($auth->userInfos['contact_alias']);
-            if ($user === null) {
-                throw new Exception('user not found');
+
+            try {
+                $user = $this->readUserRepository->findUserByAlias($auth->userInfos['contact_alias']);
+            } catch (RepositoryException $e) {
+                throw AuthenticationException::notAuthenticated($e);
             }
 
             try {
@@ -149,7 +150,9 @@ class LocalProvider implements LocalProviderInterface
 
             try {
                 $this->respectLocalSecurityPolicyOrFail($user, $securityPolicy, $doesPasswordMatch);
-            } catch (AuthenticationException|PasswordExpiredException $e) {
+            } catch (PasswordExpiredException $e) {
+                throw $e;
+            } catch (AuthenticationException $e) {
                 throw AuthenticationException::notAuthenticated($e);
             }
         }
@@ -275,8 +278,7 @@ class LocalProvider implements LocalProviderInterface
      * @param SecurityPolicy $securityPolicy
      * @param bool $doesPasswordMatch
      *
-     * @throws AuthenticationException
-     * @throws PasswordExpiredException
+     * @throws AuthenticationException|PasswordExpiredException
      */
     private function respectLocalSecurityPolicyOrFail(
         User $user,

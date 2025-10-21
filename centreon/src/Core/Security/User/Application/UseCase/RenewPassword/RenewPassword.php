@@ -29,6 +29,7 @@ use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Application\Common\UseCase\UnauthorizedResponse;
+use Core\Common\Domain\Exception\RepositoryException;
 use Core\Common\Infrastructure\ExceptionLogger\ExceptionLogger;
 use Core\Security\ProviderConfiguration\Application\Repository\ReadConfigurationRepositoryInterface;
 use Core\Security\ProviderConfiguration\Domain\Local\Model\Configuration;
@@ -64,8 +65,16 @@ class RenewPassword
         RenewPasswordRequest $renewPasswordRequest,
     ): void {
         $this->info('Processing password renewal...');
-        // Get User informations
-        $user = $this->readRepository->findUserByAlias($renewPasswordRequest->userAlias);
+
+        try {
+            $user = $this->readRepository->findUserByAlias($renewPasswordRequest->userAlias);
+        } catch (RepositoryException $e) {
+            ExceptionLogger::create()->log($e);
+            $presenter->setResponseStatus(new ErrorResponse('An error occurred while updating password'));
+
+            return;
+        }
+
         if ($user === null) {
             $this->error('No user could be found', [
                 'user_alias' => $renewPasswordRequest->userAlias,
@@ -99,7 +108,7 @@ class RenewPassword
             return;
         } catch (\Throwable $e) {
             ExceptionLogger::create()->log($e);
-            $presenter->setResponseStatus(new ErrorResponse('An error occured while updating password'));
+            $presenter->setResponseStatus(new ErrorResponse('An error occurred while updating password'));
 
             return;
         }
