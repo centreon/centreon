@@ -30,6 +30,7 @@ use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Centreon\Infrastructure\RequestParameters\RequestParametersTranslatorException;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
+use Core\Contact\Domain\AdminResolver;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Core\User\Application\Exception\UserException;
@@ -40,15 +41,13 @@ final class FindUsers
 {
     use LoggerTrait;
 
-    /** @var AccessGroup[] */
-    private array $accessGroups = [];
-
     public function __construct(
         private readonly ReadUserRepositoryInterface $readUserRepository,
         private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
         private readonly ContactInterface $user,
         private readonly RequestParametersInterface $requestParameters,
         private readonly bool $isCloudPlatform,
+        private readonly AdminResolver $adminResolver,
     ) {
     }
 
@@ -58,13 +57,14 @@ final class FindUsers
     public function __invoke(FindUsersPresenterInterface $presenter): void
     {
         try {
-            $hasAccessToAllUsers = $this->hasAccessToAllUsers();
+            $hasAccessToAllUsers = $this->adminResolver->isAdmin($this->user);
             if ($hasAccessToAllUsers) {
                 $users = $this->readUserRepository->findAllByRequestParameters($this->requestParameters);
             } else {
+                $accessGroups = $this->readAccessGroupRepository->findByContact($this->user);
                 $accessGroupNames = array_map(
                     fn (AccessGroup $accessGroup): string => $accessGroup->getName(),
-                    $this->accessGroups,
+                    $accessGroups,
                 );
                 if (
                     ! $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_CONTACTS_READ)
@@ -82,7 +82,7 @@ final class FindUsers
                     return;
                 }
                 $users = $this->readUserRepository->findByAccessGroupsUserAndRequestParameters(
-                    $this->accessGroups,
+                    $accessGroups,
                     $this->user,
                     $this->requestParameters
                 );
@@ -146,23 +146,5 @@ final class FindUsers
         }
 
         return $response;
-    }
-
-    /**
-     * @throws \Throwable
-     */
-    private function hasAccessToAllUsers(): bool
-    {
-        if ($this->user->isAdmin()) {
-            return true;
-        }
-
-        $this->accessGroups = $this->readAccessGroupRepository->findByContact($this->user);
-        $accessGroupNames = array_map(
-            fn (AccessGroup $accessGroup): string => $accessGroup->getName(),
-            $this->accessGroups
-        );
-
-        return $this->isCloudPlatform && in_array('customer_admin_acl', $accessGroupNames, true);
     }
 }
