@@ -72,7 +72,6 @@ const ConnectedAutocompleteField = (
     allowUniqOption,
     baseEndpoint,
     changeIdValue,
-    getOptionLabel = (option) => option?.name,
     ...props
   }: ConnectedAutoCompleteFieldProps<TData> &
     Omit<AutocompleteFieldProps, 'options'>): JSX.Element => {
