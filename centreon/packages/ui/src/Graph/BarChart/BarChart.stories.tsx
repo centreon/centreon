@@ -5,6 +5,7 @@ import { LineChartData } from '../common/models';
 import dataPingService from '../mockedData/pingService.json';
 import dataPingServiceMixedStacked from '../mockedData/pingServiceMixedStacked.json';
 import dataPingServiceStacked from '../mockedData/pingServiceStacked.json';
+import dataPingServiceStackeKey from '../mockedData/pingServiceWithStackedKeys.json';
 
 import { ClickAwayListener } from '@mui/material';
 import { useState } from 'react';
@@ -300,4 +301,12 @@ export const withLegendSecondaryClick: Story = {
       data={dataPingService as unknown as LineChartData}
     />
   )
+};
+
+export const stackKey: Story = {
+  args: {
+    ...defaultArgs,
+    data: dataPingServiceStackeKey
+  },
+  render: Template
 };

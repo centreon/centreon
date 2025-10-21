@@ -67,3 +67,15 @@ export const getTokensEndpoint = (parameters): string => {
     }
   });
 };
+
+export const getHostsEndpoint = (parameters): string => {
+  return buildListingEndpoint({
+    baseEndpoint: hostsConfigurationEndpoint,
+    parameters: {
+      ...parameters,
+      search: {
+        conditions: [parameters?.search?.conditions?.[1] || []]
+      }
+    }
+  });
+};
