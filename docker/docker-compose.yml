@@ -47,7 +47,7 @@ services:
       - app-network
   cbd:
     <<: *defaults
-    image: broker-api:latest
+    image: docker.centreon.com/centreon/centreon-broker-bookworm:fth-docker-collect
     container_name: cbd
     hostname: cbd
     restart: always
@@ -64,7 +64,7 @@ services:
   centengine:
     <<: *defaults
     # image: centengine-api:latest
-    image: docker.centreon.com/centreon/centreon-poller-bookworm:fth-docker-collect
+    image: docker.centreon.com/centreon/centreon-engine-bookworm:fth-docker-collect
     container_name: centengine
     hostname: centengine
     restart: always
