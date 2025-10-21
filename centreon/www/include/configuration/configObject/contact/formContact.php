@@ -1216,7 +1216,7 @@ if ($valid) {
         LoggerPassword::create()->warning(
             reason: 'password confirmation does not match',
             initiatorId: $centreon->user->get_id(),
-            targetId: $centreon->user->get_id(),
+            targetId: empty($contactId) ? -1 : $contactId,
         );
     }
     // Apply a template definition

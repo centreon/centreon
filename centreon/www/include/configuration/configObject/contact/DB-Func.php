@@ -1643,7 +1643,7 @@ function validatePasswordCreation(array $fields): true|array
         LoggerPassword::create()->warning(
             reason: 'new password does not respect the password policy',
             initiatorId: $centreon->user->get_id(),
-            targetId: $fields['contact_id'] ?? 'unknown',
+            targetId: empty($fields['contact_id']) ? -1 : (int) $fields['contact_id'],
             exception: $e,
         );
     }
