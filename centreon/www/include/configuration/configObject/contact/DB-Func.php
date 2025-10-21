@@ -1740,7 +1740,7 @@ function validatePasswordModification(array $fields): array|true
  */
 function validateAutologin(array $fields)
 {
-    global $pearDB;
+    global $pearDB, $centreon;
     $errors = [];
     if (! empty($fields['contact_autologin_key'])) {
         /**
