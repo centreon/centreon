@@ -13,7 +13,11 @@ import {
   filtersInitialValues
 } from './utils';
 
-import { filtersAtom, selectedColumnIdsAtom } from './atoms';
+import {
+  filtersAtom,
+  isWelcomePageDisplayedAtom,
+  selectedColumnIdsAtom
+} from './atoms';
 import { Filters } from './models';
 
 import {
@@ -34,6 +38,7 @@ const AdditionnalConnectors = () => {
 
   return (
     <ConfigurationBase<Filters>
+      isWelcomePageDisplayedAtom={isWelcomePageDisplayedAtom}
       columnsAtomKey={columnsAtomKey}
       filtersAtomKey={filtersAtomKey}
       filtersAtom={filtersAtom}

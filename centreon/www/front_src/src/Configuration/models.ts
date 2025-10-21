@@ -68,6 +68,7 @@ export interface ConfigurationBase<TFilters> {
   filtersAtomKey: string;
   selectedColumnIdsAtom: PrimitiveAtom<Array<string>>;
   filtersAtom: PrimitiveAtom<TFilters>;
+  isWelcomePageDisplayedAtom: PrimitiveAtom<boolean>;
 }
 
 export enum FieldType {

@@ -1,3 +1,4 @@
+import { atom } from 'jotai';
 import { atomWithReset, atomWithStorage } from 'jotai/utils';
 
 import { Filters } from './models';
@@ -13,3 +14,5 @@ export const filtersAtom = atomWithStorage<Filters>(
   filtersAtomKey,
   filtersInitialValues
 );
+
+export const isWelcomePageDisplayedAtom = atom<boolean>(true);

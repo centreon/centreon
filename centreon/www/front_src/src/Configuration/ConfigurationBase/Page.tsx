@@ -14,7 +14,7 @@ import { ConfigurationBase } from '../models';
 import { DeleteDialog, DuplicateDialog } from './Dialogs';
 import useCoutChangedFilters from './Filters/AdvancedFilters/useCoutChangedFilters';
 import useLoadData from './Listing/useLoadData';
-import { isWelcomePageDisplayedAtom, modalStateAtom } from './atoms';
+import { modalStateAtom } from './atoms';
 
 import { LoadingSkeleton } from '@centreon/ui';
 
@@ -23,7 +23,8 @@ const WelcomePage = ({
   dataTestId,
   onCreate,
   filtersAtom,
-  filtersAtomKey
+  filtersAtomKey,
+  isWelcomePageDisplayedAtom
 }) => {
   const { isLoading, data } = useLoadData({ filtersAtom, filtersAtomKey });
 
@@ -58,7 +59,8 @@ const Page = <TFilters,>({
   labels,
   selectedColumnIdsAtom,
   filtersAtom,
-  filtersAtomKey
+  filtersAtomKey,
+  isWelcomePageDisplayedAtom
 }: Pick<
   ConfigurationBase<TFilters>,
   | 'columns'
@@ -69,6 +71,7 @@ const Page = <TFilters,>({
   | 'selectedColumnIdsAtom'
   | 'filtersAtom'
   | 'filtersAtomKey'
+  | 'isWelcomePageDisplayedAtom'
 >): JSX.Element => {
   const [, setSearchParams] = useSearchParams();
 
@@ -108,6 +111,7 @@ const Page = <TFilters,>({
               onCreate={openCreatetModal}
               filtersAtom={filtersAtom}
               filtersAtomKey={filtersAtomKey}
+              isWelcomePageDisplayedAtom={isWelcomePageDisplayedAtom}
             />
           ) : (
             <Listing<TFilters>

@@ -19,7 +19,8 @@ const Base = <TFilters,>({
   selectedColumnIdsAtom,
   columnsAtomKey,
   filtersAtom,
-  filtersAtomKey
+  filtersAtomKey,
+  isWelcomePageDisplayedAtom
 }: ConfigurationBase<TFilters>): JSX.Element => {
   const [configuration, setConfiguration] = useAtom(configurationAtom);
   const [filters, setFilters] = useAtom(filtersAtom);
@@ -76,6 +77,7 @@ const Base = <TFilters,>({
       selectedColumnIdsAtom={selectedColumnIdsAtom}
       filtersAtom={filtersAtom}
       filtersAtomKey={filtersAtomKey}
+      isWelcomePageDisplayedAtom={isWelcomePageDisplayedAtom}
     />
   );
 };

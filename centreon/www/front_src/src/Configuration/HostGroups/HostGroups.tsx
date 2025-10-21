@@ -15,7 +15,11 @@ import {
 import { useTranslation } from 'react-i18next';
 import { ResourceType } from '../models';
 
-import { filtersAtom, selectedColumnIdsAtom } from './atoms';
+import {
+  filtersAtom,
+  isWelcomePageDisplayedAtom,
+  selectedColumnIdsAtom
+} from './atoms';
 import useHostGroups from './useHostGroups';
 
 import { Filters } from './models';
@@ -39,6 +43,7 @@ const HostGroups = () => {
 
   return (
     <ConfigurationBase<Filters>
+      isWelcomePageDisplayedAtom={isWelcomePageDisplayedAtom}
       filtersAtomKey={filtersAtomKey}
       filtersAtom={filtersAtom}
       columnsAtomKey={columnsAtomKey}
