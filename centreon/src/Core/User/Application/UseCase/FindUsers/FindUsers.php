@@ -31,6 +31,7 @@ use Centreon\Infrastructure\RequestParameters\RequestParametersTranslatorExcepti
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Contact\Domain\AdminResolver;
+use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Core\User\Application\Exception\UserException;
 use Core\User\Application\Repository\ReadUserRepositoryInterface;
@@ -40,11 +41,9 @@ final class FindUsers
 {
     use LoggerTrait;
 
-    /** @var AccessGroup[] */
-    private array $accessGroups = [];
-
     public function __construct(
         private readonly ReadUserRepositoryInterface $readUserRepository,
+        private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
         private readonly ContactInterface $user,
         private readonly RequestParametersInterface $requestParameters,
         private readonly bool $isCloudPlatform,
@@ -62,9 +61,10 @@ final class FindUsers
             if ($hasAccessToAllUsers) {
                 $users = $this->readUserRepository->findAllByRequestParameters($this->requestParameters);
             } else {
+                $accessGroups = $this->readAccessGroupRepository->findByContact($this->user);
                 $accessGroupNames = array_map(
                     fn (AccessGroup $accessGroup): string => $accessGroup->getName(),
-                    $this->accessGroups,
+                    $accessGroups,
                 );
                 if (
                     ! $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_CONTACTS_READ)
@@ -82,7 +82,7 @@ final class FindUsers
                     return;
                 }
                 $users = $this->readUserRepository->findByAccessGroupsUserAndRequestParameters(
-                    $this->accessGroups,
+                    $accessGroups,
                     $this->user,
                     $this->requestParameters
                 );

@@ -31,6 +31,7 @@ use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Contact\Domain\AdminResolver;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
+use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\User\Application\Exception\UserException;
 use Core\User\Application\Repository\ReadUserRepositoryInterface;
 use Core\User\Application\UseCase\FindUsers\FindUsers;
@@ -42,6 +43,7 @@ beforeEach(function (): void {
     $this->presenter = new FindUsersPresenterStub($this->createMock(PresenterFormatterInterface::class));
     $this->useCase = new FindUsers(
         $this->readUserRepository = $this->createMock(ReadUserRepositoryInterface::class),
+        $this->readAccessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class),
         $this->user = $this->createMock(ContactInterface::class),
         $this->requestParameters = $this->createMock(RequestParametersInterface::class),
         $this->isCloudPlatform = false,
@@ -64,7 +66,7 @@ it(
     'should present an ErrorResponse when an exception is thrown',
     function (): void {
 
-        $this->user
+        $this->adminResolver
             ->expects($this->once())
             ->method('isAdmin')
             ->willReturn(false);
@@ -87,7 +89,7 @@ it(
     'should present an ForbiddenResponse when non-admin user doesn\'t have sufficient rights',
     function (): void {
 
-        $this->user
+        $this->adminResolver
             ->expects($this->once())
             ->method('isAdmin')
             ->willReturn(false);
@@ -115,7 +117,7 @@ it(
     'should present an ErrorResponse when an exception of type RequestParametersTranslatorException is thrown',
     function (): void {
 
-        $this->user
+        $this->adminResolver
             ->expects($this->once())
             ->method('isAdmin')
             ->willReturn(true);
@@ -140,7 +142,7 @@ it(
     'should present a valid response when the user has access to all users',
     function (): void {
 
-        $this->user
+        $this->adminResolver
             ->expects($this->once())
             ->method('isAdmin')
             ->willReturn(true);
@@ -163,7 +165,7 @@ it(
     'should present a valid response when the user has restricted access to users',
     function (): void {
 
-        $this->user
+        $this->adminResolver
             ->expects($this->once())
             ->method('isAdmin')
             ->willReturn(false);
