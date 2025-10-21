@@ -1,15 +1,16 @@
-import { Provider, createStore } from 'jotai';
+import { Provider, atom, createStore } from 'jotai';
+import { atomWithStorage } from 'jotai/utils';
 
 import { Method, SnackbarProvider, TestQueryProvider } from '@centreon/ui';
 
 import { capitalize } from '@mui/material';
 
 import i18next from 'i18next';
-import { atomWithStorage } from 'jotai/utils';
 import { initReactI18next } from 'react-i18next';
 import { BrowserRouter as Router } from 'react-router';
 import ConfigurationBase from '..';
 import { FilterConfiguration, ResourceType } from '../../models';
+
 import {
   columns,
   columnsAtomKey,
@@ -120,6 +121,7 @@ const initialize = ({
 
   const selectedColumnIdsAtom = atomWithStorage(columnsAtomKey, []);
   const filtersAtom = atomWithStorage(filtersAtomKey, filtersInitialValues);
+  const isWelcomePageDisplayedAtom = atom(false);
 
   const store = createStore();
 
@@ -131,6 +133,7 @@ const initialize = ({
             <Provider store={store}>
               <div style={{ height: '100vh' }}>
                 <ConfigurationBase
+                  isWelcomePageDisplayedAtom={isWelcomePageDisplayedAtom}
                   selectedColumnIdsAtom={selectedColumnIdsAtom}
                   filtersAtom={filtersAtom}
                   filtersAtomKey={filtersAtomKey}
