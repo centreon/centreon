@@ -93,12 +93,65 @@ class CentreonCeip extends CentreonWebService
                 'visitor' => $this->getVisitorInformation(),
                 'account' => $this->getAccountInformation(),
                 'excludeAllText' => true,
+                'agents' => $this->getAgentInformation(),
                 'ceip' => true,
             ]
             // Don't compute data if CEIP is disabled
             : [
                 'ceip' => false,
             ];
+    }
+
+    /**
+     * Fetch Agents info.
+     *
+     * @return array{
+     *   poller_id: int,
+     *   nb_agents: int
+     * }
+     *
+     * @throws PDOException
+     */
+    private function getAgentInformation(): array
+    {
+        $agents = [];
+        try {
+            $query = <<<'SQL'
+                        SELECT `poller_id`, `enabled`, `infos`
+                        FROM `centreon_storage`.`agent_information`
+                    SQL;
+            $statement = $this->pearDB->executeQuery($query);
+
+            while (is_array($row = $this->pearDB->fetch($statement))) {
+                /** @var array{poller_id:int,enabled:int,infos:string} $row */
+
+                if ((bool) $row['enabled'] === false) {
+                    continue;
+                }
+
+                $decodedInfos = json_decode($row['infos'], true);
+                if (! is_array($decodedInfos)) {
+                    $this->logger->warning(
+                        "Invalid JSON format in agent_information table for poller_id {$row['poller_id']}",
+                        ['context' => $row]
+                    );
+
+                    continue;
+                }
+
+                $agents[] = [
+                    'poller_id' => $row['poller_id'],
+                    'nb_agents' => array_sum(array_map(static fn($info) => $info['nb_agent'] ?? 0, $decodedInfos)),
+                ];
+            }
+        } catch (Throwable $exception) {
+            $this->logger->error(
+                context: ['context' => $exception],
+                message: $exception->getMessage(),
+            );
+        }
+
+        return $agents;
     }
 
     /**
