@@ -85,7 +85,7 @@ function usage() {
 	echo
 	echo "Usage:"
 	echo
-	echo " $script_short_name [install|update (default: install)] [-t <central|poller> (default: central)] [-v <24.10> (default: 24.10)] [-r <stable|testing-hotfix|testing-release|unstable> (default: stable)] [-d <MariaDB|MySQL> (default: MariaDB)] [-l <DEBUG|INFO|WARN|ERROR>] [-s (for silent install)] [-p <centreon admin password>] [-h (show this help output)] [-V configure a vault, using format <address>;<port>;<root_path>;<role_id>;<secret_id>]"
+	echo " $script_short_name [install|update (default: install)] [-t <central|poller> (default: central)] [-v <25.10> (default: 25.10)] [-r <stable|testing-hotfix|testing-release|unstable> (default: stable)] [-d <MariaDB|MySQL> (default: MariaDB)] [-l <DEBUG|INFO|WARN|ERROR>] [-s (for silent install)] [-p <centreon admin password>] [-h (show this help output)] [-V configure a vault, using format <address>;<port>;<root_path>;<role_id>;<secret_id>]"
 	echo
 	echo Example:
 	echo
@@ -384,7 +384,7 @@ function set_mariadb_repos() {
 	log "INFO" "Install MariaDB repository"
 
 	case $version in
-	"24.04" | "24.10")
+	"24.04" | "24.10" | "25.10")
 		detected_mariadb_version="10.11"
 	;;
 	*)
@@ -494,7 +494,7 @@ function set_required_prerequisite() {
 						$PKG_MGR module install php:remi-8.1 -y -q
 						$PKG_MGR module enable php:remi-8.1 -y -q
 						;;
-					"24.10")
+					"24.10" | "25.10")
 						log "INFO" "Installing PHP 8.2 and enable it"
 						$PKG_MGR module reset php -y -q
 						$PKG_MGR module install php:8.2 -y -q
@@ -508,7 +508,7 @@ function set_required_prerequisite() {
 			;;
 
 		9*)
-			if ! [[ "$version" == "23.10" || "$version" == "24.04" || "$version" == "24.10" ]]; then
+			if ! [[ "$version" == "23.10" || "$version" == "24.04" || "$version" == "24.10" || "$version" == "25.10" ]]; then
 				error_and_exit "Only Centreon version >=23.10 is compatible with EL9, you chose $version"
 			fi
 
@@ -547,7 +547,7 @@ function set_required_prerequisite() {
 						$PKG_MGR module install php:8.1 -y -q
 						$PKG_MGR module enable php:8.1 -y -q
 						;;
-					"24.10")
+					"24.10" | "25.10")
 						#install_remi_repo
 						log "INFO" "Installing PHP 8.2 and enable it"
 						$PKG_MGR module reset php -y -q
@@ -598,7 +598,7 @@ function set_required_prerequisite() {
 				PHP_SERVICE_UNIT="php8.1-fpm"
 				;;
 			12)
-				if ! [[ "$version" == "24.04" || "$version" == "24.10" ]]; then
+				if ! [[ "$version" == "24.04" || "$version" == "24.10" || "$version" == "25.10" ]]; then
 					error_and_exit "For Debian $detected_os_version, only Centreon versions >= 24.04 are compatible. You chose $version"
 				elif [[ "$version" == "24.04" ]];then
 					PHP_SERVICE_UNIT="php8.1-fpm"
@@ -618,7 +618,7 @@ function set_required_prerequisite() {
 			ARCH=""
 			if [[ "$VENDORID" == "ARM" ]]; then
 				ARCH="[ arch=all,arm64 ]"
-				if ! [[ "$version" == "23.10" || "$version" == "24.04" || "$version" == "24.10" || "$topology" == "poller" ]]; then
+				if ! [[ "$version" == "23.10" || "$version" == "24.04" || "$version" == "24.10" || "$version" == "25.10" || "$topology" == "poller" ]]; then
 					error_and_exit "For Debian on Raspberry, only Centreon versions (poller mode) >=23.10 are compatible. You chose $version to install $topology server"
 				fi
 			fi
@@ -656,7 +656,7 @@ function set_required_prerequisite() {
 					echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" | tee /etc/apt/sources.list.d/sury-php.list
 					wget -O- https://packages.sury.org/php/apt.gpg | gpg --dearmor | tee /etc/apt/trusted.gpg.d/php.gpg  > /dev/null 2>&1
 					;;
-				"24.10")
+				"24.10" | "25.10")
 					echo "Installing php from official os repositories."
 					;;
 			esac
