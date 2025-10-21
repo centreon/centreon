@@ -1625,7 +1625,7 @@ function sanitizeFormContactParameters(array $ret): array
  */
 function validatePasswordCreation(array $fields): true|array
 {
-    global $pearDB;
+    global $pearDB, $centreon;
     $errors = [];
 
     if (empty($fields['contact_passwd'])) {
@@ -1642,7 +1642,7 @@ function validatePasswordCreation(array $fields): true|array
 
         LoggerPassword::create()->warning(
             reason: 'new password does not respect the password policy',
-            initiatorId: $fields['contact_id'] ?? 'unknown',
+            initiatorId: $centreon->user->get_id(),
             targetId: $fields['contact_id'] ?? 'unknown',
             exception: $e,
         );
@@ -1765,7 +1765,7 @@ function validateAutologin(array $fields)
 
                 LoggerPassword::create()->warning(
                     reason: 'autologin key is the same as current password',
-                    initiatorId: (int) $fields['contact_id'],
+                    initiatorId: $centreon->user->get_id(),
                     targetId: (int) $fields['contact_id'],
                 );
             }
@@ -1780,7 +1780,7 @@ function validateAutologin(array $fields)
 
             LoggerPassword::create()->warning(
                 reason: 'autologin key is the same as new password',
-                initiatorId: (int) $fields['contact_id'],
+                initiatorId: $centreon->user->get_id(),
                 targetId: (int) $fields['contact_id'],
             );
         }
