@@ -31,7 +31,6 @@ use Centreon\Infrastructure\RequestParameters\RequestParametersTranslatorExcepti
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Contact\Domain\AdminResolver;
-use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Core\User\Application\Exception\UserException;
 use Core\User\Application\Repository\ReadUserRepositoryInterface;
@@ -46,7 +45,6 @@ final class FindUsers
 
     public function __construct(
         private readonly ReadUserRepositoryInterface $readUserRepository,
-        private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
         private readonly ContactInterface $user,
         private readonly RequestParametersInterface $requestParameters,
         private readonly bool $isCloudPlatform,

@@ -29,8 +29,8 @@ use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Centreon\Infrastructure\RequestParameters\RequestParametersTranslatorException;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
+use Core\Contact\Domain\AdminResolver;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
-use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\User\Application\Exception\UserException;
 use Core\User\Application\Repository\ReadUserRepositoryInterface;
 use Core\User\Application\UseCase\FindUsers\FindUsers;
@@ -42,10 +42,10 @@ beforeEach(function (): void {
     $this->presenter = new FindUsersPresenterStub($this->createMock(PresenterFormatterInterface::class));
     $this->useCase = new FindUsers(
         $this->readUserRepository = $this->createMock(ReadUserRepositoryInterface::class),
-        $this->readAccessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class),
         $this->user = $this->createMock(ContactInterface::class),
         $this->requestParameters = $this->createMock(RequestParametersInterface::class),
         $this->isCloudPlatform = false,
+        $this->adminResolver = $this->createMock(AdminResolver::class)
     );
 
     $this->contact = new User(
