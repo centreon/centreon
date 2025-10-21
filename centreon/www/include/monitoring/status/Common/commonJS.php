@@ -97,6 +97,7 @@ var _nb = 0;
 var _oldInputFieldValue = '';
 var _oldInputHostFieldValue = '';
 var _oldInputOutputFieldValue = '';
+var _oldInputHGFieldValue = '';
 var _currentInputFieldValue=""; // valeur actuelle du champ texte
 var _resultCache=new Object();
 var _first = 1;
@@ -811,9 +812,18 @@ function mainLoop() {
         _currentInputOutputFieldValue = "";
     }
 
+    // Add HostGroups search field monitoring
+    _currentInputHGField = jQuery('input[name="searchHG"]')[0];
+    if (_currentInputHGField && _currentInputHGField.value) {
+        _currentInputHGFieldValue = _currentInputHGField.value;
+    } else {
+        _currentInputHGFieldValue = "";
+    }
+
     if (((_currentInputFieldValue.length >= 3 || _currentInputFieldValue.length == 0) && _oldInputFieldValue != _currentInputFieldValue)
         || ((_currentInputHostFieldValue.length >= 3 || _currentInputHostFieldValue.length == 0) && _oldInputHostFieldValue != _currentInputHostFieldValue)
-        || ((_currentInputOutputFieldValue.length >= 3 || _currentInputOutputFieldValue.length == 0) && _oldInputOutputFieldValue != _currentInputOutputFieldValue)){
+        || ((_currentInputOutputFieldValue.length >= 3 || _currentInputOutputFieldValue.length == 0) && _oldInputOutputFieldValue != _currentInputOutputFieldValue)
+        || ((_currentInputHGFieldValue.length >= 3 || _currentInputHGFieldValue.length == 0) && _oldInputHGFieldValue != _currentInputHGFieldValue)){
 
         if (!_lock) {
             set_search(escapeURI(_currentInputFieldValue));
@@ -822,6 +832,8 @@ function mainLoop() {
             _host_search = _currentInputHostFieldValue;
             set_search_output(escapeURI(_currentInputOutputFieldValue));
             _output_search = _currentInputOutputFieldValue;
+            set_search_hg(escapeURI(_currentInputHGFieldValue));
+            _searchHG = _currentInputHGFieldValue;
 
             monitoring_refresh();
 
@@ -840,11 +852,17 @@ function mainLoop() {
             } else if (isset(_currentInputOutputFieldValue.className)) {
                 _currentInputOutputField.className = "search_input";
             }
+            if (_currentInputHGField && _currentInputHGFieldValue.length >= 3) {
+                _currentInputHGField.className = "search_input_active";
+            } else if (_currentInputHGField) {
+                _currentInputHGField.className = "search_input";
+            }
         }
     }
     _oldInputFieldValue = _currentInputFieldValue;
     _oldInputHostFieldValue = _currentInputHostFieldValue;
     _oldInputOutputFieldValue = _currentInputOutputFieldValue;
+    _oldInputHGFieldValue = _currentInputHGFieldValue;
 
     setTimeout("mainLoop()",250);
 }
@@ -881,6 +899,14 @@ function set_search_output(search_output) {
     xhrM.open("POST","./include/monitoring/status/Common/setHistory.php",true);
     xhrM.setRequestHeader('Content-Type','application/x-www-form-urlencoded');
     _var = "search_output="+search_output+"&url=<?php echo $url; ?>";
+    xhrM.send(_var);
+}
+
+function set_search_hg(search_hg) {
+    var xhrM = getXhrC();
+    xhrM.open("POST","./include/monitoring/status/Common/setHistory.php",true);
+    xhrM.setRequestHeader('Content-Type','application/x-www-form-urlencoded');
+    _var = "searchHG="+search_hg+"&url=<?php echo $url; ?>";
     xhrM.send(_var);
 }
 
