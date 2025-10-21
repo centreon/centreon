@@ -24,16 +24,21 @@ try {
       if (compareVersions(latestPackageVersion, firstMonthVersion) === -1) {
         core.setOutput("package_version", firstMonthVersion);
         core.setOutput("skip-bump-version", 1);
+        core.setOutput('tag', tag);
         return;
       }
     }
 
     if (latestPackageVersion && compareVersions(latestPackageVersion, core.getInput('current_package_version')) === -1) {
       core.setOutput("package_version", core.getInput('current_package_version'));
+      core.setOutput('tag', tag);
+
       return;
     }
 
     core.setOutput("package_version", latestPackageVersion || '')
+    core.setOutput('tag', tag);
+
   });
 } catch (error) {
   core.setFailed(error.message);
