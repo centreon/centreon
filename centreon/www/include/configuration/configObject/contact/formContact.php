@@ -208,7 +208,11 @@ $tpl = SmartyBC::createSmartyTemplate($path);
 $authTypeConnectedUser = $centreon->user->authType;
 $tpl->assign('authTypeConnectedUser', $authTypeConnectedUser);
 // Auth type of the contact edited
-$authTypeContact = $cct['contact_auth_type'];
+if ($o == MODIFY_CONTACT || $o == WATCH_CONTACT) {
+    $authTypeContact = $cct['contact_auth_type'];
+} else {
+    $authTypeContact = CentreonAuth::AUTH_TYPE_LOCAL;
+}
 $tpl->assign('authTypeContact', $authTypeContact);
 
 if ($o == ADD_CONTACT) {
