@@ -394,16 +394,18 @@ if (
 
     // Password Management
 
-    $form->addElement(
-        'password',
-        'current_password',
-        _('Your current password'),
-        [
-            'size' => '30',
-            'autocomplete' => 'off',
-            'id' => 'current_password',
-        ]
-    );
+    if ($o === MODIFY_CONTACT) {
+        $form->addElement(
+            'password',
+            'current_password',
+            _('Your current password'),
+            [
+                'size' => '30',
+                'autocomplete' => 'off',
+                'id' => 'current_password',
+            ]
+        );
+    }
 
     $form->addElement(
         'password',
