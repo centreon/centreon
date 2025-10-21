@@ -1087,7 +1087,7 @@ if ($o != MASSIVE_CHANGE) {
     if ($o === ADD_CONTACT) {
         $form->addFormRule('validatePasswordCreation');
         $form->addFormRule('validateAutologin');
-    } else if ($o === MODIFY_CONTACT) {
+    } elseif ($o === MODIFY_CONTACT) {
         $form->addFormRule('validatePasswordModification');
         $form->addFormRule('validateAutologin');
     }
