@@ -54,6 +54,12 @@ export default ({
           commandTrimLength: 5000,
           defaultTrimLength: 5000,
         });
+        on("task", {
+          logVersion(message) {
+            console.log(`[LOG]: ${message}`);
+            return null;
+          },
+        });
         await esbuildPreprocessor(on, config);
         tasks(on);
 
