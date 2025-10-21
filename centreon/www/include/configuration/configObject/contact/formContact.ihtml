@@ -152,7 +152,7 @@
             </td>
         </tr>
         <tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="centreon_login"> {$form.contact_oreon.label}</td><td class="FormRowValue">{$form.contact_oreon.html}</td></tr>
-        {if $authTypeConnectedUser == 'local' && $authTypeContact != 'ldap' && $o != "mc"}
+        {if $authTypeConnectedUser == 'local' && $authTypeContact != 'ldap' && $o != "mc" && $o != "w"}
         <tr class="list_two"><td class="FormRowField"><img class="helpTooltip" name="current_password"> {$form.current_password.label}</td><td class="FormRowValue">{$form.current_password.html}</td></tr>
         <tr class="list_one">
             <td class="FormRowField"><img class="helpTooltip" name="password"> {$form.contact_passwd.label}</td>
