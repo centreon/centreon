@@ -26,6 +26,7 @@ namespace Centreon\Application\Controller\Administration;
 use Centreon\Application\Controller\AbstractController;
 use Centreon\Domain\Option\Interfaces\OptionServiceInterface;
 use FOS\RestBundle\View\View;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 /**
  * Used to get global parameters
@@ -75,6 +76,7 @@ class ParametersController extends AbstractController
      *
      * @return View
      */
+    #[IsGranted('IS_AUTHENTICATED', message: 'You are not allowed to access this resource.')]
     public function getParameters(): View
     {
         $parameters = [];
