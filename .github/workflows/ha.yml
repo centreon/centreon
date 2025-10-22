@@ -52,7 +52,7 @@ jobs:
         "centreon-ha/systemd/**"
         "centreon-ha/.env"
       frontend_production_paths: |
-        "**"
+        ""
       is_nightly: ${{ needs.get-environment.outputs.is_nightly }}
       base_sha: ${{ needs.get-environment.outputs.previous_release_bundle_tag }}
       labels: ${{ needs.get-environment.outputs.labels }}
