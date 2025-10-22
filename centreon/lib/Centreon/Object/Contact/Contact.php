@@ -19,8 +19,6 @@
  *
  */
 
-use Adaptation\Log\LoggerPassword;
-
 require_once __DIR__ . '/../Object.php';
 require_once __DIR__ . '/../../../../www/class/centreonContact.class.php';
 
