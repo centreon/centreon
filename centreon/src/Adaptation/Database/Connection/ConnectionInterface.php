@@ -469,5 +469,5 @@ interface ConnectionInterface
      *
      * @throws ConnectionException
      */
-    public function columnExists(string $tableName, string $columnName): bool;
+    public function columnExists(string $dbName, string $tableName, string $columnName): bool;
 }

@@ -451,8 +451,12 @@ trait ConnectionTrait
      *
      * @throws ConnectionException
      */
-    public function columnExists(string $tableName, string $columnName): bool
+    public function columnExists(string $dbName, string $tableName, string $columnName): bool
     {
+        if (empty($dbName)) {
+            throw ConnectionException::columnExistsFailed('Database name must not be empty', $tableName, $columnName);
+        }
+
         if (empty($tableName)) {
             throw ConnectionException::columnExistsFailed('Table name must not be empty', $tableName, $columnName);
         }
@@ -472,7 +476,7 @@ trait ConnectionTrait
             $queryParameters = QueryParameters::create([
                 QueryParameter::string('tableName', $tableName),
                 QueryParameter::string('columnName', $columnName),
-                QueryParameter::string('dbName', $this->getConnectionConfig()->getDatabaseNameConfiguration()),
+                QueryParameter::string('dbName', $dbName),
             ]);
 
             $entry = $this->fetchOne($query, $queryParameters);
