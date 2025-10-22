@@ -16,8 +16,10 @@ const useStyles = makeStyles()((theme) => ({
     whiteSpace: 'nowrap'
   },
   resourceNameText: {
-    color: theme.palette.text.secondary,
     paddingLeft: theme.spacing(0.5)
+  },
+  statusChip: {
+    marginRight: theme.spacing(0.5)
   }
 }));
 
