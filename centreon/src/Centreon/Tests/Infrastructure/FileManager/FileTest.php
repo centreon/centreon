@@ -13,8 +13,8 @@ class FileTest extends TestCase
             'name' => 'A.txt',
             'type' => 'B',
             'tmp_name' => 'C',
-            'error' => 'D',
-            'size' => 'E',
+            'error' => 0,
+            'size' => 10,
         ];
 
         $entity = new File($data);
