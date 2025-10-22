@@ -126,8 +126,7 @@ jobs:
         id: get_changed_files
         uses: tj-actions/changed-files@ed68ef82c095e0d48ec87eccea555d944a631a4c # v46.0.5
         with:
-          # base_sha: ${{ github.event_name == 'pull_request' && ' ' || inputs.base_sha }}
-          base_sha: ${{ inputs.base_sha }}
+          base_sha: ${{ github.event_name == 'pull_request' && ' ' || inputs.base_sha }}
           files_yaml: |
             frontend_production:
             ${{ steps.inline_inputs.outputs.frontend_production_paths }}

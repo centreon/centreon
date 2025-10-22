@@ -8,11 +8,10 @@ on:
   workflow_dispatch:
   pull_request:
     paths:
+      - ".github/workflows/awie.yml"
       - ".version"
       - ".version.centreon-awie"
       - "centreon-awie/**"
-      - "!centreon-awie/features/**"
-      - "!centreon-awie/behat.yml"
   push:
     branches:
       - develop
@@ -25,8 +24,6 @@ on:
       - ".version"
       - ".version.centreon-awie"
       - "centreon-awie/**"
-      - "!centreon-awie/features/**"
-      - "!centreon-awie/behat.yml"
     tags:
       - "centreon-awie-*"
 
@@ -103,6 +100,86 @@ jobs:
           has_frontend_changes: 'false'
           has_backend_changes: ${{ steps.filter.outputs.has_backend_changes || true }}
           has_test_changes: ${{ steps.filter.outputs.has_test_changes || true }}
+
+
+  changes:
+    if: |
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      needs.get-environment.outputs.stability != 'stable'
+    needs: [get-environment]
+    uses: ./.github/workflows/get-changes-triggers.yml
+    with:
+      backend_production_paths: |
+        ".version"
+        ".version.centreon-web"
+        "centreon/.env*"
+        "centreon/bootstrap.php"
+        "centreon/composer.*"
+        "centreon/container.php"
+        "centreon/symfony.lock"
+        "centreon/api/**"
+        "centreon/bin/**"
+        "centreon/config/**"
+        "centreon/config.new/**"
+        "centreon/cron/**"
+        "centreon/doc/API/**"
+        "centreon/GPL_LIB/**"
+        "centreon/lang/**"
+        "centreon/lib/**"
+        "centreon/libinstall/**"
+        "centreon/logrotate/**"
+        "centreon/lua/**"
+        "centreon/packaging/**"
+        "centreon/selinux/**"
+        "centreon/snmptrapd/**"
+        "centreon/src/**"
+        "centreon/tmpl/**"
+        "centreon/tools/**"
+        "centreon/varinstall/**"
+        "centreon/www/**"
+        "!centreon/www/front_src/**"
+      frontend_production_paths: |
+        "centreon/biome.json"
+        "centreon/package.json"
+        "centreon/pnpm*"
+        "centreon/rspack*"
+        "centreon/tsconfig.json"
+        "centreon/packages/ui/package.json"
+        "centreon/packages/ui/src/**"
+        "centreon/packages/ui-context/package.json"
+        "centreon/packages/ui-context/src/**"
+        "centreon/www/front_src/**"
+        "!centreon/**/cypress/**"
+        "!centreon/**/*.cypress.*"
+        "!centreon/**/__mocks__/**"
+      backend_test_paths: |
+        "centreon/.php-cs-fixer*"
+        "centreon/castor.php"
+        "centreon/codingstyle.xml"
+        "centreon/phpstan.*"
+        "centreon/phpunit*.xml"
+        "centreon/rector.*"
+        "centreon/tests/php/**"
+      frontend_test_paths: |
+        "centreon/cypress.config.ts"
+        "centreon/**/cypress/**"
+        "centreon/**/*.cypress.*"
+        "centreon/**/__mocks__/**"
+        "centreon/lighthouse/**"
+      api_test_paths: |
+        "centreon/tests/rest_api/**"
+      e2e_test_paths: |
+        "centreon/behat.yml"
+        "centreon/features/**"
+        "centreon/tests/clapi_export/**"
+        "centreon/tests/e2e/**"
+        "centreon/tests/performance/**"
+      upgrade_test_paths: |
+        "centreon/www/install/**"
+        "centreon/packaging/**"
+      is_nightly: ${{ needs.get-environment.outputs.is_nightly }}
+      base_sha: ${{ needs.get-environment.outputs.previous_release_bundle_tag }}
+      labels: ${{ needs.get-environment.outputs.labels }}
 
   backend-lint:
     runs-on: ubuntu-24.04
