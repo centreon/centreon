@@ -43,8 +43,19 @@ $errorMessage = '';
  *      - Add is_agent_initiated bool
  *      - Remove is_reverse bool
  */
-$alignCMAAgentConfigurationWithNewSchema = function () use ($pearDB, &$errorMessage): void {
+$alignCMAAgentConfigurationWithNewSchema = function () use ($pearDB, &$errorMessage, $version): void {
     $errorMessage = 'Unable to align agent configuration with new schema';
+
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: aligning agent configuration with new schema"
+    );
+
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: retrieving agent configurations from database..."
+    );
+
     $agentConfigurations = $pearDB->fetchAllAssociative(
         <<<'SQL'
             SELECT * FROM `agent_configuration`
@@ -52,8 +63,19 @@ $alignCMAAgentConfigurationWithNewSchema = function () use ($pearDB, &$errorMess
             SQL
     );
     if ($agentConfigurations === []) {
+        CentreonLog::create()->info(
+            logTypeId: CentreonLog::TYPE_UPGRADE,
+            message: "UPGRADE - {$version}: no agent configurations found, skipping"
+        );
+
         return;
     }
+
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: found " . count($agentConfigurations) . ' agent configurations, updating...'
+    );
+
     foreach ($agentConfigurations as $agentConfiguration) {
         $configuration = json_decode(
             json: $agentConfiguration['configuration'],
@@ -83,15 +105,45 @@ $alignCMAAgentConfigurationWithNewSchema = function () use ($pearDB, &$errorMess
             ])
         );
     }
+
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: agent configurations aligned successfully"
+    );
 };
 
-$cleanGlobalMacrosName = function () use ($pearDB, &$errorMessage): void {
-    $errorMessage = 'Failed to update cfg_resource table';
+$cleanGlobalMacrosName = function () use ($pearDB, &$errorMessage, $version): void {
+    $errorMessage = 'Failed to clean global macros name';
+
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: cleaning global macros name"
+    );
+
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: retrieving invalid macros from database..."
+    );
+
     $invalidMacros = $pearDB->fetchAllAssociative(
         <<<'SQL'
             SELECT resource_id, resource_name FROM cfg_resource
             WHERE resource_name NOT LIKE '\$%' OR resource_name NOT LIKE '%\$'
             SQL
+    );
+
+    if ($invalidMacros === []) {
+        CentreonLog::create()->info(
+            logTypeId: CentreonLog::TYPE_UPGRADE,
+            message: "UPGRADE - {$version}: no invalid macros found, skipping"
+        );
+
+        return;
+    }
+
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: found " . count($invalidMacros) . ' invalid macros, updating...'
     );
 
     foreach ($invalidMacros as $macro) {
@@ -114,77 +166,190 @@ $cleanGlobalMacrosName = function () use ($pearDB, &$errorMessage): void {
             ])
         );
     }
+
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: global macros name cleaned successfully"
+    );
 };
 
-$fixTypoInStandardMacroName = function () use ($pearDB, &$errorMessage): void {
+$fixTypoInStandardMacroName = function () use ($pearDB, &$errorMessage, $version): void {
     $errorMessage = 'Failed to fix typo in standard macro name';
-    $pearDB->update(
+
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: fixing typo in standard macro name..."
+    );
+
+    $nbUpdate = $pearDB->update(
         <<<'SQL'
                 UPDATE nagios_macro SET macro_name = '$TOTALHOSTSUNREACHABLEUNHANDLED$' WHERE macro_id = 65
             SQL
     );
+
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: {$nbUpdate} typo in standard macro name fixed successfully"
+    );
 };
 
 /** -------------------------------------- Broker configuration -------------------------------------- */
-$fixBrokerConfigTypo = function () use ($pearDB, &$errorMessage): void {
+$fixBrokerConfigTypo = function () use ($pearDB, &$errorMessage, $version): void {
     $errorMessage = 'Failed to fix typo in broker configuration';
-    $pearDB->executeStatement(
+
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: fixing typo in broker configuration..."
+    );
+
+    $nbUpdate = $pearDB->executeStatement(
         <<<'SQL'
             UPDATE cfg_centreonbroker_info SET config_key = 'negotiation' WHERE config_key = 'negociation'
             SQL
     );
+
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: {$nbUpdate} typo in broker configuration fixed successfully"
+    );
 };
 
 /** -------------------------------------- Engine Configuration updates -------------------------------------- */
-$addOpentelemetryLogLevelColumn = function () use ($pearDB, &$errorMessage): void {
+$addOpentelemetryLogLevelColumn = function () use ($pearDB, &$errorMessage, $version): void {
     $errorMessage = 'Failed to add log_level_otl column to cfg_nagios_logger table';
-    if (! $pearDB->isColumnExist('cfg_nagios_logger', 'log_level_otl')) {
+
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: adding log_level_otl column to cfg_nagios_logger table..."
+    );
+
+    if (! $pearDB->columnExists('cfg_nagios_logger', 'log_level_otl')) {
+        CentreonLog::create()->info(
+            logTypeId: CentreonLog::TYPE_UPGRADE,
+            message: "UPGRADE - {$version}: log_level_otl column does not exist, adding it..."
+        );
+
         $pearDB->executeStatement(
             <<<'SQL'
                 ALTER TABLE `cfg_nagios_logger`
                 ADD COLUMN `log_level_otl` enum('trace', 'debug', 'info', 'warning', 'err', 'critical', 'off') DEFAULT 'err'
                 SQL
         );
+
+        CentreonLog::create()->info(
+            logTypeId: CentreonLog::TYPE_UPGRADE,
+            message: "UPGRADE - {$version}: log_level_otl column added successfully"
+        );
     }
+
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: log_level_otl column already exists, skipping"
+    );
 };
 
 /** -------------------------------------------- BBDO cfg update -------------------------------------------- */
-$bbdoDefaultUpdate = function () use ($pearDB, &$errorMessage): void {
-    if ($pearDB->isColumnExist('cfg_centreonbroker', 'bbdo_version')) {
-        $errorMessage = "Unable to update 'bbdo_version' column to 'cfg_centreonbroker' table";
+$bbdoDefaultUpdate = function () use ($pearDB, &$errorMessage, $version): void {
+    $errorMessage = "Unable to update 'bbdo_version' column to 'cfg_centreonbroker' table";
+
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: updating 'bbdo_version' column to 'cfg_centreonbroker' table"
+    );
+
+    if ($pearDB->columnExists('cfg_centreonbroker', 'bbdo_version')) {
+
+        CentreonLog::create()->info(
+            logTypeId: CentreonLog::TYPE_UPGRADE,
+            message: "UPGRADE - {$version}: 'bbdo_version' column exists, modifying it..."
+        );
+
         $pearDB->executeStatement('ALTER TABLE `cfg_centreonbroker` MODIFY `bbdo_version` VARCHAR(50) DEFAULT "3.0.1"');
+
+        CentreonLog::create()->info(
+            logTypeId: CentreonLog::TYPE_UPGRADE,
+            message: "UPGRADE - {$version}: 'bbdo_version' column modified successfully"
+        );
+
+    } else {
+        CentreonLog::create()->info(
+            logTypeId: CentreonLog::TYPE_UPGRADE,
+            message: "UPGRADE - {$version}: 'bbdo_version' column does not exist, skipping"
+        );
     }
 };
 
-$bbdoCfgUpdate = function () use ($pearDB, &$errorMessage): void {
+$bbdoCfgUpdate = function () use ($pearDB, &$errorMessage, $version): void {
     $errorMessage = "Unable to update 'bbdo_version' version in 'cfg_centreonbroker' table";
+
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: updating 'bbdo_version' version in 'cfg_centreonbroker' table"
+    );
+
     $pearDB->executeStatement('UPDATE `cfg_centreonbroker` SET `bbdo_version` = "3.0.1"');
+
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: 'bbdo_version' version updated successfully"
+    );
 };
 
-/** -------------------------------------------- Password encryption -------------------------------------------- */
+// -------------------------------------------- Password encryption --------------------------------------------
+
 $addIsEncryptionReadyAsBooleanColumn = function () use ($pearDB, $pearDBO, &$errorMessage, $version): void {
     $errorMessage = "Unable to update 'is_encryption_ready' column to boolean type";
+
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: updating 'is_encryption_ready' column to boolean type"
+    );
+
     if (
-        $pearDB->isColumnExist('nagios_server', 'is_encryption_ready')
-        && $pearDB->isColumnExist('nagios_server', 'is_encryption_ready_old') !== 1
+        $pearDB->columnExists('nagios_server', 'is_encryption_ready')
+        && ! $pearDB->columnExists('nagios_server', 'is_encryption_ready_old')
     ) {
         CentreonLog::create()->info(
             logTypeId: CentreonLog::TYPE_UPGRADE,
-            message: "UPGRADE - {$version}: Renaming column 'is_encryption_ready' on 'nagios_server' table",
+            message: "UPGRADE - {$version}: [DB Configuration] Renaming column 'is_encryption_ready' on 'nagios_server' table",
         );
+
         $pearDB->executeStatement('ALTER TABLE `nagios_server` RENAME COLUMN `is_encryption_ready` TO `is_encryption_ready_old`');
-    }
-    if ($pearDB->isColumnExist('nagios_server', 'is_encryption_ready') !== 1) {
+
         CentreonLog::create()->info(
             logTypeId: CentreonLog::TYPE_UPGRADE,
-            message: "UPGRADE - {$version}: Adding column 'is_encryption_ready' of type boolean on 'nagios_server' table",
+            message: "UPGRADE - {$version}: [DB Configuration] Column 'is_encryption_ready' renamed successfully on 'nagios_server' table",
         );
-        $pearDB->executeStatement('ALTER TABLE `nagios_server` ADD COLUMN `is_encryption_ready` BOOLEAN NOT NULL DEFAULT 1');
-    }
-    if ($pearDB->isColumnExist('nagios_server', 'is_encryption_ready_old')) {
+    } else {
         CentreonLog::create()->info(
             logTypeId: CentreonLog::TYPE_UPGRADE,
-            message: "UPGRADE - {$version}: Moving 'is_encryption_ready' value of existing pollers on 'nagios_server' table",
+            message: "UPGRADE - {$version}: [DB Configuration] Column 'is_encryption_ready' already renamed on 'nagios_server' table, skipping",
+        );
+    }
+
+    if (! $pearDB->columnExists('nagios_server', 'is_encryption_ready')) {
+        CentreonLog::create()->info(
+            logTypeId: CentreonLog::TYPE_UPGRADE,
+            message: "UPGRADE - {$version}: [DB Configuration] Adding column 'is_encryption_ready' of type boolean on 'nagios_server' table",
+        );
+
+        $pearDB->executeStatement('ALTER TABLE `nagios_server` ADD COLUMN `is_encryption_ready` BOOLEAN NOT NULL DEFAULT 1');
+
+        CentreonLog::create()->info(
+            logTypeId: CentreonLog::TYPE_UPGRADE,
+            message: "UPGRADE - {$version}: [DB Configuration] Column 'is_encryption_ready' added successfully on 'nagios_server' table",
+        );
+    } else {
+        CentreonLog::create()->info(
+            logTypeId: CentreonLog::TYPE_UPGRADE,
+            message: "UPGRADE - {$version}: [DB Configuration] Column 'is_encryption_ready' already exists on 'nagios_server' table, skipping",
+        );
+    }
+
+    if ($pearDB->columnExists('nagios_server', 'is_encryption_ready_old')) {
+        CentreonLog::create()->info(
+            logTypeId: CentreonLog::TYPE_UPGRADE,
+            message: "UPGRADE - {$version}: [DB Configuration] Moving 'is_encryption_ready' value of existing pollers on 'nagios_server' table",
         );
 
         $pearDB->executeStatement(
@@ -197,33 +362,74 @@ $addIsEncryptionReadyAsBooleanColumn = function () use ($pearDB, $pearDBO, &$err
 
         CentreonLog::create()->info(
             logTypeId: CentreonLog::TYPE_UPGRADE,
-            message: "UPGRADE - {$version}: Dropping column 'is_encryption_ready_old' on 'nagios_server' table",
+            message: "UPGRADE - {$version}: [DB Configuration] 'is_encryption_ready' values moved successfully on 'nagios_server' table",
         );
+
+        CentreonLog::create()->info(
+            logTypeId: CentreonLog::TYPE_UPGRADE,
+            message: "UPGRADE - {$version}: [DB Configuration] Dropping column 'is_encryption_ready_old' on 'nagios_server' table",
+        );
+
         $pearDB->executeStatement('ALTER TABLE `nagios_server` DROP COLUMN `is_encryption_ready_old`');
+
+        CentreonLog::create()->info(
+            logTypeId: CentreonLog::TYPE_UPGRADE,
+            message: "UPGRADE - {$version}: [DB Configuration] Column 'is_encryption_ready_old' dropped successfully on 'nagios_server' table",
+        );
+    } else {
+        CentreonLog::create()->info(
+            logTypeId: CentreonLog::TYPE_UPGRADE,
+            message: "UPGRADE - {$version}: [DB Configuration] Column 'is_encryption_ready_old' does not exist on 'nagios_server' table, skipping",
+        );
     }
 
     if (
-        $pearDBO->isColumnExist('instances', 'is_encryption_ready')
-        && $pearDBO->isColumnExist('instances', 'is_encryption_ready_old') !== 1
+        $pearDBO->columnExists('instances', 'is_encryption_ready')
+        && ! $pearDBO->columnExists('instances', 'is_encryption_ready_old')
     ) {
         CentreonLog::create()->info(
             logTypeId: CentreonLog::TYPE_UPGRADE,
-            message: "UPGRADE - {$version}: Moving 'is_encryption_ready' value of existing pollers on 'instances' table",
+            message: "UPGRADE - {$version}: [DB Realtime] Moving 'is_encryption_ready' value of existing pollers on 'instances' table",
         );
+
         $pearDBO->executeStatement('ALTER TABLE `instances` RENAME COLUMN `is_encryption_ready` TO `is_encryption_ready_old`');
-    }
-    if ($pearDBO->isColumnExist('instances', 'is_encryption_ready') !== 1) {
+
         CentreonLog::create()->info(
             logTypeId: CentreonLog::TYPE_UPGRADE,
-            message: "UPGRADE - {$version}: Adding column 'is_encryption_ready' of type boolean on 'instances' table",
+            message: "UPGRADE - {$version}: [DB Realtime] Column 'is_encryption_ready' renamed successfully on 'instances' table",
         );
+    } else {
+        CentreonLog::create()->info(
+            logTypeId: CentreonLog::TYPE_UPGRADE,
+            message: "UPGRADE - {$version}: [DB Realtime] Column 'is_encryption_ready' already renamed on 'instances' table, skipping",
+        );
+    }
+
+    if (! $pearDBO->columnExists('instances', 'is_encryption_ready')) {
+        CentreonLog::create()->info(
+            logTypeId: CentreonLog::TYPE_UPGRADE,
+            message: "UPGRADE - {$version}: [DB Realtime] Adding column 'is_encryption_ready' of type boolean on 'instances' table",
+        );
+
         $pearDBO->executeStatement('ALTER TABLE `instances` ADD COLUMN `is_encryption_ready` BOOLEAN NOT NULL DEFAULT 0');
-    }
-    if ($pearDBO->isColumnExist('instances', 'is_encryption_ready_old')) {
+
         CentreonLog::create()->info(
             logTypeId: CentreonLog::TYPE_UPGRADE,
-            message: "UPGRADE - {$version}: Moving 'is_encryption_ready' value of existing pollers on 'instances' table",
+            message: "UPGRADE - {$version}: [DB Realtime] Column 'is_encryption_ready' added successfully on 'instances' table",
         );
+    } else {
+        CentreonLog::create()->info(
+            logTypeId: CentreonLog::TYPE_UPGRADE,
+            message: "UPGRADE - {$version}: [DB Realtime] Column 'is_encryption_ready' already exists on 'instances' table, skipping",
+        );
+    }
+
+    if ($pearDBO->columnExists('instances', 'is_encryption_ready_old')) {
+        CentreonLog::create()->info(
+            logTypeId: CentreonLog::TYPE_UPGRADE,
+            message: "UPGRADE - {$version}: [DB Realtime] Moving 'is_encryption_ready' value of existing pollers on 'instances' table",
+        );
+
         $pearDBO->executeStatement(
             <<<'SQL'
                 UPDATE instances ins
@@ -234,9 +440,25 @@ $addIsEncryptionReadyAsBooleanColumn = function () use ($pearDB, $pearDBO, &$err
 
         CentreonLog::create()->info(
             logTypeId: CentreonLog::TYPE_UPGRADE,
-            message: "UPGRADE - {$version}: Dropping column 'is_encryption_ready_old' on 'instances' table",
+            message: "UPGRADE - {$version}: [DB Realtime] 'is_encryption_ready' values moved successfully on 'instances' table",
         );
+
+        CentreonLog::create()->info(
+            logTypeId: CentreonLog::TYPE_UPGRADE,
+            message: "UPGRADE - {$version}: [DB Realtime] Dropping column 'is_encryption_ready_old' on 'instances' table",
+        );
+
         $pearDBO->executeStatement('ALTER TABLE `instances` DROP COLUMN `is_encryption_ready_old`');
+
+        CentreonLog::create()->info(
+            logTypeId: CentreonLog::TYPE_UPGRADE,
+            message: "UPGRADE - {$version}: [DB Realtime] Column 'is_encryption_ready_old' dropped successfully on 'instances' table",
+        );
+    } else {
+        CentreonLog::create()->info(
+            logTypeId: CentreonLog::TYPE_UPGRADE,
+            message: "UPGRADE - {$version}: [DB Realtime] Column 'is_encryption_ready_old' does not exist on 'instances' table, skipping",
+        );
     }
 };
 

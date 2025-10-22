@@ -34,6 +34,8 @@ use Adaptation\Database\ExpressionBuilder\ExpressionBuilderInterface;
 use Adaptation\Database\QueryBuilder\Adapter\Dbal\DbalQueryBuilderAdapter;
 use Adaptation\Database\QueryBuilder\Exception\QueryBuilderException;
 use Adaptation\Database\QueryBuilder\QueryBuilderInterface;
+use Core\Common\Domain\Exception\CollectionException;
+use Core\Common\Domain\Exception\ValueObjectException;
 
 /**
  * Trait.
@@ -442,7 +444,52 @@ trait ConnectionTrait
         }
     }
 
+    // --------------------------------------- DDL TOOLS -----------------------------------------------
+
+    /**
+     * Check if a column exists in a table.
+     *
+     * @throws ConnectionException
+     */
+    public function columnExists(string $tableName, string $columnName): bool
+    {
+        if (empty($tableName)) {
+            throw ConnectionException::columnExistsFailed('Table name must not be empty', $tableName, $columnName);
+        }
+
+        if (empty($columnName)) {
+            throw ConnectionException::columnExistsFailed('Column name must not be empty', $tableName, $columnName);
+        }
+
+        $query = <<<'SQL'
+                SELECT COUNT(*) FROM information_schema.COLUMNS
+                WHERE TABLE_NAME = :tableName 
+                  AND COLUMN_NAME = :columnName
+                  AND TABLE_SCHEMA = :dbName
+                SQL;
+
+        try {
+            $queryParameters = QueryParameters::create([
+                QueryParameter::string('tableName', $tableName),
+                QueryParameter::string('columnName', $columnName),
+                QueryParameter::string('dbName', $this->getConnectionConfig()->getDatabaseNameConfiguration()),
+            ]);
+
+            $entry = $this->fetchOne($query, $queryParameters);
+
+            return $entry !== false && (int) $entry > 0;
+        } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
+            throw ConnectionException::columnExistsFailed(
+                message: 'Failed to query column existence',
+                tableName: $tableName,
+                columnName: $columnName,
+                previous: $exception
+            );
+        }
+    }
+
     // ----------------------------------------- PROTECTED METHODS -----------------------------------------
+
     abstract protected function writeDbLog(
         string $message,
         array $customContext = [],
@@ -451,6 +498,7 @@ trait ConnectionTrait
     ): void;
 
     // ----------------------------------------- PRIVATE METHODS -----------------------------------------
+
     /**
      * @throws ConnectionException
      */

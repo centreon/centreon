@@ -1573,6 +1573,32 @@ if ($dbConfigCentreon instanceof ConnectionConfig && hasConnectionDb($dbConfigCe
         }
     )->throws(ConnectionException::class);
 
+    // --------------------------------------- DDL TOOLS -----------------------------------------------
+
+    it('check if a column exists with success', function () use ($dbConfigCentreon): void {
+        $db = DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);
+        $exists = $db->columnExists(
+            tableName: 'contact',
+            columnName: 'contact_id'
+        );
+        expect($exists)->toBeTrue();
+    });
+
+    it('check if a non-existent column with success', function () use ($dbConfigCentreon): void {
+        $db = DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);
+        $exists = $db->columnExists(
+            tableName: 'contact',
+            columnName: 'dummy_column'
+        );
+        expect($exists)->toBeFalse();
+    });
+
+    it('check if a column exists with errors must to throw an exception', function () use ($dbConfigCentreon): void {
+        $db = DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);
+        expect(fn() => $db->columnExists(tableName: '', columnName: 'contact_id'))->toThrow(ConnectionException::class)
+            ->and(fn() => $db->columnExists(tableName: 'contact', columnName: ''))->toThrow(ConnectionException::class);
+    });
+
     // ----------------------------------- QUERY ON SEVERAL DATABASES -------------------------------------
 
     it(
