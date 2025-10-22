@@ -33,6 +33,9 @@ export type Props = {
   error?: string;
   getOptionItemLabel?: (option) => string;
   hideInput?: boolean;
+  renderOption?:(renderProps: any, option: any, { selected }: {
+    selected: any;
+}) => JSX.Element
   label: string;
   loading?: boolean;
   onTextChange?;
@@ -90,6 +93,7 @@ const AutocompleteField = forwardRef(
       forceInputRenderValue = false,
       textFieldSlotsAndSlotProps,
       autocompleteSlotsAndSlotProps,
+      renderOption,
       ...autocompleteProps
     }: Props,
     ref?: ForwardedRef<HTMLDivElement>
@@ -106,6 +110,21 @@ const AutocompleteField = forwardRef(
         pick(identifyingProps, value)
       );
     };
+
+    const renderOptions = renderOption ? renderOption : (props, option): JSX.Element => {
+      return (
+        <li
+          className={classes.options}
+          {...(props as HTMLAttributes<HTMLLIElement>)}
+        >
+          <Option
+            thumbnailUrl={displayOptionThumbnail ? option.url : undefined}
+          >
+            {getOptionItemLabel(option)}
+          </Option>
+        </li>
+      );
+    }
 
     const renderInput = (params): JSX.Element => {
       return (
@@ -202,20 +221,7 @@ const AutocompleteField = forwardRef(
         options={options}
         ref={ref}
         renderInput={renderInput}
-        renderOption={(props, option): JSX.Element => {
-          return (
-            <li
-              className={classes.options}
-              {...(props as HTMLAttributes<HTMLLIElement>)}
-            >
-              <Option
-                thumbnailUrl={displayOptionThumbnail ? option.url : undefined}
-              >
-                {getOptionItemLabel(option)}
-              </Option>
-            </li>
-          );
-        }}
+        renderOption={renderOptions}
         size="small"
         slotProps={{
           ...autocompleteSlotsAndSlotProps?.slotProps,

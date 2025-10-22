@@ -3,9 +3,6 @@ import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { equals, includes, isNil } from 'ramda';
 
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import { ListItemText, MenuItem } from '@mui/material';
-
 import { SelectEntry, buildListingEndpoint } from '../../../..';
 import {
   accessRightIdsDerivedAtom,
@@ -20,7 +17,6 @@ interface UseShareInputState {
   getEndpoint: (parameters) => string;
   getOptionDisabled: (option) => boolean;
   isContactGroup: boolean;
-  renderOption: (attr, option) => JSX.Element;
   selectContact: (_, entry) => void;
   selectedContact: AccessRightInitialValues | null;
   selectedRole: string;
@@ -71,17 +67,6 @@ const useShareInput = (endpoints: Endpoints): UseShareInputState => {
       }
     });
 
-  const renderOption = (attr, option): JSX.Element => {
-    return (
-      <MenuItem {...attr}>
-        <ListItemText>{option.name}</ListItemText>
-        {includes(option.id, accessRightIds) && (
-          <CheckCircleIcon color="success" />
-        )}
-      </MenuItem>
-    );
-  };
-
   const getOptionDisabled = (option): boolean => {
     return includes(option.id, accessRightIds);
   };
@@ -102,7 +87,6 @@ const useShareInput = (endpoints: Endpoints): UseShareInputState => {
     getEndpoint,
     getOptionDisabled,
     isContactGroup,
-    renderOption,
     selectContact,
     selectedContact,
     selectedRole,

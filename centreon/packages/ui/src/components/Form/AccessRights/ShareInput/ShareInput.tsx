@@ -23,7 +23,6 @@ const ShareInput = ({ labels, endpoints, roles }: Props): JSX.Element => {
   const { classes } = useShareInputStyles();
 
   const {
-    renderOption,
     selectedContact,
     getOptionDisabled,
     getEndpoint,
@@ -53,7 +52,6 @@ const ShareInput = ({ labels, endpoints, roles }: Props): JSX.Element => {
               : t(labels.autocompleteContact)
           )}
           queryKey={isContactGroup ? labels.contactGroup : labels.contact}
-          renderOption={renderOption}
           value={selectedContact}
           onChange={selectContact}
         />

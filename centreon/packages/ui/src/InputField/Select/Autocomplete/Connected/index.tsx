@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { JSX, useCallback, useEffect, useState } from 'react';
 
 import {
   equals,
@@ -44,7 +44,7 @@ export interface ConnectedAutoCompleteFieldProps<TData> {
   field: string;
   getEndpoint: ({ search, page }) => string;
   decoder?;
-  getRenderedOptionText: (option: TData) => string;
+  getRenderedOptionText: (option: TData) => JSX.Element;
   getRequestHeaders?: HeadersInit;
   initialPage: number;
   labelKey?: string;
