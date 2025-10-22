@@ -221,18 +221,7 @@ class Centreon_Object_Contact extends Centreon_Object
 
         if (isset($password, $contactId)) {
             $contact = new CentreonContact($this->db);
-            try {
-                $contact->renewPasswordByContactId($contactId, $password);
-            } catch (PDOException $e) {
-                LoggerPassword::create()->warning(
-                    reason: 'password update failed',
-                    initiatorId: -1, // FIXME How to get initiator id here?
-                    targetId: (int) $contactId,
-                    exception: $e
-                );
-
-                throw $e;
-            }
+            $contact->renewPasswordByContactId($contactId, $password);
         }
     }
 }
