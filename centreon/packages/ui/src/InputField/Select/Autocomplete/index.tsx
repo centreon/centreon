@@ -33,9 +33,15 @@ export type Props = {
   error?: string;
   getOptionItemLabel?: (option) => string;
   hideInput?: boolean;
-  renderOption?:(renderProps: any, option: any, { selected }: {
-    selected: any;
-}) => JSX.Element
+  renderOption?: (
+    renderProps: any,
+    option: any,
+    {
+      selected
+    }: {
+      selected: any;
+    }
+  ) => JSX.Element;
   label: string;
   loading?: boolean;
   onTextChange?;
@@ -111,20 +117,22 @@ const AutocompleteField = forwardRef(
       );
     };
 
-    const renderOptions = renderOption ? renderOption : (props, option): JSX.Element => {
-      return (
-        <li
-          className={classes.options}
-          {...(props as HTMLAttributes<HTMLLIElement>)}
-        >
-          <Option
-            thumbnailUrl={displayOptionThumbnail ? option.url : undefined}
-          >
-            {getOptionItemLabel(option)}
-          </Option>
-        </li>
-      );
-    }
+    const renderOptions = renderOption
+      ? renderOption
+      : (props, option): JSX.Element => {
+          return (
+            <li
+              className={classes.options}
+              {...(props as HTMLAttributes<HTMLLIElement>)}
+            >
+              <Option
+                thumbnailUrl={displayOptionThumbnail ? option.url : undefined}
+              >
+                {getOptionItemLabel(option)}
+              </Option>
+            </li>
+          );
+        };
 
     const renderInput = (params): JSX.Element => {
       return (
