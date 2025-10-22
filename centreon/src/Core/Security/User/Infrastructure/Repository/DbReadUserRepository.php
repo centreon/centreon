@@ -47,24 +47,16 @@ class DbReadUserRepository extends DatabaseRepository implements ReadUserReposit
                     'c.contact_alias',
                     'c.contact_id',
                     'c.login_attempts',
-                    'c.blocking_time',
-                    'cp.password',
-                    'cp.creation_date'
+                    'c.blocking_time'
                 )
                 ->from('contact', 'c')
-                ->innerJoin('c', 'contact_password', 'cp', 'c.contact_id = cp.contact_id')
                 ->where('c.contact_alias = :alias')
-                ->orderBy('cp.creation_date', 'ASC')
                 ->getQuery();
 
             $entry = $this->connection->fetchAssociative(
                 $query,
                 QueryParameters::create([QueryParameter::string('alias', $alias)])
             );
-
-            if ($entry === false) {
-                return null;
-            }
         } catch (QueryBuilderException|ValueObjectException|CollectionException|ConnectionException $e) {
             throw new RepositoryException(
                 message: 'Could not fetch user from database: ' . $e->getMessage(),
@@ -72,6 +64,36 @@ class DbReadUserRepository extends DatabaseRepository implements ReadUserReposit
                 previous: $e
             );
         }
+
+        if ($entry === false || $entry === []) {
+            return null;
+        }
+
+        try {
+            $passwordQuery = $this->connection->createQueryBuilder()
+                ->select('cp.password', 'cp.creation_date')
+                ->from('contact_password', 'cp')
+                ->where('cp.contact_id = :contact_id')
+                ->orderBy('cp.creation_date', 'ASC')
+                ->getQuery();
+
+            $passwordEntries = $this->connection->fetchAllAssociative(
+                $passwordQuery,
+                QueryParameters::create([QueryParameter::int('contact_id', (int) $entry['contact_id'])])
+            );
+        } catch (QueryBuilderException|ValueObjectException|CollectionException|ConnectionException $e) {
+            throw new RepositoryException(
+                message: 'Could not fetch user passwords from database: ' . $e->getMessage(),
+                context: ['alias' => $alias, 'contact_id' => $entry['contact_id']],
+                previous: $e
+            );
+        }
+
+        if ($passwordEntries === []) {
+            return null;
+        }
+
+        $entry['passwords'] = $passwordEntries;
 
         try {
             return (new DbUserTransformer())->transform($entry);

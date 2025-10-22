@@ -44,30 +44,31 @@ class DbUserTransformer implements TransformerInterface
             throw new \InvalidArgumentException('Cannot transform empty record to User');
         }
 
-        $userInfos = [
-            'passwords' => [],
-        ];
-        $userInfos['contact_id'] = (int) $from['contact_id'];
-        $userInfos['contact_alias'] = $from['contact_alias'];
-        $userInfos['login_attempts'] = isset($from['login_attempts'])
-            ? (int) $from['login_attempts']
-            : null;
-        $userInfos['blocking_time'] = isset($from['blocking_time'])
+        if (! isset($from['passwords']) || ! is_array($from['passwords']) || $from['passwords'] === []) {
+            throw new \InvalidArgumentException('Cannot transform record to User without passwords');
+        }
+
+        $loginAttempts = isset($from['login_attempts']) ? (int) $from['login_attempts'] : null;
+        $blockingTime = isset($from['blocking_time'])
             ? (new \DateTimeImmutable())->setTimestamp((int) $from['blocking_time'])
             : null;
-        $userInfos['passwords'][] = new UserPassword(
-            (int) $from['contact_id'],
-            $from['password'],
-            (new \DateTimeImmutable())->setTimestamp((int) $from['creation_date']),
-        );
+
+        $passwords = [];
+        foreach ($from['passwords'] as $password) {
+            $passwords[] = new UserPassword(
+                (int) $from['contact_id'],
+                $password['password'],
+                (new \DateTimeImmutable())->setTimestamp((int) $password['creation_date']),
+            );
+        }
 
         return new User(
-            $userInfos['contact_id'],
-            $userInfos['contact_alias'],
-            $userInfos['passwords'],
-            end($userInfos['passwords']),
-            $userInfos['login_attempts'],
-            $userInfos['blocking_time'],
+            (int) $from['contact_id'],
+            $from['contact_alias'],
+            $passwords,
+            end($passwords),
+            $loginAttempts,
+            $blockingTime,
         );
     }
 }
