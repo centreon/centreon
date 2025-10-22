@@ -30,9 +30,10 @@ use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Entity\EntityCreator;
 use Centreon\Domain\Entity\EntityValidator;
 use Centreon\Domain\Exception\EntityNotFoundException;
-use Centreon\Domain\RequestParameters\{
-    Interfaces\RequestParametersInterface, RequestParameters, RequestParametersException
-};
+use Centreon\Domain\RequestParameters\{Interfaces\RequestParametersInterface,
+    RequestParameters,
+    RequestParametersException};
+use Centreon\Domain\Service\I18nService;
 use Centreon\Domain\VersionHelper;
 use Core\Common\Domain\Exception\RepositoryException;
 use Core\Common\Infrastructure\ExceptionLogger\ExceptionLogger;
@@ -40,7 +41,6 @@ use JMS\Serializer\Exception\ValidationFailedException;
 use Psr\Log\LogLevel;
 use Symfony\Component\DependencyInjection\Exception\InvalidArgumentException;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\{
     ExceptionEvent, RequestEvent, ResponseEvent
@@ -393,36 +393,17 @@ class CentreonEventSubscriber implements EventSubscriberInterface
         if ($user === null) {
             return;
         }
-        
+
         $request = $event->getRequest();
         if ($user->getLang() === 'browser') {
-            $locale = $this->guessLocale($request);
+            $locale = I18nService::guessLocaleFromRequest($request);
             $user->setLocale($locale);
         }
 
         EntityCreator::setContact($user);
-        
+
         $this->initLanguage($user);
         $this->initGlobalContact($user);
-    }
-
-    /**
-     * Guess the locale to use according to the provided Accept-Language header (sent by browser or http client).
-     * 
-     * @todo improve this by moving the logic in a dedicated service
-     * @todo improve the array of supported locales by INJECTING them instead
-     *
-     * @param Request $request
-     */
-    private function guessLocale(Request $request): string
-    {
-        $preferredLanguage = $request->getPreferredLanguage(['fr-FR', 'en-US', 'es-ES', 'pr-BR', 'pt-PT', 'de-DE']);
-        
-        // Reformating is necessary as the standard format uses "-" and we decided to store "_"
-        $locale = $preferredLanguage ? str_replace('-', '_', $preferredLanguage): 'en_US';
-
-        // Also Safari has its own format "fr-fr" instead of "fr-FR" hence the strtoupper
-        return substr($locale, 0, -2) . strtoupper(substr($locale, -2));
     }
 
     /**

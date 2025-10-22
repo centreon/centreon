@@ -42,7 +42,8 @@ const useInitializeTranslation = (): UseInitializeTranslationState => {
             mergeAll([acc, { [language]: { translation: values } }]),
           {}
         )
-      )(retrievedTranslations) as Resource
+      )(retrievedTranslations) as Resource,
+      returnEmptyString: false
     });
   };
 
