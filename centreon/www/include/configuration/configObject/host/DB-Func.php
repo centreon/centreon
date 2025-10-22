@@ -3334,6 +3334,6 @@ function validateParentChildAreNotCircular(array $fields): array|true
     $hostNames = $statement->fetchAll(PDO::FETCH_COLUMN);
 
     return [
-        'host_parents' => sprintf('Circular reference detected with host children : %s', implode(', ', $hostNames)),
+        'host_parents' => sprintf(_('Circular reference detected with host children : %s'), implode(', ', $hostNames)),
     ];
 }
