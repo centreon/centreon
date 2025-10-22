@@ -1595,8 +1595,8 @@ if ($dbConfigCentreon instanceof ConnectionConfig && hasConnectionDb($dbConfigCe
 
     it('check if a column exists with errors must to throw an exception', function () use ($dbConfigCentreon): void {
         $db = DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);
-        expect(fn() => $db->columnExists(tableName: '', columnName: 'contact_id'))->toThrow(ConnectionException::class)
-            ->and(fn() => $db->columnExists(tableName: 'contact', columnName: ''))->toThrow(ConnectionException::class);
+        expect(fn (): bool => $db->columnExists(tableName: '', columnName: 'contact_id'))->toThrow(ConnectionException::class)
+            ->and(fn (): bool => $db->columnExists(tableName: 'contact', columnName: ''))->toThrow(ConnectionException::class);
     });
 
     // ----------------------------------- QUERY ON SEVERAL DATABASES -------------------------------------

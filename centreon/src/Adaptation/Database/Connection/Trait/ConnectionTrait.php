@@ -462,11 +462,11 @@ trait ConnectionTrait
         }
 
         $query = <<<'SQL'
-                SELECT COUNT(*) FROM information_schema.COLUMNS
-                WHERE TABLE_NAME = :tableName 
-                  AND COLUMN_NAME = :columnName
-                  AND TABLE_SCHEMA = :dbName
-                SQL;
+            SELECT COUNT(*) FROM information_schema.COLUMNS
+            WHERE TABLE_NAME = :tableName
+              AND COLUMN_NAME = :columnName
+              AND TABLE_SCHEMA = :dbName
+            SQL;
 
         try {
             $queryParameters = QueryParameters::create([
@@ -477,7 +477,7 @@ trait ConnectionTrait
 
             $entry = $this->fetchOne($query, $queryParameters);
 
-            return $entry !== false && (int) $entry > 0;
+            return is_numeric($entry) && (int) $entry > 0;
         } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
             throw ConnectionException::columnExistsFailed(
                 message: 'Failed to query column existence',

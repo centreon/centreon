@@ -1574,8 +1574,8 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
 
     it('check if a column exists with errors must to throw an exception', function () use ($dbConfigCentreon): void {
         $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
-        expect(fn() => $db->columnExists(tableName: '', columnName: 'contact_id'))->toThrow(ConnectionException::class)
-            ->and(fn() => $db->columnExists(tableName: 'contact', columnName: ''))->toThrow(ConnectionException::class);
+        expect(fn () => $db->columnExists(tableName: '', columnName: 'contact_id'))->toThrow(ConnectionException::class)
+            ->and(fn () => $db->columnExists(tableName: 'contact', columnName: ''))->toThrow(ConnectionException::class);
     });
 
     // ---------------------------------------- BASE METHOD ----------------------------------------------
