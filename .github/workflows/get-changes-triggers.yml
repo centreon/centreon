@@ -96,6 +96,7 @@ jobs:
           FRONTEND_TEST_PATHS: ${{ inputs.frontend_test_paths }}
           API_TEST_PATHS: ${{ inputs.api_test_paths }}
           E2E_TEST_PATHS: ${{ inputs.e2e_test_paths }}
+          UPGRADE_TEST_PATHS: ${{ inputs.upgrade_test_paths }}
         with:
           script: |
             const paths = {
@@ -104,7 +105,8 @@ jobs:
               backend_test_paths: process.env.BACKEND_TEST_PATHS,
               frontend_test_paths: process.env.FRONTEND_TEST_PATHS,
               api_test_paths: process.env.API_TEST_PATHS,
-              e2e_test_paths: process.env.E2E_TEST_PATHS
+              e2e_test_paths: process.env.E2E_TEST_PATHS,
+              upgrade_test_paths: process.env.UPGRADE_TEST_PATHS,
             };
 
             for (const [key, value] of Object.entries(paths)) {
