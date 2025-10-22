@@ -240,12 +240,12 @@ $addOpentelemetryLogLevelColumn = function () use ($pearDB, &$errorMessage, $ver
             logTypeId: CentreonLog::TYPE_UPGRADE,
             message: "UPGRADE - {$version}: log_level_otl column added successfully"
         );
+    } else {
+        CentreonLog::create()->info(
+            logTypeId: CentreonLog::TYPE_UPGRADE,
+            message: "UPGRADE - {$version}: log_level_otl column already exists, skipping"
+        );
     }
-
-    CentreonLog::create()->info(
-        logTypeId: CentreonLog::TYPE_UPGRADE,
-        message: "UPGRADE - {$version}: log_level_otl column already exists, skipping"
-    );
 };
 
 /** -------------------------------------------- BBDO cfg update -------------------------------------------- */
