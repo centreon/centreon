@@ -3312,10 +3312,10 @@ function computeMacroValue(array $macroInformations, int $hostId, Kernel $kernel
  * Checks if any host is both a parent and a child, or if adding the specified parent-child
  * relationships would create a circular reference in the host hierarchy.
  *
- * @param array<string, mixed> $fields Associative array with 'host_parents' and 'host_childs' as arrays of host IDs.
+ * @param array<string, mixed> $fields associative array with 'host_parents' and 'host_childs' as arrays of host IDs
  *
- * @return array|true Returns an array on the form [form_field => error_message] if a circular reference is detected,
- * or true if validation passes.
+ * @return array|true returns an array on the form [form_field => error_message] if a circular reference is detected,
+ *                    or true if validation passes
  */
 function validateParentChildAreNotCircular(array $fields): array|true
 {
@@ -3331,7 +3331,7 @@ function validateParentChildAreNotCircular(array $fields): array|true
             $hostIds[':host' . $hostId] = $hostId;
         }
         $hostIdsAsString = implode(',', array_keys($hostIds));
-        $statement = $pearDB->query("SELECT host_name FROM host WHERE host_id IN ($hostIdsAsString)");
+        $statement = $pearDB->query("SELECT host_name FROM host WHERE host_id IN ({$hostIdsAsString})");
         foreach ($hostIds as $param => $id) {
             $statement->bindValue($param, $id, PDO::PARAM_INT);
         }
@@ -3359,13 +3359,14 @@ function validateParentChildAreNotCircular(array $fields): array|true
         }
         $hostIdsAsString = implode(',', array_keys($hostIds));
         $statement = $pearDB->prepare(
-            "SELECT host_name FROM host WHERE host_id IN ($hostIdsAsString)"
+            "SELECT host_name FROM host WHERE host_id IN ({$hostIdsAsString})"
         );
         foreach ($hostIds as $param => $id) {
             $statement->bindValue($param, $id, PDO::PARAM_INT);
         }
         $statement->execute();
         $hostNames = $statement->fetchAll(PDO::FETCH_COLUMN);
+
         return [
             'host_parents' => 'Circular reference detected with host children: ' . implode(', ', $hostNames),
         ];
@@ -3374,15 +3375,14 @@ function validateParentChildAreNotCircular(array $fields): array|true
     return true;
 }
 
-
 /**
  * Checks if adding a parent-child relationship would create a circular reference.
  *
  * Traverses the parent hierarchy to determine if the child is already an ancestor of the parent.
  *
- * @param int $parentId The ID of the proposed parent host.
- * @param int $childId The ID of the proposed child host.
- * @return int|null Returns the ID of the host causing the circular reference, or null if none is found.
+ * @param int $parentId the ID of the proposed parent host
+ * @param int $childId the ID of the proposed child host
+ * @return int|null returns the ID of the host causing the circular reference, or null if none is found
  */
 function hasCircularReference($parentId, $childId): ?int
 {
@@ -3396,10 +3396,10 @@ function hasCircularReference($parentId, $childId): ?int
             return $current;
         }
         $checked[] = $current;
-        $stmt = $pearDB->prepare("SELECT host_parent_hp_id FROM host_hostparent_relation WHERE host_host_id = ?");
+        $stmt = $pearDB->prepare('SELECT host_parent_hp_id FROM host_hostparent_relation WHERE host_host_id = ?');
         $stmt->execute([$current]);
         foreach ($stmt->fetchAll(PDO::FETCH_COLUMN) as $parent) {
-            if (!in_array($parent, $checked)) {
+            if (! in_array($parent, $checked)) {
                 $toCheck[] = $parent;
             }
         }
@@ -3407,4 +3407,3 @@ function hasCircularReference($parentId, $childId): ?int
 
     return null;
 }
-
