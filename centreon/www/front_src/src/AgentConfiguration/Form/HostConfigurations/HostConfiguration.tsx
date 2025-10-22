@@ -1,12 +1,11 @@
 import {
   NumberField,
   SingleConnectedAutocompleteField,
-  TextField,
-  buildListingEndpoint
+  TextField
 } from '@centreon/ui';
 import { Box } from '@mui/material';
 import { useTranslation } from 'react-i18next';
-import { hostsConfigurationEndpoint } from '../../api/endpoints';
+import { getHostsEndpoint } from '../../api/endpoints';
 import { HostConfiguration as HostConfigurationModel } from '../../models';
 
 import RedirectToTokensPage from '../RedirectToTokensPage';
@@ -56,12 +55,8 @@ const HostConfiguration = ({ index, host }: Props): JSX.Element => {
         required
         label={t(labelSelectHost)}
         onChange={selectHost}
-        getEndpoint={(parameters) =>
-          buildListingEndpoint({
-            baseEndpoint: hostsConfigurationEndpoint,
-            parameters
-          })
-        }
+        getEndpoint={getHostsEndpoint}
+        field="name"
         value={{ id: host.id, name: host.name }}
       />
       <TextField
