@@ -158,7 +158,7 @@ $tpl->display('connected_user.ihtml');
     function submitSync(p, contactId) {
         // msg = localized message to be displayed in the confirmation popup
         let msg = "<?= _('All this contact sessions will be closed. Are you sure you want to request a '
-            . 'synchronization at the next login of this Contact ?'); ?>";
+            . 'synchronization at the next login of this Contact?'); ?>";
         // then executing the request and refreshing the page
         if (confirm(msg)) {
             $.ajax({

@@ -109,7 +109,7 @@ foreach ($res as $row) {
 
 $tpl->assign(
     'msg',
-    ['addL' => '?p=' . $p . '&o=a', 'add' => _('Add'), 'delConfirm' => _('Do you confirm the deletion ?'), 'img' => './modules/centreon-autodiscovery-server/images/add2.png']
+    ['addL' => '?p=' . $p . '&o=a', 'add' => _('Add'), 'delConfirm' => _('Do you confirm the deletion?'), 'img' => './modules/centreon-autodiscovery-server/images/add2.png']
 );
 ?>
 <script type="text/javascript">
@@ -120,7 +120,7 @@ $tpl->assign(
 </script>
 <?php
 $attrs1 = ['onchange' => 'javascript: '
-    . "if (this.form.elements['o1'].selectedIndex == 1 && confirm('" . _('Do you confirm the deletion ?') . "')) {"
+    . "if (this.form.elements['o1'].selectedIndex == 1 && confirm('" . _('Do you confirm the deletion?') . "')) {"
     . "     setO(this.form.elements['o1'].value); submit();} "
     . "else if (this.form.elements['o1'].selectedIndex == 2) {"
     . "     setO(this.form.elements['o1'].value); submit();} "
@@ -138,7 +138,7 @@ $form->addElement(
 );
 
 $attrs2 = ['onchange' => 'javascript: '
-    . "if (this.form.elements['o2'].selectedIndex == 1 && confirm('" . _('Do you confirm the deletion ?') . "')) {"
+    . "if (this.form.elements['o2'].selectedIndex == 1 && confirm('" . _('Do you confirm the deletion?') . "')) {"
     . "     setO(this.form.elements['o2'].value); submit();} "
     . "else if (this.form.elements['o2'].selectedIndex == 2) {"
     . "     setO(this.form.elements['o2'].value); submit();} "

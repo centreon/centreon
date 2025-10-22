@@ -509,7 +509,7 @@ class PlatformTopologyService implements PlatformTopologyServiceInterface
         ) {
             throw new EntityNotFoundException(
                 sprintf(
-                    _("Missing mandatory parent address, to link the platform : '%s'@'%s'"),
+                    _("Missing mandatory parent address, to link the platform: '%s'@'%s'"),
                     $platform->getName(),
                     $platform->getAddress()
                 )
@@ -629,7 +629,7 @@ class PlatformTopologyService implements PlatformTopologyServiceInterface
         if ($registeredParentInTopology === null) {
             throw new EntityNotFoundException(
                 sprintf(
-                    _("No parent platform was found for : '%s'@'%s'"),
+                    _("No parent platform was found for: '%s'@'%s'"),
                     $platform->getName(),
                     $platform->getAddress()
                 )

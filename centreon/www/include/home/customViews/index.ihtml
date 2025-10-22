@@ -238,7 +238,7 @@
         </div>
     </div>
     <div id="dissociateViewConfirm">
-        <p>{t}Dissociate this view ?{/t}</p>
+        <p>{t}Dissociate this view?{/t}</p>
         <div class="button_group_center">
             <button type="button" class="btc bt_danger">{t}Dissociate{/t}</button>
             <button type="button" class="btc bt_default">{t}Cancel{/t}</button>

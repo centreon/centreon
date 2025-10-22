@@ -352,8 +352,8 @@ msgstr "Aufbewahrungsdauer der Sicherungen (In Tagen)"
 
 #: centreon/www/include/Administration/parameters/backup/help.php
 msgid ""
-"Backup type for centreon_storage database : mysqldump or LVM snapshot (need "
-"available space on MySQL LVM)"
+"Backup type for centreon_storage database: mysqldump or LVM snapshot "
+"(requires available space on the MySQL LVM volume)"
 msgstr ""
 "Sicherungstyp für die centreon_storage-Datenbank: mysqldump oder LVM-"
 "Snapshot (Für die Sicherung muss genügend freier Speicher auf der Festplatte "
@@ -571,8 +571,8 @@ msgstr "Kommentare zur Kategorie."
 
 #: centreon/www/include/configuration/configObject/traps/help.php
 msgid ""
-"Comment to describe per example the situation in which this trap will be "
-"send. Additionally the format and the parameters of the trap can be "
+"Comment to describe, for example, the situation in which this trap will be "
+"sent. Additionally the format and the parameters of the trap can be "
 "described."
 msgstr ""
 "Kommentar, der beschreibt, in welcher Situation die Trap gesendet wird. "
@@ -1903,9 +1903,9 @@ msgstr ""
 
 #: centreon/www/include/Administration/parameters/general/help.php
 msgid ""
-"If this option is enable, the downtimes and acknowledgments will be "
-"displayed on metric chart.<br><b>Warning</b> : This option can slow down the "
-"display of chart."
+"If this option is enabled, downtimes and acknowledgments will be displayed "
+"on the metric chart.<br><b>Warning</b>: This option can slow down the "
+"display of the chart."
 msgstr ""
 "Wenn diese Option aktiviert ist, werden Ausfallszeiten und Inkenntnisnahmen "
 "auf Metrikdiagrammen angezeigt.<br><b>Achtung</b>: Diese Option kann dazu "
@@ -1914,8 +1914,7 @@ msgstr ""
 #: centreon/www/include/Administration/parameters/general/help.php
 msgid ""
 "If this option is enabled, the comments will be displayed on the status "
-"chart.<br><b>Warning</b> : This option can slow down the display of the "
-"chart."
+"chart.<br><b>Warning</b>: This option can slow down the display of the chart."
 msgstr ""
 
 #: centreon/www/include/configuration/configObject/service/help.php
@@ -2479,16 +2478,12 @@ msgstr ""
 "eine Verbindung aufgebaut werden soll (Mit Angabe eines Hosts)."
 
 #: centreon/www/include/views/componentTemplates/help.php
-msgid "Print total value."
-msgstr "Gebe den insgesamten Wert aus."
-
-#: centreon/www/include/views/componentTemplates/help.php
 msgid "Prints average value."
 msgstr "Gibt den durchschnittlichen Wert aus."
 
 #: centreon/www/include/views/componentTemplates/help.php
-msgid "Prints last Value."
-msgstr "Gibt den letzten Wert aus."
+msgid "Prints last value."
+msgstr ""
 
 #: centreon/www/include/views/componentTemplates/help.php
 msgid "Prints maximum value."
@@ -2497,6 +2492,10 @@ msgstr "Gibt den maximalen Wert aus."
 #: centreon/www/include/views/componentTemplates/help.php
 msgid "Prints minimum value."
 msgstr "Gibt den minimalen Wert aus."
+
+#: centreon/www/include/views/componentTemplates/help.php
+msgid "Prints total value."
+msgstr "Gibt den insgesamten Wert aus."
 
 #: centreon/www/include/configuration/configCentreonBroker/help.php
 msgid "Private key file path when TLS encryption is used."
@@ -5819,9 +5818,9 @@ msgstr ""
 
 #: centreon/www/include/views/componentTemplates/help.php
 msgid ""
-"When filling property is enable, the area color displayed in Centreon is the "
-"curve line color with transparency.For exported graphs, the area color is "
-"defined with those fields."
+"When filling property is enabled, the area color displayed in Centreon is "
+"the curve line color with transparency.For exported graphs, the area color "
+"is defined with those fields."
 msgstr ""
 "Wenn die Füllen-Option aktiviert ist, ist die in Centreon angezeigte "
 "Flächenfarbe  die Kurvenlinienfarbe mit Transparenz. Für exportierte Graphen "
@@ -6192,15 +6191,6 @@ msgstr "Legt die Zeitzone des Hosts fest."
 
 #: unknown
 msgid ""
-"If this option is enable, the comments will be displayed on status chart."
-"<br><b>Warning</b> : This option can slow down the display of chart."
-msgstr ""
-"Wenn diese Option aktiviert ist, werden Kommentare auf Statusdiagrammen "
-"angezeigt.<br><b>Achtung</b>: Diese Option kann dazu führen, dass die "
-"Anzeige von Diagrammen mehr Zeit in Anspruch nimmt."
-
-#: unknown
-msgid ""
 "In a distributed monitoring environment, the monitoring node (central or "
 "satellite) for this host can be specified here."
 msgstr ""
@@ -6228,6 +6218,10 @@ msgstr ""
 "Es ist jedoch sicherer, diesen auf 'Standard' ('Ja') zu belassen, da "
 "durch einige native Plugins ansonsten ein Absturz der "
 "Überwachungsaktivität ausgelöst werden könnte."
+
+#: unknown
+msgid "Prints last balue."
+msgstr "Gibt den letzten Wert aus."
 
 #: unknown
 msgid ""

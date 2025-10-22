@@ -112,10 +112,10 @@ echo '<b>&nbsp;&nbsp;' . _('Media Detection') . '</b>';
     <div style='float:left;width:270px;text-align:left;'>
         <p>
             <?php
-            echo _('Bad picture alias detected :') . " {$fileRemoved}<br>";
-echo _('New directory added :') . " {$dirCreated}<br>";
-echo _('New images added :') . " {$regCounter}<br>";
-echo _('Convert gd2 -> png :') . " {$gdCounter}<br><br><br>";
+            echo _('Bad picture alias detected:') . " {$fileRemoved}<br>";
+echo _('New directory added:') . " {$dirCreated}<br>";
+echo _('New images added:') . " {$regCounter}<br>";
+echo _('Convert gd2 -> png:') . " {$gdCounter}<br><br><br>";
 ?>
         </p>
         <br><br><br>

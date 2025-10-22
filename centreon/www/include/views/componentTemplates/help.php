@@ -44,7 +44,7 @@ $help['tip_thickness'] = dgettext('help', 'Curve thickness.');
 $help['tip_line_color'] = dgettext('help', 'Curve line color.');
 $help['tip_area_color'] = dgettext(
     'help',
-    'When filling property is enable, the area color displayed in Centreon is the curve line color with transparency.'
+    'When filling property is enabled, the area color displayed in Centreon is the curve line color with transparency.'
     . 'For exported graphs, the area color is defined with those fields.'
 );
 $help['tip_transparency'] = dgettext('help', 'Curve transparency. Used to export the chart.');
@@ -60,6 +60,6 @@ $help['tip_print_max_value'] = dgettext('help', 'Prints maximum value.');
 $help['tip_print_min_value'] = dgettext('help', 'Prints minimum value.');
 $help['tip_print_minmax_int'] = dgettext('help', 'Rounds the value.');
 $help['tip_print_average'] = dgettext('help', 'Prints average value.');
-$help['tip_print_last_value'] = dgettext('help', 'Prints last Value.');
-$help['tip_print_total_value'] = dgettext('help', 'Print total value.');
+$help['tip_print_last_value'] = dgettext('help', 'Prints last value.');
+$help['tip_print_total_value'] = dgettext('help', 'Prints total value.');
 $help['tip_comments'] = dgettext('help', 'Comments regarding the curve template.');

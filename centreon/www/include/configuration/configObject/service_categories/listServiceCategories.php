@@ -134,10 +134,10 @@ $attrs1 = ['onchange' => 'javascript: '
     . " if (this.form.elements['o1'].selectedIndex != 0 && !bChecked) {"
     . " alert('" . _('Please select one or more items') . "'); return false;} "
     . "if (this.form.elements['o1'].selectedIndex == 1 && confirm('"
-    . _('Do you confirm the duplication ?') . "')) {"
+    . _('Do you confirm the duplication?') . "')) {"
     . " 	setO(this.form.elements['o1'].value); submit();} "
     . "else if (this.form.elements['o1'].selectedIndex == 2 && confirm('"
-    . _('Do you confirm the deletion ?') . "')) {"
+    . _('Do you confirm the deletion?') . "')) {"
     . " 	setO(this.form.elements['o1'].value); submit();} "
     . "else if (this.form.elements['o1'].selectedIndex == 3 || this.form.elements['o1'].selectedIndex == 4 "
     . "||this.form.elements['o1'].selectedIndex == 5){"
@@ -157,10 +157,10 @@ $attrs2 = ['onchange' => 'javascript: '
     . " if (this.form.elements['o2'].selectedIndex != 0 && !bChecked) {"
     . " alert('" . _('Please select one or more items') . "'); return false;} "
     . "if (this.form.elements['o2'].selectedIndex == 1 && confirm('"
-    . _('Do you confirm the duplication ?') . "')) {"
+    . _('Do you confirm the duplication?') . "')) {"
     . " 	setO(this.form.elements['o2'].value); submit();} "
     . "else if (this.form.elements['o2'].selectedIndex == 2 && confirm('"
-    . _('Do you confirm the deletion ?') . "')) {"
+    . _('Do you confirm the deletion?') . "')) {"
     . " 	setO(this.form.elements['o2'].value); submit();} "
     . "else if (this.form.elements['o2'].selectedIndex == 3 || "
     . "this.form.elements['o2'].selectedIndex == 4 ||this.form.elements['o2'].selectedIndex == 5){"
@@ -170,7 +170,7 @@ $form->addElement(
     'select',
     'o2',
     null,
-    [null => _('More actions'), 'm' => _('Duplicate'), 'd' => _('Delete'), 'ms' => _('Enable'), 'mu' => _('Disable')],
+    [null => _('More actions...'), 'm' => _('Duplicate'), 'd' => _('Delete'), 'ms' => _('Enable'), 'mu' => _('Disable')],
     $attrs2
 );
 $form->setDefaults(['o2' => null]);

@@ -129,7 +129,7 @@ if (isset($elemArr1)) {
 }
 
 // Different messages we put in the template
-$tpl->assign('msg', ['addL1' => 'main.php?p=' . $p . '&o=as&meta_id=' . $meta_id, 'addT' => _('Add'), 'delConfirm' => _('Do you confirm the deletion ?')]);
+$tpl->assign('msg', ['addL1' => 'main.php?p=' . $p . '&o=as&meta_id=' . $meta_id, 'addT' => _('Add'), 'delConfirm' => _('Do you confirm the deletion?')]);
 
 // Element we need when we reload the page
 $form->addElement('hidden', 'p');
@@ -146,13 +146,13 @@ $form->setDefaults($tab);
     </SCRIPT>
 <?php
 $attrs1 = ['onchange' => 'javascript: '
-    . "if (this.form.elements['o1'].selectedIndex == 1 && confirm('" . _('Do you confirm the deletion ?') . "')) {"
+    . "if (this.form.elements['o1'].selectedIndex == 1 && confirm('" . _('Do you confirm the deletion?') . "')) {"
     . " 	setO(this.form.elements['o1'].value); submit();} "];
 $form->addElement('select', 'o1', null, [null => _('More actions...'), 'ds' => _('Delete')], $attrs1);
 $form->setDefaults(['o1' => null]);
 
 $attrs2 = ['onchange' => 'javascript: '
-    . "if (this.form.elements['o2'].selectedIndex == 1 && confirm('" . _('Do you confirm the deletion ?') . "')) {"
+    . "if (this.form.elements['o2'].selectedIndex == 1 && confirm('" . _('Do you confirm the deletion?') . "')) {"
     . " 	setO(this.form.elements['o2'].value); submit();} "];
 $form->addElement('select', 'o2', null, [null => _('More actions...'), 'ds' => _('Delete')], $attrs2);
 $form->setDefaults(['o2' => null]);

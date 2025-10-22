@@ -630,7 +630,7 @@ class CentreonConfigPoller
             $return = $this->writeToCentcorePipe('SENDCFGFILE', $host['id']);
 
             $msg_copy .= _(
-                "OK: All configuration will be send to '"
+                "OK: All configuration will be sent to '"
                 . $host['name'] . "' by centcore in several minutes."
             );
         }

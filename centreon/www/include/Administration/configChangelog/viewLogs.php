@@ -144,8 +144,8 @@ $tpl->assign('field_value', _('Field Value'));
 $tpl->assign('before', _('Before'));
 $tpl->assign('after', _('After'));
 $tpl->assign('logs', _('Logs for '));
-$tpl->assign('objTypeLabel', _('Object type : '));
-$tpl->assign('objNameLabel', _('Object name : '));
+$tpl->assign('objTypeLabel', _('Object type:'));
+$tpl->assign('objNameLabel', _('Object name:'));
 $tpl->assign('noModifLabel', _('No modification was made.'));
 
 // Add an All Option to existing types.

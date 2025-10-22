@@ -10,7 +10,7 @@ export const labelAuthor = 'Author';
 export const labelComment = 'Comment';
 export const labelCancel = 'Cancel';
 export const labelClear = 'Clear';
-export const labelCriterias = 'Criterias';
+export const labelCriterias = 'Criteria';
 export const labelCritical = 'Critical';
 export const labelCheckDuration = 'Check duration';
 export const labelCommand = 'Command';
@@ -31,7 +31,7 @@ export const labelFilter = 'Filter';
 export const labelNoDataForThisPeriod = 'No data available for this period';
 export const labelResourceFlapping = 'This resource is flapping';
 export const labelFlapping = 'Flapping';
-export const labelShowCriteriasFilters = 'Show criterias filters';
+export const labelShowCriteriasFilters = 'Show criteria filters';
 export const labelFrom = 'From';
 export const labelStartDate = 'Start date';
 export const labelEndDate = 'End date';
@@ -123,7 +123,7 @@ export const labelTo = 'To';
 export const labelAcknowledgeCommandSent = 'Acknowledge command sent';
 export const labelDowntimeCommandSent = 'Downtime command sent';
 export const labelCheckCommandSent =
-  'Check command sent ! Please refresh the listing to update the data.';
+  'Check command sent! Please refresh the listing to update the data.';
 export const labelTypeOfResource = 'Type of resource';
 export const labelUnhandledAlerts = 'Unhandled alerts';
 export const labelUnhandled = 'Unhandled';
@@ -196,7 +196,7 @@ export const labelExportToPng = 'Export to png';
 export const labelPerformancePage = 'Go to performance page';
 export const labelParent = 'Parent';
 export const labelParentName = 'Parent name';
-export const labelSelectCriterias = 'Select criterias';
+export const labelSelectCriterias = 'Select criteria';
 export const labelForward = 'Forward';
 export const labelBackward = 'Backward';
 export const labelEndDateGreaterThanStartDate =
@@ -288,7 +288,7 @@ export const labelCheckDescription =
 export const labelForcedCheckDescription =
   'Check selected resources even outside configured check period';
 export const labelForcedCheckCommandSent =
-  'Forced check command sent ! Please refresh the listing to update the data.';
+  'Forced check command sent! Please refresh the listing to update the data.';
 export const labelUnit = 'Unit';
 export const labelNeedHelpWithSearchBarUsage =
   'Need help using the search bar?';
@@ -301,8 +301,8 @@ export const labelViewAllResources = 'View all resources';
 export const labelViewByHost = 'View by host';
 export const labelViewByService = 'View by service';
 export const labelResourceDetailsForcedCheckCommandSent =
-  'Forced check command sent !';
-export const labelResourceDetailsCheckCommandSent = 'Check command sent !';
+  'Forced check command sent!';
+export const labelResourceDetailsCheckCommandSent = 'Check command sent!';
 
 export const labelResourceDetailsCheckDescription =
   'Check this resource only within configured check period';

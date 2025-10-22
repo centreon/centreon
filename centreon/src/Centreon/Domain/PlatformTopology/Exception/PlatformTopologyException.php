@@ -39,7 +39,7 @@ class PlatformTopologyException extends \Exception
     {
         return new self(
             sprintf(
-                _("Error when adding in topology the platform : '%s'@'%s'"),
+                _("Error when adding in topology the platform: '%s'@'%s'"),
                 $name,
                 $address
             )
@@ -55,7 +55,7 @@ class PlatformTopologyException extends \Exception
     {
         return new self(
             sprintf(
-                _("Platform : '%s'@'%s' mandatory data are missing. Please check the Remote Access form"),
+                _("Platform: '%s'@'%s' mandatory data are missing. Please check the Remote Access form"),
                 $name,
                 $address
             )
@@ -234,7 +234,7 @@ class PlatformTopologyException extends \Exception
     {
         return new self(
             sprintf(
-                _("Same address and parent_address for platform : '%s'@'%s'"),
+                _("Same address and parent_address for platform: '%s'@'%s'"),
                 $name,
                 $address
             )
@@ -269,7 +269,7 @@ class PlatformTopologyException extends \Exception
     {
         return new self(
             sprintf(
-                _("The server type '%s' : '%s'@'%s' does not match the one configured in Centreon or is disabled"),
+                _("The server type '%s': '%s'@'%s' does not match the one configured in Centreon or is disabled"),
                 $type,
                 $name,
                 $address
@@ -286,7 +286,7 @@ class PlatformTopologyException extends \Exception
     {
         return new self(
             sprintf(
-                _("A platform using the name : '%s' or address : '%s' already exists"),
+                _("A platform using the name: '%s' or address: '%s' already exists"),
                 $name,
                 $address
             )
@@ -324,7 +324,7 @@ class PlatformTopologyException extends \Exception
     ): self {
         return new self(
             sprintf(
-                _("Cannot register the '%s' platform : '%s'@'%s' behind a '%s' platform"),
+                _("Cannot register the '%s' platform: '%s'@'%s' behind a '%s' platform"),
                 $type,
                 $name,
                 $address,

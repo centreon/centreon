@@ -105,10 +105,10 @@ switch ($o) {
         $form->addElement('header', 'title', _('Add a host category'));
         break;
     case 'c':
-        $form->addElement('header', 'title', _('Modify a  host category'));
+        $form->addElement('header', 'title', _('Modify a host category'));
         break;
     case 'w':
-        $form->addElement('header', 'title', _('View a  host category'));
+        $form->addElement('header', 'title', _('View a host category'));
         break;
 }
 

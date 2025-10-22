@@ -307,8 +307,8 @@ msgstr ""
 
 #: centreon/www/include/Administration/parameters/backup/help.php
 msgid ""
-"Backup type for centreon_storage database : mysqldump or LVM snapshot (need "
-"available space on MySQL LVM)"
+"Backup type for centreon_storage database: mysqldump or LVM snapshot "
+"(requires available space on the MySQL LVM volume)"
 msgstr ""
 
 #: centreon/www/include/views/graphTemplates/help.php
@@ -478,8 +478,8 @@ msgstr ""
 
 #: centreon/www/include/configuration/configObject/traps/help.php
 msgid ""
-"Comment to describe per example the situation in which this trap will be "
-"send. Additionally the format and the parameters of the trap can be "
+"Comment to describe, for example, the situation in which this trap will be "
+"sent. Additionally the format and the parameters of the trap can be "
 "described."
 msgstr ""
 
@@ -1500,16 +1500,15 @@ msgstr ""
 
 #: centreon/www/include/Administration/parameters/general/help.php
 msgid ""
-"If this option is enable, the downtimes and acknowledgments will be "
-"displayed on metric chart.<br><b>Warning</b> : This option can slow down the "
-"display of chart."
+"If this option is enabled, downtimes and acknowledgments will be displayed "
+"on the metric chart.<br><b>Warning</b>: This option can slow down the "
+"display of the chart."
 msgstr ""
 
 #: centreon/www/include/Administration/parameters/general/help.php
 msgid ""
 "If this option is enabled, the comments will be displayed on the status "
-"chart.<br><b>Warning</b> : This option can slow down the display of the "
-"chart."
+"chart.<br><b>Warning</b>: This option can slow down the display of the chart."
 msgstr ""
 
 #: centreon/www/include/configuration/configObject/service/help.php
@@ -1971,15 +1970,11 @@ msgid "Port to listen on (empty host) or to connect to (with host filled)."
 msgstr ""
 
 #: centreon/www/include/views/componentTemplates/help.php
-msgid "Print total value."
-msgstr ""
-
-#: centreon/www/include/views/componentTemplates/help.php
 msgid "Prints average value."
 msgstr ""
 
 #: centreon/www/include/views/componentTemplates/help.php
-msgid "Prints last Value."
+msgid "Prints last value."
 msgstr ""
 
 #: centreon/www/include/views/componentTemplates/help.php
@@ -1988,6 +1983,10 @@ msgstr ""
 
 #: centreon/www/include/views/componentTemplates/help.php
 msgid "Prints minimum value."
+msgstr ""
+
+#: centreon/www/include/views/componentTemplates/help.php
+msgid "Prints total value."
 msgstr ""
 
 #: centreon/www/include/configuration/configCentreonBroker/help.php
@@ -4269,9 +4268,9 @@ msgstr ""
 
 #: centreon/www/include/views/componentTemplates/help.php
 msgid ""
-"When filling property is enable, the area color displayed in Centreon is the "
-"curve line color with transparency.For exported graphs, the area color is "
-"defined with those fields."
+"When filling property is enabled, the area color displayed in Centreon is "
+"the curve line color with transparency.For exported graphs, the area color "
+"is defined with those fields."
 msgstr ""
 
 #: centreon/www/include/configuration/configObject/service/help.php

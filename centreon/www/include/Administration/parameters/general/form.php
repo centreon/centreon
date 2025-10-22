@@ -130,15 +130,15 @@ $globalSortType = ['host_name' => _('Hosts'), 'last_state_change' => _('Duration
 
 $sortType = ['last_state_change' => _('Duration'), 'host_name' => _('Hosts'), 'service_description' => _('Services'), 'current_state' => _('Status'), 'last_check' => _('Last check'), 'plugin_output' => _('Output'), 'criticality_id' => _('Criticality')];
 
-$form->addElement('select', 'global_sort_type', _('Sort by  '), $globalSortType);
+$form->addElement('select', 'global_sort_type', _('Sort by'), $globalSortType);
 $global_sort_order = ['ASC' => _('Ascending'), 'DESC' => _('Descending')];
 
-$form->addElement('select', 'global_sort_order', _('Order sort '), $global_sort_order);
+$form->addElement('select', 'global_sort_order', _('Sort order'), $global_sort_order);
 
 $form->addElement('select', 'problem_sort_type', _('Sort problems by'), $sortType);
 
 $sort_order = ['ASC' => _('Ascending'), 'DESC' => _('Descending')];
-$form->addElement('select', 'problem_sort_order', _('Order sort problems'), $sort_order);
+$form->addElement('select', 'problem_sort_order', _('Problems sort order'), $sort_order);
 
 $options1[] = $form->createElement(
     'checkbox',

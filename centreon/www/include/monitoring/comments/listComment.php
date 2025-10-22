@@ -163,7 +163,7 @@ $tab = ['p' => $p];
 $form->setDefaults($tab);
 
 if ($oreon->user->access->checkAction('service_comment')) {
-    $tpl->assign('msgs', ['addL' => 'main.php?p=' . $p . '&o=a', 'addT' => _('Add a comment'), 'delConfirm' => _('Do you confirm the deletion ?')]);
+    $tpl->assign('msgs', ['addL' => 'main.php?p=' . $p . '&o=a', 'addT' => _('Add a comment'), 'delConfirm' => _('Do you confirm the deletion?')]);
 }
 
 $tpl->assign('p', $p);

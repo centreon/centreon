@@ -361,8 +361,8 @@ msgstr ""
 
 #: centreon/www/include/Administration/parameters/backup/help.php
 msgid ""
-"Backup type for centreon_storage database : mysqldump or LVM snapshot (need "
-"available space on MySQL LVM)"
+"Backup type for centreon_storage database: mysqldump or LVM snapshot "
+"(requires available space on the MySQL LVM volume)"
 msgstr ""
 "Método de copia de seguridad para la base de datos `centreon_storage ': "
 "mysqldump o instantánea de LVM (el espacio no asignado debe estar disponible "
@@ -582,8 +582,8 @@ msgstr "Comentario sobre esta categoría."
 
 #: centreon/www/include/configuration/configObject/traps/help.php
 msgid ""
-"Comment to describe per example the situation in which this trap will be "
-"send. Additionally the format and the parameters of the trap can be "
+"Comment to describe, for example, the situation in which this trap will be "
+"sent. Additionally the format and the parameters of the trap can be "
 "described."
 msgstr ""
 "Comente para dar más precisión en la definición de la captura SNMP, por "
@@ -1912,19 +1912,18 @@ msgstr ""
 
 #: centreon/www/include/Administration/parameters/general/help.php
 msgid ""
-"If this option is enable, the downtimes and acknowledgments will be "
-"displayed on metric chart.<br><b>Warning</b> : This option can slow down the "
-"display of chart."
+"If this option is enabled, downtimes and acknowledgments will be displayed "
+"on the metric chart.<br><b>Warning</b>: This option can slow down the "
+"display of the chart."
 msgstr ""
 "Si esta opción está habilitada, los períodos de parada y reconocimiento "
-"serán visibles en los gráficos. <br> <b> Advertencia </ b>: Esta opción "
-"puede demorar la carga de gráficos."
+"serán visibles en los gráficos.<br><b>Advertencia</b>: Esta opción puede "
+"demorar la carga de gráficos."
 
 #: centreon/www/include/Administration/parameters/general/help.php
 msgid ""
 "If this option is enabled, the comments will be displayed on the status "
-"chart.<br><b>Warning</b> : This option can slow down the display of the "
-"chart."
+"chart.<br><b>Warning</b>: This option can slow down the display of the chart."
 msgstr ""
 
 #: centreon/www/include/configuration/configObject/service/help.php
@@ -2488,15 +2487,11 @@ msgstr ""
 "remota)."
 
 #: centreon/www/include/views/componentTemplates/help.php
-msgid "Print total value."
-msgstr "Muestra el valor total."
-
-#: centreon/www/include/views/componentTemplates/help.php
 msgid "Prints average value."
 msgstr "Muestra el valor medio."
 
 #: centreon/www/include/views/componentTemplates/help.php
-msgid "Prints last Value."
+msgid "Prints last value."
 msgstr "Muestra el último valor."
 
 #: centreon/www/include/views/componentTemplates/help.php
@@ -2506,6 +2501,10 @@ msgstr "Muestra el valor máximo."
 #: centreon/www/include/views/componentTemplates/help.php
 msgid "Prints minimum value."
 msgstr "Muestra el valor mínimo."
+
+#: centreon/www/include/views/componentTemplates/help.php
+msgid "Prints total value."
+msgstr "Muestra el valor total."
 
 #: centreon/www/include/configuration/configCentreonBroker/help.php
 msgid "Private key file path when TLS encryption is used."
@@ -5094,8 +5093,8 @@ msgstr ""
 "intentará mantener el tiempo entre verificaciones consecutivas consistentes, "
 "en detrimento de realizar las verificaciones de acuerdo con un cronograma "
 "más estricto. \n"
-"<br> <b> Advertencia: </ b> esta función es experimental y puede eliminarse "
-"en futuras versiones. \n"
+"<br><b>Advertencia:</b> esta función es experimental y puede eliminarse en "
+"futuras versiones. \n"
 "Habilitar esta opción puede degradar el rendimiento, en lugar de aumentarlo, "
 "¡se utiliza incorrectamente!"
 
@@ -5924,9 +5923,9 @@ msgstr ""
 
 #: centreon/www/include/views/componentTemplates/help.php
 msgid ""
-"When filling property is enable, the area color displayed in Centreon is the "
-"curve line color with transparency.For exported graphs, the area color is "
-"defined with those fields."
+"When filling property is enabled, the area color displayed in Centreon is "
+"the curve line color with transparency.For exported graphs, the area color "
+"is defined with those fields."
 msgstr ""
 
 #: centreon/www/include/configuration/configObject/service/help.php
@@ -6440,16 +6439,6 @@ msgstr "Estilo de fuente de las filigranas."
 #: unknown
 msgid "Height of grid."
 msgstr "Altura de la rejilla."
-
-#: unknown
-msgid ""
-"If this option is enable, the comments will be displayed on status chart."
-"<br><b>Warning</b> : This option can slow down the display of chart."
-msgstr ""
-"Si esta opción está habilitada, los periodos de tiempo de paradas y "
-"acuses de recibo serán visibles en los gráficos que representan el estado "
-"del servicio. <br> <b> Advertencia </ b>: Esta opción puede reducir la "
-"carga de los gráficos."
 
 #: unknown
 msgid ""

@@ -253,29 +253,29 @@ $form->addElement('header', 'help', _('Help'));
 $form->addElement(
     'header',
     'HSharedExplain',
-    _('<b><i>Help :</i></b> Select hosts and hostgroups that can be seen by associated users. '
+    _('<b><i>Help:</i></b> Select hosts and hostgroups that can be seen by associated users. '
         . 'You also have the possibility to exclude host(s) from selected hostgroup(s).')
 );
 $form->addElement(
     'header',
     'SSharedExplain',
-    _('<b><i>Help :</i></b> Select services that can be seen by associated users.')
+    _('<b><i>Help:</i></b> Select services that can be seen by associated users.')
 );
 $form->addElement(
     'header',
     'MSSharedExplain',
-    _('<b><i>Help :</i></b> Select meta services that can be seen by associated users.')
+    _('<b><i>Help:</i></b> Select meta services that can be seen by associated users.')
 );
 
 $form->addElement(
     'header',
     'ImageFoldersSharedExplain',
-    _('<b><i>Help :</i></b> Select image folders that can be seen by associated users.')
+    _('<b><i>Help:</i></b> Select image folders that can be seen by associated users.')
 );
 $form->addElement(
     'header',
     'FilterExplain',
-    _('<b><i>Help :</i></b> Select the filter(s) you want to apply to the '
+    _('<b><i>Help:</i></b> Select the filter(s) you want to apply to the '
         . 'resource definition for a more restrictive view.')
 );
 
