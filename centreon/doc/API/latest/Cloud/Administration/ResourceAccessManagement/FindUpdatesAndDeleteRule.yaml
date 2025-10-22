@@ -40,7 +40,7 @@ get:
                           example: 1
                         alias:
                           type: string
-                          description: "Name of the contact linked to the rule"
+                          description: "Alias of the contact linked to the rule"
                   all:
                     type: boolean
                     description: "Indicates that the rule should be applied to all current / future contacts"
