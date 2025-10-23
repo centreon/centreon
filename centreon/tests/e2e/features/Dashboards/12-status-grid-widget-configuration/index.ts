@@ -336,18 +336,19 @@ When(
     cy.getByLabel({ label: 'RichTextEditor' })
       .eq(0)
       .type(genericTextWidgets.default.description);
+    cy.contains("Select all").eq(0).click();
+    cy.get('input[name="unhandled_problems"]').click();
     cy.getByTestId({ testId: 'Resource type' }).realClick();
     cy.getByLabel({ label: 'Host Group' }).click();
     cy.getByTestId({ testId: 'Select resource' }).click();
     cy.contains('Linux-Servers').realClick();
-    cy.get('input[name="success"]').click();
   }
 );
 
 Then(
   'a grid representing the statuses of this list of resources are displayed in the widget preview',
   () => {
-    cy.get('[class*="heatMapTile"]').should('exist');
+    cy.get('[class*="heatMapTile"]').its('length').should('be.gte', 1);
   }
 );
 
@@ -356,7 +357,7 @@ When('the user saves the Status Grid widget', () => {
 });
 
 Then("the Status Grid widget is added in the dashboard's layout", () => {
-  cy.get('[class*="heatMapTile"]').should('exist');
+  cy.get('[class*="heatMapTile"]').its('length').should('be.gte', 1);
 });
 
 Given('a dashboard with a configured Status Grid widget', () => {
