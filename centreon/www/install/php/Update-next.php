@@ -472,6 +472,7 @@ try {
     $cleanGlobalMacrosName();
     $fixTypoInStandardMacroName();
     $fixBrokerConfigTypo();
+    $updateSamlProviderConfiguration();
 
     $pearDB->commitTransaction();
 
