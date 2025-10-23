@@ -95,10 +95,9 @@ const PickersStartEndDate = ({
   changeDate,
   rangeStartDate,
   rangeEndDate,
-  direction = PickersStartEndDateDirection.column
+  direction = PickersStartEndDateDirection.column,
+  className
 }: PickersStartEndDateProps): JSX.Element => {
-  const { classes } = useStyles();
-
   const locale = useLocale();
   const error = useAtomValue(errorTimePeriodAtom);
   const isError = error || isInvalidDate({ endDate, startDate });
@@ -108,16 +107,14 @@ const PickersStartEndDate = ({
   const maxEnd = rangeEndDate?.max;
   const minEnd = rangeEndDate?.min || startDate;
 
-  const styleContainer = equals(direction, PickersStartEndDateDirection.column)
-    ? classes.verticalDirection
-    : classes.horizontalDirection;
+  const isColumn = equals(direction, PickersStartEndDateDirection.column)
 
   return (
     <LocalizationProvider
       adapterLocale={locale.substring(0, 2)}
       dateAdapter={AdapterDayjs}
     >
-      <div className={styleContainer}>
+      <div className={`flex ${isColumn ? 'flex-col justify-center' : 'flex-row items-center py-2 px-4'} gap-2 ${className}`}>
         <PickerDateWithLabel
           changeDate={changeDate}
           date={startDate}
@@ -143,7 +140,7 @@ const PickersStartEndDate = ({
       {isError && (
         <ErrorText
           message="The end date must be greater than the start date"
-          style={classes.error}
+          style="text-center"
         />
       )}
     </LocalizationProvider>

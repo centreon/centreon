@@ -303,7 +303,7 @@ class EasyVistaRestProvider extends AbstractProvider
             . $this->getFormValue('protocol') . '" />';
         $account_html = '<input size="50" name="account" type="text" value="'
             . $this->getFormValue('account') . '" autocomplete="off" />';
-        $token_html = '<input size="50" name="token" type="token" value="'
+        $token_html = '<input size="50" name="token" type="password" value="'
             . $this->getFormValue('token') . '" autocomplete="off" />';
         $timeout_html = '<input size="50" name="timeout" type="text" value="'
             . $this->getFormValue('timeout') . '" :>';

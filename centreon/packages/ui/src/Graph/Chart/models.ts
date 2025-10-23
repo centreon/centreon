@@ -175,6 +175,11 @@ export interface LegendModel {
   mode: 'grid' | 'list';
   placement: 'bottom' | 'left' | 'right';
   renderExtraComponent?: ReactNode;
+  secondaryClick?: (props: {
+    element: EventTarget | null;
+    metricId: number | string;
+    position: [number, number];
+  }) => void;
 }
 
 export interface GetDate {
