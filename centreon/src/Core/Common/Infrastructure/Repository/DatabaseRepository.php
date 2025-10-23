@@ -24,7 +24,6 @@ declare(strict_types=1);
 namespace Core\Common\Infrastructure\Repository;
 
 use Adaptation\Database\Connection\ConnectionInterface;
-use Adaptation\Database\QueryBuilder\QueryBuilderInterface;
 
 /**
  * Class

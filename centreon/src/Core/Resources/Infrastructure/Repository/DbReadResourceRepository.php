@@ -23,7 +23,6 @@ declare(strict_types=1);
 
 namespace Core\Resources\Infrastructure\Repository;
 
-use Adaptation\Database\Connection\Adapter\Dbal\DbalConnectionAdapter;
 use Adaptation\Database\Connection\Collection\QueryParameters;
 use Adaptation\Database\Connection\ConnectionInterface;
 use Adaptation\Database\Connection\Exception\ConnectionException;
@@ -33,7 +32,6 @@ use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\Monitoring\Resource as ResourceEntity;
 use Centreon\Domain\Monitoring\ResourceFilter;
 use Centreon\Domain\RequestParameters\RequestParameters;
-use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\RequestParameters\RequestParametersTranslatorException;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
 use Core\Common\Domain\Exception\CollectionException;

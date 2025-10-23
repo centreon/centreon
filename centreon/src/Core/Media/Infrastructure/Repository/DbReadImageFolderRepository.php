@@ -28,7 +28,6 @@ use Adaptation\Database\Connection\ConnectionInterface;
 use Adaptation\Database\Connection\Enum\QueryParameterTypeEnum;
 use Adaptation\Database\Connection\Exception\ConnectionException;
 use Adaptation\Database\QueryBuilder\Exception\QueryBuilderException;
-use Adaptation\Database\QueryBuilder\QueryBuilderInterface;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Centreon\Domain\RequestParameters\RequestParameters;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
