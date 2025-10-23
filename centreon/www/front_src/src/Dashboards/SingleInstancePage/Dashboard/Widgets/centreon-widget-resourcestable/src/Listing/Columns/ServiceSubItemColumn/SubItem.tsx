@@ -11,7 +11,7 @@ import useStyles from './SubItem.styles';
 const SubItem = ({ row }: ComponentColumnProps): ReactElement => {
   const { classes } = useStyles({});
 
-  const statusCount = row?.children?.status_count;
+  const statusCount = row?.children?.status_count ?? {};
   const isNestedRow = isNil(row?.children);
 
   return (
@@ -26,8 +26,8 @@ const SubItem = ({ row }: ComponentColumnProps): ReactElement => {
         </Box>
       )}
 
-      {keys(statusCount)?.map((item) => {
-        if (statusCount?.[item]) {
+      {keys(statusCount).map((item) => {
+        if (statusCount[item]) {
           return (
             <Box className={classes.status} key={item as string}>
               <StatusChip
@@ -39,7 +39,7 @@ const SubItem = ({ row }: ComponentColumnProps): ReactElement => {
           );
         }
 
-        return <Box key={item as string} />;
+        return null;
       })}
     </Box>
   );
