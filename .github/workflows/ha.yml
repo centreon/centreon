@@ -7,16 +7,11 @@ concurrency:
 on:
   workflow_dispatch:
   pull_request:
-    types:
-      - opened
-      - synchronize
-      - reopened
-      - ready_for_review
     paths:
+      - ".github/workflows/ha.yml"
+      - ".version"
       - ".version.centreon-ha"
       - "centreon-ha/**"
-      - "!centreon-ha/veracode.json"
-      - "!centreon-ha/.veracode-exclusions"
   push:
     branches:
       - develop
@@ -26,10 +21,9 @@ on:
       - 'release-[2-9][0-9].[0-9][0-9]-next'
       - 'hotfix-[2-9][0-9].[0-9][0-9]-next'
     paths:
+      - ".version"
       - ".version.centreon-ha"
       - "centreon-ha/**"
-      - "!centreon-ha/veracode.json"
-      - "!centreon-ha/.veracode-exclusions"
     tags:
       - "centreon-ha-*"
 
@@ -42,9 +36,39 @@ jobs:
     with:
       version_file: centreon-ha/.env
 
-  package:
+  changes:
+    if: |
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      needs.get-environment.outputs.stability != 'stable'
     needs: [get-environment]
-    if: ${{ needs.get-environment.outputs.stability != 'stable' }}
+    uses: ./.github/workflows/get-changes-triggers.yml
+    with:
+      backend_production_paths: |
+        ".version"
+        ".version.centreon-ha"
+        "centreon-ha/bin/**"
+        "centreon-ha/etc/**"
+        "centreon-ha/lib/**"
+        "centreon-ha/ocf-scripts/**"
+        "centreon-ha/packaging/**"
+        "centreon-ha/systemd/**"
+        "centreon-ha/.env"
+      frontend_production_paths: |
+        ""
+      is_nightly: ${{ needs.get-environment.outputs.is_nightly }}
+      base_sha: ${{ needs.get-environment.outputs.previous_release_bundle_tag }}
+      labels: ${{ needs.get-environment.outputs.labels }}
+
+  package:
+    needs: [get-environment, changes]
+    if: |
+      needs.changes.outputs.trigger_packaging == 'true' &&
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      needs.get-environment.outputs.stability != 'stable' &&
+      ! cancelled() &&
+      ! contains(needs.*.result, 'failure') &&
+      ! contains(needs.*.result, 'cancelled') &&
+      github.repository == 'centreon/centreon'
 
     strategy:
       fail-fast: true
@@ -124,8 +148,13 @@ jobs:
           token_download_centreon_com: ${{ secrets.TOKEN_DOWNLOAD_CENTREON_COM }}
 
   delivery-rpm:
-    needs: [get-environment, package]
-    if: ${{ contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability) && github.repository == 'centreon/centreon' }}
+    needs: [get-environment, changes, package]
+    if: |
+      needs.changes.outputs.trigger_delivery == 'true' &&
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      needs.get-environment.outputs.is_cloud == 'false' &&
+      contains(fromJson('["testing","unstable"]'), needs.get-environment.outputs.stability) &&
+      github.repository == 'centreon/centreon'
     runs-on: centreon-common
 
     strategy:
@@ -148,9 +177,14 @@ jobs:
           release_type: ${{ needs.get-environment.outputs.release_type }}
           is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
 
-  delivery-deb:
-    needs: [get-environment, package]
-    if: ${{ contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability) && github.repository == 'centreon/centreon' }}
+  deliver-deb:
+    needs: [get-environment, changes, package]
+    if: |
+      needs.changes.outputs.trigger_delivery == 'true' &&
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      needs.get-environment.outputs.is_cloud == 'false' &&
+      contains(fromJson('["testing","unstable"]'), needs.get-environment.outputs.stability) &&
+      github.repository == 'centreon/centreon'
     runs-on: centreon-common
 
     strategy:
