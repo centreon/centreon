@@ -18808,3 +18808,6 @@ msgstr "s"
 #: unknown
 msgid "unknown"
 msgstr "unbekannt"
+
+# msgid "Too many elements to be displayed"
+# msgstr ""

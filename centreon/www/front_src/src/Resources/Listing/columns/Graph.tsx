@@ -1,26 +1,27 @@
-import { lazy, Suspense, useEffect } from 'react';
-
-import { useAtomValue, useSetAtom } from 'jotai';
-import { isNil, not, path } from 'ramda';
-import { makeStyles } from 'tss-react/mui';
-
+import {
+  type ComponentColumnProps,
+  IconButton,
+  LoadingSkeleton,
+} from '@centreon/ui';
 import IconGraph from '@mui/icons-material/BarChart';
 import { Paper } from '@mui/material';
-
-import type { ComponentColumnProps } from '@centreon/ui';
-import { IconButton, LoadingSkeleton } from '@centreon/ui';
+import { useAtomValue, useSetAtom } from 'jotai';
+import { isNil, not, path } from 'ramda';
+import { lazy, type ReactElement, Suspense, useEffect } from 'react';
+import { makeStyles } from 'tss-react/mui';
 
 import FederatedComponent from '../../../components/FederatedComponents';
-import { ResourceDetails } from '../../Details/models';
+import { graphsCapNumber } from '../../constants';
+import type { ResourceDetails } from '../../Details/models';
 import { lastDayPeriod } from '../../Details/tabs/Graph/models';
 import {
   changeMousePositionAndTimeValueDerivedAtom,
   isListingGraphOpenAtom
 } from '../../Graph/Performance/Graph/mouseTimeValueAtoms';
 import { graphQueryParametersDerivedAtom } from '../../Graph/Performance/TimePeriods/timePeriodAtoms';
-import { Resource } from '../../models';
+import type { Resource } from '../../models';
+import TooManyElementsCard from '../../TooManyElementsCard';
 import { labelGraph, labelServiceGraphs } from '../../translatedLabels';
-
 import HoverChip from './HoverChip';
 import IconColumn from './IconColumn';
 
@@ -48,7 +49,7 @@ const Graph = ({
   row,
   endpoint,
   displayCompleteGraph
-}: GraphProps): JSX.Element => {
+}: GraphProps): ReactElement => {
   const getGraphQueryParameters = useAtomValue(graphQueryParametersDerivedAtom);
   const setIsListingGraphOpen = useSetAtom(isListingGraphOpenAtom);
   const changeMousePositionAndTimeValue = useSetAtom(
@@ -68,6 +69,18 @@ const Graph = ({
     };
   }, []);
 
+  const metricsCount = data?.metrics.length ?? 0;
+  if (metricsCount > graphsCapNumber) {
+    return (
+      <Suspense fallback={<LoadingSkeleton height="100%" />}>
+        <TooManyElementsCard
+          listing={true}
+          title={data?.global.title ?? ''}
+        />
+      </Suspense>
+    );
+  }
+
   return (
     <Suspense fallback={<LoadingSkeleton height="100%" />}>
       <PerformanceGraph
@@ -80,7 +93,7 @@ const Graph = ({
         renderAdditionalLines={({
           additionalLinesProps,
           resource
-        }): JSX.Element => (
+        }): ReactElement => (
           <FederatedComponent
             displayAdditionalLines
             additionalLinesData={{ additionalLinesProps, resource }}
@@ -96,7 +109,7 @@ const Graph = ({
 
 const renderChip =
   ({ onClick, label, className }) =>
-  (): JSX.Element => (
+  (): ReactElement => (
     <IconButton
       ariaLabel={label}
       className={className}
@@ -112,11 +125,11 @@ const GraphColumn = ({
   onClick
 }: {
   onClick: (row) => void;
-}): ((props: ComponentColumnProps) => JSX.Element | null) => {
+}): ((props: ComponentColumnProps) => ReactElement | null) => {
   const GraphHoverChip = ({
     row,
     isHovered
-  }: ComponentColumnProps): JSX.Element | null => {
+  }: ComponentColumnProps): ReactElement | null => {
     const { classes } = useStyles();
 
     const { type } = row;
@@ -145,7 +158,7 @@ const GraphColumn = ({
           isHovered={isHovered}
           label={label}
         >
-          {({ close, isChipHovered }): JSX.Element => {
+          {({ close, isChipHovered }): ReactElement => {
             if (isHost || not(isChipHovered) || not(isHovered)) {
               return <div />;
             }
