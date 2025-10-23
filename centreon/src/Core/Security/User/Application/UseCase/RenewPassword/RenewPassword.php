@@ -23,12 +23,14 @@ declare(strict_types=1);
 
 namespace Core\Security\User\Application\UseCase\RenewPassword;
 
+use Assert\AssertionFailedException;
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Application\Common\UseCase\UnauthorizedResponse;
+use Core\Common\Domain\Exception\RepositoryException;
 use Core\Common\Infrastructure\ExceptionLogger\ExceptionLogger;
 use Core\Security\ProviderConfiguration\Application\Repository\ReadConfigurationRepositoryInterface;
 use Core\Security\ProviderConfiguration\Domain\Local\Model\Configuration;
@@ -49,9 +51,9 @@ class RenewPassword
      * @param ReadConfigurationRepositoryInterface $readConfigurationRepository
      */
     public function __construct(
-        private ReadUserRepositoryInterface $readRepository,
-        private WriteUserRepositoryInterface $writeRepository,
-        private ReadConfigurationRepositoryInterface $readConfigurationRepository,
+        private readonly ReadUserRepositoryInterface $readRepository,
+        private readonly WriteUserRepositoryInterface $writeRepository,
+        private readonly ReadConfigurationRepositoryInterface $readConfigurationRepository,
     ) {
     }
 
@@ -64,8 +66,16 @@ class RenewPassword
         RenewPasswordRequest $renewPasswordRequest,
     ): void {
         $this->info('Processing password renewal...');
-        // Get User informations
-        $user = $this->readRepository->findUserByAlias($renewPasswordRequest->userAlias);
+
+        try {
+            $user = $this->readRepository->findUserByAlias($renewPasswordRequest->userAlias);
+        } catch (RepositoryException $e) {
+            ExceptionLogger::create()->log($e);
+            $presenter->setResponseStatus(new ErrorResponse('An error occurred while updating password'));
+
+            return;
+        }
+
         if ($user === null) {
             $this->error('No user could be found', [
                 'user_alias' => $renewPasswordRequest->userAlias,
@@ -92,14 +102,14 @@ class RenewPassword
                 $user,
                 $providerConfiguration->getCustomConfiguration()->getSecurityPolicy()
             );
-        } catch (UserPasswordException|ConfigurationException $e) {
+        } catch (UserPasswordException|ConfigurationException|AssertionFailedException $e) {
             ExceptionLogger::create()->log($e);
             $presenter->setResponseStatus(new InvalidArgumentResponse($e->getMessage()));
 
             return;
         } catch (\Throwable $e) {
             ExceptionLogger::create()->log($e);
-            $presenter->setResponseStatus(new ErrorResponse('An error occured while updating password'));
+            $presenter->setResponseStatus(new ErrorResponse('An error occurred while updating password'));
 
             return;
         }
