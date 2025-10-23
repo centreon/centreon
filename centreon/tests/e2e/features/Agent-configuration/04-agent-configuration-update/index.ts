@@ -48,7 +48,7 @@ Given('a non-admin user is in the Agents Configuration page', () => {
 });
 
 Given('an already existing agent configuration', () => {
-  cy.contains('button', 'Add agent configuration').click();
+  cy.contains('button', 'Add').click();
   cy.addTelegrafAgent(agentsConfiguration.telegraf1);
   cy.getByTestId({ testId: 'submit' }).click();
   cy.wait('@addAgents');

@@ -23978,10 +23978,6 @@ msgid "platform not found"
 msgstr "plateforme non trouvée"
 
 #: unknown
-msgid "poller"
-msgstr "collecteur"
-
-#: unknown
 msgid "px"
 msgstr "px"
 
@@ -24072,6 +24068,10 @@ msgstr "alerte"
 #: unknown
 msgid "will display resources with host name starting by'"
 msgstr "affichera les ressources avec un nom d'hôte commençant par"
+
+#: unknown
+msgid "poller"
+msgstr "collecteur"
 
 #: unknown
 msgid "{{total}} element(s) found"

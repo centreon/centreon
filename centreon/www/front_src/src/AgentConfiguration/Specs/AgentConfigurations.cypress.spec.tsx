@@ -38,6 +38,7 @@ import {
   labelRelativePathAreNotAllowed,
   labelRequired,
   labelSave,
+  labelSearch,
   labelSelectExistingCMAToken,
   labelSelectExistingCMATokens,
   labelSelectHost,
@@ -65,7 +66,7 @@ describe('Agent configurations', () => {
 
     cy.waitForRequest('@getAgentConfigurations').then(({ request }) => {
       expect(decodeURIComponent(request.url.search)).equals(
-        '?page=1&limit=10&sort_by={"name":"asc"}&search={"$or":[{"name":{"$rg":""}}]}'
+        '?page=1&limit=10&sort_by={"name":"asc"}&search={"$and":[]}'
       );
     });
 
@@ -89,7 +90,7 @@ describe('Agent configurations', () => {
 
     cy.waitForRequest('@getAgentConfigurations').then(({ request }) => {
       expect(decodeURIComponent(request.url.search)).equals(
-        '?page=1&limit=10&sort_by={"name":"asc"}&search={"$or":[{"name":{"$rg":""}}]}'
+        '?page=1&limit=10&sort_by={"name":"asc"}&search={"$and":[]}'
       );
     });
 
@@ -97,36 +98,58 @@ describe('Agent configurations', () => {
 
     cy.waitForRequest('@getAgentConfigurations').then(({ request }) => {
       expect(decodeURIComponent(request.url.search)).equals(
-        '?page=1&limit=10&sort_by={"name":"desc"}&search={"$or":[{"name":{"$rg":""}}]}'
+        '?page=1&limit=10&sort_by={"name":"desc"}&search={"$and":[]}'
       );
     });
 
     cy.makeSnapshot();
   });
 
-  it('sends a request when the search and filters are updated', () => {
+  it('sends a listing request with the search bar content when after a delay', () => {
     initialize({});
 
+    cy.waitForRequest('@getAgentConfigurations');
+
+    cy.findAllByPlaceholderText(labelSearch).clear().type('My agent');
+
+    cy.wait(500);
+
     cy.waitForRequest('@getAgentConfigurations').then(({ request }) => {
-      expect(decodeURIComponent(request.url.search)).equals(
-        '?page=1&limit=10&sort_by={"name":"asc"}&search={"$or":[{"name":{"$rg":""}}]}'
-      );
+      expect(JSON.parse(request.url.searchParams.get('search'))).to.deep.equal({
+        $and: [{ $or: [{ name: { $rg: 'My agent' } }] }]
+      });
     });
+  });
 
-    cy.findAllByTestId('Search').find('input').type('My agent');
+  it('sends a listing request when the filters are updated and search button clicked', () => {
+    initialize({});
+
+    cy.waitForRequest('@getAgentConfigurations');
+
+    cy.contains('AC 0');
     cy.findByLabelText('Filters').click();
-    cy.findByLabelText(labelAgentType).click({ force: true });
-    cy.get('[data-option-index="1"]').click();
+
     cy.findByLabelText(labelPoller).click({ force: true });
-
     cy.waitForRequest('@getFilterPollers');
-
     cy.contains('poller6').click();
 
+    cy.findByLabelText(labelAgentType).click({ force: true });
+    cy.get('[data-option-index="1"]').click();
+
+    cy.findAllByTestId(labelName).eq(1).clear().type('My agent');
+
+    cy.contains(labelSearch).click();
+
     cy.waitForRequest('@getAgentConfigurations').then(({ request }) => {
-      expect(decodeURIComponent(request.url.search)).equals(
-        '?page=1&limit=10&sort_by={"name":"asc"}&search={"$and":[{"$or":[{"name":{"$rg":"My agent"}}]},{"$and":[{"$or":[{"type":{"$in":["telegraf"]}}]},{"$or":[{"poller.id":{"$in":[6]}}]}]}]}'
-      );
+      expect(JSON.parse(request.url.searchParams.get('search'))).to.deep.equal({
+        $and: [
+          { $or: [{ name: { $rg: 'My agent' } }] },
+          { $or: [{ type: { $in: ['telegraf'] } }] },
+          {
+            $or: [{ 'poller.id': { $in: [6] } }]
+          }
+        ]
+      });
     });
 
     cy.makeSnapshot();
@@ -137,7 +160,7 @@ describe('Agent configurations', () => {
 
     cy.waitForRequest('@getAgentConfigurations').then(({ request }) => {
       expect(decodeURIComponent(request.url.search)).equals(
-        '?page=1&limit=10&sort_by={"name":"asc"}&search={"$or":[{"name":{"$rg":""}}]}'
+        '?page=1&limit=10&sort_by={"name":"asc"}&search={"$and":[]}'
       );
     });
 
@@ -161,7 +184,7 @@ describe('Agent configurations', () => {
 
     cy.waitForRequest('@getAgentConfigurations').then(({ request }) => {
       expect(decodeURIComponent(request.url.search)).equals(
-        '?page=1&limit=10&sort_by={"name":"asc"}&search={"$or":[{"name":{"$rg":""}}]}'
+        '?page=1&limit=10&sort_by={"name":"asc"}&search={"$and":[]}'
       );
     });
 
@@ -180,30 +203,28 @@ describe('Agent configurations', () => {
   it('clears filters when filters are populated and the corresponding button is clicked', () => {
     initialize({});
 
-    cy.waitForRequest('@getAgentConfigurations').then(({ request }) => {
-      expect(decodeURIComponent(request.url.search)).equals(
-        '?page=1&limit=10&sort_by={"name":"asc"}&search={"$or":[{"name":{"$rg":""}}]}'
-      );
-    });
-
-    cy.findAllByTestId('Search').find('input').type('My agent');
+    // cy.waitForRequest('@getAgentConfigurations');
     cy.findByLabelText('Filters').click();
     cy.findByLabelText(labelAgentType).click({ force: true });
     cy.get('[data-option-index="1"]').click();
     cy.findByLabelText(labelPoller).click({ force: true });
 
     cy.waitForRequest('@getFilterPollers');
-
     cy.contains('poller6').click();
-    cy.contains(labelClear).click({ force: true });
-    cy.contains('poller6').should('not.exist');
-    cy.contains('Centreon Monitoring Agent').should('not.exist');
+
+    cy.findAllByTestId(labelName).eq(1).clear().type('My agent');
+
+    cy.contains(labelClear).click();
 
     cy.waitForRequest('@getAgentConfigurations').then(({ request }) => {
-      expect(decodeURIComponent(request.url.search)).equals(
-        '?page=1&limit=10&sort_by={"name":"asc"}&search={"$or":[{"name":{"$rg":"My agent"}}]}'
-      );
+      expect(JSON.parse(request.url.searchParams.get('search'))).to.deep.equal({
+        $and: []
+      });
     });
+
+    cy.findAllByTestId(labelName).eq(1).should('have.value', '');
+    cy.contains('poller6').should('not.exist');
+    cy.contains('Centreon Monitoring Agent').should('not.exist');
 
     cy.makeSnapshot();
   });
@@ -213,7 +234,7 @@ describe('Agent configurations', () => {
 
     cy.waitForRequest('@getAgentConfigurations').then(({ request }) => {
       expect(decodeURIComponent(request.url.search)).equals(
-        '?page=1&limit=10&sort_by={"name":"asc"}&search={"$or":[{"name":{"$rg":""}}]}'
+        '?page=1&limit=10&sort_by={"name":"asc"}&search={"$and":[]}'
       );
     });
 
@@ -238,7 +259,7 @@ describe('Agent configurations', () => {
 
     cy.waitForRequest('@getAgentConfigurations').then(({ request }) => {
       expect(decodeURIComponent(request.url.search)).equals(
-        '?page=1&limit=10&sort_by={"name":"asc"}&search={"$or":[{"name":{"$rg":""}}]}'
+        '?page=1&limit=10&sort_by={"name":"asc"}&search={"$and":[]}'
       );
     });
 
@@ -266,7 +287,7 @@ describe('Agent configurations', () => {
 
     cy.waitForRequest('@getAgentConfigurations').then(({ request }) => {
       expect(decodeURIComponent(request.url.search)).equals(
-        '?page=1&limit=10&sort_by={"name":"asc"}&search={"$or":[{"name":{"$rg":""}}]}'
+        '?page=1&limit=10&sort_by={"name":"asc"}&search={"$and":[]}'
       );
     });
 

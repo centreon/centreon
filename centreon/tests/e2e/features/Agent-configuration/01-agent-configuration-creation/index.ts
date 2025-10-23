@@ -38,6 +38,10 @@ beforeEach(() => {
     method: 'GET',
     url: '/centreon/api/latest/administration/tokens?*'
   }).as('getTokens');
+  cy.intercept({
+    method: 'POST',
+    url: '/centreon/api/latest/administration/tokens'
+  }).as('addToken');
 });
 
 after(() => {
@@ -310,7 +314,7 @@ Then('the form fields are empty', () => {
 });
 
 When('the user clicks on Save in the cancellation pop-up', () => {
-  cy.getByLabel({ label: 'Save', tag: 'button' }).click();
+  cy.getByTestId({ testId: 'confirm', tag: 'button' }).click();
   cy.wait('@addAgents');
 });
 
