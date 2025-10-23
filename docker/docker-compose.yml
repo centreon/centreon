@@ -105,7 +105,7 @@ services:
       - app-centlog:/var/log/centreon-engine:rw
   gorgone:
     <<: *defaults
-    image: gorgone-test:latest
+    image: docker.centreon.com/centreon/centreon-gorgone-bookworm:fth-docker-collect
     container_name: gorgone
     hostname: gorgone
     restart: always
