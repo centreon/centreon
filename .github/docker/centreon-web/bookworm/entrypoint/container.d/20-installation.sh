@@ -40,17 +40,54 @@ if [ ! -f /etc/centreon/centreon.conf.php ]; then
   su www-data -s /bin/bash -c "SERVER_ADDR='127.0.0.1' php insertBaseConf.php"
   su www-data -s /bin/bash -c "php partitionTables.php"
 
-  mysql -h${DB_HOST} -u${DB_ROOT_USER} -p${DB_ROOT_PASSWORD} -e "CREATE USER IF NOT EXISTS 'centreon'@'%' IDENTIFIED BY '${CENTREONDB_PWD}'; GRANT ALL ON centreon.* TO 'centreon'@'%'; GRANT ALL ON centreon_storage.* TO 'centreon'@'%';FLUSH PRIVILEGES;"
-  mysql -h${DB_HOST} -ucentreon -p${CENTREONDB_PWD} centreon < $INSTALL_DIR/tmp/container.sql
+  # Create temporary MySQL credentials file for security
+  cat > /tmp/.my.cnf.root <<EOF
+[client]
+user=${DB_ROOT_USER}
+password=${DB_ROOT_PASSWORD}
+host=${DB_HOST}
+port=${DB_PORT}
+EOF
+  chmod 600 /tmp/.my.cnf.root
+
+  cat > /tmp/.my.cnf.centreon <<EOF
+[client]
+user=centreon
+password=${CENTREONDB_PWD}
+host=${DB_HOST}
+port=${DB_PORT}
+EOF
+  chmod 600 /tmp/.my.cnf.centreon
+
+  # Execute SQL commands using credentials file
+  mysql --defaults-file=/tmp/.my.cnf.root -e "CREATE USER IF NOT EXISTS 'centreon'@'%' IDENTIFIED BY '${CENTREONDB_PWD}'; GRANT ALL ON centreon.* TO 'centreon'@'%'; GRANT ALL ON centreon_storage.* TO 'centreon'@'%'; FLUSH PRIVILEGES;"
+  mysql --defaults-file=/tmp/.my.cnf.centreon centreon < $INSTALL_DIR/tmp/container.sql
+
+  # Clean up credentials files
+  rm -f /tmp/.my.cnf.root /tmp/.my.cnf.centreon
 
   # Optional dataset import
   if [ "$CENTREON_DATASET" = "1" ]; then
     echo "Inserting CENTREON_DATASET..."
     DATA_DUMP_DIR="/usr/local/src/sql/data"
+
+    # Create credentials file for dataset import
+    cat > /tmp/.my.cnf.centreon <<EOF
+[client]
+user=centreon
+password=${CENTREONDB_PWD}
+host=${DB_HOST}
+port=${DB_PORT}
+EOF
+    chmod 600 /tmp/.my.cnf.centreon
+
     for file in "$DATA_DUMP_DIR"/*; do
       echo "Importing $file ..."
-      mysql -h${DB_HOST} -ucentreon -p${CENTREONDB_PWD} centreon < "$file"
+      mysql --defaults-file=/tmp/.my.cnf.centreon centreon < "$file"
     done
+
+    # Clean up credentials file
+    rm -f /tmp/.my.cnf.centreon
   fi
 
   su www-data -s /bin/bash -c "php createEngineContextConfiguration.php"
@@ -100,7 +137,21 @@ chmod +x /usr/sbin/centengine
 setAdminLanguage() {
   [ -z "$1" ] && return
   echo "Setting admin language to $1"
-  mysql -h${DB_HOST} -ucentreon -p${CENTREONDB_PWD} centreon -e "UPDATE contact SET contact_lang = '$1.UTF-8' WHERE contact_alias = 'admin'"
+
+  # Create credentials file
+  cat > /tmp/.my.cnf.centreon <<EOF
+[client]
+user=centreon
+password=${CENTREONDB_PWD}
+host=${DB_HOST}
+port=${DB_PORT}
+EOF
+  chmod 600 /tmp/.my.cnf.centreon
+
+  mysql --defaults-file=/tmp/.my.cnf.centreon centreon -e "UPDATE contact SET contact_lang = '$1.UTF-8' WHERE contact_alias = 'admin'"
+
+  # Clean up credentials file
+  rm -f /tmp/.my.cnf.centreon
 }
 
 case "$CENTREON_LANG" in
@@ -118,3 +169,8 @@ esac
 # Clean install folder
 # --------------------------
 su www-data -s /bin/bash -c "rm -rf /var/www/html/centreon/www/install/"
+
+# --------------------------
+# Signal container is ready
+# --------------------------
+echo "$(date): Centreon installation/upgrade complete" > /tmp/docker.ready

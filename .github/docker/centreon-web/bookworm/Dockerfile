@@ -22,7 +22,6 @@ RUN apt-get update && apt-get install -y \
     wget \
     gpg \
     gosu \
-    sudo \
     rsync \
     jq \
     && docker-php-ext-configure ldap --with-libdir=lib/x86_64-linux-gnu \
@@ -38,7 +37,7 @@ RUN apt-get update && apt-get install -y \
         zip \
         gettext \
     && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 RUN groupadd -g 900 centreon &&\
     useradd -u 900 -g centreon -m -r -d /var/spool/centreon -c "Centreon" -s /bin/bash centreon &&\
@@ -109,6 +108,11 @@ WORKDIR /var/www/html
 
 ENV CENTREON_DATASET="1"
 ENV CENTREON_LANG="en_US"
+
+# Allow users to specify custom PUID/PGID to match host user
+# Defaults to the existing centreon user (900:900)
+ENV PUID=900
+ENV PGID=900
 
 ENTRYPOINT ["/usr/share/centreon/container.sh"]
 

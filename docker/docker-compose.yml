@@ -2,15 +2,40 @@ x-defaults: &defaults
   environment:
     TZ: "America/Toronto"
 
-services:  
+services:
+  # Init container to sync application files to shared volume
+  centreon-sync:
+    <<: *defaults
+    image: docker.centreon.com/centreon/centreon-web-bookworm:fth-docker-centreon-web
+    volumes:
+      - app-data:/var/www/html:rw,z
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        echo "Syncing Centreon application files to volume..."
+        rsync -av --delete --chown=www-data:www-data /usr/share/centreon/ /var/www/html/centreon/
+
+        # Store image version to detect upgrades
+        IMAGE_VERSION=$$(dpkg -l | grep centreon-web | awk '{print $$3}' | head -1)
+        echo "$$IMAGE_VERSION" > /var/www/html/centreon/.image_version
+        chown www-data:www-data /var/www/html/centreon/.image_version
+
+        echo "Sync complete (version: $$IMAGE_VERSION)"
+    networks:
+      - app-network
+
   php-fpm:
     <<: *defaults
     image: docker.centreon.com/centreon/centreon-web-bookworm:fth-docker-centreon-web
     build:
       context: .
       dockerfile: Dockerfile
+    depends_on:
+      centreon-sync:
+        condition: service_completed_successfully
     # environment:
     #   - APP_ENV=dev
+    #   - DEBUG=true  # Uncomment to enable debug logging
     volumes:
       - app-etc:/etc/centreon/:rw
       - app-data:/var/www/html:rw,z
@@ -36,7 +61,10 @@ services:
     image: httpd:2.4
     restart: always
     depends_on:
-      - php-fpm
+      centreon-sync:
+        condition: service_completed_successfully
+      php-fpm:
+        condition: service_started
     ports:
       - "80:80"
     volumes:
