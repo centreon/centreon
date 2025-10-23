@@ -3,15 +3,15 @@ msgstr ""
 "Project-Id-Version: Centreon web\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-01-01 00:00+0000\n"
-"PO-Revision-Date: 2022-08-19 13:22+0200\n"
-"Last-Translator: Johannes Reiter <reiterjohannes3@googlemail.com>\n"
-"Language-Team: Centreon Team\n"
-"Language: de\n"
+"PO-Revision-Date: 2025-10-23 13:34+0000\n"
+"Last-Translator: Weblate Admin <weblate.admin@example.com>\n"
+"Language-Team: German <http://weblate.example.com/projects/test2/help/de/>\n"
+"Language: de_DE\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 3.1.1\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 5.12.1\n"
 
 #: centreon/www/include/configuration/configObject/host/help.php
 msgid ""
@@ -107,7 +107,7 @@ msgstr ""
 
 #: centreon/www/include/options/accessLists/actionsACL/help.php
 msgid "Allows user to delete pollers."
-msgstr ""
+msgstr "Ermöglicht es dem Benutzer, Poller zu löschen."
 
 #: centreon/www/include/options/accessLists/actionsACL/help.php
 msgid "Allows user to deploy configuration."
