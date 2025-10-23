@@ -533,4 +533,13 @@ interface ConnectionInterface
      * @return void
      */
     public function stopUnbufferedQuery(): void;
+
+    // --------------------------------------- DDL TOOLS -----------------------------------------------
+
+    /**
+     * Check if a column exists in a table.
+     *
+     * @throws ConnectionException
+     */
+    public function columnExists(string $dbName, string $tableName, string $columnName): bool;
 }
