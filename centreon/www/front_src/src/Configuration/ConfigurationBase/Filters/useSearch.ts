@@ -1,18 +1,24 @@
 import debounce from '@mui/utils/debounce';
-import { useAtom, useAtomValue } from 'jotai';
+import { PrimitiveAtom, useAtom, useAtomValue } from 'jotai';
 import { equals, pluck } from 'ramda';
-import { configurationAtom, filtersAtom } from '../atoms';
+import { configurationAtom } from '../atoms';
 
 import { useQueryClient } from '@tanstack/react-query';
 import { useRef } from 'react';
 
-interface UseSearch {
+interface UseSearch<TFilters> {
   onChange: (event) => void;
-  filters;
+  filters: TFilters;
   areAdvancedFiltersVisible: boolean;
 }
 
-const useSearch = (): UseSearch => {
+interface Props<TFilters> {
+  filtersAtom: PrimitiveAtom<TFilters>;
+}
+
+const useSearch = <TFilters>({
+  filtersAtom
+}: Props<TFilters>): UseSearch<TFilters> => {
   const queryClient = useQueryClient();
 
   const [filters, setFilters] = useAtom(filtersAtom);
