@@ -138,4 +138,9 @@ class TokenException extends \Exception
     {
         return new self(_('You are not allowed to partially update the token'));
     }
+
+    public static function tokenNotFound(): self
+    {
+        return new self(_('Token not found'));
+    }
 }

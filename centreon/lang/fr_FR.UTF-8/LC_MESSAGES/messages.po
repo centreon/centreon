@@ -19150,6 +19150,10 @@ msgstr ""
 msgid "You are not allowed to partially update the token"
 msgstr "Vous n'avez pas la permission de mettre à jour partiellement le jeton"
 
+#: centreon/src/Core/Security/Token/Application/Exception/TokenException.php
+msgid "Token not found"
+msgstr "Jeton introuvable"
+
 #: centreon/src/Core/HostTemplate/Application/Exception/HostTemplateException.php
 msgid "You are not allowed to perform write actions on host templates"
 msgstr ""

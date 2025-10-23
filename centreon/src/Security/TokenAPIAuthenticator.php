@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Security;
 
+use Adaptation\Log\LoggerToken;
 use Centreon\Domain\Contact\Interfaces\ContactRepositoryInterface;
 use Centreon\Domain\Exception\ContactDisabledException;
 use Centreon\Domain\Log\LoggerTrait;
@@ -172,27 +173,20 @@ class TokenAPIAuthenticator extends AbstractAuthenticator implements Authenticat
 
     private function logTokenUsage(Request $request): void
     {
-        try {
-            $tokenString = $request->headers->get('X-AUTH-TOKEN');
-            if ($tokenString && ! $this->readTokenRepository->isTokenTypeAuto($tokenString)) {
-                /** @var ApiToken|null $apiToken */
-                $apiToken = $this->readTokenRepository->find($tokenString);
-                if ($apiToken instanceof ApiToken) {
-                    $this->info(
-                        'Api token used',
-                        [
-                            'event' => 'Token usage',
-                            'datetime' => (new \DateTimeImmutable())->format('Y-m-d H:i:s'),
-                            'user_id' => $apiToken->getUserId(),
-                            'token_name' => $apiToken->getName(),
-                            'endpoint' => $request->getRequestUri(),
-                            'http_method' => $request->getMethod(),
-                        ]
-                    );
-                }
+        $tokenString = $request->headers->get('X-AUTH-TOKEN');
+        if ($tokenString && ! $this->readTokenRepository->isTokenTypeAuto($tokenString)) {
+            /** @var ApiToken|null $apiToken */
+            $apiToken = $this->readTokenRepository->find($tokenString);
+            if ($apiToken instanceof ApiToken) {
+                LoggerToken::create()->success(
+                    event: 'Token usage',
+                    userId: $apiToken->getCreatorId(),
+                    tokenName: $apiToken->getName(),
+                    tokenType: 'api',
+                    endpoint: $request->getRequestUri(),
+                    httpMethod: $request->getMethod(),
+                );
             }
-        } catch (\Throwable $e) {
-            $this->error('Token usage log failure');
         }
     }
 }

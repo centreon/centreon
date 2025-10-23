@@ -32,6 +32,7 @@ use Monolog\Level;
 use Monolog\Logger as MonologLogger;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
+use WebDriver\Log;
 
 final readonly class MonologAdapter implements LoggerInterface
 {
@@ -121,6 +122,10 @@ final readonly class MonologAdapter implements LoggerInterface
             $handler = match ($this->channel) {
                 LogChannelEnum::PASSWORD => new StreamHandler(
                     $this->getLogFileFromChannel(LogChannelEnum::PASSWORD),
+                    LogLevel::INFO
+                ),
+                LogChannelEnum::TOKEN => new StreamHandler(
+                    $this->getLogFileFromChannel(LogChannelEnum::TOKEN),
                     LogLevel::INFO
                 ),
                 // TODO if another channel is needed, uncomment the following line
