@@ -405,8 +405,7 @@ jobs:
           echo "Ensure Symfony cache directories exist"
           sudo mkdir -p /var/cache/centreon/symfony{,.new}
           echo "Set permissions on Symfony cache directories with user: '$USER'"
-          sudo chown -R $USER:$USER /var/cache/centreon/symfony.new
-          sudo chown -R $USER:$USER /var/cache/centreon/symfony
+          sudo chown -R $USER:$USER /var/cache/centreon/symfony{,.new}
 
       - name: Install dependencies
         uses: ramsey/composer-install@3cf229dc2919194e9e36783941438d17239e8520 # v3.1.1
