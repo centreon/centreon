@@ -9,7 +9,8 @@ interface DsData {
   ds_invert: string | null;
   ds_legend: string | null;
   ds_order: string | null;
-  ds_stack: string | null;
+  ds_stack: string | boolean | null;
+  ds_stack_key?: string | null;
   ds_transparency: number;
 }
 
@@ -20,7 +21,7 @@ export interface Metric {
   critical_low_threshold: number | null;
   data: Array<number | null>;
   displayAs?: 'line' | 'bar';
-  ds_data?: DsData;
+  ds_data: DsData;
   legend: string;
   maximum_value: number | null;
   metric: string;
@@ -56,6 +57,7 @@ export interface Line {
   minimum_value: number | null;
   name: string;
   stackOrder: number | null;
+  stackKey: string | null;
   transparency: number;
   unit: string;
 }
