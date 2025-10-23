@@ -1,13 +1,23 @@
 #!/bin/sh
 set -e
-TYPE="${TYPE:-central}" 
+TYPE="${TYPE:-central}"
 
 if [ "$TYPE" = "central" ]; then
     echo "Configuring for Central"
+
+    # Wait for database config file with timeout
+    TIMEOUT="${CONFIG_WAIT_TIMEOUT:-300}"
+    ELAPSED=0
     while [ ! -f /etc/centreon/config.d/10-database.yaml ]; do
-      echo "Waiting for /etc/centreon/config.d/10-database.yaml to be present..."
+      if [ $ELAPSED -ge $TIMEOUT ]; then
+        echo "ERROR: Timeout waiting for /etc/centreon/config.d/10-database.yaml after ${TIMEOUT}s"
+        exit 1
+      fi
+      echo "Waiting for /etc/centreon/config.d/10-database.yaml to be present... (${ELAPSED}s/${TIMEOUT}s)"
       sleep 2
+      ELAPSED=$((ELAPSED + 2))
     done
+    echo "Database config file found after ${ELAPSED}s"
     cat <<EOF > /etc/centreon-gorgone/config.d/40-gorgoned.yaml
 name: gorgoned-Central
 description: Configuration for remote server Central

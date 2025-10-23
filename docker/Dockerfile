@@ -45,7 +45,7 @@ RUN gorgone/install.sh -s
 FROM debian:12-slim AS centengine
 
 RUN apt update && \
-    apt install -y \
+    apt install -y --no-install-recommends \
     lsb-release \
     ca-certificates \
     apt-transport-https \
@@ -55,7 +55,7 @@ RUN apt update && \
     curl \
     libmariadb3 \
     monitoring-plugins-basic \
-    python3 \
+    python3-minimal \
     python3-venv \
     iputils-ping \
     sudo && \
@@ -63,7 +63,12 @@ RUN apt update && \
     wget -O- https://apt-key.centreon.com | gpg --dearmor | tee /etc/apt/trusted.gpg.d/centreon.gpg > /dev/null 2>&1 && \
     apt update && \
     apt clean && \
-    rm -rf /var/lib/apt/lists/*
+    rm -rf /var/lib/apt/lists/* \
+           /tmp/* \
+           /var/tmp/* \
+           /usr/share/doc/* \
+           /usr/share/man/* \
+           /var/cache/apt/*
 
 # # Copy the built binaries from the builder stage
 
@@ -116,7 +121,7 @@ CMD ["uvicorn", "api_control:app", "--host", "0.0.0.0", "--port", "8000"]
 FROM debian:12-slim AS broker
 
 RUN apt update && \
-    apt install -y \
+    apt install -y --no-install-recommends \
     lsb-release \
     ca-certificates \
     apt-transport-https \
@@ -125,12 +130,17 @@ RUN apt update && \
     gnupg2 \
     curl \
     librrd8 \
-    python3 \
+    python3-minimal \
     python3-venv \
     procps \
     libmariadb3 && \
     apt clean && \
-    rm -rf /var/lib/apt/lists/*
+    rm -rf /var/lib/apt/lists/* \
+           /tmp/* \
+           /var/tmp/* \
+           /usr/share/doc/* \
+           /usr/share/man/* \
+           /var/cache/apt/*
 
 # # Copy the built binaries from the builder stage
 
@@ -175,7 +185,7 @@ FROM debian:12-slim AS gorgone
 
 # Install runtime dependencies specific to the new container
 RUN apt update && \
-    apt install -y \
+    apt install -y --no-install-recommends \
     perl-modules \
     libcryptx-perl \
     libzmq-ffi-perl \
@@ -200,14 +210,19 @@ RUN apt update && \
     echo "deb https://packages.centreon.com/apt-plugins-stable/ $(lsb_release -sc) main" | tee /etc/apt/sources.list.d/centreon-plugins.list && \
     wget -O- https://apt-key.centreon.com | gpg --dearmor | tee /etc/apt/trusted.gpg.d/centreon.gpg > /dev/null 2>&1 && \
     apt update && \
-    apt install -y \
+    apt install -y --no-install-recommends \
     libnet-curl-perl \
     libcrypt-openssl-aes-perl \
     libssh-session-perl \
     libxml-simple-perl \
     sudo && \
     apt clean && \
-    rm -rf /var/lib/apt/lists/*
+    rm -rf /var/lib/apt/lists/* \
+           /tmp/* \
+           /var/tmp/* \
+           /usr/share/doc/* \
+           /usr/share/man/* \
+           /var/cache/apt/*
 
 RUN groupadd -g 900 centreon &&\
     useradd -u 900 -g centreon -m -r -d /var/spool/centreon -c "Centreon" -s /bin/bash centreon &&\

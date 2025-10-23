@@ -1,7 +1,12 @@
 #!/bin/sh
 
-#set -e
-set -x
+# Only enable debug mode if requested
+if [ "${DEBUG}" = "true" ] || [ "${DEBUG}" = "1" ]; then
+  set -x
+  echo "Debug mode enabled"
+fi
+
+set -e
 
 # Run each startup script located in BASEDIR.
 # ls is required to ensure that the scripts are properly sorted by name.

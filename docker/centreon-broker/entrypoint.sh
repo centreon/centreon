@@ -1,4 +1,11 @@
 #!/bin/bash
+
+# Only enable debug mode if requested
+if [ "${DEBUG}" = "true" ] || [ "${DEBUG}" = "1" ]; then
+  set -x
+  echo "Debug mode enabled"
+fi
+
 set -e
 
 # create / reuse venv directory
@@ -8,8 +15,8 @@ fi
 # activate venv
 . ./venv/bin/activate
 
-pip install --upgrade pip
-pip install fastapi uvicorn
+# Install Python dependencies (--no-cache-dir reduces image size)
+pip install --no-cache-dir fastapi uvicorn
 
 # execute the container command so signals are forwarded
 exec "$@"
