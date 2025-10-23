@@ -55,10 +55,9 @@ final class DbReadImageFolderRepository extends DatabaseRepository implements Re
 
     public function __construct(
         ConnectionInterface $connection,
-        QueryBuilderInterface $queryBuilder,
         private readonly SqlRequestParametersTranslator $sqlRequestTranslator,
     ) {
-        parent::__construct($connection, $queryBuilder);
+        parent::__construct($connection);
 
         $this->sqlRequestTranslator
             ->getRequestParameters()

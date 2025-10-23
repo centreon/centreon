@@ -38,11 +38,9 @@ abstract class DatabaseRepository
      * DatabaseRepository constructor
      *
      * @param ConnectionInterface $connection
-     * @param QueryBuilderInterface $queryBuilder
      */
     public function __construct(
         protected ConnectionInterface $connection,
-        protected QueryBuilderInterface $queryBuilder,
     ) {
     }
 

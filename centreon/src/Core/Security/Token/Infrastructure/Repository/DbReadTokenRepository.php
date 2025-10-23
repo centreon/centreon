@@ -59,10 +59,9 @@ class DbReadTokenRepository extends DatabaseRepository implements ReadTokenRepos
 
     public function __construct(
         ConnectionInterface $connection,
-        QueryBuilderInterface $queryBuilder,
         SqlRequestParametersTranslator $sqlRequestTranslator,
     ) {
-        parent::__construct($connection, $queryBuilder);
+        parent::__construct($connection);
         $this->sqlRequestTranslator = $sqlRequestTranslator;
         $this->sqlRequestTranslator
             ->getRequestParameters()
