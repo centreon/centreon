@@ -17,7 +17,7 @@ msgstr ""
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: \n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
 #: centreon/www/install/smarty_translate.php
@@ -1610,6 +1610,7 @@ msgstr ""
 #: centreon/www/install/front_translate.php
 #: centreon/www/install/front_translate.php
 #: centreon/www/install/front_translate.php
+#: centreon/www/install/front_translate.php
 msgid "At least one column must be selected"
 msgstr ""
 
@@ -1666,6 +1667,10 @@ msgstr ""
 
 #: centreon/www/include/Administration/parameters/general/form.php
 msgid "Attempt"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Au moins un des modes de connexion doit être activé."
 msgstr ""
 
 #: centreon/www/include/Administration/parameters/centstorage/form.php
@@ -2118,11 +2123,19 @@ msgid "By Status"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
+msgid "By agent"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
 msgid ""
 "By executing this script, your platform will be in a locked mode and you "
 "will not be able to do <strong>anything</strong> during the migration "
 "process (example: deploying your configuration, updating administration "
 "parameters, etc...)."
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "By poller"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
@@ -3323,6 +3336,10 @@ msgstr ""
 
 #: centreon/www/class/centreonDB.class.php
 msgid "Connection failed, please contact your administrator"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Connection initiated"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
@@ -5525,6 +5542,7 @@ msgstr ""
 #: centreon/www/include/options/accessLists/groupsACL/listGroupConfig.php
 #: centreon/www/include/options/accessLists/menusACL/listsMenusAccess.php
 #: centreon/www/include/options/accessLists/resourcesACL/listsResourcesAccess.php
+#: centreon/www/install/front_translate.php
 #: centreon/www/install/front_translate.php
 msgid "Enable"
 msgstr ""
@@ -8892,6 +8910,13 @@ msgstr ""
 
 #: centreon/www/include/configuration/configObject/traps/formTraps.php
 msgid "If no match, submit default status"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid ""
+"If the agent is not allowed to connect to the poller for security reasons "
+"(e.g. when the poller is in a DMZ), you can use a poller-initiated "
+"connection."
 msgstr ""
 
 #: centreon/www/include/configuration/configObject/contact/listContact.php
@@ -17283,6 +17308,12 @@ msgstr ""
 #: centreon/www/include/configuration/configObject/contact/listContact.php
 #: centreon/www/include/configuration/configObject/contact_template_model/listContactTemplateModel.php
 msgid "This is a contact template."
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid ""
+"This is the most common case: the agent initiates the connection to the "
+"poller."
 msgstr ""
 
 #: centreon/www/install/front_translate.php

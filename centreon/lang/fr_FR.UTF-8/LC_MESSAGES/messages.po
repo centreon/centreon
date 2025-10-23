@@ -1644,6 +1644,10 @@ msgstr "Lier à un Remote Server principal"
 msgid "Attempt"
 msgstr "Tentative"
 
+#: centreon/www/install/front_translate.php
+msgid "Au moins un des modes de connexion doit être activé."
+msgstr ""
+
 #: centreon/www/include/Administration/parameters/centstorage/form.php
 msgid "Audit log activation"
 msgstr "Activation des journaux d'audit"
@@ -2073,6 +2077,10 @@ msgid "By Status"
 msgstr "Par statut"
 
 #: centreon/www/install/front_translate.php
+msgid "By agent"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
 msgid ""
 "By executing this script, your platform will be in a locked mode and you "
 "will not be able to do <strong>anything</strong> during the migration "
@@ -2083,6 +2091,10 @@ msgstr ""
 "pourrez plus <strong>rien modifier</strong> durant le processus de migration "
 "(exemple : déployer la configuration, modifier les paramètres "
 "d'administration, etc...)."
+
+#: centreon/www/install/front_translate.php
+msgid "By poller"
+msgstr ""
 
 #: centreon/www/install/front_translate.php
 msgid "CA Common Name (CN)"
@@ -3270,6 +3282,10 @@ msgstr "Connexion réussie"
 #: centreon/www/class/centreonDB.class.php
 msgid "Connection failed, please contact your administrator"
 msgstr "Connexion échouée, contactez votre administrateur"
+
+#: centreon/www/install/front_translate.php
+msgid "Connection initiated"
+msgstr ""
 
 #: centreon/www/install/front_translate.php
 msgid "Connection initiated by poller"
@@ -8371,6 +8387,13 @@ msgstr "Si pas de correspondance, ne pas envoyer le résultat"
 #: centreon/www/include/configuration/configObject/traps/formTraps.php
 msgid "If no match, submit default status"
 msgstr "Si pas de correspondance, envoyer le résultat par défaut"
+
+#: centreon/www/install/front_translate.php
+msgid ""
+"If the agent is not allowed to connect to the poller for security reasons "
+"(e.g. when the poller is in a DMZ), you can use a poller-initiated "
+"connection."
+msgstr ""
 
 # centreon/www/include/configuration/configObject/contact/listContact.php
 #: centreon/www/include/configuration/configObject/contact/listContact.php
@@ -16115,6 +16138,12 @@ msgstr ""
 #: centreon/www/include/configuration/configObject/contact_template_model/listContactTemplateModel.php
 msgid "This is a contact template."
 msgstr "Ceci est un modèle de contact."
+
+#: centreon/www/install/front_translate.php
+msgid ""
+"This is the most common case: the agent initiates the connection to the "
+"poller."
+msgstr ""
 
 #: centreon/www/install/front_translate.php
 msgid "This name already exists"
@@ -23978,6 +24007,10 @@ msgid "platform not found"
 msgstr "plateforme non trouvée"
 
 #: unknown
+msgid "poller"
+msgstr "collecteur"
+
+#: unknown
 msgid "px"
 msgstr "px"
 
@@ -24068,10 +24101,6 @@ msgstr "alerte"
 #: unknown
 msgid "will display resources with host name starting by'"
 msgstr "affichera les ressources avec un nom d'hôte commençant par"
-
-#: unknown
-msgid "poller"
-msgstr "collecteur"
 
 #: unknown
 msgid "{{total}} element(s) found"
