@@ -1,7 +1,15 @@
-import { Dispatch, SetStateAction, useEffect, useState } from 'react';
+import {
+  Dispatch,
+  ReactElement,
+  SetStateAction,
+  useEffect,
+  useState
+} from 'react';
 
 import { useAtomValue, useSetAtom } from 'jotai';
 import { equals, includes, isNil } from 'ramda';
+
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 
 import { SelectEntry, buildListingEndpoint } from '../../../..';
 import {
@@ -17,6 +25,7 @@ interface UseShareInputState {
   getEndpoint: (parameters) => string;
   getOptionDisabled: (option) => boolean;
   isContactGroup: boolean;
+  getRenderedOptionText: (option: unknown) => ReactElement | string;
   selectContact: (_, entry) => void;
   selectedContact: AccessRightInitialValues | null;
   selectedRole: string;
@@ -36,7 +45,7 @@ const useShareInput = (endpoints: Endpoints): UseShareInputState => {
 
   const selectContact = (_, entry): void => {
     setSelectedContact(entry);
-    if (equals('editor', entry.most_permissive_role)) {
+    if (equals('editor', entry?.most_permissive_role)) {
       return;
     }
     setSelectedRole('viewer');
@@ -67,6 +76,17 @@ const useShareInput = (endpoints: Endpoints): UseShareInputState => {
       }
     });
 
+  const getRenderedOptionText = (option): ReactElement => {
+    return (
+      <>
+        {option?.name}
+        {includes(option?.id, accessRightIds) && (
+          <CheckCircleIcon color="success" />
+        )}
+      </>
+    );
+  };
+
   const getOptionDisabled = (option): boolean => {
     return includes(option.id, accessRightIds);
   };
@@ -87,6 +107,7 @@ const useShareInput = (endpoints: Endpoints): UseShareInputState => {
     getEndpoint,
     getOptionDisabled,
     isContactGroup,
+    getRenderedOptionText,
     selectContact,
     selectedContact,
     selectedRole,

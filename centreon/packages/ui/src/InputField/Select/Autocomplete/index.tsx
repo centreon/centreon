@@ -13,6 +13,7 @@ import { AutocompleteSlotsAndSlotProps } from '@mui/material/Autocomplete';
 import { TextFieldSlotsAndSlotProps } from '@mui/material/TextField';
 import { UseAutocompleteProps } from '@mui/material/useAutocomplete';
 
+import type { AutocompleteRenderOptionState } from '@mui/material/Autocomplete';
 import { ForwardedRef, HTMLAttributes, ReactElement, forwardRef } from 'react';
 import { SelectEntry } from '..';
 import { getNormalizedId } from '../../../utils';
@@ -34,14 +35,10 @@ export type Props = {
   getOptionItemLabel?: (option) => string;
   hideInput?: boolean;
   renderOption?: (
-    renderProps: any,
-    option: any,
-    {
-      selected
-    }: {
-      selected: any;
-    }
-  ) => JSX.Element;
+    renderProps: HTMLAttributes<HTMLLIElement>,
+    option: SelectEntry,
+    state: AutocompleteRenderOptionState
+  ) => ReactElement;
   label: string;
   loading?: boolean;
   onTextChange?;
@@ -61,7 +58,7 @@ export type Props = {
 > &
   UseAutocompleteProps<SelectEntry, Multiple, DisableClearable, FreeSolo>;
 
-const LoadingIndicator = (): JSX.Element => {
+const LoadingIndicator = (): ReactElement => {
   const { classes } = useAutoCompleteStyles({});
 
   return (
@@ -103,7 +100,7 @@ const AutocompleteField = forwardRef(
       ...autocompleteProps
     }: Props,
     ref?: ForwardedRef<HTMLDivElement>
-  ): JSX.Element => {
+  ): ReactElement => {
     const { classes, cx } = useAutoCompleteStyles({ hideInput });
     const { t } = useTranslation();
     const theme = useTheme();
@@ -119,7 +116,7 @@ const AutocompleteField = forwardRef(
 
     const renderOptions = renderOption
       ? renderOption
-      : (props, option): JSX.Element => {
+      : (props, option): ReactElement => {
           return (
             <li
               className={classes.options}
@@ -134,7 +131,7 @@ const AutocompleteField = forwardRef(
           );
         };
 
-    const renderInput = (params): JSX.Element => {
+    const renderInput = (params): ReactElement => {
       return (
         <TextField
           {...params}

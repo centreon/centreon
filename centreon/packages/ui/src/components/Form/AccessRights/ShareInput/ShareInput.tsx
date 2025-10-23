@@ -8,6 +8,7 @@ import { SelectEntry, SingleConnectedAutocompleteField } from '../../../..';
 import RoleSelectField from '../common/RoleSelectField';
 import { Endpoints, Labels } from '../models';
 
+import { ReactElement } from 'react';
 import ContactSwitch from './ContactSwitch';
 import { useShareInputStyles } from './ShareInput.styles';
 import useShareInput from './useShareInput';
@@ -18,7 +19,7 @@ interface Props {
   roles: Array<SelectEntry>;
 }
 
-const ShareInput = ({ labels, endpoints, roles }: Props): JSX.Element => {
+const ShareInput = ({ labels, endpoints, roles }: Props): ReactElement => {
   const { t } = useTranslation();
   const { classes } = useShareInputStyles();
 
@@ -29,6 +30,7 @@ const ShareInput = ({ labels, endpoints, roles }: Props): JSX.Element => {
     selectContact,
     isContactGroup,
     selectedRole,
+    getRenderedOptionText,
     setSelectedRole,
     add,
     changeIdValue
@@ -45,6 +47,7 @@ const ShareInput = ({ labels, endpoints, roles }: Props): JSX.Element => {
           disableClearable={false}
           field="name"
           getEndpoint={getEndpoint}
+          getRenderedOptionText={getRenderedOptionText}
           getOptionDisabled={getOptionDisabled}
           label={t(
             isContactGroup
