@@ -27,14 +27,12 @@ export const useGraphValueTooltip = ({
   isSingleMode,
   sortOrder
 }: UseGraphValueTooltipProps): UseGraphValueTooltipState | null => {
-  const { toDate, toTime } = useLocaleDateTimeFormat();
+  const { format } = useLocaleDateTimeFormat();
   const graphTooltipData = useAtomValue(graphTooltipDataAtom);
 
   if (isNil(graphTooltipData) || isNil(graphTooltipData.metrics)) {
     return null;
   }
-
-  const formattedDateTime = `${toDate(graphTooltipData.date)} / ${toTime(graphTooltipData.date)}`;
 
   const filteredMetrics = isSingleMode
     ? filter(
@@ -54,7 +52,7 @@ export const useGraphValueTooltip = ({
   ])(sortOrder);
 
   return {
-    dateTime: formattedDateTime,
+    dateTime: format({ date: graphTooltipData.date, formatString: 'L LTS' }),
     highlightedMetricId: graphTooltipData.highlightedMetricId,
     metrics: sortedMetrics
   };
