@@ -963,6 +963,8 @@ class CentreonDB extends PDO implements ConnectionInterface
      * @param string|null $column - the column name to be checked
      *
      * @return int
+     *
+     * @deprecated use {@see ConnectionInterface::columnExists()} instead
      */
     public function isColumnExist(?string $table = null, ?string $column = null): int
     {
