@@ -403,8 +403,7 @@ jobs:
       - name: Ensure Symfony cache directories exist and are writable (legacy and new)
         run: |
           echo "Ensure Symfony cache directories exist"
-          sudo mkdir -p /var/cache/centreon/symfony.new
-          sudo mkdir -p /var/cache/centreon/symfony
+          sudo mkdir -p /var/cache/centreon/symfony{,.new}
           echo "Set permissions on Symfony cache directories with user: '$USER'"
           sudo chown -R $USER:$USER /var/cache/centreon/symfony.new
           sudo chown -R $USER:$USER /var/cache/centreon/symfony
