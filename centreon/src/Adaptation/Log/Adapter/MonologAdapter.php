@@ -32,7 +32,6 @@ use Monolog\Level;
 use Monolog\Logger as MonologLogger;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
-use WebDriver\Log;
 
 final readonly class MonologAdapter implements LoggerInterface
 {

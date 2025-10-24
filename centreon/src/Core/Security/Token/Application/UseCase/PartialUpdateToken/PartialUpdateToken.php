@@ -83,7 +83,7 @@ final class PartialUpdateToken
                 );
 
                 LoggerToken::create()->warning(
-                    event: 'partial_update',
+                    event: 'partial update',
                     reason: 'insufficient rights',
                     userId: $this->user->getId(),
                     tokenName: $tokenName
@@ -145,7 +145,7 @@ final class PartialUpdateToken
             $this->updateToken($requestDto, $token);
 
             LoggerToken::create()->success(
-                event: $requestDto->isRevoked ? 'Token revocation' : 'Token activation',
+                event: $requestDto->isRevoked ? 'revocation' : 'activation',
                 userId: $this->user->getId(),
                 tokenName: $tokenName,
                 tokenType: $token->getType()->name
@@ -162,7 +162,7 @@ final class PartialUpdateToken
             );
 
             LoggerToken::create()->warning(
-                event: $requestDto->isRevoked ? 'Token revocation' : 'Token activation',
+                event: $requestDto->isRevoked ? 'revocation' : 'activation',
                 reason: 'unexpected error',
                 userId: $this->user->getId(),
                 tokenName: $tokenName,
@@ -205,11 +205,10 @@ final class PartialUpdateToken
             );
 
             LoggerToken::create()->warning(
-                event: $requestDto->isRevoked ? 'Token revocation' : 'Token activation',
+                event: 'revocation/activation',
                 reason: 'is_revoked property is not provided',
                 userId: $this->user->getId(),
-                tokenName: $tokenName,
-                exception: $ex
+                tokenName: $token->getName(),
             );
 
             return;

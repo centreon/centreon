@@ -65,7 +65,7 @@ final class AddToken
                 event: 'creation',
                 userId: $this->user->getId(),
                 tokenName: $request->name,
-                tokenType: $request->type
+                tokenType: $request->type->name,
             );
 
             return $this->createResponse($tokenString);
@@ -144,7 +144,8 @@ final class AddToken
             $request->type,
             [
                 'name' => $request->name,
-                'user_id' => $this->user->getId(),
+                'user_id' => $request->userId,
+                'creator_id' => $this->user->getId(),
                 'creator_name' => $this->user->getName(),
                 'expiration_date' => $request->expirationDate,
                 'configuration_provider_id' => $this->providerFactory->create(Provider::LOCAL)->getConfiguration()->getId(),

@@ -179,7 +179,7 @@ class TokenAPIAuthenticator extends AbstractAuthenticator implements Authenticat
             $apiToken = $this->readTokenRepository->find($tokenString);
             if ($apiToken instanceof ApiToken) {
                 LoggerToken::create()->success(
-                    event: 'Token usage',
+                    event: 'usage',
                     userId: $apiToken->getCreatorId(),
                     tokenName: $apiToken->getName(),
                     tokenType: 'api',

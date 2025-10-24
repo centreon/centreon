@@ -149,7 +149,7 @@ final class DeleteToken
                 [
                     'user_id' => $this->user->getId(),
                     'token_name' => $tokenName,
-                    'token_type' => $token ? $token->getType()->name : null,
+                    'token_type' => isset($token) ? $token->getType()->name : null,
                 ]
             );
 
@@ -158,7 +158,7 @@ final class DeleteToken
                 reason: 'unexpected error',
                 userId: $this->user->getId(),
                 tokenName: $tokenName,
-                tokenType: $token ? $token->getType()->name : null,
+                tokenType: isset($token) ? $token->getType()->name : null,
                 exception: $ex
             );
 

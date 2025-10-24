@@ -20470,10 +20470,6 @@ msgstr ""
 msgid "You are not allowed to partially update the token"
 msgstr ""
 
-#: centreon/src/Core/Security/Token/Application/Exception/TokenException.php
-msgid "Token not found"
-msgstr ""
-
 #: centreon/src/Core/HostTemplate/Application/Exception/HostTemplateException.php
 msgid "You are not allowed to perform write actions on host templates"
 msgstr ""
