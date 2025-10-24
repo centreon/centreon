@@ -34,7 +34,7 @@ const SubItem = ({ row }: ComponentColumnProps): ReactElement => {
                 content={getStatus(item as string).label}
                 severityCode={getStatus(item as string).severity}
               />
-              <p>({statusCount?.[item]})</p>
+              <p>({statusCount[item]})</p>
             </Box>
           );
         }
