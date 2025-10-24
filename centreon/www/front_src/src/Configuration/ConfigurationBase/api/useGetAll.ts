@@ -8,6 +8,7 @@ interface UseGetAllProps {
   page?: number;
   limit?: number;
   searchConditions: Array<unknown>;
+  filtersAtomKey: string;
 }
 
 const useGetAll = ({
@@ -15,7 +16,8 @@ const useGetAll = ({
   sortOrder,
   page,
   limit,
-  searchConditions
+  searchConditions,
+  filtersAtomKey
 }: UseGetAllProps) => {
   const configuration = useAtomValue(configurationAtom);
 
@@ -36,7 +38,15 @@ const useGetAll = ({
           sort
         }
       }),
-    getQueryKey: () => ['listResources', sortField, sortOrder, limit, page],
+    getQueryKey: () => [
+      'listResources',
+      sortField,
+      sortOrder,
+      limit,
+      page,
+      configuration?.resourceType,
+      filtersAtomKey
+    ],
     queryOptions: {
       refetchOnMount: false,
       staleTime: 0,

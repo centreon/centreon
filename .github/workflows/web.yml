@@ -17,14 +17,10 @@ on:
     - cron: "0 3 * * 1-5"
   pull_request:
     paths:
+      - ".github/workflows/web.yml"
       - ".version"
       - ".version.centreon-web"
       - "centreon/**"
-      - "!centreon/cypress/**"
-      - "!centreon/features/**"
-      - "!centreon/lighthouse/**"
-      - "!centreon/tests/**"
-      - "!centreon/packages/**"
   push:
     branches:
       - develop
@@ -37,11 +33,6 @@ on:
       - ".version"
       - ".version.centreon-web"
       - "centreon/**"
-      - "!centreon/cypress/**"
-      - "!centreon/features/**"
-      - "!centreon/lighthouse/**"
-      - "!centreon/tests/**"
-      - "!centreon/packages/**"
     tags:
       - "centreon-web-*"
 
@@ -51,72 +42,6 @@ env:
   e2e_directory: centreon/tests/e2e
 
 jobs:
-  changes:
-    if: |
-      needs.get-environment.outputs.skip_workflow == 'false' &&
-      needs.get-environment.outputs.stability != 'stable'
-    needs: [get-environment]
-    runs-on: ubuntu-24.04
-    outputs:
-      has_frontend_changes: ${{ steps.filter.outputs.has_frontend_changes || 'true' }}
-      has_backend_changes: ${{ steps.filter.outputs.has_backend_changes || 'true' }}
-      has_test_changes: ${{ steps.filter.outputs.has_test_changes || 'true' }}
-      has_upgrade_changes: ${{ steps.filter.outputs.has_upgrade_changes || 'true' }}
-      trigger_delivery: ${{ steps.changes_trigger_checks.outputs.trigger_delivery }}
-      trigger_api_testing: ${{ steps.changes_trigger_checks.outputs.trigger_api_testing }}
-    steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-
-      - uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36 # v3.0.2
-        id: filter
-        if: |
-          github.event_name == 'pull_request' &&
-          needs.get-environment.outputs.stability != 'testing'
-        with:
-          base: ${{ github.head_ref || github.ref_name }}
-          filters: |
-            has_frontend_changes:
-              - 'centreon/*.[jt]sx?'
-              - 'centreon/!(*tests)/*.[jt]sx?'
-              - 'centreon/www/front_src/**'
-              - 'centreon/www/widgets/src/**'
-              - 'centreon/package*'
-              - 'centreon/lighthouse/**'
-              - 'centreon/tsconfig.json'
-              - 'centreon/cypress/**|**/pnpm-*'
-            has_backend_changes:
-              - 'centreon/*.php'
-              - 'centreon/!(*tests)/*.php'
-              - 'centreon/phpstan*.neon'
-              - 'centreon/codingstyle.xml'
-              - 'centreon/config/**/*.xml'
-              - 'centreon/phpunit.xml'
-              - 'centreon/ruleset.xml'
-              - 'centreon/www/**/*.xml'
-              - 'centreon/bin/**'
-              - 'centreon/tmpl/**'
-              - 'centreon/features/**'
-              - 'centreon/src/**'
-              - 'centreon/config/**'
-              - 'centreon/config.new/**'
-              - 'centreon/composer.*'
-              - 'centreon/www/!(front_src)/**'
-              - 'centreon/doc/API/**'
-            has_test_changes:
-              - 'centreon/tests/**'
-            has_upgrade_changes:
-              - 'centreon/www/install/**'
-              - 'centreon/packaging/**'
-          token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-
-      - uses: ./.github/actions/changes-trigger-checks
-        id: changes_trigger_checks
-        with:
-          is_nightly: ${{ needs.get-environment.outputs.is_nightly }}
-          has_frontend_changes: ${{ steps.filter.outputs.has_frontend_changes || 'true' }}
-          has_backend_changes: ${{ steps.filter.outputs.has_backend_changes || 'true' }}
-          has_test_changes: ${{ steps.filter.outputs.has_test_changes || 'true' }}
-
   dispatch-to-maintained-branches:
     if: ${{ github.run_attempt == 1 && github.event_name == 'schedule' && github.ref_name == 'develop' && github.repository == 'centreon/centreon' }}
     runs-on: ubuntu-24.04
@@ -138,6 +63,85 @@ jobs:
     with:
       version_file: centreon/www/install/insertBaseConf.sql
       nightly_manual_trigger: ${{ inputs.nightly_manual_trigger || false }}
+
+  changes:
+    if: |
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      needs.get-environment.outputs.stability != 'stable'
+    needs: [get-environment]
+    uses: ./.github/workflows/get-changes-triggers.yml
+    with:
+      backend_production_paths: |
+        ".version"
+        ".version.centreon-web"
+        "centreon/.env*"
+        "centreon/bootstrap.php"
+        "centreon/composer.*"
+        "centreon/container.php"
+        "centreon/symfony.lock"
+        "centreon/api/**"
+        "centreon/bin/**"
+        "centreon/config/**"
+        "centreon/config.new/**"
+        "centreon/cron/**"
+        "centreon/doc/API/**"
+        "centreon/GPL_LIB/**"
+        "centreon/lang/**"
+        "centreon/lib/**"
+        "centreon/libinstall/**"
+        "centreon/logrotate/**"
+        "centreon/lua/**"
+        "centreon/packaging/**"
+        "centreon/selinux/**"
+        "centreon/snmptrapd/**"
+        "centreon/src/**"
+        "centreon/tmpl/**"
+        "centreon/tools/**"
+        "centreon/varinstall/**"
+        "centreon/www/**"
+        "!centreon/www/front_src/**"
+      frontend_production_paths: |
+        "centreon/biome.json"
+        "centreon/package.json"
+        "centreon/pnpm*"
+        "centreon/rspack*"
+        "centreon/tsconfig.json"
+        "centreon/packages/ui/package.json"
+        "centreon/packages/ui/src/**"
+        "centreon/packages/ui-context/package.json"
+        "centreon/packages/ui-context/src/**"
+        "centreon/www/front_src/**"
+        "!centreon/**/cypress/**"
+        "!centreon/**/*.cypress.*"
+        "!centreon/**/__mocks__/**"
+      backend_test_paths: |
+        "centreon/.php-cs-fixer*"
+        "centreon/castor.php"
+        "centreon/codingstyle.xml"
+        "centreon/phpstan.*"
+        "centreon/phpunit*.xml"
+        "centreon/rector.*"
+        "centreon/tests/php/**"
+      frontend_test_paths: |
+        "centreon/cypress.config.ts"
+        "centreon/**/cypress/**"
+        "centreon/**/*.cypress.*"
+        "centreon/**/__mocks__/**"
+        "centreon/lighthouse/**"
+      api_test_paths: |
+        "centreon/tests/rest_api/**"
+      e2e_test_paths: |
+        "centreon/behat.yml"
+        "centreon/features/**"
+        "centreon/tests/clapi_export/**"
+        "centreon/tests/e2e/**"
+        "centreon/tests/performance/**"
+      upgrade_test_paths: |
+        "centreon/www/install/**"
+        "centreon/packaging/**"
+      is_nightly: ${{ needs.get-environment.outputs.is_nightly }}
+      base_sha: ${{ needs.get-environment.outputs.previous_release_bundle_tag }}
+      labels: ${{ needs.get-environment.outputs.labels }}
 
   check-version-consistency:
     runs-on: ubuntu-24.04
@@ -172,9 +176,14 @@ jobs:
           version: ${{ env.version }}
 
   frontend-web-build:
-    needs: [get-environment]
+    needs: [get-environment, changes]
     if: |
-      needs.get-environment.outputs.skip_workflow == 'false'
+      (
+        needs.changes.outputs.trigger_packaging == 'true' &&
+        needs.get-environment.outputs.skip_workflow == 'false'
+      ) ||
+      needs.get-environment.outputs.stability == 'stable'
+    # needed to deliver sources
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
@@ -190,9 +199,14 @@ jobs:
           build_command: pnpm centreon:build
 
   backend-dependencies:
-    needs: [get-environment]
+    needs: [get-environment, changes]
     if: |
-      needs.get-environment.outputs.skip_workflow == 'false'
+      (
+        needs.changes.outputs.trigger_packaging == 'true' &&
+        needs.get-environment.outputs.skip_workflow == 'false'
+      ) ||
+      needs.get-environment.outputs.stability == 'stable'
+    # needed to deliver sources
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
@@ -220,10 +234,14 @@ jobs:
           key: ${{ github.sha }}-${{ github.run_id }}-vendor
 
   translation-build:
-    needs: [get-environment]
+    needs: [get-environment, changes]
     if: |
-      needs.get-environment.outputs.skip_workflow == 'false'
-
+      (
+        needs.changes.outputs.trigger_packaging == 'true' &&
+        needs.get-environment.outputs.skip_workflow == 'false'
+      ) ||
+      needs.get-environment.outputs.stability == 'stable'
+    # needed to deliver sources
     runs-on: ubuntu-24.04
     container:
       image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/translation:${{ needs.get-environment.outputs.major_version }}
@@ -313,8 +331,8 @@ jobs:
     runs-on: ubuntu-24.04
     needs: [changes, get-environment]
     if: |
+      needs.changes.outputs.trigger_frontend_testing == 'true' &&
       needs.get-environment.outputs.skip_workflow == 'false' &&
-      needs.changes.outputs.has_frontend_changes == 'true' &&
       needs.get-environment.outputs.stability != 'stable'
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
@@ -330,7 +348,10 @@ jobs:
   frontend-unit-test:
     runs-on: ubuntu-24.04
     needs: [changes, get-environment]
-    if: ${{ needs.get-environment.outputs.skip_workflow == 'false' && needs.changes.outputs.has_frontend_changes == 'true' && needs.get-environment.outputs.stability != 'stable' }}
+    if: |
+      needs.changes.outputs.trigger_frontend_testing == 'true' &&
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      needs.get-environment.outputs.stability != 'stable'
 
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
@@ -365,7 +386,10 @@ jobs:
 
   frontend-component-test:
     needs: [changes, get-environment]
-    if: ${{ needs.get-environment.outputs.skip_workflow == 'false' && needs.changes.outputs.has_frontend_changes == 'true' && needs.get-environment.outputs.stability != 'stable' }}
+    if: |
+      needs.changes.outputs.trigger_frontend_testing == 'true' &&
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      needs.get-environment.outputs.stability != 'stable'
     uses: ./.github/workflows/cypress-component-parallelization.yml
     secrets:
       AWS_ACCESS_KEY_ID: ${{ secrets.LIGHTHOUSE_ID }}
@@ -383,7 +407,10 @@ jobs:
   backend-unit-test:
     runs-on: ubuntu-24.04
     needs: [changes, get-environment]
-    if: ${{ needs.get-environment.outputs.skip_workflow == 'false' && needs.changes.outputs.has_backend_changes == 'true' && needs.get-environment.outputs.stability != 'stable' }}
+    if: |
+      needs.changes.outputs.trigger_backend_testing == 'true' &&
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      needs.get-environment.outputs.stability != 'stable'
 
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
@@ -399,6 +426,13 @@ jobs:
       - name: Create configuration file
         run: cp config/centreon.config.php.template config/centreon.config.php
         working-directory: centreon
+
+      - name: Ensure Symfony cache directories exist and are writable (legacy and new)
+        run: |
+          echo "Ensure Symfony cache directories exist"
+          sudo mkdir -p /var/cache/centreon/symfony{,.new}
+          echo "Set permissions on Symfony cache directories with user: '$USER'"
+          sudo chown -R $USER:$USER /var/cache/centreon/symfony{,.new}
 
       - name: Install dependencies
         uses: ramsey/composer-install@3cf229dc2919194e9e36783941438d17239e8520 # v3.1.1
@@ -419,7 +453,10 @@ jobs:
   backend-lint:
     runs-on: ubuntu-24.04
     needs: [changes, get-environment]
-    if: ${{ needs.get-environment.outputs.skip_workflow == 'false' && needs.changes.outputs.has_backend_changes == 'true' && needs.get-environment.outputs.stability != 'stable' }}
+    if: |
+      needs.changes.outputs.trigger_backend_testing == 'true' &&
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      needs.get-environment.outputs.stability != 'stable'
 
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
@@ -558,7 +595,7 @@ jobs:
     runs-on: ubuntu-24.04
     needs: [get-environment, changes]
     if: |
-      needs.changes.outputs.has_test_changes == 'true' &&
+      needs.changes.outputs.trigger_e2e_testing == 'true' &&
       needs.get-environment.outputs.skip_workflow == 'false' &&
       needs.get-environment.outputs.stability != 'stable'
     steps:
@@ -572,7 +609,7 @@ jobs:
     runs-on: ubuntu-22.04
     needs: [get-environment, changes]
     if: |
-      needs.changes.outputs.has_test_changes == 'true' &&
+      needs.changes.outputs.trigger_e2e_testing == 'true' &&
       needs.get-environment.outputs.skip_workflow == 'false' &&
       needs.get-environment.outputs.stability != 'stable'
     steps:
@@ -589,6 +626,7 @@ jobs:
     needs:
       [
         get-environment,
+        changes,
         check-version-consistency,
         translation-build,
         backend-dependencies,
@@ -602,6 +640,7 @@ jobs:
         e2e-lint,
       ]
     if: |
+      needs.changes.outputs.trigger_packaging == 'true' &&
       needs.get-environment.outputs.skip_workflow == 'false' &&
       ! cancelled() &&
       ! contains(needs.*.result, 'failure') &&
@@ -732,8 +771,15 @@ jobs:
 
   dockerize:
     runs-on: ubuntu-24.04
-    needs: [get-environment, package]
-    if: ${{ needs.get-environment.outputs.skip_workflow == 'false' && !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.get-environment.outputs.stability != 'stable' && github.repository == 'centreon/centreon' }}
+    needs: [get-environment, changes, package]
+    if: |
+      needs.changes.outputs.trigger_packaging == 'true' &&
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      ! cancelled() &&
+      ! contains(needs.*.result, 'failure') &&
+      ! contains(needs.*.result, 'cancelled') &&
+      needs.get-environment.outputs.stability != 'stable' &&
+      github.repository == 'centreon/centreon'
 
     env:
       project: centreon-web
@@ -861,8 +907,15 @@ jobs:
           key: docker-image-${{ env.project }}-slim-${{ matrix.operating_system }}-${{ github.head_ref || github.ref_name }}
 
   create-xray-test-plan-and-test-execution:
-    needs: [get-environment, dockerize]
-    if: ${{ needs.get-environment.outputs.skip_workflow == 'false' && !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && ( needs.get-environment.outputs.stability == 'testing' || github.event_name == 'schedule' ) && github.repository == 'centreon/centreon' }}
+    needs: [get-environment, changes, dockerize]
+    if: |
+      needs.changes.outputs.trigger_api_testing == 'true' &&
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      ! cancelled() &&
+      ! contains(needs.*.result, 'failure') &&
+      ! contains(needs.*.result, 'cancelled') &&
+      ( needs.get-environment.outputs.stability == 'testing' || github.event_name == 'schedule' ) &&
+      github.repository == 'centreon/centreon'
     strategy:
       fail-fast: false
       matrix:
@@ -888,11 +941,11 @@ jobs:
         dockerize
       ]
     if: |
+      needs.changes.outputs.trigger_api_testing == 'true' &&
       needs.get-environment.outputs.skip_workflow == 'false' &&
       ! cancelled() &&
       ! contains(needs.*.result, 'failure') &&
       ! contains(needs.*.result, 'cancelled') &&
-      needs.changes.outputs.trigger_api_testing == 'true' &&
       needs.get-environment.outputs.stability != 'stable' &&
       github.repository == 'centreon/centreon'
     strategy:
@@ -926,7 +979,14 @@ jobs:
 
   legacy-e2e-test:
     needs: [get-environment, changes, dockerize]
-    if: ${{ needs.get-environment.outputs.skip_workflow == 'false' && !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.changes.outputs.has_backend_changes == 'true' && needs.get-environment.outputs.stability != 'stable' && github.repository == 'centreon/centreon' }}
+    if: |
+      needs.changes.outputs.trigger_e2e_testing == 'true' &&
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      ! cancelled() &&
+      ! contains(needs.*.result, 'failure') &&
+      ! contains(needs.*.result, 'cancelled') &&
+      needs.get-environment.outputs.stability != 'stable' &&
+      github.repository == 'centreon/centreon'
     strategy:
       fail-fast: false
       matrix:
@@ -961,10 +1021,11 @@ jobs:
         e2e-lint,
       ]
     if: |
+      needs.changes.outputs.trigger_e2e_testing == 'true' &&
       needs.get-environment.outputs.skip_workflow == 'false' &&
-      !cancelled() &&
-      !contains(needs.*.result, 'failure') &&
-      !contains(needs.*.result, 'cancelled') &&
+      ! cancelled() &&
+      ! contains(needs.*.result, 'failure') &&
+      ! contains(needs.*.result, 'cancelled') &&
       needs.get-environment.outputs.stability != 'stable' &&
       github.repository == 'centreon/centreon'
     strategy:
@@ -986,7 +1047,7 @@ jobs:
       target_stability: ${{ needs.get-environment.outputs.target_stability }}
       package_cache_key: ${{ format('{0}-{1}-{2}', github.sha, github.run_id, matrix.operating_system == 'alma8' && 'rpm-el8' || matrix.operating_system == 'alma9' && 'rpm-el9' || 'deb-bookworm' ) }}
       package_directory: fixtures/packages
-      test_tags: ${{ ( needs.changes.outputs.has_upgrade_changes == 'true' || needs.get-environment.outputs.is_nightly == 'true' ) && matrix.test_tags || format('{0} and not @update and not @upgrade', matrix.test_tags) }}
+      test_tags: ${{ needs.changes.outputs.trigger_upgrade_testing == 'true' && matrix.test_tags || format('{0} and not @update and not @upgrade', matrix.test_tags) }}
       dependencies_lock_file: centreon/pnpm-lock.yaml
       xray_keys_and_ids: ${{ toJson(needs.create-xray-test-plan-and-test-execution.outputs) }}
       is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
@@ -1004,8 +1065,15 @@ jobs:
 
   # performances-test:
   #   runs-on: ubuntu-24.04
-  #   needs: [get-environment, dockerize]
-  #   if: ${{ needs.get-environment.outputs.skip_workflow == 'false' && !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.get-environment.outputs.stability != 'stable' && github.repository == 'centreon/centreon' }}
+  #   needs: [get-environment, changes, dockerize]
+  #   if: |
+  #     needs.changes.outputs.trigger_e2e_testing == 'true' &&
+  #     needs.get-environment.outputs.skip_workflow == 'false' &&
+  #     ! cancelled() &&
+  #     ! contains(needs.*.result, 'failure') &&
+  #     ! contains(needs.*.result, 'cancelled') &&
+  #     needs.get-environment.outputs.stability != 'stable' &&
+  #     github.repository == 'centreon/centreon'
   #   strategy:
   #     fail-fast: false
   #     matrix:
@@ -1051,7 +1119,14 @@ jobs:
   deliver-sources:
     runs-on: centreon-common
     needs: [get-environment, e2e-test, legacy-e2e-test]
-    if: ${{ needs.get-environment.outputs.skip_workflow == 'false' && !cancelled() && contains(fromJson('["stable"]'), needs.get-environment.outputs.stability) && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && github.event_name != 'workflow_dispatch' && github.repository == 'centreon/centreon' }}
+    if: |
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      contains(fromJson('["stable"]'), needs.get-environment.outputs.stability) &&
+      ! cancelled() &&
+      ! contains(needs.*.result, 'failure') &&
+      ! contains(needs.*.result, 'cancelled') &&
+      github.event_name != 'workflow_dispatch' &&
+      github.repository == 'centreon/centreon'
 
     steps:
       - name: Checkout sources
