@@ -1,5 +1,5 @@
 import { path } from 'ramda';
-import { useState, ReactElement, RefObject } from 'react';
+import { ReactElement, RefObject, useState } from 'react';
 
 import {
   type Interval,
@@ -12,14 +12,14 @@ import {
 
 import FederatedComponent from '../../../../components/FederatedComponents';
 import MemoizedGraphActions from '../../../Graph/Performance/GraphActions';
+import { graphsCapNumber } from '../../../constants';
 import type { Resource } from '../../../models';
 import type { ResourceDetails } from '../../models';
-import { graphsCapNumber } from '../../../constants';
+import TooManyElementsCard from '../../../TooManyElementsCard';
 
 import Comment from './Comment';
 import { useChartGraphStyles } from './chartGraph.styles';
 import useRetrieveTimeLine from './useRetrieveTimeLine';
-import TooManyElementsCard from '../../../TooManyElementsCard';
 
 interface Props {
   graphTimeParameters?: Parameters;
