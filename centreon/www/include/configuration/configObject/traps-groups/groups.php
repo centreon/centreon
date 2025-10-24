@@ -23,17 +23,20 @@ if (! isset($centreon)) {
     exit();
 }
 
-$trapGroupG = $_GET['id'] ?? null;
-$trapGroupP = $_POST['id'] ?? null;
-$id = $trapGroupG ?: $trapGroupP;
+$id = filter_var(
+    $_GET['id'] ?? $_POST['id'] ?? null,
+    FILTER_VALIDATE_INT
+);
 
-$cG = $_GET['select'] ?? null;
-$cP = $_POST['select'] ?? null;
-$select = $cG ?: $cP;
+$select = filter_var_array(
+    $_GET['select'] ?? $_POST['select'] ?? [],
+    FILTER_VALIDATE_INT
+);
 
-$cG = $_GET['dupNbr'] ?? null;
-$cP = $_POST['dupNbr'] ?? null;
-$dupNbr = $cG ?: $cP;
+$dupNbr = filter_var_array(
+    $_GET['dupNbr'] ?? $_POST['dupNbr'] ?? [],
+    FILTER_VALIDATE_INT
+);
 
 // Path to the configuration dir
 $path = './include/configuration/configObject/traps-groups/';
