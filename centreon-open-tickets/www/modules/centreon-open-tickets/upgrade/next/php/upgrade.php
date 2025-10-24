@@ -72,8 +72,16 @@ $migrateExistingRules = function () use ($pearDB, &$errorMessage, $register_prov
             SQL
     );
 
-    foreach ($rules as $ruleId => $providerId) {
-        if (! isset($register_providers[$providerId])) {
+    if ($rules === []) {
+        CentreonLog::create()->info(
+            logTypeId: CentreonLog::TYPE_UPGRADE,
+            message: 'UPGRADE Open Tickets - nothing to do as no rules were configured'
+        );
+    }
+
+    foreach ($rules as $ruleId => $provider) {
+        $providerId = $provider['provider_id'];
+        if (! in_array($providerId, $register_providers)) {
             CentreonLog::create()->warning(
                 logTypeId: CentreonLog::TYPE_UPGRADE,
                 message: 'UPGRADE Open Tickets - provider not found in registry, skipping rule',
@@ -84,7 +92,8 @@ $migrateExistingRules = function () use ($pearDB, &$errorMessage, $register_prov
             );
             continue;
         }
-        $providerName = $register_providers[$providerId];
+
+        $providerName = array_search($providerId, $register_providers);
 
         CentreonLog::create()->info(
             logTypeId: CentreonLog::TYPE_UPGRADE,
