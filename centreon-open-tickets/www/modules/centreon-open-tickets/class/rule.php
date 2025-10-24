@@ -525,75 +525,173 @@ class Centreon_OpenTickets_Rule
      */
     public function duplicate($select = [], $duplicateNb = []): void
     {
-        $this->_db->beginTransaction();
-        foreach ($select as $ruleId => $val) {
-            $res = $this->_db->query(
-                "SELECT * FROM mod_open_tickets_rule WHERE rule_id = '" . $ruleId . "' LIMIT 1"
-            );
-            if (! $res->rowCount()) {
-                throw new Exception(sprintf('Rule ID: %d not found', $ruleId));
+        // Do not attempt to do something if nothing has been selected.
+        if ($select === []) {
+            return;
+        }
+
+        $isTransactionActive = $this->_db->isTransactionActive();
+
+        $ruleIds = array_keys($select);
+
+        try {
+            if (! $isTransactionActive) {
+                $this->_db->startTransaction();
             }
-            $row = $res->fetch();
 
-            $i = 1;
-            if (isset($duplicateNb[$ruleId]) && $duplicateNb[$ruleId] > 0) {
-                for ($j = 1; $j <= $duplicateNb[$ruleId]; $j++) {
-                    $name = $row['alias'] . '_' . $j;
-                    $res2 = $this->_db->query(
-                        "SELECT `rule_id`
-                        FROM `mod_open_tickets_rule`
-                        WHERE `alias` = '" . $this->_db->escape($name) . "'"
+            foreach ($ruleIds as $ruleId) {
+                $rule = $this->_db->fetchAssociative(
+                    query: <<<'SQL'
+                        SELECT
+                            rule_id,
+                            alias,
+                            provider_id,
+                            provider_name,
+                            activate
+                        FROM mod_open_tickets_rule
+                        WHERE rule_id = :ruleId
+                    SQL,
+                    queryParameters: QueryParameters::create([QueryParameter::int('ruleId', $ruleId)])
+                );
+
+
+                if (! $rule) {
+                    CentreonLog::create()->error(
+                        logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
+                        message: 'Could not duplicate rule as it does not exist',
+                        customContext: ['rule_id' => $ruleId]
                     );
-                    while ($res2->rowCount()) {
-                        $res2->free();
-                        $i++;
-                        $name = $row['alias'] . '_' . $i;
-                        $res2 = $this->_db->query(
-                            "SELECT `rule_id`
-                            FROM `mod_open_tickets_rule`
-                            WHERE `alias` = '" . $this->_db->escape($name) . "'"
-                        );
-                    }
-                    $this->_db->query(
-                        "INSERT INTO mod_open_tickets_rule (`alias`, `provider_id`, `activate`) VALUES (
-                            '" . $this->_db->escape($name) . "',
-                            " . $row['provider_id'] . ',
-                            ' . $row['activate'] . '
-                        )'
+
+                    throw new Exception(
+                        sprintf('Could not duplicate rule identified by ID %s as it does not exist', $ruleId),
                     );
-                    $nrule_id = $this->_db->lastinsertId('mod_open_tickets_rule');
+                }
 
-                    // Duplicate form clone
-                    $res2 = $this->_db->query('SELECT * FROM mod_open_tickets_form_clone WHERE rule_id=' . $ruleId);
-                    while (($row2 = $res2->fetch())) {
-                        $this->_db->query(
-                            "INSERT INTO mod_open_tickets_form_clone (
-                                `uniq_id`, `label`, `value`, `rule_id`, `order`
-                            ) VALUES (
-                                '" . $this->_db->escape($row2['uniq_id']) . "',
-                                '" . $this->_db->escape($row2['label']) . "',
-                                '" . $this->_db->escape($row2['value']) . "',
-                                " . $nrule_id . ",
-                                '" . $row2['order'] . "'
-                            )"
-                        );
-                    }
+                $duplicationIndex = 1;
+                if (isset($duplicateNb[$ruleId]) && $duplicateNb[$ruleId] > 0) {
+                    for ($duplicationNumber = 1; $duplicationNumber <= $duplicateNb[$ruleId]; $duplicationNumber++) {
+                        $newName = sprintf("%s_%d", $rule['alias'], $duplicationNumber);
 
-                    // Duplicate macros
-                    $res2 = $this->_db->query('SELECT * FROM mod_open_tickets_form_value WHERE rule_id=' . $ruleId);
-                    while (($row3 = $res2->fetch())) {
-                        $this->_db->query(
-                            "INSERT INTO mod_open_tickets_form_value (`uniq_id`, `value`, `rule_id`) VALUES (
-                                '" . $row3['uniq_id'] . "',
-                                '" . $this->_db->escape($row3['value']) . "',
-                                " . $nrule_id . '
-                            )'
+                        // Check that alias is not already in use
+                        if ($this->isAliasAlreadyUsed($newName)) {
+                            $duplicationIndex++;
+                            continue;
+                        }
+
+                        // insert duplicated rule in database
+                        $this->_db->insert(
+                            query: <<<'SQL'
+                                INSERT INTO mod_open_tickets_rule (`alias`, `provider_id`, `provider_name`, `activate`)
+                                VALUES (:ruleAlias, :providerId, :providerName, :activated)
+                            SQL,
+                            queryParameters: QueryParameters::create([
+                                QueryParameter::string('ruleAlias', $newName),
+                                QueryParameter::int('providerId', $rule['provider_id']),
+                                QueryParameter::string('providerName', $rule['provider_name']),
+                                QueryParameter::string('activated', $rule['activate'])
+                            ])
                         );
+
+                        $duplicateRuleId = $this->_db->lastInsertId();
+
+                        // Get form values from initial rule
+                        $ruleFormValues = $this->_db->fetchAllAssociative(
+                            query: <<<'SQL'
+                                SELECT * FROM mod_open_tickets_form_value WHERE rule_id = :ruleId
+                            SQL,
+                            queryParameters: QueryParameters::create([QueryParameter::int('ruleId', $ruleId)])
+                        );
+
+                        foreach ($ruleFormValues as $ruleFormValue) {
+                            $this->_db->insert(
+                                query: <<<'SQL'
+                                    INSERT INTO mod_open_tickets_form_value (`uniq_id`, `value`, `rule_id`) VALUES (:uniqId, :value, :ruleId)
+                                SQL,
+                                queryParameters: QueryParameters::create([
+                                    QueryParameter::string('uniqId', $ruleFormValue['uniq_id']),
+                                    QueryParameter::string('value', $ruleFormValue['value']),
+                                    QueryParameter::int('ruleId', $duplicateRuleId),
+                                ])
+                            );
+                        }
+
+                        $ruleCloneValues = $this->_db->fetchAssociative(
+                            query: <<<'SQL'
+                                SELECT * FROM mod_open_tickets_form_clone WHERE rule_id = :ruleId
+                            SQL,
+                            queryParameters: QueryParameters::create([QueryParameter::int('ruleId', $ruleId)])
+                        );
+
+                        foreach ($ruleCloneValues as $ruleCloneValue) {
+                            $this->_db->insert(
+                                query: <<<'SQL'
+                                INSERT INTO mod_open_tickets_clone_value (`uniq_id`, `label`, `value`, `rule_id`, `order`)
+                                VALUES (:uniqId, :label, :value, :ruleId, :order)
+                                SQL,
+                                queryParameters: QueryParameters::create([
+                                    QueryParameter::string('uniqId', $ruleCloneValue['uniq_id']),
+                                    QueryParameter::string('label', $ruleCloneValue['label']),
+                                    QueryParameter::string('value', $ruleCloneValue['value']),
+                                    QueryParameter::int('ruleId', $duplicateRuleId),
+                                    QueryParameter::int('order', $ruleCloneValue['order']),
+                                ])
+                            );
+                        }
                     }
                 }
             }
+
+            if (! $isTransactionActive) {
+                $this->_db->commitTransaction();
+            }
+        } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
+            CentreonLog::create()->error(
+                CentreonLog::TYPE_BUSINESS_LOG,
+                'An error occured while duplicating open ticket rule(s)',
+                ['rule_ids' => $ruleIds]
+            );
+
+            if (! $isTransactionActive) {
+                try {
+                    $this->_db->rollBackTransaction();
+                } catch (ConnectionException $rollbackException) {
+                    CentreonLog::create()->error(
+                        CentreonLog::TYPE_SQL,
+                        "Rollback failed for open ticket rule duplication: {$rollbackException->getMessage()}",
+                        ['rule_ids' => $ruleIds]
+                    );
+
+                    throw new RepositoryException(
+                        "Rollback failed for open ticket rule save - update: {$rollbackException->getMessage()}",
+                        ['rule_ids' => $ruleIds],
+                        $rollbackException
+                    );
+                }
+            }
+
+            throw new RepositoryException(
+                "Open Ticket rule duplication failed : {$exception->getMessage()}",
+                ['rule_ids' => $ruleIds],
+                $exception
+            );
         }
-        $this->_db->commit();
+    }
+
+    /**
+     * @param array<array{alias:string, provider_id:int, provider_name:string, activate: int}> $configuredRules
+     * @param string $alias
+     * @return bool
+     */
+    private function isAliasAlreadyUsed(string $alias): bool
+    {
+        $exists = $this->_db->fetchAssociative(
+            query: <<<SQL
+                SELECT 1 FROM mod_open_tickets_rule WHERE alias = :ruleAlias
+            SQL,
+            queryParameters: QueryParameters::create([QueryParameter::string('ruleAlias', $alias)])
+        );
+
+        return (bool) $exists;
     }
 
     /**
