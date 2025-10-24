@@ -4,22 +4,20 @@ import { type ComponentColumnProps, truncate } from '@centreon/ui';
 
 import { DisplayType } from '../models';
 import { getStatus } from '../utils';
-import useStyles from './Columns.styles';
+
 import StatusChip from './ServiceSubItemColumn/StatusChip';
 import ShortTypeChip from './ShortTypeChip';
 
 const ResourceColumn =
   ({ displayType }) =>
   ({ row, renderEllipsisTypography }: ComponentColumnProps): JSX.Element => {
-    const { classes } = useStyles();
-
     const isViewByHostMode = equals(displayType, DisplayType.Host);
     const isViewByServiceMode = equals(displayType, DisplayType.Service);
     const status = row?.status.name;
     const isNestedRow = isNil(row?.children) && isViewByHostMode;
 
     const resourceName = renderEllipsisTypography?.({
-      className: classes.resourceNameText,
+      className: 'pl-1',
       formattedString: truncate({
         content: row.name || row.resource_name,
         maxLength: 50
@@ -33,7 +31,7 @@ const ResourceColumn =
     if (isViewByHostMode) {
       return (
         <div className="flex">
-          <div className={classes.statusChip}>
+          <div className="mr-1">
             <StatusChip
               content={getStatus(status?.toLowerCase())?.label}
               severityCode={getStatus(status?.toLowerCase())?.severity}
@@ -55,7 +53,7 @@ const ResourceColumn =
 
     return (
       <>
-        <div className={classes.resourceDetailsCell}>
+        <div className="flex items-center flex-nowrap">
           {!isViewByServiceMode && !row.icon && (
             <ShortTypeChip label={row.short_type} />
           )}
