@@ -36,8 +36,17 @@ RUN apt-get update && apt-get install -y \
         curl \
         zip \
         gettext \
+    && apt-get remove -y wget gpg \
+    && apt-get autoremove -y \
     && apt-get clean \
-    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+    && rm -rf /var/lib/apt/lists/* \
+           /tmp/* \
+           /var/tmp/* \
+           /usr/share/doc/* \
+           /usr/share/man/* \
+           /usr/share/locale/* \
+           /var/cache/debconf/* \
+           /var/cache/apt/*
 
 RUN groupadd -g 900 centreon &&\
     useradd -u 900 -g centreon -m -r -d /var/spool/centreon -c "Centreon" -s /bin/bash centreon &&\
@@ -89,8 +98,16 @@ fi
 
 apt-get update
 apt-get install -y /tmp/packages-centreon/centreon-web*.deb
+apt-get autoremove -y
 apt-get clean
-rm -rf /var/lib/apt/lists/*
+rm -rf /var/lib/apt/lists/* \
+       /tmp/* \
+       /var/tmp/* \
+       /usr/share/doc/* \
+       /usr/share/man/* \
+       /usr/share/locale/* \
+       /var/cache/debconf/* \
+       /var/cache/apt/*
 
 EOF
 
