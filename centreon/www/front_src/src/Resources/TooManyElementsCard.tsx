@@ -34,11 +34,11 @@ const TooManyElementsCard = ({
           extraComponent: actions
         }}
       />
-        <Box
-          className={
-            'flex items-center justify-center grow h-[calc(100%-16px)] text-gray-500'
-          }
-        >
+      <Box
+        className={
+          'flex items-center justify-center grow h-[calc(100%-16px)] text-gray-500'
+        }
+      >
         <Typography variant='h6'>
           {t(labelTooManyGraphsToDisplay, { graphsCapNumber })}
         </Typography>

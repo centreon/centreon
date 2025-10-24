@@ -18,10 +18,10 @@ import {
 
 import FederatedComponent from '../../../components/FederatedComponents';
 import type { ResourceDetails } from '../../Details/models';
+import TooManyElementsCard from '../../TooManyElementsCard';
 import { graphsCapNumber } from '../../constants';
 import type { Resource } from '../../models';
 import { labelGraph, labelServiceGraphs } from '../../translatedLabels';
-import TooManyElementsCard from '../../TooManyElementsCard';
 
 import HoverChip from './HoverChip';
 import IconColumn from './IconColumn';
@@ -70,7 +70,7 @@ const Graph = ({ row, endpoint }: GraphProps): ReactElement => {
   if (metricsCount > graphsCapNumber) {
     return (
       <Suspense fallback={<LoadingSkeleton height="100%" />}>
-        <TooManyElementsCard listing={true} title={data?.global.title ?? ''}/>
+        <TooManyElementsCard listing={true} title={data?.global.title ?? ''} />
       </Suspense>
     );
   }

@@ -12,10 +12,10 @@ import {
 
 import FederatedComponent from '../../../../components/FederatedComponents';
 import MemoizedGraphActions from '../../../Graph/Performance/GraphActions';
+import TooManyElementsCard from '../../../TooManyElementsCard';
 import { graphsCapNumber } from '../../../constants';
 import type { Resource } from '../../../models';
 import type { ResourceDetails } from '../../models';
-import TooManyElementsCard from '../../../TooManyElementsCard';
 
 import Comment from './Comment';
 import { useChartGraphStyles } from './chartGraph.styles';
