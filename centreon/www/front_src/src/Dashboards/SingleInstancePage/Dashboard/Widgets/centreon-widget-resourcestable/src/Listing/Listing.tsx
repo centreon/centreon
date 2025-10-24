@@ -1,4 +1,6 @@
+import { ReactElement } from 'react';
 import { equals } from 'ramda';
+import { useAtomValue } from 'jotai';
 
 import { useTheme } from '@mui/material';
 
@@ -8,7 +10,6 @@ import { isOnPublicPageAtom } from '@centreon/ui-context';
 import { CommonWidgetProps, Resource, SortOrder } from '../../../models';
 import { PanelOptions } from '../models';
 
-import { useAtomValue } from 'jotai';
 import Actions from './Actions';
 import AcknowledgeForm from './Actions/Acknowledge';
 import DowntimeForm from './Actions/Downtime';
@@ -17,22 +18,18 @@ import OpenTicketModal from './Columns/OpenTicket/Modal';
 import { rowColorConditions } from './colors';
 import { DisplayType as DisplayTypeEnum, NamedEntity } from './models';
 import useListing from './useListing';
+import { openTicketAtom } from '../atom';
 
 interface ListingProps
   extends Pick<
     CommonWidgetProps<PanelOptions>,
     'dashboardId' | 'id' | 'playlistHash'
   > {
-  changeViewMode?: (displayType) => void;
-  displayResources: 'withTicket' | 'withoutTicket';
+  changeViewMode?: (displayType: DisplayTypeEnum) => void;
   displayType?: DisplayTypeEnum;
   hostSeverities: Array<NamedEntity>;
-  isDownHostHidden: boolean;
   isFromPreview?: boolean;
-  isOpenTicketEnabled: boolean;
-  isUnreachableHostHidden: boolean;
   limit?: number;
-  provider?: { id: number; name: string };
   refreshCount: number;
   refreshIntervalToUse: number | false;
   resources: Array<Resource>;
@@ -67,13 +64,8 @@ const Listing = ({
   widgetPrefixQuery,
   statusTypes,
   hostSeverities,
-  serviceSeverities,
-  isDownHostHidden,
-  isUnreachableHostHidden,
-  displayResources,
-  provider,
-  isOpenTicketEnabled
-}: ListingProps): JSX.Element => {
+  serviceSeverities
+}: ListingProps): ReactElement => {
   const theme = useTheme();
 
   const {
@@ -102,17 +94,12 @@ const Listing = ({
   } = useListing({
     changeViewMode,
     dashboardId,
-    displayResources,
     displayType,
     hostSeverities,
     id,
-    isDownHostHidden,
     isFromPreview,
-    isOpenTicketEnabled,
-    isUnreachableHostHidden,
     limit,
     playlistHash,
-    provider,
     refreshCount,
     refreshIntervalToUse,
     resources,
@@ -127,6 +114,7 @@ const Listing = ({
   });
 
   const isOnPublicPage = useAtomValue(isOnPublicPageAtom);
+  const { isOpenTicketEnabled, provider } = useAtomValue(openTicketAtom);
 
   return (
     <>
@@ -141,7 +129,11 @@ const Listing = ({
             isOpenTicketEnabled={isOpenTicketEnabled}
           />
         }
-        actionsBarMemoProps={[displayType, hasMetaService, isOpenTicketEnabled]}
+        actionsBarMemoProps={[
+          displayType,
+          hasMetaService,
+          isOpenTicketEnabled
+        ]}
         columnConfiguration={{
           selectedColumnIds: selectedColumnIds || defaultSelectedColumnIds,
           sortable: true

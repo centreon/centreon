@@ -59,12 +59,10 @@ import SubItem from './ServiceSubItemColumn/SubItem';
 import SeverityColumn from './Severity';
 import StateColumn from './State';
 import StatusColumn from './Status';
+import { openTicketAtom } from '../../atom';
 
 interface ColumnProps {
-  displayResources: 'withTicket' | 'withoutTicket';
   displayType?: DisplayType;
-  isOpenTicketEnabled: boolean;
-  provider?: { id: number; name: string };
 }
 
 interface ColumnsState {
@@ -77,10 +75,7 @@ const getTicketInformations = (row) =>
   row?.parent?.extra?.open_tickets?.tickets;
 
 const useColumns = ({
-  displayType = DisplayType.All,
-  displayResources,
-  provider,
-  isOpenTicketEnabled
+  displayType = DisplayType.All
 }: ColumnProps): ColumnsState => {
   const { classes } = useStyles();
   const { dataStyle } = useStyleTable({});
@@ -89,6 +84,11 @@ const useColumns = ({
   });
 
   const isOnPublicPage = useAtomValue(isOnPublicPageAtom);
+  const {
+    displayResources,
+    isOpenTicketEnabled,
+    provider
+  } = useAtomValue(openTicketAtom);
 
   const { format } = useLocaleDateTimeFormat();
   const { t } = useTranslation();

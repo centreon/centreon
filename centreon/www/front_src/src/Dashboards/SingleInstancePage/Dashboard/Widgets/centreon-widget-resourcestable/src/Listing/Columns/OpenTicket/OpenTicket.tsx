@@ -1,4 +1,5 @@
-import { useSetAtom } from 'jotai';
+import { ReactElement } from 'react';
+import { useAtomValue, useSetAtom } from 'jotai';
 import { equals, or } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
@@ -6,7 +7,7 @@ import { useTheme } from '@mui/material';
 
 import { ComponentColumnProps, IconButton } from '@centreon/ui';
 
-import { resourcesToOpenTicketAtom } from '../../../atom';
+import { openTicketAtom, resourcesToOpenTicketAtom } from '../../../atom';
 import {
   labelOpenTicketForHost,
   labelOpenTicketForService
@@ -15,16 +16,24 @@ import { useOpenTicketStyles } from '../Columns.styles';
 import IconCreateTicket from '../Icons/CreateTicket';
 import TooltipContent from '../Tooltip/Tooltip';
 
-const OpenTicket = ({ row }: ComponentColumnProps): JSX.Element => {
+const OpenTicket = ({ row }: ComponentColumnProps): ReactElement => {
   const { classes } = useOpenTicketStyles();
   const { t } = useTranslation();
   const { palette } = useTheme();
 
   const setResourcesToOpenTicket = useSetAtom(resourcesToOpenTicketAtom);
+  const { 
+    enableHostTicketCreation,
+    enableServiceTicketCreation 
+  } = useAtomValue(openTicketAtom);
 
   const { type } = row;
   const isHost = equals(type, 'host');
   const isService = equals(type, 'service');
+  const displayCreateServiceTicketButton =
+    enableServiceTicketCreation && isService;
+  const displayCreateHostTicketButton =
+    enableHostTicketCreation && (isHost || isService);
 
   const createServiceTicket = (): void => {
     setResourcesToOpenTicket([{ hostID: row?.parent.id, serviceID: row?.id }]);
