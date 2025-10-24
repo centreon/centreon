@@ -37,13 +37,7 @@ Regarding the widget configuration, it is possible to see the created tickets by
 $module_conf['centreon-open-tickets']["is_removeable"] = "1";
 $module_conf['centreon-open-tickets']["author"] = "Centreon";
 $module_conf['centreon-open-tickets']["stability"] = "stable";
-<<<<<<< HEAD
-$module_conf['centreon-open-tickets']["last_update"] = "2025-02-13";
-$module_conf['centreon-open-tickets']["release_note"] =
-    "https://docs.centreon.com/23.10/en/releases/centreon-os-extensions.html";
-=======
 $module_conf['centreon-open-tickets']["last_update"] = "2025-10-24";
->>>>>>> 88eef1bf6b (chore(release) bump open tickets 24.10.4 (#8714))
 $module_conf['centreon-open-tickets']["images"] = [
     'images/image1.png',
     'images/image2.png',
