@@ -27,10 +27,10 @@ export const hostsEndpoint = '/monitoring/resources/hosts';
 export const baIndicatorsEndpoint =
   '/bam/monitoring/business-activities/indicators';
 export const businessActivitiesEndpoint = '/bam/monitoring/business-activities';
-export const getBAEndpoint = (id): string =>
+export const getBAEndpoint = (id: number): string =>
   `/bam/monitoring/business-activities/${id}`;
 
-export const getBooleanRuleEndpoint = (id): string =>
+export const getBooleanRuleEndpoint = (id: number): string =>
   `/bam/monitoring/indicators/boolean-rules/${id}`;
 
 interface BuildResourcesEndpointProps {

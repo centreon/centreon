@@ -144,6 +144,7 @@ $attributes = [
         'availableDatasetRoute' => $datasetRoutes['acl_groups'],
         'defaultDatasetRoute' => $datasetRoutes['default_acl_groups'],
         'multiple' => true,
+        'linkedObject' => 'centreonAclGroup',
     ],
 ];
 
