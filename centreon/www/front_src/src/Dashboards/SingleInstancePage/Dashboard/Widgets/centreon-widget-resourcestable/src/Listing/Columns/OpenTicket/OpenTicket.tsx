@@ -1,6 +1,6 @@
 import { ReactElement } from 'react';
 import { useAtomValue, useSetAtom } from 'jotai';
-import { equals, or } from 'ramda';
+import { and, equals, or } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
 import { useTheme } from '@mui/material';
@@ -31,9 +31,9 @@ const OpenTicket = ({ row }: ComponentColumnProps): ReactElement => {
   const isHost = equals(type, 'host');
   const isService = equals(type, 'service');
   const displayCreateServiceTicketButton =
-    enableServiceTicketCreation && isService;
+    and(enableServiceTicketCreation, isService);
   const displayCreateHostTicketButton =
-    enableHostTicketCreation && (isHost || isService);
+    and(enableHostTicketCreation, or(isHost, isService));
 
   const createServiceTicket = (): void => {
     setResourcesToOpenTicket([{ hostID: row?.parent.id, serviceID: row?.id }]);
@@ -51,18 +51,20 @@ const OpenTicket = ({ row }: ComponentColumnProps): ReactElement => {
 
   return (
     <div className={classes.actions}>
-      {isService && (
+      {displayCreateServiceTicketButton && (
         <IconButton
           ariaLabel={t(labelOpenTicketForService)}
           color="primary"
           data-testid={labelOpenTicketForService}
           disabled={hasTicket}
           size="large"
-          title={TooltipContent({
-            ...ticket,
-            hasNoTicket: hasTicket,
-            isHost: false
-          })}
+          title={
+            <TooltipContent
+              {...ticket}
+              hasNoTicket={hasTicket}
+              isHost={false}
+            />
+          }
           tooltipClassName={hasTicket ? classes.tooltip : undefined}
           onClick={createServiceTicket}
         >
@@ -72,18 +74,20 @@ const OpenTicket = ({ row }: ComponentColumnProps): ReactElement => {
           />
         </IconButton>
       )}
-      {or(isHost, isService) && (
+      {displayCreateHostTicketButton && (
         <IconButton
           ariaLabel={t(labelOpenTicketForHost)}
           color="primary"
           data-testid={labelOpenTicketForHost}
           disabled={didHostHasTicket}
           size="large"
-          title={TooltipContent({
-            ...(isHost ? ticket : parentTicket),
-            hasNoTicket: didHostHasTicket,
-            isHost: true
-          })}
+          title={
+            <TooltipContent
+              {...(isHost ? ticket : parentTicket)}
+              hasNoTicket={didHostHasTicket}
+              isHost={true}
+            />
+          }
           tooltipClassName={didHostHasTicket ? classes.tooltip : undefined}
           onClick={createHostTicket}
         >

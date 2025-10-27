@@ -1,11 +1,13 @@
 import {
   T,
   always,
+  and,
   cond,
   equals,
   head,
   isEmpty,
   isNotNil,
+  or,
   pipe,
   propOr,
   split
@@ -85,14 +87,15 @@ const useColumns = ({
   const isOnPublicPage = useAtomValue(isOnPublicPageAtom);
   const {
     displayResources,
+    enableHostTicketCreation,
+    enableServiceTicketCreation,
     isOpenTicketEnabled,
+    isOpenTicketInstalled,
     provider
   } = useAtomValue(openTicketAtom);
 
   const { format } = useLocaleDateTimeFormat();
   const { t } = useTranslation();
-
-  const isOpenTicketInstalled = useIsOpenTicketInstalled();
 
   const resourceLabel = cond([
     [equals(DisplayType.Host), always(labelHost)],
@@ -108,7 +111,10 @@ const useColumns = ({
 
   const hasProvider = isNotNil(provider) && !isEmpty(provider);
   const isOpenTicketColumnsVisible =
-    isOpenTicketInstalled && isOpenTicketEnabled && hasProvider;
+    isOpenTicketInstalled
+    && isOpenTicketEnabled
+    && hasProvider
+    && or(enableHostTicketCreation, enableServiceTicketCreation);
 
   const isOpenTicketActionColumnVisible =
     isOpenTicketColumnsVisible && equals(displayResources, 'withoutTicket');

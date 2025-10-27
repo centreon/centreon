@@ -116,7 +116,11 @@ const useListing = ({
     resourcesToSetDowntimeAtom
   );
 
-  const { isOpenTicketEnabled, provider } = useAtomValue(openTicketAtom);
+  const {
+    isOpenTicketEnabled,
+    isOpenTicketInstalled,
+    provider
+  } = useAtomValue(openTicketAtom);
 
   useEffect(() => {
     if (isOpenTicketEnabled && isFromPreview) {
@@ -125,8 +129,6 @@ const useListing = ({
       return;
     }
   }, [isOpenTicketEnabled]);
-
-  const isOpenTicketInstalled = useIsOpenTicketInstalled();
 
   const hasProvider = isNotNil(provider) && !isEmpty(provider);
 

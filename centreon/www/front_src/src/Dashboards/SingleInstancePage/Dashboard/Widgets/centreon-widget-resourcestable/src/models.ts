@@ -42,6 +42,7 @@ export interface ResourcesTableProps extends CommonWidgetProps<PanelOptions> {
 export interface OpenTicketContext {
   displayResources: 'withTicket' | 'withoutTicket';
   isDownHostHidden: boolean;
+  isOpenTicketInstalled: boolean;
   isOpenTicketEnabled: boolean;
   isUnreachableHostHidden: boolean;
   enableHostTicketCreation: boolean;
