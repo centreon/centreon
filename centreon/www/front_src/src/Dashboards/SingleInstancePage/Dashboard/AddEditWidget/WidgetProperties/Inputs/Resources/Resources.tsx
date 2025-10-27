@@ -25,12 +25,11 @@ import { useResourceStyles } from '../Inputs.styles';
 import { areResourcesFullfilled } from '../utils';
 
 import { SelectField } from '@centreon/ui';
+import { ReactElement } from 'react';
 import ConfirmationResourceTypeToggleRegexModal from './ConfirmationResourceTypeToggleRegexModal';
 import ResourceField from './ResourceField';
 import useDefaultSelectTypeData from './useDefaultSelectType';
 import useResources from './useResources';
-import { ReactElement } from 'react';
-import { useFormikContext } from 'formik';
 
 const Resources = ({
   propertyName,
