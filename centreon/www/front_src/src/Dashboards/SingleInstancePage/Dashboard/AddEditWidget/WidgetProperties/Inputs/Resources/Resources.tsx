@@ -103,8 +103,6 @@ const Resources = ({
       ? WidgetResourceType.hostGroup
       : resourceType;
 
-  const formikContext = useFormikContext()
-  console.log('formikContext in Resources component:', formikContext);
   return (
     <div className={classes.resourcesContainer}>
       <div className={classes.resourcesHeader}>
