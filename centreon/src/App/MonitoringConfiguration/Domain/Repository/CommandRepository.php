@@ -25,8 +25,15 @@ namespace App\MonitoringConfiguration\Domain\Repository;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Command\Command;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandName;
+use App\MonitoringConfiguration\Domain\Exception\CommandNotFoundException;
 
 interface CommandRepository
 {
+    /** @throws CommandNotFoundException */
     public function getById(CommandId $id): Command;
+
+    public function findOneByName(CommandName $name): ?Command;
+
+    public function add(Command $command): void;
 }

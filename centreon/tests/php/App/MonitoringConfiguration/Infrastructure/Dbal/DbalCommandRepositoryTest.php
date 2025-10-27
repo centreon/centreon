@@ -25,6 +25,9 @@ namespace Tests\App\MonitoringConfiguration\Infrastructure\Dbal;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Command\Command;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandLine;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandName;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandTypeEnum;
 use App\MonitoringConfiguration\Domain\Exception\CommandNotFoundException;
 use App\MonitoringConfiguration\Domain\Repository\CommandRepository;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -57,5 +60,26 @@ final class DbalCommandRepositoryTest extends KernelTestCase
         $this->expectException(CommandNotFoundException::class);
 
         $this->repository->getById($commandId);
+    }
+
+    /** @group wip */
+    public function testAdd(): void
+    {
+        self::assertNull($this->repository->findOneByName(new CommandName('NAME')));
+
+        $command = new Command(
+            id: null,
+            name: new CommandName('NAME'),
+            type: CommandTypeEnum::from(1),
+            commandLine: new CommandLine('$CENTREONPLUGINS$ /check_dhcp $ADMINEMAIL$'),
+            isShellEnabled: true,
+            isFromMonitoringConnector: false,
+            isActivated: true,
+            connector: null,
+            comment: null
+        );
+
+        $this->repository->add($command);
+        self::assertEquals($command, $this->repository->findOneByName(new CommandName('NAME')));
     }
 }

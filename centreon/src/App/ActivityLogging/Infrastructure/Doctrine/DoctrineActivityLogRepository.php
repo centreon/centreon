@@ -46,6 +46,7 @@ final readonly class DoctrineActivityLogRepository extends DbalRepository implem
     private const DETAIL_TABLE_NAME = 'log_action_modification';
     private const TARGET_TYPE_VALUE_MAP = [
         TargetTypeEnum::ServiceCategory->value => 'servicecategories',
+        TargetTypeEnum::Command->value => 'command'
     ];
     private const ACTION_VALUE_MAP = [
         ActionEnum::Add->value => 'a',

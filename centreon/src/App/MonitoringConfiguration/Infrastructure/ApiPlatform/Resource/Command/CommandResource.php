@@ -26,10 +26,13 @@ namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Comman
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\Post;
 use ApiPlatform\OpenApi\Model;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandTypeEnum;
 use App\MonitoringConfiguration\Domain\Security\CommandPermissionEnum;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Input\CreateCommandInput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Command\FindCommandProvider;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\CreateCommandProcessor;
 
 #[ApiResource(
     shortName: 'Command',
@@ -63,25 +66,57 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Command\FindCom
             ',
             securityMessage: 'You are not allowed to access this command',
         ),
+        new Post(
+            uriTemplate: '/configuration/commands',
+            input: CreateCommandInput::class,
+            processor: CreateCommandProcessor::class,
+            openapi: new Model\Operation(
+                responses: [
+                    409 => new Model\Response('Command resource already exists'),
+                ],
+            ),
+            securityPostDenormalize: "
+                object.type == " . CommandTypeEnum::Notification->value
+                . " and is_granted('" . CommandPermissionEnum::CanReadAndWriteNotifications->value . "')
+                or
+                object.type == " . CommandTypeEnum::Check->value
+                . " and is_granted('" . CommandPermissionEnum::CanReadAndWriteChecks->value . "')
+                or
+                object.type == " . CommandTypeEnum::Miscellaneous->value
+                . " and is_granted('" . CommandPermissionEnum::CanReadAndWriteMiscellaneous->value . "')
+                or
+                object.type == " . CommandTypeEnum::Discovery->value
+                . " and is_granted('" . CommandPermissionEnum::CanReadAndWriteDiscovery->value . "')
+            ",
+            securityMessage: 'You are not allowed to create commands',
+        )
     ],
 )]
 final class CommandResource
 {
     public function __construct(
         #[ApiProperty(identifier: true, writable: false)]
-        public int $id,
+        public ?int $id,
 
         #[ApiProperty(
             description: 'The command name',
             openapiContext: ['example' => 'check_http']
         )]
-        public string $name,
+        public ?string $name,
 
         #[ApiProperty(
             description: 'The type of command (1: notification, 2: check, 3: Miscellaneous, 4: Discovery)',
-            openapiContext: ['example' => 1, 'enum' => [1, 2, 3, 4]]
+            openapiContext: [
+                'example' => CommandTypeEnum::Notification->value,
+                'enum' => [
+                    CommandTypeEnum::Notification->value,
+                    CommandTypeEnum::Check->value,
+                    CommandTypeEnum::Miscellaneous->value,
+                    CommandTypeEnum::Discovery->value
+                ]
+            ]
         )]
-        public int $type,
+        public ?int $type,
 
         #[ApiProperty(
             description: 'The command line used to execute the command',
@@ -91,19 +126,16 @@ final class CommandResource
 
         #[ApiProperty(
             description: 'Indicates whether the command can be executed through a shell',
-            openapiContext: ['example' => 0, 'enum' => [0, 1]]
         )]
         public bool $isShellEnabled,
 
         #[ApiProperty(
             description: 'Indicates whether the command is activated or not',
-            openapiContext: ['example' => 1, 'enum' => [0, 1]]
         )]
         public bool $isActivated,
 
         #[ApiProperty(
             description: 'Indicates whether the command comes from a monitoring connector',
-            openapiContext: ['example' => 0, 'enum' => [0, 1]]
         )]
         public bool $isFromMonitoringConnector,
 
