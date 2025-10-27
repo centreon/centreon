@@ -127,12 +127,9 @@ manageApacheAndPhpFpm() {
 }
 
 rebuildSymfonyCache() {
-  echo "Rebuilding Centreon application cache ..."
-  rm -rf /var/cache/centreon/symfony
-
-  if [ "$1" = "rpm" ]; then
-    su - apache -s /bin/bash -c "/usr/share/centreon/bin/console cache:clear"
-  else
+  if [ "$1" = "deb" ]; then
+    echo "Rebuilding Centreon application cache ..."
+    rm -rf /var/cache/centreon/symfony
     su - www-data -s /bin/bash -c "/usr/share/centreon/bin/console cache:clear"
   fi
 }

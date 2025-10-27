@@ -421,6 +421,8 @@ scripts:
 
 overrides:
   rpm:
+    scripts:
+      posttrans: ./scripts/centreon-web-posttrans.sh
     depends:
       - centreon-common >= ${MAJOR_VERSION}
       - centreon-common < ${NEXT_MAJOR_VERSION}
@@ -436,8 +438,7 @@ overrides:
       - httpd
       - php-common >= 8.2
       - php-common < 8.3
-      - php-cli >= 8.2
-      - php-cli < 8.3
+      - php-cli
       - php-pdo
       - php-mysqlnd
       - php-gd
@@ -451,6 +452,7 @@ overrides:
       - php-zip
       - php-pear
       - php-json
+      - php-process
       - openssl
       - perl-DBD-MySQL
       - perl-DBI
@@ -513,19 +515,7 @@ overrides:
       - logrotate
 
   deb:
-    depends:
-      - "centreon-common (>= ${MAJOR_VERSION}~)"
-      - "centreon-common (<< ${NEXT_MAJOR_VERSION}~)"
-      - "centreon-perl-libs (>= ${MAJOR_VERSION}~)"
-      - "centreon-perl-libs (<< ${NEXT_MAJOR_VERSION}~)"
-      - centreon-poller (= ${VERSION}-${RELEASE}${DIST})
-      - "centreon-broker-cbd (>= ${MAJOR_VERSION}~)"
-      - "centreon-broker-cbd (<< ${NEXT_MAJOR_VERSION}~)"
-      - libfile-which-perl
-      - lsb-release
-      - "mariadb-client | mysql-client"
-      - cron
-      - apache2
+    predepends:
       - php8.2
       - php8.2-cli
       - php8.2-fpm
@@ -542,7 +532,21 @@ overrides:
       - php8.2-ldap
       - php8.2-readline
       - php8.2-sqlite3
+      - php8.2-process
       - php-pear
+    depends:
+      - "centreon-common (>= ${MAJOR_VERSION}~)"
+      - "centreon-common (<< ${NEXT_MAJOR_VERSION}~)"
+      - "centreon-perl-libs (>= ${MAJOR_VERSION}~)"
+      - "centreon-perl-libs (<< ${NEXT_MAJOR_VERSION}~)"
+      - centreon-poller (= ${VERSION}-${RELEASE}${DIST})
+      - "centreon-broker-cbd (>= ${MAJOR_VERSION}~)"
+      - "centreon-broker-cbd (<< ${NEXT_MAJOR_VERSION}~)"
+      - libfile-which-perl
+      - lsb-release
+      - "mariadb-client | mysql-client"
+      - cron
+      - apache2
       - rrdtool
       - locales
       - gettext

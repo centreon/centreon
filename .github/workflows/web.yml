@@ -756,8 +756,7 @@ jobs:
           module_name: centreon
           distrib: ${{ matrix.distrib }}
           package_extension: ${{ matrix.package_extension }}
-          # major_version: ${{ needs.get-environment.outputs.major_version }}
-          major_version: "25.10"
+          major_version: ${{ needs.get-environment.outputs.major_version }}
           minor_version: ${{ needs.get-environment.outputs.minor_version }}
           release: ${{ needs.get-environment.outputs.release }}
           arch: all
