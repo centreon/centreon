@@ -300,12 +300,12 @@ class Centreon_OpenTickets_Rule
     {
         $isTransactionActive = $this->_db->isTransactionActive();
 
+        $ruleId = (int) $rule_id;
+
         try {
             if (! $isTransactionActive) {
                 $this->_db->startTransaction();
             }
-
-            $ruleId = (int) $rule_id;
 
             $ruleExists = (bool) $this->_db->fetchOne(
                 query: <<<'SQL'
@@ -561,7 +561,7 @@ class Centreon_OpenTickets_Rule
                         customContext: ['rule_id' => $ruleId]
                     );
 
-                    throw new Exception(
+                    throw new RepositoryException(
                         sprintf('Could not duplicate rule identified by ID %s as it does not exist', $ruleId),
                     );
                 }
@@ -661,7 +661,7 @@ class Centreon_OpenTickets_Rule
                     );
 
                     throw new RepositoryException(
-                        "Rollback failed for open ticket rule save - update: {$rollbackException->getMessage()}",
+                        "Rollback failed for open ticket rule duplication: {$rollbackException->getMessage()}",
                         ['rule_ids' => $ruleIds],
                         $rollbackException
                     );
@@ -914,7 +914,6 @@ class Centreon_OpenTickets_Rule
     }
 
     /**
-     * @param array<array{alias:string, provider_id:int, provider_name:string, activate: int}> $configuredRules
      * @param string $alias
      * @return bool
      */
