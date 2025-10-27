@@ -73,7 +73,7 @@ final class AddToken
             ExceptionLogger::create()->log($ex, [
                 'user_id' => $this->user->getId(),
                 'token_name' => $request->name,
-                'token_type' => $request->type->name ?? null,
+                'token_type' => $request->type->name,
             ]);
 
             LoggerToken::create()->warning(
@@ -81,7 +81,7 @@ final class AddToken
                 reason: 'validation error',
                 userId: $this->user->getId(),
                 tokenName: $request->name,
-                tokenType: $request->type->name ?? null,
+                tokenType: $request->type->name,
                 exception: $ex
             );
 
@@ -90,7 +90,7 @@ final class AddToken
             ExceptionLogger::create()->log($ex, [
                 'user_id' => $this->user->getId(),
                 'token_name' => $request->name,
-                'token_type' => $request->type->name ?? null,
+                'token_type' => $request->type->name,
             ]);
 
             LoggerToken::create()->warning(
@@ -98,7 +98,7 @@ final class AddToken
                 reason: 'conflict error',
                 userId: $this->user->getId(),
                 tokenName: $request->name,
-                tokenType: $request->type->name ?? null,
+                tokenType: $request->type->name,
                 exception: $ex
             );
 
@@ -110,7 +110,7 @@ final class AddToken
             ExceptionLogger::create()->log($ex, [
                 'user_id' => $this->user->getId(),
                 'token_name' => $request->name,
-                'token_type' => $request->type->name ?? null,
+                'token_type' => $request->type->name,
             ]);
 
             LoggerToken::create()->warning(
@@ -118,7 +118,7 @@ final class AddToken
                 reason: 'unexpected error',
                 userId: $this->user->getId(),
                 tokenName: $request->name,
-                tokenType: $request->type->name ?? null,
+                tokenType: $request->type->name,
                 exception: $ex
             );
 

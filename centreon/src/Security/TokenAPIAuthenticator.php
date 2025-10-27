@@ -173,20 +173,24 @@ class TokenAPIAuthenticator extends AbstractAuthenticator implements Authenticat
 
     private function logTokenUsage(Request $request): void
     {
-        $tokenString = $request->headers->get('X-AUTH-TOKEN');
-        if ($tokenString && ! $this->readTokenRepository->isTokenTypeAuto($tokenString)) {
-            /** @var ApiToken|null $apiToken */
-            $apiToken = $this->readTokenRepository->find($tokenString);
-            if ($apiToken instanceof ApiToken) {
-                LoggerToken::create()->success(
-                    event: 'usage',
-                    userId: $apiToken->getCreatorId(),
-                    tokenName: $apiToken->getName(),
-                    tokenType: 'api',
-                    endpoint: $request->getRequestUri(),
-                    httpMethod: $request->getMethod(),
-                );
+        try {
+            $tokenString = $request->headers->get('X-AUTH-TOKEN');
+            if ($tokenString && ! $this->readTokenRepository->isTokenTypeAuto($tokenString)) {
+                /** @var ApiToken|null $apiToken */
+                $apiToken = $this->readTokenRepository->find($tokenString);
+                if ($apiToken instanceof ApiToken) {
+                    LoggerToken::create()->success(
+                        event: 'usage',
+                        userId: $apiToken->getCreatorId(),
+                        tokenName: $apiToken->getName(),
+                        tokenType: 'api',
+                        endpoint: $request->getRequestUri(),
+                        httpMethod: $request->getMethod(),
+                    );
+                }
             }
+        } catch (\Throwable $ex) {
+            $this->error('Token usage log failure', ['exception' => $ex]);
         }
     }
 }
