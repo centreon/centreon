@@ -131,7 +131,7 @@ const getYupValidatorType = ({
                   return true;
                 }
 
-                return resourceType && isEmpty(resources || []);
+                 return !(resourceType && isEmpty(resources || []));
               })
               .optional()
           )
