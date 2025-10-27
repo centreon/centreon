@@ -1,7 +1,6 @@
 import {
   T,
   always,
-  and,
   cond,
   equals,
   head,
