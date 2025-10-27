@@ -54,7 +54,7 @@ const metricSchema = object().shape({
 });
 
 interface GetYupValidatorTypeProps {
-  properties: Pick<WidgetPropertyProps, 'defaultValue' | 'type'>;
+  properties: Pick<WidgetPropertyProps, 'defaultValue' | 'type' | 'required' | 'requireResourceType' | 'allowEmptyResources'>;
   t: TFunction;
 }
 
@@ -124,6 +124,18 @@ const getYupValidatorType = ({
                     : string(),
                 resources: getResourcesValidation(properties)
               })
+              .test('resource-selection-validation', t(labelPleaseSelectAResource) as string, function(value) {
+                if (!value) return true;
+                const { resourceType, resources } = value;
+                if (properties.allowEmptyResources) {
+                  return true;
+                }
+                
+                if (resourceType && resourceType.length > 0 && (!resources || (Array.isArray(resources) && resources.length === 0))) {
+                  return false;
+                }
+                return true;
+              })
               .optional()
           )
           .min(
@@ -185,7 +197,7 @@ const getYupValidatorType = ({
   ])(properties.type);
 
 interface BuildValidationSchemaProps {
-  properties: Pick<FederatedWidgetOption, 'defaultValue' | 'type'>;
+  properties: Pick<FederatedWidgetOption, 'defaultValue' | 'type' | 'required' | 'requireResourceType' | 'allowEmptyResources'>;
   t: TFunction;
 }
 

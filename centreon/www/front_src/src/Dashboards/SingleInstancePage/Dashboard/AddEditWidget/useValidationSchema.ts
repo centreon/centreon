@@ -9,7 +9,7 @@ import {
 } from '../../../../federatedModules/models';
 import { labelRequired } from '../translatedLabels';
 
-import { type Schema, type StringSchema, boolean, object, string } from 'yup';
+import { type Schema, type StringSchema, array, boolean, object, string } from 'yup';
 import { buildValidationSchema } from './WidgetProperties/Inputs/utils';
 import { widgetPropertiesAtom } from './atoms';
 

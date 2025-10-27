@@ -29,6 +29,8 @@ import ConfirmationResourceTypeToggleRegexModal from './ConfirmationResourceType
 import ResourceField from './ResourceField';
 import useDefaultSelectTypeData from './useDefaultSelectType';
 import useResources from './useResources';
+import { ReactElement } from 'react';
+import { useFormikContext } from 'formik';
 
 const Resources = ({
   propertyName,
@@ -42,7 +44,7 @@ const Resources = ({
   selectType,
   forceSingleAutocompleteConditions,
   allowRegexOnResourceTypes
-}: WidgetPropertyProps): JSX.Element => {
+}: WidgetPropertyProps): ReactElement => {
   const { classes } = useResourceStyles();
   const { classes: avatarClasses } = useAddWidgetStyles();
   const { t } = useTranslation();
@@ -101,6 +103,8 @@ const Resources = ({
       ? WidgetResourceType.hostGroup
       : resourceType;
 
+  const formikContext = useFormikContext()
+  console.log('formikContext in Resources component:', formikContext);
   return (
     <div className={classes.resourcesContainer}>
       <div className={classes.resourcesHeader}>
