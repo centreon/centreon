@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { ReactElement, useMemo } from 'react';
 
 import { useAtomValue } from 'jotai';
 import { equals, gt, isNil, last, pipe, pluck, reject } from 'ramda';
@@ -51,7 +51,7 @@ const StatusGrid = ({
   dashboardId,
   playlistHash,
   widgetPrefixQuery
-}: Omit<StatusGridProps, 'store' | 'queryClient'>): JSX.Element => {
+}: Omit<StatusGridProps, 'store' | 'queryClient'>): ReactElement => {
   const theme = useTheme();
   const { t } = useTranslation();
 
@@ -59,6 +59,7 @@ const StatusGrid = ({
     refreshInterval,
     resourceType,
     sortBy,
+    states,
     statuses,
     tiles,
     refreshIntervalCustom
@@ -125,7 +126,7 @@ const StatusGrid = ({
                 limit: tiles,
                 resources,
                 sortBy,
-                states: [],
+                states,
                 statuses: statusesToUse,
                 type: resourceType
               }),
@@ -138,6 +139,7 @@ const StatusGrid = ({
       'statusgrid',
       resourceType,
       JSON.stringify(statuses),
+      JSON.stringify(states),
       sortBy,
       tiles,
       JSON.stringify(resources),

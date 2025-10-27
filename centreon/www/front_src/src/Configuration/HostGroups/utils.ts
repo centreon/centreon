@@ -13,3 +13,6 @@ export const filtersInitialValues = {
   enabled: false,
   disabled: false
 };
+
+export const filtersAtomKey = 'filters_hostgroups';
+export const columnsAtomKey = 'columns_hostgroups';

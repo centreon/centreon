@@ -26,6 +26,7 @@ import dataPingService from '../mockedData/pingService.json';
 import dataPingServiceLinesBars from '../mockedData/pingServiceLinesBars.json';
 import dataPingServiceLinesBarsMixed from '../mockedData/pingServiceLinesBarsMixed.json';
 import dataPingServiceLinesBarsStacked from '../mockedData/pingServiceLinesBarsStacked.json';
+import dataPingServiceLinesStackKeys from '../mockedData/pingServiceWithStackedKeys.json';
 import dataZoomPreview from '../mockedData/zoomPreview.json';
 
 import { dateTimeFormat } from './common';
@@ -790,4 +791,12 @@ export const withLegendSecondaryClick: Story = {
       data={dataPingService as unknown as LineChartData}
     />
   )
+};
+
+export const stackedKey: Story = {
+  argTypes,
+  args: {
+    ...argumentsData,
+    data: dataPingServiceLinesStackKeys
+  }
 };
