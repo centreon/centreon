@@ -146,18 +146,19 @@ function multipleTrapGroupInDB(array $trapGroups = [], array $nbrDup = []): void
     try {
         foreach ($trapGroups as $trapGroupId => $unused) {
             // Fetch original row
-            $sqlSelectGroup = <<<'SQL'
-                    SELECT *
-                    FROM traps_group
-                    WHERE traps_group_id = :id
-                    LIMIT 1
-                SQL;
-
             $paramsId = QueryParameters::create([
                 QueryParameter::create('id', (int) $trapGroupId, QueryParameterTypeEnum::INTEGER),
             ]);
 
-            $originalGroup = $pearDB->fetchAssociative($sqlSelectGroup, $paramsId);
+            $originalGroup = $pearDB->fetchAssociative(
+                <<<'SQL'
+                        SELECT *
+                        FROM traps_group
+                        WHERE traps_group_id = :id
+                        LIMIT 1
+                    SQL,
+                $paramsId
+            );
             if (! $originalGroup) {
                 // nothing to duplicate for this id
                 continue;
@@ -213,20 +214,22 @@ function multipleTrapGroupInDB(array $trapGroups = [], array $nbrDup = []): void
                 $newGroups[$newIds[$index]] = $param->getValue();
             }
 
-            // Copy relations for each duplicated group
-            $sqlCopyRelations = <<<'SQL'
-                    INSERT INTO traps_group_relation (traps_group_id, traps_id)
-                    SELECT :new_group_id, traps_id
-                    FROM traps_group_relation
-                    WHERE traps_group_id = :old_group_id
-                SQL;
+            // Copy relations
             foreach ($newGroups as $newGroupId => $newName) {
                 $copyParams = QueryParameters::create([
                     QueryParameter::create('new_group_id', $newGroupId, QueryParameterTypeEnum::INTEGER),
                     QueryParameter::create('old_group_id', (int) $trapGroupId, QueryParameterTypeEnum::INTEGER),
                 ]);
 
-                $pearDB->insert($sqlCopyRelations, $copyParams);
+                $pearDB->insert(
+                    <<<'SQL'
+                            INSERT INTO traps_group_relation (traps_group_id, traps_id)
+                            SELECT :new_group_id, traps_id
+                            FROM traps_group_relation
+                            WHERE traps_group_id = :old_group_id
+                        SQL,
+                    $copyParams
+                );
             }
         }
     } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
@@ -276,43 +279,46 @@ function updateTrapGroup(?int $id = null): void
     $name = $ret['name'] ?? '';
 
     try {
-        $sqlUpdateGroup = <<<'SQL'
-                UPDATE traps_group
-                SET traps_group_name = :name
-                WHERE traps_group_id = :id
-            SQL;
-
         $updateParams = QueryParameters::create([
             QueryParameter::create('name', $name, QueryParameterTypeEnum::STRING),
             QueryParameter::create('id', (int) $id, QueryParameterTypeEnum::INTEGER),
         ]);
 
-        $pearDB->executeStatement($sqlUpdateGroup, $updateParams);
-
-        $sqlDeleteRelations = <<<'SQL'
-                DELETE FROM traps_group_relation
-                WHERE traps_group_id = :id
-            SQL;
+        $pearDB->update(
+            <<<'SQL'
+                    UPDATE traps_group
+                    SET traps_group_name = :name
+                    WHERE traps_group_id = :id
+                SQL,
+            $updateParams
+        );
 
         $deleteRelParams = QueryParameters::create([
             QueryParameter::create('id', (int) $id, QueryParameterTypeEnum::INTEGER),
         ]);
 
-        $pearDB->executeStatement($sqlDeleteRelations, $deleteRelParams);
+        $pearDB->delete(
+            <<<'SQL'
+                    DELETE FROM traps_group_relation
+                    WHERE traps_group_id = :id
+                SQL,
+            $deleteRelParams
+        );
 
         if (! empty($ret['traps']) && is_array($ret['traps'])) {
-            $sqlInsertRelation = <<<'SQL'
-                    INSERT INTO traps_group_relation (traps_group_id, traps_id)
-                    VALUES (:group_id, :trap_id)
-                SQL;
-
             foreach ($ret['traps'] as $trapId) {
                 $relParams = QueryParameters::create([
                     QueryParameter::create('group_id', (int) $id, QueryParameterTypeEnum::INTEGER),
                     QueryParameter::create('trap_id', (int) $trapId, QueryParameterTypeEnum::INTEGER),
                 ]);
 
-                $pearDB->executeStatement($sqlInsertRelation, $relParams);
+                $pearDB->insert(
+                    <<<'SQL'
+                            INSERT INTO traps_group_relation (traps_group_id, traps_id)
+                            VALUES (:group_id, :trap_id)
+                        SQL,
+                    $relParams
+                );
             }
         }
 
@@ -368,9 +374,9 @@ function insertTrapGroup(array $ret = []): ?int
     try {
         $pearDB->insert(
             <<<'SQL'
-                INSERT INTO traps_group (traps_group_name)
-                VALUES (:name)
-            SQL,
+                    INSERT INTO traps_group (traps_group_name)
+                    VALUES (:name)
+                SQL,
             QueryParameters::create([
                 QueryParameter::create('name', $name, QueryParameterTypeEnum::STRING),
             ])
@@ -379,18 +385,19 @@ function insertTrapGroup(array $ret = []): ?int
         $newGroupId = (int) $pearDB->getLastInsertId();
 
         if (is_array($ret['traps']) && $ret['traps'] !== []) {
-            $sqlInsertRelation = <<<'SQL'
-                    INSERT INTO traps_group_relation (traps_group_id, traps_id)
-                    VALUES (:group_id, :trap_id)
-                SQL;
-
             foreach ($ret['traps'] as $trapId) {
                 $relParams = QueryParameters::create([
                     QueryParameter::create('group_id', $newGroupId, QueryParameterTypeEnum::INTEGER),
                     QueryParameter::create('trap_id', (int) $trapId, QueryParameterTypeEnum::INTEGER),
                 ]);
 
-                $pearDB->insert($sqlInsertRelation, $relParams);
+                $pearDB->insert(
+                    <<<'SQL'
+                            INSERT INTO traps_group_relation (traps_group_id, traps_id)
+                            VALUES (:group_id, :trap_id)
+                        SQL,
+                    $relParams
+                );
             }
         }
 
