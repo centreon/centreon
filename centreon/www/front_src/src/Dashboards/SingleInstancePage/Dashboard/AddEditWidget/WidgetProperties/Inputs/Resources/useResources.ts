@@ -15,7 +15,9 @@ import {
   last,
   pluck,
   propEq,
-  reject
+  reject,
+  map,
+  pick
 } from 'ramda';
 
 import {
@@ -223,14 +225,20 @@ const useResources = ({
       setFieldValue(`data.${propertyName}.${index}.resources`, [], false);
     };
 
+    // TODO here
   const changeResources =
     (index: number) => (_, resources: Array<SelectEntry>) => {
-      setFieldValue(`data.${propertyName}.${index}.resources`, resources);
+      const selectedResources = map(pick(['id', 'name']), resources || []);
+
+      setFieldValue(`data.${propertyName}.${index}.resources`, selectedResources);
       setFieldTouched(`data.${propertyName}`, true, false);
     };
 
+        // TODO here
   const changeResource = (index: number) => (_, resource: SelectEntry) => {
-    setFieldValue(`data.${propertyName}.${index}.resources`, [resource]);
+    const selectedResource = resource ? pick(['id', 'name'], resource) : {};
+
+    setFieldValue(`data.${propertyName}.${index}.resources`, [selectedResource]);
     setFieldTouched(`data.${propertyName}`, true, false);
   };
 
