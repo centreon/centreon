@@ -22,7 +22,6 @@
 use Adaptation\Database\Connection\Collection\QueryParameters;
 use Adaptation\Database\Connection\Enum\QueryParameterTypeEnum;
 use Adaptation\Database\Connection\ValueObject\QueryParameter;
-use Core\Common\Domain\Exception\ExceptionFormatter;
 use Core\Common\Domain\Exception\RepositoryException;
 
 //
