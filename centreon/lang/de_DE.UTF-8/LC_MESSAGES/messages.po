@@ -16326,6 +16326,10 @@ msgstr ""
 msgid "Tokens are mandatory"
 msgstr ""
 
+#: centreon/www/install/front_translate.php
+msgid "Too many elements to be displayed (>{{graphsCapNumber}})"
+msgstr ""
+
 #: centreon/www/include/monitoring/objectDetails/serviceDetails.php
 msgid "Tools"
 msgstr "Werkzeuge"
@@ -20157,6 +20161,3 @@ msgstr "Standard"
 #: unknown
 msgid "it's required"
 msgstr "es ist erforderlich"
-
-# msgid "Too many elements to be displayed"
-# msgstr ""

@@ -16475,6 +16475,10 @@ msgstr ""
 msgid "Tokens are mandatory"
 msgstr "Les jetons sont obligatoires"
 
+#: centreon/www/install/front_translate.php
+msgid "Too many elements to be displayed (>{{graphsCapNumber}})"
+msgstr ""
+
 #: centreon/www/include/monitoring/objectDetails/serviceDetails.php
 msgid "Tools"
 msgstr "Outils"
@@ -23230,6 +23234,10 @@ msgid "Token not found"
 msgstr "Jeton non trouvé"
 
 #: unknown
+msgid "Too many elements to be displayed"
+msgstr "Trop d'éléments à afficher"
+
+#: unknown
 msgid "Tooltips"
 msgstr "Infobulles"
 
@@ -24105,6 +24113,3 @@ msgstr "affichera les ressources avec un nom d'hôte commençant par"
 #: unknown
 msgid "{{total}} element(s) found"
 msgstr "{{total}} élément(s) trouvé(s)"
-
-msgid "Too many elements to be displayed"
-msgstr "Trop d'éléments à afficher" 
