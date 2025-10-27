@@ -32,7 +32,76 @@ runs:
       run: npm install dayjs@1.11.18
       shell: bash
 
-    - name: Get ticket elements from context
+    - if: inputs.ticket_reason_for_creation == 'Nightly'
+      name: Create nightly epic if it does not exist already
+      uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+      env:
+        GH_TOKEN: ${{ github.token }}
+      id: get_nightly_epic
+      with:
+        script: |
+          const fs = require('fs');
+          const { execSync } = require('child_process');
+          const dayjs = require('dayjs');
+          const month = dayjs().format('YYYY-MM');
+          const path = './epic-payload.json';
+
+          let ticket_summary = `centreon-oss nightly incidents on ${month}`
+          let nightly_epic_id, nightly_epic_key;
+
+          const encodedJql = encodeURIComponent(`project = "MON" AND summary ~ "${ticket_summary}" AND type = Epic`);
+
+          let response = JSON.parse(
+            execSync(
+              `curl --request GET \
+                --user "${{ inputs.jira_user_email }}:${{ inputs.jira_api_token }}" \
+                --header "Accept: application/json" \
+                --url "${{ inputs.jira_base_url }}/rest/api/3/search/jql?jql=${encodedJql}&fields=summary,key&maxResults=1"`,
+            { encoding: 'utf-8' }
+            )
+          );
+
+          console.log("response:\n", response);
+          total = response.issues.length;
+          console.log(`Number of epics with this name: ${total}`);
+
+          if (total === 0) {
+            ticket_data =
+              {
+                "fields": {
+                  "summary": ticket_summary,
+                  "project": {"key": "MON"},
+                  "issuetype": {"id": "10000"},
+                  "labels": ["Pipeline", "${{ inputs.ticket_reason_for_creation }}" ]
+                }
+              }
+
+            fs.writeFileSync(path, JSON.stringify(ticket_data));
+
+            let response = execSync(
+              `curl --request POST \
+                --url "${{ inputs.jira_base_url }}/rest/api/3/issue" \
+                --user "${{ inputs.jira_user_email }}:${{ inputs.jira_api_token }}" \
+                --header 'Accept: application/json' \
+                --header 'Content-Type: application/json' \
+                --data @${path}
+              `,
+              { encoding: 'utf8' }
+            );
+
+            nightly_epic_id = JSON.parse(response).id;
+            nightly_epic_key = JSON.parse(response).key;
+            console.log(`An epic for the current month and project (ID ${nightly_epic_id}, key ${nightly_epic_key}) has been created.`);
+          } else {
+            nightly_epic_id = response.issues[0].id;
+            nightly_epic_key = response.issues[0].key;
+            console.log(`An epic for the current month and project (ID ${nightly_epic_id}, key ${nightly_epic_key}) has already been found.`);
+          }
+
+          core.setOutput('nightly_epic_id', nightly_epic_id);
+          core.setOutput('nightly_epic_key', nightly_epic_key);
+
+    - name: Get ticket elements from context and create the incident ticket
       uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
       env:
         GH_TOKEN: ${{ github.token }}
@@ -45,8 +114,8 @@ runs:
           const isoWeek = require('dayjs/plugin/isoWeek');
           dayjs.extend(isoWeek);
 
-          const parent_epic_id = 206242
-          const parent_epic_key = "MON-151547"
+          const nightly_epic_id = ${{ steps.get_nightly_epic.outputs.nightly_epic_id }}
+          const nightly_epic_key = "${{ steps.get_nightly_epic.outputs.nightly_epic_key }}"
           const JSON_TEMPLATE_FILE = "./.github/actions/create-jira-ticket/nightly-ticket-template.json";
           const date = dayjs().format('YYYY-MM-DD');
           const path = './ticket-payload.json';
@@ -62,7 +131,7 @@ runs:
             ticket_labels = ["Pipeline", "${{ inputs.ticket_reason_for_creation }}" ]
             console.log(`Failed job: ${failed_job}`);
             if (ticket_labels.includes("Nightly")) {
-              ticket_summary = `${date} ${{ inputs.module_name }}-${{ github.base_ref || github.ref_name }} nightly build failure on ${failed_job}`
+              ticket_summary = `${{ inputs.module_name }}-${{ github.base_ref || github.ref_name }} nightly build failure on ${failed_job}`
 
               data = fs.readFileSync(JSON_TEMPLATE_FILE, { encoding: 'utf8' });
               data = data.replace(/@MODULE_NAME@/g, '${{ inputs.module_name }}');
@@ -102,83 +171,140 @@ runs:
             console.log(`Ticket summary: ${ticket_summary}`);
             console.log(`Ticket will be attributed to the ${squad_name} team. (Squad ID ${ticket_squad_id}, Board ID ${ticket_board_id})`)
 
-            current_sprint = execSync(
-              `curl --request GET \
-                --url ${{ inputs.jira_base_url }}/rest/agile/1.0/board/${ticket_board_id}/sprint?state=active \
-                --user "${{ inputs.jira_user_email }}:${{ inputs.jira_api_token }}" \
-                --header "Accept: application/json" | jq --arg squad_name "$squad_name" '.values[] | select(.name | test($squad_name; "i")) | .id'
-              `,
-              { encoding: 'utf8' }
+            const encodedJql = encodeURIComponent(`project = "MON" AND summary ~ "${ticket_summary}" AND statusCategory NOT IN (Done)`);
+            let response = JSON.parse(
+              execSync(
+                `curl --request GET \
+                  --user "${{ inputs.jira_user_email }}:${{ inputs.jira_api_token }}" \
+                  --header "Accept: application/json" \
+                  --url "${{ inputs.jira_base_url }}/rest/api/3/search/jql?jql=${encodedJql}&fields=summary,key&maxResults=1"`,
+              { encoding: 'utf-8' }
+              )
             );
+            console.log("response:\n", response);
 
-            console.log(`Current sprint: ${current_sprint}`);
+            total = response.issues.length;
+            console.log(`Number of tickets with this name: ${total}`);
 
-            // Creating a new incident ticket on Jira
-            data = JSON.parse(data);
-            ticket_data =
-              {
-                "fields": {
-                  "summary": ticket_summary,
-                  "project": {"key": "MON"},
-                  "issuetype": {"id": "10209"},
-                  "parent": {"id": `${parent_epic_id}`, "key": `${parent_epic_key}`},
-                  "labels": ticket_labels,
-                  "components": [{"name": "${{ inputs.module_name }}"}],
-                  "customfield_10902": {"id": `${ticket_squad_id}`, "value": `${squad_name}`},
-                  "description": data
+            if (total === 0) {
+              ticket_summary = `${date} ${ticket_summary}`;
+
+              // Desactivated temporarily, activating when the pipeline is more stable
+              // current_sprint = execSync(
+              //   `curl --request GET \
+              //     --url ${{ inputs.jira_base_url }}/rest/agile/1.0/board/${ticket_board_id}/sprint?state=active \
+              //     --user "${{ inputs.jira_user_email }}:${{ inputs.jira_api_token }}" \
+              //     --header "Accept: application/json" | jq --arg squad_name "$squad_name" '.values[] | select(.name | test($squad_name; "i")) | .id'
+              //   `,
+              //   { encoding: 'utf8' }
+              // );
+
+              // console.log(`Current sprint: ${current_sprint}`);
+
+              // Creating a new incident ticket on Jira
+              data = JSON.parse(data);
+              ticket_data =
+                {
+                  "fields": {
+                    "summary": ticket_summary,
+                    "project": {"key": "MON"},
+                    "issuetype": {"id": "10209"},
+                    "parent": {"id": `${nightly_epic_id}`, "key": `${nightly_epic_key}`},
+                    "labels": ticket_labels,
+                    "components": [{"name": "${{ inputs.module_name }}"}],
+                    "customfield_10902": {"id": `${ticket_squad_id}`, "value": `${squad_name}`},
+                    "description": data
+                  }
                 }
-              }
 
-            if (current_sprint !== null) {
-              ticket_data.fields.customfield_10007 = parseInt(current_sprint, 10);
-            }
+              // Desactivated temporarily, activating when the pipeline is more stable
+              // if (current_sprint !== null) {
+              //   ticket_data.fields.customfield_10007 = parseInt(current_sprint, 10);
+              // }
 
-            fs.writeFileSync(path, JSON.stringify(ticket_data));
-            contents = fs.readFileSync('./ticket-payload.json', 'utf8');
-            console.log("Ticket Payload:\n", contents);
-            let response = execSync(
-              `curl --request POST \
-                --url "${{ inputs.jira_base_url }}/rest/api/3/issue" \
-                --user "${{ inputs.jira_user_email }}:${{ inputs.jira_api_token }}" \
-                --header 'Accept: application/json' \
-                --header 'Content-Type: application/json' \
-                --data @${path}
-              `,
-              { encoding: 'utf8' }
-            );
-
-            console.log(`Response on ticket creation: ${response}`);
-
-            ticket_key = JSON.parse(response).key;
-            core.notice(`Created ticket: ${ticket_key}`);
-
-            // Update priority on newly created ticket since you cannot create a ticket with another priority than medium
-            response = execSync(
-              `curl --request PUT \
-                --url "${{ inputs.jira_base_url }}/rest/api/3/issue/${ticket_key}" \
-                --user "${{ inputs.jira_user_email }}:${{ inputs.jira_api_token }}" \
-                --header 'Accept: application/json' \
-                --header 'Content-Type: application/json' \
-                --data '{ "fields": { "priority": { "id": "1" } } }'
-              `,
-              { encoding: 'utf8' }
-            );
-
-            console.log(`Response on priority change: ${response}`);
-
-            // Update ticket status to NEED REFINEMENT and then SPRINT READY so that squad members can see it in their respective sprints
-            for (const transition_id of [11, 21]) {
-              response = execSync(
+              fs.writeFileSync(path, JSON.stringify(ticket_data));
+              contents = fs.readFileSync(path, 'utf8');
+              console.log("Ticket Payload:\n", contents);
+              let response = execSync(
                 `curl --request POST \
-                  --url "${{ inputs.jira_base_url }}/rest/api/latest/issue/${ticket_key}/transitions" \
+                  --url "${{ inputs.jira_base_url }}/rest/api/3/issue" \
                   --user "${{ inputs.jira_user_email }}:${{ inputs.jira_api_token }}" \
                   --header 'Accept: application/json' \
                   --header 'Content-Type: application/json' \
-                  --data '{"transition": {"id": "${transition_id}"} }'
+                  --data @${path}
                 `,
+                { encoding: 'utf8' }
+              );
+
+              console.log(`Response on ticket creation:\n ${response}`);
+
+              ticket_key = JSON.parse(response).key;
+              core.notice(`Created ticket: ${ticket_key}`);
+
+              // Update priority on newly created ticket since you cannot create a ticket with another priority than medium
+              response = execSync(
+                `curl --request PUT \
+                  --url "${{ inputs.jira_base_url }}/rest/api/3/issue/${ticket_key}" \
+                  --user "${{ inputs.jira_user_email }}:${{ inputs.jira_api_token }}" \
+                  --header 'Accept: application/json' \
+                  --header 'Content-Type: application/json' \
+                  --data '{ "fields": { "priority": { "id": "2" } } }'
+                `,
+                { encoding: 'utf8' }
+              );
+
+              console.log(`Response on priority change:\n ${response}`);
+
+              // Update ticket status to NEED REFINEMENT and then SPRINT READY so that squad members can see it in their respective sprints
+              // for (const transition_id of [11, 21]) {
+              //  response = execSync(
+              //    `curl --request POST \
+              //    --url "${{ inputs.jira_base_url }}/rest/api/latest/issue/${ticket_key}/transitions" \
+              //    --user "${{ inputs.jira_user_email }}:${{ inputs.jira_api_token }}" \
+              //    --header 'Accept: application/json' \
+              //    --header 'Content-Type: application/json' \
+              //    --data '{"transition": {"id": "${transition_id}"} }'
+              //  `,
+              //  { encoding: 'utf8' }
+              // )
+
+              // console.log(`Response on ticket status change: ${response}`);
+              // }
+            } else {
+              const ticket_key = response.issues[0].key;
+              console.log(`A ticket (ID ${ticket_key}) has already been found. Adding new entry in the description...`);
+
+              data = JSON.parse(data).content[2].content[0];
+              console.log("data after shrinking:\n ", data);
+
+              let ticket_description = JSON.parse(
+                execSync(
+                  `curl --request GET \
+                  --url "${{ inputs.jira_base_url }}/rest/api/3/issue/${ticket_key}" \
+                  --user "${{ inputs.jira_user_email }}:${{ inputs.jira_api_token }}" \
+                  --header "Accept: application/json" | jq '.fields.description'`,
+                  { encoding: 'utf8' }
+                )
+              );
+
+              ticket_description.content[2].content.push(data);
+              console.log("ticket_description:\n", ticket_description);
+
+              ticket_description = { fields: { description: ticket_description } };
+
+              fs.writeFileSync(path, JSON.stringify(ticket_description));
+              console.log("complete ticket description:\n", JSON.stringify(JSON.parse(fs.readFileSync(path, "utf8")), null, 2));
+
+              response = execSync(
+                `curl --request PUT \
+                  --url "${{ inputs.jira_base_url }}/rest/api/3/issue/${ticket_key}" \
+                  --user "${{ inputs.jira_user_email }}:${{ inputs.jira_api_token }}" \
+                  --header "Accept: application/json" \
+                  --header "Content-Type: application/json" \
+                  --data @${path}`,
                 { encoding: 'utf8' }
               )
 
-              console.log(`Response on ticket status change: ${response}`);
+              console.log(`Response on ticket description change: ${response}`);
             }
           }
