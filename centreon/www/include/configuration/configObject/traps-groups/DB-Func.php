@@ -19,156 +19,398 @@
  *
  */
 
-function testTrapGroupExistence($name = null)
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\Enum\QueryParameterTypeEnum;
+use Adaptation\Database\Connection\Exception\ConnectionException;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
+use Core\Common\Domain\Exception\CollectionException;
+use Core\Common\Domain\Exception\RepositoryException;
+use Core\Common\Domain\Exception\ValueObjectException;
+
+/**
+ * Check if a trap group name already exists in DB
+ *
+ * @param string|null $name
+ * @throws RepositoryException
+ * @return bool true if allowed, false if duplicate with different id
+ */
+function testTrapGroupExistence(?string $name = null): bool
 {
     global $pearDB, $form;
-    $id = null;
 
+    $currentId = null;
     if (isset($form)) {
-        $id = $form->getSubmitValue('id');
+        $currentId = $form->getSubmitValue('id');
     }
-    $query = "SELECT traps_group_id as id FROM traps_group WHERE traps_group_name = '"
-        . $pearDB->escape(htmlentities($name, ENT_QUOTES, 'UTF-8')) . "'";
-    $dbResult = $pearDB->query($query);
-    $trap_group = $dbResult->fetch();
-    // Modif case
-    if ($dbResult->rowCount() >= 1 && $trap_group['id'] == $id) {
-        return true;
-    } // Duplicate entry
 
-    return ! ($dbResult->rowCount() >= 1 && $trap_group['id'] != $id);
+    try {
+        $sql = <<<'SQL'
+                SELECT traps_group_id AS id
+                FROM traps_group
+                WHERE traps_group_name = :name
+                LIMIT 1
+            SQL;
+
+        $params = QueryParameters::create([
+            QueryParameter::create('name', (string) $name, QueryParameterTypeEnum::STRING),
+        ]);
+
+        $trapGroup = $pearDB->fetchAssociative($sql, $params);
+
+        return $trapGroup !== false && ((int) $trapGroup['id'] !== (int) $currentId);
+    } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
+        throw new RepositoryException(
+            'Error while executing testTrapGroupExistence',
+            [
+                'name' => $name,
+                'currentId' => $currentId,
+            ],
+            $exception,
+        );
+    }
 }
 
-function deleteTrapGroupInDB($trap_groups = [])
+/**
+ * Delete one or many trap groups
+ *
+ * @param array<int|string,mixed> $trapGroups Keys are trap_group_id
+ * @throws RepositoryException
+ * @return void
+ */
+function deleteTrapGroupInDB(array $trapGroups = []): void
 {
     global $pearDB, $oreon;
 
-    foreach ($trap_groups as $key => $value) {
-        $query = "SELECT traps_group_name as name FROM `traps_group` WHERE `traps_group_id` = '"
-            . $pearDB->escape($key) . "' LIMIT 1";
-        $dbResult2 = $pearDB->query($query);
-        $row = $dbResult2->fetch();
+    try {
+        foreach ($trapGroups as $trapGroupId => $unused) {
+            $selectQuery = <<<'SQL'
+                    SELECT traps_group_name AS name
+                    FROM traps_group
+                    WHERE traps_group_id = :id
+                    LIMIT 1
+                SQL;
 
-        $pearDB->query("DELETE FROM traps_group WHERE traps_group_id = '" . $pearDB->escape($key) . "'");
-        $oreon->CentreonLogAction->insertLog('traps_group', $key, $row['name'], 'd');
+            $params = QueryParameters::create([
+                QueryParameter::create('id', (int) $trapGroupId, QueryParameterTypeEnum::INTEGER),
+            ]);
+
+            $row = $pearDB->fetchAssociative($selectQuery, $params);
+            $groupName = $row['name'] ?? '';
+
+            $pearDB->delete(
+                <<<'SQL'
+                        DELETE FROM traps_group
+                        WHERE traps_group_id = :id
+                    SQL,
+                $params
+            );
+
+            $pearDB->delete(
+                <<<'SQL'
+                        DELETE FROM traps_group_relation
+                        WHERE traps_group_id = :id
+                    SQL,
+                $params
+            );
+
+            $oreon->CentreonLogAction->insertLog(
+                'traps_group',
+                $trapGroupId,
+                $groupName,
+                'd',
+            );
+        }
+    } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
+        throw new RepositoryException(
+            'Error while executing deleteTrapGroupInDB',
+            [
+                'trapGroups' => array_keys($trapGroups),
+            ],
+            $exception
+        );
     }
 }
 
-function multipleTrapGroupInDB($trap_groups = [], $nbrDup = [])
+/**
+ * Duplicate one or more trap groups $nbrDup[$id] times
+ *
+ * @param array<int|string,mixed> $trapGroups
+ * @param array<int|string,int> $nbrDup
+ * @throws RepositoryException
+ * @return void
+ */
+function multipleTrapGroupInDB(array $trapGroups = [], array $nbrDup = []): void
 {
     global $pearDB, $oreon;
 
-    foreach ($trap_groups as $key => $value) {
-        $query = "SELECT * FROM traps_group WHERE traps_group_id = '" . $pearDB->escape($key) . "' LIMIT 1";
-        $dbResult = $pearDB->query($query);
-        $row = $dbResult->fetch();
-        $row['traps_group_id'] = null;
+    try {
+        foreach ($trapGroups as $trapGroupId => $unused) {
+            // Fetch original row
+            $sqlSelectGroup = <<<'SQL'
+                    SELECT *
+                    FROM traps_group
+                    WHERE traps_group_id = :id
+                    LIMIT 1
+                SQL;
 
-        for ($i = 1; $i <= $nbrDup[$key]; $i++) {
-            $val = null;
-            foreach ($row as $key2 => $value2) {
-                $value2 = is_int($value2) ? (string) $value2 : $value2;
-                $name = '';
-                if ($key2 == 'traps_group_name') {
-                    $name = $value2 . '_' . $i;
-                    $value2 = $value2 . '_' . $i;
-                }
-                $val
-                    ? $val .= ($value2 != null ? (", '" . $value2 . "'") : ', NULL')
-                    : $val .= ($value2 != null ? ("'" . $value2 . "'") : 'NULL');
-                if ($key2 != 'traps_group_id') {
-                    $fields[$key2] = $value2;
-                }
-                $fields['name'] = $name;
+            $paramsId = QueryParameters::create([
+                QueryParameter::create('id', (int) $trapGroupId, QueryParameterTypeEnum::INTEGER),
+            ]);
+
+            $originalGroup = $pearDB->fetchAssociative($sqlSelectGroup, $paramsId);
+            if (! $originalGroup) {
+                // nothing to duplicate for this id
+                continue;
             }
 
-            if (testTrapGroupExistence($name)) {
-                $rq = $val ? 'INSERT INTO traps_group VALUES (' . $val . ')' : null;
-                $pearDB->query($rq);
-                $oreon->CentreonLogAction->insertLog('traps_group', $key, $name, 'a', $fields);
+            $baseName = $originalGroup['traps_group_name'];
+            $dupCount = (int) ($nbrDup[$trapGroupId] ?? 0);
 
-                $query = 'INSERT INTO traps_group_relation (traps_group_id, traps_id) SELECT '
-                    . '(SELECT MAX(traps_group_id) as max_id FROM traps_group), traps_id FROM traps_group_relation '
-                    . "WHERE traps_group_id = '" . $pearDB->escape($key) . "'";
-                $pearDB->query($query);
+            $parameters = [];
+            $valuePlaceholders = [];
+            for ($i = 1; $i <= $dupCount; $i++) {
+                $newName = $baseName . '_' . $i;
+                if (testTrapGroupExistence($newName)) {
+                    continue;
+                }
+
+                $paramName = 'name_' . $i;
+                $parameters[] = QueryParameter::create(
+                    $paramName,
+                    $newName,
+                    QueryParameterTypeEnum::STRING,
+                );
+                $valuePlaceholders[] = '(:' . $paramName . ')';
+
+                $oreon->CentreonLogAction->insertLog(
+                    'traps_group',
+                    $trapGroupId,
+                    $newName,
+                    'a',
+                    [
+                        'traps_group_name' => $newName,
+                        'name' => $newName,
+                    ]
+                );
+            }
+
+            if ($parameters === []) {
+                continue;
+            }
+            $insertSql = sprintf(
+                'INSERT INTO traps_group (traps_group_name) VALUES %s',
+                implode(', ', $valuePlaceholders),
+            );
+            $pearDB->insert($insertSql, QueryParameters::create($parameters));
+
+            $lastInsertId = (int) $pearDB->getLastInsertId();
+            $totalInserted = count($parameters);
+            $newIds = range($lastInsertId - $totalInserted + 1, $lastInsertId);
+
+            // Map new IDs to their names
+            $newGroups = [];
+            foreach ($parameters as $index => $param) {
+                $newGroups[$newIds[$index]] = $param->getValue();
+            }
+
+            // Copy relations for each duplicated group
+            $sqlCopyRelations = <<<'SQL'
+                    INSERT INTO traps_group_relation (traps_group_id, traps_id)
+                    SELECT :new_group_id, traps_id
+                    FROM traps_group_relation
+                    WHERE traps_group_id = :old_group_id
+                SQL;
+            foreach ($newGroups as $newGroupId => $newName) {
+                $copyParams = QueryParameters::create([
+                    QueryParameter::create('new_group_id', $newGroupId, QueryParameterTypeEnum::INTEGER),
+                    QueryParameter::create('old_group_id', (int) $trapGroupId, QueryParameterTypeEnum::INTEGER),
+                ]);
+
+                $pearDB->insert($sqlCopyRelations, $copyParams);
             }
         }
+    } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
+        throw new RepositoryException(
+            'Error while executing multipleTrapGroupInDB',
+            [
+                'trapGroups' => array_keys($trapGroups),
+                'nbrDup' => $nbrDup,
+            ],
+            $exception
+        );
     }
 }
 
-function updateTrapGroupInDB($id = null)
+/**
+ * Public wrapper kept for BC.
+ *
+ * @param int|null $id
+ * @throws RepositoryException
+ * @return void
+ */
+function updateTrapGroupInDB(?int $id = null): void
 {
-    if (! $id) {
+    if ($id === null) {
         return;
     }
+
     updateTrapGroup($id);
 }
 
-function updateTrapGroup($id = null)
+/**
+ * Update trap group main data + its relations.
+ *
+ * @param int|null $id
+ * @throws RepositoryException
+ * @return void
+ */
+function updateTrapGroup(?int $id = null): void
 {
     global $form, $pearDB, $oreon;
 
-    if (! $id) {
+    if ($id === null) {
         return;
     }
 
-    $ret = [];
     $ret = $form->getSubmitValues();
+    $name = $ret['name'] ?? '';
 
-    $rq = 'UPDATE traps_group ';
-    $rq .= "SET traps_group_name = '" . $pearDB->escape(htmlentities($ret['name'], ENT_QUOTES, 'UTF-8')) . "' ";
-    $rq .= "WHERE traps_group_id = '" . $pearDB->escape($id) . "'";
-    $pearDB->query($rq);
+    try {
+        $sqlUpdateGroup = <<<'SQL'
+                UPDATE traps_group
+                SET traps_group_name = :name
+                WHERE traps_group_id = :id
+            SQL;
 
-    $pearDB->query("DELETE FROM traps_group_relation WHERE traps_group_id = '" . $pearDB->escape($id) . "'");
-    if (isset($ret['traps'])) {
-        foreach ($ret['traps'] as $trap_id) {
-            $query = 'INSERT INTO traps_group_relation (traps_group_id, traps_id) VALUES (' . $pearDB->escape($id)
-                . ",'" . $pearDB->escape($trap_id) . "')";
-            $pearDB->query($query);
+        $updateParams = QueryParameters::create([
+            QueryParameter::create('name', $name, QueryParameterTypeEnum::STRING),
+            QueryParameter::create('id', (int) $id, QueryParameterTypeEnum::INTEGER),
+        ]);
+
+        $pearDB->executeStatement($sqlUpdateGroup, $updateParams);
+
+        $sqlDeleteRelations = <<<'SQL'
+                DELETE FROM traps_group_relation
+                WHERE traps_group_id = :id
+            SQL;
+
+        $deleteRelParams = QueryParameters::create([
+            QueryParameter::create('id', (int) $id, QueryParameterTypeEnum::INTEGER),
+        ]);
+
+        $pearDB->executeStatement($sqlDeleteRelations, $deleteRelParams);
+
+        if (! empty($ret['traps']) && is_array($ret['traps'])) {
+            $sqlInsertRelation = <<<'SQL'
+                    INSERT INTO traps_group_relation (traps_group_id, traps_id)
+                    VALUES (:group_id, :trap_id)
+                SQL;
+
+            foreach ($ret['traps'] as $trapId) {
+                $relParams = QueryParameters::create([
+                    QueryParameter::create('group_id', (int) $id, QueryParameterTypeEnum::INTEGER),
+                    QueryParameter::create('trap_id', (int) $trapId, QueryParameterTypeEnum::INTEGER),
+                ]);
+
+                $pearDB->executeStatement($sqlInsertRelation, $relParams);
+            }
         }
-    }
 
-    // Prepare value for changelog
-    $fields = CentreonLogAction::prepareChanges($ret);
-    $oreon->CentreonLogAction->insertLog('traps_group', $id, $fields['name'], 'c', $fields);
+        $fields = CentreonLogAction::prepareChanges($ret);
+        $oreon->CentreonLogAction->insertLog(
+            'traps_group',
+            $id,
+            $fields['name'],
+            'c',
+            $fields
+        );
+    } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
+        throw new RepositoryException(
+            'Error while executing updateTrapGroup',
+            [
+                'id' => $id,
+                'name' => $name,
+            ],
+            $exception
+        );
+    }
 }
 
-function insertTrapGroupInDB($ret = [])
+/**
+ * Public wrapper kept for BC with legacy calls.
+ *
+ * @param array<string,mixed> $ret
+ * @throws RepositoryException
+ * @return int|null
+ */
+function insertTrapGroupInDB(array $ret = []): ?int
 {
     return insertTrapGroup($ret);
 }
 
-function insertTrapGroup($ret = [])
+/**
+ * Insert a new trap group and its relations.
+ *
+ * @param array<string,mixed> $ret
+ * @throws RepositoryException
+ * @return int|null Newly created traps_group_id or null if failed
+ */
+function insertTrapGroup(array $ret = []): ?int
 {
     global $form, $pearDB, $oreon;
 
-    if (! count($ret)) {
+    if ($ret === [] || $ret === null) {
         $ret = $form->getSubmitValues();
     }
 
-    $rq = 'INSERT INTO traps_group ';
-    $rq .= '(traps_group_name) ';
-    $rq .= 'VALUES ';
-    $rq .= "('" . $pearDB->escape(htmlentities($ret['name'], ENT_QUOTES, 'UTF-8')) . "')";
-    $dbResult = $pearDB->query($rq);
-    $dbResult = $pearDB->query('SELECT MAX(traps_group_id) as max_id FROM traps_group');
-    $trap_group_id = $dbResult->fetch();
+    $name = $ret['name'] ?? '';
 
-    $fields = [];
-    if (isset($ret['traps'])) {
-        $query = 'INSERT INTO traps_group_relation (traps_group_id, traps_id) VALUES (:traps_group_id, :traps_id)';
-        $statement = $pearDB->prepare($query);
-        foreach ($ret['traps'] as $trap_id) {
-            $statement->bindValue(':traps_group_id', $trap_group_id['max_id'], PDO::PARAM_INT);
-            $statement->bindValue(':traps_id', (int) $trap_id, PDO::PARAM_INT);
-            $statement->execute();
+    try {
+        $pearDB->insert(
+            <<<'SQL'
+                INSERT INTO traps_group (traps_group_name)
+                VALUES (:name)
+            SQL,
+            QueryParameters::create([
+                QueryParameter::create('name', $name, QueryParameterTypeEnum::STRING),
+            ])
+        );
+
+        $newGroupId = (int) $pearDB->getLastInsertId();
+
+        if (is_array($ret['traps']) && $ret['traps'] !== []) {
+            $sqlInsertRelation = <<<'SQL'
+                    INSERT INTO traps_group_relation (traps_group_id, traps_id)
+                    VALUES (:group_id, :trap_id)
+                SQL;
+
+            foreach ($ret['traps'] as $trapId) {
+                $relParams = QueryParameters::create([
+                    QueryParameter::create('group_id', $newGroupId, QueryParameterTypeEnum::INTEGER),
+                    QueryParameter::create('trap_id', (int) $trapId, QueryParameterTypeEnum::INTEGER),
+                ]);
+
+                $pearDB->insert($sqlInsertRelation, $relParams);
+            }
         }
+
+        $fields = CentreonLogAction::prepareChanges($ret);
+        $oreon->CentreonLogAction->insertLog(
+            'traps_group',
+            $newGroupId,
+            $fields['name'],
+            'a',
+            $fields
+        );
+
+        return $newGroupId;
+    } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
+        throw new RepositoryException(
+            'Error while executing insertTrapGroup',
+            [
+                'name' => $name,
+            ],
+            $exception
+        );
     }
-
-    // Prepare value for changelog
-    $fields = CentreonLogAction::prepareChanges($ret);
-    $oreon->CentreonLogAction->insertLog('traps_group', $trap_group_id['max_id'], $fields['name'], 'a', $fields);
-
-    return $trap_group_id['max_id'];
 }
