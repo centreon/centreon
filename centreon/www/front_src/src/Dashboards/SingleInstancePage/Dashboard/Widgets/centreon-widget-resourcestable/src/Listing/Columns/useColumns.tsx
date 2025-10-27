@@ -51,7 +51,7 @@ import {
 import useIsOpenTicketInstalled from '../useIsOpenTicketInstalled';
 import CloseTicket from './CloseTicket/CloseTicket';
 
-import useStyles, { useStatusStyles } from './Columns.styles';
+import { useStatusStyles } from './Columns.styles';
 import OpenTicket from './OpenTicket/OpenTicket';
 import ParentResourceColumn from './Parent';
 import ResourceColumn from './Resource';
@@ -77,7 +77,6 @@ const getTicketInformations = (row) =>
 const useColumns = ({
   displayType = DisplayType.All
 }: ColumnProps): ColumnsState => {
-  const { classes } = useStyles();
   const { dataStyle } = useStyleTable({});
   const { classes: statusClasses } = useStatusStyles({
     data: dataStyle.statusColumnChip
@@ -146,14 +145,15 @@ const useColumns = ({
       width: 'max-content'
     },
     {
-      Component: ResourceColumn({ classes, displayType }),
+      Component: ResourceColumn({ displayType }),
       getRenderComponentOnRowUpdateCondition: T,
       id: 'resource',
       label: t(resourceLabel),
       rowMemoProps: ['icon', 'short_type', 'name'],
       sortField: 'name',
       sortable: true,
-      type: ColumnType.component
+      type: ColumnType.component,
+      width: 'max-content'
     },
     {
       Component: equals(displayType, DisplayType.Host)
@@ -165,7 +165,8 @@ const useColumns = ({
       label: t(parentLabel),
       sortField: 'parent_name',
       sortable: true,
-      type: ColumnType.component
+      type: ColumnType.component,
+      width: 'max-content'
     },
     ...(isOpenTicketActionColumnVisible && !isOnPublicPage
       ? [
