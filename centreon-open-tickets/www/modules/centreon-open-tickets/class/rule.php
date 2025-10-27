@@ -542,18 +542,17 @@ class Centreon_OpenTickets_Rule
             foreach ($ruleIds as $ruleId) {
                 $rule = $this->_db->fetchAssociative(
                     query: <<<'SQL'
-                        SELECT
-                            rule_id,
-                            alias,
-                            provider_id,
-                            provider_name,
-                            activate
-                        FROM mod_open_tickets_rule
-                        WHERE rule_id = :ruleId
-                    SQL,
+                            SELECT
+                                rule_id,
+                                alias,
+                                provider_id,
+                                provider_name,
+                                activate
+                            FROM mod_open_tickets_rule
+                            WHERE rule_id = :ruleId
+                        SQL,
                     queryParameters: QueryParameters::create([QueryParameter::int('ruleId', $ruleId)])
                 );
-
 
                 if (! $rule) {
                     CentreonLog::create()->error(
@@ -570,7 +569,7 @@ class Centreon_OpenTickets_Rule
                 $duplicationIndex = 1;
                 if (isset($duplicateNb[$ruleId]) && $duplicateNb[$ruleId] > 0) {
                     for ($duplicationNumber = 1; $duplicationNumber <= $duplicateNb[$ruleId]; $duplicationNumber++) {
-                        $newName = sprintf("%s_%d", $rule['alias'], $duplicationNumber);
+                        $newName = sprintf('%s_%d', $rule['alias'], $duplicationNumber);
 
                         // Check that alias is not already in use
                         if ($this->isAliasAlreadyUsed($newName)) {
@@ -581,14 +580,14 @@ class Centreon_OpenTickets_Rule
                         // insert duplicated rule in database
                         $this->_db->insert(
                             query: <<<'SQL'
-                                INSERT INTO mod_open_tickets_rule (`alias`, `provider_id`, `provider_name`, `activate`)
-                                VALUES (:ruleAlias, :providerId, :providerName, :activated)
-                            SQL,
+                                    INSERT INTO mod_open_tickets_rule (`alias`, `provider_id`, `provider_name`, `activate`)
+                                    VALUES (:ruleAlias, :providerId, :providerName, :activated)
+                                SQL,
                             queryParameters: QueryParameters::create([
                                 QueryParameter::string('ruleAlias', $newName),
                                 QueryParameter::int('providerId', $rule['provider_id']),
                                 QueryParameter::string('providerName', $rule['provider_name']),
-                                QueryParameter::string('activated', $rule['activate'])
+                                QueryParameter::string('activated', $rule['activate']),
                             ])
                         );
 
@@ -597,16 +596,16 @@ class Centreon_OpenTickets_Rule
                         // Get form values from initial rule
                         $ruleFormValues = $this->_db->fetchAllAssociative(
                             query: <<<'SQL'
-                                SELECT * FROM mod_open_tickets_form_value WHERE rule_id = :ruleId
-                            SQL,
+                                    SELECT * FROM mod_open_tickets_form_value WHERE rule_id = :ruleId
+                                SQL,
                             queryParameters: QueryParameters::create([QueryParameter::int('ruleId', $ruleId)])
                         );
 
                         foreach ($ruleFormValues as $ruleFormValue) {
                             $this->_db->insert(
                                 query: <<<'SQL'
-                                    INSERT INTO mod_open_tickets_form_value (`uniq_id`, `value`, `rule_id`) VALUES (:uniqId, :value, :ruleId)
-                                SQL,
+                                        INSERT INTO mod_open_tickets_form_value (`uniq_id`, `value`, `rule_id`) VALUES (:uniqId, :value, :ruleId)
+                                    SQL,
                                 queryParameters: QueryParameters::create([
                                     QueryParameter::string('uniqId', $ruleFormValue['uniq_id']),
                                     QueryParameter::string('value', $ruleFormValue['value']),
@@ -615,19 +614,19 @@ class Centreon_OpenTickets_Rule
                             );
                         }
 
-                        $ruleCloneValues = $this->_db->fetchAssociative(
+                        $ruleCloneValues = $this->_db->fetchAllAssociative(
                             query: <<<'SQL'
-                                SELECT * FROM mod_open_tickets_form_clone WHERE rule_id = :ruleId
-                            SQL,
+                                    SELECT * FROM mod_open_tickets_form_clone WHERE rule_id = :ruleId
+                                SQL,
                             queryParameters: QueryParameters::create([QueryParameter::int('ruleId', $ruleId)])
                         );
 
                         foreach ($ruleCloneValues as $ruleCloneValue) {
                             $this->_db->insert(
                                 query: <<<'SQL'
-                                INSERT INTO mod_open_tickets_clone_value (`uniq_id`, `label`, `value`, `rule_id`, `order`)
-                                VALUES (:uniqId, :label, :value, :ruleId, :order)
-                                SQL,
+                                    INSERT INTO mod_open_tickets_form_clone (`uniq_id`, `label`, `value`, `rule_id`, `order`)
+                                    VALUES (:uniqId, :label, :value, :ruleId, :order)
+                                    SQL,
                                 queryParameters: QueryParameters::create([
                                     QueryParameter::string('uniqId', $ruleCloneValue['uniq_id']),
                                     QueryParameter::string('label', $ruleCloneValue['label']),
@@ -675,23 +674,6 @@ class Centreon_OpenTickets_Rule
                 $exception
             );
         }
-    }
-
-    /**
-     * @param array<array{alias:string, provider_id:int, provider_name:string, activate: int}> $configuredRules
-     * @param string $alias
-     * @return bool
-     */
-    private function isAliasAlreadyUsed(string $alias): bool
-    {
-        $exists = $this->_db->fetchAssociative(
-            query: <<<SQL
-                SELECT 1 FROM mod_open_tickets_rule WHERE alias = :ruleAlias
-            SQL,
-            queryParameters: QueryParameters::create([QueryParameter::string('ruleAlias', $alias)])
-        );
-
-        return (bool) $exists;
     }
 
     /**
@@ -929,6 +911,23 @@ class Centreon_OpenTickets_Rule
         );
         $this->_provider->setWidgetId($widget_id);
         $this->_provider->setUniqId($uniq_id);
+    }
+
+    /**
+     * @param array<array{alias:string, provider_id:int, provider_name:string, activate: int}> $configuredRules
+     * @param string $alias
+     * @return bool
+     */
+    private function isAliasAlreadyUsed(string $alias): bool
+    {
+        $exists = $this->_db->fetchAssociative(
+            query: <<<'SQL'
+                    SELECT 1 FROM mod_open_tickets_rule WHERE alias = :ruleAlias
+                SQL,
+            queryParameters: QueryParameters::create([QueryParameter::string('ruleAlias', $alias)])
+        );
+
+        return (bool) $exists;
     }
 
     private function getServiceStateStr($state)

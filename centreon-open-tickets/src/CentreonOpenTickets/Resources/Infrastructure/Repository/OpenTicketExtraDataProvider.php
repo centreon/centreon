@@ -139,7 +139,7 @@ final class OpenTicketExtraDataProvider extends DatabaseRepository implements Ex
 
         $ruleDetails = $this->getRuleDetails($filter->getRuleId());
 
-        $macroName = $ruleDetails['macro_ticket_id'];
+        $macroName = $ruleDetails['macro_ticket_id'] ?? null;
 
         if ($macroName === null) {
             throw new \Exception('Macro name used for rule not found');

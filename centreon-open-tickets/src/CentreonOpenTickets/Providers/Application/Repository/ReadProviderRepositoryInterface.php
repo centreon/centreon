@@ -23,9 +23,9 @@ declare(strict_types=1);
 
 namespace CentreonOpenTickets\Providers\Application\Repository;
 
-use Centreon\Domain\Repository\RepositoryException;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use CentreonOpenTickets\Providers\Domain\Model\Provider;
+use Core\Common\Domain\Exception\RepositoryException;
 
 interface ReadProviderRepositoryInterface
 {
