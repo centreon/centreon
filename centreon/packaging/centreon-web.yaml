@@ -436,7 +436,8 @@ overrides:
       - httpd
       - php-common >= 8.2
       - php-common < 8.3
-      - php-cli
+      - php-cli >= 8.2
+      - php-cli < 8.3
       - php-pdo
       - php-mysqlnd
       - php-gd
