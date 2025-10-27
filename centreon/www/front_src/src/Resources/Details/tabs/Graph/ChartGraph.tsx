@@ -1,3 +1,6 @@
+import { path } from 'ramda';
+import { ReactElement, RefObject, useState } from 'react';
+
 import {
   type Interval,
   LineChart,
@@ -6,12 +9,14 @@ import {
   type TooltipData,
   useFetchQuery
 } from '@centreon/ui';
-import { path } from 'ramda';
-import { type MutableRefObject, useState } from 'react';
+
 import FederatedComponent from '../../../../components/FederatedComponents';
 import MemoizedGraphActions from '../../../Graph/Performance/GraphActions';
+import TooManyElementsCard from '../../../TooManyElementsCard';
+import { graphsCapNumber } from '../../../constants';
 import type { Resource } from '../../../models';
 import type { ResourceDetails } from '../../models';
+
 import Comment from './Comment';
 import { useChartGraphStyles } from './chartGraph.styles';
 import useRetrieveTimeLine from './useRetrieveTimeLine';
@@ -29,7 +34,7 @@ const ChartGraph = ({
 }: Props) => {
   const { classes } = useChartGraphStyles();
 
-  const [graphRef, setGraphRef] = useState<MutableRefObject<HTMLDivElement>>();
+  const [graphRef, setGraphRef] = useState<RefObject<HTMLDivElement>>();
   const [areaThresholdLines, setAreaThresholdLines] = useState();
 
   const graphEndpoint = path<string>(
@@ -66,7 +71,7 @@ const ChartGraph = ({
     updatedGraphInterval(interval);
   };
 
-  const getRef = (ref: MutableRefObject<HTMLDivElement>) => {
+  const getRef = (ref: RefObject<HTMLDivElement>) => {
     setGraphRef(ref);
   };
 
@@ -85,6 +90,17 @@ const ChartGraph = ({
   };
 
   const rest = areaThresholdLines ? { shapeLines: areaThresholdLines } : {};
+
+  const metricsCount = data?.metrics?.length ?? 0;
+  if (metricsCount > graphsCapNumber) {
+    return (
+      <TooManyElementsCard
+        actions={graphActions}
+        listing={false}
+        title={data?.global.title}
+      />
+    );
+  }
 
   return (
     <>
@@ -108,7 +124,7 @@ const ChartGraph = ({
           renderComponent: ({
             data,
             hideTooltip
-          }: TooltipData): JSX.Element => (
+          }: TooltipData): ReactElement => (
             <Comment
               commentDate={data}
               hideAddCommentTooltip={hideTooltip}
