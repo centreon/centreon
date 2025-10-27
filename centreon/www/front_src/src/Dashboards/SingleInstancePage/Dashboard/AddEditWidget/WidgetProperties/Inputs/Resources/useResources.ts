@@ -225,20 +225,23 @@ const useResources = ({
       setFieldValue(`data.${propertyName}.${index}.resources`, [], false);
     };
 
-    // TODO here
   const changeResources =
     (index: number) => (_, resources: Array<SelectEntry>) => {
       const selectedResources = map(pick(['id', 'name']), resources || []);
 
-      setFieldValue(`data.${propertyName}.${index}.resources`, selectedResources);
+      setFieldValue(
+        `data.${propertyName}.${index}.resources`,
+        selectedResources
+      );
       setFieldTouched(`data.${propertyName}`, true, false);
     };
 
-        // TODO here
   const changeResource = (index: number) => (_, resource: SelectEntry) => {
     const selectedResource = resource ? pick(['id', 'name'], resource) : {};
 
-    setFieldValue(`data.${propertyName}.${index}.resources`, [selectedResource]);
+    setFieldValue(`data.${propertyName}.${index}.resources`, [
+      selectedResource
+    ]);
     setFieldTouched(`data.${propertyName}`, true, false);
   };
 
