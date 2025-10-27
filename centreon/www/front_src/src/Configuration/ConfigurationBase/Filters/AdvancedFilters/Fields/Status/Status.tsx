@@ -1,4 +1,5 @@
-import { JSX } from 'react';
+import { SetStateAction } from 'jotai';
+import { Dispatch, JSX } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useFilterStyles } from '../../../Filters.styles';
 
@@ -17,11 +18,22 @@ import {
   labelStatus
 } from '../../../../translatedLabels';
 
-const Status = (): JSX.Element => {
+interface Props<TFilters> {
+  filters: TFilters;
+  setFilters: Dispatch<SetStateAction<TFilters>>;
+}
+
+const Status = <TFilters,>({
+  filters,
+  setFilters
+}: Props<TFilters>): JSX.Element => {
   const { t } = useTranslation();
   const { classes } = useFilterStyles();
 
-  const { valueEnable, valueDisable, change } = useStatus();
+  const { valueEnable, valueDisable, change } = useStatus<TFilters>({
+    filters,
+    setFilters
+  });
 
   return (
     <div className={classes.statusFilter}>
