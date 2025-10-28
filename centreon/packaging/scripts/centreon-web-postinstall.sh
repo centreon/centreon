@@ -130,7 +130,7 @@ rebuildSymfonyCache() {
   if [ "$1" = "deb" ]; then
     echo "Rebuilding Centreon application cache ..."
     rm -rf /var/cache/centreon/symfony
-    su - www-data -s /bin/bash -c "/usr/share/centreon/bin/console cache:clear"
+    su - www-data -s /bin/bash -c "/usr/share/centreon/bin/console cache:clear -q" || :
   fi
 }
 
