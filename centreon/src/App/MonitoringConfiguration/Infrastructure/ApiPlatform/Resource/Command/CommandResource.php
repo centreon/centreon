@@ -30,8 +30,8 @@ use ApiPlatform\Metadata\Patch;
 use ApiPlatform\OpenApi\Model;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandTypeEnum;
 use App\MonitoringConfiguration\Domain\Security\CommandPermissionEnum;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\FindCommandProvider;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\UpdateCommandProcessor;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Command\FindCommandProvider;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Command\UpdateCommandProcessor;
 
 #[ApiResource(
     shortName: 'Command',

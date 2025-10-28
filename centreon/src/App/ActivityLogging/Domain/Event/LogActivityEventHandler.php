@@ -31,7 +31,6 @@ use App\ActivityLogging\Domain\Repository\ActivityLogRepository;
 use App\Shared\Domain\Aggregate\AggregateRoot;
 use App\Shared\Domain\Event\AggregateCreated;
 use App\Shared\Domain\Event\AggregateUpdated;
-use App\Shared\Domain\Event\EventInterface;
 use App\Shared\Domain\Event\AsEventHandler;
 use Psr\Container\ContainerInterface;
 use Symfony\Component\DependencyInjection\Attribute\AutowireLocator;
@@ -46,7 +45,7 @@ final readonly class LogActivityEventHandler
     ) {
     }
 
-    public function __invoke(EventInterface $event): void
+    public function __invoke(AggregateCreated|AggregateUpdated $event): void
     {
         if (! $this->activityLogFactories->has($event->aggregate::class)) {
             throw new \LogicException(\sprintf('There is no "%s" for "%s", did you add a service with "activity_logging.activity_log_factory" tag?', ActivityLogFactoryInterface::class, $event->aggregate::class));
@@ -55,10 +54,12 @@ final readonly class LogActivityEventHandler
         /** @var ActivityLogFactoryInterface<AggregateRoot> $factory */
         $factory = $this->activityLogFactories->get($event->aggregate::class);
 
-        $action = match (true) {
-            $event instanceof AggregateCreated => ActionEnum::Add,
-            $event instanceof AggregateUpdated => ActionEnum::Update,
-            default => throw new \LogicException('Unsupported event type: ' . $event::class),
+        $action = match ($event::class) {
+            AggregateCreated::class => ActionEnum::Add,
+            AggregateUpdated::class => ActionEnum::Update,
+            // AggregateDeleted::class => ActionEnum::Remove,
+            // AggregateDuplicated::class => ActionEnum::Duplicate,
+            default => throw new \LogicException(sprintf('Unsupported event type: %s', $event::class)),
         };
 
         $activityLog = $factory->create(
