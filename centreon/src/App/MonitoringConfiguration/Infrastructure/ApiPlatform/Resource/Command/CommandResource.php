@@ -32,7 +32,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandTypeEnum;
 use App\MonitoringConfiguration\Domain\Security\CommandPermissionEnum;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Input\CreateCommandInput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Command\FindCommandProvider;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\CreateCommandProcessor;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Command\CreateCommandProcessor;
 
 #[ApiResource(
     shortName: 'Command',
