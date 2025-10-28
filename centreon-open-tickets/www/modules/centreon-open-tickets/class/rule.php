@@ -319,7 +319,7 @@ class Centreon_OpenTickets_Rule
                 $this->_db->insert(
                     query: <<<'SQL'
                             INSERT INTO mod_open_tickets_rule (`alias`, `provider_id`, `provider_name`, `activate`)
-                            VALUES (:ruleAlias, :providerId, :providerName, 1)
+                            VALUES (:ruleAlias, :providerId, :providerName, '1')
                         SQL,
                     queryParameters: QueryParameters::create([
                         QueryParameter::string('ruleAlias', $datas['rule_alias']),
@@ -591,7 +591,7 @@ class Centreon_OpenTickets_Rule
                             ])
                         );
 
-                        $duplicateRuleId = $this->_db->lastInsertId();
+                        $duplicatedRuleId = $this->_db->lastInsertId('mod_open_tickets_rule');
 
                         // Get form values from initial rule
                         $ruleFormValues = $this->_db->fetchAllAssociative(
@@ -609,7 +609,7 @@ class Centreon_OpenTickets_Rule
                                 queryParameters: QueryParameters::create([
                                     QueryParameter::string('uniqId', $ruleFormValue['uniq_id']),
                                     QueryParameter::string('value', $ruleFormValue['value']),
-                                    QueryParameter::int('ruleId', $duplicateRuleId),
+                                    QueryParameter::int('ruleId', $duplicatedRuleId),
                                 ])
                             );
                         }
@@ -631,7 +631,7 @@ class Centreon_OpenTickets_Rule
                                     QueryParameter::string('uniqId', $ruleCloneValue['uniq_id']),
                                     QueryParameter::string('label', $ruleCloneValue['label']),
                                     QueryParameter::string('value', $ruleCloneValue['value']),
-                                    QueryParameter::int('ruleId', $duplicateRuleId),
+                                    QueryParameter::int('ruleId', $duplicatedRuleId),
                                     QueryParameter::int('order', $ruleCloneValue['order']),
                                 ])
                             );
@@ -646,7 +646,7 @@ class Centreon_OpenTickets_Rule
         } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
             CentreonLog::create()->error(
                 CentreonLog::TYPE_BUSINESS_LOG,
-                'An error occured while duplicating open ticket rule(s)',
+                "An error occured while duplicating open ticket rule(s): {$exception->getMessage()}",
                 ['rule_ids' => $ruleIds]
             );
 
