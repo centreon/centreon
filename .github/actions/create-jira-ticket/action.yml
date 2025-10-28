@@ -149,7 +149,7 @@ runs:
 
             console.log(data);
 
-            if (["changes", "get-environment", "check-version-consistency", "package", "dockerize", "deliver-rpm", "deliver-deb", "translation-build", "deliver-sources"].includes(failed_job)) {
+            if (["changes", "get-environment", "check-version-consistency", "package", "dockerize", "create-xray-test-plan-and-test-execution", "deliver-rpm", "deliver-deb", "translation-build", "deliver-sources"].includes(failed_job)) {
               ticket_squad_id = 10524
               ticket_board_id = 184
               squad_name = "DEVSECOPS"
