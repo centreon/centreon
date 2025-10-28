@@ -51,8 +51,8 @@ export default ({
       setupNodeEvents: async (cypressOn, config) => {
         const on = require('cypress-on-fix')(cypressOn)
         installLogsPrinter(on, {
-          commandTrimLength: 5000,
-          defaultTrimLength: 5000,
+          commandTrimLength: 20000,
+          defaultTrimLength: 20000,
         });
         on("task", {
           logVersion(message) {
