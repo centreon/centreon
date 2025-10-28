@@ -24,6 +24,6 @@ fi
 
 case "$action" in
   "2" | "upgrade")
-    rebuildSymfonyCache
+    rebuildSymfonyCache $package_type
     ;;
 esac
