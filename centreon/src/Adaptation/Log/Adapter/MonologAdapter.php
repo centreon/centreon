@@ -128,7 +128,7 @@ final readonly class MonologAdapter implements LoggerInterface
                     LogLevel::INFO
                 ),
                 // TODO if another channel is needed, uncomment the following line
-                // default => throw LoggerException::channelNotImplemented($this->channel->value),
+                // default => throw LoggerException::channelNotConfigured($this->channel->value),
             };
 
             $handler->setFormatter(new LineFormatter(null, Logger::DATE_FORMAT));
