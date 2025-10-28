@@ -169,7 +169,7 @@ class DbReadHostMacroRepository extends DatabaseRepository implements ReadHostMa
      *    host_macro_value:string,
      *    is_password:int|null,
      *    description:string|null,
-     *    macro_order:int,
+     *    macro_order:int|null,
      *    is_encryption_ready?:string
      * } $data
      *
@@ -192,7 +192,7 @@ class DbReadHostMacroRepository extends DatabaseRepository implements ReadHostMa
             && (bool) $data['is_encryption_ready'];
         $macro->setIsPassword((bool) $data['is_password']);
         $macro->setDescription($data['description'] ?? '');
-        $macro->setOrder($data['macro_order']);
+        $macro->setOrder($data['macro_order'] ?? 0);
         $macro->setShouldBeEncrypted($shouldBeEncrypted);
 
         return $macro;
