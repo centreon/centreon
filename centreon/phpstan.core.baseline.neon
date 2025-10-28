@@ -907,19 +907,19 @@ parameters:
 			path: src/Core/Service/Infrastructure/Repository/ApiReadServiceRepository.php
 
 		-
-			message: '#^Method Centreon\\Infrastructure\\RequestParameters\\Interfaces\\NormalizerInterface@anonymous/centreon/src/Core/Service/Infrastructure/Repository/DbReadRealTimeServiceRepository\.php\:416\:\:normalize\(\) never returns bool so it can be removed from the return type\.$#'
+			message: '#^Method Centreon\\Infrastructure\\RequestParameters\\Interfaces\\NormalizerInterface@anonymous/centreon/src/Core/Service/Infrastructure/Repository/DbReadRealTimeServiceRepository\.php\:417\:\:normalize\(\) never returns bool so it can be removed from the return type\.$#'
 			identifier: return.unusedType
 			count: 1
 			path: src/Core/Service/Infrastructure/Repository/DbReadRealTimeServiceRepository.php
 
 		-
-			message: '#^Method Centreon\\Infrastructure\\RequestParameters\\Interfaces\\NormalizerInterface@anonymous/centreon/src/Core/Service/Infrastructure/Repository/DbReadRealTimeServiceRepository\.php\:416\:\:normalize\(\) never returns null so it can be removed from the return type\.$#'
+			message: '#^Method Centreon\\Infrastructure\\RequestParameters\\Interfaces\\NormalizerInterface@anonymous/centreon/src/Core/Service/Infrastructure/Repository/DbReadRealTimeServiceRepository\.php\:417\:\:normalize\(\) never returns null so it can be removed from the return type\.$#'
 			identifier: return.unusedType
 			count: 1
 			path: src/Core/Service/Infrastructure/Repository/DbReadRealTimeServiceRepository.php
 
 		-
-			message: '#^Method Centreon\\Infrastructure\\RequestParameters\\Interfaces\\NormalizerInterface@anonymous/centreon/src/Core/Service/Infrastructure/Repository/DbReadRealTimeServiceRepository\.php\:416\:\:normalize\(\) never returns string so it can be removed from the return type\.$#'
+			message: '#^Method Centreon\\Infrastructure\\RequestParameters\\Interfaces\\NormalizerInterface@anonymous/centreon/src/Core/Service/Infrastructure/Repository/DbReadRealTimeServiceRepository\.php\:417\:\:normalize\(\) never returns string so it can be removed from the return type\.$#'
 			identifier: return.unusedType
 			count: 1
 			path: src/Core/Service/Infrastructure/Repository/DbReadRealTimeServiceRepository.php

@@ -1,3 +1,5 @@
+import { ReactElement } from 'react';
+
 import Typography from '@mui/material/Typography';
 
 import { useMemoComponent } from '@centreon/ui';
@@ -10,7 +12,7 @@ interface Props {
   title: string;
 }
 
-const Header = ({ title, header }: Props): JSX.Element => {
+const Header = ({ title, header }: Props): ReactElement => {
   const { classes } = ussHeaderChartStyles();
 
   const displayTitle = header?.displayTitle ?? true;

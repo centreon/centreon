@@ -14,9 +14,6 @@ inputs:
   package:
     description: The frontend package
     required: true
-  tag:
-    description: The tag version
-    default: latest
   release_branch:
     description: The release branch
     required: true
@@ -56,11 +53,6 @@ runs:
       working-directory: ${{ env.directory }}
       shell: bash
 
-    - name: Configure tag
-      run: |
-        echo "TAG=${{ inputs.tag }}" >> $GITHUB_ENV
-      shell: bash
-
     - name: Bump NPM package version for develop
       if: ${{ steps.get-latest-npm-branch-version.outputs.skip-bump-version != 1 && github.ref_name == 'develop' }}
       run: |
@@ -87,5 +79,5 @@ runs:
       with:
         access: public
         package: ${{ env.directory }}/package.json
-        tag: ${{ env.TAG }}
+        tag: ${{ steps.get-latest-npm-branch-version.outputs.tag }}
         token: ${{ inputs.npm_token }}

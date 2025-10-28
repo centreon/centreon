@@ -13,7 +13,6 @@ on:
 env:
   directory: "centreon/packages/ui-context"
   package: "ui-context"
-  base_branch: develop
 
 jobs:
   publish-new-npm-version:
@@ -28,5 +27,5 @@ jobs:
           directory: ${{ env.directory }}
           pat: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
           npm_token: ${{ secrets.NPM_TOKEN }}
-          release_branch: ${{ env.base_branch }}
+          release_branch: ${{ github.ref_name }}
           package: ${{ env.package }}

@@ -26,6 +26,7 @@ import {
   map,
   negate,
   pipe,
+  pluck,
   prop,
   propEq,
   reduce,
@@ -72,7 +73,7 @@ const toTimeTickValue = (
   const getMetricsForIndex = (): Omit<TimeValue, 'timeTick'> => {
     const addMetricForTimeIndex = (acc, { metric_id, data }): TimeValue => ({
       ...acc,
-      [metric_id]: data[timeIndex]
+      [metric_id]: data[timeIndex] === undefined ? null : data[timeIndex]
     });
 
     return reduce(addMetricForTimeIndex, {} as TimeValue, metrics);
@@ -139,6 +140,7 @@ const toLine = ({
     equals(ds_data.ds_stack, '1') || equals(ds_data.ds_stack, true)
       ? Number.parseInt(ds_data.ds_order || '0', 10)
       : null,
+  stackKey: ds_data.ds_stack_key || null,
   transparency: ds_data.ds_transparency,
   unit
 });
@@ -240,7 +242,10 @@ const getStackedMetricValues = ({
   timeSeries
 }: LinesTimeSeries): Array<number> => {
   const getTimeSeriesValuesForMetric = (metric_id): Array<number> =>
-    map((timeValue) => getValueForMetric(timeValue)(metric_id), timeSeries);
+    map(
+      (timeValue) => getValueForMetric(timeValue)(metric_id) || 0,
+      timeSeries
+    );
 
   const metricsValues = pipe(
     map(prop('metric_id')) as (metric) => Array<number>,
@@ -753,6 +758,93 @@ export const formatMetricName = ({
     : legendName;
 
   return metricName;
+};
+
+export const getStackedLinesTimeSeriesPerStackAndUnit = ({
+  stackedLines,
+  timeSeries,
+  invert
+}: {
+  stackedLines: Array<Line>;
+  timeSeries: Array<TimeValue>;
+  invert?: boolean;
+}): {
+  stackedLinesTimeSeriesPerStackKeyAndUnit: Record<
+    string,
+    { lines: Array<Line>; timeSeries: Array<TimeValue> }
+  >;
+  stackedKeys: Record<string, null>;
+} => {
+  const stackedKeys = stackedLines.reduce(
+    (acc, { unit, stackKey }) => ({
+      ...acc,
+      [`stacked-${unit || ''}-${stackKey ? stackKey : ''}`]: null
+    }),
+    {}
+  );
+  const stackedKeysWithOnlyStackKey = Object.keys(stackedKeys).filter(
+    (stackKey: string) => stackKey.split('-')[2]
+  );
+  const stackedKeysWithOnlyUnit = Object.keys(stackedKeys).filter(
+    (stackKey: string) => !stackKey.split('-')[2]
+  );
+
+  const stackedLinesTimeSeriesPerStackKey = stackedKeysWithOnlyStackKey.reduce(
+    (acc, stackedKey: string) => {
+      const [, stackUnit, stackKey] = stackedKey.split('-');
+      const relatedLines = stackedLines.filter(({ unit, stackKey: key }) => {
+        return stackUnit === (unit || '') && stackKey === key;
+      });
+
+      return {
+        ...acc,
+        [stackedKey]: {
+          lines: relatedLines,
+          timeSeries: getTimeSeriesForLines({
+            invert,
+            lines: relatedLines,
+            timeSeries
+          })
+        }
+      };
+    },
+    {}
+  );
+  const affectedLinesPerStackKey = flatten(
+    pluck('lines', Object.values(stackedLinesTimeSeriesPerStackKey))
+  );
+  const stackedLinesTimeSeriesPerUnit = stackedKeysWithOnlyUnit.reduce(
+    (acc, stackedKey: string) => {
+      const [, stackUnit] = stackedKey.split('-');
+      const relatedLines = stackedLines.filter(
+        (line) =>
+          !affectedLinesPerStackKey.some(
+            (affectedLine) => line.metric_id === affectedLine.metric_id
+          ) && stackUnit === (line.unit || '')
+      );
+
+      return {
+        ...acc,
+        [stackedKey]: {
+          lines: relatedLines,
+          timeSeries: getTimeSeriesForLines({
+            lines: relatedLines,
+            timeSeries,
+            invert
+          })
+        }
+      };
+    },
+    {}
+  );
+
+  return {
+    stackedLinesTimeSeriesPerStackKeyAndUnit: {
+      ...stackedLinesTimeSeriesPerStackKey,
+      ...stackedLinesTimeSeriesPerUnit
+    },
+    stackedKeys
+  };
 };
 
 export {

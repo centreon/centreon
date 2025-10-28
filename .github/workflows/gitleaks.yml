@@ -10,4 +10,4 @@ on:
 
 jobs:
   secrets_scan:
-    uses: centreon/security-tools/.github/workflows/gitleaks-analysis.yml@develop
+    uses: centreon/security-tools/.github/workflows/gitleaks-analysis.yml@main

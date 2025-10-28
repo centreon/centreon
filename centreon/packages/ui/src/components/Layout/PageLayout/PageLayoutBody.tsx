@@ -5,17 +5,19 @@ import { useStyles } from './PageLayout.styles';
 type PageLayoutBodyProps = {
   children: Array<ReactNode> | ReactNode;
   hasBackground?: boolean;
+  className?: string;
 };
 
 export const PageLayoutBody = ({
   children,
-  hasBackground = false
+  hasBackground = false,
+  className
 }: PageLayoutBodyProps): ReactElement => {
-  const { classes } = useStyles();
+  const { classes, cx } = useStyles();
 
   return (
     <section
-      className={classes.pageLayoutBody}
+      className={cx(classes.pageLayoutBody, className)}
       data-has-background={hasBackground}
       data-has-actions={!!children?.length}
       id="page-body"
