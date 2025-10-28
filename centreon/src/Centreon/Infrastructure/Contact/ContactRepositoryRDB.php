@@ -590,6 +590,30 @@ final class ContactRepositoryRDB implements ContactRepositoryInterface
             case 'poller_stats':
                 $contact->addRole(Contact::ROLE_DISPLAY_TOP_COUNTER_POLLERS_STATISTICS);
                 break;
+            case 'see_check_commands':
+                $contact->addRole(CONTACT::ROLE_SEE_CHECK_COMMANDS);
+                break;
+            case 'manage_check_commands':
+                $contact->addRole(CONTACT::ROLE_MANAGE_CHECK_COMMANDS);
+                break;
+            case 'see_notification_commands':
+                $contact->addRole(CONTACT::ROLE_SEE_NOTIFICATION_COMMANDS);
+                break;
+            case 'manage_notification_commands':
+                $contact->addRole(CONTACT::ROLE_MANAGE_NOTIFICATION_COMMANDS);
+                break;
+            case 'see_discovery_commands':
+                $contact->addRole(CONTACT::ROLE_SEE_DISCOVERY_COMMANDS);
+                break;
+            case 'manage_discovery_commands':
+                $contact->addRole(CONTACT::ROLE_MANAGE_DISCOVERY_COMMANDS);
+                break;
+            case 'see_miscellaneous_commands':
+                $contact->addRole(CONTACT::ROLE_SEE_MISCELLANEOUS_COMMANDS);
+                break;
+            case 'manage_miscellaneous_commands':
+                $contact->addRole(CONTACT::ROLE_MANAGE_MISCELLANEOUS_COMMANDS);
+                break;
         }
     }
 }
