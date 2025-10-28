@@ -95,15 +95,20 @@ jobs:
           # Loop to fetch all test plans
           while true; do
             # Execute the GraphQL query with the current start value
+            echo "check 1"
             graphql_query='{
               "query":"query GetTestPlans($jql: String, $limit: Int!, $start: Int) { getTestPlans(jql: $jql, limit: $limit, start: $start) { total results { issueId jira(fields: [\"summary\", \"key\"]) } } }",
               "variables":{"jql": "project = MON","limit": 100, "start": '"$start"'}}'
+            echo "check 2"
 
             response=$(curl -sS -H "Content-Type: application/json" -X POST -H "Authorization: Bearer ${{ steps.generate_xray_token.outputs.xray_token }}" --data "$graphql_query" "https://xray.cloud.getxray.app/api/v2/graphql")
+            echo $response
 
+            echo "check 3"
             # Parse the response and extract test plans
             test_plans=$(echo "$response" | jq -c '.data.getTestPlans.results[].jira')
 
+            echo "check 4"
             # Check if test_plans is empty
             if [ -z "$test_plans" ]; then
               echo "No more test plans found. Exiting loop."
@@ -128,6 +133,7 @@ jobs:
               esac
             fi
 
+            echo "check 5"
             input_summary="$summary_prefix OSS ${{ inputs.major_version }}"
             echo "The summary to search is: $input_summary"
 

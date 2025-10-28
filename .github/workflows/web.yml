@@ -914,7 +914,7 @@ jobs:
       ! cancelled() &&
       ! contains(needs.*.result, 'failure') &&
       ! contains(needs.*.result, 'cancelled') &&
-      ( needs.get-environment.outputs.stability == 'testing' || github.event_name == 'schedule' ) &&
+      ( needs.get-environment.outputs.stability == 'testing' || needs.get-environment.outputs.is_nightly == 'true' ) &&
       github.repository == 'centreon/centreon'
     strategy:
       fail-fast: false
