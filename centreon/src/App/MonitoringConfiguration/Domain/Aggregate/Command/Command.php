@@ -57,9 +57,14 @@ final class Command extends AggregateRoot
         $this->commandLine = $commandLine;
     }
 
-    public function updateIsShellEnabled(bool $isShellEnabled): void
+    public function enableShell(): void
     {
-        $this->isShellEnabled = $isShellEnabled;
+        $this->isShellEnabled = true;
+    }
+
+    public function disableShell(): void
+    {
+        $this->isShellEnabled = false;
     }
 
     public function updateComment(?CommandComment $comment): void

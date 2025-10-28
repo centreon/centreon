@@ -68,8 +68,8 @@ final readonly class UpdateCommandCommandHandler
 
         if ($command->isShellEnabled !== null) {
             $command->isShellEnabled
-                ? $existingCommand->updateIsShellEnabled(true)
-                : $existingCommand->updateIsShellEnabled(false);
+                ? $existingCommand->enableShell()
+                : $existingCommand->disableShell();
         }
 
         if ($command->isActivated !== null) {
