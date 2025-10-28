@@ -3331,10 +3331,11 @@ function validateParentChildAreNotCircular(array $fields): array|true
             $hostIds[':host' . $hostId] = $hostId;
         }
         $hostIdsAsString = implode(',', array_keys($hostIds));
-        $statement = $pearDB->query("SELECT host_name FROM host WHERE host_id IN ({$hostIdsAsString})");
+        $statement = $pearDB->prepare("SELECT host_name FROM host WHERE host_id IN ({$hostIdsAsString})");
         foreach ($hostIds as $param => $id) {
             $statement->bindValue($param, $id, PDO::PARAM_INT);
         }
+
         $statement->execute();
         $hostNames = $statement->fetchAll(PDO::FETCH_COLUMN);
 
@@ -3396,8 +3397,9 @@ function hasCircularReference($parentId, $childId): ?int
             return $current;
         }
         $checked[] = $current;
-        $stmt = $pearDB->prepare('SELECT host_parent_hp_id FROM host_hostparent_relation WHERE host_host_id = ?');
-        $stmt->execute([$current]);
+        $stmt = $pearDB->prepare('SELECT host_parent_hp_id FROM host_hostparent_relation WHERE host_host_id = :hostId');
+        $stmt->bindValue(':hostId', $current, PDO::PARAM_INT);
+        $stmt->execute();
         foreach ($stmt->fetchAll(PDO::FETCH_COLUMN) as $parent) {
             if (! in_array($parent, $checked)) {
                 $toCheck[] = $parent;
