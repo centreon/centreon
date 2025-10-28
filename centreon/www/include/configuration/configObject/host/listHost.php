@@ -154,6 +154,7 @@ $tab_relation = [];
 $tab_relation_id = [];
 $dbResult = $pearDB->query(
     'SELECT nhr.host_host_id, nhr.nagios_server_id FROM ns_host_relation nhr'
+    . ($aclPollerString != "''" ? ' ' . $acl->queryBuilder('WHERE', 'nhr.nagios_server_id', $aclPollerString) : '')
 );
 while ($relation = $dbResult->fetch()) {
     $tab_relation[$relation['host_host_id']] = $nagios_server[$relation['nagios_server_id']];
@@ -400,9 +401,9 @@ for ($i = 0; $host = $dbResult->fetch(); $i++) {
             'RowMenu_icone' => $host_icone,
             'RowMenu_link' => 'main.php?p=' . $p . '&o=c&host_id=' . $host['host_id'],
             'RowMenu_desc' => $host['host_alias'],
-            'RowMenu_address' => CentreonUtils::escapeSecure($host['host_address']),
+            'RowMenu_address' => $host['host_address'],
             'RowMenu_poller' => $tab_relation[$host['host_id']] ?? '',
-            'RowMenu_parent' => CentreonUtils::escapeSecure($tplStr),
+            'RowMenu_parent' => $tplStr,
             'RowMenu_status' => $host['host_activate'] ? _('Enabled') : _('Disabled'),
             'RowMenu_badge' => $host['host_activate'] ? 'service_ok' : 'service_critical',
             'RowMenu_options' => $moptions,

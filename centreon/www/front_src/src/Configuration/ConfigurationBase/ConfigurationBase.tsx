@@ -2,12 +2,11 @@ import { useAtom, useSetAtom } from 'jotai';
 import { isEmpty, isNil, not } from 'ramda';
 import { JSX, useEffect, useMemo } from 'react';
 import { ConfigurationBase } from '../models';
-import { configurationAtom, filtersAtom, selectedColumnIdsAtom } from './atoms';
+import { configurationAtom } from './atoms';
 
 import Page from './Page';
-import { columnsAtomKey, filtersAtomKey } from './constants';
 
-const Base = ({
+const Base = <TFilters,>({
   columns,
   resourceType,
   form,
@@ -16,8 +15,13 @@ const Base = ({
   filtersInitialValues,
   defaultSelectedColumnIds,
   actions,
-  labels
-}: ConfigurationBase): JSX.Element => {
+  labels,
+  selectedColumnIdsAtom,
+  columnsAtomKey,
+  filtersAtom,
+  filtersAtomKey,
+  isWelcomePageDisplayedAtom
+}: ConfigurationBase<TFilters>): JSX.Element => {
   const [configuration, setConfiguration] = useAtom(configurationAtom);
   const [filters, setFilters] = useAtom(filtersAtom);
   const setSelectedColumnIds = useSetAtom(selectedColumnIdsAtom);
@@ -64,12 +68,16 @@ const Base = ({
   }
 
   return (
-    <Page
+    <Page<TFilters>
       columns={columns}
       resourceType={resourceType}
       form={form}
       actions={actions}
       labels={labels}
+      selectedColumnIdsAtom={selectedColumnIdsAtom}
+      filtersAtom={filtersAtom}
+      filtersAtomKey={filtersAtomKey}
+      isWelcomePageDisplayedAtom={isWelcomePageDisplayedAtom}
     />
   );
 };

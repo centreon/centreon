@@ -147,8 +147,8 @@ class MonitoringServerConfigurationRepositoryApi implements MonitoringServerConf
             }
             $providerToken = $authenticationTokens->getProviderToken();
             if (
-                $providerToken->getExpirationDate() === null
-                || $providerToken->getExpirationDate()->getTimestamp() < (new DateTime())->getTimestamp()
+                $providerToken->getExpirationDate() !== null
+                && $providerToken->getExpirationDate()->getTimestamp() < (new DateTime())->getTimestamp()
             ) {
                 throw AuthenticationException::authenticationTokenExpired();
             }

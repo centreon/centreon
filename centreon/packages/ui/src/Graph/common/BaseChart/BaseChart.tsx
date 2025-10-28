@@ -19,7 +19,10 @@ interface Props {
   header?: LineChartHeader;
   height: number | null;
   isHorizontal?: boolean;
-  legend: Pick<LegendModel, 'renderExtraComponent' | 'placement' | 'mode'> & {
+  legend: Pick<
+    LegendModel,
+    'renderExtraComponent' | 'placement' | 'mode' | 'secondaryClick'
+  > & {
     displayLegend: boolean;
     legendHeight?: number;
   };
@@ -101,6 +104,7 @@ const BaseChart = ({
                   shouldDisplayLegendInCompactMode={
                     shouldDisplayLegendInCompactMode
                   }
+                  secondaryClick={legend?.secondaryClick}
                 />
               </div>
             )}
@@ -122,6 +126,7 @@ const BaseChart = ({
             renderExtraComponent={legend.renderExtraComponent}
             setLinesGraph={setLines}
             shouldDisplayLegendInCompactMode={shouldDisplayLegendInCompactMode}
+            secondaryClick={legend?.secondaryClick}
           />
         </div>
       )}

@@ -8,11 +8,10 @@ on:
   workflow_dispatch:
   pull_request:
     paths:
+      - ".github/workflows/awie.yml"
       - ".version"
       - ".version.centreon-awie"
       - "centreon-awie/**"
-      - "!centreon-awie/features/**"
-      - "!centreon-awie/behat.yml"
   push:
     branches:
       - develop
@@ -25,8 +24,6 @@ on:
       - ".version"
       - ".version.centreon-awie"
       - "centreon-awie/**"
-      - "!centreon-awie/features/**"
-      - "!centreon-awie/behat.yml"
     tags:
       - "centreon-awie-*"
 
@@ -65,51 +62,42 @@ jobs:
           version: ${{ env.version }}
 
   changes:
-    needs: [get-environment]
     if: |
-      needs.get-environment.outputs.stability != 'stable' &&
-      needs.get-environment.outputs.skip_workflow == 'false'
-    runs-on: ubuntu-24.04
-    outputs:
-      has_backend_changes: ${{ steps.filter.outputs.has_backend_changes }}
-      has_test_changes: ${{ steps.filter.outputs.has_test_changes }}
-      trigger_delivery: ${{ steps.changes_trigger_checks.outputs.trigger_delivery }}
-      trigger_api_testing: ${{ steps.changes_trigger_checks.outputs.trigger_api_testing }}
-    steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-
-      - uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36 # v3.0.2
-        id: filter
-        if: |
-          github.event_name == 'pull_request' &&
-          needs.get-environment.outputs.stability != 'testing'
-        with:
-          base: ${{ github.head_ref || github.ref_name }}
-          filters: |
-            has_backend_changes:
-              - 'centreon-awie/*.php'
-              - 'centreon-awie/!(features)/*.php'
-              - 'centreon-awie/phpstan*'
-              - 'centreon-awie/ruleset.xml'
-              - 'centreon-awie/libinstall/**'
-              - 'centreon-awie/www/modules/centreon-awie/**'
-            has_test_changes:
-              - 'centreon-awie/features/**'
-
-      - uses: ./.github/actions/changes-trigger-checks
-        id: changes_trigger_checks
-        with:
-          is_nightly: 'false'
-          has_frontend_changes: 'false'
-          has_backend_changes: ${{ steps.filter.outputs.has_backend_changes || true }}
-          has_test_changes: ${{ steps.filter.outputs.has_test_changes || true }}
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      needs.get-environment.outputs.stability != 'stable'
+    needs: [get-environment]
+    uses: ./.github/workflows/get-changes-triggers.yml
+    with:
+      backend_production_paths: |
+        ".version"
+        ".version.centreon-awie"
+        "centreon-awie/packaging/**"
+        "centreon-awie/www/modules/centreon-awie/**"
+        "!centreon-awie/www/modules/centreon-awie/react/**"
+      frontend_production_paths: |
+        "centreon-awie/www/modules/centreon-awie/react/**"
+        "!centreon-awie/**/cypress/**"
+        "!centreon-awie/**/*.cypress.*"
+        "!centreon-awie/**/__mocks__/**"
+      backend_test_paths: |
+        "centreon-awie/.php-cs-fixer*"
+        "centreon-awie/composer.*"
+        "centreon-awie/phpstan.*"
+        "centreon-awie/rector.*"
+        "centreon-awie/tests/php/**"
+      e2e_test_paths: |
+        "centreon-awie/behat.yml"
+        "centreon-awie/features/**"
+      is_nightly: ${{ needs.get-environment.outputs.is_nightly }}
+      base_sha: ${{ needs.get-environment.outputs.previous_release_bundle_tag }}
+      labels: ${{ needs.get-environment.outputs.labels }}
 
   backend-lint:
     runs-on: ubuntu-24.04
     needs: [changes, get-environment]
     if: |
       needs.get-environment.outputs.skip_workflow == 'false' &&
-      needs.changes.outputs.has_backend_changes == 'true' &&
+      needs.changes.outputs.trigger_backend_testing == 'true' &&
       needs.get-environment.outputs.stability != 'stable'
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
@@ -132,73 +120,26 @@ jobs:
         working-directory: centreon-awie
         shell: bash
 
+      - name: Get changed PHP files
+        id: changed-php
+        uses: tj-actions/changed-files@ed68ef82c095e0d48ec87eccea555d944a631a4c # v46.0.5
+        with:
+          files: |
+            **/*.php
+
       - name: 🛠️ Rector checks
+        if: steps.changed-php.outputs.any_changed == 'true'
         working-directory: centreon-awie
         run: |
-          echo "Run of these Rector tests: rector:legacy" && set -e
-
-          pids=()
-          statuses=()
-
-          run_task() {
-            name=$1
-            shift
-            "$@" -- --no-progress-bar
-            result=$?
-            if [ $result -eq 0 ]; then
-              echo "✅ Rector $name: Success"
-            else
-              echo "❌ Rector $name: Failed"
-            fi
-            return $result
-          }
-
-          # Start tasks in background
-          run_task legacy composer rector:legacy & pids+=($!)
-
-          # Wait for all, and record if any failed
-          exit_code=0
-          for pid in "${pids[@]}"; do
-            if ! wait "$pid"; then
-              exit_code=1
-            fi
-          done
-
-          exit $exit_code
+          echo "Run of these Rector tests: rector:legacy on diff" && set -e
+          PHP_DIFF_FILES="${{ steps.changed-php.outputs.all_changed_files }}" composer rector:diff
 
       - name: 🧹 PHP-CS-Fixer checks
+        if: steps.changed-php.outputs.any_changed == 'true'
         working-directory: centreon-awie
         run: |
-          echo "Run of these PHP-CS-Fixer tests: cs:legacy" && set -e
-
-          pids=()
-          statuses=()
-
-          run_task() {
-            name=$1
-            shift
-            "$@" -- --format=txt --show-progress=none
-            result=$?
-            if [ $result -eq 0 ]; then
-              echo "✅ PHP-CS-Fixer $name: Success"
-            else
-              echo "❌ PHP-CS-Fixer $name: Failed"
-            fi
-            return $result
-          }
-
-          # Start tasks in background
-          run_task legacy composer cs:legacy & pids+=($!)
-
-          # Wait for all, and record if any failed
-          exit_code=0
-          for pid in "${pids[@]}"; do
-            if ! wait "$pid"; then
-              exit_code=1
-            fi
-          done
-
-          exit $exit_code
+          echo "Run of these PHP-CS-Fixer tests: cs:legacy on diff" && set -e
+          PHP_DIFF_FILES="${{ steps.changed-php.outputs.all_changed_files }}" composer cs:diff
 
       - name: 🔍 PHPStan checks
         working-directory: centreon-awie
@@ -235,8 +176,9 @@ jobs:
           exit $exit_code
 
   package:
-    needs: [get-environment, check-version-consistency, backend-lint]
+    needs: [get-environment, changes, check-version-consistency, backend-lint]
     if: |
+      needs.changes.outputs.trigger_packaging == 'true' &&
       needs.get-environment.outputs.skip_workflow == 'false' &&
       needs.get-environment.outputs.stability != 'stable' &&
       ! cancelled() &&

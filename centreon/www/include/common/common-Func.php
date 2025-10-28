@@ -133,6 +133,11 @@ function myEncode($data)
     return $data;
 }
 
+function isPositiveInteger($value)
+{
+    return preg_match('/^\d+$/', $value);
+}
+
 function getStatusColor($pearDB)
 {
     $colors = [];
@@ -413,7 +418,7 @@ function getMyServiceMacro($service_id, $field)
     global $pearDB;
     $query = 'SELECT macro.svc_macro_value '
         . 'FROM on_demand_macro_service macro '
-        . 'WHERE macro.svc_svc_id = :svc_svc_id 
+        . 'WHERE macro.svc_svc_id = :svc_svc_id
         AND macro.svc_macro_name = :svc_macro_name LIMIT 1';
     $statement = $pearDB->prepare($query);
     $statement->bindValue(':svc_svc_id', (int) $service_id, PDO::PARAM_INT);
@@ -470,7 +475,7 @@ function getMyHostExtendedInfoImage($host_id, $field, $flag1stLevel = null, $ant
         $row = $statement->fetch(PDO::FETCH_ASSOC);
         if (isset($row[$field]) && $row[$field]) {
             $query = 'SELECT img_path, dir_alias FROM view_img vi, view_img_dir vid, view_img_dir_relation vidr '
-                . 'WHERE vi.img_id = :img_id 
+                . 'WHERE vi.img_id = :img_id
                 AND vidr.img_img_id = vi.img_id AND vid.dir_id = vidr.dir_dir_parent_id LIMIT 1';
             $statement = $pearDB->prepare($query);
             $statement->bindValue(':img_id', (int) $row[$field], PDO::PARAM_INT);
@@ -497,7 +502,7 @@ function getMyHostExtendedInfoImage($host_id, $field, $flag1stLevel = null, $ant
            . 'WHERE ehi.host_host_id = :host_host_id LIMIT 1';
     $ehiStatement = $pearDB->prepare($rq2);
     $query = 'SELECT img_path, dir_alias FROM view_img vi, view_img_dir vid, view_img_dir_relation vidr '
-             . 'WHERE vi.img_id = :img_id 
+             . 'WHERE vi.img_id = :img_id
                  AND vidr.img_img_id = vi.img_id AND vid.dir_id = vidr.dir_dir_parent_id LIMIT 1';
     $imgStatement = $pearDB->prepare($query);
     while ($row = $htStatement->fetch(PDO::FETCH_ASSOC)) {
