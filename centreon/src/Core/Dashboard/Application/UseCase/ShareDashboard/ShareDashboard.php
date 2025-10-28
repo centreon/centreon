@@ -58,7 +58,7 @@ final class ShareDashboard
         private readonly ReadContactGroupRepositoryInterface $readContactGroupRepository,
         private readonly ContactInterface $user,
         private readonly DataStorageEngineInterface $dataStorageEngine,
-        private readonly bool $isCloudPlatform
+        private readonly bool $isCloudPlatform,
     ) {
     }
 
@@ -271,7 +271,7 @@ final class ShareDashboard
         array $contactRoles,
         array $contactGroupRoles,
         array $userContactGroupIds,
-        array $contactIdsInUserAccessGroups
+        array $contactIdsInUserAccessGroups,
     ): void {
         try {
             $this->dataStorageEngine->startTransaction();

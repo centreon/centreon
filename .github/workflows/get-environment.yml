@@ -11,6 +11,9 @@ on:
       latest_major_version:
         description: "latest major version"
         value: ${{ jobs.get-environment.outputs.latest_major_version }}
+      previous_release_bundle_tag:
+        description: "previous release bundle tag"
+        value: ${{ jobs.get-environment.outputs.previous_release_bundle_tag }}
       is_cloud:
         description: "context of release (cloud or not cloud)"
         value: ${{ jobs.get-environment.outputs.is_cloud }}
@@ -62,6 +65,7 @@ jobs:
     runs-on: ubuntu-24.04
     outputs:
       latest_major_version: ${{ steps.latest_major_version.outputs.latest_major_version }}
+      previous_release_bundle_tag: ${{ steps.get_previous_release_bundle_tag.outputs.previous_release_bundle_tag }}
       is_cloud: ${{ steps.detect_cloud_version.outputs.isCloud }}
       delivery_type: ${{ steps.detect_delivery_type.outputs.delivery_type }}
       linked_dev_branch: ${{ steps.linked_branches.outputs.linked_dev_branch }}
@@ -286,9 +290,14 @@ jobs:
               }
             };
 
-            // Handle tags like centreon-web-XX.YY.z or centreon-pp-manager-XX.YY.z
+            // Handle tags like centreon-web-XX.YY.z or centreon-pp-manager-XX.YY.z FIRST
+            // to allow promote for centreon packages (centreon-web, etc)
+            // Handle tags like release-cloud-YYYYMMNN-XX.YY or release-onprem-YYYYMMNN-XX.YY SECOND
+            // to allow promote for extra packages (lua-curl, libzmq, etc)
             const isStableTag = (tag) => {
-              const matched = /^centreon-[a-z0-9-]+-\d{2}\.\d{2}\.\d+$/.test(tag);
+              const matched =
+                /^centreon-[a-z0-9-]+-\d{2}\.\d{2}\.\d+$/.test(tag) ||
+                /^release-(cloud|onprem)-\d{8}-\d{2}\.\d{2}$/.test(tag);
               console.log(`Checking if tag '${tag}' matches stable tag pattern: ${matched}`);
               return matched;
             };
@@ -607,6 +616,59 @@ jobs:
             core.setOutput('linked_dev_branch', linkedDevBranch);
             core.setOutput('linked_stable_branch', linkedStableBranch);
 
+      - name: Get previous release bundle tag
+        id: get_previous_release_bundle_tag
+        env:
+          IS_CLOUD: ${{ steps.detect_cloud_version.outputs.isCloud }}
+          STABILITY: ${{ steps.get_stability.outputs.stability }}
+          MAJOR_VERSION: ${{ steps.get_version.outputs.major_version }}
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        with:
+          script: |
+            if (process.env.STABILITY !== 'testing' && process.env.STABILITY !== 'stable') {
+              core.setOutput('previous_release_bundle_tag', '');
+              return;
+            }
+
+            let execOutput = '';
+            let execError = '';
+            const execOptions = {
+              listeners: {
+                stdout: (data) => {
+                  execOutput += data.toString();
+                },
+                stderr: (data) => {
+                  execError += data.toString();
+                }
+              },
+              silent: true
+            };
+
+            let previousStableBundleSha = '';
+            let previousStableBundleTag = '';
+
+            await exec.exec(
+              `bash -c "git ls-remote --tags origin 'refs/tags/release-${process.env.IS_CLOUD === 'true' && 'cloud' || 'onprem'}-*' | grep -v '{}' | sort -rk2"`,
+              [],
+              execOptions
+            );
+
+            for (const line of execOutput.split('\n')) {
+              const tag = line.trim();
+              const matches = tag.match(/^(.+)\s+.+\/(release-(cloud|onprem)-\d{8}-(\d{2}\.\d{2}))$/);
+              if (matches && Number(matches[4]) <= Number(process.env.MAJOR_VERSION)) {
+                previousStableBundleSha = matches[1];
+                previousStableBundleTag = matches[2];
+                break;
+              } else {
+                console.log(`Ignoring non-matching tag: ${tag}`);
+              }
+            }
+
+            console.log(`Previous release bundle tag is: ${previousStableBundleTag} (${previousStableBundleSha})`);
+
+            core.setOutput('previous_release_bundle_tag', previousStableBundleTag);
+
       - name: Detect operating systems and databases to test
         uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
         id: get_os_database_matrix
@@ -628,21 +690,71 @@ jobs:
               "test_tags": "not @ignore"
             };
 
-            let matrix = {
-              "main": [alma9_mariadb_10_11],
-              "operating_systems": [alma9_mariadb_10_11],
-              "databases": [alma9_mariadb_10_11],
+            const getDailyConfig = (configs) => {
+              const today = new Date();
+              const dayOfWeek = today.getDay(); // 0=sunday, 1=monday, ..., 6=saturday
+
+              // If it's weekend, use the default configuration
+              if (dayOfWeek === 0 || dayOfWeek === 6) {
+                return configs[0];
+              }
+
+              // Reference date: January 1, 2025
+              const referenceDate = new Date('2025-01-01');
+
+              // Calculate the number of working days since January 1
+              let workingDays = 0;
+              const currentDate = new Date(referenceDate);
+
+              while (currentDate < today) {
+                const dayOfWeek = currentDate.getDay();
+                if (dayOfWeek >= 1 && dayOfWeek <= 5) { // Monday to Friday
+                  workingDays++;
+                }
+                currentDate.setDate(currentDate.getDate() + 1);
+              }
+
+              // Alternating balanced on 3 configurations
+              const configIndex = workingDays % configs.length;
+
+              return configs[configIndex];
             };
 
+            const configs = [alma9_mariadb_10_11, alma8_mysql_8_0, bookworm_mysql_8_4];
+
+            const cloud = alma8_mysql_8_0;
+
+            let main = alma9_mariadb_10_11;
+            if ('${{ steps.detect_cloud_version.outputs.isCloud }}' == 'true') {
+              main = cloud;
+            }
+
+            let matrix = {
+              "cloud": [cloud],
+              "main": [main],
+              "operating_systems": [main],
+              "databases": [main],
+            };
+
+            if ('${{ steps.get_nightly_status.outputs.is_nightly }}' == 'true') {
+              const dailyConfig = getDailyConfig(configs);
+
+              matrix = {
+                "cloud": [cloud],
+                "main": [dailyConfig],
+                "operating_systems": [dailyConfig],
+                "databases": [dailyConfig],
+              };
+            }
+
             if (
-              '${{ steps.get_nightly_status.outputs.is_nightly }}' == 'true'
-              || ${{ contains(steps.has_skip_label.outputs.labels, 'database') && 'true' || 'false' }}
+              ${{ contains(steps.has_skip_label.outputs.labels, 'database') && 'true' || 'false' }}
               || ${{ contains(steps.has_skip_label.outputs.labels, 'system') && 'true' || 'false' }}
             ) {
               matrix = {
                 ...matrix,
-                "operating_systems": [alma9_mariadb_10_11, alma8_mysql_8_0, bookworm_mysql_8_4],
-                "databases": [alma9_mariadb_10_11, alma8_mysql_8_0, bookworm_mysql_8_4],
+                "operating_systems": configs,
+                "databases": configs,
               };
             }
 
@@ -658,6 +770,7 @@ jobs:
               [{data: 'Name', header: true}, {data: 'Value', header: true}],
               ['latest_major_version', '${{ steps.latest_major_version.outputs.latest_major_version }}'],
               ['is_cloud', '${{ steps.detect_cloud_version.outputs.isCloud }}'],
+              ['previous_release_bundle_tag', '${{ steps.get_previous_release_bundle_tag.outputs.previous_release_bundle_tag || '<em>not found</em>' }}'],
               ['delivery_type', '${{ steps.detect_delivery_type.outputs.delivery_type }}'],
               ['linked_dev_branch', '${{ steps.linked_branches.outputs.linked_dev_branch }}'],
               ['linked_stable_branch', '${{ steps.linked_branches.outputs.linked_stable_branch }}'],

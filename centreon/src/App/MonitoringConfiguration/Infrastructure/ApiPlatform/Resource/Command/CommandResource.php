@@ -47,19 +47,19 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\CreateCommandPr
                 ],
             ),
             security: '
-                (object.type == ' . CommandTypeEnum::Notification->value . ' and (
+                (object.type == "' . CommandTypeEnum::Notification->name . '" and (
                     is_granted("' . CommandPermissionEnum::CanReadNotifications->value . '") or
                     is_granted("' . CommandPermissionEnum::CanReadAndWriteNotifications->value . '")
                 )) or
-                (object.type == ' . CommandTypeEnum::Check->value . ' and (
+                (object.type == "' . CommandTypeEnum::Check->name . '" and (
                     is_granted("' . CommandPermissionEnum::CanReadChecks->value . '") or
                     is_granted("' . CommandPermissionEnum::CanReadAndWriteChecks->value . '")
                 )) or
-                (object.type == ' . CommandTypeEnum::Miscellaneous->value . ' and (
+                (object.type == "' . CommandTypeEnum::Miscellaneous->name . '" and (
                     is_granted("' . CommandPermissionEnum::CanReadMiscellaneous->value . '") or
                     is_granted("' . CommandPermissionEnum::CanReadAndWriteMiscellaneous->value . '")
                 )) or
-                (object.type == ' . CommandTypeEnum::Discovery->value . ' and (
+                (object.type == "' . CommandTypeEnum::Discovery->name . '" and (
                     is_granted("' . CommandPermissionEnum::CanReadDiscovery->value . '") or
                     is_granted("' . CommandPermissionEnum::CanReadAndWriteDiscovery->value . '")
                 ))

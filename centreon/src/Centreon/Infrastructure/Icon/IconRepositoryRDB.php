@@ -133,7 +133,7 @@ class IconRepositoryRDB extends AbstractRepositoryDRB implements IconRepositoryI
     private function getIcons(
         ?string $searchRequest = null,
         ?string $sortRequest = null,
-        ?string $paginationRequest = null
+        ?string $paginationRequest = null,
     ): array {
         $request = $this->translateDbName('
             SELECT SQL_CALC_FOUND_ROWS vi.*, vid.dir_name AS `img_dir`

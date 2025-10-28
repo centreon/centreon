@@ -29,17 +29,17 @@ use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandLine;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandName;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandTypeEnum;
 use App\MonitoringConfiguration\Domain\Exception\CommandNotFoundException;
-use App\MonitoringConfiguration\Domain\Repository\CommandRepository;
+use App\MonitoringConfiguration\Infrastructure\Dbal\DbalCommandRepository;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 final class DbalCommandRepositoryTest extends KernelTestCase
 {
-    private CommandRepository $repository;
+    private DbalCommandRepository $repository;
 
     protected function setUp(): void
     {
-        /** @var CommandRepository $repository */
-        $repository = self::getContainer()->get(CommandRepository::class);
+        /** @var DbalCommandRepository $repository */
+        $repository = self::getContainer()->get(DbalCommandRepository::class);
 
         $this->repository = $repository;
     }
@@ -50,7 +50,7 @@ final class DbalCommandRepositoryTest extends KernelTestCase
 
         $command = $this->repository->getById($commandId);
 
-        $this->assertInstanceOf(Command::class, $command);
+        self::assertEquals($commandId, $command->id());
     }
 
     public function testGetByIdNotFound(): void

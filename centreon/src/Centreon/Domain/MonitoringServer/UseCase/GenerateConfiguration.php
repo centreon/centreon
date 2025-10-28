@@ -51,7 +51,7 @@ class GenerateConfiguration
         private readonly MonitoringServerRepositoryInterface $monitoringServerRepository,
         private readonly MonitoringServerConfigurationRepositoryInterface $configurationRepository,
         private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepositoryInterface,
-        private readonly ContactInterface $contact
+        private readonly ContactInterface $contact,
     ) {
     }
 
@@ -106,7 +106,9 @@ class GenerateConfiguration
         } catch (\Exception $ex) {
             throw ConfigurationMonitoringServerException::errorOnGeneration(
                 $monitoringServerId,
-                $ex->getMessage()
+                $ex->getMessage(),
+                $ex->getCode(),
+                $ex,
             );
         }
     }

@@ -46,7 +46,7 @@ class ConfigurationParametersInterfaceNormalizer implements NormalizerInterface
     public function normalize(
         mixed $object,
         ?string $format = null,
-        array $context = []
+        array $context = [],
     ): float|int|bool|array|string|null {
         /** @var array{groups: string[]} $context */
         if (in_array('AgentConfiguration:Read', $context['groups'], true)) {

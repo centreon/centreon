@@ -61,7 +61,7 @@ class Response implements ResponseInterface
 
     public function __construct(
         ResponseRepositoryInterface $responseRepository,
-        CommandInterface $command
+        CommandInterface $command,
     ) {
         $this->command = $command;
         $this->responseRepository = $responseRepository;

@@ -180,7 +180,7 @@ class centreonGraphPoller
         $i = 0;
         foreach ($metrics as $metric) {
             $path = $this->nagiosStatsPath . '/perfmon-' . $this->pollerId . '/' . $this->options[$this->graphName];
-            if (false === file_exists($path)) {
+            if (file_exists($path) === false) {
                 throw new RuntimeException();
             }
 

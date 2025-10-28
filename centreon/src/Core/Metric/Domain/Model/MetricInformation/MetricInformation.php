@@ -29,7 +29,7 @@ class MetricInformation
         private readonly GeneralInformation $generalInformation,
         private readonly DataSource $dataSource,
         private readonly ThresholdInformation $thresholdInformation,
-        private readonly RealTimeDataInformation $realTimeDataInformation
+        private readonly RealTimeDataInformation $realTimeDataInformation,
     ) {
     }
 

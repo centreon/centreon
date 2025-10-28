@@ -92,7 +92,7 @@ class Downtime
     public function __construct(
         private int $id,
         private int $hostId,
-        private int $serviceId
+        private int $serviceId,
     ) {
         $this->maxDate = (new \DateTime('', new \DateTimeZone('UTC')))
             ->setDate(self::DOWNTIME_YEAR_MAX, 1, 1)

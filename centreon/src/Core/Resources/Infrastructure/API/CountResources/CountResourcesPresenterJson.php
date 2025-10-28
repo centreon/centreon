@@ -51,7 +51,7 @@ class CountResourcesPresenterJson extends AbstractPresenter implements CountReso
     public function __construct(
         PresenterFormatterInterface $presenterFormatter,
         protected RequestParametersInterface $requestParameters,
-        private readonly ExceptionLogger $exceptionLogger
+        private readonly ExceptionLogger $exceptionLogger,
     ) {
         parent::__construct($presenterFormatter);
     }

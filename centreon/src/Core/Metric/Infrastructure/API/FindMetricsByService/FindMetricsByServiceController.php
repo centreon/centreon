@@ -39,7 +39,7 @@ final class FindMetricsByServiceController extends AbstractController
         int $hostId,
         int $serviceId,
         FindMetricsByService $useCase,
-        FindMetricsByServicePresenter $presenter
+        FindMetricsByServicePresenter $presenter,
     ): Response {
         $this->denyAccessUnlessGrantedForApiRealtime();
 

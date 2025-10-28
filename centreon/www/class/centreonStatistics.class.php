@@ -522,7 +522,7 @@ class CentreonStatistics
         $data['avg_contact_notification'] = $avgGetValue('notification_user_relation');
         $data['avg_cg_notification'] = $avgGetValue('notification_contactgroup_relation');
 
-        return array_filter($data, static fn (mixed $value): bool => null !== $value);
+        return array_filter($data, static fn (mixed $value): bool => $value !== null);
     }
 
     /**

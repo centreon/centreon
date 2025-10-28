@@ -167,7 +167,7 @@ abstract class Centreon_Object_Relation
         $order = null,
         $sort = 'ASC',
         $filters = [],
-        $filterType = 'OR'
+        $filterType = 'OR',
     ) {
         if (! isset($this->firstObject) || ! isset($this->secondObject)) {
             throw new Exception('Unsupported method on this object');

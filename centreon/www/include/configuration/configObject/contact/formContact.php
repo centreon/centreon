@@ -20,6 +20,7 @@
  */
 require_once __DIR__ . '/../../../../class/centreonContact.class.php';
 
+use Adaptation\Log\LoggerPassword;
 use Centreon\Infrastructure\Event\EventDispatcher;
 
 if (! isset($centreon)) {
@@ -159,7 +160,7 @@ if (
     && ! empty($cct['contact_ldap_dn'])
 ) {
     $ldap = new CentreonLDAP($pearDB, null, $cct['ar_id']);
-    if (false !== $ldap->connect()) {
+    if ($ldap->connect() !== false) {
         $cgLdap = $ldap->listGroupsForUser($cct['contact_ldap_dn']);
     }
 }
@@ -1207,6 +1208,17 @@ if ($form->validate() && $from_list_menu == false) {
 if ($valid) {
     require_once $path . 'listContact.php';
 } else {
+    // Password does not match
+    if (
+        $form->getElementError('contact_passwd') === _('Passwords do not match')
+        || $form->getElementError('contact_passwd2') === _('Passwords do not match')
+    ) {
+        LoggerPassword::create()->warning(
+            reason: 'password confirmation does not match',
+            initiatorId: $centreon->user->get_id(),
+            targetId: $centreon->user->get_id(),
+        );
+    }
     // Apply a template definition
     $contactAuthType = $cct['contact_auth_type'] ?? null;
     $renderer = new HTML_QuickForm_Renderer_ArraySmarty($tpl, true);

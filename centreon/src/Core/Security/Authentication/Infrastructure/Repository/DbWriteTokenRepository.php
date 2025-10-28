@@ -55,7 +55,7 @@ class DbWriteTokenRepository extends AbstractRepositoryDRB implements WriteToken
         int $providerConfigurationId,
         int $contactId,
         NewProviderToken $providerToken,
-        ?NewProviderToken $providerRefreshToken
+        ?NewProviderToken $providerRefreshToken,
     ): void {
         // We avoid to start again a database transaction
         $isAlreadyInTransaction = $this->db->inTransaction();
@@ -173,7 +173,7 @@ class DbWriteTokenRepository extends AbstractRepositoryDRB implements WriteToken
         int $providerConfigurationId,
         int $contactId,
         NewProviderToken $providerToken,
-        ?NewProviderToken $providerRefreshToken
+        ?NewProviderToken $providerRefreshToken,
     ): void {
 
         $this->insertSecurityToken($providerToken);
@@ -235,7 +235,7 @@ class DbWriteTokenRepository extends AbstractRepositoryDRB implements WriteToken
         int $contactId,
         int $securityTokenId,
         ?int $securityRefreshTokenId,
-        int $providerConfigurationId
+        int $providerConfigurationId,
     ): void {
         $insertSecurityAuthenticationStatement = $this->db->prepare(
             $this->translateDbName(

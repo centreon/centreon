@@ -60,7 +60,7 @@ class VmWareV6ReadVaultAccRepository implements ReadVaultAccRepositoryInterface
      */
     public function getCredentialsFromVault(AccParametersInterface $parameters): AccParametersInterface
     {
-        if (false === $this->readVaultRepository->isVaultConfigured()) {
+        if ($this->readVaultRepository->isVaultConfigured() === false) {
             return $parameters;
         }
 

@@ -58,7 +58,7 @@ class RepositoryCallbackValidator extends CallbackValidator implements CentreonV
                 json_encode($method)
             ));
         }
-        if (null !== $object && ! $repository->{$method}($object)) {
+        if ($object !== null && ! $repository->{$method}($object)) {
             $this->context->buildViolation($constraint->message)
                 ->atPath($field)
                 ->setInvalidValue($value)

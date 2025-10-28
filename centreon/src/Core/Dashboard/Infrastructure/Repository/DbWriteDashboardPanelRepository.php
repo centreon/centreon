@@ -140,7 +140,7 @@ class DbWriteDashboardPanelRepository extends AbstractRepositoryDRB implements W
     private function bindValuesOfPanel(
         \PDOStatement $statement,
         int $dashboardId,
-        DashboardPanel|NewDashboardPanel $panel
+        DashboardPanel|NewDashboardPanel $panel,
     ): void {
         $statement->bindValue(':dashboard_id', $dashboardId, \PDO::PARAM_INT);
         $statement->bindValue(':name', $panel->getName(), \PDO::PARAM_STR);

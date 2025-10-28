@@ -172,7 +172,7 @@ abstract class TestCase extends BaseTestCase
 
     protected function mockContainer(
         AuthorizationCheckerInterface $authorizationChecker,
-        TokenStorageInterface $tokenStorage
+        TokenStorageInterface $tokenStorage,
     ): ContainerInterface {
         $mock = $this->createMock(ContainerInterface::class);
 

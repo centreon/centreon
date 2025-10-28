@@ -41,7 +41,7 @@ final class FindWebSSOConfigurationController extends AbstractController
      */
     public function __invoke(
         FindWebSSOConfiguration $useCase,
-        FindWebSSOConfigurationPresenterInterface $presenter
+        FindWebSSOConfigurationPresenterInterface $presenter,
     ): object {
         $this->denyAccessUnlessGrantedForApiConfiguration();
         /**

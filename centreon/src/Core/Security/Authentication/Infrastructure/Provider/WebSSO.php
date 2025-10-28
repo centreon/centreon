@@ -53,7 +53,7 @@ class WebSSO implements ProviderAuthenticationInterface
     public function __construct(
         private Container $dependencyInjector,
         private LegacyWebSSOProviderInterface $provider,
-        private Centreon\Domain\Contact\Interfaces\ContactRepositoryInterface $contactRepository
+        private Centreon\Domain\Contact\Interfaces\ContactRepositoryInterface $contactRepository,
     ) {
     }
 

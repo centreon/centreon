@@ -38,7 +38,7 @@ final readonly class ResourceCommandTransformer implements TransformerInterface
         return new CommandResource(
             id: $from->id()->value,
             name: $from->name->value,
-            type: $from->type->value,
+            type: $from->type->name,
             commandLine: $from->commandLine->value,
             isShellEnabled: $from->isShellEnabled,
             isActivated: $from->isActivated ?? false,

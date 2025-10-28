@@ -36,7 +36,7 @@ trait CheckListOfIdsTrait
     protected function checkListOfIdsTrait(
         array $ids,
         string $tableName,
-        string $columnNameOfIdentificator
+        string $columnNameOfIdentificator,
     ): bool {
         $count = count($ids);
 

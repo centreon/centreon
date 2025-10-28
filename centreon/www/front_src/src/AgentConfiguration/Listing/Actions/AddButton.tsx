@@ -15,7 +15,7 @@ const AddButton = (): JSX.Element => {
 
   return (
     <Button
-      size="small"
+      size="medium"
       icon={<Add />}
       iconVariant="start"
       onClick={add}

@@ -475,7 +475,7 @@ CREATE TABLE `cfg_centreonbroker` (
   `stats_activate` enum('0','1') DEFAULT '1',
   `daemon` TINYINT(1),
   `pool_size` int(11) DEFAULT NULL,
-  `bbdo_version` varchar(50) DEFAULT '3.1.0',
+  `bbdo_version` varchar(50) DEFAULT '3.0.1',
   PRIMARY KEY (`config_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -1662,7 +1662,7 @@ CREATE TABLE `nagios_server` (
   `remote_id` int(11) NULL,
   `remote_server_use_as_proxy` enum('0','1') NOT NULL DEFAULT '1',
   `updated` enum('1','0') NOT NULL DEFAULT '0',
-  `is_encryption_ready` enum('0', '1') NOT NULL DEFAULT '1',
+  `is_encryption_ready` BOOLEAN NOT NULL DEFAULT 1,
   PRIMARY KEY (`id`),
   CONSTRAINT `nagios_server_remote_id_id` FOREIGN KEY (`remote_id`) REFERENCES `nagios_server` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -2459,6 +2459,7 @@ CREATE TABLE `cfg_nagios_logger` (
   `log_level_macros` enum('trace', 'debug', 'info', 'warning', 'err', 'critical', 'off') DEFAULT 'err',
   `log_level_process` enum('trace', 'debug', 'info', 'warning', 'err', 'critical', 'off') DEFAULT 'info',
   `log_level_runtime` enum('trace', 'debug', 'info', 'warning', 'err', 'critical', 'off') DEFAULT 'err',
+  `log_level_otl` enum('trace', 'debug', 'info', 'warning', 'err', 'critical', 'off') DEFAULT 'err',
   PRIMARY KEY (`id`),
   CONSTRAINT `cfg_nagios_logger_cfg_nagios_id_fk`
     FOREIGN KEY (`cfg_nagios_id`)

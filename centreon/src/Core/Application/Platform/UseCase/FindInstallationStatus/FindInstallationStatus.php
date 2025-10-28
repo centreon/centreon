@@ -72,7 +72,7 @@ final class FindInstallationStatus
      */
     private function createResponse(
         bool $isCentreonWebInstalled,
-        bool $isCentreonWebUpgradeAvailable
+        bool $isCentreonWebUpgradeAvailable,
     ): FindInstallationStatusResponse {
         $response = new FindInstallationStatusResponse();
         $response->isCentreonWebInstalled = $isCentreonWebInstalled;

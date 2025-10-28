@@ -68,7 +68,7 @@ class CentreonPerformanceService extends CentreonConfigurationObjects
             $acl = new CentreonACL($userId, $isAdmin);
         }
 
-        $bindParams[':fullName'] = false === isset($this->arguments['q']) ? '%%' : '%' . (string) $this->arguments['q'] . '%';
+        $bindParams[':fullName'] = isset($this->arguments['q']) === false ? '%%' : '%' . (string) $this->arguments['q'] . '%';
 
         if (isset($this->arguments['e']) && strcmp('anomaly', $this->arguments['e']) == 0) {
             $excludeAnomalyDetection = true;
@@ -222,7 +222,7 @@ class CentreonPerformanceService extends CentreonConfigurationObjects
         $additionalTables,
         $additionalCondition,
         $additionalValues,
-        $aclObj = null
+        $aclObj = null,
     ) {
         global $centreon;
 

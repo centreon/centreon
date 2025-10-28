@@ -50,7 +50,7 @@ final class UpdateTimePeriodController extends AbstractController
         Request $request,
         UpdateTimePeriod $useCase,
         DefaultPresenter $presenter,
-        int $id
+        int $id,
     ): object {
         $this->denyAccessUnlessGrantedForApiConfiguration();
         try {

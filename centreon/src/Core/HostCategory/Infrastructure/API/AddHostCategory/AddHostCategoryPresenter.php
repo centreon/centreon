@@ -38,7 +38,7 @@ class AddHostCategoryPresenter extends AbstractPresenter
 
     public function __construct(
         protected PresenterFormatterInterface $presenterFormatter,
-        readonly private Router $router
+        readonly private Router $router,
     ) {
         parent::__construct($presenterFormatter);
     }

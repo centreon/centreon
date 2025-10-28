@@ -39,7 +39,7 @@ final class FindMetaServiceController extends AbstractController
     public function __invoke(
         int $metaId,
         FindMetaService $useCase,
-        FindMetaServicePresenterInterface $presenter
+        FindMetaServicePresenterInterface $presenter,
     ): object {
         /**
          * Deny access if user has no rights on the real time.

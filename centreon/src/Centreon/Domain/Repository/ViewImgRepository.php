@@ -85,7 +85,7 @@ class ViewImgRepository extends ServiceEntityRepository
     public function getChainByPoller(
         array $pollerIds,
         ?array $hostTemplateChain = null,
-        ?array $serviceTemplateChain = null
+        ?array $serviceTemplateChain = null,
     ): array {
         // prevent SQL exception
         if (! $pollerIds) {

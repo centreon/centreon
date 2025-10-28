@@ -56,7 +56,7 @@ class MonitoringServerController extends AbstractController
      */
     public function __construct(
         private readonly MonitoringServerServiceInterface $monitoringServerService,
-        private readonly bool $isCloudPlatform
+        private readonly bool $isCloudPlatform,
     ) {
     }
 
@@ -190,7 +190,7 @@ class MonitoringServerController extends AbstractController
     public function generateAndReloadConfiguration(
         GenerateConfiguration $generateConfiguration,
         ReloadConfiguration $reloadConfiguration,
-        int $monitoringServerId
+        int $monitoringServerId,
     ): View {
         $this->denyAccessUnlessGrantedForApiConfiguration();
         $this->execute(
@@ -214,7 +214,7 @@ class MonitoringServerController extends AbstractController
      */
     public function generateAndReloadAllConfigurations(
         GenerateAllConfigurations $generateAllConfigurations,
-        ReloadAllConfigurations $reloadAllConfigurations
+        ReloadAllConfigurations $reloadAllConfigurations,
     ): View {
         $this->denyAccessUnlessGrantedForApiConfiguration();
         $this->execute(
@@ -258,8 +258,8 @@ class MonitoringServerController extends AbstractController
             $this->error($ex->getMessage());
 
             throw new MonitoringServerException(
-                'There was an consistency error in the exported files  - please use the legacy export menu to '
-                . 'troubleshoot'
+                'There was an consistency error in the exported files - please use the legacy export menu to troubleshoot',
+                previous: $ex,
             );
         }
     }

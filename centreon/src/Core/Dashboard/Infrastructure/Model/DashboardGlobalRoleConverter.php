@@ -49,7 +49,7 @@ class DashboardGlobalRoleConverter
             'Administrator' => DashboardGlobalRole::Administrator,
             'Creator' => DashboardGlobalRole::Creator,
             'Viewer' => DashboardGlobalRole::Viewer,
-            default => throw new \UnexpectedValueException('Invalid role provided')
+            default => throw new \UnexpectedValueException('Invalid role provided'),
         };
     }
 }

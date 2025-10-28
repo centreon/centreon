@@ -66,7 +66,7 @@ class AddServiceTemplateValidation
         private readonly ReadServiceCategoryRepositoryInterface $readServiceCategoryRepository,
         private readonly ReadServiceGroupRepositoryInterface $readServiceGroupRepository,
         private readonly ContactInterface $user,
-        public array $accessGroups = []
+        public array $accessGroups = [],
     ) {
     }
 
@@ -260,7 +260,7 @@ class AddServiceTemplateValidation
 
         $serviceGroupIds = [];
         foreach ($serviceGroups as $serviceGroup) {
-            if (false === in_array($serviceGroup->hostTemplateId, $hostTemplateIds, true)) {
+            if (in_array($serviceGroup->hostTemplateId, $hostTemplateIds, true) === false) {
                 throw ServiceTemplateException::invalidServiceGroupAssociation();
             }
             $serviceGroupIds[] = $serviceGroup->serviceGroupId;

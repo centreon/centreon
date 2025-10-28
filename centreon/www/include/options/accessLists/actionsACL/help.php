@@ -177,3 +177,13 @@ $help['tip_submit_result_for_a_host'] = dgettext('help', 'Allows users to submit
 $help['tip_status'] = dgettext('help', 'Enable or disable the ACL action rule.');
 
 $help['tip_manage_tokens'] = dgettext('help', 'Provided that the user can access the API Tokens menu, this action will allow them to not only list, create and delete tokens for themselves, but also manage tokens for other users.');
+
+$help['tip_see_check_commands'] = dgettext('help', 'Provided that the user can access the commands configuration menu, this action will allow them to list check commands.');
+$help['tip_see_notification_commands'] = dgettext('help', 'Provided that the user can access the commands configuration menu, this action will allow them to list notification commands.');
+$help['tip_see_discovery_commands'] = dgettext('help', 'Provided that the user can access the commands configuration menu, this action will allow them to list discovery commands.');
+$help['tip_see_miscellaneous_commands'] = dgettext('help', 'Provided that the user can access the commands configuration menu, this action will allow them to list miscellaneous commands.');
+
+$help['tip_manage_check_commands'] = dgettext('help', 'Provided that the user can access the commands configuration menu, this action will allow them to list and edit check commands.');
+$help['tip_manage_notification_commands'] = dgettext('help', 'Provided that the user can access the commands configuration menu, this action will allow them to list and edit notification commands.');
+$help['tip_manage_discovery_commands'] = dgettext('help', 'Provided that the user can access the commands configuration menu, this action will allow them to list and edit discovery commands.');
+$help['tip_manage_miscellaneous_commands'] = dgettext('help', 'Provided that the user can access the commands configuration menu, this action will allow them to list and edit miscellaneous commands.');

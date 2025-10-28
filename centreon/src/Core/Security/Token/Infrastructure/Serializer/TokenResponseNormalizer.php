@@ -45,7 +45,7 @@ class TokenResponseNormalizer implements NormalizerInterface, NormalizerAwareInt
     public function normalize(
         mixed $object,
         ?string $format = null,
-        array $context = []
+        array $context = [],
     ): array {
         /**
          * @var array<string, mixed> $response

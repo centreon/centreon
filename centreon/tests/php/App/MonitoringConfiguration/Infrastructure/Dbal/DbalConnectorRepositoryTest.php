@@ -46,7 +46,7 @@ final class DbalConnectorRepositoryTest extends KernelTestCase
 
         $connector = $this->repository->findById($connectorId);
 
-        $this->assertNull($connector);
+        self::assertNull($connector);
     }
 
     public function testFindById(): void
@@ -55,6 +55,6 @@ final class DbalConnectorRepositoryTest extends KernelTestCase
 
         $connector = $this->repository->findById($connectorId);
 
-        $this->assertInstanceOf(Connector::class, $connector);
+        self::assertInstanceOf(Connector::class, $connector);
     }
 }

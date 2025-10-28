@@ -57,7 +57,7 @@ final class FindTimePeriods
         readonly private ReadTimePeriodRepositoryInterface $readTimePeriodRepository,
         readonly private RequestParametersInterface $requestParameters,
         readonly private ContactInterface $user,
-        Traversable $strategies
+        Traversable $strategies,
     ) {
         $this->strategies = iterator_to_array($strategies);
     }

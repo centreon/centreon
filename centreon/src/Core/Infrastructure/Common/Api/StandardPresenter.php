@@ -64,7 +64,7 @@ class StandardPresenter implements StandardPresenterInterface
         return match (true) {
             $data instanceof ListingResponseInterface => $this->presentListing($data, $context, $format),
             $data instanceof BulkResponseInterface => $this->presentWithoutMeta($data, $context, $format),
-            default => $this->serializer->serialize($data->getData(), $format, $context)
+            default => $this->serializer->serialize($data->getData(), $format, $context),
         };
     }
 

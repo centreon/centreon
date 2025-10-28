@@ -695,7 +695,7 @@ class CustomConfiguration implements CustomConfigurationInterface, OpenIdCustomC
     private function validateParametersForAutoImport(
         ?ContactTemplate $contactTemplate,
         ?string $emailBindAttribute,
-        ?string $userNameBindAttribute
+        ?string $userNameBindAttribute,
     ): void {
         $missingMandatoryParameters = [];
         if ($contactTemplate === null) {

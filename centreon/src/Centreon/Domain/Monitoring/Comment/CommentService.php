@@ -75,7 +75,7 @@ class CommentService extends AbstractCentreonService implements CommentServiceIn
         MonitoringRepositoryInterface $monitoringRepository,
         EngineServiceInterface $engineService,
         MonitoringServiceInterface $monitoringService,
-        EntityValidator $validator
+        EntityValidator $validator,
     ) {
         $this->accessGroupRepository = $accessGroupRepository;
         $this->monitoringRepository = $monitoringRepository;

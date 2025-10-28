@@ -167,7 +167,7 @@ class DbReadServiceGroupRepository extends AbstractRepositoryDRB implements Read
      */
     public function findAllByAccessGroupIds(?RequestParametersInterface $requestParameters, array $accessGroupIds): \Traversable&\Countable
     {
-        if ([] === $accessGroupIds) {
+        if ($accessGroupIds === []) {
             return new \ArrayIterator([]);
         }
 
@@ -300,7 +300,7 @@ class DbReadServiceGroupRepository extends AbstractRepositoryDRB implements Read
      */
     public function findOneByAccessGroups(int $serviceGroupId, array $accessGroups): ?ServiceGroup
     {
-        if ([] === $accessGroups) {
+        if ($accessGroups === []) {
             return null;
         }
 
@@ -329,7 +329,7 @@ class DbReadServiceGroupRepository extends AbstractRepositoryDRB implements Read
      */
     public function existsOneByAccessGroups(int $serviceGroupId, array $accessGroups): bool
     {
-        if ([] === $accessGroups) {
+        if ($accessGroups === []) {
             return false;
         }
 
@@ -376,7 +376,7 @@ class DbReadServiceGroupRepository extends AbstractRepositoryDRB implements Read
      */
     public function existByAccessGroups(array $serviceGroupIds, array $accessGroups): array
     {
-        if ([] === $accessGroups) {
+        if ($accessGroups === []) {
             return [];
         }
 
@@ -405,7 +405,7 @@ class DbReadServiceGroupRepository extends AbstractRepositoryDRB implements Read
      */
     public function findByServiceAndAccessGroups(int $serviceId, array $accessGroups): array
     {
-        if ([] === $accessGroups) {
+        if ($accessGroups === []) {
             return [];
         }
 
@@ -526,7 +526,7 @@ class DbReadServiceGroupRepository extends AbstractRepositoryDRB implements Read
                     SQL
             );
 
-        if ([] !== $accessGroupIds) {
+        if ($accessGroupIds !== []) {
             $concatenator
                 ->appendJoins(
                     <<<'SQL'

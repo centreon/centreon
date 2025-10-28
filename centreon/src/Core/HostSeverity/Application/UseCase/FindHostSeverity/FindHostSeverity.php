@@ -47,7 +47,7 @@ final class FindHostSeverity
     public function __construct(
         private ReadHostSeverityRepositoryInterface $readHostSeverityRepository,
         private ReadAccessGroupRepositoryInterface $readAccessGroupRepositoryInterface,
-        private ContactInterface $user
+        private ContactInterface $user,
     ) {
     }
 

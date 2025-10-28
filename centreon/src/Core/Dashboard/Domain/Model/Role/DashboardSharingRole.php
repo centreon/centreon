@@ -37,7 +37,7 @@ enum DashboardSharingRole
      */
     public function hasMorePermissionsThan(?self $role): bool
     {
-        if (null === $role) {
+        if ($role === null) {
             return true;
         }
 
@@ -54,7 +54,7 @@ enum DashboardSharingRole
      */
     public function getTheMostPermissiveOfBoth(?self $role): self
     {
-        if (null === $role) {
+        if ($role === null) {
             return $this;
         }
 

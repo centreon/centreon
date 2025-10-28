@@ -36,4 +36,8 @@ interface CommandRepository
     public function findOneByName(CommandName $name): ?Command;
 
     public function add(Command $command): void;
+    /**
+     * @throws CommandNotFoundException
+     */
+    public function getById(CommandId $id): Command;
 }

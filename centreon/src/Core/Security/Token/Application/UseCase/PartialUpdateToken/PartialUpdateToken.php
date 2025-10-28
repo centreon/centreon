@@ -65,7 +65,7 @@ final class PartialUpdateToken
         PartialUpdateTokenRequest $requestDto,
         PresenterInterface $presenter,
         string $tokenName,
-        int $userId
+        int $userId,
     ): void {
         try {
             if (! $this->user->hasTopologyRole(Contact::ROLE_ADMINISTRATION_AUTHENTICATION_TOKENS_RW)) {

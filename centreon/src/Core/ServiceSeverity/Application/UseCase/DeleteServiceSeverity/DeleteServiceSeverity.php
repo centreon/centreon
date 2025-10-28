@@ -44,7 +44,7 @@ final class DeleteServiceSeverity
         private readonly WriteServiceSeverityRepositoryInterface $writeServiceSeverityRepository,
         private readonly ReadServiceSeverityRepositoryInterface $readServiceSeverityRepository,
         private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepositoryInterface,
-        private ContactInterface $user
+        private ContactInterface $user,
     ) {
     }
 

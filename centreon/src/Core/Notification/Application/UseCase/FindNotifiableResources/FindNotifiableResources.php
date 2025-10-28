@@ -26,6 +26,7 @@ namespace Core\Notification\Application\UseCase\FindNotifiableResources;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Application\Common\UseCase\{ErrorResponse, ForbiddenResponse, NotModifiedResponse};
+use Core\Contact\Domain\AdminResolver;
 use Core\Notification\Application\Converter\{NotificationHostEventConverter, NotificationServiceEventConverter};
 use Core\Notification\Application\Exception\NotificationException;
 use Core\Notification\Application\Repository\ReadNotifiableResourceRepositoryInterface;
@@ -41,7 +42,8 @@ final class FindNotifiableResources
      */
     public function __construct(
         private readonly ContactInterface $contact,
-        private readonly ReadNotifiableResourceRepositoryInterface $readRepository
+        private readonly ReadNotifiableResourceRepositoryInterface $readRepository,
+        private readonly AdminResolver $adminResolver,
     ) {
     }
 
@@ -54,7 +56,7 @@ final class FindNotifiableResources
     public function __invoke(FindNotifiableResourcesPresenterInterface $presenter, string $requestUid): void
     {
         try {
-            if ($this->contact->isAdmin()) {
+            if ($this->adminResolver->isAdmin($this->contact)) {
                 $this->info('Retrieving all notifiable resources');
                 $responseDto = $this->createResponseDto($this->readRepository->findAllForActivatedNotifications());
                 $responseJson = \json_encode($responseDto, JSON_THROW_ON_ERROR);
@@ -96,7 +98,7 @@ final class FindNotifiableResources
                 $notificationHostDto->id = $notificationHost->getId();
                 $notificationHostDto->name = $notificationHost->getName();
                 $notificationHostDto->alias = $notificationHost->getAlias();
-                if ([] !== $notificationHost->getEvents()) {
+                if ($notificationHost->getEvents() !== []) {
                     $notificationHostDto->events = NotificationHostEventConverter::toBitFlags(
                         $notificationHost->getEvents()
                     );
@@ -106,7 +108,7 @@ final class FindNotifiableResources
                     $notificationServiceDto->id = $notificationService->getId();
                     $notificationServiceDto->name = $notificationService->getName();
                     $notificationServiceDto->alias = $notificationService->getAlias();
-                    if ([] !== $notificationService->getEvents()) {
+                    if ($notificationService->getEvents() !== []) {
                         $notificationServiceDto->events = NotificationServiceEventConverter::toBitFlags(
                             $notificationService->getEvents()
                         );

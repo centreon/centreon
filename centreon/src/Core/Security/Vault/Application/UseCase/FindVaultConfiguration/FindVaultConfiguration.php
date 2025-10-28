@@ -40,7 +40,7 @@ final class FindVaultConfiguration
      */
     public function __construct(
         private readonly ReadVaultConfigurationRepositoryInterface $readVaultConfigurationRepository,
-        private readonly ContactInterface $user
+        private readonly ContactInterface $user,
     ) {
     }
 
@@ -61,7 +61,7 @@ final class FindVaultConfiguration
             }
 
             if (! $this->readVaultConfigurationRepository->exists()) {
-                $this->error('Vault configuration not found');
+                $this->info('Vault configuration not found');
                 $presenter->presentResponse(
                     new NotFoundResponse('Vault configuration')
                 );

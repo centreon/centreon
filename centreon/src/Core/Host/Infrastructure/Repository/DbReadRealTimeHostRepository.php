@@ -89,7 +89,7 @@ class DbReadRealTimeHostRepository extends AbstractRepositoryRDB implements Read
      */
     public function findStatusesByRequestParametersAndAccessGroupIds(
         RequestParametersInterface $requestParameters,
-        array $accessGroupIds
+        array $accessGroupIds,
     ): HostStatusesCount {
         if ($accessGroupIds === []) {
             $this->createHostStatusesCountFromRecord([]);
@@ -137,7 +137,7 @@ class DbReadRealTimeHostRepository extends AbstractRepositoryRDB implements Read
      * @return SqlRequestParametersTranslator
      */
     private function prepareSqlRequestParametersTranslatorForStatuses(
-        RequestParametersInterface $requestParameters
+        RequestParametersInterface $requestParameters,
     ): SqlRequestParametersTranslator {
         $sqlTranslator = new SqlRequestParametersTranslator($requestParameters);
         $sqlTranslator->setConcordanceArray([

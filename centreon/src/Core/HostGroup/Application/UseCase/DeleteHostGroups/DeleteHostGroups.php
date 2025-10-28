@@ -70,7 +70,7 @@ final class DeleteHostGroups
         private readonly ReadResourceAccessRepositoryInterface $readResourceAccessRepository,
         private readonly WriteResourceAccessRepositoryInterface $writeResourceAccessRepository,
         private readonly DataStorageEngineInterface $storageEngine,
-        private readonly bool $isCloudPlatform
+        private readonly bool $isCloudPlatform,
     ) {
     }
 

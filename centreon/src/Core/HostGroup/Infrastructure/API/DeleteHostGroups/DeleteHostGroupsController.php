@@ -42,7 +42,7 @@ final class DeleteHostGroupsController extends AbstractController
     public function __invoke(
         DeleteHostGroups $useCase,
         #[MapRequestPayload()] DeleteHostGroupsInput $request,
-        StandardPresenter $presenter
+        StandardPresenter $presenter,
     ): Response {
         $response = $useCase(DeleteHostGroupsRequestTransformer::transform($request));
 

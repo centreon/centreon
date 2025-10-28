@@ -61,7 +61,7 @@ class OpenId implements ProviderAuthenticationInterface
     public function __construct(
         private Container $dependencyInjector,
         private RequestStack $requestStack,
-        private OpenIdProviderInterface $provider
+        private OpenIdProviderInterface $provider,
     ) {
     }
 

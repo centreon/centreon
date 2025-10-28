@@ -37,7 +37,7 @@ final class ProviderDto
         public readonly int $id,
         public readonly string $name,
         public readonly ProviderType $type,
-        public readonly bool $isActivated = false
+        public readonly bool $isActivated = false,
     ) {
     }
 }

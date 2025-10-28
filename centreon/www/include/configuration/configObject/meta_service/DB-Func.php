@@ -472,6 +472,7 @@ function multipleMetaServiceInDB($metas = [], $nbrDup = [])
                         }
                         $pearDB->insert($insertMetricQuery, QueryParameters::create($paramsMetric));
                     }
+                    updateAclResourcesMetaRelations($newMetaId);
                 }
             } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
                 CentreonLog::create()->error(
@@ -789,6 +790,7 @@ function updateMetaService($metaId = null)
         ->set('meta_activate', ':meta_activate')
         ->where('meta_id = :meta_id');
     $query = $qb->getQuery();
+    $params = [];
     try {
         $params = [
             QueryParameter::string('meta_name', getParamValue($ret, 'meta_name', sanitize: true)),
@@ -1145,7 +1147,7 @@ function getParamValue(
     string|null $key = null,
     string|int|null $subKey = null,
     bool $sanitize = false,
-    mixed $default = null
+    mixed $default = null,
 ): mixed {
     // If not an array, return directly (optionally sanitize)
     if (! is_array($params) || $key === null) {
@@ -1153,12 +1155,12 @@ function getParamValue(
     }
 
     // Handle nested parameter (with subkey)
-    if ($subKey !== null && ! empty($params[$key][$subKey])) {
+    if ($subKey !== null && (! empty($params[$key][$subKey]) || $params[$key][$subKey] == 0)) {
         return $sanitize ? sanitize($params[$key][$subKey]) : $params[$key][$subKey];
     }
 
     // Handle first-level parameter
-    if (! empty($params[$key])) {
+    if (! empty($params[$key]) || $params[$key] == 0) {
         return $sanitize ? sanitize($params[$key]) : $params[$key];
     }
 

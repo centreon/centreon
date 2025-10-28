@@ -43,7 +43,7 @@ const DEFAULT_SCHEME = 'https';
 function authenticateToVault(
     VaultConfiguration $vaultConfiguration,
     Logger $logger,
-    CentreonRestHttp $httpClient
+    CentreonRestHttp $httpClient,
 ): string {
     try {
         $url = $vaultConfiguration->getAddress() . ':' . $vaultConfiguration->getPort() . '/v1/auth/approle/login';
@@ -137,7 +137,7 @@ function duplicateHostSecretsInVault(
     ?string $snmpCommunity,
     array $macroPasswords,
     int $duplicatedHostId,
-    int $newHostId
+    int $newHostId,
 ): void {
     global $pearDB;
 
@@ -229,7 +229,7 @@ function updateOnDemandMacroHostTableWithVaultPath(CentreonDB $pearDB, array $ma
 function deleteResourceSecretsInVault(
     WriteVaultRepositoryInterface $writeVaultRepository,
     array $hostIds,
-    array $serviceIds
+    array $serviceIds,
 ): void {
     if ($hostIds !== []) {
         $uuids = retrieveMultipleHostUuidsFromDatabase($hostIds);
@@ -470,7 +470,7 @@ function updateHostSecretsInVaultFromMC(
     ?string $vaultPath,
     int $hostId,
     array $macros,
-    ?string $snmpCommunity
+    ?string $snmpCommunity,
 ): void {
     global $pearDB;
 
@@ -562,7 +562,7 @@ function updateHostSecretsInVault(
     ?string $vaultPath,
     int $hostId,
     array $macros,
-    ?string $snmpCommunity
+    ?string $snmpCommunity,
 ): void {
     global $pearDB;
     $hostSecretsFromVault = [];
@@ -861,7 +861,7 @@ function updateServiceSecretsInVaultFromMC(
     Logger $logger,
     ?string $vaultPath,
     int $serviceId,
-    array $macros
+    array $macros,
 ): void {
     global $pearDB;
 
@@ -1053,7 +1053,7 @@ function prepareServiceUpdatePayload(array $macros, array $serviceSecretsFromVau
  */
 function insertServiceSecretsInVault(
     WriteVaultRepositoryInterface $writeVaultRepository,
-    array $macroPasswords
+    array $macroPasswords,
 ): void {
     global $pearDB;
     $payload = [];
@@ -1118,7 +1118,7 @@ function upsertPollerMacroSecretInVault(
     WriteVaultRepositoryInterface $writeVaultRepository,
     string $key,
     string $value,
-    ?string $vaultPath = null
+    ?string $vaultPath = null,
 ): string|null {
     if (! empty($value)) {
 
@@ -1240,7 +1240,7 @@ function findKnowledgeBasePasswordFromVault(
  * @return array<string, string>
  */
 function migrateDatabaseCredentialsToVault(
-    WriteVaultRepositoryInterface $writeVaultRepository
+    WriteVaultRepositoryInterface $writeVaultRepository,
 ): array {
     $credentials = retrieveDatabaseCredentialsFromConfigFile();
     if (str_starts_with($credentials['username'], VaultConfiguration::VAULT_PATH_PATTERN)) {

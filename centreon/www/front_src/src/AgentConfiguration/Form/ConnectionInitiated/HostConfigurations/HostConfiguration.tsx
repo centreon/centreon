@@ -1,15 +1,11 @@
 import {
   NumberField,
   SingleConnectedAutocompleteField,
-  TextField,
-  buildListingEndpoint
+  TextField
 } from '@centreon/ui';
 import { Box } from '@mui/material';
 import { useTranslation } from 'react-i18next';
-import {
-  getTokensEndpoint,
-  hostsConfigurationEndpoint
-} from '../../../api/endpoints';
+import { getHostsEndpoint, getTokensEndpoint } from '../../../api/endpoints';
 import { HostConfiguration as HostConfigurationModel } from '../../../models';
 
 import RedirectToTokensPage from '../RedirectToTokensPage';
@@ -42,7 +38,8 @@ const HostConfiguration = ({ index, host }: Props): JSX.Element => {
     hostErrors,
     hostTouched,
     changePort,
-    areCertificateFieldsVisible,
+    isInsecureMode,
+    isSecureMode,
     changeStringInput,
     changeCMAToken,
     token
@@ -63,13 +60,9 @@ const HostConfiguration = ({ index, host }: Props): JSX.Element => {
         required
         label={t(labelSelectHost)}
         onChange={selectHost}
-        getEndpoint={(parameters) =>
-          buildListingEndpoint({
-            baseEndpoint: hostsConfigurationEndpoint,
-            parameters
-          })
-        }
+        getEndpoint={getHostsEndpoint}
         value={{ id: host.id, name: host.name }}
+        field="name"
       />
       <TextField
         required
@@ -108,8 +101,24 @@ const HostConfiguration = ({ index, host }: Props): JSX.Element => {
         className={classes.input}
       />
 
-      {areCertificateFieldsVisible && (
+      {(isInsecureMode || isSecureMode) && (
         <>
+          <Box className="flex flex-col">
+            <SingleConnectedAutocompleteField
+              required
+              disableClearable={false}
+              dataTestId={labelSelectExistingCMAToken}
+              field="token_name"
+              getEndpoint={getTokensEndpoint}
+              label={t(labelSelectExistingCMAToken)}
+              value={token || null}
+              onChange={changeCMAToken}
+              decoder={listTokensDecoder}
+              error={(hostTouched?.token && hostErrors?.token) || undefined}
+            />
+            <RedirectToTokensPage />
+          </Box>
+
           <TextField
             value={host?.pollerCaCertificate || ''}
             onChange={changeStringInput('pollerCaCertificate')}
@@ -130,42 +139,28 @@ const HostConfiguration = ({ index, host }: Props): JSX.Element => {
             }
             className={classes.input}
           />
-
-          <TextField
-            value={host?.pollerCaName || ''}
-            onChange={changeStringInput('pollerCaName')}
-            label={t(labelCACommonName)}
-            textFieldSlotsAndSlotProps={{
-              slotProps: {
-                htmlInput: {
-                  'aria-label': labelCACommonName
-                }
-              }
-            }}
-            dataTestId={labelCACommonName}
-            fullWidth
-            error={
-              (hostTouched?.pollerCaName && hostErrors?.pollerCaName) ||
-              undefined
-            }
-            className={classes.input}
-          />
-          <Box className="flex flex-col">
-            <SingleConnectedAutocompleteField
-              required
-              disableClearable={false}
-              dataTestId={labelSelectExistingCMAToken}
-              field="token_name"
-              getEndpoint={getTokensEndpoint}
-              label={t(labelSelectExistingCMAToken)}
-              value={token || null}
-              onChange={changeCMAToken}
-              decoder={listTokensDecoder}
-              error={(hostTouched?.token && hostErrors?.token) || undefined}
-            />
-            <RedirectToTokensPage />
-          </Box>
         </>
+      )}
+
+      {isInsecureMode && (
+        <TextField
+          value={host?.pollerCaName || ''}
+          onChange={changeStringInput('pollerCaName')}
+          label={t(labelCACommonName)}
+          textFieldSlotsAndSlotProps={{
+            slotProps: {
+              htmlInput: {
+                'aria-label': labelCACommonName
+              }
+            }
+          }}
+          dataTestId={labelCACommonName}
+          fullWidth
+          error={
+            (hostTouched?.pollerCaName && hostErrors?.pollerCaName) || undefined
+          }
+          className={classes.input}
+        />
       )}
     </Box>
   );

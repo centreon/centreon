@@ -88,7 +88,7 @@ final class UpdateAcc
 
     public function __invoke(
         UpdateAccRequest $request,
-        PresenterInterface $presenter
+        PresenterInterface $presenter,
     ): void {
         try {
             if (! $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_ACC_RW)) {
@@ -182,7 +182,7 @@ final class UpdateAcc
             $accessGroups = $this->readAccessGroupRepository->findByContact($this->user);
             $validPollerIds = $this->readMonitoringServerRepository->existByAccessGroups($pollerIds, $accessGroups);
 
-            if ([] !== array_diff($pollerIds, $validPollerIds)) {
+            if (array_diff($pollerIds, $validPollerIds) !== []) {
 
                 return null;
             }

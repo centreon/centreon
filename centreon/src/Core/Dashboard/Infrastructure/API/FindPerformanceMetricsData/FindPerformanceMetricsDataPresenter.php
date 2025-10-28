@@ -40,7 +40,7 @@ class FindPerformanceMetricsDataPresenter extends AbstractPresenter implements F
     use PresenterTrait;
 
     public function __construct(
-        protected PresenterFormatterInterface $presenterFormatter
+        protected PresenterFormatterInterface $presenterFormatter,
     ) {
         parent::__construct($presenterFormatter);
         if ($presenterFormatter instanceof JsonFormatter) {

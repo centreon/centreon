@@ -235,7 +235,7 @@ When(
 Then(
   'the widget is refreshed to make it look like the metric is in a warning state',
   () => {
-    cy.contains(metrics.customValues.warning).should('be.visible');
+    cy.get('[class$="thresholdLabel-warning"] h5').should('contain.text', '40');
   }
 );
 
@@ -255,7 +255,7 @@ When(
 Then(
   'the widget is refreshed to make it look like the metric is in a critical state',
   () => {
-    cy.contains(metrics.customValues.critical).should('be.visible');
+    cy.get('[class$="thresholdLabel-warning"] h5').should('contain.text', '40');
   }
 );
 

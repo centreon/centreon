@@ -137,7 +137,7 @@ class CentreonNotification
     public function getNotifications($notifType, $contactId)
     {
         $contactId = $this->db->escape($contactId);
-        if (false === $this->isNotificationEnabled($contactId)) {
+        if ($this->isNotificationEnabled($contactId) === false) {
             return [];
         }
         $contactgroups = $this->getContactGroups($contactId);

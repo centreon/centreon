@@ -1445,6 +1445,10 @@ msgstr ""
 msgid "An error occurred when retrieving the current version"
 msgstr ""
 
+#: centreon/src/Core/Platform/Application/UseCase/UpdateVersions/UpdateVersionsException.php
+msgid "An error occurred when writing engine context configuration"
+msgstr ""
+
 #: centreon/src/Core/Broker/Application/Exception/BrokerException.php
 #, php-format
 msgid "An error occurred while creating the file '%s'"
@@ -1596,6 +1600,10 @@ msgstr ""
 msgid "At least one column must be selected"
 msgstr ""
 
+#: centreon/www/install/front_translate.php
+msgid "At least one connection mode must be enabled."
+msgstr ""
+
 #: centreon/src/Core/ResourceAccess/Application/Exception/RuleException.php
 msgid "At least one contact or contactgroup should be linked to the rule"
 msgstr ""
@@ -1650,10 +1658,6 @@ msgstr ""
 #: centreon/www/include/Administration/parameters/general/form.php
 msgid "Attempt"
 msgstr "Tentativa"
-
-#: centreon/www/install/front_translate.php
-msgid "Au moins un des modes de connexion doit être activé."
-msgstr ""
 
 #: centreon/www/include/Administration/parameters/centstorage/form.php
 msgid "Audit log activation"
@@ -2189,11 +2193,11 @@ msgid "By poller"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
-msgid "CA Common Name (CN)"
+msgid "CA (.crt,.cer)"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
-msgid "CA(.crt,.cer)"
+msgid "CA Common Name (CN)"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
@@ -2453,12 +2457,8 @@ msgstr ""
 msgid ""
 "Centreon Broker's configuration directory '%s' does not exist and could not\n"
 "                                             be created for monitoring "
-"engine '%s'. Please check it's path or create it"
+"engine '%s'. Please check its path or create it"
 msgstr ""
-"O diretorio de configuração '%s' do Centreon Broker não existe ou não pôde "
-"ser\n"
-"                                             criado pelo o motor de "
-"monitoramento '%s'. Por favor, verifique o caminho"
 
 #: centreon/www/class/centreon-clapi/centreon.Config.Poller.class.php
 #, php-format
@@ -3834,12 +3834,8 @@ msgstr "Não foi possível estabelecer conexão com os servidores IMP Centreon (
 #, php-format
 msgid ""
 "Could not find configuration directory '%s' for monitoring engine '%s'.\n"
-"                                 Please check it's path or create it"
+"                                 Please check its path or create it"
 msgstr ""
-"Não foi possivel encontrar o diretorio de configuração '%s' do motor de "
-"monitoramento '%s'.\n"
-"                                 Por favor, verifique o caminho ou se ele "
-"existe"
 
 #: centreon/src/CentreonRemote/Infrastructure/Service/PollerInteractionService.php
 #: centreon/www/include/configuration/configGenerate/xml/moveFiles.php
@@ -6587,6 +6583,10 @@ msgstr ""
 
 #: centreon/src/Core/HostGroup/Application/Exceptions/HostGroupException.php
 msgid "Error while enabling/disabling host groups"
+msgstr ""
+
+#: centreon/www/include/options/accessLists/menusACL/listsMenusAccess.php
+msgid "Error while fetching ACL topologies"
 msgstr ""
 
 #: centreon/src/Core/Dashboard/Application/Exception/DashboardException.php
@@ -11557,6 +11557,10 @@ msgstr "Deve ser um número"
 msgid "Must be a number between 1 and 65335 included."
 msgstr ""
 
+#: centreon/www/include/configuration/configObject/escalation/formEscalation.php
+msgid "Must be a positive integer or 0"
+msgstr ""
+
 #: centreon/src/Core/Security/ProviderConfiguration/Domain/Exception/ConfigurationException.php
 #, php-format
 msgid "Must not Happen, got unexpected CustomConfiguration type %s"
@@ -11685,6 +11689,10 @@ msgstr ""
 #: centreon/www/include/views/graphTemplates/formGraphTemplate.php
 msgid "Name is already in use"
 msgstr "Nome já esta em uso"
+
+#: centreon/www/include/configuration/configResources/formResources.php
+msgid "Name must start and end with a '$'"
+msgstr ""
 
 #: centreon/www/install/centreon_broker_translation.php
 msgid "Name of the logger"
@@ -12514,6 +12522,10 @@ msgstr "OpenLDAP :"
 
 #: centreon/www/install/front_translate.php
 msgid "Opened on"
+msgstr ""
+
+#: centreon/www/include/configuration/configNagios/formNagios.php
+msgid "Opentelemetry"
 msgstr ""
 
 #: centreon/www/include/configuration/configNagios/formNagios.php
@@ -13362,16 +13374,16 @@ msgstr "Exibir Valor Mínimo"
 msgid "Print Total Value"
 msgstr "Exibir o valor total"
 
+#: centreon/www/install/front_translate.php
+msgid "Private key (.key)"
+msgstr ""
+
 #: centreon/www/install/centreon_broker_translation.php
 msgid "Private key file."
 msgstr "Ficheiro de chave privada (SSH)"
 
 #: centreon/www/install/centreon_broker_translation.php
 msgid "Private key path"
-msgstr ""
-
-#: centreon/www/install/front_translate.php
-msgid "Private key(.key)"
 msgstr ""
 
 #: centreon/www/install/dashboard_widgets.php
@@ -13478,7 +13490,7 @@ msgid "Public certificate"
 msgstr "Certificado público"
 
 #: centreon/www/install/front_translate.php
-msgid "Public certificate(.crt,.cer)"
+msgid "Public certificate (.crt,.cer)"
 msgstr ""
 
 #: centreon/www/include/home/customViews/formLoad.php
@@ -17509,6 +17521,10 @@ msgstr ""
 msgid "Tokens are mandatory"
 msgstr ""
 
+#: centreon/www/install/front_translate.php
+msgid "Too many elements to be displayed (>{{graphsCapNumber}})"
+msgstr ""
+
 #: centreon/www/include/monitoring/objectDetails/serviceDetails.php
 msgid "Tools"
 msgstr "Utilitarios"
@@ -20655,6 +20671,19 @@ msgstr "Informações sobre o Broker Centreon"
 msgid "Centreon Broker socket path"
 msgstr "Caminho do soquete Centreon Broker Unix"
 
+#, php-format
+#: unknown
+msgid ""
+"Centreon Broker's configuration directory '%s' does not exist and could "
+"not\n"
+"                                             be created for monitoring "
+"engine '%s'. Please check it's path or create it"
+msgstr ""
+"O diretorio de configuração '%s' do Centreon Broker não existe ou não "
+"pôde ser\n"
+"                                             criado pelo o motor de "
+"monitoramento '%s'. Por favor, verifique o caminho"
+
 #: unknown
 msgid "Centreon DataBase Statistics"
 msgstr "Banco de dados de statisticas do Centreon"
@@ -20872,6 +20901,17 @@ msgid "Could not find configuration database. Session probably expired."
 msgstr ""
 "Não foi possivel encontrar a configurações do banco de dados. A sessão "
 "provavelmente expirou."
+
+#, php-format
+#: unknown
+msgid ""
+"Could not find configuration directory '%s' for monitoring engine '%s'.\n"
+"                                 Please check it's path or create it"
+msgstr ""
+"Não foi possivel encontrar o diretorio de configuração '%s' do motor de "
+"monitoramento '%s'.\n"
+"                                 Por favor, verifique o caminho ou se ele "
+"existe"
 
 #: unknown
 msgid "Could not find database user. Session probably expired."

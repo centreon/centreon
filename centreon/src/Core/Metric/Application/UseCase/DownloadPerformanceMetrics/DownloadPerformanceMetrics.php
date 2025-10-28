@@ -66,7 +66,7 @@ final class DownloadPerformanceMetrics
      */
     public function __invoke(
         DownloadPerformanceMetricRequest $request,
-        PresenterInterface $presenter
+        PresenterInterface $presenter,
     ): void {
         try {
             if (

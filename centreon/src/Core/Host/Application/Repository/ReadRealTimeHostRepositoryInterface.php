@@ -43,6 +43,6 @@ interface ReadRealTimeHostRepositoryInterface
      */
     public function findStatusesByRequestParametersAndAccessGroupIds(
         RequestParametersInterface $requestParameters,
-        array $accessGroupIds
+        array $accessGroupIds,
     ): HostStatusesCount;
 }

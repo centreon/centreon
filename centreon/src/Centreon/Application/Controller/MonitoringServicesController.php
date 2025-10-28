@@ -129,7 +129,7 @@ class MonitoringServicesController extends AbstractController
     public function getServiceGroupsByHostAndService(
         int $hostId,
         int $serviceId,
-        RequestParametersInterface $requestParameters
+        RequestParametersInterface $requestParameters,
     ): View {
         $this->monitoring->filterByContact($this->getUser());
 

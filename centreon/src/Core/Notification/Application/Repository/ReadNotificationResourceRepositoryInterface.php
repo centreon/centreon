@@ -76,7 +76,7 @@ interface ReadNotificationResourceRepositoryInterface
      */
     public function findByNotificationIdAndAccessGroups(
         int $notificationId,
-        array $accessGroups
+        array $accessGroups,
     ): ?NotificationResource;
 
     /**
@@ -89,7 +89,7 @@ interface ReadNotificationResourceRepositoryInterface
      */
     public function countResourcesByNotificationIdsAndAccessGroups(
         array $notificationIds,
-        array $accessGroups
+        array $accessGroups,
     ): array;
 
     /**

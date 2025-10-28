@@ -834,7 +834,7 @@ class Broker extends AbstractObjectJSON
         array &$output,
         string $outputKey,
         string $outputValue,
-        array &$outputReference
+        array &$outputReference,
     ): void {
         $vaultData = $this->readVaultRepository->findFromPath($outputValue);
         $vaultKey = $output['name'] . '_' . $outputKey;
@@ -856,7 +856,7 @@ class Broker extends AbstractObjectJSON
         array &$output,
         string $outputKey,
         array $luaParameters,
-        array &$outputReference
+        array &$outputReference,
     ): void {
         foreach ($luaParameters as $parameterIndex => $luaParameter) {
             if ($luaParameter['type'] === 'password'

@@ -50,7 +50,7 @@ final class DeleteVaultConfiguration
     public function __construct(
         readonly private ReadVaultConfigurationRepositoryInterface $readVaultConfigurationRepository,
         readonly private WriteVaultConfigurationRepositoryInterface $writeVaultConfigurationRepository,
-        readonly private ContactInterface $user
+        readonly private ContactInterface $user,
     ) {
     }
 

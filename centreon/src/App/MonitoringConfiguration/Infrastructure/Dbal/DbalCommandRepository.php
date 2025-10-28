@@ -66,6 +66,9 @@ final readonly class DbalCommandRepository extends DbalRepository implements Com
     ) {
     }
 
+    /**
+     * @inheritDoc
+     */
     public function getById(CommandId $id): Command
     {
         $qb = $this->connection->createQueryBuilder();

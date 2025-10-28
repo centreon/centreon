@@ -32,7 +32,7 @@ final readonly class NotEmptyStringNormalizer implements NormalizerInterface
 {
     public function __construct(
         #[Autowire(service: 'serializer.normalizer.object')]
-        private readonly NormalizerInterface $normalizer
+        private readonly NormalizerInterface $normalizer,
     ) {
     }
 
@@ -45,7 +45,7 @@ final readonly class NotEmptyStringNormalizer implements NormalizerInterface
     public function normalize(
         mixed $object,
         ?string $format = null,
-        array $context = []
+        array $context = [],
     ): string {
         /** @var array{value: string} $data */
         $data = $this->normalizer->normalize($object, $format, $context);

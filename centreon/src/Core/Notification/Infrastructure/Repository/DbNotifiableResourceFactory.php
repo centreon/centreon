@@ -72,7 +72,7 @@ class DbNotifiableResourceFactory
             $currentNotificationId = $record['notification_id'];
         }
 
-        if ([] !== $currentRecords) {
+        if ($currentRecords !== []) {
             yield self::createNotifiableResourceFromRecord($currentNotificationId, $currentRecords);
         }
 
@@ -183,7 +183,7 @@ class DbNotifiableResourceFactory
         string $hostName,
         ?string $hostAlias,
         array $hostEvents,
-        array $records
+        array $records,
     ): NotifiableHost {
         $notificationServices = [];
         $currentServiceEvents = [];
@@ -200,7 +200,7 @@ class DbNotifiableResourceFactory
                 );
             }
 
-            if ([] === $currentServiceEvents) {
+            if ($currentServiceEvents === []) {
                 continue;
             }
 

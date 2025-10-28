@@ -91,6 +91,7 @@ if (isset($_SERVER['HTTP_X_AUTH_TOKEN'])) {
         'reach_api' => $contact->hasAccessToApiConfiguration(),
         'reach_api_rt' => $contact->hasAccessToApiRealTime(),
         'show_deprecated_pages' => false,
+        'show_deprecated_custom_views' => false,
     ]);
 } else {
     // Check Session
@@ -210,7 +211,7 @@ try {
             }
             $msg_restart[$host['id']] .= _(
                 '<br><b>Centreon : </b>A reload signal has been sent to '
-                . $host['name'] . "\n"
+                . htmlspecialchars(string: $host['name'], encoding: 'UTF-8') . "\n"
             );
         } elseif ($ret['restart_mode'] == 2) {
             if ($fh = @fopen($centcorePipe, 'a+')) {
@@ -228,7 +229,8 @@ try {
                 $msg_restart[$host['id']] = '';
             }
             $msg_restart[$host['id']] .= _(
-                '<br><b>Centreon : </b>A restart signal has been sent to ' . $host['name'] . "\n"
+                '<br><b>Centreon : </b>A restart signal has been sent to '
+                . htmlspecialchars(string: $host['name'], encoding: 'UTF-8') . "\n"
             );
         }
         $DBRESULT = $pearDB->query("UPDATE `nagios_server` SET `last_restart` = '"

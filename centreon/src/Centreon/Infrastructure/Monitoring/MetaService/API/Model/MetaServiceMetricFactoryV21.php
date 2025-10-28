@@ -37,7 +37,7 @@ class MetaServiceMetricFactoryV21
      * @return \stdClass[]
      */
     public static function createFromResponse(
-        FindMetaServiceMetricsResponse $response
+        FindMetaServiceMetricsResponse $response,
     ): array {
         $metaServiceMetrics = [];
         foreach ($response->getMetaServiceMetrics() as $metaServiceMetric) {

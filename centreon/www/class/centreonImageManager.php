@@ -51,7 +51,7 @@ class CentreonImageManager extends centreonFileManager
         $rawFile,
         $basePath,
         $destinationDir,
-        $comment = ''
+        $comment = '',
     ) {
         parent::__construct($dependencyInjector, $rawFile, $basePath, $destinationDir, $comment);
         $this->dbConfig = $this->dependencyInjector['configuration_db'];

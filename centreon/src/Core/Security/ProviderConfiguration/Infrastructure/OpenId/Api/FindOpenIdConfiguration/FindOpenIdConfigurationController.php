@@ -41,7 +41,7 @@ final class FindOpenIdConfigurationController extends AbstractController
      */
     public function __invoke(
         FindOpenIdConfiguration $useCase,
-        FindOpenIdConfigurationPresenterInterface $presenter
+        FindOpenIdConfigurationPresenterInterface $presenter,
     ): object {
         $this->denyAccessUnlessGrantedForApiConfiguration();
         /**
