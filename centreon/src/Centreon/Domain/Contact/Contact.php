@@ -97,7 +97,7 @@ class Contact implements UserInterface, ContactInterface
         self::ROLE_MANAGE_DISCOVERY_COMMANDS,
         self::ROLE_SEE_MISCELLANEOUS_COMMANDS,
         self::ROLE_MANAGE_MISCELLANEOUS_COMMANDS,
-    ]
+    ];
 
     // user pages access
     public const ROLE_HOME_DASHBOARD_VIEWER = 'ROLE_HOME_DASHBOARDS_VIEWER_RW';
