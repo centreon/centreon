@@ -31,6 +31,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandTypeEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\Connector\Connector;
 use App\MonitoringConfiguration\Domain\Aggregate\Connector\ConnectorId;
 use App\MonitoringConfiguration\Domain\Event\CommandUpdated;
+use App\MonitoringConfiguration\Domain\Exception\CommandAlreadyExistsException;
 use App\MonitoringConfiguration\Domain\Repository\CommandRepository;
 use App\MonitoringConfiguration\Domain\Repository\ConnectorRepository;
 use App\Shared\Application\Command\AsCommandHandler;
@@ -51,6 +52,10 @@ final readonly class UpdateCommandCommandHandler
         $existingCommand = $this->commandRepository->getById($command->id);
 
         if ($command->name instanceof CommandName) {
+            $commandWithSameName = $this->commandRepository->findOneByName($command->name);
+            if ($commandWithSameName !== null && $commandWithSameName->id()->value !== $existingCommand->id()->value) {
+                throw new CommandAlreadyExistsException(['name' => $command->name->value]);
+            }
             $existingCommand->updateName($command->name);
         }
 

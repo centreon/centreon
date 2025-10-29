@@ -21,26 +21,10 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Domain\Repository;
+namespace App\MonitoringConfiguration\Domain\Exception;
 
-use App\MonitoringConfiguration\Domain\Aggregate\Command\Command;
-use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
-use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandName;
-use App\MonitoringConfiguration\Domain\Exception\CommandNotFoundException;
+use App\Shared\Domain\Exception\AggregateAlreadyExistsException;
 
-interface CommandRepository
+final class CommandAlreadyExistsException extends AggregateAlreadyExistsException
 {
-    /**
-     * @throws CommandNotFoundException
-     */
-    public function getById(CommandId $id): Command;
-
-    public function findOneByName(CommandName $name): ?Command;
-
-    /**
-     * @throws CommandNotFoundException
-     */
-    public function update(Command $command): void;
-
-    public function exists(CommandId $id): bool;
 }
