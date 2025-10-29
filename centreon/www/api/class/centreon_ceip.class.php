@@ -378,13 +378,16 @@ class CentreonCeip extends CentreonWebService
     {
         $sql = "SELECT `value` FROM `options` WHERE `key` = 'impCompanyToken' LIMIT 1";
         $impCompanyToken = (string) $this->sqlFetchValue($sql);
+        if ($impCompanyToken === '') {
+            return '';
+        }
 
         $decodedToken = json_decode($impCompanyToken, true);
-        if (is_array($decodedToken) && isset($decodedToken['token'])) {
+        if (is_array($decodedToken) && is_string($decodedToken['token'] ?? null)) {
             return $decodedToken['token'];
         }
 
-        $this->logger->error(
+        $this->logger->warning(
             "Invalid JSON format in options table for key 'impCompanyToken'",
             ['context' => $impCompanyToken]
         );
