@@ -19,7 +19,8 @@ info:
     + Updated endpoint to add an hostgroup
     + Updated endpoint to update an hostgroup
     + Update FindHostGroups response
-    + Added 'requested_authn_context' property to SAML provider configuration endpoints (GET, PUT)
+    + Added 'requested_authn_context' property to SAML provider configuration endpoints (GET, PUT). Specifies the authentication context requirements of authentication statements returned in response to a request or query. The default is false (no specific context class or statement is requested).
+    + Added 'requested_authn_context_comparison' property to SAML provider configuration endpoints (GET, PUT). Specifies the comparison method used to evaluate the requested context classes or statements, one of "exact", "minimum", "maximum", or "better". The default is "exact".
     + Added 'url' property to /configuration/medias and rename property 'filename' to 'name' in returned response and search capabilities
     +
     # Information
@@ -5202,9 +5203,14 @@ components:
           type: string
           description: ""
         requested_authn_context:
+          type: boolean
+          description: "Specifies the authentication context requirements of authentication statements returned in response to a request or query. The default is false."
+          default: false
+        requested_authn_context_comparison:
           type: string
+          description: 'Specifies the comparison method used to evaluate the requested context classes or statements, one of "exact", "minimum", "maximum", or "better". The default is "exact".'
           enum: ['minimum', 'exact', 'better', 'maximum']
-          description: "Requested authentication context"
+          default: 'exact'
         logout_from:
           type: boolean
           description: "Logout"
