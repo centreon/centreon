@@ -526,8 +526,8 @@
           myEnd = this.settings.period.endTime * 1000;
         }
 
-        start = moment.tz(myStart, this.timezone);
-        end = moment.tz(myEnd, this.timezone);
+        start = moment().tz(myStart, this.timezone);
+        end = moment().tz(myEnd, this.timezone);
       }
 
       return {

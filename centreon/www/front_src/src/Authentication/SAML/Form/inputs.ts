@@ -43,18 +43,18 @@ import {
   labelCertificate,
   labelDefineRelationBetweenRolesAndAclAccessGroups,
   labelEmailAttribute,
+  labelEnableRequestedAuthnContext,
   labelEnableSAMLAuthentication,
   labelEntityIdURL,
   labelFullNameAttribute,
   labelLogoutFrom,
   labelLogoutUrl,
   labelRemoteLoginUrl,
-  labelRequestedAuthnContext,
+  labelRequestedAuthnContextComparison,
   labelSAMLOnly,
   labelUserIdAttribute
 } from '../translatedLabels';
-
-import RequestedAuthnContextField from './RequestedAuthnContextField';
+import RequestedAuthnContextComparisonField from './RequestedAuthnContextField';
 
 const isAutoImportDisabled = (values: FormikValues): boolean =>
   not(prop('autoImport', values));
@@ -268,13 +268,21 @@ export const inputs: Array<InputProps> = [
     type: InputType.Text
   },
   {
-    custom: {
-      Component: RequestedAuthnContextField
-    },
-    dataTestId: 'saml_requestedAuthnContext',
+    type: InputType.Switch,
+    dataTestId: 'saml_requestAuthnContext',
     fieldName: 'requestedAuthnContext',
     group: labelIdentityProvider,
-    label: labelRequestedAuthnContext,
+    label: labelEnableRequestedAuthnContext
+  },
+  {
+    custom: {
+      Component: RequestedAuthnContextComparisonField
+    },
+    dataTestId: 'saml_requestedAuthnContextComparison',
+    fieldName: 'requestedAuthnContextComparison',
+    group: labelIdentityProvider,
+    hideInput: (values: FormikValues): boolean => !values.requestedAuthnContext,
+    label: labelRequestedAuthnContextComparison,
     required: true,
     type: InputType.Custom
   },

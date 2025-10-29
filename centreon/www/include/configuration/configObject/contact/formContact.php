@@ -208,7 +208,11 @@ $tpl = SmartyBC::createSmartyTemplate($path);
 $authTypeConnectedUser = $centreon->user->authType;
 $tpl->assign('authTypeConnectedUser', $authTypeConnectedUser);
 // Auth type of the contact edited
-$authTypeContact = $cct['contact_auth_type'];
+if ($o == MODIFY_CONTACT || $o == WATCH_CONTACT) {
+    $authTypeContact = $cct['contact_auth_type'];
+} else {
+    $authTypeContact = CentreonAuth::AUTH_TYPE_LOCAL;
+}
 $tpl->assign('authTypeContact', $authTypeContact);
 
 if ($o == ADD_CONTACT) {
@@ -390,16 +394,18 @@ if (
 
     // Password Management
 
-    $form->addElement(
-        'password',
-        'current_password',
-        _('Your current password'),
-        [
-            'size' => '30',
-            'autocomplete' => 'off',
-            'id' => 'current_password',
-        ]
-    );
+    if ($o === MODIFY_CONTACT) {
+        $form->addElement(
+            'password',
+            'current_password',
+            _('Your current password'),
+            [
+                'size' => '30',
+                'autocomplete' => 'off',
+                'id' => 'current_password',
+            ]
+        );
+    }
 
     $form->addElement(
         'password',
@@ -440,27 +446,29 @@ if (
 
     // Autologin Management
 
-    $form->addElement(
-        'text',
-        'contact_autologin_key',
-        _('Autologin Key'),
-        [
-            'size' => '90',
-            'id' => 'aKey',
-            'data-testid' => 'aKey',
-        ]
-    );
+    if ($o === ADD_CONTACT || $o === MODIFY_CONTACT) {
+        $form->addElement(
+            'text',
+            'contact_autologin_key',
+            _('Autologin Key'),
+            [
+                'size' => '90',
+                'id' => 'aKey',
+                'data-testid' => 'aKey',
+            ]
+        );
 
-    $form->addElement(
-        'button',
-        'contact_gen_akey',
-        _('Generate'),
-        [
-            'onclick' => "generatePassword('aKey', '{$encodedPasswordPolicy}');",
-            'id' => 'generateAutologinKeyButton',
-            'data-testid' => 'generateAutologinKeyButton',
-        ]
-    );
+        $form->addElement(
+            'button',
+            'contact_gen_akey',
+            _('Generate'),
+            [
+                'onclick' => "generatePassword('aKey', '{$encodedPasswordPolicy}');",
+                'id' => 'generateAutologinKeyButton',
+                'data-testid' => 'generateAutologinKeyButton',
+            ]
+        );
+    }
 }
 
 // ------------------------ Topoogy ----------------------------
@@ -1076,12 +1084,12 @@ if ($o != MASSIVE_CHANGE) {
     }
 
     $form->addRule(['contact_passwd', 'contact_passwd2'], _('Passwords do not match'), 'compare');
-    if ($o === ADD_CONTACT || $o === MODIFY_CONTACT) {
+    if ($o === ADD_CONTACT) {
         $form->addFormRule('validatePasswordCreation');
         $form->addFormRule('validateAutologin');
-    }
-    if ($o === MODIFY_CONTACT) {
+    } elseif ($o === MODIFY_CONTACT) {
         $form->addFormRule('validatePasswordModification');
+        $form->addFormRule('validateAutologin');
     }
     $form->registerRule('exist', 'callback', 'testContactExistence');
     $form->addRule('contact_name', "<font style='color: red;'>*</font>&nbsp;" . _('Contact already exists'), 'exist');
@@ -1171,10 +1179,7 @@ if ($form->validate() && $from_list_menu == false) {
             ]
         );
     } elseif ($form->getSubmitValue('submitC')) {
-        updateContactInDB(
-            contact_id:$cctObj->getValue(),
-            isRemote: $isRemote
-        );
+        updateContactInDB(contact_id: $cctObj->getValue(), isRemote: $isRemote);
 
         $eventDispatcher->notify(
             'contact.form',
@@ -1188,7 +1193,7 @@ if ($form->validate() && $from_list_menu == false) {
         $select = explode(',', $select);
         foreach ($select as $key => $selectedContactId) {
             if ($selectedContactId) {
-                updateContactInDB($selectedContactId, true, $isRemote);
+                updateContactInDB(contact_id: $selectedContactId, from_MC: true, isRemote: $isRemote);
 
                 $eventDispatcher->notify(
                     'contact.form',
@@ -1210,13 +1215,16 @@ if ($valid) {
 } else {
     // Password does not match
     if (
-        $form->getElementError('contact_passwd') === _('Passwords do not match')
-        || $form->getElementError('contact_passwd2') === _('Passwords do not match')
+        $form->getSubmitValue('submitC')
+        && (
+            $form->getElementError('contact_passwd') === _('Passwords do not match')
+            || $form->getElementError('contact_passwd2') === _('Passwords do not match')
+        )
     ) {
         LoggerPassword::create()->warning(
             reason: 'password confirmation does not match',
-            initiatorId: $centreon->user->get_id(),
-            targetId: $centreon->user->get_id(),
+            initiatorId: (int) $centreon->user->get_id(),
+            targetId: (int) $form->getElement('contact_id')->getValue(),
         );
     }
     // Apply a template definition
