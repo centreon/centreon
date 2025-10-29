@@ -71,4 +71,5 @@ export interface PickersStartEndDateProps
     PickersStartEndDateModel {
   direction?: PickersStartEndDateDirection;
   disabled?: DisabledPicker;
+  className?: string;
 }
