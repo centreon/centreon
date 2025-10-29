@@ -148,10 +148,6 @@ final readonly class DbalCommandRepository extends DbalRepository implements Com
         $commandId = $command->id();
         Assert::isInstanceOf($commandId, CommandId::class);
 
-        if (! $this->exists($commandId)) {
-            throw new CommandNotFoundException(['id' => $commandId->value]);
-        }
-
         $qb = $this->connection->createQueryBuilder();
 
         $qb->update(self::TABLE_NAME)

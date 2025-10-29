@@ -54,11 +54,9 @@ final readonly class LogActivityEventHandler
         /** @var ActivityLogFactoryInterface<AggregateRoot> $factory */
         $factory = $this->activityLogFactories->get($event->aggregate::class);
 
-        $action = match ($event::class) {
-            AggregateCreated::class => ActionEnum::Add,
-            AggregateUpdated::class => ActionEnum::Update,
-            // AggregateDeleted::class => ActionEnum::Remove,
-            // AggregateDuplicated::class => ActionEnum::Duplicate,
+        $action = match (true) {
+            $event instanceof AggregateCreated => ActionEnum::Add,
+            $event instanceof AggregateUpdated => ActionEnum::Update,
             default => throw new \LogicException(sprintf('Unsupported event type: %s', $event::class)),
         };
 

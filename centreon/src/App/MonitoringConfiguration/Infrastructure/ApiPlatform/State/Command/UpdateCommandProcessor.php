@@ -58,6 +58,7 @@ final readonly class UpdateCommandProcessor implements ProcessorInterface
 
     public function process($data, Operation $operation, array $uriVariables = [], array $context = []): CommandResource
     {
+        dump($data);
         Assert::keyExists($uriVariables, 'id');
         Assert::integer($uriVariables['id']);
         $commandId = new CommandId($uriVariables['id']);

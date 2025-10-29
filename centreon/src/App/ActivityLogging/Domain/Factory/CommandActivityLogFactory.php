@@ -54,8 +54,8 @@ final readonly class CommandActivityLogFactory implements ActivityLogFactoryInte
             'command_type' => $aggregate->type->value,
             'command_line' => $aggregate->commandLine->value,
             'enable_shell' => $aggregate->isShellEnabled ? '1' : '0',
-            'connector' => $aggregate->connector?->name?->value,
-            'comment' => $aggregate->comment?->value,
+            'connector' => $aggregate->connector?->name?->value ?? '',
+            'comment' => $aggregate->comment?->value ?? '',
         ];
 
         return new ActivityLog(

@@ -21,13 +21,19 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Domain\Aggregate\Connector;
+namespace App\Shared\Domain\Exception;
 
-final readonly class Connector
+abstract class AggregateWithNameAlreadyExistsException extends \RuntimeException
 {
+    /**
+     * @param array<string, mixed> $criteria
+     */
     public function __construct(
-        public readonly ConnectorId $id,
-        public readonly ConnectorName $name,
+        public readonly array $criteria,
+        string $message = 'A resource with this name already exists.',
+        int $code = 0,
+        ?\Throwable $previous = null,
     ) {
+        parent::__construct($message, $code, $previous);
     }
 }
