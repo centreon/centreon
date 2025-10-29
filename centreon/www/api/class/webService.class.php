@@ -250,6 +250,7 @@ class CentreonWebService
 
     /**
      * Update the ttl for a token if the authentication is by token
+     * Does not update the manual tokens
      *
      * @return void
      */
@@ -260,13 +261,15 @@ class CentreonWebService
         if (isset($_SERVER['HTTP_CENTREON_AUTH_TOKEN'])) {
             try {
                 $stmt = $pearDB->prepare(
-                    'UPDATE security_token
-                    SET expiration_date = (
+                    'UPDATE security_token st
+                    INNER JOIN security_authentication_tokens sat
+                        ON st.id = sat.provider_token_id AND sat.token_type = \'auto\'
+                    SET st.expiration_date = (
                         SELECT UNIX_TIMESTAMP(NOW() + INTERVAL (`value` * 60) SECOND)
                         FROM `options`
                         wHERE `key` = \'session_expire\'
                     )
-                    WHERE token = :token'
+                    WHERE st.token = :token'
                 );
                 $stmt->bindValue(':token', $_SERVER['HTTP_CENTREON_AUTH_TOKEN'], PDO::PARAM_STR);
                 $stmt->execute();
