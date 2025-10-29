@@ -614,5 +614,4 @@ deb:
     - php8.2-ldap
     - php8.2-readline
     - php8.2-sqlite3
-    - php8.2-process
     - php-pear
