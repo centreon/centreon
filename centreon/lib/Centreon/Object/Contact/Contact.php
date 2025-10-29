@@ -19,8 +19,6 @@
  *
  */
 
-use Adaptation\Log\LoggerPassword;
-
 require_once __DIR__ . '/../Object.php';
 require_once __DIR__ . '/../../../../www/class/centreonContact.class.php';
 
@@ -221,18 +219,7 @@ class Centreon_Object_Contact extends Centreon_Object
 
         if (isset($password, $contactId)) {
             $contact = new CentreonContact($this->db);
-            try {
-                $contact->renewPasswordByContactId($contactId, $password);
-            } catch (PDOException $e) {
-                LoggerPassword::create()->warning(
-                    reason: 'password update failed',
-                    initiatorId: 'unknown', // FIXME How to get initiator id here?
-                    targetId: (int) $contactId,
-                    exception: $e
-                );
-
-                throw $e;
-            }
+            $contact->renewPasswordByContactId($contactId, $password);
         }
     }
 }
