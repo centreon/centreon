@@ -36,7 +36,6 @@ RUN apt-get update && apt-get install -y \
         curl \
         zip \
         gettext \
-    && apt-get remove -y wget gpg \
     && apt-get autoremove -y \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* \
