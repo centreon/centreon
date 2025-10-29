@@ -1,4 +1,5 @@
 import { find, propEq } from 'ramda';
+import { Filters } from './models';
 import { NamedEntity, ParameterKeys } from './models';
 
 export const defaultSelectedColumnIds = [
@@ -41,8 +42,11 @@ export const splitURL = (url) => {
   };
 };
 
-export const filtersInitialValues = {
+export const filtersInitialValues: Filters = {
   name: '',
   'poller.id': [],
   type: []
 };
+
+export const filtersAtomKey = 'filters_acc';
+export const columnsAtomKey = 'columns_acc';

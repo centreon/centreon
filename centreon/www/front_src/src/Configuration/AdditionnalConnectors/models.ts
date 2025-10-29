@@ -52,3 +52,9 @@ export interface Payload
   pollers: Array<number>;
   type: string;
 }
+
+export interface Filters {
+  name: string;
+  'poller.id': Array<number>;
+  type: Array<string>;
+}

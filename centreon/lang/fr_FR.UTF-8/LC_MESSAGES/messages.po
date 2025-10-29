@@ -17400,6 +17400,10 @@ msgstr ""
 msgid "Tokens are mandatory"
 msgstr "Les jetons sont obligatoires"
 
+#: centreon/www/install/front_translate.php
+msgid "Too many elements to be displayed (>{{graphsCapNumber}})"
+msgstr ""
+
 #: centreon/www/include/monitoring/objectDetails/serviceDetails.php
 msgid "Tools"
 msgstr "Outils"
@@ -23787,6 +23791,10 @@ msgstr "Token expiré."
 #: unknown
 msgid "Token not found"
 msgstr "Token non trouvé"
+
+#: unknown
+msgid "Too many elements to be displayed"
+msgstr "Trop d'éléments à afficher"
 
 #: unknown
 msgid "Top color"

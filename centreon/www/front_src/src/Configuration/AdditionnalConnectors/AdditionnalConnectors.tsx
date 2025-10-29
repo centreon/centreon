@@ -6,7 +6,19 @@ import useAdditionnalConnectors from './useAdditionnalConnectors';
 
 import { ResourceType } from '../models';
 import { defaultValues, useFormInputs, useValidationSchema } from './Form';
-import { defaultSelectedColumnIds, filtersInitialValues } from './utils';
+import {
+  columnsAtomKey,
+  defaultSelectedColumnIds,
+  filtersAtomKey,
+  filtersInitialValues
+} from './utils';
+
+import {
+  filtersAtom,
+  isWelcomePageDisplayedAtom,
+  selectedColumnIdsAtom
+} from './atoms';
+import { Filters } from './models';
 
 import {
   labelAddAdditionalConfigurations,
@@ -25,7 +37,12 @@ const AdditionnalConnectors = () => {
   const { api, filtersConfiguration } = useAdditionnalConnectors();
 
   return (
-    <ConfigurationBase
+    <ConfigurationBase<Filters>
+      isWelcomePageDisplayedAtom={isWelcomePageDisplayedAtom}
+      columnsAtomKey={columnsAtomKey}
+      filtersAtomKey={filtersAtomKey}
+      filtersAtom={filtersAtom}
+      selectedColumnIdsAtom={selectedColumnIdsAtom}
       columns={columns}
       resourceType={ResourceType.AdditionalConfigurations}
       form={{ inputs, groups, validationSchema, defaultValues }}
