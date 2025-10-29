@@ -55,7 +55,7 @@ const AgentInitiated = (): React.ReactElement => {
     setFieldValue(tokensProperty, newTokens);
   };
 
-  const areTLSModes = useMemo(
+  const isTLSModes = useMemo(
     () =>
       equals(values.connectionMode?.id, ConnectionMode.secure) ||
       equals(values.connectionMode?.id, ConnectionMode.insecure),
@@ -64,7 +64,7 @@ const AgentInitiated = (): React.ReactElement => {
 
   return (
     <Box className={classes.container}>
-      {areTLSModes && (
+      {isTLSModes && (
         <Box>
           <Title label={labelOTLPReceiver} />
           <Box className={classes.inputs}>
