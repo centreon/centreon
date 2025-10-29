@@ -65,6 +65,39 @@ class Contact implements UserInterface, ContactInterface
     public const ROLE_MANAGE_DISCOVERY_COMMANDS = 'MANAGE_DISCOVERY_COMMANDS';
     public const ROLE_SEE_MISCELLANEOUS_COMMANDS = 'SEE_MISCELLANEOUS_COMMANDS';
     public const ROLE_MANAGE_MISCELLANEOUS_COMMANDS = 'MANAGE_MISCELLANEOUS_COMMANDS';
+    public const ACTION_ROLES = [
+        self::ROLE_HOST_CHECK,
+        self::ROLE_HOST_FORCED_CHECK,
+        self::ROLE_SERVICE_CHECK,
+        self::ROLE_SERVICE_FORCED_CHECK,
+        self::ROLE_HOST_ACKNOWLEDGEMENT,
+        self::ROLE_HOST_DISACKNOWLEDGEMENT,
+        self::ROLE_SERVICE_ACKNOWLEDGEMENT,
+        self::ROLE_SERVICE_DISACKNOWLEDGEMENT,
+        self::ROLE_CANCEL_HOST_DOWNTIME,
+        self::ROLE_CANCEL_SERVICE_DOWNTIME,
+        self::ROLE_ADD_HOST_DOWNTIME,
+        self::ROLE_ADD_SERVICE_DOWNTIME,
+        self::ROLE_SERVICE_SUBMIT_RESULT,
+        self::ROLE_HOST_SUBMIT_RESULT,
+        self::ROLE_HOST_ADD_COMMENT,
+        self::ROLE_SERVICE_ADD_COMMENT,
+        self::ROLE_DISPLAY_COMMAND,
+        self::ROLE_GENERATE_CONFIGURATION,
+        self::ROLE_MANAGE_TOKENS,
+        self::ROLE_CREATE_EDIT_POLLER_CFG,
+        self::ROLE_DELETE_POLLER_CFG,
+        self::ROLE_DISPLAY_TOP_COUNTER,
+        self::ROLE_DISPLAY_TOP_COUNTER_POLLERS_STATISTICS,
+        self::ROLE_SEE_CHECK_COMMANDS,
+        self::ROLE_MANAGE_CHECK_COMMANDS,
+        self::ROLE_SEE_NOTIFICATION_COMMANDS,
+        self::ROLE_MANAGE_NOTIFICATION_COMMANDS,
+        self::ROLE_SEE_DISCOVERY_COMMANDS,
+        self::ROLE_MANAGE_DISCOVERY_COMMANDS,
+        self::ROLE_SEE_MISCELLANEOUS_COMMANDS,
+        self::ROLE_MANAGE_MISCELLANEOUS_COMMANDS,
+    ]
 
     // user pages access
     public const ROLE_HOME_DASHBOARD_VIEWER = 'ROLE_HOME_DASHBOARDS_VIEWER_RW';
@@ -350,6 +383,9 @@ class Contact implements UserInterface, ContactInterface
         if ($this->isAdmin) {
             $this->addRole(self::ROLE_API_REALTIME);
             $this->addRole(self::ROLE_API_CONFIGURATION);
+            foreach (self::ACTION_ROLES as $role) {
+                $this->addRole($role);
+            }
         }
 
         return $this;
