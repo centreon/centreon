@@ -22,9 +22,9 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+    - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
 
-    - uses: actions/setup-node@cdca7365b2dadb8aad0a33bc7601856ffabcc48e # v4.3.0
+    - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
       with:
         node-version: 20
 
@@ -34,7 +34,7 @@ runs:
 
     - if: inputs.ticket_reason_for_creation == 'Nightly'
       name: Create nightly epic if it does not exist already
-      uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+      uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
       env:
         GH_TOKEN: ${{ github.token }}
       id: get_nightly_epic
@@ -102,7 +102,7 @@ runs:
           core.setOutput('nightly_epic_key', nightly_epic_key);
 
     - name: Get ticket elements from context and create the incident ticket
-      uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+      uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
       env:
         GH_TOKEN: ${{ github.token }}
       id: get_context
