@@ -63,7 +63,6 @@ final readonly class CreateCommandCommandHandler
             isFromMonitoringConnector: false
         );
 
-
         $this->repository->add($newCommand);
 
         // Ensure the repository assigned an ID

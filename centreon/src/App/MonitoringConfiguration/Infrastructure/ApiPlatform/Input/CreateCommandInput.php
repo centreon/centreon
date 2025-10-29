@@ -27,7 +27,7 @@ class CreateCommandInput
 {
     public function __construct(
         public string $name,
-        public int $type,
+        public string $type,
         public string $commandLine,
         public bool $isShellEnabled,
         public ?int $connectorId,

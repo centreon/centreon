@@ -55,19 +55,19 @@ final readonly class CreateCommandProcessor implements ProcessorInterface
 
     public function process($data, Operation $operation, array $uriVariables = [], array $context = []): CommandResource
     {
-        dd($data);
         $command = new CreateCommandCommand(
             name: new CommandName($data->name),
-            type: CommandTypeEnum::from($data->type) ,
+            type: CommandTypeEnum::fromName($data->type) ,
             commandLine: new CommandLine($data->commandLine),
             isShellEnabled: $data->isShellEnabled,
             connectorId: $data->connectorId !== null
                 ? new ConnectorId($data->connectorId)
                 : null,
             creatorId: $this->legacySecurity->getUserId(),
-            comment: new CommandComment($data->comment),
+            comment: $data->comment !== null
+                ? new CommandComment($data->comment)
+                : null,
         );
-
         $model = $this->commandBus->execute($command);
 
         return $this->transformer->transform($model);

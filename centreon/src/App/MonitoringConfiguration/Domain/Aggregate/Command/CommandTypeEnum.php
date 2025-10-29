@@ -29,4 +29,15 @@ enum CommandTypeEnum: int
     case Check = 2;
     case Miscellaneous = 3;
     case Discovery = 4;
+
+    public static function fromName(string $name): ?self
+    {
+        return match($name) {
+            self::Notification->name => self::Notification,
+            self::Check->name => self::Check,
+            self::Miscellaneous->name => self::Miscellaneous,
+            self::Discovery->name => self::Discovery,
+            default => null,
+        };
+    }
 }

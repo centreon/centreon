@@ -75,19 +75,19 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Command\CreateC
                     409 => new Model\Response('Command resource already exists'),
                 ],
             ),
-            securityPostDenormalize: "
-                object.type == " . CommandTypeEnum::Notification->value
-                . " and is_granted('" . CommandPermissionEnum::CanReadAndWriteNotifications->value . "')
+            securityPostDenormalize: '
+                object.type == "' . CommandTypeEnum::Notification->name
+                . '" and is_granted("' . CommandPermissionEnum::CanReadAndWriteNotifications->value . '")
                 or
-                object.type == " . CommandTypeEnum::Check->value
-                . " and is_granted('" . CommandPermissionEnum::CanReadAndWriteChecks->value . "')
+                object.type == "' . CommandTypeEnum::Check->name
+                . '" and is_granted("' . CommandPermissionEnum::CanReadAndWriteChecks->value . '")
                 or
-                object.type == " . CommandTypeEnum::Miscellaneous->value
-                . " and is_granted('" . CommandPermissionEnum::CanReadAndWriteMiscellaneous->value . "')
+                object.type == "' . CommandTypeEnum::Miscellaneous->name
+                . '" and is_granted("' . CommandPermissionEnum::CanReadAndWriteMiscellaneous->value . '")
                 or
-                object.type == " . CommandTypeEnum::Discovery->value
-                . " and is_granted('" . CommandPermissionEnum::CanReadAndWriteDiscovery->value . "')
-            ",
+                object.type == "' . CommandTypeEnum::Discovery->name
+                . '" and is_granted("' . CommandPermissionEnum::CanReadAndWriteDiscovery->value . '")
+            ',
             securityMessage: 'You are not allowed to create commands',
         )
     ],
@@ -107,16 +107,16 @@ final class CommandResource
         #[ApiProperty(
             description: 'The type of command (1: notification, 2: check, 3: Miscellaneous, 4: Discovery)',
             openapiContext: [
-                'example' => CommandTypeEnum::Notification->value,
+                'example' => 'Check',
                 'enum' => [
-                    CommandTypeEnum::Notification->value,
-                    CommandTypeEnum::Check->value,
-                    CommandTypeEnum::Miscellaneous->value,
-                    CommandTypeEnum::Discovery->value
+                    CommandTypeEnum::Check->name,
+                    CommandTypeEnum::Notification->name,
+                    CommandTypeEnum::Miscellaneous->name,
+                    CommandTypeEnum::Discovery->name
                 ]
-            ]
+            ],
         )]
-        public ?int $type,
+        public string $type,
 
         #[ApiProperty(
             description: 'The command line used to execute the command',
