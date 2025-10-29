@@ -24,13 +24,15 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Application\Command;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Command\Command;
+use App\MonitoringConfiguration\Domain\Event\CommandCreated;
+use App\MonitoringConfiguration\Domain\Exception\CommandAlreadyExistsException;
 use App\MonitoringConfiguration\Domain\Repository\CommandRepository;
 use App\MonitoringConfiguration\Domain\Repository\ConnectorRepository;
 use App\Shared\Application\Command\AsCommandHandler;
 use App\Shared\Domain\Event\EventBus;
 
 #[AsCommandHandler]
-final readonly class CreateServiceCategoryCommandHandler
+final readonly class CreateCommandCommandHandler
 {
     public function __construct(
         private CommandRepository $repository,
@@ -41,29 +43,34 @@ final readonly class CreateServiceCategoryCommandHandler
 
     public function __invoke(CreateCommandCommand $command): Command
     {
+        if ($this->repository->findOneByName($command->name) instanceof Command) {
+            throw new CommandAlreadyExistsException(['name' => $command->name->value]);
+        }
+
         if ($command->connectorId !== null) {
             $connector = $this->connectorRepository->get($command->connectorId);
         }
-        $command = new Command(
+
+        $newCommand = new Command(
             id: null,
             name: $command->name,
             type: $command->type,
             commandLine: $command->commandLine,
             isShellEnabled: $command->isShellEnabled,
             connector: $connector ?? null,
+            comment: $command->comment,
+            isActivated: true,
+            isFromMonitoringConnector: false
         );
 
-        /* if ($this->repository->findOneByName($command->name) instanceof ServiceCategory) { */
-        /*     throw new ServiceCategoryAlreadyExistsException(['name' => $command->name->value]); */
-        /* } */
 
-        $this->repository->add($command);
+        $this->repository->add($newCommand);
 
         // Ensure the repository assigned an ID
-        $command->id();
+        $newCommand->id();
 
-        /* $this->eventBus->fire(new ServiceCategoryCreated($command, $command->creatorId)); */
+        $this->eventBus->fire(new CommandCreated($newCommand, $command->creatorId));
 
-        /* return $command; */
+        return $newCommand;
     }
 }

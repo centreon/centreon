@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Application\Command;
 
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandComment;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandLine;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandName;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandTypeEnum;
@@ -37,6 +38,7 @@ final readonly class CreateCommandCommand
         public bool $isShellEnabled,
         public ?ConnectorId $connectorId,
         public int $creatorId,
+        public CommandComment $comment
     ) {
     }
 }

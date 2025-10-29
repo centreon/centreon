@@ -23,7 +23,15 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Command;
 
+use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
+use App\MonitoringConfiguration\Application\Command\CreateCommandCommand;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandComment;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandLine;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandName;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandTypeEnum;
+use App\MonitoringConfiguration\Domain\Aggregate\Connector\ConnectorId;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Command\CommandResource;
 use App\Shared\Application\Command\CommandBus;
 use App\Shared\Infrastructure\Legacy\LegacySecurity;
 use App\Shared\Infrastructure\TransformerInterface;
@@ -35,7 +43,7 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
 final readonly class CreateCommandProcessor implements ProcessorInterface
 {
     /**
-     * @param TransformerInterface<ServiceCategory, ServiceCategoryResource> $transformer
+     * @param TransformerInterface<Command, CommandResource> $transformer
      */
     public function __construct(
         private CommandBus $commandBus,
@@ -47,24 +55,20 @@ final readonly class CreateCommandProcessor implements ProcessorInterface
 
     public function process($data, Operation $operation, array $uriVariables = [], array $context = []): CommandResource
     {
-        $userId = $this->legacySecurity->getUserId();
-
-        $commandId = $this->commandBus->handle(
-            new \App\MonitoringConfiguration\Application\Command\CreateCommandCommand(
-                name: $data->name,
-                type: $data->type,
-                commandLine: $data->commandLine,
-                isShellEnabled: $data->isShellEnabled,
-                connectorId: $data->connectorId,
-                createdBy: $userId,
-            )
+        dd($data);
+        $command = new CreateCommandCommand(
+            name: new CommandName($data->name),
+            type: CommandTypeEnum::from($data->type) ,
+            commandLine: new CommandLine($data->commandLine),
+            isShellEnabled: $data->isShellEnabled,
+            connectorId: $data->connectorId !== null
+                ? new ConnectorId($data->connectorId)
+                : null,
+            creatorId: $this->legacySecurity->getUserId(),
+            comment: new CommandComment($data->comment),
         );
 
-        $model = $this->commandBus->handle(
-            new \App\MonitoringConfiguration\Application\Command\FindCommandByIdCommand(
-                id: $commandId,
-            )
-        );
+        $model = $this->commandBus->execute($command);
 
         return $this->transformer->transform($model);
     }

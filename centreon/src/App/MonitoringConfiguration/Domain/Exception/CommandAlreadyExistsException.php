@@ -21,17 +21,10 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Input;
+namespace App\MonitoringConfiguration\Domain\Exception;
 
-class CreateCommandInput
+use App\Shared\Domain\Exception\AggregateAlreadyExistsException;
+
+final class CommandAlreadyExistsException extends AggregateAlreadyExistsException
 {
-    public function __construct(
-        public string $name,
-        public int $type,
-        public string $commandLine,
-        public bool $isShellEnabled,
-        public ?int $connectorId,
-        public ?string $comment
-    ) {
-    }
 }
