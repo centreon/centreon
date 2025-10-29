@@ -429,9 +429,9 @@ $sessionKeyFreeze = 'administration-form-my-account-freeze';
 
 if ($form->validate()) {
     if ($cct['contact_auth_type'] === 'local') {
-        updateContactInDB($centreon->user->get_id());
+        updateContactByMyAccountInDB($centreon->user->get_id());
     } else {
-        updateNonLocalContactInDB($centreon->user->get_id());
+        updateNonLocalContactByMyAccountInDB($centreon->user->get_id());
     }
     $o = null;
     $features = $form->getSubmitValue('features');
