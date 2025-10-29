@@ -15,6 +15,12 @@ if [ ! -f /var/cache/centreon/.permissions_set ]; then
   chown -R www-data:www-data /var/cache/centreon/config/
   chmod -R 775 /var/cache/centreon/config/
 
+  # Create engine/broker config directories (needed for CFGMOVE)
+  mkdir -p /etc/centreon-engine /etc/centreon-broker
+  chown -R www-data:centreon-engine /etc/centreon-engine
+  chown -R www-data:centreon-broker /etc/centreon-broker
+  chmod -R 775 /etc/centreon-engine /etc/centreon-broker
+
   # Create marker file to skip on subsequent runs
   mkdir -p /var/cache/centreon
   touch /var/cache/centreon/.permissions_set
@@ -29,6 +35,12 @@ else
   mkdir -p /var/cache/centreon/config
   chown -R www-data:www-data /var/cache/centreon/config/ 2>/dev/null || true
   chmod -R 775 /var/cache/centreon/config/ 2>/dev/null || true
+
+  # Create engine/broker config directories (needed for CFGMOVE)
+  mkdir -p /etc/centreon-engine /etc/centreon-broker
+  chown -R www-data:centreon-engine /etc/centreon-engine 2>/dev/null || true
+  chown -R www-data:centreon-broker /etc/centreon-broker 2>/dev/null || true
+  chmod -R 775 /etc/centreon-engine /etc/centreon-broker 2>/dev/null || true
 fi
 
 # Always clear Symfony cache (required for proper operation)
