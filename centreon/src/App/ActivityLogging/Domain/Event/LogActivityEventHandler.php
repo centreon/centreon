@@ -57,7 +57,6 @@ final readonly class LogActivityEventHandler
         $action = match (true) {
             $event instanceof AggregateCreated => ActionEnum::Add,
             $event instanceof AggregateUpdated => ActionEnum::Update,
-            default => throw new \LogicException(sprintf('Unsupported event type: %s', $event::class)),
         };
 
         $activityLog = $factory->create(

@@ -25,6 +25,7 @@ namespace Tests\App\MonitoringConfiguration\Infrastructure\Double;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Command\Command;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandName;
 use App\MonitoringConfiguration\Domain\Exception\CommandNotFoundException;
 use App\MonitoringConfiguration\Domain\Repository\CommandRepository;
 use App\Shared\Domain\Aggregate\AggregateRoot;
@@ -56,18 +57,20 @@ final class FakeCommandRepository implements CommandRepository
         return $this->commands[$id->value];
     }
 
-    public function exists(CommandId $id): bool
+    public function findOneByName(CommandName $name): ?Command
     {
-        return isset($this->commands[$id->value]);
+        foreach ($this->commands as $command) {
+            if ($command->name === $name) {
+                return $command;
+            }
+        }
+
+        return null;
     }
 
     public function update(Command $command): void
     {
         $commandId = $command->id();
-
-        if (! $this->exists(new CommandId($commandId->value))) {
-            throw new CommandNotFoundException(['id' => $commandId->value]);
-        }
 
         $this->commands[$commandId->value] = $command;
     }

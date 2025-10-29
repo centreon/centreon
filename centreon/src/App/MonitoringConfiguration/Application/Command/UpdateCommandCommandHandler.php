@@ -53,7 +53,7 @@ final readonly class UpdateCommandCommandHandler
 
         if ($command->name instanceof CommandName) {
             $commandWithSameName = $this->commandRepository->findOneByName($command->name);
-            if ($commandWithSameName !== null && $commandWithSameName->id()->value !== $existingCommand->id()->value) {
+            if ($commandWithSameName instanceof Command && $commandWithSameName->id()->value !== $existingCommand->id()->value) {
                 throw new CommandWithNameAlreadyExistsException(['name' => $command->name->value]);
             }
             $existingCommand->updateName($command->name);
