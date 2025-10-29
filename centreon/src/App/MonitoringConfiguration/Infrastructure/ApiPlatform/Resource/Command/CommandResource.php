@@ -89,7 +89,7 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Command\UpdateC
                     is_granted("' . CommandPermissionEnum::CanReadAndWriteDiscovery->value . '")
                 )
             ',
-            securityMessage: 'You are not allowed to update this command',
+            securityPostDenormalizeMessage: 'You are not allowed to update this command',
         ),
     ],
 )]
