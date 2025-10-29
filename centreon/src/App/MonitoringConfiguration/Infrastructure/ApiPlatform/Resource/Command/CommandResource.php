@@ -33,6 +33,7 @@ use App\MonitoringConfiguration\Domain\Security\CommandPermissionEnum;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Input\CreateCommandInput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Command\FindCommandProvider;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Command\CreateCommandProcessor;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ApiResource(
     shortName: 'Command',
@@ -68,11 +69,12 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Command\CreateC
         ),
         new Post(
             uriTemplate: '/configuration/commands',
-            input: CreateCommandInput::class,
+            /* input: CreateCommandInput::class, */
             processor: CreateCommandProcessor::class,
             openapi: new Model\Operation(
                 responses: [
                     409 => new Model\Response('Command resource already exists'),
+                    403 => new Model\Response('You are not allowed to create commands'),
                 ],
             ),
             securityPostDenormalize: '
@@ -88,7 +90,7 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Command\CreateC
                 object.type == "' . CommandTypeEnum::Discovery->name
                 . '" and is_granted("' . CommandPermissionEnum::CanReadAndWriteDiscovery->value . '")
             ',
-            securityMessage: 'You are not allowed to create commands',
+            securityPostDenormalizeMessage: 'You are not allowed to create commands',
         )
     ],
 )]
@@ -96,11 +98,17 @@ final class CommandResource
 {
     public function __construct(
         #[ApiProperty(identifier: true, writable: false)]
-        public ?int $id,
+        public ?int $id = null,
 
         #[ApiProperty(
             description: 'The command name',
             openapiContext: ['example' => 'check_http']
+        )]
+        #[Assert\NotNull]
+        #[Assert\Length(min: 1, max: 255)]
+        #[Assert\Regex(
+            pattern: '/^[^~!$%^&*"|\'<>?,()=]+$/',
+            message: 'The name can only contain alphanumeric characters, underscores, and hyphens.'
         )]
         public ?string $name,
 
@@ -132,12 +140,12 @@ final class CommandResource
         #[ApiProperty(
             description: 'Indicates whether the command is activated or not',
         )]
-        public bool $isActivated,
+        public bool $isActivated = true,
 
         #[ApiProperty(
             description: 'Indicates whether the command comes from a monitoring connector',
         )]
-        public bool $isFromMonitoringConnector,
+        public bool $isFromMonitoringConnector = false,
 
         #[ApiProperty(
             description: 'Connectors are run in background and execute specific commands without the need to execute a binary, thus enhancing performance',
