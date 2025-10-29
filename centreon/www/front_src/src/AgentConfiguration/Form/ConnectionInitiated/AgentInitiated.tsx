@@ -1,5 +1,5 @@
-import { propEq, reject } from 'ramda';
-import { ChangeEvent } from 'react';
+import { equals, propEq, reject } from 'ramda';
+import { ChangeEvent, useMemo } from 'react';
 
 import { MultiConnectedAutocompleteField, TextField } from '@centreon/ui';
 import { Box } from '@mui/material';
@@ -8,7 +8,7 @@ import { useTranslation } from 'react-i18next';
 import { useFormikContext } from 'formik';
 import { listTokensDecoder } from '../../api/decoders';
 import { getTokensEndpoint } from '../../api/endpoints';
-import { AgentConfigurationForm } from '../../models';
+import { AgentConfigurationForm, ConnectionMode } from '../../models';
 
 import { useAgentInitiatedStyles } from './ConnectionInitiated.styles';
 import RedirectToTokensPage from './RedirectToTokensPage';
@@ -55,75 +55,84 @@ const AgentInitiated = (): React.ReactElement => {
     setFieldValue(tokensProperty, newTokens);
   };
 
+  const areTLSModes = useMemo(
+    () =>
+      equals(values.connectionMode?.id, ConnectionMode.secure) ||
+      equals(values.connectionMode?.id, ConnectionMode.insecure),
+    [values.connectionMode?.id]
+  );
+
   return (
     <Box className={classes.container}>
-      <Box>
-        <Title label={labelOTLPReceiver} />
-        <Box className={classes.inputs}>
-          <TextField
-            className={classes.input}
-            value={values.configuration.otelPublicCertificate || ''}
-            onChange={change(publicCertificateProperty)}
-            label={t(labelPublicCertificate)}
-            dataTestId={labelPublicCertificate}
-            fullWidth
-            textFieldSlotsAndSlotProps={{
-              slotProps: {
-                htmlInput: {
-                  'aria-label': labelPublicCertificate
+      {areTLSModes && (
+        <Box>
+          <Title label={labelOTLPReceiver} />
+          <Box className={classes.inputs}>
+            <TextField
+              className={classes.input}
+              value={values.configuration.otelPublicCertificate || ''}
+              onChange={change(publicCertificateProperty)}
+              label={t(labelPublicCertificate)}
+              dataTestId={labelPublicCertificate}
+              fullWidth
+              textFieldSlotsAndSlotProps={{
+                slotProps: {
+                  htmlInput: {
+                    'aria-label': labelPublicCertificate
+                  }
                 }
+              }}
+              error={
+                (touched?.configuration?.otelPublicCertificate &&
+                  errors?.configuration?.otelPublicCertificate) ||
+                undefined
               }
-            }}
-            error={
-              (touched?.configuration?.otelPublicCertificate &&
-                errors?.configuration?.otelPublicCertificate) ||
-              undefined
-            }
-          />
+            />
 
-          <TextField
-            value={values.configuration.otelCaCertificate || ''}
-            onChange={change(caCertificateProperty)}
-            label={t(labelCaCertificate)}
-            dataTestId={labelCaCertificate}
-            textFieldSlotsAndSlotProps={{
-              slotProps: {
-                htmlInput: {
-                  'aria-label': labelCaCertificate
+            <TextField
+              value={values.configuration.otelCaCertificate || ''}
+              onChange={change(caCertificateProperty)}
+              label={t(labelCaCertificate)}
+              dataTestId={labelCaCertificate}
+              textFieldSlotsAndSlotProps={{
+                slotProps: {
+                  htmlInput: {
+                    'aria-label': labelCaCertificate
+                  }
                 }
+              }}
+              fullWidth
+              error={
+                (touched?.configuration?.otelCaCertificate &&
+                  errors?.configuration?.otelCaCertificate) ||
+                undefined
               }
-            }}
-            fullWidth
-            error={
-              (touched?.configuration?.otelCaCertificate &&
-                errors?.configuration?.otelCaCertificate) ||
-              undefined
-            }
-            className={classes.input}
-          />
+              className={classes.input}
+            />
 
-          <TextField
-            value={values.configuration.otelPrivateKey || ''}
-            onChange={change(privateKeyProperty)}
-            label={t(labelPrivateKey)}
-            textFieldSlotsAndSlotProps={{
-              slotProps: {
-                htmlInput: {
-                  'aria-label': labelPrivateKey
+            <TextField
+              value={values.configuration.otelPrivateKey || ''}
+              onChange={change(privateKeyProperty)}
+              label={t(labelPrivateKey)}
+              textFieldSlotsAndSlotProps={{
+                slotProps: {
+                  htmlInput: {
+                    'aria-label': labelPrivateKey
+                  }
                 }
+              }}
+              dataTestId={labelPrivateKey}
+              fullWidth
+              error={
+                (touched?.configuration?.otelPrivateKey &&
+                  errors?.configuration?.otelPrivateKey) ||
+                undefined
               }
-            }}
-            dataTestId={labelPrivateKey}
-            fullWidth
-            error={
-              (touched?.configuration?.otelPrivateKey &&
-                errors?.configuration?.otelPrivateKey) ||
-              undefined
-            }
-            className={classes.input}
-          />
+              className={classes.input}
+            />
+          </Box>
         </Box>
-      </Box>
+      )}
       <Box>
         <Title label={labelCMAauthenticationToken} />
         <MultiConnectedAutocompleteField
