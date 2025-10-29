@@ -162,22 +162,30 @@
       "assets:install %PUBLIC_DIR%": "symfony-cmd"
     },
     "post-install-cmd": [
-      "@auto-scripts"
+      "@auto-scripts",
+      "@symfony:assets:install:new"
     ],
     "post-update-cmd": [
-      "@auto-scripts"
+      "@auto-scripts",
+      "@symfony:assets:install:new"
     ],
+    "symfony:assets:install": "bin/console assets:install www",
+    "symfony:assets:install:new": "bin/console.new assets:install www",
     "symfony:update": "composer update symfony/* --with-all-dependencies --no-scripts",
     "symfony:update:test": "composer update symfony/* --with-all-dependencies --no-scripts --dry-run",
     "require:check": "../php-tools/vendor/bin/composer-require-checker check composer.json",
     "symfony:check": "php bin/console lint:yaml config src --parse-tags && php bin/console lint:container",
     "symfony:new:check": "php bin/console.new lint:yaml config src --parse-tags && php bin/console.new lint:container",
+    "rector:diff": "php rector.diff.php --dry-run ${PHP_DIFF_FILES:-$(git diff --name-only -- '*.php')}",
+    "rector:diff:fix": "php rector.diff.php ${PHP_DIFF_FILES:-$(git diff --name-only -- '*.php')}",
     "rector:legacy": "../php-tools/vendor/bin/rector process --config=rector.legacy.php --dry-run",
     "rector:legacy:fix": "../php-tools/vendor/bin/rector process --config=rector.legacy.php",
     "rector:core": "../php-tools/vendor/bin/rector process --config=rector.core.php --dry-run",
     "rector:core:fix": "../php-tools/vendor/bin/rector process --config=rector.core.php",
     "rector:new": "../php-tools/vendor/bin/rector process --config=rector.new.php --dry-run",
     "rector:new:fix": "../php-tools/vendor/bin/rector process --config=rector.new.php",
+    "cs:diff": "php .php-cs-fixer.diff.php --dry-run ${PHP_DIFF_FILES:-$(git diff --name-only -- '*.php')}",
+    "cs:diff:fix": "php .php-cs-fixer.diff.php ${PHP_DIFF_FILES:-$(git diff --name-only -- '*.php')}",
     "cs:legacy": "../php-tools/vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.legacy.php --verbose --dry-run --diff",
     "cs:legacy:fix": "../php-tools/vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.legacy.php --verbose --diff",
     "cs:core": "../php-tools/vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.core.php --verbose --dry-run --diff",

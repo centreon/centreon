@@ -25,7 +25,7 @@ import { BarStyle } from '../BarChart/models';
 import { margin } from '../Chart/common';
 import { LineStyle } from '../Chart/models';
 import { Threshold, Thresholds } from './models';
-import { formatMetricValue } from './timeSeries';
+import { formatMetricValueWithUnit } from './timeSeries';
 import { Line, TimeValue } from './timeSeries/models';
 
 interface GetColorFromDataAndThresholdsProps {
@@ -234,7 +234,7 @@ export const getFormattedAxisValues = ({
 
   const formattedData = metricIds.map((metricId) =>
     timeSeries.map((data) =>
-      formatMetricValue({
+      formatMetricValueWithUnit({
         value: data[metricId],
         unit: axisUnit,
         base
@@ -246,7 +246,7 @@ export const getFormattedAxisValues = ({
 
   const formattedThresholdValues = equals(thresholdUnit, axisUnit)
     ? threshold.map(({ value }) =>
-        formatMetricValue({
+        formatMetricValueWithUnit({
           value,
           unit: axisUnit,
           base
@@ -273,5 +273,11 @@ export const computeGElementMarginLeft = ({
 export const computPixelsToShiftMouse = (xScale): number => {
   const domain = xScale.domain();
 
-  return Math.round(8 / dayjs(domain[1]).diff(domain[0], 'h'));
+  const hoursDiffInGraph = dayjs(domain[1]).diff(domain[0], 'h');
+
+  if (!hoursDiffInGraph) {
+    return 0;
+  }
+
+  return Math.round(8 / hoursDiffInGraph);
 };

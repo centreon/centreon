@@ -15,7 +15,6 @@ on:
 env:
   directory: "centreon/packages/js-config"
   package: "js-config"
-  base_branch: develop
 
 jobs:
   publish-new-npm-version:
@@ -23,12 +22,12 @@ jobs:
     runs-on: ubuntu-22.04
 
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
 
       - uses: ./.github/actions/npm-publish-package-stable
         with:
           directory: ${{ env.directory }}
           pat: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
           npm_token: ${{ secrets.NPM_TOKEN }}
-          release_branch: ${{ env.base_branch }}
+          release_branch: ${{ github.ref_name }}
           package: ${{ env.package }}

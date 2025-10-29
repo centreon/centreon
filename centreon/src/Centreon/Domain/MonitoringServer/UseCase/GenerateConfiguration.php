@@ -106,7 +106,9 @@ class GenerateConfiguration
         } catch (\Exception $ex) {
             throw ConfigurationMonitoringServerException::errorOnGeneration(
                 $monitoringServerId,
-                $ex->getMessage()
+                $ex->getMessage(),
+                $ex->getCode(),
+                $ex,
             );
         }
     }

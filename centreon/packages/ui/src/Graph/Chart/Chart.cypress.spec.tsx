@@ -180,7 +180,7 @@ describe('Line chart', () => {
       cy.contains('06/18/2023').should('be.visible');
 
       cy.contains('0.4 s').should('be.visible');
-       cy.contains('75.64%').should('be.visible');
+      cy.contains('75.64%').should('be.visible');
 
       cy.makeSnapshot();
     });
@@ -532,7 +532,7 @@ describe('Line chart', () => {
 
       checkGraphWidth();
       cy.contains(':00 AM').should('be.visible');
-      cy.get('circle[cx="250.83333333333334"]').should('be.visible');
+      cy.get('circle[cx="248.33333333333334"]').should('be.visible');
       cy.get('circle[cy="251.79089393069725"]').should('be.visible');
 
       cy.makeSnapshot();
@@ -591,7 +591,7 @@ describe('Line chart', () => {
       cy.get('path.visx-area-closed')
         .should('have.attr', 'stroke-dasharray')
         .and('equals', '5 4');
-      cy.get('circle[cx="33.44444444444444"]').should('be.visible');
+      cy.get('circle[cx="33.11111111111111"]').should('be.visible');
 
       cy.makeSnapshot();
     });
@@ -746,9 +746,11 @@ describe('Lines and bars', () => {
 
     checkGraphWidth();
 
-    cy.get('path[d="M7.501377410468319,350.5553648585503 h56.51239669421488 h1v1 v23.44463514144968 a1,1 0 0 1 -1,1 h-56.51239669421488 a1,1 0 0 1 -1,-1 v-23.44463514144968 v-1h1z"]'
+    cy.get(
+      'path[d="M7.501377410468319,350.5553648585503 h56.51239669421488 h1v1 v23.44463514144968 a1,1 0 0 1 -1,1 h-56.51239669421488 a1,1 0 0 1 -1,-1 v-23.44463514144968 v-1h1z"]'
     ).should('be.visible');
-    cy.get('path[d="M24.05509641873278,201.58170928199803 h23.404958677685954 a17.553719008264462,17.553719008264462 0 0 1 17.553719008264462,17.553719008264462 v113.86621756002336 v17.553719008264462h-17.553719008264462 h-23.404958677685954 h-17.553719008264462v-17.553719008264462 v-113.86621756002336 a17.553719008264462,17.553719008264462 0 0 1 17.553719008264462,-17.553719008264462z"]'
+    cy.get(
+      'path[d="M24.05509641873278,201.58170928199803 h23.404958677685954 a17.553719008264462,17.553719008264462 0 0 1 17.553719008264462,17.553719008264462 v113.86621756002336 v17.553719008264462h-17.553719008264462 h-23.404958677685954 h-17.553719008264462v-17.553719008264462 v-113.86621756002336 a17.553719008264462,17.553719008264462 0 0 1 17.553719008264462,-17.553719008264462z"]'
     ).should('be.visible');
 
     cy.makeSnapshot();
@@ -813,5 +815,22 @@ describe('Lines and bars', () => {
     cy.contains('2%').should('be.visible');
 
     cy.makeSnapshot();
+  });
+
+  it('calls the secondary function when a metric is clicked in the legend', () => {
+    const secondaryClick = cy.stub().as('secondaryClick');
+    initialize({
+      data: dataPingServiceLines,
+      legend: {
+        mode: 'grid',
+        placement: 'bottom',
+        secondaryClick
+      }
+    });
+
+    checkGraphWidth();
+
+    cy.contains('Packet Loss').rightclick();
+    cy.get('@secondaryClick').should('have.been.called');
   });
 });
