@@ -21,23 +21,9 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Command;
+namespace App\MonitoringConfiguration\Domain\Security;
 
-use App\MonitoringConfiguration\Domain\Aggregate\Connector\Connector;
-
-final class ConnectorDto
+enum CommandActionEnum: string
 {
-    public function __construct(
-        public int $id,
-        public string $name,
-    ) {
-    }
-
-    public static function createFromConnector(Connector $connector): self
-    {
-        return new self(
-            id: $connector->id->value,
-            name: $connector->name->value,
-        );
-    }
+    case Create = 'command_create';
 }

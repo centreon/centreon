@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Domain\Aggregate\Command;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Connector\Connector;
+use App\MonitoringConfiguration\Domain\Security\CommandPermissionEnum;
 use App\Shared\Domain\Aggregate\AggregateRoot;
 
 final class Command extends AggregateRoot
@@ -45,5 +46,15 @@ final class Command extends AggregateRoot
     public function addConnector(Connector $connector): void
     {
         $this->connector = $connector;
+    }
+
+    public static function getCreationPermissionForType(CommandTypeEnum $type): CommandPermissionEnum
+    {
+        return match($type) {
+            CommandTypeEnum::Notification => CommandPermissionEnum::CanReadAndWriteNotifications,
+            CommandTypeEnum::Check => CommandPermissionEnum::CanReadAndWriteChecks,
+            CommandTypeEnum::Miscellaneous => CommandPermissionEnum::CanReadAndWriteMiscellaneous,
+            CommandTypeEnum::Discovery => CommandPermissionEnum::CanReadAndWriteDiscovery,
+        };
     }
 }

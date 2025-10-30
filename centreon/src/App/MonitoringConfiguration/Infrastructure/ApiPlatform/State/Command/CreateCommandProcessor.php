@@ -60,8 +60,8 @@ final readonly class CreateCommandProcessor implements ProcessorInterface
             type: CommandTypeEnum::fromName($data->type) ,
             commandLine: new CommandLine($data->commandLine),
             isShellEnabled: $data->isShellEnabled,
-            connectorId: $data->connectorId !== null
-                ? new ConnectorId($data->connectorId)
+            connectorId: $data->connector
+                ? new ConnectorId($data->connector->id)
                 : null,
             creatorId: $this->legacySecurity->getUserId(),
             comment: $data->comment !== null

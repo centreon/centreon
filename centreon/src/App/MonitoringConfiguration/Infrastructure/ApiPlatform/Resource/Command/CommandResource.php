@@ -26,14 +26,11 @@ namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Comman
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
-use ApiPlatform\Metadata\Post;
 use ApiPlatform\OpenApi\Model;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandTypeEnum;
 use App\MonitoringConfiguration\Domain\Security\CommandPermissionEnum;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Input\CreateCommandInput;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\ConnectorResource;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Command\FindCommandProvider;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Command\CreateCommandProcessor;
-use Symfony\Component\Validator\Constraints as Assert;
 
 #[ApiResource(
     shortName: 'Command',
@@ -67,31 +64,6 @@ use Symfony\Component\Validator\Constraints as Assert;
             ',
             securityMessage: 'You are not allowed to access this command',
         ),
-        new Post(
-            uriTemplate: '/configuration/commands',
-            /* input: CreateCommandInput::class, */
-            processor: CreateCommandProcessor::class,
-            openapi: new Model\Operation(
-                responses: [
-                    409 => new Model\Response('Command resource already exists'),
-                    403 => new Model\Response('You are not allowed to create commands'),
-                ],
-            ),
-            securityPostDenormalize: '
-                object.type == "' . CommandTypeEnum::Notification->name
-                . '" and is_granted("' . CommandPermissionEnum::CanReadAndWriteNotifications->value . '")
-                or
-                object.type == "' . CommandTypeEnum::Check->name
-                . '" and is_granted("' . CommandPermissionEnum::CanReadAndWriteChecks->value . '")
-                or
-                object.type == "' . CommandTypeEnum::Miscellaneous->name
-                . '" and is_granted("' . CommandPermissionEnum::CanReadAndWriteMiscellaneous->value . '")
-                or
-                object.type == "' . CommandTypeEnum::Discovery->name
-                . '" and is_granted("' . CommandPermissionEnum::CanReadAndWriteDiscovery->value . '")
-            ',
-            securityPostDenormalizeMessage: 'You are not allowed to create commands',
-        )
     ],
 )]
 final class CommandResource
@@ -103,12 +75,6 @@ final class CommandResource
         #[ApiProperty(
             description: 'The command name',
             openapiContext: ['example' => 'check_http']
-        )]
-        #[Assert\NotNull]
-        #[Assert\Length(min: 1, max: 255)]
-        #[Assert\Regex(
-            pattern: '/^[^~!$%^&*"|\'<>?,()=]+$/',
-            message: 'The name can only contain alphanumeric characters, underscores, and hyphens.'
         )]
         public ?string $name,
 
@@ -156,9 +122,10 @@ final class CommandResource
                     'name' => ['type' => 'string'],
                 ],
                 'example' => ['id' => 1, 'name' => 'SSH Connector'],
-            ]
+            ],
+            readableLink: true
         )]
-        public ?ConnectorDto $connector = null,
+        public ?ConnectorResource $connector = null,
 
         #[ApiProperty(
             description: 'Additional information about the command',
