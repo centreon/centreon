@@ -21,7 +21,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\State;
+namespace Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Command;
 
 use App\ActivityLogging\Domain\Repository\ActivityLogRepository;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandName;
@@ -31,7 +31,6 @@ use Tests\App\Shared\ApiTestCase;
 
 final class CreateCommandProcessorTest extends ApiTestCase
 {
-
     public function testCreateCommand(): void
     {
         /** @var CommandRepository $repository */
@@ -56,13 +55,13 @@ final class CreateCommandProcessorTest extends ApiTestCase
         self::assertResponseIsSuccessful();
         self::assertMatchesResourceItemJsonSchema(CommandResource::class);
         self::assertJsonContains([
-                'name' => 'CommandNotif',
-                'type' => 'Notification',
-                'command_line' => 'toto $ARG1$ $ARG2$ $_HOSTMAC1$ $_SERVICEMAC2$',
-                'is_shell_enabled' => true,
-                'comment' => 'coucou',
-                'is_activated' => true,
-                'is_from_monitoring_connector' => false
+            'name' => 'CommandNotif',
+            'type' => 'Notification',
+            'command_line' => 'toto $ARG1$ $ARG2$ $_HOSTMAC1$ $_SERVICEMAC2$',
+            'is_shell_enabled' => true,
+            'comment' => 'coucou',
+            'is_activated' => true,
+            'is_from_monitoring_connector' => false,
         ]);
         self::assertArrayHasKey('id', $response->toArray());
 
@@ -125,7 +124,7 @@ final class CreateCommandProcessorTest extends ApiTestCase
         self::assertResponseStatusCodeSame(400);
         self::assertJsonContains([
             'code' => 400,
-            'message' => "[name] This value is too short. It should have 1 character or more.\n"
+            'message' => "[name] This value is too short. It should have 1 character or more.\n",
         ]);
     }
 
@@ -147,7 +146,7 @@ final class CreateCommandProcessorTest extends ApiTestCase
         self::assertResponseStatusCodeSame(400);
         self::assertJsonContains([
             'code' => 400,
-            'message' => "[name] This value should be of type string.\n"
+            'message' => "[name] This value should be of type string.\n",
         ]);
     }
 

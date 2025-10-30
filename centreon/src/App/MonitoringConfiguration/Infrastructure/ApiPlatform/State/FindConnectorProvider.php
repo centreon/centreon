@@ -25,6 +25,7 @@ namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\State;
 
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProviderInterface;
+use App\MonitoringConfiguration\Domain\Aggregate\Connector\Connector;
 use App\MonitoringConfiguration\Domain\Aggregate\Connector\ConnectorId;
 use App\MonitoringConfiguration\Domain\Repository\ConnectorRepository;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\ConnectorResource;
@@ -43,7 +44,7 @@ final readonly class FindConnectorProvider implements ProviderInterface
     public function __construct(
         #[Autowire(service: ResourceConnectorTransformer::class)]
         private TransformerInterface $transformer,
-        private ConnectorRepository $repository
+        private ConnectorRepository $repository,
     ) {
     }
 

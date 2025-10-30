@@ -38,7 +38,7 @@ final readonly class CreateCommandCommand
         public bool $isShellEnabled,
         public ?ConnectorId $connectorId,
         public int $creatorId,
-        public ?CommandComment $comment
+        public ?CommandComment $comment,
     ) {
     }
 }

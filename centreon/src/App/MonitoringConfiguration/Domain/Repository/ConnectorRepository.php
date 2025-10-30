@@ -25,12 +25,14 @@ namespace App\MonitoringConfiguration\Domain\Repository;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Connector\Connector;
 use App\MonitoringConfiguration\Domain\Aggregate\Connector\ConnectorId;
-use App\MonitoringConfiguration\Domain\Exception\ConnectorDoesNotExistException;
+use App\MonitoringConfiguration\Domain\Exception\ConnectorNotFoundException;
 
 interface ConnectorRepository
 {
     public function findById(ConnectorId $id): ?Connector;
 
-    /** @throws ConnectorDoesNotExistException */
+    /**
+     * @throws ConnectorNotFoundException
+     */
     public function get(ConnectorId $id): Connector;
 }

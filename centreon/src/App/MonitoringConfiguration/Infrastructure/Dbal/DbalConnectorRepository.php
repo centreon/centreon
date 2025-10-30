@@ -25,7 +25,6 @@ namespace App\MonitoringConfiguration\Infrastructure\Dbal;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Connector\Connector;
 use App\MonitoringConfiguration\Domain\Aggregate\Connector\ConnectorId;
-use App\MonitoringConfiguration\Domain\Exception\ConnectorDoesNotExistException;
 use App\MonitoringConfiguration\Domain\Exception\ConnectorNotFoundException;
 use App\MonitoringConfiguration\Domain\Repository\ConnectorRepository;
 use App\Shared\Infrastructure\Dbal\DbalRepository;

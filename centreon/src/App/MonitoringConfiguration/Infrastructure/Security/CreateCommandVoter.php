@@ -31,7 +31,11 @@ use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Vote;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
+use Webmozart\Assert\Assert;
 
+/**
+ * @extends Voter<value-of<CommandActionEnum>, mixed>
+ */
 final class CreateCommandVoter extends Voter
 {
     public function __construct(private readonly Security $security)
@@ -45,12 +49,15 @@ final class CreateCommandVoter extends Voter
 
     protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token, ?Vote $vote = null): bool
     {
+        Assert::isInstanceOf($subject, CreateCommandResource::class);
+
         $type = CommandTypeEnum::fromName($subject->type);
-        if ($type === null) {
+        if (! $type instanceof CommandTypeEnum) {
             return false;
         }
 
         $permission = Command::getCreationPermissionForType($type);
+
         return $this->security->isGranted($permission->value);
     }
 }

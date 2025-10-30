@@ -67,8 +67,8 @@ final class CreateCommandResource
                     CommandTypeEnum::Check->name,
                     CommandTypeEnum::Notification->name,
                     CommandTypeEnum::Miscellaneous->name,
-                    CommandTypeEnum::Discovery->name
-                ]
+                    CommandTypeEnum::Discovery->name,
+                ],
             ],
         )]
         #[Assert\Choice(
@@ -76,7 +76,7 @@ final class CreateCommandResource
                 CommandTypeEnum::Check->name,
                 CommandTypeEnum::Notification->name,
                 CommandTypeEnum::Miscellaneous->name,
-                CommandTypeEnum::Discovery->name
+                CommandTypeEnum::Discovery->name,
             ]
         )]
         public string $type,
@@ -92,7 +92,6 @@ final class CreateCommandResource
             description: 'Indicates whether the command can be executed through a shell',
         )]
         public bool $isShellEnabled,
-
 
         public ?ConnectorResource $connector = null,
 

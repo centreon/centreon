@@ -31,7 +31,7 @@ class CreateCommandInput
         public string $commandLine,
         public bool $isShellEnabled,
         public ?int $connectorId,
-        public ?string $comment
+        public ?string $comment,
     ) {
     }
 }

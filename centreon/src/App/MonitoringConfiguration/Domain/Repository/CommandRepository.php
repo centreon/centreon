@@ -30,7 +30,9 @@ use App\MonitoringConfiguration\Domain\Exception\CommandNotFoundException;
 
 interface CommandRepository
 {
-    /** @throws CommandNotFoundException */
+    /**
+     * @throws CommandNotFoundException
+     */
     public function getById(CommandId $id): Command;
 
     public function findOneByName(CommandName $name): ?Command;

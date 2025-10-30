@@ -23,8 +23,8 @@ declare(strict_types=1);
 
 namespace Tests\App\MonitoringConfiguration\Infrastructure\Double;
 
-use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\Command;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandName;
 use App\MonitoringConfiguration\Domain\Exception\CommandNotFoundException;
 use App\MonitoringConfiguration\Domain\Repository\CommandRepository;
@@ -32,7 +32,6 @@ use App\Shared\Domain\Aggregate\AggregateRoot;
 
 final class FakeCommandRepository implements CommandRepository
 {
-
     /** @var array<int, Command> */
     public array $commands = [];
 

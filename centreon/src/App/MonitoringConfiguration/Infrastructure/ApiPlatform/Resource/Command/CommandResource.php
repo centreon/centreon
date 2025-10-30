@@ -86,8 +86,8 @@ final class CommandResource
                     CommandTypeEnum::Check->name,
                     CommandTypeEnum::Notification->name,
                     CommandTypeEnum::Miscellaneous->name,
-                    CommandTypeEnum::Discovery->name
-                ]
+                    CommandTypeEnum::Discovery->name,
+                ],
             ],
         )]
         public string $type,

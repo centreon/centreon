@@ -47,7 +47,7 @@ final readonly class CreateCommandCommandHandler
             throw new CommandAlreadyExistsException(['name' => $command->name->value]);
         }
 
-        if ($command->connectorId !== null) {
+        if ($command->connectorId instanceof \App\MonitoringConfiguration\Domain\Aggregate\Connector\ConnectorId) {
             $connector = $this->connectorRepository->get($command->connectorId);
         }
 

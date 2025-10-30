@@ -26,19 +26,22 @@ namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Command;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
 use App\MonitoringConfiguration\Application\Command\CreateCommandCommand;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\Command;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandComment;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandLine;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandName;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandTypeEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\Connector\ConnectorId;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Command\CommandResource;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Command\CreateCommandResource;
 use App\Shared\Application\Command\CommandBus;
 use App\Shared\Infrastructure\Legacy\LegacySecurity;
 use App\Shared\Infrastructure\TransformerInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
+use Webmozart\Assert\Assert;
 
 /**
- * @implements ProcessorInterface<CreateCommandInput, CommandResource>
+ * @implements ProcessorInterface<CreateCommandResource, CommandResource>
  */
 final readonly class CreateCommandProcessor implements ProcessorInterface
 {
@@ -55,9 +58,12 @@ final readonly class CreateCommandProcessor implements ProcessorInterface
 
     public function process($data, Operation $operation, array $uriVariables = [], array $context = []): CommandResource
     {
+        $type = CommandTypeEnum::fromName($data->type);
+        Assert::notNull($type);
+
         $command = new CreateCommandCommand(
             name: new CommandName($data->name),
-            type: CommandTypeEnum::fromName($data->type) ,
+            type: $type,
             commandLine: new CommandLine($data->commandLine),
             isShellEnabled: $data->isShellEnabled,
             connectorId: $data->connector
@@ -68,7 +74,9 @@ final readonly class CreateCommandProcessor implements ProcessorInterface
                 ? new CommandComment($data->comment)
                 : null,
         );
+
         $model = $this->commandBus->execute($command);
+        Assert::isInstanceOf($model, Command::class);
 
         return $this->transformer->transform($model);
     }

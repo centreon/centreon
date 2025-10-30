@@ -23,11 +23,10 @@ declare(strict_types=1);
 
 namespace Tests\App\MonitoringConfiguration\Infrastructure\Double;
 
-use App\MonitoringConfiguration\Domain\Aggregate\Connector\ConnectorId;
 use App\MonitoringConfiguration\Domain\Aggregate\Connector\Connector;
+use App\MonitoringConfiguration\Domain\Aggregate\Connector\ConnectorId;
 use App\MonitoringConfiguration\Domain\Exception\ConnectorNotFoundException;
 use App\MonitoringConfiguration\Domain\Repository\ConnectorRepository;
-use App\Shared\Domain\Aggregate\AggregateRoot;
 
 final class FakeConnectorRepository implements ConnectorRepository
 {

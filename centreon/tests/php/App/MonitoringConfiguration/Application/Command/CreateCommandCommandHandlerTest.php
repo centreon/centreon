@@ -38,6 +38,7 @@ use PHPUnit\Framework\TestCase;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeCommandRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeConnectorRepository;
 use Tests\App\Shared\Double\EventBusSpy;
+use Webmozart\Assert\Assert;
 
 final class CreateCommandCommandHandlerTest extends TestCase
 {
@@ -46,13 +47,14 @@ final class CreateCommandCommandHandlerTest extends TestCase
         $repository = new FakeCommandRepository();
         $connectorRepository = new FakeConnectorRepository();
         $eventBus = new EventBusSpy();
-
+        $type = CommandTypeEnum::fromName('Check');
+        Assert::notNull($type);
         $handler = new CreateCommandCommandHandler($repository, $connectorRepository, $eventBus);
         $connector = new Connector(id: new ConnectorId(1), name: new ConnectorName('Perl Connector'));
         $connectorRepository->add($connector);
         $command = new CreateCommandCommand(
             name: new CommandName('NAME'),
-            type: CommandTypeEnum::fromName('Check') ,
+            type: $type,
             commandLine: new CommandLine('dosomething $ARG1$'),
             isShellEnabled: true,
             connectorId: $connector->id,
@@ -69,13 +71,14 @@ final class CreateCommandCommandHandlerTest extends TestCase
         $repository = new FakeCommandRepository();
         $connectorRepository = new FakeConnectorRepository();
         $eventBus = new EventBusSpy();
-
+        $type = CommandTypeEnum::fromName('Check');
+        Assert::notNull($type);
         $handler = new CreateCommandCommandHandler($repository, $connectorRepository, $eventBus);
         $connector = new Connector(id: new ConnectorId(1), name: new ConnectorName('Perl Connector'));
         $connectorRepository->add($connector);
         $command = new CreateCommandCommand(
             name: new CommandName('NAME'),
-            type: CommandTypeEnum::fromName('Check') ,
+            type: $type,
             commandLine: new CommandLine('dosomething $ARG1$'),
             isShellEnabled: true,
             connectorId: $connector->id,
@@ -94,13 +97,14 @@ final class CreateCommandCommandHandlerTest extends TestCase
         $repository = new FakeCommandRepository();
         $connectorRepository = new FakeConnectorRepository();
         $eventBus = new EventBusSpy();
-
+        $type = CommandTypeEnum::fromName('Check');
+        Assert::notNull($type);
         $handler = new CreateCommandCommandHandler($repository, $connectorRepository, $eventBus);
         $connector = new Connector(id: new ConnectorId(1), name: new ConnectorName('Perl Connector'));
         $connectorRepository->add($connector);
         $command = new CreateCommandCommand(
             name: new CommandName('NAME'),
-            type: CommandTypeEnum::fromName('Check') ,
+            type: $type,
             commandLine: new CommandLine('dosomething $ARG1$'),
             isShellEnabled: true,
             connectorId: $connector->id,
