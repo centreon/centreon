@@ -31,6 +31,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandTypeEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\Connector\Connector;
 use App\MonitoringConfiguration\Domain\Aggregate\Connector\ConnectorId;
 use App\MonitoringConfiguration\Domain\Event\CommandUpdated;
+use App\MonitoringConfiguration\Domain\Exception\CommandCanNotBeUpdatedException;
 use App\MonitoringConfiguration\Domain\Exception\CommandWithNameAlreadyExistsException;
 use App\MonitoringConfiguration\Domain\Repository\CommandRepository;
 use App\MonitoringConfiguration\Domain\Repository\ConnectorRepository;
@@ -50,6 +51,10 @@ final readonly class UpdateCommandCommandHandler
     public function __invoke(UpdateCommandCommand $command): Command
     {
         $existingCommand = $this->commandRepository->getById($command->id);
+
+        if ($existingCommand->isFromMonitoringConnector) {
+            throw new CommandCanNotBeUpdatedException(['id' => $existingCommand->id()->value]);
+        }
 
         if ($command->name instanceof CommandName) {
             $commandWithSameName = $this->commandRepository->findOneByName($command->name);
@@ -83,6 +88,9 @@ final readonly class UpdateCommandCommandHandler
                 : $existingCommand->disable();
         }
 
+        /* Unless the payload contains a connector id (or any other field) set to null, the field is not updated.
+        *  because of the way ApiPlatform handles PATCH requests.
+        */
         if ($command->connectorId instanceof ConnectorId) {
             $connector = $this->connectorRepository->findById($command->connectorId);
             if ($connector instanceof Connector) {
