@@ -21,18 +21,10 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Domain\Repository;
+namespace App\MonitoringConfiguration\Domain\Exception;
 
-use App\MonitoringConfiguration\Domain\Aggregate\Connector\Connector;
-use App\MonitoringConfiguration\Domain\Aggregate\Connector\ConnectorId;
-use App\MonitoringConfiguration\Domain\Exception\ConnectorNotFoundException;
+use App\Shared\Domain\Exception\AggregateNotFoundException;
 
-interface ConnectorRepository
+final class ConnectorNotFoundException extends AggregateNotFoundException
 {
-    public function findById(ConnectorId $id): ?Connector;
-
-    /**
-     * @throws ConnectorNotFoundException
-     */
-    public function get(ConnectorId $id): Connector;
 }

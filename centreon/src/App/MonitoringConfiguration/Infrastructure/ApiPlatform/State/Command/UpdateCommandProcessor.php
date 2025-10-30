@@ -64,13 +64,13 @@ final readonly class UpdateCommandProcessor implements ProcessorInterface
 
         $command = new UpdateCommandCommand(
             id: $commandId,
-            type: isset($data->type) ? CommandTypeEnum::fromName($data->type) : null,
-            name: isset($data->name) ? new CommandName($data->name) : null,
-            commandLine: isset($data->commandLine) ? new CommandLine($data->commandLine) : null,
-            comment: isset($data->comment) ? new CommandComment($data->comment) : null,
-            isShellEnabled: $data->isShellEnabled ?? null,
-            isActivated: $data->isActivated ?? null,
-            connectorId: isset($data->connector) ? new ConnectorId($data->connector->id) : null,
+            type: CommandTypeEnum::fromName($data->type),
+            name: new CommandName($data->name),
+            commandLine: new CommandLine($data->commandLine),
+            comment: $data->comment ? new CommandComment($data->comment) : null,
+            isShellEnabled: $data->isShellEnabled,
+            isActivated: $data->isActivated,
+            connectorId: $data->connector ? new ConnectorId($data->connector->id) : null,
             updatedBy: $this->legacySecurity->getUserId(),
         );
 

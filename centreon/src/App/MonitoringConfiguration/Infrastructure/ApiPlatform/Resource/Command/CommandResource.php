@@ -29,7 +29,9 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\OpenApi\Model;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandTypeEnum;
+use App\MonitoringConfiguration\Domain\Security\CommandActionEnum;
 use App\MonitoringConfiguration\Domain\Security\CommandPermissionEnum;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\ConnectorResource;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Command\FindCommandProvider;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Command\UpdateCommandProcessor;
 
@@ -75,21 +77,8 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Command\UpdateC
                     403 => new Model\Response('You are not allowed to update this command'),
                 ],
             ),
-            securityPostDenormalize: '
-                (object.type == "' . CommandTypeEnum::Notification->name . '" and
-                    is_granted("' . CommandPermissionEnum::CanReadAndWriteNotifications->value . '")
-                ) or
-                (object.type == "' . CommandTypeEnum::Check->name . '" and
-                    is_granted("' . CommandPermissionEnum::CanReadAndWriteChecks->value . '")
-                ) or
-                (object.type == "' . CommandTypeEnum::Miscellaneous->name . '" and
-                    is_granted("' . CommandPermissionEnum::CanReadAndWriteMiscellaneous->value . '")
-                ) or
-                (object.type == "' . CommandTypeEnum::Discovery->name . '" and
-                    is_granted("' . CommandPermissionEnum::CanReadAndWriteDiscovery->value . '")
-                )
-            ',
-            securityPostDenormalizeMessage: 'You are not allowed to update this command',
+            securityPostValidation: "is_granted('" . CommandActionEnum::Update->value . "', object)",
+            securityPostValidationMessage: 'You are not allowed to update this command.',
         ),
     ],
 )]
@@ -141,9 +130,10 @@ final class CommandResource
                     'name' => ['type' => 'string'],
                 ],
                 'example' => ['id' => 1, 'name' => 'SSH Connector'],
-            ]
+            ],
+            readableLink: true,
         )]
-        public ?ConnectorDto $connector = null,
+        public ?ConnectorResource $connector = null,
 
         #[ApiProperty(
             description: 'Additional information about the command',

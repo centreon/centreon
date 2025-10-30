@@ -25,6 +25,7 @@ namespace App\MonitoringConfiguration\Infrastructure\Dbal;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Connector\Connector;
 use App\MonitoringConfiguration\Domain\Aggregate\Connector\ConnectorId;
+use App\MonitoringConfiguration\Domain\Exception\ConnectorNotFoundException;
 use App\MonitoringConfiguration\Domain\Repository\ConnectorRepository;
 use App\Shared\Infrastructure\Dbal\DbalRepository;
 use App\Shared\Infrastructure\TransformerInterface;
@@ -72,6 +73,29 @@ final readonly class DbalConnectorRepository extends DbalRepository implements C
         if ($row === false) {
 
             return null;
+        }
+
+        return $this->transformer->transform($row);
+    }
+
+    public function get(ConnectorId $id): Connector
+    {
+        $qb = $this->connection->createQueryBuilder();
+
+        $qb->select(
+            'id',
+            'name',
+        )
+            ->from(self::TABLE_NAME)
+            ->where('id = :id')
+            ->setParameter('id', $id->value)
+            ->setMaxResults(1);
+
+        /** @var RowTypeAlias $row */
+        $row = $qb->executeQuery()->fetchAssociative();
+
+        if ($row === false) {
+            throw new ConnectorNotFoundException(['id' => $id->value]);
         }
 
         return $this->transformer->transform($row);

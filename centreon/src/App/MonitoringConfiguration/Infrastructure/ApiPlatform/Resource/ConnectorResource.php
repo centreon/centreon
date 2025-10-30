@@ -21,18 +21,21 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Domain\Repository;
+namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource;
 
-use App\MonitoringConfiguration\Domain\Aggregate\Connector\Connector;
-use App\MonitoringConfiguration\Domain\Aggregate\Connector\ConnectorId;
-use App\MonitoringConfiguration\Domain\Exception\ConnectorNotFoundException;
+use ApiPlatform\Metadata\Get;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\FindConnectorProvider;
 
-interface ConnectorRepository
+#[Get(
+    shortName: 'Connector',
+    uriTemplate: '/configuration/connectors/{id}',
+    provider: FindConnectorProvider::class,
+)]
+final class ConnectorResource
 {
-    public function findById(ConnectorId $id): ?Connector;
-
-    /**
-     * @throws ConnectorNotFoundException
-     */
-    public function get(ConnectorId $id): Connector;
+    public function __construct(
+        public int $id,
+        public string $name,
+    ) {
+    }
 }

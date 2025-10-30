@@ -21,18 +21,10 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Domain\Repository;
+namespace App\MonitoringConfiguration\Domain\Security;
 
-use App\MonitoringConfiguration\Domain\Aggregate\Connector\Connector;
-use App\MonitoringConfiguration\Domain\Aggregate\Connector\ConnectorId;
-use App\MonitoringConfiguration\Domain\Exception\ConnectorNotFoundException;
-
-interface ConnectorRepository
+enum CommandActionEnum: string
 {
-    public function findById(ConnectorId $id): ?Connector;
-
-    /**
-     * @throws ConnectorNotFoundException
-     */
-    public function get(ConnectorId $id): Connector;
+    case Create = 'command_create';
+    case Update = 'command_update';
 }

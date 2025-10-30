@@ -21,23 +21,22 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Command;
+namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\State;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Connector\Connector;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\ConnectorResource;
+use App\Shared\Infrastructure\TransformerInterface;
 
-final class ConnectorDto
+/**
+ * @implements TransformerInterface<Connector, ConnectorResource>
+ */
+final readonly class ResourceConnectorTransformer implements TransformerInterface
 {
-    public function __construct(
-        public int $id,
-        public string $name,
-    ) {
-    }
-
-    public static function createFromConnector(Connector $connector): self
+    public function transform(mixed $from): ConnectorResource
     {
-        return new self(
-            id: $connector->id->value,
-            name: $connector->name->value,
+        return new ConnectorResource(
+            id: $from->id->value,
+            name: $from->name->value
         );
     }
 }
