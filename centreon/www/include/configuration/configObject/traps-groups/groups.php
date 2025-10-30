@@ -19,6 +19,8 @@
  *
  */
 
+use Core\Common\Domain\Exception\RepositoryException;
+
 if (! isset($centreon)) {
     exit();
 }
@@ -49,38 +51,49 @@ require_once './include/common/common-Func.php';
 if (isset($ret) && is_array($ret) && $ret['topology_page'] != '' && $p != $ret['topology_page']) {
     $p = $ret['topology_page'];
 }
-
-switch ($o) {
-    case 'a':
-        require_once $path . 'formGroups.php';
-        break; // Add a Trap
-    case 'w':
-        require_once $path . 'formGroups.php';
-        break; // Watch a Trap
-    case 'c':
-        require_once $path . 'formGroups.php';
-        break; // Modify a Trap
-    case 'm':
-        purgeOutdatedCSRFTokens();
-        if (isCSRFTokenValid()) {
-            purgeCSRFToken();
-            multipleTrapGroupInDB($select ?? [], $dupNbr);
-        } else {
-            unvalidFormMessage();
-        }
-        require_once $path . 'listGroups.php';
-        break; // Duplicate n Traps
-    case 'd':
-        purgeOutdatedCSRFTokens();
-        if (isCSRFTokenValid()) {
-            purgeCSRFToken();
-            deleteTrapGroupInDB($select ?? []);
-        } else {
-            unvalidFormMessage();
-        }
-        require_once $path . 'listGroups.php';
-        break; // Delete n Traps
-    default:
-        require_once $path . 'listGroups.php';
-        break;
+try {
+    switch ($o) {
+        case 'a':
+            require_once $path . 'formGroups.php';
+            break; // Add a Trap
+        case 'w':
+            require_once $path . 'formGroups.php';
+            break; // Watch a Trap
+        case 'c':
+            require_once $path . 'formGroups.php';
+            break; // Modify a Trap
+        case 'm':
+            purgeOutdatedCSRFTokens();
+            if (isCSRFTokenValid()) {
+                purgeCSRFToken();
+                multipleTrapGroupInDB($select ?? [], $dupNbr);
+            } else {
+                unvalidFormMessage();
+            }
+            require_once $path . 'listGroups.php';
+            break; // Duplicate n Traps
+        case 'd':
+            purgeOutdatedCSRFTokens();
+            if (isCSRFTokenValid()) {
+                purgeCSRFToken();
+                deleteTrapGroupInDB($select ?? []);
+            } else {
+                unvalidFormMessage();
+            }
+            require_once $path . 'listGroups.php';
+            break; // Delete n Traps
+        default:
+            require_once $path . 'listGroups.php';
+            break;
+    }
+} catch (RepositoryException $exception) {
+    CentreonLog::create()->error(
+        CentreonLog::TYPE_SQL,
+        'Error while processing traps groups: ' . $exception->getMessage(),
+        exception: $exception
+    );
+    $msg = new CentreonMsg();
+    $msg->setImage('./img/icons/warning.png');
+    $msg->setTextStyle('bold');
+    $msg->setText('Error while processing traps groups');
 }

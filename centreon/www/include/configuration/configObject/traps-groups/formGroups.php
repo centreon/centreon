@@ -21,8 +21,11 @@
 
 use Adaptation\Database\Connection\Collection\QueryParameters;
 use Adaptation\Database\Connection\Enum\QueryParameterTypeEnum;
+use Adaptation\Database\Connection\Exception\ConnectionException;
 use Adaptation\Database\Connection\ValueObject\QueryParameter;
+use Core\Common\Domain\Exception\CollectionException;
 use Core\Common\Domain\Exception\RepositoryException;
+use Core\Common\Domain\Exception\ValueObjectException;
 
 //
 // # Database retrieve information for Manufacturer
@@ -54,7 +57,7 @@ try {
             $group = array_map('myDecodeGroup', $result);
         }
     }
-} catch (RepositoryException $exception) {
+} catch (ValueObjectException|CollectionException|ConnectionException $exception) {
     CentreonLog::create()->error(
         CentreonLog::TYPE_SQL,
         'Error while retrieving trap group data: ' . $exception->getMessage(),
@@ -167,12 +170,37 @@ $valid = false;
 if ($form->validate()) {
     $trapGroupObj = $form->getElement('id');
     if ($form->getSubmitValue('submitA')) {
-        $trapGroupObj->setValue(insertTrapGroupInDB());
+        try {
+            $trapGroupObj->setValue(insertTrapGroupInDB());
+            $valid = true;
+        } catch (RepositoryException $exception) {
+            CentreonLog::create()->error(
+                CentreonLog::TYPE_SQL,
+                'Error while inserting traps group: ' . $exception->getMessage(),
+                exception: $exception
+            );
+            $msg = new CentreonMsg();
+            $msg->setImage('./img/icons/warning.png');
+            $msg->setTextStyle('bold');
+            $msg->setText('Error while inserting traps group');
+        }
     } elseif ($form->getSubmitValue('submitC')) {
-        updateTrapGroupInDB($trapGroupObj->getValue());
+        try {
+            updateTrapGroupInDB($trapGroupObj->getValue());
+            $valid = true;
+        } catch (RepositoryException $exception) {
+            CentreonLog::create()->error(
+                CentreonLog::TYPE_SQL,
+                'Error while updating traps group: ' . $exception->getMessage(),
+                exception: $exception
+            );
+            $msg = new CentreonMsg();
+            $msg->setImage('./img/icons/warning.png');
+            $msg->setTextStyle('bold');
+            $msg->setText('Error while updating traps group');
+        }
     }
     $o = null;
-    $valid = true;
 }
 
 if ($valid) {
