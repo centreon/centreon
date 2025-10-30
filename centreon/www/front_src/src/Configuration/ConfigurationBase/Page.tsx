@@ -14,15 +14,22 @@ import { ConfigurationBase } from '../models';
 import { DeleteDialog, DuplicateDialog } from './Dialogs';
 import useCoutChangedFilters from './Filters/AdvancedFilters/useCoutChangedFilters';
 import useLoadData from './Listing/useLoadData';
-import { isWelcomePageDisplayedAtom, modalStateAtom } from './atoms';
+import { modalStateAtom } from './atoms';
 
 import { LoadingSkeleton } from '@centreon/ui';
 
-const WelcomePage = ({ labels, dataTestId, onCreate }) => {
-  const { isLoading, data } = useLoadData();
+const WelcomePage = ({
+  labels,
+  dataTestId,
+  onCreate,
+  filtersAtom,
+  filtersAtomKey,
+  isWelcomePageDisplayedAtom
+}) => {
+  const { isLoading, data } = useLoadData({ filtersAtom, filtersAtomKey });
 
   const setIsWelcomePageDisplayed = useSetAtom(isWelcomePageDisplayedAtom);
-  const { isClear } = useCoutChangedFilters();
+  const { isClear } = useCoutChangedFilters({ filtersAtom });
 
   useLayoutEffect(() => {
     if (!isLoading && (!isClear || (isClear && isNotEmpty(data?.result)))) {
@@ -44,15 +51,27 @@ const WelcomePage = ({ labels, dataTestId, onCreate }) => {
   );
 };
 
-const Page = ({
+const Page = <TFilters,>({
   columns,
   resourceType,
   form,
   actions,
-  labels
+  labels,
+  selectedColumnIdsAtom,
+  filtersAtom,
+  filtersAtomKey,
+  isWelcomePageDisplayedAtom
 }: Pick<
-  ConfigurationBase,
-  'columns' | 'form' | 'resourceType' | 'actions' | 'labels'
+  ConfigurationBase<TFilters>,
+  | 'columns'
+  | 'form'
+  | 'resourceType'
+  | 'actions'
+  | 'labels'
+  | 'selectedColumnIdsAtom'
+  | 'filtersAtom'
+  | 'filtersAtomKey'
+  | 'isWelcomePageDisplayedAtom'
 >): JSX.Element => {
   const [, setSearchParams] = useSearchParams();
 
@@ -61,7 +80,7 @@ const Page = ({
     isWelcomePageDisplayedAtom
   );
 
-  const { isLoading, data } = useLoadData();
+  const { isLoading, data } = useLoadData({ filtersAtom, filtersAtomKey });
 
   const openCreatetModal = (): void => {
     setSearchParams({ mode: 'add' });
@@ -90,14 +109,20 @@ const Page = ({
               dataTestId={`create-${resourceType}`}
               labels={labels.welcomePage}
               onCreate={openCreatetModal}
+              filtersAtom={filtersAtom}
+              filtersAtomKey={filtersAtomKey}
+              isWelcomePageDisplayedAtom={isWelcomePageDisplayedAtom}
             />
           ) : (
-            <Listing
+            <Listing<TFilters>
+              selectedColumnIdsAtom={selectedColumnIdsAtom}
               columns={columns}
               hasWriteAccess={!!actions?.edit}
               actions={actions}
               isLoading={isLoading}
               data={data}
+              filtersAtomKey={filtersAtomKey}
+              filtersAtom={filtersAtom}
             />
           )}
         </DataTable>

@@ -1,12 +1,6 @@
 parameters:
 	ignoreErrors:
 		-
-			message: '#^Strict comparison using \!\=\= between ''VMWARE_V6'' and ''VMWARE_V6'' will always evaluate to false\.$#'
-			identifier: notIdentical.alwaysFalse
-			count: 1
-			path: src/Core/AdditionalConnectorConfiguration/Application/UseCase/UpdateAcc/Validator.php
-
-		-
 			message: '#^Strict comparison using \=\=\= between Core\\AdditionalConnectorConfiguration\\Domain\\Model\\Type and Core\\AdditionalConnectorConfiguration\\Domain\\Model\\Type\:\:VMWARE_V6 will always evaluate to true\.$#'
 			identifier: identical.alwaysTrue
 			count: 1
@@ -102,12 +96,6 @@ parameters:
 			path: src/Core/Common/Domain/Collection/ObjectCollection.php
 
 		-
-			message: '#^Call to function is_string\(\) with string will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 1
-			path: src/Core/Common/Domain/Collection/StringCollection.php
-
-		-
 			message: '#^Unsafe usage of new static\(\)\.$#'
 			identifier: new.static
 			count: 5
@@ -143,13 +131,13 @@ parameters:
 			path: src/Core/Common/Infrastructure/Repository/DatabaseRepositoryManager.php
 
 		-
-			message: '#^Call to function is_array\(\) with array\<mixed\> will always evaluate to true\.$#'
+			message: '#^Call to function is_array\(\) with array will always evaluate to true\.$#'
 			identifier: function.alreadyNarrowedType
 			count: 1
 			path: src/Core/Common/Infrastructure/Repository/ReadVaultRepository.php
 
 		-
-			message: '#^Call to function is_array\(\) with array\<mixed\> will always evaluate to true\.$#'
+			message: '#^Call to function is_array\(\) with array will always evaluate to true\.$#'
 			identifier: function.alreadyNarrowedType
 			count: 1
 			path: src/Core/Common/Infrastructure/Repository/WriteVaultRepository.php
@@ -215,7 +203,7 @@ parameters:
 			path: src/Core/Dashboard/Application/UseCase/FindPerformanceMetricsData/PerformanceMetricsDataFactory.php
 
 		-
-			message: '#^Strict comparison using \!\=\= between float\|int\|string and null will always evaluate to true\.$#'
+			message: '#^Strict comparison using \!\=\= between mixed and null will always evaluate to true\.$#'
 			identifier: notIdentical.alwaysTrue
 			count: 1
 			path: src/Core/Dashboard/Application/UseCase/FindPerformanceMetricsData/PerformanceMetricsDataFactory.php
@@ -281,30 +269,6 @@ parameters:
 			path: src/Core/Dashboard/Infrastructure/API/PartialUpdateDashboard/PartialUpdateDashboardInput.php
 
 		-
-			message: '#^Call to function is_array\(\) with array\{id\?\: int\|null, name\: string, layout\: array\{x\: int, y\: int, width\: int, height\: int, min_width\: int, min_height\: int\}, widget_type\: string, widget_settings\: string\} will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 1
-			path: src/Core/Dashboard/Infrastructure/API/PartialUpdateDashboard/PartialUpdateDashboardRequestTransformer.php
-
-		-
-			message: '#^Strict comparison using \=\=\= between array\<array\{id\?\: int\|null, name\: string, layout\: array\{x\: int, y\: int, width\: int, height\: int, min_width\: int, min_height\: int\}, widget_type\: string, widget_settings\: string\}\> and null will always evaluate to false\.$#'
-			identifier: identical.alwaysFalse
-			count: 1
-			path: src/Core/Dashboard/Infrastructure/API/PartialUpdateDashboard/PartialUpdateDashboardRequestTransformer.php
-
-		-
-			message: '#^Strict comparison using \=\=\= between array\{id\?\: int, name\: string, directory\: string\} and null will always evaluate to false\.$#'
-			identifier: identical.alwaysFalse
-			count: 1
-			path: src/Core/Dashboard/Infrastructure/API/PartialUpdateDashboard/PartialUpdateDashboardRequestTransformer.php
-
-		-
-			message: '#^Strict comparison using \=\=\= between array\{type\: string, interval\: int\} and null will always evaluate to false\.$#'
-			identifier: identical.alwaysFalse
-			count: 1
-			path: src/Core/Dashboard/Infrastructure/API/PartialUpdateDashboard/PartialUpdateDashboardRequestTransformer.php
-
-		-
 			message: '#^PHPDoc tag @var with type Core\\Application\\Common\\UseCase\\AbstractPresenter is not subtype of native type Core\\Dashboard\\Application\\UseCase\\AddDashboardThumbnail\\AddDashboardThumbnailPresenterInterface\.$#'
 			identifier: varTag.nativeType
 			count: 1
@@ -315,24 +279,6 @@ parameters:
 			identifier: varTag.nativeType
 			count: 1
 			path: src/Core/Dashboard/Infrastructure/Event/DashboardUpdatedSubscriber.php
-
-		-
-			message: '#^Call to function array_key_exists\(\) with ''\$in'' and array\{\$in\: non\-empty\-array\<int\>\} will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 6
-			path: src/Core/Dashboard/Infrastructure/Repository/DbReadDashboardPerformanceMetricRepository.php
-
-		-
-			message: '#^Call to function array_key_exists\(\) with ''\$in'' and array\{\$in\: non\-empty\-array\<string\>\} will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 1
-			path: src/Core/Dashboard/Infrastructure/Repository/DbReadDashboardPerformanceMetricRepository.php
-
-		-
-			message: '#^Strict comparison using \!\=\= between array and false will always evaluate to true\.$#'
-			identifier: notIdentical.alwaysTrue
-			count: 1
-			path: src/Core/Dashboard/Infrastructure/Repository/DbReadDashboardPerformanceMetricRepository.php
 
 		-
 			message: '#^Parameter \#2 \$values of method Utility\\SqlConcatenator\:\:storeBindValueMultiple\(\) expects list\<int\|string\>, array\<int\> given\.$#'
@@ -425,12 +371,6 @@ parameters:
 			path: src/Core/Host/Infrastructure/Repository/DbReadRealTimeHostRepository.php
 
 		-
-			message: '#^Strict comparison using \!\=\= between string and null will always evaluate to true\.$#'
-			identifier: notIdentical.alwaysTrue
-			count: 3
-			path: src/Core/Host/Infrastructure/Repository/SmallHostFactory.php
-
-		-
 			message: '#^Parameter \#2 \$values of method Utility\\SqlConcatenator\:\:storeBindValueMultiple\(\) expects list\<int\|string\>, array\<int\> given\.$#'
 			identifier: argument.type
 			count: 1
@@ -491,52 +431,16 @@ parameters:
 			path: src/Core/HostTemplate/Domain/Model/HostTemplate.php
 
 		-
-			message: '#^Call to function array_key_exists\(\) with ''alias'' and array\{macros\?\: array\<array\{name\: string, value\: string\|null, is_password\: bool, description\: string\|null\}\>, categories\?\: array\<int\>, templates\?\: array\<int\>, name\: string, alias\: string, snmp_version\?\: string\|null, snmp_community\?\: string\|null, max_check_attempts\?\: int\|null, \.\.\.\} will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 1
-			path: src/Core/HostTemplate/Infrastructure/API/PartialUpdateHostTemplate/PartialUpdateHostTemplateController.php
-
-		-
-			message: '#^Call to function array_key_exists\(\) with ''name'' and array\{macros\?\: array\<array\{name\: string, value\: string\|null, is_password\: bool, description\: string\|null\}\>, categories\?\: array\<int\>, templates\?\: array\<int\>, name\: string, alias\: string, snmp_version\?\: string\|null, snmp_community\?\: string\|null, max_check_attempts\?\: int\|null, \.\.\.\} will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 1
-			path: src/Core/HostTemplate/Infrastructure/API/PartialUpdateHostTemplate/PartialUpdateHostTemplateController.php
-
-		-
 			message: '#^Parameter \#2 \$values of method Utility\\SqlConcatenator\:\:storeBindValueMultiple\(\) expects list\<int\|string\>, non\-empty\-array\<int\> given\.$#'
 			identifier: argument.type
 			count: 2
 			path: src/Core/HostTemplate/Infrastructure/Repository/DbReadHostTemplateRepository.php
 
 		-
-			message: '#^Call to function is_array\(\) with array\<int, mixed\> will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 2
-			path: src/Core/Infrastructure/Configuration/User/Repository/DbReadUserRepository.php
-
-		-
 			message: '#^Instanceof between Psr\\Log\\LoggerInterface and Psr\\Log\\LoggerInterface will always evaluate to true\.$#'
 			identifier: instanceof.alwaysTrue
 			count: 1
 			path: src/Core/Media/Infrastructure/Repository/ApiWriteMediaRepository.php
-
-		-
-			message: '#^Call to function array_key_exists\(\) with ''\$in'' and array\{\$in\: non\-empty\-array\<int\>\} will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 6
-			path: src/Core/Metric/Infrastructure/Repository/DbReadMetricRepository.php
-
-		-
-			message: '#^Call to function array_key_exists\(\) with ''\$in'' and array\{\$in\: non\-empty\-array\<string\>\} will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 1
-			path: src/Core/Metric/Infrastructure/Repository/DbReadMetricRepository.php
-
-		-
-			message: '#^Call to function is_array\(\) with array will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 1
-			path: src/Core/Metric/Infrastructure/Repository/DbReadMetricRepository.php
 
 		-
 			message: '#^Parameter \#2 \$values of method Utility\\SqlConcatenator\:\:storeBindValueMultiple\(\) expects list\<int\|string\>, non\-empty\-array\<int\> given\.$#'
@@ -566,12 +470,6 @@ parameters:
 			message: '#^\[CENTREON\-RULE\]\: \(RepositoryNameValidationByInterfaceCustomRule\) Repository name should match the implemented Interface name with exception of data storage prefix and ''Interface'' mention\.$#'
 			count: 1
 			path: src/Core/Notification/Infrastructure/Repository/DbHostGroupResourceRepository.php
-
-		-
-			message: '#^Strict comparison using \!\=\= between array\{notification_id\: int, host_id\: int, host_name\: string, host_alias\: string\|null, host_events\: int, service_id\: int, service_name\: string, service_alias\: string, \.\.\.\} and 0 will always evaluate to true\.$#'
-			identifier: notIdentical.alwaysTrue
-			count: 1
-			path: src/Core/Notification/Infrastructure/Repository/DbNotifiableResourceFactory.php
 
 		-
 			message: '#^Parameter \#2 \$values of method Utility\\SqlConcatenator\:\:storeBindValueMultiple\(\) expects list\<int\|string\>, non\-empty\-array\<int\> given\.$#'
@@ -718,13 +616,7 @@ parameters:
 			path: src/Core/Security/Authentication/Infrastructure/Repository/DbWriteTokenRepository.php
 
 		-
-			message: '#^Call to function array_key_exists\(\) with ''id'' and array\{id\: int, name\: string\} will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 1
-			path: src/Core/Security/ProviderConfiguration/Application/OpenId/UseCase/PartialUpdateOpenIdConfiguration/PartialUpdateOpenIdConfiguration.php
-
-		-
-			message: '#^Strict comparison using \!\=\= between true and null will always evaluate to true\.$#'
+			message: '#^Strict comparison using \!\=\= between bool and null will always evaluate to true\.$#'
 			identifier: notIdentical.alwaysTrue
 			count: 1
 			path: src/Core/Security/ProviderConfiguration/Application/OpenId/UseCase/PartialUpdateOpenIdConfiguration/PartialUpdateOpenIdConfiguration.php
@@ -753,18 +645,6 @@ parameters:
 			path: src/Core/Security/ProviderConfiguration/Infrastructure/Local/Repository/DbWriteConfigurationRepository.php
 
 		-
-			message: '#^Call to function array_key_exists\(\) with ''endpoint'' and array\{is_enabled\: bool, attribute_path\: string, authorized_values\: array\<string\>, trusted_client_addresses\: array\<string\>, blacklist_client_addresses\: array\<string\>, endpoint\: array\{type\: string, custom_endpoint\: string\|null\}\} will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 1
-			path: src/Core/Security/ProviderConfiguration/Infrastructure/Repository/DbReadConfigurationRepository.php
-
-		-
-			message: '#^Call to function array_key_exists\(\) with ''endpoint'' and array\{is_enabled\: bool, attribute_path\: string, endpoint\: array\{type\: string, custom_endpoint\: string\|null\}\} will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 1
-			path: src/Core/Security/ProviderConfiguration/Infrastructure/Repository/DbReadConfigurationRepository.php
-
-		-
 			message: '#^\[CENTREON\-RULE\]\: \(RepositoryImplementsInterfaceCustomRule\) Repositories must implement an Interface defined in Application layer\.$#'
 			count: 1
 			path: src/Core/Security/ProviderConfiguration/Infrastructure/Repository/HttpReadAttributePathRepository.php
@@ -773,12 +653,6 @@ parameters:
 			message: '#^\[CENTREON\-RULE\]\: \(DomainCallNamespacesCustomRule\) Domain must not call Application or Infrastructure namespaces\.$#'
 			count: 1
 			path: src/Core/Security/User/Domain/Model/UserPasswordFactory.php
-
-		-
-			message: '#^Strict comparison using \!\=\= between array and false will always evaluate to true\.$#'
-			identifier: notIdentical.alwaysTrue
-			count: 1
-			path: src/Core/Security/User/Infrastructure/Repository/DbReadUserRepository.php
 
 		-
 			message: '#^Strict comparison using \=\=\= between Core\\AdditionalConnectorConfiguration\\Domain\\Model\\Type and Core\\AdditionalConnectorConfiguration\\Domain\\Model\\Type\:\:VMWARE_V6 will always evaluate to true\.$#'
@@ -887,12 +761,6 @@ parameters:
 			identifier: return.type
 			count: 1
 			path: src/Core/Service/Domain/Model/NewService.php
-
-		-
-			message: '#^Call to function is_scalar\(\) with string will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 2
-			path: src/Core/Service/Domain/Model/Service.php
 
 		-
 			message: '#^Parameter \#3 \$subject of function preg_replace expects array\<float\|int\|string\>\|string, string\|null given\.$#'
@@ -1087,234 +955,6 @@ parameters:
 			path: src/Core/ServiceTemplate/Domain/Model/NewServiceTemplate.php
 
 		-
-			message: '#^Call to function array_key_exists\(\) with ''acknowledgement…'' and array\{name\: string, alias\: string, comment\: string\|null, service_template_id\: int\|null, check_command_id\: int\|null, check_command_args\: list\<string\>, check_timeperiod_id\: int, max_check_attempts\: int\|null, \.\.\.\} will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 1
-			path: src/Core/ServiceTemplate/Infrastructure/API/PartialUpdateServiceTemplate/PartialUpdateServiceTemplateController.php
-
-		-
-			message: '#^Call to function array_key_exists\(\) with ''action_url'' and array\{name\: string, alias\: string, comment\: string\|null, service_template_id\: int\|null, check_command_id\: int\|null, check_command_args\: list\<string\>, check_timeperiod_id\: int, max_check_attempts\: int\|null, \.\.\.\} will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 1
-			path: src/Core/ServiceTemplate/Infrastructure/API/PartialUpdateServiceTemplate/PartialUpdateServiceTemplateController.php
-
-		-
-			message: '#^Call to function array_key_exists\(\) with ''active_check_enabled'' and array\{name\: string, alias\: string, comment\: string\|null, service_template_id\: int\|null, check_command_id\: int\|null, check_command_args\: list\<string\>, check_timeperiod_id\: int, max_check_attempts\: int\|null, \.\.\.\} will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 1
-			path: src/Core/ServiceTemplate/Infrastructure/API/PartialUpdateServiceTemplate/PartialUpdateServiceTemplateController.php
-
-		-
-			message: '#^Call to function array_key_exists\(\) with ''alias'' and array\{name\: string, alias\: string, comment\: string\|null, service_template_id\: int\|null, check_command_id\: int\|null, check_command_args\: list\<string\>, check_timeperiod_id\: int, max_check_attempts\: int\|null, \.\.\.\} will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 1
-			path: src/Core/ServiceTemplate/Infrastructure/API/PartialUpdateServiceTemplate/PartialUpdateServiceTemplateController.php
-
-		-
-			message: '#^Call to function array_key_exists\(\) with ''check_command_args'' and array\{name\: string, alias\: string, comment\: string\|null, service_template_id\: int\|null, check_command_id\: int\|null, check_command_args\: list\<string\>, check_timeperiod_id\: int, max_check_attempts\: int\|null, \.\.\.\} will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 1
-			path: src/Core/ServiceTemplate/Infrastructure/API/PartialUpdateServiceTemplate/PartialUpdateServiceTemplateController.php
-
-		-
-			message: '#^Call to function array_key_exists\(\) with ''check_command_id'' and array\{name\: string, alias\: string, comment\: string\|null, service_template_id\: int\|null, check_command_id\: int\|null, check_command_args\: list\<string\>, check_timeperiod_id\: int, max_check_attempts\: int\|null, \.\.\.\} will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 1
-			path: src/Core/ServiceTemplate/Infrastructure/API/PartialUpdateServiceTemplate/PartialUpdateServiceTemplateController.php
-
-		-
-			message: '#^Call to function array_key_exists\(\) with ''check_timeperiod_id'' and array\{name\: string, alias\: string, comment\: string\|null, service_template_id\: int\|null, check_command_id\: int\|null, check_command_args\: list\<string\>, check_timeperiod_id\: int, max_check_attempts\: int\|null, \.\.\.\} will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 1
-			path: src/Core/ServiceTemplate/Infrastructure/API/PartialUpdateServiceTemplate/PartialUpdateServiceTemplateController.php
-
-		-
-			message: '#^Call to function array_key_exists\(\) with ''comment'' and array\{name\: string, alias\: string, comment\: string\|null, service_template_id\: int\|null, check_command_id\: int\|null, check_command_args\: list\<string\>, check_timeperiod_id\: int, max_check_attempts\: int\|null, \.\.\.\} will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 1
-			path: src/Core/ServiceTemplate/Infrastructure/API/PartialUpdateServiceTemplate/PartialUpdateServiceTemplateController.php
-
-		-
-			message: '#^Call to function array_key_exists\(\) with ''event_handler…'' and array\{name\: string, alias\: string, comment\: string\|null, service_template_id\: int\|null, check_command_id\: int\|null, check_command_args\: list\<string\>, check_timeperiod_id\: int, max_check_attempts\: int\|null, \.\.\.\} will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 3
-			path: src/Core/ServiceTemplate/Infrastructure/API/PartialUpdateServiceTemplate/PartialUpdateServiceTemplateController.php
-
-		-
-			message: '#^Call to function array_key_exists\(\) with ''first_notification…'' and array\{name\: string, alias\: string, comment\: string\|null, service_template_id\: int\|null, check_command_id\: int\|null, check_command_args\: list\<string\>, check_timeperiod_id\: int, max_check_attempts\: int\|null, \.\.\.\} will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 1
-			path: src/Core/ServiceTemplate/Infrastructure/API/PartialUpdateServiceTemplate/PartialUpdateServiceTemplateController.php
-
-		-
-			message: '#^Call to function array_key_exists\(\) with ''flap_detection…'' and array\{name\: string, alias\: string, comment\: string\|null, service_template_id\: int\|null, check_command_id\: int\|null, check_command_args\: list\<string\>, check_timeperiod_id\: int, max_check_attempts\: int\|null, \.\.\.\} will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 1
-			path: src/Core/ServiceTemplate/Infrastructure/API/PartialUpdateServiceTemplate/PartialUpdateServiceTemplateController.php
-
-		-
-			message: '#^Call to function array_key_exists\(\) with ''freshness_checked'' and array\{name\: string, alias\: string, comment\: string\|null, service_template_id\: int\|null, check_command_id\: int\|null, check_command_args\: list\<string\>, check_timeperiod_id\: int, max_check_attempts\: int\|null, \.\.\.\} will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 1
-			path: src/Core/ServiceTemplate/Infrastructure/API/PartialUpdateServiceTemplate/PartialUpdateServiceTemplateController.php
-
-		-
-			message: '#^Call to function array_key_exists\(\) with ''freshness_threshold'' and array\{name\: string, alias\: string, comment\: string\|null, service_template_id\: int\|null, check_command_id\: int\|null, check_command_args\: list\<string\>, check_timeperiod_id\: int, max_check_attempts\: int\|null, \.\.\.\} will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 1
-			path: src/Core/ServiceTemplate/Infrastructure/API/PartialUpdateServiceTemplate/PartialUpdateServiceTemplateController.php
-
-		-
-			message: '#^Call to function array_key_exists\(\) with ''graph_template_id'' and array\{name\: string, alias\: string, comment\: string\|null, service_template_id\: int\|null, check_command_id\: int\|null, check_command_args\: list\<string\>, check_timeperiod_id\: int, max_check_attempts\: int\|null, \.\.\.\} will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 1
-			path: src/Core/ServiceTemplate/Infrastructure/API/PartialUpdateServiceTemplate/PartialUpdateServiceTemplateController.php
-
-		-
-			message: '#^Call to function array_key_exists\(\) with ''high_flap_threshold'' and array\{name\: string, alias\: string, comment\: string\|null, service_template_id\: int\|null, check_command_id\: int\|null, check_command_args\: list\<string\>, check_timeperiod_id\: int, max_check_attempts\: int\|null, \.\.\.\} will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 1
-			path: src/Core/ServiceTemplate/Infrastructure/API/PartialUpdateServiceTemplate/PartialUpdateServiceTemplateController.php
-
-		-
-			message: '#^Call to function array_key_exists\(\) with ''host_templates'' and array\{name\: string, alias\: string, comment\: string\|null, service_template_id\: int\|null, check_command_id\: int\|null, check_command_args\: list\<string\>, check_timeperiod_id\: int, max_check_attempts\: int\|null, \.\.\.\} will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 1
-			path: src/Core/ServiceTemplate/Infrastructure/API/PartialUpdateServiceTemplate/PartialUpdateServiceTemplateController.php
-
-		-
-			message: '#^Call to function array_key_exists\(\) with ''icon_alternative'' and array\{name\: string, alias\: string, comment\: string\|null, service_template_id\: int\|null, check_command_id\: int\|null, check_command_args\: list\<string\>, check_timeperiod_id\: int, max_check_attempts\: int\|null, \.\.\.\} will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 1
-			path: src/Core/ServiceTemplate/Infrastructure/API/PartialUpdateServiceTemplate/PartialUpdateServiceTemplateController.php
-
-		-
-			message: '#^Call to function array_key_exists\(\) with ''icon_id'' and array\{name\: string, alias\: string, comment\: string\|null, service_template_id\: int\|null, check_command_id\: int\|null, check_command_args\: list\<string\>, check_timeperiod_id\: int, max_check_attempts\: int\|null, \.\.\.\} will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 1
-			path: src/Core/ServiceTemplate/Infrastructure/API/PartialUpdateServiceTemplate/PartialUpdateServiceTemplateController.php
-
-		-
-			message: '#^Call to function array_key_exists\(\) with ''is_contact_additive…'' and array\{name\: string, alias\: string, comment\: string\|null, service_template_id\: int\|null, check_command_id\: int\|null, check_command_args\: list\<string\>, check_timeperiod_id\: int, max_check_attempts\: int\|null, \.\.\.\} will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 1
-			path: src/Core/ServiceTemplate/Infrastructure/API/PartialUpdateServiceTemplate/PartialUpdateServiceTemplateController.php
-
-		-
-			message: '#^Call to function array_key_exists\(\) with ''is_contact_group…'' and array\{name\: string, alias\: string, comment\: string\|null, service_template_id\: int\|null, check_command_id\: int\|null, check_command_args\: list\<string\>, check_timeperiod_id\: int, max_check_attempts\: int\|null, \.\.\.\} will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 1
-			path: src/Core/ServiceTemplate/Infrastructure/API/PartialUpdateServiceTemplate/PartialUpdateServiceTemplateController.php
-
-		-
-			message: '#^Call to function array_key_exists\(\) with ''low_flap_threshold'' and array\{name\: string, alias\: string, comment\: string\|null, service_template_id\: int\|null, check_command_id\: int\|null, check_command_args\: list\<string\>, check_timeperiod_id\: int, max_check_attempts\: int\|null, \.\.\.\} will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 1
-			path: src/Core/ServiceTemplate/Infrastructure/API/PartialUpdateServiceTemplate/PartialUpdateServiceTemplateController.php
-
-		-
-			message: '#^Call to function array_key_exists\(\) with ''macros'' and array\{name\: string, alias\: string, comment\: string\|null, service_template_id\: int\|null, check_command_id\: int\|null, check_command_args\: list\<string\>, check_timeperiod_id\: int, max_check_attempts\: int\|null, \.\.\.\} will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 1
-			path: src/Core/ServiceTemplate/Infrastructure/API/PartialUpdateServiceTemplate/PartialUpdateServiceTemplateController.php
-
-		-
-			message: '#^Call to function array_key_exists\(\) with ''max_check_attempts'' and array\{name\: string, alias\: string, comment\: string\|null, service_template_id\: int\|null, check_command_id\: int\|null, check_command_args\: list\<string\>, check_timeperiod_id\: int, max_check_attempts\: int\|null, \.\.\.\} will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 1
-			path: src/Core/ServiceTemplate/Infrastructure/API/PartialUpdateServiceTemplate/PartialUpdateServiceTemplateController.php
-
-		-
-			message: '#^Call to function array_key_exists\(\) with ''name'' and array\{name\: string, alias\: string, comment\: string\|null, service_template_id\: int\|null, check_command_id\: int\|null, check_command_args\: list\<string\>, check_timeperiod_id\: int, max_check_attempts\: int\|null, \.\.\.\} will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 1
-			path: src/Core/ServiceTemplate/Infrastructure/API/PartialUpdateServiceTemplate/PartialUpdateServiceTemplateController.php
-
-		-
-			message: '#^Call to function array_key_exists\(\) with ''normal_check…'' and array\{name\: string, alias\: string, comment\: string\|null, service_template_id\: int\|null, check_command_id\: int\|null, check_command_args\: list\<string\>, check_timeperiod_id\: int, max_check_attempts\: int\|null, \.\.\.\} will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 1
-			path: src/Core/ServiceTemplate/Infrastructure/API/PartialUpdateServiceTemplate/PartialUpdateServiceTemplateController.php
-
-		-
-			message: '#^Call to function array_key_exists\(\) with ''note'' and array\{name\: string, alias\: string, comment\: string\|null, service_template_id\: int\|null, check_command_id\: int\|null, check_command_args\: list\<string\>, check_timeperiod_id\: int, max_check_attempts\: int\|null, \.\.\.\} will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 1
-			path: src/Core/ServiceTemplate/Infrastructure/API/PartialUpdateServiceTemplate/PartialUpdateServiceTemplateController.php
-
-		-
-			message: '#^Call to function array_key_exists\(\) with ''note_url'' and array\{name\: string, alias\: string, comment\: string\|null, service_template_id\: int\|null, check_command_id\: int\|null, check_command_args\: list\<string\>, check_timeperiod_id\: int, max_check_attempts\: int\|null, \.\.\.\} will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 1
-			path: src/Core/ServiceTemplate/Infrastructure/API/PartialUpdateServiceTemplate/PartialUpdateServiceTemplateController.php
-
-		-
-			message: '#^Call to function array_key_exists\(\) with ''notification_enabled'' and array\{name\: string, alias\: string, comment\: string\|null, service_template_id\: int\|null, check_command_id\: int\|null, check_command_args\: list\<string\>, check_timeperiod_id\: int, max_check_attempts\: int\|null, \.\.\.\} will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 1
-			path: src/Core/ServiceTemplate/Infrastructure/API/PartialUpdateServiceTemplate/PartialUpdateServiceTemplateController.php
-
-		-
-			message: '#^Call to function array_key_exists\(\) with ''notification_type'' and array\{name\: string, alias\: string, comment\: string\|null, service_template_id\: int\|null, check_command_id\: int\|null, check_command_args\: list\<string\>, check_timeperiod_id\: int, max_check_attempts\: int\|null, \.\.\.\} will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 1
-			path: src/Core/ServiceTemplate/Infrastructure/API/PartialUpdateServiceTemplate/PartialUpdateServiceTemplateController.php
-
-		-
-			message: '#^Call to function array_key_exists\(\) with ''notification…'' and array\{name\: string, alias\: string, comment\: string\|null, service_template_id\: int\|null, check_command_id\: int\|null, check_command_args\: list\<string\>, check_timeperiod_id\: int, max_check_attempts\: int\|null, \.\.\.\} will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 2
-			path: src/Core/ServiceTemplate/Infrastructure/API/PartialUpdateServiceTemplate/PartialUpdateServiceTemplateController.php
-
-		-
-			message: '#^Call to function array_key_exists\(\) with ''passive_check…'' and array\{name\: string, alias\: string, comment\: string\|null, service_template_id\: int\|null, check_command_id\: int\|null, check_command_args\: list\<string\>, check_timeperiod_id\: int, max_check_attempts\: int\|null, \.\.\.\} will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 1
-			path: src/Core/ServiceTemplate/Infrastructure/API/PartialUpdateServiceTemplate/PartialUpdateServiceTemplateController.php
-
-		-
-			message: '#^Call to function array_key_exists\(\) with ''recovery…'' and array\{name\: string, alias\: string, comment\: string\|null, service_template_id\: int\|null, check_command_id\: int\|null, check_command_args\: list\<string\>, check_timeperiod_id\: int, max_check_attempts\: int\|null, \.\.\.\} will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 1
-			path: src/Core/ServiceTemplate/Infrastructure/API/PartialUpdateServiceTemplate/PartialUpdateServiceTemplateController.php
-
-		-
-			message: '#^Call to function array_key_exists\(\) with ''retry_check_interval'' and array\{name\: string, alias\: string, comment\: string\|null, service_template_id\: int\|null, check_command_id\: int\|null, check_command_args\: list\<string\>, check_timeperiod_id\: int, max_check_attempts\: int\|null, \.\.\.\} will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 1
-			path: src/Core/ServiceTemplate/Infrastructure/API/PartialUpdateServiceTemplate/PartialUpdateServiceTemplateController.php
-
-		-
-			message: '#^Call to function array_key_exists\(\) with ''service_categories'' and array\{name\: string, alias\: string, comment\: string\|null, service_template_id\: int\|null, check_command_id\: int\|null, check_command_args\: list\<string\>, check_timeperiod_id\: int, max_check_attempts\: int\|null, \.\.\.\} will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 1
-			path: src/Core/ServiceTemplate/Infrastructure/API/PartialUpdateServiceTemplate/PartialUpdateServiceTemplateController.php
-
-		-
-			message: '#^Call to function array_key_exists\(\) with ''service_groups'' and array\{name\: string, alias\: string, comment\: string\|null, service_template_id\: int\|null, check_command_id\: int\|null, check_command_args\: list\<string\>, check_timeperiod_id\: int, max_check_attempts\: int\|null, \.\.\.\} will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 1
-			path: src/Core/ServiceTemplate/Infrastructure/API/PartialUpdateServiceTemplate/PartialUpdateServiceTemplateController.php
-
-		-
-			message: '#^Call to function array_key_exists\(\) with ''service_template_id'' and array\{name\: string, alias\: string, comment\: string\|null, service_template_id\: int\|null, check_command_id\: int\|null, check_command_args\: list\<string\>, check_timeperiod_id\: int, max_check_attempts\: int\|null, \.\.\.\} will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 1
-			path: src/Core/ServiceTemplate/Infrastructure/API/PartialUpdateServiceTemplate/PartialUpdateServiceTemplateController.php
-
-		-
-			message: '#^Call to function array_key_exists\(\) with ''severity_id'' and array\{name\: string, alias\: string, comment\: string\|null, service_template_id\: int\|null, check_command_id\: int\|null, check_command_args\: list\<string\>, check_timeperiod_id\: int, max_check_attempts\: int\|null, \.\.\.\} will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 1
-			path: src/Core/ServiceTemplate/Infrastructure/API/PartialUpdateServiceTemplate/PartialUpdateServiceTemplateController.php
-
-		-
-			message: '#^Call to function array_key_exists\(\) with ''volatility_enabled'' and array\{name\: string, alias\: string, comment\: string\|null, service_template_id\: int\|null, check_command_id\: int\|null, check_command_args\: list\<string\>, check_timeperiod_id\: int, max_check_attempts\: int\|null, \.\.\.\} will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 1
-			path: src/Core/ServiceTemplate/Infrastructure/API/PartialUpdateServiceTemplate/PartialUpdateServiceTemplateController.php
-
-		-
 			message: '#^Parameter \#2 \$values of method Utility\\SqlConcatenator\:\:storeBindValueMultiple\(\) expects list\<int\|string\>, non\-empty\-array\<int\> given\.$#'
 			identifier: argument.type
 			count: 2
@@ -1337,18 +977,6 @@ parameters:
 			identifier: argument.type
 			count: 1
 			path: src/Core/TimePeriod/Application/UseCase/UpdateTimePeriod/UpdateTimePeriod.php
-
-		-
-			message: '#^Call to function is_array\(\) with array\<string, mixed\> will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 1
-			path: src/Core/TimePeriod/Infrastructure/API/FindTimePeriod/DayNormalizer.php
-
-		-
-			message: '#^Call to function is_array\(\) with array\<string, mixed\> will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 1
-			path: src/Core/TimePeriod/Infrastructure/API/FindTimePeriod/ExtraTimePeriodNormalizer.php
 
 		-
 			message: '#^Parameter \#1 \$timePeriods of method Core\\TimePeriod\\Infrastructure\\Repository\\DbReadTimePeriodRepository\:\:addExtraTimePeriods\(\) expects list\<Core\\TimePeriod\\Domain\\Model\\TimePeriod\>, array\<int, Core\\TimePeriod\\Domain\\Model\\TimePeriod\> given\.$#'
@@ -1377,12 +1005,6 @@ parameters:
 		-
 			message: '#^Parameter \#2 \$values of method Utility\\SqlConcatenator\:\:storeBindValueMultiple\(\) expects list\<int\|string\>, non\-empty\-array\<int\> given\.$#'
 			identifier: argument.type
-			count: 1
-			path: src/Core/TimePeriod/Infrastructure/Repository/DbReadTimePeriodRepository.php
-
-		-
-			message: '#^Strict comparison using \!\=\= between string and null will always evaluate to true\.$#'
-			identifier: notIdentical.alwaysTrue
 			count: 1
 			path: src/Core/TimePeriod/Infrastructure/Repository/DbReadTimePeriodRepository.php
 

@@ -23,12 +23,12 @@ declare(strict_types=1);
 
 namespace Tests\Core\Security\ProviderConfiguration\Application\SAML\UseCase\UpdateSAMLConfiguration;
 
-use Centreon\Domain\Repository\Interfaces\DataStorageEngineInterface;
+use Adaptation\Database\Connection\ConnectionInterface;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
+use Core\Common\Infrastructure\Repository\DatabaseRepositoryManager;
 use Core\Contact\Application\Repository\ReadContactGroupRepositoryInterface;
 use Core\Contact\Application\Repository\ReadContactTemplateRepositoryInterface;
-use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\Security\Authentication\Application\Provider\ProviderAuthenticationFactoryInterface;
 use Core\Security\Authentication\Application\Provider\ProviderAuthenticationInterface;
@@ -42,51 +42,60 @@ use Core\Security\ProviderConfiguration\Domain\Model\GroupsMapping;
 use Core\Security\ProviderConfiguration\Domain\Model\Provider;
 use Core\Security\ProviderConfiguration\Domain\SAML\Model\Configuration;
 use Core\Security\ProviderConfiguration\Domain\SAML\Model\CustomConfiguration;
+use Mockery;
 
 beforeEach(function (): void {
-    $this->repository = $this->createMock(WriteSAMLConfigurationRepositoryInterface::class);
-    $this->contactTemplateRepository = $this->createMock(ReadContactTemplateRepositoryInterface::class);
-    $this->contactGroupRepository = $this->createMock(ReadContactGroupRepositoryInterface::class);
-    $this->accessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class);
-    $this->dataStorageEngine = $this->createMock(DataStorageEngineInterface::class);
+    $this->writeSAMLConfigurationRepository = $this->createMock(WriteSAMLConfigurationRepositoryInterface::class);
+    $this->readContactTemplateRepository = $this->createMock(ReadContactTemplateRepositoryInterface::class);
+    $this->readContactGroupRepository = $this->createMock(ReadContactGroupRepositoryInterface::class);
+    $this->readAccessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class);
+    $connection = Mockery::mock(ConnectionInterface::class);
+    $connection
+        ->shouldReceive('isTransactionActive')
+        ->andReturn(false);
+    $connection
+        ->shouldReceive('startTransaction')
+        ->andReturnNull();
+    $connection
+        ->shouldReceive('commitTransaction')
+        ->andReturnTrue();
+    $this->databaseRepositoryManager = new DatabaseRepositoryManager($connection);
     $this->providerFactory = $this->createMock(ProviderAuthenticationFactoryInterface::class);
     $this->provider = $this->createMock(ProviderAuthenticationInterface::class);
-    $this->presenterFormatter = $this->createMock(PresenterFormatterInterface::class);
+    $this->presenter = new UpdateSAMLConfigurationPresenterStub();
 });
 
 it('should present a No Content Response when the use case is executed correctly', function (): void {
-    $request = new UpdateSAMLConfigurationRequest();
-    $request->isActive = true;
-    $request->isForced = true;
-    $request->remoteLoginUrl = 'http://127.0.0.1:4000/realms/my-realm/protocol/saml/clients/my-client';
-    $request->entityIdUrl = 'http://127.0.0.1:4000/realms/my-realm';
-    $request->publicCertificate = 'my-certificate';
-    $request->logoutFrom = true;
-    $request->logoutFromUrl = 'http://127.0.0.1:4000/realms/my-realm/protocol/saml';
-    $request->userIdAttribute = 'email';
-    $request->requestedAuthnContext = 'exact';
-    $request->isAutoImportEnabled = false;
-    $request->contactTemplate = null;
-    $request->emailBindAttribute = null;
-    $request->userNameBindAttribute = null;
-    $request->authenticationConditions = [
-        'is_enabled' => false,
-        'attribute_path' => '',
-        'authorized_values' => [],
-        'trusted_client_addresses' => [],
-        'blacklist_client_addresses' => [],
-    ];
-    $request->rolesMapping = [
-        'is_enabled' => false,
-        'apply_only_first_role' => false,
-        'attribute_path' => '',
-        'relations' => [],
-    ];
-    $request->groupsMapping = [
-        'is_enabled' => false,
-        'attribute_path' => '',
-        'relations' => [],
-    ];
+    $request = new UpdateSAMLConfigurationRequest(
+        isActive: true,
+        isForced: true,
+        remoteLoginUrl: 'http://127.0.0.1:4000/realms/my-realm/protocol/saml/clients/my-client',
+        entityIdUrl: 'http://127.0.0.1:4000/realms/my-realm',
+        publicCertificate: 'my-certificate',
+        userIdAttribute: 'email',
+        requestedAuthnContext: false,
+        logoutFrom: true,
+        logoutFromUrl: 'http://127.0.0.1:4000/realms/my-realm/protocol/saml',
+        isAutoImportEnabled: false,
+        rolesMapping: [
+            'is_enabled' => false,
+            'apply_only_first_role' => false,
+            'attribute_path' => '',
+            'relations' => [],
+        ],
+        authenticationConditions: [
+            'is_enabled' => false,
+            'attribute_path' => '',
+            'authorized_values' => [],
+            'trusted_client_addresses' => [],
+            'blacklist_client_addresses' => [],
+        ],
+        groupsMapping: [
+            'is_enabled' => false,
+            'attribute_path' => '',
+            'relations' => [],
+        ],
+    );
 
     $this->providerFactory
         ->expects($this->once())
@@ -94,7 +103,7 @@ it('should present a No Content Response when the use case is executed correctly
         ->willReturn($this->provider);
 
     $configuration = new Configuration(1, 'saml', 'saml', '{}', true, false);
-    $customConfiguration = new CustomConfiguration([
+    $customConfiguration = CustomConfiguration::createFromValues([
         'is_active' => true,
         'is_forced' => false,
         'entity_id_url' => 'http://127.0.0.1:4000/realms/my-realm',
@@ -103,7 +112,8 @@ it('should present a No Content Response when the use case is executed correctly
         'logout_from' => true,
         'logout_from_url' => 'http://127.0.0.1:4000/realms/my-realm/protocol/saml',
         'user_id_attribute' => 'email',
-        'requested_authn_context' => 'exact',
+        'requested_authn_context' => false,
+        'requested_authn_context_comparison' => 'exact',
         'auto_import' => false,
         'contact_template' => null,
         'fullname_bind_attribute' => null,
@@ -120,58 +130,57 @@ it('should present a No Content Response when the use case is executed correctly
         ->method('getConfiguration')
         ->willReturn($configuration);
 
-    $this->repository
+    $this->writeSAMLConfigurationRepository
         ->expects($this->once())
         ->method('updateConfiguration');
 
     $useCase = new UpdateSAMLConfiguration(
-        $this->repository,
-        $this->contactTemplateRepository,
-        $this->contactGroupRepository,
-        $this->accessGroupRepository,
-        $this->dataStorageEngine,
+        $this->writeSAMLConfigurationRepository,
+        $this->readContactTemplateRepository,
+        $this->readContactGroupRepository,
+        $this->readAccessGroupRepository,
+        $this->databaseRepositoryManager,
         $this->providerFactory
     );
-    $presenter = new UpdateSAMLConfigurationPresenterStub($this->presenterFormatter);
 
-    $useCase($presenter, $request);
+    $useCase($this->presenter, $request);
 
-    expect($presenter->getResponseStatus())->toBeInstanceOf(NoContentResponse::class);
+    expect($this->presenter->response)->toBeInstanceOf(NoContentResponse::class)
+        ->and($this->presenter->response->getMessage())->toBe('No content');
 });
 
-it('should presenet an Error Response when an error occurs during the process', function (): void {
-    $request = new UpdateSAMLConfigurationRequest();
-    $request->isActive = true;
-    $request->isForced = true;
-    $request->remoteLoginUrl = 'http://127.0.0.1:4000/realms/my-realm/protocol/saml/clients/my-client';
-    $request->entityIdUrl = 'http://127.0.0.1:4000/realms/my-realm';
-    $request->publicCertificate = 'my-certificate';
-    $request->logoutFrom = true;
-    $request->logoutFromUrl = 'http://127.0.0.1:4000/realms/my-realm/protocol/saml';
-    $request->userIdAttribute = 'email';
-    $request->requestedAuthnContext = 'exact';
-    $request->isAutoImportEnabled = false;
-    $request->contactTemplate = null;
-    $request->emailBindAttribute = null;
-    $request->userNameBindAttribute = null;
-    $request->authenticationConditions = [
-        'is_enabled' => false,
-        'attribute_path' => '',
-        'authorized_values' => [],
-        'trusted_client_addresses' => [],
-        'blacklist_client_addresses' => [],
-    ];
-    $request->rolesMapping = [
-        'is_enabled' => false,
-        'apply_only_first_role' => false,
-        'attribute_path' => '',
-        'relations' => [],
-    ];
-    $request->groupsMapping = [
-        'is_enabled' => false,
-        'attribute_path' => '',
-        'relations' => [],
-    ];
+it('should present an Error Response when an error occurs during the process', function (): void {
+    $request = new UpdateSAMLConfigurationRequest(
+        isActive: true,
+        isForced: true,
+        remoteLoginUrl: 'http://127.0.0.1:4000/realms/my-realm/protocol/saml/clients/my-client',
+        entityIdUrl: 'http://127.0.0.1:4000/realms/my-realm',
+        publicCertificate: 'my-certificate',
+        userIdAttribute: 'email',
+        requestedAuthnContext: false,
+        logoutFrom: true,
+        logoutFromUrl: 'http://127.0.0.1:4000/realms/my-realm/protocol/saml',
+        isAutoImportEnabled: false,
+        rolesMapping: [
+            'is_enabled' => false,
+            'apply_only_first_role' => false,
+            'attribute_path' => '',
+            'relations' => [],
+        ],
+        authenticationConditions: [
+            'is_enabled' => false,
+            'attribute_path' => '',
+            'authorized_values' => [],
+            'trusted_client_addresses' => [],
+            'blacklist_client_addresses' => [],
+        ],
+        groupsMapping: [
+            'is_enabled' => false,
+            'attribute_path' => '',
+            'relations' => [],
+        ],
+    );
+
     $this->providerFactory
         ->expects($this->once())
         ->method('create')
@@ -179,17 +188,15 @@ it('should presenet an Error Response when an error occurs during the process', 
         ->willThrowException(new \Exception('An error occured'));
 
     $useCase = new UpdateSAMLConfiguration(
-        $this->repository,
-        $this->contactTemplateRepository,
-        $this->contactGroupRepository,
-        $this->accessGroupRepository,
-        $this->dataStorageEngine,
+        $this->writeSAMLConfigurationRepository,
+        $this->readContactTemplateRepository,
+        $this->readContactGroupRepository,
+        $this->readAccessGroupRepository,
+        $this->databaseRepositoryManager,
         $this->providerFactory
     );
 
-    $presenter = new UpdateSAMLConfigurationPresenterStub($this->presenterFormatter);
+    $useCase($this->presenter, $request);
 
-    $useCase($presenter, $request);
-
-    expect($presenter->getResponseStatus())->toBeInstanceOf(ErrorResponse::class);
+    expect($this->presenter->response)->toBeInstanceOf(ErrorResponse::class);
 });
