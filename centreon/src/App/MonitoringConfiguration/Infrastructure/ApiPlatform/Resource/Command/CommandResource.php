@@ -70,7 +70,7 @@ final class CommandResource
 {
     public function __construct(
         #[ApiProperty(identifier: true, writable: false)]
-        public ?int $id = null,
+        public int $id,
 
         #[ApiProperty(
             description: 'The command name',
@@ -106,12 +106,12 @@ final class CommandResource
         #[ApiProperty(
             description: 'Indicates whether the command is activated or not',
         )]
-        public bool $isActivated = true,
+        public bool $isActivated,
 
         #[ApiProperty(
             description: 'Indicates whether the command comes from a monitoring connector',
         )]
-        public bool $isFromMonitoringConnector = false,
+        public bool $isFromMonitoringConnector,
 
         #[ApiProperty(
             description: 'Connectors are run in background and execute specific commands without the need to execute a binary, thus enhancing performance',
@@ -125,13 +125,13 @@ final class CommandResource
             ],
             readableLink: true
         )]
-        public ?ConnectorResource $connector = null,
+        public ?ConnectorResource $connector,
 
         #[ApiProperty(
             description: 'Additional information about the command',
             openapiContext: ['example' => 'This command is used to check the HTTP service']
         )]
-        public ?string $comment = null,
+        public ?string $comment,
     ) {
     }
 }

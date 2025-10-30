@@ -62,7 +62,6 @@ final class DbalCommandRepositoryTest extends KernelTestCase
         $this->repository->getById($commandId);
     }
 
-    /** @group wip */
     public function testAdd(): void
     {
         self::assertNull($this->repository->findOneByName(new CommandName('NAME')));

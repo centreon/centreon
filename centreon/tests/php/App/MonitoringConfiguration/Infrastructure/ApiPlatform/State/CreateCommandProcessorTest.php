@@ -31,6 +31,7 @@ use Tests\App\Shared\ApiTestCase;
 
 final class CreateCommandProcessorTest extends ApiTestCase
 {
+
     public function testCreateCommand(): void
     {
         /** @var CommandRepository $repository */
@@ -42,15 +43,12 @@ final class CreateCommandProcessorTest extends ApiTestCase
         $this->login();
 
         $response = $this->request('POST', '/api/latest/configuration/commands', [
-            'headers' => [
-                'Content-Type' => 'application/json',
-            ],
             'json' => [
                 'name' => 'CommandNotif',
                 'type' => 'Notification',
                 'command_line' => 'toto $ARG1$ $ARG2$ $_HOSTMAC1$ $_SERVICEMAC2$',
                 'is_shell_enabled' => true,
-                'connector_id' => 1,
+                'connector' => '/api/latest/configuration/connectors/1',
                 'comment' => 'coucou',
             ],
         ]);
@@ -63,10 +61,12 @@ final class CreateCommandProcessorTest extends ApiTestCase
                 'command_line' => 'toto $ARG1$ $ARG2$ $_HOSTMAC1$ $_SERVICEMAC2$',
                 'is_shell_enabled' => true,
                 'comment' => 'coucou',
+                'is_activated' => true,
+                'is_from_monitoring_connector' => false
         ]);
         self::assertArrayHasKey('id', $response->toArray());
 
-        $command = $repository->findOneByName(new CommandName('NAME'));
+        $command = $repository->findOneByName(new CommandName('CommandNotif'));
         self::assertNotNull($command);
     }
 
@@ -82,7 +82,7 @@ final class CreateCommandProcessorTest extends ApiTestCase
                 'type' => 'Notification',
                 'command_line' => 'toto $ARG1$ $ARG2$ $_HOSTMAC1$ $_SERVICEMAC2$',
                 'is_shell_enabled' => true,
-                'connector_id' => 1,
+                'connector' => '/api/latest/configuration/connectors/1',
                 'comment' => 'coucou',
             ],
         ]);
@@ -97,7 +97,7 @@ final class CreateCommandProcessorTest extends ApiTestCase
                 'type' => 'Notification',
                 'command_line' => 'toto $ARG1$ $ARG2$ $_HOSTMAC1$ $_SERVICEMAC2$',
                 'is_shell_enabled' => true,
-                'connector_id' => 1,
+                'connector' => '/api/latest/configuration/connectors/1',
                 'comment' => 'coucou',
             ],
         ]);
@@ -117,7 +117,7 @@ final class CreateCommandProcessorTest extends ApiTestCase
                 'type' => 'Notification',
                 'command_line' => 'toto $ARG1$ $ARG2$ $_HOSTMAC1$ $_SERVICEMAC2$',
                 'is_shell_enabled' => true,
-                'connector_id' => 1,
+                'connector' => '/api/latest/configuration/connectors/1',
                 'comment' => 'coucou',
             ],
         ]);
@@ -133,11 +133,14 @@ final class CreateCommandProcessorTest extends ApiTestCase
     {
         $this->login();
 
-        $this->request('POST', '/api/latest/configuration/services/categories', [
+        $this->request('POST', '/api/latest/configuration/commands', [
             'json' => [
                 'name' => true,
-                'alias' => 0,
-                'is_activated' => [1.23],
+                'type' => 'Notification',
+                'command_line' => 'toto $ARG1$ $ARG2$ $_HOSTMAC1$ $_SERVICEMAC2$',
+                'is_shell_enabled' => true,
+                'connector' => '/api/latest/configuration/connectors/1',
+                'comment' => 'coucou',
             ],
         ]);
 
@@ -145,14 +148,12 @@ final class CreateCommandProcessorTest extends ApiTestCase
         self::assertJsonContains([
             'code' => 400,
             'message' => "[name] This value should be of type string.\n"
-                . "[alias] This value should be of type string.\n"
-                . "[is_activated] This value should be of type bool.\n",
         ]);
     }
 
     public function testCannotCreateCommandIfNotLogged(): void
     {
-        $this->request('POST', '/api/latest/configuration/services/categories', [
+        $this->request('POST', '/api/latest/configuration/commands', [
             'json' => [
                 'name' => 'NAME',
                 'alias' => 'ALIAS',
@@ -167,18 +168,21 @@ final class CreateCommandProcessorTest extends ApiTestCase
     {
         $this->login('user');
 
-        $this->request('POST', '/api/latest/configuration/services/categories', [
+        $this->request('POST', '/api/latest/configuration/commands', [
             'json' => [
-                'name' => 'NAME',
-                'alias' => 'ALIAS',
-                'is_activated' => false,
+                'name' => 'CommandNotif',
+                'type' => 'Notification',
+                'command_line' => 'toto $ARG1$ $ARG2$ $_HOSTMAC1$ $_SERVICEMAC2$',
+                'is_shell_enabled' => true,
+                'connector' => '/api/latest/configuration/connectors/1',
+                'comment' => 'coucou',
             ],
         ]);
 
         self::assertResponseStatusCodeSame(403);
         self::assertJsonContains([
             'code' => 403,
-            'message' => 'You are not allowed to create service categories',
+            'message' => 'You are not allowed to create commands',
         ]);
     }
 
@@ -191,14 +195,17 @@ final class CreateCommandProcessorTest extends ApiTestCase
 
         $this->login();
 
-        $this->request('POST', '/api/latest/configuration/services/categories', [
+        $this->request('POST', '/api/latest/configuration/commands', [
             'headers' => [
                 'Content-Type' => 'application/json',
             ],
             'json' => [
-                'name' => 'NAME',
-                'alias' => 'ALIAS',
-                'is_activated' => false,
+                'name' => 'CommandNotif',
+                'type' => 'Notification',
+                'command_line' => 'toto $ARG1$ $ARG2$ $_HOSTMAC1$ $_SERVICEMAC2$',
+                'is_shell_enabled' => true,
+                'connector' => '/api/latest/configuration/connectors/1',
+                'comment' => 'coucou',
             ],
         ]);
 
