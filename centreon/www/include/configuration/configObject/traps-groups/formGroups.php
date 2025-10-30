@@ -117,7 +117,9 @@ $redirect->setValue($o);
 //
 $form->applyFilter('__ALL__', 'myTrim');
 $form->addRule('name', _('Compulsory Name'), 'required');
-$form->registerRule('exist', 'callback', 'testTrapGroupExistence');
+$form->registerRule('exist', 'callback', function ($name) {
+    return ! testTrapGroupExistence($name);
+});
 $form->addRule('name', _('Name is already in use'), 'exist');
 $form->setRequiredNote("<font style='color: red;'>*</font>&nbsp;" . _('Required fields'));
 
