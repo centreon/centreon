@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { labelNeverExpire } from '../../../translatedLabels';
 import useStyles from './ExpirationDate.styles';
 
-const dateFormat = 'MM/DD/YYYY HH:mm';
+const dateFormat = 'Pp';
 
 const ExpirationDate = ({
   row,
