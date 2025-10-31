@@ -102,7 +102,7 @@ const useFilters = (): UseFiltersState => {
   const isOptionEqualToValue = (option, selectedValue): boolean => {
     return isNil(option)
       ? false
-      : equals(option.alias?.toString(), selectedValue.alias?.toString());
+      : equals(option.name?.toString(), selectedValue.name?.toString());
   };
 
   const reload = (): void => {
