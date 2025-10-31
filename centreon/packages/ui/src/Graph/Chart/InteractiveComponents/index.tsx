@@ -225,7 +225,7 @@ const InteractionWithGraph = ({
                 !isNil(line?.stackOrder) &&
                 (line?.stackOrder as number) >= (lineData.stackOrder as number)
               ) {
-                return acc + value[1];
+                return acc + value;
               }
 
               return acc;
