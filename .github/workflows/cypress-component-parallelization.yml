@@ -150,7 +150,9 @@ jobs:
 
   cypress-component-coverage-report:
     needs: [cypress-component-test-run]
-    if: ! cancelled()
+    if: |
+      ! cancelled() &&
+      ! contains(needs.*.result, 'cancelled')
     runs-on: ubuntu-24.04
 
     steps:
@@ -238,7 +240,9 @@ jobs:
 
   cypress-component-test-report:
     needs: [cypress-component-test-run]
-    if: ! cancelled()
+    if: |
+      ! cancelled() &&
+      ! contains(needs.*.result, 'cancelled')
     runs-on: ubuntu-24.04
 
     steps:
@@ -306,7 +310,9 @@ jobs:
 
   regroup-artifacts:
     needs: [cypress-component-coverage-report, cypress-component-test-report, cypress-component-test-run]
-    if: ! cancelled()
+    if: |
+      ! cancelled() &&
+      ! contains(needs.*.result, 'cancelled')
     runs-on: ubuntu-24.04
     strategy:
       fail-fast: false

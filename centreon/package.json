@@ -29,7 +29,6 @@
     "install:arm:binaries": "pnpm i -D @swc/core-linux-arm64-gnu@1.13.3 @rspack/binding-linux-arm64-gnu@1.1.6 -w && pnpm remove @swc/core-linux-arm64-gnu @rspack/binding-linux-arm64-gnu"
   },
   "devDependencies": {
-    "@4tw/cypress-drag-drop": "^2.3.0",
     "@biomejs/biome": "^1.9.4",
     "@centreon/js-config": "workspace:*",
     "@cypress/code-coverage": "3.14.7",

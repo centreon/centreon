@@ -207,9 +207,6 @@ importers:
         specifier: ^1.6.1
         version: 1.7.0
     devDependencies:
-      '@4tw/cypress-drag-drop':
-        specifier: ^2.3.0
-        version: 2.3.0(cypress@15.5.0)
       '@biomejs/biome':
         specifier: ^1.9.4
         version: 1.9.4
@@ -717,10 +714,10 @@ importers:
         version: 4.1.7(vite@6.3.5(@types/node@24.9.2)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.44.0)(tsx@4.20.6)(yaml@2.8.1))
       '@testing-library/cypress':
         specifier: ^10.0.3
-        version: 10.0.3(cypress@14.4.0)
+        version: 10.1.0(cypress@14.4.0)
       '@testing-library/jest-dom':
         specifier: ^6.6.3
-        version: 6.6.3
+        version: 6.9.1
       '@testing-library/react':
         specifier: ^16.2.0
         version: 16.3.0(@testing-library/dom@10.4.1)(@types/react-dom@19.0.4(@types/react@19.1.4))(@types/react@19.1.4)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
@@ -942,11 +939,6 @@ importers:
 
 packages:
 
-  '@4tw/cypress-drag-drop@2.3.0':
-    resolution: {integrity: sha512-r6/Um+GLidi9mFTx8qiFf1ECMNmwLTLp+CgKVLpYZvJ2aV6mYoe1Uv8Iq1AwqRhhIAdf04aFJ0xzGEO1gnOm1g==}
-    peerDependencies:
-      cypress: 2 - 14
-
   '@actions/core@1.11.1':
     resolution: {integrity: sha512-hXJCSrkwfA46Vd9Z3q4cpEpHB1rL5NG04+/rbqW9d3+CSvtB1tYe8UTpAlixa1vj0m/ULglfEK2UKxMGxCxv5A==}
 
@@ -958,9 +950,6 @@ packages:
 
   '@actions/io@1.1.3':
     resolution: {integrity: sha512-wi9JjgKLYS7U/z8PPbco+PvTb/nRWjeoFlJ1Qer83k/3C5PHQi28hiVdeE2kHXmIL99mQFawx8qt/JPjZilJ8Q==}
-
-  '@adobe/css-tools@4.4.2':
-    resolution: {integrity: sha512-baYZExFpsdkBNuvGKTKWCwKH57HRZLVtycZS05WTQNVOiXVSeAki3nU35zlRbToeMW8aHlJfyS+1C4BOv27q0A==}
 
   '@adobe/css-tools@4.4.4':
     resolution: {integrity: sha512-Elp+iwUx5rN5+Y8xLt5/GRoG20WGoDCQ/1Fb+1LiGtvwbDavuSk0jhD/eZdckHAuzcDzccnkv+rEjyWfRx18gg==}
@@ -4648,12 +4637,6 @@ packages:
     resolution: {integrity: sha512-ID7fosbc50TbT0MK0EG12O+gAP3W3Aa/Pz4DaTtQtEvlc9Odaqi0de+xuZ7Li2GtK4HzEX7IuRWS/JmZLksR3Q==}
     engines: {node: '>=14'}
 
-  '@testing-library/cypress@10.0.3':
-    resolution: {integrity: sha512-TeZJMCNtiS59cPWalra7LgADuufO5FtbqQBYxuAgdX6ZFAR2D9CtQwAG8VbgvFcchW3K414va/+7P4OkQ80UVg==}
-    engines: {node: '>=12', npm: '>=6'}
-    peerDependencies:
-      cypress: ^12.0.0 || ^13.0.0 || ^14.0.0
-
   '@testing-library/cypress@10.1.0':
     resolution: {integrity: sha512-tNkNtYRqPQh71xXKuMizr146zlellawUfDth7A/urYU4J66g0VGZ063YsS0gqS79Z58u1G/uo9UxN05qvKXMag==}
     engines: {node: '>=12', npm: '>=6'}
@@ -4674,10 +4657,6 @@ packages:
 
   '@testing-library/jest-dom@6.5.0':
     resolution: {integrity: sha512-xGGHpBXYSHUUr6XsKBfs85TWlYKpTc37cSBBVrXcib2MkHLboWlkClhWF37JKlDb9KEq3dHs+f2xR7XJEWGBxA==}
-    engines: {node: '>=14', npm: '>=6', yarn: '>=1'}
-
-  '@testing-library/jest-dom@6.6.3':
-    resolution: {integrity: sha512-IteBhl4XqYNkM54f4ejhLRJiZNqcSCoXUOG2CPK7qbD322KjQozM4kHQOfkG2oln9b9HTYqs+Sae8vBATubxxA==}
     engines: {node: '>=14', npm: '>=6', yarn: '>=1'}
 
   '@testing-library/jest-dom@6.9.1':
@@ -13844,10 +13823,6 @@ packages:
 
 snapshots:
 
-  '@4tw/cypress-drag-drop@2.3.0(cypress@15.5.0)':
-    dependencies:
-      cypress: 15.5.0
-
   '@actions/core@1.11.1':
     dependencies:
       '@actions/exec': 1.1.1
@@ -13863,8 +13838,6 @@ snapshots:
       undici: 5.29.0
 
   '@actions/io@1.1.3': {}
-
-  '@adobe/css-tools@4.4.2': {}
 
   '@adobe/css-tools@4.4.4': {}
 
@@ -18175,7 +18148,7 @@ snapshots:
 
   '@teppeis/multimaps@3.0.0': {}
 
-  '@testing-library/cypress@10.0.3(cypress@14.4.0)':
+  '@testing-library/cypress@10.1.0(cypress@14.4.0)':
     dependencies:
       '@babel/runtime': 7.28.4
       '@testing-library/dom': 10.4.1
@@ -18223,16 +18196,6 @@ snapshots:
   '@testing-library/jest-dom@6.5.0':
     dependencies:
       '@adobe/css-tools': 4.4.4
-      aria-query: 5.3.2
-      chalk: 3.0.0
-      css.escape: 1.5.1
-      dom-accessibility-api: 0.6.3
-      lodash: 4.17.21
-      redent: 3.0.0
-
-  '@testing-library/jest-dom@6.6.3':
-    dependencies:
-      '@adobe/css-tools': 4.4.2
       aria-query: 5.3.2
       chalk: 3.0.0
       css.escape: 1.5.1
@@ -18653,7 +18616,7 @@ snapshots:
 
   '@types/testing-library__jest-dom@6.0.0':
     dependencies:
-      '@testing-library/jest-dom': 6.6.3
+      '@testing-library/jest-dom': 6.9.1
 
   '@types/tmp@0.2.6': {}
 
@@ -18676,17 +18639,17 @@ snapshots:
 
   '@types/wait-on@5.3.4':
     dependencies:
-      '@types/node': 24.9.2
+      '@types/node': 20.19.9
 
   '@types/webpack-sources@3.2.3':
     dependencies:
-      '@types/node': 24.9.2
+      '@types/node': 20.19.9
       '@types/source-list-map': 0.1.6
       source-map: 0.7.6
 
   '@types/webpack@4.41.40':
     dependencies:
-      '@types/node': 24.9.2
+      '@types/node': 20.19.9
       '@types/tapable': 1.0.12
       '@types/uglify-js': 3.17.5
       '@types/webpack-sources': 3.2.3
@@ -20528,7 +20491,7 @@ snapshots:
 
   chrome-launcher@0.15.2:
     dependencies:
-      '@types/node': 24.9.2
+      '@types/node': 20.19.9
       escape-string-regexp: 4.0.0
       is-wsl: 2.2.0
       lighthouse-logger: 1.4.2
@@ -20554,7 +20517,7 @@ snapshots:
 
   chromium-edge-launcher@0.2.0:
     dependencies:
-      '@types/node': 24.9.2
+      '@types/node': 20.19.9
       escape-string-regexp: 4.0.0
       is-wsl: 2.2.0
       lighthouse-logger: 1.4.2

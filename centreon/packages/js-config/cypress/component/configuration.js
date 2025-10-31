@@ -50,6 +50,7 @@ module.exports = ({
           return launchOptions;
         });
 
+        /*
         on('after:run', (results) => {
           const testRetries = {};
           if ('runs' in results) {
@@ -72,6 +73,7 @@ module.exports = ({
 
           fs.writeFileSync(resultFilePath, JSON.stringify(testRetries, null, 2));
         });
+        */
 
         on('after:spec', () => {
           if (global.gc) {
