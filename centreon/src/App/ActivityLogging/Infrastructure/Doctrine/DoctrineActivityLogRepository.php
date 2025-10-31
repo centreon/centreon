@@ -50,7 +50,7 @@ final readonly class DoctrineActivityLogRepository extends DbalRepository implem
     ];
     private const ACTION_VALUE_MAP = [
         ActionEnum::Add->value => 'a',
-        ActionEnum::Update->value => 'u',
+        ActionEnum::Update->value => 'c',
     ];
 
     public function __construct(
