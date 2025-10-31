@@ -10,8 +10,6 @@ import { DataTestAttributes } from '../../../@types/data-attributes';
 import { Button, ButtonProps } from '../../Button';
 import { useMenu } from '../useMenu';
 
-import { useStyles } from './MenuButton.styles';
-
 type MenuButtonProps = {
   ariaLabel?: string;
   children?: ReactNode;
