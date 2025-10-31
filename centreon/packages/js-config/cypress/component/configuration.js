@@ -4,7 +4,7 @@ const { defineConfig } = require('cypress');
 const {
   addMatchImageSnapshotPlugin
 } = require('@simonsmith/cypress-image-snapshot/plugin');
-const cypressCodeCoverageTask = require('@cypress/code-coverage/task');
+// const cypressCodeCoverageTask = require('@cypress/code-coverage/task');
 
 import fs from 'fs';
 import path from 'path';
@@ -76,6 +76,10 @@ module.exports = ({
         on('after:spec', () => {
           if (global.gc) {
             global.gc();
+          }
+
+          if (global.__coverage__) {
+            delete global.__coverage__;
           }
         });
       },
