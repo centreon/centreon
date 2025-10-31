@@ -12,6 +12,7 @@ import {
   keys,
   map,
   negate,
+  omit,
   pick,
   pipe,
   pluck,
@@ -54,6 +55,7 @@ import {
   eventMouseUpAtom,
   graphTooltipDataAtom
 } from './interactionWithGraphAtoms';
+import { number } from 'yup';
 
 const useStyles = makeStyles()(() => ({
   overlay: {
@@ -211,6 +213,38 @@ const InteractionWithGraph = ({
           unit: (lineData as Line).unit,
           yScalesPerUnit
         });
+
+        if (!isNil(lineData?.stackOrder)) {
+          const test = Object.entries(omit(['timeTick'], timeValue)).reduce(
+            (acc, [key, value]) => {
+              const line = getLineForMetric({
+                lines,
+                metric_id: Number(key)
+              });
+
+              if (
+                !isNil(line?.stackOrder) &&
+                (line?.stackOrder as number) >= (lineData.stackOrder as number)
+              ) {
+                return acc + value[1];
+              }
+
+              return acc;
+            },
+            0
+          );
+
+          const y0 = yScale(test);
+
+          const diffBetweenY0AndPointPosition = Math.abs(
+            y0 - margin.top - (graphHeight - pointPosition[1])
+          );
+
+          return {
+            ...acc,
+            [metricId]: diffBetweenY0AndPointPosition
+          };
+        }
 
         const y0 = yScale(value);
 
