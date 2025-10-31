@@ -30,7 +30,7 @@ module.exports = ({
       setupNodeEvents: (on, config) => {
         addMatchImageSnapshotPlugin(on, config);
 
-        cypressCodeCoverageTask(on, config);
+        // cypressCodeCoverageTask(on, config);
 
         on('before:browser:launch', (browser, launchOptions) => {
           if (
@@ -40,6 +40,11 @@ module.exports = ({
             launchOptions.args.push('--headless=new');
             launchOptions.args.push('--force-color-profile=srgb');
             launchOptions.args.push('--window-size=1400,1200');
+            launchOptions.args.push('--max-old-space-size=4096');
+            launchOptions.args.push('--disable-dev-shm-usage');
+            launchOptions.args.push('--disable-gpu');
+            launchOptions.args.push('--no-sandbox');
+            launchOptions.args.push('--js-flags=--expose-gc');
           }
 
           return launchOptions;
@@ -67,6 +72,12 @@ module.exports = ({
 
           fs.writeFileSync(resultFilePath, JSON.stringify(testRetries, null, 2));
         });
+
+        on('after:spec', () => {
+          if (global.gc) {
+            global.gc();
+          }
+        });
       },
       specPattern,
       supportFile: `${mainCypressFolder}/support/component.tsx`
@@ -84,7 +95,7 @@ module.exports = ({
       },
       ...env
     },
-    numTestsKeptInMemory: 1,
+    numTestsKeptInMemory: 5,
     reporter: 'mochawesome',
     reporterOptions: {
       html: false,

@@ -137,16 +137,16 @@ jobs:
           path: ${{ inputs.module_name }}/cypress/results/*.json
           retention-days: 1
 
-      - name: Change coverage report name
-        run: mv ${{ inputs.module_name }}/coverage/coverage-final.json ${{ inputs.module_name }}/coverage/${{ matrix.spec }}-out.json
-        shell: bash
+      # - name: Change coverage report name
+      #   run: mv ${{ inputs.module_name }}/coverage/coverage-final.json ${{ inputs.module_name }}/coverage/${{ matrix.spec }}-out.json
+      #   shell: bash
 
-      - name: Archive test coverage
-        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
-        with:
-          name: ${{ inputs.name }}-component-test-coverage-${{ matrix.spec }}
-          path: ${{ inputs.module_name }}/coverage/${{ matrix.spec }}-out.json
-          retention-days: 1
+      # - name: Archive test coverage
+      #   uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
+      #   with:
+      #     name: ${{ inputs.name }}-component-test-coverage-${{ matrix.spec }}
+      #     path: ${{ inputs.module_name }}/coverage/${{ matrix.spec }}-out.json
+      #     retention-days: 1
 
   cypress-component-coverage-report:
     needs: [cypress-component-test-run]
