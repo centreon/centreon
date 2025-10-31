@@ -49,7 +49,8 @@ jobs:
         id: list-specs
         run: |
           cd ${{ inputs.module_name }}
-          echo "specs=$(find ${{ inputs.specs_path }} -type f -name "*${{ inputs.spec_extension }}" -exec basename {} \; | sed -e "s/${{ inputs.spec_extension }}//" | sort | jq -R -s -c 'split("\n")[:-1]')" >> $GITHUB_OUTPUT
+          # echo "specs=$(find ${{ inputs.specs_path }} -type f -name "*${{ inputs.spec_extension }}" -exec basename {} \; | sed -e "s/${{ inputs.spec_extension }}//" | sort | jq -R -s -c 'split("\n")[:-1]')" >> $GITHUB_OUTPUT
+          echo "specs=[\"all\"]" >> $GITHUB_OUTPUT
 
   cypress-component-test-run:
     needs: [cypress-component-test-list]
@@ -101,7 +102,7 @@ jobs:
           install: false
           cache-key: cypress-cache-${{ runner.os }}-${{ hashFiles(inputs.dependencies_lock_file) }}
           working-directory: ${{ inputs.module_name }}
-          spec: ./**/${{ matrix.spec }}${{ inputs.spec_extension }}
+          spec: ./**/${{ matrix.spec == 'all' && '*' || matrix.spec }}${{ inputs.spec_extension }}
           publish-summary: false
           env: codeCoverageTasksRegistered=true
 
@@ -137,7 +138,7 @@ jobs:
 
   cypress-component-coverage-report:
     needs: [cypress-component-test-run]
-    if: always()
+    if: ! cancelled()
     runs-on: ubuntu-24.04
 
     steps:
@@ -256,7 +257,7 @@ jobs:
 
   regroup-artifacts:
     needs: [cypress-component-coverage-report, cypress-component-test-report, cypress-component-test-run]
-    if: always()
+    if: ! cancelled()
     runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
