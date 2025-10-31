@@ -1,4 +1,7 @@
+const { transpile } = require("typescript");
+
 const isDev = process.env.NODE_ENV !== 'production';
+const isCI = process.env.CI === 'true';
 
 const excludeNodeModulesExceptCentreonUi =
   /node_modules(\\|\/)\.pnpm(\\|\/)(?!(@centreon|file\+packages\+ui-context))/;
@@ -27,10 +30,12 @@ module.exports = {
               transform: {
                 react: {
                   development: isDev,
-                  refresh: isDev
+                  refresh: isDev && !isCI,
+                  runtime: 'automatic'
                 }
               }
-            }
+            },
+            sourceMaps: !isCI
           }
         }
       },

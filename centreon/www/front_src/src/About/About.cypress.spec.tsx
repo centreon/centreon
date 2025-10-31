@@ -66,6 +66,9 @@ describe('About page', () => {
 
   it('displays the about page', () => {
     mountComponent();
+    if (Cypress.currentRetry === 0) {
+      throw new Error('Force retry to test retries screenshot');
+    }
     cy.findByAltText('Centreon Logo').should('be.visible');
 
     projectLeaders.forEach((project) => {
