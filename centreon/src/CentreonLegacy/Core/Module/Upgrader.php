@@ -23,7 +23,10 @@ declare(strict_types=1);
 
 namespace CentreonLegacy\Core\Module;
 
+use CentreonLog;
 use Symfony\Component\Finder\Finder;
+use Symfony\Component\Process\Exception\ProcessFailedException;
+use Symfony\Component\Process\Process;
 
 class Upgrader extends Module
 {
@@ -60,6 +63,15 @@ class Upgrader extends Module
                 continue;
             }
 
+            CentreonLog::create()->info(
+                CentreonLog::TYPE_UPGRADE,
+                sprintf('Starting upgrade process for %s module', $moduleInstalledInformation['name']),
+                [
+                    'from' => $moduleInstalledInformation['mod_release'],
+                    'to' => $upgradeName
+                ]
+            );
+
             $this->upgradeVersion($upgradeName);
             $moduleInstalledInformation['mod_release'] = $upgradeName;
 
@@ -71,7 +83,22 @@ class Upgrader extends Module
         // finally, upgrade to current version
         $this->upgradeVersion($this->moduleConfiguration['mod_release']);
 
+        // Clearing symfony cache to properly enable API routes.
+        $this->clearCache();
+
         return $this->moduleId;
+    }
+
+    private function clearCache(): void
+    {
+        $process = new Process(['php', 'bin/console', 'cache:clear']);
+        $process->setWorkingDirectory(_CENTREON_PATH_);
+
+        $process->run();
+
+        if (! $process->isSuccessful()) {
+            throw new ProcessFailedException($process);
+        }
     }
 
     /**
