@@ -32,17 +32,17 @@ use App\ActivityLogging\Domain\Aggregate\Target;
 use App\ActivityLogging\Domain\Aggregate\TargetId;
 use App\ActivityLogging\Domain\Aggregate\TargetName;
 use App\ActivityLogging\Domain\Aggregate\TargetTypeEnum;
-use App\ActivityLogging\Infrastructure\Doctrine\DoctrineActivityLogRepository;
+use App\ActivityLogging\Infrastructure\Dbal\DbalActivityLogRepository;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
-final class DoctrineActivityLogRepositoryTest extends KernelTestCase
+final class DbalActivityLogRepositoryTest extends KernelTestCase
 {
-    private DoctrineActivityLogRepository $repository;
+    private DbalActivityLogRepository $repository;
 
     protected function setUp(): void
     {
-        /** @var DoctrineActivityLogRepository $repository */
-        $repository = self::getContainer()->get(DoctrineActivityLogRepository::class);
+        /** @var DbalActivityLogRepository $repository */
+        $repository = self::getContainer()->get(DbalActivityLogRepository::class);
 
         $this->repository = $repository;
     }
