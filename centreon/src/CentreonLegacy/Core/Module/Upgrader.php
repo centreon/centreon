@@ -68,7 +68,7 @@ class Upgrader extends Module
                 sprintf('Starting upgrade process for %s module', $moduleInstalledInformation['name']),
                 [
                     'from' => $moduleInstalledInformation['mod_release'],
-                    'to' => $upgradeName
+                    'to' => $upgradeName,
                 ]
             );
 
