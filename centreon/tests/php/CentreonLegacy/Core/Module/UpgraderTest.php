@@ -31,6 +31,8 @@ class UpgraderTest extends \PHPUnit\Framework\TestCase
     private $information;
     private $utils;
 
+    private static $originalProcessClass;
+
     public function setUp(): void
     {
         $this->container = new ServiceContainer();
@@ -70,6 +72,37 @@ class UpgraderTest extends \PHPUnit\Framework\TestCase
             ->method('executePhpFile');
     }
 
+    /**
+     * Create a hacky Process class for the test
+     */
+    public static function setUpBeforeClass(): void
+    {
+        // Save the real Process if it is already loaded
+        if (class_exists('\Symfony\Component\Process\Process', false)) {
+            self::$originalProcessClass = new \ReflectionClass('\Symfony\Component\Process\Process');
+        }
+
+        // HACK: create a fake Process in the Symfony namespace
+        eval('
+        namespace Symfony\Component\Process;
+        class Process {
+            public function __construct(array $cmd) {}
+            public function setWorkingDirectory($dir) {}
+            public function run() {}
+            public function isSuccessful() { return true; }
+        }');
+    }
+
+    /**
+     * Delete mock and restore origin class.
+     */
+    public static function tearDownAfterClass(): void
+    {
+        if (self::$originalProcessClass !== null) {
+            self::$originalProcessClass = null;
+        }
+    }
+
     public function tearDown(): void
     {
         $this->container->terminate();
@@ -78,6 +111,12 @@ class UpgraderTest extends \PHPUnit\Framework\TestCase
 
     public function testUpgrader(): void
     {
+        // HACK:this is done to prevent an error in code execution that says
+        // the constant is not defined while using the Symfony proccess setWorkingDir method
+        if (! defined('_CENTREON_PATH_')) {
+            define('_CENTREON_PATH_', getcwd());
+        }
+
         $filesystem = $this->getMockBuilder(\Symfony\Component\Filesystem\Filesystem::class)
             ->disableOriginalConstructor()
             ->onlyMethods(['exists'])
