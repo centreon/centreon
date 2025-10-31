@@ -121,7 +121,21 @@ $redirect->setValue($o);
 $form->applyFilter('__ALL__', 'myTrim');
 $form->addRule('name', _('Compulsory Name'), 'required');
 $form->registerRule('exist', 'callback', function ($name) {
-    return ! testTrapGroupExistence($name);
+    try {
+        return ! testTrapGroupExistence($name);
+    } catch (RepositoryException $exception) {
+        CentreonLog::create()->error(
+            CentreonLog::TYPE_SQL,
+            'Error while validating traps group uniqueness: ' . $exception->getMessage(),
+            exception: $exception
+        );
+        $msg = new CentreonMsg();
+        $msg->setImage('./img/icons/warning.png');
+        $msg->setTextStyle('bold');
+        $msg->setText('Error while validating traps group uniqueness');
+
+        return false;
+    }
 });
 $form->addRule('name', _('Name is already in use'), 'exist');
 $form->setRequiredNote("<font style='color: red;'>*</font>&nbsp;" . _('Required fields'));
