@@ -30,12 +30,11 @@ module.exports = {
               transform: {
                 react: {
                   development: isDev,
-                  refresh: isDev && !isCI,
+                  refresh: isDev,
                   runtime: 'automatic'
                 }
               }
-            },
-            sourceMaps: !isCI
+            }
           }
         }
       },

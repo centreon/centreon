@@ -35,12 +35,6 @@ module.exports = merge(getBaseConfiguration(true), getDevConfiguration(), {
   },
   devtool: false,
   infrastructureLogging: { level: 'error' },
-  optimization: {
-    minimize: false,
-    moduleIds: 'deterministic',
-    chunkIds: 'deterministic',
-    runtimeChunk: 'single'
-  },
   output,
   plugins: devServerPlugins,
   resolve: {
