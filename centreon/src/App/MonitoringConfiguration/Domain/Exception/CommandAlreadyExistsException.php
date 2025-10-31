@@ -23,8 +23,8 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Domain\Exception;
 
-use App\Shared\Domain\Exception\AggregateWithNameAlreadyExistsException;
+use App\Shared\Domain\Exception\AggregateAlreadyExistsException;
 
-final class CommandWithNameAlreadyExistsException extends AggregateWithNameAlreadyExistsException
+final class CommandAlreadyExistsException extends AggregateAlreadyExistsException
 {
 }

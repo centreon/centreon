@@ -32,7 +32,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Connector\Connector;
 use App\MonitoringConfiguration\Domain\Aggregate\Connector\ConnectorId;
 use App\MonitoringConfiguration\Domain\Event\CommandUpdated;
 use App\MonitoringConfiguration\Domain\Exception\CommandCanNotBeUpdatedException;
-use App\MonitoringConfiguration\Domain\Exception\CommandWithNameAlreadyExistsException;
+use App\MonitoringConfiguration\Domain\Exception\CommandAlreadyExistsException;
 use App\MonitoringConfiguration\Domain\Repository\CommandRepository;
 use App\MonitoringConfiguration\Domain\Repository\ConnectorRepository;
 use App\Shared\Application\Command\AsCommandHandler;
@@ -59,7 +59,7 @@ final readonly class UpdateCommandCommandHandler
         if ($command->name instanceof CommandName) {
             $commandWithSameName = $this->commandRepository->findOneByName($command->name);
             if ($commandWithSameName instanceof Command && $commandWithSameName->id()->value !== $existingCommand->id()->value) {
-                throw new CommandWithNameAlreadyExistsException(['name' => $command->name->value]);
+                throw new CommandAlreadyExistsException(['name' => $command->name->value], 'A command with the same name already exists.');
             }
             $existingCommand->updateName($command->name);
         }

@@ -28,12 +28,14 @@ use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\OpenApi\Model;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandName;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandTypeEnum;
 use App\MonitoringConfiguration\Domain\Security\CommandActionEnum;
 use App\MonitoringConfiguration\Domain\Security\CommandPermissionEnum;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\ConnectorResource;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Command\FindCommandProvider;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Command\UpdateCommandProcessor;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ApiResource(
     shortName: 'Command',
@@ -92,11 +94,32 @@ final class CommandResource
             description: 'The command name',
             openapiContext: ['example' => 'check_http']
         )]
+        #[Assert\Length(min: 1, max: 255)]
+        #[Assert\Regex(
+            pattern: CommandName::NAME_VALIDATION_REGEX,
+            message: 'The name can only contain alphanumeric characters, underscores, and hyphens.'
+        )]
         public string $name,
 
         #[ApiProperty(
             description: 'The type of command (1: notification, 2: check, 3: Miscellaneous, 4: Discovery)',
-            openapiContext: ['example' => 'Check', 'enum' => 'Check, Notification, Miscellaneous, Discovery'],
+            openapiContext: [
+                'example' => 'Check',
+                'enum' => [
+                    CommandTypeEnum::Check->name,
+                    CommandTypeEnum::Notification->name,
+                    CommandTypeEnum::Miscellaneous->name,
+                    CommandTypeEnum::Discovery->name,
+                ],
+            ],
+        )]
+        #[Assert\Choice(
+            choices: [
+                CommandTypeEnum::Check->name,
+                CommandTypeEnum::Notification->name,
+                CommandTypeEnum::Miscellaneous->name,
+                CommandTypeEnum::Discovery->name,
+            ]
         )]
         public string $type,
 
@@ -104,6 +127,7 @@ final class CommandResource
             description: 'The command line used to execute the command',
             openapiContext: ['example' => '$USER1$/check_http -H $ARG1$ -w $ARG2$ -c $ARG3$']
         )]
+        #[Assert\Length(min: 1, max: 65535)]
         public string $commandLine,
 
         #[ApiProperty(
