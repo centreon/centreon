@@ -588,7 +588,7 @@ $addIsEncryptionReadyAsBooleanColumn = function () use ($pearDB, $pearDBO, &$err
 };
 
 /** -------------------------------------- Backup updates -------------------------------------- */
-$setBackupMysqlConfDefaultAsEmpty = function () use ($pearDB, &$errorMessage): void {
+$setBackupMysqlConfDefaultAsEmpty = function () use ($pearDB, &$errorMessage, $version): void {
     $errorMessage = 'Unable to reset default of database configuration path in backup configuration';
     CentreonLog::create()->info(
         logTypeId: CentreonLog::TYPE_UPGRADE,
