@@ -21,18 +21,22 @@
 
 declare(strict_types=1);
 
-namespace App\Shared\Domain\Exception;
+namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\State;
 
-abstract class AggregateDoesNotExistException extends \RuntimeException
+use App\MonitoringConfiguration\Domain\Aggregate\Connector\Connector;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\ConnectorResource;
+use App\Shared\Infrastructure\TransformerInterface;
+
+/**
+ * @implements TransformerInterface<Connector, ConnectorResource>
+ */
+final readonly class ResourceConnectorTransformer implements TransformerInterface
 {
-    /**
-     * @param array<string, mixed> $criteria
-     */
-    public function __construct(
-        public readonly array $criteria,
-        string $message = 'Resource does not exists.',
-        ?\Throwable $previous = null,
-    ) {
-        parent::__construct($message, previous: $previous);
+    public function transform(mixed $from): ConnectorResource
+    {
+        return new ConnectorResource(
+            id: $from->id->value,
+            name: $from->name->value
+        );
     }
 }

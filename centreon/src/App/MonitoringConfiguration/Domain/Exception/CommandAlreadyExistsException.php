@@ -21,29 +21,10 @@
 
 declare(strict_types=1);
 
-namespace Core\Command\Application\UseCase\AddCommand;
+namespace App\MonitoringConfiguration\Domain\Exception;
 
-use Core\Command\Domain\Model\CommandType;
+use App\Shared\Domain\Exception\AggregateAlreadyExistsException;
 
-final class AddCommandRequest
+final class CommandAlreadyExistsException extends AggregateAlreadyExistsException
 {
-    public string $name = '';
-
-    public CommandType $type = CommandType::Check;
-
-    public string $commandLine = '';
-
-    public bool $isShellEnabled = false;
-
-    public string $argumentExample = '';
-
-    /** @var ArgumentDto[] */
-    public array $arguments = [];
-
-    /** @var MacroDto[] */
-    public array $macros = [];
-
-    public ?int $connectorId = null;
-
-    public ?int $graphTemplateId = null;
 }

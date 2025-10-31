@@ -21,11 +21,10 @@
 
 declare(strict_types=1);
 
-namespace Core\Command\Application\UseCase\AddCommand;
+namespace App\MonitoringConfiguration\Domain\Exception;
 
-use Core\Application\Common\UseCase\ResponseStatusInterface;
+use App\Shared\Domain\Exception\AggregateNotFoundException;
 
-interface AddCommandPresenterInterface
+final class ConnectorNotFoundException extends AggregateNotFoundException
 {
-    public function presentResponse(AddCommandResponse|ResponseStatusInterface $response): void;
 }

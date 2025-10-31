@@ -21,18 +21,32 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Domain\Repository;
+namespace Tests\App\MonitoringConfiguration\Infrastructure\Double;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Connector\Connector;
 use App\MonitoringConfiguration\Domain\Aggregate\Connector\ConnectorId;
 use App\MonitoringConfiguration\Domain\Exception\ConnectorNotFoundException;
+use App\MonitoringConfiguration\Domain\Repository\ConnectorRepository;
 
-interface ConnectorRepository
+final class FakeConnectorRepository implements ConnectorRepository
 {
-    public function findById(ConnectorId $id): ?Connector;
+    /** @var array<int, Connector> */
+    public array $connectors = [];
 
-    /**
-     * @throws ConnectorNotFoundException
-     */
-    public function get(ConnectorId $id): Connector;
+    public function findById(ConnectorId $id): ?Connector
+    {
+        return $this->connectors[$id->value] ?? null;
+    }
+
+    public function get(ConnectorId $id): Connector
+    {
+
+        return $this->connectors[$id->value] ?? throw new ConnectorNotFoundException(['id' => $id->value]);
+    }
+
+    public function add(Connector $connector): void
+    {
+
+        $this->connectors[$connector->id->value] = $connector;
+    }
 }

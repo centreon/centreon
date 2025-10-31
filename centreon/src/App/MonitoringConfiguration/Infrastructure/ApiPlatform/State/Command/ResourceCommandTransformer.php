@@ -24,15 +24,25 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Command;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Command\Command;
+use App\MonitoringConfiguration\Domain\Aggregate\Connector\Connector;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Command\CommandResource;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Command\ConnectorDto;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\ConnectorResource;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\ResourceConnectorTransformer;
 use App\Shared\Infrastructure\TransformerInterface;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 /**
  * @implements TransformerInterface<Command, CommandResource>
  */
 final readonly class ResourceCommandTransformer implements TransformerInterface
 {
+    /**
+     * @param TransformerInterface<Connector,ConnectorResource> $connectorTransformer
+     */
+    public function __construct(#[Autowire(service: ResourceConnectorTransformer::class)] private TransformerInterface $connectorTransformer)
+    {
+    }
+
     public function transform(mixed $from): CommandResource
     {
         return new CommandResource(
@@ -44,7 +54,7 @@ final readonly class ResourceCommandTransformer implements TransformerInterface
             isActivated: $from->isActivated ?? false,
             isFromMonitoringConnector: $from->isFromMonitoringConnector ?? false,
             connector: $from->connector !== null
-                ? ConnectorDto::createFromConnector($from->connector)
+                ? $this->connectorTransformer->transform($from->connector)
                 : null,
             comment: $from->comment?->value,
         );

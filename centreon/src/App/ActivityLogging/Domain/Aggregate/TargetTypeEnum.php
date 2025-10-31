@@ -27,4 +27,5 @@ enum TargetTypeEnum: string
 {
     case Host = 'Host';
     case ServiceCategory = 'ServiceCategory';
+    case Command = 'Command';
 }

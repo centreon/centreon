@@ -62,7 +62,6 @@ final class LegacyCommandPermissionVoter extends Voter
 
             return false;
         }
-
         if (! $user->hasRole(self::LEGACY_PERMISSION_MAP[$attribute])) {
             $vote?->addReason('The user does not have the required action role.');
 

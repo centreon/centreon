@@ -29,6 +29,7 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\OpenApi\Model;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandTypeEnum;
 use App\MonitoringConfiguration\Domain\Security\CommandPermissionEnum;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\ConnectorResource;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Command\FindCommandProvider;
 
 #[ApiResource(
@@ -75,11 +76,19 @@ final class CommandResource
             description: 'The command name',
             openapiContext: ['example' => 'check_http']
         )]
-        public string $name,
+        public ?string $name,
 
         #[ApiProperty(
             description: 'The type of command (1: notification, 2: check, 3: Miscellaneous, 4: Discovery)',
-            openapiContext: ['example' => 'Check', 'enum' => 'Check, Notification, Miscellaneous, Discovery'],
+            openapiContext: [
+                'example' => 'Check',
+                'enum' => [
+                    CommandTypeEnum::Check->name,
+                    CommandTypeEnum::Notification->name,
+                    CommandTypeEnum::Miscellaneous->name,
+                    CommandTypeEnum::Discovery->name,
+                ],
+            ],
         )]
         public string $type,
 
@@ -113,15 +122,16 @@ final class CommandResource
                     'name' => ['type' => 'string'],
                 ],
                 'example' => ['id' => 1, 'name' => 'SSH Connector'],
-            ]
+            ],
+            readableLink: true
         )]
-        public ?ConnectorDto $connector = null,
+        public ?ConnectorResource $connector,
 
         #[ApiProperty(
             description: 'Additional information about the command',
             openapiContext: ['example' => 'This command is used to check the HTTP service']
         )]
-        public ?string $comment = null,
+        public ?string $comment,
     ) {
     }
 }

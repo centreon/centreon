@@ -21,23 +21,24 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Command;
+namespace App\MonitoringConfiguration\Application\Command;
 
-use App\MonitoringConfiguration\Domain\Aggregate\Connector\Connector;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandComment;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandLine;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandName;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandTypeEnum;
+use App\MonitoringConfiguration\Domain\Aggregate\Connector\ConnectorId;
 
-final class ConnectorDto
+final readonly class CreateCommandCommand
 {
     public function __construct(
-        public int $id,
-        public string $name,
+        public CommandName $name,
+        public CommandTypeEnum $type,
+        public CommandLine $commandLine,
+        public bool $isShellEnabled,
+        public ?ConnectorId $connectorId,
+        public int $creatorId,
+        public ?CommandComment $comment,
     ) {
-    }
-
-    public static function createFromConnector(Connector $connector): self
-    {
-        return new self(
-            id: $connector->id->value,
-            name: $connector->name->value,
-        );
     }
 }

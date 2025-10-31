@@ -25,17 +25,17 @@ namespace Tests\App\MonitoringConfiguration\Infrastructure\Dbal;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Connector\Connector;
 use App\MonitoringConfiguration\Domain\Aggregate\Connector\ConnectorId;
-use App\MonitoringConfiguration\Infrastructure\Dbal\DbalConnectorRepository;
+use App\MonitoringConfiguration\Domain\Repository\ConnectorRepository;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 final class DbalConnectorRepositoryTest extends KernelTestCase
 {
-    private DbalConnectorRepository $repository;
+    private ConnectorRepository $repository;
 
     protected function setUp(): void
     {
-        /** @var DbalConnectorRepository $repository */
-        $repository = self::getContainer()->get(DbalConnectorRepository::class);
+        /** @var ConnectorRepository $repository */
+        $repository = self::getContainer()->get(ConnectorRepository::class);
 
         $this->repository = $repository;
     }

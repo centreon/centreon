@@ -21,16 +21,10 @@
 
 declare(strict_types=1);
 
-namespace Core\Command\Application\UseCase\AddCommand;
+namespace App\MonitoringConfiguration\Domain\Event;
 
-use Core\CommandMacro\Domain\Model\CommandMacroType;
+use App\Shared\Domain\Event\AggregateCreated;
 
-class MacroDto
+final readonly class CommandCreated extends AggregateCreated
 {
-    public function __construct(
-        public string $name,
-        public CommandMacroType $type = CommandMacroType::Host,
-        public string $description = '',
-    ) {
-    }
 }

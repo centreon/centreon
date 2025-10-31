@@ -21,13 +21,21 @@
 
 declare(strict_types=1);
 
-namespace Core\Command\Application\UseCase\AddCommand;
+namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource;
 
-class ArgumentDto
+use ApiPlatform\Metadata\Get;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\FindConnectorProvider;
+
+#[Get(
+    shortName: 'Connector',
+    uriTemplate: '/configuration/connectors/{id}',
+    provider: FindConnectorProvider::class,
+)]
+final class ConnectorResource
 {
     public function __construct(
+        public int $id,
         public string $name,
-        public string $description = '',
     ) {
     }
 }
