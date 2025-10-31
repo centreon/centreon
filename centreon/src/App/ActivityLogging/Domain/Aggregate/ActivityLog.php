@@ -28,7 +28,7 @@ use App\Shared\Domain\Exception\MissingIdException;
 final class ActivityLog
 {
     /**
-     * @param array<string, int|string|null> $details
+     * @param array<string, string> $details
      */
     public function __construct(
         private ?ActivityLogId $id,

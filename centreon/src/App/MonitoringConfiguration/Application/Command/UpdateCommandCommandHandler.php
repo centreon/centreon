@@ -88,8 +88,9 @@ final readonly class UpdateCommandCommandHandler
                 : $existingCommand->disable();
         }
 
-        /* Unless the payload contains a connector id (or any other field) set to null, the field is not updated.
-        *  because of the way ApiPlatform handles PATCH requests.
+        /**
+         * Unless the payload contains a connector id (or any other field) set to null, the field is not updated.
+         *  because of the way ApiPlatform handles PATCH requests.
         */
         if ($command->connectorId instanceof ConnectorId) {
             $connector = $this->connectorRepository->findById($command->connectorId);

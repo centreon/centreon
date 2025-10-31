@@ -51,7 +51,7 @@ final readonly class CommandActivityLogFactory implements ActivityLogFactoryInte
         $details = [
             'command_activate' => $aggregate->isActivated ? '1' : '0',
             'command_name' => $aggregate->name->value,
-            'command_type' => $aggregate->type->value,
+            'command_type' => (string) $aggregate->type->value,
             'command_line' => $aggregate->commandLine->value,
             'enable_shell' => $aggregate->isShellEnabled ? '1' : '0',
             'connector' => $aggregate->connector->name->value ?? '',
