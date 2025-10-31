@@ -55,7 +55,6 @@ import {
   eventMouseUpAtom,
   graphTooltipDataAtom
 } from './interactionWithGraphAtoms';
-import { number } from 'yup';
 
 const useStyles = makeStyles()(() => ({
   overlay: {
