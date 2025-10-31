@@ -53,6 +53,8 @@ final class CreateCommandVoter extends Voter
 
         $type = CommandTypeEnum::fromName($subject->type);
         if (! $type instanceof CommandTypeEnum) {
+            $vote?->addReason('Invalid command type.');
+
             return false;
         }
 

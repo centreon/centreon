@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Application\Command;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Command\Command;
+use App\MonitoringConfiguration\Domain\Aggregate\Connector\ConnectorId;
 use App\MonitoringConfiguration\Domain\Event\CommandCreated;
 use App\MonitoringConfiguration\Domain\Exception\CommandAlreadyExistsException;
 use App\MonitoringConfiguration\Domain\Repository\CommandRepository;
@@ -47,7 +48,7 @@ final readonly class CreateCommandCommandHandler
             throw new CommandAlreadyExistsException(['name' => $command->name->value]);
         }
 
-        if ($command->connectorId instanceof \App\MonitoringConfiguration\Domain\Aggregate\Connector\ConnectorId) {
+        if ($command->connectorId instanceof ConnectorId) {
             $connector = $this->connectorRepository->get($command->connectorId);
         }
 

@@ -23,8 +23,8 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Domain\Exception;
 
-use App\Shared\Domain\Exception\AggregateDoesNotExistException;
+use App\Shared\Domain\Exception\AggregateNotFoundException;
 
-final class OptionDoesNotExistException extends AggregateDoesNotExistException
+final class OptionDoesNotExistException extends AggregateNotFoundException
 {
 }

@@ -23,8 +23,8 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Domain\Exception;
 
-use App\Shared\Domain\Exception\AggregateDoesNotExistException;
+use App\Shared\Domain\Exception\AggregateNotFoundException;
 
-final class ConnectorNotFoundException extends AggregateDoesNotExistException
+final class ConnectorNotFoundException extends AggregateNotFoundException
 {
 }
