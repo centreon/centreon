@@ -27,7 +27,6 @@ module.exports = ({
           rspackConfig
         }),
       excludeSpecPattern,
-      // experimentalMemoryManagement: true,
       setupNodeEvents: (on, config) => {
         addMatchImageSnapshotPlugin(on, config);
 
@@ -85,7 +84,7 @@ module.exports = ({
       },
       ...env
     },
-    // numTestsKeptInMemory: 0,
+    numTestsKeptInMemory: 1,
     reporter: 'mochawesome',
     reporterOptions: {
       html: false,
@@ -98,7 +97,7 @@ module.exports = ({
       openMode: 0,
       runMode: 2
     },
-    video: true,
+    video: false,
     videosFolder: `${mainCypressFolder}/results/videos`,
     viewportHeight: 590,
     viewportWidth: 1280
