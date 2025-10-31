@@ -27,7 +27,7 @@ module.exports = ({
           rspackConfig
         }),
       excludeSpecPattern,
-      experimentalMemoryManagement: true,
+      // experimentalMemoryManagement: true,
       setupNodeEvents: (on, config) => {
         addMatchImageSnapshotPlugin(on, config);
 
@@ -85,7 +85,7 @@ module.exports = ({
       },
       ...env
     },
-    numTestsKeptInMemory: 0,
+    // numTestsKeptInMemory: 0,
     reporter: 'mochawesome',
     reporterOptions: {
       html: false,
