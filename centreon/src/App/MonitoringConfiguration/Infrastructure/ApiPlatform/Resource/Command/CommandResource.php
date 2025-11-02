@@ -163,7 +163,7 @@ final class CommandResource
             description: 'Additional information about the command',
             openapiContext: ['example' => 'This command is used to check the HTTP service']
         )]
-        public ?string $comment = null,
+        public ?string $comment,
     ) {
     }
 }

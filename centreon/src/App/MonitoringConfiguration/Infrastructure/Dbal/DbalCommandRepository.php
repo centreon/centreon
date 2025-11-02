@@ -130,17 +130,38 @@ final readonly class DbalCommandRepository extends DbalRepository implements Com
         return $this->createCommand($row);
     }
 
-    public function exists(CommandId $id): bool
+    public function add(Command $command): void
     {
         $qb = $this->connection->createQueryBuilder();
 
-        $qb->select('1')
-            ->from(self::TABLE_NAME)
-            ->where('command_id = :id')
-            ->setParameter('id', $id->value)
-            ->setMaxResults(1);
+        $qb->insert(self::TABLE_NAME)
+            ->values([
+                'command_name' => ':command_name',
+                'command_line' => ':command_line',
+                'command_type' => ':command_type',
+                'enable_shell' => ':enable_shell',
+                'command_activate' => ':command_activate',
+                'command_locked' => ':command_locked',
+                'command_comment' => ':command_comment',
+                'connector_id' => ':connector_id',
+            ])
+            ->setParameter('command_name', $command->name->value)
+            ->setParameter('command_line', $command->commandLine->value)
+            ->setParameter('command_type', $command->type->value)
+            ->setParameter('enable_shell', $command->isShellEnabled ? '1' : '0')
+            ->setParameter('command_activate', $command->isActivated ? '1' : '0')
+            ->setParameter('command_locked', $command->isFromMonitoringConnector ? '1' : '0')
+            ->setParameter('command_comment', $command->comment?->value)
+            ->setParameter('connector_id', $command->connector?->id->value)
+            ->executeStatement();
 
-        return (bool) $qb->executeQuery()->fetchOne();
+        $id = (int) $this->connection->lastInsertId();
+
+        if ($id === 0) {
+            throw new \RuntimeException(\sprintf('Unable to retrieve last insert ID for "%s".', self::TABLE_NAME));
+        }
+
+        $this->setId($command, new CommandId($id));
     }
 
     public function update(Command $command): void

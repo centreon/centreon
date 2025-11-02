@@ -21,18 +21,24 @@
 
 declare(strict_types=1);
 
-namespace App\Shared\Domain\Exception;
+namespace App\MonitoringConfiguration\Application\Command;
 
-abstract class AggregateDoesNotExistException extends \RuntimeException
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandComment;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandLine;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandName;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandTypeEnum;
+use App\MonitoringConfiguration\Domain\Aggregate\Connector\ConnectorId;
+
+final readonly class CreateCommandCommand
 {
-    /**
-     * @param array<string, mixed> $criteria
-     */
     public function __construct(
-        public readonly array $criteria,
-        string $message = 'Resource does not exists.',
-        ?\Throwable $previous = null,
+        public CommandName $name,
+        public CommandTypeEnum $type,
+        public CommandLine $commandLine,
+        public bool $isShellEnabled,
+        public ?ConnectorId $connectorId,
+        public int $creatorId,
+        public ?CommandComment $comment,
     ) {
-        parent::__construct($message, previous: $previous);
     }
 }

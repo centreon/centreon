@@ -21,19 +21,10 @@
 
 declare(strict_types=1);
 
-namespace Tests\Core\Command\Infrastructure\API\AddCommand;
+namespace App\MonitoringConfiguration\Domain\Event;
 
-use Core\Application\Common\UseCase\AbstractPresenter;
-use Core\Application\Common\UseCase\ResponseStatusInterface;
-use Core\Command\Application\UseCase\AddCommand\AddCommandPresenterInterface;
-use Core\Command\Application\UseCase\AddCommand\AddCommandResponse;
+use App\Shared\Domain\Event\AggregateCreated;
 
-class AddCommandPresenterStub extends AbstractPresenter implements AddCommandPresenterInterface
+final readonly class CommandCreated extends AggregateCreated
 {
-    public AddCommandResponse|ResponseStatusInterface $response;
-
-    public function presentResponse(ResponseStatusInterface|AddCommandResponse $response): void
-    {
-        $this->response = $response;
-    }
 }

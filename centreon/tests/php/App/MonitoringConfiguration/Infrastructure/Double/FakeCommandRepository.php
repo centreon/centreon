@@ -35,6 +35,22 @@ final class FakeCommandRepository implements CommandRepository
     /** @var array<int, Command> */
     public array $commands = [];
 
+    public function getById(CommandId $id): Command
+    {
+        return $this->commands[$id->value] ?? throw new CommandNotFoundException(['id' => $id->value]);
+    }
+
+    public function findOneByName(CommandName $name): ?Command
+    {
+        foreach ($this->commands as $command) {
+            if ($command->name->value === $name->value) {
+                return $command;
+            }
+        }
+
+        return null;
+    }
+
     public function add(Command $command): void
     {
         do {
@@ -46,26 +62,6 @@ final class FakeCommandRepository implements CommandRepository
         $reflection->setValue($command, new CommandId($id));
 
         $this->commands[$id] = $command;
-    }
-
-    public function getById(CommandId $id): Command
-    {
-        if (! isset($this->commands[$id->value])) {
-            throw new CommandNotFoundException(['id' => $id->value]);
-        }
-
-        return $this->commands[$id->value];
-    }
-
-    public function findOneByName(CommandName $name): ?Command
-    {
-        foreach ($this->commands as $command) {
-            if ($command->name === $name) {
-                return $command;
-            }
-        }
-
-        return null;
     }
 
     public function update(Command $command): void

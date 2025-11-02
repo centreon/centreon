@@ -39,6 +39,11 @@ final class FakeConnectorRepository implements ConnectorRepository
         return $this->connectors[$id->value] ?? null;
     }
 
+    public function get(ConnectorId $id): Connector
+    {
+        return $this->connectors[$id->value] ?? throw new ConnectorNotFoundException(['id' => $id->value]);
+    }
+
     public function add(Connector $connector): void
     {
         do {
@@ -50,11 +55,5 @@ final class FakeConnectorRepository implements ConnectorRepository
         $reflection->setValue($connector, new ConnectorId($id));
 
         $this->connectors[$id] = $connector;
-    }
-
-    public function get(ConnectorId $id): Connector
-    {
-
-        return $this->connectors[$id->value] ?? throw new ConnectorNotFoundException(['id' => $id->value]);
     }
 }
