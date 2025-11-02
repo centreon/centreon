@@ -157,7 +157,7 @@ final class CommandResource
             ],
             readableLink: true,
         )]
-        public ?ConnectorResource $connector = null,
+        public ?ConnectorResource $connector,
 
         #[ApiProperty(
             description: 'Additional information about the command',

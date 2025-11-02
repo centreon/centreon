@@ -58,7 +58,7 @@ final class CreateCommandVoter extends Voter
             return false;
         }
 
-        $permission = Command::getCreationPermissionForType($type);
+        $permission = Command::getWritePermissionForType($type);
 
         return $this->security->isGranted($permission->value);
     }
