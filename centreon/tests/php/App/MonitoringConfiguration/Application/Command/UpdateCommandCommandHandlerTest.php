@@ -32,6 +32,9 @@ use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandLine;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandName;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandTypeEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\Connector\ConnectorId;
+use App\MonitoringConfiguration\Domain\Event\CommandUpdated;
+use App\MonitoringConfiguration\Domain\Exception\CommandAlreadyExistsException;
+use App\MonitoringConfiguration\Domain\Exception\CommandCanNotBeUpdatedException;
 use App\MonitoringConfiguration\Domain\Exception\CommandNotFoundException;
 use PHPUnit\Framework\TestCase;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeCommandRepository;
@@ -96,6 +99,7 @@ final class UpdateCommandCommandHandlerTest extends TestCase
         self::assertTrue($updatedCommand->isShellEnabled);
         self::assertFalse($updatedCommand->isActivated);
         self::assertSame('updated comment', $updatedCommand->comment?->value);
+        self::assertTrue($this->eventBus->shouldHaveDispatched(CommandUpdated::class));
     }
 
     public function testCannotUpdateNonExistingCommand(): void
@@ -113,6 +117,85 @@ final class UpdateCommandCommandHandlerTest extends TestCase
             connectorId: new ConnectorId(1),
             updatedBy: 1,
         );
+
+        ($this->handler)($updateCommand);
+    }
+
+    // test update command with existing name
+    public function testCannotUpdateCommandWithExistingName(): void
+    {
+        // add a command with the name to test uniqueness
+        $existingCommand = new Command(
+            id: new CommandId(2),
+            name: new CommandName('existing name'),
+            commandLine: new CommandLine('existing command'),
+            type: CommandTypeEnum::Check,
+            isShellEnabled: false,
+            isActivated: true,
+            comment: new CommandComment('existing comment'),
+            isFromMonitoringConnector: false,
+            connector: null,
+        );
+        $this->commandRepository->add($existingCommand);
+        // add the command to update
+        $commandToUpdate = new Command(
+            id: new CommandId(3),
+            name: new CommandName('original name'),
+            commandLine: new CommandLine('original command'),
+            type: CommandTypeEnum::Check,
+            isShellEnabled: false,
+            isActivated: true,
+            comment: new CommandComment('original comment'),
+            isFromMonitoringConnector: false,
+            connector: null,
+        );
+        $this->commandRepository->add($commandToUpdate);
+        // attempt to update the command with the existing name
+        $updateCommand = new UpdateCommandCommand(
+            id: new CommandId($commandToUpdate->id()->value),
+            name: new CommandName('existing name'),
+            commandLine: new CommandLine('updated command'),
+            type: CommandTypeEnum::Notification,
+            isShellEnabled: true,
+            isActivated: false,
+            comment: new CommandComment('updated comment'),
+            connectorId: new ConnectorId(1),
+            updatedBy: 1,
+        );
+        $this->expectException(CommandAlreadyExistsException::class);
+
+        ($this->handler)($updateCommand);
+    }
+
+    public function testCannotUpdateCommandFromMonitoringConnector(): void
+    {
+        $command = new Command(
+            id: new CommandId(2),
+            name: new CommandName('connector command'),
+            commandLine: new CommandLine('connector command line'),
+            type: CommandTypeEnum::Check,
+            isShellEnabled: false,
+            isActivated: true,
+            comment: new CommandComment('connector comment'),
+            isFromMonitoringConnector: true,
+            connector: null,
+        );
+
+        $this->commandRepository->add($command);
+
+        $updateCommand = new UpdateCommandCommand(
+            id: new CommandId($command->id()->value),
+            name: new CommandName('updated name'),
+            commandLine: new CommandLine('updated command'),
+            type: CommandTypeEnum::Notification,
+            isShellEnabled: true,
+            isActivated: false,
+            comment: new CommandComment('updated comment'),
+            connectorId: new ConnectorId(1),
+            updatedBy: 1,
+        );
+
+        $this->expectException(CommandCanNotBeUpdatedException::class);
 
         ($this->handler)($updateCommand);
     }

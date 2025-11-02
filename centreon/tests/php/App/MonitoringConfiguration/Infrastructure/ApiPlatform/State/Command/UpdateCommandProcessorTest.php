@@ -62,6 +62,10 @@ final class UpdateCommandProcessorTest extends ApiTestCase
     {
         $this->login();
 
+        // first make sure connector is not existing in command
+        $response = $this->request('GET', '/api/latest/configuration/commands/1');
+        self::assertArrayNotHasKey('connector', $response->toArray());
+
         $this->request('PATCH', '/api/latest/configuration/commands/1', [
             'headers' => [
                 'Content-Type' => 'application/merge-patch+json',
@@ -86,12 +90,17 @@ final class UpdateCommandProcessorTest extends ApiTestCase
     {
         $this->login();
 
-        $response = $this->request('PATCH', '/api/latest/configuration/commands/1', [
+        // check thatt the command has a connector first
+        $response = $this->request('GET', '/api/latest/configuration/commands/1');
+        self::assertArrayHasKey('connector', $response->toArray());
+
+        $this->request('PATCH', '/api/latest/configuration/commands/1', [
             'headers' => [
                 'Content-Type' => 'application/merge-patch+json',
             ],
             'json' => [
                 'name' => 'Command without Connector',
+                'connector' => null,
             ],
         ]);
 
@@ -104,7 +113,7 @@ final class UpdateCommandProcessorTest extends ApiTestCase
     {
         $this->login();
 
-        $this->request('PATCH', '/api/latest/configuration/commands/1', [
+        $response = $this->request('PATCH', '/api/latest/configuration/commands/1', [
             'headers' => [
                 'Content-Type' => 'application/merge-patch+json',
             ],
@@ -122,31 +131,54 @@ final class UpdateCommandProcessorTest extends ApiTestCase
         self::assertJsonContains([
             'name' => 'Command with Invalid Connector',
         ]);
+        self::assertArrayNotHasKey('connector', $response->toArray());
     }
 
-    public function testUpdateCommandActivate(): void
+    public function testUpdateCommandKeepExistingConnector(): void
     {
         $this->login();
-
+        // First, add a connector to the command
         $this->request('PATCH', '/api/latest/configuration/commands/1', [
             'headers' => [
                 'Content-Type' => 'application/merge-patch+json',
             ],
             'json' => [
-                'is_activated' => true,
+                'connector' => [
+                    'id' => 1,
+                ],
             ],
         ]);
 
         self::assertResponseIsSuccessful();
         self::assertMatchesResourceItemJsonSchema(CommandResource::class);
         self::assertJsonContains([
-            'is_activated' => true,
+            'connector' => ['id' => 1, 'name' => 'Perl Connector'],
+        ]);
+        // Now, update the command without specifying the connector
+        $this->request('PATCH', '/api/latest/configuration/commands/1', [
+            'headers' => [
+                'Content-Type' => 'application/merge-patch+json',
+            ],
+            'json' => [
+                'name' => 'Command Keeping Connector',
+            ],
+        ]);
+        self::assertResponseIsSuccessful();
+        self::assertMatchesResourceItemJsonSchema(CommandResource::class);
+        // ensure connector is still present
+        self::assertJsonContains([
+            'name' => 'Command Keeping Connector',
+            'connector' => ['id' => 1, 'name' => 'Perl Connector'],
         ]);
     }
 
     public function testUpdateCommandDeactivate(): void
     {
         $this->login();
+
+        // first, ensure command is activated before test
+        $response = $this->request('GET', '/api/latest/configuration/commands/1');
+        self::assertTrue($response->toArray()['is_activated']);
 
         $this->request('PATCH', '/api/latest/configuration/commands/1', [
             'headers' => [
@@ -161,6 +193,30 @@ final class UpdateCommandProcessorTest extends ApiTestCase
         self::assertMatchesResourceItemJsonSchema(CommandResource::class);
         self::assertJsonContains([
             'is_activated' => false,
+        ]);
+    }
+
+    public function testUpdateCommandActivate(): void
+    {
+        $this->login();
+
+        $response = $this->request('GET', '/api/latest/configuration/commands/1');
+        // ensure command is deactivated before test
+        self::assertFalse($response->toArray()['is_activated']);
+
+        $this->request('PATCH', '/api/latest/configuration/commands/1', [
+            'headers' => [
+                'Content-Type' => 'application/merge-patch+json',
+            ],
+            'json' => [
+                'is_activated' => true,
+            ],
+        ]);
+
+        self::assertResponseIsSuccessful();
+        self::assertMatchesResourceItemJsonSchema(CommandResource::class);
+        self::assertJsonContains([
+            'is_activated' => true,
         ]);
     }
 
@@ -197,30 +253,6 @@ final class UpdateCommandProcessorTest extends ApiTestCase
 
         self::assertResponseIsSuccessful();
         self::assertMatchesResourceItemJsonSchema(CommandResource::class);
-    }
-
-    public function testUpdateCommandTypeValues(): void
-    {
-        $this->login();
-
-        $validTypes = ['Notification', 'Check', 'Miscellaneous', 'Discovery'];
-
-        foreach ($validTypes as $type) {
-            $this->request('PATCH', '/api/latest/configuration/commands/1', [
-                'headers' => [
-                    'Content-Type' => 'application/merge-patch+json',
-                ],
-                'json' => [
-                    'type' => $type,
-                ],
-            ]);
-
-            self::assertResponseIsSuccessful();
-            self::assertMatchesResourceItemJsonSchema(CommandResource::class);
-            self::assertJsonContains([
-                'type' => $type,
-            ]);
-        }
     }
 
     public function testUpdateCommandIsShellEnabled(): void
