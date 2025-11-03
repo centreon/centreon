@@ -16,6 +16,7 @@ import { LineChartProps } from '../Chart/models';
 import useChartData from '../Chart/useChartData';
 import { LineChartData, Thresholds } from '../common/models';
 
+import { ReactElement } from 'react';
 import useResizeObserver from 'use-resize-observer';
 import ResponsiveBarChart from './ResponsiveBarChart';
 import { BarStyle } from './models';
@@ -36,6 +37,9 @@ export interface BarChartProps
       | 'min'
       | 'max'
       | 'boundariesUnit'
+      | 'timeShiftZones'
+      | 'zoomPreview'
+      | 'annotationEvent'
     >
   > {
   barStyle?: BarStyle;
@@ -71,8 +75,11 @@ const BarChart = ({
   skipIntersectionObserver,
   min,
   max,
-  boundariesUnit
-}: BarChartProps): JSX.Element => {
+  boundariesUnit,
+  zoomPreview,
+  timeShiftZones,
+  annotationEvent
+}: BarChartProps): ReactElement => {
   const { adjustedData } = useChartData({ data, end, start, min, max });
   const { ref, width, height: responsiveHeight } = useResizeObserver();
 
@@ -109,6 +116,9 @@ const BarChart = ({
             min={min}
             max={max}
             boundariesUnit={boundariesUnit}
+            zoomPreview={zoomPreview}
+            timeShiftZones={timeShiftZones}
+            annotationEvent={annotationEvent}
           />
         )}
       </Box>
