@@ -142,6 +142,27 @@ final class PartialUpdateToken
                 return;
             }
 
+            if ($requestDto->isRevoked instanceof NoValue) {
+                ExceptionLogger::create()->log(
+                    new Exception('is_revoked property is not provided'),
+                    [
+                        'message' => 'is_revoked property is not provided. Nothing to update',
+                        'token_name' => $token->getName(),
+                        'user_id' => $this->user->getId(),
+                    ],
+                    LogLevel::DEBUG
+                );
+
+                LoggerToken::create()->warning(
+                    event: 'revocation/activation',
+                    reason: 'is_revoked property is not provided',
+                    userId: $this->user->getId(),
+                    tokenName: $token->getName(),
+                );
+
+                return;
+            }
+
             $this->updateToken($requestDto, $token);
 
             LoggerToken::create()->success(
@@ -193,28 +214,7 @@ final class PartialUpdateToken
      */
     private function updateToken(PartialUpdateTokenRequest $requestDto, Token $token): void
     {
-        if ($requestDto->isRevoked instanceof NoValue) {
-            ExceptionLogger::create()->log(
-                new Exception('is_revoked property is not provided'),
-                [
-                    'message' => 'is_revoked property is not provided. Nothing to update',
-                    'token_name' => $token->getName(),
-                    'user_id' => $this->user->getId(),
-                ],
-                LogLevel::DEBUG
-            );
-
-            LoggerToken::create()->warning(
-                event: 'revocation/activation',
-                reason: 'is_revoked property is not provided',
-                userId: $this->user->getId(),
-                tokenName: $token->getName(),
-            );
-
-            return;
-        }
-
-        $token->setIsRevoked($requestDto->isRevoked);
+        $token->setIsRevoked((bool) $requestDto->isRevoked);
 
         $this->writeRepository->update($token);
     }

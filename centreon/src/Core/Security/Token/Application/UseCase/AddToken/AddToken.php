@@ -61,6 +61,8 @@ final class AddToken
         try {
             $tokenString = $this->createToken($request);
 
+            $response = $this->createResponse($tokenString);
+
             LoggerToken::create()->success(
                 event: 'creation',
                 userId: $this->user->getId(),
@@ -68,7 +70,7 @@ final class AddToken
                 tokenType: $request->type->name,
             );
 
-            return $this->createResponse($tokenString);
+            return $response;
         } catch (AssertionFailedException|\ValueError $ex) {
             ExceptionLogger::create()->log($ex, [
                 'user_id' => $this->user->getId(),
@@ -169,6 +171,12 @@ final class AddToken
     private function createResponse(string $tokenString): AddTokenResponse
     {
         if (! ($token = $this->readTokenRepository->find($tokenString))) {
+            LoggerToken::create()->warning(
+                event: 'creation',
+                reason: 'token not retrieved successfully after creation',
+                userId: $this->user->getId(),
+            );
+
             throw TokenException::errorWhileRetrievingObject();
         }
 
