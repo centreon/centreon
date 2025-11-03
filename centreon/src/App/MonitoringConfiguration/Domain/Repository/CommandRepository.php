@@ -41,5 +41,8 @@ interface CommandRepository
 
     public function add(Command $command): void;
 
+    public function update(Command $command): void;
+
     public function findAllByConnector(Connector $connector): Collection;
+
 }

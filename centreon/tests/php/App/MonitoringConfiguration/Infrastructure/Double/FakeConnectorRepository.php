@@ -27,6 +27,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Connector\Connector;
 use App\MonitoringConfiguration\Domain\Aggregate\Connector\ConnectorId;
 use App\MonitoringConfiguration\Domain\Exception\ConnectorNotFoundException;
 use App\MonitoringConfiguration\Domain\Repository\ConnectorRepository;
+use App\Shared\Domain\Aggregate\AggregateRoot;
 
 final class FakeConnectorRepository implements ConnectorRepository
 {
@@ -40,13 +41,19 @@ final class FakeConnectorRepository implements ConnectorRepository
 
     public function get(ConnectorId $id): Connector
     {
-
         return $this->connectors[$id->value] ?? throw new ConnectorNotFoundException(['id' => $id->value]);
     }
 
     public function add(Connector $connector): void
     {
+        do {
+            $id = mt_rand();
+        } while (isset($this->connectors[$id]));
 
-        $this->connectors[$connector->id->value] = $connector;
+        $reflection = new \ReflectionProperty(AggregateRoot::class, 'id');
+        $reflection->setAccessible(true);
+        $reflection->setValue($connector, new ConnectorId($id));
+
+        $this->connectors[$id] = $connector;
     }
 }

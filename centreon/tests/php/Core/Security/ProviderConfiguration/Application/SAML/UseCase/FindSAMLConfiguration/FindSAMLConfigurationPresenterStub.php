@@ -23,20 +23,15 @@ declare(strict_types=1);
 
 namespace Tests\Core\Security\ProviderConfiguration\Application\SAML\UseCase\FindSAMLConfiguration;
 
-use Core\Application\Common\UseCase\AbstractPresenter;
 use Core\Application\Common\UseCase\ResponseStatusInterface;
 use Core\Security\ProviderConfiguration\Application\SAML\UseCase\FindSAMLConfiguration\FindSAMLConfigurationPresenterInterface;
 use Core\Security\ProviderConfiguration\Application\SAML\UseCase\FindSAMLConfiguration\FindSAMLConfigurationResponse;
 
-class FindSAMLConfigurationPresenterStub extends AbstractPresenter implements FindSAMLConfigurationPresenterInterface
+class FindSAMLConfigurationPresenterStub implements FindSAMLConfigurationPresenterInterface
 {
-    /** @var ResponseStatusInterface|FindSAMLConfigurationResponse */
-    public $response;
+    public ResponseStatusInterface|FindSAMLConfigurationResponse $response;
 
-    /**
-     * @param ResponseStatusInterface|FindSAMLConfigurationResponse $response
-     */
-    public function present(mixed $response): void
+    public function presentResponse(ResponseStatusInterface|FindSAMLConfigurationResponse $response): void
     {
         $this->response = $response;
     }

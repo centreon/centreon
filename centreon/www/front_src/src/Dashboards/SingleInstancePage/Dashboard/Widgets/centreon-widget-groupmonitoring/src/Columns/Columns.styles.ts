@@ -27,7 +27,9 @@ export const useStatusesColumnStyles = makeStyles()((theme) => ({
   statusLabelContainer: {
     borderRadius: '50%',
     height: theme.spacing(2),
+    display: 'flex',
     justifyContent: 'center',
+    alignItems: 'center',
     width: theme.spacing(2)
   }
 }));

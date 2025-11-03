@@ -34,6 +34,7 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Command\CreateC
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[Post(
+    shortName: 'Command',
     uriTemplate: '/configuration/commands',
     processor: CreateCommandProcessor::class,
     openapi: new Model\Operation(

@@ -23,39 +23,10 @@ declare(strict_types=1);
 
 namespace Core\Security\ProviderConfiguration\Domain\SAML\Model;
 
-enum RequestedAuthnContextEnum
+enum RequestedAuthnContextComparisonEnum: string
 {
-    case MINIMUM;
-    case EXACT;
-    case BETTER;
-    case MAXIMUM;
-
-    /**
-     * @return string
-     */
-    public function toString(): string
-    {
-        return match ($this) {
-            self::MINIMUM => 'minimum',
-            self::EXACT => 'exact',
-            self::BETTER => 'better',
-            self::MAXIMUM => 'maximum',
-        };
-    }
-
-    /**
-     * @param string $value
-     *
-     * @return self
-     */
-    public static function fromString(string $value): self
-    {
-        return match ($value) {
-            'minimum' => self::MINIMUM,
-            'exact' => self::EXACT,
-            'better' => self::BETTER,
-            'maximum' => self::MAXIMUM,
-            default => self::MINIMUM,
-        };
-    }
+    case MINIMUM = 'minimum';
+    case EXACT = 'exact';
+    case BETTER = 'better';
+    case MAXIMUM = 'maximum';
 }

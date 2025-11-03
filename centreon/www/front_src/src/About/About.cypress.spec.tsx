@@ -6,6 +6,7 @@ import {
   userAtom
 } from '@centreon/ui-context';
 
+import { renderHook } from '@testing-library/react';
 import { PlatformVersions } from '../api/models';
 import About from './About';
 import { contributors } from './Sections/Contibutors';
@@ -16,7 +17,6 @@ import {
   labelCentreonsGithub,
   labelCommunity
 } from './translatedLabels';
-import { renderHook } from '@testing-library/react';
 
 const externalLinks = [
   {
