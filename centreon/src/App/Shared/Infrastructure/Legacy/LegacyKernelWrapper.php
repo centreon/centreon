@@ -52,7 +52,7 @@ final readonly class LegacyKernelWrapper implements HttpKernelInterface
         $legacyKernel = new LegacyKernel($this->kernel->getEnvironment(), $this->kernel->isDebug());
 
         // handle the request by the legacy
-        $legacyResponse = $legacyKernel->handle($request, $type, $catch);
+        $legacyResponse = $legacyKernel->handle($request, $type, false);
         $legacyKernel->terminate($request, $legacyResponse);
 
         return $legacyResponse;
