@@ -114,7 +114,7 @@ jobs:
             jq 'to_entries | .[].key' $retriesFile | while read -r testName; do
               echo "::warning::Following test was retried during execution: $testName (retries: $(jq ".$testName" $retriesFile))"
             done
-            mv $retriesFile "${{ inputs.module_name }}/cypress/reports/${{ matrix.spec }}-retries.json"
+            mv $retriesFile "${{ inputs.module_name }}/cypress/results/${{ matrix.spec }}-retries.json"
           fi
         shell: bash
 
