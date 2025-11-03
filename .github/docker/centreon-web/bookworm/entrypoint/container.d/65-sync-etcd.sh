@@ -6,13 +6,14 @@ set -e
 
 USE_ETCD="${USE_ETCD:-false}"
 
-# Exit early if etcd is not enabled
+# Skip if etcd is not enabled
 if [ "$USE_ETCD" != "true" ] && [ "$USE_ETCD" != "1" ]; then
     echo "=== etcd Sync Disabled ==="
     echo "etcd integration disabled (USE_ETCD=${USE_ETCD})"
     echo "Configuration files are available via shared volume only"
     echo ""
-    exit 0
+    # Return instead of exit since this script is sourced
+    return 0
 fi
 
 ETCD_HOST="${ETCD_HOST:-etcd}"
@@ -40,6 +41,13 @@ write_config_to_etcd() {
 
     # Read file content
     local content=$(cat "$file_path")
+
+    # Debug: Show file content if DEBUG is enabled
+    if [ "${DEBUG}" = "true" ] || [ "${DEBUG}" = "1" ]; then
+        echo "  Debug: File content ($(echo "$content" | wc -l) lines):"
+        echo "$content" | head -20
+        echo ""
+    fi
 
     # Base64 encode for etcd v3 API
     local key_b64=$(echo -n "$etcd_key" | base64 | tr -d '\n')
