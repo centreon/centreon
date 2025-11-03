@@ -20,9 +20,6 @@ const output = isDevelopmentMode
   : {};
 
 module.exports = merge(getBaseConfiguration(true), getDevConfiguration(), {
-  cache: {
-    type: 'filesystem'
-  },
   devServer: {
     ...devServer,
     port: 9092,
