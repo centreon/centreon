@@ -41,18 +41,29 @@ if [ "$(id -u)" = 0 ]; then
 fi
 
 # Create necessary directories
-mkdir -p /etc/centreon/config.d /var/cache/centreon/ /var/lib/centreon/centcore
+# Note: These may be shadowed by volumes in orchestrated environments
+# but we create them anyway for standalone/non-orchestrated usage
+mkdir -p /etc/centreon/config.d /var/cache/centreon/
+
+# Create all /var/lib/centreon subdirectories
+# If volume is mounted on /var/lib/centreon, these will be created in the volume
+# If no volume, these will be created in the image layer
+echo "Creating /var/lib/centreon directory structure..."
+mkdir -p /var/lib/centreon/{centcore,centplugins,centreon-bi-server,installs,log,metrics,nagios-perf,perfdata,status,vault}
 
 # Set ownership based on whether we're running as root
 if [ "$(id -u)" = 0 ]; then
     # Running as root - set proper ownership with potentially updated UID/GID
-    safe_chown -R centreon:centreon /etc/centreon /var/lib/centreon/centcore
+    safe_chown -R centreon:centreon /etc/centreon /var/lib/centreon
     safe_chown -R www-data:www-data /var/cache/centreon/
-    safe_chmod 775 /etc/centreon/ /etc/centreon/config.d/ /var/lib/centreon/centcore
+    safe_chmod 775 /etc/centreon/ /etc/centreon/config.d/
+    safe_chmod -R 775 /var/lib/centreon
+    echo "Permissions set on /var/lib/centreon structure"
 else
     # Running as non-root user - skip chown, just set permissions where possible
     echo "Running as non-root user (UID: $(id -u), GID: $(id -g))"
-    safe_chmod 775 /etc/centreon/ /etc/centreon/config.d/ /var/lib/centreon/centcore
+    safe_chmod 775 /etc/centreon/ /etc/centreon/config.d/
+    safe_chmod -R 775 /var/lib/centreon
 fi
 
 # Verify that app data exists (should be populated by init container)

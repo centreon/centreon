@@ -129,6 +129,15 @@ ENV CENTREON_LANG="en_US"
 ENV PUID=900
 ENV PGID=900
 
+# etcd configuration (optional - set USE_ETCD=true to enable)
+# USE_ETCD=false: Configuration available via shared volume only (default)
+# USE_ETCD=true:  Configuration synced to etcd for distributed access
+ENV USE_ETCD=false \
+    ETCD_HOST=etcd \
+    ETCD_PORT=2379 \
+    ETCD_KEY_PREFIX=/centreon/config \
+    CONFIG_DIR=/etc/centreon/config.d
+
 ENTRYPOINT ["/usr/share/centreon/container.sh"]
 
 CMD ["php-fpm"]
