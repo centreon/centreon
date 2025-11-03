@@ -60,8 +60,7 @@ export default ({
     },
     env: {
       ...env,
-      DATABASE_IMAGE:
-        'docker.centreon.com/proxy/bitnamilegacy/mariadb:10.5',
+      DATABASE_IMAGE: 'docker.centreon.com/proxy/bitnami/mariadb:10.5',
       OPENID_IMAGE_VERSION: process.env.MAJOR || '24.04',
       SAML_IMAGE_VERSION: process.env.MAJOR || '24.04',
       WEB_IMAGE_OS: 'alma9',
