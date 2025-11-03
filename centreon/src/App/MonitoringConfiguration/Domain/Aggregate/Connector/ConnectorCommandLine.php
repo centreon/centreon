@@ -23,19 +23,13 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Domain\Aggregate\Connector;
 
-use App\Shared\Domain\Aggregate\AggregateRoot;
-use App\Shared\Domain\Collection;
+use Webmozart\Assert\Assert;
 
-final  class Connector extends AggregateRoot
+final readonly class ConnectorCommandLine
 {
     public function __construct(
-        ?ConnectorId $id,
-        public readonly ConnectorName $name,
-        public readonly ConnectorCommandLine $commandLine,
-        public readonly ConnectorDescription $description,
-        public readonly Collection $commands,
-        public readonly bool $isActivated,
+        public string $value,
     ) {
-        parent::__construct($id);
+        Assert::maxLength($value, 255);
     }
 }

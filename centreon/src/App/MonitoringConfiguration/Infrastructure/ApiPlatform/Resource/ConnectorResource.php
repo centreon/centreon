@@ -23,9 +23,73 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource;
 
+use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\OpenApi\Model;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\FindConnectorProvider;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\ListConnectorsProvider;
+use App\Shared\Domain\Collection;
 
+#[ApiResource(
+    operations: [
+        new GetCollection(
+            uriTemplate: '/configuration/connectors',
+            provider: ListConnectorsProvider::class,
+            openapi: new Model\Operation(
+                parameters: [
+                    new Model\Parameter(
+                        name: 'id[lk]',
+                        in: 'query',
+                        description: 'Filter by id using "like" operator',
+                        required: false,
+                        schema: [
+                            'type' => 'array',
+                            'items' => ['type' => 'string'],
+                        ],
+                    ),
+                    new Model\Parameter(
+                        name: 'id[eq]',
+                        in: 'query',
+                        description: 'Filter by id using "equals" operator',
+                        required: false,
+                        schema: [
+                            'type' => 'array',
+                            'items' => ['type' => 'string'],
+                        ],
+                    ),
+                    new Model\Parameter(
+                        name: 'name[lk]',
+                        in: 'query',
+                        description: 'Filter by name using "like" operator',
+                        required: false,
+                        schema: [
+                            'type' => 'array',
+                            'items' => ['type' => 'string'],
+                        ],
+                    ),
+                    new Model\Parameter(
+                        name: 'name[eq]',
+                        in: 'query',
+                        description: 'Filter by name using "equals" operator',
+                        required: false,
+                        schema: [
+                            'type' => 'array',
+                            'items' => ['type' => 'string'],
+                        ],
+                    ),
+                ],
+            ),
+            /* security: "is_granted('" . ConnectorPermissionEnum::CanRead->value . "')", */
+            securityMessage: 'You are not allowed to list global macros',
+        ),
+        new Get(
+            shortName: 'Connector',
+            uriTemplate: '/configuration/connectors/{id}',
+            provider: FindConnectorProvider::class,
+        )
+    ],
+)]
 #[Get(
     shortName: 'Connector',
     uriTemplate: '/configuration/connectors/{id}',
@@ -36,6 +100,10 @@ final class ConnectorResource
     public function __construct(
         public int $id,
         public string $name,
+        public string $commandLine,
+        public ?string $description,
+        public Collection $commands,
+        public bool $isActivated,
     ) {
     }
 }

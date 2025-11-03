@@ -26,7 +26,9 @@ namespace App\MonitoringConfiguration\Domain\Repository;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\Command;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandName;
+use App\MonitoringConfiguration\Domain\Aggregate\Connector\Connector;
 use App\MonitoringConfiguration\Domain\Exception\CommandNotFoundException;
+use App\Shared\Domain\Collection;
 
 interface CommandRepository
 {
@@ -38,4 +40,6 @@ interface CommandRepository
     public function findOneByName(CommandName $name): ?Command;
 
     public function add(Command $command): void;
+
+    public function findAllByConnector(Connector $connector): Collection;
 }

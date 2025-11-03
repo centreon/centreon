@@ -26,6 +26,7 @@ namespace App\MonitoringConfiguration\Domain\Repository;
 use App\MonitoringConfiguration\Domain\Aggregate\Connector\Connector;
 use App\MonitoringConfiguration\Domain\Aggregate\Connector\ConnectorId;
 use App\MonitoringConfiguration\Domain\Exception\ConnectorNotFoundException;
+use App\MonitoringConfiguration\Domain\Repository\Criteria\ConnectorCriteria;
 
 interface ConnectorRepository
 {
@@ -35,4 +36,9 @@ interface ConnectorRepository
      * @throws ConnectorNotFoundException
      */
     public function get(ConnectorId $id): Connector;
+
+    /**
+     * @return \IteratorAggregate<int, Connector>&\Countable
+     */
+    public function findAll(?ConnectorCriteria $criteria = null): \IteratorAggregate&\Countable;
 }

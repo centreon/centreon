@@ -41,15 +41,15 @@ final readonly class DbalCommandTransformer implements TransformerInterface
     public function transform(mixed $from): Command
     {
         return new Command(
-            id: new CommandId($from['command_id']),
-            name: new CommandName($from['command_name']),
-            commandLine: new CommandLine($from['command_line']),
-            type: CommandTypeEnum::from($from['command_type']),
+            id: new CommandId($from['cm_command_id']),
+            name: new CommandName($from['cm_command_name']),
+            commandLine: new CommandLine($from['cm_command_line']),
+            type: CommandTypeEnum::from($from['cm_command_type']),
             connector: null, // filled by callers
-            comment: $from['command_comment'] !== null ? new CommandComment($from['command_comment']) : null,
-            isShellEnabled: $from['enable_shell'] === 1,
-            isActivated: $from['command_activate'] === '1',
-            isFromMonitoringConnector: $from['command_locked'] === 1,
+            comment: $from['cm_command_comment'] !== null ? new CommandComment($from['cm_command_comment']) : null,
+            isShellEnabled: $from['cm_enable_shell'] === 1,
+            isActivated: $from['cm_command_activate'] === '1',
+            isFromMonitoringConnector: $from['cm_command_locked'] === 1,
         );
     }
 }

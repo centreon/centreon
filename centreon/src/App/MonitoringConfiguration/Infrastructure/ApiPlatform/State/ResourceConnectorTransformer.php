@@ -35,8 +35,12 @@ final readonly class ResourceConnectorTransformer implements TransformerInterfac
     public function transform(mixed $from): ConnectorResource
     {
         return new ConnectorResource(
-            id: $from->id->value,
-            name: $from->name->value
+            id: $from->id()->value,
+            name: $from->name->value,
+            commandLine: $from->commandLine->value,
+            description: $from->description->value,
+            isActivated: $from->isActivated,
+            commands: $from->commands,
         );
     }
 }
