@@ -1,3 +1,29 @@
+Cypress.Commands.add('visitHostTemplatesListing', (index: number) => {
+  cy.navigateTo({
+    page: 'Templates',
+    rootItemNumber: index,
+    subMenu: 'Hosts'
+  });
+  cy.wait('@getTimeZone');
+});
+Cypress.Commands.add('visitServiceTemplatesListing', (index: number) => {
+  cy.navigateTo({
+    page: 'Templates',
+    rootItemNumber: index,
+    subMenu: 'Services'
+  });
+  cy.wait('@getTimeZone');
+});
+
+Cypress.Commands.add('visitServicesListing', (index: number) => {
+  cy.navigateTo({
+    page: 'Services by host',
+    rootItemNumber: index,
+    subMenu: 'Services'
+  });
+  cy.wait('@getTimeZone');
+});
+
 Cypress.Commands.add(
   'fillMacros',
   (isUpdate: boolean, normalMacro: Macro, passMacro: Macro) => {
@@ -77,6 +103,21 @@ Cypress.Commands.add(
   }
 );
 
+Cypress.Commands.add(
+  'fillServiceMandatoryField',
+  (name: string, host: string, cmd: string) => {
+    cy.getIframeBody()
+      .find('input[name="service_description"]')
+      .clear()
+      .type(name);
+    cy.getIframeBody().find('input[placeholder="Hosts"]').click();
+    cy.wait('@getHostsList');
+    cy.getIframeBody().contains('div', host).click();
+    cy.getIframeBody().find('span[title="Check Command"]').click();
+    cy.getIframeBody().contains('div', cmd).click();
+  }
+);
+
 interface Macro {
   name: string;
   value: string;
@@ -86,6 +127,9 @@ declare global {
   // biome-ignore lint/style/noNamespace: <explanation>
   namespace Cypress {
     interface Chainable {
+      visitServiceTemplatesListing: (index: number) => Cypress.Chainable;
+      visitServicesListing: (index: number) => Cypress.Chainable;
+      visitHostTemplatesListing: (index: number) => Cypress.Chainable;
       fillMacros: (
         isUpdate: boolean,
         normalMacro: Macro,
@@ -97,10 +141,15 @@ declare global {
       ) => Cypress.Chainable;
       fillHostBasicsInfos: (name: string, alias: string) => Cypress.Chainable;
       checkMacrosFromTheExportFile: (
-        fileName,
+        fileName: string,
         isInherited: boolean,
         normalMacro: Macro,
         passMacro: Macro
+      ) => Cypress.Chainable;
+      fillServiceMandatoryField: (
+        name: string,
+        host: string,
+        cmd: string
       ) => Cypress.Chainable;
     }
   }
