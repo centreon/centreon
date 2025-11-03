@@ -23,13 +23,14 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource;
 
+use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\OpenApi\Model;
+use App\MonitoringConfiguration\Domain\Security\ConnectorPermissionEnum;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\FindConnectorProvider;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\ListConnectorsProvider;
-use App\Shared\Domain\Collection;
 
 #[ApiResource(
     operations: [
@@ -45,7 +46,7 @@ use App\Shared\Domain\Collection;
                         required: false,
                         schema: [
                             'type' => 'array',
-                            'items' => ['type' => 'string'],
+                            'items' => ['type' => 'int'],
                         ],
                     ),
                     new Model\Parameter(
@@ -55,7 +56,7 @@ use App\Shared\Domain\Collection;
                         required: false,
                         schema: [
                             'type' => 'array',
-                            'items' => ['type' => 'string'],
+                            'items' => ['type' => 'int'],
                         ],
                     ),
                     new Model\Parameter(
@@ -80,14 +81,20 @@ use App\Shared\Domain\Collection;
                     ),
                 ],
             ),
-            /* security: "is_granted('" . ConnectorPermissionEnum::CanRead->value . "')", */
-            securityMessage: 'You are not allowed to list global macros',
+            security: '
+                is_granted("' . ConnectorPermissionEnum::CanRead->value . '") or
+                is_granted("' . ConnectorPermissionEnum::CanReadAndWrite->value . '")',
+            securityMessage: 'You are not allowed to list connectors',
         ),
         new Get(
             shortName: 'Connector',
             uriTemplate: '/configuration/connectors/{id}',
             provider: FindConnectorProvider::class,
-        )
+            security: '
+                is_granted("' . ConnectorPermissionEnum::CanRead->value . '") or
+                is_granted("' . ConnectorPermissionEnum::CanReadAndWrite->value . '")',
+            securityMessage: 'You are not allowed to list connectors',
+        ),
     ],
 )]
 #[Get(
@@ -98,11 +105,31 @@ use App\Shared\Domain\Collection;
 final class ConnectorResource
 {
     public function __construct(
+        #[ApiProperty(identifier: true, writable: false)]
         public int $id,
+
+        #[ApiProperty(
+            description: 'The connector name',
+            openapiContext: ['example' => 'Perl Connector']
+        )]
         public string $name,
+
+        #[ApiProperty(
+            description: 'The command line used to execute the connector',
+            openapiContext: ['example' => 'centreon_connector_ssh --log-file=/var/log/centreon-engine/connector-ssh.log']
+        )]
         public string $commandLine,
+
+        #[ApiProperty(
+            description: 'The connector description',
+            openapiContext: ['example' => 'Connector using SSH to connect to remote hosts']
+        )]
         public ?string $description,
-        public Collection $commands,
+
+        #[ApiProperty(
+            description: 'Indicates whether the connector is activated',
+            openapiContext: ['example' => true]
+        )]
         public bool $isActivated,
     ) {
     }

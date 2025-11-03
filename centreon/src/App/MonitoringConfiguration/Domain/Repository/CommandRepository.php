@@ -26,7 +26,6 @@ namespace App\MonitoringConfiguration\Domain\Repository;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\Command;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandName;
-use App\MonitoringConfiguration\Domain\Aggregate\Connector\Connector;
 use App\MonitoringConfiguration\Domain\Exception\CommandNotFoundException;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\CommandCriteria;
 use App\Shared\Domain\Collection;
@@ -48,5 +47,5 @@ interface CommandRepository
      * @param CommandCriteria|null $criteria
      * @return \IteratorAggregate<int, Command>&\Countable
      */
-    public function findAllByCriteria(?CommandCriteria $criteria): \IteratorAggregate&\Countable;
+    public function findAll(?CommandCriteria $criteria): \IteratorAggregate&\Countable;
 }

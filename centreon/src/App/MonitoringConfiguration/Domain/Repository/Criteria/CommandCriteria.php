@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Domain\Repository\Criteria;
 
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandTypeEnum;
 use Webmozart\Assert\Assert;
 
 final class CommandCriteria
@@ -38,7 +39,7 @@ final class CommandCriteria
     /** @var array<self::OPERATOR_*, list<string>> */
     private array $names = [];
 
-    /** @var array<list<string>> */
+    /** @var list<CommandTypeEnum> */
     private array $types = [];
 
     private ?bool $status = null;
@@ -75,7 +76,7 @@ final class CommandCriteria
 
     public function withType(string $type): self
     {
-        CommandTypeEnum::fromName($type);
+        $type = CommandTypeEnum::fromName($type);
 
         $types = $this->types;
         $types[] = $type;

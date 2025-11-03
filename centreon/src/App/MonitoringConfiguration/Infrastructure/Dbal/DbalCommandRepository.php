@@ -27,13 +27,15 @@ use App\MonitoringConfiguration\Domain\Aggregate\Command\Command;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandName;
 use App\MonitoringConfiguration\Domain\Aggregate\Connector\Connector;
-use App\MonitoringConfiguration\Domain\Aggregate\Connector\ConnectorId;
 use App\MonitoringConfiguration\Domain\Exception\CommandNotFoundException;
 use App\MonitoringConfiguration\Domain\Repository\CommandRepository;
+use App\MonitoringConfiguration\Domain\Repository\Criteria\CommandCriteria;
 use App\Shared\Domain\Collection;
 use App\Shared\Infrastructure\Dbal\DbalRepository;
+use App\Shared\Infrastructure\InMemory\InMemoryPaginator;
 use App\Shared\Infrastructure\TransformerInterface;
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Query\QueryBuilder;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Webmozart\Assert\Assert;
 
@@ -53,7 +55,7 @@ use Webmozart\Assert\Assert;
 final readonly class DbalCommandRepository extends DbalRepository implements CommandRepository
 {
     public const TABLE_NAME = 'command';
-    public const CONNECTOR_JON_TABLE_NAME = 'connector';
+    public const CONNECTOR_JOIN_TABLE_NAME = 'connector';
 
     /**
      * @param TransformerInterface<RowTypeAlias, Command> $transformer
@@ -65,7 +67,7 @@ final readonly class DbalCommandRepository extends DbalRepository implements Com
         #[Autowire(service: DbalCommandTransformer::class)]
         private TransformerInterface $transformer,
 
-        /* private DbalConnectorRepository $connectorRepository, */
+        private DbalConnectorRepository $connectorRepository,
     ) {
     }
 
@@ -76,25 +78,14 @@ final readonly class DbalCommandRepository extends DbalRepository implements Com
     {
         $qb = $this->connection->createQueryBuilder();
 
-        $qb->select(
-            'command_id',
-            'command_name',
-            'command_line',
-            'command_type',
-            'enable_shell',
-            'command_activate',
-            'command_locked',
-            'command_comment',
-            'connector_id',
-        )
-            ->from(self::TABLE_NAME)
+        $qb->select(...self::getSelectColumns(), ...DbalConnectorRepository::getSelectColumns())
+            ->from(self::TABLE_NAME, 'cm')
+            ->leftJoin('cm', self::CONNECTOR_JOIN_TABLE_NAME, 'c', 'cm.connector_id = c.id')
             ->where('command_id = :id')
             ->setParameter('id', $id->value)
             ->setMaxResults(1);
-
         /** @var RowTypeAlias $row */
         $row = $qb->executeQuery()->fetchAssociative();
-
         if (! $row) {
             throw new CommandNotFoundException(['id' => $id->value]);
         }
@@ -106,18 +97,8 @@ final readonly class DbalCommandRepository extends DbalRepository implements Com
     {
         $qb = $this->connection->createQueryBuilder();
 
-        $qb->select(
-            'command_id',
-            'command_name',
-            'command_line',
-            'command_type',
-            'enable_shell',
-            'command_activate',
-            'command_locked',
-            'command_comment',
-            'connector_id',
-        )
-            ->from(self::TABLE_NAME)
+        $qb->select(...self::getSelectColumns())
+            ->from(self::TABLE_NAME, 'cm')
             ->where('command_name = :name')
             ->setParameter('name', $name->value)
             ->setMaxResults(1);
@@ -130,6 +111,44 @@ final readonly class DbalCommandRepository extends DbalRepository implements Com
         }
 
         return $this->createCommand($row);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findAll(?CommandCriteria $criteria): \IteratorAggregate&\Countable
+    {
+        $qb = $this->connection->createQueryBuilder();
+
+        $qb->select(...self::getSelectColumns(), ...DbalConnectorRepository::getSelectColumns())
+            ->from(self::TABLE_NAME, 'cm')
+            ->leftJoin('cm', self::CONNECTOR_JOIN_TABLE_NAME, 'c', 'cm.connector_id = c.id');
+
+        // if we have a criteria, filter the query
+        if ($criteria instanceof CommandCriteria) {
+            $this->filterByCriteria($qb, $criteria);
+        }
+        // if no pagination
+        if ($criteria?->getPage() === null || $criteria->getItemsPerPage() === null) {
+            /** @var array<RowTypeAlias> $rows */
+            $rows = $qb->executeQuery()->fetchAllAssociative();
+
+            return new Collection(array_map(fn (array $row): Command => $this->createCommand($row), $rows), Command::class);
+        }
+
+        $this->paginate($qb, $criteria);
+
+        $count = $this->countOnQueryBuilder($qb); // must be done before fetching all rows
+
+        /** @var array<RowTypeAlias> $rows */
+        $rows = $qb->executeQuery()->fetchAllAssociative();
+
+        return new InMemoryPaginator(
+            items: new Collection(array_map(fn (array $row): Command => $this->createCommand($row), $rows), Command::class),
+            totalItems: $count,
+            currentPage: $criteria->getPage() ?? throw new \LogicException('Unexpected null page'),
+            itemsPerPage: $criteria->getItemsPerPage() ?? throw new \LogicException('Unexpected null items per page'),
+        );
     }
 
     public function add(Command $command): void
@@ -166,46 +185,6 @@ final readonly class DbalCommandRepository extends DbalRepository implements Com
         $this->setId($command, new CommandId($id));
     }
 
-    public function findAllByConnector(Connector $connector): Collection {
-        $qb = $this->connection->createQueryBuilder();
-        $qb->select(...self::getSelectColumns(), ...DbalConnectorRepository::getSelectColumns())
-            ->from(self::CONNECTOR_JON_TABLE_NAME, 'c')
-            ->rightJoin('c', self::TABLE_NAME, 'cm', 'c.id = cm.connector_id')
-            ->where('cm.connector_id = :connector_id')
-            ->setParameter('connector_id', $connector->id()->value);
-
-        /**
-         * @var array<JoinRowTypeAlias> $rows
-         */
-        $rows = $qb->executeQuery()->fetchAllAssociative();
-
-        $connectorRows = [];
-        $commandRows = [];
-        foreach ($rows as $row) {
-            $connectorId = $row['c_id'];
-            $commandId = $row['cm_command_id'];
-
-            $connectorRows[$connectorId] ??= $row;
-
-            if ($commandId !== null) {
-                /** @var GlobalMacroRowTypeAlias $commandRow */
-                $commandRow = [
-                    "cm_command_id" => $row["cm_command_id"],
-                    "cm_command_name" => $row["cm_command_name"],
-                    "cm_command_line" => $row["cm_command_line"],
-                    "cm_command_type" => $row["cm_command_type"],
-                    "cm_enable_shell" => $row["cm_enable_shell"],
-                    "cm_command_activate" => $row["cm_command_activate"],
-                    "cm_command_locked" => $row["cm_command_locked"],
-                    "cm_command_comment" => $row["cm_command_comment"],
-                ];
-                $commandRows[$connectorId][$commandId] = $commandRow;
-            }
-        }
-
-        return $this->createCommands($connectorRows, $commandRows);
-    }
-
     /**
      * @return array<string>
      */
@@ -223,44 +202,6 @@ final readonly class DbalCommandRepository extends DbalRepository implements Com
         ];
     }
 
-    /**
-     * @param array<RowTypeAlias> $connectorRows
-     * @param array<array<GlobalMacroRowTypeAlias>>|null $commandRowsByConnectorId
-     *
-     * @return Collection<Command>
-     */
-    private function createCommands(array $connectorRows, ?array $commandRowsByConnectorId = null): Collection
-    {
-        // fetch all global macros of given pollers
-        if ($commandRowsByConnectorId) {
-            $commandQb = $this->connection->createQueryBuilder();
-            $commandQb->select('cm.command_id', ...DbalConnectorRepository::getSelectColumns())
-                ->from(self::TABLE_NAME, 'cm')
-                ->innerJoin('cm', self::CONNECTOR_JON_TABLE_NAME, 'c', 'cm.connector_id = c.id')
-                ->where($commandQb->expr()->in('c.id', array_map('strval', array_column($connectorRows, 'c_id'))));
-
-            /**
-             * @var array<JoinRowTypeAlias> $commandRows
-             */
-            $commandRows = $commandQb->executeQuery()->fetchAllAssociative();
-            /**
-             * @var array<array<GlobalMacroRowTypeAlias>> $globalMacroRowsByPollerId
-             */
-            $connectorRowsRowsByCommandId = [];
-            foreach ($commandRows as $commandRow) {
-                $connectorRowsRowsByCommandId['command_id'][] = $commandRow;
-            }
-        }
-        $commands = [];
-        foreach ($connectorRows as $row) {
-            $commandId = $row['cm_command_id'];
-            $commands[$commandId] ??= $this->createCommand(
-                $row,
-                $connectorRowsRowsByCommandId[$commandId] ?? null,
-            );
-        }
-
-        return new Collection(array_values($commands), Command::class);
     public function update(Command $command): void
     {
         $commandId = $command->id();
@@ -295,15 +236,80 @@ final readonly class DbalCommandRepository extends DbalRepository implements Com
     private function createCommand(array $row): Command
     {
         $command = $this->transformer->transform($row);
+        $connector = $this->connectorRepository->findByCommand($command);
 
-        /* if ($row['connector_id'] !== null) { */
-        /*     $connectorId = $row['connector_id']; */
-        /*     $connector = $this->connectorRepository->findById(new ConnectorId($connectorId)); */
-        /*     if ($connector instanceof Connector) { */
-        /*         $command->addConnector($connector); */
-        /*     } */
-        /* } */
+        /** @var CommandId $id */
+        $id = $command->id();
 
-        return $command;
+        // create a new instance with same values but with the poller collection
+        return new Command(
+            id: $id,
+            name: $command->name,
+            type: $command->type,
+            commandLine: $command->commandLine,
+            isShellEnabled: $command->isShellEnabled,
+            isActivated: $command->isActivated,
+            isFromMonitoringConnector: $command->isFromMonitoringConnector,
+            comment: $command->comment,
+            connector: $connector,
+        );
+    }
+
+    public function filterByCriteria(QueryBuilder $qb, CommandCriteria $criteria): void
+    {
+        if ($nameCriteria = $criteria->getNames()) {
+            foreach ($nameCriteria as $operator => $names) {
+                if ($operator === CommandCriteria::OPERATOR_LIKE) {
+                    $qb->andWhere($qb->expr()->or(...array_map(
+                        static fn (string $name): string => $qb->expr()->like('c.command_name', '"%' . $name . '%"'),
+                        $names
+                    )));
+
+                    continue;
+                }
+                $qb->andWhere($qb->expr()->in(
+                    'c.command_name',
+                    array_map(static fn (string $name): string => '"' . $name . '"', $names)
+                ));
+            }
+        }
+
+        if ($criteria->getTypes() !== []) {
+            $qb->andWhere($qb->expr()->in(
+                'c.command_type',
+                array_map(static fn (CommandTypeEnum $type): string => '"' . $type->value . '"', $criteria->getTypes())
+            ));
+        }
+
+        if ($criteria->getStatus() !== null) {
+            $qb->andWhere('c.command_activate = :command_activate');
+            $qb->setParameter('command_activate', $criteria->getStatus() ? '1' : '0');
+        }
+    }
+
+    private function countOnQueryBuilder(QueryBuilder $qb): int
+    {
+        $qb = clone $qb; // avoid modifying the initial query builder
+
+        $count = $qb
+            ->select('COUNT(DISTINCT cm.command_id)')
+            ->setFirstResult(0) // reset any pagination
+            ->setMaxResults(null)
+            ->executeQuery()
+            ->fetchOne();
+
+        Assert::integer($count);
+
+        return $count;
+    }
+
+    private function paginate(QueryBuilder $qb, CommandCriteria $criteria): void
+    {
+        if ($criteria->getPage() === null || $criteria->getItemsPerPage() === null) {
+            return;
+        }
+
+        $qb->setFirstResult(($criteria->getPage() - 1) * $criteria->getItemsPerPage())
+            ->setMaxResults($criteria->getItemsPerPage());
     }
 }

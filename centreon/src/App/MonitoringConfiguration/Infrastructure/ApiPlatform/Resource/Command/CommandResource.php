@@ -35,6 +35,7 @@ use App\MonitoringConfiguration\Domain\Security\CommandActionEnum;
 use App\MonitoringConfiguration\Domain\Security\CommandPermissionEnum;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\ConnectorResource;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Command\FindCommandProvider;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Command\ListCommandsProvider;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Command\UpdateCommandProcessor;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -85,7 +86,7 @@ use Symfony\Component\Validator\Constraints as Assert;
         ),
         new GetCollection(
             uriTemplate: '/configuration/commands',
-            provider: ListCommandProvider::class,
+            provider: ListCommandsProvider::class,
             openapi: new Model\Operation(
                 responses: [
                     403 => new Model\Response('You are not allowed to access commands'),
@@ -113,8 +114,8 @@ use Symfony\Component\Validator\Constraints as Assert;
                     ),
                 ],
             ),
-            securityPostValidation: "is_granted('" . CommandActionEnum::Read->value . "', object)",
-            securityPostValidationMessage: 'You are not allowed to access commands',
+            // securityPostValidation: "is_granted('" . CommandActionEnum::Read->value . "', object)",
+            // securityPostValidationMessage: 'You are not allowed to access commands',
         )
     ],
 )]

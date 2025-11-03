@@ -21,19 +21,10 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Domain\Aggregate\Connector;
+namespace App\MonitoringConfiguration\Domain\Security;
 
-use App\Shared\Domain\Aggregate\AggregateRoot;
-
-final class Connector extends AggregateRoot
+enum ConnectorPermissionEnum: string
 {
-    public function __construct(
-        ConnectorId $id,
-        public readonly ConnectorName $name,
-        public readonly ConnectorCommandLine $commandLine,
-        public readonly ConnectorDescription $description,
-        public readonly bool $isActivated,
-    ) {
-        parent::__construct($id);
-    }
+    case CanRead = 'can_read_connector';
+    case CanReadAndWrite = 'can_read_write_connector';
 }

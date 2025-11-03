@@ -40,7 +40,6 @@ final readonly class ResourceConnectorTransformer implements TransformerInterfac
             commandLine: $from->commandLine->value,
             description: $from->description->value,
             isActivated: $from->isActivated,
-            commands: $from->commands,
         );
     }
 }

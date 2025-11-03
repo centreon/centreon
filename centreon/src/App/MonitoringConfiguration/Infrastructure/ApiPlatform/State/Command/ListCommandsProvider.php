@@ -27,11 +27,14 @@ use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\Pagination\Pagination;
 use ApiPlatform\State\Pagination\TraversablePaginator;
 use ApiPlatform\State\ProviderInterface;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandTypeEnum;
 use App\MonitoringConfiguration\Domain\Repository\CommandRepository;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\CommandCriteria;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Command\ResourceCommandTransformer;
 use App\Shared\Domain\Repository\Paginator;
 use App\Shared\Infrastructure\TransformerInterface;
+use Centreon\Domain\Contact\Interfaces\ContactInterface;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 /**
@@ -47,6 +50,7 @@ final readonly class ListCommandsProvider implements ProviderInterface
         private TransformerInterface $transformer,
         private CommandRepository $commandRepository,
         private Pagination $pagination,
+        private Security $security,
     ) {
 
     }
@@ -69,7 +73,7 @@ final readonly class ListCommandsProvider implements ProviderInterface
         $criteria = $this->handleTypeFilter($context['filters']['type'] ?? null, $criteria);
         $criteria = $this->handleStatusFilter($context['filters']['isActivated'] ?? null, $criteria);
 
-        $commands = $this->commandRepository->findAllByCriteria($criteria);
+        $commands = $this->commandRepository->findAll($criteria);
         $commandResources = [];
         foreach ($commands as $command) {
             $commandResources[] = $this->transformer->transform($command);
@@ -115,14 +119,41 @@ final readonly class ListCommandsProvider implements ProviderInterface
             return $criteria;
         }
 
-        foreach ($typeFilter as $types) {
-            if (is_string($types)) {
-                $types = [$types];
+        /** @var ContactInterface $user */
+        $user = $this->security->getUser();
+        $roles = $user->getRoles();
+
+        foreach ($typeFilter as $type) {
+            $roleMap = [
+                CommandTypeEnum::Check->name => [
+                    ContactInterface::ROLE_SEE_CHECK_COMMANDS,
+                    ContactInterface::ROLE_MANAGE_CHECK_COMMANDS,
+                ],
+                CommandTypeEnum::Notification->name => [
+                    ContactInterface::ROLE_SEE_NOTIFICATION_COMMANDS,
+                    ContactInterface::ROLE_MANAGE_NOTIFICATION_COMMANDS,
+                ],
+                CommandTypeEnum::Discovery->name => [
+                    ContactInterface::ROLE_SEE_DISCOVERY_COMMANDS,
+                    ContactInterface::ROLE_MANAGE_DISCOVERY_COMMANDS,
+                ],
+                CommandTypeEnum::Miscellaneous->name => [
+                    ContactInterface::ROLE_SEE_MISCELLANEOUS_COMMANDS,
+                    ContactInterface::ROLE_MANAGE_MISCELLANEOUS_COMMANDS,
+                ],
+            ];
+
+            if (
+                ! isset($roleMap[$type]) ||
+                (
+                    !in_array($roleMap[$type][0], $roles, true) &&
+                    !in_array($roleMap[$type][1], $roles, true)
+                )
+            ) {
+                continue;
             }
 
-            foreach ($types as $type) {
-                $criteria = $criteria->withType($type);
-            }
+            $criteria = $criteria->withType($type);
         }
 
         return $criteria;
