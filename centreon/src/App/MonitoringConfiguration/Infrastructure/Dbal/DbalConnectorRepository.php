@@ -27,7 +27,6 @@ use App\MonitoringConfiguration\Domain\Aggregate\Command\Command;
 use App\MonitoringConfiguration\Domain\Aggregate\Connector\Connector;
 use App\MonitoringConfiguration\Domain\Aggregate\Connector\ConnectorId;
 use App\MonitoringConfiguration\Domain\Exception\ConnectorNotFoundException;
-use App\MonitoringConfiguration\Domain\Repository\CommandRepository;
 use App\MonitoringConfiguration\Domain\Repository\ConnectorRepository;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\ConnectorCriteria;
 use App\Shared\Domain\Collection;
@@ -127,7 +126,6 @@ final readonly class DbalConnectorRepository extends DbalRepository implements C
             $rows = $qb->executeQuery()->fetchAllAssociative();
 
             return new Collection(array_map(fn (array $row): Connector => $this->createConnector($row), $rows), Connector::class);
-;
         }
         $this->paginate($qb, $criteria);
 
@@ -164,7 +162,6 @@ final readonly class DbalConnectorRepository extends DbalRepository implements C
 
         return $this->createConnector($row);
     }
-
 
     /**
      * @return array<string>

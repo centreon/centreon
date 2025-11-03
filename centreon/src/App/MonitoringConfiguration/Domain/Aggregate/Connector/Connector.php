@@ -25,7 +25,7 @@ namespace App\MonitoringConfiguration\Domain\Aggregate\Connector;
 
 use App\Shared\Domain\Aggregate\AggregateRoot;
 
-final  class Connector extends AggregateRoot
+final class Connector extends AggregateRoot
 {
     public function __construct(
         ConnectorId $id,

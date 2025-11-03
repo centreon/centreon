@@ -34,8 +34,6 @@ use App\Shared\Infrastructure\Dbal\DbalRepository;
 use App\Shared\Infrastructure\TransformerInterface;
 use Doctrine\DBAL\Connection;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
-use Symfony\Component\DependencyInjection\Attribute\Lazy;
-use Webmozart\Assert\Assert;
 
 /**
  * @phpstan-type RowTypeAlias = array{
@@ -146,7 +144,8 @@ final readonly class DbalCommandRepository extends DbalRepository implements Com
         $this->setId($command, new CommandId($id));
     }
 
-    public function findAllByConnector(Connector $connector): Collection {
+    public function findAllByConnector(Connector $connector): Collection
+    {
         $qb = $this->connection->createQueryBuilder();
         $qb->select(...self::getSelectColumns(), ...DbalConnectorRepository::getSelectColumns())
             ->from(self::CONNECTOR_JON_TABLE_NAME, 'c')
@@ -170,14 +169,14 @@ final readonly class DbalCommandRepository extends DbalRepository implements Com
             if ($commandId !== null) {
                 /** @var GlobalMacroRowTypeAlias $commandRow */
                 $commandRow = [
-                    "cm_command_id" => $row["cm_command_id"],
-                    "cm_command_name" => $row["cm_command_name"],
-                    "cm_command_line" => $row["cm_command_line"],
-                    "cm_command_type" => $row["cm_command_type"],
-                    "cm_enable_shell" => $row["cm_enable_shell"],
-                    "cm_command_activate" => $row["cm_command_activate"],
-                    "cm_command_locked" => $row["cm_command_locked"],
-                    "cm_command_comment" => $row["cm_command_comment"],
+                    'cm_command_id' => $row['cm_command_id'],
+                    'cm_command_name' => $row['cm_command_name'],
+                    'cm_command_line' => $row['cm_command_line'],
+                    'cm_command_type' => $row['cm_command_type'],
+                    'cm_enable_shell' => $row['cm_enable_shell'],
+                    'cm_command_activate' => $row['cm_command_activate'],
+                    'cm_command_locked' => $row['cm_command_locked'],
+                    'cm_command_comment' => $row['cm_command_comment'],
                 ];
                 $commandRows[$connectorId][$commandId] = $commandRow;
             }
@@ -223,9 +222,6 @@ final readonly class DbalCommandRepository extends DbalRepository implements Com
              * @var array<JoinRowTypeAlias> $commandRows
              */
             $commandRows = $commandQb->executeQuery()->fetchAllAssociative();
-            /**
-             * @var array<array<GlobalMacroRowTypeAlias>> $globalMacroRowsByPollerId
-             */
             $connectorRowsRowsByCommandId = [];
             foreach ($commandRows as $commandRow) {
                 $connectorRowsRowsByCommandId['command_id'][] = $commandRow;
@@ -236,7 +232,6 @@ final readonly class DbalCommandRepository extends DbalRepository implements Com
             $commandId = $row['cm_command_id'];
             $commands[$commandId] ??= $this->createCommand(
                 $row,
-                $connectorRowsRowsByCommandId[$commandId] ?? null,
             );
         }
 
@@ -266,7 +261,5 @@ final readonly class DbalCommandRepository extends DbalRepository implements Com
             comment: $command->comment,
             connector: $connector,
         );
-
-        return $command;
     }
 }

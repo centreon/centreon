@@ -67,6 +67,7 @@ final readonly class ListConnectorsProvider implements ProviderInterface
         /** @var array{filters: array{name?: array<string, string|array<string>>, id?: array<string, int|array<int>>}} $context */
         $criteria = $this->handleNameFilter($context['filters']['name'] ?? null, $criteria);
         $criteria = $this->handleIdFilter($context['filters']['id'] ?? null, $criteria);
+
         $connectors = $this->repository->findAll($criteria);
         $resources = [];
         foreach ($connectors as $connector) {
@@ -76,6 +77,7 @@ final readonly class ListConnectorsProvider implements ProviderInterface
         if (! $connectors instanceof Paginator) {
             return $resources;
         }
+
         return new TraversablePaginator(
             new \ArrayIterator($resources),
             $connectors->getCurrentPage(),
@@ -119,7 +121,7 @@ final readonly class ListConnectorsProvider implements ProviderInterface
                 $ids = [(int) $ids];
             }
             if (is_array($ids)) {
-                $ids = array_map(fn (int $id) => (int) $id, $ids);
+                $ids = array_map(fn (int $id): int => $id, $ids);
             }
 
             foreach ($ids as $id) {
