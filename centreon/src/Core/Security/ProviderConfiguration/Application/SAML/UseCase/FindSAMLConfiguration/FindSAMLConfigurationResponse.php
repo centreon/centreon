@@ -29,6 +29,7 @@ use Core\Security\ProviderConfiguration\Domain\Model\AuthenticationConditions;
 use Core\Security\ProviderConfiguration\Domain\Model\AuthorizationRule;
 use Core\Security\ProviderConfiguration\Domain\Model\ContactGroupRelation;
 use Core\Security\ProviderConfiguration\Domain\Model\GroupsMapping;
+use Core\Security\ProviderConfiguration\Domain\SAML\Model\RequestedAuthnContextComparisonEnum;
 
 /**
  * @phpstan-type _authorizationRules array{
@@ -47,43 +48,33 @@ use Core\Security\ProviderConfiguration\Domain\Model\GroupsMapping;
  */
 final class FindSAMLConfigurationResponse
 {
-    /** @var bool */
     public bool $isActive = false;
 
-    /** @var bool */
     public bool $isForced = false;
 
-    /** @var bool */
     public bool $isAutoImportEnabled = false;
 
     /** @var array<string,int|string>|null */
     public ?array $contactTemplate = null;
 
-    /** @var string|null */
     public ?string $emailBindAttribute = null;
 
-    /** @var string|null */
     public ?string $userNameBindAttribute = null;
 
-    /** @var string */
     public string $remoteLoginUrl = '';
 
-    /** @var string */
     public string $entityIdUrl = '';
 
-    /** @var string */
     public ?string $publicCertificate = '';
 
-    /** @var string */
     public string $userIdAttribute = '';
 
-    /** @var string */
-    public string $requestedAuthnContext = 'minimum';
+    public bool $requestAuthnContext = false;
 
-    /** @var bool */
+    public RequestedAuthnContextComparisonEnum $requestedAuthnContextComparison;
+
     public bool $logoutFrom = true;
 
-    /** @var string|null */
     public ?string $logoutFromUrl = null;
 
     /** @var _aclConditions|array{} */
