@@ -31,7 +31,7 @@
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
     "@centreon/js-config": "workspace:*",
-    "@cypress/code-coverage": "3.14.7",
+    "@cypress/code-coverage": "3.14.4",
     "@cypress/react": "^9.0.1",
     "@mui/utils": "^6.4.6",
     "@rspack/cli": "^1.6.0",

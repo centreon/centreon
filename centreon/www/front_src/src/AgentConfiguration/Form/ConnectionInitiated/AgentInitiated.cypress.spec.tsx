@@ -69,9 +69,6 @@ const initialize = (
 describe('AgentInitiated', () => {
   it('should render the component with initial values', () => {
     initialize();
-    if (Cypress.currentRetry === 0) {
-      throw new Error('Force retry to test retries screenshot');
-    }
     cy.get('[data-testid="Public certificate (.crt,.cer)"] input').should(
       'have.value',
       ''
