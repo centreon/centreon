@@ -55,7 +55,7 @@ Feature: Host and Host Template Macros Configuration
 
   Scenario: Override an inherited macro value when creating a new Host
     Given a non-admin user is on the "Configuration > Hosts > Templates" page
-    And a pre-configured Host Template "HT-A" that contains defined macros    
+    And a pre-configured Host Template "HT-A" that contains defined macros
     When the user creates a new Host "Host-B" using "HT-A" as its parent template
     And he changes the value of the normal macro inherited from Host Template "HT-A"
     And the non-admin user clicks the "Save" button
