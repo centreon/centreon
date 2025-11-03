@@ -20,7 +20,7 @@
     "@centreon/js-config": "24.12.1",
     "@esbuild-plugins/node-globals-polyfill": "^0.2.3",
     "@esbuild-plugins/node-modules-polyfill": "^0.2.2",
-    "@swc/core": "^1.14.0",
+    "@swc/core": "^1.9.3",
     "@types/cypress": "^1.1.6",
     "@types/cypress-cucumber-preprocessor": "^4.0.5",
     "@types/node": "^24.10.0",
