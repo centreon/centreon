@@ -119,6 +119,8 @@ const BarChart = ({
             zoomPreview={zoomPreview}
             timeShiftZones={timeShiftZones}
             annotationEvent={annotationEvent}
+            start={start}
+            end={end}
           />
         )}
       </Box>

@@ -25,7 +25,7 @@ interface Props {
   getInterval?: (args: Interval) => void;
   graphWidth: number;
   xScale: ScaleTime<number, number>;
-  graphSvgRef: RefObject<SVGGElement | null>;
+  graphSvgRef: RefObject<SVGSVGElement | null>;
   graphMarginLeft: number;
 }
 
