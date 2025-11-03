@@ -18,6 +18,7 @@
     "@bahmutov/cypress-esbuild-preprocessor": "^2.2.7",
     "@biomejs/biome": "1.9.4",
     "@centreon/js-config": "24.12.1",
+    "@cypress/webpack-batteries-included-preprocessor": "^4.0.2",
     "@esbuild-plugins/node-globals-polyfill": "^0.2.3",
     "@esbuild-plugins/node-modules-polyfill": "^0.2.2",
     "@swc/core": "^1.9.3",
