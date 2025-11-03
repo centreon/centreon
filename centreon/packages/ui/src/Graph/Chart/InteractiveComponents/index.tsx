@@ -9,6 +9,7 @@ import {
   find,
   isEmpty,
   isNil,
+  isNotNil,
   keys,
   map,
   negate,
@@ -213,7 +214,7 @@ const InteractionWithGraph = ({
           yScalesPerUnit
         });
 
-        if (!isNil(lineData?.stackOrder)) {
+        if (isNotNil(lineData?.stackOrder)) {
           const test = Object.entries(omit(['timeTick'], timeValue)).reduce(
             (acc, [key, value]) => {
               const line = getLineForMetric({
@@ -221,10 +222,11 @@ const InteractionWithGraph = ({
                 metric_id: Number(key)
               });
 
-              if (
-                !isNil(line?.stackOrder) &&
-                (line?.stackOrder as number) >= (lineData.stackOrder as number)
-              ) {
+              const isBelowStackOrder =
+                isNotNil(line?.stackOrder) &&
+                (line?.stackOrder as number) >= (lineData.stackOrder as number);
+
+              if (isBelowStackOrder) {
                 return acc + value;
               }
 
