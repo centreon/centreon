@@ -21,10 +21,21 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Domain\Security;
+namespace App\Shared\Domain\Event;
 
-enum CommandActionEnum: string
+use App\Shared\Domain\Aggregate\AggregateRoot;
+
+abstract readonly class AggregateUpdated implements EventInterface
 {
-    case Create = 'command_create';
-    case Update = 'command_update';
+    public function __construct(
+        public AggregateRoot $aggregate,
+        public int $creatorId,
+        public \DateTimeImmutable $firedAt = new \DateTimeImmutable(),
+    ) {
+    }
+
+    public function firedAt(): \DateTimeImmutable
+    {
+        return $this->firedAt;
+    }
 }

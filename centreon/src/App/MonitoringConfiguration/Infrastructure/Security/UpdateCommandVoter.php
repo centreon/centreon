@@ -26,7 +26,7 @@ namespace App\MonitoringConfiguration\Infrastructure\Security;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\Command;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandTypeEnum;
 use App\MonitoringConfiguration\Domain\Security\CommandActionEnum;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Command\CreateCommandResource;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Command\CommandResource;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Vote;
@@ -36,7 +36,7 @@ use Webmozart\Assert\Assert;
 /**
  * @extends Voter<value-of<CommandActionEnum>, mixed>
  */
-final class CreateCommandVoter extends Voter
+final class UpdateCommandVoter extends Voter
 {
     public function __construct(private readonly Security $security)
     {
@@ -44,12 +44,12 @@ final class CreateCommandVoter extends Voter
 
     protected function supports(string $attribute, mixed $subject): bool
     {
-        return CommandActionEnum::tryFrom($attribute) === CommandActionEnum::Create && $subject instanceof CreateCommandResource;
+        return CommandActionEnum::tryFrom($attribute) === CommandActionEnum::Update && $subject instanceof CommandResource;
     }
 
     protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token, ?Vote $vote = null): bool
     {
-        Assert::isInstanceOf($subject, CreateCommandResource::class);
+        Assert::isInstanceOf($subject, CommandResource::class);
 
         $type = CommandTypeEnum::fromName($subject->type);
         if (! $type instanceof CommandTypeEnum) {

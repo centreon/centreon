@@ -21,10 +21,10 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Domain\Security;
+namespace App\MonitoringConfiguration\Domain\Exception;
 
-enum CommandActionEnum: string
+use App\Shared\Domain\Exception\AggregateCanNotBeUpdatedException;
+
+final class CommandCanNotBeUpdatedException extends AggregateCanNotBeUpdatedException
 {
-    case Create = 'command_create';
-    case Update = 'command_update';
 }

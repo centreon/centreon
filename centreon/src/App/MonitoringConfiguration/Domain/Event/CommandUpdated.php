@@ -21,10 +21,10 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Domain\Security;
+namespace App\MonitoringConfiguration\Domain\Event;
 
-enum CommandActionEnum: string
+use App\Shared\Domain\Event\AggregateUpdated;
+
+final readonly class CommandUpdated extends AggregateUpdated
 {
-    case Create = 'command_create';
-    case Update = 'command_update';
 }

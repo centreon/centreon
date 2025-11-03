@@ -21,23 +21,27 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Domain\Repository;
+namespace App\MonitoringConfiguration\Application\Command;
 
-use App\MonitoringConfiguration\Domain\Aggregate\Command\Command;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandComment;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandLine;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandName;
-use App\MonitoringConfiguration\Domain\Exception\CommandNotFoundException;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandTypeEnum;
+use App\MonitoringConfiguration\Domain\Aggregate\Connector\ConnectorId;
 
-interface CommandRepository
+final readonly class UpdateCommandCommand
 {
-    /**
-     * @throws CommandNotFoundException
-     */
-    public function getById(CommandId $id): Command;
-
-    public function findOneByName(CommandName $name): ?Command;
-
-    public function add(Command $command): void;
-
-    public function update(Command $command): void;
+    public function __construct(
+        public CommandId $id,
+        public ?CommandTypeEnum $type,
+        public ?CommandName $name,
+        public ?CommandLine $commandLine,
+        public ?CommandComment $comment,
+        public ?bool $isShellEnabled,
+        public ?bool $isActivated,
+        public ?ConnectorId $connectorId,
+        public int $updatedBy,
+    ) {
+    }
 }

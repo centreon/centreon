@@ -63,4 +63,11 @@ final class FakeCommandRepository implements CommandRepository
 
         $this->commands[$id] = $command;
     }
+
+    public function update(Command $command): void
+    {
+        $commandId = $command->id();
+
+        $this->commands[$commandId->value] = $command;
+    }
 }

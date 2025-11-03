@@ -21,19 +21,19 @@
 
 declare(strict_types=1);
 
-namespace Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\State;
+namespace App\Shared\Domain\Exception;
 
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Command\CommandResource;
-use Tests\App\Shared\ApiTestCase;
-
-final class FindCommandProviderTest extends ApiTestCase
+abstract class AggregateCanNotBeUpdatedException extends \RuntimeException
 {
-    public function testItFindCommand(): void
-    {
-        $this->login();
-
-        $this->request('GET', '/api/latest/configuration/commands/1');
-        self::assertResponseIsSuccessful();
-        self::assertMatchesResourceItemJsonSchema(CommandResource::class);
+    /**
+     * @param array<string, mixed> $criteria
+     */
+    public function __construct(
+        public readonly array $criteria,
+        string $message = 'Resource can not be updated.',
+        int $code = 0,
+        ?\Throwable $previous = null,
+    ) {
+        parent::__construct($message, $code, $previous);
     }
 }

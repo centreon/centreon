@@ -21,7 +21,7 @@
 
 declare(strict_types=1);
 
-namespace App\ActivityLogging\Infrastructure\Doctrine;
+namespace App\ActivityLogging\Infrastructure\Dbal;
 
 use App\ActivityLogging\Domain\Aggregate\ActionEnum;
 use App\ActivityLogging\Domain\Aggregate\ActivityLog;
@@ -40,16 +40,17 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
 /**
  * @phpstan-type RowTypeAlias = array{action_log_id: int, action_log_date: int, object_id: int, object_name: string, object_type: string, action_type: string, log_contact_id: int, field_name: string|null, field_value: string|null}
  */
-final readonly class DoctrineActivityLogRepository extends DbalRepository implements ActivityLogRepository
+final readonly class DbalActivityLogRepository extends DbalRepository implements ActivityLogRepository
 {
     private const TABLE_NAME = 'log_action';
     private const DETAIL_TABLE_NAME = 'log_action_modification';
     private const TARGET_TYPE_VALUE_MAP = [
         TargetTypeEnum::ServiceCategory->value => 'servicecategories',
-        TargetTypeEnum::Command->value => 'command',
+        TargetTypeEnum::Command->value => 'commands',
     ];
     private const ACTION_VALUE_MAP = [
         ActionEnum::Add->value => 'a',
+        ActionEnum::Update->value => 'c',
     ];
 
     public function __construct(

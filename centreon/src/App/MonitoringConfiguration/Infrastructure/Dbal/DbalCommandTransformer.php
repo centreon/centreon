@@ -34,10 +34,13 @@ use App\Shared\Infrastructure\TransformerInterface;
 /**
  * @phpstan-import-type RowTypeAlias from DbalCommandRepository
  *
- * @implements TransformerInterface<RowTypeAlias, Command>
+ * @implements TransformerInterface<RowTypeAlias,Command>
  */
 final readonly class DbalCommandTransformer implements TransformerInterface
 {
+    /**
+     * @param RowTypeAlias $from
+     */
     public function transform(mixed $from): Command
     {
         return new Command(

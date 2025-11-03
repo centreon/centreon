@@ -21,10 +21,19 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Domain\Security;
+namespace Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Command;
 
-enum CommandActionEnum: string
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Command\CommandResource;
+use Tests\App\Shared\ApiTestCase;
+
+final class FindCommandProviderTest extends ApiTestCase
 {
-    case Create = 'command_create';
-    case Update = 'command_update';
+    public function testItFindCommand(): void
+    {
+        $this->login();
+
+        $this->request('GET', '/api/latest/configuration/commands/1');
+        self::assertResponseIsSuccessful();
+        self::assertMatchesResourceItemJsonSchema(CommandResource::class);
+    }
 }
