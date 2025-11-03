@@ -27,7 +27,6 @@ use App\MonitoringConfiguration\Domain\Aggregate\Command\Command;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandName;
 use App\MonitoringConfiguration\Domain\Aggregate\Connector\Connector;
-use App\MonitoringConfiguration\Domain\Aggregate\Connector\ConnectorId;
 use App\MonitoringConfiguration\Domain\Exception\CommandNotFoundException;
 use App\MonitoringConfiguration\Domain\Repository\CommandRepository;
 use App\Shared\Domain\Collection;
@@ -35,6 +34,8 @@ use App\Shared\Infrastructure\Dbal\DbalRepository;
 use App\Shared\Infrastructure\TransformerInterface;
 use Doctrine\DBAL\Connection;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
+use Symfony\Component\DependencyInjection\Attribute\Lazy;
+use Webmozart\Assert\Assert;
 
 /**
  * @phpstan-type RowTypeAlias = array{
@@ -64,7 +65,7 @@ final readonly class DbalCommandRepository extends DbalRepository implements Com
         #[Autowire(service: DbalCommandTransformer::class)]
         private TransformerInterface $transformer,
 
-        /* private DbalConnectorRepository $connectorRepository, */
+        private DbalConnectorRepository $connectorRepository,
     ) {
     }
 
@@ -75,25 +76,14 @@ final readonly class DbalCommandRepository extends DbalRepository implements Com
     {
         $qb = $this->connection->createQueryBuilder();
 
-        $qb->select(
-            'command_id',
-            'command_name',
-            'command_line',
-            'command_type',
-            'enable_shell',
-            'command_activate',
-            'command_locked',
-            'command_comment',
-            'connector_id',
-        )
-            ->from(self::TABLE_NAME)
+        $qb->select(...self::getSelectColumns(), ...DbalConnectorRepository::getSelectColumns())
+            ->from(self::TABLE_NAME, 'cm')
+            ->leftJoin('cm', self::CONNECTOR_JON_TABLE_NAME, 'c', 'cm.connector_id = c.id')
             ->where('command_id = :id')
             ->setParameter('id', $id->value)
             ->setMaxResults(1);
-
         /** @var RowTypeAlias $row */
         $row = $qb->executeQuery()->fetchAssociative();
-
         if (! $row) {
             throw new CommandNotFoundException(['id' => $id->value]);
         }
@@ -106,18 +96,8 @@ final readonly class DbalCommandRepository extends DbalRepository implements Com
 
         $qb = $this->connection->createQueryBuilder();
 
-        $qb->select(
-            'command_id',
-            'command_name',
-            'command_line',
-            'command_type',
-            'enable_shell',
-            'command_activate',
-            'command_locked',
-            'command_comment',
-            'connector_id',
-        )
-            ->from(self::TABLE_NAME)
+        $qb->select(...self::getSelectColumns())
+            ->from(self::TABLE_NAME, 'cm')
             ->where('command_name = :name')
             ->setParameter('name', $name->value)
             ->setMaxResults(1);
@@ -269,14 +249,23 @@ final readonly class DbalCommandRepository extends DbalRepository implements Com
     private function createCommand(array $row): Command
     {
         $command = $this->transformer->transform($row);
+        $connector = $this->connectorRepository->findByCommand($command);
 
-        /* if ($row['connector_id'] !== null) { */
-        /*     $connectorId = $row['connector_id']; */
-        /*     $connector = $this->connectorRepository->findById(new ConnectorId($connectorId)); */
-        /*     if ($connector instanceof Connector) { */
-        /*         $command->addConnector($connector); */
-        /*     } */
-        /* } */
+        /** @var CommandId $id */
+        $id = $command->id();
+
+        // create a new instance with same values but with the poller collection
+        return new Command(
+            id: $id,
+            name: $command->name,
+            type: $command->type,
+            commandLine: $command->commandLine,
+            isShellEnabled: $command->isShellEnabled,
+            isActivated: $command->isActivated,
+            isFromMonitoringConnector: $command->isFromMonitoringConnector,
+            comment: $command->comment,
+            connector: $connector,
+        );
 
         return $command;
     }

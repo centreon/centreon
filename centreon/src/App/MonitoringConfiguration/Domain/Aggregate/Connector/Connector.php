@@ -24,16 +24,14 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Domain\Aggregate\Connector;
 
 use App\Shared\Domain\Aggregate\AggregateRoot;
-use App\Shared\Domain\Collection;
 
 final  class Connector extends AggregateRoot
 {
     public function __construct(
-        ?ConnectorId $id,
+        ConnectorId $id,
         public readonly ConnectorName $name,
         public readonly ConnectorCommandLine $commandLine,
         public readonly ConnectorDescription $description,
-        public readonly Collection $commands,
         public readonly bool $isActivated,
     ) {
         parent::__construct($id);

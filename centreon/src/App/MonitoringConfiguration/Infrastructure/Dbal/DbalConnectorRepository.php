@@ -23,18 +23,17 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Infrastructure\Dbal;
 
+use App\MonitoringConfiguration\Domain\Aggregate\Command\Command;
 use App\MonitoringConfiguration\Domain\Aggregate\Connector\Connector;
 use App\MonitoringConfiguration\Domain\Aggregate\Connector\ConnectorId;
 use App\MonitoringConfiguration\Domain\Exception\ConnectorNotFoundException;
 use App\MonitoringConfiguration\Domain\Repository\CommandRepository;
 use App\MonitoringConfiguration\Domain\Repository\ConnectorRepository;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\ConnectorCriteria;
-use App\MonitoringConfiguration\Domain\Repository\Criteria\GlobalMacroCriteria;
 use App\Shared\Domain\Collection;
 use App\Shared\Infrastructure\Dbal\DbalRepository;
 use App\Shared\Infrastructure\InMemory\InMemoryPaginator;
 use App\Shared\Infrastructure\TransformerInterface;
-use Command;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
@@ -61,7 +60,6 @@ final readonly class DbalConnectorRepository extends DbalRepository implements C
         private Connection $connection,
         #[Autowire(service: DbalConnectorTransformer::class)]
         private TransformerInterface $transformer,
-        private CommandRepository $commandRepository,
     ) {
     }
 
@@ -114,8 +112,6 @@ final readonly class DbalConnectorRepository extends DbalRepository implements C
 
     public function findAll(?ConnectorCriteria $criteria = null): \IteratorAggregate&\Countable
     {
-        $lazyRelations = $criteria?->hasLazyRelations() ?? false;
-
         $qb = $this->connection->createQueryBuilder();
         $qb->select(...self::getSelectColumns())
             ->from(self::TABLE_NAME, 'c')
@@ -130,7 +126,8 @@ final readonly class DbalConnectorRepository extends DbalRepository implements C
             /** @var array<RowTypeAlias> $rows */
             $rows = $qb->executeQuery()->fetchAllAssociative();
 
-            return $this->createConnectors($rows, $lazyRelations);
+            return new Collection(array_map(fn (array $row): Connector => $this->createConnector($row), $rows), Connector::class);
+;
         }
         $this->paginate($qb, $criteria);
 
@@ -140,11 +137,32 @@ final readonly class DbalConnectorRepository extends DbalRepository implements C
         $rows = $qb->executeQuery()->fetchAllAssociative();
 
         return new InMemoryPaginator(
-            items: $this->createConnectors($rows, $lazyRelations),
+            items: new Collection(array_map(fn (array $row): Connector => $this->createConnector($row), $rows), Connector::class),
             totalItems: $count,
             currentPage: $criteria->getPage() ?? throw new \LogicException('Unexpected null page'),
             itemsPerPage: $criteria->getItemsPerPage() ?? throw new \LogicException('Unexpected null items per page'),
         );
+    }
+
+    public function findByCommand(Command $command): ?Connector
+    {
+        $qb = $this->connection->createQueryBuilder();
+
+        $qb->select(...self::getSelectColumns('c'))
+            ->from(self::TABLE_NAME, 'c')
+            ->innerJoin('c', DbalCommandRepository::TABLE_NAME, 'cmd', 'cmd.connector_id = c.id')
+            ->where('cmd.command_id = :command_id')
+            ->setParameter('command_id', $command->id()->value)
+            ->setMaxResults(1);
+
+        /** @var RowTypeAlias $row */
+        $row = $qb->executeQuery()->fetchAssociative();
+
+        if ($row === false) {
+            return null;
+        }
+
+        return $this->createConnector($row);
     }
 
 
@@ -166,7 +184,7 @@ final readonly class DbalConnectorRepository extends DbalRepository implements C
     {
         if ($nameCriteria = $criteria->getNames()) {
             foreach ($nameCriteria as $operator => $names) {
-                if ($operator === GlobalMacroCriteria::OPERATOR_LIKE) {
+                if ($operator === ConnectorCriteria::OPERATOR_LIKE) {
                     $qb->andWhere($qb->expr()->or(...array_map(
                         static fn (string $name): string => $qb->expr()->like('c.name', '"%' . $name . '%"'),
                         $names
@@ -182,7 +200,7 @@ final readonly class DbalConnectorRepository extends DbalRepository implements C
         }
         if ($idCriteria = $criteria->getIds()) {
             foreach ($idCriteria as $operator => $ids) {
-                if ($operator === GlobalMacroCriteria::OPERATOR_LIKE) {
+                if ($operator === ConnectorCriteria::OPERATOR_LIKE) {
                     $qb->andWhere($qb->expr()->or(...array_map(
                         static fn (int $id): string => $qb->expr()->like('c.id', '"%' . $id . '%"'),
                         $ids
@@ -199,36 +217,11 @@ final readonly class DbalConnectorRepository extends DbalRepository implements C
     }
 
     /**
-     * @param array<RowTypeAlias> $rows
-     *
-     * @return Collection<GlobalMacro>
-     */
-    private function createConnectors(array $rows, bool $lazyRelations = true): Collection
-    {
-        return new Collection(array_map(fn (array $row): Connector => $this->createConnector($row, $lazyRelations), $rows), Connector::class);
-    }
-
-    /**
      * @param RowTypeAlias $row
      */
-    private function createConnector(array $row, bool $lazyRelations = true): Connector
+    private function createConnector(array $row): Connector
     {
-        $connector = $this->transformer->transform($row);
-        $commands = $lazyRelations
-            ? new Collection(fn (): array => $this->commandRepository->findAllByConnector($connector)->toArray(), Command::class)
-            : $this->commandRepository->findAllByConnector($connector);
-        /** @var ConnectorId $id */
-        $id = $connector->id();
-
-        // create a new instance with same values but with the poller collection
-        return new Connector(
-            id: $id,
-            name: $connector->name,
-            commandLine: $connector->commandLine,
-            description: $connector->description,
-            commands: $commands,
-            isActivated: $connector->isActivated,
-        );
+        return $this->transformer->transform($row);
     }
 
     private function paginate(QueryBuilder $qb, ConnectorCriteria $criteria): void

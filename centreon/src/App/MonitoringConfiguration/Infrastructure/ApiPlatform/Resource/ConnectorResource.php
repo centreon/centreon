@@ -29,7 +29,6 @@ use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\OpenApi\Model;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\FindConnectorProvider;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\ListConnectorsProvider;
-use App\Shared\Domain\Collection;
 
 #[ApiResource(
     operations: [
@@ -102,7 +101,6 @@ final class ConnectorResource
         public string $name,
         public string $commandLine,
         public ?string $description,
-        public Collection $commands,
         public bool $isActivated,
     ) {
     }

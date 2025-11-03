@@ -28,9 +28,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Connector\ConnectorCommandLine;
 use App\MonitoringConfiguration\Domain\Aggregate\Connector\ConnectorDescription;
 use App\MonitoringConfiguration\Domain\Aggregate\Connector\ConnectorId;
 use App\MonitoringConfiguration\Domain\Aggregate\Connector\ConnectorName;
-use App\Shared\Domain\Collection;
 use App\Shared\Infrastructure\TransformerInterface;
-use Command;
 
 /**
  * @phpstan-import-type RowTypeAlias from DbalConnectorRepository
@@ -46,7 +44,6 @@ final readonly class DbalConnectorTransformer implements TransformerInterface
             name: new ConnectorName($from['c_name']),
             commandLine: new ConnectorCommandLine($from['c_command_line']),
             description: new ConnectorDescription($from['c_description']),
-            commands: new Collection([], Command::class),
             isActivated: (bool) $from['c_activate'],
         );
     }

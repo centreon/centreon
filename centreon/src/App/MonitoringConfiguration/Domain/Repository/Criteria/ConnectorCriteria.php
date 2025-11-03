@@ -41,8 +41,6 @@ final class ConnectorCriteria
     /** @var array<self::OPERATOR_*, list<int>> */
     private array $ids = [];
 
-    private bool $lazyRelations = false;
-
     public function withPagination(int $page, int $itemsPerPage): self
     {
         Assert::positiveInteger($page);
@@ -88,14 +86,6 @@ final class ConnectorCriteria
         return $new;
     }
 
-    public function withLazyRelations(bool $lazyRelations = true): self
-    {
-        $new = clone $this;
-        $new->lazyRelations = $lazyRelations;
-
-        return $new;
-    }
-
     public function getPage(): ?int
     {
         return $this->page;
@@ -120,10 +110,5 @@ final class ConnectorCriteria
     public function getIds(): array
     {
         return $this->ids;
-    }
-
-    public function hasLazyRelations(): bool
-    {
-        return $this->lazyRelations;
     }
 }
