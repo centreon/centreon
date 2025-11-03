@@ -4,7 +4,7 @@ const { defineConfig } = require('cypress');
 const {
   addMatchImageSnapshotPlugin
 } = require('@simonsmith/cypress-image-snapshot/plugin');
-// const cypressCodeCoverageTask = require('@cypress/code-coverage/task');
+const cypressCodeCoverageTask = require('@cypress/code-coverage/task');
 
 import fs from 'fs';
 import path from 'path';
@@ -30,7 +30,7 @@ module.exports = ({
       setupNodeEvents: (on, config) => {
         addMatchImageSnapshotPlugin(on, config);
 
-        // cypressCodeCoverageTask(on, config);
+        cypressCodeCoverageTask(on, config);
 
         on('before:browser:launch', (browser, launchOptions) => {
           if (
@@ -44,13 +44,11 @@ module.exports = ({
             launchOptions.args.push('--disable-dev-shm-usage');
             launchOptions.args.push('--disable-gpu');
             launchOptions.args.push('--no-sandbox');
-            launchOptions.args.push('--js-flags=--expose-gc');
           }
 
           return launchOptions;
         });
 
-        /*
         on('after:run', (results) => {
           const testRetries = {};
           if ('runs' in results) {
@@ -66,20 +64,15 @@ module.exports = ({
 
           // Save the testRetries object to a file in the e2e/results directory
           const resultFilePath = path.join(
-            __dirname,
-            '../../../../cypress/results',
+            mainCypressFolder,
+            'results',
             'retries.json'
           );
 
           fs.writeFileSync(resultFilePath, JSON.stringify(testRetries, null, 2));
         });
-        */
 
         on('after:spec', () => {
-          if (global.gc) {
-            global.gc();
-          }
-
           if (global.__coverage__) {
             delete global.__coverage__;
           }
@@ -101,7 +94,7 @@ module.exports = ({
       },
       ...env
     },
-    numTestsKeptInMemory: 5,
+    numTestsKeptInMemory: 1,
     reporter: 'mochawesome',
     reporterOptions: {
       html: false,
