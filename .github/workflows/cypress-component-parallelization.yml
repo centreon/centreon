@@ -94,7 +94,7 @@ jobs:
           command: cd ${{ inputs.module_name }} && pnpm cypress install --force
 
       - name: Cypress web component testing
-        uses: cypress-io/github-action@b8ba51a856ba5f4c15cf39007636d4ab04f23e3c # v6.10.2
+        uses: cypress-io/github-action@e65cba2e7319696fc0fdc4d5a319b737aec4ba1c # v6.10.3
         with:
           browser: chrome
           component: true
