@@ -41,3 +41,39 @@ Feature: service and service Template Macros Configuration
     When the export configuration is done with success
     Then the macros should be stored in the service Template configuration file "/var/cache/centreon/config/engine/1/serviceTemplates.cfg"
     And the service configuration file "/var/cache/centreon/config/engine/1/services.cfg" should not contain the inherited macros
+
+  Scenario: Override an inherited macro value when creating a new Service Template
+    Given a non-admin user is on the "Configuration > services > Templates" page
+    And a pre-configured Service Template "ST-A" that contains defined macros
+    When the non-admin user creates a new Service Template "ST-B" with "ST-A" as its parent
+    And he changes the value of the normal macro inherited from Service Template "ST-A"
+    And the non-admin user clicks the "Save" button
+    Then the normal macro value in "ST-B" should be the modified value
+    And the normal macro should not be highlighted in orange
+    And the password macro should still be highlighted in orange
+    And the export configuration is done with success
+
+  Scenario: Override an inherited macro value when creating a new Service
+    Given a non-admin user is on the "Configuration > services > Templates" page
+    And a pre-configured Service Template "ST-A" that contains defined macros
+    When the user creates a new Service "Service-B" using "ST-A" as its parent template
+    And he changes the value of the normal macro inherited from Service Template "ST-A"
+    And the non-admin user clicks the "Save" button
+    Then the normal macro value in "Service-B" should be the modified value
+    And the normal macro should not be highlighted in orange
+    And the password macro should still be highlighted in orange
+    And the export configuration is done with success
+    And the macro values in Service Template "ST-A" should remain unchanged
+
+  Scenario: Override an inherited macro value when editing a pre-configured Service
+    Given a pre-configured Service using a service template with defined macros as its parent template
+    When the non-admin user opens the service for editing
+    When he changes the value of the normal macro inherited from Service Template "ST-A"
+    And the non-admin user clicks the "Save" button
+    Then the normal macro value in the service should be the modified value
+    And the normal macro should not be highlighted in orange
+    And the password macro should still be highlighted in orange
+    And the macro values in Service Template "ST-A" should remain unchanged
+    When the export configuration is done with success
+    Then the new value of the inherited normal macro is exported to the file "/var/cache/centreon/config/engine/1/services.cfg"
+    And  the old values of macros are exported to the service template file "/var/cache/centreon/config/engine/1/serviceTemplates.cfg"
