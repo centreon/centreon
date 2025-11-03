@@ -191,12 +191,7 @@ Then('the macros are removed from the file {string}', (fileName: string) => {
 Given(
   'a non-admin user is on the "Configuration > Hosts > Templates" page',
   () => {
-    cy.navigateTo({
-      page: 'Templates',
-      rootItemNumber: 0,
-      subMenu: 'Hosts'
-    });
-    cy.wait('@getTimeZone');
+    cy.visitHostTemplatesListing(0);
   }
 );
 
@@ -205,7 +200,11 @@ Given(
   (name: string) => {
     clickToAddHost();
     cy.fillHostBasicsInfos(name, name);
-    cy.fillMacros(false, hostMacros.default_host.normalMacro, hostMacros.default_host.passMacro);
+    cy.fillMacros(
+      false,
+      hostMacros.default_host.normalMacro,
+      hostMacros.default_host.passMacro
+    );
     // Save the configuration
     cy.getIframeBody()
       .find('input.btc.bt_success[name^="submit"]')
@@ -366,12 +365,7 @@ When(
 Then(
   'the macro values in Host Template {string} should remain unchanged',
   (name: string) => {
-    cy.navigateTo({
-      page: 'Templates',
-      rootItemNumber: 0,
-      subMenu: 'Hosts'
-    });
-    cy.wait('@getTimeZone');
+    cy.visitHostTemplatesListing(0);
     cy.waitForElementInIframe('#main-content', `a:contains(${name})`);
     cy.getIframeBody().contains('a', name).click();
     cy.waitForElementInIframe('#main-content', 'input[name="host_name"]');
