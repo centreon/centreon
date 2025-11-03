@@ -20,6 +20,7 @@ const output = isDevelopmentMode
   : {};
 
 module.exports = merge(getBaseConfiguration(true), getDevConfiguration(), {
+  cache: false,
   devServer: {
     ...devServer,
     port: 9092,
