@@ -28,6 +28,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandName;
 use App\MonitoringConfiguration\Domain\Aggregate\Connector\Connector;
 use App\MonitoringConfiguration\Domain\Exception\CommandNotFoundException;
+use App\MonitoringConfiguration\Domain\Repository\Criteria\CommandCriteria;
 use App\Shared\Domain\Collection;
 
 interface CommandRepository
@@ -43,6 +44,9 @@ interface CommandRepository
 
     public function update(Command $command): void;
 
-    public function findAllByConnector(Connector $connector): Collection;
-
+    /**
+     * @param CommandCriteria|null $criteria
+     * @return \IteratorAggregate<int, Command>&\Countable
+     */
+    public function findAllByCriteria(?CommandCriteria $criteria): \IteratorAggregate&\Countable;
 }

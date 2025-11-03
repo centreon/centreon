@@ -37,7 +37,7 @@ enum CommandTypeEnum: int
             self::Check->name => self::Check,
             self::Miscellaneous->name => self::Miscellaneous,
             self::Discovery->name => self::Discovery,
-            default => null,
+            default => throw new \InvalidArgumentException("Invalid command type name: $name"),
         };
     }
 }

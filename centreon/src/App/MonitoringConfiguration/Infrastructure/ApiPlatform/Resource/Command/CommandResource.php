@@ -26,6 +26,7 @@ namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Comman
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\OpenApi\Model;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandName;
@@ -82,6 +83,39 @@ use Symfony\Component\Validator\Constraints as Assert;
             securityPostValidation: "is_granted('" . CommandActionEnum::Update->value . "', object)",
             securityPostValidationMessage: 'You are not allowed to update this command.',
         ),
+        new GetCollection(
+            uriTemplate: '/configuration/commands',
+            provider: ListCommandProvider::class,
+            openapi: new Model\Operation(
+                responses: [
+                    403 => new Model\Response('You are not allowed to access commands'),
+                ],
+                parameters: [
+                    new Model\Parameter(
+                        name: 'name[lk]',
+                        in: 'query',
+                        description: 'Filter by name using "like" operator',
+                        required: false,
+                        schema: [
+                            'type' => 'array',
+                            'items' => ['type' => 'string'],
+                        ],
+                    ),
+                    new Model\Parameter(
+                        name: 'name[eq]',
+                        in: 'query',
+                        description: 'Filter by name using "equals" operator',
+                        required: false,
+                        schema: [
+                            'type' => 'array',
+                            'items' => ['type' => 'string'],
+                        ],
+                    ),
+                ],
+            ),
+            securityPostValidation: "is_granted('" . CommandActionEnum::Read->value . "', object)",
+            securityPostValidationMessage: 'You are not allowed to access commands',
+        )
     ],
 )]
 final class CommandResource
