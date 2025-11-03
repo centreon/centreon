@@ -82,7 +82,7 @@ function deleteTrapGroupInDB(array $trapGroups = []): void
     global $pearDB, $oreon;
 
     try {
-        foreach ($trapGroups as $trapGroupId => $unused) {
+        foreach (array_keys($trapGroups) as $trapGroupId) {
             $selectQuery = <<<'SQL'
                     SELECT traps_group_name AS name
                     FROM traps_group
@@ -102,7 +102,7 @@ function deleteTrapGroupInDB(array $trapGroups = []): void
                         DELETE FROM traps_group
                         WHERE traps_group_id = :id
                     SQL,
-                $params
+                $params,
             );
 
             $pearDB->delete(
@@ -110,7 +110,7 @@ function deleteTrapGroupInDB(array $trapGroups = []): void
                         DELETE FROM traps_group_relation
                         WHERE traps_group_id = :id
                     SQL,
-                $params
+                $params,
             );
 
             $oreon->CentreonLogAction->insertLog(
@@ -144,7 +144,11 @@ function multipleTrapGroupInDB(array $trapGroups = [], array $nbrDup = []): void
     global $pearDB, $oreon;
 
     try {
-        foreach ($trapGroups as $trapGroupId => $unused) {
+        if (! $pearDB->isTransactionActive()) {
+            $pearDB->startTransaction();
+        }
+
+        foreach (array_keys($trapGroups) as $trapGroupId) {
             // Fetch original row
             $paramsId = QueryParameters::create([
                 QueryParameter::create('id', (int) $trapGroupId, QueryParameterTypeEnum::INTEGER),
@@ -169,6 +173,7 @@ function multipleTrapGroupInDB(array $trapGroups = [], array $nbrDup = []): void
 
             $parameters = [];
             $valuePlaceholders = [];
+            $insertLogsInfo = [];
             for ($i = 1; $i <= $dupCount; $i++) {
                 $newName = $baseName . '_' . $i;
                 if (testTrapGroupExistence($newName)) {
@@ -182,17 +187,7 @@ function multipleTrapGroupInDB(array $trapGroups = [], array $nbrDup = []): void
                     QueryParameterTypeEnum::STRING,
                 );
                 $valuePlaceholders[] = '(:' . $paramName . ')';
-
-                $oreon->CentreonLogAction->insertLog(
-                    'traps_group',
-                    $trapGroupId,
-                    $newName,
-                    'a',
-                    [
-                        'traps_group_name' => $newName,
-                        'name' => $newName,
-                    ]
-                );
+                $insertLogsInfo[] = [$trapGroupId, $newName];
             }
 
             if ($parameters === []) {
@@ -204,9 +199,9 @@ function multipleTrapGroupInDB(array $trapGroups = [], array $nbrDup = []): void
             );
             $pearDB->insert($insertSql, QueryParameters::create($parameters));
 
-            $lastInsertId = (int) $pearDB->getLastInsertId();
+            $firstInsertedId = (int) $pearDB->getLastInsertId();
             $totalInserted = count($parameters);
-            $newIds = range($lastInsertId - $totalInserted + 1, $lastInsertId);
+            $newIds = range($firstInsertedId, $firstInsertedId + $totalInserted - 1);
 
             // Map new IDs to their names
             $newGroups = [];
@@ -228,18 +223,49 @@ function multipleTrapGroupInDB(array $trapGroups = [], array $nbrDup = []): void
                             FROM traps_group_relation
                             WHERE traps_group_id = :old_group_id
                         SQL,
-                    $copyParams
+                    $copyParams,
+                );
+            }
+
+            // Log insertions after successful creation
+            foreach ($newGroups as $newGroupId => $newName) {
+                $oreon->CentreonLogAction->insertLog(
+                    'traps_group',
+                    $newGroupId,
+                    $newName,
+                    'a',
+                    [
+                        'traps_group_name' => $newName,
+                        'name' => $newName,
+                    ]
                 );
             }
         }
+
+        $pearDB->commitTransaction();
     } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
+        try {
+            if ($pearDB->isTransactionActive()) {
+                $pearDB->rollBackTransaction();
+            }
+        } catch (ConnectionException $rollbackException) {
+            throw new RepositoryException(
+                'Failed to roll back transaction in multipleTrapGroupInDB: ' . $rollbackException->getMessage(),
+                [
+                    'trapGroups' => array_keys($trapGroups),
+                    'nbrDup' => $nbrDup,
+                ],
+                $rollbackException,
+            );
+        }
+
         throw new RepositoryException(
             'Error while executing multipleTrapGroupInDB',
             [
                 'trapGroups' => array_keys($trapGroups),
                 'nbrDup' => $nbrDup,
             ],
-            $exception
+            $exception,
         );
     }
 }
@@ -277,6 +303,12 @@ function updateTrapGroup(?int $id = null): void
 
     $ret = $form->getSubmitValues();
     $name = $ret['name'] ?? '';
+    if ($name === '') {
+        throw new RepositoryException(
+            'Trap group name cannot be empty',
+            ['ret' => $ret],
+        );
+    }
 
     try {
         $updateParams = QueryParameters::create([
@@ -284,13 +316,17 @@ function updateTrapGroup(?int $id = null): void
             QueryParameter::create('id', (int) $id, QueryParameterTypeEnum::INTEGER),
         ]);
 
+        if (! $pearDB->isTransactionActive()) {
+            $pearDB->startTransaction();
+        }
+
         $pearDB->update(
             <<<'SQL'
                     UPDATE traps_group
                     SET traps_group_name = :name
                     WHERE traps_group_id = :id
                 SQL,
-            $updateParams
+            $updateParams,
         );
 
         $deleteRelParams = QueryParameters::create([
@@ -302,7 +338,7 @@ function updateTrapGroup(?int $id = null): void
                     DELETE FROM traps_group_relation
                     WHERE traps_group_id = :id
                 SQL,
-            $deleteRelParams
+            $deleteRelParams,
         );
 
         if (! empty($ret['traps']) && is_array($ret['traps'])) {
@@ -317,7 +353,7 @@ function updateTrapGroup(?int $id = null): void
                             INSERT INTO traps_group_relation (traps_group_id, traps_id)
                             VALUES (:group_id, :trap_id)
                         SQL,
-                    $relParams
+                    $relParams,
                 );
             }
         }
@@ -328,16 +364,33 @@ function updateTrapGroup(?int $id = null): void
             $id,
             $fields['name'],
             'c',
-            $fields
+            $fields,
         );
+
+        $pearDB->commitTransaction();
     } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
+        try {
+            if ($pearDB->isTransactionActive()) {
+                $pearDB->rollBackTransaction();
+            }
+        } catch (ConnectionException $rollbackException) {
+            throw new RepositoryException(
+                'Failed to roll back transaction in updateTrapGroup: ' . $rollbackException->getMessage(),
+                [
+                    'id' => $id,
+                    'name' => $name,
+                ],
+                $rollbackException,
+            );
+        }
+
         throw new RepositoryException(
             'Error while executing updateTrapGroup',
             [
                 'id' => $id,
                 'name' => $name,
             ],
-            $exception
+            $exception,
         );
     }
 }
@@ -370,8 +423,17 @@ function insertTrapGroup(array $ret = []): ?int
     }
 
     $name = $ret['name'] ?? '';
+    if ($name === '') {
+        throw new RepositoryException(
+            'Trap group name cannot be empty',
+            ['ret' => $ret],
+        );
+    }
 
     try {
+        if (! $pearDB->isTransactionActive()) {
+            $pearDB->startTransaction();
+        }
         $pearDB->insert(
             <<<'SQL'
                     INSERT INTO traps_group (traps_group_name)
@@ -384,7 +446,7 @@ function insertTrapGroup(array $ret = []): ?int
 
         $newGroupId = (int) $pearDB->getLastInsertId();
 
-        if (is_array($ret['traps']) && $ret['traps'] !== []) {
+        if (! empty($ret['traps']) && is_array($ret['traps'])) {
             foreach ($ret['traps'] as $trapId) {
                 $relParams = QueryParameters::create([
                     QueryParameter::create('group_id', $newGroupId, QueryParameterTypeEnum::INTEGER),
@@ -410,8 +472,24 @@ function insertTrapGroup(array $ret = []): ?int
             $fields
         );
 
+        $pearDB->commitTransaction();
+
         return $newGroupId;
     } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
+        try {
+            if ($pearDB->isTransactionActive()) {
+                $pearDB->rollBackTransaction();
+            }
+        } catch (ConnectionException $rollbackException) {
+            throw new RepositoryException(
+                'Failed to roll back transaction in insertTrapGroup: ' . $rollbackException->getMessage(),
+                [
+                    'name' => $name,
+                ],
+                $rollbackException,
+            );
+        }
+
         throw new RepositoryException(
             'Error while executing insertTrapGroup',
             [
