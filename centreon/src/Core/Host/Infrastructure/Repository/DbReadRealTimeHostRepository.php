@@ -23,13 +23,19 @@ declare(strict_types=1);
 
 namespace Core\Host\Infrastructure\Repository;
 
+use Adaptation\Database\Connection\Exception\ConnectionException;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
+use Centreon\Domain\Monitoring\ResourceFilter;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\RequestParameters\Interfaces\NormalizerInterface;
 use Centreon\Infrastructure\RequestParameters\RequestParametersTranslatorException;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
+use Core\Common\Domain\Exception\RepositoryException;
+use Core\Common\Domain\Exception\ValueObjectException;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 use Core\Common\Infrastructure\Repository\SqlMultipleBindTrait;
+use Core\Common\Infrastructure\RequestParameters\Transformer\SearchRequestParametersTransformer;
 use Core\Host\Application\Repository\ReadRealTimeHostRepositoryInterface;
 use Core\Host\Domain\Model\HostStatusesCount;
 
@@ -59,13 +65,24 @@ class DbReadRealTimeHostRepository extends AbstractRepositoryRDB implements Read
         $sqlTranslator = $this->prepareSqlRequestParametersTranslatorForStatuses($requestParameters);
 
         $request = $this->returnBaseQuery();
-        $request .= $search = $sqlTranslator->translateSearchParameterToSql();
+        try {
+            $request .= $search = $sqlTranslator->translateSearchParameterToSql();
+        } catch (RequestParametersTranslatorException $exception) {
+            throw new RepositoryException(
+                'An error occurred while translating request parameters to sql',
+                [
+                    'requestParameters' => $requestParameters->toArray(),
+                ],
+                $exception,
+            );
+        }
         $request .= $search !== null ? ' AND ' : ' WHERE ';
         $request .= <<<'SQL'
                 hosts.type = 1
                 AND hosts.enabled = 1
                 AND hosts.name NOT LIKE "_Module_%"
             SQL;
+        $request .= $this->getStatesCondition($requestParameters);
 
         $request .= ' GROUP BY hosts.id, hosts.name, hosts.status ';
 
@@ -73,13 +90,35 @@ class DbReadRealTimeHostRepository extends AbstractRepositoryRDB implements Read
 
         $request .= $sort ?? ' ORDER BY hosts.name ASC';
 
-        $statement = $this->db->prepare($this->translateDbName($request));
-        $sqlTranslator->bindSearchValues($statement);
+        try {
+            $queryParameters = SearchRequestParametersTransformer::reverseToQueryParameters(
+                $sqlTranslator->getSearchValues(),
+            );
+        } catch (RequestParametersTranslatorException $exception) {
+            throw new RepositoryException(
+                'Error translating query parameters for host statuses',
+                [
+                    'requestParameters' => $requestParameters->toArray(),
+                ],
+                $exception,
+            );
+        }
 
-        $statement->execute();
-
-        /** @var _HostStatuses $hosts */
-        $hosts = $statement->fetchAll(\PDO::FETCH_ASSOC);
+        try {
+            /** @var _HostStatuses $hosts */
+            $hosts = $this->db->fetchAllAssociative(
+                $this->translateDbName($request),
+                $queryParameters
+            );
+        } catch (ConnectionException $exception) {
+            throw new RepositoryException(
+                'Error while fetching host statuses from database',
+                [
+                    'requestParameters' => $requestParameters->toArray(),
+                ],
+                $exception,
+            );
+        }
 
         return $this->createHostStatusesCountFromRecord($hosts);
     }
@@ -106,27 +145,60 @@ class DbReadRealTimeHostRepository extends AbstractRepositoryRDB implements Read
                     AND acls.service_id = services.id
             SQL;
 
-        $request .= $search = $sqlTranslator->translateSearchParameterToSql();
+        try {
+            $request .= $search = $sqlTranslator->translateSearchParameterToSql();
+        } catch (RequestParametersTranslatorException $exception) {
+            throw new RepositoryException(
+                'An error occurred while translating request parameters to sql',
+                [
+                    'requestParameters' => $requestParameters->toArray(),
+                ],
+                $exception,
+            );
+        }
         $request .= $search !== null ? ' AND ' : ' WHERE ';
         $request .= "hosts.type = 1 AND hosts.enabled = 1 AND acls.group_id IN ({$bindQuery})";
+        $request .= $this->getStatesCondition($requestParameters);
         $request .= ' GROUP BY hosts.id, hosts.name, hosts.status ';
 
         $sort = $sqlTranslator->translateSortParameterToSql();
 
         $request .= $sort ?? ' ORDER BY hosts.name ASC';
 
-        $statement = $this->db->prepare($this->translateDbName($request));
-        $sqlTranslator->bindSearchValues($statement);
-
-        foreach ($bindValues as $token => $value) {
-            $statement->bindValue($token, $value, \PDO::PARAM_INT);
+        try {
+            $queryParameters = SearchRequestParametersTransformer::reverseToQueryParameters(
+                $sqlTranslator->getSearchValues(),
+            );
+        } catch (RequestParametersTranslatorException $exception) {
+            throw new RepositoryException(
+                'Error translating query parameters for host statuses with access groups',
+                [
+                    'requestParameters' => $requestParameters->toArray(),
+                ],
+                $exception,
+            );
         }
 
-        $statement->setFetchMode(\PDO::FETCH_ASSOC);
-        $statement->execute();
+        try {
+            foreach ($bindValues as $key => $value) {
+                $queryParameters->add($key, QueryParameter::int($key, (int) $value));
+            }
 
-        /** @var _HostStatuses $hosts */
-        $hosts = $statement->fetchAll();
+            /** @var _HostStatuses $hosts */
+            $hosts = $this->db->fetchAllAssociative(
+                $this->translateDbName($request),
+                $queryParameters
+            );
+        } catch (ConnectionException|ValueObjectException $exception) {
+            throw new RepositoryException(
+                'Error while fetching host statuses with access groups from database',
+                [
+                    'accessGroupIds' => $accessGroupIds,
+                    'requestParameters' => $requestParameters->toArray(),
+                ],
+                $exception,
+            );
+        }
 
         return $this->createHostStatusesCountFromRecord($hosts);
     }
@@ -254,5 +326,31 @@ class DbReadRealTimeHostRepository extends AbstractRepositoryRDB implements Read
                 static fn (array $host) => $host['status'] === $statusCode
             )
         );
+    }
+
+    /**
+     * @param RequestParametersInterface $requestParameters
+     *
+     * @return string
+     */
+    private function getStatesCondition(RequestParametersInterface $requestParameters): string
+    {
+        $states = json_decode($requestParameters->getExtraParameter('states') ?? '', true);
+        $stateConditions = [];
+        if (is_array($states) && $states !== []) {
+            $sqlStateCatalog = [
+                ResourceFilter::STATE_RESOURCES_PROBLEMS => '(hosts.status != 0 AND hosts.status != 4)',
+                ResourceFilter::STATE_UNHANDLED_PROBLEMS => '(hosts.status != 0 AND hosts.status != 4 AND hosts.acknowledged = 0 AND hosts.in_downtime = 0 AND hosts.status_confirmed = 1)',
+                ResourceFilter::STATE_ACKNOWLEDGED => 'hosts.acknowledged = 1',
+                ResourceFilter::STATE_IN_DOWNTIME => 'hosts.in_downtime = 1',
+                ResourceFilter::STATE_IN_FLAPPING => 'hosts.flapping = 1',
+            ];
+            $stateConditions = array_map(
+                fn (string $state): string => $sqlStateCatalog[$state],
+                $states
+            );
+        }
+
+        return $stateConditions === [] ? '' : ' AND (' . implode(' OR ', $stateConditions) . ') ';
     }
 }
