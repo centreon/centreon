@@ -49,8 +49,8 @@ jobs:
         id: list-specs
         run: |
           cd ${{ inputs.module_name }}
-          # echo "specs=$(find ${{ inputs.specs_path }} -type f -name "*${{ inputs.spec_extension }}" -exec basename {} \; | sed -e "s/${{ inputs.spec_extension }}//" | sort | jq -R -s -c 'split("\n")[:-1]')" >> $GITHUB_OUTPUT
-          echo "specs=[\"all\"]" >> $GITHUB_OUTPUT
+          echo "specs=$(find ${{ inputs.specs_path }} -type f -name "*${{ inputs.spec_extension }}" -exec basename {} \; | sed -e "s/${{ inputs.spec_extension }}//" | sort | jq -R -s -c 'split("\n")[:-1]')" >> $GITHUB_OUTPUT
+          # echo "specs=[\"all\"]" >> $GITHUB_OUTPUT
 
   cypress-component-test-run:
     needs: [cypress-component-test-list]
@@ -114,7 +114,7 @@ jobs:
             jq 'to_entries | .[].key' $retriesFile | while read -r testName; do
               echo "::warning::Following test was retried during execution: $testName (retries: $(jq ".$testName" $retriesFile))"
             done
-            mv $retriesFile "${{ inputs.module_name }}/cypress/results/reports/${{ matrix.spec }}-retries.json"
+            mv $retriesFile "${{ inputs.module_name }}/cypress/reports/${{ matrix.spec }}-retries.json"
           fi
         shell: bash
 

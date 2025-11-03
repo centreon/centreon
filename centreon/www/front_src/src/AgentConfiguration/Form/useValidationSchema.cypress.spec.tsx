@@ -41,6 +41,9 @@ describe('useValidationSchema', () => {
   });
 
   it('validate certificate files with .crt extension', () => {
+    if (Cypress.currentRetry === 0) {
+      throw new Error('Force retry to test retries screenshot');
+    }
     cy.then(async () => {
       const validData = {
         name: 'test',

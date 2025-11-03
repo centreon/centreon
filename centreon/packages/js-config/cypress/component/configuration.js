@@ -107,7 +107,7 @@ module.exports = ({
       openMode: 0,
       runMode: 2
     },
-    video: false,
+    video: true,
     videosFolder: `${mainCypressFolder}/results/videos`,
     viewportHeight: 590,
     viewportWidth: 1280
