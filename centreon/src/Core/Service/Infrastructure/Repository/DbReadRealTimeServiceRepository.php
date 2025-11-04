@@ -26,6 +26,7 @@ namespace Core\Service\Infrastructure\Repository;
 use Adaptation\Database\Connection\Collection\QueryParameters;
 use Adaptation\Database\Connection\Exception\ConnectionException;
 use Adaptation\Database\Connection\ValueObject\QueryParameter;
+use Centreon\Domain\Monitoring\ResourceFilter;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\RequestParameters\Interfaces\NormalizerInterface;
@@ -36,6 +37,7 @@ use Core\Common\Domain\Exception\RepositoryException;
 use Core\Common\Domain\Exception\ValueObjectException;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 use Core\Common\Infrastructure\Repository\SqlMultipleBindTrait;
+use Core\Common\Infrastructure\RequestParameters\Transformer\SearchRequestParametersTransformer;
 use Core\Service\Application\Repository\ReadRealTimeServiceRepositoryInterface;
 use Core\Service\Domain\Model\ServiceStatusesCount;
 
@@ -67,22 +69,55 @@ class DbReadRealTimeServiceRepository extends AbstractRepositoryRDB implements R
     {
         $sqlTranslator = $this->prepareSqlRequestParametersTranslator($requestParameters);
         $request = $this->returnBaseQuery();
-        $request .= $search = $sqlTranslator->translateSearchParameterToSql();
+        try {
+            $request .= $search = $sqlTranslator->translateSearchParameterToSql();
+        } catch (RequestParametersTranslatorException $exception) {
+            throw new RepositoryException(
+                'Error translating search parameters for service statuses',
+                [
+                    'requestParameters' => $requestParameters->toArray(),
+                ],
+                $exception,
+            );
+        }
         $request .= $search !== null ? ' AND ' : ' WHERE ';
         $request .= 'services.type = 0 AND services.enabled = 1';
+        $request .= $this->getStatesCondition($requestParameters);
 
         $request .= ' GROUP BY services.id, services.name, services.status ';
 
         $sort = $sqlTranslator->translateSortParameterToSql();
         $request .= $sort ?? ' ORDER BY services.name ASC';
 
-        $statement = $this->db->prepare($this->translateDbName($request));
-        $sqlTranslator->bindSearchValues($statement);
+        try {
+            $queryParameters = SearchRequestParametersTransformer::reverseToQueryParameters(
+                $sqlTranslator->getSearchValues(),
+            );
+        } catch (RequestParametersTranslatorException $exception) {
+            throw new RepositoryException(
+                'Error translating query parameters for service statuses',
+                [
+                    'requestParameters' => $requestParameters->toArray(),
+                ],
+                $exception,
+            );
+        }
 
-        $statement->execute();
-
-        /** @var _ServiceStatuses $services */
-        $services = $statement->fetchAll(\PDO::FETCH_ASSOC);
+        try {
+            /** @var _ServiceStatuses $services */
+            $services = $this->db->fetchAllAssociative(
+                $this->translateDbName($request),
+                $queryParameters
+            );
+        } catch (ConnectionException $exception) {
+            throw new RepositoryException(
+                'Error fetching service statuses from database',
+                [
+                    'requestParameters' => $requestParameters->toArray(),
+                ],
+                $exception,
+            );
+        }
 
         return $this->createServiceStatusesCountFromRecord($services);
     }
@@ -111,9 +146,22 @@ class DbReadRealTimeServiceRepository extends AbstractRepositoryRDB implements R
                     AND acls.host_id = services.parent_id
             SQL;
 
-        $request .= $search = $sqlTranslator->translateSearchParameterToSql();
+        try {
+            $request .= $search = $sqlTranslator->translateSearchParameterToSql();
+        } catch (RequestParametersTranslatorException $exception) {
+            throw new RepositoryException(
+                'Error translating search parameters for service statuses with access groups',
+                [
+                    'accessGroupIds' => $accessGroupIds,
+                    'requestParameters' => $requestParameters->toArray(),
+                ],
+                $exception,
+            );
+        }
+
         $request .= $search !== null ? ' AND ' : ' WHERE ';
         $request .= "services.type = 0 AND services.enabled = 1 AND acls.group_id IN ({$bindQuery})";
+        $request .= $this->getStatesCondition($requestParameters);
 
         $request .= ' GROUP BY services.id, services.name, services.status ';
 
@@ -121,17 +169,41 @@ class DbReadRealTimeServiceRepository extends AbstractRepositoryRDB implements R
 
         $request .= $sort ?? ' ORDER BY services.name ASC';
 
-        $statement = $this->db->prepare($this->translateDbName($request));
-        $sqlTranslator->bindSearchValues($statement);
-
-        foreach ($bindValues as $token => $value) {
-            $statement->bindValue($token, $value, \PDO::PARAM_INT);
+        try {
+            $queryParameters = SearchRequestParametersTransformer::reverseToQueryParameters(
+                $sqlTranslator->getSearchValues(),
+            );
+        } catch (RequestParametersTranslatorException $exception) {
+            throw new RepositoryException(
+                'Error translating query parameters for service statuses with access groups',
+                [
+                    'accessGroupIds' => $accessGroupIds,
+                    'requestParameters' => $requestParameters->toArray(),
+                ],
+                $exception,
+            );
         }
 
-        $statement->execute();
+        try {
+            foreach ($bindValues as $key => $value) {
+                $queryParameters->add($key, QueryParameter::int($key, (int) $value));
+            }
 
-        /** @var _ServiceStatuses $services */
-        $services = $statement->fetchAll(\PDO::FETCH_ASSOC);
+            /** @var _ServiceStatuses $services */
+            $services = $this->db->fetchAllAssociative(
+                $this->translateDbName($request),
+                $queryParameters,
+            );
+        } catch (ConnectionException|ValueObjectException $exception) {
+            throw new RepositoryException(
+                'Error fetching service statuses with access groups from database',
+                [
+                    'accessGroupIds' => $accessGroupIds,
+                    'requestParameters' => $requestParameters->toArray(),
+                ],
+                $exception,
+            );
+        }
 
         return $this->createServiceStatusesCountFromRecord($services);
     }
@@ -306,49 +378,54 @@ class DbReadRealTimeServiceRepository extends AbstractRepositoryRDB implements R
 
         if ($accessGroupIds !== []) {
             $aclJoin = <<<'SQL'
-                INNER JOIN `:dbstg`.centreon_acl acls
-                    ON acls.host_id = services.parent_id
-                    AND acls.service_id = services.id
+                    INNER JOIN `:dbstg`.centreon_acl acls
+                        ON acls.host_id = services.parent_id
+                        AND acls.service_id = services.id
                 SQL;
-            $aclSearch = <<<SQL
-                AND acls.group_id IN ({$aclBindQuery})
-                SQL;
+            $aclSearch = sprintf(' AND acls.group_id IN (%s) ', $aclBindQuery);
         }
 
-        return <<<SQL
-            SELECT {$select}
-            FROM `:dbstg`.resources AS services
-            INNER JOIN `:dbstg`.resources AS hosts
-                ON hosts.id = services.parent_id
-            LEFT JOIN `:dbstg`.resources_tags AS rtags_host_groups
-                ON hosts.resource_id = rtags_host_groups.resource_id
-            LEFT JOIN `:dbstg`.tags host_groups
-                ON rtags_host_groups.tag_id = host_groups.tag_id
-                AND host_groups.type = 1
-            LEFT JOIN `:dbstg`.resources_tags AS rtags_host_categories
-                ON hosts.resource_id = rtags_host_categories.resource_id
-            LEFT JOIN `:dbstg`.tags host_categories
-                ON rtags_host_categories.tag_id = host_categories.tag_id
-                AND host_categories.type = 3
-            LEFT JOIN `:dbstg`.resources_tags AS rtags_service_groups
-                ON services.resource_id = rtags_service_groups.resource_id
-            LEFT JOIN `:dbstg`.tags service_groups
-                ON rtags_service_groups.tag_id = service_groups.tag_id
-                AND service_groups.type = 0
-            LEFT JOIN `:dbstg`.resources_tags AS rtags_service_categories
-                ON services.resource_id = rtags_service_categories.resource_id
-            LEFT JOIN `:dbstg`.tags service_categories
-                ON rtags_service_categories.tag_id = service_categories.tag_id
-                AND service_categories.type = 2
-            {$aclJoin}
-            {$search}
-            {$typeSearch}
-            {$aclSearch}
-                AND services.enabled = 1
-            GROUP BY services.name
-            {$sort}
-            {$limit}
-            SQL;
+        return sprintf(
+            <<<'SQL'
+                    SELECT %s
+                    FROM `:dbstg`.resources AS services
+                    INNER JOIN `:dbstg`.resources AS hosts
+                        ON hosts.id = services.parent_id
+                    LEFT JOIN `:dbstg`.resources_tags AS rtags_host_groups
+                        ON hosts.resource_id = rtags_host_groups.resource_id
+                    LEFT JOIN `:dbstg`.tags host_groups
+                        ON rtags_host_groups.tag_id = host_groups.tag_id
+                        AND host_groups.type = 1
+                    LEFT JOIN `:dbstg`.resources_tags AS rtags_host_categories
+                        ON hosts.resource_id = rtags_host_categories.resource_id
+                    LEFT JOIN `:dbstg`.tags host_categories
+                        ON rtags_host_categories.tag_id = host_categories.tag_id
+                        AND host_categories.type = 3
+                    LEFT JOIN `:dbstg`.resources_tags AS rtags_service_groups
+                        ON services.resource_id = rtags_service_groups.resource_id
+                    LEFT JOIN `:dbstg`.tags service_groups
+                        ON rtags_service_groups.tag_id = service_groups.tag_id
+                        AND service_groups.type = 0
+                    LEFT JOIN `:dbstg`.resources_tags AS rtags_service_categories
+                        ON services.resource_id = rtags_service_categories.resource_id
+                    LEFT JOIN `:dbstg`.tags service_categories
+                        ON rtags_service_categories.tag_id = service_categories.tag_id
+                        AND service_categories.type = 2
+                    %s
+                    %s
+                    %s
+                        AND services.enabled = 1
+                    GROUP BY services.name
+                    %s
+                    %s
+                SQL,
+            $select,
+            $aclJoin,
+            $search,
+            $typeSearch . $aclSearch,
+            $sort,
+            $limit
+        );
     }
 
     /**
@@ -357,35 +434,35 @@ class DbReadRealTimeServiceRepository extends AbstractRepositoryRDB implements R
     private function returnBaseQuery(): string
     {
         // tags 0=servicegroup, 1=hostgroup, 2=servicecategory, 3=hostcategory
-        return <<<'SQL_WRAP'
-            SELECT SQL_CALC_FOUND_ROWS
-                services.id AS `id`,
-                services.name AS `name`,
-                services.status AS `status`
-            FROM `:dbstg`.resources AS services
-            INNER JOIN `:dbstg`.resources AS hosts
-                ON hosts.id = services.parent_id
-            LEFT JOIN `:dbstg`.resources_tags AS rtags_host_groups
-                ON hosts.resource_id = rtags_host_groups.resource_id
-            LEFT JOIN `:dbstg`.tags host_groups
-                ON rtags_host_groups.tag_id = host_groups.tag_id
-                AND host_groups.type = 1
-            LEFT JOIN `:dbstg`.resources_tags AS rtags_host_categories
-                ON hosts.resource_id = rtags_host_categories.resource_id
-            LEFT JOIN `:dbstg`.tags host_categories
-                ON rtags_host_categories.tag_id = host_categories.tag_id
-                AND host_categories.type = 3
-            LEFT JOIN `:dbstg`.resources_tags AS rtags_service_groups
-                ON services.resource_id = rtags_service_groups.resource_id
-            LEFT JOIN `:dbstg`.tags service_groups
-                ON rtags_service_groups.tag_id = service_groups.tag_id
-                AND service_groups.type = 0
-            LEFT JOIN `:dbstg`.resources_tags AS rtags_service_categories
-                ON services.resource_id = rtags_service_categories.resource_id
-            LEFT JOIN `:dbstg`.tags service_categories
-                ON rtags_service_categories.tag_id = service_categories.tag_id
-                AND service_categories.type = 2
-            SQL_WRAP;
+        return <<<'SQL'
+                SELECT
+                    services.id AS `id`,
+                    services.name AS `name`,
+                    services.status AS `status`
+                FROM `:dbstg`.resources AS services
+                INNER JOIN `:dbstg`.resources AS hosts
+                    ON hosts.id = services.parent_id
+                LEFT JOIN `:dbstg`.resources_tags AS rtags_host_groups
+                    ON hosts.resource_id = rtags_host_groups.resource_id
+                LEFT JOIN `:dbstg`.tags host_groups
+                    ON rtags_host_groups.tag_id = host_groups.tag_id
+                    AND host_groups.type = 1
+                LEFT JOIN `:dbstg`.resources_tags AS rtags_host_categories
+                    ON hosts.resource_id = rtags_host_categories.resource_id
+                LEFT JOIN `:dbstg`.tags host_categories
+                    ON rtags_host_categories.tag_id = host_categories.tag_id
+                    AND host_categories.type = 3
+                LEFT JOIN `:dbstg`.resources_tags AS rtags_service_groups
+                    ON services.resource_id = rtags_service_groups.resource_id
+                LEFT JOIN `:dbstg`.tags service_groups
+                    ON rtags_service_groups.tag_id = service_groups.tag_id
+                    AND service_groups.type = 0
+                LEFT JOIN `:dbstg`.resources_tags AS rtags_service_categories
+                    ON services.resource_id = rtags_service_categories.resource_id
+                LEFT JOIN `:dbstg`.tags service_categories
+                    ON rtags_service_categories.tag_id = service_categories.tag_id
+                    AND service_categories.type = 2
+            SQL;
     }
 
     /**
@@ -478,5 +555,31 @@ class DbReadRealTimeServiceRepository extends AbstractRepositoryRDB implements R
                 (fn (array $service) => $service['status'] === $statusCode)
             )
         );
+    }
+
+    /**
+     * @param RequestParametersInterface $requestParameters
+     *
+     * @return string
+     */
+    private function getStatesCondition(RequestParametersInterface $requestParameters): string
+    {
+        $states = json_decode($requestParameters->getExtraParameter('states') ?? '', true);
+        $stateConditions = [];
+        if (is_array($states) && $states !== []) {
+            $sqlStateCatalog = [
+                ResourceFilter::STATE_RESOURCES_PROBLEMS => '(services.status != 0 AND services.status != 4)',
+                ResourceFilter::STATE_UNHANDLED_PROBLEMS => '(services.status != 0 AND services.status != 4 AND services.acknowledged = 0 AND services.in_downtime = 0 AND services.status_confirmed = 1)',
+                ResourceFilter::STATE_ACKNOWLEDGED => 'services.acknowledged = 1',
+                ResourceFilter::STATE_IN_DOWNTIME => 'services.in_downtime = 1',
+                ResourceFilter::STATE_IN_FLAPPING => 'services.flapping = 1',
+            ];
+            $stateConditions = array_map(
+                fn (string $state): string => $sqlStateCatalog[$state],
+                $states
+            );
+        }
+
+        return $stateConditions === [] ? '' : ' AND (' . implode(' OR ', $stateConditions) . ') ';
     }
 }

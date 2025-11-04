@@ -50,6 +50,8 @@ interface ReadRealTimeServiceRepositoryInterface
     /**
      * @param RequestParametersInterface $requestParameters
      *
+     * @throws RepositoryException
+     *
      * @return ServiceStatusesCount
      */
     public function findStatusesByRequestParameters(RequestParametersInterface $requestParameters): ServiceStatusesCount;
@@ -57,6 +59,8 @@ interface ReadRealTimeServiceRepositoryInterface
     /**
      * @param RequestParametersInterface $requestParameters
      * @param int[] $accessGroupIds
+     *
+     * @throws RepositoryException
      *
      * @return ServiceStatusesCount
      */

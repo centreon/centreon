@@ -30,6 +30,7 @@ use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Centreon\Infrastructure\RequestParameters\RequestParametersTranslatorException;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
+use Core\Common\Domain\Exception\RepositoryException;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Core\Service\Application\Exception\ServiceException;
@@ -89,7 +90,7 @@ final class FindRealTimeServiceStatusesCount
             );
 
             $presenter->presentResponse($this->createResponse($statuses));
-        } catch (RequestParametersTranslatorException $ex) {
+        } catch (RequestParametersTranslatorException|RepositoryException $ex) {
             $presenter->presentResponse(new ErrorResponse($ex->getMessage()));
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
         } catch (\Throwable $exception) {
