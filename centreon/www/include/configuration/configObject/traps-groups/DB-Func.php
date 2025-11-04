@@ -438,7 +438,7 @@ function insertTrapGroup(array $ret = []): ?int
 {
     global $form, $pearDB, $oreon;
 
-    if ($ret === [] || $ret === null) {
+    if ($ret === []) {
         $ret = $form->getSubmitValues();
     }
 

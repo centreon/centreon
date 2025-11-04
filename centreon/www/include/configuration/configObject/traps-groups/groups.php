@@ -36,7 +36,7 @@ if (! is_array($selectInput)) {
     $selectInput = [$selectInput];
 }
 $select = filter_var_array($selectInput, FILTER_VALIDATE_INT) ?: [];
-$select = array_filter($select, fn($value) => $value !== false);
+$select = array_filter($select, fn ($value) => $value !== false);
 
 // Normalize dupNbr input
 $dupNbrInput = $_GET['dupNbr'] ?? $_POST['dupNbr'] ?? [];
@@ -44,7 +44,7 @@ if (! is_array($dupNbrInput)) {
     $dupNbrInput = [$dupNbrInput];
 }
 $dupNbr = filter_var_array($dupNbrInput, FILTER_VALIDATE_INT) ?: [];
-$dupNbr = array_filter($dupNbr, fn($value) => $value !== false);
+$dupNbr = array_filter($dupNbr, fn ($value) => $value !== false);
 $dupNbr = array_intersect_key($dupNbr, $select);
 
 // Path to the configuration dir
@@ -73,7 +73,7 @@ try {
             purgeOutdatedCSRFTokens();
             if (isCSRFTokenValid()) {
                 purgeCSRFToken();
-                multipleTrapGroupInDB($select ?? [], $dupNbr);
+                multipleTrapGroupInDB($select, $dupNbr);
             } else {
                 unvalidFormMessage();
             }
@@ -83,7 +83,7 @@ try {
             purgeOutdatedCSRFTokens();
             if (isCSRFTokenValid()) {
                 purgeCSRFToken();
-                deleteTrapGroupInDB($select ?? []);
+                deleteTrapGroupInDB($select);
             } else {
                 unvalidFormMessage();
             }
