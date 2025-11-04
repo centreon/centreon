@@ -51,7 +51,7 @@ Feature: service and service Template Macros Configuration
     Given a non-admin user is on the "Configuration > services > Templates" page
     And a pre-configured Service Template "ST-A" that contains defined macros
     When the non-admin user creates a new Service Template "ST-B" with "ST-A" as its parent
-    And he changes the value of the normal macro inherited from Service Template "ST-A"
+    And the non-admin user changes the value of the normal macro inherited from Service Template "ST-A"
     And the non-admin user clicks the "Save" button
     Then the normal macro value in "ST-B" should be the modified value
     And the normal macro should not be highlighted in orange
@@ -63,7 +63,7 @@ Feature: service and service Template Macros Configuration
     Given a non-admin user is on the "Configuration > services > Templates" page
     And a pre-configured Service Template "ST-A" that contains defined macros
     When the user creates a new Service "Service-B" using "ST-A" as its parent template
-    And he changes the value of the normal macro inherited from Service Template "ST-A"
+    And the non-admin user changes the value of the normal macro inherited from Service Template "ST-A"
     And the non-admin user clicks the "Save" button
     Then the normal macro value in "Service-B" should be the modified value
     And the normal macro should not be highlighted in orange
@@ -75,7 +75,7 @@ Feature: service and service Template Macros Configuration
   Scenario: Override an inherited macro value when editing a pre-configured Service
     Given a pre-configured Service using a service template with defined macros as its parent template
     When the non-admin user opens the service for editing
-    When he changes the value of the normal macro inherited from Service Template "ST-A"
+    When the non-admin user changes the value of the normal macro inherited from Service Template "ST-A"
     And the non-admin user clicks the "Save" button
     Then the normal macro value in the service should be the modified value
     And the normal macro should not be highlighted in orange
