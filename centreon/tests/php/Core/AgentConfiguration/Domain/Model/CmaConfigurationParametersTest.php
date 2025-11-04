@@ -65,7 +65,7 @@ foreach (
         "should throw an exception when the hosts[].{$field} is not valid",
         function () use ($field): void {
             $this->parameters['hosts'][0][$field] = 9999999999;
-            new CmaConfigurationParameters($this->parameters, ConnectionModeEnum::SECURE);
+            new CmaConfigurationParameters($this->parameters);
         }
     )->throws(
         AssertionException::range(
@@ -90,7 +90,7 @@ foreach (
         function () use ($field, $tooLong): void {
             $this->parameters[$field] = $tooLong;
 
-            new CmaConfigurationParameters($this->parameters, ConnectionModeEnum::SECURE);
+            new CmaConfigurationParameters($this->parameters);
         }
     )->throws(
         AssertionException::maxLength(
@@ -115,7 +115,7 @@ foreach (
         function () use ($field): void {
             $field === 'poller_ca_certificate' ? $this->parameters['hosts'][0][$field] = 'test.crt' : $this->parameters[$field] = 'test.crt';
 
-            $cmaConfig = new CmaConfigurationParameters($this->parameters, ConnectionModeEnum::SECURE);
+            $cmaConfig = new CmaConfigurationParameters($this->parameters);
             $result = $cmaConfig->getData();
             $field === 'poller_ca_certificate'
                 ? $this->assertEquals($result['hosts'][0][$field], CmaConfigurationParameters::CERTIFICATE_BASE_PATH . 'test.crt')
@@ -137,7 +137,7 @@ foreach (
         function () use ($field): void {
             $field === 'poller_ca_certificate' ? $this->parameters['hosts'][0][$field] = '/etc/pki/test.crt' : $this->parameters[$field] = '/etc/pki/test.crt';
 
-            $cmaConfig = new CmaConfigurationParameters($this->parameters, ConnectionModeEnum::SECURE);
+            $cmaConfig = new CmaConfigurationParameters($this->parameters);
             $result = $cmaConfig->getData();
             $field === 'poller_ca_certificate'
                 ? $this->assertEquals($result['hosts'][0][$field], CmaConfigurationParameters::CERTIFICATE_BASE_PATH . 'test.crt')
@@ -148,7 +148,7 @@ foreach (
 
 it('should empty the related properties when agent_initiated is false', function (): void {
     $this->parameters['agent_initiated'] = false;
-    $cmaConfig = new CmaConfigurationParameters($this->parameters, ConnectionModeEnum::SECURE);
+    $cmaConfig = new CmaConfigurationParameters($this->parameters);
     $result = $cmaConfig->getData();
     $this->assertEquals($result['otel_public_certificate'], null);
     $this->assertEquals($result['otel_private_key'], null);
@@ -158,7 +158,7 @@ it('should empty the related properties when agent_initiated is false', function
 
 it('should empty the related properties when poller_initiated is false', function (): void {
     $this->parameters['poller_initiated'] = false;
-    $cmaConfig = new CmaConfigurationParameters($this->parameters, ConnectionModeEnum::SECURE);
+    $cmaConfig = new CmaConfigurationParameters($this->parameters);
     $result = $cmaConfig->getData();
     $this->assertEquals($result['hosts'], []);
 });
