@@ -3256,46 +3256,6 @@ function getPayloadForHost(bool $isCloudPlatform, array $formData): array
     return $payload;
 }
 
-function computeMacroValue(array $macroInformations, int $hostId, Kernel $kernel): string|null
-{
-    global $pearDB;
-    $value = $macroInformations['value'] ?? null;
-    $macroOriginalNameKey = 'macroOriginalName_' . $macroInformations['key'];
-
-    if (! isset($_REQUEST[$macroOriginalNameKey]) || empty($_REQUEST[$macroOriginalNameKey])) {
-        return null;
-    }
-
-    $value = $pearDB->fetchOne(
-        <<<'SQL'
-            SELECT host_macro_value
-            FROM on_demand_macro_host
-            WHERE host_macro_name = :host_macro_name
-            AND host_host_id = :host_host_id
-            SQL,
-        QueryParameters::create(
-            [
-                QueryParameter::string('host_macro_name', '$_HOST' . $_REQUEST[$macroOriginalNameKey] . '$'),
-                QueryParameter::int('host_host_id', $hostId),
-            ]
-        )
-    );
-
-    $readVaultRepository = $kernel->getContainer()->get(ReadVaultRepositoryInterface::class);
-    if (! str_starts_with($value, 'secret::') || ! $readVaultRepository->isVaultConfigured()) {
-        return $value;
-    }
-
-    $vaultedMacros = getHostSecretsFromVault(
-        $readVaultRepository,
-        $hostId,
-        $value,
-        Logger::create()
-    );
-
-    return $vaultedMacros['_HOST' . $_REQUEST[$macroOriginalNameKey]] ?? $value;
-}
-
 /**
  * Validates that there are no circular references between host parents and children.
  *
