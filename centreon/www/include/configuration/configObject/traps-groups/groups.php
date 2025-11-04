@@ -30,15 +30,22 @@ $id = filter_var(
     FILTER_VALIDATE_INT
 );
 
-$select = filter_var_array(
-    $_GET['select'] ?? $_POST['select'] ?? [],
-    FILTER_VALIDATE_INT
-);
+// Normalize select input
+$selectInput = $_GET['select'] ?? $_POST['select'] ?? [];
+if (! is_array($selectInput)) {
+    $selectInput = [$selectInput];
+}
+$select = filter_var_array($selectInput, FILTER_VALIDATE_INT) ?: [];
+$select = array_filter($select, fn($value) => $value !== false);
 
-$dupNbr = filter_var_array(
-    $_GET['dupNbr'] ?? $_POST['dupNbr'] ?? [],
-    FILTER_VALIDATE_INT
-);
+// Normalize dupNbr input
+$dupNbrInput = $_GET['dupNbr'] ?? $_POST['dupNbr'] ?? [];
+if (! is_array($dupNbrInput)) {
+    $dupNbrInput = [$dupNbrInput];
+}
+$dupNbr = filter_var_array($dupNbrInput, FILTER_VALIDATE_INT) ?: [];
+$dupNbr = array_filter($dupNbr, fn($value) => $value !== false);
+$dupNbr = array_intersect_key($dupNbr, $select);
 
 // Path to the configuration dir
 $path = './include/configuration/configObject/traps-groups/';

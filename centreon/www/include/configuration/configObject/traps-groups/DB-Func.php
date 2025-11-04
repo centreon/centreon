@@ -32,7 +32,7 @@ use Core\Common\Domain\Exception\ValueObjectException;
  *
  * @param string|null $name
  * @throws RepositoryException
- * @return bool true if allowed, false if duplicate with different id
+ * @return bool true if duplicate exists with different id, false if name is available or belongs to current record
  */
 function testTrapGroupExistence(?string $name = null): bool
 {
@@ -82,6 +82,10 @@ function deleteTrapGroupInDB(array $trapGroups = []): void
     global $pearDB, $oreon;
 
     try {
+        if (! $pearDB->isTransactionActive()) {
+            $pearDB->startTransaction();
+        }
+
         foreach (array_keys($trapGroups) as $trapGroupId) {
             $selectQuery = <<<'SQL'
                     SELECT traps_group_name AS name
@@ -120,7 +124,23 @@ function deleteTrapGroupInDB(array $trapGroups = []): void
                 'd',
             );
         }
+
+        $pearDB->commitTransaction();
     } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
+        try {
+            if ($pearDB->isTransactionActive()) {
+                $pearDB->rollBackTransaction();
+            }
+        } catch (ConnectionException $rollbackException) {
+            throw new RepositoryException(
+                'Failed to roll back transaction in deleteTrapGroupInDB: ' . $rollbackException->getMessage(),
+                [
+                    'trapGroups' => array_keys($trapGroups),
+                ],
+                $rollbackException,
+            );
+        }
+
         throw new RepositoryException(
             'Error while executing deleteTrapGroupInDB',
             [
