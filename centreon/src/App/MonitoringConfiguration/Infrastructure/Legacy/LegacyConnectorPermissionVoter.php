@@ -38,7 +38,8 @@ final class LegacyConnectorPermissionVoter extends Voter
      * @var array<value-of<ConnectorPermissionEnum>, string>
      */
     private const LEGACY_PERMISSION_MAP = [
-        ConnectorPermissionEnum::CanRead->value => Contact::ROLE_CONFIGURATION_CONNECTORS_RW,
+        ConnectorPermissionEnum::CanReadAndWrite->value => Contact::ROLE_CONFIGURATION_CONNECTORS_RW,
+        ConnectorPermissionEnum::CanRead->value => Contact::ROLE_CONFIGURATION_CONNECTORS_R,
     ];
 
     protected function supports(string $attribute, mixed $subject): bool

@@ -30,6 +30,8 @@ use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandLine;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandName;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandTypeEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\Connector\Connector;
+use App\MonitoringConfiguration\Domain\Aggregate\Connector\ConnectorCommandLine;
+use App\MonitoringConfiguration\Domain\Aggregate\Connector\ConnectorDescription;
 use App\MonitoringConfiguration\Domain\Aggregate\Connector\ConnectorId;
 use App\MonitoringConfiguration\Domain\Aggregate\Connector\ConnectorName;
 use App\MonitoringConfiguration\Domain\Event\CommandCreated;
@@ -50,14 +52,20 @@ final class CreateCommandCommandHandlerTest extends TestCase
         $type = CommandTypeEnum::fromName('Check');
         Assert::notNull($type);
         $handler = new CreateCommandCommandHandler($repository, $connectorRepository, $eventBus);
-        $connector = new Connector(id: new ConnectorId(1), name: new ConnectorName('Perl Connector'));
+        $connector = new Connector(
+            id: new ConnectorId(1),
+            name: new ConnectorName('Perl Connector'),
+            commandLine: new ConnectorCommandLine('/usr/bin/perl'),
+            description: new ConnectorDescription('description of the connector'),
+            isActivated: true,
+        );
         $connectorRepository->add($connector);
         $command = new CreateCommandCommand(
             name: new CommandName('NAME'),
             type: $type,
             commandLine: new CommandLine('dosomething $ARG1$'),
             isShellEnabled: true,
-            connectorId: $connector->id,
+            connectorId: $connector->id(),
             creatorId: 1,
             comment: new CommandComment('comment of the command'),
         );
@@ -74,14 +82,20 @@ final class CreateCommandCommandHandlerTest extends TestCase
         $type = CommandTypeEnum::fromName('Check');
         Assert::notNull($type);
         $handler = new CreateCommandCommandHandler($repository, $connectorRepository, $eventBus);
-        $connector = new Connector(id: new ConnectorId(1), name: new ConnectorName('Perl Connector'));
+        $connector = new Connector(
+            id: new ConnectorId(1),
+            name: new ConnectorName('Perl Connector'),
+            commandLine: new ConnectorCommandLine('/usr/bin/perl'),
+            description: new ConnectorDescription('description of the connector'),
+            isActivated: true,
+        );
         $connectorRepository->add($connector);
         $command = new CreateCommandCommand(
             name: new CommandName('NAME'),
             type: $type,
             commandLine: new CommandLine('dosomething $ARG1$'),
             isShellEnabled: true,
-            connectorId: $connector->id,
+            connectorId: $connector->id(),
             creatorId: 1,
             comment: new CommandComment('comment of the command'),
         );
@@ -100,14 +114,20 @@ final class CreateCommandCommandHandlerTest extends TestCase
         $type = CommandTypeEnum::fromName('Check');
         Assert::notNull($type);
         $handler = new CreateCommandCommandHandler($repository, $connectorRepository, $eventBus);
-        $connector = new Connector(id: new ConnectorId(1), name: new ConnectorName('Perl Connector'));
+        $connector = new Connector(
+            id: new ConnectorId(1),
+            name: new ConnectorName('Perl Connector'),
+            commandLine: new ConnectorCommandLine('/usr/bin/perl'),
+            description: new ConnectorDescription('description of the connector'),
+            isActivated: true,
+        );
         $connectorRepository->add($connector);
         $command = new CreateCommandCommand(
             name: new CommandName('NAME'),
             type: $type,
             commandLine: new CommandLine('dosomething $ARG1$'),
             isShellEnabled: true,
-            connectorId: $connector->id,
+            connectorId: $connector->id(),
             creatorId: 1,
             comment: new CommandComment('comment of the command'),
         );

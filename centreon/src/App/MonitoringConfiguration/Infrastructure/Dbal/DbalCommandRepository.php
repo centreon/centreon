@@ -29,7 +29,6 @@ use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandName;
 use App\MonitoringConfiguration\Domain\Aggregate\Connector\Connector;
 use App\MonitoringConfiguration\Domain\Exception\CommandNotFoundException;
 use App\MonitoringConfiguration\Domain\Repository\CommandRepository;
-use App\Shared\Domain\Collection;
 use App\Shared\Infrastructure\Dbal\DbalRepository;
 use App\Shared\Infrastructure\TransformerInterface;
 use Doctrine\DBAL\Connection;
@@ -38,15 +37,15 @@ use Webmozart\Assert\Assert;
 
 /**
  * @phpstan-type RowTypeAlias = array{
- *   command_id: int,
- *   command_name: string,
- *   command_line: string,
- *   command_type: int,
- *   enable_shell: bool,
- *   command_activate: bool,
- *   command_locked: bool,
- *   command_comment: string|null,
- *   connector_id: int|null,
+ *   cm_command_id: int,
+ *   cm_command_name: string,
+ *   cm_command_line: string,
+ *   cm_command_type: int,
+ *   cm_enable_shell: bool,
+ *   cm_command_activate: bool,
+ *   cm_command_locked: bool,
+ *   cm_command_comment: string|null,
+ *   cm_connector_id: int|null,
  * }
  */
 final readonly class DbalCommandRepository extends DbalRepository implements CommandRepository
@@ -144,47 +143,6 @@ final readonly class DbalCommandRepository extends DbalRepository implements Com
         $this->setId($command, new CommandId($id));
     }
 
-    public function findAllByConnector(Connector $connector): Collection
-    {
-        $qb = $this->connection->createQueryBuilder();
-        $qb->select(...self::getSelectColumns(), ...DbalConnectorRepository::getSelectColumns())
-            ->from(self::CONNECTOR_JON_TABLE_NAME, 'c')
-            ->rightJoin('c', self::TABLE_NAME, 'cm', 'c.id = cm.connector_id')
-            ->where('cm.connector_id = :connector_id')
-            ->setParameter('connector_id', $connector->id()->value);
-
-        /**
-         * @var array<JoinRowTypeAlias> $rows
-         */
-        $rows = $qb->executeQuery()->fetchAllAssociative();
-
-        $connectorRows = [];
-        $commandRows = [];
-        foreach ($rows as $row) {
-            $connectorId = $row['c_id'];
-            $commandId = $row['cm_command_id'];
-
-            $connectorRows[$connectorId] ??= $row;
-
-            if ($commandId !== null) {
-                /** @var GlobalMacroRowTypeAlias $commandRow */
-                $commandRow = [
-                    'cm_command_id' => $row['cm_command_id'],
-                    'cm_command_name' => $row['cm_command_name'],
-                    'cm_command_line' => $row['cm_command_line'],
-                    'cm_command_type' => $row['cm_command_type'],
-                    'cm_enable_shell' => $row['cm_enable_shell'],
-                    'cm_command_activate' => $row['cm_command_activate'],
-                    'cm_command_locked' => $row['cm_command_locked'],
-                    'cm_command_comment' => $row['cm_command_comment'],
-                ];
-                $commandRows[$connectorId][$commandId] = $commandRow;
-            }
-        }
-
-        return $this->createCommands($connectorRows, $commandRows);
-    }
-
     /**
      * @return array<string>
      */
@@ -200,42 +158,6 @@ final readonly class DbalCommandRepository extends DbalRepository implements Com
             "{$alias}.command_locked AS cm_command_locked",
             "{$alias}.command_comment AS cm_command_comment",
         ];
-    }
-
-    /**
-     * @param array<RowTypeAlias> $connectorRows
-     * @param array<array<GlobalMacroRowTypeAlias>>|null $commandRowsByConnectorId
-     *
-     * @return Collection<Command>
-     */
-    private function createCommands(array $connectorRows, ?array $commandRowsByConnectorId = null): Collection
-    {
-        // fetch all global macros of given pollers
-        if ($commandRowsByConnectorId) {
-            $commandQb = $this->connection->createQueryBuilder();
-            $commandQb->select('cm.command_id', ...DbalConnectorRepository::getSelectColumns())
-                ->from(self::TABLE_NAME, 'cm')
-                ->innerJoin('cm', self::CONNECTOR_JON_TABLE_NAME, 'c', 'cm.connector_id = c.id')
-                ->where($commandQb->expr()->in('c.id', array_map('strval', array_column($connectorRows, 'c_id'))));
-
-            /**
-             * @var array<JoinRowTypeAlias> $commandRows
-             */
-            $commandRows = $commandQb->executeQuery()->fetchAllAssociative();
-            $connectorRowsRowsByCommandId = [];
-            foreach ($commandRows as $commandRow) {
-                $connectorRowsRowsByCommandId['command_id'][] = $commandRow;
-            }
-        }
-        $commands = [];
-        foreach ($connectorRows as $row) {
-            $commandId = $row['cm_command_id'];
-            $commands[$commandId] ??= $this->createCommand(
-                $row,
-            );
-        }
-
-        return new Collection(array_values($commands), Command::class);
     }
 
     public function update(Command $command): void

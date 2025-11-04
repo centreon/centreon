@@ -71,3 +71,5 @@ parameters:
             - Centreon\Domain\Contact\Contact
         App\MonitoringConfiguration\Infrastructure\Legacy\LegacyCommandPermissionVoter:
             - Centreon\Domain\Contact\Contact
+        App\MonitoringConfiguration\Infrastructure\Legacy\LegacyConnectorPermissionVoter:
+            - Centreon\Domain\Contact\Contact

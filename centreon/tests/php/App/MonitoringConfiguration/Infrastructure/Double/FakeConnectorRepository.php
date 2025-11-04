@@ -27,6 +27,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Connector\Connector;
 use App\MonitoringConfiguration\Domain\Aggregate\Connector\ConnectorId;
 use App\MonitoringConfiguration\Domain\Exception\ConnectorNotFoundException;
 use App\MonitoringConfiguration\Domain\Repository\ConnectorRepository;
+use App\MonitoringConfiguration\Domain\Repository\Criteria\ConnectorCriteria;
 use App\Shared\Domain\Aggregate\AggregateRoot;
 
 final class FakeConnectorRepository implements ConnectorRepository
@@ -55,5 +56,10 @@ final class FakeConnectorRepository implements ConnectorRepository
         $reflection->setValue($connector, new ConnectorId($id));
 
         $this->connectors[$id] = $connector;
+    }
+
+    public function findAll(?ConnectorCriteria $criteria = null): \IteratorAggregate&\Countable
+    {
+        return new \ArrayObject(array_values($this->connectors));
     }
 }
