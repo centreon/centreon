@@ -51,7 +51,7 @@ Feature: Host and Host Template Macros Configuration
     Given a non-admin user is on the "Configuration > Hosts > Templates" page
     And a pre-configured Host Template "HT-A" that contains defined macros
     When the non-admin user creates a new Host Template "HT-B" with "HT-A" as its parent
-    And he changes the value of the normal macro inherited from Host Template "HT-A"
+    And the non-admin user changes the value of the normal macro inherited from Host Template "HT-A"
     And the non-admin user clicks the "Save" button
     Then the normal macro value in "HT-B" should be the modified value
     And the normal macro should not be highlighted in orange
@@ -63,7 +63,7 @@ Feature: Host and Host Template Macros Configuration
     Given a non-admin user is on the "Configuration > Hosts > Templates" page
     And a pre-configured Host Template "HT-A" that contains defined macros
     When the user creates a new Host "Host-B" using "HT-A" as its parent template
-    And he changes the value of the normal macro inherited from Host Template "HT-A"
+    And the non-admin user changes the value of the normal macro inherited from Host Template "HT-A"
     And the non-admin user clicks the "Save" button
     Then the normal macro value in "Host-B" should be the modified value
     And the normal macro should not be highlighted in orange
@@ -75,7 +75,7 @@ Feature: Host and Host Template Macros Configuration
   Scenario: Override an inherited macro value when editing a pre-configured Host
     Given a pre-configured Host using a host template with defined macros as its parent template
     When the non-admin user opens the host for editing
-    When he changes the value of the normal macro inherited from Host Template "HT-A"
+    When the non-admin user changes the value of the normal macro inherited from Host Template "HT-A"
     And the non-admin user clicks the "Save" button
     Then the normal macro value in the host should be the modified value
     And the normal macro should not be highlighted in orange
