@@ -98,11 +98,6 @@ use Symfony\Component\Serializer\Annotation\Groups;
         ),
     ],
 )]
-#[Get(
-    shortName: 'Connector',
-    uriTemplate: '/configuration/connectors/{id}',
-    provider: FindConnectorProvider::class,
-)]
 final class ConnectorResource
 {
     public function __construct(

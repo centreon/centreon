@@ -1,5 +1,0 @@
-# FindConnectors:
-#   methods: GET
-#   path: /configuration/connectors
-#   controller: 'Core\Connector\Infrastructure\API\FindConnectors\FindConnectorsController'
-#   condition: "request.attributes.get('version') >= 24.04"

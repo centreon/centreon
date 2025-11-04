@@ -43,7 +43,7 @@ use Webmozart\Assert\Assert;
  *   c_id: int,
  *   c_name: string,
  *   c_command_line: string,
- *   c_description: string,
+ *   c_description: ?string,
  *   c_activate: 0|1,
  * }
  */

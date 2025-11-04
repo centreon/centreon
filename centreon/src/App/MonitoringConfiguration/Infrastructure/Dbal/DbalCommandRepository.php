@@ -51,10 +51,10 @@ use Webmozart\Assert\Assert;
  *   command_locked: bool,
  *   command_comment: string|null,
  *   connector_id: int|null,
- *   hosts_count?: int|null,
  *   used_hosts_count?: int|null,
- *   services_count?: int|null,
+ *   used_host_templates_count?: int|null,
  *   used_services_count?: int|null,
+ *   used_service_templates_count?: int|null,
  * }
  */
 final readonly class DbalCommandRepository extends DbalRepository implements CommandRepository
@@ -252,6 +252,7 @@ final readonly class DbalCommandRepository extends DbalRepository implements Com
         /** @var CommandId $id */
         $id = $command->id();
 
+        // create a new instance with same values but with the connector
         return new Command(
             id: $id,
             name: $command->name,

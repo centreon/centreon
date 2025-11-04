@@ -38,7 +38,7 @@ final readonly class ResourceConnectorTransformer implements TransformerInterfac
             id: $from->id()->value,
             name: $from->name->value,
             commandLine: $from->commandLine->value,
-            description: $from->description->value,
+            description: $from->description?->value,
             isActivated: $from->isActivated,
         );
     }

@@ -77,7 +77,7 @@ final class ConnectorCriteria
         Assert::inArray($operator, self::ALLOWED_OPERATORS);
 
         $ids = $this->ids[$operator] ?? [];
-        $ids[] = (string) $id;
+        $ids[] = $id;
         $ids = array_values(array_unique($ids));
 
         $new = clone $this;

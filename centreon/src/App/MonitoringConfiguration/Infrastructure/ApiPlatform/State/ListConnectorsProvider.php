@@ -86,6 +86,9 @@ final readonly class ListConnectorsProvider implements ProviderInterface
         );
     }
 
+    /**
+     * @param array<string, string|array<string>>|null $nameFilter
+     */
     private function handleNameFilter(?array $nameFilter, ConnectorCriteria $criteria): ConnectorCriteria
     {
         if ($nameFilter === null) {
@@ -108,6 +111,9 @@ final readonly class ListConnectorsProvider implements ProviderInterface
         return $criteria;
     }
 
+    /**
+     * @param array<string, int|array<int>>|null $idFilter
+     */
     private function handleIdFilter(?array $idFilter, ConnectorCriteria $criteria): ConnectorCriteria
     {
         if ($idFilter === null) {
@@ -117,12 +123,7 @@ final readonly class ListConnectorsProvider implements ProviderInterface
             if (! in_array($operator, ConnectorCriteria::ALLOWED_OPERATORS, true)) {
                 continue;
             }
-            if (is_string($ids)) {
-                $ids = [(int) $ids];
-            }
-            if (is_array($ids)) {
-                $ids = array_map(fn (int $id): int => $id, $ids);
-            }
+            $ids = is_array($ids) ? array_map(fn (int $id): int => $id, $ids) : [(int) $ids];
 
             foreach ($ids as $id) {
                 $criteria = $criteria->withId($id, $operator);

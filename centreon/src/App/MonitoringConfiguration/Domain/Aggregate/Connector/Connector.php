@@ -31,7 +31,7 @@ final class Connector extends AggregateRoot
         ConnectorId $id,
         public readonly ConnectorName $name,
         public readonly ConnectorCommandLine $commandLine,
-        public readonly ConnectorDescription $description,
+        public readonly ?ConnectorDescription $description,
         public readonly bool $isActivated,
     ) {
         parent::__construct($id);
