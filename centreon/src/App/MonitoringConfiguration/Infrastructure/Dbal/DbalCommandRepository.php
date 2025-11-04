@@ -199,7 +199,7 @@ final readonly class DbalCommandRepository extends DbalRepository implements Com
         /** @var CommandId $id */
         $id = $command->id();
 
-        // create a new instance with same values but with the poller collection
+        // create a new instance with same values but with the connector
         return new Command(
             id: $id,
             name: $command->name,
