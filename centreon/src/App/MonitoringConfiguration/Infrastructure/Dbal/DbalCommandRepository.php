@@ -226,7 +226,7 @@ final readonly class DbalCommandRepository extends DbalRepository implements Com
             ->setParameter('enable_shell', $command->isShellEnabled ? 1 : 0)
             ->setParameter('activate', $command->isActivated ? 1 : 0)
             ->setParameter('comment', $command->comment->value ?? null)
-            ->setParameter('connector_id', $command->connector instanceof Connector ? $command->connector->id->value : null);
+            ->setParameter('connector_id', $command->connector instanceof Connector ? $command->connector->id()->value : null);
 
         $qb->executeStatement();
     }

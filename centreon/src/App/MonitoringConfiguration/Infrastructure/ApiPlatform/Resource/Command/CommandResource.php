@@ -114,8 +114,8 @@ use Symfony\Component\Validator\Constraints as Assert;
                     ),
                 ],
             ),
-            // securityPostValidation: "is_granted('" . CommandActionEnum::Read->value . "', object)",
-            // securityPostValidationMessage: 'You are not allowed to access commands',
+            securityPostValidation: "is_granted('" . CommandActionEnum::Read->value . "', object)",
+            securityPostValidationMessage: 'You are not allowed to access commands',
         )
     ],
 )]
