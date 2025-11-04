@@ -24,7 +24,9 @@ declare(strict_types=1);
 namespace Core\Security\ProviderConfiguration\Infrastructure\Api\FindProviderConfigurations;
 
 use Core\Application\Common\UseCase\AbstractPresenter;
+use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ResponseStatusInterface;
+use Core\Common\Infrastructure\ExceptionLogger\ExceptionLogger;
 use Core\Security\ProviderConfiguration\Application\UseCase\FindProviderConfigurations\{
     FindProviderConfigurationsPresenterInterface, FindProviderConfigurationsResponse, ProviderConfigurationDto};
 
@@ -36,19 +38,24 @@ class FindProviderConfigurationsPresenter extends AbstractPresenter implements F
     public function presentResponse(ResponseStatusInterface|FindProviderConfigurationsResponse $data): void
     {
         if ($data instanceof ResponseStatusInterface) {
+            if ($data instanceof ErrorResponse && ! is_null($data->getException())) {
+                ExceptionLogger::create()->log($data->getException());
+            }
             $this->setResponseStatus($data);
-        } else {
-            $this->present(array_map(
-                fn (ProviderConfigurationDto $dto): array => [
-                    'id' => $dto->id,
-                    'type' => $dto->type,
-                    'name' => $dto->name,
-                    'authentication_uri' => $dto->authenticationUri,
-                    'is_active' => $dto->isActive,
-                    'is_forced' => $dto->isForced,
-                ],
-                $data->providerConfigurations
-            ));
+
+            return;
         }
+
+        $this->present(array_map(
+            fn (ProviderConfigurationDto $dto): array => [
+                'id' => $dto->id,
+                'type' => $dto->type,
+                'name' => $dto->name,
+                'authentication_uri' => $dto->authenticationUri,
+                'is_active' => $dto->isActive,
+                'is_forced' => $dto->isForced,
+            ],
+            $data->providerConfigurations
+        ));
     }
 }
