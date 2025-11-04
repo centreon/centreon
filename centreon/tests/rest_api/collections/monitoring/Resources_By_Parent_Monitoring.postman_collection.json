@@ -3142,7 +3142,7 @@
 							"raw": ""
 						},
 						"url": {
-							"raw": "{{baseUrl}}/monitoring/resources/hosts?hostgroup_names=[\"{{HostGroup1Name}}\"]",
+							"raw": "{{baseUrl}}/monitoring/resources/hosts?types=[\"host\"]",
 							"host": [
 								"{{baseUrl}}"
 							],
@@ -3153,8 +3153,8 @@
 							],
 							"query": [
 								{
-									"key": "hostgroup_names",
-									"value": "[\"{{HostGroup1Name}}\"]"
+									"key": "types",
+									"value": "[\"host\"]"
 								}
 							]
 						}

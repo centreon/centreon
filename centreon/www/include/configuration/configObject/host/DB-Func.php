@@ -3254,3 +3254,107 @@ function getPayloadForHost(bool $isCloudPlatform, array $formData): array
 
     return $payload;
 }
+
+/**
+ * Validates that there are no circular references between host parents and children.
+ *
+ * Checks if any host is both a parent and a child, or if adding the specified parent-child
+ * relationships would create a circular reference in the host hierarchy.
+ *
+ * @param array<string, mixed> $fields associative array with 'host_parents' and 'host_childs' as arrays of host IDs
+ *
+ * @return array|true returns an array on the form [form_field => error_message] if a circular reference is detected,
+ *                    or true if validation passes
+ */
+function validateParentChildAreNotCircular(array $fields): array|true
+{
+    global $pearDB;
+
+    $parents = $fields['host_parents'] ?? [];
+    $children = $fields['host_childs'] ?? [];
+    $common = array_intersect($parents, $children);
+
+    if ($common) {
+        $hostIds = [];
+        foreach ($common as $hostId) {
+            $hostIds[':host' . $hostId] = $hostId;
+        }
+        $hostIdsAsString = implode(',', array_keys($hostIds));
+        $statement = $pearDB->prepare("SELECT host_name FROM host WHERE host_id IN ({$hostIdsAsString})");
+        foreach ($hostIds as $param => $id) {
+            $statement->bindValue($param, $id, PDO::PARAM_INT);
+        }
+
+        $statement->execute();
+        $hostNames = $statement->fetchAll(PDO::FETCH_COLUMN);
+
+        return [
+            'host_parents' => 'Circular reference detected with host children: ' . implode(', ', $hostNames),
+        ];
+    }
+
+    $circular = [];
+    foreach ($parents as $parentId) {
+        foreach ($children as $childId) {
+            if (($foundId = hasCircularReference($parentId, $childId)) !== null) {
+                $circular[] = $foundId;
+            }
+        }
+    }
+
+    if ($circular) {
+        $hostIds = [];
+        foreach (array_unique($circular) as $hostId) {
+            $hostIds[':host' . $hostId] = $hostId;
+        }
+        $hostIdsAsString = implode(',', array_keys($hostIds));
+        $statement = $pearDB->prepare(
+            "SELECT host_name FROM host WHERE host_id IN ({$hostIdsAsString})"
+        );
+        foreach ($hostIds as $param => $id) {
+            $statement->bindValue($param, $id, PDO::PARAM_INT);
+        }
+        $statement->execute();
+        $hostNames = $statement->fetchAll(PDO::FETCH_COLUMN);
+
+        return [
+            'host_parents' => 'Circular reference detected with host children: ' . implode(', ', $hostNames),
+        ];
+    }
+
+    return true;
+}
+
+/**
+ * Checks if adding a parent-child relationship would create a circular reference.
+ *
+ * Traverses the parent hierarchy to determine if the child is already an ancestor of the parent.
+ *
+ * @param int $parentId the ID of the proposed parent host
+ * @param int $childId the ID of the proposed child host
+ * @return int|null returns the ID of the host causing the circular reference, or null if none is found
+ */
+function hasCircularReference($parentId, $childId): ?int
+{
+    global $pearDB;
+
+    $toCheck = [$parentId];
+    $checked = [];
+    while ($toCheck) {
+        $current = array_pop($toCheck);
+        if ($current == $childId) {
+            return $current;
+        }
+        $checked[] = $current;
+        $stmt = $pearDB->prepare('SELECT host_parent_hp_id FROM host_hostparent_relation WHERE host_host_id = :hostId');
+        $stmt->bindValue(':hostId', $current, PDO::PARAM_INT);
+        $stmt->execute();
+        foreach ($stmt->fetchAll(PDO::FETCH_COLUMN) as $parent) {
+            if (! in_array($parent, $checked)) {
+                $toCheck[] = $parent;
+            }
+        }
+    }
+
+    return null;
+}
