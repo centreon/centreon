@@ -30,6 +30,7 @@ use App\ActivityLogging\Domain\Factory\ActivityLogFactoryInterface;
 use App\ActivityLogging\Domain\Repository\ActivityLogRepository;
 use App\Shared\Domain\Aggregate\AggregateRoot;
 use App\Shared\Domain\Event\AggregateCreated;
+use App\Shared\Domain\Event\AggregateUpdated;
 use App\Shared\Domain\Event\AsEventHandler;
 use Psr\Container\ContainerInterface;
 use Symfony\Component\DependencyInjection\Attribute\AutowireLocator;
@@ -44,7 +45,7 @@ final readonly class LogActivityEventHandler
     ) {
     }
 
-    public function __invoke(AggregateCreated $event): void
+    public function __invoke(AggregateCreated|AggregateUpdated $event): void
     {
         if (! $this->activityLogFactories->has($event->aggregate::class)) {
             throw new \LogicException(\sprintf('There is no "%s" for "%s", did you add a service with "activity_logging.activity_log_factory" tag?', ActivityLogFactoryInterface::class, $event->aggregate::class));
@@ -53,8 +54,13 @@ final readonly class LogActivityEventHandler
         /** @var ActivityLogFactoryInterface<AggregateRoot> $factory */
         $factory = $this->activityLogFactories->get($event->aggregate::class);
 
+        $action = match (true) {
+            $event instanceof AggregateCreated => ActionEnum::Add,
+            $event instanceof AggregateUpdated => ActionEnum::Update,
+        };
+
         $activityLog = $factory->create(
-            action: ActionEnum::Add,
+            action: $action,
             aggregate: $event->aggregate,
             firedBy: new Actor(id: new ActorId($event->creatorId)),
             firedAt: $event->firedAt(),

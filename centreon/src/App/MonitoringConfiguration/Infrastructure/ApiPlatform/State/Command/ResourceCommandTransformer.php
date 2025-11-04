@@ -39,8 +39,9 @@ final readonly class ResourceCommandTransformer implements TransformerInterface
     /**
      * @param TransformerInterface<Connector,ConnectorResource> $connectorTransformer
      */
-    public function __construct(#[Autowire(service: ResourceConnectorTransformer::class)] private TransformerInterface $connectorTransformer)
-    {
+    public function __construct(
+        #[Autowire(service: ResourceConnectorTransformer::class)] private TransformerInterface $connectorTransformer,
+    ) {
     }
 
     public function transform(mixed $from): CommandResource

@@ -38,4 +38,6 @@ interface CommandRepository
     public function findOneByName(CommandName $name): ?Command;
 
     public function add(Command $command): void;
+
+    public function update(Command $command): void;
 }

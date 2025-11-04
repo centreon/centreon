@@ -26,11 +26,16 @@ namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Comman
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\Patch;
 use ApiPlatform\OpenApi\Model;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandName;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandTypeEnum;
+use App\MonitoringConfiguration\Domain\Security\CommandActionEnum;
 use App\MonitoringConfiguration\Domain\Security\CommandPermissionEnum;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\ConnectorResource;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Command\FindCommandProvider;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Command\UpdateCommandProcessor;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ApiResource(
     shortName: 'Command',
@@ -64,6 +69,19 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Command\FindCom
             ',
             securityMessage: 'You are not allowed to access this command',
         ),
+        new Patch(
+            uriTemplate: '/configuration/commands/{id}',
+            provider: FindCommandProvider::class,
+            processor: UpdateCommandProcessor::class,
+            openapi: new Model\Operation(
+                responses: [
+                    404 => new Model\Response('Command resource not found'),
+                    403 => new Model\Response('You are not allowed to update this command'),
+                ],
+            ),
+            securityPostValidation: "is_granted('" . CommandActionEnum::Update->value . "', object)",
+            securityPostValidationMessage: 'You are not allowed to update this command.',
+        ),
     ],
 )]
 final class CommandResource
@@ -76,7 +94,12 @@ final class CommandResource
             description: 'The command name',
             openapiContext: ['example' => 'check_http']
         )]
-        public ?string $name,
+        #[Assert\Length(min: 1, max: 255)]
+        #[Assert\Regex(
+            pattern: CommandName::NAME_VALIDATION_REGEX,
+            message: 'The name can only contain alphanumeric characters, underscores, and hyphens.'
+        )]
+        public string $name,
 
         #[ApiProperty(
             description: 'The type of command (1: notification, 2: check, 3: Miscellaneous, 4: Discovery)',
@@ -90,12 +113,21 @@ final class CommandResource
                 ],
             ],
         )]
+        #[Assert\Choice(
+            choices: [
+                CommandTypeEnum::Check->name,
+                CommandTypeEnum::Notification->name,
+                CommandTypeEnum::Miscellaneous->name,
+                CommandTypeEnum::Discovery->name,
+            ]
+        )]
         public string $type,
 
         #[ApiProperty(
             description: 'The command line used to execute the command',
             openapiContext: ['example' => '$USER1$/check_http -H $ARG1$ -w $ARG2$ -c $ARG3$']
         )]
+        #[Assert\Length(min: 1, max: 65535)]
         public string $commandLine,
 
         #[ApiProperty(
@@ -123,7 +155,7 @@ final class CommandResource
                 ],
                 'example' => ['id' => 1, 'name' => 'SSH Connector'],
             ],
-            readableLink: true
+            readableLink: true,
         )]
         public ?ConnectorResource $connector,
 

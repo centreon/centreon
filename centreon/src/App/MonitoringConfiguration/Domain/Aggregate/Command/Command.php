@@ -31,16 +31,56 @@ final class Command extends AggregateRoot
 {
     public function __construct(
         ?CommandId $id,
-        public readonly CommandName $name,
-        public readonly CommandTypeEnum $type,
-        public readonly CommandLine $commandLine,
-        public readonly bool $isShellEnabled,
-        public readonly bool $isActivated,
-        public readonly bool $isFromMonitoringConnector,
+        public CommandName $name,
+        public CommandTypeEnum $type,
+        public CommandLine $commandLine,
+        public bool $isShellEnabled,
+        public bool $isActivated,
+        public bool $isFromMonitoringConnector,
         public ?Connector $connector,
-        public readonly ?CommandComment $comment,
+        public ?CommandComment $comment,
     ) {
         parent::__construct($id);
+    }
+
+    public function updateName(CommandName $name): void
+    {
+        $this->name = $name;
+    }
+
+    public function updateType(CommandTypeEnum $type): void
+    {
+        $this->type = $type;
+    }
+
+    public function updateCommandLine(CommandLine $commandLine): void
+    {
+        $this->commandLine = $commandLine;
+    }
+
+    public function enableShell(): void
+    {
+        $this->isShellEnabled = true;
+    }
+
+    public function disableShell(): void
+    {
+        $this->isShellEnabled = false;
+    }
+
+    public function updateComment(?CommandComment $comment): void
+    {
+        $this->comment = $comment;
+    }
+
+    public function enable(): void
+    {
+        $this->isActivated = true;
+    }
+
+    public function disable(): void
+    {
+        $this->isActivated = false;
     }
 
     public function addConnector(Connector $connector): void
@@ -48,7 +88,12 @@ final class Command extends AggregateRoot
         $this->connector = $connector;
     }
 
-    public static function getCreationPermissionForType(CommandTypeEnum $type): CommandPermissionEnum
+    public function removeConnector(): void
+    {
+        $this->connector = null;
+    }
+
+    public static function getWritePermissionForType(CommandTypeEnum $type): CommandPermissionEnum
     {
         return match($type) {
             CommandTypeEnum::Notification => CommandPermissionEnum::CanReadAndWriteNotifications,
