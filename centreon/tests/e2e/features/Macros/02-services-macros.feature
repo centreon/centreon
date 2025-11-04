@@ -7,6 +7,7 @@ Feature: service and service Template Macros Configuration
     Given a non-admin user is logged into the Centreon server
     And the non-admin user is on the "Configuration > services" page
 
+  @TEST_MON-191570
   Scenario: Create a service with macros
     When the non-admin user clicks to add a new service
     And the non-admin user fills in all mandatory fields
@@ -16,6 +17,7 @@ Feature: service and service Template Macros Configuration
     When the export configuration is done with success
     Then the macros are exported to the file "/var/cache/centreon/config/engine/1/services.cfg"
 
+  @TEST_MON-191571
   Scenario: Update macros on an existing service
     Given an existing service with macros
     When the non-admin user opens the service for editing
@@ -25,6 +27,7 @@ Feature: service and service Template Macros Configuration
     When the export configuration is done with success
     Then the macros are exported to the file "/var/cache/centreon/config/engine/1/services.cfg"
 
+  @TEST_MON-191572
   Scenario: Delete macros from an existing service
     Given a configured service with macros
     When the non-admin user deletes the macros of the configured service
@@ -33,6 +36,7 @@ Feature: service and service Template Macros Configuration
     When the export configuration is done with success
     Then the macros are removed from the file "/var/cache/centreon/config/engine/1/services.cfg"
 
+  @TEST_MON-191573
   Scenario: Export inherited macros from a Service Template
     Given a non-admin user is on the "Configuration > services > Templates" page
     And a service Template "ST-A" exists with defined normal and password macros
@@ -42,6 +46,7 @@ Feature: service and service Template Macros Configuration
     Then the macros should be stored in the service Template configuration file "/var/cache/centreon/config/engine/1/serviceTemplates.cfg"
     And the service configuration file "/var/cache/centreon/config/engine/1/services.cfg" should not contain the inherited macros
 
+  @TEST_MON-191574
   Scenario: Override an inherited macro value when creating a new Service Template
     Given a non-admin user is on the "Configuration > services > Templates" page
     And a pre-configured Service Template "ST-A" that contains defined macros
@@ -53,6 +58,7 @@ Feature: service and service Template Macros Configuration
     And the password macro should still be highlighted in orange
     And the export configuration is done with success
 
+  @TEST_MON-191575
   Scenario: Override an inherited macro value when creating a new Service
     Given a non-admin user is on the "Configuration > services > Templates" page
     And a pre-configured Service Template "ST-A" that contains defined macros
@@ -65,6 +71,7 @@ Feature: service and service Template Macros Configuration
     And the export configuration is done with success
     And the macro values in Service Template "ST-A" should remain unchanged
 
+  @TEST_MON-191576
   Scenario: Override an inherited macro value when editing a pre-configured Service
     Given a pre-configured Service using a service template with defined macros as its parent template
     When the non-admin user opens the service for editing
