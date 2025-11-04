@@ -20,14 +20,11 @@
  */
 
 use Adaptation\Database\Connection\Collection\QueryParameters;
-use Adaptation\Database\Connection\Enum\QueryParameterTypeEnum;
 use Adaptation\Database\Connection\Exception\ConnectionException;
 use Adaptation\Database\Connection\ValueObject\QueryParameter;
 use Core\Common\Domain\Exception\CollectionException;
 use Core\Common\Domain\Exception\RepositoryException;
 use Core\Common\Domain\Exception\ValueObjectException;
-
-require_once _CENTREON_PATH_ . '/www/include/common/sqlCommonFunction.php';
 
 class Centreon_OpenTickets_Rule
 {
@@ -445,7 +442,7 @@ class Centreon_OpenTickets_Rule
     public function getRuleList()
     {
         try {
-            $rules = $this->_db->fetchAllKeyValue(
+            return $this->_db->fetchAllKeyValue(
                 query: <<<'SQL'
                         SELECT rule_id, alias FROM mod_open_tickets_rule ORDER BY alias
                     SQL
@@ -454,7 +451,6 @@ class Centreon_OpenTickets_Rule
             /**
              * @var array<int, string>
              */
-            return $rules;
         } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
             CentreonLog::create()->error(
                 CentreonLog::TYPE_SQL,
@@ -730,11 +726,14 @@ class Centreon_OpenTickets_Rule
         }
 
         try {
-            ['parameters' => $queryParameters, 'placeholderList' => $bindQuery] = createMultipleBindParameters(
-                values: $selectedRules,
-                prefix: 'ruleId',
-                paramType: QueryParameterTypeEnum::INTEGER,
-            );
+            $queryParameters = [];
+
+            foreach ($selectedRules as $index => $ruleId) {
+                $queryParameters[] = QueryParameter::int('ruleId' . $index, $ruleId);
+                $bindParams[] = ':ruleId' . $index;
+            }
+
+            $bindQuery = implode(', ', $bindParams);
 
             $this->_db->delete(
                 query: <<<SQL
@@ -906,13 +905,15 @@ class Centreon_OpenTickets_Rule
         }
 
         try {
-            ['parameters' => $queryParameters, 'placeholderList' => $bindQuery] = createMultipleBindParameters(
-                values: $selectedRules,
-                prefix: 'ruleId',
-                paramType: QueryParameterTypeEnum::INTEGER,
-            );
+            $queryParameters = [];
+
+            foreach ($selectedRules as $index => $ruleId) {
+                $queryParameters[] = QueryParameter::int('ruleId' . $index, $ruleId);
+                $bindParams[] = ':ruleId' . $index;
+            }
 
             $queryParameters[] = QueryParameter::string('activated', $activated);
+            $bindQuery = implode(', ', $bindParams);
 
             $this->_db->update(
                 query: <<<SQL
