@@ -49,9 +49,13 @@ const configureSaml = (): Cypress.Chainable => {
     .should('be.visible')
     .type(`{selectall}{backspace}${samlConfigValues.loginAttribute}`);
 
-  cy.getByLabel({ label: 'Requested authentication context' }).should(
-    'be.visible'
+  cy.getByLabel({ label: 'Enable requested authentication context' }).should(
+    'exist'
   );
+  cy.getByLabel({ label: 'Enable requested authentication context' }).click();
+  cy.getByTestId({
+    testId: 'Comparison rule for the requested authentication context'
+  }).should('exist');
 
   cy.getByLabel({
     label: 'Both identity provider and Centreon UI',
