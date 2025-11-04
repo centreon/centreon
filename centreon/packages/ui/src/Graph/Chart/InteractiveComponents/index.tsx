@@ -9,9 +9,11 @@ import {
   find,
   isEmpty,
   isNil,
+  isNotNil,
   keys,
   map,
   negate,
+  omit,
   pick,
   pipe,
   pluck,
@@ -211,6 +213,39 @@ const InteractionWithGraph = ({
           unit: (lineData as Line).unit,
           yScalesPerUnit
         });
+
+        if (isNotNil(lineData?.stackOrder)) {
+          const test = Object.entries(omit(['timeTick'], timeValue)).reduce(
+            (acc, [key, value]) => {
+              const line = getLineForMetric({
+                lines,
+                metric_id: Number(key)
+              });
+
+              const isBelowStackOrder =
+                isNotNil(line?.stackOrder) &&
+                (line?.stackOrder as number) >= (lineData.stackOrder as number);
+
+              if (isBelowStackOrder) {
+                return acc + value;
+              }
+
+              return acc;
+            },
+            0
+          );
+
+          const y0 = yScale(test);
+
+          const diffBetweenY0AndPointPosition = Math.abs(
+            y0 - margin.top - (graphHeight - pointPosition[1])
+          );
+
+          return {
+            ...acc,
+            [metricId]: diffBetweenY0AndPointPosition
+          };
+        }
 
         const y0 = yScale(value);
 
