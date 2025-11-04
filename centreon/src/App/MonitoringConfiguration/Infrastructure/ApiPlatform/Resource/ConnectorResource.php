@@ -97,11 +97,6 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\ListConnectorsP
         ),
     ],
 )]
-#[Get(
-    shortName: 'Connector',
-    uriTemplate: '/configuration/connectors/{id}',
-    provider: FindConnectorProvider::class,
-)]
 final class ConnectorResource
 {
     public function __construct(
