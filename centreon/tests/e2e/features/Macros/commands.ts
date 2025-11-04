@@ -88,11 +88,11 @@ Cypress.Commands.add(
       expect(result.exitCode).to.eq(0);
       const output = result.output;
       const regexNormal = new RegExp(
-        `${normalMacro.name}\\s+raw::${normalMacro.value}`
+        `${normalMacro.name}\\s+${normalMacro.value}`
       );
       expect(output).to.match(regexNormal);
       const regexPassword = new RegExp(
-        `${passMacro.name}\\s+encrypt::[A-Za-z0-9+/=]+`
+        `${passMacro.name}\\s+${passMacro.value}`
       );
       if (!isInherited) {
         expect(output).to.match(regexPassword);
