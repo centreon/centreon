@@ -26,6 +26,7 @@ namespace App\MonitoringConfiguration\Infrastructure\Dbal;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\Command;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandName;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandTypeEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\Connector\Connector;
 use App\MonitoringConfiguration\Domain\Exception\CommandNotFoundException;
 use App\MonitoringConfiguration\Domain\Repository\CommandRepository;
@@ -261,14 +262,14 @@ final readonly class DbalCommandRepository extends DbalRepository implements Com
             foreach ($nameCriteria as $operator => $names) {
                 if ($operator === CommandCriteria::OPERATOR_LIKE) {
                     $qb->andWhere($qb->expr()->or(...array_map(
-                        static fn (string $name): string => $qb->expr()->like('c.command_name', '"%' . $name . '%"'),
+                        static fn (string $name): string => $qb->expr()->like('cm.command_name', '"%' . $name . '%"'),
                         $names
                     )));
 
                     continue;
                 }
                 $qb->andWhere($qb->expr()->in(
-                    'c.command_name',
+                    'cm.command_name',
                     array_map(static fn (string $name): string => '"' . $name . '"', $names)
                 ));
             }
@@ -276,13 +277,13 @@ final readonly class DbalCommandRepository extends DbalRepository implements Com
 
         if ($criteria->getTypes() !== []) {
             $qb->andWhere($qb->expr()->in(
-                'c.command_type',
+                'cm.command_type',
                 array_map(static fn (CommandTypeEnum $type): string => '"' . $type->value . '"', $criteria->getTypes())
             ));
         }
 
         if ($criteria->getStatus() !== null) {
-            $qb->andWhere('c.command_activate = :command_activate');
+            $qb->andWhere('cm.command_activate = :command_activate');
             $qb->setParameter('command_activate', $criteria->getStatus() ? '1' : '0');
         }
     }

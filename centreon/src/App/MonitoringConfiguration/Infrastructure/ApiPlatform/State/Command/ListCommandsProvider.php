@@ -33,9 +33,9 @@ use App\MonitoringConfiguration\Domain\Repository\Criteria\CommandCriteria;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Command\ResourceCommandTransformer;
 use App\Shared\Domain\Repository\Paginator;
 use App\Shared\Infrastructure\TransformerInterface;
-use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
+use Centreon\Domain\Contact\Contact;
 
 /**
  * @implements ProviderInterface<CommandResource>
@@ -68,10 +68,10 @@ final readonly class ListCommandsProvider implements ProviderInterface
             );
         }
 
-         /** @var array{filters: array{name?: array<string, string|array<string>>, id?: array<string, int|array<int>>}} $context */
+        /** @var array{filters: array{name?: array<string, string|array<string>>, id?: array<string, int|array<int>>}} $context */
         $criteria = $this->handleNameFilter($context['filters']['name'] ?? null, $criteria);
         $criteria = $this->handleTypeFilter($context['filters']['type'] ?? null, $criteria);
-        $criteria = $this->handleStatusFilter($context['filters']['isActivated'] ?? null, $criteria);
+        $criteria = $this->handleStatusFilter($context['filters']['status'] ?? null, $criteria);
 
         $commands = $this->commandRepository->findAll($criteria);
         $commandResources = [];
@@ -119,35 +119,35 @@ final readonly class ListCommandsProvider implements ProviderInterface
             return $criteria;
         }
 
-        /** @var ContactInterface $user */
+        /** @var Contact $user */
         $user = $this->security->getUser();
         $roles = $user->getRoles();
 
         foreach ($typeFilter as $type) {
             $roleMap = [
                 CommandTypeEnum::Check->name => [
-                    ContactInterface::ROLE_SEE_CHECK_COMMANDS,
-                    ContactInterface::ROLE_MANAGE_CHECK_COMMANDS,
+                    Contact::ROLE_SEE_CHECK_COMMANDS,
+                    Contact::ROLE_MANAGE_CHECK_COMMANDS,
                 ],
                 CommandTypeEnum::Notification->name => [
-                    ContactInterface::ROLE_SEE_NOTIFICATION_COMMANDS,
-                    ContactInterface::ROLE_MANAGE_NOTIFICATION_COMMANDS,
+                    Contact::ROLE_SEE_NOTIFICATION_COMMANDS,
+                    Contact::ROLE_MANAGE_NOTIFICATION_COMMANDS,
                 ],
                 CommandTypeEnum::Discovery->name => [
-                    ContactInterface::ROLE_SEE_DISCOVERY_COMMANDS,
-                    ContactInterface::ROLE_MANAGE_DISCOVERY_COMMANDS,
+                    Contact::ROLE_SEE_DISCOVERY_COMMANDS,
+                    Contact::ROLE_MANAGE_DISCOVERY_COMMANDS,
                 ],
                 CommandTypeEnum::Miscellaneous->name => [
-                    ContactInterface::ROLE_SEE_MISCELLANEOUS_COMMANDS,
-                    ContactInterface::ROLE_MANAGE_MISCELLANEOUS_COMMANDS,
+                    Contact::ROLE_SEE_MISCELLANEOUS_COMMANDS,
+                    Contact::ROLE_MANAGE_MISCELLANEOUS_COMMANDS,
                 ],
             ];
 
             if (
                 ! isset($roleMap[$type]) ||
                 (
-                    !in_array($roleMap[$type][0], $roles, true) &&
-                    !in_array($roleMap[$type][1], $roles, true)
+                    ! in_array($roleMap[$type][0], $roles, true) &&
+                    ! in_array($roleMap[$type][1], $roles, true)
                 )
             ) {
                 continue;
@@ -159,14 +159,14 @@ final readonly class ListCommandsProvider implements ProviderInterface
         return $criteria;
     }
 
-    private function handleStatusFilter(?bool $statusFilter, CommandCriteria $criteria): CommandCriteria
+    private function handleStatusFilter(?array $statusFilter, CommandCriteria $criteria): CommandCriteria
     {
         if ($statusFilter === null) {
             return $criteria;
         }
 
-        if (is_string($statusFilter)) {
-            $status = filter_var($statusFilter, FILTER_VALIDATE_BOOLEAN);
+        foreach ($statusFilter as $value) {
+            $status = filter_var($value, FILTER_VALIDATE_BOOLEAN);
             $criteria = $criteria->withStatus($status);
         }
 

@@ -80,7 +80,9 @@ final class CommandCriteria
 
         $types = $this->types;
         $types[] = $type;
-        $types = array_values(array_unique($types));
+
+        $uniqueNames = array_unique(array_map(fn($enumType) => $enumType->name, $types));
+        $types = array_values(array_map(fn($name) => CommandTypeEnum::fromName($name), $uniqueNames));
 
         $new = clone $this;
         $new->types = $types;
