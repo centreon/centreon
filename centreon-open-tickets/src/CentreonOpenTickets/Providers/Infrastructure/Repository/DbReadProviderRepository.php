@@ -106,9 +106,7 @@ class DbReadProviderRepository extends DatabaseRepository implements ReadProvide
              */
             $total = $this->connection->fetchOne(
                 $this->translateDbName($queryTotal),
-                SearchRequestParametersTransformer::reverseToQueryParameters(
-                    $sqlRequestTranslator->getSearchValues()
-                )
+                $requestParameters
             );
 
             $sqlRequestTranslator->getRequestParameters()->setTotal((int) $total);

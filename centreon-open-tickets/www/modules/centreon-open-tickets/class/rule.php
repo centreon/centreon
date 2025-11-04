@@ -445,15 +445,16 @@ class Centreon_OpenTickets_Rule
     public function getRuleList()
     {
         try {
-            return $this->_db->fetchAllAssociativeIndexed(
+            $rules = $this->_db->fetchAllKeyValue(
                 query: <<<'SQL'
-                        SELECT rule_id, alias, activate FROM mod_open_tickets_rule ORDER BY alias
+                        SELECT rule_id, alias FROM mod_open_tickets_rule ORDER BY alias
                     SQL
             );
 
             /**
-             * @var array<int, string> $rules
+             * @var array<int, string>
              */
+            return $rules;
         } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
             CentreonLog::create()->error(
                 CentreonLog::TYPE_SQL,
