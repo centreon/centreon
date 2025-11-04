@@ -49,52 +49,69 @@ class DbReadProviderRepository extends DatabaseRepository implements ReadProvide
     public function findAll(RequestParametersInterface $requestParameters): array
     {
         try {
-            $sqlTranslator = new SqlRequestParametersTranslator($requestParameters);
-            $sqlTranslator->setConcordanceArray(
+            $sqlRequestTranslator = new SqlRequestParametersTranslator($requestParameters);
+            $sqlRequestTranslator->setConcordanceArray(
                 [
-                    'name' => 'alias',
-                    'is_activated' => 'activate',
+                    'name' => 'rules.alias',
+                    'is_activated' => 'rules.activate',
                 ]
             );
 
-            $sqlTranslator->addNormalizer(
+            $sqlRequestTranslator->addNormalizer(
                 'is_activated',
                 new BoolToEnumNormalizer(),
             );
 
-            $request = <<<'SQL_WRAP'
-                    SELECT SQL_CALC_FOUND_ROWS
+            $queryBuilder = $this->connection->createQueryBuilder();
+
+            $queryBuilder->select(
+                <<<'SQL'
                         rule_id,
                         alias,
                         provider_id,
                         provider_name,
                         activate
-                    FROM `:db`.mod_open_tickets_rule
-                SQL_WRAP;
+                    SQL
+            )->from('`:db`.mod_open_tickets_rule', 'rules');
 
-            $request .= $sqlTranslator->translateSearchParameterToSql();
+            if ($requestParameters->getSearch() !== []) {
+                $sqlRequestTranslator->appendQueryBuilderWithSearchParameter($queryBuilder);
+            }
 
-            $sort = $sqlTranslator->translateSortParameterToSql();
-            $request .= $sort ?? ' ORDER BY alias ASC';
+            if ($requestParameters->getSort() !== []) {
+                $sqlRequestTranslator->appendQueryBuilderWithSortParameter($queryBuilder);
+            } else {
+                $queryBuilder->orderBy('rules.alias', 'ASC');
+            }
 
-            $request .= $sqlTranslator->translatePaginationToSql();
+            $sqlRequestTranslator->appendQueryBuilderWithPagination($queryBuilder);
 
-            $requestParameters = SearchRequestParametersTransformer::reverseToQueryParameters($sqlTranslator->getSearchValues());
+            $requestParameters = SearchRequestParametersTransformer::reverseToQueryParameters($sqlRequestTranslator->getSearchValues());
 
             $providers = [];
-            foreach ($this->connection->iterateAssociative($this->translateDbName($request), $requestParameters) as $record) {
+            foreach ($this->connection->iterateAssociative($this->translateDbName($queryBuilder->getQuery()), $requestParameters) as $record) {
                 /** @var _Provider $record */
                 $providers[] = $this->createProviderFromRecord($record);
             }
 
             // get total without pagination
-            $queryTotal = $this->translateDbName('SELECT FOUND_ROWS()');
-            /** @var int|false $total */
-            $total = $this->connection->fetchOne($queryTotal);
+            $queryTotal = $queryBuilder
+                ->select('COUNT(*)')
+                ->resetLimit()
+                ->offset(0)
+                ->getQuery();
 
-            if ($total !== false) {
-                $sqlTranslator->getRequestParameters()->setTotal($total);
-            }
+            /**
+             * @var int|false $total
+             */
+            $total = $this->connection->fetchOne(
+                $this->translateDbName($queryTotal),
+                SearchRequestParametersTransformer::reverseToQueryParameters(
+                    $sqlRequestTranslator->getSearchValues()
+                )
+            );
+
+            $sqlRequestTranslator->getRequestParameters()->setTotal((int) $total);
 
             return $providers;
         } catch (\Throwable $exception) {
