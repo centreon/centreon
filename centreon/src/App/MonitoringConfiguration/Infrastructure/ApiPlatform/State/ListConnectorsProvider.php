@@ -88,9 +88,6 @@ final readonly class ListConnectorsProvider implements ProviderInterface
 
     /**
      * @param array<string, string|array<string>>|null $nameFilter
-     * @param ConnectorCriteria $criteria
-     *
-     * @return ConnectorCriteria
      */
     private function handleNameFilter(?array $nameFilter, ConnectorCriteria $criteria): ConnectorCriteria
     {
@@ -116,9 +113,6 @@ final readonly class ListConnectorsProvider implements ProviderInterface
 
     /**
      * @param array<string, int|array<int>>|null $idFilter
-     * @param ConnectorCriteria $criteria
-     *
-     * @return ConnectorCriteria
      */
     private function handleIdFilter(?array $idFilter, ConnectorCriteria $criteria): ConnectorCriteria
     {
