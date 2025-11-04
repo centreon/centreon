@@ -288,7 +288,7 @@ When(
 );
 
 When(
-  'he changes the value of the normal macro inherited from Host Template {string}',
+  'the non-admin user  changes the value of the normal macro inherited from Host Template {string}',
   (_name: string) => {
     // Check first that the inherited macros are visible
     [0, 1].forEach((index) => {

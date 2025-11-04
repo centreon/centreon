@@ -101,21 +101,12 @@ Then('the export configuration is done with success', () => {
 });
 
 Then('the macros are exported to the file {string}', (fileName: string) => {
-  cy.execInContainer({
-    command: `cat ${fileName}`,
-    name: 'web'
-  }).then((result) => {
-    expect(result.exitCode).to.eq(0);
-    const output = result.output;
-    const regexNormal = new RegExp(
-      `${serviceMacros.default_service.normalMacro.name}\\s+raw::${serviceMacros.default_service.normalMacro.value}`
-    );
-    expect(output).to.match(regexNormal);
-    const regexPassword = new RegExp(
-      `${serviceMacros.default_service.passMacro.name}\\s+encrypt::[A-Za-z0-9+/=]+`
-    );
-    expect(output).to.match(regexPassword);
-  });
+  cy.checkMacrosFromTheExportFile(
+    fileName,
+    false,
+    serviceMacros.default_service.normalMacro,
+    serviceMacros.default_service.passMacro
+  );
 });
 
 Given('an existing service with macros', () => {
@@ -335,7 +326,7 @@ When(
 );
 
 When(
-  'he changes the value of the normal macro inherited from Service Template "ST-A"',
+  'the non-admin user  changes the value of the normal macro inherited from Service Template "ST-A"',
   () => {
     // Check first that the inherited macros are visible
     [0, 1].forEach((index) => {
