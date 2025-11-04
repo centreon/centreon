@@ -27,7 +27,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandComment;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandLine;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandName;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandTypeEnum;
-use App\Shared\Domain\Aggregate\AggregateRootId;
+use App\MonitoringConfiguration\Domain\Aggregate\Connector\ConnectorId;
 
 final readonly class CreateCommandCommand
 {
@@ -36,7 +36,7 @@ final readonly class CreateCommandCommand
         public CommandTypeEnum $type,
         public CommandLine $commandLine,
         public bool $isShellEnabled,
-        public ?AggregateRootId $connectorId,
+        public ?ConnectorId $connectorId,
         public int $creatorId,
         public ?CommandComment $comment,
     ) {

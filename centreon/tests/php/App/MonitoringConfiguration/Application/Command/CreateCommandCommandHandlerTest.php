@@ -65,7 +65,7 @@ final class CreateCommandCommandHandlerTest extends TestCase
             type: $type,
             commandLine: new CommandLine('dosomething $ARG1$'),
             isShellEnabled: true,
-            connectorId: $connector->id(),
+            connectorId: new ConnectorId($connector->id()->value),
             creatorId: 1,
             comment: new CommandComment('comment of the command'),
         );
@@ -95,7 +95,7 @@ final class CreateCommandCommandHandlerTest extends TestCase
             type: $type,
             commandLine: new CommandLine('dosomething $ARG1$'),
             isShellEnabled: true,
-            connectorId: $connector->id(),
+            connectorId: new ConnectorId($connector->id()->value),
             creatorId: 1,
             comment: new CommandComment('comment of the command'),
         );
@@ -127,7 +127,7 @@ final class CreateCommandCommandHandlerTest extends TestCase
             type: $type,
             commandLine: new CommandLine('dosomething $ARG1$'),
             isShellEnabled: true,
-            connectorId: $connector->id(),
+            connectorId: new ConnectorId($connector->id()->value),
             creatorId: 1,
             comment: new CommandComment('comment of the command'),
         );
