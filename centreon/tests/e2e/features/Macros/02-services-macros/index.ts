@@ -326,7 +326,7 @@ When(
 );
 
 When(
-  'the non-admin user  changes the value of the normal macro inherited from Service Template "ST-A"',
+  'the non-admin user changes the value of the normal macro inherited from Service Template "ST-A"',
   () => {
     // Check first that the inherited macros are visible
     [0, 1].forEach((index) => {
