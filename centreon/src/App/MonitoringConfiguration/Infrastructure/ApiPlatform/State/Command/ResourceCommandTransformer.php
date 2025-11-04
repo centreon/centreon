@@ -58,10 +58,10 @@ final readonly class ResourceCommandTransformer implements TransformerInterface
                 ? $this->connectorTransformer->transform($from->connector)
                 : null,
             comment: $from->comment?->value,
-            hostsCount: $from->hostsCount ?? null,
             usedHostsCount: $from->usedHostsCount ?? null,
-            servicesCount: $from->servicesCount ?? null,
+            usedHostTemplatesCount: $from->usedHostTemplatesCount ?? null,
             usedServicesCount: $from->usedServicesCount ?? null,
+            usedServiceTemplatesCount: $from->usedServiceTemplatesCount ?? null,
         );
     }
 }

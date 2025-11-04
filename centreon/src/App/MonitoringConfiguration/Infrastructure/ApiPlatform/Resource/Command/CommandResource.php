@@ -244,13 +244,6 @@ final class CommandResource
         public ?string $comment,
 
         #[ApiProperty(
-            description: 'Total number of hosts',
-            openapiContext: ['example' => 100],
-        )]
-        #[Groups(['list'])]
-        public ?int $hostsCount = null,
-
-        #[ApiProperty(
             description: 'Number of hosts using this command',
             openapiContext: ['example' => 10],
         )]
@@ -258,11 +251,11 @@ final class CommandResource
         public ?int $usedHostsCount = null,
 
         #[ApiProperty(
-            description: 'Total number of services',
-            openapiContext: ['example' => 50],
+            description: 'Number of host templates using this command',
+            openapiContext: ['example' => 100],
         )]
         #[Groups(['list'])]
-        public ?int $servicesCount = null,
+        public ?int $usedHostTemplatesCount = null,
 
         #[ApiProperty(
             description: 'Number of services using this command',
@@ -270,6 +263,13 @@ final class CommandResource
         )]
         #[Groups(['list'])]
         public ?int $usedServicesCount = null,
+
+        #[ApiProperty(
+            description: 'Number of service templates using this command',
+            openapiContext: ['example' => 50],
+        )]
+        #[Groups(['list'])]
+        public ?int $usedServiceTemplatesCount = null,
     ) {
     }
 }

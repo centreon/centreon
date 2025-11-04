@@ -51,6 +51,10 @@ use Webmozart\Assert\Assert;
  *   command_locked: bool,
  *   command_comment: string|null,
  *   connector_id: int|null,
+ *   hosts_count?: int|null,
+ *   used_hosts_count?: int|null,
+ *   services_count?: int|null,
+ *   used_services_count?: int|null,
  * }
  */
 final readonly class DbalCommandRepository extends DbalRepository implements CommandRepository
@@ -122,6 +126,12 @@ final readonly class DbalCommandRepository extends DbalRepository implements Com
         $qb = $this->connection->createQueryBuilder();
 
         $qb->select(...self::getSelectColumns(), ...DbalConnectorRepository::getSelectColumns())
+            ->addSelect(
+            '(SELECT COUNT(*) FROM host WHERE command_command_id = cm.command_id AND host_register = \'1\') AS cm_used_hosts_count',
+            '(SELECT COUNT(*) FROM host WHERE command_command_id = cm.command_id AND host_register = \'0\') AS cm_used_host_templates_count',
+            '(SELECT COUNT(*) FROM service WHERE command_command_id = cm.command_id AND service_register = \'1\') AS cm_used_services_count',
+            '(SELECT COUNT(*) FROM service WHERE command_command_id = cm.command_id AND service_register = \'0\') AS cm_used_service_templates_count'
+            )
             ->from(self::TABLE_NAME, 'cm')
             ->leftJoin('cm', self::CONNECTOR_JOIN_TABLE_NAME, 'c', 'cm.connector_id = c.id');
 
@@ -242,7 +252,6 @@ final readonly class DbalCommandRepository extends DbalRepository implements Com
         /** @var CommandId $id */
         $id = $command->id();
 
-        // create a new instance with same values but with the poller collection
         return new Command(
             id: $id,
             name: $command->name,
@@ -253,6 +262,10 @@ final readonly class DbalCommandRepository extends DbalRepository implements Com
             isFromMonitoringConnector: $command->isFromMonitoringConnector,
             comment: $command->comment,
             connector: $connector,
+            usedHostsCount: $command->usedHostsCount,
+            usedHostTemplatesCount: $command->usedHostTemplatesCount,
+            usedServicesCount: $command->usedServicesCount,
+            usedServiceTemplatesCount: $command->usedServiceTemplatesCount,
         );
     }
 

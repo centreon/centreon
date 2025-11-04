@@ -53,6 +53,10 @@ final readonly class DbalCommandTransformer implements TransformerInterface
             isShellEnabled: $from['cm_enable_shell'] === 1,
             isActivated: $from['cm_command_activate'] === '1',
             isFromMonitoringConnector: $from['cm_command_locked'] === 1,
+            usedHostsCount: $from['cm_used_hosts_count'] ?? null,
+            usedHostTemplatesCount: $from['cm_used_host_templates_count'] ?? null,
+            usedServicesCount: $from['cm_used_services_count'] ?? null,
+            usedServiceTemplatesCount: $from['cm_used_service_templates_count'] ?? null,
         );
     }
 }
