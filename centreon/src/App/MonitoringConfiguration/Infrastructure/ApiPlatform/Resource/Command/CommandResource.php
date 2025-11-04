@@ -112,10 +112,40 @@ use Symfony\Component\Validator\Constraints as Assert;
                             'items' => ['type' => 'string'],
                         ],
                     ),
+                    new Model\Parameter(
+                        name: 'type[]',
+                        in: 'query',
+                        description: 'Filter by command type',
+                        required: false,
+                        schema: [
+                            'type' => 'array',
+                            'items' => [
+                                'type' => 'string',
+                                'enum' => [
+                                    CommandTypeEnum::Check->name,
+                                    CommandTypeEnum::Notification->name,
+                                    CommandTypeEnum::Miscellaneous->name,
+                                    CommandTypeEnum::Discovery->name,
+                                ],
+                            ],
+                        ],
+                    ),
+                    new Model\Parameter(
+                        name: 'status[]',
+                        in: 'query',
+                        description: 'Filter by activation status',
+                        required: false,
+                        schema: [
+                            'type' => 'array',
+                            'items' => [
+                                'type' => 'boolean',
+                            ],
+                        ],
+                    ),
                 ],
             ),
-            securityPostValidation: "is_granted('" . CommandActionEnum::Read->value . "', object)",
-            securityPostValidationMessage: 'You are not allowed to access commands',
+            // securityPostValidation: "is_granted('" . CommandActionEnum::Read->value . "', object)",
+            // securityPostValidationMessage: 'You are not allowed to access commands',
         )
     ],
 )]
