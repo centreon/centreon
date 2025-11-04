@@ -15,6 +15,7 @@ import {
   labelContacts,
   labelEmailTemplateForTheNotificationMessage,
   labelHostGroups,
+  labelIncludeServicesForTheseHosts,
   labelNotificationChannels,
   labelNotificationSettings,
   labelSearchBusinessViews,
@@ -70,9 +71,6 @@ const useFormInputs = ({
     variant: 'subtitle1' as Variant
   };
 
-  const translatedServiceEvents = serviceEvents.map((service) => t(service));
-  const translatedHostEvents = hostEvents.map((host) => t(host));
-
   const basicFormGroups: Array<Group> = [
     {
       name: t(labelSelectResourcesAndEvents),
@@ -114,7 +112,7 @@ const useFormInputs = ({
             checkbox: {
               direction: 'horizontal',
               labelPlacement: 'top',
-              options: translatedHostEvents
+              options: hostEvents
             },
             dataTestId: 'Host groups events',
             fieldName: 'hostGroups.events',
@@ -131,14 +129,14 @@ const useFormInputs = ({
 
               return isEmpty(values.hostGroups.ids);
             },
-            label: 'include Services',
+            label: t(labelIncludeServicesForTheseHosts),
             type: InputType.Checkbox
           },
           {
             checkbox: {
               direction: 'horizontal',
               labelPlacement: 'top',
-              options: translatedServiceEvents
+              options: serviceEvents
             },
             dataTestId: 'Extra events services',
             fieldName: 'hostGroups.extra.eventsServices',
@@ -180,7 +178,7 @@ const useFormInputs = ({
             checkbox: {
               direction: 'horizontal',
               labelPlacement: 'top',
-              options: translatedServiceEvents
+              options: serviceEvents
             },
             dataTestId: 'Service groups events',
             fieldName: 'serviceGroups.events',
@@ -222,7 +220,7 @@ const useFormInputs = ({
                   checkbox: {
                     direction: 'horizontal',
                     labelPlacement: 'top',
-                    options: translatedServiceEvents
+                    options: serviceEvents
                   },
                   dataTestId: labelBusinessViewsEvents,
                   fieldName: 'businessviews.events',
