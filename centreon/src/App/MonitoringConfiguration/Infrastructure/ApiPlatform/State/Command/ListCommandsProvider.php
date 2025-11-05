@@ -69,6 +69,9 @@ final readonly class ListCommandsProvider implements ProviderInterface
             );
         }
 
+        // check first the roles and then edit the typeFilter according to the roles
+        // if no roles send an empty collection or a 403 ??
+
         /** @var array{filters: array{name?: array<string, string|array<string>>, id?: array<string, int|array<int>>}} $context */
         $criteria = $this->handleNameFilter($context['filters']['name'] ?? null, $criteria);
         $criteria = $this->handleTypeFilter($context['filters']['type'] ?? null, $criteria);
@@ -131,32 +134,32 @@ final readonly class ListCommandsProvider implements ProviderInterface
         $roles = $user->getRoles();
 
         foreach ($typeFilter as $type) {
-            $roleMap = [
-                CommandTypeEnum::Check->name => [
-                    Contact::ROLE_SEE_CHECK_COMMANDS,
-                    Contact::ROLE_MANAGE_CHECK_COMMANDS,
-                ],
-                CommandTypeEnum::Notification->name => [
-                    Contact::ROLE_SEE_NOTIFICATION_COMMANDS,
-                    Contact::ROLE_MANAGE_NOTIFICATION_COMMANDS,
-                ],
-                CommandTypeEnum::Discovery->name => [
-                    Contact::ROLE_SEE_DISCOVERY_COMMANDS,
-                    Contact::ROLE_MANAGE_DISCOVERY_COMMANDS,
-                ],
-                CommandTypeEnum::Miscellaneous->name => [
-                    Contact::ROLE_SEE_MISCELLANEOUS_COMMANDS,
-                    Contact::ROLE_MANAGE_MISCELLANEOUS_COMMANDS,
-                ],
-            ];
+            // $roleMap = [
+            //     CommandTypeEnum::Check->name => [
+            //         Contact::ROLE_SEE_CHECK_COMMANDS,
+            //         Contact::ROLE_MANAGE_CHECK_COMMANDS,
+            //     ],
+            //     CommandTypeEnum::Notification->name => [
+            //         Contact::ROLE_SEE_NOTIFICATION_COMMANDS,
+            //         Contact::ROLE_MANAGE_NOTIFICATION_COMMANDS,
+            //     ],
+            //     CommandTypeEnum::Discovery->name => [
+            //         Contact::ROLE_SEE_DISCOVERY_COMMANDS,
+            //         Contact::ROLE_MANAGE_DISCOVERY_COMMANDS,
+            //     ],
+            //     CommandTypeEnum::Miscellaneous->name => [
+            //         Contact::ROLE_SEE_MISCELLANEOUS_COMMANDS,
+            //         Contact::ROLE_MANAGE_MISCELLANEOUS_COMMANDS,
+            //     ],
+            // ];
 
-            if (! isset($roleMap[$type])) {
-                continue;
-            }
-            if (! in_array($roleMap[$type][0], $roles, true)
-                && ! in_array($roleMap[$type][1], $roles, true)) {
-                continue;
-            }
+            // if (! isset($roleMap[$type])) {
+            //     continue;
+            // }
+            // if (! in_array($roleMap[$type][0], $roles, true)
+            //     && ! in_array($roleMap[$type][1], $roles, true)) {
+            //     continue;
+            // }
 
             $criteria = $criteria->withType($type);
         }

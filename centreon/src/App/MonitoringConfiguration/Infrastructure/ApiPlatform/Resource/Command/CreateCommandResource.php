@@ -43,7 +43,6 @@ use Symfony\Component\Validator\Constraints as Assert;
             403 => new Model\Response('You are not allowed to create commands'),
         ],
     ),
-    normalizationContext: ['groups' => ['default']],
     securityPostValidation: "is_granted('" . CommandActionEnum::Create->value . "', object)",
     securityPostValidationMessage: 'You are not allowed to create commands',
 )]

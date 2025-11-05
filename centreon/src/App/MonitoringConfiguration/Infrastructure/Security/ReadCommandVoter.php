@@ -60,6 +60,7 @@ final class ReadCommandVoter extends Voter
         }
 
         $permission = Command::getReadPermissionForType($type);
+        // if at least one permission is granted, then allow access
 
         return $this->security->isGranted($permission->value);
     }

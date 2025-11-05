@@ -127,10 +127,10 @@ final readonly class DbalCommandRepository extends DbalRepository implements Com
 
         $qb->select(...self::getSelectColumns(), ...DbalConnectorRepository::getSelectColumns())
             ->addSelect(
-                "(SELECT COUNT(*) FROM host WHERE command_command_id = cm.command_id AND host_register = '1') AS used_hosts_count",
-                "(SELECT COUNT(*) FROM host WHERE command_command_id = cm.command_id AND host_register = '0') AS used_host_templates_count",
-                "(SELECT COUNT(*) FROM service WHERE command_command_id = cm.command_id AND service_register = '1') AS used_services_count",
-                "(SELECT COUNT(*) FROM service WHERE command_command_id = cm.command_id AND service_register = '0') AS used_service_templates_count"
+                "(SELECT COUNT(host_id) FROM host WHERE (command_command_id = cm.command_id OR command_command_id2 = cm.command_id) AND host_register = '1') AS cm_used_hosts_count",
+                "(SELECT COUNT(host_id) FROM host WHERE (command_command_id = cm.command_id OR command_command_id2 = cm.command_id) AND host_register = '0') AS cm_used_host_templates_count",
+                "(SELECT COUNT(host_id) FROM service WHERE (command_command_id = cm.command_id OR command_command_id2 = cm.command_id) AND service_register = '1') AS cm_used_services_count",
+                "(SELECT COUNT(host_id) FROM service WHERE (command_command_id = cm.command_id OR command_command_id2 = cm.command_id) AND service_register = '0') AS cm_used_service_templates_count"
             )
             ->from(self::TABLE_NAME, 'cm')
             ->leftJoin('cm', self::CONNECTOR_JOIN_TABLE_NAME, 'c', 'cm.connector_id = c.id');
