@@ -73,5 +73,3 @@ parameters:
             - Centreon\Domain\Contact\Contact
         App\MonitoringConfiguration\Infrastructure\Legacy\LegacyConnectorPermissionVoter:
             - Centreon\Domain\Contact\Contact
-        App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Command\ListCommandsProvider:
-            - Centreon\Domain\Contact\Contact

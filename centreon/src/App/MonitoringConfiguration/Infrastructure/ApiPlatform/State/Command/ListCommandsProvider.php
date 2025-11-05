@@ -71,9 +71,11 @@ final readonly class ListCommandsProvider implements ProviderInterface
         }
 
         // allowed types Intersect with requested types
-        if (! empty($context['filters']['type'])) {
+        /** @var array<string, array<string>> $filters */
+        $filters = $context['filters'] ?? [];
+        if (isset($filters['type']) && is_array($filters['type'])) {
             /** @var array<string> $requestedTypes */
-            $requestedTypes = $context['filters']['type'];
+            $requestedTypes = $filters['type'] ?? [];
             $allowedTypes = array_intersect($requestedTypes, $allowedTypes);
         }
 
@@ -94,10 +96,9 @@ final readonly class ListCommandsProvider implements ProviderInterface
             );
         }
 
-        /** @var array{filters: array{name?: array<string, string|array<string>>, id?: array<string, int|array<int>>}} $context */
-        $criteria = $this->handleNameFilter($context['filters']['name'] ?? null, $criteria);
-        $criteria = $this->handleTypeFilter($allowedTypes ?? null, $criteria);
-        $criteria = $this->handleStatusFilter($context['filters']['status'] ?? null, $criteria);
+        $criteria = $this->handleTypeFilter($allowedTypes, $criteria);
+        $criteria = $this->handleNameFilter($filters['name'] ?? null, $criteria);
+        $criteria = $this->handleStatusFilter($filters['status'] ?? null, $criteria);
 
         $commands = $this->commandRepository->findAll($criteria);
         $commandResources = [];
@@ -118,7 +119,7 @@ final readonly class ListCommandsProvider implements ProviderInterface
     }
 
     /**
-     * @param array<string, string|array<string>>|null $nameFilter
+     * @param array<string>|null $nameFilter
      */
     private function handleNameFilter(?array $nameFilter, CommandCriteria $criteria): CommandCriteria
     {
@@ -143,7 +144,7 @@ final readonly class ListCommandsProvider implements ProviderInterface
     }
 
     /**
-     * @param array<string, string>|null $typeFilter
+     * @param array<string>|null $typeFilter
      */
     private function handleTypeFilter(?array $typeFilter, CommandCriteria $criteria): CommandCriteria
     {
@@ -160,7 +161,7 @@ final readonly class ListCommandsProvider implements ProviderInterface
     }
 
     /**
-     * @param array<string, bool>|null $statusFilter
+     * @param array<string>|null $statusFilter
      */
     private function handleStatusFilter(?array $statusFilter, CommandCriteria $criteria): CommandCriteria
     {
