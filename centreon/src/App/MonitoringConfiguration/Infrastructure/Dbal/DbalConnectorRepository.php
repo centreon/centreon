@@ -66,13 +66,7 @@ final readonly class DbalConnectorRepository extends DbalRepository implements C
     {
         $qb = $this->connection->createQueryBuilder();
 
-        $qb->select(
-            'id',
-            'name',
-            'command_line',
-            'description',
-            'enabled',
-        )
+        $qb->select(...self::getSelectColumns())
             ->from(self::TABLE_NAME)
             ->where('id = :id')
             ->setParameter('id', $id->value)
