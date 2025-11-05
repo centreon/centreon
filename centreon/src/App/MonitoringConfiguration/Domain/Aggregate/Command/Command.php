@@ -110,10 +110,10 @@ final class Command extends AggregateRoot
     public static function getReadPermissionForType(CommandTypeEnum $type): CommandPermissionEnum
     {
         return match($type) {
-            CommandTypeEnum::Notification => CommandPermissionEnum::CanReadNotifications || CommandPermissionEnum::CanReadAndWriteNotifications,
-            CommandTypeEnum::Check => CommandPermissionEnum::CanReadChecks || CommandPermissionEnum::CanReadAndWriteChecks,
-            CommandTypeEnum::Miscellaneous => CommandPermissionEnum::CanReadMiscellaneous || CommandPermissionEnum::CanReadAndWriteMiscellaneous,
-            CommandTypeEnum::Discovery => CommandPermissionEnum::CanReadDiscovery || CommandPermissionEnum::CanReadAndWriteDiscovery,
+            CommandTypeEnum::Notification => CommandPermissionEnum::CanReadNotifications,
+            CommandTypeEnum::Check => CommandPermissionEnum::CanReadChecks,
+            CommandTypeEnum::Miscellaneous => CommandPermissionEnum::CanReadMiscellaneous,
+            CommandTypeEnum::Discovery => CommandPermissionEnum::CanReadDiscovery,
         };
     }
 }

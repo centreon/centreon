@@ -81,8 +81,8 @@ final class CommandCriteria
         $types = $this->types;
         $types[] = $type;
 
-        $uniqueNames = array_unique(array_map(fn($enumType) => $enumType->name, $types));
-        $types = array_values(array_map(fn($name) => CommandTypeEnum::fromName($name), $uniqueNames));
+        $uniqueNames = array_unique(array_map(fn ($enumType) => $enumType->name, $types));
+        $types = array_values(array_map(fn ($name): CommandTypeEnum => CommandTypeEnum::fromName($name), $uniqueNames));
 
         $new = clone $this;
         $new->types = $types;
@@ -94,9 +94,7 @@ final class CommandCriteria
     {
         $this->status = $status;
 
-        $new = clone $this;
-
-        return $new;
+        return clone $this;
     }
 
     public function getPage(): ?int
@@ -118,7 +116,7 @@ final class CommandCriteria
     }
 
     /**
-     * @return list<string>
+     * @return list<CommandTypeEnum>
      */
     public function getTypes(): array
     {

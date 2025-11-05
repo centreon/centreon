@@ -30,12 +30,11 @@ use ApiPlatform\State\ProviderInterface;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandTypeEnum;
 use App\MonitoringConfiguration\Domain\Repository\CommandRepository;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\CommandCriteria;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Command\ResourceCommandTransformer;
 use App\Shared\Domain\Repository\Paginator;
 use App\Shared\Infrastructure\TransformerInterface;
+use Centreon\Domain\Contact\Contact;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
-use Centreon\Domain\Contact\Contact;
 
 /**
  * @implements ProviderInterface<CommandResource>
@@ -143,13 +142,11 @@ final readonly class ListCommandsProvider implements ProviderInterface
                 ],
             ];
 
-            if (
-                ! isset($roleMap[$type]) ||
-                (
-                    ! in_array($roleMap[$type][0], $roles, true) &&
-                    ! in_array($roleMap[$type][1], $roles, true)
-                )
-            ) {
+            if (! isset($roleMap[$type])) {
+                continue;
+            }
+            if (! in_array($roleMap[$type][0], $roles, true)
+                && ! in_array($roleMap[$type][1], $roles, true)) {
                 continue;
             }
 

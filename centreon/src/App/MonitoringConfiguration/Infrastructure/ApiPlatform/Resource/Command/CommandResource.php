@@ -150,7 +150,7 @@ use Symfony\Component\Validator\Constraints as Assert;
             normalizationContext: ['groups' => ['default', 'list']],
             // securityPostValidation: "is_granted('" . CommandActionEnum::Read->value . "', object)",
             // securityPostValidationMessage: 'You are not allowed to access commands',
-        )
+        ),
     ],
 )]
 final class CommandResource

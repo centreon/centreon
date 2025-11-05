@@ -127,10 +127,10 @@ final readonly class DbalCommandRepository extends DbalRepository implements Com
 
         $qb->select(...self::getSelectColumns(), ...DbalConnectorRepository::getSelectColumns())
             ->addSelect(
-            '(SELECT COUNT(*) FROM host WHERE command_command_id = cm.command_id AND host_register = \'1\') AS cm_used_hosts_count',
-            '(SELECT COUNT(*) FROM host WHERE command_command_id = cm.command_id AND host_register = \'0\') AS cm_used_host_templates_count',
-            '(SELECT COUNT(*) FROM service WHERE command_command_id = cm.command_id AND service_register = \'1\') AS cm_used_services_count',
-            '(SELECT COUNT(*) FROM service WHERE command_command_id = cm.command_id AND service_register = \'0\') AS cm_used_service_templates_count'
+                "(SELECT COUNT(*) FROM host WHERE command_command_id = cm.command_id AND host_register = '1') AS used_hosts_count",
+                "(SELECT COUNT(*) FROM host WHERE command_command_id = cm.command_id AND host_register = '0') AS used_host_templates_count",
+                "(SELECT COUNT(*) FROM service WHERE command_command_id = cm.command_id AND service_register = '1') AS used_services_count",
+                "(SELECT COUNT(*) FROM service WHERE command_command_id = cm.command_id AND service_register = '0') AS used_service_templates_count"
             )
             ->from(self::TABLE_NAME, 'cm')
             ->leftJoin('cm', self::CONNECTOR_JOIN_TABLE_NAME, 'c', 'cm.connector_id = c.id');
@@ -241,35 +241,6 @@ final readonly class DbalCommandRepository extends DbalRepository implements Com
         $qb->executeStatement();
     }
 
-    /**
-     * @param RowTypeAlias $row
-     */
-    private function createCommand(array $row): Command
-    {
-        $command = $this->transformer->transform($row);
-        $connector = $this->connectorRepository->findByCommand($command);
-
-        /** @var CommandId $id */
-        $id = $command->id();
-
-        // create a new instance with same values but with the connector
-        return new Command(
-            id: $id,
-            name: $command->name,
-            type: $command->type,
-            commandLine: $command->commandLine,
-            isShellEnabled: $command->isShellEnabled,
-            isActivated: $command->isActivated,
-            isFromMonitoringConnector: $command->isFromMonitoringConnector,
-            comment: $command->comment,
-            connector: $connector,
-            usedHostsCount: $command->usedHostsCount,
-            usedHostTemplatesCount: $command->usedHostTemplatesCount,
-            usedServicesCount: $command->usedServicesCount,
-            usedServiceTemplatesCount: $command->usedServiceTemplatesCount,
-        );
-    }
-
     public function filterByCriteria(QueryBuilder $qb, CommandCriteria $criteria): void
     {
         if ($nameCriteria = $criteria->getNames()) {
@@ -300,6 +271,20 @@ final readonly class DbalCommandRepository extends DbalRepository implements Com
             $qb->andWhere('cm.command_activate = :command_activate');
             $qb->setParameter('command_activate', $criteria->getStatus() ? '1' : '0');
         }
+    }
+
+    /**
+     * @param RowTypeAlias $row
+     */
+    private function createCommand(array $row): Command
+    {
+        $command = $this->transformer->transform($row);
+        $connector = $this->connectorRepository->findByCommand($command);
+        if ($connector instanceof Connector) {
+            $command->addConnector($connector);
+        }
+
+        return $command;
     }
 
     private function countOnQueryBuilder(QueryBuilder $qb): int
