@@ -42,19 +42,19 @@ use Webmozart\Assert\Assert;
 
 /**
  * @phpstan-type RowTypeAlias = array{
- *   command_id: int,
- *   command_name: string,
- *   command_line: string,
- *   command_type: int,
- *   enable_shell: bool,
- *   command_activate: bool,
- *   command_locked: bool,
- *   command_comment: string|null,
- *   connector_id: int|null,
- *   used_hosts_count?: int|null,
- *   used_host_templates_count?: int|null,
- *   used_services_count?: int|null,
- *   used_service_templates_count?: int|null,
+ *   cm_command_id: int,
+ *   cm_command_name: string,
+ *   cm_command_line: string,
+ *   cm_command_type: int,
+ *   cm_enable_shell: bool,
+ *   cm_command_activate: bool,
+ *   cm_command_locked: bool,
+ *   cm_command_comment: string|null,
+ *   cm_connector_id: int|null,
+ *   cm_used_hosts_count?: int|null,
+ *   cm_used_host_templates_count?: int|null,
+ *   cm_used_services_count?: int|null,
+ *   cm_used_service_templates_count?: int|null,
  * }
  */
 final readonly class DbalCommandRepository extends DbalRepository implements CommandRepository
@@ -279,9 +279,10 @@ final readonly class DbalCommandRepository extends DbalRepository implements Com
     private function createCommand(array $row): Command
     {
         $command = $this->transformer->transform($row);
-        $connector = $this->connectorRepository->findByCommand($command);
-        if ($connector instanceof Connector) {
+        if (($connector = $this->connectorRepository->findByCommand($command)) instanceof Connector) {
             $command->addConnector($connector);
+
+            return $command;
         }
 
         return $command;
