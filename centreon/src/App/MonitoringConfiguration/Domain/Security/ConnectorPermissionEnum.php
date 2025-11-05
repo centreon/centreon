@@ -21,22 +21,10 @@
 
 declare(strict_types=1);
 
-namespace Core\Connector\Application\UseCase\FindConnectors;
+namespace App\MonitoringConfiguration\Domain\Security;
 
-use Core\Command\Domain\Model\CommandType;
-
-class ConnectorDto
+enum ConnectorPermissionEnum: string
 {
-    public int $id = 0;
-
-    public string $name = '';
-
-    public string $commandLine = '';
-
-    public string $description = '';
-
-    public bool $isActivated = true;
-
-    /** @var array<array{id:int,name:string,type:CommandType}> */
-    public array $commands = [];
+    case CanRead = 'can_read_connector';
+    case CanReadAndWrite = 'can_read_write_connector';
 }
