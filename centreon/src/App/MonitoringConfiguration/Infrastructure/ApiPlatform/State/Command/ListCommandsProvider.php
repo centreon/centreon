@@ -61,6 +61,32 @@ final readonly class ListCommandsProvider implements ProviderInterface
      */
     public function provide(Operation $operation, array $uriVariables = [], array $context = []): iterable
     {
+        $allowedTypes = [];
+        foreach (CommandTypeEnum::cases() as $commandType) {
+            $readPermission = Command::getReadPermissionForType($commandType);
+            $writePermission = Command::getWritePermissionForType($commandType);
+
+            if ($this->security->isGranted($readPermission->value) || $this->security->isGranted($writePermission->value)) {
+                $allowedTypes[] = $commandType->name;
+            }
+        }
+
+        if (empty($allowedTypes)) {
+            return new TraversablePaginator(
+                new \ArrayIterator([]),
+                1,
+                $this->pagination->getLimit($operation, $context),
+                0
+            );
+        }
+
+        // allowed types Intersect with requested types
+        if (isset($context['filters']['type'])) {
+            /** @var array<string> $requestedTypes */
+            $requestedTypes = $context['filters']['type'];
+            $allowedTypes = array_intersect($requestedTypes, $allowedTypes);
+        }
+
         $criteria = new CommandCriteria();
         if ($this->pagination->isEnabled($operation, $context)) {
             $criteria = $criteria->withPagination(
@@ -69,12 +95,9 @@ final readonly class ListCommandsProvider implements ProviderInterface
             );
         }
 
-        // check first the roles and then edit the typeFilter according to the roles
-        // if no roles send an empty collection or a 403 ??
-
         /** @var array{filters: array{name?: array<string, string|array<string>>, id?: array<string, int|array<int>>}} $context */
         $criteria = $this->handleNameFilter($context['filters']['name'] ?? null, $criteria);
-        $criteria = $this->handleTypeFilter($context['filters']['type'] ?? null, $criteria);
+        $criteria = $this->handleTypeFilter($allowedTypes ?? null, $criteria);
         $criteria = $this->handleStatusFilter($context['filters']['status'] ?? null, $criteria);
 
         $commands = $this->commandRepository->findAll($criteria);
@@ -126,41 +149,11 @@ final readonly class ListCommandsProvider implements ProviderInterface
     private function handleTypeFilter(?array $typeFilter, CommandCriteria $criteria): CommandCriteria
     {
         if ($typeFilter === null) {
+
             return $criteria;
         }
 
-        /** @var Contact $user */
-        $user = $this->security->getUser();
-        $roles = $user->getRoles();
-
         foreach ($typeFilter as $type) {
-            // $roleMap = [
-            //     CommandTypeEnum::Check->name => [
-            //         Contact::ROLE_SEE_CHECK_COMMANDS,
-            //         Contact::ROLE_MANAGE_CHECK_COMMANDS,
-            //     ],
-            //     CommandTypeEnum::Notification->name => [
-            //         Contact::ROLE_SEE_NOTIFICATION_COMMANDS,
-            //         Contact::ROLE_MANAGE_NOTIFICATION_COMMANDS,
-            //     ],
-            //     CommandTypeEnum::Discovery->name => [
-            //         Contact::ROLE_SEE_DISCOVERY_COMMANDS,
-            //         Contact::ROLE_MANAGE_DISCOVERY_COMMANDS,
-            //     ],
-            //     CommandTypeEnum::Miscellaneous->name => [
-            //         Contact::ROLE_SEE_MISCELLANEOUS_COMMANDS,
-            //         Contact::ROLE_MANAGE_MISCELLANEOUS_COMMANDS,
-            //     ],
-            // ];
-
-            // if (! isset($roleMap[$type])) {
-            //     continue;
-            // }
-            // if (! in_array($roleMap[$type][0], $roles, true)
-            //     && ! in_array($roleMap[$type][1], $roles, true)) {
-            //     continue;
-            // }
-
             $criteria = $criteria->withType($type);
         }
 
