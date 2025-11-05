@@ -26,7 +26,6 @@ namespace Core\AgentConfiguration\Domain\Model\ConfigurationParameters;
 use Assert\AssertionFailedException;
 use Centreon\Domain\Common\Assertion\Assertion;
 use Core\AgentConfiguration\Domain\Model\ConfigurationParametersInterface;
-use Core\AgentConfiguration\Domain\Model\ConnectionModeEnum;
 
 /**
  * @phpstan-type _CmaParameters array{
