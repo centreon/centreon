@@ -179,15 +179,6 @@ Cypress.Commands.add('visitHostsListingPage', (index: number) => {
   cy.wait('@getTimeZone');
 });
 
-interface HostGroup {
-  name: string;
-  alias: string;
-  iconId: number;
-  geoCoords: string;
-  comment: string;
-  isActivated: boolean;
-}
-
 interface HostDependency {
   name: string;
   description: string;

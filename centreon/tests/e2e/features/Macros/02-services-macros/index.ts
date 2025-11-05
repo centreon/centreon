@@ -101,12 +101,12 @@ Then('the export configuration is done with success', () => {
 });
 
 Then('the macros are exported to the file {string}', (fileName: string) => {
-   cy.checkMacrosFromTheExportFile(
-      fileName,
-      false,
-      serviceMacros.default_service.normalMacro,
-      serviceMacros.default_service.passMacro
-    );
+  cy.checkMacrosFromTheExportFile(
+    fileName,
+    false,
+    serviceMacros.default_service.normalMacro,
+    serviceMacros.default_service.passMacro
+  );
 });
 
 Given('an existing service with macros', () => {
