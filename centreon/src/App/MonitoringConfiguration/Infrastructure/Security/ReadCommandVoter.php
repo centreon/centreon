@@ -23,10 +23,12 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Infrastructure\Security;
 
+use ApiPlatform\State\Pagination\TraversablePaginator;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\Command;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandTypeEnum;
 use App\MonitoringConfiguration\Domain\Security\CommandActionEnum;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Command\CreateCommandResource;
+use App\MonitoringConfiguration\Domain\Security\CommandPermissionEnum;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Command\CommandResource;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Vote;
@@ -44,24 +46,50 @@ final class ReadCommandVoter extends Voter
 
     protected function supports(string $attribute, mixed $subject): bool
     {
-        return CommandActionEnum::tryFrom($attribute) === CommandActionEnum::Read && $subject instanceof CreateCommandResource;
+        return CommandActionEnum::tryFrom($attribute) === CommandActionEnum::Read
+            && ($subject instanceof TraversablePaginator || $subject instanceof CommandResource);
     }
 
     protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token, ?Vote $vote = null): bool
     {
-        Assert::isInstanceOf($subject, CreateCommandResource::class);
+        if ($subject instanceof TraversablePaginator) {
+            return $this->voteOnCommandCollection();
+        }
 
+        if ($subject instanceof CommandResource) {
+            return $this->voteOnCommandResource($subject);
+        }
+
+        return false;
+    }
+
+    private function voteOnCommandCollection(): bool
+    {
+        // For collections, allow if user has permission to read at least one command type
+        foreach (CommandTypeEnum::cases() as $commandType) {
+            $readPermission = Command::getReadPermissionForType($commandType);
+            $readAndWritePermission = Command::getWritePermissionForType($commandType);
+            if ($this->security->isGranted($readPermission->value) || $this->security->isGranted($readAndWritePermission->value)) {
+
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private function voteOnCommandResource(CommandResource $resource): bool
+    {
         try {
-            $type = CommandTypeEnum::fromName($subject->type);
+            $commandType = CommandTypeEnum::fromName($resource->type);
         } catch (\InvalidArgumentException) {
-            $vote?->addReason('Invalid command type.');
 
             return false;
         }
 
-        $permission = Command::getReadPermissionForType($type);
-        // if at least one permission is granted, then allow access
+        $readPermission = Command::getReadPermissionForType($commandType);
+        $readAndWritePermission = Command::getWritePermissionForType($commandType);
 
-        return $this->security->isGranted($permission->value);
+        return $this->security->isGranted($readPermission->value) || $this->security->isGranted($readAndWritePermission->value);
     }
 }
