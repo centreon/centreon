@@ -27,9 +27,11 @@ use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\Pagination\Pagination;
 use ApiPlatform\State\Pagination\TraversablePaginator;
 use ApiPlatform\State\ProviderInterface;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\Command;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandTypeEnum;
 use App\MonitoringConfiguration\Domain\Repository\CommandRepository;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\CommandCriteria;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Command\CommandResource;
 use App\Shared\Domain\Repository\Paginator;
 use App\Shared\Infrastructure\TransformerInterface;
 use Centreon\Domain\Contact\Contact;
@@ -90,6 +92,9 @@ final readonly class ListCommandsProvider implements ProviderInterface
         );
     }
 
+    /**
+     * @param array<string, string|array<string>>|null $nameFilter
+     */
     private function handleNameFilter(?array $nameFilter, CommandCriteria $criteria): CommandCriteria
     {
         if ($nameFilter === null) {
@@ -112,6 +117,9 @@ final readonly class ListCommandsProvider implements ProviderInterface
         return $criteria;
     }
 
+    /**
+     * @param array<string, string>|null $typeFilter
+     */
     private function handleTypeFilter(?array $typeFilter, CommandCriteria $criteria): CommandCriteria
     {
         if ($typeFilter === null) {
@@ -156,6 +164,9 @@ final readonly class ListCommandsProvider implements ProviderInterface
         return $criteria;
     }
 
+    /**
+     * @param array<string, bool>|null $statusFilter
+     */
     private function handleStatusFilter(?array $statusFilter, CommandCriteria $criteria): CommandCriteria
     {
         if ($statusFilter === null) {

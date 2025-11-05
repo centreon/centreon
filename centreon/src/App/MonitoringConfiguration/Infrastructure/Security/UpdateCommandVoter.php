@@ -51,8 +51,9 @@ final class UpdateCommandVoter extends Voter
     {
         Assert::isInstanceOf($subject, CommandResource::class);
 
-        $type = CommandTypeEnum::fromName($subject->type);
-        if (! $type instanceof CommandTypeEnum) {
+        try {
+            $type = CommandTypeEnum::fromName($subject->type);
+        } catch (\InvalidArgumentException) {
             $vote?->addReason('Invalid command type.');
 
             return false;

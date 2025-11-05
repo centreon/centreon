@@ -28,7 +28,10 @@ use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandName;
 use App\MonitoringConfiguration\Domain\Exception\CommandNotFoundException;
 use App\MonitoringConfiguration\Domain\Repository\CommandRepository;
+use App\MonitoringConfiguration\Domain\Repository\Criteria\CommandCriteria;
 use App\Shared\Domain\Aggregate\AggregateRoot;
+use Countable;
+use IteratorAggregate;
 
 final class FakeCommandRepository implements CommandRepository
 {
@@ -69,5 +72,10 @@ final class FakeCommandRepository implements CommandRepository
         $commandId = $command->id();
 
         $this->commands[$commandId->value] = $command;
+    }
+
+    public function findAll(?CommandCriteria $criteria): IteratorAggregate&Countable
+    {
+        throw new \RuntimeException('Not yet implemented');
     }
 }

@@ -59,7 +59,6 @@ final readonly class CreateCommandProcessor implements ProcessorInterface
     public function process($data, Operation $operation, array $uriVariables = [], array $context = []): CommandResource
     {
         $type = CommandTypeEnum::fromName($data->type);
-        Assert::notNull($type);
 
         $command = new CreateCommandCommand(
             name: new CommandName($data->name),
