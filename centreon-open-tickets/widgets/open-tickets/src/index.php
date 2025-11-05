@@ -380,7 +380,7 @@ if (! empty($preferences['hostcategories'])) {
         $queryHC .= ':id_' . $resultHC;
         $mainQueryParameters[] = [
             'parameter' => ':id_' . $resultHC,
-            'value' => (int) $resultsHC,
+            'value' => (int) $resultHC,
             'type' => PDO::PARAM_INT,
         ];
     }
