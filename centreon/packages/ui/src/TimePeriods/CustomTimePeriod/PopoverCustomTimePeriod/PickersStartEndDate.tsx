@@ -107,14 +107,16 @@ const PickersStartEndDate = ({
   const maxEnd = rangeEndDate?.max;
   const minEnd = rangeEndDate?.min || startDate;
 
-  const isColumn = equals(direction, PickersStartEndDateDirection.column)
+  const isColumn = equals(direction, PickersStartEndDateDirection.column);
 
   return (
     <LocalizationProvider
       adapterLocale={locale.substring(0, 2)}
       dateAdapter={AdapterDayjs}
     >
-      <div className={`flex ${isColumn ? 'flex-col justify-center' : 'flex-row items-center py-2 px-4'} gap-2 ${className}`}>
+      <div
+        className={`flex ${isColumn ? 'flex-col justify-center' : 'flex-row items-center py-2 px-4'} gap-2 ${className}`}
+      >
         <PickerDateWithLabel
           changeDate={changeDate}
           date={startDate}

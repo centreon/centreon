@@ -1082,6 +1082,10 @@ if ($o === HOST_WATCH) {
     $res = $form->addElement('reset', 'reset', _('Reset'), ['class' => 'btc bt_default']);
 }
 
+if ($o === HOST_ADD || $o === HOST_MODIFY || $o === HOST_MASSIVE_CHANGE) {
+    $form->addFormRule('validateParentChildAreNotCircular');
+}
+
 if (! $isCloudPlatform) {
     $tpl->assign(
         'msg',
