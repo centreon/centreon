@@ -31,6 +31,8 @@ use ApiPlatform\OpenApi\Model;
 use App\MonitoringConfiguration\Domain\Security\ConnectorPermissionEnum;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\FindConnectorProvider;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\ListConnectorsProvider;
+use Symfony\Component\Serializer\Annotation\Groups;
+
 #[ApiResource(
     operations: [
         new GetCollection(
@@ -100,35 +102,35 @@ final class ConnectorResource
 {
     public function __construct(
         #[ApiProperty(identifier: true, writable: false)]
-
+        #[Groups(['default'])]
         public int $id,
 
         #[ApiProperty(
             description: 'The connector name',
             openapiContext: ['example' => 'Perl Connector']
         )]
-
+        #[Groups(['default'])]
         public string $name,
 
         #[ApiProperty(
             description: 'The command line used to execute the connector',
             openapiContext: ['example' => 'centreon_connector_ssh --log-file=/var/log/centreon-engine/connector-ssh.log']
         )]
-
+        #[Groups(['default'])]
         public string $commandLine,
 
         #[ApiProperty(
             description: 'The connector description',
             openapiContext: ['example' => 'Connector using SSH to connect to remote hosts']
         )]
-
+        #[Groups(['default'])]
         public ?string $description,
 
         #[ApiProperty(
             description: 'Indicates whether the connector is activated',
             openapiContext: ['example' => true]
         )]
-
+        #[Groups(['default'])]
         public bool $isActivated,
     ) {
     }

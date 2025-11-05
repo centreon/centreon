@@ -27,13 +27,11 @@ use ApiPlatform\State\Pagination\TraversablePaginator;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\Command;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandTypeEnum;
 use App\MonitoringConfiguration\Domain\Security\CommandActionEnum;
-use App\MonitoringConfiguration\Domain\Security\CommandPermissionEnum;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Command\CommandResource;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Vote;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
-use Webmozart\Assert\Assert;
 
 /**
  * @extends Voter<value-of<CommandActionEnum>, mixed>
@@ -90,6 +88,11 @@ final class ReadCommandVoter extends Voter
         $readPermission = Command::getReadPermissionForType($commandType);
         $readAndWritePermission = Command::getWritePermissionForType($commandType);
 
-        return $this->security->isGranted($readPermission->value) || $this->security->isGranted($readAndWritePermission->value);
+        if ($this->security->isGranted($readPermission->value)) {
+
+            return true;
+        }
+
+        return $this->security->isGranted($readAndWritePermission->value);
     }
 }

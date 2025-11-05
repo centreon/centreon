@@ -34,7 +34,6 @@ use App\MonitoringConfiguration\Domain\Repository\Criteria\CommandCriteria;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Command\CommandResource;
 use App\Shared\Domain\Repository\Paginator;
 use App\Shared\Infrastructure\TransformerInterface;
-use Centreon\Domain\Contact\Contact;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
@@ -71,20 +70,20 @@ final readonly class ListCommandsProvider implements ProviderInterface
             }
         }
 
-        if (empty($allowedTypes)) {
+        // allowed types Intersect with requested types
+        if (! empty($context['filters']['type'])) {
+            /** @var array<string> $requestedTypes */
+            $requestedTypes = $context['filters']['type'];
+            $allowedTypes = array_intersect($requestedTypes, $allowedTypes);
+        }
+
+        if ($allowedTypes === []) {
             return new TraversablePaginator(
                 new \ArrayIterator([]),
                 1,
                 $this->pagination->getLimit($operation, $context),
                 0
             );
-        }
-
-        // allowed types Intersect with requested types
-        if (isset($context['filters']['type'])) {
-            /** @var array<string> $requestedTypes */
-            $requestedTypes = $context['filters']['type'];
-            $allowedTypes = array_intersect($requestedTypes, $allowedTypes);
         }
 
         $criteria = new CommandCriteria();
