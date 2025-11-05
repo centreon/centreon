@@ -10,7 +10,7 @@ const clickToAddHost = () => {
 before(() => {
   cy.startContainers();
   cy.setUserTokenApiV1().executeCommandsViaClapi(
-    'resources/clapi/config-ACL/ac-acl-user.json'
+    'resources/clapi/config-ACL/contacts-management-acl-user.json'
   );
 });
 
@@ -35,7 +35,7 @@ after(() => {
 
 Given('a non-admin user is logged into the Centreon server', () => {
   cy.loginByTypeOfUser({
-    jsonName: 'user-non-admin-for-AC',
+    jsonName: 'contacts-management-acl-user',
     loginViaApi: false
   });
 });
