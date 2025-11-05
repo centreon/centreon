@@ -194,11 +194,11 @@ final readonly class DbalCommandRepository extends DbalRepository implements Com
     private function createCommand(array $row): Command
     {
         $command = $this->transformer->transform($row);
-        if (($connector = $this->connectorRepository->findByCommand($command)) !== null) {
+        if (($connector = $this->connectorRepository->findByCommand($command)) instanceof Connector) {
             $command->addConnector($connector);
 
             return $command;
-        };
+        }
 
         return $command;
     }
