@@ -51,8 +51,7 @@ const useLinkToResourceStatus = (): UseLinkToResourceStatus => {
 
     if (hasOnlyBV) {
       const id = resources?.[0]?.resources?.[0]?.id;
-      if (!id) return '';
-      return `/main.php?p=20701&status=all&bv_id=${id}`;
+      return id ? `/main.php?p=20701&status=all&bv_id=${id}`: '';
     }
 
     if (hasOnlyBA) {
