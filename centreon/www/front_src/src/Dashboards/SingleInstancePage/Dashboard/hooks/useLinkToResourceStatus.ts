@@ -21,7 +21,7 @@ import { areResourcesFullfilled } from '../Widgets/utils';
 
 interface UseLinkToResourceStatus {
   changeViewMode: (options) => void;
-  getLinkToResourceStatusPage: (data, name, options) => string;
+  getLinkToResourceStatusPage: (data, name, options?) => string;
   getPageType: (data) => string | null;
 }
 
