@@ -83,6 +83,7 @@ jobs:
         "centreon/varinstall/**"
         "centreon/www/**"
         "!centreon/www/front_src/**"
+        "!centreon/www/widgets/src/**"
       frontend_production_paths: |
         "centreon/biome.json"
         "centreon/package.json"
@@ -93,6 +94,7 @@ jobs:
         "centreon/packages/ui/src/**"
         "centreon/packages/ui-context/package.json"
         "centreon/packages/ui-context/src/**"
+        "centreon/www/widgets/src/**"
         "centreon/www/front_src/**"
         "!centreon/**/cypress/**"
         "!centreon/**/*.cypress.*"
@@ -198,7 +200,13 @@ jobs:
           build_command: pnpm centreon:build
 
   frontend-widgets-build:
-    needs: [get-environment]
+    needs: [get-environment, changes]
+    if: |
+      (
+        needs.changes.outputs.trigger_packaging == 'true' &&
+        needs.get-environment.outputs.skip_workflow == 'false'
+      ) ||
+      needs.get-environment.outputs.stability == 'stable'
     runs-on: ubuntu-24.04
 
     steps:
