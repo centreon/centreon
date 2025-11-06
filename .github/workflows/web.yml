@@ -32,6 +32,8 @@ on:
       - dev-[2-9][0-9].[0-9][0-9].x
       - master
       - "[2-9][0-9].[0-9][0-9].x"
+      - 'release-[2-9][0-9].[0-9][0-9]-next'
+      - 'hotfix-[2-9][0-9].[0-9][0-9]-next'
     paths:
       - ".version.centreon-web"
       - "centreon/**"
@@ -42,6 +44,8 @@ on:
       - "!centreon/.veracode-exclusions"
       - "!centreon/veracode.json"
       - "!centreon/packages/**"
+    tags:
+      - "centreon-web-*"
 
 env:
   base_directory: centreon
