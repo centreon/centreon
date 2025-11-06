@@ -25,7 +25,6 @@ namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Comman
 
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\GetCollection;
-use ApiPlatform\Metadata\Link;
 use ApiPlatform\OpenApi\Model;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandTypeEnum;
 use App\MonitoringConfiguration\Domain\Repository\CommandResourceCount;
@@ -33,9 +32,7 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Command\ListCom
 
 #[GetCollection(
     shortName: 'Command',
-    uriTemplate: '/configuration/commands.{_format}',
-    /* itemUriTemplate: '/configuration/commands/{id}.{_format}', */
-    /* itemUriVariables: ['id' => new Link(fromClass: ListCommandResource::class, toClass: CommandResource::class, fromProperty: 'id', toProperty: 'id')], */
+    uriTemplate: '/configuration/commands',
     provider: ListCommandsProvider::class,
     openapi: new Model\Operation(
         responses: [

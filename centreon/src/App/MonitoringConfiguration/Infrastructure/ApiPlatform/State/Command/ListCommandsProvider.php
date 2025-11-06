@@ -25,6 +25,7 @@ namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Command;
 
 use ApiPlatform\Metadata\Exception\AccessDeniedException;
 use ApiPlatform\Metadata\Operation;
+use ApiPlatform\Metadata\UrlGeneratorInterface;
 use ApiPlatform\State\Pagination\Pagination;
 use ApiPlatform\State\Pagination\TraversablePaginator;
 use ApiPlatform\State\ProviderInterface;
@@ -52,9 +53,8 @@ final readonly class ListCommandsProvider implements ProviderInterface
         private TransformerInterface $transformer,
         private CommandRepository $commandRepository,
         private Pagination $pagination,
-        private Security $security,
+        private Security $security
     ) {
-
     }
 
     /**
@@ -99,7 +99,6 @@ final readonly class ListCommandsProvider implements ProviderInterface
             $count = $this->commandRepository->countLinkedResources($command->id());
             $commandResource = $this->transformer->transform($command);
             $commandResource->hydrateLinkedResourceCount($count);
-
             $commandResources[] = $commandResource;
         }
 

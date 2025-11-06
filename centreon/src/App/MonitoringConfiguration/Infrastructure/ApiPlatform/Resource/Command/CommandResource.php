@@ -43,7 +43,7 @@ use Symfony\Component\Validator\Constraints as Assert;
     shortName: 'Command',
     operations: [
         new Get(
-            uriTemplate: '/configuration/commands/{id}.{_format}',
+            uriTemplate: '/configuration/commands/{id}',
             provider: FindCommandProvider::class,
             openapi: new Model\Operation(
                 responses: [
@@ -65,7 +65,6 @@ use Symfony\Component\Validator\Constraints as Assert;
                     403 => new Model\Response('You are not allowed to update this command'),
                 ],
             ),
-            normalizationContext: ['groups' => ['default']],
             securityPostValidation: "is_granted('" . CommandActionEnum::Update->value . "', object)",
             securityPostValidationMessage: 'You are not allowed to update this command',
         ),
@@ -75,7 +74,6 @@ final class CommandResource
 {
     public function __construct(
         #[ApiProperty(identifier: true, writable: false)]
-        #[Groups(['default'])]
         public int $id,
 
         #[ApiProperty(
@@ -87,7 +85,6 @@ final class CommandResource
             pattern: CommandName::NAME_VALIDATION_REGEX,
             message: 'The name can only contain alphanumeric characters, underscores, and hyphens.'
         )]
-        #[Groups(['default'])]
         public string $name,
 
         #[ApiProperty(
@@ -110,7 +107,6 @@ final class CommandResource
                 CommandTypeEnum::Discovery->name,
             ]
         )]
-        #[Groups(['default'])]
         public string $type,
 
         #[ApiProperty(
@@ -118,25 +114,21 @@ final class CommandResource
             openapiContext: ['example' => '$USER1$/check_http -H $ARG1$ -w $ARG2$ -c $ARG3$']
         )]
         #[Assert\Length(min: 1, max: 65535)]
-        #[Groups(['default'])]
         public string $commandLine,
 
         #[ApiProperty(
             description: 'Indicates whether the command can be executed through a shell',
         )]
-        #[Groups(['default'])]
         public bool $isShellEnabled,
 
         #[ApiProperty(
             description: 'Indicates whether the command is activated or not',
         )]
-        #[Groups(['default'])]
         public bool $isActivated,
 
         #[ApiProperty(
             description: 'Indicates whether the command comes from a monitoring connector',
         )]
-        #[Groups(['default'])]
         public bool $isFromMonitoringConnector,
 
         #[ApiProperty(
@@ -151,14 +143,12 @@ final class CommandResource
             ],
             readableLink: true,
         )]
-        #[Groups(['default'])]
         public ?ConnectorResource $connector,
 
         #[ApiProperty(
             description: 'Additional information about the command',
             openapiContext: ['example' => 'This command is used to check the HTTP service']
         )]
-        #[Groups(['default'])]
         public ?string $comment,
     ) {
     }
