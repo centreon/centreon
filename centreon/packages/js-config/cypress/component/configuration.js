@@ -75,6 +75,10 @@ module.exports = ({
       reportDir: `${mainCypressFolder}/results`,
       reportFilename: '[name]-report.json'
     },
+    retries: {
+      openMode: 0,
+      runMode: 2
+    },
     video: true,
     videosFolder: `${mainCypressFolder}/results/videos`,
     viewportHeight: 590,
