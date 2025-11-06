@@ -8,7 +8,7 @@ import {
 import { Tooltip } from '../../../components';
 import { Line } from '../../common/timeSeries/models';
 
-import { useLegendHeaderStyles } from './Legend.styles';
+import { ReactElement } from 'react';
 import LegendContent from './LegendContent';
 import { LegendDisplayMode } from './models';
 
@@ -32,9 +32,7 @@ const LegendHeader = ({
   isListMode,
   isDisplayedOnSide,
   unit
-}: Props): JSX.Element => {
-  const { classes, cx } = useLegendHeaderStyles({ color });
-
+}: Props): ReactElement => {
   const { name, legend } = line;
 
   const metricName = formatMetricName({ legend, name });
@@ -42,16 +40,14 @@ const LegendHeader = ({
   const legendName = legend || name;
 
   return (
-    <div
-      className={cx(!isListMode ? classes.container : classes.containerList)}
-    >
+    <div className={isListMode ? 'w-fit' : 'w-full'}>
       <Tooltip
         followCursor={false}
         label={
           minMaxAvg ? (
             <div>
               <Typography>{legendName}</Typography>
-              <div className={classes.minMaxAvgContainer}>
+              <div className="grid grid-cols-2 gap-1 whitespace-nowrap">
                 {minMaxAvg.map(({ label, value: subValue }) => (
                   <LegendContent
                     data={formatMetricValue({
@@ -70,18 +66,15 @@ const LegendHeader = ({
         }
         placement={isListMode ? 'right' : 'top'}
       >
-        <div className={classes.markerAndLegendName}>
+        <div className="flex items-center gap-1">
           <div
             data-icon
-            className={cx(classes.icon, { [classes.disabled]: disabled })}
+            className={`h-3 w-3 rounded-sm ${disabled && 'text-text-disabled'}`}
+            style={{ backgroundColor: color }}
           />
           <EllipsisTypography
-            className={classes.text}
-            containerClassname={cx(
-              !isListMode && classes.legendName,
-              isListMode && !isDisplayedOnSide && classes.textListBottom,
-              isListMode && isDisplayedOnSide && classes.legendName
-            )}
+            className="text-xs leading-none font-medium"
+            containerClassname={`w-auto ${(!isListMode || (isListMode && isDisplayedOnSide)) && 'max-w-[166px]'}`}
             data-mode={
               value ? LegendDisplayMode.Compact : LegendDisplayMode.Normal
             }

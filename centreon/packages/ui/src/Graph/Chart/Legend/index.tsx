@@ -1,8 +1,16 @@
-import { Dispatch, ReactNode, SetStateAction, useMemo } from 'react';
+import {
+  Dispatch,
+  KeyboardEvent,
+  MouseEvent,
+  ReactElement,
+  ReactNode,
+  SetStateAction,
+  useMemo
+} from 'react';
 
 import { equals, prop, slice, sortBy } from 'ramda';
 
-import { Box, alpha, useTheme } from '@mui/material';
+import { alpha, useTheme } from '@mui/material';
 
 import { useMemoComponent } from '@centreon/ui';
 
@@ -10,8 +18,6 @@ import { formatMetricValue } from '../../common/timeSeries';
 import { Line } from '../../common/timeSeries/models';
 import { LegendModel } from '../models';
 import { labelAvg, labelMax, labelMin } from '../translatedLabels';
-
-import { useStyles } from './Legend.styles';
 import LegendContent from './LegendContent';
 import LegendHeader from './LegendHeader';
 import { GetMetricValueProps, LegendDisplayMode } from './models';
@@ -42,15 +48,9 @@ const MainLegend = ({
   setLinesGraph,
   shouldDisplayLegendInCompactMode,
   placement,
-  height,
   mode,
   secondaryClick
-}: Props): JSX.Element => {
-  const { classes, cx } = useStyles({
-    limitLegendRows: Boolean(limitLegend),
-    placement,
-    height
-  });
+}: Props): ReactElement => {
   const theme = useTheme();
 
   const { selectMetricLine, clearHighlight, highlightLine, toggleMetricLine } =
@@ -73,22 +73,25 @@ const MainLegend = ({
 
   const contextMenuClick =
     (metricId: number) =>
-    (event: MouseEvent): void => {
-      if (!secondaryClick) {
-        return;
-      }
-      event.preventDefault();
-      secondaryClick({
-        element: event.target,
-        metricId,
-        position: [event.pageX, event.pageY]
-      });
-    };
+      (event: MouseEvent): void => {
+        if (!secondaryClick) {
+          return;
+        }
+        event.preventDefault();
+        secondaryClick({
+          element: event.target,
+          metricId,
+          position: [event.pageX, event.pageY]
+        });
+      };
 
   const selectMetric = ({
     event,
     metric_id
-  }: { event: MouseEvent; metric_id: number }): void => {
+  }: {
+    event: MouseEvent<HTMLLIElement> | KeyboardEvent<HTMLLIElement>;
+    metric_id: number;
+  }): void => {
     if (!toggable) {
       return;
     }
@@ -109,16 +112,16 @@ const MainLegend = ({
 
   return (
     <div
-      className={classes.legend}
+      className={`overflow-x-hidden overflow-y-auto ${!equals(placement, 'bottom') ? 'h-full mt-[15px]' : 'ml-[30px] mr-[40px]'}`}
       data-display-side={!equals(placement, 'bottom')}
     >
-      <div
-        className={classes.items}
+      <ul
+        className={`list-none flex gap-3 flex-wrap ${isListMode || (!equals(placement, 'bottom') && 'flex-col h-full w-fit')} w-full`}
         data-as-list={isListMode || !equals(placement, 'bottom')}
         data-mode={itemMode}
       >
         {displayedLines.map((line) => {
-          const { color, display, highlight, metric_id, unit } = line;
+          const { color, display, metric_id, unit } = line;
 
           const markerColor = display
             ? color
@@ -140,14 +143,13 @@ const MainLegend = ({
           ];
 
           return (
-            <Box
-              className={cx(
-                classes.item,
-                highlight ? classes.highlight : classes.normal,
-                toggable && classes.toggable
-              )}
+            <li
+              className={`text-text-primary ${toggable && 'cursor-pointer'}`}
               key={metric_id}
               onClick={(event): void => selectMetric({ event, metric_id })}
+              onKeyUp={(event) =>
+                event.key === 'Enter' && selectMetric({ event, metric_id })
+              }
               onMouseEnter={(): void => highlightLine(metric_id)}
               onMouseLeave={(): void => clearHighlight()}
               onContextMenu={contextMenuClick(metric_id)}
@@ -165,7 +167,7 @@ const MainLegend = ({
               />
               {!shouldDisplayLegendInCompactMode && !isListMode && (
                 <div>
-                  <div className={classes.minMaxAvgContainer}>
+                  <div className="grid grid-cols-2 gap-1 whitespace-nowrap">
                     {minMaxAvg.map(({ label, value }) => (
                       <LegendContent
                         data={getMetricValue({ unit: line.unit, value })}
@@ -176,16 +178,16 @@ const MainLegend = ({
                   </div>
                 </div>
               )}
-            </Box>
+            </li>
           );
         })}
-      </div>
+      </ul>
       {renderExtraComponent}
     </div>
   );
 };
 
-const Legend = (props: Props): JSX.Element => {
+const Legend = (props: Props): ReactElement => {
   const {
     toggable,
     limitLegend,

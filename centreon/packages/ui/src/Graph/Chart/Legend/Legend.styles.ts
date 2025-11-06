@@ -54,21 +54,6 @@ export const useStyles = makeStyles<MakeStylesProps>()(
       rowGap: theme.spacing(1),
       width: '100%'
     },
-    legend: {
-      '&[data-display-side="false"]': {
-        marginLeft: margin.left,
-        marginRight: margin.right
-      },
-      '&[data-display-side="true"]': {
-        height: '100%',
-        marginTop: `${margin.top / 2}px`
-      },
-      maxHeight: limitLegendRows
-        ? theme.spacing(legendItemHeight * 2 + 1)
-        : getLegendMaxHeight({ placement, height }),
-      overflowY: 'auto',
-      overflowX: 'hidden'
-    },
     minMaxAvgContainer: {
       columnGap: theme.spacing(0.5),
       display: 'grid',
