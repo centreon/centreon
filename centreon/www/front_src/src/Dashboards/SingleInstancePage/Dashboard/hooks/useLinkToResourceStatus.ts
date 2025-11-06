@@ -57,8 +57,7 @@ const useLinkToResourceStatus = (): UseLinkToResourceStatus => {
 
     if (hasOnlyBA) {
       const id = resources?.[0]?.resources?.[0]?.id;
-      if (!id) return '';
-      return `/monitoring/bam/bas/${id}`;
+      return id ? `/monitoring/bam/bas/${id}` : '';
     }
 
     if (data[resourcesInputKey] && isNil(data?.metrics)) {
