@@ -239,7 +239,9 @@ jobs:
 
   cypress-component-test-report:
     needs: [cypress-component-test-run]
-    if: failure()
+    if: |
+      ! cancelled() &&
+      ! contains(needs.*.result, 'cancelled')
     runs-on: ubuntu-24.04
 
     steps:
