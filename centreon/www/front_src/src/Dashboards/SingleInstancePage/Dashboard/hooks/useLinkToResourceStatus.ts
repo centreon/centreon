@@ -38,9 +38,9 @@ const useLinkToResourceStatus = (): UseLinkToResourceStatus => {
     );
     const resourcesInputKey = resourcesInput?.[0];
 
-    const hasValidResources = !resourcesInputKey || !data?.[resourcesInputKey] || !areResourcesFullfilled(data?.[resourcesInputKey]);
+    const hasInvalidResources = !resourcesInputKey || !data?.[resourcesInputKey] || !areResourcesFullfilled(data?.[resourcesInputKey]);
 
-    if (hasValidResources) {
+    if (hasInvalidResources) {
       return '';
     }
 
