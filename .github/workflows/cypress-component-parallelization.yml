@@ -129,7 +129,7 @@ jobs:
           retention-days: 1
 
       - name: Archive test reports
-        if: ${{ failure() }}
+        if: ${{ ! cancelled() }}
         uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
         with:
           name: ${{ inputs.name }}-component-test-reports-${{ matrix.spec }}
@@ -239,7 +239,9 @@ jobs:
 
   cypress-component-test-report:
     needs: [cypress-component-test-run]
-    if: failure()
+    if: |
+      ! cancelled() &&
+      ! contains(needs.*.result, 'cancelled')
     runs-on: ubuntu-24.04
 
     steps:
@@ -258,7 +260,7 @@ jobs:
 
       - name: Merge reports
         run: |
-          pnpx mochawesome-merge "${{ inputs.name }}-json-reports/**/*.json" > mochawesome.json
+          pnpx mochawesome-merge "${{ inputs.name }}-json-reports/**/*-report.json" > mochawesome.json
 
           if ls ${{ inputs.name }}-json-reports/**/*retries.json 1> /dev/null 2>&1; then
             cat ${{ inputs.name }}-json-reports/**/*retries.json | jq -s add > retries.json
