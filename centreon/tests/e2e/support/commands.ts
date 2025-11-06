@@ -18,8 +18,8 @@ import '../features/Notifications/commands';
 import '../features/Commands/commands';
 import '../features/Resources-status/commands';
 import '../features/Platform-upgrade-update/commands';
-import '../features/Additional-connectors/commands';
-
+import '../features/Additional-connectors/commands'
+import '../../../../centreon/packages/js-config/cypress/e2e/commands'
 
 Cypress.Commands.add('refreshListing', (): Cypress.Chainable => {
   return cy.get(refreshButton).click();
