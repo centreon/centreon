@@ -165,7 +165,7 @@ jobs:
     if: |
       needs.get-environment.outputs.skip_workflow == 'false' &&
       needs.get-environment.outputs.stability != 'stable' &&
-      needs.changes.outputs.has_features_changes == 'true'
+      needs.changes.outputs.trigger_e2e_testing == 'true'
     steps:
       - uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
 
@@ -943,7 +943,7 @@ jobs:
       xray_jira_token: ${{ secrets.XRAY_JIRA_TOKEN }}
 
   e2e-test:
-    needs: [get-environment, dockerize, create-xray-test-plan-and-test-execution]
+    needs: [get-environment, changes, dockerize, create-xray-test-plan-and-test-execution]
     if: |
       needs.changes.outputs.trigger_e2e_testing == 'true' &&
       needs.get-environment.outputs.skip_workflow == 'false' &&
@@ -984,7 +984,7 @@ jobs:
 
   performances-test:
     runs-on: ubuntu-22.04
-    needs: [get-environment, dockerize]
+    needs: [get-environment, changes, dockerize]
     if: |
       needs.changes.outputs.trigger_e2e_testing == 'true' &&
       needs.get-environment.outputs.skip_workflow == 'false' &&
