@@ -6,6 +6,9 @@ const {
 } = require('@simonsmith/cypress-image-snapshot/plugin');
 const cypressCodeCoverageTask = require('@cypress/code-coverage/task');
 
+import fs from 'fs';
+import path from 'path';
+
 module.exports = ({
   rspackConfig,
   cypressFolder,
@@ -41,6 +44,35 @@ module.exports = ({
 
           return launchOptions;
         });
+
+        on('after:run', (results) => {
+          const testRetries = {};
+          if ('runs' in results) {
+            results.runs.forEach((run) => {
+              run.tests.forEach((test) => {
+                if (test.attempts && test.attempts.length > 1 && test.state === 'passed') {
+                  const testTitle = test.title.join(' > '); // Convert the array to a string
+                  testRetries[testTitle] = test.attempts.length - 1;
+                }
+              });
+            });
+          }
+
+          // Save the testRetries object to a file in the e2e/results directory
+          const resultFilePath = path.join(
+            mainCypressFolder,
+            'results',
+            'retries.json'
+          );
+
+          fs.writeFileSync(resultFilePath, JSON.stringify(testRetries, null, 2));
+        });
+
+        on('after:spec', () => {
+          if (global.__coverage__) {
+            delete global.__coverage__;
+          }
+        });
       },
       specPattern,
       supportFile: `${mainCypressFolder}/support/component.tsx`
@@ -58,6 +90,7 @@ module.exports = ({
       },
       ...env
     },
+    numTestsKeptInMemory: 1,
     reporter: 'mochawesome',
     reporterOptions: {
       html: false,
@@ -65,6 +98,10 @@ module.exports = ({
       overwrite: true,
       reportDir: `${mainCypressFolder}/results`,
       reportFilename: '[name]-report.json'
+    },
+    retries: {
+      openMode: 0,
+      runMode: 2
     },
     video: true,
     videosFolder: `${mainCypressFolder}/results/videos`,
