@@ -30,7 +30,7 @@ const useLinkToResourceStatus = (): UseLinkToResourceStatus => {
   const setSelectedColumnIds = useSetAtom(selectedColumnIdsAtom);
 
   const getLinkToResourceStatusPage = (data, name, options?): string => {
-    if (data == null) 
+    if (isNil(data)) 
       return '';
     const resourcesInput = Object.entries(data).find(
       ([, value]) =>
