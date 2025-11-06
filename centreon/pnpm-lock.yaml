@@ -642,10 +642,10 @@ importers:
     devDependencies:
       '@cypress/react':
         specifier: ^9.0.0
-        version: 9.0.1(@types/react-dom@19.0.4(@types/react@19.1.4))(@types/react@19.1.4)(cypress@14.4.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+        version: 9.0.1(@types/react-dom@19.0.4(@types/react@19.1.4))(@types/react@19.1.4)(cypress@15.5.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@cypress/webpack-dev-server':
         specifier: ^4.0.1
-        version: 4.1.0(@rspack/core@1.6.0(@swc/helpers@0.5.17))(cypress@14.4.0)(webpack@5.102.1(@swc/core@1.11.6(@swc/helpers@0.5.17))(esbuild@0.21.5))
+        version: 4.1.0(@rspack/core@1.6.0(@swc/helpers@0.5.17))(cypress@15.5.0)(webpack@5.102.1(@swc/core@1.11.6(@swc/helpers@0.5.17))(esbuild@0.21.5))
       '@faker-js/faker':
         specifier: ^9.5.1
         version: 9.8.0
@@ -660,7 +660,7 @@ importers:
         version: 1.3.1(@rsbuild/core@1.3.21)
       '@simonsmith/cypress-image-snapshot':
         specifier: ^9.1.0
-        version: 9.1.0(cypress@14.4.0)(jest@29.7.0(@types/node@24.10.0)(babel-plugin-macros@3.1.0)(ts-node@10.9.2(@swc/core@1.11.6(@swc/helpers@0.5.17))(@types/node@24.10.0)(typescript@5.9.3)))
+        version: 9.1.0(cypress@15.5.0)(jest@29.7.0(@types/node@24.10.0)(babel-plugin-macros@3.1.0)(ts-node@10.9.2(@swc/core@1.11.6(@swc/helpers@0.5.17))(@types/node@24.10.0)(typescript@5.9.3)))
       '@storybook/addon-a11y':
         specifier: ^8.6.3
         version: 8.6.14(storybook@8.6.14(prettier@3.6.2))
@@ -714,7 +714,7 @@ importers:
         version: 4.1.7(vite@6.3.5(@types/node@24.10.0)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.44.0)(tsx@4.20.6)(yaml@2.8.1))
       '@testing-library/cypress':
         specifier: ^10.0.3
-        version: 10.1.0(cypress@14.4.0)
+        version: 10.1.0(cypress@15.5.0)
       '@testing-library/jest-dom':
         specifier: ^6.6.3
         version: 6.9.1
@@ -749,8 +749,8 @@ importers:
         specifier: ^5.2.0
         version: 5.2.0
       cypress:
-        specifier: ^14.1.0
-        version: 14.4.0
+        specifier: ^15.5.0
+        version: 15.5.0
       identity-obj-proxy:
         specifier: ^3.0.0
         version: 3.0.0
@@ -7118,11 +7118,6 @@ packages:
   cypress@13.16.1:
     resolution: {integrity: sha512-17FtCaz0cx7ssWYKXzGB0Vub8xHwpVPr+iPt2fHhLMDhVAPVrplD+rTQsZUsfb19LVBn5iwkEUFjQ1yVVJXsLA==}
     engines: {node: ^16.0.0 || ^18.0.0 || >=20.0.0}
-    hasBin: true
-
-  cypress@14.4.0:
-    resolution: {integrity: sha512-/I59Fqxo7fqdiDi3IM2QKA65gZ7+PVejXg404/I8ZSq+NOnrmw+2pnMUJzpoNyg7KABcEBmgpkfAqhV98p7wJA==}
-    engines: {node: ^18.0.0 || ^20.0.0 || >=22.0.0}
     hasBin: true
 
   cypress@15.5.0:
@@ -15421,15 +15416,6 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@cypress/react@9.0.1(@types/react-dom@19.0.4(@types/react@19.1.4))(@types/react@19.1.4)(cypress@14.4.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
-    dependencies:
-      '@types/react-dom': 19.0.4(@types/react@19.1.4)
-      cypress: 14.4.0
-      react: 19.1.0
-      react-dom: 19.1.0(react@19.1.0)
-    optionalDependencies:
-      '@types/react': 19.1.4
-
   '@cypress/react@9.0.1(@types/react-dom@19.0.4(@types/react@19.1.4))(@types/react@19.1.4)(cypress@15.5.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
     dependencies:
       '@types/react-dom': 19.0.4(@types/react@19.1.4)
@@ -15460,9 +15446,9 @@ snapshots:
       tunnel-agent: 0.6.0
       uuid: 8.3.2
 
-  '@cypress/webpack-dev-server@4.1.0(@rspack/core@1.6.0(@swc/helpers@0.5.17))(cypress@14.4.0)(webpack@5.102.1(@swc/core@1.11.6(@swc/helpers@0.5.17))(esbuild@0.21.5))':
+  '@cypress/webpack-dev-server@4.1.0(@rspack/core@1.6.0(@swc/helpers@0.5.17))(cypress@15.5.0)(webpack@5.102.1(@swc/core@1.11.6(@swc/helpers@0.5.17))(esbuild@0.21.5))':
     dependencies:
-      cypress: 14.4.0
+      cypress: 15.5.0
       find-up: 6.3.0
       fs-extra: 9.1.0
       html-webpack-plugin-4: html-webpack-plugin@4.5.2(webpack@5.102.1(@swc/core@1.11.6(@swc/helpers@0.5.17))(esbuild@0.21.5))
@@ -17636,21 +17622,21 @@ snapshots:
 
   '@sideway/pinpoint@2.0.0': {}
 
-  '@simonsmith/cypress-image-snapshot@9.1.0(cypress@14.4.0)(jest@29.7.0(@types/node@24.10.0)(babel-plugin-macros@3.1.0)(ts-node@10.9.2(@swc/core@1.11.6(@swc/helpers@0.5.17))(@types/node@24.10.0)(typescript@5.9.3)))':
-    dependencies:
-      '@types/jest-image-snapshot': 6.4.0
-      chalk: 4.1.2
-      cypress: 14.4.0
-      jest-image-snapshot: 6.4.0(jest@29.7.0(@types/node@24.10.0)(babel-plugin-macros@3.1.0)(ts-node@10.9.2(@swc/core@1.11.6(@swc/helpers@0.5.17))(@types/node@24.10.0)(typescript@5.9.3)))
-    transitivePeerDependencies:
-      - jest
-
   '@simonsmith/cypress-image-snapshot@9.1.0(cypress@15.5.0)(jest@29.7.0(@types/node@20.19.24)(ts-node@10.9.2(@swc/core@1.13.3(@swc/helpers@0.5.17))(@types/node@20.19.24)(typescript@5.9.3)))':
     dependencies:
       '@types/jest-image-snapshot': 6.4.0
       chalk: 4.1.2
       cypress: 15.5.0
       jest-image-snapshot: 6.4.0(jest@29.7.0(@types/node@20.19.24)(ts-node@10.9.2(@swc/core@1.13.3(@swc/helpers@0.5.17))(@types/node@20.19.24)(typescript@5.9.3)))
+    transitivePeerDependencies:
+      - jest
+
+  '@simonsmith/cypress-image-snapshot@9.1.0(cypress@15.5.0)(jest@29.7.0(@types/node@24.10.0)(babel-plugin-macros@3.1.0)(ts-node@10.9.2(@swc/core@1.11.6(@swc/helpers@0.5.17))(@types/node@24.10.0)(typescript@5.9.3)))':
+    dependencies:
+      '@types/jest-image-snapshot': 6.4.0
+      chalk: 4.1.2
+      cypress: 15.5.0
+      jest-image-snapshot: 6.4.0(jest@29.7.0(@types/node@24.10.0)(babel-plugin-macros@3.1.0)(ts-node@10.9.2(@swc/core@1.11.6(@swc/helpers@0.5.17))(@types/node@24.10.0)(typescript@5.9.3)))
     transitivePeerDependencies:
       - jest
 
@@ -18342,12 +18328,6 @@ snapshots:
       react: 19.1.0
 
   '@teppeis/multimaps@3.0.0': {}
-
-  '@testing-library/cypress@10.1.0(cypress@14.4.0)':
-    dependencies:
-      '@babel/runtime': 7.28.4
-      '@testing-library/dom': 10.4.1
-      cypress: 14.4.0
 
   '@testing-library/cypress@10.1.0(cypress@15.5.0)':
     dependencies:
@@ -21413,52 +21393,6 @@ snapshots:
       ci-info: 4.3.1
       cli-cursor: 3.1.0
       cli-table3: 0.6.5
-      commander: 6.2.1
-      common-tags: 1.8.2
-      dayjs: 1.11.19
-      debug: 4.4.3(supports-color@8.1.1)
-      enquirer: 2.4.1
-      eventemitter2: 6.4.7
-      execa: 4.1.0
-      executable: 4.1.1
-      extract-zip: 2.0.1(supports-color@8.1.1)
-      figures: 3.2.0
-      fs-extra: 9.1.0
-      getos: 3.2.1
-      is-installed-globally: 0.4.0
-      lazy-ass: 1.6.0
-      listr2: 3.14.0(enquirer@2.4.1)
-      lodash: 4.17.21
-      log-symbols: 4.1.0
-      minimist: 1.2.8
-      ospath: 1.2.2
-      pretty-bytes: 5.6.0
-      process: 0.11.10
-      proxy-from-env: 1.0.0
-      request-progress: 3.0.0
-      semver: 7.7.3
-      supports-color: 8.1.1
-      tmp: 0.2.5
-      tree-kill: 1.2.2
-      untildify: 4.0.0
-      yauzl: 2.10.0
-
-  cypress@14.4.0:
-    dependencies:
-      '@cypress/request': 3.0.9
-      '@cypress/xvfb': 1.2.4(supports-color@8.1.1)
-      '@types/sinonjs__fake-timers': 8.1.1
-      '@types/sizzle': 2.3.10
-      arch: 2.2.0
-      blob-util: 2.0.2
-      bluebird: 3.7.2
-      buffer: 5.7.1
-      cachedir: 2.4.0
-      chalk: 4.1.2
-      check-more-types: 2.24.0
-      ci-info: 4.3.1
-      cli-cursor: 3.1.0
-      cli-table3: 0.6.1
       commander: 6.2.1
       common-tags: 1.8.2
       dayjs: 1.11.19
