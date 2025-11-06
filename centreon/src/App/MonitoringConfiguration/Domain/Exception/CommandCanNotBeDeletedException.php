@@ -21,14 +21,10 @@
 
 declare(strict_types=1);
 
-use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
+namespace App\MonitoringConfiguration\Domain\Exception;
 
-return static function (ContainerConfigurator $containerConfigurator): void {
-    $services = $containerConfigurator->services();
+use App\Shared\Domain\Exception\AggregateCanNotBeDeletedException;
 
-    $services->defaults()
-        ->autowire()
-        ->autoconfigure();
-
-    $services->load('App\\MonitoringConfiguration\\', __DIR__ . '/../../src/App/MonitoringConfiguration');
-};
+final class CommandCanNotBeDeletedException extends AggregateCanNotBeDeletedException
+{
+}

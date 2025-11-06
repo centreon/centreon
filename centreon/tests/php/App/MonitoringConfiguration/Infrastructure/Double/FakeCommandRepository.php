@@ -75,6 +75,13 @@ final class FakeCommandRepository implements CommandRepository
         $this->commands[$commandId->value] = $command;
     }
 
+    public function delete(Command $command): void
+    {
+        $commandId = $command->id();
+
+        unset($this->commands[$commandId->value]);
+    }
+
     public function findAll(?CommandCriteria $criteria): IteratorAggregate&Countable
     {
         throw new \RuntimeException('Not yet implemented');

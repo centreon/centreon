@@ -42,6 +42,8 @@ interface CommandRepository
 
     public function update(Command $command): void;
 
+    public function delete(Command $command): void;
+
     /**
      * @return \IteratorAggregate<int, Command>&\Countable
      */

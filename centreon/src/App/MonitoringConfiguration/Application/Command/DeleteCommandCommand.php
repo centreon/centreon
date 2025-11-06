@@ -21,14 +21,17 @@
 
 declare(strict_types=1);
 
-use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
+namespace App\MonitoringConfiguration\Application\Command;
 
-return static function (ContainerConfigurator $containerConfigurator): void {
-    $services = $containerConfigurator->services();
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandTypeEnum;
 
-    $services->defaults()
-        ->autowire()
-        ->autoconfigure();
-
-    $services->load('App\\MonitoringConfiguration\\', __DIR__ . '/../../src/App/MonitoringConfiguration');
-};
+final readonly class DeleteCommandCommand
+{
+    public function __construct(
+        public CommandId $id,
+        public CommandTypeEnum $type,
+        public int $updatedBy,
+    ) {
+    }
+}

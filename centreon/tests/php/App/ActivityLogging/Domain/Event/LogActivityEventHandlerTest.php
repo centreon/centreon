@@ -70,6 +70,9 @@ final class LogActivityEventHandlerTest extends TestCase
         self::assertEquals($firedAt, $activityLog->performedAt);
     }
 
+    // TODO testCreateActivityLogOnUpdate
+    // TODO testCreateActivityLogOnDelete
+
     /**
      * @param array<string, object> $factories
      */

@@ -27,5 +27,6 @@ enum CommandActionEnum: string
 {
     case Create = 'command_create';
     case Update = 'command_update';
+    case Delete = 'command_delete';
     case Read = 'command_read';
 }

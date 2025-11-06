@@ -51,6 +51,7 @@ final readonly class DbalActivityLogRepository extends DbalRepository implements
     private const ACTION_VALUE_MAP = [
         ActionEnum::Add->value => 'a',
         ActionEnum::Update->value => 'c',
+        ActionEnum::Delete->value => 'd',
     ];
 
     public function __construct(

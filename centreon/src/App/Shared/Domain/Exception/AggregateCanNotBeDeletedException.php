@@ -21,14 +21,19 @@
 
 declare(strict_types=1);
 
-use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
+namespace App\Shared\Domain\Exception;
 
-return static function (ContainerConfigurator $containerConfigurator): void {
-    $services = $containerConfigurator->services();
-
-    $services->defaults()
-        ->autowire()
-        ->autoconfigure();
-
-    $services->load('App\\MonitoringConfiguration\\', __DIR__ . '/../../src/App/MonitoringConfiguration');
-};
+abstract class AggregateCanNotBeDeletedException extends \RuntimeException
+{
+    /**
+     * @param array<string, mixed> $criteria
+     */
+    public function __construct(
+        public readonly array $criteria,
+        string $message = 'Resource can not be deleted.',
+        int $code = 0,
+        ?\Throwable $previous = null,
+    ) {
+        parent::__construct($message, $code, $previous);
+    }
+}

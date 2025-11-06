@@ -21,14 +21,21 @@
 
 declare(strict_types=1);
 
-use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
+namespace App\Shared\Domain\Event;
 
-return static function (ContainerConfigurator $containerConfigurator): void {
-    $services = $containerConfigurator->services();
+use App\Shared\Domain\Aggregate\AggregateRoot;
 
-    $services->defaults()
-        ->autowire()
-        ->autoconfigure();
+abstract readonly class AggregateDeleted implements EventInterface
+{
+    public function __construct(
+        public AggregateRoot $aggregate,
+        public int $creatorId,
+        public \DateTimeImmutable $firedAt = new \DateTimeImmutable(),
+    ) {
+    }
 
-    $services->load('App\\MonitoringConfiguration\\', __DIR__ . '/../../src/App/MonitoringConfiguration');
-};
+    public function firedAt(): \DateTimeImmutable
+    {
+        return $this->firedAt;
+    }
+}

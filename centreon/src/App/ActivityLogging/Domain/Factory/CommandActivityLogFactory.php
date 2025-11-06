@@ -48,15 +48,24 @@ final readonly class CommandActivityLogFactory implements ActivityLogFactoryInte
             type: TargetTypeEnum::Command,
         );
 
-        $details = [
-            'command_activate' => $aggregate->isActivated ? '1' : '0',
-            'command_name' => $aggregate->name->value,
-            'command_type' => (string) $aggregate->type->value,
-            'command_line' => $aggregate->commandLine->value,
-            'enable_shell' => $aggregate->isShellEnabled ? '1' : '0',
-            'connector' => $aggregate->connector->name->value ?? '',
-            'comment' => $aggregate->comment->value ?? '',
-        ];
+        switch ($action) {
+            case ActionEnum::Delete:
+                $details = [
+                    'command_name' => $aggregate->name->value,
+                ];
+                break;
+            default:
+                $details = [
+                    'command_activate' => $aggregate->isActivated ? '1' : '0',
+                    'command_name' => $aggregate->name->value,
+                    'command_type' => (string) $aggregate->type->value,
+                    'command_line' => $aggregate->commandLine->value,
+                    'enable_shell' => $aggregate->isShellEnabled ? '1' : '0',
+                    'connector' => $aggregate->connector->name->value ?? '',
+                    'comment' => $aggregate->comment->value ?? '',
+                ];
+                break;
+        }
 
         return new ActivityLog(
             id: null,
