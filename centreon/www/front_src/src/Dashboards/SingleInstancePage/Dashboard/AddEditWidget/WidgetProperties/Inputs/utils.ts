@@ -135,11 +135,11 @@ const getYupValidatorType = ({
                 'resource-selection-validation',
                 t(labelPleaseSelectAResource) as string,
                 (value) => {
-                  if (!value) return true;
-                  const { resourceType, resources } = value;
-                  if (properties.allowEmptyResources) {
+                  if (!value || properties.allowEmptyResources) {
                     return true;
                   }
+                  
+                  const { resourceType, resources } = value;
 
                   return !(resourceType && isEmpty(resources || []));
                 }
