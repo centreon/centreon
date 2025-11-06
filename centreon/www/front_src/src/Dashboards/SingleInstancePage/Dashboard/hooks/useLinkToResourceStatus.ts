@@ -8,6 +8,7 @@ import {
 } from '../../../../Resources/Listing/columns';
 import { selectedColumnIdsAtom } from '../../../../Resources/Listing/listingAtoms';
 import { Visualization } from '../../../../Resources/models';
+import { areResourcesFullfilled } from '../Widgets/utils';
 import {
   labelBusinessActivity,
   labelBusinessView,
@@ -17,7 +18,6 @@ import {
   getResourcesUrlForMetricsWidgets,
   getUrlForResourcesOnlyWidgets
 } from '../utils';
-import { areResourcesFullfilled } from '../Widgets/utils';
 
 interface UseLinkToResourceStatus {
   changeViewMode: (options) => void;
@@ -30,15 +30,17 @@ const useLinkToResourceStatus = (): UseLinkToResourceStatus => {
   const setSelectedColumnIds = useSetAtom(selectedColumnIdsAtom);
 
   const getLinkToResourceStatusPage = (data, name, options?): string => {
-    if (isNil(data)) 
-      return '';
+    if (isNil(data)) return '';
     const resourcesInput = Object.entries(data).find(
       ([, value]) =>
         has('resourceType', value?.[0]) && has('resources', value?.[0])
     );
     const resourcesInputKey = resourcesInput?.[0];
 
-    const hasInvalidResources = !resourcesInputKey || !data?.[resourcesInputKey] || !areResourcesFullfilled(data?.[resourcesInputKey]);
+    const hasInvalidResources =
+      !resourcesInputKey ||
+      !data?.[resourcesInputKey] ||
+      !areResourcesFullfilled(data?.[resourcesInputKey]);
 
     if (hasInvalidResources) {
       return '';
@@ -53,7 +55,7 @@ const useLinkToResourceStatus = (): UseLinkToResourceStatus => {
 
     if (hasOnlyBV) {
       const id = resources?.[0]?.resources?.[0]?.id;
-      return id ? `/main.php?p=20701&status=all&bv_id=${id}`: '';
+      return id ? `/main.php?p=20701&status=all&bv_id=${id}` : '';
     }
 
     if (hasOnlyBA) {
@@ -62,7 +64,7 @@ const useLinkToResourceStatus = (): UseLinkToResourceStatus => {
     }
 
     if (data[resourcesInputKey] && isNil(data?.metrics)) {
-      const statuses = options?.statuses ?? []
+      const statuses = options?.statuses ?? [];
 
       const linkToResourceStatus = getUrlForResourcesOnlyWidgets({
         resources: resources,
