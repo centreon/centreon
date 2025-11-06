@@ -30,6 +30,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandTypeEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\Connector\Connector;
 use App\MonitoringConfiguration\Domain\Exception\CommandNotFoundException;
 use App\MonitoringConfiguration\Domain\Repository\CommandRepository;
+use App\MonitoringConfiguration\Domain\Repository\CommandResourceCount;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\CommandCriteria;
 use App\Shared\Domain\Collection;
 use App\Shared\Infrastructure\Dbal\DbalRepository;
@@ -51,10 +52,6 @@ use Webmozart\Assert\Assert;
  *   cm_command_locked: bool,
  *   cm_command_comment: string|null,
  *   cm_connector_id: int|null,
- *   cm_used_hosts_count?: int|null,
- *   cm_used_host_templates_count?: int|null,
- *   cm_used_services_count?: int|null,
- *   cm_used_service_templates_count?: int|null,
  * }
  */
 final readonly class DbalCommandRepository extends DbalRepository implements CommandRepository
@@ -125,15 +122,8 @@ final readonly class DbalCommandRepository extends DbalRepository implements Com
     {
         $qb = $this->connection->createQueryBuilder();
 
-        $qb->select(...self::getSelectColumns(), ...DbalConnectorRepository::getSelectColumns())
-            ->addSelect(
-                "(SELECT COUNT(host_id) FROM host WHERE (command_command_id = cm.command_id OR command_command_id2 = cm.command_id) AND host_register = '1') AS cm_used_hosts_count",
-                "(SELECT COUNT(host_id) FROM host WHERE (command_command_id = cm.command_id OR command_command_id2 = cm.command_id) AND host_register = '0') AS cm_used_host_templates_count",
-                "(SELECT COUNT(service_id) FROM service WHERE (command_command_id = cm.command_id OR command_command_id2 = cm.command_id) AND service_register = '1') AS cm_used_services_count",
-                "(SELECT COUNT(service_id) FROM service WHERE (command_command_id = cm.command_id OR command_command_id2 = cm.command_id) AND service_register = '0') AS cm_used_service_templates_count"
-            )
-            ->from(self::TABLE_NAME, 'cm')
-            ->leftJoin('cm', self::CONNECTOR_JOIN_TABLE_NAME, 'c', 'cm.connector_id = c.id');
+        $qb->select(...self::getSelectColumns())
+            ->from(self::TABLE_NAME, 'cm');
 
         // if we have a criteria, filter the query
         if ($criteria instanceof CommandCriteria) {
@@ -194,6 +184,41 @@ final readonly class DbalCommandRepository extends DbalRepository implements Com
         }
 
         $this->setId($command, new CommandId($id));
+    }
+
+    public function countLinkedResources(CommandId $id): CommandResourceCount
+    {
+        $qb = $this->connection->createQueryBuilder();
+
+        $qb->select(
+            "(SELECT COUNT(host_id) FROM host WHERE (command_command_id = cm.command_id OR command_command_id2 = cm.command_id) AND host_register = '1') AS cm_used_hosts_count",
+            "(SELECT COUNT(host_id) FROM host WHERE (command_command_id = cm.command_id OR command_command_id2 = cm.command_id) AND host_register = '0') AS cm_used_host_templates_count",
+            "(SELECT COUNT(service_id) FROM service WHERE (command_command_id = cm.command_id OR command_command_id2 = cm.command_id) AND service_register = '1') AS cm_used_services_count",
+            "(SELECT COUNT(service_id) FROM service WHERE (command_command_id = cm.command_id OR command_command_id2 = cm.command_id) AND service_register = '0') AS cm_used_service_templates_count"
+        )
+            ->from(self::TABLE_NAME, 'cm')
+            ->where('cm.command_id = :id')
+            ->setParameter('id', $id->value)
+            ->setMaxResults(1);
+
+        /** @var array{
+         *   cm_used_hosts_count: string,
+         *   cm_used_host_templates_count: string,
+         *   cm_used_services_count: string,
+         *   cm_used_service_templates_count: string
+         *   }|false $row */
+        $row = $qb->executeQuery()->fetchAssociative();
+
+        if (! $row) {
+            throw new \RuntimeException(sprintf('Unable to retrieve resource counts for command #%d.', $id->value));
+        }
+
+        return new CommandResourceCount(
+            usedHosts: (int) $row['cm_used_hosts_count'],
+            usedHostTemplates: (int) $row['cm_used_host_templates_count'],
+            usedServices: (int) $row['cm_used_services_count'],
+            usedServiceTemplates: (int) $row['cm_used_service_templates_count'],
+        );
     }
 
     /**

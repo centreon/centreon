@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Command;
 
+use ApiPlatform\Metadata\Exception\AccessDeniedException;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\Pagination\Pagination;
 use ApiPlatform\State\Pagination\TraversablePaginator;
@@ -31,22 +32,23 @@ use App\MonitoringConfiguration\Domain\Aggregate\Command\Command;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandTypeEnum;
 use App\MonitoringConfiguration\Domain\Repository\CommandRepository;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\CommandCriteria;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Command\CommandResource;
+use App\MonitoringConfiguration\Domain\Security\CommandActionEnum;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Command\ListCommandResource;
 use App\Shared\Domain\Repository\Paginator;
 use App\Shared\Infrastructure\TransformerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 /**
- * @implements ProviderInterface<CommandResource>
+ * @implements ProviderInterface<ListCommandResource>
  */
 final readonly class ListCommandsProvider implements ProviderInterface
 {
     /**
-     * @param TransformerInterface<Command,CommandResource> $transformer
+     * @param TransformerInterface<Command,ListCommandResource> $transformer
      */
     public function __construct(
-        #[Autowire(service: ResourceCommandTransformer::class)]
+        #[Autowire(service: ResourceListCommandTransformer::class)]
         private TransformerInterface $transformer,
         private CommandRepository $commandRepository,
         private Pagination $pagination,
@@ -56,10 +58,13 @@ final readonly class ListCommandsProvider implements ProviderInterface
     }
 
     /**
-     * @return iterable<CommandResource>
+     * @return iterable<ListCommandResource>
      */
     public function provide(Operation $operation, array $uriVariables = [], array $context = []): iterable
     {
+        if (! $this->security->isGranted(CommandActionEnum::Read->value)) {
+            throw new AccessDeniedException('You are not allowed to access commands');
+        }
         $allowedTypes = [];
         foreach (CommandTypeEnum::cases() as $commandType) {
             $readPermission = Command::getReadPermissionForType($commandType);
@@ -69,25 +74,14 @@ final readonly class ListCommandsProvider implements ProviderInterface
                 $allowedTypes[] = $commandType->name;
             }
         }
-
-        // allowed types Intersect with requested types
-        /** @var array<string, array<string>> $filters */
         $filters = $context['filters'] ?? [];
-        if (isset($filters['type']) && is_array($filters['type'])) {
-            /** @var array<string> $requestedTypes */
-            $requestedTypes = $filters['type'] ?? [];
+        // allowed types Intersect with requested types
+        /** @var array<string>|null $requestedTypes */
+        $requestedTypes = $filters['type'] ?? null;
+        if ($requestedTypes !== null) {
             $allowedTypes = array_intersect($requestedTypes, $allowedTypes);
-        }
 
-        if ($allowedTypes === []) {
-            return new TraversablePaginator(
-                new \ArrayIterator([]),
-                1,
-                $this->pagination->getLimit($operation, $context),
-                0
-            );
         }
-
         $criteria = new CommandCriteria();
         if ($this->pagination->isEnabled($operation, $context)) {
             $criteria = $criteria->withPagination(
@@ -98,12 +92,15 @@ final readonly class ListCommandsProvider implements ProviderInterface
 
         $criteria = $this->handleTypeFilter($allowedTypes, $criteria);
         $criteria = $this->handleNameFilter($filters['name'] ?? null, $criteria);
-        $criteria = $this->handleStatusFilter($filters['status'] ?? null, $criteria);
-
+        $criteria = $this->handleStatusFilter($filters['is_activated'] ?? null, $criteria);
         $commands = $this->commandRepository->findAll($criteria);
         $commandResources = [];
         foreach ($commands as $command) {
-            $commandResources[] = $this->transformer->transform($command);
+            $count = $this->commandRepository->countLinkedResources($command->id());
+            $commandResource = $this->transformer->transform($command);
+            $commandResource->hydrateLinkedResourceCount($count);
+
+            $commandResources[] = $commandResource;
         }
 
         if (! $commands instanceof Paginator) {
@@ -144,35 +141,28 @@ final readonly class ListCommandsProvider implements ProviderInterface
     }
 
     /**
-     * @param array<string>|null $typeFilter
+     * @param array<string> $typeFilter
      */
-    private function handleTypeFilter(?array $typeFilter, CommandCriteria $criteria): CommandCriteria
+    private function handleTypeFilter(array $typeFilter, CommandCriteria $criteria): CommandCriteria
     {
-        if ($typeFilter === null) {
-
+        if ($typeFilter === []) {
             return $criteria;
         }
 
         foreach ($typeFilter as $type) {
             $criteria = $criteria->withType($type);
         }
-
         return $criteria;
     }
 
-    /**
-     * @param array<string>|null $statusFilter
-     */
-    private function handleStatusFilter(?array $statusFilter, CommandCriteria $criteria): CommandCriteria
+    private function handleStatusFilter(?string $statusFilter, CommandCriteria $criteria): CommandCriteria
     {
         if ($statusFilter === null) {
             return $criteria;
         }
 
-        foreach ($statusFilter as $value) {
-            $status = filter_var($value, FILTER_VALIDATE_BOOLEAN);
-            $criteria = $criteria->withStatus($status);
-        }
+        $statusFilter = filter_var($statusFilter, FILTER_VALIDATE_BOOLEAN);
+        $criteria = $criteria->withStatus($statusFilter);
 
         return $criteria;
     }

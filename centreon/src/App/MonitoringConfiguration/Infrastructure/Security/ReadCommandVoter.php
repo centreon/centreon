@@ -44,13 +44,12 @@ final class ReadCommandVoter extends Voter
 
     protected function supports(string $attribute, mixed $subject): bool
     {
-        return CommandActionEnum::tryFrom($attribute) === CommandActionEnum::Read
-            && ($subject instanceof TraversablePaginator || $subject instanceof CommandResource);
+        return CommandActionEnum::tryFrom($attribute) === CommandActionEnum::Read;
     }
 
     protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token, ?Vote $vote = null): bool
     {
-        if ($subject instanceof TraversablePaginator) {
+        if ($subject === null) {
             return $this->voteOnCommandCollection();
         }
 

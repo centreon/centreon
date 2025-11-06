@@ -43,7 +43,7 @@ use Symfony\Component\Validator\Constraints as Assert;
     shortName: 'Command',
     operations: [
         new Get(
-            uriTemplate: '/configuration/commands/{id}',
+            uriTemplate: '/configuration/commands/{id}.{_format}',
             provider: FindCommandProvider::class,
             openapi: new Model\Operation(
                 responses: [
@@ -68,70 +68,6 @@ use Symfony\Component\Validator\Constraints as Assert;
             normalizationContext: ['groups' => ['default']],
             securityPostValidation: "is_granted('" . CommandActionEnum::Update->value . "', object)",
             securityPostValidationMessage: 'You are not allowed to update this command',
-        ),
-        new GetCollection(
-            uriTemplate: '/configuration/commands',
-            provider: ListCommandsProvider::class,
-            openapi: new Model\Operation(
-                responses: [
-                    403 => new Model\Response('You are not allowed to access commands'),
-                ],
-                parameters: [
-                    new Model\Parameter(
-                        name: 'name[lk]',
-                        in: 'query',
-                        description: 'Filter by name using "like" operator',
-                        required: false,
-                        schema: [
-                            'type' => 'array',
-                            'items' => ['type' => 'string'],
-                        ],
-                    ),
-                    new Model\Parameter(
-                        name: 'name[eq]',
-                        in: 'query',
-                        description: 'Filter by name using "equals" operator',
-                        required: false,
-                        schema: [
-                            'type' => 'array',
-                            'items' => ['type' => 'string'],
-                        ],
-                    ),
-                    new Model\Parameter(
-                        name: 'type[]',
-                        in: 'query',
-                        description: 'Filter by command type',
-                        required: false,
-                        schema: [
-                            'type' => 'array',
-                            'items' => [
-                                'type' => 'string',
-                                'enum' => [
-                                    CommandTypeEnum::Check->name,
-                                    CommandTypeEnum::Notification->name,
-                                    CommandTypeEnum::Miscellaneous->name,
-                                    CommandTypeEnum::Discovery->name,
-                                ],
-                            ],
-                        ],
-                    ),
-                    new Model\Parameter(
-                        name: 'status[]',
-                        in: 'query',
-                        description: 'Filter by activation status',
-                        required: false,
-                        schema: [
-                            'type' => 'array',
-                            'items' => [
-                                'type' => 'boolean',
-                            ],
-                        ],
-                    ),
-                ],
-            ),
-            normalizationContext: ['groups' => ['default', 'list']],
-            securityPostValidation: "is_granted('" . CommandActionEnum::Read->value . "', object)",
-            securityPostValidationMessage: 'You are not allowed to access commands',
         ),
     ],
 )]
@@ -224,34 +160,6 @@ final class CommandResource
         )]
         #[Groups(['default'])]
         public ?string $comment,
-
-        #[ApiProperty(
-            description: 'Number of hosts using this command',
-            openapiContext: ['example' => 10],
-        )]
-        #[Groups(['list'])]
-        public ?int $usedHostsCount = null,
-
-        #[ApiProperty(
-            description: 'Number of host templates using this command',
-            openapiContext: ['example' => 100],
-        )]
-        #[Groups(['list'])]
-        public ?int $usedHostTemplatesCount = null,
-
-        #[ApiProperty(
-            description: 'Number of services using this command',
-            openapiContext: ['example' => 5],
-        )]
-        #[Groups(['list'])]
-        public ?int $usedServicesCount = null,
-
-        #[ApiProperty(
-            description: 'Number of service templates using this command',
-            openapiContext: ['example' => 50],
-        )]
-        #[Groups(['list'])]
-        public ?int $usedServiceTemplatesCount = null,
     ) {
     }
 }

@@ -39,10 +39,6 @@ final class Command extends AggregateRoot
         public bool $isFromMonitoringConnector,
         public ?Connector $connector,
         public ?CommandComment $comment,
-        public ?int $usedHostsCount = null,
-        public ?int $usedHostTemplatesCount = null,
-        public ?int $usedServicesCount = null,
-        public ?int $usedServiceTemplatesCount = null,
     ) {
         parent::__construct($id);
     }
