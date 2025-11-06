@@ -25,7 +25,6 @@ namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Command;
 
 use ApiPlatform\Metadata\Exception\AccessDeniedException;
 use ApiPlatform\Metadata\Operation;
-use ApiPlatform\Metadata\UrlGeneratorInterface;
 use ApiPlatform\State\Pagination\Pagination;
 use ApiPlatform\State\Pagination\TraversablePaginator;
 use ApiPlatform\State\ProviderInterface;
