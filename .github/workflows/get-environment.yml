@@ -160,7 +160,7 @@ jobs:
                 }
 
                 if (hasReadOn && hasReadPullRequest && hasReadPaths) {
-                  const matches = line.match(/^\s{6}-\s['"]?(.+)['"]?\s*$/);
+                  const matches = line.match(/^\s{6}-\s['"]?(.+?)['"]?\s*$/);
                   if (matches) {
                     paths.push(matches[1].trim());
                   } else {
