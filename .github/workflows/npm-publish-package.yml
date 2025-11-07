@@ -66,13 +66,14 @@ jobs:
               if (existingPackageVersion) {
                 console.log(`Existing package version for tag ${tag}: ${existingPackageVersion}`);
                 if (process.env.STABILITY === 'stable') {
-                  if (existingPackageVersion.match(new RegExp(`^${RegExp.escape(process.env.MAJOR_VERSION)}\\.(\d+)$`))) {
+                  const matches = existingPackageVersion.match(new RegExp(`^${RegExp.escape(process.env.MAJOR_VERSION)}\\.(\\d+)$`));
+                  if (matches) {
                     minorVersion = matches[1] + 1;
                   }
                   core.setOutput("package_version", `${process.env.MAJOR_VERSION}.${minorVersion}`);
                 } else {
-                  console.log(`regex: ^${RegExp.escape(process.env.CURRENT_VERSION)}-${RegExp.escape(process.env.BRANCH_NAME)}\\.(\d+)$`);
-                  if (existingPackageVersion.match(new RegExp(`^${RegExp.escape(process.env.CURRENT_VERSION)}-${RegExp.escape(process.env.BRANCH_NAME)}\\.(\d+)$`))) {
+                  const matches = existingPackageVersion.match(new RegExp(`^${RegExp.escape(process.env.CURRENT_VERSION)}-${RegExp.escape(process.env.BRANCH_NAME)}\\.(\\d+)$`));
+                  if (matches) {
                     console.log(matches[1])
                     minorVersion = matches[1] + 1;
                   }
