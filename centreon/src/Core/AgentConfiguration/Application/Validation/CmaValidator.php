@@ -79,6 +79,9 @@ class CmaValidator implements TypeValidatorInterface
         if ($configuration['agent_initiated'] === false) {
             return;
         }
+        if ($configuration['port'] === null) {
+            throw AgentConfigurationException::portIsMandatoryForAgentInitiated();
+        }
 
         if ($connectionMode !== ConnectionModeEnum::NO_TLS) {
             $this->validateFilename(
