@@ -52,6 +52,7 @@ jobs:
           script: |
             process.env.STABILITY = 'stable';
             process.env.TAG = 'latest';
+
             const getPackageInformations = async () => {
               const response = await fetch(`https://registry.npmjs.org/${process.env.PACKAGE_NAME}`);
               return await response.json();
@@ -97,7 +98,7 @@ jobs:
         shell: bash
 
       - name: Publish npm package ${{ steps.get-package-info.outputs.package_name }}@${{ steps.get-next-package-version.outputs.package_version }} (${{ env.tag }})
-        run: echo "ok"
+        run: echo "okk"
         # uses: JS-DevTools/npm-publish@19c28f1ef146469e409470805ea4279d47c3d35c # v3.1.1
         # with:
         #   access: public
