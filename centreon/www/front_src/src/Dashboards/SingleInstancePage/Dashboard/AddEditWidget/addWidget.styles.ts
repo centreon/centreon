@@ -4,7 +4,8 @@ export const useAddWidgetStyles = makeStyles()((theme) => ({
   container: {
     display: 'grid',
     gap: theme.spacing(2),
-    gridTemplateColumns: 'minmax(320px, 1fr) 2fr'
+    gridTemplateColumns: 'minmax(320px, 1fr) 2fr',
+    paddingTop: theme.spacing(0.625)
   },
   preview: {
     alignItems: 'center',
