@@ -50,9 +50,6 @@ jobs:
           BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
         with:
           script: |
-            process.env.STABILITY = 'stable';
-            process.env.TAG = 'latest';
-
             const getPackageInformations = async () => {
               const response = await fetch(`https://registry.npmjs.org/${process.env.PACKAGE_NAME}`);
               return await response.json();
@@ -98,13 +95,12 @@ jobs:
         shell: bash
 
       - name: Publish npm package ${{ steps.get-package-info.outputs.package_name }}@${{ steps.get-next-package-version.outputs.package_version }} (${{ env.tag }})
-        run: echo "okk"
-        # uses: JS-DevTools/npm-publish@19c28f1ef146469e409470805ea4279d47c3d35c # v3.1.1
-        # with:
-        #   access: public
-        #   package: ${{ inputs.package_directory }}/package.json
-        #   tag: ${{ env.tag }}
-        #   token: ${{ secrets.npm_token }}
+        uses: JS-DevTools/npm-publish@19c28f1ef146469e409470805ea4279d47c3d35c # v3.1.1
+        with:
+          access: public
+          package: ${{ inputs.package_directory }}/package.json
+          tag: ${{ env.tag }}
+          token: ${{ secrets.npm_token }}
 
   set-skip-label:
     needs: [get-environment, publish-package]
