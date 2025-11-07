@@ -95,13 +95,13 @@ jobs:
         working-directory: ${{ inputs.package_directory }}
         shell: bash
 
-      # - name: Publish package to NPM (${{ env.TAG }})
-      #   uses: JS-DevTools/npm-publish@19c28f1ef146469e409470805ea4279d47c3d35c # v3.1.1
-      #   with:
-      #     access: public
-      #     package: ${{ inputs.package_directory }}/package.json
-      #     tag: ${{ env.tag }}
-      #     token: ${{ secrets.npm_token }}
+      - name: Publish package to NPM (${{ env.TAG }})
+        uses: JS-DevTools/npm-publish@19c28f1ef146469e409470805ea4279d47c3d35c # v3.1.1
+        with:
+          access: public
+          package: ${{ inputs.package_directory }}/package.json
+          tag: ${{ env.tag }}
+          token: ${{ secrets.npm_token }}
 
   # set-skip-label:
   #   needs: [get-environment, publish-new-npm-version]
