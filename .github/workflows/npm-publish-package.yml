@@ -51,6 +51,7 @@ jobs:
         with:
           script: |
             process.env.STABILITY = 'stable';
+            process.env.TAG = 'latest';
             const getPackageInformations = async () => {
               const response = await fetch(`https://registry.npmjs.org/${process.env.PACKAGE_NAME}`);
               return await response.json();
