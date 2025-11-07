@@ -7,27 +7,25 @@ concurrency:
 on:
   workflow_dispatch:
   pull_request:
-    types:
-      - opened
-      - synchronize
-      - reopened
-      - ready_for_review
     paths:
+      - ".github/workflows/dsm.yml"
+      - ".version"
       - ".version.centreon-dsm"
       - "centreon-dsm/**"
-      - "!centreon-dsm/veracode.json"
-      - "!centreon-dsm/.veracode-exclusions"
   push:
     branches:
       - develop
       - dev-[2-9][0-9].[0-9][0-9].x
       - master
       - "[2-9][0-9].[0-9][0-9].x"
+      - 'release-[2-9][0-9].[0-9][0-9]-next'
+      - 'hotfix-[2-9][0-9].[0-9][0-9]-next'
     paths:
+      - ".version"
       - ".version.centreon-dsm"
       - "centreon-dsm/**"
-      - "!centreon-dsm/veracode.json"
-      - "!centreon-dsm/.veracode-exclusions"
+    tags:
+      - "centreon-dsm-*"
 
 env:
   module: dsm
@@ -63,10 +61,42 @@ jobs:
           file: ${{ env.configuration_file }}
           version: ${{ env.version }}
 
+  changes:
+    if: |
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      needs.get-environment.outputs.stability != 'stable'
+    needs: [get-environment]
+    uses: ./.github/workflows/get-changes-triggers.yml
+    with:
+      backend_production_paths: |
+        ".version"
+        ".version.centreon-dsm"
+        "centreon-dsm/bin/**"
+        "centreon-dsm/cron/**"
+        "centreon-dsm/libinstall/**"
+        "centreon-dsm/packaging/**"
+        "centreon-dsm/www/modules/centreon-dsm/**"
+        "!centreon-dsm/www/modules/centreon-dsm/react/**"
+      frontend_production_paths: |
+        "centreon-dsm/www/modules/centreon-dsm/react/**"
+        "!centreon-dsm/**/cypress/**"
+        "!centreon-dsm/**/*.cypress.*"
+        "!centreon-dsm/**/__mocks__/**"
+      backend_test_paths: |
+        "centreon-dsm/.php-cs-fixer*"
+        "centreon-dsm/composer.*"
+        "centreon-dsm/phpstan.*"
+        "centreon-dsm/rector.*"
+        "centreon-dsm/tests/php/**"
+      is_nightly: ${{ needs.get-environment.outputs.is_nightly }}
+      base_sha: ${{ needs.get-environment.outputs.previous_release_bundle_tag }}
+      labels: ${{ needs.get-environment.outputs.labels }}
+
   backend-lint:
     runs-on: ubuntu-24.04
-    needs: [get-environment]
+    needs: [get-environment, changes]
     if: |
+      needs.changes.outputs.trigger_backend_testing == 'true' &&
       needs.get-environment.outputs.skip_workflow == 'false' &&
       needs.get-environment.outputs.stability != 'stable'
 
@@ -91,8 +121,9 @@ jobs:
         working-directory: centreon-dsm
 
   package:
-    needs: [get-environment, check-version-consistency, backend-lint]
+    needs: [get-environment, changes, check-version-consistency, backend-lint]
     if: |
+      needs.changes.outputs.trigger_packaging == 'true' &&
       needs.get-environment.outputs.skip_workflow == 'false' &&
       needs.get-environment.outputs.stability != 'stable' &&
       ! cancelled() &&
@@ -192,8 +223,9 @@ jobs:
           token_download_centreon_com: ${{ secrets.TOKEN_DOWNLOAD_CENTREON_COM }}
 
   deliver-rpm:
-    needs: [get-environment, package]
+    needs: [get-environment, changes, package]
     if: |
+      needs.changes.outputs.trigger_delivery == 'true' &&
       needs.get-environment.outputs.skip_workflow == 'false' &&
       contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability) &&
       github.repository == 'centreon/centreon' &&
@@ -223,8 +255,9 @@ jobs:
           is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
 
   deliver-deb:
-    needs: [get-environment, package]
+    needs: [get-environment, changes, package]
     if: |
+      needs.changes.outputs.trigger_delivery == 'true' &&
       needs.get-environment.outputs.skip_workflow == 'false' &&
       contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability) &&
       github.repository == 'centreon/centreon' &&

@@ -1,0 +1,28 @@
+{
+  "default_service": {
+    "name": "serviceWithMacros",
+    "cmd": "check_centreon_dummy",
+    "host": "Centreon-Server",
+    "normalMacro": {
+        "name": "MACRO1",
+        "value": "normal"
+    },
+    "passMacro": {
+        "name": "MACRO2",
+        "value": "password"
+    }
+  },
+  "updated_service": {
+    "name": "serviceWithMacros",
+    "cmd": "check_centreon_dummy",
+    "host": "Centreon-Server",
+    "normalMacro": {
+        "name": "MACRO1",
+        "value": "normal-Updated"
+    },
+    "passMacro": {
+        "name": "MACRO2",
+        "value": "password"
+    }
+  }
+} 
