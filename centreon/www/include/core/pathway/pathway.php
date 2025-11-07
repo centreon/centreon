@@ -142,7 +142,7 @@ if ($centreon->user->access->page($p)) {
         $flag = '<span class="pathWayBracket" >  &nbsp;&#62;&nbsp; </span>';
     }
 
-    if (isset($_GET["host_id"])) {
+    if (isset($_GET["host_id"]) && str_contains($centreon->user->access->getHostsString('ID', $pearDBO), "'" . $_GET["host_id"] . "'")) {
         echo '<span class="pathWayBracket" > &nbsp;&#62;&nbsp; </span>';
         echo HtmlSanitizer::createFromString(getMyHostName((int) $_GET["host_id"]))->sanitize()->getString();
     }
