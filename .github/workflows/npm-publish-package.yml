@@ -50,6 +50,7 @@ jobs:
           BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
         with:
           script: |
+            process.env.STABILITY = 'stable';
             const getPackageInformations = async () => {
               const response = await fetch(`https://registry.npmjs.org/${process.env.PACKAGE_NAME}`);
               return await response.json();
