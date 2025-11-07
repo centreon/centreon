@@ -6,8 +6,8 @@ const {
 } = require('@simonsmith/cypress-image-snapshot/plugin');
 const cypressCodeCoverageTask = require('@cypress/code-coverage/task');
 
-import fs from 'fs';
-import path from 'path';
+const fs = require('fs');
+const path = require('path');
 
 module.exports = ({
   rspackConfig,
