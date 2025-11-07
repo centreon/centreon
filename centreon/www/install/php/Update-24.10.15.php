@@ -19,12 +19,14 @@
  *
  */
 
+use Adaptation\Database\Connection\Collection\QueryParameters;
 use Adaptation\Database\Connection\ConnectionInterface;
 use Adaptation\Database\Connection\Exception\ConnectionException;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
 
 require_once __DIR__ . '/../../../bootstrap.php';
 
-$version = 'xx.xx.x';
+$version = '24.10.15';
 
 $errorMessage = '';
 
@@ -33,7 +35,33 @@ $errorMessage = '';
  * @var ConnectionInterface $pearDBO
  */
 
-// TODO add your functions here
+/** -------------------------------------- Broker configuration -------------------------------------- */
+$fixBrokerConfigTypo = function () use ($pearDB, &$errorMessage, $version): void {
+    $errorMessage = 'Failed to fix typo in broker configuration';
+
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: Fixing typo in broker configuration"
+    );
+
+    $countUpdate = $pearDB->executeStatement(
+        <<<'SQL'
+            UPDATE cfg_centreonbroker_info SET config_key = 'negotiation' WHERE config_key = 'negociation'
+            SQL
+    );
+
+    if ($countUpdate > 0) {
+        CentreonLog::create()->info(
+            logTypeId: CentreonLog::TYPE_UPGRADE,
+            message: "UPGRADE - {$version}: Typo in broker configuration fixed ({$countUpdate} rows updated)"
+        );
+    } else {
+        CentreonLog::create()->info(
+            logTypeId: CentreonLog::TYPE_UPGRADE,
+            message: "UPGRADE - {$version}: No typo to fix found in broker configuration"
+        );
+    }
+};
 
 try {
     // DDL statements for real time database
@@ -48,6 +76,7 @@ try {
     }
 
     // TODO add your function calls to update the configuration database data here
+    $fixBrokerConfigTypo();
 
     $pearDB->commitTransaction();
 
