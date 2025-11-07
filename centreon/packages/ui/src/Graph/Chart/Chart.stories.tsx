@@ -43,7 +43,6 @@ import {
 import { Interval, ThresholdType, TooltipData } from './models';
 
 import WrapperChart from '.';
-import toRawQueryParameters from 'src/queryParameters';
 
 const meta: Meta<typeof WrapperChart> = {
   component: WrapperChart

@@ -11,8 +11,8 @@ import dataPingServiceMixedStacked from '../mockedData/pingServiceMixedStacked.j
 import dataPingServiceStacked from '../mockedData/pingServiceStacked.json';
 import dataPingServiceLinesStackKeys from '../mockedData/pingServiceWithStackedKeys.json';
 
-import BarChart, { BarChartProps } from './BarChart';
 import { labelAvg, labelMax, labelMin } from '../Chart/translatedLabels';
+import BarChart, { BarChartProps } from './BarChart';
 
 const defaultStart = new Date(
   dayjs(Date.now()).subtract(24, 'hour').toDate().getTime()

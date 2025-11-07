@@ -1,6 +1,5 @@
 import { makeStyles } from 'tss-react/mui';
 
-import { equals, lt } from 'ramda';
 import type { LegendModel } from '../models';
 
 interface MakeStylesProps {
@@ -13,20 +12,8 @@ export const legendWidth = 21;
 const legendItemHeight = 5.25;
 const legendItemHeightCompact = 2;
 
-const getLegendMaxHeight = ({ placement, height }) => {
-  if (!equals(placement, 'bottom')) {
-    return height || 0;
-  }
-
-  if (lt(height || 0, 220)) {
-    return 40;
-  }
-
-  return 90;
-};
-
 export const useStyles = makeStyles<MakeStylesProps>()(
-  (theme, { limitLegendRows, placement, height = 0 }) => ({
+  (theme, { limitLegendRows }) => ({
     highlight: {
       color: theme.typography.body1.color
     },

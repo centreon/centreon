@@ -18,7 +18,7 @@ import { args as argumentsData } from './helpers/doc';
 import { LineChartProps } from './models';
 
 import WrapperChart from '.';
-import { labelAvg, labelMax, labelMin } from './translatedLabels';
+import { labelAvg, labelMin } from './translatedLabels';
 
 interface Props
   extends Pick<
