@@ -73,6 +73,7 @@ jobs:
                 } else {
                   console.log(`regex: ^${RegExp.escape(process.env.CURRENT_VERSION)}-${RegExp.escape(process.env.BRANCH_NAME)}\\.(\d+)$`);
                   if (existingPackageVersion.match(new RegExp(`^${RegExp.escape(process.env.CURRENT_VERSION)}-${RegExp.escape(process.env.BRANCH_NAME)}\\.(\d+)$`))) {
+                    console.log(matches[1])
                     minorVersion = matches[1] + 1;
                   }
                   core.setOutput("package_version", `${process.env.CURRENT_VERSION}-${process.env.BRANCH_NAME}.${minorVersion}`);
