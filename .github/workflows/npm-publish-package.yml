@@ -94,7 +94,7 @@ jobs:
         working-directory: ${{ inputs.package_directory }}
         shell: bash
 
-      - name: Publish package to NPM (${{ env.tag }} -> ${{ steps.get-next-package-version.outputs.package_version }})
+      - name: Publish npm package ${{ steps.get-package-info.outputs.package_name }}@${{ steps.get-next-package-version.outputs.package_version }} (${{ env.tag }})
         run: echo "ok"
         # uses: JS-DevTools/npm-publish@19c28f1ef146469e409470805ea4279d47c3d35c # v3.1.1
         # with:
