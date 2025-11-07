@@ -68,13 +68,13 @@ jobs:
                 if (process.env.STABILITY === 'stable') {
                   const matches = existingPackageVersion.match(new RegExp(`^${RegExp.escape(process.env.MAJOR_VERSION)}\\.(\\d+)$`));
                   if (matches) {
-                    minorVersion = matches[1] + 1;
+                    minorVersion = Number(matches[1]) + 1;
                   }
                   core.setOutput("package_version", `${process.env.MAJOR_VERSION}.${minorVersion}`);
                 } else {
                   const matches = existingPackageVersion.match(new RegExp(`^${RegExp.escape(process.env.CURRENT_VERSION)}-${RegExp.escape(process.env.BRANCH_NAME)}\\.(\\d+)$`));
                   if (matches) {
-                    minorVersion = matches[1] + 1;
+                    minorVersion = Number(matches[1]) + 1;
                   }
                   core.setOutput("package_version", `${process.env.CURRENT_VERSION}-${process.env.BRANCH_NAME}.${minorVersion}`);
                 }
