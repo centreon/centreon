@@ -40,6 +40,37 @@ class UpgraderTest extends \PHPUnit\Framework\TestCase
 
     private static $originalProcessClass;
 
+    /**
+     * Create a hacky Process class for the test
+     */
+    public static function setUpBeforeClass(): void
+    {
+        // Save the real Process if it is already loaded
+        if (class_exists(\Symfony\Component\Process\Process::class, false)) {
+            self::$originalProcessClass = new \ReflectionClass(\Symfony\Component\Process\Process::class);
+        }
+
+        // HACK: create a fake Process in the Symfony namespace
+        eval('
+        namespace Symfony\Component\Process;
+        class Process {
+            public function __construct(array $cmd) {}
+            public function setWorkingDirectory($dir) {}
+            public function run() {}
+            public function isSuccessful() { return true; }
+        }');
+    }
+
+    /**
+     * Delete mock and restore origin class.
+     */
+    public static function tearDownAfterClass(): void
+    {
+        if (self::$originalProcessClass !== null) {
+            self::$originalProcessClass = null;
+        }
+    }
+
     public function setUp(): void
     {
         $this->container = new ServiceContainer();
@@ -77,37 +108,6 @@ class UpgraderTest extends \PHPUnit\Framework\TestCase
             ->method('executeSqlFile');
         $this->utils->expects($this->any())
             ->method('executePhpFile');
-    }
-
-    /**
-     * Create a hacky Process class for the test
-     */
-    public static function setUpBeforeClass(): void
-    {
-        // Save the real Process if it is already loaded
-        if (class_exists(\Symfony\Component\Process\Process::class, false)) {
-            self::$originalProcessClass = new \ReflectionClass(\Symfony\Component\Process\Process::class);
-        }
-
-        // HACK: create a fake Process in the Symfony namespace
-        eval('
-        namespace Symfony\Component\Process;
-        class Process {
-            public function __construct(array $cmd) {}
-            public function setWorkingDirectory($dir) {}
-            public function run() {}
-            public function isSuccessful() { return true; }
-        }');
-    }
-
-    /**
-     * Delete mock and restore origin class.
-     */
-    public static function tearDownAfterClass(): void
-    {
-        if (self::$originalProcessClass !== null) {
-            self::$originalProcessClass = null;
-        }
     }
 
     public function tearDown(): void
