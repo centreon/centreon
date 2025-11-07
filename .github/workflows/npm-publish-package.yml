@@ -10,10 +10,6 @@ on:
       npm_token:
         required: true
 
-env:
-  directory: "centreon/packages/js-config"
-  package: "js-config"
-
 jobs:
   get-environment:
     uses: ./.github/workflows/get-environment.yml
