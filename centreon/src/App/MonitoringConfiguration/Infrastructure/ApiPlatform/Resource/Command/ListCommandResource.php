@@ -78,7 +78,7 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Command\ListCom
                 ],
             ),
             new Model\Parameter(
-                name: 'is_activated',
+                name: 'status',
                 in: 'query',
                 description: 'Filter by activation status',
                 required: false,

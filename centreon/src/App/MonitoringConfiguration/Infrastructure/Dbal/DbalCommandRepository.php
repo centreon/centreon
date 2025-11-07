@@ -118,7 +118,7 @@ final readonly class DbalCommandRepository extends DbalRepository implements Com
     /**
      * @inheritDoc
      */
-    public function findAll(?CommandCriteria $criteria): \IteratorAggregate&\Countable
+    public function findAll(?CommandCriteria $criteria = null): \IteratorAggregate&\Countable
     {
         $qb = $this->connection->createQueryBuilder();
 

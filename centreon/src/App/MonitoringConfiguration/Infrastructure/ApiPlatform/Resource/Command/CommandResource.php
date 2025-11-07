@@ -48,7 +48,6 @@ use Symfony\Component\Validator\Constraints as Assert;
                     403 => new Model\Response('You are not allowed to access this command'),
                 ],
             ),
-            normalizationContext: ['groups' => ['default']],
             securityPostValidation: "is_granted('" . CommandActionEnum::Read->value . "', object)",
             securityPostValidationMessage: 'You are not allowed to access this command',
         ),
