@@ -28,6 +28,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandName;
 use App\MonitoringConfiguration\Domain\Exception\CommandNotFoundException;
 use App\MonitoringConfiguration\Domain\Repository\CommandRepository;
+use App\MonitoringConfiguration\Domain\Repository\CommandResourceCount;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\CommandCriteria;
 use App\Shared\Domain\Aggregate\AggregateRoot;
 use Countable;
@@ -77,5 +78,15 @@ final class FakeCommandRepository implements CommandRepository
     public function findAll(?CommandCriteria $criteria): IteratorAggregate&Countable
     {
         throw new \RuntimeException('Not yet implemented');
+    }
+
+    public function countLinkedResources(CommandId $commandId): CommandResourceCount
+    {
+        return new CommandResourceCount(
+            usedHosts: mt_rand(0, 10),
+            usedServices: mt_rand(0, 10),
+            usedHostTemplates: mt_rand(0, 10),
+            usedServiceTemplates: mt_rand(0, 10)
+        );
     }
 }

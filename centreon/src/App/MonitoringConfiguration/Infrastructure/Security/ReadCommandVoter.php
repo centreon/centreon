@@ -23,7 +23,6 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Infrastructure\Security;
 
-use ApiPlatform\State\Pagination\TraversablePaginator;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\Command;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandTypeEnum;
 use App\MonitoringConfiguration\Domain\Security\CommandActionEnum;

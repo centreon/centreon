@@ -30,7 +30,6 @@ final readonly class CommandResourceCount
         public int $usedServices,
         public int $usedHostTemplates,
         public int $usedServiceTemplates,
-
     ) {
     }
 }

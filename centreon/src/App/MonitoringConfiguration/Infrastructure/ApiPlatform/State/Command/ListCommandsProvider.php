@@ -29,6 +29,7 @@ use ApiPlatform\State\Pagination\Pagination;
 use ApiPlatform\State\Pagination\TraversablePaginator;
 use ApiPlatform\State\ProviderInterface;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\Command;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandTypeEnum;
 use App\MonitoringConfiguration\Domain\Repository\CommandRepository;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\CommandCriteria;
@@ -52,7 +53,7 @@ final readonly class ListCommandsProvider implements ProviderInterface
         private TransformerInterface $transformer,
         private CommandRepository $commandRepository,
         private Pagination $pagination,
-        private Security $security
+        private Security $security,
     ) {
     }
 
@@ -73,7 +74,9 @@ final readonly class ListCommandsProvider implements ProviderInterface
                 $allowedTypes[] = $commandType->name;
             }
         }
+        /** @var array{type?: string, name?: array<string>|null, is_activated?: string}|null $filters */
         $filters = $context['filters'] ?? [];
+
         // allowed types Intersect with requested types
         /** @var array<string>|null $requestedTypes */
         $requestedTypes = $filters['type'] ?? null;
@@ -92,10 +95,13 @@ final readonly class ListCommandsProvider implements ProviderInterface
         $criteria = $this->handleTypeFilter($allowedTypes, $criteria);
         $criteria = $this->handleNameFilter($filters['name'] ?? null, $criteria);
         $criteria = $this->handleStatusFilter($filters['is_activated'] ?? null, $criteria);
+
         $commands = $this->commandRepository->findAll($criteria);
         $commandResources = [];
         foreach ($commands as $command) {
-            $count = $this->commandRepository->countLinkedResources($command->id());
+            /** @var CommandId $id */
+            $id = $command->id();
+            $count = $this->commandRepository->countLinkedResources($id);
             $commandResource = $this->transformer->transform($command);
             $commandResource->hydrateLinkedResourceCount($count);
             $commandResources[] = $commandResource;
@@ -150,6 +156,7 @@ final readonly class ListCommandsProvider implements ProviderInterface
         foreach ($typeFilter as $type) {
             $criteria = $criteria->withType($type);
         }
+
         return $criteria;
     }
 
@@ -160,8 +167,7 @@ final readonly class ListCommandsProvider implements ProviderInterface
         }
 
         $statusFilter = filter_var($statusFilter, FILTER_VALIDATE_BOOLEAN);
-        $criteria = $criteria->withStatus($statusFilter);
 
-        return $criteria;
+        return $criteria->withStatus($statusFilter);
     }
 }

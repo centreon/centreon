@@ -149,7 +149,6 @@ final class ListCommandResource
             description: 'Indicates whether the command is activated or not',
         )]
         public bool $isActivated,
-
     ) {
     }
 

@@ -26,7 +26,6 @@ namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Comman
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
-use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\OpenApi\Model;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandName;
@@ -34,9 +33,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandTypeEnum;
 use App\MonitoringConfiguration\Domain\Security\CommandActionEnum;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\ConnectorResource;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Command\FindCommandProvider;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Command\ListCommandsProvider;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Command\UpdateCommandProcessor;
-use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ApiResource(
