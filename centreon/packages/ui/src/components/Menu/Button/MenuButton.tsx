@@ -4,6 +4,7 @@ import {
   ArrowDropDown as ArrowDropDownIcon,
   Menu as MenuIcon
 } from '@mui/icons-material';
+import { useStyles } from './MenuButton.styles';
 
 import { AriaLabelingAttributes } from '../../../@types/aria-attributes';
 import { DataTestAttributes } from '../../../@types/data-attributes';
