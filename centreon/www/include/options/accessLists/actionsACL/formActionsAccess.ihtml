@@ -778,7 +778,7 @@
 
 			<tr class="list_lvl_1">
 				<td class="ListColLvl1_name" colspan="2">
-					<h4>{$form.header.configuration}</h4>
+					<h4>{$form.header.configuration_command}</h4>
 				</td>
 			</tr>
 
