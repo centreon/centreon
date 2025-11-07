@@ -85,8 +85,8 @@ class UpgraderTest extends \PHPUnit\Framework\TestCase
     public static function setUpBeforeClass(): void
     {
         // Save the real Process if it is already loaded
-        if (class_exists('\Symfony\Component\Process\Process', false)) {
-            self::$originalProcessClass = new \ReflectionClass('\Symfony\Component\Process\Process');
+        if (class_exists(\Symfony\Component\Process\Process::class, false)) {
+            self::$originalProcessClass = new \ReflectionClass(\Symfony\Component\Process\Process::class);
         }
 
         // HACK: create a fake Process in the Symfony namespace
