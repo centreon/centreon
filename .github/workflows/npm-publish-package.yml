@@ -64,7 +64,7 @@ jobs:
               let minorVersion = 0;
 
               if (existingPackageVersion) {
-                console.log(`Existing package version for tag ${tag}: ${existingPackageVersion}`);
+                core.info(`Existing package version for tag ${tag}: ${existingPackageVersion}`);
                 if (process.env.STABILITY === 'stable') {
                   const matches = existingPackageVersion.match(new RegExp(`^${RegExp.escape(process.env.MAJOR_VERSION)}\\.(\\d+)$`));
                   if (matches) {
@@ -74,7 +74,6 @@ jobs:
                 } else {
                   const matches = existingPackageVersion.match(new RegExp(`^${RegExp.escape(process.env.CURRENT_VERSION)}-${RegExp.escape(process.env.BRANCH_NAME)}\\.(\\d+)$`));
                   if (matches) {
-                    console.log(matches[1])
                     minorVersion = matches[1] + 1;
                   }
                   core.setOutput("package_version", `${process.env.CURRENT_VERSION}-${process.env.BRANCH_NAME}.${minorVersion}`);
@@ -103,11 +102,11 @@ jobs:
           tag: ${{ env.tag }}
           token: ${{ secrets.npm_token }}
 
-  # set-skip-label:
-  #   needs: [get-environment, publish-new-npm-version]
-  #   if: |
-  #     needs.get-environment.outputs.skip_workflow == 'false' &&
-  #     ! cancelled() &&
-  #     ! contains(needs.*.result, 'failure') &&
-  #     ! contains(needs.*.result, 'cancelled')
-  #   uses: ./.github/workflows/set-pull-request-skip-label.yml
+  set-skip-label:
+    needs: [get-environment, publish-package]
+    if: |
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      ! cancelled() &&
+      ! contains(needs.*.result, 'failure') &&
+      ! contains(needs.*.result, 'cancelled')
+    uses: ./.github/workflows/set-pull-request-skip-label.yml
