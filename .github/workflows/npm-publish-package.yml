@@ -20,7 +20,7 @@ jobs:
     with:
       version_file: .version.centreon-web
 
-  publish-new-npm-version:
+  publish-package:
     if: |
       needs.get-environment.outputs.skip_workflow == 'false' &&
       github.repository == 'centreon/centreon'
