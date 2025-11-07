@@ -64,6 +64,7 @@ jobs:
               let minorVersion = 0;
 
               if (existingPackageVersion) {
+                console.log(`Existing package version for tag ${tag}: ${existingPackageVersion}`);
                 if (process.env.STABILITY === 'stable') {
                   if (existingPackageVersion.match(new RegExp(`^${RegExp.escape(process.env.MAJOR_VERSION)}\\.(\d+)$`))) {
                     minorVersion = matches[1] + 1;
@@ -91,7 +92,7 @@ jobs:
         working-directory: ${{ inputs.package_directory }}
         shell: bash
 
-      - name: Publish package to NPM (${{ env.TAG }})
+      - name: Publish package to NPM (${{ env.tag }})
         uses: JS-DevTools/npm-publish@19c28f1ef146469e409470805ea4279d47c3d35c # v3.1.1
         with:
           access: public
