@@ -60,6 +60,7 @@ beforeEach(function (): void {
         'otel_public_certificate' => '/etc/pki/test.crt',
         'otel_private_key' => '/etc/pki/test.key',
         'otel_ca_certificate' => '/etc/pki/test.cer',
+        'port' => 4444,
         'tokens' => [
             [
                 'name' => $this->token->getName(),
@@ -187,6 +188,13 @@ it('should throw an exception when a token is provided but invalid and connectio
         ->expects($this->once())
         ->method('findByNameAndUserId')
         ->willReturn(null);
+    $this->expectException(AgentConfigurationException::class);
+    $this->cmaValidator->validateParametersOrFail($this->request);
+});
+
+it('should throw an exception when port is not provided (agent_initiated)', function (): void {
+    $this->request->configuration['agent_initiated'] = true;
+    $this->request->configuration['port'] = null;
     $this->expectException(AgentConfigurationException::class);
     $this->cmaValidator->validateParametersOrFail($this->request);
 });
