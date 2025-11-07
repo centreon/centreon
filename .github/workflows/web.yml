@@ -143,56 +143,56 @@ jobs:
       base_sha: ${{ needs.get-environment.outputs.previous_release_bundle_tag }}
       labels: ${{ needs.get-environment.outputs.labels }}
 
-  # check-version-consistency:
-  #   runs-on: ubuntu-24.04
-  #   needs: [get-environment]
-  #   if: |
-  #     needs.get-environment.outputs.skip_workflow == 'false' &&
-  #     needs.get-environment.outputs.stability == 'testing'
-  #   env:
-  #     version: ${{ needs.get-environment.outputs.major_version }}.${{ needs.get-environment.outputs.minor_version }}
-  #     version_file: .version.centreon-web
-  #     installation_file: centreon/www/install/insertBaseConf.sql
-  #     update_file: centreon/www/install/php/Update-${{ needs.get-environment.outputs.major_version }}.${{ needs.get-environment.outputs.minor_version }}.php
-  #   steps:
-  #     - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+  check-version-consistency:
+    runs-on: ubuntu-24.04
+    needs: [get-environment]
+    if: |
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      needs.get-environment.outputs.stability == 'testing'
+    env:
+      version: ${{ needs.get-environment.outputs.major_version }}.${{ needs.get-environment.outputs.minor_version }}
+      version_file: .version.centreon-web
+      installation_file: centreon/www/install/insertBaseConf.sql
+      update_file: centreon/www/install/php/Update-${{ needs.get-environment.outputs.major_version }}.${{ needs.get-environment.outputs.minor_version }}.php
+    steps:
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
 
-  #     - name: Check ${{ env.version_file }}
-  #       uses: ./.github/actions/check-version-consistency
-  #       with:
-  #         file: ${{ env.version_file }}
-  #         version: ${{ env.version }}
+      - name: Check ${{ env.version_file }}
+        uses: ./.github/actions/check-version-consistency
+        with:
+          file: ${{ env.version_file }}
+          version: ${{ env.version }}
 
-  #     - name: Check ${{ env.installation_file }}
-  #       uses: ./.github/actions/check-version-consistency
-  #       with:
-  #         file: ${{ env.installation_file }}
-  #         version: ${{ env.version }}
+      - name: Check ${{ env.installation_file }}
+        uses: ./.github/actions/check-version-consistency
+        with:
+          file: ${{ env.installation_file }}
+          version: ${{ env.version }}
 
-  #     - name: Check ${{ env.update_file }}
-  #       uses: ./.github/actions/check-version-consistency
-  #       with:
-  #         file: ${{ env.update_file }}
-  #         version: ${{ env.version }}
+      - name: Check ${{ env.update_file }}
+        uses: ./.github/actions/check-version-consistency
+        with:
+          file: ${{ env.update_file }}
+          version: ${{ env.version }}
 
-  #     - name: Get changed update files
-  #       if: |
-  #         ! contains(needs.get-environment.outputs.labels, 'skip-update-files-check')
-  #       id: get_changed_files
-  #       uses: tj-actions/changed-files@ed68ef82c095e0d48ec87eccea555d944a631a4c # v46.0.5
-  #       with:
-  #         files: |
-  #           centreon/www/install/php/Update-**.php
+      - name: Get changed update files
+        if: |
+          ! contains(needs.get-environment.outputs.labels, 'skip-update-files-check')
+        id: get_changed_files
+        uses: tj-actions/changed-files@ed68ef82c095e0d48ec87eccea555d944a631a4c # v46.0.5
+        with:
+          files: |
+            centreon/www/install/php/Update-**.php
 
-  #     - name: Check updated files
-  #       if: |
-  #         ! contains(needs.get-environment.outputs.labels, 'skip-update-files-check')
-  #       uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
-  #       env:
-  #         UPDATED_UPGRADE_FILES: ${{ steps.get_changed_files.outputs.all_changed_files }}
-  #       with:
-  #         script: |
-  #           console.log(process.env.UPDATED_UPGRADE_FILES);
+      - name: Check updated files
+        if: |
+          ! contains(needs.get-environment.outputs.labels, 'skip-update-files-check')
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
+        env:
+          UPDATED_UPGRADE_FILES: ${{ steps.get_changed_files.outputs.all_changed_files }}
+        with:
+          script: |
+            console.log(process.env.UPDATED_UPGRADE_FILES);
 
   # frontend-web-build:
   #   needs: [get-environment, changes]
