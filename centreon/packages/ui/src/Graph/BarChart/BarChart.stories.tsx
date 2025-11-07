@@ -45,6 +45,11 @@ export const withCenteredZero: Story = {
     ...defaultArgs,
     axis: {
       isCenteredZero: true
+    },
+    legend: {
+      showCalculations: { avg: true, max: false, min: false },
+      mode: 'grid',
+      placement: 'bottom'
     }
   },
   render: Template
@@ -307,6 +312,18 @@ export const stackKey: Story = {
   args: {
     ...defaultArgs,
     data: dataPingServiceStackeKey
+  },
+  render: Template
+};
+
+export const withControlledCalculations: Story = {
+  args: {
+    ...defaultArgs,
+    legend: {
+      showCalculations: { avg: true, max: false, min: false },
+      mode: 'grid',
+      placement: 'bottom'
+    }
   },
   render: Template
 };

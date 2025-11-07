@@ -43,6 +43,7 @@ import {
 import { Interval, ThresholdType, TooltipData } from './models';
 
 import WrapperChart from '.';
+import toRawQueryParameters from 'src/queryParameters';
 
 const meta: Meta<typeof WrapperChart> = {
   component: WrapperChart
@@ -798,5 +799,25 @@ export const stackedKey: Story = {
   args: {
     ...argumentsData,
     data: dataPingServiceLinesStackKeys
+  }
+};
+
+export const WithControlledCalculations: Story = {
+  ...Template,
+  argTypes,
+  args: {
+    ...argumentsData,
+    lineStyle: {
+      curve: 'step'
+    },
+    legend: {
+      mode: 'grid',
+      placement: 'bottom',
+      showCalculations: {
+        avg: true,
+        max: true,
+        min: false
+      }
+    }
   }
 };

@@ -1,7 +1,6 @@
 import { makeStyles } from 'tss-react/mui';
 
 import { equals, lt } from 'ramda';
-import { margin } from '../common';
 import type { LegendModel } from '../models';
 
 interface MakeStylesProps {

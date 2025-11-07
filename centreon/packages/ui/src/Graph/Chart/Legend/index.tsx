@@ -22,8 +22,10 @@ import LegendContent from './LegendContent';
 import LegendHeader from './LegendHeader';
 import { GetMetricValueProps, LegendDisplayMode } from './models';
 import useLegend from './useLegend';
+import { pl } from '@faker-js/faker/.';
 
-interface Props extends Pick<LegendModel, 'placement' | 'mode'> {
+interface Props
+  extends Pick<LegendModel, 'placement' | 'mode' | 'showCalculations'> {
   base: number;
   height: number | null;
   limitLegend?: false | number;
@@ -49,6 +51,11 @@ const MainLegend = ({
   shouldDisplayLegendInCompactMode,
   placement,
   mode,
+  showCalculations = {
+    min: true,
+    max: true,
+    avg: true
+  },
   secondaryClick
 }: Props): ReactElement => {
   const theme = useTheme();
@@ -112,11 +119,11 @@ const MainLegend = ({
 
   return (
     <div
-      className={`overflow-x-hidden overflow-y-auto ${!equals(placement, 'bottom') ? 'h-full mt-[15px]' : 'ml-[30px] mr-[40px]'}`}
+      className={`overflow-x-hidden overflow-y-auto ${!equals(placement, 'bottom') ? 'h-full mt-[15px]' : 'ml-[50px] mr-[40px]'}`}
       data-display-side={!equals(placement, 'bottom')}
     >
       <ul
-        className={`list-none flex gap-3 flex-wrap ${isListMode || (!equals(placement, 'bottom') && 'flex-col h-full w-fit')} w-full`}
+        className={`list-none flex gap-2 w-full ${!isListMode && 'flex-wrap'} ${(isListMode || !equals(placement, 'bottom')) && 'flex-col h-full w-fit'} ${equals(placement, 'bottom') ? 'max-h-[67px]' : 'max-h-full'}`}
         data-as-list={isListMode || !equals(placement, 'bottom')}
         data-mode={itemMode}
       >
@@ -128,23 +135,23 @@ const MainLegend = ({
             : alpha(theme.palette.text.disabled, 0.2);
 
           const minMaxAvg = [
-            {
+            showCalculations.min && {
               label: labelMin,
               value: line.minimum_value
             },
-            {
+            showCalculations.max && {
               label: labelMax,
               value: line.maximum_value
             },
-            {
+            showCalculations.avg && {
               label: labelAvg,
               value: line.average_value
             }
-          ];
+          ].filter(Boolean);
 
           return (
             <li
-              className={`text-text-primary ${toggable && 'cursor-pointer'}`}
+              className={`${!display ? 'text-text-disabled' : 'text-text-primary'} flex gap-1 ${toggable && 'cursor-pointer'}`}
               key={metric_id}
               onClick={(event): void => selectMetric({ event, metric_id })}
               onKeyUp={(event) =>
@@ -154,30 +161,35 @@ const MainLegend = ({
               onMouseLeave={(): void => clearHighlight()}
               onContextMenu={contextMenuClick(metric_id)}
             >
-              <LegendHeader
-                color={markerColor}
-                disabled={!display}
-                isDisplayedOnSide={!equals(placement, 'bottom')}
-                isListMode={isListMode}
-                line={line}
-                minMaxAvg={
-                  shouldDisplayLegendInCompactMode ? minMaxAvg : undefined
-                }
-                unit={unit}
+              <div
+                className="h-full rounded-sm w-1"
+                style={{ backgroundColor: markerColor }}
+                data-icon
               />
-              {!shouldDisplayLegendInCompactMode && !isListMode && (
-                <div>
-                  <div className="grid grid-cols-2 gap-1 whitespace-nowrap">
-                    {minMaxAvg.map(({ label, value }) => (
-                      <LegendContent
-                        data={getMetricValue({ unit: line.unit, value })}
-                        key={label}
-                        label={label}
-                      />
-                    ))}
+              <div>
+                <LegendHeader
+                  isDisplayedOnSide={!equals(placement, 'bottom')}
+                  isListMode={isListMode}
+                  line={line}
+                  minMaxAvg={
+                    shouldDisplayLegendInCompactMode ? minMaxAvg : undefined
+                  }
+                  unit={unit}
+                />
+                {!shouldDisplayLegendInCompactMode && !isListMode && (
+                  <div>
+                    <div className="flex flex-wrap gap-1 whitespace-nowrap">
+                      {minMaxAvg.map(({ label, value }) => (
+                        <LegendContent
+                          data={getMetricValue({ unit: line.unit, value })}
+                          key={label}
+                          label={label}
+                        />
+                      ))}
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
+              </div>
             </li>
           );
         })}

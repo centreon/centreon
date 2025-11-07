@@ -13,8 +13,6 @@ import LegendContent from './LegendContent';
 import { LegendDisplayMode } from './models';
 
 interface Props {
-  color: string;
-  disabled?: boolean;
   isDisplayedOnSide: boolean;
   isListMode: boolean;
   line: Line;
@@ -25,8 +23,6 @@ interface Props {
 
 const LegendHeader = ({
   line,
-  color,
-  disabled,
   value,
   minMaxAvg,
   isListMode,
@@ -47,7 +43,7 @@ const LegendHeader = ({
           minMaxAvg ? (
             <div>
               <Typography>{legendName}</Typography>
-              <div className="grid grid-cols-2 gap-1 whitespace-nowrap">
+              <div className="flex flex-wrap gap-1 whitespace-nowrap">
                 {minMaxAvg.map(({ label, value: subValue }) => (
                   <LegendContent
                     data={formatMetricValue({
@@ -67,11 +63,6 @@ const LegendHeader = ({
         placement={isListMode ? 'right' : 'top'}
       >
         <div className="flex items-center gap-1">
-          <div
-            data-icon
-            className={`h-3 w-3 rounded-sm ${disabled && 'text-text-disabled'}`}
-            style={{ backgroundColor: color }}
-          />
           <EllipsisTypography
             className="text-xs leading-none font-medium"
             containerClassname={`w-auto ${(!isListMode || (isListMode && isDisplayedOnSide)) && 'max-w-[166px]'}`}
