@@ -90,7 +90,7 @@ jobs:
             }
 
       - name: Write NPM package version
-        run: npm version ${{ steps.get-next-package-version.outputs.package_version }} --no-commit-hooks --allow-same-version --no-git-tag-version --no-workspaces-update
+        run: npm version ${{ steps.get-next-package-version.outputs.package_version }} --no-commit-hooks --no-git-tag-version --no-workspaces-update
         working-directory: ${{ inputs.package_directory }}
         shell: bash
 
