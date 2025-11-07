@@ -79,17 +79,17 @@ const MainLegend = ({
 
   const contextMenuClick =
     (metricId: number) =>
-    (event: MouseEvent): void => {
-      if (!secondaryClick) {
-        return;
-      }
-      event.preventDefault();
-      secondaryClick({
-        element: event.target,
-        metricId,
-        position: [event.pageX, event.pageY]
-      });
-    };
+      (event: MouseEvent): void => {
+        if (!secondaryClick) {
+          return;
+        }
+        event.preventDefault();
+        secondaryClick({
+          element: event.target,
+          metricId,
+          position: [event.pageX, event.pageY]
+        });
+      };
 
   const selectMetric = ({
     event,
@@ -118,11 +118,11 @@ const MainLegend = ({
 
   return (
     <div
-      className={`overflow-x-hidden overflow-y-auto ${!equals(placement, 'bottom') ? 'h-full mt-[15px]' : 'ml-[50px] mr-[40px]'}`}
+      className={`overflow-x-hidden overflow-y-auto ${!equals(placement, 'bottom') ? 'h-full mt-[15px]' : 'ml-[50px] mr-[40px]'} legend`}
       data-display-side={!equals(placement, 'bottom')}
     >
       <ul
-        className={`list-none flex gap-2 w-full ${!isListMode && 'flex-wrap'} ${(isListMode || !equals(placement, 'bottom')) && 'flex-col h-full w-fit'} ${equals(placement, 'bottom') ? 'max-h-[67px]' : 'max-h-full'}`}
+        className={`list-none flex gap-2 w-full ${!isListMode && equals(placement, 'bottom') && 'flex-wrap'} ${(isListMode || !equals(placement, 'bottom')) && 'flex-col h-full w-fit'} ${equals(placement, 'bottom') ? 'max-h-[67px]' : 'max-h-0'}`}
         data-as-list={isListMode || !equals(placement, 'bottom')}
         data-mode={itemMode}
       >
