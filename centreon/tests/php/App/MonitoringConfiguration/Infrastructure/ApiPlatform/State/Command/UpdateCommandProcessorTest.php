@@ -138,7 +138,7 @@ final class UpdateCommandProcessorTest extends ApiTestCase
     {
         $this->login();
         // First, add a connector to the command
-        $response = $this->request('PATCH', '/api/latest/configuration/commands/1', [
+        $this->request('PATCH', '/api/latest/configuration/commands/1', [
             'headers' => [
                 'Content-Type' => 'application/merge-patch+json',
             ],

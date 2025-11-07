@@ -87,6 +87,7 @@ final class DbalCommandRepositoryTest extends KernelTestCase
     {
         $command = $this->repository->getById(new CommandId(2));
         $command->updateName(new CommandName('UPDATED_NAME'));
+
         $this->repository->update($command);
         self::assertEquals($command, $this->repository->getById(new CommandId(2)));
     }
@@ -99,5 +100,4 @@ final class DbalCommandRepositoryTest extends KernelTestCase
         self::assertNotEmpty($commands);
         self::assertContainsOnlyInstancesOf(Command::class, $commands);
     }
-
 }
