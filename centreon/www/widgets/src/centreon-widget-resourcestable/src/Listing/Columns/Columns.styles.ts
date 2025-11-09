@@ -102,3 +102,22 @@ export const useOpenTicketStyles = makeStyles()((theme) => ({
     alignItems: 'inherit'
   }
 }));
+
+export const useColumnStyles = makeStyles()((theme) => ({
+  statusChip: {
+    marginRight: theme.spacing(0.5)
+  },
+  resourceNameItem: {
+    lineHeight: 1,
+    whiteSpace: 'nowrap'
+  },
+  resourceNameText: {
+    color: theme.palette.text.secondary,
+    paddingLeft: theme.spacing(0.5)
+  },
+  resourceDetailsCell: {
+    alignItems: 'center',
+    display: 'flex',
+    flexWrap: 'nowrap'
+  }
+}));
