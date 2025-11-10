@@ -88,6 +88,7 @@ class AgentConfiguration extends AbstractObjectJSON
      */
     private function formatOtelConfiguration(array $data, array $tokens, ConnectionModeEnum $connectionMode): array
     {
+        error_log(json_encode($data));
         return [
             'host' => ModelAgentConfiguration::DEFAULT_HOST,
             'port' => $data['port'] ?? ModelAgentConfiguration::DEFAULT_PORT,
