@@ -21,10 +21,15 @@
 
 declare(strict_types=1);
 
-namespace Core\Connector\Application\UseCase\FindConnectors;
+namespace App\MonitoringConfiguration\Domain\Aggregate\Connector;
 
-final class FindConnectorsResponse
+use Webmozart\Assert\Assert;
+
+final readonly class ConnectorDescription
 {
-    /** @var ConnectorDto[] */
-    public array $connectors = [];
+    public function __construct(
+        public string $value,
+    ) {
+        Assert::maxLength($value, 255);
+    }
 }

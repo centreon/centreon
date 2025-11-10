@@ -24,6 +24,8 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Infrastructure\Dbal;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Connector\Connector;
+use App\MonitoringConfiguration\Domain\Aggregate\Connector\ConnectorCommandLine;
+use App\MonitoringConfiguration\Domain\Aggregate\Connector\ConnectorDescription;
 use App\MonitoringConfiguration\Domain\Aggregate\Connector\ConnectorId;
 use App\MonitoringConfiguration\Domain\Aggregate\Connector\ConnectorName;
 use App\Shared\Infrastructure\TransformerInterface;
@@ -38,8 +40,11 @@ final readonly class DbalConnectorTransformer implements TransformerInterface
     public function transform(mixed $from): Connector
     {
         return new Connector(
-            id: new ConnectorId($from['id']),
-            name: new ConnectorName($from['name']),
+            id: new ConnectorId($from['c_id']),
+            name: new ConnectorName($from['c_name']),
+            commandLine: new ConnectorCommandLine($from['c_command_line']),
+            description: $from['c_description'] !== null ? new ConnectorDescription($from['c_description']) : null,
+            isActivated: (bool) $from['c_activate'],
         );
     }
 }

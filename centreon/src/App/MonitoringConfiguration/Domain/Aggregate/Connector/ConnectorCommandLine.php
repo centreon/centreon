@@ -21,11 +21,15 @@
 
 declare(strict_types=1);
 
-namespace Core\Connector\Application\UseCase\FindConnectors;
+namespace App\MonitoringConfiguration\Domain\Aggregate\Connector;
 
-use Core\Application\Common\UseCase\ResponseStatusInterface;
+use Webmozart\Assert\Assert;
 
-interface FindConnectorsPresenterInterface
+final readonly class ConnectorCommandLine
 {
-    public function presentResponse(FindConnectorsResponse|ResponseStatusInterface $response): void;
+    public function __construct(
+        public string $value,
+    ) {
+        Assert::maxLength($value, 255);
+    }
 }

@@ -27,7 +27,6 @@ use App\MonitoringConfiguration\Domain\Aggregate\Command\Command;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandName;
 use App\MonitoringConfiguration\Domain\Aggregate\Connector\Connector;
-use App\MonitoringConfiguration\Domain\Aggregate\Connector\ConnectorId;
 use App\MonitoringConfiguration\Domain\Exception\CommandNotFoundException;
 use App\MonitoringConfiguration\Domain\Repository\CommandRepository;
 use App\Shared\Infrastructure\Dbal\DbalRepository;
@@ -38,20 +37,21 @@ use Webmozart\Assert\Assert;
 
 /**
  * @phpstan-type RowTypeAlias = array{
- *   command_id: int,
- *   command_name: string,
- *   command_line: string,
- *   command_type: int,
- *   enable_shell: bool,
- *   command_activate: bool,
- *   command_locked: bool,
- *   command_comment: string|null,
- *   connector_id: int|null,
+ *   cm_command_id: int,
+ *   cm_command_name: string,
+ *   cm_command_line: string,
+ *   cm_command_type: int,
+ *   cm_enable_shell: bool,
+ *   cm_command_activate: bool,
+ *   cm_command_locked: bool,
+ *   cm_command_comment: string|null,
+ *   cm_connector_id: int|null,
  * }
  */
 final readonly class DbalCommandRepository extends DbalRepository implements CommandRepository
 {
     public const TABLE_NAME = 'command';
+    public const CONNECTOR_JON_TABLE_NAME = 'connector';
 
     /**
      * @param TransformerInterface<RowTypeAlias, Command> $transformer
@@ -74,25 +74,14 @@ final readonly class DbalCommandRepository extends DbalRepository implements Com
     {
         $qb = $this->connection->createQueryBuilder();
 
-        $qb->select(
-            'command_id',
-            'command_name',
-            'command_line',
-            'command_type',
-            'enable_shell',
-            'command_activate',
-            'command_locked',
-            'command_comment',
-            'connector_id',
-        )
-            ->from(self::TABLE_NAME)
+        $qb->select(...self::getSelectColumns(), ...DbalConnectorRepository::getSelectColumns())
+            ->from(self::TABLE_NAME, 'cm')
+            ->leftJoin('cm', self::CONNECTOR_JON_TABLE_NAME, 'c', 'cm.connector_id = c.id')
             ->where('command_id = :id')
             ->setParameter('id', $id->value)
             ->setMaxResults(1);
-
         /** @var RowTypeAlias $row */
         $row = $qb->executeQuery()->fetchAssociative();
-
         if (! $row) {
             throw new CommandNotFoundException(['id' => $id->value]);
         }
@@ -104,18 +93,8 @@ final readonly class DbalCommandRepository extends DbalRepository implements Com
     {
         $qb = $this->connection->createQueryBuilder();
 
-        $qb->select(
-            'command_id',
-            'command_name',
-            'command_line',
-            'command_type',
-            'enable_shell',
-            'command_activate',
-            'command_locked',
-            'command_comment',
-            'connector_id',
-        )
-            ->from(self::TABLE_NAME)
+        $qb->select(...self::getSelectColumns())
+            ->from(self::TABLE_NAME, 'cm')
             ->where('command_name = :name')
             ->setParameter('name', $name->value)
             ->setMaxResults(1);
@@ -152,7 +131,7 @@ final readonly class DbalCommandRepository extends DbalRepository implements Com
             ->setParameter('command_activate', $command->isActivated ? '1' : '0')
             ->setParameter('command_locked', $command->isFromMonitoringConnector ? '1' : '0')
             ->setParameter('command_comment', $command->comment?->value)
-            ->setParameter('connector_id', $command->connector?->id->value)
+            ->setParameter('connector_id', $command->connector?->id()->value)
             ->executeStatement();
 
         $id = (int) $this->connection->lastInsertId();
@@ -162,6 +141,23 @@ final readonly class DbalCommandRepository extends DbalRepository implements Com
         }
 
         $this->setId($command, new CommandId($id));
+    }
+
+    /**
+     * @return array<string>
+     */
+    public static function getSelectColumns(string $alias = 'cm'): array
+    {
+        return [
+            "{$alias}.command_id AS cm_command_id",
+            "{$alias}.command_name AS cm_command_name",
+            "{$alias}.command_line AS cm_command_line",
+            "{$alias}.command_type AS cm_command_type",
+            "{$alias}.enable_shell AS cm_enable_shell",
+            "{$alias}.command_activate AS cm_command_activate",
+            "{$alias}.command_locked AS cm_command_locked",
+            "{$alias}.command_comment AS cm_command_comment",
+        ];
     }
 
     public function update(Command $command): void
@@ -187,7 +183,7 @@ final readonly class DbalCommandRepository extends DbalRepository implements Com
             ->setParameter('enable_shell', $command->isShellEnabled ? 1 : 0)
             ->setParameter('activate', $command->isActivated ? 1 : 0)
             ->setParameter('comment', $command->comment->value ?? null)
-            ->setParameter('connector_id', $command->connector instanceof Connector ? $command->connector->id->value : null);
+            ->setParameter('connector_id', $command->connector instanceof Connector ? $command->connector->id()->value : null);
 
         $qb->executeStatement();
     }
@@ -198,13 +194,10 @@ final readonly class DbalCommandRepository extends DbalRepository implements Com
     private function createCommand(array $row): Command
     {
         $command = $this->transformer->transform($row);
+        if (($connector = $this->connectorRepository->findByCommand($command)) instanceof Connector) {
+            $command->addConnector($connector);
 
-        if ($row['connector_id'] !== null) {
-            $connectorId = $row['connector_id'];
-            $connector = $this->connectorRepository->findById(new ConnectorId($connectorId));
-            if ($connector instanceof Connector) {
-                $command->addConnector($connector);
-            }
+            return $command;
         }
 
         return $command;

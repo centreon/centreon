@@ -539,6 +539,15 @@ function listActions()
     $actions[] = 'generate_trap';
     $actions[] = 'manage_tokens';
 
+    $actions[] = 'see_check_commands';
+    $actions[] = 'manage_check_commands';
+    $actions[] = 'see_notification_commands';
+    $actions[] = 'manage_notification_commands';
+    $actions[] = 'see_discovery_commands';
+    $actions[] = 'manage_discovery_commands';
+    $actions[] = 'see_miscellaneous_commands';
+    $actions[] = 'manage_miscellaneous_commands';
+
     return $actions;
 }
 
