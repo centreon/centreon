@@ -24,7 +24,6 @@ declare(strict_types=1);
 use Core\AgentConfiguration\Application\Repository\ReadAgentConfigurationRepositoryInterface;
 use Core\AgentConfiguration\Domain\Model\AgentConfiguration as ModelAgentConfiguration;
 use Core\AgentConfiguration\Domain\Model\ConfigurationParameters\CmaConfigurationParameters;
-use Core\AgentConfiguration\Domain\Model\ConfigurationParameters\TelegrafConfigurationParameters;
 use Core\AgentConfiguration\Domain\Model\ConnectionModeEnum;
 use Core\AgentConfiguration\Domain\Model\Type;
 use Core\Host\Application\Repository\ReadHostRepositoryInterface;
@@ -88,7 +87,6 @@ class AgentConfiguration extends AbstractObjectJSON
      */
     private function formatOtelConfiguration(array $data, array $tokens, ConnectionModeEnum $connectionMode): array
     {
-        error_log(json_encode($data));
         return [
             'host' => ModelAgentConfiguration::DEFAULT_HOST,
             'port' => $data['port'] ?? ModelAgentConfiguration::DEFAULT_PORT,
