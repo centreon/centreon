@@ -1,9 +1,15 @@
 import { prop } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
-import { Column, ColumnType } from '@centreon/ui';
+import { Column, ColumnType, truncate } from '@centreon/ui';
 
-import { labelCommandLine, labelName, labelType } from '../translatedLabels';
+import {
+  labelCommandLine,
+  labelHostUses,
+  labelName,
+  labelServiceUses,
+  labelType
+} from '../translatedLabels';
 
 import Name from './Name';
 
@@ -26,7 +32,22 @@ const useColumns = (): {
       type: ColumnType.string,
       id: 'command_line',
       label: t(labelCommandLine),
-      getFormattedString: prop('command_line')
+      getFormattedString: ({ commandLine }) =>
+        truncate({ content: commandLine, maxLength: 50 })
+    },
+    {
+      type: ColumnType.string,
+      id: 'host_uses',
+      label: t(labelHostUses),
+      getFormattedString: ({ hostsCount, hostTemplatesCount }) =>
+        `${hostsCount}(${hostTemplatesCount})`
+    },
+    {
+      type: ColumnType.string,
+      id: 'service_uses',
+      label: t(labelServiceUses),
+      getFormattedString: ({ servicesCount, serviceTemplatesCount }) =>
+        `${servicesCount}(${serviceTemplatesCount})`
     },
     {
       type: ColumnType.string,

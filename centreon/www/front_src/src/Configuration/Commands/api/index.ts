@@ -1,9 +1,5 @@
+export { commandsListDecoder } from './decoders';
 export {
-  additionalConnectorsListDecoder,
-  additionalConnectorDecoder
-} from './decoders';
-export {
-  getAdditionalConnectorEndpoint,
-  commandsEndpoint,
-  getPollersEndpoint
+  getCommandsEndpoint,
+  commandsEndpoint
 } from './endpoints';
