@@ -1721,7 +1721,7 @@ function validatePasswordModification(array $fields): array|bool
  *
  * @return array<string,string>|true
  */
-function validateAutologin(array $fields): array|true
+function validateAutologin(array $fields): array|bool
 {
     global $pearDB, $centreon;
     $errors = [];

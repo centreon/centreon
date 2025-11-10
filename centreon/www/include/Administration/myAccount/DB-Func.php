@@ -327,9 +327,9 @@ function validatePasswordModification(array $fields): array|bool
  * @throws RepositoryException
  * @throws InvalidArgumentException
  *
- * @return array<string,string>|bool
+ * @return array<string,string>|true
  */
-function checkAutologinValue(array $fields): array|true
+function checkAutologinValue(array $fields): array|bool
 {
     global $pearDB, $centreon;
     $errors = [];
