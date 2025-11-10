@@ -188,11 +188,6 @@ function updateContactByMyAccount(int $userIdConnected): void
             PDO::PARAM_INT
         );
         $stmt->bindValue(':showDeprecatedPages', isset($submitValues['show_deprecated_pages']) ? 1 : 0, PDO::PARAM_STR);
-        $stmt->bindValue(
-            ':showDeprecatedCustomViews',
-            isset($submitValues['show_deprecated_custom_views']) ? '1' : '0',
-            PDO::PARAM_STR
-        );
         $stmt->bindValue(':contactId', $userIdConnected, PDO::PARAM_INT);
         $stmt->execute();
     } catch (PDOException $e) {
@@ -424,11 +419,6 @@ function updateNonLocalContactByMyAccountInDB($userIdConnected = null): void
 
     $stmt->bindValue(':defaultPage', ! empty($ret['default_page']) ? $ret['default_page'] : null, PDO::PARAM_INT);
     $stmt->bindValue(':showDeprecatedPages', isset($ret['show_deprecated_pages']) ? 1 : 0, PDO::PARAM_STR);
-    $stmt->bindValue(
-        ':showDeprecatedCustomViews',
-        isset($ret['show_deprecated_custom_views']) ? '1' : '0',
-        PDO::PARAM_STR
-    );
     $stmt->bindValue(':contactId', $userIdConnected, PDO::PARAM_INT);
     $stmt->execute();
     $stmt->closeCursor();
