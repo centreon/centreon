@@ -76,3 +76,8 @@ export const labelAddAnAdditionalConfiguration =
   'Add an additional configuration';
 export const labelModifyConnectorConfiguration =
   'Modify an additional configuration';
+
+export const labelAdditionalConnectorCreated =
+  'Additional configuration created';
+export const labelAdditionalConnectorUpdated =
+  'Additional configuration updated';

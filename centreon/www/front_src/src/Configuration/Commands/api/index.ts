@@ -1,4 +1,4 @@
-export { commandsListDecoder } from './decoders';
+export { commandsListDecoder, commandDecoder } from './decoders';
 export {
   getCommandsEndpoint,
   commandsEndpoint

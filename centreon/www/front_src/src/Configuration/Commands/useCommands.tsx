@@ -1,21 +1,15 @@
-import { omit, pluck } from 'ramda';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import {
-  additionalConnectorDecoder,
-  additionalConnectorsListDecoder,
+  commandDecoder,
   commandsEndpoint,
-  getAdditionalConnectorEndpoint
+  commandsListDecoder,
+  getCommandsEndpoint
 } from './api';
 
 import { APIType, FieldType, FilterConfiguration } from '../models';
-import {
-  AdditionalConnectorConfiguration,
-  ParameterKeys,
-  Payload
-} from './models';
-import { findConnectorTypeById, splitURL } from './utils';
+import { Command, Payload } from './models';
 
 import { labelName, labelStatus } from './translatedLabels';
 
@@ -24,23 +18,9 @@ interface UseCommandsState {
   filtersConfiguration: Array<FilterConfiguration>;
 }
 
-export const adaptFormToApiPayload = (
-  formData: AdditionalConnectorConfiguration
-): Payload => {
+export const adaptFormToApiPayload = (formData: Command): Payload => {
   return {
-    ...omit(['id'], formData),
-    parameters: {
-      ...formData.parameters,
-      vcenters: formData.parameters.vcenters.map((vcenter) => ({
-        name: vcenter[ParameterKeys.name],
-        password: vcenter[ParameterKeys.password],
-        url: splitURL(vcenter[ParameterKeys.url]).mainURL,
-        username: vcenter[ParameterKeys.username],
-        scheme: splitURL(vcenter[ParameterKeys.url]).scheme
-      }))
-    },
-    pollers: pluck('id', formData.pollers),
-    type: findConnectorTypeById(formData.type)?.name as string
+    ...formData
   };
 };
 
@@ -51,14 +31,14 @@ const useCommands = (): UseCommandsState => {
     () => ({
       endpoints: {
         getAll: commandsEndpoint,
-        getOne: getAdditionalConnectorEndpoint,
-        deleteOne: getAdditionalConnectorEndpoint,
+        getOne: getCommandsEndpoint,
+        deleteOne: getCommandsEndpoint,
         create: commandsEndpoint,
-        update: getAdditionalConnectorEndpoint
+        update: getCommandsEndpoint
       },
       decoders: {
-        getAll: additionalConnectorsListDecoder,
-        getOne: additionalConnectorDecoder
+        getAll: commandsListDecoder,
+        getOne: commandDecoder
       },
       adapter: adaptFormToApiPayload
     }),

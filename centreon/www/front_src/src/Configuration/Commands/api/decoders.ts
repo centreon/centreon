@@ -2,7 +2,7 @@ import { JsonDecoder } from 'ts.data.json';
 
 import { buildListingDecoder } from '@centreon/ui';
 
-import { CommandsListItem } from '../models';
+import { Command, CommandsListItem } from '../models';
 
 const commandsDecoder = JsonDecoder.object<CommandsListItem>(
   {
@@ -33,3 +33,25 @@ export const commandsListDecoder = buildListingDecoder({
   listingDecoderName: 'Commands List',
   apiFormat: 'JSON-LD'
 });
+
+export const commandDecoder = JsonDecoder.object<Command>(
+  {
+    name: JsonDecoder.string,
+    type: JsonDecoder.string,
+    commandLine: JsonDecoder.string,
+    comment: JsonDecoder.string,
+    isShellEnabled: JsonDecoder.boolean,
+    connector: JsonDecoder.object(
+      {
+        id: JsonDecoder.number,
+        name: JsonDecoder.string
+      },
+      'connector'
+    )
+  },
+  'Command',
+  {
+    commandLine: 'command_line',
+    isShellEnabled: 'is_shell_enabled'
+  }
+);
