@@ -7,7 +7,7 @@ export const useValidationSchema = (): Schema => {
   const { t } = useTranslation();
 
   return object({
-    name: string().required(t(labelRequired))
-    // type: mixed().required(t(labelRequired))
+    name: string().required(t(labelRequired)),
+    commandLine: string().required(t(labelRequired))
   });
 };

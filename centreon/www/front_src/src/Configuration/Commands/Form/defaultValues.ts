@@ -1,3 +1,8 @@
 export const defaultValues = {
-  name: ''
+  name: '',
+  type: 'Notification',
+  commandLine: '',
+  comment: null,
+  isShellEnabled: false,
+  connector: null
 };

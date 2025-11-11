@@ -1,4 +1,4 @@
-import { ReactElement } from 'react';
+import { ChangeEvent, ReactElement } from 'react';
 
 import ArrowIcon from '@mui/icons-material/ArrowForwardSharp';
 
@@ -9,7 +9,10 @@ import {
 } from '@centreon/ui';
 import { useTranslation } from 'react-i18next';
 
+import { useFormikContext } from 'formik';
+import { Command } from '../../models';
 import {
+  labelCommandLine,
   labelInstalledPlugins,
   labelPollerGlobalMacros,
   labelStandardMacros
@@ -17,6 +20,16 @@ import {
 
 const CommandLine = (): ReactElement => {
   const { t } = useTranslation();
+
+  const { values, setFieldValue, setFieldTouched, touched, errors } =
+    useFormikContext<Command>();
+
+  const value = values?.commandLine;
+
+  const change = (event: ChangeEvent<HTMLInputElement>): void => {
+    setFieldTouched('commandLine', true);
+    setFieldValue('commandLine', event.target.value);
+  };
 
   return (
     <div
@@ -117,30 +130,25 @@ const CommandLine = (): ReactElement => {
           </IconButton>
         </div>
       </div>
-      <div
-        style={{
-          background: '#0001'
-        }}
-      >
-        <TextField
-          required
-          multiline
-          rows={6}
-          // value={'host'}
-          // onChange={() => undefined}
-          label={'t(labelDNSIP)'}
-          dataTestId={'labelDNSIP'}
-          fullWidth
-          textFieldSlotsAndSlotProps={{
-            slotProps: {
-              htmlInput: {
-                'aria-label': 'labelDNSIP'
-              }
+
+      <TextField
+        required
+        multiline
+        rows={6}
+        value={value}
+        onChange={change}
+        label={t(labelCommandLine)}
+        dataTestId={labelCommandLine}
+        fullWidth
+        textFieldSlotsAndSlotProps={{
+          slotProps: {
+            htmlInput: {
+              'aria-label': t(labelCommandLine)
             }
-          }}
-          // error={hostTouched?.address && hostErrors?.address}
-        />
-      </div>
+          }
+        }}
+        error={touched?.commandLine && errors?.commandLine}
+      />
     </div>
   );
 };

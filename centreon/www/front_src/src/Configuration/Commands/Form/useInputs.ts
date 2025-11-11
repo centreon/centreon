@@ -1,4 +1,5 @@
 import { Group, InputProps, InputType } from '@centreon/ui';
+import { Box } from '@mui/material';
 
 import { useTranslation } from 'react-i18next';
 import { useInputsStyles } from './Modal.styles';
@@ -7,7 +8,6 @@ import CommandLine from './CommandLine/CommandLine';
 import CommandType from './CommandType/CommandType';
 import EnableShellSyntax from './EnableShellSyntax/EnableShellSyntax';
 
-import { Box } from '@mui/material';
 import {
   labelAdditionalInformation,
   labelCommandLine,
@@ -108,7 +108,7 @@ export const useInputs = (): {
                 endpoint: 'listUsers',
                 filterKey: 'name'
               },
-              fieldName: 'optimizationConnector',
+              fieldName: 'connector',
               label: t(labelSelectOptimizationConnector),
               type: InputType.SingleConnectedAutocomplete
             },
@@ -123,7 +123,7 @@ export const useInputs = (): {
       },
       {
         type: InputType.Text,
-        fieldName: 'comments',
+        fieldName: 'comment',
         label: t(labelComments),
         text: {
           multilineRows: 3

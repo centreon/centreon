@@ -17,18 +17,18 @@ export interface Command {
   name: string;
   type: string;
   commandLine: string;
-  comment?: string;
+  comment: string | null;
   isShellEnabled: boolean;
-  connector: NamedEntity;
+  connector: NamedEntity | null;
 }
 
 export interface Payload {
   name: string;
   type: string;
   command_line: string;
-  comment?: string;
+  comment: string | null;
   is_shell_enabled: boolean;
-  connector: NamedEntity;
+  connector: string | null;
 }
 
 export interface Filters {

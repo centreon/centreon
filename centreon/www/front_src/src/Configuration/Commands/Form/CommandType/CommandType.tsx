@@ -5,22 +5,23 @@ import { equals } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
 import { FormControlLabel, Radio, RadioGroup } from '@mui/material';
+import { Command } from '../../models';
 
 const options = [
   {
-    id: 1,
-    name: 'Notifications'
+    id: 'Notification',
+    name: 'Notification'
   },
   {
-    id: 2,
-    name: 'Checks'
+    id: 'Check',
+    name: 'Check'
   },
   {
-    id: 3,
+    id: 'Miscellaneous',
     name: 'Miscellaneous'
   },
   {
-    id: 4,
+    id: 'Discovery',
     name: 'Discovery'
   }
 ];
@@ -28,13 +29,14 @@ const options = [
 const CommandType = (): ReactElement => {
   const { t } = useTranslation();
 
-  const { values, setFieldValue, setFieldTouched } = useFormikContext();
+  const { values, setFieldValue, setFieldTouched } =
+    useFormikContext<Command>();
 
-  const value = values?.commandtype || options[0];
+  const value = values?.type;
 
   const change = (event: ChangeEvent<HTMLInputElement>): void => {
-    setFieldTouched('options.commandtype', true);
-    setFieldValue('options.commandtype', event.target.value);
+    setFieldTouched('type', true);
+    setFieldValue('type', event.target.value);
   };
 
   return (
