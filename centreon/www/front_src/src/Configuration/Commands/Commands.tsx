@@ -5,7 +5,7 @@ import useColumns from './Columns/useColumns';
 import useCommands from './useCommands';
 
 import { ResourceType } from '../models';
-import { defaultValues, useInputs, useValidationSchema } from './Form';
+import { initialValues, useInputs, useValidationSchema } from './Form';
 import {
   columnsAtomKey,
   defaultSelectedColumnIds,
@@ -45,7 +45,7 @@ const Commands = () => {
       selectedColumnIdsAtom={selectedColumnIdsAtom}
       columns={columns}
       resourceType={ResourceType.Command}
-      form={{ inputs, groups, validationSchema, defaultValues }}
+      form={{ inputs, groups, validationSchema, defaultValues: initialValues }}
       api={api}
       filtersConfiguration={filtersConfiguration}
       filtersInitialValues={filtersInitialValues}

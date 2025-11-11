@@ -1,12 +1,3 @@
-export const labelAdditionalConnectorConfiguration =
-  'Additional Configurations';
-
-export const labelDescription = 'Description';
-export const labelCreator = 'Creator';
-export const labelCreationDate = 'Creation date';
-export const labelLastUpdate = 'Last update';
-
-export const labelUpdateBy = 'Updated by';
 export const labelDelete = 'Delete';
 export const labelDuplicate = 'Duplicate';
 export const labelMoreActions = 'More actions';
@@ -19,27 +10,13 @@ export const labelMoreFilters = 'More filters';
 export const labelClear = 'Clear';
 export const labelPoller = 'Poller';
 export const labelCancel = 'Cancel';
-export const labelDeleteAdditionalConnectorConfiguration =
-  'Delete additional configuration';
-export const labelDeleteAdditionalConnectorDescription =
-  'The {{name}} additional configuration will be permanently deleted.';
+
 export const labelSomeConnectorsMayNotWorkAnymore =
   'The corresponding connectors will not work anymore.';
 
-export const labelNameMustBeMost = 'The name can be at most 50 characters long';
-export const labelDescriptionMustBeMost =
-  'The name can be at most 50 characters long';
-export const labelNameMustBeAtLeast =
-  'The name should be at least 3 characters long';
-
 export const labelCreate = 'Create';
 export const labelUpdate = 'Update';
-export const labelSelectType = 'Select type';
-export const labelSelectPollers = 'Select poller(s)';
-export const labelPort = 'Port';
-export const labelValue = 'Value';
-export const labelPassword = 'Password';
-export const labelAddParameter = 'Add parameter';
+
 export const labelUrl = 'URL';
 export const labelUsername = 'Username';
 
@@ -49,7 +26,6 @@ export const labelYourFormHasUnsavedChanges =
   'Your form has unsaved changes. Do you want to quit the form without saving the changes?';
 export const labelConfirm = 'Confirm';
 export const labelParameters = 'Parameters';
-export const labelParametersTooltip = 'Parameters tooltip';
 
 export const labelSettings = 'Settings';
 
@@ -96,3 +72,4 @@ export const labelComments = 'Comments';
 export const labelPollerGlobalMacros = 'Poller global macros';
 export const labelInstalledPlugins = 'Installed plugins';
 export const labelStandardMacros = 'Standard macros';
+export const labelInsert = 'Insert';

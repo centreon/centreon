@@ -1,5 +1,5 @@
 import { useFormikContext } from 'formik';
-import { ChangeEvent, ReactElement } from 'react';
+import { ChangeEvent, ReactElement, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import ArrowIcon from '@mui/icons-material/ArrowForwardSharp';
@@ -17,6 +17,7 @@ import {
 
 import {
   labelCommandLine,
+  labelInsert,
   labelInstalledPlugins,
   labelPollerGlobalMacros,
   labelStandardMacros
@@ -25,14 +26,32 @@ import {
 const CommandLine = (): ReactElement => {
   const { t } = useTranslation();
 
+  const [macros, setMacros] = useState({
+    globalMarco: null,
+    standardMacro: null,
+    installedPlugin: null
+  });
+
   const { values, setFieldValue, setFieldTouched, touched, errors } =
     useFormikContext<Command>();
 
-  const value = values?.commandLine;
-
-  const change = (event: ChangeEvent<HTMLInputElement>): void => {
+  const changeCommand = (event: ChangeEvent<HTMLInputElement>): void => {
     setFieldTouched('commandLine', true);
     setFieldValue('commandLine', event.target.value);
+  };
+
+  const changeMacro =
+    (property: string) =>
+    (_, value): void => {
+      setMacros({ ...macros, [property]: value });
+    };
+
+  const insertMacroIntoCommand = (property: string) => (): void => {
+    const macro = macros[property].name;
+    const commandLine = values.commandLine;
+
+    setFieldTouched('commandLine', true);
+    setFieldValue('commandLine', `${commandLine}${macro}`);
   };
 
   return (
@@ -40,64 +59,60 @@ const CommandLine = (): ReactElement => {
       <div className="flex flex-col justify-between">
         <SingleConnectedAutocompleteField
           label={t(labelPollerGlobalMacros)}
-          onChange={() => undefined}
+          value={macros.globalMarco}
           getEndpoint={getGlobalMacrosEndpoint}
-          value={null}
+          onChange={changeMacro('globalMarco')}
         />
 
         <SingleConnectedAutocompleteField
           label={t(labelInstalledPlugins)}
-          onChange={() => undefined}
+          onChange={changeMacro('installedPlugin')}
           getEndpoint={getStandardMacrosEndpoint}
-          value={null}
+          value={macros.installedPlugin}
         />
 
         <SingleConnectedAutocompleteField
           label={t(labelStandardMacros)}
-          onChange={() => undefined}
+          onChange={changeMacro('standardMacro')}
           getEndpoint={getPluginsEndpoint}
-          value={null}
+          value={macros.standardMacro}
         />
       </div>
-      <div className="flex flex-col justify-between">
-        <div className="flex justify-end items-center">
-          <IconButton
-            data-testid="Insert"
-            title="Insert"
-            onClick={() => undefined}
-            disabled={false}
-            variant="ghost"
-            icon={<ArrowIcon fontSize="small" />}
-          />
-        </div>
-        <div className="flex justify-end items-center">
-          <IconButton
-            data-testid="Insert"
-            title="Insert"
-            onClick={() => undefined}
-            disabled={true}
-            variant="ghost"
-            icon={<ArrowIcon fontSize="small" />}
-          />
-        </div>
-        <div className="flex justify-end items-center">
-          <IconButton
-            data-testid="Insert"
-            title="Insert"
-            onClick={() => undefined}
-            disabled={true}
-            variant="ghost"
-            icon={<ArrowIcon fontSize="small" />}
-          />
-        </div>
+      <div className="flex flex-col justify-between items-end">
+        <IconButton
+          data-testid="Insert global marco"
+          title={t(labelInsert)}
+          onClick={insertMacroIntoCommand('globalMarco')}
+          disabled={!macros.globalMarco}
+          variant="ghost"
+          icon={<ArrowIcon fontSize="small" />}
+        />
+
+        <IconButton
+          data-testid="Insert installed plugin"
+          title={t(labelInsert)}
+          onClick={insertMacroIntoCommand('installedPlugin')}
+          disabled={!macros.installedPlugin}
+          variant="ghost"
+          icon={<ArrowIcon fontSize="small" />}
+        />
+
+        <IconButton
+          data-testid="Insert standard marco"
+          title={t(labelInsert)}
+          onClick={insertMacroIntoCommand('standardMacro')}
+          disabled={!macros.standardMacro}
+          variant="ghost"
+          icon={<ArrowIcon fontSize="small" />}
+        />
       </div>
 
       <TextField
         required
         multiline
         rows={6}
-        value={value}
-        onChange={change}
+        value={values?.commandLine}
+        onChange={changeCommand}
         label={t(labelCommandLine)}
         dataTestId={labelCommandLine}
         fullWidth
