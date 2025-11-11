@@ -633,7 +633,7 @@ $migrateAccUsernamesFromVault = function () use ($pearDB, &$errorMessage, $versi
 
         // Retrieve and decrypt usernames from vault
         foreach ($parameters['vcenters'] as $index => $vcenter) {
-           $parameters['vcenters'][$index]['username'] = str_starts_with(
+            $parameters['vcenters'][$index]['username'] = str_starts_with(
                 $vcenter['username'],
                 VaultConfiguration::VAULT_PATH_PATTERN
             ) ? $vcenter['username'] : $encryption->decrypt($vcenter['username']) ?? '';
