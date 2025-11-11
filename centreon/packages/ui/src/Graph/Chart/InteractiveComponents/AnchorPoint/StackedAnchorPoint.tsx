@@ -46,7 +46,7 @@ export const getYAnchorPoint = ({
     return null;
   }
 
-  return yScale(timeValue[1] as number);
+  return yScale(timeValue[0] as number);
 };
 
 const StackedAnchorPoint = ({

@@ -6,6 +6,8 @@ import { TypographyProps } from '@mui/material/Typography';
 
 import Checkbox, { LabelPlacement } from '../Checkbox';
 
+import { useTranslation } from 'react-i18next';
+
 interface Props {
   className?: string;
   dataTestId?: string;
@@ -45,6 +47,8 @@ const CheckboxGroup = ({
 }: Props): JSX.Element => {
   const { classes, cx } = useStyles();
 
+  const { t } = useTranslation();
+
   const row = !equals(direction, 'vertical');
 
   return (
@@ -61,10 +65,11 @@ const CheckboxGroup = ({
             className={cx(classes.checkbox, className)}
             disabled={disabled}
             key={value}
-            label={value}
+            label={t(value)}
             labelPlacement={labelPlacement}
             labelProps={labelProps}
             onChange={onChange}
+            id={value}
           />
         );
       })}

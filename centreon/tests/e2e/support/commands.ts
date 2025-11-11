@@ -19,6 +19,7 @@ import '../features/Commands/commands';
 import '../features/Resources-status/commands';
 import '../features/Platform-upgrade-update/commands';
 import '../features/Additional-connectors/commands';
+import '../features/Macros/commands';
 
 
 Cypress.Commands.add('refreshListing', (): Cypress.Chainable => {
