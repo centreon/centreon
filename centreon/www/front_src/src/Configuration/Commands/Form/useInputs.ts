@@ -8,6 +8,8 @@ import CommandLine from './CommandLine/CommandLine';
 import CommandType from './CommandType/CommandType';
 import EnableShellSyntax from './EnableShellSyntax/EnableShellSyntax';
 
+import { connectorsEndpoint } from '../api';
+
 import {
   labelAdditionalInformation,
   labelCommandLine,
@@ -105,7 +107,7 @@ export const useInputs = (): {
           columns: [
             {
               connectedAutocomplete: {
-                endpoint: 'listUsers',
+                endpoint: connectorsEndpoint,
                 filterKey: 'name'
               },
               fieldName: 'connector',

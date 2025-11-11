@@ -1,5 +1,9 @@
 export { commandsListDecoder, commandDecoder } from './decoders';
 export {
   getCommandsEndpoint,
-  commandsEndpoint
+  commandsEndpoint,
+  getGlobalMacrosEndpoint,
+  getStandardMacrosEndpoint,
+  getPluginsEndpoint,
+  connectorsEndpoint
 } from './endpoints';

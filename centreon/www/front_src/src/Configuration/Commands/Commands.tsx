@@ -44,7 +44,7 @@ const Commands = () => {
       filtersAtom={filtersAtom}
       selectedColumnIdsAtom={selectedColumnIdsAtom}
       columns={columns}
-      resourceType={ResourceType.Commands}
+      resourceType={ResourceType.Command}
       form={{ inputs, groups, validationSchema, defaultValues }}
       api={api}
       filtersConfiguration={filtersConfiguration}

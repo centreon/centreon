@@ -1,16 +1,20 @@
+import { useFormikContext } from 'formik';
 import { ChangeEvent, ReactElement } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import ArrowIcon from '@mui/icons-material/ArrowForwardSharp';
 
-import {
-  IconButton,
-  SingleConnectedAutocompleteField,
-  TextField
-} from '@centreon/ui';
-import { useTranslation } from 'react-i18next';
+import { SingleConnectedAutocompleteField, TextField } from '@centreon/ui';
+import { IconButton } from '@centreon/ui/components';
 
-import { useFormikContext } from 'formik';
 import { Command } from '../../models';
+
+import {
+  getGlobalMacrosEndpoint,
+  getPluginsEndpoint,
+  getStandardMacrosEndpoint
+} from '../../api';
+
 import {
   labelCommandLine,
   labelInstalledPlugins,
@@ -32,102 +36,59 @@ const CommandLine = (): ReactElement => {
   };
 
   return (
-    <div
-      style={{
-        display: 'grid',
-        gap: '8px',
-        gridTemplateColumns: '2fr 40px 5fr',
-        paddingTop: '8px'
-      }}
-    >
-      <div
-        style={{
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'space-between'
-        }}
-      >
+    <div className="grid grid-cols-[2fr_50px_5fr] pt-2">
+      <div className="flex flex-col justify-between">
         <SingleConnectedAutocompleteField
           label={t(labelPollerGlobalMacros)}
           onChange={() => undefined}
-          getEndpoint={(parameters) => ''}
-          value={{ id: 'host', name: 'name' }}
+          getEndpoint={getGlobalMacrosEndpoint}
+          value={null}
         />
 
         <SingleConnectedAutocompleteField
           label={t(labelInstalledPlugins)}
           onChange={() => undefined}
-          getEndpoint={(parameters) => ''}
-          value={{ id: 'host', name: 'name' }}
+          getEndpoint={getStandardMacrosEndpoint}
+          value={null}
         />
 
         <SingleConnectedAutocompleteField
           label={t(labelStandardMacros)}
           onChange={() => undefined}
-          getEndpoint={(parameters) => ''}
-          value={{ id: 'host', name: 'name' }}
+          getEndpoint={getPluginsEndpoint}
+          value={null}
         />
       </div>
-      <div
-        style={{
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'space-between'
-        }}
-      >
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'end',
-            alignItems: 'center'
-          }}
-        >
+      <div className="flex flex-col justify-between">
+        <div className="flex justify-end items-center">
           <IconButton
-            ariaLabel="Insert"
-            dataTestid="Insert"
+            data-testid="Insert"
             title="Insert"
             onClick={() => undefined}
             disabled={false}
-            style={{ color: '#0004' }}
-          >
-            <ArrowIcon />
-          </IconButton>
+            variant="ghost"
+            icon={<ArrowIcon fontSize="small" />}
+          />
         </div>
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'end',
-            alignItems: 'center'
-          }}
-        >
+        <div className="flex justify-end items-center">
           <IconButton
-            ariaLabel="Insert"
-            dataTestid="Insert"
+            data-testid="Insert"
             title="Insert"
             onClick={() => undefined}
-            disabled={false}
-            style={{ color: '#0004' }}
-          >
-            <ArrowIcon />
-          </IconButton>
+            disabled={true}
+            variant="ghost"
+            icon={<ArrowIcon fontSize="small" />}
+          />
         </div>
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'end',
-            alignItems: 'center'
-          }}
-        >
+        <div className="flex justify-end items-center">
           <IconButton
-            ariaLabel="Insert"
-            dataTestid="Insert"
+            data-testid="Insert"
             title="Insert"
             onClick={() => undefined}
-            disabled={false}
-            style={{ color: '#0004' }}
-          >
-            <ArrowIcon />
-          </IconButton>
+            disabled={true}
+            variant="ghost"
+            icon={<ArrowIcon fontSize="small" />}
+          />
         </div>
       </div>
 
