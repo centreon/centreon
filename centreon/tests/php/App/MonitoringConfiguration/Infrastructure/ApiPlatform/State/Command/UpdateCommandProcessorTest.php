@@ -72,9 +72,7 @@ final class UpdateCommandProcessorTest extends ApiTestCase
             ],
             'json' => [
                 'name' => 'Command with Connector',
-                'connector' => [
-                    'id' => 1,
-                ],
+                'connector' => '/centreon/api/latest/configuration/connectors/1',
             ],
         ]);
 
@@ -90,11 +88,22 @@ final class UpdateCommandProcessorTest extends ApiTestCase
     {
         $this->login();
 
-        // check thatt the command has a connector first
+        // First, add a connector to ensure test independence
+        $this->request('PATCH', '/api/latest/configuration/commands/1', [
+            'headers' => [
+                'Content-Type' => 'application/merge-patch+json',
+            ],
+            'json' => [
+                'connector' => '/centreon/api/latest/configuration/connectors/1',
+            ],
+        ]);
+
+        // Verify connector was added
         $response = $this->request('GET', '/api/latest/configuration/commands/1');
         self::assertArrayHasKey('connector', $response->toArray());
 
-        $this->request('PATCH', '/api/latest/configuration/commands/1', [
+        // Now remove the connector
+        $response = $this->request('PATCH', '/api/latest/configuration/commands/1', [
             'headers' => [
                 'Content-Type' => 'application/merge-patch+json',
             ],
@@ -113,25 +122,21 @@ final class UpdateCommandProcessorTest extends ApiTestCase
     {
         $this->login();
 
-        $response = $this->request('PATCH', '/api/latest/configuration/commands/1', [
+        $this->request('PATCH', '/api/latest/configuration/commands/1', [
             'headers' => [
                 'Content-Type' => 'application/merge-patch+json',
             ],
             'json' => [
                 'name' => 'Command with Invalid Connector',
-                'connector' => [
-                    'id' => 999999,
-                    'name' => 'Non-existent Connector',
-                ],
+                'connector' => '/centreon/api/latest/configuration/connectors/9999',
             ],
         ]);
 
-        self::assertResponseIsSuccessful();
-        self::assertMatchesResourceItemJsonSchema(CommandResource::class);
+        self::assertResponseStatusCodeSame(404);
         self::assertJsonContains([
-            'name' => 'Command with Invalid Connector',
+            'detail' => 'Resource not found.',
+            'status' => 404,
         ]);
-        self::assertArrayNotHasKey('connector', $response->toArray());
     }
 
     public function testUpdateCommandKeepExistingConnector(): void
@@ -174,10 +179,21 @@ final class UpdateCommandProcessorTest extends ApiTestCase
     {
         $this->login();
 
-        // first, ensure command is activated before test
+        // First, ensure command is activated for test independence
+        $this->request('PATCH', '/api/latest/configuration/commands/1', [
+            'headers' => [
+                'Content-Type' => 'application/merge-patch+json',
+            ],
+            'json' => [
+                'is_activated' => true,
+            ],
+        ]);
+
+        // Verify command is activated
         $response = $this->request('GET', '/api/latest/configuration/commands/1');
         self::assertTrue($response->toArray()['is_activated']);
 
+        // Now deactivate it
         $this->request('PATCH', '/api/latest/configuration/commands/1', [
             'headers' => [
                 'Content-Type' => 'application/merge-patch+json',
@@ -198,10 +214,21 @@ final class UpdateCommandProcessorTest extends ApiTestCase
     {
         $this->login();
 
+        // First, ensure command is deactivated for test independence
+        $this->request('PATCH', '/api/latest/configuration/commands/1', [
+            'headers' => [
+                'Content-Type' => 'application/merge-patch+json',
+            ],
+            'json' => [
+                'is_activated' => false,
+            ],
+        ]);
+
+        // Verify command is deactivated
         $response = $this->request('GET', '/api/latest/configuration/commands/1');
-        // ensure command is deactivated before test
         self::assertFalse($response->toArray()['is_activated']);
 
+        // Now activate it
         $this->request('PATCH', '/api/latest/configuration/commands/1', [
             'headers' => [
                 'Content-Type' => 'application/merge-patch+json',

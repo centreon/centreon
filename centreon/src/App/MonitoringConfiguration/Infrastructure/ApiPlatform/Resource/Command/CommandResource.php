@@ -44,7 +44,7 @@ use Symfony\Component\Validator\Constraints as Assert;
             provider: FindCommandProvider::class,
             openapi: new Model\Operation(
                 responses: [
-                    404 => new Model\Response('Command not found'),
+                    404 => new Model\Response('Command resource not found'),
                     403 => new Model\Response('You are not allowed to access this command'),
                 ],
             ),
@@ -57,7 +57,7 @@ use Symfony\Component\Validator\Constraints as Assert;
             processor: UpdateCommandProcessor::class,
             openapi: new Model\Operation(
                 responses: [
-                    404 => new Model\Response('Command not found'),
+                    404 => new Model\Response('Command resource not found'),
                     403 => new Model\Response('You are not allowed to update this command'),
                 ],
             ),
