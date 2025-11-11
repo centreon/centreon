@@ -46,7 +46,7 @@ final class ListCommandsProviderTest extends ApiTestCase
         );
         self::assertJsonContains(
             [
-                'totalItems' => 53,
+                'totalItems' => 52,
             ]
         );
     }
@@ -141,7 +141,7 @@ final class ListCommandsProviderTest extends ApiTestCase
         $this->login();
 
         // call PATCH to deactivate a command
-        $this->request('PATCH', '/api/latest/configuration/commands/2', [
+        $this->request('PATCH', '/api/latest/configuration/commands/1', [
             'headers' => [
                 'Content-Type' => 'application/merge-patch+json',
             ],
@@ -171,7 +171,7 @@ final class ListCommandsProviderTest extends ApiTestCase
         self::assertResponseIsSuccessful();
         self::assertMatchesResourceCollectionJsonSchema(ListCommandResource::class);
         $this->assertCount(5, (array) $response->toArray()['member']);
-        $this->assertEquals(53, $response->toArray()['totalItems']);
+        $this->assertEquals(52, $response->toArray()['totalItems']);
     }
 
     public function testItFindAllCommandsWithPaginationAndFilters(): void
@@ -225,8 +225,62 @@ final class ListCommandsProviderTest extends ApiTestCase
         );
     }
 
+    public function testItShouldDenyAccessWhenUserHasNoCommandPermissions(): void
+    {
+        $this->login('user_without_command_permissions');
+
+        $this->request('GET', self::BASE_ENDPOINT);
+        self::assertResponseStatusCodeSame(403);
+    }
+
+    public function testItShouldFilterCommandsBasedOnUserPermissions(): void
+    {
+        $this->login('user_with_limited_command_permissions');
+
+        $response = $this->request('GET', self::BASE_ENDPOINT, ['query' => ['itemsPerPage' => '100']]);
+        self::assertResponseIsSuccessful();
+        self::assertMatchesResourceCollectionJsonSchema(ListCommandResource::class);
+
+        // User has permissions for check and notification commands, so should see those types
+        $data = $response->toArray();
+        $commandTypes = array_unique(array_column(is_array($data['member']) ? $data['member'] : [], 'type'));
+
+        // Should only contain Check and Notification types
+        $this->assertContains('Check', $commandTypes);
+        $this->assertContains('Notification', $commandTypes);
+        $this->assertNotContains('Miscellaneous', $commandTypes);
+        $this->assertNotContains('Discovery', $commandTypes);
+    }
+
+    public function testItShouldFilterCommandsWhenRequestingSpecificTypesUserCannotAccess(): void
+    {
+        $this->login('user_with_limited_command_permissions');
+
+        // User has permissions for Check and Notification, but request includes Miscellaneous
+        $response = $this->request('GET', self::BASE_ENDPOINT, ['query' => ['type[]' => ['Check', 'Miscellaneous']]]);
+        self::assertResponseIsSuccessful();
+
+        // Should only return Check commands since user doesn't have Miscellaneous permission
+        $data = $response->toArray();
+        $commandTypes = array_unique(array_column(is_array($data['member']) ? $data['member'] : [], 'type'));
+
+        $this->assertContains('Check', $commandTypes);
+        $this->assertNotContains('Miscellaneous', $commandTypes);
+    }
+
     protected static function apiUsers(): array
     {
-        return ['user'];
+        return [
+            [
+                'identifier' => 'user_with_limited_command_permissions',
+                'admin' => false,
+                'actions' => [self::CAN_READ_CHECK_COMMANDS, self::CAN_READ_AND_WRITE_NOTIFICATION_COMMANDS],
+            ],
+            [
+                'identifier' => 'user_without_command_permissions',
+                'admin' => false,
+                'actions' => [],
+            ],
+        ];
     }
 }

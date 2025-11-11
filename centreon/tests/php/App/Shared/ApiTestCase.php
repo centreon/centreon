@@ -30,6 +30,8 @@ use Symfony\Contracts\HttpClient\ResponseInterface;
 
 abstract class ApiTestCase extends SymfonyApiTestCase
 {
+    public const CAN_READ_CHECK_COMMANDS = 'see_check_commands';
+    public const CAN_READ_AND_WRITE_NOTIFICATION_COMMANDS = 'manage_notification_commands';
     private const TEST_PASSWORD = 'Centreon!2021';
 
     protected static ?bool $alwaysBootKernel = true;
@@ -50,7 +52,7 @@ abstract class ApiTestCase extends SymfonyApiTestCase
                     $apiUser = ['identifier' => $apiUser, 'admin' => false];
                 }
 
-                self::createApiUser($connection, $apiUser['identifier'], $apiUser['admin'] ?? false);
+                self::createApiUser($connection, $apiUser['identifier'], $apiUser['admin'] ?? false, $apiUser['actions'] ?? []);
             }
 
             $connection->commit();
@@ -109,7 +111,7 @@ abstract class ApiTestCase extends SymfonyApiTestCase
     /**
      * Define API users to create for the current test class.
      *
-     * @return list<array{identifier: string, admin?: bool}|string>
+     * @return list<array{identifier: string, admin?: bool, actions?: array<string>}|string>
      */
     protected static function apiUsers(): array
     {
@@ -145,7 +147,10 @@ abstract class ApiTestCase extends SymfonyApiTestCase
         $this->token = null;
     }
 
-    private static function createApiUser(Connection $connection, string $identifier, bool $admin = false): void
+    /**
+     * @param array<string> $actions
+     */
+    private static function createApiUser(Connection $connection, string $identifier, bool $admin = false, array $actions = []): void
     {
         $connection->insert('contact', [
             'contact_name' => $identifier,
@@ -156,15 +161,94 @@ abstract class ApiTestCase extends SymfonyApiTestCase
             'contact_email' => $identifier . '@email.com',
         ]);
 
+        $contactId = (int) $connection->lastInsertId();
+
         $connection->insert('contact_password', [
-            'contact_id' => (int) $connection->lastInsertId(),
+            'contact_id' => $contactId,
             'password' => password_hash('Centreon!2021', \PASSWORD_BCRYPT),
             'creation_date' => (new \DateTimeImmutable())->getTimestamp(),
+        ]);
+
+        if (! $admin && $actions !== []) {
+            self::setupAclForUser($connection, $contactId, $identifier, $actions);
+        }
+    }
+
+    /**
+     * @param array<string> $actions
+     */
+    private static function setupAclForUser(Connection $connection, int $contactId, string $identifier, array $actions): void
+    {
+        // Create ACL group
+        $connection->insert('acl_groups', [
+            'acl_group_name' => "Test ACL Group for {$identifier}",
+            'acl_group_alias' => "test_acl_{$identifier}",
+            'acl_group_activate' => '1',
+        ]);
+
+        $aclGroupId = (int) $connection->lastInsertId();
+
+        // Create ACL actions
+        $connection->insert('acl_actions', [
+            'acl_action_name' => "test_actions_{$identifier}",
+            'acl_action_activate' => '1',
+        ]);
+
+        $aclActionId = (int) $connection->lastInsertId();
+
+        // Link action to group
+        $connection->insert('acl_group_actions_relations', [
+            'acl_group_id' => $aclGroupId,
+            'acl_action_id' => $aclActionId,
+        ]);
+
+        // Add action rules
+        foreach ($actions as $action) {
+            $connection->insert('acl_actions_rules', [
+                'acl_action_rule_id' => $aclActionId,
+                'acl_action_name' => $action,
+            ]);
+        }
+
+        // Link user to group
+        $connection->insert('acl_group_contacts_relations', [
+            'acl_group_id' => $aclGroupId,
+            'contact_contact_id' => $contactId,
         ]);
     }
 
     private static function deleteApiUser(Connection $connection, string $identifier): void
     {
+        // Get contact ID
+        $contactId = $connection->fetchOne('SELECT contact_id FROM contact WHERE contact_alias = :identifier', [
+            'identifier' => $identifier,
+        ]);
+
+        if ($contactId) {
+            // Delete ACL relations
+            $aclGroupIds = $connection->fetchFirstColumn(
+                'SELECT acl_group_id FROM acl_group_contacts_relations WHERE contact_contact_id = :contactId',
+                ['contactId' => $contactId]
+            );
+
+            foreach ($aclGroupIds as $aclGroupId) {
+                // Delete action relations
+                $aclActionIds = $connection->fetchFirstColumn(
+                    'SELECT acl_action_id FROM acl_group_actions_relations WHERE acl_group_id = :aclGroupId',
+                    ['aclGroupId' => $aclGroupId]
+                );
+
+                foreach ($aclActionIds as $aclActionId) {
+                    $connection->delete('acl_actions_rules', ['acl_action_rule_id' => $aclActionId]);
+                    $connection->delete('acl_actions', ['acl_action_id' => $aclActionId]);
+                }
+
+                $connection->delete('acl_group_actions_relations', ['acl_group_id' => $aclGroupId]);
+                $connection->delete('acl_group_contacts_relations', ['acl_group_id' => $aclGroupId]);
+                $connection->delete('acl_groups', ['acl_group_id' => $aclGroupId]);
+            }
+        }
+
         $connection->executeStatement('DELETE FROM contact_password WHERE contact_id IN (SELECT contact_id FROM contact WHERE contact_alias = :identifier)', [
             'identifier' => $identifier,
         ]);

@@ -74,16 +74,18 @@ final readonly class ListCommandsProvider implements ProviderInterface
                 $allowedTypes[] = $commandType->name;
             }
         }
-        /** @var array{type?: string, name?: array<string>|null, is_activated?: string}|null $filters */
+        /** @var array{type?: string|array<string>, name?: array<string>|null, is_activated?: string}|null $filters */
         $filters = $context['filters'] ?? [];
 
-        // allowed types Intersect with requested types
-        /** @var array<string>|null $requestedTypes */
+        // Filter allowed types by requested types
+        /** @var array<string>|string|null $requestedTypes */
         $requestedTypes = $filters['type'] ?? null;
-        if ($requestedTypes !== null) {
-            $allowedTypes = array_intersect($requestedTypes, $allowedTypes);
 
+        if ($requestedTypes !== null) {
+            $requestedTypes = is_string($requestedTypes) ? [$requestedTypes] : $requestedTypes;
+            $allowedTypes = array_intersect($requestedTypes, $allowedTypes);
         }
+
         $criteria = new CommandCriteria();
         if ($this->pagination->isEnabled($operation, $context)) {
             $criteria = $criteria->withPagination(

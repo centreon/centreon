@@ -89,7 +89,7 @@ final readonly class DbalCommandRepository extends DbalRepository implements Com
         /** @var RowTypeAlias $row */
         $row = $qb->executeQuery()->fetchAssociative();
         if (! $row) {
-            throw new CommandNotFoundException(['id' => $id->value]);
+            throw new CommandNotFoundException(['id' => $id->value], 'Command not found');
         }
 
         return $this->createCommand($row);
