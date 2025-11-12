@@ -1,6 +1,6 @@
 import { Meta, StoryObj } from '@storybook/react';
 import dayjs from 'dayjs';
-import '../ThemeProvider/tailwindcss.css';
+import '../../ThemeProvider/tailwindcss.css';
 
 import { LineChartData } from '../common/models';
 import dataPingService from '../mockedData/pingService.json';
