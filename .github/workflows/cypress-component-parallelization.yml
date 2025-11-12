@@ -323,19 +323,32 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          artifacts=$(gh api repos/${{ github.repository }}/actions/artifacts --jq '.artifacts[].name')
-          merge_list=""
           pattern="${{ inputs.name }}-component-${{ matrix.type_of_report }}"
-          for artifact in $artifacts; do
-            if [[ "$artifact" == *"$pattern"* ]]; then
-              merge_list="$merge_list $artifact"
+          found=false
+          timeout=60       # temps max d’attente en secondes
+          interval=5       # intervalle entre chaque check
+          elapsed=0
+
+          while [ $elapsed -lt $timeout ]; do
+            artifacts=$(gh api repos/${{ github.repository }}/actions/artifacts --jq '.artifacts[].name')
+            merge_list=""
+            for artifact in $artifacts; do
+              if [[ "$artifact" == *"$pattern"* ]]; then
+                merge_list="$merge_list $artifact"
+              fi
+            done
+
+            if [ -n "$merge_list" ]; then
+              found=true
+              break
             fi
+
+            echo "Artifacts not found yet, waiting $interval seconds..."
+            sleep $interval
+            elapsed=$((elapsed + interval))
           done
-          if [ -n "$merge_list" ]; then
-            echo "found=true" >> $GITHUB_OUTPUT
-          else
-            echo "found=false" >> $GITHUB_OUTPUT
-          fi
+
+          echo "found=$found" >> $GITHUB_OUTPUT
         shell: bash
 
       - name: Merge Artifacts
