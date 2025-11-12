@@ -60,6 +60,7 @@ try {
     $fixBrokerConfigTypo();
 
     $pearDB->commitTransaction();
+
 } catch (Throwable $throwable) {
     CentreonLog::create()->error(
         logTypeId: CentreonLog::TYPE_UPGRADE,
