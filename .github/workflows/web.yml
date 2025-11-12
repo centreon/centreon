@@ -201,7 +201,7 @@ jobs:
             const version = majorVersionContent.match(/MAJOR="?(\d+\.\d+)"?/)[1] + "." + minorVersionContent.match(/MINOR="?(\d+)"?/)[1]
 
             if (process.env.UPDATED_UPGRADE_FILES.match(`/Update-${version}\.php$`)) {
-              core.notice('Properly updating ` + process.env.UPDATED_UPGRADE_FILES + ` script');
+              core.notice(`Properly updating ` + process.env.UPDATED_UPGRADE_FILES + ` script`);
               return;
             } else {
               core.setFailed(`❌ Update script ` + process.env.UPDATED_UPGRADE_FILES + ` should not be modified`);
