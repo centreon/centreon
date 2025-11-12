@@ -90,14 +90,14 @@ properties:
     example: true
   service_categories:
     type: array
-    description: "IDs of service categories linked to this service."
+    descriptions: "IDs of service categories linked to this service."
     items:
       type: integer
       description: "Service category ID"
     example: [ 1, 2 ]
   service_groups:
     type: array
-    description: "IDs of service groups linked to this service."
+    descriptions: "IDs of service groups linked to this service."
     items:
       type: integer
       description: "Service group ID"
