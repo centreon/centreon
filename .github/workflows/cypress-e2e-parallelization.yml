@@ -405,21 +405,21 @@ jobs:
         run: |
           pattern="${{ inputs.name }}-${{ inputs.os }}-${{ matrix.type_of_report }}"
           found=false
-          timeout=60       # maximum wait time in seconds
+          timeout=80       # maximum wait time in seconds
           interval=5       # interval between each check
           elapsed=0
 
           while [ $elapsed -lt $timeout ]; do
-            # Récupère les noms d'artefacts sans guillemets
+            # Get artifact names without quotes
             artifacts=$(gh api repos/${{ github.repository }}/actions/artifacts --jq -r '.artifacts[].name')
             merge_list=""
 
-            while IFS= read -r artifact; do
+            for artifact in $artifacts; do
               echo "Checking artifact: $artifact"
               if [[ "$artifact" == *"$pattern"* ]]; then
                 merge_list="$merge_list $artifact"
               fi
-            done <<< "$artifacts"
+            done
 
             if [ -n "$merge_list" ]; then
               found=true
