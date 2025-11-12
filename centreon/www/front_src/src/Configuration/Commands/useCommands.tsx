@@ -1,3 +1,5 @@
+import { Method } from '@centreon/ui';
+
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -39,11 +41,18 @@ const useCommands = (): UseCommandsState => {
         getOne: getCommandEndpoint,
         deleteOne: getCommandEndpoint,
         create: commandsEndpoint,
-        update: getCommandEndpoint
+        update: getCommandEndpoint,
+        enable: getCommandEndpoint,
+        disable: getCommandEndpoint
       },
       decoders: {
         getAll: commandsListDecoder,
         getOne: commandDecoder
+      },
+      methods: {
+        update: Method.PATCH,
+        enable: Method.PATCH,
+        disable: Method.PATCH
       },
       adapter: adaptFormToApiPayload,
       apiFormat: 'JSON-LD'

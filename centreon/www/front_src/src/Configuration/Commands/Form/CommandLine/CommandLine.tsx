@@ -10,6 +10,7 @@ import { IconButton } from '@centreon/ui/components';
 import { Command } from '../../models';
 
 import {
+  JSONLDEntitiesListDecoder,
   getGlobalMacrosEndpoint,
   getPluginsEndpoint,
   getStandardMacrosEndpoint
@@ -62,6 +63,8 @@ const CommandLine = (): ReactElement => {
           value={macros.globalMarco}
           getEndpoint={getGlobalMacrosEndpoint}
           onChange={changeMacro('globalMarco')}
+          decoder={JSONLDEntitiesListDecoder}
+          field="name"
         />
 
         <SingleConnectedAutocompleteField
@@ -69,6 +72,8 @@ const CommandLine = (): ReactElement => {
           onChange={changeMacro('installedPlugin')}
           getEndpoint={getStandardMacrosEndpoint}
           value={macros.installedPlugin}
+          decoder={JSONLDEntitiesListDecoder}
+          field="name"
         />
 
         <SingleConnectedAutocompleteField
@@ -76,6 +81,8 @@ const CommandLine = (): ReactElement => {
           onChange={changeMacro('standardMacro')}
           getEndpoint={getPluginsEndpoint}
           value={macros.standardMacro}
+          decoder={JSONLDEntitiesListDecoder}
+          field="name"
         />
       </div>
       <div className="flex flex-col justify-between items-end">

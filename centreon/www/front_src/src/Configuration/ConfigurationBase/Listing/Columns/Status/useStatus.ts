@@ -1,9 +1,14 @@
 import { useAtomValue } from 'jotai';
-import { complement, isNotEmpty, propEq } from 'ramda';
+import { complement, equals, isNotEmpty, propEq } from 'ramda';
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { ResponseError, useBulkResponse } from '@centreon/ui';
+import {
+  Method,
+  ResponseError,
+  useBulkResponse,
+  useSnackbar
+} from '@centreon/ui';
 import { capitalize } from '@mui/material';
 import { useDisable, useEnable } from '../../../api';
 
@@ -29,8 +34,11 @@ const useStatus = ({ row }): Props => {
 
   const handleBulkResponse = useBulkResponse();
 
+  const { showSuccessMessage } = useSnackbar();
+
   const configuration = useAtomValue(configurationAtom);
   const resourceType = configuration?.resourceType;
+  const method = configuration?.api?.methods?.disable as Method;
 
   const isActivated = row.isActivated;
 
@@ -47,24 +55,40 @@ const useStatus = ({ row }): Props => {
   const { enableMutation, isMutating: isEnableMutating } = useEnable();
   const { disableMutation, isMutating: isDisableMutating } = useDisable();
 
-  const labelSuccessMessage = checked
-    ? t(labelResourceDisabled(labelResourceType))
-    : t(labelResourceEnabled(labelResourceType));
+  const labelSuccessMessage = t(
+    (checked ? labelResourceDisabled : labelResourceEnabled)(labelResourceType)
+  );
 
-  const labelErrorMessage = checked
-    ? t(labelFailedToDisableResources(labelResourceType))
-    : t(labelFailedToEnableResources(labelResourceType));
+  const labelErrorMessage = t(
+    (checked ? labelFailedToDisableResources : labelFailedToEnableResources)(
+      labelResourceType
+    )
+  );
 
-  const labelWarningMessage = checked
-    ? t(labelFailedToDisableSomeResources)
-    : t(labelFailedToEnableSomeResources);
+  const labelWarningMessage = t(
+    checked
+      ? labelFailedToDisableSomeResources
+      : labelFailedToEnableSomeResources
+  );
 
   const handleApiResponse = (response) => {
     const { isError, results } = response as ResponseError;
 
+    if (isError) {
+      setChecked(checked);
+
+      return;
+    }
+
+    if (equals(method, Method.PATCH)) {
+      showSuccessMessage(labelSuccessMessage);
+
+      return;
+    }
+
     const failedResponses = results?.filter(complement(propEq(204, 'status')));
 
-    if (isError || isNotEmpty(failedResponses)) {
+    if (isNotEmpty(failedResponses)) {
       setChecked(checked);
 
       return;

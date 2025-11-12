@@ -1,4 +1,4 @@
-import { Column, Group, InputProps } from '@centreon/ui';
+import { Column, Group, InputProps, Method } from '@centreon/ui';
 import { ObjectSchema } from 'yup';
 
 import type { PrimitiveAtom } from 'jotai';
@@ -85,8 +85,8 @@ export interface Endpoints {
   deleteOne?: ({ id }) => string;
   delete?: string;
   duplicate?: string;
-  enable?: string;
-  disable?: string;
+  enable?: ({ id }?) => string;
+  disable?: ({ id }?) => string;
   create?: string;
   update?: ({ id }) => string;
 }
@@ -99,6 +99,11 @@ export interface APIType {
   };
   adapter?;
   apiFormat?: 'standard' | 'JSON-LD';
+  methods?: {
+    update?: Method;
+    enable?: Method;
+    disable?: Method;
+  };
 }
 
 export interface FilterConfiguration {
