@@ -44,11 +44,6 @@ $widgetId = filter_input(INPUT_GET, 'widgetId', FILTER_VALIDATE_INT, ['options' 
 try {
     $configurationDatabase = $dependencyInjector['configuration_db'];
 
-    if (! $centreon->user->admin) {
-        $acls = new CentreonAclLazy($centreon->user->user_id);
-        $accessGroups = $acls->getAccessGroups()->getIds();
-    }
-
     $widgetObj = new CentreonWidget($centreon, $configurationDatabase);
     $preferences = $widgetObj->getWidgetPreferences($widgetId);
 
