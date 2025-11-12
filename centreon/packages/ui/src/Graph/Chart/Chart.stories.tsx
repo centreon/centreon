@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 
 import { Meta, StoryObj } from '@storybook/react';
+import '../ThemeProvider/tailwindcss.css';
 
 import { Button, Menu } from '@mui/material';
 import ButtonGroup from '@mui/material/ButtonGroup';
