@@ -22,7 +22,7 @@ const jsonLdListingDecoder = <TEntity>(
   entityDecoderName: string,
   listingDecoderName: string
 ): JsonDecoder.Decoder<Listing<TEntity>> =>
-  JsonDecoder.object<any>(
+  JsonDecoder.object(
     {
       member: JsonDecoder.array(entityDecoder, entityDecoderName),
       totalItems: JsonDecoder.number
