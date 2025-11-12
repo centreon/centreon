@@ -405,21 +405,18 @@ jobs:
         run: |
           pattern="${{ inputs.name }}-${{ inputs.os }}-${{ matrix.type_of_report }}"
           found=false
-          timeout=80       # maximum wait time in seconds
+          timeout=60       # maximum wait time in seconds
           interval=5       # interval between each check
           elapsed=0
 
           while [ $elapsed -lt $timeout ]; do
-            # Retrieve artifact names without quotes
-            artifacts=$(gh api repos/${{ github.repository }}/actions/artifacts --jq -r '.artifacts[].name')
+            artifacts=$(gh api repos/${{ github.repository }}/actions/artifacts --jq '.artifacts[].name')
             merge_list=""
-
-            while IFS= read -r artifact; do
-              echo "Checking artifact: $artifact"
+            for artifact in $artifacts; do
               if [[ "$artifact" == *"$pattern"* ]]; then
                 merge_list="$merge_list $artifact"
               fi
-            done <<< "$artifacts"
+            done
 
             if [ -n "$merge_list" ]; then
               found=true

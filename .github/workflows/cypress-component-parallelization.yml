@@ -330,7 +330,9 @@ jobs:
           elapsed=0
 
           while [ $elapsed -lt $timeout ]; do
-            artifacts=$(gh api repos/${{ github.repository }}/actions/artifacts --jq '.artifacts[].name')
+            # Retrieve artifact names without quotes
+            artifacts=$(gh api repos/${{ github.repository }}/actions/artifacts --jq '.artifacts[].name' | tr -d '"')
+
             merge_list=""
             for artifact in $artifacts; do
               if [[ "$artifact" == *"$pattern"* ]]; then
