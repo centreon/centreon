@@ -410,13 +410,16 @@ jobs:
           elapsed=0
 
           while [ $elapsed -lt $timeout ]; do
-            artifacts=$(gh api repos/${{ github.repository }}/actions/artifacts --jq '.artifacts[].name')
+            # Récupère les noms d'artefacts sans guillemets
+            artifacts=$(gh api repos/${{ github.repository }}/actions/artifacts --jq -r '.artifacts[].name')
             merge_list=""
-            for artifact in $artifacts; do
+
+            while IFS= read -r artifact; do
+              echo "Checking artifact: $artifact"
               if [[ "$artifact" == *"$pattern"* ]]; then
                 merge_list="$merge_list $artifact"
               fi
-            done
+            done <<< "$artifacts"
 
             if [ -n "$merge_list" ]; then
               found=true
