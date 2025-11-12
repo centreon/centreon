@@ -194,6 +194,18 @@ jobs:
           script: |
             console.log(process.env.UPDATED_UPGRADE_FILES);
 
+            const majorVersionContent = fs.readFileSync('.version', { encoding: 'utf8' });
+            const minorVersionContent = fs.readFileSync('.version.centreon-web', { encoding: 'utf8' });
+            const version = majorVersionContent.match(/MAJOR="?(\d+\.\d+)"?/)[1] + "." + minorVersionContent.match(/MINOR="?(\d+)"?/)[1]
+
+            if (UPDATED_UPGRADE_FILES.match(`/Update-${version}\.php$`)) {
+              core.notice('Properly updating ${UPDATED_UPGRADE_FILES} script');
+              return;
+            } else {
+              core.setFailed(`❌ Update script ${UPDATED_UPGRADE_FILES} should not be modified`);
+              return;
+            }
+
   # frontend-web-build:
   #   needs: [get-environment, changes]
   #   if: |
