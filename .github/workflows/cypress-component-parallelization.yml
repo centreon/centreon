@@ -331,6 +331,8 @@ jobs:
 
       - name: Check if artifact exists
         id: check_artifact
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           echo "Checking artifact: ${{ inputs.name }}-component-${{ matrix.type_of_report }}-*"
           artifacts=$(gh api repos/${{ github.repository }}/actions/artifacts --jq '.artifacts[].name')
