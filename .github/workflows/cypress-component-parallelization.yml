@@ -329,10 +329,20 @@ jobs:
           delete-merged: false # cannot be set to true due to random fails: Failed to DeleteArtifact: Unable to make request: ECONNRESET
           retention-days: 1
 
+      - name: Check if artifact exists
+        id: check_artifact
+        run: |
+          echo "Checking artifact: ${{ inputs.name }}-component-${{ matrix.type_of_report }}-*"
+          artifacts=$(gh api repos/${{ github.repository }}/actions/artifacts --jq '.artifacts[].name')
+          if echo "$artifacts" | grep -q "${{ inputs.name }}-component-${{ matrix.type_of_report }}"; then
+            echo "found=true" >> $GITHUB_OUTPUT
+          else
+            echo "found=false" >> $GITHUB_OUTPUT
+
       - name: Delete merged artifacts
         if: |
-          needs.cypress-component-test-run.result == 'success' ||
-          matrix.type_of_report != 'test-coverage'
+          (needs.cypress-component-test-run.result == 'success' || matrix.type_of_report != 'test-coverage') &&
+          steps.check_artifact.outputs.found == 'true'
         uses: geekyeggo/delete-artifact@f275313e70c08f6120db482d7a6b98377786765b # v5.1.0
         with:
           name: ${{ inputs.name }}-component-${{ matrix.type_of_report }}-*
