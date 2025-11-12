@@ -194,18 +194,22 @@ jobs:
           script: |
             const fs = require('fs');
 
-            console.log(process.env.UPDATED_UPGRADE_FILES);
-
-            const majorVersionContent = fs.readFileSync('.version', { encoding: 'utf8' });
-            const minorVersionContent = fs.readFileSync('.version.centreon-web', { encoding: 'utf8' });
-            const version = majorVersionContent.match(/MAJOR="?(\d+\.\d+)"?/)[1] + "." + minorVersionContent.match(/MINOR="?(\d+)"?/)[1]
-
-            if (process.env.UPDATED_UPGRADE_FILES.match(`/Update-${version}\.php$`)) {
-              core.notice(`Properly updating ` + process.env.UPDATED_UPGRADE_FILES + ` script`);
+            const UPDATED_UPGRADE_FILES = process.env.UPDATED_UPGRADE_FILES.split(" ");
+            if (UPDATED_UPGRADE_FILES.length > 1) {
+              core.setFailed(`❌ No more than one upgrade script should be modified.`);
               return;
             } else {
-              core.setFailed(`❌ Update script ` + process.env.UPDATED_UPGRADE_FILES + ` should not be modified`);
-              return;
+              const majorVersionContent = fs.readFileSync('.version', { encoding: 'utf8' });
+              const minorVersionContent = fs.readFileSync('.version.centreon-web', { encoding: 'utf8' });
+              const version = majorVersionContent.match(/MAJOR="?(\d+\.\d+)"?/)[1] + "." + minorVersionContent.match(/MINOR="?(\d+)"?/)[1]
+
+              if (UPDATED_UPGRADE_FILES[0].match(`/Update-${version}\.php$`)) {
+                core.notice(`Properly updating ` + UPDATED_UPGRADE_FILES[0] + ` script`);
+                return;
+              } else {
+                core.setFailed(`❌ Update script ` + UPDATED_UPGRADE_FILES[0] + ` should not be modified`);
+                return;
+              }
             }
 
   # frontend-web-build:
