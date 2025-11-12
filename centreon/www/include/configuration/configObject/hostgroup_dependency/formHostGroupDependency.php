@@ -19,6 +19,9 @@
  *
  */
 
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
+
 if (! isset($centreon)) {
     exit();
 }
@@ -29,10 +32,19 @@ if (! isset($centreon)) {
 $dep = [];
 $initialValues = [];
 if (($o == MODIFY_DEPENDENCY || $o == WATCH_DEPENDENCY) && $depId) {
-    $DBRESULT = $pearDB->query("SELECT * FROM dependency WHERE dep_id = '" . $depId . "' LIMIT 1");
+    $qb = $pearDB->createQueryBuilder()
+        ->select('*')
+        ->from('dependency')
+        ->where('dep_id = :depId')
+        ->limit(1)
+        ->getQuery();
+    $params = QueryParameters::create([
+        QueryParameter::int('depId', (int) $depId)
+    ]);
+    $result = $pearDB->fetchAssociative($qb, $params);
 
     // Set base value
-    $dep = array_map('myDecode', $DBRESULT->fetchRow());
+    $dep = array_map('myDecode', $result);
 
     // Set Notification Failure Criteria
     $dep['notification_failure_criteria'] = explode(',', $dep['notification_failure_criteria']);
@@ -45,8 +57,6 @@ if (($o == MODIFY_DEPENDENCY || $o == WATCH_DEPENDENCY) && $depId) {
     foreach ($dep['execution_failure_criteria'] as $key => $value) {
         $dep['execution_failure_criteria'][trim($value)] = 1;
     }
-
-    $DBRESULT->closeCursor();
 }
 
 // Var information to format the element
