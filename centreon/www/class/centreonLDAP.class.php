@@ -309,9 +309,7 @@ class CentreonLDAP
      */
     public function replaceFilter($name): string
     {
-        $name = str_replace('(', '\\(', $name);
-
-        return str_replace(')', '\\)', $name);
+        return ldap_escape(value: $name, flags: LDAP_ESCAPE_FILTER);
     }
 
     /**
@@ -400,7 +398,8 @@ class CentreonLDAP
             return [];
         }
         $this->setErrorHandler();
-        $filter = preg_replace('/%s/', $pattern, $this->groupSearchInfo['filter']);
+        $escapedPattern = ldap_escape($pattern, '*', LDAP_ESCAPE_FILTER);
+        $filter = preg_replace('/%s/', $escapedPattern, $this->groupSearchInfo['filter']);
         $result = @ldap_search($this->ds, $this->groupSearchInfo['base_search'], $filter);
         if ($result === false) {
             restore_error_handler();
@@ -505,9 +504,8 @@ class CentreonLDAP
 
             return [];
         }
-        $userdn = str_replace('\\', '\\\\', $userdn);
         $filter = '(&' . preg_replace('/%s/', '*', $this->groupSearchInfo['filter'])
-            . '(' . $this->groupSearchInfo['member'] . '=' . $this->replaceFilter($userdn) . '))';
+            . '(' . $this->groupSearchInfo['member'] . '=' . ldap_escape($userdn, '', LDAP_ESCAPE_FILTER) . '))';
         $result = @ldap_search($this->ds, $this->groupSearchInfo['base_search'], $filter);
         if ($result === false) {
             restore_error_handler();
