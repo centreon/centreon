@@ -340,6 +340,7 @@ jobs:
             echo "found=true" >> $GITHUB_OUTPUT
           else
             echo "found=false" >> $GITHUB_OUTPUT
+        shell: bash
 
       - name: Delete merged artifacts
         if: |
