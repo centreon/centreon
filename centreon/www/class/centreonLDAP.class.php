@@ -348,7 +348,7 @@ class CentreonLDAP
             return false;
         }
         $this->setErrorHandler();
-        $filter = preg_replace('/%s/', $this->escapeLdapFilterSpecialChars($username), $this->userSearchInfo['filter']);
+        $filter = $this->replaceFilter($username);
         $result = ldap_search($this->ds, $this->userSearchInfo['base_search'], $filter);
         // no results were returned using this base_search
         if ($result === false) {
@@ -375,7 +375,7 @@ class CentreonLDAP
             return false;
         }
         $this->setErrorHandler();
-        $filter = preg_replace('/%s/', $this->escapeLdapFilterSpecialChars($group), $this->groupSearchInfo['filter']);
+        $filter = $this->replaceFilter($group);
         $result = ldap_search($this->ds, $this->groupSearchInfo['base_search'], $filter);
         $entries = ldap_get_entries($this->ds, $result);
         restore_error_handler();
@@ -434,7 +434,8 @@ class CentreonLDAP
             return [];
         }
         $this->setErrorHandler();
-        $filter = preg_replace('/%s/', $pattern, $this->userSearchInfo['filter']);
+        $escapedPattern = ldap_escape($pattern, '*', LDAP_ESCAPE_FILTER);
+        $filter = preg_replace('/%s/', $escapedPattern, $this->userSearchInfo['filter']);
         $result = ldap_search($this->ds, $this->userSearchInfo['base_search'], $filter);
         $entries = ldap_get_entries($this->ds, $result);
         $nbEntries = $entries['count'];
@@ -537,7 +538,6 @@ class CentreonLDAP
 
             return [];
         }
-        $groupdn = str_replace('\\', '\\\\', $groupdn);
         $list = [];
         if (! empty($this->userSearchInfo['group'])) {
             /**
