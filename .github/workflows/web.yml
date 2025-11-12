@@ -192,6 +192,8 @@ jobs:
           UPDATED_UPGRADE_FILES: ${{ steps.get_changed_files.outputs.all_changed_files }}
         with:
           script: |
+            const fs = require('fs');
+
             console.log(process.env.UPDATED_UPGRADE_FILES);
 
             const majorVersionContent = fs.readFileSync('.version', { encoding: 'utf8' });
