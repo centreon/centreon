@@ -405,8 +405,8 @@ jobs:
         run: |
           pattern="${{ inputs.name }}-${{ inputs.os }}-${{ matrix.type_of_report }}"
           found=false
-          timeout=60       # temps max d’attente en secondes
-          interval=5       # intervalle entre chaque check
+          timeout=60       # maximum wait time in seconds
+          interval=5       # interval between each check
           elapsed=0
 
           while [ $elapsed -lt $timeout ]; do
@@ -455,6 +455,31 @@ jobs:
           else
             echo "found=false" >> $GITHUB_OUTPUT
           fi
+        shell: bash
+
+      - name: Wait until artifacts are ready for deletion
+        id: wait_artifacts
+        env:
+            GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+            pattern="${{ inputs.name }}-${{ inputs.os }}-${{ matrix.type_of_report }}"
+            found=false
+            timeout=60       # maximum wait time in seconds
+            interval=5       # interval between each check
+            elapsed=0
+
+            while [ $elapsed -lt $timeout ]; do
+              artifacts=$(gh api repos/${{ github.repository }}/actions/artifacts --jq '.artifacts[].name')
+              if echo "$artifacts" | grep -q "$pattern"; then
+                found=true
+                break
+              fi
+              echo "Artifacts not ready yet, waiting $interval seconds..."
+              sleep $interval
+              elapsed=$((elapsed + interval))
+            done
+
+            echo "found=$found" >> $GITHUB_OUTPUT
         shell: bash
 
       - name: Delete merged artifacts

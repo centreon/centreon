@@ -325,8 +325,8 @@ jobs:
         run: |
           pattern="${{ inputs.name }}-component-${{ matrix.type_of_report }}"
           found=false
-          timeout=60       # temps max d’attente en secondes
-          interval=5       # intervalle entre chaque check
+          timeout=60       # maximum wait time in seconds
+          interval=5       # interval between each check
           elapsed=0
 
           while [ $elapsed -lt $timeout ]; do
