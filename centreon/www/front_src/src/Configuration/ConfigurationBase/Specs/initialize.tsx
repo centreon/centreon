@@ -49,7 +49,7 @@ export const mockActionsRequests = (resourceType): void => {
   cy.interceptAPIRequest({
     alias: 'enable',
     method: Method.POST,
-    path: `**${getEndpoints(resourceType).enable}`,
+    path: `**${getEndpoints(resourceType).enable()}`,
     response: {
       results: [{ status: 204, message: null, href: '/resources/1' }]
     }
@@ -58,7 +58,7 @@ export const mockActionsRequests = (resourceType): void => {
   cy.interceptAPIRequest({
     alias: 'disable',
     method: Method.POST,
-    path: `**${getEndpoints(resourceType).disable}`,
+    path: `**${getEndpoints(resourceType).disable()}`,
     response: {
       results: [{ status: 204, message: null, href: '/resources/1' }]
     }
