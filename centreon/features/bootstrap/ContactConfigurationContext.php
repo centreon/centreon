@@ -54,6 +54,7 @@ class ContactConfigurationContext extends CentreonContext
     );
 
     private $updatedProperties = array(
+        'contact_id' => 1,
         'name' => 'modifiedName',
         'alias' => 'modifiedAlias',
         'email' => 'modified@localhost',
