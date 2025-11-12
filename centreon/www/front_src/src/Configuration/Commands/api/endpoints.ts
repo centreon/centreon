@@ -5,9 +5,9 @@ export const commandsEndpoint = '/configuration/commands';
 export const getCommandEndpoint = ({ id }): string =>
   `${commandsEndpoint}/${id}`;
 
-const globalMacrosEndpoint = '/configuration/global-macros';
-const standardMacrosEndpoint = '/configuration/standard-macros';
-const pluginsEndpoint = '/configuration/plugins';
+export const globalMacrosEndpoint = '/configuration/global-macros';
+export const standardMacrosEndpoint = '/configuration/standard-macros';
+export const pluginsEndpoint = '/configuration/plugins';
 
 export const geListEndpoint =
   (baseEndpoint: string) =>

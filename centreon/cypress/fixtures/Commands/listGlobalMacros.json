@@ -1,0 +1,28 @@
+{
+  "@context": "/centreon/api/latest/contexts/GlobalMacroResource",
+  "@id": "/centreon/api/latest/configuration/global-macros",
+  "@type": "Collection",
+  "totalItems": 2,
+  "member": [
+  {
+  "@id": "/centreon/api/latest/global_macro_resources/1",
+  "@type": "GlobalMacroResource",
+  "id": 1,
+  "name": "$USER1$",
+  "expression": "/usr/lib64/nagios/plugins",
+  "comment": "Nagios Plugins Path",
+  "is_password": false,
+  "is_activated": true
+  },
+  {
+  "@id": "/centreon/api/latest/global_macro_resources/2",
+  "@type": "GlobalMacroResource",
+  "id": 2,
+  "name": "$CENTREONPLUGINS$",
+  "expression": "/usr/lib/centreon/plugins",
+  "comment": "Centreon Plugins Path",
+  "is_password": false,
+  "is_activated": true
+  }
+  ]
+  }
