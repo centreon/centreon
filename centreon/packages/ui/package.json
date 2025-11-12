@@ -142,6 +142,7 @@
     "@visx/visx": "3.12.0",
     "@visx/zoom": "^3.12.0",
     "anylogger": "^1.0.11",
+    "chromatic": "^13.3.3",
     "d3-array": "3.2.4",
     "dayjs": "^1.11.13",
     "highlight.js": "^11.11.1",
