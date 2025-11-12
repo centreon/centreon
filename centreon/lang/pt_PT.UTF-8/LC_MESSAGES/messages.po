@@ -17522,6 +17522,10 @@ msgstr ""
 msgid "Token has been created"
 msgstr ""
 
+#: centreon/src/Core/Security/Token/Application/Exception/TokenException.php
+msgid "Token not found"
+msgstr "Token não encontrado"
+
 #: centreon/src/Core/AgentConfiguration/Application/Exception/AgentConfigurationException.php
 #, php-format
 msgid "Token with name \"%s\" and creator ID \"%d\" is not valid"
@@ -22978,10 +22982,6 @@ msgstr "Token não pode estar em branco, vazio ou não definido"
 #: unknown
 msgid "Token expired."
 msgstr "Token expirado."
-
-#: unknown
-msgid "Token not found"
-msgstr "Token não encontrado"
 
 #: unknown
 msgid "Top color"

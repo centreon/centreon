@@ -236,12 +236,12 @@ export const basicFormInputs: Array<InputProps> = [
             direction: 'horizontal'
           },
           fieldName: 'notifications.channels',
-          label: 'channels',
+          label: 'mail',
           type: InputType.Checkbox
         },
         {
           fieldName: 'notifications.includeServices',
-          label: 'Iclude services',
+          label: 'Include services for this host',
           type: InputType.Checkbox
         },
         {
