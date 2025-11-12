@@ -463,7 +463,7 @@ jobs:
       - name: Wait until artifacts are ready for deletion
         id: wait_artifacts
         env:
-            GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
             pattern="${{ inputs.name }}-${{ inputs.os }}-${{ matrix.type_of_report }}"
             found=false
