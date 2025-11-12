@@ -318,11 +318,32 @@ jobs:
       matrix:
         type_of_report: [test-results, test-reports, test-coverage]
     steps:
+      - name: Check artifacts exist before merge
+        id: check_artifacts_for_merge
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          artifacts=$(gh api repos/${{ github.repository }}/actions/artifacts --jq '.artifacts[].name')
+          merge_list=""
+          pattern="${{ inputs.name }}-component-${{ matrix.type_of_report }}"
+          for artifact in $artifacts; do
+            if [[ "$artifact" == *"$pattern"* ]]; then
+              merge_list="$merge_list $artifact"
+            fi
+          done
+          if [ -n "$merge_list" ]; then
+            echo "found=true" >> $GITHUB_OUTPUT
+          else
+            echo "found=false" >> $GITHUB_OUTPUT
+          fi
+        shell: bash
+
       - name: Merge Artifacts
         uses: actions/upload-artifact/merge@6f51ac03b9356f520e9adb1b1b7802705f340c2b # v4.5.0
-        if: |
-          (needs.cypress-component-test-run.result == 'failure' && contains(fromJson('["test-results", "test-reports"]'), matrix.type_of_report)) ||
-          matrix.type_of_report == 'test-coverage'
+        if: steps.check_artifacts_for_merge.outputs.found == 'true' &&
+          ((needs.cypress-component-test-run.result == 'failure' &&
+            contains(fromJson('["test-results", "test-reports"]'), matrix.type_of_report)) ||
+          matrix.type_of_report == 'test-coverage')
         with:
           name: ${{ inputs.name }}-component-${{ matrix.type_of_report }}
           pattern: ${{ inputs.name }}-component-${{ matrix.type_of_report }}-*
