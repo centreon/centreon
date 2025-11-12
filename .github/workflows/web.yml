@@ -1154,11 +1154,11 @@ jobs:
   publish-openapi-documentation:
     runs-on: infrastructure
     needs: [get-environment]
-    # if: |
-    #   needs.get-environment.outputs.skip_workflow == 'false' &&
-    #   needs.get-environment.outputs.stability == 'stable' &&
-    #   github.event_name != 'workflow_dispatch' &&
-    #   github.repository == 'centreon/centreon'
+    if: |
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      needs.get-environment.outputs.stability == 'stable' &&
+      github.event_name != 'workflow_dispatch' &&
+      github.repository == 'centreon/centreon'
     steps:
       - name: Checkout sources
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
