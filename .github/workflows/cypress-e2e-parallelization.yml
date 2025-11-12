@@ -404,14 +404,16 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           pattern="${{ inputs.name }}-${{ inputs.os }}-${{ matrix.type_of_report }}"
+          run_id=${{ github.run_id }}
           found=false
           timeout=80       # maximum wait time in seconds
           interval=5       # interval between each check
           elapsed=0
 
           while [ $elapsed -lt $timeout ]; do
-            # Retrieve artifact names without quotes, one per line
-            artifacts=$(gh api repos/${{ github.repository }}/actions/artifacts --jq '.artifacts[].name' | tr -d '"')
+            # Retrieve artifact names of the current run without quotes
+            artifacts=$(gh api repos/${{ github.repository }}/actions/artifacts \
+            --jq ".artifacts[] | select(.workflow_run.id == $run_id) | .name" | tr -d '"')
 
             merge_list=""
             while read -r artifact; do
@@ -431,6 +433,7 @@ jobs:
             sleep $interval
             elapsed=$((elapsed + interval))
           done
+
           echo "DEBUG: found='$found'"
           echo "found=$found" >> $GITHUB_OUTPUT
         shell: bash

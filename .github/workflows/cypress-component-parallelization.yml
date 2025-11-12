@@ -324,6 +324,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           pattern="${{ inputs.name }}-component-${{ matrix.type_of_report }}"
+          run_id=${{ github.run_id }}
           found=false
           timeout=80       # maximum wait time in seconds
           interval=5       # interval between each check
@@ -331,7 +332,8 @@ jobs:
 
           while [ $elapsed -lt $timeout ]; do
             # Retrieve artifact names without quotes, one per line
-            artifacts=$(gh api repos/${{ github.repository }}/actions/artifacts --jq '.artifacts[].name' | tr -d '"')
+            artifacts=$(gh api repos/${{ github.repository }}/actions/artifacts \
+            --jq ".artifacts[] | select(.workflow_run.id == $run_id) | .name" | tr -d '"')
 
             merge_list=""
             while read -r artifact; do
