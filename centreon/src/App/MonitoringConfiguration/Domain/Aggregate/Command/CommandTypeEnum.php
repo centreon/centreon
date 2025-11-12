@@ -30,14 +30,14 @@ enum CommandTypeEnum: int
     case Miscellaneous = 3;
     case Discovery = 4;
 
-    public static function fromName(string $name): ?self
+    public static function fromName(string $name): self
     {
         return match($name) {
             self::Notification->name => self::Notification,
             self::Check->name => self::Check,
             self::Miscellaneous->name => self::Miscellaneous,
             self::Discovery->name => self::Discovery,
-            default => null,
+            default => throw new \InvalidArgumentException("Invalid command type name: {$name}"),
         };
     }
 }

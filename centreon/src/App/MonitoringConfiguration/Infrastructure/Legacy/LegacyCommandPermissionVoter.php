@@ -56,7 +56,6 @@ final class LegacyCommandPermissionVoter extends Voter
     protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token, ?Vote $vote = null): bool
     {
         $user = $token->getUser();
-
         if (! $user instanceof Contact) {
             $vote?->addReason('The user is not logged in.');
 

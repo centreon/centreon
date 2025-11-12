@@ -30,6 +30,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandName;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandTypeEnum;
 use App\MonitoringConfiguration\Domain\Exception\CommandNotFoundException;
 use App\MonitoringConfiguration\Infrastructure\Dbal\DbalCommandRepository;
+use App\Shared\Domain\Collection;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 final class DbalCommandRepositoryTest extends KernelTestCase
@@ -80,5 +81,23 @@ final class DbalCommandRepositoryTest extends KernelTestCase
 
         $this->repository->add($command);
         self::assertEquals($command, $this->repository->findOneByName(new CommandName('NAME')));
+    }
+
+    public function testUpdate(): void
+    {
+        $command = $this->repository->getById(new CommandId(2));
+        $command->updateName(new CommandName('UPDATED_NAME'));
+
+        $this->repository->update($command);
+        self::assertEquals($command, $this->repository->getById(new CommandId(2)));
+    }
+
+    public function testFindAll(): void
+    {
+        $commands = $this->repository->findAll();
+
+        self::assertInstanceOf(Collection::class, $commands);
+        self::assertNotEmpty($commands);
+        self::assertContainsOnlyInstancesOf(Command::class, $commands);
     }
 }
