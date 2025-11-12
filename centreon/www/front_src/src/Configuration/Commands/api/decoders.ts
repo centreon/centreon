@@ -4,6 +4,15 @@ import { buildListingDecoder } from '@centreon/ui';
 
 import { Command, CommandsListItem } from '../models';
 
+const JSONLDEnityListDecoder = JsonDecoder.object<{ id: string; name: string }>(
+  {
+    id: JsonDecoder.string,
+    name: JsonDecoder.string
+  },
+  'Entity',
+  { id: '@id' }
+);
+
 const commandsDecoder = JsonDecoder.object<CommandsListItem>(
   {
     id: JsonDecoder.number,
@@ -41,13 +50,7 @@ export const commandDecoder = JsonDecoder.object<Command>(
     commandLine: JsonDecoder.string,
     comment: JsonDecoder.nullable(JsonDecoder.string),
     isShellEnabled: JsonDecoder.boolean,
-    connector: JsonDecoder.object(
-      {
-        id: JsonDecoder.number,
-        name: JsonDecoder.string
-      },
-      'connector'
-    )
+    connector: JsonDecoder.nullable(JSONLDEnityListDecoder)
   },
   'Command',
   {
@@ -55,3 +58,10 @@ export const commandDecoder = JsonDecoder.object<Command>(
     isShellEnabled: 'is_shell_enabled'
   }
 );
+
+export const JSONLDEntitiesListDecoder = buildListingDecoder({
+  entityDecoder: JSONLDEnityListDecoder,
+  entityDecoderName: 'Entity',
+  listingDecoderName: 'Entity List',
+  apiFormat: 'JSON-LD'
+});

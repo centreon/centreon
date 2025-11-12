@@ -1,6 +1,11 @@
-export { commandsListDecoder, commandDecoder } from './decoders';
 export {
-  getCommandsEndpoint,
+  commandsListDecoder,
+  commandDecoder,
+  JSONLDEntitiesListDecoder
+} from './decoders';
+
+export {
+  getCommandEndpoint,
   commandsEndpoint,
   getGlobalMacrosEndpoint,
   getStandardMacrosEndpoint,

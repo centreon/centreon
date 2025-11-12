@@ -5,7 +5,7 @@ import {
   commandDecoder,
   commandsEndpoint,
   commandsListDecoder,
-  getCommandsEndpoint
+  getCommandEndpoint
 } from './api';
 
 import { APIType, FieldType, FilterConfiguration } from '../models';
@@ -20,7 +20,12 @@ interface UseCommandsState {
 
 export const adaptFormToApiPayload = (formData: Command): Payload => {
   return {
-    ...formData
+    name: formData.name,
+    type: formData.type,
+    command_line: formData.commandLine,
+    is_shell_enabled: formData.isShellEnabled,
+    connector: formData.connector?.id || null,
+    comment: formData.comment || null
   };
 };
 
@@ -31,16 +36,17 @@ const useCommands = (): UseCommandsState => {
     () => ({
       endpoints: {
         getAll: commandsEndpoint,
-        getOne: getCommandsEndpoint,
-        deleteOne: getCommandsEndpoint,
+        getOne: getCommandEndpoint,
+        deleteOne: getCommandEndpoint,
         create: commandsEndpoint,
-        update: getCommandsEndpoint
+        update: getCommandEndpoint
       },
       decoders: {
         getAll: commandsListDecoder,
         getOne: commandDecoder
       },
-      adapter: adaptFormToApiPayload
+      adapter: adaptFormToApiPayload,
+      apiFormat: 'JSON-LD'
     }),
     []
   );

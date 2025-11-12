@@ -1,3 +1,4 @@
+import { equals } from 'ramda';
 import toRawQueryParameters from '../../queryParameters';
 import { QueryParameter } from '../../queryParameters/models';
 
@@ -9,8 +10,22 @@ const getQueryParameters = ({
   page,
   limit,
   search,
-  customQueryParameters = []
+  customQueryParameters = [],
+  apiFormat
 }: Parameters): Array<QueryParameter> => {
+  if (equals(apiFormat, 'JSON-LD')) {
+    return [
+      { name: 'page', value: page },
+      { name: 'itemsPerPage', value: limit },
+      { name: 'sort_by', value: sort },
+      {
+        name: 'search',
+        value: getSearchQueryParameterValue(search)
+      },
+      ...customQueryParameters
+    ];
+  }
+
   return [
     { name: 'page', value: page },
     { name: 'limit', value: limit },
@@ -30,12 +45,13 @@ const buildEndpoint = ({ baseEndpoint, queryParameters }): string => {
 const buildListingEndpoint = ({
   baseEndpoint,
   parameters,
-  customQueryParameters
+  customQueryParameters,
+  apiFormat = 'standard'
 }: BuildListingEndpointParameters): string => {
   return buildEndpoint({
     baseEndpoint,
     queryParameters: [
-      ...getQueryParameters({ ...parameters, customQueryParameters })
+      ...getQueryParameters({ ...parameters, customQueryParameters, apiFormat })
     ]
   });
 };

@@ -98,6 +98,7 @@ export interface APIType {
     getAll?;
   };
   adapter?;
+  apiFormat?: 'standard' | 'JSON-LD';
 }
 
 export interface FilterConfiguration {

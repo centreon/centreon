@@ -8,7 +8,7 @@ import CommandLine from './CommandLine/CommandLine';
 import CommandType from './CommandType/CommandType';
 import EnableShellSyntax from './EnableShellSyntax/EnableShellSyntax';
 
-import { connectorsEndpoint } from '../api';
+import { JSONLDEntitiesListDecoder, connectorsEndpoint } from '../api';
 
 import {
   labelAdditionalInformation,
@@ -108,7 +108,8 @@ export const useInputs = (): {
             {
               connectedAutocomplete: {
                 endpoint: connectorsEndpoint,
-                filterKey: 'name'
+                filterKey: 'name',
+                decoder: JSONLDEntitiesListDecoder
               },
               fieldName: 'connector',
               label: t(labelSelectOptimizationConnector),

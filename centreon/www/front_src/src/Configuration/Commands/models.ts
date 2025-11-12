@@ -19,7 +19,7 @@ export interface Command {
   commandLine: string;
   comment: string | null;
   isShellEnabled: boolean;
-  connector: NamedEntity | null;
+  connector: { id: string; name: string } | null;
 }
 
 export interface Payload {

@@ -23,6 +23,7 @@ const useGetAll = ({
 
   const endpoint = configuration?.api?.endpoints?.getAll;
   const decoder = configuration?.api?.decoders?.getAll;
+  const apiFormat = configuration?.api?.apiFormat;
 
   const sort = { [sortField]: sortOrder };
 
@@ -30,6 +31,7 @@ const useGetAll = ({
     decoder,
     getEndpoint: () =>
       buildListingEndpoint({
+        apiFormat: apiFormat || 'standard',
         baseEndpoint: endpoint,
         parameters: {
           limit: limit || 10,

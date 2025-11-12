@@ -2,7 +2,7 @@ import { buildListingEndpoint } from '@centreon/ui';
 
 export const commandsEndpoint = '/configuration/commands';
 
-export const getCommandsEndpoint = ({ id }): string =>
+export const getCommandEndpoint = ({ id }): string =>
   `${commandsEndpoint}/${id}`;
 
 const globalMacrosEndpoint = '/configuration/global-macros';
@@ -13,9 +13,10 @@ export const geListEndpoint =
   (baseEndpoint: string) =>
   ({ search, page }): string =>
     buildListingEndpoint({
+      apiFormat: 'JSON-LD',
       baseEndpoint: baseEndpoint,
       parameters: {
-        itemsPerPage: 10,
+        limit: 10,
         page,
         search
       }
