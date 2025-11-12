@@ -52,6 +52,7 @@ const useColumns = (): {
     {
       type: ColumnType.string,
       id: 'type',
+      sortable: true,
       label: t(labelType),
       getFormattedString: prop('type')
     }
