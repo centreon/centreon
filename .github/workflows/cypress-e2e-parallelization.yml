@@ -409,26 +409,19 @@ jobs:
           interval=5       # interval between each check
           elapsed=0
 
-          while [ $elapsed -lt $timeout ]; do
-            # Get artifact names without quotes
-            artifacts=$(gh api repos/${{ github.repository }}/actions/artifacts --jq -r '.artifacts[].name')
-            merge_list=""
+          while [ $elapsed -lt $timeout ] && [ "$found" = false ]; do
+            artifacts=$(gh api "repos/${{ github.repository }}/actions/artifacts" --jq -r '.artifacts[].name' 2>/dev/null || echo "")
 
             for artifact in $artifacts; do
               echo "Checking artifact: $artifact"
-              if [[ "$artifact" == *"$pattern"* ]]; then
-                merge_list="$merge_list $artifact"
-              fi
+              [[ "$artifact" == *"$pattern"* ]] && found=true && break
             done
 
-            if [ -n "$merge_list" ]; then
-              found=true
-              break
-            fi
-
-            echo "Artifacts not found yet, waiting $interval seconds..."
-            sleep $interval
-            elapsed=$((elapsed + interval))
+            [ "$found" = true ] || {
+              echo "Artifacts not found yet, waiting $interval seconds..."
+              sleep $interval
+              elapsed=$((elapsed + interval))
+            }
           done
 
           echo "found=$found" >> $GITHUB_OUTPUT
