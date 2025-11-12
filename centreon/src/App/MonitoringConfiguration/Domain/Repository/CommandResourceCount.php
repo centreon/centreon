@@ -21,23 +21,15 @@
 
 declare(strict_types=1);
 
-namespace Core\Command\Application\UseCase\FindCommands;
+namespace App\MonitoringConfiguration\Domain\Repository;
 
-use Core\Command\Domain\Model\CommandType;
-
-class CommandDto
+final readonly class CommandResourceCount
 {
-    public int $id = 0;
-
-    public string $name = '';
-
-    public string $commandLine = '';
-
-    public CommandType $type = CommandType::Check;
-
-    public bool $isShellEnabled = false;
-
-    public bool $isActivated = true;
-
-    public bool $isLocked = false;
+    public function __construct(
+        public int $usedHosts,
+        public int $usedServices,
+        public int $usedHostTemplates,
+        public int $usedServiceTemplates,
+    ) {
+    }
 }

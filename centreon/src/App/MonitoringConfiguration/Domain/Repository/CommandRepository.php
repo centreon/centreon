@@ -27,6 +27,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Command\Command;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandName;
 use App\MonitoringConfiguration\Domain\Exception\CommandNotFoundException;
+use App\MonitoringConfiguration\Domain\Repository\Criteria\CommandCriteria;
 
 interface CommandRepository
 {
@@ -40,4 +41,11 @@ interface CommandRepository
     public function add(Command $command): void;
 
     public function update(Command $command): void;
+
+    /**
+     * @return \IteratorAggregate<int, Command>&\Countable
+     */
+    public function findAll(?CommandCriteria $criteria): \IteratorAggregate&\Countable;
+
+    public function countLinkedResources(CommandId $commandId): CommandResourceCount;
 }

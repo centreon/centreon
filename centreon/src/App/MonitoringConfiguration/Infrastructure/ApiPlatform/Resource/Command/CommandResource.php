@@ -31,7 +31,6 @@ use ApiPlatform\OpenApi\Model;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandName;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandTypeEnum;
 use App\MonitoringConfiguration\Domain\Security\CommandActionEnum;
-use App\MonitoringConfiguration\Domain\Security\CommandPermissionEnum;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\ConnectorResource;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Command\FindCommandProvider;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Command\UpdateCommandProcessor;
@@ -49,25 +48,8 @@ use Symfony\Component\Validator\Constraints as Assert;
                     403 => new Model\Response('You are not allowed to access this command'),
                 ],
             ),
-            security: '
-                (object.type == "' . CommandTypeEnum::Notification->name . '" and (
-                    is_granted("' . CommandPermissionEnum::CanReadNotifications->value . '") or
-                    is_granted("' . CommandPermissionEnum::CanReadAndWriteNotifications->value . '")
-                )) or
-                (object.type == "' . CommandTypeEnum::Check->name . '" and (
-                    is_granted("' . CommandPermissionEnum::CanReadChecks->value . '") or
-                    is_granted("' . CommandPermissionEnum::CanReadAndWriteChecks->value . '")
-                )) or
-                (object.type == "' . CommandTypeEnum::Miscellaneous->name . '" and (
-                    is_granted("' . CommandPermissionEnum::CanReadMiscellaneous->value . '") or
-                    is_granted("' . CommandPermissionEnum::CanReadAndWriteMiscellaneous->value . '")
-                )) or
-                (object.type == "' . CommandTypeEnum::Discovery->name . '" and (
-                    is_granted("' . CommandPermissionEnum::CanReadDiscovery->value . '") or
-                    is_granted("' . CommandPermissionEnum::CanReadAndWriteDiscovery->value . '")
-                ))
-            ',
-            securityMessage: 'You are not allowed to access this command',
+            securityPostValidation: "is_granted('" . CommandActionEnum::Read->value . "', object)",
+            securityPostValidationMessage: 'You are not allowed to access this command',
         ),
         new Patch(
             uriTemplate: '/configuration/commands/{id}',
@@ -80,7 +62,7 @@ use Symfony\Component\Validator\Constraints as Assert;
                 ],
             ),
             securityPostValidation: "is_granted('" . CommandActionEnum::Update->value . "', object)",
-            securityPostValidationMessage: 'You are not allowed to update this command.',
+            securityPostValidationMessage: 'You are not allowed to update this command',
         ),
     ],
 )]

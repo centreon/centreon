@@ -40,7 +40,6 @@ use PHPUnit\Framework\TestCase;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeCommandRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeConnectorRepository;
 use Tests\App\Shared\Double\EventBusSpy;
-use Webmozart\Assert\Assert;
 
 final class CreateCommandCommandHandlerTest extends TestCase
 {
@@ -50,7 +49,6 @@ final class CreateCommandCommandHandlerTest extends TestCase
         $connectorRepository = new FakeConnectorRepository();
         $eventBus = new EventBusSpy();
         $type = CommandTypeEnum::fromName('Check');
-        Assert::notNull($type);
         $handler = new CreateCommandCommandHandler($repository, $connectorRepository, $eventBus);
         $connector = new Connector(
             id: new ConnectorId(1),
@@ -80,7 +78,6 @@ final class CreateCommandCommandHandlerTest extends TestCase
         $connectorRepository = new FakeConnectorRepository();
         $eventBus = new EventBusSpy();
         $type = CommandTypeEnum::fromName('Check');
-        Assert::notNull($type);
         $handler = new CreateCommandCommandHandler($repository, $connectorRepository, $eventBus);
         $connector = new Connector(
             id: new ConnectorId(1),
@@ -112,7 +109,6 @@ final class CreateCommandCommandHandlerTest extends TestCase
         $connectorRepository = new FakeConnectorRepository();
         $eventBus = new EventBusSpy();
         $type = CommandTypeEnum::fromName('Check');
-        Assert::notNull($type);
         $handler = new CreateCommandCommandHandler($repository, $connectorRepository, $eventBus);
         $connector = new Connector(
             id: new ConnectorId(1),
