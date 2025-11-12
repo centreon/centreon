@@ -1,21 +1,16 @@
-import { useFormikContext } from 'formik';
-import { ChangeEvent, ReactElement, useState } from 'react';
-import { useTranslation } from 'react-i18next';
-
-import ArrowIcon from '@mui/icons-material/ArrowForwardSharp';
-
 import { SingleConnectedAutocompleteField, TextField } from '@centreon/ui';
 import { IconButton } from '@centreon/ui/components';
-
-import { Command } from '../../models';
-
+import ArrowIcon from '@mui/icons-material/ArrowForwardSharp';
+import { useFormikContext } from 'formik';
+import { ChangeEvent, ReactElement, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   JSONLDEntitiesListDecoder,
   getGlobalMacrosEndpoint,
   getPluginsEndpoint,
   getStandardMacrosEndpoint
 } from '../../api';
-
+import { Command } from '../../models';
 import {
   labelCommandLine,
   labelInsert,
@@ -26,7 +21,7 @@ import {
 
 const CommandLine = (): ReactElement => {
   const { t } = useTranslation();
-
+  const textFieldRef = useRef<HTMLInputElement>(null);
   const [macros, setMacros] = useState({
     globalMarco: null,
     standardMacro: null,
@@ -51,8 +46,29 @@ const CommandLine = (): ReactElement => {
     const macro = macros[property].name;
     const commandLine = values.commandLine;
 
+    const cursorPosition =
+      textFieldRef.current?.selectionStart ?? commandLine.length;
+
+    const newCommandLine =
+      commandLine.slice(0, cursorPosition) +
+      macro +
+      commandLine.slice(cursorPosition);
+
     setFieldTouched('commandLine', true);
-    setFieldValue('commandLine', `${commandLine}${macro}`);
+    setFieldValue('commandLine', newCommandLine);
+
+    setTimeout(() => {
+      if (textFieldRef.current) {
+        textFieldRef.current.focus();
+
+        const newCursorPosition = cursorPosition + macro.length;
+
+        textFieldRef.current.setSelectionRange(
+          newCursorPosition,
+          newCursorPosition
+        );
+      }
+    }, 0);
   };
 
   return (
@@ -66,7 +82,6 @@ const CommandLine = (): ReactElement => {
           decoder={JSONLDEntitiesListDecoder}
           field="name"
         />
-
         <SingleConnectedAutocompleteField
           label={t(labelInstalledPlugins)}
           onChange={changeMacro('installedPlugin')}
@@ -75,7 +90,6 @@ const CommandLine = (): ReactElement => {
           decoder={JSONLDEntitiesListDecoder}
           field="name"
         />
-
         <SingleConnectedAutocompleteField
           label={t(labelStandardMacros)}
           onChange={changeMacro('standardMacro')}
@@ -94,7 +108,6 @@ const CommandLine = (): ReactElement => {
           variant="ghost"
           icon={<ArrowIcon fontSize="small" />}
         />
-
         <IconButton
           data-testid="Insert installed plugin"
           title={t(labelInsert)}
@@ -103,7 +116,6 @@ const CommandLine = (): ReactElement => {
           variant="ghost"
           icon={<ArrowIcon fontSize="small" />}
         />
-
         <IconButton
           data-testid="Insert standard marco"
           title={t(labelInsert)}
@@ -113,8 +125,8 @@ const CommandLine = (): ReactElement => {
           icon={<ArrowIcon fontSize="small" />}
         />
       </div>
-
       <TextField
+        inputRef={textFieldRef}
         required
         multiline
         rows={6}
