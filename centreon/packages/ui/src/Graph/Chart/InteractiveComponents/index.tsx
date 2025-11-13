@@ -1,4 +1,4 @@
-import type { MutableRefObject } from 'react';
+import { type MutableRefObject, ReactElement, useMemo } from 'react';
 
 import { Event } from '@visx/visx';
 import type { ScaleLinear, ScaleTime } from 'd3-scale';
@@ -88,6 +88,7 @@ interface Props {
   };
   hasSecondUnit?: boolean;
   maxLeftAxisCharacters: number;
+  additionalZoomMargin?: number;
 }
 
 const InteractionWithGraph = ({
@@ -97,8 +98,9 @@ const InteractionWithGraph = ({
   timeShiftZonesData,
   transformMatrix,
   hasSecondUnit,
-  maxLeftAxisCharacters
-}: Props): JSX.Element => {
+  maxLeftAxisCharacters,
+  additionalZoomMargin = 0
+}: Props): ReactElement => {
   const { classes } = useStyles();
 
   const setEventMouseDown = useSetAtom(eventMouseDownAtom);
@@ -152,6 +154,15 @@ const InteractionWithGraph = ({
     setEventMouseDown(event);
   };
 
+  const graphMarginLeft = useMemo(
+    () =>
+      computeGElementMarginLeft({
+        maxCharacters: maxLeftAxisCharacters,
+        hasSecondUnit
+      }) + additionalZoomMargin,
+    [additionalZoomMargin, maxLeftAxisCharacters, hasSecondUnit]
+  );
+
   const updateMousePosition = (pointPosition: MousePosition): void => {
     if (isNil(pointPosition)) {
       changeMousePosition({
@@ -166,10 +177,7 @@ const InteractionWithGraph = ({
       timeSeries,
       x: pointPosition[0] - pixelToShift,
       xScale,
-      marginLeft: computeGElementMarginLeft({
-        maxCharacters: maxLeftAxisCharacters,
-        hasSecondUnit
-      })
+      marginLeft: graphMarginLeft
     });
 
     if (isNil(timeValue)) {
@@ -296,6 +304,8 @@ const InteractionWithGraph = ({
           graphHeight={graphHeight}
           graphWidth={graphWidth}
           xScale={xScale}
+          graphSvgRef={graphSvgRef}
+          graphMarginLeft={graphMarginLeft}
         />
       )}
       {displayEventAnnotations && (

@@ -184,10 +184,10 @@ Cypress.Commands.add('lockHostTemplateWithSql', (name: string) => {
   });
 });
 
-Cypress.Commands.add('visitHostsListingPage', () => {
+Cypress.Commands.add('visitHostsListingPage', (index: number) => {
   cy.navigateTo({
     page: 'Hosts',
-    rootItemNumber: 3,
+    rootItemNumber: index,
     subMenu: 'Hosts'
   });
   cy.wait('@getTimeZone');
@@ -261,7 +261,7 @@ declare global {
         body: HostGroupDependency
       ) => Cypress.Chainable;
       lockHostTemplateWithSql: (name: string) => Cypress.Chainable;
-      visitHostsListingPage: () => Cypress.Chainable;
+      visitHostsListingPage: (index: number) => Cypress.Chainable;
     }
   }
 }
