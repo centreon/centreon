@@ -124,7 +124,7 @@ const MainLegend = ({
       data-display-side={!equals(placement, 'bottom')}
     >
       <ul
-        className={`list-none flex gap-3 w-full ${!isListMode && equals(placement, 'bottom') && 'flex-wrap'} ${isListMode || !equals(placement, 'bottom') ? 'flex-col h-full w-fit' : ''}`}
+        className={`list-none flex gap-3 w-full ${!isListMode && equals(placement, 'bottom') && 'flex-wrap'} ${isListMode || !equals(placement, 'bottom') ? 'flex-col h-full w-fit' : ''} ${equals(placement, 'bottom') ? 'max-h-17' : 'max-h-0'}`}
         style={{
           height: equals(placement, 'bottom') ? 'auto' : `${graphHeight}px`,
           maxHeight: equals(placement, 'bottom') ? '68px' : 'none'
