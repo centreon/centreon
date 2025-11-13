@@ -26,6 +26,7 @@ namespace Core\Contact\Application\Repository;
 use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
+use Core\Common\Domain\Exception\RepositoryException;
 use Core\Contact\Domain\Model\BasicContact;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
@@ -41,6 +42,17 @@ interface ReadContactRepositoryInterface
      * @return array<int, array{id: int, name: string}>
      */
     public function findNamesByIds(int ...$ids): array;
+
+    /**
+     * Find contact alias by IDs.
+     *
+     * @param int ...$ids
+     *
+     * @throws RepositoryException
+     *
+     * @return array<int, array{id: int, alias: string}>
+     */
+    public function findAliasesByIds(int ...$ids): array;
 
     /**
      * Check user existence by its id.

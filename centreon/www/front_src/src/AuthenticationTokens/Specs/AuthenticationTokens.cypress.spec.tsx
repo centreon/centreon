@@ -165,7 +165,7 @@ describe('Authentication tokens', () => {
     cy.findAllByTestId(labelName).eq(1).type('token 1');
     cy.findByTestId(labelUser).click();
 
-    cy.contains('admin admin').click();
+    cy.contains('admin').click();
 
     cy.makeSnapshot('API token form (before)');
 
