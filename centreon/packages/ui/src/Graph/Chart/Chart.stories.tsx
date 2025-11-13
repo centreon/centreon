@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 
 import { Meta, StoryObj } from '@storybook/react';
+import '../../ThemeProvider/tailwindcss.css';
 
 import { Button, Menu } from '@mui/material';
 import ButtonGroup from '@mui/material/ButtonGroup';
@@ -798,5 +799,25 @@ export const stackedKey: Story = {
   args: {
     ...argumentsData,
     data: dataPingServiceLinesStackKeys
+  }
+};
+
+export const WithControlledCalculations: Story = {
+  ...Template,
+  argTypes,
+  args: {
+    ...argumentsData,
+    lineStyle: {
+      curve: 'step'
+    },
+    legend: {
+      mode: 'grid',
+      placement: 'bottom',
+      showCalculations: {
+        avg: true,
+        max: true,
+        min: false
+      }
+    }
   }
 };

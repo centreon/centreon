@@ -21,7 +21,11 @@ interface Props {
   isHorizontal?: boolean;
   legend: Pick<
     LegendModel,
-    'renderExtraComponent' | 'placement' | 'mode' | 'secondaryClick'
+    | 'renderExtraComponent'
+    | 'placement'
+    | 'mode'
+    | 'secondaryClick'
+    | 'showCalculations'
   > & {
     displayLegend: boolean;
     legendHeight?: number;
@@ -104,6 +108,7 @@ const BaseChart = ({
                   shouldDisplayLegendInCompactMode={
                     shouldDisplayLegendInCompactMode
                   }
+                  showCalculations={legend?.showCalculations}
                   secondaryClick={legend?.secondaryClick}
                 />
               </div>
@@ -127,6 +132,7 @@ const BaseChart = ({
             setLinesGraph={setLines}
             shouldDisplayLegendInCompactMode={shouldDisplayLegendInCompactMode}
             secondaryClick={legend?.secondaryClick}
+            showCalculations={legend?.showCalculations}
           />
         </div>
       )}

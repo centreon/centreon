@@ -235,7 +235,8 @@ const ResponsiveBarChart = ({
         mode: legend?.mode,
         placement: legend?.placement,
         renderExtraComponent: legend?.renderExtraComponent,
-        secondaryClick: legend?.secondaryClick
+        secondaryClick: legend?.secondaryClick,
+        showCalculations: legend?.showCalculations
       }}
       legendRef={legendRef}
       limitLegend={limitLegend}
