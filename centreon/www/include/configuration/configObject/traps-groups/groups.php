@@ -34,21 +34,33 @@
  *
  */
 
-if (!isset($centreon)) {
+use Core\Common\Domain\Exception\RepositoryException;
+
+if (! isset($centreon)) {
     exit();
 }
 
-$trapGroupG = $_GET["id"] ?? null;
-$trapGroupP = $_POST["id"] ?? null;
-$id = $trapGroupG ?: $trapGroupP;
+$id = filter_var(
+    $_GET['id'] ?? $_POST['id'] ?? null,
+    FILTER_VALIDATE_INT
+);
 
-$cG = $_GET["select"] ?? null;
-$cP = $_POST["select"] ?? null;
-$select = $cG ?: $cP;
+// Normalize select input
+$selectInput = $_GET['select'] ?? $_POST['select'] ?? [];
+if (! is_array($selectInput)) {
+    $selectInput = [$selectInput];
+}
+$select = filter_var_array($selectInput, FILTER_VALIDATE_INT) ?: [];
+$select = array_filter($select, fn ($value) => $value !== false);
 
-$cG = $_GET["dupNbr"] ?? null;
-$cP = $_POST["dupNbr"] ?? null;
-$dupNbr = $cG ?: $cP;
+// Normalize dupNbr input
+$dupNbrInput = $_GET['dupNbr'] ?? $_POST['dupNbr'] ?? [];
+if (! is_array($dupNbrInput)) {
+    $dupNbrInput = [$dupNbrInput];
+}
+$dupNbr = filter_var_array($dupNbrInput, FILTER_VALIDATE_INT) ?: [];
+$dupNbr = array_filter($dupNbr, fn ($value) => $value !== false);
+$dupNbr = array_intersect_key($dupNbr, $select);
 
 #Path to the configuration dir
 $path = "./include/configuration/configObject/traps-groups/";
@@ -61,38 +73,49 @@ require_once "./include/common/common-Func.php";
 if (isset($ret) && is_array($ret) && $ret['topology_page'] != "" && $p != $ret['topology_page']) {
     $p = $ret['topology_page'];
 }
-
-switch ($o) {
-    case "a":
-        require_once($path . "formGroups.php");
-        break; #Add a Trap
-    case "w":
-        require_once($path . "formGroups.php");
-        break; #Watch a Trap
-    case "c":
-        require_once($path . "formGroups.php");
-        break; #Modify a Trap
-    case "m":
-        purgeOutdatedCSRFTokens();
-        if (isCSRFTokenValid()) {
-            purgeCSRFToken();
-            multipleTrapGroupInDB($select ?? [], $dupNbr);
-        } else {
-            unvalidFormMessage();
-        }
-        require_once($path . "listGroups.php");
-        break; #Duplicate n Traps
-    case "d":
-        purgeOutdatedCSRFTokens();
-        if (isCSRFTokenValid()) {
-            purgeCSRFToken();
-            deleteTrapGroupInDB($select ?? []);
-        } else {
-            unvalidFormMessage();
-        }
-        require_once($path . "listGroups.php");
-        break; #Delete n Traps
-    default:
-        require_once($path . "listGroups.php");
-        break;
+try {
+    switch ($o) {
+        case 'a':
+            require_once $path . 'formGroups.php';
+            break; // Add a Trap
+        case 'w':
+            require_once $path . 'formGroups.php';
+            break; // Watch a Trap
+        case 'c':
+            require_once $path . 'formGroups.php';
+            break; // Modify a Trap
+        case 'm':
+            purgeOutdatedCSRFTokens();
+            if (isCSRFTokenValid()) {
+                purgeCSRFToken();
+                multipleTrapGroupInDB($select, $dupNbr);
+            } else {
+                unvalidFormMessage();
+            }
+            require_once $path . 'listGroups.php';
+            break; // Duplicate n Traps
+        case 'd':
+            purgeOutdatedCSRFTokens();
+            if (isCSRFTokenValid()) {
+                purgeCSRFToken();
+                deleteTrapGroupInDB($select);
+            } else {
+                unvalidFormMessage();
+            }
+            require_once $path . 'listGroups.php';
+            break; // Delete n Traps
+        default:
+            require_once $path . 'listGroups.php';
+            break;
+    }
+} catch (RepositoryException $exception) {
+    CentreonLog::create()->error(
+        CentreonLog::TYPE_SQL,
+        'Error while processing traps groups: ' . $exception->getMessage(),
+        exception: $exception
+    );
+    $msg = new CentreonMsg();
+    $msg->setImage('./img/icons/warning.png');
+    $msg->setTextStyle('bold');
+    $msg->setText('Error while processing traps groups');
 }
