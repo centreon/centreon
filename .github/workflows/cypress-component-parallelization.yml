@@ -105,6 +105,18 @@ jobs:
           publish-summary: false
           env: codeCoverageTasksRegistered=true
 
+      - name: Move retries.json to reports directory and display warnings
+        if: ${{ ! cancelled() }}
+        run: |
+          retriesFile="${{ inputs.module_name }}/cypress/results/retries.json"
+          if [ -f "$retriesFile" ]; then
+            jq 'to_entries | .[].key' $retriesFile | while read -r testName; do
+              echo "::warning::Following test was retried during execution: $testName (retries: $(jq ".$testName" $retriesFile))"
+            done
+            mv $retriesFile "${{ inputs.module_name }}/cypress/results/${{ matrix.spec }}-retries.json"
+          fi
+        shell: bash
+
       - name: Archive test results
         uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         if: ${{ failure() }}
@@ -117,7 +129,7 @@ jobs:
           retention-days: 1
 
       - name: Archive test reports
-        if: ${{ failure() }}
+        if: ${{ ! cancelled() }}
         uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         with:
           name: ${{ inputs.name }}-component-test-reports-${{ matrix.spec }}
@@ -137,7 +149,9 @@ jobs:
 
   cypress-component-coverage-report:
     needs: [cypress-component-test-run]
-    if: always()
+    if: |
+      ! cancelled() &&
+      ! contains(needs.*.result, 'cancelled')
     runs-on: ubuntu-24.04
 
     steps:
@@ -225,7 +239,9 @@ jobs:
 
   cypress-component-test-report:
     needs: [cypress-component-test-run]
-    if: failure()
+    if: |
+      ! cancelled() &&
+      ! contains(needs.*.result, 'cancelled')
     runs-on: ubuntu-24.04
 
     steps:
@@ -244,19 +260,58 @@ jobs:
 
       - name: Merge reports
         run: |
-          pnpx mochawesome-merge "${{ inputs.name }}-json-reports/**/*.json" > mochawesome.json
+          pnpx mochawesome-merge "${{ inputs.name }}-json-reports/**/*-report.json" > mochawesome.json
+
+          if ls ${{ inputs.name }}-json-reports/**/*retries.json 1> /dev/null 2>&1; then
+            cat ${{ inputs.name }}-json-reports/**/*retries.json | jq -s add > retries.json
+          else
+            echo "{}" > retries.json
+          fi
         shell: bash
 
       - name: Publish report
+        if: needs.cypress-component-test-run.result == 'failure'
         uses: ./.github/actions/publish-report
         with:
           check_name: ${{ inputs.name }}-report
           path: mochawesome.json
           format: cypress
 
+      - name: Display retries summary
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        with:
+          script: |
+            const fs = require('fs');
+            const retriesFile = 'retries.json';
+            const retries = JSON.parse(fs.readFileSync(retriesFile, 'utf8'));
+            if (Object.keys(retries).length > 0) {
+              const outputTable = [
+                [{data: 'Feature', header: true}, {data: 'Scenario', header: true}, {data: 'Retries', header: true}],
+              ];
+              const warningTitle = `${Object.keys(retries).length} tests were retried during execution`;
+
+              let warningBody = JSON.stringify(retries, null, 2);
+              for (const testName in retries) {
+                const featureName = testName.split('>')[0];
+                const scenarioName = testName.split('>').slice(1).join('>');
+                outputTable.push([featureName, scenarioName, String(retries[testName])]);
+              }
+
+              // Display json to allow collect of metrics
+              core.warning(warningBody, { title: warningTitle });
+
+              core.summary
+                .addHeading(`Retries Summary`)
+                .addTable(outputTable)
+                .addDetails(`Content of ${retriesFile}`, fs.readFileSync(retriesFile, 'utf8'))
+                .write();
+            }
+
   regroup-artifacts:
     needs: [cypress-component-coverage-report, cypress-component-test-report, cypress-component-test-run]
-    if: always()
+    if: |
+      ! cancelled() &&
+      ! contains(needs.*.result, 'cancelled')
     runs-on: ubuntu-24.04
     strategy:
       fail-fast: false

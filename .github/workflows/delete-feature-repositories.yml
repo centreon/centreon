@@ -11,6 +11,8 @@ on:
 
 jobs:
   delete-feature-repositories:
+    if: |
+      startsWith(github.ref_name, 'MON-')
     runs-on: ubuntu-24.04
     env:
       GH_TOKEN: ${{ github.token }}

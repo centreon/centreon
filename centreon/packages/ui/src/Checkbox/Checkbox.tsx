@@ -55,12 +55,14 @@ interface Props {
   dataTestId?: string;
   disabled?: boolean;
   label: string;
+  id: string;
   labelPlacement?: LabelPlacement;
   labelProps?: TypographyProps;
   onChange?: (e) => void;
 }
 
 const Checkbox = ({
+  id,
   Icon,
   checked,
   label,
@@ -86,7 +88,7 @@ const Checkbox = ({
             className={classes.checkbox}
             color="primary"
             disabled={disabled}
-            id={label}
+            id={id}
             size="small"
             sx={{ padding: 0 }}
             onChange={onChange}
