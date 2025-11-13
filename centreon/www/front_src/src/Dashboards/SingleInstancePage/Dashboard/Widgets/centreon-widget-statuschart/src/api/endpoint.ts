@@ -1,8 +1,9 @@
-import { equals, flatten } from 'ramda';
+import { equals, flatten, isEmpty } from 'ramda';
 
 import { buildListingEndpoint } from '@centreon/ui';
 
 import { Resource } from '../../../models';
+import { StateSelection } from '../models';
 
 export const serviceStatusesEndpoint = '/monitoring/services/status';
 export const hostStatusesEndpoint = '/monitoring/hosts/status';
@@ -11,11 +12,13 @@ export const resourcesEndpoint = '/monitoring/resources';
 interface BuildResourcesEndpointProps {
   resources: Array<Resource>;
   type: 'host' | 'service';
+  stateList: Array<StateSelection>;
 }
 
 export const buildResourcesEndpoint = ({
   type,
-  resources
+  resources,
+  stateList
 }: BuildResourcesEndpointProps): string => {
   const baseEndpoint = equals(type, 'host')
     ? hostStatusesEndpoint
@@ -43,12 +46,15 @@ export const buildResourcesEndpoint = ({
     }
   );
 
+  const stateQueryParam =  stateList && !isEmpty(stateList) ? [{ name: 'states', value: stateList }] : [];
+
   return buildListingEndpoint({
     baseEndpoint,
     parameters: {
       search: {
         conditions: flatten(searchConditions)
-      }
-    }
+      },
+    },
+    customQueryParameters: stateQueryParam
   });
 };

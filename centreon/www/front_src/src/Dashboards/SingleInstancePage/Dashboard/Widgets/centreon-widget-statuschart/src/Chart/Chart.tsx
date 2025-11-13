@@ -35,7 +35,8 @@ const Chart = ({
   id,
   playlistHash,
   dashboardId,
-  widgetPrefixQuery
+  widgetPrefixQuery,
+  stateList
 }: ChartType): JSX.Element => {
   const { cx, classes } = useStyles();
   const { t } = useTranslation();
@@ -54,7 +55,8 @@ const Chart = ({
     refreshIntervalToUse,
     resourceType,
     resources,
-    widgetPrefixQuery
+    widgetPrefixQuery,
+    stateList
   });
 
   const goToResourceStatusPage = (status): void => {

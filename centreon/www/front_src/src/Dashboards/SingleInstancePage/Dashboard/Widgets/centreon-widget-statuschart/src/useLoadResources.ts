@@ -10,7 +10,7 @@ import { Resource } from '../../models';
 import { getWidgetEndpoint } from '../../utils';
 
 import { buildResourcesEndpoint } from './api/endpoint';
-import { StatusChartProps, StatusType } from './models';
+import { StateSelection, StatusChartProps, StatusType } from './models';
 import { FormattedResponse, formatResponse } from './utils';
 
 interface LoadResourcesProps
@@ -22,6 +22,7 @@ interface LoadResourcesProps
   refreshIntervalToUse: number | false;
   resourceType: 'host' | 'service';
   resources: Array<Resource>;
+  stateList: Array<StateSelection>;
 }
 
 interface LoadResources {
@@ -37,25 +38,28 @@ const useLoadResources = ({
   id,
   dashboardId,
   playlistHash,
-  widgetPrefixQuery
+  widgetPrefixQuery,
+  stateList
 }: LoadResourcesProps): LoadResources => {
   const theme = useTheme();
 
   const isOnPublicPage = useAtomValue(isOnPublicPageAtom);
 
+  const widgetEndpoint = getWidgetEndpoint({
+    dashboardId,
+    defaultEndpoint: buildResourcesEndpoint({
+      resources,
+      type: resourceType,
+      stateList
+    }),
+    extraQueryParameters: { resource_type: resourceType as string },
+    isOnPublicPage,
+    playlistHash,
+    widgetId: id
+  });
+
   const { data: statuses, isLoading } = useFetchQuery<StatusType>({
-    getEndpoint: () =>
-      getWidgetEndpoint({
-        dashboardId,
-        defaultEndpoint: buildResourcesEndpoint({
-          resources,
-          type: resourceType
-        }),
-        extraQueryParameters: { resource_type: resourceType as string },
-        isOnPublicPage,
-        playlistHash,
-        widgetId: id
-      }),
+    getEndpoint: () => widgetEndpoint,
     getQueryKey: () => [
       widgetPrefixQuery,
       'statusChart',

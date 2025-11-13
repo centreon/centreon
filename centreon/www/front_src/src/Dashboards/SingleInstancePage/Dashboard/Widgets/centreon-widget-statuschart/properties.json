@@ -45,6 +45,35 @@
       "defaultValue": ["host", "service"],
       "keepOneOptionSelected": true
     },
+    "stateList": {
+      "type": "checkbox",
+      "label": "Display resources with this state",
+      "options": [
+        {
+          "id": "unhandled_problems",
+          "name": "Unhandled"
+        },
+        {
+          "id": "acknowledged",
+          "name": "Acknowledged"
+        },
+        {
+          "id": "in_downtime",
+          "name": "In downtime"
+        },
+        {
+          "id": "in_flapping",
+          "name": "Flapping"
+        }
+      ],
+      "defaultValue": ["unhandled_problems"],
+      "hiddenCondition": {
+        "target": "options",
+        "when": "options.viewMode",
+        "method": "equals",
+        "matches": "condensed"
+      }
+    },
     "unit": {
       "type": "radio",
       "label": "Display resources with this unit",
