@@ -439,7 +439,7 @@ jobs:
         shell: bash
 
       - name: Merge Artifacts
-        uses: actions/upload-artifact/merge@6f51ac03b9356f520e9adb1b1b7802705f340c2b
+        uses: actions/upload-artifact/merge@6f51ac03b9356f520e9adb1b1b7802705f340c2b # v4.5.0
         if: steps.check_artifacts_for_merge.outputs.found == 'true' &&
             (( contains(needs.cypress-e2e-test-run.result, 'failure') &&
               (matrix.type_of_report == 'test-results' || matrix.type_of_report == 'test-reports') ) ||
@@ -493,7 +493,7 @@ jobs:
         if: |
           ( success() || ( failure() && matrix.type_of_report == 'test-results' ) ) &&
           steps.check_artifact.outputs.found == 'true'
-        uses: geekyeggo/delete-artifact@f275313e70c08f6120db482d7a6b98377786765b
+        uses: geekyeggo/delete-artifact@f275313e70c08f6120db482d7a6b98377786765b # v5.1.0
         with:
           name: ${{ inputs.name }}-${{ inputs.os }}-${{ matrix.type_of_report }}-*
           failOnError: false
