@@ -338,7 +338,6 @@ class CentreonLDAP
         }
         $this->setErrorHandler();
         $filter = preg_replace('/%s/', $this->escapeLdapFilterSpecialChars($username), $this->userSearchInfo['filter']);
-        error_log($filter);
         $result = ldap_search($this->ds, $this->userSearchInfo['base_search'], $filter);
         // no results were returned using this base_search
         if ($result === false) {
