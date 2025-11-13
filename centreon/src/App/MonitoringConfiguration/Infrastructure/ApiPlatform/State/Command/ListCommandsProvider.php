@@ -36,6 +36,7 @@ use App\MonitoringConfiguration\Domain\Repository\Criteria\CommandCriteria;
 use App\MonitoringConfiguration\Domain\Security\CommandActionEnum;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Command\ListCommandResource;
 use App\Shared\Domain\Repository\Paginator;
+use App\Shared\Infrastructure\ApiPlatform\State\SortAwareProviderTrait;
 use App\Shared\Infrastructure\TransformerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
@@ -45,6 +46,8 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
  */
 final readonly class ListCommandsProvider implements ProviderInterface
 {
+    use SortAwareProviderTrait;
+
     /**
      * @param TransformerInterface<Command,ListCommandResource> $transformer
      */
@@ -97,7 +100,7 @@ final readonly class ListCommandsProvider implements ProviderInterface
         $criteria = $this->handleTypeFilter($allowedTypes, $criteria);
         $criteria = $this->handleNameFilter($filters['name'] ?? null, $criteria);
         $criteria = $this->handleStatusFilter($filters['is_activated'] ?? null, $criteria);
-
+        $criteria = $this->handleSort($filters, $criteria);
         $commands = $this->commandRepository->findAll($criteria);
         $commandResources = [];
         foreach ($commands as $command) {

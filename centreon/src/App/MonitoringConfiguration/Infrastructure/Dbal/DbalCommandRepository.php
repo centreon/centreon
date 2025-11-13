@@ -129,6 +129,7 @@ final readonly class DbalCommandRepository extends DbalRepository implements Com
         if ($criteria instanceof CommandCriteria) {
             $this->filterByCriteria($qb, $criteria);
         }
+
         // if no pagination
         if ($criteria?->getPage() === null || $criteria->getItemsPerPage() === null) {
             /** @var array<RowTypeAlias> $rows */
@@ -296,6 +297,9 @@ final readonly class DbalCommandRepository extends DbalRepository implements Com
             $qb->andWhere('cm.command_activate = :command_activate');
             $qb->setParameter('command_activate', $criteria->getStatus() ? '1' : '0');
         }
+
+        $this->sort($qb, 'cm', $criteria);
+
     }
 
     /**
