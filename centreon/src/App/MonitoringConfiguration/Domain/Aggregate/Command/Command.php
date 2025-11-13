@@ -27,6 +27,9 @@ use App\MonitoringConfiguration\Domain\Aggregate\Connector\Connector;
 use App\MonitoringConfiguration\Domain\Security\CommandPermissionEnum;
 use App\Shared\Domain\Aggregate\AggregateRoot;
 
+/**
+ * @extends AggregateRoot<CommandId>
+ */
 final class Command extends AggregateRoot
 {
     /**

@@ -24,9 +24,13 @@ declare(strict_types=1);
 namespace App\Shared\Domain\Event;
 
 use App\Shared\Domain\Aggregate\AggregateRoot;
+use App\Shared\Domain\Aggregate\AggregateRootId;
 
 abstract readonly class AggregateUpdated implements EventInterface
 {
+    /**
+     * @param AggregateRoot<AggregateRootId> $aggregate
+     */
     public function __construct(
         public AggregateRoot $aggregate,
         public int $creatorId,

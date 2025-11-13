@@ -23,15 +23,13 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Domain\Aggregate\Option;
 
-use App\Shared\Domain\Aggregate\AggregateRoot;
-
-final class Option extends AggregateRoot
+final readonly class Option
 {
     public const PLUGIN_PATH_OPTION_NAME = 'nagios_path_plugins';
 
     public function __construct(
-        public readonly OptionName $name,
-        public readonly OptionValue $value,
+        public OptionName $name,
+        public OptionValue $value,
     ) {
     }
 }

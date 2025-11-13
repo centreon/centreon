@@ -37,4 +37,3 @@ interface SortableCriteria
      */
     public function getFieldMapping(): array;
 }
-

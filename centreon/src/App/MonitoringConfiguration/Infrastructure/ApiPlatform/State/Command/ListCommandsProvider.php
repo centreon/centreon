@@ -77,7 +77,7 @@ final readonly class ListCommandsProvider implements ProviderInterface
                 $allowedTypes[] = $commandType->name;
             }
         }
-        /** @var array{type?: string|array<string>, name?: array<string>|null, is_activated?: string}|null $filters */
+        /** @var array{type?: string|array<string>, name?: array<string>|null, is_activated?: string} $filters */
         $filters = $context['filters'] ?? [];
 
         // Filter allowed types by requested types
@@ -101,17 +101,22 @@ final readonly class ListCommandsProvider implements ProviderInterface
         $criteria = $this->handleNameFilter($filters['name'] ?? null, $criteria);
         $criteria = $this->handleStatusFilter($filters['is_activated'] ?? null, $criteria);
         $criteria = $this->handleSort($filters, $criteria);
+
         $commands = $this->commandRepository->findAll($criteria);
         $commandResources = [];
-        $counts = $this->commandRepository->countLinkedResources(array_map(
-            fn (Command $command) => $command->id(),
-            is_array($commands) ? $commands : iterator_to_array($commands)
-        ));
+        if (count($commands) > 0) {
+            $counts = $this->commandRepository->countLinkedResources(array_map(
+                fn (Command $command): CommandId => $command->id(),
+                iterator_to_array($commands)
+            ));
+        }
         foreach ($commands as $command) {
             /** @var CommandId $id */
             $id = $command->id();
             $commandResource = $this->transformer->transform($command);
-            $commandResource->hydrateLinkedResourceCount($counts[$id->value]);
+            if ($counts !== []) {
+                $commandResource->hydrateLinkedResourceCount($counts[$id->value]);
+            }
             $commandResources[] = $commandResource;
         }
 

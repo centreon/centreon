@@ -30,6 +30,7 @@ trait SortAwareProviderTrait
     /**
      * @template T of SortableCriteria
      *
+     * @param array{sort?: array<string,string>} $filters
      * @param T $criteria
      *
      * @return T
@@ -38,7 +39,7 @@ trait SortAwareProviderTrait
     {
         $sort = $filters['sort'] ?? [];
         foreach ($sort as $field => $direction) {
-            $criteria = $criteria->withSort($field, strtoupper($direction));
+            $criteria = $criteria->withSort($field, mb_strtoupper((string) $direction));
         }
 
         return $criteria;

@@ -25,9 +25,7 @@ namespace App\Shared\Domain\Repository;
 
 trait SortableCriteriaTrait
 {
-    /**
-     * @var array<string, SortDirectionEnum>
-     */
+    /** @var array<string, SortDirectionEnum> */
     private array $sort = [];
 
     public function withSort(string $field, string|SortDirectionEnum $direction): static

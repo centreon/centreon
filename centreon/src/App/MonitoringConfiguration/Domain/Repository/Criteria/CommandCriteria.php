@@ -31,7 +31,6 @@ use Webmozart\Assert\Assert;
 final class CommandCriteria implements SortableCriteria
 {
     use SortableCriteriaTrait;
-
     public const OPERATOR_EQUAL = 'eq';
     public const OPERATOR_LIKE = 'lk';
     public const ALLOWED_OPERATORS = [self::OPERATOR_EQUAL, self::OPERATOR_LIKE];
@@ -136,6 +135,7 @@ final class CommandCriteria implements SortableCriteria
     {
         return [
             'name' => 'command_name',
+            'type' => 'command_type',
         ];
     }
 }

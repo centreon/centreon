@@ -112,7 +112,6 @@ final class UpdateCommandProcessorTest extends ApiTestCase
                 'connector' => null,
             ],
         ]);
-
         self::assertResponseIsSuccessful();
         self::assertMatchesResourceItemJsonSchema(CommandResource::class);
         self::assertArrayNotHasKey('connector', $response->toArray());

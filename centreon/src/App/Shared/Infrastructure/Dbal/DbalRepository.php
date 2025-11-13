@@ -87,10 +87,8 @@ abstract readonly class DbalRepository
 
     final protected function sort(QueryBuilder $qb, string $alias, SortableCriteria $criteria): void
     {
-        if ($criteria->getSort() !== []) {
-            foreach ($criteria->getSort() as $field => $direction) {
-                $qb->addOrderBy("{$alias}." . $criteria->getFieldMapping()[$field] ?? $field, $direction->value);
-            }
+        foreach ($criteria->getSort() as $field => $direction) {
+            $qb->addOrderBy("{$alias}." . ($criteria->getFieldMapping()[$field] ?? $field), $direction->value);
         }
     }
 }

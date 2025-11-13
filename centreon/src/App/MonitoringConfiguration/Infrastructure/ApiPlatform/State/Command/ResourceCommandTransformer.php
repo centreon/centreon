@@ -54,8 +54,8 @@ final readonly class ResourceCommandTransformer implements TransformerInterface
             isShellEnabled: $from->isShellEnabled,
             isActivated: $from->isActivated ?? false,
             isFromMonitoringConnector: $from->isFromMonitoringConnector ?? false,
-            connector: $from->connector !== null
-                ? $this->connectorTransformer->transform($from->connector)
+            connector: $from->connector() !== null
+                ? $this->connectorTransformer->transform($from->connector())
                 : null,
             comment: $from->comment?->value,
         );

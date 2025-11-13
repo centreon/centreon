@@ -189,6 +189,34 @@ final class ListCommandsProviderTest extends ApiTestCase
         $this->assertEquals(3, $response->toArray()['totalItems']);
     }
 
+    public function testItFindAllCommandsWithNameSortedAscending(): void
+    {
+        $this->login();
+
+        $response = $this->request(
+            'GET',
+            self::BASE_ENDPOINT,
+            ['query' => ['sort' => ['name' => 'asc']]]
+        );
+        self::assertResponseIsSuccessful();
+        $this->assertCount(30, (array) $response->toArray()['member']);
+        $this->assertEquals('check_centreon_cpu', (array) $response->toArray()['member'][0]['name']);
+    }
+
+    public function testItFindAllCommandsWithNameSortedDescending(): void
+    {
+        $this->login();
+
+        $response = $this->request(
+            'GET',
+            self::BASE_ENDPOINT,
+            ['query' => ['sort' => ['name' => 'desc']]]
+        );
+        self::assertResponseIsSuccessful();
+        $this->assertCount(30, (array) $response->toArray()['member']);
+        $this->assertEquals('submit-service-check-result', (array) $response->toArray()['member'][0]['name']);
+    }
+
     public function testItShouldIgnoreUnknownOperator(): void
     {
         $this->login();

@@ -37,7 +37,6 @@ use App\Shared\Infrastructure\Dbal\DbalRepository;
 use App\Shared\Infrastructure\InMemory\InMemoryPaginator;
 use App\Shared\Infrastructure\TransformerInterface;
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Webmozart\Assert\Assert;
@@ -199,7 +198,7 @@ final readonly class DbalCommandRepository extends DbalRepository implements Com
             "(SELECT COUNT(service_id) FROM service WHERE (command_command_id = cm.command_id OR command_command_id2 = cm.command_id) AND service_register = '0') AS cm_used_service_templates_count"
         )
             ->from(self::TABLE_NAME, 'cm')
-            ->where($qb->expr()->in('cm.command_id', array_column($commandIds, 'value')));
+            ->where($qb->expr()->in('cm.command_id', array_map(strval(...), array_column($commandIds, 'value'))));
 
         /** @var array<array{
          *   command_id: string,
