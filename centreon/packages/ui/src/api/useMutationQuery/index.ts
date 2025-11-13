@@ -111,7 +111,9 @@ const useMutationQuery = <T extends object, TMeta>({
         defaultFailureMessage,
         endpoint: getEndpoint(_meta as TMeta),
         headers: new Headers({
-          'Content-Type': 'application/json',
+          'Content-Type': equals(method, Method.PATCH)
+            ? 'application/merge-patch+json'
+            : 'application/json',
           ...fetchHeaders
         }),
         isMutation: true,
