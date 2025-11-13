@@ -1,4 +1,4 @@
-import { equals } from 'ramda';
+import { equals, keys, values } from 'ramda';
 import toRawQueryParameters from '../../queryParameters';
 import { QueryParameter } from '../../queryParameters/models';
 
@@ -17,11 +17,7 @@ const getQueryParameters = ({
     return [
       { name: 'page', value: page },
       { name: 'itemsPerPage', value: limit },
-      { name: 'sort_by', value: sort },
-      {
-        name: 'search',
-        value: getSearchQueryParameterValue(search)
-      },
+      { name: `sort[${keys(sort || {})[0]}]`, value: values(sort || {})[0] },
       ...customQueryParameters
     ];
   }
@@ -38,8 +34,12 @@ const getQueryParameters = ({
   ];
 };
 
-const buildEndpoint = ({ baseEndpoint, queryParameters }): string => {
-  return `${baseEndpoint}?${toRawQueryParameters(queryParameters)}`;
+const buildEndpoint = ({
+  baseEndpoint,
+  queryParameters,
+  apiFormat
+}): string => {
+  return `${baseEndpoint}?${toRawQueryParameters({ queryParameters, apiFormat })}`;
 };
 
 const buildListingEndpoint = ({
@@ -49,6 +49,7 @@ const buildListingEndpoint = ({
   apiFormat = 'standard'
 }: BuildListingEndpointParameters): string => {
   return buildEndpoint({
+    apiFormat,
     baseEndpoint,
     queryParameters: [
       ...getQueryParameters({ ...parameters, customQueryParameters, apiFormat })

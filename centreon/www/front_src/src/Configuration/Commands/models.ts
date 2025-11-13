@@ -17,9 +17,9 @@ export interface Command {
   name: string;
   type: string;
   commandLine: string;
-  comment: string | null;
+  comment?: string | null;
   isShellEnabled: boolean;
-  connector: { id: string; name: string } | null;
+  connector?: { id: string; name: string } | null;
 }
 
 export interface Payload {

@@ -48,9 +48,11 @@ export const commandDecoder = JsonDecoder.object<Command>(
     name: JsonDecoder.string,
     type: JsonDecoder.string,
     commandLine: JsonDecoder.string,
-    comment: JsonDecoder.nullable(JsonDecoder.string),
+    comment: JsonDecoder.optional(JsonDecoder.nullable(JsonDecoder.string)),
     isShellEnabled: JsonDecoder.boolean,
-    connector: JsonDecoder.nullable(JSONLDEnityListDecoder)
+    connector: JsonDecoder.optional(
+      JsonDecoder.nullable(JSONLDEnityListDecoder)
+    )
   },
   'Command',
   {
