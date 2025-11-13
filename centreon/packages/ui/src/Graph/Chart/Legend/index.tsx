@@ -124,10 +124,9 @@ const MainLegend = ({
       data-display-side={!equals(placement, 'bottom')}
     >
       <ul
-        className={`list-none flex gap-3 w-full ${!isListMode && equals(placement, 'bottom') && 'flex-wrap'} ${isListMode || !equals(placement, 'bottom') ? 'flex-col h-full w-fit' : ''}`}
+        className={`list-none flex gap-3 w-full ${!isListMode && equals(placement, 'bottom') && 'flex-wrap'} ${isListMode || !equals(placement, 'bottom') ? 'flex-col h-full w-fit' : ''} ${equals(placement, 'bottom') ? 'max-h-17' : 'max-h-0'}`}
         style={{
-          height: equals(placement, 'bottom') ? 'auto' : `${graphHeight}px`,
-          maxHeight: equals(placement, 'bottom') ? '68px' : 'none'
+          height: equals(placement, 'bottom') ? 'auto' : `${graphHeight}px`
         }}
         data-as-list={isListMode || !equals(placement, 'bottom')}
         data-mode={itemMode}
@@ -167,7 +166,7 @@ const MainLegend = ({
               onContextMenu={contextMenuClick(metric_id)}
             >
               <div
-                className="h-full rounded-sm w-1 min-h-4"
+                className="h-full rounded-sm w-1 min-h-5"
                 style={{ backgroundColor: markerColor }}
                 data-icon
               />
