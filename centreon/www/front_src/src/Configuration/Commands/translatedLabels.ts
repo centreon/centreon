@@ -1,18 +1,10 @@
 export const labelDelete = 'Delete';
 export const labelDuplicate = 'Duplicate';
-export const labelMoreActions = 'More actions';
-export const labelEditConnectorConfiguration = 'Edit connector configuration';
-export const labelSelectAtLeastOneColumn =
-  'At least one column must be selected';
 
 export const labelAdd = 'Add';
 export const labelMoreFilters = 'More filters';
 export const labelClear = 'Clear';
-export const labelPoller = 'Poller';
 export const labelCancel = 'Cancel';
-
-export const labelSomeConnectorsMayNotWorkAnymore =
-  'The corresponding connectors will not work anymore.';
 
 export const labelCreate = 'Create';
 export const labelUpdate = 'Update';
@@ -20,10 +12,6 @@ export const labelUpdate = 'Update';
 export const labelUrl = 'URL';
 export const labelUsername = 'Username';
 
-export const labelDoYouWantToQuitWithoutSaving =
-  'Do you want to quit without saving the changes?';
-export const labelYourFormHasUnsavedChanges =
-  'Your form has unsaved changes. Do you want to quit the form without saving the changes?';
 export const labelConfirm = 'Confirm';
 export const labelParameters = 'Parameters';
 
