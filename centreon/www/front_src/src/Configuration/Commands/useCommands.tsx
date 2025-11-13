@@ -7,6 +7,7 @@ import {
   commandDecoder,
   commandsEndpoint,
   commandsListDecoder,
+  duplicateCommandsEndpoint,
   getCommandEndpoint
 } from './api';
 
@@ -43,7 +44,8 @@ const useCommands = (): UseCommandsState => {
         create: commandsEndpoint,
         update: getCommandEndpoint,
         enable: getCommandEndpoint,
-        disable: getCommandEndpoint
+        disable: getCommandEndpoint,
+        duplicate: duplicateCommandsEndpoint
       },
       decoders: {
         getAll: commandsListDecoder,

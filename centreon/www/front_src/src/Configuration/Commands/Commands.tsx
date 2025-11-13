@@ -53,7 +53,8 @@ const Commands = () => {
       actions={{
         delete: true,
         edit: true,
-        enableDisable: true
+        enableDisable: true,
+        duplicate: true
       }}
       labels={{
         title: t(labelCommands),

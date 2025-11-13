@@ -27,3 +27,5 @@ export const getStandardMacrosEndpoint = geListEndpoint(standardMacrosEndpoint);
 export const getPluginsEndpoint = geListEndpoint(pluginsEndpoint);
 
 export const connectorsEndpoint = '/configuration/connectors';
+
+export const duplicateCommandsEndpoint = '/configuration/commands/_duplicate';
