@@ -33,7 +33,6 @@ use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Contact\Application\Repository\ReadContactGroupRepositoryInterface;
 use Core\Contact\Domain\Model\ContactGroup;
-use Core\Infrastructure\Common\Api\DefaultPresenter;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\Notification\Application\Converter\NotificationHostEventConverter;
 use Core\Notification\Application\Converter\NotificationServiceEventConverter;
@@ -52,6 +51,7 @@ use Core\Notification\Domain\Model\NotificationResource;
 use Core\Notification\Domain\Model\ConfigurationResource;
 use Core\Notification\Domain\Model\ConfigurationTimePeriod;
 use Core\Notification\Domain\Model\ConfigurationUser;
+use Core\Notification\Domain\Model\Contact;
 use Core\Notification\Infrastructure\API\AddNotification\AddNotificationPresenter;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\TimePeriod\Domain\Model\TimePeriod;
@@ -119,7 +119,12 @@ beforeEach(function (): void {
         ),
     ];
     $this->users = array_map(
-        (fn($userId) => new ConfigurationUser($userId, "user_name_{$userId}", "email_{$userId}@centreon.com")),
+        (fn ($userId) => new ConfigurationUser(
+            $userId,
+            "user_name_{$userId}",
+            "email_{$userId}@centreon.com",
+            "alias_{$userId}"
+        )),
         $this->request->users
     );
 

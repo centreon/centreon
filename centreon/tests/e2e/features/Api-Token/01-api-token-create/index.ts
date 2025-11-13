@@ -3,7 +3,7 @@ import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
 const token = {
   duration: '7 days',
   name: 'myToken',
-  user: 'Guest'
+  user: 'guest'
 };
 
 beforeEach(() => {

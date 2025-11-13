@@ -53,8 +53,14 @@ export type DatasetFilter = {
 };
 
 export type GetResourceAccessRule = ResourceAccessRuleType & {
-  contactGroups: Array<NamedEntity>;
-  contacts: Array<NamedEntity>;
+  contactGroups: {
+    all: boolean;
+    values: Array<NamedEntity>;
+  };
+  contacts: {
+    all: boolean;
+    values: Array<Contact>;
+  };
   datasetFilters: Array<DatasetFilter>;
 };
 
@@ -63,6 +69,11 @@ export type SortOrder = 'asc' | 'desc';
 export type NamedEntity = {
   id: number;
   name: string;
+};
+
+export type Contact = {
+  id: number;
+  alias: string;
 };
 
 export enum DeleteType {

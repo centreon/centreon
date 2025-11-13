@@ -40,7 +40,6 @@ parameters:
         - src/Core
         - src/Adaptation
     ignoreErrors:
-
         - # [CENTREON-RULE] Our try catch block logging rule cannot handle nested try catch.
             reportUnmatched: false
             message: '#Exception thrown in UseCase should be in a try catch block, and must be caught.#'
@@ -117,6 +116,7 @@ parameters:
                 - src/Core/Security/Authentication/Domain/Provider/OpenIdProvider.php
                 - src/Core/Security/ProviderConfiguration/Domain/SecurityAccess/SecurityAccessInterface.php
                 - src/Core/Security/User/Domain/Model/UserPasswordFactory.php
+                - src/Core/Contact/Domain/AdminResolver.php
 
           # 👇👇 Software architecture problem MUST be fixed !!! Only here as a baseline 👇👇
         - # [CENTREON-RULE]: The interface is not in the right namespace.

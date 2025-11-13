@@ -49,6 +49,17 @@ export interface InputProps {
     endpoint?: string;
     filterKey?: string;
     getRenderedOptionText?: (option) => string | JSX.Element;
+    getOptionLabel?: (option) => string;
+    optionProperty?: string;
+    disableSelectAll?: boolean;
+    limitTags?: number;
+    decoder?;
+  };
+  file?: {
+    multiple?: boolean;
+    accept?: string;
+    maxFileSize?: number;
+    CustomDropZoneContent: ({ files }) => JSX.Element;
   };
   custom?: {
     Component: React.ComponentType<InputPropsWithoutGroup>;

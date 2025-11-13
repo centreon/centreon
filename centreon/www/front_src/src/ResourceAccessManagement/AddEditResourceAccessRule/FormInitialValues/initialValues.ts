@@ -51,7 +51,7 @@ const formatDatasetFilter = (datasetFilter: DatasetFilter): Array<Dataset> => {
 const formatDatasetFilters = (
   datasetFilters: Array<DatasetFilter>
 ): Array<Array<Dataset>> =>
-  datasetFilters.map((datasetFilter) => formatDatasetFilter(datasetFilter));
+  datasetFilters?.map((datasetFilter) => formatDatasetFilter(datasetFilter));
 
 export const getInitialValues = ({
   contactGroups,
@@ -61,8 +61,10 @@ export const getInitialValues = ({
   isActivated,
   name
 }): Omit<ResourceAccessRule, 'id'> => ({
-  contactGroups,
-  contacts,
+  allContactGroups: contactGroups?.all,
+  allContacts: contacts?.all,
+  contactGroups: contactGroups?.values,
+  contacts: contacts?.values,
   datasetFilters: formatDatasetFilters(datasetFilters),
   description,
   isActivated,

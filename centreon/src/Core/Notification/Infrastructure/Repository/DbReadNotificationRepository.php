@@ -152,23 +152,22 @@ class DbReadNotificationRepository extends AbstractRepositoryRDB implements Read
     /**
      * @inheritDoc
      */
-    public function findUsersByNotificationId(
-        int $notificationId,
-        bool $retrieveAlsoAllUsersOfContactGroups = false
-    ): array {
-        $this->info('Get all notification users for notification with ID #' . $notificationId);
-
-        $request = $this->translateDbName(
-            <<<'SQL'
-                SELECT notification_id, user_id, contact.contact_name, contact.contact_email
-                FROM `:db`.notification_user_relation
-                JOIN contact ON user_id = contact_id
-                WHERE notification_id = :notificationId
-                ORDER BY contact.contact_name ASC
-                SQL
+    public function findUsersByNotificationId(int $notificationId): array
+    {
+        $statement = $this->db->prepare(
+            $this->translateDbName(
+                <<<'SQL'
+                    SELECT contact.contact_id, contact.contact_name, contact.contact_email, contact.contact_alias
+                    FROM `:db`.contact
+                    LEFT JOIN `:db`.notification_user_relation nur
+                        ON nur.user_id = contact.contact_id
+                    INNER JOIN `:db`.notification notif
+                        ON notif.id = nur.notification_id
+                    WHERE notif.id = :notification_id
+                    SQL
+            )
         );
-        $statement = $this->db->prepare($request);
-        $statement->bindValue(':notificationId', $notificationId, \PDO::PARAM_INT);
+        $statement->bindValue(':notification_id', $notificationId, \PDO::PARAM_INT);
         $statement->setFetchMode(\PDO::FETCH_ASSOC);
         $statement->execute();
 
@@ -177,15 +176,17 @@ class DbReadNotificationRepository extends AbstractRepositoryRDB implements Read
         foreach ($statement as $result) {
             /**
              * @var array{
-             *     user_id: int,
+             *     contact_id: int,
              *     contact_name: string,
-             *     contact_email: string
+             *     contact_email: string,
+             *     contact_alias: string
              * } $result
              */
-            $users[$result['user_id']] = new ConfigurationUser(
-                $result['user_id'],
+            $users[] = new ConfigurationUser(
+                $result['contact_id'],
                 $result['contact_name'],
                 $result['contact_email'],
+                $result['contact_alias'],
             );
         }
 
@@ -199,7 +200,7 @@ class DbReadNotificationRepository extends AbstractRepositoryRDB implements Read
         }
 
         $select = <<<'SQL'
-            SELECT DISTINCT c.contact_id, c.contact_name, c.contact_email
+            SELECT DISTINCT c.contact_id, c.contact_name, c.contact_email, c.contact_alias
             FROM `:db`.contactgroup_contact_relation cgcr
             INNER JOIN `:db`.contactgroup cg ON cg.cg_id=cgcr.contactgroup_cg_id
             INNER JOIN `:db`.contact c ON c.contact_id=cgcr.contact_contact_id
@@ -222,13 +223,15 @@ class DbReadNotificationRepository extends AbstractRepositoryRDB implements Read
              * @var array{
              *     contact_id: int,
              *     contact_name: string,
-             *     contact_email: string
+             *     contact_email: string,
+             *     contact_alias: string
              * } $result
              */
             $users[$result['contact_id']] = new ConfigurationUser(
                 $result['contact_id'],
                 $result['contact_name'],
                 $result['contact_email'],
+                $result['contact_alias']
             );
         }
 

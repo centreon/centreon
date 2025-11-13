@@ -131,7 +131,7 @@ final class FindRule
 
         // retrieve names of linked contact IDs
         $response->contacts = array_values(
-            $this->contactRepository->findNamesByIds(...$rule->getLinkedContactIds())
+            $this->contactRepository->findAliasesByIds(...$rule->getLinkedContactIds())
         );
 
         // retrieve names of linked contact group IDs
