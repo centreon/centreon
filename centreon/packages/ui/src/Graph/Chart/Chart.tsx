@@ -288,6 +288,7 @@ const Chart = ({
           setLines={setLinesGraph}
           title={title}
           titleRef={titleRef}
+          graphHeight={graphHeight}
         >
           <GraphValueTooltip
             baseAxis={baseAxis}
