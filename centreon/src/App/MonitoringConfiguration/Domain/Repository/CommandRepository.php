@@ -47,5 +47,10 @@ interface CommandRepository
      */
     public function findAll(?CommandCriteria $criteria): \IteratorAggregate&\Countable;
 
-    public function countLinkedResources(CommandId $commandId): CommandResourceCount;
+    /**
+     * @param list<CommandId> $commandId
+     *
+     * @return array<int, CommandResourceCount
+     */
+    public function countLinkedResources(array $commandIds): array;
 }

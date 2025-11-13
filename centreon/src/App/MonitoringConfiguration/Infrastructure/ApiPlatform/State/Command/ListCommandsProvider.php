@@ -103,12 +103,15 @@ final readonly class ListCommandsProvider implements ProviderInterface
         $criteria = $this->handleSort($filters, $criteria);
         $commands = $this->commandRepository->findAll($criteria);
         $commandResources = [];
+        $counts = $this->commandRepository->countLinkedResources(array_map(
+            fn (Command $command) => $command->id(),
+            is_array($commands) ? $commands : iterator_to_array($commands)
+        ));
         foreach ($commands as $command) {
             /** @var CommandId $id */
             $id = $command->id();
-            $count = $this->commandRepository->countLinkedResources($id);
             $commandResource = $this->transformer->transform($command);
-            $commandResource->hydrateLinkedResourceCount($count);
+            $commandResource->hydrateLinkedResourceCount($counts[$id->value]);
             $commandResources[] = $commandResource;
         }
 

@@ -29,6 +29,9 @@ use App\Shared\Domain\Aggregate\AggregateRoot;
 
 final class Command extends AggregateRoot
 {
+    /**
+     * @param Connector|(\Closure(): ?Connector)|null $connector
+     */
     public function __construct(
         ?CommandId $id,
         public CommandName $name,
@@ -37,7 +40,7 @@ final class Command extends AggregateRoot
         public bool $isShellEnabled,
         public bool $isActivated,
         public bool $isFromMonitoringConnector,
-        public ?Connector $connector,
+        private Connector|\Closure|null $connector,
         public ?CommandComment $comment,
     ) {
         parent::__construct($id);
@@ -83,7 +86,19 @@ final class Command extends AggregateRoot
         $this->isActivated = false;
     }
 
-    public function addConnector(Connector $connector): void
+    public function connector(): ?Connector
+    {
+        if ($this->connector instanceof \Closure) {
+            $this->connector = ($this->connector)();
+        }
+
+        return $this->connector;
+    }
+
+    /**
+     * @param (\Closure(): ?Connector)|Connector $connector
+     */
+    public function addConnector(\Closure|Connector $connector): void
     {
         $this->connector = $connector;
     }
