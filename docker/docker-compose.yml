@@ -1,6 +1,27 @@
+# Centreon Docker Compose Configuration
+#
+# etcd Integration (Optional - Disabled by default):
+# ====================================================
+# This compose file includes etcd for distributed configuration management.
+# To enable etcd integration:
+#   1. Set USE_ETCD=true in both php-fpm and gorgone services
+#   2. Restart services: docker-compose up -d
+#
+# Benefits of etcd mode:
+#   - HA/multi-instance support (scale Gorgone horizontally)
+#   - Cloud-native deployments (Kubernetes, Docker Swarm)
+#   - No shared volumes needed for configs
+#
+# Shared volume mode (default):
+#   - USE_ETCD=false (default)
+#   - Configs shared via app-etc volume
+#   - Works as before (backward compatible)
+#
+
 x-defaults: &defaults
   environment:
     TZ: "America/Toronto"
+    DEBUG: true
 
 services:
   # Init container to sync application files to shared volume
@@ -19,6 +40,7 @@ services:
         IMAGE_VERSION=$$(dpkg -l | grep centreon-web | awk '{print $$3}' | head -1)
         echo "$$IMAGE_VERSION" > /var/www/html/centreon/.image_version
         chown www-data:www-data /var/www/html/centreon/.image_version
+        rm -rf /var/www/html/centreon/install
 
         echo "Sync complete (version: $$IMAGE_VERSION)"
     networks:
@@ -33,19 +55,41 @@ services:
     depends_on:
       centreon-sync:
         condition: service_completed_successfully
-    # environment:
-    #   - APP_ENV=dev
-    #   - DEBUG=true  # Uncomment to enable debug logging
+      etcd:
+        condition: service_healthy
+    environment:
+      # etcd configuration (optional - set USE_ETCD=true to enable)
+      # When enabled, configs are synced to etcd for distributed access by Gorgone
+      # When disabled (default), configs are available via shared volume only
+      - USE_ETCD=true              # Set to "true" to enable etcd integration
+      - ETCD_HOST=etcd              # etcd hostname
+      - ETCD_PORT=2379              # etcd port
+      - ETCD_KEY_PREFIX=/centreon/config  # etcd key prefix for configs
+      - CONFIG_DIR=/etc/centreon/config.d # Config directory
+      # - APP_ENV=dev
+      - DEBUG=true  # Uncomment to enable debug logging
+      - TZ=America/Toronto
     volumes:
+      # Config files
       - app-etc:/etc/centreon/:rw
       - app-data:/var/www/html:rw,z
       - app-engine:/etc/centreon-engine:rw,z
       - app-broker:/etc/centreon-broker:rw,z
-      # - app-status:/var/lib/centreon/status:rw,z
-      # - app-metrics:/var/lib/centreon/metrics:rw,z
-      # - app-centcore:/var/lib/centreon/centcore:rw,z
-      - app-centvar:/var/lib/centreon/:rw,z
+
+      # Selective /var/lib/centreon mounts (K8s-ready - no more shadowing!)
+      # IPC: Shared with gorgone for centcore.cmd communication
+      - app-centcore:/var/lib/centreon/centcore:rw,z
+
+      # Persistent data: Survives container restarts
+      - app-metrics:/var/lib/centreon/metrics:rw,z
+      - app-perfdata:/var/lib/centreon/perfdata:rw,z
+      - app-status:/var/lib/centreon/status:rw,z
+
+      # Cache: Can be ephemeral in production
       - app-centcache:/var/cache/centreon/:rw,z
+
+      # Note: Other /var/lib/centreon subdirs (centplugins, vault, installs, etc.)
+      # are created by entrypoint (00-init.sh) in the container layer
     networks:
       - app-network
     healthcheck:
@@ -76,6 +120,7 @@ services:
   cbd:
     <<: *defaults
     image: docker.centreon.com/centreon/centreon-broker-bookworm:fth-docker-collect
+    # image: centreon/broker:distroless-test
     container_name: cbd
     hostname: cbd
     restart: always
@@ -86,12 +131,13 @@ services:
       - main-network
     volumes:
       - app-broker:/etc/centreon-broker:rw,z
-      - app-centvar:/var/lib/centreon/:rw,z
-      # - app-status:/var/lib/centreon/status:rw,z
-      # - app-metrics:/var/lib/centreon/metrics:rw,z
+
+      # Selective mounts - broker needs access to metrics/perfdata/status
+      - app-metrics:/var/lib/centreon/metrics:rw,z
+      - app-perfdata:/var/lib/centreon/perfdata:rw,z
+      - app-status:/var/lib/centreon/status:rw,z
   centengine:
     <<: *defaults
-    # image: centengine-api:latest
     image: docker.centreon.com/centreon/centreon-engine-bookworm:fth-docker-collect
     container_name: centengine
     hostname: centengine
@@ -109,18 +155,33 @@ services:
     container_name: gorgone
     hostname: gorgone
     restart: always
+    environment:
+      # Gorgone type configuration
+      - TYPE=central  # Set to "central" or "poller"
+
+      # etcd configuration (optional - must match php-fpm USE_ETCD setting)
+      # When enabled, Gorgone fetches configs from etcd instead of shared volume
+      # When disabled (default), Gorgone waits for configs from shared volume
+      - USE_ETCD=true              # Set to "true" to enable etcd integration
+      - ETCD_HOST=etcd              # etcd hostname
+      - ETCD_PORT=2379              # etcd port
+      - CONFIG_DIR=/etc/centreon/config.d  # Config directory
+      - MAX_RETRIES=10              # Max retry attempts for etcd fetch
+      - RETRY_DELAY=2               # Delay between retries (seconds)
+      - CONFIG_WAIT_TIMEOUT=300     # Timeout for shared volume mode (seconds)
     networks:
       - app-network
       - main-network
     volumes:
-      - app-etc:/etc/centreon/:rw
       - app-gorgone:/etc/centreon-gorgone:rw,z
-      # - app-centcore:/var/lib/centreon/centcore:rw,z
+      # IPC: CRITICAL - Same centcore volume as php-fpm for centcore.cmd communication
+      - app-centcore:/var/lib/centreon/centcore:rw,z
+      # Engine command pipe
       - app-centcmd:/var/lib/centreon-engine/rw:rw,z
+      # Cache
       - app-centcache:/var/cache/centreon/:rw,z
-      - app-centvar:/var/lib/centreon/:rw,z
     depends_on:
-      php-fpm:
+      etcd:
         condition: service_healthy
 
   db:
@@ -132,6 +193,35 @@ services:
       - app-network
     volumes:
       - app-db:/var/lib/mysql:rw
+
+  # etcd service for distributed configuration management
+  # Set USE_ETCD=true in php-fpm and gorgone services to enable
+  etcd:
+    <<: *defaults
+    image: quay.io/coreos/etcd:v3.5.12
+    container_name: etcd
+    hostname: etcd
+    restart: always
+    environment:
+      - ETCD_NAME=etcd0
+      - ETCD_ADVERTISE_CLIENT_URLS=http://etcd:2379
+      - ETCD_LISTEN_CLIENT_URLS=http://0.0.0.0:2379
+      - ETCD_INITIAL_CLUSTER=etcd0=http://etcd:2380
+      - ETCD_LISTEN_PEER_URLS=http://0.0.0.0:2380
+      - ETCD_INITIAL_ADVERTISE_PEER_URLS=http://etcd:2380
+      - ETCD_INITIAL_CLUSTER_STATE=new
+      - ETCD_INITIAL_CLUSTER_TOKEN=centreon-cluster
+      - ETCD_DATA_DIR=/etcd-data
+      - TZ=America/Toronto
+    networks:
+      - app-network
+    volumes:
+      - etcd-data:/etcd-data
+    healthcheck:
+      test: ["CMD", "etcdctl", "endpoint", "health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
   cronbox:
     <<: *defaults
     container_name: cronbox
@@ -141,7 +231,10 @@ services:
     volumes:
       - app-etc:/etc/centreon/:r
       - app-data:/var/www/html:r
-      - app-centvar:/var/lib/centreon/:rw
+
+      # Selective mounts - cronbox needs centcore and perfdata
+      - app-centcore:/var/lib/centreon/centcore:rw,z
+      - app-perfdata:/var/lib/centreon/perfdata:rw,z
     depends_on:
       php-fpm:
         condition: service_healthy
@@ -154,16 +247,49 @@ networks:
     external: true
 
 volumes:
+  # Config volumes
   app-etc:
   app-data:
   app-engine:
   app-broker:
   app-gorgone:
-  # app-centcore:
+
+  # IPC volumes (shared between containers, can be tmpfs in production)
+  # For production K8s: emptyDir with medium: Memory
+  app-centcore:
+    # Optional: Use tmpfs for better performance
+    driver: local
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
+      o: size=10m,uid=900,gid=900,mode=0775
+
   app-centcmd:
-  app-centvar:
+    # Optional: Use tmpfs for better performance
+    driver: local
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
+      o: size=10m,uid=901,gid=901,mode=0775
+
+  # Persistent data volumes (must survive restarts)
+  # For production K8s: PersistentVolumeClaim
+  app-metrics:
+  app-perfdata:
+  app-status:
+
+  # Cache volume (ephemeral in production)
+  # For production K8s: emptyDir
   app-centcache:
+
+  # Log volume (for debugging)
   app-centlog:
+
+  # Database (persistent)
+  # For production K8s: PersistentVolumeClaim
   app-db:
-  # app-metrics:
-  # app-status:
+
+  # etcd data (persistent)
+  # For production K8s: PersistentVolumeClaim
+  # Stores distributed configuration for HA/multi-instance deployments
+  etcd-data:
