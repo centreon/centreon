@@ -45,9 +45,9 @@ properties:
         id:
           type: integer
           description: "ID of the user"
-        name:
+        alias:
           type: string
-          description: "Name of the user"
+          description: "Alias of the user"
   contactgroups:
     type: array
     items:
