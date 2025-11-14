@@ -288,6 +288,7 @@ const ResponsiveBarChart = ({
             xScale={xScale}
             maxAxisCharacters={maxLeftAxisCharacters}
             hasSecondUnit={Boolean(secondUnit)}
+            title={title}
           >
             <>
               {isApplyingZoom && (
