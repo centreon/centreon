@@ -1,4 +1,3 @@
-import { prop } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
 import { Column, ColumnType, truncate } from '@centreon/ui';
@@ -54,7 +53,7 @@ const useColumns = (): {
       id: 'type',
       sortable: true,
       label: t(labelType),
-      getFormattedString: prop('type')
+      getFormattedString: ({ type }) => t(type)
     }
   ];
 

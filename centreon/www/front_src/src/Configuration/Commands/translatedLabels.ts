@@ -18,7 +18,7 @@ export const labelEnableDisable = 'Enable/Disable';
 
 export const labelNotification = 'Notification';
 export const labelMiscellaneous = 'Miscellaneous';
-export const labelCheck = 'Check';
+export const labelCheck = 'Check ';
 export const labelDiscovery = 'Discovery';
 export const labelEnabled = 'Enabled';
 export const labelDisabled = 'Disabled';

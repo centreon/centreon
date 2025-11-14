@@ -24613,7 +24613,10 @@ msgid "Commands are used by the monitoring engine to run plugins to perform acti
 msgstr "Les commandes sont utilisées par le moteur de surveillance pour exécuter des plugins afin d'effectuer des actions. Bien que la plupart des commandes soient prêtes à l'emploi via les connecteurs de surveillance, vous pouvez également créer des commandes personnalisées pour des besoins spécifiques."
 
 msgid "Service uses"
-msgstr "Utilisation du service"
+msgstr "Services utilisés"
+
+msgid "Host uses"
+msgstr "Hôtes utilisés"
 
 msgid "Command type"
 msgstr "Type de commande"
@@ -24641,3 +24644,56 @@ msgstr "Vous n'êtes pas autorisé à choisir ce type."
 
 msgid "If your command uses shell functions (pipes, redirects, wildcards, etc.), check this box. Note that commands requiring the shell slow down the monitoring server."
 msgstr "Si votre commande utilise des fonctions shell (pipes, redirections, caractères génériques, etc.), cochez cette case. Notez que les commandes nécessitant le shell ralentissent le serveur de surveillance."
+
+
+msgid "Add a command"
+msgstr "Ajouter une command"
+
+msgid "Modify a command"
+msgstr "Modifier une commande"
+
+msgid "Command created"
+msgstr "Commande créé"
+
+msgid "Command updated"
+msgstr "Commande mis à jour"
+
+msgid "Command deleted"
+msgstr "Commande supprimé"
+
+msgid "Command enabled"
+msgstr "Commande activé"
+
+msgid "Command disabled"
+msgstr "Commande désactivé"
+
+msgid "Command duplicated"
+msgstr "Commande dupliqué"
+
+msgid "Command line"
+msgstr "Ligne de commande"
+
+msgid "Check "
+msgstr "contrôle"
+
+msgid "Delete command"
+msgstr "Supprimer la command"
+
+msgid "Duplicate command"
+msgstr Dupliquer la commande""
+
+#: unknown
+msgid ""
+"You are about to duplicate the <strong>{{ name }}</strong> command. "
+"How many duplications would you like to make?"
+msgstr ""
+"Vous êtes sur le point de dupliquer la commande <strong>{{ name }}</"
+"strong>. Combien de duplications souhaitez-vous effectuer ?"
+
+#: unknown
+msgid ""
+"You are about to delete the <strong>{{ name }}</strong> command. This "
+"action cannot be undone. Do you want to delete it?"
+msgstr ""
+"Vous êtes sur le point de supprimer la commande <strong>{{ name }}</"
+"strong>. Cette action est irréversible. Voulez-vous le supprimer ?"

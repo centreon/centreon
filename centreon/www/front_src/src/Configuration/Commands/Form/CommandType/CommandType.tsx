@@ -37,22 +37,22 @@ const CommandType = (): ReactElement => {
   const options = useMemo(
     () => [
       {
-        id: labelNotification,
+        id: 'Notification',
         name: labelNotification,
         canEdit: canEditNotificationCommands
       },
       {
-        id: labelCheck,
+        id: 'Check',
         name: labelCheck,
         canEdit: canEditCheckCommands
       },
       {
-        id: labelMiscellaneous,
+        id: 'Miscellaneous',
         name: labelMiscellaneous,
         canEdit: canEditMiscellaneousCommands
       },
       {
-        id: labelDiscovery,
+        id: 'Discovery',
         name: labelDiscovery,
         canEdit: canEditDiscoveryCommands
       }
