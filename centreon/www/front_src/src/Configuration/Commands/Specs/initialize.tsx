@@ -1,9 +1,11 @@
 import i18next from 'i18next';
 import { initReactI18next } from 'react-i18next';
 
+import { createStore } from 'jotai';
 import { BrowserRouter as Router } from 'react-router';
 
 import { Method, SnackbarProvider, TestQueryProvider } from '@centreon/ui';
+import { userPermissionsAtom } from '@centreon/ui-context';
 
 import Commands from '..';
 
@@ -19,6 +21,15 @@ const initialize = (): void => {
   i18next.use(initReactI18next).init({
     lng: 'en',
     resources: {}
+  });
+
+  const store = createStore();
+
+  store.set(userPermissionsAtom, {
+    manage_check_commands: true,
+    manage_notification_commands: true,
+    manage_discovery_commands: true,
+    manage_miscellaneous_commands: true
   });
 
   cy.fixture('Commands/listCommands.json').then((connectors) => {
