@@ -170,7 +170,7 @@ class DbReadHostMacroRepository extends DatabaseRepository implements ReadHostMa
      *    is_password:int|null,
      *    description:string|null,
      *    macro_order:int|null,
-     *    is_encryption_ready?:string
+     *    is_encryption_ready?:int
      * } $data
      *
      * @throws AssertionFailedException
