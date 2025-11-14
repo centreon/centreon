@@ -8,7 +8,7 @@ import {
 } from 'react';
 
 import { useAtom, useAtomValue } from 'jotai';
-import { equals, flatten, gte, has, identity, isNil, pluck } from 'ramda';
+import { equals, flatten, gte, has, isNil, pluck } from 'ramda';
 
 import { Skeleton } from '@mui/material';
 
@@ -32,13 +32,13 @@ import {
   getYScalePerUnit
 } from '../common/timeSeries';
 import { Line } from '../common/timeSeries/models';
+import { useMarginTop } from '../common/useMarginTop';
 import { useTooltipStyles } from '../common/useTooltipStyles';
 import { computPixelsToShiftMouse } from '../common/utils';
 import BarGroup from './BarGroup';
 import BarChartTooltip from './Tooltip/BarChartTooltip';
 import { tooltipDataAtom } from './atoms';
 import { BarStyle } from './models';
-import { useMarginTop } from '../common/useMarginTop';
 
 interface Props
   extends Pick<

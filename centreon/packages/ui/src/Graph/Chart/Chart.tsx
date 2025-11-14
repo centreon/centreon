@@ -7,15 +7,7 @@ import {
 } from 'react';
 
 import { useAtom } from 'jotai';
-import {
-  equals,
-  flatten,
-  identity,
-  isEmpty,
-  isNil,
-  pluck,
-  reject
-} from 'ramda';
+import { equals, flatten, isEmpty, isNil, pluck, reject } from 'ramda';
 
 import { ClickAwayListener, Skeleton } from '@mui/material';
 
@@ -35,6 +27,7 @@ import {
   getYScalePerUnit
 } from '../common/timeSeries';
 import type { Line } from '../common/timeSeries/models';
+import { useMarginTop } from '../common/useMarginTop';
 import Lines from './BasicComponents/Lines';
 import {
   canDisplayThreshold,
@@ -56,7 +49,6 @@ import type {
   LineChartProps
 } from './models';
 import { useIntersection } from './useChartIntersection';
-import { useMarginTop } from '../common/useMarginTop';
 
 interface Props extends LineChartProps {
   graphData: Data;

@@ -1,15 +1,13 @@
-import { MutableRefObject, ReactElement, useMemo } from 'react';
+import { MutableRefObject, ReactElement } from 'react';
 
 import { Group } from '@visx/visx';
-import { equals, identity } from 'ramda';
-
-import { margin } from '../../Chart/common';
+import { equals } from 'ramda';
 import { ChartAxis } from '../../Chart/models';
 import Axes from '../Axes';
 import Grids from '../Grids';
 import { Line, TimeValue } from '../timeSeries/models';
-import { computeGElementMarginLeft } from '../utils';
 import { useMarginTop } from '../useMarginTop';
+import { computeGElementMarginLeft } from '../utils';
 
 interface Props {
   allUnits: Array<string>;
