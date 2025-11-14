@@ -174,7 +174,7 @@ jobs:
           file: ${{ env.update_file }}
           version: ${{ env.version }}
 
-      - name: Get changed upgrade files from pull requests
+      - name: Get list of modified update files from current pull request
         if: |
           github.event_name == 'pull_request' &&
           ! contains(needs.get-environment.outputs.labels, 'skip-update-files-check')
@@ -184,7 +184,7 @@ jobs:
           files: |
             centreon/www/install/php/Update-**.php
 
-      - name: Check updated upgrade files
+      - name: Check what update files are modified
         if: |
           github.event_name == 'pull_request' &&
           ! contains(needs.get-environment.outputs.labels, 'skip-update-files-check')
