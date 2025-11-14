@@ -1,7 +1,7 @@
-import { MutableRefObject } from 'react';
+import { MutableRefObject, ReactElement, useMemo } from 'react';
 
 import { Group } from '@visx/visx';
-import { equals } from 'ramda';
+import { equals, identity } from 'ramda';
 
 import { margin } from '../../Chart/common';
 import { ChartAxis } from '../../Chart/models';
@@ -28,6 +28,7 @@ interface Props {
   xScale;
   maxAxisCharacters?: number;
   hasSecondUnit?: boolean;
+  title?: string;
 }
 
 const ChartSvgWrapper = ({
@@ -47,14 +48,22 @@ const ChartSvgWrapper = ({
   orientation = 'horizontal',
   allUnits,
   maxAxisCharacters = 0,
-  hasSecondUnit
-}: Props): JSX.Element => {
+  hasSecondUnit,
+  title
+}: Props): ReactElement => {
   const isHorizontal = equals(orientation, 'horizontal');
+
+  const hasUnits = useMemo(() => allUnits.some(identity), [allUnits]);
+
+  const marginTop = useMemo(
+    () => (title || hasUnits ? margin.top : 0),
+    [title, hasUnits]
+  );
 
   return (
     <svg
       aria-label="graph"
-      height={graphHeight + margin.top}
+      height={graphHeight + marginTop}
       ref={svgRef}
       width="100%"
     >
@@ -63,12 +72,12 @@ const ChartSvgWrapper = ({
           maxCharacters: maxAxisCharacters,
           hasSecondUnit
         })}
-        top={margin.top}
+        top={marginTop}
       >
         {showGridLines && (
           <Grids
             gridLinesType={gridLinesType}
-            height={graphHeight - margin.top}
+            height={graphHeight - marginTop}
             leftScale={isHorizontal ? leftScale : xScale}
             width={graphWidth}
             xScale={isHorizontal ? xScale : leftScale}

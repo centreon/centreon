@@ -8,7 +8,7 @@ import {
 } from 'react';
 
 import { useAtom, useAtomValue } from 'jotai';
-import { equals, flatten, gte, has, isNil, pluck } from 'ramda';
+import { equals, flatten, gte, has, identity, isNil, pluck } from 'ramda';
 
 import { Skeleton } from '@mui/material';
 
@@ -211,6 +211,13 @@ const ResponsiveBarChart = ({
     [axis?.showGridLines]
   );
 
+  const hasUnits = useMemo(() => allUnits.some(identity), [allUnits]);
+
+  const marginTop = useMemo(
+    () => (title || hasUnits ? margin.top : 0),
+    [title, hasUnits]
+  );
+
   if (!isInViewport && !skipIntersectionObserver) {
     return (
       <Skeleton
@@ -291,7 +298,7 @@ const ResponsiveBarChart = ({
                     lines={displayedLines}
                     orientation={isHorizontal ? 'horizontal' : 'vertical'}
                     size={
-                      isHorizontal ? graphHeight - margin.top - 5 : graphWidth
+                      isHorizontal ? graphHeight - marginTop - 5 : graphWidth
                     }
                     timeSeries={timeSeries}
                     xScale={xScale}
@@ -311,7 +318,7 @@ const ResponsiveBarChart = ({
                       thresholdUnit={thresholdUnit}
                       thresholds={thresholds as ThresholdsModel}
                       width={
-                        isHorizontal ? graphWidth : graphHeight - margin.top
+                        isHorizontal ? graphWidth : graphHeight - marginTop
                       }
                       yScalesPerUnit={yScalesPerUnit}
                     />
@@ -347,7 +354,7 @@ const ResponsiveBarChart = ({
                     lines={displayedLines}
                     orientation={isHorizontal ? 'horizontal' : 'vertical'}
                     size={
-                      isHorizontal ? graphHeight - margin.top - 5 : graphWidth
+                      isHorizontal ? graphHeight - marginTop - 5 : graphWidth
                     }
                     timeSeries={timeSeries}
                     xScale={xScale}
@@ -367,7 +374,7 @@ const ResponsiveBarChart = ({
                       thresholdUnit={thresholdUnit}
                       thresholds={thresholds as ThresholdsModel}
                       width={
-                        isHorizontal ? graphWidth : graphHeight - margin.top
+                        isHorizontal ? graphWidth : graphHeight - marginTop
                       }
                       yScalesPerUnit={yScalesPerUnit}
                     />

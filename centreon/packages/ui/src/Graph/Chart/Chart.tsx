@@ -7,7 +7,15 @@ import {
 } from 'react';
 
 import { useAtom } from 'jotai';
-import { equals, flatten, isEmpty, isNil, pluck, reject } from 'ramda';
+import {
+  equals,
+  flatten,
+  identity,
+  isEmpty,
+  isNil,
+  pluck,
+  reject
+} from 'ramda';
 
 import { ClickAwayListener, Skeleton } from '@mui/material';
 
@@ -254,6 +262,13 @@ const Chart = ({
 
   const hasSecondUnit = useMemo(() => Boolean(secondUnit), [secondUnit]);
 
+  const hasUnits = useMemo(() => allUnits.some(identity), [allUnits]);
+
+  const marginTop = useMemo(
+    () => (title || hasUnits ? margin.top : 0),
+    [title, hasUnits]
+  );
+
   if ((!isInViewport && !skipIntersectionObserver) || !height) {
     return (
       <Skeleton
@@ -319,7 +334,7 @@ const Chart = ({
                       isTooltipHidden={false}
                       lines={linesDisplayedAsBar}
                       orientation="horizontal"
-                      size={graphHeight - margin.top - 5}
+                      size={graphHeight - marginTop - 5}
                       timeSeries={timeSeries}
                       xScale={xScaleBand}
                       yScalesPerUnit={yScalesPerUnit}
@@ -331,7 +346,7 @@ const Chart = ({
                       displayAnchor={displayAnchor}
                       displayedLines={linesDisplayedAsLine}
                       graphSvgRef={graphSvgRef}
-                      height={graphHeight - margin.top}
+                      height={graphHeight - marginTop}
                       scale={axis?.scale}
                       scaleLogarithmicBase={axis?.scaleLogarithmicBase}
                       timeSeries={timeSeries}
