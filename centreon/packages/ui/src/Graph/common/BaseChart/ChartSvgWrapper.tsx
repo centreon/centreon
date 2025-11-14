@@ -9,6 +9,7 @@ import Axes from '../Axes';
 import Grids from '../Grids';
 import { Line, TimeValue } from '../timeSeries/models';
 import { computeGElementMarginLeft } from '../utils';
+import { useMarginTop } from '../useMarginTop';
 
 interface Props {
   allUnits: Array<string>;
@@ -53,12 +54,7 @@ const ChartSvgWrapper = ({
 }: Props): ReactElement => {
   const isHorizontal = equals(orientation, 'horizontal');
 
-  const hasUnits = useMemo(() => allUnits.some(identity), [allUnits]);
-
-  const marginTop = useMemo(
-    () => (title || hasUnits ? margin.top : 0),
-    [title, hasUnits]
-  );
+  const marginTop = useMarginTop({ title, units: allUnits });
 
   return (
     <svg

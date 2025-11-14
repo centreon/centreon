@@ -38,6 +38,7 @@ import BarGroup from './BarGroup';
 import BarChartTooltip from './Tooltip/BarChartTooltip';
 import { tooltipDataAtom } from './atoms';
 import { BarStyle } from './models';
+import { useMarginTop } from '../common/useMarginTop';
 
 interface Props
   extends Pick<
@@ -211,12 +212,7 @@ const ResponsiveBarChart = ({
     [axis?.showGridLines]
   );
 
-  const hasUnits = useMemo(() => allUnits.some(identity), [allUnits]);
-
-  const marginTop = useMemo(
-    () => (title || hasUnits ? margin.top : 0),
-    [title, hasUnits]
-  );
+  const marginTop = useMarginTop({ title, units: allUnits });
 
   if (!isInViewport && !skipIntersectionObserver) {
     return (

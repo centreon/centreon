@@ -56,6 +56,7 @@ import type {
   LineChartProps
 } from './models';
 import { useIntersection } from './useChartIntersection';
+import { useMarginTop } from '../common/useMarginTop';
 
 interface Props extends LineChartProps {
   graphData: Data;
@@ -262,12 +263,7 @@ const Chart = ({
 
   const hasSecondUnit = useMemo(() => Boolean(secondUnit), [secondUnit]);
 
-  const hasUnits = useMemo(() => allUnits.some(identity), [allUnits]);
-
-  const marginTop = useMemo(
-    () => (title || hasUnits ? margin.top : 0),
-    [title, hasUnits]
-  );
+  const marginTop = useMarginTop({ title, units: allUnits });
 
   if ((!isInViewport && !skipIntersectionObserver) || !height) {
     return (
