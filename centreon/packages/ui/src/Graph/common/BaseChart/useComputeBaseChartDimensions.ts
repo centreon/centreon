@@ -70,11 +70,7 @@ export const useComputeBaseChartDimensions = ({
       : 0;
   const graphHeight =
     (height || 0) > 0
-      ? (height || 0) -
-      marginTop -
-      legendBoundingHeight -
-      (titleRefHeight || 0) -
-      5
+      ? (height || 0) - marginTop - legendBoundingHeight - (titleRefHeight || 0)
       : 0;
 
   return {
