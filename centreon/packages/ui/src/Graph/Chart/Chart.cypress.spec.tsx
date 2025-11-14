@@ -725,7 +725,7 @@ describe('Lines and bars', () => {
     cy.makeSnapshot();
   });
 
-  it.only('displays stacked lines and bars when a line and a bar are customized', () => {
+  it('displays stacked lines and bars when a line and a bar are customized', () => {
     initialize({
       data: dataPingServiceLinesBarsStacked,
       lineStyle: [
