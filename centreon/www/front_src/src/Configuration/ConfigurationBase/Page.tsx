@@ -1,13 +1,13 @@
+import { useAtom, useSetAtom } from 'jotai';
 import { isNil, isNotEmpty, or } from 'ramda';
 import { JSX, useLayoutEffect } from 'react';
+import { useSearchParams } from 'react-router';
 
-import { useAtom, useSetAtom } from 'jotai';
-
+import { LoadingSkeleton } from '@centreon/ui';
 import { DataTable, PageHeader, PageLayout } from '@centreon/ui/components';
+
 import { Listing } from './Listing';
 import { Modal } from './Modal';
-
-import { useSearchParams } from 'react-router';
 
 import { ConfigurationBase } from '../models';
 
@@ -16,15 +16,14 @@ import useCoutChangedFilters from './Filters/AdvancedFilters/useCoutChangedFilte
 import useLoadData from './Listing/useLoadData';
 import { modalStateAtom } from './atoms';
 
-import { LoadingSkeleton } from '@centreon/ui';
-
 const WelcomePage = ({
   labels,
   dataTestId,
   onCreate,
   filtersAtom,
   filtersAtomKey,
-  isWelcomePageDisplayedAtom
+  isWelcomePageDisplayedAtom,
+  hasWriteAccess
 }) => {
   const { isLoading, data } = useLoadData({ filtersAtom, filtersAtomKey });
 
@@ -47,6 +46,7 @@ const WelcomePage = ({
       data-testid={dataTestId}
       labels={labels}
       onCreate={onCreate}
+      canCreate={hasWriteAccess}
     />
   );
 };
@@ -112,6 +112,7 @@ const Page = <TFilters,>({
               filtersAtom={filtersAtom}
               filtersAtomKey={filtersAtomKey}
               isWelcomePageDisplayedAtom={isWelcomePageDisplayedAtom}
+              hasWriteAccess={!!actions?.edit}
             />
           ) : (
             <Listing<TFilters>

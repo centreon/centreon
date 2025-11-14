@@ -61,3 +61,5 @@ export const labelPollerGlobalMacros = 'Poller global macros';
 export const labelInstalledPlugins = 'Installed plugins';
 export const labelStandardMacros = 'Standard macros';
 export const labelInsert = 'Insert';
+
+export const labelYouAreNotAllowed = 'You are not allowed to choose this type.';

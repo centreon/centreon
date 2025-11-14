@@ -5,7 +5,12 @@ import useColumns from './Columns/useColumns';
 import useCommands from './useCommands';
 
 import { ResourceType } from '../models';
-import { initialValues, useInputs, useValidationSchema } from './Form';
+import {
+  initialValues,
+  useCanManageCommand,
+  useInputs,
+  useValidationSchema
+} from './Form';
 import {
   columnsAtomKey,
   defaultSelectedColumnIds,
@@ -36,6 +41,8 @@ const Commands = () => {
 
   const { api, filtersConfiguration } = useCommands();
 
+  const { canEdit } = useCanManageCommand();
+
   return (
     <ConfigurationBase<Filters>
       isWelcomePageDisplayedAtom={isWelcomePageDisplayedAtom}
@@ -52,9 +59,10 @@ const Commands = () => {
       defaultSelectedColumnIds={defaultSelectedColumnIds}
       actions={{
         delete: true,
-        edit: true,
         enableDisable: true,
-        duplicate: true
+        duplicate: true,
+        edit: canEdit,
+        viewDetails: true
       }}
       labels={{
         title: t(labelCommands),

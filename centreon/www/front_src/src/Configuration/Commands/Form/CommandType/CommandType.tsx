@@ -1,30 +1,23 @@
-import { ChangeEvent, ReactElement } from 'react';
+import { ChangeEvent, ReactElement, useMemo } from 'react';
 
 import { useFormikContext } from 'formik';
 import { equals } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
 import { FormControlLabel, Radio, RadioGroup } from '@mui/material';
+
+import { Tooltip } from '@centreon/ui/components';
 import { Command } from '../../models';
 
-const options = [
-  {
-    id: 'Notification',
-    name: 'Notification'
-  },
-  {
-    id: 'Check',
-    name: 'Check'
-  },
-  {
-    id: 'Miscellaneous',
-    name: 'Miscellaneous'
-  },
-  {
-    id: 'Discovery',
-    name: 'Discovery'
-  }
-];
+import { useCanManageCommand } from './useCanManageCommand';
+
+import {
+  labelCheck,
+  labelDiscovery,
+  labelMiscellaneous,
+  labelNotification,
+  labelYouAreNotAllowed
+} from '../../translatedLabels';
 
 const CommandType = (): ReactElement => {
   const { t } = useTranslation();
@@ -34,6 +27,44 @@ const CommandType = (): ReactElement => {
 
   const value = values?.type;
 
+  const {
+    canEditCheckCommands,
+    canEditNotificationCommands,
+    canEditDiscoveryCommands,
+    canEditMiscellaneousCommands
+  } = useCanManageCommand();
+
+  const options = useMemo(
+    () => [
+      {
+        id: labelNotification,
+        name: labelNotification,
+        canEdit: canEditNotificationCommands
+      },
+      {
+        id: labelCheck,
+        name: labelCheck,
+        canEdit: canEditCheckCommands
+      },
+      {
+        id: labelMiscellaneous,
+        name: labelMiscellaneous,
+        canEdit: canEditMiscellaneousCommands
+      },
+      {
+        id: labelDiscovery,
+        name: labelDiscovery,
+        canEdit: canEditDiscoveryCommands
+      }
+    ],
+    [
+      canEditNotificationCommands,
+      canEditCheckCommands,
+      canEditMiscellaneousCommands,
+      canEditDiscoveryCommands
+    ]
+  );
+
   const change = (event: ChangeEvent<HTMLInputElement>): void => {
     setFieldTouched('type', true);
     setFieldValue('type', event.target.value);
@@ -41,16 +72,17 @@ const CommandType = (): ReactElement => {
 
   return (
     <RadioGroup value={value} onChange={change} row>
-      {options.map(({ id, name }) => (
-        <FormControlLabel
-          aria-label={t(name)}
-          checked={equals(id, value)}
-          control={<Radio />}
-          disabled={false}
-          key={id}
-          label={t(name)}
-          value={id}
-        />
+      {options.map(({ id, name, canEdit }) => (
+        <Tooltip key={id} label={!canEdit && t(labelYouAreNotAllowed)}>
+          <FormControlLabel
+            aria-label={t(name)}
+            checked={equals(id, value)}
+            control={<Radio />}
+            disabled={!canEdit}
+            label={t(name)}
+            value={id}
+          />
+        </Tooltip>
       ))}
     </RadioGroup>
   );

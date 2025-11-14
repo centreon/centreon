@@ -1,6 +1,6 @@
 export const initialValues = {
   name: '',
-  type: 'Notification',
+  type: null,
   commandLine: '',
   comment: null,
   isShellEnabled: false,

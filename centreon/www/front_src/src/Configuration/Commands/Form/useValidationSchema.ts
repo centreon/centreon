@@ -8,6 +8,7 @@ export const useValidationSchema = (): Schema => {
 
   return object({
     name: string().required(t(labelRequired)),
-    commandLine: string().required(t(labelRequired))
+    commandLine: string().required(t(labelRequired)),
+    type: string().required(t(labelRequired))
   });
 };
