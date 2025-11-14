@@ -202,10 +202,10 @@ jobs:
               failed = 1;
             } else {
 
-              if ( (${{ needs.get-environment.outputs.target_stability }} == 'unstable' || ${{ needs.get-environment.outputs.target_stability }} == 'canary') && !MODIFIED_UPDATE_SCRIPTS[0].match(/Update-next\.php$/) ) {
+              if ( ('${{ needs.get-environment.outputs.target_stability }}' == 'unstable' || '${{ needs.get-environment.outputs.target_stability }}' == 'canary') && !MODIFIED_UPDATE_SCRIPTS[0].match(/Update-next\.php$/) ) {
                 core.setFailed(`❌ This pull request targeting ${{ github.base_ref }} should only be modifying the Update-next.php script.`);
                 failed = 1;
-              } else if ( ${{ needs.get-environment.outputs.target_stability }} == 'testing' ) {
+              } else if ( '${{ needs.get-environment.outputs.target_stability }}' == 'testing' ) {
                 const majorVersionContent = fs.readFileSync('.version', { encoding: 'utf8' });
                 const minorVersionContent = fs.readFileSync('.version.centreon-web', { encoding: 'utf8' });
                 const version = majorVersionContent.match(/MAJOR="?(\d+\.\d+)"?/)[1] + "." + minorVersionContent.match(/MINOR="?(\d+)"?/)[1]
