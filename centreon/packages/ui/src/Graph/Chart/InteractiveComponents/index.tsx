@@ -7,7 +7,7 @@ import {
 
 import { Event } from '@visx/visx';
 import type { ScaleLinear, ScaleTime } from 'd3-scale';
-import { useAtom, useAtomValue, useSetAtom } from 'jotai';
+import { useAtom, useSetAtom } from 'jotai';
 import {
   all,
   equals,
@@ -53,6 +53,7 @@ import type { TimelineEvent } from './Annotations/models';
 import Bar from './Bar';
 import TimeShiftZones from './TimeShiftZones';
 import ZoomPreview from './ZoomPreview';
+import { applyingZoomAtomAtom } from './ZoomPreview/zoomPreviewAtoms';
 import {
   type MousePosition,
   changeMousePositionDerivedAtom,
@@ -61,7 +62,6 @@ import {
   eventMouseUpAtom,
   graphTooltipDataAtom
 } from './interactionWithGraphAtoms';
-import { applyingZoomAtomAtom } from './ZoomPreview/zoomPreviewAtoms';
 
 const useStyles = makeStyles()(() => ({
   overlay: {

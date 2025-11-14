@@ -79,17 +79,17 @@ const MainLegend = ({
 
   const contextMenuClick =
     (metricId: number) =>
-      (event: MouseEvent): void => {
-        if (!secondaryClick) {
-          return;
-        }
-        event.preventDefault();
-        secondaryClick({
-          element: event.target,
-          metricId,
-          position: [event.pageX, event.pageY]
-        });
-      };
+    (event: MouseEvent): void => {
+      if (!secondaryClick) {
+        return;
+      }
+      event.preventDefault();
+      secondaryClick({
+        element: event.target,
+        metricId,
+        position: [event.pageX, event.pageY]
+      });
+    };
 
   const selectMetric = ({
     event,

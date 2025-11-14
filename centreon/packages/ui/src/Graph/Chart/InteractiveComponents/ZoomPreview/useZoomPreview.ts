@@ -2,7 +2,7 @@ import { RefObject, useEffect, useState } from 'react';
 
 import { Event } from '@visx/visx';
 import { ScaleTime } from 'd3-scale';
-import { useAtom, useAtomValue, useSetAtom } from 'jotai';
+import { useAtom, useAtomValue } from 'jotai';
 import { equals, gte, isNil, lt } from 'ramda';
 import { Interval } from '../../models';
 import {
