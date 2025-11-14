@@ -24605,3 +24605,36 @@ msgstr "alerte"
 #: unknown
 msgid "will display resources with host name starting by'"
 msgstr "affichera les ressources avec un nom d'hôte commençant par"
+
+msgid "Welcome to the Commands page"
+msgstr "Bienvenue sur la page Commandes"
+
+msgid "Commands are used by the monitoring engine to run plugins to perform actions. While most commands come ready-to-use via Monitoring Connectors, you can also create custom commands for specific needs."
+msgstr "Les commandes sont utilisées par le moteur de surveillance pour exécuter des plugins afin d'effectuer des actions. Bien que la plupart des commandes soient prêtes à l'emploi via les connecteurs de surveillance, vous pouvez également créer des commandes personnalisées pour des besoins spécifiques."
+
+msgid "Service uses"
+msgstr "Utilisation du service"
+
+msgid "Command type"
+msgstr "Type de commande"
+
+msgid "Enable shell syntax"
+msgstr "Activer la syntaxe du shell"
+
+msgid "Select an optimization connector"
+msgstr "Sélectionner un connecteur d'optimisation"
+
+msgid "Poller global macros"
+msgstr "Macros globales du collecteur"
+
+msgid "Installed plugins"
+msgstr "Plugins installés"
+
+msgid "Standard macros"
+msgstr "Macros standard"
+
+msgid "Insert"
+msgstr "Insérer"
+
+msgid "You are not allowed to choose this type."
+msgstr "Vous n'êtes pas autorisé à choisir ce type."

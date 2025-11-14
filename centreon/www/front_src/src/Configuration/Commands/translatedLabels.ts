@@ -1,24 +1,3 @@
-export const labelDelete = 'Delete';
-export const labelDuplicate = 'Duplicate';
-
-export const labelAdd = 'Add';
-export const labelMoreFilters = 'More filters';
-export const labelClear = 'Clear';
-export const labelCancel = 'Cancel';
-
-export const labelCreate = 'Create';
-export const labelUpdate = 'Update';
-
-export const labelUrl = 'URL';
-export const labelUsername = 'Username';
-
-export const labelConfirm = 'Confirm';
-export const labelParameters = 'Parameters';
-
-export const labelSettings = 'Settings';
-
-// new
-
 export const labelStatus = 'Status';
 export const labelCommands = 'Commands';
 export const labelWelcomePageTitle = 'Welcome to the Commands page';
