@@ -156,6 +156,8 @@ const Chart = ({
       secondUnit
     });
 
+  const allUnits = getUnits(linesGraph);
+
   const { legendRef, graphWidth, graphHeight, titleRef } =
     useComputeBaseChartDimensions({
       hasSecondUnit: Boolean(secondUnit),
@@ -164,7 +166,9 @@ const Chart = ({
       legendHeight: legend?.height,
       legendPlacement: legend?.placement,
       width,
-      maxAxisCharacters: maxRightAxisCharacters || maxLeftAxisCharacters
+      maxAxisCharacters: maxRightAxisCharacters || maxLeftAxisCharacters,
+      title,
+      units: allUnits
     });
 
   const xScale = useMemo(
@@ -227,8 +231,6 @@ const Chart = ({
     () => displayedLines.filter(({ displayAs }) => equals(displayAs, 'bar')),
     [displayedLines]
   );
-
-  const allUnits = getUnits(linesGraph);
 
   useEffect(
     () => {

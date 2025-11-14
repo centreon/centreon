@@ -129,7 +129,9 @@ const ResponsiveBarChart = ({
       legendDisplay: legend?.display,
       legendPlacement: legend?.placement,
       width,
-      maxAxisCharacters: maxRightAxisCharacters || maxLeftAxisCharacters
+      maxAxisCharacters: maxRightAxisCharacters || maxLeftAxisCharacters,
+      title,
+      units: allUnits
     });
 
   const thresholdValues = flatten([

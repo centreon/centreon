@@ -5,6 +5,7 @@ import { equals, isNil } from 'ramda';
 import useResizeObserver from 'use-resize-observer';
 import { margin } from '../../Chart/common';
 import { margins } from '../margins';
+import { useMarginTop } from '../useMarginTop';
 
 export const extraMargin = 10;
 
@@ -16,6 +17,8 @@ interface UseComputeBaseChartDimensionsProps {
   legendPlacement?: string;
   width: number;
   maxAxisCharacters: number;
+  title?: string;
+  units: Array<string>;
 }
 
 interface UseComputeBaseChartDimensionsState {
@@ -32,7 +35,9 @@ export const useComputeBaseChartDimensions = ({
   legendPlacement,
   hasSecondUnit,
   legendHeight,
-  maxAxisCharacters
+  maxAxisCharacters,
+  units,
+  title
 }: UseComputeBaseChartDimensionsProps): UseComputeBaseChartDimensionsState => {
   const {
     ref: legendRef,
@@ -43,31 +48,33 @@ export const useComputeBaseChartDimensions = ({
 
   const currentLegendHeight = legendHeight ?? (legendRefHeight || 0);
 
+  const marginTop = useMarginTop({ title, units });
+
   const legendBoundingHeight =
     !equals(legendDisplay, false) &&
-    (isNil(legendPlacement) || equals(legendPlacement, 'bottom'))
+      (isNil(legendPlacement) || equals(legendPlacement, 'bottom'))
       ? currentLegendHeight
       : 0;
   const legendBoundingWidth =
     !equals(legendDisplay, false) &&
-    (equals(legendPlacement, 'left') || equals(legendPlacement, 'right'))
+      (equals(legendPlacement, 'left') || equals(legendPlacement, 'right'))
       ? legendRefWidth || 0
       : 0;
 
   const graphWidth =
     width > 0
       ? width -
-        (hasSecondUnit ? maxAxisCharacters * 2 : maxAxisCharacters) * 6 -
-        (hasSecondUnit ? margins.left * 0.8 : margin.left) -
-        legendBoundingWidth
+      (hasSecondUnit ? maxAxisCharacters * 2 : maxAxisCharacters) * 6 -
+      (hasSecondUnit ? margins.left * 0.8 : margin.left) -
+      legendBoundingWidth
       : 0;
   const graphHeight =
     (height || 0) > 0
       ? (height || 0) -
-        margin.top -
-        legendBoundingHeight -
-        (titleRefHeight || 0) -
-        5
+      marginTop -
+      legendBoundingHeight -
+      (titleRefHeight || 0) -
+      5
       : 0;
 
   return {
