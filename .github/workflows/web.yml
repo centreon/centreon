@@ -200,8 +200,7 @@ jobs:
             if (MODIFIED_UPDATE_SCRIPTS.length > 1) {
               core.setFailed(`❌ No more than one update script should be modified.`);
               failed = 1;
-            } else {
-
+            } else if (MODIFIED_UPDATE_SCRIPTS.length == 1) {
               if ( ('${{ needs.get-environment.outputs.target_stability }}' == 'unstable' || '${{ needs.get-environment.outputs.target_stability }}' == 'canary') && !MODIFIED_UPDATE_SCRIPTS[0].match(/Update-next\.php$/) ) {
                 core.setFailed(`❌ This pull request targeting ${{ github.base_ref }} should only be modifying the Update-next.php script.`);
                 failed = 1;
