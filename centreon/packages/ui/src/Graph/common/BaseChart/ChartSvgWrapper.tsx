@@ -8,6 +8,7 @@ import Grids from '../Grids';
 import { Line, TimeValue } from '../timeSeries/models';
 import { useMarginTop } from '../useMarginTop';
 import { computeGElementMarginLeft } from '../utils';
+import { margin } from '../../Chart/common';
 
 interface Props {
   allUnits: Array<string>;
@@ -71,7 +72,7 @@ const ChartSvgWrapper = ({
         {showGridLines && (
           <Grids
             gridLinesType={gridLinesType}
-            height={graphHeight - marginTop}
+            height={graphHeight - margin.bottom}
             leftScale={isHorizontal ? leftScale : xScale}
             width={graphWidth}
             xScale={isHorizontal ? xScale : leftScale}
