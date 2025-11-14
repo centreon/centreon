@@ -196,13 +196,11 @@ jobs:
             const fs = require('fs');
 
             const MODIFIED_UPDATE_SCRIPTS = process.env.MODIFIED_UPDATE_SCRIPTS.split(" ");
-            console.log(MODIFIED_UPDATE_SCRIPTS);
-            console.log(MODIFIED_UPDATE_SCRIPTS.length);
             let failed = 0;
             if (MODIFIED_UPDATE_SCRIPTS.length > 1) {
               core.setFailed(`❌ No more than one update script should be modified.`);
               failed = 1;
-            } else if (MODIFIED_UPDATE_SCRIPTS.length == 1) {
+            } else if (MODIFIED_UPDATE_SCRIPTS.length == 1 && MODIFIED_UPDATE_SCRIPTS[0] != '') {
               if ( ('${{ needs.get-environment.outputs.target_stability }}' == 'unstable' || '${{ needs.get-environment.outputs.target_stability }}' == 'canary') && !MODIFIED_UPDATE_SCRIPTS[0].match(/Update-next\.php$/) ) {
                 core.setFailed(`❌ This pull request targeting ${{ github.base_ref }} should only be modifying the Update-next.php script.`);
                 failed = 1;
