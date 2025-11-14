@@ -1,8 +1,13 @@
-import { type MutableRefObject, ReactElement, useMemo } from 'react';
+import {
+  MouseEvent,
+  type MutableRefObject,
+  ReactElement,
+  useMemo
+} from 'react';
 
 import { Event } from '@visx/visx';
 import type { ScaleLinear, ScaleTime } from 'd3-scale';
-import { useSetAtom } from 'jotai';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import {
   all,
   equals,
@@ -56,6 +61,7 @@ import {
   eventMouseUpAtom,
   graphTooltipDataAtom
 } from './interactionWithGraphAtoms';
+import { applyingZoomAtomAtom } from './ZoomPreview/zoomPreviewAtoms';
 
 const useStyles = makeStyles()(() => ({
   overlay: {
@@ -103,6 +109,7 @@ const InteractionWithGraph = ({
 }: Props): ReactElement => {
   const { classes } = useStyles();
 
+  const [isApplyingZoom, setIsApplyingZoom] = useAtom(applyingZoomAtomAtom);
   const setEventMouseDown = useSetAtom(eventMouseDownAtom);
   const setEventMouseUp = useSetAtom(eventMouseUpAtom);
   const setEventMouseLeave = useSetAtom(eventMouseLeaveAtom);
@@ -136,7 +143,7 @@ const InteractionWithGraph = ({
     setEventMouseDown(null);
   };
 
-  const mouseMove = (event): void => {
+  const mouseMove = (event: MouseEvent): void => {
     const mousePoint = Event.localPoint(
       graphSvgRef?.current as SVGSVGElement,
       event
@@ -148,6 +155,15 @@ const InteractionWithGraph = ({
       transformMatrix?.fx?.(mousePoint.x) ?? mousePoint.x,
       transformMatrix?.fy?.(mousePoint.y) ?? mousePoint.y
     ]);
+  };
+
+  const mousEnter = (event: MouseEvent): void => {
+    if (event.buttons === 1 && isApplyingZoom) {
+      mouseDown(event);
+    }
+    if (event.buttons === 0 && isApplyingZoom) {
+      setIsApplyingZoom(false);
+    }
   };
 
   const mouseDown = (event): void => {
@@ -336,6 +352,7 @@ const InteractionWithGraph = ({
         onMouseLeave={mouseLeave}
         onMouseMove={mouseMove}
         onMouseUp={mouseUp}
+        onMouseEnter={mousEnter}
       />
     </g>
   );

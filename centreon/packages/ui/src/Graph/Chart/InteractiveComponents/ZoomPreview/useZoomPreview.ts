@@ -2,7 +2,7 @@ import { RefObject, useEffect, useState } from 'react';
 
 import { Event } from '@visx/visx';
 import { ScaleTime } from 'd3-scale';
-import { useAtomValue, useSetAtom } from 'jotai';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { equals, gte, isNil, lt } from 'ramda';
 import { Interval } from '../../models';
 import {
@@ -37,10 +37,10 @@ const useZoomPreview = ({
   graphMarginLeft
 }: Props): ZoomPreview => {
   const [zoomBoundaries, setZoomBoundaries] = useState<Boundaries | null>(null);
+  const [isApplyingZoom, setApplyingZoom] = useAtom(applyingZoomAtomAtom);
   const eventMouseDown = useAtomValue(eventMouseDownAtom);
   const eventMouseUp = useAtomValue(eventMouseUpAtom);
   const mousePosition = useAtomValue(mousePositionAtom);
-  const setApplyingZoom = useSetAtom(applyingZoomAtomAtom);
 
   const mousePointDown =
     eventMouseDown && graphSvgRef.current
@@ -86,7 +86,6 @@ const useZoomPreview = ({
     }
     applyZoom();
     setApplyingZoom(false);
-    setZoomBoundaries(null);
   }, [eventMouseUp]);
 
   useEffect(() => {
@@ -98,6 +97,13 @@ const useZoomPreview = ({
     }
     setApplyingZoom(true);
   }, [zoomBoundaries]);
+
+  useEffect(() => {
+    if (isApplyingZoom) {
+      return;
+    }
+    setZoomBoundaries(null);
+  }, [isApplyingZoom]);
 
   const zoomBarWidth = Math.abs(
     (zoomBoundaries?.end || 0) - (zoomBoundaries?.start || 0)
