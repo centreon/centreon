@@ -1,7 +1,7 @@
 import i18next from 'i18next';
 import { initReactI18next } from 'react-i18next';
 
-import { createStore } from 'jotai';
+import { Provider, createStore } from 'jotai';
 import { BrowserRouter as Router } from 'react-router';
 
 import { Method, SnackbarProvider, TestQueryProvider } from '@centreon/ui';
@@ -105,9 +105,11 @@ const initialize = (): void => {
       <Router>
         <SnackbarProvider>
           <TestQueryProvider>
-            <div style={{ height: '100vh' }}>
-              <Commands />
-            </div>
+            <Provider store={store}>
+              <div style={{ height: '100vh' }}>
+                <Commands />
+              </div>
+            </Provider>
           </TestQueryProvider>
         </SnackbarProvider>
       </Router>
