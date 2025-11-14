@@ -20,6 +20,11 @@ parameters:
         - src/Core
 
     ignoreErrors:
+         - # [CENTREON-RULE]: (DomainCallNamespacesCustomRule) Domain must not call Application or Infrastructure namespaces.
+            message: '#DomainCallNamespacesCustomRule#'
+            paths:
+                - src/Core/Contact/Domain/AdminResolver.php
+
         - # [CENTREON-RULE]: (RepositoryNameCustomRule) Repository name must start with data storage prefix, which may be followed by 'Read' or 'Write' and context mention.
             message: '#RepositoryNameCustomRule#'
             paths:
