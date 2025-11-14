@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Core\Security\Token\Application\UseCase\AddToken;
 
+use Adaptation\Log\LoggerToken;
 use Assert\AssertionFailedException;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
@@ -31,12 +32,12 @@ use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Application\Common\UseCase\ResponseStatusInterface;
 use Core\Application\Common\UseCase\StandardResponseInterface;
+use Core\Common\Infrastructure\ExceptionLogger\ExceptionLogger;
 use Core\Security\Authentication\Application\Provider\ProviderAuthenticationFactoryInterface;
 use Core\Security\ProviderConfiguration\Domain\Model\Provider;
 use Core\Security\Token\Application\Exception\TokenException;
 use Core\Security\Token\Application\Repository\ReadTokenRepositoryInterface;
 use Core\Security\Token\Application\Repository\WriteTokenRepositoryInterface;
-use Core\Security\Token\Domain\Model\NewApiToken;
 use Core\Security\Token\Domain\Model\TokenFactory;
 
 final class AddToken
@@ -60,20 +61,68 @@ final class AddToken
         try {
             $tokenString = $this->createToken($request);
 
-            return $this->createResponse($tokenString);
+            $response = $this->createResponse($tokenString);
+
+            LoggerToken::create()->success(
+                event: 'creation',
+                userId: $this->user->getId(),
+                tokenName: $request->name,
+                tokenType: $request->type->name,
+            );
+
+            return $response;
         } catch (AssertionFailedException|\ValueError $ex) {
-            $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
+            ExceptionLogger::create()->log($ex, [
+                'user_id' => $this->user->getId(),
+                'token_name' => $request->name,
+                'token_type' => $request->type->name,
+            ]);
+
+            LoggerToken::create()->warning(
+                event: 'creation',
+                reason: 'validation error',
+                userId: $this->user->getId(),
+                tokenName: $request->name,
+                tokenType: $request->type->name,
+                exception: $ex
+            );
 
             return new InvalidArgumentResponse($ex);
         } catch (TokenException $ex) {
-            $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
+            ExceptionLogger::create()->log($ex, [
+                'user_id' => $this->user->getId(),
+                'token_name' => $request->name,
+                'token_type' => $request->type->name,
+            ]);
+
+            LoggerToken::create()->warning(
+                event: 'creation',
+                reason: 'conflict error',
+                userId: $this->user->getId(),
+                tokenName: $request->name,
+                tokenType: $request->type->name,
+                exception: $ex
+            );
 
             return match ($ex->getCode()) {
                 TokenException::CODE_CONFLICT => new ConflictResponse($ex),
                 default => new ErrorResponse($ex),
             };
         } catch (\Throwable $ex) {
-            $this->error((string) $ex);
+            ExceptionLogger::create()->log($ex, [
+                'user_id' => $this->user->getId(),
+                'token_name' => $request->name,
+                'token_type' => $request->type->name,
+            ]);
+
+            LoggerToken::create()->warning(
+                event: 'creation',
+                reason: 'unexpected error',
+                userId: $this->user->getId(),
+                tokenName: $request->name,
+                tokenType: $request->type->name,
+                exception: $ex
+            );
 
             return new ErrorResponse(TokenException::addToken());
         }
@@ -107,18 +156,6 @@ final class AddToken
 
         $this->writeTokenRepository->add($newToken);
 
-        $this->info(
-            'Add token succeeded',
-            [
-                'event' => 'Token creation',
-                'datetime' => (new \DateTimeImmutable())->format('Y-m-d H:i:s'),
-                'creator_id' => $newToken->getCreatorId(),
-                'user_id' => $newToken instanceof NewApiToken ? $newToken->getUserId() : null,
-                'token_type' => $newToken->getType()->name,
-                'token_name' => $newToken->getName(),
-            ]
-        );
-
         return $newToken->getToken();
     }
 
@@ -134,6 +171,12 @@ final class AddToken
     private function createResponse(string $tokenString): AddTokenResponse
     {
         if (! ($token = $this->readTokenRepository->find($tokenString))) {
+            LoggerToken::create()->warning(
+                event: 'creation',
+                reason: 'token not retrieved successfully after creation',
+                userId: $this->user->getId(),
+            );
+
             throw TokenException::errorWhileRetrievingObject();
         }
 
