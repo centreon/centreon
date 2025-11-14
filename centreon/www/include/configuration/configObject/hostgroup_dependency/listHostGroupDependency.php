@@ -72,6 +72,7 @@ if (! $oreon->user->admin) {
 $qb->where('(' . $subQueryParent->getQuery() . ') > 0')
     ->orWhere('(' . $subQueryChild->getQuery() . ') > 0');
 
+$params = null;
 if ($search) {
     $qb->andWhere(
         $qb->expr()->or(
@@ -81,7 +82,7 @@ if ($search) {
     );
 
     $params = QueryParameters::create([
-        QueryParameter::string('search', '%' . $search . '%')
+        QueryParameter::string('search', '%' . $search . '%'),
     ]);
 }
 
@@ -91,6 +92,8 @@ $qb->orderBy('dep.dep_name')
     ->limit($limit);
 
 $result = $pearDB->fetchAllAssociative($qb->getQuery(), $params ?? null);
+
+$rows = $pearDB->query('SELECT FOUND_ROWS()')->fetchColumn();
 
 include './include/common/checkPagination.php';
 

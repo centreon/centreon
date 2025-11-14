@@ -39,7 +39,7 @@ if (($o == MODIFY_DEPENDENCY || $o == WATCH_DEPENDENCY) && $depId) {
         ->limit(1)
         ->getQuery();
     $params = QueryParameters::create([
-        QueryParameter::int('depId', (int) $depId)
+        QueryParameter::int('depId', (int) $depId),
     ]);
     $result = $pearDB->fetchAssociative($qb, $params);
 
