@@ -65,28 +65,6 @@ class PollerInteractionService
     }
 
     /**
-     * Write command to centcore directory (for gorgone legacycmd module)
-     *
-     * @param string $command The command to write
-     * @throws Exception
-     */
-    private function writeToCentcoreDir(string $command): void
-    {
-        $centcoreDir = defined('_CENTREON_VARLIB_') ? _CENTREON_VARLIB_ . '/centcore' : '/var/lib/centreon/centcore';
-
-        if (!is_dir($centcoreDir)) {
-            throw new Exception("Centcore directory does not exist: {$centcoreDir}");
-        }
-
-        $timestamp = microtime(true);
-        $filename = sprintf('%s/%s-externalcommand.cmd', $centcoreDir, $timestamp);
-
-        if (file_put_contents($filename, $command . PHP_EOL) === false) {
-            throw new Exception("Could not write to centcore directory: {$filename}");
-        }
-    }
-
-    /**
      * @param int[] $pollers
      *
      * @throws Exception
@@ -139,6 +117,8 @@ class PollerInteractionService
     {
         $centreonBrokerPath = _CENTREON_CACHEDIR_ . '/config/broker/';
 
+        $centCorePipe = defined('_CENTREON_VARLIB_') ? _CENTREON_VARLIB_ . '/centcore.cmd' : '/var/lib/centreon/centcore.cmd';
+
         $tabServer = [];
         $tabs = $this->centreon->user->access->getPollerAclConf([
             'fields' => ['name', 'id', 'localhost'],
@@ -159,7 +139,11 @@ class PollerInteractionService
 
         foreach ($tabServer as $host) {
             if (in_array($host['id'], $pollerIDs)) {
-                $this->writeToCentcoreDir("SENDCFGFILE:{$host['id']}");
+                passthru("echo 'SENDCFGFILE:{$host['id']}' >> {$centCorePipe}", $return);
+
+                if ($return) {
+                    throw new Exception(_('Could not write into centcore.cmd. Please check file permissions.'));
+                }
             }
         }
     }
@@ -172,6 +156,8 @@ class PollerInteractionService
     private function restartPoller(array $pollerIDs): void
     {
         $tabServers = [];
+
+        $centCorePipe = defined('_CENTREON_VARLIB_') ? _CENTREON_VARLIB_ . '/centcore.cmd' : '/var/lib/centreon/centcore.cmd';
 
         $tabs = $this->centreon->user->access->getPollerAclConf([
             'fields' => ['name', 'id', 'localhost', 'engine_restart_command'],
@@ -199,8 +185,11 @@ class PollerInteractionService
                 if ($poller['engine_restart_command'] != '') {
                     shell_exec(escapeshellcmd("sudo -n -- {$poller['engine_restart_command']}"));
                 }
+            } elseif ($fh = @fopen($centCorePipe, 'a+')) {
+                fwrite($fh, 'RESTART:' . $poller['id'] . "\n");
+                fclose($fh);
             } else {
-                $this->writeToCentcoreDir('RESTART:' . $poller['id']);
+                throw new Exception(_('Could not write into centcore.cmd. Please check file permissions.'));
             }
 
             $restartTimeQuery = "UPDATE `nagios_server`
