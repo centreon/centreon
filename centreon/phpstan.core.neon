@@ -20,7 +20,7 @@ parameters:
         - src/Core
 
     ignoreErrors:
-         - # [CENTREON-RULE]: (DomainCallNamespacesCustomRule) Domain must not call Application or Infrastructure namespaces.
+        - # [CENTREON-RULE]: (DomainCallNamespacesCustomRule) Domain must not call Application or Infrastructure namespaces.
             message: '#DomainCallNamespacesCustomRule#'
             paths:
                 - src/Core/Contact/Domain/AdminResolver.php
