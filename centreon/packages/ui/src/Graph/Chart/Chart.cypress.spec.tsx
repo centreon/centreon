@@ -18,6 +18,7 @@ import { args as argumentsData } from './helpers/doc';
 import { LineChartProps } from './models';
 
 import WrapperChart from '.';
+import { labelAvg, labelMin } from './translatedLabels';
 
 interface Props
   extends Pick<
@@ -153,7 +154,7 @@ const initializeCustomUnits = ({
 const checkGraphWidth = (): void => {
   cy.findByTestId('graph-interaction-zone')
     .should('have.attr', 'height')
-    .and('equal', '376');
+    .and('equal', '389');
 
   cy.findByTestId('graph-interaction-zone').then((graph) => {
     expect(Number(graph[0].attributes.width.value)).to.be.greaterThan(1170);
@@ -295,23 +296,23 @@ describe('Line chart', () => {
       .should('have.attr', 'width')
       .and('equal', '1200');
 
-    cy.findByLabelText('Centreon-Server: Round-Trip Average Time')
-      .find('[data-icon="true"]')
+    cy.get('[data-icon="true"]')
+      .eq(0)
       .should('have.css', 'background-color', 'rgb(41, 175, 238)');
-    cy.findByLabelText('Centreon-Server_5: Round-Trip Average Time')
-      .find('[data-icon="true"]')
+    cy.get('[data-icon="true"]')
+      .eq(1)
       .should('have.css', 'background-color', 'rgb(83, 191, 241)');
-    cy.findByLabelText('Centreon-Server_4: Round-Trip Average Time')
-      .find('[data-icon="true"]')
+    cy.get('[data-icon="true"]')
+      .eq(2)
       .should('have.css', 'background-color', 'rgb(8, 34, 47)');
-    cy.findByLabelText('Centreon-Server_3: Round-Trip Average Time')
-      .find('[data-icon="true"]')
+    cy.get('[data-icon="true"]')
+      .eq(3)
       .should('have.css', 'background-color', 'rgb(16, 70, 95)');
-    cy.findByLabelText('Centreon-Server_2: Round-Trip Average Time')
-      .find('[data-icon="true"]')
+    cy.get('[data-icon="true"]')
+      .eq(4)
       .should('have.css', 'background-color', 'rgb(24, 105, 142)');
-    cy.findByLabelText('Centreon-Server_1: Round-Trip Average Time')
-      .find('[data-icon="true"]')
+    cy.get('[data-icon="true"]')
+      .eq(5)
       .should('have.css', 'background-color', 'rgb(32, 140, 190)');
 
     cy.get('[data-metric="1"]').should(
@@ -451,7 +452,7 @@ describe('Line chart', () => {
 
       cy.contains(':00 AM').should('be.visible');
 
-      cy.get('text[transform="rotate(-35, -2, 274.47726401277305)"]').should(
+      cy.get('text[transform="rotate(-35, -2, 205.66612100897808)"]').should(
         'be.visible'
       );
 
@@ -533,7 +534,7 @@ describe('Line chart', () => {
       checkGraphWidth();
       cy.contains(':00 AM').should('be.visible');
       cy.get('circle[cx="248.33333333333334"]').should('be.visible');
-      cy.get('circle[cy="251.79089393069725"]').should('be.visible');
+      cy.get('circle[cy="257.3178022124914"]').should('be.visible');
 
       cy.makeSnapshot();
     });
@@ -747,10 +748,10 @@ describe('Lines and bars', () => {
     checkGraphWidth();
 
     cy.get(
-      'path[d="M7.501377410468319,350.5553648585503 h56.51239669421488 h1v1 v23.44463514144968 a1,1 0 0 1 -1,1 h-56.51239669421488 a1,1 0 0 1 -1,-1 v-23.44463514144968 v-1h1z"]'
+      'path[d="M7.501377410468319,287.7051801494232 h56.51239669421488 h1v1 v99.2948198505768 a1,1 0 0 1 -1,1 h-56.51239669421488 a1,1 0 0 1 -1,-1 v-99.2948198505768 v-1h1z"]'
     ).should('be.visible');
     cy.get(
-      'path[d="M24.05509641873278,201.58170928199803 h23.404958677685954 a17.553719008264462,17.553719008264462 0 0 1 17.553719008264462,17.553719008264462 v113.86621756002336 v17.553719008264462h-17.553719008264462 h-23.404958677685954 h-17.553719008264462v-17.553719008264462 v-113.86621756002336 a17.553719008264462,17.553719008264462 0 0 1 17.553719008264462,-17.553719008264462z"]'
+      'path[d="M24.05509641873278,233.5659996490948 h23.404958677685954 a17.553719008264462,17.553719008264462 0 0 1 17.553719008264462,17.553719008264462 v19.03174248379947 v17.553719008264462h-17.553719008264462 h-23.404958677685954 h-17.553719008264462v-17.553719008264462 v-19.03174248379947 a17.553719008264462,17.553719008264462 0 0 1 17.553719008264462,-17.553719008264462z"]'
     ).should('be.visible');
 
     cy.makeSnapshot();
@@ -832,5 +833,24 @@ describe('Lines and bars', () => {
 
     cy.contains('Packet Loss').rightclick();
     cy.get('@secondaryClick').should('have.been.called');
+  });
+
+  it('does not displays corresponding calculations when props are set', () => {
+    initialize({
+      data: dataPingServiceLines,
+      legend: {
+        placement: 'bottom',
+        mode: 'grid',
+        showCalculations: {
+          min: true,
+          max: false,
+          avg: false
+        }
+      }
+    });
+
+    cy.contains(labelMin).should('be.visible');
+    cy.contains(/^Max$/).should('not.exist');
+    cy.contains(labelAvg).should('not.exist');
   });
 });

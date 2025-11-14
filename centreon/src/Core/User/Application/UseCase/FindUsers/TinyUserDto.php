@@ -23,8 +23,9 @@ declare(strict_types=1);
 
 namespace Core\User\Application\UseCase\FindUsers;
 
-final class FindUsersResponse
+final class TinyUserDto
 {
-    /** @var TinyUserDto[]|UserDto[] */
-    public array $users = [];
+    public int $id = 0;
+
+    public string $alias = '';
 }

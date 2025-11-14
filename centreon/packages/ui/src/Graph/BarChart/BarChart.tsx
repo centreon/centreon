@@ -61,7 +61,16 @@ const BarChart = ({
   height = 500,
   tooltip,
   axis,
-  legend,
+  legend = {
+    display: true,
+    mode: 'grid',
+    placement: 'bottom',
+    showCalculations: {
+      min: true,
+      max: true,
+      avg: true
+    }
+  },
   loading,
   limitLegend,
   thresholdUnit,

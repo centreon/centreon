@@ -1443,6 +1443,15 @@ jobs:
   #     - name: Checkout sources
   #       uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
 
+      # - name: Setup awscli
+      #   run: |
+      #     if ! command -v aws >/dev/null 2>&1; then
+      #       curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+      #       sudo unzip -q awscliv2.zip
+      #       sudo ./aws/install
+      #     fi
+      #   shell: bash
+
   #     - name: Create Jira ticket based on nightly build failure
   #       uses: ./.github/actions/create-jira-ticket
   #       with:

@@ -23,7 +23,7 @@ const useValidationSchema = () => {
         ? schema
             .shape({
               id: number().required(),
-              name: string().required()
+              alias: string().required()
             })
             .required(t(labelRequired))
         : schema.nullable();

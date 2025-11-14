@@ -115,6 +115,58 @@ class DbReadContactRepository extends AbstractRepositoryRDB implements ReadConta
     /**
      * @inheritDoc
      */
+    public function findAliasesByIds(int ...$ids): array
+    {
+        try {
+            if ($ids === []) {
+                return [];
+            }
+
+            $ids = array_unique($ids);
+
+            $fields = '';
+            foreach ($ids as $index => $id) {
+                $fields .= ($fields === '' ? '' : ', ') . ':id_' . $index;
+            }
+
+            $select = <<<SQL
+                SELECT
+                    `contact_id` as `id`,
+                    `contact_alias` as `alias`
+                FROM
+                    `:db`.`contact`
+                WHERE
+                    `contact_id` IN ({$fields})
+                SQL;
+
+            $statement = $this->db->prepare($this->translateDbName($select));
+            foreach ($ids as $index => $id) {
+                $statement->bindValue(':id_' . $index, $id, \PDO::PARAM_INT);
+            }
+            $statement->setFetchMode(\PDO::FETCH_ASSOC);
+            $statement->execute();
+
+            // Retrieve data
+            $names = [];
+            foreach ($statement as $result) {
+                /** @var array{ id: int, alias: string } $result */
+                $names[$result['id']] = $result;
+            }
+
+            return $names;
+        } catch (\PDOException $e) {
+            throw new RepositoryException(
+                message: 'An error occurred while retrieving contact names by IDs.',
+                context: ['ids' => $ids],
+                previous: $e
+            );
+        }
+
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function exists(int $userId): bool
     {
         $request = $this->translateDbName(
