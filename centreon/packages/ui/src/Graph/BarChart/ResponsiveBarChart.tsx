@@ -8,7 +8,7 @@ import {
 } from 'react';
 
 import { useAtom, useAtomValue } from 'jotai';
-import { equals, flatten, gte, has, identity, isNil, pluck } from 'ramda';
+import { equals, flatten, gte, has, isNil, pluck } from 'ramda';
 
 import { Skeleton } from '@mui/material';
 
