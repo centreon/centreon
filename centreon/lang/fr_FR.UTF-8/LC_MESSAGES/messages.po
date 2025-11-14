@@ -24638,3 +24638,6 @@ msgstr "Insérer"
 
 msgid "You are not allowed to choose this type."
 msgstr "Vous n'êtes pas autorisé à choisir ce type."
+
+msgid "If your command uses shell functions (pipes, redirects, wildcards, etc.), check this box. Note that commands requiring the shell slow down the monitoring server."
+msgstr "Si votre commande utilise des fonctions shell (pipes, redirections, caractères génériques, etc.), cochez cette case. Notez que les commandes nécessitant le shell ralentissent le serveur de surveillance."
