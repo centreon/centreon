@@ -196,6 +196,8 @@ jobs:
             const fs = require('fs');
 
             const MODIFIED_UPDATE_SCRIPTS = process.env.MODIFIED_UPDATE_SCRIPTS.split(" ");
+            console.log(MODIFIED_UPDATE_SCRIPTS);
+            console.log(MODIFIED_UPDATE_SCRIPTS.length);
             let failed = 0;
             if (MODIFIED_UPDATE_SCRIPTS.length > 1) {
               core.setFailed(`❌ No more than one update script should be modified.`);
