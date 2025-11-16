@@ -10,7 +10,7 @@ import { useTranslation } from 'react-i18next';
 
 import { useFilterStyles } from '../../../Filters.styles';
 
-import useCheckboxes from './useCheckBoxes';
+import useCheckboxes from './useCheckboxes';
 
 interface Props<TFilters> {
   name: string;
