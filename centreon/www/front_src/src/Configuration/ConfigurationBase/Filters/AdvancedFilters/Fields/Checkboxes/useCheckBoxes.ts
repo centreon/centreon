@@ -12,7 +12,7 @@ interface Props<TFilters> {
   filters: TFilters;
   setFilters: Dispatch<SetStateAction<TFilters>>;
 }
-const useCheckBoxes = <TFilters>({
+const Checkboxes = <TFilters>({
   filters,
   setFilters,
   name
@@ -39,4 +39,4 @@ const useCheckBoxes = <TFilters>({
   };
 };
 
-export default useCheckBoxes;
+export default Checkboxes;

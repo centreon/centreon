@@ -7,7 +7,7 @@ import { useTranslation } from 'react-i18next';
 import { FieldType } from '../../../models';
 import useLoadData from '../../Listing/useLoadData';
 import {
-  CheckBoxes,
+  Checkboxes,
   MultiAutocomplete,
   MultiConnectedAutocomplete,
   Status,
@@ -65,7 +65,7 @@ const Filters = <TFilters,>({
 
         if (equals(filter.fieldType, FieldType.Checkboxes))
           return (
-            <CheckBoxes<TFilters>
+            <Checkboxes<TFilters>
               label={filter.name}
               key={filter.name}
               setFilters={setFilters}
