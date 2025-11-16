@@ -2,7 +2,7 @@ import { SetStateAction } from 'jotai';
 import { equals, includes, reject } from 'ramda';
 import { ChangeEvent, Dispatch } from 'react';
 
-interface UseCheckBoxes {
+interface UseCheckboxes {
   change: (event: ChangeEvent<HTMLInputElement>) => void;
   isChecked: (id: string) => boolean;
 }
@@ -12,11 +12,11 @@ interface Props<TFilters> {
   filters: TFilters;
   setFilters: Dispatch<SetStateAction<TFilters>>;
 }
-const Checkboxes = <TFilters>({
+const useCheckboxes = <TFilters>({
   filters,
   setFilters,
   name
-}: Props<TFilters>): UseCheckBoxes => {
+}: Props<TFilters>): UseCheckboxes => {
   const isChecked = (id: string): boolean => includes(id, filters[name] || []);
 
   const change = (event: ChangeEvent<HTMLInputElement>): void => {
@@ -39,4 +39,4 @@ const Checkboxes = <TFilters>({
   };
 };
 
-export default Checkboxes;
+export default useCheckboxes;
