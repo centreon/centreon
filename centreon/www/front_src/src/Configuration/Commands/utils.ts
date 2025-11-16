@@ -13,7 +13,8 @@ export const defaultSelectedColumnIds = [
 export const filtersInitialValues: Filters = {
   name: '',
   enabled: false,
-  disabled: false
+  disabled: false,
+  type: []
 };
 
 export const filtersAtomKey = 'filters_commands';

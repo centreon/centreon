@@ -28,6 +28,27 @@ const useLoadData = ({ filtersAtom, filtersAtomKey }): LoadDataState => {
       equals(filter.fieldType, FieldType.Status)
     ) && !equals(filters?.enabled, filters?.disabled);
 
+  const getCheckboxesQueries = () => {
+    const isCheckboxesFilterApplied = configuration?.filtersConfiguration?.some(
+      (filter) => equals(filter.fieldType, FieldType.Checkboxes)
+    );
+
+    if (!isCheckboxesFilterApplied) {
+      return [];
+    }
+
+    const filterName = configuration?.filtersConfiguration?.find((filter) =>
+      equals(filter.fieldType, FieldType.Checkboxes)
+    )?.fieldName as string;
+
+    const filterValues = filters?.[filterName];
+
+    return filterValues.map((filterValue) => ({
+      name: `${filterName}[eq]`,
+      value: filterValue
+    }));
+  };
+
   const searchConditions = useMemo(() => {
     if (equals(apiFormat, 'JSON-LD')) {
       return [];
@@ -80,7 +101,8 @@ const useLoadData = ({ filtersAtom, filtersAtomKey }): LoadDataState => {
 
     const customQueryParameters = [
       { name: 'name[lk]', value: filters?.name },
-      ...statusQueryParam
+      ...statusQueryParam,
+      ...getCheckboxesQueries()
     ];
 
     return customQueryParameters;

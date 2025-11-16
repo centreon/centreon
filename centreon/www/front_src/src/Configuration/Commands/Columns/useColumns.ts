@@ -2,6 +2,9 @@ import { useTranslation } from 'react-i18next';
 
 import { Column, ColumnType, truncate } from '@centreon/ui';
 
+import { equals } from 'ramda';
+import Name from './Name';
+
 import {
   labelCommandLine,
   labelHostUses,
@@ -9,8 +12,6 @@ import {
   labelServiceUses,
   labelType
 } from '../translatedLabels';
-
-import Name from './Name';
 
 const useColumns = (): {
   columns: Array<Column>;
@@ -53,7 +54,8 @@ const useColumns = (): {
       id: 'type',
       sortable: true,
       label: t(labelType),
-      getFormattedString: ({ type }) => t(type)
+      getFormattedString: ({ type }) =>
+        t(equals(type, 'Check') ? `${type} ` : type)
     }
   ];
 

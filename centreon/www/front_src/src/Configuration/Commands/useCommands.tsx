@@ -14,7 +14,34 @@ import {
 import { APIType, FieldType, FilterConfiguration } from '../models';
 import { Command, Payload } from './models';
 
-import { labelName, labelStatus } from './translatedLabels';
+import {
+  labelCheck,
+  labelDiscovery,
+  labelMiscellaneous,
+  labelName,
+  labelNotification,
+  labelStatus,
+  labelType
+} from './translatedLabels';
+
+const typeOptions = [
+  {
+    id: 'Notification',
+    name: labelNotification
+  },
+  {
+    id: 'Check',
+    name: labelCheck
+  },
+  {
+    id: 'Miscellaneous',
+    name: labelMiscellaneous
+  },
+  {
+    id: 'Discovery',
+    name: labelDiscovery
+  }
+];
 
 interface UseCommandsState {
   api: APIType;
@@ -68,6 +95,12 @@ const useCommands = (): UseCommandsState => {
         name: t(labelName),
         fieldName: 'name',
         fieldType: FieldType.Text
+      },
+      {
+        name: t(labelType),
+        fieldName: 'type',
+        fieldType: FieldType.Checkboxes,
+        options: typeOptions
       },
       {
         name: t(labelStatus),

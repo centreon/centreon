@@ -35,4 +35,5 @@ export interface Filters {
   name: string;
   enabled: boolean;
   disabled: boolean;
+  type: Array<'Notification' | 'Check' | 'Miscellaneous' | 'Discovery'>;
 }
