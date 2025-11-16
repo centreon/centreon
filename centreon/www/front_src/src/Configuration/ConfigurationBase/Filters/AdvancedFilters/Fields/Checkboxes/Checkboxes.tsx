@@ -10,7 +10,7 @@ import { useTranslation } from 'react-i18next';
 
 import { useFilterStyles } from '../../../Filters.styles';
 
-import useAfonas from './useAfonas';
+import useCheckboxes from './useCheckboxes';
 
 interface Props<TFilters> {
   name: string;
@@ -30,7 +30,7 @@ const Checkboxes = <TFilters,>({
   const { t } = useTranslation();
   const { classes } = useFilterStyles();
 
-  const { change, isChecked } = useAfonas<TFilters>({
+  const { change, isChecked } = useCheckboxes<TFilters>({
     filters,
     setFilters,
     name
