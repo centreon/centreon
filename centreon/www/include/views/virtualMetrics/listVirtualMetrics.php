@@ -22,43 +22,55 @@ if (! isset($oreon)) {
     exit;
 }
 
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\Exception\ConnectionException;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
+
 include './include/common/autoNumLimit.php';
 
 $queryValues ??= [];
-$SearchTool = '';
+$searchTool = '';
 $search = null;
 
 if (isset($_POST['searchVM'])) {
-    $search = $_POST['searchVM'];
+    $search = htmlspecialchars($_POST['searchVM'], ENT_QUOTES, 'UTF-8');
     $centreon->historySearch[$url] = $search;
 } elseif (isset($_GET['searchVM'])) {
-    $search = $_GET['searchVM'];
+    $search = htmlspecialchars($_GET['searchVM'], ENT_QUOTES, 'UTF-8');
     $centreon->historySearch[$url] = $search;
 } elseif (isset($centreon->historySearch[$url])) {
     $search = $centreon->historySearch[$url];
 }
 
 if ($search) {
-    $SearchTool .= ' WHERE vmetric_name LIKE :search';
+    $searchTool .= ' WHERE vmetric_name LIKE :search';
     $queryValues['search'] = '%' . $search . '%';
 }
 
-$rq = "SELECT SQL_CALC_FOUND_ROWS * FROM virtual_metrics {$SearchTool} "
-    . 'ORDER BY index_id,vmetric_name LIMIT ' . $num * $limit . ', ' . $limit;
-$stmt = $pearDB->prepare($rq);
-if (! empty($queryValues)) {
-    foreach ($queryValues as $key => $value) {
-        $stmt->bindValue(':' . $key, $value, PDO::PARAM_STR);
-    }
-}
-
 try {
-    $stmt->execute();
-} catch (PDOException $e) {
+    $listResults = $pearDB->fetchAllAssociative(
+        <<<SQL
+            SELECT SQL_CALC_FOUND_ROWS *
+            FROM virtual_metrics
+            {$searchTool}
+            ORDER BY index_id, vmetric_name
+            LIMIT :offset, :limit
+            SQL,
+        new QueryParameters(array_filter([
+            QueryParameter::int('offset', $num * $limit),
+            QueryParameter::int('limit', $limit),
+            ...array_map(
+                fn ($key, $value) => QueryParameter::string($key, $value),
+                array_keys($queryValues),
+                $queryValues
+            ),
+        ]))
+    );
+} catch (ConnectionException $e) {
     echo 'DB Error : ' . $e->getMessage();
 }
 
-$rows = $pearDB->query('SELECT FOUND_ROWS()')->fetchColumn();
+$rows = $pearDB->fetchOne('SELECT FOUND_ROWS()');
 
 include './include/common/checkPagination.php';
 
@@ -88,7 +100,7 @@ $yesOrNo = [null => 'No', 0 => 'No', 1 => 'Yes'];
 $elemArr = [];
 $centreonToken = createCSRFToken();
 
-for ($i = 0; $vmetric = $stmt->fetch(); $i++) {
+foreach ($listResults as $i => $vmetric) {
     $selectedElements = $form->addElement('checkbox', 'select[' . $vmetric['vmetric_id'] . ']');
     if ($vmetric['vmetric_activate']) {
         $moptions = "<a href='main.php?p=" . $p . '&vmetric_id=' . $vmetric['vmetric_id'] . '&o=u&limit=' . $limit
@@ -106,39 +118,52 @@ for ($i = 0; $vmetric = $stmt->fetch(); $i++) {
         . "\" maxlength=\"3\" size=\"3\" value='1' style=\"margin-bottom:0px;\" name='dupNbr["
         . $vmetric['vmetric_id'] . "]' />";
 
-    $indexDataStatement = $pearDBO->prepare('SELECT id,host_id,service_id FROM index_data '
-        . 'WHERE id = :indexId ');
     try {
-        $indexDataStatement->bindValue(':indexId', (int) $vmetric['index_id'], PDO::PARAM_INT);
-        $indexDataStatement->execute();
-    } catch (PDOException $e) {
+        $indd = $pearDBO->fetchAssociative(
+            <<<'SQL'
+                SELECT id,host_id,service_id FROM index_data WHERE id = :indexId
+                SQL,
+            new QueryParameters([
+                QueryParameter::int('indexId', (int) $vmetric['index_id']),
+            ])
+        );
+    } catch (ConnectionException $e) {
         echo 'DB Error : ' . $e->getMessage() . '<br />';
     }
-    $indd = $indexDataStatement->fetchRow();
 
-    $indexDataStatement->closeCursor();
     if ($indd !== false) {
         try {
-            $hsrStatement = $pearDB->prepare("(SELECT concat(h.host_name,' > ',s.service_description) full_name "
-                . 'FROM host_service_relation AS hsr, host AS h, service AS s WHERE hsr.host_host_id = h.host_id '
-                . 'AND hsr.service_service_id = s.service_id AND h.host_id = :hostId '
-                . 'AND s.service_id = :serviceId ) UNION '
-                . "(SELECT concat(h.host_name,' > ',s.service_description) full_name "
-                . 'FROM host_service_relation AS hsr, host AS h, service AS s, hostgroup_relation AS hr '
-                . 'WHERE hsr.hostgroup_hg_id = hr.hostgroup_hg_id AND hr.host_host_id = h.host_id '
-                . 'AND hsr.service_service_id = s.Service_id AND h.host_id = :hostId '
-                . 'AND s.service_id = :serviceId ) ORDER BY full_name');
+            $hsrname = $peaarDB->fetchAssociative(
+                <<<'SQL'
+                    (SELECT concat(h.host_name,' > ',s.service_description) full_name
+                    FROM host_service_relation AS hsr, host AS h, service AS s
+                    WHERE hsr.host_host_id = h.host_id
+                    AND hsr.service_service_id = s.service_id
+                    AND h.host_id = :hostId
+                    AND s.service_id = :serviceId )
+                    UNION
+                    (SELECT concat(h.host_name,' > ',s.service_description) full_name
+                    FROM host_service_relation AS hsr, host AS h, service AS s, hostgroup_relation AS hr
+                    WHERE hsr.hostgroup_hg_id = hr.hostgroup_hg_id
+                    AND hr.host_host_id = h.host_id
+                    AND hsr.service_service_id = s.service_id
+                    AND h.host_id = :hostId
+                    AND s.service_id = :serviceId )
+                    ORDER BY full_name
+                    SQL,
+                new QueryParameters([
+                    QueryParameter::int('hostId', (int) $indd['host_id']),
+                    QueryParameter::int('serviceId', (int) $indd['service_id']),
+                ])
+            );
 
-            $hsrStatement->bindValue(':hostId', (int) $indd['host_id'], PDO::PARAM_INT);
-            $hsrStatement->bindValue(':serviceId', (int) $indd['service_id'], PDO::PARAM_INT);
-            $hsrStatement->execute();
-        } catch (PDOException $e) {
+        } catch (ConnectionException $e) {
             echo 'DB Error : ' . $e->getMessage() . '<br />';
         }
-        $hsrname = $hsrStatement->fetchRow();
-        $hsrStatement->closeCursor();
-        $hsrname['full_name'] = str_replace('#S#', '/', $hsrname['full_name']);
-        $hsrname['full_name'] = str_replace('#BS#', '\\', $hsrname['full_name']);
+        if ($hsrname !== false) {
+            $hsrname['full_name'] = str_replace('#S#', '/', $hsrname['full_name']);
+            $hsrname['full_name'] = str_replace('#BS#', '\\', $hsrname['full_name']);
+        }
     }
 
     // ## TODO : data_count
