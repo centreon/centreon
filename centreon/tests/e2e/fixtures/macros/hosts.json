@@ -1,0 +1,28 @@
+{
+  "default_host": {
+    "name": "hostWithMacros",
+    "alias": "hostWithMacros",
+    "address": "127.0.0.1",
+    "normalMacro": {
+        "name": "MACRO1",
+        "value": "normal"
+    },
+    "passMacro": {
+        "name": "MACRO2",
+        "value": "password"
+    }
+  },
+  "updated_host": {
+    "name": "hostWithMacros",
+    "alias": "hostWithMacros",
+    "address": "127.0.0.1",
+    "normalMacro": {
+        "name": "MACRO1",
+        "value": "normal-Updated"
+    },
+    "passMacro": {
+        "name": "MACRO2",
+        "value": "password"
+    }
+  }
+} 

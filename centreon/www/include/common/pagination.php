@@ -216,9 +216,6 @@ if ($rows != 0) {
     if (isset($gopt[$pagination]) && $gopt[$pagination]) {
         $select[$gopt[$pagination]] = $gopt[$pagination];
     }
-    if (isset($rows) && $rows) {
-        $select[$rows] = $rows;
-    }
     ksort($select);
 } else {
     for ($i = 10; $i <= 100; $i = $i + 10) {

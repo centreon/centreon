@@ -17405,6 +17405,10 @@ msgstr "Point d'entrée de jeton"
 msgid "Token has been created"
 msgstr "Le jeton a été créé"
 
+#: centreon/src/Core/Security/Token/Application/Exception/TokenException.php
+msgid "Token not found"
+msgstr "Token non trouvé"
+
 #: centreon/src/Core/AgentConfiguration/Application/Exception/AgentConfigurationException.php
 #, php-format
 msgid "Token with name \"%s\" and creator ID \"%d\" is not valid"
@@ -20858,6 +20862,10 @@ msgid "Choose at least 1 user"
 msgstr "Veuillez sélectionner au moins 1 utilisateur"
 
 #: unknown
+msgid "Circular reference detected with host children : %s"
+msgstr "Référence circulaire détectée avec les hôtes enfants : %s"
+
+#: unknown
 msgid "Client Secret"
 msgstr "Secret client"
 
@@ -23806,10 +23814,6 @@ msgstr "Le token ne peut être ni null, ni vide ou non défini"
 #: unknown
 msgid "Token expired."
 msgstr "Token expiré."
-
-#: unknown
-msgid "Token not found"
-msgstr "Token non trouvé"
 
 #: unknown
 msgid "Too many elements to be displayed"
