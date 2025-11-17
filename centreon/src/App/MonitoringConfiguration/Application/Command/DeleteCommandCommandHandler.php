@@ -23,7 +23,6 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Application\Command;
 
-use App\MonitoringConfiguration\Domain\Aggregate\Command\Command;
 use App\MonitoringConfiguration\Domain\Event\CommandDeleted;
 use App\MonitoringConfiguration\Domain\Exception\CommandCanNotBeDeletedException;
 use App\MonitoringConfiguration\Domain\Repository\CommandRepository;
@@ -39,7 +38,7 @@ final readonly class DeleteCommandCommandHandler
     ) {
     }
 
-    public function __invoke(DeleteCommandCommand $command): Command
+    public function __invoke(DeleteCommandCommand $command): void
     {
         $existingCommand = $this->repository->getById($command->id);
 
@@ -49,8 +48,6 @@ final readonly class DeleteCommandCommandHandler
 
         $this->repository->delete($existingCommand);
 
-        $this->eventBus->fire(new CommandDeleted($existingCommand, $command->updatedBy));
-
-        return $existingCommand;
+        $this->eventBus->fire(new CommandDeleted($existingCommand, $command->deletedBy));
     }
 }

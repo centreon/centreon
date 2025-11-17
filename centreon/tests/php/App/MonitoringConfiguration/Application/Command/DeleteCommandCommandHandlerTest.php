@@ -74,7 +74,7 @@ final class DeleteCommandCommandHandlerTest extends TestCase
         $deleteCommand = new DeleteCommandCommand(
             id: new CommandId($command->id()->value),
             type: CommandTypeEnum::Notification,
-            updatedBy: 1,
+            deletedBy: 1,
         );
 
         ($this->handler)($deleteCommand);
@@ -90,7 +90,7 @@ final class DeleteCommandCommandHandlerTest extends TestCase
         $deleteCommand = new DeleteCommandCommand(
             id: new CommandId(999),
             type: CommandTypeEnum::Notification,
-            updatedBy: 1,
+            deletedBy: 1,
         );
 
         ($this->handler)($deleteCommand);

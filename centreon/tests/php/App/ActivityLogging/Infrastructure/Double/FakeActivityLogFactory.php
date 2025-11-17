@@ -40,10 +40,16 @@ final class FakeActivityLogFactory implements ActivityLogFactoryInterface
 {
     public function create(ActionEnum $action, AggregateRoot $aggregate, Actor $firedBy, \DateTimeImmutable $firedAt): ActivityLog
     {
+
+        $type = match ($action) {
+            ActionEnum::Add => TargetTypeEnum::ServiceCategory,
+            ActionEnum::Update, ActionEnum::Delete => TargetTypeEnum::Command,
+        };
+
         $target = new Target(
             id: new TargetId(1),
             name: new TargetName('NAME'),
-            type: TargetTypeEnum::ServiceCategory,
+            type: $type,
         );
 
         return new ActivityLog(

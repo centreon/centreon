@@ -31,7 +31,7 @@ final readonly class DeleteCommandCommand
     public function __construct(
         public CommandId $id,
         public CommandTypeEnum $type,
-        public int $updatedBy,
+        public int $deletedBy,
     ) {
     }
 }

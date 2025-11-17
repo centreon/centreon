@@ -55,7 +55,7 @@ final readonly class DeleteCommandProcessor implements ProcessorInterface
         $command = new DeleteCommandCommand(
             id: $commandId,
             type: $type,
-            updatedBy: $this->legacySecurity->getUserId(),
+            deletedBy: $this->legacySecurity->getUserId(),
         );
 
         $this->commandBus->execute($command);
