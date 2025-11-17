@@ -52,12 +52,6 @@ final class DeleteCommandVoter extends Voter
         Assert::isInstanceOf($subject, CommandResource::class);
 
         $type = CommandTypeEnum::fromName($subject->type);
-        if (! $type instanceof CommandTypeEnum) {
-            $vote?->addReason('Invalid command type.');
-
-            return false;
-        }
-
         $permission = Command::getWritePermissionForType($type);
 
         return $this->security->isGranted($permission->value);
