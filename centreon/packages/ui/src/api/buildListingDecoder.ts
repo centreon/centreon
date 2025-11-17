@@ -1,3 +1,4 @@
+import { equals } from 'ramda';
 import { JsonDecoder } from 'ts.data.json';
 import { Listing, ListingMeta } from './models';
 
@@ -56,19 +57,9 @@ const buildListingDecoder = <TEntity>({
   listingDecoderName,
   apiFormat = 'Standard'
 }: ListingDecoderOptions<TEntity>): JsonDecoder.Decoder<Listing<TEntity>> => {
-  if (apiFormat === 'JSON-LD') {
-    return jsonLdListingDecoder(
-      entityDecoder,
-      entityDecoderName,
-      listingDecoderName
-    );
-  }
-
-  return standardListingDecoder(
-    entityDecoder,
-    entityDecoderName,
-    listingDecoderName
-  );
+  return (
+    equals(apiFormat, 'JSON-LD') ? jsonLdListingDecoder : standardListingDecoder
+  )(entityDecoder, entityDecoderName, listingDecoderName);
 };
 
 export default buildListingDecoder;
