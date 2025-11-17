@@ -57,7 +57,7 @@ const useFilters = (): UseFiltersState => {
   };
 
   const changeUser = (_, values): void => {
-    const users = map(pick(['id', 'name']), values);
+    const users = map(pick(['id', 'alias']), values);
     setFilters({ ...filters, users });
   };
 
@@ -82,7 +82,10 @@ const useFilters = (): UseFiltersState => {
   };
 
   const deleteUser = (_, item): void => {
-    const users = reject(({ name }) => equals(item.name, name), filters.users);
+    const users = reject(
+      ({ alias }) => equals(item.alias, alias),
+      filters.users
+    );
 
     setFilters({ ...filters, users });
   };
@@ -99,7 +102,7 @@ const useFilters = (): UseFiltersState => {
   const isOptionEqualToValue = (option, selectedValue): boolean => {
     return isNil(option)
       ? false
-      : equals(option.name.toString(), selectedValue.name.toString());
+      : equals(option.name?.toString(), selectedValue.name?.toString());
   };
 
   const reload = (): void => {
