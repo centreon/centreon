@@ -229,7 +229,6 @@ describe('View by all', () => {
 
     cy.contains('Load')
       .parent()
-      .parent()
       .should('have.css', 'background-color', 'rgb(223, 210, 185)');
 
     cy.makeSnapshot();
@@ -242,7 +241,6 @@ describe('View by all', () => {
     });
 
     cy.contains('Disk-/')
-      .parent()
       .parent()
       .should('have.css', 'background-color', 'rgb(229, 216, 243)');
 
