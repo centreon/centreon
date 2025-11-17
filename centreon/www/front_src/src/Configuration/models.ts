@@ -99,7 +99,7 @@ export interface APIType {
     getAll?;
   };
   adapter?;
-  apiFormat?: 'standard' | 'JSON-LD';
+  apiFormat?: 'Standard' | 'JSON-LD';
   methods?: {
     update?: Method;
     enable?: Method;

@@ -4,7 +4,7 @@ export interface BuildListingEndpointParameters {
   baseEndpoint?: string;
   customQueryParameters?: Array<QueryParameter>;
   parameters: Omit<Parameters, 'apiFormat' | 'customQueryParameters'>;
-  apiFormat?: 'standard' | 'JSON-LD';
+  apiFormat?: 'Standard' | 'JSON-LD';
 }
 
 export interface SearchMatch {
@@ -18,7 +18,7 @@ export interface Parameters {
   page?: number;
   search?: SearchParameter;
   sort?: SortQueryParameterValue;
-  apiFormat: 'standard' | 'JSON-LD';
+  apiFormat: 'Standard' | 'JSON-LD';
 }
 
 export interface SearchParameter {

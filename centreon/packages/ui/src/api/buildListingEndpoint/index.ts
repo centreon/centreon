@@ -46,7 +46,7 @@ const buildListingEndpoint = ({
   baseEndpoint,
   parameters,
   customQueryParameters,
-  apiFormat = 'standard'
+  apiFormat = 'Standard'
 }: BuildListingEndpointParameters): string => {
   return buildEndpoint({
     apiFormat,

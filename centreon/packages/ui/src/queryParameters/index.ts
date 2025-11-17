@@ -4,7 +4,7 @@ import { QueryParameter } from './models';
 
 interface ToRawQueryParametersProps {
   queryParameters: Array<QueryParameter>;
-  apiFormat: 'standard' | 'JSON-LD';
+  apiFormat: 'Standard' | 'JSON-LD';
 }
 
 const toRawQueryParameter = ({ name, value }): string => {

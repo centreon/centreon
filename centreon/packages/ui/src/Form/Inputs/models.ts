@@ -56,6 +56,7 @@ export interface InputProps {
     options?: Array<string>;
   };
   connectedAutocomplete?: {
+    useNewAPIFormat?: boolean;
     additionalConditionParameters: Array<ConditionsSearchParameter>;
     customQueryParameters: Array<QueryParameter>;
     chipColor?: string;

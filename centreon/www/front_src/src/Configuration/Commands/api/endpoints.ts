@@ -11,16 +11,26 @@ export const pluginsEndpoint = '/configuration/plugins';
 
 export const geListEndpoint =
   (baseEndpoint: string) =>
-  ({ search, page }): string =>
-    buildListingEndpoint({
+  ({ search, page }): string => {
+    const customQueryParameters = search
+      ? [
+          {
+            name: 'name[lk]',
+            value: search.conditions[0].values['$lk'].slice(1, -1)
+          }
+        ]
+      : [];
+
+    return buildListingEndpoint({
       apiFormat: 'JSON-LD',
       baseEndpoint: baseEndpoint,
       parameters: {
         limit: 10,
-        page,
-        search
-      }
+        page
+      },
+      customQueryParameters
     });
+  };
 
 export const getGlobalMacrosEndpoint = geListEndpoint(globalMacrosEndpoint);
 export const getStandardMacrosEndpoint = geListEndpoint(standardMacrosEndpoint);

@@ -38,7 +38,7 @@ const useGetAll = ({
     decoder,
     getEndpoint: () =>
       buildListingEndpoint({
-        apiFormat: apiFormat || 'standard',
+        apiFormat: apiFormat || 'Standard',
         baseEndpoint: endpoint,
         parameters: {
           limit: limit || 10,
