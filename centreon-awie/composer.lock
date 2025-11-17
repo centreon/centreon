@@ -416,7 +416,7 @@
             "dist": {
                 "type": "path",
                 "url": "../centreon",
-                "reference": "94a0a842f9f4f0d2d5d2f4166fd9b8903b9c68f7"
+                "reference": "e96daf1fe77253b4be1c125ffb96368fd51200b3"
             },
             "require": {
                 "beberlei/assert": "^3.3",
@@ -425,10 +425,17 @@
                 "dragonmantank/cron-expression": "3.1.0",
                 "enshrined/svg-sanitize": "^0.15",
                 "ext-ctype": "*",
+                "ext-curl": "*",
+                "ext-gettext": "*",
                 "ext-iconv": "*",
+                "ext-intl": "*",
                 "ext-json": "*",
+                "ext-ldap": "*",
                 "ext-openssl": "*",
+                "ext-pdo": "*",
                 "ext-phar": "*",
+                "ext-posix": "*",
+                "ext-simplexml": "*",
                 "ext-zip": "*",
                 "friendsofsymfony/rest-bundle": "^3.0",
                 "jms/serializer-bundle": "^5.4",
@@ -464,6 +471,7 @@
                 "symfony/mime": "6.4.*",
                 "symfony/monolog-bundle": "^3.10",
                 "symfony/options-resolver": "6.4.*",
+                "symfony/process": "^6.4",
                 "symfony/property-access": "6.4.*",
                 "symfony/property-info": "6.4.*",
                 "symfony/routing": "6.4.*",
@@ -493,10 +501,12 @@
                 "friends-of-behat/mink": "^1.9",
                 "friends-of-behat/mink-extension": "^2.5",
                 "friendsofphp/php-cs-fixer": "^3.10",
+                "mockery/mockery": "^1.6",
                 "pestphp/pest": "^1.9",
                 "php-vfs/php-vfs": "^1.4",
                 "phpstan/phpstan": "^1.3.0",
                 "phpstan/phpstan-beberlei-assert": "^1.0.0",
+                "phpstan/phpstan-mockery": "^1.1",
                 "rector/rector": "^1.0",
                 "robertfausk/mink-panther-driver": "^1.1",
                 "squizlabs/php_codesniffer": "3.6.2",
@@ -569,6 +579,9 @@
                 ],
                 "codestyle:core": [
                     "php-cs-fixer fix --dry-run --format=checkstyle > checkstyle.core.xml"
+                ],
+                "symfony:check:ci": [
+                    "php bin/console lint:yaml config src --parse-tags && php bin/console lint:container"
                 ]
             },
             "license": [
@@ -8722,16 +8735,16 @@
         },
         {
             "name": "symfony/http-foundation",
-            "version": "v6.4.14",
+            "version": "v6.4.29",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/http-foundation.git",
-                "reference": "ba020a321a95519303a3f09ec2824d34d601c388"
+                "reference": "b03d11e015552a315714c127d8d1e0f9e970ec88"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/http-foundation/zipball/ba020a321a95519303a3f09ec2824d34d601c388",
-                "reference": "ba020a321a95519303a3f09ec2824d34d601c388",
+                "url": "https://api.github.com/repos/symfony/http-foundation/zipball/b03d11e015552a315714c127d8d1e0f9e970ec88",
+                "reference": "b03d11e015552a315714c127d8d1e0f9e970ec88",
                 "shasum": ""
             },
             "require": {
@@ -8741,12 +8754,12 @@
                 "symfony/polyfill-php83": "^1.27"
             },
             "conflict": {
-                "symfony/cache": "<6.3"
+                "symfony/cache": "<6.4.12|>=7.0,<7.1.5"
             },
             "require-dev": {
                 "doctrine/dbal": "^2.13.1|^3|^4",
                 "predis/predis": "^1.1|^2.0",
-                "symfony/cache": "^6.3|^7.0",
+                "symfony/cache": "^6.4.12|^7.1.5",
                 "symfony/dependency-injection": "^5.4|^6.0|^7.0",
                 "symfony/expression-language": "^5.4|^6.0|^7.0",
                 "symfony/http-kernel": "^5.4.12|^6.0.12|^6.1.4|^7.0",
@@ -8779,7 +8792,7 @@
             "description": "Defines an object-oriented layer for the HTTP specification",
             "homepage": "https://symfony.com",
             "support": {
-                "source": "https://github.com/symfony/http-foundation/tree/v6.4.14"
+                "source": "https://github.com/symfony/http-foundation/tree/v6.4.29"
             },
             "funding": [
                 {
@@ -8791,11 +8804,15 @@
                     "type": "github"
                 },
                 {
+                    "url": "https://github.com/nicolas-grekas",
+                    "type": "github"
+                },
+                {
                     "url": "https://tidelift.com/funding/github/packagist/symfony/symfony",
                     "type": "tidelift"
                 }
             ],
-            "time": "2024-11-05T16:39:55+00:00"
+            "time": "2025-11-08T16:40:12+00:00"
         },
         {
             "name": "symfony/http-kernel",
@@ -11880,7 +11897,7 @@
     },
     "prefer-stable": false,
     "prefer-lowest": false,
-    "platform": [],
+    "platform": {},
     "platform-dev": {
         "ext-json": "*"
     },
