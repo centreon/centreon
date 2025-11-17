@@ -16,7 +16,7 @@ export const geListEndpoint =
       ? [
           {
             name: 'name[lk]',
-            value: search.conditions[0].values['$lk'].slice(1, -1)
+            value: search.conditions[0].values.$lk.slice(1, -1)
           }
         ]
       : [];

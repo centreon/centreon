@@ -50,7 +50,7 @@ const ConnectedAutocomplete = ({
         ? [
             {
               name: 'name[lk]',
-              value: parameters.search.conditions[0].values['$lk'].slice(1, -1)
+              value: parameters.search.conditions[0].values.$lk.slice(1, -1)
             }
           ]
         : [];
