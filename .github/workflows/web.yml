@@ -630,6 +630,7 @@ jobs:
         check-version-consistency,
         translation-build,
         backend-dependencies,
+        backend-lint,
         backend-unit-test,
         frontend-web-build,
         frontend-web-lint,
