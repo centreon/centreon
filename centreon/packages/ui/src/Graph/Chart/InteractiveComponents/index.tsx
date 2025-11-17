@@ -157,7 +157,7 @@ const InteractionWithGraph = ({
     ]);
   };
 
-  const mousEnter = (event: MouseEvent): void => {
+  const mouseEnter = (event: MouseEvent): void => {
     if (event.buttons === 1 && isApplyingZoom) {
       mouseDown(event);
     }
@@ -352,7 +352,7 @@ const InteractionWithGraph = ({
         onMouseLeave={mouseLeave}
         onMouseMove={mouseMove}
         onMouseUp={mouseUp}
-        onMouseEnter={mousEnter}
+        onMouseEnter={mouseEnter}
       />
     </g>
   );
