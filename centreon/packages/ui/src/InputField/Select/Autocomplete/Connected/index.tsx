@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { ReactElement, useCallback, useEffect, useState } from 'react';
 
 import {
   equals,
@@ -44,7 +44,7 @@ export interface ConnectedAutoCompleteFieldProps<TData> {
   field: string;
   getEndpoint: ({ search, page }) => string;
   decoder?;
-  getRenderedOptionText: (option: TData) => string;
+  getRenderedOptionText?: (option: TData) => ReactElement | string;
   getRequestHeaders?: HeadersInit;
   initialPage: number;
   labelKey?: string;
@@ -53,9 +53,9 @@ export interface ConnectedAutoCompleteFieldProps<TData> {
 }
 
 const ConnectedAutocompleteField = (
-  AutocompleteField: (props) => JSX.Element,
+  AutocompleteField: (props) => ReactElement,
   multiple: boolean
-): ((props) => JSX.Element) => {
+): ((props) => ReactElement) => {
   const InnerConnectedAutocompleteField = <TData extends { name: string }>({
     initialPage = 1,
     getEndpoint,
@@ -65,7 +65,7 @@ const ConnectedAutocompleteField = (
     open,
     exclusionOptionProperty = 'id',
     searchConditions = [],
-    getRenderedOptionText = (option): string => option.name?.toString(),
+    getRenderedOptionText = (option): string => option?.name?.toString(),
     getRequestHeaders,
     displayOptionThumbnail,
     queryKey,
@@ -74,7 +74,7 @@ const ConnectedAutocompleteField = (
     changeIdValue,
     ...props
   }: ConnectedAutoCompleteFieldProps<TData> &
-    Omit<AutocompleteFieldProps, 'options'>): JSX.Element => {
+    Omit<AutocompleteFieldProps, 'options'>): ReactElement => {
     const [options, setOptions] = useState<Array<TData>>([]);
     const [page, setPage] = useState(1);
     const [maxPage, setMaxPage] = useState(initialPage);
@@ -221,7 +221,7 @@ const ConnectedAutocompleteField = (
       debounce(event.target.value);
     };
 
-    const renderOptions = (renderProps, option, { selected }): JSX.Element => {
+    const renderOptions = (renderProps, option, { selected }): ReactElement => {
       const { value } = props;
 
       const lastValue = Array.isArray(value) ? last(value) : value;

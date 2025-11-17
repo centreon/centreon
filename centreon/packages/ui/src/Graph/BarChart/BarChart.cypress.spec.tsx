@@ -11,6 +11,7 @@ import dataPingServiceMixedStacked from '../mockedData/pingServiceMixedStacked.j
 import dataPingServiceStacked from '../mockedData/pingServiceStacked.json';
 import dataPingServiceLinesStackKeys from '../mockedData/pingServiceWithStackedKeys.json';
 
+import { labelAvg, labelMax, labelMin } from '../Chart/translatedLabels';
 import BarChart, { BarChartProps } from './BarChart';
 
 const defaultStart = new Date(
@@ -330,5 +331,25 @@ describe('Bar chart', () => {
     cy.findByTestId('stacked-bar-4-0-0.06684').should('be.visible');
 
     cy.makeSnapshot();
+  });
+
+  it('does not displays corresponding calculations when props are set', () => {
+    initialize({
+      data: dataLastWeek,
+      orientation: 'horizontal',
+      legend: {
+        placement: 'bottom',
+        mode: 'grid',
+        showCalculations: {
+          min: true,
+          max: false,
+          avg: false
+        }
+      }
+    });
+
+    cy.contains(labelMin).should('be.visible');
+    cy.contains(labelMax).should('not.exist');
+    cy.contains(labelAvg).should('not.exist');
   });
 });
