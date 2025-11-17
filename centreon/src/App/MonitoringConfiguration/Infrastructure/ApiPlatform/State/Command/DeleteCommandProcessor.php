@@ -51,7 +51,6 @@ final readonly class DeleteCommandProcessor implements ProcessorInterface
         $commandId = new CommandId($uriVariables['id']);
 
         $type = CommandTypeEnum::fromName($data->type);
-        Assert::notNull($type);
 
         $command = new DeleteCommandCommand(
             id: $commandId,
