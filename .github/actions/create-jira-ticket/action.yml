@@ -144,8 +144,6 @@ runs:
 
             console.log(data);
 
-            console.log(`Ticket will be attributed to the ${squad_name} team. (Squad ID ${ticket_squad_id}, Board ID ${ticket_board_id})`)
-
             console.log(`Ticket summary: ${ticket_summary}`);
             const encodedJql = encodeURIComponent(`project = "MON" AND summary ~ "${ticket_summary}" AND statusCategory NOT IN (Done)`);
             let response = JSON.parse(
@@ -194,6 +192,8 @@ runs:
                 continue;
               }
 
+              console.log(`Ticket will be attributed to the ${squad_name} team. (Squad ID ${ticket_squad_id}, Board ID ${ticket_board_id})`)
+
               // Desactivated temporarily, activating when the pipeline is more stable
               // current_sprint = execSync(
               //   `curl --request GET \
@@ -214,7 +214,7 @@ runs:
                     "summary": ticket_summary,
                     "project": {"key": "MON"},
                     "issuetype": {"id": "10209"},
-                    "parent": {"id": `${nightly_epic_id}`, "key": `${nightly_epic_key}`},
+                    "parent": {"id": `${parent_epic_id}`, "key": `${parent_epic_key}`},
                     "labels": ticket_labels,
                     "components": [{"name": "${{ inputs.module_name }}"}],
                     "customfield_10902": {"id": `${ticket_squad_id}`, "value": `${squad_name}`},
