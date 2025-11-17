@@ -25,6 +25,7 @@ namespace Core\AgentConfiguration\Domain\Model\ConfigurationParameters;
 
 use Assert\AssertionFailedException;
 use Centreon\Domain\Common\Assertion\Assertion;
+use Core\AgentConfiguration\Domain\Model\AgentConfiguration;
 use Core\AgentConfiguration\Domain\Model\ConfigurationParametersInterface;
 use Core\AgentConfiguration\Domain\Model\ConnectionModeEnum;
 
@@ -35,6 +36,7 @@ use Core\AgentConfiguration\Domain\Model\ConnectionModeEnum;
  *		otel_private_key: ?string,
  *		otel_ca_certificate: ?string,
  *      tokens: array<array{name:string,creator_id:int}>,
+ *      port: ?int,
  *      poller_initiated: bool,
  *		hosts: array<array{
  *			id: int,
@@ -92,6 +94,9 @@ class CmaConfigurationParameters implements ConfigurationParametersInterface
                 foreach ($parameters['tokens'] as $token) {
                     Assertion::notEmptyString($token['name']);
                 }
+            }
+            if (! isset($parameters['port'])) {
+                $parameters['port'] = AgentConfiguration::DEFAULT_PORT;
             }
         }
 
