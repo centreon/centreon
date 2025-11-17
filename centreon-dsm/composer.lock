@@ -348,18 +348,20 @@
             "dist": {
                 "type": "path",
                 "url": "../centreon",
-                "reference": "ccb936643ddb05d0a46e27948dcba50d14fa5cae"
+                "reference": "019414c8b87ea47abb36803e7aafe7e27dd64543"
             },
             "require": {
                 "beberlei/assert": "^3.3",
                 "curl/curl": "^2.3",
                 "doctrine/annotations": "^1.0",
+                "doctrine/dbal": "^4.2",
                 "dragonmantank/cron-expression": "3.1.0",
                 "enshrined/svg-sanitize": "^0.15",
                 "ext-ctype": "*",
                 "ext-curl": "*",
                 "ext-gettext": "*",
                 "ext-iconv": "*",
+                "ext-intl": "*",
                 "ext-json": "*",
                 "ext-ldap": "*",
                 "ext-openssl": "*",
@@ -368,20 +370,21 @@
                 "ext-posix": "*",
                 "ext-simplexml": "*",
                 "ext-zip": "*",
+                "firebase/php-jwt": "^6.11",
                 "friendsofsymfony/rest-bundle": "^3.0",
                 "jms/serializer-bundle": "^5.4",
                 "justinrainbow/json-schema": "^5.2",
                 "monolog/monolog": "3.7.*",
-                "nelmio/cors-bundle": "^2.1",
-                "onelogin/php-saml": "^4.1",
+                "nelmio/cors-bundle": "2.5.*",
+                "onelogin/php-saml": "4.2.*",
                 "openpsa/quickform": "3.3.*",
-                "pear/pear-core-minimal": "^1.10",
-                "phpdocumentor/reflection-docblock": "^5.2",
-                "pimple/pimple": "^3.2",
-                "psr/container": "1.1.1",
-                "sensio/framework-extra-bundle": "^6.2",
-                "smarty-gettext/smarty-gettext": "^1.6",
-                "smarty/smarty": "^v4.3",
+                "pear/pear-core-minimal": "1.10.*",
+                "phpdocumentor/reflection-docblock": "5.4.*",
+                "pimple/pimple": "3.5.*",
+                "psr/container": "1.1.*",
+                "sensio/framework-extra-bundle": "6.2.*",
+                "smarty-gettext/smarty-gettext": "1.7.*",
+                "smarty/smarty": "4.5.*",
                 "symfony/config": "6.4.*",
                 "symfony/console": "6.4.*",
                 "symfony/dependency-injection": "6.4.*",
@@ -398,10 +401,11 @@
                 "symfony/http-foundation": "6.4.*",
                 "symfony/http-kernel": "6.4.*",
                 "symfony/lock": "6.4.*",
-                "symfony/maker-bundle": "^1.56",
+                "symfony/maker-bundle": "1.61.*",
                 "symfony/mime": "6.4.*",
-                "symfony/monolog-bundle": "^3.10",
+                "symfony/monolog-bundle": "3.10.*",
                 "symfony/options-resolver": "6.4.*",
+                "symfony/process": "^7.3",
                 "symfony/property-access": "6.4.*",
                 "symfony/property-info": "6.4.*",
                 "symfony/routing": "6.4.*",
@@ -426,29 +430,31 @@
                 "symfony/polyfill-php71": "*"
             },
             "require-dev": {
-                "behat/behat": "^3.10",
+                "behat/behat": "3.14.*",
                 "behat/mink-selenium2-driver": "1.6.*",
                 "centreon/centreon-test-lib": "24.10.x-dev",
-                "dealerdirect/phpcodesniffer-composer-installer": "v1.0.0",
-                "friends-of-behat/mink": "^1.9",
-                "friends-of-behat/mink-extension": "^2.5",
+                "dealerdirect/phpcodesniffer-composer-installer": "1.0.*",
+                "friends-of-behat/mink": "1.11.*",
+                "friends-of-behat/mink-extension": "2.7.*",
                 "friendsofphp/php-cs-fixer": "3.64.*",
-                "pestphp/pest": "^1.9",
-                "php-vfs/php-vfs": "^1.4",
+                "mockery/mockery": "1.6.*",
+                "pestphp/pest": "1.23.*",
+                "php-vfs/php-vfs": "1.4.*",
                 "phpcompatibility/php-compatibility": "9.3.*",
                 "phpstan/phpstan": "1.12.*",
                 "phpstan/phpstan-beberlei-assert": "1.1.*",
+                "phpstan/phpstan-mockery": "1.1.*",
                 "rector/rector": "1.2.*",
-                "robertfausk/mink-panther-driver": "^1.1",
+                "robertfausk/mink-panther-driver": "1.1.*",
                 "squizlabs/php_codesniffer": "3.10.*",
                 "symfony/phpunit-bridge": "6.4.*",
                 "symfony/stopwatch": "6.4.*",
                 "symfony/twig-bundle": "6.4.*",
                 "symfony/var-dumper": "6.4.*",
                 "symfony/web-profiler-bundle": "6.4.*",
-                "twig/twig": "^3.3",
-                "webmozart/assert": "^1.8",
-                "zircote/swagger-php": "^4.0"
+                "twig/twig": "3.14.*",
+                "webmozart/assert": "1.11.*",
+                "zircote/swagger-php": "4.10.*"
             },
             "type": "project",
             "extra": {
@@ -537,6 +543,9 @@
                 ],
                 "rector:exec": [
                     "rector process --debug"
+                ],
+                "symfony:check:ci": [
+                    "php bin/console lint:yaml config src --parse-tags && php bin/console lint:container"
                 ]
             },
             "license": [
@@ -1119,6 +1128,112 @@
             "time": "2024-09-05T10:15:52+00:00"
         },
         {
+            "name": "doctrine/dbal",
+            "version": "4.2.5",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/doctrine/dbal.git",
+                "reference": "acb68b388b2577bb211bb26dc22d20a8ad93d97d"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/doctrine/dbal/zipball/acb68b388b2577bb211bb26dc22d20a8ad93d97d",
+                "reference": "acb68b388b2577bb211bb26dc22d20a8ad93d97d",
+                "shasum": ""
+            },
+            "require": {
+                "doctrine/deprecations": "^0.5.3|^1",
+                "php": "^8.1",
+                "psr/cache": "^1|^2|^3",
+                "psr/log": "^1|^2|^3"
+            },
+            "require-dev": {
+                "doctrine/coding-standard": "13.0.0",
+                "fig/log-test": "^1",
+                "jetbrains/phpstorm-stubs": "2023.2",
+                "phpstan/phpstan": "2.1.17",
+                "phpstan/phpstan-phpunit": "2.0.6",
+                "phpstan/phpstan-strict-rules": "^2",
+                "phpunit/phpunit": "10.5.46",
+                "slevomat/coding-standard": "8.16.2",
+                "squizlabs/php_codesniffer": "3.13.1",
+                "symfony/cache": "^6.3.8|^7.0",
+                "symfony/console": "^5.4|^6.3|^7.0"
+            },
+            "suggest": {
+                "symfony/console": "For helpful console commands such as SQL execution and import of files."
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Doctrine\\DBAL\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Guilherme Blanco",
+                    "email": "guilhermeblanco@gmail.com"
+                },
+                {
+                    "name": "Roman Borschel",
+                    "email": "roman@code-factory.org"
+                },
+                {
+                    "name": "Benjamin Eberlei",
+                    "email": "kontakt@beberlei.de"
+                },
+                {
+                    "name": "Jonathan Wage",
+                    "email": "jonwage@gmail.com"
+                }
+            ],
+            "description": "Powerful PHP database abstraction layer (DBAL) with many features for database schema introspection and management.",
+            "homepage": "https://www.doctrine-project.org/projects/dbal.html",
+            "keywords": [
+                "abstraction",
+                "database",
+                "db2",
+                "dbal",
+                "mariadb",
+                "mssql",
+                "mysql",
+                "oci8",
+                "oracle",
+                "pdo",
+                "pgsql",
+                "postgresql",
+                "queryobject",
+                "sasql",
+                "sql",
+                "sqlite",
+                "sqlserver",
+                "sqlsrv"
+            ],
+            "support": {
+                "issues": "https://github.com/doctrine/dbal/issues",
+                "source": "https://github.com/doctrine/dbal/tree/4.2.5"
+            },
+            "funding": [
+                {
+                    "url": "https://www.doctrine-project.org/sponsorship.html",
+                    "type": "custom"
+                },
+                {
+                    "url": "https://www.patreon.com/phpdoctrine",
+                    "type": "patreon"
+                },
+                {
+                    "url": "https://tidelift.com/funding/github/packagist/doctrine%2Fdbal",
+                    "type": "tidelift"
+                }
+            ],
+            "time": "2025-06-26T22:51:46+00:00"
+        },
+        {
             "name": "doctrine/deprecations",
             "version": "1.1.3",
             "source": {
@@ -1688,6 +1803,69 @@
                 }
             ],
             "time": "2024-09-25T12:00:00+00:00"
+        },
+        {
+            "name": "firebase/php-jwt",
+            "version": "v6.11.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/firebase/php-jwt.git",
+                "reference": "d1e91ecf8c598d073d0995afa8cd5c75c6e19e66"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/firebase/php-jwt/zipball/d1e91ecf8c598d073d0995afa8cd5c75c6e19e66",
+                "reference": "d1e91ecf8c598d073d0995afa8cd5c75c6e19e66",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^8.0"
+            },
+            "require-dev": {
+                "guzzlehttp/guzzle": "^7.4",
+                "phpspec/prophecy-phpunit": "^2.0",
+                "phpunit/phpunit": "^9.5",
+                "psr/cache": "^2.0||^3.0",
+                "psr/http-client": "^1.0",
+                "psr/http-factory": "^1.0"
+            },
+            "suggest": {
+                "ext-sodium": "Support EdDSA (Ed25519) signatures",
+                "paragonie/sodium_compat": "Support EdDSA (Ed25519) signatures when libsodium is not present"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Firebase\\JWT\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD-3-Clause"
+            ],
+            "authors": [
+                {
+                    "name": "Neuman Vong",
+                    "email": "neuman+pear@twilio.com",
+                    "role": "Developer"
+                },
+                {
+                    "name": "Anant Narayanan",
+                    "email": "anant@php.net",
+                    "role": "Developer"
+                }
+            ],
+            "description": "A simple library to encode and decode JSON Web Tokens (JWT) in PHP. Should conform to the current spec.",
+            "homepage": "https://github.com/firebase/php-jwt",
+            "keywords": [
+                "jwt",
+                "php"
+            ],
+            "support": {
+                "issues": "https://github.com/firebase/php-jwt/issues",
+                "source": "https://github.com/firebase/php-jwt/tree/v6.11.1"
+            },
+            "time": "2025-04-09T20:32:01+00:00"
         },
         {
             "name": "friendsofphp/php-cs-fixer",
@@ -8652,16 +8830,16 @@
         },
         {
             "name": "symfony/http-foundation",
-            "version": "v6.4.12",
+            "version": "v6.4.29",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/http-foundation.git",
-                "reference": "133ac043875f59c26c55e79cf074562127cce4d2"
+                "reference": "b03d11e015552a315714c127d8d1e0f9e970ec88"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/http-foundation/zipball/133ac043875f59c26c55e79cf074562127cce4d2",
-                "reference": "133ac043875f59c26c55e79cf074562127cce4d2",
+                "url": "https://api.github.com/repos/symfony/http-foundation/zipball/b03d11e015552a315714c127d8d1e0f9e970ec88",
+                "reference": "b03d11e015552a315714c127d8d1e0f9e970ec88",
                 "shasum": ""
             },
             "require": {
@@ -8671,12 +8849,12 @@
                 "symfony/polyfill-php83": "^1.27"
             },
             "conflict": {
-                "symfony/cache": "<6.3"
+                "symfony/cache": "<6.4.12|>=7.0,<7.1.5"
             },
             "require-dev": {
                 "doctrine/dbal": "^2.13.1|^3|^4",
                 "predis/predis": "^1.1|^2.0",
-                "symfony/cache": "^6.3|^7.0",
+                "symfony/cache": "^6.4.12|^7.1.5",
                 "symfony/dependency-injection": "^5.4|^6.0|^7.0",
                 "symfony/expression-language": "^5.4|^6.0|^7.0",
                 "symfony/http-kernel": "^5.4.12|^6.0.12|^6.1.4|^7.0",
@@ -8709,7 +8887,7 @@
             "description": "Defines an object-oriented layer for the HTTP specification",
             "homepage": "https://symfony.com",
             "support": {
-                "source": "https://github.com/symfony/http-foundation/tree/v6.4.12"
+                "source": "https://github.com/symfony/http-foundation/tree/v6.4.29"
             },
             "funding": [
                 {
@@ -8721,11 +8899,15 @@
                     "type": "github"
                 },
                 {
+                    "url": "https://github.com/nicolas-grekas",
+                    "type": "github"
+                },
+                {
                     "url": "https://tidelift.com/funding/github/packagist/symfony/symfony",
                     "type": "tidelift"
                 }
             ],
-            "time": "2024-09-20T08:18:25+00:00"
+            "time": "2025-11-08T16:40:12+00:00"
         },
         {
             "name": "symfony/http-kernel",
@@ -10030,16 +10212,16 @@
         },
         {
             "name": "symfony/process",
-            "version": "v7.1.5",
+            "version": "v7.3.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/process.git",
-                "reference": "5c03ee6369281177f07f7c68252a280beccba847"
+                "reference": "f24f8f316367b30810810d4eb30c543d7003ff3b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/process/zipball/5c03ee6369281177f07f7c68252a280beccba847",
-                "reference": "5c03ee6369281177f07f7c68252a280beccba847",
+                "url": "https://api.github.com/repos/symfony/process/zipball/f24f8f316367b30810810d4eb30c543d7003ff3b",
+                "reference": "f24f8f316367b30810810d4eb30c543d7003ff3b",
                 "shasum": ""
             },
             "require": {
@@ -10071,7 +10253,7 @@
             "description": "Executes commands in sub-processes",
             "homepage": "https://symfony.com",
             "support": {
-                "source": "https://github.com/symfony/process/tree/v7.1.5"
+                "source": "https://github.com/symfony/process/tree/v7.3.4"
             },
             "funding": [
                 {
@@ -10083,11 +10265,15 @@
                     "type": "github"
                 },
                 {
+                    "url": "https://github.com/nicolas-grekas",
+                    "type": "github"
+                },
+                {
                     "url": "https://tidelift.com/funding/github/packagist/symfony/symfony",
                     "type": "tidelift"
                 }
             ],
-            "time": "2024-09-19T21:48:23+00:00"
+            "time": "2025-09-11T10:12:26+00:00"
         },
         {
             "name": "symfony/property-access",
@@ -11806,7 +11992,7 @@
     },
     "prefer-stable": false,
     "prefer-lowest": false,
-    "platform": [],
+    "platform": {},
     "platform-dev": {
         "ext-json": "*"
     },
