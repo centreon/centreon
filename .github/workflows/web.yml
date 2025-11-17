@@ -630,6 +630,11 @@ jobs:
         check-version-consistency,
         translation-build,
         backend-dependencies,
+        backend-unit-test,
+        frontend-web-build,
+        frontend-web-lint,
+        frontend-unit-test,
+        frontend-component-test,
         gherkin-lint,
         e2e-lint,
       ]
