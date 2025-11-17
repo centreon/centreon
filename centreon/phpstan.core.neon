@@ -30,6 +30,12 @@ services:
             - phpstan.collector
 
 parameters:
+    bootstrapFiles:
+        - config/centreon.config.php.template
+    scanFiles:
+        - config/centreon.config.php.template
+        - tests/phpstan_stubs/bootstrap.stub
+        - tests/phpstan_stubs/legacy.stub
     level: max
     paths:
         - src/Core

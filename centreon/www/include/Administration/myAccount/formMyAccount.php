@@ -19,7 +19,9 @@
  *
  */
 
-if (!isset($centreon)) {
+use Adaptation\Log\LoggerPassword;
+
+if (! isset($centreon)) {
     exit();
 }
 
@@ -128,6 +130,9 @@ if ($cct['contact_auth_type'] === 'local') {
             }
         }
     }
+
+    // Password Management
+
     $form->addElement(
         'password',
         'current_password',
@@ -156,17 +161,21 @@ if ($cct['contact_auth_type'] === 'local') {
         _("Generate"),
         ['onclick' => "generatePassword('passwd', '$encodedPasswordPolicy');", 'class' => 'btc bt_info']
     );
+
+    // Autologin Key Management
+
+    $form->addElement('text', 'contact_autologin_key', _('Autologin Key'), ['size' => '30', 'id' => 'aKey']);
+
+    $form->addElement(
+        'button',
+        'contact_gen_akey',
+        _('Generate'),
+        ['onclick' => "generatePassword('aKey', '{$encodedPasswordPolicy}');",
+            'class' => 'btc bt_info',
+            'id' => 'generateAutologinKeyButton',
+            'data-testid' => _('Generate')]
+    );
 }
-$form->addElement('text', 'contact_autologin_key', _("Autologin Key"), ["size" => "30", "id" => "aKey"]);
-$form->addElement(
-    'button',
-    'contact_gen_akey',
-    _("Generate"),
-    ['onclick' => "generatePassword('aKey', '$encodedPasswordPolicy');",
-        'class' => 'btc bt_info',
-        "id" => "generateAutologinKeyButton",
-        "data-testid" => _("Generate")]
-);
 
 // Preferences
 
@@ -456,16 +465,29 @@ if ($form->validate()) {
     } elseif (array_key_exists($sessionKeyFreeze, $_SESSION)) {
         unset($_SESSION[$sessionKeyFreeze]);
     }
-} elseif (array_key_exists($sessionKeyFreeze, $_SESSION) && $_SESSION[$sessionKeyFreeze] === true) {
-    unset($_SESSION[$sessionKeyFreeze]);
-    $o = null;
-    $form->addElement(
-        "button",
-        "change",
-        _("Modify"),
-        ["onClick" => "javascript:window.location.href='?p=" . $p . "&o=c'", 'class' => 'btc bt_info']
-    );
-    $form->freeze();
+} else {
+    if (
+        $form->getElementError('contact_passwd') === _('Passwords do not match')
+        || $form->getElementError('contact_passwd2') === _('Passwords do not match')
+    ) {
+        LoggerPassword::create()->warning(
+            reason: 'password confirmation does not match',
+            initiatorId: $centreon->user->get_id(),
+            targetId: $centreon->user->get_id(),
+        );
+    }
+
+    if (array_key_exists($sessionKeyFreeze, $_SESSION) && $_SESSION[$sessionKeyFreeze] === true) {
+        unset($_SESSION[$sessionKeyFreeze]);
+        $o = null;
+        $form->addElement(
+            'button',
+            'change',
+            _('Modify'),
+            ['onClick' => "javascript:window.location.href='?p=" . $p . "&o=c'", 'class' => 'btc bt_info']
+        );
+        $form->freeze();
+    }
 }
 
 //Apply a template definition

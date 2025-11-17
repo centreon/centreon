@@ -60,7 +60,7 @@ jobs:
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  checkmarx-analysis:
+  code_scan:
     needs: [get-environment]
     if: |
       needs.get-environment.outputs.is_targeting_feature_branch != 'true' &&
@@ -78,6 +78,6 @@ jobs:
       cx_client_secret: ${{ secrets.AST_RND_SCANS_CLIENT_SECRET }}
 
   set-skip-label:
-    needs: [get-environment, checkmarx-analysis]
+    needs: [get-environment, code_scan]
     if: needs.get-environment.outputs.skip_workflow == 'false'
     uses: ./.github/workflows/set-pull-request-skip-label.yml

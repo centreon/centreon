@@ -48,7 +48,7 @@ jobs:
           version: 7
 
       - name: Install Centreon dependencies
-        run: pnpm install
+        run: pnpm install --frozen-lockfile
         working-directory: centreon
 
       - name: Unit test

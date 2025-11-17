@@ -19,32 +19,65 @@
  * limitations under the License.
  */
 
-$path = "./modules/centreon-open-tickets/views/rules/";
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\Exception\ConnectionException;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
+use Core\Common\Domain\Exception\CollectionException;
+use Core\Common\Domain\Exception\RepositoryException;
+use Core\Common\Domain\Exception\ValueObjectException;
+
+// Smarty template initialization
+$path = './modules/centreon-open-tickets/views/rules/';
 $tpl = new Smarty();
 $tpl = initSmartyTpl($path, $tpl);
+
 $rows = 0;
 $nbRule = 0;
 require "./include/common/autoNumLimit.php";
 
 $form = new HTML_QuickFormCustom('select_form', 'POST', "?p=".$p);
 
-$query = "SELECT r.rule_id, r.activate, r.alias FROM mod_open_tickets_rule r";
+$query = 'FROM mod_open_tickets_rule r';
+$params = [];
 if ($search) {
-    $query .= " WHERE r.alias LIKE '%".$search."%' ";
+    $query .= ' WHERE r.alias LIKE :search';
+    $params[] = QueryParameter::string('search', '%' . $search . '%');
 }
-$queryCount = $query;
-$query .= " ORDER BY r.alias";
-$query .= " LIMIT ".$num * $limit.", ".$limit;
+$countQuery = 'SELECT COUNT(*) AS total ' . $query;
 
-$resCount = $db->query($queryCount);
-$rows = $resCount->rowCount();
+$query = 'SELECT r.rule_id, r.activate, r.alias ' . $query . ' ORDER BY r.alias';
+$query .= ' LIMIT :offset, :limit';
+try {
+    $rows = (int) $db->fetchOne(
+        $countQuery,
+        QueryParameters::create($params)
+    );
+    $params[] = QueryParameter::int('offset', $num * $limit);
+    $params[] = QueryParameter::int('limit', $limit);
 
-$res = $db->query($query);
-$elemArr = array();
-$tdStyle = "list_one";
-$ruleStr = "";
-while ($row = $res->fetch()) {
-    $selectedElements = $form->addElement('checkbox', "select[".$row['rule_id']."]");
+    $res = $db->fetchAllAssociative(
+        $query,
+        QueryParameters::create($params)
+    );
+} catch (ConnectionException|RepositoryException|CollectionException|ValueObjectException $exception) {
+    $rows = 0;
+    $res = [];
+    CentreonLog::create()->error(
+        CentreonLog::TYPE_SQL,
+        'Error while fetching open ticket rules: ' . $exception->getMessage(),
+        ['search' => $search],
+        $exception
+    );
+    $msg = new CentreonMsg();
+    $msg->setImage('./img/icons/warning.png');
+    $msg->setTextStyle('bold');
+    $msg->setText('Error while fetching open ticket rules');
+}
+$elemArr = [];
+$tdStyle = 'list_one';
+$ruleStr = '';
+foreach ($res as $row) {
+    $selectedElements = $form->addElement('checkbox', 'select[' . $row['rule_id'] . ']');
     $elemArr[$row['rule_id']]['select'] = $selectedElements->toHtml();
     $elemArr[$row['rule_id']]['url_edit'] = "./main.php?p=".$p."&o=c&rule_id=".$row['rule_id'];
     $elemArr[$row['rule_id']]['name'] = $row['alias'];
