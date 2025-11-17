@@ -154,7 +154,7 @@ const initializeCustomUnits = ({
 const checkGraphWidth = (): void => {
   cy.findByTestId('graph-interaction-zone')
     .should('have.attr', 'height')
-    .and('equal', '394');
+    .and('equal', '392');
 
   cy.findByTestId('graph-interaction-zone').then((graph) => {
     expect(Number(graph[0].attributes.width.value)).to.be.greaterThan(1170);
@@ -176,12 +176,12 @@ describe('Line chart', () => {
       cy.contains('connTime').should('be.visible');
       cy.contains('Min: 70.31').should('be.visible');
 
-      cy.findByTestId('graph-interaction-zone').realMouseMove(250, 70);
+      cy.findByTestId('graph-interaction-zone').realMouseMove(240, 70);
 
       cy.contains('06/18/2023').should('be.visible');
 
       cy.contains('0.4 s').should('be.visible');
-      cy.contains('75.64%').should('be.visible');
+      cy.contains('73.65%').should('be.visible');
 
       cy.makeSnapshot();
     });
@@ -452,7 +452,7 @@ describe('Line chart', () => {
 
       cy.contains(':00 AM').should('be.visible');
 
-      cy.get('text[transform="rotate(-35, -2, 267.7902608798116)"]').should(
+      cy.get('text[transform="rotate(-35, -2, 187.52600691899028)"]').should(
         'be.visible'
       );
 
@@ -534,7 +534,7 @@ describe('Line chart', () => {
       checkGraphWidth();
       cy.contains(':00 AM').should('be.visible');
       cy.get('circle[cx="248.33333333333334"]').should('be.visible');
-      cy.get('circle[cy="263.84471332099656"]').should('be.visible');
+      cy.get('circle[cy="267.9948393443889"]').should('be.visible');
 
       cy.makeSnapshot();
     });
@@ -748,10 +748,10 @@ describe('Lines and bars', () => {
     checkGraphWidth();
 
     cy.get(
-      'path[d="M7.501377410468319,291.40319017705076 h56.51239669421488 h1v1 v100.59680982294924 a1,1 0 0 1 -1,1 h-56.51239669421488 a1,1 0 0 1 -1,-1 v-100.59680982294924 v-1h1z"]'
+      'path[d="M7.501377410468319,289.92398616599974 h56.51239669421488 h1v1 v100.07601383400026 a1,1 0 0 1 -1,1 h-56.51239669421488 a1,1 0 0 1 -1,-1 v-100.07601383400026 v-1h1z"]'
     ).should('be.visible');
     cy.get(
-      'path[d="M24.05509641873278,236.56813332067702 h23.404958677685954 a17.553719008264462,17.553719008264462 0 0 1 17.553719008264462,17.553719008264462 v19.727618839844816 v17.553719008264462h-17.553719008264462 h-23.404958677685954 h-17.553719008264462v-17.553719008264462 v-19.727618839844816 a17.553719008264462,17.553719008264462 0 0 1 17.553719008264462,-17.553719008264462z"]'
+      'path[d="M24.05509641873278,73.57899638721061 h23.404958677685954 a17.553719008264462,17.553719008264462 0 0 1 17.553719008264462,17.553719008264462 v137.44495707537567 v17.553719008264462h-17.553719008264462 h-23.404958677685954 h-17.553719008264462v-17.553719008264462 v-137.44495707537567 a17.553719008264462,17.553719008264462 0 0 1 17.553719008264462,-17.553719008264462z"]'
     ).should('be.visible');
 
     cy.makeSnapshot();
