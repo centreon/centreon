@@ -66,11 +66,12 @@ jobs:
               }
 
               let minorVersion = 0;
-              if (process.env.STABILITY === 'unstable') {
-                while (`${process.env.MAJOR_VERSION}.${minorVersion}` in package.versions) {
+              if (true || process.env.STABILITY === 'unstable') {
+                const semverMajorVersion = process.env.MAJOR_VERSION.replace('.0', '.');
+                while (`${semverMajorVersion}.${minorVersion}` in package.versions) {
                   minorVersion++;
                 }
-                core.setOutput("package_version", `${process.env.MAJOR_VERSION}.${minorVersion}`);
+                core.setOutput("package_version", `${semverMajorVersion}.${minorVersion}`);
               } else {
                 while (`${process.env.CURRENT_VERSION}-${process.env.BRANCH_NAME}.${minorVersion}` in package.versions) {
                   minorVersion++;
