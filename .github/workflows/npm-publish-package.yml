@@ -66,7 +66,7 @@ jobs:
               }
 
               let minorVersion = 0;
-              if (true || process.env.STABILITY === 'unstable') {
+              if (process.env.STABILITY === 'unstable') {
                 while (`${process.env.MAJOR_VERSION}.${minorVersion}` in package.versions) {
                   minorVersion++;
                 }
