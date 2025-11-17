@@ -114,7 +114,7 @@ final readonly class ListCommandsProvider implements ProviderInterface
             /** @var CommandId $id */
             $id = $command->id();
             $commandResource = $this->transformer->transform($command);
-            if ($counts !== []) {
+            if (isset($counts) && $counts !== []) {
                 $commandResource->hydrateLinkedResourceCount($counts[$id->value]);
             }
             $commandResources[] = $commandResource;

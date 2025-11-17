@@ -199,8 +199,10 @@ final class ListCommandsProviderTest extends ApiTestCase
             ['query' => ['sort' => ['name' => 'asc']]]
         );
         self::assertResponseIsSuccessful();
-        $this->assertCount(30, (array) $response->toArray()['member']);
-        $this->assertEquals('check_centreon_cpu', (array) $response->toArray()['member'][0]['name']);
+        /** @var array<int, array{name: string}> $members */
+        $members = (array) $response->toArray()['member'];
+        $this->assertCount(30, $members);
+        $this->assertEquals('check_centreon_cpu', $members[0]['name']);
     }
 
     public function testItFindAllCommandsWithNameSortedDescending(): void
@@ -213,8 +215,10 @@ final class ListCommandsProviderTest extends ApiTestCase
             ['query' => ['sort' => ['name' => 'desc']]]
         );
         self::assertResponseIsSuccessful();
-        $this->assertCount(30, (array) $response->toArray()['member']);
-        $this->assertEquals('submit-service-check-result', (array) $response->toArray()['member'][0]['name']);
+        /** @var array<int, array{name: string}> $members */
+        $members = (array) $response->toArray()['member'];
+        $this->assertCount(30, $members);
+        $this->assertEquals('submit-service-check-result', $members[0]['name']);
     }
 
     public function testItShouldIgnoreUnknownOperator(): void
