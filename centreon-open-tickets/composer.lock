@@ -1555,7 +1555,7 @@
             "dist": {
                 "type": "path",
                 "url": "../centreon",
-                "reference": "84b7df4f6c57ed2a1e29f646e64f8e3440a7718b"
+                "reference": "349eec924e6fe51f466a07f03d3b29e662b98ad4"
             },
             "require": {
                 "amphp/http-client": "4.6.*",
@@ -1622,6 +1622,7 @@
                 "symfony/messenger": "7.3.*",
                 "symfony/mime": "7.3.*",
                 "symfony/monolog-bundle": "3.10.*",
+                "symfony/process": "7.3.*",
                 "symfony/property-info": "7.3.*",
                 "symfony/routing": "7.3.*",
                 "symfony/runtime": "7.3.*",
@@ -1712,10 +1713,18 @@
                     "assets:install %PUBLIC_DIR%": "symfony-cmd"
                 },
                 "post-install-cmd": [
-                    "@auto-scripts"
+                    "@auto-scripts",
+                    "@symfony:assets:install:new"
                 ],
                 "post-update-cmd": [
-                    "@auto-scripts"
+                    "@auto-scripts",
+                    "@symfony:assets:install:new"
+                ],
+                "symfony:assets:install": [
+                    "bin/console assets:install www"
+                ],
+                "symfony:assets:install:new": [
+                    "bin/console.new assets:install www"
                 ],
                 "symfony:update": [
                     "composer update symfony/* --with-all-dependencies --no-scripts"
@@ -1728,6 +1737,15 @@
                 ],
                 "symfony:check": [
                     "php bin/console lint:yaml config src --parse-tags && php bin/console lint:container"
+                ],
+                "symfony:new:check": [
+                    "php bin/console.new lint:yaml config src --parse-tags && php bin/console.new lint:container"
+                ],
+                "rector:diff": [
+                    "php rector.diff.php --dry-run ${PHP_DIFF_FILES:-$(git diff --name-only -- '*.php')}"
+                ],
+                "rector:diff:fix": [
+                    "php rector.diff.php ${PHP_DIFF_FILES:-$(git diff --name-only -- '*.php')}"
                 ],
                 "rector:legacy": [
                     "../php-tools/vendor/bin/rector process --config=rector.legacy.php --dry-run"
@@ -1746,6 +1764,12 @@
                 ],
                 "rector:new:fix": [
                     "../php-tools/vendor/bin/rector process --config=rector.new.php"
+                ],
+                "cs:diff": [
+                    "php .php-cs-fixer.diff.php --dry-run ${PHP_DIFF_FILES:-$(git diff --name-only -- '*.php')}"
+                ],
+                "cs:diff:fix": [
+                    "php .php-cs-fixer.diff.php ${PHP_DIFF_FILES:-$(git diff --name-only -- '*.php')}"
                 ],
                 "cs:legacy": [
                     "../php-tools/vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.legacy.php --verbose --dry-run --diff"
@@ -9904,16 +9928,16 @@
         },
         {
             "name": "symfony/http-foundation",
-            "version": "v7.3.1",
+            "version": "v7.3.7",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/http-foundation.git",
-                "reference": "23dd60256610c86a3414575b70c596e5deff6ed9"
+                "reference": "db488a62f98f7a81d5746f05eea63a74e55bb7c4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/http-foundation/zipball/23dd60256610c86a3414575b70c596e5deff6ed9",
-                "reference": "23dd60256610c86a3414575b70c596e5deff6ed9",
+                "url": "https://api.github.com/repos/symfony/http-foundation/zipball/db488a62f98f7a81d5746f05eea63a74e55bb7c4",
+                "reference": "db488a62f98f7a81d5746f05eea63a74e55bb7c4",
                 "shasum": ""
             },
             "require": {
@@ -9963,7 +9987,7 @@
             "description": "Defines an object-oriented layer for the HTTP specification",
             "homepage": "https://symfony.com",
             "support": {
-                "source": "https://github.com/symfony/http-foundation/tree/v7.3.1"
+                "source": "https://github.com/symfony/http-foundation/tree/v7.3.7"
             },
             "funding": [
                 {
@@ -9975,11 +9999,15 @@
                     "type": "github"
                 },
                 {
+                    "url": "https://github.com/nicolas-grekas",
+                    "type": "github"
+                },
+                {
                     "url": "https://tidelift.com/funding/github/packagist/symfony/symfony",
                     "type": "tidelift"
                 }
             ],
-            "time": "2025-06-23T15:07:14+00:00"
+            "time": "2025-11-08T16:41:12+00:00"
         },
         {
             "name": "symfony/http-kernel",
@@ -13365,7 +13393,7 @@
         "ext-pdo": "*",
         "ext-session": "*"
     },
-    "platform-dev": [],
+    "platform-dev": {},
     "platform-overrides": {
         "php": "8.2"
     },
