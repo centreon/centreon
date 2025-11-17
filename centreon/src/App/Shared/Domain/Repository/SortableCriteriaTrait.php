@@ -23,6 +23,8 @@ declare(strict_types=1);
 
 namespace App\Shared\Domain\Repository;
 
+use Webmozart\Assert\Assert;
+
 trait SortableCriteriaTrait
 {
     /** @var array<string, SortDirectionEnum> */
@@ -31,7 +33,18 @@ trait SortableCriteriaTrait
     public function withSort(string $field, string|SortDirectionEnum $direction): static
     {
         $clone = clone $this;
-        $direction = is_string($direction) ? SortDirectionEnum::from($direction) : $direction;
+        if (is_string($direction)) {
+            Assert::oneOf(
+                $direction,
+                [SortDirectionEnum::ASC->value, SortDirectionEnum::DESC->value],
+                sprintf(
+                    'Sort direction must be one of: %s.',
+                    implode(', ', [SortDirectionEnum::ASC->value, SortDirectionEnum::DESC->value])
+                )
+            );
+
+            $direction = SortDirectionEnum::from($direction);
+        }
         $clone->sort[$field] = $direction;
 
         return $clone;
