@@ -109,9 +109,13 @@ class CentreonAuthLDAP
                 // User resource error
                 return CentreonAuth::PASSWORD_INVALID;
             }
-
-            // LDAP fallback
-            return CentreonAuth::PASSWORD_CANNOT_BE_VERIFIED;
+            // User alias matches the contact alias but the user DN is different
+            // We have to update the user DN
+            $this->updateOK = $this->updateUserDn();
+            if ($this->updateOK = false){
+                // LDAP fallback
+                return CentreonAuth::PASSWORD_CANNOT_BE_VERIFIED;
+            }
         }
 
         if (empty(trim($this->contactInfos['contact_ldap_dn']))) {
