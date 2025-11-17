@@ -61,27 +61,19 @@ jobs:
               const package = await getPackageInformations();
               const existingPackageVersion = package['dist-tags'][tag];
 
-              let minorVersion = 0;
-
               if (existingPackageVersion) {
                 core.info(`Existing package version for tag ${tag}: ${existingPackageVersion}`);
-                if (process.env.STABILITY === 'unstable') {
-                  const matches = existingPackageVersion.match(new RegExp(`^${RegExp.escape(process.env.MAJOR_VERSION)}\\.(\\d+)$`));
-                  if (matches) {
-                    minorVersion = Number(matches[1]) + 1;
-                  }
-                  core.setOutput("package_version", `${process.env.MAJOR_VERSION}.${minorVersion}`);
-                } else {
-                  const matches = existingPackageVersion.match(new RegExp(`^${RegExp.escape(process.env.CURRENT_VERSION)}-${RegExp.escape(process.env.BRANCH_NAME)}\\.(\\d+)$`));
-                  if (matches) {
-                    minorVersion = Number(matches[1]) + 1;
-                  }
-                  core.setOutput("package_version", `${process.env.CURRENT_VERSION}-${process.env.BRANCH_NAME}.${minorVersion}`);
+              }
+
+              let minorVersion = 0;
+              if (process.env.STABILITY === 'unstable') {
+                while (`${process.env.MAJOR_VERSION}.${minorVersion}` in package.versions) {
+                  minorVersion++;
                 }
+                core.setOutput("package_version", `${process.env.MAJOR_VERSION}.${minorVersion}`);
               } else {
-                if (process.env.STABILITY === 'unstable') {
-                  core.setOutput("package_version", `${process.env.MAJOR_VERSION}.${minorVersion}`);
-                } else {
+                while (`${process.env.CURRENT_VERSION}-${process.env.BRANCH_NAME}.${minorVersion}` in package.versions) {
+                  minorVersion++;
                   core.setOutput("package_version", `${process.env.CURRENT_VERSION}-${process.env.BRANCH_NAME}.${minorVersion}`);
                 }
               }
