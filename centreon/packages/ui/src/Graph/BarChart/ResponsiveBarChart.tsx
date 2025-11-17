@@ -249,6 +249,7 @@ const ResponsiveBarChart = ({
       setLines={setLinesGraph}
       title={title}
       titleRef={titleRef}
+      graphHeight={graphHeight}
     >
       <Tooltip
         classes={{
