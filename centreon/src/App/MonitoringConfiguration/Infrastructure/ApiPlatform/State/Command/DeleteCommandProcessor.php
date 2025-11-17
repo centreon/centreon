@@ -59,8 +59,6 @@ final readonly class DeleteCommandProcessor implements ProcessorInterface
             updatedBy: $this->legacySecurity->getUserId(),
         );
 
-        // TODO Activity Log on command deletion
-
         $this->commandBus->execute($command);
     }
 }
