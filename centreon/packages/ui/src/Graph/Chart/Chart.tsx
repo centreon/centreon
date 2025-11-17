@@ -273,11 +273,13 @@ const Chart = ({
           header={header}
           height={height}
           legend={{
+            ...legend,
             displayLegend,
             legendHeight: legend?.height,
             mode: legend?.mode,
             placement: legend?.placement,
             renderExtraComponent: legend?.renderExtraComponent,
+            showCalculations: legend?.showCalculations,
             secondaryClick: legend?.secondaryClick
           }}
           legendRef={legendRef}
@@ -286,6 +288,7 @@ const Chart = ({
           setLines={setLinesGraph}
           title={title}
           titleRef={titleRef}
+          graphHeight={graphHeight}
         >
           <GraphValueTooltip
             baseAxis={baseAxis}

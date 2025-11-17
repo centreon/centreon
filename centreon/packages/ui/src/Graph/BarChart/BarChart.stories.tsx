@@ -1,5 +1,6 @@
 import { Meta, StoryObj } from '@storybook/react';
 import dayjs from 'dayjs';
+import '../../ThemeProvider/tailwindcss.css';
 
 import { LineChartData } from '../common/models';
 import dataPingService from '../mockedData/pingService.json';
@@ -45,6 +46,11 @@ export const withCenteredZero: Story = {
     ...defaultArgs,
     axis: {
       isCenteredZero: true
+    },
+    legend: {
+      showCalculations: { avg: true, max: false, min: false },
+      mode: 'grid',
+      placement: 'bottom'
     }
   },
   render: Template
@@ -307,6 +313,18 @@ export const stackKey: Story = {
   args: {
     ...defaultArgs,
     data: dataPingServiceStackeKey
+  },
+  render: Template
+};
+
+export const withControlledCalculations: Story = {
+  args: {
+    ...defaultArgs,
+    legend: {
+      showCalculations: { avg: true, max: false, min: false },
+      mode: 'grid',
+      placement: 'bottom'
+    }
   },
   render: Template
 };

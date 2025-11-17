@@ -69,6 +69,7 @@
     "symfony/messenger": "7.3.*",
     "symfony/mime": "7.3.*",
     "symfony/monolog-bundle": "3.10.*",
+    "symfony/process": "7.3.*",
     "symfony/property-info": "7.3.*",
     "symfony/routing": "7.3.*",
     "symfony/runtime": "7.3.*",
@@ -162,11 +163,15 @@
       "assets:install %PUBLIC_DIR%": "symfony-cmd"
     },
     "post-install-cmd": [
-      "@auto-scripts"
+      "@auto-scripts",
+      "@symfony:assets:install:new"
     ],
     "post-update-cmd": [
-      "@auto-scripts"
+      "@auto-scripts",
+      "@symfony:assets:install:new"
     ],
+    "symfony:assets:install": "bin/console assets:install www",
+    "symfony:assets:install:new": "bin/console.new assets:install www",
     "symfony:update": "composer update symfony/* --with-all-dependencies --no-scripts",
     "symfony:update:test": "composer update symfony/* --with-all-dependencies --no-scripts --dry-run",
     "require:check": "../php-tools/vendor/bin/composer-require-checker check composer.json",

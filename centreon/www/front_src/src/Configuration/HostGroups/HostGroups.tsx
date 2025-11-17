@@ -5,13 +5,24 @@ import ConfigurationBase from '../ConfigurationBase';
 import useColumns from './Columns/useColumns';
 
 import { defaultValues, useFormInputs, useValidationSchema } from './Form';
-import { defaultSelectedColumnIds, filtersInitialValues } from './utils';
+import {
+  columnsAtomKey,
+  defaultSelectedColumnIds,
+  filtersAtomKey,
+  filtersInitialValues
+} from './utils';
 
 import { useTranslation } from 'react-i18next';
 import { ResourceType } from '../models';
 
+import {
+  filtersAtom,
+  isWelcomePageDisplayedAtom,
+  selectedColumnIdsAtom
+} from './atoms';
 import useHostGroups from './useHostGroups';
 
+import { Filters } from './models';
 import {
   labelAddHostGroup,
   labelHostGroups,
@@ -31,7 +42,12 @@ const HostGroups = () => {
   const { api, filtersConfiguration } = useHostGroups();
 
   return (
-    <ConfigurationBase
+    <ConfigurationBase<Filters>
+      isWelcomePageDisplayedAtom={isWelcomePageDisplayedAtom}
+      filtersAtomKey={filtersAtomKey}
+      filtersAtom={filtersAtom}
+      columnsAtomKey={columnsAtomKey}
+      selectedColumnIdsAtom={selectedColumnIdsAtom}
       columns={columns}
       resourceType={ResourceType.HostGroup}
       form={{ inputs, groups, validationSchema, defaultValues }}

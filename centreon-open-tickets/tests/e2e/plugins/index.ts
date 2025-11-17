@@ -6,7 +6,7 @@
 import { execSync } from 'child_process';
 import Docker from 'dockerode';
 import { addCucumberPreprocessorPlugin } from '@badeball/cypress-cucumber-preprocessor';
-import webpackPreprocessor from '@cypress/webpack-preprocessor';
+import webpackPreprocessor from '@cypress/webpack-batteries-included-preprocessor';
 import { existsSync, mkdirSync } from 'fs';
 
 const excludeNodeModulesExceptCentreonUi =

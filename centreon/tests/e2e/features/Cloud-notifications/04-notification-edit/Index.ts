@@ -15,7 +15,7 @@ import {
   waitUntilLogFileChange
 } from '../common';
 
-const contactAfterEdit = 'Guest';
+const contactAfterEdit = 'guest';
 
 const editNotificationBody = { ...notificationBody };
 
