@@ -1,3 +1,4 @@
+export const labelClear = 'Clear';
 export const labelStatus = 'Status';
 export const labelCommands = 'Commands';
 export const labelWelcomePageTitle = 'Welcome to the Commands page';

@@ -32,28 +32,28 @@ const initialize = (): void => {
     manage_miscellaneous_commands: true
   });
 
-  cy.fixture('Commands/listCommands.json').then((connectors) => {
+  cy.fixture('Commands/listCommands.json').then((commands) => {
     cy.interceptAPIRequest({
       alias: 'getCommands',
       method: Method.GET,
       path: `**${commandsEndpoint}?**`,
-      response: connectors
+      response: commands
     });
   });
 
-  cy.fixture('Commands/commandDetails.json').then((connector) => {
+  cy.fixture('Commands/commandDetails.json').then((command) => {
     cy.interceptAPIRequest({
       alias: 'getCommand',
       method: Method.GET,
       path: `**${getCommandEndpoint({ id: 1 })}`,
-      response: connector
+      response: command
     });
 
     cy.interceptAPIRequest({
       alias: 'createCommand',
       method: Method.POST,
       path: `**${commandsEndpoint}**`,
-      response: connector
+      response: command
     });
   });
 
@@ -66,7 +66,7 @@ const initialize = (): void => {
 
   cy.fixture('Commands/listGlobalMacros.json').then((macro) => {
     cy.interceptAPIRequest({
-      alias: 'getCommand',
+      alias: 'listGlobalMacros',
       method: Method.GET,
       path: `**${globalMacrosEndpoint}?**`,
       response: macro
@@ -82,12 +82,12 @@ const initialize = (): void => {
     });
   });
 
-  cy.fixture('Commands/listInstalledPlugins.json').then((connector) => {
+  cy.fixture('Commands/listInstalledPlugins.json').then((macro) => {
     cy.interceptAPIRequest({
       alias: 'listInstalledPlugins',
       method: Method.GET,
       path: `**${pluginsEndpoint}?**`,
-      response: connector
+      response: macro
     });
   });
 

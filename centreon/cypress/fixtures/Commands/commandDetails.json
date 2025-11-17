@@ -3,10 +3,10 @@
 	"@id": "/centreon/api/latest/configuration/commands/7",
 	"@type": "Command",
 	"id": 7,
-	"name": "check_centreon_process",
+	"name": "check_host_alive",
 	"type": "Notification",
 	"command_line": "$USER1$/check_centreon_snmp_process -H $HOSTADDRESS$ -v $_HOSTSNMPVERSION$ -C $_HOSTSNMPCOMMUNITY$ -n -p $ARG1$ -w $ARG2$ -c $ARG3$",
-	"is_shell_enabled": false,
+	"is_shell_enabled": true,
 	"is_activated": true,
 	"is_locked": false,
 	"connector": {

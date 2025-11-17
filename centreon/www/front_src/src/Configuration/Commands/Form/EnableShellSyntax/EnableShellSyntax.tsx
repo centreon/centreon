@@ -34,6 +34,7 @@ const EnableShellSyntax = (): ReactElement => {
             color="success"
             checked={value}
             onChange={change}
+            data-testid="enable-shell-syntax"
           />
         }
         label={t(labelEnableShellSyntax)}

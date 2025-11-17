@@ -81,6 +81,7 @@ const CommandType = (): ReactElement => {
             disabled={!canEdit}
             label={t(name)}
             value={id}
+            name={name}
           />
         </Tooltip>
       ))}
