@@ -65,7 +65,7 @@ jobs:
 
               if (existingPackageVersion) {
                 core.info(`Existing package version for tag ${tag}: ${existingPackageVersion}`);
-                if (process.env.STABILITY === 'stable') {
+                if (process.env.STABILITY === 'unstable') {
                   const matches = existingPackageVersion.match(new RegExp(`^${RegExp.escape(process.env.MAJOR_VERSION)}\\.(\\d+)$`));
                   if (matches) {
                     minorVersion = Number(matches[1]) + 1;
@@ -79,7 +79,7 @@ jobs:
                   core.setOutput("package_version", `${process.env.CURRENT_VERSION}-${process.env.BRANCH_NAME}.${minorVersion}`);
                 }
               } else {
-                if (process.env.STABILITY === 'stable') {
+                if (process.env.STABILITY === 'unstable') {
                   core.setOutput("package_version", `${process.env.MAJOR_VERSION}.${minorVersion}`);
                 } else {
                   core.setOutput("package_version", `${process.env.CURRENT_VERSION}-${process.env.BRANCH_NAME}.${minorVersion}`);
