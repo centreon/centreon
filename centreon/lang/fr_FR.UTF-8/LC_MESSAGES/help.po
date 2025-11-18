@@ -2263,10 +2263,12 @@ msgstr ""
 "d'informations."
 
 #: centreon/www/include/Administration/parameters/backup/help.php
-msgid "MySQL configuration file path (i.e. /etc/my.cnf.d/centreon.cnf)"
+msgid "MySQL configuration file path (e.g. /etc/my.cnf.d/centreon.cnf);"
+"leave empty to use the default value."
 msgstr ""
-"Chemin d'accès au fichier de configuration MySQL (i.e. /etc/my.cnf.d/"
-"centreon.cnf)"
+"Chemin d'accès au fichier de configuration MySQL (par exemple : "
+"/etc/my.cnf.d/centreon.cnf) ; laisser vide pour utiliser la valeur par "
+"défaut."
 
 #: centreon/www/include/options/accessLists/groupsACL/help.php
 msgid "Name of access group."
