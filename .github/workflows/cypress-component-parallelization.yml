@@ -12,6 +12,10 @@ on:
       specs_path:
         required: true
         type: string
+      spec_extension:
+        required: false
+        type: string
+        default: ".cypress.spec.tsx"
       dependencies_lock_file:
         required: true
         type: string
