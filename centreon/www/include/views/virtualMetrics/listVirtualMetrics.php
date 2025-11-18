@@ -47,6 +47,8 @@ if ($search) {
     $queryValues['search'] = '%' . $search . '%';
 }
 
+$listResults =  [];
+$rows = 0;
 try {
     $listResults = $pearDB->fetchAllAssociative(
         <<<SQL
@@ -66,11 +68,11 @@ try {
             ),
         ]))
     );
+    $rows = (int) $pearDB->fetchOne('SELECT FOUND_ROWS()');
 } catch (ConnectionException $e) {
     echo 'DB Error : ' . $e->getMessage();
 }
 
-$rows = $pearDB->fetchOne('SELECT FOUND_ROWS()');
 
 include './include/common/checkPagination.php';
 
@@ -133,7 +135,7 @@ foreach ($listResults as $i => $vmetric) {
 
     if ($indd !== false) {
         try {
-            $hsrname = $peaarDB->fetchAssociative(
+            $hsrname = $pearDB->fetchAssociative(
                 <<<'SQL'
                     (SELECT concat(h.host_name,' > ',s.service_description) full_name
                     FROM host_service_relation AS hsr, host AS h, service AS s
