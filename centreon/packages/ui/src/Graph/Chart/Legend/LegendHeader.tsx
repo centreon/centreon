@@ -64,7 +64,7 @@ const LegendHeader = ({
       >
         <div className="flex items-center gap-1">
           <EllipsisTypography
-            className="text-xs leading-none font-medium"
+            className="text-xs leading-[1.2] font-medium"
             containerClassname={`w-auto ${(!isListMode || (isListMode && isDisplayedOnSide)) && 'max-w-[166px]'}`}
             data-mode={
               value ? LegendDisplayMode.Compact : LegendDisplayMode.Normal
