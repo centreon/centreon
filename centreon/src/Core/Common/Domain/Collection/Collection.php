@@ -193,6 +193,14 @@ abstract class Collection implements CollectionInterface
     /**
      * @return TItem[]
      */
+    public function toArray(): array
+    {
+        return $this->items;
+    }
+
+    /**
+     * @return TItem[]
+     */
     public function all(): array
     {
         return $this->items;

@@ -34,6 +34,10 @@
  *
  */
 
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\Enum\QueryParameterTypeEnum;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
+
 require_once _CENTREON_PATH_ . "/www/class/centreonDB.class.php";
 require_once _CENTREON_PATH_ . "/www/class/centreonGraphNg.class.php";
 require_once _CENTREON_PATH_ . "/www/class/centreonGraphService.class.php";
@@ -781,68 +785,101 @@ class CentreonMetric extends CentreonWebService
     /**
      * Get data for a service can be filtered by metric (new backend)
      *
-     * @param string $id     The service id like hostId_serviceId
-     * @param int    $metric The metric id
-     *
-     * @return array
+     * @param string $id The service id like hostId_serviceId
+     * @param int $metric The metric id
      *
      * @throws Exception
      * @throws RestBadRequestException
      * @throws RestForbiddenException
      * @throws RestNotFoundException
+     * @return array
      */
-    protected function serviceDatasNg($id, $metric = null)
+    protected function serviceDatasNg(string $id, ?int $metric = null)
     {
         global $centreon;
 
         $userId = $centreon->user->user_id;
         $isAdmin = $centreon->user->admin;
 
-        /* Get ACL if user is not admin */
-        if (!$isAdmin) {
-            $acl = new CentreonACL($userId, $isAdmin);
-            $aclGroups = $acl->getAccessGroupsString();
-        }
-
         if (
-            !isset($this->arguments['start']) || !is_numeric($this->arguments['start'])
-            || !isset($this->arguments['end']) || !is_numeric($this->arguments['end'])
+            ! isset($this->arguments['start']) || ! is_numeric($this->arguments['start'])
+            || ! isset($this->arguments['end']) || ! is_numeric($this->arguments['end'])
         ) {
-            throw new RestBadRequestException("Bad parameters");
+            throw new RestBadRequestException('Bad parameters');
         }
 
         $start = $this->arguments['start'];
         $end = $this->arguments['end'];
 
-        list($hostId, $serviceId) = explode('_', $id);
+        if (! preg_match('/^(\d+)_(\d+)$/', $id, $matches)) {
+            throw new RestBadRequestException('Bad parameters');
+        }
+
+        [, $hostId, $serviceId] = $matches;
+
         if (
-            !is_numeric($hostId) ||
-            !is_numeric($serviceId)
+            ! is_numeric($hostId)
+            || ! is_numeric($serviceId)
         ) {
-            throw new RestBadRequestException("Bad parameters");
+            throw new RestBadRequestException('Bad parameters');
         }
 
-        /* Check ACL is not admin */
-        if (!$isAdmin) {
-            $query = 'SELECT service_id ' .
-                'FROM centreon_acl ' .
-                'WHERE host_id = :hostId ' .
-                'AND service_id = :serviceId ' .
-                'AND group_id IN (' . $aclGroups . ')';
+        if (! $isAdmin) {
+            try {
+                $acl = new CentreonAclLazy($userId);
+                $accessGroups = $acl->getAccessGroups();
 
-            $stmt = $this->pearDBMonitoring->prepare($query);
-            $stmt->bindParam(':hostId', $hostId, \PDO::PARAM_INT);
-            $stmt->bindParam(':serviceId', $serviceId, \PDO::PARAM_INT);
-            $dbResult = $stmt->execute();
-            if (!$dbResult) {
-                throw new \Exception("An error occured");
-            }
-            if ($stmt->rowCount() === 0) {
-                throw new RestForbiddenException("Access denied");
+                if ($accessGroups->isEmpty()) {
+                    throw new RestForbiddenException('Access denied');
+                }
+
+                $queryParameters = [
+                    QueryParameter::int('serviceId', (int) $serviceId),
+                    QueryParameter::int('hostId', (int) $hostId),
+                ];
+
+                ['parameters' => $aclParameters, 'placeholderList' => $bindQuery] = createMultipleBindParameters(
+                    $accessGroups->getIds(),
+                    'access_group_id',
+                    QueryParameterTypeEnum::INTEGER,
+                );
+
+                $request = <<<SQL
+                        SELECT
+                            1 AS REALTIME,
+                            host_id
+                        FROM
+                            centreon_acl
+                        WHERE
+                            host_id = :hostId
+                            AND service_id = :serviceId
+                            AND group_id IN ({$bindQuery})
+                    SQL;
+
+                $result = $this->pearDBMonitoring->fetchAllAssociative(
+                    $request,
+                    QueryParameters::create([...$queryParameters, ...$aclParameters]),
+                );
+
+                if ($result === []) {
+                    throw new RestForbiddenException(sprintf('You are not allowed to see graphs for service identified by ID %d', $serviceId));
+                }
+            } catch (Exception $exception) {
+                CentreonLog::create()->error(
+                    logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
+                    message: 'Error fetching metrics data for service: ' . $exception->getMessage(),
+                    customContext: [
+                        'hostId' => $hostId,
+                        'serviceId' => $serviceId,
+                    ],
+                    exception: $exception
+                );
+
+                throw $exception;
             }
         }
 
-        /* Prepare graph */
+        // Prepare graph
         try {
             $graph = new CentreonGraphNg($userId);
             if (is_null($metric)) {
@@ -850,21 +887,29 @@ class CentreonMetric extends CentreonWebService
             } else {
                 $graph->addMetric($metric);
             }
-        } catch (Exception $e) {
-            throw new RestNotFoundException("Graph not found");
+        } catch (Exception $exception) {
+            CentreonLog::create()->error(
+                logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
+                message: sprintf('Graph not found for metric %s: %s', $metric ?? '', $exception->getMessage()),
+                exception: $exception
+            );
+
+            throw new RestNotFoundException('Graph not found');
         }
 
         $result = $graph->getGraph($this->arguments['start'], $this->arguments['end']);
 
-        /* Get extra information (downtime/acknowledgment) */
-        $result['acknowledge'] = array();
-        $result['downtime'] = array();
-        $query = 'SELECT `value` FROM `options` WHERE `key` = "display_downtime_chart"';
+        // Get extra information (downtime/acknowledgment)
+        $result['acknowledge'] = [];
+        $result['downtime'] = [];
 
-        $res = $this->pearDB->query($query);
+        $request = <<<'SQL'
+                SELECT `value` FROM `options` WHERE `key` = "display_downtime_chart"
+            SQL;
 
-        $row = $res->fetch();
-        if ($row && $row['value'] === '1') {
+        $record = $this->pearDB->fetchOne($request);
+
+        if ((int) $record === 1) {
             $result['acknowledge'] = $this->getAcknowlegePeriods($hostId, $serviceId, $start, $end);
             $result['downtime'] = $this->getDowntimePeriods($hostId, $serviceId, $start, $end);
         }

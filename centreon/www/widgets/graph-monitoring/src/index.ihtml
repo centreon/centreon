@@ -8,7 +8,6 @@
         <link href="../../include/common/javascript/charts/c3.min.css" rel="stylesheet">
     </head>
     <body>
-        {$servicePreferences}
         <!--<div id='graphMonitoringTable'></div>-->
         <div class="chart" data-graph-id="{$graphId}" data-graph-type="service"></div>
 

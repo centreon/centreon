@@ -34,6 +34,8 @@ require_once $centreon_path . 'www/class/centreonHostcategories.class.php';
 require_once $centreon_path . 'www/class/centreonService.class.php';
 require_once $centreon_path . 'www/class/centreonMedia.class.php';
 require_once $centreon_path . 'www/class/centreonCriticality.class.php';
+require_once $centreon_path . 'www/include/common/sqlCommonFunction.php';
+require_once $centreon_path . 'www/class/centreonAclLazy.class.php';
 
 $smartyDir = __DIR__ . '/../../../../vendor/smarty/smarty/';
 require_once $smartyDir . 'libs/Smarty.class.php';
@@ -419,11 +421,17 @@ if (isset($preferences["display_severities"]) &&
     $query .= " AND cv2.`value` IN ($idC) ";
 }
 
-if (!$centreon->user->admin) {
+if (! $centreon->user->admin) {
     $pearDB = $db;
-    $aclObj = new CentreonACL($centreon->user->user_id, $centreon->user->admin);
-    $groupList = $aclObj->getAccessGroupsString();
-    $query .= " AND h.host_id = acl.host_id AND acl.service_id = s.service_id AND acl.group_id IN ($groupList)";
+    $acls = new CentreonAclLazy($centreon->user->user_id);
+
+    if (! $acls->getAccessGroups()->isEmpty()) {
+        $groupList = implode(', ', $acls->getAccessGroups()->getIds());
+        $query .= " AND h.host_id = acl.host_id AND acl.service_id = s.service_id AND acl.group_id IN ({$groupList})";
+    } else {
+        // make the request return nothing if no ACL groups linked to the user
+        $query .= ' AND 1 = 0';
+    }
 }
 if (isset($preferences['output_search']) && $preferences['output_search'] != "") {
     $tab = explode(" ", $preferences['output_search']);
