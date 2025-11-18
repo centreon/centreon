@@ -17,5 +17,5 @@ export const filtersInitialValues: Filters = {
   type: []
 };
 
-export const filtersAtomKey = 'filters_commands';
-export const columnsAtomKey = 'columns_commands';
+export const filtersAtomKey = 'centreon-commands-filters-1';
+export const columnsAtomKey = 'centreon-commands-columns-1';
