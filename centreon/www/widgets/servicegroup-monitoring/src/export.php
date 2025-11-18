@@ -34,6 +34,11 @@
  *
  */
 
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\Enum\QueryParameterTypeEnum;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
+use Core\Security\AccessGroup\Domain\Collection\AccessGroupCollection;
+
 header('Content-type: application/csv');
 header('Content-Disposition: attachment; filename="servicegroups-monitoring.csv"');
 
@@ -44,15 +49,16 @@ require_once $centreon_path . 'www/class/centreonSession.class.php';
 require_once $centreon_path . 'www/class/centreonWidget.class.php';
 require_once $centreon_path . 'www/class/centreonDuration.class.php';
 require_once $centreon_path . 'www/class/centreonUtils.class.php';
-require_once $centreon_path . 'www/class/centreonACL.class.php';
 require_once $centreon_path . 'www/widgets/servicegroup-monitoring/src/class/ServicegroupMonitoring.class.php';
+require_once $centreon_path . 'www/include/common/sqlCommonFunction.php';
+require_once $centreon_path . 'www/class/centreonAclLazy.class.php';
 
 session_start();
 if (!isset($_SESSION['centreon']) || !isset($_REQUEST['widgetId'])) {
     exit;
 }
-$db = $dependencyInjector['configuration_db'];
-if (CentreonSession::checkSession(session_id(), $db) == 0) {
+$configurationDatabase = $dependencyInjector['configuration_db'];
+if (CentreonSession::checkSession(session_id(), $configurationDatabase) == 0) {
     exit;
 }
 
@@ -62,31 +68,54 @@ $template = SmartyBC::createSmartyTemplate($path, './');
 
 $centreon = $_SESSION['centreon'];
 $widgetId = $_REQUEST['widgetId'];
-$dbb = $dependencyInjector['realtime_db'];
-$widgetObj = new CentreonWidget($centreon, $db);
-$sgMonObj = new ServicegroupMonitoring($dbb);
+$realtimeDatabase = $dependencyInjector['realtime_db'];
+$widgetObj = new CentreonWidget($centreon, $configurationDatabase);
+$serviceGroupService = new ServicegroupMonitoring($realtimeDatabase);
 $preferences = $widgetObj->getWidgetPreferences($widgetId);
-$pearDB = $db;
-$aclObj = new CentreonACL($centreon->user->user_id, $centreon->user->admin);
 
-$hostStateLabels = array(
-    0 => "Up",
-    1 => "Down",
-    2 => "Unreachable",
-    4 => "Pending"
-);
+$hostStateLabels = [
+    0 => 'Up',
+    1 => 'Down',
+    2 => 'Unreachable',
+    4 => 'Pending',
+];
 
-$serviceStateLabels = array(
-    0 => "Ok",
-    1 => "Warning",
-    2 => "Critical",
-    3 => "Unknown",
-    4 => "Pending"
-);
+$serviceStateLabels = [
+    0 => 'Ok',
+    1 => 'Warning',
+    2 => 'Critical',
+    3 => 'Unknown',
+    4 => 'Pending',
+];
 
-$baseQuery = "FROM servicegroups ";
+$baseQuery = 'FROM servicegroups ';
+$queryParameters = [];
 
-$bindParams = [];
+$accessGroups = new AccessGroupCollection();
+
+if (! $centreon->user->admin) {
+    $acl = new CentreonAclLazy($centreon->user->user_id);
+    $accessGroups = $acl->getAccessGroups();
+
+    ['parameters' => $queryParameters, 'placeholderList' => $accessGroupList] = createMultipleBindParameters(
+        $accessGroups->getIds(),
+        'access_group',
+        QueryParameterTypeEnum::INTEGER
+    );
+
+    $configurationDatabaseName = $configurationDatabase->getConnectionConfig()->getDatabaseNameConfiguration();
+    $baseQuery .= <<<SQL
+            INNER JOIN {$configurationDatabaseName}.acl_resources_sg_relations arsr
+                ON servicegroups.servicegroup_id = arsr.sg_id
+            INNER JOIN {$configurationDatabaseName}.acl_resources res
+                ON arsr.acl_res_id = res.acl_res_id
+            INNER JOIN {$configurationDatabaseName}.acl_res_group_relations argr
+                ON res.acl_res_id = argr.acl_res_id
+            INNER JOIN {$configurationDatabaseName}.acl_groups ag
+                ON argr.acl_group_id = ag.acl_group_id
+            WHERE ag.acl_group_id IN ({$accessGroupList})
+        SQL;
+}
 
 if (isset($preferences['sg_name_search']) && trim($preferences['sg_name_search']) != "") {
     $tab = explode(" ", $preferences['sg_name_search']);
@@ -99,7 +128,7 @@ if (isset($preferences['sg_name_search']) && trim($preferences['sg_name_search']
             $baseQuery,
             "name " . CentreonUtils::operandToMysqlFormat($op) . " :search "
         );
-        $bindParams[':search'] = [$search, PDO::PARAM_STR];
+        $queryParameters[] = QueryParameter::string('search', $search);
     }
 }
 
@@ -109,7 +138,7 @@ if (! $centreon->user->admin) {
     $bindParams = array_merge($bindParams, $bindValues);
 }
 
-$orderBy = "name ASC";
+$orderBy = 'name ASC';
 
 $allowedOrderColumns = ['name'];
 
@@ -127,44 +156,32 @@ if (isset($preferences['order_by']) && trim($preferences['order_by']) !== '') {
 
 try {
     // Query to count total rows
-    $countQuery = "SELECT COUNT(*) " . $baseQuery;
-    if ($bindParams !== []) {
-        $countStatement = $dbb->prepareQuery($countQuery);
-        $dbb->executePreparedQuery($countStatement, $bindParams, true);
-    } else {
-        $countStatement = $dbb->executeQuery($countQuery);
-    }
-    $nbRows = (int) $dbb->fetchColumn($countStatement);
+    $countQuery = 'SELECT COUNT(DISTINCT servicegroups.servicegroup_id) ' . $baseQuery;
+    $nbRows = (int) $realtimeDatabase->fetchOne($countQuery, QueryParameters::create($queryParameters));
 
     // Main SELECT query
     $query = "SELECT DISTINCT 1 AS REALTIME, name, servicegroup_id " . $baseQuery;
     $query .= " ORDER BY $orderBy";
 
-    // Prepare the query
-    $statement = $dbb->prepareQuery($query);
-
-    // Execute the query
-    $dbb->executePreparedQuery($statement, $bindParams, true);
     $data = [];
     $detailMode = false;
     if (isset($preferences['enable_detailed_mode']) && $preferences['enable_detailed_mode']) {
         $detailMode = true;
     }
-    while ($row = $statement->fetch(PDO::FETCH_ASSOC)) {
+
+    foreach ($realtimeDatabase->iterateAssociative($query, QueryParameters::create($queryParameters)) as $row) {
         $data[$row['name']]['name'] = $row['name'];
 
-        $data[$row['name']]['host_state'] = $sgMonObj->getHostStates(
+        $data[$row['name']]['host_state'] = $serviceGroupService->getHostStates(
             $row['name'],
-            $centreon->user->admin,
-            $aclObj,
-            $preferences,
+            (int) $centreon->user->admin === 1,
+            $accessGroups,
             $detailMode
         );
-        $data[$row['name']]['service_state'] = $sgMonObj->getServiceStates(
+        $data[$row['name']]['service_state'] = $serviceGroupService->getServiceStates(
             $row['name'],
-            $centreon->user->admin,
-            $aclObj,
-            $preferences,
+            (int) $centreon->user->admin === 1,
+            $accessGroups,
             $detailMode
         );
     }
