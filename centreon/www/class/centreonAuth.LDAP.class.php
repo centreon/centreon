@@ -56,9 +56,6 @@ class CentreonAuthLDAP
     /** @var bool */
     protected $firstCheck = true;
 
-    /** @var bool */
-    protected $updateUserDnOK = true;
-
     /** @var int */
     protected $arId;
 
@@ -114,8 +111,8 @@ class CentreonAuthLDAP
             }
             // User alias matches the contact alias but the user DN is different
             // We have to update the user DN
-            $this->updateUserDnOK = $this->updateUserDn();
-            if ($this->updateUserDnOK === false){
+            $updateUserDnOK = $this->updateUserDn();
+            if ($updateUserDnOK === false) {
                 // LDAP fallback
                 return CentreonAuth::PASSWORD_CANNOT_BE_VERIFIED;
             }
