@@ -96,4 +96,30 @@ final class DbalActivityLogRepositoryTest extends KernelTestCase
         self::assertNull($this->repository->find(new ActivityLogId(mt_rand())));
         self::assertNotNull($this->repository->find($activityLog->id()));
     }
+
+    public function testCount(): void
+    {
+        $initialCount = $this->repository->count();
+
+        $activityLog = new ActivityLog(
+            id: null,
+            action: ActionEnum::Add,
+            actor: new Actor(
+                id: new ActorId(1),
+            ),
+            target: new Target(
+                id: new TargetId(1),
+                name: new TargetName('foo'),
+                type: TargetTypeEnum::ServiceCategory,
+            ),
+            performedAt: (new \DateTimeImmutable())->setTime(0, 0),
+            details: [],
+        );
+
+        $this->repository->add($activityLog);
+
+        $newCount = $this->repository->count();
+
+        self::assertSame($initialCount + 1, $newCount);
+    }
 }

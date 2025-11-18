@@ -27,5 +27,5 @@ enum ActionEnum: string
 {
     case Add = 'Add';
     case Update = 'Update';
-    case Remove = 'Remove';
+    case Delete = 'Delete';
 }

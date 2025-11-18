@@ -266,6 +266,20 @@ final readonly class DbalCommandRepository extends DbalRepository implements Com
         $qb->executeStatement();
     }
 
+    public function delete(Command $command): void
+    {
+        $commandId = $command->id();
+        Assert::isInstanceOf($commandId, CommandId::class);
+
+        $qb = $this->connection->createQueryBuilder();
+
+        $qb->delete(self::TABLE_NAME)
+            ->where('command_id = :id')
+            ->setParameter('id', $command->id()->value);
+
+        $qb->executeStatement();
+    }
+
     public function filterByCriteria(QueryBuilder $qb, CommandCriteria $criteria): void
     {
         if ($nameCriteria = $criteria->getNames()) {

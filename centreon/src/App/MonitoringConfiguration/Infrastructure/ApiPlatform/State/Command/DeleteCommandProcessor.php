@@ -1,0 +1,63 @@
+<?php
+
+/*
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * For more information : contact@centreon.com
+ *
+ */
+
+declare(strict_types=1);
+
+namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Command;
+
+use ApiPlatform\Metadata\Operation;
+use ApiPlatform\State\ProcessorInterface;
+use App\MonitoringConfiguration\Application\Command\DeleteCommandCommand;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandTypeEnum;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Command\CommandResource;
+use App\Shared\Application\Command\CommandBus;
+use App\Shared\Infrastructure\Legacy\LegacySecurity;
+use Webmozart\Assert\Assert;
+
+/**
+ * @implements ProcessorInterface<CommandResource, void>
+ */
+final readonly class DeleteCommandProcessor implements ProcessorInterface
+{
+    public function __construct(
+        private CommandBus $commandBus,
+        private LegacySecurity $legacySecurity,
+    ) {
+    }
+
+    public function process($data, Operation $operation, array $uriVariables = [], array $context = []): void
+    {
+        Assert::keyExists($uriVariables, 'id');
+        Assert::integer($uriVariables['id']);
+        $commandId = new CommandId($uriVariables['id']);
+
+        $type = CommandTypeEnum::fromName($data->type);
+
+        $command = new DeleteCommandCommand(
+            id: $commandId,
+            type: $type,
+            deletedBy: $this->legacySecurity->getUserId(),
+        );
+
+        $this->commandBus->execute($command);
+    }
+}
