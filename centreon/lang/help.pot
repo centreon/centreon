@@ -1738,8 +1738,9 @@ msgid ""
 msgstr ""
 
 #: centreon/www/include/Administration/parameters/backup/help.php
-msgid "MySQL configuration file path (e.g. /etc/my.cnf.d/centreon.cnf);"
-"leave empty to use the default value."
+msgid ""
+"MySQL configuration file path (e.g. /etc/my.cnf.d/centreon.cnf); leave empty "
+"to use the default value."
 msgstr ""
 
 #: centreon/www/include/options/accessLists/groupsACL/help.php
