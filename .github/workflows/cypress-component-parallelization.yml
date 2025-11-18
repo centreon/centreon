@@ -33,7 +33,7 @@ on:
 
 jobs:
   cypress-component-test-list:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     outputs:
       specs: ${{ steps.list-specs.outputs.specs }}
 
@@ -45,11 +45,11 @@ jobs:
         id: list-specs
         run: |
           cd ${{ inputs.module_name }}
-          echo "specs=$(find ${{ inputs.specs_path }} -type f -name "*.cypress.spec.tsx" -exec basename {} \; | sort | jq -R -s -c 'split("\n")[:-1]')" >> $GITHUB_OUTPUT
+          echo "specs=$(find ${{ inputs.specs_path }} -type f -name "*${{ inputs.spec_extension }}" -exec basename {} \; | sed -e "s/${{ inputs.spec_extension }}//" | sort | jq -R -s -c 'split("\n")[:-1]')" >> $GITHUB_OUTPUT
 
   cypress-component-test-run:
     needs: [cypress-component-test-list]
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
