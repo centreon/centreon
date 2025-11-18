@@ -29,6 +29,7 @@ use App\ActivityLogging\Domain\Aggregate\ActorId;
 use App\ActivityLogging\Domain\Factory\ActivityLogFactoryInterface;
 use App\ActivityLogging\Domain\Repository\ActivityLogRepository;
 use App\Shared\Domain\Aggregate\AggregateRoot;
+use App\Shared\Domain\Aggregate\AggregateRootId;
 use App\Shared\Domain\Event\AggregateCreated;
 use App\Shared\Domain\Event\AggregateDeleted;
 use App\Shared\Domain\Event\AggregateUpdated;
@@ -52,7 +53,7 @@ final readonly class LogActivityEventHandler
             throw new \LogicException(\sprintf('There is no "%s" for "%s", did you add a service with "activity_logging.activity_log_factory" tag?', ActivityLogFactoryInterface::class, $event->aggregate::class));
         }
 
-        /** @var ActivityLogFactoryInterface<AggregateRoot> $factory */
+        /** @var ActivityLogFactoryInterface<AggregateRoot<AggregateRootId>> $factory */
         $factory = $this->activityLogFactories->get($event->aggregate::class);
 
         $action = match (true) {

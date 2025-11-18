@@ -36,6 +36,7 @@ use App\MonitoringConfiguration\Domain\Repository\Criteria\CommandCriteria;
 use App\MonitoringConfiguration\Domain\Security\CommandActionEnum;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Command\ListCommandResource;
 use App\Shared\Domain\Repository\Paginator;
+use App\Shared\Infrastructure\ApiPlatform\State\SortAwareProviderTrait;
 use App\Shared\Infrastructure\TransformerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
@@ -45,6 +46,8 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
  */
 final readonly class ListCommandsProvider implements ProviderInterface
 {
+    use SortAwareProviderTrait;
+
     /**
      * @param TransformerInterface<Command,ListCommandResource> $transformer
      */
@@ -74,7 +77,7 @@ final readonly class ListCommandsProvider implements ProviderInterface
                 $allowedTypes[] = $commandType->name;
             }
         }
-        /** @var array{type?: string|array<string>, name?: array<string>|null, is_activated?: string}|null $filters */
+        /** @var array{type?: string|array<string>, name?: array<string>|null, is_activated?: string} $filters */
         $filters = $context['filters'] ?? [];
 
         // Filter allowed types by requested types
@@ -97,15 +100,23 @@ final readonly class ListCommandsProvider implements ProviderInterface
         $criteria = $this->handleTypeFilter($allowedTypes, $criteria);
         $criteria = $this->handleNameFilter($filters['name'] ?? null, $criteria);
         $criteria = $this->handleStatusFilter($filters['is_activated'] ?? null, $criteria);
+        $criteria = $this->handleSort($filters, $criteria);
 
         $commands = $this->commandRepository->findAll($criteria);
         $commandResources = [];
+        if (count($commands) > 0) {
+            $counts = $this->commandRepository->countLinkedResources(array_map(
+                fn (Command $command): CommandId => $command->id(),
+                iterator_to_array($commands)
+            ));
+        }
         foreach ($commands as $command) {
             /** @var CommandId $id */
             $id = $command->id();
-            $count = $this->commandRepository->countLinkedResources($id);
             $commandResource = $this->transformer->transform($command);
-            $commandResource->hydrateLinkedResourceCount($count);
+            if (isset($counts) && $counts !== []) {
+                $commandResource->hydrateLinkedResourceCount($counts[$id->value]);
+            }
             $commandResources[] = $commandResource;
         }
 

@@ -21,22 +21,19 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Domain\Aggregate\Connector;
+namespace App\Shared\Domain\Repository;
 
-use App\Shared\Domain\Aggregate\AggregateRoot;
-
-/**
- * @extends AggregateRoot<ConnectorId>
- */
-final class Connector extends AggregateRoot
+interface SortableCriteria
 {
-    public function __construct(
-        ConnectorId $id,
-        public readonly ConnectorName $name,
-        public readonly ConnectorCommandLine $commandLine,
-        public readonly ?ConnectorDescription $description,
-        public readonly bool $isActivated,
-    ) {
-        parent::__construct($id);
-    }
+    public function withSort(string $field, string|SortDirectionEnum $direction): static;
+
+    /**
+     * @return array<string, SortDirectionEnum>
+     */
+    public function getSort(): array;
+
+    /**
+     * @return array<string, string>
+     */
+    public function getFieldMapping(): array;
 }

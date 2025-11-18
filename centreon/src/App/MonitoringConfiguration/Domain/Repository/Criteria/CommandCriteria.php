@@ -24,10 +24,13 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Domain\Repository\Criteria;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandTypeEnum;
+use App\Shared\Domain\Repository\SortableCriteria;
+use App\Shared\Domain\Repository\SortableCriteriaTrait;
 use Webmozart\Assert\Assert;
 
-final class CommandCriteria
+final class CommandCriteria implements SortableCriteria
 {
+    use SortableCriteriaTrait;
     public const OPERATOR_EQUAL = 'eq';
     public const OPERATOR_LIKE = 'lk';
     public const ALLOWED_OPERATORS = [self::OPERATOR_EQUAL, self::OPERATOR_LIKE];
@@ -126,5 +129,13 @@ final class CommandCriteria
     public function getStatus(): ?bool
     {
         return $this->status;
+    }
+
+    public function getFieldMapping(): array
+    {
+        return [
+            'name' => 'command_name',
+            'type' => 'command_type',
+        ];
     }
 }

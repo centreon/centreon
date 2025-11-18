@@ -87,13 +87,18 @@ final class FakeCommandRepository implements CommandRepository
         throw new \RuntimeException('Not yet implemented');
     }
 
-    public function countLinkedResources(CommandId $commandId): CommandResourceCount
+    public function countLinkedResources(array $commandIds): array
     {
-        return new CommandResourceCount(
-            usedHosts: mt_rand(0, 10),
-            usedServices: mt_rand(0, 10),
-            usedHostTemplates: mt_rand(0, 10),
-            usedServiceTemplates: mt_rand(0, 10)
-        );
+        $results = [];
+        foreach ($commandIds as $commandId) {
+            $results[$commandId->value] = new CommandResourceCount(
+                usedHosts: mt_rand(0, 10),
+                usedServices: mt_rand(0, 10),
+                usedHostTemplates: mt_rand(0, 10),
+                usedServiceTemplates: mt_rand(0, 10)
+            );
+        }
+
+        return $results;
     }
 }
