@@ -2,8 +2,7 @@ import { useTranslation } from 'react-i18next';
 
 import { Column, ColumnType, truncate } from '@centreon/ui';
 
-import { equals } from 'ramda';
-import Name from './Name';
+import { equals, prop } from 'ramda';
 
 import {
   labelCommandLine,
@@ -21,12 +20,12 @@ const useColumns = (): {
   const columns = [
     {
       disablePadding: false,
-      Component: Name,
+      getFormattedString: prop('name'),
       id: 'name',
       label: t(labelName),
       sortField: 'name',
       sortable: true,
-      type: ColumnType.component
+      type: ColumnType.string
     },
     {
       type: ColumnType.string,

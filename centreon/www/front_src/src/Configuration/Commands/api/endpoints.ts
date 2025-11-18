@@ -9,7 +9,7 @@ export const globalMacrosEndpoint = '/configuration/global-macros';
 export const standardMacrosEndpoint = '/configuration/standard-macros';
 export const pluginsEndpoint = '/configuration/plugins';
 
-export const geListEndpoint =
+export const getListEndpoint =
   (baseEndpoint: string) =>
   ({ search, page }): string => {
     const customQueryParameters = search
@@ -32,9 +32,11 @@ export const geListEndpoint =
     });
   };
 
-export const getGlobalMacrosEndpoint = geListEndpoint(globalMacrosEndpoint);
-export const getStandardMacrosEndpoint = geListEndpoint(standardMacrosEndpoint);
-export const getPluginsEndpoint = geListEndpoint(pluginsEndpoint);
+export const getGlobalMacrosEndpoint = getListEndpoint(globalMacrosEndpoint);
+export const getStandardMacrosEndpoint = getListEndpoint(
+  standardMacrosEndpoint
+);
+export const getPluginsEndpoint = getListEndpoint(pluginsEndpoint);
 
 export const connectorsEndpoint = '/configuration/connectors';
 

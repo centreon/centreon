@@ -55,16 +55,14 @@ export const useCommandLine = (): UseCommandLineState => {
     setFieldValue('commandLine', newCommandLine);
 
     setTimeout(() => {
-      if (textFieldRef.current) {
-        textFieldRef.current.focus();
+      textFieldRef.current?.focus();
 
-        const newCursorPosition = cursorPosition + macro.length;
+      const newCursorPosition = cursorPosition + macro.length;
 
-        textFieldRef.current.setSelectionRange(
-          newCursorPosition,
-          newCursorPosition
-        );
-      }
+      textFieldRef.current?.setSelectionRange(
+        newCursorPosition,
+        newCursorPosition
+      );
     }, 0);
   };
 

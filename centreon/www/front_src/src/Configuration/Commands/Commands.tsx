@@ -1,3 +1,4 @@
+import { ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import ConfigurationBase from '../ConfigurationBase';
@@ -32,7 +33,7 @@ import {
   labelWelcomePageTitle
 } from './translatedLabels';
 
-const Commands = () => {
+const Commands = (): ReactElement => {
   const { t } = useTranslation();
 
   const { columns } = useColumns();
