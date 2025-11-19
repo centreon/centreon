@@ -24688,7 +24688,7 @@ msgid ""
 "How many duplications would you like to make?"
 msgstr ""
 "Vous êtes sur le point de dupliquer la commande <strong>{{ name }}</"
-"strong>. Combien de duplications souhaitez-vous effectuer ?"
+"strong>. Combien d'exemplaires souhaitez-vous créer ?"
 
 #: unknown
 msgid ""
