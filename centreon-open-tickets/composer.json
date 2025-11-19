@@ -46,9 +46,10 @@
       "*": "dist"
     },
     "allow-plugins": {
-      "symfony/flex": false,
+      "dealerdirect/phpcodesniffer-composer-installer": true,
       "pestphp/pest-plugin": true,
-      "dealerdirect/phpcodesniffer-composer-installer": true
+      "symfony/flex": false,
+      "symfony/runtime": false
     }
   },
   "scripts": {
