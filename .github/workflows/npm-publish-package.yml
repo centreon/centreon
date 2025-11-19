@@ -75,8 +75,8 @@ jobs:
               } else {
                 while (`${process.env.CURRENT_VERSION}-${process.env.BRANCH_NAME}.${minorVersion}` in package.versions) {
                   minorVersion++;
-                  core.setOutput("package_version", `${process.env.CURRENT_VERSION}-${process.env.BRANCH_NAME}.${minorVersion}`);
                 }
+                core.setOutput("package_version", `${process.env.CURRENT_VERSION}-${process.env.BRANCH_NAME}.${minorVersion}`);
               }
             } catch (error) {
               core.setFailed(error.message);
