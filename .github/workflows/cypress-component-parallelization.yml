@@ -113,6 +113,8 @@ jobs:
               echo "::warning::Following test was retried during execution: $testName (retries: $(jq ".$testName" $retriesFile))"
             done
             mv $retriesFile "${{ inputs.module_name }}/cypress/results/${{ matrix.spec }}-retries.json"
+          else
+            echo "No retries file found."
           fi
         shell: bash
 
