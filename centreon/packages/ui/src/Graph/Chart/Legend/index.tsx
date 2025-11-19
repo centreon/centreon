@@ -81,17 +81,17 @@ const MainLegend = ({
 
   const contextMenuClick =
     (metricId: number) =>
-    (event: MouseEvent): void => {
-      if (!secondaryClick) {
-        return;
-      }
-      event.preventDefault();
-      secondaryClick({
-        element: event.target,
-        metricId,
-        position: [event.pageX, event.pageY]
-      });
-    };
+      (event: MouseEvent): void => {
+        if (!secondaryClick) {
+          return;
+        }
+        event.preventDefault();
+        secondaryClick({
+          element: event.target,
+          metricId,
+          position: [event.pageX, event.pageY]
+        });
+      };
 
   const selectMetric = ({
     event,
@@ -124,7 +124,7 @@ const MainLegend = ({
       data-display-side={!equals(placement, 'bottom')}
     >
       <ul
-        className={`list-none flex gap-3 w-full ${!isListMode && equals(placement, 'bottom') && 'flex-wrap'} ${isListMode || !equals(placement, 'bottom') ? 'flex-col h-full w-fit' : ''} ${equals(placement, 'bottom') ? 'max-h-17' : 'max-h-0'}`}
+        className={`list-none flex gap-3 w-full overflow-x-hidden ${!isListMode && equals(placement, 'bottom') && 'flex-wrap'} ${isListMode || !equals(placement, 'bottom') ? 'flex-col h-full w-fit' : ''} ${equals(placement, 'bottom') ? 'max-h-17' : 'max-h-0'}`}
         style={{
           height: equals(placement, 'bottom') ? 'auto' : `${graphHeight}px`
         }}
@@ -155,7 +155,7 @@ const MainLegend = ({
 
           return (
             <li
-              className={`${!display ? 'text-text-disabled' : 'text-text-primary'} flex gap-1 ${toggable && 'cursor-pointer'}`}
+              className={`${!display ? 'text-text-disabled' : 'text-text-primary'} flex gap-1 ${toggable && 'cursor-pointer'} w-fit`}
               key={metric_id}
               onClick={(event): void => selectMetric({ event, metric_id })}
               onKeyUp={(event) =>
