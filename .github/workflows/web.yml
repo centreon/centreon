@@ -51,7 +51,7 @@ jobs:
 
       - name: Run nightly on a different maintenance branch depending on the day
         run: |
-          NIGHTLY_TARGETS=("dev-23.10.x" "dev-24.04.x" "dev-24.10.x" "dev-25.10.x")
+          NIGHTLY_TARGETS=("dev-24.04.x" "dev-24.10.x" "dev-25.10.x")
           TARGET_BRANCH=${NIGHTLY_TARGETS[$(( $(date +%u) - 1 ))]}
           if [[ -z "$TARGET_BRANCH" ]]; then
             echo "[INFO] - The target branch was not properly defined for that day (out-of-bounds array)."
