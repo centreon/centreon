@@ -1,19 +1,33 @@
-import { JSX } from 'react';
+import { SetStateAction } from 'jotai';
+import { Dispatch, JSX } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { MultiAutocompleteField } from '@centreon/ui';
 import { NamedEntity } from '../../../../../models';
 import useMultiAutocomplete from './useMultiAutocomplete';
 
-interface Props {
+interface Props<TFilters> {
   label: string;
   name: string;
   options: Array<NamedEntity>;
+  filters: TFilters;
+  setFilters: Dispatch<SetStateAction<TFilters>>;
 }
 
-const MultiAutocomplete = ({ label, name, options }: Props): JSX.Element => {
+const MultiAutocomplete = <TFilters,>({
+  label,
+  name,
+  options,
+  filters,
+  setFilters
+}: Props<TFilters>): JSX.Element => {
   const { t } = useTranslation();
-  const { value, change, deleteItem } = useMultiAutocomplete({ name });
+
+  const { value, change, deleteItem } = useMultiAutocomplete<TFilters>({
+    name,
+    filters,
+    setFilters
+  });
 
   return (
     <MultiAutocompleteField

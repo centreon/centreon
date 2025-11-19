@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
 
 import { Meta, StoryObj } from '@storybook/react';
+import '../../ThemeProvider/tailwindcss.css';
 
-import { Button } from '@mui/material';
+import { Button, Menu } from '@mui/material';
 import ButtonGroup from '@mui/material/ButtonGroup';
 import Switch from '@mui/material/Switch';
 import Tooltip from '@mui/material/Tooltip';
@@ -26,6 +27,7 @@ import dataPingService from '../mockedData/pingService.json';
 import dataPingServiceLinesBars from '../mockedData/pingServiceLinesBars.json';
 import dataPingServiceLinesBarsMixed from '../mockedData/pingServiceLinesBarsMixed.json';
 import dataPingServiceLinesBarsStacked from '../mockedData/pingServiceLinesBarsStacked.json';
+import dataPingServiceLinesStackKeys from '../mockedData/pingServiceWithStackedKeys.json';
 import dataZoomPreview from '../mockedData/zoomPreview.json';
 
 import { dateTimeFormat } from './common';
@@ -757,4 +759,65 @@ export const linesAndBarsMinMaxForUnit: Story = {
       data={dataPingServiceLinesBarsMixed as unknown as LineChartData}
     />
   )
+};
+
+const LegendSecondaryClick = (args) => {
+  const [anchor, setAnchor] = useState<EventTarget | null>(null);
+
+  return (
+    <>
+      <WrapperChart
+        {...args}
+        legend={{
+          secondaryClick: ({ element }) => setAnchor(element)
+        }}
+      />
+      <Menu
+        anchorEl={anchor}
+        open={Boolean(anchor)}
+        onClose={() => setAnchor(null)}
+      >
+        menu
+      </Menu>
+    </>
+  );
+};
+
+export const withLegendSecondaryClick: Story = {
+  argTypes,
+  args: argumentsData,
+  render: (args) => (
+    <LegendSecondaryClick
+      {...args}
+      data={dataPingService as unknown as LineChartData}
+    />
+  )
+};
+
+export const stackedKey: Story = {
+  argTypes,
+  args: {
+    ...argumentsData,
+    data: dataPingServiceLinesStackKeys
+  }
+};
+
+export const WithControlledCalculations: Story = {
+  ...Template,
+  argTypes,
+  args: {
+    ...argumentsData,
+    lineStyle: {
+      curve: 'step'
+    },
+    legend: {
+      mode: 'grid',
+      placement: 'bottom',
+      showCalculations: {
+        avg: true,
+        max: true,
+        min: false
+      }
+    }
+  }
 };

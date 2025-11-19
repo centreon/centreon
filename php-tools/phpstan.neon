@@ -10,6 +10,7 @@ parameters:
     paths:
         - phpstan
         - php-cs-fixer
+        - rector
 
     scanDirectories:
         - ../centreon/src/App/Shared/

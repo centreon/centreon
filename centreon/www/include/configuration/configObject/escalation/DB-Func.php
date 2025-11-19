@@ -225,7 +225,9 @@ function insertEscalationInDB(): ?int
  */
 function insertEscalation(CentreonDB $pearDB, array $data, bool $logAction = true): ?int
 {
-    $data = array_map('myDecode', $data);
+    $data['esc_name'] = HtmlSanitizer::createFromString($data['esc_name'])->sanitize()->getString();
+    $data['esc_alias'] = HtmlSanitizer::createFromString($data['esc_alias'])->sanitize()->getString();
+    $data['esc_comment'] = HtmlSanitizer::createFromString($data['esc_comment'])->sanitize()->getString();
 
     $query = 'INSERT INTO escalation (
             esc_name, esc_alias, first_notification, last_notification, notification_interval,
@@ -298,7 +300,9 @@ function insertEscalation(CentreonDB $pearDB, array $data, bool $logAction = tru
  */
 function updateEscalation(CentreonDB $pearDB, array $data, int $escalationId): void
 {
-    $data = array_map('myDecode', $data);
+    $data['esc_name'] = HtmlSanitizer::createFromString($data['esc_name'])->sanitize()->getString();
+    $data['esc_alias'] = HtmlSanitizer::createFromString($data['esc_alias'])->sanitize()->getString();
+    $data['esc_comment'] = HtmlSanitizer::createFromString($data['esc_comment'])->sanitize()->getString();
 
     $query = 'UPDATE escalation SET
         esc_name = :esc_name,

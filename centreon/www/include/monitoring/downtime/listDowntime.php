@@ -213,10 +213,22 @@ if ($canViewAll === false) {
 
 $serviceQuery = <<<SQL
     SELECT SQL_CALC_FOUND_ROWS DISTINCT
-        1 AS REALTIME, d.internal_id as internal_downtime_id, d.entry_time, duration,
-        d.author as author_name, d.comment_data, d.fixed as is_fixed, d.start_time as scheduled_start_time,
-        d.end_time as scheduled_end_time, d.started as was_started, d.host_id, d.service_id, h.name as host_name,
-        s.display_name as service_description {$extraFields}
+        1 AS REALTIME,
+        d.internal_id as internal_downtime_id,
+        d.entry_time,
+        duration,
+        d.author as author_name,
+        d.comment_data,
+        d.fixed as is_fixed,
+        d.start_time as scheduled_start_time,
+        d.end_time as scheduled_end_time,
+        d.started as was_started,
+        d.host_id,
+        d.service_id,
+        h.name as host_name,
+        s.description as service_description,
+        s.display_name as display_name
+        {$extraFields}
     FROM downtimes d
     INNER JOIN services s
         ON d.host_id = s.host_id
@@ -238,7 +250,7 @@ $hostQuery = <<<SQL
         1 AS REALTIME, d.internal_id as internal_downtime_id, d.entry_time, duration,
         d.author as author_name, d.comment_data, d.fixed as is_fixed, d.start_time as scheduled_start_time,
         d.end_time as scheduled_end_time, d.started as was_started, d.host_id, d.service_id, h.name as host_name,
-        '' as service_description {$extraFields}
+        '' as service_description, '' as display_name {$extraFields}
     FROM downtimes d
     INNER JOIN hosts h
         ON d.host_id = h.host_id
@@ -300,7 +312,11 @@ for ($i = 0; ($data = $pearDBO->fetch($downtimesStatement)) !== false; $i++) {
                 $data['host_id'],
                 $data['service_id']
             );
-            $tab_downtime_svc[$i]['service_description'] = $data['service_description'];
+
+            $tab_downtime_svc[$i]['service_description'] = preg_match('/_Module_Meta/', $data['host_name'])
+                ? $data['display_name']
+                : $data['service_description'];
+
             $tab_downtime_svc[$i]['downtime_type'] = 'SVC';
         } else {
             $tab_downtime_svc[$i]['service_description'] = '-';

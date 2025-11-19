@@ -114,7 +114,7 @@ class InputRrd
                 'grp_level' => '0',
             ],
             [
-                'config_key' => 'negociation',
+                'config_key' => 'negotiation',
                 'config_value' => 'yes',
                 'config_group' => 'input',
                 'config_group_id' => '0',

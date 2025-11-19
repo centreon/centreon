@@ -450,10 +450,12 @@ overrides:
       - php-zip
       - php-pear
       - php-json
+      - php-process
       - openssl
       - perl-DBD-MySQL
       - perl-DBI
       - perl-HTML-Parser
+      - perl(File::Which)
       - perl(Net::SNMP)
       - rrdtool
       - rrdtool-perl
@@ -507,6 +509,8 @@ overrides:
       - centreon-widget-servicegroup-monitoring
       - centreon-widget-single-metric
       - centreon-widget-tactical-overview
+    recommends:
+      - logrotate
 
   deb:
     depends:
@@ -517,27 +521,11 @@ overrides:
       - centreon-poller (= ${VERSION}-${RELEASE}${DIST})
       - "centreon-broker-cbd (>= ${MAJOR_VERSION}~)"
       - "centreon-broker-cbd (<< ${NEXT_MAJOR_VERSION}~)"
+      - libfile-which-perl
       - lsb-release
       - "mariadb-client | mysql-client"
       - cron
       - apache2
-      - php8.2
-      - php8.2-cli
-      - php8.2-fpm
-      - php8.2-curl
-      - php8.2-intl
-      - php8.2-xml
-      - php8.2-dom
-      - php8.2-gd
-      - php8.2-mbstring
-      - php8.2-xml
-      - php8.2-mysql
-      - php8.2-zip
-      - php8.2-snmp
-      - php8.2-ldap
-      - php8.2-readline
-      - php8.2-sqlite3
-      - php-pear
       - rrdtool
       - locales
       - gettext
@@ -595,13 +583,35 @@ overrides:
       - centreon-widget-servicegroup-monitoring
       - centreon-widget-single-metric
       - centreon-widget-tactical-overview
+    recommends:
+      - logrotate
 
 rpm:
   summary: Centreon WebUI
   compression: zstd
+  scripts:
+    posttrans: ./scripts/centreon-web-posttrans.sh
   signature:
     key_file: ${RPM_SIGNING_KEY_FILE}
     key_id: ${RPM_SIGNING_KEY_ID}
 
 deb:
   compression: zstd
+  predepends:
+    - php8.2
+    - php8.2-cli
+    - php8.2-fpm
+    - php8.2-curl
+    - php8.2-intl
+    - php8.2-xml
+    - php8.2-dom
+    - php8.2-gd
+    - php8.2-mbstring
+    - php8.2-xml
+    - php8.2-mysql
+    - php8.2-zip
+    - php8.2-snmp
+    - php8.2-ldap
+    - php8.2-readline
+    - php8.2-sqlite3
+    - php-pear

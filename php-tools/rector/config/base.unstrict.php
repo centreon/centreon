@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 use Rector\Config\RectorConfig;
 
+/** @var array<class-string<Rector\Contract\Rector\RectorInterface>> $rectorRules */
 $rectorRules = require_once __DIR__ . '/rules.unstrict.php';
 
 return RectorConfig::configure()

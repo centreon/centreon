@@ -18,6 +18,7 @@ import { args as argumentsData } from './helpers/doc';
 import { LineChartProps } from './models';
 
 import WrapperChart from '.';
+import { labelAvg, labelMin } from './translatedLabels';
 
 interface Props
   extends Pick<
@@ -153,7 +154,7 @@ const initializeCustomUnits = ({
 const checkGraphWidth = (): void => {
   cy.findByTestId('graph-interaction-zone')
     .should('have.attr', 'height')
-    .and('equal', '376');
+    .and('equal', '392');
 
   cy.findByTestId('graph-interaction-zone').then((graph) => {
     expect(Number(graph[0].attributes.width.value)).to.be.greaterThan(1170);
@@ -175,12 +176,12 @@ describe('Line chart', () => {
       cy.contains('connTime').should('be.visible');
       cy.contains('Min: 70.31').should('be.visible');
 
-      cy.findByTestId('graph-interaction-zone').realMouseMove(250, 70);
+      cy.findByTestId('graph-interaction-zone').realMouseMove(240, 70);
 
       cy.contains('06/18/2023').should('be.visible');
 
       cy.contains('0.4 s').should('be.visible');
-       cy.contains('75.64%').should('be.visible');
+      cy.contains('73.65%').should('be.visible');
 
       cy.makeSnapshot();
     });
@@ -295,23 +296,23 @@ describe('Line chart', () => {
       .should('have.attr', 'width')
       .and('equal', '1200');
 
-    cy.findByLabelText('Centreon-Server: Round-Trip Average Time')
-      .find('[data-icon="true"]')
+    cy.get('[data-icon="true"]')
+      .eq(0)
       .should('have.css', 'background-color', 'rgb(41, 175, 238)');
-    cy.findByLabelText('Centreon-Server_5: Round-Trip Average Time')
-      .find('[data-icon="true"]')
+    cy.get('[data-icon="true"]')
+      .eq(1)
       .should('have.css', 'background-color', 'rgb(83, 191, 241)');
-    cy.findByLabelText('Centreon-Server_4: Round-Trip Average Time')
-      .find('[data-icon="true"]')
+    cy.get('[data-icon="true"]')
+      .eq(2)
       .should('have.css', 'background-color', 'rgb(8, 34, 47)');
-    cy.findByLabelText('Centreon-Server_3: Round-Trip Average Time')
-      .find('[data-icon="true"]')
+    cy.get('[data-icon="true"]')
+      .eq(3)
       .should('have.css', 'background-color', 'rgb(16, 70, 95)');
-    cy.findByLabelText('Centreon-Server_2: Round-Trip Average Time')
-      .find('[data-icon="true"]')
+    cy.get('[data-icon="true"]')
+      .eq(4)
       .should('have.css', 'background-color', 'rgb(24, 105, 142)');
-    cy.findByLabelText('Centreon-Server_1: Round-Trip Average Time')
-      .find('[data-icon="true"]')
+    cy.get('[data-icon="true"]')
+      .eq(5)
       .should('have.css', 'background-color', 'rgb(32, 140, 190)');
 
     cy.get('[data-metric="1"]').should(
@@ -451,7 +452,7 @@ describe('Line chart', () => {
 
       cy.contains(':00 AM').should('be.visible');
 
-      cy.get('text[transform="rotate(-35, -2, 274.47726401277305)"]').should(
+      cy.get('text[transform="rotate(-35, -2, 187.52600691899028)"]').should(
         'be.visible'
       );
 
@@ -532,8 +533,8 @@ describe('Line chart', () => {
 
       checkGraphWidth();
       cy.contains(':00 AM').should('be.visible');
-      cy.get('circle[cx="250.83333333333334"]').should('be.visible');
-      cy.get('circle[cy="251.79089393069725"]').should('be.visible');
+      cy.get('circle[cx="248.33333333333334"]').should('be.visible');
+      cy.get('circle[cy="267.9948393443889"]').should('be.visible');
 
       cy.makeSnapshot();
     });
@@ -591,7 +592,7 @@ describe('Line chart', () => {
       cy.get('path.visx-area-closed')
         .should('have.attr', 'stroke-dasharray')
         .and('equals', '5 4');
-      cy.get('circle[cx="33.44444444444444"]').should('be.visible');
+      cy.get('circle[cx="33.11111111111111"]').should('be.visible');
 
       cy.makeSnapshot();
     });
@@ -746,9 +747,11 @@ describe('Lines and bars', () => {
 
     checkGraphWidth();
 
-    cy.get('path[d="M7.501377410468319,350.5553648585503 h56.51239669421488 h1v1 v23.44463514144968 a1,1 0 0 1 -1,1 h-56.51239669421488 a1,1 0 0 1 -1,-1 v-23.44463514144968 v-1h1z"]'
+    cy.get(
+      'path[d="M7.501377410468319,289.92398616599974 h56.51239669421488 h1v1 v100.07601383400026 a1,1 0 0 1 -1,1 h-56.51239669421488 a1,1 0 0 1 -1,-1 v-100.07601383400026 v-1h1z"]'
     ).should('be.visible');
-    cy.get('path[d="M24.05509641873278,201.58170928199803 h23.404958677685954 a17.553719008264462,17.553719008264462 0 0 1 17.553719008264462,17.553719008264462 v113.86621756002336 v17.553719008264462h-17.553719008264462 h-23.404958677685954 h-17.553719008264462v-17.553719008264462 v-113.86621756002336 a17.553719008264462,17.553719008264462 0 0 1 17.553719008264462,-17.553719008264462z"]'
+    cy.get(
+      'path[d="M24.05509641873278,73.57899638721061 h23.404958677685954 a17.553719008264462,17.553719008264462 0 0 1 17.553719008264462,17.553719008264462 v137.44495707537567 v17.553719008264462h-17.553719008264462 h-23.404958677685954 h-17.553719008264462v-17.553719008264462 v-137.44495707537567 a17.553719008264462,17.553719008264462 0 0 1 17.553719008264462,-17.553719008264462z"]'
     ).should('be.visible');
 
     cy.makeSnapshot();
@@ -813,5 +816,41 @@ describe('Lines and bars', () => {
     cy.contains('2%').should('be.visible');
 
     cy.makeSnapshot();
+  });
+
+  it('calls the secondary function when a metric is clicked in the legend', () => {
+    const secondaryClick = cy.stub().as('secondaryClick');
+    initialize({
+      data: dataPingServiceLines,
+      legend: {
+        mode: 'grid',
+        placement: 'bottom',
+        secondaryClick
+      }
+    });
+
+    checkGraphWidth();
+
+    cy.contains('Packet Loss').rightclick();
+    cy.get('@secondaryClick').should('have.been.called');
+  });
+
+  it('does not displays corresponding calculations when props are set', () => {
+    initialize({
+      data: dataPingServiceLines,
+      legend: {
+        placement: 'bottom',
+        mode: 'grid',
+        showCalculations: {
+          min: true,
+          max: false,
+          avg: false
+        }
+      }
+    });
+
+    cy.contains(labelMin).should('be.visible');
+    cy.contains(/^Max$/).should('not.exist');
+    cy.contains(labelAvg).should('not.exist');
   });
 });

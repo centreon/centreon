@@ -349,30 +349,26 @@ class PartEngine
             $dbResult = $db->query(
                 "SHOW VARIABLES WHERE Variable_name LIKE 'version%'"
             );
-            $dbType = null;
-            $dbVersion = null;
+            $versionName = null;
+            $versionNumber = null;
             while ($row = $dbResult->fetch()) {
                 switch ($row['Variable_name']) {
                     case 'version_comment':
-                        $dbType = $row['Value'];
+                        $versionName = $row['Value'];
                         break;
                     case 'version':
-                        $dbVersion = $row['Value'];
+                        $versionNumber = $row['Value'];
                         break;
                 }
             }
             $dbResult->closeCursor();
 
-            if (
-                (
-                    stristr($dbType, 'MySQL')
-                    || stristr($dbType, 'Source distribution')
-                    || stristr($dbType, 'Percona Server')
-                )
-                && (version_compare($dbVersion, '8.0.0', '>='))
-            ) {
-                unset($config, $row);
-
+            $dbType = match ($versionName) {
+                'MariaDB' => 'mariadb',
+                'MySQL','Source distribution','Percona Server' => 'mysql',
+                default => (($versionNumber === null || version_compare($versionNumber, '10.5.0', '>=')) ? 'mariadb' : 'mysql'),
+            };
+            if ($dbType === 'mysql') {
                 return true;
             }
         }
