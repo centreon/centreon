@@ -24622,7 +24622,7 @@ msgid "Command type"
 msgstr "Type de commande"
 
 msgid "Enable shell syntax"
-msgstr "Activer la syntaxe du shell"
+msgstr "Activer la syntaxe shell"
 
 msgid "Select an optimization connector"
 msgstr "Sélectionner un connecteur d'optimisation"
