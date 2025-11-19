@@ -24677,7 +24677,7 @@ msgid "Check "
 msgstr "Contrôle"
 
 msgid "Delete command"
-msgstr "Supprimer la command"
+msgstr "Supprimer la commande"
 
 msgid "Duplicate command"
 msgstr "Dupliquer la commande"
