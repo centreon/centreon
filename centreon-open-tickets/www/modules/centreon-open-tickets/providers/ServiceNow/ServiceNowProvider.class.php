@@ -682,7 +682,7 @@ class ServiceNowProvider extends AbstractProvider
      */
     protected function getListSysUser($params, $accessToken)
     {
-        $uri = '/api/now/table/sys_user?sysparm_fields=sys_id,active,name';
+        $uri = '/api/now/table/sys_user?sysparm_fields=sys_id,active,name&sysparm_query=active%3Dtrue';
         $result = $this->runHttpRequest($uri, $accessToken);
 
         $selected = array();
@@ -691,13 +691,11 @@ class ServiceNowProvider extends AbstractProvider
                 $entry['value'] = $entry['label'];
             }
 
-            if ($entry['active'] === 'true') {
-                if (!isset($params['Filter']) || is_null($params['Filter']) || $params['Filter'] == '') {
-                    $selected[$entry['sys_id']] = $entry['name'];
-                }
-                if (preg_match('/' . $params['Filter'] . '/', $entry['name'])) {
-                    $selected[$entry['sys_id']] = $entry['name'];
-                }
+            if (!isset($params['Filter']) || is_null($params['Filter']) || $params['Filter'] == '') {
+                $selected[$entry['sys_id']] = $entry['name'];
+            }
+            if (preg_match('/' . $params['Filter'] . '/', $entry['name'])) {
+                $selected[$entry['sys_id']] = $entry['name'];
             }
         }
 
@@ -713,7 +711,7 @@ class ServiceNowProvider extends AbstractProvider
      */
     protected function getListSysUserGroup($params, $accessToken)
     {
-        $uri = '/api/now/table/sys_user_group?sysparm_fields=sys_id,active,name';
+        $uri = '/api/now/table/sys_user_group?sysparm_fields=sys_id,active,name&sysparm_query=active%3Dtrue';
         $result = $this->runHttpRequest($uri, $accessToken);
 
         $selected = array();
@@ -722,13 +720,11 @@ class ServiceNowProvider extends AbstractProvider
                 $entry['value'] = $entry['label'];
             }
 
-            if ($entry['active'] === 'true') {
-                if (!isset($params['Filter']) || is_null($params['Filter']) || $params['Filter'] == '') {
-                    $selected[$entry['sys_id']] = $entry['name'];
-                }
-                if (preg_match('/' . $params['Filter'] . '/', $entry['name'])) {
-                    $selected[$entry['sys_id']] = $entry['name'];
-                }
+            if (!isset($params['Filter']) || is_null($params['Filter']) || $params['Filter'] == '') {
+                $selected[$entry['sys_id']] = $entry['name'];
+            }
+            if (preg_match('/' . $params['Filter'] . '/', $entry['name'])) {
+                $selected[$entry['sys_id']] = $entry['name'];
             }
         }
 
@@ -745,7 +741,7 @@ class ServiceNowProvider extends AbstractProvider
     protected function getListImpact($params, $accessToken)
     {
         $uri = '/api/now/table/sys_choice?sysparm_fields=value,label,inactive' .
-            '&sysparm_query=nameSTARTSWITHtask%5EelementSTARTSWITHimpact';
+            '&sysparm_query=nameSTARTSWITHtask%5EelementSTARTSWITHimpact%5Einactive%3Dfalse';
         $result = $this->runHttpRequest($uri, $accessToken);
 
         $selected = array();
@@ -754,13 +750,11 @@ class ServiceNowProvider extends AbstractProvider
                 $entry['value'] = $entry['label'];
             }
 
-            if ($entry['inactive'] === 'false') {
-                if (!isset($params['Filter']) || is_null($params['Filter']) || $params['Filter'] == '') {
-                    $selected[$entry['value']] = $entry['label'];
-                }
-                if (preg_match('/' . $params['Filter'] . '/', $entry['label'])) {
-                    $selected[$entry['value']] = $entry['label'];
-                }
+            if (!isset($params['Filter']) || is_null($params['Filter']) || $params['Filter'] == '') {
+                $selected[$entry['value']] = $entry['label'];
+            }
+            if (preg_match('/' . $params['Filter'] . '/', $entry['label'])) {
+                $selected[$entry['value']] = $entry['label'];
             }
         }
 
@@ -777,7 +771,7 @@ class ServiceNowProvider extends AbstractProvider
     protected function getListUrgency($params, $accessToken)
     {
         $uri = '/api/now/table/sys_choice?sysparm_fields=value,label,inactive' .
-            '&sysparm_query=nameSTARTSWITHincident%5EelementSTARTSWITHurgency';
+            '&sysparm_query=nameSTARTSWITHincident%5EelementSTARTSWITHurgency%5Einactive%3Dfalse';
         $result = $this->runHttpRequest($uri, $accessToken);
 
         $selected = array();
@@ -786,13 +780,11 @@ class ServiceNowProvider extends AbstractProvider
                 $entry['value'] = $entry['label'];
             }
 
-            if ($entry['inactive'] === 'false') {
-                if (!isset($params['Filter']) || is_null($params['Filter']) || $params['Filter'] == '') {
-                    $selected[$entry['value']] = $entry['label'];
-                }
-                if (preg_match('/' . $params['Filter'] . '/', $entry['label'])) {
-                    $selected[$entry['value']] = $entry['label'];
-                }
+            if (!isset($params['Filter']) || is_null($params['Filter']) || $params['Filter'] == '') {
+                $selected[$entry['value']] = $entry['label'];
+            }
+            if (preg_match('/' . $params['Filter'] . '/', $entry['label'])) {
+                $selected[$entry['value']] = $entry['label'];
             }
         }
 
@@ -809,7 +801,7 @@ class ServiceNowProvider extends AbstractProvider
     protected function getListSeverity($params, $accessToken)
     {
         $uri = '/api/now/table/sys_choice?sysparm_fields=value,label,inactive' .
-            '&sysparm_query=nameSTARTSWITHincident%5EelementSTARTSWITHseverity';
+            '&sysparm_query=nameSTARTSWITHincident%5EelementSTARTSWITHseverity%5Einactive%3Dfalse';
         $result = $this->runHttpRequest($uri, $accessToken);
 
         $selected = array();
@@ -818,13 +810,11 @@ class ServiceNowProvider extends AbstractProvider
                 $entry['value'] = $entry['label'];
             }
 
-            if ($entry['inactive'] === 'false') {
-                if (!isset($params['Filter']) || is_null($params['Filter']) || $params['Filter'] == '') {
-                    $selected[$entry['value']] = $entry['label'];
-                }
-                if (preg_match('/' . $params['Filter'] . '/', $entry['label'])) {
-                    $selected[$entry['value']] = $entry['label'];
-                }
+            if (!isset($params['Filter']) || is_null($params['Filter']) || $params['Filter'] == '') {
+                $selected[$entry['value']] = $entry['label'];
+            }
+            if (preg_match('/' . $params['Filter'] . '/', $entry['label'])) {
+                $selected[$entry['value']] = $entry['label'];
             }
         }
 
@@ -841,7 +831,7 @@ class ServiceNowProvider extends AbstractProvider
     protected function getListCategory($params, $accessToken)
     {
         $uri = '/api/now/table/sys_choice?sysparm_fields=value,label,inactive' .
-            '&sysparm_query=nameSTARTSWITHincident%5EelementSTARTSWITHcategory';
+            '&sysparm_query=nameSTARTSWITHincident%5EelementSTARTSWITHcategory%5Einactive%3Dfalse';
         $result = $this->runHttpRequest($uri, $accessToken);
 
         $selected = array();
@@ -850,13 +840,11 @@ class ServiceNowProvider extends AbstractProvider
                 $entry['value'] = $entry['label'];
             }
 
-            if ($entry['inactive'] === 'false') {
-                if (!isset($params['Filter']) || is_null($params['Filter']) || $params['Filter'] == '') {
-                    $selected[$entry['value']] = $entry['label'];
-                }
-                if (preg_match('/' . $params['Filter'] . '/', $entry['label'])) {
-                    $selected[$entry['value']] = $entry['label'];
-                }
+            if (!isset($params['Filter']) || is_null($params['Filter']) || $params['Filter'] == '') {
+                $selected[$entry['value']] = $entry['label'];
+            }
+            if (preg_match('/' . $params['Filter'] . '/', $entry['label'])) {
+                $selected[$entry['value']] = $entry['label'];
             }
         }
 
@@ -873,7 +861,7 @@ class ServiceNowProvider extends AbstractProvider
     protected function getListSubcategory($params, $accessToken)
     {
         $uri = '/api/now/table/sys_choice?sysparm_fields=value,label,inactive' .
-            '&sysparm_query=nameSTARTSWITHincident%5EelementSTARTSWITHsubcategory';
+            '&sysparm_query=nameSTARTSWITHincident%5EelementSTARTSWITHsubcategory%5Einactive%3Dfalse';
         $result = $this->runHttpRequest($uri, $accessToken);
 
         $selected = array();
@@ -882,13 +870,11 @@ class ServiceNowProvider extends AbstractProvider
                 $entry['value'] = $entry['label'];
             }
             
-            if ($entry['inactive'] === 'false') {
-                if (!isset($params['Filter']) || is_null($params['Filter']) || $params['Filter'] == '') {
-                    $selected[$entry['value']] = $entry['label'];
-                }
-                if (preg_match('/' . $params['Filter'] . '/', $entry['label'])) {
-                    $selected[$entry['value']] = $entry['label'];
-                }
+            if (!isset($params['Filter']) || is_null($params['Filter']) || $params['Filter'] == '') {
+                $selected[$entry['value']] = $entry['label'];
+            }
+            if (preg_match('/' . $params['Filter'] . '/', $entry['label'])) {
+                $selected[$entry['value']] = $entry['label'];
             }
         }
 
