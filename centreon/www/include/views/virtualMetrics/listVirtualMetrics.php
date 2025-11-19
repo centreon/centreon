@@ -73,7 +73,6 @@ try {
     echo 'DB Error : ' . $e->getMessage();
 }
 
-
 include './include/common/checkPagination.php';
 
 // Smarty template initialization
