@@ -4,7 +4,7 @@
 OPTIONS="hst:v:r:l:p:d:V:"
 declare -A SUPPORTED_LOG_LEVEL=([DEBUG]=0 [INFO]=1 [WARN]=2 [ERROR]=3)
 declare -A SUPPORTED_TOPOLOGY=([central]=1 [poller]=1)
-declare -A SUPPORTED_VERSION=([23.10]=1 [24.04]=1 [24.10]=1)
+declare -A SUPPORTED_VERSION=([23.10]=1 [24.04]=1 [24.10]=1 [25.10]=1)
 declare -A SUPPORTED_REPOSITORY=([testing-hotfix]=1 [testing-release]=1 [unstable]=1 [stable]=1)
 declare -A SUPPORTED_DBMS=([MariaDB]=1 [MySQL]=1)
 default_timeout_in_sec=5
@@ -384,11 +384,11 @@ function set_mariadb_repos() {
 	log "INFO" "Install MariaDB repository"
 
 	case $version in
-	"24.04" | "24.10")
-		detected_mariadb_version="10.11"
+	"23.10" )
+	      detected_mariadb_version="10.5"
 	;;
 	*)
-		detected_mariadb_version="10.5"
+		detected_mariadb_version="10.11"
 	;;
 	esac
 
@@ -598,7 +598,7 @@ function set_required_prerequisite() {
 				PHP_SERVICE_UNIT="php8.1-fpm"
 				;;
 			12)
-				if ! [[ "$version" == "24.04" || "$version" == "24.10" ]]; then
+				if  [[ "$version" == "23.04" || "$version" == "23.10" ]]; then
 					error_and_exit "For Debian $detected_os_version, only Centreon versions >= 24.04 are compatible. You chose $version"
 				elif [[ "$version" == "24.04" ]];then
 					PHP_SERVICE_UNIT="php8.1-fpm"
