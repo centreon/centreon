@@ -24659,7 +24659,7 @@ msgid "Command updated"
 msgstr "Commande mise à jour"
 
 msgid "Command deleted"
-msgstr "Commande supprimé"
+msgstr "Commande supprimée"
 
 msgid "Command enabled"
 msgstr "Commande activée"
