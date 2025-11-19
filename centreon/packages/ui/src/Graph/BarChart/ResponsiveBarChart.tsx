@@ -32,6 +32,7 @@ import {
   getYScalePerUnit
 } from '../common/timeSeries';
 import { Line } from '../common/timeSeries/models';
+import { useMarginTop } from '../common/useMarginTop';
 import { useTooltipStyles } from '../common/useTooltipStyles';
 import { computPixelsToShiftMouse } from '../common/utils';
 import BarGroup from './BarGroup';
@@ -128,7 +129,9 @@ const ResponsiveBarChart = ({
       legendDisplay: legend?.display,
       legendPlacement: legend?.placement,
       width,
-      maxAxisCharacters: maxRightAxisCharacters || maxLeftAxisCharacters
+      maxAxisCharacters: maxRightAxisCharacters || maxLeftAxisCharacters,
+      title,
+      units: allUnits
     });
 
   const thresholdValues = flatten([
@@ -211,6 +214,8 @@ const ResponsiveBarChart = ({
     [axis?.showGridLines]
   );
 
+  const marginTop = useMarginTop({ title, units: allUnits });
+
   if (!isInViewport && !skipIntersectionObserver) {
     return (
       <Skeleton
@@ -244,6 +249,7 @@ const ResponsiveBarChart = ({
       setLines={setLinesGraph}
       title={title}
       titleRef={titleRef}
+      graphHeight={graphHeight}
     >
       <Tooltip
         classes={{
@@ -281,6 +287,7 @@ const ResponsiveBarChart = ({
             xScale={xScale}
             maxAxisCharacters={maxLeftAxisCharacters}
             hasSecondUnit={Boolean(secondUnit)}
+            title={title}
           >
             <>
               {isApplyingZoom && (
@@ -291,7 +298,7 @@ const ResponsiveBarChart = ({
                     lines={displayedLines}
                     orientation={isHorizontal ? 'horizontal' : 'vertical'}
                     size={
-                      isHorizontal ? graphHeight - margin.top - 5 : graphWidth
+                      isHorizontal ? graphHeight - marginTop - 5 : graphWidth
                     }
                     timeSeries={timeSeries}
                     xScale={xScale}
@@ -311,7 +318,7 @@ const ResponsiveBarChart = ({
                       thresholdUnit={thresholdUnit}
                       thresholds={thresholds as ThresholdsModel}
                       width={
-                        isHorizontal ? graphWidth : graphHeight - margin.top
+                        isHorizontal ? graphWidth : graphHeight - marginTop
                       }
                       yScalesPerUnit={yScalesPerUnit}
                     />
@@ -347,7 +354,7 @@ const ResponsiveBarChart = ({
                     lines={displayedLines}
                     orientation={isHorizontal ? 'horizontal' : 'vertical'}
                     size={
-                      isHorizontal ? graphHeight - margin.top - 5 : graphWidth
+                      isHorizontal ? graphHeight - marginTop - 5 : graphWidth
                     }
                     timeSeries={timeSeries}
                     xScale={xScale}
@@ -367,7 +374,7 @@ const ResponsiveBarChart = ({
                       thresholdUnit={thresholdUnit}
                       thresholds={thresholds as ThresholdsModel}
                       width={
-                        isHorizontal ? graphWidth : graphHeight - margin.top
+                        isHorizontal ? graphWidth : graphHeight - marginTop
                       }
                       yScalesPerUnit={yScalesPerUnit}
                     />

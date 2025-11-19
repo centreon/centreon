@@ -38,6 +38,7 @@ interface Props
     metricId: number | string;
     position: [number, number];
   }) => void;
+  graphHeight: number;
 }
 
 const MainLegend = ({
@@ -55,7 +56,8 @@ const MainLegend = ({
     max: true,
     avg: true
   },
-  secondaryClick
+  secondaryClick,
+  graphHeight
 }: Props): ReactElement => {
   const theme = useTheme();
 
@@ -79,17 +81,17 @@ const MainLegend = ({
 
   const contextMenuClick =
     (metricId: number) =>
-      (event: MouseEvent): void => {
-        if (!secondaryClick) {
-          return;
-        }
-        event.preventDefault();
-        secondaryClick({
-          element: event.target,
-          metricId,
-          position: [event.pageX, event.pageY]
-        });
-      };
+    (event: MouseEvent): void => {
+      if (!secondaryClick) {
+        return;
+      }
+      event.preventDefault();
+      secondaryClick({
+        element: event.target,
+        metricId,
+        position: [event.pageX, event.pageY]
+      });
+    };
 
   const selectMetric = ({
     event,
@@ -122,7 +124,10 @@ const MainLegend = ({
       data-display-side={!equals(placement, 'bottom')}
     >
       <ul
-        className={`list-none flex gap-3 w-full ${!isListMode && equals(placement, 'bottom') && 'flex-wrap'} ${(isListMode || !equals(placement, 'bottom')) && 'flex-col h-full w-fit'} ${equals(placement, 'bottom') ? 'max-h-[67px]' : 'max-h-0'}`}
+        className={`list-none flex gap-3 w-full ${!isListMode && equals(placement, 'bottom') && 'flex-wrap'} ${isListMode || !equals(placement, 'bottom') ? 'flex-col h-full w-fit' : ''} ${equals(placement, 'bottom') ? 'max-h-17' : 'max-h-0'}`}
+        style={{
+          height: equals(placement, 'bottom') ? 'auto' : `${graphHeight}px`
+        }}
         data-as-list={isListMode || !equals(placement, 'bottom')}
         data-mode={itemMode}
       >
@@ -161,7 +166,7 @@ const MainLegend = ({
               onContextMenu={contextMenuClick(metric_id)}
             >
               <div
-                className="h-full rounded-sm w-1"
+                className="h-full rounded-sm w-1 min-h-5"
                 style={{ backgroundColor: markerColor }}
                 data-icon
               />

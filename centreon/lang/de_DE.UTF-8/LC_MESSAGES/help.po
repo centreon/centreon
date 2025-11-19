@@ -2204,8 +2204,10 @@ msgstr ""
 "Überprüfungsplugin können dazu nähere Informationen eingesehen werden."
 
 #: centreon/www/include/Administration/parameters/backup/help.php
-msgid "MySQL configuration file path (i.e. /etc/my.cnf.d/centreon.cnf)"
-msgstr "Pfad zur MySQL-Konfigurationsdatei (z.B. /etc/my.cnf.d/centreon.cnf)"
+msgid ""
+"MySQL configuration file path (e.g. /etc/my.cnf.d/centreon.cnf); leave empty "
+"to use the default value."
+msgstr ""
 
 #: centreon/www/include/options/accessLists/groupsACL/help.php
 msgid "Name of access group."
@@ -6216,6 +6218,11 @@ msgstr ""
 "Der Modus der die Resource Status Informationenzeigt wird benutzt. Der "
 "optimierte Modus ist nur verfügbar und funktionsfähig, wenn das Protokoll "
 "BBDO 3.0.0 für das Sammelmodul verwendet wird."
+
+#: unknown
+msgid "MySQL configuration file path (i.e. /etc/my.cnf.d/centreon.cnf)"
+msgstr ""
+"Pfad zur MySQL-Konfigurationsdatei (z.B. /etc/my.cnf.d/centreon.cnf)"
 
 #: unknown
 msgid ""
