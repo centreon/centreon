@@ -36,7 +36,7 @@ info:
   license:
     name: Apache 2.0
     url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
-  version: "24.10"
+  version: "25.10"
 externalDocs:
   description: You can contact us on our community platform The Watch
   url: 'https://thewatch.centreon.com/'
@@ -56,7 +56,7 @@ servers:
         default: '80'
         description: "Port used by HTTP server"
       version:
-        default: v24.10
+        default: v25.10
         description: "Version of the API"
 tags:
   - name: Acknowledgement

@@ -59,7 +59,12 @@ const WrapperChart = ({
   legend = {
     display: true,
     mode: 'grid',
-    placement: 'bottom'
+    placement: 'bottom',
+    showCalculations: {
+      min: true,
+      max: true,
+      avg: true
+    }
   },
   header,
   lineStyle,

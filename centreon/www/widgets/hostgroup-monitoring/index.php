@@ -20,6 +20,7 @@
  */
 
 require_once '../require.php';
+require_once '../widget-error-handling.php';
 require_once $centreon_path . 'www/class/centreon.class.php';
 require_once $centreon_path . 'www/class/centreonSession.class.php';
 require_once $centreon_path . 'www/class/centreonDB.class.php';
@@ -29,6 +30,7 @@ CentreonSession::start(1);
 if (! isset($_SESSION['centreon']) || ! isset($_REQUEST['widgetId'])) {
     exit;
 }
+
 $centreon = $_SESSION['centreon'];
 $widgetId = filter_var($_REQUEST['widgetId'], FILTER_VALIDATE_INT);
 
@@ -49,8 +51,20 @@ try {
         'dark' => 'Centreon-Dark',
         default => throw new Exception('Unknown user theme : ' . $centreon->user->theme),
     };
-} catch (Exception $e) {
-    echo $e->getMessage() . '<br/>';
+
+    $theme = $variablesThemeCSS === 'Generic-theme'
+        ? $variablesThemeCSS . '/Variables-css'
+        : $variablesThemeCSS;
+} catch (Exception $exception) {
+    CentreonLog::create()->error(
+        logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
+        message: 'Error while using hostgroup-monitoring widget: ' . $exception->getMessage(),
+        customContext: [
+            'widget_id' => $widgetId,
+        ],
+        exception: $exception
+    );
+    showError($exception->getMessage(), $theme ?? 'Generic-theme/Variables-css');
 
     exit;
 }
