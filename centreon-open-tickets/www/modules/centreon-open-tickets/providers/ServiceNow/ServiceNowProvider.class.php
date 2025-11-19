@@ -687,6 +687,10 @@ class ServiceNowProvider extends AbstractProvider
 
         $selected = array();
         foreach ($result['result'] as $entry) {
+            if (!isset($entry['value'])) {
+                $entry['value'] = $entry['label'];
+            }
+
             if ($entry['active'] === 'true') {
                 if (!isset($params['Filter']) || is_null($params['Filter']) || $params['Filter'] == '') {
                     $selected[$entry['sys_id']] = $entry['name'];
@@ -714,6 +718,10 @@ class ServiceNowProvider extends AbstractProvider
 
         $selected = array();
         foreach ($result['result'] as $entry) {
+            if (!isset($entry['value'])) {
+                $entry['value'] = $entry['label'];
+            }
+
             if ($entry['active'] === 'true') {
                 if (!isset($params['Filter']) || is_null($params['Filter']) || $params['Filter'] == '') {
                     $selected[$entry['sys_id']] = $entry['name'];
@@ -742,6 +750,10 @@ class ServiceNowProvider extends AbstractProvider
 
         $selected = array();
         foreach ($result['result'] as $entry) {
+            if (!isset($entry['value'])) {
+                $entry['value'] = $entry['label'];
+            }
+
             if ($entry['inactive'] === 'false') {
                 if (!isset($params['Filter']) || is_null($params['Filter']) || $params['Filter'] == '') {
                     $selected[$entry['value']] = $entry['label'];
@@ -770,6 +782,10 @@ class ServiceNowProvider extends AbstractProvider
 
         $selected = array();
         foreach ($result['result'] as $entry) {
+            if (!isset($entry['value'])) {
+                $entry['value'] = $entry['label'];
+            }
+
             if ($entry['inactive'] === 'false') {
                 if (!isset($params['Filter']) || is_null($params['Filter']) || $params['Filter'] == '') {
                     $selected[$entry['value']] = $entry['label'];
@@ -798,6 +814,10 @@ class ServiceNowProvider extends AbstractProvider
 
         $selected = array();
         foreach ($result['result'] as $entry) {
+            if (!isset($entry['value'])) {
+                $entry['value'] = $entry['label'];
+            }
+
             if ($entry['inactive'] === 'false') {
                 if (!isset($params['Filter']) || is_null($params['Filter']) || $params['Filter'] == '') {
                     $selected[$entry['value']] = $entry['label'];
@@ -826,6 +846,10 @@ class ServiceNowProvider extends AbstractProvider
 
         $selected = array();
         foreach ($result['result'] as $entry) {
+            if (!isset($entry['value'])) {
+                $entry['value'] = $entry['label'];
+            }
+
             if ($entry['inactive'] === 'false') {
                 if (!isset($params['Filter']) || is_null($params['Filter']) || $params['Filter'] == '') {
                     $selected[$entry['value']] = $entry['label'];
@@ -854,6 +878,10 @@ class ServiceNowProvider extends AbstractProvider
 
         $selected = array();
         foreach ($result['result'] as $entry) {
+            if (!isset($entry['value'])) {
+                $entry['value'] = $entry['label'];
+            }
+            
             if ($entry['inactive'] === 'false') {
                 if (!isset($params['Filter']) || is_null($params['Filter']) || $params['Filter'] == '') {
                     $selected[$entry['value']] = $entry['label'];
