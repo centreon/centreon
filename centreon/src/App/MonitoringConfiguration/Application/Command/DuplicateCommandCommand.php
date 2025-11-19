@@ -28,6 +28,7 @@ final readonly class DuplicateCommandCommand
     public function __construct(
         public int $commandId,
         public int $duplicatedBy,
+        /** @var array<int, string> */
         public array $allowedTypes,
     ) {
     }

@@ -28,11 +28,9 @@ use App\MonitoringConfiguration\Domain\Aggregate\Command\Command;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandName;
 use App\MonitoringConfiguration\Domain\Event\CommandCreated;
-use App\MonitoringConfiguration\Domain\Exception\CommandAlreadyExistsException;
 use App\MonitoringConfiguration\Domain\Repository\CommandRepository;
 use App\Shared\Application\Command\AsCommandHandler;
 use App\Shared\Domain\Event\EventBus;
-use Symfony\Component\Console\Exception\CommandNotFoundException;
 
 #[AsCommandHandler]
 final readonly class DuplicateCommandCommandHandler
@@ -47,7 +45,7 @@ final readonly class DuplicateCommandCommandHandler
     {
         $originalCommand = $this->repository->getById(new CommandId($duplicateCommandCommand->commandId));
 
-        if (! in_array($originalCommand->type, $duplicateCommandCommand->allowedTypes)) {
+        if (! in_array($originalCommand->type->name, $duplicateCommandCommand->allowedTypes, true)) {
             throw new AccessDeniedException('You are not allowed to duplicate this command');
         }
 
@@ -81,7 +79,7 @@ final readonly class DuplicateCommandCommandHandler
             $candidateName = sprintf($basePattern, $counter);
             $duplicateName = new CommandName($candidateName);
 
-            if ($this->repository->findOneByName($duplicateName) === null) {
+            if (! $this->repository->findOneByName($duplicateName) instanceof Command) {
                 return $candidateName;
             }
 

@@ -27,13 +27,14 @@ use ApiPlatform\Metadata\Exception\AccessDeniedException;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
 use App\MonitoringConfiguration\Application\Command\DuplicateCommandCommand;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\Command;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandTypeEnum;
+use App\MonitoringConfiguration\Domain\Exception\CommandNotFoundException;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\DuplicateCommandInput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Command\DuplicateCommandResource;
 use App\Shared\Application\Command\CommandBus;
 use App\Shared\Infrastructure\Legacy\LegacySecurity;
 use App\Shared\Infrastructure\TransformerInterface;
-use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandTypeEnum;
-use App\MonitoringConfiguration\Domain\Exception\CommandNotFoundException;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Webmozart\Assert\Assert;
@@ -56,7 +57,7 @@ final readonly class DuplicateCommandsProcessor implements ProcessorInterface
     {
         Assert::isInstanceOf($data, DuplicateCommandInput::class);
         /** @var DuplicateCommandInput $data */
-
+        $allowedTypes = [];
         foreach (CommandTypeEnum::cases() as $commandType) {
             $writePermission = Command::getWritePermissionForType($commandType);
 
@@ -69,7 +70,7 @@ final readonly class DuplicateCommandsProcessor implements ProcessorInterface
 
         foreach ($data->ids as $id) {
             try {
-                for ($i = 1; $i <= $duplicateCommandCommand->nbDuplicates; $i++) {
+                for ($i = 1; $i <= $data->nbDuplicates; $i++) {
                     $originalCommand = $this->commandBus->execute(
                         new DuplicateCommandCommand(
                             commandId: $id,
@@ -80,18 +81,18 @@ final readonly class DuplicateCommandsProcessor implements ProcessorInterface
 
                     $originalCommandResource = $this->transformer->transform($originalCommand);
                     $results[] = new DuplicateCommandResource(
-                            command: $originalCommandResource,
-                            status: 204,
-                            message: 'Command duplicated successfully'
-                        );
+                        command: $originalCommandResource,
+                        status: 204,
+                        message: 'Command duplicated successfully'
+                    );
                 }
-            } catch (CommandNotFoundException $e) {
+            } catch (CommandNotFoundException) {
                 $results[] = new DuplicateCommandResource(
                     command: null,
                     status: 404,
                     message: "Command with ID {$id} not found."
                 );
-            } catch (AccessDeniedException $e) {
+            } catch (AccessDeniedException) {
                 $results[] = new DuplicateCommandResource(
                     command: null,
                     status: 403,
