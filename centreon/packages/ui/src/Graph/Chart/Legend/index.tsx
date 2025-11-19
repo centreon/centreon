@@ -124,7 +124,7 @@ const MainLegend = ({
       data-display-side={!equals(placement, 'bottom')}
     >
       <ul
-        className={`list-none flex gap-3 w-full overflow-x-hidden ${!isListMode && equals(placement, 'bottom') && 'flex-wrap'} ${isListMode || !equals(placement, 'bottom') ? 'flex-col h-full w-fit' : ''} ${equals(placement, 'bottom') ? 'max-h-17' : 'max-h-0'}`}
+        className={`list-none flex gap-3 w-full ${!isListMode && equals(placement, 'bottom') && 'flex-wrap'} ${isListMode || !equals(placement, 'bottom') ? 'flex-col h-full w-fit' : ''} ${equals(placement, 'bottom') ? 'max-h-17' : 'max-h-fit'} ${!equals(placement, 'bottom') ? 'overflow-x-hidden' : ''}`}
         style={{
           height: equals(placement, 'bottom') ? 'auto' : `${graphHeight}px`
         }}
@@ -155,7 +155,7 @@ const MainLegend = ({
 
           return (
             <li
-              className={`${!display ? 'text-text-disabled' : 'text-text-primary'} flex gap-1 ${toggable && 'cursor-pointer'} w-fit`}
+              className={`${!display ? 'text-text-disabled' : 'text-text-primary'} flex gap-1 ${toggable && 'cursor-pointer'} ${!equals(placement, 'bottom') ? 'w-fit' : ''}`}
               key={metric_id}
               onClick={(event): void => selectMetric({ event, metric_id })}
               onKeyUp={(event) =>
