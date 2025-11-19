@@ -468,12 +468,12 @@ class Centreon_OpenTickets_Rule
     {
         $rule = [];
 
-        if (is_null($ruleId)) {
+        if (empty($ruleId)) {
             return $rule;
         }
 
         try {
-            $queryParameters = QueryParameters::create([QueryParameter::int('ruleId', $ruleId)]);
+            $queryParameters = QueryParameters::create([QueryParameter::int('ruleId', (int) $ruleId)]);
 
             $rule = $this->_db->fetchAssociative(
                 query: <<<'SQL'
