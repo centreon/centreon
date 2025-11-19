@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Command;
 
+use ApiPlatform\Metadata\Exception\AccessDeniedException;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
 use App\MonitoringConfiguration\Application\Command\DuplicateCommandCommand;
@@ -31,7 +32,9 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Command\Dupl
 use App\Shared\Application\Command\CommandBus;
 use App\Shared\Infrastructure\Legacy\LegacySecurity;
 use App\Shared\Infrastructure\TransformerInterface;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandTypeEnum;
 use App\MonitoringConfiguration\Domain\Exception\CommandNotFoundException;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Webmozart\Assert\Assert;
 
@@ -45,6 +48,7 @@ final readonly class DuplicateCommandsProcessor implements ProcessorInterface
         #[Autowire(service: ResourceCommandTransformer::class)]
         private TransformerInterface $transformer,
         private LegacySecurity $legacySecurity,
+        private Security $security,
     ) {
     }
 
@@ -52,30 +56,46 @@ final readonly class DuplicateCommandsProcessor implements ProcessorInterface
     {
         Assert::isInstanceOf($data, DuplicateCommandInput::class);
         /** @var DuplicateCommandInput $data */
+
+        foreach (CommandTypeEnum::cases() as $commandType) {
+            $writePermission = Command::getWritePermissionForType($commandType);
+
+            if ($this->security->isGranted($writePermission->value)) {
+                $allowedTypes[] = $commandType->name;
+            }
+        }
+
         $results = [];
 
         foreach ($data->ids as $id) {
             try {
-                $duplicationResult = $this->commandBus->execute(
-                    new DuplicateCommandCommand(
-                        commandId: $id,
-                        nbDuplicates: $data->nbDuplicates,
-                        duplicatedBy: $this->legacySecurity->getUserId(),
-                    )
-                );
-
-                $originalCommandResource = $this->transformer->transform($duplicationResult['originalCommand']);
-
-                $results[] = new DuplicateCommandResource(
-                        command: $originalCommandResource,
-                        status: 204,
-                        message: 'Command duplicated successfully'
+                for ($i = 1; $i <= $duplicateCommandCommand->nbDuplicates; $i++) {
+                    $originalCommand = $this->commandBus->execute(
+                        new DuplicateCommandCommand(
+                            commandId: $id,
+                            duplicatedBy: $this->legacySecurity->getUserId(),
+                            allowedTypes: $allowedTypes,
+                        )
                     );
+
+                    $originalCommandResource = $this->transformer->transform($originalCommand);
+                    $results[] = new DuplicateCommandResource(
+                            command: $originalCommandResource,
+                            status: 204,
+                            message: 'Command duplicated successfully'
+                        );
+                }
             } catch (CommandNotFoundException $e) {
                 $results[] = new DuplicateCommandResource(
                     command: null,
                     status: 404,
                     message: "Command with ID {$id} not found."
+                );
+            } catch (AccessDeniedException $e) {
+                $results[] = new DuplicateCommandResource(
+                    command: null,
+                    status: 403,
+                    message: "You are not allowed to duplicate command with ID {$id}."
                 );
             } catch (\Exception $e) {
                 $results[] = new DuplicateCommandResource(

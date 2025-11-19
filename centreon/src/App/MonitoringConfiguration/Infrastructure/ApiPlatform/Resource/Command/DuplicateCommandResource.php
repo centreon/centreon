@@ -26,7 +26,6 @@ namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Comman
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\OpenApi\Model;
-use App\MonitoringConfiguration\Domain\Security\CommandActionEnum;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\DuplicateCommandInput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Command\DuplicateCommandsProcessor;
 
@@ -40,8 +39,6 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Command\Duplica
             403 => new Model\Response('You are not allowed to duplicate commands'),
         ],
     ),
-    securityPostValidation: "is_granted('" . CommandActionEnum::Create->value . "', object)",
-    securityPostValidationMessage: 'You are not allowed to duplicate commands',
 )]
 final readonly class DuplicateCommandResource
 {

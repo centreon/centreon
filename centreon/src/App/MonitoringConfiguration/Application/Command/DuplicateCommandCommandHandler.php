@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Application\Command;
 
+use ApiPlatform\Metadata\Exception\AccessDeniedException;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\Command;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandName;
@@ -42,37 +43,33 @@ final readonly class DuplicateCommandCommandHandler
     ) {
     }
 
-    public function __invoke(DuplicateCommandCommand $duplicateCommandCommand): iterable
+    public function __invoke(DuplicateCommandCommand $duplicateCommandCommand): Command
     {
         $originalCommand = $this->repository->getById(new CommandId($duplicateCommandCommand->commandId));
 
-        for ($i = 1; $i <= $duplicateCommandCommand->nbDuplicates; $i++) {
-            $newName = $this->generateDuplicateName($originalCommand->name->value);
-            $duplicateName = new CommandName($newName);
-
-            $duplicatedCommand = new Command(
-                id: null,
-                name: $duplicateName,
-                type: $originalCommand->type,
-                commandLine: $originalCommand->commandLine,
-                isShellEnabled: $originalCommand->isShellEnabled,
-                isActivated: $originalCommand->isActivated,
-                isFromMonitoringConnector: $originalCommand->isFromMonitoringConnector,
-                connector: $originalCommand->connector,
-                comment: $originalCommand->comment,
-            );
-
-            $this->repository->add($duplicatedCommand);
-            $this->eventBus->fire(new CommandCreated($duplicatedCommand, $duplicateCommandCommand->duplicatedBy));
-
-            // Store both original and duplicated command info
-            $result = [
-                'originalCommand' => $originalCommand,
-                'duplicatedCommand' => $duplicatedCommand,
-            ];
+        if (! in_array($originalCommand->type, $duplicateCommandCommand->allowedTypes)) {
+            throw new AccessDeniedException('You are not allowed to duplicate this command');
         }
 
-        return $result ?? [];
+        $newName = $this->generateDuplicateName($originalCommand->name->value);
+        $duplicateName = new CommandName($newName);
+
+        $duplicatedCommand = new Command(
+            id: null,
+            name: $duplicateName,
+            type: $originalCommand->type,
+            commandLine: $originalCommand->commandLine,
+            isShellEnabled: $originalCommand->isShellEnabled,
+            isActivated: $originalCommand->isActivated,
+            isFromMonitoringConnector: $originalCommand->isFromMonitoringConnector,
+            connector: $originalCommand->connector,
+            comment: $originalCommand->comment,
+        );
+
+        $this->repository->add($duplicatedCommand);
+        $this->eventBus->fire(new CommandCreated($duplicatedCommand, $duplicateCommandCommand->duplicatedBy));
+
+        return $originalCommand;
     }
 
     private function generateDuplicateName(string $originalName): string
@@ -89,9 +86,8 @@ final readonly class DuplicateCommandCommandHandler
             }
 
             $counter++;
-        } while ($counter <= 1000); // Safety limit to prevent infinite loops
+        } while ($counter <= 1000);
 
-        // If we can't find a unique name after 1000 attempts, add timestamp
         return $originalName . '_copy_' . time();
     }
 }

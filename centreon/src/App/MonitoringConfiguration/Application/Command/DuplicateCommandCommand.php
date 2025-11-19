@@ -27,8 +27,8 @@ final readonly class DuplicateCommandCommand
 {
     public function __construct(
         public int $commandId,
-        public int $nbDuplicates,
         public int $duplicatedBy,
+        public array $allowedTypes,
     ) {
     }
 }
