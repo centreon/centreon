@@ -24674,7 +24674,7 @@ msgid "Command line"
 msgstr "Ligne de commande"
 
 msgid "Check "
-msgstr "contrôle"
+msgstr "Contrôle"
 
 msgid "Delete command"
 msgstr "Supprimer la command"
