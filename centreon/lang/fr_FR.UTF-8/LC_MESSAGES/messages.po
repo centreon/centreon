@@ -24656,7 +24656,7 @@ msgid "Command created"
 msgstr "Commande créé"
 
 msgid "Command updated"
-msgstr "Commande mis à jour"
+msgstr "Commande mise à jour"
 
 msgid "Command deleted"
 msgstr "Commande supprimé"
