@@ -24653,7 +24653,7 @@ msgid "Modify a command"
 msgstr "Modifier une commande"
 
 msgid "Command created"
-msgstr "Commande créé"
+msgstr "Commande créée"
 
 msgid "Command updated"
 msgstr "Commande mise à jour"
