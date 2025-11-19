@@ -24610,7 +24610,7 @@ msgid "Welcome to the Commands page"
 msgstr "Bienvenue sur la page Commandes"
 
 msgid "Commands are used by the monitoring engine to run plugins to perform actions. While most commands come ready-to-use via Monitoring Connectors, you can also create custom commands for specific needs."
-msgstr "Les commandes sont utilisées par le moteur de surveillance pour exécuter des plugins afin d'effectuer des actions. Bien que la plupart des commandes soient prêtes à l'emploi via les connecteurs de surveillance, vous pouvez également créer des commandes personnalisées pour des besoins spécifiques."
+msgstr "Les commandes sont utilisées par le moteur de supervision pour exécuter des plugins qui effectuent des actions. Bien que la plupart des commandes soient prêtes à l'emploi via les connecteurs de supervision, vous pouvez également créer des commandes personnalisées pour des besoins spécifiques."
 
 msgid "Service uses"
 msgstr "Services utilisés"
@@ -24622,7 +24622,7 @@ msgid "Command type"
 msgstr "Type de commande"
 
 msgid "Enable shell syntax"
-msgstr "Activer la syntaxe du shell"
+msgstr "Activer la syntaxe shell"
 
 msgid "Select an optimization connector"
 msgstr "Sélectionner un connecteur d'optimisation"
@@ -24640,10 +24640,10 @@ msgid "Insert"
 msgstr "Insérer"
 
 msgid "You are not allowed to choose this type."
-msgstr "Vous n'êtes pas autorisé à choisir ce type."
+msgstr "Vous n'avez pas la permission de choisir ce type."
 
 msgid "If your command uses shell functions (pipes, redirects, wildcards, etc.), check this box. Note that commands requiring the shell slow down the monitoring server."
-msgstr "Si votre commande utilise des fonctions shell (pipes, redirections, caractères génériques, etc.), cochez cette case. Notez que les commandes nécessitant le shell ralentissent le serveur de surveillance."
+msgstr "Si votre commande utilise des fonctions shell (pipes, redirections, caractères génériques, etc.), cochez cette case. Notez que les commandes nécessitant le shell ralentissent le serveur de supervision."
 
 
 msgid "Add a command"
@@ -24653,31 +24653,31 @@ msgid "Modify a command"
 msgstr "Modifier une commande"
 
 msgid "Command created"
-msgstr "Commande créé"
+msgstr "Commande créée"
 
 msgid "Command updated"
-msgstr "Commande mis à jour"
+msgstr "Commande mise à jour"
 
 msgid "Command deleted"
-msgstr "Commande supprimé"
+msgstr "Commande supprimée"
 
 msgid "Command enabled"
-msgstr "Commande activé"
+msgstr "Commande activée"
 
 msgid "Command disabled"
-msgstr "Commande désactivé"
+msgstr "Commande désactivée"
 
 msgid "Command duplicated"
-msgstr "Commande dupliqué"
+msgstr "Commande dupliquée"
 
 msgid "Command line"
 msgstr "Ligne de commande"
 
 msgid "Check "
-msgstr "contrôle"
+msgstr "Contrôle"
 
 msgid "Delete command"
-msgstr "Supprimer la command"
+msgstr "Supprimer la commande"
 
 msgid "Duplicate command"
 msgstr "Dupliquer la commande"
@@ -24688,7 +24688,7 @@ msgid ""
 "How many duplications would you like to make?"
 msgstr ""
 "Vous êtes sur le point de dupliquer la commande <strong>{{ name }}</"
-"strong>. Combien de duplications souhaitez-vous effectuer ?"
+"strong>. Combien d'exemplaires souhaitez-vous créer ?"
 
 #: unknown
 msgid ""
@@ -24696,4 +24696,4 @@ msgid ""
 "action cannot be undone. Do you want to delete it?"
 msgstr ""
 "Vous êtes sur le point de supprimer la commande <strong>{{ name }}</"
-"strong>. Cette action est irréversible. Voulez-vous le supprimer ?"
+"strong>. Cette action est irréversible. Voulez-vous la supprimer ?"
