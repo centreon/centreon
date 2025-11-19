@@ -24668,7 +24668,7 @@ msgid "Command disabled"
 msgstr "Commande désactivé"
 
 msgid "Command duplicated"
-msgstr "Commande dupliqué"
+msgstr "Commande dupliquée"
 
 msgid "Command line"
 msgstr "Ligne de commande"
