@@ -21,22 +21,19 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Domain\Aggregate\Connector;
+namespace App\Shared\Domain\Exception;
 
-use App\Shared\Domain\Aggregate\AggregateRoot;
-
-/**
- * @extends AggregateRoot<ConnectorId>
- */
-final class Connector extends AggregateRoot
+abstract class AggregateCanNotBeDeletedException extends \RuntimeException
 {
+    /**
+     * @param array<string, mixed> $criteria
+     */
     public function __construct(
-        ConnectorId $id,
-        public readonly ConnectorName $name,
-        public readonly ConnectorCommandLine $commandLine,
-        public readonly ?ConnectorDescription $description,
-        public readonly bool $isActivated,
+        public readonly array $criteria,
+        string $message = 'Resource can not be deleted.',
+        int $code = 0,
+        ?\Throwable $previous = null,
     ) {
-        parent::__construct($id);
+        parent::__construct($message, $code, $previous);
     }
 }

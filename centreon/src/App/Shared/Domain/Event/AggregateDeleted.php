@@ -21,22 +21,21 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Domain\Aggregate\Connector;
+namespace App\Shared\Domain\Event;
 
 use App\Shared\Domain\Aggregate\AggregateRoot;
 
-/**
- * @extends AggregateRoot<ConnectorId>
- */
-final class Connector extends AggregateRoot
+abstract readonly class AggregateDeleted implements EventInterface
 {
     public function __construct(
-        ConnectorId $id,
-        public readonly ConnectorName $name,
-        public readonly ConnectorCommandLine $commandLine,
-        public readonly ?ConnectorDescription $description,
-        public readonly bool $isActivated,
+        public AggregateRoot $aggregate,
+        public int $creatorId,
+        public \DateTimeImmutable $firedAt = new \DateTimeImmutable(),
     ) {
-        parent::__construct($id);
+    }
+
+    public function firedAt(): \DateTimeImmutable
+    {
+        return $this->firedAt;
     }
 }

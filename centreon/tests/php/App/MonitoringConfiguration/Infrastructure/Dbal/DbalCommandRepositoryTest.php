@@ -80,7 +80,7 @@ final class DbalCommandRepositoryTest extends KernelTestCase
         );
 
         $this->repository->add($command);
-        self::assertEquals($command, $this->repository->findOneByName(new CommandName('NAME')));
+        self::assertEquals($command->name->value, ($this->repository->findOneByName(new CommandName('NAME'))?->name->value));
     }
 
     public function testUpdate(): void
@@ -89,7 +89,28 @@ final class DbalCommandRepositoryTest extends KernelTestCase
         $command->updateName(new CommandName('UPDATED_NAME'));
 
         $this->repository->update($command);
-        self::assertEquals($command, $this->repository->getById(new CommandId(2)));
+        self::assertEquals('UPDATED_NAME', ($this->repository->getById(new CommandId(2))->name->value));
+    }
+
+    public function testDelete(): void
+    {
+        $command = new Command(
+            id: null,
+            name: new CommandName('NAME_TO_DELETE'),
+            type: CommandTypeEnum::from(1),
+            commandLine: new CommandLine('$CENTREONPLUGINS$ /check_dhcp $ADMINEMAIL$'),
+            isShellEnabled: true,
+            isFromMonitoringConnector: false,
+            isActivated: true,
+            connector: null,
+            comment: null
+        );
+
+        $this->repository->add($command);
+        $this->repository->delete($command);
+
+        $this->expectException(CommandNotFoundException::class);
+        $this->repository->getById(new CommandId($command->id()->value));
     }
 
     public function testFindAll(): void

@@ -21,22 +21,10 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Domain\Aggregate\Connector;
+namespace App\MonitoringConfiguration\Domain\Exception;
 
-use App\Shared\Domain\Aggregate\AggregateRoot;
+use App\Shared\Domain\Exception\AggregateCanNotBeDeletedException;
 
-/**
- * @extends AggregateRoot<ConnectorId>
- */
-final class Connector extends AggregateRoot
+final class CommandCanNotBeDeletedException extends AggregateCanNotBeDeletedException
 {
-    public function __construct(
-        ConnectorId $id,
-        public readonly ConnectorName $name,
-        public readonly ConnectorCommandLine $commandLine,
-        public readonly ?ConnectorDescription $description,
-        public readonly bool $isActivated,
-    ) {
-        parent::__construct($id);
-    }
 }

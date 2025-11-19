@@ -25,13 +25,22 @@ namespace App\Shared\Domain\Aggregate;
 
 use App\Shared\Domain\Exception\MissingIdException;
 
+/**
+ * @template-covariant TIdTypeAlias of AggregateRootId
+ */
 abstract class AggregateRoot
 {
+    /**
+     * @param TIdTypeAlias|null $id
+     */
     public function __construct(
         private ?AggregateRootId $id,
     ) {
     }
 
+    /**
+     * @return TIdTypeAlias
+     */
     public function id(): AggregateRootId
     {
         if (! $this->id instanceof AggregateRootId) {

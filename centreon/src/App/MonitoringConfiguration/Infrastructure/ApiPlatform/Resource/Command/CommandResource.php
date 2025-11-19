@@ -25,6 +25,7 @@ namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Comman
 
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\OpenApi\Model;
@@ -32,6 +33,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandName;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandTypeEnum;
 use App\MonitoringConfiguration\Domain\Security\CommandActionEnum;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\ConnectorResource;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Command\DeleteCommandProcessor;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Command\FindCommandProvider;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Command\UpdateCommandProcessor;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -63,6 +65,19 @@ use Symfony\Component\Validator\Constraints as Assert;
             ),
             securityPostValidation: "is_granted('" . CommandActionEnum::Update->value . "', object)",
             securityPostValidationMessage: 'You are not allowed to update this command',
+        ),
+        new Delete(
+            uriTemplate: '/configuration/commands/{id}',
+            provider: FindCommandProvider::class,
+            processor: DeleteCommandProcessor::class,
+            openapi: new Model\Operation(
+                responses: [
+                    404 => new Model\Response('Command resource not found'),
+                    403 => new Model\Response('You are not allowed to delete this command'),
+                ],
+            ),
+            securityPostValidation: "is_granted('" . CommandActionEnum::Delete->value . "', object)",
+            securityPostValidationMessage: 'You are not allowed to delete this command',
         ),
     ],
 )]

@@ -21,22 +21,10 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Domain\Aggregate\Connector;
+namespace App\Shared\Domain\Repository;
 
-use App\Shared\Domain\Aggregate\AggregateRoot;
-
-/**
- * @extends AggregateRoot<ConnectorId>
- */
-final class Connector extends AggregateRoot
+enum SortDirectionEnum: string
 {
-    public function __construct(
-        ConnectorId $id,
-        public readonly ConnectorName $name,
-        public readonly ConnectorCommandLine $commandLine,
-        public readonly ?ConnectorDescription $description,
-        public readonly bool $isActivated,
-    ) {
-        parent::__construct($id);
-    }
+    case ASC = 'ASC';
+    case DESC = 'DESC';
 }

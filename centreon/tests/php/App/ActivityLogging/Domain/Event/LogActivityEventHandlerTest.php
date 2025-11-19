@@ -27,9 +27,16 @@ use App\ActivityLogging\Domain\Aggregate\ActionEnum;
 use App\ActivityLogging\Domain\Aggregate\ActivityLog;
 use App\ActivityLogging\Domain\Aggregate\TargetTypeEnum;
 use App\ActivityLogging\Domain\Event\LogActivityEventHandler;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\Command;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandLine;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandName;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandTypeEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceCategory\ServiceCategory;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceCategory\ServiceCategoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceCategory\ServiceCategoryName;
+use App\MonitoringConfiguration\Domain\Event\CommandDeleted;
+use App\MonitoringConfiguration\Domain\Event\CommandUpdated;
 use App\MonitoringConfiguration\Domain\Event\ServiceCategoryCreated;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
@@ -67,6 +74,80 @@ final class LogActivityEventHandlerTest extends TestCase
         self::assertSame(1, $activityLog->target->id->value);
         self::assertSame('NAME', $activityLog->target->name->value);
         self::assertSame(TargetTypeEnum::ServiceCategory, $activityLog->target->type);
+        self::assertEquals($firedAt, $activityLog->performedAt);
+    }
+
+    public function testCreateActivityLogOnUpdate(): void
+    {
+        $repository = new FakeActivityLogRepository();
+
+        $handler = new LogActivityEventHandler($repository, $this->createContainer([
+            Command::class => new FakeActivityLogFactory(),
+        ]));
+
+        $aggregate = new Command(
+            id: new CommandId(1),
+            name: new CommandName('NAME'),
+            type: CommandTypeEnum::Check,
+            commandLine: new CommandLine('/bin/true'),
+            isShellEnabled: false,
+            isActivated: true,
+            isFromMonitoringConnector: false,
+            connector: null,
+            comment: null,
+        );
+
+        $handler(new CommandUpdated(
+            aggregate: $aggregate,
+            creatorId: 2,
+            firedAt: $firedAt = new \DateTimeImmutable(),
+        ));
+
+        $activityLog = reset($repository->activityLogs);
+
+        self::assertInstanceof(ActivityLog::class, $activityLog);
+        self::assertSame(ActionEnum::Update, $activityLog->action);
+        self::assertSame(2, $activityLog->actor->id->value);
+        self::assertSame(1, $activityLog->target->id->value);
+        self::assertSame('NAME', $activityLog->target->name->value);
+        self::assertSame(TargetTypeEnum::Command, $activityLog->target->type);
+        self::assertEquals($firedAt, $activityLog->performedAt);
+    }
+
+    public function testCreateActivityLogOnDelete(): void
+    {
+        $repository = new FakeActivityLogRepository();
+
+        $handler = new LogActivityEventHandler($repository, $this->createContainer([
+            Command::class => new FakeActivityLogFactory(),
+        ]));
+
+        $aggregate = new Command(
+            id: new CommandId(1),
+            name: new CommandName('NAME'),
+            type: CommandTypeEnum::Check,
+            commandLine: new CommandLine('/bin/true'),
+            isShellEnabled: false,
+            isActivated: true,
+            isFromMonitoringConnector: false,
+            connector: null,
+            comment: null,
+        );
+
+        $handler(new CommandDeleted(
+            aggregate: $aggregate,
+            creatorId: 2,
+            firedAt: $firedAt = new \DateTimeImmutable(),
+        ));
+
+        $activityLog = reset($repository->activityLogs);
+
+        self::assertInstanceof(ActivityLog::class, $activityLog);
+        self::assertSame(ActionEnum::Delete, $activityLog->action);
+        self::assertSame(2, $activityLog->actor->id->value);
+        self::assertSame(1, $activityLog->target->id->value);
+        self::assertSame('NAME', $activityLog->target->name->value);
+        self::assertSame(TargetTypeEnum::Command, $activityLog->target->type);
         self::assertEquals($firedAt, $activityLog->performedAt);
     }
 

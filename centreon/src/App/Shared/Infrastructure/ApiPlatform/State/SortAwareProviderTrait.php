@@ -21,22 +21,27 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Domain\Aggregate\Connector;
+namespace App\Shared\Infrastructure\ApiPlatform\State;
 
-use App\Shared\Domain\Aggregate\AggregateRoot;
+use App\Shared\Domain\Repository\SortableCriteria;
 
-/**
- * @extends AggregateRoot<ConnectorId>
- */
-final class Connector extends AggregateRoot
+trait SortAwareProviderTrait
 {
-    public function __construct(
-        ConnectorId $id,
-        public readonly ConnectorName $name,
-        public readonly ConnectorCommandLine $commandLine,
-        public readonly ?ConnectorDescription $description,
-        public readonly bool $isActivated,
-    ) {
-        parent::__construct($id);
+    /**
+     * @template T of SortableCriteria
+     *
+     * @param array{sort?: array<string,string>} $filters
+     * @param T $criteria
+     *
+     * @return T
+     */
+    public function handleSort(array $filters, SortableCriteria $criteria): SortableCriteria
+    {
+        $sort = $filters['sort'] ?? [];
+        foreach ($sort as $field => $direction) {
+            $criteria = $criteria->withSort($field, mb_strtoupper((string) $direction));
+        }
+
+        return $criteria;
     }
 }

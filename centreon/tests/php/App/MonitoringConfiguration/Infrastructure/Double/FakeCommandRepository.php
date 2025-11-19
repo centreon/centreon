@@ -75,18 +75,30 @@ final class FakeCommandRepository implements CommandRepository
         $this->commands[$commandId->value] = $command;
     }
 
+    public function delete(Command $command): void
+    {
+        $commandId = $command->id();
+
+        unset($this->commands[$commandId->value]);
+    }
+
     public function findAll(?CommandCriteria $criteria): IteratorAggregate&Countable
     {
         throw new \RuntimeException('Not yet implemented');
     }
 
-    public function countLinkedResources(CommandId $commandId): CommandResourceCount
+    public function countLinkedResources(array $commandIds): array
     {
-        return new CommandResourceCount(
-            usedHosts: mt_rand(0, 10),
-            usedServices: mt_rand(0, 10),
-            usedHostTemplates: mt_rand(0, 10),
-            usedServiceTemplates: mt_rand(0, 10)
-        );
+        $results = [];
+        foreach ($commandIds as $commandId) {
+            $results[$commandId->value] = new CommandResourceCount(
+                usedHosts: mt_rand(0, 10),
+                usedServices: mt_rand(0, 10),
+                usedHostTemplates: mt_rand(0, 10),
+                usedServiceTemplates: mt_rand(0, 10)
+            );
+        }
+
+        return $results;
     }
 }
