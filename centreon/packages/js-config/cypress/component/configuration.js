@@ -6,6 +6,9 @@ const {
 } = require('@simonsmith/cypress-image-snapshot/plugin');
 const cypressCodeCoverageTask = require('@cypress/code-coverage/task');
 
+const fs = require('fs');
+const path = require('path');
+
 module.exports = ({
   rspackConfig,
   cypressFolder,
@@ -39,9 +42,42 @@ module.exports = ({
             launchOptions.args.push('--headless=new');
             launchOptions.args.push('--force-color-profile=srgb');
             launchOptions.args.push('--window-size=1400,1200');
+            launchOptions.args.push('--max-old-space-size=4096');
+            launchOptions.args.push('--disable-dev-shm-usage');
+            launchOptions.args.push('--disable-gpu');
+            launchOptions.args.push('--no-sandbox');
           }
 
           return launchOptions;
+        });
+
+        on('after:run', (results) => {
+          const testRetries = {};
+          if ('runs' in results) {
+            results.runs.forEach((run) => {
+              run.tests.forEach((test) => {
+                if (test.attempts && test.attempts.length > 1 && test.state === 'passed') {
+                  const testTitle = test.title.join(' > '); // Convert the array to a string
+                  testRetries[testTitle] = test.attempts.length - 1;
+                }
+              });
+            });
+          }
+
+          // Save the testRetries object to a file in the e2e/results directory
+          const resultFilePath = path.join(
+            mainCypressFolder,
+            'results',
+            'retries.json'
+          );
+
+          fs.writeFileSync(resultFilePath, JSON.stringify(testRetries, null, 2));
+        });
+
+        on('after:spec', () => {
+          if (global.__coverage__) {
+            delete global.__coverage__;
+          }
         });
       },
       specPattern,
