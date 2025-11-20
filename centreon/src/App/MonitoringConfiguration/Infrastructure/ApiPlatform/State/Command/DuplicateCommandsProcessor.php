@@ -26,11 +26,9 @@ namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Command;
 use ApiPlatform\Metadata\Exception\AccessDeniedException;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
-use App\MonitoringConfiguration\Application\Command\DuplicateCommandCommand;
+use App\MonitoringConfiguration\Application\Command\DuplicateCommandsCommand;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\Command;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandTypeEnum;
-use App\MonitoringConfiguration\Domain\Exception\CommandAccessDeniedException;
-use App\MonitoringConfiguration\Domain\Exception\CommandNotFoundException;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\DuplicateCommandInput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Command\CommandResource;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Command\DuplicateCommandResource;
@@ -61,62 +59,90 @@ final readonly class DuplicateCommandsProcessor implements ProcessorInterface
     public function process($data, Operation $operation, array $uriVariables = [], array $context = []): array
     {
         Assert::isInstanceOf($data, DuplicateCommandInput::class);
-        /** @var DuplicateCommandInput $data */
-        $allowedTypes = [];
-        foreach (CommandTypeEnum::cases() as $commandType) {
-            $writePermission = Command::getWritePermissionForType($commandType);
 
-            if ($this->security->isGranted($writePermission->value)) {
-                $allowedTypes[] = $commandType->name;
-            }
-        }
+        $allowedTypes = $this->getAllowedCommandTypes();
 
         if ($allowedTypes === []) {
             throw new AccessDeniedException('You are not allowed to duplicate commands');
         }
 
-        $results = [];
+        $duplicatedCommandsResult = $this->commandBus->execute(
+            new DuplicateCommandsCommand(
+                commandIds: $data->ids,
+                duplicatedBy: $this->legacySecurity->getUserId(),
+                allowedTypes: $allowedTypes,
+            )
+        );
 
-        foreach ($data->ids as $id) {
-            try {
-                for ($counter = 1; $counter <= $data->nbDuplicates; $counter++) {
-                    /** @var Command $originalCommand */
-                    $originalCommand = $this->commandBus->execute(
-                        new DuplicateCommandCommand(
-                            commandId: $id,
-                            duplicatedBy: $this->legacySecurity->getUserId(),
-                            allowedTypes: $allowedTypes,
-                        )
-                    );
-                    /** @var CommandResource $originalCommandResource */
-                    $originalCommandResource = $this->transformer->transform($originalCommand);
-                    $results[] = new DuplicateCommandResource(
-                        command: $originalCommandResource,
-                        status: 204,
-                        message: 'Command duplicated successfully'
-                    );
-                }
-            } catch (CommandNotFoundException) {
-                $results[] = new DuplicateCommandResource(
-                    command: null,
-                    status: 404,
-                    message: "Command with ID {$id} not found"
-                );
-            } catch (CommandAccessDeniedException) {
-                $results[] = new DuplicateCommandResource(
-                    command: null,
-                    status: 403,
-                    message: "You are not allowed to duplicate command with ID {$id}"
-                );
-            } catch (\Exception $e) {
-                $results[] = new DuplicateCommandResource(
-                    command: null,
-                    status: 500,
-                    message: "An error occurred while duplicating command with ID {$id}: " . $e->getMessage()
-                );
+        return $this->buildResultsFromResponse($duplicatedCommandsResult);
+    }
+
+    private function getAllowedCommandTypes(): array
+    {
+        $allowedTypes = [];
+        foreach (CommandTypeEnum::cases() as $commandType) {
+            $writePermission = Command::getWritePermissionForType($commandType);
+            if ($this->security->isGranted($writePermission->value)) {
+                $allowedTypes[] = $commandType->name;
             }
         }
+        return $allowedTypes;
+    }
+
+    private function buildResultsFromResponse(array $duplicatedCommandsResult): array
+    {
+        $results = [];
+
+        $this->addSuccessfulResults($results, $duplicatedCommandsResult['duplicated'] ?? []);
+        $this->addMissingResults($results, $duplicatedCommandsResult['missing'] ?? []);
+        $this->addDeniedResults($results, $duplicatedCommandsResult['access_denied'] ?? []);
+        $this->addErrorResults($results, $duplicatedCommandsResult['errors'] ?? []);
 
         return $results;
+    }
+
+    private function addSuccessfulResults(array &$results, array $duplicatedCommands): void
+    {
+        foreach ($duplicatedCommands as $duplicatedCommand) {
+            $duplicatedCommandResource = $this->transformer->transform($duplicatedCommand);
+            $results[] = new DuplicateCommandResource(
+                command: $duplicatedCommandResource,
+                status: 204,
+                message: 'Command duplicated successfully'
+            );
+        }
+    }
+
+    private function addMissingResults(array &$results, array $missingIds): void
+    {
+        foreach ($missingIds as $missingId) {
+            $results[] = new DuplicateCommandResource(
+                command: null,
+                status: 404,
+                message: "Command with ID {$missingId} not found"
+            );
+        }
+    }
+
+    private function addDeniedResults(array &$results, array $deniedIds): void
+    {
+        foreach ($deniedIds as $deniedId) {
+            $results[] = new DuplicateCommandResource(
+                command: null,
+                status: 403,
+                message: "You are not allowed to duplicate command with ID {$deniedId}"
+            );
+        }
+    }
+
+    private function addErrorResults(array &$results, array $errors): void
+    {
+        foreach ($errors as $errorId => $errorMessage) {
+            $results[] = new DuplicateCommandResource(
+                command: null,
+                status: 500,
+                message: "An error occurred while duplicating command with ID {$errorId}: {$errorMessage}"
+            );
+        }
     }
 }

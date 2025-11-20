@@ -28,6 +28,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandName;
 use App\MonitoringConfiguration\Domain\Exception\CommandNotFoundException;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\CommandCriteria;
+use App\Shared\Domain\Collection;
 
 interface CommandRepository
 {
@@ -48,6 +49,12 @@ interface CommandRepository
      * @return \IteratorAggregate<int, Command>&\Countable
      */
     public function findAll(?CommandCriteria $criteria): \IteratorAggregate&\Countable;
+
+    /**
+     * @param array<int> $ids
+     * @return Collection<Command>
+     */
+    public function findByIds(array $ids): Collection;
 
     /**
      * @param array<CommandId> $commandIds

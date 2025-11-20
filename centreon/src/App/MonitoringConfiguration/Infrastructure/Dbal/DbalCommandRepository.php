@@ -153,6 +153,20 @@ final readonly class DbalCommandRepository extends DbalRepository implements Com
         );
     }
 
+    public function findByIds(array $ids): Collection
+    {
+        $qb = $this->connection->createQueryBuilder();
+
+        $qb->select(...self::getSelectColumns())
+            ->from(self::TABLE_NAME, 'cm')
+            ->where($qb->expr()->in('cm.command_id', $ids));
+
+        /** @var array<RowTypeAlias> $rows */
+        $rows = $qb->executeQuery()->fetchAllAssociative();
+
+        return new Collection(array_map(fn (array $row): Command => $this->createCommand($row), $rows), Command::class);
+    }
+
     public function add(Command $command): void
     {
         $qb = $this->connection->createQueryBuilder();
@@ -236,6 +250,7 @@ final readonly class DbalCommandRepository extends DbalRepository implements Com
             "{$alias}.command_activate AS cm_command_activate",
             "{$alias}.command_locked AS cm_command_locked",
             "{$alias}.command_comment AS cm_command_comment",
+            "{$alias}.connector_id AS cm_connector_id",
         ];
     }
 

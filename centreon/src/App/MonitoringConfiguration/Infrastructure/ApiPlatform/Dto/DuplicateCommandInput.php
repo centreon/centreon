@@ -23,13 +23,14 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto;
 
+use Symfony\Component\Validator\Constraints as Assert;
+
 final readonly class DuplicateCommandInput
 {
     public function __construct(
+        #[Assert\NotBlank(message: 'IDs array cannot be empty')]
         /** @var array<int> $ids */
         public array $ids,
-
-        public int $nbDuplicates,
     ) {
     }
 }
