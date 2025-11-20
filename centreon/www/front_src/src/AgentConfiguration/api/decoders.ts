@@ -56,7 +56,7 @@ const telegrafConfigurationDecoder = JsonDecoder.object<TelegrafConfiguration>(
 
 const cmaConfigurationDecoder = JsonDecoder.object<CMAConfiguration>(
   {
-    port: JsonDecoder.number,
+    port: JsonDecoder.optional(JsonDecoder.nullable(JsonDecoder.number)),
     tokens: JsonDecoder.optional(
       JsonDecoder.array(
         JsonDecoder.object(

@@ -82,7 +82,7 @@ const adaptCMAConfigurationToAPI = (
     poller_ids: pluck('id', agentConfiguration.pollers) as Array<number>,
     type: (agentConfiguration.type as SelectEntry).id,
     configuration: {
-      port: configuration?.port,
+      port: configuration.agentInitiated ? configuration?.port : null,
       agent_initiated: configuration.agentInitiated,
       poller_initiated: configuration.pollerInitiated,
       tokens:

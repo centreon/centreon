@@ -318,12 +318,12 @@ describe('useValidationSchema', () => {
         pollers: [{ id: 1, name: 'poller1' }],
         connectionMode: { id: 'secure', name: 'Secure' },
         configuration: {
+          port: null,
           agentInitiated: false,
           pollerInitiated: true,
           hosts: [
             {
               address: '192.168.1.1',
-              port: 4317,
               pollerCaCertificate: null,
               pollerCaName: null,
               token: {
@@ -342,8 +342,7 @@ describe('useValidationSchema', () => {
           connectionMode: { id: 'secure' },
           type: { id: AgentType.CMA },
           configuration: {
-            pollerInitiated: true,
-            port: 4317
+            pollerInitiated: true
           }
         }
       });
