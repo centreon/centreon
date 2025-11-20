@@ -20,9 +20,14 @@
  */
 
 use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\Exception\ConnectionException;
 use Adaptation\Database\Connection\ValueObject\QueryParameter;
 use Adaptation\Log\LoggerPassword;
+use App\Kernel;
+use Centreon\Domain\Log\Logger;
+use Core\Common\Domain\Exception\CollectionException;
 use Core\Common\Domain\Exception\RepositoryException;
+use Core\Common\Domain\Exception\ValueObjectException;
 
 if (!isset($centreon)) {
     exit();
@@ -536,34 +541,35 @@ function multipleContactInDB($contacts = array(), $nbrDup = array())
 }
 
 /**
- * @param null $contact_id
- * @param bool $from_MC
- * @param bool $isRemote
- *
- * @throws InvalidArgumentException
- * @throws PDOException
  * @throws RepositoryException
  */
-function updateContactInDB($contact_id = null, $from_MC = false, bool $isRemote = false): void
+function updateContactInDB(mixed $contact_id, bool $from_MC = false, bool $isRemote = false): void
 {
     global $form;
 
-    if (!$contact_id) {
-        return;
+    $contact_id = (int) $contact_id;
+
+    if (! $contact_id > 0) {
+        throw new RepositoryException(
+            message: 'Invalid contact ID provided to update contact from contact page',
+            context: ['contact_id' => $contact_id]
+        );
     }
 
     $ret = $form->getSubmitValues();
-    # Global function to use
+
+    // Global function to use
     if ($from_MC) {
         updateContact_MC($contact_id);
     } else {
         updateContact($contact_id);
     }
-    # Function for updating host commands
-    # 1 - MC with deletion of existing cmds
-    # 2 - MC with addition of new cmds
-    # 3 - Normal update
-    if (isset($ret["mc_mod_hcmds"]["mc_mod_hcmds"]) && $ret["mc_mod_hcmds"]["mc_mod_hcmds"]) {
+
+    // Function for updating host commands
+    // 1 - MC with deletion of existing cmds
+    // 2 - MC with addition of new cmds
+    // 3 - Normal update
+    if (isset($ret['mc_mod_hcmds']['mc_mod_hcmds']) && $ret['mc_mod_hcmds']['mc_mod_hcmds']) {
         updateContactHostCommands($contact_id);
     } elseif (isset($ret["mc_mod_hcmds"]["mc_mod_hcmds"]) && !$ret["mc_mod_hcmds"]["mc_mod_hcmds"]) {
         updateContactHostCommands_MC($contact_id);
@@ -683,66 +689,95 @@ function insertContact($ret = array())
 }
 
 /**
- * @param null $contactId
- *
- * @throws InvalidArgumentException
- * @throws PDOException
  * @throws RepositoryException
  */
-function updateContact($contactId = null): void
+function updateContact(int $contactId): void
 {
-    global $form, $pearDB, $centreon, $encryptType, $dependencyInjector;
-    if (!$contactId) {
-        return;
+    global $form, $pearDB, $centreon;
+
+    if (! $contactId > 0) {
+        throw new RepositoryException(
+            message: 'Invalid contact ID provided to update contact from contact page for contact id ' . $contactId,
+            context: ['contact_id' => $contactId]
+        );
     }
+
     $ret = $form->getSubmitValues();
+
     // Filter fields to only include whitelisted fields for non-admin users
     if (! $centreon->user->admin) {
         $ret = filterNonAdminFields($ret);
     }
+
     // Remove illegal chars in data sent by the user
     $ret['contact_name'] = CentreonUtils::escapeSecure($ret['contact_name'], CentreonUtils::ESCAPE_ILLEGAL_CHARS);
     $ret['contact_alias'] = CentreonUtils::escapeSecure($ret['contact_alias'], CentreonUtils::ESCAPE_ILLEGAL_CHARS);
-    $bindParams = sanitizeFormContactParameters($ret);
 
-    // Build Query with only setted values.
-    $rq = "UPDATE contact SET ";
-    foreach (array_keys($bindParams) as $token) {
-        $rq .= ltrim($token, ':') . " = " . $token . ", ";
+    try {
+        $bindParams = sanitizeFormContactParameters($ret);
+    } catch (InvalidArgumentException $e) {
+        throw new RepositoryException(
+            message: 'Error while sanitizing contact parameters for update from contact page for contact id ' . $contactId,
+            context: ['contact_id' => $contactId],
+            previous: $e,
+        );
     }
-    $rq = rtrim($rq, ', ');
-    $rq .= " WHERE contact_id = :contactId";
 
-    $stmt = $pearDB->prepare($rq);
-    foreach ($bindParams as $token => $bindValues) {
-        foreach ($bindValues as $paramType => $value) {
-            $stmt->bindValue($token, $value, $paramType);
+    try {
+        // Build Query with only setted values.
+        $rq = 'UPDATE contact SET ';
+        foreach (array_keys($bindParams) as $token) {
+            $rq .= ltrim($token, ':') . ' = ' . $token . ', ';
         }
-    }
-    $stmt->bindValue(':contactId', $contactId, \PDO::PARAM_INT);
-    $stmt->execute();
+        $rq = rtrim($rq, ', ');
+        $rq .= ' WHERE contact_id = :contactId';
 
-    if (isset($ret["contact_lang"]) && $ret["contact_lang"] != null && $contactId == $centreon->user->get_id()) {
-        $centreon->user->set_lang($ret["contact_lang"]);
+        $stmt = $pearDB->prepare($rq);
+        foreach ($bindParams as $token => $bindValues) {
+            foreach ($bindValues as $paramType => $value) {
+                $stmt->bindValue($token, $value, $paramType);
+            }
+        }
+        $stmt->bindValue(':contactId', $contactId, PDO::PARAM_INT);
+        $stmt->execute();
+    } catch (PDOException $e) {
+        throw new RepositoryException(
+            message: 'Database error while updating contact from contact page for contact id ' . $contactId,
+            context: ['contact_id' => $contactId],
+            previous: $e,
+        );
     }
 
-    if (isset($ret["contact_passwd"]) && !empty($ret["contact_passwd"])) {
-        $ret["contact_passwd"] = password_hash($ret["contact_passwd"], \CentreonAuth::PASSWORD_HASH_ALGORITHM);
-        $ret["contact_passwd2"] = $ret["contact_passwd"];
+    $userIdConnected = (int) $centreon->user->get_id();
+
+    if (! $userIdConnected > 0) {
+        throw new RepositoryException(
+            message: 'Fetching connected user ID failed during contact update from contact page for contact id ' . $contactId,
+            context: ['contact_id' => $contactId],
+        );
+    }
+
+    if (isset($ret['contact_lang']) && $contactId === $userIdConnected) {
+        $centreon->user->set_lang($ret['contact_lang']);
+    }
+
+    if (isset($ret['contact_passwd']) && $ret['contact_passwd'] !== '') {
+        $ret['contact_passwd'] = password_hash($ret['contact_passwd'], CentreonAuth::PASSWORD_HASH_ALGORITHM);
+        $ret['contact_passwd2'] = $ret['contact_passwd'];
 
         try {
             $contact = new \CentreonContact($pearDB);
             $contact->renewPasswordByContactId($contactId, $ret['contact_passwd']);
 
             LoggerPassword::create()->success(
-                initiatorId: (int) $centreon->user->get_id(),
-                targetId: (int) $contactId,
+                initiatorId: $userIdConnected,
+                targetId: $contactId,
             );
         } catch (PDOException $e) {
             LoggerPassword::create()->warning(
                 reason: 'password update failed',
-                initiatorId: (int) $centreon->user->get_id(),
-                targetId: (int) $contactId,
+                initiatorId: $userIdConnected,
+                targetId: $contactId,
                 exception: $e,
             );
 
@@ -755,18 +790,30 @@ function updateContact($contactId = null): void
 
     /* Prepare value for changelog */
     $fields = CentreonLogAction::prepareChanges($ret);
-    $centreon->CentreonLogAction->insertLog("contact", $contactId, $ret["contact_name"], "c", $fields);
+
+    try {
+        $centreon->CentreonLogAction->insertLog('contact', $contactId, $ret['contact_name'], 'c', $fields);
+    } catch (PDOException $e) {
+        throw new RepositoryException(
+            message: 'Database error while logging update of contact from contact page for contact id ' . $contactId,
+            context: ['contact_id' => $contactId],
+            previous: $e,
+        );
+    }
 }
 
 /**
- * @param null $contact_id
+ * @throws RepositoryException
  */
-function updateContact_MC($contact_id = null)
+function updateContact_MC(int $contact_id): void
 {
     global $form, $pearDB, $centreon;
 
-    if ($contact_id === null || $contact_id === false) {
-        return;
+    if (! $contact_id > 0) {
+        throw new RepositoryException(
+            message: 'Invalid contact ID provided to update contact by massive change for contact id ' . $contact_id,
+            context: ['contact_id' => $contact_id]
+        );
     }
 
     $ret = $form->getSubmitValues();
@@ -783,33 +830,56 @@ function updateContact_MC($contact_id = null)
         $ret = filterNonAdminFields($ret);
     }
 
-    $bindParams = sanitizeFormContactParameters($ret);
-    $rq = "UPDATE contact SET ";
-    foreach (array_keys($bindParams) as $token) {
-        $rq .= ltrim($token, ':') . " = " . $token . ", ";
+    try {
+        $bindParams = sanitizeFormContactParameters($ret);
+    } catch (InvalidArgumentException $e) {
+        throw new RepositoryException(
+            message: 'Error while sanitizing contact parameters for massive change update for contact id ' . $contact_id,
+            context: ['contact_id' => $contact_id],
+            previous: $e,
+        );
     }
-    $rq = rtrim($rq, ', ');
-    $rq .= " WHERE contact_id = :contactId";
 
-    $stmt = $pearDB->prepare($rq);
-    foreach ($bindParams as $token => $bindValues) {
-        foreach ($bindValues as $paramType => $value) {
-            $stmt->bindValue($token, $value, $paramType);
+    try {
+        $query = 'UPDATE contact SET ';
+        foreach (array_keys($bindParams) as $token) {
+            $query .= ltrim($token, ':') . ' = ' . $token . ', ';
         }
-    }
-    $stmt->bindValue(':contactId', $contact_id, \PDO::PARAM_INT);
-    $stmt->execute();
+        $query = rtrim($query, ', ');
+        $query .= ' WHERE contact_id = :contactId';
 
-    /**
-     * Prepare Log.
-     */
-    $query = "SELECT contact_name FROM `contact` WHERE contact_id='" . (int)$contact_id . "' LIMIT 1";
-    $dbResult2 = $pearDB->query($query);
-    $row = $dbResult2->fetch();
+        $stmt = $pearDB->prepare($query);
+        foreach ($bindParams as $token => $bindValues) {
+            foreach ($bindValues as $paramType => $value) {
+                $stmt->bindValue($token, $value, $paramType);
+            }
+        }
+        $stmt->bindValue(':contactId', $contact_id, PDO::PARAM_INT);
+        $stmt->execute();
+
+        // Prepare Log
+        $query = "SELECT contact_name FROM `contact` WHERE contact_id='" . $contact_id . "' LIMIT 1";
+        $dbResult2 = $pearDB->query($query);
+        $row = $dbResult2->fetch();
+    } catch (PDOException $e) {
+        throw new RepositoryException(
+            message: 'Database error while updating contact by massive change for contact id ' . $contact_id,
+            context: ['contact_id' => $contact_id],
+            previous: $e,
+        );
+    }
 
     /* Prepare value for changelog */
     $fields = CentreonLogAction::prepareChanges($ret);
-    $centreon->CentreonLogAction->insertLog("contact", $contact_id, $row["contact_name"], "mc", $fields);
+    try {
+        $centreon->CentreonLogAction->insertLog('contact', $contact_id, $row['contact_name'], 'mc', $fields);
+    } catch (PDOException $e) {
+        throw new RepositoryException(
+            message: 'Database error while logging update of contact by massive change for contact id ' . $contact_id,
+            context: ['contact_id' => $contact_id],
+            previous: $e,
+        );
+    }
 }
 
 /**
@@ -1544,13 +1614,6 @@ function validatePasswordCreation(array $fields): bool|array
         $contact->respectPasswordPolicyOrFail($password, null);
     } catch (\Exception $e) {
         $errors['contact_passwd'] = $e->getMessage();
-
-        LoggerPassword::create()->warning(
-            reason: 'new password does not respect the password policy',
-            initiatorId: $fields['contact_id'] ?? 'unknown',
-            targetId: $fields['contact_id'] ?? 'unknown',
-            exception: $e,
-        );
     }
 
     return count($errors) > 0 ? $errors : true;
@@ -1561,6 +1624,8 @@ function validatePasswordCreation(array $fields): bool|array
  *
  * @param array<string,mixed> $fields
  *
+ * @throws InvalidArgumentException
+ *
  * @return array<string,string>|true
  */
 function validatePasswordModification(array $fields): array|bool
@@ -1569,7 +1634,16 @@ function validatePasswordModification(array $fields): array|bool
     $newPassword = $fields['contact_passwd'];
     $confirmPassword = $fields['contact_passwd2'];
     $currentPassword = $fields['current_password'];
-    $contactId = $fields['contact_id'];
+
+    $contactId = (int) $fields['contact_id'];
+    if (! $contactId > 0) {
+        throw new InvalidArgumentException('Invalid contact ID provided for password modification validation');
+    }
+
+    $userIdConnected = (int) $centreon->user->get_id();
+    if (! $userIdConnected > 0) {
+        throw new InvalidArgumentException('Invalid connected user ID provided for password modification validation');
+    }
 
     // If the user does not want to change his password, we do not need to check it
     if (empty($newPassword) && empty($confirmPassword) && empty($currentPassword)) {
@@ -1580,8 +1654,8 @@ function validatePasswordModification(array $fields): array|bool
     if (empty($newPassword) && ! empty($confirmPassword) && empty($currentPassword)) {
         LoggerPassword::create()->warning(
             reason: 'new password or current password not provided',
-            initiatorId: (int) $centreon->user->get_id(),
-            targetId: (int) $contactId,
+            initiatorId: $userIdConnected,
+            targetId: $contactId,
         );
 
         return ['contact_passwd2' => _('Please fill in all password fields')];
@@ -1591,8 +1665,8 @@ function validatePasswordModification(array $fields): array|bool
     if (empty($newPassword) && ! empty($currentPassword)) {
         LoggerPassword::create()->warning(
             reason: 'new password not provided',
-            initiatorId: (int) $centreon->user->get_id(),
-            targetId: (int) $contactId,
+            initiatorId: $userIdConnected,
+            targetId: $contactId,
         );
 
         return ['current_password' => _('Please fill in all password fields')];
@@ -1602,8 +1676,8 @@ function validatePasswordModification(array $fields): array|bool
     if (! empty($newPassword) && empty($currentPassword)) {
         LoggerPassword::create()->warning(
             reason: 'current password not provided',
-            initiatorId: (int) $centreon->user->get_id(),
-            targetId: (int) $contactId,
+            initiatorId: $userIdConnected,
+            targetId: $contactId,
         );
 
         return ['current_password' => _('Please fill in all password fields')];
@@ -1613,8 +1687,8 @@ function validatePasswordModification(array $fields): array|bool
     if (! empty($currentPassword) && password_verify($currentPassword, $centreon->user->passwd) === false) {
         LoggerPassword::create()->warning(
             reason: 'current password wrong',
-            initiatorId: (int) $centreon->user->get_id(),
-            targetId: (int) $contactId,
+            initiatorId: $userIdConnected,
+            targetId: $contactId,
         );
 
         return ['current_password' => _('Authentication failed')];
@@ -1628,8 +1702,8 @@ function validatePasswordModification(array $fields): array|bool
     } catch (Exception $e) {
         LoggerPassword::create()->warning(
             reason: 'new password does not respect the password policy',
-            initiatorId: (int) $centreon->user->get_id(),
-            targetId: (int) $contactId,
+            initiatorId: $userIdConnected,
+            targetId: $contactId,
             exception: $e,
         );
 
@@ -1641,37 +1715,61 @@ function validatePasswordModification(array $fields): array|bool
  * Validate autologin key is not equal to a password
  *
  * @param array<string,mixed> $fields
- * @return array<string,string>|bool
+ *
+ * @throws RepositoryException
+ * @throws InvalidArgumentException
+ *
+ * @return array<string,string>|true
  */
-function validateAutologin(array $fields)
+function validateAutologin(array $fields): array|bool
 {
-    global $pearDB;
+    global $pearDB, $centreon;
     $errors = [];
-    if (!empty($fields['contact_autologin_key'])) {
-        /**
-         * If user update his autologin key and not his password,
-         * check that the autologin key is not the same as his current password.
-         */
-        if (!empty($fields['contact_id']) && empty($fields['contact_passwd'])) {
-            $contactId = $fields['contact_id'];
-            $statement = $pearDB->prepare(
-                'SELECT * FROM `contact_password` WHERE contact_id = :contactId ORDER BY creation_date DESC LIMIT 1'
-            );
-            $statement->bindValue(':contactId', $contactId, \PDO::PARAM_INT);
-            $statement->execute();
 
-            if (
-                ($result = $statement->fetch(\PDO::FETCH_ASSOC))
-                && password_verify($fields['contact_autologin_key'], $result['password'])
-            ) {
+    if (! empty($fields['contact_autologin_key'])) {
+
+        $contactId = (int) $fields['contact_id'];
+
+        if (! $contactId > 0) {
+            throw new InvalidArgumentException('Invalid contact ID provided for autologin validation');
+        }
+
+        $userIdConnected = (int) $centreon->user->get_id();
+
+        if (! $userIdConnected > 0) {
+            throw new InvalidArgumentException('Invalid connected user ID provided for autologin validation');
+        }
+
+        if (empty($fields['contact_passwd'])) {
+            $query = <<<'SQL'
+                SELECT * FROM `contact_password`
+                WHERE contact_id = :contactId
+                ORDER BY creation_date DESC
+                LIMIT 1
+                SQL;
+
+            try {
+                $contactPassword = $pearDB->fetchAssociative(
+                    $query,
+                    QueryParameters::create([QueryParameter::int('contactId', $contactId)])
+                );
+            } catch (ValueObjectException|CollectionException|ConnectionException $e) {
+                throw new RepositoryException(
+                    message: 'Unable to fetch contact password for contact id ' . $userIdConnected,
+                    context: ['userIdConnected' => $userIdConnected],
+                    previous: $e
+                );
+            }
+
+            if (password_verify($fields['contact_autologin_key'], $contactPassword['password'])) {
                 $errors['contact_autologin_key'] = _(
                     'Your autologin key must be different than your current password'
                 );
 
                 LoggerPassword::create()->warning(
                     reason: 'autologin key is the same as current password',
-                    initiatorId: (int) $fields['contact_id'],
-                    targetId: (int) $fields['contact_id'],
+                    initiatorId: $userIdConnected,
+                    targetId: $contactId,
                 );
             }
         }
@@ -1685,8 +1783,8 @@ function validateAutologin(array $fields)
 
             LoggerPassword::create()->warning(
                 reason: 'autologin key is the same as new password',
-                initiatorId: (int) $fields['contact_id'],
-                targetId: (int) $fields['contact_id'],
+                initiatorId: $userIdConnected,
+                targetId: $contactId,
             );
         }
     }
