@@ -205,7 +205,7 @@ describe('useValidationSchema', () => {
         pollers: [{ id: 1, name: 'poller1' }],
         connectionMode: { id: 'secure', name: 'Secure' },
         configuration: {
-          port: 4317,
+          port: null,
           agentInitiated: false,
           pollerInitiated: true,
           tokens: null,
@@ -324,6 +324,7 @@ describe('useValidationSchema', () => {
           hosts: [
             {
               address: '192.168.1.1',
+              port: 4317,
               pollerCaCertificate: null,
               pollerCaName: null,
               token: {
