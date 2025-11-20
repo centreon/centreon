@@ -56,7 +56,7 @@ When('the user opens the form to create a new dashboard', () => {
 Then(
   'the creation form is displayed and contains the fields to create a dashboard',
   () => {
-    cy.contains('Create dashboard').should('not.be.visible');
+    cy.contains('Create dashboard').should('be.visible');
 
     cy.getByLabel({ label: 'Name', tag: 'input' }).should('be.empty');
 
