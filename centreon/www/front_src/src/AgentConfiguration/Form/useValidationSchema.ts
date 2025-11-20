@@ -75,6 +75,7 @@ export const useValidationSchema = (): Schema<AgentConfigurationForm> => {
   };
 
   const CMAConfigurationSchema = {
+    port: portValidation,
     agentInitiated: boolean(),
     pollerInitiated: boolean(),
     tokens: array().when(['$type', '$connectionMode', 'agentInitiated'], {
