@@ -66,6 +66,10 @@ final readonly class DuplicateCommandsProcessor implements ProcessorInterface
             }
         }
 
+        if (empty($allowedTypes)) {
+            throw new AccessDeniedException('You are not allowed to duplicate commands');
+        }
+
         $results = [];
 
         foreach ($data->ids as $id) {
@@ -90,13 +94,13 @@ final readonly class DuplicateCommandsProcessor implements ProcessorInterface
                 $results[] = new DuplicateCommandResource(
                     command: null,
                     status: 404,
-                    message: "Command with ID {$id} not found."
+                    message: "Command with ID {$id} not found"
                 );
             } catch (AccessDeniedException) {
                 $results[] = new DuplicateCommandResource(
                     command: null,
                     status: 403,
-                    message: "You are not allowed to duplicate command with ID {$id}."
+                    message: "You are not allowed to duplicate command with ID {$id}"
                 );
             } catch (\Exception $e) {
                 $results[] = new DuplicateCommandResource(
