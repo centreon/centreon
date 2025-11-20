@@ -1,6 +1,6 @@
 api_platform:
     title: Centreon
-    version: 25.10.0
+    version: 26.01.0
     show_webby: false
 
     name_converter: 'serializer.name_converter.camel_case_to_snake_case'

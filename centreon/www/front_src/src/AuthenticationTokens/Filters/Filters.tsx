@@ -79,19 +79,19 @@ const Filters = (): JSX.Element => {
       <ExpirationDate />
 
       <MultiConnectedAutocompleteField
+        optionProperty="alias"
         disableClearable={false}
-        disableSortedOptions
         chipProps={{
           onDelete: deleteUser,
           color: 'primary'
         }}
         dataTestId={labelUser}
-        field="name"
+        field="alias"
         getEndpoint={getEndpointConfiguredUser}
-        isOptionEqualToValue={isOptionEqualToValue}
         label={t(labelUser)}
         value={filters.users}
         onChange={changeUser}
+        getRenderedOptionText={(option): string => option?.alias?.toString()}
       />
 
       <MultiConnectedAutocompleteField
