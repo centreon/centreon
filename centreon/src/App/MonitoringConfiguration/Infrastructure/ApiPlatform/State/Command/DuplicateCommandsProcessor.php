@@ -29,8 +29,10 @@ use ApiPlatform\State\ProcessorInterface;
 use App\MonitoringConfiguration\Application\Command\DuplicateCommandCommand;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\Command;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandTypeEnum;
+use App\MonitoringConfiguration\Domain\Exception\CommandAccessDeniedException;
 use App\MonitoringConfiguration\Domain\Exception\CommandNotFoundException;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\DuplicateCommandInput;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Command\CommandResource;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Command\DuplicateCommandResource;
 use App\Shared\Application\Command\CommandBus;
 use App\Shared\Infrastructure\Legacy\LegacySecurity;
@@ -40,10 +42,13 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Webmozart\Assert\Assert;
 
 /**
- * @implements ProcessorInterface<DuplicateCommandResource, DuplicateCommandResource[]>
+ * @implements ProcessorInterface<DuplicateCommandInput, DuplicateCommandResource[]>
  */
 final readonly class DuplicateCommandsProcessor implements ProcessorInterface
 {
+    /**
+     * @param TransformerInterface<Command, CommandResource> $transformer
+     */
     public function __construct(
         private CommandBus $commandBus,
         #[Autowire(service: ResourceCommandTransformer::class)]
@@ -66,7 +71,7 @@ final readonly class DuplicateCommandsProcessor implements ProcessorInterface
             }
         }
 
-        if (empty($allowedTypes)) {
+        if ($allowedTypes === []) {
             throw new AccessDeniedException('You are not allowed to duplicate commands');
         }
 
@@ -74,7 +79,8 @@ final readonly class DuplicateCommandsProcessor implements ProcessorInterface
 
         foreach ($data->ids as $id) {
             try {
-                for ($i = 1; $i <= $data->nbDuplicates; $i++) {
+                for ($counter = 1; $counter <= $data->nbDuplicates; $counter++) {
+                    /** @var Command $originalCommand */
                     $originalCommand = $this->commandBus->execute(
                         new DuplicateCommandCommand(
                             commandId: $id,
@@ -82,7 +88,7 @@ final readonly class DuplicateCommandsProcessor implements ProcessorInterface
                             allowedTypes: $allowedTypes,
                         )
                     );
-
+                    /** @var CommandResource $originalCommandResource */
                     $originalCommandResource = $this->transformer->transform($originalCommand);
                     $results[] = new DuplicateCommandResource(
                         command: $originalCommandResource,
@@ -96,7 +102,7 @@ final readonly class DuplicateCommandsProcessor implements ProcessorInterface
                     status: 404,
                     message: "Command with ID {$id} not found"
                 );
-            } catch (AccessDeniedException) {
+            } catch (CommandAccessDeniedException) {
                 $results[] = new DuplicateCommandResource(
                     command: null,
                     status: 403,

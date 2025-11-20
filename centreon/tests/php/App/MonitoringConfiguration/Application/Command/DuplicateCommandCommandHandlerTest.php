@@ -23,7 +23,6 @@ declare(strict_types=1);
 
 namespace Tests\App\MonitoringConfiguration\Application\Command;
 
-use ApiPlatform\Metadata\Exception\AccessDeniedException;
 use App\MonitoringConfiguration\Application\Command\DuplicateCommandCommand;
 use App\MonitoringConfiguration\Application\Command\DuplicateCommandCommandHandler;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\Command;
@@ -32,9 +31,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandLine;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandName;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandTypeEnum;
-use App\MonitoringConfiguration\Domain\Repository\CommandRepository;
-
-use App\MonitoringConfiguration\Domain\Event\CommandCreated;
+use App\MonitoringConfiguration\Domain\Exception\CommandAccessDeniedException;
 use App\MonitoringConfiguration\Domain\Exception\CommandNotFoundException;
 use PHPUnit\Framework\TestCase;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeCommandRepository;
@@ -43,7 +40,9 @@ use Tests\App\Shared\Double\EventBusSpy;
 final class DuplicateCommandCommandHandlerTest extends TestCase
 {
     private FakeCommandRepository $repository;
+
     private EventBusSpy $eventBus;
+
     private DuplicateCommandCommandHandler $handler;
 
     protected function setUp(): void
@@ -103,8 +102,8 @@ final class DuplicateCommandCommandHandlerTest extends TestCase
         $originalCommand = $this->createTestCommand(1, 'check_load');
         $this->repository->add($originalCommand);
 
-        for ($i = 1; $i <= 1000; $i++) {
-            $duplicate = $this->createTestCommand($i + 1, "check_load_{$i}");
+        for ($counter = 1; $counter <= 1000; $counter++) {
+            $duplicate = $this->createTestCommand($counter + 1, "check_load_{$counter}");
             $this->repository->add($duplicate);
         }
 
@@ -117,7 +116,7 @@ final class DuplicateCommandCommandHandlerTest extends TestCase
         ($this->handler)($command);
 
         $commands = $this->repository->commands;
-        $lastCommand = end($commands);
+        $lastCommand = array_slice($commands, -1)[0];
         self::assertStringStartsWith('check_load_copy_', $lastCommand->name->value);
     }
 
@@ -139,7 +138,7 @@ final class DuplicateCommandCommandHandlerTest extends TestCase
         $originalCommand = $this->createTestCommand(1, 'notify_admin', CommandTypeEnum::Notification);
         $this->repository->add($originalCommand);
 
-        $this->expectException(AccessDeniedException::class);
+        $this->expectException(CommandAccessDeniedException::class);
         $this->expectExceptionMessage('You are not allowed to duplicate this command');
 
         $command = new DuplicateCommandCommand(
@@ -176,7 +175,7 @@ final class DuplicateCommandCommandHandlerTest extends TestCase
         $originalCommand = $this->createTestCommand(1, 'check_http');
         $this->repository->add($originalCommand);
 
-        $this->expectException(AccessDeniedException::class);
+        $this->expectException(CommandAccessDeniedException::class);
 
         $command = new DuplicateCommandCommand(
             commandId: $originalCommand->id()->value,
@@ -190,7 +189,7 @@ final class DuplicateCommandCommandHandlerTest extends TestCase
     private function createTestCommand(
         int $id,
         string $name,
-        CommandTypeEnum $type = CommandTypeEnum::Check
+        CommandTypeEnum $type = CommandTypeEnum::Check,
     ): Command {
         return new Command(
             id: new CommandId($id),

@@ -21,15 +21,10 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto;
+namespace App\MonitoringConfiguration\Domain\Exception;
 
-final readonly class DuplicateCommandInput
+use App\Shared\Domain\Exception\AccessDeniedException;
+
+final class CommandAccessDeniedException extends AccessDeniedException
 {
-    public function __construct(
-        /** @var array<int> $ids */
-        public array $ids,
-
-        public int $nbDuplicates,
-    ) {
-    }
 }

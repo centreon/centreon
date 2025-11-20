@@ -21,15 +21,19 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto;
+namespace App\Shared\Domain\Exception;
 
-final readonly class DuplicateCommandInput
+abstract class AccessDeniedException extends \RuntimeException
 {
+    /**
+     * @param array<string, mixed> $criteria
+     */
     public function __construct(
-        /** @var array<int> $ids */
-        public array $ids,
-
-        public int $nbDuplicates,
+        public readonly array $criteria,
+        string $message = 'Access denied.',
+        int $code = 0,
+        ?\Throwable $previous = null,
     ) {
+        parent::__construct($message, $code, $previous);
     }
 }

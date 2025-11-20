@@ -73,9 +73,13 @@ final class DuplicateCommandsProcessorTest extends ApiTestCase
 
         $responseData = $response->toArray();
         self::assertArrayHasKey('member', $responseData);
+        self::assertIsArray($responseData['member']);
         self::assertCount(1, $responseData['member']);
+        self::assertIsArray($responseData['member'][0]);
+        self::assertIsString($responseData['member'][0]['command']);
         self::assertStringContainsString('/api/latest/configuration/commands/1', $responseData['member'][0]['command']);
         self::assertEquals(204, $responseData['member'][0]['status']);
+        self::assertIsString($responseData['member'][0]['message']);
         self::assertStringContainsString('Command duplicated successfully', $responseData['member'][0]['message']);
     }
 
@@ -131,8 +135,11 @@ final class DuplicateCommandsProcessorTest extends ApiTestCase
 
         $responseData = $response->toArray();
         self::assertArrayHasKey('member', $responseData);
+        self::assertIsArray($responseData['member']);
         self::assertCount(1, $responseData['member']);
+        self::assertIsArray($responseData['member'][0]);
         self::assertEquals(404, $responseData['member'][0]['status']);
+        self::assertIsString($responseData['member'][0]['message']);
         self::assertStringContainsString('Command with ID 99999 not found', $responseData['member'][0]['message']);
     }
 
@@ -183,7 +190,7 @@ final class DuplicateCommandsProcessorTest extends ApiTestCase
         self::assertMatchesResourceItemJsonSchema(DuplicateCommandResource::class);
 
         $responseData = $response->toArray();
-        self::assertArrayHasKey('member', $responseData);
+        self::assertIsArray($responseData['member']);
         self::assertCount(4, $responseData['member']); // 2 commands × 2 duplicates each
     }
 

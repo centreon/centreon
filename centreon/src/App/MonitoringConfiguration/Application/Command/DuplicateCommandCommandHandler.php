@@ -23,11 +23,11 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Application\Command;
 
-use ApiPlatform\Metadata\Exception\AccessDeniedException;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\Command;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandName;
 use App\MonitoringConfiguration\Domain\Event\CommandCreated;
+use App\MonitoringConfiguration\Domain\Exception\CommandAccessDeniedException;
 use App\MonitoringConfiguration\Domain\Repository\CommandRepository;
 use App\Shared\Application\Command\AsCommandHandler;
 use App\Shared\Domain\Event\EventBus;
@@ -46,7 +46,10 @@ final readonly class DuplicateCommandCommandHandler
         $originalCommand = $this->repository->getById(new CommandId($duplicateCommandCommand->commandId));
 
         if (! in_array($originalCommand->type->name, $duplicateCommandCommand->allowedTypes, true)) {
-            throw new AccessDeniedException('You are not allowed to duplicate this command');
+            throw new CommandAccessDeniedException(
+                ['type' => $originalCommand->type->name],
+                'You are not allowed to duplicate this command'
+            );
         }
 
         $newName = $this->generateDuplicateName($originalCommand->name->value);
