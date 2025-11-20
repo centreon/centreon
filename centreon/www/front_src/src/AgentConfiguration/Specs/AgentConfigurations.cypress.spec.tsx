@@ -588,6 +588,7 @@ describe('Agent configurations modal', () => {
         type: 'centreon-agent',
         poller_ids: [1],
         configuration: {
+          port: 4317,
           agent_initiated: true,
           poller_initiated: false,
           tokens: [{ name: 'token 1', creator_id: 1 }],
@@ -719,6 +720,7 @@ describe('Agent configurations modal', () => {
         connection_mode: 'secure',
         poller_ids: [1],
         configuration: {
+          port: 4317,
           tokens: [{ name: 'token 1', creator_id: 1 }],
           agent_initiated: true,
           poller_initiated: true,
@@ -858,6 +860,7 @@ describe('Agent configurations modal', () => {
         connection_mode: 'no-tls',
         poller_ids: [1],
         configuration: {
+          port: 4317,
           agent_initiated: true,
           poller_initiated: true,
           tokens: [],
@@ -1008,6 +1011,7 @@ describe('Agent configurations modal', () => {
         connection_mode: 'insecure',
         poller_ids: [1],
         configuration: {
+          port: 4317,
           tokens: [{ name: 'token 1', creator_id: 1 }],
           agent_initiated: true,
           poller_initiated: true,
