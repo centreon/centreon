@@ -17128,7 +17128,6 @@ msgid "Your IP is not whitelisted"
 msgstr ""
 
 #: centreon/lib/Centreon/Object/Contact/Contact.php
-#: centreon/www/include/Administration/myAccount/DB-Func.php
 msgid "Your autologin key must be different than your current password"
 msgstr ""
 
@@ -17160,10 +17159,6 @@ msgstr ""
 
 #: centreon/www/install/front_translate.php
 msgid "Your form has unsaved changes"
-msgstr ""
-
-#: centreon/www/include/Administration/myAccount/DB-Func.php
-msgid "Your new password and autologin key must be different"
 msgstr ""
 
 #: centreon/src/Core/Security/User/Domain/Exception/UserPasswordException.php
