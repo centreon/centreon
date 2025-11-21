@@ -153,7 +153,11 @@ jobs:
     runs-on: ubuntu-24.04
     needs: [get-environment]
     if: |
-      needs.get-environment.outputs.skip_workflow == 'false'
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      (
+        needs.get-environment.outputs.stability == 'testing' ||
+        (github.event_name == 'pull_request' && needs.get-environment.outputs.target_stability == 'testing')
+      )
     env:
       version: ${{ needs.get-environment.outputs.major_version }}.${{ needs.get-environment.outputs.minor_version }}
       version_file: .version.centreon-web
