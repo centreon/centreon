@@ -101,9 +101,7 @@ const installDatabase = (): void => {
     const osMatches = Cypress.env('WEB_IMAGE_OS').match(/alma(\d+)/);
     cy.execInContainer({
       command: [
-        `bash -e <<EOF
-          curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup | bash -s -- --os-type=rhel --skip-check-installed --skip-maxscale --os-version=${osMatches[1]} --mariadb-server-version="mariadb-10.5"
-EOF`,
+        `dnf module enable -y mariadb:10.11`,
         'dnf install -y mariadb-server mariadb'
       ],
       name: 'web'
