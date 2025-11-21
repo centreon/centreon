@@ -22,6 +22,7 @@ declare(strict_types=1);
 
 namespace Centreon\Infrastructure\RequestParameters;
 
+use Adaptation\Database\QueryBuilder\QueryBuilderInterface;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Centreon\Domain\RequestParameters\RequestParameters;
 use Centreon\Infrastructure\DatabaseConnection;
@@ -520,5 +521,40 @@ class SqlRequestParametersTranslator
             return $this->normalizers[$propertyName]->normalize($valueToNormalize);
         }
         return $valueToNormalize;
+    }
+
+    public function appendQueryBuilderWithPagination(QueryBuilderInterface $queryBuilder): void
+    {
+        $page = $this->requestParameters->getPage();
+        $limit = $this->requestParameters->getLimit();
+        $offset = ($page - 1) * $limit;
+
+        $queryBuilder
+            ->limit($limit)
+            ->offset($offset);
+    }
+
+    public function appendQueryBuilderWithSortParameter(QueryBuilderInterface $queryBuilder): void
+    {
+        foreach ($this->requestParameters->getSort() as $name => $order) {
+            if (array_key_exists($name, $this->concordanceArray)) {
+                $queryBuilder->addOrderBy(
+                    sprintf(
+                        '%s IS NULL, %s',
+                        $this->concordanceArray[$name],
+                        $this->concordanceArray[$name],
+                    ),
+                    $order
+                );
+            }
+        }
+    }
+
+    public function appendQueryBuilderWithSearchParameter(QueryBuilderInterface $queryBuilder): void
+    {
+        $search = $this->requestParameters->getSearch();
+        if (! empty($search)) {
+            $queryBuilder->where($this->createDatabaseQuery($search));
+        }
     }
 }

@@ -70,7 +70,8 @@ function get_provider_class($rule_id)
         $centreon_open_tickets_path,
         $rule_id,
         $get_information['form'],
-        $provider['provider_id']
+        $provider['provider_id'],
+        $provider_name
     );
     return $provider_class;
 }
@@ -143,7 +144,8 @@ $centreon_provider = new $classname(
     $centreon_open_tickets_path,
     $get_information['rule_id'],
     $get_information['form'],
-    $get_information['provider_id']
+    $get_information['provider_id'],
+    $provider_name
 );
 $centreon_provider->setWidgetId($get_information['form']['widgetId']);
 $centreon_provider->setUniqId($get_information['form']['uniqId']);

@@ -293,7 +293,8 @@ class Automatic
             $this->openTicketPath,
             $ruleInfo['rule_id'],
             null,
-            $ruleInfo['provider_id']
+            $ruleInfo['provider_id'],
+            $providerName
         );
         $providerClass->setUniqId($this->uniqId);
 
