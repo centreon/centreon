@@ -41,6 +41,11 @@ interface CommandRepository
 
     public function add(Command $command): void;
 
+    /**
+     * @param array<Command> $commands
+     */
+    public function addMultiple(array $commands): void;
+
     public function update(Command $command): void;
 
     public function delete(Command $command): void;

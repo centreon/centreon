@@ -201,6 +201,74 @@ final readonly class DbalCommandRepository extends DbalRepository implements Com
         $this->setId($command, new CommandId($id));
     }
 
+    public function addMultiple(array $commands): void
+    {
+        if (empty($commands)) {
+            return;
+        }
+
+        $columns = [
+            'command_name',
+            'command_line',
+            'command_type',
+            'enable_shell',
+            'command_activate',
+            'command_locked',
+            'command_comment',
+            'connector_id',
+        ];
+
+        $values = [];
+        $params = [];
+        foreach ($commands as $command) {
+            $values[] = '(' . implode(',', array_fill(0, count($columns), '?')) . ')';
+            $params[] = $command->name->value;
+            $params[] = $command->commandLine->value;
+            $params[] = $command->type->value;
+            $params[] = $command->isShellEnabled ? '1' : '0';
+            $params[] = $command->isActivated ? '1' : '0';
+            $params[] = $command->isFromMonitoringConnector ? '1' : '0';
+            $params[] = $command->comment?->value;
+            $params[] = $command->connector()?->id()->value;
+        }
+
+        $sql = sprintf(
+            'INSERT INTO %s (%s) VALUES %s',
+            self::TABLE_NAME,
+            implode(',', $columns),
+            implode(',', $values)
+        );
+
+        $this->connection->executeStatement($sql, $params);
+        $newIds = $this->findIdsByCommandNames(array_map(fn (Command $command): CommandName => $command->name, $commands));
+
+        foreach ($commands as $command) {
+            $this->setId($command, new CommandId($newIds[$command->name->value]));
+        }
+    }
+
+    private function findIdsByCommandNames(array $commandNames): array
+    {
+        $qb = $this->connection->createQueryBuilder();
+
+        $qb->select('command_id', 'command_name')
+            ->from(self::TABLE_NAME, 'cm')
+            ->where($qb->expr()->in(
+                'cm.command_name',
+                array_map(static fn (CommandName $name): string => '"' . $name->value . '"', $commandNames)
+            ));
+
+        /** @var array<array{command_id: string, command_name: string}> $rows */
+        $rows = $qb->executeQuery()->fetchAllAssociative();
+
+        $results = [];
+        foreach ($rows as $row) {
+            $results[$row['command_name']] = (int) $row['command_id'];
+        }
+
+        return $results;
+    }
+
     public function countLinkedResources(array $commandIds): array
     {
         $qb = $this->connection->createQueryBuilder();

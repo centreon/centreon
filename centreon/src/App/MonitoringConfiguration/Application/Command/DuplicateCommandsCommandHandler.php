@@ -56,33 +56,28 @@ final readonly class DuplicateCommandsCommandHandler
             $missingIds = array_diff($duplicateCommandsCommand->commandIds, $foundIds);
             $results['missing'] = $missingIds;
         }
-
+        $commandToDuplicate = [];
         foreach ($originalCommands as $originalCommand) {
             if (! in_array($originalCommand->type->name, $duplicateCommandsCommand->allowedTypes, true)) {
                 $results['access_denied'][] = $originalCommand->id()->value;
                 continue;
             }
 
-            try {
-                $duplicatedCommand = new Command(
-                    id: null,
-                    name: new CommandName($originalCommand->name->value . '_' . uniqid()),
-                    type: $originalCommand->type,
-                    commandLine: $originalCommand->commandLine,
-                    isShellEnabled: $originalCommand->isShellEnabled,
-                    isActivated: $originalCommand->isActivated,
-                    isFromMonitoringConnector: $originalCommand->isFromMonitoringConnector,
-                    connector: $originalCommand->connector(),
-                    comment: $originalCommand->comment,
-                );
-
-                $this->repository->add($duplicatedCommand);
-                $this->eventBus->fire(new CommandCreated($duplicatedCommand, $duplicateCommandsCommand->duplicatedBy));
-                $results['duplicated'][] = $duplicatedCommand;
-            } catch (InvalidArgumentException|\RuntimeException $e) {
-                $results['errors'][$originalCommand->id()->value] = $e->getMessage();
-            }
+            $commandToDuplicate[] = new Command(
+                id: null,
+                name: new CommandName($originalCommand->name->value . '_' . uniqid()),
+                type: $originalCommand->type,
+                commandLine: $originalCommand->commandLine,
+                isShellEnabled: $originalCommand->isShellEnabled,
+                isActivated: $originalCommand->isActivated,
+                isFromMonitoringConnector: $originalCommand->isFromMonitoringConnector,
+                connector: $originalCommand->connector(),
+                comment: $originalCommand->comment,
+            );
         }
+
+        $this->repository->addMultiple($commandToDuplicate);
+        $results['duplicated'] = $commandToDuplicate;
 
         return $results;
     }
