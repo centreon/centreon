@@ -89,11 +89,11 @@ Then('a message says that the chart will not be displayed is visible', () => {
   cy.waitForElementInIframe('#main-content', 'a:contains("Split chart ")');
   // Check that the message is displayed inside the graph
   cy.getIframeBody()
-    .contains('text', "Too many metrics, the chart can't be displayed")
+    .contains('text', 'More than 20 may cause performance issues.')
     .should('be.visible');
 });
 
 Then('a button is available to display the chart', () => {
   // Check that the button is displayed inside the graph
-  cy.getIframeBody().contains('button', 'Display Chart').should('be.visible');
+  cy.getIframeBody().contains('button', 'Display anyway').should('be.visible');
 });
