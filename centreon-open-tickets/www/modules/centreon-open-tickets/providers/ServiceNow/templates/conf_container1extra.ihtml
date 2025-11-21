@@ -84,7 +84,8 @@ jQuery('#test-servicenow').on('click', function (e) {
     'client_id',
     'client_secret',
     'username',
-    'password'
+    'password',
+    'server_address'
   ];
   var i;
   var inError = false;
@@ -109,6 +110,7 @@ jQuery('#test-servicenow').on('click', function (e) {
     dataType: 'json',
     data: JSON.stringify({
       service: 'ServiceNow',
+      server_address: jQuery('input[name="server_address"]').val(),
       instance: jQuery('input[name="instance_name"]').val(),
       clientId: jQuery('input[name="client_id"]').val(),
       clientSecret: jQuery('input[name="client_secret"]').val(),
