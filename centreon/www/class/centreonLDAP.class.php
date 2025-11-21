@@ -302,19 +302,6 @@ class CentreonLDAP
     }
 
     /**
-     * Transform user, group name for filter
-     *
-     * @param string $name the atrribute
-     * @return string The string changed
-     */
-    public function replaceFilter($name): string
-    {
-        $name = str_replace('(', '\\(', $name);
-
-        return str_replace(')', '\\)', $name);
-    }
-
-    /**
      * Escape special characters in LDAP filter value for username and group
      * @see https://datatracker.ietf.org/doc/html/rfc4515#section-3
      *
@@ -377,7 +364,7 @@ class CentreonLDAP
             return false;
         }
         $this->setErrorHandler();
-        $filter = preg_replace('/%s/', $this->escapeLdapFilterSpecialChars($group), $this->groupSearchInfo['filter']);
+        $filter = ldap_escape($group);
         $result = ldap_search($this->ds, $this->groupSearchInfo['base_search'], $filter);
         $entries = ldap_get_entries($this->ds, $result);
         restore_error_handler();
@@ -400,7 +387,8 @@ class CentreonLDAP
             return [];
         }
         $this->setErrorHandler();
-        $filter = preg_replace('/%s/', $pattern, $this->groupSearchInfo['filter']);
+        $escapedPattern = ldap_escape($pattern, '*', LDAP_ESCAPE_FILTER);
+        $filter = preg_replace('/%s/', $escapedPattern, $this->groupSearchInfo['filter']);
         $result = @ldap_search($this->ds, $this->groupSearchInfo['base_search'], $filter);
         if ($result === false) {
             restore_error_handler();
@@ -435,7 +423,8 @@ class CentreonLDAP
             return [];
         }
         $this->setErrorHandler();
-        $filter = preg_replace('/%s/', $pattern, $this->userSearchInfo['filter']);
+        $escapedPattern = ldap_escape($pattern, '*', LDAP_ESCAPE_FILTER);
+        $filter = preg_replace('/%s/', $escapedPattern, $this->userSearchInfo['filter']);
         $result = ldap_search($this->ds, $this->userSearchInfo['base_search'], $filter);
         $entries = ldap_get_entries($this->ds, $result);
         $nbEntries = $entries['count'];
@@ -505,9 +494,8 @@ class CentreonLDAP
 
             return [];
         }
-        $userdn = str_replace('\\', '\\\\', $userdn);
         $filter = '(&' . preg_replace('/%s/', '*', $this->groupSearchInfo['filter'])
-            . '(' . $this->groupSearchInfo['member'] . '=' . $this->replaceFilter($userdn) . '))';
+            . '(' . $this->groupSearchInfo['member'] . '=' . ldap_escape($userdn, '', LDAP_ESCAPE_FILTER) . '))';
         $result = @ldap_search($this->ds, $this->groupSearchInfo['base_search'], $filter);
         if ($result === false) {
             restore_error_handler();
@@ -539,14 +527,13 @@ class CentreonLDAP
 
             return [];
         }
-        $groupdn = str_replace('\\', '\\\\', $groupdn);
         $list = [];
         if (! empty($this->userSearchInfo['group'])) {
             /**
              * we have specific parameter for user to denote groups he belongs to
              */
             $filter = '(&' . preg_replace('/%s/', '*', $this->userSearchInfo['filter'])
-                . '(' . $this->userSearchInfo['group'] . '=' . $this->replaceFilter($groupdn) . '))';
+                . '(' . $this->userSearchInfo['group'] . '=' . ldap_escape($groupdn) . '))';
             $result = @ldap_search($this->ds, $this->userSearchInfo['base_search'], $filter);
 
             if ($result === false) {
@@ -869,6 +856,37 @@ class CentreonLDAP
     }
 
     /**
+     * Override the custom errorHandler to avoid false errors in the log,
+     *
+     * @param int $errno The error num
+     * @param string $errstr The error message
+     * @param string $errfile The error file
+     * @param int $errline The error line
+     * @return bool
+     */
+    public function errorLdapHandler($errno, $errstr, $errfile, $errline): bool
+    {
+        if ($errno === 2 && ldap_errno($this->ds) === 4) {
+            /*
+            Silencing : 'size limit exceeded' warnings in the logs
+            As the $searchLimit value needs to be consistent with the ldap server's configuration and
+            as the size limit error thrown is not related with the results.
+                ldap_errno : 4 = LDAP_SIZELIMIT_EXCEEDED
+                $errno     : 2 = PHP_WARNING
+            */
+            $this->debug('LDAP Error : Size limit exceeded error. This error was not added to php log. '
+                . "Kindly, check your LDAP server's configuration and your Centreon's LDAP parameters.");
+
+            return true;
+        }
+
+        // throwing all errors
+        $this->debug('LDAP Error : ' . ldap_error($this->ds));
+
+        return false;
+    }
+
+    /**
      * Load the search information
      *
      * @param null $ldapHostId
@@ -1030,37 +1048,6 @@ class CentreonLDAP
         if ($this->debugImport) {
             error_log('[' . date('d/m/Y H:i') . '] ' . $msg . "\n", 3, $this->debugPath . 'ldapsearch.log');
         }
-    }
-
-    /**
-     * Override the custom errorHandler to avoid false errors in the log,
-     *
-     * @param int $errno The error num
-     * @param string $errstr The error message
-     * @param string $errfile The error file
-     * @param int $errline The error line
-     * @return bool
-     */
-    private function errorLdapHandler($errno, $errstr, $errfile, $errline): bool
-    {
-        if ($errno === 2 && ldap_errno($this->ds) === 4) {
-            /*
-            Silencing : 'size limit exceeded' warnings in the logs
-            As the $searchLimit value needs to be consistent with the ldap server's configuration and
-            as the size limit error thrown is not related with the results.
-                ldap_errno : 4 = LDAP_SIZELIMIT_EXCEEDED
-                $errno     : 2 = PHP_WARNING
-            */
-            $this->debug('LDAP Error : Size limit exceeded error. This error was not added to php log. '
-                . "Kindly, check your LDAP server's configuration and your Centreon's LDAP parameters.");
-
-            return true;
-        }
-
-        // throwing all errors
-        $this->debug('LDAP Error : ' . ldap_error($this->ds));
-
-        return false;
     }
 
     /**

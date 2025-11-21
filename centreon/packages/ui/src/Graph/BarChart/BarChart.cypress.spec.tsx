@@ -4,11 +4,14 @@ import { useAtomValue } from 'jotai';
 
 import { userAtom } from '@centreon/ui-context';
 
+import dataMissingPoint from '../mockedData/dataWithMissingPoint.json';
 import dataLastWeek from '../mockedData/lastWeek.json';
 import dataPingService from '../mockedData/pingService.json';
 import dataPingServiceMixedStacked from '../mockedData/pingServiceMixedStacked.json';
 import dataPingServiceStacked from '../mockedData/pingServiceStacked.json';
+import dataPingServiceLinesStackKeys from '../mockedData/pingServiceWithStackedKeys.json';
 
+import { labelAvg, labelMax, labelMin } from '../Chart/translatedLabels';
 import BarChart, { BarChartProps } from './BarChart';
 
 const defaultStart = new Date(
@@ -311,5 +314,42 @@ describe('Bar chart', () => {
     cy.contains('06/07/2023').should('be.visible');
     cy.contains('1 s').should('be.visible');
     cy.contains('1%').should('be.visible');
+  });
+
+  it('displays the stacked bar chart correctly when a point is missing compare to the time serie', () => {
+    initialize({ data: dataMissingPoint });
+
+    cy.findByTestId('stacked-bar-2-0-139').should('be.visible');
+
+    cy.makeSnapshot();
+  });
+
+  it('displays the stacked bar chart with bars stacked together', () => {
+    initialize({ data: dataPingServiceLinesStackKeys });
+
+    cy.findByTestId('stacked-bar-3-0-0.05336').should('be.visible');
+    cy.findByTestId('stacked-bar-4-0-0.06684').should('be.visible');
+
+    cy.makeSnapshot();
+  });
+
+  it('does not displays corresponding calculations when props are set', () => {
+    initialize({
+      data: dataLastWeek,
+      orientation: 'horizontal',
+      legend: {
+        placement: 'bottom',
+        mode: 'grid',
+        showCalculations: {
+          min: true,
+          max: false,
+          avg: false
+        }
+      }
+    });
+
+    cy.contains(labelMin).should('be.visible');
+    cy.contains(labelMax).should('not.exist');
+    cy.contains(labelAvg).should('not.exist');
   });
 });

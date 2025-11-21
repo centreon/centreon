@@ -25,70 +25,92 @@ namespace Core\Security\ProviderConfiguration\Infrastructure\SAML\Api\UpdateSAML
 
 use Centreon\Application\Controller\AbstractController;
 use Centreon\Domain\Contact\Contact;
-use Core\Security\ProviderConfiguration\Application\SAML\UseCase\UpdateSAMLConfiguration\{
-    UpdateSAMLConfiguration,
-    UpdateSAMLConfigurationPresenterInterface,
-    UpdateSAMLConfigurationRequest
-};
+use Centreon\Domain\Log\Logger;
+use Core\Application\Common\UseCase\ErrorResponse;
+use Core\Application\Common\UseCase\InvalidArgumentResponse;
+use Core\Common\Infrastructure\ExceptionLogger\ExceptionLogger;
+use Core\Security\ProviderConfiguration\Application\SAML\UseCase\UpdateSAMLConfiguration\{UpdateSAMLConfiguration,
+    UpdateSAMLConfigurationRequest};
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 final class UpdateSAMLConfigurationController extends AbstractController
 {
-    /**
-     * @param UpdateSAMLConfiguration $useCase
-     * @param Request $request
-     * @param UpdateSAMLConfigurationPresenterInterface $presenter
-     *
-     * @return object
-     */
     public function __invoke(
         UpdateSAMLConfiguration $useCase,
         Request $request,
-        UpdateSAMLConfigurationPresenterInterface $presenter,
+        UpdateSAMLConfigurationPresenter $presenter,
     ): object {
-        $this->denyAccessUnlessGrantedForApiConfiguration();
-        /**
-         * @var Contact $contact
-         */
-        $contact = $this->getUser();
+        try {
+            /** @var Contact $contact */
+            $contact = $this->getUser();
+        } catch (\LogicException $e) {
+            ExceptionLogger::create()->log($e);
+            $presenter->setResponseStatus(
+                new ErrorResponse('User not found when trying to update SAML configuration.')
+            );
+
+            return $presenter->show();
+        }
+
         if (! $contact->hasTopologyRole(Contact::ROLE_ADMINISTRATION_AUTHENTICATION_READ_WRITE)) {
+            Logger::create()->warning(
+                'User does not have the rights to update SAML configuration.',
+                ['user_id' => $contact->getId()]
+            );
+
             return $this->view(null, Response::HTTP_FORBIDDEN);
         }
-        $this->validateDataSent($request, __DIR__ . '/UpdateSAMLConfigurationSchema.json');
-        $updateRequest = $this->createUpdateSAMLConfigurationRequest($request);
+
+        try {
+            $this->validateDataSent($request, __DIR__ . '/UpdateSAMLConfigurationSchema.json');
+            $updateRequest = $this->createUpdateSAMLConfigurationRequest($request);
+        } catch (\InvalidArgumentException $e) {
+            $presenter->setResponseStatus(
+                new InvalidArgumentResponse($e->getMessage())
+            );
+
+            return $presenter->show();
+        } catch (\JsonException $e) {
+            ExceptionLogger::create()->log($e);
+            $presenter->setResponseStatus(
+                new ErrorResponse('Invalid JSON body when trying to update SAML configuration.')
+            );
+
+            return $presenter->show();
+        }
+
         $useCase($presenter, $updateRequest);
 
         return $presenter->show();
     }
 
     /**
-     * @param Request $request
-     *
-     * @return UpdateSAMLConfigurationRequest
+     * @throws \InvalidArgumentException|\JsonException
      */
     private function createUpdateSAMLConfigurationRequest(Request $request): UpdateSAMLConfigurationRequest
     {
         $json = (string) $request->getContent();
-        $requestData = json_decode($json, true);
-        $updateRequest = new UpdateSAMLConfigurationRequest();
-        $updateRequest->isActive = $requestData['is_active'];
-        $updateRequest->isForced = $requestData['is_forced'];
-        $updateRequest->entityIdUrl = $requestData['entity_id_url'];
-        $updateRequest->remoteLoginUrl = $requestData['remote_login_url'];
-        $updateRequest->publicCertificate = $requestData['certificate'];
-        $updateRequest->userIdAttribute = $requestData['user_id_attribute'];
-        $updateRequest->requestedAuthnContext = $requestData['requested_authn_context'];
-        $updateRequest->logoutFrom = $requestData['logout_from'];
-        $updateRequest->logoutFromUrl = $requestData['logout_from_url'];
-        $updateRequest->isAutoImportEnabled = $requestData['auto_import'];
-        $updateRequest->contactTemplate = $requestData['contact_template'];
-        $updateRequest->emailBindAttribute = $requestData['email_bind_attribute'];
-        $updateRequest->userNameBindAttribute = $requestData['fullname_bind_attribute'];
-        $updateRequest->rolesMapping = $requestData['roles_mapping'];
-        $updateRequest->authenticationConditions = $requestData['authentication_conditions'];
-        $updateRequest->groupsMapping = $requestData['groups_mapping'];
+        $requestData = json_decode($json, true, flags: JSON_THROW_ON_ERROR);
 
-        return $updateRequest;
+        return new UpdateSAMLConfigurationRequest(
+            isActive: $requestData['is_active'],
+            isForced: $requestData['is_forced'],
+            remoteLoginUrl: $requestData['remote_login_url'],
+            entityIdUrl: $requestData['entity_id_url'],
+            publicCertificate: $requestData['certificate'] ?? null,
+            userIdAttribute: $requestData['user_id_attribute'],
+            requestedAuthnContext: $requestData['requested_authn_context'] ?? false,
+            requestedAuthnContextComparison: $requestData['requested_authn_context_comparison'],
+            logoutFrom: $requestData['logout_from'],
+            logoutFromUrl: $requestData['logout_from_url'] ?? null,
+            isAutoImportEnabled: $requestData['auto_import'] ?? false,
+            contactTemplate: $requestData['contact_template'] ?? null,
+            emailBindAttribute: $requestData['email_bind_attribute'] ?? null,
+            userNameBindAttribute: $requestData['fullname_bind_attribute'] ?? null,
+            rolesMapping: $requestData['roles_mapping'] ?? [],
+            authenticationConditions: $requestData['authentication_conditions'] ?? [],
+            groupsMapping: $requestData['groups_mapping'] ?? []
+        );
     }
 }

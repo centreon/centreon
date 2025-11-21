@@ -28,6 +28,7 @@ use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
+use Core\Contact\Domain\AdminResolver;
 use Core\Contact\Domain\Model\ContactGroup;
 use Core\Notification\Application\Exception\NotificationException;
 use Core\Notification\Application\Repository\ReadNotificationRepositoryInterface;
@@ -46,6 +47,7 @@ beforeEach(function (): void {
         $this->notificationRepository = $this->createMock(ReadNotificationRepositoryInterface::class),
         $this->readAccessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class),
         $this->contact = $this->createMock(ContactInterface::class),
+        $this->adminResolver = $this->createMock(AdminResolver::class),
     );
 });
 
@@ -134,7 +136,12 @@ it(
             'Message content',
             '<p>Message content</p>'
         );
-        $notificationUser = new NotificationContact(3, 'test-user', 'test-email');
+        $notificationUser = new NotificationContact(
+            3,
+            'test-user',
+            'test-email',
+            'test-alias'
+        );
 
         $this->notificationRepository
             ->expects($this->once())
@@ -146,9 +153,10 @@ it(
             ->method('findMessagesByNotificationId')
             ->willReturn([$notificationMessage]);
 
-        $this->contact
+        $this->adminResolver
             ->expects($this->atLeastOnce())
             ->method('isAdmin')
+            ->with($this->contact)
             ->willReturn(false);
         $this->notificationRepository
             ->expects($this->once())
@@ -170,8 +178,11 @@ it(
 it(
     'should present a FindNotifiableRuleResponse when everything is OK',
     function (): void {
-        $this->contact->expects($this->atLeastOnce())
-            ->method('isAdmin')->willReturn(true);
+        $this->adminResolver
+            ->expects($this->atLeastOnce())
+            ->method('isAdmin')
+            ->with($this->contact)
+            ->willReturn(true);
         $this->contact->expects($this->atLeastOnce())
             ->method('hasTopologyRole')
             ->willReturnMap(
@@ -190,7 +201,12 @@ it(
             'Message content',
             '<p>Message content</p>'
         );
-        $notificationUser = new NotificationContact(3, 'test-user', 'test-email');
+        $notificationUser = new NotificationContact(
+            3,
+            'test-user',
+            'test-email',
+            'test-alias'
+        );
 
         $this->notificationRepository
             ->expects($this->once())

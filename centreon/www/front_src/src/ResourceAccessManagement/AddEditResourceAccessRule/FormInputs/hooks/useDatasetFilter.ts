@@ -33,21 +33,21 @@ import {
   labelAllBusinessViewsSelected,
   labelAllHostGroupsSelected,
   labelAllHostsSelected,
+  labelAllImageFoldersSelected,
   labelAllResources,
   labelAllResourcesSelected,
   labelAllServiceGroupsSelected,
-  labelAllImageFoldersSelected,
   labelBusinessView,
   labelHost,
   labelHostCategory,
   labelHostGroup,
+  labelImageFolder,
   labelMetaService,
   labelPleaseSelectAResource,
   labelSelectResource,
   labelService,
   labelServiceCategory,
-  labelServiceGroup,
-  labelImageFolder
+  labelServiceGroup
 } from '../../../translatedLabels';
 
 type UseDatasetFilterState = {

@@ -54,6 +54,12 @@ export default ({
           commandTrimLength: 5000,
           defaultTrimLength: 5000,
         });
+        on("task", {
+          logVersion(message) {
+            console.log(`[LOG]: ${message}`);
+            return null;
+          },
+        });
         await esbuildPreprocessor(on, config);
         tasks(on);
 
@@ -65,7 +71,7 @@ export default ({
     },
     env: {
       ...env,
-      DATABASE_IMAGE: 'bitnami/mariadb:10.11',
+      DATABASE_IMAGE: 'bitnamilegacy/mariadb:10.11',
       OPENID_IMAGE_VERSION: process.env.MAJOR || '24.04',
       SAML_IMAGE_VERSION: process.env.MAJOR || '24.04',
       STABILITY: 'unstable',

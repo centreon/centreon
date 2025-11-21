@@ -1,10 +1,12 @@
 import { Meta, StoryObj } from '@storybook/react';
 import dayjs from 'dayjs';
+import '../../ThemeProvider/tailwindcss.css';
 
 import { LineChartData } from '../common/models';
 import dataPingService from '../mockedData/pingService.json';
 import dataPingServiceMixedStacked from '../mockedData/pingServiceMixedStacked.json';
 import dataPingServiceStacked from '../mockedData/pingServiceStacked.json';
+import dataPingServiceStackeKey from '../mockedData/pingServiceWithStackedKeys.json';
 
 import { ClickAwayListener } from '@mui/material';
 import { useState } from 'react';
@@ -44,6 +46,11 @@ export const withCenteredZero: Story = {
     ...defaultArgs,
     axis: {
       isCenteredZero: true
+    },
+    legend: {
+      showCalculations: { avg: true, max: false, min: false },
+      mode: 'grid',
+      placement: 'bottom'
     }
   },
   render: Template
@@ -300,4 +307,24 @@ export const withLegendSecondaryClick: Story = {
       data={dataPingService as unknown as LineChartData}
     />
   )
+};
+
+export const stackKey: Story = {
+  args: {
+    ...defaultArgs,
+    data: dataPingServiceStackeKey
+  },
+  render: Template
+};
+
+export const withControlledCalculations: Story = {
+  args: {
+    ...defaultArgs,
+    legend: {
+      showCalculations: { avg: true, max: false, min: false },
+      mode: 'grid',
+      placement: 'bottom'
+    }
+  },
+  render: Template
 };

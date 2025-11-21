@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-namespace */
 import React from 'react';
 
-import { mount } from 'cypress/react18';
+import { mount } from 'cypress/react';
 import { equals, isNil } from 'ramda';
 
 import { Box, CssBaseline } from '@mui/material';

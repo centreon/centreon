@@ -35,7 +35,7 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout sources
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           fetch-depth: 0
 
@@ -72,7 +72,7 @@ jobs:
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           fetch-depth: 0
 
@@ -97,6 +97,7 @@ jobs:
 
           # Output to GITHUB_ENV
           echo "new_release_bundle_tag=$NEW_RELEASE_BUNDLE_TAG" >> "$GITHUB_OUTPUT"
+          echo "major_version=$MAJOR_VERSION" >> "$GITHUB_OUTPUT"
         shell: bash
 
       - name: Check ref where release workflow is hosted
@@ -130,3 +131,4 @@ jobs:
           release_bundle_tag: ${{ steps.build_release_bundle_tag.outputs.new_release_bundle_tag }}
           release_branch: ${{ inputs.release_branch }}
           centreon_technique_pat: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
+          major_version: ${{ steps.build_release_bundle_tag.outputs.major_version }}

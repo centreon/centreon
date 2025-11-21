@@ -21,7 +21,11 @@ interface Props {
   isHorizontal?: boolean;
   legend: Pick<
     LegendModel,
-    'renderExtraComponent' | 'placement' | 'mode' | 'secondaryClick'
+    | 'renderExtraComponent'
+    | 'placement'
+    | 'mode'
+    | 'secondaryClick'
+    | 'showCalculations'
   > & {
     displayLegend: boolean;
     legendHeight?: number;
@@ -31,9 +35,10 @@ interface Props {
   limitLegend?: number | false;
   lines: Array<Line>;
   setLines:
-    | Dispatch<SetStateAction<Array<Line> | null>>
-    | Dispatch<SetStateAction<Array<Line>>>;
+  | Dispatch<SetStateAction<Array<Line> | null>>
+  | Dispatch<SetStateAction<Array<Line>>>;
   title: string;
+  graphHeight: number;
 }
 
 const BaseChart = ({
@@ -49,7 +54,8 @@ const BaseChart = ({
   titleRef,
   title,
   header,
-  isHorizontal = true
+  isHorizontal = true,
+  graphHeight
 }: Props): JSX.Element => {
   const { classes, cx } = useBaseChartStyles();
 
@@ -87,8 +93,8 @@ const BaseChart = ({
                 className={cx(
                   classes.legendContainer,
                   equals(legend?.placement, 'right') &&
-                    !isHorizontal &&
-                    classes.legendContainerVerticalSide
+                  !isHorizontal &&
+                  classes.legendContainerVerticalSide
                 )}
                 ref={legendRef}
               >
@@ -104,7 +110,9 @@ const BaseChart = ({
                   shouldDisplayLegendInCompactMode={
                     shouldDisplayLegendInCompactMode
                   }
+                  showCalculations={legend?.showCalculations}
                   secondaryClick={legend?.secondaryClick}
+                  graphHeight={graphHeight}
                 />
               </div>
             )}
@@ -127,6 +135,8 @@ const BaseChart = ({
             setLinesGraph={setLines}
             shouldDisplayLegendInCompactMode={shouldDisplayLegendInCompactMode}
             secondaryClick={legend?.secondaryClick}
+            showCalculations={legend?.showCalculations}
+            graphHeight={graphHeight}
           />
         </div>
       )}

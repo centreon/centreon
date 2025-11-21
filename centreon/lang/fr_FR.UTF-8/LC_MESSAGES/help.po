@@ -2043,6 +2043,8 @@ msgid ""
 "Image folders that will be displayed to users. Images that belong to these "
 "folders will be visible."
 msgstr ""
+"Dossiers d'images qui seront affichés aux utilisateurs. Les images "
+"appartenant à ces dossiers seront visibles."
 
 #: centreon/www/include/options/media/images/help.php
 msgid "Images."
@@ -2261,10 +2263,10 @@ msgstr ""
 "d'informations."
 
 #: centreon/www/include/Administration/parameters/backup/help.php
-msgid "MySQL configuration file path (i.e. /etc/my.cnf.d/centreon.cnf)"
+msgid ""
+"MySQL configuration file path (e.g. /etc/my.cnf.d/centreon.cnf); leave empty "
+"to use the default value."
 msgstr ""
-"Chemin d'accès au fichier de configuration MySQL (i.e. /etc/my.cnf.d/"
-"centreon.cnf)"
 
 #: centreon/www/include/options/accessLists/groupsACL/help.php
 msgid "Name of access group."
@@ -4835,6 +4837,15 @@ msgid ""
 "field. This is appropriate only if you have a small amount of data, as it "
 "affects performance."
 msgstr ""
+"Cette option peut être utilisée pour éviter les problèmes de performance de "
+"recherche dans la page Statut des ressources, lors de la gestion de grandes "
+"quantités de données.\n"
+"Recherche limitée : la recherche texte libre sera effectuée uniquement sur "
+"les champs suivants : nom d'hôte, alias et adresse, et description du "
+"service. À utiliser si vous avez une grande quantité de données.\n"
+"Recherche complète : la recherche texte libre sera également effectuée sur "
+"le champ \"Informations\". Ceci est approprié uniquement si vous avez une "
+"petite quantité de données, car cela affecte les performances."
 
 #: centreon/www/include/configuration/configNagios/help.php
 msgid ""
@@ -6938,6 +6949,14 @@ msgstr ""
 #: unknown
 msgid "Monitoring engine"
 msgstr "Moteur de supervision"
+
+#: unknown
+msgid ""
+"MySQL configuration file path (e.g. /etc/my.cnf.d/centreon.cnf);leave "
+"empty to use the default value."
+msgstr ""
+"Chemin d'accès au fichier de configuration MySQL (par exemple : /etc/"
+"my.cnf.d/centreon.cnf) ; laisser vide pour utiliser la valeur par défaut."
 
 #: unknown
 msgid ""

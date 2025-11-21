@@ -144,6 +144,7 @@ $attributes = [
         'availableDatasetRoute' => $datasetRoutes['acl_groups'],
         'defaultDatasetRoute' => $datasetRoutes['default_acl_groups'],
         'multiple' => true,
+        'linkedObject' => 'centreonAclGroup',
     ],
 ];
 
@@ -1079,6 +1080,10 @@ if ($o === HOST_WATCH) {
     // Massive Change
     $subMC = $form->addElement('submit', 'submitMC', _('Save'), ['class' => 'btc bt_success']);
     $res = $form->addElement('reset', 'reset', _('Reset'), ['class' => 'btc bt_default']);
+}
+
+if ($o === HOST_ADD || $o === HOST_MODIFY || $o === HOST_MASSIVE_CHANGE) {
+    $form->addFormRule('validateParentChildAreNotCircular');
 }
 
 if (! $isCloudPlatform) {

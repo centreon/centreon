@@ -13,6 +13,7 @@ import { AutocompleteSlotsAndSlotProps } from '@mui/material/Autocomplete';
 import { TextFieldSlotsAndSlotProps } from '@mui/material/TextField';
 import { UseAutocompleteProps } from '@mui/material/useAutocomplete';
 
+import type { AutocompleteRenderOptionState } from '@mui/material/Autocomplete';
 import { ForwardedRef, HTMLAttributes, ReactElement, forwardRef } from 'react';
 import { SelectEntry } from '..';
 import { getNormalizedId } from '../../../utils';
@@ -33,6 +34,11 @@ export type Props = {
   error?: string;
   getOptionItemLabel?: (option) => string;
   hideInput?: boolean;
+  renderOption?: (
+    renderProps: HTMLAttributes<HTMLLIElement>,
+    option: SelectEntry,
+    state: AutocompleteRenderOptionState
+  ) => ReactElement;
   label: string;
   loading?: boolean;
   onTextChange?;
@@ -52,7 +58,7 @@ export type Props = {
 > &
   UseAutocompleteProps<SelectEntry, Multiple, DisableClearable, FreeSolo>;
 
-const LoadingIndicator = (): JSX.Element => {
+const LoadingIndicator = (): ReactElement => {
   const { classes } = useAutoCompleteStyles({});
 
   return (
@@ -90,10 +96,11 @@ const AutocompleteField = forwardRef(
       forceInputRenderValue = false,
       textFieldSlotsAndSlotProps,
       autocompleteSlotsAndSlotProps,
+      renderOption,
       ...autocompleteProps
     }: Props,
     ref?: ForwardedRef<HTMLDivElement>
-  ): JSX.Element => {
+  ): ReactElement => {
     const { classes, cx } = useAutoCompleteStyles({ hideInput });
     const { t } = useTranslation();
     const theme = useTheme();
@@ -107,7 +114,24 @@ const AutocompleteField = forwardRef(
       );
     };
 
-    const renderInput = (params): JSX.Element => {
+    const renderOptions = renderOption
+      ? renderOption
+      : (props, option): ReactElement => {
+          return (
+            <li
+              className={classes.options}
+              {...(props as HTMLAttributes<HTMLLIElement>)}
+            >
+              <Option
+                thumbnailUrl={displayOptionThumbnail ? option.url : undefined}
+              >
+                {getOptionItemLabel(option)}
+              </Option>
+            </li>
+          );
+        };
+
+    const renderInput = (params): ReactElement => {
       return (
         <TextField
           {...params}
@@ -202,20 +226,7 @@ const AutocompleteField = forwardRef(
         options={options}
         ref={ref}
         renderInput={renderInput}
-        renderOption={(props, option): JSX.Element => {
-          return (
-            <li
-              className={classes.options}
-              {...(props as HTMLAttributes<HTMLLIElement>)}
-            >
-              <Option
-                thumbnailUrl={displayOptionThumbnail ? option.url : undefined}
-              >
-                {getOptionItemLabel(option)}
-              </Option>
-            </li>
-          );
-        }}
+        renderOption={renderOptions}
         size="small"
         slotProps={{
           ...autocompleteSlotsAndSlotProps?.slotProps,

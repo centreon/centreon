@@ -1,0 +1,74 @@
+{
+  "global": {},
+  "metrics": [
+    {
+      "metric": "count",
+      "metric_id": 1,
+      "legend": "count",
+      "displayAs": "bar",
+      "ds_data": {
+        "ds_stack": true,
+        "ds_transparency": 0,
+        "ds_filled": false,
+        "ds_color_area": "#4269d0",
+        "ds_color_line": "#4269d0"
+      },
+      "datasourceOptions": {
+        "field": null,
+        "group_by": null,
+        "op": "count-doc",
+        "query": "severity_text:\"Fatal\" OR severity_text:\"Error\"",
+        "period": 3600
+      },
+      "data": [
+        217, 270, 293, 300, 303, 295, 298, 283, 299, 299, 297, 285, 270, 248,
+        274, 292, 284, 47
+      ]
+    },
+    {
+      "metric": "count",
+      "metric_id": 2,
+      "legend": "count",
+      "displayAs": "bar",
+      "ds_data": {
+        "ds_stack": true,
+        "ds_transparency": 0,
+        "ds_filled": false,
+        "ds_color_area": "#efb118",
+        "ds_color_line": "#efb118"
+      },
+      "datasourceOptions": {
+        "field": null,
+        "group_by": null,
+        "op": "count-doc",
+        "query": "",
+        "period": 3600
+      },
+      "data": [
+        32, 825, 939, 922, 918, 939, 943, 947, 946, 909, 931, 939, 883, 907,
+        928, 904, 923, 893, 139
+      ]
+    }
+  ],
+  "times": [
+    "2025-10-04T16:19:30.000Z",
+    "2025-10-04T16:20:00.000Z",
+    "2025-10-04T16:20:30.000Z",
+    "2025-10-04T16:21:00.000Z",
+    "2025-10-04T16:21:30.000Z",
+    "2025-10-04T16:22:00.000Z",
+    "2025-10-04T16:22:30.000Z",
+    "2025-10-04T16:23:00.000Z",
+    "2025-10-04T16:23:30.000Z",
+    "2025-10-04T16:24:00.000Z",
+    "2025-10-04T16:24:30.000Z",
+    "2025-10-04T16:25:00.000Z",
+    "2025-10-04T16:25:30.000Z",
+    "2025-10-04T16:26:00.000Z",
+    "2025-10-04T16:26:30.000Z",
+    "2025-10-04T16:27:00.000Z",
+    "2025-10-04T16:27:30.000Z",
+    "2025-10-04T16:28:00.000Z",
+    "2025-10-04T16:28:30.000Z"
+  ]
+}
