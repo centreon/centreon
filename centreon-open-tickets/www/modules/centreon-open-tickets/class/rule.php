@@ -454,11 +454,11 @@ class Centreon_OpenTickets_Rule
         } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
             CentreonLog::create()->error(
                 CentreonLog::TYPE_SQL,
-                "An error occured while saving - updating open ticket rule: {$exception->getMessage()}",
+                "An error occured while retrieving open ticket rules: {$exception->getMessage()}",
             );
 
             throw new RepositoryException(
-                message: "An error occured while saving - updating open ticket rule: {$exception->getMessage()}",
+                message: "An error occured while retrieving open ticket rules: {$exception->getMessage()}",
                 previous: $exception->getPrevious()
             );
         }
@@ -914,7 +914,7 @@ class Centreon_OpenTickets_Rule
                 $bindParams[] = ':ruleId' . $index;
             }
 
-            $queryParameters[] = QueryParameter::string('activated', $activated);
+            $queryParameters[] = QueryParameter::string('activated', (string) $activated);
             $bindQuery = implode(', ', $bindParams);
 
             $this->_db->update(
@@ -926,12 +926,12 @@ class Centreon_OpenTickets_Rule
         } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
             CentreonLog::create()->error(
                 CentreonLog::TYPE_BUSINESS_LOG,
-                "An error occured while deleting open ticket rule(s): {$exception->getMessage()}",
+                "An error occured while updating activation state of open ticket rule(s): {$exception->getMessage()}",
                 ['rule_ids' => $selectedRules]
             );
 
             throw new RepositoryException(
-                "An error occured while deleting open ticket rule(s): {$exception->getMessage()}",
+                "An error occured while updating activation state of open ticket rule(s): {$exception->getMessage()}",
                 ['rule_ids' => $selectedRules],
                 $exception
             );
