@@ -101,7 +101,7 @@ const installDatabase = (): void => {
     const osMatches = Cypress.env('WEB_IMAGE_OS').match(/alma(\d+)/);
     cy.execInContainer({
       command: [
-        `dnf module enable -y mariadb:10.11`,
+        'dnf module enable -y mariadb:10.11',
         'dnf install -y mariadb-server mariadb'
       ],
       name: 'web'
