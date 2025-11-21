@@ -159,7 +159,7 @@ final readonly class DbalCommandRepository extends DbalRepository implements Com
 
         $qb->select(...self::getSelectColumns())
             ->from(self::TABLE_NAME, 'cm')
-            ->where($qb->expr()->in('cm.command_id', $ids));
+            ->where($qb->expr()->in('cm.command_id', array_map(strval(...), $ids)));
 
         /** @var array<RowTypeAlias> $rows */
         $rows = $qb->executeQuery()->fetchAllAssociative();
@@ -250,7 +250,6 @@ final readonly class DbalCommandRepository extends DbalRepository implements Com
             "{$alias}.command_activate AS cm_command_activate",
             "{$alias}.command_locked AS cm_command_locked",
             "{$alias}.command_comment AS cm_command_comment",
-            "{$alias}.connector_id AS cm_connector_id",
         ];
     }
 

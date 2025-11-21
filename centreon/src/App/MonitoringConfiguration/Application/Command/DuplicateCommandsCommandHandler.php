@@ -29,6 +29,7 @@ use App\MonitoringConfiguration\Domain\Event\CommandCreated;
 use App\MonitoringConfiguration\Domain\Repository\CommandRepository;
 use App\Shared\Application\Command\AsCommandHandler;
 use App\Shared\Domain\Event\EventBus;
+use Webmozart\Assert\InvalidArgumentException;
 
 #[AsCommandHandler]
 final readonly class DuplicateCommandsCommandHandler
@@ -40,7 +41,7 @@ final readonly class DuplicateCommandsCommandHandler
     }
 
     /**
-     * @return array<Command>
+     * @return array<string, array<Command|int|string>>
      */
     public function __invoke(DuplicateCommandsCommand $duplicateCommandsCommand): array
     {
@@ -78,7 +79,7 @@ final readonly class DuplicateCommandsCommandHandler
                 $this->repository->add($duplicatedCommand);
                 $this->eventBus->fire(new CommandCreated($duplicatedCommand, $duplicateCommandsCommand->duplicatedBy));
                 $results['duplicated'][] = $duplicatedCommand;
-            } catch (\Exception $e) {
+            } catch (InvalidArgumentException|\RuntimeException $e) {
                 $results['errors'][$originalCommand->id()->value] = $e->getMessage();
             }
         }

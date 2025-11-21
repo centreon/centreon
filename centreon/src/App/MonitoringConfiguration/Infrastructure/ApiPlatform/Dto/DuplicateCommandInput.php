@@ -27,9 +27,11 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 final readonly class DuplicateCommandInput
 {
+    /**
+     * @param array<int> $ids
+     */
     public function __construct(
         #[Assert\NotBlank(message: 'IDs array cannot be empty')]
-        /** @var array<int> $ids */
         public array $ids,
     ) {
     }

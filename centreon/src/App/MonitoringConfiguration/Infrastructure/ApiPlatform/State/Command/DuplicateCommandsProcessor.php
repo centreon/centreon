@@ -60,12 +60,19 @@ final readonly class DuplicateCommandsProcessor implements ProcessorInterface
     {
         Assert::isInstanceOf($data, DuplicateCommandInput::class);
 
+        /** @var array<int, string> */
         $allowedTypes = $this->getAllowedCommandTypes();
 
         if ($allowedTypes === []) {
             throw new AccessDeniedException('You are not allowed to duplicate commands');
         }
 
+        /** @var array{
+         *     duplicated?: array<Command>,
+         *     missing?: array<int>,
+         *     access_denied?: array<int>,
+         *     errors?: array<int, string>
+         * } $duplicatedCommandsResult */
         $duplicatedCommandsResult = $this->commandBus->execute(
             new DuplicateCommandsCommand(
                 commandIds: $data->ids,
@@ -77,6 +84,9 @@ final readonly class DuplicateCommandsProcessor implements ProcessorInterface
         return $this->buildResultsFromResponse($duplicatedCommandsResult);
     }
 
+    /**
+     * @return array<string>
+     */
     private function getAllowedCommandTypes(): array
     {
         $allowedTypes = [];
@@ -86,9 +96,20 @@ final readonly class DuplicateCommandsProcessor implements ProcessorInterface
                 $allowedTypes[] = $commandType->name;
             }
         }
+
         return $allowedTypes;
     }
 
+    /**
+     * @param array{
+     *     duplicated?: array<Command>,
+     *     missing?: array<int>,
+     *     access_denied?: array<int>,
+     *     errors?: array<int, string>
+     * } $duplicatedCommandsResult
+     *
+     * @return array<DuplicateCommandResource>
+     */
     private function buildResultsFromResponse(array $duplicatedCommandsResult): array
     {
         $results = [];
@@ -101,6 +122,10 @@ final readonly class DuplicateCommandsProcessor implements ProcessorInterface
         return $results;
     }
 
+    /**
+     * @param array<DuplicateCommandResource> $results
+     * @param array<Command> $duplicatedCommands
+     */
     private function addSuccessfulResults(array &$results, array $duplicatedCommands): void
     {
         foreach ($duplicatedCommands as $duplicatedCommand) {
@@ -113,6 +138,10 @@ final readonly class DuplicateCommandsProcessor implements ProcessorInterface
         }
     }
 
+    /**
+     * @param array<DuplicateCommandResource> $results
+     * @param array<int> $missingIds
+     */
     private function addMissingResults(array &$results, array $missingIds): void
     {
         foreach ($missingIds as $missingId) {
@@ -124,6 +153,10 @@ final readonly class DuplicateCommandsProcessor implements ProcessorInterface
         }
     }
 
+    /**
+     * @param array<DuplicateCommandResource> $results
+     * @param array<int> $deniedIds
+     */
     private function addDeniedResults(array &$results, array $deniedIds): void
     {
         foreach ($deniedIds as $deniedId) {
@@ -135,13 +168,17 @@ final readonly class DuplicateCommandsProcessor implements ProcessorInterface
         }
     }
 
+    /**
+     * @param array<DuplicateCommandResource> $results
+     * @param array<int|string> $errors
+     */
     private function addErrorResults(array &$results, array $errors): void
     {
         foreach ($errors as $errorId => $errorMessage) {
             $results[] = new DuplicateCommandResource(
                 command: null,
                 status: 500,
-                message: "An error occurred while duplicating command with ID {$errorId}: {$errorMessage}"
+                message: "An error occurred while duplicating command with ID {$errorId}: " . $errorMessage
             );
         }
     }
