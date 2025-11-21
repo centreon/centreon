@@ -16681,7 +16681,6 @@ msgid "Your IP is not whitelisted"
 msgstr "Ihre IP-Adresse steht nicht auf der Whitelist"
 
 #: centreon/lib/Centreon/Object/Contact/Contact.php
-#: centreon/www/include/Administration/myAccount/DB-Func.php
 msgid "Your autologin key must be different than your current password"
 msgstr ""
 "Ihr Autologin-Schlüssel muss sich von Ihrem derzeitigen Passwort "
@@ -16716,10 +16715,6 @@ msgstr ""
 #: centreon/www/install/front_translate.php
 msgid "Your form has unsaved changes"
 msgstr ""
-
-#: centreon/www/include/Administration/myAccount/DB-Func.php
-msgid "Your new password and autologin key must be different"
-msgstr "Ihr neues Passwort und Autologin-Schlüssel müssen sich unterscheiden"
 
 #: centreon/src/Core/Security/User/Domain/Exception/UserPasswordException.php
 msgid "Your password doesn't match the security policy"
@@ -18786,6 +18781,11 @@ msgid "You must set a poller for generate configuration."
 msgstr ""
 "Sie müssen einen Poller festlegen, damit die Konfiguration erstellt "
 "werden kann."
+
+#: unknown
+msgid "Your new password and autologin key must be different"
+msgstr ""
+"Ihr neues Passwort und Autologin-Schlüssel müssen sich unterscheiden"
 
 #, php-format
 #: unknown

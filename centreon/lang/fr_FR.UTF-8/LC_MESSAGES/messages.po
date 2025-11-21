@@ -16763,7 +16763,6 @@ msgid "Your IP is not whitelisted"
 msgstr "Votre adresse IP n'est pas sur liste blanche"
 
 #: centreon/lib/Centreon/Object/Contact/Contact.php
-#: centreon/www/include/Administration/myAccount/DB-Func.php
 msgid "Your autologin key must be different than your current password"
 msgstr ""
 "Votre clé d'autologin doit être différente de votre mot de passe actuel"
@@ -16797,11 +16796,6 @@ msgstr "Votre tableau de bord a été sauvegardé"
 #: centreon/www/install/front_translate.php
 msgid "Your form has unsaved changes"
 msgstr "Votre formulaire comporte des modifications non enregistrées"
-
-#: centreon/www/include/Administration/myAccount/DB-Func.php
-msgid "Your new password and autologin key must be different"
-msgstr ""
-"Votre nouveau mot de passe et votre clé d'autologin doivent être différents"
 
 #: centreon/src/Core/Security/User/Domain/Exception/UserPasswordException.php
 msgid "Your password doesn't match the security policy"
@@ -21618,6 +21612,12 @@ msgid ""
 msgstr ""
 "Votre formulaire a des modifications non enregistrées. Voulez-vous "
 "quitter le formulaire sans enregistrer les modifications ?"
+
+#: unknown
+msgid "Your new password and autologin key must be different"
+msgstr ""
+"Votre nouveau mot de passe et votre clé d'autologin doivent être "
+"différents"
 
 #: unknown
 msgid "Your session is expired."
