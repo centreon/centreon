@@ -727,6 +727,7 @@ class Centreon_OpenTickets_Rule
 
         try {
             $queryParameters = [];
+            $bindParams = [];
 
             foreach ($selectedRules as $index => $ruleId) {
                 $queryParameters[] = QueryParameter::int('ruleId' . $index, $ruleId);
@@ -906,6 +907,7 @@ class Centreon_OpenTickets_Rule
 
         try {
             $queryParameters = [];
+            $bindParams = [];
 
             foreach ($selectedRules as $index => $ruleId) {
                 $queryParameters[] = QueryParameter::int('ruleId' . $index, $ruleId);
