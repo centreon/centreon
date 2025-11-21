@@ -514,6 +514,7 @@ class ServiceNowProvider extends AbstractProvider
             $tokens = self::getAccessToken(
                 [
                     'instance' => $info['instance'],
+                    'server_address' => $info['server_address'],
                     'client_id' => $info['clientId'],
                     'client_secret' => $info['clientSecret'],
                     'username' => $info['username'],
@@ -593,6 +594,7 @@ class ServiceNowProvider extends AbstractProvider
         if (is_null($refreshToken)) {
             $tokens = self::getAccessToken(
                 array(
+                    'server_address' => $this->getFormValue('server_address', false),
                     'instance' => $this->getFormValue('instance_name', false),
                     'client_id' => $this->getFormValue('client_id', false),
                     'client_secret' => $this->getFormValue('client_secret', false),
@@ -884,9 +886,9 @@ class ServiceNowProvider extends AbstractProvider
     protected function createTicket($params, $accessToken)
     {
         $uri = '/api/now/v1/table/incident';
-        $impacts = explode('_', $params['ticket_arguments'][$this->internal_arg_name[self::ARG_IMPACT]], 2);
-        $urgencies = explode('_', $params['ticket_arguments'][$this->internal_arg_name[self::ARG_URGENCY]], 2);
-        $severities = explode('_', $params['ticket_arguments'][$this->internal_arg_name[self::ARG_SEVERITY]], 2);
+        $impacts = explode('___', $params['ticket_arguments'][$this->internal_arg_name[self::ARG_IMPACT]], 2);
+        $urgencies = explode('___', $params['ticket_arguments'][$this->internal_arg_name[self::ARG_URGENCY]], 2);
+        $severities = explode('___', $params['ticket_arguments'][$this->internal_arg_name[self::ARG_SEVERITY]], 2);
         $data = array(
             'impact' => $impacts[0],
             'urgency' => $urgencies[0],
@@ -897,7 +899,7 @@ class ServiceNowProvider extends AbstractProvider
         );
         if (isset($params['ticket_arguments'][$this->internal_arg_name[self::ARG_CATEGORY]])) {
             $category = explode(
-                '_',
+                '___',
                 $params['ticket_arguments'][$this->internal_arg_name[self::ARG_CATEGORY]],
                 2
             );
@@ -905,7 +907,7 @@ class ServiceNowProvider extends AbstractProvider
         }
         if (isset($params['ticket_arguments'][$this->internal_arg_name[self::ARG_SUBCATEGORY]])) {
             $subcategory = explode(
-                '_',
+                '___',
                 $params['ticket_arguments'][$this->internal_arg_name[self::ARG_SUBCATEGORY]],
                 2
             );
@@ -913,7 +915,7 @@ class ServiceNowProvider extends AbstractProvider
         }
         if (isset($params['ticket_arguments'][$this->internal_arg_name[self::ARG_ASSIGNED_TO]])) {
             $assignedTo = explode(
-                '_',
+                '___',
                 $params['ticket_arguments'][$this->internal_arg_name[self::ARG_ASSIGNED_TO]],
                 2
             );
@@ -921,7 +923,7 @@ class ServiceNowProvider extends AbstractProvider
         }
         if (isset($params['ticket_arguments'][$this->internal_arg_name[self::ARG_ASSIGNMENT_GROUP]])) {
             $assignmentGroup = explode(
-                '_',
+                '___',
                 $params['ticket_arguments'][$this->internal_arg_name[self::ARG_ASSIGNMENT_GROUP]],
                 2
             );
@@ -939,6 +941,10 @@ class ServiceNowProvider extends AbstractProvider
                 $data[$match[1]] = $customFieldValue[1];
             }
         }
+
+        $log = fopen("/var/log/php-fpm/ticket.log", "a");
+        fwrite($log, print_r($data, true));
+        fwrite($log, print_r($params, true));
 
         $result = $this->runHttpRequest($uri, $accessToken, 'POST', $data);
         return array(
