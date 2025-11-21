@@ -51,9 +51,15 @@ jobs:
 
       - name: Run nightly on a different maintenance branch depending on the day
         run: |
-          NIGHTLY_TARGETS=("dev-22.10.x" "dev-23.10.x" "dev-24.04.x" "dev-24.10.x" "dev-25.10.x")
-          echo "[INFO] - Dispatching nightly run to ${NIGHTLY_TARGETS[$(( $(date +%u) - 1 ))]} branch."
-          gh workflow run web.yml -r "${NIGHTLY_TARGETS[$(( $(date +%u) - 1 ))]}" -f nightly_manual_trigger=true
+          NIGHTLY_TARGETS=("dev-24.04.x" "dev-24.10.x" "dev-25.10.x")
+          TARGET_BRANCH=${NIGHTLY_TARGETS[$(( $(date +%u) - 1 ))]}
+          if [[ -z "$TARGET_BRANCH" ]]; then
+            echo "[INFO] - The target branch was not properly defined for that day (out-of-bounds array)."
+            exit 0
+          else
+            gh workflow run web.yml -r "$TARGET_BRANCH" -f nightly_manual_trigger=true
+            echo "[INFO] - Dispatching nightly run to $TARGET_BRANCH branch."
+          fi
         shell: bash
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -147,7 +153,11 @@ jobs:
     runs-on: ubuntu-24.04
     needs: [get-environment]
     if: |
-      needs.get-environment.outputs.skip_workflow == 'false'
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      (
+        needs.get-environment.outputs.stability == 'testing' ||
+        (github.event_name == 'pull_request' && needs.get-environment.outputs.target_stability == 'testing')
+      )
     env:
       version: ${{ needs.get-environment.outputs.major_version }}.${{ needs.get-environment.outputs.minor_version }}
       version_file: .version.centreon-web

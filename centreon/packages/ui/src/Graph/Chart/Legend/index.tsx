@@ -81,17 +81,17 @@ const MainLegend = ({
 
   const contextMenuClick =
     (metricId: number) =>
-    (event: MouseEvent): void => {
-      if (!secondaryClick) {
-        return;
-      }
-      event.preventDefault();
-      secondaryClick({
-        element: event.target,
-        metricId,
-        position: [event.pageX, event.pageY]
-      });
-    };
+      (event: MouseEvent): void => {
+        if (!secondaryClick) {
+          return;
+        }
+        event.preventDefault();
+        secondaryClick({
+          element: event.target,
+          metricId,
+          position: [event.pageX, event.pageY]
+        });
+      };
 
   const selectMetric = ({
     event,
@@ -120,16 +120,17 @@ const MainLegend = ({
 
   return (
     <div
-      className={`overflow-x-hidden overflow-y-auto ${!equals(placement, 'bottom') ? 'h-full mt-[15px]' : 'ml-[50px] mr-[40px]'} legend`}
+      className={`overflow-x-hidden overflow-y-auto ${!equals(placement, 'bottom') ? 'h-full mt-[15px]' : 'ml-[50px] mr-[40px]'}`}
       data-display-side={!equals(placement, 'bottom')}
     >
       <ul
-        className={`list-none flex gap-3 w-full ${!isListMode && equals(placement, 'bottom') && 'flex-wrap'} ${isListMode || !equals(placement, 'bottom') ? 'flex-col h-full w-fit' : ''} ${equals(placement, 'bottom') ? 'max-h-17' : 'max-h-0'}`}
+        className={`list-none flex gap-3 w-full overflow-y-auto ${!isListMode && equals(placement, 'bottom') && 'flex-wrap'} ${isListMode || !equals(placement, 'bottom') ? 'flex-col h-full w-fit' : ''} ${equals(placement, 'bottom') ? 'max-h-17' : 'max-h-fit'} ${!equals(placement, 'bottom') ? 'overflow-x-hidden' : ''}`}
         style={{
           height: equals(placement, 'bottom') ? 'auto' : `${graphHeight}px`
         }}
         data-as-list={isListMode || !equals(placement, 'bottom')}
         data-mode={itemMode}
+        data-legend
       >
         {displayedLines.map((line) => {
           const { color, display, metric_id, unit } = line;
@@ -155,7 +156,7 @@ const MainLegend = ({
 
           return (
             <li
-              className={`${!display ? 'text-text-disabled' : 'text-text-primary'} flex gap-1 ${toggable && 'cursor-pointer'}`}
+              className={`${!display ? 'text-text-disabled' : 'text-text-primary'} flex gap-1 ${toggable && 'cursor-pointer'} ${!equals(placement, 'bottom') ? 'w-fit' : ''}`}
               key={metric_id}
               onClick={(event): void => selectMetric({ event, metric_id })}
               onKeyUp={(event) =>
