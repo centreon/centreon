@@ -706,7 +706,7 @@ jobs:
 
   dockerize:
     runs-on: ubuntu-24.04
-    needs: [get-environment, changes, package]
+    needs: [get-environment, changes]
     if: |
       needs.changes.outputs.trigger_packaging == 'true' &&
       needs.get-environment.outputs.skip_workflow == 'false' &&
