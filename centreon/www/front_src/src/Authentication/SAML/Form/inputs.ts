@@ -136,7 +136,7 @@ const rolesMapping: Array<InputProps> = [
           connectedAutocomplete: {
             additionalConditionParameters: [],
             endpoint: accessGroupsEndpoint,
-            getOptionLabel: (option) => option.name
+            getOptionLabel: (option) => option?.name || ''
           },
           dataTestId: 'saml_accessGroup',
           fieldName: 'accessGroup',
