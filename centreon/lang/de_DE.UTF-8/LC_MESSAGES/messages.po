@@ -4793,8 +4793,12 @@ msgid "Display Autologin shortcut"
 msgstr "Autologin-Shortcut einblenden"
 
 #: centreon/www/install/smarty_translate.php
-msgid "Display Chart"
-msgstr "Diagramm anzeigen"
+msgid "Display anyway"
+msgstr ""
+
+#: centreon/www/include/views/graphs/javascript/centreon-graph.js
+msgid "Too many metrics (X). More than 20 may cause performance issues."
+msgstr ""
 
 #: centreon/www/include/monitoring/downtime/listDowntime.php
 msgid "Display Finished Downtimes"
