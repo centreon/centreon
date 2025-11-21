@@ -213,6 +213,9 @@ describe('SAMLConfiguration', () => {
       'have.value',
       retrievedSAMLConfiguration.roles_mapping.attribute_path
     );
+
+    cy.wait(500).scrollTo('bottom');
+
     cy.findAllByLabelText(labelRoleValue).should('have.length', 2);
     cy.findAllByLabelText(labelRoleValue)
       .eq(0)
@@ -229,8 +232,6 @@ describe('SAMLConfiguration', () => {
         retrievedSAMLConfiguration.roles_mapping.relations[0].access_group.name
       );
     cy.findAllByLabelText(labelAclAccessGroup).eq(1).should('have.value', '');
-
-    cy.wait(500).scrollTo('bottom');
 
     cy.makeSnapshot('displays the SAML configuration form - Roles mapping');
 
