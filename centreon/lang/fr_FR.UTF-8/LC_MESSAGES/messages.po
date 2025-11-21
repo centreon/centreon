@@ -4868,8 +4868,8 @@ msgid "Display Autologin shortcut"
 msgstr "Afficher le raccourci de connexion automatique"
 
 #: centreon/www/install/smarty_translate.php
-msgid "Display anyway"
-msgstr "Afficher quand même"
+msgid "Display Chart"
+msgstr ""
 
 #: centreon/www/include/monitoring/downtime/listDowntime.php
 msgid "Display Finished Downtimes"
@@ -4906,6 +4906,10 @@ msgstr "Afficher les statistiques des collecteurs dans le bandeau"
 #: centreon/www/include/configuration/configObject/host/listHost.php
 msgid "Display all Services for this host"
 msgstr "Afficher tous les services de cet hôte"
+
+#: centreon/www/install/smarty_translate.php
+msgid "Display anyway"
+msgstr "Afficher quand même"
 
 #: centreon/www/install/front_translate.php
 msgid "Display as"
@@ -17423,9 +17427,11 @@ msgstr "Les jetons sont obligatoires"
 msgid "Too many elements to be displayed (>{{graphsCapNumber}})"
 msgstr ""
 
-#: centreon/www/include/views/graphs/javascript/centreon-graph.js
+#: centreon/www/include/views/graphs/graphs.php
 msgid "Too many metrics (X). More than 20 may cause performance issues."
-msgstr "Trop de métriques (X). Plus de 20 peuvent provoquer des problèmes de performance."
+msgstr ""
+"Trop de métriques (X). Plus de 20 peuvent provoquer des problèmes de "
+"performance."
 
 #: centreon/www/include/monitoring/objectDetails/serviceDetails.php
 msgid "Tools"
