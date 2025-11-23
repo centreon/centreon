@@ -24683,12 +24683,8 @@ msgid "Duplicate command"
 msgstr "Dupliquer la commande"
 
 #: unknown
-msgid ""
-"You are about to duplicate the <strong>{{ name }}</strong> command. "
-"How many duplications would you like to make?"
-msgstr ""
-"Vous êtes sur le point de dupliquer la commande <strong>{{ name }}</"
-"strong>. Combien d'exemplaires souhaitez-vous créer ?"
+msgid "You are about to duplicate the <strong>{{ name }}</strong> command."
+msgstr "Vous êtes sur le point de dupliquer la commande <strong>{{ name }}</strong>."
 
 #: unknown
 msgid ""

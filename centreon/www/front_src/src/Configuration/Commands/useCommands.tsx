@@ -83,7 +83,8 @@ const useCommands = (): UseCommandsState => {
         disable: Method.PATCH
       },
       adapter: adaptFormToApiPayload,
-      apiFormat: 'JSON-LD'
+      apiFormat: 'JSON-LD',
+      isSingleDuplicate: true
     }),
     []
   );

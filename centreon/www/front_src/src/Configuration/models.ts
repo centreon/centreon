@@ -106,6 +106,7 @@ export interface APIType {
     enable?: Method;
     disable?: Method;
   };
+  isSingleDuplicate?: boolean;
 }
 
 export interface FilterConfiguration {
