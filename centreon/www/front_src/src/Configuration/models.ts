@@ -77,7 +77,8 @@ export enum FieldType {
   Status = 'status',
   MultiAutocomplete = 'multiAutocomplete',
   MultiConnectedAutocomplete = 'multiConnectedAutocomplete',
-  Checkboxes = 'checkboxes'
+  Checkbox = 'Checkbox',
+  Checkboxes = 'Checkboxes'
 }
 
 export interface Endpoints {

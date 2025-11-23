@@ -1,14 +1,7 @@
-import {
-  Checkbox,
-  FormControlLabel,
-  FormGroup,
-  Typography
-} from '@mui/material';
+import { Checkbox, FormControlLabel, Typography } from '@mui/material';
 import { SetStateAction } from 'jotai';
 import { Dispatch, JSX } from 'react';
 import { useTranslation } from 'react-i18next';
-
-import { useFilterStyles } from '../../../Filters.styles';
 
 import useCheckboxes from './useCheckboxes';
 
@@ -28,7 +21,6 @@ const Checkboxes = <TFilters,>({
   options
 }: Props<TFilters>): JSX.Element => {
   const { t } = useTranslation();
-  const { classes } = useFilterStyles();
 
   const { change, isChecked } = useCheckboxes<TFilters>({
     filters,
@@ -37,9 +29,9 @@ const Checkboxes = <TFilters,>({
   });
 
   return (
-    <div className={classes.statusFilter}>
-      <Typography className={classes.statusFilterName}>{t(label)}</Typography>
-      <FormGroup row>
+    <div className="flex flex-col justify-between items-start pl-2">
+      <Typography className="font-medium">{t(label)}</Typography>
+      <div className="grid grid-cols-2">
         {options.map(({ id, name }) => (
           <FormControlLabel
             control={
@@ -54,7 +46,7 @@ const Checkboxes = <TFilters,>({
             label={t(name)}
           />
         ))}
-      </FormGroup>
+      </div>
     </div>
   );
 };

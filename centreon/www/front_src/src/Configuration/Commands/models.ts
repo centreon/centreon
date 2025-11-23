@@ -36,4 +36,5 @@ export interface Filters {
   enabled: boolean;
   disabled: boolean;
   type: Array<'Notification' | 'Check' | 'Miscellaneous' | 'Discovery'>;
+  is_from_monitoring_connector: boolean;
 }

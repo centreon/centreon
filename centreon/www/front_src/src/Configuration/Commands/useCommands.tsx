@@ -17,6 +17,7 @@ import { Command, Payload } from './models';
 import {
   labelCheck,
   labelDiscovery,
+  labelLockedElements,
   labelMiscellaneous,
   labelName,
   labelNotification,
@@ -48,16 +49,14 @@ interface UseCommandsState {
   filtersConfiguration: Array<FilterConfiguration>;
 }
 
-export const adaptFormToApiPayload = (formData: Command): Payload => {
-  return {
-    name: formData.name,
-    type: formData.type,
-    command_line: formData.commandLine,
-    is_shell_enabled: formData.isShellEnabled,
-    connector: formData.connector?.id || null,
-    comment: formData.comment || null
-  };
-};
+export const adaptFormToApiPayload = (formData: Command): Payload => ({
+  name: formData.name,
+  type: formData.type,
+  command_line: formData.commandLine,
+  is_shell_enabled: formData.isShellEnabled,
+  connector: formData.connector?.id || null,
+  comment: formData.comment || null
+});
 
 const useCommands = (): UseCommandsState => {
   const { t } = useTranslation();
@@ -105,6 +104,12 @@ const useCommands = (): UseCommandsState => {
       {
         name: t(labelStatus),
         fieldType: FieldType.Status
+      },
+      {
+        name: t(labelLockedElements),
+        fieldName: 'is_from_monitoring_connector',
+        fieldType: FieldType.Checkbox,
+        options: typeOptions
       }
     ],
     []

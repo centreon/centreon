@@ -48,7 +48,7 @@ const CommandLine = (): ReactElement => {
         <SingleConnectedAutocompleteField
           label={t(labelInstalledPlugins)}
           onChange={changeMacro('installedPlugin')}
-          getEndpoint={getStandardMacrosEndpoint}
+          getEndpoint={getPluginsEndpoint}
           value={macros.installedPlugin}
           decoder={JSONLDEntitiesListDecoder}
           field="name"
@@ -56,7 +56,7 @@ const CommandLine = (): ReactElement => {
         <SingleConnectedAutocompleteField
           label={t(labelStandardMacros)}
           onChange={changeMacro('standardMacro')}
-          getEndpoint={getPluginsEndpoint}
+          getEndpoint={getStandardMacrosEndpoint}
           value={macros.standardMacro}
           decoder={JSONLDEntitiesListDecoder}
           field="name"

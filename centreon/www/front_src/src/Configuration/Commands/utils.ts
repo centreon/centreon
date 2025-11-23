@@ -14,7 +14,8 @@ export const filtersInitialValues: Filters = {
   name: '',
   enabled: false,
   disabled: false,
-  type: []
+  type: [],
+  is_from_monitoring_connector: false
 };
 
 export const filtersAtomKey = 'centreon-commands-filters-1';

@@ -28,6 +28,31 @@ const useLoadData = ({ filtersAtom, filtersAtomKey }): LoadDataState => {
       equals(filter.fieldType, FieldType.Status)
     ) && !equals(filters?.enabled, filters?.disabled);
 
+  const getCheckboxQueries = () => {
+    const isCheckboxFilterApplied = configuration?.filtersConfiguration?.some(
+      (filter) => equals(filter.fieldType, FieldType.Checkbox)
+    );
+
+    if (!isCheckboxFilterApplied) {
+      return [];
+    }
+
+    const filterName = configuration?.filtersConfiguration?.find((filter) =>
+      equals(filter.fieldType, FieldType.Checkbox)
+    )?.fieldName as string;
+
+    const filterValue = filters?.[filterName];
+
+    return filterValue
+      ? [
+          {
+            name: filterName,
+            value: true
+          }
+        ]
+      : [];
+  };
+
   const getCheckboxesQueries = () => {
     const isCheckboxesFilterApplied = configuration?.filtersConfiguration?.some(
       (filter) => equals(filter.fieldType, FieldType.Checkboxes)
@@ -102,7 +127,8 @@ const useLoadData = ({ filtersAtom, filtersAtomKey }): LoadDataState => {
     const customQueryParameters = [
       { name: 'name[lk]', value: filters?.name },
       ...statusQueryParam,
-      ...getCheckboxesQueries()
+      ...getCheckboxesQueries(),
+      ...getCheckboxQueries()
     ];
 
     return customQueryParameters;
