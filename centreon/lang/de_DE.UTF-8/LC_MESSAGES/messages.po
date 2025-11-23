@@ -4794,7 +4794,7 @@ msgstr "Autologin-Shortcut einblenden"
 
 #: centreon/www/install/smarty_translate.php
 msgid "Display Chart"
-msgstr "Diagramm anzeigen"
+msgstr ""
 
 #: centreon/www/include/monitoring/downtime/listDowntime.php
 msgid "Display Finished Downtimes"
@@ -4831,6 +4831,10 @@ msgstr "Pollerstatistikcounter in der oberen Menüleiste anzeigen"
 #: centreon/www/include/configuration/configObject/host/listHost.php
 msgid "Display all Services for this host"
 msgstr "Alle Services für diesen Host anzeigen"
+
+#: centreon/www/install/smarty_translate.php
+msgid "Display anyway"
+msgstr ""
 
 #: centreon/www/install/front_translate.php
 msgid "Display as"
@@ -17187,6 +17191,10 @@ msgstr ""
 msgid "Token has been created"
 msgstr ""
 
+#: centreon/src/Core/Security/Token/Application/Exception/TokenException.php
+msgid "Token not found"
+msgstr ""
+
 #: centreon/src/Core/AgentConfiguration/Application/Exception/AgentConfigurationException.php
 #, php-format
 msgid "Token with name \"%s\" and creator ID \"%d\" is not valid"
@@ -17198,6 +17206,10 @@ msgstr ""
 
 #: centreon/www/install/front_translate.php
 msgid "Too many elements to be displayed (>{{graphsCapNumber}})"
+msgstr ""
+
+#: centreon/www/include/views/graphs/graphs.php
+msgid "Too many metrics (X). More than 20 may cause performance issues."
 msgstr ""
 
 #: centreon/www/include/monitoring/objectDetails/serviceDetails.php

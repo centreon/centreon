@@ -1,7 +1,7 @@
 {
   "name": "centreon/centreon",
   "description": "Centreon - IT and Application monitoring software",
-  "version": "25.11",
+  "version": "26.01",
   "type": "project",
   "license": "GPL-2.0-only",
   "require": {
@@ -69,6 +69,7 @@
     "symfony/messenger": "7.3.*",
     "symfony/mime": "7.3.*",
     "symfony/monolog-bundle": "3.10.*",
+    "symfony/process": "7.3.*",
     "symfony/property-info": "7.3.*",
     "symfony/routing": "7.3.*",
     "symfony/runtime": "7.3.*",

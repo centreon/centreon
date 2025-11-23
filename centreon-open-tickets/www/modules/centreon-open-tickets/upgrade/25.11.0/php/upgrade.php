@@ -18,25 +18,3 @@
  * For more information : contact@centreon.com
  *
  */
-
-declare(strict_types=1);
-
-namespace CentreonOpenTickets\Providers\Domain\Model;
-
-enum ProviderType
-{
-    case Mail;
-    case Glpi;
-    case Otrs;
-    case Simple;
-    case BmcItsm;
-    case Serena;
-    case BmcFootprints11;
-    case EasyvistaSoap;
-    case ServiceNow;
-    case Jira;
-    case GlpiRestApi;
-    case RequestTracker2;
-    case Itop;
-    case EasyVistaRest;
-}
