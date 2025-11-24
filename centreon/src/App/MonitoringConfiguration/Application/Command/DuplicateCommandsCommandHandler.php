@@ -29,7 +29,6 @@ use App\MonitoringConfiguration\Domain\Event\CommandCreated;
 use App\MonitoringConfiguration\Domain\Repository\CommandRepository;
 use App\Shared\Application\Command\AsCommandHandler;
 use App\Shared\Domain\Event\EventBus;
-use Webmozart\Assert\InvalidArgumentException;
 
 #[AsCommandHandler]
 final readonly class DuplicateCommandsCommandHandler
@@ -63,21 +62,17 @@ final readonly class DuplicateCommandsCommandHandler
                 continue;
             }
 
-            try {
-                $commandToDuplicate[] = new Command(
-                    id: null,
-                    name: new CommandName($originalCommand->name->value . '_' . uniqid()),
-                    type: $originalCommand->type,
-                    commandLine: $originalCommand->commandLine,
-                    isShellEnabled: $originalCommand->isShellEnabled,
-                    isActivated: $originalCommand->isActivated,
-                    isFromMonitoringConnector: $originalCommand->isFromMonitoringConnector,
-                    connector: $originalCommand->connector(),
-                    comment: $originalCommand->comment,
-                );
-            } catch (InvalidArgumentException $e) {
-                $results['errors'][$originalCommand->id()->value] = $e->getMessage();
-            }
+            $commandToDuplicate[] = new Command(
+                id: null,
+                name: new CommandName($originalCommand->name->value . '_' . uniqid()),
+                type: $originalCommand->type,
+                commandLine: $originalCommand->commandLine,
+                isShellEnabled: $originalCommand->isShellEnabled,
+                isActivated: $originalCommand->isActivated,
+                isFromMonitoringConnector: $originalCommand->isFromMonitoringConnector,
+                connector: $originalCommand->connector(),
+                comment: $originalCommand->comment,
+            );
         }
 
         $this->repository->addMultiple($commandToDuplicate);

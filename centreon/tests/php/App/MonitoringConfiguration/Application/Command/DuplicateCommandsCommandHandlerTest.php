@@ -62,6 +62,12 @@ final class DuplicateCommandsCommandHandlerTest extends TestCase
             allowedTypes: ['Check']
         );
 
+        /** @var array{
+         *     duplicated?: array<Command>,
+         *     missing?: array<int>,
+         *     access_denied?: array<int>,
+         *     errors?: array<int, string>
+         * } $result */
         $result = ($this->handler)($command);
 
         self::assertArrayHasKey('duplicated', $result);
@@ -86,6 +92,12 @@ final class DuplicateCommandsCommandHandlerTest extends TestCase
             allowedTypes: ['Check']
         );
 
+        /** @var array{
+         *     duplicated?: array<Command>,
+         *     missing?: array<int>,
+         *     access_denied?: array<int>,
+         *     errors?: array<int, string>
+         * } $result */
         $result = ($this->handler)($command);
 
         self::assertArrayHasKey('missing', $result);
@@ -103,6 +115,12 @@ final class DuplicateCommandsCommandHandlerTest extends TestCase
             allowedTypes: ['Check']
         );
 
+        /** @var array{
+         *     duplicated?: array<Command>,
+         *     missing?: array<int>,
+         *     access_denied?: array<int>,
+         *     errors?: array<int, string>
+         * } $result */
         $result = ($this->handler)($command);
 
         self::assertArrayHasKey('access_denied', $result);
@@ -120,13 +138,18 @@ final class DuplicateCommandsCommandHandlerTest extends TestCase
             allowedTypes: ['Check', 'Notification']
         );
 
+        /** @var array{
+         *     duplicated?: array<Command>,
+         *     missing?: array<int>,
+         *     access_denied?: array<int>,
+         *     errors?: array<int, string>
+         * } $result */
         $result = ($this->handler)($command);
 
         self::assertArrayHasKey('duplicated', $result);
         self::assertCount(1, $result['duplicated']);
 
         $duplicatedCommand = $result['duplicated'][0];
-        self::assertNotNull($duplicatedCommand);
         self::assertSame(CommandTypeEnum::Notification, $duplicatedCommand->type);
         self::assertStringStartsWith('notify_admin_', $duplicatedCommand->name->value);
     }
@@ -142,6 +165,12 @@ final class DuplicateCommandsCommandHandlerTest extends TestCase
             allowedTypes: []
         );
 
+        /** @var array{
+         *     duplicated?: array<Command>,
+         *     missing?: array<int>,
+         *     access_denied?: array<int>,
+         *     errors?: array<int, string>
+         * } $result */
         $result = ($this->handler)($command);
 
         self::assertArrayHasKey('access_denied', $result);

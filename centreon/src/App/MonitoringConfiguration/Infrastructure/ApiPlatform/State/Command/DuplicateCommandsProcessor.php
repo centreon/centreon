@@ -71,7 +71,6 @@ final readonly class DuplicateCommandsProcessor implements ProcessorInterface
          *     duplicated?: array<Command>,
          *     missing?: array<int>,
          *     access_denied?: array<int>,
-         *     errors?: array<int, string>
          * } $duplicatedCommandsResult */
         $duplicatedCommandsResult = $this->commandBus->execute(
             new DuplicateCommandsCommand(
@@ -105,7 +104,6 @@ final readonly class DuplicateCommandsProcessor implements ProcessorInterface
      *     duplicated?: array<Command>,
      *     missing?: array<int>,
      *     access_denied?: array<int>,
-     *     errors?: array<int, string>
      * } $duplicatedCommandsResult
      *
      * @return array<DuplicateCommandResource>
@@ -117,7 +115,6 @@ final readonly class DuplicateCommandsProcessor implements ProcessorInterface
         $this->addSuccessfulResults($results, $duplicatedCommandsResult['duplicated'] ?? []);
         $this->addMissingResults($results, $duplicatedCommandsResult['missing'] ?? []);
         $this->addDeniedResults($results, $duplicatedCommandsResult['access_denied'] ?? []);
-        $this->addErrorResults($results, $duplicatedCommandsResult['errors'] ?? []);
 
         return $results;
     }
@@ -164,21 +161,6 @@ final readonly class DuplicateCommandsProcessor implements ProcessorInterface
                 command: null,
                 status: 403,
                 message: "You are not allowed to duplicate command with ID {$deniedId}"
-            );
-        }
-    }
-
-    /**
-     * @param array<DuplicateCommandResource> $results
-     * @param array<int|string> $errors
-     */
-    private function addErrorResults(array &$results, array $errors): void
-    {
-        foreach ($errors as $errorId => $errorMessage) {
-            $results[] = new DuplicateCommandResource(
-                command: null,
-                status: 500,
-                message: "An error occurred while duplicating command with ID {$errorId}: " . $errorMessage
             );
         }
     }
