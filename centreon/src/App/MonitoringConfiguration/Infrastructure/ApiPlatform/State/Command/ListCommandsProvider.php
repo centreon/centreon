@@ -100,6 +100,7 @@ final readonly class ListCommandsProvider implements ProviderInterface
         $criteria = $this->handleTypeFilter($allowedTypes, $criteria);
         $criteria = $this->handleNameFilter($filters['name'] ?? null, $criteria);
         $criteria = $this->handleStatusFilter($filters['is_activated'] ?? null, $criteria);
+        $criteria = $this->handleFromMonitoringConnectorFilter($filters['is_from_monitoring_connector'] ?? null, $criteria);
         $criteria = $this->handleSort($filters, $criteria);
 
         $commands = $this->commandRepository->findAll($criteria);
@@ -182,5 +183,18 @@ final readonly class ListCommandsProvider implements ProviderInterface
         $statusFilter = filter_var($statusFilter, FILTER_VALIDATE_BOOLEAN);
 
         return $criteria->withStatus($statusFilter);
+    }
+
+    private function handleFromMonitoringConnectorFilter(?string $fromMonitoringConnectorFilter, CommandCriteria $criteria): CommandCriteria
+    {
+        if ($fromMonitoringConnectorFilter === null) {
+            return $criteria;
+        }
+
+        $fromMonitoringConnectorFilter = filter_var($fromMonitoringConnectorFilter, FILTER_VALIDATE_BOOLEAN);
+
+        return $fromMonitoringConnectorFilter
+            ? $criteria->withFromMonitoringConnector(true)
+            : $criteria;
     }
 }

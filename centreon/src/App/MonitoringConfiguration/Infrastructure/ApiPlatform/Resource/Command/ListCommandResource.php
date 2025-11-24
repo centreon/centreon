@@ -78,9 +78,18 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Command\ListCom
                 ],
             ),
             new Model\Parameter(
-                name: 'status',
+                name: 'is_activated',
                 in: 'query',
                 description: 'Filter by activation status',
+                required: false,
+                schema: [
+                    'type' => 'boolean',
+                ],
+            ),
+            new Model\Parameter(
+                name: 'is_from_monitoring_connector',
+                in: 'query',
+                description: 'If set to true, includes commands coming from monitoring connectors to the results',
                 required: false,
                 schema: [
                     'type' => 'boolean',

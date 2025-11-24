@@ -47,6 +47,8 @@ final class CommandCriteria implements SortableCriteria
 
     private ?bool $status = null;
 
+    private ?bool $fromMonitoringConnector = null;
+
     public function withPagination(int $page, int $itemsPerPage): self
     {
         Assert::positiveInteger($page);
@@ -100,6 +102,13 @@ final class CommandCriteria implements SortableCriteria
         return clone $this;
     }
 
+    public function withFromMonitoringConnector(bool $fromMonitoringConnector): self
+    {
+        $this->fromMonitoringConnector = $fromMonitoringConnector;
+
+        return clone $this;
+    }
+
     public function getPage(): ?int
     {
         return $this->page;
@@ -129,6 +138,11 @@ final class CommandCriteria implements SortableCriteria
     public function getStatus(): ?bool
     {
         return $this->status;
+    }
+
+    public function getFromMonitoringConnector(): ?bool
+    {
+        return $this->fromMonitoringConnector;
     }
 
     public function getFieldMapping(): array

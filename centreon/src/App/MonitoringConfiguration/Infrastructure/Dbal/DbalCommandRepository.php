@@ -125,6 +125,12 @@ final readonly class DbalCommandRepository extends DbalRepository implements Com
         $qb->select(...self::getSelectColumns())
             ->from(self::TABLE_NAME, 'cm');
 
+        // only fetch unlocked commands unless getFromMonitoringConnector is true
+        if ($criteria?->getFromMonitoringConnector() !== true) {
+            $qb->where('command_locked = :command_locked')
+                ->setParameter('command_locked', '0');
+        }
+
         // if we have a criteria, filter the query
         if ($criteria instanceof CommandCriteria) {
             $this->filterByCriteria($qb, $criteria);
@@ -313,7 +319,6 @@ final readonly class DbalCommandRepository extends DbalRepository implements Com
         }
 
         $this->sort($qb, 'cm', $criteria);
-
     }
 
     /**
