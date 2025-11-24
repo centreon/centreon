@@ -1,6 +1,6 @@
 import { ReactElement } from 'react';
 
-import { equals, keys } from 'ramda';
+import { equals } from 'ramda';
 
 import { Divider } from '@mui/material';
 
@@ -21,7 +21,7 @@ const Parameters = (): ReactElement => {
       {parameters?.map((parameter, index) => (
         <div
           className={classes.parametersContainer}
-          key={`${keys(parameter)}-parameter`}
+          key={`${parameter['vCenter name']}-parameter`}
         >
           <div className={classes.parametersComposition}>
             <Parameter index={index} parameter={parameter} />
