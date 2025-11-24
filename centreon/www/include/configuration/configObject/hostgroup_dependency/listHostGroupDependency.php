@@ -88,9 +88,37 @@ $qb->orderBy('dep.dep_name')
 
 $result = $pearDB->fetchAllAssociative($qb->getQuery(), $params ?? null);
 
+// get rows count with same filters as the select query
 $countQb = $pearDB->createQueryBuilder()
     ->select('COUNT(DISTINCT dep.dep_id)')
     ->from('dependency', 'dep');
+
+$countSubQueryParent = $pearDB->createQueryBuilder()
+    ->select('COUNT(DISTINCT dhgpr_parent.dependency_dep_id)')
+    ->from('dependency_hostgroupParent_relation', 'dhgpr_parent')
+    ->where('dhgpr_parent.dependency_dep_id = dep.dep_id');
+
+$countSubQueryChild = $pearDB->createQueryBuilder()
+    ->select('COUNT(DISTINCT dhgpr_child.dependency_dep_id)')
+    ->from('dependency_hostgroupChild_relation', 'dhgpr_child')
+    ->where('dhgpr_child.dependency_dep_id = dep.dep_id');
+
+if (! $oreon->user->admin) {
+    $countSubQueryParent->andWhere("dhgpr_parent.hostgroup_hg_id IN ({$hgstring})");
+    $countSubQueryChild->andWhere("dhgpr_child.hostgroup_hg_id IN ({$hgstring})");
+}
+
+$countQb->where('(' . $countSubQueryParent->getQuery() . ') > 0')
+    ->orWhere('(' . $countSubQueryChild->getQuery() . ') > 0');
+
+if ($search) {
+    $countQb->andWhere(
+        $countQb->expr()->or(
+            $countQb->expr()->like('dep.dep_name', ':search'),
+            $countQb->expr()->like('dep.dep_description', ':search')
+        )
+    );
+}
 
 $rows = $pearDB->fetchOne($countQb->getQuery(), $params ?? null);
 

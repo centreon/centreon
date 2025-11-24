@@ -152,6 +152,9 @@ function multipleHostGroupDependencyInDB(array $dependencies = [], array $nbrDup
                 QueryParameter::int('depId', (int) $key),
             ]);
             $row = $pearDB->fetchAssociative($query, $params);
+            if (! $row) {
+                continue;
+            }
             $row['dep_id'] = null;
             for ($i = 1; $i <= $nbrDup[$key]; $i++) {
                 $val = null;
