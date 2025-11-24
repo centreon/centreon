@@ -203,7 +203,7 @@ final readonly class DbalCommandRepository extends DbalRepository implements Com
 
     public function addMultiple(array $commands): void
     {
-        if (empty($commands)) {
+        if ($commands === []) {
             return;
         }
 
@@ -245,28 +245,6 @@ final readonly class DbalCommandRepository extends DbalRepository implements Com
         foreach ($commands as $command) {
             $this->setId($command, new CommandId($newIds[$command->name->value]));
         }
-    }
-
-    private function findIdsByCommandNames(array $commandNames): array
-    {
-        $qb = $this->connection->createQueryBuilder();
-
-        $qb->select('command_id', 'command_name')
-            ->from(self::TABLE_NAME, 'cm')
-            ->where($qb->expr()->in(
-                'cm.command_name',
-                array_map(static fn (CommandName $name): string => '"' . $name->value . '"', $commandNames)
-            ));
-
-        /** @var array<array{command_id: string, command_name: string}> $rows */
-        $rows = $qb->executeQuery()->fetchAllAssociative();
-
-        $results = [];
-        foreach ($rows as $row) {
-            $results[$row['command_name']] = (int) $row['command_id'];
-        }
-
-        return $results;
     }
 
     public function countLinkedResources(array $commandIds): array
@@ -396,6 +374,28 @@ final readonly class DbalCommandRepository extends DbalRepository implements Com
 
         $this->sort($qb, 'cm', $criteria);
 
+    }
+
+    private function findIdsByCommandNames(array $commandNames): array
+    {
+        $qb = $this->connection->createQueryBuilder();
+
+        $qb->select('command_id', 'command_name')
+            ->from(self::TABLE_NAME, 'cm')
+            ->where($qb->expr()->in(
+                'cm.command_name',
+                array_map(static fn (CommandName $name): string => '"' . $name->value . '"', $commandNames)
+            ));
+
+        /** @var array<array{command_id: string, command_name: string}> $rows */
+        $rows = $qb->executeQuery()->fetchAllAssociative();
+
+        $results = [];
+        foreach ($rows as $row) {
+            $results[$row['command_name']] = (int) $row['command_id'];
+        }
+
+        return $results;
     }
 
     /**

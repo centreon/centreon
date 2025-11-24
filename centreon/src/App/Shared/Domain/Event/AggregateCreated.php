@@ -29,10 +29,10 @@ use App\Shared\Domain\Aggregate\AggregateRootId;
 abstract readonly class AggregateCreated implements EventInterface
 {
     /**
-     * @param AggregateRoot<AggregateRootId> $aggregate
+     * @param AggregateRoot<AggregateRootId>|array<AggregateRoot<AggregateRootId>> $aggregate
      */
     public function __construct(
-        public AggregateRoot $aggregate,
+        public AggregateRoot|array $aggregate,
         public int $creatorId,
         public \DateTimeImmutable $firedAt = new \DateTimeImmutable(),
     ) {

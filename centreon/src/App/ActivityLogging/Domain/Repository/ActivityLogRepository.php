@@ -30,6 +30,11 @@ interface ActivityLogRepository
 {
     public function add(ActivityLog $activityLog): void;
 
+    /**
+     * @param array<ActivityLog> $activityLogs
+     */
+    public function addMultiple(array $activityLogs): void;
+
     public function count(): int;
 
     public function find(ActivityLogId $id): ?ActivityLog;

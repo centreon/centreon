@@ -45,6 +45,16 @@ final class FakeActivityLogRepository implements ActivityLogRepository
         $this->activityLogs[$id] = $activityLog;
     }
 
+    /**
+     * @param array<ActivityLog> $activityLogs
+     */
+    public function addMultiple(array $activityLogs): void
+    {
+        foreach ($activityLogs as $activityLog) {
+            $this->add($activityLog);
+        }
+    }
+
     public function count(): int
     {
         return count($this->activityLogs);

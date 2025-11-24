@@ -63,20 +63,27 @@ final readonly class DuplicateCommandsCommandHandler
                 continue;
             }
 
-            $commandToDuplicate[] = new Command(
-                id: null,
-                name: new CommandName($originalCommand->name->value . '_' . uniqid()),
-                type: $originalCommand->type,
-                commandLine: $originalCommand->commandLine,
-                isShellEnabled: $originalCommand->isShellEnabled,
-                isActivated: $originalCommand->isActivated,
-                isFromMonitoringConnector: $originalCommand->isFromMonitoringConnector,
-                connector: $originalCommand->connector(),
-                comment: $originalCommand->comment,
-            );
+            try {
+                $commandToDuplicate[] = new Command(
+                    id: null,
+                    name: new CommandName($originalCommand->name->value . '_' . uniqid()),
+                    type: $originalCommand->type,
+                    commandLine: $originalCommand->commandLine,
+                    isShellEnabled: $originalCommand->isShellEnabled,
+                    isActivated: $originalCommand->isActivated,
+                    isFromMonitoringConnector: $originalCommand->isFromMonitoringConnector,
+                    connector: $originalCommand->connector(),
+                    comment: $originalCommand->comment,
+                );
+            } catch (InvalidArgumentException $e) {
+                $results['errors'][$originalCommand->id()->value] = $e->getMessage();
+            }
         }
 
         $this->repository->addMultiple($commandToDuplicate);
+        $this->eventBus->fire(
+            new CommandCreated($commandToDuplicate, $duplicateCommandsCommand->duplicatedBy)
+        );
         $results['duplicated'] = $commandToDuplicate;
 
         return $results;
