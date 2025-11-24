@@ -93,7 +93,11 @@ $qb->orderBy('dep.dep_name')
 
 $result = $pearDB->fetchAllAssociative($qb->getQuery(), $params ?? null);
 
-$rows = $pearDB->query('SELECT FOUND_ROWS()')->fetchColumn();
+$countQb = $pearDB->createQueryBuilder()
+    ->select('COUNT(DISTINCT dep.dep_id)')
+    ->from('dependency', 'dep');
+
+$rows = $pearDB->fetchOne($countQb->getQuery(), $params ?? null);
 
 include './include/common/checkPagination.php';
 
