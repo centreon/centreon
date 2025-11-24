@@ -4,8 +4,8 @@
 OPTIONS="hst:v:r:l:p:d:V:"
 declare -A SUPPORTED_LOG_LEVEL=([DEBUG]=0 [INFO]=1 [WARN]=2 [ERROR]=3)
 declare -A SUPPORTED_TOPOLOGY=([central]=1 [poller]=1)
-declare -A SUPPORTED_VERSION=([21.10]=1 [22.04]=1 [22.10]=1 [23.04]=1 [23.10]=1 [24.04]=1 [24.10]=1)
-declare -A SUPPORTED_REPOSITORY=([testing]=1 [unstable]=1 [stable]=1)
+declare -A SUPPORTED_VERSION=([23.10]=1 [24.04]=1 [24.10]=1 [25.10]=1)
+declare -A SUPPORTED_REPOSITORY=([testing-hotfix]=1 [testing-release]=1 [unstable]=1 [stable]=1)
 declare -A SUPPORTED_DBMS=([MariaDB]=1 [MySQL]=1)
 default_timeout_in_sec=5
 script_short_name="$(basename $0)"
@@ -18,7 +18,7 @@ passwords_file=/etc/centreon/generated.tobesecured         #File where the gener
 tmp_passwords_file=$(mktemp /tmp/generated.XXXXXXXXXXXXXX) #Random tmp file as the /etc/centreon does not exist yet
 
 topology=${ENV_CENTREON_TOPOLOGY:-"central"}    #Default topology to be installed
-version=${ENV_CENTREON_VERSION:-"24.10"}        #Default version to be installed
+version=${ENV_CENTREON_VERSION:-"25.10"}        #Default version to be installed
 repo=${ENV_CENTREON_REPO:-"stable"}             #Default repository to be used
 dbms=${ENV_CENTREON_DBMS:-"MariaDB"}            #Default database system to be used
 operation=${ENV_CENTREON_OPERATION:-"install"}  #Default operation to be executed
@@ -85,7 +85,7 @@ function usage() {
 	echo
 	echo "Usage:"
 	echo
-	echo " $script_short_name [install|update (default: install)] [-t <central|poller> (default: central)] [-v <24.10> (default: 24.10)] [-r <stable|testing|unstable> (default: stable)] [-d <MariaDB|MySQL> (default: MariaDB)] [-l <DEBUG|INFO|WARN|ERROR>] [-s (for silent install)] [-p <centreon admin password>] [-h (show this help output)] [-V configure a vault, using format <address>;<port>;<root_path>;<role_id>;<secret_id>]"
+	echo " $script_short_name [install|update (default: install)] [-t <central|poller> (default: central)] [-v <25.10> (default: 25.10)] [-r <stable|testing-hotfix|testing-release|unstable> (default: stable)] [-d <MariaDB|MySQL> (default: MariaDB)] [-l <DEBUG|INFO|WARN|ERROR>] [-s (for silent install)] [-p <centreon admin password>] [-h (show this help output)] [-V configure a vault, using format <address>;<port>;<root_path>;<role_id>;<secret_id>]"
 	echo
 	echo Example:
 	echo
@@ -205,18 +205,18 @@ function parse_subcommand_options() {
 				dbms=$requested_dbms
 			fi
 			;;
-    V)
-      vault=$OPTARG
-      oldIFS=$IFS
-      IFS=';' read -r -a array_vault <<<"$vault"
-      vault_address=${array_vault[0]}
-      vault_port=${array_vault[1]}
-      vault_root_path=${array_vault[2]}
-      vault_role_id=${array_vault[3]}
-      vault_secret_id=${array_vault[4]}
-      use_vault=1
-      IFS=$oldIFS
-      ;;
+		V)
+			vault=$OPTARG
+			oldIFS=$IFS
+			IFS=';' read -r -a array_vault <<<"$vault"
+			vault_address=${array_vault[0]}
+			vault_port=${array_vault[1]}
+			vault_root_path=${array_vault[2]}
+			vault_role_id=${array_vault[3]}
+			vault_secret_id=${array_vault[4]}
+			use_vault=1
+			IFS=$oldIFS
+			;;
 		\?)
 			log "ERROR" "Invalid option: -"$OPTARG""
 			usage
@@ -384,11 +384,11 @@ function set_mariadb_repos() {
 	log "INFO" "Install MariaDB repository"
 
 	case $version in
-	"24.04" | "24.10")
-		detected_mariadb_version="10.11"
+	"23.10")
+		detected_mariadb_version="10.5"
 	;;
 	*)
-		detected_mariadb_version="10.5"
+		detected_mariadb_version="10.11"
 	;;
 	esac
 
@@ -398,7 +398,7 @@ function set_mariadb_repos() {
 		distrib_codename=$(awk -F'=' '/DISTRIB_CODENAME/ {print $2}' /etc/lsb-release)
 		curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup | bash -s -- --os-type=ubuntu --os-version="$distrib_codename" --mariadb-server-version="$detected_mariadb_version" --skip-maxscale
 	else
-		curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup | bash -s -- --mariadb-server-version="$detected_mariadb_version" --skip-maxscale
+	    dnf module enable mariadb:$detected_mariadb_version -y -q
 	fi
 	if [ $? -ne 0 ]; then
 		error_and_exit "Could not install the $dbms repository"
@@ -431,6 +431,10 @@ function setup_mysql() {
 		log "INFO" "Successfully installed the $dbms repository"
 	fi
 	systemctl enable --now $mysql_service_name
+
+	if ! [[ "$version" == "24.10" || "$version" == "25.09" || "$version" =~ "25.1"[0-2] || "$version" =~ "26.0"[1-9] ]]; then
+		echo "default-authentication-plugin=mysql_native_password" >> $mysql_config_file
+	fi
 	sed -Ei 's/LimitNOFILE\s\=\s[0-9]{1,}/LimitNOFILE = 32000/' /usr/lib/systemd/system/$mysql_service_name.service
 	systemctl daemon-reload
 }
@@ -484,25 +488,18 @@ function set_required_prerequisite() {
 
 			if [ "$topology" == "central" ]; then
 				case "$version" in
-					"21.10" | "22.04")
-						install_remi_repo
-						log "INFO" "Installing PHP 8.0 and enable it"
-						$PKG_MGR module reset php -y -q
-						$PKG_MGR module install php:remi-8.0 -y -q
-						;;
-					"22.10" | "23.04" | "23.10" | "24.04")
-						install_remi_repo
+					"23.10" | "24.04")
+					    install_remi_repo
 						log "INFO" "Installing PHP 8.1 and enable it"
 						$PKG_MGR module reset php -y -q
 						$PKG_MGR module install php:remi-8.1 -y -q
 						$PKG_MGR module enable php:remi-8.1 -y -q
 						;;
-					"24.10")
-						install_remi_repo
+					"24.10" | "25.10")
 						log "INFO" "Installing PHP 8.2 and enable it"
 						$PKG_MGR module reset php -y -q
-						$PKG_MGR module install php:remi-8.2 -y -q
-						$PKG_MGR module enable php:remi-8.2 -y -q
+						$PKG_MGR module install php:8.2 -y -q
+						$PKG_MGR module enable php:8.2 -y -q
 						;;
 					*)
 						log "INFO" "Installing PHP 8.2 from OS official repositories"
@@ -512,8 +509,8 @@ function set_required_prerequisite() {
 			;;
 
 		9*)
-			if ! [[ "$version" == "23.04" || "$version" == "23.10" || "$version" == "24.04" || "$version" == "24.10" ]]; then
-				error_and_exit "Only Centreon version >=23.04 is compatible with EL9, you chose $version"
+			if ! [[ "$version" == "23.10" || "$version" == "24.04" || "$version" == "24.10" || "$version" == "25.10" ]]; then
+				error_and_exit "Only Centreon version >=23.10 is compatible with EL9, you chose $version"
 			fi
 
 			log "INFO" "Setting specific part for v9 ($detected_os_version)"
@@ -544,14 +541,14 @@ function set_required_prerequisite() {
 
 			if [ "$topology" == "central" ]; then
 				case "$version" in
-					"23.04" | "23.10" | "24.04")
+					"23.10" | "24.04")
 						#install_remi_repo
 						log "INFO" "Installing PHP 8.1 and enable it"
 						$PKG_MGR module reset php -y -q
 						$PKG_MGR module install php:8.1 -y -q
 						$PKG_MGR module enable php:8.1 -y -q
 						;;
-					"24.10")
+					"24.10" | "25.10")
 						#install_remi_repo
 						log "INFO" "Installing PHP 8.2 and enable it"
 						$PKG_MGR module reset php -y -q
@@ -596,13 +593,13 @@ function set_required_prerequisite() {
 		debian-release*)
 			case "$detected_os_version" in
 			11)
-				if ! [[ "$version" == "22.04" || "$version" == "22.10" || "$version" == "23.04" || "$version" == "23.10" || "$version" == "24.04" ]]; then
-					error_and_exit "For Debian $detected_os_version, only Centreon versions >= 22.04 are compatible. You chose $version"
+				if ! [[ "$version" == "23.10" || "$version" == "24.04" ]]; then
+					error_and_exit "For Debian $detected_os_version, only Centreon versions >= 23.10 are compatible. You chose $version"
 				fi
 				PHP_SERVICE_UNIT="php8.1-fpm"
 				;;
 			12)
-				if ! [[ "$version" == "24.04" || "$version" == "24.10" ]]; then
+				if ! [[ "$version" == "24.04" || "$version" == "24.10" || "$version" == "25.10" ]]; then
 					error_and_exit "For Debian $detected_os_version, only Centreon versions >= 24.04 are compatible. You chose $version"
 				elif [[ "$version" == "24.04" ]];then
 					PHP_SERVICE_UNIT="php8.1-fpm"
@@ -622,7 +619,7 @@ function set_required_prerequisite() {
 			ARCH=""
 			if [[ "$VENDORID" == "ARM" ]]; then
 				ARCH="[ arch=all,arm64 ]"
-				if ! [[ "$version" == "23.10" || "$version" == "24.04" || "$version" == "24.10" || "$topology" == "poller" ]]; then
+				if ! [[ "$version" == "23.10" || "$version" == "24.04" || "$version" == "24.10" || "$version" == "25.10" || "$topology" == "poller" ]]; then
 					error_and_exit "For Debian on Raspberry, only Centreon versions (poller mode) >=23.10 are compatible. You chose $version to install $topology server"
 				fi
 			fi
@@ -641,7 +638,11 @@ function set_required_prerequisite() {
 		set_centreon_repos
 		IFS=', ' read -r -a array_apt <<<"$CENTREON_REPO"
 		for _repo in "${array_apt[@]}"; do
-			echo "deb https://packages.centreon.com/$repo_prefix-standard-$_repo/ $(lsb_release -sc) main" | tee /etc/apt/sources.list.d/centreon-$_repo.list
+		    if [[ "$version" < "25.10" ]]; then
+			    echo "deb https://packages.centreon.com/$repo_prefix-standard-$_repo/ $(lsb_release -sc) main" | tee /etc/apt/sources.list.d/centreon-$_repo.list
+			else
+				echo "deb https://packages.centreon.com/$repo_prefix-standard/ $(lsb_release -sc)-$_repo main" | tee /etc/apt/sources.list.d/centreon-$_repo.list
+			fi
 
 			SIMPLEREPO=$(echo $_repo | cut -d '-' -f2)
 			echo "deb $ARCH https://packages.centreon.com/$repo_prefix-plugins-$SIMPLEREPO/ $(lsb_release -sc) main" | tee /etc/apt/sources.list.d/centreon-plugins-$SIMPLEREPO.list
@@ -652,11 +653,11 @@ function set_required_prerequisite() {
 			# Add PHP repo
 			# if OLD VERSIONS => PHP 8.1(install remi repos), else PHP 8.2 (do not install remi repos)
 			case "$version" in
-				"22.10" | "23.04" | "23.10" | "24.04")
+				"23.10" | "24.04")
 					echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" | tee /etc/apt/sources.list.d/sury-php.list
 					wget -O- https://packages.sury.org/php/apt.gpg | gpg --dearmor | tee /etc/apt/trusted.gpg.d/php.gpg  > /dev/null 2>&1
 					;;
-				"24.10")
+				"24.10" | "25.10")
 					echo "Installing php from official os repositories."
 					;;
 			esac
@@ -782,8 +783,14 @@ EOF
 	else
 		systemctl restart $mysql_service_name
 		log "INFO" "Executing SQL requests for $dbms"
+		if [[ "$version" == "24.10" || "$version" == "25.09" || "$version" =~ "25.1"[0-2] || "$version" =~ "26.0"[1-9] ]]; then
+			default_authentication_plugin="caching_sha2_password"
+		else
+			default_authentication_plugin="mysql_native_password"
+		fi
 		mysql -u root --verbose <<-EOF
-			ALTER USER 'root'@'localhost' IDENTIFIED WITH 'caching_sha2_password' BY '${db_root_password}';
+
+			ALTER USER 'root'@'localhost' IDENTIFIED WITH '${default_authentication_plugin}' BY '${db_root_password}';
 			DELETE FROM mysql.user WHERE User='';
 			DELETE FROM mysql.user WHERE User='root' AND Host NOT IN ('localhost', '127.0.0.1', '::1');
 			DROP DATABASE IF EXISTS test;
@@ -936,7 +943,14 @@ function play_install_wizard() {
 	sessionID=$(curl -s -v "http://${central_ip}/centreon/install/install.php" 2>&1 | grep Set-Cookie | awk '{print $3}')
 	curl -s "http://${central_ip}/centreon/install/steps/step.php?action=stepContent" -H "Cookie: ${sessionID}" >/dev/null
 	install_wizard_post ${sessionID} "process_step3.php" 'centreon_engine_stats_binary=%2Fusr%2Fsbin%2Fcentenginestats&monitoring_var_lib=%2Fvar%2Flib%2Fcentreon-engine&centreon_engine_connectors=%2Fusr%2Flib64%2Fcentreon-connector&centreon_engine_lib=%2Fusr%2Flib64%2Fcentreon-engine&centreonplugins=%2Fusr%2Flib%2Fcentreon%2Fplugins%2F'
-	install_wizard_post ${sessionID} "process_step4.php" 'centreonbroker_etc=%2Fetc%2Fcentreon-broker&centreonbroker_cbmod=%2Fusr%2Flib64%2Fnagios%2Fcbmod.so&centreonbroker_log=%2Fvar%2Flog%2Fcentreon-broker&centreonbroker_varlib=%2Fvar%2Flib%2Fcentreon-broker&centreonbroker_lib=%2Fusr%2Fshare%2Fcentreon%2Flib%2Fcentreon-broker'
+    case $version in
+    "2"[234]"."*)
+        install_wizard_post ${sessionID} "process_step4.php" 'centreonbroker_etc=%2Fetc%2Fcentreon-broker&centreonbroker_cbmod=%2Fusr%2Flib64%2Fnagios%2Fcbmod.so&centreonbroker_log=%2Fvar%2Flog%2Fcentreon-broker&centreonbroker_varlib=%2Fvar%2Flib%2Fcentreon-broker&centreonbroker_lib=%2Fusr%2Fshare%2Fcentreon%2Flib%2Fcentreon-broker'
+    ;;
+    *)
+        install_wizard_post ${sessionID} "process_step4.php" 'centreonbroker_etc=%2Fetc%2Fcentreon-broker&centreonbroker_log=%2Fvar%2Flog%2Fcentreon-broker&centreonbroker_varlib=%2Fvar%2Flib%2Fcentreon-broker&centreonbroker_lib=%2Fusr%2Fshare%2Fcentreon%2Flib%2Fcentreon-broker'
+    ;;
+    esac
 	install_wizard_post ${sessionID} "process_step5.php" "admin_password=${centreon_admin_password}&confirm_password=${centreon_admin_password}&firstname=${centreon_admin_firstname}&lastname=${centreon_admin_lastname}&email=${centreon_admin_email}"
 	install_wizard_post ${sessionID} "process_step6.php" "address=&port=3306&root_user=root&root_password=${db_root_password}&db_configuration=centreon&db_storage=centreon_storage&db_user=centreon&db_password=${db_centreon_password}&db_password_confirm=${db_centreon_password}"
 	if [[ -v use_vault ]]; then
@@ -1236,11 +1250,7 @@ function play_update() {
 		error_and_exit "Centreon admin password is not defined"
 	fi
 
-	if [[ "$version" == "21.10" || "$version" == "22.04" ]]; then
-		error_and_exit "Your Centreon version is not supported for silent update, please connect to UI and perform update manually."
-	else
-		play_update_api
-	fi
+	play_update_api
 }
 #========= end of function play_update()
 
@@ -1490,7 +1500,7 @@ install)
 	fi
 
 	case $version in
-		"22.10"|"23.04"|"23.10")
+		"23.10")
 			gorgone_selinux_package_name="centreon-gorgoned-selinux"
 			;;
 		*)
