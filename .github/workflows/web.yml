@@ -134,7 +134,10 @@ jobs:
     needs: [get-environment]
     if: |
       needs.get-environment.outputs.skip_workflow == 'false' &&
-      needs.get-environment.outputs.stability == 'testing'
+      (
+        needs.get-environment.outputs.stability == 'testing' ||
+        (github.event_name == 'pull_request' && needs.get-environment.outputs.target_stability == 'testing')
+      )
     env:
       version: ${{ needs.get-environment.outputs.major_version }}.${{ needs.get-environment.outputs.minor_version }}
       version_file: .version.centreon-web
@@ -160,6 +163,57 @@ jobs:
         with:
           file: ${{ env.update_file }}
           version: ${{ env.version }}
+
+      - name: Get list of modified update files from current pull request
+        if: |
+          github.event_name == 'pull_request' &&
+          ! contains(needs.get-environment.outputs.labels, 'skip-update-files-check')
+        id: get_changed_files
+        uses: tj-actions/changed-files@ed68ef82c095e0d48ec87eccea555d944a631a4c # v46.0.5
+        with:
+          files: |
+            centreon/www/install/php/Update-**.php
+
+      - name: Check what update files are modified
+        if: |
+          github.event_name == 'pull_request' &&
+          ! contains(needs.get-environment.outputs.labels, 'skip-update-files-check')
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
+        env:
+          MODIFIED_UPDATE_SCRIPTS: ${{ steps.get_changed_files.outputs.all_changed_files }}
+        with:
+          script: |
+            const fs = require('fs');
+
+            const MODIFIED_UPDATE_SCRIPTS = process.env.MODIFIED_UPDATE_SCRIPTS.split(" ");
+            let failed = 0;
+            if (MODIFIED_UPDATE_SCRIPTS.length == 0 || MODIFIED_UPDATE_SCRIPTS[0] == '') { return; }
+            else if (MODIFIED_UPDATE_SCRIPTS.length > 1) {
+              core.setFailed(`❌ No more than one update script should be modified.`);
+              failed = 1;
+            } else {
+              if ( ('${{ needs.get-environment.outputs.target_stability }}' == 'unstable' || '${{ needs.get-environment.outputs.target_stability }}' == 'canary') && !MODIFIED_UPDATE_SCRIPTS[0].match(/Update-next\.php$/) ) {
+                core.setFailed(`❌ This pull request targeting ${{ github.base_ref }} should only be modifying the Update-next.php script.`);
+                failed = 1;
+              } else if ( '${{ needs.get-environment.outputs.target_stability }}' == 'testing' ) {
+                const majorVersionContent = fs.readFileSync('.version', { encoding: 'utf8' });
+                const minorVersionContent = fs.readFileSync('.version.centreon-web', { encoding: 'utf8' });
+                const version = majorVersionContent.match(/MAJOR="?(\d+\.\d+)"?/)[1] + "." + minorVersionContent.match(/MINOR="?(\d+)"?/)[1]
+
+                if (!MODIFIED_UPDATE_SCRIPTS[0].match(`/Update-${version}\.php$`)) {
+                  core.setFailed(`❌ Update script ` + MODIFIED_UPDATE_SCRIPTS[0] + ` should not be modified.`);
+                  failed = 1;
+                }
+              }
+            }
+
+            if (failed == 1) {
+              core.notice(`📚 If you want to bypass this check for any reason, please add label 'skip-update-files-check' on your pull request and re-run all jobs on the pipeline.`);
+              return;
+            } else {
+              core.notice(`Properly modifying ` + MODIFIED_UPDATE_SCRIPTS[0] + ` script.`);
+              return;
+            }
 
   gherkin-lint:
     runs-on: ubuntu-24.04
