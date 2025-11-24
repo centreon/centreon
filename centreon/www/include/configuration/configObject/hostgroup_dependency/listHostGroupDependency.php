@@ -31,11 +31,6 @@ include './include/common/autoNumLimit.php';
 
 $list = $_GET['list'] ?? null;
 
-$aclCond = '';
-if (! $oreon->user->admin) {
-    $aclCond = " AND hostgroup_hg_id IN ({$hgstring}) ";
-}
-
 $search = HtmlAnalyzer::sanitizeAndRemoveTags(
     $_POST['searchHGD'] ?? $_GET['searchHGD'] ?? null
 );
