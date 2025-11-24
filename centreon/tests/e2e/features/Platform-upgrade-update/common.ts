@@ -157,7 +157,7 @@ const installCentreon = (version: string): Cypress.Chainable => {
         `dnf install -y centreon-web-${version}`,
         'dnf install -y centreon-broker-cbd',
         "echo 'date.timezone = Europe/Paris' > /etc/php.d/centreon.ini",
-        '/etc/init.d/mysql start',
+        'systemctl start mariadb',
         'mkdir -p /run/php-fpm',
         'systemctl restart php-fpm',
         'systemctl restart httpd',
