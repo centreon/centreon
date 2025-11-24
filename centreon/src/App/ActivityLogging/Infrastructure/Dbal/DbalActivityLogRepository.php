@@ -107,6 +107,40 @@ final readonly class DbalActivityLogRepository extends DbalRepository implements
         }
     }
 
+    public function find(ActivityLogId $id): ?ActivityLog
+    {
+        $qb = $this->connection->createQueryBuilder();
+
+        $qb->select('l.action_log_id', 'l.action_log_date', 'l.object_id', 'l.object_name', 'l.object_type', 'l.action_type', 'l.log_contact_id', 'd.field_name', 'd.field_value')
+            ->from(self::TABLE_NAME, 'l')
+            ->leftJoin('l', self::DETAIL_TABLE_NAME, 'd', 'l.action_log_id = d.action_log_id')
+            ->where('l.action_log_id = :id')
+            ->setParameter('id', $id->value);
+
+        /** @var list<RowTypeAlias> $rows */
+        $rows = $qb->executeQuery()->fetchAllAssociative();
+
+        if ($rows === []) {
+            return null;
+        }
+
+        return $this->createActivityLog($rows);
+    }
+
+    public function count(): int
+    {
+        $qb = $this->connection->createQueryBuilder();
+
+        $qb->select('count(1)')
+            ->from(self::TABLE_NAME)
+            ->setMaxResults(1);
+
+        /** @var int|false $count */
+        $count = $qb->executeQuery()->fetchOne();
+
+        return $count ?: 0;
+    }
+
     /**
      * @param array<ActivityLog> $activityLogs
      */
@@ -130,7 +164,7 @@ final readonly class DbalActivityLogRepository extends DbalRepository implements
         $values = [];
         $parameters = [];
 
-        foreach ($activityLogs as $index => $activityLog) {
+        foreach ($activityLogs as $activityLog) {
             $values[] = '(' . implode(',', array_fill(0, count($columns), '?')) . ')';
             $parameters[] = $activityLog->performedAt->getTimestamp();
             $parameters[] = $activityLog->target->id->value;
@@ -172,6 +206,12 @@ final readonly class DbalActivityLogRepository extends DbalRepository implements
         $this->addMultipleDetails($detailsToInsert);
     }
 
+    /**
+     * @param array<array{
+     * action_log_id: int,
+     * field_name: string,
+     * field_value: string}> $detailsToInsert
+     */
     private function addMultipleDetails(array $detailsToInsert): void
     {
         if ($detailsToInsert !== []) {
@@ -197,6 +237,11 @@ final readonly class DbalActivityLogRepository extends DbalRepository implements
         }
     }
 
+    /**
+     * @param array<string> $objectNames
+     *
+     * @return array<array{action_log_id: string}>
+     */
     private function findLastInsertIdsByObjectsNames(array $objectNames): array
     {
         $qb = $this->connection->createQueryBuilder();
@@ -206,43 +251,8 @@ final readonly class DbalActivityLogRepository extends DbalRepository implements
             ->where($qb->expr()->in('object_name', ':objectNames'))
             ->setParameter('objectNames', $objectNames, ArrayParameterType::STRING);
 
-        $rows = $qb->executeQuery()->fetchAllAssociative();
-
-        return $rows;
-    }
-
-    public function find(ActivityLogId $id): ?ActivityLog
-    {
-        $qb = $this->connection->createQueryBuilder();
-
-        $qb->select('l.action_log_id', 'l.action_log_date', 'l.object_id', 'l.object_name', 'l.object_type', 'l.action_type', 'l.log_contact_id', 'd.field_name', 'd.field_value')
-            ->from(self::TABLE_NAME, 'l')
-            ->leftJoin('l', self::DETAIL_TABLE_NAME, 'd', 'l.action_log_id = d.action_log_id')
-            ->where('l.action_log_id = :id')
-            ->setParameter('id', $id->value);
-
-        /** @var list<RowTypeAlias> $rows */
-        $rows = $qb->executeQuery()->fetchAllAssociative();
-
-        if ($rows === []) {
-            return null;
-        }
-
-        return $this->createActivityLog($rows);
-    }
-
-    public function count(): int
-    {
-        $qb = $this->connection->createQueryBuilder();
-
-        $qb->select('count(1)')
-            ->from(self::TABLE_NAME)
-            ->setMaxResults(1);
-
-        /** @var int|false $count */
-        $count = $qb->executeQuery()->fetchOne();
-
-        return $count ?: 0;
+        /** @var array<array{action_log_id: string}> */
+        return $qb->executeQuery()->fetchAllAssociative();
     }
 
     /**

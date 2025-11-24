@@ -376,6 +376,11 @@ final readonly class DbalCommandRepository extends DbalRepository implements Com
 
     }
 
+    /**
+     * @param array<CommandName> $commandNames
+     *
+     * @return array<string, int>
+     */
     private function findIdsByCommandNames(array $commandNames): array
     {
         $qb = $this->connection->createQueryBuilder();
