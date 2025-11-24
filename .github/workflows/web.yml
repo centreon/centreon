@@ -125,6 +125,7 @@ jobs:
       upgrade_test_paths: |
         "centreon/www/install/**"
         "centreon/packaging/**"
+        "centreon/tests/e2e/features/Platform-upgrade-update/**"
       is_nightly: ${{ needs.get-environment.outputs.is_nightly }}
       base_sha: ${{ needs.get-environment.outputs.previous_release_bundle_tag }}
       labels: ${{ needs.get-environment.outputs.labels }}
