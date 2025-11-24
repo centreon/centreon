@@ -31,6 +31,7 @@ use App\MonitoringConfiguration\Domain\Repository\CommandRepository;
 use App\MonitoringConfiguration\Domain\Repository\CommandResourceCount;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\CommandCriteria;
 use App\Shared\Domain\Aggregate\AggregateRoot;
+use App\Shared\Domain\Collection;
 use Countable;
 use IteratorAggregate;
 
@@ -53,6 +54,18 @@ final class FakeCommandRepository implements CommandRepository
         }
 
         return null;
+    }
+
+    public function findByIds(array $ids): Collection
+    {
+        $foundCommands = [];
+        foreach ($ids as $id) {
+            if (isset($this->commands[$id])) {
+                $foundCommands[] = $this->commands[$id];
+            }
+        }
+
+        return new Collection($foundCommands, Command::class);
     }
 
     public function add(Command $command): void
@@ -100,5 +113,12 @@ final class FakeCommandRepository implements CommandRepository
         }
 
         return $results;
+    }
+
+    public function addMultiple(array $commands): void
+    {
+        foreach ($commands as $command) {
+            $this->add($command);
+        }
     }
 }

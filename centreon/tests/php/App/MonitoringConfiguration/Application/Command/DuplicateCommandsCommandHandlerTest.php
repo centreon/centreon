@@ -23,167 +23,129 @@ declare(strict_types=1);
 
 namespace Tests\App\MonitoringConfiguration\Application\Command;
 
-use App\MonitoringConfiguration\Application\Command\DuplicateCommandCommand;
-use App\MonitoringConfiguration\Application\Command\DuplicateCommandCommandHandler;
+use App\MonitoringConfiguration\Application\Command\DuplicateCommandsCommand;
+use App\MonitoringConfiguration\Application\Command\DuplicateCommandsCommandHandler;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\Command;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandComment;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandLine;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandName;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandTypeEnum;
-use App\MonitoringConfiguration\Domain\Exception\CommandAccessDeniedException;
-use App\MonitoringConfiguration\Domain\Exception\CommandNotFoundException;
+
 use PHPUnit\Framework\TestCase;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeCommandRepository;
 use Tests\App\Shared\Double\EventBusSpy;
 
-final class DuplicateCommandCommandHandlerTest extends TestCase
+final class DuplicateCommandsCommandHandlerTest extends TestCase
 {
     private FakeCommandRepository $repository;
 
     private EventBusSpy $eventBus;
 
-    private DuplicateCommandCommandHandler $handler;
+    private DuplicateCommandsCommandHandler $handler;
 
     protected function setUp(): void
     {
         $this->repository = new FakeCommandRepository();
         $this->eventBus = new EventBusSpy();
-        $this->handler = new DuplicateCommandCommandHandler($this->repository, $this->eventBus);
+        $this->handler = new DuplicateCommandsCommandHandler($this->repository, $this->eventBus);
     }
 
-    public function testDuplicateCommand(): void
+    public function testDuplicateCommands(): void
     {
         $originalCommand = $this->createTestCommand(1, 'check_ping');
         $this->repository->add($originalCommand);
 
-        $command = new DuplicateCommandCommand(
-            commandId: $originalCommand->id()->value,
+        $command = new DuplicateCommandsCommand(
+            commandIds: [$originalCommand->id()->value],
             duplicatedBy: 1,
             allowedTypes: ['Check']
         );
 
         $result = ($this->handler)($command);
 
-        self::assertSame($originalCommand, $result);
+        self::assertArrayHasKey('duplicated', $result);
+        self::assertCount(1, $result['duplicated']);
 
-        $duplicatedCommand = $this->repository->findOneByName(new CommandName('check_ping_1'));
+        $duplicatedCommand = $this->repository->findOneByName($result['duplicated'][0]->name);
         self::assertNotNull($duplicatedCommand);
         self::assertSame($originalCommand->type, $duplicatedCommand->type);
         self::assertSame($originalCommand->commandLine, $duplicatedCommand->commandLine);
         self::assertSame($originalCommand->isShellEnabled, $duplicatedCommand->isShellEnabled);
         self::assertSame($originalCommand->isActivated, $duplicatedCommand->isActivated);
         self::assertSame($originalCommand->isFromMonitoringConnector, $duplicatedCommand->isFromMonitoringConnector);
-        self::assertSame($originalCommand->connector, $duplicatedCommand->connector);
+        self::assertSame($originalCommand->connector(), $duplicatedCommand->connector());
         self::assertSame($originalCommand->comment, $duplicatedCommand->comment);
     }
 
-    public function testDuplicateCommandGeneratesUniqueNameWhenConflictExists(): void
+    public function testDuplicateCommandsReturnsErrorWhenOriginalCommandNotFound(): void
     {
-        $originalCommand = $this->createTestCommand(1, 'check_disk');
-        $firstDuplicate = $this->createTestCommand(2, 'check_disk_1');
-        $this->repository->add($originalCommand);
-        $this->repository->add($firstDuplicate);
-
-        $command = new DuplicateCommandCommand(
-            commandId: $originalCommand->id()->value,
-            duplicatedBy: 1,
-            allowedTypes: ['Check']
-        );
-
-        ($this->handler)($command);
-
-        $duplicatedCommand = $this->repository->findOneByName(new CommandName('check_disk_2'));
-        self::assertNotNull($duplicatedCommand);
-    }
-
-    public function testDuplicateCommandGeneratesTimestampNameWhenManyConflictsExist(): void
-    {
-        $originalCommand = $this->createTestCommand(1, 'check_load');
-        $this->repository->add($originalCommand);
-
-        for ($counter = 1; $counter <= 1000; $counter++) {
-            $duplicate = $this->createTestCommand($counter + 1, "check_load_{$counter}");
-            $this->repository->add($duplicate);
-        }
-
-        $command = new DuplicateCommandCommand(
-            commandId: $originalCommand->id()->value,
-            duplicatedBy: 1,
-            allowedTypes: ['Check']
-        );
-
-        ($this->handler)($command);
-
-        $commands = $this->repository->commands;
-        $lastCommand = array_slice($commands, -1)[0];
-        self::assertStringStartsWith('check_load_copy_', $lastCommand->name->value);
-    }
-
-    public function testDuplicateCommandThrowsExceptionWhenOriginalCommandNotFound(): void
-    {
-        $this->expectException(CommandNotFoundException::class);
-
-        $command = new DuplicateCommandCommand(
-            commandId: 999,
+        $command = new DuplicateCommandsCommand(
+            commandIds: [999],
             duplicatedBy: 42,
             allowedTypes: ['Check']
         );
 
-        ($this->handler)($command);
+        $result = ($this->handler)($command);
+
+        self::assertArrayHasKey('missing', $result);
+        self::assertContains(999, $result['missing']);
     }
 
-    public function testDuplicateCommandThrowsAccessDeniedExceptionWhenTypeNotAllowed(): void
+    public function testDuplicateCommandsReturnsAccessDeniedWhenTypeNotAllowed(): void
     {
         $originalCommand = $this->createTestCommand(1, 'notify_admin', CommandTypeEnum::Notification);
         $this->repository->add($originalCommand);
 
-        $this->expectException(CommandAccessDeniedException::class);
-        $this->expectExceptionMessage('You are not allowed to duplicate this command');
-
-        $command = new DuplicateCommandCommand(
-            commandId: $originalCommand->id()->value,
+        $command = new DuplicateCommandsCommand(
+            commandIds: [$originalCommand->id()->value],
             duplicatedBy: 42,
             allowedTypes: ['Check']
         );
 
-        ($this->handler)($command);
+        $result = ($this->handler)($command);
+
+        self::assertArrayHasKey('access_denied', $result);
+        self::assertContains($originalCommand->id()->value, $result['access_denied']);
     }
 
-    public function testDuplicateCommandSucceedsWhenTypeIsAllowed(): void
+    public function testDuplicateCommandsSucceedsWhenTypeIsAllowed(): void
     {
         $originalCommand = $this->createTestCommand(1, 'notify_admin', CommandTypeEnum::Notification);
         $this->repository->add($originalCommand);
 
-        $command = new DuplicateCommandCommand(
-            commandId: $originalCommand->id()->value,
+        $command = new DuplicateCommandsCommand(
+            commandIds: [$originalCommand->id()->value],
             duplicatedBy: 42,
             allowedTypes: ['Check', 'Notification']
         );
 
         $result = ($this->handler)($command);
 
-        self::assertSame($originalCommand, $result);
+        self::assertArrayHasKey('duplicated', $result);
+        self::assertCount(1, $result['duplicated']);
 
-        $duplicatedCommand = $this->repository->findOneByName(new CommandName('notify_admin_1'));
+        $duplicatedCommand = $result['duplicated'][0];
         self::assertNotNull($duplicatedCommand);
         self::assertSame(CommandTypeEnum::Notification, $duplicatedCommand->type);
+        self::assertStringStartsWith('notify_admin_', $duplicatedCommand->name->value);
     }
 
-    public function testDuplicateCommandWithEmptyAllowedTypesThrowsAccessDenied(): void
+    public function testDuplicateCommandWithEmptyAllowedTypesReturnsAccessDenied(): void
     {
         $originalCommand = $this->createTestCommand(1, 'check_http');
         $this->repository->add($originalCommand);
 
-        $this->expectException(CommandAccessDeniedException::class);
-
-        $command = new DuplicateCommandCommand(
-            commandId: $originalCommand->id()->value,
+        $command = new DuplicateCommandsCommand(
+            commandIds: [$originalCommand->id()->value],
             duplicatedBy: 42,
             allowedTypes: []
         );
 
-        ($this->handler)($command);
+        $result = ($this->handler)($command);
+
+        self::assertArrayHasKey('access_denied', $result);
+        self::assertContains($originalCommand->id()->value, $result['access_denied']);
     }
 
     private function createTestCommand(

@@ -64,7 +64,6 @@ final class DuplicateCommandsProcessorTest extends ApiTestCase
             ],
             'json' => [
                 'ids' => [1],
-                'nb_duplicates' => 1,
             ],
         ]);
 
@@ -109,7 +108,6 @@ final class DuplicateCommandsProcessorTest extends ApiTestCase
             ],
             'json' => [
                 'ids' => [998],
-                'nb_duplicates' => 1,
             ],
         ]);
 
@@ -126,7 +124,6 @@ final class DuplicateCommandsProcessorTest extends ApiTestCase
             ],
             'json' => [
                 'ids' => [99999],
-                'nb_duplicates' => 1,
             ],
         ]);
 
@@ -182,7 +179,6 @@ final class DuplicateCommandsProcessorTest extends ApiTestCase
             ],
             'json' => [
                 'ids' => [1, 2],
-                'nb_duplicates' => 2,
             ],
         ]);
 
@@ -191,7 +187,7 @@ final class DuplicateCommandsProcessorTest extends ApiTestCase
 
         $responseData = $response->toArray();
         self::assertIsArray($responseData['member']);
-        self::assertCount(4, $responseData['member']); // 2 commands × 2 duplicates each
+        self::assertCount(2, $responseData['member']);
     }
 
     protected static function apiUsers(): array
