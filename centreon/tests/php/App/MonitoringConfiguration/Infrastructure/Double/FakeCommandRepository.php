@@ -58,14 +58,9 @@ final class FakeCommandRepository implements CommandRepository
 
     public function findByIds(array $ids): Collection
     {
-        $foundCommands = [];
-        foreach ($ids as $id) {
-            if (isset($this->commands[$id])) {
-                $foundCommands[] = $this->commands[$id];
-            }
-        }
+        $found = array_intersect_key($this->commands, array_flip($ids));
 
-        return new Collection($foundCommands, Command::class);
+        return new Collection(array_values($found), Command::class);
     }
 
     public function add(Command $command): void
