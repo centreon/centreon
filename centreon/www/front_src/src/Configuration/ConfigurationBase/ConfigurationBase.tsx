@@ -20,7 +20,8 @@ const Base = <TFilters,>({
   columnsAtomKey,
   filtersAtom,
   filtersAtomKey,
-  isWelcomePageDisplayedAtom
+  isWelcomePageDisplayedAtom,
+  navbar
 }: ConfigurationBase<TFilters>): JSX.Element => {
   const [configuration, setConfiguration] = useAtom(configurationAtom);
   const [filters, setFilters] = useAtom(filtersAtom);
@@ -78,6 +79,7 @@ const Base = <TFilters,>({
       filtersAtom={filtersAtom}
       filtersAtomKey={filtersAtomKey}
       isWelcomePageDisplayedAtom={isWelcomePageDisplayedAtom}
+      navbar={navbar}
     />
   );
 };

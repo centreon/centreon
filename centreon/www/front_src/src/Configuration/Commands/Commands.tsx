@@ -29,6 +29,7 @@ import { Filters } from './models';
 import {
   labelAddCommand,
   labelCommands,
+  labelConnectors,
   labelWelcomePageDescription,
   labelWelcomePageTitle
 } from './translatedLabels';
@@ -58,6 +59,16 @@ const Commands = (): ReactElement => {
       filtersConfiguration={filtersConfiguration}
       filtersInitialValues={filtersInitialValues}
       defaultSelectedColumnIds={defaultSelectedColumnIds}
+      navbar={[
+        {
+          label: labelCommands,
+          link: '/configuration/commands'
+        },
+        {
+          label: labelConnectors,
+          link: '/main.php?p=60806'
+        }
+      ]}
       actions={{
         delete: true,
         enableDisable: true,

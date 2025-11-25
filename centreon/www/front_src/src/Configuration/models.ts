@@ -70,6 +70,10 @@ export interface ConfigurationBase<TFilters> {
   selectedColumnIdsAtom: PrimitiveAtom<Array<string>>;
   filtersAtom: PrimitiveAtom<TFilters>;
   isWelcomePageDisplayedAtom: PrimitiveAtom<boolean>;
+  navbar?: Array<{
+    label: string;
+    link: string;
+  }>;
 }
 
 export enum FieldType {
