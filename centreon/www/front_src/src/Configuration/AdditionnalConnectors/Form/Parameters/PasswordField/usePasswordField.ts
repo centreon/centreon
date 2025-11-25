@@ -79,7 +79,7 @@ export const usePasswordField = ({
     !equals(state, PasswordActionState.Invisble);
 
   const type =
-    !isEditMode || equals(state, PasswordActionState.Editing)
+    isEditMode && equals(state, PasswordActionState.Editing)
       ? 'text'
       : 'password';
 
