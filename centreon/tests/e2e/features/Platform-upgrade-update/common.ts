@@ -194,9 +194,7 @@ const installCentreon = (version: string): Cypress.Chainable => {
 
     cy.execInContainer({
       command: [
-        'mv /etc/apt/sources.list.d/centreon-unstable.list /etc/apt/sources.list.d/centreon-unstable.list.bak',
-        'mv /etc/apt/sources.list.d/centreon-testing-hotfix.list /etc/apt/sources.list.d/centreon-testing-hotfix.list.bak',
-        'mv /etc/apt/sources.list.d/centreon-testing-release.list /etc/apt/sources.list.d/centreon-testing-release.list.bak',
+        'for i in \$( ls /etc/apt/sources.list.d/centreon*{unstable,testing}* ); do mv \$i \$i.disabled; done',
         'apt-get update',
         `apt-get install -y ${packagesToInstall.join(' ')}`,
         'mkdir -p /usr/lib/centreon-connector',
@@ -208,6 +206,7 @@ const installCentreon = (version: string): Cypress.Chainable => {
         `systemctl restart php${phpVersion}-fpm`,
         'systemctl restart apache2',
         `mysql -e "GRANT ALL ON *.* to 'root'@'localhost' IDENTIFIED BY 'centreon' WITH GRANT OPTION"`,
+        'for i in \$( ls /etc/apt/sources.list.d/centreon*{unstable,testing}*.disabled ); do mv \$i "$(echo $i | sed -r \'s/.disabled//\')"; done',
         'mv /etc/apt/sources.list.d/centreon-unstable.list.bak /etc/apt/sources.list.d/centreon-unstable.list',
         'mv /etc/apt/sources.list.d/centreon-testing-hotfix.list.bak /etc/apt/sources.list.d/centreon-testing-hotfix.list',
         'mv /etc/apt/sources.list.d/centreon-testing-release.list.bak /etc/apt/sources.list.d/centreon-testing-release.list',
