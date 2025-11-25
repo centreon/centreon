@@ -53,7 +53,7 @@ const Parameter = ({ parameter, index }: Props): ReactElement => {
                   name={name}
                   required={true}
                   type="text"
-                  value={parameter[name]}
+                  value={parameter[name] as string}
                   onBlur={handleBlur(`parameters.vcenters.${index}.${name}`)}
                   onChange={changeParameterValue}
                 />
