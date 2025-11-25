@@ -24693,3 +24693,10 @@ msgid ""
 msgstr ""
 "Vous êtes sur le point de supprimer la commande <strong>{{ name }}</"
 "strong>. Cette action est irréversible. Voulez-vous la supprimer ?"
+
+msgid "Hosts (Host templates)"
+msgstr "Hôtes (Modèles d'hôtes)"
+
+msgid "Services (Service templates)"
+msgstr "Services (Modèles de services)"
+

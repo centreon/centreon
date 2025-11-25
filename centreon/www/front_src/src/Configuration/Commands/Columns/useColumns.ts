@@ -4,6 +4,9 @@ import { Column, ColumnType, truncate } from '@centreon/ui';
 
 import { equals, prop } from 'ramda';
 
+import HostUses from './HostUses';
+import ServicetUses from './ServiceUses';
+
 import {
   labelCommandLine,
   labelHostUses,
@@ -35,18 +38,16 @@ const useColumns = (): {
         truncate({ content: commandLine, maxLength: 50 })
     },
     {
-      type: ColumnType.string,
+      type: ColumnType.component,
       id: 'host_uses',
       label: t(labelHostUses),
-      getFormattedString: ({ hostsCount, hostTemplatesCount }) =>
-        `${hostsCount}(${hostTemplatesCount})`
+      Component: HostUses
     },
     {
-      type: ColumnType.string,
+      type: ColumnType.component,
       id: 'service_uses',
       label: t(labelServiceUses),
-      getFormattedString: ({ servicesCount, serviceTemplatesCount }) =>
-        `${servicesCount}(${serviceTemplatesCount})`
+      Component: ServicetUses
     },
     {
       type: ColumnType.string,

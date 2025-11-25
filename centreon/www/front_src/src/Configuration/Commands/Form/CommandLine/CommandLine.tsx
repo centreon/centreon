@@ -1,6 +1,8 @@
 import { SingleConnectedAutocompleteField, TextField } from '@centreon/ui';
-import { IconButton } from '@centreon/ui/components';
+import { IconButton, Tooltip } from '@centreon/ui/components';
+
 import ArrowIcon from '@mui/icons-material/ArrowForwardSharp';
+import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 
 import { ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -15,6 +17,7 @@ import { useCommandLine } from './useCommandLine';
 
 import {
   labelCommandLine,
+  labelEnableShellSyntaxTooltip,
   labelInsert,
   labelInstalledPlugins,
   labelPollerGlobalMacros,
@@ -35,7 +38,7 @@ const CommandLine = (): ReactElement => {
   } = useCommandLine();
 
   return (
-    <div className="grid grid-cols-[2fr_50px_5fr] pt-2">
+    <div className="grid grid-cols-[2fr_20px_40px_5fr] pt-2">
       <div className="flex flex-col justify-between">
         <SingleConnectedAutocompleteField
           label={t(labelPollerGlobalMacros)}
@@ -61,6 +64,11 @@ const CommandLine = (): ReactElement => {
           decoder={JSONLDEntitiesListDecoder}
           field="name"
         />
+      </div>
+      <div className="flex flex-column justify-center items-center pl-2">
+        <Tooltip label={t(labelEnableShellSyntaxTooltip)}>
+          <HelpOutlineIcon fontSize="small" color="primary" />
+        </Tooltip>
       </div>
       <div className="flex flex-col justify-between items-end">
         <IconButton

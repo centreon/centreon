@@ -48,3 +48,6 @@ export const labelEnableShellSyntaxTooltip =
   'If your command uses shell functions (pipes, redirects, wildcards, etc.), check this box. Note that commands requiring the shell slow down the monitoring server.';
 
 export const labelLockedElements = 'Locked elements';
+
+export const labelHostHostTemplate = 'Hosts (Host templates)';
+export const labelServiceServiceemplate = 'Services (Service templates)';
