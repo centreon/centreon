@@ -50,7 +50,8 @@ const getCentreonStableMinorVersions = (
       .execInContainer({
         command: [
           'mv /etc/apt/sources.list.d/centreon-unstable.list /etc/apt/sources.list.d/centreon-unstable.list.bak',
-          'mv /etc/apt/sources.list.d/centreon-testing.list /etc/apt/sources.list.d/centreon-testing.list.bak',
+          'mv /etc/apt/sources.list.d/centreon-testing-hotfix.list /etc/apt/sources.list.d/centreon-testing-hotfix.list.bak',
+          'mv /etc/apt/sources.list.d/centreon-testing-release.list /etc/apt/sources.list.d/centreon-testing-release.list.bak',
           'apt-get update'
         ],
         name: 'web'
@@ -80,7 +81,8 @@ const getCentreonStableMinorVersions = (
       cy.execInContainer({
         command: [
           'mv /etc/apt/sources.list.d/centreon-unstable.list.bak /etc/apt/sources.list.d/centreon-unstable.list',
-          'mv /etc/apt/sources.list.d/centreon-testing.list.bak /etc/apt/sources.list.d/centreon-testing.list',
+          'mv /etc/apt/sources.list.d/centreon-testing-hotfix.list.bak /etc/apt/sources.list.d/centreon-testing-hotfix.list',
+          'mv /etc/apt/sources.list.d/centreon-testing-release.list.bak /etc/apt/sources.list.d/centreon-testing-release.list',
           'apt-get update'
         ],
         name: 'web'
@@ -193,7 +195,8 @@ const installCentreon = (version: string): Cypress.Chainable => {
     cy.execInContainer({
       command: [
         'mv /etc/apt/sources.list.d/centreon-unstable.list /etc/apt/sources.list.d/centreon-unstable.list.bak',
-        'mv /etc/apt/sources.list.d/centreon-testing.list /etc/apt/sources.list.d/centreon-testing.list.bak',
+        'mv /etc/apt/sources.list.d/centreon-testing-hotfix.list /etc/apt/sources.list.d/centreon-testing-hotfix.list.bak',
+        'mv /etc/apt/sources.list.d/centreon-testing-release.list /etc/apt/sources.list.d/centreon-testing-release.list.bak',
         'apt-get update',
         `apt-get install -y ${packagesToInstall.join(' ')}`,
         'mkdir -p /usr/lib/centreon-connector',
@@ -206,7 +209,8 @@ const installCentreon = (version: string): Cypress.Chainable => {
         'systemctl restart apache2',
         `mysql -e "GRANT ALL ON *.* to 'root'@'localhost' IDENTIFIED BY 'centreon' WITH GRANT OPTION"`,
         'mv /etc/apt/sources.list.d/centreon-unstable.list.bak /etc/apt/sources.list.d/centreon-unstable.list',
-        'mv /etc/apt/sources.list.d/centreon-testing.list.bak /etc/apt/sources.list.d/centreon-testing.list',
+        'mv /etc/apt/sources.list.d/centreon-testing-hotfix.list.bak /etc/apt/sources.list.d/centreon-testing-hotfix.list',
+        'mv /etc/apt/sources.list.d/centreon-testing-release.list.bak /etc/apt/sources.list.d/centreon-testing-release.list',
         'apt-get update',
         'usermod -a -G centreon-broker www-data' // temporary fix (MON-20769)
       ],
