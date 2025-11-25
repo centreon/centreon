@@ -41,3 +41,5 @@ export const getPluginsEndpoint = getListEndpoint(pluginsEndpoint);
 export const connectorsEndpoint = '/configuration/connectors';
 
 export const duplicateCommandsEndpoint = '/configuration/commands/_duplicate';
+
+export const getPluginEndpoint = ({ id }) => `/configuration/plugins/${id}`;

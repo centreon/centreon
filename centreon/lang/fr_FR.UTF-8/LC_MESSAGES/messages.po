@@ -12448,7 +12448,7 @@ msgstr "Obsolète"
 #: centreon/www/install/front_translate.php
 #: centreon/www/install/smarty_translate.php
 msgid "Output"
-msgstr "Statut détaillé"
+msgstr "Sortie"
 
 #: centreon/www/include/configuration/configObject/traps/formTraps.php
 #: centreon/www/include/configuration/configObject/traps/listTraps.php

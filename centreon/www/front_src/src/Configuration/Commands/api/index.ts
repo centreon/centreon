@@ -11,5 +11,6 @@ export {
   getStandardMacrosEndpoint,
   getPluginsEndpoint,
   connectorsEndpoint,
-  duplicateCommandsEndpoint
+  duplicateCommandsEndpoint,
+  getPluginEndpoint
 } from './endpoints';

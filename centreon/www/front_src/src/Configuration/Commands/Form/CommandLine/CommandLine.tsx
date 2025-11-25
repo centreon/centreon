@@ -13,11 +13,11 @@ import {
   getStandardMacrosEndpoint
 } from '../../api';
 
+import TooltipContent from './TooltipContent';
 import { useCommandLine } from './useCommandLine';
 
 import {
   labelCommandLine,
-  labelEnableShellSyntaxTooltip,
   labelInsert,
   labelInstalledPlugins,
   labelPollerGlobalMacros,
@@ -66,9 +66,24 @@ const CommandLine = (): ReactElement => {
         />
       </div>
       <div className="flex flex-column justify-center items-center pl-2">
-        <Tooltip label={t(labelEnableShellSyntaxTooltip)}>
-          <HelpOutlineIcon fontSize="small" color="primary" />
-        </Tooltip>
+        {macros.installedPlugin && (
+          <Tooltip
+            classes={{
+              tooltip:
+                'relative w-60 min-h-30 p-0 text-text-primary bg-background-paper shadow-md'
+            }}
+            followCursor={false}
+            arrow
+            label={
+              <TooltipContent
+                id={macros.installedPlugin.id}
+                name={macros.installedPlugin.name}
+              />
+            }
+          >
+            <HelpOutlineIcon fontSize="small" color="primary" />
+          </Tooltip>
+        )}
       </div>
       <div className="flex flex-col justify-between items-end">
         <IconButton

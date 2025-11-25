@@ -51,3 +51,4 @@ export const labelLockedElements = 'Locked elements';
 
 export const labelHostHostTemplate = 'Hosts (Host templates)';
 export const labelServiceServiceemplate = 'Services (Service templates)';
+export const labelOutput = 'Output';
