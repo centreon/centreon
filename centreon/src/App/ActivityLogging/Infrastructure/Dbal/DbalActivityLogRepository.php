@@ -61,52 +61,6 @@ final readonly class DbalActivityLogRepository extends DbalRepository implements
     ) {
     }
 
-    public function add(ActivityLog $activityLog): void
-    {
-        $qb = $this->connection->createQueryBuilder();
-
-        $targetType = self::TARGET_TYPE_VALUE_MAP[$activityLog->target->type->value];
-        $action = self::ACTION_VALUE_MAP[$activityLog->action->value];
-
-        $qb->insert(self::TABLE_NAME)
-            ->values([
-                'action_log_date' => ':performedAt',
-                'object_id' => ':targetId',
-                'object_name' => ':targetName',
-                'object_type' => ':targetType',
-                'action_type' => ':action',
-                'log_contact_id' => ':actorId',
-            ])
-            ->setParameter('performedAt', $activityLog->performedAt->getTimestamp())
-            ->setParameter('targetId', $activityLog->target->id->value)
-            ->setParameter('targetName', $activityLog->target->name->value)
-            ->setParameter('targetType', $targetType)
-            ->setParameter('action', $action)
-            ->setParameter('actorId', $activityLog->actor->id->value)
-            ->executeStatement();
-
-        $id = (int) $this->connection->lastInsertId();
-
-        if ($id === 0) {
-            throw new \RuntimeException(sprintf('Unable to retrieve last insert ID for "%s".', self::TABLE_NAME));
-        }
-
-        $this->setId($activityLog, new ActivityLogId($id));
-
-        foreach ($activityLog->details as $name => $value) {
-            $qb->insert(self::DETAIL_TABLE_NAME)
-                ->values([
-                    'action_log_id' => ':logId',
-                    'field_name' => ':name',
-                    'field_value' => ':value',
-                ])
-                ->setParameter('logId', $id)
-                ->setParameter('name', $name)
-                ->setParameter('value', $value)
-                ->executeStatement();
-        }
-    }
-
     public function find(ActivityLogId $id): ?ActivityLog
     {
         $qb = $this->connection->createQueryBuilder();
@@ -144,7 +98,7 @@ final readonly class DbalActivityLogRepository extends DbalRepository implements
     /**
      * @param array<ActivityLog> $activityLogs
      */
-    public function addMultiple(array $activityLogs): void
+    public function add(ActivityLog ...$activityLogs): void
     {
         if ($activityLogs === []) {
             return;
@@ -159,19 +113,21 @@ final readonly class DbalActivityLogRepository extends DbalRepository implements
             'log_contact_id',
         ];
 
-        $targetType = self::TARGET_TYPE_VALUE_MAP[$activityLogs[0]->target->type->value];
-        $action = self::ACTION_VALUE_MAP[$activityLogs[0]->action->value];
         $values = [];
         $parameters = [];
+        $placeHolders = '(' . implode(',', array_fill(0, count($columns), '?')) . ')';
 
         foreach ($activityLogs as $activityLog) {
-            $values[] = '(' . implode(',', array_fill(0, count($columns), '?')) . ')';
-            $parameters[] = $activityLog->performedAt->getTimestamp();
-            $parameters[] = $activityLog->target->id->value;
-            $parameters[] = $activityLog->target->name->value;
-            $parameters[] = $targetType;
-            $parameters[] = $action;
-            $parameters[] = $activityLog->actor->id->value;
+            $values[] = $placeHolders;
+            $parameters = [
+                ...$parameters,
+                $activityLog->performedAt->getTimestamp(),
+                $activityLog->target->id->value,
+                $activityLog->target->name->value,
+                self::TARGET_TYPE_VALUE_MAP[$activityLog->target->type->value],
+                self::ACTION_VALUE_MAP[$activityLog->action->value],
+                $activityLog->actor->id->value,
+            ];
         }
 
         $sql = sprintf(
@@ -183,13 +139,15 @@ final readonly class DbalActivityLogRepository extends DbalRepository implements
 
         $this->connection->executeStatement($sql, $parameters);
 
-        $insertedIds = $this->findLastInsertIdsByObjectsNames(array_map(
-            fn (ActivityLog $log): string => $log->target->name->value,
-            $activityLogs
-        ));
+        // the lastInsertId() returns the first inserted id in case of multiple inserts
+       $fisrtInsertedId = (int) $this->connection->lastInsertId();
 
-        foreach ($insertedIds as $key => $row) {
-            $this->setId($activityLogs[$key], new ActivityLogId((int) $row['action_log_id']));
+       if ($fisrtInsertedId === 0) {
+            throw new \RuntimeException(sprintf('Unable to retrieve last insert ID for "%s".', self::TABLE_NAME));
+        }
+
+        foreach ($activityLogs as $key => $activityLog) {
+            $this->setId($activityLog, new ActivityLogId($fisrtInsertedId + (int) $key));
         }
 
         $detailsToInsert = [];
@@ -203,56 +161,44 @@ final readonly class DbalActivityLogRepository extends DbalRepository implements
             }
         }
 
-        $this->addMultipleDetails($detailsToInsert);
+        $this->addDetails($detailsToInsert);
     }
 
     /**
      * @param array<array{
-     * action_log_id: int,
-     * field_name: string,
-     * field_value: string}> $detailsToInsert
+     *     action_log_id: int,
+     *     field_name: string,
+     *     field_value: string}> $detailsToInsert
      */
-    private function addMultipleDetails(array $detailsToInsert): void
+    private function addDetails(array $detailsToInsert): void
     {
-        if ($detailsToInsert !== []) {
-            $detailColumns = ['action_log_id', 'field_name', 'field_value'];
-            $detailValues = [];
-            $detailParameters = [];
-
-            foreach ($detailsToInsert as $detail) {
-                $detailValues[] = '(' . implode(',', array_fill(0, count($detailColumns), '?')) . ')';
-                $detailParameters[] = $detail['action_log_id'];
-                $detailParameters[] = $detail['field_name'];
-                $detailParameters[] = $detail['field_value'];
-            }
-
-            $detailSql = sprintf(
-                'INSERT INTO %s (%s) VALUES %s',
-                self::DETAIL_TABLE_NAME,
-                implode(', ', $detailColumns),
-                implode(', ', $detailValues)
-            );
-
-            $this->connection->executeStatement($detailSql, $detailParameters);
+        if ($detailsToInsert === []) {
+            return;
         }
-    }
 
-    /**
-     * @param array<string> $objectNames
-     *
-     * @return array<array{action_log_id: string}>
-     */
-    private function findLastInsertIdsByObjectsNames(array $objectNames): array
-    {
-        $qb = $this->connection->createQueryBuilder();
+        $detailColumns = ['action_log_id', 'field_name', 'field_value'];
+        $placeHolders = '(' . implode(',', array_fill(0, count($detailColumns), '?')) . ')';
+        $detailValues = [];
+        $detailParameters = [];
 
-        $qb->select('action_log_id')
-            ->from(self::TABLE_NAME)
-            ->where($qb->expr()->in('object_name', ':objectNames'))
-            ->setParameter('objectNames', $objectNames, ArrayParameterType::STRING);
+        foreach ($detailsToInsert as $detail) {
+            $detailValues[] = $placeHolders;
+            $detailParameters = [
+                ...$detailParameters,
+                $detail['action_log_id'],
+                $detail['field_name'],
+                $detail['field_value'],
+            ];
+        }
 
-        /** @var array<array{action_log_id: string}> */
-        return $qb->executeQuery()->fetchAllAssociative();
+        $detailSql = sprintf(
+            'INSERT INTO %s (%s) VALUES %s',
+            self::DETAIL_TABLE_NAME,
+            implode(', ', $detailColumns),
+            implode(', ', $detailValues)
+        );
+
+        $this->connection->executeStatement($detailSql, $detailParameters);
     }
 
     /**

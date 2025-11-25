@@ -23,13 +23,15 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Application\Command;
 
+use App\MonitoringConfiguration\Domain\Aggregate\CommandId;
+
 final readonly class DuplicateCommandsCommand
 {
     public function __construct(
-        /** @var array<int> */
+        /** @var array<CommandId> */
         public array $commandIds,
         public int $duplicatedBy,
-        /** @var array<int, string> */
+        /** @var array<string> */
         public array $allowedTypes,
     ) {
     }

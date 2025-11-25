@@ -32,6 +32,9 @@ final readonly class DuplicateCommandInput
      */
     public function __construct(
         #[Assert\NotBlank(message: 'IDs array cannot be empty')]
+        #[Assert\All([
+            new Assert\Type('integer'),
+        ])]
         public array $ids,
     ) {
     }

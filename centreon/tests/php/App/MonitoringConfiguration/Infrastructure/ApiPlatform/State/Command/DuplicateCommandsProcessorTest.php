@@ -68,6 +68,7 @@ final class DuplicateCommandsProcessorTest extends ApiTestCase
         ]);
 
         self::assertResponseIsSuccessful();
+        self::assertResponseStatusCodeSame(Response::HTTP_OK);
         self::assertMatchesResourceItemJsonSchema(DuplicateCommandResource::class);
 
         $responseData = $response->toArray();
@@ -76,7 +77,7 @@ final class DuplicateCommandsProcessorTest extends ApiTestCase
         self::assertCount(1, $responseData['member']);
         self::assertIsArray($responseData['member'][0]);
         self::assertIsString($responseData['member'][0]['command']);
-        self::assertStringContainsString('/api/latest/configuration/commands/1', $responseData['member'][0]['command']);
+        self::assertStringContainsString('/api/latest/configuration/commands/', $responseData['member'][0]['command']);
         self::assertEquals(204, $responseData['member'][0]['status']);
         self::assertIsString($responseData['member'][0]['message']);
         self::assertStringContainsString('Command duplicated successfully', $responseData['member'][0]['message']);

@@ -34,6 +34,7 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Command\Duplica
     uriTemplate: '/configuration/commands/_duplicate',
     processor: DuplicateCommandsProcessor::class,
     input: DuplicateCommandInput::class,
+    status: 200,
     openapi: new Model\Operation(
         responses: [
             403 => new Model\Response('You are not allowed to duplicate commands'),
@@ -44,19 +45,19 @@ final readonly class DuplicateCommandResource
 {
     public function __construct(
         #[ApiProperty(readableLink: false)]
-        public readonly ?CommandResource $command,
+        public ?CommandResource $command,
 
         #[ApiProperty(
             description: 'The status of the duplication operation',
             openapiContext: ['example' => 204]
         )]
-        public readonly int $status,
+        public int $status,
 
         #[ApiProperty(
             description: 'Descriptive message about the duplication result',
             openapiContext: ['example' => 'Command duplicated successfully']
         )]
-        public readonly string $message,
+        public string $message,
     ) {
     }
 }

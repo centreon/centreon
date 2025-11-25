@@ -39,12 +39,7 @@ interface CommandRepository
 
     public function findOneByName(CommandName $name): ?Command;
 
-    public function add(Command $command): void;
-
-    /**
-     * @param array<Command> $commands
-     */
-    public function addMultiple(array $commands): void;
+    public function add(Command ...$commands): void;
 
     public function update(Command $command): void;
 

@@ -21,10 +21,10 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Domain\Exception;
+namespace App\MonitoringConfiguration\Domain\Event;
 
-use App\Shared\Domain\Exception\AccessDeniedException;
+use App\Shared\Domain\Event\AggregateDuplicated;
 
-final class CommandAccessDeniedException extends AccessDeniedException
+final readonly class CommandDuplicated extends AggregateDuplicated
 {
 }

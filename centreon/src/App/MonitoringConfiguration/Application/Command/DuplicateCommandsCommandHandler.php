@@ -26,6 +26,7 @@ namespace App\MonitoringConfiguration\Application\Command;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\Command;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandName;
 use App\MonitoringConfiguration\Domain\Event\CommandCreated;
+use App\MonitoringConfiguration\Domain\Event\CommandDuplicated;
 use App\MonitoringConfiguration\Domain\Repository\CommandRepository;
 use App\Shared\Application\Command\AsCommandHandler;
 use App\Shared\Domain\Event\EventBus;
@@ -40,7 +41,11 @@ final readonly class DuplicateCommandsCommandHandler
     }
 
     /**
-     * @return array<string, array<Command|int|string>>
+     * @return array{
+     *     duplicated: array<Command>,
+     *     missing?: array<CommandId>,
+     *     access_denied?: array<int>
+     * }
      */
     public function __invoke(DuplicateCommandsCommand $duplicateCommandsCommand): array
     {
@@ -55,14 +60,14 @@ final readonly class DuplicateCommandsCommandHandler
             $missingIds = array_diff($duplicateCommandsCommand->commandIds, $foundIds);
             $results['missing'] = $missingIds;
         }
-        $commandToDuplicate = [];
+        $commandsToDuplicate = [];
         foreach ($originalCommands as $originalCommand) {
             if (! in_array($originalCommand->type->name, $duplicateCommandsCommand->allowedTypes, true)) {
                 $results['access_denied'][] = $originalCommand->id()->value;
                 continue;
             }
 
-            $commandToDuplicate[] = new Command(
+            $commandsToDuplicate[] = new Command(
                 id: null,
                 name: new CommandName($originalCommand->name->value . '_' . uniqid()),
                 type: $originalCommand->type,
@@ -75,11 +80,11 @@ final readonly class DuplicateCommandsCommandHandler
             );
         }
 
-        $this->repository->addMultiple($commandToDuplicate);
+        $this->repository->add(...$commandsToDuplicate);
         $this->eventBus->fire(
-            new CommandCreated($commandToDuplicate, $duplicateCommandsCommand->duplicatedBy)
+            new CommandDuplicated($commandsToDuplicate, $duplicateCommandsCommand->duplicatedBy)
         );
-        $results['duplicated'] = $commandToDuplicate;
+        $results['duplicated'] = $commandsToDuplicate;
 
         return $results;
     }

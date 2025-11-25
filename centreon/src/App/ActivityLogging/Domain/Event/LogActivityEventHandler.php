@@ -32,6 +32,7 @@ use App\Shared\Domain\Aggregate\AggregateRoot;
 use App\Shared\Domain\Aggregate\AggregateRootId;
 use App\Shared\Domain\Event\AggregateCreated;
 use App\Shared\Domain\Event\AggregateDeleted;
+use App\Shared\Domain\Event\AggregateDuplicated;
 use App\Shared\Domain\Event\AggregateUpdated;
 use App\Shared\Domain\Event\AsEventHandler;
 use Psr\Container\ContainerInterface;
@@ -47,7 +48,7 @@ final readonly class LogActivityEventHandler
     ) {
     }
 
-    public function __invoke(AggregateCreated|AggregateUpdated|AggregateDeleted $event): void
+    public function __invoke(AggregateCreated|AggregateUpdated|AggregateDeleted|AggregateDuplicated $event): void
     {
         $aggregates = is_array($event->aggregate) ? $event->aggregate : [$event->aggregate];
 
@@ -63,7 +64,7 @@ final readonly class LogActivityEventHandler
         $factory = $this->activityLogFactories->get($aggregates[0]::class);
 
         $action = match (true) {
-            $event instanceof AggregateCreated => ActionEnum::Add,
+            $event instanceof AggregateCreated, $event instanceof AggregateDuplicated => ActionEnum::Add,
             $event instanceof AggregateUpdated => ActionEnum::Update,
             $event instanceof AggregateDeleted => ActionEnum::Delete,
         };
@@ -78,10 +79,6 @@ final readonly class LogActivityEventHandler
             );
         }
 
-        if (count($activityLogs) === 1) {
-            $this->repository->add($activityLogs[0]);
-        } else {
-            $this->repository->addMultiple($activityLogs);
-        }
+        $this->repository->add(...$activityLogs);
     }
 }

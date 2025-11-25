@@ -167,41 +167,7 @@ final readonly class DbalCommandRepository extends DbalRepository implements Com
         return new Collection(array_map(fn (array $row): Command => $this->createCommand($row), $rows), Command::class);
     }
 
-    public function add(Command $command): void
-    {
-        $qb = $this->connection->createQueryBuilder();
-
-        $qb->insert(self::TABLE_NAME)
-            ->values([
-                'command_name' => ':command_name',
-                'command_line' => ':command_line',
-                'command_type' => ':command_type',
-                'enable_shell' => ':enable_shell',
-                'command_activate' => ':command_activate',
-                'command_locked' => ':command_locked',
-                'command_comment' => ':command_comment',
-                'connector_id' => ':connector_id',
-            ])
-            ->setParameter('command_name', $command->name->value)
-            ->setParameter('command_line', $command->commandLine->value)
-            ->setParameter('command_type', $command->type->value)
-            ->setParameter('enable_shell', $command->isShellEnabled ? '1' : '0')
-            ->setParameter('command_activate', $command->isActivated ? '1' : '0')
-            ->setParameter('command_locked', $command->isFromMonitoringConnector ? '1' : '0')
-            ->setParameter('command_comment', $command->comment?->value)
-            ->setParameter('connector_id', $command->connector()?->id()->value)
-            ->executeStatement();
-
-        $id = (int) $this->connection->lastInsertId();
-
-        if ($id === 0) {
-            throw new \RuntimeException(\sprintf('Unable to retrieve last insert ID for "%s".', self::TABLE_NAME));
-        }
-
-        $this->setId($command, new CommandId($id));
-    }
-
-    public function addMultiple(array $commands): void
+    public function add(Command ...$commands): void
     {
         if ($commands === []) {
             return;
@@ -218,18 +184,22 @@ final readonly class DbalCommandRepository extends DbalRepository implements Com
             'connector_id',
         ];
 
+        $placeholders = '(' . implode(',', array_fill(0, count($columns), '?')) . ')';
         $values = [];
         $params = [];
         foreach ($commands as $command) {
-            $values[] = '(' . implode(',', array_fill(0, count($columns), '?')) . ')';
-            $params[] = $command->name->value;
-            $params[] = $command->commandLine->value;
-            $params[] = $command->type->value;
-            $params[] = $command->isShellEnabled ? '1' : '0';
-            $params[] = $command->isActivated ? '1' : '0';
-            $params[] = $command->isFromMonitoringConnector ? '1' : '0';
-            $params[] = $command->comment?->value;
-            $params[] = $command->connector()?->id()->value;
+            $values[] = $placeholders;
+            $params = [
+                ...$params,
+                $command->name->value,
+                $command->commandLine->value,
+                $command->type->value,
+                $command->isShellEnabled ? '1' : '0',
+                $command->isActivated ? '1' : '0',
+                $command->isFromMonitoringConnector ? '1' : '0',
+                $command->comment?->value,
+                $command->connector()?->id()->value,
+            ];
         }
 
         $sql = sprintf(

@@ -76,19 +76,4 @@ final readonly class CommandActivityLogFactory implements ActivityLogFactoryInte
             details: $details,
         );
     }
-
-    /**
-     * @param array<Command> $aggregates
-     *
-     * @return array<ActivityLog>
-     */
-    public function createMultiple(ActionEnum $action, array $aggregates, Actor $firedBy, \DateTimeImmutable $firedAt): array
-    {
-        $activityLogs = [];
-        foreach ($aggregates as $aggregate) {
-            $activityLogs[] = $this->create($action, $aggregate, $firedBy, $firedAt);
-        }
-
-        return $activityLogs;
-    }
 }
