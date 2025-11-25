@@ -207,9 +207,6 @@ const installCentreon = (version: string): Cypress.Chainable => {
         'systemctl restart apache2',
         `mysql -e "GRANT ALL ON *.* to 'root'@'localhost' IDENTIFIED BY 'centreon' WITH GRANT OPTION"`,
         'for i in $( ls /etc/apt/sources.list.d/centreon*{unstable,testing}*.disabled ); do mv $i "$(echo $i | sed -r \'s/.disabled//\')"; done',
-        'mv /etc/apt/sources.list.d/centreon-unstable.list.bak /etc/apt/sources.list.d/centreon-unstable.list',
-        'mv /etc/apt/sources.list.d/centreon-testing-hotfix.list.bak /etc/apt/sources.list.d/centreon-testing-hotfix.list',
-        'mv /etc/apt/sources.list.d/centreon-testing-release.list.bak /etc/apt/sources.list.d/centreon-testing-release.list',
         'apt-get update',
         'usermod -a -G centreon-broker www-data' // temporary fix (MON-20769)
       ],
