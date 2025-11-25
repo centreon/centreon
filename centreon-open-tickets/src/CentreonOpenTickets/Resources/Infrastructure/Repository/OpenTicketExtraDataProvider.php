@@ -23,10 +23,12 @@ declare(strict_types=1);
 
 namespace CentreonOpenTickets\Resources\Infrastructure\Repository;
 
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\Enum\QueryParameterTypeEnum;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
 use Centreon\Domain\Monitoring\Resource;
 use Centreon\Domain\Monitoring\ResourceFilter;
-use Centreon\Infrastructure\DatabaseConnection;
-use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
+use Core\Common\Infrastructure\Repository\DatabaseRepository;
 use Core\Common\Infrastructure\Repository\SqlMultipleBindTrait;
 use Core\Resources\Infrastructure\Repository\ExtraDataProviders\ExtraDataProviderInterface;
 
@@ -37,19 +39,16 @@ use Core\Resources\Infrastructure\Repository\ExtraDataProviders\ExtraDataProvide
  *  subject:string,
  *  timestamp: int
  * }
+ * @phpstan-type _RuleDetails array{
+ *  macro_ticket_id: ?string,
+ *  url: ?string,
+ *  ...
+ * }
  */
-final class OpenTicketExtraDataProvider extends AbstractRepositoryRDB implements ExtraDataProviderInterface
+final class OpenTicketExtraDataProvider extends DatabaseRepository implements ExtraDataProviderInterface
 {
     use SqlMultipleBindTrait;
     private const DATA_PROVIDER_SOURCE_NAME = 'open_tickets';
-
-    /**
-     * @param DatabaseConnection $db
-     */
-    public function __construct(DatabaseConnection $db)
-    {
-        $this->db = $db;
-    }
 
     /**
      * @inheritDoc
@@ -78,7 +77,8 @@ final class OpenTicketExtraDataProvider extends AbstractRepositoryRDB implements
             return '';
         }
 
-        $macroName = $this->getMacroNameFromRuleId($filter->getRuleId());
+        $ruleDetails = $this->getRuleDetails($filter->getRuleId());
+        $macroName = $ruleDetails['macro_ticket_id'];
 
         if ($macroName === null) {
             throw new \Exception('Macro name used for rule not found');
@@ -137,7 +137,9 @@ final class OpenTicketExtraDataProvider extends AbstractRepositoryRDB implements
             return $data;
         }
 
-        $macroName = $this->getMacroNameFromRuleId($filter->getRuleId());
+        $ruleDetails = $this->getRuleDetails($filter->getRuleId());
+
+        $macroName = $ruleDetails['macro_ticket_id'] ?? null;
 
         if ($macroName === null) {
             throw new \Exception('Macro name used for rule not found');
@@ -175,8 +177,46 @@ final class OpenTicketExtraDataProvider extends AbstractRepositoryRDB implements
         }
 
         // avoid key re-indexing. index = resource_id
-        return $this->getResourceTickets($resourceIds, $macroName)
+        $tickets = $this->getResourceTickets($resourceIds, $macroName)
             + $this->getParentResourceTickets($parentResourceIds, $macroName);
+
+        // for each tickets found lets rebuild the link to it using the information from rule details
+        // if the url has been provided and not empty
+        return $ruleDetails['url'] !== null
+            ? array_map(
+                function ($ticket) use ($ruleDetails) {
+                    $ticket['link'] = $this->generateLinkForTicket($ticket['id'], $ruleDetails);
+
+                    return $ticket;
+                },
+                $tickets
+            )
+            : $tickets;
+    }
+
+    /**
+     * @param int $ticketId
+     * @param _RuleDetails $data
+     * @return string
+     */
+    private function generateLinkForTicket(int $ticketId, array $data): string
+    {
+        $url = $data['url'] ?? '';
+
+        if ($url === '') {
+            return $url;
+        }
+
+        foreach ($data as $key => $value) {
+            if ($value !== null) {
+                $pattern = '/\{\$' . preg_quote($key, '/') . '\}/';
+                /** @var non-empty-string $url */
+                $url = preg_replace($pattern, (string) $value, $url);
+            }
+        }
+
+        /** @var non-empty-string $url */
+        return preg_replace('/\{\$ticket_id\}/', (string) $ticketId, $url) ?? $url;
     }
 
     /**
@@ -218,7 +258,11 @@ final class OpenTicketExtraDataProvider extends AbstractRepositoryRDB implements
             return [];
         }
 
-        [$bindValues, $bindQuery] = $this->createMultipleBindQuery(array_values($resources), ':resource_id');
+        ['parameters' => $resourceQueryParameters, 'placeholderList' => $bindQuery] = $this->createMultipleBindParameters(
+            array_values($resources),
+            'resource_id',
+            QueryParameterTypeEnum::INTEGER,
+        );
 
         $request = <<<SQL
                 SELECT
@@ -244,19 +288,13 @@ final class OpenTicketExtraDataProvider extends AbstractRepositoryRDB implements
                     AND tickets.timestamp IS NOT NULL;
             SQL;
 
-        $statement = $this->db->prepare($this->translateDbName($request));
-        $statement->bindValue(':macroName', $macroName, \PDO::PARAM_STR);
-
-        foreach ($bindValues as $key => $value) {
-            $statement->bindValue($key, $value, \PDO::PARAM_INT);
-        }
-
-        $statement->setFetchMode(\PDO::FETCH_ASSOC);
-        $statement->execute();
+        $queryParameters = [
+            ...$resourceQueryParameters,
+            QueryParameter::string('macroName', $macroName),
+        ];
 
         $tickets = [];
-
-        while (($record = $statement->fetch(\PDO::FETCH_ASSOC)) !== false) {
+        foreach ($this->connection->iterateAssociative($this->translateDbName($request), QueryParameters::create($queryParameters)) as $record) {
             /**
              * @var _TicketData $record
              */
@@ -285,7 +323,11 @@ final class OpenTicketExtraDataProvider extends AbstractRepositoryRDB implements
             return [];
         }
 
-        [$bindValues, $bindQuery] = $this->createMultipleBindQuery(array_values($parentResources), ':resource_id');
+        ['parameters' => $resourceQueryParameters, 'placeholderList' => $bindQuery] = $this->createMultipleBindParameters(
+            array_values($parentResources),
+            'resource_id',
+            QueryParameterTypeEnum::INTEGER,
+        );
 
         $request = <<<SQL
                 SELECT
@@ -310,18 +352,13 @@ final class OpenTicketExtraDataProvider extends AbstractRepositoryRDB implements
                     AND tickets.timestamp IS NOT NULL;
             SQL;
 
-        $statement = $this->db->prepare($this->translateDbName($request));
-        $statement->bindValue(':macroName', $macroName, \PDO::PARAM_STR);
-
-        foreach ($bindValues as $key => $value) {
-            $statement->bindValue($key, $value, \PDO::PARAM_INT);
-        }
-
-        $statement->setFetchMode(\PDO::FETCH_ASSOC);
-        $statement->execute();
+        $queryParameters = [
+            ...$resourceQueryParameters,
+            QueryParameter::string('macroName', $macroName),
+        ];
 
         $tickets = [];
-        while (($record = $statement->fetch(\PDO::FETCH_ASSOC)) !== false) {
+        foreach ($this->connection->iterateAssociative($this->translateDbName($request), QueryParameters::create($queryParameters)) as $record) {
             /**
              * @var _TicketData $record
              */
@@ -340,22 +377,29 @@ final class OpenTicketExtraDataProvider extends AbstractRepositoryRDB implements
      *
      * @param int $ruleId
      *
-     * @return string
+     * @return _RuleDetails
      */
-    private function getMacroNameFromRuleId(int $ruleId): ?string
+    private function getRuleDetails(int $ruleId): array
     {
-        $request = <<<'SQL'
-                SELECT `value` FROM `:db`.mod_open_tickets_form_value WHERE rule_id = :ruleId AND uniq_id = 'macro_ticket_id';
+        $query = <<<'SQL'
+            SELECT
+                `uniq_id`,
+                `value`
+            FROM `:db`.mod_open_tickets_form_value
+            WHERE rule_id = :ruleId
             SQL;
 
-        $statement = $this->db->prepare($this->translateDbName($request));
-        $statement->bindValue(':ruleId', $ruleId, \PDO::PARAM_INT);
-        $statement->setFetchMode(\PDO::FETCH_ASSOC);
-        $statement->execute();
+        $queryParameters = QueryParameters::create([
+            QueryParameter::int('ruleId', $ruleId),
+        ]);
 
-        /** @var string|null|false $result */
-        $result = $statement->fetchColumn();
+        $ruleDetails = [];
 
-        return $result !== false ? $result : null;
+        foreach ($this->connection->iterateAssociativeIndexed($this->translateDbName($query), $queryParameters) as $key => $data) {
+            $ruleDetails[$key] = $data['value'];
+        }
+
+        /** @var array{macro_ticket_id: ?string, url: ?string, ...} $ruleDetails */
+        return $ruleDetails;
     }
 }
