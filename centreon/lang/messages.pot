@@ -2358,7 +2358,7 @@ msgid "Calculations based on time period"
 msgstr ""
 
 #: centreon/www/install/dashboard_widgets.php
-msgid "days before saturations"
+msgid "days before saturation"
 msgstr ""
 
 #: centreon/www/include/views/virtualMetrics/formVirtualMetrics.php
