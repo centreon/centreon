@@ -406,7 +406,7 @@ export default (): void => {
         cy.findByLabelText('close').click();
       });
 
-      it('validates that vCenter username is not required Edition Mode', () => {
+      it('validates that vCenter username is required Edition Mode', () => {
         cy.waitForRequest('@getConnectors');
 
         cy.contains('VMWare1').click();
@@ -415,12 +415,12 @@ export default (): void => {
 
         clickOutideTheField();
 
-        cy.contains(labelRequired).should('not.exist');
+        cy.contains(labelRequired).should('be.visible');
 
         cy.matchImageSnapshot();
 
         cy.findByLabelText('close').click();
-        cy.findByLabelText('Discard').click();
+        cy.findByLabelText('Leave').click();
       });
 
       it('validates that vCenter password field is required in Creation Mode', () => {
@@ -438,12 +438,17 @@ export default (): void => {
         cy.findByLabelText('close').click();
       });
 
-      it('validates that vCenter password field is not required in Edition Mode', () => {
+      it('validates that vCenter password field is disabled and masked in Edition Mode', () => {
         cy.waitForRequest('@getConnectors');
 
         cy.contains('VMWare1').click();
 
-        cy.get(`input[data-testid="Password_value"`).clear();
+        cy.get(`input[data-testid="Password_value"`).should('be.disabled');
+
+        cy.get(`input[data-testid="Password_value"`).should(
+          'have.value',
+          maskedPassword
+        );
 
         clickOutideTheField();
 
@@ -452,7 +457,6 @@ export default (): void => {
         cy.matchImageSnapshot();
 
         cy.findByLabelText('close').click();
-        cy.findByLabelText('Discard').click();
       });
 
       it('validates that port field is required', () => {
@@ -635,14 +639,14 @@ export default (): void => {
               vcenters: [
                 {
                   name: 'vCenter1',
-                  password: 'password1',
+                  password: null,
                   url: 'vcenter1.example.com/sdk',
                   username: 'user1',
                   scheme: 'https'
                 },
                 {
                   name: 'vCenter2',
-                  password: 'password2',
+                  password: null,
                   url: '192.0.0.1',
                   username: 'user2',
                   scheme: null
