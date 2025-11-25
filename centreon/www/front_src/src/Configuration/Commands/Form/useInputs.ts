@@ -109,6 +109,7 @@ export const useInputs = (): {
               connectedAutocomplete: {
                 endpoint: connectorsEndpoint,
                 filterKey: 'name',
+                getOptionLabel: (option) => option?.name,
                 decoder: JSONLDEntitiesListDecoder,
                 useNewAPIFormat: true
               },
