@@ -333,23 +333,23 @@ export default (): void => {
         cy.findByLabelText('close').click();
       });
 
-      // it('validates that vCenter name field is required', () => {
-      //   cy.waitForRequest('@getConnectors');
-      //   cy.get(`[data-testid="add-resource"]`).click();
+      it('validates that vCenter name field is required', () => {
+        cy.waitForRequest('@getConnectors');
+        cy.get(`[data-testid="add-resource"]`).click();
 
-      //   cy.get(`input[data-testid="vCenter name_value"`).clear();
+        cy.get(`input[data-testid="vCenter name_value"`).clear();
 
-      //   clickOutideTheField();
+        clickOutideTheField();
 
-      //   cy.contains(labelRequired).should('be.visible');
+        cy.contains(labelRequired).should('be.visible');
 
-      //   cy.matchImageSnapshot();
+        cy.matchImageSnapshot();
 
-      //   cy.findByLabelText('close').click();
-      //   cy.contains('Leave').click();
-      // });
+        cy.findByLabelText('close').click();
+        cy.contains('Leave').click();
+      });
 
-      it.only('validates that vCenter name must be unique for its own ACC', () => {
+      it('validates that vCenter name must be unique for its own ACC', () => {
         cy.waitForRequest('@getConnectors');
         cy.get(`[data-testid="add-resource"]`).click();
 
