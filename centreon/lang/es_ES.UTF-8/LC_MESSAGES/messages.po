@@ -5265,6 +5265,12 @@ msgid ""
 msgstr ""
 
 #: centreon/www/install/dashboard_widgets.php
+msgid ""
+"Displays a list of storage with saturation foreseen, current usage, days until saturation, "
+"and evolution of usage since the past day."
+msgstr ""
+
+#: centreon/www/install/dashboard_widgets.php
 msgid "Displays the time according to the selected time zone, or a timer."
 msgstr ""
 

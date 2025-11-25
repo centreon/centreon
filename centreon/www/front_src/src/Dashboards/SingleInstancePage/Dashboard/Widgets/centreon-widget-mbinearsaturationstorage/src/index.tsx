@@ -4,6 +4,7 @@ import NoResources from '../../NoResources';
 import { areResourcesFullfilled } from '../../utils';
 
 import { WidgetProps } from './models';
+import { ReactElement } from 'react';
 
 const Widget = ({
   panelData,
@@ -16,7 +17,7 @@ const Widget = ({
   playlistHash,
   isFromPreview,
   queryClient
-}: WidgetProps): JSX.Element => {
+}: WidgetProps): ReactElement => {
   if (
     !areResourcesFullfilled(panelData.resources) ||
     isEmpty(panelData.metrics)

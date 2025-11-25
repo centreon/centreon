@@ -1,6 +1,6 @@
 {
   "title": "Storage near saturation",
-  "description": "Displays a sortable list of storage with saturation foreseen, current usage, days until saturation, and evolution of usage since the past day.",
+  "description": "Displays a list of storage with saturation foreseen, current usage, days until saturation, and evolution of usage since the past day.",
   "widgetType": "MBI",
   "canExpand": true,
   "moduleName": "centreon-widget-mbinearsaturationstorage",
