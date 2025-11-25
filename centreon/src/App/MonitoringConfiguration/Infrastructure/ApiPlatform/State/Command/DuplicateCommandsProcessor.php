@@ -28,6 +28,7 @@ use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
 use App\MonitoringConfiguration\Application\Command\DuplicateCommandsCommand;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\Command;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandTypeEnum;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\DuplicateCommandInput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Command\CommandResource;
@@ -74,7 +75,7 @@ final readonly class DuplicateCommandsProcessor implements ProcessorInterface
          * } $duplicatedCommandsResult */
         $duplicatedCommandsResult = $this->commandBus->execute(
             new DuplicateCommandsCommand(
-                commandIds: $data->ids,
+                commandIds: array_map(fn (int $id): CommandId => new CommandId($id), $data->ids),
                 duplicatedBy: $this->legacySecurity->getUserId(),
                 allowedTypes: $allowedTypes,
             )

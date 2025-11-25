@@ -23,8 +23,12 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Domain\Event;
 
+use App\MonitoringConfiguration\Domain\Aggregate\Command\Command;
 use App\Shared\Domain\Event\AggregateDuplicated;
 
+/**
+ * @extends AggregateDuplicated<Command>
+ */
 final readonly class CommandDuplicated extends AggregateDuplicated
 {
 }

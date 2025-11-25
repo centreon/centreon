@@ -34,7 +34,6 @@ use App\ActivityLogging\Domain\Aggregate\TargetName;
 use App\ActivityLogging\Domain\Aggregate\TargetTypeEnum;
 use App\ActivityLogging\Domain\Repository\ActivityLogRepository;
 use App\Shared\Infrastructure\Dbal\DbalRepository;
-use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
@@ -95,9 +94,6 @@ final readonly class DbalActivityLogRepository extends DbalRepository implements
         return $count ?: 0;
     }
 
-    /**
-     * @param array<ActivityLog> $activityLogs
-     */
     public function add(ActivityLog ...$activityLogs): void
     {
         if ($activityLogs === []) {
@@ -140,14 +136,14 @@ final readonly class DbalActivityLogRepository extends DbalRepository implements
         $this->connection->executeStatement($sql, $parameters);
 
         // the lastInsertId() returns the first inserted id in case of multiple inserts
-       $fisrtInsertedId = (int) $this->connection->lastInsertId();
+        $firstInsertedId = (int) $this->connection->lastInsertId();
 
-       if ($fisrtInsertedId === 0) {
+        if ($firstInsertedId === 0) {
             throw new \RuntimeException(sprintf('Unable to retrieve last insert ID for "%s".', self::TABLE_NAME));
         }
 
         foreach ($activityLogs as $key => $activityLog) {
-            $this->setId($activityLog, new ActivityLogId($fisrtInsertedId + (int) $key));
+            $this->setId($activityLog, new ActivityLogId($firstInsertedId + (int) $key));
         }
 
         $detailsToInsert = [];

@@ -24,8 +24,8 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Application\Command;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Command\Command;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandName;
-use App\MonitoringConfiguration\Domain\Event\CommandCreated;
 use App\MonitoringConfiguration\Domain\Event\CommandDuplicated;
 use App\MonitoringConfiguration\Domain\Repository\CommandRepository;
 use App\Shared\Application\Command\AsCommandHandler;
@@ -42,8 +42,8 @@ final readonly class DuplicateCommandsCommandHandler
 
     /**
      * @return array{
-     *     duplicated: array<Command>,
-     *     missing?: array<CommandId>,
+     *     duplicated?: array<Command>,
+     *     missing?: array<int>,
      *     access_denied?: array<int>
      * }
      */
@@ -57,7 +57,11 @@ final readonly class DuplicateCommandsCommandHandler
                 fn (Command $command): int => $command->id()->value,
                 $originalCommands->toArray()
             );
-            $missingIds = array_diff($duplicateCommandsCommand->commandIds, $foundIds);
+            $requestedIds = array_map(
+                fn (CommandId $id): int => $id->value,
+                $duplicateCommandsCommand->commandIds
+            );
+            $missingIds = array_diff($requestedIds, $foundIds);
             $results['missing'] = $missingIds;
         }
         $commandsToDuplicate = [];
@@ -78,6 +82,10 @@ final readonly class DuplicateCommandsCommandHandler
                 connector: $originalCommand->connector(),
                 comment: $originalCommand->comment,
             );
+        }
+
+        if ($commandsToDuplicate === []) {
+            return $results;
         }
 
         $this->repository->add(...$commandsToDuplicate);

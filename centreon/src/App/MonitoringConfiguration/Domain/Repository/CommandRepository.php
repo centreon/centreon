@@ -51,7 +51,7 @@ interface CommandRepository
     public function findAll(?CommandCriteria $criteria): \IteratorAggregate&\Countable;
 
     /**
-     * @param array<int> $ids
+     * @param array<CommandId> $ids
      * @return Collection<Command>
      */
     public function findByIds(array $ids): Collection;

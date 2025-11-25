@@ -57,7 +57,7 @@ final class DuplicateCommandsCommandHandlerTest extends TestCase
         $this->repository->add($originalCommand);
 
         $command = new DuplicateCommandsCommand(
-            commandIds: [$originalCommand->id()->value],
+            commandIds: [$originalCommand->id()],
             duplicatedBy: 1,
             allowedTypes: ['Check']
         );
@@ -65,8 +65,7 @@ final class DuplicateCommandsCommandHandlerTest extends TestCase
         /** @var array{
          *     duplicated?: array<Command>,
          *     missing?: array<int>,
-         *     access_denied?: array<int>,
-         *     errors?: array<int, string>
+         *     access_denied?: array<int>
          * } $result */
         $result = ($this->handler)($command);
 
@@ -87,7 +86,7 @@ final class DuplicateCommandsCommandHandlerTest extends TestCase
     public function testDuplicateCommandsReturnsErrorWhenOriginalCommandNotFound(): void
     {
         $command = new DuplicateCommandsCommand(
-            commandIds: [999],
+            commandIds: [new CommandId(999)],
             duplicatedBy: 42,
             allowedTypes: ['Check']
         );
@@ -95,8 +94,7 @@ final class DuplicateCommandsCommandHandlerTest extends TestCase
         /** @var array{
          *     duplicated?: array<Command>,
          *     missing?: array<int>,
-         *     access_denied?: array<int>,
-         *     errors?: array<int, string>
+         *     access_denied?: array<int>
          * } $result */
         $result = ($this->handler)($command);
 
@@ -110,7 +108,7 @@ final class DuplicateCommandsCommandHandlerTest extends TestCase
         $this->repository->add($originalCommand);
 
         $command = new DuplicateCommandsCommand(
-            commandIds: [$originalCommand->id()->value],
+            commandIds: [$originalCommand->id()],
             duplicatedBy: 42,
             allowedTypes: ['Check']
         );
@@ -118,8 +116,7 @@ final class DuplicateCommandsCommandHandlerTest extends TestCase
         /** @var array{
          *     duplicated?: array<Command>,
          *     missing?: array<int>,
-         *     access_denied?: array<int>,
-         *     errors?: array<int, string>
+         *     access_denied?: array<int>
          * } $result */
         $result = ($this->handler)($command);
 
@@ -133,7 +130,7 @@ final class DuplicateCommandsCommandHandlerTest extends TestCase
         $this->repository->add($originalCommand);
 
         $command = new DuplicateCommandsCommand(
-            commandIds: [$originalCommand->id()->value],
+            commandIds: [$originalCommand->id()],
             duplicatedBy: 42,
             allowedTypes: ['Check', 'Notification']
         );
@@ -141,8 +138,7 @@ final class DuplicateCommandsCommandHandlerTest extends TestCase
         /** @var array{
          *     duplicated?: array<Command>,
          *     missing?: array<int>,
-         *     access_denied?: array<int>,
-         *     errors?: array<int, string>
+         *     access_denied?: array<int>
          * } $result */
         $result = ($this->handler)($command);
 
@@ -160,7 +156,7 @@ final class DuplicateCommandsCommandHandlerTest extends TestCase
         $this->repository->add($originalCommand);
 
         $command = new DuplicateCommandsCommand(
-            commandIds: [$originalCommand->id()->value],
+            commandIds: [$originalCommand->id()],
             duplicatedBy: 42,
             allowedTypes: []
         );
@@ -168,8 +164,7 @@ final class DuplicateCommandsCommandHandlerTest extends TestCase
         /** @var array{
          *     duplicated?: array<Command>,
          *     missing?: array<int>,
-         *     access_denied?: array<int>,
-         *     errors?: array<int, string>
+         *     access_denied?: array<int>
          * } $result */
         $result = ($this->handler)($command);
 

@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Application\Command;
 
-use App\MonitoringConfiguration\Domain\Aggregate\CommandId;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
 
 final readonly class DuplicateCommandsCommand
 {

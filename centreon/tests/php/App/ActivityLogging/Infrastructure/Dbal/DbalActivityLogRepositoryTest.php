@@ -178,10 +178,6 @@ final class DbalActivityLogRepositoryTest extends KernelTestCase
 
         self::assertSame($initialCount + 3, $this->repository->count());
 
-        self::assertNotNull($activityLog1->id());
-        self::assertNotNull($activityLog2->id());
-        self::assertNotNull($activityLog3->id());
-
         self::assertEquals($activityLog1, $this->repository->find($activityLog1->id()));
         self::assertEquals($activityLog2, $this->repository->find($activityLog2->id()));
         self::assertEquals($activityLog3, $this->repository->find($activityLog3->id()));

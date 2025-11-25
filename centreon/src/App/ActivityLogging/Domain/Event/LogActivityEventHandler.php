@@ -48,6 +48,9 @@ final readonly class LogActivityEventHandler
     ) {
     }
 
+    /**
+     * @param AggregateCreated|AggregateUpdated|AggregateDeleted|AggregateDuplicated<AggregateRoot<AggregateRootId>> $event
+     */
     public function __invoke(AggregateCreated|AggregateUpdated|AggregateDeleted|AggregateDuplicated $event): void
     {
         $aggregates = is_array($event->aggregate) ? $event->aggregate : [$event->aggregate];
