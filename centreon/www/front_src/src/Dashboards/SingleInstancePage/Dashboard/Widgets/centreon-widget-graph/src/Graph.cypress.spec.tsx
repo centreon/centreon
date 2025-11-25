@@ -470,9 +470,13 @@ describe('Graph Widget', () => {
         cy.waitForRequest('@getLineChart');
         cy.get('path').its('length').should('eq', 100);
 
-        cy.get('[class$="legend"]').as('legendContainer');
+        cy.get('[data-legend="true"]').as('legendContainer');
         cy.get('@legendContainer').should('have.css', 'overflow-Y', 'auto');
-        cy.get('@legendContainer').should('have.css', 'overflow-X', 'hidden');
+        cy.get('@legendContainer').should(
+          'have.css',
+          'overflow-X',
+          position !== 'bottom' ? 'hidden' : 'auto'
+        );
 
         cy.findByText('Legend 1 Centreon-Server').should('exist');
 
@@ -491,7 +495,7 @@ describe('Graph Widget', () => {
       });
       cy.waitForRequest('@getLineChart');
 
-      cy.get('[class$="legend"]').as('legendContainer');
+      cy.get('[data-legend="true"]').as('legendContainer');
 
       cy.get('path[data-metric=1]').realHover();
       cy.findByRole('tooltip').as('tooltip');
