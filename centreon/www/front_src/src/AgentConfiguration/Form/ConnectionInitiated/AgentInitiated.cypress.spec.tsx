@@ -3,10 +3,11 @@ import { Formik } from 'formik';
 
 import { BrowserRouter } from 'react-router';
 import { getTokensEndpoint } from '../../api/endpoints';
+import { ConnectionMode } from '../../models';
 import AgentInitiated from './AgentInitiated';
 
 const initialValues = {
-  connectionMode: { id: 'secure', name: 'secure' },
+  connectionMode: { id: ConnectionMode.secure, name: 'secure' },
   configuration: {
     otelPublicCertificate: '',
     otelCaCertificate: '',
