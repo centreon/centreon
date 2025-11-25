@@ -85,7 +85,7 @@ const internalWidgets: Array<
     { name: 'statusgrid', panelDefaultHeight: 3 },
     { name: 'topbottom' },
     { name: 'webpage' },
-    { name: 'mbinearsaturationstorage' }, // TODO: default size like other widgets
+    { name: 'mbinearsaturationstorage', panelMinWidth: 16, panelMinHeight: 3 }, 
     {
       name: 'hgavailabilityhistory',
       panelMinHeight: 3,
