@@ -2319,6 +2319,10 @@ msgstr "Type de calcul"
 msgid "Calculations based on time period"
 msgstr "Calculs basés sur la période temporelle"
 
+#: centreon/www/install/dashboard_widgets.php
+msgid "days before saturations"
+msgstr ""
+
 #: centreon/www/include/views/virtualMetrics/formVirtualMetrics.php
 msgid "Can't Use This Virtual Metric '"
 msgstr "Impossible d'utiliser cette métrique virtuelle '"

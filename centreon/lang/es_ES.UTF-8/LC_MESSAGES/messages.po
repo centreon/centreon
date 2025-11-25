@@ -2257,6 +2257,10 @@ msgstr ""
 msgid "Calculations based on time period"
 msgstr ""
 
+#: centreon/www/install/dashboard_widgets.php
+msgid "days before saturations"
+msgstr ""
+
 #: centreon/www/include/views/virtualMetrics/formVirtualMetrics.php
 msgid "Can't Use This Virtual Metric '"
 msgstr "No se puede utilizar esta métrica virtual `"
