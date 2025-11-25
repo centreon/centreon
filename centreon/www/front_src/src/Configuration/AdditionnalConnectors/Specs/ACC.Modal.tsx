@@ -628,6 +628,14 @@ export default (): void => {
         cy.findAllByTestId(labelName).eq(1).clear().type('Updated name');
         cy.get('input[name=port]').clear().type('100');
 
+        cy.get(`input[data-testid="Password_value"`)
+          .eq(0)
+          .should('be.disabled');
+        cy.findAllByTestId('EditIcon').eq(0).click();
+        cy.get(`input[data-testid="Password_value"`).eq(0).type('new password');
+        cy.findByTestId('CheckIcon').click();
+        cy.findByTestId('RestartAltIcon').should('be.visible');
+
         cy.get(`button[data-testid="submit"`).click();
 
         cy.waitForRequest('@updateConnector').then(({ request }) => {
@@ -639,7 +647,7 @@ export default (): void => {
               vcenters: [
                 {
                   name: 'vCenter1',
-                  password: null,
+                  password: 'new password',
                   url: 'vcenter1.example.com/sdk',
                   username: 'user1',
                   scheme: 'https'
