@@ -47,7 +47,7 @@ final class CommandCriteria implements SortableCriteria
 
     private ?bool $status = null;
 
-    private ?bool $fromMonitoringConnector = null;
+    private ?bool $locked = null;
 
     public function withPagination(int $page, int $itemsPerPage): self
     {
@@ -102,9 +102,9 @@ final class CommandCriteria implements SortableCriteria
         return clone $this;
     }
 
-    public function withFromMonitoringConnector(bool $fromMonitoringConnector): self
+    public function withLocked(bool $locked): self
     {
-        $this->fromMonitoringConnector = $fromMonitoringConnector;
+        $this->locked = $locked;
 
         return clone $this;
     }
@@ -140,9 +140,9 @@ final class CommandCriteria implements SortableCriteria
         return $this->status;
     }
 
-    public function getFromMonitoringConnector(): ?bool
+    public function getLocked(): ?bool
     {
-        return $this->fromMonitoringConnector;
+        return $this->locked;
     }
 
     public function getFieldMapping(): array

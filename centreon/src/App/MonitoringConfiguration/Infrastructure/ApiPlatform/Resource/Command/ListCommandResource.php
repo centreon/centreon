@@ -25,6 +25,7 @@ namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Comman
 
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\QueryParameter;
 use ApiPlatform\OpenApi\Model;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandTypeEnum;
 use App\MonitoringConfiguration\Domain\Repository\CommandResourceCount;
@@ -39,30 +40,16 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Command\ListCom
             403 => new Model\Response('You are not allowed to access commands'),
         ],
         parameters: [
-            new Model\Parameter(
-                name: 'name[lk]',
-                in: 'query',
-                description: 'Filter by name using "like" operator',
+            'name' => new QueryParameter(
+                description: 'Filter commands by name (partial or exact match)',
                 required: false,
                 schema: [
                     'type' => 'array',
                     'items' => ['type' => 'string'],
                 ],
             ),
-            new Model\Parameter(
-                name: 'name[eq]',
-                in: 'query',
-                description: 'Filter by name using "equals" operator',
-                required: false,
-                schema: [
-                    'type' => 'array',
-                    'items' => ['type' => 'string'],
-                ],
-            ),
-            new Model\Parameter(
-                name: 'type[]',
-                in: 'query',
-                description: 'Filter by command type',
+            'type' => new QueryParameter(
+                description: 'Filter commands by type',
                 required: false,
                 schema: [
                     'type' => 'array',
@@ -75,25 +62,17 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Command\ListCom
                             CommandTypeEnum::Discovery->name,
                         ],
                     ],
-                ],
+                ]
             ),
-            new Model\Parameter(
-                name: 'is_activated',
-                in: 'query',
-                description: 'Filter by activation status',
+            'is_activated' => new QueryParameter(
+                description: 'Filter commands by activation status',
                 required: false,
-                schema: [
-                    'type' => 'boolean',
-                ],
+                schema: ['type' => 'boolean'],
             ),
-            new Model\Parameter(
-                name: 'is_from_monitoring_connector',
-                in: 'query',
-                description: 'If set to true, includes commands coming from monitoring connectors to the results',
+            'is_from_monitoring_connector' => new QueryParameter(
+                description: 'Filter commands by whether they are from a monitoring connector',
                 required: false,
-                schema: [
-                    'type' => 'boolean',
-                ],
+                schema: ['type' => 'boolean'],
             ),
         ],
     ),
