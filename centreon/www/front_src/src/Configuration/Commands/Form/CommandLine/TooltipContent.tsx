@@ -3,24 +3,23 @@ import { ReactElement } from 'react';
 import { Box, Divider, Typography } from '@mui/material';
 
 import { LoadingSkeleton, truncate, useFetchQuery } from '@centreon/ui';
-import { isNotNil } from 'ramda';
+import { isNotEmpty, isNotNil } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { getPluginEndpoint } from '../../api';
 import { labelCommandLine, labelOutput } from '../../translatedLabels';
 
 interface Props {
-  id: string;
   name: string;
 }
 
-const TooltipContent = ({ name, id }: Props): ReactElement => {
+const TooltipContent = ({ name }: Props): ReactElement => {
   const { t } = useTranslation();
 
   const { data, isFetching } = useFetchQuery({
-    getEndpoint: () => getPluginEndpoint({ id }),
-    getQueryKey: () => ['getPlugin', id],
+    getEndpoint: () => getPluginEndpoint({ name }),
+    getQueryKey: () => ['getPlugin', name],
     queryOptions: {
-      enabled: isNotNil(id),
+      enabled: isNotNil(name) && isNotEmpty(name),
       suspense: false
     }
   });

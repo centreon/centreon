@@ -74,12 +74,7 @@ const CommandLine = (): ReactElement => {
             }}
             followCursor={false}
             arrow
-            label={
-              <TooltipContent
-                id={macros.installedPlugin.id}
-                name={macros.installedPlugin.name}
-              />
-            }
+            label={<TooltipContent name={macros.installedPlugin.name} />}
           >
             <HelpOutlineIcon fontSize="small" color="primary" />
           </Tooltip>
