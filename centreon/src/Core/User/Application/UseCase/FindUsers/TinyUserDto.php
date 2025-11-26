@@ -21,22 +21,11 @@
 
 declare(strict_types=1);
 
-namespace CentreonOpenTickets\Providers\Domain\Model;
+namespace Core\User\Application\UseCase\FindUsers;
 
-enum ProviderType
+final class TinyUserDto
 {
-    case Mail;
-    case Glpi;
-    case Otrs;
-    case Simple;
-    case BmcItsm;
-    case Serena;
-    case BmcFootprints11;
-    case EasyvistaSoap;
-    case ServiceNow;
-    case Jira;
-    case GlpiRestApi;
-    case RequestTracker2;
-    case Itop;
-    case EasyVistaRest;
+    public int $id = 0;
+
+    public string $alias = '';
 }

@@ -40,20 +40,28 @@ $userCanSeeAllFolders = ((int) $centreon->user->admin === 1 || $centreon->user->
 
 // Change Directory
 if ($o == IMAGE_MODIFY_DIRECTORY && $directoryId) {
-    $DBRESULT = $pearDB->query(
-        "SELECT * FROM view_img_dir WHERE dir_id = {$directoryId} LIMIT 1"
+    $directories = $pearDB->fetchAssociative(
+        <<<'SQL'
+            SELECT * FROM view_img_dir WHERE dir_id = :directoryId LIMIT 1
+            SQL,
+        QueryParameters::create(
+            [QueryParameter::int('directoryId', $directoryId)]
+        )
     );
 
-    $dir = array_map('myDecode', $DBRESULT->fetchRow());
+    $dir = array_map('myDecode', $directories);
     // Set Child elements
-    $DBRESULT = $pearDB->query(
-        'SELECT DISTINCT img_img_id FROM view_img_dir_relation '
-        . "WHERE dir_dir_parent_id = {$directoryId}"
+    $childElements = $pearDB->fetchAllAssociative(
+        <<<'SQL'
+            SELECT DISTINCT img_img_id FROM view_img_dir_relation WHERE dir_dir_parent_id = :directoryId
+            SQL,
+        QueryParameters::create(
+            [QueryParameter::int('directoryId', $directoryId)]
+        )
     );
-    for ($i = 0; $imgs = $DBRESULT->fetchRow(); $i++) {
+    foreach ($childElements as $i => $imgs) {
         $dir['dir_imgs'][$i] = $imgs['img_img_id'];
     }
-    $DBRESULT->closeCursor();
 } elseif ($o == IMAGE_MOVE) {
     $selected = [];
     if (isset($selectIds) && $selectIds) {
@@ -122,7 +130,7 @@ try {
         $queryParameters = array_merge($queryParameters, $bindImageParameters);
     }
 
-    $request .= ' GROUP BY directories.dir_id ORDER BY directories.dir_alias, images.img_name';
+    $request .= ' GROUP BY directories.dir_id, images.img_id ORDER BY directories.dir_alias, images.img_name';
 
     /** @var CentreonDB $pearDB */
     $records = $pearDB->iterateAssociative($request, QueryParameters::create($queryParameters));

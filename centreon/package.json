@@ -151,7 +151,7 @@
     "react-select": "^5.10.1",
     "react-spring": "^9.7.5",
     "string-argv": "^0.3.2",
-    "tailwindcss": "^4.1.7",
+    "tailwindcss": "^4.1.17",
     "ts.data.json": "^2.2.0",
     "tss-react": "^4.9.15",
     "use-deep-compare-effect": "^1.8.1",

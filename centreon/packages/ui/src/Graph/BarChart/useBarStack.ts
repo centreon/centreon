@@ -96,7 +96,7 @@ export const useBarStack = ({
           index: barIndex
         });
       },
-    []
+    [lines, timeSeries]
   );
 
   const exitBar = useCallback((): void => {

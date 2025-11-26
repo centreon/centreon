@@ -384,11 +384,11 @@ function set_mariadb_repos() {
 	log "INFO" "Install MariaDB repository"
 
 	case $version in
-	"24.04" | "24.10" | "25.10")
-		detected_mariadb_version="10.11"
+	"23.10")
+		detected_mariadb_version="10.5"
 	;;
 	*)
-		detected_mariadb_version="10.5"
+		detected_mariadb_version="10.11"
 	;;
 	esac
 
@@ -398,7 +398,7 @@ function set_mariadb_repos() {
 		distrib_codename=$(awk -F'=' '/DISTRIB_CODENAME/ {print $2}' /etc/lsb-release)
 		curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup | bash -s -- --os-type=ubuntu --os-version="$distrib_codename" --mariadb-server-version="$detected_mariadb_version" --skip-maxscale
 	else
-		curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup | bash -s -- --mariadb-server-version="$detected_mariadb_version" --skip-maxscale
+	    dnf module enable mariadb:$detected_mariadb_version -y -q
 	fi
 	if [ $? -ne 0 ]; then
 		error_and_exit "Could not install the $dbms repository"
@@ -961,10 +961,7 @@ function play_install_wizard() {
 	install_wizard_post ${sessionID} "insertBaseConf.php"
 	install_wizard_post ${sessionID} "partitionTables.php"
 	install_wizard_post ${sessionID} "generationCache.php"
-	INSTALLED_EXTENSIONS='modules%5B%5D=centreon-license-manager&modules%5B%5D=centreon-pp-manager&modules%5B%5D=centreon-autodiscovery-server&widgets%5B%5D=engine-status&widgets%5B%5D=global-health&widgets%5B%5D=graph-monitoring&widgets%5B%5D=grid-map&widgets%5B%5D=host-monitoring&widgets%5B%5D=hostgroup-monitoring&widgets%5B%5D=httploader&widgets%5B%5D=live-top10-cpu-usage&widgets%5B%5D=live-top10-memory-usage&widgets%5B%5D=service-monitoring&widgets%5B%5D=servicegroup-monitoring&widgets%5B%5D=tactical-overview&widgets%5B%5D=single-metric'
-	if [[ "$version" == "24.04" ]]; then
-		INSTALLED_EXTENSIONS+='&modules%5B%5D=centreon-it-edition-extensions'
-	fi
+	INSTALLED_EXTENSIONS='modules%5B%5D=centreon-license-manager&modules%5B%5D=centreon-pp-manager&modules%5B%5D=centreon-it-edition-extensions&modules%5B%5D=centreon-autodiscovery-server&widgets%5B%5D=engine-status&widgets%5B%5D=global-health&widgets%5B%5D=graph-monitoring&widgets%5B%5D=grid-map&widgets%5B%5D=host-monitoring&widgets%5B%5D=hostgroup-monitoring&widgets%5B%5D=httploader&widgets%5B%5D=live-top10-cpu-usage&widgets%5B%5D=live-top10-memory-usage&widgets%5B%5D=service-monitoring&widgets%5B%5D=servicegroup-monitoring&widgets%5B%5D=tactical-overview&widgets%5B%5D=single-metric'
 	install_wizard_post ${sessionID} "process_step8.php" "$INSTALLED_EXTENSIONS"
 	install_wizard_post ${sessionID} "process_step9.php" 'send_statistics=1'
 }
