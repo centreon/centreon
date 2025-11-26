@@ -19,6 +19,7 @@
  *
  */
 
+use Adaptation\Database\Connection\Collection\QueryParameters;
 use Adaptation\Database\Connection\ConnectionInterface;
 use Adaptation\Database\Connection\Exception\ConnectionException;
 use Adaptation\Database\Connection\ValueObject\QueryParameter;
@@ -36,197 +37,6 @@ $errorMessage = '';
  * @var ConnectionInterface $pearDB
  * @var ConnectionInterface $pearDBO
  */
-// -------------------------------------- AgentConfiguration updates --------------------------------------
-
-/**
- * Align preexisting Agent Configuration with the new schema:
- *      - Add is_poller_initiated bool
- *      - Add is_agent_initiated bool
- *      - Remove is_reverse bool
- */
-$alignCMAAgentConfigurationWithNewSchema = function () use ($pearDB, &$errorMessage, $version): void {
-    $errorMessage = 'Unable to align agent configuration with new schema';
-
-    CentreonLog::create()->info(
-        logTypeId: CentreonLog::TYPE_UPGRADE,
-        message: "UPGRADE - {$version}: aligning agent configuration with new schema"
-    );
-
-    CentreonLog::create()->info(
-        logTypeId: CentreonLog::TYPE_UPGRADE,
-        message: "UPGRADE - {$version}: retrieving agent configurations from database..."
-    );
-
-    $agentConfigurations = $pearDB->fetchAllAssociative(
-        <<<'SQL'
-            SELECT * FROM `agent_configuration`
-            WHERE `type` = 'centreon-agent'
-            SQL
-    );
-    if ($agentConfigurations === []) {
-        CentreonLog::create()->info(
-            logTypeId: CentreonLog::TYPE_UPGRADE,
-            message: "UPGRADE - {$version}: no agent configurations found, skipping"
-        );
-
-        return;
-    }
-
-    CentreonLog::create()->info(
-        logTypeId: CentreonLog::TYPE_UPGRADE,
-        message: "UPGRADE - {$version}: found " . count($agentConfigurations) . ' agent configurations, updating...'
-    );
-
-    foreach ($agentConfigurations as $agentConfiguration) {
-        $configuration = json_decode(
-            json: $agentConfiguration['configuration'],
-            associative: true,
-            flags: JSON_THROW_ON_ERROR
-        );
-        $configuration['agent_initiated'] = false;
-        $configuration['poller_initiated'] = false;
-
-        if ($configuration['is_reverse']) {
-            $configuration['poller_initiated'] = true;
-            unset($configuration['is_reverse']);
-        } else {
-            $configuration['agent_initiated'] = true;
-            unset($configuration['is_reverse']);
-        }
-
-        $pearDB->update(
-            <<<'SQL'
-                    UPDATE agent_configuration
-                    SET configuration = :configuration
-                    WHERE id = :id
-                SQL,
-            QueryParameters::create([
-                QueryParameter::string(':configuration', json_encode($configuration, JSON_THROW_ON_ERROR)),
-                QueryParameter::int(':id', $agentConfiguration['id']),
-            ])
-        );
-    }
-
-    CentreonLog::create()->info(
-        logTypeId: CentreonLog::TYPE_UPGRADE,
-        message: "UPGRADE - {$version}: agent configurations aligned successfully"
-    );
-};
-
-$cleanGlobalMacrosName = function () use ($pearDB, &$errorMessage, $version): void {
-    $errorMessage = 'Failed to clean global macros name';
-
-    CentreonLog::create()->info(
-        logTypeId: CentreonLog::TYPE_UPGRADE,
-        message: "UPGRADE - {$version}: cleaning global macros name"
-    );
-
-    CentreonLog::create()->info(
-        logTypeId: CentreonLog::TYPE_UPGRADE,
-        message: "UPGRADE - {$version}: retrieving invalid macros from database..."
-    );
-
-    $invalidMacros = $pearDB->fetchAllAssociative(
-        <<<'SQL'
-            SELECT resource_id, resource_name FROM cfg_resource
-            WHERE resource_name NOT LIKE '\$%' OR resource_name NOT LIKE '%\$'
-            SQL
-    );
-
-    if ($invalidMacros === []) {
-        CentreonLog::create()->info(
-            logTypeId: CentreonLog::TYPE_UPGRADE,
-            message: "UPGRADE - {$version}: no invalid macros found, skipping"
-        );
-
-        return;
-    }
-
-    CentreonLog::create()->info(
-        logTypeId: CentreonLog::TYPE_UPGRADE,
-        message: "UPGRADE - {$version}: found " . count($invalidMacros) . ' invalid macros, updating...'
-    );
-
-    foreach ($invalidMacros as $macro) {
-        $newName = $macro['resource_name'];
-        if (str_starts_with($newName, '$') === false) {
-            $newName = '$' . $newName;
-        }
-        if (str_ends_with($newName, '$') === false) {
-            $newName .= '$';
-        }
-        $pearDB->update(
-            <<<'SQL'
-                UPDATE cfg_resource
-                SET resource_name = :resource_name
-                WHERE resource_id = :id
-                SQL,
-            QueryParameters::create([
-                QueryParameter::string(':resource_name', $newName),
-                QueryParameter::int(':id', (int) $macro['resource_id']),
-            ])
-        );
-    }
-
-    CentreonLog::create()->info(
-        logTypeId: CentreonLog::TYPE_UPGRADE,
-        message: "UPGRADE - {$version}: global macros name cleaned successfully"
-    );
-};
-
-$fixTypoInStandardMacroName = function () use ($pearDB, &$errorMessage, $version): void {
-    $errorMessage = 'Failed to fix typo in standard macro name';
-
-    CentreonLog::create()->info(
-        logTypeId: CentreonLog::TYPE_UPGRADE,
-        message: "UPGRADE - {$version}: fixing typo in standard macro name..."
-    );
-
-    $nbUpdate = $pearDB->update(
-        <<<'SQL'
-                UPDATE nagios_macro SET macro_name = '$TOTALHOSTSUNREACHABLEUNHANDLED$' WHERE macro_id = 65
-            SQL
-    );
-
-    CentreonLog::create()->info(
-        logTypeId: CentreonLog::TYPE_UPGRADE,
-        message: "UPGRADE - {$version}: {$nbUpdate} typo in standard macro name fixed successfully"
-    );
-};
-
-/**
- * Update SAML provider configuration:
- *      - If requested_authn_context exists, set requested_authn_context_comparison to its value and requested_authn_context to true
- *      - If requested_authn_context does not exist, set requested_authn_context_comparison to 'exact' and requested_authn_context to false
- */
-$updateSamlProviderConfiguration = function () use ($pearDB, &$errorMessage, $version): void {
-    $errorMessage = 'Unable to retrieve SAML provider configuration';
-
-    CentreonLog::create()->info(
-        logTypeId: CentreonLog::TYPE_UPGRADE,
-        message: "UPGRADE - {$version}: updating SAML provider configuration"
-    );
-
-    CentreonLog::create()->info(
-        logTypeId: CentreonLog::TYPE_UPGRADE,
-        message: "UPGRADE - {$version}: retrieving SAML provider configuration from database..."
-    );
-
-    $samlConfiguration = $pearDB->fetchAssociative(
-        <<<'SQL'
-            SELECT * FROM `provider_configuration`
-            WHERE `type` = 'saml'
-            SQL
-    );
-
-    if (! $samlConfiguration || ! isset($samlConfiguration['custom_configuration'])) {
-        CentreonLog::create()->info(
-            logTypeId: CentreonLog::TYPE_UPGRADE,
-            message: "UPGRADE - {$version}: no SAML provider configuration found, skipping"
-        );
-
-        return;
-    }
 
 /** -------------------------------------- Backup updates -------------------------------------- */
 $setBackupMysqlConfDefaultAsEmpty = function () use ($pearDB, &$errorMessage, $version): void {
@@ -326,14 +136,8 @@ try {
         $pearDB->startTransaction();
     }
 
-    $alignCMAAgentConfigurationWithNewSchema();
-    $cleanGlobalMacrosName();
-    $fixTypoInStandardMacroName();
-    $fixBrokerConfigTypo();
-    $bbdoCfgUpdate();
-    $updateSamlProviderConfiguration();
-    $migrateAccUsernamesFromVault();
     $setBackupMysqlConfDefaultAsEmpty();
+    $migrateAccUsernamesFromVault();
 
     $pearDB->commitTransaction();
 

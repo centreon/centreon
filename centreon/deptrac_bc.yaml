@@ -65,3 +65,5 @@ parameters:
             - Centreon\Domain\Contact\Contact
         App\MonitoringConfiguration\Infrastructure\Legacy\LegacyGlobalMacroPermissionVoter:
             - Centreon\Domain\Contact\Contact
+        App\Shared\Infrastructure\Legacy\LegacyHttpExceptionListener:
+            - Centreon\Domain\Exception\EntityNotFoundException
