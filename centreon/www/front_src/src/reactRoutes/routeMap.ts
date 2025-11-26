@@ -22,7 +22,8 @@ const routeMap = {
   upgrade: '/install/upgrade.php',
   vaultConfiguration: '/administration/parameters/vault',
   agentConfigurations: '/configuration/pollers/agent-configurations',
-  hostGroups: '/configuration/hosts/groups'
+  hostGroups: '/configuration/hosts/groups',
+  commands: '/configuration/commands'
 };
 
 export default routeMap;

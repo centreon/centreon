@@ -44,7 +44,7 @@ const AdditionnalConnectors = () => {
       filtersAtom={filtersAtom}
       selectedColumnIdsAtom={selectedColumnIdsAtom}
       columns={columns}
-      resourceType={ResourceType.AdditionalConfigurations}
+      resourceType={ResourceType.AdditionalConfiguration}
       form={{ inputs, groups, validationSchema, defaultValues }}
       api={api}
       filtersConfiguration={filtersConfiguration}

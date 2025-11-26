@@ -1,22 +1,21 @@
+import { useAtom, useSetAtom } from 'jotai';
 import { isNil, isNotEmpty, or } from 'ramda';
 import { JSX, useLayoutEffect } from 'react';
+import { useSearchParams } from 'react-router';
 
-import { useAtom, useSetAtom } from 'jotai';
-
+import { LoadingSkeleton } from '@centreon/ui';
 import { DataTable, PageHeader, PageLayout } from '@centreon/ui/components';
+
 import { Listing } from './Listing';
 import { Modal } from './Modal';
-
-import { useSearchParams } from 'react-router';
 
 import { ConfigurationBase } from '../models';
 
 import { DeleteDialog, DuplicateDialog } from './Dialogs';
 import useCoutChangedFilters from './Filters/AdvancedFilters/useCoutChangedFilters';
 import useLoadData from './Listing/useLoadData';
+import Navbar from './NavBar';
 import { modalStateAtom } from './atoms';
-
-import { LoadingSkeleton } from '@centreon/ui';
 
 const WelcomePage = ({
   labels,
@@ -24,7 +23,8 @@ const WelcomePage = ({
   onCreate,
   filtersAtom,
   filtersAtomKey,
-  isWelcomePageDisplayedAtom
+  isWelcomePageDisplayedAtom,
+  hasWriteAccess
 }) => {
   const { isLoading, data } = useLoadData({ filtersAtom, filtersAtomKey });
 
@@ -47,6 +47,7 @@ const WelcomePage = ({
       data-testid={dataTestId}
       labels={labels}
       onCreate={onCreate}
+      canCreate={hasWriteAccess}
     />
   );
 };
@@ -60,7 +61,8 @@ const Page = <TFilters,>({
   selectedColumnIdsAtom,
   filtersAtom,
   filtersAtomKey,
-  isWelcomePageDisplayedAtom
+  isWelcomePageDisplayedAtom,
+  navbar
 }: Pick<
   ConfigurationBase<TFilters>,
   | 'columns'
@@ -72,6 +74,7 @@ const Page = <TFilters,>({
   | 'filtersAtom'
   | 'filtersAtomKey'
   | 'isWelcomePageDisplayedAtom'
+  | 'navbar'
 >): JSX.Element => {
   const [, setSearchParams] = useSearchParams();
 
@@ -97,6 +100,11 @@ const Page = <TFilters,>({
           <PageHeader.Main>
             <PageHeader.Title title={labels.title} />
           </PageHeader.Main>
+          {!!navbar && (
+            <PageHeader.Actions>
+              <Navbar navbar={navbar} />
+            </PageHeader.Actions>
+          )}
         </PageHeader>
       </PageLayout.Header>
       <PageLayout.Body>
@@ -112,6 +120,7 @@ const Page = <TFilters,>({
               filtersAtom={filtersAtom}
               filtersAtomKey={filtersAtomKey}
               isWelcomePageDisplayedAtom={isWelcomePageDisplayedAtom}
+              hasWriteAccess={!!actions?.edit}
             />
           ) : (
             <Listing<TFilters>

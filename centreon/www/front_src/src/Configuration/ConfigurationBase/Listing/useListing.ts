@@ -22,6 +22,7 @@ interface UseListing {
   sorto: 'asc' | 'desc';
   openEditModal: (row) => void;
   disableRowCondition: (row) => boolean;
+  limit: number;
 }
 
 const useListing = ({ selectedColumnIdsAtom }): UseListing => {
@@ -42,7 +43,7 @@ const useListing = ({ selectedColumnIdsAtom }): UseListing => {
   const [sorto, setSorto] = useAtom(sortOrderAtom);
   const [sortf, setSortf] = useAtom(sortFieldAtom);
   const [page, setPage] = useAtom(pageAtom);
-  const setLimit = useSetAtom(limitAtom);
+  const [limit, setLimit] = useAtom(limitAtom);
 
   const resetColumns = (): void => {
     setSelectedColumnIds(defaultSelectedColumnIds);
@@ -91,7 +92,8 @@ const useListing = ({ selectedColumnIdsAtom }): UseListing => {
     sortf,
     sorto,
     openEditModal,
-    disableRowCondition
+    disableRowCondition,
+    limit
   };
 };
 

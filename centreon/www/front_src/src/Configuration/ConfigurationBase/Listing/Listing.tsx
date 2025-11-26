@@ -39,6 +39,7 @@ const Listing = <TFilters,>({
     page,
     changeSort,
     resetColumns,
+    limit,
     setLimit,
     selectColumns,
     sortf,
@@ -66,7 +67,7 @@ const Listing = <TFilters,>({
       disableRowCondition={disableRowCondition}
       columns={hasWriteAccess ? [...columns, ...staticColumns] : columns}
       currentPage={(page || 1) - 1}
-      limit={data?.meta.limit}
+      limit={limit}
       loading={isLoading}
       memoProps={[columns, staticColumns, page, sorto, sortf, selectedRows]}
       rows={data?.result}

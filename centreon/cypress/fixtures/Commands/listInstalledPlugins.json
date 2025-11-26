@@ -1,0 +1,33 @@
+{
+  "@context": "/centreon/api/latest/contexts/ListPlugins",
+  "@id": "/centreon/api/latest/configuration/plugins",
+  "@type": "Collection",
+  "totalItems": 5,
+  "member": [
+  {
+  "@id": "/centreon/api/latest/.well-known/genid/49a357bf99afb07c0809",
+  "@type": "ListPlugins",
+  "name": "utils.sh"
+  },
+  {
+  "@id": "/centreon/api/latest/.well-known/genid/e5fee726327cb1910f0d",
+  "@type": "ListPlugins",
+  "name": "negate"
+  },
+  {
+  "@id": "/centreon/api/latest/.well-known/genid/9e4535dc7cb0b222f148",
+  "@type": "ListPlugins",
+  "name": "check_icmp"
+  },
+  {
+  "@id": "/centreon/api/latest/.well-known/genid/cca8c70cba22290ea1b9",
+  "@type": "ListPlugins",
+  "name": "urlize"
+  },
+  {
+  "@id": "/centreon/api/latest/.well-known/genid/13f5499e05b0b6ddc021",
+  "@type": "ListPlugins",
+  "name": "check_dhcp"
+  }
+  ]
+  }

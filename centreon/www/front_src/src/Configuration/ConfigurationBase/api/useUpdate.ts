@@ -16,12 +16,13 @@ const useUpdate = (): UseUpdateProps => {
   const configuration = useAtomValue(configurationAtom);
 
   const getEndpoint = configuration?.api?.endpoints?.update;
+  const method = configuration?.api?.methods?.update as Method;
 
   const queryClient = useQueryClient();
 
   const { mutateAsync } = useMutationQuery({
     getEndpoint,
-    method: Method.PUT,
+    method: method || Method.PUT,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['listResources'] });
     }

@@ -44,8 +44,21 @@ const ConnectedAutocomplete = ({
 
   const isMultiple = equals(type, InputType.MultiConnectedAutocomplete);
 
-  const getEndpoint = (parameters): string =>
-    buildListingEndpoint({
+  const getEndpoint = (parameters): string => {
+    const nameQueryParameters =
+      connectedAutocomplete?.useNewAPIFormat && parameters?.search
+        ? [
+            {
+              name: 'name[lk]',
+              value: parameters.search.conditions[0].values.$lk.slice(1, -1)
+            }
+          ]
+        : [];
+
+    return buildListingEndpoint({
+      apiFormat: connectedAutocomplete?.useNewAPIFormat
+        ? 'JSON-LD'
+        : 'Standard',
       baseEndpoint: connectedAutocomplete?.endpoint,
       parameters: {
         ...parameters,
@@ -58,8 +71,12 @@ const ConnectedAutocomplete = ({
         },
         sort: { [filterKey]: 'ASC' }
       },
-      customQueryParameters: connectedAutocomplete?.customQueryParameters || []
+      customQueryParameters: [
+        ...(connectedAutocomplete?.customQueryParameters || []),
+        ...nameQueryParameters
+      ]
     });
+  };
 
   const fieldNamePath = split('.', fieldName);
 
