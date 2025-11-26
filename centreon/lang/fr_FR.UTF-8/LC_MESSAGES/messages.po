@@ -4453,6 +4453,10 @@ msgid "Delete rules"
 msgstr "Supprimer les règles"
 
 #: centreon/www/install/front_translate.php
+msgid "row"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
 msgid "Delete the relation"
 msgstr "Supprimer la relation"
 

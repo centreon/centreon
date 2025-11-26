@@ -4371,6 +4371,10 @@ msgid "Delete pollers"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
+msgid "row"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
 msgid "Delete rule"
 msgstr ""
 
