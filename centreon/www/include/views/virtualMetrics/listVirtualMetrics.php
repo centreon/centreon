@@ -37,46 +37,59 @@ if (!isset($oreon)) {
     exit;
 }
 
-include("./include/common/autoNumLimit.php");
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\Exception\ConnectionException;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
 
-$queryValues = $queryValues ?? [];
-$SearchTool = '';
+include './include/common/autoNumLimit.php';
+
+$queryValues ??= [];
+$searchTool = '';
 $search = null;
 
 
 if (isset($_POST['searchVM'])) {
-    $search = $_POST['searchVM'];
+    $search = htmlspecialchars($_POST['searchVM'], ENT_QUOTES, 'UTF-8');
     $centreon->historySearch[$url] = $search;
 } elseif (isset($_GET['searchVM'])) {
-    $search = $_GET['searchVM'];
+    $search = htmlspecialchars($_GET['searchVM'], ENT_QUOTES, 'UTF-8');
     $centreon->historySearch[$url] = $search;
 } elseif (isset($centreon->historySearch[$url])) {
     $search = $centreon->historySearch[$url];
 }
 
 if ($search) {
-    $SearchTool .= " WHERE vmetric_name LIKE :search";
+    $searchTool .= ' WHERE vmetric_name LIKE :search';
     $queryValues['search'] = '%' . $search . '%';
 }
 
-$rq = "SELECT SQL_CALC_FOUND_ROWS * FROM virtual_metrics $SearchTool "
-    . "ORDER BY index_id,vmetric_name LIMIT " . $num * $limit . ", " . $limit;
-$stmt = $pearDB->prepare($rq);
-if (!empty($queryValues)) {
-    foreach ($queryValues as $key => $value) {
-        $stmt->bindValue(':' . $key, $value, \PDO::PARAM_STR);
-    }
-}
-
+$listResults =  [];
+$rows = 0;
 try {
-    $stmt->execute();
-} catch (\PDOException $e) {
-    print "DB Error : " . $e->getMessage();
+    $listResults = $pearDB->fetchAllAssociative(
+        <<<SQL
+            SELECT SQL_CALC_FOUND_ROWS *
+            FROM virtual_metrics
+            {$searchTool}
+            ORDER BY index_id, vmetric_name
+            LIMIT :offset, :limit
+            SQL,
+        new QueryParameters(array_filter([
+            QueryParameter::int('offset', $num * $limit),
+            QueryParameter::int('limit', $limit),
+            ...array_map(
+                fn ($key, $value) => QueryParameter::string($key, $value),
+                array_keys($queryValues),
+                $queryValues
+            ),
+        ]))
+    );
+    $rows = (int) $pearDB->fetchOne('SELECT FOUND_ROWS()');
+} catch (ConnectionException $e) {
+    echo 'DB Error : ' . $e->getMessage();
 }
 
-$rows = $pearDB->query("SELECT FOUND_ROWS()")->fetchColumn();
-
-include("./include/common/checkPagination.php");
+include './include/common/checkPagination.php';
 
 // Smarty template initialization
 $tpl = SmartyBC::createSmartyTemplate($path);
@@ -109,13 +122,13 @@ $yesOrNo = array(null => "No", 0 => "No", 1 => "Yes");
 $elemArr = array();
 $centreonToken = createCSRFToken();
 
-for ($i = 0; $vmetric = $stmt->fetch(); $i++) {
-    $selectedElements = $form->addElement('checkbox', "select[" . $vmetric['vmetric_id'] . "]");
-    if ($vmetric["vmetric_activate"]) {
-        $moptions = "<a href='main.php?p=" . $p . "&vmetric_id=" . $vmetric['vmetric_id'] . "&o=u&limit=" . $limit .
-            "&num=" . $num . "&search=" . $search . "&centreon_token=" . $centreonToken .
-            "'><img src='img/icons/disabled.png' class='ico-14 margin_right' " .
-            "border='0' alt='" . _("Disabled") . "'></a>";
+foreach ($listResults as $i => $vmetric) {
+    $selectedElements = $form->addElement('checkbox', 'select[' . $vmetric['vmetric_id'] . ']');
+    if ($vmetric['vmetric_activate']) {
+        $moptions = "<a href='main.php?p=" . $p . '&vmetric_id=' . $vmetric['vmetric_id'] . '&o=u&limit=' . $limit
+            . '&num=' . $num . '&search=' . $search . '&centreon_token=' . $centreonToken
+            . "'><img src='img/icons/disabled.png' class='ico-14 margin_right' "
+            . "border='0' alt='" . _('Disabled') . "'></a>";
     } else {
         $moptions = "<a href='main.php?p=" . $p . "&vmetric_id=" . $vmetric['vmetric_id'] . "&o=s&limit=" . $limit .
             "&num=" . $num . "&search=" . $search . "&centreon_token=" . $centreonToken .
@@ -127,39 +140,52 @@ for ($i = 0; $vmetric = $stmt->fetch(); $i++) {
         "\" maxlength=\"3\" size=\"3\" value='1' style=\"margin-bottom:0px;\" name='dupNbr[" .
         $vmetric['vmetric_id'] . "]' />";
 
-    $indexDataStatement = $pearDBO->prepare("SELECT id,host_id,service_id FROM index_data " .
-        "WHERE id = :indexId ");
     try {
-        $indexDataStatement->bindValue(':indexId', (int) $vmetric['index_id'], \PDO::PARAM_INT);
-        $indexDataStatement->execute();
-    } catch (\PDOException $e) {
-        print "DB Error : " . $e->getMessage() . "<br />";
+        $indd = $pearDBO->fetchAssociative(
+            <<<'SQL'
+                SELECT id,host_id,service_id FROM index_data WHERE id = :indexId
+                SQL,
+            new QueryParameters([
+                QueryParameter::int('indexId', (int) $vmetric['index_id']),
+            ])
+        );
+    } catch (ConnectionException $e) {
+        echo 'DB Error : ' . $e->getMessage() . '<br />';
     }
-    $indd = $indexDataStatement->fetchRow();
 
-    $indexDataStatement->closeCursor();
     if ($indd !== false) {
         try {
-            $hsrStatement = $pearDB->prepare("(SELECT concat(h.host_name,' > ',s.service_description) full_name " .
-                "FROM host_service_relation AS hsr, host AS h, service AS s WHERE hsr.host_host_id = h.host_id " .
-                "AND hsr.service_service_id = s.service_id AND h.host_id = :hostId " .
-                "AND s.service_id = :serviceId ) UNION " .
-                "(SELECT concat(h.host_name,' > ',s.service_description) full_name " .
-                "FROM host_service_relation AS hsr, host AS h, service AS s, hostgroup_relation AS hr " .
-                "WHERE hsr.hostgroup_hg_id = hr.hostgroup_hg_id AND hr.host_host_id = h.host_id " .
-                "AND hsr.service_service_id = s.Service_id AND h.host_id = :hostId " .
-                "AND s.service_id = :serviceId ) ORDER BY full_name");
+            $hsrname = $pearDB->fetchAssociative(
+                <<<'SQL'
+                    (SELECT concat(h.host_name,' > ',s.service_description) full_name
+                    FROM host_service_relation AS hsr, host AS h, service AS s
+                    WHERE hsr.host_host_id = h.host_id
+                    AND hsr.service_service_id = s.service_id
+                    AND h.host_id = :hostId
+                    AND s.service_id = :serviceId )
+                    UNION
+                    (SELECT concat(h.host_name,' > ',s.service_description) full_name
+                    FROM host_service_relation AS hsr, host AS h, service AS s, hostgroup_relation AS hr
+                    WHERE hsr.hostgroup_hg_id = hr.hostgroup_hg_id
+                    AND hr.host_host_id = h.host_id
+                    AND hsr.service_service_id = s.service_id
+                    AND h.host_id = :hostId
+                    AND s.service_id = :serviceId )
+                    ORDER BY full_name
+                    SQL,
+                new QueryParameters([
+                    QueryParameter::int('hostId', (int) $indd['host_id']),
+                    QueryParameter::int('serviceId', (int) $indd['service_id']),
+                ])
+            );
 
-            $hsrStatement->bindValue(':hostId', (int) $indd["host_id"], \PDO::PARAM_INT);
-            $hsrStatement->bindValue(':serviceId', (int) $indd["service_id"], \PDO::PARAM_INT);
-            $hsrStatement->execute();
-        } catch (\PDOException $e) {
-            print "DB Error : " . $e->getMessage() . "<br />";
+        } catch (ConnectionException $e) {
+            echo 'DB Error : ' . $e->getMessage() . '<br />';
         }
-        $hsrname = $hsrStatement->fetchRow();
-        $hsrStatement->closeCursor();
-        $hsrname["full_name"] = str_replace('#S#', "/", $hsrname["full_name"]);
-        $hsrname["full_name"] = str_replace('#BS#', "\\", $hsrname["full_name"]);
+        if ($hsrname !== false) {
+            $hsrname['full_name'] = str_replace('#S#', '/', $hsrname['full_name']);
+            $hsrname['full_name'] = str_replace('#BS#', '\\', $hsrname['full_name']);
+        }
     }
 
 ### TODO : data_count
@@ -260,4 +286,3 @@ $renderer = new HTML_QuickForm_Renderer_ArraySmarty($tpl);
 $form->accept($renderer);
 $tpl->assign('form', $renderer->toArray());
 $tpl->display("listVirtualMetrics.ihtml");
-
