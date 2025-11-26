@@ -305,7 +305,6 @@ jobs:
             } else {
               stability = getStability(ref);
             }
-            stability = 'unstable'; // --- FORCE UNSTABLE FOR NOW ---
 
             console.log(`Final stability: ${stability}`);
             core.setOutput('stability', stability);
