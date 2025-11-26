@@ -45,19 +45,29 @@ $selected = [];
  * Change Directory
  */
 if ($o == IMAGE_MODIFY_DIRECTORY && $directoryId) {
-    $DBRESULT = $pearDB->query(
-        "SELECT * FROM view_img_dir WHERE dir_id = $directoryId LIMIT 1"
+
+    $directories = $pearDB->fetchAssociative(
+        <<<'SQL'
+            SELECT * FROM view_img_dir WHERE dir_id = :directoryId LIMIT 1
+            SQL,
+        QueryParameters::create(
+            [QueryParameter::int('directoryId', $directoryId)]
+        )
     );
-    $dir = array_map("myDecode", $DBRESULT->fetchRow());
-    # Set Child elements
-    $DBRESULT = $pearDB->query(
-        "SELECT DISTINCT img_img_id FROM view_img_dir_relation "
-        . "WHERE dir_dir_parent_id = $directoryId"
+
+    $dir = array_map('myDecode', $directories);
+    // Set Child elements
+    $childElements = $pearDB->fetchAllAssociative(
+        <<<'SQL'
+            SELECT DISTINCT img_img_id FROM view_img_dir_relation WHERE dir_dir_parent_id = :directoryId
+            SQL,
+        QueryParameters::create(
+            [QueryParameter::int('directoryId', $directoryId)]
+        )
     );
-    for ($i = 0; $imgs = $DBRESULT->fetchRow(); $i++) {
-        $dir["dir_imgs"][$i] = $imgs["img_img_id"];
+    foreach ($childElements as $i => $imgs) {
+        $dir['dir_imgs'][$i] = $imgs['img_img_id'];
     }
-    $DBRESULT->closeCursor();
 } elseif ($o == IMAGE_MOVE) {
     $selected = [];
     if (isset($selectIds) && $selectIds) {
@@ -75,27 +85,51 @@ if ($o == IMAGE_MODIFY_DIRECTORY && $directoryId) {
     }
 }
 
-#
-## Database retrieve information for differents elements list we need on the page
-#
-# Images comes from DB -> Store in $imgs Array
-$imgs = [];
-$rq = "SELECT `img_id`,`dir_alias`,`img_name` FROM view_img "
-    . "JOIN view_img_dir_relation ON img_img_id = img_id "
-    . "JOIN view_img_dir ON dir_id = dir_dir_parent_id ";
-if ($o == IMAGE_MOVE && $selected !== []) {
-    $rq .= " WHERE `img_id` IN (".implode(",", $selected).") ";
-}
-$rq .= " ORDER BY dir_alias, img_name";
-$DBRESULT = $pearDB->query($rq);
-while ($img = $DBRESULT->fetchRow()) {
-    $imgs[$img["img_id"]] = htmlentities(
-        $img["dir_alias"]."/".$img["img_name"],
-        ENT_QUOTES,
-        "utf-8"
+//
+// # Database retrieve information for differents elements list we need on the page
+//
+// Images comes from DB -> Store in $imgs Array
+try {
+    $imgs = [];
+
+    $queryParameters = [];
+    $request = <<<'SQL'
+            SELECT
+                `img_id`,`dir_alias`,`img_name`
+            FROM view_img
+            JOIN view_img_dir_relation
+                ON img_img_id = img_id
+            JOIN view_img_dir
+                ON dir_id = dir_dir_parent_id
+        SQL;
+
+    if ($o == IMAGE_MOVE && $selected !== []) {
+        [
+            'parameters' => $bindImageParameters,
+            'placeholderList' => $bindQuery,
+        ] = createMultipleBindParameters($selected, 'imageId', QueryParameterTypeEnum::INTEGER);
+
+        $request .= <<<SQL
+                WHERE `img_id` IN ({$bindQuery})
+            SQL;
+
+        $queryParameters = array_merge($queryParameters, $bindImageParameters);
+    }
+
+    $request .= ' ORDER BY `dir_alias`, `img_name`';
+
+    /** @var CentreonDB $pearDB */
+    $records = $pearDB->iterateAssociative($request, QueryParameters::create($queryParameters));
+
+    foreach ($records as $record) {
+        $imgs[$record['img_id']] = htmlentities($record["dir_alias"]."/".$record["img_name"], ENT_QUOTES, 'utf-8');
+    }
+} catch (ValueObjectException|CollectionException|ConnectionException $e) {
+    $exception =  new RepositoryException(
+        message: 'Error while retrieving images from database: ' . $e->getMessage(),
+        previous: $e
     );
 }
-$DBRESULT->closeCursor();
 
 $directories = [];
 $DBRESULT = $pearDB->query(
