@@ -4869,7 +4869,7 @@ msgstr "Afficher le raccourci de connexion automatique"
 
 #: centreon/www/install/smarty_translate.php
 msgid "Display Chart"
-msgstr "Afficher le graphique"
+msgstr ""
 
 #: centreon/www/include/monitoring/downtime/listDowntime.php
 msgid "Display Finished Downtimes"
@@ -4906,6 +4906,10 @@ msgstr "Afficher les statistiques des collecteurs dans le bandeau"
 #: centreon/www/include/configuration/configObject/host/listHost.php
 msgid "Display all Services for this host"
 msgstr "Afficher tous les services de cet hôte"
+
+#: centreon/www/install/smarty_translate.php
+msgid "Display anyway"
+msgstr "Afficher quand même"
 
 #: centreon/www/install/front_translate.php
 msgid "Display as"
@@ -12448,7 +12452,7 @@ msgstr "Obsolète"
 #: centreon/www/install/front_translate.php
 #: centreon/www/install/smarty_translate.php
 msgid "Output"
-msgstr "Statut détaillé"
+msgstr "Sortie"
 
 #: centreon/www/include/configuration/configObject/traps/formTraps.php
 #: centreon/www/include/configuration/configObject/traps/listTraps.php
@@ -17422,6 +17426,12 @@ msgstr "Les jetons sont obligatoires"
 #: centreon/www/install/front_translate.php
 msgid "Too many elements to be displayed (>{{graphsCapNumber}})"
 msgstr ""
+
+#: centreon/www/include/views/graphs/graphs.php
+msgid "Too many metrics (X). More than 20 may cause performance issues."
+msgstr ""
+"Trop de métriques (X). Plus de 20 peuvent provoquer des problèmes de "
+"performance."
 
 #: centreon/www/include/monitoring/objectDetails/serviceDetails.php
 msgid "Tools"
@@ -24605,3 +24615,98 @@ msgstr "alerte"
 #: unknown
 msgid "will display resources with host name starting by'"
 msgstr "affichera les ressources avec un nom d'hôte commençant par"
+
+msgid "Welcome to the Commands page"
+msgstr "Bienvenue sur la page Commandes"
+
+msgid "Commands are used by the monitoring engine to run plugins to perform actions. While most commands come ready-to-use via Monitoring Connectors, you can also create custom commands for specific needs."
+msgstr "Les commandes sont utilisées par le moteur de supervision pour exécuter des plugins qui effectuent des actions. Bien que la plupart des commandes soient prêtes à l'emploi via les connecteurs de supervision, vous pouvez également créer des commandes personnalisées pour des besoins spécifiques."
+
+msgid "Service uses"
+msgstr "Services utilisés"
+
+msgid "Host uses"
+msgstr "Hôtes utilisés"
+
+msgid "Command type"
+msgstr "Type de commande"
+
+msgid "Enable shell syntax"
+msgstr "Activer la syntaxe shell"
+
+msgid "Select an optimization connector"
+msgstr "Sélectionner un connecteur d'optimisation"
+
+msgid "Poller global macros"
+msgstr "Macros globales du collecteur"
+
+msgid "Installed plugins"
+msgstr "Plugins installés"
+
+msgid "Standard macros"
+msgstr "Macros standard"
+
+msgid "Insert"
+msgstr "Insérer"
+
+msgid "You are not allowed to choose this type."
+msgstr "Vous n'avez pas la permission de choisir ce type."
+
+msgid "If your command uses shell functions (pipes, redirects, wildcards, etc.), check this box. Note that commands requiring the shell slow down the monitoring server."
+msgstr "Si votre commande utilise des fonctions shell (pipes, redirections, caractères génériques, etc.), cochez cette case. Notez que les commandes nécessitant le shell ralentissent le serveur de supervision."
+
+
+msgid "Add a command"
+msgstr "Ajouter une command"
+
+msgid "Modify a command"
+msgstr "Modifier une commande"
+
+msgid "Command created"
+msgstr "Commande créée"
+
+msgid "Command updated"
+msgstr "Commande mise à jour"
+
+msgid "Command deleted"
+msgstr "Commande supprimée"
+
+msgid "Command enabled"
+msgstr "Commande activée"
+
+msgid "Command disabled"
+msgstr "Commande désactivée"
+
+msgid "Command duplicated"
+msgstr "Commande dupliquée"
+
+msgid "Command line"
+msgstr "Ligne de commande"
+
+msgid "Check "
+msgstr "Contrôle"
+
+msgid "Delete command"
+msgstr "Supprimer la commande"
+
+msgid "Duplicate command"
+msgstr "Dupliquer la commande"
+
+#: unknown
+msgid "You are about to duplicate the <strong>{{ name }}</strong> command."
+msgstr "Vous êtes sur le point de dupliquer la commande <strong>{{ name }}</strong>."
+
+#: unknown
+msgid ""
+"You are about to delete the <strong>{{ name }}</strong> command. This "
+"action cannot be undone. Do you want to delete it?"
+msgstr ""
+"Vous êtes sur le point de supprimer la commande <strong>{{ name }}</"
+"strong>. Cette action est irréversible. Voulez-vous la supprimer ?"
+
+msgid "Hosts (Host templates)"
+msgstr "Hôtes (Modèles d'hôtes)"
+
+msgid "Services (Service templates)"
+msgstr "Services (Modèles de services)"
+

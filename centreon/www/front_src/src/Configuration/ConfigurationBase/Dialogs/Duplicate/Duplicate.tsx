@@ -22,8 +22,9 @@ const DuplicateDialog = (): JSX.Element => {
     duplicatesCount,
     changeDuplicateCount,
     isOpened,
-    bodyContent,
-    headerContent
+    getBodyContent,
+    headerContent,
+    isSingleDuplicate
   } = useDuplicate();
 
   return (
@@ -32,36 +33,38 @@ const DuplicateDialog = (): JSX.Element => {
       <Modal.Body>
         <Typography>
           <Trans
-            defaults={bodyContent.label}
-            values={bodyContent.value}
+            defaults={getBodyContent().label}
+            values={getBodyContent().value}
             components={{ bold: <strong /> }}
           />
         </Typography>
-        <div className={classes.duplicationCount}>
-          <Typography className={classes.duplicationCountTitle}>
-            {t(labelDuplications)}
-          </Typography>
-          <NumberField
-            autoSize
-            autoSizeDefaultWidth={20}
-            dataTestId={labelDuplications}
-            defaultValue={duplicatesCount}
-            disabled={isMutating}
-            fallbackValue={1}
-            textFieldSlotsAndSlotProps={{
-              slotProps: {
-                htmlInput: {
-                  'aria-label': t(labelDuplications),
-                  min: 1,
-                  max: 10
+        {!isSingleDuplicate && (
+          <div className={classes.duplicationCount}>
+            <Typography className={classes.duplicationCountTitle}>
+              {t(labelDuplications)}
+            </Typography>
+            <NumberField
+              autoSize
+              autoSizeDefaultWidth={20}
+              dataTestId={labelDuplications}
+              defaultValue={duplicatesCount}
+              disabled={isMutating}
+              fallbackValue={1}
+              textFieldSlotsAndSlotProps={{
+                slotProps: {
+                  htmlInput: {
+                    'aria-label': t(labelDuplications),
+                    min: 1,
+                    max: 10
+                  }
                 }
-              }
-            }}
-            size="compact"
-            type="number"
-            onChange={changeDuplicateCount}
-          />
-        </div>
+              }}
+              size="compact"
+              type="number"
+              onChange={changeDuplicateCount}
+            />
+          </div>
+        )}
       </Modal.Body>
       <Modal.Actions
         disabled={isMutating}

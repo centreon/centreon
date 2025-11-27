@@ -2,3 +2,5 @@ export { default as MultiAutocomplete } from './MultiAutocomplete/MultiAutocompl
 export { default as MultiConnectedAutocomplete } from './MultiConnectedAutocomplete/MultiConnectedAutocomplete';
 export { default as Text } from './Text/Text';
 export { default as Status } from './Status/Status';
+export { default as Checkbox } from './Checkbox/Checkbox';
+export { default as Checkboxes } from './Checkboxes/Checkboxes';

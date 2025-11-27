@@ -26,16 +26,7 @@ export const labelDeleteAdditionalConnectorDescription =
   'The {{name}} additional configuration will be permanently deleted.';
 export const labelSomeConnectorsMayNotWorkAnymore =
   'The corresponding connectors will not work anymore.';
-export const labelAdditionalConnectorDeleted =
-  'Additional configuration deleted';
-export const labelAdditionalConnectorDuplicated =
-  'Additional configuration duplicated';
-export const labelAdditionalConnectorCreated =
-  'Additional configuration created';
-export const labelAdditionalConnectorUpdated =
-  'Additional configuration updated';
-export const labelDuplicateConnectorConfiguration =
-  'Duplicate connector configuration';
+
 export const labelSave = 'Save';
 export const labelNameMustBeMost = 'The name can be at most 50 characters long';
 export const labelDescriptionMustBeMost =
@@ -85,3 +76,8 @@ export const labelAddAnAdditionalConfiguration =
   'Add an additional configuration';
 export const labelModifyConnectorConfiguration =
   'Modify an additional configuration';
+
+export const labelAdditionalConnectorCreated =
+  'Additional configuration created';
+export const labelAdditionalConnectorUpdated =
+  'Additional configuration updated';

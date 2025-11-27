@@ -41,8 +41,8 @@ export const getEndpoints = (resourceType): Endpoints => ({
   deleteOne: ({ id }) => `/configuration/${resourceType}/${id}`,
   delete: `/configuration/${resourceType}/_delete`,
   duplicate: `/configuration/${resourceType}/_duplicate`,
-  enable: `/configuration/${resourceType}/_enable`,
-  disable: `/configuration/${resourceType}/_disable`,
+  enable: () => `/configuration/${resourceType}/_enable`,
+  disable: () => `/configuration/${resourceType}/_disable`,
   create: `/configuration/${resourceType}`,
   update: ({ id }) => `/configuration/${resourceType}/${id}`
 });

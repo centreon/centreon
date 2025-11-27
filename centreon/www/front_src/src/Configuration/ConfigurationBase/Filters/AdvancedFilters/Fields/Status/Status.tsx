@@ -1,7 +1,6 @@
 import { SetStateAction } from 'jotai';
 import { Dispatch, JSX } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useFilterStyles } from '../../../Filters.styles';
 
 import {
   Checkbox,
@@ -28,7 +27,6 @@ const Status = <TFilters,>({
   setFilters
 }: Props<TFilters>): JSX.Element => {
   const { t } = useTranslation();
-  const { classes } = useFilterStyles();
 
   const { valueEnable, valueDisable, change } = useStatus<TFilters>({
     filters,
@@ -36,10 +34,8 @@ const Status = <TFilters,>({
   });
 
   return (
-    <div className={classes.statusFilter}>
-      <Typography className={classes.statusFilterName}>
-        {t(labelStatus)}
-      </Typography>
+    <div className="flex flex-col justify-between items-start pl-2">
+      <Typography className="font-medium">{t(labelStatus)}</Typography>
       <FormGroup row>
         <FormControlLabel
           control={

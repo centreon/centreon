@@ -23,8 +23,9 @@ export const useFilterStyles = makeStyles()((theme) => ({
   },
   statusFilter: {
     display: 'flex',
+    flexDirection: 'column',
     justifyContent: 'space-between',
-    alignItems: 'center',
+    alignItems: 'start',
     paddingInlineStart: theme.spacing(1)
   },
   statusFilterName: {

@@ -7,6 +7,8 @@ import { useTranslation } from 'react-i18next';
 import { FieldType } from '../../../models';
 import useLoadData from '../../Listing/useLoadData';
 import {
+  Checkbox,
+  Checkboxes,
   MultiAutocomplete,
   MultiConnectedAutocomplete,
   Status,
@@ -42,6 +44,17 @@ const Filters = <TFilters,>({
   return (
     <div className={classes.additionalFilters} data-testid="advanced-filters">
       {filtersConfiguration?.map((filter) => {
+        if (equals(filter.fieldType, FieldType.Text))
+          return (
+            <Text<TFilters>
+              label={filter.name}
+              name={filter.fieldName}
+              key={filter.name}
+              filters={filters}
+              setFilters={setFilters}
+            />
+          );
+
         if (equals(filter.fieldType, FieldType.Status))
           return (
             <Status<TFilters>
@@ -50,6 +63,30 @@ const Filters = <TFilters,>({
               filters={filters}
             />
           );
+
+        if (equals(filter.fieldType, FieldType.Checkbox))
+          return (
+            <Checkbox<TFilters>
+              label={filter.name}
+              key={filter.name}
+              setFilters={setFilters}
+              filters={filters}
+              name={filter.fieldName}
+            />
+          );
+
+        if (equals(filter.fieldType, FieldType.Checkboxes))
+          return (
+            <Checkboxes<TFilters>
+              label={filter.name}
+              key={filter.name}
+              setFilters={setFilters}
+              filters={filters}
+              options={filter.options}
+              name={filter.fieldName}
+            />
+          );
+
         if (equals(filter.fieldType, FieldType.MultiAutocomplete))
           return (
             <MultiAutocomplete<TFilters>
@@ -74,15 +111,7 @@ const Filters = <TFilters,>({
             />
           );
 
-        return (
-          <Text<TFilters>
-            label={filter.name}
-            name={filter.fieldName}
-            key={filter.name}
-            filters={filters}
-            setFilters={setFilters}
-          />
-        );
+        return;
       })}
 
       <div className={classes.additionalFiltersButtons}>

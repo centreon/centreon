@@ -1,4 +1,9 @@
-import { buildListingEndpoint, useFetchQuery } from '@centreon/ui';
+import {
+  QueryParameter,
+  SearchParameter,
+  buildListingEndpoint,
+  useFetchQuery
+} from '@centreon/ui';
 import { useAtomValue } from 'jotai';
 import { configurationAtom } from '../atoms';
 
@@ -7,8 +12,9 @@ interface UseGetAllProps {
   sortOrder: string;
   page?: number;
   limit?: number;
-  searchConditions: Array<unknown>;
+  searchConditions: Array<SearchParameter>;
   filtersAtomKey: string;
+  getCustomQueryParameters: () => Array<QueryParameter>;
 }
 
 const useGetAll = ({
@@ -17,12 +23,14 @@ const useGetAll = ({
   page,
   limit,
   searchConditions,
-  filtersAtomKey
+  filtersAtomKey,
+  getCustomQueryParameters
 }: UseGetAllProps) => {
   const configuration = useAtomValue(configurationAtom);
 
   const endpoint = configuration?.api?.endpoints?.getAll;
   const decoder = configuration?.api?.decoders?.getAll;
+  const apiFormat = configuration?.api?.apiFormat;
 
   const sort = { [sortField]: sortOrder };
 
@@ -30,13 +38,15 @@ const useGetAll = ({
     decoder,
     getEndpoint: () =>
       buildListingEndpoint({
+        apiFormat: apiFormat || 'Standard',
         baseEndpoint: endpoint,
         parameters: {
           limit: limit || 10,
           page: page || 1,
           search: { conditions: searchConditions },
           sort
-        }
+        },
+        customQueryParameters: getCustomQueryParameters()
       }),
     getQueryKey: () => [
       'listResources',

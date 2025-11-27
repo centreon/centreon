@@ -30,15 +30,7 @@ export const useStyles = makeStyles()((theme) => ({
     justifyContent: 'space-between',
     marginTop: theme.spacing(2)
   },
-  statusFilter: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingInlineStart: theme.spacing(1)
-  },
-  statusFilterName: {
-    fontWeight: theme.typography.fontWeightMedium
-  },
+
   filters: {
     maxWidth: theme.spacing(60),
     minWidth: theme.spacing(20),
