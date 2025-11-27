@@ -34,18 +34,26 @@
  *
  */
 
-$dataDO = array();
-$dataUN = array();
-$dataUP = array();
-$dataPEND = array();
-$dataList = array();
-$db = new CentreonDB("centstorage");
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\Enum\QueryParameterTypeEnum;
+
+$hostsDownStatus = [];
+$hostsUnknownStatus = [];
+$hostsUpStatus = [];
+$hostsPendingStatus = [];
+$dataList = [];
+
+$realtimeConnection = new CentreonDB('centstorage');
 
 /**
  * true: URIs will correspond to deprecated pages
  * false: URIs will correspond to new page (Resource Status)
  */
 $useDeprecatedPages = $centreon->user->doesShowDeprecatedPages();
+
+$autoRefresh = (isset($preferences['refresh_interval']) && (int) $preferences['refresh_interval'] > 0)
+    ? (int) $preferences['refresh_interval']
+    : 30;
 
 $buildHostUri = function (array $states, array $statuses) use ($resourceController, $buildParameter) {
     return $resourceController->buildListingUri(
@@ -74,185 +82,176 @@ $inDowntimeState = $buildParameter('in_downtime', 'In downtime');
 
 $deprecatedHostListingUri = '../../main.php?p=20202&search=&o=h_';
 
-// query for DOWN status
-$res = $db->query(
-    "SELECT 1 AS REALTIME,
-        SUM(
-            CASE WHEN h.state = 1
-                AND h.enabled = 1
-                AND h.name NOT LIKE '%Module%'
-            THEN 1 ELSE 0 END
-        ) as status,
-        SUM(
-            CASE WHEN h.acknowledged = 1
-                AND h.state = 1
-                AND h.enabled = 1
-                AND h.name NOT LIKE '%Module%'
-            THEN 1 ELSE 0 END
-        ) as ack,
-        SUM(
-            CASE WHEN h.scheduled_downtime_depth = 1
-                AND h.state = 1
-                AND h.enabled = 1
-                AND h.name NOT LIKE '%Module%'
-            THEN 1 ELSE 0 END
-        ) as down
-    FROM hosts AS h " . (
-        $centreon->user->admin == 0
-        ? "JOIN (
-            SELECT acl.host_id, acl.service_id
-            FROM centreon_acl AS acl
-            WHERE acl.group_id IN (" . ($grouplistStr != "" ? $grouplistStr : 0) . ")
-            GROUP BY host_id
-        ) x ON x.host_id = h.host_id AND x.service_id IS NULL" : ""
-    ) . ";"
-);
-while ($row = $res->fetch()) {
-    $row['un'] = $row['status'] - ($row['ack'] + $row['down']);
+$queryParameters = [];
+$aclSubQuery = '';
+
+if (! $centreon->user->admin) {
+    $acls = new CentreonAclLazy($centreon->user->user_id);
+
+    // Make request return nothing
+    if ($acls->getAccessGroups()->isEmpty()) {
+        $aclSubQuery = ' WHERE 1 = 0';
+    } else {
+        ['parameters' => $queryParameters, 'placeholderList' => $bindQuery] = createMultipleBindParameters(
+            $acls->getAccessGroups()->getIds(),
+            'access_group',
+            QueryParameterTypeEnum::INTEGER
+        );
+
+        $aclSubQuery = <<<SQL
+                    INNER JOIN centreon_acl acl
+                        ON acl.host_id = h.host_id
+                        AND acl.service_id IS NULL
+                    WHERE acl.group_id IN ({$bindQuery})
+            SQL;
+    }
+}
+
+$downStatusQuery = <<<SQL
+        SELECT 1 AS REALTIME,
+            SUM(
+                CASE WHEN h.state = 1
+                    AND h.enabled = 1
+                    AND h.name NOT LIKE '%Module%'
+                THEN 1 ELSE 0 END
+            ) as status,
+            SUM(
+                CASE WHEN h.acknowledged = 1
+                    AND h.state = 1
+                    AND h.enabled = 1
+                    AND h.name NOT LIKE '%Module%'
+                THEN 1 ELSE 0 END
+            ) as ack,
+            SUM(
+                CASE WHEN h.scheduled_downtime_depth = 1
+                    AND h.state = 1
+                    AND h.enabled = 1
+                    AND h.name NOT LIKE '%Module%'
+                THEN 1 ELSE 0 END
+            ) as down
+        FROM hosts AS h
+        {$aclSubQuery}
+    SQL;
+
+foreach ($realtimeConnection->iterateAssociative($downStatusQuery, QueryParameters::create($queryParameters)) as $record) {
+    $record['un'] = $record['status'] - ($record['ack'] + $record['down']);
 
     $deprecatedDownHostListingUri = $deprecatedHostListingUri . 'down';
 
-    $row['listing_uri'] = $useDeprecatedPages
+    $record['listing_uri'] = $useDeprecatedPages
         ? $deprecatedDownHostListingUri
         : $buildHostUri([], [$downStatus]);
 
-    $row['listing_ack_uri'] = $useDeprecatedPages
+    $record['listing_ack_uri'] = $useDeprecatedPages
         ? $deprecatedDownHostListingUri
         : $buildHostUri([$acknowledgedState], [$downStatus]);
 
-    $row['listing_downtime_uri'] = $useDeprecatedPages
+    $record['listing_downtime_uri'] = $useDeprecatedPages
         ? $deprecatedDownHostListingUri
         : $buildHostUri([$inDowntimeState], [$downStatus]);
 
-    $row['listing_unhandled_uri'] = $useDeprecatedPages
+    $record['listing_unhandled_uri'] = $useDeprecatedPages
         ? $deprecatedDownHostListingUri
         : $buildHostUri([$unhandledState], [$downStatus]);
 
-    $dataDO[] = $row;
+    $hostsDownStatus[] = $record;
 }
 
-// query for UNKNOWN status
-$res = $db->query(
-    "SELECT 1 AS REALTIME,
-        SUM(
-            CASE WHEN h.state = 2
-                AND h.enabled = 1
-                AND h.name NOT LIKE '%Module%'
-            THEN 1 ELSE 0 END
-        ) as status,
-        SUM(
-            CASE WHEN h.acknowledged = 1
-                AND h.state = 2
-                AND h.enabled = 1
-                AND h.name NOT LIKE '%Module%'
-            THEN 1 ELSE 0 END
-        ) as ack,
-        SUM(
-            CASE WHEN h.state = 2
-                AND h.enabled = 1
-                AND h.name NOT LIKE '%Module% '
-                AND h.scheduled_downtime_depth = 1
-            THEN 1 ELSE 0 END
-        ) as down
-    FROM hosts AS h " . (
-        $centreon->user->admin == 0
-        ? "JOIN (
-            SELECT acl.host_id, acl.service_id
-            FROM centreon_acl AS acl
-            WHERE acl.group_id IN (" . ($grouplistStr != "" ? $grouplistStr : 0) . ")
-            GROUP BY host_id
-        ) x ON x.host_id = h.host_id AND x.service_id IS NULL" : ""
-    ) . ";"
-);
-while ($row = $res->fetch()) {
-    $row['un'] = $row['status'] - ($row['ack'] + $row['down']);
+$query = <<<SQL
+        SELECT 1 AS REALTIME,
+            SUM(
+                CASE WHEN h.state = 2
+                    AND h.enabled = 1
+                    AND h.name NOT LIKE '%Module%'
+                THEN 1 ELSE 0 END
+            ) as status,
+            SUM(
+                CASE WHEN h.acknowledged = 1
+                    AND h.state = 2
+                    AND h.enabled = 1
+                    AND h.name NOT LIKE '%Module%'
+                THEN 1 ELSE 0 END
+            ) as ack,
+            SUM(
+                CASE WHEN h.state = 2
+                    AND h.enabled = 1
+                    AND h.name NOT LIKE '%Module%'
+                    AND h.scheduled_downtime_depth = 1
+                THEN 1 ELSE 0 END
+            ) as down
+        FROM hosts AS h
+        {$aclSubQuery}
+    SQL;
+
+foreach ($realtimeConnection->iterateAssociative($query, QueryParameters::create($queryParameters)) as $record) {
+    $record['un'] = $record['status'] - ($record['ack'] + $record['down']);
 
     $deprecatedUnreachableHostListingUri = $deprecatedHostListingUri . 'unreachable';
 
-    $row['listing_uri'] = $useDeprecatedPages
+    $record['listing_uri'] = $useDeprecatedPages
         ? $deprecatedUnreachableHostListingUri
         : $buildHostUri([], [$unreachableStatus]);
 
-    $row['listing_ack_uri'] = $useDeprecatedPages
+    $record['listing_ack_uri'] = $useDeprecatedPages
         ? $deprecatedUnreachableHostListingUri
         : $buildHostUri([$acknowledgedState], [$unreachableStatus]);
 
-    $row['listing_downtime_uri'] = $useDeprecatedPages
+    $record['listing_downtime_uri'] = $useDeprecatedPages
         ? $deprecatedUnreachableHostListingUri
         : $buildHostUri([$inDowntimeState], [$unreachableStatus]);
 
-    $row['listing_unhandled_uri'] = $useDeprecatedPages
+    $record['listing_unhandled_uri'] = $useDeprecatedPages
         ? $deprecatedUnreachableHostListingUri
         : $buildHostUri([$unhandledState], [$unreachableStatus]);
 
-    $dataUN[] = $row;
+    $hostsUnknownStatus[] = $record;
 }
 
-// query for UP status
-$res = $db->query(
-    "SELECT 1 AS REALTIME,
-        SUM(
-            CASE WHEN h.state = 0
-                AND h.enabled = 1
-                AND h.name NOT LIKE '%Module%'
-            THEN 1 ELSE 0 END
-        ) as status
-    FROM hosts AS h " . (
-    $centreon->user->admin == 0
-        ? "JOIN (
-            SELECT acl.host_id, acl.service_id
-            FROM centreon_acl AS acl
-            WHERE acl.group_id IN (" . ($grouplistStr != "" ? $grouplistStr : 0) . ")
-            GROUP BY host_id
-        ) x ON x.host_id = h.host_id AND x.service_id IS NULL" : ""
-    ) . ";"
-);
-while ($row = $res->fetch()) {
-    $row['listing_uri'] = $useDeprecatedPages
+$query = <<<SQL
+        SELECT 1 AS REALTIME,
+            SUM(
+                CASE WHEN h.state = 0
+                    AND h.enabled = 1
+                    AND h.name NOT LIKE '%Module%'
+                THEN 1 ELSE 0 END
+            ) as status
+        FROM hosts AS h
+        {$aclSubQuery}
+    SQL;
+
+foreach ($realtimeConnection->iterateAssociative($query, QueryParameters::create($queryParameters)) as $record) {
+    $record['listing_uri'] = $useDeprecatedPages
         ? $deprecatedHostListingUri . 'up'
         : $buildHostUri([], [$upStatus]);
 
-    $dataUP[] = $row;
+    $hostsUpStatus[] = $record;
 }
 
-// query for PENDING status
-$res = $db->query(
-    "SELECT 1 AS REALTIME,
-        SUM(
-            CASE WHEN h.state = 4
-                AND h.enabled = 1
-                AND h.name NOT LIKE '%Module%'
-            THEN 1 ELSE 0 END
-        ) as status
-    FROM hosts AS h " . (
-        $centreon->user->admin == 0
-        ? "JOIN (
-            SELECT acl.host_id, acl.service_id
-            FROM centreon_acl AS acl
-            WHERE acl.group_id IN (" . ($grouplistStr != "" ? $grouplistStr : 0) . ")
-            GROUP BY host_id
-        ) x ON x.host_id = h.host_id AND x.service_id IS NULL" : ""
-    ) . ";"
-);
-while ($row = $res->fetch()) {
-    $row['listing_uri'] = $useDeprecatedPages
+$query = <<<SQL
+        SELECT 1 AS REALTIME,
+            SUM(
+                CASE WHEN h.state = 4
+                    AND h.enabled = 1
+                    AND h.name NOT LIKE '%Module%'
+                THEN 1 ELSE 0 END
+            ) as status
+        FROM hosts AS h
+        {$aclSubQuery}
+    SQL;
+
+foreach ($realtimeConnection->iterateAssociative($query, QueryParameters::create($queryParameters)) as $record) {
+    $record['listing_uri'] = $useDeprecatedPages
         ? $deprecatedHostListingUri . 'pending'
         : $buildHostUri([], [$pendingStatus]);
 
-    $dataPEND[] = $row;
+    $hostsPendingStatus[] = $record;
 }
-
-$numLine = 1;
-
-$autoRefresh = (isset($preferences['refresh_interval']) && (int)$preferences['refresh_interval'] > 0)
-    ? (int)$preferences['refresh_interval']
-    : 30;
 
 $template->assign('preferences', $preferences);
 $template->assign('widgetId', $widgetId);
 $template->assign('autoRefresh', $autoRefresh);
-$template->assign('dataPEND', $dataPEND);
-$template->assign('dataUP', $dataUP);
-$template->assign('dataUN', $dataUN);
-$template->assign('dataDO', $dataDO);
+$template->assign('dataPEND', $hostsPendingStatus);
+$template->assign('dataUP', $hostsUpStatus);
+$template->assign('dataUN', $hostsUnknownStatus);
+$template->assign('dataDO', $hostsDownStatus);
 $template->display('hosts_status.ihtml');

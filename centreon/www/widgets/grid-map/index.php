@@ -34,8 +34,9 @@
  *
  */
 
-require_once "../require.php";
-require_once "../../../config/centreon.config.php";
+require_once '../require.php';
+require_once '../widget-error-handling.php';
+require_once '../../../config/centreon.config.php';
 require_once $centreon_path . 'www/class/centreon.class.php';
 require_once $centreon_path . 'www/class/centreonSession.class.php';
 require_once $centreon_path . 'www/class/centreonWidget.class.php';
@@ -55,11 +56,18 @@ try {
     if ($widgetId === false) {
         throw new InvalidArgumentException('Widget ID must be an integer');
     }
-    $db_centreon = $dependencyInjector['configuration_db'];
-    $db = $dependencyInjector['realtime_db'];
 
-    $widgetObj = new CentreonWidget($centreon, $db_centreon);
+    $widgetObj = new CentreonWidget($centreon, $dependencyInjector['configuration_db']);
+
+    /**
+     * @var array{
+     *     host_group: string,
+     *     service: string,
+     *     refresh_interval: string
+     * } $preferences
+     */
     $preferences = $widgetObj->getWidgetPreferences($widgetId);
+
     $autoRefresh = filter_var($preferences['refresh_interval'], FILTER_VALIDATE_INT);
     if ($autoRefresh === false || $autoRefresh < 5) {
         $autoRefresh = 30;
@@ -69,8 +77,21 @@ try {
         'dark' => "Centreon-Dark",
         default => throw new \Exception('Unknown user theme : ' . $centreon->user->theme),
     };
-} catch (Exception $e) {
-    echo $e->getMessage() . "<br/>";
+
+    $theme = $variablesThemeCSS === 'Generic-theme'
+        ? $variablesThemeCSS . '/Variables-css'
+        : $variablesThemeCSS;
+} catch (Exception $exception) {
+    CentreonLog::create()->error(
+        logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
+        message: 'Error while using grid-map widget: ' . $exception->getMessage(),
+        customContext: [
+            'widget_id' => $widgetId,
+        ],
+        exception: $exception
+    );
+    showError($exception->getMessage(), $theme ?? 'Generic-theme/Variables-css');
+
     exit;
 }
 
@@ -79,11 +100,5 @@ $template = SmartyBC::createSmartyTemplate(getcwd() . "/", './');
 
 $template->assign('autoRefresh', $autoRefresh);
 $template->assign('widgetId', $widgetId);
-$template->assign(
-    'theme',
-    $variablesThemeCSS === 'Generic-theme'
-        ? $variablesThemeCSS . '/Variables-css'
-        : $variablesThemeCSS
-);
-/* Display */
+$template->assign('theme', $theme);
 $template->display('index.ihtml');
