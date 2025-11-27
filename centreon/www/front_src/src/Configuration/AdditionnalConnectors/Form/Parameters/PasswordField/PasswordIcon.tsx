@@ -50,6 +50,7 @@ const PasswordIcon = ({
           size="small"
           onClick={handleEdit}
           title={t(labelEditPassword)}
+          dataTestid={'button_edit'}
         >
           <EditIcon fontSize="small" />
         </IconButton>
@@ -62,6 +63,7 @@ const PasswordIcon = ({
           size="small"
           onClick={handleReset}
           title={t(labelRevertToPreviousPassword)}
+          dataTestid={'button_reset'}
         >
           <RestartIcon fontSize="small" />
         </IconButton>
@@ -76,6 +78,7 @@ const PasswordIcon = ({
             variant="secondary"
             onClick={handleReset}
             className="min-w-[40px]"
+            data-testid={'button_cancel'}
           >
             <CloseIcon className="text-sm" />
           </Button>
@@ -85,6 +88,7 @@ const PasswordIcon = ({
             onClick={changePasswordState(PasswordActionState.Reset)}
             disabled={isEmpty}
             className="min-w-[40px]"
+            data-testid={'button_save'}
           >
             <SaveIcon className="text-sm" />
           </Button>
