@@ -60,7 +60,8 @@
       "requireResourceType": true,
       "singleResourceType": true,
       "restrictedResourceTypes": ["host-group", "service-group"],
-      "allowRegexOnResourceTypes": ["host-group", "service-group"]
+      "allowRegexOnResourceTypes": ["host-group", "service-group"],
+      "allowEmptyResources": true
     }
   },
   "moduleName": "centreon-widget-groupmonitoring",
