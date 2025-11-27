@@ -33,7 +33,8 @@ class Provider
     /**
      * @param int $id
      * @param string $name
-     * @param ProviderType $type
+     * @param int $providerTypeId
+     * @param string $providerTypeName
      * @param bool $isActivated
      *
      * @throws AssertionFailedException
@@ -41,20 +42,33 @@ class Provider
     public function __construct(
         private int $id,
         private string $name,
-        private ProviderType $type,
+        private int $providerTypeId,
+        private string $providerTypeName,
         private bool $isActivated,
     ) {
         Assertion::positiveInt($this->id, 'Provider::id');
         Assertion::notEmptyString($this->name, 'Provider::name');
         Assertion::maxLength($this->name, self::MAX_NAME_LENGTH, 'Provider::name');
+
+        Assertion::positiveInt($this->providerTypeId, 'Provider::providerTypeId');
+        Assertion::notEmptyString($this->providerTypeName, 'Provider::providerTypeName');
+        Assertion::maxLength($this->providerTypeName, self::MAX_NAME_LENGTH, 'Provider::providerTypeName');
     }
 
     /**
-     * @return ProviderType
+     * @return int
      */
-    public function getType(): ProviderType
+    public function getProviderTypeId(): int
     {
-        return $this->type;
+        return $this->providerTypeId;
+    }
+
+    /**
+     * @return string
+     */
+    public function getProviderTypeName(): string
+    {
+        return $this->providerTypeName;
     }
 
     /**

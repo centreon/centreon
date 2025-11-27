@@ -3,7 +3,7 @@ parameters:
 		-
 			message: '#^Cannot access offset 0 on mixed\.$#'
 			identifier: offsetAccess.nonOffsetAccessible
-			count: 4
+			count: 5
 			path: tests/php/CentreonOpenTickets/Providers/Application/UseCase/FindProviders/FindProvidersTest.php
 
 		-
@@ -27,7 +27,7 @@ parameters:
 		-
 			message: '#^Cannot access property \$providers on mixed\.$#'
 			identifier: property.nonObject
-			count: 4
+			count: 5
 			path: tests/php/CentreonOpenTickets/Providers/Application/UseCase/FindProviders/FindProvidersTest.php
 
 		-
@@ -43,10 +43,17 @@ parameters:
 			path: tests/php/CentreonOpenTickets/Providers/Application/UseCase/FindProviders/FindProvidersTest.php
 
 		-
-			message: '#^Cannot access property \$type on mixed\.$#'
+			message: '#^Cannot access property \$typeId on mixed\.$#'
 			identifier: property.nonObject
 			count: 1
 			path: tests/php/CentreonOpenTickets/Providers/Application/UseCase/FindProviders/FindProvidersTest.php
+
+		-
+			message: '#^Cannot access property \$typeName on mixed\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: tests/php/CentreonOpenTickets/Providers/Application/UseCase/FindProviders/FindProvidersTest.php
+
 
 		-
 			message: '#^Cannot access property \$useCase on mixed\.$#'
