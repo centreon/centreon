@@ -49,6 +49,9 @@ final class CommandCriteria implements SortableCriteria
 
     private ?bool $isFromMonitoringConnector = null;
 
+    /** @var list<int> */
+    private array $ids = [];
+
     public function withPagination(int $page, int $itemsPerPage): self
     {
         Assert::positiveInteger($page);
@@ -109,6 +112,17 @@ final class CommandCriteria implements SortableCriteria
         return clone $this;
     }
 
+    public function withId(int $id): self
+    {
+        $ids = $this->ids;
+        $ids[] = $id;
+
+        $new = clone $this;
+        $new->ids = $ids;
+
+        return $new;
+    }
+
     public function getPage(): ?int
     {
         return $this->page;
@@ -143,6 +157,14 @@ final class CommandCriteria implements SortableCriteria
     public function getIsFromMonitoringConnector(): ?bool
     {
         return $this->isFromMonitoringConnector;
+    }
+
+    /**
+     * @return list<int>
+     */
+    public function getIds(): array
+    {
+        return $this->ids;
     }
 
     public function getFieldMapping(): array

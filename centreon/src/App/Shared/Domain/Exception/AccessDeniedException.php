@@ -21,16 +21,19 @@
 
 declare(strict_types=1);
 
-namespace App\ActivityLogging\Domain\Repository;
+namespace App\Shared\Domain\Exception;
 
-use App\ActivityLogging\Domain\Aggregate\ActivityLog;
-use App\ActivityLogging\Domain\Aggregate\ActivityLogId;
-
-interface ActivityLogRepository
+abstract class AccessDeniedException extends \RuntimeException
 {
-    public function add(ActivityLog ...$activityLogs): void;
-
-    public function count(): int;
-
-    public function find(ActivityLogId $id): ?ActivityLog;
+    /**
+     * @param array<string, mixed> $criteria
+     */
+    public function __construct(
+        public readonly array $criteria,
+        string $message = 'Access denied.',
+        int $code = 0,
+        ?\Throwable $previous = null,
+    ) {
+        parent::__construct($message, $code, $previous);
+    }
 }

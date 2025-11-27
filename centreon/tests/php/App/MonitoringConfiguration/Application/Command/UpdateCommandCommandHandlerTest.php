@@ -199,4 +199,37 @@ final class UpdateCommandCommandHandlerTest extends TestCase
 
         ($this->handler)($updateCommand);
     }
+
+    public function testDispatchUpdatedEvent(): void
+    {
+        $command = new Command(
+            id: new CommandId(1),
+            name: new CommandName('original name'),
+            commandLine: new CommandLine('command'),
+            type: CommandTypeEnum::Check,
+            isShellEnabled: false,
+            isActivated: true,
+            comment: new CommandComment('comment'),
+            isFromMonitoringConnector: false,
+            connector: null,
+        );
+
+        $this->commandRepository->add($command);
+
+        $updateCommand = new UpdateCommandCommand(
+            id: new CommandId($command->id()->value),
+            name: new CommandName('updated name'),
+            commandLine: new CommandLine('updated command'),
+            type: CommandTypeEnum::Notification,
+            isShellEnabled: true,
+            isActivated: false,
+            comment: new CommandComment('updated comment'),
+            connectorId: new ConnectorId(1),
+            updatedBy: 1,
+        );
+
+        ($this->handler)($updateCommand);
+
+        self::assertTrue($this->eventBus->shouldHaveDispatched(CommandUpdated::class));
+    }
 }

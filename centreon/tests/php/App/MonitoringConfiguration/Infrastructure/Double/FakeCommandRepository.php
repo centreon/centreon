@@ -55,17 +55,19 @@ final class FakeCommandRepository implements CommandRepository
         return null;
     }
 
-    public function add(Command $command): void
+    public function add(Command ...$commands): void
     {
-        do {
-            $id = mt_rand();
-        } while (isset($this->commands[$id]));
+        foreach ($commands as $command) {
+            do {
+                $id = mt_rand();
+            } while (isset($this->commands[$id]));
 
-        $reflection = new \ReflectionProperty(AggregateRoot::class, 'id');
-        $reflection->setAccessible(true);
-        $reflection->setValue($command, new CommandId($id));
+            $reflection = new \ReflectionProperty(AggregateRoot::class, 'id');
+            $reflection->setAccessible(true);
+            $reflection->setValue($command, new CommandId($id));
 
-        $this->commands[$id] = $command;
+            $this->commands[$id] = $command;
+        }
     }
 
     public function update(Command $command): void

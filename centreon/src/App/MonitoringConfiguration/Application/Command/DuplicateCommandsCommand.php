@@ -21,16 +21,18 @@
 
 declare(strict_types=1);
 
-namespace App\ActivityLogging\Domain\Repository;
+namespace App\MonitoringConfiguration\Application\Command;
 
-use App\ActivityLogging\Domain\Aggregate\ActivityLog;
-use App\ActivityLogging\Domain\Aggregate\ActivityLogId;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
 
-interface ActivityLogRepository
+final readonly class DuplicateCommandsCommand
 {
-    public function add(ActivityLog ...$activityLogs): void;
-
-    public function count(): int;
-
-    public function find(ActivityLogId $id): ?ActivityLog;
+    public function __construct(
+        /** @var array<CommandId> */
+        public array $commandIds,
+        public int $duplicatedBy,
+        /** @var array<string> */
+        public array $allowedTypes,
+    ) {
+    }
 }

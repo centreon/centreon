@@ -21,16 +21,14 @@
 
 declare(strict_types=1);
 
-namespace App\ActivityLogging\Domain\Repository;
+namespace App\MonitoringConfiguration\Domain\Event;
 
-use App\ActivityLogging\Domain\Aggregate\ActivityLog;
-use App\ActivityLogging\Domain\Aggregate\ActivityLogId;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\Command;
+use App\Shared\Domain\Event\AggregateDuplicated;
 
-interface ActivityLogRepository
+/**
+ * @extends AggregateDuplicated<Command>
+ */
+final readonly class CommandDuplicated extends AggregateDuplicated
 {
-    public function add(ActivityLog ...$activityLogs): void;
-
-    public function count(): int;
-
-    public function find(ActivityLogId $id): ?ActivityLog;
 }

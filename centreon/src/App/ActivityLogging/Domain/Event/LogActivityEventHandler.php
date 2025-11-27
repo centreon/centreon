@@ -32,6 +32,7 @@ use App\Shared\Domain\Aggregate\AggregateRoot;
 use App\Shared\Domain\Aggregate\AggregateRootId;
 use App\Shared\Domain\Event\AggregateCreated;
 use App\Shared\Domain\Event\AggregateDeleted;
+use App\Shared\Domain\Event\AggregateDuplicated;
 use App\Shared\Domain\Event\AggregateUpdated;
 use App\Shared\Domain\Event\AsEventHandler;
 use Psr\Container\ContainerInterface;
@@ -47,28 +48,40 @@ final readonly class LogActivityEventHandler
     ) {
     }
 
-    public function __invoke(AggregateCreated|AggregateUpdated|AggregateDeleted $event): void
+    /**
+     * @param AggregateCreated|AggregateUpdated|AggregateDeleted|AggregateDuplicated<AggregateRoot<AggregateRootId>> $event
+     */
+    public function __invoke(AggregateCreated|AggregateUpdated|AggregateDeleted|AggregateDuplicated $event): void
     {
-        if (! $this->activityLogFactories->has($event->aggregate::class)) {
-            throw new \LogicException(\sprintf('There is no "%s" for "%s", did you add a service with "activity_logging.activity_log_factory" tag?', ActivityLogFactoryInterface::class, $event->aggregate::class));
+        $aggregates = is_array($event->aggregate) ? $event->aggregate : [$event->aggregate];
+
+        if ($aggregates === []) {
+            return;
+        }
+
+        if (! $this->activityLogFactories->has($aggregates[0]::class)) {
+            throw new \LogicException(\sprintf('There is no "%s" for "%s", did you add a service with "activity_logging.activity_log_factory" tag?', ActivityLogFactoryInterface::class, $aggregates[0]::class));
         }
 
         /** @var ActivityLogFactoryInterface<AggregateRoot<AggregateRootId>> $factory */
-        $factory = $this->activityLogFactories->get($event->aggregate::class);
+        $factory = $this->activityLogFactories->get($aggregates[0]::class);
 
         $action = match (true) {
-            $event instanceof AggregateCreated => ActionEnum::Add,
+            $event instanceof AggregateCreated, $event instanceof AggregateDuplicated => ActionEnum::Add,
             $event instanceof AggregateUpdated => ActionEnum::Update,
             $event instanceof AggregateDeleted => ActionEnum::Delete,
         };
 
-        $activityLog = $factory->create(
-            action: $action,
-            aggregate: $event->aggregate,
-            firedBy: new Actor(id: new ActorId($event->creatorId)),
-            firedAt: $event->firedAt(),
-        );
+        $activityLogs = [];
+        foreach ($aggregates as $aggregate) {
+            $activityLogs[] = $factory->create(
+                action: $action,
+                aggregate: $aggregate,
+                firedBy: new Actor(id: new ActorId($event->creatorId)),
+                firedAt: $event->firedAt(),
+            );
+        }
 
-        $this->repository->add($activityLog);
+        $this->repository->add(...$activityLogs);
     }
 }

@@ -159,38 +159,54 @@ final readonly class DbalCommandRepository extends DbalRepository implements Com
         );
     }
 
-    public function add(Command $command): void
+    public function add(Command ...$commands): void
     {
-        $qb = $this->connection->createQueryBuilder();
-
-        $qb->insert(self::TABLE_NAME)
-            ->values([
-                'command_name' => ':command_name',
-                'command_line' => ':command_line',
-                'command_type' => ':command_type',
-                'enable_shell' => ':enable_shell',
-                'command_activate' => ':command_activate',
-                'command_locked' => ':command_locked',
-                'command_comment' => ':command_comment',
-                'connector_id' => ':connector_id',
-            ])
-            ->setParameter('command_name', $command->name->value)
-            ->setParameter('command_line', $command->commandLine->value)
-            ->setParameter('command_type', $command->type->value)
-            ->setParameter('enable_shell', $command->isShellEnabled ? '1' : '0')
-            ->setParameter('command_activate', $command->isActivated ? '1' : '0')
-            ->setParameter('command_locked', $command->isFromMonitoringConnector ? '1' : '0')
-            ->setParameter('command_comment', $command->comment?->value)
-            ->setParameter('connector_id', $command->connector()?->id()->value)
-            ->executeStatement();
-
-        $id = (int) $this->connection->lastInsertId();
-
-        if ($id === 0) {
-            throw new \RuntimeException(\sprintf('Unable to retrieve last insert ID for "%s".', self::TABLE_NAME));
+        if ($commands === []) {
+            return;
         }
 
-        $this->setId($command, new CommandId($id));
+        $columns = [
+            'command_name',
+            'command_line',
+            'command_type',
+            'enable_shell',
+            'command_activate',
+            'command_locked',
+            'command_comment',
+            'connector_id',
+        ];
+
+        $placeholders = '(' . implode(',', array_fill(0, count($columns), '?')) . ')';
+        $values = [];
+        $params = [];
+        foreach ($commands as $command) {
+            $values[] = $placeholders;
+            $params = [
+                ...$params,
+                $command->name->value,
+                $command->commandLine->value,
+                $command->type->value,
+                $command->isShellEnabled ? '1' : '0',
+                $command->isActivated ? '1' : '0',
+                $command->isFromMonitoringConnector ? '1' : '0',
+                $command->comment?->value,
+                $command->connector()?->id()->value,
+            ];
+        }
+
+        $sql = sprintf(
+            'INSERT INTO %s (%s) VALUES %s',
+            self::TABLE_NAME,
+            implode(',', $columns),
+            implode(',', $values)
+        );
+
+        $this->connection->executeStatement($sql, $params);
+        $newIds = $this->findIdsByCommandNames(array_map(fn (Command $command): CommandName => $command->name, $commands));
+
+        foreach ($commands as $command) {
+            $this->setId($command, new CommandId($newIds[$command->name->value]));
+        }
     }
 
     public function countLinkedResources(array $commandIds): array
@@ -318,7 +334,41 @@ final readonly class DbalCommandRepository extends DbalRepository implements Com
             $qb->setParameter('command_activate', $criteria->getIsActivated() ? '1' : '0');
         }
 
+        if ($criteria->getIds() !== []) {
+            $qb->andWhere($qb->expr()->in(
+                'cm.command_id',
+                array_map(static fn (int $id): string => '"' . $id . '"', $criteria->getIds())
+            ));
+        }
+
         $this->sort($qb, 'cm', $criteria);
+    }
+
+    /**
+     * @param array<CommandName> $commandNames
+     *
+     * @return array<string, int>
+     */
+    private function findIdsByCommandNames(array $commandNames): array
+    {
+        $qb = $this->connection->createQueryBuilder();
+
+        $qb->select('command_id', 'command_name')
+            ->from(self::TABLE_NAME, 'cm')
+            ->where($qb->expr()->in(
+                'cm.command_name',
+                array_map(static fn (CommandName $name): string => '"' . $name->value . '"', $commandNames)
+            ));
+
+        /** @var array<array{command_id: string, command_name: string}> $rows */
+        $rows = $qb->executeQuery()->fetchAllAssociative();
+
+        $results = [];
+        foreach ($rows as $row) {
+            $results[$row['command_name']] = (int) $row['command_id'];
+        }
+
+        return $results;
     }
 
     /**

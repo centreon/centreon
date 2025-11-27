@@ -21,16 +21,21 @@
 
 declare(strict_types=1);
 
-namespace App\ActivityLogging\Domain\Repository;
+namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto;
 
-use App\ActivityLogging\Domain\Aggregate\ActivityLog;
-use App\ActivityLogging\Domain\Aggregate\ActivityLogId;
+use Symfony\Component\Validator\Constraints as Assert;
 
-interface ActivityLogRepository
+final readonly class DuplicateCommandInput
 {
-    public function add(ActivityLog ...$activityLogs): void;
-
-    public function count(): int;
-
-    public function find(ActivityLogId $id): ?ActivityLog;
+    /**
+     * @param array<int> $ids
+     */
+    public function __construct(
+        #[Assert\NotBlank(message: 'IDs array cannot be empty')]
+        #[Assert\All([
+            new Assert\Type('integer'),
+        ])]
+        public array $ids,
+    ) {
+    }
 }
