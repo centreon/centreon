@@ -25,6 +25,7 @@ import { useResourceStyles } from '../Inputs.styles';
 import { areResourcesFullfilled } from '../utils';
 
 import { SelectField } from '@centreon/ui';
+import { ReactElement } from 'react';
 import ConfirmationResourceTypeToggleRegexModal from './ConfirmationResourceTypeToggleRegexModal';
 import ResourceField from './ResourceField';
 import useDefaultSelectTypeData from './useDefaultSelectType';
@@ -42,7 +43,7 @@ const Resources = ({
   selectType,
   forceSingleAutocompleteConditions,
   allowRegexOnResourceTypes
-}: WidgetPropertyProps): JSX.Element => {
+}: WidgetPropertyProps): ReactElement => {
   const { classes } = useResourceStyles();
   const { classes: avatarClasses } = useAddWidgetStyles();
   const { t } = useTranslation();
