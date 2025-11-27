@@ -43,19 +43,27 @@ if (($o == MODIFY_DEPENDENCY || $o == WATCH_DEPENDENCY) && $depId) {
     ]);
     $result = $pearDB->fetchAssociative($qb, $params);
 
-    // Set base value
-    $dep = array_map('myDecode', $result);
+    if ($result !== false) {
+        // Set base value
+        $dep = array_map('myDecode', $result);
 
-    // Set Notification Failure Criteria
-    $dep['notification_failure_criteria'] = explode(',', $dep['notification_failure_criteria']);
-    foreach ($dep['notification_failure_criteria'] as $key => $value) {
-        $dep['notification_failure_criteria'][trim($value)] = 1;
-    }
+        // Set Notification Failure Criteria
+        $dep['notification_failure_criteria'] = explode(',', $dep['notification_failure_criteria']);
+        foreach ($dep['notification_failure_criteria'] as $key => $value) {
+            $dep['notification_failure_criteria'][trim($value)] = 1;
+        }
 
-    // Set Execution Failure Criteria
-    $dep['execution_failure_criteria'] = explode(',', $dep['execution_failure_criteria']);
-    foreach ($dep['execution_failure_criteria'] as $key => $value) {
-        $dep['execution_failure_criteria'][trim($value)] = 1;
+        // Set Execution Failure Criteria
+        $dep['execution_failure_criteria'] = explode(',', $dep['execution_failure_criteria']);
+        foreach ($dep['execution_failure_criteria'] as $key => $value) {
+            $dep['execution_failure_criteria'][trim($value)] = 1;
+        }
+    } else {
+        CentreonLog::create()->error(
+            CentreonLog::TYPE_SQL,
+            'Dependency not found',
+            ['depId' => $depId]
+        );
     }
 }
 
