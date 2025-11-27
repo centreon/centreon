@@ -125,7 +125,7 @@ final readonly class DbalCommandRepository extends DbalRepository implements Com
         $qb->select(...self::getSelectColumns())
             ->from(self::TABLE_NAME, 'cm');
 
-        // only fetch unlocked commands unless getLocked is true
+        // only fetch unlocked commands unless getIsFromMonitoringConnector is true
         if ($criteria?->getIsFromMonitoringConnector() !== true) {
             $qb->where('command_locked = :command_locked')
                 ->setParameter('command_locked', '0');
