@@ -742,7 +742,7 @@ class CentreonAPI
                 }
             }
             $obj = new $objName($this->dependencyInjector);
-            var_dump($this->return_code);
+
             if (method_exists($obj, $action) || method_exists($obj, '__call')) {
                 $this->return_code = $obj->{$action}($this->variables);
             } else {
