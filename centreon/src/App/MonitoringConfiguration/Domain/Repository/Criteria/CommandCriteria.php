@@ -45,7 +45,9 @@ final class CommandCriteria implements SortableCriteria
     /** @var list<CommandTypeEnum> */
     private array $types = [];
 
-    private ?bool $status = null;
+    private ?bool $isActivated = null;
+
+    private ?bool $isFromMonitoringConnector = null;
 
     public function withPagination(int $page, int $itemsPerPage): self
     {
@@ -93,9 +95,16 @@ final class CommandCriteria implements SortableCriteria
         return $new;
     }
 
-    public function withStatus(bool $status): self
+    public function withIsActivated(bool $isActivated): self
     {
-        $this->status = $status;
+        $this->isActivated = $isActivated;
+
+        return clone $this;
+    }
+
+    public function withIsFromMonitoringConnector(bool $isFromMonitoringConnector): self
+    {
+        $this->isFromMonitoringConnector = $isFromMonitoringConnector;
 
         return clone $this;
     }
@@ -126,9 +135,14 @@ final class CommandCriteria implements SortableCriteria
         return $this->types;
     }
 
-    public function getStatus(): ?bool
+    public function getIsActivated(): ?bool
     {
-        return $this->status;
+        return $this->isActivated;
+    }
+
+    public function getIsFromMonitoringConnector(): ?bool
+    {
+        return $this->isFromMonitoringConnector;
     }
 
     public function getFieldMapping(): array

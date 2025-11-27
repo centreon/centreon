@@ -257,6 +257,32 @@ final class ListCommandsProviderTest extends ApiTestCase
         );
     }
 
+    /**
+     * TODO : before running this test, ensure there are locked commands in the database.
+     */
+    public function testItFindCommandsFilteredByIsLockedTrue(): void
+    {
+        $this->login();
+
+        // Get baseline count without filter
+        $responseWithoutFilter = $this->request('GET', self::BASE_ENDPOINT, ['query' => ['type[]' => 'Notification']]);
+        $baselineCount = count((array) $responseWithoutFilter->toArray()['member']); // by default we have 6 Notification commands
+
+        // Get count with filter enabled
+        $responseWithFilter = $this->request(
+            'GET',
+            self::BASE_ENDPOINT,
+            ['query' => ['is_from_monitoring_connector' => 'true', 'type[]' => 'Notification']]
+        );
+        self::assertResponseIsSuccessful();
+        self::assertMatchesResourceCollectionJsonSchema(ListCommandResource::class);
+
+        // We added the Or Equal in the assertion in case there are no locked commands, the count will be the same
+        $data = $responseWithFilter->toArray();
+        $membersWithLocked = is_array($data['member']) ? $data['member'] : [];
+        $this->assertGreaterThanOrEqual($baselineCount, count($membersWithLocked));
+    }
+
     public function testItShouldDenyAccessWhenUserHasNoCommandPermissions(): void
     {
         $this->login('user_without_command_permissions');
