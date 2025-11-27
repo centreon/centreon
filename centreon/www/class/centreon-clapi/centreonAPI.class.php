@@ -758,7 +758,7 @@ class CentreonAPI
         }
 
         if ($exit) {
-            if ( $this->return_code !== null) {
+            if ($this->return_code !== null) {
                 echo 'Return code end : ' . $this->return_code . "\n";
             }
 
