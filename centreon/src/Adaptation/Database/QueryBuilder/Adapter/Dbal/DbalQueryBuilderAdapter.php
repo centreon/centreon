@@ -777,4 +777,16 @@ final readonly class DbalQueryBuilderAdapter implements QueryBuilderInterface
 
         return $this;
     }
+
+    /**
+     * Resets the limit for the query.
+     *
+     * @return DbalQueryBuilderAdapter this QueryBuilder instance
+     */
+    public function resetLimit(): QueryBuilderInterface
+    {
+        $this->dbalQueryBuilder->setMaxResults(null);
+
+        return $this;
+    }
 }
