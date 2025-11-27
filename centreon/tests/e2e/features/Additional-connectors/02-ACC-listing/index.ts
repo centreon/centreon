@@ -1,7 +1,6 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 import data from '../../../fixtures/additional-configurations/acc.json';
 
-
 before(() => {
   cy.startContainers();
   cy.setUserTokenApiV1().executeCommandsViaClapi(

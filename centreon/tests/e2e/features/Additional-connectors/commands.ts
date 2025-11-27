@@ -1,15 +1,15 @@
-interface ACC {
-  name: string,
-  type: string,
-  pollers: string[],
-  user: string,
-  password: string,
-  vCenternames: string[],
-  url: string,
-  port: string
+interface Acc {
+  name: string;
+  type: string;
+  pollers: string[];
+  user: string;
+  password: string;
+  vCenternames: string[];
+  url: string;
+  port: string;
 }
 
-Cypress.Commands.add('createAccWithMandatoryFields', (body: ACC) => {
+Cypress.Commands.add('createAccWithMandatoryFields', (body: Acc) => {
   cy.getByLabel({ label: 'Name', tag: 'input' }).clear().type(body.name);
   cy.get('#mui-component-select-type').should('have.text', body.type);
   cy.getByLabel({ label: 'Select poller(s)', tag: 'input' }).click();
@@ -21,7 +21,7 @@ Cypress.Commands.add('createAccWithMandatoryFields', (body: ACC) => {
   cy.get('#Portvalue').should('have.value', body.port);
 });
 
-Cypress.Commands.add('updateAcc', (body: ACC) => {
+Cypress.Commands.add('updateAcc', (body: Acc) => {
   cy.getByLabel({ label: 'Name', tag: 'input' }).clear().type(body.name);
   cy.get('#mui-component-select-type').should('have.text', body.type);
   cy.getByLabel({ label: 'Select poller(s)', tag: 'input' }).click();
@@ -34,43 +34,37 @@ Cypress.Commands.add('updateAcc', (body: ACC) => {
   cy.get('#vCenternamevalue').clear().type(body.vCenternames[0]);
   cy.get('#URLvalue').clear().type(body.url);
   cy.get('#Portvalue').clear().click().type(body.port);
-})
-
-Cypress.Commands.add('editvCenterPassword', (value: string) => {
-  cy.getByTestId({testId: "button_edit", tag: "button"})
-    .click();
-  cy.get('#Passwordvalue')
-    .should('not.be.disabled')
-    .and('have.value', '');
-  cy.get('#Passwordvalue')
-    .clear()
-    .type(value);
-  cy.getByTestId({testId: "button_save", tag: "button"})
-    .click();
 });
 
-Cypress.Commands.add('verifyAccFieldValues', (body: ACC) => {
+Cypress.Commands.add('editvCenterPassword', (value: string) => {
+  cy.getByTestId({ testId: 'button_edit', tag: 'button' }).click();
+  cy.get('#Passwordvalue').should('not.be.disabled').and('have.value', '');
+  cy.get('#Passwordvalue').clear().type(value);
+  cy.getByTestId({ testId: 'button_save', tag: 'button' }).click();
+});
+
+Cypress.Commands.add('verifyAccFieldValues', (body: Acc) => {
   cy.getByLabel({ label: 'Name', tag: 'input' }).should(
-      'have.value',
-      body.name
-    );
-    cy.getByLabel({ label: 'Description', tag: 'input' }).should('be.empty');
-    cy.get('#mui-component-select-type').should('have.text', body.type);
-    cy.get('*[class^="MuiChip-label MuiChip-labelMedium"]').should(
-      'contain',
-      body.pollers[0]
-    );
-    cy.get('#Usernamevalue').should('have.value', body.user);
-    // The field password is now disabled and shows only * as  value
-    cy.get('#Passwordvalue')
-      .should('be.disabled')
-      .invoke('val')
-      .should((val) => {
-        expect(val).to.match(/^\*+$/);
-    }); 
-    cy.get('#vCenternamevalue').should('have.value', body.vCenternames[0]);
-    cy.get('#URLvalue').should('have.value', body.url);
-    cy.get('#Portvalue').should('have.value', body.port);
+    'have.value',
+    body.name
+  );
+  cy.getByLabel({ label: 'Description', tag: 'input' }).should('be.empty');
+  cy.get('#mui-component-select-type').should('have.text', body.type);
+  cy.get('*[class^="MuiChip-label MuiChip-labelMedium"]').should(
+    'contain',
+    body.pollers[0]
+  );
+  cy.get('#Usernamevalue').should('have.value', body.user);
+  // The field password is now disabled and shows only * as  value
+  cy.get('#Passwordvalue')
+    .should('be.disabled')
+    .invoke('val')
+    .should((val) => {
+      expect(val).to.match(/^\*+$/);
+    });
+  cy.get('#vCenternamevalue').should('have.value', body.vCenternames[0]);
+  cy.get('#URLvalue').should('have.value', body.url);
+  cy.get('#Portvalue').should('have.value', body.port);
 });
 
 Cypress.Commands.add('saveAcc', () => {
@@ -147,10 +141,10 @@ declare global {
   // biome-ignore lint/style/noNamespace: <explanation>
   namespace Cypress {
     interface Chainable {
-      createAccWithMandatoryFields: (body: ACC) => Cypress.Chainable;
-      updateAcc: (body: ACC) => Cypress.Chainable;
+      createAccWithMandatoryFields: (body: Acc) => Cypress.Chainable;
+      updateAcc: (body: Acc) => Cypress.Chainable;
       editvCenterPassword: (value: string) => Cypress.Chainable;
-      verifyAccFieldValues: (body: ACC) => Cypress.Chainable;
+      verifyAccFieldValues: (body: Acc) => Cypress.Chainable;
       saveAcc: () => Cypress.Chainable;
       ensureConnectorInputValue: (
         expectedValue: string,
