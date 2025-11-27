@@ -22,7 +22,7 @@ interface Props extends Omit<UseBarStackProps, 'xScale'> {
   barWidth: number;
   isTooltipHidden: boolean;
   neutralValue: number;
-  isStacked?: booleam;
+  isStacked?: boolean;
 }
 
 const getPadding = ({ padding, size, isNegativeValue }): number => {
