@@ -80,7 +80,7 @@ Then('a pop-up menu with the form is displayed', () => {
 Then(
   'all of the informations of the additional connector configuration are correct',
   () => {
-     cy.verifyAccFieldValues(data.default);
+    cy.verifyAccFieldValues(data.default);
   }
 );
 
