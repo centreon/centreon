@@ -73,6 +73,10 @@ abstract readonly class ModuleRouteLoader implements RouteLoaderInterface
 
         // Modules with only one route will return directly a route collection
         if ($routeCollections instanceof RouteCollection) {
+            $routeCollections->addPrefix('/{base_uri}api/{version}');
+            $routeCollections->addDefaults(['base_uri' => 'centreon/', 'version' => 'latest']);
+            $routeCollections->addRequirements(['base_uri' => '(.+/)|.{0}']);
+
             return $routeCollections;
         }
         foreach ($routeCollections as $routeCollection) {
