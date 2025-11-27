@@ -1,9 +1,10 @@
 {
 	"info": {
-		"_postman_id": "3ae43bab-ae46-47ee-a395-91acfcc6e553",
+		"_postman_id": "06ffc492-24fc-4ecb-a5e4-81f9cbbe94f8",
 		"name": "Additional_Connector_Configuration",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "16182525"
+		"_exporter_id": "28117716",
+		"_collection_link": "https://centreon-api-testing.postman.co/workspace/develop-OSS~7c78046c-a719-4dae-bbf9-70e6e2c5b9bd/collection/28117716-06ffc492-24fc-4ecb-a5e4-81f9cbbe94f8?action=share&source=collection_link&creator=28117716"
 	},
 	"item": [
 		{
@@ -250,7 +251,7 @@
 									"        \"vcenters\": [{\r",
 									"            \"name\": \"my-vcenter\",\r",
 									"            \"url\": \"http://10.10.10.10/sdk\",\r",
-									"            \"username\": null,\r",
+									"            \"username\": \"admin\",\r",
 									"            \"password\": null\r",
 									"        }]\r",
 									"    });\r",
@@ -322,7 +323,8 @@
 									"});"
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						},
 						{
@@ -334,7 +336,8 @@
 									""
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -502,7 +505,8 @@
 									"pm.collectionVariables.set(\"ACC2Name\", \"acc-002\");"
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						},
 						{
@@ -527,7 +531,7 @@
 									"        \"vcenters\": [{\r",
 									"            \"name\": \"my-vcenter-2\",\r",
 									"            \"url\": \"http://10.10.10.10/sdk\",\r",
-									"            \"username\": null,\r",
+									"            \"username\": \"admin\",\r",
 									"            \"password\": null\r",
 									"        }]\r",
 									"    });\r",
@@ -598,7 +602,8 @@
 									"});"
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -1404,7 +1409,8 @@
 									""
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						},
 						{
@@ -1429,7 +1435,7 @@
 									"        \"vcenters\": [{\r",
 									"            \"name\": \"my-vcenter-3\",\r",
 									"            \"url\": \"http://10.10.10.10/sdk\",\r",
-									"            \"username\": null,\r",
+									"            \"username\": \"admin\",\r",
 									"            \"password\": null\r",
 									"        }]\r",
 									"    });\r",
@@ -1500,7 +1506,8 @@
 									"});"
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -1540,7 +1547,8 @@
 									""
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						},
 						{
@@ -1562,7 +1570,7 @@
 									"        \"vcenters\": [{\r",
 									"            \"name\": \"my-vcenter-3\",\r",
 									"            \"url\": \"http://10.10.10.10/sdk\",\r",
-									"            \"username\": null,\r",
+									"            \"username\": \"admin\",\r",
 									"            \"password\": null\r",
 									"        }]\r",
 									"    });\r",
@@ -1638,7 +1646,8 @@
 									"});"
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -3319,7 +3328,8 @@
 									""
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						},
 						{
@@ -3344,7 +3354,7 @@
 									"        \"vcenters\": [{\r",
 									"            \"name\": \"my-vcenter\",\r",
 									"            \"url\": \"http://10.10.10.10/sdk\",\r",
-									"            \"username\": null,\r",
+									"            \"username\": \"admin\",\r",
 									"            \"password\": null\r",
 									"        }]\r",
 									"    });\r",
@@ -3420,7 +3430,8 @@
 									"});"
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -3674,7 +3685,8 @@
 									""
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						},
 						{
@@ -3696,7 +3708,7 @@
 									"        \"vcenters\": [{\r",
 									"            \"name\": \"my-vcenter-up\",\r",
 									"            \"url\": \"http://10.10.10.11/sdk\",\r",
-									"            \"username\": null,\r",
+									"            \"username\": \"admin\",\r",
 									"            \"password\": null\r",
 									"        }]\r",
 									"    });\r",
@@ -3772,7 +3784,8 @@
 									"});"
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -4580,7 +4593,8 @@
 									""
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						},
 						{
@@ -4602,7 +4616,7 @@
 									"        \"vcenters\": [{\r",
 									"            \"name\": \"my-vcenter-up\",\r",
 									"            \"url\": \"http://10.10.10.11/sdk\",\r",
-									"            \"username\": null,\r",
+									"            \"username\": \"admin\",\r",
 									"            \"password\": null\r",
 									"        }]\r",
 									"    });\r",
@@ -4678,7 +4692,8 @@
 									"});"
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -5160,6 +5175,36 @@
 					""
 				]
 			}
+		}
+	],
+	"variable": [
+		{
+			"key": "api_login_user",
+			"value": ""
+		},
+		{
+			"key": "api_password_user",
+			"value": ""
+		},
+		{
+			"key": "ACC4Name",
+			"value": ""
+		},
+		{
+			"key": "ACC4Description",
+			"value": ""
+		},
+		{
+			"key": "ACC4Id",
+			"value": ""
+		},
+		{
+			"key": "ACC1Name",
+			"value": ""
+		},
+		{
+			"key": "ACC1Description",
+			"value": ""
 		}
 	]
 }
