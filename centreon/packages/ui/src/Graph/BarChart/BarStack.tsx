@@ -1,4 +1,4 @@
-import { memo } from 'react';
+import { memo, ReactElement } from 'react';
 
 import { ScaleType, scaleBand } from '@visx/scale';
 import { BarRounded } from '@visx/shape';
@@ -22,6 +22,7 @@ interface Props extends Omit<UseBarStackProps, 'xScale'> {
   barWidth: number;
   isTooltipHidden: boolean;
   neutralValue: number;
+  isStacked?: booleam;
 }
 
 const getPadding = ({ padding, size, isNegativeValue }): number => {
@@ -83,8 +84,9 @@ const BarStack = ({
   barIndex,
   isTooltipHidden,
   barStyle = { opacity: 1, radius: 0.2 },
-  neutralValue
-}: Props): JSX.Element => {
+  neutralValue,
+  isStacked
+}: Props): ReactElement => {
   const {
     BarStackComponent,
     commonBarStackProps,
@@ -118,6 +120,15 @@ const BarStack = ({
               metricId: Number(bar.key)
             }) as BarStyle;
 
+            const barY =
+              isNegativeValue && isStacked && !shouldApplyRadiusOnBottom
+                ? getPadding({
+                  isNegativeValue,
+                  padding: bar.y,
+                  size: bar.height
+                })
+                : bar.y;
+
             return (
               <BarRounded
                 {...barRoundedProps}
@@ -128,10 +139,10 @@ const BarStack = ({
                   barWidth,
                   y: isHorizontal
                     ? getPadding({
-                        isNegativeValue,
-                        padding: bar.y,
-                        size: bar.height
-                      })
+                      isNegativeValue,
+                      padding: bar.y,
+                      size: bar.height
+                    })
                     : barPadding,
                   isFirstBar: shouldApplyRadiusOnBottom,
                   isHorizontal,
@@ -146,19 +157,19 @@ const BarStack = ({
                   isHorizontal
                     ? barPadding
                     : getPadding({
-                        isNegativeValue,
-                        padding: bar.x,
-                        size: bar.width
-                      })
+                      isNegativeValue,
+                      padding: bar.x,
+                      size: bar.width
+                    })
                 }
-                y={isHorizontal ? bar.y : barPadding}
+                y={isHorizontal ? barY : barPadding}
                 onMouseEnter={
                   isTooltipHidden
                     ? undefined
                     : hoverBar({
-                        barIndex,
-                        highlightedMetric: Number(bar.key)
-                      })
+                      barIndex,
+                      highlightedMetric: Number(bar.key)
+                    })
                 }
                 onMouseLeave={isTooltipHidden ? undefined : exitBar}
               />

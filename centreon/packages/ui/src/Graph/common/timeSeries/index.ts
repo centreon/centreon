@@ -33,7 +33,8 @@ import {
   reject,
   sortBy,
   split,
-  uniq
+  uniq,
+  isNotNil
 } from 'ramda';
 
 import { margin } from '../../Chart/common';
@@ -398,7 +399,7 @@ const getScale = ({
       getMin(stackedValues),
       Math.min(...thresholds)
     ]);
-  const minValue = Math.min(...sanitizedValuesForMinimum.filter(identity));
+  const minValue = Math.min(...sanitizedValuesForMinimum.filter(isNotNil));
 
   const sanitizedValuesForMaximum = max
     ? [max]
@@ -408,21 +409,22 @@ const getScale = ({
       hasOnlyZeroesHasValue(graphValues) ? 1 : null,
       Math.max(...thresholds)
     ]);
-  const maxValue = Math.max(...sanitizedValuesForMaximum.filter(identity));
+  const maxValue = Math.max(...sanitizedValuesForMaximum.filter(isNotNil));
 
   const minValueWithMargin =
-    hasDisplayAsBar ||
+    (hasDisplayAsBar && minValue > 0) ||
       (hasLineFilled &&
         Math.max(maxValue, minValue) > minValue &&
         minValue > 0) ||
-      (hasStackedLines && minValue > 0)
+      (hasStackedLines && minValue > maxValue)
       ? 0
       : minValue - Math.abs(minValue) * 0.05;
   const maxValueWithMargin =
-    (hasLineFilled &&
-      Math.min(maxValue, minValue) < maxValue &&
-      maxValue < 0) ||
-      (hasStackedLines && maxValue < 0)
+    (hasDisplayAsBar && maxValue < 0) ||
+      (hasLineFilled &&
+        Math.min(maxValue, minValue) < maxValue &&
+        maxValue < 0) ||
+      (hasStackedLines && minValue > maxValue)
       ? 0
       : maxValue + Math.abs(maxValue) * 0.05;
 

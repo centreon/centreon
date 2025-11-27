@@ -70,6 +70,7 @@ const MemoizedGroup = ({
 
         return isStackedBar ? (
           <BarStack
+            isStacked
             key={`bar-${barGroup.index}-${bar.width}-${bar.y}-${bar.height}-${bar.x}`}
             barIndex={barGroup.index}
             barPadding={isHorizontal ? bar.x : bar.y}
@@ -93,7 +94,7 @@ const MemoizedGroup = ({
             isTooltipHidden={isTooltipHidden}
             lines={[linesBar as Line]}
             timeSeries={timeSeriesBar}
-            yScale={yScalesPerUnit[(linesBar as Line).unit]}
+            yScale={yScalesPerUnit[(linesBar as Line).unit ?? undefined]}
             neutralValue={neutralValue}
           />
         );

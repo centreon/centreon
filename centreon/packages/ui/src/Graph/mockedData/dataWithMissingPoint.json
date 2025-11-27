@@ -6,6 +6,7 @@
       "metric_id": 1,
       "legend": "count",
       "displayAs": "bar",
+      "unit": "",
       "ds_data": {
         "ds_stack": true,
         "ds_transparency": 0,
@@ -30,6 +31,7 @@
       "metric_id": 2,
       "legend": "count",
       "displayAs": "bar",
+      "unit": "",
       "ds_data": {
         "ds_stack": true,
         "ds_transparency": 0,
