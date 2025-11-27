@@ -24,10 +24,10 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Application\Command;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Command\Command;
-use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandName;
 use App\MonitoringConfiguration\Domain\Event\CommandDuplicated;
 use App\MonitoringConfiguration\Domain\Repository\CommandRepository;
+use App\MonitoringConfiguration\Domain\Repository\Criteria\CommandCriteria;
 use App\Shared\Application\Command\AsCommandHandler;
 use App\Shared\Domain\Event\EventBus;
 
@@ -49,21 +49,26 @@ final readonly class DuplicateCommandsCommandHandler
      */
     public function __invoke(DuplicateCommandsCommand $duplicateCommandsCommand): array
     {
+        $criteria  = new CommandCriteria();
+        foreach ($duplicateCommandsCommand->commandIds as $id) {
+            $criteria = $criteria->withId($id->value);
+        }
+
+        $originalCommands = $this->repository->findAll($criteria);
         $results = [];
-        $originalCommands = $this->repository->findByIds($duplicateCommandsCommand->commandIds);
 
         if (count($originalCommands) !== count($duplicateCommandsCommand->commandIds)) {
-            $foundIds = array_map(
-                fn (Command $command): int => $command->id()->value,
-                $originalCommands->toArray()
-            );
-            $requestedIds = array_map(
-                fn (CommandId $id): int => $id->value,
-                $duplicateCommandsCommand->commandIds
-            );
-            $missingIds = array_diff($requestedIds, $foundIds);
-            $results['missing'] = $missingIds;
+            $foundIds = [];
+            foreach ($originalCommands as $command) {
+                $foundIds[] = $command->id()->value;
+            }
+            $requestedIds = [];
+            foreach ($duplicateCommandsCommand->commandIds as $id) {
+                $requestedIds[] = $id->value;
+            }
+            $results['missing'] = array_diff($requestedIds, $foundIds);
         }
+
         $commandsToDuplicate = [];
         foreach ($originalCommands as $originalCommand) {
             if (! in_array($originalCommand->type->name, $duplicateCommandsCommand->allowedTypes, true)) {
