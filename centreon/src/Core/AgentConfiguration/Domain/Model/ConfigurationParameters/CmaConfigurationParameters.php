@@ -59,10 +59,11 @@ class CmaConfigurationParameters implements ConfigurationParametersInterface
 
     /**
      * @param array<string,mixed> $parameters
+     * @param bool $fromReadRepository
      *
      * @throws AssertionFailedException
      */
-    public function __construct(array $parameters)
+    public function __construct(array $parameters, bool $fromReadRepository = false)
     {
         /** @var _CmaParameters $parameters */
         $parameters = $this->normalizeCertificatePaths($parameters);
@@ -85,9 +86,13 @@ class CmaConfigurationParameters implements ConfigurationParametersInterface
                 $parameters['otel_ca_certificate'],
                 'configuration.otel_ca_certificate'
             );
-            Assertion::notEmpty($parameters['tokens'], 'configuration.tokens');
-            foreach ($parameters['tokens'] as $token) {
-                Assertion::notEmptyString($token['name']);
+
+            // $fromReadRepository allow configurations created before tokens was mandatoryto be read even without tokens
+            if (! $fromReadRepository) {
+                Assertion::notEmpty($parameters['tokens'], 'configuration.tokens');
+                foreach ($parameters['tokens'] as $token) {
+                    Assertion::notEmptyString($token['name']);
+                }
             }
         }
 
@@ -107,9 +112,12 @@ class CmaConfigurationParameters implements ConfigurationParametersInterface
                     'configuration.hosts[].poller_ca_name'
                 );
 
-                Assertion::notNull($host['token'], 'configuration.hosts[].token');
-                Assertion::notEmptyString($host['token']['name'] ?? '');
-                Assertion::positiveInt($host['token']['creator_id'] ?? 0);
+                // $fromReadRepository allow configurations created before tokens was mandatoryto be read even without tokens
+                if (! $fromReadRepository) {
+                    Assertion::notNull($host['token'], 'configuration.hosts[].token');
+                    Assertion::notEmptyString($host['token']['name'] ?? '');
+                    Assertion::positiveInt($host['token']['creator_id'] ?? 0);
+                }
             }
         }
 
