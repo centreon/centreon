@@ -96,7 +96,6 @@ const getCentreonStableMinorVersions = (
 
 const installDatabase = (): void => {
   if (Cypress.env('WEB_IMAGE_OS').includes('alma')) {
-    const osMatches = Cypress.env('WEB_IMAGE_OS').match(/alma(\d+)/);
     cy.execInContainer({
       command: [
         'dnf module enable -y mariadb:10.11',
