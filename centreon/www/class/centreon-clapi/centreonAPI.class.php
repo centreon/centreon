@@ -742,6 +742,7 @@ class CentreonAPI
                 }
             }
             $obj = new $objName($this->dependencyInjector);
+            var_dump($this->return_code);
             if (method_exists($obj, $action) || method_exists($obj, '__call')) {
                 $this->return_code = $obj->{$action}($this->variables);
             } else {
@@ -757,7 +758,9 @@ class CentreonAPI
         }
 
         if ($exit) {
-            echo 'Return code end : ' . $this->return_code . "\n";
+            if ( $this->return_code !== null) {
+                echo 'Return code end : ' . $this->return_code . "\n";
+            }
 
             exit($this->return_code);
         }
