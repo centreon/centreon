@@ -1,15 +1,76 @@
-Cypress.Commands.add('createAccWithMandatoryFields', () => {
-  cy.getByLabel({ label: 'Name', tag: 'input' }).type('Connector-001');
-  cy.get('#mui-component-select-type').should('have.text', 'VMWare 6/7');
+interface ACC {
+  name: string,
+  type: string,
+  pollers: string[],
+  user: string,
+  password: string,
+  vCenternames: string[],
+  url: string,
+  port: string
+}
+
+Cypress.Commands.add('createAccWithMandatoryFields', (body: ACC) => {
+  cy.getByLabel({ label: 'Name', tag: 'input' }).clear().type(body.name);
+  cy.get('#mui-component-select-type').should('have.text', body.type);
   cy.getByLabel({ label: 'Select poller(s)', tag: 'input' }).click();
-  cy.contains('Central').click();
-  cy.get('#Usernamevalue').type('admin');
-  cy.get('#Passwordvalue').type('Abcde!2021');
-  cy.get('#vCenternamevalue').clear().type('vCenter-001');
-  cy.get('#URLvalue').clear().type('https://10.0.0.0/sdk');
-  cy.get('#Portvalue').should('have.value', '5700');
-  cy.getByLabel({ label: 'Save', tag: 'button' }).click();
-  cy.wait('@addAdditionalConnector');
+  cy.contains(body.pollers[0]).click();
+  cy.get('#Usernamevalue').clear().type(body.user);
+  cy.get('#Passwordvalue').clear().type(body.password);
+  cy.get('#vCenternamevalue').clear().type(body.vCenternames[0]);
+  cy.get('#URLvalue').clear().type(body.url);
+  cy.get('#Portvalue').should('have.value', body.port);
+});
+
+Cypress.Commands.add('updateAcc', (body: ACC) => {
+  cy.getByLabel({ label: 'Name', tag: 'input' }).clear().type(body.name);
+  cy.get('#mui-component-select-type').should('have.text', body.type);
+  cy.getByLabel({ label: 'Select poller(s)', tag: 'input' }).click();
+  cy.get('svg[class*="deleteIcon"]').click();
+  cy.getByLabel({ label: 'Select poller(s)', tag: 'input' }).click().click();
+  cy.contains(body.pollers[0]).click();
+  cy.get('#Usernamevalue').clear().type(body.user);
+  // To edit the password now you shoud use the pen edit icon
+  cy.editvCenterPassword(body.password);
+  cy.get('#vCenternamevalue').clear().type(body.vCenternames[0]);
+  cy.get('#URLvalue').clear().type(body.url);
+  cy.get('#Portvalue').clear().click().type(body.port);
+})
+
+Cypress.Commands.add('editvCenterPassword', (value: string) => {
+  cy.getByTestId({testId: "button_edit", tag: "button"})
+    .click();
+  cy.get('#Passwordvalue')
+    .should('not.be.disabled')
+    .and('have.value', '');
+  cy.get('#Passwordvalue')
+    .clear()
+    .type(value);
+  cy.getByTestId({testId: "button_save", tag: "button"})
+    .click();
+});
+
+Cypress.Commands.add('verifyAccFieldValues', (body: ACC) => {
+  cy.getByLabel({ label: 'Name', tag: 'input' }).should(
+      'have.value',
+      body.name
+    );
+    cy.getByLabel({ label: 'Description', tag: 'input' }).should('be.empty');
+    cy.get('#mui-component-select-type').should('have.text', body.type);
+    cy.get('*[class^="MuiChip-label MuiChip-labelMedium"]').should(
+      'contain',
+      body.pollers[0]
+    );
+    cy.get('#Usernamevalue').should('have.value', body.user);
+    // The field password is now disabled and shows only * as  value
+    cy.get('#Passwordvalue')
+      .should('be.disabled')
+      .invoke('val')
+      .should((val) => {
+        expect(val).to.match(/^\*+$/);
+    }); 
+    cy.get('#vCenternamevalue').should('have.value', body.vCenternames[0]);
+    cy.get('#URLvalue').should('have.value', body.url);
+    cy.get('#Portvalue').should('have.value', body.port);
 });
 
 Cypress.Commands.add('saveAcc', () => {
@@ -86,7 +147,10 @@ declare global {
   // biome-ignore lint/style/noNamespace: <explanation>
   namespace Cypress {
     interface Chainable {
-      createAccWithMandatoryFields: () => Cypress.Chainable;
+      createAccWithMandatoryFields: (body: ACC) => Cypress.Chainable;
+      updateAcc: (body: ACC) => Cypress.Chainable;
+      editvCenterPassword: (value: string) => Cypress.Chainable;
+      verifyAccFieldValues: (body: ACC) => Cypress.Chainable;
       saveAcc: () => Cypress.Chainable;
       ensureConnectorInputValue: (
         expectedValue: string,
