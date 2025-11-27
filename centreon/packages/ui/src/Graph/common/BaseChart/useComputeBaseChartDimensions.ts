@@ -4,7 +4,7 @@ import { equals, isNil } from 'ramda';
 
 import useResizeObserver from 'use-resize-observer';
 import { margin } from '../../Chart/common';
-import { margins } from '../margins';
+import { useMarginTop } from '../useMarginTop';
 
 export const extraMargin = 10;
 
@@ -15,7 +15,10 @@ interface UseComputeBaseChartDimensionsProps {
   legendHeight?: number;
   legendPlacement?: string;
   width: number;
-  maxAxisCharacters: number;
+  maxLeftAxisCharacters: number;
+  maxRightAxisCharacters: number;
+  title?: string;
+  units: Array<string>;
 }
 
 interface UseComputeBaseChartDimensionsState {
@@ -32,16 +35,21 @@ export const useComputeBaseChartDimensions = ({
   legendPlacement,
   hasSecondUnit,
   legendHeight,
-  maxAxisCharacters
+  maxLeftAxisCharacters,
+  maxRightAxisCharacters,
+  units,
+  title
 }: UseComputeBaseChartDimensionsProps): UseComputeBaseChartDimensionsState => {
   const {
     ref: legendRef,
     width: legendRefWidth,
     height: legendRefHeight
   } = useResizeObserver();
-  const { height: titleRefHeight } = useResizeObserver();
+  const { ref: titleRef, height: titleRefHeight } = useResizeObserver();
 
   const currentLegendHeight = legendHeight ?? (legendRefHeight || 0);
+
+  const marginTop = useMarginTop({ title, units });
 
   const legendBoundingHeight =
     !equals(legendDisplay, false) &&
@@ -57,22 +65,19 @@ export const useComputeBaseChartDimensions = ({
   const graphWidth =
     width > 0
       ? width -
-        (hasSecondUnit ? maxAxisCharacters * 2 : maxAxisCharacters) * 6 -
-        (hasSecondUnit ? margins.left * 0.8 : margin.left) -
+        (hasSecondUnit ? maxRightAxisCharacters * 2 : maxRightAxisCharacters) *
+          6 -
+        (hasSecondUnit ? maxLeftAxisCharacters * 6 : margin.left) -
         legendBoundingWidth
       : 0;
   const graphHeight =
     (height || 0) > 0
-      ? (height || 0) -
-        margin.top -
-        legendBoundingHeight -
-        (titleRefHeight || 0) -
-        5
+      ? (height || 0) - marginTop - legendBoundingHeight - (titleRefHeight || 0)
       : 0;
-
   return {
     graphHeight,
     graphWidth,
-    legendRef
+    legendRef,
+    titleRef
   };
 };
