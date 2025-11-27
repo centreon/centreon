@@ -98,6 +98,7 @@ export interface WidgetPropertyProps {
   allowRegexOnResourceTypes?: Array<WidgetResourceType>;
   labelDisplayUpToOverride?: string;
   labelTilesOverride?: string;
+  allowEmptyResources?: boolean;
 }
 
 export interface WidgetDataResource {
