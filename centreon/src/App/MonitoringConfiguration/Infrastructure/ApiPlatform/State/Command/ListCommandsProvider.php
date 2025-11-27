@@ -99,8 +99,8 @@ final readonly class ListCommandsProvider implements ProviderInterface
 
         $criteria = $this->handleTypeFilter($allowedTypes, $criteria);
         $criteria = $this->handleNameFilter($filters['name'] ?? null, $criteria);
-        $criteria = $this->handleStatusFilter($filters['is_activated'] ?? null, $criteria);
-        $criteria = $this->handleLockedFilter($filters['is_from_monitoring_connector'] ?? null, $criteria);
+        $criteria = $this->handleIsActivatedFilter($filters['is_activated'] ?? null, $criteria);
+        $criteria = $this->handleIsFromMonitoringConnectorFilter($filters['is_from_monitoring_connector'] ?? null, $criteria);
         $criteria = $this->handleSort($filters, $criteria);
 
         $commands = $this->commandRepository->findAll($criteria);
@@ -174,27 +174,27 @@ final readonly class ListCommandsProvider implements ProviderInterface
         return $criteria;
     }
 
-    private function handleStatusFilter(?string $statusFilter, CommandCriteria $criteria): CommandCriteria
+    private function handleIsActivatedFilter(?string $isActivatedFilter, CommandCriteria $criteria): CommandCriteria
     {
-        if ($statusFilter === null) {
+        if ($isActivatedFilter === null) {
             return $criteria;
         }
 
-        $statusFilter = filter_var($statusFilter, FILTER_VALIDATE_BOOLEAN);
+        $isActivatedFilter = filter_var($isActivatedFilter, FILTER_VALIDATE_BOOLEAN);
 
-        return $criteria->withStatus($statusFilter);
+        return $criteria->withIsActivated($isActivatedFilter);
     }
 
-    private function handleLockedFilter(?string $lockedFilter, CommandCriteria $criteria): CommandCriteria
+    private function handleIsFromMonitoringConnectorFilter(?string $isFromMonitoringConnectorFilter, CommandCriteria $criteria): CommandCriteria
     {
-        if ($lockedFilter === null) {
+        if ($isFromMonitoringConnectorFilter === null) {
             return $criteria;
         }
 
-        $lockedFilter = filter_var($lockedFilter, FILTER_VALIDATE_BOOLEAN);
+        $isFromMonitoringConnectorFilter = filter_var($isFromMonitoringConnectorFilter, FILTER_VALIDATE_BOOLEAN);
 
-        return $lockedFilter
-            ? $criteria->withLocked(true)
+        return $isFromMonitoringConnectorFilter
+            ? $criteria->withIsFromMonitoringConnector(true)
             : $criteria;
     }
 }

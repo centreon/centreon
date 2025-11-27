@@ -126,7 +126,7 @@ final readonly class DbalCommandRepository extends DbalRepository implements Com
             ->from(self::TABLE_NAME, 'cm');
 
         // only fetch unlocked commands unless getLocked is true
-        if ($criteria?->getLocked() !== true) {
+        if ($criteria?->getIsFromMonitoringConnector() !== true) {
             $qb->where('command_locked = :command_locked')
                 ->setParameter('command_locked', '0');
         }
@@ -313,9 +313,9 @@ final readonly class DbalCommandRepository extends DbalRepository implements Com
             ));
         }
 
-        if ($criteria->getStatus() !== null) {
+        if ($criteria->getIsActivated() !== null) {
             $qb->andWhere('cm.command_activate = :command_activate');
-            $qb->setParameter('command_activate', $criteria->getStatus() ? '1' : '0');
+            $qb->setParameter('command_activate', $criteria->getIsActivated() ? '1' : '0');
         }
 
         $this->sort($qb, 'cm', $criteria);
