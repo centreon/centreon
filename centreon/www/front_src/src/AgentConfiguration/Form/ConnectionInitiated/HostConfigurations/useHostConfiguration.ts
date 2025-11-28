@@ -22,7 +22,8 @@ interface UseHostConfigurationState {
   ) => (event: ChangeEvent<HTMLInputElement>) => void;
   hostErrors: Partial<HostConfiguration> | undefined;
   hostTouched: Partial<HostConfiguration> | undefined;
-  areCertificateFieldsVisible: boolean;
+  isInsecureMode: boolean;
+  isSecureMode: boolean;
   changeCMAToken: (_, tokens: Array<SelectEntry>) => void;
   token: { id: string; name: string };
 }
@@ -120,9 +121,14 @@ export const useHostConfiguration = ({
     [touched, index]
   );
 
-  const areCertificateFieldsVisible =
-    equals(values?.connectionMode?.id, ConnectionMode.secure) ||
-    equals(values?.connectionMode?.id, ConnectionMode.insecure);
+  const isSecureMode = equals(
+    values?.connectionMode?.id,
+    ConnectionMode.secure
+  );
+  const isInsecureMode = equals(
+    values?.connectionMode?.id,
+    ConnectionMode.insecure
+  );
 
   return {
     changeAddress,
@@ -131,7 +137,8 @@ export const useHostConfiguration = ({
     selectHost,
     hostErrors,
     hostTouched,
-    areCertificateFieldsVisible,
+    isInsecureMode,
+    isSecureMode,
     changeCMAToken,
     token
   };
