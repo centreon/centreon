@@ -100,22 +100,22 @@ export const getResourcesUrl = ({
 }: GetResourcesUrlProps): string => {
   const resourcesCriterias = equals(type, 'all')
     ? {
-      name: 'resource_types',
-      value: [
-        { id: 'service', name: 'Service' },
-        { id: 'host', name: 'Host' },
-        { id: 'metaservice', name: 'Meta service' }
-      ]
-    }
+        name: 'resource_types',
+        value: [
+          { id: 'service', name: 'Service' },
+          { id: 'host', name: 'Host' },
+          { id: 'metaservice', name: 'Meta service' }
+        ]
+      }
     : {
-      name: 'resource_types',
-      value: [
-        {
-          id: type,
-          name: `${type?.charAt(0).toUpperCase()}${type?.slice(1)}`
-        }
-      ]
-    };
+        name: 'resource_types',
+        value: [
+          {
+            id: type,
+            name: `${type?.charAt(0).toUpperCase()}${type?.slice(1)}`
+          }
+        ]
+      };
 
   const formattedStatuses = pipe(
     map((status) => formatStatusFilter(status)),
@@ -345,10 +345,10 @@ export const getWidgetEndpoint = ({
   if (isOnPublicPage && playlistHash) {
     const extraqueryParametersStringified = extraQueryParameters
       ? toPairs(extraQueryParameters).reduce(
-        (acc, [key, value]) =>
-          `${acc}&${key as string}=${encodeURIComponent(JSON.stringify(value))}`,
-        '?'
-      )
+          (acc, [key, value]) =>
+            `${acc}&${key as string}=${encodeURIComponent(JSON.stringify(value))}`,
+          '?'
+        )
       : '';
 
     return getPublicWidgetEndpoint({
