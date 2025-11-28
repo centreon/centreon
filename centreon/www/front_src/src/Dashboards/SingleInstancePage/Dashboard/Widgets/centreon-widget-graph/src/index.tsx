@@ -17,7 +17,8 @@ const Input = ({
   playlistHash,
   dashboardId,
   widgetPrefixQuery,
-  isFromPreview
+  isFromPreview,
+  isInViewport
 }: Props): JSX.Element => {
   return (
     <LineChart
@@ -30,6 +31,7 @@ const Input = ({
       refreshCount={refreshCount}
       widgetPrefixQuery={widgetPrefixQuery}
       isFromPreview={isFromPreview}
+      isInViewport={isInViewport}
     />
   );
 };

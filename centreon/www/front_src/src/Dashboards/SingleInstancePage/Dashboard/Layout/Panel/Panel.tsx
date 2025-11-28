@@ -35,6 +35,7 @@ interface Props {
   name: string;
   playlistHash?: string;
   refreshCount?: number;
+  isInViewport: boolean;
 }
 
 const Panel = ({
@@ -42,7 +43,8 @@ const Panel = ({
   name,
   refreshCount,
   playlistHash,
-  dashboardId
+  dashboardId,
+  isInViewport
 }: Props): JSX.Element => {
   const { classes, cx } = usePanelHeaderStyles();
 
@@ -145,6 +147,7 @@ const Panel = ({
               saveDashboard={saveDashboard}
               setPanelOptions={changePanelOptions}
               widgetPrefixQuery={widgetPrefixQuery}
+              isInViewport={isInViewport}
             />
           ) : (
             <Suspense
@@ -173,6 +176,7 @@ const Panel = ({
                 saveDashboard={saveDashboard}
                 setPanelOptions={changePanelOptions}
                 widgetPrefixQuery={widgetPrefixQuery}
+                isInViewport={isInViewport}
               />
             </Suspense>
           )}
@@ -187,7 +191,8 @@ const Panel = ({
       refreshInterval,
       canEditField,
       playlistHash,
-      dashboardId
+      dashboardId,
+      isInViewport
     ]
   });
 };

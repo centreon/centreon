@@ -37,6 +37,7 @@ interface UseMetricsQueryProps {
     timePeriodType: number;
   };
   isEnabled?: boolean;
+  enforceIsEnabled?: boolean;
 }
 
 interface UseMetricsQueryState {
@@ -66,9 +67,9 @@ const isCustomTimePeriod = (
   timePeriod:
     | number
     | {
-        end?: string | null;
-        start?: string | null;
-      }
+      end?: string | null;
+      start?: string | null;
+    }
 ): boolean => has('end', timePeriod) && has('start', timePeriod);
 
 interface PerformanceGraphData extends Omit<LineChartData, 'global'> {
@@ -103,13 +104,14 @@ const useGraphQuery = ({
   refreshCount,
   bypassQueryParams = false,
   prefix,
-  isEnabled = true
+  isEnabled = true,
+  enforceIsEnabled
 }: UseMetricsQueryProps): UseMetricsQueryState => {
   const timePeriodToUse = equals(timePeriod?.timePeriodType, -1)
     ? {
-        end: timePeriod.end,
-        start: timePeriod.start
-      }
+      end: timePeriod.end,
+      start: timePeriod.start
+    }
     : timePeriod?.timePeriodType;
 
   const startAndEnd = isCustomTimePeriod(timePeriodToUse)
@@ -161,9 +163,10 @@ const useGraphQuery = ({
     ],
     queryOptions: {
       enabled:
-        areResourcesFullfilled(resources) &&
-        !isEmpty(definedMetrics) &&
-        isEnabled,
+        enforceIsEnabled ??
+        (areResourcesFullfilled(resources) &&
+          !isEmpty(definedMetrics) &&
+          isEnabled),
       refetchInterval: refreshInterval,
       suspense: false
     },
@@ -183,13 +186,13 @@ const useGraphQuery = ({
     return bypassMetricsExclusion
       ? data.current.metrics
       : data.current.metrics.filter(({ metric_id }) => {
-          return pipe(
-            pluck('excludedMetrics'),
-            flatten,
-            includes(metric_id),
-            not
-          )(metrics);
-        });
+        return pipe(
+          pluck('excludedMetrics'),
+          flatten,
+          includes(metric_id),
+          not
+        )(metrics);
+      });
   };
 
   const formatLegend = ({
@@ -271,13 +274,13 @@ const useGraphQuery = ({
 
   const formattedGraphData = data.current
     ? {
-        global: {
-          base: data.current.base,
-          title: ''
-        },
-        metrics: getFormattedMetrics(),
-        times: data.current.times
-      }
+      global: {
+        base: data.current.base,
+        title: ''
+      },
+      metrics: getFormattedMetrics(),
+      times: data.current.times
+    }
     : undefined;
 
   const { end, start } = isCustomTimePeriod(timePeriodToUse)

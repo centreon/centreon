@@ -12,7 +12,6 @@ import { useAtomValue } from 'jotai';
 import { equals, isNil, omit, type } from 'ramda';
 
 import { Card, useTheme } from '@mui/material';
-import LoadingSkeleton from '../LoadingSkeleton';
 import ExpandableContainer from '../components/ExpandableContainer';
 import { Parameters } from '../components/ExpandableContainer/models';
 import { useMemoComponent, useViewportIntersection } from '../utils';
@@ -22,7 +21,7 @@ import { isResizingItemAtom } from './atoms';
 interface DashboardItemProps {
   additionalMemoProps?: Array<unknown>;
   canMove?: boolean;
-  children: ReactElement;
+  children: Array<ReactElement | (({ isInViewport }) => ReactElement)>;
   className?: string;
   disablePadding?: boolean;
   header?: ReactElement | ((params: Parameters) => ReactElement);
@@ -107,12 +106,12 @@ const Item = forwardRef<HTMLDivElement, DashboardItemProps>(
 
               const childrenHeader = equals(type(header), 'Function')
                 ? (header as (params: Parameters) => ReactElement)({
-                    isExpanded,
-                    label,
-                    ref,
-                    key,
-                    ...rest
-                  })
+                  isExpanded,
+                  label,
+                  ref,
+                  key,
+                  ...rest
+                })
                 : header;
 
               return (
@@ -142,15 +141,10 @@ const Item = forwardRef<HTMLDivElement, DashboardItemProps>(
                         !disablePadding && classes.widgetPadding
                       )}
                     >
-                      {!isInViewport ? (
-                        <LoadingSkeleton
-                          animation={false}
-                          data-widget-skeleton={id}
-                          height="100%"
-                          width="100%"
-                        />
-                      ) : (
-                        children
+                      {children.map((child) =>
+                        typeof child === 'function'
+                          ? child({ isInViewport })
+                          : child
                       )}
                     </div>
                   </Card>
@@ -162,14 +156,14 @@ const Item = forwardRef<HTMLDivElement, DashboardItemProps>(
       ),
       memoProps: isInViewport
         ? [
-            style,
-            className,
-            header,
-            theme.palette.mode,
-            canMove,
-            isInViewport,
-            ...additionalMemoProps
-          ]
+          style,
+          className,
+          header,
+          theme.palette.mode,
+          canMove,
+          isInViewport,
+          ...additionalMemoProps
+        ]
         : [isInViewport, theme.palette.mode, style]
     });
   }

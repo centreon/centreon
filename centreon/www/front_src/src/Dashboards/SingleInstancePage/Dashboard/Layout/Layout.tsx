@@ -11,6 +11,7 @@ import { useAtomValue } from 'jotai';
 import { federatedWidgetsPropertiesAtom } from '../../../../federatedModules/atoms';
 import DashboardPanel from './Panel/Panel';
 import PanelHeader from './Panel/PanelHeader';
+import { Add } from '@mui/icons-material';
 
 interface Props {
   canEdit?: boolean;
@@ -102,17 +103,20 @@ const PanelsLayout = ({
             id={i}
             key={i}
           >
-            {panelConfiguration?.isAddWidgetPanel ? (
-              <AddWidgetPanel />
-            ) : (
-              <DashboardPanel
-                dashboardId={dashboardId}
-                id={i}
-                playlistHash={playlistHash}
-                refreshCount={refreshCount}
-                name={name}
-              />
-            )}
+            {({ isInViewport }) =>
+              panelConfiguration?.isAddWidgetPanel ? (
+                <AddWidgetPanel />
+              ) : (
+                <DashboardPanel
+                  dashboardId={dashboardId}
+                  id={i}
+                  playlistHash={playlistHash}
+                  refreshCount={refreshCount}
+                  name={name}
+                  isInViewport={isInViewport}
+                />
+              )
+            }
           </DashboardLayout.Item>
         )
       )}

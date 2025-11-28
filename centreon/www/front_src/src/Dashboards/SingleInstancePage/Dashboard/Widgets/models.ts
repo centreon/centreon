@@ -87,6 +87,7 @@ export interface CommonWidgetProps<T extends object> {
   refreshCount: number;
   setPanelOptions?: (panelOptions: Partial<T>) => void;
   widgetPrefixQuery: string;
+  isInViewport: boolean;
 }
 
 export type StatusDetail = {
