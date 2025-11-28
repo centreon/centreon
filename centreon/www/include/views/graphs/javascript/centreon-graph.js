@@ -182,7 +182,7 @@
         };
       }
 
-      if (data.metrics.length > 15) {
+      if (data.metrics.length > 20) {
           datasToAppend = {
             x: parsedData.data.x,
             columns: [],
@@ -191,8 +191,9 @@
             colors: {},
             regions: {},
             order: null,
-            empty: { label: { text: "Too many metrics, the chart can't be displayed" } }
+            empty: { label: { text: this.settings.tooManyMetricsMessage.replace("(X)", "(" + data.metrics.length + ")") } }
           }
+          this.legendDiv.hide();
       } else {
           datasToAppend = parsedData.data;
       }
@@ -232,16 +233,18 @@
         }
       });
 
-      if (data.metrics.length > 15) {
+      if (data.metrics.length > 20) {
           jQuery("#display-graph-" + self.id).css('display', 'block');
           jQuery("#display-graph-" + self.id).on('click', function (e){
               self.chart.load(parsedData.data)
               self.chart.regions(self.buildRegions(data));
+              self.buildLegend(data.metrics);
+              self.legendDiv.show();
               jQuery(this).css('display', 'none');
           });
+      } else {
+         this.buildLegend(data.metrics);
       }
-
-      this.buildLegend(data.metrics);
     },
     /**
      * Load data from rest api in ajax

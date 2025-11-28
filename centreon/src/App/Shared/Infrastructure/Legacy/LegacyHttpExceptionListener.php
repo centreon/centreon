@@ -24,15 +24,27 @@ declare(strict_types=1);
 namespace App\Shared\Infrastructure\Legacy;
 
 use ApiPlatform\Validator\Exception\ValidationException;
+use Centreon\Domain\Exception\EntityNotFoundException;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
+use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
+use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 #[AsEventListener]
 final readonly class LegacyHttpExceptionListener
 {
+    /**
+     * @var array<class-string, int>
+     */
+    private const LEGACY_EXCEPTION_TO_STATUS = [
+        AccessDeniedException::class => 403,
+        EntityNotFoundException::class => 404,
+        MethodNotAllowedHttpException::class => 404,
+    ];
+
     /**
      * @param array<class-string, int> $exceptionToStatus
      */
@@ -45,11 +57,16 @@ final readonly class LegacyHttpExceptionListener
     public function __invoke(ExceptionEvent $event): void
     {
         $exception = $event->getThrowable();
-        if (! $exception instanceof HttpExceptionInterface) {
+
+        // this case is handled by LegacyValidationExceptionNormalizer
+        if ($exception instanceof ValidationException) {
             return;
         }
 
-        $statusCode = $exception->getStatusCode();
+        // get status code from exception
+        $statusCode = $exception instanceof HttpExceptionInterface ? $exception->getStatusCode() : null;
+
+        // try to override status code by API Platform
         foreach ($this->exceptionToStatus as $class => $status) {
             if (is_a($exception::class, $class, true)) {
                 $statusCode = $status;
@@ -58,15 +75,27 @@ final readonly class LegacyHttpExceptionListener
             }
         }
 
-        // this case is handled by LegacyValidationExceptionNormalizer
-        if ($exception instanceof ValidationException) {
-            return;
+        // if still no status code, try to fetch it from legacy exception mapping
+        if (! $statusCode) {
+            foreach (self::LEGACY_EXCEPTION_TO_STATUS as $class => $status) {
+                if (is_a($exception::class, $class, true)) {
+                    $statusCode = $status;
+
+                    break;
+                }
+            }
+        }
+
+        // if still no status code, compute it from the exception (legacy way)
+        if (! $statusCode) {
+            $errorCode = $exception->getCode();
+            $statusCode = (is_int($errorCode) && $errorCode >= 100 && $errorCode < 600) ? $errorCode : 500;
         }
 
         $event->setResponse(new JsonResponse(
             status: $statusCode,
             data: [
-                'code' => $statusCode,
+                'code' => $exception->getCode(),
                 'message' => $exception->getMessage(),
             ],
         ));
