@@ -93,7 +93,8 @@
       "type": "resources",
       "defaultValue": [],
       "required": false,
-      "allowRegexOnResourceTypes": ["host", "service"]
+      "allowRegexOnResourceTypes": ["host", "service"],
+      "allowEmptyResources": true
     }
   },
   "categories": {

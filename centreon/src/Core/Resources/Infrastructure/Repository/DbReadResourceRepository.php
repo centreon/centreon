@@ -1148,7 +1148,7 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
         ) {
             $subRequest = ' AND EXISTS (
                 SELECT 1 FROM `:dbstg`.severities
-                WHERE severities.severity_id = resources.severity_id
+                WHERE (severities.severity_id = resources.severity_id OR severities.severity_id = parent_resource.severity_id)
                     AND severities.type IN (' . implode(', ', $filteredTypes) . ')';
 
             $subRequest .= $filteredNames !== []

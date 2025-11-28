@@ -19,6 +19,10 @@
  *
  */
 
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
+use Core\Security\AccessGroup\Domain\Collection\AccessGroupCollection;
+
 header('Content-type: application/csv');
 header('Content-Disposition: attachment; filename="hostgroups-monitoring.csv"');
 
@@ -29,7 +33,6 @@ require_once $centreon_path . 'www/class/centreonSession.class.php';
 require_once $centreon_path . 'www/class/centreonWidget.class.php';
 require_once $centreon_path . 'www/class/centreonDuration.class.php';
 require_once $centreon_path . 'www/class/centreonUtils.class.php';
-require_once $centreon_path . 'www/class/centreonACL.class.php';
 require_once $centreon_path . 'www/include/common/sqlCommonFunction.php';
 require_once $centreon_path . 'www/widgets/hostgroup-monitoring/src/class/HostgroupMonitoring.class.php';
 
@@ -37,8 +40,12 @@ session_start();
 if (! isset($_SESSION['centreon']) || ! isset($_REQUEST['widgetId'])) {
     exit;
 }
-$db = new CentreonDB();
-if (CentreonSession::checkSession(session_id(), $db) == 0) {
+
+/**
+ * @var CentreonDB $configurationDatabase
+ */
+$configurationDatabase = new CentreonDB();
+if (CentreonSession::checkSession(session_id(), $configurationDatabase) == 0) {
     exit;
 }
 
@@ -52,24 +59,62 @@ if ($widgetId === false) {
     throw new InvalidArgumentException('Widget ID must be an integer');
 }
 
-$dbb = $dependencyInjector['realtime_db'];
-$widgetObj = new CentreonWidget($centreon, $db);
-$sgMonObj = new HostgroupMonitoring($dbb);
+/**
+ * @var CentreonDB $realtimeDatabase
+ */
+$realtimeDatabase = $dependencyInjector['realtime_db'];
+$widgetObj = new CentreonWidget($centreon, $configurationDatabase);
+$hostGroupService = new HostgroupMonitoring($realtimeDatabase);
 $preferences = $widgetObj->getWidgetPreferences($widgetId);
-$aclObj = new CentreonACL($centreon->user->user_id, $centreon->user->admin);
 
-$hostStateLabels = [0 => 'Up', 1 => 'Down', 2 => 'Unreachable', 4 => 'Pending'];
+$hostStateLabels = [
+    0 => 'Up',
+    1 => 'Down',
+    2 => 'Unreachable',
+    4 => 'Pending',
+];
 
-$serviceStateLabels = [0 => 'Ok', 1 => 'Warning', 2 => 'Critical', 3 => 'Unknown', 4 => 'Pending'];
+$serviceStateLabels = [
+    0 => 'Ok',
+    1 => 'Warning',
+    2 => 'Critical',
+    3 => 'Unknown',
+    4 => 'Pending',
+];
 
 const ORDER_DIRECTION_ASC = 'ASC';
 const ORDER_DIRECTION_DESC = 'DESC';
+
+$accessGroups = new AccessGroupCollection();
+
+if (! $centreon->user->admin) {
+    $acls = new CentreonAclLazy($centreon->user->user_id);
+    $accessGroups->mergeWith($acls->getAccessGroups());
+}
 
 try {
     $columns = 'SELECT DISTINCT 1 AS REALTIME, name ';
     $baseQuery = ' FROM hostgroups';
 
-    $bindParams = [];
+    $queryParameters = [];
+
+    if (! $centreon->user->admin) {
+        $accessGroupsList = implode(',', $accessGroups->getIds());
+        $configurationDatabaseName = $configurationDatabase->getConnectionConfig()->getDatabaseNameConfiguration();
+        $baseQuery .= <<<SQL
+                INNER JOIN {$configurationDatabaseName}.acl_resources_hg_relations arhr
+                    ON hostgroups.hostgroup_id = arhr.hg_hg_id
+                INNER JOIN {$configurationDatabaseName}.acl_resources res
+                    ON arhr.acl_res_id = res.acl_res_id
+                INNER JOIN {$configurationDatabaseName}.acl_res_group_relations argr
+                    ON res.acl_res_id = argr.acl_res_id
+                INNER JOIN {$configurationDatabaseName}.acl_groups ag
+                    ON argr.acl_group_id = ag.acl_group_id
+                    AND ag.acl_group_id IN ({$accessGroupsList})
+            SQL;
+
+    }
+
     if (isset($preferences['hg_name_search']) && trim($preferences['hg_name_search']) !== '') {
         $tab = explode(' ', $preferences['hg_name_search']);
         $op = $tab[0];
@@ -81,15 +126,10 @@ try {
                 $baseQuery,
                 'name ' . CentreonUtils::operandToMysqlFormat($op) . ' :search '
             );
-            $bindParams[':search'] = [$search, PDO::PARAM_STR];
+            $queryParameters[] = QueryParameter::string('search', $search);
         }
     }
 
-    if (! $centreon->user->admin) {
-        [$bindValues, $bindQuery] = createMultipleBindQuery($aclObj->getHostGroups(), ':hostgroup_name_', PDO::PARAM_STR);
-        $baseQuery = CentreonUtils::conditionBuilder($baseQuery, "name IN ({$bindQuery})");
-        $bindParams = array_merge($bindParams, $bindValues);
-    }
     $orderby = 'name ' . ORDER_DIRECTION_ASC;
 
     $allowedOrderColumns = ['name'];
@@ -116,31 +156,15 @@ try {
     $query = $columns . $baseQuery;
     $query .= " ORDER BY {$orderby}";
 
-    // Execute count query
-    if ($bindParams !== []) {
-        $countStatement = $dbb->prepareQuery($countQuery);
-        $dbb->executePreparedQuery($countStatement, $bindParams, true);
-    } else {
-        $countStatement = $dbb->executeQuery($countQuery);
-    }
-
-    $nbRows = (int) $dbb->fetchColumn($countStatement);
-
-    // Execute main query
-    if ($bindParams !== []) {
-        $statement = $dbb->prepareQuery($query);
-        $dbb->executePreparedQuery($statement, $bindParams, true);
-    } else {
-        $statement = $dbb->executeQuery($query);
-    }
+    $nbRows = (int) $realtimeDatabase->fetchOne($countQuery, QueryParameters::create($queryParameters));
 
     $detailMode = false;
     if (isset($preferences['enable_detailed_mode']) && $preferences['enable_detailed_mode']) {
         $detailMode = true;
     }
     $data = [];
-    while ($row = $dbb->fetch($statement)) {
-        $name = HtmlSanitizer::createFromString($row['name'])->sanitize()->getString();
+    foreach ($realtimeDatabase->iterateAssociative($query, QueryParameters::create($queryParameters)) as $record) {
+        $name = HtmlSanitizer::createFromString($record['name'])->sanitize()->getString();
         $data[$name]['name'] = $name;
     }
 } catch (CentreonDbException $e) {
@@ -153,8 +177,18 @@ try {
     throw new Exception('Error fetching hostgroup monitoring usage data for export: ' . $e->getMessage());
 }
 
-$sgMonObj->getHostStates($data, $centreon->user->admin, $aclObj, $preferences, $detailMode);
-$sgMonObj->getServiceStates($data, $centreon->user->admin, $aclObj, $preferences, $detailMode);
+$hostGroupService->getHostStates(
+    $data,
+    $centreon->user->admin === '1',
+    $accessGroups,
+    $detailMode,
+);
+$hostGroupService->getServiceStates(
+    $data,
+    $centreon->user->admin === '1',
+    $accessGroups,
+    $detailMode,
+);
 
 $template->assign('preferences', $preferences);
 $template->assign('hostStateLabels', $hostStateLabels);

@@ -43,7 +43,7 @@ jobs:
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
 
       - name: List of specs
         id: list-specs
@@ -62,14 +62,14 @@ jobs:
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
 
       - uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # v4.1.0
         with:
           version: 10
           run_install: false
 
-      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
         with:
           node-version: 20
           cache: pnpm
@@ -105,6 +105,18 @@ jobs:
           publish-summary: false
           env: codeCoverageTasksRegistered=true
 
+      - name: Move retries.json to reports directory and display warnings
+        if: ${{ ! cancelled() }}
+        run: |
+          retriesFile="${{ inputs.module_name }}/cypress/results/retries.json"
+          if [ -f "$retriesFile" ]; then
+            jq 'to_entries | .[].key' $retriesFile | while read -r testName; do
+              echo "::warning::Following test was retried during execution: $testName (retries: $(jq ".$testName" $retriesFile))"
+            done
+            mv $retriesFile "${{ inputs.module_name }}/cypress/results/${{ matrix.spec }}-retries.json"
+          fi
+        shell: bash
+
       - name: Archive test results
         uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
         if: ${{ failure() }}
@@ -117,7 +129,7 @@ jobs:
           retention-days: 1
 
       - name: Archive test reports
-        if: ${{ failure() }}
+        if: ${{ ! cancelled() }}
         uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
         with:
           name: ${{ inputs.name }}-component-test-reports-${{ matrix.spec }}
@@ -137,24 +149,26 @@ jobs:
 
   cypress-component-coverage-report:
     needs: [cypress-component-test-run]
-    if: always()
+    if: |
+      ! cancelled() &&
+      ! contains(needs.*.result, 'cancelled')
     runs-on: ubuntu-24.04
 
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
 
       - uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # v4.1.0
         with:
           version: 10
 
       - name: Download coverage reports
-        uses: actions/download-artifact@87c55149d96e628cc2ef7e6fc2aab372015aec85 # v4.1.3
+        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5.0.0
         with:
           pattern: ${{ inputs.name }}-component-test-coverage-*
           path: coverage/
           merge-multiple: true
 
-      - uses: aws-actions/configure-aws-credentials@b47578312673ae6fa5b5096b330d9fbac3d116df # v4.2.1
+      - uses: aws-actions/configure-aws-credentials@a03048d87541d1d9fcf2ecf528a4a65ba9bd7838 # v5.0.0
         if: ${{ github.event_name == 'pull_request' || github.ref_name == 'develop' }}
         with:
           aws-region: eu-west-1
@@ -225,18 +239,20 @@ jobs:
 
   cypress-component-test-report:
     needs: [cypress-component-test-run]
-    if: failure()
+    if: |
+      ! cancelled() &&
+      ! contains(needs.*.result, 'cancelled')
     runs-on: ubuntu-24.04
 
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
 
       - uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # v4.1.0
         with:
           version: 10
 
       - name: Download Artifacts
-        uses: actions/download-artifact@87c55149d96e628cc2ef7e6fc2aab372015aec85 # v4.1.3
+        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5.0.0
         with:
           pattern: ${{ inputs.name }}-component-test-reports-*
           path: ${{ inputs.name }}-json-reports
@@ -244,19 +260,58 @@ jobs:
 
       - name: Merge reports
         run: |
-          pnpx mochawesome-merge "${{ inputs.name }}-json-reports/**/*.json" > mochawesome.json
+          pnpx mochawesome-merge "${{ inputs.name }}-json-reports/**/*-report.json" > mochawesome.json
+
+          if ls ${{ inputs.name }}-json-reports/**/*retries.json 1> /dev/null 2>&1; then
+            cat ${{ inputs.name }}-json-reports/**/*retries.json | jq -s add > retries.json
+          else
+            echo "{}" > retries.json
+          fi
         shell: bash
 
       - name: Publish report
+        if: needs.cypress-component-test-run.result == 'failure'
         uses: ./.github/actions/publish-report
         with:
           check_name: ${{ inputs.name }}-report
           path: mochawesome.json
           format: cypress
 
+      - name: Display retries summary
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        with:
+          script: |
+            const fs = require('fs');
+            const retriesFile = 'retries.json';
+            const retries = JSON.parse(fs.readFileSync(retriesFile, 'utf8'));
+            if (Object.keys(retries).length > 0) {
+              const outputTable = [
+                [{data: 'Feature', header: true}, {data: 'Scenario', header: true}, {data: 'Retries', header: true}],
+              ];
+              const warningTitle = `${Object.keys(retries).length} tests were retried during execution`;
+
+              let warningBody = JSON.stringify(retries, null, 2);
+              for (const testName in retries) {
+                const featureName = testName.split('>')[0];
+                const scenarioName = testName.split('>').slice(1).join('>');
+                outputTable.push([featureName, scenarioName, String(retries[testName])]);
+              }
+
+              // Display json to allow collect of metrics
+              core.warning(warningBody, { title: warningTitle });
+
+              core.summary
+                .addHeading(`Retries Summary`)
+                .addTable(outputTable)
+                .addDetails(`Content of ${retriesFile}`, fs.readFileSync(retriesFile, 'utf8'))
+                .write();
+            }
+
   regroup-artifacts:
     needs: [cypress-component-coverage-report, cypress-component-test-report, cypress-component-test-run]
-    if: always()
+    if: |
+      ! cancelled() &&
+      ! contains(needs.*.result, 'cancelled')
     runs-on: ubuntu-24.04
     strategy:
       fail-fast: false

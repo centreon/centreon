@@ -4,7 +4,7 @@
 OPTIONS="hst:v:r:l:p:d:V:"
 declare -A SUPPORTED_LOG_LEVEL=([DEBUG]=0 [INFO]=1 [WARN]=2 [ERROR]=3)
 declare -A SUPPORTED_TOPOLOGY=([central]=1 [poller]=1)
-declare -A SUPPORTED_VERSION=([23.10]=1 [24.04]=1 [24.10]=1)
+declare -A SUPPORTED_VERSION=([23.10]=1 [24.04]=1 [24.10]=1 [25.10]=1)
 declare -A SUPPORTED_REPOSITORY=([testing-hotfix]=1 [testing-release]=1 [unstable]=1 [stable]=1)
 declare -A SUPPORTED_DBMS=([MariaDB]=1 [MySQL]=1)
 default_timeout_in_sec=5
@@ -18,7 +18,7 @@ passwords_file=/etc/centreon/generated.tobesecured         #File where the gener
 tmp_passwords_file=$(mktemp /tmp/generated.XXXXXXXXXXXXXX) #Random tmp file as the /etc/centreon does not exist yet
 
 topology=${ENV_CENTREON_TOPOLOGY:-"central"}    #Default topology to be installed
-version=${ENV_CENTREON_VERSION:-"24.10"}        #Default version to be installed
+version=${ENV_CENTREON_VERSION:-"25.10"}        #Default version to be installed
 repo=${ENV_CENTREON_REPO:-"stable"}             #Default repository to be used
 dbms=${ENV_CENTREON_DBMS:-"MariaDB"}            #Default database system to be used
 operation=${ENV_CENTREON_OPERATION:-"install"}  #Default operation to be executed
@@ -85,7 +85,7 @@ function usage() {
 	echo
 	echo "Usage:"
 	echo
-	echo " $script_short_name [install|update (default: install)] [-t <central|poller> (default: central)] [-v <24.10> (default: 24.10)] [-r <stable|testing-hotfix|testing-release|unstable> (default: stable)] [-d <MariaDB|MySQL> (default: MariaDB)] [-l <DEBUG|INFO|WARN|ERROR>] [-s (for silent install)] [-p <centreon admin password>] [-h (show this help output)] [-V configure a vault, using format <address>;<port>;<root_path>;<role_id>;<secret_id>]"
+	echo " $script_short_name [install|update (default: install)] [-t <central|poller> (default: central)] [-v <25.10> (default: 25.10)] [-r <stable|testing-hotfix|testing-release|unstable> (default: stable)] [-d <MariaDB|MySQL> (default: MariaDB)] [-l <DEBUG|INFO|WARN|ERROR>] [-s (for silent install)] [-p <centreon admin password>] [-h (show this help output)] [-V configure a vault, using format <address>;<port>;<root_path>;<role_id>;<secret_id>]"
 	echo
 	echo Example:
 	echo
@@ -384,11 +384,11 @@ function set_mariadb_repos() {
 	log "INFO" "Install MariaDB repository"
 
 	case $version in
-	"24.04" | "24.10")
-		detected_mariadb_version="10.11"
+	"23.10")
+		detected_mariadb_version="10.5"
 	;;
 	*)
-		detected_mariadb_version="10.5"
+		detected_mariadb_version="10.11"
 	;;
 	esac
 
@@ -398,7 +398,7 @@ function set_mariadb_repos() {
 		distrib_codename=$(awk -F'=' '/DISTRIB_CODENAME/ {print $2}' /etc/lsb-release)
 		curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup | bash -s -- --os-type=ubuntu --os-version="$distrib_codename" --mariadb-server-version="$detected_mariadb_version" --skip-maxscale
 	else
-		curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup | bash -s -- --mariadb-server-version="$detected_mariadb_version" --skip-maxscale
+	    dnf module enable mariadb:$detected_mariadb_version -y -q
 	fi
 	if [ $? -ne 0 ]; then
 		error_and_exit "Could not install the $dbms repository"
@@ -494,7 +494,7 @@ function set_required_prerequisite() {
 						$PKG_MGR module install php:remi-8.1 -y -q
 						$PKG_MGR module enable php:remi-8.1 -y -q
 						;;
-					"24.10")
+					"24.10" | "25.10")
 						log "INFO" "Installing PHP 8.2 and enable it"
 						$PKG_MGR module reset php -y -q
 						$PKG_MGR module install php:8.2 -y -q
@@ -508,7 +508,7 @@ function set_required_prerequisite() {
 			;;
 
 		9*)
-			if ! [[ "$version" == "23.10" || "$version" == "24.04" || "$version" == "24.10" ]]; then
+			if ! [[ "$version" == "23.10" || "$version" == "24.04" || "$version" == "24.10" || "$version" == "25.10" ]]; then
 				error_and_exit "Only Centreon version >=23.10 is compatible with EL9, you chose $version"
 			fi
 
@@ -547,7 +547,7 @@ function set_required_prerequisite() {
 						$PKG_MGR module install php:8.1 -y -q
 						$PKG_MGR module enable php:8.1 -y -q
 						;;
-					"24.10")
+					"24.10" | "25.10")
 						#install_remi_repo
 						log "INFO" "Installing PHP 8.2 and enable it"
 						$PKG_MGR module reset php -y -q
@@ -598,7 +598,7 @@ function set_required_prerequisite() {
 				PHP_SERVICE_UNIT="php8.1-fpm"
 				;;
 			12)
-				if ! [[ "$version" == "24.04" || "$version" == "24.10" ]]; then
+				if ! [[ "$version" == "24.04" || "$version" == "24.10" || "$version" == "25.10" ]]; then
 					error_and_exit "For Debian $detected_os_version, only Centreon versions >= 24.04 are compatible. You chose $version"
 				elif [[ "$version" == "24.04" ]];then
 					PHP_SERVICE_UNIT="php8.1-fpm"
@@ -618,7 +618,7 @@ function set_required_prerequisite() {
 			ARCH=""
 			if [[ "$VENDORID" == "ARM" ]]; then
 				ARCH="[ arch=all,arm64 ]"
-				if ! [[ "$version" == "23.10" || "$version" == "24.04" || "$version" == "24.10" || "$topology" == "poller" ]]; then
+				if ! [[ "$version" == "23.10" || "$version" == "24.04" || "$version" == "24.10" || "$version" == "25.10" || "$topology" == "poller" ]]; then
 					error_and_exit "For Debian on Raspberry, only Centreon versions (poller mode) >=23.10 are compatible. You chose $version to install $topology server"
 				fi
 			fi
@@ -656,7 +656,7 @@ function set_required_prerequisite() {
 					echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" | tee /etc/apt/sources.list.d/sury-php.list
 					wget -O- https://packages.sury.org/php/apt.gpg | gpg --dearmor | tee /etc/apt/trusted.gpg.d/php.gpg  > /dev/null 2>&1
 					;;
-				"24.10")
+				"24.10" | "25.10")
 					echo "Installing php from official os repositories."
 					;;
 			esac
@@ -961,10 +961,7 @@ function play_install_wizard() {
 	install_wizard_post ${sessionID} "insertBaseConf.php"
 	install_wizard_post ${sessionID} "partitionTables.php"
 	install_wizard_post ${sessionID} "generationCache.php"
-	INSTALLED_EXTENSIONS='modules%5B%5D=centreon-license-manager&modules%5B%5D=centreon-pp-manager&modules%5B%5D=centreon-autodiscovery-server&widgets%5B%5D=engine-status&widgets%5B%5D=global-health&widgets%5B%5D=graph-monitoring&widgets%5B%5D=grid-map&widgets%5B%5D=host-monitoring&widgets%5B%5D=hostgroup-monitoring&widgets%5B%5D=httploader&widgets%5B%5D=live-top10-cpu-usage&widgets%5B%5D=live-top10-memory-usage&widgets%5B%5D=service-monitoring&widgets%5B%5D=servicegroup-monitoring&widgets%5B%5D=tactical-overview&widgets%5B%5D=single-metric'
-	if [[ "$version" == "24.04" ]]; then
-		INSTALLED_EXTENSIONS+='&modules%5B%5D=centreon-it-edition-extensions'
-	fi
+	INSTALLED_EXTENSIONS='modules%5B%5D=centreon-license-manager&modules%5B%5D=centreon-pp-manager&modules%5B%5D=centreon-it-edition-extensions&modules%5B%5D=centreon-autodiscovery-server&widgets%5B%5D=engine-status&widgets%5B%5D=global-health&widgets%5B%5D=graph-monitoring&widgets%5B%5D=grid-map&widgets%5B%5D=host-monitoring&widgets%5B%5D=hostgroup-monitoring&widgets%5B%5D=httploader&widgets%5B%5D=live-top10-cpu-usage&widgets%5B%5D=live-top10-memory-usage&widgets%5B%5D=service-monitoring&widgets%5B%5D=servicegroup-monitoring&widgets%5B%5D=tactical-overview&widgets%5B%5D=single-metric'
 	install_wizard_post ${sessionID} "process_step8.php" "$INSTALLED_EXTENSIONS"
 	install_wizard_post ${sessionID} "process_step9.php" 'send_statistics=1'
 }

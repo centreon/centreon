@@ -1,10 +1,10 @@
 /* eslint-disable hooks/sort */
 import { useState } from 'react';
 
+import { Box } from '@mui/material';
 import { T, always, cond, gt, isEmpty, not } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
-import { Box } from '@mui/material';
 import { Variant } from '@mui/material/styles/createTypography';
 
 import { Group, InputType } from '@centreon/ui';
@@ -15,6 +15,7 @@ import {
   labelContacts,
   labelEmailTemplateForTheNotificationMessage,
   labelHostGroups,
+  labelIncludeServicesForTheseHosts,
   labelNotificationChannels,
   labelNotificationSettings,
   labelSearchBusinessViews,
@@ -34,6 +35,7 @@ import {
   serviceGroupsEndpoint,
   usersEndpoint
 } from '../api/endpoints';
+
 import { hostEvents, serviceEvents } from '../utils';
 
 import { EmailBody } from './Channel';
@@ -69,9 +71,6 @@ const useFormInputs = ({
     classes: { root: classes.titleGroup },
     variant: 'subtitle1' as Variant
   };
-
-  const translatedServiceEvents = serviceEvents.map((service) => t(service));
-  const translatedHostEvents = hostEvents.map((host) => t(host));
 
   const basicFormGroups: Array<Group> = [
     {
@@ -114,7 +113,7 @@ const useFormInputs = ({
             checkbox: {
               direction: 'horizontal',
               labelPlacement: 'top',
-              options: translatedHostEvents
+              options: hostEvents
             },
             dataTestId: 'Host groups events',
             fieldName: 'hostGroups.events',
@@ -131,14 +130,14 @@ const useFormInputs = ({
 
               return isEmpty(values.hostGroups.ids);
             },
-            label: 'include Services',
+            label: t(labelIncludeServicesForTheseHosts),
             type: InputType.Checkbox
           },
           {
             checkbox: {
               direction: 'horizontal',
               labelPlacement: 'top',
-              options: translatedServiceEvents
+              options: serviceEvents
             },
             dataTestId: 'Extra events services',
             fieldName: 'hostGroups.extra.eventsServices',
@@ -180,7 +179,7 @@ const useFormInputs = ({
             checkbox: {
               direction: 'horizontal',
               labelPlacement: 'top',
-              options: translatedServiceEvents
+              options: serviceEvents
             },
             dataTestId: 'Service groups events',
             fieldName: 'serviceGroups.events',
@@ -222,7 +221,7 @@ const useFormInputs = ({
                   checkbox: {
                     direction: 'horizontal',
                     labelPlacement: 'top',
-                    options: translatedServiceEvents
+                    options: serviceEvents
                   },
                   dataTestId: labelBusinessViewsEvents,
                   fieldName: 'businessviews.events',
@@ -245,7 +244,8 @@ const useFormInputs = ({
       additionalLabelClassName: classes.additionalLabel,
       connectedAutocomplete: {
         additionalConditionParameters: [],
-        endpoint: availableTimePeriodsEndpoint
+        endpoint: availableTimePeriodsEndpoint,
+        getOptionLabel: (option) => option.name
       },
       dataTestId: t(labelTimePeriod),
       fieldName: 'timeperiod',
@@ -309,7 +309,11 @@ const useFormInputs = ({
           {
             connectedAutocomplete: {
               additionalConditionParameters: [],
-              endpoint: usersEndpoint
+              endpoint: usersEndpoint,
+              getRenderedOptionText: (option): string =>
+                option.alias?.toString(),
+              filterKey: 'alias',
+              optionProperty: 'alias'
             },
             dataTestId: 'Search contacts',
             fieldName: 'users',

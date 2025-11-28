@@ -15,7 +15,8 @@ const Checkbox = ({
   fieldName,
   getDisabled,
   hideInput,
-  dataTestId
+  dataTestId,
+  label
 }: InputPropsWithoutGroup): JSX.Element => {
   const { values, setFieldValue } = useFormikContext<FormikValues>();
 
@@ -45,7 +46,7 @@ const Checkbox = ({
         checked={value?.checked}
         dataTestId={dataTestId || ''}
         disabled={disabled}
-        label={value?.label}
+        label={label}
         labelPlacement={checkbox?.labelPlacement || 'end'}
         onChange={handleChange}
       />

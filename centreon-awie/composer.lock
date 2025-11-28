@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "7c52316d00465d95e60d7620c418f1ef",
+    "content-hash": "19ef1478d738949548c18bc4e265a179",
     "packages": [],
     "packages-dev": [
         {
@@ -1528,11 +1528,11 @@
         },
         {
             "name": "centreon/centreon",
-            "version": "25.09",
+            "version": "25.11",
             "dist": {
                 "type": "path",
                 "url": "../centreon",
-                "reference": "1c527b96b08644d53db1614c554eb20ddacec2dc"
+                "reference": "6d733178c9107fdda3d84160b1c98c9a5878d020"
             },
             "require": {
                 "amphp/http-client": "4.6.*",
@@ -1596,8 +1596,10 @@
                 "symfony/http-foundation": "7.3.*",
                 "symfony/http-kernel": "7.3.*",
                 "symfony/lock": "7.3.*",
+                "symfony/messenger": "7.3.*",
                 "symfony/mime": "7.3.*",
                 "symfony/monolog-bundle": "3.10.*",
+                "symfony/process": "7.3.*",
                 "symfony/property-info": "7.3.*",
                 "symfony/routing": "7.3.*",
                 "symfony/runtime": "7.3.*",
@@ -1688,10 +1690,18 @@
                     "assets:install %PUBLIC_DIR%": "symfony-cmd"
                 },
                 "post-install-cmd": [
-                    "@auto-scripts"
+                    "@auto-scripts",
+                    "@symfony:assets:install:new"
                 ],
                 "post-update-cmd": [
-                    "@auto-scripts"
+                    "@auto-scripts",
+                    "@symfony:assets:install:new"
+                ],
+                "symfony:assets:install": [
+                    "bin/console assets:install www"
+                ],
+                "symfony:assets:install:new": [
+                    "bin/console.new assets:install www"
                 ],
                 "symfony:update": [
                     "composer update symfony/* --with-all-dependencies --no-scripts"
@@ -1704,6 +1714,15 @@
                 ],
                 "symfony:check": [
                     "php bin/console lint:yaml config src --parse-tags && php bin/console lint:container"
+                ],
+                "symfony:new:check": [
+                    "php bin/console.new lint:yaml config src --parse-tags && php bin/console.new lint:container"
+                ],
+                "rector:diff": [
+                    "php rector.diff.php --dry-run ${PHP_DIFF_FILES:-$(git diff --name-only -- '*.php')}"
+                ],
+                "rector:diff:fix": [
+                    "php rector.diff.php ${PHP_DIFF_FILES:-$(git diff --name-only -- '*.php')}"
                 ],
                 "rector:legacy": [
                     "../php-tools/vendor/bin/rector process --config=rector.legacy.php --dry-run"
@@ -1722,6 +1741,12 @@
                 ],
                 "rector:new:fix": [
                     "../php-tools/vendor/bin/rector process --config=rector.new.php"
+                ],
+                "cs:diff": [
+                    "php .php-cs-fixer.diff.php --dry-run ${PHP_DIFF_FILES:-$(git diff --name-only -- '*.php')}"
+                ],
+                "cs:diff:fix": [
+                    "php .php-cs-fixer.diff.php ${PHP_DIFF_FILES:-$(git diff --name-only -- '*.php')}"
                 ],
                 "cs:legacy": [
                     "../php-tools/vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.legacy.php --verbose --dry-run --diff"
@@ -1794,6 +1819,12 @@
                 "test:ci": [
                     "@test --log-junit ./build/phpunit.xml --coverage-clover ./build/coverage-be.xml"
                 ],
+                "test:new": [
+                    "./vendor/bin/phpunit --configuration phpunit.new.xml"
+                ],
+                "test:new:wip": [
+                    "@test:new --group wip"
+                ],
                 "rector": [
                     "@rector:legacy",
                     "@rector:core",
@@ -1843,6 +1874,7 @@
                     "@legacy:check",
                     "@core:check",
                     "@new:check",
+                    "@test:new",
                     "@test"
                 ]
             },
@@ -7978,16 +8010,16 @@
         },
         {
             "name": "symfony/http-foundation",
-            "version": "v7.3.1",
+            "version": "v7.3.7",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/http-foundation.git",
-                "reference": "23dd60256610c86a3414575b70c596e5deff6ed9"
+                "reference": "db488a62f98f7a81d5746f05eea63a74e55bb7c4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/http-foundation/zipball/23dd60256610c86a3414575b70c596e5deff6ed9",
-                "reference": "23dd60256610c86a3414575b70c596e5deff6ed9",
+                "url": "https://api.github.com/repos/symfony/http-foundation/zipball/db488a62f98f7a81d5746f05eea63a74e55bb7c4",
+                "reference": "db488a62f98f7a81d5746f05eea63a74e55bb7c4",
                 "shasum": ""
             },
             "require": {
@@ -8037,7 +8069,7 @@
             "description": "Defines an object-oriented layer for the HTTP specification",
             "homepage": "https://symfony.com",
             "support": {
-                "source": "https://github.com/symfony/http-foundation/tree/v7.3.1"
+                "source": "https://github.com/symfony/http-foundation/tree/v7.3.7"
             },
             "funding": [
                 {
@@ -8049,11 +8081,15 @@
                     "type": "github"
                 },
                 {
+                    "url": "https://github.com/nicolas-grekas",
+                    "type": "github"
+                },
+                {
                     "url": "https://tidelift.com/funding/github/packagist/symfony/symfony",
                     "type": "tidelift"
                 }
             ],
-            "time": "2025-06-23T15:07:14+00:00"
+            "time": "2025-11-08T16:41:12+00:00"
         },
         {
             "name": "symfony/http-kernel",
@@ -8246,6 +8282,99 @@
                 }
             ],
             "time": "2025-04-20T20:19:01+00:00"
+        },
+        {
+            "name": "symfony/messenger",
+            "version": "v7.3.6",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/messenger.git",
+                "reference": "58a7efa3bebadbe4cdd8f7577c5856f0e3ea3978"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/messenger/zipball/58a7efa3bebadbe4cdd8f7577c5856f0e3ea3978",
+                "reference": "58a7efa3bebadbe4cdd8f7577c5856f0e3ea3978",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=8.2",
+                "psr/log": "^1|^2|^3",
+                "symfony/clock": "^6.4|^7.0",
+                "symfony/deprecation-contracts": "^2.5|^3"
+            },
+            "conflict": {
+                "symfony/console": "<7.2",
+                "symfony/event-dispatcher": "<6.4",
+                "symfony/event-dispatcher-contracts": "<2.5",
+                "symfony/framework-bundle": "<6.4",
+                "symfony/http-kernel": "<6.4",
+                "symfony/lock": "<6.4",
+                "symfony/serializer": "<6.4"
+            },
+            "require-dev": {
+                "psr/cache": "^1.0|^2.0|^3.0",
+                "symfony/console": "^7.2",
+                "symfony/dependency-injection": "^6.4|^7.0",
+                "symfony/event-dispatcher": "^6.4|^7.0",
+                "symfony/http-kernel": "^6.4|^7.0",
+                "symfony/lock": "^6.4|^7.0",
+                "symfony/process": "^6.4|^7.0",
+                "symfony/property-access": "^6.4|^7.0",
+                "symfony/rate-limiter": "^6.4|^7.0",
+                "symfony/routing": "^6.4|^7.0",
+                "symfony/serializer": "^6.4|^7.0",
+                "symfony/service-contracts": "^2.5|^3",
+                "symfony/stopwatch": "^6.4|^7.0",
+                "symfony/validator": "^6.4|^7.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Symfony\\Component\\Messenger\\": ""
+                },
+                "exclude-from-classmap": [
+                    "/Tests/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Samuel Roze",
+                    "email": "samuel.roze@gmail.com"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "https://symfony.com/contributors"
+                }
+            ],
+            "description": "Helps applications send and receive messages to/from other applications or via message queues",
+            "homepage": "https://symfony.com",
+            "support": {
+                "source": "https://github.com/symfony/messenger/tree/v7.3.6"
+            },
+            "funding": [
+                {
+                    "url": "https://symfony.com/sponsor",
+                    "type": "custom"
+                },
+                {
+                    "url": "https://github.com/fabpot",
+                    "type": "github"
+                },
+                {
+                    "url": "https://github.com/nicolas-grekas",
+                    "type": "github"
+                },
+                {
+                    "url": "https://tidelift.com/funding/github/packagist/symfony/symfony",
+                    "type": "tidelift"
+                }
+            ],
+            "time": "2025-11-06T11:17:34+00:00"
         },
         {
             "name": "symfony/mime",
@@ -9039,6 +9168,71 @@
                 }
             ],
             "time": "2024-09-09T11:45:10+00:00"
+        },
+        {
+            "name": "symfony/process",
+            "version": "v7.3.4",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/process.git",
+                "reference": "f24f8f316367b30810810d4eb30c543d7003ff3b"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/process/zipball/f24f8f316367b30810810d4eb30c543d7003ff3b",
+                "reference": "f24f8f316367b30810810d4eb30c543d7003ff3b",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=8.2"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Symfony\\Component\\Process\\": ""
+                },
+                "exclude-from-classmap": [
+                    "/Tests/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Fabien Potencier",
+                    "email": "fabien@symfony.com"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "https://symfony.com/contributors"
+                }
+            ],
+            "description": "Executes commands in sub-processes",
+            "homepage": "https://symfony.com",
+            "support": {
+                "source": "https://github.com/symfony/process/tree/v7.3.4"
+            },
+            "funding": [
+                {
+                    "url": "https://symfony.com/sponsor",
+                    "type": "custom"
+                },
+                {
+                    "url": "https://github.com/fabpot",
+                    "type": "github"
+                },
+                {
+                    "url": "https://github.com/nicolas-grekas",
+                    "type": "github"
+                },
+                {
+                    "url": "https://tidelift.com/funding/github/packagist/symfony/symfony",
+                    "type": "tidelift"
+                }
+            ],
+            "time": "2025-09-11T10:12:26+00:00"
         },
         {
             "name": "symfony/property-access",
@@ -11169,7 +11363,7 @@
         "ext-pdo": "*",
         "ext-zip": "*"
     },
-    "platform-dev": [],
+    "platform-dev": {},
     "platform-overrides": {
         "php": "8.2"
     },

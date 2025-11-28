@@ -54,6 +54,7 @@ import CloseTicket from './CloseTicket/CloseTicket';
 
 import { useStatusStyles } from './Columns.styles';
 import OpenTicket from './OpenTicket/OpenTicket';
+import { TicketLink } from './OpenTicket/TicketLink';
 import ParentResourceColumn from './Parent';
 import ResourceColumn from './Resource';
 import SubItem from './ServiceSubItemColumn/SubItem';
@@ -187,10 +188,11 @@ const useColumns = ({
     ...(areTicketColumnsVisible
       ? [
           {
-            getFormattedString: (row): string => getTicketInformations(row)?.id,
             id: 'ticket_id',
+            clickable: true,
             label: t(labelTicketID),
-            type: ColumnType.string
+            type: ColumnType.component,
+            Component: TicketLink
           },
           {
             getFormattedString: (row): string =>

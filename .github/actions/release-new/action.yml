@@ -37,12 +37,14 @@ inputs:
   centreon_technique_pat:
     description: "Token used to handle release."
     required: true
+  major_version:
+    description: "Major version for the release branch being released."
 
 runs:
   using: "composite"
   steps:
     - name: Checkout sources
-      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
       with:
         fetch-depth: 0
         token: ${{ inputs.centreon_technique_pat }}
@@ -62,13 +64,17 @@ runs:
         # Define new stable bundle tag
         NEW_STABLE_BUNDLE_TAG="${{ inputs.release_bundle_tag }}"
 
+        # Define major_version for tag pattern
+        # We need it to be the same as the previous stable bundle tag
+        RELEASE_BRANCH_MAJOR_VERSION="${{ inputs.major_version }}"
+
         # Get previous and new release bundle tags
         PREVIOUS_STABLE_BUNDLE_TAG=""
         # Previous release bundle tag
         if [[ $RELEASE_CLOUD -eq 1 ]]; then
-          PREVIOUS_STABLE_BUNDLE_TAG=$(git tag -l --sort=-version:refname "release-cloud-*" | head -n 1)
+          PREVIOUS_STABLE_BUNDLE_TAG=$(git tag -l --sort=-version:refname "release-cloud-*-${RELEASE_BRANCH_MAJOR_VERSION}" | head -n 1)
         else
-          PREVIOUS_STABLE_BUNDLE_TAG=$(git tag -l --sort=-version:refname "release-onprem-*" | head -n 1)
+          PREVIOUS_STABLE_BUNDLE_TAG=$(git tag -l --sort=-version:refname "release-onprem-*-${RELEASE_BRANCH_MAJOR_VERSION}" | head -n 1)
         fi
 
         echo "#====#"
