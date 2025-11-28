@@ -188,9 +188,10 @@ const Listing = <TRow extends { id: RowId; internalListingParentId?: RowId }>({
     labelExpand: 'Expand'
   }
 }: Props<TRow>): JSX.Element => {
+  const sanitizedColumns = columns.filter(Boolean);
   const currentVisibleColumns = getVisibleColumns({
     columnConfiguration,
-    columns
+    columns: sanitizedColumns
   });
   const { dataStyle, getGridTemplateColumn } = useStyleTable({
     checkable,
@@ -231,26 +232,26 @@ const Listing = <TRow extends { id: RowId; internalListingParentId?: RowId }>({
     () =>
       subItems?.enable
         ? reduce<TRow, Array<TRow>>(
-            (acc, row): Array<TRow> => {
-              if (
-                row[subItems.getRowProperty()] &&
-                subItemsPivots.includes(row.id)
-              ) {
-                return [
-                  ...acc,
-                  row,
-                  ...row[subItems.getRowProperty()].map((subRow) => ({
-                    ...subRow,
-                    internalListingParentId: row.id
-                  }))
-                ];
-              }
+          (acc, row): Array<TRow> => {
+            if (
+              row[subItems.getRowProperty()] &&
+              subItemsPivots.includes(row.id)
+            ) {
+              return [
+                ...acc,
+                row,
+                ...row[subItems.getRowProperty()].map((subRow) => ({
+                  ...subRow,
+                  internalListingParentId: row.id
+                }))
+              ];
+            }
 
-              return [...acc, row];
-            },
-            [],
-            rows
-          )
+            return [...acc, row];
+          },
+          [],
+          rows
+        )
         : rows,
     [rows, subItemsPivots, subItems]
   );
@@ -486,7 +487,7 @@ const Listing = <TRow extends { id: RowId; internalListingParentId?: RowId }>({
 
   const visibleColumns = getVisibleColumns({
     columnConfiguration,
-    columns
+    columns: sanitizedColumns
   });
 
   React.useEffect(() => {
@@ -520,7 +521,7 @@ const Listing = <TRow extends { id: RowId; internalListingParentId?: RowId }>({
             actions={actions}
             actionsBarMemoProps={actionsBarMemoProps}
             columnConfiguration={columnConfiguration}
-            columns={columns}
+            columns={sanitizedColumns}
             currentPage={currentPage}
             customPaginationClassName={customPaginationClassName}
             limit={limit}
@@ -567,7 +568,7 @@ const Listing = <TRow extends { id: RowId; internalListingParentId?: RowId }>({
                     areColumnsEditable={areColumnsEditable}
                     checkable={checkable}
                     columnConfiguration={columnConfiguration}
-                    columns={columns}
+                    columns={sanitizedColumns}
                     listingVariant={listingVariant}
                     memoProps={headerMemoProps}
                     predefinedRowsSelection={predefinedRowsSelection}
@@ -600,7 +601,7 @@ const Listing = <TRow extends { id: RowId; internalListingParentId?: RowId }>({
                             (!isSubItem || subItems.canCheckSubItems)
                           }
                           columnConfiguration={columnConfiguration}
-                          columnIds={columns.map(prop('id'))}
+                          columnIds={sanitizedColumns.map(prop('id'))}
                           disableRowCondition={disableRowCondition}
                           isHovered={isRowHovered}
                           isSelected={isRowSelected}
@@ -623,8 +624,8 @@ const Listing = <TRow extends { id: RowId; internalListingParentId?: RowId }>({
                             isSubItem
                               ? undefined
                               : (): void => {
-                                  onRowClick(row);
-                                }
+                                onRowClick(row);
+                              }
                           }
                           onFocus={(): void => hoverRow(row)}
                           onMouseOver={(): void => hoverRow(row)}

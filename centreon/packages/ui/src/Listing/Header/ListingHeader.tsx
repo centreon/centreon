@@ -123,7 +123,7 @@ const ListingHeader = ({
           additionalProps={[sortField, sortOrder]}
           collisionDetection={closestCenter}
           itemProps={['id']}
-          items={visibleColumns}
+          items={visibleColumns.filter(Boolean)}
           memoProps={memoProps}
           sortingStrategy={horizontalListSortingStrategy}
           onDragEnd={({ items }): void => {
