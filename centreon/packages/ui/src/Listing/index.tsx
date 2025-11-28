@@ -232,26 +232,26 @@ const Listing = <TRow extends { id: RowId; internalListingParentId?: RowId }>({
     () =>
       subItems?.enable
         ? reduce<TRow, Array<TRow>>(
-          (acc, row): Array<TRow> => {
-            if (
-              row[subItems.getRowProperty()] &&
-              subItemsPivots.includes(row.id)
-            ) {
-              return [
-                ...acc,
-                row,
-                ...row[subItems.getRowProperty()].map((subRow) => ({
-                  ...subRow,
-                  internalListingParentId: row.id
-                }))
-              ];
-            }
+            (acc, row): Array<TRow> => {
+              if (
+                row[subItems.getRowProperty()] &&
+                subItemsPivots.includes(row.id)
+              ) {
+                return [
+                  ...acc,
+                  row,
+                  ...row[subItems.getRowProperty()].map((subRow) => ({
+                    ...subRow,
+                    internalListingParentId: row.id
+                  }))
+                ];
+              }
 
-            return [...acc, row];
-          },
-          [],
-          rows
-        )
+              return [...acc, row];
+            },
+            [],
+            rows
+          )
         : rows,
     [rows, subItemsPivots, subItems]
   );
@@ -624,8 +624,8 @@ const Listing = <TRow extends { id: RowId; internalListingParentId?: RowId }>({
                             isSubItem
                               ? undefined
                               : (): void => {
-                                onRowClick(row);
-                              }
+                                  onRowClick(row);
+                                }
                           }
                           onFocus={(): void => hoverRow(row)}
                           onMouseOver={(): void => hoverRow(row)}
