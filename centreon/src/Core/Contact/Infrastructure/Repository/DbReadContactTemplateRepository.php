@@ -27,7 +27,7 @@ use Adaptation\Database\Connection\Collection\QueryParameters;
 use Adaptation\Database\Connection\ConnectionInterface;
 use Adaptation\Database\Connection\Exception\ConnectionException;
 use Adaptation\Database\Connection\ValueObject\QueryParameter;
-use Adaptation\Database\QueryBuilder\QueryBuilderInterface;
+use Adaptation\Database\QueryBuilder\Exception\QueryBuilderException;
 use Centreon\Domain\RequestParameters\RequestParameters;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
 use Core\Common\Domain\Exception\CollectionException;
@@ -54,15 +54,13 @@ class DbReadContactTemplateRepository extends DatabaseRepository implements Read
      * DbReadContactTemplateRepository constructor
      *
      * @param ConnectionInterface $connection
-     * @param QueryBuilderInterface $queryBuilder
      * @param SqlRequestParametersTranslator $sqlRequestTranslator
      */
     public function __construct(
         ConnectionInterface $connection,
-        QueryBuilderInterface $queryBuilder,
         SqlRequestParametersTranslator $sqlRequestTranslator,
     ) {
-        parent::__construct($connection, $queryBuilder);
+        parent::__construct($connection);
         $this->sqlRequestTranslator = $sqlRequestTranslator;
         $this->sqlRequestTranslator
             ->getRequestParameters()
@@ -135,11 +133,11 @@ class DbReadContactTemplateRepository extends DatabaseRepository implements Read
     public function find(int $id): ?ContactTemplate
     {
         try {
-            $query = $this->queryBuilder
-                ->select('contact_id, contact_name')
+            $queryBuilder = $this->connection->createQueryBuilder();
+            $query = $queryBuilder->select('contact_id, contact_name')
                 ->from('contact')
-                ->where($this->queryBuilder->expr()->equal('contact_id', ':id'))
-                ->andWhere($this->queryBuilder->expr()->equal('contact_register', ':register'))
+                ->where($queryBuilder->expr()->equal('contact_id', ':id'))
+                ->andWhere($queryBuilder->expr()->equal('contact_register', ':register'))
                 ->getQuery();
 
             $queryParameters = QueryParameters::create([
