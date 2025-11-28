@@ -95,7 +95,7 @@ final readonly class LegacyHttpExceptionListener
         $event->setResponse(new JsonResponse(
             status: $statusCode,
             data: [
-                'code' => $exception->getCode(),
+                'code' => $statusCode,
                 'message' => $exception->getMessage(),
             ],
         ));
