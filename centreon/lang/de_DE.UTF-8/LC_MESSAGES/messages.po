@@ -424,7 +424,6 @@ msgid "Acknowledgement timeout"
 msgstr "Inkenntnisnahmentimeout"
 
 #: centreon/www/include/Administration/configChangelog/viewLogs.php
-#: centreon/www/include/options/media/images/formDirectory.php
 #: centreon/www/include/options/media/images/formImg.php
 #: centreon/www/install/front_translate.php
 msgid "Action"
@@ -582,7 +581,6 @@ msgstr "Tatsächliches Ende"
 #: centreon/www/include/options/media/images/listImg.php
 #: centreon/www/include/views/componentTemplates/listComponentTemplates.php
 #: centreon/www/include/views/graphTemplates/listGraphTemplates.php
-#: centreon/www/include/views/virtualMetrics/listVirtualMetrics.php
 #: centreon/www/install/front_translate.php
 msgid "Add"
 msgstr "Hinzufügen"
@@ -1250,7 +1248,6 @@ msgid "Anomaly detection"
 msgstr ""
 
 #: centreon/www/api/class/centreon_home_customview.class.php
-#: centreon/www/include/options/media/images/formDirectory.php
 #: centreon/www/include/views/graphs/graphs.php
 #: centreon/www/install/front_translate.php
 #: centreon/www/install/smarty_translate.php
@@ -1843,7 +1840,6 @@ msgstr "Der Benutzername kann nicht aufgelöst werden"
 msgid "Can't write in directory"
 msgstr "In das Verzeichnis konnte nicht geschrieben werden"
 
-#: centreon/www/include/options/media/images/formDirectory.php
 #: centreon/www/include/options/media/images/formImg.php
 #: centreon/www/install/front_translate.php
 #: centreon/www/install/smarty_translate.php
@@ -2587,7 +2583,6 @@ msgstr "Kommentartyp"
 #: centreon/www/include/monitoring/objectDetails/hostDetails.php
 #: centreon/www/include/monitoring/objectDetails/serviceDetails.php
 #: centreon/www/include/options/accessLists/resourcesACL/formResourcesAccess.php
-#: centreon/www/include/options/media/images/formDirectory.php
 #: centreon/www/include/options/media/images/formImg.php
 #: centreon/www/include/views/componentTemplates/formComponentTemplate.php
 #: centreon/www/include/views/graphTemplates/formGraphTemplate.php
@@ -2697,7 +2692,6 @@ msgstr "Erforderliche Instanz"
 #: centreon/www/include/configuration/configServers/formServers.php
 #: centreon/www/include/options/accessLists/actionsACL/formActionsAccess.php
 #: centreon/www/include/options/accessLists/groupsACL/formGroupConfig.php
-#: centreon/www/include/options/media/images/formDirectory.php
 #: centreon/www/include/views/componentTemplates/formComponentTemplate.php
 #: centreon/www/include/views/graphTemplates/formGraphTemplate.php
 #: centreon/www/include/views/virtualMetrics/formVirtualMetrics.php
@@ -3346,7 +3340,6 @@ msgid "DB user"
 msgstr "DB Benutzer"
 
 #: centreon/www/include/views/virtualMetrics/formVirtualMetrics.php
-#: centreon/www/include/views/virtualMetrics/listVirtualMetrics.php
 msgid "DEF Type"
 msgstr "DEF Typ"
 
@@ -3393,10 +3386,6 @@ msgstr ""
 #: centreon/www/install/menu_translation.php
 msgid "Data"
 msgstr "Daten"
-
-#: centreon/www/include/views/virtualMetrics/listVirtualMetrics.php
-msgid "Data Count"
-msgstr "Datenanzahl"
 
 #: centreon/www/include/configuration/configObject/host/formHost.php
 #: centreon/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php
@@ -3694,7 +3683,6 @@ msgstr ""
 #: centreon/www/include/views/componentTemplates/listComponentTemplates.php
 #: centreon/www/include/views/graphTemplates/formGraphTemplate.php
 #: centreon/www/include/views/graphTemplates/listGraphTemplates.php
-#: centreon/www/include/views/virtualMetrics/listVirtualMetrics.php
 #: centreon/www/install/front_translate.php
 #: centreon/www/install/smarty_translate.php
 msgid "Delete"
@@ -3879,10 +3867,6 @@ msgstr "Makros beschreiben"
 msgid "Description"
 msgstr "Beschreibung"
 
-#: centreon/www/include/options/media/images/formDirectory.php
-msgid "Destination directory"
-msgstr "Zielverzeichnis"
-
 #: centreon/www/include/configuration/configObject/service/listServiceByHost.php
 msgid "Detach"
 msgstr "Verknüpfung aufheben"
@@ -3926,10 +3910,6 @@ msgstr "Verzeichnis und Mailer-Ausführdatei"
 #: centreon/www/include/Administration/parameters/rrdtool/form.php
 msgid "Directory + RRDTOOL Binary"
 msgstr "Verzeichnis und RRDTool-Ausführdatei"
-
-#: centreon/www/include/options/media/images/formDirectory.php
-msgid "Directory name"
-msgstr "Verzeichnisname"
 
 #: centreon/www/include/configuration/configServers/formServers.php
 msgid "Directory of light database for traps"
@@ -4054,7 +4034,6 @@ msgstr ""
 #: centreon/www/include/options/accessLists/groupsACL/listGroupConfig.php
 #: centreon/www/include/options/accessLists/resourcesACL/formResourcesAccess.php
 #: centreon/www/include/options/accessLists/resourcesACL/listsResourcesAccess.php
-#: centreon/www/include/views/virtualMetrics/listVirtualMetrics.php
 #: centreon/www/install/front_translate.php
 msgid "Disabled"
 msgstr "Deaktiviert"
@@ -4282,7 +4261,6 @@ msgstr ""
 #: centreon/www/include/options/media/images/listImg.php
 #: centreon/www/include/views/componentTemplates/listComponentTemplates.php
 #: centreon/www/include/views/graphTemplates/listGraphTemplates.php
-#: centreon/www/include/views/virtualMetrics/listVirtualMetrics.php
 msgid "Do you confirm the deletion ?"
 msgstr "Bestätigen Sie die Löschung?"
 
@@ -4317,7 +4295,6 @@ msgstr "Bestätigen Sie die Löschung?"
 #: centreon/www/include/options/accessLists/resourcesACL/listsResourcesAccess.php
 #: centreon/www/include/views/componentTemplates/listComponentTemplates.php
 #: centreon/www/include/views/graphTemplates/listGraphTemplates.php
-#: centreon/www/include/views/virtualMetrics/listVirtualMetrics.php
 msgid "Do you confirm the duplication ?"
 msgstr "Bestätigen Sie die Duplizierung?"
 
@@ -4487,7 +4464,6 @@ msgstr "Dump"
 #: centreon/www/include/options/accessLists/resourcesACL/listsResourcesAccess.php
 #: centreon/www/include/views/componentTemplates/listComponentTemplates.php
 #: centreon/www/include/views/graphTemplates/listGraphTemplates.php
-#: centreon/www/include/views/virtualMetrics/listVirtualMetrics.php
 #: centreon/www/install/front_translate.php
 msgid "Duplicate"
 msgstr "Duplizieren"
@@ -4914,7 +4890,6 @@ msgstr ""
 #: centreon/www/include/options/accessLists/groupsACL/listGroupConfig.php
 #: centreon/www/include/options/accessLists/resourcesACL/formResourcesAccess.php
 #: centreon/www/include/options/accessLists/resourcesACL/listsResourcesAccess.php
-#: centreon/www/include/views/virtualMetrics/listVirtualMetrics.php
 #: centreon/www/install/front_translate.php
 msgid "Enabled"
 msgstr "Aktiviert"
@@ -6423,7 +6398,6 @@ msgstr ""
 #: centreon/www/include/configuration/configNagios/formNagios.php
 #: centreon/www/include/configuration/configResources/formResources.php
 #: centreon/www/include/options/accessLists/groupsACL/formGroupConfig.php
-#: centreon/www/include/options/media/images/formDirectory.php
 msgid "Form"
 msgstr "Formular"
 
@@ -6512,10 +6486,6 @@ msgstr ""
 #: centreon/www/install/front_translate.php
 msgid "Fullscreen (F)"
 msgstr ""
-
-#: centreon/www/include/views/virtualMetrics/listVirtualMetrics.php
-msgid "Function"
-msgstr "Funktion"
 
 #: centreon/www/include/configuration/configNagios/formNagios.php
 msgid "Function enter/exit information"
@@ -6832,7 +6802,6 @@ msgid "Help"
 msgstr "Hilfe"
 
 #: centreon/www/include/Administration/performance/viewMetrics.php
-#: centreon/www/include/views/virtualMetrics/listVirtualMetrics.php
 #: centreon/www/install/smarty_translate.php
 msgid "Hidden"
 msgstr "Versteckt"
@@ -7647,7 +7616,6 @@ msgstr "Bildtyp"
 msgid "Image or archive"
 msgstr "Bild oder Archiv"
 
-#: centreon/www/include/options/media/images/formDirectory.php
 #: centreon/www/install/menu_translation.php
 msgid "Images"
 msgstr "Bilder"
@@ -8578,7 +8546,6 @@ msgstr "Verknüpfungsverwaltung"
 #: centreon/www/include/configuration/configNagios/formNagios.php
 #: centreon/www/include/configuration/configResources/formResources.php
 #: centreon/www/include/options/accessLists/groupsACL/formGroupConfig.php
-#: centreon/www/include/options/media/images/formDirectory.php
 msgid "List"
 msgstr "Liste"
 
@@ -9514,10 +9481,6 @@ msgstr "Eskalation bearbeiten"
 msgid "Modify an Extended Info"
 msgstr "Erweiterte Information bearbeiten"
 
-#: centreon/www/include/options/media/images/formDirectory.php
-msgid "Modify directory"
-msgstr "Verzeichnis bearbeiten"
-
 #: centreon/www/include/configuration/configObject/host/formHost.php
 #: centreon/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php
 #: centreon/www/include/configuration/configObject/service/formService.php
@@ -9726,7 +9689,6 @@ msgstr "Weitere Aktionen"
 #: centreon/www/include/options/accessLists/resourcesACL/listsResourcesAccess.php
 #: centreon/www/include/views/componentTemplates/listComponentTemplates.php
 #: centreon/www/include/views/graphTemplates/listGraphTemplates.php
-#: centreon/www/include/views/virtualMetrics/listVirtualMetrics.php
 msgid "More actions..."
 msgstr "Weitere Aktionen..."
 
@@ -9737,10 +9699,6 @@ msgstr "Detailliertere Informationen"
 #: centreon/www/include/configuration/configGenerate/formGenerateFiles.php
 msgid "Move Export Files"
 msgstr "Exportdateien verschieben"
-
-#: centreon/www/include/options/media/images/formDirectory.php
-msgid "Move files to directory"
-msgstr "Dateien in Verzeichnis verschieben"
 
 #: centreon/www/include/configuration/configObject/service/listServiceByHostGroup.php
 msgid "Move host group's services to hosts"
@@ -9853,7 +9811,6 @@ msgstr "N/A"
 #: centreon/www/include/options/media/images/listImg.php
 #: centreon/www/include/views/componentTemplates/listComponentTemplates.php
 #: centreon/www/include/views/graphTemplates/listGraphTemplates.php
-#: centreon/www/include/views/virtualMetrics/listVirtualMetrics.php
 #: centreon/www/install/centreon_broker_translation.php
 #: centreon/www/install/front_translate.php
 #: centreon/www/install/smarty_translate.php
@@ -10680,7 +10637,6 @@ msgstr "Optimierung"
 #: centreon/www/include/views/componentTemplates/listComponentTemplates.php
 #: centreon/www/include/views/graphTemplates/listGraphTemplates.php
 #: centreon/www/include/views/virtualMetrics/formVirtualMetrics.php
-#: centreon/www/include/views/virtualMetrics/listVirtualMetrics.php
 #: centreon/www/install/menu_translation.php
 msgid "Options"
 msgstr "Optionen"
@@ -11855,7 +11811,6 @@ msgstr "Erforderlich"
 #: centreon/www/include/monitoring/comments/AddSvcComment.php
 #: centreon/www/include/monitoring/downtime/AddDowntime.php
 #: centreon/www/include/monitoring/submitPassivResults/hostPassiveCheck.php
-#: centreon/www/include/options/media/images/formDirectory.php
 #: centreon/www/include/options/media/images/formImg.php
 #: centreon/www/include/views/componentTemplates/formComponentTemplate.php
 #: centreon/www/include/views/graphTemplates/formGraphTemplate.php
@@ -12386,7 +12341,6 @@ msgstr "Samstag"
 #: centreon/www/include/options/accessLists/actionsACL/formActionsAccess.php
 #: centreon/www/include/options/accessLists/groupsACL/formGroupConfig.php
 #: centreon/www/include/options/accessLists/resourcesACL/formResourcesAccess.php
-#: centreon/www/include/options/media/images/formDirectory.php
 #: centreon/www/include/options/media/images/formImg.php
 #: centreon/www/include/views/componentTemplates/formComponentTemplate.php
 #: centreon/www/include/views/graphTemplates/formGraphTemplate.php
@@ -12530,7 +12484,6 @@ msgstr ""
 #: centreon/www/include/monitoring/status/ServicesHostGroups/serviceSummaryByHG.php
 #: centreon/www/include/views/componentTemplates/listComponentTemplates.php
 #: centreon/www/include/views/graphTemplates/listGraphTemplates.php
-#: centreon/www/include/views/virtualMetrics/listVirtualMetrics.php
 #: centreon/www/install/front_translate.php
 #: centreon/www/install/smarty_translate.php
 msgid "Search"
@@ -13806,7 +13759,6 @@ msgstr "Statistiken"
 #: centreon/www/include/reporting/dashboard/csvExport/csv_HostLogs.php
 #: centreon/www/include/reporting/dashboard/csvExport/csv_ServiceGroupLogs.php
 #: centreon/www/include/reporting/dashboard/csvExport/csv_ServiceLogs.php
-#: centreon/www/include/views/virtualMetrics/listVirtualMetrics.php
 #: centreon/www/install/front_translate.php
 #: centreon/www/install/smarty_translate.php
 #: centreon/www/install/step_upgrade/step2.php
@@ -15266,7 +15218,6 @@ msgid "Unique"
 msgstr "Einzigartig"
 
 #: centreon/www/include/Administration/performance/viewMetrics.php
-#: centreon/www/include/views/virtualMetrics/listVirtualMetrics.php
 #: centreon/www/install/front_translate.php
 #: centreon/www/install/smarty_translate.php
 msgid "Unit"
@@ -17992,6 +17943,10 @@ msgid "Dark"
 msgstr "Dunkel"
 
 #: unknown
+msgid "Data Count"
+msgstr "Datenanzahl"
+
+#: unknown
 msgid "Default Settings"
 msgstr "Standardeinstellungen"
 
@@ -18004,8 +17959,16 @@ msgid "Deploy Service"
 msgstr "Service bereitstellen"
 
 #: unknown
+msgid "Destination directory"
+msgstr "Zielverzeichnis"
+
+#: unknown
 msgid "Detection by browser"
 msgstr "Erkennung durch den Browser"
+
+#: unknown
+msgid "Directory name"
+msgstr "Verzeichnisname"
 
 #: unknown
 msgid "Disable SSL verify peer"
@@ -18084,6 +18047,10 @@ msgstr "Abschließen"
 #: unknown
 msgid "Front-end Theme"
 msgstr "Oberflächen Leitmotiv"
+
+#: unknown
+msgid "Function"
+msgstr "Funktion"
 
 #: unknown
 msgid "General Access"
@@ -18254,6 +18221,10 @@ msgid "Modify a User Template"
 msgstr "Benutzertemplate bearbeiten"
 
 #: unknown
+msgid "Modify directory"
+msgstr "Verzeichnis bearbeiten"
+
+#: unknown
 msgid "Modules Options"
 msgstr "Moduloptionen"
 
@@ -18280,6 +18251,10 @@ msgstr "Monitoringsystembenutzer"
 #: unknown
 msgid "Monthly"
 msgstr "Monatlich"
+
+#: unknown
+msgid "Move files to directory"
+msgstr "Dateien in Verzeichnis verschieben"
 
 #: unknown
 msgid "Never Started"
