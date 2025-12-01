@@ -19,6 +19,14 @@
  *
  */
 
+use Core\Common\Infrastructure\ExceptionLogger\ExceptionLogger;
+use Psr\Log\LogLevel;
+use Symfony\Component\HttpClient\HttpClient;
+use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
+
 class EasyVistaRestProvider extends AbstractProvider
 {
     public const EZV_ASSET_TYPE = 16;
@@ -506,82 +514,124 @@ class EasyVistaRestProvider extends AbstractProvider
 
     protected function curlQuery($info)
     {
-        // check if php curl is installed
-        if (! extension_loaded('curl')) {
-            throw new Exception("couldn't find php curl", 10);
-        }
+        $apiAddress = $this->getFormValue('protocol') . '://'
+        . $this->getFormValue('address')
+        . $this->getFormValue('api_path')
+        . $info['query_endpoint'];
 
-        $curl = curl_init();
-
-        $apiAddress = $this->getFormValue('protocol') . '://' . $this->getFormValue('address')
-            . $this->getFormValue('api_path') . $info['query_endpoint'];
-
-        $info['headers'] = [
-            'content-type: application/json',
+        $headers = [
+            'Content-Type' => 'application/json',
         ];
 
-        if ($this->getFormValue(('use_token') == 1)) {
-            array_push($info['headers'], 'Authorization: Bearer ' . $this->getFormValue('token'));
+        // Token mode
+        if ((int) $this->getFormValue('use_token') === 1) {
+            $headers['Authorization'] = 'Bearer ' . $this->getFormValue('token');
         }
 
-        // initiate our curl options
-        curl_setopt($curl, CURLOPT_URL, $apiAddress);
-        curl_setopt($curl, CURLOPT_HTTPHEADER, $info['headers']);
-        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($curl, CURLOPT_POST, $info['method']);
-        curl_setopt($curl, CURLOPT_TIMEOUT, $this->getFormValue('timeout'));
+        // Build HTTP options
+        $options = [
+            'headers' => $headers,
+            'timeout' => (int) $this->getFormValue('timeout'),
+            'verify_peer' => true,
+            'verify_host' => true,
+        ];
 
-        if ($this->getFormValue('use_token') != 1) {
-            curl_setopt($curl, CURLOPT_USERPWD, $this->getFormValue('account') . ':' . $this->getFormValue('token'));
-        }
-
-        // add postData if needed
-        if (! empty($info['data'])) {
-            curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode($info['data']));
-        }
-
-        // change curl method with a custom one (PUT, DELETE) if needed
-        if (isset($info['custom_request'])) {
-            curl_setopt($curl, CURLOPT_CUSTOMREQUEST, $info['custom_request']);
-        }
-
-        // if proxy is set, we add it to curl
+        // Custom CA
         if (
-            $this->getFormValue('proxy_address') != ''
-            && $this->getFormValue('proxy_port') != ''
+            $this->getFormValue('ca_certificate') !== ''
+            && is_readable($this->getFormValue('ca_certificate'))
         ) {
-            curl_setopt(
-                $curl,
-                CURLOPT_PROXY,
-                $this->getFormValue('proxy_address') . ':' . $this->getFormValue('proxy_port')
-            );
+            $options['cafile'] = $this->getFormValue('ca_certificate');
+        }
 
-            // if proxy authentication configuration is set, we add it to curl
+        // Basic auth if not using token
+        if ((int) $this->getFormValue('use_token') !== 1) {
+            $options['auth_basic'] = [
+                $this->getFormValue('account'),
+                $this->getFormValue('token'),
+            ];
+        }
+
+        // JSON body
+        if (! empty($info['data'])) {
+            $options['json'] = $info['data'];
+        }
+
+        // Proxy
+        if (
+            $this->getFormValue('proxy_address') !== ''
+            && $this->getFormValue('proxy_port') !== ''
+        ) {
+            $proxy = $this->getFormValue('proxy_address') . ':' . $this->getFormValue('proxy_port');
+
             if (
-                $this->getFormValue('proxy_username') != ''
-                && $this->getFormValue('proxy_password') != ''
+                $this->getFormValue('proxy_username') !== ''
+                && $this->getFormValue('proxy_password') !== ''
             ) {
-                curl_setopt(
-                    $curl,
-                    CURLOPT_PROXYUSERPWD,
-                    $this->getFormValue('proxy_username') . ':' . $this->getFormValue('proxy_password')
+                $options['proxy'] = sprintf(
+                    'http://%s:%s@%s',
+                    $this->getFormValue('proxy_username'),
+                    $this->getFormValue('proxy_password'),
+                    $proxy
                 );
+            } else {
+                $options['proxy'] = 'http://' . $proxy;
             }
         }
 
-        // execute curl and get status information
-        $curlResult = curl_exec($curl);
-        $httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-        curl_close($curl);
+        // Determine method
+        $method = $info['method'] ?? 'GET';
 
-        // 200 for get operations and 201 for post
-        if ($httpCode != 200 && $httpCode != 201) {
-            throw new Exception('An error happened with endpoint: ' . $apiAddress
-                . '. Easyvista response is: ' . $curlResult);
+        if (isset($info['custom_request'])) {
+            $method = $info['custom_request'];
         }
 
-        return json_decode($curlResult, true);
+        $context = [
+            'endpoint' => $apiAddress,
+            'method' => $method,
+            'timeout' => $this->getFormValue('timeout'),
+            'proxy_enabled' => $this->getFormValue('proxy_address') !== '',
+            'proxy_address' => $this->getFormValue('proxy_address'),
+            'proxy_port' => $this->getFormValue('proxy_port'),
+            'response_status' => null,
+        ];
+
+        try {
+            $client = HttpClient::create();
+            $response = $client->request($method, $apiAddress, $options);
+
+            $status = $response->getStatusCode();
+            $context['response_status'] = $status;
+
+            if ($status !== 200 && $status !== 201) {
+                $body = $response->getContent(false);
+
+                throw new Exception(
+                    'An error happened with endpoint: ' . $apiAddress
+                    . '. Easyvista response is: ' . $body
+                );
+            }
+
+            $body = $response->getContent();
+
+            return json_decode($body, true);
+        } catch (
+            TransportExceptionInterface|
+            ClientExceptionInterface|
+            ServerExceptionInterface|
+            RedirectionExceptionInterface $exception
+        ) {
+            ExceptionLogger::create()->log($exception, $context, LogLevel::ERROR);
+
+            throw new Exception(
+                'HTTP client error while calling ' . $apiAddress . ': ' . $exception->getMessage(),
+                previous: $exception,
+            );
+        } catch (Exception $exception) {
+            ExceptionLogger::create()->log($exception, $context, LogLevel::ERROR);
+
+            throw $exception;
+        }
     }
 
     protected function createTicket($ticketArguments)

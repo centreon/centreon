@@ -19,6 +19,14 @@
  *
  */
 
+use Core\Common\Infrastructure\ExceptionLogger\ExceptionLogger;
+use Psr\Log\LogLevel;
+use Symfony\Component\HttpClient\HttpClient;
+use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
+
 class EasyvistaSoapProvider extends AbstractProvider
 {
     public const ARG_ACCOUNT = 1;
@@ -60,7 +68,7 @@ class EasyvistaSoapProvider extends AbstractProvider
     /** @var string */
     protected $ws_error;
 
-    /** @var null|array */
+    /** @var null|string */
     protected $soap_result;
 
     /** @var string */
@@ -417,54 +425,114 @@ class EasyvistaSoapProvider extends AbstractProvider
         return 0;
     }
 
-    protected function callSOAP($data, $soap_action)
+    protected function callSOAP($data, $soap_action): int
     {
-        $proto = 'http';
-        if (isset($this->rule_data['https']) && $this->rule_data['https'] == 'yes') {
-            $proto = 'https';
-        }
+        $proto = (isset($this->rule_data['https']) && $this->rule_data['https'] === 'yes')
+            ? 'https'
+            : 'http';
+
         $endpoint = $proto . '://' . $this->rule_data['address'] . $this->rule_data['wspath'];
-        $ch = curl_init($endpoint);
-        if ($ch == false) {
-            $this->setWsError('cannot init curl object');
+
+        $headers = [
+            'Content-Type' => 'text/xml; charset=UTF-8',
+            'SOAPAction' => $soap_action,
+            'Content-Length' => strlen($data),
+        ];
+
+        $options = [
+            'headers' => $headers,
+            'body' => $data,
+            'timeout' => (int) $this->rule_data['timeout'],
+            'verify_peer' => true,
+            'verify_host' => true,
+        ];
+
+        // Custom CA
+        if (
+            isset($this->rule_data['ca_certificate'])
+            && is_readable($this->rule_data['ca_certificate'])
+        ) {
+            $options['cafile'] = $this->rule_data['ca_certificate'];
+        }
+
+        // Proxy support
+        if (
+            ! empty($this->rule_data[''])
+            && ! empty($this->rule_data['proxy_port'])
+        ) {
+            $proxy = $this->rule_data['proxy_address'] . ':' . $this->rule_data['proxy_port'];
+
+            if (
+                ! empty($this->rule_data['proxy_username'])
+                && ! empty($this->rule_data['proxy_password'])
+            ) {
+                $options['proxy'] = sprintf(
+                    'http://%s:%s@%s',
+                    $this->rule_data['proxy_username'],
+                    $this->rule_data['proxy_password'],
+                    $proxy,
+                );
+            } else {
+                $options['proxy'] = 'http://' . $proxy;
+            }
+        }
+
+        // Basic auth for SOAP
+        if (! empty($this->rule_data['username']) && ! empty($this->rule_data['password'])) {
+            $options['auth_basic'] = [
+                $this->rule_data['username'],
+                $this->rule_data['password'],
+            ];
+        }
+
+        $context = [
+            'soap_action' => $soap_action,
+            'endpoint' => $endpoint,
+            'timeout' => $this->rule_data['timeout'] ?? null,
+            'https_enabled' => ($this->rule_data['https'] ?? '') === 'yes',
+            'proxy_enabled' => ! empty($this->rule_data['proxy_address']),
+            'proxy_address' => $this->rule_data['proxy_address'] ?? null,
+            'proxy_port' => $this->rule_data['proxy_port'] ?? null,
+            'response_status' => null,
+        ];
+        try {
+            $client = HttpClient::create();
+            $response = $client->request('POST', $endpoint, $options);
+
+            $status = $response->getStatusCode();
+            $context['response_status'] = $status;
+
+            if ($status !== 200) {
+                $content = $response->getContent(false);
+                $this->setWsError($content);
+                ExceptionLogger::create()->log(
+                    new Exception('SOAP error: unexpected HTTP status ' . $status),
+                    $context,
+                    LogLevel::ERROR,
+                );
+
+                return 1;
+            }
+
+            $content = $response->getContent();
+            $this->soap_result = $content;
+
+            return 0;
+        } catch (
+            TransportExceptionInterface|
+            ClientExceptionInterface|
+            ServerExceptionInterface|
+            RedirectionExceptionInterface $exception
+        ) {
+            $this->setWsError('SOAP HTTP error: ' . $exception->getMessage());
+            ExceptionLogger::create()->log($exception, $context, LogLevel::ERROR);
+
+            return 1;
+        } catch (Exception $exception) {
+            $this->setWsError('SOAP error: ' . $exception->getMessage());
+            ExceptionLogger::create()->log($exception, $context, LogLevel::ERROR);
 
             return 1;
         }
-
-        self::setProxy(
-            $ch,
-            ['proxy_address' => $this->getFormValue('proxy_address', false), 'proxy_port' => $this->getFormValue('proxy_port', false), 'proxy_username' => $this->getFormValue('proxy_username', false), 'proxy_password' => $this->getFormValue('proxy_password', false)]
-        );
-        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
-        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $this->rule_data['timeout']);
-        curl_setopt($ch, CURLOPT_TIMEOUT, $this->rule_data['timeout']);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt(
-            $ch,
-            CURLOPT_HTTPHEADER,
-            ['Content-Type:  text/xml;charset=UTF-8', 'SOAPAction: ' . $soap_action, 'Content-Length: ' . strlen($data)]
-        );
-        $this->soap_result = curl_exec($ch);
-
-        if ($this->soap_result == false) {
-            $this->setWsError(curl_error($ch));
-            curl_close($ch);
-
-            return 1;
-        }
-
-        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close($ch);
-
-        if ($httpCode != 200) {
-            $this->setWsError($this->soap_result);
-
-            return 1;
-        }
-
-        return 0;
     }
 }
