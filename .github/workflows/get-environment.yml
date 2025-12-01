@@ -61,7 +61,11 @@ on:
         value: ${{ jobs.get-environment.outputs.labels }}
 
 jobs:
+  dependency-analysis:
+    uses: centreon/security-tools/.github/workflows/dependency-analysis.yml@SECU-dd-tools
+
   get-environment:
+    needs: [dependency-analysis]
     runs-on: ubuntu-24.04
     outputs:
       latest_major_version: ${{ steps.latest_major_version.outputs.latest_major_version }}
@@ -83,9 +87,6 @@ jobs:
       labels: ${{ steps.has_skip_label.outputs.labels }}
 
     steps:
-      - name: check dependencies
-        uses: centreon/security-tools/.github/workflows/dependency-analysis.yml@SECU-dd-tools
-
       - name: Check if PR has skip label
         id: has_skip_label
         uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
