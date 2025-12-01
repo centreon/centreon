@@ -136,7 +136,7 @@ const rolesMapping: Array<InputProps> = [
           connectedAutocomplete: {
             additionalConditionParameters: [],
             endpoint: accessGroupsEndpoint,
-            getOptionLabel: (option) => option?.name
+            getOptionLabel: (option) => option?.name?.toString() || ''
           },
           dataTestId: 'saml_accessGroup',
           fieldName: 'accessGroup',
@@ -187,7 +187,7 @@ const groupsMapping: Array<InputProps> = [
           connectedAutocomplete: {
             additionalConditionParameters: [],
             endpoint: contactGroupsEndpoint,
-            getOptionLabel: (option) => option.name
+            getOptionLabel: (option) => option?.name?.toString() || ''
           },
           dataTestId: 'saml_contactGroup',
           fieldName: 'contactGroup',
@@ -319,7 +319,7 @@ export const inputs: Array<InputProps> = [
     connectedAutocomplete: {
       additionalConditionParameters: [],
       endpoint: contactTemplatesEndpoint,
-      getOptionLabel: (option) => option.name
+      getOptionLabel: (option) => option?.name?.toString() || ''
     },
     dataTestId: 'saml_contactTemplate',
     fieldName: 'contactTemplate',
