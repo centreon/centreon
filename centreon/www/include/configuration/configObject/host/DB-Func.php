@@ -3023,7 +3023,10 @@ function getPayloadForHostTemplate(bool $isCloudPlatform, array $formData): arra
         'retry_check_interval' => $formData['host_retry_check_interval'] !== ''
             ? (int) $formData['host_retry_check_interval']
             : null,
-        'templates' => array_map(static fn (string $id): int => (int) $id, array_values($formData['tpSelect'] ?? [])),
+        'templates' => array_map(
+            static fn (string $id): int => (int) $id,
+            array_values(array_filter($formData['tpSelect'] ?? [], static fn ($id) => ! empty($id)))
+        ),
         'categories' => array_map(static fn (string $id): int => (int) $id, $formData['host_hcs'] ?? []),
         'macros' => array_map(
             static function (int|string $key, string $name, string $value) use ($formData): array {
@@ -3160,7 +3163,10 @@ function getPayloadForHost(bool $isCloudPlatform, array $formData): array
             ? (int) $formData['host_retry_check_interval']
             : null,
         'is_activated' => (bool) ($formData['host_activate']['host_activate'] ?: false),
-        'templates' => array_map(static fn (string $id): int => (int) $id, array_values($formData['tpSelect'] ?? [])),
+        'templates' => array_map(
+            static fn (string $id): int => (int) $id,
+            array_values(array_filter($formData['tpSelect'] ?? [], static fn ($id) => ! empty($id)))
+        ),
         'categories' => array_map(static fn (string $id): int => (int) $id, $formData['host_hcs'] ?? []),
         'groups' => array_map(static fn (string $id): int => (int) $id, $formData['host_hgs'] ?? []),
         'macros' => array_map(
