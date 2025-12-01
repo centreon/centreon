@@ -7,6 +7,7 @@ import {
   userAtom
 } from '@centreon/ui-context';
 
+import { renderHook } from '@testing-library/react';
 import { PlatformVersions } from '../api/models';
 
 import About from './About';

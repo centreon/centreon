@@ -46,7 +46,7 @@ import {
   labelFullNameAttribute,
   labelLogoutUrl,
   labelRemoteLoginUrl,
-  labelRequestedAuthnContext,
+  labelRequestedAuthnContextComparison,
   labelRequired,
   labelSAMLOnly,
   labelUserIdAttribute
@@ -126,6 +126,8 @@ describe('SAMLConfiguration', () => {
 
     cy.contains(labelIdentityProvider).click();
 
+    cy.findByTestId("Identity provider-header").click();
+
     cy.findByLabelText(labelRemoteLoginUrl).should(
       'have.value',
       retrievedSAMLConfiguration.remote_login_url
@@ -142,7 +144,8 @@ describe('SAMLConfiguration', () => {
       'have.value',
       retrievedSAMLConfiguration.user_id_attribute
     );
-    cy.findByTestId(labelRequestedAuthnContext).should('have.value', 'minimum');
+    cy.findByTestId("saml_requestAuthnContext").click();
+    cy.findByTestId(labelRequestedAuthnContextComparison).should('have.value', 'exact');
     cy.findByLabelText(labelCentreonUIOnly).should('not.be.checked');
     cy.findByLabelText(labelBothIdentityProviderAndCentreonUI).should(
       'be.checked'
