@@ -95,6 +95,7 @@ export interface WidgetPropertyProps {
   forceSingleAutocompleteConditions: ForceSingleAutocompleteConditions;
   selectType?: SelectType;
   allowRegexOnResourceTypes?: Array<WidgetResourceType>;
+  allowEmptyResources?: boolean;
 }
 
 export interface WidgetDataResource {

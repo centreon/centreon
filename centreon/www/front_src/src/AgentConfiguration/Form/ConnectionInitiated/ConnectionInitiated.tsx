@@ -1,4 +1,4 @@
-import { JSX, useMemo } from 'react';
+import { JSX } from 'react';
 
 import { Switch, Tooltip } from '@centreon/ui/components';
 import DoneIcon from '@mui/icons-material/Done';
@@ -9,7 +9,7 @@ import { useFormikContext } from 'formik';
 import { equals } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
-import { AgentConfigurationForm, ConnectionMode } from '../../models';
+import { AgentConfigurationForm } from '../../models';
 import AgentInitiated from './AgentInitiated';
 import { useStyles } from './ConnectionInitiated.styles';
 import HostConfigurations from './HostConfigurations/HostConfigurations';
@@ -111,13 +111,6 @@ const ConnectionInitiated = (): JSX.Element => {
       }, 0);
     };
 
-  const isNoTLSMode = useMemo(
-    () =>
-      equals(values.connectionMode?.id, ConnectionMode.secure) ||
-      equals(values.connectionMode?.id, ConnectionMode.insecure),
-    [values.connectionMode?.id]
-  );
-
   return (
     <Tabs tabs={tabs} defaultTab="agent">
       <TabPanel value="agent" className={classes.tabPanel}>
@@ -141,9 +134,7 @@ const ConnectionInitiated = (): JSX.Element => {
             }
           }}
         />
-        {values.configuration.agentInitiated && isNoTLSMode && (
-          <AgentInitiated />
-        )}
+        {values.configuration.agentInitiated && <AgentInitiated />}
       </TabPanel>
       <TabPanel value="poller" className={classes.tabPanel}>
         <FormControlLabel

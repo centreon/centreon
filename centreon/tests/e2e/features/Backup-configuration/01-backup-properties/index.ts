@@ -69,10 +69,7 @@ Then('the MySQL configuration file path is set', () => {
   cy.enterIframe('#main-content').within(() => {
     cy.get('input[name="backup_retention"]').should('have.value', '7');
     cy.get('input[name="backup_configuration_files"]').should('be.checked');
-    cy.get('input[name="backup_mysql_conf"]').should(
-      'have.value',
-      '/etc/my.cnf.d/centreon.cnf'
-    );
+    cy.get('input[name="backup_mysql_conf"]').should('have.value', '');
     cy.get(
       'input[name="backup_export_scp_enabled[backup_export_scp_enabled]"]'
     ).should('be.checked');

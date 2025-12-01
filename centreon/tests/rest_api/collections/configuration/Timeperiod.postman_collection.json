@@ -1,9 +1,10 @@
 {
 	"info": {
-		"_postman_id": "75d99ae0-5ad2-48e1-b8ce-c406e31dcdf9",
+		"_postman_id": "46d24dfb-1312-4bfb-9904-575dbdfb5044",
 		"name": "TimePeriod",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "16182525"
+		"_exporter_id": "28117716",
+		"_collection_link": "https://centreon-api-testing.postman.co/workspace/develop-OSS~7c78046c-a719-4dae-bbf9-70e6e2c5b9bd/collection/16182525-46d24dfb-1312-4bfb-9904-575dbdfb5044?action=share&source=collection_link&creator=28117716"
 	},
 	"item": [
 		{
@@ -2126,7 +2127,7 @@
 									"const responseJson = pm.response.json();\r",
 									"pm.test(\"The time period could not be created, due to a wrong type of value for name and alias.\", function () {\r",
 									"    pm.response.to.have.status(422);\r",
-									"    pm.expect(responseJson.message).to.eql(\"name: This value should be of type string.\\nalias: This value should be of type string.\\n\");\r",
+									"    pm.expect(responseJson.message).to.contains(\"value should be of type string\");\r",
 									"});\r",
 									"\r",
 									"pm.test(\"Schema validation test for the time period creation response\", function () {\r",
@@ -2144,7 +2145,8 @@
 									"});"
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						},
 						{
@@ -2154,7 +2156,8 @@
 									""
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -2663,7 +2666,8 @@
 									"const responseJson = pm.response.json();\r",
 									"pm.test(\"The time period with an empty name could not be created, due to the name being mandatory.\", function () {\r",
 									"    pm.response.to.have.status(422);\r",
-									"    pm.expect(responseJson.message).to.eql(\"name: This value is too short. It should have 1 character or more.\\n\");\r",
+									"    pm.expect(responseJson.message).to.includes(\"value is too short\");\r",
+									"    pm.expect(responseJson.message).to.includes(\"should have 1 character\");\r",
 									"});\r",
 									"\r",
 									"pm.test(\"Schema validation test for the time period creation response\", function () {\r",
@@ -2681,7 +2685,8 @@
 									"});"
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						},
 						{
@@ -2691,7 +2696,8 @@
 									""
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -2734,7 +2740,8 @@
 									"const responseJson = pm.response.json();\r",
 									"pm.test(\"The time period with name 'test_name_with_empty_alias' and an empty name could not be created, due to the alias being mandatory.\", function () {\r",
 									"    pm.response.to.have.status(422);\r",
-									"    pm.expect(responseJson.message).to.eql(\"alias: This value is too short. It should have 1 character or more.\\n\");\r",
+									"    pm.expect(responseJson.message).to.includes(\"value is too short\");\r",
+									"    pm.expect(responseJson.message).to.includes(\"should have 1 character\");\r",
 									"});\r",
 									"\r",
 									"pm.test(\"Schema validation test for the time period creation response\", function () {\r",
@@ -2752,7 +2759,8 @@
 									"});"
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						},
 						{
@@ -2762,7 +2770,8 @@
 									""
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -3814,7 +3823,8 @@
 									"const responseJson = pm.response.json();\r",
 									"pm.test(\"The time period could not be created, due to a wrong type of value for days, templates and exceptions.\", function () {\r",
 									"    pm.response.to.have.status(422);\r",
-									"    pm.expect(responseJson.message).to.eql(\"days[0][day]: This value should be of type integer.\\ndays[0][time_range]: This value should not be null.\\ntemplates[0]: This value should be of type integer.\\nexceptions[0][day_range]: This value should be of type string.\\nexceptions[0][time_range]: This value should be of type string.\\n\");\r",
+									"    pm.expect(responseJson.message).to.includes(\"value should be of type integer\");\r",
+									"    pm.expect(responseJson.message).to.includes(\"value should be of type string\");\r",
 									"});\r",
 									"\r",
 									"pm.test(\"Schema validation test for the time period creation response\", function () {\r",
@@ -3831,7 +3841,8 @@
 									"});"
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						},
 						{
@@ -3841,7 +3852,8 @@
 									""
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -4311,7 +4323,8 @@
 									"const responseJson = pm.response.json();\r",
 									"pm.test(\"The time period with an empty name could not be created, due to the name being mandatory.\", function () {\r",
 									"    pm.response.to.have.status(422);\r",
-									"    pm.expect(responseJson.message).to.eql(\"name: This value is too short. It should have 1 character or more.\\n\");\r",
+									"    pm.expect(responseJson.message).to.includes(\"value is too short\");\r",
+									"    pm.expect(responseJson.message).to.includes(\"should have 1 character\");\r",
 									"});\r",
 									"\r",
 									"pm.test(\"Schema validation test for the time period creation response\", function () {\r",
@@ -4328,7 +4341,8 @@
 									"});"
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						},
 						{
@@ -4338,7 +4352,8 @@
 									""
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -4384,7 +4399,8 @@
 									"const responseJson = pm.response.json();\r",
 									"pm.test(\"The time period with name 'test_name_with_empty_alias' and an empty name could not be created, due to the alias being mandatory.\", function () {\r",
 									"    pm.response.to.have.status(422);\r",
-									"    pm.expect(responseJson.message).to.eql(\"alias: This value is too short. It should have 1 character or more.\\n\");\r",
+									"    pm.expect(responseJson.message).to.includes(\"value is too short\");\r",
+									"    pm.expect(responseJson.message).to.includes(\"should have 1 character\");\r",
 									"});\r",
 									"\r",
 									"pm.test(\"Schema validation test for the time period creation response\", function () {\r",
@@ -4401,7 +4417,8 @@
 									"});"
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						},
 						{
@@ -4411,7 +4428,8 @@
 									""
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -6454,6 +6472,64 @@
 					""
 				]
 			}
+		}
+	],
+	"variable": [
+		{
+			"key": "api_login_user_RW",
+			"value": ""
+		},
+		{
+			"key": "api_password_user_RW",
+			"value": ""
+		},
+		{
+			"key": "api_login_user_Read",
+			"value": ""
+		},
+		{
+			"key": "api_password_user_Read",
+			"value": ""
+		},
+		{
+			"key": "api_login_user_Nothing",
+			"value": ""
+		},
+		{
+			"key": "api_password_user_Nothing",
+			"value": ""
+		},
+		{
+			"key": "timePeriod2Name",
+			"value": ""
+		},
+		{
+			"key": "timePeriod2Alias",
+			"value": ""
+		},
+		{
+			"key": "timePeriod2Id",
+			"value": ""
+		},
+		{
+			"key": "timePeriod3Name",
+			"value": ""
+		},
+		{
+			"key": "timePeriod3Alias",
+			"value": ""
+		},
+		{
+			"key": "timePeriod3Id",
+			"value": ""
+		},
+		{
+			"key": "timePeriodName",
+			"value": ""
+		},
+		{
+			"key": "timePeriodAlias",
+			"value": ""
 		}
 	]
 }

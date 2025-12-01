@@ -86,8 +86,11 @@ export default ({
       runMode: 2
     },
     screenshotsFolder: `${resultsFolder}/screenshots`,
-    video: isDevelopment,
-    videoCompression: 0,
+    // Ensure previous run assets are removed to avoid accumulation
+    trashAssetsBeforeRuns: true,
+    video: true,
+    // Keep files small in CI, but fast locally
+    videoCompression: process.env.CI ? 32 : 0,
     videosFolder: `${resultsFolder}/videos`,
     viewportHeight: 1080,
     viewportWidth: 1920
