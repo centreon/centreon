@@ -109,6 +109,8 @@ abstract class AbstractProvider
     protected $close_advanced = 0;
     /** @var int */
     protected $proxy_enabled = 0;
+    /** @var string */
+    protected $provider_name = '';
 
     public const HOSTGROUP_TYPE = 0;
     public const HOSTCATEGORY_TYPE = 1;
@@ -132,6 +134,7 @@ abstract class AbstractProvider
      * @param int $rule_id
      * @param mixed $submitted_config
      * @param int $provider_id
+     * @param string $provider_name
      *
      * @return void
      */
@@ -141,7 +144,8 @@ abstract class AbstractProvider
         $centreon_open_tickets_path,
         $rule_id,
         $submitted_config,
-        $provider_id
+        $provider_id,
+        $provider_name,
     ) {
         $this->rule = $rule;
         $this->centreon_path = $centreon_path;
@@ -171,6 +175,7 @@ abstract class AbstractProvider
 
         $this->widget_id = null;
         $this->uniq_id = null;
+        $this->provider_name = $provider_name;
     }
 
     /**
@@ -868,6 +873,7 @@ Output: {$service.output|substr:0:1024}
     protected function saveConfigMain()
     {
         $this->save_config['provider_id'] = $this->submitted_config['provider_id'];
+        $this->save_config['provider_name'] = $this->provider_name;
         $this->save_config['rule_alias'] = $this->submitted_config['rule_alias'];
         $this->save_config['simple']['macro_ticket_id'] = $this->submitted_config['macro_ticket_id'];
         $this->save_config['simple']['confirm_autoclose'] = $this->submitted_config['confirm_autoclose'];

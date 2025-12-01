@@ -34,6 +34,10 @@
  *
  */
 
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
+use Core\Security\AccessGroup\Domain\Collection\AccessGroupCollection;
+
 class ServicegroupMonitoring
 {
     protected $dbb;
@@ -52,40 +56,72 @@ class ServicegroupMonitoring
     /**
      * Get Host States
      *
-     * @param string $sgName
-     * @param int $detailFlag
-     * @param int $admin
-     * @param CentreonACL $aclObj
-     * @param array $preferences
+     * @param string $serviceGroupName
+     * @param bool $isUserAdmin
+     * @param AccessGroupCollection $accessGroups
+     * @param bool $detailFlag
      * @return array
      */
-    public function getHostStates($sgName, $admin, $aclObj, $preferences, $detailFlag = false)
-    {
-        $query = "SELECT DISTINCT h.host_id, h.state, h.name, h.alias, ssg.servicegroup_id
-            FROM `services_servicegroups` ssg, `hosts` h, `servicegroups` sg
-            WHERE h.host_id = ssg.host_id
-                AND h.name NOT LIKE '_Module_%'
-                AND h.enabled = 1
-                AND ssg.servicegroup_id = sg.servicegroup_id
-                AND sg.name = '" . $this->dbb->escape($sgName) . "' ";
-        if (!$admin) {
-            $query .= $aclObj->queryBuilder("AND", "h.host_id", $aclObj->getHostsString("ID", $this->dbb));
+    public function getHostStates(
+        string $serviceGroupName,
+        bool $isUserAdmin,
+        AccessGroupCollection $accessGroups,
+        bool $detailFlag = false,
+    ): array {
+        if (
+            empty($serviceGroupName)
+            || (! $isUserAdmin && $accessGroups->isEmpty())
+        ) {
+            return [];
         }
-        $query .= " ORDER BY h.name ";
-        $res = $this->dbb->query($query);
+
+        $queryParameters = [];
+        $queryParameters[] = QueryParameter::string('serviceGroupName', $serviceGroupName);
+
+        $query = <<<'SQL'
+                SELECT DISTINCT
+                    h.host_id,
+                    h.state,
+                    h.name,
+                    h.alias,
+                    ssg.servicegroup_id
+                FROM hosts h
+                INNER JOIN services_servicegroups ssg
+                    ON h.host_id = ssg.host_id
+                INNER JOIN servicegroups sg
+                    ON ssg.servicegroup_id = sg.servicegroup_id
+            SQL;
+
+        if (! $isUserAdmin) {
+            $accessGroupsList = implode(', ', $accessGroups->getIds());
+
+            $query .= <<<SQL
+                    INNER JOIN centreon_acl
+                        ON centreon_acl.host_id = h.host_id
+                        AND centreon_acl.group_id IN ({$accessGroupsList})
+                SQL;
+        }
+
+        $query .= <<<'SQL'
+                WHERE h.name NOT LIKE '_Module_%'
+                    AND h.enabled = 1
+                    AND sg.name = :serviceGroupName
+                ORDER BY h.name
+            SQL;
+
         $tab = [];
         $detailTab = [];
-        while ($row = $res->fetch()) {
-            if (!isset($tab[$row['state']])) {
-                $tab[$row['state']] = 0;
+        foreach ($this->dbb->iterateAssociative($query, QueryParameters::create($queryParameters)) as $record) {
+            if (! isset($tab[$record['state']])) {
+                $tab[$record['state']] = 0;
             }
-            if (!isset($detailTab[$row['name']])) {
-                $detailTab[$row['name']] = [];
+            if (! isset($detailTab[$record['name']])) {
+                $detailTab[$record['name']] = [];
             }
-            foreach ($row as $key => $val) {
-                $detailTab[$row['name']][$key] = $val;
+            foreach ($record as $key => $val) {
+                $detailTab[$record['name']][$key] = $val;
             }
-            $tab[$row['state']]++;
+            $tab[$record['state']]++;
         }
         if ($detailFlag == true) {
             return $detailTab;
@@ -96,50 +132,77 @@ class ServicegroupMonitoring
     /**
      * Get Service States
      *
-     * @param string $sgName
-     * @param int $detailFlag
-     * @param int $admin
-     * @param CentreonACL $aclObj
-     * @param array $preferences
+     * @param string $serviceGroupName
+     * @param bool $isUserAdmin
+     * @param AccessGroupCollection $accessGroups
+     * @param bool $detailFlag
      * @return array
      */
-    public function getServiceStates($sgName, $admin, $aclObj, $preferences, $detailFlag = false): array
-    {
-        $query = "SELECT DISTINCT h.host_id, s.state, h.name, s.service_id, s.description, ssg.servicegroup_id
-            FROM `services_servicegroups` ssg, `services` s, `hosts` h, `servicegroups` sg ";
-        if (!$admin) {
-            $query .= ", centreon_acl acl ";
+    public function getServiceStates(
+        string $serviceGroupName,
+        bool $isUserAdmin,
+        AccessGroupCollection $accessGroups,
+        bool $detailFlag = false,
+    ): array {
+        if (
+            empty($serviceGroupName)
+            || (! $isUserAdmin && $accessGroups->isEmpty())
+        ) {
+            return [];
         }
-        $query .= "WHERE h.host_id = s.host_id
-                AND h.name NOT LIKE '_Module_%'
-                AND s.enabled = 1
-                AND s.host_id = ssg.host_id
-                AND ssg.service_id = s.service_id
-                AND ssg.servicegroup_id = sg.servicegroup_id
-                AND sg.name = '" . $this->dbb->escape($sgName) . "' ";
-        if (!$admin) {
-            $query .= " AND h.host_id = acl.host_id
-                AND acl.service_id = s.service_id
-                AND acl.group_id IN (" . $aclObj->getAccessGroupsString() . ") ";
+
+        $query = <<<'SQL'
+                SELECT DISTINCT
+                    h.host_id,
+                    s.state,
+                    h.name,
+                    s.service_id,
+                    s.description,
+                    ssg.servicegroup_id
+                FROM hosts h
+                INNER JOIN services s
+                    ON h.host_id = s.host_id
+                INNER JOIN services_servicegroups ssg
+                    ON s.host_id = ssg.host_id
+                    AND s.service_id = ssg.service_id
+                INNER JOIN servicegroups sg
+                    ON ssg.servicegroup_id = sg.servicegroup_id
+            SQL;
+
+        if (! $isUserAdmin) {
+            $accessGroupsList = implode(', ', $accessGroups->getIds());
+            $query .= <<<SQL
+                    INNER JOIN centreon_acl acl
+                        ON h.host_id = acl.host_id
+                        AND s.service_id = acl.service_id
+                        AND acl.group_id IN ({$accessGroupsList})
+                SQL;
         }
-        $query .= " ORDER BY h.name ";
-        $res = $this->dbb->query($query);
+
+        $query .= <<<'SQL'
+                WHERE h.name NOT LIKE '_Module_%'
+                    AND s.enabled = 1
+                    AND sg.name = :serviceGroupName
+                ORDER BY h.name
+            SQL;
+
         $tab = [];
         $detailTab = [];
-        while ($row = $res->fetch()) {
-            if (!isset($tab[$row['state']])) {
-                $tab[$row['state']] = 0;
+        $queryParameters = QueryParameters::create([QueryParameter::string('serviceGroupName', $serviceGroupName)]);
+        foreach ($this->dbb->iterateAssociative($query, $queryParameters) as $record) {
+            if (! isset($tab[$record['state']])) {
+                $tab[$record['state']] = 0;
             }
-            if (!isset($detailTab[$row['host_id']])) {
-                $detailTab[$row['host_id']] = [];
+            if (! isset($detailTab[$record['host_id']])) {
+                $detailTab[$record['host_id']] = [];
             }
-            if (isset($detailTab[$row['name']]) && !isset($detailTab[$row['name']][$row['service_id']])) {
-                $detailTab[$row['host_id']][$row['service_id']] = [];
+            if (isset($detailTab[$record['name']]) && ! isset($detailTab[$record['name']][$record['service_id']])) {
+                $detailTab[$record['host_id']][$record['service_id']] = [];
             }
-            foreach ($row as $key => $val) {
-                $detailTab[$row['host_id']][$row['service_id']][$key] = $val;
+            foreach ($record as $key => $val) {
+                $detailTab[$record['host_id']][$record['service_id']][$key] = $val;
             }
-            $tab[$row['state']]++;
+            $tab[$record['state']]++;
         }
         if ($detailFlag == true) {
             return $detailTab;

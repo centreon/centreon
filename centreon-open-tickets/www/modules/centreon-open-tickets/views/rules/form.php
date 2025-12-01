@@ -54,7 +54,10 @@ foreach ($register_providers as $name => $value) {
 }
 $provider_html .= '</select>';
 
-$array_rule_form = ['rule_alias' => ['label' => _("Rule name") . $required_field, 'html' => $rule_alias_html], 'rule_provider' => ['label' => _("Provider") . $required_field, 'html' => $provider_html]];
+$array_rule_form = [
+    'rule_alias' => ['label' => _('Rule name') . $required_field, 'html' => $rule_alias_html],
+    'rule_provider' => ['label' => _('Provider') . $required_field, 'html' => $provider_html],
+];
 
 $tpl->assign('form', $array_rule_form);
 

@@ -33,41 +33,75 @@
  * 
  */
 
-#
-## Database retrieve information for Manufacturer
-#
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\Enum\QueryParameterTypeEnum;
+use Adaptation\Database\Connection\Exception\ConnectionException;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
+use Core\Common\Domain\Exception\CollectionException;
+use Core\Common\Domain\Exception\RepositoryException;
+use Core\Common\Domain\Exception\ValueObjectException;
 
-function myDecodeGroup($arg)
+//
+// # Database retrieve information for Manufacturer
+//
+
+function myDecodeGroup(?string $arg): string
 {
     $arg = html_entity_decode($arg ?? '', ENT_QUOTES, "UTF-8");
     return ($arg);
 }
 
 $group = [];
-if (($o == "c" || $o == "w") && $id) {
-    $query = "SELECT traps_group_name as name, traps_group_id as id FROM traps_group " .
-        "WHERE traps_group_id = '" . $pearDB->escape($id) . "' LIMIT 1";
-    $DBRESULT = $pearDB->query($query);
-    # Set base value
-    $group = array_map("myDecodeGroup", $DBRESULT->fetchRow());
-    $DBRESULT->closeCursor();
+
+try {
+    if (($o === 'c' || $o === 'w') && $id) {
+        $sql = <<<'SQL'
+                SELECT traps_group_name AS name, traps_group_id AS id
+                FROM traps_group
+                WHERE traps_group_id = :id
+                LIMIT 1
+            SQL;
+
+        $params = QueryParameters::create([
+            QueryParameter::create('id', (int) $id, QueryParameterTypeEnum::INTEGER),
+        ]);
+
+        $result = $pearDB->fetchAssociative($sql, $params);
+
+        if ($result !== false) {
+            $group = array_map('myDecodeGroup', $result);
+        }
+    }
+} catch (ValueObjectException|CollectionException|ConnectionException $exception) {
+    CentreonLog::create()->error(
+        CentreonLog::TYPE_SQL,
+        'Error while retrieving trap group data: ' . $exception->getMessage(),
+        exception: $exception
+    );
+
+    $msg = new CentreonMsg();
+    $msg->setImage('./img/icons/warning.png');
+    $msg->setTextStyle('bold');
+    $msg->setText('Error while retrieving trap group data');
 }
 
-##########################################################
-# Var information to format the element
-#
-$attrsText = ["size" => "50"];
-$attrsTextarea = ["rows" => "5", "cols" => "40"];
-#
-## Form begin
-#
-$form = new HTML_QuickFormCustom('Form', 'post', "?p=" . $p);
-if ($o == "a") {
-    $form->addElement('header', 'title', _("Add Group"));
-} elseif ($o == "c") {
-    $form->addElement('header', 'title', _("Modify Group"));
-} elseif ($o == "w") {
-    $form->addElement('header', 'title', _("View Group"));
+// #########################################################
+// Var information to format the element
+//
+$attrsText = ['size' => '50'];
+$attrsTextarea = ['rows' => '5', 'cols' => '40'];
+
+//
+// # Form begin
+//
+$form = new HTML_QuickFormCustom('Form', 'post', '?p=' . $p);
+
+if ($o === 'a') {
+    $form->addElement('header', 'title', _('Add Group'));
+} elseif ($o === 'c') {
+    $form->addElement('header', 'title', _('Modify Group'));
+} elseif ($o === 'w') {
+    $form->addElement('header', 'title', _('View Group'));
 }
 
 #
@@ -76,10 +110,18 @@ if ($o == "a") {
 $form->addElement('text', 'name', _("Name"), $attrsText);
 
 $avRoute = './include/common/webServices/rest/internal.php?object=centreon_configuration_trap&action=list';
-$deRoute = './include/common/webServices/rest/internal.php?object=centreon_configuration_trap' .
-    '&action=defaultValues&target=Traps&field=groups&id=' . $id;
-$attrTraps = ['datasourceOrigin' => 'ajax', 'availableDatasetRoute' => $avRoute, 'multiple' => true, 'linkedObject' => 'centreonTraps', 'defaultDatasetRoute' => $deRoute];
-$form->addElement('select2', 'traps', _("Traps"), [], $attrTraps);
+$deRoute = './include/common/webServices/rest/internal.php?object=centreon_configuration_trap'
+    . '&action=defaultValues&target=Traps&field=groups&id=' . $id;
+
+$attrTraps = [
+    'datasourceOrigin' => 'ajax',
+    'availableDatasetRoute' => $avRoute,
+    'multiple' => true,
+    'linkedObject' => 'centreonTraps',
+    'defaultDatasetRoute' => $deRoute,
+];
+
+$form->addElement('select2', 'traps', _('Traps'), [], $attrTraps);
 
 #
 ## Further informations
@@ -92,16 +134,30 @@ $redirect->setValue($o);
 ## Form Rules
 #
 $form->applyFilter('__ALL__', 'myTrim');
-$form->addRule('name', _("Compulsory Name"), 'required');
-$form->registerRule('exist', 'callback', 'testTrapGroupExistence');
-$form->addRule('name', _("Name is already in use"), 'exist');
-$form->setRequiredNote("<font style='color: red;'>*</font>&nbsp;" . _("Required fields"));
+$form->addRule('name', _('Compulsory Name'), 'required');
+$form->registerRule('exist', 'callback', function ($name) {
+    try {
+        return ! testTrapGroupExistence($name);
+    } catch (RepositoryException $exception) {
+        CentreonLog::create()->error(
+            CentreonLog::TYPE_SQL,
+            'Error while validating traps group uniqueness: ' . $exception->getMessage(),
+            exception: $exception
+        );
+        $msg = new CentreonMsg();
+        $msg->setImage('./img/icons/warning.png');
+        $msg->setTextStyle('bold');
+        $msg->setText('Error while validating traps group uniqueness');
 
-#
-##End of form definition
-#
+        return false;
+    }
+});
+$form->addRule('name', _('Name is already in use'), 'exist');
+$form->setRequiredNote("<font style='color: red;'>*</font>&nbsp;" . _('Required fields'));
 
-// Smarty template initialization
+//
+// # Smarty template initialization
+//
 $tpl = SmartyBC::createSmartyTemplate($path);
 
 $tpl->assign(
@@ -119,9 +175,8 @@ foreach ($help as $key => $text) {
 }
 $tpl->assign("helptext", $helptext);
 
-# Just watch a Trap Group information
-if ($o == "w") {
-    if ($centreon->user->access->page($p) != 2) {
+if ($o === 'w') {
+    if ($centreon->user->access->page($p) !== 2) {
         $form->addElement(
             "button",
             "change",
@@ -131,27 +186,50 @@ if ($o == "w") {
     }
     $form->setDefaults($group);
     $form->freeze();
-} # Modify a Trap Group information
-elseif ($o == "c") {
-    $subC = $form->addElement('submit', 'submitC', _("Save"), ["class" => "btc bt_success"]);
-    $res = $form->addElement('reset', 'reset', _("Reset"), ["class" => "btc bt_default"]);
+} elseif ($o === 'c') {
+    $form->addElement('submit', 'submitC', _('Save'), ['class' => 'btc bt_success']);
+    $form->addElement('reset', 'reset', _('Reset'), ['class' => 'btc bt_default']);
     $form->setDefaults($group);
-} # Add a Trap Group information
-elseif ($o == "a") {
-    $subA = $form->addElement('submit', 'submitA', _("Save"), ["class" => "btc bt_success"]);
-    $res = $form->addElement('reset', 'reset', _("Reset"), ["class" => "btc bt_default"]);
+} elseif ($o === 'a') {
+    $form->addElement('submit', 'submitA', _('Save'), ['class' => 'btc bt_success']);
+    $form->addElement('reset', 'reset', _('Reset'), ['class' => 'btc bt_default']);
 }
 
 $valid = false;
 if ($form->validate()) {
     $trapGroupObj = $form->getElement('id');
-    if ($form->getSubmitValue("submitA")) {
-        $trapGroupObj->setValue(insertTrapGroupInDB());
-    } elseif ($form->getSubmitValue("submitC")) {
-        updateTrapGroupInDB($trapGroupObj->getValue());
+    if ($form->getSubmitValue('submitA')) {
+        try {
+            $trapGroupObj->setValue(insertTrapGroupInDB());
+            $valid = true;
+        } catch (RepositoryException $exception) {
+            CentreonLog::create()->error(
+                CentreonLog::TYPE_SQL,
+                'Error while inserting traps group: ' . $exception->getMessage(),
+                exception: $exception
+            );
+            $msg = new CentreonMsg();
+            $msg->setImage('./img/icons/warning.png');
+            $msg->setTextStyle('bold');
+            $msg->setText('Error while inserting traps group');
+        }
+    } elseif ($form->getSubmitValue('submitC')) {
+        try {
+            updateTrapGroupInDB($trapGroupObj->getValue());
+            $valid = true;
+        } catch (RepositoryException $exception) {
+            CentreonLog::create()->error(
+                CentreonLog::TYPE_SQL,
+                'Error while updating traps group: ' . $exception->getMessage(),
+                exception: $exception
+            );
+            $msg = new CentreonMsg();
+            $msg->setImage('./img/icons/warning.png');
+            $msg->setTextStyle('bold');
+            $msg->setText('Error while updating traps group');
+        }
     }
     $o = null;
-    $valid = true;
 }
 
 if ($valid) {

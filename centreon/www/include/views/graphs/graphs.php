@@ -267,10 +267,14 @@ $form->accept($renderer);
 $tpl->assign('form', $renderer->toArray());
 $tpl->assign('periodORlabel', _("or"));
 $tpl->assign('nbDisplayedCharts', $graphsPerPage);
-$tpl->assign('from', _("From"));
-$tpl->assign('to', _("to"));
-$tpl->assign('displayStatus', _("Display Status"));
-$tpl->assign('Apply', _("Apply"));
+$tpl->assign('from', _('From'));
+$tpl->assign('to', _('to'));
+$tpl->assign('displayStatus', _('Display Status'));
+$tpl->assign(
+    'metricExceededWarningMessage',
+    _('Too many metrics (X). More than 20 may cause performance issues.'),
+);
+$tpl->assign('Apply', _('Apply'));
 $tpl->assign('defaultCharts', json_encode($defaultGraphs));
 $tpl->assign("admin", $centreon->user->admin);
 $tpl->assign("topologyAccess", $centreon->user->access->topology);
