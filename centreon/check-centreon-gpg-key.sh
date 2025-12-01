@@ -14,10 +14,10 @@ if [ ${EUID} -ne 0 ]; then
   USE_SUDO="sudo "
 fi
 
-OLDKEY_NAME="gpg-pubkey-8a7652bc-4cb6f1f6"
-OLDKEY_ID="1024D/8A7652BC"
+OLDKEY_NAME="gpg-pubkey-3fc49c1b-651d4c25"
+OLDKEY_ID="3fc49c1b"
 
-NEWKEY_NAME="gpg-pubkey-3fc49c1b-651d4c25"
+NEWKEY_NAME="gpg-pubkey-4fbeae79-692c7e2c"
 
 rpm -q gpg-pubkey --qf '%{NAME}-%{VERSION}-%{RELEASE}\t%{SUMMARY}\n' | grep -q "${OLDKEY_NAME}"
 
