@@ -508,14 +508,14 @@ jobs:
 
       - name: Upload HTML Reports
         if: failure()
-        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         with:
           name: newman-${{ inputs.os }}-html-reports-${{ steps.feature-path.outputs.feature_name_with_dash }}
           path: centreon/tests/rest_api/newman/
 
       - name: Upload test reports
         if: always()
-        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         with:
           name: newman-${{ inputs.os }}-test-reports-${{ steps.feature-path.outputs.feature_name_with_dash }}
           path: centreon/tests/rest_api/postman_summaries/*.json
@@ -791,7 +791,7 @@ jobs:
 
     steps:
       - name: Merge Artifacts
-        uses: actions/upload-artifact/merge@65462800fd760344b1a7b4382951275a0abb4808 # v4.3.3
+        uses: actions/upload-artifact/merge@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         if: ${{ contains(needs.newman-test-run.result, 'failure') }}
         with:
           name: newman-${{ inputs.os }}-html-reports
