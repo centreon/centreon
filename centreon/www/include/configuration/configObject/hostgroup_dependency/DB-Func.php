@@ -550,3 +550,61 @@ function updateHostGroupDependencyHostGroupChilds($dep_id = null, array $ret = [
         $pearDB->executeStatement($qb, $params);
     }
 }
+
+function validateParentChildAreNotCircular(array $fields): array|true
+{
+    global $pearDB;
+
+    $parentIds = $fields['dep_hgParents'] ?? [];
+    $childIds = $fields['dep_hgChilds'] ?? [];
+
+    if (empty($parentIds) || empty($childIds)) {
+        return true;
+    }
+
+    $bindedParentIds = [];
+    foreach ($parentIds as $parentId) {
+        $bindedKey = ':parentId' . $parentId;
+        $bindedParentIds[$bindedKey] = (int) $parentId;
+    }
+    $parentIdsAsString = implode(', ', array_keys($bindedParentIds));
+    $bindedChildIds = [];
+    foreach ($childIds as $childId) {
+        $bindedKey = ':childId' . $childId;
+        $bindedChildIds[$bindedKey] = (int) $childId;
+    }
+    $childIdsAsString = implode(', ', array_keys($bindedChildIds));
+
+    $query = $pearDB->createQueryBuilder()
+        ->select('DISTINCT host_host_id')
+        ->from('hostgroup_relation')
+        ->where("hostgroup_hg_id IN ({$parentIdsAsString})")
+        ->getQuery();
+    $queryParameters = [];
+    foreach ($bindedParentIds as $key => $value) {
+        $queryParameters[] = QueryParameter::int($key, $value);
+    }
+    $params = QueryParameters::create($queryParameters);
+    $parentHosts = $pearDB->fetchFirstColumn($query, $params);
+
+    $query = $pearDB->createQueryBuilder()
+        ->select('DISTINCT host_host_id')
+        ->from('hostgroup_relation')
+        ->where("hostgroup_hg_id IN ({$childIdsAsString})")
+        ->getQuery();
+    $queryParameters = [];
+    foreach ($bindedChildIds as $key => $value) {
+        $queryParameters[] = QueryParameter::int($key, $value);
+    }
+    $params = QueryParameters::create($queryParameters);
+    $childHosts = $pearDB->fetchFirstColumn($query, $params);
+
+    $intersect = array_intersect($parentHosts, $childHosts);
+    if (! empty($intersect)) {
+        return [
+            'dep_hgParents' => 'Circular dependency detected between parent and child host groups. Some hosts are present in both parent and child host groups.',
+        ];
+    }
+
+    return true;
+}
