@@ -101,6 +101,154 @@ function do_chain_rules($rule_list, $db_storage, $contact_infos, $selected)
     }
 }
 
+/**
+ * getMacroId : returns the id of a macro if it is sets directly on the host or service
+ * 
+ * @param string $type the type of object (can be host or service)
+ * @param string $macroName the name of the macro (usually TICKET_ID)
+ * @param int $objectId the id of the host or service
+ * 
+ * @return int|null the id of the macro if directly linked to the host or service
+ */
+function getTicketMacroId(string $type, string $macroName, int $objectId): ?int {
+    global $db;
+
+    if ($type === 'host') {
+        $query = "SELECT host_macro_id AS macro_id FROM on_demand_macro_host WHERE host_host_id = :object_id AND host_macro_name = :macro_name";
+    } else {
+        $query = "SELECT svc_macro_id AS macro_id FROM on_demand_macro_service WHERE svc_svc_id = :object_id AND svc_macro_name = :macro_name";
+    }
+
+    $stmt = $db->prepare($query);
+    $stmt->bindParam(':object_id', $objectId, PDO::PARAM_INT);
+    $stmt->bindParam(':macro_name', $macroName, PDO::PARAM_STR);
+    $stmt->execute();
+
+
+    while ($row = $stmt->fetch()) {
+        return (int) $row['macro_id'];
+    }
+
+    return null;
+}
+
+/**
+ * updateMacroValue when a ticket is created it needs to also be stored in the on_demand_macro_xxx table
+ * 
+ * @param string $type the type of object (can be host or service)
+ * @param string $macroValue the value that is going to be updated
+ * @param int $macroId the id of the macro that needs to be updated
+ * 
+ * @return void
+ */
+function updateMacroValue(string $type, string $macroValue, int $macroId): void {
+    global $db;
+
+    if ($type === 'host') {
+        $query = "UPDATE on_demand_macro_host SET host_macro_value = :ticket_id WHERE host_macro_id = " . $macroId;
+    } else {
+        $query = "UPDATE on_demand_macro_service SET svc_macro_value = :ticket_id WHERE svc_macro_id = " . $macroId;
+    }
+
+    $stmt = $db->prepare($query);
+    $stmt->bindParam(':ticket_id', $macroValue, PDO::PARAM_STR);
+    $stmt->execute();
+}
+
+/**
+ * getMaxOrder gets the order number for the next custom macro
+ * 
+ * @param string $type the type of object (must be host or service)
+ * @param int $objectId the id of the service or the host
+ * 
+ * @return int the next available order number
+ */
+function getMaxOrder(string $type, int $objectId): int {
+    global $db;
+
+    if ($type === 'host') {
+        $query = "SELECT MAX(macro_order) AS max FROM on_demand_macro_host WHERE host_host_id = :object_id";
+    } else {
+        $query = "SELECT MAX(macro_order) AS max FROM on_demand_macro_service WHERE svc_svc_id = :object_id";
+    }
+
+    $stmt = $db->prepare($query);
+    $stmt->bindParam(':object_id', $objectId, PDO::PARAM_INT);
+
+    if ($row = $stmt->fetch()) {
+        return (int)$row['max'] + 1;
+    }
+
+    return 0;
+}
+
+/**
+ * insertNewMacroValue add a new macro on the object (service/host)
+ * 
+ * @param string $type the type of object (must be host or service)
+ * @param string $macroName the name of the macro
+ * @param string $macroValue the value of the macro
+ * @param int $objectId the id of the service or the host
+ * 
+ * @return void
+ */
+function insertNewMacroValue(string $type, string $macroName, string $macroValue, int $objectId): void {
+    global $db;
+    $macroOrder = getMaxOrder($type, $objectId);
+
+    if ($type === 'host') {
+        $query = "INSERT INTO on_demand_macro_host (host_macro_name, host_macro_value, is_password, description, host_host_id, macro_order) VALUES (:macro_name, :ticket_id, NULL, '', :object_id, " . $macroOrder . ")";
+    } else {
+        $query = "INSERT INTO on_demand_macro_service (svc_macro_name, svc_macro_value, is_password, description, svc_svc_id, macro_order) VALUES (:macro_name, :ticket_id, NULL, '', :object_id, " . $macroOrder . ")";
+    }
+
+    $stmt = $db->prepare($query);
+    $stmt->bindParam(':ticket_id', $macroValue, PDO::PARAM_STR);
+    $stmt->bindParam(':object_id', $objectId, PDO::PARAM_INT);
+    $stmt->bindParam(':macro_name', $macroName, PDO::PARAM_STR);
+    $stmt->execute();
+}
+
+/**
+ * isServiceUnique checks if the service is linked to a single host (not to multiple hosts or to a hostgroup)
+ * 
+ * @param int $serviceId the id of the service
+ * 
+ * @return bool
+ */
+function isServiceUnique(int $serviceId): bool {
+    global $db;
+    $query = <<<SQL
+        SELECT count(*) AS duplicated_service 
+        FROM (
+            (
+                SELECT hsr_id 
+                FROM host_service_relation 
+                WHERE service_service_id = :service_id
+                    AND hostgroup_hg_id IS NOT NULL
+            ) UNION (
+                SELECT hsr_id 
+                FROM host_service_relation 
+                WHERE service_service_id = :service_id
+                    AND host_host_id IS NOT NULL
+                GROUP BY service_service_id HAVING COUNT(service_service_id) > 1
+            )
+        ) AS relation;
+    SQL;
+
+    $stmt = $db->prepare($query);
+    $stmt->bindParam(':service_id', $serviceId, PDO::PARAM_INT);
+    $stmt->execute();
+
+    if ($row = $stmt->fetch()) {
+        if ((int)$row['duplicated_service'] === 0) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
 $resultat = ['code' => 0, 'msg' => 'ok'];
 
 // Load provider class
@@ -182,6 +330,7 @@ try {
     );
 
     if ($resultat['result']['ticket_is_ok'] == 1) {
+        $macroName = $centreon_provider->getMacroTicketId();
         do_chain_rules($centreon_provider->getChainRuleList(), $db_storage, $contact_infos, $selected);
 
         require_once $centreon_path . 'www/class/centreonExternalCommand.class.php';
@@ -193,6 +342,15 @@ try {
         }
 
         foreach ($selected['host_selected'] as $value) {
+            $fullMacroName = '$_HOST' . $macroName . '$';
+            $macroId = getTicketMacroId('host', $fullMacroName,  $value['host_id']);
+
+            if (isset($macroId)) {
+                updateMacroValue('host', $resultat['result']['ticket_id'],  $macroId);
+            } else {
+                insertNewMacroValue('host', $fullMacroName, $resultat['result']['ticket_id'], $value['host_id']);
+            }
+
             $command = 'CHANGE_CUSTOM_HOST_VAR;%s;%s;%s';
             call_user_func_array(
                 [$external_cmd, $method_external_name],
@@ -200,7 +358,7 @@ try {
                     sprintf(
                         $command,
                         $value['name'],
-                        $centreon_provider->getMacroTicketId(),
+                        $macroName,
                         $resultat['result']['ticket_id']
                     ),
                     $value['instance_id'],
@@ -240,6 +398,18 @@ try {
             }
         }
         foreach ($selected['service_selected'] as $value) {
+            $fullMacroName = '$_SERVICE' . $macroName . '$';
+            $macroId = getTicketMacroId('service', $fullMacroName,  $value['service_id']);
+
+            if (isset($macroId)) {
+                updateMacroValue('service', $resultat['result']['ticket_id'],  $macroId);
+            } else {
+                // need to avoid creating macros on services linked to multiple hosts or to hg otherwise we can create many open ticket bugs
+                if (!isServiceUnique($value['service_id'])) {
+                    insertNewMacroValue('service', $fullMacroName, $resultat['result']['ticket_id'], $value['service_id']);
+                }
+            }
+
             $command = 'CHANGE_CUSTOM_SVC_VAR;%s;%s;%s;%s';
             call_user_func_array(
                 [$external_cmd, $method_external_name],
@@ -248,7 +418,7 @@ try {
                         $command,
                         $value['host_name'],
                         $value['description'],
-                        $centreon_provider->getMacroTicketId(),
+                        $macroName,
                         $resultat['result']['ticket_id']
                     ),
                     $value['instance_id'],
