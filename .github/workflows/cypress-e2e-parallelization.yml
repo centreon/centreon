@@ -206,7 +206,7 @@ jobs:
         shell: bash
 
       - name: Cypress end-to-end testing
-        uses: cypress-io/github-action@e65cba2e7319696fc0fdc4d5a319b737aec4ba1c # v6.10.3
+        uses: cypress-io/github-action@7ef72e250a9e564efb4ed4c2433971ada4cc38b4 # v6.10.4
         with:
           command: pnpm run cypress:run --browser electron --spec features/**/${{ matrix.feature }} --env tags="${{ inputs.test_tags }}"
           install: false
