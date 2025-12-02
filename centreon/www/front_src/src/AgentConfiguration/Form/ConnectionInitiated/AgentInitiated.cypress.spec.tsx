@@ -3,6 +3,7 @@ import { Formik } from 'formik';
 
 import { BrowserRouter } from 'react-router';
 import { getTokensEndpoint } from '../../api/endpoints';
+import { ConnectionMode } from '../../models';
 import AgentInitiated from './AgentInitiated';
 
 const initialValues = {
