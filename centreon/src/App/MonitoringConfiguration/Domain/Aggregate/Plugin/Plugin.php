@@ -23,8 +23,6 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Domain\Aggregate\Plugin;
 
-use Symfony\Component\Process\Process;
-
 final class Plugin
 {
     public function __construct(
@@ -32,22 +30,5 @@ final class Plugin
         public readonly PluginCommandLine $commandLine,
         public ?PluginDescription $description = null,
     ) {
-    }
-
-    public function updateDescription(?PluginDescription $description): void
-    {
-        $this->description = $description;
-    }
-
-    public function getDescription(): ?PluginDescription
-    {
-        $process = new Process([$this->commandLine->value, '--help']);
-        $process->run();
-
-        if (! $process->isSuccessful()) {
-            return null;
-        }
-
-        return empty($process->getOutput()) ? null : new PluginDescription(trim($process->getOutput()));
     }
 }
