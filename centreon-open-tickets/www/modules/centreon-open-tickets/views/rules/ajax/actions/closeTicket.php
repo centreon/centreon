@@ -33,15 +33,18 @@ function updateHostMacro(string $macroName, int $hostId): void {
     global $db;
 
     // check if host has the macro set up
-    $query = "SELECT host_macro_id FROM on_demand_macro_host WHERE host_macro_name = :macro_name AND host_host_id = " . $hostId;
+    $query = "SELECT host_macro_id FROM on_demand_macro_host WHERE host_macro_name = :macro_name AND host_host_id = :host_id";
     $stmt = $db->prepare($query);
     $stmt->bindParam(':macro_name', $macroName, PDO::PARAM_STR);
+    $stmt->bindParam(':host_id', $hostId, PDO::PARAM_INT);
     $stmt->execute();
 
     if ($row = $stmt->fetch()) {
         $macroId = (int) $row['host_macro_id'];
-        $query = "UPDATE on_demand_macro_host SET host_macro_value = '' WHERE host_macro_id = " . $macroId;
-        $db->prepare($query)->execute();
+        $query = "UPDATE on_demand_macro_host SET host_macro_value = '' WHERE host_macro_id = :macro_id";
+        $stmt->bindParam(':macro_id', $macroId, PDO::PARAM_INT);
+        $stmt = $db->prepare($query);
+        $stmt->execute();
     }
 }
 
@@ -57,15 +60,18 @@ function updateServiceMacro(string $macroName, int $serviceId): void {
     global $db;
 
     // check if service has the macro set up
-    $query = "SELECT svc_macro_id FROM on_demand_macro_service WHERE svc_macro_name = :macro_name AND svc_svc_id = " . $serviceId;
+    $query = "SELECT svc_macro_id FROM on_demand_macro_service WHERE svc_macro_name = :macro_name AND svc_svc_id = :service_id";
     $stmt = $db->prepare($query);
     $stmt->bindParam(':macro_name', $macroName, PDO::PARAM_STR);
+    $stmt->bindParam(':service_id', $serviceId, PDO::PARAM_INT);
     $stmt->execute();
 
     if ($row = $stmt->fetch()) {
         $macroId = (int) $row['svc_macro_id'];
-        $query = "UPDATE on_demand_macro_service SET svc_macro_value = '' WHERE svc_macro_id = " . $macroId;
-        $stmt = $db->prepare($query)->execute();
+        $query = "UPDATE on_demand_macro_service SET svc_macro_value = '' WHERE svc_macro_id = :macro_id";
+        $stmt->bindParam(':macro_id', $macroId, PDO::PARAM_INT);
+        $stmt = $db->prepare($query);
+        $stmt->execute();
     }
 }
 
