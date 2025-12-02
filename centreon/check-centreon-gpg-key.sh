@@ -17,7 +17,7 @@ fi
 OLDKEY_NAME="gpg-pubkey-3fc49c1b-651d4c25"
 OLDKEY_ID="3fc49c1b"
 
-NEWKEY_NAME="gpg-pubkey-4fbeae79-692c7e2c"
+NEWKEY_NAME="gpg-pubkey-faa09feb-692eaf2a"
 
 rpm -q gpg-pubkey --qf '%{NAME}-%{VERSION}-%{RELEASE}\t%{SUMMARY}\n' | grep -q "${OLDKEY_NAME}"
 
