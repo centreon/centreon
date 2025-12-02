@@ -1,8 +1,8 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Formik } from 'formik';
+
 import { BrowserRouter } from 'react-router';
 import { getTokensEndpoint } from '../../api/endpoints';
-import { ConnectionMode } from '../../models';
 import AgentInitiated from './AgentInitiated';
 
 const initialValues = {
@@ -134,6 +134,7 @@ describe('AgentInitiated', () => {
 
   it('should handle empty tokens array', () => {
     const emptyTokensValues = {
+      connectionMode: { id: 'secure', name: 'secure' },
       configuration: {
         otelPublicCertificate: '',
         otelCaCertificate: '',
@@ -261,6 +262,7 @@ describe('AgentInitiated', () => {
 
   it('should handle token deletion', () => {
     const valuesWithTokens = {
+      connectionMode: { id: 'secure', name: 'secure' },
       configuration: {
         otelPublicCertificate: '',
         otelCaCertificate: '',
@@ -302,6 +304,7 @@ describe('AgentInitiated', () => {
 
   it('should properly remove tokens when delete is clicked', () => {
     const valuesWithMultipleTokens = {
+      connectionMode: { id: 'secure', name: 'secure' },
       configuration: {
         otelPublicCertificate: '',
         otelCaCertificate: '',

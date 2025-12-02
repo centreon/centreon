@@ -2,7 +2,7 @@ import { equals } from 'ramda';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Schema, array, boolean, mixed, number, object, string } from 'yup';
-import { AgentConfigurationForm, AgentType, ConnectionMode } from '../models';
+import { AgentConfigurationForm, AgentType } from '../models';
 import {
   labelAddressInvalid,
   labelAtLeastOneConnexionMode,
@@ -87,12 +87,9 @@ export const useValidationSchema = (): Schema<AgentConfigurationForm> => {
 
     agentInitiated: boolean(),
     pollerInitiated: boolean(),
-    tokens: array().when(['$type', '$connectionMode', 'agentInitiated'], {
-      is: (type, connectionMode, agentInitiated) =>
-        agentInitiated &&
-        equals(type?.id, AgentType.CMA) &&
-        (equals(connectionMode?.id, ConnectionMode.secure) ||
-          equals(connectionMode?.id, ConnectionMode.insecure)),
+    tokens: array().when(['$type', 'agentInitiated'], {
+      is: (type, agentInitiated) =>
+        agentInitiated && equals(type?.id, AgentType.CMA),
       // biome-ignore lint/suspicious/noThenProperty: <explanation>
       then: (schema) =>
         schema
@@ -125,12 +122,9 @@ export const useValidationSchema = (): Schema<AgentConfigurationForm> => {
           port: portValidation,
           pollerCaCertificate: certificateValidation(),
           pollerCaName: string().nullable(),
-          token: object().when(['$type', '$connectionMode', '$configuration'], {
-            is: (type, connectionMode, configuration) =>
-              configuration?.pollerInitiated &&
-              equals(type?.id, AgentType.CMA) &&
-              (equals(connectionMode?.id, ConnectionMode.secure) ||
-                equals(connectionMode?.id, ConnectionMode.insecure)),
+          token: object().when(['$type', '$configuration'], {
+            is: (type, configuration) =>
+              configuration?.pollerInitiated && equals(type?.id, AgentType.CMA),
             // biome-ignore lint/suspicious/noThenProperty: <explanation>
             then: (schema) =>
               schema

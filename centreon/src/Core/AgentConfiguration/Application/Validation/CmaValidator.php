@@ -99,10 +99,10 @@ class CmaValidator implements TypeValidatorInterface
                 $configuration['otel_private_key'],
                 false
             );
+        }
 
-            if ($configuration['tokens'] === []) {
-                throw AgentConfigurationException::tokensAreMandatory();
-            }
+        if ($configuration['tokens'] === []) {
+            throw AgentConfigurationException::tokensAreMandatory();
         }
         $this->validateTokens($configuration['tokens']);
     }
@@ -124,13 +124,10 @@ class CmaValidator implements TypeValidatorInterface
                 throw AgentConfigurationException::invalidHostId($host['id']);
             }
 
-            if ($connectionMode !== ConnectionModeEnum::NO_TLS && $host['token'] === null) {
+            if ($host['token'] === null) {
                 throw AgentConfigurationException::tokensAreMandatory();
             }
-
-            if ($host['token'] !== null) {
-                $this->validateTokens([$host['token']]);
-            }
+            $this->validateTokens([$host['token']]);
         }
     }
 

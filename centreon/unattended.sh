@@ -384,11 +384,11 @@ function set_mariadb_repos() {
 	log "INFO" "Install MariaDB repository"
 
 	case $version in
-	"24.04" | "24.10" | "25.10")
-		detected_mariadb_version="10.11"
+	"23.10")
+		detected_mariadb_version="10.5"
 	;;
 	*)
-		detected_mariadb_version="10.5"
+		detected_mariadb_version="10.11"
 	;;
 	esac
 
@@ -398,7 +398,7 @@ function set_mariadb_repos() {
 		distrib_codename=$(awk -F'=' '/DISTRIB_CODENAME/ {print $2}' /etc/lsb-release)
 		curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup | bash -s -- --os-type=ubuntu --os-version="$distrib_codename" --mariadb-server-version="$detected_mariadb_version" --skip-maxscale
 	else
-		curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup | bash -s -- --mariadb-server-version="$detected_mariadb_version" --skip-maxscale
+	    dnf module enable mariadb:$detected_mariadb_version -y -q
 	fi
 	if [ $? -ne 0 ]; then
 		error_and_exit "Could not install the $dbms repository"
