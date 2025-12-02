@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\State;
 
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\PluginResource;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\ListPluginResource;
 use Tests\App\Shared\ApiTestCase;
 
 final class ListPluginsProviderTest extends ApiTestCase
@@ -34,7 +34,7 @@ final class ListPluginsProviderTest extends ApiTestCase
 
         $this->request('GET', '/api/latest/configuration/plugins');
         self::assertResponseIsSuccessful();
-        self::assertMatchesResourceCollectionJsonSchema(PluginResource::class);
+        self::assertMatchesResourceCollectionJsonSchema(ListPluginResource::class);
         self::assertJsonContains(
             [
                 'member' => [

@@ -21,19 +21,13 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Domain\Repository;
+namespace App\MonitoringConfiguration\Domain\Aggregate\Command;
 
-use App\MonitoringConfiguration\Domain\Aggregate\Option\OptionValue;
-use App\MonitoringConfiguration\Domain\Aggregate\Plugin\Plugin;
-use App\MonitoringConfiguration\Domain\Aggregate\Plugin\PluginName;
-use App\Shared\Domain\Collection;
-
-interface PluginRepository
+final readonly class CommandResult
 {
-    /**
-     * @return Collection<Plugin>
-     */
-    public function findByPath(OptionValue $path): Collection;
-
-    public function getByPathAndName(OptionValue $path, PluginName $name): Plugin;
+    public function __construct(
+        public CommandLine $value,
+        public ?CommandOutput $output = null,
+    ) {
+    }
 }

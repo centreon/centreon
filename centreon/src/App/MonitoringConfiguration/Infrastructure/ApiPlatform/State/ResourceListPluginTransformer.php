@@ -21,19 +21,19 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Domain\Repository;
+namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\State;
 
-use App\MonitoringConfiguration\Domain\Aggregate\Option\OptionValue;
 use App\MonitoringConfiguration\Domain\Aggregate\Plugin\Plugin;
-use App\MonitoringConfiguration\Domain\Aggregate\Plugin\PluginName;
-use App\Shared\Domain\Collection;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\ListPluginResource;
+use App\Shared\Infrastructure\TransformerInterface;
 
-interface PluginRepository
+/**
+ * @implements TransformerInterface<Plugin, ListPluginResource>
+ */
+final readonly class ResourceListPluginTransformer implements TransformerInterface
 {
-    /**
-     * @return Collection<Plugin>
-     */
-    public function findByPath(OptionValue $path): Collection;
-
-    public function getByPathAndName(OptionValue $path, PluginName $name): Plugin;
+    public function transform(mixed $from): ListPluginResource
+    {
+        return new ListPluginResource(name: $from->name->value);
+    }
 }

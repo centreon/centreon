@@ -21,19 +21,15 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Domain\Repository;
+namespace App\MonitoringConfiguration\Domain\Aggregate\Command;
 
-use App\MonitoringConfiguration\Domain\Aggregate\Option\OptionValue;
-use App\MonitoringConfiguration\Domain\Aggregate\Plugin\Plugin;
-use App\MonitoringConfiguration\Domain\Aggregate\Plugin\PluginName;
-use App\Shared\Domain\Collection;
+use Webmozart\Assert\Assert;
 
-interface PluginRepository
+final readonly class CommandOutput
 {
-    /**
-     * @return Collection<Plugin>
-     */
-    public function findByPath(OptionValue $path): Collection;
-
-    public function getByPathAndName(OptionValue $path, PluginName $name): Plugin;
+    public function __construct(
+        public string $value,
+    ) {
+        Assert::notEmpty($value);
+    }
 }
