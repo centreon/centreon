@@ -27,6 +27,7 @@ use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProviderInterface;
 use App\MonitoringConfiguration\Domain\Aggregate\Option\Option;
 use App\MonitoringConfiguration\Domain\Aggregate\Option\OptionName;
+use App\MonitoringConfiguration\Domain\Aggregate\Plugin\Plugin;
 use App\MonitoringConfiguration\Domain\Aggregate\Plugin\PluginName;
 use App\MonitoringConfiguration\Domain\Repository\OptionRepository;
 use App\MonitoringConfiguration\Domain\Repository\PluginRepository;
@@ -40,6 +41,9 @@ use Webmozart\Assert\Assert;
  */
 final readonly class FindPluginProvider implements ProviderInterface
 {
+    /**
+     * @param TransformerInterface<Plugin, PluginResource> $transformer
+     */
     public function __construct(
         #[Autowire(service: ResourcePluginTransformer::class)]
         private TransformerInterface $transformer,

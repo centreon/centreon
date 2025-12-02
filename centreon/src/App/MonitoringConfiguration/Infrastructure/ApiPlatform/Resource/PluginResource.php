@@ -52,7 +52,6 @@ final class PluginResource
         )]
         public string $commandLine,
 
-
         #[ApiProperty(
             description: 'description of plugin',
             openapiContext: ['example' => 'This is the help description of the plugin.']

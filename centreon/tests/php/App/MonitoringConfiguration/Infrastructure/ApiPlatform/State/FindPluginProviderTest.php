@@ -26,7 +26,6 @@ namespace Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\State;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\PluginResource;
 use Tests\App\Shared\ApiTestCase;
 
-/** @group wip */
 final class FindPluginProviderTest extends ApiTestCase
 {
     public function testItFindPlugins(): void
