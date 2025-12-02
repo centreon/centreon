@@ -245,11 +245,11 @@ function isServiceUnique(int $serviceId): bool {
 
     if ($row = $stmt->fetch()) {
         if ((int)$row['duplicated_service'] === 0) {
-            return false;
+            return true;
         }
     }
 
-    return true;
+    return false;
 }
 
 $resultat = ['code' => 0, 'msg' => 'ok'];
@@ -408,7 +408,7 @@ try {
                 updateMacroValue('service', $resultat['result']['ticket_id'],  $macroId);
             } else {
                 // need to avoid creating macros on services linked to multiple hosts or to hg otherwise we can create many open ticket bugs
-                if (!isServiceUnique($value['service_id'])) {
+                if (isServiceUnique($value['service_id'])) {
                     insertNewMacroValue('service', $fullMacroName, $resultat['result']['ticket_id'], $value['service_id']);
                 }
             }
