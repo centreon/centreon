@@ -193,7 +193,7 @@
             "target": "options",
             "when": "options.displayResources",
             "method": "equals",
-            "matches": "withoutTicket"
+            "matches": "withTicket"
           }
         },
         "enableServiceTicketCreation": {
@@ -204,7 +204,7 @@
             "target": "options",
             "when": "options.displayResources",
             "method": "equals",
-            "matches": "withoutTicket"
+            "matches": "withTicket"
           }
         }
       }
