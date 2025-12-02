@@ -178,7 +178,7 @@ function getMaxOrder(string $type, int $objectId): int {
     $stmt->execute();
 
     if ($row = $stmt->fetch()) {
-        return (int)$row['max'] + 1;
+        return is_null($row['max']) ? 0 : (int)$row['max'] + 1;
     }
 
     return 0;
@@ -346,7 +346,7 @@ try {
             $fullMacroName = '$_HOST' . $macroName . '$';
             $macroId = getTicketMacroId('host', $fullMacroName,  $value['host_id']);
 
-            if (isset($macroId)) {
+            if (!is_null($macroId)) {
                 updateMacroValue('host', $resultat['result']['ticket_id'],  $macroId);
             } else {
                 insertNewMacroValue('host', $fullMacroName, $resultat['result']['ticket_id'], $value['host_id']);
