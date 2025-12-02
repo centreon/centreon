@@ -37,7 +37,7 @@ final readonly class ResourcePluginTransformer implements TransformerInterface
         return new PluginResource(
             name: $from->name->value,
             commandLine: $from->commandLine->value,
-            description: $from->getDescription()?->value,
+            description: $from->description?->value,
         );
     }
 }
