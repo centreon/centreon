@@ -191,8 +191,9 @@
           "defaultValue": true,
           "hiddenCondition": {
             "target": "options",
-            "when": "options.provider",
-            "method": "isNil"
+            "when": "options.displayResources",
+            "method": "equals",
+            "matches": "withoutTicket"
           }
         },
         "enableServiceTicketCreation": {
@@ -201,8 +202,9 @@
           "defaultValue": true,
           "hiddenCondition": {
             "target": "options",
-            "when": "options.provider",
-            "method": "isNil"
+            "when": "options.displayResources",
+            "method": "equals",
+            "matches": "withoutTicket"
           }
         }
       }
