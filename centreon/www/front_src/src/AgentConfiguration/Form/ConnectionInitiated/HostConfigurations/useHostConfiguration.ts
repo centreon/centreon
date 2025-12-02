@@ -1,6 +1,6 @@
 import { SelectEntry } from '@centreon/ui';
 import { useFormikContext } from 'formik';
-import { equals, isEmpty, isNil } from 'ramda';
+import { equals, isEmpty, isNil, or } from 'ramda';
 import { ChangeEvent, useCallback, useMemo } from 'react';
 import {
   AgentConfigurationForm,
@@ -22,8 +22,7 @@ interface UseHostConfigurationState {
   ) => (event: ChangeEvent<HTMLInputElement>) => void;
   hostErrors: Partial<HostConfiguration> | undefined;
   hostTouched: Partial<HostConfiguration> | undefined;
-  isInsecureMode: boolean;
-  isSecureMode: boolean;
+  areCertificateFieldsVisible: boolean;
   changeCMAToken: (_, tokens: Array<SelectEntry>) => void;
   token: { id: string; name: string };
 }
@@ -130,6 +129,8 @@ export const useHostConfiguration = ({
     ConnectionMode.insecure
   );
 
+  const areCertificateFieldsVisible = or(isInsecureMode, isSecureMode);
+
   return {
     changeAddress,
     changePort,
@@ -137,8 +138,7 @@ export const useHostConfiguration = ({
     selectHost,
     hostErrors,
     hostTouched,
-    isInsecureMode,
-    isSecureMode,
+    areCertificateFieldsVisible,
     changeCMAToken,
     token
   };

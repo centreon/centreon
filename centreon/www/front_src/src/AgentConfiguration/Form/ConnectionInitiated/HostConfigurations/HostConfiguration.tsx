@@ -1,4 +1,3 @@
-import { or } from 'ramda';
 import { ReactElement } from 'react';
 
 import {
@@ -41,8 +40,7 @@ const HostConfiguration = ({ index, host }: Props): ReactElement => {
     hostErrors,
     hostTouched,
     changePort,
-    isInsecureMode,
-    isSecureMode,
+    areCertificateFieldsVisible,
     changeStringInput,
     changeCMAToken,
     token
@@ -120,7 +118,7 @@ const HostConfiguration = ({ index, host }: Props): ReactElement => {
         <RedirectToTokensPage />
       </Box>
 
-      {or(isInsecureMode, isSecureMode) && (
+      {areCertificateFieldsVisible && (
         <>
           <TextField
             value={host?.pollerCaCertificate || ''}
