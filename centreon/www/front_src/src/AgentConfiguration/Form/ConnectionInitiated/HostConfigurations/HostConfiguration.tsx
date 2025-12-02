@@ -121,46 +121,47 @@ const HostConfiguration = ({ index, host }: Props): ReactElement => {
       </Box>
 
       {or(isInsecureMode, isSecureMode) && (
-        <TextField
-          value={host?.pollerCaCertificate || ''}
-          onChange={changeStringInput('pollerCaCertificate')}
-          label={t(labelCaCertificate)}
-          dataTestId={labelCaCertificate}
-          textFieldSlotsAndSlotProps={{
-            slotProps: {
-              htmlInput: {
-                'aria-label': labelCaCertificate
+        <>
+          <TextField
+            value={host?.pollerCaCertificate || ''}
+            onChange={changeStringInput('pollerCaCertificate')}
+            label={t(labelCaCertificate)}
+            dataTestId={labelCaCertificate}
+            textFieldSlotsAndSlotProps={{
+              slotProps: {
+                htmlInput: {
+                  'aria-label': labelCaCertificate
+                }
               }
+            }}
+            fullWidth
+            error={
+              (hostTouched?.pollerCaCertificate &&
+                hostErrors?.pollerCaCertificate) ||
+              undefined
             }
-          }}
-          fullWidth
-          error={
-            (hostTouched?.pollerCaCertificate &&
-              hostErrors?.pollerCaCertificate) ||
-            undefined
-          }
-          className={classes.input}
-        />
-      )}
-      {isInsecureMode && (
-        <TextField
-          value={host?.pollerCaName || ''}
-          onChange={changeStringInput('pollerCaName')}
-          label={t(labelCACommonName)}
-          textFieldSlotsAndSlotProps={{
-            slotProps: {
-              htmlInput: {
-                'aria-label': labelCACommonName
+            className={classes.input}
+          />
+          <TextField
+            value={host?.pollerCaName || ''}
+            onChange={changeStringInput('pollerCaName')}
+            label={t(labelCACommonName)}
+            textFieldSlotsAndSlotProps={{
+              slotProps: {
+                htmlInput: {
+                  'aria-label': labelCACommonName
+                }
               }
+            }}
+            dataTestId={labelCACommonName}
+            fullWidth
+            error={
+              (hostTouched?.pollerCaName && hostErrors?.pollerCaName) ||
+              undefined
             }
-          }}
-          dataTestId={labelCACommonName}
-          fullWidth
-          error={
-            (hostTouched?.pollerCaName && hostErrors?.pollerCaName) || undefined
-          }
-          className={classes.input}
-        />
+            className={classes.input}
+          />
+        </>
       )}
     </Box>
   );
