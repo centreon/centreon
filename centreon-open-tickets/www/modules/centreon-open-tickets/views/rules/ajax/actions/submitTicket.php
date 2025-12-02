@@ -225,12 +225,12 @@ function isServiceUnique(int $serviceId): bool {
         SELECT count(*) AS duplicated_service 
         FROM (
             (
-                SELECT hsr_id 
+                SELECT 1 
                 FROM host_service_relation 
                 WHERE service_service_id = :service_id
                     AND hostgroup_hg_id IS NOT NULL
             ) UNION (
-                SELECT hsr_id 
+                SELECT 1 
                 FROM host_service_relation 
                 WHERE service_service_id = :service_id
                     AND host_host_id IS NOT NULL
@@ -244,12 +244,10 @@ function isServiceUnique(int $serviceId): bool {
     $stmt->execute();
 
     if ($row = $stmt->fetch()) {
-        if ((int)$row['duplicated_service'] === 0) {
-            return true;
-        }
+        return (int) $row['duplicated_service'] === 0;
     }
 
-    return false;
+    return true;
 }
 
 $resultat = ['code' => 0, 'msg' => 'ok'];
@@ -404,13 +402,11 @@ try {
             $fullMacroName = '$_SERVICE' . $macroName . '$';
             $macroId = getTicketMacroId('service', $fullMacroName,  $value['service_id']);
 
-            if (isset($macroId)) {
+            if (!is_null($macroId)) {
                 updateMacroValue('service', $resultat['result']['ticket_id'],  $macroId);
-            } else {
-                // need to avoid creating macros on services linked to multiple hosts or to hg otherwise we can create many open ticket bugs
-                if (isServiceUnique($value['service_id'])) {
-                    insertNewMacroValue('service', $fullMacroName, $resultat['result']['ticket_id'], $value['service_id']);
-                }
+            // need to avoid creating macros on services linked to multiple hosts or to hg otherwise we can create many open ticket bugs
+            } elseif (isServiceUnique($value['service_id'])) {
+                insertNewMacroValue('service', $fullMacroName, $resultat['result']['ticket_id'], $value['service_id']);
             }
 
             $command = 'CHANGE_CUSTOM_SVC_VAR;%s;%s;%s;%s';
