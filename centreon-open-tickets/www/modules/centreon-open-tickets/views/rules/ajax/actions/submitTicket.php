@@ -125,7 +125,7 @@ function getTicketMacroId(string $type, string $macroName, int $objectId): ?int 
     $stmt->execute();
 
 
-    while ($row = $stmt->fetch()) {
+    if ($row = $stmt->fetch()) {
         return (int) $row['macro_id'];
     }
 
@@ -145,13 +145,14 @@ function updateMacroValue(string $type, string $macroValue, int $macroId): void 
     global $db;
 
     if ($type === 'host') {
-        $query = "UPDATE on_demand_macro_host SET host_macro_value = :ticket_id WHERE host_macro_id = " . $macroId;
+        $query = "UPDATE on_demand_macro_host SET host_macro_value = :ticket_id WHERE host_macro_id = :macro_id";
     } else {
-        $query = "UPDATE on_demand_macro_service SET svc_macro_value = :ticket_id WHERE svc_macro_id = " . $macroId;
+        $query = "UPDATE on_demand_macro_service SET svc_macro_value = :ticket_id WHERE svc_macro_id = :macro_id";
     }
 
     $stmt = $db->prepare($query);
     $stmt->bindParam(':ticket_id', $macroValue, PDO::PARAM_STR);
+    $stmt->bindParam(':macro_id', $macroId, PDO::PARAM_INT);
     $stmt->execute();
 }
 
@@ -174,6 +175,7 @@ function getMaxOrder(string $type, int $objectId): int {
 
     $stmt = $db->prepare($query);
     $stmt->bindParam(':object_id', $objectId, PDO::PARAM_INT);
+    $stmt->execute();
 
     if ($row = $stmt->fetch()) {
         return (int)$row['max'] + 1;
@@ -197,15 +199,16 @@ function insertNewMacroValue(string $type, string $macroName, string $macroValue
     $macroOrder = getMaxOrder($type, $objectId);
 
     if ($type === 'host') {
-        $query = "INSERT INTO on_demand_macro_host (host_macro_name, host_macro_value, is_password, description, host_host_id, macro_order) VALUES (:macro_name, :ticket_id, NULL, '', :object_id, " . $macroOrder . ")";
+        $query = "INSERT INTO on_demand_macro_host (host_macro_name, host_macro_value, is_password, description, host_host_id, macro_order) VALUES (:macro_name, :ticket_id, NULL, '', :object_id, :macro_order)";
     } else {
-        $query = "INSERT INTO on_demand_macro_service (svc_macro_name, svc_macro_value, is_password, description, svc_svc_id, macro_order) VALUES (:macro_name, :ticket_id, NULL, '', :object_id, " . $macroOrder . ")";
+        $query = "INSERT INTO on_demand_macro_service (svc_macro_name, svc_macro_value, is_password, description, svc_svc_id, macro_order) VALUES (:macro_name, :ticket_id, NULL, '', :object_id, :macro_order)";
     }
 
     $stmt = $db->prepare($query);
     $stmt->bindParam(':ticket_id', $macroValue, PDO::PARAM_STR);
     $stmt->bindParam(':object_id', $objectId, PDO::PARAM_INT);
     $stmt->bindParam(':macro_name', $macroName, PDO::PARAM_STR);
+    $stmt->bindParam(':macro_order', $macroOrder, PDO::PARAM_INT);
     $stmt->execute();
 }
 
