@@ -36,7 +36,7 @@ runs:
         key: ${{ inputs.cache_key }}
         fail-on-cache-miss: true
 
-    - uses: jfrog/setup-jfrog-cli@88e9eba31c07e31beefa4cef5c0e93d1af9535d7 # v4.6.1
+    - uses: jfrog/setup-jfrog-cli@e5d3afdd1d75e4aa14a4f217cca93a2a9b5b846d # v4.8.0
       env:
         JF_URL: https://packages.centreon.com
         JF_ACCESS_TOKEN: ${{ inputs.artifactory_token }}
