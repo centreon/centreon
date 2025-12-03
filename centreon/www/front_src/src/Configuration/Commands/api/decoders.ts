@@ -2,7 +2,7 @@ import { JsonDecoder } from 'ts.data.json';
 
 import { buildListingDecoder } from '@centreon/ui';
 
-import { Command, CommandsListItem } from '../models';
+import { Command, CommandsListItem, Plugin } from '../models';
 
 const JSONLDEnityListDecoder = JsonDecoder.object<{ id: string; name: string }>(
   {
@@ -67,3 +67,15 @@ export const JSONLDEntitiesListDecoder = buildListingDecoder({
   listingDecoderName: 'Entity List',
   apiFormat: 'JSON-LD'
 });
+
+export const pluginDetailsDecoder = JsonDecoder.object<Plugin>(
+  {
+    name: JsonDecoder.string,
+    commandLine: JsonDecoder.string,
+    description: JsonDecoder.optional(JsonDecoder.nullable(JsonDecoder.string))
+  },
+  'Plugin',
+  {
+    commandLine: 'command_line'
+  }
+);
