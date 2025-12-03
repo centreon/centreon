@@ -12,7 +12,7 @@ import {
 } from '../../models';
 import { areResourcesFullfilled } from '../../utils';
 
-import { useRef } from 'react';
+import { ReactElement, useRef } from 'react';
 import Label from './Label';
 import MetricContainer from './MetricContainer';
 import MetricTop from './MetricTop';
@@ -24,7 +24,7 @@ import useTopBottom from './useTopBottom';
 interface TopBottomProps
   extends Pick<
     CommonWidgetProps<object>,
-    'playlistHash' | 'dashboardId' | 'id' | 'widgetPrefixQuery'
+    'playlistHash' | 'dashboardId' | 'id' | 'widgetPrefixQuery' | 'isInViewport'
   > {
   globalRefreshInterval: GlobalRefreshInterval;
   isFromPreview?: boolean;
@@ -52,8 +52,9 @@ const TopBottom = ({
   id,
   dashboardId,
   playlistHash,
-  widgetPrefixQuery
-}: TopBottomProps): JSX.Element => {
+  widgetPrefixQuery,
+  isInViewport
+}: TopBottomProps): ReactElement => {
   const { classes } = useTopBottomStyles({});
   const containerRef = useRef<HTMLDivElement>(null);
   const labelRef = useRef<HTMLParagraphElement>(null);

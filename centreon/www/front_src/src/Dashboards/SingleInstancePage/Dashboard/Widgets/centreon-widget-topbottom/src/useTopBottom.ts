@@ -57,7 +57,8 @@ const useTopBottom = ({
   dashboardId,
   id,
   playlistHash,
-  widgetPrefixQuery
+  widgetPrefixQuery,
+  isInViewport
 }: UseTopBottomProps): UseTopBottomState => {
   const isOnPublicPage = useAtomValue(isOnPublicPageAtom);
 
@@ -130,9 +131,10 @@ const useTopBottom = ({
     ],
     queryOptions: {
       enabled:
-        areResourcesFullfilled(resources) &&
+        isInViewport ??
+        (areResourcesFullfilled(resources) &&
         !!metricName &&
-        topBottomSettings.numberOfValues > 0,
+        topBottomSettings.numberOfValues > 0),
       refetchInterval: refreshIntervalToUse,
       suspense: false
     }
