@@ -8,6 +8,7 @@ import Chart from './Chart/Chart';
 import { useStyles } from './StatusChart.styles';
 import { DisplayType, StatusChartProps } from './models';
 import { labelHosts, labelServices } from './translatedLabels';
+import { ReactElement } from 'react';
 
 const StatusChart = ({
   globalRefreshInterval,
@@ -17,8 +18,9 @@ const StatusChart = ({
   id,
   dashboardId,
   playlistHash,
-  widgetPrefixQuery
-}: StatusChartProps): JSX.Element => {
+  widgetPrefixQuery,
+  isInViewport
+}: StatusChartProps): ReactElement => {
   const { cx, classes } = useStyles();
 
   const {
@@ -74,6 +76,7 @@ const StatusChart = ({
             displayValues={displayValues}
             getLinkToResourceStatusPage={getLinkToResourceStatusPage}
             id={id}
+            isInViewport={isInViewport}
             isHorizontalBar={isHorizontalBar}
             isSingleChart={isSingleChart}
             key={resourceType}

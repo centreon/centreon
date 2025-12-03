@@ -18,6 +18,7 @@ import useLoadResources from '../useLoadResources';
 
 import { useStyles } from './Chart.styles';
 import ChartSkeleton from './LoadingSkeleton';
+import { ReactElement } from 'react';
 
 const Chart = ({
   displayType,
@@ -35,8 +36,9 @@ const Chart = ({
   id,
   playlistHash,
   dashboardId,
+  isInViewport,
   widgetPrefixQuery
-}: ChartType): JSX.Element => {
+}: ChartType): ReactElement => {
   const { cx, classes } = useStyles();
   const { t } = useTranslation();
 
@@ -54,7 +56,8 @@ const Chart = ({
     refreshIntervalToUse,
     resourceType,
     resources,
-    widgetPrefixQuery
+    widgetPrefixQuery,
+    isInViewport
   });
 
   const goToResourceStatusPage = (status): void => {

@@ -12,6 +12,7 @@ import StatusCard from './StatusCard';
 import { useStatusGridCondensedStyles } from './StatusGridCondensed.styles';
 import { labelBusinessActivity } from './translatedLabels';
 import { useStatusGridCondensed } from './useStatusGridCondensed';
+import { ReactElement } from 'react';
 
 const StatusGridCondensed = ({
   globalRefreshInterval,
@@ -21,8 +22,9 @@ const StatusGridCondensed = ({
   dashboardId,
   playlistHash,
   id,
-  widgetPrefixQuery
-}: Omit<StatusGridProps, 'store' | 'queryClient'>): JSX.Element => {
+  widgetPrefixQuery,
+  isInViewport
+}: Omit<StatusGridProps, 'store' | 'queryClient'>): ReactElement => {
   const { classes } = useStatusGridCondensedStyles();
   const { t } = useTranslation();
   const { pluralizedT } = usePluralizedTranslation();
@@ -62,7 +64,8 @@ const StatusGridCondensed = ({
       panelOptions,
       playlistHash,
       refreshCount,
-      widgetPrefixQuery
+      widgetPrefixQuery,
+      isInViewport
     });
 
   if (isLoading && !hasData) {

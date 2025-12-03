@@ -30,7 +30,7 @@ export interface StatusChartProps
 export interface ChartType
   extends Pick<
     StatusChartProps,
-    'dashboardId' | 'id' | 'playlistHash' | 'widgetPrefixQuery'
+    'dashboardId' | 'id' | 'playlistHash' | 'widgetPrefixQuery'| 'isInViewport'
   > {
   displayLegend: boolean;
   displayType: DisplayType;
