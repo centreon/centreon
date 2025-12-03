@@ -1,6 +1,7 @@
 import { FluidTypography } from '@centreon/ui';
+import { ReactElement } from 'react';
 
-const Data = (): JSX.Element => {
+const Data = (): ReactElement => {
   return (
     <div
       style={{
