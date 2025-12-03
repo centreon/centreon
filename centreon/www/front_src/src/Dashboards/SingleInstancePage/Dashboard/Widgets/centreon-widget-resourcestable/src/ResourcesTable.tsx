@@ -2,6 +2,7 @@ import { useRefreshInterval } from '@centreon/ui';
 
 import { Listing } from './Listing';
 import { ResourcesTableProps } from './models';
+import { ReactElement } from 'react';
 
 const ResourceTable = ({
   globalRefreshInterval,
@@ -14,8 +15,9 @@ const ResourceTable = ({
   id,
   dashboardId,
   playlistHash,
-  widgetPrefixQuery
-}: Omit<ResourcesTableProps, 'store' | 'queryClient'>): JSX.Element => {
+  widgetPrefixQuery,
+  isInViewport
+}: Omit<ResourcesTableProps, 'store' | 'queryClient'>): ReactElement => {
   const { resources } = panelData;
 
   const {
@@ -62,6 +64,7 @@ const ResourceTable = ({
         provider={provider}
         refreshCount={refreshCount}
         refreshIntervalToUse={refreshIntervalToUse}
+        isInViewport={isInViewport}
         resources={resources}
         selectedColumnIds={selectedColumnIds}
         serviceSeverities={serviceSeverities}

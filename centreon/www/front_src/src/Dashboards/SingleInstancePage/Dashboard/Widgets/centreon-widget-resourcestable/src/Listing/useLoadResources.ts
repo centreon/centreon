@@ -38,6 +38,7 @@ interface LoadResourcesProps
   statusTypes: Array<'hard' | 'soft'>;
   statuses: Array<string>;
   isOpenTicketEnabled?: boolean;
+  isInViewport: boolean;
 }
 
 interface LoadResources {
@@ -67,7 +68,8 @@ const useLoadResources = ({
   isUnreachableHostHidden,
   displayResources,
   provider,
-  isOpenTicketEnabled
+  isOpenTicketEnabled,
+  isInViewport
 }: LoadResourcesProps): LoadResources => {
   const sort = { [sortField as string]: sortOrder };
 
@@ -127,6 +129,7 @@ const useLoadResources = ({
       isUnreachableHostHidden
     ],
     queryOptions: {
+      enabled: isInViewport,
       refetchInterval: refreshIntervalToUse,
       suspense: false
     },

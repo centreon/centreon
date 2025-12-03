@@ -17,6 +17,7 @@ import OpenTicketModal from './Columns/OpenTicket/Modal';
 import { rowColorConditions } from './colors';
 import { DisplayType as DisplayTypeEnum, NamedEntity } from './models';
 import useListing from './useListing';
+import { ReactElement } from 'react';
 
 interface ListingProps
   extends Pick<
@@ -45,6 +46,7 @@ interface ListingProps
   statusTypes: Array<'hard' | 'soft'>;
   statuses: Array<string>;
   widgetPrefixQuery: string;
+  isInViewport: boolean;
 }
 
 const Listing = ({
@@ -72,8 +74,9 @@ const Listing = ({
   isUnreachableHostHidden,
   displayResources,
   provider,
-  isOpenTicketEnabled
-}: ListingProps): JSX.Element => {
+  isOpenTicketEnabled,
+  isInViewport
+}: ListingProps): ReactElement => {
   const theme = useTheme();
 
   const {
@@ -123,7 +126,8 @@ const Listing = ({
     states,
     statusTypes,
     statuses,
-    widgetPrefixQuery
+    widgetPrefixQuery,
+    isInViewport
   });
 
   const isOnPublicPage = useAtomValue(isOnPublicPageAtom);
