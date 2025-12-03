@@ -11,7 +11,7 @@ import { useAtomValue } from 'jotai';
 import { federatedWidgetsPropertiesAtom } from '../../../../federatedModules/atoms';
 import DashboardPanel from './Panel/Panel';
 import PanelHeader from './Panel/PanelHeader';
-import { Add } from '@mui/icons-material';
+import { ReactElement } from 'react';
 
 interface Props {
   canEdit?: boolean;
@@ -35,7 +35,7 @@ const PanelsLayout = ({
   displayMoreActions = true,
   playlistHash,
   dashboardId
-}: Props): JSX.Element => {
+}: Props): ReactElement => {
   const { getLinkToResourceStatusPage, changeViewMode, getPageType } =
     useLinkToResourceStatus();
 

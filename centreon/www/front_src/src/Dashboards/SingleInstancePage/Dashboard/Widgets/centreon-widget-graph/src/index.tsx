@@ -1,3 +1,4 @@
+import { ReactElement } from 'react';
 import { CommonWidgetProps, Data } from '../../models';
 
 import LineChart from './LineChart';
@@ -19,7 +20,7 @@ const Input = ({
   widgetPrefixQuery,
   isFromPreview,
   isInViewport
-}: Props): JSX.Element => {
+}: Props): ReactElement => {
   return (
     <LineChart
       dashboardId={dashboardId}

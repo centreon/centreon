@@ -7,6 +7,7 @@ import NoResources from '../../NoResources';
 import { useColumns } from './Columns/useColumns';
 import { FormattedGroup, WidgetProps } from './models';
 import { useGroupMonitoring } from './useGroupMonitoring';
+import { ReactElement } from 'react';
 
 const GroupMonitoring = ({
   panelData,
@@ -19,8 +20,10 @@ const GroupMonitoring = ({
   dashboardId,
   playlistHash,
   widgetPrefixQuery,
-  hasDescription
-}: WidgetProps): JSX.Element => {
+  hasDescription,
+  isInViewport,
+  queryClient
+}: WidgetProps): ReactElement => {
   const {
     hasResourceTypeDefined,
     changeLimit,
@@ -32,7 +35,6 @@ const GroupMonitoring = ({
     sortOrder,
     listing,
     groupType,
-    groupTypeName
   } = useGroupMonitoring({
     dashboardId,
     globalRefreshInterval,
@@ -44,7 +46,9 @@ const GroupMonitoring = ({
     refreshCount,
     setPanelOptions,
     widgetPrefixQuery,
-    hasDescription
+    hasDescription, 
+    isInViewport,
+    queryClient
   });
 
   const columns = useColumns({

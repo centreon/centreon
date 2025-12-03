@@ -36,6 +36,7 @@ interface UseGroupMonitoringState {
   page: number;
   sortField: string;
   sortOrder: SortOrder;
+  isInViewport: boolean;
 }
 
 export const useGroupMonitoring = ({
@@ -48,7 +49,8 @@ export const useGroupMonitoring = ({
   dashboardId,
   id,
   playlistHash,
-  widgetPrefixQuery
+  widgetPrefixQuery,
+  isInViewport
 }: WidgetProps): UseGroupMonitoringState => {
   const isFirstMountRef = useRef(true);
   const limitRef = useRef(10);
@@ -137,7 +139,7 @@ export const useGroupMonitoring = ({
       }),
     getQueryKey: () => key,
     queryOptions: {
-      enabled: hasResourceTypeDefined,
+      enabled: isInViewport ?? hasResourceTypeDefined,
       refetchInterval: !isFromPreview ? refreshIntervalToUse : false,
       suspense: false
     },

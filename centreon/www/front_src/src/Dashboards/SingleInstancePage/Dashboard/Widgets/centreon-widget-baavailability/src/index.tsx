@@ -1,3 +1,4 @@
+import { ReactElement } from 'react';
 import FederatedComponent from '../../../../../../components/FederatedComponents';
 import NoResources from '../../NoResources';
 import { areResourcesFullfilled } from '../../utils';
@@ -14,8 +15,9 @@ const Widget = ({
   refreshCount,
   playlistHash,
   isFromPreview,
-  queryClient
-}: WidgetProps): JSX.Element => {
+  queryClient,
+  isInViewport
+}: WidgetProps): ReactElement => {
   if (!areResourcesFullfilled(panelData.resources)) {
     return <NoResources />;
   }
@@ -33,6 +35,7 @@ const Widget = ({
       dashboardId={dashboardId}
       queryClient={queryClient}
       widgetPrefixQuery={widgetPrefixQuery}
+      isInViewport={isInViewport}
     />
   );
 };
