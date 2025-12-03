@@ -1,5 +1,6 @@
 import {
   type MutableRefObject,
+  ReactElement,
   useEffect,
   useMemo,
   useRef,
@@ -116,7 +117,7 @@ const Chart = ({
   min,
   max,
   boundariesUnit
-}: Props): JSX.Element => {
+}: Props): ReactElement => {
   const { classes } = useChartStyles();
 
   const { title, timeSeries, baseAxis, lines } = graphData;
@@ -197,7 +198,8 @@ const Chart = ({
         valueGraphHeight: graphHeight - margin.bottom,
         min,
         max,
-        boundariesUnit
+        boundariesUnit,
+        isFilled: lineStyle?.showArea
       }),
     [
       linesGraph,
