@@ -30,7 +30,7 @@ echo 'date.timezone = Europe/Paris' > /etc/php.d/centreon.ini
 touch /var/log/php-fpm/centreon-error.log
 chown apache:apache /var/log/php-fpm/centreon-error.log
 
-systemctl start mysql
+systemctl start mariadb
 mysql -e "GRANT ALL ON *.* to 'root'@'localhost' IDENTIFIED BY 'centreon' WITH GRANT OPTION"
 
 cd /usr/share/centreon/www/install/steps/process
@@ -63,7 +63,7 @@ systemctl stop cbd
 systemctl stop httpd
 systemctl stop php-fpm
 
-systemctl stop mysql
+systemctl stop mariadb
 
 dnf remove -y mariadb-server
 rm -rf /var/lib/mysql
