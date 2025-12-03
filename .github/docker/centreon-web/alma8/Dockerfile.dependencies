@@ -110,8 +110,7 @@ dnf install -y \
 # install and configure mariadb #
 #################################
 
-curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup \
-  | bash -s -- --os-type=rhel --skip-check-installed --os-version=8 --mariadb-server-version="mariadb-10.11" --skip-maxscale
+dnf module enable -y mariadb:10.11
 dnf install -y mariadb-server mariadb
 
 echo "[server]
