@@ -20,6 +20,7 @@ import {
 import SingleMetricRenderer from './SingleMetricRenderer';
 import { selectEndpoint } from './api/endpoints';
 import { FormThreshold, SingleMetricGraphType, ValueFormat } from './models';
+import { ReactElement } from 'react';
 
 interface Props {
   dashboardId: number | string;
@@ -36,6 +37,7 @@ interface Props {
   threshold: FormThreshold;
   valueFormat: ValueFormat;
   widgetPrefixQuery: string;
+  isInViewport: boolean;
 }
 
 const Graph = ({
@@ -52,8 +54,9 @@ const Graph = ({
   playlistHash,
   dashboardId,
   id,
-  widgetPrefixQuery
-}: Props): JSX.Element => {
+  widgetPrefixQuery,
+  isInViewport
+}: Props): ReactElement => {
   const isOnPublicPage = useAtomValue(isOnPublicPageAtom);
   const refreshIntervalToUse = useRefreshInterval({
     globalRefreshInterval,
@@ -108,7 +111,7 @@ const Graph = ({
     refreshCount,
     refreshInterval: refreshIntervalToUse,
     resources,
-    isEnabled: Boolean(hostId && (getServiceId() || isMetaServiceSelected))
+    isEnabled: isInViewport ?? (Boolean(hostId && (getServiceId() || isMetaServiceSelected)))
   });
 
   const displayAsRaw = equals('raw')(valueFormat);

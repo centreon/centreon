@@ -1,3 +1,4 @@
+import { ReactElement } from 'react';
 import { CommonWidgetProps, Data } from '../../models';
 
 import Graph from './Graph';
@@ -23,9 +24,11 @@ const SingleMetric = ({
   playlistHash,
   dashboardId,
   id,
-  widgetPrefixQuery
-}: Props): JSX.Element => (
+  widgetPrefixQuery,
+  isInViewport
+}: Props): ReactElement => (
   <Graph
+    isInViewport={isInViewport}
     {...panelData}
     {...panelOptions}
     dashboardId={dashboardId}
