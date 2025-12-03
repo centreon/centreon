@@ -65,7 +65,7 @@ systemctl stop php-fpm
 
 systemctl stop mysql
 
-dnf remove -y mariadb-server galera-4
+dnf remove -y mariadb-server
 rm -rf /var/lib/mysql
 
 dnf clean all
