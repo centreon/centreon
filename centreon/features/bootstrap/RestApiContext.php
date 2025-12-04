@@ -5,7 +5,6 @@ use Centreon\Test\Behat\Administration\ImageListingPage;
 
 class RestApiContext extends CentreonContext
 {
-    private $envfile;
     private $logfile;
     private $retval;
     private $npmCommand;
@@ -70,14 +69,14 @@ class RestApiContext extends CentreonContext
      */
     public function callRestApi()
     {
-        $this->envfile = 'tests/rest_api/behat-collections/rest_api.postman_environment.json';
-        $env = file_get_contents($this->envfile);
+        $envFile = 'tests/rest_api/behat-collections/rest_api.postman_environment.json';
+        $env = file_get_contents($envFile);
         $env = str_replace(
             '@IP_CENTREON@',
             $this->container->getHost() . ':' . $this->container->getPort('80', $this->webService),
             $env
         );
-        file_put_contents($this->envfile, $env);
+        file_put_contents($envFile, $env);
         $this->logfile = tempnam(sys_get_temp_dir(), $this->logFilePrefix);
 
         exec(
@@ -86,7 +85,7 @@ class RestApiContext extends CentreonContext
             $retval
         );
         $this->retval = $retval;
-        unlink($this->envfile);
+        unlink($envFile);
     }
 
     /**
