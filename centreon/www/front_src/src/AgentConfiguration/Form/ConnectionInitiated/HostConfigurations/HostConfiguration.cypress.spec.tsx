@@ -106,6 +106,6 @@ describe('HostConfiguration', () => {
 
     cy.get('[data-testid="CA(.crt,.cer)"]').should('not.exist');
     cy.get('[data-testid="CA Common Name (CN)"]').should('not.exist');
-    cy.get('[data-testid="Select existing CMA token"]').should('not.exist');
+    cy.get('[data-testid="Select existing CMA token"]').should('be.visible');
   });
 });

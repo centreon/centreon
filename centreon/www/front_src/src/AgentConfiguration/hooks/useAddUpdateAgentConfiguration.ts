@@ -84,14 +84,12 @@ const adaptCMAConfigurationToAPI = (
     configuration: {
       agent_initiated: configuration.agentInitiated,
       poller_initiated: configuration.pollerInitiated,
-      tokens:
-        equals(agentConfiguration?.connectionMode?.id, 'no-tls') ||
-        !configuration.agentInitiated
-          ? []
-          : map(
-              ({ name, creatorId }) => ({ name, creator_id: creatorId }),
-              agentConfiguration.configuration.tokens
-            ),
+      tokens: configuration.agentInitiated
+        ? map(
+            ({ name, creatorId }) => ({ name, creator_id: creatorId }),
+            agentConfiguration.configuration.tokens
+          )
+        : [],
       otel_ca_certificate: getFieldBasedOnCertificate(
         configuration.otelCaCertificate
       ),
@@ -109,14 +107,12 @@ const adaptCMAConfigurationToAPI = (
         poller_ca_certificate: getFieldBasedOnCertificate(
           host.pollerCaCertificate
         ),
-        token:
-          equals(agentConfiguration?.connectionMode?.id, 'no-tls') ||
-          !configuration.pollerInitiated
-            ? null
-            : {
-                name: host?.token?.name,
-                creator_id: host?.token?.creatorId
-              }
+        token: configuration.pollerInitiated
+          ? {
+              name: host?.token?.name,
+              creator_id: host?.token?.creatorId
+            }
+          : null
       }))
     }
   };
