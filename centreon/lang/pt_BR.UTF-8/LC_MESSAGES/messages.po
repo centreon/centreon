@@ -23675,3 +23675,9 @@ msgstr "período de tempo"
 #: unknown
 msgid "topology_name"
 msgstr "Nome da Topologia"
+
+# msgid "Enable ticket creation for hosts"
+# msgstr ""
+
+# msgid "Enable ticket creation for services"
+# msgstr ""
