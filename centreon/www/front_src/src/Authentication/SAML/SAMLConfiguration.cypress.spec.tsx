@@ -214,7 +214,7 @@ describe('SAMLConfiguration', () => {
       retrievedSAMLConfiguration.roles_mapping.attribute_path
     );
 
-    cy.wait(500).scrollTo('bottom');
+    cy.scrollTo('bottom', 500);
 
     cy.findAllByLabelText(labelRoleValue).should('have.length', 2);
     cy.findAllByLabelText(labelRoleValue)
