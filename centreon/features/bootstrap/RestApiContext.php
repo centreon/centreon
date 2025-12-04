@@ -69,7 +69,7 @@ class RestApiContext extends CentreonContext
      */
     public function callRestApi()
     {
-        $envFile = 'tests/rest_api/behat-collections/rest_api.postman_environment.json';
+        $envFile = __DIR__ . '/../../tests/rest_api/behat-collections/rest_api.postman_environment.json';
         $env = file_get_contents($envFile);
         $env = str_replace(
             '@IP_CENTREON@',
