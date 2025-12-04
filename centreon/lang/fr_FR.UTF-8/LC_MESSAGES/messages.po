@@ -8162,11 +8162,11 @@ msgid "Hide graphs of selected Services"
 msgstr "Cacher les graphiques des services sélectionnés"
 
 #: centreon/www/install/dashboard_widgets.php
-msgid "Hide services with Down host"
+msgid "Hide services with Down hosts"
 msgstr "Masquer les services dont l'hôte est Indisponible"
 
 #: centreon/www/install/dashboard_widgets.php
-msgid "Hide services with Unreachable host"
+msgid "Hide services with Unreachable hosts"
 msgstr "Masquer les services dont l'hôte est Injoignable"
 
 #: centreon/www/install/front_translate.php
