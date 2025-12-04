@@ -85,7 +85,6 @@ class RestApiContext extends CentreonContext
             $retval
         );
         $this->retval = $retval;
-        unlink($envFile);
     }
 
     /**
