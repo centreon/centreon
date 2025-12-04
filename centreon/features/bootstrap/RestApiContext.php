@@ -8,7 +8,7 @@ class RestApiContext extends CentreonContext
     private $envfile;
     private $logfile;
     private $retval;
-    private $restCollection;
+    private $npmCommand;
     private $logFilePrefix;
 
     /**
@@ -50,7 +50,7 @@ class RestApiContext extends CentreonContext
      */
     public function restApiAreCalled()
     {
-        $this->restCollection = 'rest_api.postman_collection.json';
+        $this->npmCommand = 'test:behat:configuration';
         $this->logFilePrefix = 'rest_api_log';
         $this->callRestApi();
     }
@@ -60,7 +60,7 @@ class RestApiContext extends CentreonContext
      */
     public function realtimeRestApiAreCalled()
     {
-        $this->restCollection = 'realtime_rest_api.postman_collection.json';
+        $this->npmCommand = 'test:behat:realtime';
         $this->logFilePrefix = 'realtime_rest_api_log';
         $this->callRestApi();
     }
@@ -70,22 +70,18 @@ class RestApiContext extends CentreonContext
      */
     public function callRestApi()
     {
-        $env = file_get_contents('tests/rest_api/behat-collections/rest_api.postman_environment.json');
+        $this->envfile = 'tests/rest_api/behat-collections/rest_api.postman_environment.json';
+        $env = file_get_contents($this->envfile);
         $env = str_replace(
             '@IP_CENTREON@',
             $this->container->getHost() . ':' . $this->container->getPort('80', $this->webService),
             $env
         );
-        $this->envfile = tempnam(sys_get_temp_dir(), 'rest_api_env');
         file_put_contents($this->envfile, $env);
         $this->logfile = tempnam(sys_get_temp_dir(), $this->logFilePrefix);
+
         exec(
-            'npm install -g newman@6.1.3 && newman run' .
-            ' tests/rest_api/behat-collections/' . $this->restCollection .
-            ' --color off --disable-unicode --reporter-cli-no-assertions' .
-            ' --timeout-script 60000' .
-            ' --environment ' . $this->envfile .
-            ' > ' . $this->logfile,
+            'cd centreon/tests/rest_api && pnpm run ' . $this->npmCommand . ' > ' . $this->logfile,
             $output,
             $retval
         );
