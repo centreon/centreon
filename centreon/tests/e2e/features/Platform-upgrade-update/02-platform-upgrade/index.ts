@@ -294,8 +294,8 @@ EOF`,
 
                       return cy.execInContainer({
                         command: `bash -e <<EOF
-                      echo "deb https://packages.centreon.com/apt-standard/ ${Cypress.env('WEB_IMAGE_OS')}-${major_version}-stable main" > /etc/apt/sources.list.d/centreon-stable.list
-                      echo "deb https://packages.centreon.com/apt-standard/ ${Cypress.env('WEB_IMAGE_OS')}-${major_version}-testing main" > /etc/apt/sources.list.d/centreon-testing.list
+                      echo "deb https://packages.centreon.com/apt-standard/ ${Cypress.env('WEB_IMAGE_OS')}-${major_version}-testing-hotfix main" > /etc/apt/sources.list.d/centreon-testing-hotfix.list
+                      echo "deb https://packages.centreon.com/apt-standard/ ${Cypress.env('WEB_IMAGE_OS')}-${major_version}-testing-release main" > /etc/apt/sources.list.d/centreon-testing-release.list
                       echo "deb https://packages.centreon.com/apt-standard/ ${Cypress.env('WEB_IMAGE_OS')}-${major_version}-unstable main" > /etc/apt/sources.list.d/centreon-unstable.list
                       apt-get update
 EOF`,
