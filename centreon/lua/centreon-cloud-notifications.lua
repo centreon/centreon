@@ -35,7 +35,7 @@ local data = {
   log_level = 0, -- Set 3 to enable all the logs.
   refresh_delay = 500, -- Delay in seconds before reloading a new notification configuration
   sender = "admin@centreon.com",
-  mail_command = 'aws ses send-email --region {{AWS_REGION}} --from "{{SENDER}}" --bcc {{RECIPIENTS}} --subject "{{SUBJECT}}" --html "{{MESSAGE}}"',
+  mail_command = 'aws ses send-email --region {{AWS_REGION}} --from "{{SENDER}}" --destination file://{{DESTINATION_FILE}} --message file://{{MESSAGE_FILE}}',
   last_refresh = 0, -- internal.
   current_uid = "unknown", -- internal
   host = {} -- internal: the configuration raised by the API.
@@ -354,58 +354,77 @@ local function replace_macros(text, macros)
 end
 
 --- Escape shell characters in a string to prevent command injection.
----  This function escapes only what expands inside double quotes: \, ", $, `.
+---  This function escapes only what expands inside double quotes: \, ", $, `, '.
 --- Keep content (spaces/HTML) intact.
 --- @param str The string to escape.
 local function escape_shell_chars(str)
   if str == nil then
     return ""
   end
+  -- '%' is a specific character in gsub, we must escape it.
+  str = str:gsub('"', '\\"')
+           :gsub("%%", "%%%%")
   -- order matters: escape backslash first
-  str = str:gsub("\\", "\\\\"):gsub('"', '\\"'):gsub("%$", "\\$"):gsub("`", "\\`")
+  str = str:gsub("\\", "\\\\")
+           :gsub('"', '\\"')
+           :gsub("%$", "\\$")
+           :gsub("`", "\\`")
+           :gsub("'", "\\'")
   return str
-end
-
--- Escape special characters in strings to prevent issues.
--- '%' is a specific character in gsub, we must escape it.
-local function escape_special_chars(str)
-  str = str:gsub('"', '\\"'):gsub("%%", "%%%%")
-  return escape_shell_chars(str)
 end
 
 --- Send a notification by mail.
 --  @param notif The notification configuration.
 --  @param event The event received from broker (service status/host status)
 --  @param conf The resource associated to the event.
---  @param hostname This is the hostname only given when the event is a
---                  ServiceStatus.
+--  @param hostname This is the hostname only given when the event is a ServiceStatus.
 local function send_mail(notif, event, conf, hostname)
   local macros = get_macros(event, conf, hostname)
   local message = replace_macros(notif.formatted_message, macros)
   local subject = replace_macros(notif.subject, macros)
 
-  -- Constructing the recipients string
-  local rcpts = {}
+  --- Constructing the recipients json
+  local destination_json = {
+    ToAddresses = {},
+    CcAddresses = {},
+    BccAddresses = {}
+  }
   for _, c in ipairs(notif.contacts) do
     local mail = c.email_address
     if mail and #mail > 0 then
-      rcpts[#rcpts + 1] = '"' .. mail .. '"'
+      table.insert(destination_json.BccAddresses, mail)
     end
   end
-  local recipients = table.concat(rcpts, " ")
 
-  --- Escaping special characters
-  message = escape_special_chars(message)
-  subject = escape_special_chars(subject)
-  recipients = escape_special_chars(recipients)
-  local sender = escape_special_chars(data.sender)
+  --- Constructing the message json
+  local message_json = {
+    Subject = {
+      Data = subject,
+      Charset = "UTF-8"
+    },
+    Body = {
+      Html = {
+        Data = message,
+        Charset = "UTF-8"
+      }
+    }
+  }
+
+  --- Create temporary files for destination and message json files
+  local dest_tmpname = "/tmp/" .. os.tmpname() .. ".json"
+  local msg_tmpname = "/tmp/" .. os.tmpname() .. ".json"
+  local dest_file = io.open(dest_tmpname, "w")
+  dest_file:write(broker.json_encode(destination_json))
+  dest_file:close()
+  local msg_file = io.open(msg_tmpname, "w")
+  msg_file:write(broker.json_encode(message_json))
+  msg_file:close()
 
   -- Constructing the mail command
   local cmd = data.mail_command
-  cmd = string.gsub(cmd, "{{RECIPIENTS}}", recipients)
-  cmd = string.gsub(cmd, "{{SENDER}}", sender)
-  cmd = string.gsub(cmd, "{{MESSAGE}}", message)
-  cmd = string.gsub(cmd, "{{SUBJECT}}", subject)
+  cmd = string.gsub(cmd, "{{SENDER}}", escape_shell_chars(sender))
+  cmd = string.gsub(cmd, "{{DESTINATION_FILE}}", dest_tmpname)
+  cmd = string.gsub(cmd, "{{MESSAGE_FILE}}", msg_tmpname)
 
   broker_log:info(1, "command content: " .. cmd)
   -- Execution of the command
@@ -417,6 +436,10 @@ local function send_mail(notif, event, conf, hostname)
   else
     broker_log:error(0, "Unable to get '" .. cmd .. "' output.")
   end
+
+  -- Removing temporary files
+  os.remove(dest_tmpname)
+  os.remove(msg_tmpname)
 end
 
 --- The init function of the stream connector. It is mandatory and must be not
@@ -501,8 +524,12 @@ function write(d)
         for _, hnotif in ipairs(host.notification) do
           local svc = hnotif.service[d.service_id]
           if svc then
-            broker_log:info(3,
-              "Service (" .. d.host_id .. "," .. d.service_id .. ") --- state: " .. d.state .. " ; state_type: " .. d.state_type .. " ; last_check: " .. d.last_check .. " ; last_hard_state: " .. d.last_hard_state_change .. " ; notif flags: " .. ((1 << d.state) & svc.events))
+            broker_log:info(3, "Service (" .. d.host_id .. "," .. d.service_id ..
+              ") --- state: " .. d.state ..
+              " ; state_type: " .. d.state_type ..
+              " ; last_check: " .. d.last_check ..
+              " ; last_hard_state: " .. d.last_hard_state_change ..
+              " ; notif flags: " .. ((1 << d.state) & svc.events))
             -- We check that:
             --   the state matches with the notification configuration
             --   the state is HARD
