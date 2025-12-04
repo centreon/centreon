@@ -167,6 +167,7 @@ services:
 
     Centreon\Domain\Contact\Interfaces\ContactRepositoryInterface:
         class: Centreon\Infrastructure\Contact\ContactRepositoryRDB
+        public: true
 
     contact.provider:
         class: Centreon\Domain\Contact\ContactProvider

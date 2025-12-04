@@ -1,6 +1,7 @@
 monolog:
     channels:
         - deprecation
+        - token
 
 when@dev:
     monolog:

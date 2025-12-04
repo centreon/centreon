@@ -13,6 +13,11 @@ parameters:
               - type: directory
                 value: src/App/MonitoringConfiguration/.*
 
+        - name: Security
+          collectors:
+              - type: directory
+                value: src/App/Security/.*
+
         - name: Shared
           collectors:
               - type: directory
@@ -41,29 +46,23 @@ parameters:
               - { type: classNameRegex, value: '#TypeAlias$#' }
 
     ruleset:
-        ActivityLogging: [ MonitoringConfiguration, Shared, Vendors, TypeAliases ]
-        MonitoringConfiguration: [ Shared, Vendors, TypeAliases ]
+        ActivityLogging: [ MonitoringConfiguration, Security, Shared, Vendors, TypeAliases ]
+        MonitoringConfiguration: [ Security, Shared, Vendors, TypeAliases ]
+        Security: [ ActivityLogging, MonitoringConfiguration, Shared, Vendors, TypeAliases ]
         Shared: [ Vendors, TypeAliases ]
         Legacy: [ Vendors, TypeAliases ]
 
     skip_violations:
+        App\Security\Infrastructure\Legacy\LegacyCredentialUserProvider:
+            - Centreon\Domain\Contact\Contact
+            - Centreon\Domain\Contact\Interfaces\ContactRepositoryInterface
+        App\Security\Infrastructure\Legacy\LegacyWebSsoAuthenticatorWrapper:
+            - Security\WebSSOAuthenticator
+        App\Security\Infrastructure\Legacy\LegacyAuthenticationServiceWrapper:
+            - Security\Domain\Authentication\Interfaces\AuthenticationServiceInterface
         App\Shared\Infrastructure\Legacy\LegacyKernelWrapper:
             - App\Kernel
         App\Shared\Infrastructure\Legacy\LegacyContainer:
             - App\Kernel
-        App\Shared\Infrastructure\Legacy\LegacyContactProviderWrapper:
-            - Centreon\Domain\Contact\ContactProvider
-        App\Shared\Infrastructure\Legacy\LegacyTokenApiAuthenticatorWrapper:
-            - Security\TokenAPIAuthenticator
-        App\Shared\Infrastructure\Legacy\LegacyWebSsoAuthenticatorWrapper:
-            - Security\WebSSOAuthenticator
-        App\Shared\Infrastructure\Legacy\LegacySessionApiAuthenticatorWrapper:
-            - Security\SessionAPIAuthenticator
-        App\Shared\Infrastructure\Legacy\LegacySecurity:
-            - Centreon\Domain\Contact\Contact
-        App\MonitoringConfiguration\Infrastructure\Legacy\LegacyServiceCategoryPermissionVoter:
-            - Centreon\Domain\Contact\Contact
-        App\MonitoringConfiguration\Infrastructure\Legacy\LegacyGlobalMacroPermissionVoter:
-            - Centreon\Domain\Contact\Contact
         App\Shared\Infrastructure\Legacy\LegacyHttpExceptionListener:
             - Centreon\Domain\Exception\EntityNotFoundException

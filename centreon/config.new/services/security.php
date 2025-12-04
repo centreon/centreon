@@ -21,21 +21,14 @@
 
 declare(strict_types=1);
 
-namespace Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\State;
+use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\PluginResource;
-use Tests\App\Shared\ApiTestCase;
+return static function (ContainerConfigurator $containerConfigurator): void {
+    $services = $containerConfigurator->services();
 
-final class ListPluginsProviderTest extends ApiTestCase
-{
-    public function testItFindPlugins(): void
-    {
-        $this->login();
+    $services->defaults()
+        ->autowire()
+        ->autoconfigure();
 
-        $response = $this->request('GET', '/api/latest/configuration/plugins');
-
-        self::assertResponseIsSuccessful();
-        self::assertMatchesResourceCollectionJsonSchema(PluginResource::class);
-        self::assertContains('urlize', array_column($response->toArray()['member'], 'name'));
-    }
-}
+    $services->load('App\\Security\\', __DIR__ . '/../../src/App/Security');
+};

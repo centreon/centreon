@@ -21,21 +21,17 @@
 
 declare(strict_types=1);
 
-namespace Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\State;
+namespace App\Security\Domain\Aggregate;
 
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\PluginResource;
-use Tests\App\Shared\ApiTestCase;
-
-final class ListPluginsProviderTest extends ApiTestCase
+final readonly class Role implements \Stringable
 {
-    public function testItFindPlugins(): void
+    public function __construct(
+        public string $value,
+    ) {
+    }
+
+    public function __toString(): string
     {
-        $this->login();
-
-        $response = $this->request('GET', '/api/latest/configuration/plugins');
-
-        self::assertResponseIsSuccessful();
-        self::assertMatchesResourceCollectionJsonSchema(PluginResource::class);
-        self::assertContains('urlize', array_column($response->toArray()['member'], 'name'));
+        return $this->value;
     }
 }

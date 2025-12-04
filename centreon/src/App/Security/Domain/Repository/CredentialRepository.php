@@ -21,21 +21,13 @@
 
 declare(strict_types=1);
 
-namespace Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\State;
+namespace App\Security\Domain\Repository;
 
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\PluginResource;
-use Tests\App\Shared\ApiTestCase;
+use App\Security\Domain\Aggregate\Credential;
 
-final class ListPluginsProviderTest extends ApiTestCase
+interface CredentialRepository
 {
-    public function testItFindPlugins(): void
-    {
-        $this->login();
+    public function getByToken(string $token): Credential;
 
-        $response = $this->request('GET', '/api/latest/configuration/plugins');
-
-        self::assertResponseIsSuccessful();
-        self::assertMatchesResourceCollectionJsonSchema(PluginResource::class);
-        self::assertContains('urlize', array_column($response->toArray()['member'], 'name'));
-    }
+    public function getBySession(string $sessionId): Credential;
 }

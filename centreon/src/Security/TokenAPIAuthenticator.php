@@ -149,6 +149,7 @@ class TokenAPIAuthenticator extends AbstractAuthenticator implements Authenticat
      */
     private function getUserAndUpdateToken(string $apiToken): UserInterface
     {
+        dump($apiToken);
         $providerToken = $this->localProvider->getProviderToken($apiToken);
 
         $expirationDate = $providerToken->getExpirationDate();

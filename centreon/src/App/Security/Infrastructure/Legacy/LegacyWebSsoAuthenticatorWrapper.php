@@ -21,26 +21,28 @@
 
 declare(strict_types=1);
 
-namespace App\Shared\Infrastructure\Legacy;
+namespace App\Security\Infrastructure\Legacy;
 
-use Security\TokenAPIAuthenticator;
+use App\Shared\Infrastructure\Legacy\LegacyContainer;
+use Security\WebSSOAuthenticator;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Http\Authenticator\AuthenticatorInterface;
+use Symfony\Component\Security\Http\Authenticator\Passport\Badge\UserBadge;
 use Symfony\Component\Security\Http\Authenticator\Passport\Passport;
-use Symfony\Component\Security\Http\EntryPoint\AuthenticationEntryPointInterface;
+use Symfony\Component\Security\Http\Authenticator\Passport\SelfValidatingPassport;
 use Webmozart\Assert\Assert;
 
-final readonly class LegacyTokenApiAuthenticatorWrapper implements AuthenticatorInterface, AuthenticationEntryPointInterface
+final readonly class LegacyWebSsoAuthenticatorWrapper implements AuthenticatorInterface
 {
-    private TokenAPIAuthenticator $legacyAuthenticator;
+    private WebSSOAuthenticator $legacyAuthenticator;
 
     public function __construct(LegacyContainer $legacyContainer)
     {
-        $legacyAuthenticator = $legacyContainer->get('security.provider.tokenapi');
-        Assert::isInstanceOf($legacyAuthenticator, TokenAPIAuthenticator::class);
+        $legacyAuthenticator = $legacyContainer->get('security.provider.websso');
+        Assert::isInstanceOf($legacyAuthenticator, WebSSOAuthenticator::class);
 
         $this->legacyAuthenticator = $legacyAuthenticator;
     }
@@ -52,7 +54,9 @@ final readonly class LegacyTokenApiAuthenticatorWrapper implements Authenticator
 
     public function authenticate(Request $request): Passport
     {
-        return $this->legacyAuthenticator->authenticate($request);
+        $contact = $this->legacyAuthenticator->authenticate($request)->getUser();
+
+        return new SelfValidatingPassport(new UserBadge($contact->getUserIdentifier()));
     }
 
     public function createToken(Passport $passport, string $firewallName): TokenInterface
@@ -68,10 +72,5 @@ final readonly class LegacyTokenApiAuthenticatorWrapper implements Authenticator
     public function onAuthenticationFailure(Request $request, AuthenticationException $exception): ?Response
     {
         return $this->legacyAuthenticator->onAuthenticationFailure($request, $exception);
-    }
-
-    public function start(Request $request, ?AuthenticationException $authException = null): Response
-    {
-        return $this->legacyAuthenticator->start($request, $authException);
     }
 }

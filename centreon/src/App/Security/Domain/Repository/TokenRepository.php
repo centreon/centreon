@@ -21,21 +21,15 @@
 
 declare(strict_types=1);
 
-namespace Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\State;
+namespace App\Security\Domain\Repository;
 
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\PluginResource;
-use Tests\App\Shared\ApiTestCase;
+use App\Security\Domain\Aggregate\Token;
 
-final class ListPluginsProviderTest extends ApiTestCase
+interface TokenRepository
 {
-    public function testItFindPlugins(): void
-    {
-        $this->login();
+    public function get(string $token): Token;
 
-        $response = $this->request('GET', '/api/latest/configuration/plugins');
+    public function getTokenExpirationShift(): int;
 
-        self::assertResponseIsSuccessful();
-        self::assertMatchesResourceCollectionJsonSchema(PluginResource::class);
-        self::assertContains('urlize', array_column($response->toArray()['member'], 'name'));
-    }
+    public function update(Token $token): void;
 }

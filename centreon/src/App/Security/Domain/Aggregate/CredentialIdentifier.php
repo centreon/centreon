@@ -21,27 +21,18 @@
 
 declare(strict_types=1);
 
-namespace App\Shared\Infrastructure\Legacy;
+namespace App\Security\Domain\Aggregate;
 
-use Centreon\Domain\Contact\Contact;
-use Symfony\Bundle\SecurityBundle\Security;
-use Symfony\Component\Security\Core\Exception\AuthenticationCredentialsNotFoundException;
+use Webmozart\Assert\Assert;
 
-final readonly class LegacySecurity
+final readonly class CredentialIdentifier
 {
+    /**
+     * @param non-empty-string $value
+     */
     public function __construct(
-        private Security $security,
+        public string $value,
     ) {
-    }
-
-    public function getUserId(): int
-    {
-        $user = $this->security->getUser();
-
-        if (! $user instanceof Contact) {
-            throw new AuthenticationCredentialsNotFoundException('The user is not authenticated.');
-        }
-
-        return $user->getId();
+        Assert::notEmpty($value);
     }
 }

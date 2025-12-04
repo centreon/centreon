@@ -21,21 +21,29 @@
 
 declare(strict_types=1);
 
-namespace Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\State;
+namespace App\Security\Infrastructure\Security;
 
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\PluginResource;
-use Tests\App\Shared\ApiTestCase;
+use App\Security\Domain\Aggregate\Credential;
+use Symfony\Component\Security\Core\User\UserInterface;
 
-final class ListPluginsProviderTest extends ApiTestCase
+final readonly class CredentialUser implements UserInterface
 {
-    public function testItFindPlugins(): void
+    public function __construct(
+        public Credential $credential,
+    ) {
+    }
+
+    public function getRoles(): array
     {
-        $this->login();
+        return array_map('strval', $this->credential->roles->toArray());
+    }
 
-        $response = $this->request('GET', '/api/latest/configuration/plugins');
+    public function eraseCredentials(): void
+    {
+    }
 
-        self::assertResponseIsSuccessful();
-        self::assertMatchesResourceCollectionJsonSchema(PluginResource::class);
-        self::assertContains('urlize', array_column($response->toArray()['member'], 'name'));
+    public function getUserIdentifier(): string
+    {
+        return $this->credential->identifier->value;
     }
 }

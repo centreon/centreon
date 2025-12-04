@@ -2,6 +2,7 @@ parameters:
     paths:
         - ./src/App/ActivityLogging
         - ./src/App/MonitoringConfiguration
+        - ./src/App/Security
         - ./src/App/Shared
 
     layers:
@@ -51,23 +52,16 @@ parameters:
         Infrastructure: [ Domain, Application, Vendors, Helpers ]
 
     skip_violations:
+        App\Security\Infrastructure\Legacy\LegacyCredentialUserProvider:
+            - Centreon\Domain\Contact\Contact
+            - Centreon\Domain\Contact\Interfaces\ContactRepositoryInterface
+        App\Security\Infrastructure\Legacy\LegacyWebSsoAuthenticatorWrapper:
+            - Security\WebSSOAuthenticator
+        App\Security\Infrastructure\Legacy\LegacyAuthenticationServiceWrapper:
+            - Security\Domain\Authentication\Interfaces\AuthenticationServiceInterface
         App\Shared\Infrastructure\Legacy\LegacyKernelWrapper:
             - App\Kernel
         App\Shared\Infrastructure\Legacy\LegacyContainer:
             - App\Kernel
-        App\Shared\Infrastructure\Legacy\LegacyContactProviderWrapper:
-            - Centreon\Domain\Contact\ContactProvider
-        App\Shared\Infrastructure\Legacy\LegacyTokenApiAuthenticatorWrapper:
-            - Security\TokenAPIAuthenticator
-        App\Shared\Infrastructure\Legacy\LegacyWebSsoAuthenticatorWrapper:
-            - Security\WebSSOAuthenticator
-        App\Shared\Infrastructure\Legacy\LegacySessionApiAuthenticatorWrapper:
-            - Security\SessionAPIAuthenticator
-        App\Shared\Infrastructure\Legacy\LegacySecurity:
-            - Centreon\Domain\Contact\Contact
-        App\MonitoringConfiguration\Infrastructure\Legacy\LegacyServiceCategoryPermissionVoter:
-            - Centreon\Domain\Contact\Contact
-        App\MonitoringConfiguration\Infrastructure\Legacy\LegacyGlobalMacroPermissionVoter:
-            - Centreon\Domain\Contact\Contact
         App\Shared\Infrastructure\Legacy\LegacyHttpExceptionListener:
             - Centreon\Domain\Exception\EntityNotFoundException
