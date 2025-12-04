@@ -81,7 +81,7 @@ class RestApiContext extends CentreonContext
         $this->logfile = tempnam(sys_get_temp_dir(), $this->logFilePrefix);
 
         exec(
-            'cd centreon/tests/rest_api && pnpm run ' . $this->npmCommand . ' > ' . $this->logfile,
+            'cd tests/rest_api && pnpm run ' . $this->npmCommand . ' > ' . $this->logfile,
             $output,
             $retval
         );
