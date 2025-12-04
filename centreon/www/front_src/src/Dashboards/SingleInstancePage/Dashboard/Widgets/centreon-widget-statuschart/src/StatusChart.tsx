@@ -47,7 +47,7 @@ const StatusChart = ({
     return getResourcesUrl({
       allResources: resources,
       isForOneResource: false,
-      states: [],
+      states: [...stateList],
       statuses: [status],
       type: resourceType
     });

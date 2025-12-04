@@ -61,6 +61,7 @@ const useLoadResources = ({
   const { data: statuses, isLoading } = useFetchQuery<StatusType>({
     getEndpoint: () => widgetEndpoint,
     getQueryKey: () => [
+      JSON.stringify(stateList),
       widgetPrefixQuery,
       'statusChart',
       JSON.stringify(resources),
