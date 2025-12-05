@@ -562,40 +562,43 @@ function validateParentChildAreNotCircular(array $fields): array|true
         return true;
     }
 
-    $bindedParentIds = [];
-    foreach ($parentIds as $parentId) {
-        $bindedKey = ':parentId' . $parentId;
-        $bindedParentIds[$bindedKey] = (int) $parentId;
+    // Normalize IDs to integers and remove duplicates
+    $parentIds = array_values(array_unique(array_map('intval', $parentIds)));
+    $childIds = array_values(array_unique(array_map('intval', $childIds)));
+
+    // Build safe placeholders and parameters for parents
+    $parentPlaceholders = [];
+    $queryParameters = [];
+    foreach ($parentIds as $index => $parentId) {
+        $name = 'parentId' . $index; // no leading colon
+        $parentPlaceholders[] = ':' . $name;
+        $queryParameters[] = QueryParameter::int($name, $parentId);
     }
-    $parentIdsAsString = implode(', ', array_keys($bindedParentIds));
-    $bindedChildIds = [];
-    foreach ($childIds as $childId) {
-        $bindedKey = ':childId' . $childId;
-        $bindedChildIds[$bindedKey] = (int) $childId;
-    }
-    $childIdsAsString = implode(', ', array_keys($bindedChildIds));
+    $parentIdsAsString = implode(', ', $parentPlaceholders);
 
     $query = $pearDB->createQueryBuilder()
         ->select('DISTINCT host_host_id')
         ->from('hostgroup_relation')
         ->where("hostgroup_hg_id IN ({$parentIdsAsString})")
         ->getQuery();
-    $queryParameters = [];
-    foreach ($bindedParentIds as $key => $value) {
-        $queryParameters[] = QueryParameter::int($key, $value);
-    }
     $params = QueryParameters::create($queryParameters);
     $parentHosts = $pearDB->fetchFirstColumn($query, $params);
+
+    // Build safe placeholders and parameters for children
+    $childPlaceholders = [];
+    $queryParameters = [];
+    foreach ($childIds as $index => $childId) {
+        $name = 'childId' . $index; // no leading colon
+        $childPlaceholders[] = ':' . $name;
+        $queryParameters[] = QueryParameter::int($name, $childId);
+    }
+    $childIdsAsString = implode(', ', $childPlaceholders);
 
     $query = $pearDB->createQueryBuilder()
         ->select('DISTINCT host_host_id')
         ->from('hostgroup_relation')
         ->where("hostgroup_hg_id IN ({$childIdsAsString})")
         ->getQuery();
-    $queryParameters = [];
-    foreach ($bindedChildIds as $key => $value) {
-        $queryParameters[] = QueryParameter::int($key, $value);
-    }
     $params = QueryParameters::create($queryParameters);
     $childHosts = $pearDB->fetchFirstColumn($query, $params);
 
