@@ -99,13 +99,10 @@ const getCentreonStableMinorVersions = (
 
 const installDatabase = (): void => {
   if (Cypress.env('WEB_IMAGE_OS').includes('alma')) {
-    const osMatches = Cypress.env('WEB_IMAGE_OS').match(/alma(\d+)/);
     cy.execInContainer({
       command: [
-        `bash -e <<EOF
-          curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup | bash -s -- --os-type=rhel --skip-check-installed --skip-maxscale --os-version=${osMatches[1]} --mariadb-server-version="mariadb-10.5"
-EOF`,
-        `dnf install -y mariadb-server mariadb`,
+        'dnf module enable -y mariadb:10.11',
+        'dnf install -y mariadb-server mariadb'
       ],
       name: 'web'
     });
@@ -154,11 +151,11 @@ const installCentreon = (version: string): Cypress.Chainable => {
   if (Cypress.env('WEB_IMAGE_OS').includes('alma')) {
     cy.execInContainer({
       command: [
-        `dnf config-manager --set-disabled 'centreon-*-unstable*' 'centreon-*-testing*' 'mariadb*'`,
+        `dnf config-manager --set-disabled 'centreon-*-unstable*' 'centreon-*-testing*'`,
         `dnf install -y centreon-web-${version}`,
         `dnf install -y centreon-broker-cbd`,
         `echo 'date.timezone = Europe/Paris' > /etc/php.d/centreon.ini`,
-        `/etc/init.d/mysql start`,
+        'systemctl start mariadb',
         `mkdir -p /run/php-fpm`,
         `systemctl start php-fpm || systemctl restart php-fpm`,
         `systemctl start httpd || systemctl restart httpd`,
