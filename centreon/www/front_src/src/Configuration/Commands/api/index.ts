@@ -1,7 +1,8 @@
 export {
   commandsListDecoder,
   commandDecoder,
-  JSONLDEntitiesListDecoder
+  JSONLDEntitiesListDecoder,
+  pluginDetailsDecoder
 } from './decoders';
 
 export {

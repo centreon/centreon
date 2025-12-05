@@ -38,3 +38,9 @@ export interface Filters {
   type: Array<'Notification' | 'Check' | 'Miscellaneous' | 'Discovery'>;
   is_from_monitoring_connector: boolean;
 }
+
+export interface Plugin {
+  name: string;
+  commandLine: string;
+  description?: string | null;
+}
