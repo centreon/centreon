@@ -35,7 +35,7 @@ use Core\AgentConfiguration\Domain\Model\ConfigurationParametersInterface;
  *		otel_private_key: ?string,
  *		otel_ca_certificate: ?string,
  *      tokens: array<array{name:string,creator_id:int}>,
- *      port: ?int,
+ *      port: int,
  *      poller_initiated: bool,
  *		hosts: array<array{
  *			id: int,
@@ -96,9 +96,8 @@ class CmaConfigurationParameters implements ConfigurationParametersInterface
                     Assertion::notEmptyString($token['name']);
                 }
             }
-            if (! isset($parameters['port'])) {
-                $parameters['port'] = AgentConfiguration::DEFAULT_PORT;
-            }
+
+            Assertion::range($parameters['port'], 0, 65535, 'configuration.port');
         }
 
         if ($parameters['poller_initiated'] === false) {

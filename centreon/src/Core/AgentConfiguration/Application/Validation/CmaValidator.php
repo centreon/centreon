@@ -80,7 +80,7 @@ class CmaValidator implements TypeValidatorInterface
             return;
         }
         if ($configuration['port'] === null) {
-            throw AgentConfigurationException::portIsMandatoryForAgentInitiated();
+            throw AgentConfigurationException::portIsMandatory();
         }
 
         if ($connectionMode !== ConnectionModeEnum::NO_TLS) {
@@ -111,7 +111,7 @@ class CmaValidator implements TypeValidatorInterface
      * @param _CmaParameters $configuration
      * @param ConnectionModeEnum $connectionMode
      */
-    private function validatePollerInitiatedConnection(array $configuration, ConnectionModeEnum $connectionMode): void
+    private function validatePollerInitiatedConnection(array $configuration): void
     {
         if ($configuration['poller_initiated'] === false) {
             return;
