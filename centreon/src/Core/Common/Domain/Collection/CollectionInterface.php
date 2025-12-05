@@ -39,6 +39,13 @@ interface CollectionInterface extends \IteratorAggregate, \JsonSerializable
      *
      * @return TItem[]
      */
+    public function toArray(): array;
+
+    /**
+     * Return all items of collection.
+     *
+     * @return TItem[]
+     */
     public function all(): array;
 
     /**
