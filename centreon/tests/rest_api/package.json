@@ -4,6 +4,10 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
+  "scripts": {
+    "test:behat:configuration": "newman run --color off --disable-unicode --reporter-cli-no-assertions --timeout-script 60000 behat-collections/rest_api.postman_collection.json --environment behat-collections/rest_api.postman_environment.json",
+    "test:behat:realtime": "newman run --color off --disable-unicode --reporter-cli-no-assertions --timeout-script 60000 behat-collections/realtime_rest_api.postman_collection.json --environment behat-collections/rest_api.postman_environment.json"
+  },
   "devDependencies": {
     "newman": "^6.0.0",
     "newman-reporter-htmlextra": "^1.22.11",
