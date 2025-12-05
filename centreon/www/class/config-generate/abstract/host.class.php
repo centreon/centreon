@@ -269,6 +269,7 @@ abstract class AbstractHost extends AbstractObject
 
     /**
      * Format Macros for export.
+     * Warning: is to be run BEFORE running getSeverity to not override severity export.
      *
      * @param array<string, mixed> $host
      * @param MacroDomain[] $hostMacros
