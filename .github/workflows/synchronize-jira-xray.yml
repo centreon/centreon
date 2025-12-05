@@ -54,7 +54,7 @@ jobs:
           echo "The target version for this script is : ${{ needs.get-environment.outputs.major_version }}"
           for file in $CHANGED_FILES; do
             echo "Running script for $file on branch ${{ github.ref_name }}"
-            node .github/scripts/synchronize_jira_xray.js "$file" ${{ github.ref_name }} ${{ needs.get-environment.outputs.major_version }}
+            node .github/scripts/xray/synchronize_jira_xray.js "$file" ${{ github.ref_name }} ${{ needs.get-environment.outputs.major_version }}
           done
         env:
           XRAY_JIRA_USER_EMAIL: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
