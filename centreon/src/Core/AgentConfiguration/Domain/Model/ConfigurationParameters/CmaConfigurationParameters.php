@@ -25,6 +25,7 @@ namespace Core\AgentConfiguration\Domain\Model\ConfigurationParameters;
 
 use Assert\AssertionFailedException;
 use Centreon\Domain\Common\Assertion\Assertion;
+use Core\AgentConfiguration\Domain\Model\AgentConfiguration;
 use Core\AgentConfiguration\Domain\Model\ConfigurationParametersInterface;
 
 /**
@@ -96,7 +97,7 @@ class CmaConfigurationParameters implements ConfigurationParametersInterface
                 }
             }
 
-            Assertion::range($parameters['port'], 0, 65535, 'configuration.port');
+            Assertion::range($parameters['port'] ?? AgentConfiguration::DEFAULT_PORT, 0, 65535, 'configuration.port');
         }
 
         if ($parameters['poller_initiated'] === false) {
