@@ -61,15 +61,15 @@ $addDefaultPortToAgentInitiatedAgentConfiguration = function () use ($pearDB, &$
     );
     $agentConfigurations = $pearDB->fetchAllAssociative(
         <<<'SQL'
-            SELECT id, configuration FROM agent_configuration
-        SQL
+                SELECT id, configuration FROM agent_configuration
+            SQL
     );
     foreach ($agentConfigurations as $configurationJson) {
         $configuration = json_decode($configurationJson['configuration'], true);
         if (! isset($configuration['port'])) {
             $configuration['port'] = $configuration['agent_initiated'] === true
                 ? AgentConfiguration::DEFAULT_PORT
-                : null ;
+                : null;
         }
         $updatedConfigurationJson = json_encode($configuration);
         $pearDB->update(
@@ -78,9 +78,9 @@ $addDefaultPortToAgentInitiatedAgentConfiguration = function () use ($pearDB, &$
                 SET configuration = :configuration
                 WHERE id = :id
                 SQL,
-                QueryParameters::create([
-                    QueryParameter::string('configuration', $updatedConfigurationJson),
-                    QueryParameter::int('id', (int) $configurationJson['id'])
+            QueryParameters::create([
+                QueryParameter::string('configuration', $updatedConfigurationJson),
+                QueryParameter::int('id', (int) $configurationJson['id']),
             ])
         );
     }

@@ -25,7 +25,6 @@ namespace Core\AgentConfiguration\Domain\Model\ConfigurationParameters;
 
 use Assert\AssertionFailedException;
 use Centreon\Domain\Common\Assertion\Assertion;
-use Core\AgentConfiguration\Domain\Model\AgentConfiguration;
 use Core\AgentConfiguration\Domain\Model\ConfigurationParametersInterface;
 
 /**
