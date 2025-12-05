@@ -600,7 +600,7 @@ function validateParentChildAreNotCircular(array $fields): array|true
     $childHosts = $pearDB->fetchFirstColumn($query, $params);
 
     $intersect = array_intersect($parentHosts, $childHosts);
-    if (! empty($intersect)) {
+    if ($intersect !== []) {
         return [
             'dep_hgParents' => 'Circular dependency detected between parent and child host groups. Some hosts are present in both parent and child host groups.',
         ];
