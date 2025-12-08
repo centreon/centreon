@@ -4971,7 +4971,7 @@ msgstr "Paramètres d'affichage"
 
 #: centreon/www/install/dashboard_widgets.php
 msgid "Display ticket creation buttons"
-msgstr ""
+msgstr "Afficher les boutons de création de tickets"
 
 #: centreon/www/install/dashboard_widgets.php
 msgid "Display resources"
