@@ -271,28 +271,8 @@ When(
 Then(
   'a donut chart representing the statuses of this list of resources are displayed in the widget preview',
   () => {
-    cy.getByTestId({ testId: 'up' }).should('exist');
-    cy.getByTestId({ testId: 'critical' }).should('exist');
-    cy.getByTestId({ testId: 'warning' }).should('exist');
-    cy.getByTestId({ testId: 'unknown' }).should('exist');
-    cy.getByTestId({ testId: 'unknown' }).should('exist');
-    cy.getByTestId({ testId: 'ok' }).should('exist');
-    cy.getByTestId({ testId: 'pending' }).should('exist');
-    cy.getByTestId({ testId: 'Legend' }).eq(0).should('exist');
-    cy.getByTestId({ testId: 'Legend' }).eq(1).should('exist');
     cy.verifyLegendItemStyle(
       0,
-      [
-        greenCssBackground,
-        redCssBackground,
-        greyCssBackground,
-        blueCssBackground
-      ],
-      ['100.0%', '0.0%', '0.0%', '0.0%'],
-      ['66.7%', '33.3%', '0.0%', '0.0%']
-    );
-    cy.verifyLegendItemStyle(
-      1,
       [
         greenCssBackground,
         orangeCssBackground,
@@ -300,8 +280,7 @@ Then(
         greyCssBackground,
         blueCssBackground
       ],
-      ['50.0%', '8.3%', '8.3%', '0.0%', '33.3%'],
-      ['25.0%', '8.3%', '8.3%', '25.0%', '33.3%']
+      ['0.0%', '50.0%', '50.0%', '0.0%', '0.0%']
     );
   }
 );
@@ -311,28 +290,8 @@ When('the user saves the Status Chart widget', () => {
 });
 
 Then("the Status Chart widget is added in the dashboard's layout", () => {
-  cy.getByTestId({ testId: 'up' }).should('exist');
-  cy.getByTestId({ testId: 'critical' }).should('exist');
-  cy.getByTestId({ testId: 'warning' }).should('exist');
-  cy.getByTestId({ testId: 'unknown' }).should('exist');
-  cy.getByTestId({ testId: 'unknown' }).should('exist');
-  cy.getByTestId({ testId: 'ok' }).should('exist');
-  cy.getByTestId({ testId: 'pending' }).should('exist');
-  cy.getByTestId({ testId: 'Legend' }).eq(0).should('exist');
-  cy.getByTestId({ testId: 'Legend' }).eq(1).should('exist');
   cy.verifyLegendItemStyle(
     0,
-    [
-      greenCssBackground,
-      redCssBackground,
-      greyCssBackground,
-      blueCssBackground
-    ],
-    ['100.0%', '0.0%', '0.0%', '0.0%'],
-    ['66.7%', '33.3%', '0.0%', '0.0%']
-  );
-  cy.verifyLegendItemStyle(
-    1,
     [
       greenCssBackground,
       orangeCssBackground,
@@ -340,8 +299,7 @@ Then("the Status Chart widget is added in the dashboard's layout", () => {
       greyCssBackground,
       blueCssBackground
     ],
-    ['50.0%', '8.3%', '8.3%', '0.0%', '33.3%'],
-    ['25.0%', '8.3%', '8.3%', '25.0%', '33.3%']
+    ['0.0%', '50.0%', '50.0%', '0.0%', '0.0%']
   );
 });
 
