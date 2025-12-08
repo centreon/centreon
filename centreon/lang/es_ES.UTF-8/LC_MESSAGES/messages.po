@@ -5155,6 +5155,10 @@ msgid "Display properties"
 msgstr "Ajustes de pantalla"
 
 #: centreon/www/install/dashboard_widgets.php
+msgid "Display ticket creation buttons"
+msgstr ""
+
+#: centreon/www/install/dashboard_widgets.php
 msgid "Display resources"
 msgstr ""
 
