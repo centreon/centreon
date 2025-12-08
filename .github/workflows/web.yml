@@ -1295,8 +1295,8 @@ jobs:
         with:
           name: openapi-doc
           path: |
-            index.html
-            centreon-logo.png
+            centreon/doc/API/index.html
+            centreon/doc/API/centreon-logo.png
           retention-days: 1
 
   deliver-rpm:
