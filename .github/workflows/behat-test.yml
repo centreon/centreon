@@ -63,7 +63,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y cucumber
 
-          TEST_TAGS=$(echo "${{ inputs.test_tags }}" | sed -e 's#not #~#' -e 's# and #\&\&#')
+          TEST_TAGS=$(echo "${{ inputs.test_tags }}" | sed -e 's#not #~#g' -e 's# and #\&\&#g')
           echo "test_tags=$TEST_TAGS" >> $GITHUB_OUTPUT
 
           cd ${{ inputs.module_name }}
