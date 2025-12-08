@@ -1233,6 +1233,7 @@ jobs:
           version: 9
           run_install: |
             cwd: "centreon/doc/API"
+            recursive: false
             args: [--ignore-scripts, --frozen-lockfile]
 
       - name: Build openapi documentation
