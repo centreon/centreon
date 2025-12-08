@@ -123,7 +123,6 @@ async function uploadFeatureFileToXray(featureFilePath, XRAY_TOKEN) {
     core.info(`${JSON.stringify(response.data)}`);
     return response.data;
   } catch (error) {
-    console.log(error)
     core.error(`Error uploading feature file to Xray: ${error}`);
   }
 
