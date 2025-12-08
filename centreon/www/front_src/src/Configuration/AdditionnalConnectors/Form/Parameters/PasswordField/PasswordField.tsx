@@ -23,7 +23,6 @@ const PasswordFiled = ({
 
   const {
     disabled,
-    type,
     className,
     changePasswordValue,
     clearPassword,
@@ -39,12 +38,12 @@ const PasswordFiled = ({
       <TextField
         inputRef={passwordRef}
         fullWidth
-        dataTestId={'Password_value'}
+        dataTestId="Password_value"
         error={isEditMode ? undefined : error}
         label={t('Password')}
         name={'Password'}
         required={!isEditMode}
-        type={type}
+        type="password"
         value={value}
         onBlur={onBlur}
         onChange={changePasswordValue}

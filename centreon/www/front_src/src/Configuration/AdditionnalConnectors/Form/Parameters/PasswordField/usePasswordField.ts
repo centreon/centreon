@@ -21,7 +21,6 @@ import { maskedPassword } from '../../../utils';
 
 interface UsePasswordFieldState {
   disabled: boolean;
-  type: 'text' | 'password';
   className: string;
   changePasswordValue: (event) => void;
   clearPassword: () => void;
@@ -78,11 +77,6 @@ export const usePasswordField = ({
     !equals(state, PasswordActionState.Editing) &&
     !equals(state, PasswordActionState.Invisble);
 
-  const type =
-    isEditMode && equals(state, PasswordActionState.Editing)
-      ? 'text'
-      : 'password';
-
   useEffect(() => {
     if (isNil(value)) {
       setState(PasswordActionState.Invisble);
@@ -91,7 +85,6 @@ export const usePasswordField = ({
 
   return {
     disabled,
-    type,
     className,
     changePasswordValue,
     clearPassword,
