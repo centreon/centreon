@@ -1070,9 +1070,6 @@ class CentreonHost extends CentreonObject
             }
             $this->deployServices($hostId, $templateId);
         }
-
-        $aclObj = new CentreonACL($this->dependencyInjector);
-        $aclObj->reload(false);
     }
 
     /**
@@ -1093,6 +1090,9 @@ class CentreonHost extends CentreonObject
             throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ":" . $hostName);
         }
         $this->deployServices($hostId);
+
+        $aclObj = new CentreonACL($this->dependencyInjector);
+        $aclObj->reload(true);
     }
 
     /**
