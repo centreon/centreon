@@ -92,13 +92,16 @@ jobs:
       - name: List features
         id: list-features
         run: |
+          set -x
           sudo apt-get update
           sudo apt-get install -y cucumber
 
-          cd ${{ inputs.module_name }}
-          cucumber ${{ inputs.features_path }} --tags "${{ inputs.test_tags }}" -f json | jq -r '.[].uri' | sed -e 's#${{ inputs.features_path }}/*##g' | sort | jq -R -s -c 'split("\n")[:-1]'
-          echo "features=$(cucumber ${{ inputs.features_path }} --tags "${{ inputs.test_tags }}" -f json | jq -r '.[].uri' | sed -e 's#${{ inputs.features_path }}/*##g' | sort | jq -R -s -c 'split("\n")[:-1]')" >> $GITHUB_OUTPUT
+          TEST_TAGS=$(echo "${{ inputs.test_tags }}" | sed -e 's#not #~#' -e 's# and #\&\&#')
+          echo "test_tags=$TEST_TAGS" >> $GITHUB_OUTPUT
 
+          cd ${{ inputs.module_name }}
+          cucumber ${{ inputs.features_path }} --tags "$TEST_TAGS" -f json | jq -r '.[].uri' | sed -e 's#${{ inputs.features_path }}/*##g' | sort | jq -R -s -c 'split("\n")[:-1]'
+          echo "features=$(cucumber ${{ inputs.features_path }} --tags "$TEST_TAGS" -f json | jq -r '.[].uri' | sed -e 's#${{ inputs.features_path }}/*##g' | sort | jq -R -s -c 'split("\n")[:-1]')" >> $GITHUB_OUTPUT
   cypress-e2e-test-run:
     if: ${{ needs.cypress-e2e-test-list.outputs.features != '' && toJson(fromJson(needs.cypress-e2e-test-list.outputs.features)) != '[]' }}
     needs: [cypress-e2e-test-list]
