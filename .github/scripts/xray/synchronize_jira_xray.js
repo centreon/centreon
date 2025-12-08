@@ -123,7 +123,8 @@ async function uploadFeatureFileToXray(featureFilePath, XRAY_TOKEN) {
     core.info(`${JSON.stringify(response.data)}`);
     return response.data;
   } catch (error) {
-    core.error(`Error uploading feature file to Xray: ${error}`);
+    const errorMessage = error.response?.data?.message || error.message;
+    core.error(`Error uploading feature file to Xray: ${errorMessage}`);
   }
 
   return null;
@@ -272,7 +273,8 @@ async function updateJiraIssues(testSelfs, targetVersions, componentsList) {
 
       core.info(`Issue's status ${api} full updated successfully in Jira.`);
     } catch (error) {
-      core.error(`Error full updating Jira issue: ${error}`);
+      const errorMessage = error.response?.data?.message || error.message;
+      core.error(`Error full updating Jira issue: ${errorMessage}`);
     }
   }
 }
