@@ -423,7 +423,7 @@ class CentreonCommand
                 $cmaConnectorId = $this->db->fetchOne(
                     'SELECT id FROM connector WHERE name = :name',
                     QueryParameters::create([
-                        QueryParameter::string('name', 'Centreon Monitoring Agent')
+                        QueryParameter::string('name', 'Centreon Monitoring Agent'),
                     ])
                 );
                 if ($cmaConnectorId === false) {
@@ -464,6 +464,7 @@ class CentreonCommand
                 ],
                 exception: $e
             );
+
             throw new Exception('Error while inserting command ' . $parameters['command_name']);
         }
     }
