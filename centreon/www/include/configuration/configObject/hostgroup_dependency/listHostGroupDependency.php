@@ -165,7 +165,7 @@ $form->addElement('submit', 'Search', _("Search"), $attrBtnSuccess);
 
 //Fill a tab with a multidimensional Array we put in $tpl
 $elemArr = [];
-for ($i = 0; $dep = $dbResult->fetch(); $i++) {
+foreach ($result as $i => $dep) {
     $moptions = "";
     $selectedElements = $form->addElement('checkbox', "select[" . $dep['dep_id'] . "]");
     $moptions .= "&nbsp;<input onKeypress=\"if(event.keyCode > 31 && (event.keyCode < 45 || event.keyCode > 57))" .
