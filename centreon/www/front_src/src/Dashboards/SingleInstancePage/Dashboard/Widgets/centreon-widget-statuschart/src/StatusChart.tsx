@@ -28,7 +28,8 @@ const StatusChart = ({
     displayLegend,
     displayValues,
     resourceTypes,
-    unit
+    unit,
+    stateList
   } = panelOptions;
 
   const isHorizontalBar = equals(displayType, DisplayType.Horizontal);
@@ -68,6 +69,7 @@ const StatusChart = ({
 
         return (
           <Chart
+            stateList={stateList}
             dashboardId={dashboardId}
             displayLegend={displayLegend}
             displayType={displayType}

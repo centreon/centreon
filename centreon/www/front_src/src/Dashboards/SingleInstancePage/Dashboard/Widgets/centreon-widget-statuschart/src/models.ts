@@ -11,6 +11,13 @@ export interface Data {
   resources: Array<Resource>;
 }
 
+export enum StateSelection {
+  UNHANDLED="unhandled_problems",
+  ACKNOWLEDGED="acknowledged",
+  DOWN="in_downtime",
+  FLAPPING="in_flapping"
+}
+
 export interface PanelOptions {
   displayLegend: boolean;
   displayType: DisplayType;
@@ -19,6 +26,7 @@ export interface PanelOptions {
   refreshIntervalCustom?: number;
   resourceTypes: Array<'host' | 'service'>;
   unit: 'number' | 'percentage';
+  stateList: Array<StateSelection>;
 }
 
 export interface StatusChartProps
@@ -45,6 +53,7 @@ export interface ChartType
   resources: Array<Resource>;
   title?: string;
   unit: 'number' | 'percentage';
+  stateList: Array<StateSelection>;
 }
 
 type StatusDetail = {
