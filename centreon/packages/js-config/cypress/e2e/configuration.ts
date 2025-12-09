@@ -50,38 +50,16 @@ export default ({
       },
       setupNodeEvents: async (cypressOn, config) => {
         const on = require('cypress-on-fix')(cypressOn)
-
         installLogsPrinter(on, {
           commandTrimLength: 5000,
           defaultTrimLength: 5000,
         });
-
         on("task", {
           logVersion(message) {
             console.log(`[LOG]: ${message}`);
             return null;
           },
         });
-
-        // ------------------------------------------------------------------
-        //  FORCING BROWSER LANGUAGE TO ENGLISH (CHROME / EDGE / FIREFOX)
-        // ------------------------------------------------------------------
-        on('before:browser:launch', (browser: Cypress.Browser, launchOptions) => {
-          // For Chromium browsers (Chrome, Edge, Electron)
-          if (browser.family === 'chromium') {
-            launchOptions.args.push('--lang=en');
-            launchOptions.args.push('--accept-lang=en,en-US');
-          }
-
-          // For Firefox
-          if (browser.family === 'firefox') {
-            launchOptions.preferences['intl.accept_languages'] = 'en-US,en';
-          }
-
-          return launchOptions;
-        });
-        // ------------------------------------------------------------------
-
         await esbuildPreprocessor(on, config);
         tasks(on);
 
@@ -108,8 +86,10 @@ export default ({
       runMode: 2
     },
     screenshotsFolder: `${resultsFolder}/screenshots`,
+    // Ensure previous run assets are removed to avoid accumulation
     trashAssetsBeforeRuns: true,
     video: true,
+    // Keep files small in CI, but fast locally
     videoCompression: process.env.CI ? 32 : 0,
     videosFolder: `${resultsFolder}/videos`,
     viewportHeight: 1080,
