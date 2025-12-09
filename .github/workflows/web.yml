@@ -1235,10 +1235,6 @@ jobs:
             cwd: "centreon/doc/API"
             args: [--ignore-scripts, --frozen-lockfile]
 
-      - name: Install openapi documentation dependencies
-        run: pnpm install --ignore-scripts --frozen-lockfile --filter ./
-        working-directory: centreon/doc/API
-
       - name: Build openapi documentation
         run: |
           if [[ "${{ needs.get-environment.outputs.is_cloud }}" == "true" && -f "centreon-cloud-api.yaml" ]]; then
