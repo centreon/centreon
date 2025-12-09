@@ -416,6 +416,7 @@ class CentreonCommand
     public function insert($parameters, $locked = false): void
     {
         try {
+            $cmaConnectorId = null;
             if (
                 str_contains($parameters['command_name'] ?? '', '-CMA-')
                 || str_contains($parameters['command_name'] ?? '', 'Centreon-Monitoring-Agent')
@@ -449,7 +450,7 @@ class CentreonCommand
                 QueryParameter::string('command_line', $parameters['command_line'] ?? ''),
                 QueryParameter::int('command_type', $parameters['command_type'] ?? 2),
                 QueryParameter::int('command_locked', $locked ? 1 : 0),
-                QueryParameter::int('connector_id', $cmaConnectorId ?? null),
+                QueryParameter::int('connector_id', $cmaConnectorId),
             ]);
 
             $this->db->executeStatement($query, $queryParameters);
