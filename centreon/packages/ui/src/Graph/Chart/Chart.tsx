@@ -1,5 +1,6 @@
 import {
   type MutableRefObject,
+  ReactElement,
   useEffect,
   useMemo,
   useRef,
@@ -27,6 +28,7 @@ import {
   getYScalePerUnit
 } from '../common/timeSeries';
 import type { Line } from '../common/timeSeries/models';
+import { useMarginTop } from '../common/useMarginTop';
 import Lines from './BasicComponents/Lines';
 import {
   canDisplayThreshold,
@@ -116,7 +118,7 @@ const Chart = ({
   min,
   max,
   boundariesUnit
-}: Props): JSX.Element => {
+}: Props): ReactElement => {
   const { classes } = useChartStyles();
 
   const { title, timeSeries, baseAxis, lines } = graphData;
@@ -155,6 +157,8 @@ const Chart = ({
       secondUnit
     });
 
+  const allUnits = getUnits(linesGraph);
+
   const { legendRef, graphWidth, graphHeight, titleRef } =
     useComputeBaseChartDimensions({
       hasSecondUnit: Boolean(secondUnit),
@@ -163,7 +167,9 @@ const Chart = ({
       legendHeight: legend?.height,
       legendPlacement: legend?.placement,
       width,
-      maxAxisCharacters: maxRightAxisCharacters || maxLeftAxisCharacters
+      maxAxisCharacters: maxRightAxisCharacters || maxLeftAxisCharacters,
+      title,
+      units: allUnits
     });
 
   const xScale = useMemo(
@@ -197,7 +203,8 @@ const Chart = ({
         valueGraphHeight: graphHeight - margin.bottom,
         min,
         max,
-        boundariesUnit
+        boundariesUnit,
+        isFilled: lineStyle?.showArea
       }),
     [
       linesGraph,
@@ -227,8 +234,6 @@ const Chart = ({
     [displayedLines]
   );
 
-  const allUnits = getUnits(linesGraph);
-
   useEffect(
     () => {
       setLinesGraph(
@@ -254,6 +259,8 @@ const Chart = ({
 
   const hasSecondUnit = useMemo(() => Boolean(secondUnit), [secondUnit]);
 
+  const marginTop = useMarginTop({ title, units: allUnits });
+
   if ((!isInViewport && !skipIntersectionObserver) || !height) {
     return (
       <Skeleton
@@ -273,11 +280,13 @@ const Chart = ({
           header={header}
           height={height}
           legend={{
+            ...legend,
             displayLegend,
             legendHeight: legend?.height,
             mode: legend?.mode,
             placement: legend?.placement,
             renderExtraComponent: legend?.renderExtraComponent,
+            showCalculations: legend?.showCalculations,
             secondaryClick: legend?.secondaryClick
           }}
           legendRef={legendRef}
@@ -286,6 +295,7 @@ const Chart = ({
           setLines={setLinesGraph}
           title={title}
           titleRef={titleRef}
+          graphHeight={graphHeight}
         >
           <GraphValueTooltip
             baseAxis={baseAxis}
@@ -317,7 +327,7 @@ const Chart = ({
                       isTooltipHidden={false}
                       lines={linesDisplayedAsBar}
                       orientation="horizontal"
-                      size={graphHeight - margin.top - 5}
+                      size={graphHeight - marginTop - 5}
                       timeSeries={timeSeries}
                       xScale={xScaleBand}
                       yScalesPerUnit={yScalesPerUnit}
@@ -329,7 +339,7 @@ const Chart = ({
                       displayAnchor={displayAnchor}
                       displayedLines={linesDisplayedAsLine}
                       graphSvgRef={graphSvgRef}
-                      height={graphHeight - margin.top}
+                      height={graphHeight - marginTop}
                       scale={axis?.scale}
                       scaleLogarithmicBase={axis?.scaleLogarithmicBase}
                       timeSeries={timeSeries}

@@ -91,7 +91,8 @@ if (! isset($_POST['data'])) {
         $centreon_open_tickets_path,
         $getInformation['rule_id'],
         null,
-        $getInformation['provider_id']
+        $getInformation['provider_id'],
+        $providerName
     );
 
     // check if methods exist

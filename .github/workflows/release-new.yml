@@ -97,6 +97,7 @@ jobs:
 
           # Output to GITHUB_ENV
           echo "new_release_bundle_tag=$NEW_RELEASE_BUNDLE_TAG" >> "$GITHUB_OUTPUT"
+          echo "major_version=$MAJOR_VERSION" >> "$GITHUB_OUTPUT"
         shell: bash
 
       - name: Check ref where release workflow is hosted
@@ -123,10 +124,10 @@ jobs:
           jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
           jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
           jira_base_url: ${{ secrets.JIRA_BASE_URL }}
-          jira_webhook_url: ${{ secrets.JIRA_RELEASE_WEBHOOK }}
           release_number: ${{ inputs.release_number }}
           release_type: ${{ inputs.release_type }}
           release_scope: ${{ inputs.release_scope }}
           release_bundle_tag: ${{ steps.build_release_bundle_tag.outputs.new_release_bundle_tag }}
           release_branch: ${{ inputs.release_branch }}
           centreon_technique_pat: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
+          major_version: ${{ steps.build_release_bundle_tag.outputs.major_version }}

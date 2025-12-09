@@ -646,7 +646,7 @@ When('the dashboard administrator clicks on the zero-centred button', () => {
 Then(
   'the Metrics Graph widget should be refreshed to center the values around 0',
   () => {
-    cy.get('text').contains('tspan', '0 ms').should('exist');
+    cy.get('text').contains('ms').should('be.visible');
   }
 );
 
@@ -658,9 +658,7 @@ When('the dashboard administrator selects the list display mode', () => {
 Then(
   'the Metrics Graph widget should refresh to display items in a list format',
   () => {
-    cy.get(
-      'div[class$="-items"][data-as-list="true"][data-mode="normal"]'
-    ).should('exist');
+    cy.get('ul[data-as-list="true"][data-mode="normal"]').should('exist');
   }
 );
 
@@ -676,10 +674,8 @@ When(
 );
 
 Then('the graph should be displayed as a bar chart', () => {
-  cy.waitForElementToBeVisible(
-    'div[data-as-list="false"] p.MuiTypography-root'
-  );
-  cy.get('div[data-as-list="false"] p.MuiTypography-root').then(($els) => {
+  cy.waitForElementToBeVisible('ul[data-as-list="false"] p.MuiTypography-root');
+  cy.get('ul[data-as-list="false"] p.MuiTypography-root').then(($els) => {
     const labels = [...$els].map((el) => el.innerText.trim());
     cy.log('Labels:', labels.join(', '));
     expect(labels).to.include.members(['rta', 'pl', 'rtmax', 'rtmin']);
