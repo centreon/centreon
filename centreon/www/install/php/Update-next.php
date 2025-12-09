@@ -50,6 +50,26 @@ $setBackupMysqlConfDefaultAsEmpty = function () use ($pearDB, &$errorMessage, $v
     );
 };
 
+$setCheckFreshnessToTrueforCMAServices = function () use ($pearDB, &$errorMessage, $version): void {
+    $errorMessage = 'Unable to set check_freshness to true for CMA services';
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: [CMA] Selecting Centreon Monitoring Agent Connector ID",
+    );
+    $cmaConnectorId = $pearDB->fetchOne(
+        <<<'SQL'
+            SELECT id FROM connector
+            WHERE name = 'Centreon Monitoring Agent'
+            SQL
+    );
+
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: [CMA] Selecting Centreon Monitoring Agent Connector ID",
+    );
+
+};
+
 try {
     // DDL statements for real time database
     // TODO add your function calls to update the real time database structure here
