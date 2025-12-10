@@ -36,6 +36,23 @@
     </td>
 </tr>
 <tr class="list_one">
+  <td class="FormRowField">
+    {$form.peer_verify.label}
+  </td>
+  <td class="FormRowValue">
+    {$form.peer_verify.html}
+  </td>
+</tr>
+<tr id="row-ca-cert" class="list_two">
+  <td class="FormRowField">
+    <img class="helpTooltip" name="ca_cert_path">
+    {$form.ca_cert_path.label}
+  </td>
+  <td class="FormRowValue">
+    {$form.ca_cert_path.html}
+  </td>
+</tr>
+<tr class="list_two">
     <td class="FormRowField">
         {$form.grouplist.label}
     </td>
@@ -82,3 +99,34 @@
     </td>
 </tr>
 {/if}
+<tr style="display:none">
+<td colspan="2">
+{$helptext}
+</td>
+</tr>
+{literal}
+<script>
+    jQuery(function () {
+        const peerVerifyCheckbox = jQuery('input[name="peer_verify"]');
+        const caCertRow = jQuery('#row-ca-cert');
+
+        function toggleCaCertRow() {
+            if (peerVerifyCheckbox.is(':checked')) {
+                caCertRow.show();
+            } else {
+                caCertRow.find('input[name="ca_cert_path"]').val("")
+                caCertRow.hide();
+            }
+        }
+
+        // Run on page load
+        toggleCaCertRow();
+
+        // Run when checkbox is toggled
+        peerVerifyCheckbox.on('change', toggleCaCertRow);
+        if (typeof centreonTooltip !== "undefined") {
+            centreonTooltip.render();
+        }
+    });
+</script>
+{/literal}
