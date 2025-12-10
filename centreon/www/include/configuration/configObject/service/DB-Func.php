@@ -4422,7 +4422,7 @@ function callApi(string $url, string $httpMethod, array $payload): array
         [
             'headers' => [
                 'Content-Type' => 'application/json',
-                'Cookie' => 'PHPSESSID=' . $_COOKIE['PHPSESSID'],
+                'Cookie' => CentreonSession::resolveSessionCookie(),
             ],
             'body' => json_encode($payload),
         ]
