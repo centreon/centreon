@@ -76,13 +76,14 @@ $updateFreshnessforCMAServices = function () use ($pearDB, &$errorMessage, $vers
             FROM command
             WHERE connector_id = :cmaConnectorId
             SQL,
-        QueryParameters::create([QueryParameter::int('cmaConnectorId', $cmaConnectorId),])
+        QueryParameters::create([QueryParameter::int('cmaConnectorId', $cmaConnectorId)])
     );
     if (empty($commandsIds)) {
         CentreonLog::create()->info(
             logTypeId: CentreonLog::TYPE_UPGRADE,
             message: "UPGRADE - {$version}: [CMA] No commands found for CMA connector, skipping check_freshness update",
         );
+
         return;
     }
 
