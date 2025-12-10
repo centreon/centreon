@@ -78,7 +78,6 @@ runs:
               }'
             )"
 
-        response=""
         attempt=0
         until [[ $(jf rt search rpm-standard-feature/$feature_ticket/$major_version/*.repo | jq '. | length') -eq 2 || $attempt -ge 40 ]]; do
           attempt=$((attempt+1))
