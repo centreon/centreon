@@ -1,36 +1,19 @@
 <?php
 /*
- * Copyright 2005-2015 Centreon
- * Centreon is developped by : Julien Mathis and Romain Le Merlus under
- * GPL Licence 2.0.
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation ; either version 2 of the License.
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <http://www.gnu.org/licenses>.
- *
- * Linking this program statically or dynamically with other modules is making a
- * combined work based on this program. Thus, the terms and conditions of the GNU
- * General Public License cover the whole combination.
- *
- * As a special exception, the copyright holders of this program give Centreon
- * permission to link this program with independent modules to produce an executable,
- * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of Centreon choice, provided that
- * Centreon also meet, for each linked independent module, the terms  and conditions
- * of the license of that module. An independent module is a module which is not
- * derived from this program. If you modify this program, you may extend this
- * exception to your version of the program, but you are not obliged to do so. If you
- * do not wish to do so, delete this exception statement from your version.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * For more information : contact@centreon.com
- *
  */
 
 use Adaptation\Database\Connection\Collection\QueryParameters;
@@ -54,11 +37,11 @@ function testHostGroupDependencyExistence(?string $name = null): bool
 
         $id = $form?->getSubmitValue('dep_id');
 
-        $query = $pearDB->createQueryBuilder()
-            ->select('dep_name', 'dep_id')
-            ->from('dependency')
-            ->where('dep_name = :depName')
-            ->getQuery();
+        $query = <<<'SQL'
+            SELECT dep_name, dep_id
+            FROM dependency
+            WHERE dep_name = :depName
+            SQL;
 
         $params = QueryParameters::create([
             QueryParameter::string('depName', CentreonDB::escape($name)),
@@ -110,12 +93,12 @@ function deleteHostGroupDependencyInDB(array $dependencies = []): void
 
     foreach ($dependencies as $key => $value) {
         try {
-            $query = $pearDB->createQueryBuilder()
-                ->select('dep_name')
-                ->from('dependency')
-                ->where('dep_id = :depId')
-                ->limit(1)
-                ->getQuery();
+            $query = <<<'SQL'
+                SELECT dep_name
+                FROM dependency
+                WHERE dep_id = :depId
+                LIMIT 1
+                SQL;
 
             $params = QueryParameters::create([
                 QueryParameter::int('depId', (int) $key),
@@ -126,10 +109,10 @@ function deleteHostGroupDependencyInDB(array $dependencies = []): void
                 continue;
             }
 
-            $query = $pearDB->createQueryBuilder()
-                ->delete('dependency')
-                ->where('dep_id = :depId')
-                ->getQuery();
+            $query = <<<'SQL'
+                DELETE FROM dependency
+                WHERE dep_id = :depId
+                SQL;
 
             $pearDB->executeStatement($query, $params);
 
@@ -155,12 +138,12 @@ function multipleHostGroupDependencyInDB(array $dependencies = [], array $nbrDup
 
     foreach ($dependencies as $key => $value) {
         try {
-            $query = $pearDB->createQueryBuilder()
-                ->select('*')
-                ->from('dependency')
-                ->where('dep_id = :depId')
-                ->limit(1)
-                ->getQuery();
+            $query = <<<'SQL'
+                SELECT *
+                FROM dependency
+                WHERE dep_id = :depId
+                LIMIT 1
+                SQL;
 
             $params = QueryParameters::create([
                 QueryParameter::int('depId', (int) $key),
@@ -189,84 +172,73 @@ function multipleHostGroupDependencyInDB(array $dependencies = [], array $nbrDup
                     }
                 }
                 if (isset($dep_name) && testHostGroupDependencyExistence($dep_name)) {
-                    $columns = ['dep_id', 'dep_name', 'dep_description', 'inherits_parent', 'execution_failure_criteria',
-                        'notification_failure_criteria', 'dep_comment'];
+                    $query = <<<'SQL'
+                        INSERT INTO dependency
+                        (dep_id, dep_name, dep_description, inherits_parent, execution_failure_criteria,
+                         notification_failure_criteria, dep_comment)
+                        VALUES
+                        SQL;
+                    $query .= ' (' . $val . ')';
 
-                    $qb = $pearDB->createQueryBuilder()
-                        ->insert('dependency')
-                        ->values(
-                            array_combine($columns,
-                                explode(
-                                    ', ',
-                                    $val
-                                )
-                            )
-                        )
-                        ->getQuery();
+                    $pearDB->executeStatement($query);
 
-                    $pearDB->executeStatement($qb);
+                    $query = <<<'SQL'
+                        SELECT MAX(dep_id) AS max_dep_id
+                        FROM dependency
+                        SQL;
 
-                    $qb = $pearDB->createQueryBuilder()
-                        ->select('MAX(dep_id) AS max_dep_id')
-                        ->from('dependency')
-                        ->getQuery();
-
-                    $maxId = $pearDB->fetchAssociative($qb);
+                    $maxId = $pearDB->fetchAssociative($query);
 
                     if (isset($maxId['max_dep_id'])) {
-                        $qb = $pearDB->createQueryBuilder()
-                            ->select('hostgroup_hg_id')
-                            ->from('dependency_hostgroupParent_relation')
-                            ->where('dependency_dep_id = :depId')
-                            ->getQuery();
+                        $query = <<<'SQL'
+                            SELECT hostgroup_hg_id
+                            FROM dependency_hostgroupParent_relation
+                            WHERE dependency_dep_id = :depId
+                            SQL;
                         $params = QueryParameters::create([
                             QueryParameter::int('depId', (int) $key),
                         ]);
-                        $result = $pearDB->fetchAllAssociative($qb, $params);
+                        $result = $pearDB->fetchAllAssociative($query, $params);
 
                         $fields['dep_hgParents'] = '';
                         foreach ($result as $hg) {
-                            $qb = $pearDB->createQueryBuilder()
-                                ->insert('dependency_hostgroupParent_relation')
-                                ->values([
-                                    'dependency_dep_id' => ':max_id',
-                                    'hostgroup_hg_id' => ':hg_id',
-                                ])
-                                ->getQuery();
+                            $query = <<<'SQL'
+                                INSERT INTO dependency_hostgroupParent_relation
+                                (dependency_dep_id, hostgroup_hg_id)
+                                VALUES (:max_id, :hg_id)
+                                SQL;
                             $params = QueryParameters::create([
                                 QueryParameter::int('max_id', (int) $maxId['max_dep_id']),
                                 QueryParameter::int('hg_id', (int) $hg['hostgroup_hg_id']),
                             ]);
 
-                            $pearDB->executeStatement($qb, $params);
+                            $pearDB->executeStatement($query, $params);
                             $fields['dep_hgParents'] .= $hg['hostgroup_hg_id'] . ',';
                         }
                         $fields['dep_hgParents'] = trim($fields['dep_hgParents'], ',');
 
-                        $qb = $pearDB->createQueryBuilder()
-                            ->select('hostgroup_hg_id')
-                            ->from('dependency_hostgroupChild_relation')
-                            ->where('dependency_dep_id = :depId')
-                            ->getQuery();
+                        $query = <<<'SQL'
+                            SELECT hostgroup_hg_id
+                            FROM dependency_hostgroupChild_relation
+                            WHERE dependency_dep_id = :depId
+                            SQL;
                         $params = QueryParameters::create([
                             QueryParameter::int('depId', (int) $key),
                         ]);
-                        $result = $pearDB->fetchAllAssociative($qb, $params);
+                        $result = $pearDB->fetchAllAssociative($query, $params);
 
                         $fields['dep_hgChilds'] = '';
                         foreach ($result as $hg) {
-                            $qb = $pearDB->createQueryBuilder()
-                                ->insert('dependency_hostgroupChild_relation')
-                                ->values([
-                                    'dependency_dep_id' => ':max_id',
-                                    'hostgroup_hg_id' => ':hg_id',
-                                ])
-                                ->getQuery();
+                            $query = <<<'SQL'
+                                INSERT INTO dependency_hostgroupChild_relation
+                                (dependency_dep_id, hostgroup_hg_id)
+                                VALUES (:max_id, :hg_id)
+                                SQL;
                             $params = QueryParameters::create([
                                 QueryParameter::int('max_id', (int) $maxId['max_dep_id']),
                                 QueryParameter::int('hg_id', (int) $hg['hostgroup_hg_id']),
                             ]);
-                            $pearDB->executeStatement($qb, $params);
+                            $pearDB->executeStatement($query, $params);
                             $fields['dep_hgChilds'] .= $hg['hostgroup_hg_id'] . ',';
                         }
                         $fields['dep_hgChilds'] = trim($fields['dep_hgChilds'], ',');
@@ -329,19 +301,13 @@ function insertHostGroupDependency(array $ret = []): int
 
     $resourceValues = sanitizeResourceParameters($ret);
 
-    $qb = $pearDB->createQueryBuilder()
-        ->insert('dependency')
-        ->values(
-            [
-                'dep_name' => ':depName',
-                'dep_description' => ':depDescription',
-                'inherits_parent' => ':inheritsParent',
-                'execution_failure_criteria' => ':executionFailure',
-                'notification_failure_criteria' => ':notificationFailure',
-                'dep_comment' => ':depComment',
-            ]
-        )
-        ->getQuery();
+    $query = <<<'SQL'
+        INSERT INTO dependency
+        (dep_name, dep_description, inherits_parent,
+         execution_failure_criteria, notification_failure_criteria, dep_comment)
+        VALUES (:depName, :depDescription, :inheritsParent,
+                :executionFailure, :notificationFailure, :depComment)
+        SQL;
     $params = QueryParameters::create([
         QueryParameter::string('depName', $resourceValues['dep_name']),
         QueryParameter::string('depDescription', $resourceValues['dep_description']),
@@ -357,13 +323,13 @@ function insertHostGroupDependency(array $ret = []): int
         QueryParameter::string('depComment', $resourceValues['dep_comment']),
     ]);
 
-    $pearDB->executeStatement($qb, $params);
+    $pearDB->executeStatement($query, $params);
 
-    $qb = $pearDB->createQueryBuilder()
-        ->select('MAX(dep_id) as max_dep_id')
-        ->from('dependency')
-        ->getQuery();
-    $result = $pearDB->fetchAssociative($qb);
+    $query = <<<'SQL'
+        SELECT MAX(dep_id) as max_dep_id
+        FROM dependency
+        SQL;
+    $result = $pearDB->fetchAssociative($query);
 
     /* Prepare value for changelog */
     $fields = CentreonLogAction::prepareChanges($ret);
@@ -394,16 +360,16 @@ function updateHostGroupDependency($depId = null): void
     try {
         $resourceValues = sanitizeResourceParameters($form->getSubmitValues());
 
-        $qb = $pearDB->createQueryBuilder()
-            ->update('dependency')
-            ->set('dep_name', ':depName')
-            ->set('dep_description', ':depDescription')
-            ->set('inherits_parent', ':inheritsParent')
-            ->set('execution_failure_criteria', ':executionFailure')
-            ->set('notification_failure_criteria', ':notificationFailure')
-            ->set('dep_comment', ':depComment')
-            ->where('dep_id = :depId')
-            ->getQuery();
+        $query = <<<'SQL'
+            UPDATE dependency
+            SET dep_name = :depName,
+                dep_description = :depDescription,
+                inherits_parent = :inheritsParent,
+                execution_failure_criteria = :executionFailure,
+                notification_failure_criteria = :notificationFailure,
+                dep_comment = :depComment
+            WHERE dep_id = :depId
+            SQL;
         $params = QueryParameters::create([
             QueryParameter::string('depName', $resourceValues['dep_name']),
             QueryParameter::string('depDescription', $resourceValues['dep_description']),
@@ -419,7 +385,7 @@ function updateHostGroupDependency($depId = null): void
             QueryParameter::string('depComment', $resourceValues['dep_comment']),
             QueryParameter::int('depId', (int) $depId),
         ]);
-        $pearDB->executeStatement($qb, $params);
+        $pearDB->executeStatement($query, $params);
 
         // Prepare value for changelog
         $fields = CentreonLogAction::prepareChanges($resourceValues);
@@ -496,14 +462,14 @@ function updateHostGroupDependencyHostGroupParents($dep_id = null, array $ret = 
     }
     global $form, $pearDB;
 
-    $qb = $pearDB->createQueryBuilder()
-        ->delete('dependency_hostgroupParent_relation')
-        ->where('dependency_dep_id = :depId')
-        ->getQuery();
+    $query = <<<'SQL'
+        DELETE FROM dependency_hostgroupParent_relation
+        WHERE dependency_dep_id = :depId
+        SQL;
     $params = QueryParameters::create([
         QueryParameter::int('depId', (int) $dep_id),
     ]);
-    $pearDB->executeStatement($qb, $params);
+    $pearDB->executeStatement($query, $params);
 
     if (isset($ret['dep_hgParents'])) {
         $ret = $ret['dep_hgParents'];
@@ -512,18 +478,16 @@ function updateHostGroupDependencyHostGroupParents($dep_id = null, array $ret = 
     }
     $counter = count($ret);
     for ($i = 0; $i < $counter; $i++) {
-        $qb = $pearDB->createQueryBuilder()
-            ->insert('dependency_hostgroupParent_relation')
-            ->values([
-                'dependency_dep_id' => ':depId',
-                'hostgroup_hg_id' => ':hgId',
-            ])
-            ->getQuery();
+        $query = <<<'SQL'
+            INSERT INTO dependency_hostgroupParent_relation
+            (dependency_dep_id, hostgroup_hg_id)
+            VALUES (:depId, :hgId)
+            SQL;
         $params = QueryParameters::create([
             QueryParameter::int('depId', (int) $dep_id),
             QueryParameter::int('hgId', (int) $ret[$i]),
         ]);
-        $pearDB->executeStatement($qb, $params);
+        $pearDB->executeStatement($query, $params);
     }
 }
 
@@ -534,14 +498,14 @@ function updateHostGroupDependencyHostGroupChilds($dep_id = null, array $ret = [
     }
     global $form, $pearDB;
 
-    $qb = $pearDB->createQueryBuilder()
-        ->delete('dependency_hostgroupChild_relation')
-        ->where('dependency_dep_id = :depId')
-        ->getQuery();
+    $query = <<<'SQL'
+        DELETE FROM dependency_hostgroupChild_relation
+        WHERE dependency_dep_id = :depId
+        SQL;
     $params = QueryParameters::create([
         QueryParameter::int('depId', (int) $dep_id),
     ]);
-    $pearDB->executeStatement($qb, $params);
+    $pearDB->executeStatement($query, $params);
 
     if (isset($ret['dep_hgChilds'])) {
         $ret = $ret['dep_hgChilds'];
@@ -550,17 +514,15 @@ function updateHostGroupDependencyHostGroupChilds($dep_id = null, array $ret = [
     }
     $counter = count($ret);
     for ($i = 0; $i < $counter; $i++) {
-        $qb = $pearDB->createQueryBuilder()
-            ->insert('dependency_hostgroupChild_relation')
-            ->values([
-                'dependency_dep_id' => ':depId',
-                'hostgroup_hg_id' => ':hgId',
-            ])
-            ->getQuery();
+        $query = <<<'SQL'
+            INSERT INTO dependency_hostgroupChild_relation
+            (dependency_dep_id, hostgroup_hg_id)
+            VALUES (:depId, :hgId)
+            SQL;
         $params = QueryParameters::create([
             QueryParameter::int('depId', (int) $dep_id),
             QueryParameter::int('hgId', (int) $ret[$i]),
         ]);
-        $pearDB->executeStatement($qb, $params);
+        $pearDB->executeStatement($query, $params);
     }
 }
