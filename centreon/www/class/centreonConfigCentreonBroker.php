@@ -1305,7 +1305,7 @@ class CentreonConfigCentreonBroker
         $client = new Symfony\Component\HttpClient\CurlHttpClient();
         $headers = [
             'Content-Type' => 'application/json',
-            'Cookie' => 'PHPSESSID=' . $_COOKIE['PHPSESSID'],
+            'Cookie' => CentreonSession::resolveSessionCookie(),
         ];
         $parameters = ['brokerId' => $configId];
         if ($basePath) {
