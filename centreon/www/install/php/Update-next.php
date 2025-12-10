@@ -52,9 +52,8 @@ $setBackupMysqlConfDefaultAsEmpty = function () use ($pearDB, &$errorMessage, $v
     );
 };
 
-$updateFreshnessforCMAServices = function () use ($pearDB, &$errorMessage, $version): void {
-    $errorMessage = 'Unable to set check_freshness to true for CMA services';
-
+$updateFreshnessforCMAServicesAndHosts = function () use ($pearDB, &$errorMessage, $version): void {
+    $errorMessage = 'Unable to select CMA connector';
     CentreonLog::create()->info(
         logTypeId: CentreonLog::TYPE_UPGRADE,
         message: "UPGRADE - {$version}: [CMA] Selecting Centreon Monitoring Agent Connector ID",
@@ -66,6 +65,7 @@ $updateFreshnessforCMAServices = function () use ($pearDB, &$errorMessage, $vers
             SQL
     );
 
+    $errorMessage = 'Unable to select commands for CMA connector';
     CentreonLog::create()->info(
         logTypeId: CentreonLog::TYPE_UPGRADE,
         message: "UPGRADE - {$version}: [CMA] Selecting commands IDs for CMA connector",
@@ -86,16 +86,32 @@ $updateFreshnessforCMAServices = function () use ($pearDB, &$errorMessage, $vers
 
         return;
     }
+    $commandsIdsAsString = implode(',', $commandsIds);
 
+    $errorMessage = 'Unable to update service_check_freshness and service_freshness_threshold';
     CentreonLog::create()->info(
         logTypeId: CentreonLog::TYPE_UPGRADE,
-        message: "UPGRADE - {$version}: [CMA] Setting service_check_freshness to true for services using CMA commands",
+        message: "UPGRADE - {$version}: [CMA] Setting service_check_freshness to true and service_freshness_threshold "
+            . "to 120 for services using CMA commands",
     );
-    $commandsIdsAsString = implode(',', $commandsIds);
     $pearDB->update(
         <<<SQL
             UPDATE service
             SET service_check_freshness = '1', service_freshness_threshold = 120
+            WHERE command_command_id IN ({$commandsIdsAsString})
+            SQL
+    );
+
+    $errorMessage = 'Unable to update host_check_freshness and host_freshness_threshold';
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: [CMA] Setting host_check_freshness to true and host_freshness_threshold "
+            . "to 120 for hosts using CMA commands",
+    );
+    $pearDB->update(
+        <<<SQL
+            UPDATE host
+            SET host_check_freshness = '1', host_freshness_threshold = 120
             WHERE command_command_id IN ({$commandsIdsAsString})
             SQL
     );
@@ -115,7 +131,7 @@ try {
 
     // TODO add your function calls to update the configuration database data here
     $setBackupMysqlConfDefaultAsEmpty();
-    $updateFreshnessforCMAServices();
+    $updateFreshnessforCMAServicesAndHosts();
 
     $pearDB->commitTransaction();
 
