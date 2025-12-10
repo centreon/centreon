@@ -19,8 +19,10 @@
  *
  */
 
+use Adaptation\Database\Connection\Collection\QueryParameters;
 use Adaptation\Database\Connection\ConnectionInterface;
 use Adaptation\Database\Connection\Exception\ConnectionException;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
 
 require_once __DIR__ . '/../../../bootstrap.php';
 
@@ -34,6 +36,86 @@ $errorMessage = '';
  */
 
 // TODO add your functions here
+
+/**
+ * Update SAML provider configuration:
+ *      - If requested_authn_context exists, set requested_authn_context_comparison to its value and requested_authn_context to true
+ *      - If requested_authn_context does not exist, set requested_authn_context_comparison to 'exact' and requested_authn_context to false
+ */
+$updateSamlProviderConfiguration = function () use ($pearDB, &$errorMessage, $version): void {
+    $errorMessage = 'Unable to retrieve SAML provider configuration';
+
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: updating SAML provider configuration"
+    );
+
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: retrieving SAML provider configuration from database..."
+    );
+
+    $samlConfiguration = $pearDB->fetchAssociative(
+        <<<'SQL'
+            SELECT * FROM `provider_configuration`
+            WHERE `type` = 'saml'
+            SQL
+    );
+
+    if (! $samlConfiguration || ! isset($samlConfiguration['custom_configuration'])) {
+        CentreonLog::create()->info(
+            logTypeId: CentreonLog::TYPE_UPGRADE,
+            message: "UPGRADE - {$version}: no SAML provider configuration found, skipping"
+        );
+
+        return;
+    }
+
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: SAML provider configuration found, checking for requested_authn_context"
+    );
+
+    $customConfiguration = json_decode($samlConfiguration['custom_configuration'], true, JSON_THROW_ON_ERROR);
+
+    if (isset($customConfiguration['requested_authn_context'])) {
+        $customConfiguration['requested_authn_context_comparison'] = $customConfiguration['requested_authn_context'];
+        $customConfiguration['requested_authn_context'] = true;
+
+        CentreonLog::create()->info(
+            logTypeId: CentreonLog::TYPE_UPGRADE,
+            message: "UPGRADE - {$version}: requested_authn_context found, requested_authn_context_comparison takes the value of requested_authn_context, and requested_authn_context is set to true"
+        );
+    } else {
+        $customConfiguration['requested_authn_context_comparison'] = 'exact';
+        $customConfiguration['requested_authn_context'] = false;
+
+        CentreonLog::create()->info(
+            logTypeId: CentreonLog::TYPE_UPGRADE,
+            message: "UPGRADE - {$version}: requested_authn_context not found, setting requested_authn_context to false and requested_authn_context_comparison to 'exact'"
+        );
+    }
+
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: updating SAML provider configuration in database..."
+    );
+
+    $query = <<<'SQL'
+            UPDATE `provider_configuration`
+            SET `custom_configuration` = :custom_configuration
+            WHERE `type` = 'saml'
+        SQL;
+    $queryParameters = QueryParameters::create(
+        [QueryParameter::string('custom_configuration', json_encode($customConfiguration, JSON_THROW_ON_ERROR))]
+    );
+    $pearDB->update($query, $queryParameters);
+
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: SAML provider configuration updated successfully"
+    );
+};
 
 /** -------------------------------------- Broker configuration -------------------------------------- */
 $fixBrokerConfigTypo = function () use ($pearDB, &$errorMessage): void {
@@ -58,6 +140,7 @@ try {
     }
 
     $fixBrokerConfigTypo();
+    $updateSamlProviderConfiguration();
 
     $pearDB->commitTransaction();
 

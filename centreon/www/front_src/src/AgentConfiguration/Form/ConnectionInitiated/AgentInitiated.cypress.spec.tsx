@@ -1,10 +1,13 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Formik } from 'formik';
+
 import { BrowserRouter } from 'react-router';
 import { getTokensEndpoint } from '../../api/endpoints';
+import { ConnectionMode } from '../../models';
 import AgentInitiated from './AgentInitiated';
 
 const initialValues = {
+  connectionMode: { id: ConnectionMode.secure, name: 'secure' },
   configuration: {
     otelPublicCertificate: '',
     otelCaCertificate: '',
@@ -17,6 +20,7 @@ const initialValues = {
 };
 
 const valuesWithErrors = {
+  connectionMode: { id: 'secure', name: 'secure' },
   configuration: {
     otelPublicCertificate: '',
     otelCaCertificate: '',
@@ -91,6 +95,7 @@ describe('AgentInitiated', () => {
 
   it('should render with pre-filled certificate values', () => {
     const prefilledValues = {
+      connectionMode: { id: 'secure', name: 'secure' },
       configuration: {
         otelPublicCertificate: 'existing-public.crt',
         otelCaCertificate: 'existing-ca.crt',
@@ -117,6 +122,7 @@ describe('AgentInitiated', () => {
 
   it('should handle empty tokens array', () => {
     const emptyTokensValues = {
+      connectionMode: { id: 'secure', name: 'secure' },
       configuration: {
         otelPublicCertificate: '',
         otelCaCertificate: '',
@@ -158,6 +164,7 @@ describe('AgentInitiated', () => {
 
   it('should handle null values for certificates', () => {
     const nullValues = {
+      connectionMode: { id: 'secure', name: 'secure' },
       configuration: {
         otelPublicCertificate: null,
         otelCaCertificate: null,
@@ -207,6 +214,7 @@ describe('AgentInitiated', () => {
 
   it('should clear certificate fields when empty string is entered', () => {
     const prefilledValues = {
+      connectionMode: { id: 'secure', name: 'secure' },
       configuration: {
         otelPublicCertificate: 'existing-public.crt',
         otelCaCertificate: 'existing-ca.crt',
@@ -236,6 +244,7 @@ describe('AgentInitiated', () => {
 
   it('should handle token deletion', () => {
     const valuesWithTokens = {
+      connectionMode: { id: 'secure', name: 'secure' },
       configuration: {
         otelPublicCertificate: '',
         otelCaCertificate: '',
@@ -277,6 +286,7 @@ describe('AgentInitiated', () => {
 
   it('should properly remove tokens when delete is clicked', () => {
     const valuesWithMultipleTokens = {
+      connectionMode: { id: 'secure', name: 'secure' },
       configuration: {
         otelPublicCertificate: '',
         otelCaCertificate: '',

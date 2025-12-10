@@ -3224,6 +3224,10 @@ msgstr ""
 msgid "Compact time period"
 msgstr ""
 
+#: centreon/www/install/front_translate.php
+msgid "Comparison rule for the requested authentication context"
+msgstr ""
+
 #: centreon/www/install/centreon_broker_translation.php
 msgid "Compression"
 msgstr ""
@@ -5107,6 +5111,10 @@ msgstr ""
 msgid "Display all Services for this host"
 msgstr ""
 
+#: centreon/www/install/smarty_translate.php
+msgid "Display anyway"
+msgstr ""
+
 #: centreon/www/install/front_translate.php
 msgid "Display as"
 msgstr ""
@@ -6051,6 +6059,10 @@ msgstr ""
 
 #: centreon/www/install/centreon_broker_translation.php
 msgid "Enable negotiation"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Enable requested authentication context"
 msgstr ""
 
 #: centreon/www/install/centreon_broker_translation.php
@@ -14580,10 +14592,6 @@ msgstr ""
 msgid "Request to the Central's API failed"
 msgstr ""
 
-#: centreon/www/install/front_translate.php
-msgid "Requested authentication context"
-msgstr ""
-
 #: centreon/src/Core/Application/Configuration/User/UseCase/PatchUser/PatchUser.php
 msgid "Requested theme not found"
 msgstr ""
@@ -17932,6 +17940,12 @@ msgstr ""
 msgid "The request for roles mapping on custom endpoint has failed"
 msgstr ""
 
+#: centreon/src/Core/Security/ProviderConfiguration/Domain/Exception/ConfigurationException.php
+msgid ""
+"The requested_authn_context_comparison value is missing but is required when "
+"requested_authn_context is set to true"
+msgstr ""
+
 #: centreon/www/install/front_translate.php
 msgid "The resource access rule has been successfully deleted"
 msgstr ""
@@ -18564,6 +18578,10 @@ msgstr ""
 
 #: centreon/www/install/front_translate.php
 msgid "Too many elements to be displayed (>{{graphsCapNumber}})"
+msgstr ""
+
+#: centreon/www/include/views/graphs/graphs.php
+msgid "Too many metrics (X). More than 20 may cause performance issues."
 msgstr ""
 
 #: centreon/www/include/monitoring/objectDetails/serviceDetails.php

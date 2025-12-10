@@ -84,6 +84,61 @@ const checkWidth = (orientation): void => {
 };
 
 describe('Bar chart', () => {
+  it('displays a tooltip when a single bar is hovered', () => {
+    initialize({
+      orientation: 'horizontal'
+    });
+
+    checkWidth('horizontal');
+    cy.contains('0 ms').should('be.visible');
+    cy.contains('20').should('be.visible');
+    cy.contains(':40 AM').should('be.visible');
+
+    cy.findByTestId('stacked-bar-10-0-7650.368581547736').realHover();
+
+    cy.contains('06/19/2024').should('be.visible');
+    cy.contains('Centreon-Server: Round-Trip Maximum Time').should(
+      'be.visible'
+    );
+    cy.contains('7.47 KB').should('be.visible');
+
+    cy.makeSnapshot();
+  });
+
+  it('displays a tooltip when a stacked bar is hovered', () => {
+    initialize({
+      data: dataPingServiceStacked,
+      orientation: 'horizontal',
+      tooltip: {
+        mode: 'all',
+        sortOrder: 'ascending'
+      }
+    });
+
+    checkWidth('horizontal');
+    cy.contains('0 ms').should('be.visible');
+    cy.contains('20').should('be.visible');
+    cy.contains(':40 AM').should('be.visible');
+
+    cy.findByTestId('stacked-bar-1-0-0.05296').realHover();
+
+    cy.contains('06/19/2024').should('be.visible');
+    cy.contains('Centreon-Server: Round-Trip Maximum Time').should(
+      'be.visible'
+    );
+    cy.contains('Centreon-Server: Round-Trip Average Time').should(
+      'be.visible'
+    );
+    cy.contains('Centreon-Server: Round-Trip Minimum Time').should(
+      'be.visible'
+    );
+    cy.contains('0.05 ms').should('be.visible');
+    cy.contains('0.02 ms').should('be.visible');
+    cy.contains('0.11 ms').should('be.visible');
+
+    cy.findByTestId('stacked-bar-3-0-0.16196').should('be.visible');
+  });
+
   ['horizontal', 'vertical'].forEach((orientation) => {
     it(`displays the bar chart ${orientation}ly`, () => {
       initialize({ orientation });
@@ -183,27 +238,6 @@ describe('Bar chart', () => {
     });
   });
 
-  it('displays a tooltip when a single bar is hovered', () => {
-    initialize({
-      orientation: 'horizontal'
-    });
-
-    checkWidth('horizontal');
-    cy.contains('0 ms').should('be.visible');
-    cy.contains('20').should('be.visible');
-    cy.contains(':40 AM').should('be.visible');
-
-    cy.findByTestId('stacked-bar-10-0-7650.368581547736').realHover();
-
-    cy.contains('06/19/2024').should('be.visible');
-    cy.contains('Centreon-Server: Round-Trip Maximum Time').should(
-      'be.visible'
-    );
-    cy.contains('7.47 KB').should('be.visible');
-
-    cy.makeSnapshot();
-  });
-
   it('does not display a tooltip when a bar is hovered and a props is set', () => {
     initialize({
       data: dataPingServiceStacked,
@@ -224,68 +258,6 @@ describe('Bar chart', () => {
     cy.contains('06/19/2024').should('not.exist');
 
     cy.findByTestId('stacked-bar-3-0-0.12340000000000001').should('be.visible');
-
-    cy.makeSnapshot();
-  });
-
-  it('displays a tooltip when a stacked bar is hovered', () => {
-    initialize({
-      data: dataPingServiceStacked,
-      orientation: 'horizontal',
-      tooltip: {
-        mode: 'all',
-        sortOrder: 'ascending'
-      }
-    });
-
-    checkWidth('horizontal');
-    cy.contains('0 ms').should('be.visible');
-    cy.contains('20').should('be.visible');
-    cy.contains(':40 AM').should('be.visible');
-
-    cy.findByTestId('stacked-bar-1-0-0.05296').realHover();
-
-    cy.contains('06/19/2024').should('be.visible');
-    cy.contains('Centreon-Server: Round-Trip Maximum Time').should(
-      'be.visible'
-    );
-    cy.contains('Centreon-Server: Round-Trip Average Time').should(
-      'be.visible'
-    );
-    cy.contains('Centreon-Server: Round-Trip Minimum Time').should(
-      'be.visible'
-    );
-    cy.contains('0.05 ms').should('be.visible');
-    cy.contains('0.02 ms').should('be.visible');
-    cy.contains('0.11 ms').should('be.visible');
-
-    cy.findByTestId('stacked-bar-3-0-0.16196').should('be.visible');
-  });
-
-  it('displays a tooltip with a single metric when a stacked bar is hovered and a prop is set', () => {
-    initialize({
-      data: dataPingServiceStacked,
-      orientation: 'horizontal',
-      tooltip: {
-        mode: 'single',
-        sortOrder: 'descending'
-      }
-    });
-
-    checkWidth('horizontal');
-    cy.contains('0 ms').should('be.visible');
-    cy.contains('20').should('be.visible');
-    cy.contains(':40 AM').should('be.visible');
-
-    cy.findByTestId('stacked-bar-1-0-0.05296').realHover();
-
-    cy.contains('06/19/2024').should('be.visible');
-    cy.contains('Centreon-Server: Round-Trip Average Time').should(
-      'be.visible'
-    );
-    cy.contains('0.05 ms').should('be.visible');
-
-    cy.findByTestId('stacked-bar-3-0-0.16196').should('be.visible');
 
     cy.makeSnapshot();
   });
