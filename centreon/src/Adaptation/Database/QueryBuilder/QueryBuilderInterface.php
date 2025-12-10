@@ -564,4 +564,11 @@ interface QueryBuilderInterface
      * @return QueryBuilderInterface this QueryBuilder instance
      */
     public function resetOrderBy(): self;
+
+    /**
+     * Resets the limit for the query.
+     *
+     * @return QueryBuilderInterface this QueryBuilder instance
+     */
+    public function resetLimit(): self;
 }

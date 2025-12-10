@@ -81,8 +81,15 @@ if (!isset($_POST['data'])) {
     require_once $centreon_open_tickets_path . 'providers/' . $providerName . '/' . $providerName .
         'Provider.class.php';
     $className = $providerName . 'Provider';
-    $centreonProvider = new $className($rule, $centreon_path, $centreon_open_tickets_path, $getInformation['rule_id'],
-        null, $getInformation['provider_id']);
+    $centreonProvider = new $className(
+        $rule,
+        $centreon_path,
+        $centreon_open_tickets_path,
+        $getInformation['rule_id'],
+        null,
+        $getInformation['provider_id'],
+        $providerName
+    );
 
     // check if methods exist
     foreach ($getInformation['methods'] as $method) {

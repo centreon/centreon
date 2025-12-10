@@ -58,7 +58,8 @@ $centreon_provider = new $classname(
     $centreon_open_tickets_path,
     $get_information['rule_id'],
     $get_information['form'],
-    $get_information['provider_id']
+    $get_information['provider_id'],
+    $provider_name
 );
 
 // We get Host or Service

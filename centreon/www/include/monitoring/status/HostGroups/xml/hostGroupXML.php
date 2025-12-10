@@ -119,7 +119,7 @@ if ($obj->is_admin) {
             \PDO::PARAM_INT => $instance
         ];
     }
-    $rq1 .= $searchStr . "GROUP BY hg.name " . $order . ", h.state";
+    $rq1 .= $searchStr . "GROUP BY hg.name, h.state ORDER BY hg.name " . $order;
 } else {
     $rq1 = "SELECT 1 AS REALTIME, hg.name as alias, h.state, COUNT(DISTINCT h.host_id) AS nb
         FROM centreon_acl acl, hosts_hostgroups hhg, hosts h, hostgroups hg
@@ -135,7 +135,7 @@ if ($obj->is_admin) {
     $rq1 .= $searchStr . $obj->access->queryBuilder("AND", "hg.name", $obj->access->getHostGroupsString("NAME")) .
         "AND h.host_id = acl.host_id
         AND acl.group_id in (" . $groupStr . ")
-        GROUP BY hg.name " . $order . ", h.state";
+        GROUP BY hg.name, h.state ORDER BY hg.name " . $order;
 }
 $dbResult = $obj->DBC->prepare($rq1);
 foreach ($queryValues as $bindId => $bindData) {

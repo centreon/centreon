@@ -6,7 +6,6 @@
     <link href="../../Themes/{$theme}/variables.css" rel="stylesheet" type="text/css"/>
 </head>
 <body>
-    {if $preferences.poller != ''}
     <div id="engine-status">
         <table class="styleTable ListTable">
             <h4>Status</h4>
@@ -136,9 +135,6 @@
             </tr>
         </table>
     </div>
-	{else if !isset($preferences["engine-status"]) || $preferences["engine-status"] == ''}
-	<div class="update" style="text-align:center;width:350px;">Please select a poller</div>
-	{/if}
     <script>
         var widgetId = "{$widgetId}";
         var autoRefresh = "{$autoRefresh}";
