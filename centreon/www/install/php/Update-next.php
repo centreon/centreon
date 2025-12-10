@@ -19,8 +19,10 @@
  *
  */
 
+use Adaptation\Database\Connection\Collection\QueryParameters;
 use Adaptation\Database\Connection\ConnectionInterface;
 use Adaptation\Database\Connection\Exception\ConnectionException;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
 
 require_once __DIR__ . '/../../../bootstrap.php';
 
@@ -52,6 +54,7 @@ $setBackupMysqlConfDefaultAsEmpty = function () use ($pearDB, &$errorMessage, $v
 
 $setCheckFreshnessToTrueforCMAServices = function () use ($pearDB, &$errorMessage, $version): void {
     $errorMessage = 'Unable to set check_freshness to true for CMA services';
+
     CentreonLog::create()->info(
         logTypeId: CentreonLog::TYPE_UPGRADE,
         message: "UPGRADE - {$version}: [CMA] Selecting Centreon Monitoring Agent Connector ID",
@@ -65,9 +68,36 @@ $setCheckFreshnessToTrueforCMAServices = function () use ($pearDB, &$errorMessag
 
     CentreonLog::create()->info(
         logTypeId: CentreonLog::TYPE_UPGRADE,
-        message: "UPGRADE - {$version}: [CMA] Selecting Centreon Monitoring Agent Connector ID",
+        message: "UPGRADE - {$version}: [CMA] Selecting commands IDs for CMA connector",
     );
+    $commandsIds = $pearDB->fetchFirstColumn(
+        <<<'SQL'
+            SELECT DISTINCT command_id
+            FROM command
+            WHERE connector_id = :cmaConnectorId
+            SQL,
+        QueryParameters::create([QueryParameter::int('cmaConnectorId', $cmaConnectorId),])
+    );
+    if (empty($commandsIds)) {
+        CentreonLog::create()->info(
+            logTypeId: CentreonLog::TYPE_UPGRADE,
+            message: "UPGRADE - {$version}: [CMA] No commands found for CMA connector, skipping check_freshness update",
+        );
+        return;
+    }
 
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: [CMA] Setting service_check_freshness to true for services using CMA commands",
+    );
+    $commandsIdsAsString = implode(',', $commandsIds);
+    $pearDB->update(
+        <<<SQL
+            UPDATE service
+            SET service_check_freshness = '1'
+            WHERE command_command_id IN ({$commandsIdsAsString})
+            SQL
+    );
 };
 
 try {
@@ -84,6 +114,7 @@ try {
 
     // TODO add your function calls to update the configuration database data here
     $setBackupMysqlConfDefaultAsEmpty();
+    $setCheckFreshnessToTrueforCMAServices();
 
     $pearDB->commitTransaction();
 
