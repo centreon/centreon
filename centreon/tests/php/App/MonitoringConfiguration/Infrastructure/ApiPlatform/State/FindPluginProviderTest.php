@@ -23,24 +23,34 @@ declare(strict_types=1);
 
 namespace Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\State;
 
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\ListPluginResource;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\PluginResource;
 use Tests\App\Shared\ApiTestCase;
 
-final class ListPluginsProviderTest extends ApiTestCase
+final class FindPluginProviderTest extends ApiTestCase
 {
     public function testItFindPlugins(): void
     {
         $this->login();
 
-        $this->request('GET', '/api/latest/configuration/plugins');
+        $this->request('GET', '/api/latest/configuration/plugins/check_dhcp');
         self::assertResponseIsSuccessful();
-        self::assertMatchesResourceCollectionJsonSchema(ListPluginResource::class);
+        self::assertMatchesResourceItemJsonSchema(PluginResource::class);
         self::assertJsonContains(
-            [
-                'member' => [
-                    ['name' => 'urlize'],
-                ],
-            ]
+            ['name' => 'check_dhcp', 'command_line' => '/usr/lib64/nagios/plugins/check_dhcp']
         );
+    }
+
+    public function testItNotFindUnknownPlugin(): void
+    {
+        $this->login();
+
+        $this->request('GET', '/api/latest/configuration/plugins/unknown_plugin');
+        self::assertResponseStatusCodeSame(404);
+    }
+
+    public function testItRequiresAuthentication(): void
+    {
+        $this->request('GET', '/api/latest/configuration/plugins/check_dhcp');
+        self::assertResponseStatusCodeSame(401);
     }
 }
