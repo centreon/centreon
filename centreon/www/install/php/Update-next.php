@@ -52,7 +52,7 @@ $setBackupMysqlConfDefaultAsEmpty = function () use ($pearDB, &$errorMessage, $v
     );
 };
 
-$setCheckFreshnessToTrueforCMAServices = function () use ($pearDB, &$errorMessage, $version): void {
+$updateFreshnessforCMAServices = function () use ($pearDB, &$errorMessage, $version): void {
     $errorMessage = 'Unable to set check_freshness to true for CMA services';
 
     CentreonLog::create()->info(
@@ -94,7 +94,7 @@ $setCheckFreshnessToTrueforCMAServices = function () use ($pearDB, &$errorMessag
     $pearDB->update(
         <<<SQL
             UPDATE service
-            SET service_check_freshness = '1'
+            SET service_check_freshness = '1', service_freshness_threshold = 120
             WHERE command_command_id IN ({$commandsIdsAsString})
             SQL
     );
