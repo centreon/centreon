@@ -228,7 +228,7 @@ jobs:
   gherkin-lint:
     needs: [get-environment, changes]
     if: |
-      needs.changes.outputs.trigger_e2e_testing == 'true' || true &&
+      needs.changes.outputs.trigger_e2e_testing == 'true' &&
       needs.get-environment.outputs.skip_workflow == 'false' &&
       needs.get-environment.outputs.stability != 'stable'
     runs-on: centreon-ubuntu-22.04
