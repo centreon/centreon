@@ -24,7 +24,6 @@ use Centreon\Domain\Log\LoggerTrait;
 class GlpiRestApiProvider extends AbstractProvider
 {
     use LoggerTrait;
-
     public const GLPI_ENTITY_TYPE = 14;
     public const GLPI_GROUP_TYPE = 15;
     public const GLPI_ITIL_CATEGORY_TYPE = 16;
