@@ -95,6 +95,8 @@ $updateFreshnessforCMAServicesAndHosts = function () use ($pearDB, &$errorMessag
 
         return;
     }
+
+    $commandsIds = array_map('intval', $commandsIds);
     $commandsIdsAsString = implode(',', $commandsIds);
 
     $errorMessage = 'Unable to update service_check_freshness and service_freshness_threshold';
