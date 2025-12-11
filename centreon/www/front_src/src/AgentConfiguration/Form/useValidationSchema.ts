@@ -20,7 +20,7 @@ export const portRegex = /:[0-9]+$/;
 export const keyFilenameRegexp = /^[a-zA-Z0-9-_.]+(?<!\.key)$/;
 
 const invalidPath = /^(?!.*\/\/).+$/;
-const validCertificateExtensionRegex = /\.(cert|cert|cer)$/;
+const validCertificateExtensionRegex = /\.(crt|cert|cer)$/;
 const validFileExtensionRegex = /\.key$/;
 const relativePathRegex = /^\.{1,2}\//;
 
