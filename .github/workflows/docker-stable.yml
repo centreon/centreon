@@ -1,29 +1,91 @@
-name: docker-stable
+name: Build stable release containers
+
+run-name: |
+  ${{ format('Build stable release containers for tag {0}', inputs.release_bundle_tag) }}
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
   cancel-in-progress: true
 
 on:
-  workflow_run:
-    workflows: ["web"]
-    types:
-      - completed
-    branches:
-      - "master"
   workflow_dispatch:
+    inputs:
+      release_bundle_tag:
+        description: 'Release bundle tag'
+        required: true
+        default: ''
+        type: string
 
 jobs:
-  get-environment:
-    if: github.repository == 'centreon/centreon'
-    uses: ./.github/workflows/get-environment.yml
-    with:
-      version_file: centreon/www/install/insertBaseConf.sql
-
-  dockerize-stable:
-    needs: [get-environment]
+  check-inputs:
+    outputs:
+      operating_systems: ${{ steps.check_promoted_packages.outputs.operating_systems }}
+      major_version: ${{ steps.check_promoted_packages.outputs.major_version }}
+      is_cloud: ${{ steps.check_promoted_packages.outputs.is_cloud }}
     runs-on: ubuntu-24.04
-    if: ${{ needs.get-environment.outputs.skip_workflow == 'false' && !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.get-environment.outputs.stability == 'stable' && github.ref_name == 'master' }}
+    steps:
+      - name: Check if ${{ inputs.release_bundle_tag }} exists on onprem repositories
+        shell: bash
+        run: |
+          for repo in "centreon" "centreon-collect"; do
+            if [[ -z $(gh api repos/centreon/$repo/tags --paginate -q '[.[] | select(.name | startswith("${{ inputs.release_bundle_tag }}"))] | .[].name') ]]; then
+              echo "::error::Release bundle tag ${{ inputs.release_bundle_tag }} could not be found on repository $repo."
+              echo "Command: gh api repos/centreon/$repo/tags --paginate -q '[.[] | select(.name | startswith(\"${{ inputs.release_bundle_tag }}\"))] | .[].name')"
+              echo "Command output: $(gh api repos/centreon/$repo/tags --paginate -q '[.[] | select(.name | startswith("${{ inputs.release_bundle_tag }}"))] | .[].name')"
+              exit 1
+            else
+              echo "Release bundle ${{ inputs.release_bundle_tag }} was found on repository $repo."
+              echo "Information fetched on the tag: $(gh api repos/centreon/centreon/tags --paginate -q '[.[] | select(.name | startswith("${{ inputs.release_bundle_tag }}"))] | .[]' )"
+            fi
+          done
+
+      - name: Checkout major version on bundle tag
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          ref: ${{ inputs.release_bundle_tag }}
+          path: centreon-${{ inputs.release_bundle_tag }}
+          sparse-checkout: .version
+
+      - name: Install jfrog cli
+        uses: jfrog/setup-jfrog-cli@18e785fb220d332edbf01964f853ff0fcaa22220 # v4.4.2
+        env:
+          JF_URL: https://centreon.jfrog.io
+          JF_ACCESS_TOKEN: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
+
+      - name: Check if promoted packages are available for the version
+        shell: bash
+        id: check_promoted_packages
+        run: |
+          source ./centreon-${{ inputs.release_bundle_tag }}/.version
+          major_version=$MAJOR
+          if ! [[ ${major_version} =~ ^2[0-9]\.(04|10)$ ]]; then
+            echo "is_cloud=true" >> $GITHUB_OUTPUT
+            DISTRIBS=("el9")
+            REPO="rpm-standard-internal"
+          else
+            echo "is_cloud=false" >> $GITHUB_OUTPUT
+            # TODO: Variabilize distributions according to versions
+            DISTRIBS=("el8" "el9")
+            REPOS="rpm-standard"
+          fi
+
+          for distrib in ${DISTRIBS[@]}; do
+            for arch in "noarch" "x86_64"; do
+              echo "Fetching packages listed in current repository ($REPO), current distrib ($distrib) and current arch ($arch) for the version included in ${{ inputs.release_bundle_tag }}: "
+              if [[ $(jf rt s $REPO/$major_version/$distrib/stable/$arch/*.rpm | jq '. | length') -le 1 ]]; then
+                echo "::warning:: Packages may not have been correctly promoted for this configuration."
+              fi
+            done
+          done
+
+          operating_systems=$(printf '%s\n' "${DISTRIBS[@]}" | jq -R . | jq -s -c .)
+          echo $operating_systems
+          echo "operating_systems=$operating_systems" >> $GITHUB_OUTPUT
+          echo "major_version=$major_version" >> $GITHUB_OUTPUT
+
+  dockerize-stable-web:
+    needs: [check-inputs]
+    runs-on: ubuntu-24.04
 
     env:
       project: centreon-web
@@ -31,40 +93,51 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include: ${{ fromJson(needs.get-environment.outputs.os_and_database_matrix).operating_systems }}
+        distrib: ${{ fromJson(needs.check-inputs.outputs.operating_systems) }}
 
-    name: dockerize ${{ matrix.operating_system }}
+    name: dockerize-web ${{ matrix.distrib }}
 
     steps:
-      - name: Checkout sources
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
-
       - name: Generate information according to matrix os
         id: matrix_include
         run: |
-          if [ "${{ matrix.operating_system }}" = "alma8" ]; then
-            DISTRIB=el8
+          if [ "${{ matrix.distrib }}" = "el8" ]; then
+            DISTRIB=alma8
             PACKAGE_EXTENSION=rpm
-          elif [ "${{ matrix.operating_system }}" = "alma9" ]; then
-            DISTRIB=el9
+          elif [ "${{ matrix.distrib }}" = "el9" ]; then
+            DISTRIB=alma9
             PACKAGE_EXTENSION=rpm
-          elif [ "${{ matrix.operating_system }}" = "bullseye" ]; then
+          elif [ "${{ matrix.distrib }}" = "bullseye" ]; then
             DISTRIB=bullseye
             PACKAGE_EXTENSION=deb
-          elif [ "${{ matrix.operating_system }}" = "bookworm" ]; then
+          elif [ "${{ matrix.distrib }}" = "bookworm" ]; then
             DISTRIB=bookworm
             PACKAGE_EXTENSION=deb
-          elif [ "${{ matrix.operating_system }}" = "jammy" ]; then
+          elif [ "${{ matrix.distrib }}" = "jammy" ]; then
+            DISTRIB=jammy
+            PACKAGE_EXTENSION=deb
+          elif [ "${{ matrix.distrib }}" = "noble" ]; then
             DISTRIB=jammy
             PACKAGE_EXTENSION=deb
           else
-            echo "::error::${{ matrix.operating_system }} is not managed"
+            echo "::error::${{ matrix.distrib }} is not managed"
             exit 1
           fi
 
           echo "distrib=$DISTRIB" >> $GITHUB_OUTPUT
           echo "package_extension=$PACKAGE_EXTENSION" >> $GITHUB_OUTPUT
         shell: bash
+
+      - name: Checkout dockerize files from web dockerize on version ${{ inputs.release_bundle_tag }}
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          ref: ${{ inputs.release_bundle_tag }}
+          path: centreon-${{ needs.check-inputs.outputs.major_version }}
+          sparse-checkout: |
+            .github/docker/centreon-web/${{ steps.matrix_include.outputs.distrib }}/
+            .github/docker/centreon-web/init/
+            .github/docker/centreon-web/scripts/
+            .github/docker/centreon-web/sql/
 
       - name: Login to registry
         uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef # v3.6.0
@@ -75,16 +148,38 @@ jobs:
 
       - uses: docker/setup-buildx-action@e468171a9de216ec08956ac3ada2f0791b6bd435 # v3.11.1
 
+      - name: Build and push dependencies image
+        uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 # v6.18.0
+        if: |
+        env:
+          DOCKER_BUILD_RECORD_UPLOAD: false
+          DOCKER_BUILD_SUMMARY: false
+          DOCKER_BUILD_CHECKS_ANNOTATIONS: false
+        with:
+          file: .github/docker/centreon-web/${{ matrix.distrib }}/Dockerfile.dependencies
+          target: web_dependencies
+          context: .
+          build-args: |
+            "VERSION=${{ needs.check-inputs.outputs.major_version }}"
+            "IS_CLOUD=${{ needs.check-inputs.outputs.is_cloud }}"
+            "STABILITY=STABLE"
+          pull: true
+          push: true
+          tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-web-dependencies-${{ matrix.distrib }}:${{ inputs.release_bundle_tag }}
+          secrets: |
+            "ARTIFACTORY_INTERNAL_REPO_USERNAME=${{ secrets.ARTIFACTORY_INTERNAL_REPO_USERNAME }}"
+            "ARTIFACTORY_INTERNAL_REPO_PASSWORD=${{ secrets.ARTIFACTORY_INTERNAL_REPO_PASSWORD }}"
+
       - name: Build and push web image
         uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 # v6.18.0
         with:
-          file: .github/docker/${{ env.project }}/${{ matrix.operating_system }}/Dockerfile
+          file: .github/docker/${{ env.project }}/${{ matrix.distrib }}/Dockerfile
           context: .
           build-args: |
             "REGISTRY_URL=${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}"
-            "VERSION=${{ needs.get-environment.outputs.major_version }}"
-            "MYDUMPER_VERSION=0.16.3-5"
+            "VERSION=${{ needs.check-inputs.outputs.major_version }}"
+            "STABILITY=STABLE"
           pull: true
           push: false
           load: true
-          tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-${{ matrix.operating_system }}:${{ github.ref_name }}
+          tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-${{ matrix.distrib }}:${{ inputs.release_bundle_tag }}
