@@ -21,11 +21,10 @@
 
 declare(strict_types=1);
 
-namespace App\Security\Domain\Exception;
+namespace App\Security\Domain\Aggregate;
 
-use App\Shared\Domain\Exception\AggregateDoesNotExistException;
+use App\Shared\Domain\Aggregate\AggregateRootId;
 
-// TODO mtarld Rename to NotFound (same for others)
-final class TokenDoesNotExistException extends AggregateDoesNotExistException
+final readonly class TokenId extends AggregateRootId
 {
 }

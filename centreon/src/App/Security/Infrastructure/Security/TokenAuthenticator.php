@@ -63,14 +63,11 @@ final class TokenAuthenticator extends AbstractAuthenticator implements Authenti
         }
 
         return new SelfValidatingPassport(
-            new UserBadge(
-                $token,
-                fn (string $token): CredentialUser => $this->getCredentialUser($token),
-            ),
+            new UserBadge($token, $this->getCredentialUser(...)),
         );
     }
 
-    public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $firewallName): ?Response
+    public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $firewallName): null
     {
         try {
             $token = $this->tokenRepository->get($request->headers->get('X-AUTH-TOKEN') ?? '');
@@ -82,9 +79,8 @@ final class TokenAuthenticator extends AbstractAuthenticator implements Authenti
             'event' => 'usage',
             'status' => 'success',
             'datetime' => new \DateTimeImmutable(),
+            'token' => $token->token,
             'token_type' => 'api',
-            'token_name' => $token->name,
-            'user_id' => $token->creatorId,
             'endpoint' => $request->getRequestUri(),
             'httpMethod' => $request->getMethod(),
             'ip_address' => $request->server->get('REMOTE_ADDR', 'unknown'),

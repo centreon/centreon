@@ -23,19 +23,27 @@ declare(strict_types=1);
 
 namespace App\Security\Domain\Aggregate;
 
-final class Token
+use App\Shared\Domain\Aggregate\AggregateRoot;
+
+final class Token extends AggregateRoot
 {
     public function __construct(
-        public readonly string $token,
-        public ?string $name,
-        public ?int $creatorId,
+        ?TokenId $id,
+        public readonly TokenIdpEnum $idp,
+        public string $token,
         public \DateTimeImmutable $expiresAt,
-        public bool $auto,
+        public readonly bool $auto,
     ) {
+        parent::__construct($id);
     }
 
-    public function willExpireIn(int $minutes): void
+    public function isExpired(): bool
     {
-        $this->expiresAt = (new \DateTimeImmutable())->add(new \DateInterval("PT{$minutes}M"));
+        return $this->expiresAt < (new \DateTimeImmutable());
+    }
+
+    public function willExpireIn(int $seconds): void
+    {
+        $this->expiresAt = (new \DateTimeImmutable())->add(new \DateInterval("PT{$seconds}S"));
     }
 }

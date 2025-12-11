@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace App\Security\Infrastructure\Dbal;
 
 use App\Security\Domain\Aggregate\Token;
+use App\Security\Domain\Aggregate\TokenProviderEnum;
 use App\Security\Domain\Exception\TokenDoesNotExistException;
 use App\Security\Domain\Repository\TokenRepository;
 use App\Shared\Infrastructure\Dbal\DbalRepository;
@@ -41,26 +42,41 @@ final readonly class DbalTokenRepository extends DbalRepository implements Token
     public function get(string $token): Token
     {
         $qb = $this->connection->createQueryBuilder();
-        $qb->select('sat.token', 'sat.token_name AS name', 'sat.token_type AS type', 'sat.creator_id AS creatorId', 'st.expiration_date AS expiresAt')
+        $qb->select('sat.token', 'sat.token_type AS type', 'st.expiration_date AS expiresAt', 'pc.name AS pc_name')
             ->from('security_authentication_tokens', 'sat')
             ->join('sat', 'security_token', 'st', 'sat.provider_token_id = st.id')
+            ->join('sat', 'provider_configuration', 'pc', 'sat.provider_configuration_id = pc.id')
             ->where('sat.token = :token')
             ->setParameter('token', $token)
             ->setMaxResults(1);
 
-        /** @var array{token: string, name: string, type: string, creatorId: int, expiresAt: ?int}|false $row */
+        /** @var array{token: string, type: string, expiresAt: ?int, pc_name: string}|false $row */
         $row = $qb->executeQuery()->fetchAssociative();
         if ($row === false) {
             throw new TokenDoesNotExistException(['token' => $token]);
         }
 
-        return new Token(
-            token: $row['token'],
-            name: $row['name'],
-            creatorId: $row['creatorId'],
-            expiresAt: $row['expiresAt'] ? (new \DateTimeImmutable())->setTimestamp($row['expiresAt']) : (new \DateTimeImmutable())->add(new \DateInterval('P10M')),
-            auto: $row['type'] === 'auto',
-        );
+        return $this->createToken($row);
+    }
+
+    public function getRefreshToken(Token $token): Token
+    {
+        $qb = $this->connection->createQueryBuilder();
+        $qb->select('sat.token', 'sat.token_type AS type', 'rst.expiration_date AS expiresAt', 'pc.name AS pc_name')
+            ->from('security_authentication_tokens', 'sat')
+            ->join('sat', 'security_token', 'rst', 'sat.provider_token_refresh_id = rst.id')
+            ->join('sat', 'provider_configuration', 'pc', 'sat.provider_configuration_id = pc.id')
+            ->where('sat.token = :token')
+            ->setParameter('token', $token)
+            ->setMaxResults(1);
+
+        /** @var array{token: string, type: string, expiresAt: ?int, pc_name: string}|false $row */
+        $row = $qb->executeQuery()->fetchAssociative();
+        if ($row === false) {
+            throw new TokenDoesNotExistException(['token' => $token->token]);
+        }
+
+        return $this->createToken($row);
     }
 
     public function update(Token $token): void
@@ -68,12 +84,8 @@ final readonly class DbalTokenRepository extends DbalRepository implements Token
         $qb = $this->connection->createQueryBuilder();
         $qb->update('security_authentication_tokens')
             ->set('token_type', ':type')
-            ->set('token_name', ':name')
-            ->set('creator_id', ':creatorId')
             ->where('token = :token')
             ->setParameter('type', $token->auto ? 'auto' : 'manual')
-            ->setParameter('name', $token->name)
-            ->setParameter('creatorId', $token->creatorId)
             ->setParameter('token', $token->token)
             ->executeStatement();
 
@@ -112,6 +124,19 @@ final readonly class DbalTokenRepository extends DbalRepository implements Token
             throw new \RuntimeException('Cannot find option "session_expire".');
         }
 
-        return (int) $row['delay'];
+        return (int) $row['delay'] * 60;
+    }
+
+    /** 
+     * @param array{token: string, type: string, expiresAt: ?int, pc_name: string} $row
+     */
+    private function createToken(array $row): Token
+    {
+        return new Token(
+            token: $row['token'],
+            provider: TokenProviderEnum::from($row['pc_name']),
+            expiresAt: $row['expiresAt'] ? (new \DateTimeImmutable())->setTimestamp($row['expiresAt']) : (new \DateTimeImmutable())->add(new \DateInterval('P10M')),
+            auto: $row['type'] === 'auto',
+        );
     }
 }

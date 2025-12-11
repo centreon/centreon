@@ -21,11 +21,14 @@
 
 declare(strict_types=1);
 
-namespace App\Security\Domain\Exception;
+namespace App\Security\Infrastructure\Idp;
 
-use App\Shared\Domain\Exception\AggregateDoesNotExistException;
+use App\Security\Domain\Aggregate\Token;
 
-// TODO mtarld Rename to NotFound (same for others)
-final class TokenDoesNotExistException extends AggregateDoesNotExistException
+final readonly class WebSsoIdp implements IdpInterface
 {
+    public function refreshToken(Token $token): void
+    {
+        throw new \RuntimeException(\sprintf('"%s" cannot refresh token.', self::class));
+    }
 }

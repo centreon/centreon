@@ -29,6 +29,8 @@ interface TokenRepository
 {
     public function get(string $token): Token;
 
+    public function getRefreshToken(string $token): Token;
+
     public function getTokenExpirationShift(): int;
 
     public function update(Token $token): void;

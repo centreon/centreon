@@ -56,8 +56,6 @@ parameters:
         App\Security\Infrastructure\Legacy\LegacyCredentialUserProvider:
             - Centreon\Domain\Contact\Contact
             - Centreon\Domain\Contact\Interfaces\ContactRepositoryInterface
-        App\Security\Infrastructure\Legacy\LegacyWebSsoAuthenticatorWrapper:
-            - Security\WebSSOAuthenticator
         App\Security\Infrastructure\Legacy\LegacyAuthenticationServiceWrapper:
             - Security\Domain\Authentication\Interfaces\AuthenticationServiceInterface
         App\Shared\Infrastructure\Legacy\LegacyKernelWrapper:

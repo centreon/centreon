@@ -23,12 +23,10 @@ declare(strict_types=1);
 
 namespace App\Security\Infrastructure\Security;
 
-use App\Security\Domain\Aggregate\Token;
 use App\Security\Domain\Exception\CredentialDoesNotExistException;
-use App\Security\Domain\Exception\TokenDoesNotExistException;
 use App\Security\Domain\Repository\CredentialRepository;
-use App\Security\Infrastructure\Idp\IdpFactory;
 use App\Security\Infrastructure\Legacy\LegacyAuthenticationServiceWrapper;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -42,23 +40,30 @@ use Symfony\Component\Security\Http\Authenticator\Passport\Badge\UserBadge;
 use Symfony\Component\Security\Http\Authenticator\Passport\Passport;
 use Symfony\Component\Security\Http\Authenticator\Passport\SelfValidatingPassport;
 
-final class SessionAuthenticator extends AbstractAuthenticator
+final class WebSsoAuthenticator extends AbstractAuthenticator
 {
     public function __construct(
         private readonly CredentialRepository $credentialRepository,
-        private readonly IdpFactory $idpFactory,
+        private readonly LegacyAuthenticationServiceWrapper $authentication,
+        private readonly LoggerInterface $logger,
     ) {
     }
 
     public function supports(Request $request): bool
     {
-        return $request->headers->has('Cookie') && $request->getSession()->getId();
+        return false;
+        $configuration = $this->provider->getConfiguration();
+
+        return $configuration->isActive();
     }
 
     public function authenticate(Request $request): Passport
     {
         return new SelfValidatingPassport(
-            new UserBadge($request->getSession()->getId(), $this->getCredentialUser(...)),
+            new UserBadge(
+                $request->getSession()->getId(),
+                fn (string $sessionId): CredentialUser => $this->getCredentialUser($sessionId),
+            ),
         );
     }
 
@@ -67,25 +72,20 @@ final class SessionAuthenticator extends AbstractAuthenticator
         return null;
     }
 
-    public function onAuthenticationFailure(Request $request, AuthenticationException $exception): Response
+    public function onAuthenticationFailure(Request $request, AuthenticationException $exception): never
     {
-        return new JsonResponse(['message' => strtr($exception->getMessageKey(), $exception->getMessageData())], Response::HTTP_UNAUTHORIZED);
+        $this->logger->info('WebSSO authentication failed: {exceptionMessage}', [
+            'exceptionMessage' => $exception->getMessage(),
+            'exception' => $exception,
+        ]);
+
+        throw $exception;
     }
 
     private function getCredentialUser(string $sessionId): CredentialUser
     {
-        try {
-            $token = $this->tokenRepository->get($sessionId);
-        } catch (TokenDoesNotExistException) {
+        if (! $this->authentication->isValidToken($sessionId)) {
             throw new BadCredentialsException();
-        }
-
-        if ($token->isExpired()) {
-            try {
-                $this->idpFactory->create($token)->refreshToken($token);
-            } catch (\Exception) {
-                throw new BadCredentialsException();
-            }
         }
 
         try {

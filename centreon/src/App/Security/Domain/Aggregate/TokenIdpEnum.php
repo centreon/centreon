@@ -21,11 +21,12 @@
 
 declare(strict_types=1);
 
-namespace App\Security\Domain\Exception;
+namespace App\Security\Domain\Aggregate;
 
-use App\Shared\Domain\Exception\AggregateDoesNotExistException;
-
-// TODO mtarld Rename to NotFound (same for others)
-final class TokenDoesNotExistException extends AggregateDoesNotExistException
+enum TokenIdpEnum: string
 {
+    case Local = 'local';
+    case Saml = 'SAML';
+    case OpenId = 'openid';
+    case WebSso = 'web-sso';
 }

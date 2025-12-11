@@ -27,6 +27,7 @@ use ApiPlatform\Validator\Exception\ValidationException;
 use Symfony\Component\Serializer\Normalizer\NormalizerAwareInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerAwareTrait;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
+use Symfony\Component\Validator\Exception\ValidationFailedException;
 
 /**
  * Converts ValidationException in order to have a legacy compliant shape.

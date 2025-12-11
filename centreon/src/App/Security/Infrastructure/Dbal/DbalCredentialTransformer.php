@@ -96,6 +96,7 @@ final readonly class DbalCredentialTransformer implements TransformerInterface
      */
     private function mapActionRuleToRoles(string $actionRule): array
     {
+        // TODO add command ACLs
         $legacyRoles = match ($actionRule) {
             'host_schedule_check' => ['ROLE_HOST_CHECK'],
             'host_schedule_forced_check' => ['ROLE_HOST_CHECK', 'ROLE_HOST_FORCED_CHECK'],
