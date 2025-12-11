@@ -113,7 +113,7 @@ describe('AgentInitiated', () => {
 
     cy.get('[data-testid="Public certificate (.crt,.cert,.cer)"] input').should(
       'have.value',
-      'existing-public.cert'
+      'existing-public.crt'
     );
     cy.get('[data-testid="CA (.crt,.cert,.cer)"] input').should(
       'have.value',
