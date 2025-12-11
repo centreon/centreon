@@ -103,7 +103,7 @@ describe('AgentInitiated', () => {
       connectionMode: { id: 'secure', name: 'secure' },
       configuration: {
         otelPublicCertificate: 'existing-public.crt',
-        otelCaCertificate: 'existing-ca.crt',
+        otelCaCertificate: 'existing-ca.cert',
         otelPrivateKey: 'existing-private.key',
         tokens: []
       }
