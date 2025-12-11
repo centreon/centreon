@@ -64,12 +64,12 @@ jobs:
             REPO="rpm-standard-internal"
           else
             echo "is_cloud=false" >> $GITHUB_OUTPUT
-            // TODO: Variabilize distributions according to versions
+            # TODO: Variabilize distributions according to versions
             DISTRIBS=("el8" "el9")
             REPOS="rpm-standard"
           fi
 
-          for distrib in ${DISTRIBS[@]}; do
+          for distrib in "${DISTRIBS[@]}"; do
             for arch in "noarch" "x86_64"; do
               echo "Fetching packages listed in current repository ($REPO), current distrib ($distrib) and current arch ($arch) for the version included in ${{ inputs.release_bundle_tag }}: "
               if [[ $(jf rt s $REPO/$major_version/$distrib/stable/$arch/*.rpm | jq '. | length') -le 1 ]]; then
