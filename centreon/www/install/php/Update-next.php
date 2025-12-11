@@ -101,7 +101,7 @@ $updateFreshnessforCMAServicesAndHosts = function () use ($pearDB, &$errorMessag
     CentreonLog::create()->info(
         logTypeId: CentreonLog::TYPE_UPGRADE,
         message: "UPGRADE - {$version}: [CMA] Setting service_check_freshness to true and service_freshness_threshold "
-            . "to 120 for services using CMA commands",
+            . 'to 120 for services using CMA commands',
     );
     $pearDB->update(
         <<<SQL
@@ -115,7 +115,7 @@ $updateFreshnessforCMAServicesAndHosts = function () use ($pearDB, &$errorMessag
     CentreonLog::create()->info(
         logTypeId: CentreonLog::TYPE_UPGRADE,
         message: "UPGRADE - {$version}: [CMA] Setting host_check_freshness to true and host_freshness_threshold "
-            . "to 120 for hosts using CMA commands",
+            . 'to 120 for hosts using CMA commands',
     );
     $pearDB->update(
         <<<SQL
