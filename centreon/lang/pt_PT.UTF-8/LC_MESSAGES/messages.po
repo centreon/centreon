@@ -10920,6 +10920,10 @@ msgstr "Unídade de Métrica"
 msgid "Metric capacity planning"
 msgstr ""
 
+#: centreon/www/install/dashboard_widgets.php
+msgid "Storage near saturation"
+msgstr ""
+
 #: centreon/www/install/front_translate.php
 msgid "Metric name"
 msgstr ""

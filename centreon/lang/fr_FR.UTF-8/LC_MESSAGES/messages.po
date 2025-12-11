@@ -10714,6 +10714,10 @@ msgstr "Unité de la métrique / courbe"
 msgid "Metric capacity planning"
 msgstr "Metric capacity planning"
 
+#: centreon/www/install/dashboard_widgets.php
+msgid "Storage near saturation"
+msgstr ""
+
 #: centreon/www/install/front_translate.php
 msgid "Metric name"
 msgstr "Nom de la métrique"
