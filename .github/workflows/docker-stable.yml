@@ -183,7 +183,7 @@ jobs:
           DOCKER_BUILD_SUMMARY: false
           DOCKER_BUILD_CHECKS_ANNOTATIONS: false
         with:
-          file: .github/docker/${{ env.project }}/${{ matrix.distrib }}/Dockerfile.dependencies
+          file: .github/docker/${{ env.project }}/${{ steps.matrix_include.outputs.distrib }}/Dockerfile.dependencies
           target: web_dependencies
           context: .
           build-args: |
@@ -193,7 +193,7 @@ jobs:
           pull: false
           push: false
           load: true
-          tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-web-dependencies-${{ matrix.distrib }}:${{ inputs.release_bundle_tag }}
+          tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-web-dependencies-${{ steps.matrix_include.outputs.distrib }}:${{ inputs.release_bundle_tag }}
           secrets: |
             "ARTIFACTORY_INTERNAL_REPO_USERNAME=${{ secrets.ARTIFACTORY_INTERNAL_REPO_USERNAME }}"
             "ARTIFACTORY_INTERNAL_REPO_PASSWORD=${{ secrets.ARTIFACTORY_INTERNAL_REPO_PASSWORD }}"
@@ -204,7 +204,7 @@ jobs:
           DOCKER_BUILD_SUMMARY: false
           DOCKER_BUILD_CHECKS_ANNOTATIONS: false
         with:
-          file: .github/docker/centreon-web/${{ matrix.distrib }}/Dockerfile.dependencies
+          file: .github/docker/centreon-web/${{ steps.matrix_include.outputs.distrib }}/Dockerfile.dependencies
           target: web_dependencies_collect
           context: .
           build-args: |
@@ -217,7 +217,7 @@ jobs:
           pull: false
           push: false
           load: true
-          tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-web-dependencies-collect-${{ matrix.distrib }}:${{ inputs.release_bundle_tag }}
+          tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-web-dependencies-collect-${{ steps.matrix_include.outputs.distrib }}:${{ inputs.release_bundle_tag }}
           secrets: |
             "ARTIFACTORY_INTERNAL_REPO_USERNAME=${{ secrets.ARTIFACTORY_INTERNAL_REPO_USERNAME }}"
             "ARTIFACTORY_INTERNAL_REPO_PASSWORD=${{ secrets.ARTIFACTORY_INTERNAL_REPO_PASSWORD }}"
@@ -225,7 +225,7 @@ jobs:
       # - name: Build and push web image
       #   uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 # v6.18.0
       #   with:
-      #     file: .github/docker/${{ env.project }}/${{ matrix.distrib }}/Dockerfile
+      #     file: .github/docker/${{ env.project }}/${{ steps.matrix_include.outputs.distrib }}/Dockerfile
       #     context: .
       #     build-args: |
       #       "REGISTRY_URL=${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}"
@@ -234,4 +234,4 @@ jobs:
       #     pull: true
       #     push: true
       #     load: true
-      #     tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-${{ matrix.distrib }}:${{ inputs.release_bundle_tag }}
+      #     tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-${{ steps.matrix_include.outputs.distrib }}:${{ inputs.release_bundle_tag }}
