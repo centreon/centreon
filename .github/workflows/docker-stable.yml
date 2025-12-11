@@ -71,7 +71,7 @@ jobs:
             echo "is_cloud=false" >> $GITHUB_OUTPUT
             # TODO: Variabilize distributions according to versions
             DISTRIBS=("el8" "el9")
-            REPOS="rpm-standard"
+            REPO="rpm-standard"
           fi
 
           for distrib in "${DISTRIBS[@]}"; do
