@@ -166,13 +166,13 @@ jobs:
       - name: Export collect minor versions to env
         id: collect-minor-versions
         run: |
-          source ./centreon-${{ inputs.release_bundle_tag }}/version.centreon-collect
+          source ./centreon-${{ inputs.release_bundle_tag }}/.version.centreon-collect
           echo "collect_minor_version: $MINOR"
           echo "collect_minor_version=$MINOR" >> $GITHUB_OUTPUT
-          source ./centreon-${{ inputs.release_bundle_tag }}/version.centreon-common
+          source ./centreon-${{ inputs.release_bundle_tag }}/.version.centreon-common
           echo "common_minor_version: $MINOR"
           echo "common_minor_version=$MINOR" >> $GITHUB_OUTPUT
-          source ./centreon-${{ inputs.release_bundle_tag }}/version.centreon-gorgone
+          source ./centreon-${{ inputs.release_bundle_tag }}/.version.centreon-gorgone
           echo "gorgone_minor_version: $MINOR"
           echo "gorgone_minor_version=$MINOR" >> $GITHUB_OUTPUT
 
