@@ -65,13 +65,13 @@ $addDefaultPortToAgentInitiatedAgentConfiguration = function () use ($pearDB, &$
             SQL
     );
     foreach ($agentConfigurations as $configurationJson) {
-        $configuration = json_decode($configurationJson['configuration'], true);
+        $configuration = json_decode($configurationJson['configuration'], true, JSON_THROW_ON_ERROR);
         if (! isset($configuration['port'])) {
-            $configuration['port'] = $configuration['agent_initiated'] === true
+            $configuration['port'] = (bool) $configuration['agent_initiated'] === true
                 ? AgentConfiguration::DEFAULT_PORT
                 : null;
         }
-        $updatedConfigurationJson = json_encode($configuration);
+        $updatedConfigurationJson = json_encode($configuration, JSON_THROW_ON_ERROR);
         $pearDB->update(
             <<<'SQL'
                 UPDATE agent_configuration

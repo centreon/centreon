@@ -96,7 +96,9 @@ class CmaConfigurationParameters implements ConfigurationParametersInterface
                     Assertion::notEmptyString($token['name']);
                 }
             }
-
+            if (!isset($parameters['port'])) {
+                $parameters['port'] = AgentConfiguration::DEFAULT_PORT;
+            }
             Assertion::range($parameters['port'] ?? AgentConfiguration::DEFAULT_PORT, 0, 65535, 'configuration.port');
         }
 

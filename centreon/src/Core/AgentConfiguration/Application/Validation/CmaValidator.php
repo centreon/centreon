@@ -67,7 +67,7 @@ class CmaValidator implements TypeValidatorInterface
         }
 
         $this->validateAgentInitiatedConnection($configuration, $request->connectionMode);
-        $this->validatePollerInitiatedConnection($configuration, $request->connectionMode);
+        $this->validatePollerInitiatedConnection($configuration);
     }
 
     /**
@@ -109,7 +109,6 @@ class CmaValidator implements TypeValidatorInterface
 
     /**
      * @param _CmaParameters $configuration
-     * @param ConnectionModeEnum $connectionMode
      */
     private function validatePollerInitiatedConnection(array $configuration): void
     {
