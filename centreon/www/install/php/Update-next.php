@@ -65,6 +65,15 @@ $updateFreshnessforCMAServicesAndHosts = function () use ($pearDB, &$errorMessag
             SQL
     );
 
+    if ($cmaConnectorId === false) {
+        CentreonLog::create()->info(
+            logTypeId: CentreonLog::TYPE_UPGRADE,
+            message: "UPGRADE - {$version}: [CMA] CMA connector not found, skipping check_freshness update",
+        );
+
+        return;
+    }
+
     $errorMessage = 'Unable to select commands for CMA connector';
     CentreonLog::create()->info(
         logTypeId: CentreonLog::TYPE_UPGRADE,
