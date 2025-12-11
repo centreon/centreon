@@ -9615,7 +9615,7 @@ msgstr "Logs"
 
 #: centreon/www/include/Administration/parameters/debug/form.php
 msgid "Logs Directory"
-msgstr "Répertoire d'enregistrement des jounraux"
+msgstr "Répertoire d'enregistrement des journaux"
 
 #: centreon/www/include/Administration/configChangelog/viewLogs.php
 msgid "Logs for "
