@@ -134,15 +134,25 @@ ARG COLLECT_MINOR_VERSION
 ARG COMMON_MINOR_VERSION
 ARG GORGONE_MINOR_VERSION
 ARG MAJOR_VERSION
+ARG STABILITY
 
 RUN bash -e <<EOF
 
-dnf install -y \
-  centreon-common-${MAJOR_VERSION}.${COMMON_MINOR_VERSION} \
-  centreon-gorgone-${MAJOR_VERSION}.${GORGONE_MINOR_VERSION} \
-  centreon-engine-${MAJOR_VERSION}.${COLLECT_MINOR_VERSION} \
-  centreon-broker-cbd-${MAJOR_VERSION}.${COLLECT_MINOR_VERSION} \
-  centreon-connector-${MAJOR_VERSION}.${COLLECT_MINOR_VERSION}
+if [[ "$STABILITY" == "stable" ]]; then
+  dnf install -y \
+    centreon-common-${MAJOR_VERSION}.${COMMON_MINOR_VERSION} \
+    centreon-gorgone-${MAJOR_VERSION}.${GORGONE_MINOR_VERSION} \
+    centreon-engine-${MAJOR_VERSION}.${COLLECT_MINOR_VERSION} \
+    centreon-broker-cbd-${MAJOR_VERSION}.${COLLECT_MINOR_VERSION} \
+    centreon-connector-${MAJOR_VERSION}.${COLLECT_MINOR_VERSION}
+else
+  dnf install -y \
+    centreon-common
+    centreon-gorgone
+    centreon-engine
+    centreon-broker-cbd
+    centreon-connector
+fi
 
 dnf clean all --enablerepo=*
 
