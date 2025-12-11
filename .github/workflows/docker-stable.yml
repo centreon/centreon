@@ -130,7 +130,7 @@ jobs:
       - name: Checkout dockerize files from web dockerize on version ${{ inputs.release_bundle_tag }}
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
-          ref: ${{ inputs.release_bundle_tag }}
+          ref: MON-190211-25.10.x-update-dockerfiles-to-account-for-stable-releases
           path: centreon-${{ needs.check-inputs.outputs.major_version }}
           sparse-checkout: |
             .github/docker/centreon-web/${{ steps.matrix_include.outputs.distrib }}/
