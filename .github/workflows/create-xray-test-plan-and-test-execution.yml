@@ -1,6 +1,9 @@
 name: create-xray-test-plan-and-test-execution
 
 on:
+  push:
+    branches:
+      - Test_Xray_Token
   workflow_call:
     inputs:
       major_version:
