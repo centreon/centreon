@@ -1,8 +1,8 @@
-ARG VERSION
+ARG MAJOR_VERSION
 
 FROM almalinux:9 AS web_dependencies
 
-ARG VERSION
+ARG MAJOR_VERSION
 ARG IS_CLOUD
 ARG STABILITY
 
@@ -23,10 +23,10 @@ dnf config-manager --set-enabled crb
 dnf install -y epel-release
 
 if [[ "${IS_CLOUD}" == "true" ]]; then
-  dnf config-manager --add-repo https://$(cat /run/secrets/ARTIFACTORY_INTERNAL_REPO_USERNAME):$(cat /run/secrets/ARTIFACTORY_INTERNAL_REPO_PASSWORD)@packages.centreon.com/rpm-standard-internal/${VERSION}/el9/centreon-${VERSION}-internal.repo
-  sed -i "s#packages.centreon.com/rpm-standard-internal#$(cat /run/secrets/ARTIFACTORY_INTERNAL_REPO_USERNAME):$(cat /run/secrets/ARTIFACTORY_INTERNAL_REPO_PASSWORD)@packages.centreon.com/rpm-standard-internal#" /etc/yum.repos.d/centreon-${VERSION}-internal.repo
+  dnf config-manager --add-repo https://$(cat /run/secrets/ARTIFACTORY_INTERNAL_REPO_USERNAME):$(cat /run/secrets/ARTIFACTORY_INTERNAL_REPO_PASSWORD)@packages.centreon.com/rpm-standard-internal/${MAJOR_VERSION}/el9/centreon-${MAJOR_VERSION}-internal.repo
+  sed -i "s#packages.centreon.com/rpm-standard-internal#$(cat /run/secrets/ARTIFACTORY_INTERNAL_REPO_USERNAME):$(cat /run/secrets/ARTIFACTORY_INTERNAL_REPO_PASSWORD)@packages.centreon.com/rpm-standard-internal#" /etc/yum.repos.d/centreon-${MAJOR_VERSION}-internal.repo
 else
-  dnf config-manager --add-repo https://packages.centreon.com/rpm-standard/${VERSION}/el9/centreon-${VERSION}.repo
+  dnf config-manager --add-repo https://packages.centreon.com/rpm-standard/${MAJOR_VERSION}/el9/centreon-${MAJOR_VERSION}.repo
 fi
 
 dnf config-manager --set-enabled 'centreon*'
@@ -129,14 +129,19 @@ COPY --chmod=755 ./.github/docker/centreon-web/init/* /etc/init.d/
 
 FROM web_dependencies AS web_dependencies_collect
 
+ARG COLLECT_MINOR_VERSION
+ARG COMMON_MINOR_VERSION
+ARG GORGONE_MINOR_VERSION
+ARG MAJOR_VERSION
+
 RUN bash -e <<EOF
 
 dnf install -y \
-  centreon-common \
-  centreon-gorgone \
-  centreon-engine \
-  centreon-broker-cbd \
-  centreon-connector
+  centreon-common-${MAJOR_VERSION}-${COMMON_MINOR_VERSION} \
+  centreon-gorgone-${MAJOR_VERSION}-${GORGONE_MINOR_VERSION} \
+  centreon-engine-${MAJOR_VERSION}-${COLLECT_MINOR_VERSION} \
+  centreon-broker-cbd-${MAJOR_VERSION}-${COLLECT_MINOR_VERSION} \
+  centreon-connector-${MAJOR_VERSION}-${COLLECT_MINOR_VERSION}
 
 dnf clean all --enablerepo=*
 
