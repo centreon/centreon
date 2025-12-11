@@ -147,10 +147,10 @@ if [[ "$STABILITY" == "stable" ]]; then
     centreon-connector-${MAJOR_VERSION}.${COLLECT_MINOR_VERSION}
 else
   dnf install -y \
-    centreon-common
-    centreon-gorgone
-    centreon-engine
-    centreon-broker-cbd
+    centreon-common \
+    centreon-gorgone \
+    centreon-engine \
+    centreon-broker-cbd \
     centreon-connector
 fi
 
