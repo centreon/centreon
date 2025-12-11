@@ -137,11 +137,11 @@ ARG MAJOR_VERSION
 RUN bash -e <<EOF
 
 dnf install -y \
-  centreon-common-${MAJOR_VERSION}-${COMMON_MINOR_VERSION} \
-  centreon-gorgone-${MAJOR_VERSION}-${GORGONE_MINOR_VERSION} \
-  centreon-engine-${MAJOR_VERSION}-${COLLECT_MINOR_VERSION} \
-  centreon-broker-cbd-${MAJOR_VERSION}-${COLLECT_MINOR_VERSION} \
-  centreon-connector-${MAJOR_VERSION}-${COLLECT_MINOR_VERSION}
+  centreon-common-${MAJOR_VERSION}.${COMMON_MINOR_VERSION} \
+  centreon-gorgone-${MAJOR_VERSION}.${GORGONE_MINOR_VERSION} \
+  centreon-engine-${MAJOR_VERSION}.${COLLECT_MINOR_VERSION} \
+  centreon-broker-cbd-${MAJOR_VERSION}.${COLLECT_MINOR_VERSION} \
+  centreon-connector-${MAJOR_VERSION}.${COLLECT_MINOR_VERSION}
 
 dnf clean all --enablerepo=*
 
