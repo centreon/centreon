@@ -19,6 +19,7 @@
     "files": [
         "eslint",
         "jest",
+        "rspack",
         "tsconfig",
         "webpack",
         "cypress"
