@@ -162,10 +162,13 @@ jobs:
         id: collect-minor-versions
         run: |
           source ./centreon-${{ inputs.release_bundle_tag }}/version.centreon-collect
+          echo "collect_minor_version: $MINOR"
           echo "collect_minor_version=$MINOR" >> $GITHUB_OUTPUT
           source ./centreon-${{ inputs.release_bundle_tag }}/version.centreon-common
+          echo "common_minor_version: $MINOR"
           echo "common_minor_version=$MINOR" >> $GITHUB_OUTPUT
           source ./centreon-${{ inputs.release_bundle_tag }}/version.centreon-gorgone
+          echo "gorgone_minor_version: $MINOR"
           echo "gorgone_minor_version=$MINOR" >> $GITHUB_OUTPUT
 
       - name: Build and push dependencies image
@@ -179,16 +182,37 @@ jobs:
           target: web_dependencies
           context: .
           build-args: |
+            "MAJOR_VERSION=${{ needs.check-inputs.outputs.major_version }}"
+            "IS_CLOUD=${{ needs.check-inputs.outputs.is_cloud }}"
+            "STABILITY=STABLE"
+          pull: false
+          push: false
+          load: true
+          tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-web-dependencies-${{ matrix.distrib }}:${{ inputs.release_bundle_tag }}
+          secrets: |
+            "ARTIFACTORY_INTERNAL_REPO_USERNAME=${{ secrets.ARTIFACTORY_INTERNAL_REPO_USERNAME }}"
+            "ARTIFACTORY_INTERNAL_REPO_PASSWORD=${{ secrets.ARTIFACTORY_INTERNAL_REPO_PASSWORD }}"
+
+      - uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 # v6.18.0
+        env:
+          DOCKER_BUILD_RECORD_UPLOAD: false
+          DOCKER_BUILD_SUMMARY: false
+          DOCKER_BUILD_CHECKS_ANNOTATIONS: false
+        with:
+          file: .github/docker/centreon-web/${{ matrix.distrib }}/Dockerfile.dependencies
+          target: web_dependencies_collect
+          context: .
+          build-args: |
             "COLLECT_MINOR_VERSION=${{ steps.collect-minor-versions.outputs.collect_minor_version }}"
             "COMMON_MINOR_VERSION=${{ steps.collect-minor-versions.outputs.common_minor_version }}"
             "GORGONE_MINOR_VERSION=${{ steps.collect-minor-versions.outputs.gorgone_minor_version }}"
             "MAJOR_VERSION=${{ needs.check-inputs.outputs.major_version }}"
             "IS_CLOUD=${{ needs.check-inputs.outputs.is_cloud }}"
             "STABILITY=STABLE"
-          pull: true
+          pull: false
           push: false
           load: true
-          tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-web-dependencies-${{ matrix.distrib }}:${{ inputs.release_bundle_tag }}
+          tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-web-dependencies-collect-${{ matrix.distrib }}:${{ inputs.release_bundle_tag }}
           secrets: |
             "ARTIFACTORY_INTERNAL_REPO_USERNAME=${{ secrets.ARTIFACTORY_INTERNAL_REPO_USERNAME }}"
             "ARTIFACTORY_INTERNAL_REPO_PASSWORD=${{ secrets.ARTIFACTORY_INTERNAL_REPO_PASSWORD }}"
