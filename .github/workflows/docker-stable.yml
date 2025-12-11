@@ -193,16 +193,16 @@ jobs:
             "ARTIFACTORY_INTERNAL_REPO_USERNAME=${{ secrets.ARTIFACTORY_INTERNAL_REPO_USERNAME }}"
             "ARTIFACTORY_INTERNAL_REPO_PASSWORD=${{ secrets.ARTIFACTORY_INTERNAL_REPO_PASSWORD }}"
 
-      - name: Build and push web image
-        uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 # v6.18.0
-        with:
-          file: .github/docker/${{ env.project }}/${{ matrix.distrib }}/Dockerfile
-          context: .
-          build-args: |
-            "REGISTRY_URL=${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}"
-            "VERSION=${{ needs.check-inputs.outputs.major_version }}"
-            "STABILITY=STABLE"
-          pull: true
-          push: true
-          load: true
-          tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-${{ matrix.distrib }}:${{ inputs.release_bundle_tag }}
+      # - name: Build and push web image
+      #   uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 # v6.18.0
+      #   with:
+      #     file: .github/docker/${{ env.project }}/${{ matrix.distrib }}/Dockerfile
+      #     context: .
+      #     build-args: |
+      #       "REGISTRY_URL=${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}"
+      #       "VERSION=${{ needs.check-inputs.outputs.major_version }}"
+      #       "STABILITY=STABLE"
+      #     pull: true
+      #     push: true
+      #     load: true
+      #     tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-${{ matrix.distrib }}:${{ inputs.release_bundle_tag }}
