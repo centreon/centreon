@@ -135,7 +135,6 @@ jobs:
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           ref: MON-190211-25.10.x-update-dockerfiles-to-account-for-stable-releases
-          path: centreon-${{ needs.check-inputs.outputs.major_version }}
           sparse-checkout: |
             .github/docker/${{ env.project }}/${{ steps.matrix_include.outputs.distrib }}/
             .github/docker/${{ env.project }}/init/
@@ -155,6 +154,7 @@ jobs:
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           repository: centreon/centreon-collect
+          path: centreon-${{ inputs.release_bundle_tag }}
           ref: ${{ inputs.release_bundle_tag }}
           sparse-checkout: |
             .version.centreon-collect
@@ -164,13 +164,13 @@ jobs:
       - name: Export collect minor versions to env
         id: collect-minor-versions
         run: |
-          source .version.centreon-collect
+          source centreon-${{ inputs.release_bundle_tag }}/.version.centreon-collect
           echo "collect_minor_version: $MINOR"
           echo "collect_minor_version=$MINOR" >> $GITHUB_OUTPUT
-          source .version.centreon-common
+          source centreon-${{ inputs.release_bundle_tag }}/.version.centreon-common
           echo "common_minor_version: $MINOR"
           echo "common_minor_version=$MINOR" >> $GITHUB_OUTPUT
-          source .version.centreon-gorgone
+          source centreon-${{ inputs.release_bundle_tag }}/.version.centreon-gorgone
           echo "gorgone_minor_version: $MINOR"
           echo "gorgone_minor_version=$MINOR" >> $GITHUB_OUTPUT
           ls -lah
