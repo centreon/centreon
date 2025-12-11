@@ -87,6 +87,22 @@ jobs:
       test_execution_id_bookworm: ${{ steps.get_test_execution_id.outputs.test_execution_id_bookworm }}
 
     steps:
+      - name: Print secret existence
+        run: |
+          if [ -z "${{ secrets.XRAY_JIRA_USER_EMAIL }}" ]; then
+            echo "XRAY_JIRA_USER_EMAIL not found"
+            exit 1
+          else
+            echo "XRAY_JIRA_USER_EMAIL found"
+          fi
+
+          if [ -z "${{ secrets.XRAY_JIRA_TOKEN }}" ]; then
+            echo "XRAY_JIRA_TOKEN not found"
+            exit 1
+          else
+            echo "XRAY_JIRA_TOKEN found"
+          fi
+
       - name: Generate Xray Token
         id: generate_xray_token
         run: |
