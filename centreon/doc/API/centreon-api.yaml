@@ -2,26 +2,6 @@ openapi: 3.0.1
 info:
   title: Centreon Web RestAPI
   description: |
-    # New features
-    + Added endpoint to deploy services in a host based on associated host template(s)
-    + Added new endpoint to bulk delete services
-    + Added new endpoint to bulk delete hostgroups
-    + Added new endpoint to bulk enable/disable hostgroups
-    + Added new endpoint to get a token
-    + Added new endpoint to bulk duplicate hostgroups
-    + Added endpoint to export resources : only csv format available for the moment
-    + Added endpoint to count resources
-    + Added endpoint to get a single metric value for a host and a service
-    + Added endpoint to list media folders
-    +
-    # Updated features
-    + Updated endpoint to add an hostgroup
-    + Updated endpoint to update an hostgroup
-    + Update FindHostGroups response
-    + Added 'requested_authn_context' property to SAML provider configuration endpoints (GET, PUT). Specifies the authentication context requirements of authentication statements returned in response to a request or query. The default is false (no specific context class or statement is requested).
-    + Added 'requested_authn_context_comparison' property to SAML provider configuration endpoints (GET, PUT). Specifies the comparison method used to evaluate the requested context classes or statements, one of "exact", "minimum", "maximum", or "better". The default is "exact".
-    + Added 'url' property to /configuration/medias and rename property 'filename' to 'name' in returned response and search capabilities
-    +
     # Information
     All dates are in **ISO 8601** format
     # Authentication

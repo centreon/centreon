@@ -267,6 +267,10 @@ properties:
     items:
       type: object
       properties:
+        id:
+          type: integer
+          description: "Macro ID"
+          example: 1
         name:
           type: string
           description: "Name of the macro"
