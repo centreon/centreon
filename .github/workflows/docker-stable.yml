@@ -156,7 +156,6 @@ jobs:
         with:
           repository: centreon/centreon-collect
           ref: ${{ inputs.release_bundle_tag }}
-          path: centreon-${{ inputs.release_bundle_tag }}
           sparse-checkout: |
             .version.centreon-collect
             .version.centreon-common
