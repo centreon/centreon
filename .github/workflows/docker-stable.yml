@@ -76,9 +76,8 @@ jobs:
 
           for distrib in "${DISTRIBS[@]}"; do
             for arch in "noarch" "x86_64"; do
-              echo "Fetching packages listed in current repository ($REPO), current distrib ($distrib) and current arch ($arch) for the version included in ${{ inputs.release_bundle_tag }}: "
               if [[ $(jf rt s $REPO/$major_version/$distrib/stable/$arch/*.rpm | jq '. | length') -le 1 ]]; then
-                echo "::warning:: Packages may not have been correctly promoted for this configuration."
+                echo "::warning:: Packages may not have been correctly promoted for this configuration. (Repo $REPO, distrib $distrib, arch $arch)"
               fi
             done
           done
@@ -138,10 +137,10 @@ jobs:
           ref: MON-190211-25.10.x-update-dockerfiles-to-account-for-stable-releases
           path: centreon-${{ needs.check-inputs.outputs.major_version }}
           sparse-checkout: |
-            .github/docker/centreon-web/${{ steps.matrix_include.outputs.distrib }}/
-            .github/docker/centreon-web/init/
-            .github/docker/centreon-web/scripts/
-            .github/docker/centreon-web/sql/
+            .github/docker/${{ env.project }}/${{ steps.matrix_include.outputs.distrib }}/
+            .github/docker/${{ env.project }}/init/
+            .github/docker/${{ env.project }}/scripts/
+            .github/docker/${{ env.project }}/sql/
 
       - name: Login to registry
         uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef # v3.6.0
@@ -175,6 +174,7 @@ jobs:
           source ./centreon-${{ inputs.release_bundle_tag }}/.version.centreon-gorgone
           echo "gorgone_minor_version: $MINOR"
           echo "gorgone_minor_version=$MINOR" >> $GITHUB_OUTPUT
+          ls -lah
 
       - name: Build dependencies image
         uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 # v6.18.0
