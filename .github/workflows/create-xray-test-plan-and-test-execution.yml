@@ -4,59 +4,65 @@ on:
   push:
     branches:
       - Test_Xray_Token
-  workflow_call:
+  workflow_dispatch:
     inputs:
       major_version:
-        required: true
+        description: 'Major version'
+        required: false
         type: string
+        default: "23"
       minor_version:
-        required: true
+        description: 'Minor version'
+        required: false
         type: string
+        default: "10"
       os:
-        required: true
+        description: 'OS type'
+        required: false
         type: string
-    outputs:
-      test_plan_key_alma8:
-        value: ${{ jobs.create-xray-test-plan-and-test-execution.outputs.test_plan_key_alma8 }}
-      test_plan_id_alma8:
-        value: ${{ jobs.create-xray-test-plan-and-test-execution.outputs.test_plan_id_alma8 }}
-      test_execution_key_alma8:
-        value: ${{ jobs.create-xray-test-plan-and-test-execution.outputs.test_execution_key_alma8 }}
-      test_execution_id_alma8:
-        value: ${{ jobs.create-xray-test-plan-and-test-execution.outputs.test_execution_id_alma8 }}
-      test_plan_key_alma9:
-        value: ${{ jobs.create-xray-test-plan-and-test-execution.outputs.test_plan_key_alma9 }}
-      test_plan_id_alma9:
-        value: ${{ jobs.create-xray-test-plan-and-test-execution.outputs.test_plan_id_alma9 }}
-      test_execution_key_alma9:
-        value: ${{ jobs.create-xray-test-plan-and-test-execution.outputs.test_execution_key_alma9 }}
-      test_execution_id_alma9:
-        value: ${{ jobs.create-xray-test-plan-and-test-execution.outputs.test_execution_id_alma9 }}
-      test_plan_key_bullseye:
-        value: ${{ jobs.create-xray-test-plan-and-test-execution.outputs.test_plan_key_bullseye }}
-      test_plan_id_bullseye:
-        value: ${{ jobs.create-xray-test-plan-and-test-execution.outputs.test_plan_id_bullseye }}
-      test_execution_key_bullseye:
-        value: ${{ jobs.create-xray-test-plan-and-test-execution.outputs.test_execution_key_bullseye }}
-      test_execution_id_bullseye:
-        value: ${{ jobs.create-xray-test-plan-and-test-execution.outputs.test_execution_id_bullseye }}
-      test_plan_key_bookworm:
-        value: ${{ jobs.create-xray-test-plan-and-test-execution.outputs.test_plan_key_bookworm }}
-      test_plan_id_bookworm:
-        value: ${{ jobs.create-xray-test-plan-and-test-execution.outputs.test_plan_id_bookworm }}
-      test_execution_key_bookworm:
-        value: ${{ jobs.create-xray-test-plan-and-test-execution.outputs.test_execution_key_bookworm }}
-      test_execution_id_bookworm:
-        value: ${{ jobs.create-xray-test-plan-and-test-execution.outputs.test_execution_id_bookworm }}
-    secrets:
-      xray_jira_user_email:
-        required: true
-      xray_jira_token:
-        required: true
-      xray_client_id:
-        required: true
-      xray_client_secret:
-        required: true
+        default: "alma8"
+    # outputs:
+    #   test_plan_key_alma8:
+    #     value: ${{ jobs.create-xray-test-plan-and-test-execution.outputs.test_plan_key_alma8 }}
+    #   test_plan_id_alma8:
+    #     value: ${{ jobs.create-xray-test-plan-and-test-execution.outputs.test_plan_id_alma8 }}
+    #   test_execution_key_alma8:
+    #     value: ${{ jobs.create-xray-test-plan-and-test-execution.outputs.test_execution_key_alma8 }}
+    #   test_execution_id_alma8:
+    #     value: ${{ jobs.create-xray-test-plan-and-test-execution.outputs.test_execution_id_alma8 }}
+    #   test_plan_key_alma9:
+    #     value: ${{ jobs.create-xray-test-plan-and-test-execution.outputs.test_plan_key_alma9 }}
+    #   test_plan_id_alma9:
+    #     value: ${{ jobs.create-xray-test-plan-and-test-execution.outputs.test_plan_id_alma9 }}
+    #   test_execution_key_alma9:
+    #     value: ${{ jobs.create-xray-test-plan-and-test-execution.outputs.test_execution_key_alma9 }}
+    #   test_execution_id_alma9:
+    #     value: ${{ jobs.create-xray-test-plan-and-test-execution.outputs.test_execution_id_alma9 }}
+    #   test_plan_key_bullseye:
+    #     value: ${{ jobs.create-xray-test-plan-and-test-execution.outputs.test_plan_key_bullseye }}
+    #   test_plan_id_bullseye:
+    #     value: ${{ jobs.create-xray-test-plan-and-test-execution.outputs.test_plan_id_bullseye }}
+    #   test_execution_key_bullseye:
+    #     value: ${{ jobs.create-xray-test-plan-and-test-execution.outputs.test_execution_key_bullseye }}
+    #   test_execution_id_bullseye:
+    #     value: ${{ jobs.create-xray-test-plan-and-test-execution.outputs.test_execution_id_bullseye }}
+    #   test_plan_key_bookworm:
+    #     value: ${{ jobs.create-xray-test-plan-and-test-execution.outputs.test_plan_key_bookworm }}
+    #   test_plan_id_bookworm:
+    #     value: ${{ jobs.create-xray-test-plan-and-test-execution.outputs.test_plan_id_bookworm }}
+    #   test_execution_key_bookworm:
+    #     value: ${{ jobs.create-xray-test-plan-and-test-execution.outputs.test_execution_key_bookworm }}
+    #   test_execution_id_bookworm:
+    #     value: ${{ jobs.create-xray-test-plan-and-test-execution.outputs.test_execution_id_bookworm }}
+    # secrets:
+    #   xray_jira_user_email:
+    #     required: true
+    #   xray_jira_token:
+    #     required: true
+    #   xray_client_id:
+    #     required: true
+    #   xray_client_secret:
+    #     required: true
 
 # NIGHTLY <OSS|MODULES|COLLECT> <MAJOR_VERSION> (e.g., NIGHTLY OSS 23.10)
 jobs:
