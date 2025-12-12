@@ -48,7 +48,6 @@ jobs:
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           ref: ${{ inputs.release_bundle_tag }}
-          path: centreon-${{ inputs.release_bundle_tag }}
           sparse-checkout: .version
 
       - name: Install jfrog cli
@@ -61,7 +60,7 @@ jobs:
         shell: bash
         id: check_promoted_packages
         run: |
-          source ./centreon-${{ inputs.release_bundle_tag }}/.version
+          source .version
           major_version=$MAJOR
           if ! [[ ${major_version} =~ ^2[0-9]\.(04|10)$ ]]; then
             echo "is_cloud=true" >> $GITHUB_OUTPUT
@@ -131,15 +130,27 @@ jobs:
           echo "package_extension=$PACKAGE_EXTENSION" >> $GITHUB_OUTPUT
         shell: bash
 
-      - name: Checkout dockerize files from web dockerize on version ${{ inputs.release_bundle_tag }}
+      - name: Checkout dockerize and .version files on version ${{ inputs.release_bundle_tag }}
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
+          # REF TO REVERT
           ref: MON-190211-25.10.x-update-dockerfiles-to-account-for-stable-releases
           sparse-checkout: |
             .github/docker/${{ env.project }}/${{ steps.matrix_include.outputs.distrib }}/
             .github/docker/${{ env.project }}/init/
             .github/docker/${{ env.project }}/scripts/
             .github/docker/${{ env.project }}/sql/
+
+        # TO MERGE WITH PREVIOUS STEP BEFORE MERGE
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          ref: ${{ inputs.release_bundle_tag }}
+          sparse-checkout: |
+            .version.centreon-awie
+            .version.centreon-dsm
+            .version.centreon-ha
+            .version.centreon-open-tickets
+            .version.centreon-web
 
       - name: Login to registry
         uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef # v3.6.0
@@ -150,30 +161,24 @@ jobs:
 
       - uses: docker/setup-buildx-action@e468171a9de216ec08956ac3ada2f0791b6bd435 # v3.11.1
 
-      - name: Checkout collect minor versions on bundle tag
+      - name: Checkout collect .version files on bundle tag ${{ inputs.release_bundle_tag }} 
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           repository: centreon/centreon-collect
-          path: centreon-${{ inputs.release_bundle_tag }}
           ref: ${{ inputs.release_bundle_tag }}
           sparse-checkout: |
             .version.centreon-collect
             .version.centreon-common
             .version.centreon-gorgone
 
-      - name: Export collect minor versions to env
-        id: collect-minor-versions
+      - name: Export minor versions
+        id: export-minor-versions
         run: |
-          source centreon-${{ inputs.release_bundle_tag }}/.version.centreon-collect
-          echo "collect_minor_version: $MINOR"
-          echo "collect_minor_version=$MINOR" >> $GITHUB_OUTPUT
-          source centreon-${{ inputs.release_bundle_tag }}/.version.centreon-common
-          echo "common_minor_version: $MINOR"
-          echo "common_minor_version=$MINOR" >> $GITHUB_OUTPUT
-          source centreon-${{ inputs.release_bundle_tag }}/.version.centreon-gorgone
-          echo "gorgone_minor_version: $MINOR"
-          echo "gorgone_minor_version=$MINOR" >> $GITHUB_OUTPUT
-          ls -lah
+          for package in "collect" "gorgone" "common"; do
+            source .version.centreon-${package}
+            echo "${package}_minor_version: $MINOR"
+            echo "${package}_minor_version=$MINOR" >> $GITHUB_OUTPUT
+          done
 
       - name: Build dependencies web image
         uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 # v6.18.0
@@ -208,9 +213,9 @@ jobs:
           target: web_dependencies_collect
           context: .
           build-args: |
-            "COLLECT_MINOR_VERSION=${{ steps.collect-minor-versions.outputs.collect_minor_version }}"
-            "COMMON_MINOR_VERSION=${{ steps.collect-minor-versions.outputs.common_minor_version }}"
-            "GORGONE_MINOR_VERSION=${{ steps.collect-minor-versions.outputs.gorgone_minor_version }}"
+            "COLLECT_MINOR_VERSION=${{ steps.export-minor-versions.outputs.collect_minor_version }}"
+            "COMMON_MINOR_VERSION=${{ steps.export-minor-versions.outputs.common_minor_version }}"
+            "GORGONE_MINOR_VERSION=${{ steps.export-minor-versions.outputs.gorgone_minor_version }}"
             "MAJOR_VERSION=${{ needs.check-inputs.outputs.major_version }}"
             "IS_CLOUD=${{ needs.check-inputs.outputs.is_cloud }}"
             "STABILITY=STABLE"
@@ -222,16 +227,16 @@ jobs:
             "ARTIFACTORY_INTERNAL_REPO_USERNAME=${{ secrets.ARTIFACTORY_INTERNAL_REPO_USERNAME }}"
             "ARTIFACTORY_INTERNAL_REPO_PASSWORD=${{ secrets.ARTIFACTORY_INTERNAL_REPO_PASSWORD }}"
 
-      # - name: Build and push web image
-      #   uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 # v6.18.0
-      #   with:
-      #     file: .github/docker/${{ env.project }}/${{ steps.matrix_include.outputs.distrib }}/Dockerfile
-      #     context: .
-      #     build-args: |
-      #       "REGISTRY_URL=${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}"
-      #       "VERSION=${{ needs.check-inputs.outputs.major_version }}"
-      #       "STABILITY=STABLE"
-      #     pull: true
-      #     push: true
-      #     load: true
-      #     tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-${{ steps.matrix_include.outputs.distrib }}:${{ inputs.release_bundle_tag }}
+      - name: Build and push web image
+        uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 # v6.18.0
+        with:
+          file: .github/docker/${{ env.project }}/${{ steps.matrix_include.outputs.distrib }}/Dockerfile
+          context: .
+          build-args: |
+            "REGISTRY_URL=${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}"
+            "VERSION=${{ needs.check-inputs.outputs.major_version }}"
+            "STABILITY=STABLE"
+          pull: true
+          push: true
+          load: true
+          tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-${{ steps.matrix_include.outputs.distrib }}:${{ inputs.release_bundle_tag }}
