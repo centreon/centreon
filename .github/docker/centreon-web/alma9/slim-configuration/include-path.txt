@@ -42,3 +42,4 @@
 /usr/lib64/python3.9
 /etc/yum.repos.d
 /usr/lib64/libdnf
+/usr/lib64/mysql
