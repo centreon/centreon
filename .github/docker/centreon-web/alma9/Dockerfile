@@ -23,7 +23,8 @@ elif [[ "$STABILITY" == "stable" ]]; then
 fi
 dnf config-manager --set-disabled 'centreon-plugin*unstable*' --set-disabled 'centreon-plugin*testing*'
 
-echo "STABILITY = $STABILITY"
+ls -lah
+ls -lah /tmp/packages-centreon
 
 if [[ "$STABILITY" == "stable" ]]; then
   dnf install -y \
