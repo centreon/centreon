@@ -45,7 +45,7 @@ jobs:
           done
 
       - name: Checkout major version on bundle tag
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           ref: ${{ inputs.release_bundle_tag }}
           sparse-checkout: .version
@@ -131,7 +131,7 @@ jobs:
         shell: bash
 
       - name: Checkout dockerize and .version files on version ${{ inputs.release_bundle_tag }}
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           # REF TO REVERT
           ref: MON-190211-25.10.x-update-dockerfiles-to-account-for-stable-releases
@@ -142,7 +142,7 @@ jobs:
             .github/docker/${{ env.project }}/sql/
 
         # TO MERGE WITH PREVIOUS STEP BEFORE MERGE
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           ref: ${{ inputs.release_bundle_tag }}
           sparse-checkout: |
@@ -162,8 +162,8 @@ jobs:
 
       - uses: docker/setup-buildx-action@e468171a9de216ec08956ac3ada2f0791b6bd435 # v3.11.1
 
-      - name: Checkout collect .version files on bundle tag ${{ inputs.release_bundle_tag }} 
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+      - name: Checkout collect .version files on bundle tag ${{ inputs.release_bundle_tag }}
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           repository: centreon/centreon-collect
           ref: ${{ inputs.release_bundle_tag }}
