@@ -10716,7 +10716,7 @@ msgstr "Metric capacity planning"
 
 #: centreon/www/install/dashboard_widgets.php
 msgid "Storage near saturation"
-msgstr ""
+msgstr "Stockage jusqu’à saturation"
 
 #: centreon/www/install/front_translate.php
 msgid "Metric name"
