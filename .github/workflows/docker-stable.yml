@@ -198,8 +198,7 @@ jobs:
             "MAJOR_VERSION=${{ needs.check-inputs.outputs.major_version }}"
             "IS_CLOUD=${{ needs.check-inputs.outputs.is_cloud }}"
             "STABILITY=STABLE"
-          pull: false
-          push: false
+          pull: true
           load: true
           tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-web-dependencies-${{ steps.matrix_include.outputs.distrib }}:${{ inputs.release_bundle_tag }}
           secrets: |
@@ -224,7 +223,6 @@ jobs:
             "IS_CLOUD=${{ needs.check-inputs.outputs.is_cloud }}"
             "STABILITY=STABLE"
           pull: false
-          push: false
           load: true
           tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-web-dependencies-collect-${{ steps.matrix_include.outputs.distrib }}:${{ inputs.release_bundle_tag }}
 
@@ -239,7 +237,6 @@ jobs:
             "FROM_IMAGE_VERSION=${{ inputs.release_bundle_tag }}"
             "MAJOR_VERSION=${{ needs.check-inputs.outputs.major_version }}"
             "STABILITY=STABLE"
-          pull: false
-          push: false
+          pull: true
           load: true
           tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-${{ steps.matrix_include.outputs.distrib }}:${{ inputs.release_bundle_tag }}
