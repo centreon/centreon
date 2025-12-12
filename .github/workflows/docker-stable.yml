@@ -180,6 +180,8 @@ jobs:
             echo "${package}_minor_version=$MINOR" >> $GITHUB_OUTPUT
           done
 
+          mkdir /tmp/packages-centreon
+
       - name: Build dependencies web image
         uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 # v6.18.0
         env:
@@ -233,10 +235,12 @@ jobs:
           file: .github/docker/${{ env.project }}/${{ steps.matrix_include.outputs.distrib }}/Dockerfile
           context: .
           build-args: |
+            "WEB_MINOR_VERSION=${{ steps.export-minor-versions.outputs.web_minor_version }}"
             "REGISTRY_URL=${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}"
-            "VERSION=${{ needs.check-inputs.outputs.major_version }}"
+            "FROM_IMAGE_VERSION=${{ inputs.release_bundle_tag }}"
+            "MAJOR_VERSION=${{ needs.check-inputs.outputs.major_version }}"
             "STABILITY=STABLE"
-          pull: true
-          push: true
+          pull: false
+          push: false
           load: true
           tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-${{ steps.matrix_include.outputs.distrib }}:${{ inputs.release_bundle_tag }}
