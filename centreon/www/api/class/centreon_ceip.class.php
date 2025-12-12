@@ -74,6 +74,8 @@ class CentreonCeip extends CentreonWebService
         $this->uuid = (string) (new CentreonUUID($this->pearDB))->getUUID();
 
         $kernel = Kernel::createForWeb();
+        $this->logger = $kernel->getContainer()->get(Logger::class)
+            ?? throw new LogicException('Logger not found in container');
         $this->featureFlags = $kernel->getContainer()->get(FeatureFlags::class)
             ?? throw new LogicException('FeatureFlags not found in container');
     }
