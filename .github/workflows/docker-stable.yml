@@ -174,7 +174,7 @@ jobs:
       - name: Export minor versions
         id: export-minor-versions
         run: |
-          for package in "collect" "gorgone" "common"; do
+          for package in "collect" "gorgone" "common" "awie" "dsm" "ha" "open-tickets" "web"; do
             source .version.centreon-${package}
             echo "${package}_minor_version: $MINOR"
             echo "${package}_minor_version=$MINOR" >> $GITHUB_OUTPUT
