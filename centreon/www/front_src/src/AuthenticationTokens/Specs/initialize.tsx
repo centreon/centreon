@@ -75,6 +75,10 @@ export const initilize = (): void => {
     timezone: 'Europe/Paris'
   });
 
+  cy.window().then((win) => {
+    cy.stub(win.navigator.clipboard, 'writeText').as('writeText');
+  });
+
   interceptRequests();
 
   cy.mount({
