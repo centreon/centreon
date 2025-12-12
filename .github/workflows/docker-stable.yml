@@ -146,11 +146,11 @@ jobs:
         with:
           ref: ${{ inputs.release_bundle_tag }}
           sparse-checkout: |
-            .version.centreon-awie
-            .version.centreon-dsm
-            .version.centreon-ha
-            .version.centreon-open-tickets
-            .version.centreon-web
+            ./.version.centreon-awie
+            ./.version.centreon-dsm
+            ./.version.centreon-ha
+            ./.version.centreon-open-tickets
+            ./.version.centreon-web
           sparse-checkout-cone-mode: false
 
       - name: Login to registry
