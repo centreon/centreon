@@ -3932,7 +3932,7 @@ msgstr "Courbes"
 #: centreon/www/install/dashboard_widgets.php
 #: centreon/www/install/front_translate.php
 msgid "Custom"
-msgstr "Personnalisée"
+msgstr "Personnalisé"
 
 #: centreon/www/install/menu_translation.php
 msgid "Custom Views"
