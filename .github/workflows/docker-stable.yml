@@ -145,12 +145,13 @@ jobs:
       - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           ref: ${{ inputs.release_bundle_tag }}
+          path: centreon-${{ inputs.release_bundle_tag }}
           sparse-checkout: |
-            ./.version.centreon-awie
-            ./.version.centreon-dsm
-            ./.version.centreon-ha
-            ./.version.centreon-open-tickets
-            ./.version.centreon-web
+            .version.centreon-awie
+            .version.centreon-dsm
+            .version.centreon-ha
+            .version.centreon-open-tickets
+            .version.centreon-web
           sparse-checkout-cone-mode: false
 
       - name: Login to registry
@@ -167,6 +168,7 @@ jobs:
         with:
           repository: centreon/centreon-collect
           ref: ${{ inputs.release_bundle_tag }}
+          path: centreon-${{ inputs.release_bundle_tag }}
           sparse-checkout: |
             .version.centreon-collect
             .version.centreon-common
@@ -179,7 +181,7 @@ jobs:
         run: |
           ls -lah
           for package in "collect" "gorgone" "common" "awie" "dsm" "ha" "open-tickets" "web"; do
-            source .version.centreon-${package}
+            source centreon-${{ inputs.release_bundle_tag }}/.version.centreon-${package}
             echo "${package}_minor_version: $MINOR"
             echo "${package}_minor_version=$MINOR" >> $GITHUB_OUTPUT
           done
