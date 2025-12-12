@@ -151,6 +151,7 @@ jobs:
             .version.centreon-ha
             .version.centreon-open-tickets
             .version.centreon-web
+          sparse-checkout-cone-mode: false
 
       - name: Login to registry
         uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef # v3.6.0
@@ -170,6 +171,7 @@ jobs:
             .version.centreon-collect
             .version.centreon-common
             .version.centreon-gorgone
+          sparse-checkout-cone-mode: false
 
       - name: Export minor versions
         id: export-minor-versions
