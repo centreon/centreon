@@ -11,7 +11,10 @@ API_TOKEN=$(curl -s -d '{"security": {"credentials": {"login": "admin","password
 curl -s -d '{"check":{"is_forced":true},"resources":[{"id":26,"parent":{"id":14},"type":"service"},{"id":14,"parent":null,"type":"host"}]}' -H "X-AUTH-TOKEN:$API_TOKEN" -H "Content-Type: application/json" -X POST 'http://127.0.0.1/centreon/api/latest/monitoring/resources/check'
 
 dnf search vim
+dnf install -y which
 dnf clean all
+
+perl -MDBD::mysql -le'print $DBD::mysql::VERSION'
 
 lua /usr/share/centreon-broker/lua/centreon-cloud-notifications.lua
 
