@@ -175,7 +175,9 @@ jobs:
 
       - name: Export minor versions
         id: export-minor-versions
+        shell: bash
         run: |
+          ls -lah
           for package in "collect" "gorgone" "common" "awie" "dsm" "ha" "open-tickets" "web"; do
             source .version.centreon-${package}
             echo "${package}_minor_version: $MINOR"
