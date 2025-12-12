@@ -131,18 +131,23 @@ echo 'Hello ' . htmlspecialchars($_POST["name"]) . '!';
   });
 
   it('copies the command to the clipboard when the button is clicked', () => {
+    cy.window().then((win) => {
+      const mockWriteText = cy.stub().resolves();
+      Object.defineProperty(win.navigator, 'clipboard', {
+        value: {
+          writeText: mockWriteText
+        },
+        configurable: true
+      });
+      cy.wrap(mockWriteText).as('writeText');
+    });
+
     initialize({
       text: `# a simple command
 echo "hello" | grep "hel"`,
       language: 'bash',
       commandToCopy: 'echo "hello" | grep "hel"'
     });
-
-    cy.window()
-      .its('navigator.clipboard')
-      .then((clipboard) => {
-        cy.spy(clipboard, 'writeText').as('writeText');
-      });
 
     cy.findByTestId('Copy command').click();
 
