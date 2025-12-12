@@ -223,7 +223,7 @@ jobs:
             "IS_CLOUD=${{ needs.check-inputs.outputs.is_cloud }}"
             "STABILITY=STABLE"
           pull: false
-          load: true
+          push: true
           tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-web-dependencies-collect-${{ steps.matrix_include.outputs.distrib }}:${{ inputs.release_bundle_tag }}
 
       - name: Build and push web image
@@ -237,6 +237,6 @@ jobs:
             "FROM_IMAGE_VERSION=${{ inputs.release_bundle_tag }}"
             "MAJOR_VERSION=${{ needs.check-inputs.outputs.major_version }}"
             "STABILITY=STABLE"
-          pull: true
-          load: true
+          pull: false
+          push: true
           tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-${{ steps.matrix_include.outputs.distrib }}:${{ inputs.release_bundle_tag }}
