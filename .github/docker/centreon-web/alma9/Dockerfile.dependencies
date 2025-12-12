@@ -16,6 +16,10 @@ RUN --mount=type=secret,id=ARTIFACTORY_INTERNAL_REPO_USERNAME \
 
 echo 'install_weak_deps=False' >> /etc/dnf/dnf.conf
 
+echo ${IS_CLOUD}
+echo ${STABILITY}
+echo ${MAJOR_VERSION}
+
 dnf install -y dnf-plugins-core
 
 dnf config-manager --set-enabled crb
