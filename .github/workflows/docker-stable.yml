@@ -145,7 +145,6 @@ jobs:
       - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           ref: ${{ inputs.release_bundle_tag }}
-          path: ./centreon-${{ inputs.release_bundle_tag }}
           sparse-checkout: |
             .version.centreon-awie
             .version.centreon-dsm
@@ -179,7 +178,11 @@ jobs:
         id: export-minor-versions
         shell: bash
         run: |
+          mv .version.* ./centreon-${{ inputs.release_bundle_tag }}/
+          echo "[DEBUG]"
           ls -lah
+          echo "[DEBUG]"
+          ls -lah ./centreon-${{ inputs.release_bundle_tag }}
           for package in "collect" "gorgone" "common" "awie" "dsm" "ha" "open-tickets" "web"; do
             source centreon-${{ inputs.release_bundle_tag }}/.version.centreon-${package}
             echo "${package}_minor_version: $MINOR"
