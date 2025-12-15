@@ -65,32 +65,23 @@ jobs:
           if ! [[ ${major_version} =~ ^2[0-9]\.(04|10)$ ]]; then
             echo "is_cloud=true" >> $GITHUB_OUTPUT
             DISTRIBS=("el9")
-            REPO="rpm-standard-internal"
           else
             echo "is_cloud=false" >> $GITHUB_OUTPUT
             case "${major_version}" in
               24.04)
-                DISTRIBS=("el8" "el9" "bullseye" "bookworm" "jammy")
+                DISTRIBS=("alma8" "alma9" "bullseye" "bookworm" "jammy")
                 ;;
               24.10)
-                DISTRIBS=("el8" "el9" "bookworm" "noble")
+                DISTRIBS=("alma8" "alma9" "bookworm" "noble")
                 ;;
               25.10)
-                DISTRIBS=("el8" "el9" "bookworm")
+                DISTRIBS=("alma8" "alma9" "bookworm")
                 ;;
               *)
-                DISTRIBS=("el8" "el9" "bookworm")
+                DISTRIBS=("alma8" "alma9" "bookworm")
                 ;;
             esac
           fi
-
-          for distrib in "${DISTRIBS[@]}"; do
-            for arch in "noarch" "x86_64"; do
-              if [[ $(jf rt s $REPO/$major_version/$distrib/stable/$arch/*.rpm | jq '. | length') -le 1 ]]; then
-                echo "::warning:: Packages may not have been correctly promoted for this configuration. (Repo $REPO, distrib $distrib, arch $arch)"
-              fi
-            done
-          done
 
           operating_systems=$(printf '%s\n' "${DISTRIBS[@]}" | jq -R . | jq -s -c .)
           echo $operating_systems
@@ -111,43 +102,13 @@ jobs:
     name: dockerize-web ${{ matrix.distrib }}
 
     steps:
-      - name: Generate information according to matrix os
-        id: matrix_include
-        run: |
-          if [ "${{ matrix.distrib }}" = "el8" ]; then
-            DISTRIB=alma8
-            PACKAGE_EXTENSION=rpm
-          elif [ "${{ matrix.distrib }}" = "el9" ]; then
-            DISTRIB=alma9
-            PACKAGE_EXTENSION=rpm
-          elif [ "${{ matrix.distrib }}" = "bullseye" ]; then
-            DISTRIB=bullseye
-            PACKAGE_EXTENSION=deb
-          elif [ "${{ matrix.distrib }}" = "bookworm" ]; then
-            DISTRIB=bookworm
-            PACKAGE_EXTENSION=deb
-          elif [ "${{ matrix.distrib }}" = "jammy" ]; then
-            DISTRIB=jammy
-            PACKAGE_EXTENSION=deb
-          elif [ "${{ matrix.distrib }}" = "noble" ]; then
-            DISTRIB=jammy
-            PACKAGE_EXTENSION=deb
-          else
-            echo "::error::${{ matrix.distrib }} is not managed"
-            exit 1
-          fi
-
-          echo "distrib=$DISTRIB" >> $GITHUB_OUTPUT
-          echo "package_extension=$PACKAGE_EXTENSION" >> $GITHUB_OUTPUT
-        shell: bash
-
       - name: Checkout dockerize and .version files on version ${{ inputs.release_bundle_tag }}
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           # REF TO REVERT
           ref: MON-190211-25.10.x-update-dockerfiles-to-account-for-stable-releases
           sparse-checkout: |
-            .github/docker/${{ env.project }}/${{ steps.matrix_include.outputs.distrib }}/
+            .github/docker/${{ env.project }}/${{ matrix.distrib }}/
             .github/docker/${{ env.project }}/init/
             .github/docker/${{ env.project }}/scripts/
             .github/docker/${{ env.project }}/sql/
@@ -202,7 +163,7 @@ jobs:
           DOCKER_BUILD_SUMMARY: false
           DOCKER_BUILD_CHECKS_ANNOTATIONS: false
         with:
-          file: .github/docker/${{ env.project }}/${{ steps.matrix_include.outputs.distrib }}/Dockerfile.dependencies
+          file: .github/docker/${{ env.project }}/${{ matrix.distrib }}/Dockerfile.dependencies
           target: web_dependencies
           context: .
           build-args: |
@@ -211,7 +172,7 @@ jobs:
             "STABILITY=stable"
           pull: true
           load: true
-          tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-web-dependencies-${{ steps.matrix_include.outputs.distrib }}:${{ inputs.release_bundle_tag }}
+          tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-web-dependencies-${{ matrix.distrib }}:${{ inputs.release_bundle_tag }}
           secrets: |
             "ARTIFACTORY_INTERNAL_REPO_USERNAME=${{ secrets.ARTIFACTORY_INTERNAL_REPO_USERNAME }}"
             "ARTIFACTORY_INTERNAL_REPO_PASSWORD=${{ secrets.ARTIFACTORY_INTERNAL_REPO_PASSWORD }}"
@@ -223,7 +184,7 @@ jobs:
           DOCKER_BUILD_SUMMARY: false
           DOCKER_BUILD_CHECKS_ANNOTATIONS: false
         with:
-          file: .github/docker/centreon-web/${{ steps.matrix_include.outputs.distrib }}/Dockerfile.dependencies
+          file: .github/docker/centreon-web/${{ matrix.distrib }}/Dockerfile.dependencies
           target: web_dependencies_collect
           context: .
           build-args: |
@@ -235,12 +196,12 @@ jobs:
             "STABILITY=stable"
           pull: false
           push: true
-          tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-web-dependencies-collect-${{ steps.matrix_include.outputs.distrib }}:${{ inputs.release_bundle_tag }}
+          tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-web-dependencies-collect-${{ matrix.distrib }}:${{ inputs.release_bundle_tag }}
 
       - name: Build and push web image
         uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 # v6.18.0
         with:
-          file: .github/docker/${{ env.project }}/${{ steps.matrix_include.outputs.distrib }}/Dockerfile
+          file: .github/docker/${{ env.project }}/${{ matrix.distrib }}/Dockerfile
           context: .
           build-args: |
             "WEB_MINOR_VERSION=${{ steps.export-minor-versions.outputs.web_minor_version }}"
@@ -250,4 +211,4 @@ jobs:
             "STABILITY=stable"
           pull: false
           push: true
-          tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-${{ steps.matrix_include.outputs.distrib }}:${{ inputs.release_bundle_tag }}
+          tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-${{ matrix.distrib }}:${{ inputs.release_bundle_tag }}
