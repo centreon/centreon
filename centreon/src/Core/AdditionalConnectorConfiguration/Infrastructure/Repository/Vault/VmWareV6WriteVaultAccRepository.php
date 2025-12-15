@@ -70,7 +70,12 @@ class VmWareV6WriteVaultAccRepository implements WriteVaultAccRepositoryInterfac
         $inserts = [];
 
         foreach ($data['vcenters'] as $vcenter) {
-            $inserts[$vcenter['name'] . '_password'] = $vcenter['password'];
+            $password = $vcenter['password'] ?? '';
+            if ($password === '' || str_starts_with($password, VaultConfiguration::VAULT_PATH_PATTERN) === true) {
+                continue;
+            }
+
+            $inserts[$vcenter['name'] . '_password'] = $password;
         }
 
         if ($inserts === []) {
