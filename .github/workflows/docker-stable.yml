@@ -217,7 +217,10 @@ jobs:
           file: .github/docker/centreon-web/${{ matrix.distrib }}/Dockerfile.oss
           context: .
           build-args: |
-            "WEB_MINOR_VERSION=${{ steps.export-minor-versions.outputs.web_minor_version }}"
+            "AWIE_MINOR_VERSION=${{ steps.export-minor-versions.outputs.awie_minor_version }}"
+            "DSM_MINOR_VERSION=${{ steps.export-minor-versions.outputs.dsm_minor_version }}"
+            "HA_MINOR_VERSION=${{ steps.export-minor-versions.outputs.ha_minor_version }}"
+            "OPEN-TICKETS_MINOR_VERSION=${{ steps.export-minor-versions.outputs.open-tickets_minor_version }}"
             "REGISTRY_URL=${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}"
             "FROM_IMAGE_VERSION=${{ inputs.release_bundle_tag }}"
             "MAJOR_VERSION=${{ needs.check-inputs.outputs.major_version }}"
