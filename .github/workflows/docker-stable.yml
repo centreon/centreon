@@ -68,9 +68,20 @@ jobs:
             REPO="rpm-standard-internal"
           else
             echo "is_cloud=false" >> $GITHUB_OUTPUT
-            # TODO: Variabilize distributions according to versions
-            DISTRIBS=("el8" "el9" "bookworm")
-            REPO="rpm-standard"
+            case "${major_version}" in
+              24.04)
+                DISTRIBS=("el8" "el9" "bullseye" "bookworm" "jammy")
+                ;;
+              24.10)
+                DISTRIBS=("el8" "el9" "bookworm" "noble")
+                ;;
+              25.10)
+                DISTRIBS=("el8" "el9" "bookworm")
+                ;;
+              *)
+                DISTRIBS=("el8" "el9" "bookworm")
+                ;;
+            esac
           fi
 
           for distrib in "${DISTRIBS[@]}"; do
@@ -197,7 +208,7 @@ jobs:
           build-args: |
             "MAJOR_VERSION=${{ needs.check-inputs.outputs.major_version }}"
             "IS_CLOUD=${{ needs.check-inputs.outputs.is_cloud }}"
-            "STABILITY=STABLE"
+            "STABILITY=stable"
           pull: true
           load: true
           tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-web-dependencies-${{ steps.matrix_include.outputs.distrib }}:${{ inputs.release_bundle_tag }}
@@ -221,7 +232,7 @@ jobs:
             "GORGONE_MINOR_VERSION=${{ steps.export-minor-versions.outputs.gorgone_minor_version }}"
             "MAJOR_VERSION=${{ needs.check-inputs.outputs.major_version }}"
             "IS_CLOUD=${{ needs.check-inputs.outputs.is_cloud }}"
-            "STABILITY=STABLE"
+            "STABILITY=stable"
           pull: false
           push: true
           tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-web-dependencies-collect-${{ steps.matrix_include.outputs.distrib }}:${{ inputs.release_bundle_tag }}
@@ -236,7 +247,7 @@ jobs:
             "REGISTRY_URL=${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}"
             "FROM_IMAGE_VERSION=${{ inputs.release_bundle_tag }}"
             "MAJOR_VERSION=${{ needs.check-inputs.outputs.major_version }}"
-            "STABILITY=STABLE"
+            "STABILITY=stable"
           pull: false
           push: true
           tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-${{ steps.matrix_include.outputs.distrib }}:${{ inputs.release_bundle_tag }}
