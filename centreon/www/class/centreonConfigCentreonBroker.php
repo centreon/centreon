@@ -1350,7 +1350,7 @@ class CentreonConfigCentreonBroker
         $fields = [];
         $block = $this->getBlockInfos($typeId);
         foreach ($block as $fieldInfos) {
-            if ($fieldInfos['group_name'] !== null) {
+            if (! empty($fieldInfos['group_name']) && $fieldInfos['group_name'] !== null) {
                 $fields[$fieldInfos['group_name']][$fieldInfos['fieldname']] = [
                     'type' => $fieldInfos['fieldtype'],
                     'default' => $fieldInfos['value'] ?? $this->getDefaults($fieldInfos['id']) ?? null,
@@ -1813,11 +1813,12 @@ class CentreonConfigCentreonBroker
         }
 
         foreach ($fieldTypes as $name => $infos) {
-            if ($infos['type'] == 'multiselect') {
-                $name = "filters_{$name}";
-            } elseif (! isset($infos['type'])) {
+            if (! isset($infos['type'])) {
                 $infos['type'] = 'grouped';
+            } elseif ($infos['type'] === 'multiselect') {
+                $name = "filters_{$name}";
             }
+
             if (! array_key_exists($name, $payload['parameters'])) {
                 $payload['parameters'][$name] = match ($infos['type']) {
                     'select', 'text', 'password', 'int', 'radio' => $infos['default'],
