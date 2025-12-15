@@ -19,6 +19,9 @@
  *
  */
 
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
+
 /**
  * Class
  *
@@ -412,41 +415,57 @@ class CentreonCommand
      */
     public function insert($parameters, $locked = false): void
     {
-        $queryValues = [];
-        $sQuery = 'INSERT INTO command '
-            . '(command_name, command_line, command_type, command_locked) '
-            . 'VALUES (';
+        try {
+            if (
+                str_contains($parameters['command_name'] ?? '', '-CMA-')
+                || str_contains($parameters['command_name'] ?? '', 'Centreon-Monitoring-Agent')
+            ) {
+                $cmaConnectorId = $this->db->fetchOne(
+                    'SELECT id FROM connector WHERE name = :name',
+                    QueryParameters::create([
+                        QueryParameter::string('name', 'Centreon Monitoring Agent'),
+                    ])
+                );
+                if ($cmaConnectorId === false) {
+                    CentreonLog::create()->warning(
+                        logTypeId: CentreonLog::TYPE_PLUGIN_PACK_MANAGER,
+                        message: 'CMA Connector not found while inserting command '
+                            . ($parameters['command_name'] ?? '') . 'command will be inserted without connector',
+                        customContext: [
+                            'command_name' => $parameters['command_name'] ?? '',
+                            'command_line' => $parameters['command_line'] ?? '',
+                        ],
+                    );
+                    $cmaConnectorId = null;
+                }
+            }
 
-        if (isset($parameters['command_name']) && $parameters['command_name'] != '') {
-            $sQuery .= '?, ';
-            $queryValues[] = (string) $parameters['command_name'];
-        } else {
-            $sQuery .= '"", ';
-        }
-        if (isset($parameters['command_line']) && $parameters['command_line'] != '') {
-            $sQuery .= '?, ';
-            $queryValues[] = (string) $parameters['command_line'];
-        } else {
-            $sQuery .= '"", ';
-        }
-        if (isset($parameters['command_type']) && $parameters['command_type'] != '') {
-            $sQuery .= '?, ';
-            $queryValues[] = (int) $parameters['command_type'];
-        } else {
-            $sQuery .= '2, ';
-        }
+            $query = <<<'SQL'
+                INSERT INTO command (command_name, command_line, command_type, command_locked, connector_id)
+                VALUES (:command_name, :command_line, :command_type, :command_locked, :connector_id)
+                SQL;
+            $queryParameters = QueryParameters::create([
+                QueryParameter::string('command_name', $parameters['command_name'] ?? ''),
+                QueryParameter::string('command_line', $parameters['command_line'] ?? ''),
+                QueryParameter::int('command_type', $parameters['command_type'] ?? 2),
+                QueryParameter::int('command_locked', $locked ? 1 : 0),
+                QueryParameter::int('connector_id', $cmaConnectorId ?? null),
+            ]);
 
-        if ($locked === true) {
-            $sQuery .= '1';
-        } else {
-            $sQuery .= '0';
-        }
+            $this->db->executeStatement($query, $queryParameters);
 
-        $sQuery .= ')';
-        $stmt = $this->db->prepare($sQuery);
-        $dbResult = $stmt->execute($queryValues);
-        if (! $dbResult) {
-            throw new Exception('Error while insert command ' . $parameters['command_name']);
+        } catch (Exception $e) {
+            CentreonLog::create()->error(
+                logTypeId: CentreonLog::TYPE_PLUGIN_PACK_MANAGER,
+                message: 'Error while inserting command ' . ($parameters['command_name'] ?? ''),
+                customContext: [
+                    'command_name' => $parameters['command_name'] ?? '',
+                    'command_line' => $parameters['command_line'] ?? '',
+                ],
+                exception: $e
+            );
+
+            throw new Exception('Error while inserting command ' . $parameters['command_name']);
         }
     }
 
