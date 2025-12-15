@@ -121,7 +121,6 @@ class Host extends AbstractHost
         $host['category_tags'] = $hostCategory->getIdsByHostId($host['host_id']);
 
         $this->getParents($host);
-        $this->getSeverity($host['host_id']);
 
         $this->manageNotificationInheritance($host, $generateConfigurationFile);
 
@@ -141,6 +140,7 @@ class Host extends AbstractHost
     {
         $this->processingFromHost($host, hostTemplateMacros: $hostTemplateMacros);
         $this->formatMacros($host, $hostMacros);
+        $this->getSeverity($host['host_id']);
         $this->getServices($host, $serviceMacros, $serviceTemplateMacros);
         $this->getServicesByHg($host);
         $this->generateObjectInFile($host, $host['host_id']);
@@ -276,6 +276,8 @@ class Host extends AbstractHost
     }
 
     /**
+     * Warning: is to be run AFTER running formatMacros to not override severity export.
+     *
      * @param $host_id_arg
      *
      * @throws PDOException
