@@ -45,7 +45,7 @@ scripts:
 overrides:
   rpm:
     depends:
-      - centreon-web >= ${MAJOR_VERSION}
+      - centreon-web >= 24.10.13
       - centreon-web < ${NEXT_MAJOR_VERSION}
     conflicts:
       - centreon-open-tickets-module
@@ -58,7 +58,7 @@ overrides:
       - centreon-open-tickets-widget
   deb:
     depends:
-      - "centreon-web (>= ${MAJOR_VERSION}~)"
+      - "centreon-web (>= 24.10.13~)"
       - "centreon-web (<< ${NEXT_MAJOR_VERSION}~)"
 
 rpm:

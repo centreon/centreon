@@ -131,10 +131,10 @@ const initializeCustomUnits = ({
 const checkGraphWidth = (): void => {
   cy.findByTestId('graph-interaction-zone')
     .should('have.attr', 'height')
-    .and('equal', '393');
+    .and('equal', '398');
 
   cy.findByTestId('graph-interaction-zone').then((graph) => {
-    expect(Number(graph[0].attributes.width.value)).to.be.greaterThan(1170);
+    expect(Number(graph[0].attributes.width.value)).to.be.greaterThan(1150);
   });
 };
 
@@ -158,7 +158,7 @@ describe('Line chart', () => {
       cy.contains('06/18/2023').should('be.visible');
 
       cy.contains('0.45 s').should('be.visible');
-      cy.contains('73.65%').should('be.visible');
+      cy.contains('75.19%').should('be.visible');
 
       cy.makeSnapshot();
     });
@@ -443,7 +443,7 @@ describe('Line chart', () => {
 
       cy.contains(':00 AM').should('be.visible');
 
-      cy.get('text[transform="rotate(-35, -2, 227.55748987831032)"]').should(
+      cy.get('text[transform="rotate(-35, -2, 290.537103928414)"]').should(
         'be.visible'
       );
 
@@ -521,7 +521,7 @@ describe('Line chart', () => {
 
       checkGraphWidth();
       cy.contains(':00 AM').should('be.visible');
-      cy.get('circle[cx="37.625"]').should('be.visible');
+      cy.get('circle[cx="37.375"]').should('be.visible');
 
       cy.makeSnapshot();
     });

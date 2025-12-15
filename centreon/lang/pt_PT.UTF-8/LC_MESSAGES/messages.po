@@ -1599,6 +1599,10 @@ msgstr ""
 msgid "Attempt"
 msgstr "Tentativa"
 
+#: centreon/www/install/front_translate.php
+msgid "Au moins un des modes de connexion doit être activé."
+msgstr ""
+
 #: centreon/www/include/Administration/parameters/centstorage/form.php
 msgid "Audit log activation"
 msgstr "Ativação de registros de auditoria"
@@ -2027,11 +2031,19 @@ msgid "By Status"
 msgstr "Por Estado"
 
 #: centreon/www/install/front_translate.php
+msgid "By agent"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
 msgid ""
 "By executing this script, your platform will be in a locked mode and you "
 "will not be able to do <strong>anything</strong> during the migration "
 "process (example: deploying your configuration, updating administration "
 "parameters, etc...)."
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "By poller"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
@@ -3458,6 +3470,10 @@ msgid "Connection failed, please contact your administrator"
 msgstr "Conexão falhou, por favor entre em contacto com o seu administrador"
 
 #: centreon/www/install/front_translate.php
+msgid "Connection initiated"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
 msgid "Connection initiated by poller"
 msgstr ""
 
@@ -4805,7 +4821,7 @@ msgstr "Mostrar atalho para Auto-Login"
 
 #: centreon/www/install/smarty_translate.php
 msgid "Display Chart"
-msgstr "Mostrar Gráficos"
+msgstr ""
 
 #: centreon/www/include/monitoring/downtime/listDowntime.php
 msgid "Display Finished Downtimes"
@@ -4842,6 +4858,10 @@ msgstr "Mostra Contadores de Topo para estatisticas do coletor"
 #: centreon/www/include/configuration/configObject/host/listHost.php
 msgid "Display all Services for this host"
 msgstr "Mostra todos os Serviços para este Host"
+
+#: centreon/www/install/smarty_translate.php
+msgid "Display anyway"
+msgstr ""
 
 #: centreon/www/install/front_translate.php
 msgid "Display as"
@@ -8519,6 +8539,13 @@ msgstr "Se não encontrado, envio desativado"
 #: centreon/www/include/configuration/configObject/traps/formTraps.php
 msgid "If no match, submit default status"
 msgstr "Se não encontrado, envia status padrão"
+
+#: centreon/www/install/front_translate.php
+msgid ""
+"If the agent is not allowed to connect to the poller for security reasons "
+"(e.g. when the poller is in a DMZ), you can use a poller-initiated "
+"connection."
+msgstr ""
 
 #: centreon/www/include/configuration/configObject/contact/listContact.php
 msgid ""
@@ -16322,6 +16349,12 @@ msgid "This is a contact template."
 msgstr "Este contacto é um modelo."
 
 #: centreon/www/install/front_translate.php
+msgid ""
+"This is the most common case: the agent initiates the connection to the "
+"poller."
+msgstr ""
+
+#: centreon/www/install/front_translate.php
 msgid "This name already exists"
 msgstr ""
 
@@ -16634,6 +16667,14 @@ msgstr ""
 
 #: centreon/src/Core/AgentConfiguration/Application/Exception/AgentConfigurationException.php
 msgid "Tokens are mandatory"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Too many elements to be displayed (>{{graphsCapNumber}})"
+msgstr ""
+
+#: centreon/www/include/views/graphs/graphs.php
+msgid "Too many metrics (X). More than 20 may cause performance issues."
 msgstr ""
 
 #: centreon/www/include/monitoring/objectDetails/serviceDetails.php

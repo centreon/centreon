@@ -34,7 +34,8 @@
  *
  */
 
-require_once "../require.php";
+require_once '../require.php';
+require_once '../widget-error-handling.php';
 require_once $centreon_path . 'www/class/centreon.class.php';
 require_once $centreon_path . 'www/class/centreonSession.class.php';
 require_once $centreon_path . 'www/class/centreonWidget.class.php';
@@ -78,32 +79,18 @@ try {
     if ($website === false) {
         throw new Exception(_('The URL provided for the website does not use a valid URL pattern.'));
     }
-} catch (Exception $e) {
-    showError($e->getMessage(), $theme);
-    exit;
-}
+} catch (Exception $exception) {
+    CentreonLog::create()->error(
+        logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
+        message: 'Error while using httploader widget: ' . $exception->getMessage(),
+        customContext: [
+            'widget_id' => $widgetId,
+        ],
+        exception: $exception
+    );
+    showError($exception->getMessage(), $theme ?? 'Generic-theme/Variables-css');
 
-function showError(string $message, string $theme)
-{
-    $escapedMessage = htmlspecialchars($message, ENT_QUOTES, 'UTF-8');
-    $escapedTheme = htmlspecialchars($theme, ENT_QUOTES, 'UTF-8');
-    echo <<<HTML
-    <!DOCTYPE html>
-    <html>
-        <head>
-            <meta charset="UTF-8">
-            <title>Error</title>
-            <link href="../../Themes/Generic-theme/style.css" rel="stylesheet" type="text/css"/>
-            <link href="../../Themes/Generic-theme/color.css" rel="stylesheet" type="text/css"/>
-            <link href="../../Themes/{$escapedTheme}/variables.css" rel="stylesheet" type="text/css"/>
-        </head>
-        <body>
-            <div class="update" style="text-align: center; width: 350px; margin: 0 auto;">
-                {$escapedMessage}
-            </div>
-        </body>
-    </html>
-    HTML;
+    exit;
 }
 
 ?>

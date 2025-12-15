@@ -127,9 +127,19 @@ Cypress.Commands.add('addCmaToken', () => {
   cy.getByTestId({ testId: 'Type' }).click();
   cy.contains('Centreon monitoring agent').click();
   cy.contains('button', 'Generate token').click();
-  cy.wait('@getTokens');
-  cy.contains('button', 'Done').click();
-  cy.logout();
+  cy.wait('@addToken');
+
+  cy.get('body').then((body) => {
+    if (
+      body.find(':contains("The token name \'CMA-Token-001\' already exists")')
+        .length > 0
+    ) {
+      return;
+    }
+
+    cy.contains('button', 'Done').click();
+    cy.logout();
+  });
 });
 
 interface Telegraf {

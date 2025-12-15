@@ -23,7 +23,6 @@ declare(strict_types=1);
 
 namespace Tests\CentreonOpenTickets\Providers\Application\UseCase\FindProviders;
 
-use Centreon\Domain\Repository\RepositoryException;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Centreon\Infrastructure\RequestParameters\RequestParametersTranslatorException;
 use CentreonOpenTickets\Providers\Application\Exception\ProviderException;
@@ -31,8 +30,8 @@ use CentreonOpenTickets\Providers\Application\Repository\ReadProviderRepositoryI
 use CentreonOpenTickets\Providers\Application\UseCase\FindProviders;
 use CentreonOpenTickets\Providers\Application\UseCase\FindProvidersResponse;
 use CentreonOpenTickets\Providers\Domain\Model\Provider;
-use CentreonOpenTickets\Providers\Domain\Model\ProviderType;
 use Core\Application\Common\UseCase\ErrorResponse;
+use Core\Common\Domain\Exception\RepositoryException;
 
 beforeEach(closure: function (): void {
     $this->useCase = new FindProviders(
@@ -42,7 +41,7 @@ beforeEach(closure: function (): void {
 });
 
 it('should present an ErrorResponse when an exception occurs for ticket provider search', function (): void {
-    $exception = new RepositoryException();
+    $exception = new RepositoryException('Exception from repository');
     $this->repository
         ->expects($this->once())
         ->method('findAll')
@@ -59,7 +58,8 @@ it('should present a FindProvidersResponse when everything goes well', function 
     $provider = new Provider(
         id: 1,
         name: 'glpi',
-        type: ProviderType::GlpiRestApi,
+        providerTypeId: 11,
+        providerTypeName: 'GlpiRestApi',
         isActivated: true
     );
 
@@ -73,6 +73,7 @@ it('should present a FindProvidersResponse when everything goes well', function 
         ->toBeInstanceOf(FindProvidersResponse::class)
         ->and($response->providers[0]->id)->toBe($provider->getId())
         ->and($response->providers[0]->name)->toBe($provider->getName())
-        ->and($response->providers[0]->type)->toBe($provider->getType())
+        ->and($response->providers[0]->typeId)->toBe($provider->getProviderTypeId())
+        ->and($response->providers[0]->typeName)->toBe($provider->getProviderTypeName())
         ->and($response->providers[0]->isActivated)->toBe($provider->isActivated());
 });

@@ -105,6 +105,7 @@ class ConfigurationExporter extends ExporterServiceAbstract
                 if (! isset($truncated[$data['table']]) && isset($tables[$data['table']])) {
                     // empty table
                     $db->query('DELETE FROM `' . $data['table'] . '`');
+                    $db->query('ALTER TABLE `' . $data['table'] . '` AUTO_INCREMENT = 1');
                     $truncated[$data['table']] = 1;
                 }
 

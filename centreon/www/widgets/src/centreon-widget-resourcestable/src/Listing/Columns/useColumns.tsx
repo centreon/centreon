@@ -50,8 +50,9 @@ import {
 import useIsOpenTicketInstalled from '../useIsOpenTicketInstalled';
 import CloseTicket from './CloseTicket/CloseTicket';
 
-import useStyles, { useStatusStyles } from './Columns.styles';
+import { useStatusStyles } from './Columns.styles';
 import OpenTicket from './OpenTicket/OpenTicket';
+import { TicketLink } from './OpenTicket/TicketLink';
 import ParentResourceColumn from './Parent';
 import ResourceColumn from './Resource';
 import SubItem from './ServiceSubItemColumn/SubItem';
@@ -82,7 +83,6 @@ const useColumns = ({
   provider,
   isOpenTicketEnabled
 }: ColumnProps): ColumnsState => {
-  const { classes } = useStyles();
   const { dataStyle } = useStyleTable({});
   const { classes: statusClasses } = useStatusStyles({
     data: dataStyle.statusColumnChip
@@ -146,14 +146,15 @@ const useColumns = ({
       width: 'max-content'
     },
     {
-      Component: ResourceColumn({ classes, displayType }),
+      Component: ResourceColumn({ displayType }),
       getRenderComponentOnRowUpdateCondition: T,
       id: 'resource',
       label: t(resourceLabel),
       rowMemoProps: ['icon', 'short_type', 'name'],
       sortField: 'name',
       sortable: true,
-      type: ColumnType.component
+      type: ColumnType.component,
+      width: 'max-content'
     },
     {
       Component: equals(displayType, DisplayType.Host)
@@ -165,7 +166,8 @@ const useColumns = ({
       label: t(parentLabel),
       sortField: 'parent_name',
       sortable: true,
-      type: ColumnType.component
+      type: ColumnType.component,
+      width: 'max-content'
     },
     ...(isOpenTicketActionColumnVisible && !isOnPublicPage
       ? [
@@ -181,10 +183,11 @@ const useColumns = ({
     ...(areTicketColumnsVisible
       ? [
           {
-            getFormattedString: (row): string => getTicketInformations(row)?.id,
             id: 'ticket_id',
+            clickable: true,
             label: t(labelTicketID),
-            type: ColumnType.string
+            type: ColumnType.component,
+            Component: TicketLink
           },
           {
             getFormattedString: (row): string =>

@@ -133,8 +133,13 @@ class CentreonAuthLDAP
             if (! $userDn) {
                 //User resource error
                 return CentreonAuth::PASSWORD_INVALID;
-            } else {
-                //LDAP fallback
+            }
+
+            // User alias matches the contact alias but the user DN is different
+            // We have to update the user DN
+            $updateUserDnOK = $this->updateUserDn();
+            if ($updateUserDnOK === false) {
+                // LDAP fallback
                 return CentreonAuth::PASSWORD_CANNOT_BE_VERIFIED;
             }
         }

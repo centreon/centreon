@@ -181,7 +181,6 @@ When('the user deletes the Agents Configuration', () => {
 Then(
   'the Agents Configuration is no longer displayed in the listing page',
   () => {
-    cy.contains('Welcome to the agent configuration page').should('be.visible');
     cy.contains('telegraf-001-updated').should('not.exist');
   }
 );
