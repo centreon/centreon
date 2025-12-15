@@ -61,7 +61,7 @@ properties:
           description: |
             Path to the public certificate.
 
-            - Accepted extensions: `.crt`, `.cer`
+            - Accepted extensions: `.crt`,`.cert` or `.cer`
             - Invalid patterns: `../`, `./`, `//`
             - Normalized to `/etc/pki/` prefix
           example: otel-cert.crt
@@ -71,7 +71,7 @@ properties:
           description: |
             Path to the CA certificate.
 
-            - Accepted extensions: `.crt`, `.cer`
+            - Accepted extensions: `.crt`,`.cert` or `.cer`
             - Invalid patterns: `../`, `./`, `//`
             - Normalized to `/etc/pki/` prefix
           example: ca-cert.cer
@@ -194,7 +194,7 @@ properties:
           description: |
             Path to the public certificate.
 
-            - Accepted extensions: `.crt`, `.cer`
+            - Accepted extensions: `.crt`,`.cert` or `.cer`
             - Invalid patterns: `../`, `./`, `//`
             - Normalized to `/etc/pki/` prefix
           example: otel-cert.crt
@@ -204,7 +204,7 @@ properties:
           description: |
             Path to the CA certificate.
 
-            - Accepted extensions: `.crt`, `.cer`
+            - Accepted extensions: `.crt`,`.cert` or `.cer`
             - Invalid patterns: `../`, `./`, `//`
             - Normalized to `/etc/pki/` prefix
           example: telegraf-ca.crt
@@ -229,7 +229,7 @@ properties:
           description: |
             Server certificate path.
 
-            - Accepted extensions: `.crt`, `.cer`
+            - Accepted extensions: `.crt`,`.cert` or `.cer`
             - Invalid patterns: `../`, `./`, `//`
             - Normalized to `/etc/pki/` prefix
           example: conf-cert.crt
