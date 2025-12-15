@@ -19,8 +19,11 @@
  *
  */
 
+use Centreon\Domain\Log\LoggerTrait;
+
 class EasyvistaSoapProvider extends AbstractProvider
 {
+    use LoggerTrait;
     public const ARG_ACCOUNT = 1;
     public const ARG_CATALOG_GUID = 2;
     public const ARG_CATALOG_CODE = 3;
@@ -424,6 +427,12 @@ class EasyvistaSoapProvider extends AbstractProvider
             $proto = 'https';
         }
         $endpoint = $proto . '://' . $this->rule_data['address'] . $this->rule_data['wspath'];
+
+        // ssl peer verification
+        $peerVerify = ($this->rule_data['peer_verify'] ?? 'yes') === 'yes';
+        $verifyHost = $peerVerify ? 2 : 0;
+        $caCertPath = $this->rule_data['ca_cert_path'] ?? '';
+
         $ch = curl_init($endpoint);
         if ($ch == false) {
             $this->setWsError('cannot init curl object');
@@ -435,18 +444,39 @@ class EasyvistaSoapProvider extends AbstractProvider
             $ch,
             ['proxy_address' => $this->getFormValue('proxy_address', false), 'proxy_port' => $this->getFormValue('proxy_port', false), 'proxy_username' => $this->getFormValue('proxy_username', false), 'proxy_password' => $this->getFormValue('proxy_password', false)]
         );
+        $optionsToLog['proxy'] = $this->getFormValue('proxy_address') . ':' . $this->getFormValue('proxy_port');
+
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $this->rule_data['timeout']);
         curl_setopt($ch, CURLOPT_TIMEOUT, $this->rule_data['timeout']);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, $peerVerify);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, $verifyHost);
         curl_setopt(
             $ch,
             CURLOPT_HTTPHEADER,
             ['Content-Type:  text/xml;charset=UTF-8', 'SOAPAction: ' . $soap_action, 'Content-Length: ' . strlen($data)]
         );
+        $optionsToLog = [
+            'apiAddress' => $endpoint,
+            'soapAction' => $soap_action,
+            'peerVerify' => $peerVerify,
+            'verifyHost' => $verifyHost,
+            'caCertPath' => '',
+        ];
+
+        // Use custom CA only when verification is enabled
+        if ($peerVerify && is_string($caCertPath) && $caCertPath !== '') {
+            curl_setopt($ch, CURLOPT_CAINFO, $caCertPath);
+            $optionsToLog['caCertPath'] = $caCertPath;
+        }
+
+        // log the curl options
+        $this->debug('Easyvista Soap request options', [
+            'options' => $optionsToLog,
+        ]);
+
         $this->soap_result = curl_exec($ch);
 
         if ($this->soap_result == false) {
