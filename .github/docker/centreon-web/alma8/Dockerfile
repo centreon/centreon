@@ -23,12 +23,10 @@ elif [[ "$STABILITY" == "stable" ]]; then
 fi
 dnf config-manager --set-disabled 'centreon-plugin*unstable*' --set-disabled 'centreon-plugin*testing*'
 
-echo "STABILITY = $STABILITY"
-
 if [[ "$STABILITY" == "stable" ]]; then
   dnf install -y \
     centreon-poller-${MAJOR_VERSION}.${WEB_MINOR_VERSION} \
-    centreon-trap--${MAJOR_VERSION}.${WEB_MINOR_VERSION} \
+    centreon-trap-${MAJOR_VERSION}.${WEB_MINOR_VERSION} \
     centreon-web-${MAJOR_VERSION}.${WEB_MINOR_VERSION} \
     centreon-${MAJOR_VERSION}.${WEB_MINOR_VERSION}
 else
