@@ -36,6 +36,7 @@ use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Application\Common\UseCase\PresenterInterface;
+use Core\Command\Application\Repository\ReadCommandRepositoryInterface;
 use Core\Command\Domain\Model\CommandType;
 use Core\CommandMacro\Application\Repository\ReadCommandMacroRepositoryInterface;
 use Core\CommandMacro\Domain\Model\CommandMacro;
@@ -98,6 +99,7 @@ final class PartialUpdateHost
         private readonly PartialUpdateHostValidation $validation,
         private readonly WriteVaultRepositoryInterface $writeVaultRepository,
         private readonly ReadVaultRepositoryInterface $readVaultRepository,
+        private readonly ReadCommandRepositoryInterface $readCommandRepository,
     ) {
         $this->writeVaultRepository->setCustomPath(AbstractVaultRepository::HOST_VAULT_PATH);
     }
@@ -277,6 +279,14 @@ final class PartialUpdateHost
         if (! $dto->checkCommandId instanceof NoValue) {
             $this->validation->assertIsValidCommand($dto->checkCommandId, CommandType::Check, 'checkCommandId');
             $host->setCheckCommandId($dto->checkCommandId);
+            $command = $this->readCommandRepository->findById($dto->checkCommandId);
+            if ($command === null) {
+                throw HostException::errorWhileRetrievingObject();
+            }
+            if ($command->isCentreonMonitoringAgentCommand()) {
+                $host->setFreshnessChecked(YesNoDefaultConverter::fromScalar(1));
+                $host->setFreshnessThreshold(120);
+            }
         }
 
         if (! $dto->checkTimeperiodId instanceof NoValue) {

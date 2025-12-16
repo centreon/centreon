@@ -33,6 +33,7 @@ use Core\Application\Common\UseCase\ConflictResponse;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
+use Core\Command\Application\Repository\ReadCommandRepositoryInterface;
 use Core\Command\Domain\Model\CommandType;
 use Core\CommandMacro\Application\Repository\ReadCommandMacroRepositoryInterface;
 use Core\CommandMacro\Domain\Model\CommandMacro;
@@ -85,6 +86,7 @@ final class AddHost
         private readonly WriteVaultRepositoryInterface $writeVaultRepository,
         private readonly ReadVaultRepositoryInterface $readVaultRepository,
         private readonly WriteRealTimeHostRepositoryInterface $writeRealTimeHostRepository,
+        private readonly ReadCommandRepositoryInterface $readCommandRepository,
     ) {
         $this->writeVaultRepository->setCustomPath(AbstractVaultRepository::HOST_VAULT_PATH);
     }
@@ -178,6 +180,15 @@ final class AddHost
         $this->validation->assertIsValidCommand($request->checkCommandId, CommandType::Check, 'checkCommandId');
         $this->validation->assertIsValidCommand($request->eventHandlerCommandId, null, 'eventHandlerCommandId');
         $this->validation->assertIsValidIcon($request->iconId);
+
+        $command = $this->readCommandRepository->findById($request->checkCommandId);
+        if ($command === null) {
+            throw HostException::errorWhileRetrievingObject();
+        }
+        if ($command->isCentreonMonitoringAgentCommand()) {
+            $request->freshnessChecked = 1;
+            $request->freshnessThreshold = 120;
+        }
 
         $inheritanceMode = $this->optionService->findSelectedOptions(['inheritance_mode']);
         $inheritanceMode = isset($inheritanceMode[0])

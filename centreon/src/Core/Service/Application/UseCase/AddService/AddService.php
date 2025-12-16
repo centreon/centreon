@@ -33,6 +33,7 @@ use Core\Application\Common\UseCase\ConflictResponse;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
+use Core\Command\Application\Repository\ReadCommandRepositoryInterface;
 use Core\CommandMacro\Application\Repository\ReadCommandMacroRepositoryInterface;
 use Core\CommandMacro\Domain\Model\CommandMacro;
 use Core\CommandMacro\Domain\Model\CommandMacroType;
@@ -93,6 +94,7 @@ final class AddService
         private readonly WriteVaultRepositoryInterface $writeVaultRepository,
         private readonly ReadVaultRepositoryInterface $readVaultRepository,
         private readonly WriteRealTimeServiceRepositoryInterface $writeRealTimeServiceRepository,
+        private readonly ReadCommandRepositoryInterface $readCommandRepository,
     ) {
         $this->writeVaultRepository->setCustomPath(AbstractVaultRepository::SERVICE_VAULT_PATH);
     }
@@ -241,6 +243,14 @@ final class AddService
      */
     private function createNewService(AddServiceRequest $request): NewService
     {
+        $command = $this->readCommandRepository->findById($request->commandId);
+        if ($command === null) {
+            throw ServiceException::errorWhileRetrievingObject();
+        }
+        if ($command->isCentreonMonitoringAgentCommand()) {
+            $request->freshnessChecked = 1;
+            $request->freshnessThreshold = 120;
+        }
         $inheritanceMode = $this->optionService->findSelectedOptions(['inheritance_mode']);
         $inheritanceMode = isset($inheritanceMode[0])
             ? (int) $inheritanceMode[0]->getValue()
@@ -420,6 +430,7 @@ final class AddService
         $newServiceTemplate = $this->createNewService($request);
         $this->storageEngine->startTransaction();
         try {
+
             $newServiceId = $this->writeServiceRepository->add($newServiceTemplate);
             $this->addMacros($newServiceId, $request);
             $this->linkServiceToServiceCategories($newServiceId, $request);
