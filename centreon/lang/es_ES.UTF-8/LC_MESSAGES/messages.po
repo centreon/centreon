@@ -2194,7 +2194,7 @@ msgid "By poller"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
-msgid "CA (.crt,.cer)"
+msgid "CA (.crt,.cert,.cer)"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
@@ -14619,7 +14619,7 @@ msgid "Public certificate"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
-msgid "Public certificate (.crt,.cer)"
+msgid "Public certificate (.crt,.cert,.cer)"
 msgstr "Certificado publico"
 
 #: centreon/www/include/home/customViews/formLoad.php
@@ -17369,9 +17369,9 @@ msgstr "Reconocimiento persistente en caso de cambio de estado no correcto"
 # msgstr ""
 # msgid "Extension not allowed"
 # msgstr ""
-# msgid "Public certificate (.crt,.cer)"
+# msgid "Public certificate (.crt,.cert,.cer)"
 # msgstr ""
-# msgid "CA (.crt,.cer)"
+# msgid "CA (.crt,.cert,.cer)"
 # msgstr ""
 # msgid "CA Common Name (CN)"
 # msgstr ""
