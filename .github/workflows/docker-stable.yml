@@ -145,7 +145,7 @@ jobs:
           ls -lah
           echo "[DEBUG]"
           ls -lah ./centreon-${{ inputs.release_bundle_tag }}
-          for package in "collect" "gorgone" "common" "awie" "dsm" "ha" "open-tickets" "web"; do
+          for package in "collect" "gorgone" "common" "awie" "dsm" "open-tickets" "web"; do
             source centreon-${{ inputs.release_bundle_tag }}/.version.centreon-${package}
             package="${package//-/_}"
             echo "${package}_minor_version: $MINOR"
@@ -219,7 +219,6 @@ jobs:
           build-args: |
             "AWIE_MINOR_VERSION=${{ steps.export-minor-versions.outputs.awie_minor_version }}"
             "DSM_MINOR_VERSION=${{ steps.export-minor-versions.outputs.dsm_minor_version }}"
-            "HA_MINOR_VERSION=${{ steps.export-minor-versions.outputs.ha_minor_version }}"
             "OPEN_TICKETS_MINOR_VERSION=${{ steps.export-minor-versions.outputs.open_tickets_minor_version }}"
             "REGISTRY_URL=${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}"
             "FROM_IMAGE_VERSION=${{ inputs.release_bundle_tag }}"
