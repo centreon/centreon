@@ -1,7 +1,5 @@
 ARG REGISTRY_URL=docker.centreon.com/centreon
 ARG FROM_IMAGE_VERSION=develop
-ARG MAJOR_VERSION
-ARG WEB_MINOR_VERSION
 
 FROM ${REGISTRY_URL}/centreon-web-dependencies-collect-bookworm:${FROM_IMAGE_VERSION}
 
