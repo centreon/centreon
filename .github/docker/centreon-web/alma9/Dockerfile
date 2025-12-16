@@ -27,7 +27,7 @@ if [[ "$STABILITY" == "stable" ]]; then
   dnf install -y \
     centreon-poller-${MAJOR_VERSION}.${WEB_MINOR_VERSION} \
     centreon-trap-${MAJOR_VERSION}.${WEB_MINOR_VERSION} \
-    centreon-web-${MAJOR_VERSION}.${WEB_MINOR_VERSION} \
+    centreon-web-${MAJOR_VERSION}.${WEB_MINOR_VERSION}
 else
   dnf install -y /tmp/packages-centreon/centreon-*.rpm
 fi

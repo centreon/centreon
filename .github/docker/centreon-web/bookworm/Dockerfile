@@ -32,7 +32,7 @@ if [[ "$STABILITY" == "stable" ]]; then
   apt-get install -y \
     centreon-poller=${MAJOR_VERSION}.${WEB_MINOR_VERSION}-*+deb12u1 \
     centreon-trap=${MAJOR_VERSION}.${WEB_MINOR_VERSION}-*+deb12u1 \
-    centreon-web=${MAJOR_VERSION}.${WEB_MINOR_VERSION}-*+deb12u1 \
+    centreon-web=${MAJOR_VERSION}.${WEB_MINOR_VERSION}-*+deb12u1
 else
   apt-get install -y /tmp/packages-centreon/centreon-*.deb
 fi
