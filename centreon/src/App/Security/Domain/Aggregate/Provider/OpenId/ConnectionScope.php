@@ -32,4 +32,3 @@ final readonly class ConnectionScope
         Assert::notEmpty($value);
     }
 }
-

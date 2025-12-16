@@ -52,14 +52,11 @@ parameters:
         Infrastructure: [ Domain, Application, Vendors, Helpers ]
 
     skip_violations:
-        App\Security\Infrastructure\Legacy\LegacyCredentialUserProvider:
-            - Centreon\Domain\Contact\Contact
-            - Centreon\Domain\Contact\Interfaces\ContactRepositoryInterface
-        App\Security\Infrastructure\Legacy\LegacyAuthenticationServiceWrapper:
-            - Security\Domain\Authentication\Interfaces\AuthenticationServiceInterface
         App\Shared\Infrastructure\Legacy\LegacyKernelWrapper:
             - App\Kernel
         App\Shared\Infrastructure\Legacy\LegacyContainer:
             - App\Kernel
         App\Shared\Infrastructure\Legacy\LegacyHttpExceptionListener:
             - Centreon\Domain\Exception\EntityNotFoundException
+        App\Shared\Infrastructure\Legacy\LegacyVaultWrapper:
+            - Core\Common\Application\Repository\ReadVaultRepositoryInterface

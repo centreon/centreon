@@ -21,14 +21,15 @@
 
 declare(strict_types=1);
 
-namespace App\Security\Domain\Aggregate\Provider\OpenId;
+namespace App\Shared\Domain;
 
-use Webmozart\Assert\Assert;
-
-final readonly class LoginClaim
+interface VaultInterface
 {
-    public function __construct(public string $value)
-    {
-        Assert::notEmpty($value);
-    }
+    public const OPENID_CLIENT_ID_KEY = '_OPENID_CLIENT_ID';
+    public const OPENID_CLIENT_SECRET_KEY = '_OPENID_CLIENT_SECRET';
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function read(string $path): array;
 }

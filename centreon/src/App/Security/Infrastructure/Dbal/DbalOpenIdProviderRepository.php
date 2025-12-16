@@ -23,9 +23,9 @@ declare(strict_types=1);
 
 namespace App\Security\Infrastructure\Dbal;
 
-use App\Security\Domain\Aggregate\Provider\Configuration;
+use App\Security\Domain\Aggregate\Provider\OpenId\OpenIdConfiguration;
 use App\Security\Domain\Aggregate\TokenIdpEnum;
-use App\Security\Domain\Repository\ProviderRepository;
+use App\Security\Domain\Repository\OpenIdProviderRepository;
 use App\Shared\Infrastructure\Dbal\DbalRepository;
 use App\Shared\Infrastructure\TransformerInterface;
 use Doctrine\DBAL\Connection;
@@ -40,35 +40,35 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
  *  is_forced: bool
  * }
  */
-final readonly class DbalProviderRepository extends DbalRepository implements ProviderRepository
+final readonly class DbalOpenIdProviderRepository extends DbalRepository implements OpenIdProviderRepository
 {
     public const TABLE_NAME = 'provider_configuration';
 
     /**
-     * @param TransformerInterface<RowTypeAlias, Configuration> $transformer
+     * @param TransformerInterface<RowTypeAlias, OpenIdConfiguration> $transformer
      */
     public function __construct(
         #[Autowire(service: 'doctrine.dbal.default_connection')]
         private Connection $connection,
 
-        #[Autowire(service: DbalConfigurationTransformer::class)]
+        #[Autowire(service: DbalOpenIdConfigurationTransformer::class)]
         private TransformerInterface $transformer,
     ) {
     }
 
-    public function getConfigurationByTokenIdp(TokenIdpEnum $tokenIdp): mixed
+    public function getConfiguration(): OpenIdConfiguration
     {
         $qb = $this->connection->createQueryBuilder();
         $qb->select('id, type, custom_configuration, is_active, is_forced')
             ->from(self::TABLE_NAME)
             ->where('type = :tokenIdp')
-            ->setParameter('tokenIdp', $tokenIdp->value)
+            ->setParameter('tokenIdp', TokenIdpEnum::OpenId->value)
             ->setMaxResults(1);
 
         /** @var RowTypeAlias|false $row */
         $row = $qb->executeQuery()->fetchAssociative();
         if ($row === false) {
-            throw new \RuntimeException("Provider with token IDP '{$tokenIdp->value}' does not exist.");
+            throw new \RuntimeException('Provider Configuration with token IDP ' . TokenIdpEnum::OpenId->value . ' does not exist.');
         }
 
         return $this->transformer->transform($row);

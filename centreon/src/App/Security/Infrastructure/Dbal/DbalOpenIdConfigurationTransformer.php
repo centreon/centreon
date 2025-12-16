@@ -23,99 +23,102 @@ declare(strict_types=1);
 
 namespace App\Security\Infrastructure\Dbal;
 
-use App\Security\Domain\Aggregate\Provider\Configuration;
+use App\Security\Domain\Aggregate\Provider\OpenId\AbsoluteUrl;
 use App\Security\Domain\Aggregate\Provider\OpenId\AuthenticationTypeEnum;
-use App\Security\Domain\Aggregate\Provider\OpenId\AuthorizationEndpoint;
-use App\Security\Domain\Aggregate\Provider\OpenId\BaseUrl;
 use App\Security\Domain\Aggregate\Provider\OpenId\ClientId;
 use App\Security\Domain\Aggregate\Provider\OpenId\ClientSecret;
 use App\Security\Domain\Aggregate\Provider\OpenId\ConnectionScope;
-use App\Security\Domain\Aggregate\Provider\OpenId\EndSessionEndpoint;
-use App\Security\Domain\Aggregate\Provider\OpenId\IntrospectionTokenEndpoint;
 use App\Security\Domain\Aggregate\Provider\OpenId\LoginClaim;
 use App\Security\Domain\Aggregate\Provider\OpenId\OpenIdConfiguration;
-use App\Security\Domain\Aggregate\Provider\OpenId\RedirectUrl;
-use App\Security\Domain\Aggregate\Provider\OpenId\TokenEndpoint;
 use App\Security\Domain\Aggregate\Provider\OpenId\Url;
-use App\Security\Domain\Aggregate\Provider\OpenId\UserInfoEndpoint;
-use App\Security\Domain\Aggregate\Provider\Provider;
-use App\Security\Domain\Aggregate\TokenIdpEnum;
+use App\Shared\Domain\VaultInterface;
 use App\Shared\Infrastructure\TransformerInterface;
 
 /**
- * @phpstan-import-type RowTypeAlias from DbalProviderRepository
+ * @phpstan-import-type RowTypeAlias from DbalOpenIdProviderRepository
  *
- * @phpstan-type OpenIdConfigurationType = array{
+ * @phpstan-type OpenIdConfigurationTypeAlias = array{
  *  base_url: string|null,
  *  redirect_url: string|null,
- *  client_id: string|null,
- *  client_secret: string|null,
- *  login_claim: string|null,
- *  token_endpoint: string|null,
+ *  client_id: string,
+ *  client_secret: string,
+ *  login_claim: string,
+ *  token_endpoint: string,
  *  userinfo_endpoint: string|null,
  *  authentication_type: string,
  *  endsession_endpoint: string|null,
- *  authorization_endpoint: string|null,
+ *  authorization_endpoint: string,
  *  introspection_token_endpoint: string|null,
  *  connection_scopes: string[],
  *  should_verify_peer: bool|null
  *  }
  *
- * @implements TransformerInterface<RowTypeAlias, mixed>
+ * @implements TransformerInterface<RowTypeAlias, OpenIdConfiguration>
  */
-final readonly class DbalConfigurationTransformer implements TransformerInterface
+final readonly class DbalOpenIdConfigurationTransformer implements TransformerInterface
 {
+    public function __construct(private VaultInterface $vault)
+    {
+    }
+
     /**
      * @param RowTypeAlias $from
      */
-    public function transform(mixed $from): mixed
+    public function transform(mixed $from): OpenIdConfiguration
     {
-        return match ($from['type']) {
-            TokenIdpEnum::OpenId->value => $this->createOpenIdConfiguration($from),
-            default => throw new \RuntimeException("Unsupported provider type '{$from['type']}'"),
-        };
-    }
-
-    private function createOpenIdConfiguration(array $from): OpenIdConfiguration
-    {
-        /** @var OpenIdConfigurationType $jsonConfiguration */
+        /** @var OpenIdConfigurationTypeAlias $jsonConfiguration */
         $jsonConfiguration = json_decode($from['custom_configuration'], true, flags: JSON_THROW_ON_ERROR);
+        if ($jsonConfiguration['base_url'] === null) {
+            throw new \InvalidArgumentException('Invalid Configuration');
+        }
+        if ($jsonConfiguration['client_secret'] !== null && str_starts_with($jsonConfiguration['client_secret'], 'secret::')) {
+            /**
+             * @var array{
+             *      _OPENID_CLIENT_ID: string,
+             *      _OPENID_CLIENT_SECRET: string
+             * } $vaultData
+             */
+            $vaultData = $this->vault->read($jsonConfiguration['client_secret']);
+            $jsonConfiguration['client_secret'] = $vaultData[VaultInterface::OPENID_CLIENT_SECRET_KEY];
+            $jsonConfiguration['client_id'] = $vaultData[VaultInterface::OPENID_CLIENT_ID_KEY];
+        }
+
         return new OpenIdConfiguration(
             baseUrl: $this->createValueObject(
-                $jsonConfiguration['base_url'] ?? null,
-                Url::class,
+                $jsonConfiguration['base_url'],
+                AbsoluteUrl::class,
             ),
             redirectUrl: $this->createValueObject(
                 $jsonConfiguration['redirect_url'] ?? null,
                 Url::class,
             ),
             clientId: $this->createValueObject(
-                $jsonConfiguration['client_id'] ?? null,
+                $jsonConfiguration['client_id'],
                 ClientId::class,
             ),
             clientSecret: $this->createValueObject(
-                $jsonConfiguration['client_secret'] ?? null,
+                $jsonConfiguration['client_secret'],
                 ClientSecret::class,
             ),
             loginClaim: $this->createValueObject(
-                $jsonConfiguration['login_claim'] ?? null,
+                $jsonConfiguration['login_claim'],
                 LoginClaim::class,
             ),
             tokenEndpoint: $this->createValueObject(
-                $jsonConfiguration['token_endpoint'] ?? null,
+                $jsonConfiguration['token_endpoint'],
                 Url::class,
             ),
             userInfoEndpoint: $this->createValueObject(
                 $jsonConfiguration['userinfo_endpoint'] ?? null,
                 Url::class,
             ),
-            authenticationType: new AuthenticationTypeEnum($jsonConfiguration['authentication_type']),
+            authenticationType: AuthenticationTypeEnum::from($jsonConfiguration['authentication_type']),
             endSessionEndpoint: $this->createValueObject(
                 $jsonConfiguration['endsession_endpoint'] ?? null,
                 Url::class,
             ),
             authorizationEndpoint: $this->createValueObject(
-                $jsonConfiguration['authorization_endpoint'] ?? null,
+                $jsonConfiguration['authorization_endpoint'],
                 Url::class,
             ),
             introspectionTokenEndpoint: $this->createValueObject(
@@ -123,7 +126,7 @@ final readonly class DbalConfigurationTransformer implements TransformerInterfac
                 Url::class,
             ),
             connectionScopes: array_map(
-                static fn(string $scope): ConnectionScope => new ConnectionScope($scope),
+                static fn (string $scope): ConnectionScope => new ConnectionScope($scope),
                 $jsonConfiguration['connection_scopes'] ?? []
             ),
             shouldVerifyPeer: (bool) ($jsonConfiguration['should_verify_peer'] ?? false),
@@ -135,7 +138,7 @@ final readonly class DbalConfigurationTransformer implements TransformerInterfac
     /**
      * @template T of object
      * @param class-string<T> $valueObjectClassString
-     * @return T|null
+     * @return ($value is null ? null : T)
      */
     private function createValueObject(string|null $value, string $valueObjectClassString): ?object
     {
@@ -144,7 +147,5 @@ final readonly class DbalConfigurationTransformer implements TransformerInterfac
         }
 
         return new $valueObjectClassString($value);
-
     }
-
 }

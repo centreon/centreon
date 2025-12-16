@@ -27,7 +27,9 @@ use Webmozart\Assert\Assert;
 
 final readonly class Url
 {
-    public function __construct(public string $value)
+    public string $value;
+
+    public function __construct(string $value)
     {
         Assert::notEmpty($value);
         $this->value = $this->normalize($value);
@@ -44,4 +46,3 @@ final readonly class Url
         return '/' . $value;
     }
 }
-

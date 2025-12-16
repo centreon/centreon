@@ -24,10 +24,9 @@ declare(strict_types=1);
 namespace App\Security\Infrastructure\Idp;
 
 use App\Security\Domain\Aggregate\Provider\OpenId\AuthenticationTypeEnum;
-use App\Security\Domain\Aggregate\Provider\OpenId\OpenIdConfiguration;
+use App\Security\Domain\Aggregate\Provider\OpenId\ConnectionScope;
 use App\Security\Domain\Aggregate\Token;
-use App\Security\Domain\Aggregate\TokenIdpEnum;
-use App\Security\Domain\Repository\ProviderRepository;
+use App\Security\Domain\Repository\OpenIdProviderRepository;
 use App\Security\Domain\Repository\TokenRepository;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -39,7 +38,7 @@ final readonly class OpenIdIdp implements IdpInterface
     public function __construct(
         private HttpClientInterface $httpClient,
         private TokenRepository $tokenRepository,
-        private ProviderRepository $providerRepository,
+        private OpenIdProviderRepository $providerRepository,
         private LoggerInterface $authenticationLogger,
         private RequestStack $requestStack,
     ) {
@@ -63,7 +62,7 @@ final readonly class OpenIdIdp implements IdpInterface
         );
 
         $token->token = $result['access_token'];
-        $token->willExpireIn($result['expires_in']);
+        $token->willExpireIn((int) $result['expires_in']);
 
         $this->tokenRepository->update($token);
 
@@ -72,8 +71,8 @@ final readonly class OpenIdIdp implements IdpInterface
         }
 
         $expirationDelay = array_key_exists('refresh_expires_in', $result)
-            ? $result['refresh_expires_in']
-            : ($result['expires_in'] + 3600);
+            ? (int) $result['refresh_expires_in']
+            : ((int) $result['expires_in'] + 3600);
 
         $refreshToken->token = $refreshTokenString;
         $refreshToken->willExpireIn($expirationDelay);
@@ -81,6 +80,76 @@ final readonly class OpenIdIdp implements IdpInterface
         $this->tokenRepository->update($refreshToken);
     }
 
+    /**
+     * @return array<string, string>
+     */
+    private function callRefreshTokenApi(Token $refreshToken): array
+    {
+        $configuration = $this->providerRepository->getConfiguration();
+
+        $url = str_starts_with($configuration->tokenEndpoint->value, '/')
+            ? $configuration->baseUrl->value . $configuration->tokenEndpoint->value
+            : $configuration->tokenEndpoint->value;
+
+        $headers = [
+            'Content-Type' => 'application/x-www-form-urlencoded',
+        ];
+
+        $body = [
+            'grant_type' => 'refresh_token',
+            'refresh_token' => $refreshToken->token,
+            'scope' => $configuration->connectionScopes === []
+                ? null
+                : implode(
+                    ' ',
+                    array_map(static fn (ConnectionScope $scope): string => $scope->value, $configuration->connectionScopes)
+                ),
+        ];
+
+        switch ($configuration->authenticationType) {
+            case AuthenticationTypeEnum::ClientSecretBasic:
+                $headers['Authorization'] = 'Basic ' . base64_encode(
+                    $configuration->clientId->value . ':' . $configuration->clientSecret->value
+                );
+                break;
+            case AuthenticationTypeEnum::ClientSecretPost:
+                $body['client_id'] = $configuration->clientId->value;
+                $body['client_secret'] = $configuration->clientSecret->value;
+                break;
+        }
+
+        $response = $this->httpClient->request('POST', $url, [
+            'headers' => $headers,
+            'body' => $body,
+            'verify_peer' => $configuration->shouldVerifyPeer,
+        ]);
+
+        try {
+            /** @var array<string, string> */
+            $responseAsArray = $response->toArray();
+
+            return $responseAsArray;
+        } catch (HttpExceptionInterface $e) {
+
+            $this->authenticationLogger->error('OpenID token refresh failed: {content}', [
+                'status_code' => $response->getStatusCode(),
+                'content' => 'Refresh Token Request Error:', $response->toArray(false)['error_description'] ?? '',
+                'datetime' => (new \DateTimeImmutable())->format('Y-m-d H:i:s'),
+                'ip_address' => $this->requestStack->getMainRequest()?->getClientIp(),
+                'exception' => $e,
+            ]);
+
+            throw new \RuntimeException('Failed to refresh token via OpenID provider API.', $e->getCode(), previous: $e);
+        }
+    }
+
+    /**
+     * Anonymize sensitive content in the given data array.
+     *
+     * @param array<string, string> $data
+     *
+     * @return array<string, string>
+     */
     private function anonymizeContent(array $data): array
     {
         if (isset($data['jti'])) {
@@ -100,97 +169,5 @@ final readonly class OpenIdIdp implements IdpInterface
         }
 
         return $data;
-    }
-
-    /**
-     * @return array{access_token: string, expires_in: int, refresh_token?: string, refresh_expires_in?: int}
-     */
-    private function callRefreshTokenApi(Token $refreshToken): array
-    {
-        $configuration = $this->getConfiguration();
-
-        $url = str_starts_with($configuration->tokenEndpoint->value, '/')
-            ? $configuration->baseUrl->value . $configuration->tokenEndpoint->value
-            : $configuration->tokenEndpoint->value;
-
-        $headers = [
-            'Content-Type' => 'application/x-www-form-urlencoded',
-        ];
-
-        $body = [
-            'grant_type' => 'refresh_token',
-            'refresh_token' => $refreshToken->token,
-            'scope' => ! empty($configuration->connectionScopes) ? implode(' ', $configuration->connectionScopes) : null,
-        ];
-
-        switch ($configuration->authenticationType) {
-            case AuthenticationTypeEnum::ClientSecretBasic:
-                $headers['Authorization'] = 'Basic ' . base64_encode(
-                    $configuration->clientId . ':' . $configuration->clientSecret
-                );
-                break;
-
-            case AuthenticationTypeEnum::ClientSecretPost:
-                $body['client_id'] = $configuration->clientId;
-                $body['client_secret'] = $configuration->clientSecret;
-                break;
-        }
-
-        $response = $this->httpClient->request('POST', $url, [
-            'headers' => $headers,
-            'body' => $body,
-            'verify_peer' => $configuration->shouldVerifyPeer,
-        ]);
-
-        try {
-            /** @var array{
-             *  access_token: string,
-             *  expires_in: int,
-             *  refresh_token?: string,
-             *  refresh_expires_in?: int,
-             *  jti?: string,
-             *  id_token?: string,
-             *  provider_token?: string
-             *  } $content
-             */
-            return $response->toArray();
-        } catch (HttpExceptionInterface $e) {
-
-            $this->authenticationLogger->error('OpenID token refresh failed: {content}', [
-                'status_code' => $response->getStatusCode(),
-                'content' => 'Refresh Token Request Error:', $response->toArray(false)['error_description'] ?? '',
-                'datetime' => (new \DateTimeImmutable())->format('Y-m-d H:i:s'),
-                'ip_address' => $this->requestStack->getMainRequest()?->getClientIp(),
-                'exception' => $e,
-            ]);
-
-            throw new \RuntimeException('Failed to refresh token via OpenID provider API.', previous: $e);
-        }
-    }
-
-    private function getConfiguration(): OpenIdConfiguration
-    {
-        $configuration = $this->providerRepository->getConfigurationByTokenIdp(TokenIdpEnum::OpenId);
-
-        if (str_starts_with($configuration['client_id'], 'secret::')) {
-            // TODO read from vault and update client_id
-        }
-
-        if (str_starts_with($configuration['client_secret'], 'secret::')) {
-            // TODO read from vault and update client_secret
-        }
-
-        return $configuration;
-    }
-
-
-    /**
-     * Log Authentication debug.
-     *
-     * @param string $message
-     * @param array<string,string> $content
-     */
-    private function logAuthenticationDebug(array $content): void
-    {
     }
 }

@@ -32,4 +32,3 @@ final readonly class ClientSecret
         Assert::notEmpty($value);
     }
 }
-

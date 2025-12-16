@@ -29,16 +29,16 @@ final readonly class OpenIdConfiguration
      * @param array<ConnectionScope> $connectionScopes
      */
     public function __construct(
-        public ?AbsoluteUrl $baseUrl,
+        public AbsoluteUrl $baseUrl,
         public ?Url $redirectUrl,
-        public ?ClientId $clientId,
-        public ?ClientSecret $clientSecret,
-        public ?LoginClaim $loginClaim,
-        public ?Url $tokenEndpoint,
+        public ClientId $clientId,
+        public ClientSecret $clientSecret,
+        public LoginClaim $loginClaim,
+        public Url $tokenEndpoint,
         public ?Url $userInfoEndpoint,
         public AuthenticationTypeEnum $authenticationType,
         public ?Url $endSessionEndpoint,
-        public ?Url $authorizationEndpoint,
+        public Url $authorizationEndpoint,
         public ?Url $introspectionTokenEndpoint,
         public array $connectionScopes,
         public bool $shouldVerifyPeer,

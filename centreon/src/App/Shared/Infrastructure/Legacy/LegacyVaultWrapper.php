@@ -21,26 +21,26 @@
 
 declare(strict_types=1);
 
-namespace App\Security\Infrastructure\Legacy;
+namespace App\Shared\Infrastructure\Legacy;
 
-use App\Shared\Infrastructure\Legacy\LegacyContainer;
-use Security\Domain\Authentication\Interfaces\AuthenticationServiceInterface;
+use App\Shared\Domain\VaultInterface;
+use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
 use Webmozart\Assert\Assert;
 
-final readonly class LegacyAuthenticationServiceWrapper
+final readonly class LegacyVaultWrapper implements VaultInterface
 {
-    private AuthenticationServiceInterface $legacyAuthenticationService;
+    private ReadVaultRepositoryInterface $repository;
 
     public function __construct(LegacyContainer $legacyContainer)
     {
-        $legacyAuthenticationService = $legacyContainer->get(AuthenticationServiceInterface::class);
-        Assert::isInstanceOf($legacyAuthenticationService, AuthenticationServiceInterface::class);
+        $repository = $legacyContainer->get(ReadVaultRepositoryInterface::class);
+        Assert::isInstanceOf($repository, ReadVaultRepositoryInterface::class);
 
-        $this->legacyAuthenticationService = $legacyAuthenticationService;
+        $this->repository = $repository;
     }
 
-    public function isValidToken(string $token): bool
+    public function read(string $path): array
     {
-        return $this->legacyAuthenticationService->isValidToken($token);
+        return $this->repository->findFromPath($path);
     }
 }

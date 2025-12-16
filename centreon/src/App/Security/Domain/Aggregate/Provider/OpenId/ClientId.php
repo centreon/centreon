@@ -32,4 +32,3 @@ final readonly class ClientId
         Assert::notEmpty($value);
     }
 }
-

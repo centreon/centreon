@@ -27,10 +27,13 @@ use Webmozart\Assert\Assert;
 
 final readonly class AbsoluteUrl
 {
-    public function __construct(public string $value)
+    public string $value;
+
+    public function __construct(string $value)
     {
         Assert::notEmpty($value);
-        Assert::startsWith($value, ['http://', 'https://'], 'The URL must start with "http://" or "https://"');
+        Assert::startsWith($value, 'http', 'The URL must start with "http://" or "https://"');
+
         $this->value = $this->normalize($value);
     }
 
@@ -39,4 +42,3 @@ final readonly class AbsoluteUrl
         return trim($value, ' /');
     }
 }
-

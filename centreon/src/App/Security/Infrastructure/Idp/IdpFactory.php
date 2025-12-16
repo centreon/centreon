@@ -52,7 +52,7 @@ final readonly class IdpFactory
             throw new IdpNotFoundException(sprintf('Cannot find IDP for "%s".', $key));
         }
 
+        /** @var IdpInterface */
         return $this->idpLocator->get($key);
     }
-
 }

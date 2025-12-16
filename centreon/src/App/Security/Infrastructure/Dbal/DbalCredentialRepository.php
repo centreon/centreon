@@ -113,6 +113,7 @@ final readonly class DbalCredentialRepository extends DbalRepository implements 
             ->setParameter('username', $username)
             ->setMaxResults(1);
 
+        /** @var array{c_id: int, c_alias: string, c_admin: string, c_active: string}|false $row */
         $row = $qb->executeQuery()->fetchAssociative();
 
         if ($row === false) {
