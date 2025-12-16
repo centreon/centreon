@@ -4,11 +4,6 @@ security:
 
     role_hierarchy:
         ROLE_ADMIN: ROLE_USER
-
-    providers:
-        credential_user_provider:
-            id: App\Security\Infrastructure\Legacy\LegacyCredentialUserProvider
-
     firewalls:
         dev:
             pattern: '/api/latest/_(profiler|wdt)'
@@ -17,9 +12,9 @@ security:
         api:
             pattern: '/api/latest'
             stateless: true
-            provider: credential_user_provider
-            entry_point: App\Security\Infrastructure\Security\TokenAuthenticator
+            entry_point: App\Security\Infrastructure\Security\Legacy\LegacyTokenApiAuthenticatorWrapper
             custom_authenticators:
+                - App\Security\Infrastructure\Security\Legacy\LegacyTokenApiAuthenticatorWrapper
                 - App\Security\Infrastructure\Security\TokenAuthenticator
                 - App\Security\Infrastructure\Security\SessionAuthenticator
 
