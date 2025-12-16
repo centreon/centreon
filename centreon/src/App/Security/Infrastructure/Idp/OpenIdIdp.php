@@ -29,6 +29,8 @@ use App\Security\Domain\Aggregate\Token;
 use App\Security\Domain\Aggregate\TokenIdpEnum;
 use App\Security\Domain\Repository\ProviderRepository;
 use App\Security\Domain\Repository\TokenRepository;
+use Psr\Log\LoggerInterface;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Contracts\HttpClient\Exception\HttpExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
@@ -38,6 +40,8 @@ final readonly class OpenIdIdp implements IdpInterface
         private HttpClientInterface $httpClient,
         private TokenRepository $tokenRepository,
         private ProviderRepository $providerRepository,
+        private LoggerInterface $authenticationLogger,
+        private RequestStack $requestStack,
     ) {
     }
 
@@ -50,8 +54,13 @@ final readonly class OpenIdIdp implements IdpInterface
         }
 
         $result = $this->callRefreshTokenApi($refreshToken);
-
-        // TODO log ok
+        $this->authenticationLogger->info('Token Refreshed',
+            [
+                ...$this->anonymizeContent($result),
+                'datetime' => (new \DateTimeImmutable())->format('Y-m-d H:i:s'),
+                'ip_address' => $this->requestStack->getMainRequest()?->getClientIp(),
+            ]
+        );
 
         $token->token = $result['access_token'];
         $token->willExpireIn($result['expires_in']);
@@ -70,6 +79,27 @@ final readonly class OpenIdIdp implements IdpInterface
         $refreshToken->willExpireIn($expirationDelay);
 
         $this->tokenRepository->update($refreshToken);
+    }
+
+    private function anonymizeContent(array $data): array
+    {
+        if (isset($data['jti'])) {
+            $data['jti'] = mb_substr($data['jti'], -10);
+        }
+        if (isset($data['access_token'])) {
+            $data['access_token'] = mb_substr($data['access_token'], -10);
+        }
+        if (isset($data['refresh_token'])) {
+            $data['refresh_token'] = mb_substr($data['refresh_token'], -10);
+        }
+        if (isset($data['id_token'])) {
+            $data['id_token'] = mb_substr($data['id_token'], -10);
+        }
+        if (isset($data['provider_token'])) {
+            $data['provider_token'] = mb_substr($data['provider_token'], -10);
+        }
+
+        return $data;
     }
 
     /**
@@ -113,10 +143,28 @@ final readonly class OpenIdIdp implements IdpInterface
         ]);
 
         try {
-            /** @var array{access_token: string, expires_in: int, refresh_token?: string, refresh_expires_in?: int} $content */
+            /** @var array{
+             *  access_token: string,
+             *  expires_in: int,
+             *  refresh_token?: string,
+             *  refresh_expires_in?: int,
+             *  jti?: string,
+             *  id_token?: string,
+             *  provider_token?: string
+             *  } $content
+             */
             return $response->toArray();
-        } catch (HttpExceptionInterface) {
-            // TODO log and throw
+        } catch (HttpExceptionInterface $e) {
+
+            $this->authenticationLogger->error('OpenID token refresh failed: {content}', [
+                'status_code' => $response->getStatusCode(),
+                'content' => 'Refresh Token Request Error:', $response->toArray(false)['error_description'] ?? '',
+                'datetime' => (new \DateTimeImmutable())->format('Y-m-d H:i:s'),
+                'ip_address' => $this->requestStack->getMainRequest()?->getClientIp(),
+                'exception' => $e,
+            ]);
+
+            throw new \RuntimeException('Failed to refresh token via OpenID provider API.', previous: $e);
         }
     }
 
@@ -133,5 +181,16 @@ final readonly class OpenIdIdp implements IdpInterface
         }
 
         return $configuration;
+    }
+
+
+    /**
+     * Log Authentication debug.
+     *
+     * @param string $message
+     * @param array<string,string> $content
+     */
+    private function logAuthenticationDebug(array $content): void
+    {
     }
 }

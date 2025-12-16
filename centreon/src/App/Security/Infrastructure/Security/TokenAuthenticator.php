@@ -83,7 +83,7 @@ final class TokenAuthenticator extends AbstractAuthenticator implements Authenti
             'token_type' => 'api',
             'endpoint' => $request->getRequestUri(),
             'httpMethod' => $request->getMethod(),
-            'ip_address' => $request->server->get('REMOTE_ADDR', 'unknown'),
+            'ip_address' => $request->getClientIp(),
         ]);
 
         return null;
