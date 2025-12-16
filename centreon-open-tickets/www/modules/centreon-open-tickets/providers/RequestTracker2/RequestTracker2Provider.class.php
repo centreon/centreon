@@ -552,7 +552,6 @@ class RequestTracker2Provider extends AbstractProvider
             'peerVerify' => $peerVerify,
             'verifyHost' => $verifyHost,
             'caCertPath' => '',
-            'proxy' => $this->getFormValue('proxy_address') . ':' . $this->getFormValue('proxy_port'),
         ];
 
         if ($peerVerify && $caCertPath !== '') {
@@ -563,7 +562,7 @@ class RequestTracker2Provider extends AbstractProvider
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 
         // log the curl options
-        $this->debug('Jira API request options', [
+        $this->debug('Request tracker API request options', [
             'options' => $optionsToLog,
         ]);
 

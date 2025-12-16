@@ -635,7 +635,6 @@ class ItopProvider extends AbstractProvider
                 CURLOPT_PROXY,
                 $this->getFormValue('proxy_address') . ':' . $this->getFormValue('proxy_port')
             );
-            $optionsToLog['proxy'] = $this->getFormValue('proxy_address') . ':' . $this->getFormValue('proxy_port');
 
             // if proxy authentication configuration is set, we add it to curl
             if (
@@ -651,7 +650,7 @@ class ItopProvider extends AbstractProvider
         }
 
         // log the curl options
-        $this->debug('GLPI API request options', [
+        $this->debug('Itop API request options', [
             'options' => $optionsToLog,
         ]);
 

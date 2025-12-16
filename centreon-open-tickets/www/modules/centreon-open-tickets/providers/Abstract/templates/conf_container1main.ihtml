@@ -45,7 +45,7 @@
 </tr>
 <tr id="row-ca-cert" class="list_two">
   <td class="FormRowField">
-    <img class="helpTooltip" name="ca_cert_path">
+    <!-- <img class="helpTooltip" name="ca_cert_path">-->
     {$form.ca_cert_path.label}
   </td>
   <td class="FormRowValue">

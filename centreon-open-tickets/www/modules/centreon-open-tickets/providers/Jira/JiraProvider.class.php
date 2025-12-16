@@ -533,7 +533,6 @@ class JiraProvider extends AbstractProvider
             'peerVerify' => $peerVerify,
             'verifyHost' => $verifyHost,
             'caCertPath' => '',
-            'proxy' => $this->getFormValue('proxy_address') . ':' . $this->getFormValue('proxy_port'),
         ];
 
         // Use custom CA only when verification is enabled

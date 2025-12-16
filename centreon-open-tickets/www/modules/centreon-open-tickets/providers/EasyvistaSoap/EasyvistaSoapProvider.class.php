@@ -444,7 +444,6 @@ class EasyvistaSoapProvider extends AbstractProvider
             $ch,
             ['proxy_address' => $this->getFormValue('proxy_address', false), 'proxy_port' => $this->getFormValue('proxy_port', false), 'proxy_username' => $this->getFormValue('proxy_username', false), 'proxy_password' => $this->getFormValue('proxy_password', false)]
         );
-        $optionsToLog['proxy'] = $this->getFormValue('proxy_address') . ':' . $this->getFormValue('proxy_port');
 
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $this->rule_data['timeout']);

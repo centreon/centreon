@@ -389,7 +389,7 @@ class BmcFootprints11Provider extends AbstractProvider
         }
 
         // log the curl options
-        $this->debug('Jira API request options', [
+        $this->debug('BMC Footprints API request options', [
             'options' => $optionsToLog,
         ]);
 

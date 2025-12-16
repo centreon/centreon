@@ -951,7 +951,7 @@ Output: {$service.output|substr:0:1024}
 
         // prepare help texts
         $helptext = '';
-        include_once 'help.php';
+        include_once __DIR__ . '/help.php';
         foreach ($help as $key => $text) {
             $helptext .= '<span style="display:none" id="help:' . $key . '">' . $text . '</span>' . "\n";
         }

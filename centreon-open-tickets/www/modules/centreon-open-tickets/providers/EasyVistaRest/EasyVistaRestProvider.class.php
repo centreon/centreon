@@ -579,7 +579,6 @@ class EasyVistaRestProvider extends AbstractProvider
                 CURLOPT_PROXY,
                 $this->getFormValue('proxy_address') . ':' . $this->getFormValue('proxy_port')
             );
-            $optionsToLog['proxy'] = $this->getFormValue('proxy_address') . ':' . $this->getFormValue('proxy_port');
 
             // if proxy authentication configuration is set, we add it to curl
             if (
@@ -595,7 +594,7 @@ class EasyVistaRestProvider extends AbstractProvider
         }
 
         // log the curl options
-        $this->debug('GLPI API request options', [
+        $this->debug('Easyvista Rest API request options', [
             'options' => $optionsToLog,
         ]);
 
