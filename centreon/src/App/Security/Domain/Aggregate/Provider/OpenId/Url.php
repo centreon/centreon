@@ -25,7 +25,7 @@ namespace App\Security\Domain\Aggregate\Provider\OpenId;
 
 use Webmozart\Assert\Assert;
 
-final readonly class BaseUrl
+final readonly class Url
 {
     public function __construct(public string $value)
     {

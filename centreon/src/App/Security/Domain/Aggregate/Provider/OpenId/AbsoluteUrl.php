@@ -1,4 +1,3 @@
-
 <?php
 
 /*
@@ -26,23 +25,18 @@ namespace App\Security\Domain\Aggregate\Provider\OpenId;
 
 use Webmozart\Assert\Assert;
 
-final readonly class TokenEndpoint
+final readonly class AbsoluteUrl
 {
     public function __construct(public string $value)
     {
         Assert::notEmpty($value);
+        Assert::startsWith($value, ['http://', 'https://'], 'The URL must start with "http://" or "https://"');
         $this->value = $this->normalize($value);
     }
 
     private function normalize(string $value): string
     {
-        $value = trim($value, ' /');
-
-        if (str_starts_with($value, 'http://') || str_starts_with($value, 'https://')) {
-            return $value;
-        }
-
-        return '/' . $value;
+        return trim($value, ' /');
     }
 }
 

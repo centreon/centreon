@@ -23,24 +23,13 @@ declare(strict_types=1);
 
 namespace App\Security\Infrastructure\Idp;
 
-use App\Security\Domain\Aggregate\Provider\WebSSO\WebSSOConfiguration;
 use App\Security\Domain\Aggregate\Token;
-use App\Security\Domain\Aggregate\TokenIdpEnum;
-use App\Security\Domain\Repository\ProviderRepository;
+use App\Security\Domain\Exception\TokenRefreshUnavailableException;
 
 final readonly class WebSsoIdp implements IdpInterface
 {
-    public function __construct(private ProviderRepository $providerRepository)
-    {
-    }
-
     public function refreshToken(Token $token): void
     {
-        throw new \RuntimeException(\sprintf('"%s" cannot refresh token.', self::class));
-    }
-
-    public function getConfiguration(): WebSSOConfiguration
-    {
-        return $this->providerRepository->getConfigurationByTokenIdp(TokenIdpEnum::WebSso);
+        throw new TokenRefreshUnavailableException();
     }
 }

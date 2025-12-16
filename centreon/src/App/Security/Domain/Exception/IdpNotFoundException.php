@@ -21,27 +21,8 @@
 
 declare(strict_types=1);
 
-namespace App\Security\Domain\Aggregate\Provider\OpenId;
+namespace App\Security\Domain\Exception;
 
-use Webmozart\Assert\Assert;
-
-final readonly class RedirectUrl
+final class IdpNotFoundException extends \LogicException
 {
-    public function __construct(public string $value)
-    {
-        Assert::notEmpty($value);
-        $this->value = $this->normalize($value);
-    }
-
-    private function normalize(string $value): string
-    {
-        $value = trim($value, ' /');
-
-        if (str_starts_with($value, 'http://') || str_starts_with($value, 'https://')) {
-            return $value;
-        }
-
-        return '/' . $value;
-    }
 }
-

@@ -120,7 +120,7 @@ final readonly class OpenIdIdp implements IdpInterface
         }
     }
 
-    public function getConfiguration(): OpenIdConfiguration
+    private function getConfiguration(): OpenIdConfiguration
     {
         $configuration = $this->providerRepository->getConfigurationByTokenIdp(TokenIdpEnum::OpenId);
 

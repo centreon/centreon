@@ -23,10 +23,11 @@ declare(strict_types=1);
 
 namespace App\Security\Domain\Repository;
 
-use App\Security\Domain\Aggregate\Provider\Configuration;
+use App\Security\Domain\Aggregate\Provider\OpenId\OpenIdConfiguration;
 use App\Security\Domain\Aggregate\TokenIdpEnum;
 
 interface ProviderRepository
 {
-    public function getConfigurationByTokenIdp(TokenIdpEnum $tokenIdp): Configuration;
+    /** @return ($format is TokenIdpEnum::OpenId ? OpenIdConfiguration : mixed) */
+    public function getConfigurationByTokenIdp(TokenIdpEnum $tokenIdp): mixed;
 }

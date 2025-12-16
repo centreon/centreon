@@ -21,12 +21,8 @@
 
 declare(strict_types=1);
 
-namespace App\Security\Domain\Aggregate\Provider\WebSSO;
+namespace App\Security\Domain\Exception;
 
-final readonly class PatternReplaceLogin
+final class TokenRefreshUnavailableException extends \LogicException
 {
-    public function __construct(
-        public string $value,
-    ) {
-    }
 }

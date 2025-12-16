@@ -1,4 +1,3 @@
-
 <?php
 
 /*
@@ -22,16 +21,8 @@
 
 declare(strict_types=1);
 
-namespace App\Security\Domain\Aggregate\Provider\OpenId;
+namespace App\Security\Domain\Exception;
 
-final readonly class AutoImport
+final class TokenRefreshException extends \RuntimeException
 {
-    public function __construct(
-        public string $endpoint,
-        public string $attributePath,
-        public int $contactTemplateId,
-        public bool $isEnabled,
-    ) {
-    }
 }
-

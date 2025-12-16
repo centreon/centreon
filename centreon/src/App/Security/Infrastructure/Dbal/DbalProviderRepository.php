@@ -56,7 +56,7 @@ final readonly class DbalProviderRepository extends DbalRepository implements Pr
     ) {
     }
 
-    public function getConfigurationByTokenIdp(TokenIdpEnum $tokenIdp): Configuration
+    public function getConfigurationByTokenIdp(TokenIdpEnum $tokenIdp): mixed
     {
         $qb = $this->connection->createQueryBuilder();
         $qb->select('id, type, custom_configuration, is_active, is_forced')

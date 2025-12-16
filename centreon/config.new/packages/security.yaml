@@ -22,7 +22,6 @@ security:
             custom_authenticators:
                 - App\Security\Infrastructure\Security\TokenAuthenticator
                 - App\Security\Infrastructure\Security\SessionAuthenticator
-                - App\Security\Infrastructure\Security\WebSsoAuthenticator
 
     access_control:
         - { path: '/api/latest$', roles: PUBLIC_ACCESS }         # Allows accessing the Swagger UI

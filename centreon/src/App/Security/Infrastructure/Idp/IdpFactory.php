@@ -25,6 +25,7 @@ namespace App\Security\Infrastructure\Idp;
 
 use App\Security\Domain\Aggregate\Token;
 use App\Security\Domain\Aggregate\TokenIdpEnum;
+use App\Security\Domain\Exception\IdpNotFoundException;
 use Psr\Container\ContainerInterface;
 use Symfony\Component\DependencyInjection\Attribute\AutowireLocator;
 
@@ -41,21 +42,17 @@ final readonly class IdpFactory
     ) {
     }
 
-    public function create(Token $token): IdpInterface
+    public function create(TokenIdpEnum|Token $tokenOrEnum): IdpInterface
     {
-        if (!$this->idpLocator->has($token->idp->value)) {
-            throw new \OutOfBoundsException(sprintf('Cannot find IDP for "%s".', $token->idp->value));
+        $key = $tokenOrEnum instanceof TokenIdpEnum
+            ? $tokenOrEnum->value
+            : $tokenOrEnum->idp->value;
+
+        if (! $this->idpLocator->has($key)) {
+            throw new IdpNotFoundException(sprintf('Cannot find IDP for "%s".', $key));
         }
 
-        return $this->idpLocator->get($token->idp->value);
+        return $this->idpLocator->get($key);
     }
 
-    public function createByIdpEnum(TokenIdpEnum $idpEnum): IdpInterface
-    {
-        if (!$this->idpLocator->has($idpEnum->value)) {
-            throw new \OutOfBoundsException(sprintf('Cannot find IDP for "%s".', $idpEnum->value));
-        }
-
-        return $this->idpLocator->get($idpEnum->value);
-    }
 }

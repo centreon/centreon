@@ -24,11 +24,12 @@ declare(strict_types=1);
 namespace App\Security\Infrastructure\Idp;
 
 use App\Security\Domain\Aggregate\Token;
+use App\Security\Domain\Exception\TokenRefreshUnavailableException;
 
 final readonly class LocalIdp implements IdpInterface
 {
     public function refreshToken(Token $token): void
     {
-        throw new \RuntimeException(\sprintf('"%s" cannot refresh token.', self::class));
+        throw new TokenRefreshUnavailableException();
     }
 }

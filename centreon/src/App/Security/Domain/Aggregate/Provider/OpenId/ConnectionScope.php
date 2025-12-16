@@ -25,13 +25,11 @@ namespace App\Security\Domain\Aggregate\Provider\OpenId;
 
 use Webmozart\Assert\Assert;
 
-final readonly class Mapping
+final readonly class ConnectionScope
 {
-    public function __construct(
-        public string $value, public int $id
-    ) {
+    public function __construct(public string $value)
+    {
         Assert::notEmpty($value);
-        Assert::positiveInteger($id);
     }
 }
 

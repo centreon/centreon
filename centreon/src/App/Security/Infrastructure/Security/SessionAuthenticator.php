@@ -25,7 +25,10 @@ namespace App\Security\Infrastructure\Security;
 
 use App\Security\Domain\Exception\CredentialDoesNotExistException;
 use App\Security\Domain\Exception\TokenDoesNotExistException;
+use App\Security\Domain\Exception\TokenRefreshException;
+use App\Security\Domain\Exception\TokenRefreshUnavailableException;
 use App\Security\Domain\Repository\CredentialRepository;
+use App\Security\Domain\Repository\TokenRepository;
 use App\Security\Infrastructure\Idp\IdpFactory;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -45,6 +48,7 @@ final class SessionAuthenticator extends AbstractAuthenticator
     public function __construct(
         private readonly CredentialRepository $credentialRepository,
         private readonly IdpFactory $idpFactory,
+        private readonly TokenRepository $tokenRepository,
     ) {
     }
 
@@ -81,7 +85,7 @@ final class SessionAuthenticator extends AbstractAuthenticator
         if ($token->isExpired()) {
             try {
                 $this->idpFactory->create($token)->refreshToken($token);
-            } catch (\Exception) {
+            } catch (TokenRefreshException|TokenRefreshUnavailableException) {
                 throw new BadCredentialsException();
             }
         }

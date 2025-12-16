@@ -29,31 +29,21 @@ use App\Security\Domain\Aggregate\Provider\OpenId\AuthorizationEndpoint;
 use App\Security\Domain\Aggregate\Provider\OpenId\BaseUrl;
 use App\Security\Domain\Aggregate\Provider\OpenId\ClientId;
 use App\Security\Domain\Aggregate\Provider\OpenId\ClientSecret;
+use App\Security\Domain\Aggregate\Provider\OpenId\ConnectionScope;
 use App\Security\Domain\Aggregate\Provider\OpenId\EndSessionEndpoint;
 use App\Security\Domain\Aggregate\Provider\OpenId\IntrospectionTokenEndpoint;
 use App\Security\Domain\Aggregate\Provider\OpenId\LoginClaim;
 use App\Security\Domain\Aggregate\Provider\OpenId\OpenIdConfiguration;
 use App\Security\Domain\Aggregate\Provider\OpenId\RedirectUrl;
 use App\Security\Domain\Aggregate\Provider\OpenId\TokenEndpoint;
+use App\Security\Domain\Aggregate\Provider\OpenId\Url;
 use App\Security\Domain\Aggregate\Provider\OpenId\UserInfoEndpoint;
 use App\Security\Domain\Aggregate\Provider\Provider;
-use App\Security\Domain\Aggregate\Provider\WebSSO\LoginHeaderAttribute;
-use App\Security\Domain\Aggregate\Provider\WebSSO\PatternMatchingLogin;
-use App\Security\Domain\Aggregate\Provider\WebSSO\PatternReplaceLogin;
-use App\Security\Domain\Aggregate\Provider\WebSSO\WebSSOConfiguration;
 use App\Security\Domain\Aggregate\TokenIdpEnum;
 use App\Shared\Infrastructure\TransformerInterface;
 
 /**
  * @phpstan-import-type RowTypeAlias from DbalProviderRepository
- *
- * @phpstan-type WebSSOConfigurationType = array{
- *   pattern_replace_login: string|null,
- *   login_header_attribute: string,
- *   pattern_matching_login: string|null,
- *   trusted_client_addresses: string[],
- *   blacklist_client_addresses: string[]
- * }
  *
  * @phpstan-type OpenIdConfigurationType = array{
  *  base_url: string|null,
@@ -70,38 +60,20 @@ use App\Shared\Infrastructure\TransformerInterface;
  *  connection_scopes: string[],
  *  should_verify_peer: bool|null
  *  }
- * @implements TransformerInterface<RowTypeAlias, Provider>
+ *
+ * @implements TransformerInterface<RowTypeAlias, mixed>
  */
 final readonly class DbalConfigurationTransformer implements TransformerInterface
 {
     /**
      * @param RowTypeAlias $from
      */
-    public function transform(mixed $from): Configuration
+    public function transform(mixed $from): mixed
     {
         return match ($from['type']) {
-            TokenIdpEnum::WebSso->value => $this->createWebSSOConfiguration($from),
             TokenIdpEnum::OpenId->value => $this->createOpenIdConfiguration($from),
+            default => throw new \RuntimeException("Unsupported provider type '{$from['type']}'"),
         };
-    }
-
-    private function createWebSSOConfiguration(array $from): WebSSOConfiguration
-    {
-        /** @var WebSSOConfigurationType $jsonConfiguration */
-        $jsonConfiguration = json_decode($from['custom_configuration'], true, flags: JSON_THROW_ON_ERROR);
-        return new WebSSOConfiguration(
-            patternReplaceLogin: $jsonConfiguration['pattern_replace_login'] !== null
-                ? new PatternReplaceLogin($jsonConfiguration['pattern_replace_login'])
-                : null,
-            loginHeaderAttribute:  new LoginHeaderAttribute($jsonConfiguration['login_header_attribute']),
-            patternMatchingLogin: $jsonConfiguration['pattern_matching_login'] !== null
-                ? new PatternMatchingLogin($jsonConfiguration['pattern_matching_login'])
-                : null,
-            trustedClientAddresses: $jsonConfiguration['trusted_client_addresses'] ?? [],
-            blacklistClientAddresses: $jsonConfiguration['blacklist_client_addresses'] ?? [],
-            isActive: (bool) $from['is_active'],
-            isForced: (bool) $from['is_forced'],
-        );
     }
 
     private function createOpenIdConfiguration(array $from): OpenIdConfiguration
@@ -109,42 +81,70 @@ final readonly class DbalConfigurationTransformer implements TransformerInterfac
         /** @var OpenIdConfigurationType $jsonConfiguration */
         $jsonConfiguration = json_decode($from['custom_configuration'], true, flags: JSON_THROW_ON_ERROR);
         return new OpenIdConfiguration(
-            baseUrl: isset($jsonConfiguration['base_url'])
-                ? new BaseUrl($jsonConfiguration['base_url'])
-                : null,
-            redirectUrl: isset($jsonConfiguration['redirect_url'])
-                ? new RedirectUrl($jsonConfiguration['redirect_url'])
-                : null,
-            clientId: isset($jsonConfiguration['client_id'])
-                ? new ClientId($jsonConfiguration['client_id'])
-                : null,
-            clientSecret: isset($jsonConfiguration['client_secret'])
-                ? new ClientSecret($jsonConfiguration['client_secret'])
-                : null,
-            loginClaim: isset($jsonConfiguration['login_claim'])
-                ? new LoginClaim($jsonConfiguration['login_claim'])
-                : null,
-            tokenEndpoint: isset($jsonConfiguration['token_endpoint'])
-                ? new TokenEndpoint($jsonConfiguration['token_endpoint'])
-                : null,
-            userinfoEndpoint: isset($jsonConfiguration['userinfo_endpoint'])
-                ? new UserInfoEndpoint($jsonConfiguration['userinfo_endpoint'])
-                : null,
-            authenticationType: AuthenticationTypeEnum::from($jsonConfiguration['authentication_type']),
-            endsessionEndpoint: isset($jsonConfiguration['endsession_endpoint'])
-                ? new EndSessionEndpoint($jsonConfiguration['endsession_endpoint'])
-                : null,
-            authorizationEndpoint: isset($jsonConfiguration['authorization_endpoint'])
-                ? new AuthorizationEndpoint($jsonConfiguration['authorization_endpoint'])
-                : null,
-            introspectionTokenEndpoint: isset($jsonConfiguration['introspection_token_endpoint'])
-                ? new IntrospectionTokenEndpoint($jsonConfiguration['introspection_token_endpoint'])
-                : null,
-            connectionScopes: $jsonConfiguration['connection_scopes'] ?? [],
-            shouldVerifyPeer: (bool) ($jsonConfiguration['should_verify_peer'] ?? true),
+            baseUrl: $this->createValueObject(
+                $jsonConfiguration['base_url'] ?? null,
+                Url::class,
+            ),
+            redirectUrl: $this->createValueObject(
+                $jsonConfiguration['redirect_url'] ?? null,
+                Url::class,
+            ),
+            clientId: $this->createValueObject(
+                $jsonConfiguration['client_id'] ?? null,
+                ClientId::class,
+            ),
+            clientSecret: $this->createValueObject(
+                $jsonConfiguration['client_secret'] ?? null,
+                ClientSecret::class,
+            ),
+            loginClaim: $this->createValueObject(
+                $jsonConfiguration['login_claim'] ?? null,
+                LoginClaim::class,
+            ),
+            tokenEndpoint: $this->createValueObject(
+                $jsonConfiguration['token_endpoint'] ?? null,
+                Url::class,
+            ),
+            userInfoEndpoint: $this->createValueObject(
+                $jsonConfiguration['userinfo_endpoint'] ?? null,
+                Url::class,
+            ),
+            authenticationType: new AuthenticationTypeEnum($jsonConfiguration['authentication_type']),
+            endSessionEndpoint: $this->createValueObject(
+                $jsonConfiguration['endsession_endpoint'] ?? null,
+                Url::class,
+            ),
+            authorizationEndpoint: $this->createValueObject(
+                $jsonConfiguration['authorization_endpoint'] ?? null,
+                Url::class,
+            ),
+            introspectionTokenEndpoint: $this->createValueObject(
+                $jsonConfiguration['introspection_token_endpoint'] ?? null,
+                Url::class,
+            ),
+            connectionScopes: array_map(
+                static fn(string $scope): ConnectionScope => new ConnectionScope($scope),
+                $jsonConfiguration['connection_scopes'] ?? []
+            ),
+            shouldVerifyPeer: (bool) ($jsonConfiguration['should_verify_peer'] ?? false),
             isActive: (bool) $from['is_active'],
             isForced: (bool) $from['is_forced'],
         );
+    }
+
+    /**
+     * @template T of object
+     * @param class-string<T> $valueObjectClassString
+     * @return T|null
+     */
+    private function createValueObject(string|null $value, string $valueObjectClassString): ?object
+    {
+        if ($value === '' || $value === null) {
+            return null;
+        }
+
+        return new $valueObjectClassString($value);
+
     }
 
 }
