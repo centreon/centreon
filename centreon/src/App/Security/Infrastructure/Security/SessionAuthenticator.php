@@ -23,12 +23,10 @@ declare(strict_types=1);
 
 namespace App\Security\Infrastructure\Security;
 
-use App\Security\Domain\Aggregate\Token;
 use App\Security\Domain\Exception\CredentialDoesNotExistException;
 use App\Security\Domain\Exception\TokenDoesNotExistException;
 use App\Security\Domain\Repository\CredentialRepository;
 use App\Security\Infrastructure\Idp\IdpFactory;
-use App\Security\Infrastructure\Legacy\LegacyAuthenticationServiceWrapper;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;

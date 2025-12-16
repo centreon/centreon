@@ -21,15 +21,10 @@
 
 declare(strict_types=1);
 
-namespace App\Security\Domain\Repository;
+namespace App\Security\Domain\Aggregate\Provider\OpenId;
 
-use App\Security\Domain\Aggregate\Credential;
-
-interface CredentialRepository
+enum AuthenticationTypeEnum: string
 {
-    public function getByToken(string $token): Credential;
-
-    public function getBySession(string $sessionId): Credential;
-
-    public function getByUsername(string $username): Credential;
+    case ClientSecretPost = 'client_secret_post';
+    case ClientSecretBasic = 'client_secret_basic';
 }

@@ -21,15 +21,8 @@
 
 declare(strict_types=1);
 
-namespace App\Security\Domain\Repository;
+namespace App\Security\Domain\Aggregate\Provider;
 
-use App\Security\Domain\Aggregate\Credential;
-
-interface CredentialRepository
+interface Configuration
 {
-    public function getByToken(string $token): Credential;
-
-    public function getBySession(string $sessionId): Credential;
-
-    public function getByUsername(string $username): Credential;
 }

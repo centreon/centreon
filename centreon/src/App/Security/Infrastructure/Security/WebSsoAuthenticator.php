@@ -23,18 +23,21 @@ declare(strict_types=1);
 
 namespace App\Security\Infrastructure\Security;
 
-use App\Security\Domain\Exception\CredentialDoesNotExistException;
+use App\Security\Domain\Aggregate\Credential;
+use App\Security\Domain\Aggregate\CredentialIdentifier;
+use App\Security\Domain\Aggregate\Provider\WebSSO\WebSSOConfiguration;
+use App\Security\Domain\Aggregate\TokenIdpEnum;
 use App\Security\Domain\Repository\CredentialRepository;
+use App\Security\Domain\Repository\ProviderRepository;
+use App\Security\Domain\Repository\TokenRepository;
+use App\Security\Infrastructure\Idp\IdpFactory;
+use App\Security\Infrastructure\Idp\WebSsoIdp;
 use App\Security\Infrastructure\Legacy\LegacyAuthenticationServiceWrapper;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Core\Exception\BadCredentialsException;
-use Symfony\Component\Security\Core\Exception\DisabledException;
-use Symfony\Component\Security\Core\Exception\UserNotFoundException;
 use Symfony\Component\Security\Http\Authenticator\AbstractAuthenticator;
 use Symfony\Component\Security\Http\Authenticator\Passport\Badge\UserBadge;
 use Symfony\Component\Security\Http\Authenticator\Passport\Passport;
@@ -42,28 +45,46 @@ use Symfony\Component\Security\Http\Authenticator\Passport\SelfValidatingPasspor
 
 final class WebSsoAuthenticator extends AbstractAuthenticator
 {
+    private WebSsoIdp $webSsoIdp = null;
+
     public function __construct(
         private readonly CredentialRepository $credentialRepository,
         private readonly LegacyAuthenticationServiceWrapper $authentication,
+        private readonly TokenRepository $tokenRepository,
+        private readonly ProviderRepository $providerRepository,
         private readonly LoggerInterface $logger,
+        private readonly IdpFactory $idpFactory,
     ) {
     }
 
     public function supports(Request $request): bool
     {
-        return false;
-        $configuration = $this->provider->getConfiguration();
+        $token = $this->tokenRepository->get($request->getSession()->getId());
+        $isValidToken = $token !== null && $this->authentication->isValidToken($token->token);
+        $this->webSsoIdp = $this->idpFactory->createByIdpEnum(TokenIdpEnum::WebSso);
 
-        return $configuration->isActive();
+        return ! $isValidToken
+            && $this->webSsoIdp->getConfiguration()->isActive;
     }
 
     public function authenticate(Request $request): Passport
     {
+        $configuration = $this->webSsoIdp->getConfiguration();
+
+        if (! $this->ipIsAllowed($request, $configuration)) {
+            throw new BadCredentialsException();
+        }
+        if (! in_array($configuration->loginHeaderAttribute->value, $_SERVER)) {
+            throw new BadCredentialsException();
+        }
+
+        // TODO: Check Why creating a Redirect in the legacy authenticator
+        // TODO: Check why we creating a session in the legacy authenticator
         return new SelfValidatingPassport(
             new UserBadge(
-                $request->getSession()->getId(),
-                fn (string $sessionId): CredentialUser => $this->getCredentialUser($sessionId),
-            ),
+                $_SERVER[$configuration->loginHeaderAttribute->value],
+                fn ($username) =>$this->getCredentialUser($username),
+            )
         );
     }
 
@@ -82,22 +103,35 @@ final class WebSsoAuthenticator extends AbstractAuthenticator
         throw $exception;
     }
 
-    private function getCredentialUser(string $sessionId): CredentialUser
+    private function getCredentialUser(string $username): CredentialUser
     {
-        if (! $this->authentication->isValidToken($sessionId)) {
+        if (! $credential = $this->credentialRepository->getByUsername($username)) {
             throw new BadCredentialsException();
         }
 
-        try {
-            $credential = $this->credentialRepository->getBySession($sessionId);
-        } catch (CredentialDoesNotExistException) {
-            throw new UserNotFoundException();
-        }
-
-        if (! $credential->active) {
-            throw new DisabledException();
-        }
+        $credential = new Credential(
+            new CredentialIdentifier($username),
+            $credential->userId ,
+            true
+        );
 
         return new CredentialUser($credential);
+    }
+
+    private function ipIsAllowed(Request $request, WebSSOConfiguration $configuration): bool
+    {
+        $clientIp = $request->getClientIp();
+        if ($clientIp === null) {
+            return false;
+        }
+        if (in_array($clientIp, $configuration->blacklistClientAddresses, true)) {
+            return false;
+        }
+
+        if (! empty($configuration->trustedClientAddresses) && in_array($clientIp, $configuration->trustedClientAddresses, true)) {
+            return false;
+        }
+
+        return true;
     }
 }

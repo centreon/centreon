@@ -23,7 +23,11 @@ declare(strict_types=1);
 
 namespace App\Security\Infrastructure\Idp;
 
+use App\Security\Domain\Aggregate\Provider\OpenId\AuthenticationTypeEnum;
+use App\Security\Domain\Aggregate\Provider\OpenId\OpenIdConfiguration;
 use App\Security\Domain\Aggregate\Token;
+use App\Security\Domain\Aggregate\TokenIdpEnum;
+use App\Security\Domain\Repository\ProviderRepository;
 use App\Security\Domain\Repository\TokenRepository;
 use Symfony\Contracts\HttpClient\Exception\HttpExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
@@ -33,12 +37,13 @@ final readonly class OpenIdIdp implements IdpInterface
     public function __construct(
         private HttpClientInterface $httpClient,
         private TokenRepository $tokenRepository,
+        private ProviderRepository $providerRepository,
     ) {
     }
 
     public function refreshToken(Token $token): void
     {
-        $refreshToken = $this->tokenRepository->getRefreshToken($token);
+        $refreshToken = $this->tokenRepository->getRefreshToken($token->token);
 
         if ($refreshToken->isExpired()) {
             throw new \RuntimeException('Refresh token is expired.');
@@ -57,8 +62,8 @@ final readonly class OpenIdIdp implements IdpInterface
             return;
         }
 
-        $expirationDelay = array_key_exists('refresh_expires_in', $result) 
-            ? $result['refresh_expires_in'] 
+        $expirationDelay = array_key_exists('refresh_expires_in', $result)
+            ? $result['refresh_expires_in']
             : ($result['expires_in'] + 3600);
 
         $refreshToken->token = $refreshTokenString;
@@ -74,9 +79,9 @@ final readonly class OpenIdIdp implements IdpInterface
     {
         $configuration = $this->getConfiguration();
 
-        $url = str_starts_with($configuration['token_endpoint'], '/')
-            ? $configuration['base_url'].$configuration['token_endpoint']
-            : $configuration['token_endpoint'];
+        $url = str_starts_with($configuration->tokenEndpoint->value, '/')
+            ? $configuration->baseUrl->value . $configuration->tokenEndpoint->value
+            : $configuration->tokenEndpoint->value;
 
         $headers = [
             'Content-Type' => 'application/x-www-form-urlencoded',
@@ -85,57 +90,39 @@ final readonly class OpenIdIdp implements IdpInterface
         $body = [
             'grant_type' => 'refresh_token',
             'refresh_token' => $refreshToken->token,
-            'scope' => $configuration['scopes'] ? implode(' ', $configuration['scopes']) : null,
+            'scope' => ! empty($configuration->connectionScopes) ? implode(' ', $configuration->connectionScopes) : null,
         ];
 
-        if ($configuration['authentication_type'] === 'client_secret_basic') {
-            $headers['Authorization'] = 'Basic '.base64_encode(
-                $configuration['client_id'].':'.$configuration['client_secret'],
-            );
-        }
+        switch ($configuration->authenticationType) {
+            case AuthenticationTypeEnum::ClientSecretBasic:
+                $headers['Authorization'] = 'Basic ' . base64_encode(
+                    $configuration->clientId . ':' . $configuration->clientSecret
+                );
+                break;
 
-        if ($configuration['authentication_type'] === 'client_secret_post') {
-            $body['client_id'] = $configuration['client_id'];
-            $body['client_secret'] = $configuration['client_secret'];
+            case AuthenticationTypeEnum::ClientSecretPost:
+                $body['client_id'] = $configuration->clientId;
+                $body['client_secret'] = $configuration->clientSecret;
+                break;
         }
 
         $response = $this->httpClient->request('POST', $url, [
             'headers' => $headers,
             'body' => $body,
-            'verify_peer' => $configuration['verify_peer'],
+            'verify_peer' => $configuration->shouldVerifyPeer,
         ]);
 
         try {
             /** @var array{access_token: string, expires_in: int, refresh_token?: string, refresh_expires_in?: int} $content */
-            $content = $response->toArray();
+            return $response->toArray();
         } catch (HttpExceptionInterface) {
             // TODO log and throw
         }
     }
 
-    /**
-     * @return array{
-     *   scopes: array<string>,
-     *   client_id: ?string,
-     *   client_secret: ?string,
-     *   authentication_type: string,
-     *   base_url: string,
-     *   token_endpoint: string,
-     *   verify_peer: bool,
-     * }
-     */
-    private function getConfiguration(): array
+    public function getConfiguration(): OpenIdConfiguration
     {
-        // TODO
-        $configuration = [
-            'scopes' => [],
-            'client_id' => '',
-            'client_secret' => '',
-            'authentication_type' => '',
-            'base_url' => '',
-            'token_endpoint' => '',
-            'verify_peer' => true,
-        ];
+        $configuration = $this->providerRepository->getConfigurationByTokenIdp(TokenIdpEnum::OpenId);
 
         if (str_starts_with($configuration['client_id'], 'secret::')) {
             // TODO read from vault and update client_id

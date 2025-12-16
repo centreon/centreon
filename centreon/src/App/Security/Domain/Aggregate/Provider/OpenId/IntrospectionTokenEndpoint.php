@@ -1,3 +1,4 @@
+
 <?php
 
 /*
@@ -21,26 +22,27 @@
 
 declare(strict_types=1);
 
-namespace App\Security\Infrastructure\Idp;
+namespace App\Security\Domain\Aggregate\Provider\OpenId;
 
-use App\Security\Domain\Aggregate\Provider\WebSSO\WebSSOConfiguration;
-use App\Security\Domain\Aggregate\Token;
-use App\Security\Domain\Aggregate\TokenIdpEnum;
-use App\Security\Domain\Repository\ProviderRepository;
+use Webmozart\Assert\Assert;
 
-final readonly class WebSsoIdp implements IdpInterface
+final readonly class IntrospectionTokenEndpoint
 {
-    public function __construct(private ProviderRepository $providerRepository)
+    public function __construct(public string $value)
     {
+        Assert::notEmpty($value);
+        $this->value = $this->normalize($value);
     }
 
-    public function refreshToken(Token $token): void
+    private function normalize(string $value): string
     {
-        throw new \RuntimeException(\sprintf('"%s" cannot refresh token.', self::class));
-    }
+        $value = trim($value, ' /');
 
-    public function getConfiguration(): WebSSOConfiguration
-    {
-        return $this->providerRepository->getConfigurationByTokenIdp(TokenIdpEnum::WebSso);
+        if (str_starts_with($value, 'http://') || str_starts_with($value, 'https://')) {
+            return $value;
+        }
+
+        return '/' . $value;
     }
 }
+

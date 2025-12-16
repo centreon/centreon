@@ -49,4 +49,13 @@ final readonly class IdpFactory
 
         return $this->idpLocator->get($token->idp->value);
     }
+
+    public function createByIdpEnum(TokenIdpEnum $idpEnum): IdpInterface
+    {
+        if (!$this->idpLocator->has($idpEnum->value)) {
+            throw new \OutOfBoundsException(sprintf('Cannot find IDP for "%s".', $idpEnum->value));
+        }
+
+        return $this->idpLocator->get($idpEnum->value);
+    }
 }

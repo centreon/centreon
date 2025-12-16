@@ -21,26 +21,26 @@
 
 declare(strict_types=1);
 
-namespace App\Security\Infrastructure\Idp;
+namespace App\Security\Domain\Aggregate\Provider\OpenId;
 
-use App\Security\Domain\Aggregate\Provider\WebSSO\WebSSOConfiguration;
-use App\Security\Domain\Aggregate\Token;
-use App\Security\Domain\Aggregate\TokenIdpEnum;
-use App\Security\Domain\Repository\ProviderRepository;
-
-final readonly class WebSsoIdp implements IdpInterface
+final readonly class AuthenticationConditions
 {
-    public function __construct(private ProviderRepository $providerRepository)
-    {
-    }
-
-    public function refreshToken(Token $token): void
-    {
-        throw new \RuntimeException(\sprintf('"%s" cannot refresh token.', self::class));
-    }
-
-    public function getConfiguration(): WebSSOConfiguration
-    {
-        return $this->providerRepository->getConfigurationByTokenIdp(TokenIdpEnum::WebSso);
+    /**
+     * @param Endpoint $endpoint
+     * @param string[] $trustedClientAddresses
+     * @param string[] $blacklistedClientAddresses
+     * @param string[] $conditions
+     * @param string $attributePath
+     * @param bool $isEnabled
+     */
+    public function __construct(
+        public Endpoint $endpoint,
+        public array $trustedClientAddresses,
+        public array $blacklistedClientAddresses,
+        public array $conditions,
+        public string $attributePath,
+        public bool $isEnabled,
+    ) {
     }
 }
+

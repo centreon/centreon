@@ -24,8 +24,11 @@ declare(strict_types=1);
 namespace App\Security\Infrastructure\Idp;
 
 use App\Security\Domain\Aggregate\Token;
+use App\Security\Domain\Aggregate\Provider\Configuration;
 
 interface IdpInterface
 {
     public function refreshToken(Token $token): void;
+
+    public function getConfiguration(): Configuration;
 }
