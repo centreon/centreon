@@ -44,35 +44,21 @@ $fixDuplicateHostGroupTopology = function () use ($pearDB, &$errorMessage, $vers
         message: "UPGRADE - {$version}: [topology] Fixing duplicate Host Groups menu entries",
     );
 
-    // update ACL menu giving access to old topology 60102 to new topology 60105
     $pearDB->update(
         <<<'SQL'
-            UPDATE `acl_topology_relations` AS atr
-            LEFT JOIN `acl_topology_relations` AS atr2
-                ON atr2.`acl_topo_id` = atr.`acl_topo_id`
-                AND atr2.`topology_topology_id` = (SELECT `topology_id` FROM `topology` WHERE `topology_page` = 60105 LIMIT 1)
-            SET atr.`topology_topology_id` = (SELECT `topology_id` FROM `topology` WHERE `topology_page` = 60105 LIMIT 1)
-            WHERE atr.`topology_topology_id` = (SELECT `topology_id` FROM `topology` WHERE `topology_page` = 60102 LIMIT 1)
-                AND EXISTS (SELECT 1 FROM `topology` WHERE `topology_page` = 60102)
-                AND EXISTS (SELECT 1 FROM `topology` WHERE `topology_page` = 60105)
-                AND atr2.`acl_topo_id` IS NULL
+            UPDATE `topology`
+            SET `topology_url` = '/configuration/hosts/groups',
+                `is_react` = '1',
+                `topology_show` = '1'
+            WHERE `topology_page` = 60102
             SQL
     );
 
-    // delete ACL reference to old topology 60102
-    $pearDB->delete(
-        <<<'SQL'
-            DELETE FROM `acl_topology_relations`
-            WHERE `topology_topology_id` = (SELECT `topology_id` FROM `topology` WHERE `topology_page` = 60102 LIMIT 1)
-                AND EXISTS (SELECT 1 FROM `topology` WHERE `topology_page` = 60102)
-            SQL
-    );
-
-    // make sure any topology entry 60102 is gone
+    // Remove duplicate topology entry 60105 introduced by 25.05 migration
     $pearDB->delete(
         <<<'SQL'
             DELETE FROM `topology`
-            WHERE `topology_page` = 60102
+            WHERE `topology_page` = 60105
             SQL
     );
 
