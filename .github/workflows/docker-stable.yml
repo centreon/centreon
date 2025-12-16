@@ -16,10 +16,6 @@ on:
         default: ''
         type: string
 
-env:
-  GH_TOKEN: ${{ github.token }}
-  JF_URL: https://centreon.jfrog.io
-  JF_ACCESS_TOKEN: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
 
 jobs:
   check-inputs:
@@ -30,6 +26,8 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - name: Check if ${{ inputs.release_bundle_tag }} exists on onprem repositories
+        env:
+          GH_TOKEN: ${{ github.token }}
         shell: bash
         run: |
           for repo in "centreon" "centreon-collect"; do
@@ -40,7 +38,7 @@ jobs:
               exit 1
             else
               echo "Release bundle ${{ inputs.release_bundle_tag }} was found on repository $repo."
-              echo "Information fetched on the tag: $(gh api repos/centreon/centreon/tags --paginate -q '[.[] | select(.name | startswith("${{ inputs.release_bundle_tag }}"))] | .[]' )"
+              echo "Information fetched on the tag: $(gh api repos/centreon/$repo/tags --paginate -q '[.[] | select(.name | startswith("${{ inputs.release_bundle_tag }}"))] | .[]' )"
             fi
           done
 
@@ -49,12 +47,6 @@ jobs:
         with:
           ref: ${{ inputs.release_bundle_tag }}
           sparse-checkout: .version
-
-      - name: Install jfrog cli
-        uses: jfrog/setup-jfrog-cli@18e785fb220d332edbf01964f853ff0fcaa22220 # v4.4.2
-        env:
-          JF_URL: https://centreon.jfrog.io
-          JF_ACCESS_TOKEN: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
 
       - name: Check if promoted packages are available for the version
         shell: bash
@@ -103,7 +95,7 @@ jobs:
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           # REF TO REVERT
-          ref: MON-190211-25.10.x-update-dockerfiles-to-account-for-stable-releases
+          ref: ${{ inputs.release_bundle_tag }}
           sparse-checkout: |
             .github/docker/centreon-web/${{ matrix.distrib }}/
             .github/docker/centreon-web/init/
