@@ -30,13 +30,13 @@ runs:
   using: "composite"
   steps:
     - name: Use cache DEB files
-      uses: actions/cache/restore@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
+      uses: actions/cache/restore@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
       with:
         path: ./*.deb
         key: ${{ inputs.cache_key }}
         fail-on-cache-miss: true
 
-    - uses: jfrog/setup-jfrog-cli@26da2259ee7690e63b5410d7451b2938d08ce1f9 # v4.0.0
+    - uses: jfrog/setup-jfrog-cli@f748a0599171a192a2668afee8d0497f7c1069df # v4.5.6
       env:
         JF_URL: https://packages.centreon.com
         JF_ACCESS_TOKEN: ${{ inputs.artifactory_token }}
@@ -48,9 +48,6 @@ runs:
         distrib: ${{ inputs.distrib }}
 
     - name: Publish DEBs
-      env:
-        JF_URL: https://packages.centreon.com
-        JF_ACCESS_TOKEN: ${{ inputs.artifactory_token }}
       run: |
         FILES="*.deb"
 
@@ -64,16 +61,31 @@ runs:
 
         # Make sure all required inputs are NOT empty
         if [[ -z "${{ inputs.module_name }}" || -z "${{ inputs.distrib }}" || -z ${{ inputs.stability }} || -z ${{ inputs.version }} || -z "${{ inputs.is_cloud }}" ]]; then
-          echo "Some mandatory inputs are empty, please check the logs."
+          echo "::error::some mandatory inputs are empty, please check the logs."
           exit 1
         fi
 
-        # Handle either standard debian or ubuntu repository path
-        if [[ "${{ inputs.distrib }}" == "jammy" ]]; then
-          ROOT_REPO_PATH="ubuntu-standard-${{ inputs.version }}-${{ inputs.stability }}"
-        else
-          ROOT_REPO_PATH="apt-standard-${{ inputs.version }}-${{ inputs.stability }}"
+        if [[ "${{ inputs.stability }}" != "testing" && "${{ inputs.stability }}" != "unstable" ]]; then
+          echo "::error::stability must be one of: testing, unstable (got '${{ inputs.stability }}')"
+          exit 1
         fi
+
+        ROOT_REPO_PATH_PREFIX=""
+        if [[ "${{ steps.parse-distrib.outputs.distrib_family }}" == "debian" ]]; then
+          ROOT_REPO_PATH_PREFIX="apt-"
+        elif [[ "${{ steps.parse-distrib.outputs.distrib_family }}" == "ubuntu" ]]; then
+          ROOT_REPO_PATH_PREFIX="ubuntu-"
+        else
+          echo "::error::Unsupported distribution family: ${{ steps.parse-distrib.outputs.distrib_family }}"
+          exit 1
+        fi
+
+        ROOT_REPO_PATH_SUFFIX=""
+        if [[ "${{ inputs.is_cloud }}" == "true" ]]; then
+          ROOT_REPO_PATH_SUFFIX="-internal"
+        fi
+
+        ROOT_REPO_PATH="${ROOT_REPO_PATH_PREFIX}standard${ROOT_REPO_PATH_SUFFIX}"
 
         # Cleanup (equivalent to --sync-deletes done with RPMs)
         # This is a workaround the fact that jfrog cli does not allow upload
@@ -103,7 +115,15 @@ runs:
           echo "[DEBUG] - OS_distrib: $OS_DISTRIB"
           echo "[DEBUG] - Arch: $ARCH"
 
-          SEARCH_PATH="$ROOT_REPO_PATH/pool/${{ inputs.module_name }}/${BASENAME}_*${OS_DISTRIB}*${ARCH}*.deb"
+          if [[ "${{ inputs.release_type }}" == "hotfix" || "${{ inputs.release_type }}" == "release" ]]; then
+            POOL_SUBPATH="${{ inputs.version }}/${{ inputs.stability }}/${{ inputs.release_type }}/${{ inputs.module_name }}"
+            DEB_PROP="${{ inputs.distrib }}-${{ inputs.version }}-${{ inputs.stability }}-${{ inputs.release_type }}/main/$ARCH"
+          else
+            POOL_SUBPATH="${{ inputs.version }}/${{ inputs.stability }}/${{ inputs.module_name }}"
+            DEB_PROP="${{ inputs.distrib }}-${{ inputs.version }}-${{ inputs.stability }}/main/$ARCH"
+          fi
+
+          SEARCH_PATH="$ROOT_REPO_PATH/pool/${POOL_SUBPATH}/${BASENAME}_*${OS_DISTRIB}*${ARCH}*.deb"
 
           # search and delete all remote artifacts matching this pattern
           echo "Searching and deleting $SEARCH_PATH"
@@ -111,8 +131,8 @@ runs:
 
           # upload local artifact
           echo "Uploading $file"
-          jf rt upload "$file" "$ROOT_REPO_PATH/pool/${{ inputs.module_name }}/" --deb "${{ inputs.distrib }}/main/$ARCH"
+          jf rt upload "$file" "$ROOT_REPO_PATH/pool/${POOL_SUBPATH}/" --flat --deb "${DEB_PROP}" --detailed-summary
         done
 
-        curl -H "Authorization: Bearer ${{ env.JF_ACCESS_TOKEN }}" -X POST "${{ env.JF_URL }}/artifactory/api/deb/reindex/$ROOT_REPO_PATH?async=1"
+        curl -H "Authorization: Bearer ${{ inputs.artifactory_token }}" -X POST "https://centreon.jfrog.io/artifactory/api/deb/reindex/$ROOT_REPO_PATH?async=1"
       shell: bash
