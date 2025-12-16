@@ -59,22 +59,17 @@ final class WebSsoAuthenticator extends AbstractAuthenticator
 
     public function supports(Request $request): bool
     {
-        $token = $this->tokenRepository->get($request->getSession()->getId());
-        $isValidToken = $token !== null && $this->authentication->isValidToken($token->token);
-        $this->webSsoIdp = $this->idpFactory->createByIdpEnum(TokenIdpEnum::WebSso);
-
-        return ! $isValidToken
-            && $this->webSsoIdp->getConfiguration()->isActive;
+        return $this->idpFactory->createByIdpEnum(TokenIdpEnum::WebSso)->getConfiguration()->isActive;
     }
 
     public function authenticate(Request $request): Passport
     {
-        $configuration = $this->webSsoIdp->getConfiguration();
+        $configuration = $this->idpFactory->createByIdpEnum(TokenIdpEnum::WebSso)->getConfiguration();
 
         if (! $this->ipIsAllowed($request, $configuration)) {
             throw new BadCredentialsException();
         }
-        if (! in_array($configuration->loginHeaderAttribute->value, $_SERVER)) {
+        if (! $request->headers->has($configuration->loginHeaderAttribute->value)) {
             throw new BadCredentialsException();
         }
 
@@ -82,7 +77,7 @@ final class WebSsoAuthenticator extends AbstractAuthenticator
         // TODO: Check why we creating a session in the legacy authenticator
         return new SelfValidatingPassport(
             new UserBadge(
-                $_SERVER[$configuration->loginHeaderAttribute->value],
+                $request->headers->get($configuration->loginHeaderAttribute->value),
                 fn ($username) =>$this->getCredentialUser($username),
             )
         );
@@ -128,7 +123,10 @@ final class WebSsoAuthenticator extends AbstractAuthenticator
             return false;
         }
 
-        if (! empty($configuration->trustedClientAddresses) && in_array($clientIp, $configuration->trustedClientAddresses, true)) {
+        if (
+            $configuration->trustedClientAddresses === []
+            && ! in_array($clientIp, $configuration->trustedClientAddresses, true)
+        ) {
             return false;
         }
 
