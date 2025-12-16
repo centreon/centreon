@@ -50,13 +50,20 @@ jobs:
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
       - name: List features
         id: list-features
         run: |
+          sudo apt-get update
+          sudo apt-get install -y cucumber
+
+          TEST_TAGS=$(echo "${{ inputs.test_tags }}" | sed -e 's#not #~#g' -e 's# and #\&\&#g')
+          echo "test_tags=$TEST_TAGS" >> $GITHUB_OUTPUT
+
           cd ${{ inputs.module_name }}
-          echo "features=$(find ${{ inputs.features_path }} -type f -name "*.feature" -printf "%P\n" | sort | jq -R -s -c 'split("\n")[:-1]')" >> $GITHUB_OUTPUT
+          cucumber ${{ inputs.features_path }} --tags "$TEST_TAGS" -f json | jq -r '.[].uri' | sed -e 's#${{ inputs.features_path }}/*##g' | sort | jq -R -s -c 'split("\n")[:-1]'
+          echo "features=$(cucumber ${{ inputs.features_path }} --tags "$TEST_TAGS" -f json | jq -r '.[].uri' | sed -e 's#${{ inputs.features_path }}/*##g' | sort | jq -R -s -c 'split("\n")[:-1]')" >> $GITHUB_OUTPUT
 
   behat-test-run:
     needs: [behat-test-list]

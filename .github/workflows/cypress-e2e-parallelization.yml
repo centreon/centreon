@@ -71,13 +71,20 @@ jobs:
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
       - name: List features
         id: list-features
         run: |
+          sudo apt-get update
+          sudo apt-get install -y cucumber
+
+          TEST_TAGS=$(echo "${{ inputs.test_tags }}" | sed -e 's#not #~#g' -e 's# and #\&\&#g')
+          echo "test_tags=$TEST_TAGS" >> $GITHUB_OUTPUT
+
           cd ${{ inputs.module_name }}
-          echo "features=$(find ${{ inputs.features_path }} -type f -name "*.feature" -printf "%P\n" | sort | jq -R -s -c 'split("\n")[:-1]')" >> $GITHUB_OUTPUT
+          cucumber ${{ inputs.features_path }} --tags "$TEST_TAGS" -f json | jq -r '.[].uri' | sed -e 's#${{ inputs.features_path }}/*##g' | sort | jq -R -s -c 'split("\n")[:-1]'
+          echo "features=$(cucumber ${{ inputs.features_path }} --tags "$TEST_TAGS" -f json | jq -r '.[].uri' | sed -e 's#${{ inputs.features_path }}/*##g' | sort | jq -R -s -c 'split("\n")[:-1]')" >> $GITHUB_OUTPUT
 
   cypress-e2e-test-run:
     needs: [cypress-e2e-test-list]
@@ -256,7 +263,7 @@ jobs:
 
       - uses: pnpm/action-setup@fe02b34f77f8bc703788d5817da081398fad5dd2 # v4.0.0
         with:
-          version: 7
+          version: 10
 
       - name: Download Artifacts
         uses: actions/download-artifact@87c55149d96e628cc2ef7e6fc2aab372015aec85 # v4.1.3
@@ -299,7 +306,7 @@ jobs:
 
       - uses: pnpm/action-setup@fe02b34f77f8bc703788d5817da081398fad5dd2 # v4.0.0
         with:
-          version: 8
+          version: 10
 
       - name: Download Artifacts
         uses: actions/download-artifact@87c55149d96e628cc2ef7e6fc2aab372015aec85 # v4.1.3
