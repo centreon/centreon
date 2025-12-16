@@ -69,10 +69,10 @@ jobs:
             echo "is_cloud=false" >> $GITHUB_OUTPUT
             case "${major_version}" in
               24.04)
-                DISTRIBS=("alma8" "alma9" "bullseye" "bookworm" "jammy")
+                DISTRIBS=("alma8" "alma9" "bullseye" "bookworm")
                 ;;
               24.10)
-                DISTRIBS=("alma8" "alma9" "bookworm" "noble")
+                DISTRIBS=("alma8" "alma9" "bookworm")
                 ;;
               25.10)
                 DISTRIBS=("alma8" "alma9" "bookworm")
