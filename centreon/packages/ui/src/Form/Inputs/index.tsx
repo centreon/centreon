@@ -193,7 +193,7 @@ const Inputs = ({
         {},
         sortedGroupNames
       ),
-    [inputsByGroup[value], sortedGroupNames]
+    [inputsByGroup, sortedGroupNames]
   );
 
   const lastGroup = useMemo(() => last(sortedGroupNames), [sortedGroupNames]);
