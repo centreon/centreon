@@ -13,13 +13,21 @@
           "options": {
             "groups": [
               ":NODE:",
+              ":BLANK_LINE:",
               "react",
+              ":BLANK_LINE:",
               "@mui/*",
+              ":BLANK_LINE:",
               "@centreon/*",
-              "ramda",
-              "jotai*",
+              ":BLANK_LINE:",
               ":ALIAS:",
+              ":BLANK_LINE:",
+              "ramda",
+              ":BLANK_LINE:",
+              "jotai*",
+              ":BLANK_LINE:",
               ":PACKAGE:",
+              ":BLANK_LINE:",
               ":PATH:"
             ]
           }
