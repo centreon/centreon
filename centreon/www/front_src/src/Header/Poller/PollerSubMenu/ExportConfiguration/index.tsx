@@ -1,10 +1,9 @@
-import { useState } from 'react';
-
-import { useTranslation } from 'react-i18next';
-
 import { Button, Typography } from '@mui/material';
 
 import { Dialog, getData, useRequest, useSnackbar } from '@centreon/ui';
+
+import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { exportAndReloadConfigurationEndpoint } from '../../../api/endpoints';
 import {

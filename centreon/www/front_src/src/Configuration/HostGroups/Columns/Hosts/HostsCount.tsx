@@ -1,8 +1,9 @@
-import { ComponentColumnProps } from '@centreon/ui';
-import TooltipContent from './TooltipContent';
-
 import { Tooltip } from '@mui/material';
+
+import { ComponentColumnProps } from '@centreon/ui';
+
 import { useHostsStyles } from './HostsCount.styles';
+import TooltipContent from './TooltipContent';
 
 interface Props {
   enabled: boolean;

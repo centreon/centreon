@@ -1,6 +1,3 @@
-import { useAtomValue } from 'jotai';
-import { equals, isEmpty, isNil, pluck } from 'ramda';
-
 import {
   buildListingEndpoint,
   useFetchQuery,
@@ -8,8 +5,11 @@ import {
 } from '@centreon/ui';
 import { isOnPublicPageAtom } from '@centreon/ui-context';
 
-import { resourceTypeQueryParameter } from '../../../AddEditWidget/WidgetProperties/Inputs/utils';
+import { useAtomValue } from 'jotai';
+import { equals, isEmpty, isNil, pluck } from 'ramda';
+
 import { WidgetResourceType } from '../../../AddEditWidget/models';
+import { resourceTypeQueryParameter } from '../../../AddEditWidget/WidgetProperties/Inputs/utils';
 import {
   CommonWidgetProps,
   GlobalRefreshInterval,

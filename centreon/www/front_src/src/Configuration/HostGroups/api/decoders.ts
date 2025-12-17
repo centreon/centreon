@@ -1,6 +1,7 @@
+import { buildListingDecoder } from '@centreon/ui';
+
 import { JsonDecoder } from 'ts.data.json';
 
-import { buildListingDecoder } from '@centreon/ui';
 import { HostGroupItem, HostGroupListItem } from '../models';
 
 const namedEntityDecoder = {

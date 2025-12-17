@@ -1,18 +1,17 @@
-import { PrimitiveAtom } from 'jotai';
-import { useTranslation } from 'react-i18next';
-
 import IconForcedCheck from '@mui/icons-material/FlipCameraAndroidOutlined';
 import IconCheck from '@mui/icons-material/Sync';
 
 import { Method, useMutationQuery } from '@centreon/ui';
 
+import { PrimitiveAtom } from 'jotai';
+import { useTranslation } from 'react-i18next';
+
 import { Resource } from '../../models';
 import { labelCheck, labelForcedCheck } from '../../translatedLabels';
-import ResourceActionButton from '../ResourceActionButton';
 import useAclQuery from '../aclQuery';
 import { checkEndpoint } from '../api/endpoint';
 import { Data } from '../model';
-
+import ResourceActionButton from '../ResourceActionButton';
 import Check from './Check';
 import CheckOptionsList from './CheckOptionsList';
 import { CheckActionAtom, checkActionAtom } from './checkAtoms';

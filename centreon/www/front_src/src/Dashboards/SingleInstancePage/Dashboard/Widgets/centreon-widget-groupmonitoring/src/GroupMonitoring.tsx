@@ -1,9 +1,8 @@
-import { includes, isNotNil } from 'ramda';
-
 import { MemoizedListing } from '@centreon/ui';
 
-import NoResources from '../../NoResources';
+import { includes, isNotNil } from 'ramda';
 
+import NoResources from '../../NoResources';
 import { useColumns } from './Columns/useColumns';
 import { FormattedGroup, WidgetProps } from './models';
 import { useGroupMonitoring } from './useGroupMonitoring';

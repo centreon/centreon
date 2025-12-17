@@ -1,12 +1,11 @@
-import { useEffect } from 'react';
-
-import { useAtomValue } from 'jotai';
-import { equals, isEmpty, propEq, reject } from 'ramda';
-import { useTranslation } from 'react-i18next';
-
 import EditIcon from '@mui/icons-material/Edit';
 import SaveIcon from '@mui/icons-material/Save';
 import Button from '@mui/material/Button';
+
+import { useAtomValue } from 'jotai';
+import { equals, isEmpty, propEq, reject } from 'ramda';
+import { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { Criteria } from '../../Criterias/models';
 import useActionFilter from '../../Edit/EditButton/useActionFilter';

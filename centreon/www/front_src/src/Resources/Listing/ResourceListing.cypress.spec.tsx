@@ -1,6 +1,3 @@
-import { Provider, createStore } from 'jotai';
-import { BrowserRouter as Router } from 'react-router';
-
 import { Method, TestQueryProvider } from '@centreon/ui';
 import {
   ListingVariant,
@@ -8,36 +5,7 @@ import {
   userAtom
 } from '@centreon/ui-context';
 
-import { selectedVisualizationAtom } from '../Actions/actionsAtoms';
-import useDetails from '../Details/useDetails';
-import useFilter from '../Filter/useFilter';
-import { Visualization } from '../models';
-import {
-  labelAcknowledged,
-  labelAll,
-  labelInDowntime,
-  labelResourceFlapping,
-  labelViewByHost,
-  labelViewByService
-} from '../translatedLabels';
-
-import {
-  defaultSelectedColumnIds,
-  defaultSelectedColumnIdsforViewByHost
-} from './columns';
-import { selectedColumnIdsAtom } from './listingAtoms';
-import {
-  columnToSort,
-  columns,
-  entities,
-  fakeData,
-  getPlatformFeatures,
-  retrievedListing,
-  retrievedListingByHosts,
-  retrievedListingWithCriticalResources
-} from './testUtils';
-import useLoadDetails from './useLoadResources/useLoadDetails';
-
+import { createStore, Provider } from 'jotai';
 import {
   __,
   equals,
@@ -55,7 +23,37 @@ import {
   split,
   where
 } from 'ramda';
+import { BrowserRouter as Router } from 'react-router';
+
+import { selectedVisualizationAtom } from '../Actions/actionsAtoms';
+import useDetails from '../Details/useDetails';
+import useFilter from '../Filter/useFilter';
+import { Visualization } from '../models';
+import {
+  labelAcknowledged,
+  labelAll,
+  labelInDowntime,
+  labelResourceFlapping,
+  labelViewByHost,
+  labelViewByService
+} from '../translatedLabels';
 import Listing from '.';
+import {
+  defaultSelectedColumnIds,
+  defaultSelectedColumnIdsforViewByHost
+} from './columns';
+import { selectedColumnIdsAtom } from './listingAtoms';
+import {
+  columns,
+  columnToSort,
+  entities,
+  fakeData,
+  getPlatformFeatures,
+  retrievedListing,
+  retrievedListingByHosts,
+  retrievedListingWithCriticalResources
+} from './testUtils';
+import useLoadDetails from './useLoadResources/useLoadDetails';
 
 const pageNavigationCalls = [
   { expectedCall: 1, param: 'page=2&limit=30' },

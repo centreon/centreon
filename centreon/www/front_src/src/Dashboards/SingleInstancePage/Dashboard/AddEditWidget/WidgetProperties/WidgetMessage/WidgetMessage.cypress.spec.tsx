@@ -1,7 +1,8 @@
-import { Formik } from 'formik';
-import { Provider, createStore } from 'jotai';
-
 import { TestQueryProvider } from '@centreon/ui';
+
+import { Formik } from 'formik';
+import { createStore, Provider } from 'jotai';
+
 import { widgetPropertiesAtom } from '../../atoms';
 import WidgetMessage from './WidgetMessage';
 

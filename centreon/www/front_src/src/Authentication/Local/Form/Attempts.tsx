@@ -1,13 +1,12 @@
-import { ChangeEvent, useCallback, useMemo } from 'react';
-
-import { FormikValues, useFormikContext } from 'formik';
-import { path, isEmpty, isNil, not } from 'ramda';
-import { useTranslation } from 'react-i18next';
-import { makeStyles } from 'tss-react/mui';
-
 import { useTheme } from '@mui/material';
 
 import { TextField, useMemoComponent } from '@centreon/ui';
+
+import { FormikValues, useFormikContext } from 'formik';
+import { isEmpty, isNil, not, path } from 'ramda';
+import { ChangeEvent, useCallback, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
+import { makeStyles } from 'tss-react/mui';
 
 import StrengthProgress from '../StrengthProgress';
 import {
@@ -17,7 +16,6 @@ import {
   labelUnknown,
   labelWeak
 } from '../translatedLabels';
-
 import { getField } from './utils';
 
 export const attemptsFieldName = 'attempts';

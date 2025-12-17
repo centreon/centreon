@@ -1,10 +1,10 @@
 import debounce from '@mui/utils/debounce';
-import { useAtom } from 'jotai';
-import {} from 'ramda';
-import { filtersAtom } from '../atoms';
 
 import { useQueryClient } from '@tanstack/react-query';
+import { useAtom } from 'jotai';
 import { useRef } from 'react';
+
+import { filtersAtom } from '../atoms';
 import { Filter } from '../models';
 
 interface UseSearch {

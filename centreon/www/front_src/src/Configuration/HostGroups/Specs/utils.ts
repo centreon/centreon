@@ -1,11 +1,11 @@
 import { equals } from 'ramda';
+
 import {
   labelAdditionalInformation,
   labelGeneralInformation,
   labelGroupMembers,
   labelResourceAccessRule
 } from '../translatedLabels';
-
 import centreonWallpaper from './assets/centreon-wallpaper.jpg';
 import cypressLogo from './assets/cypress-logo.jpg';
 

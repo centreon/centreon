@@ -1,7 +1,7 @@
-import { useAtomValue } from 'jotai';
-
 import { useFetchQuery } from '@centreon/ui';
 import { isOnPublicPageAtom } from '@centreon/ui-context';
+
+import { useAtomValue } from 'jotai';
 
 import {
   type CommonWidgetProps,
@@ -11,7 +11,6 @@ import {
 import { getWidgetEndpoint } from '../../../utils';
 import { buildResourcesEndpoint } from '../api/endpoints';
 import type { PanelOptions } from '../models';
-
 import type { DisplayType, NamedEntity, ResourceListing } from './models';
 import { formatRessources } from './utils';
 

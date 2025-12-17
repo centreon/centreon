@@ -1,14 +1,13 @@
-import { useAtom, useSetAtom } from 'jotai';
-import { equals } from 'ramda';
-import { makeStyles } from 'tss-react/mui';
-
 import { Box } from '@mui/material';
 
 import { Panel as PanelComponent } from '@centreon/ui';
 import { ThemeMode } from '@centreon/ui-context';
 
-import { isPanelOpenAtom, panelWidthStorageAtom } from '../atom';
+import { useAtom, useSetAtom } from 'jotai';
+import { equals } from 'ramda';
+import { makeStyles } from 'tss-react/mui';
 
+import { isPanelOpenAtom, panelWidthStorageAtom } from '../atom';
 import Form from './Form/Form';
 
 interface Props {

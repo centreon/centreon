@@ -1,12 +1,13 @@
+import FavoriteIcon from '@mui/icons-material/Favorite';
+
 import {
   IconButton,
   Method,
   useMutationQuery,
   useSnackbar
 } from '@centreon/ui';
-import FavoriteIcon from '@mui/icons-material/Favorite';
-import { memo, useRef, useState } from 'react';
-import { useTransition } from 'react';
+
+import { memo, useRef, useState, useTransition } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import {

@@ -1,8 +1,3 @@
-import { ChangeEvent, useState } from 'react';
-
-import { isNil } from 'ramda';
-import { useTranslation } from 'react-i18next';
-
 import {
   SaveButton as Button,
   Method,
@@ -12,6 +7,10 @@ import {
   useSnackbar
 } from '@centreon/ui';
 
+import { isNil } from 'ramda';
+import { ChangeEvent, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+
 import { commentEndpoint } from '../../../../Actions/api/endpoint';
 import {
   labelCancel,
@@ -20,7 +19,6 @@ import {
   labelYourCommentSent
 } from '../../../../translatedLabels';
 import { ResourceDetails } from '../../../models';
-
 import { useStyles } from './addComment.styles';
 
 interface Props {

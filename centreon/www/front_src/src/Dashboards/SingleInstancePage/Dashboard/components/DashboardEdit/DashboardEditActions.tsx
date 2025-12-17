@@ -1,15 +1,14 @@
-import { ReactElement, useCallback, useEffect } from 'react';
+import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
+
+import { Button } from '@centreon/ui/components';
+import { federatedWidgetsAtom } from '@centreon/ui-context';
 
 import { useIsFetching, useQueryClient } from '@tanstack/react-query';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { equals } from 'ramda';
+import { ReactElement, useCallback, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router';
-
-import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
-
-import { federatedWidgetsAtom } from '@centreon/ui-context';
-import { Button } from '@centreon/ui/components';
 
 import { Dashboard, DashboardPanel } from '../../../../api/models';
 import {
@@ -29,7 +28,6 @@ import {
   labelEditDashboard,
   labelSave
 } from '../../translatedLabels';
-
 import { useDashboardEditActionsStyles } from './DashboardEditActions.styles';
 
 interface DashboardEditActionsProps {

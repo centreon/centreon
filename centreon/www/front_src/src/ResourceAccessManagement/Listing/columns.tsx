@@ -1,6 +1,6 @@
-import { useTranslation } from 'react-i18next';
-
 import { Column, ColumnType } from '@centreon/ui';
+
+import { useTranslation } from 'react-i18next';
 
 import {
   labelActions,
@@ -8,7 +8,6 @@ import {
   labelName,
   labelStatus
 } from '../translatedLabels';
-
 import { Actions, Activate } from './Actions';
 
 const useListingColumns = (): Array<Column> => {

@@ -1,10 +1,13 @@
-import { Button, Modal } from '@centreon/ui/components';
 import SaveIcon from '@mui/icons-material/Save';
 import { CircularProgress } from '@mui/material';
+
+import { Button, Modal } from '@centreon/ui/components';
+
 import { useFormikContext } from 'formik';
 import { useAtomValue } from 'jotai';
 import { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+
 import { canMigrateAtom } from '../atoms';
 import {
   labelCancel,

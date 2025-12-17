@@ -1,5 +1,6 @@
 import { equals } from 'ramda';
 import { lazy } from 'react';
+
 import { FederatedModule } from '../../../../federatedModules/models';
 import { PanelConfiguration } from '../models';
 

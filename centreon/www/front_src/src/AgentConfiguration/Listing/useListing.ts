@@ -4,6 +4,7 @@ import { platformFeaturesAtom, userAtom } from '@centreon/ui-context';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { equals, isNotNil } from 'ramda';
 import { useTranslation } from 'react-i18next';
+
 import {
   changeSortAtom,
   limitAtom,
@@ -13,10 +14,8 @@ import {
   sortFieldAtom,
   sortOrderAtom
 } from '../atoms';
-
-import { defaultSelectedColumnIds } from '../utils';
-
 import { labelSelectAtLeastOneColumn } from '../translatedLabels';
+import { defaultSelectedColumnIds } from '../utils';
 
 interface UseListing {
   setPage: (updatedPage: number) => void;

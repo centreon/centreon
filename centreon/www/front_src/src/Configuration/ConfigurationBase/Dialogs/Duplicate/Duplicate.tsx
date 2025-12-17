@@ -1,6 +1,8 @@
+import { Typography } from '@mui/material';
+
 import { NumberField } from '@centreon/ui';
 import { Modal } from '@centreon/ui/components';
-import { Typography } from '@mui/material';
+
 import { Trans, useTranslation } from 'react-i18next';
 
 import {

@@ -1,11 +1,10 @@
-import { useRef } from 'react';
-
-import { useSetAtom } from 'jotai';
-import { useTranslation } from 'react-i18next';
-
 import debounce from '@mui/utils/debounce';
 
 import { SearchField } from '@centreon/ui';
+
+import { useSetAtom } from 'jotai';
+import { useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { searchAtom } from '../atom';
 import { labelSearch } from '../translatedLabels';

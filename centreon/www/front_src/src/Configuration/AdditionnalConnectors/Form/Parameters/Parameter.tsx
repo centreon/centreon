@@ -1,12 +1,11 @@
-import { ReactElement } from 'react';
-
-import { keys } from 'ramda';
-import { useTranslation } from 'react-i18next';
-
 import { TextField } from '@centreon/ui';
 import { ItemComposition } from '@centreon/ui/components';
-import { Parameter as ParameterModel } from '../../models';
 
+import { keys } from 'ramda';
+import { ReactElement } from 'react';
+import { useTranslation } from 'react-i18next';
+
+import { Parameter as ParameterModel } from '../../models';
 import useParameter from './useParameter';
 import { useParameterStyles } from './useParametersStyles';
 

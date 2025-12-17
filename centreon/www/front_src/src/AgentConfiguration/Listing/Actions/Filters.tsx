@@ -1,28 +1,27 @@
+import { capitalize } from '@mui/material';
+
 import {
   MultiAutocompleteField,
   MultiConnectedAutocompleteField,
   TextField
 } from '@centreon/ui';
 import { Button } from '@centreon/ui/components';
+
 import { useTranslation } from 'react-i18next';
+
 import { getPollersEndpoint } from '../../api/endpoints';
-
-import { useActionsStyles } from './Actions.styles';
-import { useFilters } from './useFilters';
-
-import { capitalize } from '@mui/material';
 import { useGetAgentConfigurations } from '../../hooks/useGetAgentConfigurations';
-
 import { AgentType } from '../../models';
-
 import {
   labelAgentType,
-  labelCMA,
   labelClear,
+  labelCMA,
   labelName,
   labelPoller,
   labelSearch
 } from '../../translatedLabels';
+import { useActionsStyles } from './Actions.styles';
+import { useFilters } from './useFilters';
 
 export const agentTypeOptions = [
   {

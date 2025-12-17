@@ -1,7 +1,6 @@
 import type { SelectEntry } from '@centreon/ui';
 
 import { SortOrder } from '../../models';
-
 import { Criteria } from './models';
 
 interface DefaultCriteriaValues {

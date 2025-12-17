@@ -1,13 +1,13 @@
-import { useEffect } from 'react';
-
 import { useFetchQuery } from '@centreon/ui';
+
 import { useSetAtom } from 'jotai';
 import { equals, isEmpty, isNil, isNotNil, map, or } from 'ramda';
+import { useEffect } from 'react';
 
-import { agentTypes, connectionModes } from '../Form/useInputs';
 import { agentConfigurationDecoder } from '../api/decoders';
 import { getAgentConfigurationEndpoint } from '../api/endpoints';
 import { agentTypeFormAtom } from '../atoms';
+import { agentTypes, connectionModes } from '../Form/useInputs';
 import {
   AgentConfiguration,
   AgentConfigurationForm,

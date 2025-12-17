@@ -1,12 +1,12 @@
-import { FormikValues, useFormikContext } from 'formik';
-import { or } from 'ramda';
-import { useTranslation } from 'react-i18next';
-import { makeStyles } from 'tss-react/mui';
-
 import SaveIcon from '@mui/icons-material/SaveOutlined';
 import { Box, CircularProgress } from '@mui/material';
 
 import { IconButton } from '@centreon/ui';
+
+import { FormikValues, useFormikContext } from 'formik';
+import { or } from 'ramda';
+import { useTranslation } from 'react-i18next';
+import { makeStyles } from 'tss-react/mui';
 
 import { labelSave } from '../../../translatedLabels';
 

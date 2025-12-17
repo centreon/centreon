@@ -1,13 +1,12 @@
 import { Listing } from '@centreon/ui';
 
-import { AgentConfigurationListing } from '../models';
-
-import Actions from './Actions/Actions';
-import DeleteModal from './DeleteModal';
-
 import { useTranslation } from 'react-i18next';
+
+import { AgentConfigurationListing } from '../models';
 import { labelCollapse, labelExpand } from '../translatedLabels';
+import Actions from './Actions/Actions';
 import { useColumns } from './Columns/useColumns';
+import DeleteModal from './DeleteModal';
 import { useListing } from './useListing';
 
 interface Props {

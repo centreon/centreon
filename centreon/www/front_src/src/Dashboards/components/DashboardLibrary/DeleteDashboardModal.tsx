@@ -1,14 +1,13 @@
-import { useMemo, useRef } from 'react';
-
-import { useAtom, useAtomValue } from 'jotai';
-import { has, isEmpty, isNil } from 'ramda';
-import { useTranslation } from 'react-i18next';
-
 import { Typography } from '@mui/material';
 
 import { LoadingSkeleton, useFetchQuery } from '@centreon/ui';
-import { platformVersionsAtom } from '@centreon/ui-context';
 import { Modal } from '@centreon/ui/components';
+import { platformVersionsAtom } from '@centreon/ui-context';
+
+import { useAtom, useAtomValue } from 'jotai';
+import { has, isEmpty, isNil } from 'ramda';
+import { useMemo, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { playlistsByDashboardDecoder } from '../../api/decoders';
 import { playlistsByDashboardEndpoint } from '../../api/endpoints';

@@ -1,8 +1,8 @@
-import { useTranslation } from 'react-i18next';
-
 import { Tooltip } from '@mui/material';
 
 import { IconButton } from '@centreon/ui';
+
+import { useTranslation } from 'react-i18next';
 
 import { labelActionNotPermitted } from '../../translatedLabels';
 import ActionButton from '../ActionButton';

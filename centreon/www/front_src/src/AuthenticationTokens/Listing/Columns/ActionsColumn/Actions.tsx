@@ -3,13 +3,14 @@ import {
   DeleteOutline as DeleteIcon
 } from '@mui/icons-material';
 import { Box } from '@mui/material';
+
+import { ComponentColumnProps, IconButton } from '@centreon/ui';
+import { userAtom } from '@centreon/ui-context';
+
 import { useAtomValue, useSetAtom } from 'jotai';
 import { equals } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
-import { ComponentColumnProps, IconButton } from '@centreon/ui';
-
-import { userAtom } from '@centreon/ui-context';
 import { tokensToDeleteAtom } from '../../../atoms';
 import { TokenType } from '../../../models';
 import { labelCopy, labelDelete } from '../../../translatedLabels';

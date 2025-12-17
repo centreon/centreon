@@ -1,6 +1,5 @@
-import { RefObject } from 'react';
-
 import { equals, last } from 'ramda';
+import { RefObject } from 'react';
 
 import { Resource, Status } from '../../../models';
 import ServiceCard from '../Details/ServiceCard';

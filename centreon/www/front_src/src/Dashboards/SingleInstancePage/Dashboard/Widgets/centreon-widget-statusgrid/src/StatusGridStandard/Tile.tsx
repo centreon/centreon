@@ -1,11 +1,11 @@
-import { T, always, cond, equals } from 'ramda';
-import { useTranslation } from 'react-i18next';
-import { Link, useNavigate } from 'react-router';
-
 import DvrIcon from '@mui/icons-material/Dvr';
 import { Box, CardActionArea, Typography } from '@mui/material';
 
 import { EllipsisTypography, HostIcon, ServiceIcon } from '@centreon/ui';
+
+import { always, cond, equals, T } from 'ramda';
+import { useTranslation } from 'react-i18next';
+import { Link, useNavigate } from 'react-router';
 
 import type { Resource } from '../../../models';
 import { getResourcesUrl } from '../../../utils';
@@ -15,9 +15,9 @@ import {
   BooleanRuleIcon,
   MetaServiceIcon
 } from './Icons';
+import { IndicatorType, type ResourceData } from './models';
 import State from './State';
 import { useTileStyles } from './StatusGrid.styles';
-import { IndicatorType, type ResourceData } from './models';
 import { labelSeeMore } from './translatedLabels';
 import { getLink } from './utils';
 

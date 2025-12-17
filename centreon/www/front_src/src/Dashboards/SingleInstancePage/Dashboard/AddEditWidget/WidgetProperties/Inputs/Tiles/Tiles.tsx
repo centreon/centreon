@@ -1,17 +1,15 @@
-import { useMemo } from 'react';
-
-import { useFormikContext } from 'formik';
-import { useTranslation } from 'react-i18next';
-
 import { Typography } from '@mui/material';
 
 import { NumberField } from '@centreon/ui';
+
+import { useFormikContext } from 'formik';
+import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import Subtitle from '../../../../components/Subtitle';
 import { useCanEditProperties } from '../../../../hooks/useCanEditDashboard';
 import { Widget, WidgetPropertyProps } from '../../../models';
 import { getProperty } from '../utils';
-
 import { useTilesStyles } from './Tiles.styles';
 import { labelDisplayUpTo, labelTiles } from './translatedLabels';
 

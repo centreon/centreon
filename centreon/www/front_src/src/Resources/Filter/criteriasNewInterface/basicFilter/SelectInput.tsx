@@ -1,16 +1,17 @@
-import { useAtomValue } from 'jotai';
-import { equals, find, isEmpty, isNil, propEq, reject, type } from 'ramda';
-import { useTranslation } from 'react-i18next';
-
 import {
   MultiConnectedAutocompleteField,
   type SelectEntry
 } from '@centreon/ui';
 
+import { useAtomValue } from 'jotai';
+import { equals, find, isEmpty, isNil, propEq, reject, type } from 'ramda';
+import { useTranslation } from 'react-i18next';
+
 import { selectedVisualizationAtom } from '../../../Actions/actionsAtoms';
 import { buildResourcesEndpoint } from '../../../Listing/api/endpoint';
 import { Visualization } from '../../../models';
 import { labelHost, labelService } from '../../../translatedLabels';
+import { serviceNamesEndpoint } from '../../api/endpoint';
 import type { Criteria, CriteriaDisplayProps } from '../../Criterias/models';
 import {
   type ChangedCriteriaParams,
@@ -19,8 +20,6 @@ import {
 } from '../model';
 import useInputData from '../useInputsData';
 import { removeDuplicateFromObjectArray } from '../utils';
-
-import { serviceNamesEndpoint } from '../../api/endpoint';
 import { useStyles } from './sections/sections.style';
 import useSectionsData from './sections/useSections';
 

@@ -1,3 +1,11 @@
+import Collapse from '@mui/material/Collapse';
+import List from '@mui/material/List';
+import ListSubheader from '@mui/material/ListSubheader';
+
+import { useMemoComponent } from '@centreon/ui';
+
+import { useAtomValue, useSetAtom } from 'jotai';
+import { equals } from 'ramda';
 import {
   Dispatch,
   MouseEvent,
@@ -6,16 +14,7 @@ import {
   useRef,
   useState
 } from 'react';
-
-import { useAtomValue, useSetAtom } from 'jotai';
-import { equals } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
-
-import Collapse from '@mui/material/Collapse';
-import List from '@mui/material/List';
-import ListSubheader from '@mui/material/ListSubheader';
-
-import { useMemoComponent } from '@centreon/ui';
 
 import { Page } from '../../models';
 import {
@@ -23,7 +22,6 @@ import {
   selectedNavigationItemsAtom,
   setHoveredNavigationItemsDerivedAtom
 } from '../sideBarAtoms';
-
 import MenuItems from './MenuItems';
 
 interface Props {

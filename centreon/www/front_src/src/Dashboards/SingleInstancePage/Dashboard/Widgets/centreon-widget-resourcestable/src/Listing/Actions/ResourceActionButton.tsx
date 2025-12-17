@@ -1,6 +1,6 @@
-import { useTranslation } from 'react-i18next';
-
 import { IconButton } from '@centreon/ui';
+
+import { useTranslation } from 'react-i18next';
 
 import { labelActionNotPermitted } from '../translatedLabels';
 

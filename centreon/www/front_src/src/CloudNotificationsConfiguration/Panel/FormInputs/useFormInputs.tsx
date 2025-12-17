@@ -1,13 +1,13 @@
 /* eslint-disable hooks/sort */
-import { useState } from 'react';
 
 import { Box } from '@mui/material';
-import { T, always, cond, gt, isEmpty, not } from 'ramda';
-import { useTranslation } from 'react-i18next';
-
 import { Variant } from '@mui/material/styles/createTypography';
 
 import { Group, InputType } from '@centreon/ui';
+
+import { always, cond, gt, isEmpty, not, T } from 'ramda';
+import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import {
   labelBusinessViews,
@@ -35,9 +35,7 @@ import {
   serviceGroupsEndpoint,
   usersEndpoint
 } from '../api/endpoints';
-
 import { hostEvents, serviceEvents } from '../utils';
-
 import { EmailBody } from './Channel';
 import { useStyles } from './Inputs.styles';
 import TimePeriodTitle from './TimePeriodTitle';

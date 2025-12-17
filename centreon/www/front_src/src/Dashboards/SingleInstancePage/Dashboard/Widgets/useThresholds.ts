@@ -1,11 +1,11 @@
+import {
+  formatMetricValueWithUnit,
+  getMetricWithLatestData,
+  LineChartData
+} from '@centreon/ui';
+
 import { equals, isEmpty } from 'ramda';
 import { useTranslation } from 'react-i18next';
-
-import {
-  LineChartData,
-  formatMetricValueWithUnit,
-  getMetricWithLatestData
-} from '@centreon/ui';
 
 import { FormThreshold } from './models';
 import {

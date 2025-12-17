@@ -1,3 +1,5 @@
+import { getColumnsFromScreenSize, SelectEntry } from '@centreon/ui';
+
 import { atom } from 'jotai';
 import { atomWithStorage } from 'jotai/utils';
 import {
@@ -13,8 +15,6 @@ import {
   reject,
   set
 } from 'ramda';
-
-import { SelectEntry, getColumnsFromScreenSize } from '@centreon/ui';
 
 import {
   Dashboard,
@@ -109,7 +109,7 @@ const getNewPanelPosition = ({
   panelWidth,
   panelHeight
 }: GetNewPanelPositionProps): PanelPosition => {
-  let position: PanelPosition | undefined = undefined;
+  let position: PanelPosition | undefined;
 
   if (equals(maxHeight, 0)) {
     return { x: 0, y: 0 };

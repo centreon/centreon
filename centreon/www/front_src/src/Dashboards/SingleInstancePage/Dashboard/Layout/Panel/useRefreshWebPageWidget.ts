@@ -1,4 +1,5 @@
 import { useAtomValue, useSetAtom } from 'jotai';
+
 import {
   getPanelOptionsAndDataDerivedAtom,
   setPanelOptionsAndDataDerivedAtom

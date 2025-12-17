@@ -1,17 +1,19 @@
 import { FeatureFlags } from '@centreon/ui-context';
+
 import { FormikValues } from 'formik';
 import {
-  path,
   difference,
   equals,
   has,
   includes,
   isEmpty,
   isNil,
+  path,
   pluck,
   reject,
   type
 } from 'ramda';
+
 import {
   FederatedWidgetOption,
   WidgetHiddenCondition

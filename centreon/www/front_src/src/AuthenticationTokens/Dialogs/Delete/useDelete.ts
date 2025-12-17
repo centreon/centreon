@@ -1,12 +1,11 @@
-import { useMemo } from 'react';
-
 import { ResponseError, useSnackbar } from '@centreon/ui';
+
 import { useAtom } from 'jotai';
 import { isEmpty } from 'ramda';
+import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { useDelete as useDeleteRequest } from '../../api';
-
 import { tokensToDeleteAtom } from '../../atoms';
 import { labelTokenDeleted } from '../../translatedLabels';
 

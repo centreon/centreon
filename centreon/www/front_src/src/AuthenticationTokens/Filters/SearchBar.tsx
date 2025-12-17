@@ -1,12 +1,11 @@
-import { useTranslation } from 'react-i18next';
-
 import { SearchField } from '@centreon/ui';
+
+import { useTranslation } from 'react-i18next';
 
 import { labelSearch } from '../translatedLabels';
 import { useStyles } from './Filters.styles';
-import useSearch from './useSearch';
-
 import AdvancedFilters from './PopoverFilter';
+import useSearch from './useSearch';
 
 const Filters = (): JSX.Element => {
   const { classes } = useStyles();

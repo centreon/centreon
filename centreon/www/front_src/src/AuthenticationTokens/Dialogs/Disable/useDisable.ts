@@ -1,8 +1,8 @@
-import { useMemo } from 'react';
-
 import { ResponseError, useSnackbar } from '@centreon/ui';
+
 import { useAtom, useSetAtom } from 'jotai';
 import { isEmpty } from 'ramda';
+import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { useDisable as useDisableRequest } from '../../api';

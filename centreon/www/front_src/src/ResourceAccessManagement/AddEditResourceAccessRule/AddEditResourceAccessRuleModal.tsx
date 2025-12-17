@@ -1,18 +1,16 @@
-import { ReactElement, useMemo } from 'react';
-
-import { useAtom, useSetAtom } from 'jotai';
-import { useTranslation } from 'react-i18next';
-
 import { Typography } from '@mui/material';
 
 import { Modal } from '@centreon/ui/components';
+
+import { useAtom, useSetAtom } from 'jotai';
+import { ReactElement, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { isCloseModalConfirmationDialogOpenAtom, isDirtyAtom } from '../atom';
 import {
   labelCreateResourceAccessRule,
   labelEditResourceAccessRule
 } from '../translatedLabels';
-
 import CloseModalConfirmationDialog from './CloseModalConfirmationDialog';
 import { Form } from './Form';
 import useModalStyles from './Modal.styles';

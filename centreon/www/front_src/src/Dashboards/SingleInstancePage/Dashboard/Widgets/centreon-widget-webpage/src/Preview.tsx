@@ -1,6 +1,6 @@
-import { useTranslation } from 'react-i18next';
-
 import { Box, Typography } from '@mui/material';
+
+import { useTranslation } from 'react-i18next';
 
 import { labelWebPagePreview } from './translatedLabels';
 import { usePreviewStyles } from './useWebPage.styles';

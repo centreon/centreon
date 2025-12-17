@@ -1,19 +1,18 @@
+import { ConfirmDialog } from '@centreon/ui';
+
 import { isNil } from 'ramda';
 import { useTranslation } from 'react-i18next';
-
-import { ConfirmDialog } from '@centreon/ui';
 
 import {
   labelCancel,
   labelDelete,
   labelDeleteResourceAccessRule,
   labelDeleteResourceAccessRuleDialogMessage,
-  labelDeleteResourceAccessRuleWarning,
   labelDeleteResourceAccessRules,
   labelDeleteResourceAccessRulesDialogMessage,
-  labelDeleteResourceAccessRulesWarning
+  labelDeleteResourceAccessRulesWarning,
+  labelDeleteResourceAccessRuleWarning
 } from '../../translatedLabels';
-
 import useDeleteConfirmationDialogStyles from './DeleteConfirmationDialog.styles';
 import useDelete from './useDelete';
 

@@ -1,28 +1,26 @@
-import { equals, propEq, reject } from 'ramda';
-import { ChangeEvent, useMemo } from 'react';
+import { Box } from '@mui/material';
 
 import { MultiConnectedAutocompleteField, TextField } from '@centreon/ui';
-import { Box } from '@mui/material';
-import { useTranslation } from 'react-i18next';
 
 import { useFormikContext } from 'formik';
+import { equals, propEq, reject } from 'ramda';
+import { ChangeEvent, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
+
 import { listTokensDecoder } from '../../api/decoders';
 import { getTokensEndpoint } from '../../api/endpoints';
 import { AgentConfigurationForm, ConnectionMode } from '../../models';
-
-import { useAgentInitiatedStyles } from './ConnectionInitiated.styles';
-import RedirectToTokensPage from './RedirectToTokensPage';
-
-import Title from './Title';
-
 import {
-  labelCMAauthenticationToken,
   labelCaCertificate,
+  labelCMAauthenticationToken,
   labelOTLPReceiver,
   labelPrivateKey,
   labelPublicCertificate,
   labelSelectExistingCMATokens
 } from '../../translatedLabels';
+import { useAgentInitiatedStyles } from './ConnectionInitiated.styles';
+import RedirectToTokensPage from './RedirectToTokensPage';
+import Title from './Title';
 
 const publicCertificateProperty = 'configuration.otelPublicCertificate';
 const caCertificateProperty = 'configuration.otelCaCertificate';

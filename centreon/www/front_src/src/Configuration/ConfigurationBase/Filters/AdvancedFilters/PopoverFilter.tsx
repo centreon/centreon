@@ -1,10 +1,12 @@
-import { PrimitiveAtom } from 'jotai';
-import { JSX, Suspense } from 'react';
-
-import { LoadingSkeleton, PopoverMenu } from '@centreon/ui';
 import TuneIcon from '@mui/icons-material/Tune';
 import { Badge } from '@mui/material';
+
+import { LoadingSkeleton, PopoverMenu } from '@centreon/ui';
+
+import { PrimitiveAtom } from 'jotai';
+import { JSX, Suspense } from 'react';
 import { useTranslation } from 'react-i18next';
+
 import { labelFilters } from '../../translatedLabels';
 import { useFilterStyles } from '../Filters.styles';
 import Filters from './Filters';

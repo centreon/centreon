@@ -1,10 +1,3 @@
-import { Suspense } from 'react';
-
-import { useFormikContext } from 'formik';
-import { useAtomValue } from 'jotai';
-import { equals, find, isEmpty, isNil } from 'ramda';
-import { useTranslation } from 'react-i18next';
-
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import { Typography } from '@mui/material';
 
@@ -13,8 +6,16 @@ import {
   RichTextEditor,
   useResizeObserver
 } from '@centreon/ui';
+import { federatedWidgetsAtom } from '@centreon/ui-context';
+
+import { useFormikContext } from 'formik';
+import { useAtomValue } from 'jotai';
+import { equals, find, isEmpty, isNil } from 'ramda';
+import { Suspense } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import FederatedComponent from '../../../../../components/FederatedComponents';
+import { FederatedModule } from '../../../../../federatedModules/models';
 import { dashboardRefreshIntervalAtom } from '../../atoms';
 import DescriptionWrapper from '../../components/DescriptionWrapper';
 import { useCanEditProperties } from '../../hooks/useCanEditDashboard';
@@ -25,9 +26,6 @@ import {
 } from '../../translatedLabels';
 import { isGenericText, isRichTextEditorEmpty } from '../../utils';
 import { Widget } from '../models';
-
-import { federatedWidgetsAtom } from '@centreon/ui-context';
-import { FederatedModule } from '../../../../../federatedModules/models';
 import { useWidgetPropertiesStyles } from './widgetProperties.styles';
 
 const Preview = (): JSX.Element | null => {

@@ -1,8 +1,8 @@
-import { JsonDecoder } from 'ts.data.json';
-
 import { buildListingDecoder } from '@centreon/ui';
 
 import { equals } from 'ramda';
+import { JsonDecoder } from 'ts.data.json';
+
 import { NamedEntity, Token } from '../Listing/models';
 import { CreatedToken } from '../Modal/models';
 import { TokenType } from '../models';

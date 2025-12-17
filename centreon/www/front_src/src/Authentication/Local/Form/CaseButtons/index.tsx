@@ -1,9 +1,3 @@
-import { useMemo } from 'react';
-
-import { FormikValues, useFormikContext } from 'formik';
-import { useTranslation } from 'react-i18next';
-import { makeStyles } from 'tss-react/mui';
-
 import {
   Button,
   ButtonProps,
@@ -13,6 +7,11 @@ import {
 } from '@mui/material';
 
 import { useMemoComponent } from '@centreon/ui';
+
+import { FormikValues, useFormikContext } from 'formik';
+import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
+import { makeStyles } from 'tss-react/mui';
 
 import StrengthProgress from '../../StrengthProgress';
 import {
@@ -31,7 +30,6 @@ import {
   labelWeak
 } from '../../translatedLabels';
 import { getFields } from '../utils';
-
 import LabelWithTooltip from './LabelWithTooltip';
 
 const activeButtonProps = {

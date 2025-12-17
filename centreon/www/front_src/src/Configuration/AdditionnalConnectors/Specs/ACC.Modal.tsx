@@ -1,10 +1,6 @@
 import { keys } from 'ramda';
 
-import { getDefaultParameters } from '../utils';
-
 import { ParameterKeys } from '../models';
-import initialize from './initialize';
-
 import {
   labelAddAnAdditionalConfiguration,
   labelAdditionalConnectorCreated,
@@ -26,6 +22,8 @@ import {
   labelVcenterNameMustBeUnique,
   labelvCenterESX
 } from '../translatedLabels';
+import { getDefaultParameters } from '../utils';
+import initialize from './initialize';
 
 const vcenters = [
   {

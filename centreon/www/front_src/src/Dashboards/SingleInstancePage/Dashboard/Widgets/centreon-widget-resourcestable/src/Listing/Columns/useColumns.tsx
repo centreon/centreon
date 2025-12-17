@@ -1,5 +1,14 @@
+import type { Column } from '@centreon/ui';
 import {
-  T,
+  ColumnType,
+  truncate,
+  useLocaleDateTimeFormat,
+  useStyleTable
+} from '@centreon/ui';
+import { isOnPublicPageAtom } from '@centreon/ui-context';
+
+import { useAtomValue } from 'jotai';
+import {
   always,
   cond,
   equals,
@@ -8,20 +17,10 @@ import {
   isNotNil,
   pipe,
   propOr,
-  split
+  split,
+  T
 } from 'ramda';
 import { useTranslation } from 'react-i18next';
-
-import { isOnPublicPageAtom } from '@centreon/ui-context';
-import { useAtomValue } from 'jotai';
-
-import {
-  ColumnType,
-  truncate,
-  useLocaleDateTimeFormat,
-  useStyleTable
-} from '@centreon/ui';
-import type { Column } from '@centreon/ui';
 
 import { DisplayType } from '../models';
 import {
@@ -47,10 +46,8 @@ import {
   labelTicketSubject,
   labelTries
 } from '../translatedLabels';
-
 import useIsOpenTicketInstalled from '../useIsOpenTicketInstalled';
 import CloseTicket from './CloseTicket/CloseTicket';
-
 import { useStatusStyles } from './Columns.styles';
 import OpenTicket from './OpenTicket/OpenTicket';
 import { TicketLink } from './OpenTicket/TicketLink';

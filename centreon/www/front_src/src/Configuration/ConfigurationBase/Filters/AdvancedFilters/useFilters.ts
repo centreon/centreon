@@ -2,6 +2,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useAtomValue } from 'jotai';
 import { equals } from 'ramda';
 import { useEffect, useState } from 'react';
+
 import { FilterConfiguration, Filters } from '../../../models';
 import { configurationAtom } from '../../atoms';
 

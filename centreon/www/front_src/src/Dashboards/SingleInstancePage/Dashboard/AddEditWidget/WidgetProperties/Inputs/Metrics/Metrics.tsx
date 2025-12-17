@@ -1,12 +1,12 @@
-import { useAtomValue } from 'jotai';
-import { equals, head } from 'ramda';
-/* eslint-disable react/no-array-index-key */
-import { useTranslation } from 'react-i18next';
-
 import { CircularProgress, Typography } from '@mui/material';
 
 import { MultiAutocompleteField, SingleAutocompleteField } from '@centreon/ui';
 import { Avatar } from '@centreon/ui/components';
+
+import { useAtomValue } from 'jotai';
+import { equals, head } from 'ramda';
+/* eslint-disable react/no-array-index-key */
+import { useTranslation } from 'react-i18next';
 
 import { useCanEditProperties } from '../../../../hooks/useCanEditDashboard';
 import {
@@ -25,7 +25,6 @@ import {
   areResourcesFullfilled,
   isAtLeastOneResourceFullfilled
 } from '../utils';
-
 import { useMetricsStyles } from './Metrics.styles';
 import useMetrics from './useMetrics';
 

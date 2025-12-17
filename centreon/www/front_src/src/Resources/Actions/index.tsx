@@ -1,18 +1,17 @@
-import { Suspense, lazy } from 'react';
-
-import { equals } from 'ramda';
-
 import { useMediaQuery, useTheme } from '@mui/material';
 import Grid from '@mui/material/Grid';
 
+import { equals } from 'ramda';
+import { lazy, Suspense } from 'react';
+
+import ExportCsv from './exportToCsv';
 import GlobalActionsSkeleton from './GlobalActionsSkeleton';
+import { Type } from './model';
 import { Props } from './Refresh';
 import useMediaQueryListing from './Resource/useMediaQueryListing';
 import ResourceActionsSkeleton from './ResourceActionsSkeleton';
 import VisualizationActions from './Visualization';
 import { useStyles } from './Visualization/Visualization.styles';
-import ExportCsv from './exportToCsv';
-import { Type } from './model';
 
 const WrapperResourceActions = lazy(() => import('./WrapperResourceActions'));
 const GlobalActions = lazy(() => import('./Refresh'));

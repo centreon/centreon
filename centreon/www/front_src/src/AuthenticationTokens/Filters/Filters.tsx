@@ -1,5 +1,3 @@
-import { useTranslation } from 'react-i18next';
-
 import {
   MultiAutocompleteField,
   MultiConnectedAutocompleteField,
@@ -7,20 +5,14 @@ import {
 } from '@centreon/ui';
 import { Button } from '@centreon/ui/components';
 
-import Status from './Status';
-
-import { CreationDate, ExpirationDate } from './DateInput';
-
-import useLoadData from '../Listing/useLoadData';
-import { tokenTypes } from '../Modal/utils';
+import { useTranslation } from 'react-i18next';
 
 import {
   getEndpointConfiguredUser,
   getEndpointCreatorsToken
 } from '../api/endpoints';
-import { useStyles } from './Filters.styles';
-import useFilters from './useFilters';
-
+import useLoadData from '../Listing/useLoadData';
+import { tokenTypes } from '../Modal/utils';
 import {
   labelClear,
   labelCreator,
@@ -29,6 +21,10 @@ import {
   labelType,
   labelUser
 } from '../translatedLabels';
+import { CreationDate, ExpirationDate } from './DateInput';
+import { useStyles } from './Filters.styles';
+import Status from './Status';
+import useFilters from './useFilters';
 
 const Filters = (): JSX.Element => {
   const { classes } = useStyles();

@@ -1,10 +1,11 @@
 import { Method, SnackbarProvider, TestQueryProvider } from '@centreon/ui';
 import { platformFeaturesAtom, userAtom } from '@centreon/ui-context';
+
 import i18next from 'i18next';
-import { Provider, createStore } from 'jotai';
+import { createStore, Provider } from 'jotai';
 import { initReactI18next } from 'react-i18next';
 import { BrowserRouter as Router } from 'react-router';
-import AgentConfigurationPage from '../Page';
+
 import {
   agentConfigurationPollersEndpoint,
   getAgentConfigurationEndpoint,
@@ -14,6 +15,7 @@ import {
   listTokensEndpoint,
   pollersEndpoint
 } from '../api/endpoints';
+import AgentConfigurationPage from '../Page';
 
 const mockRequest = (isListingEmpty): void => {
   if (isListingEmpty) {

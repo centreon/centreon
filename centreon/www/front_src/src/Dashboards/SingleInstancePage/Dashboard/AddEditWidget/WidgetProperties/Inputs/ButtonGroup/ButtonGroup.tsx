@@ -1,7 +1,3 @@
-import { useMemo } from 'react';
-
-import { useTranslation } from 'react-i18next';
-
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import {
   Button,
@@ -12,11 +8,13 @@ import {
 
 import { Tooltip } from '@centreon/ui/components';
 
+import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
+
 import Subtitle from '../../../../components/Subtitle';
 import { useCanEditProperties } from '../../../../hooks/useCanEditDashboard';
 import { WidgetPropertyProps } from '../../../models';
 import { useResourceStyles } from '../Inputs.styles';
-
 import { useButtonGroup } from './useButtonGroup';
 
 const ButtonGroup = ({

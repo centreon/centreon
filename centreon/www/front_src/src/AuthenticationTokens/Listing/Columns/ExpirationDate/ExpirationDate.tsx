@@ -1,8 +1,10 @@
-import dayjs from 'dayjs';
+import { Typography } from '@mui/material';
 
 import { ComponentColumnProps, useLocaleDateTimeFormat } from '@centreon/ui';
-import { Typography } from '@mui/material';
+
+import dayjs from 'dayjs';
 import { useTranslation } from 'react-i18next';
+
 import { labelNeverExpire } from '../../../translatedLabels';
 import useStyles from './ExpirationDate.styles';
 

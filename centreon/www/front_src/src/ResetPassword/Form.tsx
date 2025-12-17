@@ -1,4 +1,7 @@
-import { Fragment, useState } from 'react';
+import LockIcon from '@mui/icons-material/Lock';
+import { Button, CircularProgress, Divider } from '@mui/material';
+
+import { TextField } from '@centreon/ui';
 
 import {
   FormikErrors,
@@ -7,16 +10,11 @@ import {
   useFormikContext
 } from 'formik';
 import { equals, isEmpty, not, prop } from 'ramda';
+import { Fragment, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
 
-import LockIcon from '@mui/icons-material/Lock';
-import { Button, CircularProgress, Divider } from '@mui/material';
-
-import { TextField } from '@centreon/ui';
-
 import PasswordEndAdornment from '../Login/PasswordEndAdornment';
-
 import {
   labelCurrentPassword,
   labelNewPassword,

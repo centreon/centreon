@@ -1,6 +1,6 @@
-import { Dispatch, SetStateAction } from 'react';
-
 import type { SelectEntry } from '@centreon/ui';
+
+import { Dispatch, SetStateAction } from 'react';
 
 import { SortOrder } from '../../models';
 import {
@@ -49,7 +49,6 @@ import {
   buildServiceSeveritiesEndpoint,
   buildServicesEndpoint
 } from '../api/endpoint';
-
 import { SearchableFields } from './searchQueryLanguage/models';
 
 export type CriteriaValue = Array<SelectEntry> | string | [string, SortOrder];

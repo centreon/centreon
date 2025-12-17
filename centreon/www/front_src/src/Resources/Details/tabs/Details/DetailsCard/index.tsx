@@ -1,6 +1,6 @@
-import { makeStyles } from 'tss-react/mui';
-
 import { Typography } from '@mui/material';
+
+import { makeStyles } from 'tss-react/mui';
 
 import Card from '../Card';
 

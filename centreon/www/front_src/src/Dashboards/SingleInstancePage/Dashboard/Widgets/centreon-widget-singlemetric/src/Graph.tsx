@@ -1,6 +1,3 @@
-import { useAtomValue } from 'jotai';
-import { equals, isNil, last } from 'ramda';
-
 import {
   ContentWithCircularLoading,
   useGraphQuery,
@@ -8,18 +5,20 @@ import {
 } from '@centreon/ui';
 import { isOnPublicPageAtom } from '@centreon/ui-context';
 
-import NoResources from '../../NoResources';
+import { useAtomValue } from 'jotai';
+import { equals, isNil, last } from 'ramda';
+
 import { GlobalRefreshInterval, Metric, Resource } from '../../models';
+import NoResources from '../../NoResources';
 import useThresholds from '../../useThresholds';
 import {
   areResourcesFullfilled,
   getIsMetaServiceSelected,
   getWidgetEndpoint
 } from '../../utils';
-
-import SingleMetricRenderer from './SingleMetricRenderer';
 import { selectEndpoint } from './api/endpoints';
 import { FormThreshold, SingleMetricGraphType, ValueFormat } from './models';
+import SingleMetricRenderer from './SingleMetricRenderer';
 
 interface Props {
   dashboardId: number | string;

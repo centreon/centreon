@@ -1,12 +1,11 @@
-import { Dispatch, SetStateAction, useState } from 'react';
-
-import dayjs from 'dayjs';
-import { useFormikContext } from 'formik';
-import { useTranslation } from 'react-i18next';
-
 import { Typography } from '@mui/material';
 
 import { DateTimePickerInput, useLocaleDateTimeFormat } from '@centreon/ui';
+
+import dayjs from 'dayjs';
+import { useFormikContext } from 'formik';
+import { Dispatch, SetStateAction, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import HelperText from '../../../Filters/DateInput/HelperText';
 import { CreateTokenFormValues } from '../../../Listing/models';
@@ -15,7 +14,6 @@ import {
   labelUntil
 } from '../../../translatedLabels';
 import { isInvalidDate } from '../../utils';
-
 import { useInputCalenderStyles } from './Duration.styles';
 
 interface Props {

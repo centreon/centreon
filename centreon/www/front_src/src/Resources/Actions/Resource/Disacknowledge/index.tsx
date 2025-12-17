@@ -1,21 +1,19 @@
-import { useEffect, useState } from 'react';
-
-import { propEq } from 'ramda';
-import { useTranslation } from 'react-i18next';
-
 import { Alert, Checkbox, FormControlLabel, Grid } from '@mui/material';
 
 import { Dialog, useRequest, useSnackbar } from '@centreon/ui';
+
+import { propEq } from 'ramda';
+import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { Resource } from '../../../models';
 import {
   labelCancel,
   labelDisacknowledge,
-  labelDisacknowledgeServices,
-  labelDisacknowledgementCommandSent
+  labelDisacknowledgementCommandSent,
+  labelDisacknowledgeServices
 } from '../../../translatedLabels';
 import useAclQuery from '../aclQuery';
-
 import { disacknowledgeResources } from './api';
 
 interface Props {

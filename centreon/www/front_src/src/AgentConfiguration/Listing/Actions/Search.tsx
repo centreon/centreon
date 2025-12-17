@@ -1,5 +1,7 @@
 import { SearchField } from '@centreon/ui';
+
 import { useTranslation } from 'react-i18next';
+
 import { labelSearch } from '../../translatedLabels';
 import { useActionsStyles } from './Actions.styles';
 import PopoverFilter from './PopoverFilter';

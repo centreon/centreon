@@ -1,9 +1,9 @@
 import { Modal } from '@centreon/ui/components';
 
-import Form from './Form/Form';
-
 import { JSX } from 'react';
+
 import { Form as FormType } from '../../models';
+import Form from './Form/Form';
 import useModal from './useModal';
 
 interface Props {

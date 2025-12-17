@@ -1,10 +1,3 @@
-import { MouseEvent, RefObject, useEffect, useRef, useState } from 'react';
-
-import { __, equals, gt, isNil, not } from 'ramda';
-import { useTranslation, withTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router';
-import { makeStyles } from 'tss-react/mui';
-
 import CheckIcon from '@mui/icons-material/Check';
 import FileCopyIcon from '@mui/icons-material/FileCopy';
 import FullscreenIcon from '@mui/icons-material/Fullscreen';
@@ -24,19 +17,24 @@ import {
 } from '@mui/material';
 
 import {
-  MenuSkeleton,
   getData,
+  MenuSkeleton,
   useFullscreen,
   useLocaleDateTimeFormat,
   useRequest
 } from '@centreon/ui';
 import { ThemeMode } from '@centreon/ui-context';
 
+import { __, equals, gt, isNil, not } from 'ramda';
+import { MouseEvent, RefObject, useEffect, useRef, useState } from 'react';
+import { useTranslation, withTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router';
+import { makeStyles } from 'tss-react/mui';
+
 import useNavigation from '../../Navigation/useNavigation';
 import routeMap from '../../reactRoutes/routeMap';
-import Clock from '../Clock';
 import { userEndpoint } from '../api/endpoints';
-
+import Clock from '../Clock';
 import SwitchMode from './SwitchThemeMode';
 import {
   labelCopyAutologinLink,

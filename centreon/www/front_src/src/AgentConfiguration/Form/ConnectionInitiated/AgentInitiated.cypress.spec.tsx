@@ -1,7 +1,7 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Formik } from 'formik';
-
 import { BrowserRouter } from 'react-router';
+
 import { getTokensEndpoint } from '../../api/endpoints';
 import { ConnectionMode } from '../../models';
 import AgentInitiated from './AgentInitiated';

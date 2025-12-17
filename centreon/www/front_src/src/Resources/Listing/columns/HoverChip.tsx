@@ -1,11 +1,10 @@
-import { useEffect, useState } from 'react';
-
-import { not } from 'ramda';
-import { makeStyles } from 'tss-react/mui';
-
 import { Tooltip } from '@mui/material';
 
 import { useMemoComponent } from '@centreon/ui';
+
+import { not } from 'ramda';
+import { useEffect, useState } from 'react';
+import { makeStyles } from 'tss-react/mui';
 
 const useStyles = makeStyles()(() => ({
   iconButton: {

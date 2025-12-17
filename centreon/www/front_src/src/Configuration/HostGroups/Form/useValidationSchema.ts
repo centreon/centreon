@@ -1,7 +1,8 @@
 import { platformFeaturesAtom } from '@centreon/ui-context';
+
 import { useAtomValue } from 'jotai';
 import { useTranslation } from 'react-i18next';
-import { ObjectSchema, array, number, object, string } from 'yup';
+import { array, number, ObjectSchema, object, string } from 'yup';
 
 import {
   labelInvalidCoordinateFormat,

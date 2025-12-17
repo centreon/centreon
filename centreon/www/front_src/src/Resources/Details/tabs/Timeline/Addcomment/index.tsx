@@ -1,7 +1,7 @@
-import { useTranslation } from 'react-i18next';
-
 import IconComment from '@mui/icons-material/Comment';
 import Typography from '@mui/material/Typography';
+
+import { useTranslation } from 'react-i18next';
 
 import ActionButton from '../../../../Actions/ActionButton';
 import useAclQuery from '../../../../Actions/Resource/aclQuery';

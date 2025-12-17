@@ -1,6 +1,6 @@
-import { useTranslation } from 'react-i18next';
-
 import { Step, StepLabel, Stepper } from '@mui/material';
+
+import { useTranslation } from 'react-i18next';
 
 interface Props {
   activeStep: number;

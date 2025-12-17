@@ -1,10 +1,9 @@
-import { Link } from 'react-router';
-
 import { EllipsisTypography } from '@centreon/ui';
+
+import { Link } from 'react-router';
 
 import { getResourcesUrl, goToUrl } from '../../../utils';
 import { RowProps } from '../models';
-
 import { useStatusesColumnStyles } from './Columns.styles';
 
 export const Name = ({

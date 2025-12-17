@@ -1,17 +1,17 @@
 import {
-  MutateOptions,
-  UseMutationResult,
-  useQueryClient
-} from '@tanstack/react-query';
-
-import {
   Method,
   ResponseError,
   useMutationQuery,
   useSnackbar
 } from '@centreon/ui';
 
+import {
+  MutateOptions,
+  UseMutationResult,
+  useQueryClient
+} from '@tanstack/react-query';
 import { useAtomValue } from 'jotai';
+
 import {
   limitAtom,
   totalAtom

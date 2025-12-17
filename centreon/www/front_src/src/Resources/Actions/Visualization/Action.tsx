@@ -1,12 +1,11 @@
-import { useTranslation } from 'react-i18next';
-
 import { IconButton, Image } from '@centreon/ui';
 
-import { Visualization } from '../../models';
+import { useTranslation } from 'react-i18next';
 
-import { useStyles } from './Visualization.styles';
+import { Visualization } from '../../models';
 import useIconPath from './useIconPath';
 import useVisualization from './useVisualization';
+import { useStyles } from './Visualization.styles';
 
 interface Props {
   IconOnActive: string;

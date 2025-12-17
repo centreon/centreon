@@ -5,7 +5,6 @@ import {
   labelSearch,
   labelType
 } from '../translatedLabels';
-
 import initialize from './initialize';
 
 export default (): void => {

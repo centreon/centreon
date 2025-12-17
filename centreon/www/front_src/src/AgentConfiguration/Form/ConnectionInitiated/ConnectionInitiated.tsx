@@ -1,20 +1,16 @@
-import { JSX } from 'react';
-
-import { Switch, Tooltip } from '@centreon/ui/components';
 import DoneIcon from '@mui/icons-material/Done';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import { TabPanel } from '@mui/lab';
 import { FormControlLabel } from '@mui/material';
+
+import { Switch, Tooltip } from '@centreon/ui/components';
+
 import { useFormikContext } from 'formik';
 import { equals } from 'ramda';
+import { JSX } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { AgentConfigurationForm } from '../../models';
-import AgentInitiated from './AgentInitiated';
-import { useStyles } from './ConnectionInitiated.styles';
-import HostConfigurations from './HostConfigurations/HostConfigurations';
-import { Tabs } from './Tabs';
-
 import {
   labelByAgent,
   labelByAgentTooltip,
@@ -22,6 +18,10 @@ import {
   labelByPollerTooltip,
   labelEnable
 } from '../../translatedLabels';
+import AgentInitiated from './AgentInitiated';
+import { useStyles } from './ConnectionInitiated.styles';
+import HostConfigurations from './HostConfigurations/HostConfigurations';
+import { Tabs } from './Tabs';
 
 interface TabContentProps {
   label: string;

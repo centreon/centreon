@@ -1,8 +1,9 @@
 import { Box, Typography } from '@mui/material';
-import { useTranslation } from 'react-i18next';
 
 import { useFormikContext } from 'formik';
 import { equals } from 'ramda';
+import { useTranslation } from 'react-i18next';
+
 import { AgentConfigurationForm, AgentType } from '../../models';
 import {
   labelWarningEncryptionLevelCMA,

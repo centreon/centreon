@@ -1,12 +1,12 @@
+import CloseIcon from '@mui/icons-material/Close';
+import { ClickAwayListener, MenuItem, Paper, Popper } from '@mui/material';
+
 import {
-  KeyboardEvent,
-  RefObject,
-  Suspense,
-  lazy,
-  useEffect,
-  useRef,
-  useState
-} from 'react';
+  IconButton,
+  LoadingSkeleton,
+  MemoizedFilter,
+  SearchField
+} from '@centreon/ui';
 
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import {
@@ -19,21 +19,19 @@ import {
   last,
   length
 } from 'ramda';
+import {
+  KeyboardEvent,
+  lazy,
+  RefObject,
+  Suspense,
+  useEffect,
+  useRef,
+  useState
+} from 'react';
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
 
-import CloseIcon from '@mui/icons-material/Close';
-import { ClickAwayListener, MenuItem, Paper, Popper } from '@mui/material';
-
-import {
-  IconButton,
-  LoadingSkeleton,
-  MemoizedFilter,
-  SearchField
-} from '@centreon/ui';
-
 import { labelClearFilter, labelSearch } from '../translatedLabels';
-
 import { getAutocompleteSuggestions } from './Criterias/searchQueryLanguage';
 import {
   applyCurrentFilterDerivedAtom,

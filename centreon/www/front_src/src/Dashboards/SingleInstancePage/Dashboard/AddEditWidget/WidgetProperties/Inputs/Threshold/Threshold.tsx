@@ -1,7 +1,3 @@
-import { useMemo } from 'react';
-
-import { useTranslation } from 'react-i18next';
-
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import {
   Box,
@@ -13,7 +9,9 @@ import {
 
 import { Tooltip } from '@centreon/ui/components';
 
-import { WidgetSwitch } from '..';
+import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
+
 import Subtitle from '../../../../components/Subtitle';
 import { useCanEditProperties } from '../../../../hooks/useCanEditDashboard';
 import {
@@ -22,8 +20,8 @@ import {
   labelThresholdsAreAutomaticallyHidden
 } from '../../../../translatedLabels';
 import { WidgetPropertyProps } from '../../../models';
+import { WidgetSwitch } from '..';
 import { useThresholdStyles } from '../Inputs.styles';
-
 import useThreshold from './useThreshold';
 
 const Threshold = ({

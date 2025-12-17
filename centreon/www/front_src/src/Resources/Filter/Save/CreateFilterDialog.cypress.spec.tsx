@@ -5,7 +5,6 @@ import {
   labelNewFilter,
   labelSave
 } from '../../translatedLabels';
-
 import CreateFilterDialog from './CreateFilterDialog';
 
 const initialize = ({ name, reject }): unknown => {

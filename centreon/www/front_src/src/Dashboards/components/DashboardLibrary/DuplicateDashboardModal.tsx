@@ -1,7 +1,7 @@
+import { DashboardDuplicationForm, Modal } from '@centreon/ui/components';
+
 import { useAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
-
-import { DashboardDuplicationForm, Modal } from '@centreon/ui/components';
 
 import { dashboardToDuplicateAtom } from '../../atoms';
 import { useDashboardDuplicate } from '../../hooks/useDashboardDuplicate';

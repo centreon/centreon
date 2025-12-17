@@ -1,10 +1,10 @@
+import { IconButton, Image, ImageVariant, LoadingSkeleton } from '@centreon/ui';
+
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
 
-import { IconButton, Image, ImageVariant, LoadingSkeleton } from '@centreon/ui';
-
-import centreonLogoWhiteMini from '../../../assets/centreon-logo-white-mini.svg';
 import centreonLogoWhite from '../../../assets/centreon-logo-white.svg';
+import centreonLogoWhiteMini from '../../../assets/centreon-logo-white-mini.svg';
 import {
   labelCentreonLogo,
   labelMiniCentreonLogo

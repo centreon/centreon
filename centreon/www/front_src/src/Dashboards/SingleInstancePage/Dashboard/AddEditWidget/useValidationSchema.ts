@@ -1,17 +1,16 @@
 import { TFunction } from 'i18next';
 import { useAtomValue } from 'jotai';
-import { path, isEmpty, keys, toPairs } from 'ramda';
+import { isEmpty, keys, path, toPairs } from 'ramda';
 import { useTranslation } from 'react-i18next';
+import { boolean, object, type Schema, type StringSchema, string } from 'yup';
 
 import {
   FederatedWidgetOption,
   FederatedWidgetProperties
 } from '../../../../federatedModules/models';
 import { labelRequired } from '../translatedLabels';
-
-import { type Schema, type StringSchema, boolean, object, string } from 'yup';
-import { buildValidationSchema } from './WidgetProperties/Inputs/utils';
 import { widgetPropertiesAtom } from './atoms';
+import { buildValidationSchema } from './WidgetProperties/Inputs/utils';
 
 interface GetPropertiesValidationSchemaProps {
   properties: FederatedWidgetProperties | null;

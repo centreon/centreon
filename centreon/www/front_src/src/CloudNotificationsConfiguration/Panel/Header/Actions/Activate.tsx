@@ -1,8 +1,8 @@
-import { FormikValues, useFormikContext } from 'formik';
-import { useTranslation } from 'react-i18next';
-
 import { Switch as MUISwitch, Tooltip } from '@mui/material';
 import { styled } from '@mui/material/styles';
+
+import { FormikValues, useFormikContext } from 'formik';
+import { useTranslation } from 'react-i18next';
 
 import { labelActiveOrInactive } from '../../../translatedLabels';
 

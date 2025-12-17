@@ -1,7 +1,7 @@
+import { FormControlLabel, Switch, Tooltip } from '@mui/material';
+
 import { FormikValues, useFormikContext } from 'formik';
 import { useTranslation } from 'react-i18next';
-
-import { FormControlLabel, Switch, Tooltip } from '@mui/material';
 
 import {
   labelActiveOrInactive,

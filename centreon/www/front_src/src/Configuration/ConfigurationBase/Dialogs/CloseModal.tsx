@@ -1,9 +1,10 @@
+import { UnsavedChangesDialog } from '@centreon/ui';
+
 import { useFormikContext } from 'formik';
 import { useAtom, useSetAtom } from 'jotai';
-
-import { UnsavedChangesDialog } from '@centreon/ui';
 import { useCallback } from 'react';
 import { useSearchParams } from 'react-router';
+
 import { isCloseConfirmationDialogOpenAtom, modalStateAtom } from '../atoms';
 
 const CloseModal = (): JSX.Element => {

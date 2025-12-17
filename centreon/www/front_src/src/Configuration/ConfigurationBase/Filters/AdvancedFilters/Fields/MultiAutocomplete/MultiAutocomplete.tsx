@@ -1,8 +1,9 @@
+import { MultiAutocompleteField } from '@centreon/ui';
+
 import { SetStateAction } from 'jotai';
 import { Dispatch, JSX } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { MultiAutocompleteField } from '@centreon/ui';
 import { NamedEntity } from '../../../../../models';
 import useMultiAutocomplete from './useMultiAutocomplete';
 

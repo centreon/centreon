@@ -1,9 +1,12 @@
+import { Tooltip, Typography } from '@mui/material';
+
 import { dateTimeFormat, useLocaleDateTimeFormat } from '@centreon/ui';
 import { Button } from '@centreon/ui/components';
-import { Tooltip, Typography } from '@mui/material';
+
 import { useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+
 import useAclQuery from '../../../Actions/Resource/aclQuery';
 import AddCommentForm from '../../../Graph/Performance/Graph/AddCommentForm';
 import {

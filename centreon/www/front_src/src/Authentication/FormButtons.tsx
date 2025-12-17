@@ -1,11 +1,3 @@
-import { useEffect, useState } from 'react';
-
-import { FormikValues, useFormikContext } from 'formik';
-import { useAtom } from 'jotai';
-import { equals, not } from 'ramda';
-import { useTranslation } from 'react-i18next';
-import { makeStyles } from 'tss-react/mui';
-
 import { Button } from '@mui/material';
 
 import {
@@ -14,6 +6,13 @@ import {
   UnsavedChangesDialog,
   useMemoComponent
 } from '@centreon/ui';
+
+import { FormikValues, useFormikContext } from 'formik';
+import { useAtom } from 'jotai';
+import { equals, not } from 'ramda';
+import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { makeStyles } from 'tss-react/mui';
 
 import {
   labelCancel,

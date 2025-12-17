@@ -1,7 +1,7 @@
+import { ConfirmDialog } from '@centreon/ui';
+
 import { useAtom, useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
-
-import { ConfirmDialog } from '@centreon/ui';
 
 import {
   isCloseModalConfirmationDialogOpenAtom,

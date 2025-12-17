@@ -1,22 +1,18 @@
-import { isNil, isNotEmpty, or } from 'ramda';
-import { JSX, useLayoutEffect } from 'react';
+import { LoadingSkeleton } from '@centreon/ui';
+import { DataTable, PageHeader, PageLayout } from '@centreon/ui/components';
 
 import { useAtom, useSetAtom } from 'jotai';
-
-import { DataTable, PageHeader, PageLayout } from '@centreon/ui/components';
-import { Listing } from './Listing';
-import { Modal } from './Modal';
-
+import { isNil, isNotEmpty, or } from 'ramda';
+import { JSX, useLayoutEffect } from 'react';
 import { useSearchParams } from 'react-router';
 
 import { ConfigurationBase } from '../models';
-
+import { modalStateAtom } from './atoms';
 import { DeleteDialog, DuplicateDialog } from './Dialogs';
 import useCoutChangedFilters from './Filters/AdvancedFilters/useCoutChangedFilters';
+import { Listing } from './Listing';
 import useLoadData from './Listing/useLoadData';
-import { modalStateAtom } from './atoms';
-
-import { LoadingSkeleton } from '@centreon/ui';
+import { Modal } from './Modal';
 
 const WelcomePage = ({
   hasWriteAccess,

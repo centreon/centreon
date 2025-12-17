@@ -1,5 +1,5 @@
-import { SelectField } from '@centreon/ui';
 import type { SelectEntry } from '@centreon/ui';
+import { SelectField } from '@centreon/ui';
 
 import memoizeComponent from '../../memoizedComponent';
 

@@ -1,5 +1,4 @@
 import { GraphData } from '../models';
-
 // biome-ignore lint/style/noNamespaceImport: To migrate to the new Graph system
 import * as timeSeries from '.';
 

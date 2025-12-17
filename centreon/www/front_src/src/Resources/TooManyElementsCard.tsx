@@ -1,17 +1,18 @@
+import { Box, Typography } from '@mui/material';
+
+import { Header } from '@centreon/ui';
+
 import { ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { Box, Typography } from '@mui/material';
-import { Header } from '@centreon/ui';
-
-import { labelTooManyGraphsToDisplay } from './translatedLabels';
 import { graphsCapNumber } from './constants';
+import { labelTooManyGraphsToDisplay } from './translatedLabels';
 
 interface Props {
-  actions?: ReactElement,
-  listing: boolean,
-  title: string
-};
+  actions?: ReactElement;
+  listing: boolean;
+  title: string;
+}
 
 const TooManyElementsCard = ({
   actions,
@@ -24,7 +25,7 @@ const TooManyElementsCard = ({
 
   return (
     <Box
-      className='overflow-visible bg-white dark:bg-gray-900'
+      className="overflow-visible bg-white dark:bg-gray-900"
       height={outerHeight}
     >
       <Header
@@ -34,10 +35,12 @@ const TooManyElementsCard = ({
           extraComponent: actions
         }}
       />
-       <Box className={
-         'flex items-center justify-center grow h-[calc(100%-16px)] text-gray-500'
-       }>
-        <Typography variant='h6'>
+      <Box
+        className={
+          'flex items-center justify-center grow h-[calc(100%-16px)] text-gray-500'
+        }
+      >
+        <Typography variant="h6">
           {t(labelTooManyGraphsToDisplay, { graphsCapNumber })}
         </Typography>
       </Box>

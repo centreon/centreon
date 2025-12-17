@@ -1,16 +1,15 @@
-import { MouseEvent, useState } from 'react';
-
-import dayjs from 'dayjs';
-import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
-import { useAtomValue } from 'jotai';
-import { useTranslation } from 'react-i18next';
-import { makeStyles } from 'tss-react/mui';
-
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import { Button, Typography } from '@mui/material';
 
 import { dateTimeFormat, useLocaleDateTimeFormat } from '@centreon/ui';
 import { userAtom } from '@centreon/ui-context';
+
+import dayjs from 'dayjs';
+import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
+import { useAtomValue } from 'jotai';
+import { MouseEvent, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { makeStyles } from 'tss-react/mui';
 
 import {
   CustomTimePeriod,
@@ -21,7 +20,6 @@ import {
   labelFrom,
   labelTo
 } from '../../../translatedLabels';
-
 import PopoverCustomTimePeriodPickers from './PopoverCustomTimePeriodPicker';
 
 interface AcceptDateProps {

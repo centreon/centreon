@@ -1,16 +1,15 @@
-import { type ChangeEvent, useCallback, useMemo } from 'react';
-
-import { useFormikContext } from 'formik';
-import { clamp, equals } from 'ramda';
-import { useTranslation } from 'react-i18next';
+import { Typography } from '@mui/material';
 
 import { TextField, usePluralizedTranslation } from '@centreon/ui';
 
+import { useFormikContext } from 'formik';
+import { clamp, equals } from 'ramda';
+import { type ChangeEvent, useCallback, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
+
+import Subtitle from '../../../components/Subtitle';
 import { useCanEditProperties } from '../../../hooks/useCanEditDashboard';
 import type { Widget, WidgetPropertyProps } from '../../models';
-
-import { Typography } from '@mui/material';
-import Subtitle from '../../../components/Subtitle';
 import { useTextFieldStyles } from './Inputs.styles';
 import { getProperty } from './utils';
 

@@ -1,5 +1,3 @@
-import { useTranslation } from 'react-i18next';
-
 import {
   MoreHoriz as MoreIcon,
   Share as ShareIcon,
@@ -9,18 +7,19 @@ import { Box } from '@mui/material';
 
 import { ComponentColumnProps, IconButton } from '@centreon/ui';
 
+import { useIsFetching, useQueryClient } from '@tanstack/react-query';
+import { useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
+
+import { resource } from '../../../../../api/models';
 import { useDashboardUserPermissions } from '../../../DashboardUserPermissions/useDashboardUserPermissions';
+import FavoriteAction from '../../Actions/favoriteAction';
 import {
   labelMoreActions,
   labelShareWithContacts,
   labelUnshare
 } from '../../translatedLabels';
 import { useColumnStyles } from '../useColumnStyles';
-
-import { useIsFetching, useQueryClient } from '@tanstack/react-query';
-import { useCallback } from 'react';
-import { resource } from '../../../../../api/models';
-import FavoriteAction from '../../Actions/favoriteAction';
 import MoreActions from './MoreActions';
 import useActions from './useActions';
 

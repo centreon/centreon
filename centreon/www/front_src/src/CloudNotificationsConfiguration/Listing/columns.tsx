@@ -1,6 +1,6 @@
-import { useTranslation } from 'react-i18next';
-
 import { Column, ColumnType } from '@centreon/ui';
+
+import { useTranslation } from 'react-i18next';
 
 import {
   labelActions,
@@ -11,7 +11,6 @@ import {
   labelStatus,
   labelUsers
 } from '../translatedLabels';
-
 import { Actions, Activate } from './Actions';
 import { FormatChannels, formatResourcesForListing } from './utils';
 

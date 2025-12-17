@@ -1,6 +1,8 @@
 import { Column, ColumnType } from '@centreon/ui';
-import { T, equals, isNil } from 'ramda';
+
+import { equals, isNil, T } from 'ramda';
 import { useTranslation } from 'react-i18next';
+
 import { agentTypes } from '../../Form/useInputs';
 import {
   labelAction,

@@ -1,9 +1,3 @@
-import dayjs from 'dayjs';
-import { useAtomValue } from 'jotai';
-import { equals, isNil } from 'ramda';
-import { useTranslation } from 'react-i18next';
-import { makeStyles } from 'tss-react/mui';
-
 import InstallIcon from '@mui/icons-material/Add';
 import CheckIcon from '@mui/icons-material/Check';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -24,6 +18,12 @@ import Stack from '@mui/material/Stack';
 
 import { useLocaleDateTimeFormat } from '@centreon/ui';
 import { userAtom } from '@centreon/ui-context';
+
+import dayjs from 'dayjs';
+import { useAtomValue } from 'jotai';
+import { equals, isNil } from 'ramda';
+import { useTranslation } from 'react-i18next';
+import { makeStyles } from 'tss-react/mui';
 
 import {
   labelLicenseEndDate,

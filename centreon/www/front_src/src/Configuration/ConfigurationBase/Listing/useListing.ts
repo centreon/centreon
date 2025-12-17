@@ -1,14 +1,12 @@
-import { useAtom, useAtomValue, useSetAtom } from 'jotai';
-import { useTranslation } from 'react-i18next';
-
 import { useSnackbar } from '@centreon/ui';
 
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
+import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router';
 
 import { configurationAtom, modalStateAtom } from '../atoms';
-import { limitAtom, pageAtom, sortFieldAtom, sortOrderAtom } from './atoms';
-
 import { labelSelectAtLeastOneColumn } from '../translatedLabels';
+import { limitAtom, pageAtom, sortFieldAtom, sortOrderAtom } from './atoms';
 
 interface UseListing {
   changePage: (updatedPage: number) => void;

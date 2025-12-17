@@ -1,11 +1,11 @@
-import { useTranslation } from 'react-i18next';
-
 import { Form } from '@centreon/ui';
 import { FormActions } from '@centreon/ui/components';
 
 import { useFormikContext } from 'formik';
 import { useAtomValue } from 'jotai';
 import { equals, isNil } from 'ramda';
+import { useTranslation } from 'react-i18next';
+
 import { tokenAtom } from '../../atoms';
 import {
   labelCancel,

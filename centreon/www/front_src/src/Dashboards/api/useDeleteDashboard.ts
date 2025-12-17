@@ -1,12 +1,12 @@
+import { Method, ResponseError, useMutationQuery } from '@centreon/ui';
+
 import {
   MutateOptions,
   UseMutationResult,
   useQueryClient
 } from '@tanstack/react-query';
-
-import { Method, ResponseError, useMutationQuery } from '@centreon/ui';
-
 import { useAtomValue } from 'jotai';
+
 import {
   limitAtom,
   totalAtom

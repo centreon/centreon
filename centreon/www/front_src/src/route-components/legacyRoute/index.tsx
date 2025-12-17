@@ -1,9 +1,8 @@
-import { useEffect, useState } from 'react';
+import { PageSkeleton, useFullscreen } from '@centreon/ui';
 
 import { equals, includes, isNil, replace } from 'ramda';
+import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router';
-
-import { PageSkeleton, useFullscreen } from '@centreon/ui';
 
 const LegacyRoute = (): JSX.Element => {
   const [loading, setLoading] = useState(true);

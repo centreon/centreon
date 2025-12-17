@@ -1,5 +1,7 @@
 import { type ComponentColumnProps, truncate } from '@centreon/ui';
+
 import { JSX } from 'react';
+
 import useNameStyles from './Name.style';
 
 const Name = ({

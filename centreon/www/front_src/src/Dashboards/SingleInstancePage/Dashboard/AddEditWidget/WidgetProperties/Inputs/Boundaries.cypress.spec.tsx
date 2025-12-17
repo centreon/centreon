@@ -1,6 +1,7 @@
 import { Formik } from 'formik';
-import { Provider, createStore } from 'jotai';
+import { createStore, Provider } from 'jotai';
 import { object } from 'yup';
+
 import { hasEditPermissionAtom, isEditingAtom } from '../../../atoms';
 import {
   labelMaxValue,

@@ -1,12 +1,11 @@
-import { T, always, cond, equals } from 'ramda';
-import { useTranslation } from 'react-i18next';
-
 import { Box } from '@mui/material';
 
 import { Gauge, GraphText, SingleBar, Thresholds } from '@centreon/ui';
 
-import { labelCritical, labelWarning } from '../../translatedLabels';
+import { always, cond, equals, T } from 'ramda';
+import { useTranslation } from 'react-i18next';
 
+import { labelCritical, labelWarning } from '../../translatedLabels';
 import { useGraphStyles } from './Graph.styles';
 import { SingleMetricGraphType } from './models';
 

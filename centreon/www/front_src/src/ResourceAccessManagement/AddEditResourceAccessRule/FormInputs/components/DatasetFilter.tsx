@@ -1,14 +1,14 @@
 /* eslint-disable react/no-array-index-key */
-import { ReactElement } from 'react';
-
-import { equals } from 'ramda';
-import { useTranslation } from 'react-i18next';
 
 import AddIcon from '@mui/icons-material/Add';
 import { FormHelperText } from '@mui/material';
 
 import { MultiConnectedAutocompleteField, SelectField } from '@centreon/ui';
 import { ItemComposition } from '@centreon/ui/components';
+
+import { equals } from 'ramda';
+import { ReactElement } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { Dataset, ResourceTypeEnum } from '../../../models';
 import {
@@ -19,7 +19,6 @@ import {
 } from '../../../translatedLabels';
 import useDatasetFilter from '../hooks/useDatasetFilter';
 import { useDatasetFilterStyles } from '../styles/DatasetFilter.styles';
-
 import AllOfResourceTypeCheckbox from './AllOfResourceTypeCheckbox';
 
 type Props = {

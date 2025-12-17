@@ -2,7 +2,6 @@ import { Formik } from 'formik';
 import { useAtomValue } from 'jotai';
 
 import { duplicatedRuleAtom } from '../../atom';
-
 import DuplicateConfirmationDialog from './DuplicateConfirmationDialog';
 import useDuplicate from './useDuplicate';
 import useValidateName from './useValidateName';

@@ -1,11 +1,3 @@
-import { useMemo, useState } from 'react';
-
-import { useIsFetching, useQueryClient } from '@tanstack/react-query';
-import { useAtomValue, useSetAtom } from 'jotai';
-import { equals, isEmpty } from 'ramda';
-import { useTranslation } from 'react-i18next';
-import { Link } from 'react-router';
-
 import DvrIcon from '@mui/icons-material/Dvr';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import UpdateIcon from '@mui/icons-material/Update';
@@ -19,6 +11,13 @@ import {
 import { IconButton, useDeepCompare } from '@centreon/ui';
 import { Tooltip } from '@centreon/ui/components';
 
+import { useIsFetching, useQueryClient } from '@tanstack/react-query';
+import { useAtomValue, useSetAtom } from 'jotai';
+import { equals, isEmpty } from 'ramda';
+import { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router';
+
 import {
   dashboardAtom,
   duplicatePanelDerivedAtom,
@@ -30,7 +29,6 @@ import {
   labelResourcesStatus,
   labelSeeMore
 } from '../../translatedLabels';
-
 import ExpandableButton from './ExpandableButton';
 import MorePanelActions from './MorePanelActions';
 import { ExpandableData } from './models';

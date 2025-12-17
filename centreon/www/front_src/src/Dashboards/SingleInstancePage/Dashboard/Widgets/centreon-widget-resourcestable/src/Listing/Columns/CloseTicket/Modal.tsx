@@ -1,11 +1,13 @@
-import { useCallback } from 'react';
-import { useTranslation } from 'react-i18next';
+import { Typography } from '@mui/material';
 
 import { Method, useMutationQuery, useSnackbar } from '@centreon/ui';
 import { Button, Modal } from '@centreon/ui/components';
-import { Typography } from '@mui/material';
+
 import { useAtom } from 'jotai';
 import { equals } from 'ramda';
+import { useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
+
 import { closeTicketEndpoint } from '../../../api/endpoints';
 import { resourcesToCloseTicketAtom } from '../../../atom';
 import {

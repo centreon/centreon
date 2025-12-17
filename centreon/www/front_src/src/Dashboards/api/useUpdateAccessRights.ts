@@ -1,12 +1,11 @@
+import { Method, useMutationQuery, useSnackbar } from '@centreon/ui';
+
 import { useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 
-import { Method, useMutationQuery, useSnackbar } from '@centreon/ui';
-
 import { labelFailedToSaveShares, labelSharesSaved } from '../translatedLabels';
-
 import { dashboardSharesEndpoint } from './endpoints';
-import { DashboardRole, UserRole, resource } from './models';
+import { DashboardRole, resource, UserRole } from './models';
 
 interface SharesToAPI {
   contact_groups: Array<{

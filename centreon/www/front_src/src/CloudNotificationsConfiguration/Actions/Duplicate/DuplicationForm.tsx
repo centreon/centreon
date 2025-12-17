@@ -1,8 +1,7 @@
 import { Formik } from 'formik';
 
-import useValidateName from './useValidateName';
-
 import { DuplicateConfirmationDialog, useDuplicate } from '.';
+import useValidateName from './useValidateName';
 
 const DuplicationForm = (): JSX.Element => {
   const { validationSchema } = useValidateName();

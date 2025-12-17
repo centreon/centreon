@@ -1,10 +1,11 @@
-import { useMemo } from 'react';
-
 import { platformFeaturesAtom } from '@centreon/ui-context';
+
 import { useAtomValue } from 'jotai';
 import { pluck } from 'ramda';
+import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
+import { APIType, FieldType, FilterConfiguration } from '../models';
 import {
   bulkDeleteHostGroupEndpoint,
   bulkDisableHostGroupEndpoint,
@@ -15,9 +16,6 @@ import {
   hostGroupsListDecoder,
   hostGroupsListEndpoint
 } from './api';
-
-import { APIType, FieldType, FilterConfiguration } from '../models';
-
 import { labelAlias, labelName, labelStatus } from './translatedLabels';
 
 interface UseHostGroupsState {

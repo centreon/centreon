@@ -1,7 +1,7 @@
+import { Column, ColumnType, useLocaleDateTimeFormat } from '@centreon/ui';
+
 import { equals } from 'ramda';
 import { useTranslation } from 'react-i18next';
-
-import { Column, ColumnType, useLocaleDateTimeFormat } from '@centreon/ui';
 
 import {
   labelCreationDate,
@@ -12,7 +12,6 @@ import {
   labelType,
   labelUpdateBy
 } from '../translatedLabels';
-
 import Name from './Name';
 
 const useColumns = (): {

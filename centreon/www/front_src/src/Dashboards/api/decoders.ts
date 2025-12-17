@@ -1,9 +1,9 @@
 /* eslint-disable typescript-sort-keys/interface */
 
+import { buildListingDecoder } from '@centreon/ui';
+
 import { omit } from 'ramda';
 import { JsonDecoder } from 'ts.data.json';
-
-import { buildListingDecoder } from '@centreon/ui';
 
 import { Thumbnail } from '../SingleInstancePage/Dashboard/models';
 import {

@@ -1,8 +1,3 @@
-import i18next from 'i18next';
-import { Provider, createStore } from 'jotai';
-import { initReactI18next } from 'react-i18next';
-import { BrowserRouter } from 'react-router';
-
 import { Method } from '@centreon/js-config/cypress/component/commands';
 import { SnackbarProvider, TestQueryProvider } from '@centreon/ui';
 import {
@@ -12,10 +7,13 @@ import {
   userAtom
 } from '@centreon/ui-context';
 
-import { labelMoreActions } from '../Resources/translatedLabels';
-
+import i18next from 'i18next';
+import { createStore, Provider } from 'jotai';
 import { equals } from 'ramda';
-import { DashboardsPage } from './DashboardsPage';
+import { initReactI18next } from 'react-i18next';
+import { BrowserRouter } from 'react-router';
+
+import { labelMoreActions } from '../Resources/translatedLabels';
 import {
   dashboardSharesEndpoint,
   dashboardsContactsEndpoint,
@@ -30,11 +28,12 @@ import { viewModeAtom } from './components/DashboardLibrary/DashboardListing/ato
 import { ViewMode } from './components/DashboardLibrary/DashboardListing/models';
 import {
   labelCardsView,
-  labelEditProperties,
   labelEditor,
+  labelEditProperties,
   labelListView,
   labelViewer
 } from './components/DashboardLibrary/DashboardListing/translatedLabels';
+import { DashboardsPage } from './DashboardsPage';
 import { DashboardLayout, FavoriteAction, GetPath } from './models';
 import { routerHooks } from './routerHooks';
 import {
@@ -57,8 +56,8 @@ import {
   labelName,
   labelSave,
   labelSaveYourDashboardForThumbnail,
-  labelShareWithContacts,
   labelSharesSaved,
+  labelShareWithContacts,
   labelUpdate,
   labelUserDeleted,
   labelWelcomeToDashboardInterface

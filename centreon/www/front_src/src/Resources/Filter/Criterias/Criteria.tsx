@@ -1,13 +1,13 @@
-import { useAtomValue, useSetAtom } from 'jotai';
-import { equals, isNil } from 'ramda';
-import { useTranslation } from 'react-i18next';
-
+import type { SelectEntry } from '@centreon/ui';
 import {
   PopoverMultiAutocompleteField,
   PopoverMultiConnectedAutocompleteField,
   useMemoComponent
 } from '@centreon/ui';
-import type { SelectEntry } from '@centreon/ui';
+
+import { useAtomValue, useSetAtom } from 'jotai';
+import { equals, isNil } from 'ramda';
+import { useTranslation } from 'react-i18next';
 
 import {
   filterWithParsedSearchDerivedAtom,

@@ -1,4 +1,5 @@
 import { Group, InputProps, InputType } from '@centreon/ui';
+
 import { useTranslation } from 'react-i18next';
 
 import { pollersEndpoint } from '../api/endpoints';

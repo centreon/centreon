@@ -1,14 +1,14 @@
+import { capitalize } from '@mui/material';
+
+import { ResponseError, useBulkResponse } from '@centreon/ui';
+
 import { useAtomValue } from 'jotai';
 import { complement, isNotEmpty, propEq } from 'ramda';
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { ResponseError, useBulkResponse } from '@centreon/ui';
-import { capitalize } from '@mui/material';
 import { useDisable, useEnable } from '../../../api';
-
 import { configurationAtom } from '../../../atoms';
-
 import {
   labelFailedToDisableResources,
   labelFailedToDisableSomeResources,

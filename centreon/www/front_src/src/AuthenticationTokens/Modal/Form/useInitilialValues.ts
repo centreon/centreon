@@ -1,8 +1,10 @@
 import { userAtom } from '@centreon/ui-context';
+
 import { useAtomValue } from 'jotai';
 import { find, pick, propEq } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router';
+
 import { dataDuration, tokenTypes } from '../utils';
 
 const useInitilialValues = () => {

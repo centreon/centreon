@@ -1,11 +1,14 @@
+import { Box, CircularProgress } from '@mui/material';
+
 import { UnsavedChangesDialog } from '@centreon/ui';
 import { Button } from '@centreon/ui/components';
-import { Box, CircularProgress } from '@mui/material';
+
 import { useFormikContext } from 'formik';
 import { useAtom, useSetAtom } from 'jotai';
 import { isNotEmpty } from 'ramda';
 import { useCallback, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
+
 import {
   agentTypeFormAtom,
   askBeforeCloseFormModalAtom,

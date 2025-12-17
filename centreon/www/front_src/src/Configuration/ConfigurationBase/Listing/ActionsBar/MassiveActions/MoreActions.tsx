@@ -1,6 +1,3 @@
-import { pipe } from 'ramda';
-import { useTranslation } from 'react-i18next';
-
 import {
   DeleteOutlineOutlined as DeleteIcon,
   ToggleOffOutlined as DisableIcon,
@@ -11,8 +8,8 @@ import { Menu } from '@mui/material';
 
 import { ActionsList, ActionsListActionDivider } from '@centreon/ui';
 
-import { useActionsStyles } from '../Actions.styles';
-import useMassiveActions from './useMassiveActions';
+import { pipe } from 'ramda';
+import { useTranslation } from 'react-i18next';
 
 import {
   labelDelete,
@@ -20,6 +17,8 @@ import {
   labelDuplicate,
   labelEnable
 } from '../../../translatedLabels';
+import { useActionsStyles } from '../Actions.styles';
+import useMassiveActions from './useMassiveActions';
 
 interface Props {
   anchor: HTMLElement | null;

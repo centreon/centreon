@@ -1,8 +1,7 @@
 import { useAtomValue } from 'jotai';
+import { equals } from 'ramda';
 
 import { listTokensDecoder, listTokensEndpoint, useGetAll } from '../api';
-
-import { equals } from 'ramda';
 import { filtersAtom } from '../atoms';
 import { limitAtom, pageAtom, sortFieldAtom, sortOrderAtom } from './atoms';
 

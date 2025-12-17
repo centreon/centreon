@@ -1,8 +1,3 @@
-import { SetStateAction } from 'jotai';
-import { Dispatch, JSX } from 'react';
-import { useTranslation } from 'react-i18next';
-import { useFilterStyles } from '../../../Filters.styles';
-
 import {
   Checkbox,
   FormControlLabel,
@@ -10,13 +5,17 @@ import {
   Typography
 } from '@mui/material';
 
-import useStatus from './useStatus';
+import { SetStateAction } from 'jotai';
+import { Dispatch, JSX } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import {
   labelDisabled,
   labelEnabled,
   labelStatus
 } from '../../../../translatedLabels';
+import { useFilterStyles } from '../../../Filters.styles';
+import useStatus from './useStatus';
 
 interface Props<TFilters> {
   filters: TFilters;

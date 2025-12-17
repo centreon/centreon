@@ -1,8 +1,8 @@
-import { useTranslation } from 'react-i18next';
-
 import { Checkbox, FormControlLabel } from '@mui/material';
 
 import { MultiConnectedAutocompleteField } from '@centreon/ui';
+
+import { useTranslation } from 'react-i18next';
 
 import {
   labelAllContactGroups,

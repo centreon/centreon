@@ -1,16 +1,14 @@
-import { RefObject } from 'react';
-
-import { DraggableSyntheticListeners } from '@dnd-kit/core';
-import { isNil } from 'ramda';
-import { useTranslation } from 'react-i18next';
-import { makeStyles } from 'tss-react/mui';
-
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { GridSize, Paper } from '@mui/material';
 import Grid from '@mui/material/Grid';
 
-import DetailsCard from '../DetailsCard';
+import { DraggableSyntheticListeners } from '@dnd-kit/core';
+import { isNil } from 'ramda';
+import { RefObject } from 'react';
+import { useTranslation } from 'react-i18next';
+import { makeStyles } from 'tss-react/mui';
 
+import DetailsCard from '../DetailsCard';
 import { CardsLayout } from './models';
 
 const useStyles = makeStyles<{ isDragging: boolean }>()(

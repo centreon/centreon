@@ -1,10 +1,12 @@
 import { Add as AddIcon } from '@mui/icons-material';
+import { Box, Link } from '@mui/material';
 
 import { Button } from '@centreon/ui/components';
-import { Box, Link } from '@mui/material';
+
 import { JSX } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link as RouterLink } from 'react-router';
+
 import { labelCreateNewCMAToken } from '../../translatedLabels';
 
 const tokensPageURL = '/administration/authentication-token?mode=edit&type=cma';

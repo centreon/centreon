@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo } from 'react';
+import { SelectEntry, useDeepCompare } from '@centreon/ui';
 
 import { useFormikContext } from 'formik';
 import { useAtomValue } from 'jotai';
@@ -15,9 +15,9 @@ import {
   propEq,
   reject
 } from 'ramda';
+import { useCallback, useEffect, useMemo } from 'react';
 
-import { SelectEntry, useDeepCompare } from '@centreon/ui';
-
+import { getIsMetaServiceSelected } from '../../../../Widgets/utils';
 import {
   resourcesInputKeyDerivedAtom,
   widgetPropertiesAtom
@@ -30,8 +30,6 @@ import {
   WidgetDataResource
 } from '../../../models';
 import { getDataProperty } from '../utils';
-
-import { getIsMetaServiceSelected } from '../../../../Widgets/utils';
 import { useListMetrics } from './useListMetrics';
 import { useRenderOptions } from './useRenderOptions';
 

@@ -1,8 +1,3 @@
-import { path, hasPath, isNil, not, prop } from 'ramda';
-import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router';
-import { makeStyles } from 'tss-react/mui';
-
 import ReportIcon from '@mui/icons-material/Assessment';
 import LogsIcon from '@mui/icons-material/Assignment';
 import CopyIcon from '@mui/icons-material/FileCopy';
@@ -17,6 +12,11 @@ import {
   useCopyToClipboard
 } from '@centreon/ui';
 
+import { hasPath, isNil, not, path, prop } from 'ramda';
+import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router';
+import { makeStyles } from 'tss-react/mui';
+
 import { replaceBasename } from '../helpers';
 import { ResourceUris } from '../models';
 import {
@@ -28,11 +28,9 @@ import {
   labelViewLogs,
   labelViewReport
 } from '../translatedLabels';
-
+import { DetailsSectionProps } from '.';
 import { ResourceDetails } from './models';
 import SelectableResourceName from './tabs/Details/SelectableResourceName';
-
-import { DetailsSectionProps } from '.';
 
 interface MakeStylesProps {
   displaySeverity: boolean;

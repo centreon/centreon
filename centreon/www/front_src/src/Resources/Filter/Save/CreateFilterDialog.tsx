@@ -1,12 +1,11 @@
-import { ChangeEvent, KeyboardEvent } from 'react';
-
-import { useFormik } from 'formik';
-import { path, not } from 'ramda';
-import { useTranslation } from 'react-i18next';
-
 import { Dialog, TextField, useRequest } from '@centreon/ui';
 
+import { useFormik } from 'formik';
+import { not, path } from 'ramda';
+import { ChangeEvent, KeyboardEvent } from 'react';
+import { useTranslation } from 'react-i18next';
 import { object, string } from 'yup';
+
 import {
   labelCancel,
   labelName,

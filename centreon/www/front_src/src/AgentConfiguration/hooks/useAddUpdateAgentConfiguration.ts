@@ -4,11 +4,13 @@ import {
   useMutationQuery,
   useSnackbar
 } from '@centreon/ui';
+
 import { useQueryClient } from '@tanstack/react-query';
 import { FormikHelpers } from 'formik';
 import { useAtom } from 'jotai';
 import { equals, map, omit, pluck } from 'ramda';
 import { useTranslation } from 'react-i18next';
+
 import {
   getAgentConfigurationEndpoint,
   getAgentConfigurationsEndpoint

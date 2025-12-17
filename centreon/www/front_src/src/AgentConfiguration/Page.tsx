@@ -1,18 +1,17 @@
+import { LoadingSkeleton } from '@centreon/ui';
 import { DataTable, PageHeader, PageLayout } from '@centreon/ui/components';
+
 import { useAtom, useSetAtom } from 'jotai';
+import { isNil, isNotEmpty } from 'ramda';
 import { useLayoutEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+
+import { isWelcomePageDisplayedAtom, openFormModalAtom } from './atoms';
 import AddModal from './Form/AddModal';
 import UpdateModal from './Form/UpdateModal';
-import ACListing from './Listing/Listing';
-import { isWelcomePageDisplayedAtom, openFormModalAtom } from './atoms';
 import { useGetAgentConfigurations } from './hooks/useGetAgentConfigurations';
-
-import { LoadingSkeleton } from '@centreon/ui';
-import { isNil, isNotEmpty } from 'ramda';
-
 import useCountChangedFilters from './Listing/Actions/useCountChangedFilters';
-
+import ACListing from './Listing/Listing';
 import {
   labelAddAgentConfiguration,
   labelAgentsConfigurations,

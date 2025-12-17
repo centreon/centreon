@@ -1,5 +1,6 @@
 import { useAtomValue } from 'jotai';
 import { equals, filter, length, pipe, toPairs } from 'ramda';
+
 import { configurationAtom } from '../../atoms';
 
 const countDifferences = (defaultValues, values) =>

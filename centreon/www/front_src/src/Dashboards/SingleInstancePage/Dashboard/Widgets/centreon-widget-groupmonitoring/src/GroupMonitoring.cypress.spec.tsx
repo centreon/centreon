@@ -1,14 +1,13 @@
-import { Provider, createStore } from 'jotai';
-import { BrowserRouter } from 'react-router';
-
 import { Method, TestQueryProvider } from '@centreon/ui';
 import { isOnPublicPageAtom } from '@centreon/ui-context';
 
+import { createStore, Provider } from 'jotai';
+import { BrowserRouter } from 'react-router';
+
 import { Data } from '../../models';
 import { getPublicWidgetEndpoint } from '../../utils';
-
-import GroupMonitoring from './GroupMonitoring';
 import { getEndpoint } from './api/endpoints';
+import GroupMonitoring from './GroupMonitoring';
 import { PanelOptions } from './models';
 import {
   labelCritical,

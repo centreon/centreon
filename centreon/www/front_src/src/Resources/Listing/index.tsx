@@ -1,7 +1,3 @@
-import { useAtom, useAtomValue, useSetAtom } from 'jotai';
-import { equals, includes, isEmpty, isNil, not } from 'ramda';
-import { useTranslation } from 'react-i18next';
-
 import { alpha, useTheme } from '@mui/material';
 
 import {
@@ -13,20 +9,25 @@ import {
 } from '@centreon/ui';
 import { featureFlagsDerivedAtom, userAtom } from '@centreon/ui-context';
 
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
+import { equals, includes, isEmpty, isNil, not } from 'ramda';
+import { useTranslation } from 'react-i18next';
+
 import { userEndpoint } from '../../App/endpoint';
 import Actions from '../Actions';
-import { forcedCheckInlineEndpointAtom } from '../Actions/Resource/Check/checkAtoms';
 import {
   resourcesToAcknowledgeAtom,
   resourcesToSetDowntimeAtom,
   selectedResourcesAtom,
   selectedVisualizationAtom
 } from '../Actions/actionsAtoms';
+import { forcedCheckInlineEndpointAtom } from '../Actions/Resource/Check/checkAtoms';
+import { rowColorConditions } from '../colors';
 import {
   openDetailsTabIdAtom,
   panelWidthStorageAtom,
-  selectedResourceUuidAtom,
-  selectedResourcesDetailsAtom
+  selectedResourcesDetailsAtom,
+  selectedResourceUuidAtom
 } from '../Details/detailsAtoms';
 import { graphTabId } from '../Details/tabs';
 import {
@@ -34,7 +35,6 @@ import {
   searchAtom,
   setCriteriaAndNewFilterDerivedAtom
 } from '../Filter/filterAtoms';
-import { rowColorConditions } from '../colors';
 import { type Resource, type SortOrder, Visualization } from '../models';
 import {
   labelCompact,
@@ -43,7 +43,6 @@ import {
   labelSelectAtLeastOneColumn,
   labelStatus
 } from '../translatedLabels';
-
 import {
   defaultSelectedColumnIds,
   defaultSelectedColumnIdsforViewByHost,

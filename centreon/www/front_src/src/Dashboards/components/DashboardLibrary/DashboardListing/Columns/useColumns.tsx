@@ -1,7 +1,7 @@
+import { Column, ColumnType } from '@centreon/ui';
+
 import { map, prop } from 'ramda';
 import { useTranslation } from 'react-i18next';
-
-import { Column, ColumnType } from '@centreon/ui';
 
 import {
   labelActions,

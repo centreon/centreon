@@ -1,15 +1,14 @@
-import { useEffect, useState } from 'react';
-
-import { useAtom } from 'jotai';
-import { all, equals, find, head, pathEq, propEq } from 'ramda';
-import { useTranslation } from 'react-i18next';
-import { makeStyles } from 'tss-react/mui';
-
 import IconDisacknowledge from '@mui/icons-material/ConfirmationNumber';
 import IconMore from '@mui/icons-material/MoreHoriz';
 import IconAcknowledge from '@mui/icons-material/Person';
 
 import { PopoverMenu, SeverityCode, useCancelTokenSource } from '@centreon/ui';
+
+import { useAtom } from 'jotai';
+import { all, equals, find, head, pathEq, propEq } from 'ramda';
+import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { makeStyles } from 'tss-react/mui';
 
 import AddCommentForm from '../../Graph/Performance/Graph/AddCommentForm';
 import Downtime from '../../icons/Downtime';
@@ -34,15 +33,14 @@ import {
   type MoreSecondaryActions,
   type ResourceActions
 } from '../model';
-
 import AcknowledgeForm from './Acknowledge';
 import ActionMenuItem from './ActionMenuItem';
+import useAclQuery from './aclQuery';
 import CheckActionButton from './Check';
 import DisacknowledgeForm from './Disacknowledge';
 import DowntimeForm from './Downtime';
 import ResourceActionButton from './ResourceActionButton';
 import SubmitStatusForm from './SubmitStatus';
-import useAclQuery from './aclQuery';
 
 const useStyles = makeStyles()((theme) => ({
   action: {

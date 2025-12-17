@@ -1,10 +1,9 @@
-import { useTranslation } from 'react-i18next';
-
 import { Column, ColumnType } from '@centreon/ui';
+
+import { useTranslation } from 'react-i18next';
 
 import { RowProps } from '../models';
 import { labelHosts, labelServices } from '../translatedLabels';
-
 import { Name } from './Name';
 import Statuses from './Statuses/Statuses';
 

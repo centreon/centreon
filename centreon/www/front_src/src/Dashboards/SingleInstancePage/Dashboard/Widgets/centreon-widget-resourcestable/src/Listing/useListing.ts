@@ -1,10 +1,9 @@
-import { useEffect, useMemo, useState } from 'react';
+import { type Column, useSnackbar } from '@centreon/ui';
 
 import { useAtom } from 'jotai';
 import { equals, isEmpty, isNotNil } from 'ramda';
+import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-
-import { type Column, useSnackbar } from '@centreon/ui';
 
 import type { CommonWidgetProps, Resource, SortOrder } from '../../../models';
 import { getResourcesUrl, goToUrl } from '../../../utils';
@@ -15,7 +14,6 @@ import {
   selectedResourcesAtom
 } from '../atom';
 import type { PanelOptions } from '../models';
-
 import useColumns from './Columns/useColumns';
 import {
   DisplayType,

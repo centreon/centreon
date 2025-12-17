@@ -9,9 +9,8 @@ import Popper from '@mui/material/Popper';
 
 import { labelCheck, labelForcedCheck } from '../../translatedLabels';
 import { Data } from '../model';
-
-import Text from './Text';
 import { useOptionsStyles } from './check.styles';
+import Text from './Text';
 
 interface Disabled {
   disableCheck: boolean;

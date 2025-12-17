@@ -1,13 +1,23 @@
+import CloseIcon from '@mui/icons-material/Close';
 import {
-  type KeyboardEvent,
-  type RefObject,
-  Suspense,
-  lazy,
-  useEffect,
-  useRef,
-  useState
-} from 'react';
-import SelectFilter from './Fields/SelectFilter';
+  Box,
+  CircularProgress,
+  ClickAwayListener,
+  MenuItem,
+  Paper,
+  Popper
+} from '@mui/material';
+
+import {
+  getData,
+  IconButton,
+  LoadingSkeleton,
+  Filter as MemoizedFilter,
+  SearchField,
+  type SelectEntry,
+  useRequest
+} from '@centreon/ui';
+import { userAtom } from '@centreon/ui-context';
 
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import {
@@ -32,29 +42,17 @@ import {
   remove,
   uniq
 } from 'ramda';
+import {
+  type KeyboardEvent,
+  lazy,
+  type RefObject,
+  Suspense,
+  useEffect,
+  useRef,
+  useState
+} from 'react';
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
-
-import CloseIcon from '@mui/icons-material/Close';
-import {
-  Box,
-  CircularProgress,
-  ClickAwayListener,
-  MenuItem,
-  Paper,
-  Popper
-} from '@mui/material';
-
-import {
-  IconButton,
-  LoadingSkeleton,
-  Filter as MemoizedFilter,
-  SearchField,
-  type SelectEntry,
-  getData,
-  useRequest
-} from '@centreon/ui';
-import { userAtom } from '@centreon/ui-context';
 
 import {
   labelClearFilter,
@@ -64,16 +62,15 @@ import {
   labelSearchBar,
   labelStateFilter
 } from '../translatedLabels';
-
 import {
   type DynamicCriteriaParametersAndValues,
   getAutocompleteSuggestions,
   getDynamicCriteriaParametersAndValue,
   replaceMiddleSpace
 } from './Criterias/searchQueryLanguage';
-import FilterLoadingSkeleton from './FilterLoadingSkeleton';
-import SearchHelp from './SearchHelp';
 import { selectedStatusByResourceTypeAtom } from './criteriasNewInterface/basicFilter/atoms';
+import SelectFilter from './Fields/SelectFilter';
+import FilterLoadingSkeleton from './FilterLoadingSkeleton';
 import {
   applyCurrentFilterDerivedAtom,
   applyFilterDerivedAtom,
@@ -91,6 +88,7 @@ import {
   standardFilterById,
   unhandledProblemsFilter
 } from './models';
+import SearchHelp from './SearchHelp';
 import useBackToVisualizationByAll from './useBackToVisualizationByAll';
 import useFilterByModule from './useFilterByModule';
 

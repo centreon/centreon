@@ -6,7 +6,6 @@ import {
   labelNewFilter,
   labelUnhandledAlerts
 } from '../translatedLabels';
-
 import getDefaultCriterias from './Criterias/default';
 import {
   Criteria,

@@ -1,11 +1,10 @@
-import { useEffect, useState } from 'react';
-
-import { useQueryClient } from '@tanstack/react-query';
-import { useTranslation } from 'react-i18next';
-
 import { Switch, Tooltip } from '@mui/material';
 
 import { ComponentColumnProps, Method, useMutationQuery } from '@centreon/ui';
+
+import { useQueryClient } from '@tanstack/react-query';
+import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { resourceAccessRuleEndpoint } from '../../AddEditResourceAccessRule/api/endpoints';
 import {
@@ -13,7 +12,6 @@ import {
   labelDisabled,
   labelEnabled
 } from '../../translatedLabels';
-
 import useActivateStyles from './Activate.styles';
 
 const Activate = ({ row }: ComponentColumnProps): JSX.Element => {

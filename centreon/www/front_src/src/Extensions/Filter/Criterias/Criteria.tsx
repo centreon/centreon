@@ -1,14 +1,13 @@
+import type { SelectEntry } from '@centreon/ui';
+import { PopoverMultiAutocompleteField, useMemoComponent } from '@centreon/ui';
+
 import { useAtomValue, useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
-
-import { PopoverMultiAutocompleteField, useMemoComponent } from '@centreon/ui';
-import type { SelectEntry } from '@centreon/ui';
 
 import {
   filterWithParsedSearchDerivedAtom,
   setFilterCriteriaDerivedAtom
 } from '../filterAtoms';
-
 import { criteriaValueNameById, selectableCriterias } from './models';
 
 interface Props {

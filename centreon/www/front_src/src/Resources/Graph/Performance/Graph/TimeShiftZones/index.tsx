@@ -1,13 +1,11 @@
-import { createContext, useContext, useState } from 'react';
-
-import { not } from 'ramda';
-
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 
+import { not } from 'ramda';
+import { createContext, useContext, useState } from 'react';
+
 import memoizeComponent from '../../../../memoizedComponent';
 import { labelBackward, labelForward } from '../../../../translatedLabels';
-
 import TimeShiftIcon, { timeShiftIconSize } from './Icon';
 import TimeShiftZone, { timeShiftZoneWidth } from './Zone';
 

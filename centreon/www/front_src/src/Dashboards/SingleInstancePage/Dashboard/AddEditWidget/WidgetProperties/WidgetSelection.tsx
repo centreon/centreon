@@ -1,7 +1,4 @@
-import parse from 'html-react-parser';
-import { always, cond, equals, find, propEq } from 'ramda';
-import { useTranslation } from 'react-i18next';
-
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import WidgetsIcon from '@mui/icons-material/Widgets';
 import {
   Box,
@@ -13,7 +10,10 @@ import {
 
 import { SingleAutocompleteField } from '@centreon/ui';
 import { Avatar, CollapsibleItem } from '@centreon/ui/components';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+
+import parse from 'html-react-parser';
+import { always, cond, equals, find, propEq } from 'ramda';
+import { useTranslation } from 'react-i18next';
 
 import type { FederatedWidgetProperties } from '../../../../../federatedModules/models';
 import { useCanEditProperties } from '../../hooks/useCanEditDashboard';
@@ -24,7 +24,6 @@ import {
   labelWidgetType
 } from '../../translatedLabels';
 import { useAddWidgetStyles } from '../addWidget.styles';
-
 import { WidgetType } from '../models';
 import useWidgetSelection from './useWidgetSelection';
 import { useWidgetSelectionStyles } from './widgetProperties.styles';

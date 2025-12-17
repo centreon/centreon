@@ -1,9 +1,8 @@
 import { Group, InputProps, InputType } from '@centreon/ui';
-import { useTranslation } from 'react-i18next';
-
 import { platformFeaturesAtom } from '@centreon/ui-context';
+
 import { useAtomValue } from 'jotai';
-import IconFiled from './IconFilled';
+import { useTranslation } from 'react-i18next';
 
 import {
   hostListEndpoint,
@@ -22,6 +21,7 @@ import {
   labelSelectHosts
 } from '../translatedLabels';
 import { useFormStyles } from './Form.styles';
+import IconFiled from './IconFilled';
 
 interface FormInputsState {
   inputs: Array<InputProps>;

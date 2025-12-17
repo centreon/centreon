@@ -1,14 +1,13 @@
+import { ConfirmDialog } from '@centreon/ui';
+
 import { FormikValues, useFormikContext } from 'formik';
 import { useTranslation } from 'react-i18next';
-
-import { ConfirmDialog } from '@centreon/ui';
 
 import {
   labelDiscard,
   labelDuplicate,
   labelPleaseEnterNameForDuplicatedNotification
 } from '../../translatedLabels';
-
 import NotificationName from './NotificationName';
 import useDuplicate from './useDuplicate';
 

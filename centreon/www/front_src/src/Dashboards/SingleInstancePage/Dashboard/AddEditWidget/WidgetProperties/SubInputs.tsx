@@ -1,13 +1,11 @@
-import { useEffect, useMemo, useRef } from 'react';
+import { Box, Stack } from '@mui/material';
 
 import { useFormikContext } from 'formik';
 import { equals, isEmpty, isNil, isNotNil, pluck } from 'ramda';
-
-import { Box, Stack } from '@mui/material';
+import { useEffect, useMemo, useRef } from 'react';
 
 import { SubInput } from '../../../../../federatedModules/models';
 import { Widget } from '../models';
-
 import { DefaultComponent, propertiesInputType } from './useWidgetInputs';
 
 interface SubInputsProps {

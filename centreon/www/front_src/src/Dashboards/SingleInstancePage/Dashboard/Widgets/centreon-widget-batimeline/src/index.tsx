@@ -1,11 +1,10 @@
-import type { CommonWidgetProps, Data } from '../../models';
-
-import type { PanelOptions } from './models';
-
 import { equals, last, pluck } from 'ramda';
+
 import FederatedComponent from '../../../../../../components/FederatedComponents';
+import type { CommonWidgetProps, Data } from '../../models';
 import NoResources from '../../NoResources';
 import { areResourcesFullfilled } from '../../utils';
+import type { PanelOptions } from './models';
 import { labelSelectBAToDisplayPreview } from './translatedLabels';
 
 interface Props extends CommonWidgetProps<PanelOptions> {

@@ -1,11 +1,13 @@
 import {
-  ListingModel,
   buildListingEndpoint,
+  ListingModel,
   useFetchQuery
 } from '@centreon/ui';
+
 import { useAtomValue } from 'jotai';
 import { isEmpty, pluck } from 'ramda';
 import { useMemo } from 'react';
+
 import { agentConfigurationsListingDecoder } from '../api/decoders';
 import { getAgentConfigurationsEndpoint } from '../api/endpoints';
 import {

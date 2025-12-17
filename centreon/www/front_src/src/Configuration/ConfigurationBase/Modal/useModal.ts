@@ -1,25 +1,24 @@
 import { capitalize } from '@mui/material';
+
+import { ResponseError, useSnackbar } from '@centreon/ui';
+
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { equals } from 'ramda';
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router';
 
-import { ResponseError, useSnackbar } from '@centreon/ui';
-
+import {
+  useCreate as useCreateRequest,
+  useGetOne as useGetDetails,
+  useUpdate as useUpdateRequest
+} from '../api';
 import {
   configurationAtom,
   isCloseConfirmationDialogOpenAtom,
   isFormDirtyAtom,
   modalStateAtom
 } from '../atoms';
-
-import {
-  useCreate as useCreateRequest,
-  useGetOne as useGetDetails,
-  useUpdate as useUpdateRequest
-} from '../api';
-
 import {
   labelModalTitle,
   labelResourceCreated,

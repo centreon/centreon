@@ -1,19 +1,13 @@
 import { capitalize } from '@mui/material';
-import pluralize from 'pluralize';
 
 import { ResponseError, useBulkResponse } from '@centreon/ui';
 
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
+import pluralize from 'pluralize';
+import { map, pick } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
 import { useDisable, useEnable } from '../../../api';
-import {
-  resourcesToDeleteAtom,
-  resourcesToDuplicateAtom,
-  selectedRowsAtom
-} from '../../atoms';
-
-import { map, pick } from 'ramda';
 import { configurationAtom } from '../../../atoms';
 import {
   labelFailedToDisableResources,
@@ -23,6 +17,11 @@ import {
   labelResourceDisabled,
   labelResourceEnabled
 } from '../../../translatedLabels';
+import {
+  resourcesToDeleteAtom,
+  resourcesToDuplicateAtom,
+  selectedRowsAtom
+} from '../../atoms';
 
 interface UseMassiveActions {
   isMutating: boolean;

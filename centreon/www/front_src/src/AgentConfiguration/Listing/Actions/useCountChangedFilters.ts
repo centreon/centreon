@@ -1,5 +1,6 @@
 import { useAtomValue } from 'jotai';
 import { equals, filter, length, pipe, toPairs } from 'ramda';
+
 import { filtersAtom } from '../../atoms';
 import { filtersInitialValues } from '../../utils';
 

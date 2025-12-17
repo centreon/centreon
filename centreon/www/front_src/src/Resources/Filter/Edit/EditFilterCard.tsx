@@ -1,11 +1,3 @@
-import { KeyboardEvent, useState } from 'react';
-
-import { useFormik } from 'formik';
-import { useAtom, useSetAtom } from 'jotai';
-import { all, any, equals, findIndex, omit, reject, update } from 'ramda';
-import { useTranslation } from 'react-i18next';
-import { makeStyles } from 'tss-react/mui';
-
 import DeleteIcon from '@mui/icons-material/Delete';
 
 import {
@@ -17,7 +9,14 @@ import {
   useSnackbar
 } from '@centreon/ui';
 
+import { useFormik } from 'formik';
+import { useAtom, useSetAtom } from 'jotai';
+import { all, any, equals, findIndex, omit, reject, update } from 'ramda';
+import { KeyboardEvent, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { makeStyles } from 'tss-react/mui';
 import { object, string } from 'yup';
+
 import {
   labelAskDelete,
   labelCancel,

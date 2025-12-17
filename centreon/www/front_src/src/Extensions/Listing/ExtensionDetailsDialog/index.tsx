@@ -1,9 +1,3 @@
-import { useEffect, useState } from 'react';
-
-import { equals, isEmpty, length, not } from 'ramda';
-import { useTranslation } from 'react-i18next';
-import Carousel from 'react-material-ui-carousel';
-
 import InstallIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
 import UpdateIcon from '@mui/icons-material/SystemUpdateAlt';
@@ -17,7 +11,12 @@ import {
   Typography
 } from '@mui/material';
 
-import { Dialog, ParentSize, getData, useRequest } from '@centreon/ui';
+import { Dialog, getData, ParentSize, useRequest } from '@centreon/ui';
+
+import { equals, isEmpty, length, not } from 'ramda';
+import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import Carousel from 'react-material-ui-carousel';
 
 import {
   labelAvailable,
@@ -29,7 +28,6 @@ import {
 } from '../../translatedLabels';
 import { buildEndPoint } from '../api/endpoint';
 import { Entity, ExtensionDetails } from '../models';
-
 import {
   ContentSkeleton,
   HeaderSkeleton,

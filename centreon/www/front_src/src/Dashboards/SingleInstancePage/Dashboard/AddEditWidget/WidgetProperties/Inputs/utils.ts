@@ -1,29 +1,29 @@
 import type { FormikValues } from 'formik';
 import type { TFunction } from 'i18next';
 import {
-  path,
   always,
   cond,
   equals,
   includes,
   isEmpty,
   isNil,
+  path,
   pluck,
   split
 } from 'ramda';
-
 import {
   type AnyObjectSchema,
   type AnySchema,
   type ArraySchema,
-  type StringSchema,
   array,
   boolean,
   mixed,
   number,
   object,
+  type StringSchema,
   string
 } from 'yup';
+
 import {
   type FederatedWidgetOption,
   FederatedWidgetOptionType
@@ -138,7 +138,7 @@ const getYupValidatorType = ({
                   if (!value || properties.allowEmptyResources) {
                     return true;
                   }
-                  
+
                   const { resourceType, resources } = value;
 
                   return !(resourceType && isEmpty(resources || []));

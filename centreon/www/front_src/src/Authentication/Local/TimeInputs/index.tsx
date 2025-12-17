@@ -14,7 +14,6 @@ import {
   labelMonths,
   labelSecond
 } from '../translatedLabels';
-
 import TimeInput from './TimeInput';
 
 const useStyles = makeStyles()((theme) => ({

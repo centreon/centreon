@@ -1,9 +1,8 @@
-import { ReactNode } from 'react';
+import { Button, Grid } from '@mui/material';
 
+import { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
-
-import { Button, Grid } from '@mui/material';
 
 import { labelClear, labelSearch } from '../../../translatedLabels';
 
