@@ -4,3 +4,4 @@ packages:
   - 'tests/e2e'
   - 'www/widgets'
   - 'tests/rest_api'
+  - 'doc/API'
