@@ -94,11 +94,11 @@ Then(
   }
 );
 
-// Then('no certificate fields are shown', () => {
-//   cy.get('#Publiccertificate').should('not.exist');
-//   cy.get('#Privatekey').should('not.exist');
-//   cy.get('#CA').should('not.exist');
-// });
+Then('no certificate fields are shown', () => {
+  cy.get('#Publiccertificate').should('not.exist');
+  cy.get('#Privatekey').should('not.exist');
+  cy.get('#CA').should('not.exist');
+});
 
 When('the user enables connection initiated by the poller', () => {
   // Disable the "By agent" mode first
@@ -108,13 +108,13 @@ When('the user enables connection initiated by the poller', () => {
   cy.get('input[type="checkbox"]').click();
 });
 
-// Then(
-//   'no certificate fields are displayed in the Host Configuration section',
-//   () => {
-//     cy.get('#CA').should('not.exist');
-//     cy.get('#CACommonNameCN').should('not.exist');
-//   }
-// );
+Then(
+  'no certificate fields are displayed in the Host Configuration section',
+  () => {
+    cy.get('#CA').should('not.exist');
+    cy.get('#CACommonNameCN').should('not.exist');
+  }
+);
 
 When('the user fills in the mandatory fields', () => {
   cy.getByLabel({ label: 'Name', tag: 'input' }).type(

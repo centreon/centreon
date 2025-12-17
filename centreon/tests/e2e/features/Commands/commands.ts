@@ -49,13 +49,13 @@ Cypress.Commands.add('addOrUpdateCommands', (body: Cmd) => {
   cy.fillCommandLine(
     1,
     'getPlugins',
-    body.standardMacros,
+    body.installedPlugins,
     'Insert installed plugin'
   );
   cy.fillCommandLine(
     2,
     'getStandardMacros',
-    body.installedPlugins,
+    body.standardMacros,
     'Insert standard marco'
   );
   // Enable/ Disable shell
