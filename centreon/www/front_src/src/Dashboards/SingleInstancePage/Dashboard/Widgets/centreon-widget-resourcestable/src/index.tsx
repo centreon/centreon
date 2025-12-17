@@ -1,5 +1,5 @@
-import { ReactElement } from 'react';
-import { createStore, Provider as ResourcesTableProvider, useAtomValue } from 'jotai';
+import { ReactElement, useEffect } from 'react';
+import { createStore, Provider as ResourcesTableProvider, useAtom, useAtomValue, useSetAtom } from 'jotai';
 
 import ResourcesTable from './ResourcesTable';
 import { OpenTicketContext, ResourcesTableProps } from './models';
@@ -20,13 +20,15 @@ const Widget = (props: ResourcesTableProps): ReactElement => {
     isUnreachableHostHidden: props.panelOptions.isUnreachableHostHidden,
     provider: props.panelOptions.provider
   }
-  const store = createStore();
-  store.set(openTicketAtom, openTicketContext);
+
+  const setOpenTicket = useSetAtom(openTicketAtom);
+
+  useEffect(() => {
+    setOpenTicket(openTicketContext);
+  }, [JSON.stringify(openTicketContext)]);
 
   return (
-    <ResourcesTableProvider store={store}>
       <ResourcesTable {...props} />
-    </ResourcesTableProvider>
   );
 }
 
