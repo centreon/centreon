@@ -1,15 +1,14 @@
-import { useCallback, useState } from 'react';
-
-import { FormikValues, useFormikContext } from 'formik';
-import { isEmpty, not, prop } from 'ramda';
-import { useTranslation } from 'react-i18next';
-import { makeStyles } from 'tss-react/mui';
-
 import LockIcon from '@mui/icons-material/Lock';
 import PersonIcon from '@mui/icons-material/Person';
 import { Button, CircularProgress } from '@mui/material';
 
 import { TextField } from '@centreon/ui';
+
+import { FormikValues, useFormikContext } from 'formik';
+import { isEmpty, not, prop } from 'ramda';
+import { useCallback, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { makeStyles } from 'tss-react/mui';
 
 import PasswordEndAdornment from './PasswordEndAdornment';
 import { labelAlias, labelConnect, labelPassword } from './translatedLabels';

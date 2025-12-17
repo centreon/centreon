@@ -1,5 +1,7 @@
 import { Box, Typography } from '@mui/material';
+
 import { useTranslation } from 'react-i18next';
+
 import VaultForm from './Form/Form';
 import { labelVaultConfiguration } from './translatedLabels';
 

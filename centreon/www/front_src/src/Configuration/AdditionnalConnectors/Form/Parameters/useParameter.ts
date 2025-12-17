@@ -1,6 +1,6 @@
 import { useFormikContext } from 'formik';
 import { useAtomValue } from 'jotai';
-import { path, equals, includes, split } from 'ramda';
+import { equals, includes, path, split } from 'ramda';
 
 import { modalStateAtom } from '../../../ConfigurationBase/atoms';
 import { AdditionalConnectorConfiguration, ParameterKeys } from '../../models';

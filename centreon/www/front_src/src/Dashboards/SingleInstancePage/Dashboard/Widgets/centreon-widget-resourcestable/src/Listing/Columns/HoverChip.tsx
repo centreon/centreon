@@ -1,10 +1,9 @@
-import { useEffect, useState } from 'react';
-
-import { not } from 'ramda';
-
 import { Tooltip } from '@mui/material';
 
 import { useMemoComponent } from '@centreon/ui';
+
+import { not } from 'ramda';
+import { useEffect, useState } from 'react';
 
 import { useHoverChiptStyles } from './Columns.styles';
 

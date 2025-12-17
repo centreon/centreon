@@ -1,10 +1,11 @@
 import debounce from '@mui/utils/debounce';
-import { PrimitiveAtom, useAtom, useAtomValue } from 'jotai';
-import { equals, pluck } from 'ramda';
-import { configurationAtom } from '../atoms';
 
 import { useQueryClient } from '@tanstack/react-query';
+import { PrimitiveAtom, useAtom, useAtomValue } from 'jotai';
+import { equals, pluck } from 'ramda';
 import { useRef } from 'react';
+
+import { configurationAtom } from '../atoms';
 
 interface UseSearch<TFilters> {
   onChange: (event) => void;

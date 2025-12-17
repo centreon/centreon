@@ -1,7 +1,9 @@
 import { SelectEntry } from '@centreon/ui';
+
 import { useFormikContext } from 'formik';
 import { equals, isEmpty, isNil } from 'ramda';
 import { ChangeEvent, useCallback, useMemo } from 'react';
+
 import {
   AgentConfigurationForm,
   ConnectionMode,

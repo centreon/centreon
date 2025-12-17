@@ -13,12 +13,10 @@ import {
   labelServiceGroup,
   labelUnhandledAlerts
 } from '../translatedLabels';
-
+import Filter from '.';
 import { defaultSortField, defaultSortOrder } from './Criterias/default';
 import { filterKey } from './filterAtoms';
 import useFilter from './useFilter';
-
-import Filter from '.';
 
 const resourcesByHostType = {
   alias: 'SensorProbe-Datacenter-04',

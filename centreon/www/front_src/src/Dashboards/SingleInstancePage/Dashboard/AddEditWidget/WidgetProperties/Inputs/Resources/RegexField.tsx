@@ -1,6 +1,8 @@
 import { RegexIcon, TextField } from '@centreon/ui';
 import { IconButton, Tooltip } from '@centreon/ui/components';
+
 import { useTranslation } from 'react-i18next';
+
 import {
   labelDeactivateRegex,
   labelEnterRegex

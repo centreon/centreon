@@ -1,5 +1,5 @@
-import Widget from '.';
 import { labelPreviewRemainsEmpty } from '../../translatedLabels';
+import Widget from '.';
 
 const initialize = ({ panelData }): void => {
   cy.mount({

@@ -1,9 +1,15 @@
-import { ChangeEvent, useCallback, useEffect, useMemo, useState } from 'react';
+import {
+  buildListingEndpoint,
+  QueryParameter,
+  RegexSearchParameter,
+  SearchParameter,
+  SelectEntry
+} from '@centreon/ui';
+import { additionalResourcesAtom } from '@centreon/ui-context';
 
 import { useFormikContext } from 'formik';
 import { useAtomValue, useSetAtom } from 'jotai';
 import {
-  T,
   always,
   cond,
   equals,
@@ -23,22 +29,14 @@ import {
   project,
   propEq,
   reject,
+  T,
   type,
   uniqBy
 } from 'ramda';
-
-import {
-  QueryParameter,
-  RegexSearchParameter,
-  SearchParameter,
-  SelectEntry,
-  buildListingEndpoint
-} from '@centreon/ui';
-import { additionalResourcesAtom } from '@centreon/ui-context';
+import { ChangeEvent, useCallback, useEffect, useMemo, useState } from 'react';
 
 import { baseEndpoint } from '../../../../../../../api/endpoint';
 import { WidgetHiddenCondition } from '../../../../../../../federatedModules/models';
-import { getIsMetaServiceSelected } from '../../../../Widgets/utils';
 import {
   labelHost,
   labelHostCategory,
@@ -49,12 +47,11 @@ import {
   labelServiceCategory,
   labelServiceGroup
 } from '../../../../translatedLabels';
+import { getIsMetaServiceSelected } from '../../../../Widgets/utils';
 import {
   hasMetricInputTypeDerivedAtom,
   widgetPropertiesMetaPropertiesDerivedAtom
 } from '../../../atoms';
-import { checkHiddenCondition } from '../../handleHiddenConditions';
-
 import {
   ForceSingleAutocompleteConditions,
   Widget,
@@ -62,6 +59,7 @@ import {
   WidgetPropertyProps,
   WidgetResourceType
 } from '../../../models';
+import { checkHiddenCondition } from '../../handleHiddenConditions';
 import {
   buildResourceTypeNameForSearchParameter,
   getDataProperty

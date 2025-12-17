@@ -1,6 +1,6 @@
-import { makeStyles } from 'tss-react/mui';
-
 import { Typography, TypographyVariant } from '@mui/material';
+
+import { makeStyles } from 'tss-react/mui';
 
 const useStyles = makeStyles()(() => ({
   name: {

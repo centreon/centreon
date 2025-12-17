@@ -1,3 +1,11 @@
+import { Paper, Theme } from '@mui/material';
+
+import type { ListingModel } from '@centreon/ui';
+import { getXAxisTickFormat, useRequest } from '@centreon/ui';
+import { userAtom } from '@centreon/ui-context';
+
+import { useAtomValue } from 'jotai';
+import { isNil, not, or, path } from 'ramda';
 import {
   MutableRefObject,
   ReactNode,
@@ -6,29 +14,19 @@ import {
   useRef,
   useState
 } from 'react';
-
-import { useAtomValue } from 'jotai';
-import { path, isNil, not, or } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
 
-import { Paper, Theme } from '@mui/material';
-
-import type { ListingModel } from '@centreon/ui';
-import { getXAxisTickFormat, useRequest } from '@centreon/ui';
-import { userAtom } from '@centreon/ui-context';
-
-import PerformanceGraph from '..';
 import { detailsAtom } from '../../../Details/detailsAtoms';
 import { ResourceDetails } from '../../../Details/models';
 import { listTimelineEvents } from '../../../Details/tabs/Timeline/api';
 import { listTimelineEventsDecoder } from '../../../Details/tabs/Timeline/api/decoders';
 import { TimelineEvent } from '../../../Details/tabs/Timeline/models';
 import { Resource } from '../../../models';
+import PerformanceGraph from '..';
 import MemoizedGraphActions from '../GraphActions';
-import { resourceDetailsUpdatedAtom } from '../TimePeriods/timePeriodAtoms';
 import { FilterLines, GraphOptionId, LinesProps, NewLines } from '../models';
+import { resourceDetailsUpdatedAtom } from '../TimePeriods/timePeriodAtoms';
 import { useIntersection } from '../useGraphIntersection';
-
 import { graphOptionsAtom } from './graphOptionsAtoms';
 
 const useStyles = makeStyles()((theme: Theme) => ({

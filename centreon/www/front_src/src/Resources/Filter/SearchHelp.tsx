@@ -1,16 +1,15 @@
-import { useState } from 'react';
-
-import { useAtomValue } from 'jotai';
-import { useTranslation } from 'react-i18next';
-import { makeStyles } from 'tss-react/mui';
-
 import { Box, Link, Typography } from '@mui/material';
 
-import { PersistentTooltip, getDocsURL } from '@centreon/ui';
+import { getDocsURL, PersistentTooltip } from '@centreon/ui';
 import {
   platformFeaturesAtom,
   platformVersionsAtom
 } from '@centreon/ui-context';
+
+import { useAtomValue } from 'jotai';
+import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { makeStyles } from 'tss-react/mui';
 
 import {
   labelFindExplanationsAndExamples,

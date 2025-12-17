@@ -1,4 +1,9 @@
-import { useEffect, useRef } from 'react';
+import type { SelectEntry } from '@centreon/ui';
+import { getData, getUrlQueryParameters, useRequest } from '@centreon/ui';
+import {
+  isResourceStatusFullSearchEnabledAtom,
+  refreshIntervalAtom
+} from '@centreon/ui-context';
 
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import {
@@ -13,35 +18,29 @@ import {
   pathOr,
   prop
 } from 'ramda';
+import { useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import type { SelectEntry } from '@centreon/ui';
-import { getData, getUrlQueryParameters, useRequest } from '@centreon/ui';
-import {
-  isResourceStatusFullSearchEnabledAtom,
-  refreshIntervalAtom
-} from '@centreon/ui-context';
-
 import { selectedVisualizationAtom } from '../../Actions/actionsAtoms';
+import {
+  resourcesEndpoint as allResourcesEndpoint,
+  hostsEndpoint
+} from '../../api/endpoint';
 import {
   clearSelectedResourceDerivedAtom,
   detailsAtom,
   selectedResourceDetailsEndpointDerivedAtom,
-  selectedResourceUuidAtom,
   selectedResourcesDetailsAtom,
+  selectedResourceUuidAtom,
   sendingDetailsAtom
 } from '../../Details/detailsAtoms';
 import type { ResourceDetails } from '../../Details/models';
+import { resourceDetailsDecoder } from '../../decoders';
 import {
   appliedFilterAtom,
   customFiltersAtom,
   getCriteriaValueDerivedAtom
 } from '../../Filter/filterAtoms';
-import {
-  resourcesEndpoint as allResourcesEndpoint,
-  hostsEndpoint
-} from '../../api/endpoint';
-import { resourceDetailsDecoder } from '../../decoders';
 import { type ResourceListing, SortOrder, Visualization } from '../../models';
 import {
   labelNoResourceFound,

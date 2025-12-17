@@ -1,10 +1,10 @@
+import { useLocaleDateTimeFormat, useMemoComponent } from '@centreon/ui';
+
 import { Shape } from '@visx/visx';
 import { ScaleTime } from 'd3-scale';
 import { useAtom, useAtomValue } from 'jotai';
 import { max, pick, prop } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
-
-import { useLocaleDateTimeFormat, useMemoComponent } from '@centreon/ui';
 
 import { labelFrom, labelTo } from '../../../../../translatedLabels';
 import {
@@ -12,8 +12,7 @@ import {
   getFillColorDerivedAtom,
   getIconColorDerivedAtom
 } from '../../annotationsAtoms';
-
-import Annotation, { Props as AnnotationProps, yMargin, iconSize } from '.';
+import Annotation, { Props as AnnotationProps, iconSize, yMargin } from '.';
 
 type Props = {
   Icon: (props) => JSX.Element;

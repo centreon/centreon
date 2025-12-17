@@ -1,8 +1,8 @@
-import { useAtomValue } from 'jotai';
-import { useTranslation } from 'react-i18next';
-
 import { MemoizedListing, sanitizedHTML } from '@centreon/ui';
 import { Modal } from '@centreon/ui/components';
+
+import { useAtomValue } from 'jotai';
+import { useTranslation } from 'react-i18next';
 
 import { List } from '../../../api/meta.models';
 import { Dashboard } from '../../../api/models';
@@ -12,10 +12,9 @@ import {
   labelDeleteUser,
   labelYouAreGoingToDeleteUser
 } from '../../../translatedLabels';
-
 import { Actions } from './Actions';
-import useColumns from './Columns/useColumns';
 import { askBeforeRevokeAtom } from './atom';
+import useColumns from './Columns/useColumns';
 import useListing from './useListing';
 
 interface ListingProp {

@@ -1,19 +1,15 @@
-import { Suspense, useEffect } from 'react';
+import { Typography } from '@mui/material';
+
+import { LoadingSkeleton, WallpaperPage } from '@centreon/ui';
+import { platformVersionsAtom } from '@centreon/ui-context';
 
 import { Formik } from 'formik';
 import { useAtomValue } from 'jotai';
 import { equals, isNil, not } from 'ramda';
+import { Suspense, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
 
-import { Typography } from '@mui/material';
-
-import { LoadingSkeleton, WallpaperPage } from '@centreon/ui';
-
-import { MainLoaderWithoutTranslation } from '../Main/MainLoader';
-import routeMap from '../reactRoutes/routeMap';
-
-import { platformVersionsAtom } from '@centreon/ui-context';
 import CustomText from '../Login/CustomText';
 import LoginHeader from '../Login/LoginHeader';
 import {
@@ -21,6 +17,8 @@ import {
   labelPoweredByCentreon
 } from '../Login/translatedLabels';
 import useGetLoginCustomData from '../Login/useGetLoginCustomData';
+import { MainLoaderWithoutTranslation } from '../Main/MainLoader';
+import routeMap from '../reactRoutes/routeMap';
 import Form from './Form';
 import { ResetPasswordValues } from './models';
 import { passwordResetInformationsAtom } from './passwordResetInformationsAtom';
@@ -82,39 +80,35 @@ const ResetPassword = (): JSX.Element | null => {
           wallpaperAlt={t(labelCentreonWallpaper)}
           wallpaperSource={loginPageCustomisation.imageSource}
         >
-          <>
-            <Suspense fallback={<LoadingSkeleton height={50} width={250} />}>
-              <LoginHeader loginPageCustomisation={loginPageCustomisation} />
-            </Suspense>
-            {equals(loginPageCustomisation.textPosition, 'top') && (
-              <CustomText loginPageCustomisation={loginPageCustomisation} />
-            )}
-            <Typography variant="h5">{t(labelResetYourPassword)}</Typography>
-            <div className={classes.form}>
-              <Formik<ResetPasswordValues>
-                initialValues={initialValues}
-                validationSchema={validationSchema}
-                onSubmit={submitResetPassword}
-              >
-                <Form />
-              </Formik>
-            </div>
-            {equals(loginPageCustomisation.textPosition, 'bottom') && (
-              <CustomText loginPageCustomisation={loginPageCustomisation} />
-            )}
-            <div className={classes.poweredByAndVersion}>
+          <Suspense fallback={<LoadingSkeleton height={50} width={250} />}>
+            <LoginHeader loginPageCustomisation={loginPageCustomisation} />
+          </Suspense>
+          {equals(loginPageCustomisation.textPosition, 'top') && (
+            <CustomText loginPageCustomisation={loginPageCustomisation} />
+          )}
+          <Typography variant="h5">{t(labelResetYourPassword)}</Typography>
+          <div className={classes.form}>
+            <Formik<ResetPasswordValues>
+              initialValues={initialValues}
+              validationSchema={validationSchema}
+              onSubmit={submitResetPassword}
+            >
+              <Form />
+            </Formik>
+          </div>
+          {equals(loginPageCustomisation.textPosition, 'bottom') && (
+            <CustomText loginPageCustomisation={loginPageCustomisation} />
+          )}
+          <div className={classes.poweredByAndVersion}>
+            <Typography variant="body2">{t(labelPoweredByCentreon)}</Typography>
+            {isNil(platformVersions) ? (
+              <LoadingSkeleton variant="text" width="40%" />
+            ) : (
               <Typography variant="body2">
-                {t(labelPoweredByCentreon)}
+                v. {platformVersions?.web.version}
               </Typography>
-              {isNil(platformVersions) ? (
-                <LoadingSkeleton variant="text" width="40%" />
-              ) : (
-                <Typography variant="body2">
-                  v. {platformVersions?.web.version}
-                </Typography>
-              )}
-            </div>
-          </>
+            )}
+          </div>
         </WallpaperPage>
       </Suspense>
     </div>

@@ -1,4 +1,5 @@
 import { MemoizedListing } from '@centreon/ui';
+
 import Actions from './Actions';
 import { useColumns } from './Columns/Columns';
 import useListing from './useListing';

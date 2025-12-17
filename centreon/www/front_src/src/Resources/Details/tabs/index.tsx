@@ -1,6 +1,5 @@
-import { Suspense, lazy } from 'react';
-
-import { path, equals, find, invertObj, isNil, propEq } from 'ramda';
+import { equals, find, invertObj, isNil, path, propEq } from 'ramda';
+import { lazy, Suspense } from 'react';
 import { makeStyles } from 'tss-react/mui';
 
 import {
@@ -13,7 +12,6 @@ import {
 } from '../../translatedLabels';
 import DetailsLoadingSkeleton from '../LoadingSkeleton';
 import { ResourceDetails } from '../models';
-
 import { Tab, TabId } from './models';
 
 const DetailsTab = lazy(() => import('./Details'));

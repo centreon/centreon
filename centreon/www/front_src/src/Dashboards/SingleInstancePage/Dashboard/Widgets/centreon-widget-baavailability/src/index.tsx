@@ -1,7 +1,6 @@
 import FederatedComponent from '../../../../../../components/FederatedComponents';
 import NoResources from '../../NoResources';
 import { areResourcesFullfilled } from '../../utils';
-
 import { WidgetProps } from './models';
 
 const Widget = ({

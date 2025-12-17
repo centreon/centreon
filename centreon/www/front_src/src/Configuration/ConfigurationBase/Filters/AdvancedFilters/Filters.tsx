@@ -1,4 +1,5 @@
 import { Button } from '@centreon/ui/components';
+
 import { PrimitiveAtom, useAtom } from 'jotai';
 import { equals } from 'ramda';
 import { JSX } from 'react';
@@ -6,17 +7,15 @@ import { useTranslation } from 'react-i18next';
 
 import { FieldType } from '../../../models';
 import useLoadData from '../../Listing/useLoadData';
+import { labelClear, labelSearch } from '../../translatedLabels';
+import { useFilterStyles } from '../Filters.styles';
 import {
   MultiAutocomplete,
   MultiConnectedAutocomplete,
   Status,
   Text
 } from './Fields';
-
-import { useFilterStyles } from '../Filters.styles';
 import useFilters from './useFilters';
-
-import { labelClear, labelSearch } from '../../translatedLabels';
 
 interface Props<TFilters> {
   filtersAtom: PrimitiveAtom<TFilters>;

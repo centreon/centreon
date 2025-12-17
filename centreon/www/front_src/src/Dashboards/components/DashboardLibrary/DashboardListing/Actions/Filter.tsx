@@ -1,9 +1,12 @@
-import { IconButton, SearchField } from '@centreon/ui';
 import CloseIcon from '@mui/icons-material/Close';
 import debounce from '@mui/utils/debounce';
+
+import { IconButton, SearchField } from '@centreon/ui';
+
 import { useAtom } from 'jotai';
 import { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+
 import { searchAtom } from '../atom';
 import { labelClearFilter, labelSearch } from '../translatedLabels';
 

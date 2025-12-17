@@ -2,7 +2,6 @@ import { equals, isNil } from 'ramda';
 
 import { ChannelsEnum, ResourcesTypeEnum } from '../models';
 import { labelIncludeServicesForTheseHosts } from '../translatedLabels';
-
 import { EmailIcon } from './FormInputs/Channel/Icons';
 import { EventsType } from './models';
 

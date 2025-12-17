@@ -1,9 +1,8 @@
-import { useRef } from 'react';
+import { Modal } from '@centreon/ui/components';
 
 import { useAtom } from 'jotai';
+import { useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-
-import { Modal } from '@centreon/ui/components';
 
 import { widgetToDeleteAtom } from '../atoms';
 import useDeleteWidget from '../hooks/useDeleteWidget';

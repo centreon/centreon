@@ -1,14 +1,13 @@
-import { Provider, createStore } from 'jotai';
-
 import { Method, TestQueryProvider } from '@centreon/ui';
 import { isOnPublicPageAtom } from '@centreon/ui-context';
 
+import { createStore, Provider } from 'jotai';
+import { equals } from 'ramda';
+
 import { labelPreviewRemainsEmpty } from '../../translatedLabels';
 import { getPublicWidgetEndpoint } from '../../utils';
-
-import { equals } from 'ramda';
-import WidgetLineChart from './LineChart';
 import { graphEndpoint } from './api/endpoints';
+import WidgetLineChart from './LineChart';
 import type {
   Data,
   FormThreshold,
@@ -488,7 +487,7 @@ describe('Graph Widget', () => {
   });
 
   legendData.forEach(({ resourcesType, graphDataPath }) => {
-    it(`do not display the ${resourcesType} name from the legend and tooltip when it\'s redundant`, () => {
+    it(`do not display the ${resourcesType} name from the legend and tooltip when it's redundant`, () => {
       initializeComponent({
         showLegend: true,
         graphDataPath
@@ -529,7 +528,7 @@ describe('Graph Widget', () => {
         });
 
         cy.makeSnapshot(
-          `do not display the ${resourcesType} name from the legend and tooltip when it\'s redundant`
+          `do not display the ${resourcesType} name from the legend and tooltip when it's redundant`
         );
       });
     });

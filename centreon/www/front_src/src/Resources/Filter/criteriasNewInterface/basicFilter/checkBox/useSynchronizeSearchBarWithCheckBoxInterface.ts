@@ -1,6 +1,5 @@
-import { useEffect } from 'react';
-
 import { equals, isEmpty, isNil } from 'ramda';
+import { useEffect } from 'react';
 
 import { ResourceType } from '../../../../models';
 import { Criteria, CriteriaDisplayProps } from '../../../Criterias/models';

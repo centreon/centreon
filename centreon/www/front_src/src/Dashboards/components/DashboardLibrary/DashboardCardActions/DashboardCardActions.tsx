@@ -1,5 +1,3 @@
-import { useTranslation } from 'react-i18next';
-
 import {
   Delete as DeleteIcon,
   ContentCopy as DuplicateIcon,
@@ -15,18 +13,19 @@ import {
   IconButton
 } from '@centreon/ui';
 
+import { useTranslation } from 'react-i18next';
+
 import { Dashboard } from '../../../api/models';
 import {
   labelDelete,
   labelDuplicate,
   labelShareWithContacts
 } from '../../../translatedLabels';
+import FavoriteAction from '../DashboardListing/Actions/favoriteAction';
 import {
   labelEditProperties,
   labelMoreActions
 } from '../DashboardListing/translatedLabels';
-
-import FavoriteAction from '../DashboardListing/Actions/favoriteAction';
 import { useStyles } from './DashboardCardActions.styles';
 import useDashboardCardActions from './useDashboardCardActions';
 

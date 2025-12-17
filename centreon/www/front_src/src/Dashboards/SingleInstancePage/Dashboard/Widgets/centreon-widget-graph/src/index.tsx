@@ -1,5 +1,4 @@
 import { CommonWidgetProps, Data } from '../../models';
-
 import LineChart from './LineChart';
 import { PanelOptions } from './models';
 

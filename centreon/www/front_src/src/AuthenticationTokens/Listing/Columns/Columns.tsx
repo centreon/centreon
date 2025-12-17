@@ -1,20 +1,19 @@
-import { useMemo } from 'react';
-
-import { useAtom, useAtomValue } from 'jotai';
-
 import {
   Column as ColumnTable,
   ColumnType,
   useLocaleDateTimeFormat
 } from '@centreon/ui';
 import { userAtom } from '@centreon/ui-context';
-import { selectedColumnIdsAtom } from '../atoms';
 
+import { useAtom, useAtomValue } from 'jotai';
+import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
+
+import { selectedColumnIdsAtom } from '../atoms';
 import ActionsColumn from './ActionsColumn';
 import ExpirationDate from './ExpirationDate/ExpirationDate';
-import Status from './Status/Status';
 import { Column, ColumnId } from './models';
+import Status from './Status/Status';
 
 const dateFormat = 'L';
 

@@ -1,8 +1,3 @@
-import { type ReactElement, useEffect } from 'react';
-
-import { useAtomValue, useSetAtom } from 'jotai';
-import { inc } from 'ramda';
-
 import {
   Settings as SettingsIcon,
   Share as ShareIcon
@@ -13,6 +8,10 @@ import { Divider } from '@mui/material';
 import { IconButton, PageHeader, PageLayout } from '@centreon/ui/components';
 
 import { useIsFetching, useQueryClient } from '@tanstack/react-query';
+import { useAtomValue, useSetAtom } from 'jotai';
+import { inc } from 'ramda';
+import { type ReactElement, useEffect } from 'react';
+
 import { type Dashboard as DashboardType, resource } from '../../api/models';
 import { isSharesOpenAtom } from '../../atoms';
 import { DashboardAccessRightsModal } from '../../components/DashboardLibrary/DashboardAccessRights/DashboardAccessRightsModal';
@@ -22,14 +21,14 @@ import FavoriteAction from '../../components/DashboardLibrary/DashboardListing/A
 import { DashboardsQuickAccessMenu } from '../../components/DashboardLibrary/DashboardsQuickAccess/DashboardsQuickAccessMenu';
 import DashboardNavbar from '../../components/DashboardNavbar/DashboardNavbar';
 import { AddWidgetButton } from './AddEditWidget';
-import { useDashboardStyles } from './Dashboard.styles';
-import Layout from './Layout';
 import { dashboardAtom, isEditingAtom, refreshCountsAtom } from './atoms';
 import { DashboardEditActions } from './components/DashboardEdit/DashboardEditActions';
 import DashboardSaveBlockerModal from './components/DashboardSaveBlockerModal';
 import DeleteWidgetModal from './components/DeleteWidgetModal';
+import { useDashboardStyles } from './Dashboard.styles';
 import { useCanEditProperties } from './hooks/useCanEditDashboard';
 import useDashboardDetails, { routerParams } from './hooks/useDashboardDetails';
+import Layout from './Layout';
 
 const Dashboard = (): ReactElement => {
   const { classes } = useDashboardStyles();

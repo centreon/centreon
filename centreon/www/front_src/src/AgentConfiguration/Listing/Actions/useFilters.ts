@@ -1,12 +1,11 @@
-import { equals, isNil, map, pick, propEq, reject } from 'ramda';
-
 import { SelectEntry } from '@centreon/ui';
 
 import { useQueryClient } from '@tanstack/react-query';
 import { useAtom } from 'jotai';
+import { equals, isNil, map, pick, propEq, reject } from 'ramda';
 import { useEffect, useState } from 'react';
-import { filtersAtom } from '../../atoms';
 
+import { filtersAtom } from '../../atoms';
 import { filtersInitialValues } from '../../utils';
 
 type NamedEntity = {

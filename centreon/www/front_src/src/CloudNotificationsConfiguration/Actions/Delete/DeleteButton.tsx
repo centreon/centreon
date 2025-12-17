@@ -1,8 +1,8 @@
-import { useTranslation } from 'react-i18next';
-
 import DeleteIcon from '@mui/icons-material/DeleteOutline';
 
 import { IconButton } from '@centreon/ui';
+
+import { useTranslation } from 'react-i18next';
 
 import { labelDelete } from '../../translatedLabels';
 

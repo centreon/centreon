@@ -1,19 +1,18 @@
 import {
-  MutateOptions,
-  UseMutationResult,
-  useQueryClient
-} from '@tanstack/react-query';
-import { useTranslation } from 'react-i18next';
-
-import {
   Method,
   ResponseError,
   useMutationQuery,
   useSnackbar
 } from '@centreon/ui';
 
-import { labelUserDeleted } from '../translatedLabels';
+import {
+  MutateOptions,
+  UseMutationResult,
+  useQueryClient
+} from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 
+import { labelUserDeleted } from '../translatedLabels';
 import { getDashboardAccessRightsContactEndpoint } from './endpoints';
 import { DeleteAccessRightDto, resource } from './models';
 

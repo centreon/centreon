@@ -1,13 +1,12 @@
-import { useEffect, useState } from 'react';
-
-import dayjs from 'dayjs';
-import { and, cond, equals, isNil } from 'ramda';
-import { useTranslation } from 'react-i18next';
-import { makeStyles } from 'tss-react/mui';
-
 import { FormHelperText, Popover, Typography } from '@mui/material';
 
 import { DateTimePickerInput } from '@centreon/ui';
+
+import dayjs from 'dayjs';
+import { and, cond, equals, isNil } from 'ramda';
+import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { makeStyles } from 'tss-react/mui';
 
 import { CustomTimePeriodProperty } from '../../../Details/tabs/Graph/models';
 import {
@@ -17,7 +16,6 @@ import {
   labelStartDate,
   labelTo
 } from '../../../translatedLabels';
-
 import {
   AnchorReferenceEnum,
   CustomStyle,

@@ -1,7 +1,7 @@
-import { useTranslation } from 'react-i18next';
-
 import { Typography } from '@mui/material';
 import Grid from '@mui/material/Grid';
+
+import { useTranslation } from 'react-i18next';
 
 import viewByAllActive from '../../icons/view_all_actif.svg';
 import viewByAllInactive from '../../icons/view_all_inactif.svg';
@@ -16,7 +16,6 @@ import {
   labelViewByHost,
   labelViewByService
 } from '../../translatedLabels';
-
 import Action from './Action';
 import { useStyles } from './Visualization.styles';
 

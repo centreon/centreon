@@ -1,8 +1,10 @@
 import { Modal } from '@centreon/ui/components';
+
 import { useAtomValue, useSetAtom } from 'jotai';
 import { equals, isNotNil } from 'ramda';
 import { useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
+
 import { askBeforeCloseFormModalAtom, openFormModalAtom } from '../atoms';
 import { labelAddAgentConfiguration } from '../translatedLabels';
 import AgentConfigurationForm from './Form';
@@ -24,14 +26,12 @@ const AddModal = () => {
   );
 
   return (
-    <>
-      <Modal open={isModalOpen} onClose={openAskBeforeClose} size="xlarge">
-        <Modal.Header>{t(labelAddAgentConfiguration)}</Modal.Header>
-        <Modal.Body>
-          <AgentConfigurationForm />
-        </Modal.Body>
-      </Modal>
-    </>
+    <Modal open={isModalOpen} onClose={openAskBeforeClose} size="xlarge">
+      <Modal.Header>{t(labelAddAgentConfiguration)}</Modal.Header>
+      <Modal.Body>
+        <AgentConfigurationForm />
+      </Modal.Body>
+    </Modal>
   );
 };
 

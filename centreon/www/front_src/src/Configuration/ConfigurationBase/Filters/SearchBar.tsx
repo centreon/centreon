@@ -1,15 +1,13 @@
-import { PrimitiveAtom } from 'jotai';
-import { ReactElement, useMemo } from 'react';
-
-import { useTranslation } from 'react-i18next';
-
 import { SearchField } from '@centreon/ui';
 
+import { PrimitiveAtom } from 'jotai';
+import { ReactElement, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
+
 import { labelSearch } from '../translatedLabels';
+import AdvancedFilters from './AdvancedFilters';
 import { useFilterStyles } from './Filters.styles';
 import useSearch from './useSearch';
-
-import AdvancedFilters from './AdvancedFilters';
 
 interface Props<TFilters> {
   filtersAtom: PrimitiveAtom<TFilters>;

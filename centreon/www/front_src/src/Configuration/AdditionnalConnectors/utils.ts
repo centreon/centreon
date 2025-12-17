@@ -1,6 +1,6 @@
 import { find, propEq } from 'ramda';
-import { Filters } from './models';
-import { NamedEntity, ParameterKeys } from './models';
+
+import { Filters, NamedEntity, ParameterKeys } from './models';
 
 export const defaultSelectedColumnIds = [
   'name',

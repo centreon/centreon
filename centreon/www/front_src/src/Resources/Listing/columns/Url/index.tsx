@@ -1,9 +1,9 @@
-import { isEmpty, isNil } from 'ramda';
-import { makeStyles } from 'tss-react/mui';
-
 import { Avatar, Tooltip } from '@mui/material';
 
 import { IconButton } from '@centreon/ui';
+
+import { isEmpty, isNil } from 'ramda';
+import { makeStyles } from 'tss-react/mui';
 
 import IconColumn from '../IconColumn';
 

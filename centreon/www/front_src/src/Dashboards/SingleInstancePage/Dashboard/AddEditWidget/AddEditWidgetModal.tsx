@@ -1,13 +1,12 @@
-import { useCallback, useEffect } from 'react';
+import { Paper, useMediaQuery, useTheme } from '@mui/material';
+
+import { Modal } from '@centreon/ui/components';
 
 import { Formik } from 'formik';
 import { useAtomValue } from 'jotai';
 import { isNil } from 'ramda';
+import { useCallback, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-
-import { Paper, useMediaQuery, useTheme } from '@mui/material';
-
-import { Modal } from '@centreon/ui/components';
 
 import { isSidebarOpenAtom } from '../../../../Navigation/navigationAtoms';
 import { useCanEditProperties } from '../hooks/useCanEditDashboard';
@@ -16,9 +15,12 @@ import {
   labelEditWidget,
   labelViewWidgetProperties
 } from '../translatedLabels';
-
 import Actions from './Actions';
+import { useAddWidgetStyles } from './addWidget.styles';
+import type { Widget } from './models';
 import UnsavedChanges from './UnsavedChanges';
+import useValidationSchema from './useValidationSchema';
+import useWidgetForm from './useWidgetModal';
 import {
   Preview,
   WidgetData,
@@ -26,10 +28,6 @@ import {
   WidgetProperties,
   WidgetSelection
 } from './WidgetProperties';
-import { useAddWidgetStyles } from './addWidget.styles';
-import type { Widget } from './models';
-import useValidationSchema from './useValidationSchema';
-import useWidgetForm from './useWidgetModal';
 
 const AddWidgetModal = (): JSX.Element | null => {
   const { t } = useTranslation();
@@ -95,46 +93,45 @@ const AddWidgetModal = (): JSX.Element | null => {
           onClose={() => askBeforeCloseModal(dirty)}
         >
           <Modal.Header variant="h6">{t(getTitle())}</Modal.Header>
-          <>
-            <Modal.Body>
-              {isSmallDisplay ? (
-                <div className={classes.smallContainer}>
+
+          <Modal.Body>
+            {isSmallDisplay ? (
+              <div className={classes.smallContainer}>
+                <WidgetSelection />
+                <Paper className={classes.preview}>
+                  <Preview />
+                </Paper>
+                <div className={classes.smallWidgetProperties}>
+                  <WidgetProperties />
+                </div>
+                <WidgetData />
+              </div>
+            ) : (
+              <div className={classes.container}>
+                <div className={classes.widgetProperties}>
                   <WidgetSelection />
+                  <div className={classes.widgetPropertiesContentContainer}>
+                    <div className={classes.widgetPropertiesContent}>
+                      <WidgetProperties />
+                    </div>
+                  </div>
+                </div>
+                <div>
                   <Paper className={classes.preview}>
                     <Preview />
                   </Paper>
-                  <div className={classes.smallWidgetProperties}>
-                    <WidgetProperties />
-                  </div>
                   <WidgetData />
+                  <WidgetMessage />
                 </div>
-              ) : (
-                <div className={classes.container}>
-                  <div className={classes.widgetProperties}>
-                    <WidgetSelection />
-                    <div className={classes.widgetPropertiesContentContainer}>
-                      <div className={classes.widgetPropertiesContent}>
-                        <WidgetProperties />
-                      </div>
-                    </div>
-                  </div>
-                  <div>
-                    <Paper className={classes.preview}>
-                      <Preview />
-                    </Paper>
-                    <WidgetData />
-                    <WidgetMessage />
-                  </div>
-                </div>
-              )}
-            </Modal.Body>
-            <Actions closeModal={askBeforeCloseModal} />
-            <UnsavedChanges
-              closeDialog={() => setAskingBeforeCloseModal(false)}
-              discard={discardChanges}
-              opened={askingBeforeCloseModal}
-            />
-          </>
+              </div>
+            )}
+          </Modal.Body>
+          <Actions closeModal={askBeforeCloseModal} />
+          <UnsavedChanges
+            closeDialog={() => setAskingBeforeCloseModal(false)}
+            discard={discardChanges}
+            opened={askingBeforeCloseModal}
+          />
         </Modal>
       )}
     </Formik>

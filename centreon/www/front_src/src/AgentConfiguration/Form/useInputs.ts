@@ -1,15 +1,19 @@
-import { Group, InputProps, InputType } from '@centreon/ui';
 import { Box, capitalize } from '@mui/material';
+
+import { Group, InputProps, InputType } from '@centreon/ui';
+
 import { useAtom } from 'jotai';
 import { equals, isNil, map } from 'ramda';
 import { useTranslation } from 'react-i18next';
+
+import { pollersEndpoint } from '../api/endpoints';
 import { agentTypeFormAtom } from '../atoms';
 import { AgentType, ConnectionMode } from '../models';
 import {
   labelAgent,
   labelAgentType,
-  labelCMA,
   labelCaCertificate,
+  labelCMA,
   labelConfigurationServer,
   labelConnectionInitiated,
   labelEncryptionLevel,
@@ -24,11 +28,9 @@ import {
   labelPublicCertificate,
   labelTLS
 } from '../translatedLabels';
+import ConnectionInitiated from './ConnectionInitiated/ConnectionInitiated';
 import { useInputsStyles } from './Modal.styles';
 import EncryptionLevelWarning from './Warning/Warning';
-
-import { pollersEndpoint } from '../api/endpoints';
-import ConnectionInitiated from './ConnectionInitiated/ConnectionInitiated';
 
 interface SelectEntry {
   id: string;

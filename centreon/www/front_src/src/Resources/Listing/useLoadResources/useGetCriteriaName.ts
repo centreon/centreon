@@ -1,6 +1,7 @@
 import { useAtomValue } from 'jotai';
 import { SelectEntry } from 'packages/ui/src';
 import { prop } from 'ramda';
+
 import { CriteriaValue } from '../../Filter/Criterias/models';
 import { getCriteriaValueDerivedAtom } from '../../Filter/filterAtoms';
 

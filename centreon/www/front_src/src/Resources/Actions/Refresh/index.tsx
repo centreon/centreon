@@ -1,12 +1,12 @@
-import { useAtom, useAtomValue } from 'jotai';
-import { useTranslation } from 'react-i18next';
-
 import IconPause from '@mui/icons-material/Pause';
 import IconPlay from '@mui/icons-material/PlayArrow';
 import IconRefresh from '@mui/icons-material/Refresh';
 import { Grid } from '@mui/material';
 
 import { IconButton } from '@centreon/ui';
+
+import { useAtom, useAtomValue } from 'jotai';
+import { useTranslation } from 'react-i18next';
 
 import {
   enabledAutorefreshAtom,
@@ -18,7 +18,6 @@ import {
   labelRefresh
 } from '../../translatedLabels';
 import ActionMenuItem from '../Resource/ActionMenuItem';
-
 import { useStyles } from './refresh.styles';
 
 interface AutorefreshProps {

@@ -1,18 +1,17 @@
-import { useMemo } from 'react';
-
-import dayjs from 'dayjs';
-import { FormikValues, useFormikContext } from 'formik';
-import { isNil, lte, not } from 'ramda';
-import { useTranslation } from 'react-i18next';
-import { makeStyles } from 'tss-react/mui';
-
 import { FormHelperText, FormLabel, useTheme } from '@mui/material';
 
 import { useMemoComponent } from '@centreon/ui';
 
+import dayjs from 'dayjs';
+import { FormikValues, useFormikContext } from 'formik';
+import { isNil, lte, not } from 'ramda';
+import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
+import { makeStyles } from 'tss-react/mui';
+
+import { TimeInputConfiguration } from '../models';
 import StrengthProgress from '../StrengthProgress';
 import TimeInputs from '../TimeInputs';
-import { TimeInputConfiguration } from '../models';
 import {
   goodBlockingDuration,
   sevenDays,
@@ -26,7 +25,6 @@ import {
   labelTimeThatMustPassBeforeNewConnection,
   labelWeak
 } from '../translatedLabels';
-
 import { attemptsFieldName } from './Attempts';
 import { getField } from './utils';
 

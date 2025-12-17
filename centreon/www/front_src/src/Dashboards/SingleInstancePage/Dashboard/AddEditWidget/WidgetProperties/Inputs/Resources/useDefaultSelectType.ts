@@ -1,8 +1,9 @@
 import { useFormikContext } from 'formik';
 import { equals, isEmpty } from 'ramda';
 import { useCallback, useMemo } from 'react';
-import { Resource } from '../../../../Widgets/models';
+
 import { labelPleaseSelectAResource } from '../../../../translatedLabels';
+import { Resource } from '../../../../Widgets/models';
 import {
   DefaultResourceType,
   SelectType,

@@ -1,11 +1,11 @@
-import { useTranslation } from 'react-i18next';
-
 import { useTheme } from '@mui/material';
 
 import { DowntimeIcon } from '@centreon/ui';
 
-import { Props } from '..';
+import { useTranslation } from 'react-i18next';
+
 import { labelDowntime } from '../../../../../translatedLabels';
+import { Props } from '..';
 import EventAnnotations from '../EventAnnotations';
 
 const DowntimeAnnotations = (props: Props): JSX.Element => {

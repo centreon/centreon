@@ -1,15 +1,13 @@
-import { useMemo } from 'react';
-
-import { useTranslation } from 'react-i18next';
-
 import { Stack, Typography } from '@mui/material';
 
 import { SelectField } from '@centreon/ui';
 
+import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
+
 import Subtitle from '../../../../components/Subtitle';
 import { useCanEditProperties } from '../../../../hooks/useCanEditDashboard';
 import { WidgetPropertyProps } from '../../../models';
-
 import Tooltip from '../common/Tooltip';
 import { useSelectStyles } from './Select.styles';
 import useSelect from './useSelect';

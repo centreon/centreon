@@ -1,7 +1,9 @@
 import { Method, useMutationQuery, useSnackbar } from '@centreon/ui';
+
 import type { FormikHelpers } from 'formik';
 import { useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
+
 import { vaultConfigurationEndpoint } from '../api/endpoints';
 import { canMigrateAtom } from '../atoms';
 import { PostVaultConfiguration, PostVaultConfigurationAPI } from '../models';

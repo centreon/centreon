@@ -1,12 +1,7 @@
-import { useAtomValue, useSetAtom } from 'jotai';
-import { path, equals, isNil, pathEq } from 'ramda';
-import { useTranslation } from 'react-i18next';
-
 import IconForcedCheck from '@mui/icons-material/FlipCameraAndroidOutlined';
 import IconAcknowledge from '@mui/icons-material/Person';
 
 import type { ComponentColumnProps } from '@centreon/ui';
-
 import {
   IconButton,
   Method,
@@ -16,6 +11,11 @@ import {
   useSnackbar,
   useStyleTable
 } from '@centreon/ui';
+import { isOnPublicPageAtom } from '@centreon/ui-context';
+
+import { useAtomValue, useSetAtom } from 'jotai';
+import { equals, isNil, path, pathEq } from 'ramda';
+import { useTranslation } from 'react-i18next';
 
 import {
   resourcesToAcknowledgeAtom,
@@ -31,8 +31,6 @@ import {
   labelSetDowntime,
   labelSetDowntimeOn
 } from '../translatedLabels';
-
-import { isOnPublicPageAtom } from '@centreon/ui-context';
 import IconDowntime from './Icons/Downtime';
 import { useStyles } from './Status.styles';
 
@@ -159,11 +157,9 @@ const StatusColumn =
       return <div />;
     }
 
-    const label = equals(SeverityCode[5], statusName) ? (
-      <>{t(statusName)}</>
-    ) : (
-      t(statusName)
-    );
+    const label = equals(SeverityCode[5], statusName)
+      ? t(statusName)
+      : t(statusName);
 
     return (
       <div className={classes.statusColumn}>

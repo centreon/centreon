@@ -1,14 +1,13 @@
+import { DashboardLayout } from '@centreon/ui';
+
+import { useAtomValue } from 'jotai';
 import { equals, isEmpty, isNil, lte } from 'ramda';
 import type { Layout } from 'react-grid-layout';
 
-import { DashboardLayout } from '@centreon/ui';
-
+import { federatedWidgetsPropertiesAtom } from '../../../../federatedModules/atoms';
 import { AddWidgetPanel } from '../AddEditWidget';
 import useLinkToResourceStatus from '../hooks/useLinkToResourceStatus';
 import type { Panel } from '../models';
-
-import { useAtomValue } from 'jotai';
-import { federatedWidgetsPropertiesAtom } from '../../../../federatedModules/atoms';
 import DashboardPanel from './Panel/Panel';
 import PanelHeader from './Panel/PanelHeader';
 

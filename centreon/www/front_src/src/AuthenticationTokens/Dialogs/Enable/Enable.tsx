@@ -1,10 +1,8 @@
 import { Typography } from '@mui/material';
 
-import { Trans, useTranslation } from 'react-i18next';
-
 import { Modal } from '@centreon/ui/components';
 
-import useEnable from './useEnable';
+import { Trans, useTranslation } from 'react-i18next';
 
 import {
   labelCancel,
@@ -12,6 +10,7 @@ import {
   labelEnableToken,
   labelMsgConfirmationEnableToken
 } from '../../translatedLabels';
+import useEnable from './useEnable';
 
 const EnableDialog = (): JSX.Element => {
   const { t } = useTranslation();

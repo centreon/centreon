@@ -1,9 +1,9 @@
-import { Formik } from 'formik';
-import { Provider, createStore } from 'jotai';
-import { difference, includes, pluck, reject } from 'ramda';
-import widgetDataProperties from '../../../../Widgets/centreon-widget-data/properties.json';
-
 import { Method, TestQueryProvider } from '@centreon/ui';
+
+import { Formik } from 'formik';
+import { createStore, Provider } from 'jotai';
+import { difference, includes, pluck, reject } from 'ramda';
+import { FederatedWidgetProperties } from 'www/front_src/src/federatedModules/models';
 
 import { hasEditPermissionAtom, isEditingAtom } from '../../../../atoms';
 import {
@@ -27,17 +27,15 @@ import {
   labelYourChangesWillNotBeSavedIfYouSwitchClassicMode,
   labelYourChangesWillNotBeSavedIfYouSwitchRegexMode
 } from '../../../../translatedLabels';
+import widgetDataProperties from '../../../../Widgets/centreon-widget-data/properties.json';
 import { widgetPropertiesAtom } from '../../../atoms';
 import {
   ForceSingleAutocompleteConditions,
   WidgetPropertyProps,
   WidgetResourceType
 } from '../../../models';
-
 import Resources from './Resources';
 import { resourceTypeBaseEndpoints, resourceTypeOptions } from './useResources';
-
-import { FederatedWidgetProperties } from 'www/front_src/src/federatedModules/models';
 
 const generateResources = (resourceLabel: string): object => ({
   meta: {

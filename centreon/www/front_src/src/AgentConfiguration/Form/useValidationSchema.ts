@@ -1,7 +1,8 @@
 import { equals } from 'ramda';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Schema, array, boolean, mixed, number, object, string } from 'yup';
+import { array, boolean, mixed, number, object, Schema, string } from 'yup';
+
 import { AgentConfigurationForm, AgentType } from '../models';
 import {
   labelAddressInvalid,

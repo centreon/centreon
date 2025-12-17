@@ -1,10 +1,10 @@
-import { useAtomValue } from 'jotai';
-
 import { isOnPublicPageAtom } from '@centreon/ui-context';
 
-import PanelsLayout from './Layout/Layout';
+import { useAtomValue } from 'jotai';
+
 import { dashboardAtom } from './atoms';
 import useDashboardDetails from './hooks/useDashboardDetails';
+import PanelsLayout from './Layout/Layout';
 
 interface Props {
   displayedDashboardId: number;

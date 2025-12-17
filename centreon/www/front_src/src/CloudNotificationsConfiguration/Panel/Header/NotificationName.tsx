@@ -1,14 +1,13 @@
-import { useState } from 'react';
-
-import { FormikValues, useFormikContext } from 'formik';
-import { useAtomValue } from 'jotai';
-import { path, equals } from 'ramda';
-import { useTranslation } from 'react-i18next';
-
 import EditIcon from '@mui/icons-material/Edit';
 import { Box, Typography } from '@mui/material';
 
 import { IconButton, TextField } from '@centreon/ui';
+
+import { FormikValues, useFormikContext } from 'formik';
+import { useAtomValue } from 'jotai';
+import { equals, path } from 'ramda';
+import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import {
   labelChangeName,
@@ -17,7 +16,6 @@ import {
 } from '../../translatedLabels';
 import { panelModeAtom } from '../atom';
 import { PanelMode } from '../models';
-
 import useStyles from './Header.styles';
 
 const NotificationName = (): JSX.Element => {

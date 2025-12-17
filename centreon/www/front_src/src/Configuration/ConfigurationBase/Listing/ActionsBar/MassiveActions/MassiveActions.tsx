@@ -1,17 +1,16 @@
-import { isEmpty } from 'ramda';
-import { useTranslation } from 'react-i18next';
-
 import { MoreHoriz as MoreIcon } from '@mui/icons-material';
 
-import MoreActions from './MoreActions';
-
 import { Button } from '@centreon/ui/components';
-import { useActionsStyles } from '../Actions.styles';
 
 import { useAtomValue } from 'jotai';
+import { isEmpty } from 'ramda';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
+
 import { labelMoreActions } from '../../../translatedLabels';
 import { selectedRowsAtom } from '../../atoms';
+import { useActionsStyles } from '../Actions.styles';
+import MoreActions from './MoreActions';
 
 const MassiveActions = (): JSX.Element => {
   const { t } = useTranslation();

@@ -1,8 +1,3 @@
-import { useSetAtom } from 'jotai';
-import { path, equals, isNil, pathEq } from 'ramda';
-import { useTranslation } from 'react-i18next';
-import { makeStyles } from 'tss-react/mui';
-
 import IconForcedCheck from '@mui/icons-material/FlipCameraAndroidOutlined';
 import IconAcknowledge from '@mui/icons-material/Person';
 
@@ -15,8 +10,13 @@ import {
   useStyleTable
 } from '@centreon/ui';
 
-import { forcedCheckInlineEndpointAtom } from '../../Actions/Resource/Check/checkAtoms';
+import { useSetAtom } from 'jotai';
+import { equals, isNil, path, pathEq } from 'ramda';
+import { useTranslation } from 'react-i18next';
+import { makeStyles } from 'tss-react/mui';
+
 import useAclQuery from '../../Actions/Resource/aclQuery';
+import { forcedCheckInlineEndpointAtom } from '../../Actions/Resource/Check/checkAtoms';
 import {
   labelAcknowledge,
   labelActionNotPermitted,
@@ -24,7 +24,6 @@ import {
   labelSetDowntime,
   labelSetDowntimeOn
 } from '../../translatedLabels';
-
 import { ColumnProps } from '.';
 
 interface StylesProps {
@@ -169,11 +168,9 @@ const StatusColumn = ({
 
     const statusName = row.status.name;
 
-    const label = equals(SeverityCode[5], statusName) ? (
-      <>{t(statusName)}</>
-    ) : (
-      t(statusName)
-    );
+    const label = equals(SeverityCode[5], statusName)
+      ? t(statusName)
+      : t(statusName);
 
     return (
       <div className={classes.statusColumn}>

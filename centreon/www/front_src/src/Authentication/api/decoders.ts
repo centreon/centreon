@@ -13,7 +13,6 @@ import {
   RequestedAuthnContextComparisonValue,
   SAMLConfiguration
 } from '../SAML/models';
-import { WebSSOConfiguration } from '../WebSSO/models';
 import {
   contactTemplateDecoder,
   groupsRelationsDecoder,
@@ -24,6 +23,7 @@ import {
   SharedGroupsMapping,
   SharedRolesMapping
 } from '../shared/models';
+import { WebSSOConfiguration } from '../WebSSO/models';
 
 const passwordExpirationDecoder = JsonDecoder.object<PasswordExpiration>(
   {

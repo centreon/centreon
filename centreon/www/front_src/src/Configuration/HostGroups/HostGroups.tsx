@@ -1,33 +1,30 @@
 import { userPermissionsAtom } from '@centreon/ui-context';
+
 import { useAtomValue } from 'jotai';
+import { useTranslation } from 'react-i18next';
 
 import ConfigurationBase from '../ConfigurationBase';
-import useColumns from './Columns/useColumns';
-
-import { defaultValues, useFormInputs, useValidationSchema } from './Form';
-import {
-  columnsAtomKey,
-  defaultSelectedColumnIds,
-  filtersAtomKey,
-  filtersInitialValues
-} from './utils';
-
-import { useTranslation } from 'react-i18next';
 import { ResourceType } from '../models';
-
 import {
   filtersAtom,
   isWelcomePageDisplayedAtom,
   selectedColumnIdsAtom
 } from './atoms';
-import useHostGroups from './useHostGroups';
-
+import useColumns from './Columns/useColumns';
+import { defaultValues, useFormInputs, useValidationSchema } from './Form';
 import { Filters } from './models';
 import {
   labelAddHostGroup,
   labelHostGroups,
   labelWelcomeToHostGroups
 } from './translatedLabels';
+import useHostGroups from './useHostGroups';
+import {
+  columnsAtomKey,
+  defaultSelectedColumnIds,
+  filtersAtomKey,
+  filtersInitialValues
+} from './utils';
 
 const HostGroups = () => {
   const { t } = useTranslation();

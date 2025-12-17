@@ -1,13 +1,13 @@
+import TuneIcon from '@mui/icons-material/Tune';
+import { Button, Grid } from '@mui/material';
+
+import type { SelectEntry } from '@centreon/ui';
+import { PopoverMenu, useMemoComponent } from '@centreon/ui';
+
 import { useAtomValue, useSetAtom } from 'jotai';
 import { isNil, pipe, reject, sortBy } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
-
-import TuneIcon from '@mui/icons-material/Tune';
-import { Button, Grid } from '@mui/material';
-
-import { PopoverMenu, useMemoComponent } from '@centreon/ui';
-import type { SelectEntry } from '@centreon/ui';
 
 import {
   labelClear,
@@ -19,7 +19,6 @@ import {
   clearFilterDerivedAtom,
   filterWithParsedSearchDerivedAtom
 } from '../filterAtoms';
-
 import Criteria from './Criteria';
 import {
   CriteriaDisplayProps,

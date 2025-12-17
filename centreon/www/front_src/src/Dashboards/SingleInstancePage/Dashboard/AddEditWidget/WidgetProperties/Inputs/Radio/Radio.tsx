@@ -1,9 +1,3 @@
-import { ChangeEvent, useMemo } from 'react';
-
-import { useFormikContext } from 'formik';
-import { equals } from 'ramda';
-import { useTranslation } from 'react-i18next';
-
 import {
   FormControlLabel,
   Radio,
@@ -11,6 +5,11 @@ import {
   Stack,
   Typography
 } from '@mui/material';
+
+import { useFormikContext } from 'formik';
+import { equals } from 'ramda';
+import { ChangeEvent, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import Subtitle from '../../../../components/Subtitle';
 import { useCanEditProperties } from '../../../../hooks/useCanEditDashboard';

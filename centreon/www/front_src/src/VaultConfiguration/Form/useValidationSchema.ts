@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
-import { type Schema, number, object, string } from 'yup';
+import { number, object, type Schema, string } from 'yup';
+
 import { PostVaultConfiguration } from '../models';
 import {
   labelAddressIsNotAnUrl,

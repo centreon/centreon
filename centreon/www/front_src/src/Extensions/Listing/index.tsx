@@ -1,35 +1,33 @@
-import { useCallback, useEffect, useState } from 'react';
-
-import { useAtomValue } from 'jotai';
-import { filter, find, isEmpty, pathEq, propEq } from 'ramda';
-import { useTranslation } from 'react-i18next';
-import { makeStyles } from 'tss-react/mui';
-
 import InstallIcon from '@mui/icons-material/Add';
 import UpdateIcon from '@mui/icons-material/SystemUpdateAlt';
 import { Button } from '@mui/material';
 import Stack from '@mui/material/Stack';
 
+import type { SelectEntry } from '@centreon/ui';
 import {
-  Responsive,
   getData,
   postData,
+  Responsive,
   useRequest,
   useSnackbar
 } from '@centreon/ui';
-import type { SelectEntry } from '@centreon/ui';
 
+import { useAtomValue } from 'jotai';
+import { filter, find, isEmpty, pathEq, propEq } from 'ramda';
+import { useCallback, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { makeStyles } from 'tss-react/mui';
+
+import FederatedComponents from '../../components/FederatedComponents';
 import usePlatformVersions from '../../Main/usePlatformVersions';
 import useNavigation from '../../Navigation/useNavigation';
-import FederatedComponents from '../../components/FederatedComponents';
 import { appliedFilterCriteriasAtom } from '../Filter/filterAtoms';
 import { labelInstallAll, labelUpdateAll } from '../translatedLabels';
-
+import { deleteExtension } from './api';
+import { buildEndPoint, buildExtensionEndPoint } from './api/endpoint';
 import ExtensionDeletePopup from './ExtensionDeleteDialog';
 import ExtensionDetailsPopup from './ExtensionDetailsDialog';
 import ExtensionsHolder from './ExtensionsHolder';
-import { deleteExtension } from './api';
-import { buildEndPoint, buildExtensionEndPoint } from './api/endpoint';
 import {
   EntityDeleting,
   EntityType,

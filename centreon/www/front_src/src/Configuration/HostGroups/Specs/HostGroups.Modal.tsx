@@ -1,8 +1,5 @@
 import { equals } from 'ramda';
 
-import initialize from './initialize';
-import { getGroups, getPayload } from './utils';
-
 import {
   labelAlias,
   labelApplyResourceAccessRule,
@@ -13,6 +10,8 @@ import {
   labelName,
   labelSelectHosts
 } from '../translatedLabels';
+import initialize from './initialize';
+import { getGroups, getPayload } from './utils';
 
 const platforms = ['OnPrem', 'Cloud'];
 

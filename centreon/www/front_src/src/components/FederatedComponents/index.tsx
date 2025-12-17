@@ -1,4 +1,8 @@
-import { ReactNode, useMemo } from 'react';
+import { useMemoComponent } from '@centreon/ui';
+import {
+  federatedModulesAtom,
+  federatedWidgetsAtom
+} from '@centreon/ui-context';
 
 import { useAtomValue } from 'jotai';
 import {
@@ -11,12 +15,7 @@ import {
   reject,
   type
 } from 'ramda';
-
-import { useMemoComponent } from '@centreon/ui';
-import {
-  federatedModulesAtom,
-  federatedWidgetsAtom
-} from '@centreon/ui-context';
+import { ReactNode, useMemo } from 'react';
 
 import { Remote } from '../../federatedModules/Load';
 import {

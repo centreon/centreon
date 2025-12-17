@@ -1,8 +1,8 @@
+import { ConfirmDialog, TextField } from '@centreon/ui';
+
 import { FormikValues, useFormikContext } from 'formik';
 import { path } from 'ramda';
 import { useTranslation } from 'react-i18next';
-
-import { ConfirmDialog, TextField } from '@centreon/ui';
 
 import {
   labelCancel,
@@ -11,7 +11,6 @@ import {
   labelName,
   labelResourceAccessRuleName
 } from '../../translatedLabels';
-
 import useDuplicate from './useDuplicate';
 
 const DuplicateConfirmationDialog = (): React.JSX.Element => {

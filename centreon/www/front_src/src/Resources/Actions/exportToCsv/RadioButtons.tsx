@@ -1,4 +1,3 @@
-import { SelectEntry } from '@centreon/ui';
 import {
   FormControlLabel,
   FormLabel,
@@ -6,10 +5,14 @@ import {
   RadioGroup,
   Typography
 } from '@mui/material';
+
+import { SelectEntry } from '@centreon/ui';
+
 import { PrimitiveAtom, useAtom } from 'jotai';
 import { equals } from 'ramda';
 import { SyntheticEvent, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
+
 import useExportCsvStyles from './exportCsv.styles';
 
 interface Props<T> {

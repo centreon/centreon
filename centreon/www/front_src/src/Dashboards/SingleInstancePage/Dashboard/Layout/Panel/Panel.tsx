@@ -1,14 +1,14 @@
-import { Suspense, useMemo } from 'react';
-
-import { useAtomValue, useSetAtom } from 'jotai';
-import { useSearchParams } from 'react-router';
-
 import {
+  client,
   LoadingSkeleton,
   RichTextEditor,
-  client,
   useMemoComponent
 } from '@centreon/ui';
+
+import { useAtomValue, useSetAtom } from 'jotai';
+import { equals, find, isEmpty, isNil } from 'ramda';
+import { Suspense, useMemo } from 'react';
+import { useSearchParams } from 'react-router';
 
 import FederatedComponent from '../../../../../components/FederatedComponents';
 import {
@@ -24,8 +24,6 @@ import { useCanEditProperties } from '../../hooks/useCanEditDashboard';
 import useLinkToResourceStatus from '../../hooks/useLinkToResourceStatus';
 import useSaveDashboard from '../../hooks/useSaveDashboard';
 import { isGenericText, isRichTextEditorEmpty } from '../../utils';
-
-import { equals, find, isEmpty, isNil } from 'ramda';
 import { internalWidgetComponents } from '../../Widgets/widgets';
 import { usePanelHeaderStyles } from './usePanelStyles';
 

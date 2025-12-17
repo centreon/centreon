@@ -1,17 +1,17 @@
-import { useAtomValue } from 'jotai';
-import { useTranslation } from 'react-i18next';
-import { Link } from 'react-router';
-
 import { Box, Typography, useTheme } from '@mui/material';
 
 import {
-  ParentSize,
-  SeverityCode,
   formatMetricValue,
-  getStatusColors
+  getStatusColors,
+  ParentSize,
+  SeverityCode
 } from '@centreon/ui';
-import { isOnPublicPageAtom } from '@centreon/ui-context';
 import { Tooltip } from '@centreon/ui/components';
+import { isOnPublicPageAtom } from '@centreon/ui-context';
+
+import { useAtomValue } from 'jotai';
+import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router';
 
 import { Resource, StatusDetail } from '../../../models';
 import {
@@ -20,7 +20,6 @@ import {
   indicatorsURL,
   severityStatusBySeverityCode
 } from '../../../utils';
-
 import { useStatusGridCondensedStyles } from './StatusGridCondensed.styles';
 import ResourcesTooltip from './Tooltip/ResourcesTooltip';
 

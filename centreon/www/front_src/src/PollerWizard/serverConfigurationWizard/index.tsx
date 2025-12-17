@@ -1,12 +1,11 @@
-import { useState } from 'react';
-
-import { equals } from 'ramda';
-import { useTranslation } from 'react-i18next';
-
 import { Button, Typography } from '@mui/material';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Radio from '@mui/material/Radio';
 import RadioGroup from '@mui/material/RadioGroup';
+
+import { equals } from 'ramda';
+import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { useStyles } from '../../styles/partials/form/PollerWizardStyle';
 import { ServerType } from '../models';

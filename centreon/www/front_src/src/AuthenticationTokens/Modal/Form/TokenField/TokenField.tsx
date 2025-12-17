@@ -1,20 +1,19 @@
-import { useState } from 'react';
-
-import { useTranslation } from 'react-i18next';
-
-import { IconButton, TextField, useCopyToClipboard } from '@centreon/ui';
 import CopyIcon from '@mui/icons-material/FileCopyOutlined';
 
-import { endAdornment } from './EndAdornment';
-import { useStyles } from './TextField.styles';
+import { IconButton, TextField, useCopyToClipboard } from '@centreon/ui';
 
 import { useAtomValue } from 'jotai';
+import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
+
 import { tokenAtom } from '../../../atoms';
 import {
   labelToken,
   labelTokenCopiedToTheClipboard,
   labelTokenCouldNotBeCopied
 } from '../../../translatedLabels';
+import { endAdornment } from './EndAdornment';
+import { useStyles } from './TextField.styles';
 
 const TokenField = (): JSX.Element => {
   const { t } = useTranslation();

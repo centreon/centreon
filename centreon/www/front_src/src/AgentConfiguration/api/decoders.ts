@@ -1,5 +1,7 @@
 import { buildListingDecoder } from '@centreon/ui';
+
 import { JsonDecoder } from 'ts.data.json';
+
 import {
   AgentConfiguration,
   AgentType,

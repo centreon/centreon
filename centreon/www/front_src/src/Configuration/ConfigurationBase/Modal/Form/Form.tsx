@@ -1,16 +1,17 @@
+import { Box } from '@mui/material';
+
+import { Form, Group, InputProps } from '@centreon/ui';
+import { FormActions, FormActionsProps } from '@centreon/ui/components';
+
 import { useFormikContext } from 'formik';
 import { useSetAtom } from 'jotai';
 import { equals } from 'ramda';
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-
-import { Form, Group, InputProps } from '@centreon/ui';
-import { FormActions, FormActionsProps } from '@centreon/ui/components';
-import { CloseModalConfirmation } from '../../Dialogs';
-
-import { Box } from '@mui/material';
 import { ObjectSchema } from 'yup';
+
 import { isFormDirtyAtom } from '../../atoms';
+import { CloseModalConfirmation } from '../../Dialogs';
 import { labelCancel, labelSave } from '../../translatedLabels';
 import { useFormStyles } from './Form.styles';
 

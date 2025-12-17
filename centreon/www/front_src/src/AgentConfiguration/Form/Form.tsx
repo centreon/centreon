@@ -1,5 +1,7 @@
 import { Form } from '@centreon/ui';
+
 import { find, isNil, propEq } from 'ramda';
+
 import { useAddUpdateAgentConfiguration } from '../hooks/useAddUpdateAgentConfiguration';
 import { AgentConfigurationForm as AgentConfigurationFormModel } from '../models';
 import Buttons from './Buttons';

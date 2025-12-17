@@ -1,11 +1,10 @@
+import { Grid, Typography } from '@mui/material';
+
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
 
-import { Grid, Typography } from '@mui/material';
-
 import { CriteriaNames } from '../../../../Filter/Criterias/models';
 import { Category, Group } from '../../../models';
-
 import GroupChip from './GroupChip';
 
 interface Props {

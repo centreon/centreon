@@ -1,7 +1,9 @@
 import { TextField } from '@centreon/ui';
+
 import { SetStateAction } from 'jotai';
 import { Dispatch } from 'react';
 import { useTranslation } from 'react-i18next';
+
 import useText from './useText';
 
 interface Props<TFilters> {

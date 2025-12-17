@@ -1,8 +1,3 @@
-import { useAtomValue, useSetAtom } from 'jotai';
-import { equals } from 'ramda';
-import { useTranslation } from 'react-i18next';
-import { useSearchParams } from 'react-router';
-
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
@@ -10,6 +5,11 @@ import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
 import { Menu } from '@mui/material';
 
 import { ActionsList, ActionsListActionDivider } from '@centreon/ui';
+
+import { useAtomValue, useSetAtom } from 'jotai';
+import { equals } from 'ramda';
+import { useTranslation } from 'react-i18next';
+import { useSearchParams } from 'react-router';
 
 import useWidgetForm from '../../AddEditWidget/useWidgetModal';
 import {

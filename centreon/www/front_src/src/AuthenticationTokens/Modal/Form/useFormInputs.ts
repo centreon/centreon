@@ -1,9 +1,10 @@
-import { useTranslation } from 'react-i18next';
-
 import { InputProps, InputType } from '@centreon/ui';
 import { userAtom } from '@centreon/ui-context';
+
 import { useAtomValue } from 'jotai';
 import { equals } from 'ramda';
+import { useTranslation } from 'react-i18next';
+
 import { listUsers } from '../../api/endpoints';
 import { tokenAtom } from '../../atoms';
 import { TokenType } from '../../models';

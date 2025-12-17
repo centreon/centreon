@@ -1,12 +1,11 @@
 import { useAtomValue } from 'jotai';
 import { equals, isNotEmpty, isNotNil, pluck } from 'ramda';
-
-import { useGetAll } from '../api';
-import { limitAtom, pageAtom, sortFieldAtom, sortOrderAtom } from './atoms';
-
 import { useMemo } from 'react';
+
 import { FieldType } from '../../models';
+import { useGetAll } from '../api';
 import { configurationAtom } from '../atoms';
+import { limitAtom, pageAtom, sortFieldAtom, sortOrderAtom } from './atoms';
 
 interface LoadDataState {
   data?;

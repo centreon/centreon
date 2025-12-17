@@ -1,5 +1,3 @@
-import { JsonDecoder } from 'ts.data.json';
-
 import type { User } from '@centreon/ui-context';
 import {
   DashboardGlobalRole,
@@ -9,6 +7,8 @@ import {
   PlatformFeatures,
   ThemeMode
 } from '@centreon/ui-context';
+
+import { JsonDecoder } from 'ts.data.json';
 
 import {
   PlatformInstallationStatus,

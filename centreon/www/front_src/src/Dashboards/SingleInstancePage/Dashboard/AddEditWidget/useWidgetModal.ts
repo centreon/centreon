@@ -1,11 +1,10 @@
-import { Dispatch, SetStateAction, startTransition, useState } from 'react';
+import { useSnackbar } from '@centreon/ui';
+import { federatedWidgetsAtom } from '@centreon/ui-context';
 
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { equals, find, isEmpty, propEq, toPairs } from 'ramda';
+import { Dispatch, SetStateAction, startTransition, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-
-import { useSnackbar } from '@centreon/ui';
-import { federatedWidgetsAtom } from '@centreon/ui-context';
 
 import { federatedWidgetsPropertiesAtom } from '../../../../federatedModules/atoms';
 import {
@@ -19,8 +18,6 @@ import {
   labelYourWidgetHasBeenCreated,
   labelYourWidgetHasBeenModified
 } from '../translatedLabels';
-
-import { getDefaultValues } from './WidgetProperties/useWidgetSelection';
 import {
   customBaseColorAtom,
   singleResourceSelectionAtom,
@@ -28,6 +25,7 @@ import {
   widgetPropertiesAtom
 } from './atoms';
 import { Widget } from './models';
+import { getDefaultValues } from './WidgetProperties/useWidgetSelection';
 
 interface UseWidgetModalState {
   addWidget: (values: Widget) => void;

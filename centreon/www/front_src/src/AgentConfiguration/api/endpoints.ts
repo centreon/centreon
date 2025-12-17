@@ -1,4 +1,5 @@
 import { buildListingEndpoint } from '@centreon/ui';
+
 import dayjs from 'dayjs';
 
 export const getAgentConfigurationsEndpoint =

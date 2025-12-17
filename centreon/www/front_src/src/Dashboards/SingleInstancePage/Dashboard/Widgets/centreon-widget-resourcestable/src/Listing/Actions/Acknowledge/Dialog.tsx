@@ -1,7 +1,3 @@
-import { FormikErrors, FormikHandlers, FormikValues } from 'formik';
-import { useTranslation } from 'react-i18next';
-import { makeStyles } from 'tss-react/mui';
-
 import {
   Alert,
   Checkbox,
@@ -11,6 +7,10 @@ import {
 } from '@mui/material';
 
 import { Dialog, TextField } from '@centreon/ui';
+
+import { FormikErrors, FormikHandlers, FormikValues } from 'formik';
+import { useTranslation } from 'react-i18next';
+import { makeStyles } from 'tss-react/mui';
 
 import { Resource } from '../../models';
 import {
@@ -23,7 +23,6 @@ import {
   labelSticky
 } from '../../translatedLabels';
 import useAclQuery from '../aclQuery';
-
 import { AcknowledgeFormValues } from '.';
 
 interface Props extends Pick<FormikHandlers, 'handleChange'> {

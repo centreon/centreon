@@ -2,6 +2,7 @@ import { omit, pluck } from 'ramda';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
+import { APIType, FieldType, FilterConfiguration } from '../models';
 import {
   additionalConnectorDecoder,
   additionalConnectorsEndpoint,
@@ -9,16 +10,13 @@ import {
   getAdditionalConnectorEndpoint,
   getPollersEndpoint
 } from './api';
-
-import { APIType, FieldType, FilterConfiguration } from '../models';
 import {
   AdditionalConnectorConfiguration,
   ParameterKeys,
   Payload
 } from './models';
-import { findConnectorTypeById, splitURL } from './utils';
-
 import { labelName, labelPoller, labelType } from './translatedLabels';
+import { findConnectorTypeById, splitURL } from './utils';
 
 interface UseAdditionnalConnectorsState {
   api: APIType;

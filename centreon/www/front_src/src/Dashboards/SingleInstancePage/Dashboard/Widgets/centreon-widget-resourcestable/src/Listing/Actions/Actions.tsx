@@ -1,7 +1,6 @@
 import { Grid } from '@mui/material';
 
 import { DisplayType as DisplayTypeEnum } from '../models';
-
 import DisplayType from './DisplayType';
 import ResourceActions from './ResourceActions';
 

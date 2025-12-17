@@ -1,18 +1,3 @@
-import {
-  MouseEvent,
-  MouseEventHandler,
-  ReactNode,
-  forwardRef,
-  useMemo
-} from 'react';
-
-import clsx from 'clsx';
-import { useAtomValue } from 'jotai';
-import { equals } from 'ramda';
-import { useTranslation } from 'react-i18next';
-import { Link as RouterLink, LinkProps as RouterLinkProps } from 'react-router';
-import { makeStyles } from 'tss-react/mui';
-
 import { Chip, Theme } from '@mui/material';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
@@ -21,13 +6,26 @@ import ListItemText from '@mui/material/ListItemText';
 import { useMemoComponent } from '@centreon/ui';
 import { ThemeMode, userAtom } from '@centreon/ui-context';
 
+import clsx from 'clsx';
+import { useAtomValue } from 'jotai';
+import { equals } from 'ramda';
+import {
+  forwardRef,
+  MouseEvent,
+  MouseEventHandler,
+  ReactNode,
+  useMemo
+} from 'react';
+import { useTranslation } from 'react-i18next';
+import { Link as RouterLink, LinkProps as RouterLinkProps } from 'react-router';
+import { makeStyles } from 'tss-react/mui';
+
 import { Page } from '../../models';
 import { searchUrlFromEntry } from '../helpers/getUrlFromEntry';
 import {
   hoveredNavigationItemsAtom,
   selectedNavigationItemsAtom
 } from '../sideBarAtoms';
-
 import ArrowIcon from './ArrowIcon';
 
 const isDarkMode = (theme: Theme): boolean =>

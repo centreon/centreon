@@ -1,6 +1,3 @@
-import { Provider, createStore } from 'jotai';
-import { pick } from 'ramda';
-
 import { Method, SnackbarProvider, TestQueryProvider } from '@centreon/ui';
 import {
   acknowledgementAtom,
@@ -10,7 +7,12 @@ import {
   userAtom
 } from '@centreon/ui-context';
 
+import { createStore, Provider } from 'jotai';
+import { pick } from 'ramda';
+
+import { labelCancel } from '../../Dashboards/SingleInstancePage/Dashboard/translatedLabels';
 import { resourcesEndpoint } from '../api/endpoint';
+import { selectedColumnIdsAtom } from '../Listing/listingAtoms';
 import {
   labelAcknowledge,
   labelAcknowledgeCommandSent,
@@ -23,8 +25,8 @@ import {
   labelComment,
   labelCurrentPageOnly,
   labelDisacknowledge,
-  labelDisacknowledgeServices,
   labelDisacknowledgementCommandSent,
+  labelDisacknowledgeServices,
   labelDown,
   labelDowntimeCommandSent,
   labelDuration,
@@ -32,8 +34,8 @@ import {
   labelExport,
   labelExportProcessingInProgress,
   labelExportToCSV,
-  labelFilterRessources,
   labelFilteredResources,
+  labelFilterRessources,
   labelFixed,
   labelForcedCheck,
   labelForcedCheckCommandSent,
@@ -50,8 +52,7 @@ import {
   labelVisibleColumnsOnly,
   labelWarningExportToCsv
 } from '../translatedLabels';
-
-import { disacknowledgeEndpoint } from './Resource/Disacknowledge/api';
+import Actions from '.';
 import { selectedResourcesAtom } from './actionsAtoms';
 import {
   acknowledgeEndpoint,
@@ -59,10 +60,7 @@ import {
   csvExportEndpoint,
   downtimeEndpoint
 } from './api/endpoint';
-
-import Actions from '.';
-import { labelCancel } from '../../Dashboards/SingleInstancePage/Dashboard/translatedLabels';
-import { selectedColumnIdsAtom } from '../Listing/listingAtoms';
+import { disacknowledgeEndpoint } from './Resource/Disacknowledge/api';
 
 const mockUser = {
   alias: 'admin',

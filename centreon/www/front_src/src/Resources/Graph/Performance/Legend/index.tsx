@@ -1,5 +1,14 @@
 /* eslint-disable hooks/sort */
-import { MouseEvent } from 'react';
+
+import BarChartIcon from '@mui/icons-material/BarChart';
+import {
+  alpha,
+  Box,
+  Button,
+  Tooltip,
+  Typography,
+  useTheme
+} from '@mui/material';
 
 import { useAtomValue } from 'jotai';
 import {
@@ -13,18 +22,9 @@ import {
   slice,
   split
 } from 'ramda';
+import { MouseEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
-
-import BarChartIcon from '@mui/icons-material/BarChart';
-import {
-  Box,
-  Button,
-  Tooltip,
-  Typography,
-  alpha,
-  useTheme
-} from '@mui/material';
 
 import { panelWidthStorageAtom } from '../../../Details/detailsAtoms';
 import memoizeComponent from '../../../memoizedComponent';
@@ -34,11 +34,10 @@ import {
   labelMax,
   labelMin
 } from '../../../translatedLabels';
-import { timeValueAtom } from '../Graph/mouseTimeValueAtoms';
 import formatMetricValue from '../formatMetricValue/index';
+import { timeValueAtom } from '../Graph/mouseTimeValueAtoms';
 import { Line, TimeValue } from '../models';
 import { getLineForMetric, getMetrics } from '../timeSeries';
-
 import LegendMarker from './Marker';
 
 interface MakeStylesProps {

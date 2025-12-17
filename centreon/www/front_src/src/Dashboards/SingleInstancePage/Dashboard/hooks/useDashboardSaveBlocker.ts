@@ -1,14 +1,12 @@
-import { useEffect, useRef } from 'react';
+import { federatedWidgetsAtom } from '@centreon/ui-context';
 
 import { useAtomValue, useSetAtom } from 'jotai';
 import { equals } from 'ramda';
+import { useEffect, useRef } from 'react';
 import { useBlocker } from 'react-router';
-
-import { federatedWidgetsAtom } from '@centreon/ui-context';
 
 import { DashboardPanel } from '../../../api/models';
 import { isEditingAtom, isRedirectionBlockedAtom } from '../atoms';
-
 import { formatPanel } from './useDashboardDetails';
 import useDashboardDirty from './useDashboardDirty';
 

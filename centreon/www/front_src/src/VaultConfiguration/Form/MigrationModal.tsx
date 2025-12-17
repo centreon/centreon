@@ -1,6 +1,9 @@
-import { CopyCommand, Modal } from '@centreon/ui/components';
 import { Typography } from '@mui/material';
+
+import { CopyCommand, Modal } from '@centreon/ui/components';
+
 import { Trans, useTranslation } from 'react-i18next';
+
 import {
   labelByExecutingThisScript,
   labelExecuteThisCommandAsRoot,

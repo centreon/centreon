@@ -1,6 +1,3 @@
-import { Provider, createStore } from 'jotai';
-import { BrowserRouter } from 'react-router';
-
 import { Method, SnackbarProvider, TestQueryProvider } from '@centreon/ui';
 import {
   aclAtom,
@@ -9,22 +6,22 @@ import {
   platformVersionsAtom
 } from '@centreon/ui-context';
 
+import { createStore, Provider } from 'jotai';
+import { BrowserRouter } from 'react-router';
+
 import { SortOrder } from '../../../models';
 import { getPublicWidgetEndpoint } from '../../../utils';
-import { DisplayType } from '../Listing/models';
-import ResourcesTable from '../ResourcesTable';
 import {
   closeTicketEndpoint,
   resourcesEndpoint,
   viewByHostEndpoint
 } from '../api/endpoints';
-import type { Data, PanelOptions } from '../models';
-
 import {
   acknowledgeEndpoint,
   checkEndpoint,
   downtimeEndpoint
 } from '../Listing/Actions/api/endpoint';
+import { DisplayType } from '../Listing/models';
 import {
   labelAcknowledge,
   labelAcknowledgeCommandSent,
@@ -45,6 +42,8 @@ import {
   labelTicketClosed,
   labelTicketWillBeClosedInTheProvider
 } from '../Listing/translatedLabels';
+import type { Data, PanelOptions } from '../models';
+import ResourcesTable from '../ResourcesTable';
 import {
   columnsForViewByHost,
   columnsForViewByService,

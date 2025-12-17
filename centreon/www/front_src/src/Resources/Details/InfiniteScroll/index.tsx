@@ -1,21 +1,3 @@
-import { type RefObject, useEffect, useRef, useState } from 'react';
-
-import { useAtomValue } from 'jotai';
-import {
-  T,
-  always,
-  concat,
-  cond,
-  equals,
-  gt,
-  isEmpty,
-  isNil,
-  length,
-  not
-} from 'ramda';
-import { useTranslation } from 'react-i18next';
-import { makeStyles } from 'tss-react/mui';
-
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import {
   CircularProgress,
@@ -25,14 +7,31 @@ import {
   Tooltip
 } from '@mui/material';
 
-import { useIntersectionObserver } from '@centreon/ui';
 import type { ListingModel } from '@centreon/ui';
+import { useIntersectionObserver } from '@centreon/ui';
+
+import { useAtomValue } from 'jotai';
+import {
+  always,
+  concat,
+  cond,
+  equals,
+  gt,
+  isEmpty,
+  isNil,
+  length,
+  not,
+  T
+} from 'ramda';
+import { type RefObject, useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { makeStyles } from 'tss-react/mui';
 
 import memoizeComponent from '../../memoizedComponent';
 import { labelScrollToTop } from '../../translatedLabels';
-import NoResultsMessage from '../NoResultsMessage';
 import { selectedResourcesDetailsAtom } from '../detailsAtoms';
 import type { ResourceDetails } from '../models';
+import NoResultsMessage from '../NoResultsMessage';
 import type { GraphTimeParameters } from '../tabs/Graph/models';
 
 const useStyles = makeStyles()((theme) => ({

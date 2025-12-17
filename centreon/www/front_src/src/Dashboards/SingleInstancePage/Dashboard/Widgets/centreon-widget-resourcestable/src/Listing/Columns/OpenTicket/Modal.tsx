@@ -1,10 +1,9 @@
-import { useEffect } from 'react';
-
-import { equals } from 'ramda';
-import { useTranslation } from 'react-i18next';
-
 import { useSnackbar } from '@centreon/ui';
 import { Modal } from '@centreon/ui/components';
+
+import { equals } from 'ramda';
+import { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import type { Ticket } from '../../models';
 import { labelCreateticket, labelTicketCreated } from '../../translatedLabels';

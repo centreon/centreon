@@ -1,8 +1,9 @@
 import { Method, SnackbarProvider, TestQueryProvider } from '@centreon/ui';
+
 import i18next from 'i18next';
-import { Provider, createStore } from 'jotai';
+import { createStore, Provider } from 'jotai';
 import { I18nextProvider, initReactI18next } from 'react-i18next';
-import VaultConfiguration from './VaultConfiguration';
+
 import { vaultConfigurationEndpoint } from './api/endpoints';
 import {
   labelAddressIsNotAnUrl,
@@ -25,6 +26,7 @@ import {
   labelVaultConfiguration,
   labelVaultConfigurationUpdate
 } from './translatedLabels';
+import VaultConfiguration from './VaultConfiguration';
 
 const initialize = (): void => {
   i18next.use(initReactI18next).init({

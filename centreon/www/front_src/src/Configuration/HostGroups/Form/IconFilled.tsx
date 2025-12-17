@@ -7,6 +7,7 @@ import {
 
 import { FormikValues, useFormikContext } from 'formik';
 import { useTranslation } from 'react-i18next';
+
 import { getListImagesSearchEndpoint } from '../api/endpoints';
 import { labelIcon } from '../translatedLabels';
 import { useIconStyles } from './Form.styles';

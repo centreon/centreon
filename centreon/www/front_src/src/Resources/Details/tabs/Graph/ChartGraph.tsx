@@ -1,6 +1,3 @@
-import { path } from 'ramda';
-import { useState, ReactElement, RefObject } from 'react';
-
 import {
   type Interval,
   LineChart,
@@ -10,16 +7,18 @@ import {
   useFetchQuery
 } from '@centreon/ui';
 
+import { path } from 'ramda';
+import { ReactElement, RefObject, useState } from 'react';
+
 import FederatedComponent from '../../../../components/FederatedComponents';
+import { graphsCapNumber } from '../../../constants';
 import MemoizedGraphActions from '../../../Graph/Performance/GraphActions';
 import type { Resource } from '../../../models';
+import TooManyElementsCard from '../../../TooManyElementsCard';
 import type { ResourceDetails } from '../../models';
-import { graphsCapNumber } from '../../../constants';
-
 import Comment from './Comment';
 import { useChartGraphStyles } from './chartGraph.styles';
 import useRetrieveTimeLine from './useRetrieveTimeLine';
-import TooManyElementsCard from '../../../TooManyElementsCard';
 
 interface Props {
   graphTimeParameters?: Parameters;

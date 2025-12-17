@@ -1,10 +1,10 @@
-import { useTranslation } from 'react-i18next';
-import { makeStyles } from 'tss-react/mui';
-
 import IconCopyFile from '@mui/icons-material/FileCopy';
 import { Card, Grid, IconButton, Tooltip, Typography } from '@mui/material';
 
 import { useCopyToClipboard } from '@centreon/ui';
+
+import { useTranslation } from 'react-i18next';
+import { makeStyles } from 'tss-react/mui';
 
 import {
   labelCommand,

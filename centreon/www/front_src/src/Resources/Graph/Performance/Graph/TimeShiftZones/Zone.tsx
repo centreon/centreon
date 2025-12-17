@@ -1,14 +1,13 @@
+import { alpha, useTheme } from '@mui/material';
+
+import { useMemoComponent, useTimeShiftZones } from '@centreon/ui';
+
 import { Shape } from '@visx/visx';
 import { useSetAtom } from 'jotai';
 import { equals, negate } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
 
-import { alpha, useTheme } from '@mui/material';
-
-import { useMemoComponent, useTimeShiftZones } from '@centreon/ui';
-
 import { updatedGraphIntervalAtom } from '../../ExportableGraphWithTimeline/atoms';
-
 import { TimeShiftDirection, useTimeShiftContext } from '.';
 
 export const timeShiftZoneWidth = 50;

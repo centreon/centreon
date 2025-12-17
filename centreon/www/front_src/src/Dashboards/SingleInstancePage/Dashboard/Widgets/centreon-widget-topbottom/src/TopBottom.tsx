@@ -1,8 +1,8 @@
-import { equals } from 'ramda';
-
 import { LoadingSkeleton } from '@centreon/ui';
 
-import NoResources from '../../NoResources';
+import { equals } from 'ramda';
+import { useRef } from 'react';
+
 import {
   CommonWidgetProps,
   FormThreshold,
@@ -10,14 +10,13 @@ import {
   Metric,
   Resource
 } from '../../models';
+import NoResources from '../../NoResources';
 import { areResourcesFullfilled } from '../../utils';
-
-import { useRef } from 'react';
 import Label from './Label';
 import MetricContainer from './MetricContainer';
 import MetricTop from './MetricTop';
-import { useTopBottomStyles } from './TopBottom.styles';
 import { TopBottomSettings } from './models';
+import { useTopBottomStyles } from './TopBottom.styles';
 import useSingleBarCurrentWidth from './useSingleBarCurrentWidth';
 import useTopBottom from './useTopBottom';
 

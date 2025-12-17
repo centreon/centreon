@@ -1,5 +1,7 @@
 import { Method, useMutationQuery } from '@centreon/ui';
+
 import { useQueryClient } from '@tanstack/react-query';
+
 import { getPollerAgentEndpoint } from '../api/endpoints';
 
 interface UseDeletePollerAgent {

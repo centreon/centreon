@@ -1,10 +1,9 @@
+import { FormikValues, useFormikContext } from 'formik';
 import { isNil } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
 import Title from '../../../../components/Title';
 import { labelDatasetSelection } from '../../translatedLabels';
-
-import { FormikValues, useFormikContext } from 'formik';
 import { getDataProperty } from './Inputs/utils';
 import SubInputs from './SubInputs';
 import { useWidgetInputs } from './useWidgetInputs';

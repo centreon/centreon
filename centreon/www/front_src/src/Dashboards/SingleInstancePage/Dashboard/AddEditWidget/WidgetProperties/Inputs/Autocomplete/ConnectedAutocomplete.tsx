@@ -1,7 +1,3 @@
-import { useMemo } from 'react';
-
-import { useTranslation } from 'react-i18next';
-
 import { Typography } from '@mui/material';
 
 import {
@@ -9,10 +5,12 @@ import {
   SingleConnectedAutocompleteField
 } from '@centreon/ui';
 
+import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
+
 import Subtitle from '../../../../components/Subtitle';
 import { useCanEditProperties } from '../../../../hooks/useCanEditDashboard';
 import { WidgetPropertyProps } from '../../../models';
-
 import { useStyles } from './ConnectedAutocomplete.styles';
 import useAutocomplete from './useConnectedAutocomplete';
 

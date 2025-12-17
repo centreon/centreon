@@ -1,13 +1,11 @@
-import { ReactElement } from 'react';
-
-import { useFormikContext } from 'formik';
-import { useTranslation } from 'react-i18next';
-
 import { SelectField } from '@centreon/ui';
 
-import { labelSelectType, labelType } from '../../translatedLabels';
+import { useFormikContext } from 'formik';
+import { ReactElement } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { AdditionalConnectorConfiguration } from '../../models';
+import { labelSelectType, labelType } from '../../translatedLabels';
 import { useConnectorTypeStyles } from './ConnectorTypeStyles';
 
 const ConnectorType = (): ReactElement => {

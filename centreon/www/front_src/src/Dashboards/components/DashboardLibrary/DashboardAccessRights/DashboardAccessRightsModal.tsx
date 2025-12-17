@@ -1,8 +1,7 @@
-import { ReactElement } from 'react';
-
-import { useTranslation } from 'react-i18next';
-
 import { AccessRights, Modal } from '@centreon/ui/components';
+
+import { ReactElement } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import {
   dashboardsContactGroupsEndpoint,
@@ -31,7 +30,6 @@ import {
   labelUserRights,
   labelViewer
 } from '../../../translatedLabels';
-
 import { useDashboardAccessRights } from './useDashboardAccessRights';
 
 const labels = {

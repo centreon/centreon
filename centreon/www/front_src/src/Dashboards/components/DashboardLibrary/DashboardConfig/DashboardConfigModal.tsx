@@ -1,14 +1,13 @@
-import { ReactElement, useMemo } from 'react';
-
-import { equals } from 'ramda';
-import { useTranslation } from 'react-i18next';
-
 import {
   DashboardForm,
   DashboardFormLabels,
   DashboardResource,
   Modal
 } from '@centreon/ui/components';
+
+import { equals } from 'ramda';
+import { ReactElement, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import {
   labelGlobalRefreshInterval,
@@ -27,7 +26,6 @@ import {
   labelUpdate,
   labelUpdateDashboard
 } from '../../../translatedLabels';
-
 import { useDashboardConfig } from './useDashboardConfig';
 
 interface Props {

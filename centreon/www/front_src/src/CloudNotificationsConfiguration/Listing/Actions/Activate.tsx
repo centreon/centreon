@@ -1,7 +1,3 @@
-import { useEffect, useState } from 'react';
-
-import { useQueryClient } from '@tanstack/react-query';
-
 import { Switch as MUISwitch } from '@mui/material';
 import { styled } from '@mui/material/styles';
 
@@ -11,6 +7,9 @@ import {
   ResponseError,
   useMutationQuery
 } from '@centreon/ui';
+
+import { useQueryClient } from '@tanstack/react-query';
+import { useEffect, useState } from 'react';
 
 import { notificationEndpoint } from '../../Panel/api/endpoints';
 

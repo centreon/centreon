@@ -2,7 +2,6 @@ import { concat, pipe, prop, toLower } from 'ramda';
 
 import { labelSoft } from '../../../translatedLabels';
 import { selectableResourceTypes, selectableStatuses } from '../models';
-
 import { build, getAutocompleteSuggestions, parse } from './index';
 
 const search =

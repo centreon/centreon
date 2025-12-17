@@ -1,9 +1,3 @@
-import { ReactElement, useMemo } from 'react';
-
-import { useAtomValue } from 'jotai';
-import { equals, gt, isNil, last, pipe, pluck, reject } from 'ramda';
-import { useTranslation } from 'react-i18next';
-
 import { useTheme } from '@mui/material';
 
 import {
@@ -13,6 +7,11 @@ import {
   useRefreshInterval
 } from '@centreon/ui';
 import { isOnPublicPageAtom } from '@centreon/ui-context';
+
+import { useAtomValue } from 'jotai';
+import { equals, gt, isNil, last, pipe, pluck, reject } from 'ramda';
+import { ReactElement, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { NoResourcesFound } from '../../../NoResourcesFound';
 import {
@@ -30,16 +29,15 @@ import {
   buildResourcesEndpoint,
   resourcesEndpoint
 } from '../api/endpoints';
-
 import HeatMapSkeleton from './LoadingSkeleton';
-import Tile from './Tile';
-import Tooltip from './Tooltip/Tooltip';
 import {
   IndicatorType,
   type ResourceData,
   type ResourceStatus,
   type StatusGridProps
 } from './models';
+import Tile from './Tile';
+import Tooltip from './Tooltip/Tooltip';
 import { getColor, seeMoreTileId } from './utils';
 
 const StatusGrid = ({

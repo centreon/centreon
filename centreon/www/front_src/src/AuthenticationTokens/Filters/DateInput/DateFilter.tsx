@@ -1,13 +1,12 @@
-import { useMemo, useState } from 'react';
-
-import dayjs from 'dayjs';
-import { equals, map, pipe, propEq, reject } from 'ramda';
-import { useTranslation } from 'react-i18next';
-
 import {
   SingleAutocompleteField as SelectInput,
   useLocaleDateTimeFormat
 } from '@centreon/ui';
+
+import dayjs from 'dayjs';
+import { equals, map, pipe, propEq, reject } from 'ramda';
+import { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { dataDuration } from '../../Modal/utils';
 import { Property } from '../models';

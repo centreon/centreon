@@ -1,6 +1,7 @@
+import { Method, ResponseError, useMutationQuery } from '@centreon/ui';
+
 import { useQueryClient } from '@tanstack/react-query';
 
-import { Method, ResponseError, useMutationQuery } from '@centreon/ui';
 import { getTokenEndpoint } from './endpoints';
 
 interface UseEnableeProps {

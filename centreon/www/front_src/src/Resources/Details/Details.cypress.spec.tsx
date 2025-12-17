@@ -1,15 +1,16 @@
 import dayjs from 'dayjs';
 import 'dayjs/locale/en';
-import { Provider, createStore } from 'jotai';
-import { BrowserRouter } from 'react-router';
 
 import {
   Method,
   SnackbarProvider,
-  TestQueryProvider,
-  setUrlQueryParameters
+  setUrlQueryParameters,
+  TestQueryProvider
 } from '@centreon/ui';
 import { aclAtom, refreshIntervalAtom, userAtom } from '@centreon/ui-context';
+
+import { createStore, Provider } from 'jotai';
+import { BrowserRouter } from 'react-router';
 
 import { commentEndpoint } from '../Actions/api/endpoint';
 import { resourcesEndpoint } from '../api/endpoint';
@@ -61,18 +62,16 @@ import {
   labelTo,
   labelYourCommentSent
 } from '../translatedLabels';
-
+import Details from '.';
 import {
   openDetailsTabIdAtom,
   panelWidthStorageAtom,
   selectedResourceDetailsEndpointDerivedAtom,
   selectedResourcesDetailsAtom
 } from './detailsAtoms';
+import { router } from './tabs/Details/DetailsCard/GroupChip';
 import useDetails from './useDetails';
 import useLoadDetails from './useLoadDetails';
-
-import Details from '.';
-import { router } from './tabs/Details/DetailsCard/GroupChip';
 
 const resourceServiceId = 1;
 

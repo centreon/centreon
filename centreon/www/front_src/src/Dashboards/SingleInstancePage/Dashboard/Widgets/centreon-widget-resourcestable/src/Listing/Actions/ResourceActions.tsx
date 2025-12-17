@@ -1,11 +1,11 @@
+import IconAcknowledge from '@mui/icons-material/Person';
+
+import { SeverityCode, useSnackbar } from '@centreon/ui';
+
 import { useAtomValue, useSetAtom } from 'jotai';
 import { all, equals, pathEq } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
-
-import IconAcknowledge from '@mui/icons-material/Person';
-
-import { SeverityCode, useSnackbar } from '@centreon/ui';
 
 import {
   resourcesToAcknowledgeAtom,
@@ -21,11 +21,10 @@ import {
   labelForcedCheckDescription,
   labelSetDowntime
 } from '../translatedLabels';
-
-import CheckActionButton from './Check';
-import ResourceActionButton from './ResourceActionButton';
 import useAclQuery from './aclQuery';
+import CheckActionButton from './Check';
 import { Action, CheckActionModel } from './model';
+import ResourceActionButton from './ResourceActionButton';
 
 const useStyles = makeStyles()((theme) => ({
   action: {

@@ -1,13 +1,13 @@
-import { Provider, createStore } from 'jotai';
-import { equals } from 'ramda';
-
 import { Method, TestQueryProvider } from '@centreon/ui';
 import { userAtom } from '@centreon/ui-context';
 
+import { createStore, Provider } from 'jotai';
+import { equals } from 'ramda';
+
 import { retrievedUser } from '../../Main/testUtils';
 import { selectedVisualizationAtom } from '../Actions/actionsAtoms';
-import { enabledAutorefreshAtom } from '../Listing/listingAtoms';
 import { resourcesEndpoint } from '../api/endpoint';
+import { enabledAutorefreshAtom } from '../Listing/listingAtoms';
 import { Visualization } from '../models';
 import { defaultStatuses } from '../testUtils';
 import {
@@ -32,7 +32,8 @@ import {
   labelType,
   labelUp
 } from '../translatedLabels';
-
+import Filter from '.';
+import { serviceNamesEndpoint } from './api/endpoint';
 import getDefaultCriterias from './Criterias/default';
 import { CategoryHostStatus } from './criteriasNewInterface/model';
 import {
@@ -41,9 +42,6 @@ import {
 } from './criteriasNewInterface/translatedLabels';
 import { applyFilterDerivedAtom } from './filterAtoms';
 import { allFilter, unhandledProblemsFilter } from './models';
-
-import Filter from '.';
-import { serviceNamesEndpoint } from './api/endpoint';
 
 const emptyListData = {
   meta: { limit: 10, page: 1, search: {}, sort_by: {}, total: 0 },

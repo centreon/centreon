@@ -1,11 +1,10 @@
-import { useState } from 'react';
-
-import { useLocation } from 'react-router';
-import { makeStyles } from 'tss-react/mui';
-
 import { ListItemText, Switch } from '@mui/material';
 
 import { patchData, useRequest } from '@centreon/ui';
+
+import { useState } from 'react';
+import { useLocation } from 'react-router';
+import { makeStyles } from 'tss-react/mui';
 
 import useSwitchThemeMode from './useSwitchThemeMode';
 

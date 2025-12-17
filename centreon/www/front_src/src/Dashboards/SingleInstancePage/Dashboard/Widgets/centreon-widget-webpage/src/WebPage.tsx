@@ -1,8 +1,10 @@
 import { useRefreshInterval } from '@centreon/ui';
+
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import Preview from './Preview';
+
 import type { WebPageProps } from './models';
+import Preview from './Preview';
 import { labelWebpageDisplay } from './translatedLabels';
 import { useIframeStyles } from './useWebPage.styles';
 

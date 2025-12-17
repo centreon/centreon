@@ -1,17 +1,16 @@
-import { useCallback, useState } from 'react';
-
-import { useSetAtom } from 'jotai';
-import { useTranslation } from 'react-i18next';
-import { makeStyles } from 'tss-react/mui';
-
 import FilterListIcon from '@mui/icons-material/FilterList';
 import SettingsIcon from '@mui/icons-material/Settings';
 import { Chip, Grid, Tooltip, Typography } from '@mui/material';
 import IconButton from '@mui/material/IconButton';
 
+import { useSetAtom } from 'jotai';
 import { equals } from 'ramda';
+import { useCallback, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
+import { makeStyles } from 'tss-react/mui';
 import routeMap from 'www/front_src/src/reactRoutes/routeMap';
+
 import { CriteriaNames } from '../../../../Filter/Criterias/models';
 import { setCriteriaAndNewFilterDerivedAtom } from '../../../../Filter/filterAtoms';
 import { Category, Group } from '../../../models';

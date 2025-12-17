@@ -1,5 +1,3 @@
-import { makeStyles } from 'tss-react/mui';
-
 import IconCheck from '@mui/icons-material/CheckOutlined';
 import Divider from '@mui/material/Divider';
 import List from '@mui/material/List';
@@ -9,9 +7,10 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import Popper from '@mui/material/Popper';
 
+import { makeStyles } from 'tss-react/mui';
+
 import { labelCheck, labelForcedCheck } from '../../../translatedLabels';
 import { Data } from '../../model';
-
 import Text from './Text';
 
 const useStyles = makeStyles()((theme) => ({

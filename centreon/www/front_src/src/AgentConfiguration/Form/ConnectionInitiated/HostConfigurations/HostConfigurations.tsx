@@ -1,16 +1,17 @@
-import { IconButton } from '@centreon/ui/components';
 import DeleteOutline from '@mui/icons-material/DeleteOutline';
 import { Box, Divider } from '@mui/material';
+
+import { IconButton } from '@centreon/ui/components';
+
 import { equals } from 'ramda';
 import { Fragment } from 'react';
+
+import { labelMonitoredHosts } from '../../../translatedLabels';
+import Title from '../../ConnectionInitiated/Title';
 import AddButton from './AddButton';
 import HostConfiguration from './HostConfiguration';
 import { useHostConfigurationsStyle } from './HostConfigurationsStyle';
 import { useHostConfigurations } from './useHostConfigurations';
-
-import Title from '../../ConnectionInitiated/Title';
-
-import { labelMonitoredHosts } from '../../../translatedLabels';
 
 const HostConfigurations = () => {
   const { classes } = useHostConfigurationsStyle();

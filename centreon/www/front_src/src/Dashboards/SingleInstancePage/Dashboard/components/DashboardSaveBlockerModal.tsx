@@ -1,8 +1,8 @@
-import { useSetAtom } from 'jotai';
-
 import { ConfirmationModal } from '@centreon/ui/components';
 
+import { useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
+
 import { DashboardPanel } from '../../../api/models';
 import { isEditingAtom, isRedirectionBlockedAtom } from '../atoms';
 import useDashboardSaveBlocker from '../hooks/useDashboardSaveBlocker';

@@ -1,9 +1,12 @@
-import { IconButton } from '@centreon/ui';
 import SaveIcon from '@mui/icons-material/SaveAlt';
+
+import { IconButton } from '@centreon/ui';
+
 import { useAtomValue } from 'jotai';
 import { equals } from 'ramda';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+
 import { Visualization } from '../../models';
 import { labelExportToCSV } from '../../translatedLabels';
 import { selectedVisualizationAtom } from '../actionsAtoms';

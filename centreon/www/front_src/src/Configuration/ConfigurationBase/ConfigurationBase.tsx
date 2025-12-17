@@ -1,9 +1,9 @@
 import { useAtom, useSetAtom } from 'jotai';
 import { isEmpty, isNil, not } from 'ramda';
 import { JSX, useEffect, useMemo } from 'react';
+
 import { ConfigurationBase } from '../models';
 import { configurationAtom } from './atoms';
-
 import Page from './Page';
 
 const Base = <TFilters,>({

@@ -1,10 +1,10 @@
-import { useSetAtom } from 'jotai';
-import { equals, or } from 'ramda';
-import { useTranslation } from 'react-i18next';
-
 import { useTheme } from '@mui/material';
 
 import { ComponentColumnProps, IconButton } from '@centreon/ui';
+
+import { useSetAtom } from 'jotai';
+import { equals, or } from 'ramda';
+import { useTranslation } from 'react-i18next';
 
 import { resourcesToOpenTicketAtom } from '../../../atom';
 import {

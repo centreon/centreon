@@ -1,42 +1,41 @@
 import {
-  MouseEvent,
-  ReactNode,
-  memo,
-  useEffect,
-  useMemo,
-  useRef,
-  useState
-} from 'react';
-
-import { AddSVGProps } from '@visx/shape/lib/types';
-import { Event, Grid, Group, Shape, Tooltip as VisxTooltip } from '@visx/visx';
-import { bisector } from 'd3-array';
-import { useAtomValue, useSetAtom } from 'jotai';
-import { equals, gte, identity, isNil, lt, not, pick, values } from 'ramda';
-import { useTranslation } from 'react-i18next';
-import { makeStyles } from 'tss-react/mui';
-
-import {
+  alpha,
   Button,
   CircularProgress,
   ClickAwayListener,
   Paper,
   Tooltip,
   Typography,
-  alpha,
   useTheme
 } from '@mui/material';
 import { grey } from '@mui/material/colors';
 
 import {
-  LineChartData,
   dateTimeFormat,
+  LineChartData,
   useLocaleDateTimeFormat,
   useMemoComponent
 } from '@centreon/ui';
 
-import useAclQuery from '../../../Actions/Resource/aclQuery';
+import { AddSVGProps } from '@visx/shape/lib/types';
+import { Event, Grid, Group, Shape, Tooltip as VisxTooltip } from '@visx/visx';
+import { bisector } from 'd3-array';
+import { useAtomValue, useSetAtom } from 'jotai';
+import { equals, gte, identity, isNil, lt, not, pick, values } from 'ramda';
+import {
+  MouseEvent,
+  memo,
+  ReactNode,
+  useEffect,
+  useMemo,
+  useRef,
+  useState
+} from 'react';
+import { useTranslation } from 'react-i18next';
+import { makeStyles } from 'tss-react/mui';
+
 import { CommentParameters } from '../../../Actions/api';
+import useAclQuery from '../../../Actions/Resource/aclQuery';
 import { ResourceDetails } from '../../../Details/models';
 import { TimelineEvent } from '../../../Details/tabs/Timeline/models';
 import { Resource } from '../../../models';
@@ -53,21 +52,20 @@ import {
   getRightScale,
   getXScale
 } from '../timeSeries';
-
 import AddCommentForm from './AddCommentForm';
 import Annotations from './Annotations';
 import Axes from './Axes';
-import TimeShiftZones, { TimeShiftContext } from './TimeShiftZones';
 import {
   annotationHoveredAtom,
   changeAnnotationHoveredDerivedAtom
 } from './annotationsAtoms';
 import {
-  MousePosition,
   changeMousePositionAndTimeValueDerivedAtom,
   changeTimeValueDerivedAtom,
+  MousePosition,
   mousePositionAtom
 } from './mouseTimeValueAtoms';
+import TimeShiftZones, { TimeShiftContext } from './TimeShiftZones';
 
 interface BarProps {
   className?: string;

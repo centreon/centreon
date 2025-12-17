@@ -1,13 +1,12 @@
-import { useEffect, useState } from 'react';
-
-import { useSetAtom } from 'jotai';
-import { isEmpty, isNil, values } from 'ramda';
-import { useTranslation } from 'react-i18next';
-
 import { Checkbox, FormControlLabel, Typography } from '@mui/material';
 import Radio from '@mui/material/Radio';
 
-import { SelectField, TextField, postData, useRequest } from '@centreon/ui';
+import { postData, SelectField, TextField, useRequest } from '@centreon/ui';
+
+import { useSetAtom } from 'jotai';
+import { isEmpty, isNil, values } from 'ramda';
+import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { useStyles } from '../../styles/partials/form/PollerWizardStyle';
 import { remoteServerWaitListEndpoint } from '../api/endpoints';

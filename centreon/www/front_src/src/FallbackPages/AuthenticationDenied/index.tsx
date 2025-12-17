@@ -1,9 +1,9 @@
-import { useTranslation } from 'react-i18next';
-import { makeStyles } from 'tss-react/mui';
-
 import { Box } from '@mui/material';
 
 import { FallbackPage } from '@centreon/ui';
+
+import { useTranslation } from 'react-i18next';
+import { makeStyles } from 'tss-react/mui';
 
 import {
   labelAuthenticationDenied,

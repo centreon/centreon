@@ -1,13 +1,14 @@
-import { inc } from 'ramda';
-import { Link } from 'react-router';
+import { Typography } from '@mui/material';
 
 import { Tooltip } from '@centreon/ui/components';
-import { Typography } from '@mui/material';
-import { getResourcesUrlForMetricsWidgets } from '../../utils';
 
+import { inc } from 'ramda';
 import { forwardRef } from 'react';
-import { useTopBottomStyles } from './TopBottom.styles';
+import { Link } from 'react-router';
+
+import { getResourcesUrlForMetricsWidgets } from '../../utils';
 import { Resource } from './models';
+import { useTopBottomStyles } from './TopBottom.styles';
 
 interface Props {
   metricTop: Resource;

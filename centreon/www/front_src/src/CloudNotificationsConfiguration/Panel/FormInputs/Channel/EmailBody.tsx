@@ -1,10 +1,10 @@
+import { RichTextEditor, useMemoComponent } from '@centreon/ui';
+
 import { $generateHtmlFromNodes } from '@lexical/html';
 import { FormikValues, useFormikContext } from 'formik';
 import { useSetAtom } from 'jotai';
 import { path } from 'ramda';
 import { useTranslation } from 'react-i18next';
-
-import { RichTextEditor, useMemoComponent } from '@centreon/ui';
 
 import { labelTypeYourTextHere } from '../../../translatedLabels';
 import { htmlEmailBodyAtom } from '../../atom';

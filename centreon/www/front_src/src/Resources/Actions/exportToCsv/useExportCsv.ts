@@ -3,15 +3,17 @@ import {
   isResourceStatusFullSearchEnabledAtom,
   refreshIntervalAtom
 } from '@centreon/ui-context';
+
 import { useAtomValue } from 'jotai';
 import { equals } from 'ramda';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
+
+import { countResourcesEndpoint } from '../../api/endpoint';
 import { getColumns as getAllColumns } from '../../Listing/columns';
 import { listingAtom, selectedColumnIdsAtom } from '../../Listing/listingAtoms';
 import useGetCriteriaName from '../../Listing/useLoadResources/useGetCriteriaName';
 import { getSearch } from '../../Listing/useLoadResources/utils';
-import { countResourcesEndpoint } from '../../api/endpoint';
 import { labelExportProcessingInProgress } from '../../translatedLabels';
 import { selectedVisualizationAtom } from '../actionsAtoms';
 import { csvExportEndpoint } from '../api/endpoint';

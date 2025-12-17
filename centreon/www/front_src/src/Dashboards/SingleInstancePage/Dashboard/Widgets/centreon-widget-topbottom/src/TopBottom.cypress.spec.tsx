@@ -1,17 +1,15 @@
-import { Provider, createStore } from 'jotai';
-import { BrowserRouter } from 'react-router';
-
 import { Method, TestQueryProvider } from '@centreon/ui';
 import { isOnPublicPageAtom } from '@centreon/ui-context';
+
+import { createStore, Provider } from 'jotai';
+import { BrowserRouter } from 'react-router';
 
 import { Data, FormThreshold } from '../../models';
 import { labelPreviewRemainsEmpty } from '../../translatedLabels';
 import { getPublicWidgetEndpoint } from '../../utils';
-
+import Widget from '.';
 import { metricsTopEndpoint } from './api/endpoint';
 import { TopBottomSettings } from './models';
-
-import Widget from '.';
 
 interface Props {
   data?: Data;

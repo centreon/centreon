@@ -1,9 +1,8 @@
 import { IconButton } from '@centreon/ui';
 
 import { DisplayType } from '../../models';
-
-import Icon from './Icons';
 import { useStyles } from './displayType.styles';
+import Icon from './Icons';
 
 interface Props {
   changeDisplayType: () => void;

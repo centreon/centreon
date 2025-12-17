@@ -1,5 +1,6 @@
 import CloseIcon from '@mui/icons-material/Close';
 import { Badge, SvgIcon } from '@mui/material';
+
 import { useOpenTicketStyles } from '../Columns.styles';
 
 const icon = (

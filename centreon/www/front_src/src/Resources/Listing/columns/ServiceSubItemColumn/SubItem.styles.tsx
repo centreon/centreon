@@ -1,6 +1,6 @@
-import { makeStyles } from 'tss-react/mui';
+import { getStatusColors, SeverityCode } from '@centreon/ui';
 
-import { SeverityCode, getStatusColors } from '@centreon/ui';
+import { makeStyles } from 'tss-react/mui';
 
 interface StylesProps {
   severityCode?: SeverityCode;

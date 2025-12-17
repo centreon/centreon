@@ -1,8 +1,8 @@
-import { T, equals, head, pipe, propOr, split } from 'ramda';
-
-import { ColumnType, truncate } from '@centreon/ui';
 import type { Column } from '@centreon/ui';
+import { ColumnType, truncate } from '@centreon/ui';
 import { FeatureFlags } from '@centreon/ui-context';
+
+import { equals, head, pipe, propOr, split, T } from 'ramda';
 
 import { Visualization } from '../../models';
 import {
@@ -28,7 +28,6 @@ import {
   labelStatus,
   labelTries
 } from '../../translatedLabels';
-
 import ChecksColumn from './Checks';
 import GraphColumn from './Graph';
 import NotificationColumn from './Notification';

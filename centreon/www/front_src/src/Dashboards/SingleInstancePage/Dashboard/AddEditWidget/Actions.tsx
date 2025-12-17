@@ -1,7 +1,8 @@
+import { Modal } from '@centreon/ui/components';
+
 import { useFormikContext } from 'formik';
 import { useTranslation } from 'react-i18next';
 
-import { Modal } from '@centreon/ui/components';
 import { useCanEditProperties } from '../hooks/useCanEditDashboard';
 import { labelCancel, labelSave } from '../translatedLabels';
 

@@ -1,8 +1,8 @@
+import { Method, useBulkResponse, useMutationQuery } from '@centreon/ui';
+
 import { useQueryClient } from '@tanstack/react-query';
 import { equals } from 'ramda';
 import { useTranslation } from 'react-i18next';
-
-import { Method, useBulkResponse, useMutationQuery } from '@centreon/ui';
 
 import {
   DeleteResourceAccessRuleType,
@@ -15,7 +15,6 @@ import {
   labelResourceAccessRuleDeletedSuccess,
   labelResourceAccessRulesDeletedSuccess
 } from '../../translatedLabels';
-
 import {
   deleteMultipleRulesEndpoint,
   deleteSingleResourceAccessRuleEndpoint

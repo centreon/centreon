@@ -1,12 +1,12 @@
+import { useAtomValue } from 'jotai';
 import { equals } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { array, number, object, string } from 'yup';
 
-import { useAtomValue } from 'jotai';
 import { modalStateAtom } from '../../ConfigurationBase/atoms';
 import {
-  labelAtLeastOneVCenterIsRequired,
   labelAteastOnePollerIsRequired,
+  labelAtLeastOneVCenterIsRequired,
   labelDescription,
   labelDescriptionMustBeMost,
   labelInvalidPortNumber,

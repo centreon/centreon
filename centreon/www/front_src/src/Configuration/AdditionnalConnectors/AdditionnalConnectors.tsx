@@ -1,31 +1,28 @@
 import { useTranslation } from 'react-i18next';
 
 import ConfigurationBase from '../ConfigurationBase';
-import useColumns from './Columns/useColumns';
-import useAdditionnalConnectors from './useAdditionnalConnectors';
-
 import { ResourceType } from '../models';
-import { defaultValues, useFormInputs, useValidationSchema } from './Form';
-import {
-  columnsAtomKey,
-  defaultSelectedColumnIds,
-  filtersAtomKey,
-  filtersInitialValues
-} from './utils';
-
 import {
   filtersAtom,
   isWelcomePageDisplayedAtom,
   selectedColumnIdsAtom
 } from './atoms';
+import useColumns from './Columns/useColumns';
+import { defaultValues, useFormInputs, useValidationSchema } from './Form';
 import { Filters } from './models';
-
 import {
   labelAddAdditionalConfigurations,
   labelAdditionalConnectorConfiguration,
   labelPageDescription,
   labelWelcomeToAdditionalConfigurations
 } from './translatedLabels';
+import useAdditionnalConnectors from './useAdditionnalConnectors';
+import {
+  columnsAtomKey,
+  defaultSelectedColumnIds,
+  filtersAtomKey,
+  filtersInitialValues
+} from './utils';
 
 const AdditionnalConnectors = () => {
   const { t } = useTranslation();

@@ -1,13 +1,12 @@
-import { useState } from 'react';
-
-import { FormikValues, useFormikContext } from 'formik';
-import { useSetAtom } from 'jotai';
-import { useTranslation } from 'react-i18next';
-import { makeStyles } from 'tss-react/mui';
-
 import CloseIcon from '@mui/icons-material/Close';
 
 import { ConfirmDialog, IconButton } from '@centreon/ui';
+
+import { FormikValues, useFormikContext } from 'formik';
+import { useSetAtom } from 'jotai';
+import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { makeStyles } from 'tss-react/mui';
 
 import { isPanelOpenAtom } from '../../../atom';
 import {

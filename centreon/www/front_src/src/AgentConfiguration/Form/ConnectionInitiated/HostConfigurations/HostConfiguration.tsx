@@ -1,22 +1,18 @@
-import { or } from 'ramda';
-import { ReactElement } from 'react';
+import { Box } from '@mui/material';
 
 import {
   NumberField,
   SingleConnectedAutocompleteField,
   TextField
 } from '@centreon/ui';
-import { Box } from '@mui/material';
+
+import { or } from 'ramda';
+import { ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
-import { getHostsEndpoint, getTokensEndpoint } from '../../../api/endpoints';
-import { HostConfiguration as HostConfigurationModel } from '../../../models';
-
-import RedirectToTokensPage from '../RedirectToTokensPage';
-import { useHostConfiguration } from './useHostConfiguration';
-
-import { useHostConfigurationsStyle } from './HostConfigurationsStyle';
 
 import { listTokensDecoder } from '../../../api/decoders';
+import { getHostsEndpoint, getTokensEndpoint } from '../../../api/endpoints';
+import { HostConfiguration as HostConfigurationModel } from '../../../models';
 import {
   labelCACommonName,
   labelCaCertificate,
@@ -25,6 +21,9 @@ import {
   labelSelectExistingCMAToken,
   labelSelectHost
 } from '../../../translatedLabels';
+import RedirectToTokensPage from '../RedirectToTokensPage';
+import { useHostConfigurationsStyle } from './HostConfigurationsStyle';
+import { useHostConfiguration } from './useHostConfiguration';
 
 interface Props {
   index: number;

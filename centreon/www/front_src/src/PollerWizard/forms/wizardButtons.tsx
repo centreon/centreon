@@ -1,7 +1,7 @@
+import { Button, CircularProgress } from '@mui/material';
+
 import { equals } from 'ramda';
 import { useTranslation } from 'react-i18next';
-
-import { Button, CircularProgress } from '@mui/material';
 
 import { useStyles } from '../../styles/partials/form/PollerWizardStyle';
 import { WizardButtonsTypes } from '../models';

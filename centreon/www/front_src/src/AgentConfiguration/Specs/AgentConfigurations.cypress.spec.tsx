@@ -1,15 +1,13 @@
 import { labelPortExpectedAtMost } from '../../VaultConfiguration/translatedLabels';
-import initialize from './initialize';
-
 import {
   labelAction,
   labelAdd,
-  labelAddAHost,
   labelAddAgentConfiguration,
+  labelAddAHost,
   labelAgentConfigurationCreated,
   labelAgentConfigurationUpdated,
-  labelAgentType,
   labelAgentsConfigurations,
+  labelAgentType,
   labelByPoller,
   labelCACommonName,
   labelCaCertificate,
@@ -17,10 +15,10 @@ import {
   labelClear,
   labelConfigurationServer,
   labelConnectionInitiated,
-  labelDNSIP,
   labelDelete,
   labelDeleteAgent,
   labelDeletePoller,
+  labelDNSIP,
   labelEncryptionLevel,
   labelInsecure,
   labelInvalidExtension,
@@ -46,6 +44,7 @@ import {
   labelWarningEncryptionLevelTelegraf,
   labelWelcomeToTheAgentsConfigurationPage
 } from '../translatedLabels';
+import initialize from './initialize';
 
 describe('Agent configurations', () => {
   it('displays a welcome label when the listing is empty', () => {

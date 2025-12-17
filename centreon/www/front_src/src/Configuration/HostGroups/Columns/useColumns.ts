@@ -1,6 +1,7 @@
+import { Column, ColumnType, truncate } from '@centreon/ui';
+
 import { useTranslation } from 'react-i18next';
 
-import { Column, ColumnType, truncate } from '@centreon/ui';
 import {
   labelAlias,
   labelDisabledHosts,

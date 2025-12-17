@@ -1,19 +1,18 @@
-import { useCallback, useMemo, useState } from 'react';
-
-import { useAtomValue } from 'jotai';
-import { isNil, pluck } from 'ramda';
-import { makeStyles } from 'tss-react/mui';
-
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import { Box, Breadcrumbs as MuiBreadcrumbs } from '@mui/material';
 
-import navigationAtom from '../Navigation/navigationAtoms';
-
 import { useCopyToClipboard } from '@centreon/ui';
 import { IconButton, Tooltip } from '@centreon/ui/components';
+
+import { useAtomValue } from 'jotai';
+import { isNil, pluck } from 'ramda';
+import { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation } from 'react-router';
+import { makeStyles } from 'tss-react/mui';
+
+import navigationAtom from '../Navigation/navigationAtoms';
 import Breadcrumb from './Breadcrumb';
 import getBreadcrumbsByPath from './getBreadcrumbsByPath';
 import { Breadcrumb as BreadcrumbModel, BreadcrumbsByPath } from './models';

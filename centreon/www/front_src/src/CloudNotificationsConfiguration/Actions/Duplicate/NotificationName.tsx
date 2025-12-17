@@ -1,8 +1,8 @@
+import { TextField } from '@centreon/ui';
+
 import { FormikValues, useFormikContext } from 'formik';
 import { path } from 'ramda';
 import { useTranslation } from 'react-i18next';
-
-import { TextField } from '@centreon/ui';
 
 import { labelName, labelNotificationName } from '../../translatedLabels';
 

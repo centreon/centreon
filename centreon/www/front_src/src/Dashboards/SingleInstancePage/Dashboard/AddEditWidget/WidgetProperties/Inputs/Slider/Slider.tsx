@@ -1,15 +1,13 @@
-import { useMemo } from 'react';
-
-import { useTranslation } from 'react-i18next';
-
 import { Slider as MuiSlider, Typography } from '@mui/material';
 
 import { NumberField } from '@centreon/ui';
 
+import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
+
 import Subtitle from '../../../../components/Subtitle';
 import { useCanEditProperties } from '../../../../hooks/useCanEditDashboard';
 import { WidgetPropertyProps } from '../../../models';
-
 import { useSliderStyles } from './Slider.styles';
 import { useSlider } from './useSlider';
 

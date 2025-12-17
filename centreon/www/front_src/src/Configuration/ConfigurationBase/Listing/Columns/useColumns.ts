@@ -1,7 +1,8 @@
+import { Column, ColumnType } from '@centreon/ui';
+
+import { useAtomValue } from 'jotai';
 import { useTranslation } from 'react-i18next';
 
-import { Column, ColumnType } from '@centreon/ui';
-import { useAtomValue } from 'jotai';
 import { configurationAtom } from '../../atoms';
 import { labelActions, labelEnableDisable } from '../../translatedLabels';
 import { Actions } from './Actions';

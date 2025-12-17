@@ -1,15 +1,14 @@
-import { MouseEvent, useEffect, useRef, useState } from 'react';
-
-import { useAtom, useAtomValue, useSetAtom } from 'jotai';
-import { equals, flatten, isEmpty, isNil, length } from 'ramda';
-import { useLocation, useNavigate } from 'react-router';
-import { makeStyles } from 'tss-react/mui';
-
 import { ListItem, useTheme } from '@mui/material';
 import List from '@mui/material/List';
 
 import { useMemoComponent } from '@centreon/ui';
 import { userAtom } from '@centreon/ui-context';
+
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
+import { equals, flatten, isEmpty, isNil, length } from 'ramda';
+import { MouseEvent, useEffect, useRef, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router';
+import { makeStyles } from 'tss-react/mui';
 
 import { Page } from '../../models';
 import { searchUrlFromEntry } from '../helpers/getUrlFromEntry';
@@ -19,10 +18,9 @@ import {
   selectedNavigationItemsAtom,
   setHoveredNavigationItemsDerivedAtom
 } from '../sideBarAtoms';
-
 import CollapsibleItems from './CollapsibleItems';
-import MenuItems from './MenuItems';
 import icons from './icons';
+import MenuItems from './MenuItems';
 
 interface Props {
   isDrawerOpen: boolean;

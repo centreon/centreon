@@ -1,4 +1,5 @@
 import { type ComponentColumnProps, truncate } from '@centreon/ui';
+
 import useNameStyles from './Name.style';
 
 const Name = ({

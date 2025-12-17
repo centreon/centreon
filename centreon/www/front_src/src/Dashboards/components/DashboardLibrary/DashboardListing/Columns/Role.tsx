@@ -1,6 +1,3 @@
-import { equals, isNil } from 'ramda';
-import { useTranslation } from 'react-i18next';
-
 import ModeEditIcon from '@mui/icons-material/ModeEditOutlineOutlined';
 import VisibilityIcon from '@mui/icons-material/VisibilityOutlined';
 import { Box } from '@mui/material';
@@ -8,9 +5,11 @@ import { Box } from '@mui/material';
 import { ComponentColumnProps } from '@centreon/ui';
 import { Tooltip } from '@centreon/ui/components';
 
+import { equals, isNil } from 'ramda';
+import { useTranslation } from 'react-i18next';
+
 import { DashboardRole } from '../../../../api/models';
 import { labelEditor, labelViewer } from '../translatedLabels';
-
 import { useColumnStyles } from './useColumnStyles';
 
 const Role = ({ row }: ComponentColumnProps): JSX.Element => {

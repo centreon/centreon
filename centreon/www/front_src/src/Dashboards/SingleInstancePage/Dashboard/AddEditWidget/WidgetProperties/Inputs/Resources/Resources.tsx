@@ -1,6 +1,3 @@
-import { equals, isNil } from 'ramda';
-import { useTranslation } from 'react-i18next';
-
 import AddIcon from '@mui/icons-material/Add';
 import {
   CircularProgress,
@@ -9,23 +6,25 @@ import {
   Typography
 } from '@mui/material';
 
+import { SelectField } from '@centreon/ui';
 import { Avatar, ItemComposition } from '@centreon/ui/components';
+
+import { equals, isNil } from 'ramda';
+import { ReactElement } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { useCanEditProperties } from '../../../../hooks/useCanEditDashboard';
 import {
   labelAddFilter,
   labelDelete,
-  labelResourceType,
   labelResources,
+  labelResourceType,
   labelSelectResourceType
 } from '../../../../translatedLabels';
 import { useAddWidgetStyles } from '../../../addWidget.styles';
 import { WidgetPropertyProps, WidgetResourceType } from '../../../models';
 import { useResourceStyles } from '../Inputs.styles';
 import { areResourcesFullfilled } from '../utils';
-
-import { SelectField } from '@centreon/ui';
-import { ReactElement } from 'react';
 import ConfirmationResourceTypeToggleRegexModal from './ConfirmationResourceTypeToggleRegexModal';
 import ResourceField from './ResourceField';
 import useDefaultSelectTypeData from './useDefaultSelectType';

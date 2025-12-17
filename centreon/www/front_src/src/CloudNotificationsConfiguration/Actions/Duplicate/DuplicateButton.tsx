@@ -1,8 +1,8 @@
-import { useTranslation } from 'react-i18next';
-
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 
 import { IconButton } from '@centreon/ui';
+
+import { useTranslation } from 'react-i18next';
 
 import { labelDuplicate } from '../../translatedLabels';
 

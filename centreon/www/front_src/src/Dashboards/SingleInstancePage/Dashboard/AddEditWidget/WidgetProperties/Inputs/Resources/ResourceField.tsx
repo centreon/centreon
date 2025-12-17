@@ -4,8 +4,10 @@ import {
   SingleConnectedAutocompleteField
 } from '@centreon/ui';
 import { IconButton, Tooltip } from '@centreon/ui/components';
+
 import { ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
+
 import {
   labelActivateRegex,
   labelSelectAResource

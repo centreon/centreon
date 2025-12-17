@@ -1,19 +1,19 @@
-import { useMemo, useState } from 'react';
+import { capitalize } from '@mui/material';
 
 import { ResponseError, truncate, useBulkResponse } from '@centreon/ui';
-import { capitalize } from '@mui/material';
+
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import pluralize from 'pluralize';
 import { equals, isEmpty, pluck } from 'ramda';
+import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
+import { useDuplicate as useDuplicateRequest } from '../../api';
+import { configurationAtom } from '../../atoms';
 import {
   resourcesToDuplicateAtom,
   selectedRowsAtom
 } from '../../Listing/atoms';
-import { configurationAtom } from '../../atoms';
-
-import { useDuplicate as useDuplicateRequest } from '../../api';
 import {
   labelDuplicateResource,
   labelDuplicateResourceConfirmation,

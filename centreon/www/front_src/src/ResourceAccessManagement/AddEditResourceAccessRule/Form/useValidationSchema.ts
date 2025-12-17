@@ -3,10 +3,10 @@ import { equals, isEmpty } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import {
   ArraySchema,
-  ObjectSchema,
-  ObjectShape,
   array,
   boolean,
+  ObjectSchema,
+  ObjectShape,
   object,
   string
 } from 'yup';

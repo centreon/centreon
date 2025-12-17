@@ -1,14 +1,13 @@
-import { Provider, createStore } from 'jotai';
-
 import { Method, TestQueryProvider } from '@centreon/ui';
 import { isOnPublicPageAtom } from '@centreon/ui-context';
+
+import { createStore, Provider } from 'jotai';
 
 import { Data } from '../../models';
 import { labelPreviewRemainsEmpty } from '../../translatedLabels';
 import { getPublicWidgetEndpoint } from '../../utils';
-
-import Graph from './Graph';
 import { getMetricsEndpoint } from './api/endpoints';
+import Graph from './Graph';
 import { FormThreshold, ValueFormat } from './models';
 
 const panelData: Data = {

@@ -1,7 +1,3 @@
-import { useState } from 'react';
-
-import { useTranslation } from 'react-i18next';
-
 import { Grid } from '@mui/material';
 
 import {
@@ -11,6 +7,9 @@ import {
   useRequest,
   useSnackbar
 } from '@centreon/ui';
+
+import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { Resource } from '../../../models';
 import {
@@ -29,7 +28,6 @@ import {
   labelUp,
   labelWarning
 } from '../../../translatedLabels';
-
 import { submitResourceStatus } from './api';
 
 interface Props {
