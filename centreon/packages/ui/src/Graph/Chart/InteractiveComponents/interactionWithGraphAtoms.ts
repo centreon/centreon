@@ -1,8 +1,8 @@
-import { atom } from "jotai";
-import { isNil } from "ramda";
+import { atom } from 'jotai';
+import { isNil } from 'ramda';
 
-import type { TimeValue } from "../../common/timeSeries/models";
-import type { GraphTooltipData } from "../models";
+import type { TimeValue } from '../../common/timeSeries/models';
+import type { GraphTooltipData } from '../models';
 
 export const eventMouseDownAtom = atom<null | MouseEvent>(null);
 export const eventMouseUpAtom = atom<null | MouseEvent>(null);
@@ -15,18 +15,18 @@ export const isListingGraphOpenAtom = atom(false);
 export type MousePosition = [number, number] | null;
 
 interface Position {
-	position: MousePosition;
+  position: MousePosition;
 }
 
 export const changeMousePositionDerivedAtom = atom(
-	null,
-	(_, set, { position }: Position): void => {
-		if (isNil(position)) {
-			set(mousePositionAtom, null);
+  null,
+  (_, set, { position }: Position): void => {
+    if (isNil(position)) {
+      set(mousePositionAtom, null);
 
-			return;
-		}
+      return;
+    }
 
-		set(mousePositionAtom, position);
-	},
+    set(mousePositionAtom, position);
+  }
 );

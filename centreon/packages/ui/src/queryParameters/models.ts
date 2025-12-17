@@ -1,4 +1,4 @@
 export interface QueryParameter {
-	name: string;
-	value: unknown;
+  name: string;
+  value: unknown;
 }

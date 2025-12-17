@@ -1,23 +1,24 @@
-import { Skeleton } from "@mui/material";
-import { makeStyles } from "tss-react/mui";
+import { Skeleton } from '@mui/material';
+
+import { makeStyles } from 'tss-react/mui';
 
 const useStyles = makeStyles()((theme) => ({
-	listingSkeleton: {
-		height: theme.spacing(50),
-		margin: theme.spacing(2, 1),
-	},
+  listingSkeleton: {
+    height: theme.spacing(50),
+    margin: theme.spacing(2, 1)
+  }
 }));
 
 const ListingSkeleton = (): JSX.Element => {
-	const { classes } = useStyles();
+  const { classes } = useStyles();
 
-	return (
-		<Skeleton
-			animation="wave"
-			className={classes.listingSkeleton}
-			variant="rectangular"
-		/>
-	);
+  return (
+    <Skeleton
+      animation="wave"
+      className={classes.listingSkeleton}
+      variant="rectangular"
+    />
+  );
 };
 
 export default ListingSkeleton;

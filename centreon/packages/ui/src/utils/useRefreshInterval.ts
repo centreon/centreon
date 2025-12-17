@@ -1,38 +1,39 @@
-import { refreshIntervalAtom } from "@centreon/ui-context";
-import { useAtomValue } from "jotai";
-import { always, cond, equals } from "ramda";
+import { refreshIntervalAtom } from '@centreon/ui-context';
+
+import { useAtomValue } from 'jotai';
+import { always, cond, equals } from 'ramda';
 
 interface Props {
-	globalRefreshInterval?: {
-		interval: number | null;
-		type: "global" | "manual";
-	};
-	refreshInterval: "default" | "custom" | "manual";
-	refreshIntervalCustom?: number;
+  globalRefreshInterval?: {
+    interval: number | null;
+    type: 'global' | 'manual';
+  };
+  refreshInterval: 'default' | 'custom' | 'manual';
+  refreshIntervalCustom?: number;
 }
 
 export const useRefreshInterval = ({
-	refreshInterval,
-	refreshIntervalCustom,
-	globalRefreshInterval = {
-		interval: null,
-		type: "global",
-	},
+  refreshInterval,
+  refreshIntervalCustom,
+  globalRefreshInterval = {
+    interval: null,
+    type: 'global'
+  }
 }: Props): number | false => {
-	const platformInterval = useAtomValue(refreshIntervalAtom);
+  const platformInterval = useAtomValue(refreshIntervalAtom);
 
-	const refreshIntervalToUse = cond([
-		[
-			equals("default"),
-			always(
-				equals(globalRefreshInterval.type, "manual")
-					? false
-					: globalRefreshInterval.interval || platformInterval,
-			),
-		],
-		[equals("custom"), always(refreshIntervalCustom)],
-		[equals("manual"), always(false)],
-	])(refreshInterval);
+  const refreshIntervalToUse = cond([
+    [
+      equals('default'),
+      always(
+        equals(globalRefreshInterval.type, 'manual')
+          ? false
+          : globalRefreshInterval.interval || platformInterval
+      )
+    ],
+    [equals('custom'), always(refreshIntervalCustom)],
+    [equals('manual'), always(false)]
+  ])(refreshInterval);
 
-	return refreshIntervalToUse ? (refreshIntervalToUse as number) * 1000 : false;
+  return refreshIntervalToUse ? (refreshIntervalToUse as number) * 1000 : false;
 };

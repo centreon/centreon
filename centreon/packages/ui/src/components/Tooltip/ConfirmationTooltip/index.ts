@@ -1,1 +1,1 @@
-export * from "./ConfirmationTooltip";
+export * from './ConfirmationTooltip';

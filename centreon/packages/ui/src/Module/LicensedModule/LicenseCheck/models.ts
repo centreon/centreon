@@ -1,3 +1,3 @@
 export interface License {
-	success: boolean;
+  success: boolean;
 }

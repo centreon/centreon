@@ -1,5 +1,5 @@
-import { lt } from "ramda";
-import type { Layout } from "react-grid-layout";
+import { lt } from 'ramda';
+import type { Layout } from 'react-grid-layout';
 
 const minColumns = 1;
 const breakpoint = 768;
@@ -8,21 +8,21 @@ export const rowHeight = 64;
 export const maxColumns = 24;
 
 export const getIsSmallScreenSize = (): boolean =>
-	lt(window.innerWidth, breakpoint);
+  lt(window.innerWidth, breakpoint);
 
 export const getColumnsFromScreenSize = (): number =>
-	getIsSmallScreenSize() ? minColumns : maxColumns;
+  getIsSmallScreenSize() ? minColumns : maxColumns;
 
 export const getLayout = <T extends Layout>(layout: Array<T>): Array<T> => {
-	const isSmallScreenSize = getIsSmallScreenSize();
-	if (!isSmallScreenSize) {
-		return layout;
-	}
+  const isSmallScreenSize = getIsSmallScreenSize();
+  if (!isSmallScreenSize) {
+    return layout;
+  }
 
-	return layout
-		.sort((a, b) => a.x + a.y - (b.x + b.y))
-		.map((widget) => ({
-			...widget,
-			w: 1,
-		}));
+  return layout
+    .sort((a, b) => a.x + a.y - (b.x + b.y))
+    .map((widget) => ({
+      ...widget,
+      w: 1
+    }));
 };

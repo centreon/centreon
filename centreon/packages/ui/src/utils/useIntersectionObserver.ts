@@ -1,45 +1,45 @@
-import { useCallback, useRef } from "react";
+import { useCallback, useRef } from 'react';
 
 interface HookParam {
-	action: () => void;
-	intersectionObserverOptions?: IntersectionObserverInit;
-	loading: boolean;
-	maxPage: number;
-	page: number;
+  action: () => void;
+  intersectionObserverOptions?: IntersectionObserverInit;
+  loading: boolean;
+  maxPage: number;
+  page: number;
 }
 
 export const useIntersectionObserver = ({
-	maxPage,
-	page,
-	loading,
-	action,
-	intersectionObserverOptions,
+  maxPage,
+  page,
+  loading,
+  action,
+  intersectionObserverOptions
 }: HookParam): ((node) => void) => {
-	const observer = useRef<IntersectionObserver | null>(null);
-	const lastElementRef = useCallback(
-		(node) => {
-			if (observer.current) {
-				observer.current.disconnect();
-			}
+  const observer = useRef<IntersectionObserver | null>(null);
+  const lastElementRef = useCallback(
+    (node) => {
+      if (observer.current) {
+        observer.current.disconnect();
+      }
 
-			if (loading) {
-				observer.current = null;
+      if (loading) {
+        observer.current = null;
 
-				return;
-			}
+        return;
+      }
 
-			observer.current = new IntersectionObserver(([entry]) => {
-				if (entry.isIntersecting && page < maxPage) {
-					action();
-				}
-			}, intersectionObserverOptions);
+      observer.current = new IntersectionObserver(([entry]) => {
+        if (entry.isIntersecting && page < maxPage) {
+          action();
+        }
+      }, intersectionObserverOptions);
 
-			if (node && observer.current) {
-				observer.current.observe(node);
-			}
-		},
-		[maxPage, page, loading, action, intersectionObserverOptions],
-	);
+      if (node && observer.current) {
+        observer.current.observe(node);
+      }
+    },
+    [maxPage, page, loading, action, intersectionObserverOptions]
+  );
 
-	return lastElementRef;
+  return lastElementRef;
 };

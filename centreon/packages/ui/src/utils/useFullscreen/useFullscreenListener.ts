@@ -1,61 +1,63 @@
-import { equals, includes } from "ramda";
-import { useEffect } from "react";
-import { useSearchParams } from "react-router";
+import { equals, includes } from 'ramda';
+import { useCallback, useEffect } from 'react';
+import { useSearchParams } from 'react-router';
 
-import { useDeepCompare } from "../useMemoComponent";
-
-import { useFullscreen } from "./useFullscreen";
+import { useDeepCompare } from '../useMemoComponent';
+import { useFullscreen } from './useFullscreen';
 
 export const router = {
-	useSearchParams,
+  useSearchParams
 };
 
 export const useFullscreenListener = (): boolean => {
-	const { toggleFullscreen, resetVariables, isFullscreenActivated } =
-		useFullscreen();
+  const { toggleFullscreen, resetVariables, isFullscreenActivated } =
+    useFullscreen();
 
-	const toggle = (event: KeyboardEvent): void => {
-		if (
-			includes(document.activeElement?.tagName, ["INPUT", "TEXTAREA"]) ||
-			equals(
-				document.activeElement?.getAttribute("data-lexical-editor"),
-				"true",
-			) ||
-			equals(document.activeElement?.getAttribute("contenteditable"), "true") ||
-			!equals(event.code, "KeyF")
-		) {
-			return;
-		}
+  const toggle = useCallback(
+    (event: KeyboardEvent): void => {
+      if (
+        includes(document.activeElement?.tagName, ['INPUT', 'TEXTAREA']) ||
+        equals(
+          document.activeElement?.getAttribute('data-lexical-editor'),
+          'true'
+        ) ||
+        equals(
+          document.activeElement?.getAttribute('contenteditable'),
+          'true'
+        ) ||
+        !equals(event.code, 'KeyF')
+      ) {
+        return;
+      }
 
-		toggleFullscreen(document.querySelector("body"));
-	};
+      toggleFullscreen(document.querySelector('body'));
+    },
+    [toggleFullscreen]
+  );
 
-	const changeFullscreen = (): void => {
-		if (document.fullscreenElement) {
-			return;
-		}
+  const changeFullscreen = useCallback((): void => {
+    if (document.fullscreenElement) {
+      return;
+    }
 
-		resetVariables();
-	};
+    resetVariables();
+  }, [resetVariables]);
 
-	useEffect(
-		() => {
-			document.addEventListener("fullscreenchange", changeFullscreen);
+  useEffect(() => {
+    document.addEventListener('fullscreenchange', changeFullscreen);
 
-			return () => {
-				document.removeEventListener("fullscreenchange", changeFullscreen);
-			};
-		},
-		useDeepCompare([document.fullscreenElement]),
-	);
+    return () => {
+      document.removeEventListener('fullscreenchange', changeFullscreen);
+    };
+  }, [...useDeepCompare([document.fullscreenElement]), changeFullscreen]);
 
-	useEffect(() => {
-		window.addEventListener("keypress", toggle);
+  useEffect(() => {
+    window.addEventListener('keypress', toggle);
 
-		return () => {
-			window.removeEventListener("keypress", toggle);
-		};
-	}, [toggle]);
+    return () => {
+      window.removeEventListener('keypress', toggle);
+    };
+  }, [toggle]);
 
-	return isFullscreenActivated;
+  return isFullscreenActivated;
 };

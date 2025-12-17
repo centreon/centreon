@@ -1,4 +1,4 @@
-import { equals, type } from "ramda";
+import { equals, type } from 'ramda';
 
 export const isAFunction = (property): boolean =>
-	equals("Function", type(property));
+  equals('Function', type(property));

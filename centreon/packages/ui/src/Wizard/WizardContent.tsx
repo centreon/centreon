@@ -1,75 +1,75 @@
-import { useFormikContext } from "formik";
-import { equals } from "ramda";
-import { useEffect } from "react";
-import { makeStyles } from "tss-react/mui";
+import { useFormikContext } from 'formik';
+import { equals } from 'ramda';
+import { useEffect } from 'react';
+import { makeStyles } from 'tss-react/mui';
 
-import ActionsBar from "./ActionsBar";
-import type { WizardContentProps } from "./models";
+import ActionsBar from './ActionsBar';
+import type { WizardContentProps } from './models';
 
 const useStyles = makeStyles()(() => ({
-	content: {
-		height: "100%",
-		overflow: "auto",
-	},
-	form: {
-		display: "flex",
-		flex: 1,
-		flexDirection: "column",
-	},
+  content: {
+    height: '100%',
+    overflow: 'auto'
+  },
+  form: {
+    display: 'flex',
+    flex: 1,
+    flexDirection: 'column'
+  }
 }));
 
 const WizardContent = ({
-	sendingRequest,
-	step,
-	isLastStep,
-	isFirstStep,
-	disableNextOnSendingRequests,
-	goToPreviousStep,
-	currentStep,
-	actionsBarLabels,
-	goToNextStep,
+  sendingRequest,
+  step,
+  isLastStep,
+  isFirstStep,
+  disableNextOnSendingRequests,
+  goToPreviousStep,
+  currentStep,
+  actionsBarLabels,
+  goToNextStep
 }: WizardContentProps): JSX.Element => {
-	const { classes } = useStyles();
-	const { isSubmitting, isValid, dirty, handleSubmit, validateForm } =
-		useFormikContext();
+  const { classes } = useStyles();
+  const { isSubmitting, isValid, dirty, handleSubmit, validateForm } =
+    useFormikContext();
 
-	const { Component, hasActionsBar = true, skipFormChangeCheck } = step;
+  const { Component, hasActionsBar = true, skipFormChangeCheck } = step;
 
-	const getFormChanged = (): boolean =>
-		equals(true, skipFormChangeCheck) ? false : !dirty;
+  const getFormChanged = (): boolean =>
+    equals(true, skipFormChangeCheck) ? false : !dirty;
 
-	const submit = (): void => {
-		handleSubmit();
-	};
+  const submit = (): void => {
+    handleSubmit();
+  };
 
-	useEffect(() => {
-		validateForm();
-	}, [validateForm]);
+  useEffect(() => {
+    validateForm();
+  }, [validateForm]);
 
-	const disableActionButtons =
-		sendingRequest || isSubmitting || !isValid || getFormChanged();
+  const disableActionButtons =
+    sendingRequest || isSubmitting || !isValid || getFormChanged();
 
-	return (
-		<form className={classes.form} onSubmit={handleSubmit}>
-			<div className={classes.content}>
-				<Component
-					disableNextOnSendingRequests={disableNextOnSendingRequests}
-				/>
-			</div>
-			{hasActionsBar && (
-				<ActionsBar
-					actionsBarLabels={actionsBarLabels}
-					disableActionButtons={disableActionButtons}
-					goToNextStep={goToNextStep}
-					goToPreviousStep={goToPreviousStep}
-					isFirstStep={isFirstStep}
-					isLastStep={isLastStep}
-					isSubmitting={isSubmitting}
-					submit={submit}
-				/>
-			)}
-		</form>
-	);
+  return (
+    <form className={classes.form} onSubmit={handleSubmit}>
+      <div className={classes.content}>
+        <Component
+          disableNextOnSendingRequests={disableNextOnSendingRequests}
+        />
+      </div>
+      {hasActionsBar && (
+        <ActionsBar
+          actionsBarLabels={actionsBarLabels}
+          disableActionButtons={disableActionButtons}
+          goToNextStep={goToNextStep}
+          goToPreviousStep={goToPreviousStep}
+          isFirstStep={isFirstStep}
+          isLastStep={isLastStep}
+          isSubmitting={isSubmitting}
+          submit={submit}
+        />
+      )}
+    </form>
+  );
 };
 
 export default WizardContent;

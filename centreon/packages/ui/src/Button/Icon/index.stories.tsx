@@ -1,51 +1,52 @@
-import AccessibilityIcon from "@mui/icons-material/Accessibility";
-import type { Theme } from "@mui/material";
-import type { ComponentMeta, ComponentStory } from "@storybook/react";
-import { makeStyles } from "tss-react/mui";
+import AccessibilityIcon from '@mui/icons-material/Accessibility';
+import type { Theme } from '@mui/material';
 
-import { IconButton } from ".";
+import type { ComponentMeta, ComponentStory } from '@storybook/react';
+import { makeStyles } from 'tss-react/mui';
+
+import { IconButton } from '.';
 
 const useStyles = makeStyles()((theme: Theme) => ({
-	root: {
-		"&:hover": {
-			background: theme.palette.primary.dark,
-		},
-		background: theme.palette.primary.light,
-		color: theme.palette.common.white,
-	},
+  root: {
+    '&:hover': {
+      background: theme.palette.primary.dark
+    },
+    background: theme.palette.primary.light,
+    color: theme.palette.common.white
+  }
 }));
 
 export default {
-	argTypes: {
-		ariaLabel: { control: "text" },
-		title: { control: "text" },
-	},
+  argTypes: {
+    ariaLabel: { control: 'text' },
+    title: { control: 'text' }
+  },
 
-	component: IconButton,
-	title: "Button/Icon",
+  component: IconButton,
+  title: 'Button/Icon'
 } as ComponentMeta<typeof IconButton>;
 
 const TemplateIconButton: ComponentStory<typeof IconButton> = (args) => (
-	<IconButton {...args}>
-		<AccessibilityIcon />
-	</IconButton>
+  <IconButton {...args}>
+    <AccessibilityIcon />
+  </IconButton>
 );
 
 export const PlaygroundIconButton = TemplateIconButton.bind({});
-PlaygroundIconButton.args = { ariaLabel: "aria-label", title: "Icon" };
+PlaygroundIconButton.args = { ariaLabel: 'aria-label', title: 'Icon' };
 
 const CustomIconButton = (): JSX.Element => {
-	const { classes } = useStyles();
+  const { classes } = useStyles();
 
-	return (
-		<IconButton
-			className={classes.root}
-			title="custom Button"
-			onClick={(): void => undefined}
-		>
-			<AccessibilityIcon />
-		</IconButton>
-	);
+  return (
+    <IconButton
+      className={classes.root}
+      title="custom Button"
+      onClick={(): void => undefined}
+    >
+      <AccessibilityIcon />
+    </IconButton>
+  );
 };
 
 export const customIconButton = (): JSX.Element => <CustomIconButton />;

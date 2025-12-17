@@ -1,242 +1,244 @@
-import IconClose from "@mui/icons-material/Clear";
-import { AppBar, Divider, Paper, Slide, Tabs } from "@mui/material";
-import { isEmpty, isNil } from "ramda";
-import {
-	forwardRef,
-	type ReactElement,
-	type RefObject,
-	useCallback,
-	useEffect,
-} from "react";
-import { makeStyles } from "tss-react/mui";
-import { IconButton } from "..";
-import { minTabHeight } from "./Tab";
+import IconClose from '@mui/icons-material/Clear';
+import { AppBar, Divider, Paper, Slide, Tabs } from '@mui/material';
 
-interface StylesProps extends Pick<Props, "headerBackgroundColor" | "width"> {
-	hasTabs: boolean;
+import { isEmpty, isNil } from 'ramda';
+import {
+  forwardRef,
+  type ReactElement,
+  type RefObject,
+  useCallback,
+  useEffect
+} from 'react';
+import { makeStyles } from 'tss-react/mui';
+
+import { IconButton } from '..';
+import { minTabHeight } from './Tab';
+
+interface StylesProps extends Pick<Props, 'headerBackgroundColor' | 'width'> {
+  hasTabs: boolean;
 }
 
 const useStyles = makeStyles<StylesProps>()(
-	(theme, { hasTabs, width, headerBackgroundColor }) => ({
-		appBar: {
-			backgroundColor: theme.palette.background.default,
-			borderBottomWidth: hasTabs ? 1 : 0,
-			borderLeft: "none",
-			borderRight: "none",
-			borderTop: "none",
-		},
-		body: {
-			display: "grid",
-			gridArea: "3 / 1 / 4 / 1",
-			gridTemplateRows: "auto 1fr",
-			height: "100%",
-		},
-		container: {
-			backgroundColor: theme.palette.background.panel,
-			borderTopRightRadius: 0,
-			display: "grid",
-			gridTemplate: "auto auto 1fr / 1fr",
-			height: "100%",
-			overflow: "hidden",
-			width,
-		},
-		content: {
-			bottom: 0,
-			left: 0,
-			overflow: "auto",
-			position: "absolute",
-			right: 0,
-			top: 0,
-		},
-		contentContainer: {
-			position: "relative",
-		},
-		divider: {
-			gridArea: "2 / 1 / 3 / 1",
-		},
-		dragger: {
-			bottom: 0,
-			cursor: "ew-resize",
-			position: "absolute",
-			right: width,
-			top: 0,
-			width: 5,
-			zIndex: theme.zIndex.drawer,
-		},
-		header: {
-			alignItems: "center",
-			backgroundColor: headerBackgroundColor,
-			borderBottom: "none",
-			display: "grid",
-			gridArea: "1 / 1 / 2 / 1",
-			gridTemplateColumns: "1fr auto",
-			padding: theme.spacing(1),
-		},
-		tabs: {
-			minHeight: minTabHeight,
-		},
-	}),
+  (theme, { hasTabs, width, headerBackgroundColor }) => ({
+    appBar: {
+      backgroundColor: theme.palette.background.default,
+      borderBottomWidth: hasTabs ? 1 : 0,
+      borderLeft: 'none',
+      borderRight: 'none',
+      borderTop: 'none'
+    },
+    body: {
+      display: 'grid',
+      gridArea: '3 / 1 / 4 / 1',
+      gridTemplateRows: 'auto 1fr',
+      height: '100%'
+    },
+    container: {
+      backgroundColor: theme.palette.background.panel,
+      borderTopRightRadius: 0,
+      display: 'grid',
+      gridTemplate: 'auto auto 1fr / 1fr',
+      height: '100%',
+      overflow: 'hidden',
+      width
+    },
+    content: {
+      bottom: 0,
+      left: 0,
+      overflow: 'auto',
+      position: 'absolute',
+      right: 0,
+      top: 0
+    },
+    contentContainer: {
+      position: 'relative'
+    },
+    divider: {
+      gridArea: '2 / 1 / 3 / 1'
+    },
+    dragger: {
+      bottom: 0,
+      cursor: 'ew-resize',
+      position: 'absolute',
+      right: width,
+      top: 0,
+      width: 5,
+      zIndex: theme.zIndex.drawer
+    },
+    header: {
+      alignItems: 'center',
+      backgroundColor: headerBackgroundColor,
+      borderBottom: 'none',
+      display: 'grid',
+      gridArea: '1 / 1 / 2 / 1',
+      gridTemplateColumns: '1fr auto',
+      padding: theme.spacing(1)
+    },
+    tabs: {
+      minHeight: minTabHeight
+    }
+  })
 );
 
 export interface Tab {
-	id: number;
-	tab: JSX.Element;
+  id: number;
+  tab: JSX.Element;
 }
 
 export interface Props {
-	className?: string;
-	header?: ReactElement;
-	headerBackgroundColor?: string;
-	labelClose?: string;
-	minWidth?: number;
-	onClose?: () => void;
-	onResize?: (newWidth: number) => void;
-	onTabSelect?: (event, id: number) => void;
-	selectedTab: ReactElement;
-	selectedTabId?: number;
-	tabs?: Array<JSX.Element>;
-	width?: number;
+  className?: string;
+  header?: ReactElement;
+  headerBackgroundColor?: string;
+  labelClose?: string;
+  minWidth?: number;
+  onClose?: () => void;
+  onResize?: (newWidth: number) => void;
+  onTabSelect?: (event, id: number) => void;
+  selectedTab: ReactElement;
+  selectedTabId?: number;
+  tabs?: Array<JSX.Element>;
+  width?: number;
 }
 
 const Panel = forwardRef(
-	(
-		{
-			header,
-			tabs = [],
-			selectedTabId = 0,
-			selectedTab,
-			onClose,
-			onTabSelect = (): undefined => undefined,
-			labelClose = "Close",
-			width = 550,
-			minWidth = 550,
-			headerBackgroundColor,
-			onResize,
-			className,
-		}: Props,
-		ref,
-	): JSX.Element => {
-		const { classes, cx } = useStyles({
-			hasTabs: !isEmpty(tabs),
-			headerBackgroundColor,
-			width,
-		});
+  (
+    {
+      header,
+      tabs = [],
+      selectedTabId = 0,
+      selectedTab,
+      onClose,
+      onTabSelect = (): undefined => undefined,
+      labelClose = 'Close',
+      width = 550,
+      minWidth = 550,
+      headerBackgroundColor,
+      onResize,
+      className
+    }: Props,
+    ref
+  ): JSX.Element => {
+    const { classes, cx } = useStyles({
+      hasTabs: !isEmpty(tabs),
+      headerBackgroundColor,
+      width
+    });
 
-		const getMaxWidth = (): number => window.innerWidth * 0.85;
+    const getMaxWidth = (): number => window.innerWidth * 0.85;
 
-		const resizeWindow = (): void => {
-			const maxWidth = getMaxWidth();
+    const resizeWindow = (): void => {
+      const maxWidth = getMaxWidth();
 
-			if (width > maxWidth) {
-				onResize?.(maxWidth);
-			}
-		};
+      if (width > maxWidth) {
+        onResize?.(maxWidth);
+      }
+    };
 
-		useEffect(() => {
-			window.addEventListener("resize", resizeWindow);
+    useEffect(() => {
+      window.addEventListener('resize', resizeWindow);
 
-			return (): void => {
-				window.removeEventListener("resize", resizeWindow);
-			};
-		}, [resizeWindow]);
+      return (): void => {
+        window.removeEventListener('resize', resizeWindow);
+      };
+    }, [resizeWindow]);
 
-		const resize = (): void => {
-			document.addEventListener("mouseup", releaseMouse, true);
-			document.addEventListener("mousemove", moveMouse, true);
-		};
+    const resize = (): void => {
+      document.addEventListener('mouseup', releaseMouse, true);
+      document.addEventListener('mousemove', moveMouse, true);
+    };
 
-		const releaseMouse = (): void => {
-			document.removeEventListener("mouseup", releaseMouse, true);
-			document.removeEventListener("mousemove", moveMouse, true);
-		};
+    const releaseMouse = (): void => {
+      document.removeEventListener('mouseup', releaseMouse, true);
+      document.removeEventListener('mousemove', moveMouse, true);
+    };
 
-		const moveMouse = useCallback(
-			(e) => {
-				e.preventDefault();
+    const moveMouse = useCallback(
+      (e) => {
+        e.preventDefault();
 
-				const maxWidth = getMaxWidth();
-				const newWidth = document.body.clientWidth - e.clientX;
+        const maxWidth = getMaxWidth();
+        const newWidth = document.body.clientWidth - e.clientX;
 
-				const getResizedWidth = (): number => {
-					if (newWidth <= minWidth) {
-						return minWidth;
-					}
+        const getResizedWidth = (): number => {
+          if (newWidth <= minWidth) {
+            return minWidth;
+          }
 
-					if (newWidth > maxWidth) {
-						return maxWidth;
-					}
+          if (newWidth > maxWidth) {
+            return maxWidth;
+          }
 
-					return newWidth;
-				};
+          return newWidth;
+        };
 
-				onResize?.(getResizedWidth());
-			},
-			[getMaxWidth, minWidth, onResize],
-		);
+        onResize?.(getResizedWidth());
+      },
+      [getMaxWidth, minWidth, onResize]
+    );
 
-		return (
-			<Slide
-				in
-				direction="left"
-				timeout={{
-					enter: 150,
-					exit: 50,
-				}}
-			>
-				<Paper className={cx(classes.container, className)} elevation={2}>
-					{!isNil(onResize) && (
-						<div className={classes.dragger} onMouseDown={resize} />
-					)}
-					{header && (
-						<>
-							<div className={classes.header}>
-								{header}
-								{onClose && (
-									<IconButton
-										ariaLabel={labelClose}
-										size="large"
-										title={labelClose}
-										onClick={onClose}
-									>
-										<IconClose color="action" />
-									</IconButton>
-								)}
-							</div>
-							<Divider className={classes.divider} />
-						</>
-					)}
-					<div className={classes.body}>
-						<AppBar
-							className={classes.appBar}
-							color="default"
-							position="static"
-						>
-							{!isEmpty(tabs) && (
-								<Tabs
-									className={classes.tabs}
-									indicatorColor="primary"
-									textColor="primary"
-									value={selectedTabId}
-									variant="fullWidth"
-									onChange={onTabSelect}
-								>
-									{tabs.map((tab) => tab)}
-								</Tabs>
-							)}
-						</AppBar>
-						<div
-							className={classes.contentContainer}
-							ref={ref as RefObject<HTMLDivElement>}
-						>
-							<div className={classes.content} id="panel-content">
-								{selectedTab}
-							</div>
-						</div>
-					</div>
-				</Paper>
-			</Slide>
-		);
-	},
+    return (
+      <Slide
+        in
+        direction="left"
+        timeout={{
+          enter: 150,
+          exit: 50
+        }}
+      >
+        <Paper className={cx(classes.container, className)} elevation={2}>
+          {!isNil(onResize) && (
+            <div className={classes.dragger} onMouseDown={resize} />
+          )}
+          {header && (
+            <>
+              <div className={classes.header}>
+                {header}
+                {onClose && (
+                  <IconButton
+                    ariaLabel={labelClose}
+                    size="large"
+                    title={labelClose}
+                    onClick={onClose}
+                  >
+                    <IconClose color="action" />
+                  </IconButton>
+                )}
+              </div>
+              <Divider className={classes.divider} />
+            </>
+          )}
+          <div className={classes.body}>
+            <AppBar
+              className={classes.appBar}
+              color="default"
+              position="static"
+            >
+              {!isEmpty(tabs) && (
+                <Tabs
+                  className={classes.tabs}
+                  indicatorColor="primary"
+                  textColor="primary"
+                  value={selectedTabId}
+                  variant="fullWidth"
+                  onChange={onTabSelect}
+                >
+                  {tabs.map((tab) => tab)}
+                </Tabs>
+              )}
+            </AppBar>
+            <div
+              className={classes.contentContainer}
+              ref={ref as RefObject<HTMLDivElement>}
+            >
+              <div className={classes.content} id="panel-content">
+                {selectedTab}
+              </div>
+            </div>
+          </div>
+        </Paper>
+      </Slide>
+    );
+  }
 );
 
 export default Panel;

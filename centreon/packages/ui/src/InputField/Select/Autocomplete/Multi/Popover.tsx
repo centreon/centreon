@@ -1,6 +1,5 @@
-import PopoverAutocomplete from "../Popover";
-
-import MultiAutocompleteField from "./index";
+import PopoverAutocomplete from '../Popover';
+import MultiAutocompleteField from './index';
 
 const PopoverMultiAutocomplete = PopoverAutocomplete(MultiAutocompleteField);
 

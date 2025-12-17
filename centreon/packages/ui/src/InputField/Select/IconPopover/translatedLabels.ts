@@ -1,1 +1,1 @@
-export const labelReset = "Reset";
+export const labelReset = 'Reset';

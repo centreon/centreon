@@ -1,162 +1,162 @@
-import { InputAdornment } from "@mui/material";
+import { InputAdornment } from '@mui/material';
 
-import { type FormikValues, useFormikContext } from "formik";
+import { type FormikValues, useFormikContext } from 'formik';
 import {
-	equals,
-	gt,
-	isEmpty,
-	not,
-	path,
-	split,
-	type as variableType,
-} from "ramda";
-import { type ChangeEvent, useCallback, useState } from "react";
-import { useTranslation } from "react-i18next";
+  equals,
+  gt,
+  isEmpty,
+  not,
+  path,
+  split,
+  type as variableType
+} from 'ramda';
+import { type ChangeEvent, useCallback, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
-import { TextField, useMemoComponent } from "../..";
-import { type InputPropsWithoutGroup, InputType } from "./models";
-import PasswordEndAdornment from "./PasswordEndAdornment";
+import { TextField, useMemoComponent } from '../..';
+import { type InputPropsWithoutGroup, InputType } from './models';
+import PasswordEndAdornment from './PasswordEndAdornment';
 
 const Text = ({
-	dataTestId,
-	label,
-	fieldName,
-	type,
-	required,
-	getDisabled,
-	getRequired,
-	change,
-	additionalMemoProps,
-	text,
-	autoFocus,
+  dataTestId,
+  label,
+  fieldName,
+  type,
+  required,
+  getDisabled,
+  getRequired,
+  change,
+  additionalMemoProps,
+  text,
+  autoFocus
 }: InputPropsWithoutGroup): JSX.Element => {
-	const { t } = useTranslation();
+  const { t } = useTranslation();
 
-	const [isVisible, setIsVisible] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
 
-	const {
-		values,
-		setFieldValue,
-		touched,
-		errors,
-		handleBlur,
-		setFieldTouched,
-		setValues,
-		setTouched,
-	} = useFormikContext<FormikValues>();
+  const {
+    values,
+    setFieldValue,
+    touched,
+    errors,
+    handleBlur,
+    setFieldTouched,
+    setValues,
+    setTouched
+  } = useFormikContext<FormikValues>();
 
-	const fieldNamePath = split(".", fieldName);
+  const fieldNamePath = split('.', fieldName);
 
-	const changeText = (event: ChangeEvent<HTMLInputElement>): void => {
-		const { value } = event.target;
-		if (change) {
-			change({
-				setFieldValue,
-				value,
-				setFieldTouched,
-				setValues,
-				values,
-				setTouched,
-			});
+  const changeText = (event: ChangeEvent<HTMLInputElement>): void => {
+    const { value } = event.target;
+    if (change) {
+      change({
+        setFieldValue,
+        value,
+        setFieldTouched,
+        setValues,
+        values,
+        setTouched
+      });
 
-			return;
-		}
+      return;
+    }
 
-		const formattedValue =
-			equals(text?.type, "number") && !isEmpty(value)
-				? Number.parseInt(value, 10)
-				: value;
+    const formattedValue =
+      equals(text?.type, 'number') && !isEmpty(value)
+        ? Number.parseInt(value, 10)
+        : value;
 
-		setFieldValue(fieldName, formattedValue);
-	};
+    setFieldValue(fieldName, formattedValue);
+  };
 
-	const changeVisibility = (): void => {
-		setIsVisible((currentIsVisible) => !currentIsVisible);
-	};
+  const changeVisibility = (): void => {
+    setIsVisible((currentIsVisible) => !currentIsVisible);
+  };
 
-	const value = path(fieldNamePath, values);
+  const value = path(fieldNamePath, values);
 
-	const error = path(fieldNamePath, touched)
-		? path(fieldNamePath, errors)
-		: undefined;
+  const error = path(fieldNamePath, touched)
+    ? path(fieldNamePath, errors)
+    : undefined;
 
-	const EndAdornment = useCallback((): JSX.Element | null => {
-		if (equals(type, InputType.Password)) {
-			return (
-				<PasswordEndAdornment
-					changeVisibility={changeVisibility}
-					isVisible={isVisible}
-				/>
-			);
-		}
+  const EndAdornment = useCallback((): JSX.Element | null => {
+    if (equals(type, InputType.Password)) {
+      return (
+        <PasswordEndAdornment
+          changeVisibility={changeVisibility}
+          isVisible={isVisible}
+        />
+      );
+    }
 
-		if (text?.endAdornment) {
-			return (
-				<InputAdornment position="end">{text?.endAdornment}</InputAdornment>
-			);
-		}
+    if (text?.endAdornment) {
+      return (
+        <InputAdornment position="end">{text?.endAdornment}</InputAdornment>
+      );
+    }
 
-		return null;
-	}, [isVisible, changeVisibility, text?.endAdornment, type]);
+    return null;
+  }, [isVisible, changeVisibility, text?.endAdornment, type]);
 
-	const getInputType = (): string => {
-		if (text?.type) {
-			return text.type;
-		}
+  const getInputType = (): string => {
+    if (text?.type) {
+      return text.type;
+    }
 
-		return equals(type, InputType.Password) && not(isVisible)
-			? "password"
-			: "text";
-	};
+    return equals(type, InputType.Password) && not(isVisible)
+      ? 'password'
+      : 'text';
+  };
 
-	const disabled = getDisabled?.(values) || false;
-	const isRequired = required || getRequired?.(values) || false;
+  const disabled = getDisabled?.(values) || false;
+  const isRequired = required || getRequired?.(values) || false;
 
-	const isMultiline =
-		equals(variableType(text?.multilineRows), "Number") &&
-		gt(text?.multilineRows || 0, 0);
-	const rows = isMultiline ? text?.multilineRows : undefined;
+  const isMultiline =
+    equals(variableType(text?.multilineRows), 'Number') &&
+    gt(text?.multilineRows || 0, 0);
+  const rows = isMultiline ? text?.multilineRows : undefined;
 
-	return useMemoComponent({
-		Component: (
-			<TextField
-				fullWidth={text?.fullWidth ?? true}
-				EndAdornment={EndAdornment}
-				ariaLabel={t(label) || ""}
-				autoFocus={autoFocus}
-				dataTestId={dataTestId || label}
-				data-testid-suffix={`test-${label}`}
-				disabled={disabled}
-				error={error as string | undefined}
-				label={t(label)}
-				multiline={isMultiline}
-				placeholder={text?.placeholder}
-				required={isRequired}
-				rows={rows}
-				type={getInputType()}
-				value={value || ""}
-				onBlur={handleBlur(fieldName)}
-				onChange={changeText}
-				textFieldSlotsAndSlotProps={{
-					slotProps: {
-						htmlInput: {
-							"data-testid": dataTestId || label,
-							"aria-label": label,
-							min: text?.min,
-						},
-					},
-				}}
-			/>
-		),
-		memoProps: [
-			error,
-			value,
-			isVisible,
-			disabled,
-			isRequired,
-			additionalMemoProps,
-		],
-	});
+  return useMemoComponent({
+    Component: (
+      <TextField
+        fullWidth={text?.fullWidth ?? true}
+        EndAdornment={EndAdornment}
+        ariaLabel={t(label) || ''}
+        autoFocus={autoFocus}
+        dataTestId={dataTestId || label}
+        data-testid-suffix={`test-${label}`}
+        disabled={disabled}
+        error={error as string | undefined}
+        label={t(label)}
+        multiline={isMultiline}
+        placeholder={text?.placeholder}
+        required={isRequired}
+        rows={rows}
+        type={getInputType()}
+        value={value || ''}
+        onBlur={handleBlur(fieldName)}
+        onChange={changeText}
+        textFieldSlotsAndSlotProps={{
+          slotProps: {
+            htmlInput: {
+              'data-testid': dataTestId || label,
+              'aria-label': label,
+              min: text?.min
+            }
+          }
+        }}
+      />
+    ),
+    memoProps: [
+      error,
+      value,
+      isVisible,
+      disabled,
+      isRequired,
+      additionalMemoProps
+    ]
+  });
 };
 
 export default Text;

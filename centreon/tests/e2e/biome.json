@@ -1,14 +1,13 @@
 {
-  "root": false,
-  "extends": ["./node_modules/@centreon/js-config/biome/biome.json"],
-  "linter": {
-    "enabled": true,
-    "rules": {
-      "style": {
-        "useNamingConvention": {
-          "level": "warn"
-        }
-      }
-    }
-  }
+	"extends": ["./node_modules/@centreon/js-config/biome/biome.json"],
+	"linter": {
+		"enabled": true,
+		"rules": {
+			"style": {
+				"useNamingConvention": {
+					"level": "warn"
+				}
+			}
+		}
+	}
 }

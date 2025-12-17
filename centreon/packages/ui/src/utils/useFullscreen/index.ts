@@ -1,2 +1,2 @@
-export * from "./useFullscreen";
-export * from "./useFullscreenListener";
+export * from './useFullscreen';
+export * from './useFullscreenListener';

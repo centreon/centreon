@@ -1,128 +1,128 @@
 import {
-	buildListingEndpoint,
-	type QueryParameter,
-	useFetchQuery,
-	useIntersectionObserver,
-} from "@centreon/ui";
+  buildListingEndpoint,
+  type QueryParameter,
+  useFetchQuery,
+  useIntersectionObserver
+} from '@centreon/ui';
 
-import { type PrimitiveAtom, useAtom } from "jotai";
-import { equals, gte, isNil, reduce } from "ramda";
-import { useEffect, useMemo, useRef, useState } from "react";
-import type { JsonDecoder } from "ts.data.json";
+import { type PrimitiveAtom, useAtom } from 'jotai';
+import { equals, gte, isNil, reduce } from 'ramda';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import type { JsonDecoder } from 'ts.data.json';
 
-import type { Parameters } from "../api/buildListingEndpoint/models";
-import type { Listing } from "../api/models";
+import type { Parameters } from '../api/buildListingEndpoint/models';
+import type { Listing } from '../api/models';
 
 interface UseInfiniteScrollListing<T> {
-	elementRef: (node) => void;
-	elements: Array<T>;
-	isLoading: boolean;
-	total?: number;
+  elementRef: (node) => void;
+  elements: Array<T>;
+  isLoading: boolean;
+  total?: number;
 }
 
 interface UseInfiniteScrollListingProps<T> {
-	customQueryParameters?: Array<QueryParameter>;
-	decoder?: JsonDecoder.Decoder<Listing<T>>;
-	enabled?: boolean;
-	endpoint: string;
-	limit?: number;
-	pageAtom: PrimitiveAtom<number>;
-	parameters?: Parameters;
-	queryKeyName: string;
-	suspense?: boolean;
+  customQueryParameters?: Array<QueryParameter>;
+  decoder?: JsonDecoder.Decoder<Listing<T>>;
+  enabled?: boolean;
+  endpoint: string;
+  limit?: number;
+  pageAtom: PrimitiveAtom<number>;
+  parameters?: Parameters;
+  queryKeyName: string;
+  suspense?: boolean;
 }
 
 export const useInfiniteScrollListing = <T>({
-	queryKeyName,
-	endpoint,
-	decoder,
-	pageAtom,
-	suspense = true,
-	parameters,
-	customQueryParameters,
-	limit = 100,
-	enabled = true,
+  queryKeyName,
+  endpoint,
+  decoder,
+  pageAtom,
+  suspense = true,
+  parameters,
+  customQueryParameters,
+  limit = 100,
+  enabled = true
 }: UseInfiniteScrollListingProps<T>): UseInfiniteScrollListing<T> => {
-	const [maxPage, setMaxPage] = useState(1);
+  const [maxPage, setMaxPage] = useState(1);
 
-	const elements = useRef<Array<T> | undefined>(undefined);
+  const elements = useRef<Array<T> | undefined>(undefined);
 
-	const [page, setPage] = useAtom(pageAtom);
+  const [page, setPage] = useAtom(pageAtom);
 
-	const { data, isLoading, prefetchNextPage, fetchStatus } = useFetchQuery<
-		Listing<T>
-	>({
-		decoder,
-		getEndpoint: (params) =>
-			buildListingEndpoint({
-				baseEndpoint: endpoint,
-				customQueryParameters,
-				parameters: { limit, page: params?.page || page, ...parameters },
-			}),
-		getQueryKey: () => [
-			queryKeyName,
-			page,
-			JSON.stringify(parameters),
-			JSON.stringify(customQueryParameters),
-		],
-		isPaginated: true,
-		queryOptions: {
-			enabled,
-			refetchOnMount: false,
-			refetchOnWindowFocus: false,
-			suspense: suspense && equals(page, 1),
-		},
-	});
+  const { data, isLoading, prefetchNextPage, fetchStatus } = useFetchQuery<
+    Listing<T>
+  >({
+    decoder,
+    getEndpoint: (params) =>
+      buildListingEndpoint({
+        baseEndpoint: endpoint,
+        customQueryParameters,
+        parameters: { limit, page: params?.page || page, ...parameters }
+      }),
+    getQueryKey: () => [
+      queryKeyName,
+      page,
+      JSON.stringify(parameters),
+      JSON.stringify(customQueryParameters)
+    ],
+    isPaginated: true,
+    queryOptions: {
+      enabled,
+      refetchOnMount: false,
+      refetchOnWindowFocus: false,
+      suspense: suspense && equals(page, 1)
+    }
+  });
 
-	const elementRef = useIntersectionObserver({
-		action: () => {
-			setPage((currentPage) => currentPage + 1);
-		},
-		loading: !equals(fetchStatus, "idle"),
-		maxPage,
-		page,
-	});
+  const elementRef = useIntersectionObserver({
+    action: () => {
+      setPage((currentPage) => currentPage + 1);
+    },
+    loading: !equals(fetchStatus, 'idle'),
+    maxPage,
+    page
+  });
 
-	elements.current = useMemo(() => {
-		if (isNil(data) || !equals(fetchStatus, "idle")) {
-			return elements.current;
-		}
+  elements.current = useMemo(() => {
+    if (isNil(data) || !equals(fetchStatus, 'idle')) {
+      return elements.current;
+    }
 
-		return reduce<T, Array<T>>(
-			(acc, element) => [...acc, element],
-			equals(page, 1) ? [] : elements.current || [],
-			data.result,
-		);
-	}, [page, data, fetchStatus]);
+    return reduce<T, Array<T>>(
+      (acc, element) => [...acc, element],
+      equals(page, 1) ? [] : elements.current || [],
+      data.result
+    );
+  }, [page, data, fetchStatus]);
 
-	useEffect(() => {
-		if (isNil(data)) {
-			return;
-		}
+  useEffect(() => {
+    if (isNil(data)) {
+      return;
+    }
 
-		const total = data.meta.total || 1;
-		const newMaxPage = Math.ceil(total / limit);
+    const total = data.meta.total || 1;
+    const newMaxPage = Math.ceil(total / limit);
 
-		setMaxPage(newMaxPage);
+    setMaxPage(newMaxPage);
 
-		if (gte(page, newMaxPage)) {
-			return;
-		}
+    if (gte(page, newMaxPage)) {
+      return;
+    }
 
-		prefetchNextPage({
-			getPrefetchQueryKey: (newPage) => ["dashboards", newPage],
-			page,
-		});
-	}, [data, limit, page, prefetchNextPage]);
+    prefetchNextPage({
+      getPrefetchQueryKey: (newPage) => ['dashboards', newPage],
+      page
+    });
+  }, [data, limit, page, prefetchNextPage]);
 
-	useEffect(() => {
-		return () => setPage(1);
-	}, [setPage]);
+  useEffect(() => {
+    return () => setPage(1);
+  }, [setPage]);
 
-	return {
-		elementRef,
-		elements: elements.current || [],
-		isLoading,
-		total: data?.meta.total,
-	};
+  return {
+    elementRef,
+    elements: elements.current || [],
+    isLoading,
+    total: data?.meta.total
+  };
 };

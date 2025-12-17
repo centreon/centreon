@@ -1,1 +1,1 @@
-export { default as ParentSize } from "./ParentSize";
+export { default as ParentSize } from './ParentSize';

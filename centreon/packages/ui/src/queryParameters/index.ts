@@ -1,15 +1,15 @@
-import { isEmpty, isNil } from "ramda";
+import { isEmpty, isNil } from 'ramda';
 
-import type { QueryParameter } from "./models";
+import type { QueryParameter } from './models';
 
 const toRawQueryParameter = ({ name, value }): string => {
-	return `${name}=${encodeURIComponent(JSON.stringify(value))}`;
+  return `${name}=${encodeURIComponent(JSON.stringify(value))}`;
 };
 
 const toRawQueryParameters = (queryParameters: Array<QueryParameter>): string =>
-	queryParameters
-		.filter(({ value }) => !isNil(value) && !isEmpty(value))
-		.map(toRawQueryParameter)
-		.join("&");
+  queryParameters
+    .filter(({ value }) => !isNil(value) && !isEmpty(value))
+    .map(toRawQueryParameter)
+    .join('&');
 
 export default toRawQueryParameters;

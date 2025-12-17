@@ -1,17 +1,17 @@
-import type { ReactElement, ReactNode } from "react";
+import type { ReactElement, ReactNode } from 'react';
 
-import { modalBody } from "./modal.module.css";
+import { modalBody } from './modal.module.css';
 
 export type ModalHeaderProps = {
-	children?: ReactNode;
+  children?: ReactNode;
 };
 
 const ModalBody = ({ children }: ModalHeaderProps): ReactElement => {
-	return (
-		<div className={modalBody} data-testid="modal-body">
-			{children}
-		</div>
-	);
+  return (
+    <div className={modalBody} data-testid="modal-body">
+      {children}
+    </div>
+  );
 };
 
 export { ModalBody };

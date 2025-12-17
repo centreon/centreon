@@ -1,38 +1,39 @@
-import { type ListItemProps, ListItem as MuiListItem } from "@mui/material";
-import {
-	type ForwardedRef,
-	forwardRef,
-	type ReactElement,
-	type ReactNode,
-} from "react";
+import { type ListItemProps, ListItem as MuiListItem } from '@mui/material';
 
-import { useStyles } from "./ListItem.styles";
+import {
+  type ForwardedRef,
+  forwardRef,
+  type ReactElement,
+  type ReactNode
+} from 'react';
+
+import { useStyles } from './ListItem.styles';
 
 interface Props {
-	action?: ReactElement;
-	children: ReactNode | Array<ReactNode>;
-	className?: string;
+  action?: ReactElement;
+  children: ReactNode | Array<ReactNode>;
+  className?: string;
 }
 
 export const ListItem = forwardRef(
-	(
-		{ action, children, className, ...attr }: Props & ListItemProps,
-		ref?: ForwardedRef<HTMLLIElement>,
-	) => {
-		const { classes, cx } = useStyles();
+  (
+    { action, children, className, ...attr }: Props & ListItemProps,
+    ref?: ForwardedRef<HTMLLIElement>
+  ) => {
+    const { classes, cx } = useStyles();
 
-		return (
-			<MuiListItem
-				disableGutters
-				className={cx(classes.listItem, className)}
-				ref={ref}
-				secondaryAction={
-					action && <div className={classes.secondary}>{action}</div>
-				}
-				{...attr}
-			>
-				{children}
-			</MuiListItem>
-		);
-	},
+    return (
+      <MuiListItem
+        disableGutters
+        className={cx(classes.listItem, className)}
+        ref={ref}
+        secondaryAction={
+          action && <div className={classes.secondary}>{action}</div>
+        }
+        {...attr}
+      >
+        {children}
+      </MuiListItem>
+    );
+  }
 );

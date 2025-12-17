@@ -1,163 +1,163 @@
-import type { Meta, StoryObj } from "@storybook/react";
+import type { Meta, StoryObj } from '@storybook/react';
 
-import { Button } from "../Button";
+import { Button } from '../Button';
+import { Modal } from '.';
+import '../../ThemeProvider/tailwindcss.css';
 
-import { Modal } from ".";
-import "../../ThemeProvider/tailwindcss.css";
-import { basicFormWithCollapsibleGroups } from "../../Form/Form.stories";
+import { basicFormWithCollapsibleGroups } from '../../Form/Form.stories';
 
 const meta: Meta<typeof Modal> = {
-	argTypes: {
-		size: {
-			control: {
-				type: "select",
-			},
-			options: ["small", "medium", "large", "xlarge", "fullscreen"],
-		},
-	},
-	component: Modal,
+  argTypes: {
+    size: {
+      control: {
+        type: 'select'
+      },
+      options: ['small', 'medium', 'large', 'xlarge', 'fullscreen']
+    }
+  },
+  component: Modal
 };
 
 export default meta;
 type Story = StoryObj<typeof Modal>;
 
 export const Default: Story = {
-	args: {
-		hasCloseButton: true,
-		open: true,
-		size: "small",
-	},
-	render: (args) => (
-		<Modal {...args}>
-			<Modal.Header>Modal title</Modal.Header>
-			<Modal.Body>
-				<p>
-					Occaecat consectetur amet officia magna. Eu sunt aute duis duis cillum
-					irure mollit ex aute excepteur eu id cillum.
-				</p>
-			</Modal.Body>
-			<Modal.Actions
-				labels={{
-					cancel: "Cancel",
-					confirm: "Confirm",
-				}}
-			/>
-		</Modal>
-	),
+  args: {
+    hasCloseButton: true,
+    open: true,
+    size: 'small'
+  },
+  render: (args) => (
+    <Modal {...args}>
+      <Modal.Header>Modal title</Modal.Header>
+      <Modal.Body>
+        <p>
+          Occaecat consectetur amet officia magna. Eu sunt aute duis duis cillum
+          irure mollit ex aute excepteur eu id cillum.
+        </p>
+      </Modal.Body>
+      <Modal.Actions
+        labels={{
+          cancel: 'Cancel',
+          confirm: 'Confirm'
+        }}
+      />
+    </Modal>
+  )
 };
 
 export const WithForm: Story = {
-	args: {
-		...Default.args,
-	},
+  args: {
+    ...Default.args
+  },
 
-	render: (args) => (
-		<Modal {...args}>
-			<Modal.Header>Modal title</Modal.Header>
-			<Modal.Body>{basicFormWithCollapsibleGroups()}</Modal.Body>
-			<Modal.Actions
-				labels={{
-					cancel: "Cancel",
-					confirm: "Confirm",
-				}}
-			/>
-		</Modal>
-	),
+  render: (args) => (
+    <Modal {...args}>
+      <Modal.Header>Modal title</Modal.Header>
+      <Modal.Body>{basicFormWithCollapsibleGroups()}</Modal.Body>
+      <Modal.Actions
+        labels={{
+          cancel: 'Cancel',
+          confirm: 'Confirm'
+        }}
+      />
+    </Modal>
+  )
 };
 
 export const AsDangerAction: Story = {
-	args: {
-		...Default.args,
-	},
-	render: (args) => (
-		<Modal {...args}>
-			<Modal.Body>
-				<Modal.Body>
-					<p>
-						Occaecat consectetur amet <strong>officia magna</strong>. Eu sunt
-						aute duis duis cillum irure mollit ex aute excepteur eu id cillum.
-					</p>
-				</Modal.Body>
-			</Modal.Body>
-			<Modal.Actions
-				isDanger
-				labels={{
-					cancel: "Cancel",
-					confirm: "Confirm",
-				}}
-			/>
-		</Modal>
-	),
+  args: {
+    ...Default.args
+  },
+  render: (args) => (
+    <Modal {...args}>
+      <Modal.Body>
+        <Modal.Body>
+          <p>
+            Occaecat consectetur amet <strong>officia magna</strong>. Eu sunt
+            aute duis duis cillum irure mollit ex aute excepteur eu id cillum.
+          </p>
+        </Modal.Body>
+      </Modal.Body>
+      <Modal.Actions
+        isDanger
+        labels={{
+          cancel: 'Cancel',
+          confirm: 'Confirm'
+        }}
+      />
+    </Modal>
+  )
 };
 
 export const WithCustomAction: Story = {
-	args: {
-		...Default.args,
-	},
-	render: (args) => (
-		<Modal {...args}>
-			<Modal.Header>Modal title</Modal.Header>
-			<Modal.Body>
-				<Modal.Body>
-					<p>
-						Occaecat consectetur amet <strong>officia magna</strong>. Eu sunt
-						aute duis duis cillum irure mollit ex aute excepteur eu id cillum.
-					</p>
-				</Modal.Body>
-			</Modal.Body>
-			<Modal.Actions>
-				<Button size="small" variant="primary">
-					OK
-				</Button>
-			</Modal.Actions>
-		</Modal>
-	),
+  args: {
+    ...Default.args
+  },
+  render: (args) => (
+    <Modal {...args}>
+      <Modal.Header>Modal title</Modal.Header>
+      <Modal.Body>
+        <Modal.Body>
+          <p>
+            Occaecat consectetur amet <strong>officia magna</strong>. Eu sunt
+            aute duis duis cillum irure mollit ex aute excepteur eu id cillum.
+          </p>
+        </Modal.Body>
+      </Modal.Body>
+      <Modal.Actions>
+        <Button size="small" variant="primary">
+          OK
+        </Button>
+      </Modal.Actions>
+    </Modal>
+  )
 };
 
 export const AsPassive: Story = {
-	args: {
-		...Default.args,
-	},
-	render: (args) => (
-		<Modal {...args}>
-			<Modal.Header>Modal title</Modal.Header>
-			<Modal.Body>
-				<p>
-					Occaecat consectetur amet officia magna. Eu sunt aute duis duis cillum
-					irure mollit ex aute excepteur eu id cillum.
-				</p>
-			</Modal.Body>
-		</Modal>
-	),
+  args: {
+    ...Default.args
+  },
+  render: (args) => (
+    <Modal {...args}>
+      <Modal.Header>Modal title</Modal.Header>
+      <Modal.Body>
+        <p>
+          Occaecat consectetur amet officia magna. Eu sunt aute duis duis cillum
+          irure mollit ex aute excepteur eu id cillum.
+        </p>
+      </Modal.Body>
+    </Modal>
+  )
 };
 
 export const fullscreenWithCustomMargins: Story = {
-	args: {
-		fullscreenMargins: {
-			bottom: 20,
-			left: 40,
-			right: 10,
-			top: 90,
-		},
-		hasCloseButton: true,
-		open: true,
-		size: "fullscreen",
-	},
-	render: (args) => (
-		<Modal {...args}>
-			<Modal.Header>Modal title</Modal.Header>
-			<Modal.Body>
-				<p>
-					Occaecat consectetur amet officia magna. Eu sunt aute duis duis cillum
-					irure mollit ex aute excepteur eu id cillum.
-				</p>
-			</Modal.Body>
-			<Modal.Actions
-				labels={{
-					cancel: "Cancel",
-					confirm: "Confirm",
-				}}
-			/>
-		</Modal>
-	),
+  args: {
+    fullscreenMargins: {
+      bottom: 20,
+      left: 40,
+      right: 10,
+      top: 90
+    },
+    hasCloseButton: true,
+    open: true,
+    size: 'fullscreen'
+  },
+  render: (args) => (
+    <Modal {...args}>
+      <Modal.Header>Modal title</Modal.Header>
+      <Modal.Body>
+        <p>
+          Occaecat consectetur amet officia magna. Eu sunt aute duis duis cillum
+          irure mollit ex aute excepteur eu id cillum.
+        </p>
+      </Modal.Body>
+      <Modal.Actions
+        labels={{
+          cancel: 'Cancel',
+          confirm: 'Confirm'
+        }}
+      />
+    </Modal>
+  )
 };

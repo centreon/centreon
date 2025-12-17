@@ -15,6 +15,7 @@ dayjs.extend(timezonePlugin);
 dayjs.extend(utcPlugin);
 dayjs.extend(localizedFormatPlugin);
 
+// biome-ignore lint/suspicious/noImplicitAnyLet: <explanation>
 let context;
 
 const TestComponent = (): JSX.Element => {

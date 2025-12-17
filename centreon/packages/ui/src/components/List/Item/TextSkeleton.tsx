@@ -1,21 +1,22 @@
-import { Skeleton as MuiSkeleton } from "@mui/material";
-import type { ReactElement } from "react";
+import { Skeleton as MuiSkeleton } from '@mui/material';
 
-import { useStyles } from "./ListItem.styles";
+import type { ReactElement } from 'react';
+
+import { useStyles } from './ListItem.styles';
 
 type TextSkeletonProps = {
-	secondaryText?: boolean;
+  secondaryText?: boolean;
 };
 
 export const TextSkeleton = ({
-	secondaryText,
+  secondaryText
 }: TextSkeletonProps): ReactElement => {
-	const { classes } = useStyles();
+  const { classes } = useStyles();
 
-	return (
-		<span className={classes.textSkeleton}>
-			<MuiSkeleton animation="wave" variant="text" />
-			{!!secondaryText && <MuiSkeleton animation="wave" variant="text" />}
-		</span>
-	);
+  return (
+    <span className={classes.textSkeleton}>
+      <MuiSkeleton animation="wave" variant="text" />
+      {!!secondaryText && <MuiSkeleton animation="wave" variant="text" />}
+    </span>
+  );
 };

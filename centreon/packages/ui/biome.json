@@ -1,5 +1,4 @@
 {
-  "root": false,
   "extends": ["../js-config/biome/biome.json"],
   "files": {
     "includes": [

@@ -1,31 +1,32 @@
-import { useAtomValue } from "jotai";
+import { useAtomValue } from 'jotai';
+
 import {
-	limitAtom,
-	pageAtom,
-	searchAtom,
-	sortFieldAtom,
-	sortOrderAtom,
-} from "../atoms";
-import type { UseListingQueryKeyProps } from "../models";
+  limitAtom,
+  pageAtom,
+  searchAtom,
+  sortFieldAtom,
+  sortOrderAtom
+} from '../atoms';
+import type { UseListingQueryKeyProps } from '../models';
 
 export const useListingQueryKey = <TFilter>({
-	filtersAtom,
-	queryKeyName,
+  filtersAtom,
+  queryKeyName
 }: UseListingQueryKeyProps<TFilter>): Array<string | number> => {
-	const page = useAtomValue(pageAtom);
-	const limit = useAtomValue(limitAtom);
-	const search = useAtomValue(searchAtom);
-	const sortOrder = useAtomValue(sortOrderAtom);
-	const sortField = useAtomValue(sortFieldAtom);
-	const filters = useAtomValue(filtersAtom);
+  const page = useAtomValue(pageAtom);
+  const limit = useAtomValue(limitAtom);
+  const search = useAtomValue(searchAtom);
+  const sortOrder = useAtomValue(sortOrderAtom);
+  const sortField = useAtomValue(sortFieldAtom);
+  const filters = useAtomValue(filtersAtom);
 
-	return [
-		queryKeyName,
-		limit,
-		page,
-		search,
-		sortField,
-		sortOrder,
-		JSON.stringify(filters),
-	];
+  return [
+    queryKeyName,
+    limit,
+    page,
+    search,
+    sortField,
+    sortOrder,
+    JSON.stringify(filters)
+  ];
 };

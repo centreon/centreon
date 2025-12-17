@@ -1,219 +1,218 @@
-import { FormHelperText, Stack } from "@mui/material";
+import { FormHelperText, Stack } from '@mui/material';
 
-import { type FormikValues, useFormikContext } from "formik";
-import { equals, isNil, map, not, path, prop, type } from "ramda";
-import { useCallback, useMemo, useState } from "react";
-import { useTranslation } from "react-i18next";
+import { type FormikValues, useFormikContext } from 'formik';
+import { equals, isNil, map, not, path, prop, type } from 'ramda';
+import { useCallback, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
-import type { SelectEntry } from "../../InputField/Select";
-import SingleAutocompleteField from "../../InputField/Select/Autocomplete";
-import MultiAutocompleteField from "../../InputField/Select/Autocomplete/Multi";
-import { useMemoComponent } from "../../utils";
-import { labelPressEnterToAccept } from "../translatedLabels";
-
-import { type InputPropsWithoutGroup, InputType } from "./models";
+import type { SelectEntry } from '../../InputField/Select';
+import SingleAutocompleteField from '../../InputField/Select/Autocomplete';
+import MultiAutocompleteField from '../../InputField/Select/Autocomplete/Multi';
+import { useMemoComponent } from '../../utils';
+import { labelPressEnterToAccept } from '../translatedLabels';
+import { type InputPropsWithoutGroup, InputType } from './models';
 
 const normalizeNewValues = ({
-	newValues,
-	isMultiple,
-	isCreatable,
+  newValues,
+  isMultiple,
+  isCreatable
 }): SelectEntry | Array<string | SelectEntry> => {
-	const isSingle = not(isMultiple);
-	if (isSingle) {
-		return newValues;
-	}
+  const isSingle = not(isMultiple);
+  if (isSingle) {
+    return newValues;
+  }
 
-	return map((newValue: SelectEntry | string) => {
-		const isManualValue = equals(type(newValue), "String");
-		if (isCreatable && isManualValue) {
-			return newValue;
-		}
+  return map((newValue: SelectEntry | string) => {
+    const isManualValue = equals(type(newValue), 'String');
+    if (isCreatable && isManualValue) {
+      return newValue;
+    }
 
-		if (isCreatable) {
-			return prop("name", newValue as SelectEntry);
-		}
+    if (isCreatable) {
+      return prop('name', newValue as SelectEntry);
+    }
 
-		return newValue;
-	}, newValues);
+    return newValue;
+  }, newValues);
 };
 
 const Autocomplete = ({
-	fieldName,
-	label,
-	required,
-	getDisabled,
-	getRequired,
-	change,
-	additionalMemoProps,
-	autocomplete,
-	type: inputType,
+  fieldName,
+  label,
+  required,
+  getDisabled,
+  getRequired,
+  change,
+  additionalMemoProps,
+  autocomplete,
+  type: inputType
 }: InputPropsWithoutGroup): JSX.Element => {
-	const { t } = useTranslation();
+  const { t } = useTranslation();
 
-	const [inputText, setInputText] = useState("");
+  const [inputText, setInputText] = useState('');
 
-	const {
-		values,
-		setFieldValue,
-		setFieldTouched,
-		errors,
-		touched,
-		setValues,
-		setTouched,
-	} = useFormikContext<FormikValues>();
+  const {
+    values,
+    setFieldValue,
+    setFieldTouched,
+    errors,
+    touched,
+    setValues,
+    setTouched
+  } = useFormikContext<FormikValues>();
 
-	const isMultiple = equals(inputType, InputType.MultiAutocomplete);
+  const isMultiple = equals(inputType, InputType.MultiAutocomplete);
 
-	const changeValues = (_, newValues): void => {
-		const normalizedNewValues = normalizeNewValues({
-			isCreatable,
-			isMultiple,
-			newValues,
-		});
+  const changeValues = (_, newValues): void => {
+    const normalizedNewValues = normalizeNewValues({
+      isCreatable,
+      isMultiple,
+      newValues
+    });
 
-		setInputText("");
+    setInputText('');
 
-		if (change) {
-			setFieldTouched(fieldName, true, false);
-			change({
-				setFieldValue,
-				value: normalizedNewValues,
-				setFieldTouched,
-				setValues,
-				values,
-				setTouched,
-			});
+    if (change) {
+      setFieldTouched(fieldName, true, false);
+      change({
+        setFieldValue,
+        value: normalizedNewValues,
+        setFieldTouched,
+        setValues,
+        values,
+        setTouched
+      });
 
-			return;
-		}
+      return;
+    }
 
-		setFieldTouched(fieldName, true, false);
-		setFieldValue(fieldName, normalizedNewValues);
-	};
+    setFieldTouched(fieldName, true, false);
+    setFieldValue(fieldName, normalizedNewValues);
+  };
 
-	const isCreatable = autocomplete?.creatable;
+  const isCreatable = autocomplete?.creatable;
 
-	const selectedValues = path<Array<SelectEntry> | SelectEntry>(
-		[...fieldName.split(".")],
-		values,
-	);
+  const selectedValues = path<Array<SelectEntry> | SelectEntry>(
+    [...fieldName.split('.')],
+    values
+  );
 
-	const getError = useCallback((): Array<string> | undefined => {
-		if (!path([...fieldName.split(".")], touched)) {
-			return undefined;
-		}
+  const getError = useCallback((): Array<string> | undefined => {
+    if (!path([...fieldName.split('.')], touched)) {
+      return undefined;
+    }
 
-		const error = path([...fieldName.split(".")], errors) as
-			| Array<string>
-			| string
-			| undefined;
+    const error = path([...fieldName.split('.')], errors) as
+      | Array<string>
+      | string
+      | undefined;
 
-		const isStringError = equals(type(error), "String");
+    const isStringError = equals(type(error), 'String');
 
-		if (isMultiple && !isStringError) {
-			const formattedErrors = (error as Array<string> | undefined)?.map(
-				(errorText, index) => {
-					if (isNil(errorText)) {
-						return undefined;
-					}
+    if (isMultiple && !isStringError) {
+      const formattedErrors = (error as Array<string> | undefined)?.map(
+        (errorText, index) => {
+          if (isNil(errorText)) {
+            return undefined;
+          }
 
-					return `${selectedValues?.[index]}: ${errorText}`;
-				},
-			);
+          return `${selectedValues?.[index]}: ${errorText}`;
+        }
+      );
 
-			const filteredErrors = formattedErrors?.filter(Boolean);
+      const filteredErrors = formattedErrors?.filter(Boolean);
 
-			return (filteredErrors as Array<string>) || undefined;
-		}
+      return (filteredErrors as Array<string>) || undefined;
+    }
 
-		const formattedError = [error];
+    const formattedError = [error];
 
-		const filteredError = formattedError?.filter(Boolean);
+    const filteredError = formattedError?.filter(Boolean);
 
-		return (filteredError as Array<string>) || undefined;
-	}, [errors, fieldName, isMultiple, selectedValues, touched]);
+    return (filteredError as Array<string>) || undefined;
+  }, [errors, fieldName, isMultiple, selectedValues, touched]);
 
-	const textChange = useCallback(
-		(event): void => setInputText(event.target.value),
-		[],
-	);
+  const textChange = useCallback(
+    (event): void => setInputText(event.target.value),
+    []
+  );
 
-	const getValues = useCallback(():
-		| SelectEntry
-		| Array<SelectEntry>
-		| undefined => {
-		if (isMultiple && isCreatable) {
-			return equals(type(selectedValues), "Array")
-				? (
-						selectedValues as Array<SelectEntry> | Array<string> | undefined
-					)?.map((value) => ({
-						id: value,
-						name: value,
-					}))
-				: selectedValues;
-		}
+  const getValues = useCallback(():
+    | SelectEntry
+    | Array<SelectEntry>
+    | undefined => {
+    if (isMultiple && isCreatable) {
+      return equals(type(selectedValues), 'Array')
+        ? (
+            selectedValues as Array<SelectEntry> | Array<string> | undefined
+          )?.map((value) => ({
+            id: value,
+            name: value
+          }))
+        : selectedValues;
+    }
 
-		return selectedValues;
-	}, [isMultiple, isCreatable, selectedValues]);
+    return selectedValues;
+  }, [isMultiple, isCreatable, selectedValues]);
 
-	const inputErrors = getError();
+  const inputErrors = getError();
 
-	const disabled = getDisabled?.(values) || false;
-	const isRequired = required || getRequired?.(values) || false;
+  const disabled = getDisabled?.(values) || false;
+  const isRequired = required || getRequired?.(values) || false;
 
-	const additionalLabel =
-		inputText && isCreatable ? ` (${labelPressEnterToAccept})` : "";
+  const additionalLabel =
+    inputText && isCreatable ? ` (${labelPressEnterToAccept})` : '';
 
-	const AutocompleteField = useMemo(
-		() => (isMultiple ? MultiAutocompleteField : SingleAutocompleteField),
-		[isMultiple],
-	);
+  const AutocompleteField = useMemo(
+    () => (isMultiple ? MultiAutocompleteField : SingleAutocompleteField),
+    [isMultiple]
+  );
 
-	return useMemoComponent({
-		Component: (
-			<div>
-				<AutocompleteField
-					disabled={disabled}
-					freeSolo={isCreatable}
-					inputValue={inputText}
-					isOptionEqualToValue={(option, selectedValue): boolean =>
-						equals(option, selectedValue)
-					}
-					label={`${t(label)}${additionalLabel}`}
-					open={isCreatable ? false : undefined}
-					options={autocomplete?.options || []}
-					popupIcon={isCreatable ? null : undefined}
-					required={isRequired}
-					value={getValues() ?? null}
-					onChange={changeValues}
-					onTextChange={textChange}
-					style={{
-						width: (autocomplete?.fullWidth ?? true) ? "auto" : "180px",
-					}}
-				/>
-				{inputErrors && (
-					<Stack>
-						{inputErrors.map((error) => (
-							<FormHelperText error key={error}>
-								{error}
-							</FormHelperText>
-						))}
-					</Stack>
-				)}
-			</div>
-		),
-		memoProps: [
-			values,
-			getValues(),
-			inputErrors,
-			additionalLabel,
-			disabled,
-			additionalMemoProps,
-			isMultiple,
-			autocomplete?.options,
-			isCreatable,
-		],
-	});
+  return useMemoComponent({
+    Component: (
+      <div>
+        <AutocompleteField
+          disabled={disabled}
+          freeSolo={isCreatable}
+          inputValue={inputText}
+          isOptionEqualToValue={(option, selectedValue): boolean =>
+            equals(option, selectedValue)
+          }
+          label={`${t(label)}${additionalLabel}`}
+          open={isCreatable ? false : undefined}
+          options={autocomplete?.options || []}
+          popupIcon={isCreatable ? null : undefined}
+          required={isRequired}
+          value={getValues() ?? null}
+          onChange={changeValues}
+          onTextChange={textChange}
+          style={{
+            width: (autocomplete?.fullWidth ?? true) ? 'auto' : '180px'
+          }}
+        />
+        {inputErrors && (
+          <Stack>
+            {inputErrors.map((error) => (
+              <FormHelperText error key={error}>
+                {error}
+              </FormHelperText>
+            ))}
+          </Stack>
+        )}
+      </div>
+    ),
+    memoProps: [
+      values,
+      getValues(),
+      inputErrors,
+      additionalLabel,
+      disabled,
+      additionalMemoProps,
+      isMultiple,
+      autocomplete?.options,
+      isCreatable
+    ]
+  });
 };
 
 export default Autocomplete;

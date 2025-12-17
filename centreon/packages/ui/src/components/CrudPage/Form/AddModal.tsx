@@ -1,33 +1,34 @@
-import { useAtomValue, useSetAtom } from "jotai";
-import { equals, isNotNil } from "ramda";
-import { useCallback, useMemo } from "react";
-import { Modal } from "../../Modal";
-import { askBeforeCloseFormModalAtom, openFormModalAtom } from "../atoms";
-import Buttons from "./Buttons";
+import { useAtomValue, useSetAtom } from 'jotai';
+import { equals, isNotNil } from 'ramda';
+import { useCallback, useMemo } from 'react';
 
-const AddModal = ({ title, Form, modalSize = "medium" }): JSX.Element => {
-	const setAskBeforeCloseFormModal = useSetAtom(askBeforeCloseFormModalAtom);
+import { Modal } from '../../Modal';
+import { askBeforeCloseFormModalAtom, openFormModalAtom } from '../atoms';
+import Buttons from './Buttons';
 
-	const openFormModal = useAtomValue(openFormModalAtom);
+const AddModal = ({ title, Form, modalSize = 'medium' }): JSX.Element => {
+  const setAskBeforeCloseFormModal = useSetAtom(askBeforeCloseFormModalAtom);
 
-	const isModalOpen = useMemo(
-		() => isNotNil(openFormModal) && equals("add", openFormModal),
-		[openFormModal],
-	);
+  const openFormModal = useAtomValue(openFormModalAtom);
 
-	const openAskBeforeClose = useCallback(
-		() => setAskBeforeCloseFormModal(true),
-		[setAskBeforeCloseFormModal],
-	);
+  const isModalOpen = useMemo(
+    () => isNotNil(openFormModal) && equals('add', openFormModal),
+    [openFormModal]
+  );
 
-	return (
-		<Modal open={isModalOpen} onClose={openAskBeforeClose} size={modalSize}>
-			<Modal.Header>{title}</Modal.Header>
-			<Modal.Body>
-				<Form Buttons={Buttons} />
-			</Modal.Body>
-		</Modal>
-	);
+  const openAskBeforeClose = useCallback(
+    () => setAskBeforeCloseFormModal(true),
+    [setAskBeforeCloseFormModal]
+  );
+
+  return (
+    <Modal open={isModalOpen} onClose={openAskBeforeClose} size={modalSize}>
+      <Modal.Header>{title}</Modal.Header>
+      <Modal.Body>
+        <Form Buttons={Buttons} />
+      </Modal.Body>
+    </Modal>
+  );
 };
 
 export default AddModal;

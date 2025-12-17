@@ -1,100 +1,101 @@
-import type { ComponentMeta } from "@storybook/react";
-import type { EditorState } from "lexical";
-import { useState } from "react";
-import initialEditorState from "./initialEditorState.json";
-import type { RichTextEditorProps } from "./RichTextEditor";
-import RichTextEditor from "./RichTextEditor";
+import type { ComponentMeta } from '@storybook/react';
+import type { EditorState } from 'lexical';
+import { useState } from 'react';
+
+import initialEditorState from './initialEditorState.json';
+import type { RichTextEditorProps } from './RichTextEditor';
+import RichTextEditor from './RichTextEditor';
 
 export default {
-	argTypes: {
-		editable: { control: false },
-		initialEditorState: { control: "text" },
-		inputClassname: { control: "text" },
-		minInputHeight: { control: "number" },
-		namespace: { control: "text" },
-		placeholder: { control: "text" },
-	},
-	component: RichTextEditor,
-	title: "RichTextEditor",
+  argTypes: {
+    editable: { control: false },
+    initialEditorState: { control: 'text' },
+    inputClassname: { control: 'text' },
+    minInputHeight: { control: 'number' },
+    namespace: { control: 'text' },
+    placeholder: { control: 'text' }
+  },
+  component: RichTextEditor,
+  title: 'RichTextEditor'
 } as ComponentMeta<typeof RichTextEditor>;
 
 const Template = (props: RichTextEditorProps): JSX.Element => (
-	<RichTextEditor {...props} />
+  <RichTextEditor {...props} />
 );
 
 export const normal = Template.bind({});
 
 export const withCustomEditorMinHeight = Template.bind({});
 withCustomEditorMinHeight.args = {
-	minInputHeight: 300,
+  minInputHeight: 300
 };
 
 const StoryWithUpdateListener = (): JSX.Element => {
-	const [editorState, setEditorState] = useState<EditorState>();
+  const [editorState, setEditorState] = useState<EditorState>();
 
-	return (
-		<div>
-			<Template getEditorState={setEditorState} />
-			<pre>{JSON.stringify(editorState, null, 2)}</pre>
-		</div>
-	);
+  return (
+    <div>
+      <Template getEditorState={setEditorState} />
+      <pre>{JSON.stringify(editorState, null, 2)}</pre>
+    </div>
+  );
 };
 
 export const withUpdateListener = (): JSX.Element => (
-	<StoryWithUpdateListener />
+  <StoryWithUpdateListener />
 );
 
 export const withInitialEditorState = Template.bind({});
 withInitialEditorState.args = {
-	initialEditorState: JSON.stringify(initialEditorState),
+  initialEditorState: JSON.stringify(initialEditorState)
 };
 
 export const withCustomPlaceholder = Template.bind({});
 withCustomPlaceholder.args = {
-	placeholder: "Custom placeholder...",
+  placeholder: 'Custom placeholder...'
 };
 
 export const withMacrosPlugin = Template.bind({});
 withMacrosPlugin.args = {
-	displayMacrosButton: true,
+  displayMacrosButton: true
 };
 
 export const withEditableFalse = Template.bind({});
 withEditableFalse.args = {
-	editable: true,
-	editorState: JSON.stringify(initialEditorState),
-	initialEditorState: JSON.stringify(initialEditorState),
+  editable: true,
+  editorState: JSON.stringify(initialEditorState),
+  initialEditorState: JSON.stringify(initialEditorState)
 };
 
 export const Disabled = Template.bind({});
 Disabled.args = {
-	disabled: true,
-	editable: false,
-	editorState: JSON.stringify(initialEditorState),
-	initialEditorState: JSON.stringify(initialEditorState),
+  disabled: true,
+  editable: false,
+  editorState: JSON.stringify(initialEditorState),
+  initialEditorState: JSON.stringify(initialEditorState)
 };
 
 const StoryWithEditableFalseLikePreview = (): JSX.Element => {
-	const [editorState, setEditorState] =
-		useState<EditorState>(initialEditorState);
+  const [editorState, setEditorState] =
+    useState<EditorState>(initialEditorState);
 
-	return (
-		<div>
-			<Template
-				getEditorState={setEditorState}
-				initialEditorState={JSON.stringify(initialEditorState)}
-				namespace="editable"
-			/>
-			<Template
-				editable={false}
-				editorStateForReadOnlyMode={JSON.stringify(editorState)}
-				namespace="uneditable"
-				placeholder=""
-			/>
-		</div>
-	);
+  return (
+    <div>
+      <Template
+        getEditorState={setEditorState}
+        initialEditorState={JSON.stringify(initialEditorState)}
+        namespace="editable"
+      />
+      <Template
+        editable={false}
+        editorStateForReadOnlyMode={JSON.stringify(editorState)}
+        namespace="uneditable"
+        placeholder=""
+      />
+    </div>
+  );
 };
 
 export const withEditableFalseLikePreview = (): JSX.Element => (
-	<StoryWithEditableFalseLikePreview />
+  <StoryWithEditableFalseLikePreview />
 );

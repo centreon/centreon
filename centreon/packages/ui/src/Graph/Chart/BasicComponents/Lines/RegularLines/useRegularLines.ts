@@ -1,15 +1,15 @@
-import { difference } from "ramda";
+import { difference } from 'ramda';
 
-import { getSortedStackedLines } from "../../../../common/timeSeries";
-import type { Line } from "../../../../common/timeSeries/models";
+import { getSortedStackedLines } from '../../../../common/timeSeries';
+import type { Line } from '../../../../common/timeSeries/models';
 
 interface RegularLines {
-	regularLines: Array<Line>;
+  regularLines: Array<Line>;
 }
 const useRegularLines = ({ lines }): RegularLines => {
-	const stackedLines = getSortedStackedLines(lines);
+  const stackedLines = getSortedStackedLines(lines);
 
-	return { regularLines: difference(lines, stackedLines) };
+  return { regularLines: difference(lines, stackedLines) };
 };
 
 export default useRegularLines;

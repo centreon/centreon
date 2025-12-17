@@ -1,20 +1,21 @@
 import {
-	Avatar as MuiAvatar,
-	ListItemAvatar as MuiListItemAvatar,
-} from "@mui/material";
-import type { ReactElement } from "react";
+  Avatar as MuiAvatar,
+  ListItemAvatar as MuiListItemAvatar
+} from '@mui/material';
 
-import { useStyles } from "./ListItem.styles";
+import type { ReactElement } from 'react';
+
+import { useStyles } from './ListItem.styles';
 
 type AvatarProps = {
-	children: ReactElement | string;
+  children: ReactElement | string;
 };
 export const Avatar = ({ children }: AvatarProps): ReactElement => {
-	const { classes } = useStyles();
+  const { classes } = useStyles();
 
-	return (
-		<MuiListItemAvatar className={classes.avatar} data-element="avatar">
-			<MuiAvatar>{children}</MuiAvatar>
-		</MuiListItemAvatar>
-	);
+  return (
+    <MuiListItemAvatar className={classes.avatar} data-element="avatar">
+      <MuiAvatar>{children}</MuiAvatar>
+    </MuiListItemAvatar>
+  );
 };

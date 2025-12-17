@@ -1,3 +1,3 @@
-import MultiAutocompleteField from "./Multi";
+import MultiAutocompleteField from './Multi';
 
 export default MultiAutocompleteField;

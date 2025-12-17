@@ -1,107 +1,109 @@
-import { ListingVariant } from "@centreon/ui-context";
-import type { Theme } from "@mui/material";
-import { useAtomValue, useSetAtom } from "jotai";
-import { equals, isEmpty, isNil, pick, type, update } from "ramda";
-import { useEffect, useMemo } from "react";
-import type { CSSObject } from "tss-react";
+import type { Theme } from '@mui/material';
 
-import type { Column, TableStyleAtom as Style } from "./models";
-import { tableStyleAtom, tableStyleDerivedAtom } from "./tableAtoms";
+import { ListingVariant } from '@centreon/ui-context';
+
+import { useAtomValue, useSetAtom } from 'jotai';
+import { equals, isEmpty, isNil, pick, type, update } from 'ramda';
+import { useEffect, useMemo } from 'react';
+import type { CSSObject } from 'tss-react';
+
+import type { Column, TableStyleAtom as Style } from './models';
+import { tableStyleAtom, tableStyleDerivedAtom } from './tableAtoms';
 
 interface TableStyle {
-	listingVariant?: ListingVariant;
+  listingVariant?: ListingVariant;
 }
 
 interface TableStyleState {
-	dataStyle: Style;
+  dataStyle: Style;
 }
 
 const isCompactMode = equals<ListingVariant | undefined>(
-	ListingVariant.compact,
+  ListingVariant.compact
 );
 
 interface GetTextStyleProps {
-	listingVariant?: ListingVariant;
-	theme: Theme;
+  listingVariant?: ListingVariant;
+  theme: Theme;
 }
 
 export const getTextStyleByViewMode = ({
-	listingVariant,
-	theme,
+  listingVariant,
+  theme
 }: GetTextStyleProps): CSSObject =>
-	pick(
-		["color", "fontSize", "lineHeight"],
-		theme.typography[isCompactMode(listingVariant) ? "body2" : "body1"],
-	);
+  pick(
+    ['color', 'fontSize', 'lineHeight'],
+    theme.typography[isCompactMode(listingVariant) ? 'body2' : 'body1']
+  );
 
 const useStyleTable = ({ listingVariant }: TableStyle): TableStyleState => {
-	const dataStyle = useAtomValue(tableStyleAtom);
+  const dataStyle = useAtomValue(tableStyleAtom);
 
-	const updateStyleTable = useSetAtom(tableStyleDerivedAtom);
+  const updateStyleTable = useSetAtom(tableStyleDerivedAtom);
 
-	useEffect(() => {
-		if (listingVariant) {
-			updateStyleTable({ listingVariant });
-		}
-	}, [listingVariant, updateStyleTable]);
+  useEffect(() => {
+    if (listingVariant) {
+      updateStyleTable({ listingVariant });
+    }
+  }, [listingVariant, updateStyleTable]);
 
-	return {
-		dataStyle,
-	};
+  return {
+    dataStyle
+  };
 };
 
 export default useStyleTable;
 
 interface UseColumnStyleProps {
-	checkable?: boolean;
-	currentVisibleColumns?: Array<Column>;
+  checkable?: boolean;
+  currentVisibleColumns?: Array<Column>;
 }
 
 export const useColumnStyle = ({
-	checkable,
-	currentVisibleColumns,
+  checkable,
+  currentVisibleColumns
 }: UseColumnStyleProps): string => {
-	const gridTemplateColumn = useMemo((): string => {
-		const checkbox = checkable ? "fit-content(1rem) " : ""; // SelectAction (checkbox) cell adjusts to content
+  const gridTemplateColumn = useMemo((): string => {
+    const checkbox = checkable ? 'fit-content(1rem) ' : ''; // SelectAction (checkbox) cell adjusts to content
 
-		const columnTemplate: Array<string> =
-			currentVisibleColumns
-				?.filter((column) => column)
-				?.map(({ width, shortLabel }) => {
-					if (!isNil(shortLabel)) {
-						return "min-content";
-					}
-					if (isNil(width)) {
-						return "auto";
-					}
+    const columnTemplate: Array<string> =
+      currentVisibleColumns
+        ?.filter((column) => column)
+        ?.map(({ width, shortLabel }) => {
+          if (!isNil(shortLabel)) {
+            return 'min-content';
+          }
+          if (isNil(width)) {
+            return 'auto';
+          }
 
-					return (
-						equals(type(width), "Number") ? `${width}px` : width
-					) as string;
-				}) || [];
+          return (
+            equals(type(width), 'Number') ? `${width}px` : width
+          ) as string;
+        }) || [];
 
-		const hasOnlyContainerResponsiveColumns =
-			!isEmpty(columnTemplate) &&
-			columnTemplate.every(
-				(width: string) =>
-					width.includes("auto") ||
-					width.includes("fr") ||
-					width.includes("%") ||
-					width.includes("px"),
-			);
+    const hasOnlyContainerResponsiveColumns =
+      !isEmpty(columnTemplate) &&
+      columnTemplate.every(
+        (width: string) =>
+          width.includes('auto') ||
+          width.includes('fr') ||
+          width.includes('%') ||
+          width.includes('px')
+      );
 
-		if (!hasOnlyContainerResponsiveColumns) {
-			const fixedColumnTemplate = update(
-				columnTemplate.length - 1,
-				"auto",
-				columnTemplate,
-			);
+    if (!hasOnlyContainerResponsiveColumns) {
+      const fixedColumnTemplate = update(
+        columnTemplate.length - 1,
+        'auto',
+        columnTemplate
+      );
 
-			return `${checkbox}${fixedColumnTemplate.join(" ")}`;
-		}
+      return `${checkbox}${fixedColumnTemplate.join(' ')}`;
+    }
 
-		return `${checkbox}${columnTemplate.join(" ")}`;
-	}, [checkable, currentVisibleColumns]);
+    return `${checkbox}${columnTemplate.join(' ')}`;
+  }, [checkable, currentVisibleColumns]);
 
-	return gridTemplateColumn;
+  return gridTemplateColumn;
 };

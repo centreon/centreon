@@ -1,1 +1,1 @@
-export const labelCentreonLogo = "Centreon Logo";
+export const labelCentreonLogo = 'Centreon Logo';

@@ -1,14 +1,15 @@
-import { ThemeMode } from "@centreon/ui-context";
+import { useTheme } from '@mui/material';
 
-import { useTheme } from "@mui/material";
-import { equals } from "ramda";
+import { ThemeMode } from '@centreon/ui-context';
+
+import { equals } from 'ramda';
 
 /**
  * Hook that a return an isDarkMode boolean value.
  * @returns {boolean} isDarkMode
  */
 export const useThemeMode = (): { isDarkMode: boolean } => {
-	const theme = useTheme();
+  const theme = useTheme();
 
-	return { isDarkMode: equals(theme.palette.mode, ThemeMode.dark) };
+  return { isDarkMode: equals(theme.palette.mode, ThemeMode.dark) };
 };

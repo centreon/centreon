@@ -1,163 +1,164 @@
-import { Shape } from "@visx/visx";
-import type { ScaleLinear, ScaleTime } from "d3-scale";
+import { Shape } from '@visx/visx';
+import type { ScaleLinear, ScaleTime } from 'd3-scale';
 import {
-	all,
-	equals,
-	isNil,
-	map,
-	not,
-	nth,
-	path,
-	pipe,
-	prop,
-	type,
-} from "ramda";
-import type { ReactElement } from "react";
-import { getDates, getTime } from "../../../../common/timeSeries";
-import type { Line, TimeValue } from "../../../../common/timeSeries/models";
+  all,
+  equals,
+  isNil,
+  map,
+  not,
+  nth,
+  path,
+  pipe,
+  prop,
+  type
+} from 'ramda';
+import type { ReactElement } from 'react';
+
+import { getDates, getTime } from '../../../../common/timeSeries';
+import type { Line, TimeValue } from '../../../../common/timeSeries/models';
 import {
-	getPointRadius,
-	getStrokeDashArray,
-	getStyle,
-} from "../../../../common/utils";
-import { getCurveFactory, getFillColor } from "../../../common";
-import type { StackValue } from "../../../InteractiveComponents/AnchorPoint/models";
+  getPointRadius,
+  getStrokeDashArray,
+  getStyle
+} from '../../../../common/utils';
+import { getCurveFactory, getFillColor } from '../../../common';
+import type { StackValue } from '../../../InteractiveComponents/AnchorPoint/models';
 import StackedAnchorPoint, {
-	getYAnchorPoint,
-} from "../../../InteractiveComponents/AnchorPoint/StackedAnchorPoint";
-import type { LineStyle } from "../../../models";
-import Point from "../Point";
+  getYAnchorPoint
+} from '../../../InteractiveComponents/AnchorPoint/StackedAnchorPoint';
+import type { LineStyle } from '../../../models';
+import Point from '../Point';
 
 interface Props {
-	areaTransparency?: number;
-	curve: "linear" | "step" | "natural";
-	dashLength?: number;
-	dashOffset?: number;
-	displayAnchor: boolean;
-	dotOffset?: number;
-	lineWidth?: number;
-	lines: Array<Line>;
-	showArea?: boolean;
-	showPoints?: boolean;
-	timeSeries: Array<TimeValue>;
-	xScale: ScaleTime<number, number>;
-	yScale: ScaleLinear<number, number>;
-	lineStyle: LineStyle | Array<LineStyle>;
-	hasSecondUnit?: boolean;
-	maxLeftAxisCharacters: number;
+  areaTransparency?: number;
+  curve: 'linear' | 'step' | 'natural';
+  dashLength?: number;
+  dashOffset?: number;
+  displayAnchor: boolean;
+  dotOffset?: number;
+  lineWidth?: number;
+  lines: Array<Line>;
+  showArea?: boolean;
+  showPoints?: boolean;
+  timeSeries: Array<TimeValue>;
+  xScale: ScaleTime<number, number>;
+  yScale: ScaleLinear<number, number>;
+  lineStyle: LineStyle | Array<LineStyle>;
+  hasSecondUnit?: boolean;
+  maxLeftAxisCharacters: number;
 }
 
 const StackLines = ({
-	timeSeries,
-	lines,
-	yScale,
-	xScale,
-	displayAnchor,
-	lineStyle,
-	hasSecondUnit,
-	maxLeftAxisCharacters,
+  timeSeries,
+  lines,
+  yScale,
+  xScale,
+  displayAnchor,
+  lineStyle,
+  hasSecondUnit,
+  maxLeftAxisCharacters
 }: Props): ReactElement => {
-	const curveType = getCurveFactory(
-		(equals(type(lineStyle), "Array")
-			? lineStyle?.[0].curve
-			: lineStyle?.curve) || "linear",
-	);
-	return (
-		<Shape.AreaStack
-			curve={curveType}
-			data={timeSeries}
-			defined={(d): boolean => {
-				return pipe(
-					map(prop("metric_id")) as unknown as (
-						displayedLines,
-					) => Array<string>,
-					all((metric_id) => pipe(path(["data", metric_id]), isNil, not)(d)),
-				)(lines);
-			}}
-			keys={map(prop("metric_id"), lines)}
-			x={(d): number => xScale(getTime(d.data)) ?? 0}
-			y0={(d): number => yScale(d[0]) ?? 0}
-			y1={(d): number => yScale(d[1]) ?? 0}
-		>
-			{({ stacks, path: linePath }): Array<JSX.Element> => {
-				return stacks.map((stack, index) => {
-					const { areaColor, transparency, lineColor, highlight, metric_id } =
-						nth(index, lines) as Line;
+  const curveType = getCurveFactory(
+    (equals(type(lineStyle), 'Array')
+      ? lineStyle?.[0].curve
+      : lineStyle?.curve) || 'linear'
+  );
+  return (
+    <Shape.AreaStack
+      curve={curveType}
+      data={timeSeries}
+      defined={(d): boolean => {
+        return pipe(
+          map(prop('metric_id')) as unknown as (
+            displayedLines
+          ) => Array<string>,
+          all((metric_id) => pipe(path(['data', metric_id]), isNil, not)(d))
+        )(lines);
+      }}
+      keys={map(prop('metric_id'), lines)}
+      x={(d): number => xScale(getTime(d.data)) ?? 0}
+      y0={(d): number => yScale(d[0]) ?? 0}
+      y1={(d): number => yScale(d[1]) ?? 0}
+    >
+      {({ stacks, path: linePath }): Array<JSX.Element> => {
+        return stacks.map((stack, index) => {
+          const { areaColor, transparency, lineColor, highlight, metric_id } =
+            nth(index, lines) as Line;
 
-					const style = getStyle({
-						style: lineStyle,
-						metricId: metric_id,
-					}) as LineStyle;
-					const formattedLineWidth = style?.lineWidth ?? 2;
+          const style = getStyle({
+            style: lineStyle,
+            metricId: metric_id
+          }) as LineStyle;
+          const formattedLineWidth = style?.lineWidth ?? 2;
 
-					const formattedTransparency = isNil(style?.areaTransparency)
-						? transparency || 80
-						: style.areaTransparency;
+          const formattedTransparency = isNil(style?.areaTransparency)
+            ? transparency || 80
+            : style.areaTransparency;
 
-					return (
-						<g key={`stack-${prop("key", stack)}`}>
-							{displayAnchor && (
-								<StackedAnchorPoint
-									areaColor={style?.areaColor}
-									lineColor={lineColor}
-									stackValues={stack as unknown as Array<StackValue>}
-									timeSeries={timeSeries}
-									transparency={transparency}
-									xScale={xScale}
-									yScale={yScale}
-									hasSecondUnit={hasSecondUnit}
-									maxLeftAxisCharacters={maxLeftAxisCharacters}
-								/>
-							)}
-							{style?.showPoints &&
-								getDates(timeSeries).map((timeTick) => (
-									<Point
-										key={timeTick.toString()}
-										lineColor={lineColor}
-										metric_id={metric_id}
-										radius={getPointRadius(style?.lineWidth)}
-										timeSeries={timeSeries}
-										timeTick={timeTick}
-										xScale={xScale}
-										yPoint={getYAnchorPoint({
-											stackValues: stack as unknown as Array<StackValue>,
-											timeTick,
-											yScale,
-										})}
-										yScale={yScale}
-									/>
-								))}
-							<path
-								d={linePath(stack) || ""}
-								data-metric={metric_id}
-								fill={
-									equals(style?.showArea, false)
-										? "transparent"
-										: getFillColor({
-												areaColor: areaColor || lineColor,
-												transparency: formattedTransparency,
-											})
-								}
-								opacity={highlight === false ? 0.3 : 1}
-								stroke={lineColor}
-								strokeDasharray={getStrokeDashArray({
-									dashLength: style?.dashLength,
-									dashOffset: style?.dashOffset,
-									dotOffset: style?.dotOffset,
-									lineWidth: style?.lineWidth ?? 2,
-								})}
-								strokeWidth={
-									highlight
-										? Math.ceil(formattedLineWidth * 1.3)
-										: formattedLineWidth
-								}
-							/>
-						</g>
-					);
-				});
-			}}
-		</Shape.AreaStack>
-	);
+          return (
+            <g key={`stack-${prop('key', stack)}`}>
+              {displayAnchor && (
+                <StackedAnchorPoint
+                  areaColor={style?.areaColor}
+                  lineColor={lineColor}
+                  stackValues={stack as unknown as Array<StackValue>}
+                  timeSeries={timeSeries}
+                  transparency={transparency}
+                  xScale={xScale}
+                  yScale={yScale}
+                  hasSecondUnit={hasSecondUnit}
+                  maxLeftAxisCharacters={maxLeftAxisCharacters}
+                />
+              )}
+              {style?.showPoints &&
+                getDates(timeSeries).map((timeTick) => (
+                  <Point
+                    key={timeTick.toString()}
+                    lineColor={lineColor}
+                    metric_id={metric_id}
+                    radius={getPointRadius(style?.lineWidth)}
+                    timeSeries={timeSeries}
+                    timeTick={timeTick}
+                    xScale={xScale}
+                    yPoint={getYAnchorPoint({
+                      stackValues: stack as unknown as Array<StackValue>,
+                      timeTick,
+                      yScale
+                    })}
+                    yScale={yScale}
+                  />
+                ))}
+              <path
+                d={linePath(stack) || ''}
+                data-metric={metric_id}
+                fill={
+                  equals(style?.showArea, false)
+                    ? 'transparent'
+                    : getFillColor({
+                        areaColor: areaColor || lineColor,
+                        transparency: formattedTransparency
+                      })
+                }
+                opacity={highlight === false ? 0.3 : 1}
+                stroke={lineColor}
+                strokeDasharray={getStrokeDashArray({
+                  dashLength: style?.dashLength,
+                  dashOffset: style?.dashOffset,
+                  dotOffset: style?.dotOffset,
+                  lineWidth: style?.lineWidth ?? 2
+                })}
+                strokeWidth={
+                  highlight
+                    ? Math.ceil(formattedLineWidth * 1.3)
+                    : formattedLineWidth
+                }
+              />
+            </g>
+          );
+        });
+      }}
+    </Shape.AreaStack>
+  );
 };
 
 export default StackLines;

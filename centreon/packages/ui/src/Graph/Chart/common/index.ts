@@ -1,51 +1,52 @@
-import { alpha } from "@mui/material";
-import { curveCatmullRom, curveLinear, curveStep } from "@visx/curve";
-import { always, cond, equals, isNil } from "ramda";
+import { alpha } from '@mui/material';
+
+import { curveCatmullRom, curveLinear, curveStep } from '@visx/curve';
+import { always, cond, equals, isNil } from 'ramda';
 
 const commonTickLabelProps = {
-	fontFamily: "Roboto, sans-serif",
-	fontSize: 10,
-	textAnchor: "middle",
+  fontFamily: 'Roboto, sans-serif',
+  fontSize: 10,
+  textAnchor: 'middle'
 };
 
 const margin = { bottom: 30, left: 50, right: 50, top: 30 };
 
 interface FillColor {
-	areaColor: string;
-	transparency: number;
+  areaColor: string;
+  transparency: number;
 }
 
 const getFillColor = ({
-	transparency,
-	areaColor,
+  transparency,
+  areaColor
 }: FillColor): string | undefined => {
-	return !isNil(transparency)
-		? alpha(areaColor, 1 - transparency * 0.01)
-		: undefined;
+  return !isNil(transparency)
+    ? alpha(areaColor, 1 - transparency * 0.01)
+    : undefined;
 };
 
-const dateFormat = "L";
-const timeFormat = "LT";
+const dateFormat = 'L';
+const timeFormat = 'LT';
 const dateTimeFormat = `${dateFormat} ${timeFormat}`;
 const maxLinesDisplayedLegend = 11;
 
 const getCurveFactory = (
-	curve: "linear" | "step" | "natural",
+  curve: 'linear' | 'step' | 'natural'
 ): typeof curveLinear => {
-	return cond([
-		[equals("linear"), always(curveLinear)],
-		[equals("step"), always(curveStep)],
-		[equals("natural"), always(curveCatmullRom)],
-	])(curve);
+  return cond([
+    [equals('linear'), always(curveLinear)],
+    [equals('step'), always(curveStep)],
+    [equals('natural'), always(curveCatmullRom)]
+  ])(curve);
 };
 
 export {
-	commonTickLabelProps,
-	margin,
-	getFillColor,
-	dateFormat,
-	timeFormat,
-	dateTimeFormat,
-	maxLinesDisplayedLegend,
-	getCurveFactory,
+  commonTickLabelProps,
+  margin,
+  getFillColor,
+  dateFormat,
+  timeFormat,
+  dateTimeFormat,
+  maxLinesDisplayedLegend,
+  getCurveFactory
 };

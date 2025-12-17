@@ -1,3 +1,3 @@
 export interface Image {
-	read: () => string;
+  read: () => string;
 }

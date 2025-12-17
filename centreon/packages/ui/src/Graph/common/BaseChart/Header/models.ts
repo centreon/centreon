@@ -1,4 +1,4 @@
 export interface LineChartHeader {
-	displayTitle?: boolean;
-	extraComponent?: ReactNode;
+  displayTitle?: boolean;
+  extraComponent?: ReactNode;
 }

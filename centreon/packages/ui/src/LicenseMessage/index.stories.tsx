@@ -1,26 +1,27 @@
-import type { Theme } from "@mui/material";
-import type { ComponentMeta, ComponentStory } from "@storybook/react";
-import { makeStyles } from "tss-react/mui";
+import type { Theme } from '@mui/material';
 
-import LicenseMessage from ".";
+import type { ComponentMeta, ComponentStory } from '@storybook/react';
+import { makeStyles } from 'tss-react/mui';
+
+import LicenseMessage from '.';
 
 const useStyles = makeStyles()((theme: Theme) => ({
-	root: {
-		background: theme.palette.error.main,
-		color: theme.palette.common.white,
-		padding: theme.spacing(1),
-	},
+  root: {
+    background: theme.palette.error.main,
+    color: theme.palette.common.white,
+    padding: theme.spacing(1)
+  }
 }));
 export default {
-	argTypes: {
-		label: { control: "text" },
-	},
-	component: LicenseMessage,
-	title: "License Message",
+  argTypes: {
+    label: { control: 'text' }
+  },
+  component: LicenseMessage,
+  title: 'License Message'
 } as ComponentMeta<typeof LicenseMessage>;
 
 const TemplateLicenseMessage: ComponentStory<typeof LicenseMessage> = (
-	args,
+  args
 ) => <LicenseMessage {...args} />;
 
 export const PlaygroundLicenseMessage = TemplateLicenseMessage.bind({});
@@ -28,13 +29,13 @@ export const PlaygroundLicenseMessage = TemplateLicenseMessage.bind({});
 export const normal = (): JSX.Element => <LicenseMessage />;
 
 export const withLabel = (): JSX.Element => (
-	<LicenseMessage label="This is a license message" />
+  <LicenseMessage label="This is a license message" />
 );
 
 const CustomLicenseMessage = (): JSX.Element => {
-	const { classes } = useStyles();
+  const { classes } = useStyles();
 
-	return <LicenseMessage className={classes.root} />;
+  return <LicenseMessage className={classes.root} />;
 };
 
 export const customLicenseMessage = (): JSX.Element => <CustomLicenseMessage />;

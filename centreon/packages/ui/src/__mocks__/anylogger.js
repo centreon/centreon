@@ -1,6 +1,6 @@
 const mockedAnyLogger = {
-	error: jest.fn(),
-	warn: jest.fn(),
+  error: jest.fn(),
+  warn: jest.fn()
 };
 
 const anyLogger = () => mockedAnyLogger;

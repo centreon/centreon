@@ -1,21 +1,21 @@
-import type { SelectEntry } from "../..";
+import type { SelectEntry } from '../..';
 
 export interface Resource {
-	resourceType: string;
-	resources: Array<SelectEntry>;
+  resourceType: string;
+  resources: Array<SelectEntry>;
 }
 
 export enum WidgetResourceType {
-	host = "host",
-	hostCategory = "host-category",
-	hostGroup = "host-group",
-	service = "service",
-	metaService = "meta-service",
-	serviceCategory = "service-category",
-	serviceGroup = "service-group",
+  host = 'host',
+  hostCategory = 'host-category',
+  hostGroup = 'host-group',
+  service = 'service',
+  metaService = 'meta-service',
+  serviceCategory = 'service-category',
+  serviceGroup = 'service-group'
 }
 
 export interface Metric {
-	excludedMetrics: Array<number>;
-	name: string;
+  excludedMetrics: Array<number>;
+  name: string;
 }

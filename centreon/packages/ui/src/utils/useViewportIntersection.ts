@@ -1,45 +1,45 @@
 import {
-	type Dispatch,
-	type SetStateAction,
-	useEffect,
-	useRef,
-	useState,
-} from "react";
+  type Dispatch,
+  type SetStateAction,
+  useEffect,
+  useRef,
+  useState
+} from 'react';
 
 interface ViewportIntersectionState {
-	isInViewport: boolean;
-	setElement: Dispatch<SetStateAction<HTMLElement | null>>;
+  isInViewport: boolean;
+  setElement: Dispatch<SetStateAction<HTMLElement | null>>;
 }
 
 export const useViewportIntersection = (
-	options?: IntersectionObserverInit,
+  options?: IntersectionObserverInit
 ): ViewportIntersectionState => {
-	const [entry, setEntry] = useState<IntersectionObserverEntry | null>(null);
-	const [element, setElement] = useState<HTMLElement | null>(null);
+  const [entry, setEntry] = useState<IntersectionObserverEntry | null>(null);
+  const [element, setElement] = useState<HTMLElement | null>(null);
 
-	const observer = useRef<IntersectionObserver | null>(null);
+  const observer = useRef<IntersectionObserver | null>(null);
 
-	useEffect(() => {
-		if (observer.current) {
-			observer.current.disconnect();
-		}
+  useEffect(() => {
+    if (observer.current) {
+      observer.current.disconnect();
+    }
 
-		observer.current = new window.IntersectionObserver(
-			([newEntry]) => setEntry(newEntry),
-			options,
-		);
+    observer.current = new window.IntersectionObserver(
+      ([newEntry]) => setEntry(newEntry),
+      options
+    );
 
-		if (element) {
-			observer.current.observe(element);
-		}
+    if (element) {
+      observer.current.observe(element);
+    }
 
-		return (): void => {
-			observer.current?.disconnect();
-		};
-	}, [element, options]);
+    return (): void => {
+      observer.current?.disconnect();
+    };
+  }, [element, options]);
 
-	return {
-		isInViewport: entry?.isIntersecting ?? true,
-		setElement,
-	};
+  return {
+    isInViewport: entry?.isIntersecting ?? true,
+    setElement
+  };
 };

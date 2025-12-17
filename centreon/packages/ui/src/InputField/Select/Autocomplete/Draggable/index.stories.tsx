@@ -1,178 +1,179 @@
-import { Tooltip, Typography } from "@mui/material";
+import { Tooltip, Typography } from '@mui/material';
 
-import { isNil, not } from "ramda";
-import { useState } from "react";
-import { buildListingEndpoint } from "../../../..";
-import type { Listing } from "../../../../api/models";
-import type { SelectEntry } from "../..";
-import type { ItemActionProps } from ".";
-import MultiDraggableAutocompleteField from "./Multi";
-import MultiDraggableConnectedAutocompleteField from "./MultiConnected";
+import { isNil, not } from 'ramda';
+import { useState } from 'react';
+
+import { buildListingEndpoint } from '../../../..';
+import type { Listing } from '../../../../api/models';
+import type { SelectEntry } from '../..';
+import type { ItemActionProps } from '.';
+import MultiDraggableAutocompleteField from './Multi';
+import MultiDraggableConnectedAutocompleteField from './MultiConnected';
 
 export default {
-	title: "InputField/Autocomplete/Draggable",
+  title: 'InputField/Autocomplete/Draggable'
 };
 
 const buildEntities = (from): Array<SelectEntry> => {
-	return Array(10)
-		.fill(0)
-		.map((_, index) => ({
-			id: from + index,
-			name: `Entity ${from + index}`,
-		}));
+  return Array(10)
+    .fill(0)
+    .map((_, index) => ({
+      id: from + index,
+      name: `Entity ${from + index}`
+    }));
 };
 
 const buildResult = (page): Listing<SelectEntry> => ({
-	meta: {
-		limit: 10,
-		page,
-		total: 40,
-	},
-	result: buildEntities((page - 1) * 10),
+  meta: {
+    limit: 10,
+    page,
+    total: 40
+  },
+  result: buildEntities((page - 1) * 10)
 });
 
-const baseEndpoint = "endpoint";
+const baseEndpoint = 'endpoint';
 
 const getEndpoint = ({ endpoint, parameters }): string =>
-	buildListingEndpoint({
-		baseEndpoint: endpoint,
-		parameters,
-	});
+  buildListingEndpoint({
+    baseEndpoint: endpoint,
+    parameters
+  });
 
 const mockSearch = (page: number): object => ({
-	delay: 1000,
-	method: "GET",
-	response: (request): Listing<SelectEntry> => {
-		const { searchParams } = request;
+  delay: 1000,
+  method: 'GET',
+  response: (request): Listing<SelectEntry> => {
+    const { searchParams } = request;
 
-		return buildResult(Number.parseInt(searchParams.page || "0", 10));
-	},
-	status: 200,
-	url: `/endpoint?page=${page}&search=`,
+    return buildResult(Number.parseInt(searchParams.page || '0', 10));
+  },
+  status: 200,
+  url: `/endpoint?page=${page}&search=`
 });
 
 const getMockData = (): Array<object> => [
-	{
-		delay: 1000,
-		method: "GET",
-		response: (request): Listing<SelectEntry> => {
-			const { searchParams } = request;
+  {
+    delay: 1000,
+    method: 'GET',
+    response: (request): Listing<SelectEntry> => {
+      const { searchParams } = request;
 
-			return buildResult(Number.parseInt(searchParams.page || "0", 10));
-		},
-		status: 200,
-		url: "/endpoint?page=",
-	},
-	mockSearch(1),
-	mockSearch(2),
-	mockSearch(3),
-	mockSearch(4),
+      return buildResult(Number.parseInt(searchParams.page || '0', 10));
+    },
+    status: 200,
+    url: '/endpoint?page='
+  },
+  mockSearch(1),
+  mockSearch(2),
+  mockSearch(3),
+  mockSearch(4)
 ];
 
 const options = [
-	{ id: "0", name: "First Entity" },
-	{ id: "1", name: "Second Entity" },
-	{ id: "2", name: "Third Entity" },
+  { id: '0', name: 'First Entity' },
+  { id: '1', name: 'Second Entity' },
+  { id: '2', name: 'Third Entity' }
 ];
 
 const MultiDraggable = (): JSX.Element => (
-	<MultiDraggableAutocompleteField
-		label="Draggable Autocomplete"
-		options={options}
-		placeholder="Type here..."
-	/>
+  <MultiDraggableAutocompleteField
+    label="Draggable Autocomplete"
+    options={options}
+    placeholder="Type here..."
+  />
 );
 
 export const containedDraggable = (): JSX.Element => (
-	<div style={{ width: "400px" }}>
-		<MultiDraggable />
-	</div>
+  <div style={{ width: '400px' }}>
+    <MultiDraggable />
+  </div>
 );
 
 const MultiDraggableConnected = (): JSX.Element => (
-	<MultiDraggableConnectedAutocompleteField
-		field="host.name"
-		getEndpoint={(parameters): string => {
-			return getEndpoint({ endpoint: baseEndpoint, parameters });
-		}}
-		initialPage={1}
-		label="Multi Draggable Connected Autocomplete"
-		placeholder="Type here..."
-	/>
+  <MultiDraggableConnectedAutocompleteField
+    field="host.name"
+    getEndpoint={(parameters): string => {
+      return getEndpoint({ endpoint: baseEndpoint, parameters });
+    }}
+    initialPage={1}
+    label="Multi Draggable Connected Autocomplete"
+    placeholder="Type here..."
+  />
 );
 
 export const draggableConnected = (): JSX.Element => (
-	<MultiDraggableConnected />
+  <MultiDraggableConnected />
 );
 draggableConnected.parameters = {
-	mockData: getMockData(),
+  mockData: getMockData()
 };
 
 const MultiDraggableError = (): JSX.Element => (
-	<MultiDraggableAutocompleteField
-		error="Error"
-		label="Draggable Autocomplete"
-		options={options}
-		placeholder="Type here..."
-	/>
+  <MultiDraggableAutocompleteField
+    error="Error"
+    label="Draggable Autocomplete"
+    options={options}
+    placeholder="Type here..."
+  />
 );
 
 export const draggableWithError = (): JSX.Element => <MultiDraggableError />;
 
 const MultiDraggableRequired = (): JSX.Element => (
-	<MultiDraggableAutocompleteField
-		required
-		label="Draggable Autocomplete"
-		options={options}
-		placeholder="Type here..."
-	/>
+  <MultiDraggableAutocompleteField
+    required
+    label="Draggable Autocomplete"
+    options={options}
+    placeholder="Type here..."
+  />
 );
 
 export const draggableWithRequired = (): JSX.Element => (
-	<MultiDraggableRequired />
+  <MultiDraggableRequired />
 );
 
 const MultiDraggableInitialValues = (): JSX.Element => (
-	<MultiDraggableAutocompleteField
-		initialValues={[options[0], options[1]]}
-		label="Draggable Autocomplete"
-		options={options}
-		placeholder="Type here..."
-	/>
+  <MultiDraggableAutocompleteField
+    initialValues={[options[0], options[1]]}
+    label="Draggable Autocomplete"
+    options={options}
+    placeholder="Type here..."
+  />
 );
 
 export const draggableWithInitialValues = (): JSX.Element => (
-	<MultiDraggableInitialValues />
+  <MultiDraggableInitialValues />
 );
 
 const MultiDraggableClickAndHoverItem = (): JSX.Element => {
-	const [clickedItem, setClickedItem] = useState<ItemActionProps | null>(null);
-	const [hoveredItem, setHoveredItem] = useState<ItemActionProps | null>(null);
+  const [clickedItem, setClickedItem] = useState<ItemActionProps | null>(null);
+  const [hoveredItem, setHoveredItem] = useState<ItemActionProps | null>(null);
 
-	return (
-		<div>
-			<Tooltip
-				PopperProps={{
-					anchorEl: hoveredItem?.anchorElement,
-				}}
-				open={not(isNil(hoveredItem?.anchorElement))}
-				title={hoveredItem?.item.name || ""}
-			>
-				<MultiDraggableAutocompleteField
-					itemClick={setClickedItem}
-					itemHover={setHoveredItem}
-					label="Draggable Autocomplete"
-					options={options}
-					placeholder="Type here..."
-				/>
-			</Tooltip>
-			{not(isNil(clickedItem)) && (
-				<Typography>You clicked on {clickedItem?.item.name}</Typography>
-			)}
-		</div>
-	);
+  return (
+    <div>
+      <Tooltip
+        PopperProps={{
+          anchorEl: hoveredItem?.anchorElement
+        }}
+        open={not(isNil(hoveredItem?.anchorElement))}
+        title={hoveredItem?.item.name || ''}
+      >
+        <MultiDraggableAutocompleteField
+          itemClick={setClickedItem}
+          itemHover={setHoveredItem}
+          label="Draggable Autocomplete"
+          options={options}
+          placeholder="Type here..."
+        />
+      </Tooltip>
+      {not(isNil(clickedItem)) && (
+        <Typography>You clicked on {clickedItem?.item.name}</Typography>
+      )}
+    </div>
+  );
 };
 
 export const draggableWithClickAndHoverListenersOnItem = (): JSX.Element => (
-	<MultiDraggableClickAndHoverItem />
+  <MultiDraggableClickAndHoverItem />
 );
