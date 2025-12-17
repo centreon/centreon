@@ -1,47 +1,42 @@
 {
     "notification": {
         "name": "A_notification_cmd",
-        "type": 1,
-        "command_line": "string",
+        "type": "Notification",
+        "globalMacros": "$USER1$",
+        "standardMacros": "$ARGn$",
+        "installedPlugins": "check_dhcp",
         "is_shell": false,
-        "argument_example": "!80!90",
-        "arguments": [],
-        "macros": [],
-        "connector_id": 1,
-        "graph_template_id": 4
+        "connectorName": "Perl Connector",
+        "comments": "Comments"
     },
     "check": {
         "name": "A_check_cmd",
-        "type": 2,
-        "command_line": "string",
-        "is_shell": false,
-        "argument_example": "!80!90",
-        "arguments": [],
-        "macros": [],
-        "connector_id": 1,
-        "graph_template_id": 4
+        "type": "Check",
+        "globalMacros": "$CENTREONPLUGINS",
+        "standardMacros": "$HOSTNAME$",
+        "installedPlugins": "check_dhcp",
+        "is_shell": true,
+        "connectorName": "SSH Connector",
+        "comments": "Comments"
     },
-    
     "miscellaneous": {
         "name": "A_miscellaneous_cmd",
-        "type": 3,
-        "command_line": "string",
-        "is_shell": false,
-        "argument_example": "!80!90",
-        "arguments": [],
-        "macros": [],
-        "connector_id": 1,
-        "graph_template_id": 4
+        "type": "Miscellaneous",
+        "globalMacros": "$CENTREONPLUGINS",
+        "standardMacros": "$HOSTNAME$",
+        "installedPlugins": "check_dhcp",
+        "is_shell": true,
+        "connectorName": "Telegraf",
+        "comments": "Comments"
     },
     "discovery": {
         "name": "A_discovery_cmd",
-        "type": 4,
-        "command_line": "string",
-        "is_shell": false,
-        "argument_example": "!80!90",
-        "arguments": [],
-        "macros": [],
-        "connector_id": 1,
-        "graph_template_id": 4
+        "type": "Discovery",
+        "globalMacros": "$CENTREONPLUGINS",
+        "standardMacros": "$HOSTNAME$",
+        "installedPlugins": "check_dhcp",
+        "is_shell": true,
+        "connectorName": "Centreon Monitoring Agent",
+        "comments": "Comments"
     }
 }

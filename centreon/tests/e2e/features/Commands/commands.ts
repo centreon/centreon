@@ -1,13 +1,12 @@
 interface Cmd {
   name: string;
-  type: number;
-  commandLine: string;
+  type: string;
+  globalMacros: string;
+  standardMacros: string;
+  installedPlugins: string;
   isShell: boolean;
-  argumentExample: string;
-  arguments: string[];
-  macros: string[];
-  connectorId: number;
-  graphTemplateId: number;
+  connectorName: number;
+  comments: string;
 }
 
 interface Ctr {
@@ -18,116 +17,102 @@ interface Ctr {
   isEnabled: number;
 }
 
-Cypress.Commands.add('addCommands', (body: Cmd) => {
-  // Wait for the "Command Name" input to be charged on the DOM
-  cy.waitForElementInIframe('#main-content', 'input[name="command_name"]');
-  // Type a value on the "Command Name" input
-  cy.getIframeBody().find('input[name="command_name"]').type(body.name);
-  // Chose a "Command Type"
-  cy.getIframeBody()
-    .find(`input[name="command_type[command_type]"][value="${body.type}"]`)
-    .click({ force: true });
-  // Type a value on the "Command Line" textarea
-  cy.getIframeBody().find('textarea[id="command_line"]').type(body.commandLine);
-  // Enable/ Disable shell
-  cy.getIframeBody()
-    .find('input[name="enable_shell"]')
-    .then(($val) => {
-      if (body.isShell === true) {
-        cy.wrap($val).click();
-      }
-    });
-  // Type a value on the "Argument Example" input
-  cy.getIframeBody()
-    .find('input[name="command_example"]')
-    .type(body.argumentExample);
-  // Chose a connector
-  cy.getIframeBody()
-    .find('select[name="connectors"]')
-    .select(`${body.connectorId}`);
-  // Chose a graph
-  cy.getIframeBody()
-    .find('select[name="graph_id"]')
-    .select(`${body.graphTemplateId}`);
+Cypress.Commands.add(
+  'fillCommandLine',
+  (index: number, request: string, value: string, label: string) => {
+    cy.getByLabel({ label: 'Open', tag: 'button' }).eq(index).click();
+    cy.wait(`@${request}`);
+    cy.contains('.MuiAutocomplete-option p', value).click();
+    cy.getByTestId({ testId: label, tag: 'button' }).click();
+  }
+);
+
+Cypress.Commands.add('searchForCommandsByName', (name: string) => {
+  cy.get('#searchbar').clear().type(name);
+  cy.wait('@getCommandsList');
+  cy.contains('p', name).should('be.visible');
 });
 
-Cypress.Commands.add('updateCommands', (body: Cmd) => {
-  // Wait for the "Command Name" input to be charged on the DOM
-  cy.waitForElementInIframe('#main-content', 'input[name="command_name"]');
-  // Update the value of the "Command Name"
-  cy.getIframeBody().find('input[name="command_name"]').clear().type(body.name);
-  // Update the value of the "Command Type"
-  cy.getIframeBody()
-    .find(`input[name="command_type[command_type]"][value="${body.type}"]`)
-    .click({ force: true });
-  // Update the value of the "Command Line"
-  cy.getIframeBody()
-    .find('textarea[id="command_line"]')
-    .clear()
-    .type(body.commandLine);
-  // Update the value of the "Enable shell"
-  cy.getIframeBody()
-    .find('input[name="enable_shell"]')
-    .then(($val) => {
-      if (body.isShell === true) {
-        cy.wrap($val).click();
-      }
-    });
-  // Update the value of the "Argument Example"
-  cy.getIframeBody()
-    .find('input[name="command_example"]')
-    .clear()
-    .type(body.argumentExample);
-  // Update the value of the "Connectors"
-  cy.getIframeBody()
-    .find('select[name="connectors"]')
-    .select(`${body.connectorId}`);
-  // Update the value of the "Graph"
-  cy.getIframeBody()
-    .find('select[name="graph_id"]')
-    .select(`${body.graphTemplateId}`);
+Cypress.Commands.add('addOrUpdateCommands', (body: Cmd) => {
+  // Type a value on the "Command Name" input
+  cy.get('#Name').clear().type(body.name);
+  // Chose a "Command Type"
+  cy.get(`input[value="${body.type}"]`).click();
+  // Type a value on the "Command Line" textarea
+  cy.get('#Commandline').clear();
+  cy.fillCommandLine(
+    0,
+    'getGlobalMacros',
+    body.globalMacros,
+    'Insert global marco'
+  );
+  cy.fillCommandLine(
+    1,
+    'getPlugins',
+    body.standardMacros,
+    'Insert installed plugin'
+  );
+  cy.fillCommandLine(
+    2,
+    'getStandardMacros',
+    body.installedPlugins,
+    'Insert standard marco'
+  );
+  // Enable/ Disable shell
+  cy.get('span[data-testid="enable-shell-syntax"]').then(($el) => {
+    if (body.isShell === true && $el.length) {
+      cy.wrap($el).click();
+    }
+  });
+  // Chose a connector
+  cy.getByLabel({ label: 'Open', tag: 'button' }).eq(3).click();
+  cy.wait('@getConnectors');
+  cy.contains(body.connectorName).click();
+  // Write a comment
+  cy.get('#Comments').clear().type(body.comments);
 });
 
 Cypress.Commands.add('checkValuesOfCommands', (name: string, body: Cmd) => {
-  // Wait for the "Command Name" input to be charged on the DOM
-  cy.waitForElementInIframe('#main-content', 'input[name="command_name"]');
   // Check that the "Command Name" input contains right value
-  cy.getIframeBody()
-    .find('input[name="command_name"]')
-    .should('have.value', `${name}`);
+  cy.get('#Name').invoke('val').should('include', name);
   // Check that the "Command Type" input contains right value
-  cy.getIframeBody()
-    .find(`input[name="command_type[command_type]"][value="${body.type}"]`)
-    .should('be.checked');
+  cy.get(`input[type="radio"][value="${body.type}"]`).should('be.checked');
+
   // Check that the "Command Line" input contains right value
-  cy.getIframeBody()
-    .find('textarea[id="command_line"]')
-    .should('have.value', body.commandLine);
+  [body.globalMacros, body.standardMacros, body.installedPlugins].forEach(
+    (value) => {
+      cy.get('#Commandline').invoke('val').should('include', value);
+    }
+  );
   // Check that the "Enable Shell" checkbox contains right value
-  cy.getIframeBody()
-    .find('input[name="enable_shell"]')
-    .then(($val) => {
+  cy.get('span[data-testid="enable-shell-syntax"] input[type="checkbox"]').then(
+    ($checkbox) => {
       if (body.isShell === true) {
-        cy.wrap($val).should('be.checked');
+        cy.wrap($checkbox).should('be.checked');
       } else {
-        cy.wrap($val).should('not.be.checked');
+        cy.wrap($checkbox).should('not.be.checked');
       }
-    });
-  // Check that the "Argument Example" input contains right value
-  cy.getIframeBody()
-    .find('input[name="command_example"]')
-    .should('have.value', body.argumentExample);
+    }
+  );
   // Check that the "Connectors" contains right value
-  cy.getIframeBody()
-    .find(`select[name="connectors"]`)
-    .find(`option[value="${body.connectorId}"]`)
-    .should('be.selected');
-  // Check that the "Graph" contains right value
-  cy.getIframeBody()
-    .find(`select[name="graph_id"]`)
-    .find(`option[value="${body.graphTemplateId}"]`)
-    .should('be.selected');
+  cy.get('#Selectanoptimizationconnector').should(
+    'have.value',
+    body.connectorName
+  );
+  // Check that the "Comments" contains right value
+  cy.get('#Comments').should('have.value', body.comments);
 });
+
+Cypress.Commands.add(
+  'addCommandToResource',
+  (index: number, command: string) => {
+    cy.getIframeBody().find('span[title="Clear field"]').eq(index).click();
+    // Click on the check command field in the form
+    cy.getIframeBody().find('span[title="Check Command"]').click();
+    // Chose a check command
+    cy.getIframeBody().find(`div[title="${command}"]`).click();
+  }
+);
 
 Cypress.Commands.add('addConnectors', (body: Ctr) => {
   // Wait for the "Connector Name" input to be charged on the DOM
@@ -232,9 +217,19 @@ declare global {
   // biome-ignore lint/style/noNamespace: <explanation>
   namespace Cypress {
     interface Chainable {
-      addCommands: (body: Cmd) => Cypress.Chainable;
-      updateCommands: (body: Cmd) => Cypress.Chainable;
+      fillCommandLine: (
+        index: number,
+        request: string,
+        value: string,
+        label: string
+      ) => Cypress.Chainable;
+      searchForCommandsByName: (name: string) => Cypress.Chainable;
+      addOrUpdateCommands: (body: Cmd) => Cypress.Chainable;
       checkValuesOfCommands: (name: string, body: Cmd) => Cypress.Chainable;
+      addCommandToResource: (
+        index: number,
+        command: string
+      ) => Cypress.Chainable;
       addConnectors: (body: Ctr) => Cypress.Chainable;
       updateConnectors: (body: Ctr) => Cypress.Chainable;
       checkValuesOfConnectors: (name: string, body: Ctr) => Cypress.Chainable;

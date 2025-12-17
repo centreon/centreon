@@ -1,6 +1,6 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
-import commands from '../../../fixtures/commands/command.json';
+import commands from '../../../fixtures/commands/command-api.json';
 
 beforeEach(() => {
   cy.startContainers();
@@ -12,6 +12,10 @@ beforeEach(() => {
     method: 'GET',
     url: '/centreon/include/common/userTimezone.php'
   }).as('getTimeZone');
+  cy.intercept({
+    method: 'GET',
+    url: '/centreon/api/latest/configuration/commands?page=*'
+  }).as('getCommandsList');
 });
 
 Given('a user is logged in a Centreon server via APIv2', () => {
@@ -35,69 +39,31 @@ When(
 Then(
   'a new {string} command is displayed on the {string} commands page',
   (type: string) => {
+    cy.navigateTo({
+      page: 'Commands',
+      rootItemNumber: 3,
+      subMenu: 'Commands'
+    });
+    cy.wait('@getCommandsList');
     switch (type) {
       case 'NOTIFICATION': {
-        cy.navigateTo({
-          page: 'Notifications',
-          rootItemNumber: 3,
-          subMenu: 'Commands'
-        });
-        cy.wait('@getTimeZone');
-        cy.waitForElementInIframe(
-          '#main-content',
-          `a:contains("${commands.notification.name}")`
-        );
-        cy.getIframeBody()
-          .contains('a', commands.notification.name)
-          .should('be.visible');
+        // Search for the command
+        cy.searchForCommandsByName(commands.notification.name);
         break;
       }
       case 'CHECK': {
-        cy.navigateTo({
-          page: 'Checks',
-          rootItemNumber: 3,
-          subMenu: 'Commands'
-        });
-        cy.wait('@getTimeZone');
-        cy.waitForElementInIframe(
-          '#main-content',
-          `a:contains("${commands.check.name}")`
-        );
-        cy.getIframeBody()
-          .contains('a', commands.check.name)
-          .should('be.visible');
+        // Search for the command
+        cy.searchForCommandsByName(commands.check.name);
         break;
       }
       case 'MISCELLANEOUS': {
-        cy.navigateTo({
-          page: 'Miscellaneous',
-          rootItemNumber: 3,
-          subMenu: 'Commands'
-        });
-        cy.wait('@getTimeZone');
-        cy.waitForElementInIframe(
-          '#main-content',
-          `a:contains("${commands.miscellaneous.name}")`
-        );
-        cy.getIframeBody()
-          .contains('a', commands.miscellaneous.name)
-          .should('be.visible');
+        // Search for the command
+        cy.searchForCommandsByName(commands.miscellaneous.name);
         break;
       }
       case 'DISCOVERY': {
-        cy.navigateTo({
-          page: 'Discovery',
-          rootItemNumber: 3,
-          subMenu: 'Commands'
-        });
-        cy.wait('@getTimeZone');
-        cy.waitForElementInIframe(
-          '#main-content',
-          `a:contains("${commands.discovery.name}")`
-        );
-        cy.getIframeBody()
-          .contains('a', commands.discovery.name)
-          .should('be.visible');
+        // Search for the command
+        cy.searchForCommandsByName(commands.discovery.name);
         break;
       }
       default:
@@ -126,7 +92,7 @@ Then(
       .find('tr.list_one')
       .find('td')
       .eq(2)
-      .should('contain.text', 'command');
+      .should('contain.text', 'commands');
   }
 );
 
@@ -149,45 +115,31 @@ Then(
         cy.checkLogDetails(
           1,
           1,
-          'command_name',
+          'command_activate',
           '',
-          commands.notification.name
+          commands.notification.is_activated ? '1' : '0'
         );
         cy.checkLogDetails(
           1,
           2,
-          'command_line',
+          'command_name',
           '',
-          commands.notification.command_line
+          commands.notification.name
         );
-        cy.checkLogDetails(1, 3, 'enable_shell', '', '0');
+        cy.checkLogDetails(1, 3, 'command_type', '', '1');
         cy.checkLogDetails(
           1,
           4,
-          'command_type',
+          'command_line',
           '',
-          `${commands.notification.type}`
+          `${commands.notification.command_line}`
         );
         cy.checkLogDetails(
           1,
           5,
-          'argument_example',
+          'enable_shell',
           '',
-          `${commands.notification.argument_example}`
-        );
-        cy.checkLogDetails(
-          1,
-          6,
-          'connectors',
-          '',
-          `${commands.notification.connector_id}`
-        );
-        cy.checkLogDetails(
-          1,
-          7,
-          'graph_id',
-          '',
-          `${commands.notification.graph_template_id}`
+          commands.notification.is_shell_enabled ? '1' : '0'
         );
         break;
       }
@@ -203,36 +155,28 @@ Then(
           .should('contain.text', commands.check.name);
         cy.getIframeBody().contains('td', 'Create by admin').should('exist');
         cy.checkLogDetails(1, 0, 'Field Name', 'Before', 'After');
-        cy.checkLogDetails(1, 1, 'command_name', '', commands.check.name);
         cy.checkLogDetails(
           1,
-          2,
+          1,
+          'command_activate',
+          '',
+          commands.check.is_activated ? '1' : '0'
+        );
+        cy.checkLogDetails(1, 2, 'command_name', '', commands.check.name);
+        cy.checkLogDetails(1, 3, 'command_type', '', '2');
+        cy.checkLogDetails(
+          1,
+          4,
           'command_line',
           '',
-          commands.check.command_line
+          `${commands.check.command_line}`
         );
-        cy.checkLogDetails(1, 3, 'enable_shell', '', '0');
-        cy.checkLogDetails(1, 4, 'command_type', '', `${commands.check.type}`);
         cy.checkLogDetails(
           1,
           5,
-          'argument_example',
+          'enable_shell',
           '',
-          `${commands.check.argument_example}`
-        );
-        cy.checkLogDetails(
-          1,
-          6,
-          'connectors',
-          '',
-          `${commands.check.connector_id}`
-        );
-        cy.checkLogDetails(
-          1,
-          7,
-          'graph_id',
-          '',
-          `${commands.check.graph_template_id}`
+          commands.check.is_shell_enabled ? '1' : '0'
         );
         break;
       }
@@ -251,45 +195,31 @@ Then(
         cy.checkLogDetails(
           1,
           1,
-          'command_name',
+          'command_activate',
           '',
-          commands.miscellaneous.name
+          commands.miscellaneous.is_activated ? '1' : '0'
         );
         cy.checkLogDetails(
           1,
           2,
-          'command_line',
+          'command_name',
           '',
-          commands.miscellaneous.command_line
+          commands.miscellaneous.name
         );
-        cy.checkLogDetails(1, 3, 'enable_shell', '', '0');
+        cy.checkLogDetails(1, 3, 'command_type', '', '3');
         cy.checkLogDetails(
           1,
           4,
-          'command_type',
+          'command_line',
           '',
-          `${commands.miscellaneous.type}`
+          `${commands.miscellaneous.command_line}`
         );
         cy.checkLogDetails(
           1,
           5,
-          'argument_example',
+          'enable_shell',
           '',
-          `${commands.miscellaneous.argument_example}`
-        );
-        cy.checkLogDetails(
-          1,
-          6,
-          'connectors',
-          '',
-          `${commands.miscellaneous.connector_id}`
-        );
-        cy.checkLogDetails(
-          1,
-          7,
-          'graph_id',
-          '',
-          `${commands.miscellaneous.graph_template_id}`
+          commands.miscellaneous.is_shell_enabled ? '1' : '0'
         );
         break;
       }
@@ -305,42 +235,28 @@ Then(
           .should('contain.text', commands.discovery.name);
         cy.getIframeBody().contains('td', 'Create by admin').should('exist');
         cy.checkLogDetails(1, 0, 'Field Name', 'Before', 'After');
-        cy.checkLogDetails(1, 1, 'command_name', '', commands.discovery.name);
         cy.checkLogDetails(
           1,
-          2,
-          'command_line',
+          1,
+          'command_activate',
           '',
-          commands.discovery.command_line
+          commands.discovery.is_activated ? '1' : '0'
         );
-        cy.checkLogDetails(1, 3, 'enable_shell', '', '0');
+        cy.checkLogDetails(1, 2, 'command_name', '', commands.discovery.name);
+        cy.checkLogDetails(1, 3, 'command_type', '', '4');
         cy.checkLogDetails(
           1,
           4,
-          'command_type',
+          'command_line',
           '',
-          `${commands.discovery.type}`
+          `${commands.discovery.command_line}`
         );
         cy.checkLogDetails(
           1,
           5,
-          'argument_example',
+          'enable_shell',
           '',
-          `${commands.discovery.argument_example}`
-        );
-        cy.checkLogDetails(
-          1,
-          6,
-          'connectors',
-          '',
-          `${commands.discovery.connector_id}`
-        );
-        cy.checkLogDetails(
-          1,
-          7,
-          'graph_id',
-          '',
-          `${commands.discovery.graph_template_id}`
+          commands.discovery.is_shell_enabled ? '1' : '0'
         );
         break;
       }
