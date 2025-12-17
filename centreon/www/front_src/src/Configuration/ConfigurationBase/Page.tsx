@@ -18,7 +18,6 @@ import Navbar from './NavBar';
 import { modalStateAtom } from './atoms';
 
 const WelcomePage = ({
-  hasWriteAccess,
   labels,
   dataTestId,
   onCreate,
