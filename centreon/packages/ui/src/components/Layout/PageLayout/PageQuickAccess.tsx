@@ -1,75 +1,74 @@
-import { useTranslation } from 'react-i18next';
+import AddIcon from "@mui/icons-material/Add";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import { useTranslation } from "react-i18next";
 
-import AddIcon from '@mui/icons-material/Add';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-
-import { Button, Menu } from '../..';
+import { Button, Menu } from "../..";
 
 interface NamedEntity {
-  id: number | string;
-  name: string;
+	id: number | string;
+	name: string;
 }
 
 type Props = {
-  create?: () => void;
-  elements: Array<NamedEntity>;
-  goBack: () => void;
-  isActive: (id: number | string) => boolean;
-  isDisabled?: (id: number | string) => boolean;
-  labels: {
-    create: string;
-    goBack: string;
-  };
-  navigateToElement: (id: number | string) => () => void;
+	create?: () => void;
+	elements: Array<NamedEntity>;
+	goBack: () => void;
+	isActive: (id: number | string) => boolean;
+	isDisabled?: (id: number | string) => boolean;
+	labels: {
+		create: string;
+		goBack: string;
+	};
+	navigateToElement: (id: number | string) => () => void;
 };
 
 export const PageQuickAccess = ({
-  elements,
-  isActive,
-  isDisabled,
-  navigateToElement,
-  goBack,
-  create,
-  labels
+	elements,
+	isActive,
+	isDisabled,
+	navigateToElement,
+	goBack,
+	create,
+	labels,
 }: Props): JSX.Element => {
-  const { t } = useTranslation();
+	const { t } = useTranslation();
 
-  return (
-    <Menu>
-      <Menu.Button data-testid="quickaccess" />
-      <Menu.Items>
-        {elements?.map((element) => (
-          <Menu.Item
-            key={`${element.id}`}
-            onClick={navigateToElement(element.id)}
-            isActive={isActive(element.id)}
-            isDisabled={isDisabled?.(element.id)}
-          >
-            {element.name}
-          </Menu.Item>
-        ))}
-        <Menu.Divider key="divider" />
-        <div className="px-2 pb-2 flex gap-4">
-          <Button
-            icon={<ArrowBackIcon />}
-            iconVariant="start"
-            variant="ghost"
-            onClick={goBack}
-          >
-            {t(labels.goBack)}
-          </Button>
-          {create && (
-            <Button
-              icon={<AddIcon />}
-              iconVariant="start"
-              variant="secondary"
-              onClick={create}
-            >
-              {t(labels.create)}
-            </Button>
-          )}
-        </div>
-      </Menu.Items>
-    </Menu>
-  );
+	return (
+		<Menu>
+			<Menu.Button data-testid="quickaccess" />
+			<Menu.Items>
+				{elements?.map((element) => (
+					<Menu.Item
+						key={`${element.id}`}
+						onClick={navigateToElement(element.id)}
+						isActive={isActive(element.id)}
+						isDisabled={isDisabled?.(element.id)}
+					>
+						{element.name}
+					</Menu.Item>
+				))}
+				<Menu.Divider key="divider" />
+				<div className="px-2 pb-2 flex gap-4">
+					<Button
+						icon={<ArrowBackIcon />}
+						iconVariant="start"
+						variant="ghost"
+						onClick={goBack}
+					>
+						{t(labels.goBack)}
+					</Button>
+					{create && (
+						<Button
+							icon={<AddIcon />}
+							iconVariant="start"
+							variant="secondary"
+							onClick={create}
+						>
+							{t(labels.create)}
+						</Button>
+					)}
+				</div>
+			</Menu.Items>
+		</Menu>
+	);
 };

@@ -1,9 +1,9 @@
-import PopoverAutocomplete from '../../Popover';
+import PopoverAutocomplete from "../../Popover";
 
-import MultiConnectedAutocompleteField from './index';
+import MultiConnectedAutocompleteField from "./index";
 
 const PopoverMultiConnectedAutocompleteField = PopoverAutocomplete(
-  MultiConnectedAutocompleteField
+	MultiConnectedAutocompleteField,
 );
 
 export default PopoverMultiConnectedAutocompleteField;

@@ -1,15 +1,15 @@
-import { useCallback } from 'react';
+import { useCallback } from "react";
 
-import { useDeepCompare } from './useMemoComponent';
+import { useDeepCompare } from "./useMemoComponent";
 
 interface UseDeepCallback<TParameters, TReturn, TMemoProps> {
-  callback: (props: TParameters) => TReturn;
-  deps: Array<TMemoProps>;
+	callback: (props: TParameters) => TReturn;
+	deps: Array<TMemoProps>;
 }
 
 export const useDeepCallback = <TParameters, TReturn, TMemoProps>({
-  deps,
-  callback
+	deps,
+	callback,
 }: UseDeepCallback<TParameters, TReturn, TMemoProps>): ((
-  props: TParameters
+	props: TParameters,
 ) => TReturn) => useCallback((props) => callback(props), useDeepCompare(deps));

@@ -1,62 +1,67 @@
-import { ChangeEvent, RefObject, useEffect, useRef, useState } from 'react';
-
-import { useTheme } from '@mui/material';
+import { useTheme } from "@mui/material";
+import {
+	type ChangeEvent,
+	type RefObject,
+	useEffect,
+	useRef,
+	useState,
+} from "react";
 
 interface UseAutoSizeProps {
-  autoSize: boolean;
-  autoSizeCustomPadding?: number;
-  autoSizeDefaultWidth: number;
-  value?: string;
+	autoSize: boolean;
+	autoSizeCustomPadding?: number;
+	autoSizeDefaultWidth: number;
+	value?: string;
 }
 
 interface UseAutoSizeState {
-  changeInputValue: (
-    event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => void;
-  innerValue: string;
-  inputRef: RefObject<HTMLDivElement>;
-  width: string;
+	changeInputValue: (
+		event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+	) => void;
+	innerValue: string;
+	inputRef: RefObject<HTMLDivElement>;
+	width: string;
 }
 
 const defaultPaddingTotal = 4.5;
 
 const useAutoSize = ({
-  autoSize,
-  autoSizeDefaultWidth,
-  value,
-  autoSizeCustomPadding
+	autoSize,
+	autoSizeDefaultWidth,
+	value,
+	autoSizeCustomPadding,
 }: UseAutoSizeProps): UseAutoSizeState => {
-  const [innerValue, setInnerValue] = useState(value || '');
-  const [width, setWidth] = useState(autoSizeDefaultWidth);
-  const inputRef = useRef();
-  const theme = useTheme();
+	const [innerValue, setInnerValue] = useState(value || "");
+	const [width, setWidth] = useState(autoSizeDefaultWidth);
+	const inputRef = useRef();
+	const theme = useTheme();
 
-  const changeInputValue = (
-    event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ): void => {
-    setInnerValue(event.target.value);
-  };
+	const changeInputValue = (
+		event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+	): void => {
+		setInnerValue(event.target.value);
+	};
 
-  const textFieldValue = autoSize && (value || innerValue);
+	const _textFieldValue = autoSize && (value || innerValue);
 
-  useEffect(() => {
-    if (!autoSize) {
-      return;
-    }
+	useEffect(() => {
+		if (!autoSize) {
+			return;
+		}
 
-    const newWidth = inputRef.current?.getBoundingClientRect().width || 0;
+		const newWidth = inputRef.current?.getBoundingClientRect().width || 0;
 
-    setWidth(newWidth < autoSizeDefaultWidth ? autoSizeDefaultWidth : newWidth);
-  }, [textFieldValue]);
+		setWidth(newWidth < autoSizeDefaultWidth ? autoSizeDefaultWidth : newWidth);
+	}, [autoSize, autoSizeDefaultWidth]);
 
-  return {
-    changeInputValue,
-    innerValue,
-    inputRef,
-    width: `calc(${width}px + ${theme.spacing(
-      autoSizeCustomPadding || defaultPaddingTotal
-    )})`
-  };
+	return {
+		changeInputValue,
+		innerValue,
+		inputRef,
+		width: `calc(${width}px + ${theme.spacing(
+			autoSizeCustomPadding || defaultPaddingTotal,
+		)})`,
+	};
 };
 
 export default useAutoSize;

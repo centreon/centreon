@@ -1,856 +1,853 @@
-import { useState } from 'react';
+import { userAtom } from "@centreon/ui-context";
 
-import { Provider, createStore } from 'jotai';
+import { createStore, Provider } from "jotai";
+import { useState } from "react";
 
-import { userAtom } from '@centreon/ui-context';
-
-import { LineChartData } from '../common/models';
-import dataCurvesWithSameColor from '../mockedData/curvesWithSameColor.json';
-import dataLastDay from '../mockedData/lastDay.json';
-import dataLastDayWithIncompleteValues from '../mockedData/lastDayWithIncompleteValues.json';
-import dataLastDayWithNullValues from '../mockedData/lastDayWithNullValues.json';
-import dataPingServiceLines from '../mockedData/pingService.json';
-import dataPingServiceLinesBars from '../mockedData/pingServiceLinesBars.json';
-import dataPingServiceLinesBarsMixed from '../mockedData/pingServiceLinesBarsMixed.json';
-import dataPingServiceLinesBarsStacked from '../mockedData/pingServiceLinesBarsStacked.json';
-
-import { args as argumentsData } from './helpers/doc';
-import { LineChartProps } from './models';
-
-import WrapperChart from '.';
-import { labelAvg, labelMin } from './translatedLabels';
+import type { LineChartData } from "../common/models";
+import dataCurvesWithSameColor from "../mockedData/curvesWithSameColor.json";
+import dataLastDay from "../mockedData/lastDay.json";
+import dataLastDayWithIncompleteValues from "../mockedData/lastDayWithIncompleteValues.json";
+import dataLastDayWithNullValues from "../mockedData/lastDayWithNullValues.json";
+import dataPingServiceLines from "../mockedData/pingService.json";
+import dataPingServiceLinesBars from "../mockedData/pingServiceLinesBars.json";
+import dataPingServiceLinesBarsMixed from "../mockedData/pingServiceLinesBarsMixed.json";
+import dataPingServiceLinesBarsStacked from "../mockedData/pingServiceLinesBarsStacked.json";
+import WrapperChart from ".";
+import { args as argumentsData } from "./helpers/doc";
+import type { LineChartProps } from "./models";
+import { labelAvg, labelMin } from "./translatedLabels";
 
 interface Props
-  extends Pick<
-    LineChartProps,
-    | 'legend'
-    | 'tooltip'
-    | 'axis'
-    | 'lineStyle'
-    | 'barStyle'
-    | 'additionalLines'
-    | 'min'
-    | 'max'
-    | 'boundariesUnit'
-  > {
-  data?: LineChartData;
+	extends Pick<
+		LineChartProps,
+		| "legend"
+		| "tooltip"
+		| "axis"
+		| "lineStyle"
+		| "barStyle"
+		| "additionalLines"
+		| "min"
+		| "max"
+		| "boundariesUnit"
+	> {
+	data?: LineChartData;
 }
 
 const checkLegendInformation = (): void => {
-  cy.contains('hitratio').should('be.visible');
-  cy.contains('querytime').should('be.visible');
-  cy.contains('connTime').should('be.visible');
-  cy.contains('Min: 70.31').should('be.visible');
-  cy.contains('Min: 0.03').should('be.visible');
-  cy.contains('Max: 88.03').should('be.visible');
-  cy.contains('Max: 0.98').should('be.visible');
-  cy.contains('Max: 0.97').should('be.visible');
-  cy.contains('Avg: 78.07').should('be.visible');
-  cy.contains('Avg: 0.5').should('be.visible');
-  cy.contains('Avg: 0.51').should('be.visible');
+	cy.contains("hitratio").should("be.visible");
+	cy.contains("querytime").should("be.visible");
+	cy.contains("connTime").should("be.visible");
+	cy.contains("Min: 70.31").should("be.visible");
+	cy.contains("Min: 0.03").should("be.visible");
+	cy.contains("Max: 88.03").should("be.visible");
+	cy.contains("Max: 0.98").should("be.visible");
+	cy.contains("Max: 0.97").should("be.visible");
+	cy.contains("Avg: 78.07").should("be.visible");
+	cy.contains("Avg: 0.5").should("be.visible");
+	cy.contains("Avg: 0.51").should("be.visible");
 };
 
 const CustomUnitComponent = (props): JSX.Element => {
-  const [leftUnit, setLeftUnit] = useState('%');
-  const [rightUnit, setRightUnit] = useState('ms');
+	const [leftUnit, setLeftUnit] = useState("%");
+	const [rightUnit, setRightUnit] = useState("ms");
 
-  return (
-    <WrapperChart
-      {...props}
-      axis={{
-        axisYLeft: {
-          onUnitChange: setLeftUnit,
-          unit: leftUnit
-        },
-        axisYRight: {
-          onUnitChange: setRightUnit,
-          unit: rightUnit
-        }
-      }}
-    />
-  );
+	return (
+		<WrapperChart
+			{...props}
+			axis={{
+				axisYLeft: {
+					onUnitChange: setLeftUnit,
+					unit: leftUnit,
+				},
+				axisYRight: {
+					onUnitChange: setRightUnit,
+					unit: rightUnit,
+				},
+			}}
+		/>
+	);
 };
 
 const initialize = ({
-  data = dataLastDay,
-  tooltip,
-  legend,
-  axis,
-  lineStyle,
-  barStyle,
-  additionalLines,
-  min,
-  max,
-  boundariesUnit
+	data = dataLastDay,
+	tooltip,
+	legend,
+	axis,
+	lineStyle,
+	barStyle,
+	additionalLines,
+	min,
+	max,
+	boundariesUnit,
 }: Props): void => {
-  cy.adjustViewport();
+	cy.adjustViewport();
 
-  const store = createStore();
-  store.set(userAtom, {
-    alias: 'admin',
-    locale: 'en',
-    name: 'admin',
-    timezone: 'Europe/Paris'
-  });
+	const store = createStore();
+	store.set(userAtom, {
+		alias: "admin",
+		locale: "en",
+		name: "admin",
+		timezone: "Europe/Paris",
+	});
 
-  cy.mount({
-    Component: (
-      <Provider store={store}>
-        <WrapperChart
-          {...argumentsData}
-          axis={axis}
-          data={data as unknown as LineChartData}
-          legend={legend}
-          lineStyle={lineStyle}
-          barStyle={barStyle}
-          tooltip={tooltip}
-          additionalLines={additionalLines}
-          min={min}
-          max={max}
-          boundariesUnit={boundariesUnit}
-        />
-      </Provider>
-    )
-  });
+	cy.mount({
+		Component: (
+			<Provider store={store}>
+				<WrapperChart
+					{...argumentsData}
+					axis={axis}
+					data={data as unknown as LineChartData}
+					legend={legend}
+					lineStyle={lineStyle}
+					barStyle={barStyle}
+					tooltip={tooltip}
+					additionalLines={additionalLines}
+					min={min}
+					max={max}
+					boundariesUnit={boundariesUnit}
+				/>
+			</Provider>
+		),
+	});
 
-  cy.viewport('macbook-13');
+	cy.viewport("macbook-13");
 };
 
 const initializeCustomUnits = ({
-  data = dataLastDay,
-  tooltip,
-  legend,
-  axis,
-  lineStyle
+	data = dataLastDay,
+	tooltip,
+	legend,
+	axis,
+	lineStyle,
 }: Props): void => {
-  cy.adjustViewport();
+	cy.adjustViewport();
 
-  const store = createStore();
-  store.set(userAtom, {
-    alias: 'admin',
-    locale: 'en',
-    name: 'admin',
-    timezone: 'Europe/Paris'
-  });
+	const store = createStore();
+	store.set(userAtom, {
+		alias: "admin",
+		locale: "en",
+		name: "admin",
+		timezone: "Europe/Paris",
+	});
 
-  cy.mount({
-    Component: (
-      <Provider store={store}>
-        <CustomUnitComponent
-          {...argumentsData}
-          axis={axis}
-          data={data as unknown as LineChartData}
-          legend={legend}
-          lineStyle={lineStyle}
-          tooltip={tooltip}
-        />
-      </Provider>
-    )
-  });
+	cy.mount({
+		Component: (
+			<Provider store={store}>
+				<CustomUnitComponent
+					{...argumentsData}
+					axis={axis}
+					data={data as unknown as LineChartData}
+					legend={legend}
+					lineStyle={lineStyle}
+					tooltip={tooltip}
+				/>
+			</Provider>
+		),
+	});
 
-  cy.viewport('macbook-13');
+	cy.viewport("macbook-13");
 };
 
 const checkGraphWidth = (): void => {
-  cy.findByTestId('graph-interaction-zone')
-    .should('have.attr', 'height')
-    .and('equal', '392');
+	cy.findByTestId("graph-interaction-zone")
+		.should("have.attr", "height")
+		.and("equal", "392");
 
-  cy.findByTestId('graph-interaction-zone').then((graph) => {
-    expect(Number(graph[0].attributes.width.value)).to.be.greaterThan(1170);
-  });
+	cy.findByTestId("graph-interaction-zone").then((graph) => {
+		expect(Number(graph[0].attributes.width.value)).to.be.greaterThan(1170);
+	});
 };
 
-describe('Line chart', () => {
-  describe('Tooltip', () => {
-    it('displays a tooltip when the graph is hovered', () => {
-      initialize({});
+describe("Line chart", () => {
+	describe("Tooltip", () => {
+		it("displays a tooltip when the graph is hovered", () => {
+			initialize({});
 
-      checkGraphWidth();
+			checkGraphWidth();
 
-      cy.contains('oracle-buffer-hit-ratio graph on srv-oracle-users').should(
-        'be.visible'
-      );
-      cy.contains('hitratio').should('be.visible');
-      cy.contains('querytime').should('be.visible');
-      cy.contains('connTime').should('be.visible');
-      cy.contains('Min: 70.31').should('be.visible');
+			cy.contains("oracle-buffer-hit-ratio graph on srv-oracle-users").should(
+				"be.visible",
+			);
+			cy.contains("hitratio").should("be.visible");
+			cy.contains("querytime").should("be.visible");
+			cy.contains("connTime").should("be.visible");
+			cy.contains("Min: 70.31").should("be.visible");
 
-      cy.findByTestId('graph-interaction-zone').realMouseMove(240, 70);
+			cy.findByTestId("graph-interaction-zone").realMouseMove(240, 70);
 
-      cy.contains('06/18/2023').should('be.visible');
+			cy.contains("06/18/2023").should("be.visible");
 
-      cy.contains('0.4 s').should('be.visible');
-      cy.contains('73.65%').should('be.visible');
+			cy.contains("0.4 s").should("be.visible");
+			cy.contains("73.65%").should("be.visible");
 
-      cy.makeSnapshot();
-    });
+			cy.makeSnapshot();
+		});
 
-    it('displays a metric highlighted when the graph is hovered and the metric is the nearest point', () => {
-      initialize({});
+		it("displays a metric highlighted when the graph is hovered and the metric is the nearest point", () => {
+			initialize({});
 
-      checkGraphWidth();
+			checkGraphWidth();
 
-      cy.contains('Min: 70.31').should('be.visible');
+			cy.contains("Min: 70.31").should("be.visible");
 
-      cy.findByTestId('graph-interaction-zone').realMouseMove(230, 26);
+			cy.findByTestId("graph-interaction-zone").realMouseMove(230, 26);
 
-      cy.get('[data-metric="querytime"]').should(
-        'have.attr',
-        'data-highlight',
-        'false'
-      );
-      cy.get('[data-metric="connTime"]').should(
-        'have.attr',
-        'data-highlight',
-        'true'
-      );
-      cy.get('[data-metric="hitratio"]').should(
-        'have.attr',
-        'data-highlight',
-        'false'
-      );
+			cy.get('[data-metric="querytime"]').should(
+				"have.attr",
+				"data-highlight",
+				"false",
+			);
+			cy.get('[data-metric="connTime"]').should(
+				"have.attr",
+				"data-highlight",
+				"true",
+			);
+			cy.get('[data-metric="hitratio"]').should(
+				"have.attr",
+				"data-highlight",
+				"false",
+			);
 
-      cy.makeSnapshot();
-    });
+			cy.makeSnapshot();
+		});
 
-    it('does not display the tooltip when null values are hovered', () => {
-      initialize({ data: dataLastDayWithNullValues });
+		it("does not display the tooltip when null values are hovered", () => {
+			initialize({ data: dataLastDayWithNullValues });
 
-      checkGraphWidth();
+			checkGraphWidth();
 
-      cy.contains('Min: 70.31').should('be.visible');
+			cy.contains("Min: 70.31").should("be.visible");
 
-      cy.findByTestId('graph-interaction-zone').realMouseMove(1198, 100);
+			cy.findByTestId("graph-interaction-zone").realMouseMove(1198, 100);
 
-      cy.get('[data-metric="querytime"]').should('not.exist');
+			cy.get('[data-metric="querytime"]').should("not.exist");
 
-      cy.makeSnapshot();
-    });
+			cy.makeSnapshot();
+		});
 
-    it('displays the tooltip with defined values when the graph is hovered', () => {
-      initialize({ data: dataLastDayWithIncompleteValues });
+		it("displays the tooltip with defined values when the graph is hovered", () => {
+			initialize({ data: dataLastDayWithIncompleteValues });
 
-      checkGraphWidth();
+			checkGraphWidth();
 
-      cy.contains('Min: 70.31').should('be.visible');
+			cy.contains("Min: 70.31").should("be.visible");
 
-      cy.findByTestId('graph-interaction-zone').realMouseMove(1170, 100);
+			cy.findByTestId("graph-interaction-zone").realMouseMove(1170, 100);
 
-      cy.get('[data-metric="querytime"]').should('be.visible');
-      cy.get('[data-metric="hitratio"]').should('be.visible');
+			cy.get('[data-metric="querytime"]').should("be.visible");
+			cy.get('[data-metric="hitratio"]').should("be.visible");
 
-      cy.makeSnapshot();
-    });
+			cy.makeSnapshot();
+		});
 
-    it('does not display the tooltip when the corresponding prop is set', () => {
-      initialize({ tooltip: { mode: 'hidden', sortOrder: 'name' } });
+		it("does not display the tooltip when the corresponding prop is set", () => {
+			initialize({ tooltip: { mode: "hidden", sortOrder: "name" } });
 
-      checkGraphWidth();
+			checkGraphWidth();
 
-      cy.contains('Min: 70.31').should('be.visible');
+			cy.contains("Min: 70.31").should("be.visible");
 
-      cy.findByTestId('graph-interaction-zone').realMouseMove(452, 26);
+			cy.findByTestId("graph-interaction-zone").realMouseMove(452, 26);
 
-      cy.get('[data-metric="querytime"]').should('not.exist');
-      cy.get('[data-metric="connTime"]').should('not.exist');
+			cy.get('[data-metric="querytime"]').should("not.exist");
+			cy.get('[data-metric="connTime"]').should("not.exist");
 
-      cy.makeSnapshot();
-    });
+			cy.makeSnapshot();
+		});
 
-    it('sorts metrics by their value is ascending when the corresponding prop is set', () => {
-      initialize({ tooltip: { mode: 'all', sortOrder: 'ascending' } });
+		it("sorts metrics by their value is ascending when the corresponding prop is set", () => {
+			initialize({ tooltip: { mode: "all", sortOrder: "ascending" } });
 
-      checkGraphWidth();
-
-      cy.contains('Min: 70.31').should('be.visible');
-
-      cy.findByTestId('graph-interaction-zone').realMouseMove(452, 26);
-
-      cy.get('[data-metric="querytime"]').should('be.visible');
-      cy.get('[data-metric="connTime"]').should('be.visible');
-
-      cy.makeSnapshot();
-    });
-
-    it('sorts metrics by their value is descending when the corresponding prop is set', () => {
-      initialize({ tooltip: { mode: 'all', sortOrder: 'descending' } });
-
-      checkGraphWidth();
-
-      cy.contains('Min: 70.31').should('be.visible');
-
-      cy.findByTestId('graph-interaction-zone').realMouseMove(452, 26);
-
-      cy.get('[data-metric="querytime"]').should('be.visible');
-      cy.get('[data-metric="connTime"]').should('be.visible');
-
-      cy.makeSnapshot();
-    });
-  });
-
-  it('displays the curves with different shades when curves have same color', () => {
-    initialize({ data: dataCurvesWithSameColor });
-
-    cy.findByTestId('graph-interaction-zone')
-      .should('have.attr', 'width')
-      .and('equal', '1200');
-
-    cy.get('[data-icon="true"]')
-      .eq(0)
-      .should('have.css', 'background-color', 'rgb(41, 175, 238)');
-    cy.get('[data-icon="true"]')
-      .eq(1)
-      .should('have.css', 'background-color', 'rgb(83, 191, 241)');
-    cy.get('[data-icon="true"]')
-      .eq(2)
-      .should('have.css', 'background-color', 'rgb(8, 34, 47)');
-    cy.get('[data-icon="true"]')
-      .eq(3)
-      .should('have.css', 'background-color', 'rgb(16, 70, 95)');
-    cy.get('[data-icon="true"]')
-      .eq(4)
-      .should('have.css', 'background-color', 'rgb(24, 105, 142)');
-    cy.get('[data-icon="true"]')
-      .eq(5)
-      .should('have.css', 'background-color', 'rgb(32, 140, 190)');
-
-    cy.get('[data-metric="1"]').should(
-      'have.attr',
-      'stroke',
-      'rgb(41, 175, 238)'
-    );
-    cy.get('[data-metric="21"]').should(
-      'have.attr',
-      'stroke',
-      'rgb(32, 140, 190)'
-    );
-    cy.get('[data-metric="17"]').should(
-      'have.attr',
-      'stroke',
-      'rgb(24, 105, 142)'
-    );
-    cy.get('[data-metric="13"]').should(
-      'have.attr',
-      'stroke',
-      'rgb(16, 70, 95)'
-    );
-    cy.get('[data-metric="9"]').should('have.attr', 'stroke', 'rgb(8, 34, 47)');
-    cy.get('[data-metric="5"]').should(
-      'have.attr',
-      'stroke',
-      'rgb(83, 191, 241)'
-    );
+			checkGraphWidth();
+
+			cy.contains("Min: 70.31").should("be.visible");
+
+			cy.findByTestId("graph-interaction-zone").realMouseMove(452, 26);
+
+			cy.get('[data-metric="querytime"]').should("be.visible");
+			cy.get('[data-metric="connTime"]').should("be.visible");
+
+			cy.makeSnapshot();
+		});
+
+		it("sorts metrics by their value is descending when the corresponding prop is set", () => {
+			initialize({ tooltip: { mode: "all", sortOrder: "descending" } });
+
+			checkGraphWidth();
+
+			cy.contains("Min: 70.31").should("be.visible");
+
+			cy.findByTestId("graph-interaction-zone").realMouseMove(452, 26);
+
+			cy.get('[data-metric="querytime"]').should("be.visible");
+			cy.get('[data-metric="connTime"]').should("be.visible");
+
+			cy.makeSnapshot();
+		});
+	});
+
+	it("displays the curves with different shades when curves have same color", () => {
+		initialize({ data: dataCurvesWithSameColor });
+
+		cy.findByTestId("graph-interaction-zone")
+			.should("have.attr", "width")
+			.and("equal", "1200");
+
+		cy.get('[data-icon="true"]')
+			.eq(0)
+			.should("have.css", "background-color", "rgb(41, 175, 238)");
+		cy.get('[data-icon="true"]')
+			.eq(1)
+			.should("have.css", "background-color", "rgb(83, 191, 241)");
+		cy.get('[data-icon="true"]')
+			.eq(2)
+			.should("have.css", "background-color", "rgb(8, 34, 47)");
+		cy.get('[data-icon="true"]')
+			.eq(3)
+			.should("have.css", "background-color", "rgb(16, 70, 95)");
+		cy.get('[data-icon="true"]')
+			.eq(4)
+			.should("have.css", "background-color", "rgb(24, 105, 142)");
+		cy.get('[data-icon="true"]')
+			.eq(5)
+			.should("have.css", "background-color", "rgb(32, 140, 190)");
+
+		cy.get('[data-metric="1"]').should(
+			"have.attr",
+			"stroke",
+			"rgb(41, 175, 238)",
+		);
+		cy.get('[data-metric="21"]').should(
+			"have.attr",
+			"stroke",
+			"rgb(32, 140, 190)",
+		);
+		cy.get('[data-metric="17"]').should(
+			"have.attr",
+			"stroke",
+			"rgb(24, 105, 142)",
+		);
+		cy.get('[data-metric="13"]').should(
+			"have.attr",
+			"stroke",
+			"rgb(16, 70, 95)",
+		);
+		cy.get('[data-metric="9"]').should("have.attr", "stroke", "rgb(8, 34, 47)");
+		cy.get('[data-metric="5"]').should(
+			"have.attr",
+			"stroke",
+			"rgb(83, 191, 241)",
+		);
 
-    cy.makeSnapshot();
-  });
+		cy.makeSnapshot();
+	});
 
-  describe('Legend', () => {
-    it('displays the legend in list mode when the corresponding props is set', () => {
-      initialize({ legend: { mode: 'list', placement: 'bottom' } });
+	describe("Legend", () => {
+		it("displays the legend in list mode when the corresponding props is set", () => {
+			initialize({ legend: { mode: "list", placement: "bottom" } });
 
-      cy.contains('Min:').should('not.exist');
-      cy.contains('Max:').should('not.exist');
-      cy.contains('Avg:').should('not.exist');
+			cy.contains("Min:").should("not.exist");
+			cy.contains("Max:").should("not.exist");
+			cy.contains("Avg:").should("not.exist");
 
-      cy.get('[data-display-side="false"]').should('exist');
-      cy.get('[data-as-list="true"]').should('exist');
+			cy.get('[data-display-side="false"]').should("exist");
+			cy.get('[data-as-list="true"]').should("exist");
 
-      cy.contains(':00 AM').should('be.visible');
+			cy.contains(":00 AM").should("be.visible");
 
-      cy.makeSnapshot();
-    });
+			cy.makeSnapshot();
+		});
 
-    it('displays the legend on the left side of the graph when the corresponding prop is set', () => {
-      initialize({
-        legend: { mode: 'grid', placement: 'left' }
-      });
+		it("displays the legend on the left side of the graph when the corresponding prop is set", () => {
+			initialize({
+				legend: { mode: "grid", placement: "left" },
+			});
 
-      cy.get('[data-display-side="true"]').should('exist');
-      cy.get('[data-as-list="true"]').should('exist');
+			cy.get('[data-display-side="true"]').should("exist");
+			cy.get('[data-as-list="true"]').should("exist");
 
-      cy.contains(':00 AM').should('be.visible');
-    });
+			cy.contains(":00 AM").should("be.visible");
+		});
 
-    it('displays the legend on the right side of the graph as list when the corresponding props are set', () => {
-      initialize({ legend: { mode: 'list', placement: 'right' } });
+		it("displays the legend on the right side of the graph as list when the corresponding props are set", () => {
+			initialize({ legend: { mode: "list", placement: "right" } });
 
-      cy.get('[data-display-side="true"]').should('exist');
-      cy.get('[data-as-list="true"]').should('exist');
+			cy.get('[data-display-side="true"]').should("exist");
+			cy.get('[data-as-list="true"]').should("exist");
 
-      cy.contains(':00 AM').should('be.visible');
-    });
-  });
+			cy.contains(":00 AM").should("be.visible");
+		});
+	});
 
-  describe('Axis', () => {
-    it('does not display axis borders when the prop is set', () => {
-      initialize({ axis: { showBorder: false } });
+	describe("Axis", () => {
+		it("does not display axis borders when the prop is set", () => {
+			initialize({ axis: { showBorder: false } });
 
-      checkGraphWidth();
+			checkGraphWidth();
 
-      cy.contains(':00 AM').should('be.visible');
+			cy.contains(":00 AM").should("be.visible");
 
-      cy.get('line[class*="visx-axis-line"]')
-        .eq(0)
-        .should('have.attr', 'stroke-width')
-        .and('equal', '0');
-      cy.get('line[class*="visx-axis-line"]')
-        .eq(1)
-        .should('have.attr', 'stroke-width')
-        .and('equal', '0');
-      cy.get('line[class*="visx-axis-line"]')
-        .eq(2)
-        .should('have.attr', 'stroke-width')
-        .and('equal', '0');
+			cy.get('line[class*="visx-axis-line"]')
+				.eq(0)
+				.should("have.attr", "stroke-width")
+				.and("equal", "0");
+			cy.get('line[class*="visx-axis-line"]')
+				.eq(1)
+				.should("have.attr", "stroke-width")
+				.and("equal", "0");
+			cy.get('line[class*="visx-axis-line"]')
+				.eq(2)
+				.should("have.attr", "stroke-width")
+				.and("equal", "0");
 
-      cy.makeSnapshot();
-    });
+			cy.makeSnapshot();
+		});
 
-    it('does not display grids when the prop is set', () => {
-      initialize({ axis: { showGridLines: false } });
+		it("does not display grids when the prop is set", () => {
+			initialize({ axis: { showGridLines: false } });
 
-      checkGraphWidth();
+			checkGraphWidth();
 
-      cy.contains(':00 AM').should('be.visible');
+			cy.contains(":00 AM").should("be.visible");
 
-      cy.get('g[class="visx-group visx-rows"]').should('not.exist');
-      cy.get('g[class="visx-group visx-columns"]').should('not.exist');
+			cy.get('g[class="visx-group visx-rows"]').should("not.exist");
+			cy.get('g[class="visx-group visx-columns"]').should("not.exist");
 
-      cy.makeSnapshot();
-    });
+			cy.makeSnapshot();
+		});
 
-    it('displays only horizontal lines when the prop is set', () => {
-      initialize({ axis: { gridLinesType: 'horizontal' } });
+		it("displays only horizontal lines when the prop is set", () => {
+			initialize({ axis: { gridLinesType: "horizontal" } });
 
-      checkGraphWidth();
+			checkGraphWidth();
 
-      cy.contains(':00 AM').should('be.visible');
+			cy.contains(":00 AM").should("be.visible");
 
-      cy.get('g[class="visx-group visx-rows"]').should('be.visible');
-      cy.get('g[class="visx-group visx-columns"]').should('not.exist');
+			cy.get('g[class="visx-group visx-rows"]').should("be.visible");
+			cy.get('g[class="visx-group visx-columns"]').should("not.exist");
 
-      cy.makeSnapshot();
-    });
+			cy.makeSnapshot();
+		});
 
-    it('displays only vertical lines when the prop is set', () => {
-      initialize({ axis: { gridLinesType: 'vertical' } });
+		it("displays only vertical lines when the prop is set", () => {
+			initialize({ axis: { gridLinesType: "vertical" } });
 
-      checkGraphWidth();
+			checkGraphWidth();
 
-      cy.contains(':00 AM').should('be.visible');
+			cy.contains(":00 AM").should("be.visible");
 
-      cy.get('g[class="visx-group visx-rows"]').should('not.exist');
-      cy.get('g[class="visx-group visx-columns"]').should('be.visible');
+			cy.get('g[class="visx-group visx-rows"]').should("not.exist");
+			cy.get('g[class="visx-group visx-columns"]').should("be.visible");
 
-      cy.makeSnapshot();
-    });
+			cy.makeSnapshot();
+		});
 
-    it('rotates the tick label when the props is set', () => {
-      initialize({ axis: { yAxisTickLabelRotation: -35 } });
+		it("rotates the tick label when the props is set", () => {
+			initialize({ axis: { yAxisTickLabelRotation: -35 } });
 
-      checkGraphWidth();
+			checkGraphWidth();
 
-      cy.contains(':00 AM').should('be.visible');
+			cy.contains(":00 AM").should("be.visible");
 
-      cy.get('text[transform="rotate(-35, -2, 187.52600691899028)"]').should(
-        'be.visible'
-      );
+			cy.get('text[transform="rotate(-35, -2, 187.52600691899028)"]').should(
+				"be.visible",
+			);
 
-      cy.makeSnapshot();
-    });
+			cy.makeSnapshot();
+		});
 
-    it('displays as centered to zero when the prop is set', () => {
-      initialize({ axis: { isCenteredZero: true } });
+		it("displays as centered to zero when the prop is set", () => {
+			initialize({ axis: { isCenteredZero: true } });
 
-      checkGraphWidth();
+			checkGraphWidth();
 
-      cy.contains(':00 AM').should('be.visible');
+			cy.contains(":00 AM").should("be.visible");
 
-      cy.contains('0.8').should('be.visible');
-      cy.contains('-0.8').should('be.visible');
+			cy.contains("0.8").should("be.visible");
+			cy.contains("-0.8").should("be.visible");
 
-      cy.makeSnapshot();
-    });
-  });
+			cy.makeSnapshot();
+		});
+	});
 
-  describe('Line style', () => {
-    it('displays the curve in a natural style when the prop is set', () => {
-      initialize({ lineStyle: { curve: 'natural' } });
+	describe("Line style", () => {
+		it("displays the curve in a natural style when the prop is set", () => {
+			initialize({ lineStyle: { curve: "natural" } });
 
-      checkGraphWidth();
+			checkGraphWidth();
 
-      cy.contains(':00 AM').should('be.visible');
-      cy.get('[data-metric="13536"]').should('be.visible');
-      cy.get('[data-metric="13534"]').should('be.visible');
-      cy.get('[data-metric="13535"]').should('be.visible');
+			cy.contains(":00 AM").should("be.visible");
+			cy.get('[data-metric="13536"]').should("be.visible");
+			cy.get('[data-metric="13534"]').should("be.visible");
+			cy.get('[data-metric="13535"]').should("be.visible");
 
-      cy.makeSnapshot();
-    });
+			cy.makeSnapshot();
+		});
 
-    it('displays the curve in a step style when the prop is set', () => {
-      initialize({ lineStyle: { curve: 'step' }, data: dataPingServiceLines });
+		it("displays the curve in a step style when the prop is set", () => {
+			initialize({ lineStyle: { curve: "step" }, data: dataPingServiceLines });
 
-      checkGraphWidth();
+			checkGraphWidth();
 
-      cy.contains(':00 AM').should('be.visible');
-      cy.get('[data-metric="1"]').should('be.visible');
-      cy.get('[data-metric="2"]').should('be.visible');
-      cy.get('[data-metric="3"]').should('be.visible');
+			cy.contains(":00 AM").should("be.visible");
+			cy.get('[data-metric="1"]').should("be.visible");
+			cy.get('[data-metric="2"]').should("be.visible");
+			cy.get('[data-metric="3"]').should("be.visible");
 
-      cy.makeSnapshot();
-    });
+			cy.makeSnapshot();
+		});
 
-    it('shows the area when the prop is set', () => {
-      initialize({ lineStyle: { showArea: true } });
+		it("shows the area when the prop is set", () => {
+			initialize({ lineStyle: { showArea: true } });
 
-      checkGraphWidth();
+			checkGraphWidth();
 
-      cy.contains(':00 AM').should('be.visible');
-      cy.get('path[fill="rgba(102, 153, 204, 0.19999999999999996)"]').should(
-        'be.visible'
-      );
+			cy.contains(":00 AM").should("be.visible");
+			cy.get('path[fill="rgba(102, 153, 204, 0.19999999999999996)"]').should(
+				"be.visible",
+			);
 
-      cy.get('[data-metric="13536"]').should('be.visible');
-      cy.get('[data-metric="13534"]').should('be.visible');
-      cy.get('[data-metric="13535"]').should('be.visible');
+			cy.get('[data-metric="13536"]').should("be.visible");
+			cy.get('[data-metric="13534"]').should("be.visible");
+			cy.get('[data-metric="13535"]').should("be.visible");
 
-      checkLegendInformation();
+			checkLegendInformation();
 
-      cy.makeSnapshot();
-    });
+			cy.makeSnapshot();
+		});
 
-    it('shows the area with a custom transparency when props are set', () => {
-      initialize({ lineStyle: { areaTransparency: 20, showArea: true } });
+		it("shows the area with a custom transparency when props are set", () => {
+			initialize({ lineStyle: { areaTransparency: 20, showArea: true } });
 
-      checkGraphWidth();
+			checkGraphWidth();
 
-      cy.contains(':00 AM').should('be.visible');
-      cy.get('path[fill="rgba(102, 153, 204, 0.8)"]').should('be.visible');
-    });
+			cy.contains(":00 AM").should("be.visible");
+			cy.get('path[fill="rgba(102, 153, 204, 0.8)"]').should("be.visible");
+		});
 
-    it('shows points when the prop is set', () => {
-      initialize({ lineStyle: { showPoints: true } });
+		it("shows points when the prop is set", () => {
+			initialize({ lineStyle: { showPoints: true } });
 
-      checkGraphWidth();
-      cy.contains(':00 AM').should('be.visible');
-      cy.get('circle[cx="248.33333333333334"]').should('be.visible');
-      cy.get('circle[cy="267.9948393443889"]').should('be.visible');
+			checkGraphWidth();
+			cy.contains(":00 AM").should("be.visible");
+			cy.get('circle[cx="248.33333333333334"]').should("be.visible");
+			cy.get('circle[cy="267.9948393443889"]').should("be.visible");
 
-      cy.makeSnapshot();
-    });
+			cy.makeSnapshot();
+		});
 
-    it('displays lines with a custom line width when the prop is set', () => {
-      initialize({ lineStyle: { lineWidth: 6 } });
+		it("displays lines with a custom line width when the prop is set", () => {
+			initialize({ lineStyle: { lineWidth: 6 } });
 
-      checkGraphWidth();
+			checkGraphWidth();
 
-      cy.contains(':00 AM').should('be.visible');
-      cy.get('path[stroke-width="6"]').should('have.length', 3);
+			cy.contains(":00 AM").should("be.visible");
+			cy.get('path[stroke-width="6"]').should("have.length", 3);
 
-      cy.makeSnapshot();
-    });
+			cy.makeSnapshot();
+		});
 
-    it('displays lines with dots width when the prop is set', () => {
-      initialize({ lineStyle: { dotOffset: 10, lineWidth: 4 } });
+		it("displays lines with dots width when the prop is set", () => {
+			initialize({ lineStyle: { dotOffset: 10, lineWidth: 4 } });
 
-      checkGraphWidth();
+			checkGraphWidth();
 
-      cy.contains(':00 AM').should('be.visible');
-      cy.get('path[stroke-width="4"]')
-        .should('have.attr', 'stroke-dasharray')
-        .and('equals', '4 10');
-    });
+			cy.contains(":00 AM").should("be.visible");
+			cy.get('path[stroke-width="4"]')
+				.should("have.attr", "stroke-dasharray")
+				.and("equals", "4 10");
+		});
 
-    it('displays lines with dashes width when props are set', () => {
-      initialize({ lineStyle: { dashLength: 5, dashOffset: 8 } });
+		it("displays lines with dashes width when props are set", () => {
+			initialize({ lineStyle: { dashLength: 5, dashOffset: 8 } });
 
-      checkGraphWidth();
+			checkGraphWidth();
 
-      cy.contains(':00 AM').should('be.visible');
-      cy.get('path[stroke-width="2"]')
-        .should('have.attr', 'stroke-dasharray')
-        .and('equals', '5 8');
-    });
+			cy.contains(":00 AM").should("be.visible");
+			cy.get('path[stroke-width="2"]')
+				.should("have.attr", "stroke-dasharray")
+				.and("equals", "5 8");
+		});
 
-    it('displays only one line with custom style when props are set', () => {
-      initialize({
-        lineStyle: [
-          {
-            dashLength: 5,
-            dashOffset: 4,
-            lineWidth: 1,
-            showPoints: true,
-            showArea: true,
-            metricId: 13534
-          }
-        ]
-      });
+		it("displays only one line with custom style when props are set", () => {
+			initialize({
+				lineStyle: [
+					{
+						dashLength: 5,
+						dashOffset: 4,
+						lineWidth: 1,
+						showPoints: true,
+						showArea: true,
+						metricId: 13534,
+					},
+				],
+			});
 
-      checkGraphWidth();
+			checkGraphWidth();
 
-      cy.contains(':00 AM').should('be.visible');
-      cy.get('path.visx-area-closed')
-        .should('have.attr', 'stroke-dasharray')
-        .and('equals', '5 4');
-      cy.get('circle[cx="33.11111111111111"]').should('be.visible');
+			cy.contains(":00 AM").should("be.visible");
+			cy.get("path.visx-area-closed")
+				.should("have.attr", "stroke-dasharray")
+				.and("equals", "5 4");
+			cy.get('circle[cx="33.11111111111111"]').should("be.visible");
 
-      cy.makeSnapshot();
-    });
-  });
+			cy.makeSnapshot();
+		});
+	});
 });
 
-describe('Lines and bars', () => {
-  it('displays lines and bars in the same chart', () => {
-    initialize({
-      data: dataPingServiceLinesBars
-    });
+describe("Lines and bars", () => {
+	it("displays lines and bars in the same chart", () => {
+		initialize({
+			data: dataPingServiceLinesBars,
+		});
 
-    checkGraphWidth();
+		checkGraphWidth();
 
-    cy.get('path[data-metric="1"]').should('be.visible');
-    cy.get('path[data-metric="3"]').should('be.visible');
-    cy.get('path[data-metric="3"]').should('be.visible');
-    cy.findByTestId('stacked-bar-10-0-7650.368581547736').should('be.visible');
+		cy.get('path[data-metric="1"]').should("be.visible");
+		cy.get('path[data-metric="3"]').should("be.visible");
+		cy.get('path[data-metric="3"]').should("be.visible");
+		cy.findByTestId("stacked-bar-10-0-7650.368581547736").should("be.visible");
 
-    cy.makeSnapshot();
-  });
+		cy.makeSnapshot();
+	});
 
-  it('displays stacked lines and bars in the same chart', () => {
-    initialize({
-      data: dataPingServiceLinesBarsStacked
-    });
+	it("displays stacked lines and bars in the same chart", () => {
+		initialize({
+			data: dataPingServiceLinesBarsStacked,
+		});
 
-    checkGraphWidth();
+		checkGraphWidth();
 
-    cy.get('path[data-metric="1"]').should('be.visible');
-    cy.get('path[data-metric="3"]').should('be.visible');
-    cy.get('path[data-metric="3"]').should('be.visible');
-    cy.findByTestId('stacked-bar-2-0-6835').should('be.visible');
-    cy.findByTestId('stacked-bar-10-0-14920.328518673756').should('be.visible');
+		cy.get('path[data-metric="1"]').should("be.visible");
+		cy.get('path[data-metric="3"]').should("be.visible");
+		cy.get('path[data-metric="3"]').should("be.visible");
+		cy.findByTestId("stacked-bar-2-0-6835").should("be.visible");
+		cy.findByTestId("stacked-bar-10-0-14920.328518673756").should("be.visible");
 
-    cy.makeSnapshot();
-  });
+		cy.makeSnapshot();
+	});
 
-  it('displays mixed lines and bars in the same chart', () => {
-    initialize({
-      data: dataPingServiceLinesBarsMixed
-    });
+	it("displays mixed lines and bars in the same chart", () => {
+		initialize({
+			data: dataPingServiceLinesBarsMixed,
+		});
 
-    checkGraphWidth();
+		checkGraphWidth();
 
-    cy.get('path[data-metric="1"]').should('be.visible');
-    cy.get('path[data-metric="3"]').should('be.visible');
-    cy.get('path[data-metric="3"]').should('be.visible');
-    cy.findByTestId('stacked-bar-10-0-7650.368581547736').should('be.visible');
-    cy.findByTestId('stacked-bar-2-0-10').should('be.visible');
+		cy.get('path[data-metric="1"]').should("be.visible");
+		cy.get('path[data-metric="3"]').should("be.visible");
+		cy.get('path[data-metric="3"]').should("be.visible");
+		cy.findByTestId("stacked-bar-10-0-7650.368581547736").should("be.visible");
+		cy.findByTestId("stacked-bar-2-0-10").should("be.visible");
 
-    cy.makeSnapshot();
-  });
+		cy.makeSnapshot();
+	});
 
-  it('displays lines and bars in the same chart centered in zero', () => {
-    initialize({
-      axis: {
-        isCenteredZero: true
-      },
-      data: dataPingServiceLinesBars
-    });
+	it("displays lines and bars in the same chart centered in zero", () => {
+		initialize({
+			axis: {
+				isCenteredZero: true,
+			},
+			data: dataPingServiceLinesBars,
+		});
 
-    checkGraphWidth();
+		checkGraphWidth();
 
-    cy.get('path[data-metric="1"]').should('be.visible');
-    cy.get('path[data-metric="3"]').should('be.visible');
-    cy.get('path[data-metric="3"]').should('be.visible');
-    cy.findByTestId('stacked-bar-10-0-7650.368581547736').should('be.visible');
+		cy.get('path[data-metric="1"]').should("be.visible");
+		cy.get('path[data-metric="3"]').should("be.visible");
+		cy.get('path[data-metric="3"]').should("be.visible");
+		cy.findByTestId("stacked-bar-10-0-7650.368581547736").should("be.visible");
 
-    cy.makeSnapshot();
-  });
+		cy.makeSnapshot();
+	});
 
-  it('displays stacked lines and bars in the same chart centered in zero', () => {
-    initialize({
-      axis: {
-        isCenteredZero: true
-      },
-      data: dataPingServiceLinesBarsStacked
-    });
+	it("displays stacked lines and bars in the same chart centered in zero", () => {
+		initialize({
+			axis: {
+				isCenteredZero: true,
+			},
+			data: dataPingServiceLinesBarsStacked,
+		});
 
-    checkGraphWidth();
+		checkGraphWidth();
 
-    cy.get('path[data-metric="1"]').should('be.visible');
-    cy.get('path[data-metric="3"]').should('be.visible');
-    cy.get('path[data-metric="3"]').should('be.visible');
-    cy.findByTestId('stacked-bar-2-0-6835').should('be.visible');
-    cy.findByTestId('stacked-bar-10-0-14920.328518673756').should('be.visible');
+		cy.get('path[data-metric="1"]').should("be.visible");
+		cy.get('path[data-metric="3"]').should("be.visible");
+		cy.get('path[data-metric="3"]').should("be.visible");
+		cy.findByTestId("stacked-bar-2-0-6835").should("be.visible");
+		cy.findByTestId("stacked-bar-10-0-14920.328518673756").should("be.visible");
 
-    cy.makeSnapshot();
-  });
+		cy.makeSnapshot();
+	});
 
-  it('displays mixed lines and bars in the same chart centered in zero', () => {
-    initialize({
-      axis: {
-        isCenteredZero: true
-      },
-      data: dataPingServiceLinesBarsMixed
-    });
+	it("displays mixed lines and bars in the same chart centered in zero", () => {
+		initialize({
+			axis: {
+				isCenteredZero: true,
+			},
+			data: dataPingServiceLinesBarsMixed,
+		});
 
-    checkGraphWidth();
+		checkGraphWidth();
 
-    cy.get('path[data-metric="1"]').should('be.visible');
-    cy.get('path[data-metric="3"]').should('be.visible');
-    cy.get('path[data-metric="3"]').should('be.visible');
-    cy.findByTestId('stacked-bar-10-0-7650.368581547736').should('be.visible');
-    cy.findByTestId('stacked-bar-2-0-10').should('be.visible');
+		cy.get('path[data-metric="1"]').should("be.visible");
+		cy.get('path[data-metric="3"]').should("be.visible");
+		cy.get('path[data-metric="3"]').should("be.visible");
+		cy.findByTestId("stacked-bar-10-0-7650.368581547736").should("be.visible");
+		cy.findByTestId("stacked-bar-2-0-10").should("be.visible");
 
-    cy.makeSnapshot();
-  });
+		cy.makeSnapshot();
+	});
 
-  it('changes the unit on the left or right scales when a new unit is selected', () => {
-    initializeCustomUnits({
-      data: dataPingServiceLinesBarsMixed
-    });
+	it("changes the unit on the left or right scales when a new unit is selected", () => {
+		initializeCustomUnits({
+			data: dataPingServiceLinesBarsMixed,
+		});
 
-    checkGraphWidth();
+		checkGraphWidth();
 
-    cy.findAllByTestId('unit-selector').eq(0).parent().click();
-    cy.findByLabelText('B').click();
+		cy.findAllByTestId("unit-selector").eq(0).parent().click();
+		cy.findByLabelText("B").click();
 
-    cy.findAllByTestId('unit-selector').eq(0).should('have.value', 'B');
-    cy.contains('8.79 KB').should('be.visible');
+		cy.findAllByTestId("unit-selector").eq(0).should("have.value", "B");
+		cy.contains("8.79 KB").should("be.visible");
 
-    cy.findAllByTestId('unit-selector').eq(1).parent().click();
-    cy.findByLabelText('%').click();
+		cy.findAllByTestId("unit-selector").eq(1).parent().click();
+		cy.findByLabelText("%").click();
 
-    cy.findAllByTestId('unit-selector').eq(1).should('have.value', '%');
-    cy.contains('20').should('be.visible');
+		cy.findAllByTestId("unit-selector").eq(1).should("have.value", "%");
+		cy.contains("20").should("be.visible");
 
-    cy.makeSnapshot();
-  });
+		cy.makeSnapshot();
+	});
 
-  it('displays stacked lines and bars when a line and a bar are customized', () => {
-    initialize({
-      data: dataPingServiceLinesBarsStacked,
-      lineStyle: [
-        {
-          metricId: 1,
-          showArea: false,
-          dotOffset: 4,
-          lineWidth: 3
-        }
-      ],
-      barStyle: [
-        {
-          metricId: 10,
-          opacity: 0.5,
-          radius: 0.3
-        }
-      ]
-    });
+	it("displays stacked lines and bars when a line and a bar are customized", () => {
+		initialize({
+			data: dataPingServiceLinesBarsStacked,
+			lineStyle: [
+				{
+					metricId: 1,
+					showArea: false,
+					dotOffset: 4,
+					lineWidth: 3,
+				},
+			],
+			barStyle: [
+				{
+					metricId: 10,
+					opacity: 0.5,
+					radius: 0.3,
+				},
+			],
+		});
 
-    checkGraphWidth();
+		checkGraphWidth();
 
-    cy.get(
-      'path[d="M7.501377410468319,289.92398616599974 h56.51239669421488 h1v1 v100.07601383400026 a1,1 0 0 1 -1,1 h-56.51239669421488 a1,1 0 0 1 -1,-1 v-100.07601383400026 v-1h1z"]'
-    ).should('be.visible');
-    cy.get(
-      'path[d="M24.05509641873278,73.57899638721061 h23.404958677685954 a17.553719008264462,17.553719008264462 0 0 1 17.553719008264462,17.553719008264462 v137.44495707537567 v17.553719008264462h-17.553719008264462 h-23.404958677685954 h-17.553719008264462v-17.553719008264462 v-137.44495707537567 a17.553719008264462,17.553719008264462 0 0 1 17.553719008264462,-17.553719008264462z"]'
-    ).should('be.visible');
+		cy.get(
+			'path[d="M7.501377410468319,289.92398616599974 h56.51239669421488 h1v1 v100.07601383400026 a1,1 0 0 1 -1,1 h-56.51239669421488 a1,1 0 0 1 -1,-1 v-100.07601383400026 v-1h1z"]',
+		).should("be.visible");
+		cy.get(
+			'path[d="M24.05509641873278,73.57899638721061 h23.404958677685954 a17.553719008264462,17.553719008264462 0 0 1 17.553719008264462,17.553719008264462 v137.44495707537567 v17.553719008264462h-17.553719008264462 h-23.404958677685954 h-17.553719008264462v-17.553719008264462 v-137.44495707537567 a17.553719008264462,17.553719008264462 0 0 1 17.553719008264462,-17.553719008264462z"]',
+		).should("be.visible");
 
-    cy.makeSnapshot();
-  });
+		cy.makeSnapshot();
+	});
 
-  it('displays additional lines when props are set', () => {
-    initialize({
-      data: dataPingServiceLines,
-      additionalLines: [
-        { color: 'pink', unit: '%', yValue: 3 },
-        { color: 'red', unit: 'ms', yValue: 0.15, text: 'some text' }
-      ]
-    });
+	it("displays additional lines when props are set", () => {
+		initialize({
+			data: dataPingServiceLines,
+			additionalLines: [
+				{ color: "pink", unit: "%", yValue: 3 },
+				{ color: "red", unit: "ms", yValue: 0.15, text: "some text" },
+			],
+		});
 
-    checkGraphWidth();
+		checkGraphWidth();
 
-    cy.get('path[data-metric="1"]').should('be.visible');
-    cy.get('path[data-metric="3"]').should('be.visible');
-    cy.get('path[data-metric="3"]').should('be.visible');
+		cy.get('path[data-metric="1"]').should("be.visible");
+		cy.get('path[data-metric="3"]').should("be.visible");
+		cy.get('path[data-metric="3"]').should("be.visible");
 
-    cy.contains('some text').should('be.visible');
-    cy.findByTestId('pink-3').should('exist');
-    cy.findByTestId('red-0.15').should('exist');
+		cy.contains("some text").should("be.visible");
+		cy.findByTestId("pink-3").should("exist");
+		cy.findByTestId("red-0.15").should("exist");
 
-    cy.makeSnapshot();
-  });
+		cy.makeSnapshot();
+	});
 
-  it('displays graph according to min and max boundaries', () => {
-    initialize({
-      data: dataPingServiceLines,
-      min: 0.01,
-      max: 0.1
-    });
+	it("displays graph according to min and max boundaries", () => {
+		initialize({
+			data: dataPingServiceLines,
+			min: 0.01,
+			max: 0.1,
+		});
 
-    checkGraphWidth();
+		checkGraphWidth();
 
-    cy.get('path[data-metric="1"]').should('be.visible');
-    cy.get('path[data-metric="3"]').should('be.visible');
-    cy.get('path[data-metric="3"]').should('be.visible');
+		cy.get('path[data-metric="1"]').should("be.visible");
+		cy.get('path[data-metric="3"]').should("be.visible");
+		cy.get('path[data-metric="3"]').should("be.visible");
 
-    cy.contains('0.1 ms').should('be.visible');
-    cy.contains('0.1%').should('be.visible');
+		cy.contains("0.1 ms").should("be.visible");
+		cy.contains("0.1%").should("be.visible");
 
-    cy.makeSnapshot();
-  });
+		cy.makeSnapshot();
+	});
 
-  it('displays graph according to min and max boundaries for a unit', () => {
-    initialize({
-      data: dataPingServiceLines,
-      min: 0.01,
-      max: 0.1,
-      boundariesUnit: 'ms'
-    });
+	it("displays graph according to min and max boundaries for a unit", () => {
+		initialize({
+			data: dataPingServiceLines,
+			min: 0.01,
+			max: 0.1,
+			boundariesUnit: "ms",
+		});
 
-    checkGraphWidth();
+		checkGraphWidth();
 
-    cy.get('path[data-metric="1"]').should('be.visible');
-    cy.get('path[data-metric="3"]').should('be.visible');
-    cy.get('path[data-metric="3"]').should('be.visible');
+		cy.get('path[data-metric="1"]').should("be.visible");
+		cy.get('path[data-metric="3"]').should("be.visible");
+		cy.get('path[data-metric="3"]').should("be.visible");
 
-    cy.contains('0.1 ms').should('be.visible');
-    cy.contains('2%').should('be.visible');
+		cy.contains("0.1 ms").should("be.visible");
+		cy.contains("2%").should("be.visible");
 
-    cy.makeSnapshot();
-  });
+		cy.makeSnapshot();
+	});
 
-  it('calls the secondary function when a metric is clicked in the legend', () => {
-    const secondaryClick = cy.stub().as('secondaryClick');
-    initialize({
-      data: dataPingServiceLines,
-      legend: {
-        mode: 'grid',
-        placement: 'bottom',
-        secondaryClick
-      }
-    });
+	it("calls the secondary function when a metric is clicked in the legend", () => {
+		const secondaryClick = cy.stub().as("secondaryClick");
+		initialize({
+			data: dataPingServiceLines,
+			legend: {
+				mode: "grid",
+				placement: "bottom",
+				secondaryClick,
+			},
+		});
 
-    checkGraphWidth();
+		checkGraphWidth();
 
-    cy.contains('Packet Loss').rightclick();
-    cy.get('@secondaryClick').should('have.been.called');
-  });
+		cy.contains("Packet Loss").rightclick();
+		cy.get("@secondaryClick").should("have.been.called");
+	});
 
-  it('does not displays corresponding calculations when props are set', () => {
-    initialize({
-      data: dataPingServiceLines,
-      legend: {
-        placement: 'bottom',
-        mode: 'grid',
-        showCalculations: {
-          min: true,
-          max: false,
-          avg: false
-        }
-      }
-    });
+	it("does not displays corresponding calculations when props are set", () => {
+		initialize({
+			data: dataPingServiceLines,
+			legend: {
+				placement: "bottom",
+				mode: "grid",
+				showCalculations: {
+					min: true,
+					max: false,
+					avg: false,
+				},
+			},
+		});
 
-    cy.contains(labelMin).should('be.visible');
-    cy.contains(/^Max$/).should('not.exist');
-    cy.contains(labelAvg).should('not.exist');
-  });
+		cy.contains(labelMin).should("be.visible");
+		cy.contains(/^Max$/).should("not.exist");
+		cy.contains(labelAvg).should("not.exist");
+	});
 });

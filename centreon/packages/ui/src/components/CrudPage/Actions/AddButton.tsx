@@ -1,23 +1,23 @@
-import { Add } from '@mui/icons-material';
-import { useSetAtom } from 'jotai';
-import { useCallback } from 'react';
-import { Button } from '../../Button';
-import { openFormModalAtom } from '../atoms';
+import { Add } from "@mui/icons-material";
+import { useSetAtom } from "jotai";
+import { useCallback } from "react";
+import { Button } from "../../Button";
+import { openFormModalAtom } from "../atoms";
 
 interface Props {
-  label: string;
+	label: string;
 }
 
 const AddButton = ({ label }: Props): JSX.Element => {
-  const setOpenFormModal = useSetAtom(openFormModalAtom);
+	const setOpenFormModal = useSetAtom(openFormModalAtom);
 
-  const add = useCallback(() => setOpenFormModal('add'), []);
+	const add = useCallback(() => setOpenFormModal("add"), [setOpenFormModal]);
 
-  return (
-    <Button size="small" icon={<Add />} iconVariant="start" onClick={add}>
-      {label}
-    </Button>
-  );
+	return (
+		<Button size="small" icon={<Add />} iconVariant="start" onClick={add}>
+			{label}
+		</Button>
+	);
 };
 
 export default AddButton;

@@ -1,154 +1,151 @@
+import { all, isNil, lte, not, path, pluck } from "ramda";
 import {
-  ChangeEvent,
-  DragEvent,
-  MutableRefObject,
-  useCallback,
-  useRef,
-  useState
-} from 'react';
-
-import { path, all, isNil, lte, not, pluck } from 'ramda';
-
-import { labelFileTooBig, labelInvalidFileType } from './translatedLabels';
-
-import { transformFileListToArray } from '.';
+	type ChangeEvent,
+	type DragEvent,
+	type MutableRefObject,
+	useCallback,
+	useRef,
+	useState,
+} from "react";
+import { transformFileListToArray } from ".";
+import { labelFileTooBig, labelInvalidFileType } from "./translatedLabels";
 
 export interface UseDropzoneState {
-  dragOver: (dragOverValue: boolean) => (event: DragEvent) => void;
-  dropFiles: (event: DragEvent<HTMLDivElement>) => void;
-  error: string | null;
-  fileInputRef: MutableRefObject<HTMLInputElement | null>;
-  getFilesName: (fileList: FileList) => Array<string>;
-  handleChangeFiles: (event: ChangeEvent<HTMLInputElement>) => void;
-  isDraggingOver: boolean;
-  openFileExplorer: () => void;
+	dragOver: (dragOverValue: boolean) => (event: DragEvent) => void;
+	dropFiles: (event: DragEvent<HTMLDivElement>) => void;
+	error: string | null;
+	fileInputRef: MutableRefObject<HTMLInputElement | null>;
+	getFilesName: (fileList: FileList) => Array<string>;
+	handleChangeFiles: (event: ChangeEvent<HTMLInputElement>) => void;
+	isDraggingOver: boolean;
+	openFileExplorer: () => void;
 }
 
 export interface UseDropzoneProps {
-  allowedFilesExtensions: Array<string>;
-  changeFiles: (files: FileList | null) => void;
-  maxFileSize?: number;
-  resetFilesStatusAndUploadData: () => void;
+	allowedFilesExtensions: Array<string>;
+	changeFiles: (files: FileList | null) => void;
+	maxFileSize?: number;
+	resetFilesStatusAndUploadData: () => void;
 }
 
 export const getFilesName = (fileList: FileList): Array<string> => {
-  const files = transformFileListToArray(fileList);
+	const files = transformFileListToArray(fileList);
 
-  return pluck('name', files);
+	return pluck("name", files);
 };
 
 const getFilesSize = (fileList: FileList): Array<number> => {
-  const files = transformFileListToArray(fileList);
+	const files = transformFileListToArray(fileList);
 
-  return pluck('size', files);
+	return pluck("size", files);
 };
 
 const useDropzone = ({
-  changeFiles,
-  resetFilesStatusAndUploadData,
-  allowedFilesExtensions,
-  maxFileSize
+	changeFiles,
+	resetFilesStatusAndUploadData,
+	allowedFilesExtensions,
+	maxFileSize,
 }: UseDropzoneProps): UseDropzoneState => {
-  const [isDraggingOver, setIsDraggingOver] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const fileInputRef = useRef<HTMLInputElement | null>(null);
+	const [isDraggingOver, setIsDraggingOver] = useState(false);
+	const [error, setError] = useState<string | null>(null);
+	const fileInputRef = useRef<HTMLInputElement | null>(null);
 
-  const dragOver = useCallback(
-    (dragOverValue: boolean): ((event: DragEvent) => void) =>
-      (event: DragEvent): void => {
-        event.stopPropagation();
-        event.preventDefault();
-        setIsDraggingOver(dragOverValue);
-      },
-    [isDraggingOver]
-  );
+	const dragOver = useCallback(
+		(dragOverValue: boolean): ((event: DragEvent) => void) =>
+			(event: DragEvent): void => {
+				event.stopPropagation();
+				event.preventDefault();
+				setIsDraggingOver(dragOverValue);
+			},
+		[],
+	);
 
-  const openFileExplorer = (): void => {
-    fileInputRef.current?.click();
-  };
+	const openFileExplorer = (): void => {
+		fileInputRef.current?.click();
+	};
 
-  const isFileExtensionValid = (fileName: string): boolean =>
-    new RegExp(`.${allowedFilesExtensions.join('|')}$`).test(fileName);
+	const isFileExtensionValid = (fileName: string): boolean =>
+		new RegExp(`.${allowedFilesExtensions.join("|")}$`).test(fileName);
 
-  const isFileSizeValid = (fileSize: number): boolean =>
-    isNil(maxFileSize) || lte(fileSize, maxFileSize);
+	const isFileSizeValid = (fileSize: number): boolean =>
+		isNil(maxFileSize) || lte(fileSize, maxFileSize);
 
-  const areFileExtensionsValid = (fileList: FileList): boolean => {
-    const filesName = getFilesName(fileList);
+	const areFileExtensionsValid = (fileList: FileList): boolean => {
+		const filesName = getFilesName(fileList);
 
-    return all(isFileExtensionValid, filesName);
-  };
+		return all(isFileExtensionValid, filesName);
+	};
 
-  const areFileSizesValid = (fileList: FileList): boolean => {
-    const filesSize = getFilesSize(fileList);
+	const areFileSizesValid = (fileList: FileList): boolean => {
+		const filesSize = getFilesSize(fileList);
 
-    return all(isFileSizeValid, filesSize);
-  };
+		return all(isFileSizeValid, filesSize);
+	};
 
-  const handleChangeFiles = (event: ChangeEvent<HTMLInputElement>): void => {
-    const newFiles: FileList | null | undefined = path(
-      ['target', 'files'],
-      event
-    );
+	const handleChangeFiles = (event: ChangeEvent<HTMLInputElement>): void => {
+		const newFiles: FileList | null | undefined = path(
+			["target", "files"],
+			event,
+		);
 
-    if (isNil(newFiles)) {
-      return;
-    }
+		if (isNil(newFiles)) {
+			return;
+		}
 
-    if (not(areFileExtensionsValid(newFiles as FileList))) {
-      setError(labelInvalidFileType);
-      changeFiles(null);
+		if (not(areFileExtensionsValid(newFiles as FileList))) {
+			setError(labelInvalidFileType);
+			changeFiles(null);
 
-      return;
-    }
+			return;
+		}
 
-    if (not(areFileSizesValid(newFiles as FileList))) {
-      setError(labelFileTooBig);
-      changeFiles(null);
+		if (not(areFileSizesValid(newFiles as FileList))) {
+			setError(labelFileTooBig);
+			changeFiles(null);
 
-      return;
-    }
+			return;
+		}
 
-    setError(null);
-    resetFilesStatusAndUploadData();
-    changeFiles(newFiles);
-  };
+		setError(null);
+		resetFilesStatusAndUploadData();
+		changeFiles(newFiles);
+	};
 
-  const dropFiles = (event: DragEvent<HTMLDivElement>): void => {
-    event.stopPropagation();
-    event.preventDefault();
-    const fileList = event.dataTransfer?.files as FileList;
-    setIsDraggingOver(false);
+	const dropFiles = (event: DragEvent<HTMLDivElement>): void => {
+		event.stopPropagation();
+		event.preventDefault();
+		const fileList = event.dataTransfer?.files as FileList;
+		setIsDraggingOver(false);
 
-    if (not(areFileExtensionsValid(fileList))) {
-      setError(labelInvalidFileType);
-      changeFiles(null);
+		if (not(areFileExtensionsValid(fileList))) {
+			setError(labelInvalidFileType);
+			changeFiles(null);
 
-      return;
-    }
+			return;
+		}
 
-    if (not(areFileSizesValid(fileList as FileList))) {
-      setError(labelFileTooBig);
-      changeFiles(null);
+		if (not(areFileSizesValid(fileList as FileList))) {
+			setError(labelFileTooBig);
+			changeFiles(null);
 
-      return;
-    }
+			return;
+		}
 
-    setError(null);
-    resetFilesStatusAndUploadData();
-    changeFiles(fileList);
-  };
+		setError(null);
+		resetFilesStatusAndUploadData();
+		changeFiles(fileList);
+	};
 
-  return {
-    dragOver,
-    dropFiles,
-    error,
-    fileInputRef,
-    getFilesName,
-    handleChangeFiles,
-    isDraggingOver,
-    openFileExplorer
-  };
+	return {
+		dragOver,
+		dropFiles,
+		error,
+		fileInputRef,
+		getFilesName,
+		handleChangeFiles,
+		isDraggingOver,
+		openFileExplorer,
+	};
 };
 
 export default useDropzone;

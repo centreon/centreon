@@ -1,28 +1,28 @@
-import { ReactElement, ReactNode } from 'react';
+import type { ReactElement, ReactNode } from "react";
 
-import { useStyles } from './PageLayout.styles';
+import { useStyles } from "./PageLayout.styles";
 
 type PageLayoutBodyProps = {
-  children: Array<ReactNode> | ReactNode;
-  hasBackground?: boolean;
-  className?: string;
+	children: Array<ReactNode> | ReactNode;
+	hasBackground?: boolean;
+	className?: string;
 };
 
 export const PageLayoutBody = ({
-  children,
-  hasBackground = false,
-  className
+	children,
+	hasBackground = false,
+	className,
 }: PageLayoutBodyProps): ReactElement => {
-  const { classes, cx } = useStyles();
+	const { classes, cx } = useStyles();
 
-  return (
-    <section
-      className={cx(classes.pageLayoutBody, className)}
-      data-has-background={hasBackground}
-      data-has-actions={!!children?.length}
-      id="page-body"
-    >
-      {children}
-    </section>
-  );
+	return (
+		<section
+			className={cx(classes.pageLayoutBody, className)}
+			data-has-background={hasBackground}
+			data-has-actions={!!children?.length}
+			id="page-body"
+		>
+			{children}
+		</section>
+	);
 };

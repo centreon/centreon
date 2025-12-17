@@ -1,4 +1,4 @@
-import { memo } from 'react';
+import { memo } from "react";
 
 /**
  * Memoize a component with a deep comparison of props like classic memo function
@@ -12,6 +12,6 @@ import { memo } from 'react';
  * });
  */
 export const typedMemo: <T>(
-  component: T,
-  propsAreEqual?: (prevProps: Readonly<T>, nextProps: Readonly<T>) => boolean
+	component: T,
+	propsAreEqual?: (prevProps: Readonly<T>, nextProps: Readonly<T>) => boolean,
 ) => T = memo;

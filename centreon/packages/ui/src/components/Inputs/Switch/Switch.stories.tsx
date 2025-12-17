@@ -1,22 +1,22 @@
-import { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from "@storybook/react";
 
-import Switch from './Switch';
+import Switch from "./Switch";
 
 const meta: Meta<typeof Switch> = {
-  component: Switch
+	component: Switch,
 };
 
 export default meta;
 type Story = StoryObj<typeof Switch>;
 
 export const notChecked: Story = {
-  args: {
-    checked: false
-  }
+	args: {
+		checked: false,
+	},
 };
 
 export const checked: Story = {
-  args: {
-    checked: true
-  }
+	args: {
+		checked: true,
+	},
 };

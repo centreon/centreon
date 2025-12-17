@@ -1,17 +1,17 @@
-import { ComponentMeta, ComponentStory } from '@storybook/react';
+import type { ComponentMeta, ComponentStory } from "@storybook/react";
 
-import TypographyStory from './story.utils';
+import TypographyStory from "./story.utils";
 
 export default {
-  argTypes: {},
-  component: TypographyStory,
-  title: 'Typography'
+	argTypes: {},
+	component: TypographyStory,
+	title: "Typography",
 } as ComponentMeta<typeof TypographyStory>;
 
 const TemplateTypographtStory: ComponentStory<typeof TypographyStory> = (
-  args
+	args,
 ) => <TypographyStory {...args} />;
 
 export const typography = (): JSX.Element => (
-  <TemplateTypographtStory text="Hello world" />
+	<TemplateTypographtStory text="Hello world" />
 );

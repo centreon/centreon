@@ -1,59 +1,58 @@
-import { useEffect } from 'react';
+import { Paper } from "@mui/material";
 
-import { equals } from 'ramda';
+import { equals } from "ramda";
+import { useEffect } from "react";
 
-import { Paper } from '@mui/material';
+import type { Tooltip } from "../../models";
 
-import { Tooltip } from '../../models';
-
-import { GraphTooltip as GraphTooltipModel, width } from './models';
+import { type GraphTooltip as GraphTooltipModel, width } from "./models";
 
 interface Props extends GraphTooltipModel, Tooltip {
-  [x: string]: unknown;
+	[x: string]: unknown;
 }
 
 const GraphTooltip = ({
-  hideTooltip,
-  tooltipLeft,
-  tooltipTop,
-  tooltipData,
-  renderComponent,
-  tooltipOpen
+	hideTooltip,
+	tooltipLeft,
+	tooltipTop,
+	tooltipData,
+	renderComponent,
+	tooltipOpen,
 }: Props): JSX.Element | null => {
-  const hideTooltipOnEscapePress = (event: globalThis.KeyboardEvent): void => {
-    if (equals(event.key, 'Escape')) {
-      hideTooltip();
-    }
-  };
+	const hideTooltipOnEscapePress = (event: globalThis.KeyboardEvent): void => {
+		if (equals(event.key, "Escape")) {
+			hideTooltip();
+		}
+	};
 
-  useEffect(() => {
-    document.addEventListener('keydown', hideTooltipOnEscapePress, false);
+	useEffect(() => {
+		document.addEventListener("keydown", hideTooltipOnEscapePress, false);
 
-    return (): void => {
-      document.removeEventListener('keydown', hideTooltipOnEscapePress, false);
-    };
-  }, []);
+		return (): void => {
+			document.removeEventListener("keydown", hideTooltipOnEscapePress, false);
+		};
+	}, [hideTooltipOnEscapePress]);
 
-  if (!tooltipOpen) {
-    return null;
-  }
+	if (!tooltipOpen) {
+		return null;
+	}
 
-  return (
-    <Paper
-      style={{
-        left: tooltipLeft,
-        position: 'absolute',
-        top: tooltipTop,
-        width
-      }}
-    >
-      {renderComponent?.({
-        data: tooltipData,
-        hideTooltip,
-        tooltipOpen
-      })}
-    </Paper>
-  );
+	return (
+		<Paper
+			style={{
+				left: tooltipLeft,
+				position: "absolute",
+				top: tooltipTop,
+				width,
+			}}
+		>
+			{renderComponent?.({
+				data: tooltipData,
+				hideTooltip,
+				tooltipOpen,
+			})}
+		</Paper>
+	);
 };
 
 export default GraphTooltip;

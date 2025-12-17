@@ -1,1 +1,1 @@
-export { Gauge } from './Gauge';
+export { Gauge } from "./Gauge";

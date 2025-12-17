@@ -1,1 +1,1 @@
-export type FormVariant = 'create' | 'update';
+export type FormVariant = "create" | "update";

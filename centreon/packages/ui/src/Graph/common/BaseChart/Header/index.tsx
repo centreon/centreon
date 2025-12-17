@@ -1,37 +1,36 @@
-import { ReactElement } from 'react';
+import { useMemoComponent } from "@centreon/ui";
 
-import Typography from '@mui/material/Typography';
+import Typography from "@mui/material/Typography";
+import type { ReactElement } from "react";
 
-import { useMemoComponent } from '@centreon/ui';
-
-import { LineChartHeader } from './models';
-import { ussHeaderChartStyles } from './useHeaderStyles';
+import type { LineChartHeader } from "./models";
+import { ussHeaderChartStyles } from "./useHeaderStyles";
 
 interface Props {
-  header?: LineChartHeader;
-  title: string;
+	header?: LineChartHeader;
+	title: string;
 }
 
 const Header = ({ title, header }: Props): ReactElement => {
-  const { classes } = ussHeaderChartStyles();
+	const { classes } = ussHeaderChartStyles();
 
-  const displayTitle = header?.displayTitle ?? true;
+	const displayTitle = header?.displayTitle ?? true;
 
-  return useMemoComponent({
-    Component: (
-      <div className={classes.header}>
-        <div />
-        {displayTitle && (
-          <Typography align="center" variant="body1" className={classes.title}>
-            {title}
-          </Typography>
-        )}
-        {header?.extraComponent}
-      </div>
-    ),
+	return useMemoComponent({
+		Component: (
+			<div className={classes.header}>
+				<div />
+				{displayTitle && (
+					<Typography align="center" variant="body1" className={classes.title}>
+						{title}
+					</Typography>
+				)}
+				{header?.extraComponent}
+			</div>
+		),
 
-    memoProps: [title, header]
-  });
+		memoProps: [title, header],
+	});
 };
 
 export default Header;

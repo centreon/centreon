@@ -1,16 +1,18 @@
 .modalHeader {
-  & .MuiDialogTitle-root {
-    padding: 0;
-  }
+	& .MuiDialogTitle-root {
+		padding: 0;
+	}
 
-  display: flex;
-  gap: var(--spacing-4);
-  justify-content: space-between;
+	display: flex;
+	gap: var(--spacing-4);
+	justify-content: space-between;
 }
 
 .modalBody {
-  overflow-y: auto;
-  overflow-x: hidden;
-  height: 100%;
-  padding-right: var(--spacing-4); /* To prevent scrollbar from overlapping content */
+	overflow-y: auto;
+	overflow-x: hidden;
+	height: 100%;
+	padding-right: var(
+		--spacing-4
+	); /* To prevent scrollbar from overlapping content */
 }

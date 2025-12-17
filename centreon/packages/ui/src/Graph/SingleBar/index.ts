@@ -1,1 +1,1 @@
-export { default as SingleBar } from './SingleBar';
+export { default as SingleBar } from "./SingleBar";

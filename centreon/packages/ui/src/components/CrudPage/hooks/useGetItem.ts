@@ -1,36 +1,36 @@
-import { equals, isNotNil } from 'ramda';
-import { useFetchQuery } from '../../..';
-import { GetItem } from '../models';
+import { equals, isNotNil } from "ramda";
+import { useFetchQuery } from "../../..";
+import type { GetItem } from "../models";
 
 interface UseGetItem<TItemForm> {
-  initialValues?: TItemForm;
-  isLoading: boolean;
+	initialValues?: TItemForm;
+	isLoading: boolean;
 }
 
 export const useGetItem = <
-  TItem extends { id: number; name: string },
-  TItemForm
+	TItem extends { id: number; name: string },
+	TItemForm,
 >({
-  id,
-  decoder,
-  baseEndpoint,
-  itemQueryKey,
-  adapter
+	id,
+	decoder,
+	baseEndpoint,
+	itemQueryKey,
+	adapter,
 }: GetItem<TItem, TItemForm> & {
-  id: number | 'add' | null;
+	id: number | "add" | null;
 }): UseGetItem<TItemForm> => {
-  const { data, isLoading } = useFetchQuery<TItem>({
-    getEndpoint: () => baseEndpoint(id),
-    getQueryKey: () => [itemQueryKey, id],
-    decoder,
-    queryOptions: {
-      enabled: isNotNil(id) && !equals('add', id),
-      suspense: false
-    }
-  });
+	const { data, isLoading } = useFetchQuery<TItem>({
+		getEndpoint: () => baseEndpoint(id),
+		getQueryKey: () => [itemQueryKey, id],
+		decoder,
+		queryOptions: {
+			enabled: isNotNil(id) && !equals("add", id),
+			suspense: false,
+		},
+	});
 
-  return {
-    initialValues: data ? adapter(data) : undefined,
-    isLoading
-  };
+	return {
+		initialValues: data ? adapter(data) : undefined,
+		isLoading,
+	};
 };

@@ -1,56 +1,56 @@
-import useSnackbar from '../Snackbar/useSnackbar';
+import useSnackbar from "../Snackbar/useSnackbar";
 
 type CopyFunction = (text: string) => Promise<void>;
 
 interface Result {
-  copy: CopyFunction;
+	copy: CopyFunction;
 }
 
 interface Props {
-  errorMessage: string;
-  successMessage: string;
+	errorMessage: string;
+	successMessage: string;
 }
 
 export const useCopyToClipboard = ({
-  successMessage,
-  errorMessage
+	successMessage,
+	errorMessage,
 }: Props): Result => {
-  const { showSuccessMessage, showErrorMessage } = useSnackbar();
+	const { showSuccessMessage, showErrorMessage } = useSnackbar();
 
-  const copy: CopyFunction = async (text) => {
-    if (!navigator?.clipboard) {
-      try {
-        const textArea = document.createElement('input') as HTMLInputElement;
-        textArea.setAttribute('type', 'text');
-        textArea.setAttribute('id', 'copy');
-        textArea.setAttribute('value', text);
-        textArea.focus();
-        textArea.select();
+	const copy: CopyFunction = async (text) => {
+		if (!navigator?.clipboard) {
+			try {
+				const textArea = document.createElement("input") as HTMLInputElement;
+				textArea.setAttribute("type", "text");
+				textArea.setAttribute("id", "copy");
+				textArea.setAttribute("value", text);
+				textArea.focus();
+				textArea.select();
 
-        const currentDiv = document.getElementById('root');
-        document.body.insertBefore(textArea, currentDiv);
+				const currentDiv = document.getElementById("root");
+				document.body.insertBefore(textArea, currentDiv);
 
-        textArea.focus();
-        textArea.select();
-        const success = document.execCommand('copy');
-        document.body.removeChild(textArea);
-        if (success) {
-          showSuccessMessage(successMessage);
+				textArea.focus();
+				textArea.select();
+				const success = document.execCommand("copy");
+				document.body.removeChild(textArea);
+				if (success) {
+					showSuccessMessage(successMessage);
 
-          return;
-        }
+					return;
+				}
 
-        showErrorMessage(errorMessage);
-      } catch (_e) {
-        showErrorMessage(errorMessage);
-      }
+				showErrorMessage(errorMessage);
+			} catch (_e) {
+				showErrorMessage(errorMessage);
+			}
 
-      return;
-    }
+			return;
+		}
 
-    await navigator.clipboard.writeText(text);
-    showSuccessMessage(successMessage);
-  };
+		await navigator.clipboard.writeText(text);
+		showSuccessMessage(successMessage);
+	};
 
-  return { copy };
+	return { copy };
 };

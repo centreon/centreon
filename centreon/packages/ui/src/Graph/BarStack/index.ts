@@ -1,1 +1,1 @@
-export { default as BarStack } from './BarStack';
+export { default as BarStack } from "./BarStack";

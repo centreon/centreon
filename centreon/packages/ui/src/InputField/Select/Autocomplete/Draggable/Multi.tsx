@@ -1,9 +1,9 @@
-import MultiAutocompleteField from '../Multi';
+import MultiAutocompleteField from "../Multi";
 
-import DraggableAutocompleteField from '.';
+import DraggableAutocompleteField from ".";
 
 const MultiDraggableAutocompleteField = DraggableAutocompleteField(
-  MultiAutocompleteField
+	MultiAutocompleteField,
 );
 
 export default MultiDraggableAutocompleteField;

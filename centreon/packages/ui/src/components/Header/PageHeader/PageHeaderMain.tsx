@@ -1,15 +1,15 @@
-import { ReactElement, ReactNode } from 'react';
+import type { ReactElement, ReactNode } from "react";
 
-import { useStyles } from './PageHeader.styles';
+import { useStyles } from "./PageHeader.styles";
 
 type PageHeaderMainProps = {
-  children?: ReactNode;
+	children?: ReactNode;
 };
 
 const PageHeaderMain = ({ children }: PageHeaderMainProps): ReactElement => {
-  const { classes } = useStyles();
+	const { classes } = useStyles();
 
-  return <div className={classes.pageHeaderMain}>{children}</div>;
+	return <div className={classes.pageHeaderMain}>{children}</div>;
 };
 
 export { PageHeaderMain };

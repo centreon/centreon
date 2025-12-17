@@ -1,26 +1,25 @@
-import { useLayoutEffect } from 'react';
-
-import { useSetAtom } from 'jotai';
+import { useSetAtom } from "jotai";
+import { useLayoutEffect } from "react";
 
 const loadImage = (imagePath: string): Promise<string> =>
-  new Promise((resolve, reject) => {
-    const image = new Image();
+	new Promise((resolve, reject) => {
+		const image = new Image();
 
-    image.src = imagePath;
-    image.onload = (): void => resolve(imagePath);
-    image.onerror = reject;
-  });
+		image.src = imagePath;
+		image.onload = (): void => resolve(imagePath);
+		image.onerror = reject;
+	});
 
 export const useLoadImage = ({ imagePath, atom }): void => {
-  const setImage = useSetAtom(atom);
+	const setImage = useSetAtom(atom);
 
-  useLayoutEffect(() => {
-    loadImage(imagePath)
-      .then((image) => {
-        setImage(image);
-      })
-      .catch(() => {
-        setImage(null);
-      });
-  }, [imagePath]);
+	useLayoutEffect(() => {
+		loadImage(imagePath)
+			.then((image) => {
+				setImage(image);
+			})
+			.catch(() => {
+				setImage(null);
+			});
+	}, [imagePath, setImage]);
 };

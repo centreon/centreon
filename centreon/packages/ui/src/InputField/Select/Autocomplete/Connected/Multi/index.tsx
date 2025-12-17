@@ -1,9 +1,9 @@
-import ConnectedAutocompleteField from '..';
-import MultiAutocompleteField from '../../Multi';
+import MultiAutocompleteField from "../../Multi";
+import ConnectedAutocompleteField from "..";
 
 const MultiConnectedAutocompleteField = ConnectedAutocompleteField(
-  MultiAutocompleteField,
-  true
+	MultiAutocompleteField,
+	true,
 );
 
 export default MultiConnectedAutocompleteField;

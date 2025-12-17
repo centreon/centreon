@@ -1,1 +1,1 @@
-export * from './TextOverflowTooltip';
+export * from "./TextOverflowTooltip";

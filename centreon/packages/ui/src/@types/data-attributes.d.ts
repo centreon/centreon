@@ -1,3 +1,3 @@
 export interface DataTestAttributes {
-  'data-testid'?: string;
+	"data-testid"?: string;
 }

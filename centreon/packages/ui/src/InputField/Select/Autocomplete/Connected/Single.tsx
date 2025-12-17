@@ -1,10 +1,10 @@
-import AutocompleteField from '..';
+import AutocompleteField from "..";
 
-import ConnectedAutocompleteField from '.';
+import ConnectedAutocompleteField from ".";
 
 const SingleConnectedAutocompleteField = ConnectedAutocompleteField(
-  AutocompleteField,
-  false
+	AutocompleteField,
+	false,
 );
 
 export default SingleConnectedAutocompleteField;

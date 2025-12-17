@@ -1,11 +1,11 @@
-import { EmptyRow } from '../Row/EmptyRow';
+import { EmptyRow } from "../Row/EmptyRow";
 
 interface EmptyResultProps {
-  label: string | JSX.Element;
+	label: string | JSX.Element;
 }
 
 const EmptyResult = ({ label }: EmptyResultProps): JSX.Element => (
-  <EmptyRow>{label}</EmptyRow>
+	<EmptyRow>{label}</EmptyRow>
 );
 
 export { EmptyResult };

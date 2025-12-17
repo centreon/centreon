@@ -1,32 +1,31 @@
-import { ReactElement } from 'react';
+import { Box, Typography } from "@mui/material";
+import type { ReactElement } from "react";
 
-import { Box, Typography } from '@mui/material';
-
-import { useStyles } from './PageHeader.styles';
+import { useStyles } from "./PageHeader.styles";
 
 type PageHeaderMessageProps = {
-  message: string;
+	message: string;
 };
 
 const PageHeaderMessage = ({
-  message
+	message,
 }: PageHeaderMessageProps): ReactElement => {
-  const { classes } = useStyles();
+	const { classes } = useStyles();
 
-  return (
-    <Box className={classes.pageHeaderMessage}>
-      {message && (
-        <>
-          <Box className={classes.pageHeaderMessageIconWrapper}>
-            <Box className={classes.pageHeaderMessageIcon}>!</Box>
-          </Box>
-          <Typography aria-label="page header message" variant="h6">
-            {message}
-          </Typography>
-        </>
-      )}
-    </Box>
-  );
+	return (
+		<Box className={classes.pageHeaderMessage}>
+			{message && (
+				<>
+					<Box className={classes.pageHeaderMessageIconWrapper}>
+						<Box className={classes.pageHeaderMessageIcon}>!</Box>
+					</Box>
+					<Typography aria-label="page header message" variant="h6">
+						{message}
+					</Typography>
+				</>
+			)}
+		</Box>
+	);
 };
 
 export { PageHeaderMessage };

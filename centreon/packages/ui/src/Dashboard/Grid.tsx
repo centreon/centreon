@@ -1,70 +1,69 @@
-import { ReactElement, useMemo } from 'react';
+import { useTheme } from "@mui/material";
 
-import { scaleLinear } from '@visx/scale';
-import { Grid as VisxGrid } from '@visx/visx';
+import { scaleLinear } from "@visx/scale";
+import { Grid as VisxGrid } from "@visx/visx";
+import { type ReactElement, useMemo } from "react";
 
-import { useTheme } from '@mui/material';
+import { useMemoComponent } from "../utils";
 
-import { useMemoComponent } from '../utils';
-
-import { maxColumns, rowHeight } from './utils';
+import { maxColumns, rowHeight } from "./utils";
 
 interface Props {
-  columns: number;
-  height: number;
-  width: number;
+	columns: number;
+	height: number;
+	width: number;
 }
 
 const Grid = ({ width, height, columns }: Props): ReactElement => {
-  const theme = useTheme();
+	const theme = useTheme();
 
-  const xScale = useMemo(
-    () =>
-      scaleLinear({
-        domain: [0, maxColumns],
-        range: [0, width]
-      }),
-    [width]
-  );
+	const xScale = useMemo(
+		() =>
+			scaleLinear({
+				domain: [0, maxColumns],
+				range: [0, width],
+			}),
+		[width],
+	);
 
-  const numberOfRows = Math.floor(height / (rowHeight + 8));
+	const numberOfRows = Math.floor(height / (rowHeight + 8));
 
-  const yScale = useMemo(
-    () =>
-      scaleLinear({
-        domain: [0, numberOfRows],
-        range: [0, height]
-      }),
-    [height]
-  );
+	const yScale = useMemo(
+		() =>
+			scaleLinear({
+				domain: [0, numberOfRows],
+				range: [0, height],
+			}),
+		[height, numberOfRows],
+	);
 
-  const tick = maxColumns / columns;
+	const tick = maxColumns / columns;
 
-  const xTickValues = Array(columns)
-    .fill(0)
-    .map((_, index) => index * tick);
+	const xTickValues = Array(columns)
+		.fill(0)
+		.map((_, index) => index * tick);
 
-  const yTickValues = Array(numberOfRows)
-    .fill(0)
-    .map((_, index) => index);
+	const yTickValues = Array(numberOfRows)
+		.fill(0)
+		.map((_, index) => index);
 
-  return useMemoComponent({
-    Component: (
-      <svg style={{ height, position: 'absolute', width }}>
-        <VisxGrid.Grid
-          columnTickValues={xTickValues}
-          rowTickValues={yTickValues}
-          height={height}
-          yScale={yScale}
-          xScale={xScale}
-          stroke={theme.palette.divider}
-          width={width}
-          left={-8}
-        />
-      </svg>
-    ),
-    memoProps: [height, width, columns]
-  });
+	return useMemoComponent({
+		Component: (
+			<svg style={{ height, position: "absolute", width }}>
+				<VisxGrid.Grid
+					columnTickValues={xTickValues}
+					rowTickValues={yTickValues}
+					height={height}
+					yScale={yScale}
+					xScale={xScale}
+					stroke={theme.palette.divider}
+					width={width}
+					left={-8}
+				/>
+			</svg>
+		),
+		memoProps: [height, width, columns],
+	});
 };
 
 export default Grid;

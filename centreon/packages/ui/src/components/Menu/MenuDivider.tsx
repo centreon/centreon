@@ -1,9 +1,8 @@
-import { ReactElement } from 'react';
-
-import { Divider as MuiDivider } from '@mui/material';
+import { Divider as MuiDivider } from "@mui/material";
+import type { ReactElement } from "react";
 
 const MenuDivider = (): ReactElement => {
-  return <MuiDivider />;
+	return <MuiDivider />;
 };
 
 export { MenuDivider };

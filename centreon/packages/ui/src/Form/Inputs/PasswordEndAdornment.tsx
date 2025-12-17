@@ -1,40 +1,39 @@
-import { useTranslation } from 'react-i18next';
+import VisibilityIcon from "@mui/icons-material/Visibility";
+import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
+import { InputAdornment } from "@mui/material";
+import { useTranslation } from "react-i18next";
 
-import VisibilityIcon from '@mui/icons-material/Visibility';
-import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
-import { InputAdornment } from '@mui/material';
-
-import { IconButton } from '../..';
+import { IconButton } from "../..";
 import {
-  labelDisplayThePassword,
-  labelHideThePassword
-} from '../translatedLabels';
+	labelDisplayThePassword,
+	labelHideThePassword,
+} from "../translatedLabels";
 
 interface Props {
-  changeVisibility: () => void;
-  isVisible: boolean;
+	changeVisibility: () => void;
+	isVisible: boolean;
 }
 
 const PasswordEndAdornment = ({
-  isVisible,
-  changeVisibility
+	isVisible,
+	changeVisibility,
 }: Props): JSX.Element => {
-  const { t } = useTranslation();
+	const { t } = useTranslation();
 
-  const icon = isVisible ? <VisibilityOffIcon /> : <VisibilityIcon />;
-  const label = isVisible ? labelHideThePassword : labelDisplayThePassword;
+	const icon = isVisible ? <VisibilityOffIcon /> : <VisibilityIcon />;
+	const label = isVisible ? labelHideThePassword : labelDisplayThePassword;
 
-  return (
-    <InputAdornment position="end">
-      <IconButton
-        ariaLabel={t(label) || ''}
-        size="small"
-        onClick={changeVisibility}
-      >
-        {icon}
-      </IconButton>
-    </InputAdornment>
-  );
+	return (
+		<InputAdornment position="end">
+			<IconButton
+				ariaLabel={t(label) || ""}
+				size="small"
+				onClick={changeVisibility}
+			>
+				{icon}
+			</IconButton>
+		</InputAdornment>
+	);
 };
 
 export default PasswordEndAdornment;

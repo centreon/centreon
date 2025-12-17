@@ -1,59 +1,59 @@
-import '../../ThemeProvider/tailwindcss.css';
-import { Meta, StoryObj } from '@storybook/react';
+import "../../ThemeProvider/tailwindcss.css";
 
-import { Add as AddIcon } from '@mui/icons-material';
+import { Add as AddIcon } from "@mui/icons-material";
+import type { Meta, StoryObj } from "@storybook/react";
 
-import { Button } from './Button';
+import { Button } from "./Button";
 
 const meta: Meta<typeof Button> = {
-  component: Button
+	component: Button,
 };
 
 export default meta;
 type Story = StoryObj<typeof Button>;
 
 export const Default: Story = {
-  args: {
-    'aria-label': 'button',
-    children: 'Label'
-  }
+	args: {
+		"aria-label": "button",
+		children: "Label",
+	},
 };
 
 export const WithIcon: Story = {
-  args: {
-    ...Default.args,
-    icon: <AddIcon />,
-    iconVariant: 'start'
-  }
+	args: {
+		...Default.args,
+		icon: <AddIcon />,
+		iconVariant: "start",
+	},
 };
 
 export const AsDanger: Story = {
-  args: {
-    ...Default.args,
-    isDanger: true
-  }
+	args: {
+		...Default.args,
+		isDanger: true,
+	},
 };
 
 export const small: Story = {
-  args: {
-    ...Default.args,
-    size: 'small'
-  }
+	args: {
+		...Default.args,
+		size: "small",
+	},
 };
 
 export const smallWithIcon: Story = {
-  args: {
-    ...Default.args,
-    size: 'small',
-    icon: <AddIcon />,
-    iconVariant: 'start'
-  }
+	args: {
+		...Default.args,
+		size: "small",
+		icon: <AddIcon />,
+		iconVariant: "start",
+	},
 };
 
 export const smallDanger: Story = {
-  args: {
-    ...Default.args,
-    size: 'small',
-    isDanger: true
-  }
+	args: {
+		...Default.args,
+		size: "small",
+		isDanger: true,
+	},
 };

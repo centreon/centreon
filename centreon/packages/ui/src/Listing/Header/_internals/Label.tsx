@@ -1,19 +1,19 @@
-import { Typography, TypographyProps } from '@mui/material';
-import { ReactNode } from 'react';
+import { Typography, type TypographyProps } from "@mui/material";
+import type { ReactNode } from "react";
 
 interface Props {
-  children: ReactNode;
+	children: ReactNode;
 }
 
 const HeaderLabel = ({
-  children,
-  className
-}: Props & Pick<TypographyProps, 'className'>): JSX.Element => {
-  return (
-    <Typography className={`font-bold ${className}`} variant="body2">
-      {children}
-    </Typography>
-  );
+	children,
+	className,
+}: Props & Pick<TypographyProps, "className">): JSX.Element => {
+	return (
+		<Typography className={`font-bold ${className}`} variant="body2">
+			{children}
+		</Typography>
+	);
 };
 
 export default HeaderLabel;

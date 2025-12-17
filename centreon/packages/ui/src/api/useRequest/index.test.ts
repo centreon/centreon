@@ -1,116 +1,116 @@
-import { RenderHookResult, act, renderHook } from '@testing-library/react';
-import axios from 'axios';
+import { act, type RenderHookResult, renderHook } from "@testing-library/react";
+import axios from "axios";
 
-import useRequest, { RequestResult, RequestParams } from '.';
+import useRequest, { type RequestParams, type RequestResult } from ".";
 
 const mockedAxios = axios as jest.Mocked<typeof axios>;
 
 const mockedShowErrorMessage = jest.fn();
 
-jest.mock('../../Snackbar/useSnackbar', () => ({
-  __esModule: true,
-  default: jest
-    .fn()
-    .mockImplementation(() => ({ showErrorMessage: mockedShowErrorMessage }))
+jest.mock("../../Snackbar/useSnackbar", () => ({
+	__esModule: true,
+	default: jest
+		.fn()
+		.mockImplementation(() => ({ showErrorMessage: mockedShowErrorMessage })),
 }));
 
 interface Result {
-  data: string;
+	data: string;
 }
 
 const request = jest.fn();
 
 const renderUseRequest = (
-  requestParams: RequestParams<Result>
+	requestParams: RequestParams<Result>,
 ): RenderHookResult<unknown, RequestResult<Result>> =>
-  renderHook(() => useRequest(requestParams));
+	renderHook(() => useRequest(requestParams));
 
 describe(useRequest, () => {
-  afterEach(() => {
-    request.mockReset();
-    mockedShowErrorMessage.mockReset();
-    mockedAxios.isCancel.mockReset();
-  });
+	afterEach(() => {
+		request.mockReset();
+		mockedShowErrorMessage.mockReset();
+		mockedAxios.isCancel.mockReset();
+	});
 
-  it('resolves with the result of the given request', async () => {
-    request.mockImplementation(() => jest.fn().mockResolvedValue('success'));
+	it("resolves with the result of the given request", async () => {
+		request.mockImplementation(() => jest.fn().mockResolvedValue("success"));
 
-    const { result } = renderUseRequest({
-      request
-    });
+		const { result } = renderUseRequest({
+			request,
+		});
 
-    await act(async () =>
-      result.current.sendRequest().then((data) => {
-        expect(data).toEqual('success');
-      })
-    );
-  });
+		await act(async () =>
+			result.current.sendRequest().then((data) => {
+				expect(data).toEqual("success");
+			}),
+		);
+	});
 
-  it('shows an error via the Snackbar using the result of the given getErrorMessage function when it is passed', async () => {
-    request.mockImplementation(() => jest.fn().mockRejectedValue({}));
+	it("shows an error via the Snackbar using the result of the given getErrorMessage function when it is passed", async () => {
+		request.mockImplementation(() => jest.fn().mockRejectedValue({}));
 
-    const getErrorMessage = (): string => 'custom message';
+		const getErrorMessage = (): string => "custom message";
 
-    const { result } = renderUseRequest({ getErrorMessage, request });
+		const { result } = renderUseRequest({ getErrorMessage, request });
 
-    await act(async () => {
-      result.current.sendRequest().catch((error) => {
-        expect(error).toEqual({});
-      });
-    });
+		await act(async () => {
+			result.current.sendRequest().catch((error) => {
+				expect(error).toEqual({});
+			});
+		});
 
-    expect(mockedShowErrorMessage).toHaveBeenCalledWith('custom message');
-  });
+		expect(mockedShowErrorMessage).toHaveBeenCalledWith("custom message");
+	});
 
-  it("shows an error via the Snackbar and inside browser's console using the error message from the API when available", async () => {
-    const response = {
-      response: { data: { message: 'failure' } }
-    };
-    request.mockImplementation(() => jest.fn().mockRejectedValue(response));
+	it("shows an error via the Snackbar and inside browser's console using the error message from the API when available", async () => {
+		const response = {
+			response: { data: { message: "failure" } },
+		};
+		request.mockImplementation(() => jest.fn().mockRejectedValue(response));
 
-    const { result } = renderUseRequest({ request });
+		const { result } = renderUseRequest({ request });
 
-    await act(async () => {
-      result.current.sendRequest().catch((error) => {
-        expect(error).toEqual(response);
-      });
-    });
+		await act(async () => {
+			result.current.sendRequest().catch((error) => {
+				expect(error).toEqual(response);
+			});
+		});
 
-    expect(mockedShowErrorMessage).toHaveBeenCalledWith('failure');
-  });
+		expect(mockedShowErrorMessage).toHaveBeenCalledWith("failure");
+	});
 
-  it('shows a default failure message via the Snackbar as fallback', async () => {
-    request.mockImplementation(() => jest.fn().mockRejectedValue({}));
+	it("shows a default failure message via the Snackbar as fallback", async () => {
+		request.mockImplementation(() => jest.fn().mockRejectedValue({}));
 
-    const { result } = renderUseRequest({
-      defaultFailureMessage: 'Oops',
-      request
-    });
+		const { result } = renderUseRequest({
+			defaultFailureMessage: "Oops",
+			request,
+		});
 
-    await act(async () => {
-      result.current.sendRequest().catch((error) => {
-        expect(error).toEqual({});
-      });
-    });
+		await act(async () => {
+			result.current.sendRequest().catch((error) => {
+				expect(error).toEqual({});
+			});
+		});
 
-    expect(mockedShowErrorMessage).toHaveBeenCalledWith('Oops');
-  });
+		expect(mockedShowErrorMessage).toHaveBeenCalledWith("Oops");
+	});
 
-  it('does not show any message via the Snackbar when the error is an axios cancel', async () => {
-    mockedAxios.isCancel.mockReturnValue(true);
+	it("does not show any message via the Snackbar when the error is an axios cancel", async () => {
+		mockedAxios.isCancel.mockReturnValue(true);
 
-    request.mockImplementation(() => jest.fn().mockRejectedValue({}));
+		request.mockImplementation(() => jest.fn().mockRejectedValue({}));
 
-    const { result } = renderUseRequest({
-      request
-    });
+		const { result } = renderUseRequest({
+			request,
+		});
 
-    await act(async () => {
-      result.current.sendRequest().catch((error) => {
-        expect(error).toEqual({});
-      });
-    });
+		await act(async () => {
+			result.current.sendRequest().catch((error) => {
+				expect(error).toEqual({});
+			});
+		});
 
-    expect(mockedShowErrorMessage).not.toHaveBeenCalled();
-  });
+		expect(mockedShowErrorMessage).not.toHaveBeenCalled();
+	});
 });

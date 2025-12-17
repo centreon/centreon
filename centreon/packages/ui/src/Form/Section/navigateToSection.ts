@@ -1,9 +1,9 @@
 export const useNavigateToSection = () => {
-  return (sectionName: string) => {
-    const section = document.querySelector(
-      `[data-section-group-form-id="${sectionName}"]`
-    );
+	return (sectionName: string) => {
+		const section = document.querySelector(
+			`[data-section-group-form-id="${sectionName}"]`,
+		);
 
-    section?.scrollIntoView({ behavior: 'smooth' });
-  };
+		section?.scrollIntoView({ behavior: "smooth" });
+	};
 };

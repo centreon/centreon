@@ -1,107 +1,107 @@
-import { QueryParameter } from '../../queryParameters/models';
+import type { QueryParameter } from "../../queryParameters/models";
 
 export interface BuildListingEndpointParameters {
-  baseEndpoint?: string;
-  customQueryParameters?: Array<QueryParameter>;
-  parameters: Parameters;
+	baseEndpoint?: string;
+	customQueryParameters?: Array<QueryParameter>;
+	parameters: Parameters;
 }
 
 export interface SearchMatch {
-  field: string;
-  value: string;
+	field: string;
+	value: string;
 }
 
 export interface Parameters {
-  customQueryParameters?: Array<QueryParameter>;
-  limit?: number;
-  page?: number;
-  search?: SearchParameter;
-  sort?: SortQueryParameterValue;
+	customQueryParameters?: Array<QueryParameter>;
+	limit?: number;
+	page?: number;
+	search?: SearchParameter;
+	sort?: SortQueryParameterValue;
 }
 export interface SearchParameter {
-  conditions?: Array<ConditionsSearchParameter>;
-  lists?: Array<ListsSearchParameter>;
-  regex?: RegexSearchParameter;
+	conditions?: Array<ConditionsSearchParameter>;
+	lists?: Array<ListsSearchParameter>;
+	regex?: RegexSearchParameter;
 }
 
 export interface ListsSearchQueryParameterValue {
-  $and: Array<{ [field: string]: { [field: string]: { $in: Array<string> } } }>;
+	$and: Array<{ [field: string]: { [field: string]: { $in: Array<string> } } }>;
 }
 
 export interface SortQueryParameterValue {
-  [sortf: string]: string;
+	[sortf: string]: string;
 }
 
 export interface RegexSearchParameter {
-  fields: Array<string>;
-  value: string;
+	fields: Array<string>;
+	value: string;
 }
 
 export interface ListsSearchParameter {
-  field: string;
-  values: Array<string | number>;
+	field: string;
+	values: Array<string | number>;
 }
 
 export type Operator =
-  | '$eq'
-  | '$neq'
-  | '$lt'
-  | '$le'
-  | '$gt'
-  | '$ge'
-  | '$lk'
-  | '$nk'
-  | '$in'
-  | '$ni'
-  | '$rg';
+	| "$eq"
+	| "$neq"
+	| "$lt"
+	| "$le"
+	| "$gt"
+	| "$ge"
+	| "$lk"
+	| "$nk"
+	| "$in"
+	| "$ni"
+	| "$rg";
 
 export type ConditionValue = {
-  [value in Operator]?: string | Array<string>;
+	[value in Operator]?: string | Array<string>;
 };
 
 export interface ConditionsSearchParameter {
-  field: string;
-  value?: unknown;
-  values?: ConditionValue;
-  operator?: '$and' | '$or';
+	field: string;
+	value?: unknown;
+	values?: ConditionValue;
+	operator?: "$and" | "$or";
 }
 
 type SearchPatterns = Array<{ [field: string]: { $rg: string } }>;
 
 export interface OrSearchQueryParameterValue {
-  $or: SearchPatterns;
+	$or: SearchPatterns;
 }
 
 export interface AndSearchQueryParameterValue {
-  $and: SearchPatterns;
+	$and: SearchPatterns;
 }
 
 export type RegexSearchQueryParameterValue =
-  | OrSearchQueryParameterValue
-  | AndSearchQueryParameterValue
-  | undefined;
+	| OrSearchQueryParameterValue
+	| AndSearchQueryParameterValue
+	| undefined;
 
 export interface GetListsSearchQueryParameterValueProps {
-  $and: Array<Record<string, FieldInValues>>;
+	$and: Array<Record<string, FieldInValues>>;
 }
 
 export interface GetConditionsSearchQueryParameterValueState {
-  $and: Array<Record<string, unknown>>;
+	$and: Array<Record<string, unknown>>;
 }
 
 export type SearchQueryParameterValue =
-  | {
-      $and: Array<
-        | RegexSearchQueryParameterValue
-        | GetListsSearchQueryParameterValueProps
-        | GetConditionsSearchQueryParameterValueState
-      >;
-    }
-  | RegexSearchQueryParameterValue
-  | GetListsSearchQueryParameterValueProps
-  | GetConditionsSearchQueryParameterValueState
-  | undefined;
+	| {
+			$and: Array<
+				| RegexSearchQueryParameterValue
+				| GetListsSearchQueryParameterValueProps
+				| GetConditionsSearchQueryParameterValueState
+			>;
+	  }
+	| RegexSearchQueryParameterValue
+	| GetListsSearchQueryParameterValueProps
+	| GetConditionsSearchQueryParameterValueState
+	| undefined;
 
 export interface FieldInValues {
-  $in: Array<unknown>;
+	$in: Array<unknown>;
 }

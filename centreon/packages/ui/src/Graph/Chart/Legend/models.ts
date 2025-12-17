@@ -1,16 +1,16 @@
 export interface FormattedMetricData {
-  color: string;
-  formattedValue: string | null;
-  name: string;
-  unit: string;
+	color: string;
+	formattedValue: string | null;
+	name: string;
+	unit: string;
 }
 
 export interface GetMetricValueProps {
-  unit: string;
-  value: number | null;
+	unit: string;
+	value: number | null;
 }
 
 export enum LegendDisplayMode {
-  Compact = 'compact',
-  Normal = 'normal'
+	Compact = "compact",
+	Normal = "normal",
 }

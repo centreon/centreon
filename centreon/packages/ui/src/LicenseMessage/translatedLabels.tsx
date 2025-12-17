@@ -1,1 +1,1 @@
-export const labelInvalidLicense = 'Invalid license';
+export const labelInvalidLicense = "Invalid license";

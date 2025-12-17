@@ -1,149 +1,147 @@
-import { RefCallback, memo, useEffect } from 'react';
-
-import dayjs from 'dayjs';
-import 'dayjs/locale/en';
-import 'dayjs/locale/es';
-import 'dayjs/locale/fr';
-import 'dayjs/locale/pt';
-import localizedFormat from 'dayjs/plugin/localizedFormat';
-import timezonePlugin from 'dayjs/plugin/timezone';
-import utcPlugin from 'dayjs/plugin/utc';
-import Loading from '../../LoadingSkeleton';
-import type { LineChartData, Thresholds } from '../common/models';
-
-import useResizeObserver from 'use-resize-observer';
-import Chart from './Chart';
-import { useChartStyles } from './Chart.styles';
-import LoadingSkeleton from './LoadingSkeleton';
-import type { GlobalAreaLines, LineChartProps } from './models';
-import useChartData from './useChartData';
+import dayjs from "dayjs";
+import { memo, type RefCallback, useEffect } from "react";
+import "dayjs/locale/en";
+import "dayjs/locale/es";
+import "dayjs/locale/fr";
+import "dayjs/locale/pt";
+import localizedFormat from "dayjs/plugin/localizedFormat";
+import timezonePlugin from "dayjs/plugin/timezone";
+import utcPlugin from "dayjs/plugin/utc";
+import useResizeObserver from "use-resize-observer";
+import Loading from "../../LoadingSkeleton";
+import type { LineChartData, Thresholds } from "../common/models";
+import Chart from "./Chart";
+import { useChartStyles } from "./Chart.styles";
+import LoadingSkeleton from "./LoadingSkeleton";
+import type { GlobalAreaLines, LineChartProps } from "./models";
+import useChartData from "./useChartData";
 
 dayjs.extend(localizedFormat);
 dayjs.extend(utcPlugin);
 dayjs.extend(timezonePlugin);
 
 interface Props extends Partial<LineChartProps> {
-  data?: LineChartData;
-  end: string;
-  limitLegend?: false | number;
-  loading: boolean;
-  shapeLines?: GlobalAreaLines;
-  start: string;
-  thresholdUnit?: string;
-  thresholds?: Thresholds;
-  getRef?: (ref: RefCallback<Element>) => void;
-  containerStyle?: string;
-  transformMatrix?: {
-    fx?: (pointX: number) => number;
-    fy?: (pointY: number) => number;
-  };
+	data?: LineChartData;
+	end: string;
+	limitLegend?: false | number;
+	loading: boolean;
+	shapeLines?: GlobalAreaLines;
+	start: string;
+	thresholdUnit?: string;
+	thresholds?: Thresholds;
+	getRef?: (ref: RefCallback<Element>) => void;
+	containerStyle?: string;
+	transformMatrix?: {
+		fx?: (pointX: number) => number;
+		fy?: (pointY: number) => number;
+	};
 }
 
 const WrapperChart = ({
-  end,
-  start,
-  height = 500,
-  width,
-  shapeLines,
-  axis,
-  displayAnchor,
-  zoomPreview,
-  data,
-  loading,
-  timeShiftZones,
-  tooltip = {
-    mode: 'all',
-    sortOrder: 'name'
-  },
-  annotationEvent,
-  legend = {
-    display: true,
-    mode: 'grid',
-    placement: 'bottom',
-    showCalculations: {
-      min: true,
-      max: true,
-      avg: true
-    }
-  },
-  header,
-  lineStyle,
-  barStyle,
-  thresholds,
-  thresholdUnit,
-  limitLegend,
-  getRef,
-  transformMatrix,
-  additionalLines,
-  min,
-  max,
-  boundariesUnit,
-  ...rest
+	end,
+	start,
+	height = 500,
+	width,
+	shapeLines,
+	axis,
+	displayAnchor,
+	zoomPreview,
+	data,
+	loading,
+	timeShiftZones,
+	tooltip = {
+		mode: "all",
+		sortOrder: "name",
+	},
+	annotationEvent,
+	legend = {
+		display: true,
+		mode: "grid",
+		placement: "bottom",
+		showCalculations: {
+			min: true,
+			max: true,
+			avg: true,
+		},
+	},
+	header,
+	lineStyle,
+	barStyle,
+	thresholds,
+	thresholdUnit,
+	limitLegend,
+	getRef,
+	transformMatrix,
+	additionalLines,
+	min,
+	max,
+	boundariesUnit,
+	...rest
 }: Props): JSX.Element | null => {
-  const { classes, cx } = useChartStyles();
+	const { classes, cx } = useChartStyles();
 
-  const { adjustedData } = useChartData({ data, end, start });
-  const {
-    ref,
-    width: responsiveWidth,
-    height: responsiveHeight
-  } = useResizeObserver();
+	const { adjustedData } = useChartData({ data, end, start });
+	const {
+		ref,
+		width: responsiveWidth,
+		height: responsiveHeight,
+	} = useResizeObserver();
 
-  useEffect(() => {
-    getRef?.(ref);
-  }, [ref?.current]);
+	useEffect(() => {
+		getRef?.(ref);
+	}, [ref?.current, getRef, ref]);
 
-  if (loading && !adjustedData) {
-    return (
-      <LoadingSkeleton
-        displayTitleSkeleton={header?.displayTitle ?? false}
-        graphHeight={height || 200}
-      />
-    );
-  }
+	if (loading && !adjustedData) {
+		return (
+			<LoadingSkeleton
+				displayTitleSkeleton={header?.displayTitle ?? false}
+				graphHeight={height || 200}
+			/>
+		);
+	}
 
-  if (!adjustedData) {
-    return <div />;
-  }
+	if (!adjustedData) {
+		return <div />;
+	}
 
-  return (
-    <div
-      ref={ref}
-      className={cx(classes.wrapperContainer, rest?.containerStyle)}
-    >
-      {!responsiveHeight ? (
-        <Loading height={height || '100%'} width={width} />
-      ) : (
-        <Chart
-          annotationEvent={annotationEvent}
-          axis={axis}
-          barStyle={barStyle}
-          displayAnchor={displayAnchor}
-          graphData={adjustedData}
-          graphInterval={{ end, start }}
-          graphRef={ref}
-          header={header}
-          height={height || responsiveHeight || 0}
-          legend={legend}
-          limitLegend={limitLegend}
-          lineStyle={lineStyle}
-          shapeLines={shapeLines}
-          thresholdUnit={thresholdUnit}
-          thresholds={thresholds}
-          timeShiftZones={timeShiftZones}
-          tooltip={tooltip}
-          width={width || responsiveWidth || 0}
-          zoomPreview={zoomPreview}
-          skipIntersectionObserver={rest.skipIntersectionObserver}
-          additionalLines={additionalLines}
-          transformMatrix={transformMatrix}
-          min={min}
-          max={max}
-          boundariesUnit={boundariesUnit}
-        />
-      )}
-    </div>
-  );
+	return (
+		<div
+			ref={ref}
+			className={cx(classes.wrapperContainer, rest?.containerStyle)}
+		>
+			{!responsiveHeight ? (
+				<Loading height={height || "100%"} width={width} />
+			) : (
+				<Chart
+					annotationEvent={annotationEvent}
+					axis={axis}
+					barStyle={barStyle}
+					displayAnchor={displayAnchor}
+					graphData={adjustedData}
+					graphInterval={{ end, start }}
+					graphRef={ref}
+					header={header}
+					height={height || responsiveHeight || 0}
+					legend={legend}
+					limitLegend={limitLegend}
+					lineStyle={lineStyle}
+					shapeLines={shapeLines}
+					thresholdUnit={thresholdUnit}
+					thresholds={thresholds}
+					timeShiftZones={timeShiftZones}
+					tooltip={tooltip}
+					width={width || responsiveWidth || 0}
+					zoomPreview={zoomPreview}
+					skipIntersectionObserver={rest.skipIntersectionObserver}
+					additionalLines={additionalLines}
+					transformMatrix={transformMatrix}
+					min={min}
+					max={max}
+					boundariesUnit={boundariesUnit}
+				/>
+			)}
+		</div>
+	);
 };
 
 export default memo(WrapperChart);

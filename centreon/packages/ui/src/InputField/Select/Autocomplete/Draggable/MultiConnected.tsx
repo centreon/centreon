@@ -1,15 +1,15 @@
-import ConnectedAutocompleteField from '../Connected';
-import MultiAutocompleteField from '../Multi';
+import ConnectedAutocompleteField from "../Connected";
+import MultiAutocompleteField from "../Multi";
 
-import DraggableAutocompleteField from '.';
+import DraggableAutocompleteField from ".";
 
 const MultiConnectedAutocompleteField = ConnectedAutocompleteField(
-  MultiAutocompleteField,
-  false
+	MultiAutocompleteField,
+	false,
 );
 
 const MultiDraggableConnectedAutocompleteField = DraggableAutocompleteField(
-  MultiConnectedAutocompleteField
+	MultiConnectedAutocompleteField,
 );
 
 export default MultiDraggableConnectedAutocompleteField;

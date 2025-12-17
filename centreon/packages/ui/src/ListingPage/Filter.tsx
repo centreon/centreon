@@ -1,46 +1,44 @@
-import { makeStyles } from 'tss-react/mui';
-
-import { Box } from '@mui/material';
-
-import { ReactElement, forwardRef } from 'react';
-import { useMemoComponent } from '..';
+import { Box } from "@mui/material";
+import { forwardRef, type ReactElement } from "react";
+import { makeStyles } from "tss-react/mui";
+import { useMemoComponent } from "..";
 
 const useStyles = makeStyles()((theme) => ({
-  content: {
-    border: 'none',
-    padding: theme.spacing(1, 0)
-  }
+	content: {
+		border: "none",
+		padding: theme.spacing(1, 0),
+	},
 }));
 
 export interface FilterProps {
-  content?: ReactElement;
+	content?: ReactElement;
 }
 
 const Filter = forwardRef(({ content }: FilterProps, ref): JSX.Element => {
-  const { classes } = useStyles();
+	const { classes } = useStyles();
 
-  return (
-    <Box
-      className={classes.content}
-      component="div"
-      ref={ref as React.RefObject<HTMLDivElement>}
-    >
-      {content}
-    </Box>
-  );
+	return (
+		<Box
+			className={classes.content}
+			component="div"
+			ref={ref as React.RefObject<HTMLDivElement>}
+		>
+			{content}
+		</Box>
+	);
 });
 
 interface MemoizedFilterProps extends FilterProps {
-  memoProps?: Array<unknown>;
+	memoProps?: Array<unknown>;
 }
 
 export const MemoizedFilter = ({
-  memoProps = [],
-  ...props
+	memoProps = [],
+	...props
 }: MemoizedFilterProps): JSX.Element =>
-  useMemoComponent({
-    Component: <Filter {...props} />,
-    memoProps: [...memoProps]
-  });
+	useMemoComponent({
+		Component: <Filter {...props} />,
+		memoProps: [...memoProps],
+	});
 
 export default Filter;

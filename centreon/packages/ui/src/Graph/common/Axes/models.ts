@@ -1,30 +1,30 @@
-import { ChartAxis } from '../../Chart/models';
-import { Line, TimeValue } from '../timeSeries/models';
+import type { ChartAxis } from "../../Chart/models";
+import type { Line, TimeValue } from "../timeSeries/models";
 
 export interface LabelProps {
-  [x: string]: unknown;
-  textAnchor?: string;
+	[x: string]: unknown;
+	textAnchor?: string;
 }
 
 export interface Axis {
-  displayUnit?: boolean;
-  onUnitChange?: (newUnit: string) => void;
-  unit?: string;
+	displayUnit?: boolean;
+	onUnitChange?: (newUnit: string) => void;
+	unit?: string;
 }
 
 export interface AxisYRight extends Axis {
-  display?: boolean;
+	display?: boolean;
 }
 
 export interface AxisX {
-  xAxisTickFormat?: string;
+	xAxisTickFormat?: string;
 }
 export interface Data
-  extends Omit<ChartAxis, 'axisX' | 'axisYLeft' | 'axisYRight'> {
-  axisX?: AxisX;
-  axisYLeft?: Axis;
-  axisYRight?: AxisYRight;
-  baseAxis: number;
-  lines: Array<Line>;
-  timeSeries: Array<TimeValue>;
+	extends Omit<ChartAxis, "axisX" | "axisYLeft" | "axisYRight"> {
+	axisX?: AxisX;
+	axisYLeft?: Axis;
+	axisYRight?: AxisYRight;
+	baseAxis: number;
+	lines: Array<Line>;
+	timeSeries: Array<TimeValue>;
 }

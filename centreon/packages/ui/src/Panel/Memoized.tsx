@@ -1,52 +1,52 @@
 /* eslint-disable react/prop-types */
 
-import { forwardRef } from 'react';
+import { forwardRef } from "react";
 
-import { useMemoComponent } from '../utils';
+import { useMemoComponent } from "../utils";
 
-import Panel, { Props } from '.';
+import Panel, { type Props } from ".";
 
 interface MemoizedPanelProps extends Props {
-  memoProps?: Array<unknown>;
+	memoProps?: Array<unknown>;
 }
 
 const MemoizedPanel = forwardRef<HTMLDivElement, MemoizedPanelProps>(
-  (
-    {
-      memoProps = [],
-      tabs,
-      selectedTabId,
-      labelClose,
-      width,
-      minWidth,
-      headerBackgroundColor,
-      ...props
-    }: MemoizedPanelProps,
-    ref
-  ): JSX.Element => {
-    return useMemoComponent({
-      Component: (
-        <Panel
-          headerBackgroundColor={headerBackgroundColor}
-          labelClose={labelClose}
-          minWidth={minWidth}
-          ref={ref}
-          selectedTabId={selectedTabId}
-          tabs={tabs}
-          width={width}
-          {...props}
-        />
-      ),
-      memoProps: [
-        ...memoProps,
-        selectedTabId,
-        labelClose,
-        width,
-        minWidth,
-        headerBackgroundColor
-      ]
-    });
-  }
+	(
+		{
+			memoProps = [],
+			tabs,
+			selectedTabId,
+			labelClose,
+			width,
+			minWidth,
+			headerBackgroundColor,
+			...props
+		}: MemoizedPanelProps,
+		ref,
+	): JSX.Element => {
+		return useMemoComponent({
+			Component: (
+				<Panel
+					headerBackgroundColor={headerBackgroundColor}
+					labelClose={labelClose}
+					minWidth={minWidth}
+					ref={ref}
+					selectedTabId={selectedTabId}
+					tabs={tabs}
+					width={width}
+					{...props}
+				/>
+			),
+			memoProps: [
+				...memoProps,
+				selectedTabId,
+				labelClose,
+				width,
+				minWidth,
+				headerBackgroundColor,
+			],
+		});
+	},
 );
 
 export default MemoizedPanel;

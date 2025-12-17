@@ -1,28 +1,28 @@
-import { Chip } from '@mui/material';
+import { Chip } from "@mui/material";
 
-import { ItemState } from '../models';
+import type { ItemState } from "../models";
 
-import { useListStyles } from './List.styles';
+import { useListStyles } from "./List.styles";
 
 interface Props {
-  label: string;
-  state: ItemState;
+	label: string;
+	state: ItemState;
 }
 
 const StateChip = ({ label, state }: Props): JSX.Element => {
-  const { classes, cx } = useListStyles();
+	const { classes, cx } = useListStyles();
 
-  return (
-    <div className={cx(classes.state)}>
-      <Chip
-        className={classes.stateChip}
-        data-state={state}
-        label={label}
-        size="small"
-        variant="outlined"
-      />
-    </div>
-  );
+	return (
+		<div className={cx(classes.state)}>
+			<Chip
+				className={classes.stateChip}
+				data-state={state}
+				label={label}
+				size="small"
+				variant="outlined"
+			/>
+		</div>
+	);
 };
 
 export default StateChip;

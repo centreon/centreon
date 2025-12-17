@@ -1,13 +1,12 @@
-import { ReactElement, useCallback, useEffect, useRef } from 'react';
+import { atom, useAtom } from "jotai";
+import { type ReactElement, useCallback, useEffect, useRef } from "react";
 
-import { atom, useAtom } from 'jotai';
+import { useResizeObserver } from "../../../utils/useResizeObserver";
+import { Tooltip, type TooltipProps } from "../Tooltip";
 
-import { useResizeObserver } from '../../../utils/useResizeObserver';
-import { Tooltip, TooltipProps } from '../Tooltip';
+import { useStyles } from "./TextOverflowTooltip.styles";
 
-import { useStyles } from './TextOverflowTooltip.styles';
-
-type TextOverflowTooltipProps = Omit<TooltipProps, 'followCursor' | 'hasCaret'>;
+type TextOverflowTooltipProps = Omit<TooltipProps, "followCursor" | "hasCaret">;
 
 /** @description
  * This component is used to display a tooltip when the text is too long, and displays the full text on hover.
@@ -30,86 +29,86 @@ type TextOverflowTooltipProps = Omit<TooltipProps, 'followCursor' | 'hasCaret'>;
  */
 
 const TextOverflowTooltip = ({
-  children,
-  label,
-  position = 'bottom',
-  isOpen,
-  ...tooltipProps
+	children,
+	label,
+	position = "bottom",
+	isOpen,
+	...tooltipProps
 }: TextOverflowTooltipProps): ReactElement => {
-  const { classes } = useStyles();
+	const { classes } = useStyles();
 
-  const stateAtom = useRef(
-    atom<{
-      hasOverflow: boolean;
-      isOpen: boolean;
-    }>({ hasOverflow: false, isOpen: false })
-  ).current;
+	const stateAtom = useRef(
+		atom<{
+			hasOverflow: boolean;
+			isOpen: boolean;
+		}>({ hasOverflow: false, isOpen: false }),
+	).current;
 
-  const [state, setState] = useAtom(stateAtom);
+	const [state, setState] = useAtom(stateAtom);
 
-  const onMouseEnter = useCallback(
-    () =>
-      state.hasOverflow &&
-      setState({
-        ...state,
-        isOpen: true
-      }),
-    [state.hasOverflow]
-  );
+	const onMouseEnter = useCallback(
+		() =>
+			state.hasOverflow &&
+			setState({
+				...state,
+				isOpen: true,
+			}),
+		[state.hasOverflow, setState, state],
+	);
 
-  const onMouseLeave = useCallback(
-    () =>
-      state.hasOverflow &&
-      setState({
-        ...state,
-        isOpen: false
-      }),
-    [state.hasOverflow]
-  );
+	const onMouseLeave = useCallback(
+		() =>
+			state.hasOverflow &&
+			setState({
+				...state,
+				isOpen: false,
+			}),
+		[state.hasOverflow, setState, state],
+	);
 
-  const elRef = useRef<HTMLDivElement>(null);
+	const elRef = useRef<HTMLDivElement>(null);
 
-  const onResize = (): void => {
-    const { firstElementChild: el } = elRef.current || {};
-    if (el instanceof HTMLElement) {
-      setState({
-        ...state,
-        hasOverflow:
-          el.scrollWidth > el.offsetWidth || el.scrollHeight > el.offsetHeight
-      });
-    }
-  };
+	const onResize = (): void => {
+		const { firstElementChild: el } = elRef.current || {};
+		if (el instanceof HTMLElement) {
+			setState({
+				...state,
+				hasOverflow:
+					el.scrollWidth > el.offsetWidth || el.scrollHeight > el.offsetHeight,
+			});
+		}
+	};
 
-  useResizeObserver({
-    onResize,
-    ref: elRef
-  });
+	useResizeObserver({
+		onResize,
+		ref: elRef,
+	});
 
-  useEffect(() => {
-    if (isOpen) setState({ ...state, isOpen });
-    onResize();
-  }, [isOpen, label]);
+	useEffect(() => {
+		if (isOpen) setState({ ...state, isOpen });
+		onResize();
+	}, [isOpen, onResize, setState, state]);
 
-  return (
-    <Tooltip
-      followCursor
-      hasCaret={false}
-      isOpen={state.isOpen}
-      label={label}
-      position={position}
-      {...tooltipProps}
-    >
-      <div
-        className={classes.textOverflowTooltip}
-        data-has-overflow={state.hasOverflow}
-        ref={elRef}
-        onMouseEnter={onMouseEnter}
-        onMouseLeave={onMouseLeave}
-      >
-        {children}
-      </div>
-    </Tooltip>
-  );
+	return (
+		<Tooltip
+			followCursor
+			hasCaret={false}
+			isOpen={state.isOpen}
+			label={label}
+			position={position}
+			{...tooltipProps}
+		>
+			<div
+				className={classes.textOverflowTooltip}
+				data-has-overflow={state.hasOverflow}
+				ref={elRef}
+				onMouseEnter={onMouseEnter}
+				onMouseLeave={onMouseLeave}
+			>
+				{children}
+			</div>
+		</Tooltip>
+	);
 };
 
 export { TextOverflowTooltip };

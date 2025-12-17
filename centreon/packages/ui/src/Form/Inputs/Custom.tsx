@@ -1,16 +1,16 @@
-import { isNil } from 'ramda';
+import { isNil } from "ramda";
 
-import { InputPropsWithoutGroup } from './models';
+import type { InputPropsWithoutGroup } from "./models";
 
 const Custom = ({
-  custom,
-  ...props
+	custom,
+	...props
 }: InputPropsWithoutGroup): JSX.Element | null => {
-  if (isNil(custom)) {
-    return null;
-  }
+	if (isNil(custom)) {
+		return null;
+	}
 
-  return <custom.Component {...props} />;
+	return <custom.Component {...props} />;
 };
 
 export default Custom;

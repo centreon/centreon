@@ -1,13 +1,13 @@
-import { ReactElement } from 'react';
+import type { ReactElement } from "react";
 
-import { LoadingSkeleton } from '../../..';
+import { LoadingSkeleton } from "../../..";
 
-import { useStyles } from './DataTableItem.styles';
+import { useStyles } from "./DataTableItem.styles";
 
 const DataTableItemSkeleton = (): ReactElement => {
-  const { classes } = useStyles();
+	const { classes } = useStyles();
 
-  return <LoadingSkeleton className={classes.dataTableItem} />;
+	return <LoadingSkeleton className={classes.dataTableItem} />;
 };
 
 export { DataTableItemSkeleton };

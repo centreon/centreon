@@ -1,18 +1,18 @@
-import { CheckboxProps, Checkbox as MuiCheckbox } from '@mui/material';
+import { type CheckboxProps, Checkbox as MuiCheckbox } from "@mui/material";
 
 const Checkbox = ({
-  className,
-  ...props
+	className,
+	...props
 }: { className?: string } & Omit<
-  CheckboxProps,
-  'size' | 'color'
+	CheckboxProps,
+	"size" | "color"
 >): JSX.Element => (
-  <MuiCheckbox
-    className={`p-0 ${className}`}
-    color="primary"
-    size="small"
-    {...props}
-  />
+	<MuiCheckbox
+		className={`p-0 ${className}`}
+		color="primary"
+		size="small"
+		{...props}
+	/>
 );
 
 export default Checkbox;
