@@ -1,3 +1,4 @@
+/** biome-ignore-all lint/a11y/useAriaPropsSupportedByRole: need it */
 import { Typography } from '@mui/material';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';

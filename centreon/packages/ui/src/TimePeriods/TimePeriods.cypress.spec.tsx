@@ -287,7 +287,7 @@ const checkIfDuplicateExists = (arr: Array<unknown>): boolean => {
   return new Set(arr).size !== arr.length;
 };
 
-testData.forEach((item) =>
+testData.forEach((item) => {
   describe(`DateTimePicker ${item.button}`, () => {
     beforeEach(() => {
       cy.viewport('macbook-13');
@@ -454,7 +454,9 @@ testData.forEach((item) =>
             formatString: 'dd'
           })
         );
-        daysArray.forEach((day) => cy.contains(day.toUpperCase()));
+        daysArray.forEach((day) => {
+          cy.contains(day.toUpperCase());
+        });
         const currentMonth = Object.keys(element)[0];
         if (equals(item.button, ButtonCalendar.PMONTH)) {
           getPreviousMonth({ currentMonth, labelButton: item.button });
@@ -482,5 +484,5 @@ testData.forEach((item) =>
         );
       });
     });
-  })
-);
+  });
+});

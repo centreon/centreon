@@ -1,3 +1,4 @@
+/** biome-ignore-all lint/a11y/noStaticElementInteractions: need it */
 import { atom, useAtom } from 'jotai';
 import { type ReactElement, useCallback, useEffect, useRef } from 'react';
 

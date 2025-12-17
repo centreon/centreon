@@ -1,3 +1,4 @@
+/** biome-ignore-all lint/a11y/noStaticElementInteractions: need it */
 import { scaleLinear } from '@visx/scale';
 import { useMemo } from 'react';
 

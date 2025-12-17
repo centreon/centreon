@@ -6,7 +6,7 @@ interface Props {
   setToggled: Dispatch<SetStateAction<boolean>>;
 }
 const useCloseOnLegacyPage = ({ setToggled }: Props): void => {
-  const { pathname, search } = useLocation();
+  const { pathname } = useLocation();
   const isLegacyRoute = pathname.includes('main.php');
 
   const closeSubMenu = (): void => {

@@ -35,7 +35,7 @@ const data = [
   }
 ];
 
-data.forEach((item) =>
+data.forEach((item) => {
   describe('Time period', () => {
     const { height, width } = item.resolution;
     beforeEach(() => {
@@ -70,5 +70,5 @@ data.forEach((item) =>
         title: `${width}px`
       });
     });
-  })
-);
+  });
+});

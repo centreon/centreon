@@ -1,3 +1,5 @@
+/** biome-ignore-all lint/a11y/noStaticElementInteractions: need it */
+/** biome-ignore-all lint/a11y/useAriaPropsSupportedByRole: nedd it */
 import { Typography } from '@mui/material';
 
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';

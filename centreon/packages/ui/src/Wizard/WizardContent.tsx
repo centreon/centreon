@@ -25,7 +25,6 @@ const WizardContent = ({
   isFirstStep,
   disableNextOnSendingRequests,
   goToPreviousStep,
-  currentStep,
   actionsBarLabels,
   goToNextStep
 }: WizardContentProps): JSX.Element => {

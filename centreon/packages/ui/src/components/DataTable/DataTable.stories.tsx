@@ -21,7 +21,7 @@ export const Default: Story = {
           <DataTable.Item
             description={`Item description ${i}`}
             key={`k-${
-              // biome-ignore lint/suspicious/noArrayIndexKey:
+              // biome-ignore lint/suspicious/noArrayIndexKey: need it
               i
             }`}
             title={`Item ${i}`}

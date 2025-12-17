@@ -1,3 +1,4 @@
+/** biome-ignore-all lint/a11y/noStaticElementInteractions: need it */
 import IconClose from '@mui/icons-material/Clear';
 import { AppBar, Divider, Paper, Slide, Tabs } from '@mui/material';
 

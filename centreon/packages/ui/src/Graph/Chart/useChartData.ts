@@ -30,7 +30,7 @@ interface Props {
 
 const getBoolean = (value) => Boolean(Number(value));
 
-const useGraphData = ({ data, end, start }: Props): GraphDataResult => {
+const useGraphData = ({ data }: Props): GraphDataResult => {
   const adjustedDataRef = useRef<Data>();
 
   const dataWithAdjustedMetricsColor = useMemo(() => {

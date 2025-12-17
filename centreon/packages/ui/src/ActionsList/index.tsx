@@ -48,7 +48,7 @@ const ActionsList = ({
     <MenuList className={cx(classes.list, className)}>
       {actions?.map((action, idx) => {
         if (equals(action, ActionsListActionDivider.divider)) {
-          // biome-ignore lint/suspicious/noArrayIndexKey:
+          // biome-ignore lint/suspicious/noArrayIndexKey: need it
           return <Divider key={`divider_${idx}`} />;
         }
 
