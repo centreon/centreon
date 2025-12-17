@@ -1,0 +1,229 @@
+{
+  "root": false,
+  "formatter": {
+    "enabled": true,
+    "indentStyle": "space",
+    "formatWithErrors": false
+  },
+  "assist": {
+    "actions": {
+      "source": {
+        "organizeImports": {
+          "level": "on",
+          "options": {
+            "groups": [
+              ":NODE:",
+              "react",
+              "@mui/*",
+              "@centreon/*",
+              "ramda",
+              "jotai*",
+              ":ALIAS:",
+              ":PACKAGE:",
+              ":PATH:"
+            ]
+          }
+        }
+      }
+    }
+  },
+  "linter": {
+    "enabled": true,
+    "rules": {
+      "recommended": true,
+      "a11y": {
+        "noSvgWithoutTitle": "off"
+      },
+      "complexity": {
+        "noBannedTypes": "off",
+        "noForEach": "off"
+      },
+      "correctness": {
+        "noUnusedImports": "error",
+        "noUnusedVariables": "error",
+        "useExhaustiveDependencies": "off",
+        "noUnknownUnit": "error",
+        "noUnknownProperty": "error",
+        "noUnknownFunction": "error",
+        "useIsNan": "error"
+      },
+      "nursery": {},
+      "suspicious": {
+        "noConsole": "error",
+        "useAwait": "error"
+      },
+      "performance": {
+        "noAccumulatingSpread": "off",
+        "noNamespaceImport": "error"
+      },
+      "style": {
+        "useLiteralEnumMembers": "off",
+        "useImportType": "off",
+        "noNamespace": "error",
+        "useFragmentSyntax": "error",
+        "useFilenamingConvention": {
+          "level": "error",
+          "options": {
+            "strictCase": false,
+            "filenameCases": ["camelCase", "PascalCase", "kebab-case"]
+          }
+        },
+        "useNamingConvention": {
+          "level": "error",
+          "options": {
+            "strictCase": false,
+            "conventions": [
+              {
+                "formats": ["camelCase", "PascalCase"],
+                "selector": {
+                  "kind": "variable"
+                }
+              },
+              {
+                "selector": {
+                  "kind": "interface"
+                },
+                "formats": ["PascalCase"]
+              },
+              {
+                "selector": {
+                  "kind": "enum"
+                },
+                "formats": ["PascalCase"]
+              },
+              {
+                "selector": {
+                  "kind": "objectLiteralProperty"
+                },
+                "match": ".*"
+              },
+              {
+                "match": "_(.*)|([a-zA-Z].*)",
+                "selector": {
+                  "kind": "functionParameter"
+                },
+                "formats": ["snake_case", "PascalCase", "camelCase"]
+              },
+              {
+                "match": ".*",
+                "formats": [
+                  "snake_case",
+                  "camelCase",
+                  "PascalCase",
+                  "CONSTANT_CASE"
+                ]
+              }
+            ]
+          }
+        },
+        "noRestrictedGlobals": {
+          "level": "error",
+          "options": {
+            "deniedGlobals": {
+              "isFinite": "Do not use globals.",
+              "isNaN": "Do not use globals.",
+              "addEventListener": "Do not use globals.",
+              "blur": "Do not use globals.",
+              "close": "Do not use globals.",
+              "closed": "Do not use globals.",
+              "confirm": "Do not use globals.",
+              "defaultStatus": "Do not use globals.",
+              "defaultstatus": "Do not use globals.",
+              "event": "Do not use globals.",
+              "external": "Do not use globals.",
+              "find": "Do not use globals.",
+              "focus": "Do not use globals.",
+              "frameElement": "Do not use globals.",
+              "frames": "Do not use globals.",
+              "history": "Do not use globals.",
+              "innerHeight": "Do not use globals.",
+              "innerWidth": "Do not use globals.",
+              "length": "Do not use globals.",
+              "location": "Do not use globals.",
+              "locationbar": "Do not use globals.",
+              "menubar": "Do not use globals.",
+              "moveBy": "Do not use globals.",
+              "moveTo": "Do not use globals.",
+              "name": "Do not use globals.",
+              "onblur": "Do not use globals.",
+              "onerror": "Do not use globals.",
+              "onfocus": "Do not use globals.",
+              "onload": "Do not use globals.",
+              "onresize": "Do not use globals.",
+              "onunload": "Do not use globals.",
+              "open": "Do not use globals.",
+              "opener": "Do not use globals.",
+              "opera": "Do not use globals.",
+              "outerHeight": "Do not use globals.",
+              "outerWidth": "Do not use globals.",
+              "pageXOffset": "Do not use globals.",
+              "pageYOffset": "Do not use globals.",
+              "parent": "Do not use globals.",
+              "print": "Do not use globals.",
+              "removeEventListener": "Do not use globals.",
+              "resizeBy": "Do not use globals.",
+              "resizeTo": "Do not use globals.",
+              "screen": "Do not use globals.",
+              "screenLeft": "Do not use globals.",
+              "screenTop": "Do not use globals.",
+              "screenX": "Do not use globals.",
+              "screenY": "Do not use globals.",
+              "scroll": "Do not use globals.",
+              "scrollbars": "Do not use globals.",
+              "scrollBy": "Do not use globals.",
+              "scrollTo": "Do not use globals.",
+              "scrollX": "Do not use globals.",
+              "scrollY": "Do not use globals.",
+              "self": "Do not use globals.",
+              "status": "Do not use globals.",
+              "statusbar": "Do not use globals.",
+              "stop": "Do not use globals.",
+              "toolbar": "Do not use globals.",
+              "top": "Do not use globals."
+            }
+          }
+        },
+        "noRestrictedImports": {
+          "level": "error",
+          "options": {
+            "paths": {
+              "lodash": "Using lodash is not encouraged.",
+              "moment": "Using moment is not encouraged."
+            }
+          }
+        }
+      }
+    }
+  },
+  "javascript": {
+    "formatter": {
+      "enabled": true,
+      "quoteStyle": "single",
+      "semicolons": "always",
+      "indentStyle": "space",
+      "trailingCommas": "none"
+    },
+    "linter": {
+      "enabled": true
+    }
+  },
+  "json": {
+    "parser": {
+      "allowComments": true,
+      "allowTrailingCommas": false
+    },
+    "formatter": {
+      "enabled": true,
+      "indentStyle": "space"
+    }
+  },
+  "css": {
+    "formatter": {
+      "enabled": true,
+      "indentStyle": "space"
+    },
+    "linter": {
+      "enabled": true
+    }
+  }
+}
