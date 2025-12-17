@@ -706,7 +706,7 @@ function updateContact(int $contactId): void
 
     // Filter fields to only include whitelisted fields for non-admin users
     if (! $centreon->user->admin) {
-        $ret = filterNonAdminFields($ret);
+        $ret = filterNonAdminFields($ret, $centreon->user->user_id == $contactId);
     }
 
     // Remove illegal chars in data sent by the user
@@ -827,7 +827,7 @@ function updateContact_MC(int $contact_id): void
     }
     // Filter fields to only include whitelisted fields for non-admin users
     if (! $centreon->user->admin) {
-        $ret = filterNonAdminFields($ret);
+        $ret = filterNonAdminFields($ret, $centreon->user->user_id == $contact_id);
     }
 
     try {
@@ -1889,20 +1889,25 @@ function validateAutologin(array $fields): array|true
  * Filter the fields in the $ret array to only include whitelisted fields for non-admin users.
  *
  * @param array $ret
+ * @param bool $isSelfContact
  * @return array
  */
-function filterNonAdminFields(array $ret): array
+function filterNonAdminFields(array $ret, bool $isSelfContact = false): array
 {
     $allowedFields = [
         'contact_alias', 'contact_name', 'contact_email', 'contact_pager',
         'contact_cgNotif', 'contact_enable_notifications', 'contact_hostNotifOpts',
         'timeperiod_tp_id', 'contact_hostNotifCmds', 'contact_svNotifOpts', 'contact_passwd2',
         'timeperiod_tp_id2', 'contact_svNotifCmds', 'contact_oreon', 'contact_passwd',
-        'contact_lang', 'default_page', 'contact_location', 'contact_autologin_key', 'contact_auth_type',
+        'contact_lang', 'default_page', 'contact_location', 'contact_auth_type',
         'contact_acl_groups', 'contact_address1', 'contact_address2', 'contact_address3', 'contact_address4',
         'contact_address5', 'contact_address6', 'contact_comment', 'contact_register', 'contact_activate',
         'contact_id', 'initialValues', 'centreon_token', 'contact_template_id', 'contact_type_msg', 'contact_ldap_dn',
     ];
+
+    if ($isSelfContact) {
+        $allowedFields[] = 'contact_autologin_key';
+    }
 
     foreach ($ret as $field => $value) {
         if (! in_array($field, $allowedFields, true)) {
