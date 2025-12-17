@@ -36,6 +36,7 @@ use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Application\Common\UseCase\PresenterInterface;
+use Core\Command\Application\Exception\CommandException;
 use Core\Command\Application\Repository\ReadCommandRepositoryInterface;
 use Core\Command\Domain\Model\CommandType;
 use Core\CommandMacro\Application\Repository\ReadCommandMacroRepositoryInterface;
@@ -242,12 +243,20 @@ final class PartialUpdateHostTemplate
             $hostTemplate->setSeverityId($request->severityId);
         }
 
+        if (! $request->freshnessChecked instanceof NoValue) {
+            $hostTemplate->setFreshnessChecked(YesNoDefaultConverter::fromScalar($request->freshnessChecked));
+        }
+
+        if (! $request->freshnessThreshold instanceof NoValue) {
+            $hostTemplate->setFreshnessThreshold($request->freshnessThreshold);
+        }
+
         if (! $request->checkCommandId instanceof NoValue) {
             $this->validation->assertIsValidCommand($request->checkCommandId, CommandType::Check, 'checkCommandId');
             $hostTemplate->setCheckCommandId($request->checkCommandId);
             $command = $this->readCommandRepository->findById($request->checkCommandId);
             if ($command === null) {
-                throw HostTemplateException::errorWhileRetrievingObject();
+                throw CommandException::errorWhileRetrieving();
             }
             if ($command->isCentreonMonitoringAgentCommand()) {
                 $hostTemplate->setFreshnessChecked(YesNoDefaultConverter::fromScalar(1));
@@ -327,14 +336,6 @@ final class PartialUpdateHostTemplate
 
         if (! $request->acknowledgementTimeout instanceof NoValue) {
             $hostTemplate->setAcknowledgementTimeout($request->acknowledgementTimeout);
-        }
-
-        if (! $request->freshnessChecked instanceof NoValue) {
-            $hostTemplate->setFreshnessChecked(YesNoDefaultConverter::fromScalar($request->freshnessChecked));
-        }
-
-        if (! $request->freshnessThreshold instanceof NoValue) {
-            $hostTemplate->setFreshnessThreshold($request->freshnessThreshold);
         }
 
         if (! $request->flapDetectionEnabled instanceof NoValue) {

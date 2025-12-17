@@ -33,6 +33,7 @@ use Core\Application\Common\UseCase\ConflictResponse;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
+use Core\Command\Application\Exception\CommandException;
 use Core\Command\Application\Repository\ReadCommandRepositoryInterface;
 use Core\Command\Domain\Model\CommandType;
 use Core\CommandMacro\Application\Repository\ReadCommandMacroRepositoryInterface;
@@ -183,7 +184,7 @@ final class AddHost
 
         $command = $this->readCommandRepository->findById($request->checkCommandId);
         if ($command === null) {
-            throw HostException::errorWhileRetrievingObject();
+            throw CommandException::errorWhileRetrieving();
         }
         if ($command->isCentreonMonitoringAgentCommand()) {
             $request->freshnessChecked = 1;

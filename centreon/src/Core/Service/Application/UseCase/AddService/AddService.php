@@ -33,6 +33,7 @@ use Core\Application\Common\UseCase\ConflictResponse;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
+use Core\Command\Application\Exception\CommandException;
 use Core\Command\Application\Repository\ReadCommandRepositoryInterface;
 use Core\CommandMacro\Application\Repository\ReadCommandMacroRepositoryInterface;
 use Core\CommandMacro\Domain\Model\CommandMacro;
@@ -245,10 +246,10 @@ final class AddService
     {
         $command = $this->readCommandRepository->findById($request->commandId);
         if ($command === null) {
-            throw ServiceException::errorWhileRetrievingObject();
+            throw CommandException::errorWhileRetrieving();
         }
         if ($command->isCentreonMonitoringAgentCommand()) {
-            $request->freshnessChecked = 1;
+            $request->checkFreshness = 1;
             $request->freshnessThreshold = 120;
         }
         $inheritanceMode = $this->optionService->findSelectedOptions(['inheritance_mode']);
