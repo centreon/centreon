@@ -30,7 +30,7 @@ const useGetCriteriaName = (): UseGetCriteriaNamesState => {
     return criteriaValue?.map(prop('id'));
   };
 
-  return { getCriteriaNames, getCriteriaValue, getCriteriaIds };
+  return { getCriteriaIds, getCriteriaNames, getCriteriaValue };
 };
 
 export default useGetCriteriaName;

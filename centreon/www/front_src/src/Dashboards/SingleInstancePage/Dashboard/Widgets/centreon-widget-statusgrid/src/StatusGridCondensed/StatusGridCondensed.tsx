@@ -85,8 +85,8 @@ const StatusGridCondensed = ({
             isBVResourceType={isBVResourceType}
             key={label}
             label={label}
-            resourceType={panelOptions.resourceType}
             resources={panelData.resources}
+            resourceType={panelOptions.resourceType}
             severityCode={severityCode}
             total={total}
           />

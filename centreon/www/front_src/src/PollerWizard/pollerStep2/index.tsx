@@ -145,17 +145,17 @@ const PollerWizardStepTwo = ({
             fullWidth
             label={t(labelLinkedRemoteMaster)}
             name="linked_remote_master"
+            onChange={handleChange}
             options={linkedRemoteMasterOption || []}
             selectedOptionId={stepTwoFormData.linked_remote_master}
-            onChange={handleChange}
           />
           {stepTwoFormData.linked_remote_master && (
             <MultiAutocompleteField
               fullWidth
               label={t(labelLinkedadditionalRemote)}
+              onChange={changeValue}
               options={linkedRemoteSlavesOption || []}
               value={stepTwoFormData.linked_remote_slaves}
-              onChange={changeValue}
             />
           )}
           <FormControlLabel

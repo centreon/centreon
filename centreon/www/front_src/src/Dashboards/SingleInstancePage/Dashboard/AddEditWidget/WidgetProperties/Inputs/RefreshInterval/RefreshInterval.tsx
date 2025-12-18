@@ -32,7 +32,7 @@ const RefreshInterval = ({
   return (
     <Box>
       <Label>{t(labelRefreshInterval)}</Label>
-      <RadioGroup value={value} onChange={changeRefreshIntervalOption}>
+      <RadioGroup onChange={changeRefreshIntervalOption} value={value}>
         {options.map(({ value: optionValue, label }) => (
           <FormControlLabel
             control={<Radio data-testid={optionValue} />}

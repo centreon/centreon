@@ -66,8 +66,8 @@ const Clock = ({
         <>
           <div className={classes.container}>
             <ClockInformation
-              isClock
               date={currentDate}
+              isClock
               showDate={showDate}
               showTimezone={showTimezone}
               timezone={timezoneToUse}

@@ -34,9 +34,9 @@ const AddWidgetButton = (): JSX.Element | null => {
       data-testid="add-widget"
       icon={<AddIcon />}
       iconVariant="start"
+      onClick={() => openModal(null)}
       size="small"
       variant="secondary"
-      onClick={() => openModal(null)}
     >
       {t(labelAddAWidget)}
     </Button>

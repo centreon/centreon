@@ -63,11 +63,11 @@ const UrlColumn = ({
           ariaLabel={title}
           className={classes.button}
           data-testid={title || endpoint}
-          size="large"
-          title={title || endpoint}
           onClick={(): null => {
             return null;
           }}
+          size="large"
+          title={title || endpoint}
         >
           {icon}
         </IconButton>

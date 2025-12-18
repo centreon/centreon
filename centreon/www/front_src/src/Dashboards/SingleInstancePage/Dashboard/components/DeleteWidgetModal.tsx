@@ -36,7 +36,7 @@ const DeleteWidgetModal = (): JSX.Element => {
   }
 
   return (
-    <Modal open={Boolean(widgetToDelete)} onClose={close}>
+    <Modal onClose={close} open={Boolean(widgetToDelete)}>
       <Modal.Header>{t(labelDeleteWidget)}</Modal.Header>
       <Modal.Body>
         {t(

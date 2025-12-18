@@ -18,9 +18,9 @@ import { Category, Group } from '../../../models';
 const useStyles = makeStyles()((theme) => ({
   chip: {
     alignSelf: 'center',
+    borderRadius: theme.spacing(2),
     display: 'flex',
-    height: theme.spacing(4),
-    borderRadius: theme.spacing(2)
+    height: theme.spacing(4)
   },
   chipHovered: {
     backgroundColor: theme.palette.primary.main,
@@ -77,9 +77,9 @@ const GroupChip = ({ group, type }: Props): JSX.Element => {
 
   const filterByGroup = useCallback((): void => {
     setCriteriaAndNewFilter({
+      apply: true,
       name: type,
-      value: [group],
-      apply: true
+      value: [group]
     });
   }, [group, type]);
 
@@ -101,8 +101,8 @@ const GroupChip = ({ group, type }: Props): JSX.Element => {
   return (
     <Grid item key={id}>
       <Chip
-        className={classes.chip}
         aria-label={`${name} Chip`}
+        className={classes.chip}
         color="primary"
         label={
           <div className={classes.chipLabelContainer}>
@@ -122,9 +122,9 @@ const GroupChip = ({ group, type }: Props): JSX.Element => {
                 <IconButton
                   aria-label={`${name} Filter`}
                   className={classes.chipIcon}
+                  onClick={filterByGroup}
                   size="small"
                   title={t(name)}
-                  onClick={filterByGroup}
                 >
                   <FilterListIcon fontSize="small" />
                 </IconButton>
@@ -132,9 +132,9 @@ const GroupChip = ({ group, type }: Props): JSX.Element => {
                   <IconButton
                     aria-label={`${name} Configure`}
                     className={classes.chipIcon}
+                    onClick={configureGroup}
                     size="small"
                     title={t(name)}
-                    onClick={configureGroup}
                   >
                     <SettingsIcon fontSize="small" />
                   </IconButton>

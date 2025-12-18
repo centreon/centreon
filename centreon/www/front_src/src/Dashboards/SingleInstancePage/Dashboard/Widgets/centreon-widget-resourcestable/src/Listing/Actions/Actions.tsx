@@ -19,15 +19,15 @@ const Actions = ({
 }: Props): JSX.Element => {
   return (
     <Grid container>
-      <Grid item flex={1}>
+      <Grid flex={1} item>
         <ResourceActions />
       </Grid>
-      <Grid item flex={1}>
+      <Grid flex={1} item>
         <DisplayType
           displayType={displayType}
           hasMetaService={hasMetaService}
-          setPanelOptions={setPanelOptions}
           isOpenTicketEnabled={isOpenTicketEnabled}
+          setPanelOptions={setPanelOptions}
         />
       </Grid>
     </Grid>

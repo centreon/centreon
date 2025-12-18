@@ -51,11 +51,11 @@ const CriteriaContent = ({ name, value }: Props): JSX.Element => {
     <PopoverMultiAutocompleteField
       {...commonProps}
       hideInput
-      options={translatedOptions}
-      value={translatedValues}
       onChange={(_, upToDateValue): void => {
         changeCriteria(getUntranslated(upToDateValue));
       }}
+      options={translatedOptions}
+      value={translatedValues}
     />
   );
 };

@@ -43,7 +43,7 @@ const DuplicateDashboardModal = (): JSX.Element => {
   };
 
   return (
-    <Modal open={Boolean(dashboardToDuplicate)} onClose={close}>
+    <Modal onClose={close} open={Boolean(dashboardToDuplicate)}>
       <Modal.Header>{t(labelDuplicateDashboard)}</Modal.Header>
       <Modal.Body>
         <DashboardDuplicationForm

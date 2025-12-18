@@ -25,7 +25,7 @@ const SelectableResourceName = ({
   const { classes } = useStyles();
 
   return (
-    <Typography className={classes.name} variant={variant} onClick={onSelect}>
+    <Typography className={classes.name} onClick={onSelect} variant={variant}>
       {name}
     </Typography>
   );

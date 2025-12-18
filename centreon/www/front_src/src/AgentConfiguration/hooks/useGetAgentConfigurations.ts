@@ -89,25 +89,25 @@ export const useGetAgentConfigurations = (): UseGetAgentConfigurationsState => {
     ListingModel<AgentConfigurationListing>
   >({
     decoder: agentConfigurationsListingDecoder,
-    getQueryKey: () => queryKey,
     getEndpoint: () =>
       buildListingEndpoint({
         baseEndpoint: getAgentConfigurationsEndpoint,
         parameters: {
-          page: page + 1,
           limit,
-          sort: {
-            [sortField]: sortOrder
-          },
+          page: page + 1,
           search: {
             conditions
+          },
+          sort: {
+            [sortField]: sortOrder
           }
         }
       }),
+    getQueryKey: () => queryKey,
     queryOptions: {
-      suspense: false,
       refetchOnMount: false,
-      staleTime: 0
+      staleTime: 0,
+      suspense: false
     }
   });
 

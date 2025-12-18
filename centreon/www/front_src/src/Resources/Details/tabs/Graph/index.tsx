@@ -47,8 +47,8 @@ const GraphTabContent = ({ details }: TabProps): JSX.Element => {
           />
 
           <ChartGraph
-            resource={details}
             graphTimeParameters={graphTimeParameters}
+            resource={details}
             updatedGraphInterval={setUpdatedGraphInterval}
           />
         </>

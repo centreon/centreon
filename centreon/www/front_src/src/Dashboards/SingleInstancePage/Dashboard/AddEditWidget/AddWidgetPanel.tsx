@@ -21,8 +21,8 @@ const AddWidgetPanel = (): JSX.Element => {
   return (
     <CardActionArea
       disabled={!isEditing}
-      sx={{ height: '100%', width: '100%' }}
       onClick={() => openModal(null)}
+      sx={{ height: '100%', width: '100%' }}
     >
       <div className={classes.addWidgetPanel}>
         <Typography variant="h5">{t(labelAddAWidget)}</Typography>

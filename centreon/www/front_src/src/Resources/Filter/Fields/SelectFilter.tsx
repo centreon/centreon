@@ -19,9 +19,9 @@ const SelectFilter = ({
   <SelectField
     aria-label={ariaLabel}
     data-testid="selectedFilter"
+    onChange={onChange}
     options={options}
     selectedOptionId={selectedOptionId}
-    onChange={onChange}
   />
 );
 

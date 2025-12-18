@@ -30,17 +30,17 @@ import VaultConfiguration from './VaultConfiguration';
 
 const initialize = (): void => {
   i18next.use(initReactI18next).init({
-    lng: 'en',
     fallbackLng: 'en',
+    lng: 'en',
     resources: { en: { translationsNS: {} } }
   });
 
   const store = createStore();
 
   cy.interceptAPIRequest({
+    alias: 'getVaultConfiguration',
     method: Method.GET,
     path: `./api/latest${vaultConfigurationEndpoint}`,
-    alias: 'getVaultConfiguration',
     response: {
       address: 'localhost',
       port: 1024,
@@ -49,9 +49,9 @@ const initialize = (): void => {
   });
 
   cy.interceptAPIRequest({
+    alias: 'putVaultConfiguration',
     method: Method.PUT,
     path: `./api/latest${vaultConfigurationEndpoint}`,
-    alias: 'putVaultConfiguration',
     statusCode: 204
   });
 
@@ -172,8 +172,8 @@ describe('Vault configuration', () => {
       expect(request.body).to.deep.equal({
         address: 'example.com',
         port: 1024,
-        root_path: '/path',
         role_id: 'role',
+        root_path: '/path',
         secret_id: 'Secret'
       });
     });

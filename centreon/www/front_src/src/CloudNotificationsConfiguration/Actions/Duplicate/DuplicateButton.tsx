@@ -25,8 +25,8 @@ const DuplicateButton = ({
     <IconButton
       ariaLabel={ariaLabel}
       disabled={disabled}
-      title={t(labelDuplicate) as string}
       onClick={onClick}
+      title={t(labelDuplicate) as string}
     >
       <ContentCopyIcon className={className} />
     </IconButton>

@@ -29,14 +29,14 @@ const DuplicateDialog = (): JSX.Element => {
   } = useDuplicate();
 
   return (
-    <Modal open={isOpened} size="large" onClose={close}>
+    <Modal onClose={close} open={isOpened} size="large">
       <Modal.Header>{headerContent}</Modal.Header>
       <Modal.Body>
         <Typography>
           <Trans
+            components={{ bold: <strong /> }}
             defaults={bodyContent.label}
             values={bodyContent.value}
-            components={{ bold: <strong /> }}
           />
         </Typography>
         <div className={classes.duplicationCount}>
@@ -50,18 +50,18 @@ const DuplicateDialog = (): JSX.Element => {
             defaultValue={duplicatesCount}
             disabled={isMutating}
             fallbackValue={1}
+            onChange={changeDuplicateCount}
+            size="compact"
             textFieldSlotsAndSlotProps={{
               slotProps: {
                 htmlInput: {
                   'aria-label': t(labelDuplications),
-                  min: 1,
-                  max: 10
+                  max: 10,
+                  min: 1
                 }
               }
             }}
-            size="compact"
             type="number"
-            onChange={changeDuplicateCount}
           />
         </div>
       </Modal.Body>

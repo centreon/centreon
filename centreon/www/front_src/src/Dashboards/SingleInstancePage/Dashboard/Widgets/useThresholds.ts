@@ -48,8 +48,8 @@ const useThresholds = ({
 
   if (isEmpty(data?.metrics)) {
     return {
-      enabled: false,
       critical: [],
+      enabled: false,
       warning: []
     };
   }

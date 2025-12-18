@@ -261,8 +261,8 @@ const useWidgetSelection = (): UseWidgetSelectionState => {
   return {
     options: formattedWidgetsByGroupTitle,
     searchWidgets,
-    selectWidget,
     selectedWidget,
+    selectWidget,
     widgets: filteredWidgets
   };
 };

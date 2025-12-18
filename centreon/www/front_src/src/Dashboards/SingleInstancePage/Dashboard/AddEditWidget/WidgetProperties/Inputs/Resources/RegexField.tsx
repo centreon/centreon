@@ -20,26 +20,26 @@ const RegexField = ({
 
   return (
     <TextField
-      value={value}
       dataTestId={`${labelEnterRegex}-${resourceType}`}
       fullWidth
-      onChange={changeRegexField}
       label={t(labelEnterRegex)}
+      onChange={changeRegexField}
       slotProps={{
         input: {
           endAdornment: (
             <Tooltip label={t(labelDeactivateRegex)}>
               <IconButton
-                data-testid={`${labelDeactivateRegex}-${resourceType}`}
                 className={classes.selectedRegexIcon}
+                data-testid={`${labelDeactivateRegex}-${resourceType}`}
+                icon={<RegexIcon className={classes.selectedRegexIconColor} />}
                 onClick={changeRegexFieldOnResourceType}
                 size="small"
-                icon={<RegexIcon className={classes.selectedRegexIconColor} />}
               />
             </Tooltip>
           )
         }
       }}
+      value={value}
     />
   );
 };

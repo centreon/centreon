@@ -63,7 +63,7 @@ const Threshold = ({
           {options.map(({ label, radioButtons, type, value }) => (
             <div key={label}>
               <Typography>{label}</Typography>
-              <RadioGroup row value={value} onChange={changeType(type)}>
+              <RadioGroup onChange={changeType(type)} row value={value}>
                 {radioButtons.map(({ content, value: radioValue }) => (
                   <FormControlLabel
                     control={<Radio data-testid={radioValue} />}

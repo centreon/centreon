@@ -149,9 +149,9 @@ const PopoverCustomTimePeriodPickers = ({
       anchorPosition={anchorPosition}
       anchorReference={anchorReference}
       className={cx(classes.paper)}
+      onClose={onClose}
       open={open}
       transformOrigin={transformOrigin}
-      onClose={onClose}
     >
       <div className={classNamePaper} data-testid="popover">
         {renderTitle}
@@ -180,7 +180,7 @@ const PopoverCustomTimePeriodPickers = ({
           </div>
         </div>
         {error && (
-          <FormHelperText error className={classNameError}>
+          <FormHelperText className={classNameError} error>
             {t(labelEndDateGreaterThanStartDate)}
           </FormHelperText>
         )}

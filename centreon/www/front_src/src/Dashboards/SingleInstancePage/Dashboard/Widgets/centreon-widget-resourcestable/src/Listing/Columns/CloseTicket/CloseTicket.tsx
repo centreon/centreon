@@ -40,8 +40,8 @@ const CloseTicket = ({ row }: ComponentColumnProps): JSX.Element | null => {
         ariaLabel={t(labelCloseTicket)}
         color="primary"
         data-testid={labelCloseTicket}
-        size="large"
         onClick={askBeforeClosingTicket}
+        size="large"
       >
         <IconCloseTicket />
       </IconButton>

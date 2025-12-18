@@ -35,11 +35,11 @@ const Actions =
 
     return (
       <FormActions
-        labels={actionsLabels}
-        variant={'create'}
-        onCancel={close}
-        isCancelButtonVisible={!token}
         disableSubmit={disableSubmit}
+        isCancelButtonVisible={!token}
+        labels={actionsLabels}
+        onCancel={close}
+        variant={'create'}
       />
     );
   };

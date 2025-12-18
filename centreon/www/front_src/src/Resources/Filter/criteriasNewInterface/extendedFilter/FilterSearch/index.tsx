@@ -66,10 +66,10 @@ const FilterSearch = ({ field, placeholder }: Props): JSX.Element => {
       <TextField
         className={classes.inputInformation}
         dataTestId={informationLabel}
-        placeholder={placeholder}
-        value={value}
         onChange={onChange}
         onFocus={() => setIsDirty(true)}
+        placeholder={placeholder}
+        value={value}
       />
     ),
     memoProps: [search, value]

@@ -68,11 +68,15 @@ const AgentInitiated = (): React.ReactElement => {
           <Box className={classes.inputs}>
             <TextField
               className={classes.input}
-              value={values.configuration.otelPublicCertificate || ''}
-              onChange={change(publicCertificateProperty)}
-              label={t(labelPublicCertificate)}
               dataTestId={labelPublicCertificate}
+              error={
+                (touched?.configuration?.otelPublicCertificate &&
+                  errors?.configuration?.otelPublicCertificate) ||
+                undefined
+              }
               fullWidth
+              label={t(labelPublicCertificate)}
+              onChange={change(publicCertificateProperty)}
               textFieldSlotsAndSlotProps={{
                 slotProps: {
                   htmlInput: {
@@ -80,18 +84,20 @@ const AgentInitiated = (): React.ReactElement => {
                   }
                 }
               }}
-              error={
-                (touched?.configuration?.otelPublicCertificate &&
-                  errors?.configuration?.otelPublicCertificate) ||
-                undefined
-              }
+              value={values.configuration.otelPublicCertificate || ''}
             />
 
             <TextField
-              value={values.configuration.otelCaCertificate || ''}
-              onChange={change(caCertificateProperty)}
-              label={t(labelCaCertificate)}
+              className={classes.input}
               dataTestId={labelCaCertificate}
+              error={
+                (touched?.configuration?.otelCaCertificate &&
+                  errors?.configuration?.otelCaCertificate) ||
+                undefined
+              }
+              fullWidth
+              label={t(labelCaCertificate)}
+              onChange={change(caCertificateProperty)}
               textFieldSlotsAndSlotProps={{
                 slotProps: {
                   htmlInput: {
@@ -99,19 +105,20 @@ const AgentInitiated = (): React.ReactElement => {
                   }
                 }
               }}
-              fullWidth
-              error={
-                (touched?.configuration?.otelCaCertificate &&
-                  errors?.configuration?.otelCaCertificate) ||
-                undefined
-              }
-              className={classes.input}
+              value={values.configuration.otelCaCertificate || ''}
             />
 
             <TextField
-              value={values.configuration.otelPrivateKey || ''}
-              onChange={change(privateKeyProperty)}
+              className={classes.input}
+              dataTestId={labelPrivateKey}
+              error={
+                (touched?.configuration?.otelPrivateKey &&
+                  errors?.configuration?.otelPrivateKey) ||
+                undefined
+              }
+              fullWidth
               label={t(labelPrivateKey)}
+              onChange={change(privateKeyProperty)}
               textFieldSlotsAndSlotProps={{
                 slotProps: {
                   htmlInput: {
@@ -119,14 +126,7 @@ const AgentInitiated = (): React.ReactElement => {
                   }
                 }
               }}
-              dataTestId={labelPrivateKey}
-              fullWidth
-              error={
-                (touched?.configuration?.otelPrivateKey &&
-                  errors?.configuration?.otelPrivateKey) ||
-                undefined
-              }
-              className={classes.input}
+              value={values.configuration.otelPrivateKey || ''}
             />
           </Box>
         </Box>
@@ -134,24 +134,24 @@ const AgentInitiated = (): React.ReactElement => {
       <Box>
         <Title label={labelCMAauthenticationToken} />
         <MultiConnectedAutocompleteField
-          required
-          disableClearable={false}
-          dataTestId={labelSelectExistingCMATokens}
-          field="token_name"
-          getEndpoint={getTokensEndpoint}
-          label={t(labelSelectExistingCMATokens)}
-          value={values.configuration.tokens || null}
-          onChange={changeCMATokens}
-          decoder={listTokensDecoder}
-          limitTags={15}
           chipProps={{
             color: 'primary',
             onDelete: deleteToken
           }}
+          dataTestId={labelSelectExistingCMATokens}
+          decoder={listTokensDecoder}
+          disableClearable={false}
           error={
             (touched?.configuration?.tokens && errors?.configuration?.tokens) ||
             undefined
           }
+          field="token_name"
+          getEndpoint={getTokensEndpoint}
+          label={t(labelSelectExistingCMATokens)}
+          limitTags={15}
+          onChange={changeCMATokens}
+          required
+          value={values.configuration.tokens || null}
         />
         <RedirectToTokensPage />
       </Box>

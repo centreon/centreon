@@ -1116,8 +1116,8 @@ describe.skip(Details, () => {
         serviceSeverities: [],
         serviceSeverityLevels: [],
         states: [],
-        statusTypes: [],
-        statuses: []
+        statuses: [],
+        statusTypes: []
       }),
       expect.anything()
     );

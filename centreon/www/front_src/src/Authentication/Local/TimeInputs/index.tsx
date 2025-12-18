@@ -82,9 +82,9 @@ const TimeInputs = ({
               maxOption={maxOption}
               minOption={minOption}
               name={`${baseName}_${singularLabel}`}
+              onChange={onChange}
               timeValue={timeValue}
               unit={unit}
-              onChange={onChange}
             />
           );
         }

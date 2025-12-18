@@ -41,7 +41,7 @@ const InformationsLine = ({
     <div className={classes.information}>
       <Typography variant="body2">{t(labelFilteredResources)}</Typography>
       {!isLoading ? (
-        <Typography variant="body2" className={classes.lines}>
+        <Typography className={classes.lines} variant="body2">
           {description}
         </Typography>
       ) : (

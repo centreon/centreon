@@ -31,9 +31,9 @@ const Action = ({
       ariaLabel={t(title) as string}
       className={classes.iconButton}
       data-testid={title}
+      onClick={selectVisualization}
       title={t(title) as string}
       tooltipClassName={classes.tooltipClassName}
-      onClick={selectVisualization}
     >
       <Image alt={title} imagePath={imagePath} />
     </IconButton>

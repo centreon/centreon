@@ -72,6 +72,12 @@ const Listing = ({
         limit={listingData?.meta.limit}
         loading={loading}
         memoProps={[columns, page, sorto, sortf]}
+        onLimitChange={setLimit}
+        onPaginate={changePage}
+        onResetColumns={resetColumns}
+        onRowClick={navigateToDashboard}
+        onSelectColumns={setSelectedColumnIds}
+        onSort={changeSort}
         rows={formattedRows}
         sortField={sortf}
         sortOrder={sorto}
@@ -83,14 +89,8 @@ const Listing = ({
           labelExpand: 'Expand'
         }}
         totalRows={listingData?.meta.total}
-        onLimitChange={setLimit}
-        onPaginate={changePage}
-        onResetColumns={resetColumns}
-        onRowClick={navigateToDashboard}
-        onSelectColumns={setSelectedColumnIds}
-        onSort={changeSort}
       />
-      <Modal open={!!askingBeforRevoke} onClose={closeAskRevokeAccessRight}>
+      <Modal onClose={closeAskRevokeAccessRight} open={!!askingBeforRevoke}>
         <Modal.Header>{t(labelDeleteUser)}</Modal.Header>
         <Modal.Body>
           {sanitizedHTML({

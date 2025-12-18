@@ -23,13 +23,13 @@ const Status = ({ row }: ComponentColumnProps): JSX.Element => {
     <Tooltip title={checked ? t(labelEnabled) : t(labelDisabled)}>
       <Switch
         aria-label={t(labelEnableDisable)}
-        data-testid={`${labelEnableDisable}_${row.id}`}
         checked={checked}
         className={classes.switch}
         color="primary"
-        size="small"
-        onClick={change}
+        data-testid={`${labelEnableDisable}_${row.id}`}
         disabled={isMutating}
+        onClick={change}
+        size="small"
       />
     </Tooltip>
   );

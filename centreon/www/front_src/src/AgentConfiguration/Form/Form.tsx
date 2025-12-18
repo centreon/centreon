@@ -15,11 +15,11 @@ interface Props {
 }
 
 const defaultInitialValues = {
-  name: '',
-  type: null,
-  pollers: [],
   configuration: {},
-  connectionMode: find(propEq('secure', 'id'), connectionModes)
+  connectionMode: find(propEq('secure', 'id'), connectionModes),
+  name: '',
+  pollers: [],
+  type: null
 };
 
 const AgentConfigurationForm = ({
@@ -37,17 +37,17 @@ const AgentConfigurationForm = ({
 
   return (
     <Form<AgentConfigurationFormModel>
-      enableReinitialize
-      Buttons={Buttons}
-      validationSchema={validationSchema}
-      isLoading={isLoading}
-      groups={groups}
-      isCollapsible
       areGroupsOpen
-      inputs={inputs}
-      initialValues={values}
-      submit={submit}
+      Buttons={Buttons}
+      enableReinitialize
+      groups={groups}
       groupsClassName={classes.groups}
+      initialValues={values}
+      inputs={inputs}
+      isCollapsible
+      isLoading={isLoading}
+      submit={submit}
+      validationSchema={validationSchema}
     />
   );
 };

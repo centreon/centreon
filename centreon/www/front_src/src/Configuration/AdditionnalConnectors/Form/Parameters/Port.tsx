@@ -31,11 +31,14 @@ const Port = (): ReactElement => {
   return (
     <div className={classes.parameterItem}>
       <NumberField
-        fullWidth
-        required
         dataTestId={`${labelPort}_value`}
         error={error as string}
+        fullWidth
         label={t(labelPort)}
+        name="port"
+        onBlur={handleBlur('parameters.port')}
+        onChange={changePortValue}
+        required
         textFieldSlotsAndSlotProps={{
           slotProps: {
             htmlInput: {
@@ -43,10 +46,7 @@ const Port = (): ReactElement => {
             }
           }
         }}
-        name="port"
         value={value?.toString()}
-        onBlur={handleBlur('parameters.port')}
-        onChange={changePortValue}
       />
     </div>
   );

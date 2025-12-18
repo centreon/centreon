@@ -35,6 +35,7 @@ const GroupMonitoring = ({
   } = useGroupMonitoring({
     dashboardId,
     globalRefreshInterval,
+    hasDescription,
     id,
     isFromPreview,
     panelData,
@@ -42,8 +43,7 @@ const GroupMonitoring = ({
     playlistHash,
     refreshCount,
     setPanelOptions,
-    widgetPrefixQuery,
-    hasDescription
+    widgetPrefixQuery
   });
 
   const columns = useColumns({
@@ -64,21 +64,21 @@ const GroupMonitoring = ({
 
   return (
     <MemoizedListing<FormattedGroup>
-      isResponsive
       columnConfiguration={{
         selectedColumnIds: columnsToDisplay,
         sortable: false
       }}
       columns={columns}
       currentPage={page}
+      isResponsive
       limit={limit}
+      onLimitChange={changeLimit}
+      onPaginate={changePage}
+      onSort={changeSort}
       rows={listing?.result || []}
       sortField={sortField}
       sortOrder={sortOrder}
       totalRows={listing?.meta.total || 0}
-      onLimitChange={changeLimit}
-      onPaginate={changePage}
-      onSort={changeSort}
     />
   );
 };

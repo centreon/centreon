@@ -103,12 +103,12 @@ const StatusColumnOnHover = ({
         color="primary"
         data-testid={`${labelAcknowledge} ${row.name}`}
         disabled={disableAcknowledge}
+        onClick={acknowledge}
         size="large"
         title={getActionTitle({
           isActionPermitted: isAcknowledePermitted,
           labelAction: labelAcknowledge
         })}
-        onClick={acknowledge}
       >
         <IconAcknowledge fontSize="small" />
       </IconButton>
@@ -116,12 +116,12 @@ const StatusColumnOnHover = ({
         ariaLabel={`${t(labelSetDowntimeOn)} ${row.name}`}
         data-testid={`${labelSetDowntimeOn} ${row.name}`}
         disabled={disableDowntime}
+        onClick={setDowntime}
         size="large"
         title={getActionTitle({
           isActionPermitted: isDowntimePermitted,
           labelAction: labelSetDowntime
         })}
-        onClick={setDowntime}
       >
         <IconDowntime fontSize="small" />
       </IconButton>
@@ -130,12 +130,12 @@ const StatusColumnOnHover = ({
         ariaLabel={`${t(labelForcedCheck)} ${row.name}`}
         data-testid={`${labelForcedCheck} ${row.name}`}
         disabled={disableForcedCheck}
+        onClick={forcedCheck}
         size="large"
         title={getActionTitle({
           isActionPermitted: isForcedCheckPermitted,
           labelAction: labelForcedCheck
         })}
-        onClick={forcedCheck}
       >
         <IconForcedCheck fontSize="small" />
       </IconButton>

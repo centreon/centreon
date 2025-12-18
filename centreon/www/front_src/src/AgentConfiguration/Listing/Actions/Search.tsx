@@ -16,12 +16,12 @@ const Search = (): JSX.Element => {
   return (
     <div className={classes.search}>
       <SearchField
-        debounced
-        fullWidth
         dataTestId={labelSearch}
-        placeholder={t(labelSearch)}
-        onChange={onChange}
+        debounced
         EndAdornment={PopoverFilter}
+        fullWidth
+        onChange={onChange}
+        placeholder={t(labelSearch)}
         value={filters.name}
       />
     </div>

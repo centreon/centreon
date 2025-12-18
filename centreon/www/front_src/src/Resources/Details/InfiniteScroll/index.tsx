@@ -233,8 +233,8 @@ const InfiniteScrollContent = <TEntity extends { id: number }>({
   return (
     <div
       className={classes.scrollableContainer}
-      ref={scrollableContainerRef as RefObject<HTMLDivElement>}
       onScroll={scroll}
+      ref={scrollableContainerRef as RefObject<HTMLDivElement>}
     >
       <div className={classes.container}>
         <div className={classes.filter}>{filter}</div>
@@ -253,8 +253,8 @@ const InfiniteScrollContent = <TEntity extends { id: number }>({
                 always(
                   children({
                     entities,
-                    infiniteScrollTriggerRef,
-                    graphTimeParameters
+                    graphTimeParameters,
+                    infiniteScrollTriggerRef
                   })
                 )
               ]
@@ -266,8 +266,8 @@ const InfiniteScrollContent = <TEntity extends { id: number }>({
                 <Fab
                   aria-label={t(labelScrollToTop)}
                   color="primary"
-                  size="small"
                   onClick={scrollToTop}
+                  size="small"
                 >
                   <KeyboardArrowUpIcon />
                 </Fab>

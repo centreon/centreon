@@ -63,12 +63,12 @@ const useLoadData = ({ filtersAtom, filtersAtomKey }): LoadDataState => {
   }, [configuration?.filtersConfiguration, filters]);
 
   const { data, isLoading } = useGetAll({
-    sortField,
-    sortOrder,
-    page,
+    filtersAtomKey,
     limit,
+    page,
     searchConditions,
-    filtersAtomKey
+    sortField,
+    sortOrder
   });
 
   return { data, isLoading };

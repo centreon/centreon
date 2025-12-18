@@ -161,9 +161,9 @@ const CheckBoxSection = ({
       direction="horizontal"
       formGroupProps={formGroupProps}
       labelProps={labelProps}
+      onChange={handleChangeStatus}
       options={transformData(translatedOptions) || []}
       values={transformData(translatedValues) || []}
-      onChange={handleChangeStatus}
     />
   );
 };

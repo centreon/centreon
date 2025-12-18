@@ -152,16 +152,16 @@ const MenuItems = ({
   return useMemoComponent({
     Component: (
       <ListItemButton
-        disableTouchRipple
         className={clsx(classes.iconButton, {
           [classes.activated]: hover
         })}
         component={ItemLink}
-        sx={!isRoot ? { pl: 0 } : { pl: 1.2 }}
+        disableTouchRipple
         onClick={handleClickItem}
         onDoubleClick={isRoot ? onClick : undefined}
         onMouseEnter={!isDoubleClickedFromRoot ? onMouseEnter : undefined}
         onMouseLeave={onLeaveMenuItem}
+        sx={!isRoot ? { pl: 0 } : { pl: 1.2 }}
       >
         {isRoot ? (
           <>

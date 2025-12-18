@@ -118,8 +118,8 @@ const CustomTimePeriodPickers = ({
         className={classes.button}
         color="primary"
         data-testid={labelCompactTimePeriod}
-        variant="outlined"
         onClick={openPopover}
+        variant="outlined"
       >
         <div className={classes.buttonContent}>
           <AccessTimeIcon />

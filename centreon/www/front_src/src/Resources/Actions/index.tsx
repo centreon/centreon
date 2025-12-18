@@ -29,7 +29,7 @@ const Actions = ({ onRefresh }: Props): JSX.Element => {
     equals(breakPointType, Type.small);
 
   return (
-    <Grid container className={classes.container}>
+    <Grid className={classes.container} container>
       <Grid
         className={cx(classes.gridItem, { [classes.extraMargin]: smallSize })}
         size={7}
@@ -57,12 +57,12 @@ const Actions = ({ onRefresh }: Props): JSX.Element => {
         )}
       </Grid>
       <Grid
-        wrap="nowrap"
         className={cx({
           [classes.large]: !smallSize,
           [classes.small]: smallSize
         })}
         size={5}
+        wrap="nowrap"
       >
         <VisualizationActions displayCondensed={displayCondensed} />
         <ExportCsv />

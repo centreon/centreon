@@ -116,8 +116,8 @@ export default (resourceType: ResourceType) => {
       );
 
       initialize({
-        resourceType,
-        filters: onlyNameFilter
+        filters: onlyNameFilter,
+        resourceType
       });
 
       cy.waitForRequest('@getAll');

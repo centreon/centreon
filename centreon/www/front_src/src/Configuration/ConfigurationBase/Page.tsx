@@ -41,10 +41,10 @@ const WelcomePage = ({
   return (
     <DataTable.EmptyState
       aria-label="create"
+      canCreate={hasWriteAccess}
       data-testid={dataTestId}
       labels={labels}
       onCreate={onCreate}
-      canCreate={hasWriteAccess}
     />
   );
 };
@@ -105,23 +105,23 @@ const Page = <TFilters,>({
           {isWelcomePageDisplayed ? (
             <WelcomePage
               dataTestId={`create-${resourceType}`}
-              labels={labels.welcomePage}
-              onCreate={openCreatetModal}
               filtersAtom={filtersAtom}
               filtersAtomKey={filtersAtomKey}
-              isWelcomePageDisplayedAtom={isWelcomePageDisplayedAtom}
               hasWriteAccess={!!actions?.edit}
+              isWelcomePageDisplayedAtom={isWelcomePageDisplayedAtom}
+              labels={labels.welcomePage}
+              onCreate={openCreatetModal}
             />
           ) : (
             <Listing<TFilters>
-              selectedColumnIdsAtom={selectedColumnIdsAtom}
-              columns={columns}
-              hasWriteAccess={!!actions?.edit}
               actions={actions}
-              isLoading={isLoading}
+              columns={columns}
               data={data}
-              filtersAtomKey={filtersAtomKey}
               filtersAtom={filtersAtom}
+              filtersAtomKey={filtersAtomKey}
+              hasWriteAccess={!!actions?.edit}
+              isLoading={isLoading}
+              selectedColumnIdsAtom={selectedColumnIdsAtom}
             />
           )}
         </DataTable>

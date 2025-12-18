@@ -39,7 +39,7 @@ const useDisable = (): UseDeleteState => {
   const { disableMutation, isMutating } = useDisableRequest();
 
   const confirm = (): void => {
-    disableMutation({ userId, name }).then((response) => {
+    disableMutation({ name, userId }).then((response) => {
       const { isError } = response as ResponseError;
 
       if (isError) {
@@ -53,8 +53,8 @@ const useDisable = (): UseDeleteState => {
   };
 
   return {
-    confirm,
     close: resetSelections,
+    confirm,
     isMutating,
     isOpened,
     name

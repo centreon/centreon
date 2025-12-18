@@ -84,15 +84,15 @@ const useLoadResources = ({
           serviceSeverities,
           sort: sort || { status_severity_code: SortOrder.Desc },
           states,
-          statusTypes,
           statuses,
+          statusTypes,
           type: displayType,
           ...(isOpenTicketEnabled
             ? {
+                displayResources,
                 isDownHostHidden,
                 isUnreachableHostHidden,
-                provider,
-                displayResources
+                provider
               }
             : {})
         }),

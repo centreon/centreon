@@ -25,13 +25,13 @@ const useStyles = makeStyles()((theme) => ({
     justifyContent: 'space-around'
   },
   containerSwitch: {
+    '&:hover': {
+      backgroundColor: 'unset'
+    },
     '&.Mui-checked': {
       '&:hover': {
         backgroundColor: 'unset'
       }
-    },
-    '&:hover': {
-      backgroundColor: 'unset'
     }
   },
   disabledMode: {
@@ -76,8 +76,8 @@ const SwitchThemeMode = (): JSX.Element => {
         className={classes.containerSwitch}
         data-cy="themeSwitch"
         disabled={isPending}
-        size="small"
         onChange={switchThemeMode}
+        size="small"
       />
       <div className={classes.containerMode}>
         <ListItemText

@@ -116,7 +116,7 @@ const useSaveDashboard = (): UseSaveDashboardState => {
   const saveDashboard = (): void => {
     const formData = new FormData();
 
-    dataToFormData({ panels: formatPanelsToAPI(dashboard.layout), formData });
+    dataToFormData({ formData, panels: formatPanelsToAPI(dashboard.layout) });
 
     const node = document.querySelector('.react-grid-layout') as HTMLElement;
 

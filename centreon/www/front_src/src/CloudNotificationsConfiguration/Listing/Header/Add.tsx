@@ -26,9 +26,9 @@ const AddAction = (): JSX.Element => {
     <Button
       color="primary"
       data-testid={dataTestId}
+      onClick={onClick}
       startIcon={<AddIcon />}
       variant="contained"
-      onClick={onClick}
     >
       {t(labelAdd)}
     </Button>

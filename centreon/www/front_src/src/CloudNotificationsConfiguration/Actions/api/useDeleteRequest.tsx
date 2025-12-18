@@ -70,10 +70,10 @@ const useDeleteRequest = ({
 
         handleBulkResponse({
           data: results,
-          labelWarning: t(labelFailedToDeleteNotifications),
+          items: selectedRows,
           labelFailed: t(labelFailed),
           labelSuccess: t(labelSuccess),
-          items: selectedRows
+          labelWarning: t(labelFailedToDeleteNotifications)
         });
 
         queryClient.invalidateQueries({ queryKey: ['notifications'] });

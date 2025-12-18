@@ -35,13 +35,13 @@ const externalLinks = [
 
 const platformVersion: PlatformVersions = {
   modules: {},
-  widgets: {},
   web: {
-    version: '23.04.0',
     fix: '0',
     major: '23',
-    minor: '04'
-  }
+    minor: '04',
+    version: '23.04.0'
+  },
+  widgets: {}
 };
 
 const store = createStore();

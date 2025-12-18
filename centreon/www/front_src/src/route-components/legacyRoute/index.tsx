@@ -104,11 +104,11 @@ const LegacyRoute = (): JSX.Element => {
         frameBorder="0"
         id="main-content"
         name="main-content"
+        onLoad={load}
         scrolling="yes"
         src={`./main.get.php${params}`}
         style={{ height: '100%', width: '100%' }}
         title="Main Content"
-        onLoad={load}
       />
     </>
   );

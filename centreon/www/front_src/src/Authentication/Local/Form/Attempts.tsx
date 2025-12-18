@@ -76,10 +76,13 @@ const Attempts = (): JSX.Element => {
     Component: (
       <div className={classes.input}>
         <TextField
-          fullWidth
           dataTestId={labelNumberOfAttemptsBeforeUserIsBlocked}
           error={attemptsError}
+          fullWidth
           helperText={attemptsError}
+          label={t(labelNumberOfAttemptsBeforeUserIsBlocked)}
+          name={attemptsFieldName}
+          onChange={changeInput}
           textFieldSlotsAndSlotProps={{
             slotProps: {
               htmlInput: {
@@ -89,11 +92,8 @@ const Attempts = (): JSX.Element => {
               }
             }
           }}
-          label={t(labelNumberOfAttemptsBeforeUserIsBlocked)}
-          name={attemptsFieldName}
           type="number"
           value={attemptsValue || ''}
-          onChange={changeInput}
         />
         {displayStrengthProgress && (
           <StrengthProgress

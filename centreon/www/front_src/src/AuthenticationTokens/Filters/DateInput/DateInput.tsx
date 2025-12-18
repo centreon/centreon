@@ -93,9 +93,9 @@ const DateInput = ({
           className={classes.picker}
           closeOnSelect={false}
           date={customizedDate}
+          onClose={close}
           slotProps={slotProps}
           timeSteps={{ minutes: 1 }}
-          onClose={close}
         />
       </div>
       <HelperText error={error} />

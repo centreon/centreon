@@ -43,14 +43,14 @@ const WidgetRichTextEditor = ({
 
   return (
     <RichTextEditor
-      editable
-      openLinkInNewTab
       disabled={!canEditField || disabledCondition?.(values)}
       displayBlockButtons={isGenericTextWidget}
+      editable
       editorState={value || undefined}
       error={error}
       getEditorState={change}
       initialEditorState={value || undefined}
+      openLinkInNewTab
       placeholder={t(label) as string}
       resetEditorToInitialStateCondition={() => isNil(value)}
     />

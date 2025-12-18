@@ -18,14 +18,14 @@ const EnableDialog = (): JSX.Element => {
   const { close, confirm, isMutating, isOpened, name } = useEnable();
 
   return (
-    <Modal open={isOpened} size="large" onClose={close}>
+    <Modal onClose={close} open={isOpened} size="large">
       <Modal.Header>{t(labelEnableToken)}</Modal.Header>
       <Modal.Body>
         <Typography>
           <Trans
+            components={{ bold: <strong /> }}
             defaults={labelMsgConfirmationEnableToken}
             values={{ tokenName: name }}
-            components={{ bold: <strong /> }}
           />
         </Typography>
       </Modal.Body>

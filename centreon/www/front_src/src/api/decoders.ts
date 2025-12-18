@@ -116,9 +116,9 @@ export const platformVersionsDecoder = JsonDecoder.object<PlatformVersions>(
 export const featuresFlagDecoder = JsonDecoder.object<FeatureFlags>(
   {
     adExclusionPeriods: JsonDecoder.optional(JsonDecoder.boolean),
+    mapVisxViewer: JsonDecoder.optional(JsonDecoder.boolean),
     notification: JsonDecoder.optional(JsonDecoder.boolean),
-    vault: JsonDecoder.optional(JsonDecoder.boolean),
-    mapVisxViewer: JsonDecoder.optional(JsonDecoder.boolean)
+    vault: JsonDecoder.optional(JsonDecoder.boolean)
   },
   'Feature flags',
   {

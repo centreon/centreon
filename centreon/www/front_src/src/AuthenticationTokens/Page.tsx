@@ -84,16 +84,16 @@ const Page = (): JSX.Element => {
             <WelcomePage
               dataTestId="create-token"
               labels={{
-                title: t(labelWelcomePageTitle),
-                description: t(labelWelcomeDescription),
                 actions: {
                   create: t(labelAddToken)
-                }
+                },
+                description: t(labelWelcomeDescription),
+                title: t(labelWelcomePageTitle)
               }}
               onCreate={openCreatetModal}
             />
           ) : (
-            <Listing isLoading={isLoading} data={data} />
+            <Listing data={data} isLoading={isLoading} />
           )}
         </DataTable>
       </PageLayout.Body>

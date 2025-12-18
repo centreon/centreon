@@ -122,19 +122,19 @@ const useFilters = (): UseFiltersState => {
   }, [filters, isClearClicked]);
 
   return {
-    isClearDisabled,
+    changeCreator,
     changeName,
     changeTypes,
     changeUser,
-    changeCreator,
-    filterCreators,
     deleteCreator,
-    deleteUser,
     deleteType,
+    deleteUser,
+    filterCreators,
+    filters,
+    isClearDisabled,
     isOptionEqualToValue,
     reload,
-    reset,
-    filters
+    reset
   };
 };
 

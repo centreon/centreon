@@ -67,8 +67,8 @@ const ServerConfigurationWizard = ({
               control={<Radio color="primary" size="small" />}
               key={type.value}
               label={type.label}
-              value={type.value}
               onClick={(): void => setServerType(type.value)}
+              value={type.value}
             />
           ))}
         </RadioGroup>

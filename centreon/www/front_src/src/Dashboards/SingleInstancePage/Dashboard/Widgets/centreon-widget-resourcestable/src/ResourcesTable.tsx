@@ -69,8 +69,8 @@ const ResourceTable = ({
         sortField={sortField}
         sortOrder={sortOrder}
         states={states}
-        statusTypes={statusTypes}
         statuses={statuses}
+        statusTypes={statusTypes}
         widgetPrefixQuery={widgetPrefixQuery}
       />
     </div>

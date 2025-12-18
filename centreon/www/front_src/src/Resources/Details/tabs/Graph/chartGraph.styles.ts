@@ -1,21 +1,16 @@
 import { makeStyles } from 'tss-react/mui';
 
 export const useChartGraphStyles = makeStyles()((theme) => ({
-  container: {
-    overflow: 'visible',
-    backgroundColor: theme.palette.background.paper
-  },
   commentContainer: {
-    padding: theme.spacing(1),
     backgroundColor: theme.palette.background.default,
-    justifyContent: 'center',
     display: 'flex',
-    flexDirection: 'column'
+    flexDirection: 'column',
+    justifyContent: 'center',
+    padding: theme.spacing(1)
   },
-  graphTabContainer: {
-    display: 'grid',
-    gridRowGap: theme.spacing(2),
-    gridTemplateRows: 'auto 1fr'
+  container: {
+    backgroundColor: theme.palette.background.paper,
+    overflow: 'visible'
   },
   exportToPngButton: {
     display: 'flex',
@@ -31,5 +26,10 @@ export const useChartGraphStyles = makeStyles()((theme) => ({
     display: 'grid',
     gridTemplateRows: '1fr',
     padding: theme.spacing(2, 1, 1)
+  },
+  graphTabContainer: {
+    display: 'grid',
+    gridRowGap: theme.spacing(2),
+    gridTemplateRows: 'auto 1fr'
   }
 }));

@@ -67,18 +67,18 @@ const Metrics = ({ infiniteScrollTriggerRef, metrics }: Props): JSX.Element => {
                   />
                   <SelectableResourceName
                     name={resource.parent?.name as string}
-                    variant="body2"
                     onSelect={(): void =>
                       selectResource(resource.parent as Resource)
                     }
+                    variant="body2"
                   />
                 </div>
                 <div className={classes.iconValuePair}>
                   <ShortTypeChip label={resource.type.charAt(0) as string} />
                   <SelectableResourceName
                     name={resource.name}
-                    variant="body2"
                     onSelect={(): void => selectResource(resource)}
+                    variant="body2"
                   />
                 </div>
               </div>

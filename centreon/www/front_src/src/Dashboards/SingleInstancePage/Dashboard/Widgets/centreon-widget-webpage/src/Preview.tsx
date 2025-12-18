@@ -12,7 +12,7 @@ const Preview = (): JSX.Element => {
 
   return (
     <Box className={classes.container}>
-      <Typography variant="h6" className={classes.label}>
+      <Typography className={classes.label} variant="h6">
         {t(labelWebPagePreview)}
       </Typography>
     </Box>

@@ -14,8 +14,8 @@ const formatVaultConfiguration = (
 ): PostVaultConfigurationAPI => ({
   address: configuration.address,
   port: Number(configuration.port),
-  root_path: configuration.rootPath,
   role_id: configuration.roleId,
+  root_path: configuration.rootPath,
   secret_id: configuration.secretId
 });
 
@@ -28,6 +28,9 @@ export const useUpdateVaultConfiguration = () => {
   const { mutateAsync } = useMutationQuery({
     getEndpoint: () => vaultConfigurationEndpoint,
     method: Method.PUT,
+    onError: () => {
+      setCanMigrate(false);
+    },
     onMutate: ({ _meta }) => {
       _meta.setSubmitting(true);
     },
@@ -38,16 +41,13 @@ export const useUpdateVaultConfiguration = () => {
       _meta.resetForm({
         values: {
           ...payload,
-          rootPath: payload.root_path,
           roleId: payload.role_id,
+          rootPath: payload.root_path,
           secretId: ''
         }
       });
       setCanMigrate(true);
       showSuccessMessage(t(labelVaultConfigurationUpdate));
-    },
-    onError: () => {
-      setCanMigrate(false);
     }
   });
 
@@ -59,11 +59,11 @@ export const useUpdateVaultConfiguration = () => {
     setSubmitting(true);
 
     mutateAsync({
-      payload,
       _meta: {
-        setSubmitting,
-        resetForm
-      }
+        resetForm,
+        setSubmitting
+      },
+      payload
     });
   };
 

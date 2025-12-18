@@ -111,11 +111,11 @@ const ExtensionDetailPopup = ({
 
   return (
     <Dialog
-      open
       labelConfirm="Close"
       labelTitle=""
       onClose={onClose}
       onConfirm={onClose}
+      open
     >
       <Grid container direction="column" spacing={2} sx={{ width: 540 }}>
         {hasImages(extensionDetails.images) && (
@@ -124,10 +124,10 @@ const ExtensionDetailPopup = ({
               {({ width }): JSX.Element =>
                 extensionDetails.images ? (
                   <Carousel
-                    cycleNavigation
-                    fullHeightHover
                     animation="slide"
                     autoPlay={false}
+                    cycleNavigation
+                    fullHeightHover
                     height={imageHeight}
                     indicators={!hasOneImage(extensionDetails.images)}
                     navButtonsAlwaysInvisible={hasOneImage(
@@ -166,10 +166,10 @@ const ExtensionDetailPopup = ({
                       color="primary"
                       disabled={isLoading}
                       endIcon={isLoading && <CircularProgress size={15} />}
+                      onClick={updateExtension}
                       size="small"
                       startIcon={<UpdateIcon />}
                       variant="contained"
-                      onClick={updateExtension}
                     >
                       {t(labelUpdate)}
                     </Button>
@@ -182,10 +182,10 @@ const ExtensionDetailPopup = ({
                       color="primary"
                       disabled={isLoading}
                       endIcon={isLoading && <CircularProgress size={15} />}
+                      onClick={deleteExtension}
                       size="small"
                       startIcon={<DeleteIcon />}
                       variant="contained"
-                      onClick={deleteExtension}
                     >
                       {t(labelDelete)}
                     </Button>
@@ -198,10 +198,10 @@ const ExtensionDetailPopup = ({
                       color="primary"
                       disabled={isLoading}
                       endIcon={isLoading && <CircularProgress size={15} />}
+                      onClick={installExtension}
                       size="small"
                       startIcon={<InstallIcon />}
                       variant="contained"
-                      onClick={installExtension}
                     >
                       {t(labelInstall)}
                     </Button>

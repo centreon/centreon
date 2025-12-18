@@ -21,14 +21,14 @@ const ViewMode = (): JSX.Element => {
 
   const actions = [
     {
-      Icon: CardsIcon,
       changeMode: () => setViewMode(ViewModeType.Cards),
+      Icon: CardsIcon,
       label: labelCardsView,
       mode: ViewModeType.Cards
     },
     {
-      Icon: ListIcon,
       changeMode: () => setViewMode(ViewModeType.List),
+      Icon: ListIcon,
       label: labelListView,
       mode: ViewModeType.List
     }
@@ -43,8 +43,8 @@ const ViewMode = (): JSX.Element => {
             color={equals(mode, viewMode) ? 'primary' : 'default'}
             data-selected={equals(mode, viewMode)}
             key={label}
-            title={t(label)}
             onClick={changeMode}
+            title={t(label)}
           >
             <Icon />
           </IconButton>

@@ -32,7 +32,7 @@ const useDelete = (): UseDeleteState => {
   const { deleteMutation, isMutating } = useDeleteRequest();
 
   const confirm = (): void => {
-    deleteMutation({ userId, name }).then((response) => {
+    deleteMutation({ name, userId }).then((response) => {
       const { isError } = response as ResponseError;
 
       if (isError) {
@@ -46,8 +46,8 @@ const useDelete = (): UseDeleteState => {
   };
 
   return {
-    confirm,
     close: resetSelections,
+    confirm,
     isMutating: isMutating,
     isOpened,
     name

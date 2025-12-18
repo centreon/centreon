@@ -23,11 +23,11 @@ const useInitilialValues = () => {
   const translatedDuration = { ...duration, name: t(duration?.name as string) };
 
   const initialValues = {
-    tokenName: '',
     customizeDate: null,
     duration: translatedDuration,
-    user,
-    type
+    tokenName: '',
+    type,
+    user
   };
 
   return {

@@ -63,9 +63,6 @@ const AreaAnnotation = ({
     <Shape.Bar
       fill={getFillColor({ annotation, color })}
       height={graphHeight + iconSize / 2}
-      width={xEnd - xStart}
-      x={xStart}
-      y={yMargin + iconSize + 2}
       onMouseEnter={(): void =>
         setAnnotationHovered(() => ({
           annotation,
@@ -73,6 +70,9 @@ const AreaAnnotation = ({
         }))
       }
       onMouseLeave={(): void => setAnnotationHovered(() => undefined)}
+      width={xEnd - xStart}
+      x={xStart}
+      y={yMargin + iconSize + 2}
     />
   );
 

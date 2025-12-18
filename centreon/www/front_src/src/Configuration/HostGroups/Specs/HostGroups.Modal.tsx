@@ -21,7 +21,7 @@ export default () => {
       const isCloudPlatform = equals(platform, 'Cloud');
 
       it('displays the modal in view mode when the user does not have write access', () => {
-        initialize({ isCloudPlatform, hasWriteAccess: false });
+        initialize({ hasWriteAccess: false, isCloudPlatform });
 
         cy.waitForRequest('@getAllHostGroups');
 
@@ -242,7 +242,7 @@ export default () => {
     });
 
     it('disables the save button when the platform is cloud and Resource Access Rules field is empty', () => {
-      initialize({ isCloudPlatform: true, hasWriteAccess: true });
+      initialize({ hasWriteAccess: true, isCloudPlatform: true });
 
       cy.waitForRequest('@getAllHostGroups');
 

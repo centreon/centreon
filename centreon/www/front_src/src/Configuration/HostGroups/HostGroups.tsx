@@ -40,35 +40,35 @@ const HostGroups = () => {
 
   return (
     <ConfigurationBase<Filters>
-      isWelcomePageDisplayedAtom={isWelcomePageDisplayedAtom}
-      filtersAtomKey={filtersAtomKey}
-      filtersAtom={filtersAtom}
-      columnsAtomKey={columnsAtomKey}
-      selectedColumnIdsAtom={selectedColumnIdsAtom}
-      columns={columns}
-      resourceType={ResourceType.HostGroup}
-      form={{ inputs, groups, validationSchema, defaultValues }}
-      api={api}
-      filtersConfiguration={filtersConfiguration}
-      filtersInitialValues={filtersInitialValues}
-      defaultSelectedColumnIds={defaultSelectedColumnIds}
       actions={{
-        massive: true,
-        enableDisable: true,
         delete: true,
         duplicate: true,
         edit: canEdit,
+        enableDisable: true,
+        massive: true,
         viewDetails: true
       }}
+      api={api}
+      columns={columns}
+      columnsAtomKey={columnsAtomKey}
+      defaultSelectedColumnIds={defaultSelectedColumnIds}
+      filtersAtom={filtersAtom}
+      filtersAtomKey={filtersAtomKey}
+      filtersConfiguration={filtersConfiguration}
+      filtersInitialValues={filtersInitialValues}
+      form={{ defaultValues, groups, inputs, validationSchema }}
+      isWelcomePageDisplayedAtom={isWelcomePageDisplayedAtom}
       labels={{
         title: t(labelHostGroups),
         welcomePage: {
-          title: t(labelWelcomeToHostGroups),
           actions: {
             create: t(labelAddHostGroup)
-          }
+          },
+          title: t(labelWelcomeToHostGroups)
         }
       }}
+      resourceType={ResourceType.HostGroup}
+      selectedColumnIdsAtom={selectedColumnIdsAtom}
     />
   );
 };

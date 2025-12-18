@@ -23,7 +23,7 @@ const mockRequest = (isListingEmpty): void => {
       alias: 'getEmptyAgentConfigurations',
       method: Method.GET,
       path: `./api/latest${getAgentConfigurationsEndpoint}**`,
-      response: { result: [], meta: { limit: 10, page: 1, total: 0 } }
+      response: { meta: { limit: 10, page: 1, total: 0 }, result: [] }
     });
   } else {
     cy.fixture('AgentConfigurations/listing.json').then((listing): void => {
@@ -83,10 +83,23 @@ const mockRequest = (isListingEmpty): void => {
     method: Method.GET,
     path: `./api/latest${getAgentConfigurationEndpoint(1)}`,
     response: {
+      configuration: {
+        conf_certificate: '/sub/test.crt',
+        conf_private_key: 'test.key',
+        conf_server_port: 9090,
+        otel_ca_certificate: 'test.crt',
+        otel_private_key: 'test.key',
+        otel_public_certificate: 'test.cer',
+        otel_server_address: '127.0.0.1',
+        otel_server_port: 8080,
+        tokens: [
+          { creator_id: 1, name: 'token 1' },
+          { creator_id: 2, name: 'token 2' }
+        ]
+      },
+      connection_mode: 'secure',
       id: 1,
       name: 'agent',
-      connection_mode: 'secure',
-      type: 'telegraf',
       pollers: [
         {
           id: 1,
@@ -97,42 +110,29 @@ const mockRequest = (isListingEmpty): void => {
           name: 'poller 2'
         }
       ],
-      configuration: {
-        tokens: [
-          { name: 'token 1', creator_id: 1 },
-          { name: 'token 2', creator_id: 2 }
-        ],
-        otel_server_address: '127.0.0.1',
-        otel_server_port: 8080,
-        otel_public_certificate: 'test.cer',
-        otel_ca_certificate: 'test.crt',
-        otel_private_key: 'test.key',
-        conf_server_port: 9090,
-        conf_certificate: '/sub/test.crt',
-        conf_private_key: 'test.key'
-      }
+      type: 'telegraf'
     }
   });
   cy.interceptAPIRequest({
     alias: 'getHosts',
-    path: `./api/latest${hostsConfigurationEndpoint}**`,
     method: Method.GET,
+    path: `./api/latest${hostsConfigurationEndpoint}**`,
     response: {
-      result: [{ id: 1, name: 'central', address: '127.0.0.2' }],
-      meta: { limit: 10, page: 1, total: 1 }
+      meta: { limit: 10, page: 1, total: 1 },
+      result: [{ address: '127.0.0.2', id: 1, name: 'central' }]
     }
   });
 
   cy.interceptAPIRequest({
     alias: 'getTokens',
-    path: `*${listTokensEndpoint}**`,
     method: Method.GET,
+    path: `*${listTokensEndpoint}**`,
     response: {
+      meta: { limit: 10, page: 1, total: 2 },
       result: [
         { creator: { id: 1, name: 'Admin' }, name: 'token 1' },
         { creator: { id: 1, name: 'Admin' }, name: 'token 2' }
-      ],
-      meta: { limit: 10, page: 1, total: 2 }
+      ]
     }
   });
 };
@@ -141,9 +141,9 @@ const initialize = ({ isListingEmpty = false }) => {
   const store = createStore();
 
   store.set(userAtom, {
-    timezone: 'Europe/Paris',
+    is_admin: true,
     locale: 'en',
-    is_admin: true
+    timezone: 'Europe/Paris'
   });
   store.set(platformFeaturesAtom, {
     featureFlags: {},
@@ -163,7 +163,7 @@ const initialize = ({ isListingEmpty = false }) => {
         <Provider store={store}>
           <Router>
             <SnackbarProvider>
-              <div style={{ height: '100vh', display: 'grid' }}>
+              <div style={{ display: 'grid', height: '100vh' }}>
                 <AgentConfigurationPage />
               </div>
             </SnackbarProvider>

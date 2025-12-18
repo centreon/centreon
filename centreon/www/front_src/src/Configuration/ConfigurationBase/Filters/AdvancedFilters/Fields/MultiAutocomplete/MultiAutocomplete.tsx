@@ -25,23 +25,23 @@ const MultiAutocomplete = <TFilters,>({
   const { t } = useTranslation();
 
   const { value, change, deleteItem } = useMultiAutocomplete<TFilters>({
-    name,
     filters,
+    name,
     setFilters
   });
 
   return (
     <MultiAutocompleteField
-      disableSortedOptions
       chipProps={{
         color: 'primary',
         onDelete: deleteItem(name)
       }}
       dataTestId={label}
+      disableSortedOptions
       label={t(label)}
+      onChange={change}
       options={options}
       value={value}
-      onChange={change}
     />
   );
 };

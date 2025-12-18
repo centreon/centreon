@@ -398,18 +398,18 @@ describe('Agent configurations modal', () => {
 
     cy.waitForRequest('@postAgentConfiguration').then(({ request }) => {
       expect(request.body).to.deep.equal({
-        name: 'agent',
-        connection_mode: 'secure',
-        type: 'telegraf',
         configuration: {
-          otel_private_key: '/sub/test.key',
-          otel_ca_certificate: null,
-          otel_public_certificate: 'test.crt',
           conf_certificate: 'test.cer',
           conf_private_key: '/sub/test.key',
-          conf_server_port: 1234
+          conf_server_port: 1234,
+          otel_ca_certificate: null,
+          otel_private_key: '/sub/test.key',
+          otel_public_certificate: 'test.crt'
         },
-        poller_ids: [1]
+        connection_mode: 'secure',
+        name: 'agent',
+        poller_ids: [1],
+        type: 'telegraf'
       });
     });
 
@@ -431,18 +431,18 @@ describe('Agent configurations modal', () => {
 
     cy.waitForRequest('@patchAgentConfiguration').then(({ request }) => {
       expect(request.body).to.deep.equal({
-        name: 'agent updated',
-        type: 'telegraf',
-        connection_mode: 'secure',
         configuration: {
-          otel_private_key: 'test.key',
-          otel_ca_certificate: 'test.crt',
-          otel_public_certificate: 'test.cer',
           conf_certificate: '/sub/test.crt',
           conf_private_key: 'test.key',
-          conf_server_port: 9090
+          conf_server_port: 9090,
+          otel_ca_certificate: 'test.crt',
+          otel_private_key: 'test.key',
+          otel_public_certificate: 'test.cer'
         },
-        poller_ids: [1, 2]
+        connection_mode: 'secure',
+        name: 'agent updated',
+        poller_ids: [1, 2],
+        type: 'telegraf'
       });
     });
 
@@ -462,18 +462,18 @@ describe('Agent configurations modal', () => {
 
     cy.waitForRequest('@patchAgentConfiguration').then(({ request }) => {
       expect(request.body).to.deep.equal({
-        name: 'agent updated',
-        type: 'telegraf',
-        connection_mode: 'secure',
         configuration: {
-          otel_private_key: 'test.key',
-          otel_ca_certificate: 'test.crt',
-          otel_public_certificate: 'test.cer',
           conf_certificate: '/sub/test.crt',
           conf_private_key: 'test.key',
-          conf_server_port: 9090
+          conf_server_port: 9090,
+          otel_ca_certificate: 'test.crt',
+          otel_private_key: 'test.key',
+          otel_public_certificate: 'test.cer'
         },
-        poller_ids: [1, 2]
+        connection_mode: 'secure',
+        name: 'agent updated',
+        poller_ids: [1, 2],
+        type: 'telegraf'
       });
     });
 
@@ -582,19 +582,19 @@ describe('Agent configurations modal', () => {
 
     cy.waitForRequest('@postAgentConfiguration').then(({ request }) => {
       expect(request.body).deep.equal({
-        name: 'My agent',
-        connection_mode: 'secure',
-        type: 'centreon-agent',
-        poller_ids: [1],
         configuration: {
           agent_initiated: true,
-          poller_initiated: false,
-          tokens: [{ name: 'token 1', creator_id: 1 }],
+          hosts: [],
           otel_ca_certificate: 'test.crt',
-          otel_public_certificate: '/certificate/test.crt',
           otel_private_key: 'privateKey.key',
-          hosts: []
-        }
+          otel_public_certificate: '/certificate/test.crt',
+          poller_initiated: false,
+          tokens: [{ creator_id: 1, name: 'token 1' }]
+        },
+        connection_mode: 'secure',
+        name: 'My agent',
+        poller_ids: [1],
+        type: 'centreon-agent'
       });
     });
 
@@ -713,28 +713,28 @@ describe('Agent configurations modal', () => {
 
     cy.waitForRequest('@postAgentConfiguration').then(({ request }) => {
       expect(request.body).deep.equal({
-        name: 'My agent',
-        type: 'centreon-agent',
-        connection_mode: 'secure',
-        poller_ids: [1],
         configuration: {
-          tokens: [{ name: 'token 1', creator_id: 1 }],
           agent_initiated: true,
-          poller_initiated: true,
-          otel_ca_certificate: 'test.crt',
-          otel_public_certificate: '/test.cer',
-          otel_private_key: 'private.key',
           hosts: [
             {
-              id: 1,
               address: '127.0.0.2',
-              port: 4317,
-              poller_ca_name: '',
+              id: 1,
               poller_ca_certificate: 'test.crt',
-              token: { name: 'token 1', creator_id: 1 }
+              poller_ca_name: '',
+              port: 4317,
+              token: { creator_id: 1, name: 'token 1' }
             }
-          ]
-        }
+          ],
+          otel_ca_certificate: 'test.crt',
+          otel_private_key: 'private.key',
+          otel_public_certificate: '/test.cer',
+          poller_initiated: true,
+          tokens: [{ creator_id: 1, name: 'token 1' }]
+        },
+        connection_mode: 'secure',
+        name: 'My agent',
+        poller_ids: [1],
+        type: 'centreon-agent'
       });
     });
 
@@ -801,18 +801,18 @@ describe('Agent configurations modal', () => {
 
     cy.waitForRequest('@postAgentConfiguration').then(({ request }) => {
       expect(request.body).to.deep.equal({
-        name: 'My agent',
-        connection_mode: 'no-tls',
-        type: 'telegraf',
         configuration: {
-          otel_private_key: null,
-          otel_ca_certificate: null,
-          otel_public_certificate: null,
           conf_certificate: null,
           conf_private_key: null,
-          conf_server_port: 1234
+          conf_server_port: 1234,
+          otel_ca_certificate: null,
+          otel_private_key: null,
+          otel_public_certificate: null
         },
-        poller_ids: [1]
+        connection_mode: 'no-tls',
+        name: 'My agent',
+        poller_ids: [1],
+        type: 'telegraf'
       });
     });
 
@@ -857,28 +857,28 @@ describe('Agent configurations modal', () => {
 
     cy.waitForRequest('@postAgentConfiguration').then(({ request }) => {
       expect(request.body).deep.equal({
-        name: 'My agent',
-        type: 'centreon-agent',
-        connection_mode: 'no-tls',
-        poller_ids: [1],
         configuration: {
           agent_initiated: true,
-          poller_initiated: true,
-          tokens: [{ name: 'token 1', creator_id: 1 }],
-          otel_ca_certificate: null,
-          otel_public_certificate: null,
-          otel_private_key: null,
           hosts: [
             {
-              id: 1,
               address: '127.0.0.2',
-              port: 4317,
-              poller_ca_name: null,
+              id: 1,
               poller_ca_certificate: null,
-              token: { name: 'token 1', creator_id: 1 }
+              poller_ca_name: null,
+              port: 4317,
+              token: { creator_id: 1, name: 'token 1' }
             }
-          ]
-        }
+          ],
+          otel_ca_certificate: null,
+          otel_private_key: null,
+          otel_public_certificate: null,
+          poller_initiated: true,
+          tokens: [{ creator_id: 1, name: 'token 1' }]
+        },
+        connection_mode: 'no-tls',
+        name: 'My agent',
+        poller_ids: [1],
+        type: 'centreon-agent'
       });
     });
 
@@ -918,18 +918,18 @@ describe('Agent configurations modal', () => {
 
     cy.waitForRequest('@postAgentConfiguration').then(({ request }) => {
       expect(request.body).to.deep.equal({
-        name: 'Insecure Agent',
-        connection_mode: 'insecure',
-        type: 'telegraf',
         configuration: {
-          otel_private_key: 'test.key',
-          otel_ca_certificate: 'ca.crt',
-          otel_public_certificate: 'test.crt',
           conf_certificate: 'test.cer',
           conf_private_key: 'test.key',
-          conf_server_port: 1234
+          conf_server_port: 1234,
+          otel_ca_certificate: 'ca.crt',
+          otel_private_key: 'test.key',
+          otel_public_certificate: 'test.crt'
         },
-        poller_ids: [1]
+        connection_mode: 'insecure',
+        name: 'Insecure Agent',
+        poller_ids: [1],
+        type: 'telegraf'
       });
     });
 
@@ -953,18 +953,18 @@ describe('Agent configurations modal', () => {
 
     cy.waitForRequest('@patchAgentConfiguration').then(({ request }) => {
       expect(request.body).to.deep.equal({
-        name: 'Insecure Agent',
-        type: 'telegraf',
-        connection_mode: 'insecure',
         configuration: {
-          otel_private_key: 'test.key',
-          otel_ca_certificate: 'test.crt',
-          otel_public_certificate: 'test.cer',
           conf_certificate: '/sub/test.crt',
           conf_private_key: 'test.key',
-          conf_server_port: 9090
+          conf_server_port: 9090,
+          otel_ca_certificate: 'test.crt',
+          otel_private_key: 'test.key',
+          otel_public_certificate: 'test.cer'
         },
-        poller_ids: [1, 2]
+        connection_mode: 'insecure',
+        name: 'Insecure Agent',
+        poller_ids: [1, 2],
+        type: 'telegraf'
       });
     });
 
@@ -1007,28 +1007,28 @@ describe('Agent configurations modal', () => {
 
     cy.waitForRequest('@postAgentConfiguration').then(({ request }) => {
       expect(request.body).deep.equal({
-        name: 'My agent',
-        type: 'centreon-agent',
-        connection_mode: 'insecure',
-        poller_ids: [1],
         configuration: {
-          tokens: [{ name: 'token 1', creator_id: 1 }],
           agent_initiated: true,
-          poller_initiated: true,
-          otel_ca_certificate: 'test.crt',
-          otel_public_certificate: '/test.cer',
-          otel_private_key: 'private.key',
           hosts: [
             {
-              id: 1,
               address: '127.0.0.2',
-              port: 4317,
-              poller_ca_name: 'test.crt',
+              id: 1,
               poller_ca_certificate: 'test.crt',
-              token: { name: 'token 1', creator_id: 1 }
+              poller_ca_name: 'test.crt',
+              port: 4317,
+              token: { creator_id: 1, name: 'token 1' }
             }
-          ]
-        }
+          ],
+          otel_ca_certificate: 'test.crt',
+          otel_private_key: 'private.key',
+          otel_public_certificate: '/test.cer',
+          poller_initiated: true,
+          tokens: [{ creator_id: 1, name: 'token 1' }]
+        },
+        connection_mode: 'insecure',
+        name: 'My agent',
+        poller_ids: [1],
+        type: 'centreon-agent'
       });
     });
 

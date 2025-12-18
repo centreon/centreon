@@ -146,12 +146,12 @@ const Authentication = (): JSX.Element => {
     <Box className={classes.box}>
       <TabContext value={appliedTab}>
         <Container className={classes.container}>
-          <Paper square className={classes.paper}>
+          <Paper className={classes.paper} square>
             <Tabs
               className={classes.tabList}
-              variant="fullWidth"
               onChange={changeTab}
               value={tab}
+              variant="fullWidth"
             >
               {tabs}
             </Tabs>

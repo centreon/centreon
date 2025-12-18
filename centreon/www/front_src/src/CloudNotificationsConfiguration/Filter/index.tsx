@@ -26,11 +26,11 @@ const Filter = (): JSX.Element => {
 
   return (
     <SearchField
+      dataTestId={t(labelSearch)}
       debounced
       fullWidth
-      dataTestId={t(labelSearch)}
-      placeholder={t(labelSearch) as string}
       onChange={onChange}
+      placeholder={t(labelSearch) as string}
     />
   );
 };

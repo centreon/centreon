@@ -63,9 +63,9 @@ const renderClearFilter = (onClear) => (): JSX.Element => {
   return (
     <IconButton
       ariaLabel={t(labelClearFilter)}
+      onClick={onClear}
       size="small"
       title={t(labelClearFilter)}
-      onClick={onClear}
     >
       <CloseIcon color="action" fontSize="small" />
     </IconButton>
@@ -321,11 +321,9 @@ const Filter = (): JSX.Element => {
           <ClickAwayListener onClickAway={closeSuggestionPopover}>
             <div>
               <SearchField
-                fullWidth
                 EndAdornment={renderClearFilter(clearFilter)}
+                fullWidth
                 inputRef={searchRef as RefObject<HTMLInputElement>}
-                placeholder={t(labelSearch)}
-                value={search}
                 onBlur={blurInput}
                 onChange={prepareSearch}
                 onClick={(): void => {
@@ -333,6 +331,8 @@ const Filter = (): JSX.Element => {
                 }}
                 onFocus={(): void => setIsSearchFieldFocused(true)}
                 onKeyDown={inputKey}
+                placeholder={t(labelSearch)}
+                value={search}
               />
               <Popper
                 anchorEl={autocompleteAnchor}
@@ -347,11 +347,11 @@ const Filter = (): JSX.Element => {
                     return (
                       <MenuItem
                         key={suggestion}
-                        selected={index === selectedSuggestionIndex}
                         onClick={(): void => {
                           acceptAutocompleteSuggestionAtIndex(index);
                           searchRef?.current?.focus();
                         }}
+                        selected={index === selectedSuggestionIndex}
                       >
                         {suggestion}
                       </MenuItem>

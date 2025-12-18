@@ -66,12 +66,12 @@ const HostGraph = ({ details }: TabProps): JSX.Element => {
           renderExternalComponent={<GraphOptions />}
         />
       }
+      graphTimeParameters={graphTimeParameters}
       limit={limit}
       loading={sending}
       loadingSkeleton={<LoadingSkeleton />}
       preventReloadWhen={isNil(details)}
       sendListingRequest={sendListingRequest}
-      graphTimeParameters={graphTimeParameters}
     >
       {({
         infiniteScrollTriggerRef,

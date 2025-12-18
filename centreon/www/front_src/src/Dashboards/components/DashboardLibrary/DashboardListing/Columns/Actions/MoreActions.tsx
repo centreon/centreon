@@ -27,7 +27,7 @@ const MoreActions = ({ close, anchor, row }: Props): JSX.Element => {
     useActions(row);
 
   return (
-    <Menu anchorEl={anchor} open={Boolean(anchor)} onClose={close}>
+    <Menu anchorEl={anchor} onClose={close} open={Boolean(anchor)}>
       <ActionsList
         actions={[
           {

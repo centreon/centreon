@@ -42,12 +42,12 @@ const SingleMetricRenderer = ({
             always(
               <GraphText
                 {...graphProps}
-                prefThresholds={hasTwoThresholds ? 7 : 11}
-                minThresholds="8px"
                 labels={{
                   critical: t(labelCritical),
                   warning: t(labelWarning)
                 }}
+                minThresholds="8px"
+                prefThresholds={hasTwoThresholds ? 7 : 11}
               />
             )
           ]

@@ -158,13 +158,13 @@ const initialFormData = {
     ],
     resources: [
       {
-        resourceType: 'host',
         resources: [
           {
             id: 0,
             name: 'Host 0'
           }
-        ]
+        ],
+        resourceType: 'host'
       }
     ]
   },
@@ -823,11 +823,11 @@ describe('AddEditWidgetModal', () => {
               id: 2,
               includeAllMetrics: true,
               name: 'pl',
+              serviceId: 1,
+              serviceName: 'Ping',
               unit: '%',
               warningHighThreshold: null,
-              warningLowThreshold: null,
-              serviceId: 1,
-              serviceName: 'Ping'
+              warningLowThreshold: null
             });
           });
       });

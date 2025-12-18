@@ -37,8 +37,8 @@ const SaveAction = (): JSX.Element => {
         <IconButton
           ariaLabel={t(labelSave) as string}
           disabled={disabled as boolean}
-          title={t(labelSave) as string}
           onClick={onConfirm}
+          title={t(labelSave) as string}
         >
           <SaveIcon
             className={classes.icon}

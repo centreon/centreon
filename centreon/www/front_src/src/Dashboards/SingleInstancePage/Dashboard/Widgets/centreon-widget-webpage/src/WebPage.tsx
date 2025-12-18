@@ -67,12 +67,12 @@ const WebPage = ({
   return (
     <div className={classes.container}>
       <iframe
+        className={classes.iframe}
+        data-testid={labelWebpageDisplay}
+        id={`Webpage_${widgetId}`}
         ref={iframeRef}
         src={getIframeSrc(url)}
-        className={classes.iframe}
         title={t(labelWebpageDisplay)}
-        id={`Webpage_${widgetId}`}
-        data-testid={labelWebpageDisplay}
       />
     </div>
   );

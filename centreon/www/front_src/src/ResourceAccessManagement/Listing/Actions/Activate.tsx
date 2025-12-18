@@ -51,8 +51,8 @@ const Activate = ({ row }: ComponentColumnProps): JSX.Element => {
         checked={checked}
         className={classes.switch}
         color="success"
-        size="small"
         onClick={onClick}
+        size="small"
       />
     </Tooltip>
   );

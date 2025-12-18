@@ -69,8 +69,8 @@ const Content = ({
       xs={getVariableXs()}
       {...attributes}
       ref={itemRef}
-      style={style}
       size={xs || 6}
+      style={style}
     >
       <Paper className={classes.paper}>
         <div className={classes.tile}>

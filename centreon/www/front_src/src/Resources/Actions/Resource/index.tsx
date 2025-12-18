@@ -264,9 +264,9 @@ const ResourceActionsButtons = ({
               displayCondensed={displayCondensed}
               icon={<IconAcknowledge />}
               label={t(labelAcknowledge)}
+              onClick={prepareToAcknowledge}
               permitted={isAcknowledgePermitted}
               testId="mainAcknowledge"
-              onClick={prepareToAcknowledge}
             />
           </div>
         )}
@@ -277,9 +277,9 @@ const ResourceActionsButtons = ({
               displayCondensed={displayCondensed}
               icon={<IconDisacknowledge />}
               label={t(labelDisacknowledge)}
+              onClick={prepareToDisacknowledge}
               permitted={isDisacknowledgePermitted}
               testId="mainDisacknowledge"
-              onClick={prepareToDisacknowledge}
             />
           </div>
         )}
@@ -291,9 +291,9 @@ const ResourceActionsButtons = ({
               displayCondensed={displayCondensed}
               icon={<Downtime />}
               label={t(labelSetDowntime)}
+              onClick={prepareToSetDowntime}
               permitted={isDowntimePermitted}
               testId="mainSetDowntime"
-              onClick={prepareToSetDowntime}
             />
           </div>
         )}
@@ -309,38 +309,38 @@ const ResourceActionsButtons = ({
         )}
         {resourcesToAcknowledge.length > 0 && (
           <AcknowledgeForm
-            resources={resourcesToAcknowledge}
             onClose={cancelAcknowledge}
             onSuccess={confirmAction}
+            resources={resourcesToAcknowledge}
           />
         )}
         {resourcesToSetDowntime.length > 0 && (
           <DowntimeForm
-            resources={resourcesToSetDowntime}
             onClose={cancelSetDowntime}
             onSuccess={confirmAction}
+            resources={resourcesToSetDowntime}
           />
         )}
         {resourcesToDisacknowledge.length > 0 && (
           <DisacknowledgeForm
-            resources={resourcesToDisacknowledge}
             onClose={cancelDisacknowledge}
             onSuccess={confirmAction}
+            resources={resourcesToDisacknowledge}
           />
         )}
         {resourceToSubmitStatus && (
           <SubmitStatusForm
-            resource={resourceToSubmitStatus}
             onClose={cancelSubmitStatus}
             onSuccess={confirmAction}
+            resource={resourceToSubmitStatus}
           />
         )}
         {resourceToComment && (
           <AddCommentForm
             date={new Date()}
-            resource={resourceToComment as Resource}
             onClose={cancelComment}
             onSuccess={confirmAction}
+            resource={resourceToComment as Resource}
           />
         )}
       </div>
@@ -355,34 +355,34 @@ const ResourceActionsButtons = ({
               <ActionMenuItem
                 disabled={defaultDisableDisacknowledge}
                 label={labelDisacknowledge}
-                permitted={defaultIsDisacknowledgePermitted}
-                testId="Multiple Disacknowledge"
                 onClick={(): void => {
                   close();
                   prepareToDisacknowledge();
                 }}
+                permitted={defaultIsDisacknowledgePermitted}
+                testId="Multiple Disacknowledge"
               />
 
               <ActionMenuItem
                 disabled={disableSubmitStatus}
                 label={labelSubmitStatus}
-                permitted={isSubmitStatusPermitted}
-                testId="Submit a status"
                 onClick={(): void => {
                   close();
                   prepareToSubmitStatus();
                 }}
+                permitted={isSubmitStatusPermitted}
+                testId="Submit a status"
               />
 
               <ActionMenuItem
                 disabled={disableAddComment}
                 label={labelAddComment}
-                permitted={isAddCommentPermitted}
-                testId="Add a comment"
                 onClick={(): void => {
                   close();
                   prepareToAddComment();
                 }}
+                permitted={isAddCommentPermitted}
+                testId="Add a comment"
               />
               {renderMoreSecondaryActions?.({ close })}
             </>

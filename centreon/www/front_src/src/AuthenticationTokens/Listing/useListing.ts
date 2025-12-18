@@ -67,14 +67,14 @@ const useListing = (): UseListing => {
   return {
     changePage,
     changeSort,
+    disableRowCondition,
     page,
     resetColumns,
     selectColumns,
     selectedColumnIds,
     setLimit,
     sortf,
-    sorto,
-    disableRowCondition
+    sorto
   };
 };
 

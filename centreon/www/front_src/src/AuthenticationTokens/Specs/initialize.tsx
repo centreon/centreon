@@ -24,14 +24,14 @@ const interceptRequests = () => {
     alias: 'deleteToken',
     method: Method.DELETE,
     path: '**tokens/d-token/users/23',
-    response: { status: 'ok', code: 200 }
+    response: { code: 200, status: 'ok' }
   });
 
   cy.interceptAPIRequest({
     alias: 'enableDisableToken',
     method: Method.PATCH,
     path: '**tokens**',
-    response: { status: 'ok', code: 200 }
+    response: { code: 200, status: 'ok' }
   });
 
   cy.fixture('authenticationTokens/tokenDetails').then((data) => {

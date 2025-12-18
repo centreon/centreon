@@ -287,8 +287,8 @@ const columns = [
 ];
 
 const favoriteManagementData = [
-  { view: labelCardsView, dashboardId: 1 },
-  { view: labelListView, dashboardId: 2 }
+  { dashboardId: 1, view: labelCardsView },
+  { dashboardId: 2, view: labelListView }
 ];
 
 const getAliasFavoriteButton = (position: number) => {
@@ -331,7 +331,7 @@ const runFavoriteManagementFromList = ({
   cy.waitForRequest('@getDashboards');
 
   const buttonAlias = getAliasFavoriteButton(position);
-  const path = getPath({ position, action });
+  const path = getPath({ action, position });
 
   const aliasRequestAction = equals(FavoriteAction.add, action)
     ? '@addFavorite'
@@ -934,10 +934,10 @@ describe('Dashboards', () => {
     favoriteManagementData.forEach(({ view, dashboardId }, index) => {
       it(`add a dashboard to favorites when clicking on the corresponding icon in the ${view}`, () => {
         runFavoriteManagementFromList({
-          position: index,
-          view,
           action: FavoriteAction.add,
-          customListingPath: 'Dashboards/favorites/listing/list.json'
+          customListingPath: 'Dashboards/favorites/listing/list.json',
+          position: index,
+          view
         });
         cy.makeSnapshot();
       });
@@ -946,11 +946,11 @@ describe('Dashboards', () => {
         interceptDashboardsFavoriteDelete(dashboardId);
 
         runFavoriteManagementFromList({
-          position: index,
-          view,
           action: FavoriteAction.delete,
           customListingPath:
-            'Dashboards/favorites/listing/listAllMarkedFavorite.json'
+            'Dashboards/favorites/listing/listAllMarkedFavorite.json',
+          position: index,
+          view
         });
         cy.makeSnapshot();
       });

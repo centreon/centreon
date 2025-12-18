@@ -98,7 +98,7 @@ const useStyles = makeStyles<MakeStylesProps>()(
 );
 
 const LoadingSkeleton = (): JSX.Element => (
-  <Grid container item alignItems="center" spacing={2} style={{ flexGrow: 1 }}>
+  <Grid alignItems="center" container item spacing={2} style={{ flexGrow: 1 }}>
     <Grid item>
       <Skeleton height={25} variant="circular" width={25} />
     </Grid>
@@ -214,8 +214,8 @@ const Header = ({ details, onSelectParent }: Props): JSX.Element => {
             />
             <SelectableResourceName
               name={details.parent.name}
-              variant="caption"
               onSelect={selectResourceDetails}
+              variant="caption"
             />
           </div>
         )}
@@ -224,9 +224,9 @@ const Header = ({ details, onSelectParent }: Props): JSX.Element => {
         <IconButton
           ariaLabel={t(labelViewLogs)}
           data-testid={labelViewLogs}
+          onClick={navigateToResourceUris('logs')}
           size="small"
           title={t(labelViewLogs)}
-          onClick={navigateToResourceUris('logs')}
         >
           <LogsIcon fontSize="small" />
         </IconButton>
@@ -234,19 +234,19 @@ const Header = ({ details, onSelectParent }: Props): JSX.Element => {
           ariaLabel={t(labelViewReport)}
           className={classes.report}
           data-testid={labelViewReport}
+          onClick={navigateToResourceUris('reporting')}
           size="small"
           title={t(labelViewReport)}
-          onClick={navigateToResourceUris('reporting')}
         >
           <ReportIcon fontSize="small" />
         </IconButton>
-        <Divider flexItem className={classes.divider} orientation="vertical" />
+        <Divider className={classes.divider} flexItem orientation="vertical" />
         <IconButton
           ariaLabel={t(labelCopyLink)}
           data-testid={labelCopyLink}
+          onClick={copyLink}
           size="small"
           title={t(labelCopyLink)}
-          onClick={copyLink}
         >
           <CopyIcon fontSize="small" />
         </IconButton>

@@ -22,8 +22,8 @@ const useValidationSchema = () => {
       return equals(type.id, TokenType.API)
         ? schema
             .shape({
-              id: number().required(),
-              alias: string().required()
+              alias: string().required(),
+              id: number().required()
             })
             .required(t(labelRequired))
         : schema.nullable();

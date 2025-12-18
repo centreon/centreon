@@ -66,8 +66,8 @@ const Actions =
       <>
         <FormActions
           labels={actionsLabels}
-          variant={variant}
           onCancel={onCancel}
+          variant={variant}
         />
         <CloseModalConfirmation />
       </>
@@ -89,16 +89,16 @@ const HostGroupForm = ({
 
   return (
     <Form
-      Buttons={hasWriteAccess ? Actions({ onCancel, mode }) : Box}
-      isCollapsible
       areGroupsOpen
+      Buttons={hasWriteAccess ? Actions({ mode, onCancel }) : Box}
+      groups={groups}
+      groupsClassName={classes.groups}
       initialValues={initialValues}
       inputs={inputs}
-      groups={groups}
+      isCollapsible
       isLoading={isLoading}
       submit={(values, bag) => onSubmit?.(values, bag)}
       validationSchema={validationSchema}
-      groupsClassName={classes.groups}
     />
   );
 };

@@ -47,9 +47,9 @@ const ConnectedAutocomplete = ({
           getEndpoint={getEndpoint}
           label={t(secondaryLabel)}
           limitTags={2}
-          value={value}
           onChange={changeValue}
           required={isRequiredProperty}
+          value={value}
         />
       ) : (
         <MultiConnectedAutocompleteField
@@ -62,10 +62,10 @@ const ConnectedAutocomplete = ({
           getEndpoint={getEndpoint}
           label={t(secondaryLabel)}
           limitTags={2}
-          placeholder=""
-          value={value}
           onChange={changeValues}
+          placeholder=""
           required={isRequiredProperty}
+          value={value}
         />
       )}
     </div>

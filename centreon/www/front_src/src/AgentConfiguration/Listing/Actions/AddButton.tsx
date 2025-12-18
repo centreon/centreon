@@ -18,11 +18,11 @@ const AddButton = (): JSX.Element => {
 
   return (
     <Button
-      size="medium"
+      data-testid="add-agent-configuration"
       icon={<Add />}
       iconVariant="start"
       onClick={add}
-      data-testid="add-agent-configuration"
+      size="medium"
     >
       {t(labelAdd)}
     </Button>

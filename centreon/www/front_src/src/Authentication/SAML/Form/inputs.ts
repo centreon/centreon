@@ -270,11 +270,11 @@ export const inputs: Array<InputProps> = [
     type: InputType.Text
   },
   {
-    type: InputType.Switch,
     dataTestId: 'saml_requestAuthnContext',
     fieldName: 'requestedAuthnContext',
     group: labelIdentityProvider,
-    label: labelEnableRequestedAuthnContext
+    label: labelEnableRequestedAuthnContext,
+    type: InputType.Switch
   },
   {
     custom: {

@@ -98,8 +98,8 @@ export const getColumns = ({
             id: 'status',
             label: t(labelStatus),
             rowMemoProps: ['status', 'severity_code', 'type'],
-            sortField: 'status_severity_code',
             sortable: true,
+            sortField: 'status_severity_code',
             type: ColumnType.component,
             width: 'max-content'
           }
@@ -110,8 +110,8 @@ export const getColumns = ({
       id: 'resource',
       label: t(resourceLabel),
       rowMemoProps: ['icon', 'short_type', 'name'],
-      sortField: 'name',
       sortable: true,
+      sortField: 'name',
       type: ColumnType.component,
       width: 'max-content'
     },
@@ -133,8 +133,8 @@ export const getColumns = ({
             id: 'parent_resource',
             label: t(parentLabel),
             rowMemoProps: ['parent'],
-            sortField: 'parent_name',
             sortable: true,
+            sortField: 'parent_name',
             type: ColumnType.component,
             width: 'max-content'
           }
@@ -152,8 +152,8 @@ export const getColumns = ({
       getFormattedString: ({ duration }): string => duration,
       id: 'duration',
       label: t(labelDuration),
-      sortField: 'last_status_change',
       sortable: true,
+      sortField: 'last_status_change',
       type: ColumnType.string,
       width: 'max-content'
     },
@@ -194,8 +194,8 @@ export const getColumns = ({
       label: t(labelSeverity),
       rowMemoProps: ['severity_level'],
       shortLabel: 'S',
-      sortField: 'severity_level',
       sortable: true,
+      sortField: 'severity_level',
       type: ColumnType.component
     },
     {
@@ -244,8 +244,8 @@ export const getColumns = ({
             id: 'parent_alias',
             label: t(labelParentAlias),
             rowMemoProps: ['parent'],
-            sortField: 'parent_alias',
             sortable: true,
+            sortField: 'parent_alias',
             type: ColumnType.string,
             width: 'max-content'
           }

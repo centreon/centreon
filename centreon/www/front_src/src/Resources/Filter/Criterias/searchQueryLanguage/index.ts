@@ -127,9 +127,9 @@ const parse = ({
         }
 
         return {
+          formattedName: value,
           id: index,
-          name: replaceEscapeWithSpace(value),
-          formattedName: value
+          name: replaceEscapeWithSpace(value)
         };
       })
     };

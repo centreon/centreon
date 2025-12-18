@@ -90,14 +90,15 @@ const CheckActionButton = ({
     return (
       <Check
         disabledButton={disableForcedCheck}
+        onClickActionButton={handleForcedCheckResource}
         renderCheckOptionList={({ anchorEl, isOpen }) => (
           <CheckOptionsList
             anchorEl={anchorEl}
             disabled={{ disableCheck, disableForcedCheck }}
             isDefaultChecked={false}
-            open={isOpen}
             onClickCheck={onClickCheck}
             onClickForcedCheck={onClickForcedCheck}
+            open={isOpen}
             {...rest.listOptions}
           />
         )}
@@ -106,12 +107,11 @@ const CheckActionButton = ({
             disabled={disableForcedCheck}
             icon={<IconForcedCheck />}
             label={t(labelForcedCheck)}
+            onClick={onClick}
             permitted={isCheckPermitted}
             testId={testId}
-            onClick={onClick}
           />
         )}
-        onClickActionButton={handleForcedCheckResource}
       />
     );
   }
@@ -120,14 +120,15 @@ const CheckActionButton = ({
     return (
       <Check
         disabledButton={disableCheck}
+        onClickActionButton={handleCheckResource}
         renderCheckOptionList={({ anchorEl, isOpen }) => (
           <CheckOptionsList
-            isDefaultChecked
             anchorEl={anchorEl}
             disabled={{ disableCheck, disableForcedCheck }}
-            open={isOpen}
+            isDefaultChecked
             onClickCheck={onClickCheck}
             onClickForcedCheck={onClickForcedCheck}
+            open={isOpen}
             {...rest.listOptions}
           />
         )}
@@ -136,12 +137,11 @@ const CheckActionButton = ({
             disabled={disableCheck}
             icon={<IconCheck />}
             label={t(labelCheck)}
+            onClick={onClick}
             permitted={isCheckPermitted}
             testId={testId}
-            onClick={onClick}
           />
         )}
-        onClickActionButton={handleCheckResource}
       />
     );
   }
@@ -149,17 +149,17 @@ const CheckActionButton = ({
   return (
     <Check
       disabledButton
+      onClickActionButton={(): void => undefined}
       renderResourceActionButton={({ onClick }) => (
         <ResourceActionButton
           disabled
           icon={<IconForcedCheck />}
           label={t(labelForcedCheck)}
+          onClick={onClick}
           permitted={isForcedCheckPermitted}
           testId={testId}
-          onClick={onClick}
         />
       )}
-      onClickActionButton={(): void => undefined}
     />
   );
 };

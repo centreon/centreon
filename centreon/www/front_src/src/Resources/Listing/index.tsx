@@ -238,9 +238,9 @@ const ResourceListing = (): JSX.Element => {
 
   return (
     <Listing
-      checkable
       actions={<Actions onRefresh={initAutorefreshAndLoad} />}
       actionsBarMemoProps={[selectedResourceDetails]}
+      checkable
       columnConfiguration={{
         selectedColumnIds,
         sortable: areColumnsSortable
@@ -270,6 +270,13 @@ const ResourceListing = (): JSX.Element => {
         selectedColumnIds
       ]}
       moveTablePagination={isPanelOpen}
+      onLimitChange={changeLimit}
+      onPaginate={changePage}
+      onResetColumns={resetColumns}
+      onRowClick={selectResource}
+      onSelectColumns={selectColumns}
+      onSelectRows={setSelectedResources}
+      onSort={changeSort}
       predefinedRowsSelection={predefinedRowsSelection}
       rowColorConditions={[
         resourceDetailsOpenCondition,
@@ -297,13 +304,6 @@ const ResourceListing = (): JSX.Element => {
         )
       }}
       widthToMoveTablePagination={panelWidth}
-      onLimitChange={changeLimit}
-      onPaginate={changePage}
-      onResetColumns={resetColumns}
-      onRowClick={selectResource}
-      onSelectColumns={selectColumns}
-      onSelectRows={setSelectedResources}
-      onSort={changeSort}
     />
   );
 };

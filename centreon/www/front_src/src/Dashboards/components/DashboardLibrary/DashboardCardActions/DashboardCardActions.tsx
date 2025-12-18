@@ -65,27 +65,27 @@ const DashboardCardActions = ({
       <FavoriteAction
         dashboardId={dashboard.id as number}
         isFavorite={dashboard?.isFavorite as boolean}
-        refetch={refetch}
         isFetching={isFetchingListing}
+        refetch={refetch}
       />
       <IconButton
         ariaLabel={labels.labelShareWithContacts}
-        title={labels.labelShareWithContacts}
         onClick={openEditAccessRightModal}
+        title={labels.labelShareWithContacts}
       >
         <ShareIcon fontSize="small" />
       </IconButton>
       <IconButton
         ariaLabel={labels.labelMoreActions}
-        title={labels.labelMoreActions}
         onClick={openMoreActions}
+        title={labels.labelMoreActions}
       >
         <MoreIcon />
       </IconButton>
       <Menu
         anchorEl={moreActionsOpen}
-        open={Boolean(moreActionsOpen)}
         onClose={closeMoreActions}
+        open={Boolean(moreActionsOpen)}
       >
         <ActionsList
           actions={[

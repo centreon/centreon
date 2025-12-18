@@ -82,7 +82,7 @@ const ExpandableCard = ({
 
   return (
     <Card className={classes.card}>
-      <Typography gutterBottom className={classes.title} variant="subtitle2">
+      <Typography className={classes.title} gutterBottom variant="subtitle2">
         {title}
       </Typography>
       {threeFirstLines.map(Line)}
@@ -91,7 +91,7 @@ const ExpandableCard = ({
         <>
           <Divider />
           <CardActions>
-            <Button color="primary" size="small" onClick={toggleOutputExpanded}>
+            <Button color="primary" onClick={toggleOutputExpanded} size="small">
               {expandedCard ? t(labelLess) : t(labelMore)}
             </Button>
           </CardActions>

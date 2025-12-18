@@ -66,15 +66,15 @@ const CriteriasContent = (): JSX.Element => {
   return (
     <PopoverMenu
       icon={<TuneIcon fontSize="small" />}
+      onClose={applyCurrentFilter}
       popperPlacement="bottom-start"
       title={t(labelSearchOptions)}
-      onClose={applyCurrentFilter}
     >
       {(): JSX.Element => (
         <Grid
-          container
           alignItems="stretch"
           className={classes.container}
+          container
           direction="column"
           spacing={1}
         >
@@ -85,18 +85,18 @@ const CriteriasContent = (): JSX.Element => {
               </Grid>
             );
           })}
-          <Grid container item className={classes.searchButton} spacing={1}>
+          <Grid className={classes.searchButton} container item spacing={1}>
             <Grid item>
-              <Button color="primary" size="small" onClick={clearFilter}>
+              <Button color="primary" onClick={clearFilter} size="small">
                 {t(labelClear)}
               </Button>
             </Grid>
             <Grid item>
               <Button
                 color="primary"
+                onClick={applyCurrentFilter}
                 size="small"
                 variant="contained"
-                onClick={applyCurrentFilter}
               >
                 {t(labelSearch)}
               </Button>

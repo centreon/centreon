@@ -54,12 +54,12 @@ const ExportConfiguration = ({ closeSubMenu }: Props): JSX.Element | null => {
   return (
     <>
       <Button
-        fullWidth
         data-testid={labelExportConfiguration}
         disabled={disableButton}
+        fullWidth
+        onClick={askBeforeExportConfiguration}
         size="small"
         variant="outlined"
-        onClick={askBeforeExportConfiguration}
       >
         {t(labelExportConfiguration)}
       </Button>
@@ -67,10 +67,10 @@ const ExportConfiguration = ({ closeSubMenu }: Props): JSX.Element | null => {
         labelCancel={t(labelCancel) as string}
         labelConfirm={t(labelExportAndReload) as string}
         labelTitle={t(labelExportAndReloadTheConfiguration) as string}
-        open={askingBeforeExportConfiguration}
         onCancel={closeConfirmDialog}
         onClose={closeConfirmDialog}
         onConfirm={confirmExportAndReload}
+        open={askingBeforeExportConfiguration}
       >
         <div>
           <Typography>

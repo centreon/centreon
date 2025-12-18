@@ -62,10 +62,10 @@ const DurationField = (): JSX.Element => {
         getOptionItemLabel={(option) => option?.name}
         id="duration"
         label={t(labelDuration)}
+        onChange={changeDuration}
         options={options}
         required={true}
         value={values.duration}
-        onChange={changeDuration}
       />
       {isDisplayingDateTimePicker &&
         equals(values.duration?.id, 'customize') && (

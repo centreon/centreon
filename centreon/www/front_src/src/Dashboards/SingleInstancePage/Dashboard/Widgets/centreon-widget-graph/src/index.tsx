@@ -23,12 +23,12 @@ const Input = ({
       dashboardId={dashboardId}
       globalRefreshInterval={globalRefreshInterval}
       id={id}
+      isFromPreview={isFromPreview}
       panelData={panelData}
       panelOptions={panelOptions}
       playlistHash={playlistHash}
       refreshCount={refreshCount}
       widgetPrefixQuery={widgetPrefixQuery}
-      isFromPreview={isFromPreview}
     />
   );
 };

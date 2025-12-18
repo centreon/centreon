@@ -30,9 +30,9 @@ describe('Add comment form', () => {
       Component: (
         <AddCommentForm
           date={date}
-          resource={resource}
           onClose={onClose}
           onSuccess={onSuccess}
+          resource={resource}
         />
       )
     });

@@ -28,7 +28,7 @@ const Logo = ({ onClick, isMiniLogo }: Props): JSX.Element => {
   const label = t(isMiniLogo ? labelMiniCentreonLogo : labelCentreonLogo);
 
   return (
-    <IconButton ariaLabel={label} title={label} onClick={onClick}>
+    <IconButton ariaLabel={label} onClick={onClick} title={label}>
       <Image
         alt={label}
         className={classes.logo}

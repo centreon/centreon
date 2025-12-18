@@ -29,9 +29,9 @@ const Add = (): JSX.Element => {
       data-testid={labelAdd}
       icon={<AddIcon />}
       iconVariant="start"
+      onClick={openCreatetModal}
       size="medium"
       variant="primary"
-      onClick={openCreatetModal}
     >
       {t(labelAdd)}
     </Button>

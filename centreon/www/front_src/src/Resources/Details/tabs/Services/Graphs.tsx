@@ -23,8 +23,8 @@ export interface ResourceGraphMousePosition {
 
 const useStyles = makeStyles()((theme) => ({
   graph: {
-    display: 'grid',
     columnGap: theme.spacing(1.5),
+    display: 'grid',
     gridTemplateColumns: `repeat(auto-fit, minmax(${theme.spacing(40)}, 1fr))`,
     rowGap: theme.spacing(1.5)
   }
@@ -51,8 +51,8 @@ const ServiceGraphs = ({
         return (
           <div key={id}>
             <ChartGraph
-              resource={service}
               graphTimeParameters={graphTimeParameters}
+              resource={service}
               updatedGraphInterval={updateGraphInterval}
             />
             {isLastService && <div ref={infiniteScrollTriggerRef} />}

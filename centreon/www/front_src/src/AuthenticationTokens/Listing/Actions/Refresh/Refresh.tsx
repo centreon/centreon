@@ -20,9 +20,9 @@ const Refresh = (): JSX.Element => {
     <IconButton
       ariaLabel={t(labelRefresh) as string}
       data-testid="Refresh"
+      onClick={onRefresh}
       size="small"
       title={t(labelRefresh) as string}
-      onClick={onRefresh}
     >
       <IconRefresh />
     </IconButton>

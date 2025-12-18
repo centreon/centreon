@@ -10,8 +10,8 @@ const Name = ({
   renderEllipsisTypography
 }: ComponentColumnProps): JSX.Element => {
   const { classes } = useNameStyles({
-    isRowDisabled: row.isActivated,
-    isHovered
+    isHovered,
+    isRowDisabled: row.isActivated
   });
 
   const renderedName =

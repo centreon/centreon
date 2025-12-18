@@ -16,13 +16,13 @@ const Filters = (): JSX.Element => {
   return (
     <div className={classes.filters}>
       <SearchField
-        debounced
-        fullWidth
-        EndAdornment={AdvancedFilters}
         dataTestId={'search-bar'}
+        debounced
+        EndAdornment={AdvancedFilters}
+        fullWidth
+        onChange={onChange}
         placeholder={t(labelSearch)}
         value={filters.name}
-        onChange={onChange}
       />
     </div>
   );

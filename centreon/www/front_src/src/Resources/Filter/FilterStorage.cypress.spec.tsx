@@ -85,15 +85,15 @@ const emptyListData = {
 };
 
 const linuxServersHostGroup = {
+  formattedName: 'Linux-servers',
   id: 0,
-  name: 'Linux-servers',
-  formattedName: 'Linux-servers'
+  name: 'Linux-servers'
 };
 
 const webAccessServiceGroup = {
+  formattedName: 'Web-access',
   id: 0,
-  name: 'Web-access',
-  formattedName: 'Web-access'
+  name: 'Web-access'
 };
 
 const parameters = [
@@ -107,7 +107,7 @@ const filter = {
       name: 'resource_types',
       object_type: null,
       type: 'multi_select',
-      value: [{ id: 'host', name: labelHost, formattedName: labelHost }]
+      value: [{ formattedName: labelHost, id: 'host', name: labelHost }]
     },
     {
       name: 'states',
@@ -123,14 +123,14 @@ const filter = {
     },
     {
       name: 'host_groups',
-      type: 'multi_select',
       object_type: 'host_groups',
+      type: 'multi_select',
       value: [linuxServersHostGroup]
     },
     {
       name: 'service_groups',
-      type: 'multi_select',
       object_type: 'service_groups',
+      type: 'multi_select',
       value: [webAccessServiceGroup]
     },
     { name: 'search', value: 'Search me' },
@@ -186,9 +186,9 @@ const expectedFilter = {
       type: 'multi_select',
       value: [
         {
+          formattedName: 'HG',
           id: 0,
-          name: 'HG',
-          formattedName: 'HG'
+          name: 'HG'
         }
       ]
     },
@@ -204,9 +204,9 @@ const expectedFilter = {
       type: 'multi_select',
       value: [
         {
+          formattedName: 'Poller\\stest',
           id: 0,
-          name: 'Poller test',
-          formattedName: 'Poller\\stest'
+          name: 'Poller test'
         }
       ]
     },
@@ -252,9 +252,9 @@ const expectedFilter = {
       type: 'multi_select',
       value: [
         {
+          formattedName: 'Server',
           id: 0,
-          name: 'Server',
-          formattedName: 'Server'
+          name: 'Server'
         }
       ]
     },
@@ -264,9 +264,9 @@ const expectedFilter = {
       type: 'multi_select',
       value: [
         {
+          formattedName: 'Service',
           id: 0,
-          name: 'Service',
-          formattedName: 'Service'
+          name: 'Service'
         }
       ]
     },
@@ -282,8 +282,8 @@ const initializeResourcesByHost = () => {
     resourceTypes: ['host'],
     sort: {},
     states: [],
-    statusTypes: [],
-    statuses: []
+    statuses: [],
+    statusTypes: []
   });
   cy.interceptAPIRequest({
     alias: 'getResourcesByHostType',
@@ -380,8 +380,8 @@ describe('Filter storage', () => {
 
     cy.getAllLocalStorage().should('deep.equal', {
       'http://localhost:9092': {
-        MSW_COOKIE_STORE: '[]',
-        'centreon-resource-status-23.10-filter': JSON.stringify(expectedFilter)
+        'centreon-resource-status-23.10-filter': JSON.stringify(expectedFilter),
+        MSW_COOKIE_STORE: '[]'
       }
     });
 

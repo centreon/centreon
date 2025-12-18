@@ -104,14 +104,6 @@ export const useGroupMonitoring = ({
             page: inc(pageToUse),
             search: hasResourcesDefined
               ? {
-                  lists: !isResourceString(resource?.resources)
-                    ? [
-                        {
-                          field: 'name',
-                          values: pluck('name', resource?.resources)
-                        }
-                      ]
-                    : undefined,
                   conditions: isResourceString(resource?.resources)
                     ? [
                         {
@@ -119,6 +111,14 @@ export const useGroupMonitoring = ({
                           values: {
                             $rg: resource?.resources
                           }
+                        }
+                      ]
+                    : undefined,
+                  lists: !isResourceString(resource?.resources)
+                    ? [
+                        {
+                          field: 'name',
+                          values: pluck('name', resource?.resources)
                         }
                       ]
                     : undefined

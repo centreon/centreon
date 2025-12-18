@@ -374,10 +374,10 @@ const ExtensionsManager = ({ reloadNavigation }: Props): JSX.Element => {
             color="primary"
             data-testid="update-all"
             disabled={disableUpdate}
+            onClick={updateAllEntities}
             size="small"
             startIcon={<UpdateIcon />}
             variant="contained"
-            onClick={updateAllEntities}
           >
             {t(labelUpdateAll)}
           </Button>
@@ -385,10 +385,10 @@ const ExtensionsManager = ({ reloadNavigation }: Props): JSX.Element => {
             color="primary"
             data-testid="install-all"
             disabled={disableInstall}
+            onClick={installAllEntities}
             size="small"
             startIcon={<InstallIcon />}
             variant="contained"
-            onClick={installAllEntities}
           >
             {t(labelInstallAll)}
           </Button>
@@ -403,13 +403,13 @@ const ExtensionsManager = ({ reloadNavigation }: Props): JSX.Element => {
                 deletingEntityId={confirmedDeletingEntityId}
                 entities={extensions.module.entities}
                 installing={extensionsInstallingStatus}
-                title="Modules"
-                type="module"
-                updating={extensionsUpdatingStatus}
                 onCard={activateExtensionsDetails}
                 onDelete={toggleDeleteModal}
                 onInstall={installById}
                 onUpdate={updateById}
+                title="Modules"
+                type="module"
+                updating={extensionsUpdatingStatus}
               />
             )}
 
@@ -419,13 +419,13 @@ const ExtensionsManager = ({ reloadNavigation }: Props): JSX.Element => {
                 deletingEntityId={confirmedDeletingEntityId}
                 entities={extensions.widget.entities}
                 installing={extensionsInstallingStatus}
-                title="Widgets"
-                type="widget"
-                updating={extensionsUpdatingStatus}
                 onCard={activateExtensionsDetails}
                 onDelete={toggleDeleteModal}
                 onInstall={installById}
                 onUpdate={updateById}
+                title="Widgets"
+                type="widget"
+                updating={extensionsUpdatingStatus}
               />
             )}
         </>
@@ -439,11 +439,11 @@ const ExtensionsManager = ({ reloadNavigation }: Props): JSX.Element => {
             extensionsUpdatingStatus[entityDetails.id] ||
             confirmedDeletingEntityId === entityDetails.id
           }
-          type={entityDetails.type}
           onClose={hideExtensionDetails}
           onDelete={toggleDeleteModal}
           onInstall={installById}
           onUpdate={updateById}
+          type={entityDetails.type}
         />
       )}
 

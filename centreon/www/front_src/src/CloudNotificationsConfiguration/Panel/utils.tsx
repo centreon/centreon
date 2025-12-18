@@ -43,8 +43,8 @@ const formatMessages = ({ messages, messageType }): object => {
 
   return {
     channel: {
-      Icon: EmailIcon,
       checked: true,
+      Icon: EmailIcon,
       label: ChannelsEnum.Email
     },
     message: message.message,

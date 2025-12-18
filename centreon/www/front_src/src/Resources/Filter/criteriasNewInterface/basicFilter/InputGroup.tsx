@@ -90,21 +90,21 @@ const InputGroup = ({
 
   return (
     <MultiConnectedAutocompleteField
-      disableSortedOptions
       chipProps={{
         onDelete
       }}
       className={classes.input}
+      disableSortedOptions
+      exclusionOptionProperty="name"
       field="name"
       filterOptions={getUniqueOptions}
       getEndpoint={getEndpoint}
       isOptionEqualToValue={isOptionEqualToValue}
       label={t(currentLabel) as string}
+      onChange={handleChange}
       placeholder={t(currentLabel)}
       search={dataByFilterName?.autocompleteSearch}
       value={value}
-      onChange={handleChange}
-      exclusionOptionProperty="name"
     />
   );
 };

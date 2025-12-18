@@ -138,11 +138,11 @@ const mockAcl = {
 const mockRefreshInterval = 60;
 
 const cardsProperties = [
-  { property: 'last_status_change', label: labelLastStatusChange },
-  { property: 'last_check', label: labelLastCheck },
-  { property: 'last_time_with_no_issue', label: labelLastCheckWithOkStatus },
-  { property: 'next_check', label: labelNextCheck },
-  { property: 'last_notification', label: labelLastNotification }
+  { label: labelLastStatusChange, property: 'last_status_change' },
+  { label: labelLastCheck, property: 'last_check' },
+  { label: labelLastCheckWithOkStatus, property: 'last_time_with_no_issue' },
+  { label: labelNextCheck, property: 'next_check' },
+  { label: labelLastNotification, property: 'last_notification' }
 ];
 
 const DetailsTest = (): JSX.Element => {

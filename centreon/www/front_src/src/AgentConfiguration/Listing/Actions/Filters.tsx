@@ -55,50 +55,50 @@ const Filters = (): JSX.Element => {
   return (
     <div className={classes.filtersContainer} data-testid="FilterContainer">
       <TextField
-        fullWidth
         dataTestId={labelName}
+        fullWidth
         label={t(labelName)}
-        value={filters.name}
         onChange={changeName}
+        value={filters.name}
       />
       <MultiAutocompleteField
+        chipProps={{
+          color: 'primary',
+          onDelete: deleteType
+        }}
+        label={t(labelAgentType)}
+        onChange={changeTypes}
         options={agentTypeOptions}
         value={filters.type}
-        onChange={changeTypes}
-        label={t(labelAgentType)}
-        chipProps={{
-          onDelete: deleteType,
-          color: 'primary'
-        }}
       />
       <MultiConnectedAutocompleteField
         chipProps={{
-          onDelete: deletePoller,
-          color: 'primary'
+          color: 'primary',
+          onDelete: deletePoller
         }}
         dataTestId={labelPoller}
+        field="name"
         getEndpoint={getPollersEndpoint}
         label={t(labelPoller)}
-        value={filters['poller.id']}
-        field="name"
         onChange={changerPollers}
+        value={filters['poller.id']}
       />
 
       <div className={classes.additionalFiltersButtons}>
         <Button
           data-testid={labelClear}
           disabled={isClearDisabled}
+          onClick={reset}
           size="small"
           variant="ghost"
-          onClick={reset}
         >
           {t(labelClear)}
         </Button>
         <Button
           data-testid={labelSearch}
           disabled={isLoading}
-          size="small"
           onClick={reload}
+          size="small"
         >
           {t(labelSearch)}
         </Button>

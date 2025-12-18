@@ -32,12 +32,12 @@ const initialize = ({ text = undefined, canEdit = true }: Props): void => {
               boundaries: undefined
             }
           }}
+          onSubmit={cy.stub()}
           validationSchema={object().shape({
             options: object().shape({
               boundaries: boundariesValidationSchema
             })
           })}
-          onSubmit={cy.stub()}
         >
           <Boundaries
             isInGroup

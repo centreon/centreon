@@ -39,9 +39,9 @@ const Slider = ({
           disabled={!canEditField}
           max={slider?.max || 100}
           min={slider?.min || 0}
+          onChange={changeSliderValue}
           track={false}
           value={value || 0}
-          onChange={changeSliderValue}
         />
         <div className={classes.inputContainer}>
           <NumberField
@@ -49,6 +49,8 @@ const Slider = ({
             containerClassName={classes.field}
             dataTestId="slider-input"
             disabled={!canEditField}
+            onChange={changeInputValue}
+            size="compact"
             textFieldSlotsAndSlotProps={{
               slotProps: {
                 htmlInput: {
@@ -58,9 +60,7 @@ const Slider = ({
                 }
               }
             }}
-            size="compact"
             value={value?.toString()}
-            onChange={changeInputValue}
           />
           {slider?.unit && <Typography>{slider.unit}</Typography>}
         </div>

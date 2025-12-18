@@ -15,8 +15,8 @@ const DuplicationForm = (): React.JSX.Element => {
     <Formik
       enableReinitialize
       initialValues={{ name: `${duplicatedRule.rule?.name}_1` }}
-      validationSchema={validationSchema}
       onSubmit={submit}
+      validationSchema={validationSchema}
     >
       <DuplicateConfirmationDialog />
     </Formik>

@@ -68,8 +68,8 @@ const ResourcesTooltip = ({
     bypassRequest: isSuccessStatus || hasNoResource,
     isBAResourceType,
     isBVResourceType,
-    resourceType,
     resources,
+    resourceType,
     status
   });
 

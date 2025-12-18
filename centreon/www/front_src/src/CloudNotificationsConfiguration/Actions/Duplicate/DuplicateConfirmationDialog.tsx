@@ -26,10 +26,10 @@ const DuplicateConfirmationDialog = (): JSX.Element => {
       labelCancel={t(labelDiscard)}
       labelConfirm={t(labelDuplicate)}
       labelTitle={t(labelPleaseEnterNameForDuplicatedNotification)}
-      open={isDialogOpen}
-      submitting={isSubmitting}
       onCancel={closeDialog}
       onConfirm={submitForm}
+      open={isDialogOpen}
+      submitting={isSubmitting}
     >
       <NotificationName />
     </ConfirmDialog>

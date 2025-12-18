@@ -62,9 +62,9 @@ const MetricTop = ({
       <Link
         className={classes.linkToResourcesStatus}
         data-testid={`link to ${metricTop?.name}`}
+        onClick={(e) => isFromPreview && e.preventDefault()}
         target="_blank"
         to={getResourcesUrlForMetricsWidgets(metricTop)}
-        onClick={(e) => isFromPreview && e.preventDefault()}
       >
         <SingleBar
           data={formattedData}

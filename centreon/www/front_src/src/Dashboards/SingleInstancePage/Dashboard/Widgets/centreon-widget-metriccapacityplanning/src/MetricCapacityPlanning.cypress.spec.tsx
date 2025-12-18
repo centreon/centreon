@@ -5,21 +5,21 @@ const initialize = ({ panelData }): void => {
   cy.mount({
     Component: (
       <Widget
-        panelData={panelData}
         dashboardId={1}
-        globalRefreshInterval={{ type: 'global', interval: null }}
+        globalRefreshInterval={{ interval: null, type: 'global' }}
         hasDescription={false}
         id="1"
+        panelData={panelData}
+        panelOptions={null}
         refreshCount={0}
         widgetPrefixQuery="widget"
-        panelOptions={null}
       />
     )
   });
 };
 describe('Metric capacity planning widget', () => {
   it('displays a no resources message when the widget does not have selected resources', () => {
-    initialize({ panelData: { resources: [], metrics: [] } });
+    initialize({ panelData: { metrics: [], resources: [] } });
 
     cy.contains(labelPreviewRemainsEmpty).should('be.visible');
 
@@ -29,10 +29,10 @@ describe('Metric capacity planning widget', () => {
   it('displays a no resources message when the widget does not have selected metrics', () => {
     initialize({
       panelData: {
+        metrics: [],
         resources: [
           { resources: [{ id: 0, name: 'my host' }], resourceType: 'host' }
-        ],
-        metrics: []
+        ]
       }
     });
 
@@ -44,10 +44,10 @@ describe('Metric capacity planning widget', () => {
   it('does not display a no resource message when the widget have selected metrics', () => {
     initialize({
       panelData: {
+        metrics: [{ id: 0, name: 'metric' }],
         resources: [
           { resources: [{ id: 0, name: 'my host' }], resourceType: 'host' }
-        ],
-        metrics: [{ id: 0, name: 'metric' }]
+        ]
       }
     });
 

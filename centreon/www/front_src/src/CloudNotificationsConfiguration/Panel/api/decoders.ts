@@ -49,8 +49,8 @@ const resource = JsonDecoder.object<ResourceType>(
 
 const user = JsonDecoder.object<UserType>(
   {
-    id: JsonDecoder.number,
-    alias: JsonDecoder.string
+    alias: JsonDecoder.string,
+    id: JsonDecoder.number
   },
   'User'
 );

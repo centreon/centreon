@@ -72,10 +72,10 @@ const useStatus = ({ row }): Props => {
 
     handleBulkResponse({
       data: results,
-      labelWarning: labelWarningMessage,
+      items: [row.id],
       labelFailed: labelErrorMessage,
       labelSuccess: labelSuccessMessage,
-      items: [row.id]
+      labelWarning: labelWarningMessage
     });
   };
 
@@ -96,8 +96,8 @@ const useStatus = ({ row }): Props => {
 
   return {
     change,
-    isMutating: isDisableMutating || isEnableMutating,
-    checked
+    checked,
+    isMutating: isDisableMutating || isEnableMutating
   };
 };
 

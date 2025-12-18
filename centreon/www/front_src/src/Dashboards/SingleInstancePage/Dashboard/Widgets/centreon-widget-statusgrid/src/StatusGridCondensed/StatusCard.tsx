@@ -83,8 +83,6 @@ const StatusCard = ({
 
   return (
     <Tooltip
-      hasArrow
-      hasCaret
       classes={{
         tooltip: classes.tooltip
       }}
@@ -92,13 +90,15 @@ const StatusCard = ({
       disableHoverListener={isOnPublicPage}
       disableTouchListener={isOnPublicPage}
       followCursor={false}
+      hasArrow
+      hasCaret
       label={
         <ResourcesTooltip
           count={count.total}
           isBAResourceType={isBAResourceType}
           isBVResourceType={isBVResourceType}
-          resourceType={resourceType}
           resources={resources}
+          resourceType={resourceType}
           severityCode={severityCode}
           status={label}
           total={total}
@@ -124,7 +124,7 @@ const StatusCard = ({
                 <Typography
                   className={classes.countText}
                   sx={{
-                    fontSize: `${computeCountTextSize({ width, height })}px`
+                    fontSize: `${computeCountTextSize({ height, width })}px`
                   }}
                 >
                   {formatMetricValue({ unit: '', value: count.total || 0 })}

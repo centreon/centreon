@@ -348,13 +348,12 @@ const UserMenu = ({ headerRef }: Props): JSX.Element => {
               className={classes.userIcon}
               data-cy="userIcon"
               fontSize="large"
-              ref={userIconRef}
               onClick={toggle}
+              ref={userIconRef}
             />
           </Badge>
         </Tooltip>
         <Popper
-          transition
           anchorEl={anchorEl}
           className={classes.popper}
           data-cy="popper"
@@ -368,6 +367,7 @@ const UserMenu = ({ headerRef }: Props): JSX.Element => {
           ]}
           open={not(isNil(anchorEl))}
           placement="bottom-end"
+          transition
         >
           {({ TransitionProps }): JSX.Element => (
             <Fade {...TransitionProps} timeout={350}>
@@ -378,7 +378,7 @@ const UserMenu = ({ headerRef }: Props): JSX.Element => {
                   display: isNil(anchorEl) ? 'none' : 'block'
                 }}
               >
-                <List dense className={classes.containerList}>
+                <List className={classes.containerList} dense>
                   <ListItem className={classes.listItem}>
                     <ListItemText
                       primaryTypographyProps={primaryTypographyProps}
@@ -437,9 +437,9 @@ const UserMenu = ({ headerRef }: Props): JSX.Element => {
                         </ListItemText>
                       </ListItemButton>
                       <textarea
-                        readOnly
                         className={cx(classes.hiddenInput)}
                         id="autologin-input"
+                        readOnly
                         ref={autologinNode as RefObject<HTMLTextAreaElement>}
                         value={autolink}
                       />

@@ -170,25 +170,25 @@ const SelectInput = ({
 
   return (
     <MultiConnectedAutocompleteField
-      disableSortedOptions
-      freeSolo
       chipProps={{
         onDelete
       }}
       className={classes.input}
+      disableSortedOptions
+      exclusionOptionProperty="name"
       field="name"
       filterOptions={getUniqueOptions}
+      freeSolo
       getEndpoint={getEndpoint}
+      isOptionEqualToValue={isOptionEqualToValue}
+      label={t(label[resourceType]) as string}
+      onChange={handleChange}
+      placeholder={t(label[resourceType]) as string}
+      search={dataByFilterName?.autocompleteSearch}
       textFieldSlotsAndSlotProps={{
         slotProps: { htmlInput: { 'data-testid': resourceType } }
       }}
-      isOptionEqualToValue={isOptionEqualToValue}
-      label={t(label[resourceType]) as string}
-      placeholder={t(label[resourceType]) as string}
-      search={dataByFilterName?.autocompleteSearch}
       value={value}
-      onChange={handleChange}
-      exclusionOptionProperty="name"
     />
   );
 };

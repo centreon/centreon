@@ -197,11 +197,11 @@ export const addPanelDerivedAtom = atom(
     );
 
     const panelPosition = getNewPanelPosition({
+      columns: columnsFromScreenSize,
       dashboard,
       maxHeight,
-      columns: columnsFromScreenSize,
-      panelWidth,
-      panelHeight
+      panelHeight,
+      panelWidth
     });
 
     const newLayout = [

@@ -44,41 +44,41 @@ const Filters = <TFilters,>({
         if (equals(filter.fieldType, FieldType.Status))
           return (
             <Status<TFilters>
+              filters={filters}
               key={filter.name}
               setFilters={setFilters}
-              filters={filters}
             />
           );
         if (equals(filter.fieldType, FieldType.MultiAutocomplete))
           return (
             <MultiAutocomplete<TFilters>
+              filters={filters}
+              key={filter.name}
               label={filter.name}
               name={filter.fieldName}
               options={filter.options}
-              key={filter.name}
               setFilters={setFilters}
-              filters={filters}
             />
           );
 
         if (equals(filter.fieldType, FieldType.MultiConnectedAutocomplete))
           return (
             <MultiConnectedAutocomplete<TFilters>
-              label={filter.name}
-              name={filter.fieldName}
+              filters={filters}
               getEndpoint={filter.getEndpoint}
               key={filter.name}
+              label={filter.name}
+              name={filter.fieldName}
               setFilters={setFilters}
-              filters={filters}
             />
           );
 
         return (
           <Text<TFilters>
+            filters={filters}
+            key={filter.name}
             label={filter.name}
             name={filter.fieldName}
-            key={filter.name}
-            filters={filters}
             setFilters={setFilters}
           />
         );
@@ -88,17 +88,17 @@ const Filters = <TFilters,>({
         <Button
           data-testid={labelClear}
           disabled={isClearDisabled}
+          onClick={reset}
           size="small"
           variant="ghost"
-          onClick={reset}
         >
           {t(labelClear)}
         </Button>
         <Button
           data-testid={labelSearch}
           disabled={isLoading}
-          size="small"
           onClick={reload}
+          size="small"
         >
           {t(labelSearch)}
         </Button>

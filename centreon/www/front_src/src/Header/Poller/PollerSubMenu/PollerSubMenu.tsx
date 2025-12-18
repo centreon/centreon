@@ -86,11 +86,11 @@ export const PollerSubMenu = ({
       {displayPollerButton && (
         <ListItem className={classes.listItem} onClick={closeSubMenu}>
           <Button
-            fullWidth
             data-testid={pollerConfig.testId}
+            fullWidth
+            onClick={pollerConfig.redirect}
             size="small"
             variant="outlined"
-            onClick={pollerConfig.redirect}
           >
             {pollerConfig.label}
           </Button>

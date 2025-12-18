@@ -54,10 +54,10 @@ const DatasetFilter = ({
   return (
     <div className={classes.resourceComposition}>
       <ItemComposition
-        IconAdd={<AddIcon />}
         addbuttonDisabled={
           !areResourcesFilled(datasetFilter) || lowestResourceTypeReached()
         }
+        IconAdd={<AddIcon />}
         labelAdd={t(labelAddFilter)}
         onAddItem={addResource}
       >
@@ -77,9 +77,9 @@ const DatasetFilter = ({
                 aria-label={`${labelSelectResourceType}`}
                 className={classes.resourceType}
                 label={t(labelSelectResourceType) as string}
+                onChange={changeResourceType(resourceIndex)}
                 options={getResourceTypeOptions(resourceIndex)}
                 selectedOptionId={resource.resourceType}
-                onChange={changeResourceType(resourceIndex)}
               />
               <MultiConnectedAutocompleteField
                 allowUniqOption
@@ -106,13 +106,13 @@ const DatasetFilter = ({
                 )}
                 label={t(getLabelForSelectedResources(resourceIndex))}
                 limitTags={5}
+                onChange={changeResources(resourceIndex)}
                 queryKey={`${resource.resourceType}-${resourceIndex}`}
                 value={
                   datasetFilter[resourceIndex].allOfResourceType
                     ? []
                     : resource.resources || []
                 }
-                onChange={changeResources(resourceIndex)}
               />
             </ItemComposition.Item>
             {displayAllOfResourceTypeCheckbox(resource.resourceType) && (

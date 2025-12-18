@@ -483,9 +483,9 @@ const GraphContent = ({
         )}
         <svg
           height={height}
+          onMouseUp={closeZoomPreview}
           ref={graphSvgRef}
           width="100%"
-          onMouseUp={closeZoomPreview}
         >
           <Group.Group left={margin.left} top={margin.top}>
             <MemoizedGridRows
@@ -568,14 +568,14 @@ const GraphContent = ({
               className={classes.overlay}
               fill="transparent"
               height={graphHeight}
-              open={interactWithGraph}
-              width={graphWidth}
-              x={0}
-              y={0}
               onMouseDown={displayZoomPreview}
               onMouseLeave={closeTooltip}
               onMouseMove={displayTooltip}
               onMouseUp={displayAddCommentTooltip}
+              open={interactWithGraph}
+              width={graphWidth}
+              x={0}
+              y={0}
             />
           </Group.Group>
           <TimeShiftContext.Provider
@@ -625,8 +625,8 @@ const GraphContent = ({
                   className={classes.addCommentButton}
                   color="primary"
                   disabled={!isCommentPermitted}
-                  size="small"
                   onClick={prepareAddComment}
+                  size="small"
                 >
                   {t(labelAddComment)}
                 </Button>
@@ -637,11 +637,11 @@ const GraphContent = ({
         {addingComment && (
           <AddCommentForm
             date={commentDate as Date}
-            resource={resource}
             onClose={(): void => {
               setAddingComment(false);
             }}
             onSuccess={confirmAddComment}
+            resource={resource}
           />
         )}
       </div>

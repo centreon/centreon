@@ -87,9 +87,9 @@ const DashboardPageLayout = (): JSX.Element => {
   return (
     <>
       <PanelsLayout
-        displayMoreActions
         canEdit={canEdit}
         changeLayout={changeLayout}
+        displayMoreActions
         isEditing={isEditing}
         isStatic={!isEditing || showDefaultLayout}
         panels={panels}

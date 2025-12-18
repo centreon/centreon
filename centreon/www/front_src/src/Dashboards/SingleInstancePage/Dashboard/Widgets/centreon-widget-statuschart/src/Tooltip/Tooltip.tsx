@@ -69,8 +69,8 @@ const TooltipContent = ({
           <>
             <Typography className={classes.listContainer}>
               {isStatusOK
-                ? `${value}/${total} ${pluralizedT({ label: resourceType, count: value })} ${t(labelAreWorkingFine)}`
-                : `${value} ${pluralizedT({ label: resourceType, count: value })}`}
+                ? `${value}/${total} ${pluralizedT({ count: value, label: resourceType })} ${t(labelAreWorkingFine)}`
+                : `${value} ${pluralizedT({ count: value, label: resourceType })}`}
             </Typography>
             {!isStatusOK && (
               <Box className={classes.listContainer}>

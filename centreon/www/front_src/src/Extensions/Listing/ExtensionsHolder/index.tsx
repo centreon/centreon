@@ -82,15 +82,15 @@ const ChipAvatar = ({
   if (outdated) {
     return (
       <UpdateIcon
-        style={{
-          color: '#FFFFFF',
-          cursor: 'pointer'
-        }}
         onClick={(e): void => {
           e.preventDefault();
           e.stopPropagation();
 
           onUpdate(id, type);
+        }}
+        style={{
+          color: '#FFFFFF',
+          cursor: 'pointer'
         }}
       />
     );
@@ -173,8 +173,8 @@ const ExtensionsHolder = ({
     <div className={classes.contentWrapper}>
       <Stack>
         <Grid
-          container
           alignItems="center"
+          container
           direction="row"
           spacing={1}
           style={{ marginBottom: 8, width: '100%' }}
@@ -189,8 +189,8 @@ const ExtensionsHolder = ({
           </Grid>
         </Grid>
         <Grid
-          container
           alignItems="stretch"
+          container
           spacing={2}
           style={{ cursor: 'pointer' }}
         >
@@ -204,13 +204,13 @@ const ExtensionsHolder = ({
 
             return (
               <Grid
-                item
                 id={`${type}-${entity.id}`}
+                item
                 key={entity.id}
-                style={{ width: 220 }}
                 onClick={(): void => {
                   onCard(entity.id, type);
                 }}
+                style={{ width: 220 }}
               >
                 <Card
                   style={{
@@ -235,8 +235,8 @@ const ExtensionsHolder = ({
                         avatar={
                           <ChipAvatar
                             entity={entity}
-                            type={type}
                             onUpdate={onUpdate}
+                            type={type}
                           />
                         }
                         deleteIcon={<DeleteIcon style={{ color: '#FFFFFF' }} />}
@@ -248,26 +248,23 @@ const ExtensionsHolder = ({
                             <CheckIcon style={{ color: '#FFFFFF' }} />
                           )
                         }
-                        style={{
-                          backgroundColor: entity.version.outdated
-                            ? '#FF9A13'
-                            : '#84BD00',
-                          color: '#FFFFFF'
-                        }}
                         onDelete={
                           !entity.is_internal
                             ? (): void =>
                                 onDelete(entity.id, type, entity.description)
                             : undefined
                         }
+                        style={{
+                          backgroundColor: entity.version.outdated
+                            ? '#FF9A13'
+                            : '#84BD00',
+                          color: '#FFFFFF'
+                        }}
                       />
                     ) : (
                       <Button
                         color="primary"
                         disabled={isLoading}
-                        size="small"
-                        startIcon={!entity.version.installed && <InstallIcon />}
-                        variant="contained"
                         onClick={(e): void => {
                           e.preventDefault();
                           e.stopPropagation();
@@ -282,13 +279,15 @@ const ExtensionsHolder = ({
                             onInstall(id, type);
                           }
                         }}
+                        size="small"
+                        startIcon={!entity.version.installed && <InstallIcon />}
+                        variant="contained"
                       >
                         {entity.version.available}
                       </Button>
                     )}
                   </CardActions>
                   <Paper
-                    square
                     className={cx(classes.license, {
                       [classes.licenseValid]: equals(
                         licenseInfo?.isInvalid,
@@ -300,6 +299,7 @@ const ExtensionsHolder = ({
                       )
                     })}
                     elevation={0}
+                    square
                   >
                     {licenseInfo?.label && (
                       <Typography style={{ color: '#FFFFFF' }} variant="body2">

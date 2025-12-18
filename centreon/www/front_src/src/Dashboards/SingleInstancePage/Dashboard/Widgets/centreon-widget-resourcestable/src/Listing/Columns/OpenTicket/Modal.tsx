@@ -54,7 +54,7 @@ const OpenTicketModal = ({
     : `./main.get.php?p=60421&cmd=4&rule_id=${providerID}&host_id=${resource.hostID}`;
 
   return (
-    <Modal hasCloseButton open={isOpen} size="xlarge" onClose={close}>
+    <Modal hasCloseButton onClose={close} open={isOpen} size="xlarge">
       <Modal.Header> {t(labelCreateticket)} </Modal.Header>
       <Modal.Body>
         <iframe

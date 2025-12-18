@@ -40,9 +40,9 @@ const useMultiAutocomplete = <TFilters>({
   }, [filters?.[name]]);
 
   return {
-    value,
+    change,
     deleteItem,
-    change
+    value
   };
 };
 

@@ -18,13 +18,13 @@ const getNamedEntityDecoder = (decoderName): JsonDecoder.Decoder<NamedEntity> =>
 
 const tokenDecoder = JsonDecoder.object<Token>(
   {
-    name: JsonDecoder.string,
     creationDate: JsonDecoder.string,
     creator: getNamedEntityDecoder('creator'),
     expirationDate: JsonDecoder.nullable(JsonDecoder.string),
     isRevoked: JsonDecoder.boolean,
-    user: JsonDecoder.optional(getNamedEntityDecoder('user')),
-    type: JsonDecoder.string
+    name: JsonDecoder.string,
+    type: JsonDecoder.string,
+    user: JsonDecoder.optional(getNamedEntityDecoder('user'))
   },
   'ListedToken',
   {
@@ -55,10 +55,10 @@ export const createdTokenDecoder = JsonDecoder.object<CreatedToken>(
     isRevoked: JsonDecoder.boolean,
     name: JsonDecoder.string,
     token: JsonDecoder.string,
+    type: JsonDecoder.string,
     user: JsonDecoder.optional(
       JsonDecoder.nullable(getNamedEntityDecoder('user'))
-    ),
-    type: JsonDecoder.string
+    )
   },
   'CreatedToken',
   {

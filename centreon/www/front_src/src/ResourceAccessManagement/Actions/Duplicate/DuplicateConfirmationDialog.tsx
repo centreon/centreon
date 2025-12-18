@@ -44,26 +44,26 @@ const DuplicateConfirmationDialog = (): React.JSX.Element => {
   return (
     <ConfirmDialog
       confirmDisabled={disabled}
+      dialogContentTextProps={{ component: 'div' }}
       labelCancel={t(labelCancel)}
       labelConfirm={t(labelDuplicate)}
       labelTitle={t(labelEnterNameForDuplicatedRule)}
-      open={isDialogOpen}
-      submitting={isSubmitting}
       onCancel={onCancel}
       onConfirm={submitForm}
-      dialogContentTextProps={{ component: 'div' }}
+      open={isDialogOpen}
+      submitting={isSubmitting}
     >
       <TextField
-        required
         ariaLabel={labelResourceAccessRuleName}
         dataTestId="New resource access rule name"
         error={error as string | undefined}
         label={t(labelName) as string}
         name="name"
-        sx={{ width: '100%' }}
-        value={ruleName}
         onBlur={handleBlur('name')}
         onChange={handleChange}
+        required
+        sx={{ width: '100%' }}
+        value={ruleName}
       />
     </ConfirmDialog>
   );

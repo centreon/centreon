@@ -27,7 +27,6 @@ const emptyMetrics = [];
 
 const defaultResources: Array<WidgetDataResource> = [
   {
-    resourceType: 'host-group',
     resources: [
       {
         id: 1,
@@ -37,13 +36,13 @@ const defaultResources: Array<WidgetDataResource> = [
         id: 2,
         name: 'Host group 2'
       }
-    ]
+    ],
+    resourceType: 'host-group'
   }
 ];
 
 const notFullfilledResources: Array<WidgetDataResource> = [
   {
-    resourceType: 'host-group',
     resources: [
       {
         id: 1,
@@ -53,11 +52,12 @@ const notFullfilledResources: Array<WidgetDataResource> = [
         id: 2,
         name: 'Host group 2'
       }
-    ]
+    ],
+    resourceType: 'host-group'
   },
   {
-    resourceType: 'service',
-    resources: []
+    resources: [],
+    resourceType: 'service'
   }
 ];
 

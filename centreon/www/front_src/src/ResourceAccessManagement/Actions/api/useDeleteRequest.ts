@@ -64,10 +64,10 @@ const useDeleteRequest = ({
 
       handleBulkResponse({
         data,
-        labelWarning: t(labelFailedToDeleteSelectedRules),
+        items: selectedRows,
         labelFailed: t(labelFailed),
         labelSuccess: t(labelSuccess),
-        items: selectedRows
+        labelWarning: t(labelFailedToDeleteSelectedRules)
       });
 
       queryClient.invalidateQueries({ queryKey: ['resource-access-rules'] });

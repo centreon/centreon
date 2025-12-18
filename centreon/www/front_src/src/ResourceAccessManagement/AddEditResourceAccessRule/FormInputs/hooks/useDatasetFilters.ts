@@ -29,8 +29,8 @@ const useDatasetFilters = (): UseDatasetFiltersState => {
       [
         {
           allOfResourceType: false,
-          resourceType: '',
-          resources: []
+          resources: [],
+          resourceType: ''
         }
       ]
     ]);

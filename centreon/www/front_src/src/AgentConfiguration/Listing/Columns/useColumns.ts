@@ -18,35 +18,37 @@ export const useColumns = (): Array<Column> => {
 
   return [
     {
-      type: ColumnType.string,
+      getFormattedString: ({ pollers, name }) => (isNil(pollers) ? '' : name),
       id: 'name',
       label: t(labelName),
       sortable: true,
-      getFormattedString: ({ pollers, name }) => (isNil(pollers) ? '' : name)
+      type: ColumnType.string
     },
     {
-      type: ColumnType.string,
+      getFormattedString: ({ type, pollers }) =>
+        isNil(pollers)
+          ? ''
+          : agentTypes.find(({ id }) => equals(id, type)).name,
       id: 'type',
       label: t(labelAgentType),
-      getFormattedString: ({ type, pollers }) =>
-        isNil(pollers) ? '' : agentTypes.find(({ id }) => equals(id, type)).name
+      type: ColumnType.string
     },
     {
-      type: ColumnType.component,
-      id: 'pollers',
-      label: t(labelPoller),
       Component: Poller,
       displaySubItemsCaret: true,
-      getRenderComponentOnRowUpdateCondition: T
+      getRenderComponentOnRowUpdateCondition: T,
+      id: 'pollers',
+      label: t(labelPoller),
+      type: ColumnType.component
     },
     {
-      type: ColumnType.component,
+      Component: Action,
+      clickable: true,
+      getRenderComponentOnRowUpdateCondition: T,
       id: 'actions',
       label: t(labelAction),
-      getRenderComponentOnRowUpdateCondition: T,
-      Component: Action,
-      width: '80px',
-      clickable: true
+      type: ColumnType.component,
+      width: '80px'
     }
   ];
 };

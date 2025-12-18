@@ -22,8 +22,8 @@ const useCountChangedFilters = (): Props => {
   const changedFiltersCount = countDifferences(filtersInitialValues, filters);
 
   return {
-    isClear: equals(changedFiltersCount, 0),
-    changedFiltersCount
+    changedFiltersCount,
+    isClear: equals(changedFiltersCount, 0)
   };
 };
 

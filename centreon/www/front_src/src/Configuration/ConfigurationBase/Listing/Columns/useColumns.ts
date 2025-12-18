@@ -33,11 +33,11 @@ const useColumns = (): Props => {
             Component: Status,
             clickable: true,
             id: 'is_activated',
-            sortField: 'is_activated',
             label: t(labelEnableDisable),
+            sortable: true,
+            sortField: 'is_activated',
             type: ColumnType.component,
-            width: 'max-content',
-            sortable: true
+            width: 'max-content'
           }
         ]
       : [])

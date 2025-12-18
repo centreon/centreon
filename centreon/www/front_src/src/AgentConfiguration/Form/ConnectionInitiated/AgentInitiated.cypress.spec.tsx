@@ -7,42 +7,42 @@ import { ConnectionMode } from '../../models';
 import AgentInitiated from './AgentInitiated';
 
 const initialValues = {
-  connectionMode: { id: ConnectionMode.secure, name: 'secure' },
   configuration: {
-    otelPublicCertificate: '',
     otelCaCertificate: '',
     otelPrivateKey: '',
+    otelPublicCertificate: '',
     tokens: [
-      { name: 'testName', id: 1, inputValue: 'testInput' },
-      { name: 'testName2', id: 2, inputValue: 'testInput2', testId: 'testId2' }
+      { id: 1, inputValue: 'testInput', name: 'testName' },
+      { id: 2, inputValue: 'testInput2', name: 'testName2', testId: 'testId2' }
     ]
-  }
+  },
+  connectionMode: { id: ConnectionMode.secure, name: 'secure' }
 };
 
 const valuesWithErrors = {
-  connectionMode: { id: 'secure', name: 'secure' },
   configuration: {
-    otelPublicCertificate: '',
     otelCaCertificate: '',
     otelPrivateKey: '',
+    otelPublicCertificate: '',
     tokens: []
-  }
+  },
+  connectionMode: { id: 'secure', name: 'secure' }
 };
 
 const mockErrors = {
   configuration: {
-    otelPublicCertificate: 'Public certificate is required',
     otelCaCertificate: 'CA certificate is required',
     otelPrivateKey: 'Private key is required',
+    otelPublicCertificate: 'Public certificate is required',
     tokens: 'At least one token is required'
   }
 };
 
 const mockTouched = {
   configuration: {
-    otelPublicCertificate: true,
     otelCaCertificate: true,
     otelPrivateKey: true,
+    otelPublicCertificate: true,
     tokens: true
   }
 };
@@ -57,9 +57,9 @@ const initialize = (
       <BrowserRouter>
         <QueryClientProvider client={new QueryClient()}>
           <Formik
-            initialValues={values}
             initialErrors={errors}
             initialTouched={touched}
+            initialValues={values}
             onSubmit={cy.stub()}
           >
             <AgentInitiated />
@@ -95,13 +95,13 @@ describe('AgentInitiated', () => {
 
   it('should render with pre-filled certificate values', () => {
     const prefilledValues = {
-      connectionMode: { id: 'secure', name: 'secure' },
       configuration: {
-        otelPublicCertificate: 'existing-public.crt',
         otelCaCertificate: 'existing-ca.crt',
         otelPrivateKey: 'existing-private.key',
+        otelPublicCertificate: 'existing-public.crt',
         tokens: []
-      }
+      },
+      connectionMode: { id: 'secure', name: 'secure' }
     };
 
     initialize(prefilledValues);
@@ -122,13 +122,13 @@ describe('AgentInitiated', () => {
 
   it('should handle empty tokens array', () => {
     const emptyTokensValues = {
-      connectionMode: { id: 'secure', name: 'secure' },
       configuration: {
-        otelPublicCertificate: '',
         otelCaCertificate: '',
         otelPrivateKey: '',
+        otelPublicCertificate: '',
         tokens: []
-      }
+      },
+      connectionMode: { id: 'secure', name: 'secure' }
     };
 
     initialize(emptyTokensValues);
@@ -164,13 +164,13 @@ describe('AgentInitiated', () => {
 
   it('should handle null values for certificates', () => {
     const nullValues = {
-      connectionMode: { id: 'secure', name: 'secure' },
       configuration: {
-        otelPublicCertificate: null,
         otelCaCertificate: null,
         otelPrivateKey: null,
+        otelPublicCertificate: null,
         tokens: null
-      }
+      },
+      connectionMode: { id: 'secure', name: 'secure' }
     };
 
     initialize(nullValues);
@@ -214,12 +214,12 @@ describe('AgentInitiated', () => {
 
   it('should clear certificate fields when empty string is entered', () => {
     const prefilledValues = {
-      connectionMode: { id: 'secure', name: 'secure' },
       configuration: {
-        otelPublicCertificate: 'existing-public.crt',
         otelCaCertificate: 'existing-ca.crt',
-        otelPrivateKey: 'existing-private.key'
-      }
+        otelPrivateKey: 'existing-private.key',
+        otelPublicCertificate: 'existing-public.crt'
+      },
+      connectionMode: { id: 'secure', name: 'secure' }
     };
 
     initialize(prefilledValues);
@@ -244,16 +244,16 @@ describe('AgentInitiated', () => {
 
   it('should handle token deletion', () => {
     const valuesWithTokens = {
-      connectionMode: { id: 'secure', name: 'secure' },
       configuration: {
-        otelPublicCertificate: '',
         otelCaCertificate: '',
         otelPrivateKey: '',
+        otelPublicCertificate: '',
         tokens: [
-          { name: 'token1', id: 1, inputValue: 'input1' },
-          { name: 'token2', id: 2, inputValue: 'input2' }
+          { id: 1, inputValue: 'input1', name: 'token1' },
+          { id: 2, inputValue: 'input2', name: 'token2' }
         ]
-      }
+      },
+      connectionMode: { id: 'secure', name: 'secure' }
     };
 
     initialize(valuesWithTokens);
@@ -286,17 +286,17 @@ describe('AgentInitiated', () => {
 
   it('should properly remove tokens when delete is clicked', () => {
     const valuesWithMultipleTokens = {
-      connectionMode: { id: 'secure', name: 'secure' },
       configuration: {
-        otelPublicCertificate: '',
         otelCaCertificate: '',
         otelPrivateKey: '',
+        otelPublicCertificate: '',
         tokens: [
-          { name: 'token1', id: 1, inputValue: 'input1' },
-          { name: 'token2', id: 2, inputValue: 'input2' },
-          { name: 'token3', id: 3, inputValue: 'input3' }
+          { id: 1, inputValue: 'input1', name: 'token1' },
+          { id: 2, inputValue: 'input2', name: 'token2' },
+          { id: 3, inputValue: 'input3', name: 'token3' }
         ]
-      }
+      },
+      connectionMode: { id: 'secure', name: 'secure' }
     };
 
     initialize(valuesWithMultipleTokens);

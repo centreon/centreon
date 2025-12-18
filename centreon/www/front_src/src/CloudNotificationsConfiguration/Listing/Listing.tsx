@@ -85,8 +85,8 @@ const NotificationsListing = (): JSX.Element => {
 
   return (
     <Listing
-      checkable
       actions={<Actions />}
+      checkable
       columnConfiguration={{
         selectedColumnIds,
         sortable: true
@@ -105,13 +105,6 @@ const NotificationsListing = (): JSX.Element => {
         selectedRows
       ]}
       moveTablePagination={isPannelOpen}
-      predefinedRowsSelection={predefinedRowsSelection}
-      rows={listingData?.result}
-      selectedRows={selectedRows}
-      sortField={sortf}
-      sortOrder={sorto}
-      totalRows={listingData?.meta.total}
-      widthToMoveTablePagination={panelWidth}
       onLimitChange={setLimit}
       onPaginate={changePage}
       onResetColumns={resetColumns}
@@ -119,6 +112,13 @@ const NotificationsListing = (): JSX.Element => {
       onSelectColumns={setSelectedColumnIds}
       onSelectRows={setSelectedRows}
       onSort={changeSort}
+      predefinedRowsSelection={predefinedRowsSelection}
+      rows={listingData?.result}
+      selectedRows={selectedRows}
+      sortField={sortf}
+      sortOrder={sorto}
+      totalRows={listingData?.meta.total}
+      widthToMoveTablePagination={panelWidth}
     />
   );
 };

@@ -128,12 +128,12 @@ const DowntimeForm = ({
       canConfirm={form.isValid}
       errors={form.errors}
       handleChange={form.handleChange}
+      onCancel={onClose}
+      onConfirm={form.submitForm}
       resources={resources}
       setFieldValue={form.setFieldValue}
       submitting={sendingSetDowntingOnResources}
       values={form.values}
-      onCancel={onClose}
-      onConfirm={form.submitForm}
     />
   );
 };

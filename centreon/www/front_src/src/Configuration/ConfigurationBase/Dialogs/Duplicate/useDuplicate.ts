@@ -86,10 +86,10 @@ const useDuplicate = (): UseDuplicateState => {
 
     handleBulkResponse({
       data: results,
-      labelWarning: t(labelFailedToDuplicateSomeResources),
+      items: resourcesToDuplicate,
       labelFailed: t(labelFailedToDuplicateResources(labelResourceType)),
       labelSuccess: t(labelResourceDuplicated(capitalize(labelResourceType))),
-      items: resourcesToDuplicate
+      labelWarning: t(labelFailedToDuplicateSomeResources)
     });
 
     resetSelections();
@@ -112,14 +112,14 @@ const useDuplicate = (): UseDuplicateState => {
   );
 
   return {
-    confirm,
-    close: resetSelections,
-    isMutating,
-    duplicatesCount,
-    changeDuplicateCount,
-    isOpened,
     bodyContent,
-    headerContent
+    changeDuplicateCount,
+    close: resetSelections,
+    confirm,
+    duplicatesCount,
+    headerContent,
+    isMutating,
+    isOpened
   };
 };
 

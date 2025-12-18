@@ -79,13 +79,13 @@ const useValidationSchema = (): Schema<SAMLConfiguration> => {
     remoteLoginUrl: string()
       .matches(urlRegexp, t(labelInvalidURL))
       .required(t(labelRequired)),
+    requestedAuthnContext: boolean().required(t(labelRequired)),
     rolesMapping: object({
       applyOnlyFirstRole: switchSchema,
       attributePath: string(),
       isEnabled: switchSchema,
       relations: array().of(rolesRelationSchema)
     }),
-    requestedAuthnContext: boolean().required(t(labelRequired)),
     userIdAttribute: string().required(t(labelRequired))
   });
 };

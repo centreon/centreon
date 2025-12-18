@@ -65,9 +65,9 @@ const configureUserAtomViewMode = (
   listingVariant: ListingVariant = ListingVariant.compact
 ): void => {
   store.set(userAtom, {
-    user_interface_density: listingVariant,
     locale: 'en_US',
-    timezone: 'Europe/Paris'
+    timezone: 'Europe/Paris',
+    user_interface_density: listingVariant
   });
 };
 

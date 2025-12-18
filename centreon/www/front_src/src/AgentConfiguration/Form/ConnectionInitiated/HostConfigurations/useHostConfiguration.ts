@@ -134,14 +134,14 @@ export const useHostConfiguration = ({
 
   return {
     changeAddress,
+    changeCMAToken,
     changePort,
     changeStringInput,
-    selectHost,
     hostErrors,
     hostTouched,
     isInsecureMode,
     isSecureMode,
-    changeCMAToken,
+    selectHost,
     token
   };
 };

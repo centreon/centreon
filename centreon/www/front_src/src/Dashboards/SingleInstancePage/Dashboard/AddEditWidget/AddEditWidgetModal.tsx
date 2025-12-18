@@ -76,21 +76,21 @@ const AddWidgetModal = (): JSX.Element | null => {
 
   return (
     <Formik<Widget>
+      initialValues={widgetFormInitialData as Widget}
+      onSubmit={isAddingWidget ? addWidget : editWidget}
       validateOnBlur
       validateOnChange
-      initialValues={widgetFormInitialData as Widget}
       validationSchema={schema}
-      onSubmit={isAddingWidget ? addWidget : editWidget}
     >
       {({ dirty }) => (
         <Modal
-          open
           fullscreenMargins={{
             left: isSidebarOpen ? 165 : 48,
             top: 90
           }}
-          size="fullscreen"
           onClose={() => askBeforeCloseModal(dirty)}
+          open
+          size="fullscreen"
         >
           <Modal.Header variant="h6">{t(getTitle())}</Modal.Header>
 

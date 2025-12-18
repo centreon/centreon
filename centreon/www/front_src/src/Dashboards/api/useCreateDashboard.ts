@@ -66,9 +66,9 @@ const useCreateDashboard = ({ labels }: Props): UseCreateDashboard => {
       : {}),
     optimisticListing: {
       enabled: true,
+      limit: limit || 10,
       queryKey: resource.dashboards,
-      total,
-      limit: limit || 10
+      total
     }
   });
 

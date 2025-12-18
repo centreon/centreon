@@ -75,22 +75,22 @@ const Buttons = (): React.ReactElement => {
           {t(labelCancel)}
         </Button>
         <Button
+          data-testid="submit"
           disabled={isSubmitDisabled}
           onClick={submitForm}
           size="medium"
           type="submit"
-          data-testid="submit"
         >
           {t(labelSave)}
         </Button>
       </Box>
       <UnsavedChangesDialog
+        closeDialog={closeAskBeforeCloseModal}
+        dialogOpened={askBeforeCloseForm && dirty}
+        discardChanges={discard}
         isSubmitting={isSubmitting}
         isValidForm={isValid}
         saveChanges={submitAndClose}
-        closeDialog={closeAskBeforeCloseModal}
-        discardChanges={discard}
-        dialogOpened={askBeforeCloseForm && dirty}
       />
     </>
   );

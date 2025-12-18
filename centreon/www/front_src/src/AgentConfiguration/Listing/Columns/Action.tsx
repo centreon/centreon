@@ -51,9 +51,9 @@ const Action = ({ row }: Props): JSX.Element => {
   return (
     <IconButton
       ariaLabel={t(labelDelete)}
-      title={t(labelDelete)}
-      onClick={askBeforeDelete}
       className={classes.removeButton}
+      onClick={askBeforeDelete}
+      title={t(labelDelete)}
     >
       <DeleteOutline className={classes.removeIcon} />
     </IconButton>

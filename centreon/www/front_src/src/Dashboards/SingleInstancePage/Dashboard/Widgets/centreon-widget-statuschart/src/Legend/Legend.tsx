@@ -54,10 +54,10 @@ const Legend = ({
                 <TooltipContent
                   color={color}
                   label={status}
+                  resources={resources}
+                  resourceType={resourceType}
                   total={total}
                   value={value}
-                  resourceType={resourceType}
-                  resources={resources}
                 />
               }
               position="bottom"

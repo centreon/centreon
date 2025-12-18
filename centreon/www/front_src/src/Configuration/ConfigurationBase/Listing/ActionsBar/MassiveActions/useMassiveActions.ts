@@ -67,10 +67,10 @@ const useMassiveActions = (): UseMassiveActions => {
 
       handleBulkResponse({
         data: results,
-        labelWarning: t(labelFailedToEnableSomeResources),
+        items: selectedRows,
         labelFailed: t(labelFailedToEnableResources(labelResourceType)),
         labelSuccess: t(labelResourceEnabled(labelResourceType)),
-        items: selectedRows
+        labelWarning: t(labelFailedToEnableSomeResources)
       });
 
       resetSelectedRows();
@@ -87,10 +87,10 @@ const useMassiveActions = (): UseMassiveActions => {
 
       handleBulkResponse({
         data: results,
-        labelWarning: t(labelFailedToDisableSomeResources),
+        items: selectedRows,
         labelFailed: t(labelFailedToDisableResources(labelResourceType)),
         labelSuccess: t(labelResourceDisabled(labelResourceType)),
-        items: selectedRows
+        labelWarning: t(labelFailedToDisableSomeResources)
       });
 
       resetSelectedRows();
@@ -103,9 +103,9 @@ const useMassiveActions = (): UseMassiveActions => {
     setResourcesToDuplicate(selectedRowsEntities);
 
   return {
-    isMutating: isEnableMutating || isDisableMutating,
-    enable,
     disable,
+    enable,
+    isMutating: isEnableMutating || isDisableMutating,
     openDeleteModal,
     openDuplicateModal
   };

@@ -584,8 +584,8 @@ export default (): void => {
                 {
                   name: 'my_vcenter',
                   password: 'password',
-                  url: '10.10.10.10/sdk',
                   scheme: 'http',
+                  url: '10.10.10.10/sdk',
                   username: 'username'
                 }
               ]
@@ -611,24 +611,24 @@ export default (): void => {
 
         cy.waitForRequest('@updateConnector').then(({ request }) => {
           expect(request.body).to.deep.equals({
-            name: 'Updated name',
             description: 'Description for VMWare1',
+            name: 'Updated name',
             parameters: {
               port: 1000,
               vcenters: [
                 {
                   name: 'vCenter1',
                   password: 'password1',
+                  scheme: 'https',
                   url: 'vcenter1.example.com/sdk',
-                  username: 'user1',
-                  scheme: 'https'
+                  username: 'user1'
                 },
                 {
                   name: 'vCenter2',
                   password: 'password2',
+                  scheme: null,
                   url: '192.0.0.1',
-                  username: 'user2',
-                  scheme: null
+                  username: 'user2'
                 }
               ]
             },

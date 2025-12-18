@@ -72,16 +72,16 @@ const useFormInputs = ({
 
   const basicFormGroups: Array<Group> = [
     {
+      isDividerHidden: true,
       name: t(labelSelectResourcesAndEvents),
       order: 1,
-      titleAttributes,
-      isDividerHidden: true
+      titleAttributes
     },
     {
+      isDividerHidden: true,
       name: t(labelNotificationSettings),
       order: 2,
-      titleAttributes,
-      isDividerHidden: true
+      titleAttributes
     }
   ];
 
@@ -258,7 +258,6 @@ const useFormInputs = ({
       additionalLabelClassName: classes.additionalLabel,
       fieldName: '',
       grid: {
-        gridTemplateColumns: 'repeat(3, 1fr)',
         className: classes.channels,
         columns: [
           {
@@ -291,7 +290,8 @@ const useFormInputs = ({
             label: 'Slack',
             type: InputType.Checkbox
           }
-        ]
+        ],
+        gridTemplateColumns: 'repeat(3, 1fr)'
       },
       group: basicFormGroups[1].name,
       inputClassName: classes.input,
@@ -308,9 +308,9 @@ const useFormInputs = ({
             connectedAutocomplete: {
               additionalConditionParameters: [],
               endpoint: usersEndpoint,
+              filterKey: 'alias',
               getRenderedOptionText: (option): string =>
                 option.alias?.toString(),
-              filterKey: 'alias',
               optionProperty: 'alias'
             },
             dataTestId: 'Search contacts',

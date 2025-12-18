@@ -123,9 +123,9 @@ const BlockingDuration = (): JSX.Element => {
           baseName={blockingDurationFieldName}
           inputLabel={labelTimeThatMustPassBeforeNewConnection}
           maxDuration={sevenDays}
+          onChange={change}
           timeInputConfigurations={timeInputConfigurations}
           timeValue={blockingDurationValue}
-          onChange={change}
         />
         {blockingDurationError && (
           <FormHelperText error>{blockingDurationError}</FormHelperText>

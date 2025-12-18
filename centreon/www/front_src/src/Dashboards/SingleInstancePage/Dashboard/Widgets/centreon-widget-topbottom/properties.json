@@ -1,54 +1,54 @@
 {
-  "title": "Top/bottom",
+  "canExpand": true,
+  "customBaseColor": false,
+  "data": {
+    "metrics": {
+      "defaultValue": [],
+      "type": "metrics"
+    },
+    "resources": {
+      "allowRegexOnResourceTypes": ["service"],
+      "defaultValue": [],
+      "type": "resources"
+    }
+  },
   "description": "Displays the top or bottom x hosts, for a selected metric.",
   "icon": "<rect x=\"6\" y=\"25\" width=\"30\" height=\"10\" rx=\"4\" ry=\"4\"></rect><rect x=\"6\" y=\"11\" width=\"20\" height=\"10\" rx=\"4\" ry=\"4\"></rect><rect x=\"6\" y=\"39\" width=\"48\" height=\"10\" rx=\"4\" ry=\"4\"></rect>",
+  "moduleName": "centreon-widget-topbottom",
   "options": {
+    "refreshInterval": {
+      "defaultValue": "default",
+      "label": "Interval",
+      "type": "refresh-interval"
+    },
+    "threshold": {
+      "defaultValue": {
+        "baseColor": null,
+        "criticalType": "default",
+        "customCritical": null,
+        "customWarning": null,
+        "enabled": true,
+        "warningType": "default"
+      },
+      "label": "threshold",
+      "type": "threshold"
+    },
     "topBottomSettings": {
-      "type": "top-bottom-settings",
-      "label": "Top Bottom Settings",
       "defaultValue": {
         "numberOfValues": 10,
         "order": "top",
         "showLabels": true
-      }
+      },
+      "label": "Top Bottom Settings",
+      "type": "top-bottom-settings"
     },
     "valueFormat": {
-      "type": "value-format",
       "defaultValue": "human",
-      "label": "Value format"
-    },
-    "threshold": {
-      "type": "threshold",
-      "defaultValue": {
-        "enabled": true,
-        "customCritical": null,
-        "criticalType": "default",
-        "customWarning": null,
-        "warningType": "default",
-        "baseColor": null
-      },
-      "label": "threshold"
-    },
-    "refreshInterval": {
-      "type": "refresh-interval",
-      "defaultValue": "default",
-      "label": "Interval"
-    }
-  },
-  "data": {
-    "resources": {
-      "type": "resources",
-      "defaultValue": [],
-      "allowRegexOnResourceTypes": ["service"]
-    },
-    "metrics": {
-      "type": "metrics",
-      "defaultValue": []
+      "label": "Value format",
+      "type": "value-format"
     }
   },
   "singleMetricSelection": true,
-  "customBaseColor": false,
-  "moduleName": "centreon-widget-topbottom",
-  "canExpand": true,
+  "title": "Top/bottom",
   "widgetType": "realtime"
 }

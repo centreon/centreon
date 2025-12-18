@@ -44,6 +44,8 @@ const TopBottomSettings = ({
         <TextField
           className={classes.input}
           disabled={!canEditField}
+          onChange={changeNumberOfValues}
+          size="compact"
           slotProps={{
             htmlInput: {
               'aria-label': t(labelNumberOfValues) as string,
@@ -51,20 +53,18 @@ const TopBottomSettings = ({
               min: 1
             }
           }}
-          size="compact"
           type="number"
           value={value.numberOfValues}
-          onChange={changeNumberOfValues}
         />
         <Typography>{t(labelHosts)}</Typography>
         <ToggleButtonGroup
-          exclusive
           className={classes.toggleButtonGroup}
           color="primary"
           disabled={!canEditField}
+          exclusive
+          onChange={changeOrder}
           size="small"
           value={value.order}
-          onChange={changeOrder}
         >
           <ToggleButton data-testid={labelTop} value="top">
             {t(labelTop)}
