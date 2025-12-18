@@ -1,9 +1,10 @@
 {
 	"info": {
-		"_postman_id": "19162b9b-7ae0-4e30-a0ed-1a537d082fc6",
+		"_postman_id": "d30122f8-9adc-40e7-80b3-3a6fa9bdb1ca",
 		"name": "Command",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "16182525"
+		"_exporter_id": "28117716",
+		"_collection_link": "https://centreon-api-testing.postman.co/workspace/develop-OSS~7c78046c-a719-4dae-bbf9-70e6e2c5b9bd/collection/16182525-d30122f8-9adc-40e7-80b3-3a6fa9bdb1ca?action=share&source=collection_link&creator=28117716"
 	},
 	"item": [
 		{
@@ -1465,7 +1466,8 @@
 									""
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						},
 						{
@@ -1474,11 +1476,13 @@
 								"exec": [
 									"const responseJson = pm.response.json();\r",
 									"\r",
-									"pm.test(\"The command has been successfully created, with name '\" + pm.collectionVariables.get(\"Command1Name\") + \"'.\", function () {\r",
+									"pm.test(\"Status code is 201\", function () {\r",
 									"    pm.response.to.have.status(201);\r",
+									"});\r",
 									"\r",
+									"pm.test(\"The command has been successfully created, with name '\" + pm.collectionVariables.get(\"Command1Name\") + \"'.\", function () {\r",
 									"    // Creation of a variable with the ID of the new command \r",
-									"    var response = JSON.parse(responseBody);\r",
+									"    var response = JSON.parse(responseJson);\r",
 									"    pm.collectionVariables.set(\"Command1Id\", response.id);\r",
 									"\r",
 									"    pm.expect(response).to.include({\r",
@@ -1570,7 +1574,8 @@
 									"});"
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -1585,7 +1590,12 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"name\": \"{{Command1Name}}\",\r\n    \"type\": 2,\r\n    \"command_line\": \"Notification Type: $NOTIFICATIONTYPE$#BR##BR#Service: $SERVICEDESC$#BR#Host: $HOSTALIAS$#BR#Address: $HOSTADDRESS$#BR#State: $SERVICESTATE$#BR##BR#Date/Time: $DATE$ Additional Info : $SERVICEOUTPUT$\\\" | @MAILER@ -s \\\"** $NOTIFICATIONTYPE$ alert - $HOSTALIAS$/$SERVICEDESC$ is $SERVICESTATE$ **\\\" $CONTACTEMAIL$  -  $ARG1$  -  $_HOSTSNMPCOMMUNITY$\",\r\n    \"is_shell\": true,\r\n    \"argument_example\": \"!80!90\",\r\n    \"arguments\": [\r\n        {\r\n            \"name\": \"ARG1\", \r\n            \"description\": \"argument-description\"\r\n        }\r\n    ],\r\n    \"macros\": [\r\n        {\r\n            \"name\": \"SNMPCOMMUNITY\", \r\n            \"type\": 1, \r\n            \"description\": \"macro-description\"\r\n        }\r\n    ],\r\n    \"connector_id\": 2,\r\n    \"graph_template_id\": 1\r\n}\r\n"
+							"raw": "{\r\n    \"name\": \"{{Command1Name}}\",\r\n    \"type\": 2,\r\n    \"command_line\": \"Notification Type: $NOTIFICATIONTYPE$#BR##BR#Service: $SERVICEDESC$#BR#Host: $HOSTALIAS$#BR#Address: $HOSTADDRESS$#BR#State: $SERVICESTATE$#BR##BR#Date/Time: $DATE$ Additional Info : $SERVICEOUTPUT$\\\" | @MAILER@ -s \\\"** $NOTIFICATIONTYPE$ alert - $HOSTALIAS$/$SERVICEDESC$ is $SERVICESTATE$ **\\\" $CONTACTEMAIL$  -  $ARG1$  -  $_HOSTSNMPCOMMUNITY$\",\r\n    \"is_shell\": true,\r\n    \"argument_example\": \"!80!90\",\r\n    \"arguments\": [\r\n        {\r\n            \"name\": \"ARG1\", \r\n            \"description\": \"argument-description\"\r\n        }\r\n    ],\r\n    \"macros\": [\r\n        {\r\n            \"name\": \"SNMPCOMMUNITY\", \r\n            \"type\": 1, \r\n            \"description\": \"macro-description\"\r\n        }\r\n    ],\r\n    \"connector_id\": 2,\r\n    \"graph_template_id\": 1\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/commands",
