@@ -361,9 +361,6 @@ local function escape_shell_chars(str)
   if str == nil then
     return ""
   end
-  -- '%' is a specific character in gsub, we must escape it.
-  str = str:gsub('"', '\\"')
-           :gsub("%%", "%%%%")
   -- order matters: escape backslash first
   str = str:gsub("\\", "\\\\")
            :gsub('"', '\\"')
