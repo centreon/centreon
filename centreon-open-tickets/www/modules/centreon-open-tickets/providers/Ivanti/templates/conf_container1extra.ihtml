@@ -27,7 +27,7 @@
     {$form.protocol.html}
   </td>
 </tr>
-<tr class="list_one">
+<tr class="list_two">
   <td class="FormRowField">
     {$form.apiKey.label}
   </td>
@@ -72,6 +72,7 @@
   jQuery('#test-ivanti').on('click', function (e) {
     e.preventDefault();
     jQuery('.error_message').hide();
+    jQuery('#test-ok').hide();
 
     let fields = [
       'address',
