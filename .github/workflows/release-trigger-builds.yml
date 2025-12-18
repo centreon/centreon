@@ -258,6 +258,10 @@ jobs:
           base_sha: ${{ steps.get_and_set_references_information.outputs.previous_stable_bundle_tag_sha }}
           head_sha: ${{ steps.create_requested_release_hotfix_branch.outputs.new_branch_sha }}
 
+      - name: Download component lists
+        uses: actions/download-artifact@v4
+        with:
+          name: components
       - name: Trigger changed components on selected branches
         run: |
           set -eux

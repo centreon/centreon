@@ -11,7 +11,7 @@ inputs:
 
 outputs:
   changed_components:
-    description: changedccomponent list
+    description: change ccomponent list
     value: ${{ steps.detect.outputs.changed_components }}
 
 runs:
